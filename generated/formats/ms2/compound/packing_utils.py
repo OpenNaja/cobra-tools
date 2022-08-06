@@ -101,18 +101,18 @@ def scale_pack_vectorized(f, pack_base):
     f[:] = np.round((f + pack_base) / pack_base * PACKEDVEC_MAX - pack_base)
 
 
-def unpack_int64_vector(packed_vert, vertices, use_blended_weights):
+def unpack_int64_vector(packed_vert, vertices, extra):
     for i in range(3):
         # grab the last 21 bits with bitand
         vertices[:, i] = (packed_vert >> (i * 21)) & 0b111111111111111111111
-    use_blended_weights[:] = packed_vert >> 63
+    extra[:] = packed_vert >> 63
 
 
-def pack_int64_vector(packed_vert, vertices, use_blended_weights):
+def pack_int64_vector(packed_vert, vertices, extra):
     packed_vert[:] = 0
     for i in range(3):
         packed_vert |= vertices[:, i] << (21 * i)
-    packed_vert |= use_blended_weights.astype(np.int64) << 63
+    packed_vert |= extra.astype(np.int64) << 63
 
 
 def get_valid_weights(vert):

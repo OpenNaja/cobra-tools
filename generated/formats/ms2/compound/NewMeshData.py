@@ -246,7 +246,7 @@ class NewMeshData(MeshData):
 			self.colors[:] = self.verts_data["colors"]
 			unpack_ubyte_color(self.colors)
 		# todo - PZ uses at least bits 4, 5, 6 with a random pattern, while JWE2 pre-Biosyn uses really just the one bit
-		self.windings[:] = (self.verts_data["winding"] >> 7) & 1
+		self.negate_bitangents[:] = (self.verts_data["winding"] >> 7) & 1
 		self.normals[:] = self.verts_data["normal"]
 		self.tangents[:] = self.verts_data["tangent"]
 		if "floats" in self.dt.fields:
@@ -316,11 +316,10 @@ class NewMeshData(MeshData):
 			self.colors = np.array(self.colors)
 			pack_ubyte_color(self.colors)
 			self.verts_data["colors"] = self.colors
-		# todo - it may just be bitangent sign...
-		# winding seems to be a bitflag (flipped UV toggles the first bit of all its vertices to 1)
-		# 0 = natural winding matching the geometry
-		# 128 = UV's winding is flipped / inverted compared to geometry
-		self.verts_data["winding"] = self.windings << 7
+		# winding is a bitfield
+		# 0 = UV orientation matching the geometry
+		# 128 = inverted UV orientation = bitangent
+		self.verts_data["winding"] = self.negate_bitangents << 7
 		# non-vectorized data
 		for vert, weight in zip(self.verts_data, self.weights):
 			# bone index of the strongest weight

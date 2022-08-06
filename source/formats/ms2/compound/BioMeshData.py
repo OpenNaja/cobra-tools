@@ -89,7 +89,7 @@ class BioMeshData:
 			if vert_chunk.weights_flag.mesh_format == MeshFormat.Separate:
 				self.buffer_info.verts.readinto(vert_chunk.packed_verts)
 				# decode and store position
-				unpack_int64_vector(vert_chunk.packed_verts, vert_chunk.vertices, vert_chunk.use_blended_weights)
+				unpack_int64_vector(vert_chunk.packed_verts, vert_chunk.vertices, vert_chunk.negate_bitangents)
 				scale_unpack_vectorized(vert_chunk.vertices, vert_chunk.pack_base)
 
 				self.read_weights(vert_chunk, offs)
@@ -131,8 +131,8 @@ class BioMeshData:
 		max_verts = max(vert_chunk.vertex_count for vert_chunk in self.vert_chunks)
 		logging.info(f"max_verts {max_verts}")
 
-		for vertex_index, use_blended in enumerate(self.use_blended_weights):
-			self.add_to_weights("use_blended_weights", vertex_index, use_blended)
+		for vertex_index, use_blended in enumerate(self.negate_bitangents):
+			self.add_to_weights("negate_bitangents", vertex_index, use_blended)
 		# slower
 		# decode_oct(vert_chunk.tangents, vert_chunk.meta["tangent_oct"])
 		# decode_oct(vert_chunk.normals, vert_chunk.meta["normal_oct"])
@@ -159,7 +159,7 @@ class BioMeshData:
 		# views into main array
 		vert_chunk.vertices = self.vertices[v_slice]
 		vert_chunk.shapekeys = self.shapekeys[v_slice]
-		vert_chunk.use_blended_weights = self.use_blended_weights[v_slice]
+		vert_chunk.negate_bitangents = self.negate_bitangents[v_slice]
 		vert_chunk.colors = self.colors[v_slice]
 		vert_chunk.uvs = self.uvs[v_slice]
 		vert_chunk.normals = self.normals[v_slice]
@@ -296,13 +296,10 @@ class BioMeshData:
 			tri_chunk.bounds_max.set(np.max(vert_chunk.vertices, axis=0))
 			# pack the verts
 			if vert_chunk.weights_flag.mesh_format == MeshFormat.Separate:
-				# force blended weights for now
-				vert_chunk.use_blended_weights[:] = 1
 				scale_pack_vectorized(vert_chunk.vertices, vert_chunk.pack_base)
-				pack_int64_vector(vert_chunk.packed_verts, vert_chunk.vertices.astype(np.int64), vert_chunk.use_blended_weights)
+				pack_int64_vector(vert_chunk.packed_verts, vert_chunk.vertices.astype(np.int64), vert_chunk.negate_bitangents)
 				# just force weights for now?
 				vert_chunk.weights_flag.has_weights = True
-
 				for vert, weight in zip(vert_chunk.weights, self.weights[v_slice]):
 					vert["bone ids"], vert["bone weights"] = self.unpack_weights_list(weight)
 			elif vert_chunk.weights_flag.mesh_format in (MeshFormat.Interleaved32, MeshFormat.Interleaved48):
