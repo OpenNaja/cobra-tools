@@ -41,14 +41,6 @@ class MainWindow(widgets.MainWindow):
 		self.file_widget = widgets.FileWidget(self, self.cfg, dtype="BNK")
 		self.file_widget.setToolTip("The name of the OVL file that is currently open")
 
-		self.p_action = QtWidgets.QProgressBar(self)
-		self.p_action.setGeometry(0, 0, 200, 15)
-		self.p_action.setTextVisible(True)
-		self.p_action.setMaximum(1)
-		self.p_action.setValue(0)
-		self.t_action_current_message = "No operation in progress"
-		self.t_action = QtWidgets.QLabel(self, text=self.t_action_current_message)
-
 		header_names = ["Name", "File Type", "djb2"]
 
 		# create the table
@@ -62,8 +54,6 @@ class MainWindow(widgets.MainWindow):
 		hbox = QtWidgets.QVBoxLayout()
 		hbox.addWidget(self.file_widget)
 		hbox.addWidget(self.files_container)
-		# hbox.addWidget(self.included_ovls_view)
-		# hbox.addWidget(self.dat_widget)
 		right_frame.setLayout(hbox)
 
 		self.splitter = QtWidgets.QSplitter(QtCore.Qt.Horizontal)
@@ -92,11 +82,6 @@ class MainWindow(widgets.MainWindow):
 			(edit_menu, "Inject", self.inject_ask, "CTRL+I", "inject")
 		)
 		self.add_to_menu(button_data)
-		self.check_version()
-		self.statusBar = QtWidgets.QStatusBar()
-		label = QtWidgets.QLabel(f"Cobra Tools Version {get_commit_str()}")
-		self.statusBar.addWidget(label)
-		self.setStatusBar(self.statusBar)
 
 	def extract_audio(self, out_dir):
 		out_files = []
@@ -191,34 +176,9 @@ class MainWindow(widgets.MainWindow):
 			drag.setMimeData(data)
 			drag.exec_()
 			logging.info(f"Tried to extract {len(file_names)} files, got {len(errors)} errors")
-		except BaseException as ex:
-			traceback.print_exc()
-			interaction.showdialog(str(ex))
-			logging.error(ex)
+		except:
+			self.handle_error("Extraction failed, see log!")
 		shutil.rmtree(temp_dir)
-
-	def update_progress(self, message, value=None, vmax=None):
-		# avoid gui updates if the value won't actually change the percentage.
-		# this saves us from making lots of GUI update calls that don't really
-		# matter.
-		try:
-			if vmax > 100 and (value % (vmax // 100)) and value != 0:
-				value = None
-		except ZeroDivisionError:
-			value = 0
-		except TypeError:
-			value = None
-
-		# update progress bar values if specified
-		if value is not None:
-			self.p_action.setValue(value)
-		if vmax is not None:
-			self.p_action.setMaximum(vmax)
-
-		# don't update the GUI unless the message has changed. label updates are expensive
-		if self.t_action_current_message != message:
-			self.t_action.setText(message)
-			self.t_action_current_message = message
 
 	def load(self):
 		if self.file_widget.filepath:
@@ -226,9 +186,8 @@ class MainWindow(widgets.MainWindow):
 			try:
 				self.bnk_file.load(self.file_widget.filepath)
 				print(self.bnk_file)
-			except Exception as ex:
-				traceback.print_exc()
-				interaction.showdialog(str(ex))
+			except:
+				self.handle_error("Loading failed, see log!")
 				print(self.bnk_file)
 			# self.update_gui_table()
 
@@ -265,9 +224,8 @@ class MainWindow(widgets.MainWindow):
 			self.bnk_file.save(filepath, ext_path)
 			self.file_widget.dirty = False
 			self.update_progress(f"Saved {self.bnk_file.basename}", value=1, vmax=1)
-		except BaseException as ex:
-			traceback.print_exc()
-			interaction.showdialog(str(ex))
+		except:
+			self.handle_error("Loading failed, see log!")
 
 	def extract_all(self):
 		out_dir = QtWidgets.QFileDialog.getExistingDirectory(self, 'Output folder', self.cfg.get("dir_extract", "C://"), )
@@ -276,9 +234,8 @@ class MainWindow(widgets.MainWindow):
 			error_files = []
 			try:
 				out_files = self.extract_audio(out_dir)
-			except Exception as ex:
-				traceback.print_exc()
-				interaction.showdialog(str(ex))
+			except:
+				self.handle_error("Extracting failed, see log!")
 			interaction.extract_error_warning(error_files)
 
 	def inject_ask(self):
@@ -298,28 +255,8 @@ class MainWindow(widgets.MainWindow):
 				# if error_files:
 				# 	interaction.showdialog(f"Injection caused errors on {len(error_files)} files, see console for details!")
 				self.update_progress("Injection completed", value=1, vmax=1)
-			except Exception as ex:
-				traceback.print_exc()
-				interaction.showdialog(str(ex))
-
-	def closeEvent(self, event):
-		if self.file_widget.dirty:
-			quit_msg = f"Quit? You will lose unsaved work on {os.path.basename(self.file_widget.filepath)}!"
-			if not interaction.showdialog(quit_msg, ask=True):
-				event.ignore()
-				return
-		event.accept()
-
-	@staticmethod
-	def check_version():
-		is_64bits = sys.maxsize > 2 ** 32
-		if not is_64bits:
-			interaction.showdialog(
-				"Either your operating system or your python installation is not 64 bits.\n"
-				"Large OVLs will crash unexpectedly!")
-		if sys.version_info[0] != 3 or sys.version_info[1] < 7 or (
-				sys.version_info[1] == 7 and sys.version_info[2] < 6):
-			interaction.showdialog("Python 3.7.6+ x64 bit is expected!")
+			except:
+				self.handle_error("Injecting failed, see log!")
 
 
 if __name__ == '__main__':
