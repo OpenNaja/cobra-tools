@@ -517,7 +517,7 @@ class TextureVisual:
 				self.w_dtype.setDisabled(True)
 
 		self.b_delete = QtWidgets.QPushButton()
-		self.b_delete.setIcon(get_icon("x", ".svg"))
+		self.b_delete.setIcon(get_icon("x"))
 		self.b_delete.setFlat(True)
 		self.b_delete.setIconSize(QtCore.QSize(12, 12))
 		self.b_delete.setFixedSize(16, 16)

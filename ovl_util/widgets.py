@@ -49,8 +49,12 @@ def vbox(parent, grid):
 	parent.setLayout(grid)
 
 
-def get_icon(name, ext=".png"):
-	return QtGui.QIcon(os.path.join(root_dir, f'icons/{name}{ext}'))
+def get_icon(name):
+	for ext in (".png", ".svg"):
+		fp = os.path.join(root_dir, f'icons/{name}{ext}')
+		if os.path.isfile(fp):
+			return QtGui.QIcon(fp)
+	return QtGui.QIcon()
 
 
 class CustomSortFilterProxyModel(QtCore.QSortFilterProxyModel):

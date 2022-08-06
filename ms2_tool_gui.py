@@ -50,32 +50,28 @@ class MainWindow(widgets.MainWindow):
 
 		header_names = ["Name", "File Type", "LODs", "Objects", "Meshes", "Materials"]
 
-		self.dupe_btn = QtWidgets.QPushButton("Duplicate Selected")
-		self.dupe_btn.clicked.connect(self.duplicate)
-		self.del_btn = QtWidgets.QPushButton("Remove Selected")
-		self.del_btn.clicked.connect(self.remove)
-
 		# create the table
 		self.files_container = widgets.SortableTable(header_names, ())
 		# connect the interaction functions
 		self.files_container.table.model.member_renamed.connect(self.rename_handle)
 
 		self.qgrid = QtWidgets.QGridLayout()
-		self.qgrid.addWidget(self.file_widget, 0, 0, 1, 2)
-		self.qgrid.addWidget(self.dupe_btn, 1, 0)
-		self.qgrid.addWidget(self.del_btn, 1, 1)
-		self.qgrid.addWidget(self.files_container, 2, 0, 1, 2)
-		self.qgrid.addWidget(self.p_action, 3, 0, 1, 2)
-		self.qgrid.addWidget(self.t_action, 4, 0, 1, 2)
+		self.qgrid.addWidget(self.file_widget, 0, 0)
+		self.qgrid.addWidget(self.files_container, 1, 0)
+		self.qgrid.addWidget(self.p_action, 2, 0)
+		self.qgrid.addWidget(self.t_action, 3, 0)
 		self.central_widget.setLayout(self.qgrid)
 
 		main_menu = self.menuBar()
 		file_menu = main_menu.addMenu('File')
+		edit_menu = main_menu.addMenu('Edit')
 		button_data = (
 			(file_menu, "Open", self.file_widget.ask_open, "CTRL+O", "dir"),
 			(file_menu, "Save", self.save_ms2, "CTRL+S", "save"),
 			(file_menu, "Save As", self.save_as_ms2, "CTRL+SHIFT+S", "save"),
-			(file_menu, "Exit", self.close, "", "exit")
+			(file_menu, "Exit", self.close, "", "exit"),
+			(edit_menu, "Duplicate Selected", self.duplicate, "SHIFT+D", "duplicate_mesh"),
+			(edit_menu, "Remove Selected", self.remove, "DEL", "delete"),
 		)
 		self.add_to_menu(button_data)
 		self.statusBar = QtWidgets.QStatusBar()
