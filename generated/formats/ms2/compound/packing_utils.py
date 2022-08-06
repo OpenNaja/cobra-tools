@@ -104,10 +104,8 @@ def scale_pack_vectorized(f, pack_base):
 def unpack_int64_vector(packed_vert, vertices, use_blended_weights):
     for i in range(3):
         # grab the last 21 bits with bitand
-        twentyone_bits = packed_vert & 0b111111111111111111111
-        packed_vert >>= 21
-        vertices[:, i] = twentyone_bits
-    use_blended_weights[:] = packed_vert
+        vertices[:, i] = (packed_vert >> (i * 21)) & 0b111111111111111111111
+    use_blended_weights[:] = packed_vert >> 63
 
 
 def pack_int64_vector(packed_vert, vertices, use_blended_weights):

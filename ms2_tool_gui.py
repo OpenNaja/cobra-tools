@@ -71,7 +71,7 @@ class MainWindow(widgets.MainWindow):
 			(file_menu, "Save As", self.save_as_ms2, "CTRL+SHIFT+S", "save"),
 			(file_menu, "Exit", self.close, "", "exit"),
 			(edit_menu, "Duplicate Selected", self.duplicate, "SHIFT+D", "duplicate_mesh"),
-			(edit_menu, "Remove Selected", self.remove, "DEL", "delete"),
+			(edit_menu, "Remove Selected", self.remove, "DEL", "delete_mesh"),
 		)
 		self.add_to_menu(button_data)
 		self.statusBar = QtWidgets.QStatusBar()

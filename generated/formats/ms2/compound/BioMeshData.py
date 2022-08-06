@@ -456,9 +456,11 @@ class BioMeshData(MeshData):
 			vert_chunk.vertex_offset = self.buffer_info.verts.tell()
 			vert_chunk.vertex_count = len(vert_chunk.meta)
 			# write the arrays if they exist, in this order
-			for arr in (vert_chunk.packed_verts, vert_chunk.weights, vert_chunk.meta):
-				if arr is not None:
-					self.buffer_info.verts.write(arr.tobytes())
+			if vert_chunk.weights_flag.mesh_format == MeshFormat.Separate:
+				self.buffer_info.verts.write(vert_chunk.packed_verts.tobytes())
+				if vert_chunk.weights_flag.has_weights:
+					self.buffer_info.verts.write(vert_chunk.weights.tobytes())
+			self.buffer_info.verts.write(vert_chunk.meta.tobytes())
 
 			tri_chunk.tris_offset = self.buffer_info.tris.tell()
 			# get tri indices of this chunk
