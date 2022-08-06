@@ -215,3 +215,12 @@ class MeshData:
 		bone_weights[0] -= d
 		assert np.sum(bone_weights) == 255
 		return bone_weights
+
+	def unpack_weights_list(self, weights_sorted):
+		# pad the weight list to 4 bones, ie. add empty bones if missing
+		for i in range(0, 4 - len(weights_sorted)):
+			weights_sorted.append([0, 0])
+		assert len(weights_sorted) == 4
+		ids, weights = zip(*weights_sorted)
+		return ids, self.quantize_bone_weights(weights)
+

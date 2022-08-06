@@ -331,12 +331,3 @@ class NewMeshData(MeshData):
 			if "bone ids" in self.dt.fields:
 				vert["bone ids"], vert["bone weights"] = self.unpack_weights_list(weight)
 
-	def unpack_weights_list(self, weights_sorted):
-		# pad the weight list to 4 bones, ie. add empty bones if missing
-		for i in range(0, 4 - len(weights_sorted)):
-			weights_sorted.append([0, 0])
-		assert len(weights_sorted) == 4
-		ids, weights = zip(*weights_sorted)
-		return ids, self.quantize_bone_weights(weights)
-
-

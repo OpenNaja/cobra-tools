@@ -133,7 +133,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 
 		logging.debug(f"Read {self.name} in {time.time() - start_time:.2f} seconds")
 
-	def attach_streams(self, buffer_info, in_stream=None):
+	def attach_streams(self, buffer_info, in_stream=None, dump=False):
 		"""Attaches streams to a buffer info for each section, and fills them if an input stream is provided"""
 		# logging.info(buffer_info)
 		for buffer_name in BUFFER_NAMES:
@@ -143,9 +143,10 @@ class Ms2File(Ms2InfoHeader, IoFile):
 				setattr(buffer_info, f"{buffer_name}_offsets", {buff_size})
 				logging.info(f"Loading {buffer_name} size {buff_size} at {in_stream.tell()}")
 				b = in_stream.read(buff_size)
-				# dump for easy debugging
-				with open(f"{buffer_info.path}_{buffer_name}.dmp", "wb") as f:
-					f.write(b)
+				# dump each for easy debugging
+				if dump:
+					with open(f"{buffer_info.path}_{buffer_name}.dmp", "wb") as f:
+						f.write(b)
 			else:
 				b = b""
 			setattr(buffer_info, buffer_name, ConvStream(b))
@@ -344,13 +345,14 @@ class Ms2File(Ms2InfoHeader, IoFile):
 if __name__ == "__main__":
 	m = Ms2File()
 	# m.load("C:/Users/arnfi/Desktop/park_captainhook_.ms2", read_editable=True)
-	m.load("C:/Users/arnfi/Desktop/tylo_new.ms2", read_editable=True)
+	# m.load("C:/Users/arnfi/Desktop/export/models.ms2", read_editable=True)
+	m.load("C:/Users/arnfi/Desktop/models.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/park_snowwhite_.ms2", read_editable=True)
 	# print(m.models_reader.bone_infos[0].bone_names)
 	# print(m.buffer_0.names[142])
 	# m.load("C:/Users/arnfi/Desktop/shop_mainstreet_.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/c_bz_shipparts_.ms2", read_editable=True)
-	print(m)
+	# print(m)
 	# m.load("C:/Users/arnfi/Desktop/nile_lechwe_male_.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/tree_palm_coconut_desert.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/export/tree_palm_coconut_desert.ms2", read_editable=True)

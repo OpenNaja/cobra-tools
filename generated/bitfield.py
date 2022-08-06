@@ -50,7 +50,7 @@ class BasicBitfield(object):
 
     def __str__(self):
         fields = [(key, getattr(self, key)) for key, value in self.__class__.__dict__.items() if isinstance(value, BitfieldMember)]
-        items = [f"{key} = {str(val)}" for key, val in fields if val]
+        items = [f"{key} = {str(val)}" for key, val in fields if val is not False]
         info = f"{self.__class__.__name__}: {self._value} {bin(self._value)} {items}"
         # print(info)
         return info

@@ -193,8 +193,6 @@ class BioMeshData(MeshData):
 			# bones_per_chunk = set()
 			logging.debug(f"{i}, {tri_chunk}, {vert_chunk}")
 			# these sometimes correspond but not always
-			logging.info(f"{i}, {tri_chunk.material_index}, {vert_chunk.weights_flag.mesh_format}")
-			# print(i, tri_chunk.tris_count)
 			# logging.info(f"chunk {i} tris at {tri_chunk.tris_offset}, weights_flag {vert_chunk.weights_flag}")
 
 			self.buffer_info.verts.seek(vert_chunk.vertex_offset)
@@ -250,6 +248,9 @@ class BioMeshData(MeshData):
 		# logging.info(self.bones_sets)
 		max_verts = max(vert_chunk.vertex_count for vert_chunk in self.vert_chunks)
 		logging.info(f"max_verts {max_verts}")
+
+		for vertex_index, use_blended in enumerate(self.use_blended_weights):
+			self.add_to_weights("use_blended_weights", vertex_index, use_blended)
 		# slower
 		# decode_oct(vert_chunk.tangents, vert_chunk.meta["tangent_oct"])
 		# decode_oct(vert_chunk.normals, vert_chunk.meta["normal_oct"])
@@ -388,7 +389,6 @@ class BioMeshData(MeshData):
 			# get the vertex count from the tri indices
 			vert_chunk.vertex_count = np.max(tri_chunk.tri_indices) + 1
 			vert_chunk.weights_flag.mesh_format = self.mesh_format
-			vert_chunk.weights_flag.has_weights = False
 			vert_chunk.pack_base = self.pack_base
 			vert_chunk.flags = (2, 16, 0, 58)
 			# logging.info(f"vert_chunk.vertex_count {vert_chunk.vertex_count}")
@@ -414,10 +414,18 @@ class BioMeshData(MeshData):
 			tri_chunk.bounds_max.set(np.max(vert_chunk.vertices, axis=0))
 			# pack the verts
 			if vert_chunk.weights_flag.mesh_format == MeshFormat.Separate:
+				# force blended weights for now
+				vert_chunk.use_blended_weights[:] = 1
 				scale_pack_vectorized(vert_chunk.vertices, vert_chunk.pack_base)
 				pack_int64_vector(vert_chunk.packed_verts, vert_chunk.vertices.astype(np.int64), vert_chunk.use_blended_weights)
+				# just force weights for now?
+				vert_chunk.weights_flag.has_weights = True
+
+				for vert, weight in zip(vert_chunk.weights, self.weights[v_slice]):
+					vert["bone ids"], vert["bone weights"] = self.unpack_weights_list(weight)
 			elif vert_chunk.weights_flag.mesh_format in (MeshFormat.Interleaved32, MeshFormat.Interleaved48):
 				vert_chunk.meta["pos"] = vert_chunk.vertices
+				vert_chunk.weights_flag.has_weights = False
 			else:
 				raise AttributeError(f"Unsupported mesh_format {self.mesh_format}")
 			# store chunk's meta data
