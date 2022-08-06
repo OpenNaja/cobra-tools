@@ -6,6 +6,7 @@ from pathlib import Path
 
 from PyQt5 import QtGui, QtCore, QtWidgets
 
+from ovl_util.config import get_commit_str
 from ovl_util.interaction import showdialog
 from ovl_util import config, qt_theme, interaction
 from root_path import root_dir
@@ -1079,6 +1080,20 @@ class MainWindow(QtWidgets.QMainWindow):
 		self.setWindowTitle(name)
 		self.setWindowIcon(get_icon("frontier"))
 
+		self.p_action = QtWidgets.QProgressBar(self)
+		self.p_action.setGeometry(0, 0, 200, 15)
+		self.p_action.setTextVisible(True)
+		self.p_action.setMaximum(1)
+		self.p_action.setValue(0)
+		self.t_action_current_message = "No operation in progress"
+		self.t_action = QtWidgets.QLabel(self, text=self.t_action_current_message)
+
+		self.statusBar = QtWidgets.QStatusBar()
+		label = QtWidgets.QLabel(f"Cobra Tools Version {get_commit_str()}")
+		self.statusBar.addWidget(label)
+		self.statusBar.setContentsMargins(5, 0, 0, 0)
+		self.setStatusBar(self.statusBar)
+
 		self.cfg = config.load_config()
 
 	def poll(self):
@@ -1106,3 +1121,34 @@ class MainWindow(QtWidgets.QMainWindow):
 		"""Warn user with popup msg and write msg + exception traceback to log"""
 		interaction.showdialog(msg)
 		logging.exception(msg)
+
+	def closeEvent(self, event):
+		if self.file_widget.dirty:
+			quit_msg = f"Quit? You will lose unsaved work on {os.path.basename(self.file_widget.filepath)}!"
+			if not interaction.showdialog(quit_msg, ask=True):
+				event.ignore()
+				return
+		event.accept()
+
+	def update_progress(self, message, value=None, vmax=None):
+		# avoid gui updates if the value won't actually change the percentage.
+		# this saves us from making lots of GUI update calls that don't really
+		# matter.
+		try:
+			if vmax > 100 and (value % (vmax // 100)) and value != 0:
+				value = None
+		except ZeroDivisionError:
+			value = 0
+		except TypeError:
+			value = None
+
+		# update progress bar values if specified
+		if value is not None:
+			self.p_action.setValue(value)
+		if vmax is not None:
+			self.p_action.setMaximum(vmax)
+
+		# don't update the GUI unless the message has changed. label updates are expensive
+		if self.t_action_current_message != message:
+			self.t_action.setText(message)
+			self.t_action_current_message = message

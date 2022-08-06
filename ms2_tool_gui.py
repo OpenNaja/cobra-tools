@@ -33,14 +33,6 @@ class MainWindow(widgets.MainWindow):
 		self.file_widget = widgets.FileWidget(self, self.cfg, dtype="MS2")
 		self.file_widget.setToolTip("The name of the MS2 file that is currently open")
 
-		self.p_action = QtWidgets.QProgressBar(self)
-		self.p_action.setGeometry(0, 0, 200, 15)
-		self.p_action.setTextVisible(True)
-		self.p_action.setMaximum(1)
-		self.p_action.setValue(0)
-		self.t_action_current_message = "No operation in progress"
-		self.t_action = QtWidgets.QLabel(self, text=self.t_action_current_message)
-
 		header_names = ["Name", "File Type", "LODs", "Objects", "Meshes", "Materials"]
 
 		# create the table
@@ -67,33 +59,6 @@ class MainWindow(widgets.MainWindow):
 			(edit_menu, "Remove Selected", self.remove, "DEL", "delete_mesh"),
 		)
 		self.add_to_menu(button_data)
-		self.statusBar = QtWidgets.QStatusBar()
-		label = QtWidgets.QLabel(f"Cobra Tools Version {get_commit_str()}")
-		self.statusBar.addWidget(label)
-		self.setStatusBar(self.statusBar)
-
-	def update_progress(self, message, value=None, vmax=None):
-		# avoid gui updates if the value won't actually change the percentage.
-		# this saves us from making lots of GUI update calls that don't really
-		# matter.
-		try:
-			if vmax > 100 and (value % (vmax // 100)) and value != 0:
-				value = None
-		except ZeroDivisionError:
-			value = 0
-		except TypeError:
-			value = None
-
-		# update progress bar values if specified
-		if value is not None:
-			self.p_action.setValue(value)
-		if vmax is not None:
-			self.p_action.setMaximum(vmax)
-
-		# don't update the GUI unless the message has changed. label updates are expensive
-		if self.t_action_current_message != message:
-			self.t_action.setText(message)
-			self.t_action_current_message = message
 
 	def rename_handle(self, old_name, new_name):
 		"""this manages the renaming of a single entry"""
@@ -178,14 +143,6 @@ class MainWindow(widgets.MainWindow):
 			self.update_progress(f"Saved {self.ms2_file.name}", value=1, vmax=1)
 		except:
 			self.handle_error("Saving OVL failed, see log!")
-
-	def closeEvent(self, event):
-		if self.file_widget.dirty:
-			quit_msg = f"Quit? You will lose unsaved work on {os.path.basename(self.file_widget.filepath)}!"
-			if not interaction.showdialog(quit_msg, ask=True):
-				event.ignore()
-				return
-		event.accept()
 
 
 if __name__ == '__main__':

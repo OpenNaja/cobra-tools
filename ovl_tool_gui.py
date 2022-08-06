@@ -49,14 +49,6 @@ class MainWindow(widgets.MainWindow):
 		self.file_widget = widgets.FileWidget(self, self.cfg)
 		self.file_widget.setToolTip("The name of the OVL file that is currently open")
 
-		self.p_action = QtWidgets.QProgressBar(self)
-		self.p_action.setGeometry(0, 0, 200, 15)
-		self.p_action.setTextVisible(True)
-		self.p_action.setMaximum(1)
-		self.p_action.setValue(0)
-		self.t_action_current_message = "No operation in progress"
-		self.t_action = QtWidgets.QLabel(self, text=self.t_action_current_message)
-
 		self.game_choice = widgets.LabelCombo("Game:", [g.value for g in games])
 		# only listen to user changes
 		self.game_choice.entry.textActivated.connect(self.game_changed)
@@ -195,12 +187,6 @@ class MainWindow(widgets.MainWindow):
 			(help_menu, "Documentation", self.online_support, "", "manual"))
 		self.add_to_menu(button_data)
 		self.check_version()
-		self.statusBar = QtWidgets.QStatusBar()
-		# self.statusBar.showMessage(get_commit_str())
-		label = QtWidgets.QLabel(f"Cobra Tools Version {get_commit_str()}")
-		self.statusBar.addWidget(label)
-		self.statusBar.setContentsMargins(5, 0, 0, 0)
-		self.setStatusBar(self.statusBar)
 		# run once here to make sure we catch the default game
 		self.populate_game_widget()
 		self.game_changed()
@@ -379,29 +365,6 @@ class MainWindow(widgets.MainWindow):
 	@property
 	def show_temp_files(self, ):
 		return self.t_show_temp_files.isChecked()
-
-	def update_progress(self, message, value=None, vmax=None):
-		# avoid gui updates if the value won't actually change the percentage.
-		# this saves us from making lots of GUI update calls that don't really
-		# matter.
-		try:
-			if vmax > 100 and (value % (vmax // 100)) and value != 0:
-				value = None
-		except ZeroDivisionError:
-			value = 0
-		except TypeError:
-			value = None
-
-		# update progress bar values if specified
-		if value is not None:
-			self.p_action.setValue(value)
-		if vmax is not None:
-			self.p_action.setMaximum(vmax)
-
-		# don't update the GUI unless the message has changed. label updates are expensive
-		if self.t_action_current_message != message:
-			self.t_action.setText(message)
-			self.t_action_current_message = message
 
 	def show_dependencies(self, file_index):
 		# just an example of what can be done when something is selected
@@ -633,14 +596,6 @@ class MainWindow(widgets.MainWindow):
 		start_dir = QtWidgets.QFileDialog.getExistingDirectory(self, 'Game Root folder', self.cfg.get("dir_ovls_in", "C://"))
 		walker.bulk_test_models(self, start_dir, walk_ovls=False)
 		self.update_progress("Inspected models", value=1, vmax=1)
-
-	def closeEvent(self, event):
-		if self.file_widget.dirty:
-			quit_msg = f"Quit? You will lose unsaved work on {os.path.basename(self.file_widget.filepath)}!"
-			if not interaction.showdialog(quit_msg, ask=True):
-				event.ignore()
-				return
-		event.accept()
 
 	@staticmethod
 	def check_length(name_tups):
