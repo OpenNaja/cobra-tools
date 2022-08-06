@@ -17,7 +17,9 @@ class ClimbproofDataRoot(MemStruct):
 		self.template = template
 		self.io_size = 0
 		self.io_start = 0
-		self.u_0 = 0.0
+
+		# Distance between post center and start of bracket.
+		self.post_gap = 0.0
 		self.u_1 = 0.0
 		self.zero = 0
 		self.climb_proof = Pointer(self.context, 0, generated.formats.base.basic.ZString)
@@ -28,7 +30,7 @@ class ClimbproofDataRoot(MemStruct):
 			self.set_defaults()
 
 	def set_defaults(self):
-		self.u_0 = 0.0
+		self.post_gap = 0.0
 		self.u_1 = 0.0
 		self.zero = 0
 		self.climb_proof = Pointer(self.context, 0, generated.formats.base.basic.ZString)
@@ -53,7 +55,7 @@ class ClimbproofDataRoot(MemStruct):
 		instance.climb_proof_cap_start = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
 		instance.climb_proof_cap_end = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
 		instance.climb_proof_bracket = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
-		instance.u_0 = stream.read_float()
+		instance.post_gap = stream.read_float()
 		instance.u_1 = stream.read_float()
 		instance.zero = stream.read_uint64()
 		instance.climb_proof.arg = 0
@@ -68,7 +70,7 @@ class ClimbproofDataRoot(MemStruct):
 		Pointer.to_stream(stream, instance.climb_proof_cap_start)
 		Pointer.to_stream(stream, instance.climb_proof_cap_end)
 		Pointer.to_stream(stream, instance.climb_proof_bracket)
-		stream.write_float(instance.u_0)
+		stream.write_float(instance.post_gap)
 		stream.write_float(instance.u_1)
 		stream.write_uint64(instance.zero)
 
@@ -97,7 +99,7 @@ class ClimbproofDataRoot(MemStruct):
 		s += f'\n	* climb_proof_cap_start = {fmt_member(self.climb_proof_cap_start, indent+1)}'
 		s += f'\n	* climb_proof_cap_end = {fmt_member(self.climb_proof_cap_end, indent+1)}'
 		s += f'\n	* climb_proof_bracket = {fmt_member(self.climb_proof_bracket, indent+1)}'
-		s += f'\n	* u_0 = {fmt_member(self.u_0, indent+1)}'
+		s += f'\n	* post_gap = {fmt_member(self.post_gap, indent+1)}'
 		s += f'\n	* u_1 = {fmt_member(self.u_1, indent+1)}'
 		s += f'\n	* zero = {fmt_member(self.zero, indent+1)}'
 		return s
