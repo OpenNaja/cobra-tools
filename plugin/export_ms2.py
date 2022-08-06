@@ -21,6 +21,10 @@ from plugin.modules_import.armature import get_bone_names
 from plugin.utils.matrix_util import evaluate_mesh
 from plugin.utils.object import NedryError
 from plugin.utils.shell import get_collection, is_shell, is_fin
+from root_path import root_dir
+
+
+mesh_mode = os.path.isdir(os.path.join(root_dir, ".git"))
 
 
 def ensure_tri_modifier(ob):
@@ -62,8 +66,9 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 	# register this format for all vert chunks that will be created later
 	if mesh.context.biosyn:
 		mesh.mesh_format = MeshFormat[b_me.cobra.mesh_format]
-		if mesh.mesh_format == MeshFormat.Separate:
-			raise NedryError()
+		if not mesh_mode:
+			if mesh.mesh_format == MeshFormat.Separate:
+				raise NedryError()
 	mesh.update_dtype()
 	num_uvs = mesh.get_uv_count()
 	num_vcols = mesh.get_vcol_count()
@@ -112,6 +117,7 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 	verts = []
 	unweighted_vertices = []
 	# list of tri lists to support chunks
+	# always add to last entry
 	tris_chunks = [[], ]
 	# use a dict mapping dummy vertices to their index for fast lookup
 	# this is used to convert blender vertices (several UVs, normals per face corner) to ms2 vertices
@@ -141,13 +147,13 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 			# tris are apparently not allowed to exceed 64 in stock
 			# seen chunks with more than 100 verts
 			if len(dummy_vertices) >= 100 or len(tris_chunks[-1]) >= 192:
-				logging.info(f"Starting new chunk")
+				logging.debug(f"Starting new chunk")
 				tris_chunks.append([])
 				dummy_vertices = {}
 				count_unique = 0
 				count_reused = 0
 
-		# build indices into vertex buffer for the current face
+		# build indices into vertex buffer for the current face and chunk
 		tri = []
 		# loop over face loop to get access to face corner data (normals, uvs, vcols, etc)
 		for loop_index in face.loop_indices:
