@@ -449,11 +449,6 @@ class MainWindow(widgets.MainWindow):
 			except:
 				self.handle_error("OVL loading failed, see log!")
 
-	def handle_error(self, msg):
-		"""Warn user with popup msg and write msg + exception traceback to log"""
-		interaction.showdialog(msg)
-		logging.exception(msg)
-
 	def create_ovl(self, ovl_dir):
 		# clear the ovl
 		self.ovl_data = OvlFile(progress_callback=self.update_progress)

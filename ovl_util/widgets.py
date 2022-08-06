@@ -1,4 +1,5 @@
 import json
+import logging
 import webbrowser
 import os
 from pathlib import Path
@@ -6,7 +7,7 @@ from pathlib import Path
 from PyQt5 import QtGui, QtCore, QtWidgets
 
 from ovl_util.interaction import showdialog
-from ovl_util import config, qt_theme
+from ovl_util import config, qt_theme, interaction
 from root_path import root_dir
 
 MAX_UINT = 4294967295
@@ -1096,3 +1097,8 @@ class MainWindow(QtWidgets.QMainWindow):
 			if shortcut:
 				button.setShortcut(shortcut)
 			submenu.addAction(button)
+
+	def handle_error(self, msg):
+		"""Warn user with popup msg and write msg + exception traceback to log"""
+		interaction.showdialog(msg)
+		logging.exception(msg)

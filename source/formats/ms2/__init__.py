@@ -152,8 +152,8 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			setattr(buffer_info, buffer_name, ConvStream(b))
 
 	def load_meshes(self):
-		for mdl2_name, model_info in zip(self.mdl_2_names, self.model_infos):
-			logging.debug(f"Loading mesh data for {mdl2_name}")
+		for model_info in self.model_infos:
+			logging.debug(f"Loading mesh data for {model_info.name}")
 			for wrapper in model_info.model.meshes:
 				wrapper.mesh.assign_buffer_info(self.buffer_infos)
 				if hasattr(wrapper.mesh, "uv_offset"):
@@ -197,6 +197,13 @@ class Ms2File(Ms2InfoHeader, IoFile):
 
 		# todo - update joint JointData.names buffer + JointInfo.name_offset
 
+	def rename_file(self, old, new):
+		"""Renames strings in the main name buffer"""
+		logging.info(f"Renaming .mdl2s in {self.name}")
+		for model_info in self.model_infos:
+			if model_info.name == old:
+				model_info.name = new
+
 	def rename(self, name_tups):
 		"""Renames strings in the main name buffer"""
 		logging.info(f"Renaming in {self.name}")
@@ -226,8 +233,10 @@ class Ms2File(Ms2InfoHeader, IoFile):
 
 	def update_names(self):
 		logging.info("Updating MS2 name buffer")
+		self.mdl_2_names.clear()
 		self.buffer_0.names.clear()
 		for model_info in self.model_infos:
+			self.mdl_2_names.append(model_info.name)
 			for material in model_info.model.materials:
 				material.name_index = self.get_name_index(material.name)
 			if model_info.bone_info:
@@ -260,8 +269,8 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			for buffer_info in self.buffer_infos:
 				self.attach_streams(buffer_info)
 			# now store each model
-			for mdl2_name, model_info in zip(self.mdl_2_names, self.model_infos):
-				logging.debug(f"Storing {mdl2_name}")
+			for model_info in self.model_infos:
+				logging.debug(f"Storing {model_info.name}")
 				# update ModelInfo
 				model_info.num_materials = len(model_info.model.materials)
 				model_info.num_lods = len(model_info.model.lods)
@@ -316,6 +325,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 	def lookup_material(self):
 		for name, model_info in zip(self.mdl_2_names, self.model_infos):
 			logging.debug(f"Mapping links for {name}")
+			model_info.name = name
 			for lod_index, lod in enumerate(model_info.model.lods):
 				logging.info(f"Mapping LOD{lod_index}")
 				lod.objects = model_info.model.objects[lod.first_object_index:lod.last_object_index]
