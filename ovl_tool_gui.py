@@ -182,7 +182,7 @@ class MainWindow(widgets.MainWindow):
 			(edit_menu, "Inject", self.inject_ask, "CTRL+I", "inject"),
 			(edit_menu, "Rename", self.rename, "CTRL+R", ""),
 			(edit_menu, "Rename Contents", self.rename_contents, "CTRL+SHIFT+R", ""),
-			(edit_menu, "Remove Selected", self.remover, "DEL", ""),
+			(edit_menu, "Remove Selected", self.remove, "DEL", ""),
 			(util_menu, "Inspect Models", self.inspect_models, "", ""),
 			(util_menu, "Inspect FGMs", self.walker_fgm, "", ""),
 			(util_menu, "Generate Hash Table", self.walker_hash, "", ""),
@@ -607,7 +607,7 @@ class MainWindow(widgets.MainWindow):
 				except:
 					self.handle_error("Writing included OVLs failed, see log!")
 
-	def remover(self):
+	def remove(self):
 		if self.is_open_ovl():
 			selected_file_names = self.files_container.table.get_selected_files()
 			# todo - might want to check self.files_container.hasFocus(), but does not seem to work!

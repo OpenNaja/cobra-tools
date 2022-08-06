@@ -1,6 +1,7 @@
 import os
 import time
 import logging
+from copy import copy
 
 from generated.formats.ms2.compound.Ms2InfoHeader import Ms2InfoHeader
 from generated.formats.ms2.versions import *
@@ -198,11 +199,25 @@ class Ms2File(Ms2InfoHeader, IoFile):
 		# todo - update joint JointData.names buffer + JointInfo.name_offset
 
 	def rename_file(self, old, new):
-		"""Renames strings in the main name buffer"""
 		logging.info(f"Renaming .mdl2s in {self.name}")
 		for model_info in self.model_infos:
 			if model_info.name == old:
 				model_info.name = new
+
+	def remove(self, mdl2_names):
+		logging.info(f"Removing {len(mdl2_names)} .mdl2 files in {self.name}")
+		for model_info in reversed(self.model_infos):
+			if model_info.name in mdl2_names:
+				self.model_infos.remove(model_info)
+
+	def duplicate(self, mdl2_names):
+		logging.info(f"Duplicating {len(mdl2_names)} .mdl2 files in {self.name}")
+		for model_info in reversed(self.model_infos):
+			if model_info.name in mdl2_names:
+				model_info_copy = copy(model_info)
+				model_info_copy.name = f"{model_info_copy.name}_Copy"
+				self.model_infos.append(model_info_copy)
+		self.model_infos.sort(key=lambda model_info: model_info.name)
 
 	def rename(self, name_tups):
 		"""Renames strings in the main name buffer"""
@@ -307,6 +322,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 	def save(self, filepath):
 		self.dir, self.name = os.path.split(os.path.normpath(filepath))
 		logging.info("Pre-writing buffers")
+		self.info.mdl_2_count = len(self.model_infos)
 		self.update_names()
 		self.update_buffer_0_bytes()
 		self.update_buffer_1_bytes()
@@ -354,9 +370,10 @@ class Ms2File(Ms2InfoHeader, IoFile):
 
 if __name__ == "__main__":
 	m = Ms2File()
+	m.load("C:/Users/arnfi/Desktop/tree_palm_coconut_desert_one.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/park_captainhook_.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/export/models.ms2", read_editable=True)
-	m.load("C:/Users/arnfi/Desktop/baryo/models.ms2", read_editable=True)
+	# m.load("C:/Users/arnfi/Desktop/baryo/models.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/park_snowwhite_.ms2", read_editable=True)
 	# print(m.models_reader.bone_infos[0].bone_names)
 	# print(m.buffer_0.names[142])

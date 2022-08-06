@@ -213,6 +213,7 @@ class ModelReader:
 	def write_fields(cls, stream, instance):
 		instance.io_start = stream.tell()
 		i = 0
+		previous_bone_info = None
 		if instance.context.version < 47:
 			raise NotImplementedError("Can't write old style mesh and bone info blocks")
 		else:
@@ -220,7 +221,10 @@ class ModelReader:
 				model_info.model.write(stream)
 			instance.bone_info_start = stream.tell()
 			for model_info in instance.arg:
-				if model_info.increment_flag:
+				# check if they have a different bone info
+				if previous_bone_info is not model_info.bone_info:
+					logging.debug(f"{model_info.name} has its own bone_info")
+					model_info.increment_flag = 1
 					logging.debug(f"BONE INFO {i} starts at {stream.tell()}")
 					model_info.bone_info.write(stream)
 					instance.write_hitcheck_verts(model_info.bone_info, stream)
@@ -231,6 +235,10 @@ class ModelReader:
 					logging.debug(f"Writing padding {padding}")
 					stream.write(padding)
 					i += 1
+				else:
+					logging.debug(f"{model_info.name} reuses previous bone_info")
+					model_info.increment_flag = 0
+				previous_bone_info = model_info.bone_info
 			instance.bone_info_size = stream.tell() - instance.bone_info_start
 		instance.io_size = stream.tell() - instance.io_start
 

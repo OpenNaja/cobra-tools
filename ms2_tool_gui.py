@@ -51,10 +51,10 @@ class MainWindow(widgets.MainWindow):
 		header_names = ["Name", "File Type", "LODs", "Objects", "Meshes", "Materials"]
 
 		self.dupe_btn = QtWidgets.QPushButton("Duplicate Selected")
-		# self.dupe_btn.clicked.connect(self.add_attribute_clicked)
+		self.dupe_btn.clicked.connect(self.duplicate)
 		self.del_btn = QtWidgets.QPushButton("Remove Selected")
-		# self.del_btn.clicked.connect(self.add_texture_clicked)
-		
+		self.del_btn.clicked.connect(self.remove)
+
 		# create the table
 		self.files_container = widgets.SortableTable(header_names, ())
 		# connect the interaction functions
@@ -78,7 +78,6 @@ class MainWindow(widgets.MainWindow):
 			(file_menu, "Exit", self.close, "", "exit")
 		)
 		self.add_to_menu(button_data)
-		self.check_version()
 		self.statusBar = QtWidgets.QStatusBar()
 		label = QtWidgets.QLabel(f"Cobra Tools Version {get_commit_str()}")
 		self.statusBar.addWidget(label)
@@ -124,11 +123,31 @@ class MainWindow(widgets.MainWindow):
 			self.handle_error("Renaming failed, see log!")
 		self.update_gui_table()
 
+	def remove(self):
+		selected_file_names = self.files_container.table.get_selected_files()
+		if selected_file_names:
+			try:
+				self.ms2_file.remove(selected_file_names)
+				self.file_widget.dirty = True
+			except:
+				self.handle_error("Removing file failed, see log!")
+			self.update_gui_table()
+
+	def duplicate(self):
+		selected_file_names = self.files_container.table.get_selected_files()
+		if selected_file_names:
+			try:
+				self.ms2_file.duplicate(selected_file_names)
+				self.file_widget.dirty = True
+			except:
+				self.handle_error("Duplicating file failed, see log!")
+			self.update_gui_table()
+
 	def load(self):
 		if self.file_widget.filepath:
 			self.file_widget.dirty = False
 			try:
-				self.ms2_file.load(self.file_widget.filepath, read_bytes=True)
+				self.ms2_file.load(self.file_widget.filepath, read_editable=True)
 			except:
 				self.handle_error("Loading failed, see log!")
 			self.update_gui_table()
@@ -152,10 +171,10 @@ class MainWindow(widgets.MainWindow):
 	def save_as_ms2(self):
 		if self.is_open_ms2():
 			filepath = QtWidgets.QFileDialog.getSaveFileName(
-				self, 'Save MS2', os.path.join(self.cfg.get("dir_ovls_out", "C://"), self.file_widget.filename),
+				self, 'Save MS2', os.path.join(self.cfg.get("dir_ms2s_out", "C://"), self.file_widget.filename),
 				"MS2 files (*.ms2)", )[0]
 			if filepath:
-				self.cfg["dir_ms2s_out"], ovl_name = os.path.split(filepath)
+				self.cfg["dir_ms2s_out"], ms2_name = os.path.split(filepath)
 				self._save_ms2(filepath)
 
 	def save_ms2(self):
@@ -177,17 +196,6 @@ class MainWindow(widgets.MainWindow):
 				event.ignore()
 				return
 		event.accept()
-
-	@staticmethod
-	def check_version():
-		is_64bits = sys.maxsize > 2 ** 32
-		if not is_64bits:
-			interaction.showdialog(
-				"Either your operating system or your python installation is not 64 bits.\n"
-				"Large OVLs will crash unexpectedly!")
-		if sys.version_info[0] != 3 or sys.version_info[1] < 7 or (
-				sys.version_info[1] == 7 and sys.version_info[2] < 6):
-			interaction.showdialog("Python 3.7.6+ x64 bit is expected!")
 
 
 if __name__ == '__main__':
