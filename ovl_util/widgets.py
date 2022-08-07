@@ -161,20 +161,22 @@ class TableModel(QtCore.QAbstractTableModel):
 			if len(file_row):
 				return self._data[index.row()][index.column()]
 
-		if role == QtCore.Qt.ForegroundRole:
-			if len(file_row) and file_row[1] in self.ignore_types:
-				return QtGui.QColor('grey')
+		if "File Type" in self.header_labels:
+			type_idx = self.header_labels.index("File Type")
+			if role == QtCore.Qt.ForegroundRole:
+				if len(file_row) and file_row[type_idx] in self.ignore_types:
+					return QtGui.QColor('grey')
 
-		if role == QtCore.Qt.DecorationRole:
-			if index.column() == 0:
-				if len(file_row):
-					# remove the leading '.' from ext
-					return get_icon(file_row[1][1:])
+			if role == QtCore.Qt.DecorationRole:
+				if index.column() == 0:
+					if len(file_row):
+						# remove the leading '.' from ext
+						return get_icon(file_row[type_idx][1:])
 
 		if role == QtCore.Qt.TextAlignmentRole:
-			# right align hashes
-			if index.column() == 2:
-				return QtCore.Qt.AlignVCenter | QtCore.Qt.AlignRight
+			# center align non-primary integer columns
+			if index.column() > 0 and str(file_row[index.column()]).isnumeric():
+				return QtCore.Qt.AlignVCenter | QtCore.Qt.AlignHCenter
 
 	def setData(self, index, value, role=QtCore.Qt.EditRole):
 		if index.isValid():
@@ -271,6 +273,7 @@ class TableView(QtWidgets.QTableView):
 	def __init__(self, header_names, ignore_types):
 		super().__init__()
 		self.ignore_types = ignore_types
+		self.header_names = header_names
 		self.model = TableModel(header_names, ignore_types)
 		# self.proxyModel = QSortFilterProxyModel()
 		self.proxyModel = CustomSortFilterProxyModel()
@@ -316,9 +319,9 @@ class TableView(QtWidgets.QTableView):
 
 	def set_ext_filter(self, hide):
 		ext_filter_name = "ext_filter"
-		if hide:
+		if hide and "File Type" in self.header_names:
 			def ext_filter(r, s):
-				return r[1] not in self.ignore_types
+				return r[self.header_names.index("File Type")] not in self.ignore_types
 
 			self.proxyModel.addFilterFunction(ext_filter_name, ext_filter)
 		else:
