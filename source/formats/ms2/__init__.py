@@ -198,6 +198,11 @@ class Ms2File(Ms2InfoHeader, IoFile):
 
 		# todo - update joint JointData.names buffer + JointInfo.name_offset
 
+	def name_used(self, new_name):
+		for model_info in self.model_infos:
+			if model_info.name == new_name:
+				return True
+
 	def rename_file(self, old, new):
 		logging.info(f"Renaming .mdl2s in {self.name}")
 		for model_info in self.model_infos:
@@ -215,7 +220,11 @@ class Ms2File(Ms2InfoHeader, IoFile):
 		for model_info in reversed(self.model_infos):
 			if model_info.name in mdl2_names:
 				model_info_copy = copy(model_info)
-				model_info_copy.name = f"{model_info_copy.name}_Copy"
+				# add as many suffixes as needed to make new_name unique
+				new_name = model_info_copy.name
+				while self.name_used(new_name):
+					new_name = f"{new_name}_copy"
+				model_info_copy.name = new_name
 				self.model_infos.append(model_info_copy)
 		self.model_infos.sort(key=lambda model_info: model_info.name)
 

@@ -77,14 +77,12 @@ class MainWindow(widgets.MainWindow):
 
 	def rename_handle(self, old_name, new_name):
 		"""this manages the renaming of a single entry"""
+			# force new name to be lowercase
 		new_name = new_name.lower()
 		try:
-			# force new name to be lowercase
-			for model_info in self.ms2_file.model_infos:
-				if model_info.name == new_name:
-					interaction.showdialog(f"Model {new_name} already exists in ms2!")
-					break
-			# none was found, new name is new
+			if self.ms2_file.name_used(new_name):
+				interaction.showdialog(f"Model {new_name} already exists in ms2!")
+			# new name is new
 			else:
 				self.ms2_file.rename_file(old_name, new_name)
 				self.file_widget.dirty = True
