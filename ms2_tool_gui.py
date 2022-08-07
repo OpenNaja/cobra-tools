@@ -40,6 +40,19 @@ class MainWindow(widgets.MainWindow):
 		# connect the interaction functions
 		self.files_container.table.model.member_renamed.connect(self.rename_handle)
 
+		# Configure table button row
+		self.btn_duplicate = QtWidgets.QPushButton()
+		self.btn_duplicate.setIcon(widgets.get_icon("duplicate_mesh"))
+		self.btn_duplicate.clicked.connect(self.duplicate)
+		self.btn_duplicate.setToolTip("Duplicate Selected Meshes")
+		self.btn_delete = QtWidgets.QPushButton()
+		self.btn_delete.setIcon(widgets.get_icon("delete_mesh"))
+		self.btn_delete.clicked.connect(self.remove)
+		self.btn_delete.setToolTip("Delete Selected Meshes")
+		# Add buttons to table
+		self.files_container.add_button(self.btn_duplicate)
+		self.files_container.add_button(self.btn_delete)
+
 		self.qgrid = QtWidgets.QGridLayout()
 		self.qgrid.addWidget(self.file_widget, 0, 0)
 		self.qgrid.addWidget(self.files_container, 1, 0)
