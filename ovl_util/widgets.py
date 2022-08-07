@@ -421,6 +421,7 @@ class TableView(QtWidgets.QTableView):
 class SelectedItemsButton(QtWidgets.QPushButton):
 	def __init__(self, name=""):
 		QtWidgets.QPushButton.__init__(self, name)
+		self.setStyleSheet("SelectedItemsButton:disabled { background-color: #252525; } ")
 	
 	def setEnabledFromSelection(self, selection):
 		self.setEnabled(selection.count() > 0)
