@@ -33,7 +33,7 @@ class MainWindow(widgets.MainWindow):
 		self.file_widget = widgets.FileWidget(self, self.cfg, dtype="MS2")
 		self.file_widget.setToolTip("The name of the MS2 file that is currently open")
 
-		header_names = ["Name", "File Type", "LODs", "Objects", "Meshes", "Materials"]
+		header_names = ["Name", "LODs", "Objects", "Meshes", "Materials"]
 
 		# create the table
 		self.files_container = widgets.SortableTable(header_names, ())
@@ -116,7 +116,7 @@ class MainWindow(widgets.MainWindow):
 		start_time = time.time()
 		try:
 			logging.info(f"Loading {len(self.ms2_file.mdl_2_names)} files into gui")
-			self.files_container.set_data([[m.name, ".mdl2", m.num_lods, m.num_objects, m.num_meshes, m.num_materials] for m in self.ms2_file.model_infos])
+			self.files_container.set_data([[m.name, m.num_lods, m.num_objects, m.num_meshes, m.num_materials] for m in self.ms2_file.model_infos])
 			logging.info(f"Loaded GUI in {time.time() - start_time:.2f} seconds")
 			self.update_progress("Operation completed!", value=1, vmax=1)
 		except:
