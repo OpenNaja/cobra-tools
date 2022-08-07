@@ -281,6 +281,9 @@ class SortableTable(QtWidgets.QWidget):
 			self.grid.addWidget(self.btn_frame, 1, 0, 1, 4)
 		self.btn_layout.addWidget(btn)
 		self.button_count += 1
+		if isinstance(btn, SelectedItemsButton):
+			btn.setDisabled(True)
+			self.table.selectionModel().selectionChanged.connect(btn.setEnabledFromSelection)
 
 
 class TableView(QtWidgets.QTableView):
@@ -388,6 +391,9 @@ class TableView(QtWidgets.QTableView):
 		self.files_dragged.emit(self.get_selected_files())
 
 	def set_data(self, data):
+		# Assure selectionChanged signal since reset bypasses this
+		self.clearSelection()
+		# Reset Model
 		self.model.beginResetModel()
 		self.model._data = data
 		self.model.endResetModel()
@@ -410,6 +416,14 @@ class TableView(QtWidgets.QTableView):
 		e.setDropAction(QtCore.Qt.CopyAction)
 		self.files_dropped.emit(self.get_files_from_event(e))
 		e.accept()
+
+
+class SelectedItemsButton(QtWidgets.QPushButton):
+	def __init__(self, name=""):
+		QtWidgets.QPushButton.__init__(self, name)
+	
+	def setEnabledFromSelection(self, selection):
+		self.setEnabled(selection.count() > 0)
 
 
 class LabelEdit(QtWidgets.QWidget):

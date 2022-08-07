@@ -42,11 +42,11 @@ class MainWindow(widgets.MainWindow):
 		self.files_container.table.hideColumn(1)
 
 		# Configure table button row
-		self.btn_duplicate = QtWidgets.QPushButton()
+		self.btn_duplicate = widgets.SelectedItemsButton()
 		self.btn_duplicate.setIcon(widgets.get_icon("duplicate_mesh"))
 		self.btn_duplicate.clicked.connect(self.duplicate)
 		self.btn_duplicate.setToolTip("Duplicate Selected Meshes")
-		self.btn_delete = QtWidgets.QPushButton()
+		self.btn_delete = widgets.SelectedItemsButton()
 		self.btn_delete.setIcon(widgets.get_icon("delete_mesh"))
 		self.btn_delete.clicked.connect(self.remove)
 		self.btn_delete.setToolTip("Delete Selected Meshes")
