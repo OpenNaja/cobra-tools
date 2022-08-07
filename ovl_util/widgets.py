@@ -1119,6 +1119,8 @@ class MainWindow(QtWidgets.QMainWindow):
 		self.setWindowTitle(name)
 		self.setWindowIcon(get_icon("frontier"))
 
+		self.file_widget = None
+
 		self.p_action = QtWidgets.QProgressBar(self)
 		self.p_action.setGeometry(0, 0, 200, 15)
 		self.p_action.setTextVisible(True)
@@ -1136,7 +1138,7 @@ class MainWindow(QtWidgets.QMainWindow):
 		self.cfg = config.load_config()
 
 	def poll(self):
-		if self.file_widget.filepath:
+		if self.file_widget and self.file_widget.filepath:
 			self.load()
 
 	def report_bug(self):
@@ -1162,7 +1164,7 @@ class MainWindow(QtWidgets.QMainWindow):
 		logging.exception(msg)
 
 	def closeEvent(self, event):
-		if self.file_widget.dirty:
+		if self.file_widget and self.file_widget.dirty:
 			quit_msg = f"Quit? You will lose unsaved work on {os.path.basename(self.file_widget.filepath)}!"
 			if not interaction.showdialog(quit_msg, ask=True):
 				event.ignore()
@@ -1191,3 +1193,22 @@ class MainWindow(QtWidgets.QMainWindow):
 		if self.t_action_current_message != message:
 			self.t_action.setText(message)
 			self.t_action_current_message = message
+
+	def dragEnterEvent(self, e):
+		if not self.file_widget:
+			return
+		
+		path = e.mimeData().urls()[0].toLocalFile() if e.mimeData().hasUrls() else ""
+		if path.lower().endswith(f".{self.file_widget.dtype.lower()}"):
+			e.accept()
+		else:
+			e.ignore()
+
+	def dropEvent(self, e):
+		if not self.file_widget:
+			return
+		
+		path = e.mimeData().urls()[0].toLocalFile() if e.mimeData().hasUrls() else ""
+		if path:
+			self.file_widget.decide_open(path)
+

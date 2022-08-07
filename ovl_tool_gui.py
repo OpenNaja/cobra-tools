@@ -34,6 +34,7 @@ class MainWindow(widgets.MainWindow):
 	def __init__(self):
 		widgets.MainWindow.__init__(self, "OVL Archive Editor", )
 		self.resize(800, 600)
+		self.setAcceptDrops(True)
 
 		self.ovl_data = OvlFile(progress_callback=self.update_progress)
 		self.ovl_data.load_hash_table()

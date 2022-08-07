@@ -25,6 +25,7 @@ class MainWindow(widgets.MainWindow):
 	def __init__(self):
 		widgets.MainWindow.__init__(self, "MS2 Editor", )
 		self.resize(600, 600)
+		self.setAcceptDrops(True)
 
 		self.ms2_file = Ms2File()
 
