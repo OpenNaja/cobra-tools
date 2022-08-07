@@ -37,7 +37,7 @@ class MainWindow(widgets.MainWindow):
 		header_names = ["Name", "File Type", "LODs", "Objects", "Meshes", "Materials"]
 
 		# create the table
-		self.files_container = widgets.SortableTable(header_names, ())
+		self.files_container = widgets.SortableTable(header_names, (), ignore_drop_type="MS2")
 		# connect the interaction functions
 		self.files_container.table.model.member_renamed.connect(self.rename_handle)
 		self.files_container.table.hideColumn(1)

@@ -224,9 +224,9 @@ class TableModel(QtCore.QAbstractTableModel):
 
 
 class SortableTable(QtWidgets.QWidget):
-	def __init__(self, header_names, ignore_types, opt_hide=False):
+	def __init__(self, header_names, ignore_types, ignore_drop_type="", opt_hide=False):
 		super().__init__()
-		self.table = TableView(header_names, ignore_types)
+		self.table = TableView(header_names, ignore_types, ignore_drop_type)
 		self.filter_entry = LabelEdit("Filter:")
 		self.filter_entry.entry.textChanged.connect(self.table.set_filter)
 		self.hide_unused = QtWidgets.QCheckBox("Hide unextractable files")
@@ -291,10 +291,11 @@ class TableView(QtWidgets.QTableView):
 	files_dropped = QtCore.pyqtSignal(list)
 	file_selected = QtCore.pyqtSignal(int)
 
-	def __init__(self, header_names, ignore_types):
+	def __init__(self, header_names, ignore_types, ignore_drop_type):
 		super().__init__()
 		self.ignore_types = ignore_types
 		self.header_names = header_names
+		self.ignore_drop_type = ignore_drop_type
 		self.model = TableModel(header_names, ignore_types)
 		# self.proxyModel = QSortFilterProxyModel()
 		self.proxyModel = CustomSortFilterProxyModel()
@@ -399,11 +400,21 @@ class TableView(QtWidgets.QTableView):
 		self.model.endResetModel()
 		self.resizeColumnsToContents()
 
+	def accept_ignore(self, e):
+		if not self.ignore_drop_type:
+			e.accept()
+			return
+		path = e.mimeData().urls()[0].toLocalFile() if e.mimeData().hasUrls() else ""
+		if not path.lower().endswith(f".{self.ignore_drop_type.lower()}"):
+			e.accept()
+		else:
+			e.ignore()
+
 	def dragMoveEvent(self, e):
-		e.accept()
+		self.accept_ignore(e)
 
 	def dragEnterEvent(self, e):
-		e.accept()
+		self.accept_ignore(e)
 
 	@staticmethod
 	def get_files_from_event(event):
