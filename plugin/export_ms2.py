@@ -229,8 +229,11 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 	logging.debug(f"count_chunks {len(tris_chunks)}")
 
 	# report unweighted vertices
-	if hasattr(mesh.flag, "weights") and mesh.flag.weights:
-		if unweighted_vertices:
+	should_have_no_weights = (hasattr(mesh.flag, "weights") and not mesh.flag.weights)
+	if unweighted_vertices:
+		if should_have_no_weights:
+			logging.info(f"Should have no weights and has none.")
+		else:
 			raise AttributeError(f"{b_ob.name} has {len(unweighted_vertices)} unweighted vertices!")
 
 	# update vert & tri array
