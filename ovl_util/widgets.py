@@ -49,13 +49,16 @@ def vbox(parent, grid):
 	# vbox.setContentsMargins(0,0,0,0)
 	parent.setLayout(grid)
 
-
+ICON_CACHE = {"no_icon": QtGui.QIcon()}
 def get_icon(name):
+	if name in ICON_CACHE:
+		return ICON_CACHE[name]
 	for ext in (".png", ".svg"):
 		fp = os.path.join(root_dir, f'icons/{name}{ext}')
 		if os.path.isfile(fp):
-			return QtGui.QIcon(fp)
-	return QtGui.QIcon()
+			ICON_CACHE[name] = QtGui.QIcon(fp)
+			return ICON_CACHE[name]
+	return ICON_CACHE["no_icon"]
 
 
 class CustomSortFilterProxyModel(QtCore.QSortFilterProxyModel):
