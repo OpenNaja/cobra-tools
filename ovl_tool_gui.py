@@ -89,7 +89,7 @@ class MainWindow(widgets.MainWindow):
 		self.dirs_container.resize(640, 480)
 
 		# create the table
-		self.files_container = widgets.SortableTable(header_names, IGNORE_TYPES)
+		self.files_container = widgets.SortableTable(header_names, IGNORE_TYPES, opt_hide=True)
 		# connect the interaction functions
 		self.files_container.table.model.member_renamed.connect(self.rename_handle)
 		self.files_container.table.files_dragged.connect(self.drag_files)

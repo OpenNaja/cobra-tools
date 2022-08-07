@@ -219,13 +219,16 @@ class TableModel(QtCore.QAbstractTableModel):
 
 
 class SortableTable(QtWidgets.QWidget):
-	def __init__(self, header_names, ignore_types):
+	def __init__(self, header_names, ignore_types, opt_hide=False):
 		super().__init__()
 		self.table = TableView(header_names, ignore_types)
 		self.filter_entry = LabelEdit("Filter:")
 		self.filter_entry.entry.textChanged.connect(self.table.set_filter)
 		self.hide_unused = QtWidgets.QCheckBox("Hide unextractable files")
-		self.hide_unused.stateChanged.connect(self.toggle_hide)
+		if opt_hide:
+			self.hide_unused.stateChanged.connect(self.toggle_hide)
+		else:
+			self.hide_unused.hide()
 		self.rev_search = QtWidgets.QCheckBox("Exclude Search")
 		self.rev_search.stateChanged.connect(self.toggle_rev)
 		self.clear_filters = QtWidgets.QPushButton("Clear")
