@@ -37,7 +37,7 @@ def create_lods():
 	# Make list of all LOD collections
 	lod_collections = [col for col in col_list if col.name[:-1].endswith("LOD")]
 	# Setup default lod ratio values
-	lod_ratios = [1, 0.8, 0.56, 0.34, 0.2, 0.08]
+	lod_ratios = np.linspace(1.0, 0.05, num=len(lod_collections))
 
 	# Deleting old LODS
 	for lod_coll in lod_collections[1:]:
