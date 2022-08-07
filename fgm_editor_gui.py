@@ -124,18 +124,6 @@ class MainWindow(widgets.MainWindow):
 			self.attribute_choice.hide()
 			self.attribute_add.hide()
 
-	def dragEnterEvent(self, e):
-		path = e.mimeData().urls()[0].toLocalFile() if e.mimeData().hasUrls() else ""
-		if path.lower().endswith(".fgm"):
-			e.accept()
-		else:
-			e.ignore()
-
-	def dropEvent(self, e):
-		path = e.mimeData().urls()[0].toLocalFile() if e.mimeData().hasUrls() else ""
-		if path:
-			self.file_widget.decide_open(path)
-
 	def game_changed(self,):
 		game = self.game_container.entry.currentText()
 		logging.info(f"Changed game to {game}")

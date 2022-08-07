@@ -25,6 +25,7 @@ class MainWindow(widgets.MainWindow):
 	def __init__(self):
 		widgets.MainWindow.__init__(self, "MS2 Editor", )
 		self.resize(600, 600)
+		self.setAcceptDrops(True)
 
 		self.ms2_file = Ms2File()
 
@@ -36,9 +37,23 @@ class MainWindow(widgets.MainWindow):
 		header_names = ["Name", "File Type", "LODs", "Objects", "Meshes", "Materials"]
 
 		# create the table
-		self.files_container = widgets.SortableTable(header_names, ())
+		self.files_container = widgets.SortableTable(header_names, (), ignore_drop_type="MS2")
 		# connect the interaction functions
 		self.files_container.table.model.member_renamed.connect(self.rename_handle)
+		self.files_container.table.hideColumn(1)
+
+		# Configure table button row
+		self.btn_duplicate = widgets.SelectedItemsButton()
+		self.btn_duplicate.setIcon(widgets.get_icon("duplicate_mesh"))
+		self.btn_duplicate.clicked.connect(self.duplicate)
+		self.btn_duplicate.setToolTip("Duplicate Selected Meshes")
+		self.btn_delete = widgets.SelectedItemsButton()
+		self.btn_delete.setIcon(widgets.get_icon("delete_mesh"))
+		self.btn_delete.clicked.connect(self.remove)
+		self.btn_delete.setToolTip("Delete Selected Meshes")
+		# Add buttons to table
+		self.files_container.add_button(self.btn_duplicate)
+		self.files_container.add_button(self.btn_delete)
 
 		self.qgrid = QtWidgets.QGridLayout()
 		self.qgrid.addWidget(self.file_widget, 0, 0)

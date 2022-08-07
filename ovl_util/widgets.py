@@ -49,13 +49,16 @@ def vbox(parent, grid):
 	# vbox.setContentsMargins(0,0,0,0)
 	parent.setLayout(grid)
 
-
+ICON_CACHE = {"no_icon": QtGui.QIcon()}
 def get_icon(name):
+	if name in ICON_CACHE:
+		return ICON_CACHE[name]
 	for ext in (".png", ".svg"):
 		fp = os.path.join(root_dir, f'icons/{name}{ext}')
 		if os.path.isfile(fp):
-			return QtGui.QIcon(fp)
-	return QtGui.QIcon()
+			ICON_CACHE[name] = QtGui.QIcon(fp)
+			return ICON_CACHE[name]
+	return ICON_CACHE["no_icon"]
 
 
 class CustomSortFilterProxyModel(QtCore.QSortFilterProxyModel):
@@ -161,20 +164,22 @@ class TableModel(QtCore.QAbstractTableModel):
 			if len(file_row):
 				return self._data[index.row()][index.column()]
 
-		if role == QtCore.Qt.ForegroundRole:
-			if len(file_row) and file_row[1] in self.ignore_types:
-				return QtGui.QColor('grey')
+		if "File Type" in self.header_labels:
+			type_idx = self.header_labels.index("File Type")
+			if role == QtCore.Qt.ForegroundRole:
+				if len(file_row) and file_row[type_idx] in self.ignore_types:
+					return QtGui.QColor('grey')
 
-		if role == QtCore.Qt.DecorationRole:
-			if index.column() == 0:
-				if len(file_row):
-					# remove the leading '.' from ext
-					return get_icon(file_row[1][1:])
+			if role == QtCore.Qt.DecorationRole:
+				if index.column() == 0:
+					if len(file_row):
+						# remove the leading '.' from ext
+						return get_icon(file_row[type_idx][1:])
 
 		if role == QtCore.Qt.TextAlignmentRole:
-			# right align hashes
-			if index.column() == 2:
-				return QtCore.Qt.AlignVCenter | QtCore.Qt.AlignRight
+			# center align non-primary integer columns
+			if index.column() > 0 and str(file_row[index.column()]).isnumeric():
+				return QtCore.Qt.AlignVCenter | QtCore.Qt.AlignHCenter
 
 	def setData(self, index, value, role=QtCore.Qt.EditRole):
 		if index.isValid():
@@ -219,25 +224,37 @@ class TableModel(QtCore.QAbstractTableModel):
 
 
 class SortableTable(QtWidgets.QWidget):
-	def __init__(self, header_names, ignore_types):
+	def __init__(self, header_names, ignore_types, ignore_drop_type="", opt_hide=False):
 		super().__init__()
-		self.table = TableView(header_names, ignore_types)
+		self.table = TableView(header_names, ignore_types, ignore_drop_type)
 		self.filter_entry = LabelEdit("Filter:")
 		self.filter_entry.entry.textChanged.connect(self.table.set_filter)
 		self.hide_unused = QtWidgets.QCheckBox("Hide unextractable files")
-		self.hide_unused.stateChanged.connect(self.toggle_hide)
+		if opt_hide:
+			self.hide_unused.stateChanged.connect(self.toggle_hide)
+		else:
+			self.hide_unused.hide()
 		self.rev_search = QtWidgets.QCheckBox("Exclude Search")
 		self.rev_search.stateChanged.connect(self.toggle_rev)
 		self.clear_filters = QtWidgets.QPushButton("Clear")
 		self.clear_filters.pressed.connect(self.clear_filter)
+
+		# Button Row Setup
+		self.button_count = 0
+		self.btn_layout = QtWidgets.QHBoxLayout()
+		self.btn_layout.setContentsMargins(0, 0, 0, 0)
+		self.btn_frame = QtWidgets.QFrame()
+		self.btn_frame.setLayout(self.btn_layout)
+
 		qgrid = QtWidgets.QGridLayout()
 		qgrid.addWidget(self.filter_entry, 0, 0, )
 		qgrid.addWidget(self.hide_unused, 0, 1, )
 		qgrid.addWidget(self.rev_search, 0, 2, )
 		qgrid.addWidget(self.clear_filters, 0, 3, )
-		qgrid.addWidget(self.table, 1, 0, 1, 4)
+		qgrid.addWidget(self.table, 2, 0, 1, 4)
 		qgrid.setContentsMargins(0, 0, 0, 0)
 		self.setLayout(qgrid)
+		self.grid = qgrid
 
 	def set_data(self, data):
 		self.table.set_data(data)
@@ -259,15 +276,26 @@ class SortableTable(QtWidgets.QWidget):
 			self.table.rev_check = False
 			self.table.update_filter_function()
 
+	def add_button(self, btn):
+		if not self.button_count:
+			self.grid.addWidget(self.btn_frame, 1, 0, 1, 4)
+		self.btn_layout.addWidget(btn)
+		self.button_count += 1
+		if isinstance(btn, SelectedItemsButton):
+			btn.setDisabled(True)
+			self.table.selectionModel().selectionChanged.connect(btn.setEnabledFromSelection)
+
 
 class TableView(QtWidgets.QTableView):
 	files_dragged = QtCore.pyqtSignal(list)
 	files_dropped = QtCore.pyqtSignal(list)
 	file_selected = QtCore.pyqtSignal(int)
 
-	def __init__(self, header_names, ignore_types):
+	def __init__(self, header_names, ignore_types, ignore_drop_type):
 		super().__init__()
 		self.ignore_types = ignore_types
+		self.header_names = header_names
+		self.ignore_drop_type = ignore_drop_type
 		self.model = TableModel(header_names, ignore_types)
 		# self.proxyModel = QSortFilterProxyModel()
 		self.proxyModel = CustomSortFilterProxyModel()
@@ -313,9 +341,9 @@ class TableView(QtWidgets.QTableView):
 
 	def set_ext_filter(self, hide):
 		ext_filter_name = "ext_filter"
-		if hide:
+		if hide and "File Type" in self.header_names:
 			def ext_filter(r, s):
-				return r[1] not in self.ignore_types
+				return r[self.header_names.index("File Type")] not in self.ignore_types
 
 			self.proxyModel.addFilterFunction(ext_filter_name, ext_filter)
 		else:
@@ -364,16 +392,29 @@ class TableView(QtWidgets.QTableView):
 		self.files_dragged.emit(self.get_selected_files())
 
 	def set_data(self, data):
+		# Assure selectionChanged signal since reset bypasses this
+		self.clearSelection()
+		# Reset Model
 		self.model.beginResetModel()
 		self.model._data = data
 		self.model.endResetModel()
 		self.resizeColumnsToContents()
 
+	def accept_ignore(self, e):
+		if not self.ignore_drop_type:
+			e.accept()
+			return
+		path = e.mimeData().urls()[0].toLocalFile() if e.mimeData().hasUrls() else ""
+		if not path.lower().endswith(f".{self.ignore_drop_type.lower()}"):
+			e.accept()
+		else:
+			e.ignore()
+
 	def dragMoveEvent(self, e):
-		e.accept()
+		self.accept_ignore(e)
 
 	def dragEnterEvent(self, e):
-		e.accept()
+		self.accept_ignore(e)
 
 	@staticmethod
 	def get_files_from_event(event):
@@ -386,6 +427,15 @@ class TableView(QtWidgets.QTableView):
 		e.setDropAction(QtCore.Qt.CopyAction)
 		self.files_dropped.emit(self.get_files_from_event(e))
 		e.accept()
+
+
+class SelectedItemsButton(QtWidgets.QPushButton):
+	def __init__(self, name=""):
+		QtWidgets.QPushButton.__init__(self, name)
+		self.setStyleSheet("SelectedItemsButton:disabled { background-color: #252525; } ")
+	
+	def setEnabledFromSelection(self, selection):
+		self.setEnabled(selection.count() > 0)
 
 
 class LabelEdit(QtWidgets.QWidget):
@@ -1080,6 +1130,8 @@ class MainWindow(QtWidgets.QMainWindow):
 		self.setWindowTitle(name)
 		self.setWindowIcon(get_icon("frontier"))
 
+		self.file_widget = None
+
 		self.p_action = QtWidgets.QProgressBar(self)
 		self.p_action.setGeometry(0, 0, 200, 15)
 		self.p_action.setTextVisible(True)
@@ -1097,7 +1149,7 @@ class MainWindow(QtWidgets.QMainWindow):
 		self.cfg = config.load_config()
 
 	def poll(self):
-		if self.file_widget.filepath:
+		if self.file_widget and self.file_widget.filepath:
 			self.load()
 
 	def report_bug(self):
@@ -1123,7 +1175,7 @@ class MainWindow(QtWidgets.QMainWindow):
 		logging.exception(msg)
 
 	def closeEvent(self, event):
-		if self.file_widget.dirty:
+		if self.file_widget and self.file_widget.dirty:
 			quit_msg = f"Quit? You will lose unsaved work on {os.path.basename(self.file_widget.filepath)}!"
 			if not interaction.showdialog(quit_msg, ask=True):
 				event.ignore()
@@ -1152,3 +1204,22 @@ class MainWindow(QtWidgets.QMainWindow):
 		if self.t_action_current_message != message:
 			self.t_action.setText(message)
 			self.t_action_current_message = message
+
+	def dragEnterEvent(self, e):
+		if not self.file_widget:
+			return
+		
+		path = e.mimeData().urls()[0].toLocalFile() if e.mimeData().hasUrls() else ""
+		if path.lower().endswith(f".{self.file_widget.dtype.lower()}"):
+			e.accept()
+		else:
+			e.ignore()
+
+	def dropEvent(self, e):
+		if not self.file_widget:
+			return
+		
+		path = e.mimeData().urls()[0].toLocalFile() if e.mimeData().hasUrls() else ""
+		if path:
+			self.file_widget.decide_open(path)
+
