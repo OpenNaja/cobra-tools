@@ -235,14 +235,23 @@ class SortableTable(QtWidgets.QWidget):
 		self.rev_search.stateChanged.connect(self.toggle_rev)
 		self.clear_filters = QtWidgets.QPushButton("Clear")
 		self.clear_filters.pressed.connect(self.clear_filter)
+
+		# Button Row Setup
+		self.button_count = 0
+		self.btn_layout = QtWidgets.QHBoxLayout()
+		self.btn_layout.setContentsMargins(0, 0, 0, 0)
+		self.btn_frame = QtWidgets.QFrame()
+		self.btn_frame.setLayout(self.btn_layout)
+
 		qgrid = QtWidgets.QGridLayout()
 		qgrid.addWidget(self.filter_entry, 0, 0, )
 		qgrid.addWidget(self.hide_unused, 0, 1, )
 		qgrid.addWidget(self.rev_search, 0, 2, )
 		qgrid.addWidget(self.clear_filters, 0, 3, )
-		qgrid.addWidget(self.table, 1, 0, 1, 4)
+		qgrid.addWidget(self.table, 2, 0, 1, 4)
 		qgrid.setContentsMargins(0, 0, 0, 0)
 		self.setLayout(qgrid)
+		self.grid = qgrid
 
 	def set_data(self, data):
 		self.table.set_data(data)
@@ -263,6 +272,12 @@ class SortableTable(QtWidgets.QWidget):
 		else:
 			self.table.rev_check = False
 			self.table.update_filter_function()
+
+	def add_button(self, btn):
+		if not self.button_count:
+			self.grid.addWidget(self.btn_frame, 1, 0, 1, 4)
+		self.btn_layout.addWidget(btn)
+		self.button_count += 1
 
 
 class TableView(QtWidgets.QTableView):
