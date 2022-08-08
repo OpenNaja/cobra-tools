@@ -21,16 +21,12 @@ def check_any(iterable, string):
 
 def has_components(png_file_path):
 	return check_any((
-		"playered_blendweights", "pbasepackedtexture", "proughnesspackedtexture", "pbaldnessscartexture",
-		"markingbaldnessscartexture", "markingscartexture", "pflexicolourmaskssamplertexture",
-		"pmetalsmoothnesscavitysamplertexture", "pmetalsmoothnesscavityopacitysamplertexture",
-		"pspecularmaptexture", "pflexicolourmaskstexture", "pshellmap", "pfinalphatexture",
-		"proughnessaopackedtexturedetailbase", "pfeathers_roughnesspackedtexture",
-		"pfeathers_aoheightopacitytransmission_packedtexture", "pfeathers_aniso_packedtexture",), png_file_path)
+		"packedtexture", "playered_blendweights", "scartexture", "samplertexture",
+		"pspecularmaptexture", "pflexicolourmaskstexture", "pshellmap", "pfinalphatexture",), png_file_path)
 
 
 def has_vectors(png_file_path):
-	return check_any(("pnormaltexture", "pbasenormaltexture", "playered_warpoffset", "pfeathers_normaltexture"), png_file_path)
+	return check_any(("normaltexture", "playered_warpoffset"), png_file_path)
 
 
 def has_rg_b_a(png_file_path):
