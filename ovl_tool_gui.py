@@ -97,7 +97,7 @@ class MainWindow(widgets.MainWindow):
 		self.files_container.table.files_dropped.connect(self.inject_files)
 		# self.files_container.table.file_selected.connect(self.show_dependencies)
 
-		self.included_ovls_view = widgets.EditCombo(self)
+		self.included_ovls_view = widgets.RelativePathCombo(self, self.file_widget)
 		self.included_ovls_view.setToolTip("These OVL files are loaded by the current OVL file, so their files are included")
 		self.included_ovls_view.entries_changed.connect(self.ovl_data.set_included_ovl_names)
 
