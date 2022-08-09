@@ -1,7 +1,9 @@
 import logging
 import math
+import time
 
 import bpy
+import bmesh
 import mathutils
 
 from generated.formats.ms2.versions import is_ztuac, is_dla
@@ -232,6 +234,7 @@ def resolve_name(b_bone_names, bone_index):
 
 def import_vertex_groups(ob, mesh, b_bone_names):
 	logging.debug(f"Importing vertex groups for {ob.name}...")
+	start_time = time.time()
 	# sort by bone name
 	for bone_index in sorted(mesh.weights_info.keys(), key=lambda x: resolve_name(b_bone_names, x)):
 		weights_dic = mesh.weights_info[bone_index]
@@ -239,3 +242,42 @@ def import_vertex_groups(ob, mesh, b_bone_names):
 		ob.vertex_groups.new(name=bonename)
 		for weight, vert_indices in weights_dic.items():
 			ob.vertex_groups[bonename].add(vert_indices, weight, 'REPLACE')
+	logging.info(f"Finished vertex groups in {time.time() - start_time:.2f} seconds")
+
+
+def import_vertex_groups_bm(ob, mesh, b_bone_names):
+	logging.debug(f"Importing vertex groups for {ob.name}...")
+	start_time = time.time()
+
+	b_me = ob.data
+	lut = {}
+	# set(mesh.bones)
+	for j, (i, name) in enumerate(sorted(enumerate(b_bone_names), key=lambda x: x[1])):
+		lut[name] = j
+		lut[i] = j
+		ob.vertex_groups.new(name=name)
+	# for bone_index in sorted(mesh.weights_info.keys(), key=lambda x: resolve_name(b_bone_names, x)):
+	# 	weights_dic = mesh.weights_info[bone_index]
+	# 	bonename = resolve_name(b_bone_names, bone_index)
+	# 	ob.vertex_groups.new(name=bonename)
+	ob.vertex_groups.new(name="use_blended_weights")
+	bone_id_ex = len(ob.vertex_groups) - 1
+	bm = bmesh.new()
+	bm.from_mesh(b_me, face_normals=False, vertex_normals=False)
+	# Ensure custom data exists.
+	bm.verts.layers.deform.verify()
+
+	deform = bm.verts.layers.deform.active
+	for ids, weights, v in zip(mesh.bones, mesh.weights, bm.verts):
+		g = v[deform]
+		# First & second vertex group (by index)
+		for bone_id, weight in zip(ids, weights):
+			if weight > 0.0:
+				g[lut[bone_id]] = weight
+	# for weight, v in zip(mesh.use_blended_weights, bm.verts):
+	# 	g = v[deform]
+	# 	g[bone_id_ex] = weight
+
+	bm.to_mesh(b_me)
+	bm.free()
+	logging.info(f"Finished vertex groups in {time.time() - start_time:.2f} seconds")

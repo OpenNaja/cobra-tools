@@ -154,7 +154,7 @@ class BioMeshData:
 
 	def init_vert_chunk_arrays(self, v_slice, vert_chunk):
 		vert_chunk.packed_verts = None
-		vert_chunk.weights = None
+		vert_chunk.packed_weights = None
 		vert_chunk.meta = None
 		# views into main array
 		vert_chunk.vertices = self.vertices[v_slice]
@@ -165,10 +165,12 @@ class BioMeshData:
 		vert_chunk.normals = self.normals[v_slice]
 		vert_chunk.tangents = self.tangents[v_slice]
 		vert_chunk.floats = self.floats[v_slice]
+		vert_chunk.bones = self.bones[v_slice]
+		vert_chunk.weights = self.weights[v_slice]
 		if vert_chunk.weights_flag.mesh_format == MeshFormat.Separate:
 			# todo - once stable, change back to empty
 			vert_chunk.packed_verts = np.zeros(dtype=np.int64, shape=vert_chunk.vertex_count)
-			vert_chunk.weights = np.zeros(dtype=self.dt_weights, shape=vert_chunk.vertex_count)
+			vert_chunk.packed_weights = np.zeros(dtype=self.dt_weights, shape=vert_chunk.vertex_count)
 			vert_chunk.meta = np.zeros(dtype=self.dt, shape=vert_chunk.vertex_count)
 		elif vert_chunk.weights_flag.mesh_format in (MeshFormat.Interleaved32, MeshFormat.Interleaved48):
 			# interleaved vertex array, meta includes all extra data
@@ -178,18 +180,22 @@ class BioMeshData:
 		# check if weights chunk is present
 		if vert_chunk.weights_flag.has_weights:
 			# read for each vertex
-			self.buffer_info.verts.readinto(vert_chunk.weights)
-			for vertex_index, (bone_indices, bone_weights) in enumerate(
-					zip(vert_chunk.weights["bone ids"], vert_chunk.weights["bone weights"] / 255)):
-				for bone_index, weight in zip(bone_indices, bone_weights):
-					if weight > 0.0:
-						self.add_to_weights(bone_index, vertex_index + offs, weight)
+			self.buffer_info.verts.readinto(vert_chunk.packed_weights)
+			vert_chunk.bones[:] = vert_chunk.packed_weights["bone ids"]
+			vert_chunk.weights[:] = vert_chunk.packed_weights["bone weights"]
+			# for vertex_index, (bone_indices, bone_weights) in enumerate(
+			# 		zip(vert_chunk.packed_weights["bone ids"], vert_chunk.packed_weights["bone weights"] / 255)):
+			# 	for bone_index, weight in zip(bone_indices, bone_weights):
+			# 		if weight > 0.0:
+			# 			self.add_to_weights(bone_index, vertex_index + offs, weight)
 		# 			bones_per_chunk.add(bone_index)
 		# logging.info(f"Length set {len(bones_per_chunk)}")
 		else:
 			# use the chunk's bone index for each vertex in chunk
-			for vertex_index in range(vert_chunk.vertex_count):
-				self.add_to_weights(vert_chunk.weights_flag.bone_index, vertex_index + offs, 1.0)
+			# for vertex_index in range(vert_chunk.vertex_count):
+			# 	self.add_to_weights(vert_chunk.weights_flag.bone_index, vertex_index + offs, 1.0)
+			vert_chunk.bones[:] = vert_chunk.weights_flag.bone_index
+			vert_chunk.weights[:, 0] = 255.0
 		# bones_per_chunk.add(vert_chunk.weights_flag.bone_index)
 
 	def update_dtype(self):
@@ -300,7 +306,7 @@ class BioMeshData:
 				pack_int64_vector(vert_chunk.packed_verts, vert_chunk.vertices.astype(np.int64), vert_chunk.negate_bitangents)
 				# just force weights for now?
 				vert_chunk.weights_flag.has_weights = True
-				for vert, weight in zip(vert_chunk.weights, self.weights[v_slice]):
+				for vert, weight in zip(vert_chunk.packed_weights, self.packed_weights[v_slice]):
 					vert["bone ids"], vert["bone weights"] = self.unpack_weights_list(weight)
 				# vert_chunk.weights_flag.has_weights = False
 				# # vert_chunk.weights = self.weights[v_slice]
@@ -341,7 +347,7 @@ class BioMeshData:
 			if vert_chunk.weights_flag.mesh_format == MeshFormat.Separate:
 				self.buffer_info.verts.write(vert_chunk.packed_verts.tobytes())
 				if vert_chunk.weights_flag.has_weights:
-					self.buffer_info.verts.write(vert_chunk.weights.tobytes())
+					self.buffer_info.verts.write(vert_chunk.packed_weights.tobytes())
 			self.buffer_info.verts.write(vert_chunk.meta.tobytes())
 
 			tri_chunk.tris_offset = self.buffer_info.tris.tell()

@@ -5,7 +5,7 @@ import traceback
 
 import bpy
 # import bmesh
-from plugin.modules_import.armature import import_armature, append_armature_modifier, import_vertex_groups, \
+from plugin.modules_import.armature import import_armature, append_armature_modifier, import_vertex_groups_bm, \
 	get_bone_names
 from plugin.modules_import.collision import import_chunk_bounds
 from plugin.modules_import.hair import add_psys
@@ -84,7 +84,7 @@ def load(filepath="", use_custom_normals=False, mirror_mesh=False):
 					b_ob["bone"] = m_lod.bone_index
 
 					try:
-						import_vertex_groups(b_ob, mesh, bone_names)
+						import_vertex_groups_bm(b_ob, mesh, bone_names)
 						import_face_maps(b_ob, mesh)
 						import_shapekeys(b_ob, mesh)
 						# link to armature, only after mirror so the order is good and weights are mirrored

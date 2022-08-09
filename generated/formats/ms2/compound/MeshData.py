@@ -1,6 +1,7 @@
 
 import logging
 import math
+import time
 import numpy as np
 
 from generated.formats.ms2.compound.packing_utils import FUR_OVERHEAD, remap
@@ -161,6 +162,8 @@ class MeshData(MemStruct):
 		self.colors = np.empty((self.vertex_count, 4), np.float32)
 		self.floats = np.empty((self.vertex_count, 4), np.float32)
 		self.shapekeys = np.empty((self.vertex_count, 3), np.float32)
+		self.bones = np.zeros((self.vertex_count, 4), np.uint8)
+		self.weights = np.zeros((self.vertex_count, 4), np.float32)
 		self.weights_info = {}
 
 	def set_verts(self, verts):
@@ -276,10 +279,12 @@ class MeshData(MemStruct):
 			self.add_to_weights("fur_width", vertex_index, fur_vert[1])
 
 	def get_blended_weights(self, ids, weights):
+		start_time = time.time()
 		for vertex_index, (bone_indices, bone_weights) in enumerate(zip(ids, weights)):
 			for bone_index, weight in zip(bone_indices, bone_weights):
 				if weight > 0.0:
 					self.add_to_weights(bone_index, vertex_index, weight)
+		logging.info(f"get_blended_weights in {time.time() - start_time:.2f} seconds")
 
 	def get_static_weights(self, bone_indices, use_blended_weights):
 		"""Only store static weight if no blended weights have been set for the vertex"""
