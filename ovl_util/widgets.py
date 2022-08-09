@@ -548,7 +548,7 @@ class EditCombo(QtWidgets.QWidget):
 	def items(self):
 		return [self.entry.itemText(i) for i in range(self.entry.count())]
 
-	def add(self, text=None):
+	def add(self, _checked=False, text=None):
 		name = self.entry.currentText() if text is None else text
 		if name and name not in self.items:
 			self.entry.addItem(name)
@@ -604,7 +604,7 @@ class RelativePathCombo(EditCombo):
 	def decide_add(self, filepath):
 		if self.accept_file(filepath):
 			path = self.relative_path(filepath)
-			self.add(path)
+			self.add(text=path)
 			self.entry.setCurrentIndex(self.items.index(path))
 
 	def ask_open(self):
