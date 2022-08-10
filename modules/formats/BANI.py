@@ -3,6 +3,7 @@ import logging
 from generated.formats.bani import BaniFile
 from generated.formats.bani.compound.BanisRoot import BanisRoot
 from generated.formats.bani.compound.BaniRoot import BaniRoot
+from generated.formats.ovl_base.basic import ConvStream
 from modules.formats.BaseFormat import MemStructLoader
 from modules.helpers import as_bytes
 
@@ -48,7 +49,9 @@ class BaniLoader(MemStructLoader):
 		with open(out_path, 'wb') as outfile:
 			outfile.write(b"BANI")
 			outfile.write(as_bytes(banis_name))
-			self.header.write(outfile)
+			with ConvStream() as stream:
+				self.header.write(stream)
+				outfile.write(stream.getvalue())
 
 		return out_path,
 
