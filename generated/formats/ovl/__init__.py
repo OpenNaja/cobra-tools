@@ -3,7 +3,6 @@ import struct
 import zlib
 import io
 import time
-import traceback
 import logging
 from contextlib import contextmanager
 
@@ -503,8 +502,7 @@ class OvsFile(OvsHeader):
 					try:
 						self._dump_ptr_stack(f, ptr, set())
 					except AttributeError:
-						logging.error(f"Dumping {root_entry.name} failed")
-						traceback.print_exc()
+						logging.exception(f"Dumping {root_entry.name} failed")
 						f.write("\n!FAILED!")
 
 	@staticmethod
@@ -658,9 +656,7 @@ class OvlFile(Header, IoFile):
 				ret_paths = loader.handle_paths(ret_paths, show_temp_files)
 				out_paths.extend(ret_paths)
 			except BaseException as error:
-				logging.error(f"An exception occurred while extracting {loader.file_entry.name}")
-				logging.error(error)
-				traceback.print_exc()
+				logging.exception(f"An exception occurred while extracting {loader.file_entry.name}")
 				error_files.append(loader.file_entry.name)
 		return out_paths, error_files
 
@@ -987,9 +983,7 @@ class OvlFile(Header, IoFile):
 			try:
 				archive_entry.content.unzip(archive_entry, read_start)
 			except BaseException as err:
-				logging.error(f"Decompressing {archive_entry.name} from {archive_entry.ovs_path} failed")
-				logging.error(err)
-				traceback.print_exc()
+				logging.exception(f"Decompressing {archive_entry.name} from {archive_entry.ovs_path} failed")
 				# print(archive_entry)
 				# print(archive_entry.content)
 				continue
@@ -1034,8 +1028,7 @@ class OvlFile(Header, IoFile):
 					frag.struct_ptr.add_struct(frag)
 					frag.link_ptr.add_link(frag)
 				except:
-					traceback.print_exc()
-					logging.warning(f"linking frag {i} failed")
+					logging.exception(f"linking frag {i} failed")
 		logging.debug("Calculating pointer sizes")
 		for pool in self.pools:
 			pool.calc_struct_ptr_sizes()
@@ -1053,9 +1046,8 @@ class OvlFile(Header, IoFile):
 			loader.track_ptrs()
 			try:
 				loader.collect()
-			except Exception as err:
-				logging.error(f"Collecting {loader.file_entry.name} raised '{err}' error")
-				traceback.print_exc()
+			except:
+				logging.exception(f"Collecting {loader.file_entry.name} errored")
 			loader.link_streams()
 		logging.info(f"Loaded file classes in {time.time() - start_time:.2f} seconds")
 
@@ -1222,7 +1214,7 @@ class OvlFile(Header, IoFile):
 			# apply the new pools to the ovl
 			self.load_flattened_pools()
 		except:
-			traceback.print_exc()
+			logging.exception("Rebuilding ovl arrays failed")
 
 	def update_pool_indices(self):
 		"""Updates pool_index for all entries"""
@@ -1289,8 +1281,8 @@ class OvlFile(Header, IoFile):
 				archive_entry.content.dump_stack()
 				archive_entry.content.dump_buffer_groups_log()
 				archive_entry.content.dump_pools()
-			except BaseException as err:
-				traceback.print_exc()
+			except:
+				logging.exception("Dumping failed")
 		self.dump_buffer_info()
 
 	@property
