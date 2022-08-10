@@ -97,7 +97,6 @@ class MainWindow(widgets.MainWindow):
 		self.installed_games_view.entry.textActivated.connect(self.installed_game_chosen)
 		self.installed_games_view.add_button.clicked.connect(self.add_installed_game)
 
-		# self.installed_games_view.entries_changed.connect(self.ovl_data.set_included_ovl_names)
 		self.model = QtWidgets.QFileSystemModel()
 		self.dirs_container = QtWidgets.QTreeView()
 		self.dirs_container.setModel(self.model)
