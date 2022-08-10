@@ -528,26 +528,28 @@ class EditCombo(QtWidgets.QWidget):
 		super().__init__(parent)
 		self.main_window = parent
 		self.add_button = QtWidgets.QPushButton("+")
+		self.add_button.setToolTip("Add Item")
 		self.add_button.clicked.connect(self.add)
 		self.delete_button = QtWidgets.QPushButton("-")
+		self.delete_button.setToolTip("Delete Item")
 		self.delete_button.clicked.connect(self.delete)
 		self.add_button.setMaximumWidth(20)
 		self.delete_button.setMaximumWidth(20)
 		self.entry = QtWidgets.QComboBox()
 		self.entry.setEditable(True)
-		vbox = QtWidgets.QHBoxLayout(self)
-		vbox.addWidget(self.entry)
-		vbox.addWidget(self.add_button)
-		vbox.addWidget(self.delete_button)
-		vbox.setContentsMargins(0, 0, 0, 0)
+		self.vbox = QtWidgets.QHBoxLayout(self)
+		self.vbox.addWidget(self.entry)
+		self.vbox.addWidget(self.add_button)
+		self.vbox.addWidget(self.delete_button)
+		self.vbox.setContentsMargins(0, 0, 0, 0)
 
 	@property
 	def items(self):
 		return [self.entry.itemText(i) for i in range(self.entry.count())]
 
-	def add(self):
-		name = self.entry.currentText()
-		if name:
+	def add(self, _checked=False, text=None):
+		name = self.entry.currentText() if text is None else text
+		if name and name not in self.items:
 			self.entry.addItem(name)
 			self.entries_changed.emit(self.items)
 
@@ -563,6 +565,75 @@ class EditCombo(QtWidgets.QWidget):
 		self.entry.clear()
 		self.entry.addItems(items)
 
+class RelativePathCombo(EditCombo):
+
+	def __init__(self, parent, file_widget, dtype="OVL"):
+		super().__init__(parent)
+		self.file = file_widget
+		self.dtype = dtype.lower()
+		self.icon = QtWidgets.QPushButton()
+		self.icon.setIcon(get_icon("dir"))
+		self.icon.setFlat(True)
+		self.icon.setToolTip("Open OVL file to include")
+		self.icon.setSizePolicy(QtWidgets.QSizePolicy.Policy.Maximum, QtWidgets.QSizePolicy.Policy.Maximum)
+		self.icon.pressed.connect(self.ask_open)
+		self.entry.setAcceptDrops(True)
+		self.entry.dropEvent = self.dropEvent
+		self.entry.dragMoveEvent = self.dragMoveEvent
+		self.entry.dragEnterEvent = self.dragEnterEvent
+		self.vbox.insertWidget(0, self.icon)
+
+	@property
+	def items(self):
+		return [os.path.normpath(self.entry.itemText(i)) for i in range(self.entry.count())]
+
+	@property
+	def root(self):
+		return os.path.dirname(self.file.filepath)
+
+	def relative_path(self, path):
+		return os.path.normpath(os.path.relpath(path, self.root))
+
+	def accept_file(self, filepath):
+		if os.path.isfile(filepath):
+			if os.path.splitext(filepath)[1].lower() in (f".{self.dtype}",):
+				return True
+		return False
+
+	def decide_add(self, filepath):
+		if self.accept_file(filepath):
+			path = self.relative_path(filepath)
+			self.add(text=path)
+			self.entry.setCurrentIndex(self.items.index(path))
+
+	def ask_open(self):
+		if self.file.filepath:
+			filepath, _ = QtWidgets.QFileDialog.getOpenFileName(self, f'Choose {self.dtype}', self.root, f"{self.dtype} files (*.{self.dtype})")
+			self.decide_add(filepath)
+
+	def get_files(self, event):
+		data = event.mimeData()
+		urls = data.urls()
+		if urls and urls[0].scheme() == 'file':
+			return urls
+
+	def accept_ignore(self, event):
+		if self.file.filepath and self.get_files(event):
+			event.acceptProposedAction()
+			self.setFocus(True)
+			return
+		event.ignore()
+
+	def dragEnterEvent(self, event):
+		self.accept_ignore(event)
+
+	def dragMoveEvent(self, event):
+		self.accept_ignore(event)
+
+	def dropEvent(self, event):
+		urls = self.get_files(event)
+		if urls:
+			self.decide_add(str(urls[0].path())[1:])
 
 class LabelCombo(QtWidgets.QWidget):
 	def __init__(self, name, options, link_inst=None, link_attr=None):
