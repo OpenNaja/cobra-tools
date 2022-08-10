@@ -16,7 +16,7 @@ try:
 	logging.info(f"Running python {sys.version}")
 	logging.info(f"Running cobra-tools {get_version_str()}, {get_commit_str()}")
 
-	from ovl_util import widgets, interaction, qt_threads
+	from ovl_util import widgets, interaction
 	from modules import walker
 	from root_path import root_dir
 	from generated.formats.ovl import OvlFile, games, get_game, set_game, IGNORE_TYPES
