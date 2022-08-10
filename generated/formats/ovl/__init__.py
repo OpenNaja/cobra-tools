@@ -931,11 +931,14 @@ class OvlFile(Header, IoFile):
 			file_entry.basename = file_name
 			file_entry.name = file_name + file_entry.ext
 			self.hash_table_local[file_entry.file_hash] = file_name
-
-			# initialize the loader right here
-			self.loaders[file_entry.name] = self.init_loader(file_entry)
 		if "generate_hash_table" in self.commands:
 			return self.hash_table_local
+		elif "get_file_names" in self.commands:
+			return [file_entry.name for file_entry in self.files]
+		else:
+			# initialize the loaders right here
+			for file_entry in self.files:
+				self.loaders[file_entry.name] = self.init_loader(file_entry)
 
 		# get included ovls
 		hd_max = len(self.included_ovls)

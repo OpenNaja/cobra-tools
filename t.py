@@ -98,3 +98,12 @@
 #     return [b.name for b in out_bones]
 #
 #
+import time
+
+from generated.formats.ovl import OvlFile
+s = time.time()
+ovl_path = "C:/Program Files (x86)/Steam/steamapps/common/Jurassic World Evolution 2/Win64/ovldata/Content0/Main.ovl"
+ovl_data = OvlFile()
+file_names_list = ovl_data.load(ovl_path, commands={"get_file_names": True})
+print(time.time()-s)
+# print(new_hashes)
