@@ -1,4 +1,3 @@
-import json
 import logging
 import webbrowser
 import os
@@ -17,16 +16,16 @@ myFont.setBold(True)
 
 
 def startup(cls):
-	appQt = QtWidgets.QApplication([])
-
-	# style
-	appQt.setStyle(QtWidgets.QStyleFactory.create('Fusion'))
-	appQt.setPalette(qt_theme.dark_palette)
-	appQt.setStyleSheet("QToolTip { color: #ffffff; background-color: #353535; border: 1px solid white; }")
-
+	app_qt = QtWidgets.QApplication([])
 	win = cls()
 	win.show()
-	appQt.exec_()
+
+	# style
+	if not win.cfg.get("light_theme", False):
+		app_qt.setStyle(QtWidgets.QStyleFactory.create('Fusion'))
+		app_qt.setPalette(qt_theme.dark_palette)
+		app_qt.setStyleSheet("QToolTip { color: #ffffff; background-color: #353535; border: 1px solid white; }")
+	app_qt.exec_()
 	config.save_config(win.cfg)
 
 
@@ -1124,6 +1123,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
 		self.central_widget = QtWidgets.QWidget(self)
 		self.setCentralWidget(self.central_widget)
+		self.actions = {}
 
 		self.name = name
 		# self.resize(720, 400)
@@ -1135,7 +1135,7 @@ class MainWindow(QtWidgets.QMainWindow):
 		self.p_action = QtWidgets.QProgressBar(self)
 		self.p_action.setGeometry(0, 0, 200, 15)
 		self.p_action.setTextVisible(True)
-		self.p_action.setMaximum(1)
+		self.p_action.setMaximum(100)
 		self.p_action.setValue(0)
 		self.t_action_current_message = "No operation in progress"
 		self.t_action = QtWidgets.QLabel(self, text=self.t_action_current_message)
@@ -1159,15 +1159,16 @@ class MainWindow(QtWidgets.QMainWindow):
 		webbrowser.open("https://github.com/OpenNaja/cobra-tools/wiki", new=2)
 
 	def add_to_menu(self, button_data):
-		for submenu, name, func, shortcut, icon_name in button_data:
-			button = QtWidgets.QAction(name, self)
+		for submenu, action_name, func, shortcut, icon_name in button_data:
+			action = QtWidgets.QAction(action_name, self)
 			if icon_name:
 				icon = get_icon(icon_name)
-				button.setIcon(icon)
-			button.triggered.connect(func)
+				action.setIcon(icon)
+			action.triggered.connect(func)
 			if shortcut:
-				button.setShortcut(shortcut)
-			submenu.addAction(button)
+				action.setShortcut(shortcut)
+			self.actions[action_name.lower()] = action
+			submenu.addAction(action)
 
 	def handle_error(self, msg):
 		"""Warn user with popup msg and write msg + exception traceback to log"""

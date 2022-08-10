@@ -7,7 +7,7 @@ from numpy.core.multiarray import ndarray
 
 from generated.array import Array
 from generated.base_enum import BaseEnum
-from generated.formats.ovl import get_game
+from generated.formats.ovl.versions import get_game
 from generated.formats.ovl_base.compound.ArrayPointer import ArrayPointer
 from generated.formats.ovl_base.compound.ForEachPointer import ForEachPointer
 from generated.formats.ovl_base.compound.Pointer import Pointer

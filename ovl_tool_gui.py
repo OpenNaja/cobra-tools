@@ -5,12 +5,10 @@ import time
 import logging
 import tempfile
 
-
 try:
 	import winreg
 	import numpy as np
 	from PyQt5 import QtWidgets, QtGui, QtCore
-
 	from ovl_util.config import logging_setup, get_version_str, get_commit_str
 
 	logging_setup("ovl_tool_gui")
@@ -29,6 +27,37 @@ except:
 	time.sleep(15)
 
 
+mutex = QtCore.QMutex()
+
+
+class OvlReporter(OvlFile, QtCore.QObject):
+	files_list = QtCore.pyqtSignal(list)
+	included_ovls_list = QtCore.pyqtSignal(list)
+	progress_percentage = QtCore.pyqtSignal(int)
+	current_action = QtCore.pyqtSignal(str)
+
+	def __init__(self):
+		super().__init__()
+		super(QtCore.QObject, self).__init__()
+
+
+class Worker(QtCore.QObject):
+	finished = QtCore.pyqtSignal()
+
+	def __init__(self, function, *args, **kwargs):
+		super().__init__()
+		self.function_name = function
+		self.args = args
+		self.kwargs = kwargs
+
+	def run(self):
+		# mutex.lock()
+		func = getattr(self.thread().ovl_data, self.function_name)
+		func(*self.args, **self.kwargs)
+		# mutex.unlock()
+		self.finished.emit()
+
+
 class MainWindow(widgets.MainWindow):
 
 	def __init__(self):
@@ -36,8 +65,7 @@ class MainWindow(widgets.MainWindow):
 		self.resize(800, 600)
 		self.setAcceptDrops(True)
 
-		self.ovl_data = OvlFile(progress_callback=self.update_progress)
-		self.ovl_data.load_hash_table()
+		self.ovl_data = OvlReporter()
 
 		supported_types = [ext for ext in self.ovl_data.formats_dict.keys()]
 		self.filter = "Supported files ({})".format(" ".join("*" + t for t in supported_types))
@@ -120,9 +148,9 @@ class MainWindow(widgets.MainWindow):
 			"By default, temporary files are converted to usable ones and back on the fly")
 		self.t_show_temp_files.setChecked(False)
 
-		self.in_folder = QtWidgets.QCheckBox("Process Folder")
-		self.in_folder.setToolTip("Runs commands on all OVLs of current folder")
-		self.in_folder.setChecked(False)
+		self.t_in_folder = QtWidgets.QCheckBox("Process Folder")
+		self.t_in_folder.setToolTip("Runs commands on all OVLs of current folder")
+		self.t_in_folder.setChecked(False)
 
 		self.t_mesh_ovl = QtWidgets.QCheckBox("Mesh OVL Mode")
 		self.t_mesh_ovl.setToolTip("Renames only MS2, MDL2 and MOTIONGRAPH files.")
@@ -149,7 +177,7 @@ class MainWindow(widgets.MainWindow):
 		self.qgrid.addWidget(self.e_name_new, 0, 1, 3, 1)
 
 		self.qgrid.addWidget(self.t_show_temp_files, 0, 3)
-		self.qgrid.addWidget(self.in_folder, 1, 3)
+		self.qgrid.addWidget(self.t_in_folder, 1, 3)
 		self.qgrid.addWidget(self.t_mesh_ovl, 2, 3)
 		self.qgrid.addWidget(self.game_choice, 0, 4,)
 		self.qgrid.addWidget(self.compression_choice, 1, 4,)
@@ -191,6 +219,43 @@ class MainWindow(widgets.MainWindow):
 		# run once here to make sure we catch the default game
 		self.populate_game_widget()
 		self.game_changed()
+		# do these at the end to make sure their requirements have been initialized
+		self.ovl_data.files_list.connect(self.update_files_ui)
+		self.ovl_data.included_ovls_list.connect(self.included_ovls_view.set_data)
+		self.ovl_data.progress_percentage.connect(self.p_action.setValue)
+		self.ovl_data.current_action.connect(self.t_action.setText)
+		self.run_threaded("load_hash_table")
+
+	def run_threaded(self, function_name, *args, **kwargs):
+		# Step 2: Create a QThread object
+		self.thread = QtCore.QThread()
+		self.thread.ovl_data = self.ovl_data
+		# Step 3: Create a worker object
+		self.worker = Worker(function_name, *args, **kwargs)
+		# Step 4: Move worker to the thread
+		self.worker.moveToThread(self.thread)
+		# Step 5: Connect signals and slots
+		self.thread.started.connect(self.worker.run)
+		self.worker.finished.connect(self.thread.quit)
+		self.worker.finished.connect(self.worker.deleteLater)
+		self.thread.finished.connect(self.thread.deleteLater)
+		# Step 6: Start the thread
+		self.thread.start()
+
+		# Final resets
+		self.enable_gui_options(False)
+		self.thread.finished.connect(self.enable_gui_options)
+
+	def enable_gui_options(self, enable=True):
+		self.t_in_folder.setEnabled(enable)
+		self.t_show_temp_files.setEnabled(enable)
+		self.t_mesh_ovl.setEnabled(enable)
+		self.compression_choice.setEnabled(enable)
+		self.game_choice.setEnabled(enable)
+		# for action_name in ("open", "save", "save as"):
+		# just disable all
+		for action_name in self.actions.keys():
+			self.actions[action_name.lower()].setEnabled(enable)
 
 	def dump_debug_data(self,):
 		self.ovl_data.dump_debug_data()
@@ -223,7 +288,7 @@ class MainWindow(widgets.MainWindow):
 			filepath = QtWidgets.QFileDialog.getOpenFileName(
 				self, "Open OVL to compare with", self.cfg.get(f"dir_ovls_in", "C://"), f"OVL files (*.ovl)")[0]
 			if filepath:
-				other_ovl_data = OvlFile(progress_callback=self.update_progress)
+				other_ovl_data = OvlReporter()
 				other_ovl_data.load_hash_table()
 				other_ovl_data.load(filepath, commands=self.commands)
 				for file_name in selected_file_names:
@@ -285,7 +350,7 @@ class MainWindow(widgets.MainWindow):
 
 	def handle_path(self, save_over=True):
 		# get path
-		if self.in_folder.isChecked():
+		if self.t_in_folder.isChecked():
 			selected_dir = self.get_selected_dir()
 			if selected_dir:
 				# walk path
@@ -358,12 +423,6 @@ class MainWindow(widgets.MainWindow):
 		self.ovl_data.user_version.compression = compression_value
 
 	@property
-	def commands(self):
-		# get those commands that are set to True
-		# return [x for x in ("write_dat", ) if getattr(self, x)]
-		return {}
-
-	@property
 	def show_temp_files(self, ):
 		return self.t_show_temp_files.isChecked()
 
@@ -375,13 +434,8 @@ class MainWindow(widgets.MainWindow):
 		if self.file_widget.filepath:
 			self.file_widget.dirty = False
 			try:
-				# runTask(self.ovl_data.load, (self.file_widget.filepath,), {"commands": self.commands,})
-				# test(2)
-				# self.ovl_thread.func = self.ovl_thread.ovl_data.load
-				# self.ovl_thread.args = (self.file_widget.filepath,)
-				# self.ovl_thread.kwargs = {"commands": self.commands,}
-				# self.ovl_thread.start()
-				self.ovl_data.load(self.file_widget.filepath, commands=self.commands)
+				self.run_threaded("load", self.file_widget.filepath)
+				# self.ovl_data.load(self.file_widget.filepath)
 				# print(self.ovl_data.user_version)
 				# print(self.ovl_data)
 				# for loader in self.ovl_data.loaders.values():
@@ -406,16 +460,23 @@ class MainWindow(widgets.MainWindow):
 				# 	print(f"buffer size {sum([buff.size for buff in a.content.buffer_entries])}")
 				# 	print(f"d1 size {sum([data.size_1 for data in a.content.data_entries])}")
 				# 	print(f"d2 size {sum([data.size_2 for data in a.content.data_entries])}")
-				self.update_gui_table()
-				game = get_game(self.ovl_data)[0]
-				self.game_choice.entry.setText(game.value)
-				self.compression_choice.entry.setText(self.ovl_data.user_version.compression.name)
+
+				# self.update_gui_table()
+				# game = get_game(self.ovl_data)[0]
+				# self.game_choice.entry.setText(game.value)
+				# self.compression_choice.entry.setText(self.ovl_data.user_version.compression.name)
 			except:
 				self.handle_error("OVL loading failed, see log!")
 
+	def gui_update(self):
+		self.update_gui_table()
+		game = get_game(self.ovl_data)[0]
+		self.game_choice.entry.setText(game.value)
+		self.compression_choice.entry.setText(self.ovl_data.user_version.compression.name)
+
 	def create_ovl(self, ovl_dir):
 		# clear the ovl
-		self.ovl_data = OvlFile(progress_callback=self.update_progress)
+		self.ovl_data = OvlReporter()
 		self.game_changed()
 		try:
 			self.ovl_data.create(ovl_dir)
@@ -429,12 +490,17 @@ class MainWindow(widgets.MainWindow):
 		else:
 			return True
 
+	def update_files_ui(self, f_list):
+		start_time = time.time()
+		logging.info(f"Loading {len(f_list)} files into gui")
+		f_list.sort(key=lambda t: (t[1], t[0]))
+		self.files_container.set_data(f_list)
+		logging.info(f"Loaded files into GUI in {time.time() - start_time:.2f} seconds")
+
 	def update_gui_table(self, ):
 		start_time = time.time()
-		logging.info(f"Loading {len(self.ovl_data.loaders)} files into gui")
-		files = [loader.file_entry for loader in self.ovl_data.loaders.values()]
-		files.sort(key=lambda file: (file.ext, file.name))
-		self.files_container.set_data([[f.name, f.ext] for f in files])
+		f_list = [(loader.file_entry.name, loader.file_entry.ext) for loader in self.ovl_data.loaders.values()]
+		self.update_files_ui(f_list)
 		self.included_ovls_view.set_data(self.ovl_data.included_ovl_names)
 		logging.info(f"Loaded GUI in {time.time() - start_time:.2f} seconds")
 		self.update_progress("Operation completed!", value=1, vmax=1)
@@ -470,7 +536,7 @@ class MainWindow(widgets.MainWindow):
 			for ovl in self.handle_path(save_over=False):
 				if self.is_open_ovl():
 					# for bulk extraction, add the ovl basename to the path to avoid overwriting
-					if self.in_folder.isChecked():
+					if self.t_in_folder.isChecked():
 						selected_dir = self.get_selected_dir()
 						rel_p = os.path.relpath(ovl.path_no_ext, start=selected_dir)
 						out_dir = os.path.join(_out_dir, rel_p)
@@ -532,7 +598,7 @@ class MainWindow(widgets.MainWindow):
 			if self.check_length(names):
 				return
 			# if we are operating only on the current ovl, check selection state
-			if not self.in_folder.isChecked():
+			if not self.t_in_folder.isChecked():
 				only_files = self.files_container.table.get_selected_files()
 			else:
 				only_files = ()

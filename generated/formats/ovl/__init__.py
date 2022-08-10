@@ -43,7 +43,6 @@ IGNORE_TYPES = (".mani", ".mdl2", ".texturestream", ".datastreams", ".model2stre
 
 
 class OvsFile(OvsHeader):
-
 	basic_map = basic_map
 
 	def __init__(self, context, ovl_inst, archive_entry):
@@ -129,7 +128,8 @@ class OvsFile(OvsHeader):
 				else:
 					logging.debug(file_name_lut)
 					# raise KeyError
-					logging.warning(f"Can't find '{entry.name}' [{entry.__class__.__name__}] in name LUT, cannot update hash")
+					logging.warning(
+						f"Can't find '{entry.name}' [{entry.__class__.__name__}] in name LUT, cannot update hash")
 					continue
 				file = self.ovl.files[file_index]
 				if self.ovl.user_version.is_jwe:
@@ -145,7 +145,8 @@ class OvsFile(OvsHeader):
 		filepath = archive_entry.ovs_path
 		stream = self.ovl.ovs_dict[filepath]
 		stream.seek(start)
-		logging.info(f"Compressed stream {archive_entry.name} in {os.path.basename(filepath)} starts at {stream.tell()}")
+		logging.info(
+			f"Compressed stream {archive_entry.name} in {os.path.basename(filepath)} starts at {stream.tell()}")
 		compressed_bytes = stream.read(archive_entry.compressed_size)
 		with self.unzipper(compressed_bytes, archive_entry.uncompressed_size) as stream:
 			start_time = time.time()
@@ -362,7 +363,8 @@ class OvsFile(OvsHeader):
 					pools_by_type[pool.type] = []
 				pools_by_type[pool.type].append(pool)
 			else:
-				logging.info(f"Pool[{pool_index}]: deleting '{pool.name}' from archive '{self.arg.name}' as it has no pointers")
+				logging.info(
+					f"Pool[{pool_index}]: deleting '{pool.name}' from archive '{self.arg.name}' as it has no pointers")
 				self.pools.remove(pool)
 		# rebuild pool groups
 		for pool_type, pools in pools_by_type.items():
@@ -480,7 +482,7 @@ class OvsFile(OvsHeader):
 				else:
 					rec_check.add(entry)
 					f.write(f"\n{indent * TAB}PTR @ {rel_offset: <4} -> SUB {struct_ptr} ({struct_ptr.data_size: 4})")
-					self._dump_ptr_stack(f, struct_ptr, rec_check, indent=indent+1)
+					self._dump_ptr_stack(f, struct_ptr, rec_check, indent=indent + 1)
 			else:
 				f.write(f"\n{indent * TAB}DEP @ {rel_offset: <4} -> {entry.name}")
 
@@ -520,7 +522,8 @@ class OvsFile(OvsHeader):
 				n = self.ovl.hash_table_local[entry.file_hash]
 				e = self.ovl.hash_table_local[entry.ext_hash]
 			except KeyError:
-				raise KeyError(f"No match for entry {entry.file_hash} [{entry.__class__.__name__}] from archive {self.arg.name}")
+				raise KeyError(
+					f"No match for entry {entry.file_hash} [{entry.__class__.__name__}] from archive {self.arg.name}")
 		# PZ Style and PC Style
 		else:
 			# file_hash is an index into ovl files
@@ -529,7 +532,8 @@ class OvsFile(OvsHeader):
 				n = file.basename
 				e = file.ext
 			except IndexError:
-				logging.warning(f"Entry ID {entry.file_hash} [{entry.__class__.__name__}] does not index into ovl file table of length {len(self.ovl.files)}")
+				logging.warning(
+					f"Entry ID {entry.file_hash} [{entry.__class__.__name__}] does not index into ovl file table of length {len(self.ovl.files)}")
 				n = "none"
 				e = ".ext"
 		# fix for island.island, force extension to start with .
@@ -570,10 +574,9 @@ class OvsFile(OvsHeader):
 
 
 class OvlFile(Header, IoFile):
-
 	basic_map = basic_map
 
-	def __init__(self, progress_callback=None):
+	def __init__(self):
 		# create a context
 		super().__init__(OvlContext())
 		self.magic.data = b'FRES'
@@ -581,11 +584,6 @@ class OvlFile(Header, IoFile):
 
 		self.is_biosyn = None
 
-		self.last_print = None
-		if progress_callback:
-			self.progress_callback = progress_callback
-		else:
-			self.progress_callback = self.dummy_callback
 		self.formats_dict = build_formats_dict()
 		self.loaders = {}
 
@@ -654,8 +652,7 @@ class OvlFile(Header, IoFile):
 			if loader.file_entry.ext in IGNORE_TYPES:
 				continue
 			loaders_for_extract.append(loader)
-		for i, loader in enumerate(loaders_for_extract):
-			self.progress_callback("Extracting", value=i, vmax=len(loaders_for_extract))
+		for loader in self.iter_progress(loaders_for_extract, "Extracting"):
 			try:
 				ret_paths = loader.extract(out_dir_func)
 				ret_paths = loader.handle_paths(ret_paths, show_temp_files)
@@ -665,16 +662,13 @@ class OvlFile(Header, IoFile):
 				logging.error(error)
 				traceback.print_exc()
 				error_files.append(loader.file_entry.name)
-
-		self.progress_callback("Extraction completed!", value=1, vmax=1)
 		return out_paths, error_files
 
 	def inject(self, file_paths, show_temp_files):
 		"""Inject files into archive"""
 		logging.info(f"Injecting {len(file_paths)} files")
 		error_files = []
-		for file_index, file_path in enumerate(file_paths):
-			self.progress_callback("Injecting", value=file_index, vmax=len(file_paths))
+		for file_path in self.iter_progress(file_paths, "Injecting"):
 			name_ext, name, ext = split_path(file_path)
 			name_lower = name_ext.lower()
 			# todo - aliases will not be handled, but no problem for now
@@ -768,15 +762,17 @@ class OvlFile(Header, IoFile):
 	def dummy_callback(self, *args, **kwargs):
 		return
 
-	def print_and_callback(self, message, value=None, max_value=None):
-		# don't print the message if it is identical to the last one - it
-		# will slow down massively repetitive tasks
-		if self.last_print != message:
-			logging.info(message)
-			self.last_print = message
-
-		# call the callback
-		self.progress_callback(message, value, max_value)
+	def iter_progress(self, iterable, message):
+		self.current_action.emit(message)
+		self._percentage = 0
+		v_max = len(iterable) - 1
+		for i, item in enumerate(iterable):
+			yield item
+			if i and v_max:
+				p = round(i / v_max * 100)
+				if p != self._percentage:
+					self.progress_percentage.emit(p)
+					self._percentage = p
 
 	def store_filepath(self, filepath):
 		# store file name for later
@@ -903,9 +899,7 @@ class OvlFile(Header, IoFile):
 		self.hash_table_local = {}
 		# print(self)
 		# add extensions to hash dict
-		hm_max = len(self.mimes)
-		for hm_index, mime_entry in enumerate(self.mimes):
-			self.print_and_callback("Loading extensions", value=hm_index, max_value=hm_max)
+		for mime_entry in self.iter_progress(self.mimes, "Loading extensions"):
 			# get the whole mime type string
 			mime_entry.name = self.names.get_str_at(mime_entry.offset)
 			# only get the extension
@@ -919,9 +913,7 @@ class OvlFile(Header, IoFile):
 								  mime_entry.triplet_offset: mime_entry.triplet_offset + mime_entry.triplet_count]
 
 		# add file name to hash dict; ignoring the extension pointer
-		hf_max = len(self.files)
-		for hf_index, file_entry in enumerate(self.files):
-			self.print_and_callback("Loading files", value=hf_index, max_value=hf_max)
+		for file_entry in self.iter_progress(self.files, "Loading files"):
 			# get file name from name table
 			file_name = self.names.get_str_at(file_entry.offset)
 			file_entry.mime = self.mimes[file_entry.extension]
@@ -936,22 +928,20 @@ class OvlFile(Header, IoFile):
 		elif "get_file_names" in self.commands:
 			return [file_entry.name for file_entry in self.files]
 		else:
+			self.files_list.emit([(file.name, file.ext) for file in self.files])
 			# initialize the loaders right here
 			for file_entry in self.files:
 				self.loaders[file_entry.name] = self.init_loader(file_entry)
 
 		# get included ovls
-		hd_max = len(self.included_ovls)
-		for hd_index, included_ovl in enumerate(self.included_ovls):
-			self.print_and_callback("Loading includes", value=hd_index, max_value=hd_max)
+		for included_ovl in self.iter_progress(self.included_ovls, "Loading includes"):
 			included_ovl.basename = self.names.get_str_at(included_ovl.offset)
 			included_ovl.ext = ".ovl"
 			included_ovl.name = included_ovl.basename + included_ovl.ext
+		self.included_ovls_list.emit([included_ovl.name for included_ovl in self.included_ovls])
 
 		# get names of all dependencies
-		ht_max = len(self.dependencies)
-		for ht_index, dependency_entry in enumerate(self.dependencies):
-			self.print_and_callback("Loading dependencies", value=ht_index, max_value=ht_max)
+		for dependency_entry in self.iter_progress(self.dependencies, "Loading Dependencies"):
 			file_entry = self.files[dependency_entry.file_index]
 
 			self.loaders[file_entry.name].dependencies.append(dependency_entry)
@@ -960,10 +950,10 @@ class OvlFile(Header, IoFile):
 			h = dependency_entry.file_hash
 			if h in self.hash_table_local:
 				dependency_entry.basename = self.hash_table_local[h]
-				# logging.debug(f"LOCAL: {h} -> {dependency_entry.basename}")
+			# logging.debug(f"LOCAL: {h} -> {dependency_entry.basename}")
 			elif h in self.hash_table_global:
 				dependency_entry.basename = self.hash_table_global[h]
-				# logging.debug(f"GLOBAL: {h} -> {dependency_entry.basename}")
+			# logging.debug(f"GLOBAL: {h} -> {dependency_entry.basename}")
 			else:
 				logging.warning(f"Unresolved dependency [{h}] for {file_entry.name}")
 				dependency_entry.basename = UNK_HASH
@@ -985,9 +975,7 @@ class OvlFile(Header, IoFile):
 		logging.info("Loading archives")
 		start_time = time.time()
 		self.open_ovs_streams(mode="rb")
-		for archive_index, archive_entry in enumerate(self.archives):
-			self.print_and_callback(f"Reading archive {archive_entry.name}", value=archive_index,
-									max_value=len(self.archives))
+		for archive_entry in self.iter_progress(self.archives, "Reading archives"):
 			# those point to external ovs archives
 			if archive_entry.name == "STATIC":
 				read_start = self.eof
@@ -1061,8 +1049,7 @@ class OvlFile(Header, IoFile):
 			only_types = self.commands['only_types']
 			logging.info(f"Loading only {only_types}")
 			loaders = [loader for loader in loaders if loader.file_entry.ext in only_types]
-		for i, loader in enumerate(loaders):
-			self.print_and_callback(f"Mapping files", value=i, max_value=len(self.loaders))
+		for loader in self.iter_progress(loaders, "Mapping files"):
 			loader.track_ptrs()
 			try:
 				loader.collect()
@@ -1120,7 +1107,7 @@ class OvlFile(Header, IoFile):
 		for loader in self.loaders.values():
 			for entry in loader.dependencies + loader.aux_entries:
 				entry.file_index = file_name_lut[loader.file_entry.name]
-				# entry.file_index = loader.file_entry.file_index
+		# entry.file_index = loader.file_entry.file_index
 		self.aux_entries.sort(key=lambda x: x.file_index)
 
 		# map all files by their extension
@@ -1220,7 +1207,8 @@ class OvlFile(Header, IoFile):
 				# at least PZ & JWE require 4 additional bytes after each pool region
 				pools_byte_offset += 4
 				pools_offset += len(archive.content.pools)
-				logging.info(f"Archive {archive.name} has {archive.num_pools} pools in {archive.num_pool_groups} pool_groups")
+				logging.info(
+					f"Archive {archive.name} has {archive.num_pools} pools in {archive.num_pool_groups} pool_groups")
 
 			# update the ovl counts
 			self.num_included_ovls = len(self.included_ovls)
@@ -1230,7 +1218,7 @@ class OvlFile(Header, IoFile):
 			self.num_pools = sum(a.num_pools for a in self.archives)
 			self.num_datas = sum(a.num_datas for a in self.archives)
 			self.num_buffers = sum(a.num_buffers for a in self.archives)
-	
+
 			# apply the new pools to the ovl
 			self.load_flattened_pools()
 		except:
@@ -1332,9 +1320,8 @@ class OvlFile(Header, IoFile):
 		ovl_compressed = b""
 		self.zlibs.clear()
 		# compress data stream
-		for i, archive in enumerate(self.archives):
+		for archive in self.iter_progress(self.archives, "Saving archives"):
 			# write archive into bytes IO stream
-			self.progress_callback("Saving archives", value=i, vmax=len(self.archives))
 			uncompressed = archive.content.get_bytes()
 			archive.uncompressed_size, archive.compressed_size, compressed = archive.content.compress(
 				uncompressed)
