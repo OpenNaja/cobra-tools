@@ -31,6 +31,8 @@ mutex = QtCore.QMutex()
 
 
 class OvlReporter(OvlFile, QtCore.QObject):
+	"""Adds PyQt signals to OvlFile to report of progress"""
+
 	files_list = QtCore.pyqtSignal(list)
 	included_ovls_list = QtCore.pyqtSignal(list)
 	progress_percentage = QtCore.pyqtSignal(int)
