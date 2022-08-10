@@ -759,7 +759,8 @@ class OvlFile(Header, IoFile):
 		return
 
 	def iter_progress(self, iterable, message):
-		self.current_action.emit(message)
+		if hasattr(self,  'current_action'):
+			self.current_action.emit(message)
 		self._percentage = 0
 		v_max = len(iterable) - 1
 		for i, item in enumerate(iterable):
