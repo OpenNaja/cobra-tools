@@ -5,15 +5,18 @@ import time
 import logging
 import tempfile
 
+
 try:
 	import winreg
 	import numpy as np
+	import imageio
 	from PyQt5 import QtWidgets, QtGui, QtCore
 	from ovl_util.config import logging_setup, get_version_str, get_commit_str
 
 	logging_setup("ovl_tool_gui")
 
 	logging.info(f"Running python {sys.version}")
+	logging.info(f"Running imageio {imageio.__version__}")
 	logging.info(f"Running cobra-tools {get_version_str()}, {get_commit_str()}")
 
 	from ovl_util import widgets, interaction
