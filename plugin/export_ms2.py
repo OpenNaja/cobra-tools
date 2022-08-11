@@ -23,7 +23,6 @@ from plugin.utils.object import NedryError
 from plugin.utils.shell import get_collection, is_shell, is_fin
 from root_path import root_dir
 
-
 mesh_mode = os.path.isdir(os.path.join(root_dir, ".git"))
 
 
@@ -86,12 +85,12 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 		raise AttributeError(f"Mesh {b_ob.name} has no polygons!")
 
 	for len_type, num_type, name_type in (
-			(len(b_me.uv_layers)+num_fur_weights, num_uvs, "UV"),
+			(len(b_me.uv_layers) + num_fur_weights, num_uvs, "UV"),
 			(len(b_me.vertex_colors), num_vcols, "Vertex Color")):
 		logging.debug(f"{name_type} count: {num_type}")
 		if len_type != num_type:
 			raise AttributeError(f"Mesh {b_ob.name} has {len_type} {name_type} layers, but {num_type} were expected!")
-	
+
 	# make sure the mesh has a triangulation modifier
 	ensure_tri_modifier(b_ob)
 	eval_obj, eval_me = evaluate_mesh(b_ob)
@@ -127,6 +126,20 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 	shell_ob = None
 	shapekey = (0, 0, 0)
 	vcols = (0, 0, 0, 0)
+
+	validate_vertex_groups(b_ob, bones_table)
+	# calculate bone weights per vertex first to reuse data
+	weights_data = [export_weights(b_ob, b_vert, bones_table, hair_length, unweighted_vertices) for b_vert in
+					eval_me.vertices]
+
+	# report unweighted vertices
+	should_have_no_weights = (hasattr(mesh.flag, "weights") and not mesh.flag.weights)
+	if unweighted_vertices:
+		if should_have_no_weights:
+			logging.info(f"Should have no weights and has none.")
+		else:
+			raise AttributeError(f"{b_ob.name} has {len(unweighted_vertices)} unweighted vertices!")
+
 	# fin meshes have to grab tangents from shell
 	if is_fin(b_ob):
 		shell_obs = [ob for ob in b_lod_coll.objects if is_shell(ob) and ob is not b_ob]
@@ -137,6 +150,7 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 			shell_eval_me.calc_tangents()
 			shell_kd = fill_kd_tree(shell_eval_me)
 			fin_uv_layer = eval_me.uv_layers[0].data
+
 	# loop faces and collect unique and repeated vertices
 	for face in eval_me.polygons:
 		if len(face.loop_indices) != 3:
@@ -191,8 +205,8 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 
 			uvs = [(layer.data[loop_index].uv.x, 1 - layer.data[loop_index].uv.y) for layer in eval_me.uv_layers]
 			# create a dummy bytes str for indexing
-			float_items = [*position, *[c for uv in uvs[:2] for c in uv], negate_bitangent]
-			dummy = struct.pack(f'<{len(float_items)}f', *float_items)
+			float_items = [c for uv in uvs[:2] for c in uv]
+			dummy = struct.pack(f'<HB{len(float_items)}f', b_loop.vertex_index, negate_bitangent, *float_items)
 
 			# see if this dummy key exists
 			try:
@@ -213,13 +227,13 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 				# use attribute api, ensure fallback so array setting does not choke
 				if rgba0_layer:
 					vcols = rgba0_layer.data[loop_index].color
-				weights, fur_length, fur_width, use_blended_weights = export_weights(
-					b_ob, b_vert, bones_table, hair_length, unweighted_vertices)
+				use_blended_weights, weights, fur_length, fur_width = weights_data[b_loop.vertex_index]
 				if num_fur_weights:
 					# append to uv
 					uvs.append((fur_length, remap(fur_width, 0, 1, -16, 16)))
 				# store all raw blender data
-				verts.append((position, use_blended_weights, normal, negate_bitangent, tangent, uvs, vcols, weights, shapekey))
+				verts.append((position, use_blended_weights is True, normal, negate_bitangent, tangent, uvs, vcols,
+							  weights, shapekey))
 			tri.append(v_index)
 		# add it to the latest chunk
 		tris_chunks[-1].append(tri)
@@ -227,14 +241,6 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 	logging.debug(f"count_unique {count_unique}")
 	logging.debug(f"count_reused {count_reused}")
 	logging.debug(f"count_chunks {len(tris_chunks)}")
-
-	# report unweighted vertices
-	should_have_no_weights = (hasattr(mesh.flag, "weights") and not mesh.flag.weights)
-	if unweighted_vertices:
-		if should_have_no_weights:
-			logging.info(f"Should have no weights and has none.")
-		else:
-			raise AttributeError(f"{b_ob.name} has {len(unweighted_vertices)} unweighted vertices!")
 
 	# update vert & tri array
 	mesh.pack_base = model_info.pack_base
@@ -247,36 +253,43 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 	return wrapper
 
 
+def validate_vertex_groups(b_ob, bones_table):
+	for v_group in b_ob.vertex_groups:
+		if v_group.name in bones_table:
+			continue
+		elif v_group.name in ("fur_width", "fur_length"):
+			continue
+		else:
+			logging.warning(f"Ignored extraneous vertex group {v_group.name} on mesh {b_ob.name}")
+
+
 def export_weights(b_ob, b_vert, bones_table, hair_length, unweighted_vertices):
 	# defaults that may or may not be set later on
-	use_blended_weights = 0
+	# True if used, bone index if it isn't
+	use_blended_weights = True
 	fur_length = 0
 	fur_width = 0
 	bone_index_cutoff = get_property(b_ob, "bone")
 	# get the weights
 	w = []
-	for vertex_group in b_vert.groups:
+	for v_group in b_vert.groups:
 		try:
-			vgroup_name = b_ob.vertex_groups[vertex_group.group].name
-			# note that blender's decimate modifier randomly removes vertex_groups if their weight is 0, so use fallback
-			if vgroup_name == "use_blended_weights":
-				use_blended_weights = int(round(vertex_group.weight))
-			elif vgroup_name == "fur_length":
-				fur_length = vertex_group.weight * hair_length
-			elif vgroup_name == "fur_width":
-				fur_width = vertex_group.weight
-			elif vgroup_name in bones_table:
+			v_group_name = b_ob.vertex_groups[v_group.group].name
+			if v_group_name == "fur_length":
+				fur_length = v_group.weight * hair_length
+			elif v_group_name == "fur_width":
+				fur_width = v_group.weight
+			elif v_group_name in bones_table:
 				# avoid dummy vertex groups without corresponding bones
-				bone_index = bones_table[vgroup_name]
+				bone_index = bones_table[v_group_name]
 				if bone_index > bone_index_cutoff:
 					logging.error(
-						f"Mesh {b_ob.name} has weights for bone {vgroup_name} [{bone_index}] over the LOD's cutoff at {bone_index_cutoff}!"
+						f"Mesh {b_ob.name} has weights for bone {v_group_name} [{bone_index}] over the LOD's cutoff at {bone_index_cutoff}!"
 						f"\nThis will cause distortions ingame!")
-				w.append([bone_index, vertex_group.weight])
-			else:
-				logging.debug(f"Ignored extraneous vertex group {vgroup_name} on mesh {b_ob.name}!")
-		except BaseException as err:
-			logging.exception(f"Vert with {len(b_vert.groups)} groups, index {vertex_group.group} into {len(b_ob.vertex_groups)} groups failed in {b_ob.name}")
+				w.append([bone_index, v_group.weight])
+		except:
+			logging.exception(
+				f"Vert with {len(b_vert.groups)} groups, index {v_group.group} into {len(b_ob.vertex_groups)} groups failed in {b_ob.name}")
 	# get the strongest influences on this vert, truncate to 4
 	weights_sorted = sorted(w, key=lambda x: x[1], reverse=True)[0:4]
 	# are there any weights at all
@@ -285,7 +298,10 @@ def export_weights(b_ob, b_vert, bones_table, hair_length, unweighted_vertices):
 	# is the strongest one actually weighted
 	elif not weights_sorted[0][1] > 0.0:
 		unweighted_vertices.append(b_vert.index)
-	return weights_sorted, fur_length, fur_width, use_blended_weights
+	# more than one valid bone weight for this vertex?
+	elif len(weights_sorted) == 1:
+		use_blended_weights = weights_sorted[0][0]
+	return use_blended_weights, weights_sorted, fur_length, fur_width
 
 
 def get_property(ob, prop_name):
@@ -330,7 +346,7 @@ def save(filepath='', apply_transforms=False, edit_bones=False, use_stock_normal
 		# clear pose
 		for pbone in b_armature_ob.pose.bones:
 			pbone.matrix_basis = mathutils.Matrix()
-	
+
 		if not scene.cobra.pack_base:
 			raise AttributeError(f"Set the pack base value for scene '{scene.name}'!")
 
@@ -341,7 +357,7 @@ def save(filepath='', apply_transforms=False, edit_bones=False, use_stock_normal
 			export_bones_custom(b_armature_ob, model_info)
 		# used to get index from bone name for faster weights
 		bones_table = dict(((b, i) for i, b in enumerate(get_bone_names(model_info))))
-	
+
 		b_models = []
 		b_materials = []
 		bounds = []
@@ -352,7 +368,7 @@ def save(filepath='', apply_transforms=False, edit_bones=False, use_stock_normal
 			if not lod_coll:
 				break
 			m_lod = LodInfo(ms2.context)
-			m_lod.distance = math.pow(30+15*lod_i, 2)
+			m_lod.distance = math.pow(30 + 15 * lod_i, 2)
 			m_lod.first_object_index = len(model_info.model.objects)
 			m_lod.meshes = []
 			m_lod.objects = []
@@ -360,11 +376,12 @@ def save(filepath='', apply_transforms=False, edit_bones=False, use_stock_normal
 			for b_ob in lod_coll.objects:
 				# store & set bone index for lod
 				m_lod.bone_index = get_property(b_ob, "bone")
-	
+
 				b_me = b_ob.data
 				if b_me not in b_models:
 					b_models.append(b_me)
-					wrapper = export_model(model_info, lod_coll, b_ob, b_me, bones_table, bounds, apply_transforms, use_stock_normals_tangents)
+					wrapper = export_model(model_info, lod_coll, b_ob, b_me, bones_table, bounds, apply_transforms,
+										   use_stock_normals_tangents)
 					wrapper.mesh.lod_index = lod_i
 				for b_mat in b_me.materials:
 					if b_mat not in b_materials:
@@ -386,7 +403,7 @@ def save(filepath='', apply_transforms=False, edit_bones=False, use_stock_normal
 							tri_chunk.material_index = m_ob.material_index
 					m_lod.objects.append(m_ob)
 			m_lod.last_object_index = len(model_info.model.objects)
-	
+
 		export_bounds(bounds, model_info)
 
 	# write modified ms2
