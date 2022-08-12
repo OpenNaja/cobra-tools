@@ -385,8 +385,6 @@ class MainWindow(widgets.MainWindow):
 		# handle double clicked file paths
 		try:
 			file_path = ind.model().filePath(ind)
-			#->setCurrentIndex(fsModel->index(QDir::currentPath()))
-			print(file_path)
 			# open folder in explorer
 			if os.path.isdir(file_path):
 				os.startfile(file_path)
