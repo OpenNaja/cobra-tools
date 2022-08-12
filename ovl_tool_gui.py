@@ -249,6 +249,7 @@ class MainWindow(widgets.MainWindow):
 		# Final resets
 		self.enable_gui_options(False)
 		self.thread.finished.connect(self.enable_gui_options)
+		self.thread.finished.connect(self.choices_update)
 
 	def enable_gui_options(self, enable=True):
 		self.t_in_folder.setEnabled(enable)
@@ -448,41 +449,10 @@ class MainWindow(widgets.MainWindow):
 			self.file_widget.dirty = False
 			try:
 				self.run_threaded("load", self.file_widget.filepath)
-				# self.ovl_data.load(self.file_widget.filepath)
-				# print(self.ovl_data.user_version)
-				# print(self.ovl_data)
-				# for loader in self.ovl_data.loaders.values():
-				# 	print(loader.file_entry.name)
-				# 	print(loader.data_entries)
-				# for a in self.ovl_data.archives:
-				# 	print(a)
-				# 	for root_entry in a.content.root_entries:
-				# 		print("root", root_entry.name)
-				# 	for data in a.content.data_entries:
-				# 		print("data", data.name)
-				# 		print(data)
-				# for a in self.ovl_data.archives[1:]:
-				# 	print(a.name)
-				# 	for root_entry in a.content.root_entries:
-				# 		print(root_entry.name)
-				# for a, z in zip(self.ovl_data.archives, self.ovl_data.zlibs):
-				# 	print(a, z)
-				# 	print(f"zlib sum {z.zlib_thing_1 + z.zlib_thing_2 - 68}")
-				# 	print(f"pool size {a.pools_end - a.pools_start}")
-				# 	print(f"stream links size {12 * a.num_files}")
-				# 	print(f"buffer size {sum([buff.size for buff in a.content.buffer_entries])}")
-				# 	print(f"d1 size {sum([data.size_1 for data in a.content.data_entries])}")
-				# 	print(f"d2 size {sum([data.size_2 for data in a.content.data_entries])}")
-
-				# self.update_gui_table()
-				# game = get_game(self.ovl_data)[0]
-				# self.game_choice.entry.setText(game.value)
-				# self.compression_choice.entry.setText(self.ovl_data.user_version.compression.name)
 			except:
 				self.handle_error("OVL loading failed, see log!")
 
-	def gui_update(self):
-		self.update_gui_table()
+	def choices_update(self):
 		game = get_game(self.ovl_data)[0]
 		self.game_choice.entry.setText(game.value)
 		self.compression_choice.entry.setText(self.ovl_data.user_version.compression.name)
