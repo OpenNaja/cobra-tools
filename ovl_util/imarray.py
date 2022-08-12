@@ -196,32 +196,28 @@ def png_from_tex(tex_file_path, tmp_dir):
 	in_name_bare, suffix = split_name_suffix(os.path.splitext(corresponding_png_textures[0])[0])
 	# join arrays if there is a suffix
 	must_join = suffix is not None
-	join_components = has_r_g_b_a(tex_file_path)
-	join_rg_b_a = has_rg_b_a(tex_file_path)
-	join_rgb_a = has_rgb_a(tex_file_path)
+	join_channels = get_split_mode(png_file_path)
 	must_flip_gb = has_vectors(tex_file_path)
 
 	# check if processing needs to be done
-	if not must_join and not join_components and not must_flip_gb and not join_rg_b_a and not join_rgb_a:
+	if not must_join and not must_flip_gb and not join_channels:
 		check_too_many_pngs(corresponding_png_textures, in_name_ext, png_file_path)
 		assert os.path.isfile(png_file_path)
 		logging.debug(f"Need not process {png_file_path}")
 		return png_file_path
 
 	logging.debug(f"must_join {must_join}")
-	logging.debug(f"join_components {join_components}")
-	logging.debug(f"join_rg_b_a {join_rg_b_a}")
-	logging.debug(f"join_rgb_a {join_rgb_a}")
+	logging.debug(f"join_channels {join_channels}")
 	logging.debug(f"must_flip_gb {must_flip_gb}")
 
 	# non-tiled files that need fixes - normal maps without channel packing
-	if not must_join and not join_components and not join_rg_b_a and not join_rgb_a:
+	if not must_join and not join_channels:
 		check_too_many_pngs(corresponding_png_textures, in_name_ext, png_file_path)
 		# just read the one input file
 		im = iio.imread(png_file_path)
 
 	# rebuild array from separated tiles
-	if must_join or join_components or join_rg_b_a or join_rgb_a:
+	if must_join or join_channels:
 		array_textures = [file for file in corresponding_png_textures if is_array_tile(file, in_name_bare)]
 		# read all images into arrays
 		ims = [iio.imread(os.path.join(in_dir, file)) for file in array_textures]
@@ -238,7 +234,7 @@ def png_from_tex(tex_file_path, tmp_dir):
 				h, w, d = im.shape
 				if d != 4:
 					# rgba files, obvious need to have RGB components, so don't complain
-					if not (join_rg_b_a or join_rgb_a):
+					if not join_channels:
 						raise AttributeError(f"{file} does not have all 4 channels (RGBA) that are expected, it has {d}")
 				dimensions.append((h, w))
 			# no 3rd dimension, ie. single channel greyscale image
@@ -247,17 +243,10 @@ def png_from_tex(tex_file_path, tmp_dir):
 				d = 1
 				dimensions.append((h, w))
 		check_same_dimensions(dimensions, array_textures)
-		if join_components:
-			d = 4
-			array_size //= d
-		if join_rg_b_a:
+		if join_channels:
 			d = 4
 			# since we have 3 components per tile
-			array_size //= 3
-		if join_rgb_a:
-			d = 4
-			# since we have 2 components per tile
-			array_size //= 2
+			array_size //= len(join_channels.split("_"))
 
 		logging.debug(f"array_size {array_size}")
 		if array_size == 0:
@@ -266,7 +255,7 @@ def png_from_tex(tex_file_path, tmp_dir):
 				f"Make sure you inject a PNG from a folder containing all other PNGs for that array!")
 		out_shape = (h * array_size, w, d)
 		im = np.zeros(out_shape, dtype=ims[0].dtype)
-		if join_components:
+		if join_channels == "R_G_B_A":
 			logging.debug("Rebuilding array texture from components")
 			layer_i = 0
 			for hi in range(array_size):
@@ -279,7 +268,7 @@ def png_from_tex(tex_file_path, tmp_dir):
 							f"Tile {array_textures[layer_i]} is not the expected single-channel float format, using first channel.")
 						im[hi * h:(hi + 1) * h, :, di] = ims[layer_i][:, :, 0]
 					layer_i += 1
-		elif join_rg_b_a:
+		elif join_channels == "RG_B_A":
 			logging.debug("Rebuilding array texture from RG + B + A")
 			layer_i = 0
 			for hi in range(array_size):
@@ -296,7 +285,7 @@ def png_from_tex(tex_file_path, tmp_dir):
 				# A
 				im[hi * h:(hi + 1) * h, :, 3] = get_single_channel(ims[layer_i], array_textures[layer_i])
 				layer_i += 1
-		elif join_rgb_a:
+		elif join_channels == "RGB_A":
 			logging.debug("Rebuilding array texture from RGB + A")
 			layer_i = 0
 			for hi in range(array_size):
