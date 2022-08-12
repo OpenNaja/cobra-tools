@@ -3,6 +3,9 @@ import mathutils
 import math
 import logging
 
+import numpy as np
+
+from generated.formats.ms2.compound.packing_utils import oct_to_vec3, unpack_swizzle_vectorized
 from plugin.utils.matrix_util import evaluate_mesh
 
 # a bit of safety to avoid breaking normalization
@@ -93,6 +96,24 @@ def vcol_to_comb():
 		# this is the raw vector, in tangent space
 		# this is like uv, so we negate the second component
 		vec = mathutils.Vector((r, -b, z))
+		# vec = mathutils.Vector((r, -b, 0))
+
+		# # above is unchanged
+		# # different swizzle
+		# vec = mathutils.Vector((-r, b, 0))
+		# # angular
+		# r = (vcol[0] - 0.5) * 180
+		# b = (vcol[2] - 0.5) * 180
+		# rot = mathutils.Euler((math.radians(b), math.radians(r), 0))
+		# vec2 = mathutils.Vector((0.0, 0.0, 1.0))
+		# vec2.rotate(rot)
+		#
+		# r = (vcol[0] - 0.5) * 2
+		# b = (vcol[2] - 0.5) * 2
+		# v = np.asarray([[r, -b, 0.0], ])
+		# oct_to_vec3(v, unpack=False)
+		# unpack_swizzle_vectorized(v)
+		# vec = mathutils.Vector(v[0])
 
 		# convert to object space
 		hair_direction = tangent_space_mat @ vec

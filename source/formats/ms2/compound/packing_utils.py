@@ -168,14 +168,15 @@ def vec3_to_oct(arr):
     arr[:, 2] = 0.0
 
 
-def oct_to_vec3(arr):
+def oct_to_vec3(arr, unpack=True):
     # ported from Cigolle et al. "Survey of Efficient Representations for Independent Unit Vectors" 2014.
     # vec3 oct_to_float32x3(vec2 e) {
     # vec3 v = vec3(e.xy, 1.0 - abs(e.x) - abs(e.y));
     # if (v.z < 0) v.xy = (1.0 - abs(v.yx)) * signNotZero(v.xy);
     # return normalize(v);
     # }
-    unpack_ubyte_vector(arr, normalize=False)
+    if unpack:
+        unpack_ubyte_vector(arr, normalize=False)
     arr[:, 2] = 1.0 - np.abs(arr[:, 0]) - np.abs(arr[:, 1])
     # note that advanced indexing like this creates a copy instead of a view, which makes this messy
     arr[arr[:, 2] < 0, 0:2] = ((1.0 - np.abs(arr[:, (1, 0)])) * sign_not_zero(arr[:, :2]))[arr[:, 2] < 0]
