@@ -130,12 +130,16 @@ class ImportManis(bpy.types.Operator, ImportHelper):
 
 
 class ImportMatcol(bpy.types.Operator, ImportHelper):
-    """Import from Matcol file format (.matcol)"""
+    """Import from Matcol file format (.matcol, .dinosaurmateriallayers)"""
     bl_idname = "import_scene.cobra_matcol"
     bl_label = 'Import Matcol'
     bl_options = {'UNDO'}
-    filename_ext = ".matcol"
-    filter_glob: StringProperty(default="*.matcol", options={'HIDDEN'})
+    filename_ext = ".dinosaurmateriallayers"
+    # filter_glob: StringProperty(default="*.matcol", options={'HIDDEN'})
+    # filter_glob: StringProperty(default="*.matcol", options={'HIDDEN'})
+
+    # filename_ext = ".x3d"
+    # filter_glob: StringProperty(default="*.matcol;*.materialcollection;*.dinosaurmateriallayers", options={'HIDDEN'})
 
     def execute(self, context):
         keywords = self.as_keywords(ignore=("axis_forward", "axis_up", "filter_glob"))
@@ -366,10 +370,10 @@ def menu_func_export(self, context):
 def menu_func_import(self, context):
     icon = preview_collection["frontier.png"].icon_id
     self.layout.operator(ImportFgm.bl_idname, text="Cobra Material (.fgm)", icon_value=icon)
-    self.layout.operator(ImportMatcol.bl_idname, text="Cobra Material (.matcol)", icon_value=icon)
+    self.layout.operator(ImportMatcol.bl_idname, text="Cobra Material (.matcol, .dinosaurmateriallayers)", icon_value=icon)
     self.layout.operator(ImportMS2.bl_idname, text="Cobra Model (.ms2)", icon_value=icon)
     self.layout.operator(ImportBani.bl_idname, text="Cobra Baked Anim (.bani)", icon_value=icon)
-    self.layout.operator(ImportManis.bl_idname, text="Cobra Anim (.manis)", icon_value=icon)
+    # self.layout.operator(ImportManis.bl_idname, text="Cobra Anim (.manis)", icon_value=icon)
     self.layout.operator(ImportVoxelskirt.bl_idname, text="Cobra Map (.voxelskirt)", icon_value=icon)
 
 

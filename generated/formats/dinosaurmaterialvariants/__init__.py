@@ -2,9 +2,9 @@
 import logging
 import os
 
-# from ovl_util.config import logging_setup
+from ovl_util.config import logging_setup
 
-# logging_setup("ovl_tool_gui")
+logging_setup("ovl_tool_gui")
 from generated.formats.dinosaurmaterialvariants.compound.DinoLayersHeader import DinoLayersHeader
 from generated.formats.fgm.compound.FgmHeader import FgmHeader
 from generated.formats.ovl_base import OvlContext
@@ -13,7 +13,8 @@ from generated.formats.ovl_base import OvlContext
 class LayeredMaterial:
 
 	def __init__(self):
-		self.layers = []
+		self.context = OvlContext()
+		self.slots = []
 
 	def create_node(self):
 		pass
@@ -23,7 +24,7 @@ class LayeredMaterial:
 		basename, ext = os.path.splitext(layers_name)
 		matname = basename.split("_layers")[0]
 		logging.info(f"Material: {matname}")
-		layers_root = DinoLayersHeader.from_xml_file(layers_path, OvlContext())
+		layers_root = DinoLayersHeader.from_xml_file(layers_path, self.context)
 		for mask_i, layer in enumerate(layers_root.layers.data):
 			mask_png_path = os.path.join(base_dir, f"{matname}.playered_blendweights_[{mask_i:02}].png")
 			tex_fgm_path = get_fgm_path(base_dir, layer.texture_fgm_name)
@@ -37,10 +38,10 @@ class LayeredMaterial:
 			else:
 				logging.info(f"Layer {mask_i} is tiled")
 				if os.path.isfile(tex_fgm_path) and os.path.isfile(trans_fgm_path):
-					logging.info(f"Found files for layer")
+					logging.info(f"Found .fgm files for layer")
 					# self.layers.append(Layer(tex_fgm_path, trans_fgm_path))
-					tex_fgm = FgmHeader.from_xml_file(tex_fgm_path, OvlContext())
-					trans_fgm = FgmHeader.from_xml_file(trans_fgm_path, OvlContext())
+					tex_fgm = FgmHeader.from_xml_file(tex_fgm_path, self.context)
+					trans_fgm = FgmHeader.from_xml_file(trans_fgm_path, self.context)
 					# print(self.tex_fgm)
 					height_tex = tex_fgm.textures.data[1]
 					height_dep = tex_fgm.dependencies.data[1]
@@ -48,24 +49,27 @@ class LayeredMaterial:
 					height_file_basename = os.path.splitext(height_file_name)[0]
 					array_index = height_tex.value[0].array_index
 					# print(height_file_name, array_index)
-					tile_png_path = os.path.join(base_dir, f"{height_file_basename}_[{array_index:02}].png")
-					if not os.path.isfile(tile_png_path):
-						logging.info(f"Found no tile texture for layer {mask_i}")
-					# print(tile_png_path)
-					self.layers.append((mask_png_path, tile_png_path, trans_fgm))
+					height_tile_png_path = os.path.join(base_dir, f"{height_file_basename}_[{array_index:02}].png")
+					if not os.path.isfile(height_tile_png_path):
+						logging.error(f"Found no tile texture for layer {mask_i}")
+					# print(height_tile_png_path)
+					self.slots.append(Layer(mask_png_path, height_tile_png_path, trans_fgm))
+				else:
+					logging.error(f"Fgm files for layer {mask_i} are missing")
 
 
-# class Layer:
-#
-# 	def __init__(self, tex_fgm_path, trans_fgm_path):
-# 		self.tex_fgm = FgmHeader.from_xml_file(tex_fgm_path, OvlContext())
-# 		self.trans_fgm = FgmHeader.from_xml_file(trans_fgm_path, OvlContext())
-# 		# print(self.tex_fgm)
-# 		height_tex = self.tex_fgm.textures.data[1]
-# 		height_dep = self.tex_fgm.dependencies.data[1]
-# 		height_file_name = height_dep.dependency_name.data
-# 		array_index = height_tex.value[0].array_index
-# 		print(height_file_name, array_index)
+class Layer:
+
+	def __init__(self, mask_png_path, height_tile_png_path, trans_fgm):
+		self.mask_png_path = mask_png_path
+		self.height_tile_png_path = height_tile_png_path
+		self.trans_fgm = trans_fgm
+		self.lut = {}
+		for attrib, attrib_data in zip(self.trans_fgm.attributes.data, self.trans_fgm.data_lib.data):
+			# skip first letter p
+			self.lut[attrib.name.lower()[1:]] = attrib_data.value
+		print(self.trans_fgm)
+		print(self.lut)
 
 
 def get_fgm_path(base_dir, fgm_name_ptr):
@@ -78,4 +82,4 @@ def get_fgm_path(base_dir, fgm_name_ptr):
 if __name__ == "__main__":
 	# load_mat_layers("C:/Users/arnfi/Desktop/anim/tylosaurus_layers.dinosaurmateriallayers")
 	layers = LayeredMaterial()
-	layers.load_mat_layers("C:/Users/arnfi/Desktop/anim/ichthyosaurus_layers.dinosaurmateriallayers")
+	layers.load_mat_layers("C:/Users/arnfi/Desktop/ichthyo/ichthyosaurus_layers.dinosaurmateriallayers")
