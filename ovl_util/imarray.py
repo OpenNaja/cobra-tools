@@ -195,29 +195,29 @@ def png_from_tex(tex_file_path, tmp_dir):
 	# print(corresponding_png_textures)
 	in_name_bare, suffix = split_name_suffix(os.path.splitext(corresponding_png_textures[0])[0])
 	# join arrays if there is a suffix
-	must_join = suffix is not None
+	join_array = suffix is not None
 	join_channels = get_split_mode(png_file_path)
 	must_flip_gb = has_vectors(tex_file_path)
 
 	# check if processing needs to be done
-	if not must_join and not must_flip_gb and not join_channels:
+	if not join_array and not must_flip_gb and not join_channels:
 		check_too_many_pngs(corresponding_png_textures, in_name_ext, png_file_path)
 		assert os.path.isfile(png_file_path)
 		logging.debug(f"Need not process {png_file_path}")
 		return png_file_path
 
-	logging.debug(f"must_join {must_join}")
+	logging.debug(f"join_array {join_array}")
 	logging.debug(f"join_channels {join_channels}")
 	logging.debug(f"must_flip_gb {must_flip_gb}")
 
 	# non-tiled files that need fixes - normal maps without channel packing
-	if not must_join and not join_channels:
+	if not join_array and not join_channels:
 		check_too_many_pngs(corresponding_png_textures, in_name_ext, png_file_path)
 		# just read the one input file
 		im = iio.imread(png_file_path)
 
 	# rebuild array from separated tiles
-	if must_join or join_channels:
+	if join_array or join_channels:
 		array_textures = [file for file in corresponding_png_textures if is_array_tile(file, in_name_bare)]
 		# read all images into arrays
 		ims = [iio.imread(os.path.join(in_dir, file)) for file in array_textures]
