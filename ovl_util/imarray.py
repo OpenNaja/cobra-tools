@@ -22,11 +22,16 @@ def check_any(iterable, string):
 def has_components(png_file_path):
 	return check_any((
 		"packedtexture", "playered_blendweights", "scartexture", "samplertexture",
-		"pspecularmaptexture", "pflexicolourmaskstexture", "pshellmap", "pfinalphatexture",), png_file_path)
+		"pspecularmaptexture", "pflexicolourmaskstexture", "pshellmap", "pfinalphatexture",), png_file_path) \
+		and not has_rgb_a(png_file_path)
 
 
 def has_vectors(png_file_path):
 	return check_any(("normaltexture", "playered_warpoffset"), png_file_path)
+
+
+def has_rgb_a(png_file_path):
+	return check_any(("pmossbasecolourroughnesspackedtexture", "ppackedtexture"), png_file_path)
 
 
 def has_rg_b_a(png_file_path):
@@ -39,6 +44,7 @@ def wrapper(png_file_path, size_info, ovl):
 	split_components = has_components(png_file_path)
 	must_flip_gb = has_vectors(png_file_path)
 	split_rg_b_a = has_rg_b_a(png_file_path)
+	split_rgb_a = has_rgb_a(png_file_path)
 	if is_ztuac(ovl):
 		must_flip_gb = False
 	h = size_info.height
@@ -54,10 +60,11 @@ def wrapper(png_file_path, size_info, ovl):
 	logging.debug(f"split_components {split_components}")
 	logging.debug(f"must_split {must_split}")
 	logging.debug(f"split_rg_b_a {split_rg_b_a}")
+	logging.debug(f"split_rgb_a {split_rgb_a}")
 	logging.debug(f"must_flip_gb {must_flip_gb}")
 	logging.debug("Splitting PNG array")
 	logging.debug(f"h {h}, w {w}, array_size {array_size}")
-	if must_split or must_flip_gb or split_components or split_rg_b_a:
+	if must_split or must_flip_gb or split_components or split_rg_b_a or split_rgb_a:
 		im = iio.imread(png_file_path)
 		# (4096, 1024, 4)
 		h, w, d = im.shape
@@ -82,21 +89,32 @@ def wrapper(png_file_path, size_info, ovl):
 				iio.imwrite(file_path, im[layer_i * h:(layer_i + 1) * h, :, :], compress_level=2)
 				out_files.append(file_path)
 			os.remove(png_file_path)
-		# separate into rgb and a components
+		# separate into rg, b and a components
 		elif split_rg_b_a:
 			for hi in range(array_size):
-				file_path = f"{name}_[{layer_i}]{ext}"
+				file_path = f"{name}_[{layer_i:02}]{ext}"
 				normal = np.array(im[hi * h:(hi + 1) * h, :, 0:3])
 				normal[:, :, 2] = 255
 				iio.imwrite(file_path, normal, compress_level=2)
 				out_files.append(file_path)
-				file_path = f"{name}_[{layer_i+1}]{ext}"
+				file_path = f"{name}_[{layer_i+1:02}]{ext}"
 				iio.imwrite(file_path, im[hi * h:(hi + 1) * h, :, 2], compress_level=2)
 				out_files.append(file_path)
-				file_path = f"{name}_[{layer_i+2}]{ext}"
+				file_path = f"{name}_[{layer_i+2:02}]{ext}"
 				iio.imwrite(file_path, im[hi * h:(hi + 1) * h, :, 3], compress_level=2)
 				out_files.append(file_path)
 				layer_i += 3
+			os.remove(png_file_path)
+		# separate into rgb and a components
+		elif split_rgb_a:
+			for hi in range(array_size):
+				file_path = f"{name}_[{layer_i:02}]{ext}"
+				iio.imwrite(file_path, im[hi * h:(hi + 1) * h, :, 0:3], compress_level=2)
+				out_files.append(file_path)
+				file_path = f"{name}_[{layer_i+1:02}]{ext}"
+				iio.imwrite(file_path, im[hi * h:(hi + 1) * h, :, 3], compress_level=2)
+				out_files.append(file_path)
+				layer_i += 2
 			os.remove(png_file_path)
 		# don't split at all, overwrite
 		else:
@@ -161,10 +179,11 @@ def png_from_tex(tex_file_path, tmp_dir):
 	must_join = suffix is not None
 	join_components = has_components(tex_file_path)
 	join_rg_b_a = has_rg_b_a(tex_file_path)
+	join_rgb_a = has_rgb_a(tex_file_path)
 	must_flip_gb = has_vectors(tex_file_path)
 
 	# check if processing needs to be done
-	if not must_join and not join_components and not must_flip_gb and not join_rg_b_a:
+	if not must_join and not join_components and not must_flip_gb and not join_rg_b_a and not join_rgb_a:
 		check_too_many_pngs(corresponding_png_textures, in_name_ext, png_file_path)
 		assert os.path.isfile(png_file_path)
 		logging.debug(f"Need not process {png_file_path}")
@@ -173,16 +192,17 @@ def png_from_tex(tex_file_path, tmp_dir):
 	logging.debug(f"must_join {must_join}")
 	logging.debug(f"join_components {join_components}")
 	logging.debug(f"join_rg_b_a {join_rg_b_a}")
+	logging.debug(f"join_rgb_a {join_rgb_a}")
 	logging.debug(f"must_flip_gb {must_flip_gb}")
 
-	# non-tiled files that need fixes - normal maps
-	if not must_join and not join_components and not join_rg_b_a:
+	# non-tiled files that need fixes - normal maps without channel packing
+	if not must_join and not join_components and not join_rg_b_a and not join_rgb_a:
 		check_too_many_pngs(corresponding_png_textures, in_name_ext, png_file_path)
 		# just read the one input file
 		im = iio.imread(png_file_path)
 
 	# rebuild array from separated tiles
-	if must_join or join_components or join_rg_b_a:
+	if must_join or join_components or join_rg_b_a or join_rgb_a:
 		array_textures = [file for file in corresponding_png_textures if is_array_tile(file, in_name_bare)]
 		# read all images into arrays
 		ims = [iio.imread(os.path.join(in_dir, file)) for file in array_textures]
@@ -199,7 +219,7 @@ def png_from_tex(tex_file_path, tmp_dir):
 				h, w, d = im.shape
 				if d != 4:
 					# rgba files, obvious need to have RGB components, so don't complain
-					if not join_rg_b_a:
+					if not (join_rg_b_a or join_rgb_a):
 						raise AttributeError(f"{file} does not have all 4 channels (RGBA) that are expected, it has {d}")
 				dimensions.append((h, w))
 			# no 3rd dimension, ie. single channel greyscale image
@@ -213,8 +233,12 @@ def png_from_tex(tex_file_path, tmp_dir):
 			array_size //= d
 		if join_rg_b_a:
 			d = 4
-			# since we have 2 components per tile
+			# since we have 3 components per tile
 			array_size //= 3
+		if join_rgb_a:
+			d = 4
+			# since we have 2 components per tile
+			array_size //= 2
 
 		logging.debug(f"array_size {array_size}")
 		if array_size == 0:
@@ -249,6 +273,21 @@ def png_from_tex(tex_file_path, tmp_dir):
 				layer_i += 1
 				# B
 				im[hi * h:(hi + 1) * h, :, 2] = get_single_channel(ims[layer_i], array_textures[layer_i])
+				layer_i += 1
+				# A
+				im[hi * h:(hi + 1) * h, :, 3] = get_single_channel(ims[layer_i], array_textures[layer_i])
+				layer_i += 1
+		elif join_rgb_a:
+			logging.debug("Rebuilding array texture from RGB + A")
+			layer_i = 0
+			for hi in range(array_size):
+				# RGB
+				tile_shape = ims[layer_i].shape
+				print(tile_shape)
+				if len(tile_shape) == 3:
+					im[hi * h:(hi + 1) * h, :, 0:3] = ims[layer_i][:, :, 0:3]
+				else:
+					raise AttributeError("RGB component must be RGB or RGBA")
 				layer_i += 1
 				# A
 				im[hi * h:(hi + 1) * h, :, 3] = get_single_channel(ims[layer_i], array_textures[layer_i])
