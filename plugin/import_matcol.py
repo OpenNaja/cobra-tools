@@ -274,10 +274,10 @@ def create_material(matcol_path):
 
 		# # height offset attribute
 		# print([i for i in infos[1].info.value][:2])
-		# heightscale_lower, heightscale_upper = sorted([i for i in infos[1].info.value][:2])
-		#
-		# if not heightscale_lower and not heightscale_upper:
-		# 	heightscale_upper = 1.0
+		heightBlendScaleA, heightBlendScaleB = sorted([i for i in (slot.lut["heightblendscalea"], slot.lut["heightblendscaleb"])])
+
+		if not heightBlendScaleA and not heightBlendScaleB:
+			heightBlendScaleB = 1.0
 		# heightoffset = infos[2].info.value[0]
 		# heightscale = infos[3].info.value[0]
 
@@ -286,7 +286,12 @@ def create_material(matcol_path):
 		tree.links.new(tex.outputs[0], height.inputs[0])
 		textures.append((height, mask))
 
-		get_att(height, slot.lut, ("heightScale", "heightOffset", "heightBlendScaleA", "heightBlendScaleB"))
+		# get_att(height, slot.lut, ("heightScale", "heightOffset", "heightBlendScaleA", "heightBlendScaleB"))
+		height.inputs["heightScale"].default_value = slot.lut["heightscale"]
+		height.inputs["heightOffset"].default_value = slot.lut["heightoffset"]
+		height.inputs["heightBlendScaleA"].default_value = heightBlendScaleA
+		height.inputs["heightBlendScaleB"].default_value = heightBlendScaleB
+
 		transform = tree.nodes.new("ShaderNodeGroup")
 		transform.node_tree = transform_group
 		tree.links.new(transform.outputs[0], tex.inputs[0])
