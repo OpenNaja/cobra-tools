@@ -1,38 +1,36 @@
-from source.formats.base.basic import fmt_member
+from generated.formats.base.basic import fmt_member
+from generated.formats.base.basic import Float
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
 
 
 class HbPropPhysics(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
-		self.name = ''
-		super().__init__(context, arg, template, set_default)
-		self.arg = arg
-		self.template = template
-		self.io_size = 0
-		self.io_start = 0
+		super().__init__(context, arg, template, set_default=False)
 
 		# Affects selection area above object.
-		self.pad_top = 0.0
+		self.pad_top = 0
 
 		# Z offset of box from prop object.
-		self.z_pos = 0.0
+		self.z_pos = 0
 
 		# Affects selection area and rejects barrier placement inside area.
-		self.half_width = 0.0
+		self.half_width = 0
 
 		# Affects selection area below object.
-		self.pad_bottom = 0.0
+		self.pad_bottom = 0
 
 		# Affects selection area and rejects barrier placement inside area.
-		self.half_depth = 0.0
+		self.half_depth = 0
 
 		# Unknown effect. Possibly vertical offset of box, yet testing was inconclusive.
-		self.u_6 = 0.0
+		self.u_6 = 0
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
+		super().set_defaults()
+		print(f'set_defaults {self.__class__.__name__}')
 		self.pad_top = 0.0
 		self.z_pos = 0.0
 		self.half_width = 0.0
@@ -71,19 +69,14 @@ class HbPropPhysics(MemStruct):
 		stream.write_float(instance.u_6)
 
 	@classmethod
-	def from_stream(cls, stream, context, arg=0, template=None):
-		instance = cls(context, arg, template, set_default=False)
-		instance.io_start = stream.tell()
-		cls.read_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
-
-	@classmethod
-	def to_stream(cls, stream, instance):
-		instance.io_start = stream.tell()
-		cls.write_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
+	def _get_filtered_attribute_list(cls, instance):
+		super()._get_filtered_attribute_list(instance)
+		yield ('pad_top', Float, (0, None))
+		yield ('z_pos', Float, (0, None))
+		yield ('half_width', Float, (0, None))
+		yield ('pad_bottom', Float, (0, None))
+		yield ('half_depth', Float, (0, None))
+		yield ('u_6', Float, (0, None))
 
 	def get_info_str(self, indent=0):
 		return f'HbPropPhysics [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

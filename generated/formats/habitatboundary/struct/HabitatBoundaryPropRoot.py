@@ -1,5 +1,8 @@
-from source.formats.base.basic import fmt_member
+from generated.formats.base.basic import fmt_member
 import generated.formats.base.basic
+from generated.formats.base.basic import Float
+from generated.formats.base.basic import Uint
+from generated.formats.base.basic import Uint64
 from generated.formats.habitatboundary.struct.HbDoorCutout import HbDoorCutout
 from generated.formats.habitatboundary.struct.HbPostPos import HbPostPos
 from generated.formats.habitatboundary.struct.HbPropPhysics import HbPropPhysics
@@ -14,32 +17,29 @@ class HabitatBoundaryPropRoot(MemStruct):
 	"""
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
-		self.name = ''
-		super().__init__(context, arg, template, set_default)
-		self.arg = arg
-		self.template = template
-		self.io_size = 0
-		self.io_start = 0
+		super().__init__(context, arg, template, set_default=False)
 
 		# 0 = Habitat, 1 = Ride, 2 = Guest
 		self.type = 0
 		self.u_1 = 0
 		self.is_guest = 0
-		self.post_position = HbPostPos(self.context, 0, None)
-		self.u_2 = 0.0
-		self.door_physics = HbPropPhysics(self.context, 0, None)
-		self.path_physics = HbPropPhysics(self.context, 0, None)
-		self.door_cutout = HbDoorCutout(self.context, 0, None)
+		self.post_position = 0
+		self.u_2 = 0
+		self.door_physics = 0
+		self.path_physics = 0
+		self.door_cutout = 0
 		self.small = 0
-		self.height = 0.0
-		self.prefab = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.post = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.wall = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.path_join_part = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.height = 0
+		self.prefab = 0
+		self.post = 0
+		self.wall = 0
+		self.path_join_part = 0
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
+		super().set_defaults()
+		print(f'set_defaults {self.__class__.__name__}')
 		self.type = 0
 		self.u_1 = 0
 		self.is_guest = 0
@@ -106,19 +106,22 @@ class HabitatBoundaryPropRoot(MemStruct):
 		stream.write_float(instance.height)
 
 	@classmethod
-	def from_stream(cls, stream, context, arg=0, template=None):
-		instance = cls(context, arg, template, set_default=False)
-		instance.io_start = stream.tell()
-		cls.read_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
-
-	@classmethod
-	def to_stream(cls, stream, instance):
-		instance.io_start = stream.tell()
-		cls.write_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
+	def _get_filtered_attribute_list(cls, instance):
+		super()._get_filtered_attribute_list(instance)
+		yield ('type', Uint64, (0, None))
+		yield ('prefab', Pointer, (0, generated.formats.base.basic.ZString))
+		yield ('u_1', Uint64, (0, None))
+		yield ('post', Pointer, (0, generated.formats.base.basic.ZString))
+		yield ('wall', Pointer, (0, generated.formats.base.basic.ZString))
+		yield ('is_guest', Uint, (0, None))
+		yield ('post_position', HbPostPos, (0, None))
+		yield ('u_2', Float, (0, None))
+		yield ('door_physics', HbPropPhysics, (0, None))
+		yield ('path_physics', HbPropPhysics, (0, None))
+		yield ('path_join_part', Pointer, (0, generated.formats.base.basic.ZString))
+		yield ('door_cutout', HbDoorCutout, (0, None))
+		yield ('small', Uint, (0, None))
+		yield ('height', Float, (0, None))
 
 	def get_info_str(self, indent=0):
 		return f'HabitatBoundaryPropRoot [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

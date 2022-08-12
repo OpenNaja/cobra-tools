@@ -13,7 +13,7 @@ class TextureInfo(GenericInfo):
 	"""
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
-		super().__init__(context, arg, template, set_default)
+		super().__init__(context, arg, template, set_default=False)
 
 		# Stores 2 rgba colors
 
@@ -25,6 +25,8 @@ class TextureInfo(GenericInfo):
 			self.set_defaults()
 
 	def set_defaults(self):
+		super().set_defaults()
+		print(f'set_defaults {self.__class__.__name__}')
 		if self.dtype == 8:
 			self.value = Array((1,), TexIndex, self.context, 0, None)
 		if self.context.version >= 18 and self.dtype == 7:

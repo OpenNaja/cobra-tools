@@ -11,7 +11,7 @@ class EventAttributes(MemStruct):
 	"""
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
-		super().__init__(context, arg, template, set_default)
+		super().__init__(context, arg, template, set_default=False)
 		self.anim_name = 0
 		self.event_name = 0
 		self.empty_string = 0
@@ -19,6 +19,8 @@ class EventAttributes(MemStruct):
 			self.set_defaults()
 
 	def set_defaults(self):
+		super().set_defaults()
+		print(f'set_defaults {self.__class__.__name__}')
 		self.anim_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 		self.event_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 		self.empty_string = Pointer(self.context, 0, generated.formats.base.basic.ZString)

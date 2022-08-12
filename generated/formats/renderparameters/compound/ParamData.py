@@ -17,12 +17,14 @@ class ParamData(MemStruct):
 	"""
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
-		super().__init__(context, arg, template, set_default)
+		super().__init__(context, arg, template, set_default=False)
 		self.data = 0
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
+		super().set_defaults()
+		print(f'set_defaults {self.__class__.__name__}')
 		if self.arg == 0:
 			self.data = numpy.zeros((1,), dtype=numpy.dtype('bool'))
 		if self.arg == 1:

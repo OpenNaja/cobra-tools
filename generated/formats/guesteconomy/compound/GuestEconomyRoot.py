@@ -42,7 +42,7 @@ class GuestEconomyRoot(MemStruct):
 	"""
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
-		super().__init__(context, arg, template, set_default)
+		super().__init__(context, arg, template, set_default=False)
 		self.target_profit = 0
 		self.u_00 = 0
 		self.target_dinosaur_prestige = 0
@@ -79,6 +79,8 @@ class GuestEconomyRoot(MemStruct):
 			self.set_defaults()
 
 	def set_defaults(self):
+		super().set_defaults()
+		print(f'set_defaults {self.__class__.__name__}')
 		self.target_profit = 0
 		self.u_00 = 0.0
 		self.target_dinosaur_prestige = 0

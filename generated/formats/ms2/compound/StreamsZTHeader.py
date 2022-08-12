@@ -13,7 +13,7 @@ class StreamsZTHeader(StructBase):
 	"""
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
-		super().__init__(context, arg, template, set_default)
+		super().__init__(context, arg, template, set_default=False)
 
 		# sometimes 00 byte
 		self.weird_padding = 0
@@ -24,6 +24,8 @@ class StreamsZTHeader(StructBase):
 			self.set_defaults()
 
 	def set_defaults(self):
+		super().set_defaults()
+		print(f'set_defaults {self.__class__.__name__}')
 		self.weird_padding = SmartPadding(self.context, 0, None)
 		self.unks = Array((self.arg.stream_count,), InfoZTMemPool, self.context, 0, None)
 

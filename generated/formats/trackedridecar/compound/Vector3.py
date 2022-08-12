@@ -12,12 +12,14 @@ class Vector3(MemStruct):
 	"""
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
-		super().__init__(context, arg, template, set_default)
+		super().__init__(context, arg, template, set_default=False)
 		self.floats = 0
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
+		super().set_defaults()
+		print(f'set_defaults {self.__class__.__name__}')
 		self.floats = numpy.zeros((3,), dtype=numpy.dtype('float32'))
 
 	def read(self, stream):

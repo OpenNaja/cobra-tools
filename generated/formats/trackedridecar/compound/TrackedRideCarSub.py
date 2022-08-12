@@ -14,7 +14,7 @@ class TrackedRideCarSub(MemStruct):
 	"""
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
-		super().__init__(context, arg, template, set_default)
+		super().__init__(context, arg, template, set_default=False)
 		self.float = 0
 		self.u_0 = 0
 		self.vecs_count = 0
@@ -24,6 +24,8 @@ class TrackedRideCarSub(MemStruct):
 			self.set_defaults()
 
 	def set_defaults(self):
+		super().set_defaults()
+		print(f'set_defaults {self.__class__.__name__}')
 		self.float = 0.0
 		self.u_0 = 0
 		self.vecs_count = 0

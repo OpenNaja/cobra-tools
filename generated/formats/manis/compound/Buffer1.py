@@ -10,7 +10,7 @@ from generated.struct import StructBase
 class Buffer1(StructBase):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
-		super().__init__(context, arg, template, set_default)
+		super().__init__(context, arg, template, set_default=False)
 		self.bone_hashes = 0
 		self.bone_names = 0
 
@@ -20,6 +20,8 @@ class Buffer1(StructBase):
 			self.set_defaults()
 
 	def set_defaults(self):
+		super().set_defaults()
+		print(f'set_defaults {self.__class__.__name__}')
 		self.bone_hashes = numpy.zeros((self.arg,), dtype=numpy.dtype('uint32'))
 		self.bone_names = Array((self.arg,), ZString, self.context, 0, None)
 		self.bone_pad = PadAlign(self.context, 4, self.bone_names)

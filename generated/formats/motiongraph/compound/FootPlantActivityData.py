@@ -10,7 +10,7 @@ class FootPlantActivityData(MemStruct):
 	"""
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
-		super().__init__(context, arg, template, set_default)
+		super().__init__(context, arg, template, set_default=False)
 		self.weight = 0
 		self.rotation_no_i_k_weight = 0
 		self.sticky_feet_weight = 0
@@ -18,6 +18,8 @@ class FootPlantActivityData(MemStruct):
 			self.set_defaults()
 
 	def set_defaults(self):
+		super().set_defaults()
+		print(f'set_defaults {self.__class__.__name__}')
 		self.weight = FloatInputData(self.context, 0, None)
 		self.rotation_no_i_k_weight = FloatInputData(self.context, 0, None)
 		self.sticky_feet_weight = FloatInputData(self.context, 0, None)

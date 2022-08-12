@@ -9,6 +9,8 @@ class FixedString(StructBase):
 	"""
 
 	def set_defaults(self):
+		super().set_defaults()
+		print(f'set_defaults {self.__class__.__name__}')
 		pass
 
 	@classmethod

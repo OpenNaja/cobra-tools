@@ -9,7 +9,7 @@ from generated.formats.ms2.compound.HitCheckEntry import HitCheckEntry
 class JointInfo(CommonJointInfo):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
-		super().__init__(context, arg, template, set_default)
+		super().__init__(context, arg, template, set_default=False)
 
 		# 8 bytes of zeros
 		self.zero = 0
@@ -21,6 +21,8 @@ class JointInfo(CommonJointInfo):
 			self.set_defaults()
 
 	def set_defaults(self):
+		super().set_defaults()
+		print(f'set_defaults {self.__class__.__name__}')
 		self.zero = 0
 		self.zeros_per_hitcheck = numpy.zeros((self.hitcheck_count,), dtype=numpy.dtype('uint64'))
 		self.hitchecks = Array((self.hitcheck_count,), HitCheckEntry, self.context, 0, None)

@@ -156,4 +156,5 @@ class DdsFile(Header, IoFile):
 
 if __name__ == "__main__":
     m = DdsFile()
-    m.load("C:/Users/arnfi/Desktop/parrot/parrot.pbasecolourtexture.dds")
+    print(m)
+    # m.load("C:/Users/arnfi/Desktop/parrot/parrot.pbasecolourtexture.dds")

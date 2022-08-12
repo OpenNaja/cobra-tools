@@ -10,7 +10,7 @@ class DataPointer(StructBase):
 	"""
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
-		super().__init__(context, arg, template, set_default)
+		super().__init__(context, arg, template, set_default=False)
 		self.wem_id = 0
 
 		# offset into data section
@@ -22,6 +22,8 @@ class DataPointer(StructBase):
 			self.set_defaults()
 
 	def set_defaults(self):
+		super().set_defaults()
+		print(f'set_defaults {self.__class__.__name__}')
 		self.wem_id = 0
 		self.data_section_offset = 0
 		self.wem_filesize = 0

@@ -14,7 +14,7 @@ class NasutoJointEntry(StructBase):
 	"""
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
-		super().__init__(context, arg, template, set_default)
+		super().__init__(context, arg, template, set_default=False)
 
 		# index into bone list
 		self.child = 0
@@ -37,6 +37,8 @@ class NasutoJointEntry(StructBase):
 			self.set_defaults()
 
 	def set_defaults(self):
+		super().set_defaults()
+		print(f'set_defaults {self.__class__.__name__}')
 		self.child = 0
 		self.parent = 0
 		self.zero = 0

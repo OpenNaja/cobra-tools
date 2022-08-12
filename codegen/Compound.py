@@ -48,8 +48,8 @@ class Compound(BaseClass):
                 if self.class_basename:
                     # the standard attributes are handled by the parent class
                     # todo - needs testing
-                    # self.write_line(f, 2, "super().__init__(context, arg, template, set_default=False)")
-                    self.write_line(f, 2, "super().__init__(context, arg, template, set_default)")
+                    self.write_line(f, 2, "super().__init__(context, arg, template, set_default=False)")
+                    # self.write_line(f, 2, "super().__init__(context, arg, template, set_default)")
                 else:
                     # no inheritance, so set the standerd attributes
                     self.write_lines(f, 2, (
@@ -76,8 +76,9 @@ class Compound(BaseClass):
                 self.write_line(f)
                 self.write_line(f, 1, "def set_defaults(self):")
                 # todo - needs testing
-                # if self.class_basename:
-                #     self.write_line(f, 2, f"super().set_defaults()")
+                if self.class_basename:
+                    self.write_line(f, 2, f"super().set_defaults()")
+                self.write_line(f, 2, "print(f'set_defaults {self.__class__.__name__}')")
                 end = f.tell()
                 # write all fields, merge conditions
                 condition = ""

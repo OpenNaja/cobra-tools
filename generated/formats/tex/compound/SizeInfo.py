@@ -9,13 +9,15 @@ from generated.formats.tex.compound.SizeInfoRaw import SizeInfoRaw
 class SizeInfo(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
-		super().__init__(context, arg, template, set_default)
+		super().__init__(context, arg, template, set_default=False)
 		self.data = 0
 		self.padding = 0
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
+		super().set_defaults()
+		print(f'set_defaults {self.__class__.__name__}')
 		self.data = SizeInfoRaw(self.context, 0, None)
 		if ((not self.context.user_version.is_jwe) and (self.context.version == 20)) or (((not self.context.user_version.is_jwe) and (self.context.version >= 19)) or (self.context.user_version.is_jwe and (self.context.version == 20))):
 			self.padding = numpy.zeros((320 - self.data.io_size,), dtype=numpy.dtype('uint8'))

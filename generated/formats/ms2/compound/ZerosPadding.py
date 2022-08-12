@@ -6,7 +6,7 @@ from generated.struct import StructBase
 class ZerosPadding(StructBase):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
-		super().__init__(context, arg, template, set_default)
+		super().__init__(context, arg, template, set_default=False)
 		self.hier_2_padding_0 = 0
 
 		# 128 still has 16 bytes
@@ -18,6 +18,8 @@ class ZerosPadding(StructBase):
 			self.set_defaults()
 
 	def set_defaults(self):
+		super().set_defaults()
+		print(f'set_defaults {self.__class__.__name__}')
 		self.hier_2_padding_0 = 0
 		if 64 < self.arg:
 			self.hier_2_padding_1 = 0

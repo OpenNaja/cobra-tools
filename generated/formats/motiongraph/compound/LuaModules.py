@@ -11,7 +11,7 @@ class LuaModules(MemStruct):
 	"""
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
-		super().__init__(context, arg, template, set_default)
+		super().__init__(context, arg, template, set_default=False)
 		self.motion_graph = 0
 		self.motion_graph_event_handling = 0
 		self.motion_graph_actions = 0
@@ -19,6 +19,8 @@ class LuaModules(MemStruct):
 			self.set_defaults()
 
 	def set_defaults(self):
+		super().set_defaults()
+		print(f'set_defaults {self.__class__.__name__}')
 		self.motion_graph = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 		self.motion_graph_event_handling = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 		self.motion_graph_actions = Pointer(self.context, 0, generated.formats.base.basic.ZString)

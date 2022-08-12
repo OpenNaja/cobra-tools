@@ -7,7 +7,7 @@ from generated.struct import StructBase
 class MaterialName(StructBase):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
-		super().__init__(context, arg, template, set_default)
+		super().__init__(context, arg, template, set_default=False)
 
 		# index into ms2 names array
 		self.name_index = 0
@@ -18,6 +18,8 @@ class MaterialName(StructBase):
 			self.set_defaults()
 
 	def set_defaults(self):
+		super().set_defaults()
+		print(f'set_defaults {self.__class__.__name__}')
 		if self.context.version >= 47:
 			self.name_index = 0
 		if self.context.version <= 32:

@@ -1,8 +1,12 @@
-from source.formats.base.basic import fmt_member
-from generated.context import ContextReference
+from generated.formats.base.basic import fmt_member
+from generated.formats.base.basic import Float
+from generated.formats.base.basic import Short
+from generated.formats.base.basic import Uint
+from generated.formats.base.basic import Ushort
+from generated.struct import StructBase
 
 
-class LodInfo:
+class LodInfo(StructBase):
 
 	"""
 	DLA, ZTUAC - 16 bytes
@@ -10,15 +14,8 @@ class LodInfo:
 	JWE2 Biosyn - 12 bytes, skips the vert / tris counts
 	"""
 
-	context = ContextReference()
-
 	def __init__(self, context, arg=0, template=None, set_default=True):
-		self.name = ''
-		self._context = context
-		self.arg = arg
-		self.template = template
-		self.io_size = 0
-		self.io_start = 0
+		super().__init__(context, arg, template, set_default=False)
 
 		# FFFF
 		self.full = 0
@@ -30,7 +27,7 @@ class LodInfo:
 		self.lod_index = 0
 
 		# usually first lod is 900
-		self.distance = 0.0
+		self.distance = 0
 
 		# always 0
 		self.zero = 0
@@ -55,26 +52,23 @@ class LodInfo:
 			self.set_defaults()
 
 	def set_defaults(self):
+		super().set_defaults()
+		print(f'set_defaults {self.__class__.__name__}')
 		if self.context.version <= 13:
 			self.full = 0
-		if self.context.version <= 13:
 			self.half = 0
-		if self.context.version <= 13:
 			self.lod_index = 0
 		if self.context.version >= 32:
 			self.distance = 0.0
-		if self.context.version >= 32:
 			self.zero = 0
 		self.bone_index = 0
 		self.first_object_index = 0
 		if self.context.version <= 13:
 			self.first_object_index_1 = 0
-		if self.context.version <= 13:
 			self.first_object_index_2 = 0
 		self.last_object_index = 0
 		if self.context.version >= 32 and not ((self.context.version == 51) and self.context.biosyn):
 			self.vertex_count = 0
-		if self.context.version >= 32 and not ((self.context.version == 51) and self.context.biosyn):
 			self.tri_index_count = 0
 
 	def read(self, stream):
@@ -89,10 +83,10 @@ class LodInfo:
 
 	@classmethod
 	def read_fields(cls, stream, instance):
+		super().read_fields(stream, instance)
 		if instance.context.version <= 13:
 			instance.full = stream.read_short()
 			instance.half = stream.read_short()
-		if instance.context.version <= 13:
 			instance.lod_index = stream.read_ushort()
 		if instance.context.version >= 32:
 			instance.distance = stream.read_float()
@@ -109,10 +103,10 @@ class LodInfo:
 
 	@classmethod
 	def write_fields(cls, stream, instance):
+		super().write_fields(stream, instance)
 		if instance.context.version <= 13:
 			stream.write_short(instance.full)
 			stream.write_short(instance.half)
-		if instance.context.version <= 13:
 			stream.write_ushort(instance.lod_index)
 		if instance.context.version >= 32:
 			stream.write_float(instance.distance)
@@ -128,25 +122,31 @@ class LodInfo:
 			stream.write_uint(instance.tri_index_count)
 
 	@classmethod
-	def from_stream(cls, stream, context, arg=0, template=None):
-		instance = cls(context, arg, template, set_default=False)
-		instance.io_start = stream.tell()
-		cls.read_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
-
-	@classmethod
-	def to_stream(cls, stream, instance):
-		instance.io_start = stream.tell()
-		cls.write_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
+	def _get_filtered_attribute_list(cls, instance):
+		super()._get_filtered_attribute_list(instance)
+		if instance.context.version <= 13:
+			yield ('full', Short, (0, None))
+			yield ('half', Short, (0, None))
+			yield ('lod_index', Ushort, (0, None))
+		if instance.context.version >= 32:
+			yield ('distance', Float, (0, None))
+			yield ('zero', Ushort, (0, None))
+		yield ('bone_index', Ushort, (0, None))
+		yield ('first_object_index', Ushort, (0, None))
+		if instance.context.version <= 13:
+			yield ('first_object_index_1', Ushort, (0, None))
+			yield ('first_object_index_2', Ushort, (0, None))
+		yield ('last_object_index', Ushort, (0, None))
+		if instance.context.version >= 32 and not ((instance.context.version == 51) and instance.context.biosyn):
+			yield ('vertex_count', Uint, (0, None))
+			yield ('tri_index_count', Uint, (0, None))
 
 	def get_info_str(self, indent=0):
 		return f'LodInfo [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
 	def get_fields_str(self, indent=0):
 		s = ''
+		s += super().get_fields_str()
 		s += f'\n	* full = {fmt_member(self.full, indent+1)}'
 		s += f'\n	* half = {fmt_member(self.half, indent+1)}'
 		s += f'\n	* lod_index = {fmt_member(self.lod_index, indent+1)}'

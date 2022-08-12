@@ -11,7 +11,7 @@ from generated.struct import StructBase
 class Buffer0(StructBase):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
-		super().__init__(context, arg, template, set_default)
+		super().__init__(context, arg, template, set_default=False)
 
 		# djb2 hashes
 		self.name_hashes = 0
@@ -26,6 +26,8 @@ class Buffer0(StructBase):
 			self.set_defaults()
 
 	def set_defaults(self):
+		super().set_defaults()
+		print(f'set_defaults {self.__class__.__name__}')
 		self.name_hashes = numpy.zeros((self.arg.name_count,), dtype=numpy.dtype('uint32'))
 		self.names = Array((self.arg.name_count,), ZString, self.context, 0, None)
 		if self.context.version >= 50:

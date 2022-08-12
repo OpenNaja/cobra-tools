@@ -8,7 +8,7 @@ from generated.formats.ovl_base.compound.Pointer import Pointer
 class CinematicRoot(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
-		super().__init__(context, arg, template, set_default)
+		super().__init__(context, arg, template, set_default=False)
 		self.u_0 = 0
 		self.u_1 = 0
 		self.data = 0
@@ -16,6 +16,8 @@ class CinematicRoot(MemStruct):
 			self.set_defaults()
 
 	def set_defaults(self):
+		super().set_defaults()
+		print(f'set_defaults {self.__class__.__name__}')
 		self.u_0 = 0
 		self.u_1 = 0
 		self.data = Pointer(self.context, 0, generated.formats.cinematic.compound.CinematicData.CinematicData)

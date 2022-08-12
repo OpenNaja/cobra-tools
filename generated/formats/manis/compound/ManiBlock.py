@@ -16,7 +16,7 @@ from generated.struct import StructBase
 class ManiBlock(StructBase):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
-		super().__init__(context, arg, template, set_default)
+		super().__init__(context, arg, template, set_default=False)
 		self.ref = 0
 		self.pos_bones = 0
 		self.ori_bones = 0
@@ -77,6 +77,8 @@ class ManiBlock(StructBase):
 			self.set_defaults()
 
 	def set_defaults(self):
+		super().set_defaults()
+		print(f'set_defaults {self.__class__.__name__}')
 		self.ref = Empty(self.context, 0, None)
 		if self.context.version == 18:
 			self.pos_bones = numpy.zeros((self.arg.pos_bone_count,), dtype=numpy.dtype('uint16'))

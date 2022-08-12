@@ -14,7 +14,7 @@ class BufferEntry(StructBase):
 	"""
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
-		super().__init__(context, arg, template, set_default)
+		super().__init__(context, arg, template, set_default=False)
 
 		# index of buffer in file, up to pz 1.6
 		self.index = 0
@@ -28,6 +28,8 @@ class BufferEntry(StructBase):
 			self.set_defaults()
 
 	def set_defaults(self):
+		super().set_defaults()
+		print(f'set_defaults {self.__class__.__name__}')
 		if self.context.version <= 19:
 			self.index = 0
 		self.size = 0

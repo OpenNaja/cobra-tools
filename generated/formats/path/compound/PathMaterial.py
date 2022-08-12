@@ -10,7 +10,7 @@ from generated.formats.ovl_base.compound.Pointer import Pointer
 class PathMaterial(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
-		super().__init__(context, arg, template, set_default)
+		super().__init__(context, arg, template, set_default=False)
 		self.path_sub_type = 0
 		self.num_data = 0
 		self.elevated_mat = 0
@@ -28,6 +28,8 @@ class PathMaterial(MemStruct):
 			self.set_defaults()
 
 	def set_defaults(self):
+		super().set_defaults()
+		print(f'set_defaults {self.__class__.__name__}')
 		self.path_sub_type = 0
 		self.num_data = 0
 		self.elevated_mat = Pointer(self.context, 0, generated.formats.base.basic.ZString)

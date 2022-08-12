@@ -1,30 +1,30 @@
-from source.formats.base.basic import fmt_member
+from generated.formats.base.basic import fmt_member
 import numpy
 from generated.array import Array
-from generated.context import ContextReference
+from generated.formats.base.basic import Byte
+from generated.formats.base.basic import Int
+from generated.formats.base.basic import Short
+from generated.formats.base.basic import Ubyte
+from generated.formats.base.basic import Uint
+from generated.formats.base.basic import Uint64
+from generated.formats.base.basic import Ushort
 from generated.formats.ms2.compound.Bone import Bone
 from generated.formats.ms2.compound.JointData import JointData
 from generated.formats.ms2.compound.Matrix44 import Matrix44
 from generated.formats.ms2.compound.MinusPadding import MinusPadding
 from generated.formats.ms2.compound.Struct7 import Struct7
 from generated.formats.ms2.compound.ZerosPadding import ZerosPadding
+from generated.struct import StructBase
 
 
-class BoneInfo:
+class BoneInfo(StructBase):
 
 	"""
 	# 858 in DLA c_cl_thread_.ms2
 	"""
 
-	context = ContextReference()
-
 	def __init__(self, context, arg=0, template=None, set_default=True):
-		self.name = ''
-		self._context = context
-		self.arg = arg
-		self.template = template
-		self.io_size = 0
-		self.io_start = 0
+		super().__init__(context, arg, template, set_default=False)
 
 		# counts the names
 		self.name_count = 0
@@ -47,7 +47,7 @@ class BoneInfo:
 
 		# seems to match bone count
 		self.bind_matrix_count = 0
-		self.zeros = numpy.zeros((2,), dtype=numpy.dtype('uint64'))
+		self.zeros = 0
 		self.inv_data_count = 0
 		self.bone_count = 0
 		self.unknown_40 = 0
@@ -83,63 +83,59 @@ class BoneInfo:
 
 		# zero
 		self.unk_extra_jwe = 0
-		self.name_indices = numpy.zeros((self.name_count,), dtype=numpy.dtype('uint32'))
-		self.name_indices = numpy.zeros((self.name_count,), dtype=numpy.dtype('uint16'))
-		self.inventory_name_indices = numpy.zeros((self.inv_names_count,), dtype=numpy.dtype('uint16'))
-		self.name_padding = numpy.zeros(((16 - (((self.name_count + self.inv_names_count) * 4) % 16)) % 16,), dtype=numpy.dtype('int8'))
-		self.name_padding = numpy.zeros(((16 - (((self.name_count + self.inv_names_count) * 2) % 16)) % 16,), dtype=numpy.dtype('int8'))
+		self.name_indices = 0
+		self.inventory_name_indices = 0
+		self.name_padding = 0
 
 		# used for skinning
-		self.inverse_bind_matrices = Array((self.bind_matrix_count,), Matrix44, self.context, 0, None)
-		self.bones = Array((self.bone_count,), Bone, self.context, 0, None)
+		self.inverse_bind_matrices = 0
+		self.bones = 0
 
 		# 255 = root, index in this list is the current bone index, value is the bone's parent index
-		self.parents = numpy.zeros((self.parents_count,), dtype=numpy.dtype('uint8'))
+		self.parents = 0
 
 		# zeros
-		self.parents_padding = numpy.zeros(((8 - (self.parents_count % 8)) % 8,), dtype=numpy.dtype('int8'))
+		self.parents_padding = 0
 
 		# enumerates all bone indices, 4 may be flags
-		self.enumeration = numpy.zeros((self.enum_count, 2,), dtype=numpy.dtype('uint32'))
 
 		# enumerates all bone indices
-		self.enumeration = numpy.zeros((self.enum_count,), dtype=numpy.dtype('uint8'))
+		self.enumeration = 0
 
 		# zeros
-		self.inventory_datas = numpy.zeros((self.inv_data_count, 6,), dtype=numpy.dtype('int8'))
+		self.inventory_datas = 0
 
 		# -1s and 0s
-		self.weirdness = numpy.zeros((8,), dtype=numpy.dtype('int16'))
 
 		# zeros
-		self.weirdness = numpy.zeros((10,), dtype=numpy.dtype('int16'))
+		self.weirdness = 0
 
 		# zeros
-		self.inventory_datas_2 = numpy.zeros((self.inv_data_count, 2,), dtype=numpy.dtype('int32'))
+		self.inventory_datas_2 = 0
 
 		# weird zeros
-		self.zeros_padding = ZerosPadding(self.context, self.zeros_count, None)
+		self.zeros_padding = 0
 
 		# weird -1s
-		self.minus_padding = MinusPadding(self.context, self.zeros_count, None)
+		self.minus_padding = 0
 
 		# ragdoll links?
-		self.struct_7 = Struct7(self.context, 0, None)
+		self.struct_7 = 0
 
 		# joints
-		self.joints = JointData(self.context, 0, None)
+		self.joints = 0
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
+		super().set_defaults()
+		print(f'set_defaults {self.__class__.__name__}')
 		self.name_count = 0
 		self.z_0 = 0
 		self.inv_names_count = 0
 		if self.context.version >= 32:
 			self.knownff = 0
-		if self.context.version >= 32:
 			self.zero_0 = 0
-		if self.context.version >= 32:
 			self.unknown_0_c = 0
 		self.unk_count = 0
 		self.bind_matrix_count = 0
@@ -167,7 +163,6 @@ class BoneInfo:
 			self.name_indices = numpy.zeros((self.name_count,), dtype=numpy.dtype('uint32'))
 		if self.context.version < 47:
 			self.name_indices = numpy.zeros((self.name_count,), dtype=numpy.dtype('uint16'))
-		if self.context.version < 47:
 			self.inventory_name_indices = numpy.zeros((self.inv_names_count,), dtype=numpy.dtype('uint16'))
 		if not (self.context.version < 47):
 			self.name_padding = numpy.zeros(((16 - (((self.name_count + self.inv_names_count) * 4) % 16)) % 16,), dtype=numpy.dtype('int8'))
@@ -184,7 +179,6 @@ class BoneInfo:
 			self.enumeration = numpy.zeros((self.enum_count,), dtype=numpy.dtype('uint8'))
 		if self.context.version == 7:
 			self.inventory_datas = numpy.zeros((self.inv_data_count, 6,), dtype=numpy.dtype('int8'))
-		if self.context.version == 7:
 			self.weirdness = numpy.zeros((8,), dtype=numpy.dtype('int16'))
 		if self.context.version == 13:
 			self.weirdness = numpy.zeros((10,), dtype=numpy.dtype('int16'))
@@ -211,13 +205,13 @@ class BoneInfo:
 
 	@classmethod
 	def read_fields(cls, stream, instance):
+		super().read_fields(stream, instance)
 		instance.name_count = stream.read_uint()
 		instance.z_0 = stream.read_ushort()
 		instance.inv_names_count = stream.read_ushort()
 		if instance.context.version >= 32:
 			instance.knownff = stream.read_short()
 			instance.zero_0 = stream.read_short()
-		if instance.context.version >= 32:
 			instance.unknown_0_c = stream.read_uint()
 		instance.unk_count = stream.read_uint64()
 		instance.bind_matrix_count = stream.read_uint64()
@@ -277,13 +271,13 @@ class BoneInfo:
 
 	@classmethod
 	def write_fields(cls, stream, instance):
+		super().write_fields(stream, instance)
 		stream.write_uint(instance.name_count)
 		stream.write_ushort(instance.z_0)
 		stream.write_ushort(instance.inv_names_count)
 		if instance.context.version >= 32:
 			stream.write_short(instance.knownff)
 			stream.write_short(instance.zero_0)
-		if instance.context.version >= 32:
 			stream.write_uint(instance.unknown_0_c)
 		stream.write_uint64(instance.unk_count)
 		stream.write_uint64(instance.bind_matrix_count)
@@ -345,25 +339,77 @@ class BoneInfo:
 			JointData.to_stream(stream, instance.joints)
 
 	@classmethod
-	def from_stream(cls, stream, context, arg=0, template=None):
-		instance = cls(context, arg, template, set_default=False)
-		instance.io_start = stream.tell()
-		cls.read_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
-
-	@classmethod
-	def to_stream(cls, stream, instance):
-		instance.io_start = stream.tell()
-		cls.write_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
+	def _get_filtered_attribute_list(cls, instance):
+		super()._get_filtered_attribute_list(instance)
+		yield ('name_count', Uint, (0, None))
+		yield ('z_0', Ushort, (0, None))
+		yield ('inv_names_count', Ushort, (0, None))
+		if instance.context.version >= 32:
+			yield ('knownff', Short, (0, None))
+			yield ('zero_0', Short, (0, None))
+			yield ('unknown_0_c', Uint, (0, None))
+		yield ('unk_count', Uint64, (0, None))
+		yield ('bind_matrix_count', Uint64, (0, None))
+		yield ('zeros', Array, ((2,), Uint64, 0, None))
+		yield ('inv_data_count', Uint64, (0, None))
+		yield ('bone_count', Uint64, (0, None))
+		yield ('unknown_40', Uint64, (0, None))
+		yield ('parents_count', Uint64, (0, None))
+		if (instance.context.version == 7) or ((instance.context.version == 13) or (((instance.context.version == 48) or (instance.context.version == 50)) or (instance.context.version == 51))):
+			yield ('extra_zero', Uint64, (0, None))
+		yield ('enum_count', Uint64, (0, None))
+		yield ('unknown_58', Uint64, (0, None))
+		yield ('one', Uint64, (0, None))
+		yield ('zeros_count', Uint64, (0, None))
+		if instance.context.version == 32:
+			yield ('unk_pc_count', Uint64, (0, None))
+		yield ('count_7', Uint64, (0, None))
+		yield ('joint_count', Uint64, (0, None))
+		yield ('unk_78_count', Uint64, (0, None))
+		if instance.context.version <= 13:
+			yield ('unk_extra', Uint64, (0, None))
+		if (instance.context.version == 47) or (instance.context.version == 39):
+			yield ('unk_extra_jwe', Uint64, (0, None))
+		if not (instance.context.version < 47):
+			yield ('name_indices', Array, ((instance.name_count,), Uint, 0, None))
+		if instance.context.version < 47:
+			yield ('name_indices', Array, ((instance.name_count,), Ushort, 0, None))
+			yield ('inventory_name_indices', Array, ((instance.inv_names_count,), Ushort, 0, None))
+		if not (instance.context.version < 47):
+			yield ('name_padding', Array, (((16 - (((instance.name_count + instance.inv_names_count) * 4) % 16)) % 16,), Byte, 0, None))
+		if instance.context.version < 47:
+			yield ('name_padding', Array, (((16 - (((instance.name_count + instance.inv_names_count) * 2) % 16)) % 16,), Byte, 0, None))
+		yield ('inverse_bind_matrices', Array, ((instance.bind_matrix_count,), Matrix44, 0, None))
+		yield ('bones', Array, ((instance.bone_count,), Bone, 0, None))
+		yield ('parents', Array, ((instance.parents_count,), Ubyte, 0, None))
+		if instance.context.version >= 32:
+			yield ('parents_padding', Array, (((8 - (instance.parents_count % 8)) % 8,), Byte, 0, None))
+		if instance.context.version >= 32 and instance.one:
+			yield ('enumeration', Array, ((instance.enum_count, 2,), Uint, 0, None))
+		if instance.context.version <= 13 and instance.one:
+			yield ('enumeration', Array, ((instance.enum_count,), Ubyte, 0, None))
+		if instance.context.version == 7:
+			yield ('inventory_datas', Array, ((instance.inv_data_count, 6,), Byte, 0, None))
+			yield ('weirdness', Array, ((8,), Short, 0, None))
+		if instance.context.version == 13:
+			yield ('weirdness', Array, ((10,), Short, 0, None))
+		if instance.context.version == 7:
+			yield ('inventory_datas_2', Array, ((instance.inv_data_count, 2,), Int, 0, None))
+		if not (instance.context.version < 47) and instance.zeros_count:
+			yield ('zeros_padding', ZerosPadding, (instance.zeros_count, None))
+		if instance.context.version < 47 and instance.zeros_count:
+			yield ('minus_padding', MinusPadding, (instance.zeros_count, None))
+		if instance.count_7:
+			yield ('struct_7', Struct7, (0, None))
+		if instance.joint_count:
+			yield ('joints', JointData, (0, None))
 
 	def get_info_str(self, indent=0):
 		return f'BoneInfo [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
 	def get_fields_str(self, indent=0):
 		s = ''
+		s += super().get_fields_str()
 		s += f'\n	* name_count = {fmt_member(self.name_count, indent+1)}'
 		s += f'\n	* z_0 = {fmt_member(self.z_0, indent+1)}'
 		s += f'\n	* inv_names_count = {fmt_member(self.inv_names_count, indent+1)}'

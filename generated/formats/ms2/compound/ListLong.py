@@ -13,7 +13,7 @@ class ListLong(Descriptor):
 	"""
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
-		super().__init__(context, arg, template, set_default)
+		super().__init__(context, arg, template, set_default=False)
 
 		# the location of the child joint
 		self.loc = 0
@@ -27,6 +27,8 @@ class ListLong(Descriptor):
 			self.set_defaults()
 
 	def set_defaults(self):
+		super().set_defaults()
+		print(f'set_defaults {self.__class__.__name__}')
 		self.loc = Vector3(self.context, 0, None)
 		self.floats = numpy.zeros((5, 3,), dtype=numpy.dtype('float32'))
 		self.radians = numpy.zeros((8,), dtype=numpy.dtype('float32'))

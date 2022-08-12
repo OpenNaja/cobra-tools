@@ -12,7 +12,7 @@ class GenericHeader(StructBase):
 	"""
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
-		super().__init__(context, arg, template, set_default)
+		super().__init__(context, arg, template, set_default=False)
 
 		# 'FGM ' for fgm, 'FRES' for ovl, 'MANI' for manis, 'MS2 ' for ms2, 'VOXE' for voxelskirt
 		self.magic = 0
@@ -35,6 +35,8 @@ class GenericHeader(StructBase):
 			self.set_defaults()
 
 	def set_defaults(self):
+		super().set_defaults()
+		print(f'set_defaults {self.__class__.__name__}')
 		self.magic = FixedString(self.context, 4, None)
 		self.version_flag = 0
 		self.version = 0

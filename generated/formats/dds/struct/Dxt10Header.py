@@ -8,7 +8,7 @@ from generated.struct import StructBase
 class Dxt10Header(StructBase):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
-		super().__init__(context, arg, template, set_default)
+		super().__init__(context, arg, template, set_default=False)
 		self.dxgi_format = 0
 		self.resource_dimension = 0
 		self.misc_flag = 0
@@ -18,6 +18,8 @@ class Dxt10Header(StructBase):
 			self.set_defaults()
 
 	def set_defaults(self):
+		super().set_defaults()
+		print(f'set_defaults {self.__class__.__name__}')
 		self.dxgi_format = DxgiFormat(self.context, 0, None)
 		self.resource_dimension = D3D10ResourceDimension(self.context, 0, None)
 		self.misc_flag = 0

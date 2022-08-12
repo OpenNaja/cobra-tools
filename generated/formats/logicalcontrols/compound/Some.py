@@ -14,7 +14,7 @@ class Some(MemStruct):
 	"""
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
-		super().__init__(context, arg, template, set_default)
+		super().__init__(context, arg, template, set_default=False)
 		self.some_count = 0
 		self.some_name = 0
 		self.some_data = 0
@@ -22,6 +22,8 @@ class Some(MemStruct):
 			self.set_defaults()
 
 	def set_defaults(self):
+		super().set_defaults()
+		print(f'set_defaults {self.__class__.__name__}')
 		self.some_count = 0
 		self.some_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 		self.some_data = ArrayPointer(self.context, self.some_count, generated.formats.logicalcontrols.compound.SomeData.SomeData)

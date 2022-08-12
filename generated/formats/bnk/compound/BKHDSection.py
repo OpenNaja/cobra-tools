@@ -13,6 +13,8 @@ class BKHDSection(StructBase):
 	"""
 
 	def set_defaults(self):
+		super().set_defaults()
+		print(f'set_defaults {self.__class__.__name__}')
 		self.length = 0
 		self.version = 0
 		self.id_a = 0

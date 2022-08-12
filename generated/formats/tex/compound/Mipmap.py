@@ -10,7 +10,7 @@ class Mipmap(MemStruct):
 	"""
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
-		super().__init__(context, arg, template, set_default)
+		super().__init__(context, arg, template, set_default=False)
 
 		# starting offset into the texture buffer for this mip level
 		self.offset = 0
@@ -30,6 +30,8 @@ class Mipmap(MemStruct):
 			self.set_defaults()
 
 	def set_defaults(self):
+		super().set_defaults()
+		print(f'set_defaults {self.__class__.__name__}')
 		self.offset = 0
 		self.size = 0
 		self.size_array = 0

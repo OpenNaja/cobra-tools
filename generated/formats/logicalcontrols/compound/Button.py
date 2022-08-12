@@ -10,7 +10,7 @@ from generated.formats.ovl_base.compound.Pointer import Pointer
 class Button(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
-		super().__init__(context, arg, template, set_default)
+		super().__init__(context, arg, template, set_default=False)
 		self.datas_count = 0
 		self.flags = 0
 		self.button_name = 0
@@ -19,6 +19,8 @@ class Button(MemStruct):
 			self.set_defaults()
 
 	def set_defaults(self):
+		super().set_defaults()
+		print(f'set_defaults {self.__class__.__name__}')
 		self.datas_count = 0
 		self.flags = 0
 		self.button_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)

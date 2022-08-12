@@ -24,7 +24,7 @@ class ZtMeshData(MeshData):
 	"""
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
-		super().__init__(context, arg, template, set_default)
+		super().__init__(context, arg, template, set_default=False)
 
 		# repeat
 		self.tri_index_count = 0
@@ -61,6 +61,8 @@ class ZtMeshData(MeshData):
 			self.set_defaults()
 
 	def set_defaults(self):
+		super().set_defaults()
+		print(f'set_defaults {self.__class__.__name__}')
 		self.tri_index_count = 0
 		self.vertex_count = 0
 		self.tri_info_offset = 0
@@ -142,7 +144,7 @@ class ZtMeshData(MeshData):
 		yield ('tri_offset', Uint, (0, None))
 		yield ('uv_offset', Uint, (0, None))
 		yield ('vertex_offset', Uint, (0, None))
-		yield ('known_ff_1', Short, (0, None))
+		yield ('unk_index', Short, (0, None))
 		yield ('one_0', Ushort, (0, None))
 		yield ('one_1', Ushort, (0, None))
 		yield ('poweroftwo', Ushort, (0, None))

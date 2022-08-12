@@ -13,7 +13,7 @@ class SizedStrData(StructBase):
 	"""
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
-		super().__init__(context, arg, template, set_default)
+		super().__init__(context, arg, template, set_default=False)
 
 		# seemingly related to the names of mani files stripped from their prefix, but usually slightly smaller than what is actually needed
 		self.names_size = 0
@@ -28,6 +28,8 @@ class SizedStrData(StructBase):
 			self.set_defaults()
 
 	def set_defaults(self):
+		super().set_defaults()
+		print(f'set_defaults {self.__class__.__name__}')
 		self.names_size = 0
 		self.hash_block_size = 0
 		self.zero_0 = 0

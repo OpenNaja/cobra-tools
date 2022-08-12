@@ -12,7 +12,7 @@ from generated.formats.ovl_base.compound.Pointer import Pointer
 class DinoEffectsHeader(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
-		super().__init__(context, arg, template, set_default)
+		super().__init__(context, arg, template, set_default=False)
 		self.vec_0 = 0
 		self.vec_1 = 0
 		self.a = 0
@@ -33,6 +33,8 @@ class DinoEffectsHeader(MemStruct):
 			self.set_defaults()
 
 	def set_defaults(self):
+		super().set_defaults()
+		print(f'set_defaults {self.__class__.__name__}')
 		self.vec_0 = Vector3F(self.context, 0, None)
 		self.vec_1 = Vector3F(self.context, 0, None)
 		self.a = 0

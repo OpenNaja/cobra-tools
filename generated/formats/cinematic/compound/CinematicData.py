@@ -10,7 +10,7 @@ from generated.formats.ovl_base.compound.Pointer import Pointer
 class CinematicData(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
-		super().__init__(context, arg, template, set_default)
+		super().__init__(context, arg, template, set_default=False)
 		self.next_level_count = 0
 		self.default_name = 0
 		self.next_levels = 0
@@ -18,6 +18,8 @@ class CinematicData(MemStruct):
 			self.set_defaults()
 
 	def set_defaults(self):
+		super().set_defaults()
+		print(f'set_defaults {self.__class__.__name__}')
 		self.next_level_count = 0
 		self.default_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 		self.next_levels = ArrayPointer(self.context, self.next_level_count, generated.formats.cinematic.compound.State.State)

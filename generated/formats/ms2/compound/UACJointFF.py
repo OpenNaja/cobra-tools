@@ -9,7 +9,7 @@ from generated.struct import StructBase
 class UACJointFF(StructBase):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
-		super().__init__(context, arg, template, set_default)
+		super().__init__(context, arg, template, set_default=False)
 
 		# must be 11
 		self.eleven = 0
@@ -25,6 +25,8 @@ class UACJointFF(StructBase):
 			self.set_defaults()
 
 	def set_defaults(self):
+		super().set_defaults()
+		print(f'set_defaults {self.__class__.__name__}')
 		self.eleven = 0
 		self.f_fs = numpy.zeros((4,), dtype=numpy.dtype('int32'))
 		self.name_offset = 0

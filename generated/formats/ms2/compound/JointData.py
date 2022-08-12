@@ -1,7 +1,10 @@
-from source.formats.base.basic import fmt_member
+from generated.formats.base.basic import fmt_member
 import numpy
 from generated.array import Array
-from generated.context import ContextReference
+from generated.formats.base.basic import Float
+from generated.formats.base.basic import Int
+from generated.formats.base.basic import Uint
+from generated.formats.base.basic import Uint64
 from generated.formats.base.compound.ZStringBuffer import ZStringBuffer
 from generated.formats.ms2.compound.HitcheckReader import HitcheckReader
 from generated.formats.ms2.compound.JointEntry import JointEntry
@@ -12,26 +15,20 @@ from generated.formats.ms2.compound.ListLong import ListLong
 from generated.formats.ms2.compound.ListShort import ListShort
 from generated.formats.ms2.compound.UACJointFF import UACJointFF
 from generated.formats.ovl_base.compound.SmartPadding import SmartPadding
+from generated.struct import StructBase
 
 
-class JointData:
+class JointData(StructBase):
 
 	"""
 	appears in dinos and static meshes
 	"""
 
-	context = ContextReference()
-
 	def __init__(self, context, arg=0, template=None, set_default=True):
-		self.name = ''
-		self._context = context
-		self.arg = arg
-		self.template = template
-		self.io_size = 0
-		self.io_start = 0
+		super().__init__(context, arg, template, set_default=False)
 
 		# seemingly additional alignment, unsure about the rule
-		self.start_pc = SmartPadding(self.context, 0, None)
+		self.start_pc = 0
 		self.before_dla_0 = 0
 		self.before_dla_1 = 0
 
@@ -47,19 +44,19 @@ class JointData:
 		self.namespace_length = 0
 
 		# 0s
-		self.zeros_0 = numpy.zeros((5,), dtype=numpy.dtype('uint32'))
+		self.zeros_0 = 0
 
 		# 0 or 1
 		self.pc_count = 0
 
 		# 0s
-		self.zeros_1 = numpy.zeros((7,), dtype=numpy.dtype('uint32'))
+		self.zeros_1 = 0
 
 		# 0s
-		self.extra_zeros_2 = numpy.zeros((4,), dtype=numpy.dtype('uint32'))
+		self.extra_zeros_2 = 0
 
 		# 1, 1
-		self.ones = numpy.zeros((2,), dtype=numpy.dtype('uint64'))
+		self.ones = 0
 
 		# matches bone count from bone info
 		self.bone_count = 0
@@ -68,61 +65,62 @@ class JointData:
 		self.joint_entry_count = 0
 
 		# usually 0s
-		self.zeros_2 = numpy.zeros((4,), dtype=numpy.dtype('uint32'))
+		self.zeros_2 = 0
 
 		# usually 0s
 		self.zeros_3 = 0
 
 		# corresponds to bone transforms
-		self.joint_transforms = Array((self.joint_count,), JointEntry, self.context, 0, None)
+		self.joint_transforms = 0
 
 		# might be pointers
-		self.zeros_3 = numpy.zeros((self.joint_count,), dtype=numpy.dtype('uint64'))
+		self.zeros_3 = 0
 
 		# ?
-		self.unknown_listc = Array((self.joint_count,), ListCEntry, self.context, 0, None)
+		self.unknown_listc = 0
 
 		# used by ptero, 16 bytes per entry
-		self.first_list = Array((self.count_0,), ListFirst, self.context, 0, None)
+		self.first_list = 0
 
 		# ?
-		self.short_list = Array((self.count_1,), ListShort, self.context, 0, None)
+		self.short_list = 0
 
 		# ?
-		self.long_list = Array((self.count_2,), ListLong, self.context, 0, None)
+		self.long_list = 0
 
 		# old style - joint infos, without hitchecks, they are added later
-		self.joint_infos = Array((self.joint_count,), UACJointFF, self.context, 0, None)
+		self.joint_infos = 0
 
 		# sometimes an array of floats
-		self.pc_floats = numpy.zeros((self.pc_count, 10,), dtype=numpy.dtype('float32'))
+		self.pc_floats = 0
 
 		# index into bone info bones for each joint; bone that the joint is attached to
-		self.joint_indices = numpy.zeros((self.joint_count,), dtype=numpy.dtype('int32'))
+		self.joint_indices = 0
 
 		# the inverse of the above; for each bone info bone, index of the corresponding joint or -1 if no joint
-		self.bone_indices = numpy.zeros((self.bone_count,), dtype=numpy.dtype('int32'))
+		self.bone_indices = 0
 
 		# zstring name buffer
-		self.joint_names = ZStringBuffer(self.context, self.namespace_length, None)
+		self.joint_names = 0
 
 		# ?
-		self.joint_names_padding = SmartPadding(self.context, 0, None)
+		self.joint_names_padding = 0
 
 		# new style - includes name offset, some flags and the hitchecks
-		self.joint_infos = Array((self.joint_count,), JointInfo, self.context, 0, None)
+		self.joint_infos = 0
 
 		# old style - for each joint, read the hitchecks
-		self.hitcheck_reader = HitcheckReader(self.context, self.joint_infos, None)
+		self.hitcheck_reader = 0
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
+		super().set_defaults()
+		print(f'set_defaults {self.__class__.__name__}')
 		if self.context.version == 32:
 			self.start_pc = SmartPadding(self.context, 0, None)
 		if self.context.version <= 7:
 			self.before_dla_0 = 0
-		if self.context.version <= 7:
 			self.before_dla_1 = 0
 		self.joint_count = 0
 		self.count_0 = 0
@@ -148,17 +146,12 @@ class JointData:
 		self.joint_transforms = Array((self.joint_count,), JointEntry, self.context, 0, None)
 		if self.context.version >= 47:
 			self.zeros_3 = numpy.zeros((self.joint_count,), dtype=numpy.dtype('uint64'))
-		if self.context.version >= 47:
 			self.unknown_listc = Array((self.joint_count,), ListCEntry, self.context, 0, None)
-		if self.context.version >= 47:
 			self.first_list = Array((self.count_0,), ListFirst, self.context, 0, None)
-		if self.context.version >= 47:
 			self.short_list = Array((self.count_1,), ListShort, self.context, 0, None)
-		if self.context.version >= 47:
 			self.long_list = Array((self.count_2,), ListLong, self.context, 0, None)
 		if self.context.version <= 32:
 			self.joint_infos = Array((self.joint_count,), UACJointFF, self.context, 0, None)
-		if self.context.version <= 32:
 			self.pc_floats = numpy.zeros((self.pc_count, 10,), dtype=numpy.dtype('float32'))
 		self.joint_indices = numpy.zeros((self.joint_count,), dtype=numpy.dtype('int32'))
 		self.bone_indices = numpy.zeros((self.bone_count,), dtype=numpy.dtype('int32'))
@@ -181,6 +174,7 @@ class JointData:
 
 	@classmethod
 	def read_fields(cls, stream, instance):
+		super().read_fields(stream, instance)
 		if instance.context.version == 32:
 			instance.start_pc = SmartPadding.from_stream(stream, instance.context, 0, None)
 		if instance.context.version <= 7:
@@ -211,10 +205,8 @@ class JointData:
 		if instance.context.version >= 47:
 			instance.zeros_3 = stream.read_uint64s((instance.joint_count,))
 			instance.unknown_listc = Array.from_stream(stream, (instance.joint_count,), ListCEntry, instance.context, 0, None)
-		if instance.context.version >= 47:
 			instance.first_list = Array.from_stream(stream, (instance.count_0,), ListFirst, instance.context, 0, None)
 			instance.short_list = Array.from_stream(stream, (instance.count_1,), ListShort, instance.context, 0, None)
-		if instance.context.version >= 47:
 			instance.long_list = Array.from_stream(stream, (instance.count_2,), ListLong, instance.context, 0, None)
 		if instance.context.version <= 32:
 			instance.joint_infos = Array.from_stream(stream, (instance.joint_count,), UACJointFF, instance.context, 0, None)
@@ -230,6 +222,7 @@ class JointData:
 
 	@classmethod
 	def write_fields(cls, stream, instance):
+		super().write_fields(stream, instance)
 		if instance.context.version == 32:
 			SmartPadding.to_stream(stream, instance.start_pc)
 		if instance.context.version <= 7:
@@ -260,10 +253,8 @@ class JointData:
 		if instance.context.version >= 47:
 			stream.write_uint64s(instance.zeros_3)
 			Array.to_stream(stream, instance.unknown_listc, (instance.joint_count,), ListCEntry, instance.context, 0, None)
-		if instance.context.version >= 47:
 			Array.to_stream(stream, instance.first_list, (instance.count_0,), ListFirst, instance.context, 0, None)
 			Array.to_stream(stream, instance.short_list, (instance.count_1,), ListShort, instance.context, 0, None)
-		if instance.context.version >= 47:
 			Array.to_stream(stream, instance.long_list, (instance.count_2,), ListLong, instance.context, 0, None)
 		if instance.context.version <= 32:
 			Array.to_stream(stream, instance.joint_infos, (instance.joint_count,), UACJointFF, instance.context, 0, None)
@@ -278,25 +269,59 @@ class JointData:
 			HitcheckReader.to_stream(stream, instance.hitcheck_reader)
 
 	@classmethod
-	def from_stream(cls, stream, context, arg=0, template=None):
-		instance = cls(context, arg, template, set_default=False)
-		instance.io_start = stream.tell()
-		cls.read_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
-
-	@classmethod
-	def to_stream(cls, stream, instance):
-		instance.io_start = stream.tell()
-		cls.write_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
+	def _get_filtered_attribute_list(cls, instance):
+		super()._get_filtered_attribute_list(instance)
+		if instance.context.version == 32:
+			yield ('start_pc', SmartPadding, (0, None))
+		if instance.context.version <= 7:
+			yield ('before_dla_0', Uint64, (0, None))
+			yield ('before_dla_1', Uint64, (0, None))
+		yield ('joint_count', Uint, (0, None))
+		yield ('count_0', Uint, (0, None))
+		yield ('count_1', Uint, (0, None))
+		yield ('count_2', Uint, (0, None))
+		if instance.context.version <= 32:
+			yield ('zero_0', Uint, (0, None))
+		if 13 <= instance.context.version <= 32:
+			yield ('zero_1', Uint, (0, None))
+		yield ('namespace_length', Uint, (0, None))
+		yield ('zeros_0', Array, ((5,), Uint, 0, None))
+		yield ('pc_count', Uint, (0, None))
+		yield ('zeros_1', Array, ((7,), Uint, 0, None))
+		if 13 <= instance.context.version <= 32:
+			yield ('extra_zeros_2', Array, ((4,), Uint, 0, None))
+		if instance.context.version >= 13:
+			yield ('ones', Array, ((2,), Uint64, 0, None))
+		yield ('bone_count', Uint, (0, None))
+		yield ('joint_entry_count', Uint, (0, None))
+		yield ('zeros_2', Array, ((4,), Uint, 0, None))
+		if instance.context.version <= 7:
+			yield ('zeros_3', Uint, (0, None))
+		yield ('joint_transforms', Array, ((instance.joint_count,), JointEntry, 0, None))
+		if instance.context.version >= 47:
+			yield ('zeros_3', Array, ((instance.joint_count,), Uint64, 0, None))
+			yield ('unknown_listc', Array, ((instance.joint_count,), ListCEntry, 0, None))
+			yield ('first_list', Array, ((instance.count_0,), ListFirst, 0, None))
+			yield ('short_list', Array, ((instance.count_1,), ListShort, 0, None))
+			yield ('long_list', Array, ((instance.count_2,), ListLong, 0, None))
+		if instance.context.version <= 32:
+			yield ('joint_infos', Array, ((instance.joint_count,), UACJointFF, 0, None))
+			yield ('pc_floats', Array, ((instance.pc_count, 10,), Float, 0, None))
+		yield ('joint_indices', Array, ((instance.joint_count,), Int, 0, None))
+		yield ('bone_indices', Array, ((instance.bone_count,), Int, 0, None))
+		yield ('joint_names', ZStringBuffer, (instance.namespace_length, None))
+		yield ('joint_names_padding', SmartPadding, (0, None))
+		if instance.context.version >= 47:
+			yield ('joint_infos', Array, ((instance.joint_count,), JointInfo, 0, None))
+		if instance.context.version <= 32:
+			yield ('hitcheck_reader', HitcheckReader, (instance.joint_infos, None))
 
 	def get_info_str(self, indent=0):
 		return f'JointData [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
 	def get_fields_str(self, indent=0):
 		s = ''
+		s += super().get_fields_str()
 		s += f'\n	* start_pc = {fmt_member(self.start_pc, indent+1)}'
 		s += f'\n	* before_dla_0 = {fmt_member(self.before_dla_0, indent+1)}'
 		s += f'\n	* before_dla_1 = {fmt_member(self.before_dla_1, indent+1)}'

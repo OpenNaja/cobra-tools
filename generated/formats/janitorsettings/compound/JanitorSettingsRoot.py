@@ -15,7 +15,7 @@ class JanitorSettingsRoot(MemStruct):
 	"""
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
-		super().__init__(context, arg, template, set_default)
+		super().__init__(context, arg, template, set_default=False)
 		self.unk_0 = 0
 		self.unk_1 = 0
 		self.unk_2 = 0
@@ -88,6 +88,8 @@ class JanitorSettingsRoot(MemStruct):
 			self.set_defaults()
 
 	def set_defaults(self):
+		super().set_defaults()
+		print(f'set_defaults {self.__class__.__name__}')
 		self.unk_0 = 0.0
 		self.unk_1 = 0.0
 		self.unk_2 = 0.0

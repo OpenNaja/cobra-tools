@@ -49,6 +49,9 @@ class StructBase:
 		self.io_size = 0
 		self.io_start = 0
 
+	def set_defaults(self):
+		pass
+
 	def get_fields_str(self, indent=0):
 		return ""
 

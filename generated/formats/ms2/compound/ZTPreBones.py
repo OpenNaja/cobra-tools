@@ -10,7 +10,7 @@ from generated.struct import StructBase
 class ZTPreBones(StructBase):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
-		super().__init__(context, arg, template, set_default)
+		super().__init__(context, arg, template, set_default=False)
 		self.zeros = 0
 		self.unks = 0
 		self.unks_2 = 0
@@ -20,6 +20,8 @@ class ZTPreBones(StructBase):
 			self.set_defaults()
 
 	def set_defaults(self):
+		super().set_defaults()
+		print(f'set_defaults {self.__class__.__name__}')
 		self.zeros = numpy.zeros((2,), dtype=numpy.dtype('uint64'))
 		self.unks = numpy.zeros((8,), dtype=numpy.dtype('uint32'))
 		self.unks_2 = numpy.zeros((10,), dtype=numpy.dtype('uint32'))

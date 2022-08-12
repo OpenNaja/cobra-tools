@@ -12,7 +12,7 @@ class BaniRoot(MemStruct):
 	"""
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
-		super().__init__(context, arg, template, set_default)
+		super().__init__(context, arg, template, set_default=False)
 
 		# The frame in the banis where this bani starts reading
 		self.read_start_frame = 0
@@ -32,6 +32,8 @@ class BaniRoot(MemStruct):
 			self.set_defaults()
 
 	def set_defaults(self):
+		super().set_defaults()
+		print(f'set_defaults {self.__class__.__name__}')
 		self.read_start_frame = 0
 		self.num_frames = 0
 		self.animation_length = 0.0

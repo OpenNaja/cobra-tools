@@ -8,7 +8,7 @@ from generated.struct import StructBase
 class AkBankSourceData(StructBase):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
-		super().__init__(context, arg, template, set_default)
+		super().__init__(context, arg, template, set_default=False)
 		self.ul_plugin_i_d = 0
 		self.stream_type = 0
 		self.ak_media_information = 0
@@ -16,6 +16,8 @@ class AkBankSourceData(StructBase):
 			self.set_defaults()
 
 	def set_defaults(self):
+		super().set_defaults()
+		print(f'set_defaults {self.__class__.__name__}')
 		self.ul_plugin_i_d = 0
 		self.stream_type = 0
 		self.ak_media_information = AkMediaInformation(self.context, 0, None)

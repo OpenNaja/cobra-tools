@@ -12,7 +12,7 @@ class DIDXSection(StructBase):
 	"""
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
-		super().__init__(context, arg, template, set_default)
+		super().__init__(context, arg, template, set_default=False)
 
 		# length of following data
 		self.length = 0
@@ -21,6 +21,8 @@ class DIDXSection(StructBase):
 			self.set_defaults()
 
 	def set_defaults(self):
+		super().set_defaults()
+		print(f'set_defaults {self.__class__.__name__}')
 		self.length = 0
 		self.data_pointers = Array((int(self.length / 12),), DataPointer, self.context, 0, None)
 

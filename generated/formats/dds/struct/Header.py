@@ -14,7 +14,7 @@ from generated.struct import StructBase
 class Header(StructBase):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
-		super().__init__(context, arg, template, set_default)
+		super().__init__(context, arg, template, set_default=False)
 
 		# DDS
 		self.header_string = 0
@@ -43,6 +43,8 @@ class Header(StructBase):
 			self.set_defaults()
 
 	def set_defaults(self):
+		super().set_defaults()
+		print(f'set_defaults {self.__class__.__name__}')
 		self.header_string = FixedString(self.context, 4, None)
 		self.size = 124
 		self.flags = HeaderFlags(self.context, 0, None)

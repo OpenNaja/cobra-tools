@@ -10,7 +10,7 @@ class Vector4(StructBase):
 	"""
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
-		super().__init__(context, arg, template, set_default)
+		super().__init__(context, arg, template, set_default=False)
 
 		# First coordinate.
 		self.x = 0
@@ -27,6 +27,8 @@ class Vector4(StructBase):
 			self.set_defaults()
 
 	def set_defaults(self):
+		super().set_defaults()
+		print(f'set_defaults {self.__class__.__name__}')
 		self.x = 0.0
 		self.y = 0.0
 		self.z = 0.0

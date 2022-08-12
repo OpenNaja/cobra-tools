@@ -22,7 +22,7 @@ class TexHeader(MemStruct):
 	"""
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
-		super().__init__(context, arg, template, set_default)
+		super().__init__(context, arg, template, set_default=False)
 		self.zero_0 = 0
 		self.zero_1 = 0
 		self.compression_type = 0
@@ -48,6 +48,8 @@ class TexHeader(MemStruct):
 			self.set_defaults()
 
 	def set_defaults(self):
+		super().set_defaults()
+		print(f'set_defaults {self.__class__.__name__}')
 		if self.context.version <= 15:
 			self.zero_0 = 0
 		if self.context.version >= 17:

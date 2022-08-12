@@ -15,7 +15,7 @@ class BnkBufferData(StructBase):
 	"""
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
-		super().__init__(context, arg, template, set_default)
+		super().__init__(context, arg, template, set_default=False)
 
 		# data size of aux file of type b
 		self.size_b = 0
@@ -50,6 +50,8 @@ class BnkBufferData(StructBase):
 			self.set_defaults()
 
 	def set_defaults(self):
+		super().set_defaults()
+		print(f'set_defaults {self.__class__.__name__}')
 		self.size_b = 0
 		self.buffer_count = 0
 		self.count_2 = 0
