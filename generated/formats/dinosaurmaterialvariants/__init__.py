@@ -2,9 +2,6 @@
 import logging
 import os
 
-from ovl_util.config import logging_setup
-
-logging_setup("ovl_tool_gui")
 from generated.formats.dinosaurmaterialvariants.compound.DinoLayersHeader import DinoLayersHeader
 from generated.formats.fgm.compound.FgmHeader import FgmHeader
 from generated.formats.ovl_base import OvlContext

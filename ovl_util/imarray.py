@@ -6,6 +6,16 @@ import numpy as np
 from generated.formats.ovl.versions import is_ztuac
 
 
+def reconstruct_z(im):
+	"""Takes an array with 2 channels and adds a third channel"""
+	h, w, d = im.shape
+	assert d == 2
+	im_rec = np.empty((h, w, 3), dtype=im.dtype)
+	im_rec[:, :, :2] = im[:, :, :2]
+	im_rec[:, :, 2] = 255
+	return im_rec
+
+
 def flip_gb(im):
 	"""Flips green and blue channels of image array"""
 	im = im.copy()
@@ -19,15 +29,11 @@ def check_any(iterable, string):
 	return any([i in string for i in iterable])
 
 
-def has_components(png_file_path):
+def has_r_g_b_a(png_file_path):
 	return check_any((
 		"packedtexture", "playered_blendweights", "scartexture", "samplertexture",
 		"pspecularmaptexture", "pflexicolourmaskstexture", "pshellmap", "pfinalphatexture",), png_file_path) \
 		and not has_rgb_a(png_file_path)
-
-
-def has_vectors(png_file_path):
-	return check_any(("normaltexture", "playered_warpoffset"), png_file_path)
 
 
 def has_rgb_a(png_file_path):
@@ -38,13 +44,21 @@ def has_rg_b_a(png_file_path):
 	return check_any(("pbasenormaltexture",), png_file_path)
 
 
+def has_vectors(png_file_path):
+	return check_any(("normaltexture", "playered_warpoffset"), png_file_path)
+
+
+# define additional functions for specific channel indices
+channel_modes = {
+	("RG_B_A", 0): reconstruct_z
+	}
+
+
 def wrapper(png_file_path, size_info, ovl):
 	out_files = []
-	must_split = False
-	split_components = has_components(png_file_path)
+	split_array = False
 	must_flip_gb = has_vectors(png_file_path)
-	split_rg_b_a = has_rg_b_a(png_file_path)
-	split_rgb_a = has_rgb_a(png_file_path)
+	split_channels = get_split_mode(png_file_path)
 	if is_ztuac(ovl):
 		must_flip_gb = False
 	h = size_info.height
@@ -56,73 +70,78 @@ def wrapper(png_file_path, size_info, ovl):
 	# hack since some games have this set to 0 sometimes
 	array_size = max(1, array_size)
 	if array_size > 1:
-		must_split = True
-	logging.debug(f"split_components {split_components}")
-	logging.debug(f"must_split {must_split}")
-	logging.debug(f"split_rg_b_a {split_rg_b_a}")
-	logging.debug(f"split_rgb_a {split_rgb_a}")
+		split_array = True
+	logging.debug(f"split_channels {split_channels}")
+	logging.debug(f"split_array {split_array}")
 	logging.debug(f"must_flip_gb {must_flip_gb}")
-	logging.debug("Splitting PNG array")
 	logging.debug(f"h {h}, w {w}, array_size {array_size}")
-	if must_split or must_flip_gb or split_components or split_rg_b_a or split_rgb_a:
-		im = iio.imread(png_file_path)
-		# (4096, 1024, 4)
-		h, w, d = im.shape
-		h //= array_size
-		name, ext = os.path.splitext(png_file_path)
-		if must_flip_gb:
-			im = flip_gb(im)
-		layer_i = 0
-		# split components and or tiles if present
-		if split_components:
-			for hi in range(array_size):
-				for di in range(d):
-					file_path = f"{name}_[{layer_i:02}]{ext}"
-					iio.imwrite(file_path, im[hi * h:(hi + 1) * h, :, di], compress_level=2)
-					out_files.append(file_path)
-					layer_i += 1
-			os.remove(png_file_path)
-		# only split tiles but not components
-		elif must_split:
-			for layer_i in range(array_size):
-				file_path = f"{name}_[{layer_i:02}]{ext}"
-				iio.imwrite(file_path, im[layer_i * h:(layer_i + 1) * h, :, :], compress_level=2)
-				out_files.append(file_path)
-			os.remove(png_file_path)
-		# separate into rg, b and a components
-		elif split_rg_b_a:
-			for hi in range(array_size):
-				file_path = f"{name}_[{layer_i:02}]{ext}"
-				normal = np.array(im[hi * h:(hi + 1) * h, :, 0:3])
-				normal[:, :, 2] = 255
-				iio.imwrite(file_path, normal, compress_level=2)
-				out_files.append(file_path)
-				file_path = f"{name}_[{layer_i+1:02}]{ext}"
-				iio.imwrite(file_path, im[hi * h:(hi + 1) * h, :, 2], compress_level=2)
-				out_files.append(file_path)
-				file_path = f"{name}_[{layer_i+2:02}]{ext}"
-				iio.imwrite(file_path, im[hi * h:(hi + 1) * h, :, 3], compress_level=2)
-				out_files.append(file_path)
-				layer_i += 3
-			os.remove(png_file_path)
-		# separate into rgb and a components
-		elif split_rgb_a:
-			for hi in range(array_size):
-				file_path = f"{name}_[{layer_i:02}]{ext}"
-				iio.imwrite(file_path, im[hi * h:(hi + 1) * h, :, 0:3], compress_level=2)
-				out_files.append(file_path)
-				file_path = f"{name}_[{layer_i+1:02}]{ext}"
-				iio.imwrite(file_path, im[hi * h:(hi + 1) * h, :, 3], compress_level=2)
-				out_files.append(file_path)
-				layer_i += 2
-			os.remove(png_file_path)
-		# don't split at all, overwrite
-		else:
-			iio.imwrite(png_file_path, im, compress_level=2)
-			out_files.append(png_file_path)
+	if split_array or must_flip_gb or split_channels:
+		split_image(array_size, must_flip_gb, out_files, png_file_path, split_channels)
 	else:
 		out_files.append(png_file_path)
 	return out_files
+
+
+def get_split_mode(png_file_path):
+	if has_r_g_b_a(png_file_path):
+		return "R_G_B_A"
+	if has_rg_b_a(png_file_path):
+		return "RG_B_A"
+	if has_rgb_a(png_file_path):
+		return "RGB_A"
+
+
+def split_image(array_size, must_flip_gb, out_files, png_file_path, channels=None):
+	logging.info(f"Splitting {png_file_path} into {array_size} tiles for {channels} channels")
+	im = iio.imread(png_file_path)
+	h, w, d = im.shape
+	h //= array_size
+	if must_flip_gb:
+		im = flip_gb(im)
+	if not channels and array_size == 1:
+		# don't split at all, overwrite
+		iio.imwrite(png_file_path, im, compress_level=2)
+		out_files.append(png_file_path)
+	else:
+		name, ext = os.path.splitext(png_file_path)
+		layer_i = 0
+		for hi in range(array_size):
+			# split tiles and channels
+			if channels:
+				ch_i = 0
+				# get the channels to use in each chunk, eg. RG (2), B (1), ...
+				ch_sizes = [len(s) for s in channels.split("_")]
+				for ch_count in ch_sizes:
+					# define which channels to use from im
+					if ch_count > 1:
+						ch_slice = slice(ch_i, ch_i + ch_count)
+					else:
+						# need to use 1D or the png file will break
+						ch_slice = ch_i
+					logging.info(f"Channel {ch_slice}")
+					# get raw im slice of im
+					im_slice = im[hi * h:(hi + 1) * h, :, ch_slice]
+					logging.info(f"Image shape {im_slice.shape}")
+					# is there an additional function to perform for this channel config and ch_i?
+					function = channel_modes.get((channels, ch_i), None)
+					if function is not None:
+						im_slice = function(im_slice)
+						logging.info(f"Image shape after function {im_slice.shape}")
+					file_path = f"{name}_[{layer_i:02}]{ext}"
+					iio.imwrite(file_path, im_slice, compress_level=2)
+					out_files.append(file_path)
+					# increment indices
+					ch_i += ch_count
+					layer_i += 1
+			# only split tiles but not channels
+			else:
+				im_slice = im[hi * h:(hi + 1) * h, :, :]
+				logging.info(f"Image shape {im_slice.shape}")
+				file_path = f"{name}_[{hi:02}]{ext}"
+				iio.imwrite(file_path, im_slice, compress_level=2)
+				out_files.append(file_path)
+		# remove the original PNG
+		os.remove(png_file_path)
 
 
 def is_array_tile(fp, array_name_bare):
@@ -177,7 +196,7 @@ def png_from_tex(tex_file_path, tmp_dir):
 	in_name_bare, suffix = split_name_suffix(os.path.splitext(corresponding_png_textures[0])[0])
 	# join arrays if there is a suffix
 	must_join = suffix is not None
-	join_components = has_components(tex_file_path)
+	join_components = has_r_g_b_a(tex_file_path)
 	join_rg_b_a = has_rg_b_a(tex_file_path)
 	join_rgb_a = has_rgb_a(tex_file_path)
 	must_flip_gb = has_vectors(tex_file_path)
@@ -283,7 +302,6 @@ def png_from_tex(tex_file_path, tmp_dir):
 			for hi in range(array_size):
 				# RGB
 				tile_shape = ims[layer_i].shape
-				print(tile_shape)
 				if len(tile_shape) == 3:
 					im[hi * h:(hi + 1) * h, :, 0:3] = ims[layer_i][:, :, 0:3]
 				else:
