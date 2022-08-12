@@ -1,30 +1,25 @@
-from source.formats.base.basic import fmt_member
-from generated.context import ContextReference
+from generated.formats.base.basic import fmt_member
+from generated.formats.base.basic import Float
+from generated.formats.base.basic import Uint64
+from generated.struct import StructBase
 
 
-class SizedStrData:
+class SizedStrData(StructBase):
 
 	"""
 	# size varies according to game
 	"""
 
-	context = ContextReference()
-
 	def __init__(self, context, arg=0, template=None, set_default=True):
-		self.name = ''
-		self._context = context
-		self.arg = arg
-		self.template = template
-		self.io_size = 0
-		self.io_start = 0
+		super().__init__(context, arg, template, set_default)
 		self.zero = 0
 
 		# total size of buffer data
 		self.data_size = 0
 		self.x = 0
 		self.y = 0
-		self.scale = 0.0
-		self.padding = 0.0
+		self.scale = 0
+		self.padding = 0
 
 		# zero, for PC only
 		self.zero_pc = 0
@@ -67,15 +62,11 @@ class SizedStrData:
 		self.padding = 0.0
 		if self.context.version == 18:
 			self.zero_pc = 0
-		if self.context.version == 18:
 			self.height_array_size_pc = 0
 		if not (self.context.version == 18):
 			self.data_offset = 0
-		if not (self.context.version == 18):
 			self.data_count = 0
-		if not (self.context.version == 18):
 			self.size_offset = 0
-		if not (self.context.version == 18):
 			self.size_count = 0
 		self.position_offset = 0
 		self.position_count = 0
@@ -96,6 +87,7 @@ class SizedStrData:
 
 	@classmethod
 	def read_fields(cls, stream, instance):
+		super().read_fields(stream, instance)
 		instance.zero = stream.read_uint64()
 		instance.data_size = stream.read_uint64()
 		instance.x = stream.read_uint64()
@@ -108,7 +100,6 @@ class SizedStrData:
 		if not (instance.context.version == 18):
 			instance.data_offset = stream.read_uint64()
 			instance.data_count = stream.read_uint64()
-		if not (instance.context.version == 18):
 			instance.size_offset = stream.read_uint64()
 			instance.size_count = stream.read_uint64()
 		instance.position_offset = stream.read_uint64()
@@ -120,6 +111,7 @@ class SizedStrData:
 
 	@classmethod
 	def write_fields(cls, stream, instance):
+		super().write_fields(stream, instance)
 		stream.write_uint64(instance.zero)
 		stream.write_uint64(instance.data_size)
 		stream.write_uint64(instance.x)
@@ -132,7 +124,6 @@ class SizedStrData:
 		if not (instance.context.version == 18):
 			stream.write_uint64(instance.data_offset)
 			stream.write_uint64(instance.data_count)
-		if not (instance.context.version == 18):
 			stream.write_uint64(instance.size_offset)
 			stream.write_uint64(instance.size_count)
 		stream.write_uint64(instance.position_offset)
@@ -143,25 +134,35 @@ class SizedStrData:
 		stream.write_uint64(instance.name_count)
 
 	@classmethod
-	def from_stream(cls, stream, context, arg=0, template=None):
-		instance = cls(context, arg, template, set_default=False)
-		instance.io_start = stream.tell()
-		cls.read_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
-
-	@classmethod
-	def to_stream(cls, stream, instance):
-		instance.io_start = stream.tell()
-		cls.write_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
+	def _get_filtered_attribute_list(cls, instance):
+		super()._get_filtered_attribute_list(instance)
+		yield ('zero', Uint64, (0, None))
+		yield ('data_size', Uint64, (0, None))
+		yield ('x', Uint64, (0, None))
+		yield ('y', Uint64, (0, None))
+		yield ('scale', Float, (0, None))
+		yield ('padding', Float, (0, None))
+		if instance.context.version == 18:
+			yield ('zero_pc', Uint64, (0, None))
+			yield ('height_array_size_pc', Uint64, (0, None))
+		if not (instance.context.version == 18):
+			yield ('data_offset', Uint64, (0, None))
+			yield ('data_count', Uint64, (0, None))
+			yield ('size_offset', Uint64, (0, None))
+			yield ('size_count', Uint64, (0, None))
+		yield ('position_offset', Uint64, (0, None))
+		yield ('position_count', Uint64, (0, None))
+		yield ('mat_offset', Uint64, (0, None))
+		yield ('mat_count', Uint64, (0, None))
+		yield ('name_buffer_offset', Uint64, (0, None))
+		yield ('name_count', Uint64, (0, None))
 
 	def get_info_str(self, indent=0):
 		return f'SizedStrData [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
 	def get_fields_str(self, indent=0):
 		s = ''
+		s += super().get_fields_str()
 		s += f'\n	* zero = {fmt_member(self.zero, indent+1)}'
 		s += f'\n	* data_size = {fmt_member(self.data_size, indent+1)}'
 		s += f'\n	* x = {fmt_member(self.x, indent+1)}'

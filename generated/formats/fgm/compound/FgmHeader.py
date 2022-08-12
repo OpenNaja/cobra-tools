@@ -1,8 +1,10 @@
-from source.formats.base.basic import fmt_member
+from generated.formats.base.basic import fmt_member
 import generated.formats.fgm.compound.AttribData
 import generated.formats.fgm.compound.AttributeInfo
 import generated.formats.fgm.compound.DependencyInfo
 import generated.formats.fgm.compound.TextureInfo
+from generated.formats.base.basic import Uint
+from generated.formats.base.basic import Uint64
 from generated.formats.ovl_base.compound.ArrayPointer import ArrayPointer
 from generated.formats.ovl_base.compound.ForEachPointer import ForEachPointer
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
@@ -15,22 +17,15 @@ class FgmHeader(MemStruct):
 	"""
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
-		self.name = ''
 		super().__init__(context, arg, template, set_default)
-		self.arg = arg
-		self.template = template
-		self.io_size = 0
-		self.io_start = 0
 		self.texture_count = 0
-		self.texture_count = 0
-		self.attribute_count = 0
 		self.attribute_count = 0
 		self.unk_0 = 0
 		self.unk_1 = 0
-		self.textures = ArrayPointer(self.context, self.texture_count, generated.formats.fgm.compound.TextureInfo.TextureInfo)
-		self.attributes = ArrayPointer(self.context, self.attribute_count, generated.formats.fgm.compound.AttributeInfo.AttributeInfo)
-		self.dependencies = ForEachPointer(self.context, self.textures, generated.formats.fgm.compound.DependencyInfo.DependencyInfo)
-		self.data_lib = ForEachPointer(self.context, self.attributes, generated.formats.fgm.compound.AttribData.AttribData)
+		self.textures = 0
+		self.attributes = 0
+		self.dependencies = 0
+		self.data_lib = 0
 		if set_default:
 			self.set_defaults()
 
@@ -101,19 +96,22 @@ class FgmHeader(MemStruct):
 		stream.write_uint64(instance.unk_1)
 
 	@classmethod
-	def from_stream(cls, stream, context, arg=0, template=None):
-		instance = cls(context, arg, template, set_default=False)
-		instance.io_start = stream.tell()
-		cls.read_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
-
-	@classmethod
-	def to_stream(cls, stream, instance):
-		instance.io_start = stream.tell()
-		cls.write_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
+	def _get_filtered_attribute_list(cls, instance):
+		super()._get_filtered_attribute_list(instance)
+		if instance.context.version <= 15:
+			yield ('texture_count', Uint, (0, None))
+		if instance.context.version >= 17:
+			yield ('texture_count', Uint64, (0, None))
+		if instance.context.version <= 15:
+			yield ('attribute_count', Uint, (0, None))
+		if instance.context.version >= 17:
+			yield ('attribute_count', Uint64, (0, None))
+		yield ('textures', ArrayPointer, (instance.texture_count, generated.formats.fgm.compound.TextureInfo.TextureInfo))
+		yield ('attributes', ArrayPointer, (instance.attribute_count, generated.formats.fgm.compound.AttributeInfo.AttributeInfo))
+		yield ('dependencies', ForEachPointer, (instance.textures, generated.formats.fgm.compound.DependencyInfo.DependencyInfo))
+		yield ('data_lib', ForEachPointer, (instance.attributes, generated.formats.fgm.compound.AttribData.AttribData))
+		yield ('unk_0', Uint64, (0, None))
+		yield ('unk_1', Uint64, (0, None))
 
 	def get_info_str(self, indent=0):
 		return f'FgmHeader [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

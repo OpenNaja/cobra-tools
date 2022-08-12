@@ -1,5 +1,7 @@
-from source.formats.base.basic import fmt_member
+from generated.formats.base.basic import fmt_member
 from generated.array import Array
+from generated.formats.base.basic import Uint
+from generated.formats.base.basic import Uint64
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
 from generated.formats.tex.compound.Mipmap import Mipmap
 
@@ -11,12 +13,7 @@ class SizeInfoRaw(MemStruct):
 	"""
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
-		self.name = ''
 		super().__init__(context, arg, template, set_default)
-		self.arg = arg
-		self.template = template
-		self.io_size = 0
-		self.io_start = 0
 
 		# zero
 		self.zero = 0
@@ -43,7 +40,7 @@ class SizeInfoRaw(MemStruct):
 		self.unk_pz = 0
 
 		# info about mip levels
-		self.mip_maps = Array((self.num_mips,), Mipmap, self.context, 0, None)
+		self.mip_maps = 0
 		if set_default:
 			self.set_defaults()
 
@@ -98,19 +95,18 @@ class SizeInfoRaw(MemStruct):
 		Array.to_stream(stream, instance.mip_maps, (instance.num_mips,), Mipmap, instance.context, 0, None)
 
 	@classmethod
-	def from_stream(cls, stream, context, arg=0, template=None):
-		instance = cls(context, arg, template, set_default=False)
-		instance.io_start = stream.tell()
-		cls.read_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
-
-	@classmethod
-	def to_stream(cls, stream, instance):
-		instance.io_start = stream.tell()
-		cls.write_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
+	def _get_filtered_attribute_list(cls, instance):
+		super()._get_filtered_attribute_list(instance)
+		yield ('zero', Uint64, (0, None))
+		yield ('data_size', Uint, (0, None))
+		yield ('width', Uint, (0, None))
+		yield ('height', Uint, (0, None))
+		yield ('depth', Uint, (0, None))
+		yield ('array_size', Uint, (0, None))
+		yield ('num_mips', Uint, (0, None))
+		if instance.context.version >= 20:
+			yield ('unk_pz', Uint64, (0, None))
+		yield ('mip_maps', Array, ((instance.num_mips,), Mipmap, 0, None))
 
 	def get_info_str(self, indent=0):
 		return f'SizeInfoRaw [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

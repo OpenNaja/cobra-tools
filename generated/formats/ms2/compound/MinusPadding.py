@@ -1,29 +1,25 @@
-from source.formats.base.basic import fmt_member
+from generated.formats.base.basic import fmt_member
 import numpy
-from generated.context import ContextReference
+from generated.array import Array
+from generated.formats.base.basic import Byte
+from generated.formats.base.basic import Short
+from generated.struct import StructBase
 
 
-class MinusPadding:
+class MinusPadding(StructBase):
 
 	"""
 	Used in PC
 	"""
 
-	context = ContextReference()
-
 	def __init__(self, context, arg=0, template=None, set_default=True):
-		self.name = ''
-		self._context = context
-		self.arg = arg
-		self.template = template
-		self.io_size = 0
-		self.io_start = 0
+		super().__init__(context, arg, template, set_default)
 
 		# -1
-		self.indices = numpy.zeros((self.arg,), dtype=numpy.dtype('int16'))
+		self.indices = 0
 
 		# 0
-		self.padding = numpy.zeros(((16 - ((self.arg * 2) % 16)) % 16,), dtype=numpy.dtype('int8'))
+		self.padding = 0
 		if set_default:
 			self.set_defaults()
 
@@ -43,34 +39,28 @@ class MinusPadding:
 
 	@classmethod
 	def read_fields(cls, stream, instance):
+		super().read_fields(stream, instance)
 		instance.indices = stream.read_shorts((instance.arg,))
 		instance.padding = stream.read_bytes(((16 - ((instance.arg * 2) % 16)) % 16,))
 
 	@classmethod
 	def write_fields(cls, stream, instance):
+		super().write_fields(stream, instance)
 		stream.write_shorts(instance.indices)
 		stream.write_bytes(instance.padding)
 
 	@classmethod
-	def from_stream(cls, stream, context, arg=0, template=None):
-		instance = cls(context, arg, template, set_default=False)
-		instance.io_start = stream.tell()
-		cls.read_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
-
-	@classmethod
-	def to_stream(cls, stream, instance):
-		instance.io_start = stream.tell()
-		cls.write_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
+	def _get_filtered_attribute_list(cls, instance):
+		super()._get_filtered_attribute_list(instance)
+		yield ('indices', Array, ((instance.arg,), Short, 0, None))
+		yield ('padding', Array, (((16 - ((instance.arg * 2) % 16)) % 16,), Byte, 0, None))
 
 	def get_info_str(self, indent=0):
 		return f'MinusPadding [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
 	def get_fields_str(self, indent=0):
 		s = ''
+		s += super().get_fields_str()
 		s += f'\n	* indices = {fmt_member(self.indices, indent+1)}'
 		s += f'\n	* padding = {fmt_member(self.padding, indent+1)}'
 		return s

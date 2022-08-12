@@ -1,6 +1,7 @@
-from source.formats.base.basic import fmt_member
+from generated.formats.base.basic import fmt_member
 import generated.formats.base.basic
 import generated.formats.motiongraph.compound.Transition
+from generated.formats.base.basic import Uint64
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
 from generated.formats.ovl_base.compound.Pointer import Pointer
 
@@ -13,12 +14,7 @@ class MRFMember2(MemStruct):
 	"""
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
-		self.name = ''
 		super().__init__(context, arg, template, set_default)
-		self.arg = arg
-		self.template = template
-		self.io_size = 0
-		self.io_start = 0
 		self.count_0 = 0
 		self.count_1 = 0
 		self.count_2 = 0
@@ -26,8 +22,8 @@ class MRFMember2(MemStruct):
 		self.count_4 = 0
 		self.count_5 = 0
 		self.count_6 = 0
-		self.transition = Pointer(self.context, 0, generated.formats.motiongraph.compound.Transition.Transition)
-		self.id = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.transition = 0
+		self.id = 0
 		if set_default:
 			self.set_defaults()
 
@@ -81,19 +77,17 @@ class MRFMember2(MemStruct):
 		Pointer.to_stream(stream, instance.id)
 
 	@classmethod
-	def from_stream(cls, stream, context, arg=0, template=None):
-		instance = cls(context, arg, template, set_default=False)
-		instance.io_start = stream.tell()
-		cls.read_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
-
-	@classmethod
-	def to_stream(cls, stream, instance):
-		instance.io_start = stream.tell()
-		cls.write_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
+	def _get_filtered_attribute_list(cls, instance):
+		super()._get_filtered_attribute_list(instance)
+		yield ('transition', Pointer, (0, generated.formats.motiongraph.compound.Transition.Transition))
+		yield ('count_0', Uint64, (0, None))
+		yield ('count_1', Uint64, (0, None))
+		yield ('count_2', Uint64, (0, None))
+		yield ('count_3', Uint64, (0, None))
+		yield ('count_4', Uint64, (0, None))
+		yield ('count_5', Uint64, (0, None))
+		yield ('count_6', Uint64, (0, None))
+		yield ('id', Pointer, (0, generated.formats.base.basic.ZString))
 
 	def get_info_str(self, indent=0):
 		return f'MRFMember2 [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

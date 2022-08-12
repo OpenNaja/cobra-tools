@@ -1,30 +1,28 @@
-from source.formats.base.basic import fmt_member
+from generated.formats.base.basic import fmt_member
 import numpy
 from generated.array import Array
-from generated.context import ContextReference
+from generated.formats.base.basic import Float
+from generated.formats.base.basic import Int
+from generated.formats.base.basic import Uint
+from generated.formats.base.basic import Uint64
+from generated.formats.base.basic import Ushort
 from generated.formats.ms2.compound.Matrix33 import Matrix33
 from generated.formats.ms2.compound.MeshCollisionBit import MeshCollisionBit
 from generated.formats.ms2.compound.Vector3 import Vector3
+from generated.struct import StructBase
 
 
-class MeshCollision:
-
-	context = ContextReference()
+class MeshCollision(StructBase):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
-		self.name = ''
-		self._context = context
-		self.arg = arg
-		self.template = template
-		self.io_size = 0
-		self.io_start = 0
-		self.rotation = Matrix33(self.context, 0, None)
+		super().__init__(context, arg, template, set_default)
+		self.rotation = 0
 
 		# offset of mesh
-		self.offset = Vector3(self.context, 0, None)
+		self.offset = 0
 
 		# not floats, maybe 6 ushorts, shared among (all?) redwoods
-		self.unk_1 = numpy.zeros((3, 2,), dtype=numpy.dtype('uint16'))
+		self.unk_1 = 0
 
 		# vertices (3 float)
 		self.vertex_count = 0
@@ -33,25 +31,22 @@ class MeshCollision:
 		self.tri_count = 0
 
 		# the smallest coordinates across all axes
-		self.bounds_min = Vector3(self.context, 0, None)
+		self.bounds_min = 0
 
 		# the biggest coordinates across all axes
-		self.bounds_max = Vector3(self.context, 0, None)
+		self.bounds_max = 0
 
 		# seemingly fixed
-		self.ones_or_zeros = numpy.zeros((7,), dtype=numpy.dtype('uint64'))
+		self.ones_or_zeros = 0
 
 		# seemingly fixed
-		self.ff_or_zero = numpy.zeros((10,), dtype=numpy.dtype('int32'))
-
-		# seemingly fixed
-		self.ff_or_zero = numpy.zeros((8,), dtype=numpy.dtype('int32'))
+		self.ff_or_zero = 0
 
 		# verbatim
-		self.bounds_min_repeat = Vector3(self.context, 0, None)
+		self.bounds_min_repeat = 0
 
 		# verbatim
-		self.bounds_max_repeat = Vector3(self.context, 0, None)
+		self.bounds_max_repeat = 0
 
 		# seems to repeat tri_count
 		self.tri_flags_count = 0
@@ -60,25 +55,25 @@ class MeshCollision:
 		self.count_bits = 0
 
 		# ?
-		self.stuff = numpy.zeros((9,), dtype=numpy.dtype('uint16'))
+		self.stuff = 0
 
 		# ?
-		self.collision_bits = Array((self.count_bits,), MeshCollisionBit, self.context, 0, None)
+		self.collision_bits = 0
 
 		# always 25
-		self.zeros = numpy.zeros((4,), dtype=numpy.dtype('uint32'))
+		self.zeros = 0
 
 		# array of vertices
-		self.vertices = numpy.zeros((self.vertex_count, 3,), dtype=numpy.dtype('float32'))
+		self.vertices = 0
 
 		# triangle indices into vertex list
-		self.triangles = numpy.zeros((self.tri_count, 3,), dtype=numpy.dtype('uint16'))
+		self.triangles = 0
 
 		# ?
 		self.const = 0
 
 		# always 25
-		self.triangle_flags = numpy.zeros((self.tri_flags_count,), dtype=numpy.dtype('uint32'))
+		self.triangle_flags = 0
 
 		# might be padding!
 		self.zero_end = 0
@@ -100,17 +95,11 @@ class MeshCollision:
 			self.ff_or_zero = numpy.zeros((8,), dtype=numpy.dtype('int32'))
 		if self.context.version <= 32:
 			self.bounds_min_repeat = Vector3(self.context, 0, None)
-		if self.context.version <= 32:
 			self.bounds_max_repeat = Vector3(self.context, 0, None)
-		if self.context.version <= 32:
 			self.tri_flags_count = 0
-		if self.context.version <= 32:
 			self.count_bits = 0
-		if self.context.version <= 32:
 			self.stuff = numpy.zeros((9,), dtype=numpy.dtype('uint16'))
-		if self.context.version <= 32:
 			self.collision_bits = Array((self.count_bits,), MeshCollisionBit, self.context, 0, None)
-		if self.context.version <= 32:
 			self.zeros = numpy.zeros((4,), dtype=numpy.dtype('uint32'))
 		self.vertices = numpy.zeros((self.vertex_count, 3,), dtype=numpy.dtype('float32'))
 		self.triangles = numpy.zeros((self.tri_count, 3,), dtype=numpy.dtype('uint16'))
@@ -132,6 +121,7 @@ class MeshCollision:
 
 	@classmethod
 	def read_fields(cls, stream, instance):
+		super().read_fields(stream, instance)
 		instance.rotation = Matrix33.from_stream(stream, instance.context, 0, None)
 		instance.offset = Vector3.from_stream(stream, instance.context, 0, None)
 		instance.unk_1 = stream.read_ushorts((3, 2,))
@@ -147,13 +137,10 @@ class MeshCollision:
 		if instance.context.version <= 32:
 			instance.bounds_min_repeat = Vector3.from_stream(stream, instance.context, 0, None)
 			instance.bounds_max_repeat = Vector3.from_stream(stream, instance.context, 0, None)
-		if instance.context.version <= 32:
 			instance.tri_flags_count = stream.read_uint()
 			instance.count_bits = stream.read_ushort()
-		if instance.context.version <= 32:
 			instance.stuff = stream.read_ushorts((9,))
 			instance.collision_bits = Array.from_stream(stream, (instance.count_bits,), MeshCollisionBit, instance.context, 0, None)
-		if instance.context.version <= 32:
 			instance.zeros = stream.read_uints((4,))
 		instance.vertices = stream.read_floats((instance.vertex_count, 3,))
 		instance.triangles = stream.read_ushorts((instance.tri_count, 3,))
@@ -165,6 +152,7 @@ class MeshCollision:
 
 	@classmethod
 	def write_fields(cls, stream, instance):
+		super().write_fields(stream, instance)
 		Matrix33.to_stream(stream, instance.rotation)
 		Vector3.to_stream(stream, instance.offset)
 		stream.write_ushorts(instance.unk_1)
@@ -180,13 +168,10 @@ class MeshCollision:
 		if instance.context.version <= 32:
 			Vector3.to_stream(stream, instance.bounds_min_repeat)
 			Vector3.to_stream(stream, instance.bounds_max_repeat)
-		if instance.context.version <= 32:
 			stream.write_uint(instance.tri_flags_count)
 			stream.write_ushort(instance.count_bits)
-		if instance.context.version <= 32:
 			stream.write_ushorts(instance.stuff)
 			Array.to_stream(stream, instance.collision_bits, (instance.count_bits,), MeshCollisionBit, instance.context, 0, None)
-		if instance.context.version <= 32:
 			stream.write_uints(instance.zeros)
 		stream.write_floats(instance.vertices)
 		stream.write_ushorts(instance.triangles)
@@ -197,25 +182,42 @@ class MeshCollision:
 		stream.write_uint(instance.zero_end)
 
 	@classmethod
-	def from_stream(cls, stream, context, arg=0, template=None):
-		instance = cls(context, arg, template, set_default=False)
-		instance.io_start = stream.tell()
-		cls.read_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
-
-	@classmethod
-	def to_stream(cls, stream, instance):
-		instance.io_start = stream.tell()
-		cls.write_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
+	def _get_filtered_attribute_list(cls, instance):
+		super()._get_filtered_attribute_list(instance)
+		yield ('rotation', Matrix33, (0, None))
+		yield ('offset', Vector3, (0, None))
+		yield ('unk_1', Array, ((3, 2,), Ushort, 0, None))
+		yield ('vertex_count', Uint64, (0, None))
+		yield ('tri_count', Uint64, (0, None))
+		yield ('bounds_min', Vector3, (0, None))
+		yield ('bounds_max', Vector3, (0, None))
+		yield ('ones_or_zeros', Array, ((7,), Uint64, 0, None))
+		if instance.context.version <= 32:
+			yield ('ff_or_zero', Array, ((10,), Int, 0, None))
+		if instance.context.version >= 47:
+			yield ('ff_or_zero', Array, ((8,), Int, 0, None))
+		if instance.context.version <= 32:
+			yield ('bounds_min_repeat', Vector3, (0, None))
+			yield ('bounds_max_repeat', Vector3, (0, None))
+			yield ('tri_flags_count', Uint, (0, None))
+			yield ('count_bits', Ushort, (0, None))
+			yield ('stuff', Array, ((9,), Ushort, 0, None))
+			yield ('collision_bits', Array, ((instance.count_bits,), MeshCollisionBit, 0, None))
+			yield ('zeros', Array, ((4,), Uint, 0, None))
+		yield ('vertices', Array, ((instance.vertex_count, 3,), Float, 0, None))
+		yield ('triangles', Array, ((instance.tri_count, 3,), Ushort, 0, None))
+		if instance.context.version <= 32:
+			yield ('const', Uint, (0, None))
+		if instance.context.version <= 32 and instance.const:
+			yield ('triangle_flags', Array, ((instance.tri_flags_count,), Uint, 0, None))
+		yield ('zero_end', Uint, (0, None))
 
 	def get_info_str(self, indent=0):
 		return f'MeshCollision [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
 	def get_fields_str(self, indent=0):
 		s = ''
+		s += super().get_fields_str()
 		s += f'\n	* rotation = {fmt_member(self.rotation, indent+1)}'
 		s += f'\n	* offset = {fmt_member(self.offset, indent+1)}'
 		s += f'\n	* unk_1 = {fmt_member(self.unk_1, indent+1)}'

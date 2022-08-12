@@ -1,14 +1,12 @@
 # START_GLOBALS
 import logging
 
-from generated.context import ContextReference
 from generated.formats.ms2.compound.HitCheckEntry import HitCheckEntry
+from generated.struct import StructBase
 
 # END_GLOBALS
 
-class StreamDebugger:
-
-	context = ContextReference()
+class StreamDebugger(StructBase):
 
 	# START_CLASS
 

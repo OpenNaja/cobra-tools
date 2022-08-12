@@ -1,7 +1,10 @@
-from source.formats.base.basic import fmt_member
+from generated.formats.base.basic import fmt_member
 import generated.formats.wsm.compound.Vector3
 import generated.formats.wsm.compound.Vector4
 import numpy
+from generated.array import Array
+from generated.formats.base.basic import Float
+from generated.formats.base.basic import Uint
 from generated.formats.ovl_base.compound.ArrayPointer import ArrayPointer
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
 
@@ -13,21 +16,16 @@ class WsmHeader(MemStruct):
 	"""
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
-		self.name = ''
 		super().__init__(context, arg, template, set_default)
-		self.arg = arg
-		self.template = template
-		self.io_size = 0
-		self.io_start = 0
-		self.duration = 0.0
+		self.duration = 0
 
 		# likely
 		self.frame_count = 0
 
 		# unk
-		self.unknowns = numpy.zeros((8,), dtype=numpy.dtype('float32'))
-		self.locs = ArrayPointer(self.context, self.frame_count, generated.formats.wsm.compound.Vector3.Vector3)
-		self.quats = ArrayPointer(self.context, self.frame_count, generated.formats.wsm.compound.Vector4.Vector4)
+		self.unknowns = 0
+		self.locs = 0
+		self.quats = 0
 		if set_default:
 			self.set_defaults()
 
@@ -69,19 +67,13 @@ class WsmHeader(MemStruct):
 		ArrayPointer.to_stream(stream, instance.quats)
 
 	@classmethod
-	def from_stream(cls, stream, context, arg=0, template=None):
-		instance = cls(context, arg, template, set_default=False)
-		instance.io_start = stream.tell()
-		cls.read_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
-
-	@classmethod
-	def to_stream(cls, stream, instance):
-		instance.io_start = stream.tell()
-		cls.write_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
+	def _get_filtered_attribute_list(cls, instance):
+		super()._get_filtered_attribute_list(instance)
+		yield ('duration', Float, (0, None))
+		yield ('frame_count', Uint, (0, None))
+		yield ('unknowns', Array, ((8,), Float, 0, None))
+		yield ('locs', ArrayPointer, (instance.frame_count, generated.formats.wsm.compound.Vector3.Vector3))
+		yield ('quats', ArrayPointer, (instance.frame_count, generated.formats.wsm.compound.Vector4.Vector4))
 
 	def get_info_str(self, indent=0):
 		return f'WsmHeader [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

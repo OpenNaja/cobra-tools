@@ -1,22 +1,16 @@
-from source.formats.base.basic import fmt_member
-from generated.context import ContextReference
+from generated.formats.base.basic import fmt_member
+from generated.formats.base.basic import Uint
+from generated.struct import StructBase
 
 
-class DataPointer:
+class DataPointer(StructBase):
 
 	"""
 	second Section of a soundbank aux
 	"""
 
-	context = ContextReference()
-
 	def __init__(self, context, arg=0, template=None, set_default=True):
-		self.name = ''
-		self._context = context
-		self.arg = arg
-		self.template = template
-		self.io_size = 0
-		self.io_start = 0
+		super().__init__(context, arg, template, set_default)
 		self.wem_id = 0
 
 		# offset into data section
@@ -44,36 +38,31 @@ class DataPointer:
 
 	@classmethod
 	def read_fields(cls, stream, instance):
+		super().read_fields(stream, instance)
 		instance.wem_id = stream.read_uint()
 		instance.data_section_offset = stream.read_uint()
 		instance.wem_filesize = stream.read_uint()
 
 	@classmethod
 	def write_fields(cls, stream, instance):
+		super().write_fields(stream, instance)
 		stream.write_uint(instance.wem_id)
 		stream.write_uint(instance.data_section_offset)
 		stream.write_uint(instance.wem_filesize)
 
 	@classmethod
-	def from_stream(cls, stream, context, arg=0, template=None):
-		instance = cls(context, arg, template, set_default=False)
-		instance.io_start = stream.tell()
-		cls.read_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
-
-	@classmethod
-	def to_stream(cls, stream, instance):
-		instance.io_start = stream.tell()
-		cls.write_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
+	def _get_filtered_attribute_list(cls, instance):
+		super()._get_filtered_attribute_list(instance)
+		yield ('wem_id', Uint, (0, None))
+		yield ('data_section_offset', Uint, (0, None))
+		yield ('wem_filesize', Uint, (0, None))
 
 	def get_info_str(self, indent=0):
 		return f'DataPointer [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
 	def get_fields_str(self, indent=0):
 		s = ''
+		s += super().get_fields_str()
 		s += f'\n	* wem_id = {fmt_member(self.wem_id, indent+1)}'
 		s += f'\n	* data_section_offset = {fmt_member(self.data_section_offset, indent+1)}'
 		s += f'\n	* wem_filesize = {fmt_member(self.wem_filesize, indent+1)}'

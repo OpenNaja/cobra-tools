@@ -1,5 +1,6 @@
-from source.formats.base.basic import fmt_member
+from generated.formats.base.basic import fmt_member
 import generated.formats.base.basic
+from generated.formats.base.basic import Uint64
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
 from generated.formats.ovl_base.compound.Pointer import Pointer
 
@@ -7,19 +8,14 @@ from generated.formats.ovl_base.compound.Pointer import Pointer
 class AxisValue(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
-		self.name = ''
 		super().__init__(context, arg, template, set_default)
-		self.arg = arg
-		self.template = template
-		self.io_size = 0
-		self.io_start = 0
 		self.u_0 = 0
 		self.u_1 = 0
 		self.u_2 = 0
 		self.u_3 = 0
 		self.u_4 = 0
-		self.axis_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.value_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.axis_name = 0
+		self.value_name = 0
 		if set_default:
 			self.set_defaults()
 
@@ -67,19 +63,15 @@ class AxisValue(MemStruct):
 		stream.write_uint64(instance.u_4)
 
 	@classmethod
-	def from_stream(cls, stream, context, arg=0, template=None):
-		instance = cls(context, arg, template, set_default=False)
-		instance.io_start = stream.tell()
-		cls.read_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
-
-	@classmethod
-	def to_stream(cls, stream, instance):
-		instance.io_start = stream.tell()
-		cls.write_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
+	def _get_filtered_attribute_list(cls, instance):
+		super()._get_filtered_attribute_list(instance)
+		yield ('axis_name', Pointer, (0, generated.formats.base.basic.ZString))
+		yield ('u_0', Uint64, (0, None))
+		yield ('u_1', Uint64, (0, None))
+		yield ('u_2', Uint64, (0, None))
+		yield ('value_name', Pointer, (0, generated.formats.base.basic.ZString))
+		yield ('u_3', Uint64, (0, None))
+		yield ('u_4', Uint64, (0, None))
 
 	def get_info_str(self, indent=0):
 		return f'AxisValue [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

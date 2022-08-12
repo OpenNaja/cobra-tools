@@ -1,34 +1,28 @@
-from source.formats.base.basic import fmt_member
-from generated.context import ContextReference
+from generated.formats.base.basic import fmt_member
+from generated.formats.base.basic import Float
+from generated.struct import StructBase
 
 
-class Vector4:
+class Vector4(StructBase):
 
 	"""
 	A vector in 3D space (x,y,z).
 	"""
 
-	context = ContextReference()
-
 	def __init__(self, context, arg=0, template=None, set_default=True):
-		self.name = ''
-		self._context = context
-		self.arg = arg
-		self.template = template
-		self.io_size = 0
-		self.io_start = 0
+		super().__init__(context, arg, template, set_default)
 
 		# First coordinate.
-		self.x = 0.0
+		self.x = 0
 
 		# Second coordinate.
-		self.y = 0.0
+		self.y = 0
 
 		# Third coordinate.
-		self.z = 0.0
+		self.z = 0
 
 		# zeroth coordinate.
-		self.w = 0.0
+		self.w = 0
 		if set_default:
 			self.set_defaults()
 
@@ -50,6 +44,7 @@ class Vector4:
 
 	@classmethod
 	def read_fields(cls, stream, instance):
+		super().read_fields(stream, instance)
 		instance.x = stream.read_float()
 		instance.y = stream.read_float()
 		instance.z = stream.read_float()
@@ -57,25 +52,19 @@ class Vector4:
 
 	@classmethod
 	def write_fields(cls, stream, instance):
+		super().write_fields(stream, instance)
 		stream.write_float(instance.x)
 		stream.write_float(instance.y)
 		stream.write_float(instance.z)
 		stream.write_float(instance.w)
 
 	@classmethod
-	def from_stream(cls, stream, context, arg=0, template=None):
-		instance = cls(context, arg, template, set_default=False)
-		instance.io_start = stream.tell()
-		cls.read_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
-
-	@classmethod
-	def to_stream(cls, stream, instance):
-		instance.io_start = stream.tell()
-		cls.write_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
+	def _get_filtered_attribute_list(cls, instance):
+		super()._get_filtered_attribute_list(instance)
+		yield ('x', Float, (0, None))
+		yield ('y', Float, (0, None))
+		yield ('z', Float, (0, None))
+		yield ('w', Float, (0, None))
 
 	def __repr__(self):
 		return f"[ {self.x:6.3f} {self.y:6.3f} {self.z:6.3f} {self.w:6.3f} ]"

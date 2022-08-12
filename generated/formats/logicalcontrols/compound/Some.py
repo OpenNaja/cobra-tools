@@ -1,6 +1,7 @@
-from source.formats.base.basic import fmt_member
+from generated.formats.base.basic import fmt_member
 import generated.formats.base.basic
 import generated.formats.logicalcontrols.compound.SomeData
+from generated.formats.base.basic import Uint64
 from generated.formats.ovl_base.compound.ArrayPointer import ArrayPointer
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
 from generated.formats.ovl_base.compound.Pointer import Pointer
@@ -13,15 +14,10 @@ class Some(MemStruct):
 	"""
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
-		self.name = ''
 		super().__init__(context, arg, template, set_default)
-		self.arg = arg
-		self.template = template
-		self.io_size = 0
-		self.io_start = 0
 		self.some_count = 0
-		self.some_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.some_data = ArrayPointer(self.context, self.some_count, generated.formats.logicalcontrols.compound.SomeData.SomeData)
+		self.some_name = 0
+		self.some_data = 0
 		if set_default:
 			self.set_defaults()
 
@@ -57,19 +53,11 @@ class Some(MemStruct):
 		stream.write_uint64(instance.some_count)
 
 	@classmethod
-	def from_stream(cls, stream, context, arg=0, template=None):
-		instance = cls(context, arg, template, set_default=False)
-		instance.io_start = stream.tell()
-		cls.read_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
-
-	@classmethod
-	def to_stream(cls, stream, instance):
-		instance.io_start = stream.tell()
-		cls.write_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
+	def _get_filtered_attribute_list(cls, instance):
+		super()._get_filtered_attribute_list(instance)
+		yield ('some_name', Pointer, (0, generated.formats.base.basic.ZString))
+		yield ('some_data', ArrayPointer, (instance.some_count, generated.formats.logicalcontrols.compound.SomeData.SomeData))
+		yield ('some_count', Uint64, (0, None))
 
 	def get_info_str(self, indent=0):
 		return f'Some [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

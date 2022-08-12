@@ -1,7 +1,9 @@
-from source.formats.base.basic import fmt_member
+from generated.formats.base.basic import fmt_member
 import generated.formats.base.basic
 import generated.formats.wmeta.compound.EventEntry
 import generated.formats.wmeta.compound.MediaEntry
+from generated.formats.base.basic import Uint
+from generated.formats.base.basic import Uint64
 from generated.formats.ovl_base.compound.ArrayPointer import ArrayPointer
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
 from generated.formats.ovl_base.compound.Pointer import Pointer
@@ -16,27 +18,22 @@ class WmetasbMain(MemStruct):
 	"""
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
-		self.name = ''
 		super().__init__(context, arg, template, set_default)
-		self.arg = arg
-		self.template = template
-		self.io_size = 0
-		self.io_start = 0
 		self.hash = 0
 		self.unk = 0
 		self.events_count = 0
 		self.hashes_count = 0
 		self.media_count = 0
-		self.block_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.media_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.bnk_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.events = ArrayPointer(self.context, self.events_count, generated.formats.wmeta.compound.EventEntry.EventEntry)
-		self.hashes = ArrayPointer(self.context, self.hashes_count, generated.formats.base.basic.Uint)
-		self.media = ArrayPointer(self.context, self.media_count, generated.formats.wmeta.compound.MediaEntry.MediaEntry)
-		self.unused_2 = Pointer(self.context, 0, None)
-		self.unused_3 = Pointer(self.context, 0, None)
-		self.unused_4 = Pointer(self.context, 0, None)
-		self.unused_5 = Pointer(self.context, 0, None)
+		self.block_name = 0
+		self.media_name = 0
+		self.bnk_name = 0
+		self.events = 0
+		self.hashes = 0
+		self.media = 0
+		self.unused_2 = 0
+		self.unused_3 = 0
+		self.unused_4 = 0
+		self.unused_5 = 0
 		if set_default:
 			self.set_defaults()
 
@@ -46,25 +43,18 @@ class WmetasbMain(MemStruct):
 		self.events_count = 0
 		if self.context.version <= 18:
 			self.hashes_count = 0
-		if self.context.version <= 18:
 			self.media_count = 0
 		self.block_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 		if self.context.version <= 18:
 			self.media_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		if self.context.version <= 18:
 			self.bnk_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 		self.events = ArrayPointer(self.context, self.events_count, generated.formats.wmeta.compound.EventEntry.EventEntry)
 		if self.context.version <= 18:
 			self.hashes = ArrayPointer(self.context, self.hashes_count, generated.formats.base.basic.Uint)
-		if self.context.version <= 18:
 			self.media = ArrayPointer(self.context, self.media_count, generated.formats.wmeta.compound.MediaEntry.MediaEntry)
-		if self.context.version <= 18:
 			self.unused_2 = Pointer(self.context, 0, None)
-		if self.context.version <= 18:
 			self.unused_3 = Pointer(self.context, 0, None)
-		if self.context.version <= 18:
 			self.unused_4 = Pointer(self.context, 0, None)
-		if self.context.version <= 18:
 			self.unused_5 = Pointer(self.context, 0, None)
 
 	def read(self, stream):
@@ -91,13 +81,10 @@ class WmetasbMain(MemStruct):
 		if instance.context.version <= 18:
 			instance.hashes = ArrayPointer.from_stream(stream, instance.context, instance.hashes_count, generated.formats.base.basic.Uint)
 			instance.hashes_count = stream.read_uint64()
-		if instance.context.version <= 18:
 			instance.media = ArrayPointer.from_stream(stream, instance.context, instance.media_count, generated.formats.wmeta.compound.MediaEntry.MediaEntry)
 			instance.media_count = stream.read_uint64()
-		if instance.context.version <= 18:
 			instance.unused_2 = Pointer.from_stream(stream, instance.context, 0, None)
 			instance.unused_3 = Pointer.from_stream(stream, instance.context, 0, None)
-		if instance.context.version <= 18:
 			instance.unused_4 = Pointer.from_stream(stream, instance.context, 0, None)
 			instance.unused_5 = Pointer.from_stream(stream, instance.context, 0, None)
 		instance.block_name.arg = 0
@@ -125,30 +112,33 @@ class WmetasbMain(MemStruct):
 		if instance.context.version <= 18:
 			ArrayPointer.to_stream(stream, instance.hashes)
 			stream.write_uint64(instance.hashes_count)
-		if instance.context.version <= 18:
 			ArrayPointer.to_stream(stream, instance.media)
 			stream.write_uint64(instance.media_count)
-		if instance.context.version <= 18:
 			Pointer.to_stream(stream, instance.unused_2)
 			Pointer.to_stream(stream, instance.unused_3)
-		if instance.context.version <= 18:
 			Pointer.to_stream(stream, instance.unused_4)
 			Pointer.to_stream(stream, instance.unused_5)
 
 	@classmethod
-	def from_stream(cls, stream, context, arg=0, template=None):
-		instance = cls(context, arg, template, set_default=False)
-		instance.io_start = stream.tell()
-		cls.read_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
-
-	@classmethod
-	def to_stream(cls, stream, instance):
-		instance.io_start = stream.tell()
-		cls.write_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
+	def _get_filtered_attribute_list(cls, instance):
+		super()._get_filtered_attribute_list(instance)
+		yield ('hash', Uint, (0, None))
+		yield ('unk', Uint, (0, None))
+		yield ('block_name', Pointer, (0, generated.formats.base.basic.ZString))
+		if instance.context.version <= 18:
+			yield ('media_name', Pointer, (0, generated.formats.base.basic.ZString))
+			yield ('bnk_name', Pointer, (0, generated.formats.base.basic.ZString))
+		yield ('events', ArrayPointer, (instance.events_count, generated.formats.wmeta.compound.EventEntry.EventEntry))
+		yield ('events_count', Uint64, (0, None))
+		if instance.context.version <= 18:
+			yield ('hashes', ArrayPointer, (instance.hashes_count, generated.formats.base.basic.Uint))
+			yield ('hashes_count', Uint64, (0, None))
+			yield ('media', ArrayPointer, (instance.media_count, generated.formats.wmeta.compound.MediaEntry.MediaEntry))
+			yield ('media_count', Uint64, (0, None))
+			yield ('unused_2', Pointer, (0, None))
+			yield ('unused_3', Pointer, (0, None))
+			yield ('unused_4', Pointer, (0, None))
+			yield ('unused_5', Pointer, (0, None))
 
 	def get_info_str(self, indent=0):
 		return f'WmetasbMain [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

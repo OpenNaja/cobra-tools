@@ -1,4 +1,6 @@
-from source.formats.base.basic import fmt_member
+from generated.formats.base.basic import fmt_member
+from generated.formats.base.basic import Uint
+from generated.formats.base.basic import Ushort
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
 
 
@@ -11,12 +13,7 @@ class ButtonData(MemStruct):
 	"""
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
-		self.name = ''
 		super().__init__(context, arg, template, set_default)
-		self.arg = arg
-		self.template = template
-		self.io_size = 0
-		self.io_start = 0
 		self.k_1_a = 0
 		self.k_1_b = 0
 		self.k_2 = 0
@@ -61,19 +58,13 @@ class ButtonData(MemStruct):
 		stream.write_uint(instance.k_4)
 
 	@classmethod
-	def from_stream(cls, stream, context, arg=0, template=None):
-		instance = cls(context, arg, template, set_default=False)
-		instance.io_start = stream.tell()
-		cls.read_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
-
-	@classmethod
-	def to_stream(cls, stream, instance):
-		instance.io_start = stream.tell()
-		cls.write_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
+	def _get_filtered_attribute_list(cls, instance):
+		super()._get_filtered_attribute_list(instance)
+		yield ('k_1_a', Ushort, (0, None))
+		yield ('k_1_b', Ushort, (0, None))
+		yield ('k_2', Uint, (0, None))
+		yield ('k_3', Uint, (0, None))
+		yield ('k_4', Uint, (0, None))
 
 	def get_info_str(self, indent=0):
 		return f'ButtonData [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

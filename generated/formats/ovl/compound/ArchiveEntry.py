@@ -1,22 +1,18 @@
-from source.formats.base.basic import fmt_member
-from generated.context import ContextReference
+from generated.formats.base.basic import fmt_member
+from generated.formats.base.basic import Uint
+from generated.formats.base.basic import Uint64
+from generated.formats.base.basic import Ushort
+from generated.struct import StructBase
 
 
-class ArchiveEntry:
+class ArchiveEntry(StructBase):
 
 	"""
 	Description of one archive
 	"""
 
-	context = ContextReference()
-
 	def __init__(self, context, arg=0, template=None, set_default=True):
-		self.name = ''
-		self._context = context
-		self.arg = arg
-		self.template = template
-		self.io_size = 0
-		self.io_start = 0
+		super().__init__(context, arg, template, set_default)
 
 		# offset in the ovl's Archive Names block
 		self.offset = 0
@@ -102,6 +98,7 @@ class ArchiveEntry:
 
 	@classmethod
 	def read_fields(cls, stream, instance):
+		super().read_fields(stream, instance)
 		instance.offset = stream.read_uint()
 		instance.pools_offset = stream.read_uint()
 		instance.stream_files_offset = stream.read_uint()
@@ -122,6 +119,7 @@ class ArchiveEntry:
 
 	@classmethod
 	def write_fields(cls, stream, instance):
+		super().write_fields(stream, instance)
 		stream.write_uint(instance.offset)
 		stream.write_uint(instance.pools_offset)
 		stream.write_uint(instance.stream_files_offset)
@@ -141,25 +139,32 @@ class ArchiveEntry:
 		stream.write_uint(instance.ovs_offset)
 
 	@classmethod
-	def from_stream(cls, stream, context, arg=0, template=None):
-		instance = cls(context, arg, template, set_default=False)
-		instance.io_start = stream.tell()
-		cls.read_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
-
-	@classmethod
-	def to_stream(cls, stream, instance):
-		instance.io_start = stream.tell()
-		cls.write_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
+	def _get_filtered_attribute_list(cls, instance):
+		super()._get_filtered_attribute_list(instance)
+		yield ('offset', Uint, (0, None))
+		yield ('pools_offset', Uint, (0, None))
+		yield ('stream_files_offset', Uint, (0, None))
+		yield ('num_pools', Uint, (0, None))
+		yield ('num_datas', Ushort, (0, None))
+		yield ('num_pool_groups', Ushort, (0, None))
+		yield ('num_buffer_groups', Uint, (0, None))
+		yield ('num_buffers', Uint, (0, None))
+		yield ('num_fragments', Uint, (0, None))
+		yield ('num_root_entries', Uint, (0, None))
+		yield ('read_start', Uint, (0, None))
+		yield ('set_data_size', Uint, (0, None))
+		yield ('compressed_size', Uint, (0, None))
+		yield ('uncompressed_size', Uint64, (0, None))
+		yield ('pools_start', Uint, (0, None))
+		yield ('pools_end', Uint, (0, None))
+		yield ('ovs_offset', Uint, (0, None))
 
 	def get_info_str(self, indent=0):
 		return f'ArchiveEntry [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
 	def get_fields_str(self, indent=0):
 		s = ''
+		s += super().get_fields_str()
 		s += f'\n	* offset = {fmt_member(self.offset, indent+1)}'
 		s += f'\n	* pools_offset = {fmt_member(self.pools_offset, indent+1)}'
 		s += f'\n	* stream_files_offset = {fmt_member(self.stream_files_offset, indent+1)}'

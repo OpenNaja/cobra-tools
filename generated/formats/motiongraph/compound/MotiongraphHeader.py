@@ -1,4 +1,4 @@
-from source.formats.base.basic import fmt_member
+from generated.formats.base.basic import fmt_member
 import generated.formats.base.basic
 import generated.formats.motiongraph.compound.LuaModules
 import generated.formats.motiongraph.compound.MGTwo
@@ -6,6 +6,7 @@ import generated.formats.motiongraph.compound.MRFMember1
 import generated.formats.motiongraph.compound.MRFMember2
 import generated.formats.motiongraph.compound.MotiongraphRootFrag
 import generated.formats.motiongraph.compound.StateArray
+from generated.formats.base.basic import Uint
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
 from generated.formats.ovl_base.compound.Pointer import Pointer
 
@@ -17,22 +18,17 @@ class MotiongraphHeader(MemStruct):
 	"""
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
-		self.name = ''
 		super().__init__(context, arg, template, set_default)
-		self.arg = arg
-		self.template = template
-		self.io_size = 0
-		self.io_start = 0
 		self.count_0 = 0
 		self.count_1 = 0
-		self.ptr_0 = Pointer(self.context, 0, generated.formats.motiongraph.compound.MotiongraphRootFrag.MotiongraphRootFrag)
-		self.state_output_entries = Pointer(self.context, 0, generated.formats.motiongraph.compound.StateArray.StateArray)
-		self.ptr_2 = Pointer(self.context, 0, generated.formats.motiongraph.compound.MGTwo.MGTwo)
-		self.ptr_3 = Pointer(self.context, 0, generated.formats.motiongraph.compound.MRFMember1.MRFMember1)
-		self.lua_modules = Pointer(self.context, 0, generated.formats.motiongraph.compound.LuaModules.LuaModules)
-		self.lua_results = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.first_non_transition_state = Pointer(self.context, 0, generated.formats.motiongraph.compound.MRFMember2.MRFMember2)
-		self.empty_str = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.ptr_0 = 0
+		self.state_output_entries = 0
+		self.ptr_2 = 0
+		self.ptr_3 = 0
+		self.lua_modules = 0
+		self.lua_results = 0
+		self.first_non_transition_state = 0
+		self.empty_str = 0
 		if set_default:
 			self.set_defaults()
 
@@ -95,19 +91,18 @@ class MotiongraphHeader(MemStruct):
 		Pointer.to_stream(stream, instance.empty_str)
 
 	@classmethod
-	def from_stream(cls, stream, context, arg=0, template=None):
-		instance = cls(context, arg, template, set_default=False)
-		instance.io_start = stream.tell()
-		cls.read_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
-
-	@classmethod
-	def to_stream(cls, stream, instance):
-		instance.io_start = stream.tell()
-		cls.write_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
+	def _get_filtered_attribute_list(cls, instance):
+		super()._get_filtered_attribute_list(instance)
+		yield ('ptr_0', Pointer, (0, generated.formats.motiongraph.compound.MotiongraphRootFrag.MotiongraphRootFrag))
+		yield ('state_output_entries', Pointer, (0, generated.formats.motiongraph.compound.StateArray.StateArray))
+		yield ('ptr_2', Pointer, (0, generated.formats.motiongraph.compound.MGTwo.MGTwo))
+		yield ('ptr_3', Pointer, (0, generated.formats.motiongraph.compound.MRFMember1.MRFMember1))
+		yield ('count_0', Uint, (0, None))
+		yield ('count_1', Uint, (0, None))
+		yield ('lua_modules', Pointer, (0, generated.formats.motiongraph.compound.LuaModules.LuaModules))
+		yield ('lua_results', Pointer, (0, generated.formats.base.basic.ZString))
+		yield ('first_non_transition_state', Pointer, (0, generated.formats.motiongraph.compound.MRFMember2.MRFMember2))
+		yield ('empty_str', Pointer, (0, generated.formats.base.basic.ZString))
 
 	def get_info_str(self, indent=0):
 		return f'MotiongraphHeader [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

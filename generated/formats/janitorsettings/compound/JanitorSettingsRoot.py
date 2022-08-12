@@ -1,6 +1,9 @@
-from source.formats.base.basic import fmt_member
+from generated.formats.base.basic import fmt_member
 import generated.formats.base.basic
 import generated.formats.janitorsettings.compound.UIntPair
+from generated.formats.base.basic import Float
+from generated.formats.base.basic import Ubyte
+from generated.formats.base.basic import Uint
 from generated.formats.ovl_base.compound.ArrayPointer import ArrayPointer
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
 
@@ -12,23 +15,18 @@ class JanitorSettingsRoot(MemStruct):
 	"""
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
-		self.name = ''
 		super().__init__(context, arg, template, set_default)
-		self.arg = arg
-		self.template = template
-		self.io_size = 0
-		self.io_start = 0
-		self.unk_0 = 0.0
-		self.unk_1 = 0.0
-		self.unk_2 = 0.0
-		self.unk_3 = 0.0
-		self.unk_4 = 0.0
-		self.unk_5 = 0.0
-		self.unk_6 = 0.0
-		self.unk_7 = 0.0
+		self.unk_0 = 0
+		self.unk_1 = 0
+		self.unk_2 = 0
+		self.unk_3 = 0
+		self.unk_4 = 0
+		self.unk_5 = 0
+		self.unk_6 = 0
+		self.unk_7 = 0
 		self.unk_8 = 0
-		self.unk_9 = 0.0
-		self.unk_10 = 0.0
+		self.unk_9 = 0
+		self.unk_10 = 0
 		self.count_0 = 0
 		self.count_1 = 0
 		self.count_2 = 0
@@ -49,43 +47,43 @@ class JanitorSettingsRoot(MemStruct):
 		self.possibly_unused_count_2 = 0
 		self.possibly_unused_count_3 = 0
 		self.possibly_unused_count_4 = 0
-		self.unk_11 = 0.0
-		self.unk_12 = 0.0
-		self.unk_13 = 0.0
-		self.unk_14 = 0.0
-		self.unk_15 = 0.0
-		self.unk_16 = 0.0
-		self.unk_17 = 0.0
-		self.unk_18 = 0.0
-		self.unk_19 = 0.0
-		self.unk_20 = 0.0
-		self.unk_21 = 0.0
-		self.unk_22 = 0.0
-		self.unk_23 = 0.0
-		self.unk_24 = 0.0
-		self.unk_25 = 0.0
-		self.unk_26 = 0.0
-		self.unk_27 = 0.0
-		self.unk_28 = 0.0
-		self.unk_29 = 0.0
-		self.unk_30 = 0.0
-		self.unk_31 = 0.0
-		self.unk_32 = 0.0
-		self.array_0 = ArrayPointer(self.context, self.count_0, generated.formats.janitorsettings.compound.UIntPair.UIntPair)
-		self.array_1 = ArrayPointer(self.context, self.count_1, generated.formats.janitorsettings.compound.UIntPair.UIntPair)
-		self.array_2 = ArrayPointer(self.context, self.count_2, generated.formats.janitorsettings.compound.UIntPair.UIntPair)
-		self.array_3 = ArrayPointer(self.context, self.count_3, generated.formats.janitorsettings.compound.UIntPair.UIntPair)
-		self.array_4 = ArrayPointer(self.context, self.count_4, generated.formats.janitorsettings.compound.UIntPair.UIntPair)
-		self.array_5 = ArrayPointer(self.context, self.count_5, generated.formats.janitorsettings.compound.UIntPair.UIntPair)
-		self.array_6 = ArrayPointer(self.context, self.count_6, generated.formats.base.basic.Uint)
-		self.array_7 = ArrayPointer(self.context, self.count_7, generated.formats.base.basic.Uint)
-		self.array_8 = ArrayPointer(self.context, self.count_8, generated.formats.base.basic.Uint)
-		self.array_9 = ArrayPointer(self.context, self.count_9, generated.formats.base.basic.Float)
-		self.array_10 = ArrayPointer(self.context, self.count_10, generated.formats.base.basic.Float)
-		self.array_11 = ArrayPointer(self.context, self.count_11, generated.formats.base.basic.Float)
-		self.array_12 = ArrayPointer(self.context, self.count_12, generated.formats.base.basic.Float)
-		self.array_13 = ArrayPointer(self.context, self.count_13, generated.formats.base.basic.Float)
-		self.array_14 = ArrayPointer(self.context, self.count_14, generated.formats.base.basic.Float)
+		self.unk_11 = 0
+		self.unk_12 = 0
+		self.unk_13 = 0
+		self.unk_14 = 0
+		self.unk_15 = 0
+		self.unk_16 = 0
+		self.unk_17 = 0
+		self.unk_18 = 0
+		self.unk_19 = 0
+		self.unk_20 = 0
+		self.unk_21 = 0
+		self.unk_22 = 0
+		self.unk_23 = 0
+		self.unk_24 = 0
+		self.unk_25 = 0
+		self.unk_26 = 0
+		self.unk_27 = 0
+		self.unk_28 = 0
+		self.unk_29 = 0
+		self.unk_30 = 0
+		self.unk_31 = 0
+		self.unk_32 = 0
+		self.array_0 = 0
+		self.array_1 = 0
+		self.array_2 = 0
+		self.array_3 = 0
+		self.array_4 = 0
+		self.array_5 = 0
+		self.array_6 = 0
+		self.array_7 = 0
+		self.array_8 = 0
+		self.array_9 = 0
+		self.array_10 = 0
+		self.array_11 = 0
+		self.array_12 = 0
+		self.array_13 = 0
+		self.array_14 = 0
 		if set_default:
 			self.set_defaults()
 
@@ -329,19 +327,76 @@ class JanitorSettingsRoot(MemStruct):
 		stream.write_float(instance.unk_32)
 
 	@classmethod
-	def from_stream(cls, stream, context, arg=0, template=None):
-		instance = cls(context, arg, template, set_default=False)
-		instance.io_start = stream.tell()
-		cls.read_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
-
-	@classmethod
-	def to_stream(cls, stream, instance):
-		instance.io_start = stream.tell()
-		cls.write_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
+	def _get_filtered_attribute_list(cls, instance):
+		super()._get_filtered_attribute_list(instance)
+		yield ('array_0', ArrayPointer, (instance.count_0, generated.formats.janitorsettings.compound.UIntPair.UIntPair))
+		yield ('array_1', ArrayPointer, (instance.count_1, generated.formats.janitorsettings.compound.UIntPair.UIntPair))
+		yield ('array_2', ArrayPointer, (instance.count_2, generated.formats.janitorsettings.compound.UIntPair.UIntPair))
+		yield ('array_3', ArrayPointer, (instance.count_3, generated.formats.janitorsettings.compound.UIntPair.UIntPair))
+		yield ('array_4', ArrayPointer, (instance.count_4, generated.formats.janitorsettings.compound.UIntPair.UIntPair))
+		yield ('array_5', ArrayPointer, (instance.count_5, generated.formats.janitorsettings.compound.UIntPair.UIntPair))
+		yield ('array_6', ArrayPointer, (instance.count_6, generated.formats.base.basic.Uint))
+		yield ('array_7', ArrayPointer, (instance.count_7, generated.formats.base.basic.Uint))
+		yield ('array_8', ArrayPointer, (instance.count_8, generated.formats.base.basic.Uint))
+		yield ('array_9', ArrayPointer, (instance.count_9, generated.formats.base.basic.Float))
+		yield ('array_10', ArrayPointer, (instance.count_10, generated.formats.base.basic.Float))
+		yield ('array_11', ArrayPointer, (instance.count_11, generated.formats.base.basic.Float))
+		yield ('array_12', ArrayPointer, (instance.count_12, generated.formats.base.basic.Float))
+		yield ('array_13', ArrayPointer, (instance.count_13, generated.formats.base.basic.Float))
+		yield ('array_14', ArrayPointer, (instance.count_14, generated.formats.base.basic.Float))
+		yield ('unk_0', Float, (0, None))
+		yield ('unk_1', Float, (0, None))
+		yield ('unk_2', Float, (0, None))
+		yield ('unk_3', Float, (0, None))
+		yield ('unk_4', Float, (0, None))
+		yield ('unk_5', Float, (0, None))
+		yield ('unk_6', Float, (0, None))
+		yield ('unk_7', Float, (0, None))
+		yield ('unk_8', Uint, (0, None))
+		yield ('unk_9', Float, (0, None))
+		yield ('unk_10', Float, (0, None))
+		yield ('count_0', Ubyte, (0, None))
+		yield ('count_1', Ubyte, (0, None))
+		yield ('count_2', Ubyte, (0, None))
+		yield ('count_3', Ubyte, (0, None))
+		yield ('count_4', Ubyte, (0, None))
+		yield ('count_5', Ubyte, (0, None))
+		yield ('count_6', Ubyte, (0, None))
+		yield ('count_7', Ubyte, (0, None))
+		yield ('count_8', Ubyte, (0, None))
+		yield ('count_9', Ubyte, (0, None))
+		yield ('count_10', Ubyte, (0, None))
+		yield ('count_11', Ubyte, (0, None))
+		yield ('count_12', Ubyte, (0, None))
+		yield ('count_13', Ubyte, (0, None))
+		yield ('count_14', Ubyte, (0, None))
+		yield ('possibly_unused_count_0', Ubyte, (0, None))
+		yield ('possibly_unused_count_1', Ubyte, (0, None))
+		yield ('possibly_unused_count_2', Ubyte, (0, None))
+		yield ('possibly_unused_count_3', Ubyte, (0, None))
+		yield ('possibly_unused_count_4', Ubyte, (0, None))
+		yield ('unk_11', Float, (0, None))
+		yield ('unk_12', Float, (0, None))
+		yield ('unk_13', Float, (0, None))
+		yield ('unk_14', Float, (0, None))
+		yield ('unk_15', Float, (0, None))
+		yield ('unk_16', Float, (0, None))
+		yield ('unk_17', Float, (0, None))
+		yield ('unk_18', Float, (0, None))
+		yield ('unk_19', Float, (0, None))
+		yield ('unk_20', Float, (0, None))
+		yield ('unk_21', Float, (0, None))
+		yield ('unk_22', Float, (0, None))
+		yield ('unk_23', Float, (0, None))
+		yield ('unk_24', Float, (0, None))
+		yield ('unk_25', Float, (0, None))
+		yield ('unk_26', Float, (0, None))
+		yield ('unk_27', Float, (0, None))
+		yield ('unk_28', Float, (0, None))
+		yield ('unk_29', Float, (0, None))
+		yield ('unk_30', Float, (0, None))
+		yield ('unk_31', Float, (0, None))
+		yield ('unk_32', Float, (0, None))
 
 	def get_info_str(self, indent=0):
 		return f'JanitorSettingsRoot [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

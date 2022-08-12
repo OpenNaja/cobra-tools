@@ -1,24 +1,20 @@
-from source.formats.base.basic import fmt_member
-from generated.context import ContextReference
+from generated.formats.base.basic import fmt_member
+from generated.formats.base.basic import Ubyte
+from generated.formats.base.basic import Uint
+from generated.formats.base.basic import Ushort
 from generated.formats.ms2.compound.Matrix33 import Matrix33
 from generated.formats.ms2.compound.Vector4 import Vector4
+from generated.struct import StructBase
 
 
-class NasutoJointEntry:
+class NasutoJointEntry(StructBase):
 
 	"""
 	60 bytes
 	"""
 
-	context = ContextReference()
-
 	def __init__(self, context, arg=0, template=None, set_default=True):
-		self.name = ''
-		self._context = context
-		self.arg = arg
-		self.template = template
-		self.io_size = 0
-		self.io_start = 0
+		super().__init__(context, arg, template, set_default)
 
 		# index into bone list
 		self.child = 0
@@ -30,10 +26,10 @@ class NasutoJointEntry:
 		self.zero = 0
 
 		# no clue what space this is in
-		self.matrix = Matrix33(self.context, 0, None)
+		self.matrix = 0
 
 		# seems to be degrees of freedom or something like that, possibly an ellipsoid
-		self.vector = Vector4(self.context, 0, None)
+		self.vector = 0
 
 		# 1
 		self.one = 0
@@ -60,6 +56,7 @@ class NasutoJointEntry:
 
 	@classmethod
 	def read_fields(cls, stream, instance):
+		super().read_fields(stream, instance)
 		instance.child = stream.read_ubyte()
 		instance.parent = stream.read_ubyte()
 		instance.zero = stream.read_ushort()
@@ -69,6 +66,7 @@ class NasutoJointEntry:
 
 	@classmethod
 	def write_fields(cls, stream, instance):
+		super().write_fields(stream, instance)
 		stream.write_ubyte(instance.child)
 		stream.write_ubyte(instance.parent)
 		stream.write_ushort(instance.zero)
@@ -77,25 +75,21 @@ class NasutoJointEntry:
 		stream.write_uint(instance.one)
 
 	@classmethod
-	def from_stream(cls, stream, context, arg=0, template=None):
-		instance = cls(context, arg, template, set_default=False)
-		instance.io_start = stream.tell()
-		cls.read_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
-
-	@classmethod
-	def to_stream(cls, stream, instance):
-		instance.io_start = stream.tell()
-		cls.write_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
+	def _get_filtered_attribute_list(cls, instance):
+		super()._get_filtered_attribute_list(instance)
+		yield ('child', Ubyte, (0, None))
+		yield ('parent', Ubyte, (0, None))
+		yield ('zero', Ushort, (0, None))
+		yield ('matrix', Matrix33, (0, None))
+		yield ('vector', Vector4, (0, None))
+		yield ('one', Uint, (0, None))
 
 	def get_info_str(self, indent=0):
 		return f'NasutoJointEntry [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
 	def get_fields_str(self, indent=0):
 		s = ''
+		s += super().get_fields_str()
 		s += f'\n	* child = {fmt_member(self.child, indent+1)}'
 		s += f'\n	* parent = {fmt_member(self.parent, indent+1)}'
 		s += f'\n	* zero = {fmt_member(self.zero, indent+1)}'

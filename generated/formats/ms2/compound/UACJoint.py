@@ -1,29 +1,25 @@
-from source.formats.base.basic import fmt_member
+from generated.formats.base.basic import fmt_member
 import numpy
-from generated.context import ContextReference
+from generated.array import Array
+from generated.formats.base.basic import Float
+from generated.formats.base.basic import Ushort
+from generated.struct import StructBase
 
 
-class UACJoint:
+class UACJoint(StructBase):
 
 	"""
 	36 bytes
 	"""
 
-	context = ContextReference()
-
 	def __init__(self, context, arg=0, template=None, set_default=True):
-		self.name = ''
-		self._context = context
-		self.arg = arg
-		self.template = template
-		self.io_size = 0
-		self.io_start = 0
+		super().__init__(context, arg, template, set_default)
 
 		# variable
-		self.unk = numpy.zeros((6,), dtype=numpy.dtype('uint16'))
+		self.unk = 0
 
 		# some at least
-		self.floats = numpy.zeros((6,), dtype=numpy.dtype('float32'))
+		self.floats = 0
 		if set_default:
 			self.set_defaults()
 
@@ -43,34 +39,28 @@ class UACJoint:
 
 	@classmethod
 	def read_fields(cls, stream, instance):
+		super().read_fields(stream, instance)
 		instance.unk = stream.read_ushorts((6,))
 		instance.floats = stream.read_floats((6,))
 
 	@classmethod
 	def write_fields(cls, stream, instance):
+		super().write_fields(stream, instance)
 		stream.write_ushorts(instance.unk)
 		stream.write_floats(instance.floats)
 
 	@classmethod
-	def from_stream(cls, stream, context, arg=0, template=None):
-		instance = cls(context, arg, template, set_default=False)
-		instance.io_start = stream.tell()
-		cls.read_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
-
-	@classmethod
-	def to_stream(cls, stream, instance):
-		instance.io_start = stream.tell()
-		cls.write_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
+	def _get_filtered_attribute_list(cls, instance):
+		super()._get_filtered_attribute_list(instance)
+		yield ('unk', Array, ((6,), Ushort, 0, None))
+		yield ('floats', Array, ((6,), Float, 0, None))
 
 	def get_info_str(self, indent=0):
 		return f'UACJoint [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
 	def get_fields_str(self, indent=0):
 		s = ''
+		s += super().get_fields_str()
 		s += f'\n	* unk = {fmt_member(self.unk, indent+1)}'
 		s += f'\n	* floats = {fmt_member(self.floats, indent+1)}'
 		return s

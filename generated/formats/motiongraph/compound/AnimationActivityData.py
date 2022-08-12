@@ -1,5 +1,8 @@
-from source.formats.base.basic import fmt_member
+from generated.formats.base.basic import fmt_member
 import generated.formats.base.basic
+from generated.formats.base.basic import Float
+from generated.formats.base.basic import Uint
+from generated.formats.base.basic import Uint64
 from generated.formats.motiongraph.bitstruct.AnimationFlags import AnimationFlags
 from generated.formats.motiongraph.compound.DataStreamResourceDataList import DataStreamResourceDataList
 from generated.formats.motiongraph.compound.FloatInputData import FloatInputData
@@ -14,23 +17,18 @@ class AnimationActivityData(MemStruct):
 	"""
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
-		self.name = ''
 		super().__init__(context, arg, template, set_default)
-		self.arg = arg
-		self.template = template
-		self.io_size = 0
-		self.io_start = 0
-		self.animation_flags = AnimationFlags(self.context, 0, None)
+		self.animation_flags = 0
 		self.priorities = 0
-		self.weight = FloatInputData(self.context, 0, None)
-		self.speed = FloatInputData(self.context, 0, None)
-		self.starting_prop_through = 0.0
-		self.lead_out_time = 0.0
+		self.weight = 0
+		self.speed = 0
+		self.starting_prop_through = 0
+		self.lead_out_time = 0
 		self.count_6 = 0
-		self.additional_data_streams = DataStreamResourceDataList(self.context, 0, None)
-		self.mani = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.sync_prop_through_variable = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.output_prop_through_variable = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.additional_data_streams = 0
+		self.mani = 0
+		self.sync_prop_through_variable = 0
+		self.output_prop_through_variable = 0
 		if set_default:
 			self.set_defaults()
 
@@ -91,19 +89,19 @@ class AnimationActivityData(MemStruct):
 		DataStreamResourceDataList.to_stream(stream, instance.additional_data_streams)
 
 	@classmethod
-	def from_stream(cls, stream, context, arg=0, template=None):
-		instance = cls(context, arg, template, set_default=False)
-		instance.io_start = stream.tell()
-		cls.read_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
-
-	@classmethod
-	def to_stream(cls, stream, instance):
-		instance.io_start = stream.tell()
-		cls.write_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
+	def _get_filtered_attribute_list(cls, instance):
+		super()._get_filtered_attribute_list(instance)
+		yield ('mani', Pointer, (0, generated.formats.base.basic.ZString))
+		yield ('animation_flags', AnimationFlags, (0, None))
+		yield ('priorities', Uint, (0, None))
+		yield ('weight', FloatInputData, (0, None))
+		yield ('speed', FloatInputData, (0, None))
+		yield ('starting_prop_through', Float, (0, None))
+		yield ('lead_out_time', Float, (0, None))
+		yield ('sync_prop_through_variable', Pointer, (0, generated.formats.base.basic.ZString))
+		yield ('count_6', Uint64, (0, None))
+		yield ('output_prop_through_variable', Pointer, (0, generated.formats.base.basic.ZString))
+		yield ('additional_data_streams', DataStreamResourceDataList, (0, None))
 
 	def get_info_str(self, indent=0):
 		return f'AnimationActivityData [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

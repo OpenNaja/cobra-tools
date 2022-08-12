@@ -1,18 +1,15 @@
-from source.formats.base.basic import fmt_member
+from generated.formats.base.basic import fmt_member
 import numpy
+from generated.array import Array
+from generated.formats.base.basic import Float
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
 
 
 class Data(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
-		self.name = ''
 		super().__init__(context, arg, template, set_default)
-		self.arg = arg
-		self.template = template
-		self.io_size = 0
-		self.io_start = 0
-		self.floats = numpy.zeros((16,), dtype=numpy.dtype('float32'))
+		self.floats = 0
 		if set_default:
 			self.set_defaults()
 
@@ -40,19 +37,9 @@ class Data(MemStruct):
 		stream.write_floats(instance.floats)
 
 	@classmethod
-	def from_stream(cls, stream, context, arg=0, template=None):
-		instance = cls(context, arg, template, set_default=False)
-		instance.io_start = stream.tell()
-		cls.read_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
-
-	@classmethod
-	def to_stream(cls, stream, instance):
-		instance.io_start = stream.tell()
-		cls.write_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
+	def _get_filtered_attribute_list(cls, instance):
+		super()._get_filtered_attribute_list(instance)
+		yield ('floats', Array, ((16,), Float, 0, None))
 
 	def get_info_str(self, indent=0):
 		return f'Data [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

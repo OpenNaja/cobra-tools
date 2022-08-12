@@ -1,23 +1,17 @@
-from source.formats.base.basic import fmt_member
-from generated.context import ContextReference
+from generated.formats.base.basic import fmt_member
+from generated.formats.base.basic import Uint
 from generated.formats.ovl.compound.HeaderPointer import HeaderPointer
+from generated.struct import StructBase
 
 
-class RootEntry:
+class RootEntry(StructBase):
 
 	"""
 	Main file entry in the ovs, one per FileEntry
 	"""
 
-	context = ContextReference()
-
 	def __init__(self, context, arg=0, template=None, set_default=True):
-		self.name = ''
-		self._context = context
-		self.arg = arg
-		self.template = template
-		self.io_size = 0
-		self.io_start = 0
+		super().__init__(context, arg, template, set_default)
 
 		# id (index or djb2) of the file
 		self.file_hash = 0
@@ -26,7 +20,7 @@ class RootEntry:
 		self.ext_hash = 0
 
 		# points to the main struct of this file OR -1 pointer for assets
-		self.struct_ptr = HeaderPointer(self.context, 0, None)
+		self.struct_ptr = 0
 		if set_default:
 			self.set_defaults()
 
@@ -48,6 +42,7 @@ class RootEntry:
 
 	@classmethod
 	def read_fields(cls, stream, instance):
+		super().read_fields(stream, instance)
 		instance.file_hash = stream.read_uint()
 		if instance.context.version >= 19:
 			instance.ext_hash = stream.read_uint()
@@ -55,31 +50,26 @@ class RootEntry:
 
 	@classmethod
 	def write_fields(cls, stream, instance):
+		super().write_fields(stream, instance)
 		stream.write_uint(instance.file_hash)
 		if instance.context.version >= 19:
 			stream.write_uint(instance.ext_hash)
 		HeaderPointer.to_stream(stream, instance.struct_ptr)
 
 	@classmethod
-	def from_stream(cls, stream, context, arg=0, template=None):
-		instance = cls(context, arg, template, set_default=False)
-		instance.io_start = stream.tell()
-		cls.read_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
-
-	@classmethod
-	def to_stream(cls, stream, instance):
-		instance.io_start = stream.tell()
-		cls.write_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
+	def _get_filtered_attribute_list(cls, instance):
+		super()._get_filtered_attribute_list(instance)
+		yield ('file_hash', Uint, (0, None))
+		if instance.context.version >= 19:
+			yield ('ext_hash', Uint, (0, None))
+		yield ('struct_ptr', HeaderPointer, (0, None))
 
 	def get_info_str(self, indent=0):
 		return f'RootEntry [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
 	def get_fields_str(self, indent=0):
 		s = ''
+		s += super().get_fields_str()
 		s += f'\n	* file_hash = {fmt_member(self.file_hash, indent+1)}'
 		s += f'\n	* ext_hash = {fmt_member(self.ext_hash, indent+1)}'
 		s += f'\n	* struct_ptr = {fmt_member(self.struct_ptr, indent+1)}'

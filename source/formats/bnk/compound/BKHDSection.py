@@ -1,9 +1,9 @@
-from source.formats.base.basic import fmt_member
+from generated.formats.base.basic import fmt_member
+from generated.struct import StructBase
 import numpy
-from generated.context import ContextReference
 
 
-class BKHDSection:
+class BKHDSection(StructBase):
 
 	# START_CLASS
 

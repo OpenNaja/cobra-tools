@@ -50,6 +50,14 @@ class String:
 
         return read_string, write_string, read_strings, write_strings
 
+    @staticmethod
+    def from_xml(target, elem, prop, arguments=None):
+        return elem[prop]
+
+    @classmethod
+    def to_xml(elem, prop, instance, arguments, debug):
+        elem.attrib[prop] = instance
+
 
 from generated.formats.ovl_base.basic import Byte, Ubyte, Uint64, Int64, Uint, Ushort, Int, Short, Char, Float, Double, ZString, Bool, ZStringObfuscated
 

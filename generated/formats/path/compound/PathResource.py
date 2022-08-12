@@ -1,5 +1,6 @@
-from source.formats.base.basic import fmt_member
+from generated.formats.base.basic import fmt_member
 import generated.formats.base.basic
+from generated.formats.base.basic import Byte
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
 from generated.formats.ovl_base.compound.Pointer import Pointer
 
@@ -7,21 +8,16 @@ from generated.formats.ovl_base.compound.Pointer import Pointer
 class PathResource(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
-		self.name = ''
 		super().__init__(context, arg, template, set_default)
-		self.arg = arg
-		self.template = template
-		self.io_size = 0
-		self.io_start = 0
 		self.path_type = 0
 		self.path_sub_type = 0
 		self.unk_byte_1 = 0
 		self.unk_byte_2 = 0
-		self.pathmaterial = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.pathextrusion_kerb = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.pathextrusion_railing = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.pathextrusion_ground = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.pathsupport = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.pathmaterial = 0
+		self.pathextrusion_kerb = 0
+		self.pathextrusion_railing = 0
+		self.pathextrusion_ground = 0
+		self.pathsupport = 0
 		if set_default:
 			self.set_defaults()
 
@@ -78,19 +74,17 @@ class PathResource(MemStruct):
 		stream.write_byte(instance.unk_byte_2)
 
 	@classmethod
-	def from_stream(cls, stream, context, arg=0, template=None):
-		instance = cls(context, arg, template, set_default=False)
-		instance.io_start = stream.tell()
-		cls.read_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
-
-	@classmethod
-	def to_stream(cls, stream, instance):
-		instance.io_start = stream.tell()
-		cls.write_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
+	def _get_filtered_attribute_list(cls, instance):
+		super()._get_filtered_attribute_list(instance)
+		yield ('pathmaterial', Pointer, (0, generated.formats.base.basic.ZString))
+		yield ('pathextrusion_kerb', Pointer, (0, generated.formats.base.basic.ZString))
+		yield ('pathextrusion_railing', Pointer, (0, generated.formats.base.basic.ZString))
+		yield ('pathextrusion_ground', Pointer, (0, generated.formats.base.basic.ZString))
+		yield ('pathsupport', Pointer, (0, generated.formats.base.basic.ZString))
+		yield ('path_type', Byte, (0, None))
+		yield ('path_sub_type', Byte, (0, None))
+		yield ('unk_byte_1', Byte, (0, None))
+		yield ('unk_byte_2', Byte, (0, None))
 
 	def get_info_str(self, indent=0):
 		return f'PathResource [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

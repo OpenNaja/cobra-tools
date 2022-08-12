@@ -1,7 +1,8 @@
-from source.formats.base.basic import fmt_member
+from generated.formats.base.basic import fmt_member
 import generated.formats.base.basic
 import generated.formats.dinosaurmaterialvariants.compound.VariantArray
 import generated.formats.ovl_base.basic
+from generated.formats.base.basic import Uint64
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
 from generated.formats.ovl_base.compound.Pointer import Pointer
 
@@ -14,18 +15,13 @@ class DinoVariantsHeader(MemStruct):
 	"""
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
-		self.name = ''
 		super().__init__(context, arg, template, set_default)
-		self.arg = arg
-		self.template = template
-		self.io_size = 0
-		self.io_start = 0
 		self.has_sets = 0
 		self.variant_count = 0
 		self.zero = 0
-		self.fgm_name = Pointer(self.context, 0, generated.formats.ovl_base.basic.ZStringObfuscated)
-		self.set_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.variants = Pointer(self.context, self.variant_count, generated.formats.dinosaurmaterialvariants.compound.VariantArray.VariantArray)
+		self.fgm_name = 0
+		self.set_name = 0
+		self.variants = 0
 		if set_default:
 			self.set_defaults()
 
@@ -71,19 +67,14 @@ class DinoVariantsHeader(MemStruct):
 		stream.write_uint64(instance.zero)
 
 	@classmethod
-	def from_stream(cls, stream, context, arg=0, template=None):
-		instance = cls(context, arg, template, set_default=False)
-		instance.io_start = stream.tell()
-		cls.read_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
-
-	@classmethod
-	def to_stream(cls, stream, instance):
-		instance.io_start = stream.tell()
-		cls.write_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
+	def _get_filtered_attribute_list(cls, instance):
+		super()._get_filtered_attribute_list(instance)
+		yield ('fgm_name', Pointer, (0, generated.formats.ovl_base.basic.ZStringObfuscated))
+		yield ('has_sets', Uint64, (0, None))
+		yield ('set_name', Pointer, (0, generated.formats.base.basic.ZString))
+		yield ('variants', Pointer, (instance.variant_count, generated.formats.dinosaurmaterialvariants.compound.VariantArray.VariantArray))
+		yield ('variant_count', Uint64, (0, None))
+		yield ('zero', Uint64, (0, None))
 
 	def get_info_str(self, indent=0):
 		return f'DinoVariantsHeader [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

@@ -1,6 +1,5 @@
 # START_GLOBALS
 from generated.array import Array
-from generated.context import ContextReference
 from generated.formats.ovl_base.compound.Pointer import Pointer
 # END_GLOBALS
 
@@ -10,8 +9,6 @@ class ArrayPointer(Pointer):
 	"""
 	a pointer to an array in an ovl memory layout
 	"""
-
-	context = ContextReference()
 
 # START_CLASS
 

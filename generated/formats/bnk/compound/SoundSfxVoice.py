@@ -1,11 +1,12 @@
-from source.formats.base.basic import fmt_member
+from generated.formats.base.basic import fmt_member
 import numpy
-from generated.context import ContextReference
+from generated.array import Array
+from generated.formats.base.basic import Byte
+from generated.formats.base.basic import Uint
+from generated.struct import StructBase
 
 
-class SoundSfxVoice:
-
-	context = ContextReference()
+class SoundSfxVoice(StructBase):
 
 	def set_defaults(self):
 		self.length = 0
@@ -28,6 +29,7 @@ class SoundSfxVoice:
 
 	@classmethod
 	def read_fields(cls, stream, instance):
+		super().read_fields(stream, instance)
 		instance.length = stream.read_uint()
 		instance.id = stream.read_uint()
 		instance.const_a = stream.read_uint()
@@ -38,6 +40,7 @@ class SoundSfxVoice:
 
 	@classmethod
 	def write_fields(cls, stream, instance):
+		super().write_fields(stream, instance)
 		stream.write_uint(instance.length)
 		stream.write_uint(instance.id)
 		stream.write_uint(instance.const_a)
@@ -47,25 +50,22 @@ class SoundSfxVoice:
 		stream.write_bytes(instance.extra)
 
 	@classmethod
-	def from_stream(cls, stream, context, arg=0, template=None):
-		instance = cls(context, arg, template, set_default=False)
-		instance.io_start = stream.tell()
-		cls.read_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
-
-	@classmethod
-	def to_stream(cls, stream, instance):
-		instance.io_start = stream.tell()
-		cls.write_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
+	def _get_filtered_attribute_list(cls, instance):
+		super()._get_filtered_attribute_list(instance)
+		yield ('length', Uint, (0, None))
+		yield ('id', Uint, (0, None))
+		yield ('const_a', Uint, (0, None))
+		yield ('const_b', Byte, (0, None))
+		yield ('didx_id', Uint, (0, None))
+		yield ('wem_length', Uint, (0, None))
+		yield ('extra', Array, ((instance.length - 17,), Byte, 0, None))
 
 	def get_info_str(self, indent=0):
 		return f'SoundSfxVoice [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
 	def get_fields_str(self, indent=0):
 		s = ''
+		s += super().get_fields_str()
 		s += f'\n	* length = {fmt_member(self.length, indent+1)}'
 		s += f'\n	* id = {fmt_member(self.id, indent+1)}'
 		s += f'\n	* const_a = {fmt_member(self.const_a, indent+1)}'

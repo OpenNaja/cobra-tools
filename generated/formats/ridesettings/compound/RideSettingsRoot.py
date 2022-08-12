@@ -1,5 +1,7 @@
-from source.formats.base.basic import fmt_member
+from generated.formats.base.basic import fmt_member
 import generated.formats.ridesettings.compound.Pair
+from generated.formats.base.basic import Float
+from generated.formats.base.basic import Uint
 from generated.formats.ovl_base.compound.ArrayPointer import ArrayPointer
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
 
@@ -7,19 +9,14 @@ from generated.formats.ovl_base.compound.MemStruct import MemStruct
 class RideSettingsRoot(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
-		self.name = ''
 		super().__init__(context, arg, template, set_default)
-		self.arg = arg
-		self.template = template
-		self.io_size = 0
-		self.io_start = 0
-		self.unk_0 = 0.0
+		self.unk_0 = 0
 		self.unk_1 = 0
 		self.count = 0
 		self.pad_0 = 0
 		self.pad_1 = 0
 		self.pad_2 = 0
-		self.array_1 = ArrayPointer(self.context, self.count, generated.formats.ridesettings.compound.Pair.Pair)
+		self.array_1 = 0
 		if set_default:
 			self.set_defaults()
 
@@ -66,19 +63,15 @@ class RideSettingsRoot(MemStruct):
 		stream.write_uint(instance.pad_2)
 
 	@classmethod
-	def from_stream(cls, stream, context, arg=0, template=None):
-		instance = cls(context, arg, template, set_default=False)
-		instance.io_start = stream.tell()
-		cls.read_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
-
-	@classmethod
-	def to_stream(cls, stream, instance):
-		instance.io_start = stream.tell()
-		cls.write_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
+	def _get_filtered_attribute_list(cls, instance):
+		super()._get_filtered_attribute_list(instance)
+		yield ('unk_0', Float, (0, None))
+		yield ('unk_1', Uint, (0, None))
+		yield ('array_1', ArrayPointer, (instance.count, generated.formats.ridesettings.compound.Pair.Pair))
+		yield ('count', Uint, (0, None))
+		yield ('pad_0', Uint, (0, None))
+		yield ('pad_1', Uint, (0, None))
+		yield ('pad_2', Uint, (0, None))
 
 	def get_info_str(self, indent=0):
 		return f'RideSettingsRoot [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

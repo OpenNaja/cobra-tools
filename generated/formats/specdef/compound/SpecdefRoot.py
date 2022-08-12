@@ -1,7 +1,9 @@
-from source.formats.base.basic import fmt_member
+from generated.formats.base.basic import fmt_member
 import generated.formats.specdef.compound.DataPtr
 import generated.formats.specdef.compound.PtrList
 import generated.formats.specdef.enum.SpecdefDtype
+from generated.formats.base.basic import Ubyte
+from generated.formats.base.basic import Ushort
 from generated.formats.ovl_base.compound.ArrayPointer import ArrayPointer
 from generated.formats.ovl_base.compound.ForEachPointer import ForEachPointer
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
@@ -11,25 +13,20 @@ from generated.formats.ovl_base.compound.Pointer import Pointer
 class SpecdefRoot(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
-		self.name = ''
 		super().__init__(context, arg, template, set_default)
-		self.arg = arg
-		self.template = template
-		self.io_size = 0
-		self.io_start = 0
 		self.attrib_count = 0
 		self.flags = 0
 		self.name_count = 0
 		self.childspec_count = 0
 		self.manager_count = 0
 		self.script_count = 0
-		self.attrib_dtypes = ArrayPointer(self.context, self.attrib_count, generated.formats.specdef.enum.SpecdefDtype.SpecdefDtype)
-		self.attrib_names = Pointer(self.context, self.attrib_count, generated.formats.specdef.compound.PtrList.PtrList)
-		self.attrib_datas = ForEachPointer(self.context, self.attrib_dtypes, generated.formats.specdef.compound.DataPtr.DataPtr)
-		self.names = Pointer(self.context, self.name_count, generated.formats.specdef.compound.PtrList.PtrList)
-		self.childspecs = Pointer(self.context, self.childspec_count, generated.formats.specdef.compound.PtrList.PtrList)
-		self.managers = Pointer(self.context, self.manager_count, generated.formats.specdef.compound.PtrList.PtrList)
-		self.scripts = Pointer(self.context, self.script_count, generated.formats.specdef.compound.PtrList.PtrList)
+		self.attrib_dtypes = 0
+		self.attrib_names = 0
+		self.attrib_datas = 0
+		self.names = 0
+		self.childspecs = 0
+		self.managers = 0
+		self.scripts = 0
 		if set_default:
 			self.set_defaults()
 
@@ -100,19 +97,21 @@ class SpecdefRoot(MemStruct):
 		Pointer.to_stream(stream, instance.scripts)
 
 	@classmethod
-	def from_stream(cls, stream, context, arg=0, template=None):
-		instance = cls(context, arg, template, set_default=False)
-		instance.io_start = stream.tell()
-		cls.read_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
-
-	@classmethod
-	def to_stream(cls, stream, instance):
-		instance.io_start = stream.tell()
-		cls.write_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
+	def _get_filtered_attribute_list(cls, instance):
+		super()._get_filtered_attribute_list(instance)
+		yield ('attrib_count', Ushort, (0, None))
+		yield ('flags', Ushort, (0, None))
+		yield ('name_count', Ubyte, (0, None))
+		yield ('childspec_count', Ubyte, (0, None))
+		yield ('manager_count', Ubyte, (0, None))
+		yield ('script_count', Ubyte, (0, None))
+		yield ('attrib_dtypes', ArrayPointer, (instance.attrib_count, generated.formats.specdef.enum.SpecdefDtype.SpecdefDtype))
+		yield ('attrib_names', Pointer, (instance.attrib_count, generated.formats.specdef.compound.PtrList.PtrList))
+		yield ('attrib_datas', ForEachPointer, (instance.attrib_dtypes, generated.formats.specdef.compound.DataPtr.DataPtr))
+		yield ('names', Pointer, (instance.name_count, generated.formats.specdef.compound.PtrList.PtrList))
+		yield ('childspecs', Pointer, (instance.childspec_count, generated.formats.specdef.compound.PtrList.PtrList))
+		yield ('managers', Pointer, (instance.manager_count, generated.formats.specdef.compound.PtrList.PtrList))
+		yield ('scripts', Pointer, (instance.script_count, generated.formats.specdef.compound.PtrList.PtrList))
 
 	def get_info_str(self, indent=0):
 		return f'SpecdefRoot [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

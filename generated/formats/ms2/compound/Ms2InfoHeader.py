@@ -1,6 +1,6 @@
-from source.formats.base.basic import fmt_member
+from generated.formats.base.basic import fmt_member
 from generated.array import Array
-from generated.context import ContextReference
+from generated.formats.base.basic import Uint
 from generated.formats.base.basic import ZString
 from generated.formats.ms2.compound.Buffer0 import Buffer0
 from generated.formats.ms2.compound.BufferInfo import BufferInfo
@@ -8,39 +8,31 @@ from generated.formats.ms2.compound.BufferPresence import BufferPresence
 from generated.formats.ms2.compound.ModelInfo import ModelInfo
 from generated.formats.ms2.compound.ModelReader import ModelReader
 from generated.formats.ms2.compound.Ms2Root import Ms2Root
+from generated.struct import StructBase
 
 
-class Ms2InfoHeader:
+class Ms2InfoHeader(StructBase):
 
 	"""
 	Custom header struct
 	"""
 
-	context = ContextReference()
-
 	def __init__(self, context, arg=0, template=None, set_default=True):
-		self.name = ''
-		self._context = context
-		self.arg = arg
-		self.template = template
-		self.io_size = 0
-		self.io_start = 0
+		super().__init__(context, arg, template, set_default)
 		self.biosyn = 0
 		self.bone_info_size = 0
-		self.info = Ms2Root(self.context, 0, None)
+		self.info = 0
 
 		# used since DLA
-		self.buffers_presence = Array((self.info.vertex_buffer_count,), BufferPresence, self.context, 0, None)
-		self.mdl_2_names = Array((self.info.mdl_2_count,), ZString, self.context, 0, None)
-		self.modelstream_names = Array((self.info.vertex_buffer_count - self.info.stream_count,), ZString, self.context, 0, None)
-		self.modelstream_names = Array((self.info.vertex_buffer_count,), ZString, self.context, 0, None)
-		self.modelstream_names = Array((self.info.stream_count,), ZString, self.context, 0, None)
-		self.buffer_0 = Buffer0(self.context, self.info, None)
-		self.buffer_infos = Array((self.info.vertex_buffer_count,), BufferInfo, self.context, 0, None)
-		self.model_infos = Array((self.info.mdl_2_count,), ModelInfo, self.context, 0, None)
+		self.buffers_presence = 0
+		self.mdl_2_names = 0
+		self.modelstream_names = 0
+		self.buffer_0 = 0
+		self.buffer_infos = 0
+		self.model_infos = 0
 
 		# handles interleaved (old) or separate (new) styles for models and bone infos
-		self.models_reader = ModelReader(self.context, self.model_infos, None)
+		self.models_reader = 0
 		if set_default:
 			self.set_defaults()
 
@@ -74,6 +66,7 @@ class Ms2InfoHeader:
 
 	@classmethod
 	def read_fields(cls, stream, instance):
+		super().read_fields(stream, instance)
 		instance.biosyn = stream.read_uint()
 		instance.context.biosyn = instance.biosyn
 		instance.bone_info_size = stream.read_uint()
@@ -94,6 +87,7 @@ class Ms2InfoHeader:
 
 	@classmethod
 	def write_fields(cls, stream, instance):
+		super().write_fields(stream, instance)
 		stream.write_uint(instance.biosyn)
 		stream.write_uint(instance.bone_info_size)
 		Ms2Root.to_stream(stream, instance.info)
@@ -112,25 +106,31 @@ class Ms2InfoHeader:
 		ModelReader.to_stream(stream, instance.models_reader)
 
 	@classmethod
-	def from_stream(cls, stream, context, arg=0, template=None):
-		instance = cls(context, arg, template, set_default=False)
-		instance.io_start = stream.tell()
-		cls.read_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
-
-	@classmethod
-	def to_stream(cls, stream, instance):
-		instance.io_start = stream.tell()
-		cls.write_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
+	def _get_filtered_attribute_list(cls, instance):
+		super()._get_filtered_attribute_list(instance)
+		yield ('biosyn', Uint, (0, None))
+		yield ('bone_info_size', Uint, (0, None))
+		yield ('info', Ms2Root, (0, None))
+		if instance.context.version >= 7:
+			yield ('buffers_presence', Array, ((instance.info.vertex_buffer_count,), BufferPresence, 0, None))
+		yield ('mdl_2_names', Array, ((instance.info.mdl_2_count,), ZString, 0, None))
+		if instance.context.version <= 7 and instance.info.vertex_buffer_count:
+			yield ('modelstream_names', Array, ((instance.info.vertex_buffer_count - instance.info.stream_count,), ZString, 0, None))
+		if 13 <= instance.context.version <= 13 and instance.info.vertex_buffer_count:
+			yield ('modelstream_names', Array, ((instance.info.vertex_buffer_count,), ZString, 0, None))
+		if instance.context.version >= 39 and instance.info.vertex_buffer_count:
+			yield ('modelstream_names', Array, ((instance.info.stream_count,), ZString, 0, None))
+		yield ('buffer_0', Buffer0, (instance.info, None))
+		yield ('buffer_infos', Array, ((instance.info.vertex_buffer_count,), BufferInfo, 0, None))
+		yield ('model_infos', Array, ((instance.info.mdl_2_count,), ModelInfo, 0, None))
+		yield ('models_reader', ModelReader, (instance.model_infos, None))
 
 	def get_info_str(self, indent=0):
 		return f'Ms2InfoHeader [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
 	def get_fields_str(self, indent=0):
 		s = ''
+		s += super().get_fields_str()
 		s += f'\n	* biosyn = {fmt_member(self.biosyn, indent+1)}'
 		s += f'\n	* bone_info_size = {fmt_member(self.bone_info_size, indent+1)}'
 		s += f'\n	* info = {fmt_member(self.info, indent+1)}'

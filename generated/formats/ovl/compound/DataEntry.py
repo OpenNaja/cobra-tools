@@ -2,25 +2,21 @@
 
 import logging
 
-from source.formats.base.basic import fmt_member
-from generated.context import ContextReference
+from generated.formats.base.basic import fmt_member
+from generated.formats.base.basic import Uint
+from generated.formats.base.basic import Uint64
+from generated.formats.base.basic import Ushort
+from generated.struct import StructBase
 
 
-class DataEntry:
+class DataEntry(StructBase):
 
 	"""
 	32 bytes
 	"""
 
-	context = ContextReference()
-
 	def __init__(self, context, arg=0, template=None, set_default=True):
-		self.name = ''
-		self._context = context
-		self.arg = arg
-		self.template = template
-		self.io_size = 0
-		self.io_start = 0
+		super().__init__(context, arg, template, set_default)
 
 		# djb2 hash
 		self.file_hash = 0
@@ -66,6 +62,7 @@ class DataEntry:
 
 	@classmethod
 	def read_fields(cls, stream, instance):
+		super().read_fields(stream, instance)
 		instance.file_hash = stream.read_uint()
 		if instance.context.version >= 19:
 			instance.ext_hash = stream.read_uint()
@@ -78,6 +75,7 @@ class DataEntry:
 
 	@classmethod
 	def write_fields(cls, stream, instance):
+		super().write_fields(stream, instance)
 		stream.write_uint(instance.file_hash)
 		if instance.context.version >= 19:
 			stream.write_uint(instance.ext_hash)
@@ -89,25 +87,24 @@ class DataEntry:
 		stream.write_uint64(instance.size_2)
 
 	@classmethod
-	def from_stream(cls, stream, context, arg=0, template=None):
-		instance = cls(context, arg, template, set_default=False)
-		instance.io_start = stream.tell()
-		cls.read_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
-
-	@classmethod
-	def to_stream(cls, stream, instance):
-		instance.io_start = stream.tell()
-		cls.write_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
+	def _get_filtered_attribute_list(cls, instance):
+		super()._get_filtered_attribute_list(instance)
+		yield ('file_hash', Uint, (0, None))
+		if instance.context.version >= 19:
+			yield ('ext_hash', Uint, (0, None))
+		yield ('set_index', Ushort, (0, None))
+		yield ('buffer_count', Ushort, (0, None))
+		if instance.context.version >= 19:
+			yield ('zero', Uint, (0, None))
+		yield ('size_1', Uint64, (0, None))
+		yield ('size_2', Uint64, (0, None))
 
 	def get_info_str(self, indent=0):
 		return f'DataEntry [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
 	def get_fields_str(self, indent=0):
 		s = ''
+		s += super().get_fields_str()
 		s += f'\n	* file_hash = {fmt_member(self.file_hash, indent+1)}'
 		s += f'\n	* ext_hash = {fmt_member(self.ext_hash, indent+1)}'
 		s += f'\n	* set_index = {fmt_member(self.set_index, indent+1)}'

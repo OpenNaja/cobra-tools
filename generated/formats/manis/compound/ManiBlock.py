@@ -1,48 +1,42 @@
-from source.formats.base.basic import fmt_member
+from generated.formats.base.basic import fmt_member
 import numpy
 from generated.array import Array
-from generated.context import ContextReference
+from generated.formats.base.basic import Float
+from generated.formats.base.basic import Ubyte
+from generated.formats.base.basic import Uint
+from generated.formats.base.basic import Uint64
+from generated.formats.base.basic import Ushort
 from generated.formats.base.compound.PadAlign import PadAlign
 from generated.formats.manis.compound.Empty import Empty
 from generated.formats.manis.compound.Repeat import Repeat
 from generated.formats.ovl_base.compound.SmartPadding import SmartPadding
+from generated.struct import StructBase
 
 
-class ManiBlock:
-
-	context = ContextReference()
+class ManiBlock(StructBase):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
-		self.name = ''
-		self._context = context
-		self.arg = arg
-		self.template = template
-		self.io_size = 0
-		self.io_start = 0
-		self.ref = Empty(self.context, 0, None)
-		self.pos_bones = numpy.zeros((self.arg.pos_bone_count,), dtype=numpy.dtype('uint16'))
-		self.pos_bones = numpy.zeros((self.arg.pos_bone_count,), dtype=numpy.dtype('uint32'))
-		self.ori_bones = numpy.zeros((self.arg.ori_bone_count,), dtype=numpy.dtype('uint16'))
-		self.ori_bones = numpy.zeros((self.arg.ori_bone_count,), dtype=numpy.dtype('uint32'))
-		self.scl_bones = numpy.zeros((self.arg.scl_bone_count,), dtype=numpy.dtype('uint16'))
-		self.scl_bones = numpy.zeros((self.arg.scl_bone_count,), dtype=numpy.dtype('uint32'))
-		self.floats = numpy.zeros((self.arg.float_count,), dtype=numpy.dtype('uint16'))
-		self.floats = numpy.zeros((self.arg.float_count,), dtype=numpy.dtype('uint32'))
-		self.pos_bones_p = numpy.zeros((self.arg.pos_bone_count,), dtype=numpy.dtype('uint8'))
-		self.ori_bones_p = numpy.zeros((self.arg.ori_bone_count,), dtype=numpy.dtype('uint8'))
-		self.scl_bones_p = numpy.zeros((self.arg.scl_bone_count,), dtype=numpy.dtype('uint8'))
-		self.pos_bones_delta = numpy.zeros(((self.arg.pos_bone_max - self.arg.pos_bone_min) + 1,), dtype=numpy.dtype('uint8'))
-		self.ori_bones_delta = numpy.zeros(((self.arg.ori_bone_max - self.arg.ori_bone_min) + 1,), dtype=numpy.dtype('uint8'))
-		self.scl_bones_delta = numpy.zeros(((self.arg.scl_bone_max - self.arg.scl_bone_min) + 1,), dtype=numpy.dtype('uint8'))
+		super().__init__(context, arg, template, set_default)
+		self.ref = 0
+		self.pos_bones = 0
+		self.ori_bones = 0
+		self.scl_bones = 0
+		self.floats = 0
+		self.pos_bones_p = 0
+		self.ori_bones_p = 0
+		self.scl_bones_p = 0
+		self.pos_bones_delta = 0
+		self.ori_bones_delta = 0
+		self.scl_bones_delta = 0
 
 		# ?
-		self.pad = PadAlign(self.context, 4, self.ref)
+		self.pad = 0
 
 		# these are likely a scale reference or factor
-		self.floatsa = numpy.zeros((self.arg.frame_count, self.arg.float_count,), dtype=numpy.dtype('float32'))
+		self.floatsa = 0
 
 		# ?
-		self.pad_2 = SmartPadding(self.context, 0, None)
+		self.pad_2 = 0
 		self.frame_count = 0
 		self.ori_bone_count = 0
 		self.pos_bone_count = 0
@@ -51,34 +45,34 @@ class ManiBlock:
 		self.scl_bone_count = 0
 
 		# fixed
-		self.zeros_18 = numpy.zeros((18,), dtype=numpy.dtype('uint32'))
+		self.zeros_18 = 0
 		self.count = 0
 
 		# usually 420, or 0
 		self.quantisation_level = 0
-		self.ref_2 = Empty(self.context, 0, None)
-		self.zeros = numpy.zeros((self.pos_bone_count,), dtype=numpy.dtype('uint8'))
+		self.ref_2 = 0
+		self.zeros = 0
 		self.flag_0 = 0
 		self.flag_1 = 0
 		self.flag_2 = 0
 		self.flag_3 = 0
-		self.anoth_pad = PadAlign(self.context, 4, self.ref_2)
+		self.anoth_pad = 0
 
 		# these are likely a scale reference or factor
-		self.floatsb = numpy.zeros((6,), dtype=numpy.dtype('float32'))
+		self.floatsb = 0
 
 		# these are likely a scale reference or factor
-		self.floats_second = numpy.zeros((self.flag_1, 6,), dtype=numpy.dtype('float32'))
+		self.floats_second = 0
 
 		# these are likely a scale reference or factor
-		self.floats_third = numpy.zeros((6,), dtype=numpy.dtype('float32'))
+		self.floats_third = 0
 
 		# ?
 		self.unk = 0
 
 		# this seems to be vaguely related, but not always there?
 		self.extra_pc_zero = 0
-		self.repeats = Array((self.count,), Repeat, self.context, 0, None)
+		self.repeats = 0
 		if set_default:
 			self.set_defaults()
 
@@ -147,6 +141,7 @@ class ManiBlock:
 
 	@classmethod
 	def read_fields(cls, stream, instance):
+		super().read_fields(stream, instance)
 		instance.ref = Empty.from_stream(stream, instance.context, 0, None)
 		if instance.context.version == 18:
 			instance.pos_bones = stream.read_ushorts((instance.arg.pos_bone_count,))
@@ -201,6 +196,7 @@ class ManiBlock:
 
 	@classmethod
 	def write_fields(cls, stream, instance):
+		super().write_fields(stream, instance)
 		Empty.to_stream(stream, instance.ref)
 		if instance.context.version == 18:
 			stream.write_ushorts(instance.pos_bones)
@@ -254,25 +250,66 @@ class ManiBlock:
 		Array.to_stream(stream, instance.repeats, (instance.count,), Repeat, instance.context, 0, None)
 
 	@classmethod
-	def from_stream(cls, stream, context, arg=0, template=None):
-		instance = cls(context, arg, template, set_default=False)
-		instance.io_start = stream.tell()
-		cls.read_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
-
-	@classmethod
-	def to_stream(cls, stream, instance):
-		instance.io_start = stream.tell()
-		cls.write_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
+	def _get_filtered_attribute_list(cls, instance):
+		super()._get_filtered_attribute_list(instance)
+		yield ('ref', Empty, (0, None))
+		if instance.context.version == 18:
+			yield ('pos_bones', Array, ((instance.arg.pos_bone_count,), Ushort, 0, None))
+		if not (instance.context.version == 18):
+			yield ('pos_bones', Array, ((instance.arg.pos_bone_count,), Uint, 0, None))
+		if instance.context.version == 18:
+			yield ('ori_bones', Array, ((instance.arg.ori_bone_count,), Ushort, 0, None))
+		if not (instance.context.version == 18):
+			yield ('ori_bones', Array, ((instance.arg.ori_bone_count,), Uint, 0, None))
+		if instance.context.version == 18:
+			yield ('scl_bones', Array, ((instance.arg.scl_bone_count,), Ushort, 0, None))
+		if not (instance.context.version == 18):
+			yield ('scl_bones', Array, ((instance.arg.scl_bone_count,), Uint, 0, None))
+		if instance.context.version == 18:
+			yield ('floats', Array, ((instance.arg.float_count,), Ushort, 0, None))
+		if not (instance.context.version == 18):
+			yield ('floats', Array, ((instance.arg.float_count,), Uint, 0, None))
+		yield ('pos_bones_p', Array, ((instance.arg.pos_bone_count,), Ubyte, 0, None))
+		yield ('ori_bones_p', Array, ((instance.arg.ori_bone_count,), Ubyte, 0, None))
+		yield ('scl_bones_p', Array, ((instance.arg.scl_bone_count,), Ubyte, 0, None))
+		if instance.arg.pos_bone_min >= 0:
+			yield ('pos_bones_delta', Array, (((instance.arg.pos_bone_max - instance.arg.pos_bone_min) + 1,), Ubyte, 0, None))
+		if instance.arg.ori_bone_min >= 0:
+			yield ('ori_bones_delta', Array, (((instance.arg.ori_bone_max - instance.arg.ori_bone_min) + 1,), Ubyte, 0, None))
+		if instance.arg.scl_bone_min >= 0:
+			yield ('scl_bones_delta', Array, (((instance.arg.scl_bone_max - instance.arg.scl_bone_min) + 1,), Ubyte, 0, None))
+		yield ('pad', PadAlign, (4, instance.ref))
+		yield ('floatsa', Array, ((instance.arg.frame_count, instance.arg.float_count,), Float, 0, None))
+		yield ('pad_2', SmartPadding, (0, None))
+		yield ('frame_count', Uint, (0, None))
+		yield ('ori_bone_count', Uint, (0, None))
+		yield ('pos_bone_count', Uint, (0, None))
+		yield ('scl_bone_count', Uint, (0, None))
+		yield ('zeros_18', Array, ((18,), Uint, 0, None))
+		yield ('count', Ushort, (0, None))
+		yield ('quantisation_level', Ushort, (0, None))
+		yield ('ref_2', Empty, (0, None))
+		yield ('zeros', Array, ((instance.pos_bone_count,), Ubyte, 0, None))
+		yield ('flag_0', Ubyte, (0, None))
+		yield ('flag_1', Ubyte, (0, None))
+		yield ('flag_2', Ubyte, (0, None))
+		yield ('flag_3', Ubyte, (0, None))
+		yield ('anoth_pad', PadAlign, (4, instance.ref_2))
+		yield ('floatsb', Array, ((6,), Float, 0, None))
+		yield ('floats_second', Array, ((instance.flag_1, 6,), Float, 0, None))
+		if instance.flag_2 > 1:
+			yield ('floats_third', Array, ((6,), Float, 0, None))
+		yield ('unk', Uint, (0, None))
+		if instance.context.version == 18:
+			yield ('extra_pc_zero', Uint64, (0, None))
+		yield ('repeats', Array, ((instance.count,), Repeat, 0, None))
 
 	def get_info_str(self, indent=0):
 		return f'ManiBlock [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
 	def get_fields_str(self, indent=0):
 		s = ''
+		s += super().get_fields_str()
 		s += f'\n	* ref = {fmt_member(self.ref, indent+1)}'
 		s += f'\n	* pos_bones = {fmt_member(self.pos_bones, indent+1)}'
 		s += f'\n	* ori_bones = {fmt_member(self.ori_bones, indent+1)}'

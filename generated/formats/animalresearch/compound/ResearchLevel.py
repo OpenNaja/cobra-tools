@@ -1,6 +1,7 @@
-from source.formats.base.basic import fmt_member
+from generated.formats.base.basic import fmt_member
 import generated.formats.animalresearch.compound.PtrList
 import generated.formats.base.basic
+from generated.formats.base.basic import Uint64
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
 from generated.formats.ovl_base.compound.Pointer import Pointer
 
@@ -8,17 +9,12 @@ from generated.formats.ovl_base.compound.Pointer import Pointer
 class ResearchLevel(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
-		self.name = ''
 		super().__init__(context, arg, template, set_default)
-		self.arg = arg
-		self.template = template
-		self.io_size = 0
-		self.io_start = 0
 		self.next_level_count = 0
 		self.children_count = 0
-		self.level_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.next_levels = Pointer(self.context, self.next_level_count, generated.formats.animalresearch.compound.PtrList.PtrList)
-		self.children = Pointer(self.context, self.children_count, generated.formats.animalresearch.compound.PtrList.PtrList)
+		self.level_name = 0
+		self.next_levels = 0
+		self.children = 0
 		if set_default:
 			self.set_defaults()
 
@@ -61,19 +57,13 @@ class ResearchLevel(MemStruct):
 		stream.write_uint64(instance.children_count)
 
 	@classmethod
-	def from_stream(cls, stream, context, arg=0, template=None):
-		instance = cls(context, arg, template, set_default=False)
-		instance.io_start = stream.tell()
-		cls.read_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
-
-	@classmethod
-	def to_stream(cls, stream, instance):
-		instance.io_start = stream.tell()
-		cls.write_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
+	def _get_filtered_attribute_list(cls, instance):
+		super()._get_filtered_attribute_list(instance)
+		yield ('level_name', Pointer, (0, generated.formats.base.basic.ZString))
+		yield ('next_levels', Pointer, (instance.next_level_count, generated.formats.animalresearch.compound.PtrList.PtrList))
+		yield ('next_level_count', Uint64, (0, None))
+		yield ('children', Pointer, (instance.children_count, generated.formats.animalresearch.compound.PtrList.PtrList))
+		yield ('children_count', Uint64, (0, None))
 
 	def get_info_str(self, indent=0):
 		return f'ResearchLevel [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

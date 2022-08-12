@@ -1,32 +1,28 @@
-from source.formats.base.basic import fmt_member
+from generated.formats.base.basic import fmt_member
 import numpy
 from generated.array import Array
-from generated.context import ContextReference
+from generated.formats.base.basic import Int
+from generated.formats.base.basic import Ubyte
+from generated.formats.base.basic import Uint
 from generated.formats.bnk.compound.AkBankSourceData import AkBankSourceData
 from generated.formats.bnk.compound.AkTrackSrcInfo import AkTrackSrcInfo
 from generated.formats.bnk.compound.NodeBaseParams import NodeBaseParams
+from generated.struct import StructBase
 
 
-class MusicTrackInitialValues:
-
-	context = ContextReference()
+class MusicTrackInitialValues(StructBase):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
-		self.name = ''
-		self._context = context
-		self.arg = arg
-		self.template = template
-		self.io_size = 0
-		self.io_start = 0
+		super().__init__(context, arg, template, set_default)
 		self.u_flags = 0
 		self.num_sources = 0
-		self.p_source = Array((self.num_sources,), AkBankSourceData, self.context, 0, None)
+		self.p_source = 0
 		self.num_playlist_item = 0
-		self.p_playlist = Array((self.num_playlist_item,), AkTrackSrcInfo, self.context, 0, None)
+		self.p_playlist = 0
 		self.num_sub_track = 0
 		self.num_clip_automation_item = 0
-		self.p_items = numpy.zeros((self.num_clip_automation_item,), dtype=numpy.dtype('uint32'))
-		self.node_base_params = NodeBaseParams(self.context, 0, None)
+		self.p_items = 0
+		self.node_base_params = 0
 		self.e_track_type = 0
 		self.i_look_ahead_time = 0
 		if set_default:
@@ -57,6 +53,7 @@ class MusicTrackInitialValues:
 
 	@classmethod
 	def read_fields(cls, stream, instance):
+		super().read_fields(stream, instance)
 		instance.u_flags = stream.read_ubyte()
 		instance.num_sources = stream.read_uint()
 		instance.p_source = Array.from_stream(stream, (instance.num_sources,), AkBankSourceData, instance.context, 0, None)
@@ -71,6 +68,7 @@ class MusicTrackInitialValues:
 
 	@classmethod
 	def write_fields(cls, stream, instance):
+		super().write_fields(stream, instance)
 		stream.write_ubyte(instance.u_flags)
 		stream.write_uint(instance.num_sources)
 		Array.to_stream(stream, instance.p_source, (instance.num_sources,), AkBankSourceData, instance.context, 0, None)
@@ -84,25 +82,26 @@ class MusicTrackInitialValues:
 		stream.write_int(instance.i_look_ahead_time)
 
 	@classmethod
-	def from_stream(cls, stream, context, arg=0, template=None):
-		instance = cls(context, arg, template, set_default=False)
-		instance.io_start = stream.tell()
-		cls.read_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
-
-	@classmethod
-	def to_stream(cls, stream, instance):
-		instance.io_start = stream.tell()
-		cls.write_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
+	def _get_filtered_attribute_list(cls, instance):
+		super()._get_filtered_attribute_list(instance)
+		yield ('u_flags', Ubyte, (0, None))
+		yield ('num_sources', Uint, (0, None))
+		yield ('p_source', Array, ((instance.num_sources,), AkBankSourceData, 0, None))
+		yield ('num_playlist_item', Uint, (0, None))
+		yield ('p_playlist', Array, ((instance.num_playlist_item,), AkTrackSrcInfo, 0, None))
+		yield ('num_sub_track', Uint, (0, None))
+		yield ('num_clip_automation_item', Uint, (0, None))
+		yield ('p_items', Array, ((instance.num_clip_automation_item,), Uint, 0, None))
+		yield ('node_base_params', NodeBaseParams, (0, None))
+		yield ('e_track_type', Ubyte, (0, None))
+		yield ('i_look_ahead_time', Int, (0, None))
 
 	def get_info_str(self, indent=0):
 		return f'MusicTrackInitialValues [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
 	def get_fields_str(self, indent=0):
 		s = ''
+		s += super().get_fields_str()
 		s += f'\n	* u_flags = {fmt_member(self.u_flags, indent+1)}'
 		s += f'\n	* num_sources = {fmt_member(self.num_sources, indent+1)}'
 		s += f'\n	* p_source = {fmt_member(self.p_source, indent+1)}'

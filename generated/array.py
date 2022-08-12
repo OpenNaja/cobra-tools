@@ -1,5 +1,7 @@
+import logging
 from operator import index
 import math
+import xml.etree.ElementTree as ET
 
 from generated.context import ContextReference
 
@@ -46,18 +48,27 @@ class Array(list):
             self.set_defaults()
 
     def set_defaults(self):
-        self[:] = self.create_nested_list(lambda: self.dtype(self.context, self.arg, self.template), self.shape)
+        self[:] = self.fill(lambda: self.dtype(self.context, self.arg, self.template))
 
     def read(self, stream):
         self.io_start = stream.tell()
-        self[:] = self.create_nested_list(lambda: self.dtype.from_stream(stream, self.context, self.arg, self.template),
-                                          self.shape)
+        self[:] = self.fill(lambda: self.dtype.from_stream(stream, self.context, self.arg, self.template))
         self.io_size = stream.tell() - self.io_start
 
     def write(self, stream):
         self.io_start = stream.tell()
         self.perform_nested_func(self, lambda x: self.dtype.to_stream(stream, x), self.ndim)
         self.io_size = stream.tell() - self.io_start
+
+    def fill(self, function_to_generate):
+        # fill every entry of this array using the function_to_generate
+        if len(self.shape) > 1:
+            # a multi-dimensional array must be filled with subarrays to allow .shape access on them
+            array_list = [Array(self.shape[1:], self.dtype, self.context, self.arg, self.template, set_default=False) for _ in range(self.shape[0])]
+            self[:] = [array.fill(function_to_generate) for array in array_list]
+        else:
+            self[:] = [function_to_generate() for _ in range(self.shape[0])]
+        return self
 
     @classmethod
     def from_stream(cls, stream, shape, dtype, context, arg=0, template=None):
@@ -114,14 +125,6 @@ class Array(list):
         return math.prod(self.shape)
 
     @classmethod
-    def create_nested_list(cls, function_to_generate, shape):
-        # create a nested list with the specified shape, where every element is created by function_to_generate()
-        if len(shape) > 1:
-            return [cls.create_nested_list(function_to_generate, shape[1:]) for _ in range(shape[0])]
-        else:
-            return [function_to_generate() for _ in range(shape[0])]
-
-    @classmethod
     def perform_nested_func(cls, nested_iterable, efunc, ndim):
         # perform a function efunc(element) on every element in a nested iterable and return the result
         if ndim > 1:
@@ -136,11 +139,60 @@ class Array(list):
         self.arg = arg
         self.template = template
 
+    @classmethod
+    def _get_filtered_attribute_list(cls, instance, dtype):
+        if callable(getattr(dtype, "_get_filtered_attribute_list_array", None)):
+            return dtype._get_filtered_attribute_list_array(instance)
+        else:
+            arg = getattr(instance, "arg", 0)
+            template = getattr(instance, "template", None)
+            if len(instance.shape) > 1:
+                for i in range(instance.shape[0]):
+                    yield (i, cls, (instance.shape[1:], dtype, arg, template))
+            else:
+                for i in range(instance.shape[0]):
+                    yield (i, dtype, (arg, template))
+
     @property
     def class_name(self):
         """Returns the lowercase name of the class, eg. 'variant'"""
         return _class_to_name(self.dtype).lower()
 
+    @classmethod
+    def from_xml(cls, target, elem, prop, arguments):
+        shape, dtype, arg, template = arguments
+        if callable(getattr(dtype, "from_xml_array", None)):
+            return dtype.from_xml_array(target, elem, prop, (shape, arg, template))
+        instance = cls(target.context, *arguments, set_default=False)
+        sub = elem.find(f'.//{prop}')
+        if sub is None:
+            logging.warning(f"Missing sub-element '{prop}' on XML element '{elem.tag}'")
+            return
+        cls._from_xml(instance, sub, dtype)
+        return instance
+
+    @classmethod
+    def _from_xml(cls, instance, elem, dtype):
+        combined_iterator = zip(elem, cls._get_filtered_attribute_list(instance, dtype))
+        dtype_name = dtype.__name__.lower()
+        content = [field_type.from_xml(instance, child, f'{dtype_name}{i}', arguments) for child, (i, field_type, arguments) in combined_iterator]
+        instance[:] = content
+        return instance
+
+    @classmethod
+    def to_xml(cls, elem, prop, instance, arguments, debug):
+        shape, dtype, arg, template = arguments
+        if callable(getattr(dtype, "to_xml_array", None)):
+            dtype.to_xml_array(elem, prop, instance, arguments, debug)
+            return
+        sub = ET.SubElement(elem, prop)
+        cls._to_xml(instance, sub, debug)
+
+    @classmethod
+    def _to_xml(cls, instance, elem, dtype, debug):
+        dtype_name = dtype.__name__.lower()
+        for i, dtype, arguments in cls._get_filtered_attribute_list(instance, instance.dtype):
+            dtype.to_xml(elem, f'{dtype_name}{i}', instance[i], debug)
 
 def _class_to_name(cls):
     cls_str = str(cls)

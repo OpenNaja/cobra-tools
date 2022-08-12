@@ -1,16 +1,12 @@
-from source.formats.base.basic import fmt_member
+from generated.formats.base.basic import fmt_member
+from generated.formats.base.basic import Int
 from generated.formats.voxelskirt.compound.Material import Material
 
 
 class PosInfo(Material):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
-		self.name = ''
 		super().__init__(context, arg, template, set_default)
-		self.arg = arg
-		self.template = template
-		self.io_size = 0
-		self.io_start = 0
 
 		# -1
 		self.ff = 0
@@ -47,19 +43,10 @@ class PosInfo(Material):
 		stream.write_int(instance.ff_or_zero)
 
 	@classmethod
-	def from_stream(cls, stream, context, arg=0, template=None):
-		instance = cls(context, arg, template, set_default=False)
-		instance.io_start = stream.tell()
-		cls.read_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
-
-	@classmethod
-	def to_stream(cls, stream, instance):
-		instance.io_start = stream.tell()
-		cls.write_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
+	def _get_filtered_attribute_list(cls, instance):
+		super()._get_filtered_attribute_list(instance)
+		yield ('ff', Int, (0, None))
+		yield ('ff_or_zero', Int, (0, None))
 
 	def get_info_str(self, indent=0):
 		return f'PosInfo [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

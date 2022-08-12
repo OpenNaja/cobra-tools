@@ -1,7 +1,8 @@
-from source.formats.base.basic import fmt_member
+from generated.formats.base.basic import fmt_member
 import generated.formats.base.basic
 import generated.formats.matcol.compound.Attrib
 import generated.formats.matcol.compound.Info
+from generated.formats.base.basic import Uint64
 from generated.formats.ovl_base.compound.ArrayPointer import ArrayPointer
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
 from generated.formats.ovl_base.compound.Pointer import Pointer
@@ -10,21 +11,16 @@ from generated.formats.ovl_base.compound.Pointer import Pointer
 class LayerFrag(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
-		self.name = ''
 		super().__init__(context, arg, template, set_default)
-		self.arg = arg
-		self.template = template
-		self.io_size = 0
-		self.io_start = 0
 		self.u_0 = 0
 		self.u_1 = 0
 		self.info_count = 0
 		self.u_2 = 0
 		self.u_3 = 0
 		self.attrib_count = 0
-		self.layer_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.infos = ArrayPointer(self.context, self.info_count, generated.formats.matcol.compound.Info.Info)
-		self.attribs = ArrayPointer(self.context, self.attrib_count, generated.formats.matcol.compound.Attrib.Attrib)
+		self.layer_name = 0
+		self.infos = 0
+		self.attribs = 0
 		if set_default:
 			self.set_defaults()
 
@@ -79,19 +75,17 @@ class LayerFrag(MemStruct):
 		stream.write_uint64(instance.attrib_count)
 
 	@classmethod
-	def from_stream(cls, stream, context, arg=0, template=None):
-		instance = cls(context, arg, template, set_default=False)
-		instance.io_start = stream.tell()
-		cls.read_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
-
-	@classmethod
-	def to_stream(cls, stream, instance):
-		instance.io_start = stream.tell()
-		cls.write_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
+	def _get_filtered_attribute_list(cls, instance):
+		super()._get_filtered_attribute_list(instance)
+		yield ('layer_name', Pointer, (0, generated.formats.base.basic.ZString))
+		yield ('u_0', Uint64, (0, None))
+		yield ('u_1', Uint64, (0, None))
+		yield ('infos', ArrayPointer, (instance.info_count, generated.formats.matcol.compound.Info.Info))
+		yield ('info_count', Uint64, (0, None))
+		yield ('u_2', Uint64, (0, None))
+		yield ('u_3', Uint64, (0, None))
+		yield ('attribs', ArrayPointer, (instance.attrib_count, generated.formats.matcol.compound.Attrib.Attrib))
+		yield ('attrib_count', Uint64, (0, None))
 
 	def get_info_str(self, indent=0):
 		return f'LayerFrag [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

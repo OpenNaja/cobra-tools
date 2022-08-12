@@ -1,6 +1,9 @@
-from source.formats.base.basic import fmt_member
+from generated.formats.base.basic import fmt_member
 import numpy
 from generated.array import Array
+from generated.formats.base.basic import Ubyte
+from generated.formats.base.basic import Uint
+from generated.formats.base.basic import Ushort
 from generated.formats.base.compound.PadAlign import PadAlign
 from generated.formats.base.compound.ZStringBuffer import ZStringBuffer
 from generated.formats.ovl.compound.ArchiveEntry import ArchiveEntry
@@ -22,12 +25,7 @@ class Header(GenericHeader):
 	"""
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
-		self.name = ''
 		super().__init__(context, arg, template, set_default)
-		self.arg = arg
-		self.template = template
-		self.io_size = 0
-		self.io_start = 0
 
 		# Seems to match the number of LOD models for the file (has more than 1 file)
 		self.lod_depth = 0
@@ -96,49 +94,49 @@ class Header(GenericHeader):
 		self.num_triplets = 0
 
 		# zeros
-		self.reserved = numpy.zeros((12,), dtype=numpy.dtype('uint32'))
+		self.reserved = 0
 
 		# Name buffer for assets and file mime types.
-		self.names = ZStringBuffer(self.context, self.len_names, None)
+		self.names = 0
 
 		# used in DLA
-		self.names_pad = numpy.zeros(((16 - (self.len_names % 16)) % 16,), dtype=numpy.dtype('uint8'))
+		self.names_pad = 0
 
 		# Array of MimeEntry objects that represent a mime type (file extension) each.
-		self.mimes = Array((self.num_mimes,), MimeEntry, self.context, 0, None)
+		self.mimes = 0
 
 		# ?
-		self.triplets = Array((self.num_triplets,), Triplet, self.context, 0, None)
+		self.triplets = 0
 
 		# ?
-		self.triplets_pad = PadAlign(self.context, 4, self.triplets)
+		self.triplets_pad = 0
 
 		# Array of FileEntry objects.
-		self.files = Array((self.num_files,), FileEntry, self.context, 0, None)
+		self.files = 0
 
 		# Name buffer for archives, usually will be STATIC followed by any OVS names
-		self.archive_names = ZStringBuffer(self.context, self.len_archive_names, None)
+		self.archive_names = 0
 
 		# Array of ArchiveEntry objects.
-		self.archives = Array((self.num_archives,), ArchiveEntry, self.context, 0, None)
+		self.archives = 0
 
 		# Array of IncludedOvl objects.
-		self.included_ovls = Array((self.num_included_ovls,), IncludedOvl, self.context, 0, None)
+		self.included_ovls = 0
 
 		# aka InstancesArray of DependencyEntry objects.
-		self.dependencies = Array((self.num_dependencies,), DependencyEntry, self.context, 0, None)
+		self.dependencies = 0
 
 		# Array of AuxEntry objects.
-		self.aux_entries = Array((self.num_aux_entries,), AuxEntry, self.context, 0, None)
+		self.aux_entries = 0
 
 		# after aux in ZTUAC and PC
-		self.dependencies = Array((self.num_dependencies,), DependencyEntry, self.context, 0, None)
+		self.dependencies = 0
 
 		# Array of StreamEntry objects.
-		self.stream_files = Array((self.num_stream_files,), StreamEntry, self.context, 0, None)
+		self.stream_files = 0
 
 		# repeats by archive count
-		self.zlibs = Array((self.num_archives,), ZlibInfo, self.context, 0, None)
+		self.zlibs = 0
 		if set_default:
 			self.set_defaults()
 
@@ -172,7 +170,6 @@ class Header(GenericHeader):
 		self.mimes = Array((self.num_mimes,), MimeEntry, self.context, 0, None)
 		if self.context.version >= 20:
 			self.triplets = Array((self.num_triplets,), Triplet, self.context, 0, None)
-		if self.context.version >= 20:
 			self.triplets_pad = PadAlign(self.context, 4, self.triplets)
 		self.files = Array((self.num_files,), FileEntry, self.context, 0, None)
 		self.archive_names = ZStringBuffer(self.context, self.len_archive_names, None)
@@ -287,19 +284,49 @@ class Header(GenericHeader):
 		Array.to_stream(stream, instance.zlibs, (instance.num_archives,), ZlibInfo, instance.context, 0, None)
 
 	@classmethod
-	def from_stream(cls, stream, context, arg=0, template=None):
-		instance = cls(context, arg, template, set_default=False)
-		instance.io_start = stream.tell()
-		cls.read_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
-
-	@classmethod
-	def to_stream(cls, stream, instance):
-		instance.io_start = stream.tell()
-		cls.write_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
+	def _get_filtered_attribute_list(cls, instance):
+		super()._get_filtered_attribute_list(instance)
+		yield ('lod_depth', Uint, (0, None))
+		yield ('len_names', Uint, (0, None))
+		yield ('zero_2', Uint, (0, None))
+		yield ('num_aux_entries', Uint, (0, None))
+		yield ('num_included_ovls', Ushort, (0, None))
+		yield ('num_mimes', Ushort, (0, None))
+		yield ('num_files', Uint, (0, None))
+		yield ('num_files_2', Uint, (0, None))
+		yield ('num_dependencies', Uint, (0, None))
+		yield ('num_archives', Uint, (0, None))
+		yield ('num_pool_groups', Uint, (0, None))
+		yield ('num_pools', Uint, (0, None))
+		yield ('num_datas', Uint, (0, None))
+		yield ('num_buffers', Uint, (0, None))
+		yield ('num_stream_files', Uint, (0, None))
+		yield ('ztuac_unk_0', Uint, (0, None))
+		yield ('ztuac_unk_1', Uint, (0, None))
+		yield ('ztuac_unk_2', Uint, (0, None))
+		yield ('len_archive_names', Uint, (0, None))
+		yield ('num_files_3', Uint, (0, None))
+		yield ('len_type_names', Uint, (0, None))
+		yield ('num_triplets', Uint, (0, None))
+		yield ('reserved', Array, ((12,), Uint, 0, None))
+		yield ('names', ZStringBuffer, (instance.len_names, None))
+		if instance.context.version <= 15:
+			yield ('names_pad', Array, (((16 - (instance.len_names % 16)) % 16,), Ubyte, 0, None))
+		yield ('mimes', Array, ((instance.num_mimes,), MimeEntry, 0, None))
+		if instance.context.version >= 20:
+			yield ('triplets', Array, ((instance.num_triplets,), Triplet, 0, None))
+			yield ('triplets_pad', PadAlign, (4, instance.triplets))
+		yield ('files', Array, ((instance.num_files,), FileEntry, 0, None))
+		yield ('archive_names', ZStringBuffer, (instance.len_archive_names, None))
+		yield ('archives', Array, ((instance.num_archives,), ArchiveEntry, 0, None))
+		yield ('included_ovls', Array, ((instance.num_included_ovls,), IncludedOvl, 0, None))
+		if instance.context.version >= 19:
+			yield ('dependencies', Array, ((instance.num_dependencies,), DependencyEntry, 0, None))
+		yield ('aux_entries', Array, ((instance.num_aux_entries,), AuxEntry, 0, None))
+		if instance.context.version <= 18:
+			yield ('dependencies', Array, ((instance.num_dependencies,), DependencyEntry, 0, None))
+		yield ('stream_files', Array, ((instance.num_stream_files,), StreamEntry, 0, None))
+		yield ('zlibs', Array, ((instance.num_archives,), ZlibInfo, 0, None))
 
 	def get_info_str(self, indent=0):
 		return f'Header [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

@@ -1,16 +1,14 @@
-from source.formats.base.basic import fmt_member
+from generated.formats.base.basic import fmt_member
+from generated.formats.base.basic import Ubyte
+from generated.formats.base.basic import Uint
+from generated.formats.base.basic import Uint64
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
 
 
 class Arg(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
-		self.name = ''
 		super().__init__(context, arg, template, set_default)
-		self.arg = arg
-		self.template = template
-		self.io_size = 0
-		self.io_start = 0
 		self.u_0 = 0
 		self.arg_type = 0
 
@@ -65,19 +63,15 @@ class Arg(MemStruct):
 		stream.write_uint64(instance.u_4)
 
 	@classmethod
-	def from_stream(cls, stream, context, arg=0, template=None):
-		instance = cls(context, arg, template, set_default=False)
-		instance.io_start = stream.tell()
-		cls.read_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
-
-	@classmethod
-	def to_stream(cls, stream, instance):
-		instance.io_start = stream.tell()
-		cls.write_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
+	def _get_filtered_attribute_list(cls, instance):
+		super()._get_filtered_attribute_list(instance)
+		yield ('u_0', Ubyte, (0, None))
+		yield ('arg_type', Ubyte, (0, None))
+		yield ('arg_index', Ubyte, (0, None))
+		yield ('u_1', Ubyte, (0, None))
+		yield ('u_2', Uint, (0, None))
+		yield ('u_3', Uint64, (0, None))
+		yield ('u_4', Uint64, (0, None))
 
 	def get_info_str(self, indent=0):
 		return f'Arg [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

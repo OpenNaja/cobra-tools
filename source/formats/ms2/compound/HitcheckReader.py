@@ -1,12 +1,11 @@
 # START_GLOBALS
-from generated.context import ContextReference
 from generated.formats.ms2.compound.HitCheckEntry import HitCheckEntry
+from generated.struct import StructBase
 
 # END_GLOBALS
 
-class HitcheckReader:
+class HitcheckReader(StructBase):
 
-	context = ContextReference()
 
 	# START_CLASS
 

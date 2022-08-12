@@ -1,5 +1,9 @@
-from source.formats.base.basic import fmt_member
+from generated.formats.base.basic import fmt_member
 from generated.array import Array
+from generated.formats.base.basic import Float
+from generated.formats.base.basic import Int
+from generated.formats.base.basic import Short
+from generated.formats.base.basic import Uint64
 from generated.formats.fct.compound.Font import Font
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
 
@@ -11,23 +15,18 @@ class FctRoot(MemStruct):
 	"""
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
-		self.name = ''
 		super().__init__(context, arg, template, set_default)
-		self.arg = arg
-		self.template = template
-		self.io_size = 0
-		self.io_start = 0
 		self.u_0 = 0
 		self.u_1 = 0
-		self.a = 0.0
-		self.b = 0.0
-		self.c = 0.0
+		self.a = 0
+		self.b = 0
+		self.c = 0
 		self.minus_1 = 0
 		self.z_0 = 0
 		self.z_1 = 0
 		self.z_2 = 0
 		self.offset = 0
-		self.fonts = Array((4,), Font, self.context, 0, None)
+		self.fonts = 0
 		if set_default:
 			self.set_defaults()
 
@@ -85,19 +84,19 @@ class FctRoot(MemStruct):
 		Array.to_stream(stream, instance.fonts, (4,), Font, instance.context, 0, None)
 
 	@classmethod
-	def from_stream(cls, stream, context, arg=0, template=None):
-		instance = cls(context, arg, template, set_default=False)
-		instance.io_start = stream.tell()
-		cls.read_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
-
-	@classmethod
-	def to_stream(cls, stream, instance):
-		instance.io_start = stream.tell()
-		cls.write_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
+	def _get_filtered_attribute_list(cls, instance):
+		super()._get_filtered_attribute_list(instance)
+		yield ('u_0', Short, (0, None))
+		yield ('u_1', Short, (0, None))
+		yield ('a', Float, (0, None))
+		yield ('b', Float, (0, None))
+		yield ('c', Float, (0, None))
+		yield ('minus_1', Short, (0, None))
+		yield ('z_0', Short, (0, None))
+		yield ('z_1', Int, (0, None))
+		yield ('z_2', Uint64, (0, None))
+		yield ('offset', Uint64, (0, None))
+		yield ('fonts', Array, ((4,), Font, 0, None))
 
 	def get_info_str(self, indent=0):
 		return f'FctRoot [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

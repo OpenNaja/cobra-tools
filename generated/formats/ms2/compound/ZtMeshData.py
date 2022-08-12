@@ -7,7 +7,11 @@ from generated.formats.ms2.compound.ZtTriBlockInfo import ZtTriBlockInfo
 from generated.formats.ms2.compound.ZtVertBlockInfo import ZtVertBlockInfo
 from generated.formats.ms2.compound.packing_utils import *
 from plugin.utils.tristrip import triangulate
-from source.formats.base.basic import fmt_member
+from generated.formats.base.basic import fmt_member
+from generated.formats.base.basic import Int
+from generated.formats.base.basic import Short
+from generated.formats.base.basic import Uint
+from generated.formats.base.basic import Ushort
 from generated.formats.ms2.bitfield.ModelFlagDLA import ModelFlagDLA
 from generated.formats.ms2.bitfield.ModelFlagZT import ModelFlagZT
 from generated.formats.ms2.compound.MeshData import MeshData
@@ -20,12 +24,7 @@ class ZtMeshData(MeshData):
 	"""
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
-		self.name = ''
 		super().__init__(context, arg, template, set_default)
-		self.arg = arg
-		self.template = template
-		self.io_size = 0
-		self.io_start = 0
 
 		# repeat
 		self.tri_index_count = 0
@@ -54,10 +53,7 @@ class ZtMeshData(MeshData):
 		self.poweroftwo = 0
 
 		# bitfield
-		self.flag = ModelFlagDLA(self.context, 0, None)
-
-		# bitfield
-		self.flag = ModelFlagZT(self.context, 0, None)
+		self.flag = 0
 
 		# always zero
 		self.zero_uac = 0
@@ -136,19 +132,25 @@ class ZtMeshData(MeshData):
 		stream.write_uint(instance.zero_uac)
 
 	@classmethod
-	def from_stream(cls, stream, context, arg=0, template=None):
-		instance = cls(context, arg, template, set_default=False)
-		instance.io_start = stream.tell()
-		cls.read_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
-
-	@classmethod
-	def to_stream(cls, stream, instance):
-		instance.io_start = stream.tell()
-		cls.write_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
+	def _get_filtered_attribute_list(cls, instance):
+		super()._get_filtered_attribute_list(instance)
+		yield ('tri_index_count', Uint, (0, None))
+		yield ('vertex_count', Uint, (0, None))
+		yield ('tri_info_offset', Uint, (0, None))
+		yield ('vert_info_offset', Uint, (0, None))
+		yield ('known_ff_0', Int, (0, None))
+		yield ('tri_offset', Uint, (0, None))
+		yield ('uv_offset', Uint, (0, None))
+		yield ('vertex_offset', Uint, (0, None))
+		yield ('known_ff_1', Short, (0, None))
+		yield ('one_0', Ushort, (0, None))
+		yield ('one_1', Ushort, (0, None))
+		yield ('poweroftwo', Ushort, (0, None))
+		if instance.context.version <= 7:
+			yield ('flag', ModelFlagDLA, (0, None))
+		if instance.context.version >= 13:
+			yield ('flag', ModelFlagZT, (0, None))
+		yield ('zero_uac', Uint, (0, None))
 
 	def get_info_str(self, indent=0):
 		return f'ZtMeshData [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

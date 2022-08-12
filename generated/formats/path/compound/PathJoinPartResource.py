@@ -1,7 +1,9 @@
-from source.formats.base.basic import fmt_member
+from generated.formats.base.basic import fmt_member
 import generated.formats.base.basic
 import generated.formats.path.compound.PointsList
 import generated.formats.path.compound.Vector4
+from generated.formats.base.basic import Byte
+from generated.formats.base.basic import Uint64
 from generated.formats.ovl_base.compound.ArrayPointer import ArrayPointer
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
 from generated.formats.ovl_base.compound.Pointer import Pointer
@@ -10,12 +12,7 @@ from generated.formats.ovl_base.compound.Pointer import Pointer
 class PathJoinPartResource(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
-		self.name = ''
 		super().__init__(context, arg, template, set_default)
-		self.arg = arg
-		self.template = template
-		self.io_size = 0
-		self.io_start = 0
 		self.padding_1 = 0
 		self.unk_byte_1 = 0
 		self.unk_byte_2 = 0
@@ -26,12 +23,12 @@ class PathJoinPartResource(MemStruct):
 		self.num_points_2_copy = 0
 		self.num_points_3 = 0
 		self.padding_2 = 0
-		self.unk_points_1 = Pointer(self.context, self.num_points_1, generated.formats.path.compound.PointsList.PointsList)
-		self.unk_points_2 = Pointer(self.context, self.num_points_2, generated.formats.path.compound.PointsList.PointsList)
-		self.unk_vector = ArrayPointer(self.context, 1, generated.formats.path.compound.Vector4.Vector4)
-		self.unk_shorts = ArrayPointer(self.context, 8, generated.formats.base.basic.Ushort)
-		self.unk_points_3 = Pointer(self.context, self.num_points_3, generated.formats.path.compound.PointsList.PointsList)
-		self.pathresource = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.unk_points_1 = 0
+		self.unk_points_2 = 0
+		self.unk_vector = 0
+		self.unk_shorts = 0
+		self.unk_points_3 = 0
+		self.pathresource = 0
 		if set_default:
 			self.set_defaults()
 
@@ -110,19 +107,24 @@ class PathJoinPartResource(MemStruct):
 		stream.write_uint64(instance.padding_2)
 
 	@classmethod
-	def from_stream(cls, stream, context, arg=0, template=None):
-		instance = cls(context, arg, template, set_default=False)
-		instance.io_start = stream.tell()
-		cls.read_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
-
-	@classmethod
-	def to_stream(cls, stream, instance):
-		instance.io_start = stream.tell()
-		cls.write_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
+	def _get_filtered_attribute_list(cls, instance):
+		super()._get_filtered_attribute_list(instance)
+		yield ('unk_points_1', Pointer, (instance.num_points_1, generated.formats.path.compound.PointsList.PointsList))
+		yield ('unk_points_2', Pointer, (instance.num_points_2, generated.formats.path.compound.PointsList.PointsList))
+		yield ('unk_vector', ArrayPointer, (1, generated.formats.path.compound.Vector4.Vector4))
+		yield ('unk_shorts', ArrayPointer, (8, generated.formats.base.basic.Ushort))
+		yield ('unk_points_3', Pointer, (instance.num_points_3, generated.formats.path.compound.PointsList.PointsList))
+		yield ('padding_1', Uint64, (0, None))
+		yield ('pathresource', Pointer, (0, generated.formats.base.basic.ZString))
+		yield ('unk_byte_1', Byte, (0, None))
+		yield ('unk_byte_2', Byte, (0, None))
+		yield ('unk_byte_3', Byte, (0, None))
+		yield ('num_points_1', Byte, (0, None))
+		yield ('num_points_1_copy', Byte, (0, None))
+		yield ('num_points_2', Byte, (0, None))
+		yield ('num_points_2_copy', Byte, (0, None))
+		yield ('num_points_3', Byte, (0, None))
+		yield ('padding_2', Uint64, (0, None))
 
 	def get_info_str(self, indent=0):
 		return f'PathJoinPartResource [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

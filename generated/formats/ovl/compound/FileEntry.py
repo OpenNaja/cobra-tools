@@ -3,25 +3,21 @@ from generated.formats.ovl.versions import *
 from hashes import constants_jwe, constants_pz, constants_jwe2, constants_pc, constants_dla
 
 
-from source.formats.base.basic import fmt_member
-from generated.context import ContextReference
+from generated.formats.base.basic import fmt_member
+from generated.formats.base.basic import Byte
+from generated.formats.base.basic import Uint
+from generated.formats.base.basic import Ushort
+from generated.struct import StructBase
 
 
-class FileEntry:
+class FileEntry(StructBase):
 
 	"""
 	Description of one file in the archive
 	"""
 
-	context = ContextReference()
-
 	def __init__(self, context, arg=0, template=None, set_default=True):
-		self.name = ''
-		self._context = context
-		self.arg = arg
-		self.template = template
-		self.io_size = 0
-		self.io_start = 0
+		super().__init__(context, arg, template, set_default)
 
 		# offset in the ovl's names block; start offset of zero terminated string
 		self.offset = 0
@@ -59,6 +55,7 @@ class FileEntry:
 
 	@classmethod
 	def read_fields(cls, stream, instance):
+		super().read_fields(stream, instance)
 		instance.offset = stream.read_uint()
 		instance.file_hash = stream.read_uint()
 		instance.pool_type = stream.read_byte()
@@ -67,6 +64,7 @@ class FileEntry:
 
 	@classmethod
 	def write_fields(cls, stream, instance):
+		super().write_fields(stream, instance)
 		stream.write_uint(instance.offset)
 		stream.write_uint(instance.file_hash)
 		stream.write_byte(instance.pool_type)
@@ -74,25 +72,20 @@ class FileEntry:
 		stream.write_ushort(instance.extension)
 
 	@classmethod
-	def from_stream(cls, stream, context, arg=0, template=None):
-		instance = cls(context, arg, template, set_default=False)
-		instance.io_start = stream.tell()
-		cls.read_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
-
-	@classmethod
-	def to_stream(cls, stream, instance):
-		instance.io_start = stream.tell()
-		cls.write_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
+	def _get_filtered_attribute_list(cls, instance):
+		super()._get_filtered_attribute_list(instance)
+		yield ('offset', Uint, (0, None))
+		yield ('file_hash', Uint, (0, None))
+		yield ('pool_type', Byte, (0, None))
+		yield ('set_pool_type', Byte, (0, None))
+		yield ('extension', Ushort, (0, None))
 
 	def get_info_str(self, indent=0):
 		return f'FileEntry [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
 	def get_fields_str(self, indent=0):
 		s = ''
+		s += super().get_fields_str()
 		s += f'\n	* offset = {fmt_member(self.offset, indent+1)}'
 		s += f'\n	* file_hash = {fmt_member(self.file_hash, indent+1)}'
 		s += f'\n	* pool_type = {fmt_member(self.pool_type, indent+1)}'

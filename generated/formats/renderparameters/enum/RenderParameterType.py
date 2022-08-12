@@ -1,15 +1,15 @@
-from source.formats.base.basic import fmt_member
+from generated.formats.base.basic import fmt_member
 from generated.formats.base.enum import Uint64Enum
 
 
 class RenderParameterType(Uint64Enum):
-	Bool = 0
-	Float = 1
-	Int = 2
-	UInt = 3
-	Float2 = 4
-	Float3 = 5
-	Float4 = 6
-	Colour = 7
-	ColourHDR = 8
-	String = 9
+	BOOL = 0
+	FLOAT = 1
+	INT = 2
+	U_INT = 3
+	FLOAT_2 = 4
+	FLOAT_3 = 5
+	FLOAT_4 = 6
+	COLOUR = 7
+	COLOUR_H_D_R = 8
+	STRING = 9

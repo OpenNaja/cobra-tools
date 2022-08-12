@@ -6,25 +6,21 @@ from generated.formats.ovl_base.basic import ConvStream
 from modules.formats.shared import get_padding
 
 
-from source.formats.base.basic import fmt_member
-from generated.context import ContextReference
+from generated.formats.base.basic import fmt_member
+from generated.formats.base.basic import Uint
+from generated.formats.base.basic import Uint64
+from generated.formats.base.basic import Ushort
+from generated.struct import StructBase
 
 
-class MemPool:
+class MemPool(StructBase):
 
 	"""
 	Description of one archive header entry
 	"""
 
-	context = ContextReference()
-
 	def __init__(self, context, arg=0, template=None, set_default=True):
-		self.name = ''
-		self._context = context
-		self.arg = arg
-		self.template = template
-		self.io_size = 0
-		self.io_start = 0
+		super().__init__(context, arg, template, set_default)
 
 		# always 0
 		self.zero_1 = 0
@@ -47,9 +43,6 @@ class MemPool:
 		# unknown count (related to number of files or pointers)
 		self.num_files = 0
 
-		# unknown count (related to number of files or pointers)
-		self.num_files = 0
-
 		# JWE: djb2 hash for extension, 0 for PZ
 		self.ext_hash = 0
 
@@ -68,13 +61,11 @@ class MemPool:
 		self.file_hash = 0
 		if self.context.version <= 15:
 			self.disney_zero = 0
-		if self.context.version <= 15:
 			self.num_files = 0
 		if self.context.version >= 17:
 			self.num_files = 0
 		if self.context.version >= 19:
 			self.ext_hash = 0
-		if self.context.version >= 19:
 			self.zero_3 = 0
 
 	def read(self, stream):
@@ -89,6 +80,7 @@ class MemPool:
 
 	@classmethod
 	def read_fields(cls, stream, instance):
+		super().read_fields(stream, instance)
 		if instance.context.version >= 17:
 			instance.zero_1 = stream.read_uint64()
 		instance.size = stream.read_uint()
@@ -107,6 +99,7 @@ class MemPool:
 
 	@classmethod
 	def write_fields(cls, stream, instance):
+		super().write_fields(stream, instance)
 		if instance.context.version >= 17:
 			stream.write_uint64(instance.zero_1)
 		stream.write_uint(instance.size)
@@ -124,25 +117,30 @@ class MemPool:
 			stream.write_uint(instance.zero_3)
 
 	@classmethod
-	def from_stream(cls, stream, context, arg=0, template=None):
-		instance = cls(context, arg, template, set_default=False)
-		instance.io_start = stream.tell()
-		cls.read_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
-
-	@classmethod
-	def to_stream(cls, stream, instance):
-		instance.io_start = stream.tell()
-		cls.write_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
+	def _get_filtered_attribute_list(cls, instance):
+		super()._get_filtered_attribute_list(instance)
+		if instance.context.version >= 17:
+			yield ('zero_1', Uint64, (0, None))
+		yield ('size', Uint, (0, None))
+		yield ('offset', Uint, (0, None))
+		if instance.context.version <= 15:
+			yield ('zero_2', Uint64, (0, None))
+		yield ('file_hash', Uint, (0, None))
+		if instance.context.version <= 15:
+			yield ('disney_zero', Ushort, (0, None))
+			yield ('num_files', Ushort, (0, None))
+		if instance.context.version >= 17:
+			yield ('num_files', Uint, (0, None))
+		if instance.context.version >= 19:
+			yield ('ext_hash', Uint, (0, None))
+			yield ('zero_3', Uint, (0, None))
 
 	def get_info_str(self, indent=0):
 		return f'MemPool [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
 	def get_fields_str(self, indent=0):
 		s = ''
+		s += super().get_fields_str()
 		s += f'\n	* zero_1 = {fmt_member(self.zero_1, indent+1)}'
 		s += f'\n	* size = {fmt_member(self.size, indent+1)}'
 		s += f'\n	* offset = {fmt_member(self.offset, indent+1)}'

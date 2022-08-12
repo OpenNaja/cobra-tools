@@ -1,6 +1,9 @@
-from source.formats.base.basic import fmt_member
+from generated.formats.base.basic import fmt_member
 import generated.formats.base.basic
 import generated.formats.path.compound.Joint
+from generated.formats.base.basic import Float
+from generated.formats.base.basic import Uint
+from generated.formats.base.basic import Uint64
 from generated.formats.ovl_base.compound.ArrayPointer import ArrayPointer
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
 from generated.formats.ovl_base.compound.Pointer import Pointer
@@ -9,19 +12,14 @@ from generated.formats.ovl_base.compound.Pointer import Pointer
 class ConnectorMultiJoint(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
-		self.name = ''
 		super().__init__(context, arg, template, set_default)
-		self.arg = arg
-		self.template = template
-		self.io_size = 0
-		self.io_start = 0
 		self.padding = 0
 		self.num_joints = 0
-		self.unk_float_1 = 0.0
+		self.unk_float_1 = 0
 		self.unk_int_1 = 0
 		self.padding = 0
-		self.model_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.joints = ArrayPointer(self.context, self.num_joints, generated.formats.path.compound.Joint.Joint)
+		self.model_name = 0
+		self.joints = 0
 		if set_default:
 			self.set_defaults()
 
@@ -69,19 +67,15 @@ class ConnectorMultiJoint(MemStruct):
 		stream.write_uint64(instance.padding)
 
 	@classmethod
-	def from_stream(cls, stream, context, arg=0, template=None):
-		instance = cls(context, arg, template, set_default=False)
-		instance.io_start = stream.tell()
-		cls.read_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
-
-	@classmethod
-	def to_stream(cls, stream, instance):
-		instance.io_start = stream.tell()
-		cls.write_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
+	def _get_filtered_attribute_list(cls, instance):
+		super()._get_filtered_attribute_list(instance)
+		yield ('model_name', Pointer, (0, generated.formats.base.basic.ZString))
+		yield ('padding', Uint64, (0, None))
+		yield ('joints', ArrayPointer, (instance.num_joints, generated.formats.path.compound.Joint.Joint))
+		yield ('num_joints', Uint64, (0, None))
+		yield ('unk_float_1', Float, (0, None))
+		yield ('unk_int_1', Uint, (0, None))
+		yield ('padding', Uint64, (0, None))
 
 	def get_info_str(self, indent=0):
 		return f'ConnectorMultiJoint [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

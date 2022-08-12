@@ -38,3 +38,11 @@ class BaseEnum(IntEnum, metaclass=DefaultEnumMeta):
 		except KeyError:
 			raise KeyError(f"Key '{value}' not found in enum '{cls.__name__}', outdated definition?")
 		return enum
+
+	@classmethod
+	def from_xml(cls, target, elem, prop, arguments=None):
+		return cls.from_str(elem.attib[prop])
+
+	@staticmethod
+	def to_xml(elem, prop, instance, arguments, debug):
+		elem.attrib[prop] = str(instance)

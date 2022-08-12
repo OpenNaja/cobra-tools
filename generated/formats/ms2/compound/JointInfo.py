@@ -1,6 +1,7 @@
-from source.formats.base.basic import fmt_member
+from generated.formats.base.basic import fmt_member
 import numpy
 from generated.array import Array
+from generated.formats.base.basic import Uint64
 from generated.formats.ms2.compound.CommonJointInfo import CommonJointInfo
 from generated.formats.ms2.compound.HitCheckEntry import HitCheckEntry
 
@@ -8,19 +9,14 @@ from generated.formats.ms2.compound.HitCheckEntry import HitCheckEntry
 class JointInfo(CommonJointInfo):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
-		self.name = ''
 		super().__init__(context, arg, template, set_default)
-		self.arg = arg
-		self.template = template
-		self.io_size = 0
-		self.io_start = 0
 
 		# 8 bytes of zeros
 		self.zero = 0
 
 		# 8 bytes of zeros per hitcheck
-		self.zeros_per_hitcheck = numpy.zeros((self.hitcheck_count,), dtype=numpy.dtype('uint64'))
-		self.hitchecks = Array((self.hitcheck_count,), HitCheckEntry, self.context, 0, None)
+		self.zeros_per_hitcheck = 0
+		self.hitchecks = 0
 		if set_default:
 			self.set_defaults()
 
@@ -54,19 +50,11 @@ class JointInfo(CommonJointInfo):
 		Array.to_stream(stream, instance.hitchecks, (instance.hitcheck_count,), HitCheckEntry, instance.context, 0, None)
 
 	@classmethod
-	def from_stream(cls, stream, context, arg=0, template=None):
-		instance = cls(context, arg, template, set_default=False)
-		instance.io_start = stream.tell()
-		cls.read_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
-
-	@classmethod
-	def to_stream(cls, stream, instance):
-		instance.io_start = stream.tell()
-		cls.write_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
+	def _get_filtered_attribute_list(cls, instance):
+		super()._get_filtered_attribute_list(instance)
+		yield ('zero', Uint64, (0, None))
+		yield ('zeros_per_hitcheck', Array, ((instance.hitcheck_count,), Uint64, 0, None))
+		yield ('hitchecks', Array, ((instance.hitcheck_count,), HitCheckEntry, 0, None))
 
 	def get_info_str(self, indent=0):
 		return f'JointInfo [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

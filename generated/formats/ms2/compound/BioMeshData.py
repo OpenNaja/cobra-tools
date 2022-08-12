@@ -8,8 +8,12 @@ from generated.formats.ms2.enum.MeshFormat import MeshFormat
 from plugin.utils.tristrip import triangulate
 
 
-from source.formats.base.basic import fmt_member
+from generated.formats.base.basic import fmt_member
 import numpy
+from generated.array import Array
+from generated.formats.base.basic import Float
+from generated.formats.base.basic import Uint
+from generated.formats.base.basic import Uint64
 from generated.formats.ms2.bitfield.BioModelFlag import BioModelFlag
 from generated.formats.ms2.compound.MeshData import MeshData
 
@@ -21,12 +25,7 @@ class BioMeshData(MeshData):
 	"""
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
-		self.name = ''
 		super().__init__(context, arg, template, set_default)
-		self.arg = arg
-		self.template = template
-		self.io_size = 0
-		self.io_start = 0
 
 		# start index into list of verts / tris chunks
 		self.chunks_offset = 0
@@ -45,10 +44,10 @@ class BioMeshData(MeshData):
 		self.poweroftwo = 0
 
 		# some floats, purpose unknown
-		self.unk_floats = numpy.zeros((2,), dtype=numpy.dtype('float32'))
+		self.unk_floats = 0
 
 		# seen 1 or 13
-		self.flag = BioModelFlag(self.context, 0, None)
+		self.flag = 0
 		if set_default:
 			self.set_defaults()
 
@@ -97,19 +96,16 @@ class BioMeshData(MeshData):
 		BioModelFlag.to_stream(stream, instance.flag)
 
 	@classmethod
-	def from_stream(cls, stream, context, arg=0, template=None):
-		instance = cls(context, arg, template, set_default=False)
-		instance.io_start = stream.tell()
-		cls.read_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
-
-	@classmethod
-	def to_stream(cls, stream, instance):
-		instance.io_start = stream.tell()
-		cls.write_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
+	def _get_filtered_attribute_list(cls, instance):
+		super()._get_filtered_attribute_list(instance)
+		yield ('chunks_offset', Uint, (0, None))
+		yield ('chunks_count', Uint, (0, None))
+		yield ('tris_count', Uint, (0, None))
+		yield ('vertex_count', Uint, (0, None))
+		yield ('zero_1', Uint64, (0, None))
+		yield ('poweroftwo', Uint, (0, None))
+		yield ('unk_floats', Array, ((2,), Float, 0, None))
+		yield ('flag', BioModelFlag, (0, None))
 
 	def get_info_str(self, indent=0):
 		return f'BioMeshData [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

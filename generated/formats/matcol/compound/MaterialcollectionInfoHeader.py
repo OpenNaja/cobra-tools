@@ -1,4 +1,4 @@
-from source.formats.base.basic import fmt_member
+from generated.formats.base.basic import fmt_member
 from generated.array import Array
 from generated.formats.matcol.compound.Layer import Layer
 from generated.formats.matcol.compound.MatcolRoot import MatcolRoot
@@ -14,16 +14,11 @@ class MaterialcollectionInfoHeader(GenericHeader):
 	"""
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
-		self.name = ''
 		super().__init__(context, arg, template, set_default)
-		self.arg = arg
-		self.template = template
-		self.io_size = 0
-		self.io_start = 0
-		self.root = MatcolRoot(self.context, 0, None)
-		self.info = RootFrag(self.context, 0, None)
-		self.textures = Array((self.info.tex_count,), Texture, self.context, 0, None)
-		self.layers = Array((self.info.mat_count,), Layer, self.context, 0, None)
+		self.root = 0
+		self.info = 0
+		self.textures = 0
+		self.layers = 0
 		if set_default:
 			self.set_defaults()
 
@@ -60,19 +55,12 @@ class MaterialcollectionInfoHeader(GenericHeader):
 		Array.to_stream(stream, instance.layers, (instance.info.mat_count,), Layer, instance.context, 0, None)
 
 	@classmethod
-	def from_stream(cls, stream, context, arg=0, template=None):
-		instance = cls(context, arg, template, set_default=False)
-		instance.io_start = stream.tell()
-		cls.read_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
-
-	@classmethod
-	def to_stream(cls, stream, instance):
-		instance.io_start = stream.tell()
-		cls.write_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
+	def _get_filtered_attribute_list(cls, instance):
+		super()._get_filtered_attribute_list(instance)
+		yield ('root', MatcolRoot, (0, None))
+		yield ('info', RootFrag, (0, None))
+		yield ('textures', Array, ((instance.info.tex_count,), Texture, 0, None))
+		yield ('layers', Array, ((instance.info.mat_count,), Layer, 0, None))
 
 	def get_info_str(self, indent=0):
 		return f'MaterialcollectionInfoHeader [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

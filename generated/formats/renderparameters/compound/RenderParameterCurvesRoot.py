@@ -1,6 +1,7 @@
-from source.formats.base.basic import fmt_member
+from generated.formats.base.basic import fmt_member
 import generated.formats.ovl_base.basic
 import generated.formats.renderparameters.compound.CurveParamList
+from generated.formats.base.basic import Uint64
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
 from generated.formats.ovl_base.compound.Pointer import Pointer
 
@@ -12,16 +13,11 @@ class RenderParameterCurvesRoot(MemStruct):
 	"""
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
-		self.name = ''
 		super().__init__(context, arg, template, set_default)
-		self.arg = arg
-		self.template = template
-		self.io_size = 0
-		self.io_start = 0
 		self.count = 0
 		self.unk = 0
-		self.param_name = Pointer(self.context, 0, generated.formats.ovl_base.basic.ZStringObfuscated)
-		self.params = Pointer(self.context, self.count, generated.formats.renderparameters.compound.CurveParamList.CurveParamList)
+		self.param_name = 0
+		self.params = 0
 		if set_default:
 			self.set_defaults()
 
@@ -60,19 +56,12 @@ class RenderParameterCurvesRoot(MemStruct):
 		stream.write_uint64(instance.unk)
 
 	@classmethod
-	def from_stream(cls, stream, context, arg=0, template=None):
-		instance = cls(context, arg, template, set_default=False)
-		instance.io_start = stream.tell()
-		cls.read_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
-
-	@classmethod
-	def to_stream(cls, stream, instance):
-		instance.io_start = stream.tell()
-		cls.write_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
+	def _get_filtered_attribute_list(cls, instance):
+		super()._get_filtered_attribute_list(instance)
+		yield ('param_name', Pointer, (0, generated.formats.ovl_base.basic.ZStringObfuscated))
+		yield ('params', Pointer, (instance.count, generated.formats.renderparameters.compound.CurveParamList.CurveParamList))
+		yield ('count', Uint64, (0, None))
+		yield ('unk', Uint64, (0, None))
 
 	def get_info_str(self, indent=0):
 		return f'RenderParameterCurvesRoot [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

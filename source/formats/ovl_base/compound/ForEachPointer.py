@@ -2,7 +2,6 @@
 import logging
 
 from generated.array import Array
-from generated.context import ContextReference
 from generated.formats.ovl_base.compound.Pointer import Pointer
 from generated.formats.ovl_base.compound.ArrayPointer import ArrayPointer
 # END_GLOBALS
@@ -13,8 +12,6 @@ class ForEachPointer(Pointer):
 	"""
 	a pointer to an array in an ovl memory layout
 	"""
-
-	context = ContextReference()
 
 # START_CLASS
 

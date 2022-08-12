@@ -1,6 +1,10 @@
-from source.formats.base.basic import fmt_member
+from generated.formats.base.basic import fmt_member
 import generated.formats.base.basic
 import numpy
+from generated.array import Array
+from generated.formats.base.basic import Byte
+from generated.formats.base.basic import Float
+from generated.formats.base.basic import Uint
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
 from generated.formats.ovl_base.compound.Pointer import Pointer
 
@@ -8,16 +12,11 @@ from generated.formats.ovl_base.compound.Pointer import Pointer
 class Info(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
-		self.name = ''
 		super().__init__(context, arg, template, set_default)
-		self.arg = arg
-		self.template = template
-		self.io_size = 0
-		self.io_start = 0
-		self.flags = numpy.zeros((4,), dtype=numpy.dtype('int8'))
-		self.value = numpy.zeros((4,), dtype=numpy.dtype('float32'))
+		self.flags = 0
+		self.value = 0
 		self.padding = 0
-		self.info_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.info_name = 0
 		if set_default:
 			self.set_defaults()
 
@@ -55,19 +54,12 @@ class Info(MemStruct):
 		stream.write_uint(instance.padding)
 
 	@classmethod
-	def from_stream(cls, stream, context, arg=0, template=None):
-		instance = cls(context, arg, template, set_default=False)
-		instance.io_start = stream.tell()
-		cls.read_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
-
-	@classmethod
-	def to_stream(cls, stream, instance):
-		instance.io_start = stream.tell()
-		cls.write_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
+	def _get_filtered_attribute_list(cls, instance):
+		super()._get_filtered_attribute_list(instance)
+		yield ('info_name', Pointer, (0, generated.formats.base.basic.ZString))
+		yield ('flags', Array, ((4,), Byte, 0, None))
+		yield ('value', Array, ((4,), Float, 0, None))
+		yield ('padding', Uint, (0, None))
 
 	def get_info_str(self, indent=0):
 		return f'Info [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

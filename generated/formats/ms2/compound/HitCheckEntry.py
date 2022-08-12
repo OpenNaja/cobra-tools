@@ -1,5 +1,6 @@
-from source.formats.base.basic import fmt_member
-from generated.context import ContextReference
+from generated.formats.base.basic import fmt_member
+from generated.formats.base.basic import Uint
+from generated.formats.base.basic import Ushort
 from generated.formats.ms2.compound.BoundingBox import BoundingBox
 from generated.formats.ms2.compound.Capsule import Capsule
 from generated.formats.ms2.compound.ConvexHull import ConvexHull
@@ -7,20 +8,14 @@ from generated.formats.ms2.compound.Cylinder import Cylinder
 from generated.formats.ms2.compound.MeshCollision import MeshCollision
 from generated.formats.ms2.compound.Sphere import Sphere
 from generated.formats.ms2.enum.CollisionType import CollisionType
+from generated.struct import StructBase
 
 
-class HitCheckEntry:
-
-	context = ContextReference()
+class HitCheckEntry(StructBase):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
-		self.name = ''
-		self._context = context
-		self.arg = arg
-		self.template = template
-		self.io_size = 0
-		self.io_start = 0
-		self.type = CollisionType(self.context, 0, None)
+		super().__init__(context, arg, template, set_default)
+		self.type = 0
 
 		# 0
 		self.flag_0 = 0
@@ -39,13 +34,7 @@ class HitCheckEntry:
 
 		# offset into joint names
 		self.name_offset = 0
-		self.collider = Sphere(self.context, 0, None)
-		self.collider = BoundingBox(self.context, 0, None)
-		self.collider = Capsule(self.context, 0, None)
-		self.collider = Cylinder(self.context, 0, None)
-		self.collider = ConvexHull(self.context, 0, None)
-		self.collider = ConvexHull(self.context, 0, None)
-		self.collider = MeshCollision(self.context, 0, None)
+		self.collider = 0
 
 		# ?
 		self.zero_extra_zt = 0
@@ -90,6 +79,7 @@ class HitCheckEntry:
 
 	@classmethod
 	def read_fields(cls, stream, instance):
+		super().read_fields(stream, instance)
 		instance.type = CollisionType.from_value(stream.read_uint())
 		instance.flag_0 = stream.read_ushort()
 		instance.flag_1 = stream.read_ushort()
@@ -117,6 +107,7 @@ class HitCheckEntry:
 
 	@classmethod
 	def write_fields(cls, stream, instance):
+		super().write_fields(stream, instance)
 		stream.write_uint(instance.type.value)
 		stream.write_ushort(instance.flag_0)
 		stream.write_ushort(instance.flag_1)
@@ -143,25 +134,39 @@ class HitCheckEntry:
 			stream.write_uint(instance.zero_extra_zt)
 
 	@classmethod
-	def from_stream(cls, stream, context, arg=0, template=None):
-		instance = cls(context, arg, template, set_default=False)
-		instance.io_start = stream.tell()
-		cls.read_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
-
-	@classmethod
-	def to_stream(cls, stream, instance):
-		instance.io_start = stream.tell()
-		cls.write_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
+	def _get_filtered_attribute_list(cls, instance):
+		super()._get_filtered_attribute_list(instance)
+		yield ('type', CollisionType, (0, None))
+		yield ('flag_0', Ushort, (0, None))
+		yield ('flag_1', Ushort, (0, None))
+		yield ('flag_2', Uint, (0, None))
+		yield ('flag_3', Uint, (0, None))
+		if instance.context.version < 47:
+			yield ('zero_extra_pc_unk', Uint, (0, None))
+		yield ('name_offset', Uint, (0, None))
+		if instance.type == 0:
+			yield ('collider', Sphere, (0, None))
+		if instance.type == 1:
+			yield ('collider', BoundingBox, (0, None))
+		if instance.type == 2:
+			yield ('collider', Capsule, (0, None))
+		if instance.type == 3:
+			yield ('collider', Cylinder, (0, None))
+		if instance.type == 7:
+			yield ('collider', ConvexHull, (0, None))
+		if instance.type == 8:
+			yield ('collider', ConvexHull, (0, None))
+		if instance.type == 10:
+			yield ('collider', MeshCollision, (0, None))
+		if instance.context.version == 13:
+			yield ('zero_extra_zt', Uint, (0, None))
 
 	def get_info_str(self, indent=0):
 		return f'HitCheckEntry [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
 	def get_fields_str(self, indent=0):
 		s = ''
+		s += super().get_fields_str()
 		s += f'\n	* type = {fmt_member(self.type, indent+1)}'
 		s += f'\n	* flag_0 = {fmt_member(self.flag_0, indent+1)}'
 		s += f'\n	* flag_1 = {fmt_member(self.flag_1, indent+1)}'

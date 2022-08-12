@@ -1,4 +1,4 @@
-from source.formats.base.basic import fmt_member
+from generated.formats.base.basic import fmt_member
 import generated.formats.base.basic
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
 from generated.formats.ovl_base.compound.Pointer import Pointer
@@ -13,15 +13,10 @@ class Param(MemStruct):
 	"""
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
-		self.name = ''
 		super().__init__(context, arg, template, set_default)
-		self.arg = arg
-		self.template = template
-		self.io_size = 0
-		self.io_start = 0
-		self.dtype = RenderParameterType(self.context, 0, None)
-		self.data = ParamData(self.context, self.dtype, None)
-		self.attribute_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.dtype = 0
+		self.data = 0
+		self.attribute_name = 0
 		if set_default:
 			self.set_defaults()
 
@@ -56,19 +51,11 @@ class Param(MemStruct):
 		ParamData.to_stream(stream, instance.data)
 
 	@classmethod
-	def from_stream(cls, stream, context, arg=0, template=None):
-		instance = cls(context, arg, template, set_default=False)
-		instance.io_start = stream.tell()
-		cls.read_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
-
-	@classmethod
-	def to_stream(cls, stream, instance):
-		instance.io_start = stream.tell()
-		cls.write_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
+	def _get_filtered_attribute_list(cls, instance):
+		super()._get_filtered_attribute_list(instance)
+		yield ('attribute_name', Pointer, (0, generated.formats.base.basic.ZString))
+		yield ('dtype', RenderParameterType, (0, None))
+		yield ('data', ParamData, (instance.dtype, None))
 
 	def get_info_str(self, indent=0):
 		return f'Param [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

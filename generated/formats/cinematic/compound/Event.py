@@ -1,6 +1,7 @@
-from source.formats.base.basic import fmt_member
+from generated.formats.base.basic import fmt_member
 import generated.formats.base.basic
 import generated.formats.cinematic.compound.EventAttributes
+from generated.formats.base.basic import Float
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
 from generated.formats.ovl_base.compound.Pointer import Pointer
 
@@ -12,18 +13,13 @@ class Event(MemStruct):
 	"""
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
-		self.name = ''
 		super().__init__(context, arg, template, set_default)
-		self.arg = arg
-		self.template = template
-		self.io_size = 0
-		self.io_start = 0
-		self.start_time = 0.0
-		self.b = 0.0
-		self.duration = 0.0
-		self.d = 0.0
-		self.module_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.attributes = Pointer(self.context, 0, generated.formats.cinematic.compound.EventAttributes.EventAttributes)
+		self.start_time = 0
+		self.b = 0
+		self.duration = 0
+		self.d = 0
+		self.module_name = 0
+		self.attributes = 0
 		if set_default:
 			self.set_defaults()
 
@@ -68,19 +64,14 @@ class Event(MemStruct):
 		stream.write_float(instance.d)
 
 	@classmethod
-	def from_stream(cls, stream, context, arg=0, template=None):
-		instance = cls(context, arg, template, set_default=False)
-		instance.io_start = stream.tell()
-		cls.read_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
-
-	@classmethod
-	def to_stream(cls, stream, instance):
-		instance.io_start = stream.tell()
-		cls.write_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
+	def _get_filtered_attribute_list(cls, instance):
+		super()._get_filtered_attribute_list(instance)
+		yield ('start_time', Float, (0, None))
+		yield ('b', Float, (0, None))
+		yield ('module_name', Pointer, (0, generated.formats.base.basic.ZString))
+		yield ('attributes', Pointer, (0, generated.formats.cinematic.compound.EventAttributes.EventAttributes))
+		yield ('duration', Float, (0, None))
+		yield ('d', Float, (0, None))
 
 	def get_info_str(self, indent=0):
 		return f'Event [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
