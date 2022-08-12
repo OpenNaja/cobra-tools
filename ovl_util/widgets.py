@@ -1019,6 +1019,7 @@ class FileWidget(QtWidgets.QWidget):
 		if not self.abort_open_new_file(filepath):
 			self._set_file_path(filepath)
 			self.cfg[f"dir_{self.dtype_l}s_in"] = self.dir
+			self.cfg[f"last_{self.dtype_l}_in"] = self.filepath
 			return True
 
 	def _set_file_path(self, filepath):

@@ -340,6 +340,7 @@ class MainWindow(widgets.MainWindow):
 		if dir_game:
 			rt_index = self.model.setRootPath(dir_game)
 			self.dirs_container.setRootIndex(rt_index)
+			self.set_selected_dir(self.cfg.get("last_ovl_in", None))
 			self.installed_games_view.entry.setText(current_game)
 			# Set Game Choice default based on current game
 			if current_game in games_list:
@@ -351,6 +352,14 @@ class MainWindow(widgets.MainWindow):
 		file_path = model.filePath(ind)
 		if os.path.isdir(file_path):
 			return file_path
+
+	def set_selected_dir(self, dir_path):
+		"""Show dir_path in dirs_container"""
+		try:
+			ind = self.dirs_container.model().index(dir_path)
+			self.dirs_container.setCurrentIndex(ind)
+		except:
+			self.handle_error("Setting dir failed, see log!")
 
 	def handle_path(self, save_over=True):
 		# get path
@@ -376,6 +385,8 @@ class MainWindow(widgets.MainWindow):
 		# handle double clicked file paths
 		try:
 			file_path = ind.model().filePath(ind)
+			#->setCurrentIndex(fsModel->index(QDir::currentPath()))
+			print(file_path)
 			# open folder in explorer
 			if os.path.isdir(file_path):
 				os.startfile(file_path)
