@@ -29,19 +29,18 @@ def check_any(iterable, string):
 	return any([i in string for i in iterable])
 
 
-def has_r_g_b_a(png_file_path):
-	return check_any((
-		"packedtexture", "playered_blendweights", "scartexture", "samplertexture",
-		"pspecularmaptexture", "pflexicolourmaskstexture", "pshellmap", "pfinalphatexture",), png_file_path) \
-		and not has_rgb_a(png_file_path)
-
-
 def has_rgb_a(png_file_path):
 	return check_any(("pmossbasecolourroughnesspackedtexture", "ppackedtexture"), png_file_path)
 
 
 def has_rg_b_a(png_file_path):
 	return check_any(("pbasenormaltexture",), png_file_path)
+
+
+def has_r_g_b_a(png_file_path):
+	return check_any((
+		"packedtexture", "playered_blendweights", "scartexture", "samplertexture",
+		"pspecularmaptexture", "pflexicolourmaskstexture", "pshellmap", "pfinalphatexture",), png_file_path)
 
 
 def has_vectors(png_file_path):
@@ -83,12 +82,12 @@ def wrapper(png_file_path, size_info, ovl):
 
 
 def get_split_mode(png_file_path):
-	if has_r_g_b_a(png_file_path):
-		return "R_G_B_A"
-	if has_rg_b_a(png_file_path):
-		return "RG_B_A"
 	if has_rgb_a(png_file_path):
 		return "RGB_A"
+	if has_rg_b_a(png_file_path):
+		return "RG_B_A"
+	if has_r_g_b_a(png_file_path):
+		return "R_G_B_A"
 
 
 def split_image(array_size, must_flip_gb, out_files, png_file_path, channels=None):
