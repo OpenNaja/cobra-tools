@@ -77,7 +77,9 @@ class BanisLoader(MemStructLoader):
 		out_path = out_dir(name)
 		out_paths = [out_path, ]
 		with open(out_path, 'wb') as outfile:
-			self.header.write(outfile)
+			with ConvStream() as stream:
+				self.header.write(stream)
+				outfile.write(stream.getvalue())
 			outfile.write(buffers[0])
 
 		return out_paths
