@@ -691,7 +691,7 @@ class OvlFile(Header, IoFile):
 			file_entry.update_constants(self)
 			return file_entry
 		except KeyError:
-			logging.warning(f"Unsupported file type: {filename}")
+			logging.warning(f"Unsupported file type {file_entry.ext} for game {get_game(self.context)[0].name}")
 			return
 
 	def pad_pools(self):
