@@ -21,7 +21,7 @@ class ArrayData(MemStruct):
 
 	def set_defaults(self):
 		super().set_defaults()
-		self.dtype = SpecdefDtype(self.context, 0, None)
+		# leaving self.dtype alone
 		self.unused = 0
 		self.item = Pointer(self.context, self.dtype, generated.formats.specdef.compounds.Data.Data)
 

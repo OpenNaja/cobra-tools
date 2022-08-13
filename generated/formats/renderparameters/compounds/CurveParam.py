@@ -23,7 +23,7 @@ class CurveParam(MemStruct):
 
 	def set_defaults(self):
 		super().set_defaults()
-		self.dtype = 0
+		# leaving self.dtype alone
 		self.do_interpolation = 0
 		self.count = 0
 		self.attribute_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)

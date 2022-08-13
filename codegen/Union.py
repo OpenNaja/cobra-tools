@@ -217,15 +217,18 @@ class Union:
 
             defaults = self.default_assigns(field, f'self.{CONTEXT_SUFFIX}', arg, template, arr1, arr2, field_name, field_type, indent)
 
-            # if defaults:
-            if new_condition:
-                f.write(f"{base_indent}{new_condition}")
-            if new_condition or indent == base_indent:
-                condition = new_condition
-            for default_condition, default in defaults:
-                if default_condition:
-                    f.write(default_condition)
-                f.write(default)
+            if field_name == "dtype":
+                f.write(f"{base_indent}# leaving self.dtype alone")
+            else:
+                # if defaults:
+                if new_condition:
+                    f.write(f"{base_indent}{new_condition}")
+                if new_condition or indent == base_indent:
+                    condition = new_condition
+                for default_condition, default in defaults:
+                    if default_condition:
+                        f.write(default_condition)
+                    f.write(default)
         return condition
 
     def write_io(self, f, method_type, condition="", target_variable="self"):

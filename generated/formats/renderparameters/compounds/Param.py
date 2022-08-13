@@ -21,7 +21,7 @@ class Param(MemStruct):
 
 	def set_defaults(self):
 		super().set_defaults()
-		self.dtype = RenderParameterType(self.context, 0, None)
+		# leaving self.dtype alone
 		self.data = ParamData(self.context, self.dtype, None)
 		self.attribute_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 

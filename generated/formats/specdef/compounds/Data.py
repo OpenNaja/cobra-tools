@@ -32,38 +32,22 @@ class Data(MemStruct):
 
 	def set_defaults(self):
 		super().set_defaults()
-		if self.arg == 0:
-			self.dtype = BooleanData(self.context, 0, None)
-		if self.arg == 1:
-			self.dtype = Int8Data(self.context, 0, None)
-		if self.arg == 2:
-			self.dtype = Int16Data(self.context, 0, None)
-		if self.arg == 3:
-			self.dtype = Int32Data(self.context, 0, None)
-		if self.arg == 4:
-			self.dtype = Int64Data(self.context, 0, None)
-		if self.arg == 5:
-			self.dtype = Uint8Data(self.context, 0, None)
-		if self.arg == 6:
-			self.dtype = Uint16Data(self.context, 0, None)
-		if self.arg == 7:
-			self.dtype = Uint32Data(self.context, 0, None)
-		if self.arg == 8:
-			self.dtype = Uint64Data(self.context, 0, None)
-		if self.arg == 9:
-			self.dtype = FloatData(self.context, 0, None)
-		if self.arg == 10:
-			self.dtype = StringData(self.context, 0, None)
-		if self.arg == 11:
-			self.dtype = Vector2(self.context, 0, None)
-		if self.arg == 12:
-			self.dtype = Vector3(self.context, 0, None)
-		if self.arg == 13:
-			self.dtype = ArrayData(self.context, 0, None)
-		if self.arg == 14:
-			self.dtype = ChildSpecData(self.context, 0, None)
-		if self.arg == 15:
-			self.dtype = ReferenceToObjectData(self.context, 0, None)
+		# leaving self.dtype alone
+		# leaving self.dtype alone
+		# leaving self.dtype alone
+		# leaving self.dtype alone
+		# leaving self.dtype alone
+		# leaving self.dtype alone
+		# leaving self.dtype alone
+		# leaving self.dtype alone
+		# leaving self.dtype alone
+		# leaving self.dtype alone
+		# leaving self.dtype alone
+		# leaving self.dtype alone
+		# leaving self.dtype alone
+		# leaving self.dtype alone
+		# leaving self.dtype alone
+		# leaving self.dtype alone
 
 	def read(self, stream):
 		self.io_start = stream.tell()

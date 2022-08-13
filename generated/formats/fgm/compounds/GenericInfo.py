@@ -17,7 +17,7 @@ class GenericInfo(MemStruct):
 	def set_defaults(self):
 		super().set_defaults()
 		self.offset = 0
-		self.dtype = FgmDtype(self.context, 0, None)
+		# leaving self.dtype alone
 
 	def read(self, stream):
 		self.io_start = stream.tell()
