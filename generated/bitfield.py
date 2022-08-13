@@ -1,6 +1,3 @@
-import types
-
-
 class BitfieldMember(object):
 
     def __init__(self, pos=0, width=0, mask=0, return_type=bool):

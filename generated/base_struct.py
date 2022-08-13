@@ -1,9 +1,5 @@
 import logging
 import xml.etree.ElementTree as ET
-
-from numpy.core.multiarray import ndarray
-
-from generated.array import Array
 from generated.context import ContextReference
 
 # these attributes present on the MemStruct will not be stored on the XML

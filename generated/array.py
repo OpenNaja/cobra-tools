@@ -194,6 +194,7 @@ class Array(list):
         for i, dtype, arguments in cls._get_filtered_attribute_list(instance, instance.dtype):
             dtype.to_xml(elem, f'{dtype_name}{i}', instance[i], debug)
 
+
 def _class_to_name(cls):
     cls_str = str(cls)
     if "." in cls_str:
