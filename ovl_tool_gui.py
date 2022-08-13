@@ -23,7 +23,7 @@ try:
 	from modules import walker
 	from root_path import root_dir
 	from generated.formats.ovl import OvlFile, games, get_game, set_game, IGNORE_TYPES
-	from generated.formats.ovl_base.enum.Compression import Compression
+	from generated.formats.ovl_base.enums.Compression import Compression
 	games_list = [g.value for g in games]
 except:
 	logging.exception("Some modules could not be imported; make sure you install the required dependencies with pip!")

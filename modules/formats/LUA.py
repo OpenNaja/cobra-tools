@@ -1,5 +1,5 @@
 import logging
-from generated.formats.lua.compound.LuaRoot import LuaRoot
+from generated.formats.lua.compounds.LuaRoot import LuaRoot
 from modules.formats.BaseFormat import MemStructLoader
 from modules.formats.shared import get_padding
 from ovl_util import texconv

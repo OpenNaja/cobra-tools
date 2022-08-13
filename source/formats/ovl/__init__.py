@@ -6,27 +6,27 @@ import time
 import logging
 from contextlib import contextmanager
 
-from generated.formats.ovl.compound.Fragment import Fragment
-from generated.formats.ovl.compound.PoolGroup import PoolGroup
-from generated.formats.ovl.compound.StreamEntry import StreamEntry
+from generated.formats.ovl.compounds.Fragment import Fragment
+from generated.formats.ovl.compounds.PoolGroup import PoolGroup
+from generated.formats.ovl.compounds.StreamEntry import StreamEntry
 from generated.formats.ovl_base import OvlContext
 from generated.formats.ovl_base.basic import ConvStream
-from generated.formats.ovl_base.enum.Compression import Compression
+from generated.formats.ovl_base.enums.Compression import Compression
 from ovl_util.oodle.oodle import OodleDecompressEnum, oodle_compressor
 
 from generated.io import IoFile
 from generated.formats.ovl.versions import *
 from generated.formats.ovl.basic import basic_map
-from generated.formats.ovl.compound.AssetEntry import AssetEntry
-from generated.formats.ovl.compound.Header import Header
-from generated.formats.ovl.compound.OvsHeader import OvsHeader
-from generated.formats.ovl.compound.SetEntry import SetEntry
-from generated.formats.ovl.compound.ArchiveEntry import ArchiveEntry
-from generated.formats.ovl.compound.IncludedOvl import IncludedOvl
-from generated.formats.ovl.compound.FileEntry import FileEntry
-from generated.formats.ovl.compound.MimeEntry import MimeEntry
-from generated.formats.ovl.compound.BufferGroup import BufferGroup
-from generated.formats.ovl.compound.ZlibInfo import ZlibInfo
+from generated.formats.ovl.compounds.AssetEntry import AssetEntry
+from generated.formats.ovl.compounds.Header import Header
+from generated.formats.ovl.compounds.OvsHeader import OvsHeader
+from generated.formats.ovl.compounds.SetEntry import SetEntry
+from generated.formats.ovl.compounds.ArchiveEntry import ArchiveEntry
+from generated.formats.ovl.compounds.IncludedOvl import IncludedOvl
+from generated.formats.ovl.compounds.FileEntry import FileEntry
+from generated.formats.ovl.compounds.MimeEntry import MimeEntry
+from generated.formats.ovl.compounds.BufferGroup import BufferGroup
+from generated.formats.ovl.compounds.ZlibInfo import ZlibInfo
 
 from modules.formats.shared import djb2
 from modules.formats.formats_dict import build_formats_dict

@@ -3,8 +3,8 @@ import logging
 import bpy
 import mathutils
 
-from generated.formats.ms2.compound.packing_utils import unpack_swizzle
-from generated.formats.ms2.enum.CollisionType import CollisionType
+from generated.formats.ms2.compounds.packing_utils import unpack_swizzle
+from generated.formats.ms2.enums.CollisionType import CollisionType
 from plugin.utils import matrix_util
 from plugin.utils.object import mesh_from_data, create_ob
 from plugin.utils.quickhull import qhull3d

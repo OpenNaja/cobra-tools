@@ -2,7 +2,7 @@ import io
 import logging
 import os
 
-from generated.formats.fct.compound.FctRoot import FctRoot
+from generated.formats.fct.compounds.FctRoot import FctRoot
 from modules.formats.BaseFormat import MemStructLoader
 
 

@@ -197,7 +197,7 @@ class Array(list):
 def _class_to_name(cls):
     cls_str = str(cls)
     if "." in cls_str:
-        # <class 'generated.formats.dinosaurmaterialvariants.compound.Variant.Variant'>
+        # <class 'generated.formats.dinosaurmaterialvariants.compounds.Variant.Variant'>
         _, a = cls_str.rsplit(".", 1)
         b, _ = a.rsplit("'", 1)
         return b

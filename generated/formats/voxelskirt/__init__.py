@@ -6,13 +6,13 @@ from generated.array import Array
 from generated.formats.ovl.versions import *
 from generated.formats.ovl_base import OvlContext
 from generated.formats.ovl_base.basic import ConvStream
-from generated.formats.voxelskirt.compound.Data import Data
-from generated.formats.voxelskirt.compound.Header import Header
+from generated.formats.voxelskirt.compounds.Data import Data
+from generated.formats.voxelskirt.compounds.Header import Header
 # from generated.formats.ovl.versions import *
 from generated.formats.voxelskirt.basic import basic_map
-from generated.formats.voxelskirt.compound.Material import Material
-from generated.formats.voxelskirt.compound.PosInfo import PosInfo
-from generated.formats.voxelskirt.compound.Size import Size
+from generated.formats.voxelskirt.compounds.Material import Material
+from generated.formats.voxelskirt.compounds.PosInfo import PosInfo
+from generated.formats.voxelskirt.compounds.Size import Size
 from generated.io import IoFile
 from modules.formats.shared import get_padding_size, get_padding
 

@@ -1,5 +1,5 @@
 from generated.formats.wsm.basic import basic_map
-from generated.formats.wsm.compound.Wsm import Wsm
+from generated.formats.wsm.compounds.Wsm import Wsm
 from generated.io import IoFile
 import os
 

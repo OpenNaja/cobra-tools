@@ -7,9 +7,9 @@ import tempfile
 import imageio.v3 as iio
 
 from generated.formats.dds import DdsFile
-from generated.formats.dds.enum.DxgiFormat import DxgiFormat
+from generated.formats.dds.enums.DxgiFormat import DxgiFormat
 from generated.formats.ovl.versions import *
-from generated.formats.tex.compound.TexHeader import TexHeader
+from generated.formats.tex.compounds.TexHeader import TexHeader
 from modules.formats.BaseFormat import MemStructLoader, BaseFile
 from modules.helpers import split_path
 

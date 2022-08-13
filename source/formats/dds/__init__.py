@@ -3,7 +3,8 @@ import logging
 
 from generated.formats.dds.enums.D3D10ResourceDimension import D3D10ResourceDimension
 from generated.formats.dds.enums.FourCC import FourCC
-from generated.formats.dds.struct.Header import Header
+from generated.formats.dds.structs.Dxt10Header import Dxt10Header
+from generated.formats.dds.structs.Header import Header
 from generated.formats.dds.basic import basic_map
 from generated.io import IoFile
 from modules.formats.shared import get_padding
@@ -35,6 +36,7 @@ class DdsFile(Header, IoFile):
         self.pixel_format.flags.four_c_c = 1
         self.pixel_format.four_c_c = FourCC.DX10
 
+        self.dx_10 = Dxt10Header(self.context, 0, None)
         self.dx_10.resource_dimension = D3D10ResourceDimension.D3D10_RESOURCE_DIMENSION_TEXTURE2D
         self.dx_10.array_size = 1
 

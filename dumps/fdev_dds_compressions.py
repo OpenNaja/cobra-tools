@@ -1,4 +1,4 @@
-from generated.formats.dds.enum.DxgiFormat import DxgiFormat
+from generated.formats.dds.enums.DxgiFormat import DxgiFormat
 
 rules = (
 	("BC6_", "BC6H_"),

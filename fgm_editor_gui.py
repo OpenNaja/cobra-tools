@@ -5,16 +5,16 @@ import numpy as np
 from PyQt5 import QtWidgets, QtCore
 from PyQt5.QtGui import QColor
 
-from generated.formats.fgm.enum.FgmDtype import FgmDtype
+from generated.formats.fgm.enums.FgmDtype import FgmDtype
 from generated.formats.ovl_base import OvlContext
 from hashes import fgm_pz, fgm_jwe2
 import ovl_util.interaction
-from generated.formats.fgm.compound.FgmHeader import FgmHeader
-from generated.formats.fgm.compound.TexIndex import TexIndex
-from generated.formats.fgm.compound.TextureInfo import TextureInfo
-from generated.formats.fgm.compound.DependencyInfo import DependencyInfo
-from generated.formats.fgm.compound.AttributeInfo import AttributeInfo
-from generated.formats.fgm.compound.AttribData import AttribData
+from generated.formats.fgm.compounds.FgmHeader import FgmHeader
+from generated.formats.fgm.compounds.TexIndex import TexIndex
+from generated.formats.fgm.compounds.TextureInfo import TextureInfo
+from generated.formats.fgm.compounds.DependencyInfo import DependencyInfo
+from generated.formats.fgm.compounds.AttributeInfo import AttributeInfo
+from generated.formats.fgm.compounds.AttribData import AttribData
 from generated.array import Array
 from generated.formats.ovl.versions import *
 from ovl_util import widgets, config, interaction

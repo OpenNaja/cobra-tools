@@ -78,7 +78,7 @@ class Compound(BaseClass):
                 # todo - needs testing
                 if self.class_basename:
                     self.write_line(f, 2, f"super().set_defaults()")
-                self.write_line(f, 2, "print(f'set_defaults {self.__class__.__name__}')")
+                # self.write_line(f, 2, "print(f'set_defaults {self.__class__.__name__}')")
                 end = f.tell()
                 # write all fields, merge conditions
                 condition = ""

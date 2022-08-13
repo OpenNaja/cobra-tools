@@ -1,4 +1,4 @@
-from generated.formats.motiongraph.compound.MotiongraphHeader import MotiongraphHeader
+from generated.formats.motiongraph.compounds.MotiongraphHeader import MotiongraphHeader
 from modules.formats.BaseFormat import MemStructLoader
 
 

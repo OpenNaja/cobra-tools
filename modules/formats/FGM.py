@@ -1,4 +1,4 @@
-from generated.formats.fgm.compound.FgmHeader import FgmHeader
+from generated.formats.fgm.compounds.FgmHeader import FgmHeader
 from generated.formats.ovl_base.basic import ConvStream
 from modules.formats.BaseFormat import MemStructLoader
 

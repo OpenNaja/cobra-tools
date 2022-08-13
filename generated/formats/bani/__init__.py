@@ -1,6 +1,6 @@
 from generated.formats.bani.basic import basic_map
-from generated.formats.bani.compound.BaniInfoHeader import BaniInfoHeader
-from generated.formats.bani.compound.BanisRoot import BanisRoot
+from generated.formats.bani.compounds.BaniInfoHeader import BaniInfoHeader
+from generated.formats.bani.compounds.BanisRoot import BanisRoot
 from generated.io import IoFile
 import os
 

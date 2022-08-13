@@ -13,7 +13,7 @@ from plugin.modules_import.material import import_material
 from plugin.utils.shell import is_fin
 from plugin.utils.object import create_ob, get_collection
 from generated.formats.ms2 import Ms2File, is_old
-from generated.formats.ms2.enum.MeshFormat import MeshFormat
+from generated.formats.ms2.enums.MeshFormat import MeshFormat
 
 
 def load(filepath="", use_custom_normals=False, mirror_mesh=False):

@@ -1,7 +1,7 @@
-from generated.formats.dinosaurmaterialvariants.compound.DinoEffectsHeader import DinoEffectsHeader
-from generated.formats.dinosaurmaterialvariants.compound.DinoLayersHeader import DinoLayersHeader
-from generated.formats.dinosaurmaterialvariants.compound.DinoPatternsHeader import DinoPatternsHeader
-from generated.formats.dinosaurmaterialvariants.compound.DinoVariantsHeader import DinoVariantsHeader
+from generated.formats.dinosaurmaterialvariants.compounds.DinoEffectsHeader import DinoEffectsHeader
+from generated.formats.dinosaurmaterialvariants.compounds.DinoLayersHeader import DinoLayersHeader
+from generated.formats.dinosaurmaterialvariants.compounds.DinoPatternsHeader import DinoPatternsHeader
+from generated.formats.dinosaurmaterialvariants.compounds.DinoVariantsHeader import DinoVariantsHeader
 from modules.formats.BaseFormat import MemStructLoader
 
 

@@ -1,4 +1,4 @@
-from generated.formats.wsm.compound.WsmHeader import WsmHeader
+from generated.formats.wsm.compounds.WsmHeader import WsmHeader
 from modules.formats.BaseFormat import MemStructLoader
 
 

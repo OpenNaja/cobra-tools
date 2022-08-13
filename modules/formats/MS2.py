@@ -5,7 +5,7 @@ import logging
 import traceback
 
 from generated.formats.ms2 import Ms2File, Ms2Context
-from generated.formats.ms2.compound.Ms2Root import Ms2Root
+from generated.formats.ms2.compounds.Ms2Root import Ms2Root
 
 import generated.formats.ovl.versions as ovl_versions
 from generated.formats.ovl_base.basic import ConvStream

@@ -2,7 +2,7 @@ import logging
 import os
 import struct
 
-from generated.formats.manis.compound.SizedStrData import SizedStrData
+from generated.formats.manis.compounds.SizedStrData import SizedStrData
 from generated.formats.manis import ManisFile
 from modules.formats.BaseFormat import BaseFile
 from modules.helpers import as_bytes

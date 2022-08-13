@@ -5,7 +5,7 @@ import logging
 
 import numpy as np
 
-from generated.formats.ms2.compound.packing_utils import oct_to_vec3, unpack_swizzle_vectorized
+from generated.formats.ms2.compounds.packing_utils import oct_to_vec3, unpack_swizzle_vectorized
 from plugin.utils.matrix_util import evaluate_mesh
 
 # a bit of safety to avoid breaking normalization

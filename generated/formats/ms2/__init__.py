@@ -3,7 +3,7 @@ import time
 import logging
 from copy import copy
 
-from generated.formats.ms2.compound.Ms2InfoHeader import Ms2InfoHeader
+from generated.formats.ms2.compounds.Ms2InfoHeader import Ms2InfoHeader
 from generated.formats.ms2.versions import *
 from generated.formats.ovl_base.basic import ConvStream
 from generated.formats.ovl.basic import basic_map

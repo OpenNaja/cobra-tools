@@ -4,12 +4,12 @@ import struct
 import tempfile
 
 from generated.formats.ovl import UNK_HASH
-from generated.formats.ovl.compound.DependencyEntry import DependencyEntry
-from generated.formats.ovl.compound.Fragment import Fragment
-from generated.formats.ovl.compound.BufferEntry import BufferEntry
-from generated.formats.ovl.compound.MemPool import MemPool
-from generated.formats.ovl.compound.RootEntry import RootEntry
-from generated.formats.ovl.compound.DataEntry import DataEntry
+from generated.formats.ovl.compounds.DependencyEntry import DependencyEntry
+from generated.formats.ovl.compounds.Fragment import Fragment
+from generated.formats.ovl.compounds.BufferEntry import BufferEntry
+from generated.formats.ovl.compounds.MemPool import MemPool
+from generated.formats.ovl.compounds.RootEntry import RootEntry
+from generated.formats.ovl.compounds.DataEntry import DataEntry
 from generated.formats.ovl_base.basic import ConvStream
 from modules.formats.shared import djb2
 from ovl_util.interaction import showdialog

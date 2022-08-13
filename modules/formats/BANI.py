@@ -1,8 +1,8 @@
 import logging
 
 from generated.formats.bani import BaniFile
-from generated.formats.bani.compound.BanisRoot import BanisRoot
-from generated.formats.bani.compound.BaniRoot import BaniRoot
+from generated.formats.bani.compounds.BanisRoot import BanisRoot
+from generated.formats.bani.compounds.BaniRoot import BaniRoot
 from generated.formats.ovl_base.basic import ConvStream
 from modules.formats.BaseFormat import MemStructLoader
 from modules.helpers import as_bytes

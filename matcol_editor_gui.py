@@ -3,7 +3,7 @@ import traceback
 from PyQt5 import QtWidgets, QtCore
 
 import ovl_util.interaction
-from generated.formats.matcol.compound.MatcolRoot import MatcolRoot
+from generated.formats.matcol.compounds.MatcolRoot import MatcolRoot
 from generated.formats.ovl_base import OvlContext
 from ovl_util import widgets, config
 
