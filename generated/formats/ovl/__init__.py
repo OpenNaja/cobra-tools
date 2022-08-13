@@ -925,7 +925,7 @@ class OvlFile(Header, IoFile):
 		elif "get_file_names" in self.commands:
 			return [file_entry.name for file_entry in self.files]
 		else:
-			self.files_list.emit([(file.name, file.ext) for file in self.files])
+			self.files_list.emit([[file.name, file.ext] for file in self.files])
 			# initialize the loaders right here
 			for file_entry in self.files:
 				self.loaders[file_entry.name] = self.init_loader(file_entry)

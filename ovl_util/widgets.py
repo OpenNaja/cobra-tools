@@ -147,8 +147,7 @@ class TableModel(QtCore.QAbstractTableModel):
 		self._data = []
 		self.header_labels = header_names
 		self.ignore_types = ignore_types
-
-	# self.member_renamed.connect(self.member_renamed_debug_print)
+		# self.member_renamed.connect(self.member_renamed_debug_print)
 
 	@staticmethod
 	def member_renamed_debug_print(a, b):
