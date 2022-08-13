@@ -1,15 +1,15 @@
 import numpy
 from generated.array import Array
+from generated.base_struct import BaseStruct
 from generated.formats.base.basic import Byte
 from generated.formats.base.basic import Float
 from generated.formats.base.basic import Ubyte
 from generated.formats.base.basic import Uint
 from generated.formats.base.basic import Uint64
 from generated.formats.base.basic import Ushort
-from generated.struct import StructBase
 
 
-class ManiInfo(StructBase):
+class ManiInfo(BaseStruct):
 
 	"""
 	288 bytes for JWE / PZ

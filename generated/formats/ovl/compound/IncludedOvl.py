@@ -1,8 +1,8 @@
+from generated.base_struct import BaseStruct
 from generated.formats.base.basic import Uint
-from generated.struct import StructBase
 
 
-class IncludedOvl(StructBase):
+class IncludedOvl(BaseStruct):
 
 	"""
 	Description of one included ovl file that is force-loaded by this ovl

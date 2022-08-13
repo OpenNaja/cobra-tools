@@ -6,14 +6,14 @@ from generated.formats.ms2.versions import is_old
 from generated.formats.ms2.compound.Model import Model
 from generated.formats.ms2.compound.BoneInfo import BoneInfo
 from generated.formats.ms2.enum.CollisionType import CollisionType
-from generated.struct import StructBase
+from generated.struct import BaseStruct
 from modules.formats.shared import get_padding_size, get_padding
 
 
 # END_GLOBALS
 
 
-class ModelReader(StructBase):
+class ModelReader(BaseStruct):
 
 	# START_CLASS
 

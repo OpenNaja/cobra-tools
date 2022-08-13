@@ -2,7 +2,7 @@
 import logging
 import traceback
 
-from generated.struct import StructBase
+from generated.struct import BaseStruct
 from generated.formats.manis.compound.ManiBlock import ManiBlock
 from modules.formats.shared import get_padding_size, get_padding
 
@@ -10,7 +10,7 @@ from modules.formats.shared import get_padding_size, get_padding
 # END_GLOBALS
 
 
-class KeysReader(StructBase):
+class KeysReader(BaseStruct):
 
 	# START_CLASS
 

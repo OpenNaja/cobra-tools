@@ -27,8 +27,8 @@ class Compound(BaseClass):
                 union.append(field)
 
         if not self.class_basename:
-            self.class_basename = "StructBase"
-            self.imports.add("StructBase")
+            self.class_basename = "BaseStruct"
+            self.imports.add("BaseStruct")
 
         # write to python file
         with open(self.out_file, "w", encoding=self.parser.encoding) as f:

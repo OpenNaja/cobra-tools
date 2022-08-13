@@ -37,7 +37,7 @@ def str_to_bool(s):
 		raise ValueError
 
 
-class StructBase:
+class BaseStruct:
 
 	context = ContextReference()
 

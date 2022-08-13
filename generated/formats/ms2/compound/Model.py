@@ -1,4 +1,5 @@
 from generated.array import Array
+from generated.base_struct import BaseStruct
 from generated.formats.base.basic import Uint
 from generated.formats.ms2.compound.DLAPreBones import DLAPreBones
 from generated.formats.ms2.compound.FloatsY import FloatsY
@@ -7,10 +8,9 @@ from generated.formats.ms2.compound.MaterialName import MaterialName
 from generated.formats.ms2.compound.MeshDataWrap import MeshDataWrap
 from generated.formats.ms2.compound.Object import Object
 from generated.formats.ms2.compound.ZTPreBones import ZTPreBones
-from generated.struct import StructBase
 
 
-class Model(StructBase):
+class Model(BaseStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)

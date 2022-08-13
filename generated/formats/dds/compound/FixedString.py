@@ -1,7 +1,7 @@
-from generated.struct import StructBase
+from generated.base_struct import BaseStruct
 
 
-class FixedString(StructBase):
+class FixedString(BaseStruct):
 
 	"""
 	The string "DDS ".

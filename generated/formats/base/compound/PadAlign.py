@@ -1,15 +1,15 @@
 
 from generated.io import MAX_LEN
-from generated.struct import StructBase
+from generated.struct import BaseStruct
 from modules.formats.shared import get_padding_size
 
 ZERO = b"\x00"
 
 
-from generated.struct import StructBase
+from generated.base_struct import BaseStruct
 
 
-class PadAlign(StructBase):
+class PadAlign(BaseStruct):
 
 	"""
 	Grabs 00 bytes only

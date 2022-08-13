@@ -1,11 +1,11 @@
 from generated.array import Array
+from generated.base_struct import BaseStruct
 from generated.formats.base.basic import Uint
 from generated.formats.ovl.compound.AssetEntry import AssetEntry
 from generated.formats.ovl.compound.SetEntry import SetEntry
-from generated.struct import StructBase
 
 
-class SetHeader(StructBase):
+class SetHeader(BaseStruct):
 
 	"""
 	defines amount of sets and assets

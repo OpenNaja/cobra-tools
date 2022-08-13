@@ -1,5 +1,6 @@
 import numpy
 from generated.array import Array
+from generated.base_struct import BaseStruct
 from generated.formats.base.basic import Byte
 from generated.formats.base.basic import Int
 from generated.formats.base.basic import Short
@@ -13,10 +14,9 @@ from generated.formats.ms2.compound.Matrix44 import Matrix44
 from generated.formats.ms2.compound.MinusPadding import MinusPadding
 from generated.formats.ms2.compound.Struct7 import Struct7
 from generated.formats.ms2.compound.ZerosPadding import ZerosPadding
-from generated.struct import StructBase
 
 
-class BoneInfo(StructBase):
+class BoneInfo(BaseStruct):
 
 	"""
 	# 858 in DLA c_cl_thread_.ms2

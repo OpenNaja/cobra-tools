@@ -6,13 +6,13 @@ from generated.formats.ovl_base.basic import ConvStream
 from modules.formats.shared import get_padding
 
 
+from generated.base_struct import BaseStruct
 from generated.formats.base.basic import Uint
 from generated.formats.base.basic import Uint64
 from generated.formats.base.basic import Ushort
-from generated.struct import StructBase
 
 
-class MemPool(StructBase):
+class MemPool(BaseStruct):
 
 	"""
 	Description of one archive header entry

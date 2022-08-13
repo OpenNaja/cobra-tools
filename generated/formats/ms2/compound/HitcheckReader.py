@@ -1,11 +1,11 @@
 
 from generated.formats.ms2.compound.HitCheckEntry import HitCheckEntry
-from generated.struct import StructBase
+from generated.struct import BaseStruct
 
-from generated.struct import StructBase
+from generated.base_struct import BaseStruct
 
 
-class HitcheckReader(StructBase):
+class HitcheckReader(BaseStruct):
 
 	"""
 	This reads and assigns hitchecks to each jointinfo that is passed to it

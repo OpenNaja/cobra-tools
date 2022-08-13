@@ -2,15 +2,15 @@
 import logging
 import traceback
 
-from generated.struct import StructBase
+from generated.struct import BaseStruct
 from generated.formats.manis.compound.ManiBlock import ManiBlock
 from modules.formats.shared import get_padding_size, get_padding
 
 
-from generated.struct import StructBase
+from generated.base_struct import BaseStruct
 
 
-class KeysReader(StructBase):
+class KeysReader(BaseStruct):
 
 	@classmethod
 	def read_fields(cls, stream, instance):

@@ -8,12 +8,12 @@ from generated.array import Array
 from generated.formats.ovl_base.basic import ConvStream
 
 
+from generated.base_struct import BaseStruct
 from generated.formats.base.basic import Int
 from generated.formats.base.basic import Uint
-from generated.struct import StructBase
 
 
-class HeaderPointer(StructBase):
+class HeaderPointer(BaseStruct):
 
 	"""
 	Not standalone, used by RootEntry, Fragment and DependencyEntry

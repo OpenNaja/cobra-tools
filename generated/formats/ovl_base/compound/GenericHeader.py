@@ -1,10 +1,10 @@
+from generated.base_struct import BaseStruct
 from generated.formats.base.basic import Byte
 from generated.formats.ovl_base.bitfield.VersionInfo import VersionInfo
 from generated.formats.ovl_base.compound.FixedString import FixedString
-from generated.struct import StructBase
 
 
-class GenericHeader(StructBase):
+class GenericHeader(BaseStruct):
 
 	"""
 	Found at the beginning of every OVL file

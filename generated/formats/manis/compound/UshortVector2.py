@@ -1,8 +1,8 @@
+from generated.base_struct import BaseStruct
 from generated.formats.base.basic import Ushort
-from generated.struct import StructBase
 
 
-class UshortVector2(StructBase):
+class UshortVector2(BaseStruct):
 
 	"""
 	A vector in 2D space (x,y).

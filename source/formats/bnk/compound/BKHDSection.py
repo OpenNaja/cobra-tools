@@ -1,9 +1,9 @@
 from generated.formats.base.basic import fmt_member
-from generated.struct import StructBase
+from generated.struct import BaseStruct
 import numpy
 
 
-class BKHDSection(StructBase):
+class BKHDSection(BaseStruct):
 
 	# START_CLASS
 

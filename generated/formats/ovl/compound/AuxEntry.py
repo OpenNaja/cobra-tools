@@ -1,8 +1,8 @@
+from generated.base_struct import BaseStruct
 from generated.formats.base.basic import Uint
-from generated.struct import StructBase
 
 
-class AuxEntry(StructBase):
+class AuxEntry(BaseStruct):
 
 	"""
 	describes an external AUX resource

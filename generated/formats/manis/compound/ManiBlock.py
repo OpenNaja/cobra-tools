@@ -1,5 +1,6 @@
 import numpy
 from generated.array import Array
+from generated.base_struct import BaseStruct
 from generated.formats.base.basic import Float
 from generated.formats.base.basic import Ubyte
 from generated.formats.base.basic import Uint
@@ -9,10 +10,9 @@ from generated.formats.base.compound.PadAlign import PadAlign
 from generated.formats.manis.compound.Empty import Empty
 from generated.formats.manis.compound.Repeat import Repeat
 from generated.formats.ovl_base.compound.SmartPadding import SmartPadding
-from generated.struct import StructBase
 
 
-class ManiBlock(StructBase):
+class ManiBlock(BaseStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)

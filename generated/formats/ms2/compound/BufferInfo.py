@@ -1,8 +1,8 @@
+from generated.base_struct import BaseStruct
 from generated.formats.base.basic import Uint64
-from generated.struct import StructBase
 
 
-class BufferInfo(StructBase):
+class BufferInfo(BaseStruct):
 
 	"""
 	Fragment data describing a MS2 buffer giving the size of the whole vertex and tri buffer.

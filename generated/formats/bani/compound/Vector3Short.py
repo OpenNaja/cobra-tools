@@ -1,8 +1,8 @@
+from generated.base_struct import BaseStruct
 from generated.formats.base.basic import Short
-from generated.struct import StructBase
 
 
-class Vector3Short(StructBase):
+class Vector3Short(BaseStruct):
 
 	"""
 	A signed int16 vector in 3D space (x,y,z).

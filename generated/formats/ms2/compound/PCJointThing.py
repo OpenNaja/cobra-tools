@@ -1,10 +1,10 @@
 import numpy
 from generated.array import Array
+from generated.base_struct import BaseStruct
 from generated.formats.base.basic import Short
-from generated.struct import StructBase
 
 
-class PCJointThing(StructBase):
+class PCJointThing(BaseStruct):
 
 	"""
 	8 bytes

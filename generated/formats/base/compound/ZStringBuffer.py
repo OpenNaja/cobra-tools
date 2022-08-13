@@ -7,10 +7,10 @@ from modules.formats.shared import get_padding
 ZERO = b"\x00"
 
 
-from generated.struct import StructBase
+from generated.base_struct import BaseStruct
 
 
-class ZStringBuffer(StructBase):
+class ZStringBuffer(BaseStruct):
 
 	"""
 	Holds a buffer of zero-terminated strings

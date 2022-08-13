@@ -1,10 +1,10 @@
 from generated.array import Array
+from generated.base_struct import BaseStruct
 from generated.formats.base.basic import Uint
 from generated.formats.bnk.compound.DataPointer import DataPointer
-from generated.struct import StructBase
 
 
-class DIDXSection(StructBase):
+class DIDXSection(BaseStruct):
 
 	"""
 	second Section of a soundback aux

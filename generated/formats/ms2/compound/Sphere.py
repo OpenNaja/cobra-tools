@@ -1,10 +1,10 @@
+from generated.base_struct import BaseStruct
 from generated.formats.base.basic import Float
 from generated.formats.base.basic import Uint
 from generated.formats.ms2.compound.Vector3 import Vector3
-from generated.struct import StructBase
 
 
-class Sphere(StructBase):
+class Sphere(BaseStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)

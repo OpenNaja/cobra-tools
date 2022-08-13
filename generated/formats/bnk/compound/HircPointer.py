@@ -1,11 +1,11 @@
+from generated.base_struct import BaseStruct
 from generated.formats.bnk.compound.MusicTrack import MusicTrack
 from generated.formats.bnk.compound.SoundSfxVoice import SoundSfxVoice
 from generated.formats.bnk.compound.TypeOther import TypeOther
 from generated.formats.bnk.enums.HircType import HircType
-from generated.struct import StructBase
 
 
-class HircPointer(StructBase):
+class HircPointer(BaseStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)

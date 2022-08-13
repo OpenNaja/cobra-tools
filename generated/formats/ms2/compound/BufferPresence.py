@@ -1,8 +1,8 @@
+from generated.base_struct import BaseStruct
 from generated.formats.base.basic import Int
-from generated.struct import StructBase
 
 
-class BufferPresence(StructBase):
+class BufferPresence(BaseStruct):
 
 	"""
 	in DLA and JWE2, this can be a dependency to a model2stream

@@ -1,10 +1,10 @@
+from generated.base_struct import BaseStruct
 from generated.formats.base.basic import Float
 from generated.formats.ms2.compound.Vector3 import Vector3
 from generated.formats.ms2.compound.Vector4 import Vector4
-from generated.struct import StructBase
 
 
-class Bone(StructBase):
+class Bone(BaseStruct):
 
 	"""
 	32 bytes

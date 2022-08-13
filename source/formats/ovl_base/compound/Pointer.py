@@ -1,12 +1,12 @@
 # START_GLOBALS
 import struct
-from generated.struct import StructBase
+from generated.struct import BaseStruct
 # from generated.formats.ovl.compound.Fragment import Fragment
 
 # END_GLOBALS
 
 
-class Pointer(StructBase):
+class Pointer(BaseStruct):
 
 	"""
 	a pointer in an ovl memory layout

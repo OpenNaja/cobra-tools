@@ -1,12 +1,12 @@
 from generated.array import Array
+from generated.base_struct import BaseStruct
 from generated.formats.base.basic import ZString
 from generated.formats.matcol.compound.Attrib import Attrib
 from generated.formats.matcol.compound.Info import Info
 from generated.formats.matcol.compound.LayerFrag import LayerFrag
-from generated.struct import StructBase
 
 
-class Layer(StructBase):
+class Layer(BaseStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)

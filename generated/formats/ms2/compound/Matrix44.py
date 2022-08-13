@@ -1,10 +1,10 @@
 import numpy
 from generated.array import Array
+from generated.base_struct import BaseStruct
 from generated.formats.base.basic import Float
-from generated.struct import StructBase
 
 
-class Matrix44(StructBase):
+class Matrix44(BaseStruct):
 
 	"""
 	A 4x4 transformation matrix.

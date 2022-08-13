@@ -1,8 +1,8 @@
+from generated.base_struct import BaseStruct
 from generated.formats.base.basic import Uint
-from generated.struct import StructBase
 
 
-class StreamEntry(StructBase):
+class StreamEntry(BaseStruct):
 
 	"""
 	Description of one streamed file instance. One for every file stored in an ovs.

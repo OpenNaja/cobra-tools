@@ -1,10 +1,10 @@
 import numpy
 from generated.array import Array
+from generated.base_struct import BaseStruct
 from generated.formats.base.basic import Float
-from generated.struct import StructBase
 
 
-class Matrix33(StructBase):
+class Matrix33(BaseStruct):
 
 	"""
 	A 3x3 rotation matrix; M^T M=identity, det(M)=1.

@@ -1,10 +1,10 @@
+from generated.base_struct import BaseStruct
 from generated.formats.dds.basic import Uint
 from generated.formats.dds.enums.D3D10ResourceDimension import D3D10ResourceDimension
 from generated.formats.dds.enums.DxgiFormat import DxgiFormat
-from generated.struct import StructBase
 
 
-class Dxt10Header(StructBase):
+class Dxt10Header(BaseStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)

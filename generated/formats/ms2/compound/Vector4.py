@@ -1,8 +1,8 @@
+from generated.base_struct import BaseStruct
 from generated.formats.base.basic import Float
-from generated.struct import StructBase
 
 
-class Vector4(StructBase):
+class Vector4(BaseStruct):
 
 	"""
 	A vector in 3D space (x,y,z).

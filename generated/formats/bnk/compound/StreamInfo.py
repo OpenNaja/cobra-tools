@@ -1,9 +1,9 @@
+from generated.base_struct import BaseStruct
 from generated.formats.base.basic import Uint
 from generated.formats.base.basic import Uint64
-from generated.struct import StructBase
 
 
-class StreamInfo(StructBase):
+class StreamInfo(BaseStruct):
 
 	"""
 	Describes a wem file in an s type bank stream

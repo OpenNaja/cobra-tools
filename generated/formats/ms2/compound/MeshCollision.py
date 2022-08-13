@@ -1,5 +1,6 @@
 import numpy
 from generated.array import Array
+from generated.base_struct import BaseStruct
 from generated.formats.base.basic import Float
 from generated.formats.base.basic import Int
 from generated.formats.base.basic import Uint
@@ -8,10 +9,9 @@ from generated.formats.base.basic import Ushort
 from generated.formats.ms2.compound.Matrix33 import Matrix33
 from generated.formats.ms2.compound.MeshCollisionBit import MeshCollisionBit
 from generated.formats.ms2.compound.Vector3 import Vector3
-from generated.struct import StructBase
 
 
-class MeshCollision(StructBase):
+class MeshCollision(BaseStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)

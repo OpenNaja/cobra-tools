@@ -2,12 +2,12 @@
 import logging
 
 from generated.formats.ms2.compound.HitCheckEntry import HitCheckEntry
-from generated.struct import StructBase
+from generated.struct import BaseStruct
 
-from generated.struct import StructBase
+from generated.base_struct import BaseStruct
 
 
-class StreamDebugger(StructBase):
+class StreamDebugger(BaseStruct):
 
 	"""
 	logs stream address to debug log

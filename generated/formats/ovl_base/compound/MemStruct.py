@@ -46,10 +46,10 @@ def str_to_bool(s):
 		raise ValueError
 
 
-from generated.struct import StructBase
+from generated.base_struct import BaseStruct
 
 
-class MemStruct(StructBase):
+class MemStruct(BaseStruct):
 
 	"""
 	this is a struct that is capable of having pointers

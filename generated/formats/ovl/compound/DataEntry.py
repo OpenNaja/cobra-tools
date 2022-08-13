@@ -2,13 +2,13 @@
 
 import logging
 
+from generated.base_struct import BaseStruct
 from generated.formats.base.basic import Uint
 from generated.formats.base.basic import Uint64
 from generated.formats.base.basic import Ushort
-from generated.struct import StructBase
 
 
-class DataEntry(StructBase):
+class DataEntry(BaseStruct):
 
 	"""
 	32 bytes

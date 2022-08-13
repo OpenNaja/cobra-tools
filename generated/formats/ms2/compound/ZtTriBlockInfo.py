@@ -1,9 +1,9 @@
+from generated.base_struct import BaseStruct
 from generated.formats.base.basic import Short
 from generated.formats.base.basic import Uint
-from generated.struct import StructBase
 
 
-class ZtTriBlockInfo(StructBase):
+class ZtTriBlockInfo(BaseStruct):
 
 	"""
 	8 bytes total

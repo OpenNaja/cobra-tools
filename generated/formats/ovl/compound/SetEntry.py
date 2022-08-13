@@ -1,8 +1,8 @@
+from generated.base_struct import BaseStruct
 from generated.formats.base.basic import Uint
-from generated.struct import StructBase
 
 
-class SetEntry(StructBase):
+class SetEntry(BaseStruct):
 
 	"""
 	the asset indices of two consecutive SetEntries define a set of AssetEntries

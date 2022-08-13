@@ -1,4 +1,5 @@
 from generated.array import Array
+from generated.base_struct import BaseStruct
 from generated.formats.base.basic import Uint
 from generated.formats.base.basic import ZString
 from generated.formats.ms2.compound.Buffer0 import Buffer0
@@ -7,10 +8,9 @@ from generated.formats.ms2.compound.BufferPresence import BufferPresence
 from generated.formats.ms2.compound.ModelInfo import ModelInfo
 from generated.formats.ms2.compound.ModelReader import ModelReader
 from generated.formats.ms2.compound.Ms2Root import Ms2Root
-from generated.struct import StructBase
 
 
-class Ms2InfoHeader(StructBase):
+class Ms2InfoHeader(BaseStruct):
 
 	"""
 	Custom header struct

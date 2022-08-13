@@ -1,12 +1,12 @@
 import numpy
 from generated.array import Array
+from generated.base_struct import BaseStruct
 from generated.formats.bani.compound.BaniRoot import BaniRoot
 from generated.formats.base.basic import Byte
 from generated.formats.base.basic import ZString
-from generated.struct import StructBase
 
 
-class BaniInfoHeader(StructBase):
+class BaniInfoHeader(BaseStruct):
 
 	"""
 	Custom header struct

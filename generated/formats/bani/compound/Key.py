@@ -1,9 +1,9 @@
+from generated.base_struct import BaseStruct
 from generated.formats.bani.compound.Vector3Short import Vector3Short
 from generated.formats.bani.compound.Vector3Ushort import Vector3Ushort
-from generated.struct import StructBase
 
 
-class Key(StructBase):
+class Key(BaseStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)

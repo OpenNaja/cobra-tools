@@ -1,8 +1,8 @@
+from generated.base_struct import BaseStruct
 from generated.formats.base.basic import Uint
-from generated.struct import StructBase
 
 
-class ZlibInfo(StructBase):
+class ZlibInfo(BaseStruct):
 
 	"""
 	Description of one zlib archive

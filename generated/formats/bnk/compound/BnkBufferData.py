@@ -1,13 +1,13 @@
 import numpy
 from generated.array import Array
+from generated.base_struct import BaseStruct
 from generated.formats.base.basic import Uint
 from generated.formats.base.basic import Uint64
 from generated.formats.base.basic import ZString
 from generated.formats.bnk.compound.StreamInfo import StreamInfo
-from generated.struct import StructBase
 
 
-class BnkBufferData(StructBase):
+class BnkBufferData(BaseStruct):
 
 	"""
 	Buffer data of bnk files

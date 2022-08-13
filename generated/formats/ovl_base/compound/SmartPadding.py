@@ -4,10 +4,10 @@ from generated.io import MAX_LEN
 ZERO = b"\x00"
 
 
-from generated.struct import StructBase
+from generated.base_struct import BaseStruct
 
 
-class SmartPadding(StructBase):
+class SmartPadding(BaseStruct):
 
 	"""
 	Grabs 00 bytes only

@@ -1,8 +1,8 @@
+from generated.base_struct import BaseStruct
 from generated.formats.base.basic import Uint
-from generated.struct import StructBase
 
 
-class DataPointer(StructBase):
+class DataPointer(BaseStruct):
 
 	"""
 	second Section of a soundbank aux

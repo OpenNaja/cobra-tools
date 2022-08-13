@@ -1,3 +1,4 @@
+from generated.base_struct import BaseStruct
 from generated.formats.base.basic import Uint
 from generated.formats.base.basic import Ushort
 from generated.formats.ms2.compound.BoundingBox import BoundingBox
@@ -7,10 +8,9 @@ from generated.formats.ms2.compound.Cylinder import Cylinder
 from generated.formats.ms2.compound.MeshCollision import MeshCollision
 from generated.formats.ms2.compound.Sphere import Sphere
 from generated.formats.ms2.enums.CollisionType import CollisionType
-from generated.struct import StructBase
 
 
-class HitCheckEntry(StructBase):
+class HitCheckEntry(BaseStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)

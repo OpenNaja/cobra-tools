@@ -1,8 +1,8 @@
+from generated.base_struct import BaseStruct
 from generated.formats.ovl.compound.HeaderPointer import HeaderPointer
-from generated.struct import StructBase
 
 
-class Fragment(StructBase):
+class Fragment(BaseStruct):
 
 	"""
 	These are to be thought of as instructions for loading. Their order is irrelevant.

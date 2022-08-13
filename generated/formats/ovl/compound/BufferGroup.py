@@ -1,9 +1,9 @@
+from generated.base_struct import BaseStruct
 from generated.formats.base.basic import Uint
 from generated.formats.base.basic import Uint64
-from generated.struct import StructBase
 
 
-class BufferGroup(StructBase):
+class BufferGroup(BaseStruct):
 
 	"""
 	32 bytes

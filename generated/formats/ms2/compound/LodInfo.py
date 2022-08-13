@@ -1,11 +1,11 @@
+from generated.base_struct import BaseStruct
 from generated.formats.base.basic import Float
 from generated.formats.base.basic import Short
 from generated.formats.base.basic import Uint
 from generated.formats.base.basic import Ushort
-from generated.struct import StructBase
 
 
-class LodInfo(StructBase):
+class LodInfo(BaseStruct):
 
 	"""
 	DLA, ZTUAC - 16 bytes

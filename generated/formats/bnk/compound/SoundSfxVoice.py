@@ -1,11 +1,11 @@
 import numpy
 from generated.array import Array
+from generated.base_struct import BaseStruct
 from generated.formats.base.basic import Byte
 from generated.formats.base.basic import Uint
-from generated.struct import StructBase
 
 
-class SoundSfxVoice(StructBase):
+class SoundSfxVoice(BaseStruct):
 
 	def set_defaults(self):
 		super().set_defaults()

@@ -1,8 +1,8 @@
+from generated.base_struct import BaseStruct
 from generated.formats.base.basic import Uint
-from generated.struct import StructBase
 
 
-class AssetEntry(StructBase):
+class AssetEntry(BaseStruct):
 
 	"""
 	refers to root entries so they can be grouped into set entries.

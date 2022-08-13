@@ -1,8 +1,8 @@
+from generated.base_struct import BaseStruct
 from generated.formats.base.basic import Uint64
-from generated.struct import StructBase
 
 
-class Data(StructBase):
+class Data(BaseStruct):
 
 	"""
 	PZ and JWE only, describes a data layer image

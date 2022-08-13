@@ -1,11 +1,11 @@
 import numpy
 from generated.array import Array
+from generated.base_struct import BaseStruct
 from generated.formats.base.basic import Byte
 from generated.formats.base.basic import Uint
-from generated.struct import StructBase
 
 
-class DATASection(StructBase):
+class DATASection(BaseStruct):
 
 	"""
 	second Section of a soundback aux

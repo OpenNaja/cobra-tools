@@ -1,12 +1,12 @@
+from generated.base_struct import BaseStruct
 from generated.formats.base.basic import Ubyte
 from generated.formats.base.basic import Uint
 from generated.formats.base.basic import Ushort
 from generated.formats.ms2.compound.Matrix33 import Matrix33
 from generated.formats.ms2.compound.Vector4 import Vector4
-from generated.struct import StructBase
 
 
-class NasutoJointEntry(StructBase):
+class NasutoJointEntry(BaseStruct):
 
 	"""
 	60 bytes

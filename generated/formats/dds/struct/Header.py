@@ -1,5 +1,6 @@
 import numpy
 from generated.array import Array
+from generated.base_struct import BaseStruct
 from generated.formats.dds.basic import Uint
 from generated.formats.dds.bitstruct.Caps1 import Caps1
 from generated.formats.dds.bitstruct.Caps2 import Caps2
@@ -7,10 +8,9 @@ from generated.formats.dds.bitstruct.HeaderFlags import HeaderFlags
 from generated.formats.dds.compound.FixedString import FixedString
 from generated.formats.dds.struct.Dxt10Header import Dxt10Header
 from generated.formats.dds.struct.PixelFormat import PixelFormat
-from generated.struct import StructBase
 
 
-class Header(StructBase):
+class Header(BaseStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)

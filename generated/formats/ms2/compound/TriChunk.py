@@ -1,11 +1,11 @@
+from generated.base_struct import BaseStruct
 from generated.formats.base.basic import Uint
 from generated.formats.base.basic import Ushort
 from generated.formats.ms2.compound.QuatWFirst import QuatWFirst
 from generated.formats.ms2.compound.Vector3 import Vector3
-from generated.struct import StructBase
 
 
-class TriChunk(StructBase):
+class TriChunk(BaseStruct):
 
 	"""
 	JWE2 Biosyn: 64 bytes

@@ -1,10 +1,10 @@
 from generated.array import Array
+from generated.base_struct import BaseStruct
 from generated.formats.ms2.compound.InfoZTMemPool import InfoZTMemPool
 from generated.formats.ovl_base.compound.SmartPadding import SmartPadding
-from generated.struct import StructBase
 
 
-class StreamsZTHeader(StructBase):
+class StreamsZTHeader(BaseStruct):
 
 	"""
 	266 bytes ?

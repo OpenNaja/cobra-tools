@@ -1,5 +1,6 @@
 import numpy
 from generated.array import Array
+from generated.base_struct import BaseStruct
 from generated.formats.base.basic import Float
 from generated.formats.base.basic import Int
 from generated.formats.base.basic import Uint
@@ -14,10 +15,9 @@ from generated.formats.ms2.compound.ListLong import ListLong
 from generated.formats.ms2.compound.ListShort import ListShort
 from generated.formats.ms2.compound.UACJointFF import UACJointFF
 from generated.formats.ovl_base.compound.SmartPadding import SmartPadding
-from generated.struct import StructBase
 
 
-class JointData(StructBase):
+class JointData(BaseStruct):
 
 	"""
 	appears in dinos and static meshes

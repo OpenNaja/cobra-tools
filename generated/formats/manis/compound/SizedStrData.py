@@ -1,10 +1,10 @@
+from generated.base_struct import BaseStruct
 from generated.formats.base.basic import Uint
 from generated.formats.base.basic import Uint64
 from generated.formats.base.basic import Ushort
-from generated.struct import StructBase
 
 
-class SizedStrData(StructBase):
+class SizedStrData(BaseStruct):
 
 	"""
 	24 bytes for DLA, ZTUAC, PC, JWE1, old PZ

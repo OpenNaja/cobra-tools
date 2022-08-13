@@ -4,11 +4,11 @@ from generated.formats.ovl.versions import *
 from hashes import constants_jwe, constants_pz, constants_jwe2, constants_pc, constants_dla
 
 
+from generated.base_struct import BaseStruct
 from generated.formats.base.basic import Uint
-from generated.struct import StructBase
 
 
-class MimeEntry(StructBase):
+class MimeEntry(BaseStruct):
 
 	"""
 	Description of one mime type or file class.

@@ -1,8 +1,8 @@
+from generated.base_struct import BaseStruct
 from generated.formats.base.basic import Ubyte
-from generated.struct import StructBase
 
 
-class UbyteVector3(StructBase):
+class UbyteVector3(BaseStruct):
 
 	"""
 	A vector in 3D space (x,y,z).

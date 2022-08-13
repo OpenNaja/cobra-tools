@@ -1,10 +1,10 @@
 from generated.array import Array
+from generated.base_struct import BaseStruct
 from generated.formats.base.basic import Uint
 from generated.formats.bnk.compound.HircPointer import HircPointer
-from generated.struct import StructBase
 
 
-class HIRCSection(StructBase):
+class HIRCSection(BaseStruct):
 
 	"""
 	The HIRC section contains all the Wwise objects, including the events, the containers to group sounds, and the references to the sound files.

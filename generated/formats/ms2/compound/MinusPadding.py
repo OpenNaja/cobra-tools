@@ -1,11 +1,11 @@
 import numpy
 from generated.array import Array
+from generated.base_struct import BaseStruct
 from generated.formats.base.basic import Byte
 from generated.formats.base.basic import Short
-from generated.struct import StructBase
 
 
-class MinusPadding(StructBase):
+class MinusPadding(BaseStruct):
 
 	"""
 	Used in PC

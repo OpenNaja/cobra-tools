@@ -1,11 +1,11 @@
 import numpy
 from generated.array import Array
+from generated.base_struct import BaseStruct
 from generated.formats.base.basic import Ubyte
 from generated.formats.base.basic import Uint
-from generated.struct import StructBase
 
 
-class BKHDSection(StructBase):
+class BKHDSection(BaseStruct):
 
 	"""
 	First Section of a soundbank aux

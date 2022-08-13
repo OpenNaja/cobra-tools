@@ -1,11 +1,11 @@
 import numpy
 from generated.array import Array
+from generated.base_struct import BaseStruct
 from generated.formats.base.basic import Ubyte
 from generated.formats.base.basic import Uint
-from generated.struct import StructBase
 
 
-class ZtVertBlockInfo(StructBase):
+class ZtVertBlockInfo(BaseStruct):
 
 	"""
 	16 bytes total

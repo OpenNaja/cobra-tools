@@ -1,9 +1,9 @@
+from generated.base_struct import BaseStruct
 from generated.formats.base.basic import Float
 from generated.formats.base.basic import Uint64
-from generated.struct import StructBase
 
 
-class SizedStrData(StructBase):
+class SizedStrData(BaseStruct):
 
 	"""
 	# size varies according to game

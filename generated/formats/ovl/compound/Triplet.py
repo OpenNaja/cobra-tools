@@ -1,8 +1,8 @@
+from generated.base_struct import BaseStruct
 from generated.formats.base.basic import Ubyte
-from generated.struct import StructBase
 
 
-class Triplet(StructBase):
+class Triplet(BaseStruct):
 
 	"""
 	3 bytes - constant per mime (and probably version)

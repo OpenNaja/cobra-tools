@@ -1,14 +1,14 @@
 import numpy
 from generated.array import Array
+from generated.base_struct import BaseStruct
 from generated.formats.base.basic import Ubyte
 from generated.formats.base.basic import Uint64
 from generated.formats.ms2.compound.NasutoJointEntry import NasutoJointEntry
 from generated.formats.ms2.compound.UACJoint import UACJoint
 from generated.formats.ovl_base.compound.SmartPadding import SmartPadding
-from generated.struct import StructBase
 
 
-class Struct7(StructBase):
+class Struct7(BaseStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)

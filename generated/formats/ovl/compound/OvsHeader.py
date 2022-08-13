@@ -1,4 +1,5 @@
 from generated.array import Array
+from generated.base_struct import BaseStruct
 from generated.formats.ovl.compound.BufferEntry import BufferEntry
 from generated.formats.ovl.compound.BufferGroup import BufferGroup
 from generated.formats.ovl.compound.DataEntry import DataEntry
@@ -7,10 +8,9 @@ from generated.formats.ovl.compound.MemPool import MemPool
 from generated.formats.ovl.compound.PoolGroup import PoolGroup
 from generated.formats.ovl.compound.RootEntry import RootEntry
 from generated.formats.ovl.compound.SetHeader import SetHeader
-from generated.struct import StructBase
 
 
-class OvsHeader(StructBase):
+class OvsHeader(BaseStruct):
 
 	"""
 	Description of one archive's content

@@ -1,9 +1,9 @@
+from generated.base_struct import BaseStruct
 from generated.formats.ms2.compound.Matrix33 import Matrix33
 from generated.formats.ms2.compound.Vector3 import Vector3
-from generated.struct import StructBase
 
 
-class JointEntry(StructBase):
+class JointEntry(BaseStruct):
 
 	"""
 	Describes a joint in armature space.

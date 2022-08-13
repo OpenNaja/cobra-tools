@@ -1,13 +1,13 @@
 
 import struct
-from generated.struct import StructBase
+from generated.struct import BaseStruct
 # from generated.formats.ovl.compound.Fragment import Fragment
 
+from generated.base_struct import BaseStruct
 from generated.formats.base.basic import Uint64
-from generated.struct import StructBase
 
 
-class Pointer(StructBase):
+class Pointer(BaseStruct):
 
 	"""
 	a pointer in an ovl memory layout, can point to a struct or a dependency entry

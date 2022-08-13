@@ -1,10 +1,10 @@
+from generated.base_struct import BaseStruct
 from generated.formats.dds.basic import Uint
 from generated.formats.dds.bitstruct.PixelFormatFlags import PixelFormatFlags
 from generated.formats.dds.enums.FourCC import FourCC
-from generated.struct import StructBase
 
 
-class PixelFormat(StructBase):
+class PixelFormat(BaseStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)

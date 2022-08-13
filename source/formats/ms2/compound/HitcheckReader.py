@@ -1,10 +1,10 @@
 # START_GLOBALS
 from generated.formats.ms2.compound.HitCheckEntry import HitCheckEntry
-from generated.struct import StructBase
+from generated.struct import BaseStruct
 
 # END_GLOBALS
 
-class HitcheckReader(StructBase):
+class HitcheckReader(BaseStruct):
 
 
 	# START_CLASS

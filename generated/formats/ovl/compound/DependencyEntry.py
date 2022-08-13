@@ -1,9 +1,9 @@
+from generated.base_struct import BaseStruct
 from generated.formats.base.basic import Uint
 from generated.formats.ovl.compound.HeaderPointer import HeaderPointer
-from generated.struct import StructBase
 
 
-class DependencyEntry(StructBase):
+class DependencyEntry(BaseStruct):
 
 	"""
 	Description of dependency; links it to an entry from this archive

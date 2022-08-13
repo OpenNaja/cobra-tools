@@ -2,11 +2,11 @@
 
 import logging
 
+from generated.base_struct import BaseStruct
 from generated.formats.base.basic import Uint
-from generated.struct import StructBase
 
 
-class BufferEntry(StructBase):
+class BufferEntry(BaseStruct):
 
 	"""
 	8 bytes

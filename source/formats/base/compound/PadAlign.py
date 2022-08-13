@@ -1,6 +1,6 @@
 # START_GLOBALS
 from generated.io import MAX_LEN
-from generated.struct import StructBase
+from generated.struct import BaseStruct
 from modules.formats.shared import get_padding_size
 
 ZERO = b"\x00"
@@ -9,7 +9,7 @@ ZERO = b"\x00"
 # END_GLOBALS
 
 
-class PadAlign(StructBase):
+class PadAlign(BaseStruct):
 	"""Automatically aligns to template's start and pads so aligned with align"""
 
 # START_CLASS

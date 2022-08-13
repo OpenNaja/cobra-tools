@@ -1,7 +1,7 @@
-from generated.struct import StructBase
+from generated.base_struct import BaseStruct
 
 
-class Empty(StructBase):
+class Empty(BaseStruct):
 
 	"""
 	Grabs 00 bytes only
