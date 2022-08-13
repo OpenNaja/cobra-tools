@@ -68,12 +68,12 @@ class SetHeader(BaseStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		super()._get_filtered_attribute_list(instance)
-		yield ('set_count', Uint, (0, None))
-		yield ('asset_count', Uint, (0, None))
-		yield ('sig_a', Uint, (0, None))
-		yield ('sig_b', Uint, (0, None))
-		yield ('sets', Array, ((instance.set_count,), SetEntry, 0, None))
-		yield ('assets', Array, ((instance.asset_count,), AssetEntry, 0, None))
+		yield 'set_count', Uint, (0, None)
+		yield 'asset_count', Uint, (0, None)
+		yield 'sig_a', Uint, (0, None)
+		yield 'sig_b', Uint, (0, None)
+		yield 'sets', Array, ((instance.set_count,), SetEntry, 0, None)
+		yield 'assets', Array, ((instance.asset_count,), AssetEntry, 0, None)
 
 	def get_info_str(self, indent=0):
 		return f'SetHeader [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

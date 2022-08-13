@@ -73,14 +73,14 @@ class Research(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		super()._get_filtered_attribute_list(instance)
-		yield ('item_name', Pointer, (0, generated.formats.base.basic.ZString))
-		yield ('unk_0', Uint, (0, None))
-		yield ('is_entry_level', Uint, (0, None))
-		yield ('unk_2', Uint64, (0, None))
-		yield ('next_research', Pointer, (instance.next_research_count, generated.formats.mechanicresearch.compounds.NextResearch.NextResearch))
-		yield ('next_research_count', Uint64, (0, None))
-		yield ('unk_3', Uint64, (0, None))
-		yield ('unk_4', Uint64, (0, None))
+		yield 'item_name', Pointer, (0, generated.formats.base.basic.ZString)
+		yield 'unk_0', Uint, (0, None)
+		yield 'is_entry_level', Uint, (0, None)
+		yield 'unk_2', Uint64, (0, None)
+		yield 'next_research', Pointer, (instance.next_research_count, generated.formats.mechanicresearch.compounds.NextResearch.NextResearch)
+		yield 'next_research_count', Uint64, (0, None)
+		yield 'unk_3', Uint64, (0, None)
+		yield 'unk_4', Uint64, (0, None)
 
 	def get_info_str(self, indent=0):
 		return f'Research [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

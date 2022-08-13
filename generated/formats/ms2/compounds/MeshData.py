@@ -77,11 +77,11 @@ class MeshData(MemStruct):
 	def _get_filtered_attribute_list(cls, instance):
 		super()._get_filtered_attribute_list(instance)
 		if instance.context.version <= 32:
-			yield ('stream_index', Uint64, (0, None))
+			yield 'stream_index', Uint64, (0, None)
 		if instance.context.version >= 47:
-			yield ('stream_info', Pointer, (0, generated.formats.ms2.compounds.BufferInfo.BufferInfo))
+			yield 'stream_info', Pointer, (0, generated.formats.ms2.compounds.BufferInfo.BufferInfo)
 		if not ((instance.context.version == 51) and instance.context.biosyn):
-			yield ('some_index', Uint64, (0, None))
+			yield 'some_index', Uint64, (0, None)
 
 	def get_info_str(self, indent=0):
 		return f'MeshData [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

@@ -86,14 +86,14 @@ class PixelFormat(BaseStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		super()._get_filtered_attribute_list(instance)
-		yield ('size', Uint, (0, None))
-		yield ('flags', PixelFormatFlags, (0, None))
-		yield ('four_c_c', FourCC, (0, None))
-		yield ('bit_count', Uint, (0, None))
-		yield ('r_mask', Uint, (0, None))
-		yield ('g_mask', Uint, (0, None))
-		yield ('b_mask', Uint, (0, None))
-		yield ('a_mask', Uint, (0, None))
+		yield 'size', Uint, (0, None)
+		yield 'flags', PixelFormatFlags, (0, None)
+		yield 'four_c_c', FourCC, (0, None)
+		yield 'bit_count', Uint, (0, None)
+		yield 'r_mask', Uint, (0, None)
+		yield 'g_mask', Uint, (0, None)
+		yield 'b_mask', Uint, (0, None)
+		yield 'a_mask', Uint, (0, None)
 
 	def get_info_str(self, indent=0):
 		return f'PixelFormat [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

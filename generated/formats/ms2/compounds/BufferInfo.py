@@ -134,28 +134,28 @@ class BufferInfo(BaseStruct):
 	def _get_filtered_attribute_list(cls, instance):
 		super()._get_filtered_attribute_list(instance)
 		if 32 <= instance.context.version <= 47:
-			yield ('u_0', Uint64, (0, None))
-			yield ('u_1', Uint64, (0, None))
+			yield 'u_0', Uint64, (0, None)
+			yield 'u_1', Uint64, (0, None)
 		if (instance.context.version == 51) and instance.context.biosyn:
-			yield ('tri_chunks_size', Uint64, (0, None))
-			yield ('tri_chunks_ptr', Uint64, (0, None))
-			yield ('vert_chunks_size', Uint64, (0, None))
-			yield ('vert_chunks_ptr', Uint64, (0, None))
-		yield ('verts_size', Uint64, (0, None))
-		yield ('verts_ptr', Uint64, (0, None))
+			yield 'tri_chunks_size', Uint64, (0, None)
+			yield 'tri_chunks_ptr', Uint64, (0, None)
+			yield 'vert_chunks_size', Uint64, (0, None)
+			yield 'vert_chunks_ptr', Uint64, (0, None)
+		yield 'verts_size', Uint64, (0, None)
+		yield 'verts_ptr', Uint64, (0, None)
 		if instance.context.version >= 48:
-			yield ('u_3', Uint64, (0, None))
+			yield 'u_3', Uint64, (0, None)
 		if not (instance.context.version == 32):
-			yield ('tris_size', Uint64, (0, None))
-			yield ('tris_ptr', Uint64, (0, None))
+			yield 'tris_size', Uint64, (0, None)
+			yield 'tris_ptr', Uint64, (0, None)
 		if instance.context.version >= 48:
-			yield ('u_5', Uint64, (0, None))
-			yield ('u_6', Uint64, (0, None))
+			yield 'u_5', Uint64, (0, None)
+			yield 'u_6', Uint64, (0, None)
 		if instance.context.version <= 13:
-			yield ('u_5', Uint64, (0, None))
-			yield ('uvs_size', Uint64, (0, None))
-			yield ('u_6', Uint64, (0, None))
-			yield ('u_7', Uint64, (0, None))
+			yield 'u_5', Uint64, (0, None)
+			yield 'uvs_size', Uint64, (0, None)
+			yield 'u_6', Uint64, (0, None)
+			yield 'u_7', Uint64, (0, None)
 
 	def get_info_str(self, indent=0):
 		return f'BufferInfo [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

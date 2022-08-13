@@ -62,11 +62,11 @@ class BoundingBox(BaseStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		super()._get_filtered_attribute_list(instance)
-		yield ('rotation', Matrix33, (0, None))
-		yield ('center', Vector3, (0, None))
-		yield ('extent', Vector3, (0, None))
+		yield 'rotation', Matrix33, (0, None)
+		yield 'center', Vector3, (0, None)
+		yield 'extent', Vector3, (0, None)
 		if instance.context.version == 32:
-			yield ('zeros', Array, ((3,), Uint, 0, None))
+			yield 'zeros', Array, ((3,), Uint, 0, None)
 
 	def get_info_str(self, indent=0):
 		return f'BoundingBox [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

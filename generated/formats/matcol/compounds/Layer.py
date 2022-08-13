@@ -61,12 +61,12 @@ class Layer(BaseStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		super()._get_filtered_attribute_list(instance)
-		yield ('info', LayerFrag, (0, None))
-		yield ('name', ZString, (0, None))
-		yield ('infos', Array, ((instance.info.info_count,), Info, 0, None))
-		yield ('info_names', Array, ((instance.info.info_count,), ZString, 0, None))
-		yield ('attribs', Array, ((instance.info.attrib_count,), Attrib, 0, None))
-		yield ('attrib_names', Array, ((instance.info.attrib_count,), ZString, 0, None))
+		yield 'info', LayerFrag, (0, None)
+		yield 'name', ZString, (0, None)
+		yield 'infos', Array, ((instance.info.info_count,), Info, 0, None)
+		yield 'info_names', Array, ((instance.info.info_count,), ZString, 0, None)
+		yield 'attribs', Array, ((instance.info.attrib_count,), Attrib, 0, None)
+		yield 'attrib_names', Array, ((instance.info.attrib_count,), ZString, 0, None)
 
 	def get_info_str(self, indent=0):
 		return f'Layer [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

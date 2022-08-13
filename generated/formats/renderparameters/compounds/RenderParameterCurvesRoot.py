@@ -60,10 +60,10 @@ class RenderParameterCurvesRoot(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		super()._get_filtered_attribute_list(instance)
-		yield ('param_name', Pointer, (0, generated.formats.ovl_base.basic.ZStringObfuscated))
-		yield ('params', Pointer, (instance.count, generated.formats.renderparameters.compounds.CurveParamList.CurveParamList))
-		yield ('count', Uint64, (0, None))
-		yield ('unk', Uint64, (0, None))
+		yield 'param_name', Pointer, (0, generated.formats.ovl_base.basic.ZStringObfuscated)
+		yield 'params', Pointer, (instance.count, generated.formats.renderparameters.compounds.CurveParamList.CurveParamList)
+		yield 'count', Uint64, (0, None)
+		yield 'unk', Uint64, (0, None)
 
 	def get_info_str(self, indent=0):
 		return f'RenderParameterCurvesRoot [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

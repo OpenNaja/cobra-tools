@@ -77,12 +77,12 @@ class NasutoJointEntry(BaseStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		super()._get_filtered_attribute_list(instance)
-		yield ('child', Ubyte, (0, None))
-		yield ('parent', Ubyte, (0, None))
-		yield ('zero', Ushort, (0, None))
-		yield ('matrix', Matrix33, (0, None))
-		yield ('vector', Vector4, (0, None))
-		yield ('one', Uint, (0, None))
+		yield 'child', Ubyte, (0, None)
+		yield 'parent', Ubyte, (0, None)
+		yield 'zero', Ushort, (0, None)
+		yield 'matrix', Matrix33, (0, None)
+		yield 'vector', Vector4, (0, None)
+		yield 'one', Uint, (0, None)
 
 	def get_info_str(self, indent=0):
 		return f'NasutoJointEntry [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

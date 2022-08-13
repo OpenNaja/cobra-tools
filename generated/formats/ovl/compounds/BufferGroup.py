@@ -80,13 +80,13 @@ class BufferGroup(BaseStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		super()._get_filtered_attribute_list(instance)
-		yield ('buffer_offset', Uint, (0, None))
-		yield ('buffer_count', Uint, (0, None))
-		yield ('ext_index', Uint, (0, None))
-		yield ('buffer_index', Uint, (0, None))
-		yield ('size', Uint64, (0, None))
-		yield ('data_offset', Uint, (0, None))
-		yield ('data_count', Uint, (0, None))
+		yield 'buffer_offset', Uint, (0, None)
+		yield 'buffer_count', Uint, (0, None)
+		yield 'ext_index', Uint, (0, None)
+		yield 'buffer_index', Uint, (0, None)
+		yield 'size', Uint64, (0, None)
+		yield 'data_offset', Uint, (0, None)
+		yield 'data_count', Uint, (0, None)
 
 	def get_info_str(self, indent=0):
 		return f'BufferGroup [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

@@ -81,13 +81,13 @@ class BanisRoot(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		super()._get_filtered_attribute_list(instance)
-		yield ('zeros', Array, ((2,), Uint64, 0, None))
-		yield ('bytes_per_frame', Uint, (0, None))
-		yield ('bytes_per_bone', Uint, (0, None))
-		yield ('num_frames', Uint, (0, None))
-		yield ('num_bones', Uint, (0, None))
-		yield ('loc_scale', Float, (0, None))
-		yield ('loc_offset', Float, (0, None))
+		yield 'zeros', Array, ((2,), Uint64, 0, None)
+		yield 'bytes_per_frame', Uint, (0, None)
+		yield 'bytes_per_bone', Uint, (0, None)
+		yield 'num_frames', Uint, (0, None)
+		yield 'num_bones', Uint, (0, None)
+		yield 'loc_scale', Float, (0, None)
+		yield 'loc_offset', Float, (0, None)
 
 	def get_info_str(self, indent=0):
 		return f'BanisRoot [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

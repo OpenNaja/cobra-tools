@@ -49,8 +49,8 @@ class HeaderPointer(BaseStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		super()._get_filtered_attribute_list(instance)
-		yield ('pool_index', Int, (0, None))
-		yield ('data_offset', Uint, (0, None))
+		yield 'pool_index', Int, (0, None)
+		yield 'data_offset', Uint, (0, None)
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''

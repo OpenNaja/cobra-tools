@@ -46,7 +46,7 @@ class ChildSpecData(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		super()._get_filtered_attribute_list(instance)
-		yield ('specdef', Pointer, (0, generated.formats.specdef.compounds.SpecdefRoot.SpecdefRoot))
+		yield 'specdef', Pointer, (0, generated.formats.specdef.compounds.SpecdefRoot.SpecdefRoot)
 
 	def get_info_str(self, indent=0):
 		return f'ChildSpecData [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

@@ -264,7 +264,7 @@ class Union:
         for field in self.members:
             arg, template, arr1, arr2, conditionals, field_name, field_type, pad_mode = self.get_params(field, f'{target_variable}.')
             indent, new_condition = condition_indent(base_indent, conditionals, condition)
-            if  new_condition:
+            if new_condition:
                 f.write(f"{base_indent}{new_condition}")
             if new_condition or indent == base_indent:
                 condition = new_condition
@@ -273,7 +273,7 @@ class Union:
             else:
                 arguments = f"({self.compounds.parser.arrs_to_tuple(arr1, arr2)}, {field_type}, {arg}, {template})"
                 field_type = "Array"
-            f.write(f"{indent}yield ('{field_name}', {field_type}, {arguments})")
+            f.write(f"{indent}yield '{field_name}', {field_type}, {arguments}")
         return condition
 
     def write_arg_update(self, f, method_type):

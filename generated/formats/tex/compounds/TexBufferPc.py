@@ -56,11 +56,11 @@ class TexBufferPc(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		super()._get_filtered_attribute_list(instance)
-		yield ('width', Ushort, (0, None))
-		yield ('height', Ushort, (0, None))
+		yield 'width', Ushort, (0, None)
+		yield 'height', Ushort, (0, None)
 		if not (instance.context.version == 17):
-			yield ('array_size', Ushort, (0, None))
-		yield ('mip_index', Ushort, (0, None))
+			yield 'array_size', Ushort, (0, None)
+		yield 'mip_index', Ushort, (0, None)
 
 	def get_info_str(self, indent=0):
 		return f'TexBufferPc [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

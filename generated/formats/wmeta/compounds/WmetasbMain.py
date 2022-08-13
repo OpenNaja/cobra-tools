@@ -132,23 +132,23 @@ class WmetasbMain(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		super()._get_filtered_attribute_list(instance)
-		yield ('hash', Uint, (0, None))
-		yield ('unk', Uint, (0, None))
-		yield ('block_name', Pointer, (0, generated.formats.base.basic.ZString))
+		yield 'hash', Uint, (0, None)
+		yield 'unk', Uint, (0, None)
+		yield 'block_name', Pointer, (0, generated.formats.base.basic.ZString)
 		if instance.context.version <= 18:
-			yield ('media_name', Pointer, (0, generated.formats.base.basic.ZString))
-			yield ('bnk_name', Pointer, (0, generated.formats.base.basic.ZString))
-		yield ('events', ArrayPointer, (instance.events_count, generated.formats.wmeta.compounds.EventEntry.EventEntry))
-		yield ('events_count', Uint64, (0, None))
+			yield 'media_name', Pointer, (0, generated.formats.base.basic.ZString)
+			yield 'bnk_name', Pointer, (0, generated.formats.base.basic.ZString)
+		yield 'events', ArrayPointer, (instance.events_count, generated.formats.wmeta.compounds.EventEntry.EventEntry)
+		yield 'events_count', Uint64, (0, None)
 		if instance.context.version <= 18:
-			yield ('hashes', ArrayPointer, (instance.hashes_count, generated.formats.base.basic.Uint))
-			yield ('hashes_count', Uint64, (0, None))
-			yield ('media', ArrayPointer, (instance.media_count, generated.formats.wmeta.compounds.MediaEntry.MediaEntry))
-			yield ('media_count', Uint64, (0, None))
-			yield ('unused_2', Pointer, (0, None))
-			yield ('unused_3', Pointer, (0, None))
-			yield ('unused_4', Pointer, (0, None))
-			yield ('unused_5', Pointer, (0, None))
+			yield 'hashes', ArrayPointer, (instance.hashes_count, generated.formats.base.basic.Uint)
+			yield 'hashes_count', Uint64, (0, None)
+			yield 'media', ArrayPointer, (instance.media_count, generated.formats.wmeta.compounds.MediaEntry.MediaEntry)
+			yield 'media_count', Uint64, (0, None)
+			yield 'unused_2', Pointer, (0, None)
+			yield 'unused_3', Pointer, (0, None)
+			yield 'unused_4', Pointer, (0, None)
+			yield 'unused_5', Pointer, (0, None)
 
 	def get_info_str(self, indent=0):
 		return f'WmetasbMain [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

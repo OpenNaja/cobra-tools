@@ -77,13 +77,13 @@ class TrackedRideCarRoot(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		super()._get_filtered_attribute_list(instance)
-		yield ('sub', ArrayPointer, (instance.sub_count, generated.formats.trackedridecar.compounds.TrackedRideCarSub.TrackedRideCarSub))
-		yield ('sub_count', Uint, (0, None))
-		yield ('total_vecs_count', Uint, (0, None))
-		yield ('vec', Array, ((3,), Float, 0, None))
-		yield ('zero_0', Uint, (0, None))
-		yield ('some_name', Pointer, (0, generated.formats.base.basic.ZString))
-		yield ('zero_1', Uint64, (0, None))
+		yield 'sub', ArrayPointer, (instance.sub_count, generated.formats.trackedridecar.compounds.TrackedRideCarSub.TrackedRideCarSub)
+		yield 'sub_count', Uint, (0, None)
+		yield 'total_vecs_count', Uint, (0, None)
+		yield 'vec', Array, ((3,), Float, 0, None)
+		yield 'zero_0', Uint, (0, None)
+		yield 'some_name', Pointer, (0, generated.formats.base.basic.ZString)
+		yield 'zero_1', Uint64, (0, None)
 
 	def get_info_str(self, indent=0):
 		return f'TrackedRideCarRoot [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

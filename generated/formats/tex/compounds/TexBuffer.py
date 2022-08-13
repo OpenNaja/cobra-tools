@@ -73,12 +73,12 @@ class TexBuffer(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		super()._get_filtered_attribute_list(instance)
-		yield ('offset', Uint64, (0, None))
-		yield ('size', Uint64, (0, None))
-		yield ('first_mip', Ubyte, (0, None))
-		yield ('mip_count', Ubyte, (0, None))
-		yield ('padding_0', Short, (0, None))
-		yield ('padding_1', Int, (0, None))
+		yield 'offset', Uint64, (0, None)
+		yield 'size', Uint64, (0, None)
+		yield 'first_mip', Ubyte, (0, None)
+		yield 'mip_count', Ubyte, (0, None)
+		yield 'padding_0', Short, (0, None)
+		yield 'padding_1', Int, (0, None)
 
 	def get_info_str(self, indent=0):
 		return f'TexBuffer [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

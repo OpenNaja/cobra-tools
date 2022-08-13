@@ -97,16 +97,16 @@ class SizeInfoRaw(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		super()._get_filtered_attribute_list(instance)
-		yield ('zero', Uint64, (0, None))
-		yield ('data_size', Uint, (0, None))
-		yield ('width', Uint, (0, None))
-		yield ('height', Uint, (0, None))
-		yield ('depth', Uint, (0, None))
-		yield ('array_size', Uint, (0, None))
-		yield ('num_mips', Uint, (0, None))
+		yield 'zero', Uint64, (0, None)
+		yield 'data_size', Uint, (0, None)
+		yield 'width', Uint, (0, None)
+		yield 'height', Uint, (0, None)
+		yield 'depth', Uint, (0, None)
+		yield 'array_size', Uint, (0, None)
+		yield 'num_mips', Uint, (0, None)
 		if instance.context.version >= 20:
-			yield ('unk_pz', Uint64, (0, None))
-		yield ('mip_maps', Array, ((instance.num_mips,), Mipmap, 0, None))
+			yield 'unk_pz', Uint64, (0, None)
+		yield 'mip_maps', Array, ((instance.num_mips,), Mipmap, 0, None)
 
 	def get_info_str(self, indent=0):
 		return f'SizeInfoRaw [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

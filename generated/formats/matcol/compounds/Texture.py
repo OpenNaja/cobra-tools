@@ -54,9 +54,9 @@ class Texture(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		super()._get_filtered_attribute_list(instance)
-		yield ('fgm_name', Pointer, (0, generated.formats.base.basic.ZString))
-		yield ('texture_suffix', Pointer, (0, generated.formats.base.basic.ZString))
-		yield ('texture_type', Pointer, (0, generated.formats.base.basic.ZString))
+		yield 'fgm_name', Pointer, (0, generated.formats.base.basic.ZString)
+		yield 'texture_suffix', Pointer, (0, generated.formats.base.basic.ZString)
+		yield 'texture_type', Pointer, (0, generated.formats.base.basic.ZString)
 
 	def get_info_str(self, indent=0):
 		return f'Texture [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

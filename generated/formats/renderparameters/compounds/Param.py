@@ -54,9 +54,9 @@ class Param(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		super()._get_filtered_attribute_list(instance)
-		yield ('attribute_name', Pointer, (0, generated.formats.base.basic.ZString))
-		yield ('dtype', RenderParameterType, (0, None))
-		yield ('data', ParamData, (instance.dtype, None))
+		yield 'attribute_name', Pointer, (0, generated.formats.base.basic.ZString)
+		yield 'dtype', RenderParameterType, (0, None)
+		yield 'data', ParamData, (instance.dtype, None)
 
 	def get_info_str(self, indent=0):
 		return f'Param [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

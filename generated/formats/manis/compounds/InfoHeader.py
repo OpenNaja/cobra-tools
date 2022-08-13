@@ -67,12 +67,12 @@ class InfoHeader(GenericHeader):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		super()._get_filtered_attribute_list(instance)
-		yield ('mani_count', Uint, (0, None))
-		yield ('names', Array, ((instance.mani_count,), ZString, 0, None))
-		yield ('header', SizedStrData, (0, None))
-		yield ('mani_infos', Array, ((instance.mani_count,), ManiInfo, 0, None))
-		yield ('name_buffer', Buffer1, (int(instance.header.hash_block_size / 4), None))
-		yield ('keys_buffer', KeysReader, (instance.mani_infos, None))
+		yield 'mani_count', Uint, (0, None)
+		yield 'names', Array, ((instance.mani_count,), ZString, 0, None)
+		yield 'header', SizedStrData, (0, None)
+		yield 'mani_infos', Array, ((instance.mani_count,), ManiInfo, 0, None)
+		yield 'name_buffer', Buffer1, (int(instance.header.hash_block_size / 4), None)
+		yield 'keys_buffer', KeysReader, (instance.mani_infos, None)
 
 	def get_info_str(self, indent=0):
 		return f'InfoHeader [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

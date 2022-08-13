@@ -44,7 +44,7 @@ class ActivityEntry(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		super()._get_filtered_attribute_list(instance)
-		yield ('value', Pointer, (0, generated.formats.motiongraph.compounds.Activity.Activity))
+		yield 'value', Pointer, (0, generated.formats.motiongraph.compounds.Activity.Activity)
 
 	def get_info_str(self, indent=0):
 		return f'ActivityEntry [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

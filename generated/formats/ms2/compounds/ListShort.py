@@ -62,10 +62,10 @@ class ListShort(Descriptor):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		super()._get_filtered_attribute_list(instance)
-		yield ('loc', Vector3, (0, None))
-		yield ('direction', Vector3, (0, None))
-		yield ('min', Float, (0, None))
-		yield ('max', Float, (0, None))
+		yield 'loc', Vector3, (0, None)
+		yield 'direction', Vector3, (0, None)
+		yield 'min', Float, (0, None)
+		yield 'max', Float, (0, None)
 
 	def get_info_str(self, indent=0):
 		return f'ListShort [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

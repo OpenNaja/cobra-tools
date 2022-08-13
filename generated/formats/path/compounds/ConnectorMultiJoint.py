@@ -71,13 +71,13 @@ class ConnectorMultiJoint(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		super()._get_filtered_attribute_list(instance)
-		yield ('model_name', Pointer, (0, generated.formats.base.basic.ZString))
-		yield ('padding', Uint64, (0, None))
-		yield ('joints', ArrayPointer, (instance.num_joints, generated.formats.path.compounds.Joint.Joint))
-		yield ('num_joints', Uint64, (0, None))
-		yield ('unk_float_1', Float, (0, None))
-		yield ('unk_int_1', Uint, (0, None))
-		yield ('padding', Uint64, (0, None))
+		yield 'model_name', Pointer, (0, generated.formats.base.basic.ZString)
+		yield 'padding', Uint64, (0, None)
+		yield 'joints', ArrayPointer, (instance.num_joints, generated.formats.path.compounds.Joint.Joint)
+		yield 'num_joints', Uint64, (0, None)
+		yield 'unk_float_1', Float, (0, None)
+		yield 'unk_int_1', Uint, (0, None)
+		yield 'padding', Uint64, (0, None)
 
 	def get_info_str(self, indent=0):
 		return f'ConnectorMultiJoint [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

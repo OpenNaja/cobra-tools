@@ -68,13 +68,13 @@ class ConvexHull(BaseStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		super()._get_filtered_attribute_list(instance)
-		yield ('vertex_count', Uint, (0, None))
-		yield ('rotation', Matrix33, (0, None))
-		yield ('offset', Vector3, (0, None))
+		yield 'vertex_count', Uint, (0, None)
+		yield 'rotation', Matrix33, (0, None)
+		yield 'offset', Vector3, (0, None)
 		if instance.context.version == 32:
-			yield ('zeros', Array, ((5,), Uint, 0, None))
+			yield 'zeros', Array, ((5,), Uint, 0, None)
 		if ((instance.context.version == 48) or (instance.context.version == 50)) or (instance.context.version == 51):
-			yield ('zeros', Array, ((2,), Uint, 0, None))
+			yield 'zeros', Array, ((2,), Uint, 0, None)
 
 	def get_info_str(self, indent=0):
 		return f'ConvexHull [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

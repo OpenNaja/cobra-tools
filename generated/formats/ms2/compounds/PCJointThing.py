@@ -45,7 +45,7 @@ class PCJointThing(BaseStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		super()._get_filtered_attribute_list(instance)
-		yield ('shorts', Array, ((4,), Short, 0, None))
+		yield 'shorts', Array, ((4,), Short, 0, None)
 
 	def get_info_str(self, indent=0):
 		return f'PCJointThing [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

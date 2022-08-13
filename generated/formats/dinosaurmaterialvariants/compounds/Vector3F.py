@@ -45,9 +45,9 @@ class Vector3F(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		super()._get_filtered_attribute_list(instance)
-		yield ('x', Float, (0, None))
-		yield ('y', Float, (0, None))
-		yield ('z', Float, (0, None))
+		yield 'x', Float, (0, None)
+		yield 'y', Float, (0, None)
+		yield 'z', Float, (0, None)
 
 	def get_info_str(self, indent=0):
 		return f'Vector3F [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

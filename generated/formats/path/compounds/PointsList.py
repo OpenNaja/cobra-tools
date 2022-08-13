@@ -38,7 +38,7 @@ class PointsList(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		super()._get_filtered_attribute_list(instance)
-		yield ('points', Array, ((instance.arg,), Vector3, 0, None))
+		yield 'points', Array, ((instance.arg,), Vector3, 0, None)
 
 	def get_info_str(self, indent=0):
 		return f'PointsList [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

@@ -75,13 +75,13 @@ class MergedetailsRoot(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		super()._get_filtered_attribute_list(instance)
-		yield ('merge_names', Pointer, (instance.count, generated.formats.mergedetails.compounds.PtrList.PtrList))
-		yield ('zero_0', Uint64, (0, None))
-		yield ('zero_1', Uint64, (0, None))
-		yield ('queries', Pointer, (instance.count, generated.formats.mergedetails.compounds.PtrList.PtrList))
-		yield ('field_name', Pointer, (0, generated.formats.base.basic.ZString))
-		yield ('count', Uint, (0, None))
-		yield ('flag', Uint, (0, None))
+		yield 'merge_names', Pointer, (instance.count, generated.formats.mergedetails.compounds.PtrList.PtrList)
+		yield 'zero_0', Uint64, (0, None)
+		yield 'zero_1', Uint64, (0, None)
+		yield 'queries', Pointer, (instance.count, generated.formats.mergedetails.compounds.PtrList.PtrList)
+		yield 'field_name', Pointer, (0, generated.formats.base.basic.ZString)
+		yield 'count', Uint, (0, None)
+		yield 'flag', Uint, (0, None)
 
 	def get_info_str(self, indent=0):
 		return f'MergedetailsRoot [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

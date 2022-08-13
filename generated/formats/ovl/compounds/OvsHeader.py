@@ -77,14 +77,14 @@ class OvsHeader(BaseStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		super()._get_filtered_attribute_list(instance)
-		yield ('pool_groups', Array, ((instance.arg.num_pool_groups,), PoolGroup, 0, None))
-		yield ('pools', Array, ((instance.arg.num_pools,), MemPool, 0, None))
-		yield ('data_entries', Array, ((instance.arg.num_datas,), DataEntry, 0, None))
-		yield ('buffer_entries', Array, ((instance.arg.num_buffers,), BufferEntry, 0, None))
-		yield ('buffer_groups', Array, ((instance.arg.num_buffer_groups,), BufferGroup, 0, None))
-		yield ('root_entries', Array, ((instance.arg.num_root_entries,), RootEntry, 0, None))
-		yield ('fragments', Array, ((instance.arg.num_fragments,), Fragment, 0, None))
-		yield ('set_header', SetHeader, (0, None))
+		yield 'pool_groups', Array, ((instance.arg.num_pool_groups,), PoolGroup, 0, None)
+		yield 'pools', Array, ((instance.arg.num_pools,), MemPool, 0, None)
+		yield 'data_entries', Array, ((instance.arg.num_datas,), DataEntry, 0, None)
+		yield 'buffer_entries', Array, ((instance.arg.num_buffers,), BufferEntry, 0, None)
+		yield 'buffer_groups', Array, ((instance.arg.num_buffer_groups,), BufferGroup, 0, None)
+		yield 'root_entries', Array, ((instance.arg.num_root_entries,), RootEntry, 0, None)
+		yield 'fragments', Array, ((instance.arg.num_fragments,), Fragment, 0, None)
+		yield 'set_header', SetHeader, (0, None)
 
 	def get_info_str(self, indent=0):
 		return f'OvsHeader [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

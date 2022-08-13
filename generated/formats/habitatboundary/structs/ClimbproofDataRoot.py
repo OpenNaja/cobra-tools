@@ -78,13 +78,13 @@ class ClimbproofDataRoot(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		super()._get_filtered_attribute_list(instance)
-		yield ('climb_proof', Pointer, (0, generated.formats.base.basic.ZString))
-		yield ('climb_proof_cap_start', Pointer, (0, generated.formats.base.basic.ZString))
-		yield ('climb_proof_cap_end', Pointer, (0, generated.formats.base.basic.ZString))
-		yield ('climb_proof_bracket', Pointer, (0, generated.formats.base.basic.ZString))
-		yield ('post_gap', Float, (0, None))
-		yield ('u_1', Float, (0, None))
-		yield ('zero', Uint64, (0, None))
+		yield 'climb_proof', Pointer, (0, generated.formats.base.basic.ZString)
+		yield 'climb_proof_cap_start', Pointer, (0, generated.formats.base.basic.ZString)
+		yield 'climb_proof_cap_end', Pointer, (0, generated.formats.base.basic.ZString)
+		yield 'climb_proof_bracket', Pointer, (0, generated.formats.base.basic.ZString)
+		yield 'post_gap', Float, (0, None)
+		yield 'u_1', Float, (0, None)
+		yield 'zero', Uint64, (0, None)
 
 	def get_info_str(self, indent=0):
 		return f'ClimbproofDataRoot [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

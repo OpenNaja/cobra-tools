@@ -60,10 +60,10 @@ class HbPhysicsOffsets(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		super()._get_filtered_attribute_list(instance)
-		yield ('thickness', Float, (0, None))
-		yield ('post_size', HbPostSize, (0, None))
-		yield ('wall_pad_top', Float, (0, None))
-		yield ('wall_post_gap', Float, (0, None))
+		yield 'thickness', Float, (0, None)
+		yield 'post_size', HbPostSize, (0, None)
+		yield 'wall_pad_top', Float, (0, None)
+		yield 'wall_post_gap', Float, (0, None)
 
 	def get_info_str(self, indent=0):
 		return f'HbPhysicsOffsets [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

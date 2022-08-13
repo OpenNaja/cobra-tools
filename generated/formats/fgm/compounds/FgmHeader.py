@@ -103,19 +103,19 @@ class FgmHeader(MemStruct):
 	def _get_filtered_attribute_list(cls, instance):
 		super()._get_filtered_attribute_list(instance)
 		if instance.context.version <= 15:
-			yield ('texture_count', Uint, (0, None))
+			yield 'texture_count', Uint, (0, None)
 		if instance.context.version >= 17:
-			yield ('texture_count', Uint64, (0, None))
+			yield 'texture_count', Uint64, (0, None)
 		if instance.context.version <= 15:
-			yield ('attribute_count', Uint, (0, None))
+			yield 'attribute_count', Uint, (0, None)
 		if instance.context.version >= 17:
-			yield ('attribute_count', Uint64, (0, None))
-		yield ('textures', ArrayPointer, (instance.texture_count, generated.formats.fgm.compounds.TextureInfo.TextureInfo))
-		yield ('attributes', ArrayPointer, (instance.attribute_count, generated.formats.fgm.compounds.AttributeInfo.AttributeInfo))
-		yield ('dependencies', ForEachPointer, (instance.textures, generated.formats.fgm.compounds.DependencyInfo.DependencyInfo))
-		yield ('data_lib', ForEachPointer, (instance.attributes, generated.formats.fgm.compounds.AttribData.AttribData))
-		yield ('unk_0', Uint64, (0, None))
-		yield ('unk_1', Uint64, (0, None))
+			yield 'attribute_count', Uint64, (0, None)
+		yield 'textures', ArrayPointer, (instance.texture_count, generated.formats.fgm.compounds.TextureInfo.TextureInfo)
+		yield 'attributes', ArrayPointer, (instance.attribute_count, generated.formats.fgm.compounds.AttributeInfo.AttributeInfo)
+		yield 'dependencies', ForEachPointer, (instance.textures, generated.formats.fgm.compounds.DependencyInfo.DependencyInfo)
+		yield 'data_lib', ForEachPointer, (instance.attributes, generated.formats.fgm.compounds.AttribData.AttribData)
+		yield 'unk_0', Uint64, (0, None)
+		yield 'unk_1', Uint64, (0, None)
 
 	def get_info_str(self, indent=0):
 		return f'FgmHeader [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

@@ -108,18 +108,18 @@ class BnkBufferData(BaseStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		super()._get_filtered_attribute_list(instance)
-		yield ('size_b', Uint64, (0, None))
-		yield ('buffer_count', Uint, (0, None))
-		yield ('count_2', Uint, (0, None))
-		yield ('stream_info_count', Uint, (0, None))
-		yield ('zeros', Array, ((7,), Uint, 0, None))
-		yield ('zeros_per_buffer', Array, ((instance.buffer_count, 2,), Uint64, 0, None))
-		yield ('stream_infos', Array, ((instance.stream_info_count,), StreamInfo, 0, None))
-		yield ('name', ZString, (0, None))
+		yield 'size_b', Uint64, (0, None)
+		yield 'buffer_count', Uint, (0, None)
+		yield 'count_2', Uint, (0, None)
+		yield 'stream_info_count', Uint, (0, None)
+		yield 'zeros', Array, ((7,), Uint, 0, None)
+		yield 'zeros_per_buffer', Array, ((instance.buffer_count, 2,), Uint64, 0, None)
+		yield 'stream_infos', Array, ((instance.stream_info_count,), StreamInfo, 0, None)
+		yield 'name', ZString, (0, None)
 		if instance.buffer_count:
-			yield ('external_b_suffix', ZString, (0, None))
+			yield 'external_b_suffix', ZString, (0, None)
 		if instance.stream_info_count:
-			yield ('external_s_suffix', ZString, (0, None))
+			yield 'external_s_suffix', ZString, (0, None)
 
 	def get_info_str(self, indent=0):
 		return f'BnkBufferData [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

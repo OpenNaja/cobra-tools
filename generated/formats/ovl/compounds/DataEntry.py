@@ -89,15 +89,15 @@ class DataEntry(BaseStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		super()._get_filtered_attribute_list(instance)
-		yield ('file_hash', Uint, (0, None))
+		yield 'file_hash', Uint, (0, None)
 		if instance.context.version >= 19:
-			yield ('ext_hash', Uint, (0, None))
-		yield ('set_index', Ushort, (0, None))
-		yield ('buffer_count', Ushort, (0, None))
+			yield 'ext_hash', Uint, (0, None)
+		yield 'set_index', Ushort, (0, None)
+		yield 'buffer_count', Ushort, (0, None)
 		if instance.context.version >= 19:
-			yield ('zero', Uint, (0, None))
-		yield ('size_1', Uint64, (0, None))
-		yield ('size_2', Uint64, (0, None))
+			yield 'zero', Uint, (0, None)
+		yield 'size_1', Uint64, (0, None)
+		yield 'size_2', Uint64, (0, None)
 
 	def get_info_str(self, indent=0):
 		return f'DataEntry [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

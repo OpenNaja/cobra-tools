@@ -45,8 +45,8 @@ class PathJoinPartResourceRoot(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		super()._get_filtered_attribute_list(instance)
-		yield ('resources_list', Pointer, (instance.num_res, generated.formats.path.compounds.PathJoinPartResourceList.PathJoinPartResourceList))
-		yield ('num_res', Uint64, (0, None))
+		yield 'resources_list', Pointer, (instance.num_res, generated.formats.path.compounds.PathJoinPartResourceList.PathJoinPartResourceList)
+		yield 'num_res', Uint64, (0, None)
 
 	def get_info_str(self, indent=0):
 		return f'PathJoinPartResourceRoot [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

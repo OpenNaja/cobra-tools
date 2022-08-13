@@ -52,13 +52,13 @@ class SoundSfxVoice(BaseStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		super()._get_filtered_attribute_list(instance)
-		yield ('length', Uint, (0, None))
-		yield ('id', Uint, (0, None))
-		yield ('const_a', Uint, (0, None))
-		yield ('const_b', Byte, (0, None))
-		yield ('didx_id', Uint, (0, None))
-		yield ('wem_length', Uint, (0, None))
-		yield ('extra', Array, ((instance.length - 17,), Byte, 0, None))
+		yield 'length', Uint, (0, None)
+		yield 'id', Uint, (0, None)
+		yield 'const_a', Uint, (0, None)
+		yield 'const_b', Byte, (0, None)
+		yield 'didx_id', Uint, (0, None)
+		yield 'wem_length', Uint, (0, None)
+		yield 'extra', Array, ((instance.length - 17,), Byte, 0, None)
 
 	def get_info_str(self, indent=0):
 		return f'SoundSfxVoice [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

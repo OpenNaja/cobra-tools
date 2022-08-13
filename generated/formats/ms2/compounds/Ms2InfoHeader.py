@@ -108,22 +108,22 @@ class Ms2InfoHeader(BaseStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		super()._get_filtered_attribute_list(instance)
-		yield ('biosyn', Uint, (0, None))
-		yield ('bone_info_size', Uint, (0, None))
-		yield ('info', Ms2Root, (0, None))
+		yield 'biosyn', Uint, (0, None)
+		yield 'bone_info_size', Uint, (0, None)
+		yield 'info', Ms2Root, (0, None)
 		if instance.context.version >= 7:
-			yield ('buffers_presence', Array, ((instance.info.vertex_buffer_count,), BufferPresence, 0, None))
-		yield ('mdl_2_names', Array, ((instance.info.mdl_2_count,), ZString, 0, None))
+			yield 'buffers_presence', Array, ((instance.info.vertex_buffer_count,), BufferPresence, 0, None)
+		yield 'mdl_2_names', Array, ((instance.info.mdl_2_count,), ZString, 0, None)
 		if instance.context.version <= 7 and instance.info.vertex_buffer_count:
-			yield ('modelstream_names', Array, ((instance.info.vertex_buffer_count - instance.info.stream_count,), ZString, 0, None))
+			yield 'modelstream_names', Array, ((instance.info.vertex_buffer_count - instance.info.stream_count,), ZString, 0, None)
 		if 13 <= instance.context.version <= 13 and instance.info.vertex_buffer_count:
-			yield ('modelstream_names', Array, ((instance.info.vertex_buffer_count,), ZString, 0, None))
+			yield 'modelstream_names', Array, ((instance.info.vertex_buffer_count,), ZString, 0, None)
 		if instance.context.version >= 39 and instance.info.vertex_buffer_count:
-			yield ('modelstream_names', Array, ((instance.info.stream_count,), ZString, 0, None))
-		yield ('buffer_0', Buffer0, (instance.info, None))
-		yield ('buffer_infos', Array, ((instance.info.vertex_buffer_count,), BufferInfo, 0, None))
-		yield ('model_infos', Array, ((instance.info.mdl_2_count,), ModelInfo, 0, None))
-		yield ('models_reader', ModelReader, (instance.model_infos, None))
+			yield 'modelstream_names', Array, ((instance.info.stream_count,), ZString, 0, None)
+		yield 'buffer_0', Buffer0, (instance.info, None)
+		yield 'buffer_infos', Array, ((instance.info.vertex_buffer_count,), BufferInfo, 0, None)
+		yield 'model_infos', Array, ((instance.info.mdl_2_count,), ModelInfo, 0, None)
+		yield 'models_reader', ModelReader, (instance.model_infos, None)
 
 	def get_info_str(self, indent=0):
 		return f'Ms2InfoHeader [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

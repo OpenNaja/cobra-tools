@@ -51,9 +51,9 @@ class FloatInputData(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		super()._get_filtered_attribute_list(instance)
-		yield ('float', Float, (0, None))
-		yield ('optional_var_and_curve_count', Uint, (0, None))
-		yield ('optional_var_and_curve', Uint64, (0, None))
+		yield 'float', Float, (0, None)
+		yield 'optional_var_and_curve_count', Uint, (0, None)
+		yield 'optional_var_and_curve', Uint64, (0, None)
 
 	def get_info_str(self, indent=0):
 		return f'FloatInputData [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

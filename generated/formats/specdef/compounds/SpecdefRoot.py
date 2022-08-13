@@ -106,19 +106,19 @@ class SpecdefRoot(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		super()._get_filtered_attribute_list(instance)
-		yield ('attrib_count', Ushort, (0, None))
-		yield ('flags', Ushort, (0, None))
-		yield ('name_count', Ubyte, (0, None))
-		yield ('childspec_count', Ubyte, (0, None))
-		yield ('manager_count', Ubyte, (0, None))
-		yield ('script_count', Ubyte, (0, None))
-		yield ('attrib_dtypes', ArrayPointer, (instance.attrib_count, generated.formats.specdef.enums.SpecdefDtype.SpecdefDtype))
-		yield ('attrib_names', Pointer, (instance.attrib_count, generated.formats.specdef.compounds.PtrList.PtrList))
-		yield ('attrib_datas', ForEachPointer, (instance.attrib_dtypes, generated.formats.specdef.compounds.DataPtr.DataPtr))
-		yield ('names', Pointer, (instance.name_count, generated.formats.specdef.compounds.PtrList.PtrList))
-		yield ('childspecs', Pointer, (instance.childspec_count, generated.formats.specdef.compounds.PtrList.PtrList))
-		yield ('managers', Pointer, (instance.manager_count, generated.formats.specdef.compounds.PtrList.PtrList))
-		yield ('scripts', Pointer, (instance.script_count, generated.formats.specdef.compounds.PtrList.PtrList))
+		yield 'attrib_count', Ushort, (0, None)
+		yield 'flags', Ushort, (0, None)
+		yield 'name_count', Ubyte, (0, None)
+		yield 'childspec_count', Ubyte, (0, None)
+		yield 'manager_count', Ubyte, (0, None)
+		yield 'script_count', Ubyte, (0, None)
+		yield 'attrib_dtypes', ArrayPointer, (instance.attrib_count, generated.formats.specdef.enums.SpecdefDtype.SpecdefDtype)
+		yield 'attrib_names', Pointer, (instance.attrib_count, generated.formats.specdef.compounds.PtrList.PtrList)
+		yield 'attrib_datas', ForEachPointer, (instance.attrib_dtypes, generated.formats.specdef.compounds.DataPtr.DataPtr)
+		yield 'names', Pointer, (instance.name_count, generated.formats.specdef.compounds.PtrList.PtrList)
+		yield 'childspecs', Pointer, (instance.childspec_count, generated.formats.specdef.compounds.PtrList.PtrList)
+		yield 'managers', Pointer, (instance.manager_count, generated.formats.specdef.compounds.PtrList.PtrList)
+		yield 'scripts', Pointer, (instance.script_count, generated.formats.specdef.compounds.PtrList.PtrList)
 
 	def get_info_str(self, indent=0):
 		return f'SpecdefRoot [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

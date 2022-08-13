@@ -71,13 +71,13 @@ class SizedStrData(BaseStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		super()._get_filtered_attribute_list(instance)
-		yield ('names_size', Ushort, (0, None))
-		yield ('hash_block_size', Ushort, (0, None))
-		yield ('zero_0', Uint64, (0, None))
-		yield ('count', Uint, (0, None))
-		yield ('zero_1', Uint64, (0, None))
+		yield 'names_size', Ushort, (0, None)
+		yield 'hash_block_size', Ushort, (0, None)
+		yield 'zero_0', Uint64, (0, None)
+		yield 'count', Uint, (0, None)
+		yield 'zero_1', Uint64, (0, None)
 		if instance.context.version >= 20:
-			yield ('zero_2', Uint64, (0, None))
+			yield 'zero_2', Uint64, (0, None)
 
 	def get_info_str(self, indent=0):
 		return f'SizedStrData [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

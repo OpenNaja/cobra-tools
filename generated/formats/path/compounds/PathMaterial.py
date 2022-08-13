@@ -111,19 +111,19 @@ class PathMaterial(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		super()._get_filtered_attribute_list(instance)
-		yield ('elevated_mat', Pointer, (0, generated.formats.base.basic.ZString))
-		yield ('elevated_mat_valid', Pointer, (0, generated.formats.base.basic.ZString))
-		yield ('elevated_mat_invalid', Pointer, (0, generated.formats.base.basic.ZString))
-		yield ('terrain_mat', Pointer, (0, generated.formats.base.basic.ZString))
-		yield ('terrain_mat_valid', Pointer, (0, generated.formats.base.basic.ZString))
-		yield ('terrain_mat_invalid', Pointer, (0, generated.formats.base.basic.ZString))
-		yield ('underside_mat_1', Pointer, (0, generated.formats.base.basic.ZString))
-		yield ('underside_mat_2', Pointer, (0, generated.formats.base.basic.ZString))
-		yield ('stairs_mat_1', Pointer, (0, generated.formats.base.basic.ZString))
-		yield ('stairs_mat_2', Pointer, (0, generated.formats.base.basic.ZString))
-		yield ('path_sub_type', Uint64, (0, None))
-		yield ('mat_data', ArrayPointer, (instance.num_data, generated.formats.path.compounds.PathMaterialData.PathMaterialData))
-		yield ('num_data', Uint64, (0, None))
+		yield 'elevated_mat', Pointer, (0, generated.formats.base.basic.ZString)
+		yield 'elevated_mat_valid', Pointer, (0, generated.formats.base.basic.ZString)
+		yield 'elevated_mat_invalid', Pointer, (0, generated.formats.base.basic.ZString)
+		yield 'terrain_mat', Pointer, (0, generated.formats.base.basic.ZString)
+		yield 'terrain_mat_valid', Pointer, (0, generated.formats.base.basic.ZString)
+		yield 'terrain_mat_invalid', Pointer, (0, generated.formats.base.basic.ZString)
+		yield 'underside_mat_1', Pointer, (0, generated.formats.base.basic.ZString)
+		yield 'underside_mat_2', Pointer, (0, generated.formats.base.basic.ZString)
+		yield 'stairs_mat_1', Pointer, (0, generated.formats.base.basic.ZString)
+		yield 'stairs_mat_2', Pointer, (0, generated.formats.base.basic.ZString)
+		yield 'path_sub_type', Uint64, (0, None)
+		yield 'mat_data', ArrayPointer, (instance.num_data, generated.formats.path.compounds.PathMaterialData.PathMaterialData)
+		yield 'num_data', Uint64, (0, None)
 
 	def get_info_str(self, indent=0):
 		return f'PathMaterial [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

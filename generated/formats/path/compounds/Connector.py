@@ -51,9 +51,9 @@ class Connector(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		super()._get_filtered_attribute_list(instance)
-		yield ('model_name', Pointer, (0, generated.formats.base.basic.ZString))
-		yield ('joint_name', Pointer, (0, generated.formats.base.basic.ZString))
-		yield ('unk_vector', Vector2, (0, None))
+		yield 'model_name', Pointer, (0, generated.formats.base.basic.ZString)
+		yield 'joint_name', Pointer, (0, generated.formats.base.basic.ZString)
+		yield 'unk_vector', Vector2, (0, None)
 
 	def get_info_str(self, indent=0):
 		return f'Connector [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

@@ -43,7 +43,7 @@ class Header(GenericHeader):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		super()._get_filtered_attribute_list(instance)
-		yield ('info', SizedStrData, (0, None))
+		yield 'info', SizedStrData, (0, None)
 
 	def get_info_str(self, indent=0):
 		return f'Header [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

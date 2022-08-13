@@ -65,11 +65,11 @@ class MediaEntry(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		super()._get_filtered_attribute_list(instance)
-		yield ('hash', Uint, (0, None))
-		yield ('zero', Uint, (0, None))
-		yield ('block_name', Pointer, (0, generated.formats.base.basic.ZString))
-		yield ('wav_name', Pointer, (0, generated.formats.base.basic.ZString))
-		yield ('wem_name', Pointer, (0, generated.formats.base.basic.ZString))
+		yield 'hash', Uint, (0, None)
+		yield 'zero', Uint, (0, None)
+		yield 'block_name', Pointer, (0, generated.formats.base.basic.ZString)
+		yield 'wav_name', Pointer, (0, generated.formats.base.basic.ZString)
+		yield 'wem_name', Pointer, (0, generated.formats.base.basic.ZString)
 
 	def get_info_str(self, indent=0):
 		return f'MediaEntry [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

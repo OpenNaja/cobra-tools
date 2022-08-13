@@ -63,11 +63,11 @@ class TrackedRideCarSub(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		super()._get_filtered_attribute_list(instance)
-		yield ('float', Float, (0, None))
-		yield ('u_0', Uint, (0, None))
-		yield ('vectors', ArrayPointer, (instance.vecs_count, generated.formats.trackedridecar.compounds.Vector3.Vector3))
-		yield ('vecs_count', Uint64, (0, None))
-		yield ('zero_1', Uint64, (0, None))
+		yield 'float', Float, (0, None)
+		yield 'u_0', Uint, (0, None)
+		yield 'vectors', ArrayPointer, (instance.vecs_count, generated.formats.trackedridecar.compounds.Vector3.Vector3)
+		yield 'vecs_count', Uint64, (0, None)
+		yield 'zero_1', Uint64, (0, None)
 
 	def get_info_str(self, indent=0):
 		return f'TrackedRideCarSub [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

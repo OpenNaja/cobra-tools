@@ -66,13 +66,13 @@ class RideSettingsRoot(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		super()._get_filtered_attribute_list(instance)
-		yield ('unk_0', Float, (0, None))
-		yield ('unk_1', Uint, (0, None))
-		yield ('array_1', ArrayPointer, (instance.count, generated.formats.ridesettings.compounds.Pair.Pair))
-		yield ('count', Uint, (0, None))
-		yield ('pad_0', Uint, (0, None))
-		yield ('pad_1', Uint, (0, None))
-		yield ('pad_2', Uint, (0, None))
+		yield 'unk_0', Float, (0, None)
+		yield 'unk_1', Uint, (0, None)
+		yield 'array_1', ArrayPointer, (instance.count, generated.formats.ridesettings.compounds.Pair.Pair)
+		yield 'count', Uint, (0, None)
+		yield 'pad_0', Uint, (0, None)
+		yield 'pad_1', Uint, (0, None)
+		yield 'pad_2', Uint, (0, None)
 
 	def get_info_str(self, indent=0):
 		return f'RideSettingsRoot [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

@@ -58,9 +58,9 @@ class BaniInfoHeader(BaseStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		super()._get_filtered_attribute_list(instance)
-		yield ('magic', Array, ((4,), Byte, 0, None))
-		yield ('banis_name', ZString, (0, None))
-		yield ('data', BaniRoot, (0, None))
+		yield 'magic', Array, ((4,), Byte, 0, None)
+		yield 'banis_name', ZString, (0, None)
+		yield 'data', BaniRoot, (0, None)
 
 	def get_info_str(self, indent=0):
 		return f'BaniInfoHeader [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

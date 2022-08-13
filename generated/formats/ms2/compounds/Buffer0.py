@@ -67,12 +67,12 @@ class Buffer0(BaseStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		super()._get_filtered_attribute_list(instance)
-		yield ('name_hashes', Array, ((instance.arg.name_count,), Uint, 0, None))
-		yield ('names', Array, ((instance.arg.name_count,), ZString, 0, None))
+		yield 'name_hashes', Array, ((instance.arg.name_count,), Uint, 0, None)
+		yield 'names', Array, ((instance.arg.name_count,), ZString, 0, None)
 		if instance.context.version >= 50:
-			yield ('names_padding', Array, (((4 - (instance.names.io_size % 4)) % 4,), Ubyte, 0, None))
+			yield 'names_padding', Array, (((4 - (instance.names.io_size % 4)) % 4,), Ubyte, 0, None)
 		if instance.context.version <= 13:
-			yield ('zt_streams_header', StreamsZTHeader, (instance.arg, None))
+			yield 'zt_streams_header', StreamsZTHeader, (instance.arg, None)
 
 	def get_info_str(self, indent=0):
 		return f'Buffer0 [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

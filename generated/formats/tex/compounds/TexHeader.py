@@ -155,31 +155,31 @@ class TexHeader(MemStruct):
 	def _get_filtered_attribute_list(cls, instance):
 		super()._get_filtered_attribute_list(instance)
 		if instance.context.version <= 15:
-			yield ('zero_0', Uint, (0, None))
+			yield 'zero_0', Uint, (0, None)
 		if instance.context.version >= 17:
-			yield ('zero_0', Uint64, (0, None))
+			yield 'zero_0', Uint64, (0, None)
 		if instance.context.version >= 19:
-			yield ('zero_1', Uint64, (0, None))
+			yield 'zero_1', Uint64, (0, None)
 		if 17 <= instance.context.version <= 18:
-			yield ('buffer_infos', ArrayPointer, (instance.stream_count, generated.formats.tex.compounds.TexBufferPc.TexBufferPc))
+			yield 'buffer_infos', ArrayPointer, (instance.stream_count, generated.formats.tex.compounds.TexBufferPc.TexBufferPc)
 		if instance.context.version >= 19:
-			yield ('buffer_infos', ArrayPointer, (instance.stream_count, generated.formats.tex.compounds.TexBuffer.TexBuffer))
-			yield ('size_info', Pointer, (0, generated.formats.tex.compounds.SizeInfo.SizeInfo))
+			yield 'buffer_infos', ArrayPointer, (instance.stream_count, generated.formats.tex.compounds.TexBuffer.TexBuffer)
+			yield 'size_info', Pointer, (0, generated.formats.tex.compounds.SizeInfo.SizeInfo)
 		if instance.context.version < 19:
-			yield ('compression_type', DdsTypeCoaster, (0, None))
+			yield 'compression_type', DdsTypeCoaster, (0, None)
 		if not (instance.context.version < 19):
-			yield ('compression_type', DdsType, (0, None))
-		yield ('one_0', Ubyte, (0, None))
+			yield 'compression_type', DdsType, (0, None)
+		yield 'one_0', Ubyte, (0, None)
 		if instance.context.version <= 15:
-			yield ('num_mips', Ushort, (0, None))
-			yield ('width', Ushort, (0, None))
-			yield ('height', Ushort, (0, None))
+			yield 'num_mips', Ushort, (0, None)
+			yield 'width', Ushort, (0, None)
+			yield 'height', Ushort, (0, None)
 		if instance.context.version >= 17:
-			yield ('stream_count', Ubyte, (0, None))
-			yield ('stream_count_repeat', Ubyte, (0, None))
-		yield ('pad', Uint, (0, None))
+			yield 'stream_count', Ubyte, (0, None)
+			yield 'stream_count_repeat', Ubyte, (0, None)
+		yield 'pad', Uint, (0, None)
 		if instance.context.version <= 15:
-			yield ('pad_dla', Uint64, (0, None))
+			yield 'pad_dla', Uint64, (0, None)
 
 	def get_info_str(self, indent=0):
 		return f'TexHeader [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

@@ -59,13 +59,13 @@ class HircPointer(BaseStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		super()._get_filtered_attribute_list(instance)
-		yield ('id', HircType, (0, None))
+		yield 'id', HircType, (0, None)
 		if instance.id == 2:
-			yield ('data', SoundSfxVoice, (0, None))
+			yield 'data', SoundSfxVoice, (0, None)
 		if instance.id == 11:
-			yield ('data', MusicTrack, (0, None))
+			yield 'data', MusicTrack, (0, None)
 		if (instance.id != 2) and (instance.id != 11):
-			yield ('data', TypeOther, (0, None))
+			yield 'data', TypeOther, (0, None)
 
 	def get_info_str(self, indent=0):
 		return f'HircPointer [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

@@ -73,12 +73,12 @@ class State(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		super()._get_filtered_attribute_list(instance)
-		yield ('unk', Uint, (0, None))
-		yield ('activities_count', Uint, (0, None))
-		yield ('activities', Pointer, (instance.activities_count, generated.formats.motiongraph.compounds.PtrList.PtrList))
-		yield ('count_2', Uint64, (0, None))
-		yield ('array_2', Pointer, (instance.count_2, generated.formats.motiongraph.compounds.TransStructStopList.TransStructStopList))
-		yield ('id', Pointer, (0, generated.formats.base.basic.ZString))
+		yield 'unk', Uint, (0, None)
+		yield 'activities_count', Uint, (0, None)
+		yield 'activities', Pointer, (instance.activities_count, generated.formats.motiongraph.compounds.PtrList.PtrList)
+		yield 'count_2', Uint64, (0, None)
+		yield 'array_2', Pointer, (instance.count_2, generated.formats.motiongraph.compounds.TransStructStopList.TransStructStopList)
+		yield 'id', Pointer, (0, generated.formats.base.basic.ZString)
 
 	def get_info_str(self, indent=0):
 		return f'State [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

@@ -81,15 +81,15 @@ class MRFMember2(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		super()._get_filtered_attribute_list(instance)
-		yield ('transition', Pointer, (0, generated.formats.motiongraph.compounds.Transition.Transition))
-		yield ('count_0', Uint64, (0, None))
-		yield ('count_1', Uint64, (0, None))
-		yield ('count_2', Uint64, (0, None))
-		yield ('count_3', Uint64, (0, None))
-		yield ('count_4', Uint64, (0, None))
-		yield ('count_5', Uint64, (0, None))
-		yield ('count_6', Uint64, (0, None))
-		yield ('id', Pointer, (0, generated.formats.base.basic.ZString))
+		yield 'transition', Pointer, (0, generated.formats.motiongraph.compounds.Transition.Transition)
+		yield 'count_0', Uint64, (0, None)
+		yield 'count_1', Uint64, (0, None)
+		yield 'count_2', Uint64, (0, None)
+		yield 'count_3', Uint64, (0, None)
+		yield 'count_4', Uint64, (0, None)
+		yield 'count_5', Uint64, (0, None)
+		yield 'count_6', Uint64, (0, None)
+		yield 'id', Pointer, (0, generated.formats.base.basic.ZString)
 
 	def get_info_str(self, indent=0):
 		return f'MRFMember2 [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

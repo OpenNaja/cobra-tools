@@ -184,33 +184,33 @@ class MeshCollision(BaseStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		super()._get_filtered_attribute_list(instance)
-		yield ('rotation', Matrix33, (0, None))
-		yield ('offset', Vector3, (0, None))
-		yield ('unk_1', Array, ((3, 2,), Ushort, 0, None))
-		yield ('vertex_count', Uint64, (0, None))
-		yield ('tri_count', Uint64, (0, None))
-		yield ('bounds_min', Vector3, (0, None))
-		yield ('bounds_max', Vector3, (0, None))
-		yield ('ones_or_zeros', Array, ((7,), Uint64, 0, None))
+		yield 'rotation', Matrix33, (0, None)
+		yield 'offset', Vector3, (0, None)
+		yield 'unk_1', Array, ((3, 2,), Ushort, 0, None)
+		yield 'vertex_count', Uint64, (0, None)
+		yield 'tri_count', Uint64, (0, None)
+		yield 'bounds_min', Vector3, (0, None)
+		yield 'bounds_max', Vector3, (0, None)
+		yield 'ones_or_zeros', Array, ((7,), Uint64, 0, None)
 		if instance.context.version <= 32:
-			yield ('ff_or_zero', Array, ((10,), Int, 0, None))
+			yield 'ff_or_zero', Array, ((10,), Int, 0, None)
 		if instance.context.version >= 47:
-			yield ('ff_or_zero', Array, ((8,), Int, 0, None))
+			yield 'ff_or_zero', Array, ((8,), Int, 0, None)
 		if instance.context.version <= 32:
-			yield ('bounds_min_repeat', Vector3, (0, None))
-			yield ('bounds_max_repeat', Vector3, (0, None))
-			yield ('tri_flags_count', Uint, (0, None))
-			yield ('count_bits', Ushort, (0, None))
-			yield ('stuff', Array, ((9,), Ushort, 0, None))
-			yield ('collision_bits', Array, ((instance.count_bits,), MeshCollisionBit, 0, None))
-			yield ('zeros', Array, ((4,), Uint, 0, None))
-		yield ('vertices', Array, ((instance.vertex_count, 3,), Float, 0, None))
-		yield ('triangles', Array, ((instance.tri_count, 3,), Ushort, 0, None))
+			yield 'bounds_min_repeat', Vector3, (0, None)
+			yield 'bounds_max_repeat', Vector3, (0, None)
+			yield 'tri_flags_count', Uint, (0, None)
+			yield 'count_bits', Ushort, (0, None)
+			yield 'stuff', Array, ((9,), Ushort, 0, None)
+			yield 'collision_bits', Array, ((instance.count_bits,), MeshCollisionBit, 0, None)
+			yield 'zeros', Array, ((4,), Uint, 0, None)
+		yield 'vertices', Array, ((instance.vertex_count, 3,), Float, 0, None)
+		yield 'triangles', Array, ((instance.tri_count, 3,), Ushort, 0, None)
 		if instance.context.version <= 32:
-			yield ('const', Uint, (0, None))
+			yield 'const', Uint, (0, None)
 		if instance.context.version <= 32 and instance.const:
-			yield ('triangle_flags', Array, ((instance.tri_flags_count,), Uint, 0, None))
-		yield ('zero_end', Uint, (0, None))
+			yield 'triangle_flags', Array, ((instance.tri_flags_count,), Uint, 0, None)
+		yield 'zero_end', Uint, (0, None)
 
 	def get_info_str(self, indent=0):
 		return f'MeshCollision [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

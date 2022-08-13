@@ -56,9 +56,9 @@ class EventAttributes(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		super()._get_filtered_attribute_list(instance)
-		yield ('anim_name', Pointer, (0, generated.formats.base.basic.ZString))
-		yield ('event_name', Pointer, (0, generated.formats.base.basic.ZString))
-		yield ('empty_string', Pointer, (0, generated.formats.base.basic.ZString))
+		yield 'anim_name', Pointer, (0, generated.formats.base.basic.ZString)
+		yield 'event_name', Pointer, (0, generated.formats.base.basic.ZString)
+		yield 'empty_string', Pointer, (0, generated.formats.base.basic.ZString)
 
 	def get_info_str(self, indent=0):
 		return f'EventAttributes [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

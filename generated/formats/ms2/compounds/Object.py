@@ -45,8 +45,8 @@ class Object(BaseStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		super()._get_filtered_attribute_list(instance)
-		yield ('material_index', Ushort, (0, None))
-		yield ('mesh_index', Ushort, (0, None))
+		yield 'material_index', Ushort, (0, None)
+		yield 'mesh_index', Ushort, (0, None)
 
 	def get_info_str(self, indent=0):
 		return f'Object [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

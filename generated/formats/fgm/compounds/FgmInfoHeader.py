@@ -67,12 +67,12 @@ class FgmInfoHeader(GenericHeader):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		super()._get_filtered_attribute_list(instance)
-		yield ('data_lib_size', Uint, (0, None))
-		yield ('dependency_count', Uint, (0, None))
-		yield ('fgm_info', FgmHeader, (0, None))
-		yield ('texture_files', Array, ((instance.dependency_count,), ZString, 0, None))
-		yield ('textures', Array, ((instance.fgm_info.texture_count,), TextureInfo, 0, None))
-		yield ('attributes', Array, ((instance.fgm_info.attribute_count,), AttributeInfo, 0, None))
+		yield 'data_lib_size', Uint, (0, None)
+		yield 'dependency_count', Uint, (0, None)
+		yield 'fgm_info', FgmHeader, (0, None)
+		yield 'texture_files', Array, ((instance.dependency_count,), ZString, 0, None)
+		yield 'textures', Array, ((instance.fgm_info.texture_count,), TextureInfo, 0, None)
+		yield 'attributes', Array, ((instance.fgm_info.attribute_count,), AttributeInfo, 0, None)
 
 	def get_info_str(self, indent=0):
 		return f'FgmInfoHeader [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

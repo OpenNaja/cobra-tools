@@ -68,12 +68,12 @@ class Event(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		super()._get_filtered_attribute_list(instance)
-		yield ('start_time', Float, (0, None))
-		yield ('b', Float, (0, None))
-		yield ('module_name', Pointer, (0, generated.formats.base.basic.ZString))
-		yield ('attributes', Pointer, (0, generated.formats.cinematic.compounds.EventAttributes.EventAttributes))
-		yield ('duration', Float, (0, None))
-		yield ('d', Float, (0, None))
+		yield 'start_time', Float, (0, None)
+		yield 'b', Float, (0, None)
+		yield 'module_name', Pointer, (0, generated.formats.base.basic.ZString)
+		yield 'attributes', Pointer, (0, generated.formats.cinematic.compounds.EventAttributes.EventAttributes)
+		yield 'duration', Float, (0, None)
+		yield 'd', Float, (0, None)
 
 	def get_info_str(self, indent=0):
 		return f'Event [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

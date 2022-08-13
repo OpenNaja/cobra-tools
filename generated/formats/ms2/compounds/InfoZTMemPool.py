@@ -47,8 +47,8 @@ class InfoZTMemPool(BaseStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		super()._get_filtered_attribute_list(instance)
-		yield ('unk_count', Ushort, (0, None))
-		yield ('unks', Array, ((instance.unk_count, 2,), Ushort, 0, None))
+		yield 'unk_count', Ushort, (0, None)
+		yield 'unks', Array, ((instance.unk_count, 2,), Ushort, 0, None)
 
 	def get_info_str(self, indent=0):
 		return f'InfoZTMemPool [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

@@ -60,11 +60,11 @@ class Int16Data(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		super()._get_filtered_attribute_list(instance)
-		yield ('imin', Short, (0, None))
-		yield ('imax', Short, (0, None))
-		yield ('ivalue', Short, (0, None))
-		yield ('ioptional', Short, (0, None))
-		yield ('enum', Pointer, (0, None))
+		yield 'imin', Short, (0, None)
+		yield 'imax', Short, (0, None)
+		yield 'ivalue', Short, (0, None)
+		yield 'ioptional', Short, (0, None)
+		yield 'enum', Pointer, (0, None)
 
 	def get_info_str(self, indent=0):
 		return f'Int16Data [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

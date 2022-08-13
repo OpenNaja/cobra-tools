@@ -65,13 +65,13 @@ class MaterialName(BaseStruct):
 	def _get_filtered_attribute_list(cls, instance):
 		super()._get_filtered_attribute_list(instance)
 		if instance.context.version >= 47:
-			yield ('name_index', Uint, (0, None))
+			yield 'name_index', Uint, (0, None)
 		if instance.context.version <= 32:
-			yield ('name_index', Ushort, (0, None))
+			yield 'name_index', Ushort, (0, None)
 		if instance.context.version >= 47:
-			yield ('some_index', Uint, (0, None))
+			yield 'some_index', Uint, (0, None)
 		if instance.context.version <= 32:
-			yield ('some_index', Ushort, (0, None))
+			yield 'some_index', Ushort, (0, None)
 
 	def get_info_str(self, indent=0):
 		return f'MaterialName [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

@@ -76,16 +76,16 @@ class UncompressedRegion(BaseStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		super()._get_filtered_attribute_list(instance)
-		yield ('zeros_0', Array, ((2,), Uint, 0, None))
-		yield ('unk_0', Ushort, (0, None))
-		yield ('unk_1', Ushort, (0, None))
-		yield ('zeros_1', Array, ((3,), Uint, 0, None))
-		yield ('unk_2', Uint, (0, None))
-		yield ('unk_3', Uint, (0, None))
-		yield ('zeros_2', Array, ((2,), Uint, 0, None))
-		yield ('unk_4', Uint, (0, None))
-		yield ('unk_5', Uint, (0, None))
-		yield ('zeros_3', Array, ((2,), Uint, 0, None))
+		yield 'zeros_0', Array, ((2,), Uint, 0, None)
+		yield 'unk_0', Ushort, (0, None)
+		yield 'unk_1', Ushort, (0, None)
+		yield 'zeros_1', Array, ((3,), Uint, 0, None)
+		yield 'unk_2', Uint, (0, None)
+		yield 'unk_3', Uint, (0, None)
+		yield 'zeros_2', Array, ((2,), Uint, 0, None)
+		yield 'unk_4', Uint, (0, None)
+		yield 'unk_5', Uint, (0, None)
+		yield 'zeros_3', Array, ((2,), Uint, 0, None)
 
 	def get_info_str(self, indent=0):
 		return f'UncompressedRegion [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

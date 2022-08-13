@@ -70,13 +70,13 @@ class Bone(BaseStruct):
 	def _get_filtered_attribute_list(cls, instance):
 		super()._get_filtered_attribute_list(instance)
 		if instance.context.version <= 47:
-			yield ('loc', Vector3, (0, None))
-			yield ('scale', Float, (0, None))
-			yield ('rot', Vector4, (0, None))
+			yield 'loc', Vector3, (0, None)
+			yield 'scale', Float, (0, None)
+			yield 'rot', Vector4, (0, None)
 		if instance.context.version >= 48:
-			yield ('rot', Vector4, (0, None))
-			yield ('loc', Vector3, (0, None))
-			yield ('scale', Float, (0, None))
+			yield 'rot', Vector4, (0, None)
+			yield 'loc', Vector3, (0, None)
+			yield 'scale', Float, (0, None)
 
 	def get_info_str(self, indent=0):
 		return f'Bone [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

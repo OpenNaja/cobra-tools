@@ -45,8 +45,8 @@ class ResearchRoot(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		super()._get_filtered_attribute_list(instance)
-		yield ('levels', ArrayPointer, (instance.count, generated.formats.mechanicresearch.compounds.Research.Research))
-		yield ('count', Uint64, (0, None))
+		yield 'levels', ArrayPointer, (instance.count, generated.formats.mechanicresearch.compounds.Research.Research)
+		yield 'count', Uint64, (0, None)
 
 	def get_info_str(self, indent=0):
 		return f'ResearchRoot [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

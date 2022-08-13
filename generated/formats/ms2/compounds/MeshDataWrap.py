@@ -68,15 +68,15 @@ class MeshDataWrap(MemStruct):
 	def _get_filtered_attribute_list(cls, instance):
 		super()._get_filtered_attribute_list(instance)
 		if instance.context.version >= 47 and (instance.context.version == 51) and instance.context.biosyn:
-			yield ('mesh', BioMeshData, (0, None))
+			yield 'mesh', BioMeshData, (0, None)
 		if instance.context.version >= 47 and not ((instance.context.version == 51) and instance.context.biosyn):
-			yield ('mesh', NewMeshData, (0, None))
+			yield 'mesh', NewMeshData, (0, None)
 		if instance.context.version == 32:
-			yield ('mesh', PcMeshData, (0, None))
+			yield 'mesh', PcMeshData, (0, None)
 		if instance.context.version == 13:
-			yield ('mesh', ZtMeshData, (0, None))
+			yield 'mesh', ZtMeshData, (0, None)
 		if instance.context.version == 7:
-			yield ('mesh', ZtMeshData, (0, None))
+			yield 'mesh', ZtMeshData, (0, None)
 
 	def get_info_str(self, indent=0):
 		return f'MeshDataWrap [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
