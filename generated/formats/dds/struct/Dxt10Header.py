@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 from generated.formats.dds.basic import Uint
 from generated.formats.dds.enums.D3D10ResourceDimension import D3D10ResourceDimension
 from generated.formats.dds.enums.DxgiFormat import DxgiFormat
@@ -69,11 +68,11 @@ class Dxt10Header(StructBase):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* dxgi_format = {fmt_member(self.dxgi_format, indent+1)}'
-		s += f'\n	* resource_dimension = {fmt_member(self.resource_dimension, indent+1)}'
-		s += f'\n	* misc_flag = {fmt_member(self.misc_flag, indent+1)}'
-		s += f'\n	* array_size = {fmt_member(self.array_size, indent+1)}'
-		s += f'\n	* misc_flag_2 = {fmt_member(self.misc_flag_2, indent+1)}'
+		s += f'\n	* dxgi_format = {self.fmt_member(self.dxgi_format, indent+1)}'
+		s += f'\n	* resource_dimension = {self.fmt_member(self.resource_dimension, indent+1)}'
+		s += f'\n	* misc_flag = {self.fmt_member(self.misc_flag, indent+1)}'
+		s += f'\n	* array_size = {self.fmt_member(self.array_size, indent+1)}'
+		s += f'\n	* misc_flag_2 = {self.fmt_member(self.misc_flag_2, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

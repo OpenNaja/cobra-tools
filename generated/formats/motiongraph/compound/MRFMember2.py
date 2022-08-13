@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 import generated.formats.base.basic
 import generated.formats.motiongraph.compound.Transition
 from generated.formats.base.basic import Uint64
@@ -97,15 +96,15 @@ class MRFMember2(MemStruct):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* transition = {fmt_member(self.transition, indent+1)}'
-		s += f'\n	* count_0 = {fmt_member(self.count_0, indent+1)}'
-		s += f'\n	* count_1 = {fmt_member(self.count_1, indent+1)}'
-		s += f'\n	* count_2 = {fmt_member(self.count_2, indent+1)}'
-		s += f'\n	* count_3 = {fmt_member(self.count_3, indent+1)}'
-		s += f'\n	* count_4 = {fmt_member(self.count_4, indent+1)}'
-		s += f'\n	* count_5 = {fmt_member(self.count_5, indent+1)}'
-		s += f'\n	* count_6 = {fmt_member(self.count_6, indent+1)}'
-		s += f'\n	* id = {fmt_member(self.id, indent+1)}'
+		s += f'\n	* transition = {self.fmt_member(self.transition, indent+1)}'
+		s += f'\n	* count_0 = {self.fmt_member(self.count_0, indent+1)}'
+		s += f'\n	* count_1 = {self.fmt_member(self.count_1, indent+1)}'
+		s += f'\n	* count_2 = {self.fmt_member(self.count_2, indent+1)}'
+		s += f'\n	* count_3 = {self.fmt_member(self.count_3, indent+1)}'
+		s += f'\n	* count_4 = {self.fmt_member(self.count_4, indent+1)}'
+		s += f'\n	* count_5 = {self.fmt_member(self.count_5, indent+1)}'
+		s += f'\n	* count_6 = {self.fmt_member(self.count_6, indent+1)}'
+		s += f'\n	* id = {self.fmt_member(self.id, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

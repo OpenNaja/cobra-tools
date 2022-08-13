@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 from generated.formats.base.basic import Uint
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
 
@@ -52,8 +51,8 @@ class UIntPair(MemStruct):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* value_0 = {fmt_member(self.value_0, indent+1)}'
-		s += f'\n	* value_1 = {fmt_member(self.value_1, indent+1)}'
+		s += f'\n	* value_0 = {self.fmt_member(self.value_0, indent+1)}'
+		s += f'\n	* value_1 = {self.fmt_member(self.value_1, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

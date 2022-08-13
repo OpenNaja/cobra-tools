@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 from generated.formats.motiongraph.compound.MGTwo import MGTwo
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
 from generated.formats.ovl_base.compound.Pointer import Pointer
@@ -59,8 +58,8 @@ class TransStructStop(MemStruct):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* another_mrfentry_2 = {fmt_member(self.another_mrfentry_2, indent+1)}'
-		s += f'\n	* other_states = {fmt_member(self.other_states, indent+1)}'
+		s += f'\n	* another_mrfentry_2 = {self.fmt_member(self.another_mrfentry_2, indent+1)}'
+		s += f'\n	* other_states = {self.fmt_member(self.other_states, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

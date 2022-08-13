@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 import numpy
 from generated.array import Array
 from generated.formats.base.basic import Byte
@@ -63,8 +62,8 @@ class MinusPadding(StructBase):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* indices = {fmt_member(self.indices, indent+1)}'
-		s += f'\n	* padding = {fmt_member(self.padding, indent+1)}'
+		s += f'\n	* indices = {self.fmt_member(self.indices, indent+1)}'
+		s += f'\n	* padding = {self.fmt_member(self.padding, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 from generated.formats.base.basic import Ubyte
 from generated.formats.base.basic import Uint
 from generated.formats.bnk.compound.AkMediaInformation import AkMediaInformation
@@ -59,9 +58,9 @@ class AkBankSourceData(StructBase):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* ul_plugin_i_d = {fmt_member(self.ul_plugin_i_d, indent+1)}'
-		s += f'\n	* stream_type = {fmt_member(self.stream_type, indent+1)}'
-		s += f'\n	* ak_media_information = {fmt_member(self.ak_media_information, indent+1)}'
+		s += f'\n	* ul_plugin_i_d = {self.fmt_member(self.ul_plugin_i_d, indent+1)}'
+		s += f'\n	* stream_type = {self.fmt_member(self.stream_type, indent+1)}'
+		s += f'\n	* ak_media_information = {self.fmt_member(self.ak_media_information, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

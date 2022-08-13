@@ -4,7 +4,6 @@ from generated.io import MAX_LEN
 ZERO = b"\x00"
 
 
-from generated.formats.base.basic import fmt_member
 from generated.struct import StructBase
 
 

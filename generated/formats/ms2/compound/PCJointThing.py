@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 import numpy
 from generated.array import Array
 from generated.formats.base.basic import Short
@@ -55,7 +54,7 @@ class PCJointThing(StructBase):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* shorts = {fmt_member(self.shorts, indent+1)}'
+		s += f'\n	* shorts = {self.fmt_member(self.shorts, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

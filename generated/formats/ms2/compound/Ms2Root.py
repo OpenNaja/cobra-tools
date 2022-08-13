@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 import generated.formats.ms2.compound.BufferInfo
 import generated.formats.ms2.compound.BufferPresence
 import generated.formats.ms2.compound.ModelInfo
@@ -118,15 +117,15 @@ class Ms2Root(MemStruct):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* version = {fmt_member(self.version, indent+1)}'
-		s += f'\n	* vertex_buffer_count = {fmt_member(self.vertex_buffer_count, indent+1)}'
-		s += f'\n	* mdl_2_count = {fmt_member(self.mdl_2_count, indent+1)}'
-		s += f'\n	* name_count = {fmt_member(self.name_count, indent+1)}'
-		s += f'\n	* stream_count = {fmt_member(self.stream_count, indent+1)}'
-		s += f'\n	* zeros = {fmt_member(self.zeros, indent+1)}'
-		s += f'\n	* buffer_infos = {fmt_member(self.buffer_infos, indent+1)}'
-		s += f'\n	* model_infos = {fmt_member(self.model_infos, indent+1)}'
-		s += f'\n	* buffers_presence = {fmt_member(self.buffers_presence, indent+1)}'
+		s += f'\n	* version = {self.fmt_member(self.version, indent+1)}'
+		s += f'\n	* vertex_buffer_count = {self.fmt_member(self.vertex_buffer_count, indent+1)}'
+		s += f'\n	* mdl_2_count = {self.fmt_member(self.mdl_2_count, indent+1)}'
+		s += f'\n	* name_count = {self.fmt_member(self.name_count, indent+1)}'
+		s += f'\n	* stream_count = {self.fmt_member(self.stream_count, indent+1)}'
+		s += f'\n	* zeros = {self.fmt_member(self.zeros, indent+1)}'
+		s += f'\n	* buffer_infos = {self.fmt_member(self.buffer_infos, indent+1)}'
+		s += f'\n	* model_infos = {self.fmt_member(self.model_infos, indent+1)}'
+		s += f'\n	* buffers_presence = {self.fmt_member(self.buffers_presence, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

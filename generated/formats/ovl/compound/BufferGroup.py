@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 from generated.formats.base.basic import Uint
 from generated.formats.base.basic import Uint64
 from generated.struct import StructBase
@@ -96,13 +95,13 @@ class BufferGroup(StructBase):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* buffer_offset = {fmt_member(self.buffer_offset, indent+1)}'
-		s += f'\n	* buffer_count = {fmt_member(self.buffer_count, indent+1)}'
-		s += f'\n	* ext_index = {fmt_member(self.ext_index, indent+1)}'
-		s += f'\n	* buffer_index = {fmt_member(self.buffer_index, indent+1)}'
-		s += f'\n	* size = {fmt_member(self.size, indent+1)}'
-		s += f'\n	* data_offset = {fmt_member(self.data_offset, indent+1)}'
-		s += f'\n	* data_count = {fmt_member(self.data_count, indent+1)}'
+		s += f'\n	* buffer_offset = {self.fmt_member(self.buffer_offset, indent+1)}'
+		s += f'\n	* buffer_count = {self.fmt_member(self.buffer_count, indent+1)}'
+		s += f'\n	* ext_index = {self.fmt_member(self.ext_index, indent+1)}'
+		s += f'\n	* buffer_index = {self.fmt_member(self.buffer_index, indent+1)}'
+		s += f'\n	* size = {self.fmt_member(self.size, indent+1)}'
+		s += f'\n	* data_offset = {self.fmt_member(self.data_offset, indent+1)}'
+		s += f'\n	* data_count = {self.fmt_member(self.data_count, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

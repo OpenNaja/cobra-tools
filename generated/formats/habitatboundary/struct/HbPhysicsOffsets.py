@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 from generated.formats.base.basic import Float
 from generated.formats.habitatboundary.struct.HbPostSize import HbPostSize
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
@@ -73,10 +72,10 @@ class HbPhysicsOffsets(MemStruct):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* thickness = {fmt_member(self.thickness, indent+1)}'
-		s += f'\n	* post_size = {fmt_member(self.post_size, indent+1)}'
-		s += f'\n	* wall_pad_top = {fmt_member(self.wall_pad_top, indent+1)}'
-		s += f'\n	* wall_post_gap = {fmt_member(self.wall_post_gap, indent+1)}'
+		s += f'\n	* thickness = {self.fmt_member(self.thickness, indent+1)}'
+		s += f'\n	* post_size = {self.fmt_member(self.post_size, indent+1)}'
+		s += f'\n	* wall_pad_top = {self.fmt_member(self.wall_pad_top, indent+1)}'
+		s += f'\n	* wall_post_gap = {self.fmt_member(self.wall_post_gap, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

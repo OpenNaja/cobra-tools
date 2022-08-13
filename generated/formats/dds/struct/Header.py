@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 import numpy
 from generated.array import Array
 from generated.formats.dds.basic import Uint
@@ -142,22 +141,22 @@ class Header(StructBase):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* header_string = {fmt_member(self.header_string, indent+1)}'
-		s += f'\n	* size = {fmt_member(self.size, indent+1)}'
-		s += f'\n	* flags = {fmt_member(self.flags, indent+1)}'
-		s += f'\n	* height = {fmt_member(self.height, indent+1)}'
-		s += f'\n	* width = {fmt_member(self.width, indent+1)}'
-		s += f'\n	* linear_size = {fmt_member(self.linear_size, indent+1)}'
-		s += f'\n	* depth = {fmt_member(self.depth, indent+1)}'
-		s += f'\n	* mipmap_count = {fmt_member(self.mipmap_count, indent+1)}'
-		s += f'\n	* reserved_1 = {fmt_member(self.reserved_1, indent+1)}'
-		s += f'\n	* pixel_format = {fmt_member(self.pixel_format, indent+1)}'
-		s += f'\n	* caps_1 = {fmt_member(self.caps_1, indent+1)}'
-		s += f'\n	* caps_2 = {fmt_member(self.caps_2, indent+1)}'
-		s += f'\n	* caps_3 = {fmt_member(self.caps_3, indent+1)}'
-		s += f'\n	* caps_4 = {fmt_member(self.caps_4, indent+1)}'
-		s += f'\n	* unused = {fmt_member(self.unused, indent+1)}'
-		s += f'\n	* dx_10 = {fmt_member(self.dx_10, indent+1)}'
+		s += f'\n	* header_string = {self.fmt_member(self.header_string, indent+1)}'
+		s += f'\n	* size = {self.fmt_member(self.size, indent+1)}'
+		s += f'\n	* flags = {self.fmt_member(self.flags, indent+1)}'
+		s += f'\n	* height = {self.fmt_member(self.height, indent+1)}'
+		s += f'\n	* width = {self.fmt_member(self.width, indent+1)}'
+		s += f'\n	* linear_size = {self.fmt_member(self.linear_size, indent+1)}'
+		s += f'\n	* depth = {self.fmt_member(self.depth, indent+1)}'
+		s += f'\n	* mipmap_count = {self.fmt_member(self.mipmap_count, indent+1)}'
+		s += f'\n	* reserved_1 = {self.fmt_member(self.reserved_1, indent+1)}'
+		s += f'\n	* pixel_format = {self.fmt_member(self.pixel_format, indent+1)}'
+		s += f'\n	* caps_1 = {self.fmt_member(self.caps_1, indent+1)}'
+		s += f'\n	* caps_2 = {self.fmt_member(self.caps_2, indent+1)}'
+		s += f'\n	* caps_3 = {self.fmt_member(self.caps_3, indent+1)}'
+		s += f'\n	* caps_4 = {self.fmt_member(self.caps_4, indent+1)}'
+		s += f'\n	* unused = {self.fmt_member(self.unused, indent+1)}'
+		s += f'\n	* dx_10 = {self.fmt_member(self.dx_10, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

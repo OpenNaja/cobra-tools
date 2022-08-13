@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 import generated.formats.specdef.compound.DataPtr
 import generated.formats.specdef.compound.PtrList
 import generated.formats.specdef.enums.SpecdefDtype
@@ -121,19 +120,19 @@ class SpecdefRoot(MemStruct):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* attrib_count = {fmt_member(self.attrib_count, indent+1)}'
-		s += f'\n	* flags = {fmt_member(self.flags, indent+1)}'
-		s += f'\n	* name_count = {fmt_member(self.name_count, indent+1)}'
-		s += f'\n	* childspec_count = {fmt_member(self.childspec_count, indent+1)}'
-		s += f'\n	* manager_count = {fmt_member(self.manager_count, indent+1)}'
-		s += f'\n	* script_count = {fmt_member(self.script_count, indent+1)}'
-		s += f'\n	* attrib_dtypes = {fmt_member(self.attrib_dtypes, indent+1)}'
-		s += f'\n	* attrib_names = {fmt_member(self.attrib_names, indent+1)}'
-		s += f'\n	* attrib_datas = {fmt_member(self.attrib_datas, indent+1)}'
-		s += f'\n	* names = {fmt_member(self.names, indent+1)}'
-		s += f'\n	* childspecs = {fmt_member(self.childspecs, indent+1)}'
-		s += f'\n	* managers = {fmt_member(self.managers, indent+1)}'
-		s += f'\n	* scripts = {fmt_member(self.scripts, indent+1)}'
+		s += f'\n	* attrib_count = {self.fmt_member(self.attrib_count, indent+1)}'
+		s += f'\n	* flags = {self.fmt_member(self.flags, indent+1)}'
+		s += f'\n	* name_count = {self.fmt_member(self.name_count, indent+1)}'
+		s += f'\n	* childspec_count = {self.fmt_member(self.childspec_count, indent+1)}'
+		s += f'\n	* manager_count = {self.fmt_member(self.manager_count, indent+1)}'
+		s += f'\n	* script_count = {self.fmt_member(self.script_count, indent+1)}'
+		s += f'\n	* attrib_dtypes = {self.fmt_member(self.attrib_dtypes, indent+1)}'
+		s += f'\n	* attrib_names = {self.fmt_member(self.attrib_names, indent+1)}'
+		s += f'\n	* attrib_datas = {self.fmt_member(self.attrib_datas, indent+1)}'
+		s += f'\n	* names = {self.fmt_member(self.names, indent+1)}'
+		s += f'\n	* childspecs = {self.fmt_member(self.childspecs, indent+1)}'
+		s += f'\n	* managers = {self.fmt_member(self.managers, indent+1)}'
+		s += f'\n	* scripts = {self.fmt_member(self.scripts, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

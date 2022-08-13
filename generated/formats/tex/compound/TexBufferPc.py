@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 from generated.formats.base.basic import Ushort
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
 
@@ -70,10 +69,10 @@ class TexBufferPc(MemStruct):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* width = {fmt_member(self.width, indent+1)}'
-		s += f'\n	* height = {fmt_member(self.height, indent+1)}'
-		s += f'\n	* array_size = {fmt_member(self.array_size, indent+1)}'
-		s += f'\n	* mip_index = {fmt_member(self.mip_index, indent+1)}'
+		s += f'\n	* width = {self.fmt_member(self.width, indent+1)}'
+		s += f'\n	* height = {self.fmt_member(self.height, indent+1)}'
+		s += f'\n	* array_size = {self.fmt_member(self.array_size, indent+1)}'
+		s += f'\n	* mip_index = {self.fmt_member(self.mip_index, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 import generated.formats.base.basic
 from generated.formats.base.basic import Float
 from generated.formats.ovl_base.basic import Bool
@@ -83,13 +82,13 @@ class PathExtrusion(MemStruct):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* model = {fmt_member(self.model, indent+1)}'
-		s += f'\n	* post_model = {fmt_member(self.post_model, indent+1)}'
-		s += f'\n	* endcap_model = {fmt_member(self.endcap_model, indent+1)}'
-		s += f'\n	* unk_float_1 = {fmt_member(self.unk_float_1, indent+1)}'
-		s += f'\n	* unk_float_2 = {fmt_member(self.unk_float_2, indent+1)}'
-		s += f'\n	* is_kerb = {fmt_member(self.is_kerb, indent+1)}'
-		s += f'\n	* is_not_ground = {fmt_member(self.is_not_ground, indent+1)}'
+		s += f'\n	* model = {self.fmt_member(self.model, indent+1)}'
+		s += f'\n	* post_model = {self.fmt_member(self.post_model, indent+1)}'
+		s += f'\n	* endcap_model = {self.fmt_member(self.endcap_model, indent+1)}'
+		s += f'\n	* unk_float_1 = {self.fmt_member(self.unk_float_1, indent+1)}'
+		s += f'\n	* unk_float_2 = {self.fmt_member(self.unk_float_2, indent+1)}'
+		s += f'\n	* is_kerb = {self.fmt_member(self.is_kerb, indent+1)}'
+		s += f'\n	* is_not_ground = {self.fmt_member(self.is_not_ground, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

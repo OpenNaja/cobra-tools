@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 from generated.array import Array
 from generated.formats.ms2.compound.InfoZTMemPool import InfoZTMemPool
 from generated.formats.ovl_base.compound.SmartPadding import SmartPadding
@@ -63,8 +62,8 @@ class StreamsZTHeader(StructBase):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* weird_padding = {fmt_member(self.weird_padding, indent+1)}'
-		s += f'\n	* unks = {fmt_member(self.unks, indent+1)}'
+		s += f'\n	* weird_padding = {self.fmt_member(self.weird_padding, indent+1)}'
+		s += f'\n	* unks = {self.fmt_member(self.unks, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

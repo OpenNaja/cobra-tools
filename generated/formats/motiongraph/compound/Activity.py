@@ -10,7 +10,6 @@ import generated.formats.motiongraph.compound.SelectActivityActivityData
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
 from generated.formats.ovl_base.compound.Pointer import Pointer
 
-from generated.formats.base.basic import fmt_member
 import generated.formats.base.basic
 from generated.formats.base.basic import Int64
 from generated.formats.base.basic import Uint64
@@ -94,12 +93,12 @@ class Activity(MemStruct):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* data_type = {fmt_member(self.data_type, indent+1)}'
-		s += f'\n	* ptr = {fmt_member(self.ptr, indent+1)}'
-		s += f'\n	* count_2 = {fmt_member(self.count_2, indent+1)}'
-		s += f'\n	* count_3 = {fmt_member(self.count_3, indent+1)}'
-		s += f'\n	* minus_one = {fmt_member(self.minus_one, indent+1)}'
-		s += f'\n	* name_b = {fmt_member(self.name_b, indent+1)}'
+		s += f'\n	* data_type = {self.fmt_member(self.data_type, indent+1)}'
+		s += f'\n	* ptr = {self.fmt_member(self.ptr, indent+1)}'
+		s += f'\n	* count_2 = {self.fmt_member(self.count_2, indent+1)}'
+		s += f'\n	* count_3 = {self.fmt_member(self.count_3, indent+1)}'
+		s += f'\n	* minus_one = {self.fmt_member(self.minus_one, indent+1)}'
+		s += f'\n	* name_b = {self.fmt_member(self.name_b, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

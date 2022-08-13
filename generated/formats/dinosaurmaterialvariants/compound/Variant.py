@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 import generated.formats.base.basic
 from generated.formats.base.basic import Uint64
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
@@ -55,8 +54,8 @@ class Variant(MemStruct):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* has_ptr = {fmt_member(self.has_ptr, indent+1)}'
-		s += f'\n	* variant_name = {fmt_member(self.variant_name, indent+1)}'
+		s += f'\n	* has_ptr = {self.fmt_member(self.has_ptr, indent+1)}'
+		s += f'\n	* variant_name = {self.fmt_member(self.variant_name, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

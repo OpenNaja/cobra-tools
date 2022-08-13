@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 import numpy
 from generated.array import Array
 from generated.formats.base.basic import Float
@@ -70,9 +69,9 @@ class ListLong(Descriptor):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* loc = {fmt_member(self.loc, indent+1)}'
-		s += f'\n	* floats = {fmt_member(self.floats, indent+1)}'
-		s += f'\n	* radians = {fmt_member(self.radians, indent+1)}'
+		s += f'\n	* loc = {self.fmt_member(self.loc, indent+1)}'
+		s += f'\n	* floats = {self.fmt_member(self.floats, indent+1)}'
+		s += f'\n	* radians = {self.fmt_member(self.radians, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

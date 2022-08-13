@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 from generated.formats.base.basic import Uint
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
 
@@ -81,11 +80,11 @@ class Mipmap(MemStruct):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* offset = {fmt_member(self.offset, indent+1)}'
-		s += f'\n	* size = {fmt_member(self.size, indent+1)}'
-		s += f'\n	* size_array = {fmt_member(self.size_array, indent+1)}'
-		s += f'\n	* size_scan = {fmt_member(self.size_scan, indent+1)}'
-		s += f'\n	* size_data = {fmt_member(self.size_data, indent+1)}'
+		s += f'\n	* offset = {self.fmt_member(self.offset, indent+1)}'
+		s += f'\n	* size = {self.fmt_member(self.size, indent+1)}'
+		s += f'\n	* size_array = {self.fmt_member(self.size_array, indent+1)}'
+		s += f'\n	* size_scan = {self.fmt_member(self.size_scan, indent+1)}'
+		s += f'\n	* size_data = {self.fmt_member(self.size_data, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 from generated.formats.base.basic import Float
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
 
@@ -63,9 +62,9 @@ class HbPostSize(MemStruct):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* front_back = {fmt_member(self.front_back, indent+1)}'
-		s += f'\n	* left_right = {fmt_member(self.left_right, indent+1)}'
-		s += f'\n	* top = {fmt_member(self.top, indent+1)}'
+		s += f'\n	* front_back = {self.fmt_member(self.front_back, indent+1)}'
+		s += f'\n	* left_right = {self.fmt_member(self.left_right, indent+1)}'
+		s += f'\n	* top = {self.fmt_member(self.top, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

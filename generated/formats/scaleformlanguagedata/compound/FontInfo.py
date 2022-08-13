@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 import generated.formats.base.basic
 from generated.formats.base.basic import Uint64
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
@@ -65,9 +64,9 @@ class FontInfo(MemStruct):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* style_name = {fmt_member(self.style_name, indent+1)}'
-		s += f'\n	* font_file = {fmt_member(self.font_file, indent+1)}'
-		s += f'\n	* flag_or_count = {fmt_member(self.flag_or_count, indent+1)}'
+		s += f'\n	* style_name = {self.fmt_member(self.style_name, indent+1)}'
+		s += f'\n	* font_file = {self.fmt_member(self.font_file, indent+1)}'
+		s += f'\n	* flag_or_count = {self.fmt_member(self.flag_or_count, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

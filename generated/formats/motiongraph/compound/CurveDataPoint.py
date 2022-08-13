@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 from generated.formats.base.basic import Float
 from generated.formats.base.basic import Short
 from generated.formats.motiongraph.enums.SubCurveType import SubCurveType
@@ -73,11 +72,11 @@ class CurveDataPoint(MemStruct):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* x = {fmt_member(self.x, indent+1)}'
-		s += f'\n	* y = {fmt_member(self.y, indent+1)}'
-		s += f'\n	* sub_curve_type = {fmt_member(self.sub_curve_type, indent+1)}'
-		s += f'\n	* subsequent_curve_param = {fmt_member(self.subsequent_curve_param, indent+1)}'
-		s += f'\n	* subsequent_curve_param_b = {fmt_member(self.subsequent_curve_param_b, indent+1)}'
+		s += f'\n	* x = {self.fmt_member(self.x, indent+1)}'
+		s += f'\n	* y = {self.fmt_member(self.y, indent+1)}'
+		s += f'\n	* sub_curve_type = {self.fmt_member(self.sub_curve_type, indent+1)}'
+		s += f'\n	* subsequent_curve_param = {self.fmt_member(self.subsequent_curve_param, indent+1)}'
+		s += f'\n	* subsequent_curve_param_b = {self.fmt_member(self.subsequent_curve_param_b, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

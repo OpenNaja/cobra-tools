@@ -4,7 +4,6 @@ import logging
 from generated.array import Array
 from generated.formats.ovl_base.compound.Pointer import Pointer
 from generated.formats.ovl_base.compound.ArrayPointer import ArrayPointer
-from generated.formats.base.basic import fmt_member
 from generated.formats.ovl_base.compound.Pointer import Pointer
 
 

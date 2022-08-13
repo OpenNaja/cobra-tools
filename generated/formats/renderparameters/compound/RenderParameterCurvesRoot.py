@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 import generated.formats.ovl_base.basic
 import generated.formats.renderparameters.compound.CurveParamList
 from generated.formats.base.basic import Uint64
@@ -71,10 +70,10 @@ class RenderParameterCurvesRoot(MemStruct):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* param_name = {fmt_member(self.param_name, indent+1)}'
-		s += f'\n	* params = {fmt_member(self.params, indent+1)}'
-		s += f'\n	* count = {fmt_member(self.count, indent+1)}'
-		s += f'\n	* unk = {fmt_member(self.unk, indent+1)}'
+		s += f'\n	* param_name = {self.fmt_member(self.param_name, indent+1)}'
+		s += f'\n	* params = {self.fmt_member(self.params, indent+1)}'
+		s += f'\n	* count = {self.fmt_member(self.count, indent+1)}'
+		s += f'\n	* unk = {self.fmt_member(self.unk, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

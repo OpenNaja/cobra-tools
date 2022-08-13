@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 from generated.formats.base.basic import Float
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
 
@@ -84,12 +83,12 @@ class HbPropPhysics(MemStruct):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* pad_top = {fmt_member(self.pad_top, indent+1)}'
-		s += f'\n	* z_pos = {fmt_member(self.z_pos, indent+1)}'
-		s += f'\n	* half_width = {fmt_member(self.half_width, indent+1)}'
-		s += f'\n	* pad_bottom = {fmt_member(self.pad_bottom, indent+1)}'
-		s += f'\n	* half_depth = {fmt_member(self.half_depth, indent+1)}'
-		s += f'\n	* u_6 = {fmt_member(self.u_6, indent+1)}'
+		s += f'\n	* pad_top = {self.fmt_member(self.pad_top, indent+1)}'
+		s += f'\n	* z_pos = {self.fmt_member(self.z_pos, indent+1)}'
+		s += f'\n	* half_width = {self.fmt_member(self.half_width, indent+1)}'
+		s += f'\n	* pad_bottom = {self.fmt_member(self.pad_bottom, indent+1)}'
+		s += f'\n	* half_depth = {self.fmt_member(self.half_depth, indent+1)}'
+		s += f'\n	* u_6 = {self.fmt_member(self.u_6, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

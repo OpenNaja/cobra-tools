@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 import numpy
 from generated.array import Array
 from generated.formats.base.basic import Float
@@ -97,13 +96,13 @@ class BanisRoot(MemStruct):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* zeros = {fmt_member(self.zeros, indent+1)}'
-		s += f'\n	* bytes_per_frame = {fmt_member(self.bytes_per_frame, indent+1)}'
-		s += f'\n	* bytes_per_bone = {fmt_member(self.bytes_per_bone, indent+1)}'
-		s += f'\n	* num_frames = {fmt_member(self.num_frames, indent+1)}'
-		s += f'\n	* num_bones = {fmt_member(self.num_bones, indent+1)}'
-		s += f'\n	* loc_scale = {fmt_member(self.loc_scale, indent+1)}'
-		s += f'\n	* loc_offset = {fmt_member(self.loc_offset, indent+1)}'
+		s += f'\n	* zeros = {self.fmt_member(self.zeros, indent+1)}'
+		s += f'\n	* bytes_per_frame = {self.fmt_member(self.bytes_per_frame, indent+1)}'
+		s += f'\n	* bytes_per_bone = {self.fmt_member(self.bytes_per_bone, indent+1)}'
+		s += f'\n	* num_frames = {self.fmt_member(self.num_frames, indent+1)}'
+		s += f'\n	* num_bones = {self.fmt_member(self.num_bones, indent+1)}'
+		s += f'\n	* loc_scale = {self.fmt_member(self.loc_scale, indent+1)}'
+		s += f'\n	* loc_offset = {self.fmt_member(self.loc_offset, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

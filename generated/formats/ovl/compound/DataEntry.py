@@ -2,7 +2,6 @@
 
 import logging
 
-from generated.formats.base.basic import fmt_member
 from generated.formats.base.basic import Uint
 from generated.formats.base.basic import Uint64
 from generated.formats.base.basic import Ushort
@@ -107,13 +106,13 @@ class DataEntry(StructBase):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* file_hash = {fmt_member(self.file_hash, indent+1)}'
-		s += f'\n	* ext_hash = {fmt_member(self.ext_hash, indent+1)}'
-		s += f'\n	* set_index = {fmt_member(self.set_index, indent+1)}'
-		s += f'\n	* buffer_count = {fmt_member(self.buffer_count, indent+1)}'
-		s += f'\n	* zero = {fmt_member(self.zero, indent+1)}'
-		s += f'\n	* size_1 = {fmt_member(self.size_1, indent+1)}'
-		s += f'\n	* size_2 = {fmt_member(self.size_2, indent+1)}'
+		s += f'\n	* file_hash = {self.fmt_member(self.file_hash, indent+1)}'
+		s += f'\n	* ext_hash = {self.fmt_member(self.ext_hash, indent+1)}'
+		s += f'\n	* set_index = {self.fmt_member(self.set_index, indent+1)}'
+		s += f'\n	* buffer_count = {self.fmt_member(self.buffer_count, indent+1)}'
+		s += f'\n	* zero = {self.fmt_member(self.zero, indent+1)}'
+		s += f'\n	* size_1 = {self.fmt_member(self.size_1, indent+1)}'
+		s += f'\n	* size_2 = {self.fmt_member(self.size_2, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

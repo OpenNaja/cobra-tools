@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 import numpy
 from generated.array import Array
 from generated.formats.base.basic import Uint
@@ -63,9 +62,9 @@ class Buffer1(StructBase):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* bone_hashes = {fmt_member(self.bone_hashes, indent+1)}'
-		s += f'\n	* bone_names = {fmt_member(self.bone_names, indent+1)}'
-		s += f'\n	* bone_pad = {fmt_member(self.bone_pad, indent+1)}'
+		s += f'\n	* bone_hashes = {self.fmt_member(self.bone_hashes, indent+1)}'
+		s += f'\n	* bone_names = {self.fmt_member(self.bone_names, indent+1)}'
+		s += f'\n	* bone_pad = {self.fmt_member(self.bone_pad, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

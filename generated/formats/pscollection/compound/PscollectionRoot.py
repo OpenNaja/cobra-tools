@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 import generated.formats.pscollection.compound.PreparedStatement
 from generated.formats.base.basic import Uint64
 from generated.formats.ovl_base.compound.ArrayPointer import ArrayPointer
@@ -55,8 +54,8 @@ class PscollectionRoot(MemStruct):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* prepared_statements = {fmt_member(self.prepared_statements, indent+1)}'
-		s += f'\n	* count = {fmt_member(self.count, indent+1)}'
+		s += f'\n	* prepared_statements = {self.fmt_member(self.prepared_statements, indent+1)}'
+		s += f'\n	* count = {self.fmt_member(self.count, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 import numpy
 from generated.array import Array
 from generated.formats.base.basic import Uint
@@ -84,10 +83,10 @@ class ConvexHull(StructBase):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* vertex_count = {fmt_member(self.vertex_count, indent+1)}'
-		s += f'\n	* rotation = {fmt_member(self.rotation, indent+1)}'
-		s += f'\n	* offset = {fmt_member(self.offset, indent+1)}'
-		s += f'\n	* zeros = {fmt_member(self.zeros, indent+1)}'
+		s += f'\n	* vertex_count = {self.fmt_member(self.vertex_count, indent+1)}'
+		s += f'\n	* rotation = {self.fmt_member(self.rotation, indent+1)}'
+		s += f'\n	* offset = {self.fmt_member(self.offset, indent+1)}'
+		s += f'\n	* zeros = {self.fmt_member(self.zeros, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

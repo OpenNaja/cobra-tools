@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 from generated.formats.base.basic import Ubyte
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
 
@@ -66,10 +65,10 @@ class Color(MemStruct):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* r = {fmt_member(self.r, indent+1)}'
-		s += f'\n	* g = {fmt_member(self.g, indent+1)}'
-		s += f'\n	* b = {fmt_member(self.b, indent+1)}'
-		s += f'\n	* a = {fmt_member(self.a, indent+1)}'
+		s += f'\n	* r = {self.fmt_member(self.r, indent+1)}'
+		s += f'\n	* g = {self.fmt_member(self.g, indent+1)}'
+		s += f'\n	* b = {self.fmt_member(self.b, indent+1)}'
+		s += f'\n	* a = {self.fmt_member(self.a, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

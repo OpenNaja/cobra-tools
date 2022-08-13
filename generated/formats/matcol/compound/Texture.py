@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 import generated.formats.base.basic
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
 from generated.formats.ovl_base.compound.Pointer import Pointer
@@ -63,9 +62,9 @@ class Texture(MemStruct):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* fgm_name = {fmt_member(self.fgm_name, indent+1)}'
-		s += f'\n	* texture_suffix = {fmt_member(self.texture_suffix, indent+1)}'
-		s += f'\n	* texture_type = {fmt_member(self.texture_type, indent+1)}'
+		s += f'\n	* fgm_name = {self.fmt_member(self.fgm_name, indent+1)}'
+		s += f'\n	* texture_suffix = {self.fmt_member(self.texture_suffix, indent+1)}'
+		s += f'\n	* texture_type = {self.fmt_member(self.texture_type, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

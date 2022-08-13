@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 import generated.formats.base.basic
 from generated.formats.base.basic import Uint64
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
@@ -55,8 +54,8 @@ class AssetpkgRoot(MemStruct):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* asset_path = {fmt_member(self.asset_path, indent+1)}'
-		s += f'\n	* zero = {fmt_member(self.zero, indent+1)}'
+		s += f'\n	* asset_path = {self.fmt_member(self.asset_path, indent+1)}'
+		s += f'\n	* zero = {self.fmt_member(self.zero, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

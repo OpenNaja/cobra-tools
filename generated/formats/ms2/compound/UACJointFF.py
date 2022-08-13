@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 import numpy
 from generated.array import Array
 from generated.formats.base.basic import Int
@@ -76,11 +75,11 @@ class UACJointFF(StructBase):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* eleven = {fmt_member(self.eleven, indent+1)}'
-		s += f'\n	* f_fs = {fmt_member(self.f_fs, indent+1)}'
-		s += f'\n	* name_offset = {fmt_member(self.name_offset, indent+1)}'
-		s += f'\n	* hitcheck_count = {fmt_member(self.hitcheck_count, indent+1)}'
-		s += f'\n	* zeros = {fmt_member(self.zeros, indent+1)}'
+		s += f'\n	* eleven = {self.fmt_member(self.eleven, indent+1)}'
+		s += f'\n	* f_fs = {self.fmt_member(self.f_fs, indent+1)}'
+		s += f'\n	* name_offset = {self.fmt_member(self.name_offset, indent+1)}'
+		s += f'\n	* hitcheck_count = {self.fmt_member(self.hitcheck_count, indent+1)}'
+		s += f'\n	* zeros = {self.fmt_member(self.zeros, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

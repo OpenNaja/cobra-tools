@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 import generated.formats.base.basic
 import generated.formats.renderparameters.compound.CurveList
 from generated.formats.base.basic import Int
@@ -76,11 +75,11 @@ class CurveParam(MemStruct):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* attribute_name = {fmt_member(self.attribute_name, indent+1)}'
-		s += f'\n	* dtype = {fmt_member(self.dtype, indent+1)}'
-		s += f'\n	* do_interpolation = {fmt_member(self.do_interpolation, indent+1)}'
-		s += f'\n	* curve_entries = {fmt_member(self.curve_entries, indent+1)}'
-		s += f'\n	* count = {fmt_member(self.count, indent+1)}'
+		s += f'\n	* attribute_name = {self.fmt_member(self.attribute_name, indent+1)}'
+		s += f'\n	* dtype = {self.fmt_member(self.dtype, indent+1)}'
+		s += f'\n	* do_interpolation = {self.fmt_member(self.do_interpolation, indent+1)}'
+		s += f'\n	* curve_entries = {self.fmt_member(self.curve_entries, indent+1)}'
+		s += f'\n	* count = {self.fmt_member(self.count, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

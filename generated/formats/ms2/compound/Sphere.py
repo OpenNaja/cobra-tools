@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 from generated.formats.base.basic import Float
 from generated.formats.base.basic import Uint
 from generated.formats.ms2.compound.Vector3 import Vector3
@@ -65,9 +64,9 @@ class Sphere(StructBase):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* center = {fmt_member(self.center, indent+1)}'
-		s += f'\n	* radius = {fmt_member(self.radius, indent+1)}'
-		s += f'\n	* zero = {fmt_member(self.zero, indent+1)}'
+		s += f'\n	* center = {self.fmt_member(self.center, indent+1)}'
+		s += f'\n	* radius = {self.fmt_member(self.radius, indent+1)}'
+		s += f'\n	* zero = {self.fmt_member(self.zero, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

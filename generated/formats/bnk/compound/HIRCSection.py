@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 from generated.array import Array
 from generated.formats.base.basic import Uint
 from generated.formats.bnk.compound.HircPointer import HircPointer
@@ -65,9 +64,9 @@ class HIRCSection(StructBase):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* length = {fmt_member(self.length, indent+1)}'
-		s += f'\n	* count = {fmt_member(self.count, indent+1)}'
-		s += f'\n	* hirc_pointers = {fmt_member(self.hirc_pointers, indent+1)}'
+		s += f'\n	* length = {self.fmt_member(self.length, indent+1)}'
+		s += f'\n	* count = {self.fmt_member(self.count, indent+1)}'
+		s += f'\n	* hirc_pointers = {self.fmt_member(self.hirc_pointers, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

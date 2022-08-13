@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 import numpy
 from generated.array import Array
 from generated.formats.base.basic import Int
@@ -104,17 +103,17 @@ class MusicTrackInitialValues(StructBase):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* u_flags = {fmt_member(self.u_flags, indent+1)}'
-		s += f'\n	* num_sources = {fmt_member(self.num_sources, indent+1)}'
-		s += f'\n	* p_source = {fmt_member(self.p_source, indent+1)}'
-		s += f'\n	* num_playlist_item = {fmt_member(self.num_playlist_item, indent+1)}'
-		s += f'\n	* p_playlist = {fmt_member(self.p_playlist, indent+1)}'
-		s += f'\n	* num_sub_track = {fmt_member(self.num_sub_track, indent+1)}'
-		s += f'\n	* num_clip_automation_item = {fmt_member(self.num_clip_automation_item, indent+1)}'
-		s += f'\n	* p_items = {fmt_member(self.p_items, indent+1)}'
-		s += f'\n	* node_base_params = {fmt_member(self.node_base_params, indent+1)}'
-		s += f'\n	* e_track_type = {fmt_member(self.e_track_type, indent+1)}'
-		s += f'\n	* i_look_ahead_time = {fmt_member(self.i_look_ahead_time, indent+1)}'
+		s += f'\n	* u_flags = {self.fmt_member(self.u_flags, indent+1)}'
+		s += f'\n	* num_sources = {self.fmt_member(self.num_sources, indent+1)}'
+		s += f'\n	* p_source = {self.fmt_member(self.p_source, indent+1)}'
+		s += f'\n	* num_playlist_item = {self.fmt_member(self.num_playlist_item, indent+1)}'
+		s += f'\n	* p_playlist = {self.fmt_member(self.p_playlist, indent+1)}'
+		s += f'\n	* num_sub_track = {self.fmt_member(self.num_sub_track, indent+1)}'
+		s += f'\n	* num_clip_automation_item = {self.fmt_member(self.num_clip_automation_item, indent+1)}'
+		s += f'\n	* p_items = {self.fmt_member(self.p_items, indent+1)}'
+		s += f'\n	* node_base_params = {self.fmt_member(self.node_base_params, indent+1)}'
+		s += f'\n	* e_track_type = {self.fmt_member(self.e_track_type, indent+1)}'
+		s += f'\n	* i_look_ahead_time = {self.fmt_member(self.i_look_ahead_time, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

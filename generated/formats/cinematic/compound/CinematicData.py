@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 import generated.formats.base.basic
 import generated.formats.cinematic.compound.State
 from generated.formats.base.basic import Uint64
@@ -63,9 +62,9 @@ class CinematicData(MemStruct):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* default_name = {fmt_member(self.default_name, indent+1)}'
-		s += f'\n	* next_levels = {fmt_member(self.next_levels, indent+1)}'
-		s += f'\n	* next_level_count = {fmt_member(self.next_level_count, indent+1)}'
+		s += f'\n	* default_name = {self.fmt_member(self.default_name, indent+1)}'
+		s += f'\n	* next_levels = {self.fmt_member(self.next_levels, indent+1)}'
+		s += f'\n	* next_level_count = {self.fmt_member(self.next_level_count, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

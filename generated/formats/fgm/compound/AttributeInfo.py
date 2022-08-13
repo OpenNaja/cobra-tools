@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 from generated.formats.base.basic import Uint64
 from generated.formats.fgm.compound.GenericInfo import GenericInfo
 
@@ -53,7 +52,7 @@ class AttributeInfo(GenericInfo):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* value_offset = {fmt_member(self.value_offset, indent+1)}'
+		s += f'\n	* value_offset = {self.fmt_member(self.value_offset, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 from generated.formats.ms2.compound.Matrix33 import Matrix33
 from generated.formats.ms2.compound.Vector3 import Vector3
 from generated.struct import StructBase
@@ -61,8 +60,8 @@ class JointEntry(StructBase):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* rot = {fmt_member(self.rot, indent+1)}'
-		s += f'\n	* loc = {fmt_member(self.loc, indent+1)}'
+		s += f'\n	* rot = {self.fmt_member(self.rot, indent+1)}'
+		s += f'\n	* loc = {self.fmt_member(self.loc, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

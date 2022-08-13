@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 import generated.formats.base.basic
 import generated.formats.path.compound.Joint
 from generated.formats.base.basic import Float
@@ -85,13 +84,13 @@ class ConnectorMultiJoint(MemStruct):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* model_name = {fmt_member(self.model_name, indent+1)}'
-		s += f'\n	* padding = {fmt_member(self.padding, indent+1)}'
-		s += f'\n	* joints = {fmt_member(self.joints, indent+1)}'
-		s += f'\n	* num_joints = {fmt_member(self.num_joints, indent+1)}'
-		s += f'\n	* unk_float_1 = {fmt_member(self.unk_float_1, indent+1)}'
-		s += f'\n	* unk_int_1 = {fmt_member(self.unk_int_1, indent+1)}'
-		s += f'\n	* padding = {fmt_member(self.padding, indent+1)}'
+		s += f'\n	* model_name = {self.fmt_member(self.model_name, indent+1)}'
+		s += f'\n	* padding = {self.fmt_member(self.padding, indent+1)}'
+		s += f'\n	* joints = {self.fmt_member(self.joints, indent+1)}'
+		s += f'\n	* num_joints = {self.fmt_member(self.num_joints, indent+1)}'
+		s += f'\n	* unk_float_1 = {self.fmt_member(self.unk_float_1, indent+1)}'
+		s += f'\n	* unk_int_1 = {self.fmt_member(self.unk_int_1, indent+1)}'
+		s += f'\n	* padding = {self.fmt_member(self.padding, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

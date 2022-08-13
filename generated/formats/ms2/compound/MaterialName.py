@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 from generated.formats.base.basic import Uint
 from generated.formats.base.basic import Ushort
 from generated.struct import StructBase
@@ -81,8 +80,8 @@ class MaterialName(StructBase):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* name_index = {fmt_member(self.name_index, indent+1)}'
-		s += f'\n	* some_index = {fmt_member(self.some_index, indent+1)}'
+		s += f'\n	* name_index = {self.fmt_member(self.name_index, indent+1)}'
+		s += f'\n	* some_index = {self.fmt_member(self.some_index, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

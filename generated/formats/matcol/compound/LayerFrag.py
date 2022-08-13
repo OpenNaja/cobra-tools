@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 import generated.formats.base.basic
 import generated.formats.matcol.compound.Attrib
 import generated.formats.matcol.compound.Info
@@ -95,15 +94,15 @@ class LayerFrag(MemStruct):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* layer_name = {fmt_member(self.layer_name, indent+1)}'
-		s += f'\n	* u_0 = {fmt_member(self.u_0, indent+1)}'
-		s += f'\n	* u_1 = {fmt_member(self.u_1, indent+1)}'
-		s += f'\n	* infos = {fmt_member(self.infos, indent+1)}'
-		s += f'\n	* info_count = {fmt_member(self.info_count, indent+1)}'
-		s += f'\n	* u_2 = {fmt_member(self.u_2, indent+1)}'
-		s += f'\n	* u_3 = {fmt_member(self.u_3, indent+1)}'
-		s += f'\n	* attribs = {fmt_member(self.attribs, indent+1)}'
-		s += f'\n	* attrib_count = {fmt_member(self.attrib_count, indent+1)}'
+		s += f'\n	* layer_name = {self.fmt_member(self.layer_name, indent+1)}'
+		s += f'\n	* u_0 = {self.fmt_member(self.u_0, indent+1)}'
+		s += f'\n	* u_1 = {self.fmt_member(self.u_1, indent+1)}'
+		s += f'\n	* infos = {self.fmt_member(self.infos, indent+1)}'
+		s += f'\n	* info_count = {self.fmt_member(self.info_count, indent+1)}'
+		s += f'\n	* u_2 = {self.fmt_member(self.u_2, indent+1)}'
+		s += f'\n	* u_3 = {self.fmt_member(self.u_3, indent+1)}'
+		s += f'\n	* attribs = {self.fmt_member(self.attribs, indent+1)}'
+		s += f'\n	* attrib_count = {self.fmt_member(self.attrib_count, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

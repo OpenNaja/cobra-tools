@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 import numpy
 from generated.array import Array
 from generated.formats.base.basic import Uint
@@ -59,8 +58,8 @@ class MeshCollisionBit(StructBase):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* countd = {fmt_member(self.countd, indent+1)}'
-		s += f'\n	* consts = {fmt_member(self.consts, indent+1)}'
+		s += f'\n	* countd = {self.fmt_member(self.countd, indent+1)}'
+		s += f'\n	* consts = {self.fmt_member(self.consts, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 import generated.formats.trackedridecar.compound.Vector3
 from generated.formats.base.basic import Float
 from generated.formats.base.basic import Uint
@@ -76,11 +75,11 @@ class TrackedRideCarSub(MemStruct):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* float = {fmt_member(self.float, indent+1)}'
-		s += f'\n	* u_0 = {fmt_member(self.u_0, indent+1)}'
-		s += f'\n	* vectors = {fmt_member(self.vectors, indent+1)}'
-		s += f'\n	* vecs_count = {fmt_member(self.vecs_count, indent+1)}'
-		s += f'\n	* zero_1 = {fmt_member(self.zero_1, indent+1)}'
+		s += f'\n	* float = {self.fmt_member(self.float, indent+1)}'
+		s += f'\n	* u_0 = {self.fmt_member(self.u_0, indent+1)}'
+		s += f'\n	* vectors = {self.fmt_member(self.vectors, indent+1)}'
+		s += f'\n	* vecs_count = {self.fmt_member(self.vecs_count, indent+1)}'
+		s += f'\n	* zero_1 = {self.fmt_member(self.zero_1, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

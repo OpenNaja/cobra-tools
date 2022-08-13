@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 import generated.formats.base.basic
 import numpy
 from generated.array import Array
@@ -69,10 +68,10 @@ class Info(MemStruct):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* info_name = {fmt_member(self.info_name, indent+1)}'
-		s += f'\n	* flags = {fmt_member(self.flags, indent+1)}'
-		s += f'\n	* value = {fmt_member(self.value, indent+1)}'
-		s += f'\n	* padding = {fmt_member(self.padding, indent+1)}'
+		s += f'\n	* info_name = {self.fmt_member(self.info_name, indent+1)}'
+		s += f'\n	* flags = {self.fmt_member(self.flags, indent+1)}'
+		s += f'\n	* value = {self.fmt_member(self.value, indent+1)}'
+		s += f'\n	* padding = {self.fmt_member(self.padding, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

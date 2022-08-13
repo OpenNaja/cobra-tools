@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 from generated.array import Array
 from generated.formats.base.basic import Uint
 from generated.formats.base.basic import ZString
@@ -82,12 +81,12 @@ class InfoHeader(GenericHeader):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* mani_count = {fmt_member(self.mani_count, indent+1)}'
-		s += f'\n	* names = {fmt_member(self.names, indent+1)}'
-		s += f'\n	* header = {fmt_member(self.header, indent+1)}'
-		s += f'\n	* mani_infos = {fmt_member(self.mani_infos, indent+1)}'
-		s += f'\n	* name_buffer = {fmt_member(self.name_buffer, indent+1)}'
-		s += f'\n	* keys_buffer = {fmt_member(self.keys_buffer, indent+1)}'
+		s += f'\n	* mani_count = {self.fmt_member(self.mani_count, indent+1)}'
+		s += f'\n	* names = {self.fmt_member(self.names, indent+1)}'
+		s += f'\n	* header = {self.fmt_member(self.header, indent+1)}'
+		s += f'\n	* mani_infos = {self.fmt_member(self.mani_infos, indent+1)}'
+		s += f'\n	* name_buffer = {self.fmt_member(self.name_buffer, indent+1)}'
+		s += f'\n	* keys_buffer = {self.fmt_member(self.keys_buffer, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

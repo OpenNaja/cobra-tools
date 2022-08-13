@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 import generated.formats.base.basic
 from generated.formats.base.basic import Float
 from generated.formats.base.basic import Uint64
@@ -113,19 +112,19 @@ class Perk(MemStruct):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* unk_0 = {fmt_member(self.unk_0, indent+1)}'
-		s += f'\n	* building_cost = {fmt_member(self.building_cost, indent+1)}'
-		s += f'\n	* running_cost_base = {fmt_member(self.running_cost_base, indent+1)}'
-		s += f'\n	* running_cost_per_extension = {fmt_member(self.running_cost_per_extension, indent+1)}'
-		s += f'\n	* unk_4 = {fmt_member(self.unk_4, indent+1)}'
-		s += f'\n	* unk_5 = {fmt_member(self.unk_5, indent+1)}'
-		s += f'\n	* label = {fmt_member(self.label, indent+1)}'
-		s += f'\n	* desc = {fmt_member(self.desc, indent+1)}'
-		s += f'\n	* icon = {fmt_member(self.icon, indent+1)}'
-		s += f'\n	* unk_6 = {fmt_member(self.unk_6, indent+1)}'
-		s += f'\n	* appeal_adults = {fmt_member(self.appeal_adults, indent+1)}'
-		s += f'\n	* appeal_families = {fmt_member(self.appeal_families, indent+1)}'
-		s += f'\n	* appeal_teenagers = {fmt_member(self.appeal_teenagers, indent+1)}'
+		s += f'\n	* unk_0 = {self.fmt_member(self.unk_0, indent+1)}'
+		s += f'\n	* building_cost = {self.fmt_member(self.building_cost, indent+1)}'
+		s += f'\n	* running_cost_base = {self.fmt_member(self.running_cost_base, indent+1)}'
+		s += f'\n	* running_cost_per_extension = {self.fmt_member(self.running_cost_per_extension, indent+1)}'
+		s += f'\n	* unk_4 = {self.fmt_member(self.unk_4, indent+1)}'
+		s += f'\n	* unk_5 = {self.fmt_member(self.unk_5, indent+1)}'
+		s += f'\n	* label = {self.fmt_member(self.label, indent+1)}'
+		s += f'\n	* desc = {self.fmt_member(self.desc, indent+1)}'
+		s += f'\n	* icon = {self.fmt_member(self.icon, indent+1)}'
+		s += f'\n	* unk_6 = {self.fmt_member(self.unk_6, indent+1)}'
+		s += f'\n	* appeal_adults = {self.fmt_member(self.appeal_adults, indent+1)}'
+		s += f'\n	* appeal_families = {self.fmt_member(self.appeal_families, indent+1)}'
+		s += f'\n	* appeal_teenagers = {self.fmt_member(self.appeal_teenagers, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

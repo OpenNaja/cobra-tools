@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 import generated.formats.base.basic
 import generated.formats.pscollection.compound.Arg
 from generated.formats.base.basic import Uint64
@@ -69,10 +68,10 @@ class PreparedStatement(MemStruct):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* args = {fmt_member(self.args, indent+1)}'
-		s += f'\n	* arg_count = {fmt_member(self.arg_count, indent+1)}'
-		s += f'\n	* statement_name = {fmt_member(self.statement_name, indent+1)}'
-		s += f'\n	* sql_query = {fmt_member(self.sql_query, indent+1)}'
+		s += f'\n	* args = {self.fmt_member(self.args, indent+1)}'
+		s += f'\n	* arg_count = {self.fmt_member(self.arg_count, indent+1)}'
+		s += f'\n	* statement_name = {self.fmt_member(self.statement_name, indent+1)}'
+		s += f'\n	* sql_query = {self.fmt_member(self.sql_query, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

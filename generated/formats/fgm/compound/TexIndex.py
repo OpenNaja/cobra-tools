@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 from generated.formats.base.basic import Uint
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
 
@@ -62,8 +61,8 @@ class TexIndex(MemStruct):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* index = {fmt_member(self.index, indent+1)}'
-		s += f'\n	* array_index = {fmt_member(self.array_index, indent+1)}'
+		s += f'\n	* index = {self.fmt_member(self.index, indent+1)}'
+		s += f'\n	* array_index = {self.fmt_member(self.array_index, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

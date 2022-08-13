@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 import numpy
 from generated.array import Array
 from generated.formats.base.basic import Ubyte
@@ -94,10 +93,10 @@ class TexInfoHeader(GenericHeader):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* tex_info = {fmt_member(self.tex_info, indent+1)}'
-		s += f'\n	* frag_01 = {fmt_member(self.frag_01, indent+1)}'
-		s += f'\n	* frag_11 = {fmt_member(self.frag_11, indent+1)}'
-		s += f'\n	* padding = {fmt_member(self.padding, indent+1)}'
+		s += f'\n	* tex_info = {self.fmt_member(self.tex_info, indent+1)}'
+		s += f'\n	* frag_01 = {self.fmt_member(self.frag_01, indent+1)}'
+		s += f'\n	* frag_11 = {self.fmt_member(self.frag_11, indent+1)}'
+		s += f'\n	* padding = {self.fmt_member(self.padding, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

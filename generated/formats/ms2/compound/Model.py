@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 from generated.array import Array
 from generated.formats.base.basic import Uint
 from generated.formats.ms2.compound.DLAPreBones import DLAPreBones
@@ -121,13 +120,13 @@ class Model(StructBase):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* materials = {fmt_member(self.materials, indent+1)}'
-		s += f'\n	* lods = {fmt_member(self.lods, indent+1)}'
-		s += f'\n	* objects = {fmt_member(self.objects, indent+1)}'
-		s += f'\n	* objects_padding = {fmt_member(self.objects_padding, indent+1)}'
-		s += f'\n	* meshes = {fmt_member(self.meshes, indent+1)}'
-		s += f'\n	* pre_bones = {fmt_member(self.pre_bones, indent+1)}'
-		s += f'\n	* floatsy = {fmt_member(self.floatsy, indent+1)}'
+		s += f'\n	* materials = {self.fmt_member(self.materials, indent+1)}'
+		s += f'\n	* lods = {self.fmt_member(self.lods, indent+1)}'
+		s += f'\n	* objects = {self.fmt_member(self.objects, indent+1)}'
+		s += f'\n	* objects_padding = {self.fmt_member(self.objects_padding, indent+1)}'
+		s += f'\n	* meshes = {self.fmt_member(self.meshes, indent+1)}'
+		s += f'\n	* pre_bones = {self.fmt_member(self.pre_bones, indent+1)}'
+		s += f'\n	* floatsy = {self.fmt_member(self.floatsy, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

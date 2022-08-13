@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 import generated.formats.base.basic
 from generated.formats.base.basic import Uint
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
@@ -59,8 +58,8 @@ class StringData(MemStruct):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* str_name = {fmt_member(self.str_name, indent+1)}'
-		s += f'\n	* ioptional = {fmt_member(self.ioptional, indent+1)}'
+		s += f'\n	* str_name = {self.fmt_member(self.str_name, indent+1)}'
+		s += f'\n	* ioptional = {self.fmt_member(self.ioptional, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

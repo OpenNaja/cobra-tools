@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 import generated.formats.base.basic
 from generated.formats.base.basic import Float
 from generated.formats.base.basic import Uint
@@ -61,9 +60,9 @@ class PathSupport(MemStruct):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* support = {fmt_member(self.support, indent+1)}'
-		s += f'\n	* unk_float_1 = {fmt_member(self.unk_float_1, indent+1)}'
-		s += f'\n	* unk_int_1 = {fmt_member(self.unk_int_1, indent+1)}'
+		s += f'\n	* support = {self.fmt_member(self.support, indent+1)}'
+		s += f'\n	* unk_float_1 = {self.fmt_member(self.unk_float_1, indent+1)}'
+		s += f'\n	* unk_int_1 = {self.fmt_member(self.unk_int_1, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

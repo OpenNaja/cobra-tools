@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 from generated.array import Array
 from generated.formats.ovl.compound.BufferEntry import BufferEntry
 from generated.formats.ovl.compound.BufferGroup import BufferGroup
@@ -94,14 +93,14 @@ class OvsHeader(StructBase):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* pool_groups = {fmt_member(self.pool_groups, indent+1)}'
-		s += f'\n	* pools = {fmt_member(self.pools, indent+1)}'
-		s += f'\n	* data_entries = {fmt_member(self.data_entries, indent+1)}'
-		s += f'\n	* buffer_entries = {fmt_member(self.buffer_entries, indent+1)}'
-		s += f'\n	* buffer_groups = {fmt_member(self.buffer_groups, indent+1)}'
-		s += f'\n	* root_entries = {fmt_member(self.root_entries, indent+1)}'
-		s += f'\n	* fragments = {fmt_member(self.fragments, indent+1)}'
-		s += f'\n	* set_header = {fmt_member(self.set_header, indent+1)}'
+		s += f'\n	* pool_groups = {self.fmt_member(self.pool_groups, indent+1)}'
+		s += f'\n	* pools = {self.fmt_member(self.pools, indent+1)}'
+		s += f'\n	* data_entries = {self.fmt_member(self.data_entries, indent+1)}'
+		s += f'\n	* buffer_entries = {self.fmt_member(self.buffer_entries, indent+1)}'
+		s += f'\n	* buffer_groups = {self.fmt_member(self.buffer_groups, indent+1)}'
+		s += f'\n	* root_entries = {self.fmt_member(self.root_entries, indent+1)}'
+		s += f'\n	* fragments = {self.fmt_member(self.fragments, indent+1)}'
+		s += f'\n	* set_header = {self.fmt_member(self.set_header, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 from generated.formats.base.basic import Uint
 from generated.formats.base.basic import Ushort
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
@@ -74,11 +73,11 @@ class ButtonData(MemStruct):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* k_1_a = {fmt_member(self.k_1_a, indent+1)}'
-		s += f'\n	* k_1_b = {fmt_member(self.k_1_b, indent+1)}'
-		s += f'\n	* k_2 = {fmt_member(self.k_2, indent+1)}'
-		s += f'\n	* k_3 = {fmt_member(self.k_3, indent+1)}'
-		s += f'\n	* k_4 = {fmt_member(self.k_4, indent+1)}'
+		s += f'\n	* k_1_a = {self.fmt_member(self.k_1_a, indent+1)}'
+		s += f'\n	* k_1_b = {self.fmt_member(self.k_1_b, indent+1)}'
+		s += f'\n	* k_2 = {self.fmt_member(self.k_2, indent+1)}'
+		s += f'\n	* k_3 = {self.fmt_member(self.k_3, indent+1)}'
+		s += f'\n	* k_4 = {self.fmt_member(self.k_4, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

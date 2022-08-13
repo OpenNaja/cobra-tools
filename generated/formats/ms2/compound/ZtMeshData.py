@@ -7,7 +7,6 @@ from generated.formats.ms2.compound.ZtTriBlockInfo import ZtTriBlockInfo
 from generated.formats.ms2.compound.ZtVertBlockInfo import ZtVertBlockInfo
 from generated.formats.ms2.compound.packing_utils import *
 from plugin.utils.tristrip import triangulate
-from generated.formats.base.basic import fmt_member
 from generated.formats.base.basic import Int
 from generated.formats.base.basic import Short
 from generated.formats.base.basic import Uint
@@ -160,20 +159,20 @@ class ZtMeshData(MeshData):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* tri_index_count = {fmt_member(self.tri_index_count, indent+1)}'
-		s += f'\n	* vertex_count = {fmt_member(self.vertex_count, indent+1)}'
-		s += f'\n	* tri_info_offset = {fmt_member(self.tri_info_offset, indent+1)}'
-		s += f'\n	* vert_info_offset = {fmt_member(self.vert_info_offset, indent+1)}'
-		s += f'\n	* known_ff_0 = {fmt_member(self.known_ff_0, indent+1)}'
-		s += f'\n	* tri_offset = {fmt_member(self.tri_offset, indent+1)}'
-		s += f'\n	* uv_offset = {fmt_member(self.uv_offset, indent+1)}'
-		s += f'\n	* vertex_offset = {fmt_member(self.vertex_offset, indent+1)}'
-		s += f'\n	* unk_index = {fmt_member(self.unk_index, indent+1)}'
-		s += f'\n	* one_0 = {fmt_member(self.one_0, indent+1)}'
-		s += f'\n	* one_1 = {fmt_member(self.one_1, indent+1)}'
-		s += f'\n	* poweroftwo = {fmt_member(self.poweroftwo, indent+1)}'
-		s += f'\n	* flag = {fmt_member(self.flag, indent+1)}'
-		s += f'\n	* zero_uac = {fmt_member(self.zero_uac, indent+1)}'
+		s += f'\n	* tri_index_count = {self.fmt_member(self.tri_index_count, indent+1)}'
+		s += f'\n	* vertex_count = {self.fmt_member(self.vertex_count, indent+1)}'
+		s += f'\n	* tri_info_offset = {self.fmt_member(self.tri_info_offset, indent+1)}'
+		s += f'\n	* vert_info_offset = {self.fmt_member(self.vert_info_offset, indent+1)}'
+		s += f'\n	* known_ff_0 = {self.fmt_member(self.known_ff_0, indent+1)}'
+		s += f'\n	* tri_offset = {self.fmt_member(self.tri_offset, indent+1)}'
+		s += f'\n	* uv_offset = {self.fmt_member(self.uv_offset, indent+1)}'
+		s += f'\n	* vertex_offset = {self.fmt_member(self.vertex_offset, indent+1)}'
+		s += f'\n	* unk_index = {self.fmt_member(self.unk_index, indent+1)}'
+		s += f'\n	* one_0 = {self.fmt_member(self.one_0, indent+1)}'
+		s += f'\n	* one_1 = {self.fmt_member(self.one_1, indent+1)}'
+		s += f'\n	* poweroftwo = {self.fmt_member(self.poweroftwo, indent+1)}'
+		s += f'\n	* flag = {self.fmt_member(self.flag, indent+1)}'
+		s += f'\n	* zero_uac = {self.fmt_member(self.zero_uac, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

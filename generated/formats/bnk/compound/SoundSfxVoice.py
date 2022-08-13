@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 import numpy
 from generated.array import Array
 from generated.formats.base.basic import Byte
@@ -68,13 +67,13 @@ class SoundSfxVoice(StructBase):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* length = {fmt_member(self.length, indent+1)}'
-		s += f'\n	* id = {fmt_member(self.id, indent+1)}'
-		s += f'\n	* const_a = {fmt_member(self.const_a, indent+1)}'
-		s += f'\n	* const_b = {fmt_member(self.const_b, indent+1)}'
-		s += f'\n	* didx_id = {fmt_member(self.didx_id, indent+1)}'
-		s += f'\n	* wem_length = {fmt_member(self.wem_length, indent+1)}'
-		s += f'\n	* extra = {fmt_member(self.extra, indent+1)}'
+		s += f'\n	* length = {self.fmt_member(self.length, indent+1)}'
+		s += f'\n	* id = {self.fmt_member(self.id, indent+1)}'
+		s += f'\n	* const_a = {self.fmt_member(self.const_a, indent+1)}'
+		s += f'\n	* const_b = {self.fmt_member(self.const_b, indent+1)}'
+		s += f'\n	* didx_id = {self.fmt_member(self.didx_id, indent+1)}'
+		s += f'\n	* wem_length = {self.fmt_member(self.wem_length, indent+1)}'
+		s += f'\n	* extra = {self.fmt_member(self.extra, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

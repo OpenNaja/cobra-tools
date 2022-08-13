@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 import generated.formats.motiongraph.compound.Activities
 import generated.formats.motiongraph.compound.MRFArray1
 import generated.formats.motiongraph.compound.MRFArray2
@@ -95,14 +94,14 @@ class MotiongraphRootFrag(MemStruct):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* num_activities = {fmt_member(self.num_activities, indent+1)}'
-		s += f'\n	* activities = {fmt_member(self.activities, indent+1)}'
-		s += f'\n	* count_1 = {fmt_member(self.count_1, indent+1)}'
-		s += f'\n	* ptr_1 = {fmt_member(self.ptr_1, indent+1)}'
-		s += f'\n	* count_2 = {fmt_member(self.count_2, indent+1)}'
-		s += f'\n	* ptr_2 = {fmt_member(self.ptr_2, indent+1)}'
-		s += f'\n	* num_xmls = {fmt_member(self.num_xmls, indent+1)}'
-		s += f'\n	* ptr_xmls = {fmt_member(self.ptr_xmls, indent+1)}'
+		s += f'\n	* num_activities = {self.fmt_member(self.num_activities, indent+1)}'
+		s += f'\n	* activities = {self.fmt_member(self.activities, indent+1)}'
+		s += f'\n	* count_1 = {self.fmt_member(self.count_1, indent+1)}'
+		s += f'\n	* ptr_1 = {self.fmt_member(self.ptr_1, indent+1)}'
+		s += f'\n	* count_2 = {self.fmt_member(self.count_2, indent+1)}'
+		s += f'\n	* ptr_2 = {self.fmt_member(self.ptr_2, indent+1)}'
+		s += f'\n	* num_xmls = {self.fmt_member(self.num_xmls, indent+1)}'
+		s += f'\n	* ptr_xmls = {self.fmt_member(self.ptr_xmls, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 import generated.formats.scaleformlanguagedata.compound.FontInfo
 from generated.formats.base.basic import Uint64
 from generated.formats.ovl_base.compound.ArrayPointer import ArrayPointer
@@ -80,12 +79,12 @@ class ScaleformlanguagedataRoot(MemStruct):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* zero_0 = {fmt_member(self.zero_0, indent+1)}'
-		s += f'\n	* zero_1 = {fmt_member(self.zero_1, indent+1)}'
-		s += f'\n	* fonts = {fmt_member(self.fonts, indent+1)}'
-		s += f'\n	* count = {fmt_member(self.count, indent+1)}'
-		s += f'\n	* zero_2 = {fmt_member(self.zero_2, indent+1)}'
-		s += f'\n	* zero_3 = {fmt_member(self.zero_3, indent+1)}'
+		s += f'\n	* zero_0 = {self.fmt_member(self.zero_0, indent+1)}'
+		s += f'\n	* zero_1 = {self.fmt_member(self.zero_1, indent+1)}'
+		s += f'\n	* fonts = {self.fmt_member(self.fonts, indent+1)}'
+		s += f'\n	* count = {self.fmt_member(self.count, indent+1)}'
+		s += f'\n	* zero_2 = {self.fmt_member(self.zero_2, indent+1)}'
+		s += f'\n	* zero_3 = {self.fmt_member(self.zero_3, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 from generated.array import Array
 from generated.formats.base.basic import Uint
 from generated.formats.base.basic import Uint64
@@ -116,15 +115,15 @@ class SizeInfoRaw(MemStruct):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* zero = {fmt_member(self.zero, indent+1)}'
-		s += f'\n	* data_size = {fmt_member(self.data_size, indent+1)}'
-		s += f'\n	* width = {fmt_member(self.width, indent+1)}'
-		s += f'\n	* height = {fmt_member(self.height, indent+1)}'
-		s += f'\n	* depth = {fmt_member(self.depth, indent+1)}'
-		s += f'\n	* array_size = {fmt_member(self.array_size, indent+1)}'
-		s += f'\n	* num_mips = {fmt_member(self.num_mips, indent+1)}'
-		s += f'\n	* unk_pz = {fmt_member(self.unk_pz, indent+1)}'
-		s += f'\n	* mip_maps = {fmt_member(self.mip_maps, indent+1)}'
+		s += f'\n	* zero = {self.fmt_member(self.zero, indent+1)}'
+		s += f'\n	* data_size = {self.fmt_member(self.data_size, indent+1)}'
+		s += f'\n	* width = {self.fmt_member(self.width, indent+1)}'
+		s += f'\n	* height = {self.fmt_member(self.height, indent+1)}'
+		s += f'\n	* depth = {self.fmt_member(self.depth, indent+1)}'
+		s += f'\n	* array_size = {self.fmt_member(self.array_size, indent+1)}'
+		s += f'\n	* num_mips = {self.fmt_member(self.num_mips, indent+1)}'
+		s += f'\n	* unk_pz = {self.fmt_member(self.unk_pz, indent+1)}'
+		s += f'\n	* mip_maps = {self.fmt_member(self.mip_maps, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

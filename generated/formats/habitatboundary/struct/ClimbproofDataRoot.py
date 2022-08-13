@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 import generated.formats.base.basic
 from generated.formats.base.basic import Float
 from generated.formats.base.basic import Uint64
@@ -90,13 +89,13 @@ class ClimbproofDataRoot(MemStruct):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* climb_proof = {fmt_member(self.climb_proof, indent+1)}'
-		s += f'\n	* climb_proof_cap_start = {fmt_member(self.climb_proof_cap_start, indent+1)}'
-		s += f'\n	* climb_proof_cap_end = {fmt_member(self.climb_proof_cap_end, indent+1)}'
-		s += f'\n	* climb_proof_bracket = {fmt_member(self.climb_proof_bracket, indent+1)}'
-		s += f'\n	* post_gap = {fmt_member(self.post_gap, indent+1)}'
-		s += f'\n	* u_1 = {fmt_member(self.u_1, indent+1)}'
-		s += f'\n	* zero = {fmt_member(self.zero, indent+1)}'
+		s += f'\n	* climb_proof = {self.fmt_member(self.climb_proof, indent+1)}'
+		s += f'\n	* climb_proof_cap_start = {self.fmt_member(self.climb_proof_cap_start, indent+1)}'
+		s += f'\n	* climb_proof_cap_end = {self.fmt_member(self.climb_proof_cap_end, indent+1)}'
+		s += f'\n	* climb_proof_bracket = {self.fmt_member(self.climb_proof_bracket, indent+1)}'
+		s += f'\n	* post_gap = {self.fmt_member(self.post_gap, indent+1)}'
+		s += f'\n	* u_1 = {self.fmt_member(self.u_1, indent+1)}'
+		s += f'\n	* zero = {self.fmt_member(self.zero, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

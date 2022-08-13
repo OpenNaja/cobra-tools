@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 from generated.array import Array
 from generated.formats.base.basic import Uint
 from generated.formats.ovl.compound.AssetEntry import AssetEntry
@@ -83,12 +82,12 @@ class SetHeader(StructBase):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* set_count = {fmt_member(self.set_count, indent+1)}'
-		s += f'\n	* asset_count = {fmt_member(self.asset_count, indent+1)}'
-		s += f'\n	* sig_a = {fmt_member(self.sig_a, indent+1)}'
-		s += f'\n	* sig_b = {fmt_member(self.sig_b, indent+1)}'
-		s += f'\n	* sets = {fmt_member(self.sets, indent+1)}'
-		s += f'\n	* assets = {fmt_member(self.assets, indent+1)}'
+		s += f'\n	* set_count = {self.fmt_member(self.set_count, indent+1)}'
+		s += f'\n	* asset_count = {self.fmt_member(self.asset_count, indent+1)}'
+		s += f'\n	* sig_a = {self.fmt_member(self.sig_a, indent+1)}'
+		s += f'\n	* sig_b = {self.fmt_member(self.sig_b, indent+1)}'
+		s += f'\n	* sets = {self.fmt_member(self.sets, indent+1)}'
+		s += f'\n	* assets = {self.fmt_member(self.assets, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

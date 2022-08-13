@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 import generated.formats.base.basic
 import generated.formats.motiongraph.compound.Sixtyfour
 import generated.formats.motiongraph.compound.TwoPtrFirst
@@ -99,15 +98,15 @@ class ThirdFrag(MemStruct):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* lua_method = {fmt_member(self.lua_method, indent+1)}'
-		s += f'\n	* count_0 = {fmt_member(self.count_0, indent+1)}'
-		s += f'\n	* count_1 = {fmt_member(self.count_1, indent+1)}'
-		s += f'\n	* ptr_1 = {fmt_member(self.ptr_1, indent+1)}'
-		s += f'\n	* count_2 = {fmt_member(self.count_2, indent+1)}'
-		s += f'\n	* count_3 = {fmt_member(self.count_3, indent+1)}'
-		s += f'\n	* ptr_2 = {fmt_member(self.ptr_2, indent+1)}'
-		s += f'\n	* count_4 = {fmt_member(self.count_4, indent+1)}'
-		s += f'\n	* member = {fmt_member(self.member, indent+1)}'
+		s += f'\n	* lua_method = {self.fmt_member(self.lua_method, indent+1)}'
+		s += f'\n	* count_0 = {self.fmt_member(self.count_0, indent+1)}'
+		s += f'\n	* count_1 = {self.fmt_member(self.count_1, indent+1)}'
+		s += f'\n	* ptr_1 = {self.fmt_member(self.ptr_1, indent+1)}'
+		s += f'\n	* count_2 = {self.fmt_member(self.count_2, indent+1)}'
+		s += f'\n	* count_3 = {self.fmt_member(self.count_3, indent+1)}'
+		s += f'\n	* ptr_2 = {self.fmt_member(self.ptr_2, indent+1)}'
+		s += f'\n	* count_4 = {self.fmt_member(self.count_4, indent+1)}'
+		s += f'\n	* member = {self.fmt_member(self.member, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

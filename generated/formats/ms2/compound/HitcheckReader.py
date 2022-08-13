@@ -2,7 +2,6 @@
 from generated.formats.ms2.compound.HitCheckEntry import HitCheckEntry
 from generated.struct import StructBase
 
-from generated.formats.base.basic import fmt_member
 from generated.struct import StructBase
 
 

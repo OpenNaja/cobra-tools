@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 from generated.formats.ovl.compound.HeaderPointer import HeaderPointer
 from generated.struct import StructBase
 
@@ -60,8 +59,8 @@ class Fragment(StructBase):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* link_ptr = {fmt_member(self.link_ptr, indent+1)}'
-		s += f'\n	* struct_ptr = {fmt_member(self.struct_ptr, indent+1)}'
+		s += f'\n	* link_ptr = {self.fmt_member(self.link_ptr, indent+1)}'
+		s += f'\n	* struct_ptr = {self.fmt_member(self.struct_ptr, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

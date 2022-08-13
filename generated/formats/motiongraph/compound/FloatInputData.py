@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 from generated.formats.base.basic import Float
 from generated.formats.base.basic import Uint
 from generated.formats.base.basic import Uint64
@@ -63,9 +62,9 @@ class FloatInputData(MemStruct):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* float = {fmt_member(self.float, indent+1)}'
-		s += f'\n	* optional_var_and_curve_count = {fmt_member(self.optional_var_and_curve_count, indent+1)}'
-		s += f'\n	* optional_var_and_curve = {fmt_member(self.optional_var_and_curve, indent+1)}'
+		s += f'\n	* float = {self.fmt_member(self.float, indent+1)}'
+		s += f'\n	* optional_var_and_curve_count = {self.fmt_member(self.optional_var_and_curve_count, indent+1)}'
+		s += f'\n	* optional_var_and_curve = {self.fmt_member(self.optional_var_and_curve, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

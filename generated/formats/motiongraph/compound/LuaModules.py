@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 import generated.formats.base.basic
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
 from generated.formats.ovl_base.compound.Pointer import Pointer
@@ -65,9 +64,9 @@ class LuaModules(MemStruct):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* motion_graph = {fmt_member(self.motion_graph, indent+1)}'
-		s += f'\n	* motion_graph_event_handling = {fmt_member(self.motion_graph_event_handling, indent+1)}'
-		s += f'\n	* motion_graph_actions = {fmt_member(self.motion_graph_actions, indent+1)}'
+		s += f'\n	* motion_graph = {self.fmt_member(self.motion_graph, indent+1)}'
+		s += f'\n	* motion_graph_event_handling = {self.fmt_member(self.motion_graph_event_handling, indent+1)}'
+		s += f'\n	* motion_graph_actions = {self.fmt_member(self.motion_graph_actions, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

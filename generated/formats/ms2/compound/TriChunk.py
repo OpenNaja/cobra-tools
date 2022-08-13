@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 from generated.formats.base.basic import Uint
 from generated.formats.base.basic import Ushort
 from generated.formats.ms2.compound.QuatWFirst import QuatWFirst
@@ -102,15 +101,15 @@ class TriChunk(StructBase):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* bounds_min = {fmt_member(self.bounds_min, indent+1)}'
-		s += f'\n	* material_index = {fmt_member(self.material_index, indent+1)}'
-		s += f'\n	* tris_count = {fmt_member(self.tris_count, indent+1)}'
-		s += f'\n	* bounds_max = {fmt_member(self.bounds_max, indent+1)}'
-		s += f'\n	* tris_offset = {fmt_member(self.tris_offset, indent+1)}'
-		s += f'\n	* loc = {fmt_member(self.loc, indent+1)}'
-		s += f'\n	* rot = {fmt_member(self.rot, indent+1)}'
-		s += f'\n	* u_2 = {fmt_member(self.u_2, indent+1)}'
-		s += f'\n	* u_3 = {fmt_member(self.u_3, indent+1)}'
+		s += f'\n	* bounds_min = {self.fmt_member(self.bounds_min, indent+1)}'
+		s += f'\n	* material_index = {self.fmt_member(self.material_index, indent+1)}'
+		s += f'\n	* tris_count = {self.fmt_member(self.tris_count, indent+1)}'
+		s += f'\n	* bounds_max = {self.fmt_member(self.bounds_max, indent+1)}'
+		s += f'\n	* tris_offset = {self.fmt_member(self.tris_offset, indent+1)}'
+		s += f'\n	* loc = {self.fmt_member(self.loc, indent+1)}'
+		s += f'\n	* rot = {self.fmt_member(self.rot, indent+1)}'
+		s += f'\n	* u_2 = {self.fmt_member(self.u_2, indent+1)}'
+		s += f'\n	* u_3 = {self.fmt_member(self.u_3, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

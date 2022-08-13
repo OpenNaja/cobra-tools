@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 import generated.formats.base.basic
 from generated.formats.base.basic import Uint64
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
@@ -66,10 +65,10 @@ class SupportAttach(MemStruct):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* model_name = {fmt_member(self.model_name, indent+1)}'
-		s += f'\n	* unk_int_1 = {fmt_member(self.unk_int_1, indent+1)}'
-		s += f'\n	* unk_int_2 = {fmt_member(self.unk_int_2, indent+1)}'
-		s += f'\n	* unk_vector = {fmt_member(self.unk_vector, indent+1)}'
+		s += f'\n	* model_name = {self.fmt_member(self.model_name, indent+1)}'
+		s += f'\n	* unk_int_1 = {self.fmt_member(self.unk_int_1, indent+1)}'
+		s += f'\n	* unk_int_2 = {self.fmt_member(self.unk_int_2, indent+1)}'
+		s += f'\n	* unk_vector = {self.fmt_member(self.unk_vector, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

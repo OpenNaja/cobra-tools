@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 import generated.formats.animalresearch.compound.PtrList
 import generated.formats.base.basic
 from generated.formats.base.basic import Uint64
@@ -73,11 +72,11 @@ class ResearchLevel(MemStruct):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* level_name = {fmt_member(self.level_name, indent+1)}'
-		s += f'\n	* next_levels = {fmt_member(self.next_levels, indent+1)}'
-		s += f'\n	* next_level_count = {fmt_member(self.next_level_count, indent+1)}'
-		s += f'\n	* children = {fmt_member(self.children, indent+1)}'
-		s += f'\n	* children_count = {fmt_member(self.children_count, indent+1)}'
+		s += f'\n	* level_name = {self.fmt_member(self.level_name, indent+1)}'
+		s += f'\n	* next_levels = {self.fmt_member(self.next_levels, indent+1)}'
+		s += f'\n	* next_level_count = {self.fmt_member(self.next_level_count, indent+1)}'
+		s += f'\n	* children = {self.fmt_member(self.children, indent+1)}'
+		s += f'\n	* children_count = {self.fmt_member(self.children_count, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 import generated.formats.path.compound.Connector
 import generated.formats.path.compound.ConnectorMultiJoint
 import generated.formats.path.compound.Footer
@@ -134,21 +133,21 @@ class SupportSetRoot(MemStruct):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* connector_1 = {fmt_member(self.connector_1, indent+1)}'
-		s += f'\n	* connector_2 = {fmt_member(self.connector_2, indent+1)}'
-		s += f'\n	* pillar = {fmt_member(self.pillar, indent+1)}'
-		s += f'\n	* footer = {fmt_member(self.footer, indent+1)}'
-		s += f'\n	* padding = {fmt_member(self.padding, indent+1)}'
-		s += f'\n	* unk_vector_1 = {fmt_member(self.unk_vector_1, indent+1)}'
-		s += f'\n	* unk_vector_2 = {fmt_member(self.unk_vector_2, indent+1)}'
-		s += f'\n	* unk_vector_3 = {fmt_member(self.unk_vector_3, indent+1)}'
-		s += f'\n	* unk_int_1 = {fmt_member(self.unk_int_1, indent+1)}'
-		s += f'\n	* num_connector_1 = {fmt_member(self.num_connector_1, indent+1)}'
-		s += f'\n	* num_connector_2 = {fmt_member(self.num_connector_2, indent+1)}'
-		s += f'\n	* unk_ints = {fmt_member(self.unk_ints, indent+1)}'
-		s += f'\n	* padding_2 = {fmt_member(self.padding_2, indent+1)}'
-		s += f'\n	* data = {fmt_member(self.data, indent+1)}'
-		s += f'\n	* num_data = {fmt_member(self.num_data, indent+1)}'
+		s += f'\n	* connector_1 = {self.fmt_member(self.connector_1, indent+1)}'
+		s += f'\n	* connector_2 = {self.fmt_member(self.connector_2, indent+1)}'
+		s += f'\n	* pillar = {self.fmt_member(self.pillar, indent+1)}'
+		s += f'\n	* footer = {self.fmt_member(self.footer, indent+1)}'
+		s += f'\n	* padding = {self.fmt_member(self.padding, indent+1)}'
+		s += f'\n	* unk_vector_1 = {self.fmt_member(self.unk_vector_1, indent+1)}'
+		s += f'\n	* unk_vector_2 = {self.fmt_member(self.unk_vector_2, indent+1)}'
+		s += f'\n	* unk_vector_3 = {self.fmt_member(self.unk_vector_3, indent+1)}'
+		s += f'\n	* unk_int_1 = {self.fmt_member(self.unk_int_1, indent+1)}'
+		s += f'\n	* num_connector_1 = {self.fmt_member(self.num_connector_1, indent+1)}'
+		s += f'\n	* num_connector_2 = {self.fmt_member(self.num_connector_2, indent+1)}'
+		s += f'\n	* unk_ints = {self.fmt_member(self.unk_ints, indent+1)}'
+		s += f'\n	* padding_2 = {self.fmt_member(self.padding_2, indent+1)}'
+		s += f'\n	* data = {self.fmt_member(self.data, indent+1)}'
+		s += f'\n	* num_data = {self.fmt_member(self.num_data, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

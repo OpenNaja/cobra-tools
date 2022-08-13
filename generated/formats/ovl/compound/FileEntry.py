@@ -3,7 +3,6 @@ from generated.formats.ovl.versions import *
 from hashes import constants_jwe, constants_pz, constants_jwe2, constants_pc, constants_dla
 
 
-from generated.formats.base.basic import fmt_member
 from generated.formats.base.basic import Byte
 from generated.formats.base.basic import Uint
 from generated.formats.base.basic import Ushort
@@ -88,11 +87,11 @@ class FileEntry(StructBase):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* offset = {fmt_member(self.offset, indent+1)}'
-		s += f'\n	* file_hash = {fmt_member(self.file_hash, indent+1)}'
-		s += f'\n	* pool_type = {fmt_member(self.pool_type, indent+1)}'
-		s += f'\n	* set_pool_type = {fmt_member(self.set_pool_type, indent+1)}'
-		s += f'\n	* extension = {fmt_member(self.extension, indent+1)}'
+		s += f'\n	* offset = {self.fmt_member(self.offset, indent+1)}'
+		s += f'\n	* file_hash = {self.fmt_member(self.file_hash, indent+1)}'
+		s += f'\n	* pool_type = {self.fmt_member(self.pool_type, indent+1)}'
+		s += f'\n	* set_pool_type = {self.fmt_member(self.set_pool_type, indent+1)}'
+		s += f'\n	* extension = {self.fmt_member(self.extension, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 import generated.formats.cinematic.compound.CinematicData
 from generated.formats.base.basic import Uint64
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
@@ -60,9 +59,9 @@ class CinematicRoot(MemStruct):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* u_0 = {fmt_member(self.u_0, indent+1)}'
-		s += f'\n	* u_1 = {fmt_member(self.u_1, indent+1)}'
-		s += f'\n	* data = {fmt_member(self.data, indent+1)}'
+		s += f'\n	* u_0 = {self.fmt_member(self.u_0, indent+1)}'
+		s += f'\n	* u_1 = {self.fmt_member(self.u_1, indent+1)}'
+		s += f'\n	* data = {self.fmt_member(self.data, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

@@ -156,7 +156,7 @@ class Compound(BaseClass):
                     self.write_line(f, 2, "s += super().get_fields_str()")
                 for union in self.field_unions:
                     # rep = f"self.{union.name}.__repr__(indent+1)"
-                    rep = f"fmt_member(self.{union.name}, indent+1)"
+                    rep = f"self.fmt_member(self.{union.name}, indent+1)"
                     self.write_line(f, 2, f"s += f'\\n\t* {union.name} = {{{rep}}}'")
                 self.write_line(f, 2, "return s")
 

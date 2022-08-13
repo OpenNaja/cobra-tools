@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 import generated.formats.base.basic
 import generated.formats.posedriverdef.compound.Data
 from generated.formats.base.basic import Ubyte
@@ -100,15 +99,15 @@ class Driver(MemStruct):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* joint_name = {fmt_member(self.joint_name, indent+1)}'
-		s += f'\n	* a = {fmt_member(self.a, indent+1)}'
-		s += f'\n	* b = {fmt_member(self.b, indent+1)}'
-		s += f'\n	* c = {fmt_member(self.c, indent+1)}'
-		s += f'\n	* d = {fmt_member(self.d, indent+1)}'
-		s += f'\n	* driven_joint_name = {fmt_member(self.driven_joint_name, indent+1)}'
-		s += f'\n	* unk_1 = {fmt_member(self.unk_1, indent+1)}'
-		s += f'\n	* data = {fmt_member(self.data, indent+1)}'
-		s += f'\n	* unk_2 = {fmt_member(self.unk_2, indent+1)}'
+		s += f'\n	* joint_name = {self.fmt_member(self.joint_name, indent+1)}'
+		s += f'\n	* a = {self.fmt_member(self.a, indent+1)}'
+		s += f'\n	* b = {self.fmt_member(self.b, indent+1)}'
+		s += f'\n	* c = {self.fmt_member(self.c, indent+1)}'
+		s += f'\n	* d = {self.fmt_member(self.d, indent+1)}'
+		s += f'\n	* driven_joint_name = {self.fmt_member(self.driven_joint_name, indent+1)}'
+		s += f'\n	* unk_1 = {self.fmt_member(self.unk_1, indent+1)}'
+		s += f'\n	* data = {self.fmt_member(self.data, indent+1)}'
+		s += f'\n	* unk_2 = {self.fmt_member(self.unk_2, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

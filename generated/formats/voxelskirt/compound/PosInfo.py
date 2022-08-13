@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 from generated.formats.base.basic import Int
 from generated.formats.voxelskirt.compound.Material import Material
 
@@ -56,8 +55,8 @@ class PosInfo(Material):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* ff = {fmt_member(self.ff, indent+1)}'
-		s += f'\n	* ff_or_zero = {fmt_member(self.ff_or_zero, indent+1)}'
+		s += f'\n	* ff = {self.fmt_member(self.ff, indent+1)}'
+		s += f'\n	* ff_or_zero = {self.fmt_member(self.ff_or_zero, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

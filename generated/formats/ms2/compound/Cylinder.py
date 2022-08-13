@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 from generated.formats.ms2.compound.Capsule import Capsule
 
 

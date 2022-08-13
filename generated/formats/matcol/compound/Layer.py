@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 from generated.array import Array
 from generated.formats.base.basic import ZString
 from generated.formats.matcol.compound.Attrib import Attrib
@@ -76,12 +75,12 @@ class Layer(StructBase):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* info = {fmt_member(self.info, indent+1)}'
-		s += f'\n	* name = {fmt_member(self.name, indent+1)}'
-		s += f'\n	* infos = {fmt_member(self.infos, indent+1)}'
-		s += f'\n	* info_names = {fmt_member(self.info_names, indent+1)}'
-		s += f'\n	* attribs = {fmt_member(self.attribs, indent+1)}'
-		s += f'\n	* attrib_names = {fmt_member(self.attrib_names, indent+1)}'
+		s += f'\n	* info = {self.fmt_member(self.info, indent+1)}'
+		s += f'\n	* name = {self.fmt_member(self.name, indent+1)}'
+		s += f'\n	* infos = {self.fmt_member(self.infos, indent+1)}'
+		s += f'\n	* info_names = {self.fmt_member(self.info_names, indent+1)}'
+		s += f'\n	* attribs = {self.fmt_member(self.attribs, indent+1)}'
+		s += f'\n	* attrib_names = {self.fmt_member(self.attrib_names, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 import generated.formats.base.basic
 import generated.formats.dinosaurmaterialvariants.compound.PatternArray
 import generated.formats.ovl_base.basic
@@ -79,12 +78,12 @@ class DinoPatternsHeader(MemStruct):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* fgm_name = {fmt_member(self.fgm_name, indent+1)}'
-		s += f'\n	* set_count = {fmt_member(self.set_count, indent+1)}'
-		s += f'\n	* set_name = {fmt_member(self.set_name, indent+1)}'
-		s += f'\n	* patterns = {fmt_member(self.patterns, indent+1)}'
-		s += f'\n	* pattern_count = {fmt_member(self.pattern_count, indent+1)}'
-		s += f'\n	* zero = {fmt_member(self.zero, indent+1)}'
+		s += f'\n	* fgm_name = {self.fmt_member(self.fgm_name, indent+1)}'
+		s += f'\n	* set_count = {self.fmt_member(self.set_count, indent+1)}'
+		s += f'\n	* set_name = {self.fmt_member(self.set_name, indent+1)}'
+		s += f'\n	* patterns = {self.fmt_member(self.patterns, indent+1)}'
+		s += f'\n	* pattern_count = {self.fmt_member(self.pattern_count, indent+1)}'
+		s += f'\n	* zero = {self.fmt_member(self.zero, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

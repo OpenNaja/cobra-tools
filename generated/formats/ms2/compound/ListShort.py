@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 from generated.formats.base.basic import Float
 from generated.formats.ms2.compound.Descriptor import Descriptor
 from generated.formats.ms2.compound.Vector3 import Vector3
@@ -75,10 +74,10 @@ class ListShort(Descriptor):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* loc = {fmt_member(self.loc, indent+1)}'
-		s += f'\n	* direction = {fmt_member(self.direction, indent+1)}'
-		s += f'\n	* min = {fmt_member(self.min, indent+1)}'
-		s += f'\n	* max = {fmt_member(self.max, indent+1)}'
+		s += f'\n	* loc = {self.fmt_member(self.loc, indent+1)}'
+		s += f'\n	* direction = {self.fmt_member(self.direction, indent+1)}'
+		s += f'\n	* min = {self.fmt_member(self.min, indent+1)}'
+		s += f'\n	* max = {self.fmt_member(self.max, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

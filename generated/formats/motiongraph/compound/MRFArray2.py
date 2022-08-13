@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 from generated.array import Array
 from generated.formats.motiongraph.compound.MRFEntry2 import MRFEntry2
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
@@ -48,7 +47,7 @@ class MRFArray2(MemStruct):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* states = {fmt_member(self.states, indent+1)}'
+		s += f'\n	* states = {self.fmt_member(self.states, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

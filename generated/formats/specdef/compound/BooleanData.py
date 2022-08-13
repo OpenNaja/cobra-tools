@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 import numpy
 from generated.array import Array
 from generated.formats.base.basic import Ubyte
@@ -63,9 +62,9 @@ class BooleanData(MemStruct):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* value = {fmt_member(self.value, indent+1)}'
-		s += f'\n	* default = {fmt_member(self.default, indent+1)}'
-		s += f'\n	* unused = {fmt_member(self.unused, indent+1)}'
+		s += f'\n	* value = {self.fmt_member(self.value, indent+1)}'
+		s += f'\n	* default = {self.fmt_member(self.default, indent+1)}'
+		s += f'\n	* unused = {self.fmt_member(self.unused, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

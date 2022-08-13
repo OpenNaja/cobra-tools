@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 import numpy
 from generated.array import Array
 from generated.formats.base.basic import Ubyte
@@ -64,9 +63,9 @@ class ZtVertBlockInfo(StructBase):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* vertex_count = {fmt_member(self.vertex_count, indent+1)}'
-		s += f'\n	* flags = {fmt_member(self.flags, indent+1)}'
-		s += f'\n	* zero = {fmt_member(self.zero, indent+1)}'
+		s += f'\n	* vertex_count = {self.fmt_member(self.vertex_count, indent+1)}'
+		s += f'\n	* flags = {self.fmt_member(self.flags, indent+1)}'
+		s += f'\n	* zero = {self.fmt_member(self.zero, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

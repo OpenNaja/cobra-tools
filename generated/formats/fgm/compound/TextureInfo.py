@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 from generated.array import Array
 from generated.formats.base.basic import Uint
 from generated.formats.fgm.compound.Color import Color
@@ -92,9 +91,9 @@ class TextureInfo(GenericInfo):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* value = {fmt_member(self.value, indent+1)}'
-		s += f'\n	* some_index_0 = {fmt_member(self.some_index_0, indent+1)}'
-		s += f'\n	* some_index_1 = {fmt_member(self.some_index_1, indent+1)}'
+		s += f'\n	* value = {self.fmt_member(self.value, indent+1)}'
+		s += f'\n	* some_index_0 = {self.fmt_member(self.some_index_0, indent+1)}'
+		s += f'\n	* some_index_1 = {self.fmt_member(self.some_index_1, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

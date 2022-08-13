@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 import generated.formats.base.basic
 import generated.formats.logicalcontrols.compound.ButtonData
 from generated.formats.base.basic import Uint
@@ -68,10 +67,10 @@ class Button(MemStruct):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* button_name = {fmt_member(self.button_name, indent+1)}'
-		s += f'\n	* datas = {fmt_member(self.datas, indent+1)}'
-		s += f'\n	* datas_count = {fmt_member(self.datas_count, indent+1)}'
-		s += f'\n	* flags = {fmt_member(self.flags, indent+1)}'
+		s += f'\n	* button_name = {self.fmt_member(self.button_name, indent+1)}'
+		s += f'\n	* datas = {self.fmt_member(self.datas, indent+1)}'
+		s += f'\n	* datas_count = {self.fmt_member(self.datas_count, indent+1)}'
+		s += f'\n	* flags = {self.fmt_member(self.flags, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

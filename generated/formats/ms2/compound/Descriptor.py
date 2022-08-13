@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 from generated.formats.base.basic import Ushort
 from generated.struct import StructBase
 
@@ -56,8 +55,8 @@ class Descriptor(StructBase):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* parent = {fmt_member(self.parent, indent+1)}'
-		s += f'\n	* child = {fmt_member(self.child, indent+1)}'
+		s += f'\n	* parent = {self.fmt_member(self.parent, indent+1)}'
+		s += f'\n	* child = {self.fmt_member(self.child, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

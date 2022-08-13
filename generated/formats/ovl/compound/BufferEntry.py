@@ -2,7 +2,6 @@
 
 import logging
 
-from generated.formats.base.basic import fmt_member
 from generated.formats.base.basic import Uint
 from generated.struct import StructBase
 
@@ -79,9 +78,9 @@ class BufferEntry(StructBase):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* index = {fmt_member(self.index, indent+1)}'
-		s += f'\n	* size = {fmt_member(self.size, indent+1)}'
-		s += f'\n	* file_hash = {fmt_member(self.file_hash, indent+1)}'
+		s += f'\n	* index = {self.fmt_member(self.index, indent+1)}'
+		s += f'\n	* size = {self.fmt_member(self.size, indent+1)}'
+		s += f'\n	* file_hash = {self.fmt_member(self.file_hash, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

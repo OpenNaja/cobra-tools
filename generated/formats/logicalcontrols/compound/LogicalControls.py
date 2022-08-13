@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 import generated.formats.base.basic
 import generated.formats.logicalcontrols.compound.AxisValue
 import generated.formats.logicalcontrols.compound.Button
@@ -104,16 +103,16 @@ class LogicalControls(MemStruct):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* buttons = {fmt_member(self.buttons, indent+1)}'
-		s += f'\n	* axes = {fmt_member(self.axes, indent+1)}'
-		s += f'\n	* c = {fmt_member(self.c, indent+1)}'
-		s += f'\n	* d = {fmt_member(self.d, indent+1)}'
-		s += f'\n	* button_count = {fmt_member(self.button_count, indent+1)}'
-		s += f'\n	* axis_count = {fmt_member(self.axis_count, indent+1)}'
-		s += f'\n	* count_3 = {fmt_member(self.count_3, indent+1)}'
-		s += f'\n	* count_4 = {fmt_member(self.count_4, indent+1)}'
-		s += f'\n	* flags = {fmt_member(self.flags, indent+1)}'
-		s += f'\n	* unsure = {fmt_member(self.unsure, indent+1)}'
+		s += f'\n	* buttons = {self.fmt_member(self.buttons, indent+1)}'
+		s += f'\n	* axes = {self.fmt_member(self.axes, indent+1)}'
+		s += f'\n	* c = {self.fmt_member(self.c, indent+1)}'
+		s += f'\n	* d = {self.fmt_member(self.d, indent+1)}'
+		s += f'\n	* button_count = {self.fmt_member(self.button_count, indent+1)}'
+		s += f'\n	* axis_count = {self.fmt_member(self.axis_count, indent+1)}'
+		s += f'\n	* count_3 = {self.fmt_member(self.count_3, indent+1)}'
+		s += f'\n	* count_4 = {self.fmt_member(self.count_4, indent+1)}'
+		s += f'\n	* flags = {self.fmt_member(self.flags, indent+1)}'
+		s += f'\n	* unsure = {self.fmt_member(self.unsure, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 import numpy
 from generated.array import Array
 from generated.formats.base.basic import Uint64
@@ -64,9 +63,9 @@ class JointInfo(CommonJointInfo):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* zero = {fmt_member(self.zero, indent+1)}'
-		s += f'\n	* zeros_per_hitcheck = {fmt_member(self.zeros_per_hitcheck, indent+1)}'
-		s += f'\n	* hitchecks = {fmt_member(self.hitchecks, indent+1)}'
+		s += f'\n	* zero = {self.fmt_member(self.zero, indent+1)}'
+		s += f'\n	* zeros_per_hitcheck = {self.fmt_member(self.zeros_per_hitcheck, indent+1)}'
+		s += f'\n	* hitchecks = {self.fmt_member(self.hitchecks, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

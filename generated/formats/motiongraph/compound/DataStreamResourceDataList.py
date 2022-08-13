@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 import generated.formats.motiongraph.compound.DataStreamResourceDataPoints
 from generated.formats.base.basic import Uint64
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
@@ -59,8 +58,8 @@ class DataStreamResourceDataList(MemStruct):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* count = {fmt_member(self.count, indent+1)}'
-		s += f'\n	* data_stream_resource_data = {fmt_member(self.data_stream_resource_data, indent+1)}'
+		s += f'\n	* count = {self.fmt_member(self.count, indent+1)}'
+		s += f'\n	* data_stream_resource_data = {self.fmt_member(self.data_stream_resource_data, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

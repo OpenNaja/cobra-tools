@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 import numpy
 from generated.array import Array
 from generated.formats.base.basic import Float
@@ -64,9 +63,9 @@ class Wsm(GenericHeader):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* header = {fmt_member(self.header, indent+1)}'
-		s += f'\n	* locs = {fmt_member(self.locs, indent+1)}'
-		s += f'\n	* quats = {fmt_member(self.quats, indent+1)}'
+		s += f'\n	* header = {self.fmt_member(self.header, indent+1)}'
+		s += f'\n	* locs = {self.fmt_member(self.locs, indent+1)}'
+		s += f'\n	* quats = {self.fmt_member(self.quats, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

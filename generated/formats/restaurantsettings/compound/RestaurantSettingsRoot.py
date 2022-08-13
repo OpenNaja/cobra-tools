@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 import generated.formats.restaurantsettings.compound.Perk
 from generated.formats.base.basic import Float
 from generated.formats.base.basic import Uint
@@ -107,18 +106,18 @@ class RestaurantSettingsRoot(MemStruct):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* running_cost_base = {fmt_member(self.running_cost_base, indent+1)}'
-		s += f'\n	* unk_1 = {fmt_member(self.unk_1, indent+1)}'
-		s += f'\n	* unk_2 = {fmt_member(self.unk_2, indent+1)}'
-		s += f'\n	* unk_3 = {fmt_member(self.unk_3, indent+1)}'
-		s += f'\n	* unk_4 = {fmt_member(self.unk_4, indent+1)}'
-		s += f'\n	* unk_5 = {fmt_member(self.unk_5, indent+1)}'
-		s += f'\n	* unk_6 = {fmt_member(self.unk_6, indent+1)}'
-		s += f'\n	* running_cost_per_extension = {fmt_member(self.running_cost_per_extension, indent+1)}'
-		s += f'\n	* unk_8 = {fmt_member(self.unk_8, indent+1)}'
-		s += f'\n	* unk_9 = {fmt_member(self.unk_9, indent+1)}'
-		s += f'\n	* perks = {fmt_member(self.perks, indent+1)}'
-		s += f'\n	* count = {fmt_member(self.count, indent+1)}'
+		s += f'\n	* running_cost_base = {self.fmt_member(self.running_cost_base, indent+1)}'
+		s += f'\n	* unk_1 = {self.fmt_member(self.unk_1, indent+1)}'
+		s += f'\n	* unk_2 = {self.fmt_member(self.unk_2, indent+1)}'
+		s += f'\n	* unk_3 = {self.fmt_member(self.unk_3, indent+1)}'
+		s += f'\n	* unk_4 = {self.fmt_member(self.unk_4, indent+1)}'
+		s += f'\n	* unk_5 = {self.fmt_member(self.unk_5, indent+1)}'
+		s += f'\n	* unk_6 = {self.fmt_member(self.unk_6, indent+1)}'
+		s += f'\n	* running_cost_per_extension = {self.fmt_member(self.running_cost_per_extension, indent+1)}'
+		s += f'\n	* unk_8 = {self.fmt_member(self.unk_8, indent+1)}'
+		s += f'\n	* unk_9 = {self.fmt_member(self.unk_9, indent+1)}'
+		s += f'\n	* perks = {self.fmt_member(self.perks, indent+1)}'
+		s += f'\n	* count = {self.fmt_member(self.count, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

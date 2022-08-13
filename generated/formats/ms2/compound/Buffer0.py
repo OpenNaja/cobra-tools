@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 import numpy
 from generated.array import Array
 from generated.formats.base.basic import Ubyte
@@ -82,10 +81,10 @@ class Buffer0(StructBase):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* name_hashes = {fmt_member(self.name_hashes, indent+1)}'
-		s += f'\n	* names = {fmt_member(self.names, indent+1)}'
-		s += f'\n	* names_padding = {fmt_member(self.names_padding, indent+1)}'
-		s += f'\n	* zt_streams_header = {fmt_member(self.zt_streams_header, indent+1)}'
+		s += f'\n	* name_hashes = {self.fmt_member(self.name_hashes, indent+1)}'
+		s += f'\n	* names = {self.fmt_member(self.names, indent+1)}'
+		s += f'\n	* names_padding = {self.fmt_member(self.names_padding, indent+1)}'
+		s += f'\n	* zt_streams_header = {self.fmt_member(self.zt_streams_header, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

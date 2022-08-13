@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 import numpy
 from generated.array import Array
 from generated.formats.base.basic import Ubyte
@@ -77,14 +76,14 @@ class BKHDSection(StructBase):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* length = {fmt_member(self.length, indent+1)}'
-		s += f'\n	* version = {fmt_member(self.version, indent+1)}'
-		s += f'\n	* id_a = {fmt_member(self.id_a, indent+1)}'
-		s += f'\n	* id_b = {fmt_member(self.id_b, indent+1)}'
-		s += f'\n	* constant_a = {fmt_member(self.constant_a, indent+1)}'
-		s += f'\n	* constant_b = {fmt_member(self.constant_b, indent+1)}'
-		s += f'\n	* unk = {fmt_member(self.unk, indent+1)}'
-		s += f'\n	* zeroes = {fmt_member(self.zeroes, indent+1)}'
+		s += f'\n	* length = {self.fmt_member(self.length, indent+1)}'
+		s += f'\n	* version = {self.fmt_member(self.version, indent+1)}'
+		s += f'\n	* id_a = {self.fmt_member(self.id_a, indent+1)}'
+		s += f'\n	* id_b = {self.fmt_member(self.id_b, indent+1)}'
+		s += f'\n	* constant_a = {self.fmt_member(self.constant_a, indent+1)}'
+		s += f'\n	* constant_b = {self.fmt_member(self.constant_b, indent+1)}'
+		s += f'\n	* unk = {self.fmt_member(self.unk, indent+1)}'
+		s += f'\n	* zeroes = {self.fmt_member(self.zeroes, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

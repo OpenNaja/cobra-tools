@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 from generated.formats.base.basic import Uint64
 from generated.struct import StructBase
 
@@ -63,9 +62,9 @@ class Material(StructBase):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* offset = {fmt_member(self.offset, indent+1)}'
-		s += f'\n	* count = {fmt_member(self.count, indent+1)}'
-		s += f'\n	* id = {fmt_member(self.id, indent+1)}'
+		s += f'\n	* offset = {self.fmt_member(self.offset, indent+1)}'
+		s += f'\n	* count = {self.fmt_member(self.count, indent+1)}'
+		s += f'\n	* id = {self.fmt_member(self.id, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 from generated.formats.base.basic import Uint64
 from generated.struct import StructBase
 
@@ -74,10 +73,10 @@ class Data(StructBase):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* id = {fmt_member(self.id, indent+1)}'
-		s += f'\n	* type = {fmt_member(self.type, indent+1)}'
-		s += f'\n	* offset = {fmt_member(self.offset, indent+1)}'
-		s += f'\n	* dsize = {fmt_member(self.dsize, indent+1)}'
+		s += f'\n	* id = {self.fmt_member(self.id, indent+1)}'
+		s += f'\n	* type = {self.fmt_member(self.type, indent+1)}'
+		s += f'\n	* offset = {self.fmt_member(self.offset, indent+1)}'
+		s += f'\n	* dsize = {self.fmt_member(self.dsize, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

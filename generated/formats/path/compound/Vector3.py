@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 from generated.formats.base.basic import Float
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
 
@@ -67,9 +66,9 @@ class Vector3(MemStruct):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* x = {fmt_member(self.x, indent+1)}'
-		s += f'\n	* y = {fmt_member(self.y, indent+1)}'
-		s += f'\n	* z = {fmt_member(self.z, indent+1)}'
+		s += f'\n	* x = {self.fmt_member(self.x, indent+1)}'
+		s += f'\n	* y = {self.fmt_member(self.y, indent+1)}'
+		s += f'\n	* z = {self.fmt_member(self.z, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

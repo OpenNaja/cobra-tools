@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 import numpy
 from generated.array import Array
 from generated.formats.bani.compound.BaniRoot import BaniRoot
@@ -70,9 +69,9 @@ class BaniInfoHeader(StructBase):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* magic = {fmt_member(self.magic, indent+1)}'
-		s += f'\n	* banis_name = {fmt_member(self.banis_name, indent+1)}'
-		s += f'\n	* data = {fmt_member(self.data, indent+1)}'
+		s += f'\n	* magic = {self.fmt_member(self.magic, indent+1)}'
+		s += f'\n	* banis_name = {self.fmt_member(self.banis_name, indent+1)}'
+		s += f'\n	* data = {self.fmt_member(self.data, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

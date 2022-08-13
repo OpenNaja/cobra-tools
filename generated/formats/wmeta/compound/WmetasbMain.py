@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 import generated.formats.base.basic
 import generated.formats.wmeta.compound.EventEntry
 import generated.formats.wmeta.compound.MediaEntry
@@ -148,21 +147,21 @@ class WmetasbMain(MemStruct):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* hash = {fmt_member(self.hash, indent+1)}'
-		s += f'\n	* unk = {fmt_member(self.unk, indent+1)}'
-		s += f'\n	* block_name = {fmt_member(self.block_name, indent+1)}'
-		s += f'\n	* media_name = {fmt_member(self.media_name, indent+1)}'
-		s += f'\n	* bnk_name = {fmt_member(self.bnk_name, indent+1)}'
-		s += f'\n	* events = {fmt_member(self.events, indent+1)}'
-		s += f'\n	* events_count = {fmt_member(self.events_count, indent+1)}'
-		s += f'\n	* hashes = {fmt_member(self.hashes, indent+1)}'
-		s += f'\n	* hashes_count = {fmt_member(self.hashes_count, indent+1)}'
-		s += f'\n	* media = {fmt_member(self.media, indent+1)}'
-		s += f'\n	* media_count = {fmt_member(self.media_count, indent+1)}'
-		s += f'\n	* unused_2 = {fmt_member(self.unused_2, indent+1)}'
-		s += f'\n	* unused_3 = {fmt_member(self.unused_3, indent+1)}'
-		s += f'\n	* unused_4 = {fmt_member(self.unused_4, indent+1)}'
-		s += f'\n	* unused_5 = {fmt_member(self.unused_5, indent+1)}'
+		s += f'\n	* hash = {self.fmt_member(self.hash, indent+1)}'
+		s += f'\n	* unk = {self.fmt_member(self.unk, indent+1)}'
+		s += f'\n	* block_name = {self.fmt_member(self.block_name, indent+1)}'
+		s += f'\n	* media_name = {self.fmt_member(self.media_name, indent+1)}'
+		s += f'\n	* bnk_name = {self.fmt_member(self.bnk_name, indent+1)}'
+		s += f'\n	* events = {self.fmt_member(self.events, indent+1)}'
+		s += f'\n	* events_count = {self.fmt_member(self.events_count, indent+1)}'
+		s += f'\n	* hashes = {self.fmt_member(self.hashes, indent+1)}'
+		s += f'\n	* hashes_count = {self.fmt_member(self.hashes_count, indent+1)}'
+		s += f'\n	* media = {self.fmt_member(self.media, indent+1)}'
+		s += f'\n	* media_count = {self.fmt_member(self.media_count, indent+1)}'
+		s += f'\n	* unused_2 = {self.fmt_member(self.unused_2, indent+1)}'
+		s += f'\n	* unused_3 = {self.fmt_member(self.unused_3, indent+1)}'
+		s += f'\n	* unused_4 = {self.fmt_member(self.unused_4, indent+1)}'
+		s += f'\n	* unused_5 = {self.fmt_member(self.unused_5, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

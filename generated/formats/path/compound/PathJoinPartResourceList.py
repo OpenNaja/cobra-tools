@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 from generated.array import Array
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
 from generated.formats.path.compound.PathJoinPartResource import PathJoinPartResource
@@ -48,7 +47,7 @@ class PathJoinPartResourceList(MemStruct):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* resources = {fmt_member(self.resources, indent+1)}'
+		s += f'\n	* resources = {self.fmt_member(self.resources, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

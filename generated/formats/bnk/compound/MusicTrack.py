@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 from generated.formats.base.basic import Uint
 from generated.formats.bnk.compound.MusicTrackInitialValues import MusicTrackInitialValues
 from generated.struct import StructBase
@@ -60,9 +59,9 @@ class MusicTrack(StructBase):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* length = {fmt_member(self.length, indent+1)}'
-		s += f'\n	* id = {fmt_member(self.id, indent+1)}'
-		s += f'\n	* data = {fmt_member(self.data, indent+1)}'
+		s += f'\n	* length = {self.fmt_member(self.length, indent+1)}'
+		s += f'\n	* id = {self.fmt_member(self.id, indent+1)}'
+		s += f'\n	* data = {self.fmt_member(self.data, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

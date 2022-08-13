@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 from generated.formats.bnk.compound.BnkBufferData import BnkBufferData
 from generated.formats.ovl_base.compound.GenericHeader import GenericHeader
 
@@ -51,7 +50,7 @@ class BnkFileContainer(GenericHeader):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* bnk_header = {fmt_member(self.bnk_header, indent+1)}'
+		s += f'\n	* bnk_header = {self.fmt_member(self.bnk_header, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

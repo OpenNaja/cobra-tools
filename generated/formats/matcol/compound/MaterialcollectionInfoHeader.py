@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 from generated.array import Array
 from generated.formats.matcol.compound.Layer import Layer
 from generated.formats.matcol.compound.MatcolRoot import MatcolRoot
@@ -70,10 +69,10 @@ class MaterialcollectionInfoHeader(GenericHeader):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* root = {fmt_member(self.root, indent+1)}'
-		s += f'\n	* info = {fmt_member(self.info, indent+1)}'
-		s += f'\n	* textures = {fmt_member(self.textures, indent+1)}'
-		s += f'\n	* layers = {fmt_member(self.layers, indent+1)}'
+		s += f'\n	* root = {self.fmt_member(self.root, indent+1)}'
+		s += f'\n	* info = {self.fmt_member(self.info, indent+1)}'
+		s += f'\n	* textures = {self.fmt_member(self.textures, indent+1)}'
+		s += f'\n	* layers = {self.fmt_member(self.layers, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 import generated.formats.base.basic
 from generated.formats.base.basic import Float
 from generated.formats.base.basic import Uint64
@@ -75,11 +74,11 @@ class IslandRoot(MemStruct):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* path_name = {fmt_member(self.path_name, indent+1)}'
-		s += f'\n	* a = {fmt_member(self.a, indent+1)}'
-		s += f'\n	* b = {fmt_member(self.b, indent+1)}'
-		s += f'\n	* count = {fmt_member(self.count, indent+1)}'
-		s += f'\n	* zero = {fmt_member(self.zero, indent+1)}'
+		s += f'\n	* path_name = {self.fmt_member(self.path_name, indent+1)}'
+		s += f'\n	* a = {self.fmt_member(self.a, indent+1)}'
+		s += f'\n	* b = {self.fmt_member(self.b, indent+1)}'
+		s += f'\n	* count = {self.fmt_member(self.count, indent+1)}'
+		s += f'\n	* zero = {self.fmt_member(self.zero, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 import generated.formats.fgm.compound.AttribData
 import generated.formats.fgm.compound.AttributeInfo
 import generated.formats.fgm.compound.DependencyInfo
@@ -121,14 +120,14 @@ class FgmHeader(MemStruct):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* texture_count = {fmt_member(self.texture_count, indent+1)}'
-		s += f'\n	* attribute_count = {fmt_member(self.attribute_count, indent+1)}'
-		s += f'\n	* textures = {fmt_member(self.textures, indent+1)}'
-		s += f'\n	* attributes = {fmt_member(self.attributes, indent+1)}'
-		s += f'\n	* dependencies = {fmt_member(self.dependencies, indent+1)}'
-		s += f'\n	* data_lib = {fmt_member(self.data_lib, indent+1)}'
-		s += f'\n	* unk_0 = {fmt_member(self.unk_0, indent+1)}'
-		s += f'\n	* unk_1 = {fmt_member(self.unk_1, indent+1)}'
+		s += f'\n	* texture_count = {self.fmt_member(self.texture_count, indent+1)}'
+		s += f'\n	* attribute_count = {self.fmt_member(self.attribute_count, indent+1)}'
+		s += f'\n	* textures = {self.fmt_member(self.textures, indent+1)}'
+		s += f'\n	* attributes = {self.fmt_member(self.attributes, indent+1)}'
+		s += f'\n	* dependencies = {self.fmt_member(self.dependencies, indent+1)}'
+		s += f'\n	* data_lib = {self.fmt_member(self.data_lib, indent+1)}'
+		s += f'\n	* unk_0 = {self.fmt_member(self.unk_0, indent+1)}'
+		s += f'\n	* unk_1 = {self.fmt_member(self.unk_1, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

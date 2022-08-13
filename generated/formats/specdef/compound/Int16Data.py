@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 from generated.formats.base.basic import Short
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
 from generated.formats.ovl_base.compound.Pointer import Pointer
@@ -73,11 +72,11 @@ class Int16Data(MemStruct):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* imin = {fmt_member(self.imin, indent+1)}'
-		s += f'\n	* imax = {fmt_member(self.imax, indent+1)}'
-		s += f'\n	* ivalue = {fmt_member(self.ivalue, indent+1)}'
-		s += f'\n	* ioptional = {fmt_member(self.ioptional, indent+1)}'
-		s += f'\n	* enum = {fmt_member(self.enum, indent+1)}'
+		s += f'\n	* imin = {self.fmt_member(self.imin, indent+1)}'
+		s += f'\n	* imax = {self.fmt_member(self.imax, indent+1)}'
+		s += f'\n	* ivalue = {self.fmt_member(self.ivalue, indent+1)}'
+		s += f'\n	* ioptional = {self.fmt_member(self.ioptional, indent+1)}'
+		s += f'\n	* enum = {self.fmt_member(self.enum, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

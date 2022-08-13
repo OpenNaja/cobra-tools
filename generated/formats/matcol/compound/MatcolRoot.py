@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 import generated.formats.matcol.compound.RootFrag
 from generated.formats.base.basic import Uint64
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
@@ -61,8 +60,8 @@ class MatcolRoot(MemStruct):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* main = {fmt_member(self.main, indent+1)}'
-		s += f'\n	* one = {fmt_member(self.one, indent+1)}'
+		s += f'\n	* main = {self.fmt_member(self.main, indent+1)}'
+		s += f'\n	* one = {self.fmt_member(self.one, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

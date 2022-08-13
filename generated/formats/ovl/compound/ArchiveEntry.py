@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 from generated.formats.base.basic import Uint
 from generated.formats.base.basic import Uint64
 from generated.formats.base.basic import Ushort
@@ -167,23 +166,23 @@ class ArchiveEntry(StructBase):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* offset = {fmt_member(self.offset, indent+1)}'
-		s += f'\n	* pools_offset = {fmt_member(self.pools_offset, indent+1)}'
-		s += f'\n	* stream_files_offset = {fmt_member(self.stream_files_offset, indent+1)}'
-		s += f'\n	* num_pools = {fmt_member(self.num_pools, indent+1)}'
-		s += f'\n	* num_datas = {fmt_member(self.num_datas, indent+1)}'
-		s += f'\n	* num_pool_groups = {fmt_member(self.num_pool_groups, indent+1)}'
-		s += f'\n	* num_buffer_groups = {fmt_member(self.num_buffer_groups, indent+1)}'
-		s += f'\n	* num_buffers = {fmt_member(self.num_buffers, indent+1)}'
-		s += f'\n	* num_fragments = {fmt_member(self.num_fragments, indent+1)}'
-		s += f'\n	* num_root_entries = {fmt_member(self.num_root_entries, indent+1)}'
-		s += f'\n	* read_start = {fmt_member(self.read_start, indent+1)}'
-		s += f'\n	* set_data_size = {fmt_member(self.set_data_size, indent+1)}'
-		s += f'\n	* compressed_size = {fmt_member(self.compressed_size, indent+1)}'
-		s += f'\n	* uncompressed_size = {fmt_member(self.uncompressed_size, indent+1)}'
-		s += f'\n	* pools_start = {fmt_member(self.pools_start, indent+1)}'
-		s += f'\n	* pools_end = {fmt_member(self.pools_end, indent+1)}'
-		s += f'\n	* ovs_offset = {fmt_member(self.ovs_offset, indent+1)}'
+		s += f'\n	* offset = {self.fmt_member(self.offset, indent+1)}'
+		s += f'\n	* pools_offset = {self.fmt_member(self.pools_offset, indent+1)}'
+		s += f'\n	* stream_files_offset = {self.fmt_member(self.stream_files_offset, indent+1)}'
+		s += f'\n	* num_pools = {self.fmt_member(self.num_pools, indent+1)}'
+		s += f'\n	* num_datas = {self.fmt_member(self.num_datas, indent+1)}'
+		s += f'\n	* num_pool_groups = {self.fmt_member(self.num_pool_groups, indent+1)}'
+		s += f'\n	* num_buffer_groups = {self.fmt_member(self.num_buffer_groups, indent+1)}'
+		s += f'\n	* num_buffers = {self.fmt_member(self.num_buffers, indent+1)}'
+		s += f'\n	* num_fragments = {self.fmt_member(self.num_fragments, indent+1)}'
+		s += f'\n	* num_root_entries = {self.fmt_member(self.num_root_entries, indent+1)}'
+		s += f'\n	* read_start = {self.fmt_member(self.read_start, indent+1)}'
+		s += f'\n	* set_data_size = {self.fmt_member(self.set_data_size, indent+1)}'
+		s += f'\n	* compressed_size = {self.fmt_member(self.compressed_size, indent+1)}'
+		s += f'\n	* uncompressed_size = {self.fmt_member(self.uncompressed_size, indent+1)}'
+		s += f'\n	* pools_start = {self.fmt_member(self.pools_start, indent+1)}'
+		s += f'\n	* pools_end = {self.fmt_member(self.pools_end, indent+1)}'
+		s += f'\n	* ovs_offset = {self.fmt_member(self.ovs_offset, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

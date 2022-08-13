@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 from generated.formats.base.basic import Int
 from generated.formats.base.basic import Short
 from generated.formats.base.basic import Ubyte
@@ -88,12 +87,12 @@ class TexBuffer(MemStruct):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* offset = {fmt_member(self.offset, indent+1)}'
-		s += f'\n	* size = {fmt_member(self.size, indent+1)}'
-		s += f'\n	* first_mip = {fmt_member(self.first_mip, indent+1)}'
-		s += f'\n	* mip_count = {fmt_member(self.mip_count, indent+1)}'
-		s += f'\n	* padding_0 = {fmt_member(self.padding_0, indent+1)}'
-		s += f'\n	* padding_1 = {fmt_member(self.padding_1, indent+1)}'
+		s += f'\n	* offset = {self.fmt_member(self.offset, indent+1)}'
+		s += f'\n	* size = {self.fmt_member(self.size, indent+1)}'
+		s += f'\n	* first_mip = {self.fmt_member(self.first_mip, indent+1)}'
+		s += f'\n	* mip_count = {self.fmt_member(self.mip_count, indent+1)}'
+		s += f'\n	* padding_0 = {self.fmt_member(self.padding_0, indent+1)}'
+		s += f'\n	* padding_1 = {self.fmt_member(self.padding_1, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

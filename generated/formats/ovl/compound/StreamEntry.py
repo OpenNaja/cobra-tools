@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 from generated.formats.base.basic import Uint
 from generated.struct import StructBase
 
@@ -69,9 +68,9 @@ class StreamEntry(StructBase):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* stream_offset = {fmt_member(self.stream_offset, indent+1)}'
-		s += f'\n	* file_offset = {fmt_member(self.file_offset, indent+1)}'
-		s += f'\n	* zero = {fmt_member(self.zero, indent+1)}'
+		s += f'\n	* stream_offset = {self.fmt_member(self.stream_offset, indent+1)}'
+		s += f'\n	* file_offset = {self.fmt_member(self.file_offset, indent+1)}'
+		s += f'\n	* zero = {self.fmt_member(self.zero, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 import generated.formats.base.basic
 import numpy
 from generated.array import Array
@@ -63,9 +62,9 @@ class Attrib(MemStruct):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* attrib_name = {fmt_member(self.attrib_name, indent+1)}'
-		s += f'\n	* attrib = {fmt_member(self.attrib, indent+1)}'
-		s += f'\n	* padding = {fmt_member(self.padding, indent+1)}'
+		s += f'\n	* attrib_name = {self.fmt_member(self.attrib_name, indent+1)}'
+		s += f'\n	* attrib = {self.fmt_member(self.attrib, indent+1)}'
+		s += f'\n	* padding = {self.fmt_member(self.padding, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

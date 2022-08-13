@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 from generated.formats.ovl_base.basic import Bool
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
 
@@ -56,8 +55,8 @@ class HbUiOptions(MemStruct):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* straight_curve = {fmt_member(self.straight_curve, indent+1)}'
-		s += f'\n	* windows = {fmt_member(self.windows, indent+1)}'
+		s += f'\n	* straight_curve = {self.fmt_member(self.straight_curve, indent+1)}'
+		s += f'\n	* windows = {self.fmt_member(self.windows, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

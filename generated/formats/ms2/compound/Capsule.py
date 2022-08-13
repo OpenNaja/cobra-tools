@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 from generated.formats.base.basic import Float
 from generated.formats.base.basic import Uint
 from generated.formats.ms2.compound.Vector3 import Vector3
@@ -79,11 +78,11 @@ class Capsule(StructBase):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* offset = {fmt_member(self.offset, indent+1)}'
-		s += f'\n	* direction = {fmt_member(self.direction, indent+1)}'
-		s += f'\n	* radius = {fmt_member(self.radius, indent+1)}'
-		s += f'\n	* extent = {fmt_member(self.extent, indent+1)}'
-		s += f'\n	* zero = {fmt_member(self.zero, indent+1)}'
+		s += f'\n	* offset = {self.fmt_member(self.offset, indent+1)}'
+		s += f'\n	* direction = {self.fmt_member(self.direction, indent+1)}'
+		s += f'\n	* radius = {self.fmt_member(self.radius, indent+1)}'
+		s += f'\n	* extent = {self.fmt_member(self.extent, indent+1)}'
+		s += f'\n	* zero = {self.fmt_member(self.zero, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

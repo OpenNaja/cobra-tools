@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 from generated.formats.base.basic import Uint
 from generated.struct import StructBase
 
@@ -65,9 +64,9 @@ class DataPointer(StructBase):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* wem_id = {fmt_member(self.wem_id, indent+1)}'
-		s += f'\n	* data_section_offset = {fmt_member(self.data_section_offset, indent+1)}'
-		s += f'\n	* wem_filesize = {fmt_member(self.wem_filesize, indent+1)}'
+		s += f'\n	* wem_id = {self.fmt_member(self.wem_id, indent+1)}'
+		s += f'\n	* data_section_offset = {self.fmt_member(self.data_section_offset, indent+1)}'
+		s += f'\n	* wem_filesize = {self.fmt_member(self.wem_filesize, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

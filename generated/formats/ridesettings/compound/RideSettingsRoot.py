@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 import generated.formats.ridesettings.compound.Pair
 from generated.formats.base.basic import Float
 from generated.formats.base.basic import Uint
@@ -81,13 +80,13 @@ class RideSettingsRoot(MemStruct):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* unk_0 = {fmt_member(self.unk_0, indent+1)}'
-		s += f'\n	* unk_1 = {fmt_member(self.unk_1, indent+1)}'
-		s += f'\n	* array_1 = {fmt_member(self.array_1, indent+1)}'
-		s += f'\n	* count = {fmt_member(self.count, indent+1)}'
-		s += f'\n	* pad_0 = {fmt_member(self.pad_0, indent+1)}'
-		s += f'\n	* pad_1 = {fmt_member(self.pad_1, indent+1)}'
-		s += f'\n	* pad_2 = {fmt_member(self.pad_2, indent+1)}'
+		s += f'\n	* unk_0 = {self.fmt_member(self.unk_0, indent+1)}'
+		s += f'\n	* unk_1 = {self.fmt_member(self.unk_1, indent+1)}'
+		s += f'\n	* array_1 = {self.fmt_member(self.array_1, indent+1)}'
+		s += f'\n	* count = {self.fmt_member(self.count, indent+1)}'
+		s += f'\n	* pad_0 = {self.fmt_member(self.pad_0, indent+1)}'
+		s += f'\n	* pad_1 = {self.fmt_member(self.pad_1, indent+1)}'
+		s += f'\n	* pad_2 = {self.fmt_member(self.pad_2, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

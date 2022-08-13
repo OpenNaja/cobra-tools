@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 from generated.formats.bani.compound.Vector3Short import Vector3Short
 from generated.formats.bani.compound.Vector3Ushort import Vector3Ushort
 from generated.struct import StructBase
@@ -53,8 +52,8 @@ class Key(StructBase):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* euler = {fmt_member(self.euler, indent+1)}'
-		s += f'\n	* translation = {fmt_member(self.translation, indent+1)}'
+		s += f'\n	* euler = {self.fmt_member(self.euler, indent+1)}'
+		s += f'\n	* translation = {self.fmt_member(self.translation, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

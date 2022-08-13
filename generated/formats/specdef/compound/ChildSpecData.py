@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 import generated.formats.specdef.compound.SpecdefRoot
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
 from generated.formats.ovl_base.compound.Pointer import Pointer
@@ -55,7 +54,7 @@ class ChildSpecData(MemStruct):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* specdef = {fmt_member(self.specdef, indent+1)}'
+		s += f'\n	* specdef = {self.fmt_member(self.specdef, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

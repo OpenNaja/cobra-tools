@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 from generated.array import Array
 from generated.formats.dinosaurmaterialvariants.compound.Pattern import Pattern
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
@@ -48,7 +47,7 @@ class PatternArray(MemStruct):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* patterns = {fmt_member(self.patterns, indent+1)}'
+		s += f'\n	* patterns = {self.fmt_member(self.patterns, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

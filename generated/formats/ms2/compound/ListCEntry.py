@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 import numpy
 from generated.array import Array
 from generated.formats.base.basic import Float
@@ -88,12 +87,12 @@ class ListCEntry(StructBase):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* one = {fmt_member(self.one, indent+1)}'
-		s += f'\n	* loc = {fmt_member(self.loc, indent+1)}'
-		s += f'\n	* constant = {fmt_member(self.constant, indent+1)}'
-		s += f'\n	* a = {fmt_member(self.a, indent+1)}'
-		s += f'\n	* floats = {fmt_member(self.floats, indent+1)}'
-		s += f'\n	* a_2 = {fmt_member(self.a_2, indent+1)}'
+		s += f'\n	* one = {self.fmt_member(self.one, indent+1)}'
+		s += f'\n	* loc = {self.fmt_member(self.loc, indent+1)}'
+		s += f'\n	* constant = {self.fmt_member(self.constant, indent+1)}'
+		s += f'\n	* a = {self.fmt_member(self.a, indent+1)}'
+		s += f'\n	* floats = {self.fmt_member(self.floats, indent+1)}'
+		s += f'\n	* a_2 = {self.fmt_member(self.a_2, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

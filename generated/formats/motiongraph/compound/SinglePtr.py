@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
 from generated.formats.ovl_base.compound.Pointer import Pointer
 
@@ -52,7 +51,7 @@ class SinglePtr(MemStruct):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* ptr = {fmt_member(self.ptr, indent+1)}'
+		s += f'\n	* ptr = {self.fmt_member(self.ptr, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

@@ -6,7 +6,6 @@ import numpy as np
 from generated.formats.ms2.compound.packing_utils import FUR_OVERHEAD, remap
 from plugin.utils.tristrip import triangulate
 
-from generated.formats.base.basic import fmt_member
 import generated.formats.ms2.compound.BufferInfo
 from generated.formats.base.basic import Uint64
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
@@ -90,9 +89,9 @@ class MeshData(MemStruct):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* stream_index = {fmt_member(self.stream_index, indent+1)}'
-		s += f'\n	* stream_info = {fmt_member(self.stream_info, indent+1)}'
-		s += f'\n	* some_index = {fmt_member(self.some_index, indent+1)}'
+		s += f'\n	* stream_index = {self.fmt_member(self.stream_index, indent+1)}'
+		s += f'\n	* stream_info = {self.fmt_member(self.stream_info, indent+1)}'
+		s += f'\n	* some_index = {self.fmt_member(self.some_index, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

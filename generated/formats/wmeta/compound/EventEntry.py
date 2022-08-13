@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 import generated.formats.base.basic
 from generated.formats.base.basic import Uint
 from generated.formats.base.basic import Uint64
@@ -141,21 +140,21 @@ class EventEntry(MemStruct):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* hash = {fmt_member(self.hash, indent+1)}'
-		s += f'\n	* zero = {fmt_member(self.zero, indent+1)}'
-		s += f'\n	* block_name = {fmt_member(self.block_name, indent+1)}'
-		s += f'\n	* zero_2 = {fmt_member(self.zero_2, indent+1)}'
-		s += f'\n	* size = {fmt_member(self.size, indent+1)}'
-		s += f'\n	* flag_0 = {fmt_member(self.flag_0, indent+1)}'
-		s += f'\n	* flag_1 = {fmt_member(self.flag_1, indent+1)}'
-		s += f'\n	* flag_2 = {fmt_member(self.flag_2, indent+1)}'
-		s += f'\n	* zero_3 = {fmt_member(self.zero_3, indent+1)}'
-		s += f'\n	* flag_3 = {fmt_member(self.flag_3, indent+1)}'
-		s += f'\n	* hash_b = {fmt_member(self.hash_b, indent+1)}'
-		s += f'\n	* hash_c = {fmt_member(self.hash_c, indent+1)}'
-		s += f'\n	* zero_4 = {fmt_member(self.zero_4, indent+1)}'
-		s += f'\n	* u_2 = {fmt_member(self.u_2, indent+1)}'
-		s += f'\n	* u_1 = {fmt_member(self.u_1, indent+1)}'
+		s += f'\n	* hash = {self.fmt_member(self.hash, indent+1)}'
+		s += f'\n	* zero = {self.fmt_member(self.zero, indent+1)}'
+		s += f'\n	* block_name = {self.fmt_member(self.block_name, indent+1)}'
+		s += f'\n	* zero_2 = {self.fmt_member(self.zero_2, indent+1)}'
+		s += f'\n	* size = {self.fmt_member(self.size, indent+1)}'
+		s += f'\n	* flag_0 = {self.fmt_member(self.flag_0, indent+1)}'
+		s += f'\n	* flag_1 = {self.fmt_member(self.flag_1, indent+1)}'
+		s += f'\n	* flag_2 = {self.fmt_member(self.flag_2, indent+1)}'
+		s += f'\n	* zero_3 = {self.fmt_member(self.zero_3, indent+1)}'
+		s += f'\n	* flag_3 = {self.fmt_member(self.flag_3, indent+1)}'
+		s += f'\n	* hash_b = {self.fmt_member(self.hash_b, indent+1)}'
+		s += f'\n	* hash_c = {self.fmt_member(self.hash_c, indent+1)}'
+		s += f'\n	* zero_4 = {self.fmt_member(self.zero_4, indent+1)}'
+		s += f'\n	* u_2 = {self.fmt_member(self.u_2, indent+1)}'
+		s += f'\n	* u_1 = {self.fmt_member(self.u_1, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

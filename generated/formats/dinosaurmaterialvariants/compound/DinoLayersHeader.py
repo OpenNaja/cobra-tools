@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 import generated.formats.dinosaurmaterialvariants.compound.Layer
 import generated.formats.ovl_base.basic
 from generated.formats.base.basic import Uint64
@@ -68,10 +67,10 @@ class DinoLayersHeader(MemStruct):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* fgm_name = {fmt_member(self.fgm_name, indent+1)}'
-		s += f'\n	* layers = {fmt_member(self.layers, indent+1)}'
-		s += f'\n	* layer_count = {fmt_member(self.layer_count, indent+1)}'
-		s += f'\n	* zero = {fmt_member(self.zero, indent+1)}'
+		s += f'\n	* fgm_name = {self.fmt_member(self.fgm_name, indent+1)}'
+		s += f'\n	* layers = {self.fmt_member(self.layers, indent+1)}'
+		s += f'\n	* layer_count = {self.fmt_member(self.layer_count, indent+1)}'
+		s += f'\n	* zero = {self.fmt_member(self.zero, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

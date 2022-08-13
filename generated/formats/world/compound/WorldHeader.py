@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 import generated.formats.base.basic
 import generated.formats.world.compound.PtrList
 from generated.formats.base.basic import Uint64
@@ -106,16 +105,16 @@ class WorldHeader(MemStruct):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* world_type = {fmt_member(self.world_type, indent+1)}'
-		s += f'\n	* asset_pkgs = {fmt_member(self.asset_pkgs, indent+1)}'
-		s += f'\n	* asset_pkg_count = {fmt_member(self.asset_pkg_count, indent+1)}'
-		s += f'\n	* lua_name = {fmt_member(self.lua_name, indent+1)}'
-		s += f'\n	* ptr_0 = {fmt_member(self.ptr_0, indent+1)}'
-		s += f'\n	* ptr_1 = {fmt_member(self.ptr_1, indent+1)}'
-		s += f'\n	* prefabs = {fmt_member(self.prefabs, indent+1)}'
-		s += f'\n	* ptr_2 = {fmt_member(self.ptr_2, indent+1)}'
-		s += f'\n	* prefab_count = {fmt_member(self.prefab_count, indent+1)}'
-		s += f'\n	* ptr_3 = {fmt_member(self.ptr_3, indent+1)}'
+		s += f'\n	* world_type = {self.fmt_member(self.world_type, indent+1)}'
+		s += f'\n	* asset_pkgs = {self.fmt_member(self.asset_pkgs, indent+1)}'
+		s += f'\n	* asset_pkg_count = {self.fmt_member(self.asset_pkg_count, indent+1)}'
+		s += f'\n	* lua_name = {self.fmt_member(self.lua_name, indent+1)}'
+		s += f'\n	* ptr_0 = {self.fmt_member(self.ptr_0, indent+1)}'
+		s += f'\n	* ptr_1 = {self.fmt_member(self.ptr_1, indent+1)}'
+		s += f'\n	* prefabs = {self.fmt_member(self.prefabs, indent+1)}'
+		s += f'\n	* ptr_2 = {self.fmt_member(self.ptr_2, indent+1)}'
+		s += f'\n	* prefab_count = {self.fmt_member(self.prefab_count, indent+1)}'
+		s += f'\n	* ptr_3 = {self.fmt_member(self.ptr_3, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

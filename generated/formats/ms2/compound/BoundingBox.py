@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 import numpy
 from generated.array import Array
 from generated.formats.base.basic import Uint
@@ -76,10 +75,10 @@ class BoundingBox(StructBase):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* rotation = {fmt_member(self.rotation, indent+1)}'
-		s += f'\n	* center = {fmt_member(self.center, indent+1)}'
-		s += f'\n	* extent = {fmt_member(self.extent, indent+1)}'
-		s += f'\n	* zeros = {fmt_member(self.zeros, indent+1)}'
+		s += f'\n	* rotation = {self.fmt_member(self.rotation, indent+1)}'
+		s += f'\n	* center = {self.fmt_member(self.center, indent+1)}'
+		s += f'\n	* extent = {self.fmt_member(self.extent, indent+1)}'
+		s += f'\n	* zeros = {self.fmt_member(self.zeros, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

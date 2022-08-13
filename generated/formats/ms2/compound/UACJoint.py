@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 import numpy
 from generated.array import Array
 from generated.formats.base.basic import Float
@@ -63,8 +62,8 @@ class UACJoint(StructBase):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* unk = {fmt_member(self.unk, indent+1)}'
-		s += f'\n	* floats = {fmt_member(self.floats, indent+1)}'
+		s += f'\n	* unk = {self.fmt_member(self.unk, indent+1)}'
+		s += f'\n	* floats = {self.fmt_member(self.floats, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

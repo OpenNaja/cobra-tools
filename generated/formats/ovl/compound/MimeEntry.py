@@ -4,7 +4,6 @@ from generated.formats.ovl.versions import *
 from hashes import constants_jwe, constants_pz, constants_jwe2, constants_pc, constants_dla
 
 
-from generated.formats.base.basic import fmt_member
 from generated.formats.base.basic import Uint
 from generated.struct import StructBase
 
@@ -114,14 +113,14 @@ class MimeEntry(StructBase):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* offset = {fmt_member(self.offset, indent+1)}'
-		s += f'\n	* unknown = {fmt_member(self.unknown, indent+1)}'
-		s += f'\n	* mime_hash = {fmt_member(self.mime_hash, indent+1)}'
-		s += f'\n	* mime_version = {fmt_member(self.mime_version, indent+1)}'
-		s += f'\n	* file_index_offset = {fmt_member(self.file_index_offset, indent+1)}'
-		s += f'\n	* file_count = {fmt_member(self.file_count, indent+1)}'
-		s += f'\n	* triplet_count = {fmt_member(self.triplet_count, indent+1)}'
-		s += f'\n	* triplet_offset = {fmt_member(self.triplet_offset, indent+1)}'
+		s += f'\n	* offset = {self.fmt_member(self.offset, indent+1)}'
+		s += f'\n	* unknown = {self.fmt_member(self.unknown, indent+1)}'
+		s += f'\n	* mime_hash = {self.fmt_member(self.mime_hash, indent+1)}'
+		s += f'\n	* mime_version = {self.fmt_member(self.mime_version, indent+1)}'
+		s += f'\n	* file_index_offset = {self.fmt_member(self.file_index_offset, indent+1)}'
+		s += f'\n	* file_count = {self.fmt_member(self.file_count, indent+1)}'
+		s += f'\n	* triplet_count = {self.fmt_member(self.triplet_count, indent+1)}'
+		s += f'\n	* triplet_offset = {self.fmt_member(self.triplet_offset, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

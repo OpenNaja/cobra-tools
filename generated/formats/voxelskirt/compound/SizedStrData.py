@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 from generated.formats.base.basic import Float
 from generated.formats.base.basic import Uint64
 from generated.struct import StructBase
@@ -165,24 +164,24 @@ class SizedStrData(StructBase):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* zero = {fmt_member(self.zero, indent+1)}'
-		s += f'\n	* data_size = {fmt_member(self.data_size, indent+1)}'
-		s += f'\n	* x = {fmt_member(self.x, indent+1)}'
-		s += f'\n	* y = {fmt_member(self.y, indent+1)}'
-		s += f'\n	* scale = {fmt_member(self.scale, indent+1)}'
-		s += f'\n	* padding = {fmt_member(self.padding, indent+1)}'
-		s += f'\n	* zero_pc = {fmt_member(self.zero_pc, indent+1)}'
-		s += f'\n	* height_array_size_pc = {fmt_member(self.height_array_size_pc, indent+1)}'
-		s += f'\n	* data_offset = {fmt_member(self.data_offset, indent+1)}'
-		s += f'\n	* data_count = {fmt_member(self.data_count, indent+1)}'
-		s += f'\n	* size_offset = {fmt_member(self.size_offset, indent+1)}'
-		s += f'\n	* size_count = {fmt_member(self.size_count, indent+1)}'
-		s += f'\n	* position_offset = {fmt_member(self.position_offset, indent+1)}'
-		s += f'\n	* position_count = {fmt_member(self.position_count, indent+1)}'
-		s += f'\n	* mat_offset = {fmt_member(self.mat_offset, indent+1)}'
-		s += f'\n	* mat_count = {fmt_member(self.mat_count, indent+1)}'
-		s += f'\n	* name_buffer_offset = {fmt_member(self.name_buffer_offset, indent+1)}'
-		s += f'\n	* name_count = {fmt_member(self.name_count, indent+1)}'
+		s += f'\n	* zero = {self.fmt_member(self.zero, indent+1)}'
+		s += f'\n	* data_size = {self.fmt_member(self.data_size, indent+1)}'
+		s += f'\n	* x = {self.fmt_member(self.x, indent+1)}'
+		s += f'\n	* y = {self.fmt_member(self.y, indent+1)}'
+		s += f'\n	* scale = {self.fmt_member(self.scale, indent+1)}'
+		s += f'\n	* padding = {self.fmt_member(self.padding, indent+1)}'
+		s += f'\n	* zero_pc = {self.fmt_member(self.zero_pc, indent+1)}'
+		s += f'\n	* height_array_size_pc = {self.fmt_member(self.height_array_size_pc, indent+1)}'
+		s += f'\n	* data_offset = {self.fmt_member(self.data_offset, indent+1)}'
+		s += f'\n	* data_count = {self.fmt_member(self.data_count, indent+1)}'
+		s += f'\n	* size_offset = {self.fmt_member(self.size_offset, indent+1)}'
+		s += f'\n	* size_count = {self.fmt_member(self.size_count, indent+1)}'
+		s += f'\n	* position_offset = {self.fmt_member(self.position_offset, indent+1)}'
+		s += f'\n	* position_count = {self.fmt_member(self.position_count, indent+1)}'
+		s += f'\n	* mat_offset = {self.fmt_member(self.mat_offset, indent+1)}'
+		s += f'\n	* mat_count = {self.fmt_member(self.mat_count, indent+1)}'
+		s += f'\n	* name_buffer_offset = {self.fmt_member(self.name_buffer_offset, indent+1)}'
+		s += f'\n	* name_count = {self.fmt_member(self.name_count, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

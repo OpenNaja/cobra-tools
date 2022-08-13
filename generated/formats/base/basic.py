@@ -7,12 +7,6 @@ from generated.array import Array
 from generated.io import MAX_LEN
 
 
-def fmt_member(member, indent=0):
-    lines = str(member).split("\n")
-    lines_new = [lines[0], ] + ["\t" * indent + line for line in lines[1:]]
-    return "\n".join(lines_new)
-
-
 def class_from_struct(struct, from_value_func):
     # declare these in the local scope for faster name resolutions
     base_value = from_value_func(0)

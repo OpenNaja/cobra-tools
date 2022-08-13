@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 import generated.formats.base.basic
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
 from generated.formats.ovl_base.compound.Pointer import Pointer
@@ -55,8 +54,8 @@ class UserinterfaceicondataRoot(MemStruct):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* tex_name = {fmt_member(self.tex_name, indent+1)}'
-		s += f'\n	* ovl_name = {fmt_member(self.ovl_name, indent+1)}'
+		s += f'\n	* tex_name = {self.fmt_member(self.tex_name, indent+1)}'
+		s += f'\n	* ovl_name = {self.fmt_member(self.ovl_name, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

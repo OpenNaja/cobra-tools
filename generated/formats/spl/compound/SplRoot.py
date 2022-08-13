@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 from generated.formats.base.basic import Float
 from generated.formats.base.basic import Ubyte
 from generated.formats.base.basic import Ushort
@@ -76,11 +75,11 @@ class SplRoot(MemStruct):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* spline_data = {fmt_member(self.spline_data, indent+1)}'
-		s += f'\n	* count = {fmt_member(self.count, indent+1)}'
-		s += f'\n	* sixteen = {fmt_member(self.sixteen, indent+1)}'
-		s += f'\n	* one = {fmt_member(self.one, indent+1)}'
-		s += f'\n	* length = {fmt_member(self.length, indent+1)}'
+		s += f'\n	* spline_data = {self.fmt_member(self.spline_data, indent+1)}'
+		s += f'\n	* count = {self.fmt_member(self.count, indent+1)}'
+		s += f'\n	* sixteen = {self.fmt_member(self.sixteen, indent+1)}'
+		s += f'\n	* one = {self.fmt_member(self.one, indent+1)}'
+		s += f'\n	* length = {self.fmt_member(self.length, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

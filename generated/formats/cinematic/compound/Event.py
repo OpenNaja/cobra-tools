@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 import generated.formats.base.basic
 import generated.formats.cinematic.compound.EventAttributes
 from generated.formats.base.basic import Float
@@ -81,12 +80,12 @@ class Event(MemStruct):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* start_time = {fmt_member(self.start_time, indent+1)}'
-		s += f'\n	* b = {fmt_member(self.b, indent+1)}'
-		s += f'\n	* module_name = {fmt_member(self.module_name, indent+1)}'
-		s += f'\n	* attributes = {fmt_member(self.attributes, indent+1)}'
-		s += f'\n	* duration = {fmt_member(self.duration, indent+1)}'
-		s += f'\n	* d = {fmt_member(self.d, indent+1)}'
+		s += f'\n	* start_time = {self.fmt_member(self.start_time, indent+1)}'
+		s += f'\n	* b = {self.fmt_member(self.b, indent+1)}'
+		s += f'\n	* module_name = {self.fmt_member(self.module_name, indent+1)}'
+		s += f'\n	* attributes = {self.fmt_member(self.attributes, indent+1)}'
+		s += f'\n	* duration = {self.fmt_member(self.duration, indent+1)}'
+		s += f'\n	* d = {self.fmt_member(self.d, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

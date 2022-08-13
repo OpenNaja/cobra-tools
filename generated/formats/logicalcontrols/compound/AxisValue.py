@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 import generated.formats.base.basic
 from generated.formats.base.basic import Uint64
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
@@ -81,13 +80,13 @@ class AxisValue(MemStruct):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* axis_name = {fmt_member(self.axis_name, indent+1)}'
-		s += f'\n	* u_0 = {fmt_member(self.u_0, indent+1)}'
-		s += f'\n	* u_1 = {fmt_member(self.u_1, indent+1)}'
-		s += f'\n	* u_2 = {fmt_member(self.u_2, indent+1)}'
-		s += f'\n	* value_name = {fmt_member(self.value_name, indent+1)}'
-		s += f'\n	* u_3 = {fmt_member(self.u_3, indent+1)}'
-		s += f'\n	* u_4 = {fmt_member(self.u_4, indent+1)}'
+		s += f'\n	* axis_name = {self.fmt_member(self.axis_name, indent+1)}'
+		s += f'\n	* u_0 = {self.fmt_member(self.u_0, indent+1)}'
+		s += f'\n	* u_1 = {self.fmt_member(self.u_1, indent+1)}'
+		s += f'\n	* u_2 = {self.fmt_member(self.u_2, indent+1)}'
+		s += f'\n	* value_name = {self.fmt_member(self.value_name, indent+1)}'
+		s += f'\n	* u_3 = {self.fmt_member(self.u_3, indent+1)}'
+		s += f'\n	* u_4 = {self.fmt_member(self.u_4, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

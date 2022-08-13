@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 import generated.formats.base.basic
 from generated.formats.base.basic import Float
 from generated.formats.base.basic import Uint64
@@ -77,11 +76,11 @@ class RandomActivityActivityInfoData(MemStruct):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* enum_variable = {fmt_member(self.enum_variable, indent+1)}'
-		s += f'\n	* activities = {fmt_member(self.activities, indent+1)}'
-		s += f'\n	* activities_count = {fmt_member(self.activities_count, indent+1)}'
-		s += f'\n	* blend_time = {fmt_member(self.blend_time, indent+1)}'
-		s += f'\n	* mode = {fmt_member(self.mode, indent+1)}'
+		s += f'\n	* enum_variable = {self.fmt_member(self.enum_variable, indent+1)}'
+		s += f'\n	* activities = {self.fmt_member(self.activities, indent+1)}'
+		s += f'\n	* activities_count = {self.fmt_member(self.activities_count, indent+1)}'
+		s += f'\n	* blend_time = {self.fmt_member(self.blend_time, indent+1)}'
+		s += f'\n	* mode = {self.fmt_member(self.mode, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

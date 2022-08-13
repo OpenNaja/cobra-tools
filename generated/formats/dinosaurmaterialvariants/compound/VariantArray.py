@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 from generated.array import Array
 from generated.formats.dinosaurmaterialvariants.compound.Variant import Variant
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
@@ -48,7 +47,7 @@ class VariantArray(MemStruct):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* variants = {fmt_member(self.variants, indent+1)}'
+		s += f'\n	* variants = {self.fmt_member(self.variants, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 from generated.formats.base.basic import Ushort
 from generated.struct import StructBase
 
@@ -60,8 +59,8 @@ class PoolGroup(StructBase):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* type = {fmt_member(self.type, indent+1)}'
-		s += f'\n	* num_pools = {fmt_member(self.num_pools, indent+1)}'
+		s += f'\n	* type = {self.fmt_member(self.type, indent+1)}'
+		s += f'\n	* num_pools = {self.fmt_member(self.num_pools, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 import numpy
 from generated.array import Array
 from generated.formats.base.basic import Uint
@@ -129,16 +128,16 @@ class BnkBufferData(StructBase):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* size_b = {fmt_member(self.size_b, indent+1)}'
-		s += f'\n	* buffer_count = {fmt_member(self.buffer_count, indent+1)}'
-		s += f'\n	* count_2 = {fmt_member(self.count_2, indent+1)}'
-		s += f'\n	* stream_info_count = {fmt_member(self.stream_info_count, indent+1)}'
-		s += f'\n	* zeros = {fmt_member(self.zeros, indent+1)}'
-		s += f'\n	* zeros_per_buffer = {fmt_member(self.zeros_per_buffer, indent+1)}'
-		s += f'\n	* stream_infos = {fmt_member(self.stream_infos, indent+1)}'
-		s += f'\n	* name = {fmt_member(self.name, indent+1)}'
-		s += f'\n	* external_b_suffix = {fmt_member(self.external_b_suffix, indent+1)}'
-		s += f'\n	* external_s_suffix = {fmt_member(self.external_s_suffix, indent+1)}'
+		s += f'\n	* size_b = {self.fmt_member(self.size_b, indent+1)}'
+		s += f'\n	* buffer_count = {self.fmt_member(self.buffer_count, indent+1)}'
+		s += f'\n	* count_2 = {self.fmt_member(self.count_2, indent+1)}'
+		s += f'\n	* stream_info_count = {self.fmt_member(self.stream_info_count, indent+1)}'
+		s += f'\n	* zeros = {self.fmt_member(self.zeros, indent+1)}'
+		s += f'\n	* zeros_per_buffer = {self.fmt_member(self.zeros_per_buffer, indent+1)}'
+		s += f'\n	* stream_infos = {self.fmt_member(self.stream_infos, indent+1)}'
+		s += f'\n	* name = {self.fmt_member(self.name, indent+1)}'
+		s += f'\n	* external_b_suffix = {self.fmt_member(self.external_b_suffix, indent+1)}'
+		s += f'\n	* external_s_suffix = {self.fmt_member(self.external_s_suffix, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

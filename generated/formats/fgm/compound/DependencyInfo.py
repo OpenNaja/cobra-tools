@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
 from generated.formats.ovl_base.compound.Pointer import Pointer
 
@@ -54,7 +53,7 @@ class DependencyInfo(MemStruct):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* dependency_name = {fmt_member(self.dependency_name, indent+1)}'
+		s += f'\n	* dependency_name = {self.fmt_member(self.dependency_name, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

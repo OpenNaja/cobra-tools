@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 import generated.formats.wsm.compound.Vector3
 import generated.formats.wsm.compound.Vector4
 import numpy
@@ -83,11 +82,11 @@ class WsmHeader(MemStruct):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* duration = {fmt_member(self.duration, indent+1)}'
-		s += f'\n	* frame_count = {fmt_member(self.frame_count, indent+1)}'
-		s += f'\n	* unknowns = {fmt_member(self.unknowns, indent+1)}'
-		s += f'\n	* locs = {fmt_member(self.locs, indent+1)}'
-		s += f'\n	* quats = {fmt_member(self.quats, indent+1)}'
+		s += f'\n	* duration = {self.fmt_member(self.duration, indent+1)}'
+		s += f'\n	* frame_count = {self.fmt_member(self.frame_count, indent+1)}'
+		s += f'\n	* unknowns = {self.fmt_member(self.unknowns, indent+1)}'
+		s += f'\n	* locs = {self.fmt_member(self.locs, indent+1)}'
+		s += f'\n	* quats = {self.fmt_member(self.quats, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

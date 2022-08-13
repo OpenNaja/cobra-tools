@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 from generated.formats.base.basic import Uint
 from generated.formats.base.basic import Ushort
 from generated.formats.ms2.compound.BoundingBox import BoundingBox
@@ -169,15 +168,15 @@ class HitCheckEntry(StructBase):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* type = {fmt_member(self.type, indent+1)}'
-		s += f'\n	* flag_0 = {fmt_member(self.flag_0, indent+1)}'
-		s += f'\n	* flag_1 = {fmt_member(self.flag_1, indent+1)}'
-		s += f'\n	* flag_2 = {fmt_member(self.flag_2, indent+1)}'
-		s += f'\n	* flag_3 = {fmt_member(self.flag_3, indent+1)}'
-		s += f'\n	* zero_extra_pc_unk = {fmt_member(self.zero_extra_pc_unk, indent+1)}'
-		s += f'\n	* name_offset = {fmt_member(self.name_offset, indent+1)}'
-		s += f'\n	* collider = {fmt_member(self.collider, indent+1)}'
-		s += f'\n	* zero_extra_zt = {fmt_member(self.zero_extra_zt, indent+1)}'
+		s += f'\n	* type = {self.fmt_member(self.type, indent+1)}'
+		s += f'\n	* flag_0 = {self.fmt_member(self.flag_0, indent+1)}'
+		s += f'\n	* flag_1 = {self.fmt_member(self.flag_1, indent+1)}'
+		s += f'\n	* flag_2 = {self.fmt_member(self.flag_2, indent+1)}'
+		s += f'\n	* flag_3 = {self.fmt_member(self.flag_3, indent+1)}'
+		s += f'\n	* zero_extra_pc_unk = {self.fmt_member(self.zero_extra_pc_unk, indent+1)}'
+		s += f'\n	* name_offset = {self.fmt_member(self.name_offset, indent+1)}'
+		s += f'\n	* collider = {self.fmt_member(self.collider, indent+1)}'
+		s += f'\n	* zero_extra_zt = {self.fmt_member(self.zero_extra_zt, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

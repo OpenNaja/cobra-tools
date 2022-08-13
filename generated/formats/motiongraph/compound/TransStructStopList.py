@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 from generated.array import Array
 from generated.formats.motiongraph.compound.TransStructStop import TransStructStop
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
@@ -48,7 +47,7 @@ class TransStructStopList(MemStruct):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* ptrs = {fmt_member(self.ptrs, indent+1)}'
+		s += f'\n	* ptrs = {self.fmt_member(self.ptrs, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

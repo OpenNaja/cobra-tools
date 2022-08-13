@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 from generated.formats.motiongraph.compound.FloatInputData import FloatInputData
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
 
@@ -61,9 +60,9 @@ class FootPlantActivityData(MemStruct):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* weight = {fmt_member(self.weight, indent+1)}'
-		s += f'\n	* rotation_no_i_k_weight = {fmt_member(self.rotation_no_i_k_weight, indent+1)}'
-		s += f'\n	* sticky_feet_weight = {fmt_member(self.sticky_feet_weight, indent+1)}'
+		s += f'\n	* weight = {self.fmt_member(self.weight, indent+1)}'
+		s += f'\n	* rotation_no_i_k_weight = {self.fmt_member(self.rotation_no_i_k_weight, indent+1)}'
+		s += f'\n	* sticky_feet_weight = {self.fmt_member(self.sticky_feet_weight, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

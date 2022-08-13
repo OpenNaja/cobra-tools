@@ -78,8 +78,6 @@ class Imports:
                 local_imports.append(f"from {import_path} import {class_import}\n")
             else:
                 module_imports.append(f"import {class_import}\n")
-        # hard coded for now lol
-        module_imports.append(f"from {self.import_from_module_path(path.join('formats', 'base', 'basic'))} import fmt_member\n")
         module_imports.sort()
         local_imports.sort()
         for line in module_imports + local_imports:

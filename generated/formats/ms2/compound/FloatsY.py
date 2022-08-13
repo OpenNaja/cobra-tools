@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 import numpy
 from generated.array import Array
 from generated.formats.base.basic import Float
@@ -55,8 +54,8 @@ class FloatsY(StructBase):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* floats = {fmt_member(self.floats, indent+1)}'
-		s += f'\n	* index = {fmt_member(self.index, indent+1)}'
+		s += f'\n	* floats = {self.fmt_member(self.floats, indent+1)}'
+		s += f'\n	* index = {self.fmt_member(self.index, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

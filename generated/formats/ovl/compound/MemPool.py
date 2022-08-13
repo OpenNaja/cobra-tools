@@ -6,7 +6,6 @@ from generated.formats.ovl_base.basic import ConvStream
 from modules.formats.shared import get_padding
 
 
-from generated.formats.base.basic import fmt_member
 from generated.formats.base.basic import Uint
 from generated.formats.base.basic import Uint64
 from generated.formats.base.basic import Ushort
@@ -143,15 +142,15 @@ class MemPool(StructBase):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* zero_1 = {fmt_member(self.zero_1, indent+1)}'
-		s += f'\n	* size = {fmt_member(self.size, indent+1)}'
-		s += f'\n	* offset = {fmt_member(self.offset, indent+1)}'
-		s += f'\n	* zero_2 = {fmt_member(self.zero_2, indent+1)}'
-		s += f'\n	* file_hash = {fmt_member(self.file_hash, indent+1)}'
-		s += f'\n	* disney_zero = {fmt_member(self.disney_zero, indent+1)}'
-		s += f'\n	* num_files = {fmt_member(self.num_files, indent+1)}'
-		s += f'\n	* ext_hash = {fmt_member(self.ext_hash, indent+1)}'
-		s += f'\n	* zero_3 = {fmt_member(self.zero_3, indent+1)}'
+		s += f'\n	* zero_1 = {self.fmt_member(self.zero_1, indent+1)}'
+		s += f'\n	* size = {self.fmt_member(self.size, indent+1)}'
+		s += f'\n	* offset = {self.fmt_member(self.offset, indent+1)}'
+		s += f'\n	* zero_2 = {self.fmt_member(self.zero_2, indent+1)}'
+		s += f'\n	* file_hash = {self.fmt_member(self.file_hash, indent+1)}'
+		s += f'\n	* disney_zero = {self.fmt_member(self.disney_zero, indent+1)}'
+		s += f'\n	* num_files = {self.fmt_member(self.num_files, indent+1)}'
+		s += f'\n	* ext_hash = {self.fmt_member(self.ext_hash, indent+1)}'
+		s += f'\n	* zero_3 = {self.fmt_member(self.zero_3, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 from generated.struct import StructBase
 
 

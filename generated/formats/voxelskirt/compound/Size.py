@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 from generated.formats.base.basic import Uint64
 from generated.struct import StructBase
 
@@ -69,11 +68,11 @@ class Size(StructBase):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* id = {fmt_member(self.id, indent+1)}'
-		s += f'\n	* width_1 = {fmt_member(self.width_1, indent+1)}'
-		s += f'\n	* height_1 = {fmt_member(self.height_1, indent+1)}'
-		s += f'\n	* width_2 = {fmt_member(self.width_2, indent+1)}'
-		s += f'\n	* height_2 = {fmt_member(self.height_2, indent+1)}'
+		s += f'\n	* id = {self.fmt_member(self.id, indent+1)}'
+		s += f'\n	* width_1 = {self.fmt_member(self.width_1, indent+1)}'
+		s += f'\n	* height_1 = {self.fmt_member(self.height_1, indent+1)}'
+		s += f'\n	* width_2 = {self.fmt_member(self.width_2, indent+1)}'
+		s += f'\n	* height_2 = {self.fmt_member(self.height_2, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

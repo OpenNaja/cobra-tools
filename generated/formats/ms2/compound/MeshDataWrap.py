@@ -1,4 +1,3 @@
-from generated.formats.base.basic import fmt_member
 from generated.formats.ms2.compound.BioMeshData import BioMeshData
 from generated.formats.ms2.compound.NewMeshData import NewMeshData
 from generated.formats.ms2.compound.PcMeshData import PcMeshData
@@ -86,7 +85,7 @@ class MeshDataWrap(MemStruct):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* mesh = {fmt_member(self.mesh, indent+1)}'
+		s += f'\n	* mesh = {self.fmt_member(self.mesh, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):
