@@ -43,9 +43,12 @@ class ResearchLevel(MemStruct):
 		instance.next_level_count = stream.read_uint64()
 		instance.children = Pointer.from_stream(stream, instance.context, instance.children_count, generated.formats.animalresearch.compounds.PtrList.PtrList)
 		instance.children_count = stream.read_uint64()
-		instance.level_name.arg = 0
-		instance.next_levels.arg = instance.next_level_count
-		instance.children.arg = instance.children_count
+		if not isinstance(instance.level_name, int):
+			instance.level_name.arg = 0
+		if not isinstance(instance.next_levels, int):
+			instance.next_levels.arg = instance.next_level_count
+		if not isinstance(instance.children, int):
+			instance.children.arg = instance.children_count
 
 	@classmethod
 	def write_fields(cls, stream, instance):

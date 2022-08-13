@@ -57,9 +57,12 @@ class LayerFrag(MemStruct):
 		instance.u_3 = stream.read_uint64()
 		instance.attribs = ArrayPointer.from_stream(stream, instance.context, instance.attrib_count, generated.formats.matcol.compounds.Attrib.Attrib)
 		instance.attrib_count = stream.read_uint64()
-		instance.layer_name.arg = 0
-		instance.infos.arg = instance.info_count
-		instance.attribs.arg = instance.attrib_count
+		if not isinstance(instance.layer_name, int):
+			instance.layer_name.arg = 0
+		if not isinstance(instance.infos, int):
+			instance.infos.arg = instance.info_count
+		if not isinstance(instance.attribs, int):
+			instance.attribs.arg = instance.attrib_count
 
 	@classmethod
 	def write_fields(cls, stream, instance):

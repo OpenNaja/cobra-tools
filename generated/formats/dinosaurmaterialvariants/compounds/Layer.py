@@ -40,8 +40,10 @@ class Layer(MemStruct):
 		instance.has_ptr = stream.read_uint64()
 		instance.texture_fgm_name = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
 		instance.transform_fgm_name = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
-		instance.texture_fgm_name.arg = 0
-		instance.transform_fgm_name.arg = 0
+		if not isinstance(instance.texture_fgm_name, int):
+			instance.texture_fgm_name.arg = 0
+		if not isinstance(instance.transform_fgm_name, int):
+			instance.transform_fgm_name.arg = 0
 
 	@classmethod
 	def write_fields(cls, stream, instance):

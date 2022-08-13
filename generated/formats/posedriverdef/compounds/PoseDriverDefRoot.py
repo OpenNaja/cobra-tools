@@ -33,7 +33,8 @@ class PoseDriverDefRoot(MemStruct):
 		super().read_fields(stream, instance)
 		instance.drivers = ArrayPointer.from_stream(stream, instance.context, instance.count, generated.formats.posedriverdef.compounds.Driver.Driver)
 		instance.count = stream.read_uint64()
-		instance.drivers.arg = instance.count
+		if not isinstance(instance.drivers, int):
+			instance.drivers.arg = instance.count
 
 	@classmethod
 	def write_fields(cls, stream, instance):

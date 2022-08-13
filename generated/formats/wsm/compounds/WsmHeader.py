@@ -54,8 +54,10 @@ class WsmHeader(MemStruct):
 		instance.unknowns = stream.read_floats((8,))
 		instance.locs = ArrayPointer.from_stream(stream, instance.context, instance.frame_count, generated.formats.wsm.compounds.Vector3.Vector3)
 		instance.quats = ArrayPointer.from_stream(stream, instance.context, instance.frame_count, generated.formats.wsm.compounds.Vector4.Vector4)
-		instance.locs.arg = instance.frame_count
-		instance.quats.arg = instance.frame_count
+		if not isinstance(instance.locs, int):
+			instance.locs.arg = instance.frame_count
+		if not isinstance(instance.quats, int):
+			instance.quats.arg = instance.frame_count
 
 	@classmethod
 	def write_fields(cls, stream, instance):

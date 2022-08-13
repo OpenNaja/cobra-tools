@@ -37,7 +37,8 @@ class PathSupport(MemStruct):
 		instance.support = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
 		instance.unk_float_1 = stream.read_float()
 		instance.unk_int_1 = stream.read_uint()
-		instance.support.arg = 0
+		if not isinstance(instance.support, int):
+			instance.support.arg = 0
 
 	@classmethod
 	def write_fields(cls, stream, instance):

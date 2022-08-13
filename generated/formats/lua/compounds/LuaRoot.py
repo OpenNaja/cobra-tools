@@ -60,8 +60,10 @@ class LuaRoot(MemStruct):
 			instance.likely_alignment = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
 		instance.zero_1 = stream.read_uint64()
 		instance.zero_2 = stream.read_uint64()
-		instance.source_path.arg = 0
-		instance.likely_alignment.arg = 0
+		if not isinstance(instance.source_path, int):
+			instance.source_path.arg = 0
+		if not isinstance(instance.likely_alignment, int):
+			instance.likely_alignment.arg = 0
 
 	@classmethod
 	def write_fields(cls, stream, instance):

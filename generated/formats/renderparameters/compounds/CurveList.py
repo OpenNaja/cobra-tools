@@ -34,7 +34,8 @@ class CurveList(MemStruct):
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
 		instance.ptrs = Array.from_stream(stream, (instance.arg,), Pointer, instance.context, 0, generated.formats.renderparameters.compounds.KeyPoint.KeyPoint)
-		instance.ptrs.arg = 0
+		if not isinstance(instance.ptrs, int):
+			instance.ptrs.arg = 0
 
 	@classmethod
 	def write_fields(cls, stream, instance):

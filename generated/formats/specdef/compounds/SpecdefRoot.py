@@ -71,13 +71,20 @@ class SpecdefRoot(MemStruct):
 		instance.childspecs = Pointer.from_stream(stream, instance.context, instance.childspec_count, generated.formats.specdef.compounds.PtrList.PtrList)
 		instance.managers = Pointer.from_stream(stream, instance.context, instance.manager_count, generated.formats.specdef.compounds.PtrList.PtrList)
 		instance.scripts = Pointer.from_stream(stream, instance.context, instance.script_count, generated.formats.specdef.compounds.PtrList.PtrList)
-		instance.attrib_dtypes.arg = instance.attrib_count
-		instance.attrib_names.arg = instance.attrib_count
-		instance.attrib_datas.arg = instance.attrib_dtypes
-		instance.names.arg = instance.name_count
-		instance.childspecs.arg = instance.childspec_count
-		instance.managers.arg = instance.manager_count
-		instance.scripts.arg = instance.script_count
+		if not isinstance(instance.attrib_dtypes, int):
+			instance.attrib_dtypes.arg = instance.attrib_count
+		if not isinstance(instance.attrib_names, int):
+			instance.attrib_names.arg = instance.attrib_count
+		if not isinstance(instance.attrib_datas, int):
+			instance.attrib_datas.arg = instance.attrib_dtypes
+		if not isinstance(instance.names, int):
+			instance.names.arg = instance.name_count
+		if not isinstance(instance.childspecs, int):
+			instance.childspecs.arg = instance.childspec_count
+		if not isinstance(instance.managers, int):
+			instance.managers.arg = instance.manager_count
+		if not isinstance(instance.scripts, int):
+			instance.scripts.arg = instance.script_count
 
 	@classmethod
 	def write_fields(cls, stream, instance):

@@ -62,11 +62,16 @@ class LogicalControls(MemStruct):
 		instance.count_4 = stream.read_ubyte()
 		instance.flags = stream.read_uint()
 		instance.unsure = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
-		instance.buttons.arg = instance.button_count
-		instance.axes.arg = instance.axis_count
-		instance.c.arg = instance.count_3
-		instance.d.arg = instance.count_4
-		instance.unsure.arg = 0
+		if not isinstance(instance.buttons, int):
+			instance.buttons.arg = instance.button_count
+		if not isinstance(instance.axes, int):
+			instance.axes.arg = instance.axis_count
+		if not isinstance(instance.c, int):
+			instance.c.arg = instance.count_3
+		if not isinstance(instance.d, int):
+			instance.d.arg = instance.count_4
+		if not isinstance(instance.unsure, int):
+			instance.unsure.arg = 0
 
 	@classmethod
 	def write_fields(cls, stream, instance):

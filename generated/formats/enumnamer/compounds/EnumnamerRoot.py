@@ -33,7 +33,8 @@ class EnumnamerRoot(MemStruct):
 		super().read_fields(stream, instance)
 		instance.count = stream.read_uint64()
 		instance.strings = Pointer.from_stream(stream, instance.context, instance.count, generated.formats.enumnamer.compounds.PtrList.PtrList)
-		instance.strings.arg = instance.count
+		if not isinstance(instance.strings, int):
+			instance.strings.arg = instance.count
 
 	@classmethod
 	def write_fields(cls, stream, instance):

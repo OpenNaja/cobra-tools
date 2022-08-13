@@ -37,9 +37,12 @@ class Texture(MemStruct):
 		instance.fgm_name = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
 		instance.texture_suffix = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
 		instance.texture_type = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
-		instance.fgm_name.arg = 0
-		instance.texture_suffix.arg = 0
-		instance.texture_type.arg = 0
+		if not isinstance(instance.fgm_name, int):
+			instance.fgm_name.arg = 0
+		if not isinstance(instance.texture_suffix, int):
+			instance.texture_suffix.arg = 0
+		if not isinstance(instance.texture_type, int):
+			instance.texture_type.arg = 0
 
 	@classmethod
 	def write_fields(cls, stream, instance):

@@ -48,7 +48,8 @@ class SplRoot(MemStruct):
 		instance.sixteen = stream.read_ubyte()
 		instance.one = stream.read_ubyte()
 		instance.length = stream.read_float()
-		instance.spline_data.arg = instance.count
+		if not isinstance(instance.spline_data, int):
+			instance.spline_data.arg = instance.count
 
 	@classmethod
 	def write_fields(cls, stream, instance):

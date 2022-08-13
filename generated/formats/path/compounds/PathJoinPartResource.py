@@ -79,12 +79,18 @@ class PathJoinPartResource(MemStruct):
 		instance.num_points_2_copy = stream.read_byte()
 		instance.num_points_3 = stream.read_byte()
 		instance.padding_2 = stream.read_uint64()
-		instance.unk_points_1.arg = instance.num_points_1
-		instance.unk_points_2.arg = instance.num_points_2
-		instance.unk_vector.arg = 1
-		instance.unk_shorts.arg = 8
-		instance.unk_points_3.arg = instance.num_points_3
-		instance.pathresource.arg = 0
+		if not isinstance(instance.unk_points_1, int):
+			instance.unk_points_1.arg = instance.num_points_1
+		if not isinstance(instance.unk_points_2, int):
+			instance.unk_points_2.arg = instance.num_points_2
+		if not isinstance(instance.unk_vector, int):
+			instance.unk_vector.arg = 1
+		if not isinstance(instance.unk_shorts, int):
+			instance.unk_shorts.arg = 8
+		if not isinstance(instance.unk_points_3, int):
+			instance.unk_points_3.arg = instance.num_points_3
+		if not isinstance(instance.pathresource, int):
+			instance.pathresource.arg = 0
 
 	@classmethod
 	def write_fields(cls, stream, instance):

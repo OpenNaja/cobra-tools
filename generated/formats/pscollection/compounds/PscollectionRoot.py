@@ -33,7 +33,8 @@ class PscollectionRoot(MemStruct):
 		super().read_fields(stream, instance)
 		instance.prepared_statements = ArrayPointer.from_stream(stream, instance.context, instance.count, generated.formats.pscollection.compounds.PreparedStatement.PreparedStatement)
 		instance.count = stream.read_uint64()
-		instance.prepared_statements.arg = instance.count
+		if not isinstance(instance.prepared_statements, int):
+			instance.prepared_statements.arg = instance.count
 
 	@classmethod
 	def write_fields(cls, stream, instance):

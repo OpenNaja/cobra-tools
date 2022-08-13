@@ -47,7 +47,8 @@ class IslandRoot(MemStruct):
 		instance.b = stream.read_float()
 		instance.count = stream.read_uint64()
 		instance.zero = stream.read_uint64()
-		instance.path_name.arg = 0
+		if not isinstance(instance.path_name, int):
+			instance.path_name.arg = 0
 
 	@classmethod
 	def write_fields(cls, stream, instance):

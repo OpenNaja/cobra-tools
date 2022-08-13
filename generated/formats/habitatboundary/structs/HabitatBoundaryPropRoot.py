@@ -80,10 +80,14 @@ class HabitatBoundaryPropRoot(MemStruct):
 		instance.door_cutout = HbDoorCutout.from_stream(stream, instance.context, 0, None)
 		instance.small = stream.read_uint()
 		instance.height = stream.read_float()
-		instance.prefab.arg = 0
-		instance.post.arg = 0
-		instance.wall.arg = 0
-		instance.path_join_part.arg = 0
+		if not isinstance(instance.prefab, int):
+			instance.prefab.arg = 0
+		if not isinstance(instance.post, int):
+			instance.post.arg = 0
+		if not isinstance(instance.wall, int):
+			instance.wall.arg = 0
+		if not isinstance(instance.path_join_part, int):
+			instance.path_join_part.arg = 0
 
 	@classmethod
 	def write_fields(cls, stream, instance):

@@ -54,9 +54,12 @@ class MergedetailsRoot(MemStruct):
 		instance.field_name = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
 		instance.count = stream.read_uint()
 		instance.flag = stream.read_uint()
-		instance.merge_names.arg = instance.count
-		instance.queries.arg = instance.count
-		instance.field_name.arg = 0
+		if not isinstance(instance.merge_names, int):
+			instance.merge_names.arg = instance.count
+		if not isinstance(instance.queries, int):
+			instance.queries.arg = instance.count
+		if not isinstance(instance.field_name, int):
+			instance.field_name.arg = 0
 
 	@classmethod
 	def write_fields(cls, stream, instance):

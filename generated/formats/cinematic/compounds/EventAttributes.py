@@ -39,9 +39,12 @@ class EventAttributes(MemStruct):
 		instance.anim_name = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
 		instance.event_name = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
 		instance.empty_string = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
-		instance.anim_name.arg = 0
-		instance.event_name.arg = 0
-		instance.empty_string.arg = 0
+		if not isinstance(instance.anim_name, int):
+			instance.anim_name.arg = 0
+		if not isinstance(instance.event_name, int):
+			instance.event_name.arg = 0
+		if not isinstance(instance.empty_string, int):
+			instance.empty_string.arg = 0
 
 	@classmethod
 	def write_fields(cls, stream, instance):

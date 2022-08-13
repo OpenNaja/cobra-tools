@@ -37,7 +37,8 @@ class TransStructStop(MemStruct):
 		super().read_fields(stream, instance)
 		instance.another_mrfentry_2 = Pointer.from_stream(stream, instance.context, 0, None)
 		instance.other_states = MGTwo.from_stream(stream, instance.context, 0, None)
-		instance.another_mrfentry_2.arg = 0
+		if not isinstance(instance.another_mrfentry_2, int):
+			instance.another_mrfentry_2.arg = 0
 
 	@classmethod
 	def write_fields(cls, stream, instance):

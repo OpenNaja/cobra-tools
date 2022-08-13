@@ -54,10 +54,14 @@ class Sixtyfour(MemStruct):
 		instance.ptr_2 = Pointer.from_stream(stream, instance.context, 0, None)
 		instance.ptr_3 = Pointer.from_stream(stream, instance.context, 0, None)
 		instance.count_3 = stream.read_uint64()
-		instance.ptr_0.arg = 0
-		instance.ptr_1.arg = 0
-		instance.ptr_2.arg = 0
-		instance.ptr_3.arg = 0
+		if not isinstance(instance.ptr_0, int):
+			instance.ptr_0.arg = 0
+		if not isinstance(instance.ptr_1, int):
+			instance.ptr_1.arg = 0
+		if not isinstance(instance.ptr_2, int):
+			instance.ptr_2.arg = 0
+		if not isinstance(instance.ptr_3, int):
+			instance.ptr_3.arg = 0
 
 	@classmethod
 	def write_fields(cls, stream, instance):

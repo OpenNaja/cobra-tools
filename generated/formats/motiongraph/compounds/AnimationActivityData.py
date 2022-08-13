@@ -69,9 +69,12 @@ class AnimationActivityData(MemStruct):
 		instance.count_6 = stream.read_uint64()
 		instance.output_prop_through_variable = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
 		instance.additional_data_streams = DataStreamResourceDataList.from_stream(stream, instance.context, 0, None)
-		instance.mani.arg = 0
-		instance.sync_prop_through_variable.arg = 0
-		instance.output_prop_through_variable.arg = 0
+		if not isinstance(instance.mani, int):
+			instance.mani.arg = 0
+		if not isinstance(instance.sync_prop_through_variable, int):
+			instance.sync_prop_through_variable.arg = 0
+		if not isinstance(instance.output_prop_through_variable, int):
+			instance.output_prop_through_variable.arg = 0
 
 	@classmethod
 	def write_fields(cls, stream, instance):

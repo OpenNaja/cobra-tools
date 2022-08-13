@@ -41,7 +41,8 @@ class ArrayData(MemStruct):
 		instance.item = Pointer.from_stream(stream, instance.context, instance.dtype, generated.formats.specdef.compounds.Data.Data)
 		instance.dtype = SpecdefDtype.from_stream(stream, instance.context, 0, None)
 		instance.unused = stream.read_uint()
-		instance.item.arg = instance.dtype
+		if not isinstance(instance.item, int):
+			instance.item.arg = instance.dtype
 
 	@classmethod
 	def write_fields(cls, stream, instance):

@@ -35,7 +35,8 @@ class ChildSpecData(MemStruct):
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
 		instance.specdef = Pointer.from_stream(stream, instance.context, 0, generated.formats.specdef.compounds.SpecdefRoot.SpecdefRoot)
-		instance.specdef.arg = 0
+		if not isinstance(instance.specdef, int):
+			instance.specdef.arg = 0
 
 	@classmethod
 	def write_fields(cls, stream, instance):

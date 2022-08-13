@@ -48,8 +48,10 @@ class AxisValue(MemStruct):
 		instance.value_name = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
 		instance.u_3 = stream.read_uint64()
 		instance.u_4 = stream.read_uint64()
-		instance.axis_name.arg = 0
-		instance.value_name.arg = 0
+		if not isinstance(instance.axis_name, int):
+			instance.axis_name.arg = 0
+		if not isinstance(instance.value_name, int):
+			instance.value_name.arg = 0
 
 	@classmethod
 	def write_fields(cls, stream, instance):

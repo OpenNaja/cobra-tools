@@ -44,8 +44,10 @@ class RenderParameterCurvesRoot(MemStruct):
 		instance.params = Pointer.from_stream(stream, instance.context, instance.count, generated.formats.renderparameters.compounds.CurveParamList.CurveParamList)
 		instance.count = stream.read_uint64()
 		instance.unk = stream.read_uint64()
-		instance.param_name.arg = 0
-		instance.params.arg = instance.count
+		if not isinstance(instance.param_name, int):
+			instance.param_name.arg = 0
+		if not isinstance(instance.params, int):
+			instance.params.arg = instance.count
 
 	@classmethod
 	def write_fields(cls, stream, instance):

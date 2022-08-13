@@ -41,7 +41,8 @@ class Param(MemStruct):
 		instance.attribute_name = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
 		instance.dtype = RenderParameterType.from_stream(stream, instance.context, 0, None)
 		instance.data = ParamData.from_stream(stream, instance.context, instance.dtype, None)
-		instance.attribute_name.arg = 0
+		if not isinstance(instance.attribute_name, int):
+			instance.attribute_name.arg = 0
 
 	@classmethod
 	def write_fields(cls, stream, instance):

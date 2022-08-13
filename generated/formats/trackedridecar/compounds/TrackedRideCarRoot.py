@@ -58,8 +58,10 @@ class TrackedRideCarRoot(MemStruct):
 		instance.zero_0 = stream.read_uint()
 		instance.some_name = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
 		instance.zero_1 = stream.read_uint64()
-		instance.sub.arg = instance.sub_count
-		instance.some_name.arg = 0
+		if not isinstance(instance.sub, int):
+			instance.sub.arg = instance.sub_count
+		if not isinstance(instance.some_name, int):
+			instance.some_name.arg = 0
 
 	@classmethod
 	def write_fields(cls, stream, instance):

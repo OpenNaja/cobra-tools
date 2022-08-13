@@ -55,10 +55,14 @@ class ClimbproofDataRoot(MemStruct):
 		instance.post_gap = stream.read_float()
 		instance.u_1 = stream.read_float()
 		instance.zero = stream.read_uint64()
-		instance.climb_proof.arg = 0
-		instance.climb_proof_cap_start.arg = 0
-		instance.climb_proof_cap_end.arg = 0
-		instance.climb_proof_bracket.arg = 0
+		if not isinstance(instance.climb_proof, int):
+			instance.climb_proof.arg = 0
+		if not isinstance(instance.climb_proof_cap_start, int):
+			instance.climb_proof_cap_start.arg = 0
+		if not isinstance(instance.climb_proof_cap_end, int):
+			instance.climb_proof_cap_end.arg = 0
+		if not isinstance(instance.climb_proof_bracket, int):
+			instance.climb_proof_bracket.arg = 0
 
 	@classmethod
 	def write_fields(cls, stream, instance):

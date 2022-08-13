@@ -188,11 +188,16 @@ class ModelInfo(MemStruct):
 			instance.zero_1 = stream.read_uint64()
 		if instance.context.version >= 47 and not ((instance.context.version == 51) and instance.context.biosyn):
 			instance.zero_2 = stream.read_uint64()
-		instance.materials.arg = instance.num_materials
-		instance.lods.arg = instance.num_lods
-		instance.objects.arg = instance.num_objects
-		instance.meshes.arg = instance.num_meshes
-		instance.first_model.arg = 0
+		if not isinstance(instance.materials, int):
+			instance.materials.arg = instance.num_materials
+		if not isinstance(instance.lods, int):
+			instance.lods.arg = instance.num_lods
+		if not isinstance(instance.objects, int):
+			instance.objects.arg = instance.num_objects
+		if not isinstance(instance.meshes, int):
+			instance.meshes.arg = instance.num_meshes
+		if not isinstance(instance.first_model, int):
+			instance.first_model.arg = 0
 
 	@classmethod
 	def write_fields(cls, stream, instance):

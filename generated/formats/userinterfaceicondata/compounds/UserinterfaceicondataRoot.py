@@ -32,8 +32,10 @@ class UserinterfaceicondataRoot(MemStruct):
 		super().read_fields(stream, instance)
 		instance.tex_name = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
 		instance.ovl_name = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
-		instance.tex_name.arg = 0
-		instance.ovl_name.arg = 0
+		if not isinstance(instance.tex_name, int):
+			instance.tex_name.arg = 0
+		if not isinstance(instance.ovl_name, int):
+			instance.ovl_name.arg = 0
 
 	@classmethod
 	def write_fields(cls, stream, instance):

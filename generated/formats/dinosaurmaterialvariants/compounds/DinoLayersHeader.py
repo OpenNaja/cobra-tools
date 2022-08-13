@@ -41,8 +41,10 @@ class DinoLayersHeader(MemStruct):
 		instance.layers = ArrayPointer.from_stream(stream, instance.context, instance.layer_count, generated.formats.dinosaurmaterialvariants.compounds.Layer.Layer)
 		instance.layer_count = stream.read_uint64()
 		instance.zero = stream.read_uint64()
-		instance.fgm_name.arg = 0
-		instance.layers.arg = instance.layer_count
+		if not isinstance(instance.fgm_name, int):
+			instance.fgm_name.arg = 0
+		if not isinstance(instance.layers, int):
+			instance.layers.arg = instance.layer_count
 
 	@classmethod
 	def write_fields(cls, stream, instance):

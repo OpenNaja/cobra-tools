@@ -61,9 +61,12 @@ class Activity(MemStruct):
 		instance.count_3 = stream.read_uint64()
 		instance.minus_one = stream.read_int64()
 		instance.name_b = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
-		instance.data_type.arg = 0
-		instance.ptr.arg = 0
-		instance.name_b.arg = 0
+		if not isinstance(instance.data_type, int):
+			instance.data_type.arg = 0
+		if not isinstance(instance.ptr, int):
+			instance.ptr.arg = 0
+		if not isinstance(instance.name_b, int):
+			instance.name_b.arg = 0
 
 	@classmethod
 	def write_fields(cls, stream, instance):

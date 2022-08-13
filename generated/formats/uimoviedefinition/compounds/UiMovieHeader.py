@@ -124,20 +124,34 @@ class UiMovieHeader(MemStruct):
 		instance.list_2 = ArrayPointer.from_stream(stream, instance.context, instance.num_list_2, generated.formats.base.basic.Uint)
 		instance.ui_interfaces = Pointer.from_stream(stream, instance.context, instance.num_ui_interfaces, generated.formats.uimoviedefinition.compounds.PtrList.PtrList)
 		instance.ptr_3 = Pointer.from_stream(stream, instance.context, 0, None)
-		instance.movie_name.arg = 0
-		instance.pkg_name.arg = 0
-		instance.category_name.arg = 0
-		instance.type_name.arg = 0
-		instance.ptr_0.arg = 0
-		instance.ui_triggers.arg = instance.num_ui_triggers
-		instance.ptr_1.arg = 0
-		instance.ui_names.arg = instance.num_ui_names
-		instance.assetpkgs.arg = instance.num_assetpkgs
-		instance.ptr_2.arg = 0
-		instance.list_1.arg = instance.num_list_1
-		instance.list_2.arg = instance.num_list_2
-		instance.ui_interfaces.arg = instance.num_ui_interfaces
-		instance.ptr_3.arg = 0
+		if not isinstance(instance.movie_name, int):
+			instance.movie_name.arg = 0
+		if not isinstance(instance.pkg_name, int):
+			instance.pkg_name.arg = 0
+		if not isinstance(instance.category_name, int):
+			instance.category_name.arg = 0
+		if not isinstance(instance.type_name, int):
+			instance.type_name.arg = 0
+		if not isinstance(instance.ptr_0, int):
+			instance.ptr_0.arg = 0
+		if not isinstance(instance.ui_triggers, int):
+			instance.ui_triggers.arg = instance.num_ui_triggers
+		if not isinstance(instance.ptr_1, int):
+			instance.ptr_1.arg = 0
+		if not isinstance(instance.ui_names, int):
+			instance.ui_names.arg = instance.num_ui_names
+		if not isinstance(instance.assetpkgs, int):
+			instance.assetpkgs.arg = instance.num_assetpkgs
+		if not isinstance(instance.ptr_2, int):
+			instance.ptr_2.arg = 0
+		if not isinstance(instance.list_1, int):
+			instance.list_1.arg = instance.num_list_1
+		if not isinstance(instance.list_2, int):
+			instance.list_2.arg = instance.num_list_2
+		if not isinstance(instance.ui_interfaces, int):
+			instance.ui_interfaces.arg = instance.num_ui_interfaces
+		if not isinstance(instance.ptr_3, int):
+			instance.ptr_3.arg = 0
 
 	@classmethod
 	def write_fields(cls, stream, instance):

@@ -28,7 +28,8 @@ class ActivitiesLink(MemStruct):
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
 		instance.linked = Pointer.from_stream(stream, instance.context, 0, None)
-		instance.linked.arg = 0
+		if not isinstance(instance.linked, int):
+			instance.linked.arg = 0
 
 	@classmethod
 	def write_fields(cls, stream, instance):

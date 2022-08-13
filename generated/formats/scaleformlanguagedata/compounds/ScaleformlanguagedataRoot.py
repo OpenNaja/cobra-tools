@@ -50,7 +50,8 @@ class ScaleformlanguagedataRoot(MemStruct):
 		instance.count = stream.read_uint64()
 		instance.zero_2 = stream.read_uint64()
 		instance.zero_3 = stream.read_uint64()
-		instance.fonts.arg = instance.count
+		if not isinstance(instance.fonts, int):
+			instance.fonts.arg = instance.count
 
 	@classmethod
 	def write_fields(cls, stream, instance):

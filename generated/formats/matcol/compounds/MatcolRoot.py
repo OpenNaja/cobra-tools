@@ -39,7 +39,8 @@ class MatcolRoot(MemStruct):
 		super().read_fields(stream, instance)
 		instance.main = Pointer.from_stream(stream, instance.context, 0, generated.formats.matcol.compounds.RootFrag.RootFrag)
 		instance.one = stream.read_uint64()
-		instance.main.arg = 0
+		if not isinstance(instance.main, int):
+			instance.main.arg = 0
 
 	@classmethod
 	def write_fields(cls, stream, instance):

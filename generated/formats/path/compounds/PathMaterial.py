@@ -68,17 +68,28 @@ class PathMaterial(MemStruct):
 		instance.path_sub_type = stream.read_uint64()
 		instance.mat_data = ArrayPointer.from_stream(stream, instance.context, instance.num_data, generated.formats.path.compounds.PathMaterialData.PathMaterialData)
 		instance.num_data = stream.read_uint64()
-		instance.elevated_mat.arg = 0
-		instance.elevated_mat_valid.arg = 0
-		instance.elevated_mat_invalid.arg = 0
-		instance.terrain_mat.arg = 0
-		instance.terrain_mat_valid.arg = 0
-		instance.terrain_mat_invalid.arg = 0
-		instance.underside_mat_1.arg = 0
-		instance.underside_mat_2.arg = 0
-		instance.stairs_mat_1.arg = 0
-		instance.stairs_mat_2.arg = 0
-		instance.mat_data.arg = instance.num_data
+		if not isinstance(instance.elevated_mat, int):
+			instance.elevated_mat.arg = 0
+		if not isinstance(instance.elevated_mat_valid, int):
+			instance.elevated_mat_valid.arg = 0
+		if not isinstance(instance.elevated_mat_invalid, int):
+			instance.elevated_mat_invalid.arg = 0
+		if not isinstance(instance.terrain_mat, int):
+			instance.terrain_mat.arg = 0
+		if not isinstance(instance.terrain_mat_valid, int):
+			instance.terrain_mat_valid.arg = 0
+		if not isinstance(instance.terrain_mat_invalid, int):
+			instance.terrain_mat_invalid.arg = 0
+		if not isinstance(instance.underside_mat_1, int):
+			instance.underside_mat_1.arg = 0
+		if not isinstance(instance.underside_mat_2, int):
+			instance.underside_mat_2.arg = 0
+		if not isinstance(instance.stairs_mat_1, int):
+			instance.stairs_mat_1.arg = 0
+		if not isinstance(instance.stairs_mat_2, int):
+			instance.stairs_mat_2.arg = 0
+		if not isinstance(instance.mat_data, int):
+			instance.mat_data.arg = instance.num_data
 
 	@classmethod
 	def write_fields(cls, stream, instance):

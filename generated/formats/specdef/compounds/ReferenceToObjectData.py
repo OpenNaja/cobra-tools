@@ -37,7 +37,8 @@ class ReferenceToObjectData(MemStruct):
 		super().read_fields(stream, instance)
 		instance.obj_name = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
 		instance.ioptional = stream.read_uint()
-		instance.obj_name.arg = 0
+		if not isinstance(instance.obj_name, int):
+			instance.obj_name.arg = 0
 
 	@classmethod
 	def write_fields(cls, stream, instance):

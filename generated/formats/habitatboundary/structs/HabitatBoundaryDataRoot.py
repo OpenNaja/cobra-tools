@@ -137,27 +137,48 @@ class HabitatBoundaryDataRoot(MemStruct):
 		instance.wall_replace_level = stream.read_byte()
 		instance.type = stream.read_byte()
 		instance.padding = stream.read_ushort()
-		instance.prefab.arg = 0
-		instance.walls_extrusion.arg = 0
-		instance.walls_extrusion_end.arg = 0
-		instance.walls_extrusion_top.arg = 0
-		instance.walls_extrusion_cap_top.arg = 0
-		instance.walls_extrusion_bottom.arg = 0
-		instance.walls_unk_2.arg = 0
-		instance.walls_unk_3.arg = 0
-		instance.walls_unk_4.arg = 0
-		instance.walls_extrusion_door_cap_side.arg = 0
-		instance.walls_extrusion_door_cap_end.arg = 0
-		instance.walls_extrusion_door_cap_underside.arg = 0
-		instance.climb_proof_data.arg = 0
-		instance.broken_post.arg = 0
-		instance.broken_extrusion.arg = 0
-		instance.broken_extrusion_pile.arg = 0
-		instance.broken_ground.arg = 0
-		instance.broken_1_m.arg = 0
-		instance.broken_10_m.arg = 0
-		instance.post.arg = 0
-		instance.post_cap.arg = 0
+		if not isinstance(instance.prefab, int):
+			instance.prefab.arg = 0
+		if not isinstance(instance.walls_extrusion, int):
+			instance.walls_extrusion.arg = 0
+		if not isinstance(instance.walls_extrusion_end, int):
+			instance.walls_extrusion_end.arg = 0
+		if not isinstance(instance.walls_extrusion_top, int):
+			instance.walls_extrusion_top.arg = 0
+		if not isinstance(instance.walls_extrusion_cap_top, int):
+			instance.walls_extrusion_cap_top.arg = 0
+		if not isinstance(instance.walls_extrusion_bottom, int):
+			instance.walls_extrusion_bottom.arg = 0
+		if not isinstance(instance.walls_unk_2, int):
+			instance.walls_unk_2.arg = 0
+		if not isinstance(instance.walls_unk_3, int):
+			instance.walls_unk_3.arg = 0
+		if not isinstance(instance.walls_unk_4, int):
+			instance.walls_unk_4.arg = 0
+		if not isinstance(instance.walls_extrusion_door_cap_side, int):
+			instance.walls_extrusion_door_cap_side.arg = 0
+		if not isinstance(instance.walls_extrusion_door_cap_end, int):
+			instance.walls_extrusion_door_cap_end.arg = 0
+		if not isinstance(instance.walls_extrusion_door_cap_underside, int):
+			instance.walls_extrusion_door_cap_underside.arg = 0
+		if not isinstance(instance.climb_proof_data, int):
+			instance.climb_proof_data.arg = 0
+		if not isinstance(instance.broken_post, int):
+			instance.broken_post.arg = 0
+		if not isinstance(instance.broken_extrusion, int):
+			instance.broken_extrusion.arg = 0
+		if not isinstance(instance.broken_extrusion_pile, int):
+			instance.broken_extrusion_pile.arg = 0
+		if not isinstance(instance.broken_ground, int):
+			instance.broken_ground.arg = 0
+		if not isinstance(instance.broken_1_m, int):
+			instance.broken_1_m.arg = 0
+		if not isinstance(instance.broken_10_m, int):
+			instance.broken_10_m.arg = 0
+		if not isinstance(instance.post, int):
+			instance.post.arg = 0
+		if not isinstance(instance.post_cap, int):
+			instance.post_cap.arg = 0
 
 	@classmethod
 	def write_fields(cls, stream, instance):

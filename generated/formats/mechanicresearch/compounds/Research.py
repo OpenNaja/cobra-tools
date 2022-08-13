@@ -53,8 +53,10 @@ class Research(MemStruct):
 		instance.next_research_count = stream.read_uint64()
 		instance.unk_3 = stream.read_uint64()
 		instance.unk_4 = stream.read_uint64()
-		instance.item_name.arg = 0
-		instance.next_research.arg = instance.next_research_count
+		if not isinstance(instance.item_name, int):
+			instance.item_name.arg = 0
+		if not isinstance(instance.next_research, int):
+			instance.next_research.arg = instance.next_research_count
 
 	@classmethod
 	def write_fields(cls, stream, instance):

@@ -61,11 +61,16 @@ class DataStreamProducerActivityData(MemStruct):
 		instance.time_limit_mode = TimeLimitMode.from_stream(stream, instance.context, 0, None)
 		instance.data_stream_producer_flags = stream.read_uint()
 		instance.prop_through_variable = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
-		instance.ds_name.arg = 0
-		instance.type.arg = 0
-		instance.bone_i_d.arg = 0
-		instance.location.arg = 0
-		instance.prop_through_variable.arg = 0
+		if not isinstance(instance.ds_name, int):
+			instance.ds_name.arg = 0
+		if not isinstance(instance.type, int):
+			instance.type.arg = 0
+		if not isinstance(instance.bone_i_d, int):
+			instance.bone_i_d.arg = 0
+		if not isinstance(instance.location, int):
+			instance.location.arg = 0
+		if not isinstance(instance.prop_through_variable, int):
+			instance.prop_through_variable.arg = 0
 
 	@classmethod
 	def write_fields(cls, stream, instance):

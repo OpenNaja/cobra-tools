@@ -37,7 +37,8 @@ class CurveData(MemStruct):
 		super().read_fields(stream, instance)
 		instance.count = stream.read_uint64()
 		instance.points = Pointer.from_stream(stream, instance.context, instance.count, generated.formats.motiongraph.compounds.CurveDataPoints.CurveDataPoints)
-		instance.points.arg = instance.count
+		if not isinstance(instance.points, int):
+			instance.points.arg = instance.count
 
 	@classmethod
 	def write_fields(cls, stream, instance):

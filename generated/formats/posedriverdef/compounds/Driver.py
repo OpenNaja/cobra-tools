@@ -62,9 +62,12 @@ class Driver(MemStruct):
 		instance.unk_1 = stream.read_uint64()
 		instance.data = Pointer.from_stream(stream, instance.context, 0, generated.formats.posedriverdef.compounds.Data.Data)
 		instance.unk_2 = stream.read_uint64()
-		instance.joint_name.arg = 0
-		instance.driven_joint_name.arg = 0
-		instance.data.arg = 0
+		if not isinstance(instance.joint_name, int):
+			instance.joint_name.arg = 0
+		if not isinstance(instance.driven_joint_name, int):
+			instance.driven_joint_name.arg = 0
+		if not isinstance(instance.data, int):
+			instance.data.arg = 0
 
 	@classmethod
 	def write_fields(cls, stream, instance):

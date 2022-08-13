@@ -50,8 +50,10 @@ class Event(MemStruct):
 		instance.attributes = Pointer.from_stream(stream, instance.context, 0, generated.formats.cinematic.compounds.EventAttributes.EventAttributes)
 		instance.duration = stream.read_float()
 		instance.d = stream.read_float()
-		instance.module_name.arg = 0
-		instance.attributes.arg = 0
+		if not isinstance(instance.module_name, int):
+			instance.module_name.arg = 0
+		if not isinstance(instance.attributes, int):
+			instance.attributes.arg = 0
 
 	@classmethod
 	def write_fields(cls, stream, instance):

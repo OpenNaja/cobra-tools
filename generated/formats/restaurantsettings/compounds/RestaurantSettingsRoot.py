@@ -65,7 +65,8 @@ class RestaurantSettingsRoot(MemStruct):
 		instance.unk_9 = stream.read_float()
 		instance.perks = ArrayPointer.from_stream(stream, instance.context, instance.count, generated.formats.restaurantsettings.compounds.Perk.Perk)
 		instance.count = stream.read_uint64()
-		instance.perks.arg = instance.count
+		if not isinstance(instance.perks, int):
+			instance.perks.arg = instance.count
 
 	@classmethod
 	def write_fields(cls, stream, instance):

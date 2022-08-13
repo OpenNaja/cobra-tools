@@ -60,7 +60,8 @@ class MeshData(MemStruct):
 			instance.stream_info = Pointer.from_stream(stream, instance.context, 0, generated.formats.ms2.compounds.BufferInfo.BufferInfo)
 		if not ((instance.context.version == 51) and instance.context.biosyn):
 			instance.some_index = stream.read_uint64()
-		instance.stream_info.arg = 0
+		if not isinstance(instance.stream_info, int):
+			instance.stream_info.arg = 0
 
 	@classmethod
 	def write_fields(cls, stream, instance):

@@ -33,7 +33,8 @@ class MRFEntry2(MemStruct):
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
 		instance.value = Pointer.from_stream(stream, instance.context, 0, generated.formats.motiongraph.compounds.MRFMember2.MRFMember2)
-		instance.value.arg = 0
+		if not isinstance(instance.value, int):
+			instance.value.arg = 0
 
 	@classmethod
 	def write_fields(cls, stream, instance):

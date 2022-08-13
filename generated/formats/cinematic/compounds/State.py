@@ -56,10 +56,14 @@ class State(MemStruct):
 		instance.c = stream.read_uint64()
 		instance.events_list = Pointer.from_stream(stream, instance.context, 0, generated.formats.cinematic.compounds.EventsList.EventsList)
 		instance.d = stream.read_uint64()
-		instance.abstract_name.arg = 0
-		instance.concrete_name.arg = 0
-		instance.debug_name.arg = 0
-		instance.events_list.arg = 0
+		if not isinstance(instance.abstract_name, int):
+			instance.abstract_name.arg = 0
+		if not isinstance(instance.concrete_name, int):
+			instance.concrete_name.arg = 0
+		if not isinstance(instance.debug_name, int):
+			instance.debug_name.arg = 0
+		if not isinstance(instance.events_list, int):
+			instance.events_list.arg = 0
 
 	@classmethod
 	def write_fields(cls, stream, instance):

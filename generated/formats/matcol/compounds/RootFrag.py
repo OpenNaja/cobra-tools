@@ -51,8 +51,10 @@ class RootFrag(MemStruct):
 		instance.materials = ArrayPointer.from_stream(stream, instance.context, instance.mat_count, generated.formats.matcol.compounds.LayerFrag.LayerFrag)
 		instance.mat_count = stream.read_uint64()
 		instance.unk = stream.read_uint64()
-		instance.textures.arg = instance.tex_count
-		instance.materials.arg = instance.mat_count
+		if not isinstance(instance.textures, int):
+			instance.textures.arg = instance.tex_count
+		if not isinstance(instance.materials, int):
+			instance.materials.arg = instance.mat_count
 
 	@classmethod
 	def write_fields(cls, stream, instance):

@@ -238,21 +238,36 @@ class JanitorSettingsRoot(MemStruct):
 		instance.unk_30 = stream.read_float()
 		instance.unk_31 = stream.read_float()
 		instance.unk_32 = stream.read_float()
-		instance.array_0.arg = instance.count_0
-		instance.array_1.arg = instance.count_1
-		instance.array_2.arg = instance.count_2
-		instance.array_3.arg = instance.count_3
-		instance.array_4.arg = instance.count_4
-		instance.array_5.arg = instance.count_5
-		instance.array_6.arg = instance.count_6
-		instance.array_7.arg = instance.count_7
-		instance.array_8.arg = instance.count_8
-		instance.array_9.arg = instance.count_9
-		instance.array_10.arg = instance.count_10
-		instance.array_11.arg = instance.count_11
-		instance.array_12.arg = instance.count_12
-		instance.array_13.arg = instance.count_13
-		instance.array_14.arg = instance.count_14
+		if not isinstance(instance.array_0, int):
+			instance.array_0.arg = instance.count_0
+		if not isinstance(instance.array_1, int):
+			instance.array_1.arg = instance.count_1
+		if not isinstance(instance.array_2, int):
+			instance.array_2.arg = instance.count_2
+		if not isinstance(instance.array_3, int):
+			instance.array_3.arg = instance.count_3
+		if not isinstance(instance.array_4, int):
+			instance.array_4.arg = instance.count_4
+		if not isinstance(instance.array_5, int):
+			instance.array_5.arg = instance.count_5
+		if not isinstance(instance.array_6, int):
+			instance.array_6.arg = instance.count_6
+		if not isinstance(instance.array_7, int):
+			instance.array_7.arg = instance.count_7
+		if not isinstance(instance.array_8, int):
+			instance.array_8.arg = instance.count_8
+		if not isinstance(instance.array_9, int):
+			instance.array_9.arg = instance.count_9
+		if not isinstance(instance.array_10, int):
+			instance.array_10.arg = instance.count_10
+		if not isinstance(instance.array_11, int):
+			instance.array_11.arg = instance.count_11
+		if not isinstance(instance.array_12, int):
+			instance.array_12.arg = instance.count_12
+		if not isinstance(instance.array_13, int):
+			instance.array_13.arg = instance.count_13
+		if not isinstance(instance.array_14, int):
+			instance.array_14.arg = instance.count_14
 
 	@classmethod
 	def write_fields(cls, stream, instance):

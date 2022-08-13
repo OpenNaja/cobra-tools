@@ -42,8 +42,10 @@ class Some(MemStruct):
 		instance.some_name = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
 		instance.some_data = ArrayPointer.from_stream(stream, instance.context, instance.some_count, generated.formats.logicalcontrols.compounds.SomeData.SomeData)
 		instance.some_count = stream.read_uint64()
-		instance.some_name.arg = 0
-		instance.some_data.arg = instance.some_count
+		if not isinstance(instance.some_name, int):
+			instance.some_name.arg = 0
+		if not isinstance(instance.some_data, int):
+			instance.some_data.arg = instance.some_count
 
 	@classmethod
 	def write_fields(cls, stream, instance):

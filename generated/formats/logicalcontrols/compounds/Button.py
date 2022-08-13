@@ -41,8 +41,10 @@ class Button(MemStruct):
 		instance.datas = ArrayPointer.from_stream(stream, instance.context, instance.datas_count, generated.formats.logicalcontrols.compounds.ButtonData.ButtonData)
 		instance.datas_count = stream.read_uint()
 		instance.flags = stream.read_uint()
-		instance.button_name.arg = 0
-		instance.datas.arg = instance.datas_count
+		if not isinstance(instance.button_name, int):
+			instance.button_name.arg = 0
+		if not isinstance(instance.datas, int):
+			instance.datas.arg = instance.datas_count
 
 	@classmethod
 	def write_fields(cls, stream, instance):

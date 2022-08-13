@@ -36,7 +36,8 @@ class CinematicRoot(MemStruct):
 		instance.u_0 = stream.read_uint64()
 		instance.u_1 = stream.read_uint64()
 		instance.data = Pointer.from_stream(stream, instance.context, 0, generated.formats.cinematic.compounds.CinematicData.CinematicData)
-		instance.data.arg = 0
+		if not isinstance(instance.data, int):
+			instance.data.arg = 0
 
 	@classmethod
 	def write_fields(cls, stream, instance):

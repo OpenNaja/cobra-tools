@@ -49,7 +49,8 @@ class RideSettingsRoot(MemStruct):
 		instance.pad_0 = stream.read_uint()
 		instance.pad_1 = stream.read_uint()
 		instance.pad_2 = stream.read_uint()
-		instance.array_1.arg = instance.count
+		if not isinstance(instance.array_1, int):
+			instance.array_1.arg = instance.count
 
 	@classmethod
 	def write_fields(cls, stream, instance):

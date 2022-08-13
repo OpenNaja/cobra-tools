@@ -33,7 +33,8 @@ class EventsList(MemStruct):
 		super().read_fields(stream, instance)
 		instance.events = ArrayPointer.from_stream(stream, instance.context, instance.count, generated.formats.cinematic.compounds.Event.Event)
 		instance.count = stream.read_uint64()
-		instance.events.arg = instance.count
+		if not isinstance(instance.events, int):
+			instance.events.arg = instance.count
 
 	@classmethod
 	def write_fields(cls, stream, instance):

@@ -58,10 +58,14 @@ class MotiongraphRootFrag(MemStruct):
 		instance.ptr_2 = Pointer.from_stream(stream, instance.context, instance.count_2, generated.formats.motiongraph.compounds.MRFArray2.MRFArray2)
 		instance.num_xmls = stream.read_uint64()
 		instance.ptr_xmls = Pointer.from_stream(stream, instance.context, instance.num_xmls, generated.formats.motiongraph.compounds.XMLArray.XMLArray)
-		instance.activities.arg = instance.num_activities
-		instance.ptr_1.arg = instance.count_1
-		instance.ptr_2.arg = instance.count_2
-		instance.ptr_xmls.arg = instance.num_xmls
+		if not isinstance(instance.activities, int):
+			instance.activities.arg = instance.num_activities
+		if not isinstance(instance.ptr_1, int):
+			instance.ptr_1.arg = instance.count_1
+		if not isinstance(instance.ptr_2, int):
+			instance.ptr_2.arg = instance.count_2
+		if not isinstance(instance.ptr_xmls, int):
+			instance.ptr_xmls.arg = instance.num_xmls
 
 	@classmethod
 	def write_fields(cls, stream, instance):

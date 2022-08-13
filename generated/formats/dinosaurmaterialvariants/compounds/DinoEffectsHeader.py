@@ -79,7 +79,8 @@ class DinoEffectsHeader(MemStruct):
 		instance.floats = stream.read_floats((39,))
 		instance.d = stream.read_uint()
 		instance.e = stream.read_float()
-		instance.fgm_name.arg = 0
+		if not isinstance(instance.fgm_name, int):
+			instance.fgm_name.arg = 0
 
 	@classmethod
 	def write_fields(cls, stream, instance):

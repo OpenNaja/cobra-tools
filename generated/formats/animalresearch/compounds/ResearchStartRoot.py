@@ -33,7 +33,8 @@ class ResearchStartRoot(MemStruct):
 		super().read_fields(stream, instance)
 		instance.states = ArrayPointer.from_stream(stream, instance.context, instance.count, generated.formats.animalresearch.compounds.UnlockState.UnlockState)
 		instance.count = stream.read_uint64()
-		instance.states.arg = instance.count
+		if not isinstance(instance.states, int):
+			instance.states.arg = instance.count
 
 	@classmethod
 	def write_fields(cls, stream, instance):

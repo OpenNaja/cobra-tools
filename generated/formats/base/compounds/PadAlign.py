@@ -1,7 +1,12 @@
-from modules.formats.shared import get_padding_size
+
+from generated.io import MAX_LEN
 from generated.base_struct import BaseStruct
+from modules.formats.shared import get_padding_size
 
 ZERO = b"\x00"
+
+
+from generated.base_struct import BaseStruct
 
 
 class PadAlign(BaseStruct):

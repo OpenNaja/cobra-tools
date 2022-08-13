@@ -39,9 +39,12 @@ class LuaModules(MemStruct):
 		instance.motion_graph = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
 		instance.motion_graph_event_handling = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
 		instance.motion_graph_actions = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
-		instance.motion_graph.arg = 0
-		instance.motion_graph_event_handling.arg = 0
-		instance.motion_graph_actions.arg = 0
+		if not isinstance(instance.motion_graph, int):
+			instance.motion_graph.arg = 0
+		if not isinstance(instance.motion_graph_event_handling, int):
+			instance.motion_graph_event_handling.arg = 0
+		if not isinstance(instance.motion_graph_actions, int):
+			instance.motion_graph_actions.arg = 0
 
 	@classmethod
 	def write_fields(cls, stream, instance):

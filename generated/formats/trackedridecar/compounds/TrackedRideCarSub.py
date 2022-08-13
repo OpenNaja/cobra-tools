@@ -48,7 +48,8 @@ class TrackedRideCarSub(MemStruct):
 		instance.vectors = ArrayPointer.from_stream(stream, instance.context, instance.vecs_count, generated.formats.trackedridecar.compounds.Vector3.Vector3)
 		instance.vecs_count = stream.read_uint64()
 		instance.zero_1 = stream.read_uint64()
-		instance.vectors.arg = instance.vecs_count
+		if not isinstance(instance.vectors, int):
+			instance.vectors.arg = instance.vecs_count
 
 	@classmethod
 	def write_fields(cls, stream, instance):

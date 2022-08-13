@@ -40,7 +40,8 @@ class SupportAttach(MemStruct):
 		instance.unk_int_1 = stream.read_uint64()
 		instance.unk_int_2 = stream.read_uint64()
 		instance.unk_vector = Vector2.from_stream(stream, instance.context, 0, None)
-		instance.model_name.arg = 0
+		if not isinstance(instance.model_name, int):
+			instance.model_name.arg = 0
 
 	@classmethod
 	def write_fields(cls, stream, instance):

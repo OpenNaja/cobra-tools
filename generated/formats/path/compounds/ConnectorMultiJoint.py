@@ -52,8 +52,10 @@ class ConnectorMultiJoint(MemStruct):
 		instance.unk_float_1 = stream.read_float()
 		instance.unk_int_1 = stream.read_uint()
 		instance.padding = stream.read_uint64()
-		instance.model_name.arg = 0
-		instance.joints.arg = instance.num_joints
+		if not isinstance(instance.model_name, int):
+			instance.model_name.arg = 0
+		if not isinstance(instance.joints, int):
+			instance.joints.arg = instance.num_joints
 
 	@classmethod
 	def write_fields(cls, stream, instance):

@@ -54,11 +54,16 @@ class PathResource(MemStruct):
 		instance.path_sub_type = stream.read_byte()
 		instance.unk_byte_1 = stream.read_byte()
 		instance.unk_byte_2 = stream.read_byte()
-		instance.pathmaterial.arg = 0
-		instance.pathextrusion_kerb.arg = 0
-		instance.pathextrusion_railing.arg = 0
-		instance.pathextrusion_ground.arg = 0
-		instance.pathsupport.arg = 0
+		if not isinstance(instance.pathmaterial, int):
+			instance.pathmaterial.arg = 0
+		if not isinstance(instance.pathextrusion_kerb, int):
+			instance.pathextrusion_kerb.arg = 0
+		if not isinstance(instance.pathextrusion_railing, int):
+			instance.pathextrusion_railing.arg = 0
+		if not isinstance(instance.pathextrusion_ground, int):
+			instance.pathextrusion_ground.arg = 0
+		if not isinstance(instance.pathsupport, int):
+			instance.pathsupport.arg = 0
 
 	@classmethod
 	def write_fields(cls, stream, instance):

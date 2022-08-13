@@ -228,7 +228,7 @@ class MainWindow(widgets.MainWindow):
 		self.ovl_data.included_ovls_list.connect(self.included_ovls_view.set_data)
 		self.ovl_data.progress_percentage.connect(self.p_action.setValue)
 		self.ovl_data.current_action.connect(self.t_action.setText)
-		self.run_threaded("load_hash_table")
+		# self.run_threaded("load_hash_table")
 
 	def run_threaded(self, function_name, *args, **kwargs):
 		# Step 2: Create a QThread object

@@ -32,7 +32,8 @@ class SinglePtr(MemStruct):
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
 		instance.ptr = Pointer.from_stream(stream, instance.context, 0, instance.template)
-		instance.ptr.arg = 0
+		if not isinstance(instance.ptr, int):
+			instance.ptr.arg = 0
 
 	@classmethod
 	def write_fields(cls, stream, instance):

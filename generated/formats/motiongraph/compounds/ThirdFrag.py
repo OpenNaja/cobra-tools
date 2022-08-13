@@ -60,10 +60,14 @@ class ThirdFrag(MemStruct):
 		instance.ptr_2 = Pointer.from_stream(stream, instance.context, 0, generated.formats.motiongraph.compounds.Sixtyfour.Sixtyfour)
 		instance.count_4 = stream.read_uint64()
 		instance.member = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
-		instance.lua_method.arg = 0
-		instance.ptr_1.arg = 0
-		instance.ptr_2.arg = 0
-		instance.member.arg = 0
+		if not isinstance(instance.lua_method, int):
+			instance.lua_method.arg = 0
+		if not isinstance(instance.ptr_1, int):
+			instance.ptr_1.arg = 0
+		if not isinstance(instance.ptr_2, int):
+			instance.ptr_2.arg = 0
+		if not isinstance(instance.member, int):
+			instance.member.arg = 0
 
 	@classmethod
 	def write_fields(cls, stream, instance):

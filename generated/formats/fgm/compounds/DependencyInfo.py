@@ -32,7 +32,8 @@ class DependencyInfo(MemStruct):
 		super().read_fields(stream, instance)
 		if instance.arg.dtype == 8:
 			instance.dependency_name = Pointer.from_stream(stream, instance.context, 0, None)
-		instance.dependency_name.arg = 0
+		if not isinstance(instance.dependency_name, int):
+			instance.dependency_name.arg = 0
 
 	@classmethod
 	def write_fields(cls, stream, instance):

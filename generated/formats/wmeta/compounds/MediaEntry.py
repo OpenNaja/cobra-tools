@@ -46,9 +46,12 @@ class MediaEntry(MemStruct):
 		instance.block_name = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
 		instance.wav_name = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
 		instance.wem_name = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
-		instance.block_name.arg = 0
-		instance.wav_name.arg = 0
-		instance.wem_name.arg = 0
+		if not isinstance(instance.block_name, int):
+			instance.block_name.arg = 0
+		if not isinstance(instance.wav_name, int):
+			instance.wav_name.arg = 0
+		if not isinstance(instance.wem_name, int):
+			instance.wem_name.arg = 0
 
 	@classmethod
 	def write_fields(cls, stream, instance):

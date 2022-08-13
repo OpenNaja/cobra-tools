@@ -32,8 +32,10 @@ class UnlockState(MemStruct):
 		super().read_fields(stream, instance)
 		instance.entity_name = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
 		instance.level_name = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
-		instance.entity_name.arg = 0
-		instance.level_name.arg = 0
+		if not isinstance(instance.entity_name, int):
+			instance.entity_name.arg = 0
+		if not isinstance(instance.level_name, int):
+			instance.level_name.arg = 0
 
 	@classmethod
 	def write_fields(cls, stream, instance):

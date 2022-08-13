@@ -41,9 +41,12 @@ class PreparedStatement(MemStruct):
 		instance.arg_count = stream.read_uint64()
 		instance.statement_name = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
 		instance.sql_query = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
-		instance.args.arg = instance.arg_count
-		instance.statement_name.arg = 0
-		instance.sql_query.arg = 0
+		if not isinstance(instance.args, int):
+			instance.args.arg = instance.arg_count
+		if not isinstance(instance.statement_name, int):
+			instance.statement_name.arg = 0
+		if not isinstance(instance.sql_query, int):
+			instance.sql_query.arg = 0
 
 	@classmethod
 	def write_fields(cls, stream, instance):

@@ -36,8 +36,10 @@ class Connector(MemStruct):
 		instance.model_name = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
 		instance.joint_name = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
 		instance.unk_vector = Vector2.from_stream(stream, instance.context, 0, None)
-		instance.model_name.arg = 0
-		instance.joint_name.arg = 0
+		if not isinstance(instance.model_name, int):
+			instance.model_name.arg = 0
+		if not isinstance(instance.joint_name, int):
+			instance.joint_name.arg = 0
 
 	@classmethod
 	def write_fields(cls, stream, instance):

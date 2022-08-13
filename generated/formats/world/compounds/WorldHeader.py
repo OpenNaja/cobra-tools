@@ -62,13 +62,20 @@ class WorldHeader(MemStruct):
 		instance.ptr_2 = Pointer.from_stream(stream, instance.context, 0, None)
 		instance.prefab_count = stream.read_uint64()
 		instance.ptr_3 = Pointer.from_stream(stream, instance.context, 0, None)
-		instance.asset_pkgs.arg = instance.asset_pkg_count
-		instance.lua_name.arg = 0
-		instance.ptr_0.arg = 0
-		instance.ptr_1.arg = 0
-		instance.prefabs.arg = instance.prefab_count
-		instance.ptr_2.arg = 0
-		instance.ptr_3.arg = 0
+		if not isinstance(instance.asset_pkgs, int):
+			instance.asset_pkgs.arg = instance.asset_pkg_count
+		if not isinstance(instance.lua_name, int):
+			instance.lua_name.arg = 0
+		if not isinstance(instance.ptr_0, int):
+			instance.ptr_0.arg = 0
+		if not isinstance(instance.ptr_1, int):
+			instance.ptr_1.arg = 0
+		if not isinstance(instance.prefabs, int):
+			instance.prefabs.arg = instance.prefab_count
+		if not isinstance(instance.ptr_2, int):
+			instance.ptr_2.arg = 0
+		if not isinstance(instance.ptr_3, int):
+			instance.ptr_3.arg = 0
 
 	@classmethod
 	def write_fields(cls, stream, instance):

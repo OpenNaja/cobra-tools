@@ -52,9 +52,12 @@ class DinoVariantsHeader(MemStruct):
 		instance.variants = Pointer.from_stream(stream, instance.context, instance.variant_count, generated.formats.dinosaurmaterialvariants.compounds.VariantArray.VariantArray)
 		instance.variant_count = stream.read_uint64()
 		instance.zero = stream.read_uint64()
-		instance.fgm_name.arg = 0
-		instance.set_name.arg = 0
-		instance.variants.arg = instance.variant_count
+		if not isinstance(instance.fgm_name, int):
+			instance.fgm_name.arg = 0
+		if not isinstance(instance.set_name, int):
+			instance.set_name.arg = 0
+		if not isinstance(instance.variants, int):
+			instance.variants.arg = instance.variant_count
 
 	@classmethod
 	def write_fields(cls, stream, instance):

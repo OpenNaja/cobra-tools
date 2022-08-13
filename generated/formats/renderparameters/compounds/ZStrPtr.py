@@ -33,7 +33,8 @@ class ZStrPtr(MemStruct):
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
 		instance.string = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
-		instance.string.arg = 0
+		if not isinstance(instance.string, int):
+			instance.string.arg = 0
 
 	@classmethod
 	def write_fields(cls, stream, instance):

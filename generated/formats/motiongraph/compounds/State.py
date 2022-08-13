@@ -53,9 +53,12 @@ class State(MemStruct):
 		instance.count_2 = stream.read_uint64()
 		instance.array_2 = Pointer.from_stream(stream, instance.context, instance.count_2, generated.formats.motiongraph.compounds.TransStructStopList.TransStructStopList)
 		instance.id = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
-		instance.activities.arg = instance.activities_count
-		instance.array_2.arg = instance.count_2
-		instance.id.arg = 0
+		if not isinstance(instance.activities, int):
+			instance.activities.arg = instance.activities_count
+		if not isinstance(instance.array_2, int):
+			instance.array_2.arg = instance.count_2
+		if not isinstance(instance.id, int):
+			instance.id.arg = 0
 
 	@classmethod
 	def write_fields(cls, stream, instance):

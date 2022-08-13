@@ -67,9 +67,12 @@ class Perk(MemStruct):
 		instance.appeal_adults = stream.read_float()
 		instance.appeal_families = stream.read_float()
 		instance.appeal_teenagers = stream.read_float()
-		instance.label.arg = 0
-		instance.desc.arg = 0
-		instance.icon.arg = 0
+		if not isinstance(instance.label, int):
+			instance.label.arg = 0
+		if not isinstance(instance.desc, int):
+			instance.desc.arg = 0
+		if not isinstance(instance.icon, int):
+			instance.icon.arg = 0
 
 	@classmethod
 	def write_fields(cls, stream, instance):

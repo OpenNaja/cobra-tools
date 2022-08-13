@@ -273,4 +273,5 @@ class Union:
         for field in self.members:
             arg, template, arr1, arr2, conditionals, field_name, field_type, pad_mode = self.get_params(field, f'instance.')
             if method_type == 'read':
-                f.write(f"{base_indent}instance.{field_name}.arg = {arg}")
+                f.write(f"{base_indent}if not isinstance(instance.{field_name}, int):")
+                f.write(f"{base_indent}\tinstance.{field_name}.arg = {arg}")

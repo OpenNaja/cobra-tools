@@ -37,7 +37,8 @@ class MGTwo(MemStruct):
 		super().read_fields(stream, instance)
 		instance.count = stream.read_uint64()
 		instance.ptr = Pointer.from_stream(stream, instance.context, instance.count, generated.formats.motiongraph.compounds.PtrList.PtrList)
-		instance.ptr.arg = instance.count
+		if not isinstance(instance.ptr, int):
+			instance.ptr.arg = instance.count
 
 	@classmethod
 	def write_fields(cls, stream, instance):

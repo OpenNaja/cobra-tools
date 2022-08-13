@@ -72,10 +72,14 @@ class FgmHeader(MemStruct):
 		instance.data_lib = ForEachPointer.from_stream(stream, instance.context, instance.attributes, generated.formats.fgm.compounds.AttribData.AttribData)
 		instance.unk_0 = stream.read_uint64()
 		instance.unk_1 = stream.read_uint64()
-		instance.textures.arg = instance.texture_count
-		instance.attributes.arg = instance.attribute_count
-		instance.dependencies.arg = instance.textures
-		instance.data_lib.arg = instance.attributes
+		if not isinstance(instance.textures, int):
+			instance.textures.arg = instance.texture_count
+		if not isinstance(instance.attributes, int):
+			instance.attributes.arg = instance.attribute_count
+		if not isinstance(instance.dependencies, int):
+			instance.dependencies.arg = instance.textures
+		if not isinstance(instance.data_lib, int):
+			instance.data_lib.arg = instance.attributes
 
 	@classmethod
 	def write_fields(cls, stream, instance):

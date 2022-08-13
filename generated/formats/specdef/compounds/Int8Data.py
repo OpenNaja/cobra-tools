@@ -51,7 +51,8 @@ class Int8Data(MemStruct):
 		instance.ioptional = stream.read_byte()
 		instance.unused = stream.read_ubytes((4,))
 		instance.enum = Pointer.from_stream(stream, instance.context, 0, None)
-		instance.enum.arg = 0
+		if not isinstance(instance.enum, int):
+			instance.enum.arg = 0
 
 	@classmethod
 	def write_fields(cls, stream, instance):

@@ -67,14 +67,22 @@ class MotiongraphHeader(MemStruct):
 		instance.lua_results = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
 		instance.first_non_transition_state = Pointer.from_stream(stream, instance.context, 0, generated.formats.motiongraph.compounds.MRFMember2.MRFMember2)
 		instance.empty_str = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
-		instance.ptr_0.arg = 0
-		instance.state_output_entries.arg = 0
-		instance.ptr_2.arg = 0
-		instance.ptr_3.arg = 0
-		instance.lua_modules.arg = 0
-		instance.lua_results.arg = 0
-		instance.first_non_transition_state.arg = 0
-		instance.empty_str.arg = 0
+		if not isinstance(instance.ptr_0, int):
+			instance.ptr_0.arg = 0
+		if not isinstance(instance.state_output_entries, int):
+			instance.state_output_entries.arg = 0
+		if not isinstance(instance.ptr_2, int):
+			instance.ptr_2.arg = 0
+		if not isinstance(instance.ptr_3, int):
+			instance.ptr_3.arg = 0
+		if not isinstance(instance.lua_modules, int):
+			instance.lua_modules.arg = 0
+		if not isinstance(instance.lua_results, int):
+			instance.lua_results.arg = 0
+		if not isinstance(instance.first_non_transition_state, int):
+			instance.first_non_transition_state.arg = 0
+		if not isinstance(instance.empty_str, int):
+			instance.empty_str.arg = 0
 
 	@classmethod
 	def write_fields(cls, stream, instance):

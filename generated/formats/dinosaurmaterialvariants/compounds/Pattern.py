@@ -33,7 +33,8 @@ class Pattern(MemStruct):
 		super().read_fields(stream, instance)
 		instance.has_ptr = stream.read_uint64()
 		instance.pattern_name = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
-		instance.pattern_name.arg = 0
+		if not isinstance(instance.pattern_name, int):
+			instance.pattern_name.arg = 0
 
 	@classmethod
 	def write_fields(cls, stream, instance):

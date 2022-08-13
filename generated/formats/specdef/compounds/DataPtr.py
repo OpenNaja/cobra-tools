@@ -33,7 +33,8 @@ class DataPtr(MemStruct):
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
 		instance.ptr = Pointer.from_stream(stream, instance.context, instance.arg, generated.formats.specdef.compounds.Data.Data)
-		instance.ptr.arg = instance.arg
+		if not isinstance(instance.ptr, int):
+			instance.ptr.arg = instance.arg
 
 	@classmethod
 	def write_fields(cls, stream, instance):

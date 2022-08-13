@@ -49,9 +49,12 @@ class PathExtrusion(MemStruct):
 		instance.unk_float_2 = stream.read_float()
 		instance.is_kerb = stream.read_bool()
 		instance.is_not_ground = stream.read_bool()
-		instance.model.arg = 0
-		instance.post_model.arg = 0
-		instance.endcap_model.arg = 0
+		if not isinstance(instance.model, int):
+			instance.model.arg = 0
+		if not isinstance(instance.post_model, int):
+			instance.post_model.arg = 0
+		if not isinstance(instance.endcap_model, int):
+			instance.endcap_model.arg = 0
 
 	@classmethod
 	def write_fields(cls, stream, instance):

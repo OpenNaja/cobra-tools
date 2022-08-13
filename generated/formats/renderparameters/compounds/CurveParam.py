@@ -47,8 +47,10 @@ class CurveParam(MemStruct):
 		instance.do_interpolation = stream.read_uint()
 		instance.curve_entries = Pointer.from_stream(stream, instance.context, instance.count, generated.formats.renderparameters.compounds.CurveList.CurveList)
 		instance.count = stream.read_uint64()
-		instance.attribute_name.arg = 0
-		instance.curve_entries.arg = instance.count
+		if not isinstance(instance.attribute_name, int):
+			instance.attribute_name.arg = 0
+		if not isinstance(instance.curve_entries, int):
+			instance.curve_entries.arg = instance.count
 
 	@classmethod
 	def write_fields(cls, stream, instance):

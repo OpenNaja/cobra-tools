@@ -87,7 +87,8 @@ class EventEntry(MemStruct):
 		if instance.context.version >= 19:
 			instance.u_2 = stream.read_uint()
 			instance.u_1 = stream.read_uint()
-		instance.block_name.arg = 0
+		if not isinstance(instance.block_name, int):
+			instance.block_name.arg = 0
 
 	@classmethod
 	def write_fields(cls, stream, instance):

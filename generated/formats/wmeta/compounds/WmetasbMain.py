@@ -87,16 +87,26 @@ class WmetasbMain(MemStruct):
 			instance.unused_3 = Pointer.from_stream(stream, instance.context, 0, None)
 			instance.unused_4 = Pointer.from_stream(stream, instance.context, 0, None)
 			instance.unused_5 = Pointer.from_stream(stream, instance.context, 0, None)
-		instance.block_name.arg = 0
-		instance.media_name.arg = 0
-		instance.bnk_name.arg = 0
-		instance.events.arg = instance.events_count
-		instance.hashes.arg = instance.hashes_count
-		instance.media.arg = instance.media_count
-		instance.unused_2.arg = 0
-		instance.unused_3.arg = 0
-		instance.unused_4.arg = 0
-		instance.unused_5.arg = 0
+		if not isinstance(instance.block_name, int):
+			instance.block_name.arg = 0
+		if not isinstance(instance.media_name, int):
+			instance.media_name.arg = 0
+		if not isinstance(instance.bnk_name, int):
+			instance.bnk_name.arg = 0
+		if not isinstance(instance.events, int):
+			instance.events.arg = instance.events_count
+		if not isinstance(instance.hashes, int):
+			instance.hashes.arg = instance.hashes_count
+		if not isinstance(instance.media, int):
+			instance.media.arg = instance.media_count
+		if not isinstance(instance.unused_2, int):
+			instance.unused_2.arg = 0
+		if not isinstance(instance.unused_3, int):
+			instance.unused_3.arg = 0
+		if not isinstance(instance.unused_4, int):
+			instance.unused_4.arg = 0
+		if not isinstance(instance.unused_5, int):
+			instance.unused_5.arg = 0
 
 	@classmethod
 	def write_fields(cls, stream, instance):

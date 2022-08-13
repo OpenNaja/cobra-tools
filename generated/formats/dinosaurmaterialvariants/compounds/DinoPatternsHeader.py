@@ -47,9 +47,12 @@ class DinoPatternsHeader(MemStruct):
 		instance.patterns = Pointer.from_stream(stream, instance.context, instance.pattern_count, generated.formats.dinosaurmaterialvariants.compounds.PatternArray.PatternArray)
 		instance.pattern_count = stream.read_uint64()
 		instance.zero = stream.read_uint64()
-		instance.fgm_name.arg = 0
-		instance.set_name.arg = 0
-		instance.patterns.arg = instance.pattern_count
+		if not isinstance(instance.fgm_name, int):
+			instance.fgm_name.arg = 0
+		if not isinstance(instance.set_name, int):
+			instance.set_name.arg = 0
+		if not isinstance(instance.patterns, int):
+			instance.patterns.arg = instance.pattern_count
 
 	@classmethod
 	def write_fields(cls, stream, instance):

@@ -48,8 +48,10 @@ class RandomActivityActivityInfoData(MemStruct):
 		instance.activities_count = stream.read_uint64()
 		instance.blend_time = stream.read_float()
 		instance.mode = SelectActivityActivityMode.from_stream(stream, instance.context, 0, None)
-		instance.enum_variable.arg = 0
-		instance.activities.arg = 0
+		if not isinstance(instance.enum_variable, int):
+			instance.enum_variable.arg = 0
+		if not isinstance(instance.activities, int):
+			instance.activities.arg = 0
 
 	@classmethod
 	def write_fields(cls, stream, instance):

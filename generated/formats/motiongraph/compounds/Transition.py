@@ -53,9 +53,12 @@ class Transition(MemStruct):
 		instance.count_2 = stream.read_uint64()
 		instance.ptr_1 = Pointer.from_stream(stream, instance.context, instance.count_2, generated.formats.motiongraph.compounds.TransStructArray.TransStructArray)
 		instance.id = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
-		instance.ptr_0.arg = instance.count_1
-		instance.ptr_1.arg = instance.count_2
-		instance.id.arg = 0
+		if not isinstance(instance.ptr_0, int):
+			instance.ptr_0.arg = instance.count_1
+		if not isinstance(instance.ptr_1, int):
+			instance.ptr_1.arg = instance.count_2
+		if not isinstance(instance.id, int):
+			instance.id.arg = 0
 
 	@classmethod
 	def write_fields(cls, stream, instance):

@@ -43,7 +43,8 @@ class Info(MemStruct):
 		instance.flags = stream.read_bytes((4,))
 		instance.value = stream.read_floats((4,))
 		instance.padding = stream.read_uint()
-		instance.info_name.arg = 0
+		if not isinstance(instance.info_name, int):
+			instance.info_name.arg = 0
 
 	@classmethod
 	def write_fields(cls, stream, instance):

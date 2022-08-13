@@ -29,7 +29,8 @@ class XmlconfigRoot(MemStruct):
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
 		instance.xml_string = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
-		instance.xml_string.arg = 0
+		if not isinstance(instance.xml_string, int):
+			instance.xml_string.arg = 0
 
 	@classmethod
 	def write_fields(cls, stream, instance):

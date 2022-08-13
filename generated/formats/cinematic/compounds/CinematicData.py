@@ -38,8 +38,10 @@ class CinematicData(MemStruct):
 		instance.default_name = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
 		instance.next_levels = ArrayPointer.from_stream(stream, instance.context, instance.next_level_count, generated.formats.cinematic.compounds.State.State)
 		instance.next_level_count = stream.read_uint64()
-		instance.default_name.arg = 0
-		instance.next_levels.arg = instance.next_level_count
+		if not isinstance(instance.default_name, int):
+			instance.default_name.arg = 0
+		if not isinstance(instance.next_levels, int):
+			instance.next_levels.arg = instance.next_level_count
 
 	@classmethod
 	def write_fields(cls, stream, instance):

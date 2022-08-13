@@ -82,11 +82,16 @@ class SupportSetRoot(MemStruct):
 		instance.padding_2 = stream.read_uint64()
 		instance.data = ArrayPointer.from_stream(stream, instance.context, instance.num_data, generated.formats.path.compounds.SupportSetData.SupportSetData)
 		instance.num_data = stream.read_uint()
-		instance.connector_1.arg = instance.num_connector_1
-		instance.connector_2.arg = instance.num_connector_2
-		instance.pillar.arg = 0
-		instance.footer.arg = 0
-		instance.data.arg = instance.num_data
+		if not isinstance(instance.connector_1, int):
+			instance.connector_1.arg = instance.num_connector_1
+		if not isinstance(instance.connector_2, int):
+			instance.connector_2.arg = instance.num_connector_2
+		if not isinstance(instance.pillar, int):
+			instance.pillar.arg = 0
+		if not isinstance(instance.footer, int):
+			instance.footer.arg = 0
+		if not isinstance(instance.data, int):
+			instance.data.arg = instance.num_data
 
 	@classmethod
 	def write_fields(cls, stream, instance):

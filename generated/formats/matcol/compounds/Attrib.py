@@ -39,7 +39,8 @@ class Attrib(MemStruct):
 		instance.attrib_name = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
 		instance.attrib = stream.read_bytes((4,))
 		instance.padding = stream.read_uint()
-		instance.attrib_name.arg = 0
+		if not isinstance(instance.attrib_name, int):
+			instance.attrib_name.arg = 0
 
 	@classmethod
 	def write_fields(cls, stream, instance):

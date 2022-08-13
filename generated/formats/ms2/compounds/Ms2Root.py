@@ -80,9 +80,12 @@ class Ms2Root(MemStruct):
 		instance.buffer_infos = ArrayPointer.from_stream(stream, instance.context, instance.vertex_buffer_count, generated.formats.ms2.compounds.BufferInfo.BufferInfo)
 		instance.model_infos = ArrayPointer.from_stream(stream, instance.context, instance.mdl_2_count, generated.formats.ms2.compounds.ModelInfo.ModelInfo)
 		instance.buffers_presence = ArrayPointer.from_stream(stream, instance.context, instance.vertex_buffer_count, generated.formats.ms2.compounds.BufferPresence.BufferPresence)
-		instance.buffer_infos.arg = instance.vertex_buffer_count
-		instance.model_infos.arg = instance.mdl_2_count
-		instance.buffers_presence.arg = instance.vertex_buffer_count
+		if not isinstance(instance.buffer_infos, int):
+			instance.buffer_infos.arg = instance.vertex_buffer_count
+		if not isinstance(instance.model_infos, int):
+			instance.model_infos.arg = instance.mdl_2_count
+		if not isinstance(instance.buffers_presence, int):
+			instance.buffers_presence.arg = instance.vertex_buffer_count
 
 	@classmethod
 	def write_fields(cls, stream, instance):

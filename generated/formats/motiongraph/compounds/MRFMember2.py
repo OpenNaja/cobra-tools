@@ -60,8 +60,10 @@ class MRFMember2(MemStruct):
 		instance.count_5 = stream.read_uint64()
 		instance.count_6 = stream.read_uint64()
 		instance.id = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
-		instance.transition.arg = 0
-		instance.id.arg = 0
+		if not isinstance(instance.transition, int):
+			instance.transition.arg = 0
+		if not isinstance(instance.id, int):
+			instance.id.arg = 0
 
 	@classmethod
 	def write_fields(cls, stream, instance):

@@ -114,9 +114,12 @@ class TexHeader(MemStruct):
 		instance.pad = stream.read_uint()
 		if instance.context.version <= 15:
 			instance.pad_dla = stream.read_uint64()
-		instance.buffer_infos.arg = instance.stream_count
-		instance.buffer_infos.arg = instance.stream_count
-		instance.size_info.arg = 0
+		if not isinstance(instance.buffer_infos, int):
+			instance.buffer_infos.arg = instance.stream_count
+		if not isinstance(instance.buffer_infos, int):
+			instance.buffer_infos.arg = instance.stream_count
+		if not isinstance(instance.size_info, int):
+			instance.size_info.arg = 0
 
 	@classmethod
 	def write_fields(cls, stream, instance):

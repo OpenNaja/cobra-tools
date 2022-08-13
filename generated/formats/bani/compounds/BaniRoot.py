@@ -56,7 +56,8 @@ class BaniRoot(MemStruct):
 		instance.num_frames = stream.read_uint()
 		instance.animation_length = stream.read_float()
 		instance.loop_flag = stream.read_uint()
-		instance.banis.arg = 0
+		if not isinstance(instance.banis, int):
+			instance.banis.arg = 0
 
 	@classmethod
 	def write_fields(cls, stream, instance):

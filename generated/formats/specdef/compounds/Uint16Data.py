@@ -45,7 +45,8 @@ class Uint16Data(MemStruct):
 		instance.ivalue = stream.read_ushort()
 		instance.ioptional = stream.read_ushort()
 		instance.enum = Pointer.from_stream(stream, instance.context, 0, None)
-		instance.enum.arg = 0
+		if not isinstance(instance.enum, int):
+			instance.enum.arg = 0
 
 	@classmethod
 	def write_fields(cls, stream, instance):
