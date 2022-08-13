@@ -13,16 +13,16 @@ class ListShort(Descriptor):
 		super().__init__(context, arg, template, set_default=False)
 
 		# location of the joint
-		self.loc = 0
+		self.loc = Vector3(self.context, 0, None)
 
 		# normalized
-		self.direction = 0
+		self.direction = Vector3(self.context, 0, None)
 
 		# min, le 0
-		self.min = 0
+		self.min = 0.0
 
 		# max, ge 0
-		self.max = 0
+		self.max = 0.0
 		if set_default:
 			self.set_defaults()
 

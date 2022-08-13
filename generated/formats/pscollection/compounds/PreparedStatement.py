@@ -11,9 +11,9 @@ class PreparedStatement(MemStruct):
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		self.arg_count = 0
-		self.args = 0
-		self.statement_name = 0
-		self.sql_query = 0
+		self.args = ArrayPointer(self.context, self.arg_count, generated.formats.pscollection.compounds.Arg.Arg)
+		self.statement_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.sql_query = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 		if set_default:
 			self.set_defaults()
 

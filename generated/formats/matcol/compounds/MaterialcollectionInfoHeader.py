@@ -14,10 +14,10 @@ class MaterialcollectionInfoHeader(GenericHeader):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.root = 0
-		self.info = 0
-		self.textures = 0
-		self.layers = 0
+		self.root = MatcolRoot(self.context, 0, None)
+		self.info = RootFrag(self.context, 0, None)
+		self.textures = Array((self.info.tex_count,), Texture, self.context, 0, None)
+		self.layers = Array((self.info.mat_count,), Layer, self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 

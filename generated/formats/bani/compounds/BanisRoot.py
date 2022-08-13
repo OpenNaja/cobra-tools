@@ -14,7 +14,7 @@ class BanisRoot(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.zeros = 0
+		self.zeros = numpy.zeros((2,), dtype=numpy.dtype('uint64'))
 
 		# bytes per bone * num bones
 		self.bytes_per_frame = 0
@@ -29,10 +29,10 @@ class BanisRoot(MemStruct):
 		self.num_bones = 0
 
 		# translation range
-		self.loc_scale = 0
+		self.loc_scale = 0.0
 
 		# translation range
-		self.loc_offset = 0
+		self.loc_offset = 0.0
 		if set_default:
 			self.set_defaults()
 

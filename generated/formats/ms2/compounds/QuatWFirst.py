@@ -6,10 +6,10 @@ class QuatWFirst(BaseStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.w = 0
-		self.x = 0
-		self.y = 0
-		self.z = 0
+		self.w = 1.0
+		self.x = 0.0
+		self.y = 0.0
+		self.z = 0.0
 		if set_default:
 			self.set_defaults()
 

@@ -20,14 +20,14 @@ class HabitatBoundaryDataRoot(MemStruct):
 
 		# 3 for everything but null barrier which is 0
 		self.u_1 = 0
-		self.u_2 = 0
+		self.u_2 = 0.0
 
 		# 0 for everything but wood logs barrier which is 1
 		self.u_3 = 0
-		self.ui_options = 0
-		self.u_4 = 0
-		self.u_5 = 0
-		self.offsets = 0
+		self.ui_options = HbUiOptions(self.context, 0, None)
+		self.u_4 = 0.0
+		self.u_5 = 0.0
+		self.offsets = HbOffsets(self.context, 0, None)
 
 		# Posts of N Level can only use Walls of less than N Level
 		self.wall_replace_level = 0
@@ -35,27 +35,27 @@ class HabitatBoundaryDataRoot(MemStruct):
 		# 0 = Glass, 1 = Null, 3 = Solid Opaques (Brick, Concrete), 4 = 1-Way Glass, 5 = Wire Fences, 7 = Electrified Wire Fence
 		self.type = 0
 		self.padding = 0
-		self.prefab = 0
-		self.walls_extrusion = 0
-		self.walls_extrusion_end = 0
-		self.walls_extrusion_top = 0
-		self.walls_extrusion_cap_top = 0
-		self.walls_extrusion_bottom = 0
-		self.walls_unk_2 = 0
-		self.walls_unk_3 = 0
-		self.walls_unk_4 = 0
-		self.walls_extrusion_door_cap_side = 0
-		self.walls_extrusion_door_cap_end = 0
-		self.walls_extrusion_door_cap_underside = 0
-		self.climb_proof_data = 0
-		self.broken_post = 0
-		self.broken_extrusion = 0
-		self.broken_extrusion_pile = 0
-		self.broken_ground = 0
-		self.broken_1_m = 0
-		self.broken_10_m = 0
-		self.post = 0
-		self.post_cap = 0
+		self.prefab = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.walls_extrusion = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.walls_extrusion_end = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.walls_extrusion_top = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.walls_extrusion_cap_top = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.walls_extrusion_bottom = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.walls_unk_2 = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.walls_unk_3 = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.walls_unk_4 = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.walls_extrusion_door_cap_side = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.walls_extrusion_door_cap_end = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.walls_extrusion_door_cap_underside = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.climb_proof_data = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.broken_post = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.broken_extrusion = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.broken_extrusion_pile = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.broken_ground = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.broken_1_m = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.broken_10_m = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.post = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.post_cap = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 		if set_default:
 			self.set_defaults()
 

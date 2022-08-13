@@ -14,11 +14,11 @@ class TrackedRideCarSub(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.float = 0
+		self.float = 0.0
 		self.u_0 = 0
 		self.vecs_count = 0
 		self.zero_1 = 0
-		self.vectors = 0
+		self.vectors = ArrayPointer(self.context, self.vecs_count, generated.formats.trackedridecar.compounds.Vector3.Vector3)
 		if set_default:
 			self.set_defaults()
 

@@ -17,10 +17,10 @@ class MRFMember1(MemStruct):
 		self.count_2 = 0
 		self.count_3 = 0
 		self.count_4 = 0
-		self.lua_method = 0
-		self.ptr_1 = 0
-		self.ptr_2 = 0
-		self.id = 0
+		self.lua_method = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.ptr_1 = Pointer(self.context, 0, None)
+		self.ptr_2 = Pointer(self.context, 0, None)
+		self.id = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 		if set_default:
 			self.set_defaults()
 

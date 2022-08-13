@@ -15,13 +15,13 @@ class ClimbproofDataRoot(MemStruct):
 		super().__init__(context, arg, template, set_default=False)
 
 		# Distance between post center and start of bracket.
-		self.post_gap = 0
-		self.u_1 = 0
+		self.post_gap = 0.0
+		self.u_1 = 0.0
 		self.zero = 0
-		self.climb_proof = 0
-		self.climb_proof_cap_start = 0
-		self.climb_proof_cap_end = 0
-		self.climb_proof_bracket = 0
+		self.climb_proof = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.climb_proof_cap_start = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.climb_proof_cap_end = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.climb_proof_bracket = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 		if set_default:
 			self.set_defaults()
 

@@ -9,13 +9,13 @@ class RideSettingsRoot(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.unk_0 = 0
+		self.unk_0 = 0.0
 		self.unk_1 = 0
 		self.count = 0
 		self.pad_0 = 0
 		self.pad_1 = 0
 		self.pad_2 = 0
-		self.array_1 = 0
+		self.array_1 = ArrayPointer(self.context, self.count, generated.formats.ridesettings.compounds.Pair.Pair)
 		if set_default:
 			self.set_defaults()
 

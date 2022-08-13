@@ -9,9 +9,9 @@ class Texture(MemStruct):
 		super().__init__(context, arg, template, set_default=False)
 
 		# first fgm slot
-		self.fgm_name = 0
-		self.texture_suffix = 0
-		self.texture_type = 0
+		self.fgm_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.texture_suffix = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.texture_type = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 		if set_default:
 			self.set_defaults()
 

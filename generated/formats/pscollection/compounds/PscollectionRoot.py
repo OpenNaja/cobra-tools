@@ -9,7 +9,7 @@ class PscollectionRoot(MemStruct):
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		self.count = 0
-		self.prepared_statements = 0
+		self.prepared_statements = ArrayPointer(self.context, self.count, generated.formats.pscollection.compounds.PreparedStatement.PreparedStatement)
 		if set_default:
 			self.set_defaults()
 

@@ -12,13 +12,13 @@ class HbDoorCutout(MemStruct):
 		super().__init__(context, arg, template, set_default=False)
 
 		# Wall cutout height for door.
-		self.height = 0
+		self.height = 0.0
 
 		# Wall cutout position for right of door.
-		self.right = 0
+		self.right = 0.0
 
 		# Wall cutout position for left of door.
-		self.left = 0
+		self.left = 0.0
 		if set_default:
 			self.set_defaults()
 

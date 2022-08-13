@@ -8,22 +8,22 @@ class HbPropPhysics(MemStruct):
 		super().__init__(context, arg, template, set_default=False)
 
 		# Affects selection area above object.
-		self.pad_top = 0
+		self.pad_top = 0.0
 
 		# Z offset of box from prop object.
-		self.z_pos = 0
+		self.z_pos = 0.0
 
 		# Affects selection area and rejects barrier placement inside area.
-		self.half_width = 0
+		self.half_width = 0.0
 
 		# Affects selection area below object.
-		self.pad_bottom = 0
+		self.pad_bottom = 0.0
 
 		# Affects selection area and rejects barrier placement inside area.
-		self.half_depth = 0
+		self.half_depth = 0.0
 
 		# Unknown effect. Possibly vertical offset of box, yet testing was inconclusive.
-		self.u_6 = 0
+		self.u_6 = 0.0
 		if set_default:
 			self.set_defaults()
 

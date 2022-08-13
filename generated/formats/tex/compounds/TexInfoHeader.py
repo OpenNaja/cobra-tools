@@ -12,12 +12,12 @@ class TexInfoHeader(GenericHeader):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.tex_info = 0
-		self.frag_01 = 0
-		self.frag_11 = 0
+		self.tex_info = TexHeader(self.context, 0, None)
+		self.frag_01 = Array((self.tex_info.stream_count,), TexBuffer, self.context, 0, None)
+		self.frag_11 = SizeInfo(self.context, 0, None)
 
 		# pad whole frag_11 struct to 320 bytes
-		self.padding = 0
+		self.padding = numpy.zeros((384 - self.frag_11.io_size,), dtype=numpy.dtype('uint8'))
 		if set_default:
 			self.set_defaults()
 

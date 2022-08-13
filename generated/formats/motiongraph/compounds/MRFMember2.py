@@ -21,8 +21,8 @@ class MRFMember2(MemStruct):
 		self.count_4 = 0
 		self.count_5 = 0
 		self.count_6 = 0
-		self.transition = 0
-		self.id = 0
+		self.transition = Pointer(self.context, 0, generated.formats.motiongraph.compounds.Transition.Transition)
+		self.id = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 		if set_default:
 			self.set_defaults()
 

@@ -15,10 +15,10 @@ class RandomActivityActivityInfoData(MemStruct):
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		self.activities_count = 0
-		self.blend_time = 0
-		self.mode = 0
-		self.enum_variable = 0
-		self.activities = 0
+		self.blend_time = 0.0
+		self.mode = SelectActivityActivityMode(self.context, 0, None)
+		self.enum_variable = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.activities = Pointer(self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 

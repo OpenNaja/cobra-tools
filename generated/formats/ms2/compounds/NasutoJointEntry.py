@@ -25,10 +25,10 @@ class NasutoJointEntry(BaseStruct):
 		self.zero = 0
 
 		# no clue what space this is in
-		self.matrix = 0
+		self.matrix = Matrix33(self.context, 0, None)
 
 		# seems to be degrees of freedom or something like that, possibly an ellipsoid
-		self.vector = 0
+		self.vector = Vector4(self.context, 0, None)
 
 		# 1
 		self.one = 0

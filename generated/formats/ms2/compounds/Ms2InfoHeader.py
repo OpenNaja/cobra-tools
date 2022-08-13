@@ -20,18 +20,18 @@ class Ms2InfoHeader(BaseStruct):
 		super().__init__(context, arg, template, set_default=False)
 		self.biosyn = 0
 		self.bone_info_size = 0
-		self.info = 0
+		self.info = Ms2Root(self.context, 0, None)
 
 		# used since DLA
-		self.buffers_presence = 0
-		self.mdl_2_names = 0
-		self.modelstream_names = 0
-		self.buffer_0 = 0
-		self.buffer_infos = 0
-		self.model_infos = 0
+		self.buffers_presence = Array((self.info.vertex_buffer_count,), BufferPresence, self.context, 0, None)
+		self.mdl_2_names = Array((self.info.mdl_2_count,), ZString, self.context, 0, None)
+		self.modelstream_names = Array((self.info.stream_count,), ZString, self.context, 0, None)
+		self.buffer_0 = Buffer0(self.context, self.info, None)
+		self.buffer_infos = Array((self.info.vertex_buffer_count,), BufferInfo, self.context, 0, None)
+		self.model_infos = Array((self.info.mdl_2_count,), ModelInfo, self.context, 0, None)
 
 		# handles interleaved (old) or separate (new) styles for models and bone infos
-		self.models_reader = 0
+		self.models_reader = ModelReader(self.context, self.model_infos, None)
 		if set_default:
 			self.set_defaults()
 

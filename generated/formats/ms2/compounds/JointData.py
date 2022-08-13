@@ -27,7 +27,7 @@ class JointData(BaseStruct):
 		super().__init__(context, arg, template, set_default=False)
 
 		# seemingly additional alignment, unsure about the rule
-		self.start_pc = 0
+		self.start_pc = SmartPadding(self.context, 0, None)
 		self.before_dla_0 = 0
 		self.before_dla_1 = 0
 
@@ -43,19 +43,19 @@ class JointData(BaseStruct):
 		self.namespace_length = 0
 
 		# 0s
-		self.zeros_0 = 0
+		self.zeros_0 = numpy.zeros((5,), dtype=numpy.dtype('uint32'))
 
 		# 0 or 1
 		self.pc_count = 0
 
 		# 0s
-		self.zeros_1 = 0
+		self.zeros_1 = numpy.zeros((7,), dtype=numpy.dtype('uint32'))
 
 		# 0s
-		self.extra_zeros_2 = 0
+		self.extra_zeros_2 = numpy.zeros((4,), dtype=numpy.dtype('uint32'))
 
 		# 1, 1
-		self.ones = 0
+		self.ones = numpy.zeros((2,), dtype=numpy.dtype('uint64'))
 
 		# matches bone count from bone info
 		self.bone_count = 0
@@ -64,52 +64,52 @@ class JointData(BaseStruct):
 		self.joint_entry_count = 0
 
 		# usually 0s
-		self.zeros_2 = 0
+		self.zeros_2 = numpy.zeros((4,), dtype=numpy.dtype('uint32'))
 
 		# usually 0s
 		self.zeros_3 = 0
 
 		# corresponds to bone transforms
-		self.joint_transforms = 0
+		self.joint_transforms = Array((self.joint_count,), JointEntry, self.context, 0, None)
 
 		# might be pointers
-		self.zeros_3 = 0
+		self.zeros_3 = numpy.zeros((self.joint_count,), dtype=numpy.dtype('uint64'))
 
 		# ?
-		self.unknown_listc = 0
+		self.unknown_listc = Array((self.joint_count,), ListCEntry, self.context, 0, None)
 
 		# used by ptero, 16 bytes per entry
-		self.first_list = 0
+		self.first_list = Array((self.count_0,), ListFirst, self.context, 0, None)
 
 		# ?
-		self.short_list = 0
+		self.short_list = Array((self.count_1,), ListShort, self.context, 0, None)
 
 		# ?
-		self.long_list = 0
+		self.long_list = Array((self.count_2,), ListLong, self.context, 0, None)
 
 		# old style - joint infos, without hitchecks, they are added later
-		self.joint_infos = 0
+		self.joint_infos = Array((self.joint_count,), UACJointFF, self.context, 0, None)
 
 		# sometimes an array of floats
-		self.pc_floats = 0
+		self.pc_floats = numpy.zeros((self.pc_count, 10,), dtype=numpy.dtype('float32'))
 
 		# index into bone info bones for each joint; bone that the joint is attached to
-		self.joint_indices = 0
+		self.joint_indices = numpy.zeros((self.joint_count,), dtype=numpy.dtype('int32'))
 
 		# the inverse of the above; for each bone info bone, index of the corresponding joint or -1 if no joint
-		self.bone_indices = 0
+		self.bone_indices = numpy.zeros((self.bone_count,), dtype=numpy.dtype('int32'))
 
 		# zstring name buffer
-		self.joint_names = 0
+		self.joint_names = ZStringBuffer(self.context, self.namespace_length, None)
 
 		# ?
-		self.joint_names_padding = 0
+		self.joint_names_padding = SmartPadding(self.context, 0, None)
 
 		# new style - includes name offset, some flags and the hitchecks
-		self.joint_infos = 0
+		self.joint_infos = Array((self.joint_count,), JointInfo, self.context, 0, None)
 
 		# old style - for each joint, read the hitchecks
-		self.hitcheck_reader = 0
+		self.hitcheck_reader = HitcheckReader(self.context, self.joint_infos, None)
 		if set_default:
 			self.set_defaults()
 

@@ -8,11 +8,11 @@ class Repeat(BaseStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.zeros_0 = 0
+		self.zeros_0 = numpy.zeros((7,), dtype=numpy.dtype('uint64'))
 
 		# to be read sequentially starting after this array
 		self.byte_size = 0
-		self.zeros_1 = 0
+		self.zeros_1 = numpy.zeros((2,), dtype=numpy.dtype('uint64'))
 		if set_default:
 			self.set_defaults()
 

@@ -11,9 +11,9 @@ class FloatData(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.imin = 0
-		self.imax = 0
-		self.ivalue = 0
+		self.imin = 0.0
+		self.imax = 0.0
+		self.ivalue = 0.0
 		self.ioptional = 0
 		if set_default:
 			self.set_defaults()

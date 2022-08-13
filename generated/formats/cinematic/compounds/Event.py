@@ -13,12 +13,12 @@ class Event(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.start_time = 0
-		self.b = 0
-		self.duration = 0
-		self.d = 0
-		self.module_name = 0
-		self.attributes = 0
+		self.start_time = 0.0
+		self.b = 0.0
+		self.duration = 0.0
+		self.d = 0.0
+		self.module_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.attributes = Pointer(self.context, 0, generated.formats.cinematic.compounds.EventAttributes.EventAttributes)
 		if set_default:
 			self.set_defaults()
 

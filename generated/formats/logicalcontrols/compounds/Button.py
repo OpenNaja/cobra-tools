@@ -12,8 +12,8 @@ class Button(MemStruct):
 		super().__init__(context, arg, template, set_default=False)
 		self.datas_count = 0
 		self.flags = 0
-		self.button_name = 0
-		self.datas = 0
+		self.button_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.datas = ArrayPointer(self.context, self.datas_count, generated.formats.logicalcontrols.compounds.ButtonData.ButtonData)
 		if set_default:
 			self.set_defaults()
 

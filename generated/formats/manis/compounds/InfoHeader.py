@@ -17,11 +17,11 @@ class InfoHeader(GenericHeader):
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		self.mani_count = 0
-		self.names = 0
-		self.header = 0
-		self.mani_infos = 0
-		self.name_buffer = 0
-		self.keys_buffer = 0
+		self.names = Array((self.mani_count,), ZString, self.context, 0, None)
+		self.header = SizedStrData(self.context, 0, None)
+		self.mani_infos = Array((self.mani_count,), ManiInfo, self.context, 0, None)
+		self.name_buffer = Buffer1(self.context, int(self.header.hash_block_size / 4), None)
+		self.keys_buffer = KeysReader(self.context, self.mani_infos, None)
 		if set_default:
 			self.set_defaults()
 

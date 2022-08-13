@@ -12,9 +12,9 @@ class CurveDataPoint(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.x = 0
+		self.x = 0.0
 		self.y = 0
-		self.sub_curve_type = 0
+		self.sub_curve_type = SubCurveType(self.context, 0, None)
 		self.subsequent_curve_param = 0
 		self.subsequent_curve_param_b = 0
 		if set_default:

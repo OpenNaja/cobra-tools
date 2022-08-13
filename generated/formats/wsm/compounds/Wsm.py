@@ -9,13 +9,13 @@ class Wsm(GenericHeader):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.header = 0
+		self.header = WsmHeader(self.context, 0, None)
 
 		# xyz
-		self.locs = 0
+		self.locs = numpy.zeros((self.header.frame_count, 3,), dtype=numpy.dtype('float32'))
 
 		# xyzw
-		self.quats = 0
+		self.quats = numpy.zeros((self.header.frame_count, 4,), dtype=numpy.dtype('float32'))
 		if set_default:
 			self.set_defaults()
 

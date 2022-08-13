@@ -24,7 +24,7 @@ class TexHeader(MemStruct):
 		super().__init__(context, arg, template, set_default=False)
 		self.zero_0 = 0
 		self.zero_1 = 0
-		self.compression_type = 0
+		self.compression_type = DdsType(self.context, 0, None)
 
 		# 0 or 1
 		self.one_0 = 0
@@ -41,8 +41,8 @@ class TexHeader(MemStruct):
 		# 0
 		self.pad = 0
 		self.pad_dla = 0
-		self.buffer_infos = 0
-		self.size_info = 0
+		self.buffer_infos = ArrayPointer(self.context, self.stream_count, generated.formats.tex.compounds.TexBuffer.TexBuffer)
+		self.size_info = Pointer(self.context, 0, generated.formats.tex.compounds.SizeInfo.SizeInfo)
 		if set_default:
 			self.set_defaults()
 

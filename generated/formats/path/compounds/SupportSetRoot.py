@@ -19,20 +19,20 @@ class SupportSetRoot(MemStruct):
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		self.padding = 0
-		self.unk_vector_1 = 0
-		self.unk_vector_2 = 0
-		self.unk_vector_3 = 0
+		self.unk_vector_1 = Vector3(self.context, 0, None)
+		self.unk_vector_2 = Vector2(self.context, 0, None)
+		self.unk_vector_3 = Vector3(self.context, 0, None)
 		self.unk_int_1 = 0
 		self.num_connector_1 = 0
 		self.num_connector_2 = 0
-		self.unk_ints = 0
+		self.unk_ints = numpy.zeros((7,), dtype=numpy.dtype('uint32'))
 		self.padding_2 = 0
 		self.num_data = 0
-		self.connector_1 = 0
-		self.connector_2 = 0
-		self.pillar = 0
-		self.footer = 0
-		self.data = 0
+		self.connector_1 = ArrayPointer(self.context, self.num_connector_1, generated.formats.path.compounds.Connector.Connector)
+		self.connector_2 = ArrayPointer(self.context, self.num_connector_2, generated.formats.path.compounds.ConnectorMultiJoint.ConnectorMultiJoint)
+		self.pillar = Pointer(self.context, 0, generated.formats.path.compounds.Pillar.Pillar)
+		self.footer = Pointer(self.context, 0, generated.formats.path.compounds.Footer.Footer)
+		self.data = ArrayPointer(self.context, self.num_data, generated.formats.path.compounds.SupportSetData.SupportSetData)
 		if set_default:
 			self.set_defaults()
 

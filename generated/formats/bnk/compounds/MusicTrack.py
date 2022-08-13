@@ -11,7 +11,7 @@ class MusicTrack(BaseStruct):
 		# seen 114
 		self.length = 0
 		self.id = 0
-		self.data = 0
+		self.data = MusicTrackInitialValues(self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 

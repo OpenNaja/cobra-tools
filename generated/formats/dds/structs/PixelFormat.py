@@ -10,13 +10,13 @@ class PixelFormat(BaseStruct):
 		super().__init__(context, arg, template, set_default=False)
 
 		# Always 32.
-		self.size = 0
+		self.size = 32
 
 		# Non-zero for DX9, zero for DX10.
-		self.flags = 0
+		self.flags = PixelFormatFlags(self.context, 0, None)
 
 		# Determines compression type. Zero means no compression.
-		self.four_c_c = 0
+		self.four_c_c = FourCC(self.context, 0, None)
 
 		# For non-compressed types, this is either 24 or 32 depending on whether there is an alpha channel. For compressed types, this describes the number of bits per block, which can be either 256 or 512.
 		self.bit_count = 0

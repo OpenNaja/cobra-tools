@@ -50,10 +50,10 @@ class PcMeshData(MeshData):
 		self.zero = 0
 
 		# some floats
-		self.unknown_07 = 0
+		self.unknown_07 = 0.0
 
 		# bitfield
-		self.flag = 0
+		self.flag = ModelFlag(self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 

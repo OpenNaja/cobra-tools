@@ -15,7 +15,7 @@ class Int16Data(MemStruct):
 		self.imax = 0
 		self.ivalue = 0
 		self.ioptional = 0
-		self.enum = 0
+		self.enum = Pointer(self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 

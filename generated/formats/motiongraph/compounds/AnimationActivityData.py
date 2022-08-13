@@ -17,17 +17,17 @@ class AnimationActivityData(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.animation_flags = 0
+		self.animation_flags = AnimationFlags(self.context, 0, None)
 		self.priorities = 0
-		self.weight = 0
-		self.speed = 0
-		self.starting_prop_through = 0
-		self.lead_out_time = 0
+		self.weight = FloatInputData(self.context, 0, None)
+		self.speed = FloatInputData(self.context, 0, None)
+		self.starting_prop_through = 0.0
+		self.lead_out_time = 0.0
 		self.count_6 = 0
-		self.additional_data_streams = 0
-		self.mani = 0
-		self.sync_prop_through_variable = 0
-		self.output_prop_through_variable = 0
+		self.additional_data_streams = DataStreamResourceDataList(self.context, 0, None)
+		self.mani = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.sync_prop_through_variable = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.output_prop_through_variable = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 		if set_default:
 			self.set_defaults()
 

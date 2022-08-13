@@ -13,8 +13,8 @@ class SomeData(MemStruct):
 		super().__init__(context, arg, template, set_default=False)
 		self.key = 0
 		self.extra = 0
-		self.a = 0
-		self.b = 0
+		self.a = 0.0
+		self.b = 0.0
 		if set_default:
 			self.set_defaults()
 

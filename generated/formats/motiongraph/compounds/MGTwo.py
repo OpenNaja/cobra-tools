@@ -13,7 +13,7 @@ class MGTwo(MemStruct):
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		self.count = 0
-		self.ptr = 0
+		self.ptr = Pointer(self.context, self.count, generated.formats.motiongraph.compounds.PtrList.PtrList)
 		if set_default:
 			self.set_defaults()
 

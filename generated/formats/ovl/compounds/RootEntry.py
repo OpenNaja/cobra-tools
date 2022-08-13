@@ -19,7 +19,7 @@ class RootEntry(BaseStruct):
 		self.ext_hash = 0
 
 		# points to the main struct of this file OR -1 pointer for assets
-		self.struct_ptr = 0
+		self.struct_ptr = HeaderPointer(self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 

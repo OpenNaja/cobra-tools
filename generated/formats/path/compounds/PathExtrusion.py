@@ -9,13 +9,13 @@ class PathExtrusion(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.unk_float_1 = 0
-		self.unk_float_2 = 0
-		self.is_kerb = 0
-		self.is_not_ground = 0
-		self.model = 0
-		self.post_model = 0
-		self.endcap_model = 0
+		self.unk_float_1 = 0.0
+		self.unk_float_2 = 0.0
+		self.is_kerb = False
+		self.is_not_ground = False
+		self.model = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.post_model = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.endcap_model = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 		if set_default:
 			self.set_defaults()
 

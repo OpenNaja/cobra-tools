@@ -19,10 +19,10 @@ class ThirdFrag(MemStruct):
 		self.count_2 = 0
 		self.count_3 = 0
 		self.count_4 = 0
-		self.lua_method = 0
-		self.ptr_1 = 0
-		self.ptr_2 = 0
-		self.member = 0
+		self.lua_method = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.ptr_1 = Pointer(self.context, 0, generated.formats.motiongraph.compounds.TwoPtrFirst.TwoPtrFirst)
+		self.ptr_2 = Pointer(self.context, 0, generated.formats.motiongraph.compounds.Sixtyfour.Sixtyfour)
+		self.member = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 		if set_default:
 			self.set_defaults()
 

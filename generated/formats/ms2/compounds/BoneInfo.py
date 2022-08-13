@@ -46,7 +46,7 @@ class BoneInfo(BaseStruct):
 
 		# seems to match bone count
 		self.bind_matrix_count = 0
-		self.zeros = 0
+		self.zeros = numpy.zeros((2,), dtype=numpy.dtype('uint64'))
 		self.inv_data_count = 0
 		self.bone_count = 0
 		self.unknown_40 = 0
@@ -82,47 +82,47 @@ class BoneInfo(BaseStruct):
 
 		# zero
 		self.unk_extra_jwe = 0
-		self.name_indices = 0
-		self.inventory_name_indices = 0
-		self.name_padding = 0
+		self.name_indices = numpy.zeros((self.name_count,), dtype=numpy.dtype('uint16'))
+		self.inventory_name_indices = numpy.zeros((self.inv_names_count,), dtype=numpy.dtype('uint16'))
+		self.name_padding = numpy.zeros(((16 - (((self.name_count + self.inv_names_count) * 2) % 16)) % 16,), dtype=numpy.dtype('int8'))
 
 		# used for skinning
-		self.inverse_bind_matrices = 0
-		self.bones = 0
+		self.inverse_bind_matrices = Array((self.bind_matrix_count,), Matrix44, self.context, 0, None)
+		self.bones = Array((self.bone_count,), Bone, self.context, 0, None)
 
 		# 255 = root, index in this list is the current bone index, value is the bone's parent index
-		self.parents = 0
+		self.parents = numpy.zeros((self.parents_count,), dtype=numpy.dtype('uint8'))
 
 		# zeros
-		self.parents_padding = 0
+		self.parents_padding = numpy.zeros(((8 - (self.parents_count % 8)) % 8,), dtype=numpy.dtype('int8'))
 
 		# enumerates all bone indices, 4 may be flags
 
 		# enumerates all bone indices
-		self.enumeration = 0
+		self.enumeration = numpy.zeros((self.enum_count,), dtype=numpy.dtype('uint8'))
 
 		# zeros
-		self.inventory_datas = 0
+		self.inventory_datas = numpy.zeros((self.inv_data_count, 6,), dtype=numpy.dtype('int8'))
 
 		# -1s and 0s
 
 		# zeros
-		self.weirdness = 0
+		self.weirdness = numpy.zeros((10,), dtype=numpy.dtype('int16'))
 
 		# zeros
-		self.inventory_datas_2 = 0
+		self.inventory_datas_2 = numpy.zeros((self.inv_data_count, 2,), dtype=numpy.dtype('int32'))
 
 		# weird zeros
-		self.zeros_padding = 0
+		self.zeros_padding = ZerosPadding(self.context, self.zeros_count, None)
 
 		# weird -1s
-		self.minus_padding = 0
+		self.minus_padding = MinusPadding(self.context, self.zeros_count, None)
 
 		# ragdoll links?
-		self.struct_7 = 0
+		self.struct_7 = Struct7(self.context, 0, None)
 
 		# joints
-		self.joints = 0
+		self.joints = JointData(self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 

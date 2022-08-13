@@ -11,10 +11,10 @@ class MeshCollisionBit(BaseStruct):
 		super().__init__(context, arg, template, set_default=False)
 
 		# ?
-		self.countd = 0
+		self.countd = numpy.zeros((34,), dtype=numpy.dtype('uint16'))
 
 		# always 2954754766?
-		self.consts = 0
+		self.consts = numpy.zeros((3,), dtype=numpy.dtype('uint32'))
 		if set_default:
 			self.set_defaults()
 

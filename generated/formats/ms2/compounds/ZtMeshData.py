@@ -52,7 +52,7 @@ class ZtMeshData(MeshData):
 		self.poweroftwo = 0
 
 		# bitfield
-		self.flag = 0
+		self.flag = ModelFlagZT(self.context, 0, None)
 
 		# always zero
 		self.zero_uac = 0

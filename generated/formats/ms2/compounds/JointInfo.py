@@ -14,8 +14,8 @@ class JointInfo(CommonJointInfo):
 		self.zero = 0
 
 		# 8 bytes of zeros per hitcheck
-		self.zeros_per_hitcheck = 0
-		self.hitchecks = 0
+		self.zeros_per_hitcheck = numpy.zeros((self.hitcheck_count,), dtype=numpy.dtype('uint64'))
+		self.hitchecks = Array((self.hitcheck_count,), HitCheckEntry, self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 

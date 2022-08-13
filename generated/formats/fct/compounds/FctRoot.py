@@ -17,15 +17,15 @@ class FctRoot(MemStruct):
 		super().__init__(context, arg, template, set_default=False)
 		self.u_0 = 0
 		self.u_1 = 0
-		self.a = 0
-		self.b = 0
-		self.c = 0
+		self.a = 0.0
+		self.b = 0.0
+		self.c = 0.0
 		self.minus_1 = 0
 		self.z_0 = 0
 		self.z_1 = 0
 		self.z_2 = 0
 		self.offset = 0
-		self.fonts = 0
+		self.fonts = Array((4,), Font, self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 

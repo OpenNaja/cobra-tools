@@ -16,14 +16,14 @@ class DataStreamProducerActivityData(MemStruct):
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		self.curve_type = 0
-		self.curve = 0
-		self.time_limit_mode = 0
+		self.curve = CurveData(self.context, 0, None)
+		self.time_limit_mode = TimeLimitMode(self.context, 0, None)
 		self.data_stream_producer_flags = 0
-		self.ds_name = 0
-		self.type = 0
-		self.bone_i_d = 0
-		self.location = 0
-		self.prop_through_variable = 0
+		self.ds_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.type = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.bone_i_d = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.location = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.prop_through_variable = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 		if set_default:
 			self.set_defaults()
 

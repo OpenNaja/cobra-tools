@@ -10,7 +10,7 @@ class AkBankSourceData(BaseStruct):
 		super().__init__(context, arg, template, set_default=False)
 		self.ul_plugin_i_d = 0
 		self.stream_type = 0
-		self.ak_media_information = 0
+		self.ak_media_information = AkMediaInformation(self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 

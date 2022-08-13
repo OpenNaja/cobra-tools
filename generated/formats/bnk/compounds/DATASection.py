@@ -16,7 +16,7 @@ class DATASection(BaseStruct):
 
 		# length of following data
 		self.length = 0
-		self.wem_datas = 0
+		self.wem_datas = numpy.zeros((self.length,), dtype=numpy.dtype('int8'))
 		if set_default:
 			self.set_defaults()
 

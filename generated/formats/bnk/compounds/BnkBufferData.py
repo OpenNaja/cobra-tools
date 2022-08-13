@@ -29,22 +29,22 @@ class BnkBufferData(BaseStruct):
 		self.stream_info_count = 0
 
 		# 0
-		self.zeros = 0
+		self.zeros = numpy.zeros((7,), dtype=numpy.dtype('uint32'))
 
 		# variable
-		self.zeros_per_buffer = 0
+		self.zeros_per_buffer = numpy.zeros((self.buffer_count, 2,), dtype=numpy.dtype('uint64'))
 
 		# data
-		self.stream_infos = 0
+		self.stream_infos = Array((self.stream_info_count,), StreamInfo, self.context, 0, None)
 
 		# data
-		self.name = 0
+		self.name = ''
 
 		# ext format subtypes
-		self.external_b_suffix = 0
+		self.external_b_suffix = ''
 
 		# ext format subtypes
-		self.external_s_suffix = 0
+		self.external_s_suffix = ''
 		if set_default:
 			self.set_defaults()
 

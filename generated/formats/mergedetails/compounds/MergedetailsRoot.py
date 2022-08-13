@@ -18,9 +18,9 @@ class MergedetailsRoot(MemStruct):
 		self.zero_1 = 0
 		self.count = 0
 		self.flag = 0
-		self.merge_names = 0
-		self.queries = 0
-		self.field_name = 0
+		self.merge_names = Pointer(self.context, self.count, generated.formats.mergedetails.compounds.PtrList.PtrList)
+		self.queries = Pointer(self.context, self.count, generated.formats.mergedetails.compounds.PtrList.PtrList)
+		self.field_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 		if set_default:
 			self.set_defaults()
 

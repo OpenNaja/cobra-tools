@@ -28,7 +28,7 @@ class MeshData(MemStruct):
 		self.some_index = 0
 
 		# PZ and JWE use a ptr instead
-		self.stream_info = 0
+		self.stream_info = Pointer(self.context, 0, generated.formats.ms2.compounds.BufferInfo.BufferInfo)
 		if set_default:
 			self.set_defaults()
 

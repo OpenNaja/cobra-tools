@@ -15,10 +15,10 @@ class StreamsZTHeader(BaseStruct):
 		super().__init__(context, arg, template, set_default=False)
 
 		# sometimes 00 byte
-		self.weird_padding = 0
+		self.weird_padding = SmartPadding(self.context, 0, None)
 
 		# ?
-		self.unks = 0
+		self.unks = Array((self.arg.stream_count,), InfoZTMemPool, self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 

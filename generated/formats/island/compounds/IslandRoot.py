@@ -13,11 +13,11 @@ class IslandRoot(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.a = 0
-		self.b = 0
+		self.a = 0.0
+		self.b = 0.0
 		self.count = 0
 		self.zero = 0
-		self.path_name = 0
+		self.path_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 		if set_default:
 			self.set_defaults()
 

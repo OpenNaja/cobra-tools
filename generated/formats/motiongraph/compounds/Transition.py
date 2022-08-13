@@ -19,9 +19,9 @@ class Transition(MemStruct):
 		self.count_0 = 0
 		self.count_1 = 0
 		self.count_2 = 0
-		self.ptr_0 = 0
-		self.ptr_1 = 0
-		self.id = 0
+		self.ptr_0 = Pointer(self.context, self.count_1, generated.formats.motiongraph.compounds.PtrList.PtrList)
+		self.ptr_1 = Pointer(self.context, self.count_2, generated.formats.motiongraph.compounds.TransStructArray.TransStructArray)
+		self.id = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 		if set_default:
 			self.set_defaults()
 

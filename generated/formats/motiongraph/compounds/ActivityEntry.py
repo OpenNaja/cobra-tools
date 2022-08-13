@@ -11,7 +11,7 @@ class ActivityEntry(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.value = 0
+		self.value = Pointer(self.context, 0, generated.formats.motiongraph.compounds.Activity.Activity)
 		if set_default:
 			self.set_defaults()
 

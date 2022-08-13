@@ -20,11 +20,11 @@ class TrackedRideCarRoot(MemStruct):
 		super().__init__(context, arg, template, set_default=False)
 		self.sub_count = 0
 		self.total_vecs_count = 0
-		self.vec = 0
+		self.vec = numpy.zeros((3,), dtype=numpy.dtype('float32'))
 		self.zero_0 = 0
 		self.zero_1 = 0
-		self.sub = 0
-		self.some_name = 0
+		self.sub = ArrayPointer(self.context, self.sub_count, generated.formats.trackedridecar.compounds.TrackedRideCarSub.TrackedRideCarSub)
+		self.some_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 		if set_default:
 			self.set_defaults()
 

@@ -15,8 +15,8 @@ class RenderParametersRoot(MemStruct):
 		super().__init__(context, arg, template, set_default=False)
 		self.count = 0
 		self.unk = 0
-		self.param_name = 0
-		self.params = 0
+		self.param_name = Pointer(self.context, 0, generated.formats.ovl_base.basic.ZStringObfuscated)
+		self.params = Pointer(self.context, self.count, generated.formats.renderparameters.compounds.ParamList.ParamList)
 		if set_default:
 			self.set_defaults()
 

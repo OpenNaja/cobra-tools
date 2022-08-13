@@ -22,17 +22,17 @@ class HabitatBoundaryPropRoot(MemStruct):
 		self.type = 0
 		self.u_1 = 0
 		self.is_guest = 0
-		self.post_position = 0
-		self.u_2 = 0
-		self.door_physics = 0
-		self.path_physics = 0
-		self.door_cutout = 0
+		self.post_position = HbPostPos(self.context, 0, None)
+		self.u_2 = 0.0
+		self.door_physics = HbPropPhysics(self.context, 0, None)
+		self.path_physics = HbPropPhysics(self.context, 0, None)
+		self.door_cutout = HbDoorCutout(self.context, 0, None)
 		self.small = 0
-		self.height = 0
-		self.prefab = 0
-		self.post = 0
-		self.wall = 0
-		self.path_join_part = 0
+		self.height = 0.0
+		self.prefab = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.post = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.wall = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.path_join_part = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 		if set_default:
 			self.set_defaults()
 

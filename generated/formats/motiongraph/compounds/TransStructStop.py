@@ -12,8 +12,8 @@ class TransStructStop(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.other_states = 0
-		self.another_mrfentry_2 = 0
+		self.other_states = MGTwo(self.context, 0, None)
+		self.another_mrfentry_2 = Pointer(self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 

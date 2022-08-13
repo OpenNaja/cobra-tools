@@ -16,8 +16,8 @@ class Research(MemStruct):
 		self.next_research_count = 0
 		self.unk_3 = 0
 		self.unk_4 = 0
-		self.item_name = 0
-		self.next_research = 0
+		self.item_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.next_research = Pointer(self.context, self.next_research_count, generated.formats.mechanicresearch.compounds.NextResearch.NextResearch)
 		if set_default:
 			self.set_defaults()
 

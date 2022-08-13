@@ -8,7 +8,7 @@ class NodeBaseParams(BaseStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.raw = 0
+		self.raw = numpy.zeros((30,), dtype=numpy.dtype('int8'))
 		if set_default:
 			self.set_defaults()
 

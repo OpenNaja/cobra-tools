@@ -7,13 +7,13 @@ class HbOffsets(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.physics = 0
+		self.physics = HbPhysicsOffsets(self.context, 0, None)
 
 		# Vertical offset of visible post above wall. Post height = wall_height + post_height_offset.
-		self.post_height_offset = 0
+		self.post_height_offset = 0.0
 
 		# The starting height of the barrier wall.
-		self.wall_height = 0
+		self.wall_height = 0.0
 		if set_default:
 			self.set_defaults()
 

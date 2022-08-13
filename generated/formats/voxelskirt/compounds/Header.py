@@ -12,7 +12,7 @@ class Header(GenericHeader):
 		super().__init__(context, arg, template, set_default=False)
 
 		# always = 0
-		self.info = 0
+		self.info = SizedStrData(self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 

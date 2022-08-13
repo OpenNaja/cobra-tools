@@ -13,8 +13,8 @@ class AxisValue(MemStruct):
 		self.u_2 = 0
 		self.u_3 = 0
 		self.u_4 = 0
-		self.axis_name = 0
-		self.value_name = 0
+		self.axis_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.value_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 		if set_default:
 			self.set_defaults()
 

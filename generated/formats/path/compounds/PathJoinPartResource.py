@@ -22,12 +22,12 @@ class PathJoinPartResource(MemStruct):
 		self.num_points_2_copy = 0
 		self.num_points_3 = 0
 		self.padding_2 = 0
-		self.unk_points_1 = 0
-		self.unk_points_2 = 0
-		self.unk_vector = 0
-		self.unk_shorts = 0
-		self.unk_points_3 = 0
-		self.pathresource = 0
+		self.unk_points_1 = Pointer(self.context, self.num_points_1, generated.formats.path.compounds.PointsList.PointsList)
+		self.unk_points_2 = Pointer(self.context, self.num_points_2, generated.formats.path.compounds.PointsList.PointsList)
+		self.unk_vector = ArrayPointer(self.context, 1, generated.formats.path.compounds.Vector4.Vector4)
+		self.unk_shorts = ArrayPointer(self.context, 8, generated.formats.base.basic.Ushort)
+		self.unk_points_3 = Pointer(self.context, self.num_points_3, generated.formats.path.compounds.PointsList.PointsList)
+		self.pathresource = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 		if set_default:
 			self.set_defaults()
 

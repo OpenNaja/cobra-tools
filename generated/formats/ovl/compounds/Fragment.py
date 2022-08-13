@@ -12,10 +12,10 @@ class Fragment(BaseStruct):
 		super().__init__(context, arg, template, set_default=False)
 
 		# determines where to write a pointer address
-		self.link_ptr = 0
+		self.link_ptr = HeaderPointer(self.context, 0, None)
 
 		# the struct that is pointed to can be found here
-		self.struct_ptr = 0
+		self.struct_ptr = HeaderPointer(self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 

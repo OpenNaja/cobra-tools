@@ -7,8 +7,8 @@ class Key(BaseStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.euler = 0
-		self.translation = 0
+		self.euler = Vector3Short(self.context, 0, None)
+		self.translation = Vector3Ushort(self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 

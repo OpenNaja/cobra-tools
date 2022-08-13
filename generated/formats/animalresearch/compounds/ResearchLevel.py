@@ -11,9 +11,9 @@ class ResearchLevel(MemStruct):
 		super().__init__(context, arg, template, set_default=False)
 		self.next_level_count = 0
 		self.children_count = 0
-		self.level_name = 0
-		self.next_levels = 0
-		self.children = 0
+		self.level_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.next_levels = Pointer(self.context, self.next_level_count, generated.formats.animalresearch.compounds.PtrList.PtrList)
+		self.children = Pointer(self.context, self.children_count, generated.formats.animalresearch.compounds.PtrList.PtrList)
 		if set_default:
 			self.set_defaults()
 

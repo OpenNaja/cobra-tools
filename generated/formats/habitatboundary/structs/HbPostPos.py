@@ -8,10 +8,10 @@ class HbPostPos(MemStruct):
 		super().__init__(context, arg, template, set_default=False)
 
 		# Right post offset from door.
-		self.right = 0
+		self.right = 0.0
 
 		# Left Post offset from door.
-		self.left = 0
+		self.left = 0.0
 		if set_default:
 			self.set_defaults()
 

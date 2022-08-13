@@ -10,11 +10,11 @@ class ZTPreBones(BaseStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.zeros = 0
-		self.unks = 0
-		self.unks_2 = 0
-		self.floats = 0
-		self.unks_3 = 0
+		self.zeros = numpy.zeros((2,), dtype=numpy.dtype('uint64'))
+		self.unks = numpy.zeros((8,), dtype=numpy.dtype('uint32'))
+		self.unks_2 = numpy.zeros((10,), dtype=numpy.dtype('uint32'))
+		self.floats = numpy.zeros((4,), dtype=numpy.dtype('float32'))
+		self.unks_3 = numpy.zeros((2,), dtype=numpy.dtype('uint32'))
 		if set_default:
 			self.set_defaults()
 

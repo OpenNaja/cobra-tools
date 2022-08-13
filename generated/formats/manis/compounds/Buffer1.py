@@ -10,11 +10,11 @@ class Buffer1(BaseStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.bone_hashes = 0
-		self.bone_names = 0
+		self.bone_hashes = numpy.zeros((self.arg,), dtype=numpy.dtype('uint32'))
+		self.bone_names = Array((self.arg,), ZString, self.context, 0, None)
 
 		# ?
-		self.bone_pad = 0
+		self.bone_pad = PadAlign(self.context, 4, self.bone_names)
 		if set_default:
 			self.set_defaults()
 

@@ -11,9 +11,9 @@ class Attrib(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.attrib = 0
+		self.attrib = numpy.zeros((4,), dtype=numpy.dtype('int8'))
 		self.padding = 0
-		self.attrib_name = 0
+		self.attrib_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 		if set_default:
 			self.set_defaults()
 

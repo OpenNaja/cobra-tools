@@ -13,11 +13,11 @@ class Bone(BaseStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.loc = 0
-		self.scale = 0
-		self.rot = 0
-		self.loc = 0
-		self.scale = 0
+		self.loc = Vector3(self.context, 0, None)
+		self.scale = 0.0
+		self.rot = Vector4(self.context, 0, None)
+		self.loc = Vector3(self.context, 0, None)
+		self.scale = 0.0
 		if set_default:
 			self.set_defaults()
 

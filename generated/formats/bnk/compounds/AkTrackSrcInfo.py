@@ -10,10 +10,10 @@ class AkTrackSrcInfo(BaseStruct):
 		self.track_i_d = 0
 		self.source_i_d = 0
 		self.event_i_d = 0
-		self.f_play_at = 0
-		self.f_begin_trim_offset = 0
-		self.f_end_trim_offset = 0
-		self.f_src_duration = 0
+		self.f_play_at = 0.0
+		self.f_begin_trim_offset = 0.0
+		self.f_end_trim_offset = 0.0
+		self.f_src_duration = 0.0
 		if set_default:
 			self.set_defaults()
 

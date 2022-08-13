@@ -13,14 +13,14 @@ class HbPhysicsOffsets(MemStruct):
 		super().__init__(context, arg, template, set_default=False)
 
 		# Wall thickness. Affects navcut, selection, and climb nav width. Must be under a certain value or it crashes.
-		self.thickness = 0
-		self.post_size = 0
+		self.thickness = 0.0
+		self.post_size = HbPostSize(self.context, 0, None)
 
 		# Wall size above wall_height. Affects navcut, selection, and climb nav height.
-		self.wall_pad_top = 0
+		self.wall_pad_top = 0.0
 
 		# Distance between post center and start of wall. Larger values create a visual and nav gap between the post and wall segment.
-		self.wall_post_gap = 0
+		self.wall_post_gap = 0.0
 		if set_default:
 			self.set_defaults()
 

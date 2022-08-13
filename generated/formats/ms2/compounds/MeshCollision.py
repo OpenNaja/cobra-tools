@@ -15,13 +15,13 @@ class MeshCollision(BaseStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.rotation = 0
+		self.rotation = Matrix33(self.context, 0, None)
 
 		# offset of mesh
-		self.offset = 0
+		self.offset = Vector3(self.context, 0, None)
 
 		# not floats, maybe 6 ushorts, shared among (all?) redwoods
-		self.unk_1 = 0
+		self.unk_1 = numpy.zeros((3, 2,), dtype=numpy.dtype('uint16'))
 
 		# vertices (3 float)
 		self.vertex_count = 0
@@ -30,22 +30,22 @@ class MeshCollision(BaseStruct):
 		self.tri_count = 0
 
 		# the smallest coordinates across all axes
-		self.bounds_min = 0
+		self.bounds_min = Vector3(self.context, 0, None)
 
 		# the biggest coordinates across all axes
-		self.bounds_max = 0
+		self.bounds_max = Vector3(self.context, 0, None)
 
 		# seemingly fixed
-		self.ones_or_zeros = 0
+		self.ones_or_zeros = numpy.zeros((7,), dtype=numpy.dtype('uint64'))
 
 		# seemingly fixed
-		self.ff_or_zero = 0
+		self.ff_or_zero = numpy.zeros((8,), dtype=numpy.dtype('int32'))
 
 		# verbatim
-		self.bounds_min_repeat = 0
+		self.bounds_min_repeat = Vector3(self.context, 0, None)
 
 		# verbatim
-		self.bounds_max_repeat = 0
+		self.bounds_max_repeat = Vector3(self.context, 0, None)
 
 		# seems to repeat tri_count
 		self.tri_flags_count = 0
@@ -54,25 +54,25 @@ class MeshCollision(BaseStruct):
 		self.count_bits = 0
 
 		# ?
-		self.stuff = 0
+		self.stuff = numpy.zeros((9,), dtype=numpy.dtype('uint16'))
 
 		# ?
-		self.collision_bits = 0
+		self.collision_bits = Array((self.count_bits,), MeshCollisionBit, self.context, 0, None)
 
 		# always 25
-		self.zeros = 0
+		self.zeros = numpy.zeros((4,), dtype=numpy.dtype('uint32'))
 
 		# array of vertices
-		self.vertices = 0
+		self.vertices = numpy.zeros((self.vertex_count, 3,), dtype=numpy.dtype('float32'))
 
 		# triangle indices into vertex list
-		self.triangles = 0
+		self.triangles = numpy.zeros((self.tri_count, 3,), dtype=numpy.dtype('uint16'))
 
 		# ?
 		self.const = 0
 
 		# always 25
-		self.triangle_flags = 0
+		self.triangle_flags = numpy.zeros((self.tri_flags_count,), dtype=numpy.dtype('uint32'))
 
 		# might be padding!
 		self.zero_end = 0

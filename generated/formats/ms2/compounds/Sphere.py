@@ -10,10 +10,10 @@ class Sphere(BaseStruct):
 		super().__init__(context, arg, template, set_default=False)
 
 		# center of the sphere
-		self.center = 0
+		self.center = Vector3(self.context, 0, None)
 
 		# radius around the center
-		self.radius = 0
+		self.radius = 0.0
 
 		# apparently unused
 		self.zero = 0

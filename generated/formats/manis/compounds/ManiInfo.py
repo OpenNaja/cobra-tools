@@ -18,12 +18,12 @@ class ManiInfo(BaseStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.duration = 0
+		self.duration = 0.0
 		self.frame_count = 0
 
 		# ?
 		self.b = 0
-		self.zeros_0 = 0
+		self.zeros_0 = numpy.zeros((6,), dtype=numpy.dtype('uint16'))
 		self.extra_pc_1 = 0
 		self.pos_bone_count = 0
 		self.ori_bone_count = 0
@@ -53,10 +53,10 @@ class ManiInfo(BaseStruct):
 		self.g = 0
 
 		# rest 228 bytes
-		self.zeros_2 = 0
+		self.zeros_2 = numpy.zeros((57,), dtype=numpy.dtype('uint32'))
 
 		# rest 14 bytes
-		self.extra_zeros_pc = 0
+		self.extra_zeros_pc = numpy.zeros((6,), dtype=numpy.dtype('uint16'))
 		self.pos_bone_min = 0
 		self.pos_bone_max = 0
 		self.ori_bone_min = 0

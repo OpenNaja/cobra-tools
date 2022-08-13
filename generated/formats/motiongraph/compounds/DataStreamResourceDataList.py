@@ -13,7 +13,7 @@ class DataStreamResourceDataList(MemStruct):
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		self.count = 0
-		self.data_stream_resource_data = 0
+		self.data_stream_resource_data = Pointer(self.context, self.count, generated.formats.motiongraph.compounds.DataStreamResourceDataPoints.DataStreamResourceDataPoints)
 		if set_default:
 			self.set_defaults()
 

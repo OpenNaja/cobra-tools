@@ -17,9 +17,9 @@ class LayerFrag(MemStruct):
 		self.u_2 = 0
 		self.u_3 = 0
 		self.attrib_count = 0
-		self.layer_name = 0
-		self.infos = 0
-		self.attribs = 0
+		self.layer_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.infos = ArrayPointer(self.context, self.info_count, generated.formats.matcol.compounds.Info.Info)
+		self.attribs = ArrayPointer(self.context, self.attrib_count, generated.formats.matcol.compounds.Attrib.Attrib)
 		if set_default:
 			self.set_defaults()
 

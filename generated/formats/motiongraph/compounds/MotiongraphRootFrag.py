@@ -19,10 +19,10 @@ class MotiongraphRootFrag(MemStruct):
 		self.count_1 = 0
 		self.count_2 = 0
 		self.num_xmls = 0
-		self.activities = 0
-		self.ptr_1 = 0
-		self.ptr_2 = 0
-		self.ptr_xmls = 0
+		self.activities = Pointer(self.context, self.num_activities, generated.formats.motiongraph.compounds.Activities.Activities)
+		self.ptr_1 = Pointer(self.context, self.count_1, generated.formats.motiongraph.compounds.MRFArray1.MRFArray1)
+		self.ptr_2 = Pointer(self.context, self.count_2, generated.formats.motiongraph.compounds.MRFArray2.MRFArray2)
+		self.ptr_xmls = Pointer(self.context, self.num_xmls, generated.formats.motiongraph.compounds.XMLArray.XMLArray)
 		if set_default:
 			self.set_defaults()
 

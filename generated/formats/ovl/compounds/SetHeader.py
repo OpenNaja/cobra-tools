@@ -17,12 +17,12 @@ class SetHeader(BaseStruct):
 		self.asset_count = 0
 
 		# must be 1065336831
-		self.sig_a = 0
+		self.sig_a = 1065336831
 
 		# must be 16909320
-		self.sig_b = 0
-		self.sets = 0
-		self.assets = 0
+		self.sig_b = 16909320
+		self.sets = Array((self.set_count,), SetEntry, self.context, 0, None)
+		self.assets = Array((self.asset_count,), AssetEntry, self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 

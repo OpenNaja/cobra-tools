@@ -8,10 +8,10 @@ class HbUiOptions(MemStruct):
 		super().__init__(context, arg, template, set_default=False)
 
 		# Controls the Straight-Curved option for barriers
-		self.straight_curve = 0
+		self.straight_curve = False
 
 		# Controls the Windows option for barriers
-		self.windows = 0
+		self.windows = False
 		if set_default:
 			self.set_defaults()
 

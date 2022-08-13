@@ -9,7 +9,7 @@ class CurveRoot(MemStruct):
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		self.count = 0
-		self.keys = 0
+		self.keys = ArrayPointer(self.context, self.count, generated.formats.curve.compounds.Key.Key)
 		if set_default:
 			self.set_defaults()
 

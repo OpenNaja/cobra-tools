@@ -8,13 +8,13 @@ class HbPostSize(MemStruct):
 		super().__init__(context, arg, template, set_default=False)
 
 		# Post size front and back. Affects navcut and selection.
-		self.front_back = 0
+		self.front_back = 0.0
 
 		# Post size left and right. Affects navcut and selection.
-		self.left_right = 0
+		self.left_right = 0.0
 
 		# Post size above wall. Affects navcut and selection.
-		self.top = 0
+		self.top = 0.0
 		if set_default:
 			self.set_defaults()
 

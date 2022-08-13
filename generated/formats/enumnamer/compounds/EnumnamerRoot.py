@@ -9,7 +9,7 @@ class EnumnamerRoot(MemStruct):
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		self.count = 0
-		self.strings = 0
+		self.strings = Pointer(self.context, self.count, generated.formats.enumnamer.compounds.PtrList.PtrList)
 		if set_default:
 			self.set_defaults()
 

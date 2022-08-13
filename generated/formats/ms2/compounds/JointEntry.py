@@ -13,10 +13,10 @@ class JointEntry(BaseStruct):
 		super().__init__(context, arg, template, set_default=False)
 
 		# the rotation of the joint, inverted
-		self.rot = 0
+		self.rot = Matrix33(self.context, 0, None)
 
 		# the location of the joint
-		self.loc = 0
+		self.loc = Vector3(self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 

@@ -18,7 +18,7 @@ class UiMovieHeader(MemStruct):
 		self.flag_1 = 0
 		self.flag_2 = 0
 		self.flag_3 = 0
-		self.floats = 0
+		self.floats = numpy.zeros((3,), dtype=numpy.dtype('float32'))
 		self.u_0 = 0
 		self.num_ui_triggers = 0
 		self.u_1 = 0
@@ -31,20 +31,20 @@ class UiMovieHeader(MemStruct):
 		self.u_3 = 0
 		self.u_4 = 0
 		self.u_5 = 0
-		self.movie_name = 0
-		self.pkg_name = 0
-		self.category_name = 0
-		self.type_name = 0
-		self.ptr_0 = 0
-		self.ui_triggers = 0
-		self.ptr_1 = 0
-		self.ui_names = 0
-		self.assetpkgs = 0
-		self.ptr_2 = 0
-		self.list_1 = 0
-		self.list_2 = 0
-		self.ui_interfaces = 0
-		self.ptr_3 = 0
+		self.movie_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.pkg_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.category_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.type_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.ptr_0 = Pointer(self.context, 0, None)
+		self.ui_triggers = Pointer(self.context, self.num_ui_triggers, generated.formats.uimoviedefinition.compounds.PtrList.PtrList)
+		self.ptr_1 = Pointer(self.context, 0, None)
+		self.ui_names = Pointer(self.context, self.num_ui_names, generated.formats.uimoviedefinition.compounds.PtrList.PtrList)
+		self.assetpkgs = Pointer(self.context, self.num_assetpkgs, generated.formats.uimoviedefinition.compounds.PtrList.PtrList)
+		self.ptr_2 = Pointer(self.context, 0, None)
+		self.list_1 = ArrayPointer(self.context, self.num_list_1, generated.formats.base.basic.Uint)
+		self.list_2 = ArrayPointer(self.context, self.num_list_2, generated.formats.base.basic.Uint)
+		self.ui_interfaces = Pointer(self.context, self.num_ui_interfaces, generated.formats.uimoviedefinition.compounds.PtrList.PtrList)
+		self.ptr_3 = Pointer(self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 

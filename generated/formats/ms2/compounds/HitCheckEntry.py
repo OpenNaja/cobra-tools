@@ -14,7 +14,7 @@ class HitCheckEntry(BaseStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.type = 0
+		self.type = CollisionType(self.context, 0, None)
 
 		# 0
 		self.flag_0 = 0
@@ -33,7 +33,7 @@ class HitCheckEntry(BaseStruct):
 
 		# offset into joint names
 		self.name_offset = 0
-		self.collider = 0
+		self.collider = MeshCollision(self.context, 0, None)
 
 		# ?
 		self.zero_extra_zt = 0

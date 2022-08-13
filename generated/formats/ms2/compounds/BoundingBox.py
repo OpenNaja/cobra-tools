@@ -10,16 +10,16 @@ class BoundingBox(BaseStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.rotation = 0
+		self.rotation = Matrix33(self.context, 0, None)
 
 		# center of the box
-		self.center = 0
+		self.center = Vector3(self.context, 0, None)
 
 		# total width
-		self.extent = 0
+		self.extent = Vector3(self.context, 0, None)
 
 		# probably padding
-		self.zeros = 0
+		self.zeros = numpy.zeros((3,), dtype=numpy.dtype('uint32'))
 		if set_default:
 			self.set_defaults()
 

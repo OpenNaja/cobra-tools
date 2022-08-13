@@ -10,16 +10,16 @@ class Capsule(BaseStruct):
 		super().__init__(context, arg, template, set_default=False)
 
 		# relative to the armature, ie. not in bone space
-		self.offset = 0
+		self.offset = Vector3(self.context, 0, None)
 
 		# normalized
-		self.direction = 0
+		self.direction = Vector3(self.context, 0, None)
 
 		# radius of the caps
-		self.radius = 0
+		self.radius = 0.0
 
 		# distance between the center points of the capsule caps, total extent is 2 * radius + extent
-		self.extent = 0
+		self.extent = 0.0
 
 		# apparently unused
 		self.zero = 0

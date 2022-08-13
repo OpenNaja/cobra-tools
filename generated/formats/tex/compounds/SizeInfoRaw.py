@@ -39,7 +39,7 @@ class SizeInfoRaw(MemStruct):
 		self.unk_pz = 0
 
 		# info about mip levels
-		self.mip_maps = 0
+		self.mip_maps = Array((self.num_mips,), Mipmap, self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 

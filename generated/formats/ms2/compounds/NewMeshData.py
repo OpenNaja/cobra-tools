@@ -44,13 +44,13 @@ class NewMeshData(MeshData):
 		self.zero_2 = 0
 
 		# some floats, purpose unknown
-		self.unk_floats = 0
+		self.unk_floats = numpy.zeros((2,), dtype=numpy.dtype('float32'))
 
 		# always zero
 		self.zero_3 = 0
 
 		# bitfield, determines vertex format
-		self.flag = 0
+		self.flag = ModelFlag(self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 

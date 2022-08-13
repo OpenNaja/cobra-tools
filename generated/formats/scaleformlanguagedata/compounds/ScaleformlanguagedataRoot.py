@@ -18,7 +18,7 @@ class ScaleformlanguagedataRoot(MemStruct):
 		self.count = 0
 		self.zero_2 = 0
 		self.zero_3 = 0
-		self.fonts = 0
+		self.fonts = ArrayPointer(self.context, self.count, generated.formats.scaleformlanguagedata.compounds.FontInfo.FontInfo)
 		if set_default:
 			self.set_defaults()
 

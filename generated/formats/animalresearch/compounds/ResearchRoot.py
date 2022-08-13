@@ -9,7 +9,7 @@ class ResearchRoot(MemStruct):
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		self.count = 0
-		self.levels = 0
+		self.levels = ArrayPointer(self.context, self.count, generated.formats.animalresearch.compounds.ResearchLevel.ResearchLevel)
 		if set_default:
 			self.set_defaults()
 

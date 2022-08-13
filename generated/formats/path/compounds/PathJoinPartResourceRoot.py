@@ -9,7 +9,7 @@ class PathJoinPartResourceRoot(MemStruct):
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		self.num_res = 0
-		self.resources_list = 0
+		self.resources_list = Pointer(self.context, self.num_res, generated.formats.path.compounds.PathJoinPartResourceList.PathJoinPartResourceList)
 		if set_default:
 			self.set_defaults()
 
