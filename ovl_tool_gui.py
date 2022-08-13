@@ -402,13 +402,13 @@ class MainWindow(widgets.MainWindow):
 	def drag_files(self, file_names):
 		logging.info(f"Dragging {file_names}")
 		drag = QtGui.QDrag(self)
+		data = QtCore.QMimeData()
 		temp_dir = tempfile.mkdtemp("-cobra")
 		try:
 			out_paths, errors = self.ovl_data.extract(
 				temp_dir, only_names=file_names, show_temp_files=self.show_temp_files)
-
-			data = QtCore.QMimeData()
-			data.setUrls([QtCore.QUrl.fromLocalFile(path) for path in out_paths])
+			if out_paths:
+				data.setUrls([QtCore.QUrl.fromLocalFile(path) for path in out_paths])
 			drag.setMimeData(data)
 			drag.exec_()
 			logging.info(f"Tried to extract {len(file_names)} files, got {len(errors)} errors")

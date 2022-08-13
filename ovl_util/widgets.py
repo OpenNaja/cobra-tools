@@ -414,17 +414,12 @@ class TableView(QtWidgets.QTableView):
 	def dragEnterEvent(self, e):
 		self.accept_ignore(e)
 
-	@staticmethod
-	def get_files_from_event(event):
+	def dropEvent(self, event):
 		data = event.mimeData()
 		urls = data.urls()
 		if urls and urls[0].scheme() == 'file':
-			return [str(url.path())[1:] for url in urls]
-
-	def dropEvent(self, e):
-		e.setDropAction(QtCore.Qt.CopyAction)
-		self.files_dropped.emit(self.get_files_from_event(e))
-		e.accept()
+			self.files_dropped.emit([str(url.path())[1:] for url in urls])
+			event.accept()
 
 
 class SelectedItemsButton(QtWidgets.QPushButton):

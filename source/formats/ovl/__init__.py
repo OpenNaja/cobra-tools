@@ -655,7 +655,7 @@ class OvlFile(Header, IoFile):
 				ret_paths = loader.extract(out_dir_func)
 				ret_paths = loader.handle_paths(ret_paths, show_temp_files)
 				out_paths.extend(ret_paths)
-			except BaseException as error:
+			except:
 				logging.exception(f"An exception occurred while extracting {loader.file_entry.name}")
 				error_files.append(loader.file_entry.name)
 		return out_paths, error_files
