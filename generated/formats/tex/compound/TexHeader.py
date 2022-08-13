@@ -9,8 +9,8 @@ from generated.formats.base.basic import Ushort
 from generated.formats.ovl_base.compound.ArrayPointer import ArrayPointer
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
 from generated.formats.ovl_base.compound.Pointer import Pointer
-from generated.formats.tex.enum.DdsType import DdsType
-from generated.formats.tex.enum.DdsTypeCoaster import DdsTypeCoaster
+from generated.formats.tex.enums.DdsType import DdsType
+from generated.formats.tex.enums.DdsTypeCoaster import DdsTypeCoaster
 
 
 class TexHeader(MemStruct):
@@ -102,9 +102,9 @@ class TexHeader(MemStruct):
 			instance.buffer_infos = ArrayPointer.from_stream(stream, instance.context, instance.stream_count, generated.formats.tex.compound.TexBuffer.TexBuffer)
 			instance.size_info = Pointer.from_stream(stream, instance.context, 0, generated.formats.tex.compound.SizeInfo.SizeInfo)
 		if instance.context.version < 19:
-			instance.compression_type = DdsTypeCoaster.from_value(stream.read_ubyte())
+			instance.compression_type = DdsTypeCoaster.from_stream(stream, instance.context, 0, None)
 		if not (instance.context.version < 19):
-			instance.compression_type = DdsType.from_value(stream.read_ubyte())
+			instance.compression_type = DdsType.from_stream(stream, instance.context, 0, None)
 		instance.one_0 = stream.read_ubyte()
 		if instance.context.version <= 15:
 			instance.num_mips = stream.read_ushort()
@@ -135,9 +135,9 @@ class TexHeader(MemStruct):
 			ArrayPointer.to_stream(stream, instance.buffer_infos)
 			Pointer.to_stream(stream, instance.size_info)
 		if instance.context.version < 19:
-			stream.write_ubyte(instance.compression_type.value)
+			DdsTypeCoaster.to_stream(stream, instance.compression_type)
 		if not (instance.context.version < 19):
-			stream.write_ubyte(instance.compression_type.value)
+			DdsType.to_stream(stream, instance.compression_type)
 		stream.write_ubyte(instance.one_0)
 		if instance.context.version <= 15:
 			stream.write_ushort(instance.num_mips)

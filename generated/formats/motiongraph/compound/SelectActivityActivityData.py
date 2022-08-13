@@ -3,7 +3,7 @@ import generated.formats.base.basic
 import generated.formats.motiongraph.compound.ActivitiesLinks
 from generated.formats.base.basic import Float
 from generated.formats.base.basic import Uint64
-from generated.formats.motiongraph.enum.SelectActivityActivityMode import SelectActivityActivityMode
+from generated.formats.motiongraph.enums.SelectActivityActivityMode import SelectActivityActivityMode
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
 from generated.formats.ovl_base.compound.Pointer import Pointer
 
@@ -50,7 +50,7 @@ class SelectActivityActivityData(MemStruct):
 		instance.activities = Pointer.from_stream(stream, instance.context, instance.num_activities, generated.formats.motiongraph.compound.ActivitiesLinks.ActivitiesLinks)
 		instance.num_activities = stream.read_uint64()
 		instance.blend_time = stream.read_float()
-		instance.mode = SelectActivityActivityMode.from_value(stream.read_uint())
+		instance.mode = SelectActivityActivityMode.from_stream(stream, instance.context, 0, None)
 		instance.enum_variable.arg = 0
 		instance.activities.arg = instance.num_activities
 
@@ -61,7 +61,7 @@ class SelectActivityActivityData(MemStruct):
 		Pointer.to_stream(stream, instance.activities)
 		stream.write_uint64(instance.num_activities)
 		stream.write_float(instance.blend_time)
-		stream.write_uint(instance.mode.value)
+		SelectActivityActivityMode.to_stream(stream, instance.mode)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

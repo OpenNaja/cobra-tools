@@ -3,7 +3,7 @@ import generated.formats.base.basic
 from generated.formats.base.basic import Uint
 from generated.formats.base.basic import Uint64
 from generated.formats.motiongraph.compound.CurveData import CurveData
-from generated.formats.motiongraph.enum.TimeLimitMode import TimeLimitMode
+from generated.formats.motiongraph.enums.TimeLimitMode import TimeLimitMode
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
 from generated.formats.ovl_base.compound.Pointer import Pointer
 
@@ -60,7 +60,7 @@ class DataStreamProducerActivityData(MemStruct):
 		instance.bone_i_d = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
 		instance.location = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
 		instance.curve = CurveData.from_stream(stream, instance.context, 0, None)
-		instance.time_limit_mode = TimeLimitMode.from_value(stream.read_uint())
+		instance.time_limit_mode = TimeLimitMode.from_stream(stream, instance.context, 0, None)
 		instance.data_stream_producer_flags = stream.read_uint()
 		instance.prop_through_variable = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
 		instance.ds_name.arg = 0
@@ -78,7 +78,7 @@ class DataStreamProducerActivityData(MemStruct):
 		Pointer.to_stream(stream, instance.bone_i_d)
 		Pointer.to_stream(stream, instance.location)
 		CurveData.to_stream(stream, instance.curve)
-		stream.write_uint(instance.time_limit_mode.value)
+		TimeLimitMode.to_stream(stream, instance.time_limit_mode)
 		stream.write_uint(instance.data_stream_producer_flags)
 		Pointer.to_stream(stream, instance.prop_through_variable)
 

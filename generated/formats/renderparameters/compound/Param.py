@@ -3,7 +3,7 @@ import generated.formats.base.basic
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
 from generated.formats.ovl_base.compound.Pointer import Pointer
 from generated.formats.renderparameters.compound.ParamData import ParamData
-from generated.formats.renderparameters.enum.RenderParameterType import RenderParameterType
+from generated.formats.renderparameters.enums.RenderParameterType import RenderParameterType
 
 
 class Param(MemStruct):
@@ -41,7 +41,7 @@ class Param(MemStruct):
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
 		instance.attribute_name = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
-		instance.dtype = RenderParameterType.from_value(stream.read_uint64())
+		instance.dtype = RenderParameterType.from_stream(stream, instance.context, 0, None)
 		instance.data = ParamData.from_stream(stream, instance.context, instance.dtype, None)
 		instance.attribute_name.arg = 0
 
@@ -49,7 +49,7 @@ class Param(MemStruct):
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
 		Pointer.to_stream(stream, instance.attribute_name)
-		stream.write_uint64(instance.dtype.value)
+		RenderParameterType.to_stream(stream, instance.dtype)
 		ParamData.to_stream(stream, instance.data)
 
 	@classmethod

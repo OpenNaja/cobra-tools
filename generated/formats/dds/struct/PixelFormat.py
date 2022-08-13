@@ -1,7 +1,7 @@
 from generated.formats.base.basic import fmt_member
 from generated.formats.dds.basic import Uint
 from generated.formats.dds.bitstruct.PixelFormatFlags import PixelFormatFlags
-from generated.formats.dds.enum.FourCC import FourCC
+from generated.formats.dds.enums.FourCC import FourCC
 from generated.struct import StructBase
 
 
@@ -66,7 +66,7 @@ class PixelFormat(StructBase):
 		super().read_fields(stream, instance)
 		instance.size = stream.read_uint()
 		instance.flags = PixelFormatFlags.from_stream(stream, instance.context, 0, None)
-		instance.four_c_c = FourCC.from_value(stream.read_uint())
+		instance.four_c_c = FourCC.from_stream(stream, instance.context, 0, None)
 		instance.bit_count = stream.read_uint()
 		instance.r_mask = stream.read_uint()
 		instance.g_mask = stream.read_uint()
@@ -78,7 +78,7 @@ class PixelFormat(StructBase):
 		super().write_fields(stream, instance)
 		stream.write_uint(instance.size)
 		PixelFormatFlags.to_stream(stream, instance.flags)
-		stream.write_uint(instance.four_c_c.value)
+		FourCC.to_stream(stream, instance.four_c_c)
 		stream.write_uint(instance.bit_count)
 		stream.write_uint(instance.r_mask)
 		stream.write_uint(instance.g_mask)

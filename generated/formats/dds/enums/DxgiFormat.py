@@ -1,5 +1,5 @@
 from generated.formats.base.basic import fmt_member
-from generated.formats.dds.enum import UintEnum
+from generated.formats.dds.enums import UintEnum
 
 
 class DxgiFormat(UintEnum):

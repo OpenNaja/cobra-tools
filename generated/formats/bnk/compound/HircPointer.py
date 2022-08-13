@@ -2,7 +2,7 @@ from generated.formats.base.basic import fmt_member
 from generated.formats.bnk.compound.MusicTrack import MusicTrack
 from generated.formats.bnk.compound.SoundSfxVoice import SoundSfxVoice
 from generated.formats.bnk.compound.TypeOther import TypeOther
-from generated.formats.bnk.enum.HircType import HircType
+from generated.formats.bnk.enums.HircType import HircType
 from generated.struct import StructBase
 
 
@@ -39,7 +39,7 @@ class HircPointer(StructBase):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.id = HircType.from_value(stream.read_ubyte())
+		instance.id = HircType.from_stream(stream, instance.context, 0, None)
 		if instance.id == 2:
 			instance.data = SoundSfxVoice.from_stream(stream, instance.context, 0, None)
 		if instance.id == 11:
@@ -50,7 +50,7 @@ class HircPointer(StructBase):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_ubyte(instance.id.value)
+		HircType.to_stream(stream, instance.id)
 		if instance.id == 2:
 			SoundSfxVoice.to_stream(stream, instance.data)
 		if instance.id == 11:

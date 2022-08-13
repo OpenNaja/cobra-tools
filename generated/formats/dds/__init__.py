@@ -1,8 +1,8 @@
 import io
 import logging
 
-from generated.formats.dds.enum.D3D10ResourceDimension import D3D10ResourceDimension
-from generated.formats.dds.enum.FourCC import FourCC
+from generated.formats.dds.enums.D3D10ResourceDimension import D3D10ResourceDimension
+from generated.formats.dds.enums.FourCC import FourCC
 from generated.formats.dds.struct.Header import Header
 from generated.formats.dds.basic import basic_map
 from generated.io import IoFile
@@ -156,4 +156,5 @@ class DdsFile(Header, IoFile):
 
 if __name__ == "__main__":
     m = DdsFile()
-    m.load("C:/Users/arnfi/Desktop/parrot/parrot.pbasecolourtexture.dds")
+    print(m)
+    # m.load("C:/Users/arnfi/Desktop/parrot/parrot.pbasecolourtexture.dds")

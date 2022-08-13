@@ -3,7 +3,7 @@ import generated.formats.specdef.compound.Data
 from generated.formats.base.basic import Uint
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
 from generated.formats.ovl_base.compound.Pointer import Pointer
-from generated.formats.specdef.enum.SpecdefDtype import SpecdefDtype
+from generated.formats.specdef.enums.SpecdefDtype import SpecdefDtype
 
 
 class ArrayData(MemStruct):
@@ -41,7 +41,7 @@ class ArrayData(MemStruct):
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
 		instance.item = Pointer.from_stream(stream, instance.context, instance.dtype, generated.formats.specdef.compound.Data.Data)
-		instance.dtype = SpecdefDtype.from_value(stream.read_uint())
+		instance.dtype = SpecdefDtype.from_stream(stream, instance.context, 0, None)
 		instance.unused = stream.read_uint()
 		instance.item.arg = instance.dtype
 
@@ -49,7 +49,7 @@ class ArrayData(MemStruct):
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
 		Pointer.to_stream(stream, instance.item)
-		stream.write_uint(instance.dtype.value)
+		SpecdefDtype.to_stream(stream, instance.dtype)
 		stream.write_uint(instance.unused)
 
 	@classmethod

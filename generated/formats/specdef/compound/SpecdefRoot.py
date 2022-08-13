@@ -1,7 +1,7 @@
 from generated.formats.base.basic import fmt_member
 import generated.formats.specdef.compound.DataPtr
 import generated.formats.specdef.compound.PtrList
-import generated.formats.specdef.enum.SpecdefDtype
+import generated.formats.specdef.enums.SpecdefDtype
 from generated.formats.base.basic import Ubyte
 from generated.formats.base.basic import Ushort
 from generated.formats.ovl_base.compound.ArrayPointer import ArrayPointer
@@ -39,7 +39,7 @@ class SpecdefRoot(MemStruct):
 		self.childspec_count = 0
 		self.manager_count = 0
 		self.script_count = 0
-		self.attrib_dtypes = ArrayPointer(self.context, self.attrib_count, generated.formats.specdef.enum.SpecdefDtype.SpecdefDtype)
+		self.attrib_dtypes = ArrayPointer(self.context, self.attrib_count, generated.formats.specdef.enums.SpecdefDtype.SpecdefDtype)
 		self.attrib_names = Pointer(self.context, self.attrib_count, generated.formats.specdef.compound.PtrList.PtrList)
 		self.attrib_datas = ForEachPointer(self.context, self.attrib_dtypes, generated.formats.specdef.compound.DataPtr.DataPtr)
 		self.names = Pointer(self.context, self.name_count, generated.formats.specdef.compound.PtrList.PtrList)
@@ -66,7 +66,7 @@ class SpecdefRoot(MemStruct):
 		instance.childspec_count = stream.read_ubyte()
 		instance.manager_count = stream.read_ubyte()
 		instance.script_count = stream.read_ubyte()
-		instance.attrib_dtypes = ArrayPointer.from_stream(stream, instance.context, instance.attrib_count, generated.formats.specdef.enum.SpecdefDtype.SpecdefDtype)
+		instance.attrib_dtypes = ArrayPointer.from_stream(stream, instance.context, instance.attrib_count, generated.formats.specdef.enums.SpecdefDtype.SpecdefDtype)
 		instance.attrib_names = Pointer.from_stream(stream, instance.context, instance.attrib_count, generated.formats.specdef.compound.PtrList.PtrList)
 		instance.attrib_datas = ForEachPointer.from_stream(stream, instance.context, instance.attrib_dtypes, generated.formats.specdef.compound.DataPtr.DataPtr)
 		instance.names = Pointer.from_stream(stream, instance.context, instance.name_count, generated.formats.specdef.compound.PtrList.PtrList)
@@ -107,7 +107,7 @@ class SpecdefRoot(MemStruct):
 		yield ('childspec_count', Ubyte, (0, None))
 		yield ('manager_count', Ubyte, (0, None))
 		yield ('script_count', Ubyte, (0, None))
-		yield ('attrib_dtypes', ArrayPointer, (instance.attrib_count, generated.formats.specdef.enum.SpecdefDtype.SpecdefDtype))
+		yield ('attrib_dtypes', ArrayPointer, (instance.attrib_count, generated.formats.specdef.enums.SpecdefDtype.SpecdefDtype))
 		yield ('attrib_names', Pointer, (instance.attrib_count, generated.formats.specdef.compound.PtrList.PtrList))
 		yield ('attrib_datas', ForEachPointer, (instance.attrib_dtypes, generated.formats.specdef.compound.DataPtr.DataPtr))
 		yield ('names', Pointer, (instance.name_count, generated.formats.specdef.compound.PtrList.PtrList))

@@ -1,7 +1,7 @@
 from generated.formats.base.basic import fmt_member
 from generated.formats.dds.basic import Uint
-from generated.formats.dds.enum.D3D10ResourceDimension import D3D10ResourceDimension
-from generated.formats.dds.enum.DxgiFormat import DxgiFormat
+from generated.formats.dds.enums.D3D10ResourceDimension import D3D10ResourceDimension
+from generated.formats.dds.enums.DxgiFormat import DxgiFormat
 from generated.struct import StructBase
 
 
@@ -39,8 +39,8 @@ class Dxt10Header(StructBase):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.dxgi_format = DxgiFormat.from_value(stream.read_uint())
-		instance.resource_dimension = D3D10ResourceDimension.from_value(stream.read_uint())
+		instance.dxgi_format = DxgiFormat.from_stream(stream, instance.context, 0, None)
+		instance.resource_dimension = D3D10ResourceDimension.from_stream(stream, instance.context, 0, None)
 		instance.misc_flag = stream.read_uint()
 		instance.array_size = stream.read_uint()
 		instance.misc_flag_2 = stream.read_uint()
@@ -48,8 +48,8 @@ class Dxt10Header(StructBase):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_uint(instance.dxgi_format.value)
-		stream.write_uint(instance.resource_dimension.value)
+		DxgiFormat.to_stream(stream, instance.dxgi_format)
+		D3D10ResourceDimension.to_stream(stream, instance.resource_dimension)
 		stream.write_uint(instance.misc_flag)
 		stream.write_uint(instance.array_size)
 		stream.write_uint(instance.misc_flag_2)

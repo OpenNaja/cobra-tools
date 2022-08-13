@@ -2,7 +2,7 @@ from generated.formats.base.basic import fmt_member
 import generated.formats.base.basic
 from generated.formats.base.basic import Float
 from generated.formats.base.basic import Uint64
-from generated.formats.motiongraph.enum.SelectActivityActivityMode import SelectActivityActivityMode
+from generated.formats.motiongraph.enums.SelectActivityActivityMode import SelectActivityActivityMode
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
 from generated.formats.ovl_base.compound.Pointer import Pointer
 
@@ -49,7 +49,7 @@ class RandomActivityActivityInfoData(MemStruct):
 		instance.activities = Pointer.from_stream(stream, instance.context, 0, None)
 		instance.activities_count = stream.read_uint64()
 		instance.blend_time = stream.read_float()
-		instance.mode = SelectActivityActivityMode.from_value(stream.read_uint())
+		instance.mode = SelectActivityActivityMode.from_stream(stream, instance.context, 0, None)
 		instance.enum_variable.arg = 0
 		instance.activities.arg = 0
 
@@ -60,7 +60,7 @@ class RandomActivityActivityInfoData(MemStruct):
 		Pointer.to_stream(stream, instance.activities)
 		stream.write_uint64(instance.activities_count)
 		stream.write_float(instance.blend_time)
-		stream.write_uint(instance.mode.value)
+		SelectActivityActivityMode.to_stream(stream, instance.mode)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

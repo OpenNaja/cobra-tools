@@ -1,7 +1,7 @@
 from generated.formats.base.basic import fmt_member
 from generated.formats.base.basic import Float
 from generated.formats.base.basic import Short
-from generated.formats.motiongraph.enum.SubCurveType import SubCurveType
+from generated.formats.motiongraph.enums.SubCurveType import SubCurveType
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
 
 
@@ -45,7 +45,7 @@ class CurveDataPoint(MemStruct):
 		super().read_fields(stream, instance)
 		instance.x = stream.read_float()
 		instance.y = stream.read_short()
-		instance.sub_curve_type = SubCurveType.from_value(stream.read_ushort())
+		instance.sub_curve_type = SubCurveType.from_stream(stream, instance.context, 0, None)
 		instance.subsequent_curve_param = stream.read_short()
 		instance.subsequent_curve_param_b = stream.read_short()
 
@@ -54,7 +54,7 @@ class CurveDataPoint(MemStruct):
 		super().write_fields(stream, instance)
 		stream.write_float(instance.x)
 		stream.write_short(instance.y)
-		stream.write_ushort(instance.sub_curve_type.value)
+		SubCurveType.to_stream(stream, instance.sub_curve_type)
 		stream.write_short(instance.subsequent_curve_param)
 		stream.write_short(instance.subsequent_curve_param_b)
 

@@ -1,5 +1,5 @@
 from generated.formats.base.basic import fmt_member
-from generated.formats.base.enum import UbyteEnum
+from generated.formats.base.enums import UbyteEnum
 
 
 class MeshFormat(UbyteEnum):

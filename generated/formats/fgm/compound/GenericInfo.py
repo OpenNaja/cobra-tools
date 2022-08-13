@@ -1,6 +1,6 @@
 from generated.formats.base.basic import fmt_member
 from generated.formats.base.basic import Uint
-from generated.formats.fgm.enum.FgmDtype import FgmDtype
+from generated.formats.fgm.enums.FgmDtype import FgmDtype
 from generated.formats.ovl_base.compound.MemStruct import MemStruct
 
 
@@ -35,13 +35,13 @@ class GenericInfo(MemStruct):
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
 		instance.offset = stream.read_uint()
-		instance.dtype = FgmDtype.from_value(stream.read_uint())
+		instance.dtype = FgmDtype.from_stream(stream, instance.context, 0, None)
 
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
 		stream.write_uint(instance.offset)
-		stream.write_uint(instance.dtype.value)
+		FgmDtype.to_stream(stream, instance.dtype)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

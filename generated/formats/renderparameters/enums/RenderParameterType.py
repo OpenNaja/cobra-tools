@@ -1,5 +1,5 @@
 from generated.formats.base.basic import fmt_member
-from generated.formats.base.enum import Uint64Enum
+from generated.formats.base.enums import Uint64Enum
 
 
 class RenderParameterType(Uint64Enum):

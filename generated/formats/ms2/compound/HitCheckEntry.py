@@ -7,7 +7,7 @@ from generated.formats.ms2.compound.ConvexHull import ConvexHull
 from generated.formats.ms2.compound.Cylinder import Cylinder
 from generated.formats.ms2.compound.MeshCollision import MeshCollision
 from generated.formats.ms2.compound.Sphere import Sphere
-from generated.formats.ms2.enum.CollisionType import CollisionType
+from generated.formats.ms2.enums.CollisionType import CollisionType
 from generated.struct import StructBase
 
 
@@ -82,7 +82,7 @@ class HitCheckEntry(StructBase):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.type = CollisionType.from_value(stream.read_uint())
+		instance.type = CollisionType.from_stream(stream, instance.context, 0, None)
 		instance.flag_0 = stream.read_ushort()
 		instance.flag_1 = stream.read_ushort()
 		instance.flag_2 = stream.read_uint()
@@ -110,7 +110,7 @@ class HitCheckEntry(StructBase):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_uint(instance.type.value)
+		CollisionType.to_stream(stream, instance.type)
 		stream.write_ushort(instance.flag_0)
 		stream.write_ushort(instance.flag_1)
 		stream.write_uint(instance.flag_2)
