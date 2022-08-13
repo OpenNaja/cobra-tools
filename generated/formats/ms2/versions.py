@@ -26,7 +26,7 @@ def is_pc(context):
 
 def set_pc(context):
 	context.version = 18
-	context.user_version = 8340
+	context.user_version._value = 8340
 	context.version_flag = 8
 
 
@@ -37,7 +37,7 @@ def is_pz(context):
 
 def set_pz(context):
 	context.version = 19
-	context.user_version = 8340
+	context.user_version._value = 8340
 
 
 def is_pz16(context):
@@ -47,7 +47,7 @@ def is_pz16(context):
 
 def set_pz16(context):
 	context.version = 20
-	context.user_version = 8340
+	context.user_version._value = 8340
 
 
 def is_jwe(context):
@@ -57,7 +57,7 @@ def is_jwe(context):
 
 def set_jwe(context):
 	context.version = 19
-	context.user_version = 24724
+	context.user_version._value = 24724
 
 
 def is_jwe2(context):
@@ -67,7 +67,7 @@ def is_jwe2(context):
 
 def set_jwe2(context):
 	context.version = 20
-	context.user_version = 24724
+	context.user_version._value = 24724
 
 
 def is_old(context):
