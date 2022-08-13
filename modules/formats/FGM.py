@@ -19,7 +19,6 @@ class FgmLoader(MemStructLoader):
 
 	def collect(self):
 		super().collect()
-		# self.header.debug_ptrs()
 		self.get_names()
 		# print(self.header)
 

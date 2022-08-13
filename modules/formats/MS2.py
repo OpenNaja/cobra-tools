@@ -136,7 +136,6 @@ class Ms2Loader(BaseFile):
 		self.get_version()
 		self.header = Ms2Root.from_stream(self.root_ptr.stream, self.context)
 		self.header.read_ptrs(self.root_ptr.pool)
-		# self.header.debug_ptrs()
 		# print(self.header)
 		expected_frag = self.get_buffer_presence()
 		frag_data = self.header.buffers_presence.frag.struct_ptr.data

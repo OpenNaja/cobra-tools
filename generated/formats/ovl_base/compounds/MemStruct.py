@@ -88,9 +88,6 @@ class MemStruct(BaseStruct):
 	def _get_filtered_attribute_list(cls, instance):
 		super()._get_filtered_attribute_list(instance)
 
-	# used for the pointer alignment mapping
-	ptr_al_dict = {}
-
 	def get_props_and_ptrs(self):
 		return [(prop, val) for prop, val in vars(self).items() if isinstance(val, Pointer)]
 
@@ -391,52 +388,6 @@ class MemStruct(BaseStruct):
 				self._to_xml(sub, prop, val, debug)
 			else:
 				self._to_xml(elem, prop, val, debug)
-
-	def debug_ptrs(self):
-		"""Iteratively debugs all pointers of a struct"""
-		cls_name = self.__class__.__name__
-		if cls_name not in self.ptr_al_dict:
-			self.ptr_al_dict[cls_name] = {}
-		cls_al_dict = self.ptr_al_dict[cls_name]
-		props_arrays = [(prop, val) for prop, val in vars(self).items() if isinstance(val, Array)]
-		props_ptrs = self.get_props_and_ptrs() + [(prop, ptr) for prop, arr in props_arrays for ptr in arr if
-												  isinstance(ptr, Pointer)]
-		for prop, ptr in props_ptrs:
-			# dtype = pointer.template.__name__ if pointer.template else None
-			# al = None
-			if ptr.frag:
-				# if isinstance(pointer.frag,)
-				# skip dependency
-				if not hasattr(ptr.frag, "struct_ptr"):
-					continue
-				d_off = ptr.frag.struct_ptr.data_offset
-				if d_off:
-					# go over decreasing possible alignments
-					# 64, 32, 16, 8, 4, 2, 1
-					for x in reversed(range(6)):
-						al = 2 ** x
-						# logging.debug(f"Testing alignment: {al}")
-						# is data_offset of struct pointer aligned at al bytes?
-						if d_off % al == 0:
-							# add or overwrite if new al is smaller than stored al
-							if prop not in cls_al_dict or al < cls_al_dict[prop]:
-								cls_al_dict[prop] = al
-							# don't test smaller alignments
-							break
-				# else:
-				# 	al = "can't tell, data_offset=0"
-				# test children
-				if isinstance(ptr.data, MemStruct):
-					ptr.data.debug_ptrs()
-				elif isinstance(ptr.data, Array):
-					for member in ptr.data:
-						if isinstance(member, Pointer):
-							member = member.data
-						if isinstance(member, MemStruct):
-							member.debug_ptrs()
-
-		# logging.debug(f"Pointer: {prop} Dtype: {dtype} Alignment: {al}")
-		# logging.debug(f"MemStruct: {self.__class__.__name__} {cls_al_dict}")
 
 	def get_info_str(self):
 		return f'\nMemStruct'

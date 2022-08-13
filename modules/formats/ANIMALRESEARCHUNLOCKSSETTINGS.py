@@ -9,7 +9,6 @@ class AnimalresearchunlockssettingsLoader(MemStructLoader):
 
 	def collect(self):
 		super().collect()
-		# self.header.debug_ptrs()
 		# print(self.header)
 
 	def prep(self):
