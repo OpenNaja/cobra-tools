@@ -27,7 +27,7 @@ logging_setup("fgm_editor")
 attrib_sizes = {
 	0: 4,  # FgmDtype.Float
 	1: 8,  # FgmDtype.Float2
-	2: 12,  # FgmDtype.Float3
+	2: 12,  # FgmDtype.FLOAT_3
 	3: 16,  # FgmDtype.Float4
 	5: 4,  # FgmDtype.Int
 	6: 4,  # FgmDtype.Bool
@@ -257,7 +257,7 @@ class MainWindow(widgets.MainWindow):
 		return f'{prefix.replace(".fgm", "")}.{suffix.lower()}.tex'
 
 	def fix_tex_indices(self, textures):
-		for i, tex in enumerate([t for t in textures if t.dtype == FgmDtype.Texture]):
+		for i, tex in enumerate([t for t in textures if t.dtype == FgmDtype.TEXTURE]):
 			tex.value[0].index = i
 
 	def fix_dependencies(self, deps):
@@ -287,7 +287,7 @@ class MainWindow(widgets.MainWindow):
 		tex_index.set_defaults()
 
 		tex = TextureInfo(self.context, set_default=False)
-		tex.dtype = FgmDtype.Texture
+		tex.dtype = FgmDtype.TEXTURE
 		tex.set_defaults()
 		tex.name = tex_name
 		tex.value[:] = [tex_index]
@@ -417,7 +417,7 @@ class MainWindow(widgets.MainWindow):
 	def _save_fgm(self, filepath):
 		if filepath:
 			try:
-				self.header.to_xml_file(filepath)
+				self.header.to_xml_file(self.header, filepath)
 			except BaseException as err:
 				interaction.showdialog(str(err))
 				logging.exception("Saving fgm errored")
@@ -493,7 +493,7 @@ class TextureVisual:
 		self.data = data
 		self.w_label = QtWidgets.QLabel(entry.name)
 		dtypes = [e.name for e in FgmDtype]
-		dtypes_tex = [dtypes.pop(dtypes.index("RGBA")), dtypes.pop(dtypes.index("Texture"))]
+		dtypes_tex = [dtypes.pop(dtypes.index("RGBA")), dtypes.pop(dtypes.index("TEXTURE"))]
 
 		self.w_dtype = widgets.CleverCombo(dtypes_tex if container.title() == "Textures" else dtypes)
 		self.w_dtype.setText(entry.dtype.name)
@@ -549,7 +549,7 @@ class TextureVisual:
 			self.update()
 
 	def update(self):
-		if self.entry.dtype == FgmDtype.Texture or self.entry.dtype == FgmDtype.RGBA:
+		if self.entry.dtype == FgmDtype.TEXTURE or self.entry.dtype == FgmDtype.RGBA:
 			# Update texture indices after changing texture type
 			self.container.gui.fix_tex_indices(self.container.entry_list)
 			self.container.gui.fix_dependencies(self.container.data_list)
@@ -563,7 +563,7 @@ class TextureVisual:
 		self.entry.dtype = FgmDtype[dtype_name]
 		try:
 			self.data.set_defaults()
-			if self.entry.dtype == FgmDtype.Texture:
+			if self.entry.dtype == FgmDtype.TEXTURE:
 				self.entry.value = None
 				self.data.dependency_name.data = ''
 
@@ -592,7 +592,7 @@ class TextureVisual:
 
 	def create_fields(self):
 		rgb_colors = ("_RGB", "Tint", "Discolour", "Colour")
-		if self.entry.dtype == FgmDtype.Texture:
+		if self.entry.dtype == FgmDtype.TEXTURE:
 			assert self.data.dependency_name.data is not None
 			if self.data.dependency_name.data == '':
 				self.data.dependency_name.data = self.container.gui.create_tex_name(self.container.gui.fgm_name, self.entry.name)
@@ -604,7 +604,7 @@ class TextureVisual:
 			return self.w_file,
 		elif self.entry.dtype == FgmDtype.RGBA:
 			return [self.create_field(i, self.entry.value) for i in range(len(self.entry.value))]
-		elif self.entry.dtype == FgmDtype.Float3 and not self.container.gui.skip_color.isChecked() and self.entry.name.endswith(rgb_colors):
+		elif self.entry.dtype == FgmDtype.FLOAT_3 and not self.container.gui.skip_color.isChecked() and self.entry.name.endswith(rgb_colors):
 			return self.create_rgb_field(),
 		else:
 			return [self.create_field(i, self.data.value) for i in range(len(self.data.value))]
@@ -637,8 +637,8 @@ class TextureVisual:
 			# use a closure to remember index
 			target[ind] = int(v)
 
-		t = self.entry.dtype.name
-		if "RGBA" in t:
+		t = self.entry.dtype.name.lower()
+		if "rgba" in t:
 			field = QColorButton()
 			# Create container for transparency background
 			frame = QtWidgets.QFrame()
@@ -660,16 +660,16 @@ class TextureVisual:
 				border-radius: 4px;
 			}}"""))
 
-		elif "Float" in t:
+		elif "float" in t:
 			field = QtWidgets.QDoubleSpinBox()
 			field.setDecimals(3)
 			field.setRange(-10000, 10000)
 			field.setSingleStep(.05)
 			field.valueChanged.connect(update_ind)
-		elif "Bool" in t:
+		elif "bool" in t:
 			field = MySwitch()
 			field.clicked.connect(update_ind)
-		elif "Int" in t:
+		elif "int" in t:
 			default = int(default)
 			field = QtWidgets.QDoubleSpinBox()
 			field.setDecimals(0)
@@ -678,19 +678,19 @@ class TextureVisual:
 		else:
 			raise AttributeError(f"Unsupported field type {t}")
 
-		if "RGBA" in t:
+		if "rgba" in t:
 			field.children()[1].setValue(default)
 		else:
 			field.setValue(default)
 
 		# Connect *after* setting initial value
-		if "RGBA" in t:
+		if "rgba" in t:
 			field.children()[1].colorChanged.connect(self.container.gui.set_dirty)
-		elif "Float" in t:
+		elif "float" in t:
 			field.valueChanged.connect(self.container.gui.set_dirty)
-		elif "Bool" in t:
+		elif "bool" in t:
 			field.clicked.connect(self.container.gui.set_dirty)
-		elif "Int" in t:
+		elif "int" in t:
 			field.valueChanged.connect(self.container.gui.set_dirty)
 
 		field.setMinimumWidth(50)
