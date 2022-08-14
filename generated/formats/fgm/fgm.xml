@@ -79,16 +79,4 @@
 		<add name="dependency_name" type="Pointer" cond="#ARG#\dtype #EQ# 8">only present if textured</add>
     </compound>
 
-    <compound name="FgmInfoHeader" inherit="GenericHeader">
-        Custom header struct
-		This reads a whole custom FGM file
-        <add name="data_lib_size" type="uint"/>
-        <add name="dependency count" type="uint"/>
-        <add name="fgm info" type="FgmHeader"/>
-        <add name="texture files" type="ZString" arr1="dependency count"/>
-        <add name="textures" type="TextureInfo" arr1="fgm info\texture_count"/>
-        <add name="attributes" type="AttributeInfo" arr1="fgm info\attribute_count"/>
-        followed by data_lib from buffer
-    </compound>
-
 </niftoolsxml>
