@@ -27,6 +27,11 @@ class ForEachPointer(Pointer):
 			# 	logging.debug(f"Argument {i} = {arg}, template {self.template}")
 			self.data[:] = [self.template.from_stream(stream, self.context, arg) for arg in args]
 
+	@classmethod
+	def _to_xml(cls, instance, elem, debug):
+		"""Assigns data self to xml elem"""
+		Array._to_xml(instance.data, elem, debug)
+
 	# def write_template(self):
 	# 	assert self.template is not None
 	# 	# Array.to_stream(self.frag.struct_ptr.stream, self.data, (len(self.data),), self.template, self.context, 0, None)

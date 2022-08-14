@@ -8,3 +8,8 @@ class OvlContext(object):
 
 	def __repr__(self):
 		return f"{self.version} | {self.user_version}"
+
+	@classmethod
+	def to_xml(cls, elem, prop, instance, arguments, debug):
+		from generated.formats.ovl.versions import get_game
+		elem.attrib[prop] = str(get_game(instance)[0])

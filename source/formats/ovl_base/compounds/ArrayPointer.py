@@ -19,10 +19,6 @@ class ArrayPointer(Pointer):
 	@classmethod
 	def _to_xml(cls, instance, elem, debug):
 		"""Assigns data self to xml elem"""
-		# elem, prop, instance, arguments, debug
-		# instance.template.to_xml(elem, instance._handle_xml_str(prop), instance.data, arguments, debug)
-		# Array.to_xml(elem, "data", instance.data, (len(instance.data), instance.template, 0, None), debug)
-		# Array._to_xml(elem, "data", instance.data, (len(instance.data), instance.template, 0, None), debug)
 		Array._to_xml(instance.data, elem, debug)
 
 	# def write_template(self):

@@ -3,6 +3,8 @@ import struct
 import xml.etree.ElementTree as ET
 from generated.base_struct import BaseStruct
 # from generated.formats.ovl.compounds.Fragment import Fragment
+from generated.formats.base.basic import ZString
+from generated.formats.ovl_base.basic import ZStringObfuscated
 
 ZERO = b"\x00"
 # these attributes present on the MemStruct will not be stored on the XML
@@ -118,8 +120,6 @@ class Pointer(BaseStruct):
 	@classmethod
 	def to_xml(cls, elem, prop, instance, arguments, debug):
 		"""Adds this struct to 'elem', recursively"""
-		print("to_xml", cls, prop, arguments, debug)
-		# sub = ET.SubElement(elem, cls.__name__)
 		sub = ET.SubElement(elem, prop)
 		if instance.frag and hasattr(instance.frag, "struct_ptr"):
 			f_ptr = instance.frag.struct_ptr
@@ -127,19 +127,32 @@ class Pointer(BaseStruct):
 				sub.set("_address", f"{f_ptr.pool_index} {f_ptr.data_offset}")
 				sub.set("_size", f"{f_ptr.data_size}")
 			sub.set(POOL_TYPE, f"{f_ptr.pool.type}")
+			cls._set_pool_type(sub, f_ptr.pool.type, instance.template)
 		elif hasattr(instance, POOL_TYPE):
 			if instance.pool_type is not None:
-				# todo - make conditional on dtype
-				sub.set(POOL_TYPE, f"{instance.pool_type}")
-		cls._to_xml(instance, sub, debug)
+				cls._set_pool_type(sub, instance.pool_type, instance.template)
+		if instance.data is not None:
+			# xml string
+			if prop == XML_STR:
+				sub.append(ET.fromstring(instance.data))
+			else:
+				cls._to_xml(instance, sub, debug)
+
+	@staticmethod
+	def _set_pool_type(elem, pool_type, template):
+		if template not in (ZString, ZStringObfuscated):
+			elem.set(POOL_TYPE, f"{pool_type}")
 
 	@classmethod
 	def _to_xml(cls, instance, elem, debug):
 		"""Assigns data self to xml elem"""
-		# elem, prop, instance, arguments, debug
-		# instance.template.to_xml(elem, instance._handle_xml_str(prop), instance.data, arguments, debug)
-		# instance.template.to_xml(elem, "data", instance.data, (), debug)
-		instance.template._to_xml(instance.data, elem, debug)
+		# catch Zstr Pointers and dependencies (template=None)
+		# if instance.template in (ZString, ZStringObfuscated):
+		if isinstance(instance.data, str):
+			elem.text = instance.data
+		else:
+			if instance.template is not None:
+				instance.template._to_xml(instance.data, elem, debug)
 
 	def __repr__(self):
 		s = self.get_info_str()

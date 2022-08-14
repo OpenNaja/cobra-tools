@@ -109,6 +109,7 @@ class BaseStruct:
 		"""Create an xml elem representing this MemStruct, recursively set its data, indent and save to 'file_path'"""
 		xml = ET.Element(cls.__name__)
 		cls._to_xml(instance, xml, debug)
+		instance.context.to_xml(xml, "game", instance.context, (), debug)
 		indent(xml)
 		with open(file_path, 'wb') as outfile:
 			outfile.write(ET.tostring(xml))
@@ -116,18 +117,15 @@ class BaseStruct:
 	@classmethod
 	def to_xml(cls, elem, prop, instance, arguments, debug):
 		"""Adds this struct to 'elem', recursively"""
-		print("to_xml", cls, prop, arguments, debug)
+		# print("to_xml", cls, prop, arguments, debug)
 		# sub = ET.SubElement(elem, cls.__name__)
 		sub = ET.SubElement(elem, prop)
 		cls._to_xml(instance, sub, debug)
 
 	@classmethod
 	def _to_xml(cls, instance, elem, debug):
-		print("_to_xml", cls, debug)
+		# print("_to_xml", cls, debug)
 		# go over all fields of this struct
-		# print(instance.__class__)
-		li = list(cls._get_filtered_attribute_list(instance))
-		# print(li)
 		for prop, field_type, arguments in cls._get_filtered_attribute_list(instance):
 			if prop in SKIPS:
 				continue
