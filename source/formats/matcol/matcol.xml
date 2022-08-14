@@ -63,11 +63,4 @@
         <add name="attrib_count" type="uint64"/>
     </compound>
 
-    <compound name="MaterialcollectionInfoHeader" inherit="GenericHeader">
-		This reads a whole custom Matcol file
-        <add name="root" type="MatcolRoot"/>
-        <add name="info" type="RootFrag"/>
-        <add name="textures" type="Texture" arr1="info\tex_count"/>
-        <add name="layers" type="Layer" arr1="info\mat_count" />
-    </compound>
 </niftoolsxml>
