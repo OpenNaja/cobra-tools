@@ -1,6 +1,7 @@
 import generated.formats.specdef.compounds.DataPtr
+import generated.formats.specdef.compounds.NamePtr
 import generated.formats.specdef.compounds.PtrList
-import generated.formats.specdef.enums.SpecdefDtype
+import generated.formats.specdef.compounds.Spec
 from generated.formats.base.basic import Ubyte
 from generated.formats.base.basic import Ushort
 from generated.formats.ovl_base.compounds.ArrayPointer import ArrayPointer
@@ -19,9 +20,9 @@ class SpecdefRoot(MemStruct):
 		self.childspec_count = 0
 		self.manager_count = 0
 		self.script_count = 0
-		self.attrib_dtypes = ArrayPointer(self.context, self.attrib_count, generated.formats.specdef.enums.SpecdefDtype.SpecdefDtype)
-		self.attrib_names = Pointer(self.context, self.attrib_count, generated.formats.specdef.compounds.PtrList.PtrList)
-		self.attrib_datas = ForEachPointer(self.context, self.attrib_dtypes, generated.formats.specdef.compounds.DataPtr.DataPtr)
+		self.attribs = ArrayPointer(self.context, self.attrib_count, generated.formats.specdef.compounds.Spec.Spec)
+		self.name_foreach_attribs = ForEachPointer(self.context, self.attribs, generated.formats.specdef.compounds.NamePtr.NamePtr)
+		self.data_foreach_attribs = ForEachPointer(self.context, self.attribs, generated.formats.specdef.compounds.DataPtr.DataPtr)
 		self.names = Pointer(self.context, self.name_count, generated.formats.specdef.compounds.PtrList.PtrList)
 		self.childspecs = Pointer(self.context, self.childspec_count, generated.formats.specdef.compounds.PtrList.PtrList)
 		self.managers = Pointer(self.context, self.manager_count, generated.formats.specdef.compounds.PtrList.PtrList)
@@ -37,9 +38,9 @@ class SpecdefRoot(MemStruct):
 		self.childspec_count = 0
 		self.manager_count = 0
 		self.script_count = 0
-		self.attrib_dtypes = ArrayPointer(self.context, self.attrib_count, generated.formats.specdef.enums.SpecdefDtype.SpecdefDtype)
-		self.attrib_names = Pointer(self.context, self.attrib_count, generated.formats.specdef.compounds.PtrList.PtrList)
-		self.attrib_datas = ForEachPointer(self.context, self.attrib_dtypes, generated.formats.specdef.compounds.DataPtr.DataPtr)
+		self.attribs = ArrayPointer(self.context, self.attrib_count, generated.formats.specdef.compounds.Spec.Spec)
+		self.name_foreach_attribs = ForEachPointer(self.context, self.attribs, generated.formats.specdef.compounds.NamePtr.NamePtr)
+		self.data_foreach_attribs = ForEachPointer(self.context, self.attribs, generated.formats.specdef.compounds.DataPtr.DataPtr)
 		self.names = Pointer(self.context, self.name_count, generated.formats.specdef.compounds.PtrList.PtrList)
 		self.childspecs = Pointer(self.context, self.childspec_count, generated.formats.specdef.compounds.PtrList.PtrList)
 		self.managers = Pointer(self.context, self.manager_count, generated.formats.specdef.compounds.PtrList.PtrList)
@@ -64,19 +65,19 @@ class SpecdefRoot(MemStruct):
 		instance.childspec_count = stream.read_ubyte()
 		instance.manager_count = stream.read_ubyte()
 		instance.script_count = stream.read_ubyte()
-		instance.attrib_dtypes = ArrayPointer.from_stream(stream, instance.context, instance.attrib_count, generated.formats.specdef.enums.SpecdefDtype.SpecdefDtype)
-		instance.attrib_names = Pointer.from_stream(stream, instance.context, instance.attrib_count, generated.formats.specdef.compounds.PtrList.PtrList)
-		instance.attrib_datas = ForEachPointer.from_stream(stream, instance.context, instance.attrib_dtypes, generated.formats.specdef.compounds.DataPtr.DataPtr)
+		instance.attribs = ArrayPointer.from_stream(stream, instance.context, instance.attrib_count, generated.formats.specdef.compounds.Spec.Spec)
+		instance.name_foreach_attribs = ForEachPointer.from_stream(stream, instance.context, instance.attribs, generated.formats.specdef.compounds.NamePtr.NamePtr)
+		instance.data_foreach_attribs = ForEachPointer.from_stream(stream, instance.context, instance.attribs, generated.formats.specdef.compounds.DataPtr.DataPtr)
 		instance.names = Pointer.from_stream(stream, instance.context, instance.name_count, generated.formats.specdef.compounds.PtrList.PtrList)
 		instance.childspecs = Pointer.from_stream(stream, instance.context, instance.childspec_count, generated.formats.specdef.compounds.PtrList.PtrList)
 		instance.managers = Pointer.from_stream(stream, instance.context, instance.manager_count, generated.formats.specdef.compounds.PtrList.PtrList)
 		instance.scripts = Pointer.from_stream(stream, instance.context, instance.script_count, generated.formats.specdef.compounds.PtrList.PtrList)
-		if not isinstance(instance.attrib_dtypes, int):
-			instance.attrib_dtypes.arg = instance.attrib_count
-		if not isinstance(instance.attrib_names, int):
-			instance.attrib_names.arg = instance.attrib_count
-		if not isinstance(instance.attrib_datas, int):
-			instance.attrib_datas.arg = instance.attrib_dtypes
+		if not isinstance(instance.attribs, int):
+			instance.attribs.arg = instance.attrib_count
+		if not isinstance(instance.name_foreach_attribs, int):
+			instance.name_foreach_attribs.arg = instance.attribs
+		if not isinstance(instance.data_foreach_attribs, int):
+			instance.data_foreach_attribs.arg = instance.attribs
 		if not isinstance(instance.names, int):
 			instance.names.arg = instance.name_count
 		if not isinstance(instance.childspecs, int):
@@ -95,9 +96,9 @@ class SpecdefRoot(MemStruct):
 		stream.write_ubyte(instance.childspec_count)
 		stream.write_ubyte(instance.manager_count)
 		stream.write_ubyte(instance.script_count)
-		ArrayPointer.to_stream(stream, instance.attrib_dtypes)
-		Pointer.to_stream(stream, instance.attrib_names)
-		ForEachPointer.to_stream(stream, instance.attrib_datas)
+		ArrayPointer.to_stream(stream, instance.attribs)
+		ForEachPointer.to_stream(stream, instance.name_foreach_attribs)
+		ForEachPointer.to_stream(stream, instance.data_foreach_attribs)
 		Pointer.to_stream(stream, instance.names)
 		Pointer.to_stream(stream, instance.childspecs)
 		Pointer.to_stream(stream, instance.managers)
@@ -112,9 +113,9 @@ class SpecdefRoot(MemStruct):
 		yield 'childspec_count', Ubyte, (0, None)
 		yield 'manager_count', Ubyte, (0, None)
 		yield 'script_count', Ubyte, (0, None)
-		yield 'attrib_dtypes', ArrayPointer, (instance.attrib_count, generated.formats.specdef.enums.SpecdefDtype.SpecdefDtype)
-		yield 'attrib_names', Pointer, (instance.attrib_count, generated.formats.specdef.compounds.PtrList.PtrList)
-		yield 'attrib_datas', ForEachPointer, (instance.attrib_dtypes, generated.formats.specdef.compounds.DataPtr.DataPtr)
+		yield 'attribs', ArrayPointer, (instance.attrib_count, generated.formats.specdef.compounds.Spec.Spec)
+		yield 'name_foreach_attribs', ForEachPointer, (instance.attribs, generated.formats.specdef.compounds.NamePtr.NamePtr)
+		yield 'data_foreach_attribs', ForEachPointer, (instance.attribs, generated.formats.specdef.compounds.DataPtr.DataPtr)
 		yield 'names', Pointer, (instance.name_count, generated.formats.specdef.compounds.PtrList.PtrList)
 		yield 'childspecs', Pointer, (instance.childspec_count, generated.formats.specdef.compounds.PtrList.PtrList)
 		yield 'managers', Pointer, (instance.manager_count, generated.formats.specdef.compounds.PtrList.PtrList)
@@ -132,9 +133,9 @@ class SpecdefRoot(MemStruct):
 		s += f'\n	* childspec_count = {self.fmt_member(self.childspec_count, indent+1)}'
 		s += f'\n	* manager_count = {self.fmt_member(self.manager_count, indent+1)}'
 		s += f'\n	* script_count = {self.fmt_member(self.script_count, indent+1)}'
-		s += f'\n	* attrib_dtypes = {self.fmt_member(self.attrib_dtypes, indent+1)}'
-		s += f'\n	* attrib_names = {self.fmt_member(self.attrib_names, indent+1)}'
-		s += f'\n	* attrib_datas = {self.fmt_member(self.attrib_datas, indent+1)}'
+		s += f'\n	* attribs = {self.fmt_member(self.attribs, indent+1)}'
+		s += f'\n	* name_foreach_attribs = {self.fmt_member(self.name_foreach_attribs, indent+1)}'
+		s += f'\n	* data_foreach_attribs = {self.fmt_member(self.data_foreach_attribs, indent+1)}'
 		s += f'\n	* names = {self.fmt_member(self.names, indent+1)}'
 		s += f'\n	* childspecs = {self.fmt_member(self.childspecs, indent+1)}'
 		s += f'\n	* managers = {self.fmt_member(self.managers, indent+1)}'

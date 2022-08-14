@@ -4,8 +4,6 @@ import bpy
 import math
 
 from generated.formats.dinosaurmaterialvariants import LayeredMaterial
-from generated.formats.matcol import MatcolFile
-from generated.formats.fgm import FgmFile
 from plugin.utils.node_arrange import nodes_iterate
 from plugin.utils.node_util import load_tex, get_tree
 
@@ -372,6 +370,7 @@ def create_material(matcol_path):
 
 
 def load_matcol(matcol_path):
+	# todo - needs update to new api
 	lib_dir = os.path.normpath(os.path.dirname(matcol_path))
 	matcol_file = MatcolFile()
 	matcol_file.load(matcol_path)

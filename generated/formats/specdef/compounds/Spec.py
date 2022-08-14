@@ -1,21 +1,18 @@
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
-from generated.formats.ovl_base.compounds.Pointer import Pointer
+from generated.formats.specdef.enums.SpecdefDtype import SpecdefDtype
 
 
-class DependencyInfo(MemStruct):
+class Spec(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-
-		# only present if textured
-		self.dependency_name = Pointer(self.context, 0, None)
+		self.dtype = SpecdefDtype(self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
 		super().set_defaults()
-		if self.arg.dtype == 8:
-			self.dependency_name = Pointer(self.context, 0, None)
+		# leaving self.dtype alone
 
 	def read(self, stream):
 		self.io_start = stream.tell()
@@ -30,30 +27,25 @@ class DependencyInfo(MemStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		if instance.arg.dtype == 8:
-			instance.dependency_name = Pointer.from_stream(stream, instance.context, 0, None)
-		if not isinstance(instance.dependency_name, int):
-			instance.dependency_name.arg = 0
+		instance.dtype = SpecdefDtype.from_stream(stream, instance.context, 0, None)
 
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		if instance.arg.dtype == 8:
-			Pointer.to_stream(stream, instance.dependency_name)
+		SpecdefDtype.to_stream(stream, instance.dtype)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
-		if instance.arg.dtype == 8:
-			yield 'dependency_name', Pointer, (0, None)
+		yield 'dtype', SpecdefDtype, (0, None)
 
 	def get_info_str(self, indent=0):
-		return f'DependencyInfo [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+		return f'Spec [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* dependency_name = {self.fmt_member(self.dependency_name, indent+1)}'
+		s += f'\n	* dtype = {self.fmt_member(self.dtype, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

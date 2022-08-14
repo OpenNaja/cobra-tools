@@ -1,23 +1,19 @@
-import generated.formats.specdef.compounds.Data
+import generated.formats.base.basic
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
 from generated.formats.ovl_base.compounds.Pointer import Pointer
 
 
-class DataPtr(MemStruct):
-
-	"""
-	#ARG# is dtype
-	"""
+class NamePtr(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.data_ptr = Pointer(self.context, self.arg.dtype, generated.formats.specdef.compounds.Data.Data)
+		self.name_ptr = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
 		super().set_defaults()
-		self.data_ptr = Pointer(self.context, self.arg.dtype, generated.formats.specdef.compounds.Data.Data)
+		self.name_ptr = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 
 	def read(self, stream):
 		self.io_start = stream.tell()
@@ -32,27 +28,27 @@ class DataPtr(MemStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.data_ptr = Pointer.from_stream(stream, instance.context, instance.arg.dtype, generated.formats.specdef.compounds.Data.Data)
-		if not isinstance(instance.data_ptr, int):
-			instance.data_ptr.arg = instance.arg.dtype
+		instance.name_ptr = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
+		if not isinstance(instance.name_ptr, int):
+			instance.name_ptr.arg = 0
 
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		Pointer.to_stream(stream, instance.data_ptr)
+		Pointer.to_stream(stream, instance.name_ptr)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
-		yield 'data_ptr', Pointer, (instance.arg.dtype, generated.formats.specdef.compounds.Data.Data)
+		yield 'name_ptr', Pointer, (0, generated.formats.base.basic.ZString)
 
 	def get_info_str(self, indent=0):
-		return f'DataPtr [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+		return f'NamePtr [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* data_ptr = {self.fmt_member(self.data_ptr, indent+1)}'
+		s += f'\n	* name_ptr = {self.fmt_member(self.name_ptr, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

@@ -1,6 +1,6 @@
 import generated.formats.fgm.compounds.AttribData
-import generated.formats.fgm.compounds.AttributeInfo
-import generated.formats.fgm.compounds.DependencyInfo
+import generated.formats.fgm.compounds.AttribInfo
+import generated.formats.fgm.compounds.TextureData
 import generated.formats.fgm.compounds.TextureInfo
 from generated.formats.base.basic import Uint
 from generated.formats.base.basic import Uint64
@@ -22,9 +22,9 @@ class FgmHeader(MemStruct):
 		self.unk_0 = 0
 		self.unk_1 = 0
 		self.textures = ArrayPointer(self.context, self.texture_count, generated.formats.fgm.compounds.TextureInfo.TextureInfo)
-		self.attributes = ArrayPointer(self.context, self.attribute_count, generated.formats.fgm.compounds.AttributeInfo.AttributeInfo)
-		self.dependencies = ForEachPointer(self.context, self.textures, generated.formats.fgm.compounds.DependencyInfo.DependencyInfo)
-		self.data_lib = ForEachPointer(self.context, self.attributes, generated.formats.fgm.compounds.AttribData.AttribData)
+		self.attributes = ArrayPointer(self.context, self.attribute_count, generated.formats.fgm.compounds.AttribInfo.AttribInfo)
+		self.name_foreach_textures = ForEachPointer(self.context, self.textures, generated.formats.fgm.compounds.TextureData.TextureData)
+		self.value_foreach_attributes = ForEachPointer(self.context, self.attributes, generated.formats.fgm.compounds.AttribData.AttribData)
 		if set_default:
 			self.set_defaults()
 
@@ -41,9 +41,9 @@ class FgmHeader(MemStruct):
 		self.unk_0 = 0
 		self.unk_1 = 0
 		self.textures = ArrayPointer(self.context, self.texture_count, generated.formats.fgm.compounds.TextureInfo.TextureInfo)
-		self.attributes = ArrayPointer(self.context, self.attribute_count, generated.formats.fgm.compounds.AttributeInfo.AttributeInfo)
-		self.dependencies = ForEachPointer(self.context, self.textures, generated.formats.fgm.compounds.DependencyInfo.DependencyInfo)
-		self.data_lib = ForEachPointer(self.context, self.attributes, generated.formats.fgm.compounds.AttribData.AttribData)
+		self.attributes = ArrayPointer(self.context, self.attribute_count, generated.formats.fgm.compounds.AttribInfo.AttribInfo)
+		self.name_foreach_textures = ForEachPointer(self.context, self.textures, generated.formats.fgm.compounds.TextureData.TextureData)
+		self.value_foreach_attributes = ForEachPointer(self.context, self.attributes, generated.formats.fgm.compounds.AttribData.AttribData)
 
 	def read(self, stream):
 		self.io_start = stream.tell()
@@ -67,19 +67,19 @@ class FgmHeader(MemStruct):
 		if instance.context.version >= 17:
 			instance.attribute_count = stream.read_uint64()
 		instance.textures = ArrayPointer.from_stream(stream, instance.context, instance.texture_count, generated.formats.fgm.compounds.TextureInfo.TextureInfo)
-		instance.attributes = ArrayPointer.from_stream(stream, instance.context, instance.attribute_count, generated.formats.fgm.compounds.AttributeInfo.AttributeInfo)
-		instance.dependencies = ForEachPointer.from_stream(stream, instance.context, instance.textures, generated.formats.fgm.compounds.DependencyInfo.DependencyInfo)
-		instance.data_lib = ForEachPointer.from_stream(stream, instance.context, instance.attributes, generated.formats.fgm.compounds.AttribData.AttribData)
+		instance.attributes = ArrayPointer.from_stream(stream, instance.context, instance.attribute_count, generated.formats.fgm.compounds.AttribInfo.AttribInfo)
+		instance.name_foreach_textures = ForEachPointer.from_stream(stream, instance.context, instance.textures, generated.formats.fgm.compounds.TextureData.TextureData)
+		instance.value_foreach_attributes = ForEachPointer.from_stream(stream, instance.context, instance.attributes, generated.formats.fgm.compounds.AttribData.AttribData)
 		instance.unk_0 = stream.read_uint64()
 		instance.unk_1 = stream.read_uint64()
 		if not isinstance(instance.textures, int):
 			instance.textures.arg = instance.texture_count
 		if not isinstance(instance.attributes, int):
 			instance.attributes.arg = instance.attribute_count
-		if not isinstance(instance.dependencies, int):
-			instance.dependencies.arg = instance.textures
-		if not isinstance(instance.data_lib, int):
-			instance.data_lib.arg = instance.attributes
+		if not isinstance(instance.name_foreach_textures, int):
+			instance.name_foreach_textures.arg = instance.textures
+		if not isinstance(instance.value_foreach_attributes, int):
+			instance.value_foreach_attributes.arg = instance.attributes
 
 	@classmethod
 	def write_fields(cls, stream, instance):
@@ -94,8 +94,8 @@ class FgmHeader(MemStruct):
 			stream.write_uint64(instance.attribute_count)
 		ArrayPointer.to_stream(stream, instance.textures)
 		ArrayPointer.to_stream(stream, instance.attributes)
-		ForEachPointer.to_stream(stream, instance.dependencies)
-		ForEachPointer.to_stream(stream, instance.data_lib)
+		ForEachPointer.to_stream(stream, instance.name_foreach_textures)
+		ForEachPointer.to_stream(stream, instance.value_foreach_attributes)
 		stream.write_uint64(instance.unk_0)
 		stream.write_uint64(instance.unk_1)
 
@@ -111,9 +111,9 @@ class FgmHeader(MemStruct):
 		if instance.context.version >= 17:
 			yield 'attribute_count', Uint64, (0, None)
 		yield 'textures', ArrayPointer, (instance.texture_count, generated.formats.fgm.compounds.TextureInfo.TextureInfo)
-		yield 'attributes', ArrayPointer, (instance.attribute_count, generated.formats.fgm.compounds.AttributeInfo.AttributeInfo)
-		yield 'dependencies', ForEachPointer, (instance.textures, generated.formats.fgm.compounds.DependencyInfo.DependencyInfo)
-		yield 'data_lib', ForEachPointer, (instance.attributes, generated.formats.fgm.compounds.AttribData.AttribData)
+		yield 'attributes', ArrayPointer, (instance.attribute_count, generated.formats.fgm.compounds.AttribInfo.AttribInfo)
+		yield 'name_foreach_textures', ForEachPointer, (instance.textures, generated.formats.fgm.compounds.TextureData.TextureData)
+		yield 'value_foreach_attributes', ForEachPointer, (instance.attributes, generated.formats.fgm.compounds.AttribData.AttribData)
 		yield 'unk_0', Uint64, (0, None)
 		yield 'unk_1', Uint64, (0, None)
 
@@ -127,8 +127,8 @@ class FgmHeader(MemStruct):
 		s += f'\n	* attribute_count = {self.fmt_member(self.attribute_count, indent+1)}'
 		s += f'\n	* textures = {self.fmt_member(self.textures, indent+1)}'
 		s += f'\n	* attributes = {self.fmt_member(self.attributes, indent+1)}'
-		s += f'\n	* dependencies = {self.fmt_member(self.dependencies, indent+1)}'
-		s += f'\n	* data_lib = {self.fmt_member(self.data_lib, indent+1)}'
+		s += f'\n	* name_foreach_textures = {self.fmt_member(self.name_foreach_textures, indent+1)}'
+		s += f'\n	* value_foreach_attributes = {self.fmt_member(self.value_foreach_attributes, indent+1)}'
 		s += f'\n	* unk_0 = {self.fmt_member(self.unk_0, indent+1)}'
 		s += f'\n	* unk_1 = {self.fmt_member(self.unk_1, indent+1)}'
 		return s

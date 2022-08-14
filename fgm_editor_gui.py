@@ -12,8 +12,8 @@ import ovl_util.interaction
 from generated.formats.fgm.compounds.FgmHeader import FgmHeader
 from generated.formats.fgm.compounds.TexIndex import TexIndex
 from generated.formats.fgm.compounds.TextureInfo import TextureInfo
-from generated.formats.fgm.compounds.DependencyInfo import DependencyInfo
-from generated.formats.fgm.compounds.AttributeInfo import AttributeInfo
+from generated.formats.fgm.compounds.TextureData import TextureData
+from generated.formats.fgm.compounds.AttribInfo import AttribInfo
 from generated.formats.fgm.compounds.AttribData import AttribData
 from generated.array import Array
 from generated.formats.ovl.versions import *
@@ -27,7 +27,7 @@ logging_setup("fgm_editor")
 attrib_sizes = {
 	0: 4,  # FgmDtype.Float
 	1: 8,  # FgmDtype.Float2
-	2: 12,  # FgmDtype.Float3
+	2: 12,  # FgmDtype.FLOAT_3
 	3: 16,  # FgmDtype.Float4
 	5: 4,  # FgmDtype.Int
 	6: 4,  # FgmDtype.Bool
@@ -168,8 +168,8 @@ class MainWindow(widgets.MainWindow):
 		self.import_fgm()
 		if self.import_header:
 			try:
-				self.merge_textures((self.import_header.textures.data, self.import_header.dependencies.data),
-									(self.header.textures.data, self.header.dependencies.data))
+				self.merge_textures((self.import_header.textures.data, self.import_header.name_foreach_textures.data),
+									(self.header.textures.data, self.header.name_foreach_textures.data))
 				logging.info("Finished importing texture values")
 			except:
 				logging.exception("Error importing texture values")
@@ -178,8 +178,8 @@ class MainWindow(widgets.MainWindow):
 		self.import_fgm()
 		if self.import_header:
 			try:
-				self.merge_attributes((self.import_header.attributes.data, self.import_header.data_lib.data),
-									(self.header.attributes.data, self.header.data_lib.data))
+				self.merge_attributes((self.import_header.attributes.data, self.import_header.value_foreach_attributes.data),
+									(self.header.attributes.data, self.header.value_foreach_attributes.data))
 				logging.info("Finished importing attribute values")
 			except:
 				logging.exception("Error importing attribute values")
@@ -201,7 +201,7 @@ class MainWindow(widgets.MainWindow):
 		finally:
 			# Fix indices again after merge
 			self.fix_tex_indices(self.header.textures.data)
-			self.tex_container.update_gui(self.header.textures.data, self.header.dependencies.data)
+			self.tex_container.update_gui(self.header.textures.data, self.header.name_foreach_textures.data)
 			self.set_dirty()
 
 	def merge_attributes(self, data_old, data_new):
@@ -218,11 +218,11 @@ class MainWindow(widgets.MainWindow):
 		except:
 			logging.exception("Could not merge attribute values")
 		finally:
-			self.attrib_container.update_gui(self.header.attributes.data, self.header.data_lib.data)
+			self.attrib_container.update_gui(self.header.attributes.data, self.header.value_foreach_attributes.data)
 			self.set_dirty()
 
 	def has_data(self):
-		return self.header.textures.data and self.header.dependencies.data and self.header.attributes.data and self.header.data_lib.data
+		return self.header.textures.data and self.header.name_foreach_textures.data and self.header.attributes.data and self.header.value_foreach_attributes.data
 
 	def shader_changed(self,):
 		"""Run only during user activation"""
@@ -234,14 +234,14 @@ class MainWindow(widgets.MainWindow):
 		if not self.file_widget.filepath and not self.has_data() and not self.new_file():
 			return
 
-		tex_data_old = (self.header.textures.data.copy(), self.header.dependencies.data.copy()) if self.has_data() else None
-		attrib_data_old = (self.header.attributes.data.copy(), self.header.data_lib.data.copy()) if self.has_data() else None
+		tex_data_old = (self.header.textures.data.copy(), self.header.name_foreach_textures.data.copy()) if self.has_data() else None
+		attrib_data_old = (self.header.attributes.data.copy(), self.header.value_foreach_attributes.data.copy()) if self.has_data() else None
 		self.set_dirty()
 
 		self.header.textures.data = Array((1,), self.header.textures.template, self.context, set_default=False)
 		self.header.attributes.data = Array((1,), self.header.attributes.template, self.context, set_default=False)
-		self.header.dependencies.data = Array((1,), self.header.dependencies.template, self.context, set_default=False)
-		self.header.data_lib.data = Array((1,), self.header.data_lib.template, self.context, set_default=False)
+		self.header.name_foreach_textures.data = Array((1,), self.header.name_foreach_textures.template, self.context, set_default=False)
+		self.header.value_foreach_attributes.data = Array((1,), self.header.value_foreach_attributes.template, self.context, set_default=False)
 
 		for tex in self.fgm_dict.shader_textures[self.header.shader_name]:
 			self.add_texture(tex)
@@ -250,14 +250,14 @@ class MainWindow(widgets.MainWindow):
 			self.add_attribute(att)
 
 		# Preserve old values when possible
-		self.merge_textures(tex_data_old, (self.header.textures.data, self.header.dependencies.data))
-		self.merge_attributes(attrib_data_old, (self.header.attributes.data, self.header.data_lib.data))
+		self.merge_textures(tex_data_old, (self.header.textures.data, self.header.name_foreach_textures.data))
+		self.merge_attributes(attrib_data_old, (self.header.attributes.data, self.header.value_foreach_attributes.data))
 
 	def create_tex_name(self, prefix, suffix):
 		return f'{prefix.replace(".fgm", "")}.{suffix.lower()}.tex'
 
 	def fix_tex_indices(self, textures):
-		for i, tex in enumerate([t for t in textures if t.dtype == FgmDtype.Texture]):
+		for i, tex in enumerate([t for t in textures if t.dtype == FgmDtype.TEXTURE]):
 			tex.value[0].index = i
 
 	def fix_dependencies(self, deps):
@@ -268,7 +268,7 @@ class MainWindow(widgets.MainWindow):
 
 	def sort_textures(self):
 		textures = self.header.textures.data
-		deps = self.header.dependencies.data
+		deps = self.header.name_foreach_textures.data
 		textures[:], deps[:] = zip(*sorted(zip(textures, deps), key=lambda p: p[0].name))
 		self.fix_tex_indices(textures)
 		return textures, deps
@@ -287,27 +287,27 @@ class MainWindow(widgets.MainWindow):
 		tex_index.set_defaults()
 
 		tex = TextureInfo(self.context, set_default=False)
-		tex.dtype = FgmDtype.Texture
+		tex.dtype = FgmDtype.TEXTURE
 		tex.set_defaults()
 		tex.name = tex_name
 		tex.value[:] = [tex_index]
 		textures.append(tex)
 
-		deps = self.header.dependencies.data
-		dep = DependencyInfo(self.context, arg=tex, set_default=False)
+		deps = self.header.name_foreach_textures.data
+		dep = TextureData(self.context, arg=tex, set_default=False)
 		dep.set_defaults()
 		dep.dependency_name.data = ''
 		deps.append(dep)
 
-		self.header.textures.data[:], self.header.dependencies.data[:] = self.sort_textures()
+		self.header.textures.data[:], self.header.name_foreach_textures.data[:] = self.sort_textures()
 		self.set_tex_count()
 
 		if update_gui:
-			self.tex_container.update_gui(self.header.textures.data, self.header.dependencies.data)
+			self.tex_container.update_gui(self.header.textures.data, self.header.name_foreach_textures.data)
 
 	def sort_attributes(self):
 		attribs = self.header.attributes.data
-		data = self.header.data_lib.data
+		data = self.header.value_foreach_attributes.data
 		attribs[:], data[:] = zip(*sorted(zip(attribs, data), key=lambda p: p[0].name))
 		self.fix_att_offsets(attribs)
 		return attribs, data
@@ -329,13 +329,13 @@ class MainWindow(widgets.MainWindow):
 				logging.warning(f"Attribute '{att_name}' already exists. Ignoring.")
 				return
 
-		att = AttributeInfo(self.context, set_default=False)
+		att = AttribInfo(self.context, set_default=False)
 		att.dtype = FgmDtype.from_value(self.fgm_dict.attributes[att_name][0])
 		att.name = att_name
 		att.value_offset = self.offset_for_index(len(self.header.attributes.data))
 		attributes.append(att)
 
-		data_lib = self.header.data_lib.data
+		data_lib = self.header.value_foreach_attributes.data
 		data = AttribData(self.context, arg=att, set_default=False)
 		data.set_defaults()
 		# Assign default value from attributes dict
@@ -343,11 +343,11 @@ class MainWindow(widgets.MainWindow):
 			data.value = np.array(self.fgm_dict.attributes[att.name][1][0][0], data.value.dtype)
 		data_lib.append(data)
 
-		self.header.attributes.data[:], self.header.data_lib.data[:] = self.sort_attributes()
+		self.header.attributes.data[:], self.header.value_foreach_attributes.data[:] = self.sort_attributes()
 		self.set_attrib_count()
 
 		if update_gui:
-			self.attrib_container.update_gui(self.header.attributes.data, self.header.data_lib.data)
+			self.attrib_container.update_gui(self.header.attributes.data, self.header.value_foreach_attributes.data)
 
 	@property
 	def fgm_name(self,):
@@ -395,8 +395,8 @@ class MainWindow(widgets.MainWindow):
 				self.game_container.entry.setText(game.value)
 				self.game_changed()
 				self.update_shader(self.header.shader_name)
-				self.tex_container.update_gui(self.header.textures.data, self.header.dependencies.data)
-				self.attrib_container.update_gui(self.header.attributes.data, self.header.data_lib.data)
+				self.tex_container.update_gui(self.header.textures.data, self.header.name_foreach_textures.data)
+				self.attrib_container.update_gui(self.header.attributes.data, self.header.value_foreach_attributes.data)
 
 			except Exception as ex:
 				ovl_util.interaction.showdialog(str(ex))
@@ -417,7 +417,7 @@ class MainWindow(widgets.MainWindow):
 	def _save_fgm(self, filepath):
 		if filepath:
 			try:
-				self.header.to_xml_file(filepath)
+				self.header.to_xml_file(self.header, filepath)
 			except BaseException as err:
 				interaction.showdialog(str(err))
 				logging.exception("Saving fgm errored")
@@ -493,7 +493,7 @@ class TextureVisual:
 		self.data = data
 		self.w_label = QtWidgets.QLabel(entry.name)
 		dtypes = [e.name for e in FgmDtype]
-		dtypes_tex = [dtypes.pop(dtypes.index("RGBA")), dtypes.pop(dtypes.index("Texture"))]
+		dtypes_tex = [dtypes.pop(dtypes.index("RGBA")), dtypes.pop(dtypes.index("TEXTURE"))]
 
 		self.w_dtype = widgets.CleverCombo(dtypes_tex if container.title() == "Textures" else dtypes)
 		self.w_dtype.setText(entry.dtype.name)
@@ -549,7 +549,7 @@ class TextureVisual:
 			self.update()
 
 	def update(self):
-		if self.entry.dtype == FgmDtype.Texture or self.entry.dtype == FgmDtype.RGBA:
+		if self.entry.dtype == FgmDtype.TEXTURE or self.entry.dtype == FgmDtype.RGBA:
 			# Update texture indices after changing texture type
 			self.container.gui.fix_tex_indices(self.container.entry_list)
 			self.container.gui.fix_dependencies(self.container.data_list)
@@ -563,7 +563,7 @@ class TextureVisual:
 		self.entry.dtype = FgmDtype[dtype_name]
 		try:
 			self.data.set_defaults()
-			if self.entry.dtype == FgmDtype.Texture:
+			if self.entry.dtype == FgmDtype.TEXTURE:
 				self.entry.value = None
 				self.data.dependency_name.data = ''
 
@@ -592,7 +592,7 @@ class TextureVisual:
 
 	def create_fields(self):
 		rgb_colors = ("_RGB", "Tint", "Discolour", "Colour")
-		if self.entry.dtype == FgmDtype.Texture:
+		if self.entry.dtype == FgmDtype.TEXTURE:
 			assert self.data.dependency_name.data is not None
 			if self.data.dependency_name.data == '':
 				self.data.dependency_name.data = self.container.gui.create_tex_name(self.container.gui.fgm_name, self.entry.name)
@@ -604,7 +604,7 @@ class TextureVisual:
 			return self.w_file,
 		elif self.entry.dtype == FgmDtype.RGBA:
 			return [self.create_field(i, self.entry.value) for i in range(len(self.entry.value))]
-		elif self.entry.dtype == FgmDtype.Float3 and not self.container.gui.skip_color.isChecked() and self.entry.name.endswith(rgb_colors):
+		elif self.entry.dtype == FgmDtype.FLOAT_3 and not self.container.gui.skip_color.isChecked() and self.entry.name.endswith(rgb_colors):
 			return self.create_rgb_field(),
 		else:
 			return [self.create_field(i, self.data.value) for i in range(len(self.data.value))]
@@ -637,8 +637,8 @@ class TextureVisual:
 			# use a closure to remember index
 			target[ind] = int(v)
 
-		t = self.entry.dtype.name
-		if "RGBA" in t:
+		t = self.entry.dtype.name.lower()
+		if "rgba" in t:
 			field = QColorButton()
 			# Create container for transparency background
 			frame = QtWidgets.QFrame()
@@ -660,16 +660,16 @@ class TextureVisual:
 				border-radius: 4px;
 			}}"""))
 
-		elif "Float" in t:
+		elif "float" in t:
 			field = QtWidgets.QDoubleSpinBox()
 			field.setDecimals(3)
 			field.setRange(-10000, 10000)
 			field.setSingleStep(.05)
 			field.valueChanged.connect(update_ind)
-		elif "Bool" in t:
+		elif "bool" in t:
 			field = MySwitch()
 			field.clicked.connect(update_ind)
-		elif "Int" in t:
+		elif "int" in t:
 			default = int(default)
 			field = QtWidgets.QDoubleSpinBox()
 			field.setDecimals(0)
@@ -678,19 +678,19 @@ class TextureVisual:
 		else:
 			raise AttributeError(f"Unsupported field type {t}")
 
-		if "RGBA" in t:
+		if "rgba" in t:
 			field.children()[1].setValue(default)
 		else:
 			field.setValue(default)
 
 		# Connect *after* setting initial value
-		if "RGBA" in t:
+		if "rgba" in t:
 			field.children()[1].colorChanged.connect(self.container.gui.set_dirty)
-		elif "Float" in t:
+		elif "float" in t:
 			field.valueChanged.connect(self.container.gui.set_dirty)
-		elif "Bool" in t:
+		elif "bool" in t:
 			field.clicked.connect(self.container.gui.set_dirty)
-		elif "Int" in t:
+		elif "int" in t:
 			field.valueChanged.connect(self.container.gui.set_dirty)
 
 		field.setMinimumWidth(50)

@@ -41,7 +41,7 @@ class LayeredMaterial:
 					trans_fgm = FgmHeader.from_xml_file(trans_fgm_path, self.context)
 					# print(self.tex_fgm)
 					height_tex = tex_fgm.textures.data[1]
-					height_dep = tex_fgm.dependencies.data[1]
+					height_dep = tex_fgm.name_foreach_textures.data[1]
 					height_file_name = height_dep.dependency_name.data
 					height_file_basename = os.path.splitext(height_file_name)[0]
 					array_index = height_tex.value[0].array_index
@@ -62,7 +62,7 @@ class Layer:
 		self.height_tile_png_path = height_tile_png_path
 		self.trans_fgm = trans_fgm
 		self.lut = {}
-		for attrib, attrib_data in zip(self.trans_fgm.attributes.data, self.trans_fgm.data_lib.data):
+		for attrib, attrib_data in zip(self.trans_fgm.attributes.data, self.trans_fgm.value_foreach_attributes.data):
 			# skip first letter p
 			self.lut[attrib.name.lower()[1:]] = attrib_data.value
 		print(self.trans_fgm)
