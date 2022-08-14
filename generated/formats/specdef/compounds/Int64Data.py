@@ -59,7 +59,7 @@ class Int64Data(MemStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		yield 'imin', Int64, (0, None)
 		yield 'imax', Int64, (0, None)
 		yield 'ivalue', Int64, (0, None)

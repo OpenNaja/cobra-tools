@@ -44,7 +44,7 @@ class ParamList(MemStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		yield 'ptrs', Array, ((instance.arg,), Pointer, 0, generated.formats.renderparameters.compounds.Param.Param)
 
 	def get_info_str(self, indent=0):

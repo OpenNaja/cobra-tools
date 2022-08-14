@@ -48,7 +48,7 @@ class Fragment(BaseStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		yield 'link_ptr', HeaderPointer, (0, None)
 		yield 'struct_ptr', HeaderPointer, (0, None)
 

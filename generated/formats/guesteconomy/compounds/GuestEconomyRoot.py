@@ -196,7 +196,7 @@ class GuestEconomyRoot(MemStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		yield 'target_profit', Uint, (0, None)
 		yield 'u_00', Float, (0, None)
 		yield 'target_dinosaur_prestige', Uint, (0, None)

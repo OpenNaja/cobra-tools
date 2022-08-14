@@ -72,7 +72,7 @@ class State(MemStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		yield 'unk', Uint, (0, None)
 		yield 'activities_count', Uint, (0, None)
 		yield 'activities', Pointer, (instance.activities_count, generated.formats.motiongraph.compounds.PtrList.PtrList)

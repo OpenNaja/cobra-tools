@@ -44,7 +44,7 @@ class CurveRoot(MemStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		yield 'keys', ArrayPointer, (instance.count, generated.formats.curve.compounds.Key.Key)
 		yield 'count', Uint64, (0, None)
 

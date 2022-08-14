@@ -61,7 +61,7 @@ class DependencyEntry(BaseStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		yield 'file_hash', Uint, (0, None)
 		yield 'offset', Uint, (0, None)
 		yield 'file_index', Uint, (0, None)

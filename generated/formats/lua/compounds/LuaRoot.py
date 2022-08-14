@@ -80,7 +80,7 @@ class LuaRoot(MemStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		yield 'lua_size', Uint, (0, None)
 		yield 'sixteenk', Uint, (0, None)
 		yield 'hash', Uint, (0, None)

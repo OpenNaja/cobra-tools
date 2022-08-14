@@ -343,7 +343,7 @@ class JanitorSettingsRoot(MemStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		yield 'array_0', ArrayPointer, (instance.count_0, generated.formats.janitorsettings.compounds.UIntPair.UIntPair)
 		yield 'array_1', ArrayPointer, (instance.count_1, generated.formats.janitorsettings.compounds.UIntPair.UIntPair)
 		yield 'array_2', ArrayPointer, (instance.count_2, generated.formats.janitorsettings.compounds.UIntPair.UIntPair)

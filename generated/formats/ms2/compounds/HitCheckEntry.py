@@ -135,7 +135,7 @@ class HitCheckEntry(BaseStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		yield 'type', CollisionType, (0, None)
 		yield 'flag_0', Ushort, (0, None)
 		yield 'flag_1', Ushort, (0, None)

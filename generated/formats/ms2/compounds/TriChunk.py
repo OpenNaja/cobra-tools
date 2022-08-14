@@ -83,7 +83,7 @@ class TriChunk(BaseStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		yield 'bounds_min', Vector3, (0, None)
 		yield 'material_index', Ushort, (0, None)
 		yield 'tris_count', Ushort, (0, None)

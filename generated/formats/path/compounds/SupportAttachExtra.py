@@ -46,7 +46,7 @@ class SupportAttachExtra(SupportAttach):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		yield 'unk_float_1', Float, (0, None)
 		yield 'unk_int_3', Uint, (0, None)
 		yield 'padding', Uint64, (0, None)

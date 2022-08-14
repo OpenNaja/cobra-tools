@@ -38,7 +38,7 @@ class Data(MemStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		yield 'floats', Array, ((16,), Float, 0, None)
 
 	def get_info_str(self, indent=0):

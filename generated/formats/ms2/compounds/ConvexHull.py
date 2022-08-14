@@ -67,7 +67,7 @@ class ConvexHull(BaseStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		yield 'vertex_count', Uint, (0, None)
 		yield 'rotation', Matrix33, (0, None)
 		yield 'offset', Vector3, (0, None)

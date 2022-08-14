@@ -44,7 +44,7 @@ class ForEachPointer(Pointer):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 
 	def get_info_str(self, indent=0):
 		return f'ForEachPointer [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

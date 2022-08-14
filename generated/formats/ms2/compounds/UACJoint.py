@@ -51,7 +51,7 @@ class UACJoint(BaseStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		yield 'unk', Array, ((6,), Ushort, 0, None)
 		yield 'floats', Array, ((6,), Float, 0, None)
 

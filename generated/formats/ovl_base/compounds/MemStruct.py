@@ -86,7 +86,7 @@ class MemStruct(BaseStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 
 	def get_props_and_ptrs(self):
 		return [(prop, val) for prop, val in vars(self).items() if isinstance(val, Pointer)]
@@ -98,7 +98,7 @@ class MemStruct(BaseStruct):
 		return [val for prop, val in vars(self).items() if isinstance(val, MemStruct)]
 
 	def handle_write(self, prop, val, struct_ptr, loader, pool_type, is_member=False):
-		# logging.debug(f"handle_write {prop} {type(val).__name__}, {len(loader.fragments)} frags")
+		# logging.debug(f"handle_write {prop} {type(self).__name__}, {len(loader.fragments)} frags")
 		if isinstance(val, MemStruct):
 			val.write_ptrs(loader, struct_ptr, pool_type, is_member=is_member)
 		elif isinstance(val, Array):
@@ -108,7 +108,7 @@ class MemStruct(BaseStruct):
 			# usually we add a pointer for empty arrays
 			if val.data is not None:
 				if DEPENDENCY_TAG in prop:
-					# logging.debug(f"Created dependency for {prop} = {val.data}")
+					# logging.debug(f"Created dependency for {prop} = {self.data}")
 					val.frag = loader.create_dependency(val.data)
 				else:
 					val.frag = loader.create_fragment()
@@ -242,22 +242,22 @@ class MemStruct(BaseStruct):
 
 	def _from_xml(self, target, elem, prop, val):
 		"""Populates this MemStruct from the xml elem"""
-		# print("_from_xml", elem, prop, val)
+		# print("_from_xml", elem, prop, self)
 		if isinstance(val, Pointer):
 			if DEPENDENCY_TAG in prop:
 				data = elem.text
 				if data != "None":
-					# logging.debug(f"Setting dependency {type(val).__name__}.data = {data}")
+					# logging.debug(f"Setting dependency {type(self).__name__}.data = {data}")
 					val.data = data
 			if val.template is None:
 				# logging.debug(f"No template set for pointer '{prop}' on XML element '{elem.tag}'")
 				return
 			if POOL_TYPE in elem.attrib:
 				val.pool_type = int(elem.attrib[POOL_TYPE])
-				# logging.debug(f"Set pool type {val.pool_type} for pointer {prop}")
+				# logging.debug(f"Set pool type {self.pool_type} for pointer {prop}")
 			# else:
 			# 	# logging.debug(f"Missing pool type for pointer '{prop}' on '{elem.tag}'")
-			# print("val.template", val.template)
+			# print("self.template", self.template)
 			if isinstance(val, ArrayPointer):
 				# print("ArrayPointer", elem, len(elem))
 				val.data = Array((len(elem)), val.template, val.context, set_default=False)
@@ -271,7 +271,7 @@ class MemStruct(BaseStruct):
 				return
 			else:
 				# print("other pointer")
-				# logging.debug(f"Creating pointer.data = {val.template.__name__}()")
+				# logging.debug(f"Creating pointer.data = {self.template.__name__}()")
 				val.data = val.template(self._context, val.arg, None)
 			self._from_xml(val, elem, self._handle_xml_str(prop), val.data)
 		elif isinstance(val, Array):
@@ -286,7 +286,7 @@ class MemStruct(BaseStruct):
 			if elem.text is not None:
 				arr = np.fromstring(elem.text, dtype=val.dtype, sep=' ')
 				setattr(target, prop, arr)
-				# logging.debug(f"ndarray {arr}, {val.dtype}, {type(arr)}")
+				# logging.debug(f"ndarray {arr}, {self.dtype}, {type(arr)}")
 		elif isinstance(val, MemStruct):
 			# print("MemStruct")
 			val.from_xml(elem)
@@ -325,69 +325,72 @@ class MemStruct(BaseStruct):
 			else:
 				setattr(target, prop, None)
 
-	def to_xml_file(self, file_path, debug=False):
-		"""Create an xml elem representing this MemStruct, recursively set its data, indent and save to 'file_path'"""
-		xml = ET.Element(self.__class__.__name__)
-		self.to_xml(xml, debug)
-		xml.attrib["game"] = str(get_game(self.context)[0])
-		indent(xml)
-		with open(file_path, 'wb') as outfile:
-			outfile.write(ET.tostring(xml))
-
-	def _to_xml(self, elem, prop, val, debug):
-		"""Assigns data val to xml elem"""
-		# logging.debug(f"_to_xml {elem.tag} - {prop}")
-		if isinstance(val, Pointer):
-			if val.frag and hasattr(val.frag, "struct_ptr"):
-				f_ptr = val.frag.struct_ptr
-				if debug:
-					elem.set("_address", f"{f_ptr.pool_index} {f_ptr.data_offset}")
-					elem.set("_size", f"{f_ptr.data_size}")
-				elem.set(POOL_TYPE, f"{f_ptr.pool.type}")
-			elif hasattr(val, POOL_TYPE):
-				if val.pool_type is not None:
-					elem.set(POOL_TYPE, f"{val.pool_type}")
-			self._to_xml(elem, self._handle_xml_str(prop), val.data, debug)
-		elif isinstance(val, Array):
-			for member in val:
-				cls_name = member.__class__.__name__.lower()
-				member_elem = ET.SubElement(elem, cls_name)
-				self._to_xml(member_elem, cls_name, member, debug)
-		elif isinstance(val, ndarray):
-			# elem.attrib[prop] = " ".join([str(member) for member in val])
-			elem.text = " ".join([str(member) for member in val])
-		elif isinstance(val, MemStruct):
-			val.to_xml(elem, debug)
-		# basic attribute
-		else:
-			if prop == XML_STR:
-				if val is not None:
-					elem.append(ET.fromstring(val))
-				else:
-					logging.warning(f"bug, val should not be None for XML_STR")
-			# for better readability, set ztsr pointer data as xml text
-			elif prop == "data":
-				if val:
-					elem.text = str(val)
-			# actual basic attributes
-			else:
-				elem.set(prop, str(val))
-
-	def to_xml(self, elem, debug):
-		"""Adds data of this MemStruct to 'elem', recursively"""
-		# go over all fields of this MemStruct
-		for prop, val in vars(self).items():
-			if prop == "name" and val:
-				elem.attrib[prop] = val
-			# skip dummy properties
-			if prop in SKIPS:
-				continue
-			# add a sub-element if these are child of a MemStruct
-			if isinstance(val, (MemStruct, Array, ndarray, Pointer)):
-				sub = ET.SubElement(elem, prop)
-				self._to_xml(sub, prop, val, debug)
-			else:
-				self._to_xml(elem, prop, val, debug)
+	# def to_xml_file(self, file_path, debug=False):
+	# 	"""Create an xml elem representing this MemStruct, recursively set its data, indent and save to 'file_path'"""
+	# 	xml = ET.Element(self.__class__.__name__)
+	# 	self.to_xml(xml, debug)
+	# 	xml.attrib["game"] = str(get_game(self.context)[0])
+	# 	indent(xml)
+	# 	with open(file_path, 'wb') as outfile:
+	# 		outfile.write(ET.tostring(xml))
+	#
+	# def _to_xml(self, elem, prop, val, debug):
+	# 	"""Assigns data self to xml elem"""
+	# 	logging.debug(f"_to_xml {elem.tag} - {prop}")
+	# 	if isinstance(val, Pointer):
+	# 		if val.frag and hasattr(val.frag, "struct_ptr"):
+	# 			f_ptr = val.frag.struct_ptr
+	# 			if debug:
+	# 				elem.set("_address", f"{f_ptr.pool_index} {f_ptr.data_offset}")
+	# 				elem.set("_size", f"{f_ptr.data_size}")
+	# 			elem.set(POOL_TYPE, f"{f_ptr.pool.type}")
+	# 		elif hasattr(val, POOL_TYPE):
+	# 			if val.pool_type is not None:
+	# 				elem.set(POOL_TYPE, f"{val.pool_type}")
+	# 		self._to_xml(elem, self._handle_xml_str(prop), val.data, debug)
+	# 	elif isinstance(val, Array):
+	# 	# if isinstance(val, Array):
+	# 		for member in val:
+	# 			cls_name = member.__class__.__name__.lower()
+	# 			member_elem = ET.SubElement(elem, cls_name)
+	# 			self._to_xml(member_elem, cls_name, member, debug)
+	# 	elif isinstance(val, ndarray):
+	# 		# elem.attrib[prop] = " ".join([str(member) for member in self])
+	# 		elem.text = " ".join([str(member) for member in val])
+	# 	elif isinstance(val, MemStruct):
+	# 		val.to_xml(elem, debug)
+	# 	# basic attribute
+	# 	else:
+	# 		if prop == XML_STR:
+	# 			if val is not None:
+	# 				elem.append(ET.fromstring(val))
+	# 			else:
+	# 				logging.warning(f"bug, self should not be None for XML_STR")
+	# 		# for better readability, set ztsr pointer data as xml text
+	# 		elif prop == "data":
+	# 			if val:
+	# 				elem.text = str(val)
+	# 		# actual basic attributes
+	# 		else:
+	# 			elem.set(prop, str(val))
+	#
+	# def to_xml(self, elem, debug):
+	# 	"""Adds data of this MemStruct to 'elem', recursively"""
+	# 	# go over all fields of this MemStruct
+	# 	for prop, val in vars(self).items():
+	# 		if prop == "name" and val:
+	# 			elem.attrib[prop] = val
+	# 		# skip dummy properties
+	# 		if prop in SKIPS:
+	# 			continue
+	# 		# add a sub-element if these are child of a MemStruct
+	# 		if isinstance(val, Pointer):
+	# 			Pointer.to_xml(elem, prop, val, (), debug)
+	# 		elif isinstance(val, (MemStruct, Array, ndarray)):
+	# 			sub = ET.SubElement(elem, prop)
+	# 			self._to_xml(sub, prop, val, debug)
+	# 		else:
+	# 			self._to_xml(elem, prop, val, debug)
 
 	def get_info_str(self):
 		return f'\nMemStruct'

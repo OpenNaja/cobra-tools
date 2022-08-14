@@ -133,7 +133,7 @@ class ZtMeshData(MeshData):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		yield 'tri_index_count', Uint, (0, None)
 		yield 'vertex_count', Uint, (0, None)
 		yield 'tri_info_offset', Uint, (0, None)

@@ -76,7 +76,7 @@ class OvsHeader(BaseStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		yield 'pool_groups', Array, ((instance.arg.num_pool_groups,), PoolGroup, 0, None)
 		yield 'pools', Array, ((instance.arg.num_pools,), MemPool, 0, None)
 		yield 'data_entries', Array, ((instance.arg.num_datas,), DataEntry, 0, None)

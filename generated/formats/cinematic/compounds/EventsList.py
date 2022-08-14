@@ -44,7 +44,7 @@ class EventsList(MemStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		yield 'events', ArrayPointer, (instance.count, generated.formats.cinematic.compounds.Event.Event)
 		yield 'count', Uint64, (0, None)
 

@@ -23,7 +23,7 @@ class HitcheckReader(BaseStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 
 	def __init__(self, context, arg=None, template=None, set_default=True):
 		self.name = ''

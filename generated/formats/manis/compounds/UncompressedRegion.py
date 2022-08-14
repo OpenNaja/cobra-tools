@@ -75,7 +75,7 @@ class UncompressedRegion(BaseStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		yield 'zeros_0', Array, ((2,), Uint, 0, None)
 		yield 'unk_0', Ushort, (0, None)
 		yield 'unk_1', Ushort, (0, None)

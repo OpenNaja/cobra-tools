@@ -45,7 +45,7 @@ class AkMediaInformation(BaseStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		yield 'source_i_d', Uint, (0, None)
 		yield 'u_in_memory_media_size', Uint, (0, None)
 		yield 'u_source_bits', Ubyte, (0, None)

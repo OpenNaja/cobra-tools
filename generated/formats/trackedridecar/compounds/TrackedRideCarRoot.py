@@ -76,7 +76,7 @@ class TrackedRideCarRoot(MemStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		yield 'sub', ArrayPointer, (instance.sub_count, generated.formats.trackedridecar.compounds.TrackedRideCarSub.TrackedRideCarSub)
 		yield 'sub_count', Uint, (0, None)
 		yield 'total_vecs_count', Uint, (0, None)

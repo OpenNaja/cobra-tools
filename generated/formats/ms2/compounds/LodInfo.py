@@ -121,7 +121,7 @@ class LodInfo(BaseStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		if instance.context.version <= 13:
 			yield 'full', Short, (0, None)
 			yield 'half', Short, (0, None)

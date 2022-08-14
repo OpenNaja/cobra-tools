@@ -81,7 +81,7 @@ class MotiongraphRootFrag(MemStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		yield 'num_activities', Uint64, (0, None)
 		yield 'activities', Pointer, (instance.num_activities, generated.formats.motiongraph.compounds.Activities.Activities)
 		yield 'count_1', Uint64, (0, None)

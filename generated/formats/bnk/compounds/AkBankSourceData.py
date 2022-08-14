@@ -46,7 +46,7 @@ class AkBankSourceData(BaseStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		yield 'ul_plugin_i_d', Uint, (0, None)
 		yield 'stream_type', Ubyte, (0, None)
 		yield 'ak_media_information', AkMediaInformation, (0, None)

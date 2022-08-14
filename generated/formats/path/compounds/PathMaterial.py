@@ -110,7 +110,7 @@ class PathMaterial(MemStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		yield 'elevated_mat', Pointer, (0, generated.formats.base.basic.ZString)
 		yield 'elevated_mat_valid', Pointer, (0, generated.formats.base.basic.ZString)
 		yield 'elevated_mat_invalid', Pointer, (0, generated.formats.base.basic.ZString)

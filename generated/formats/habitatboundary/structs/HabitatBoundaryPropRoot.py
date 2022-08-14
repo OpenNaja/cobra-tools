@@ -109,7 +109,7 @@ class HabitatBoundaryPropRoot(MemStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		yield 'type', Uint64, (0, None)
 		yield 'prefab', Pointer, (0, generated.formats.base.basic.ZString)
 		yield 'u_1', Uint64, (0, None)

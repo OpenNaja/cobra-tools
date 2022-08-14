@@ -61,7 +61,7 @@ class AkTrackSrcInfo(BaseStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		yield 'track_i_d', Uint, (0, None)
 		yield 'source_i_d', Uint, (0, None)
 		yield 'event_i_d', Uint, (0, None)

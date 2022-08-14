@@ -47,7 +47,7 @@ class TwoPtrFirst(MemStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		yield 'ptr', Pointer, (0, None)
 		yield 'count_0', Uint64, (0, None)
 

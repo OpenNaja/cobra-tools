@@ -47,7 +47,7 @@ class MusicTrack(BaseStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		yield 'length', Uint, (0, None)
 		yield 'id', Uint, (0, None)
 		yield 'data', MusicTrackInitialValues, (0, None)

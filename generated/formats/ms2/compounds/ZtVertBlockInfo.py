@@ -51,7 +51,7 @@ class ZtVertBlockInfo(BaseStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		yield 'vertex_count', Uint, (0, None)
 		yield 'flags', Array, ((8,), Ubyte, 0, None)
 		yield 'zero', Uint, (0, None)

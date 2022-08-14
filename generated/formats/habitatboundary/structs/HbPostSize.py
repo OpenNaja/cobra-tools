@@ -50,7 +50,7 @@ class HbPostSize(MemStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		yield 'front_back', Float, (0, None)
 		yield 'left_right', Float, (0, None)
 		yield 'top', Float, (0, None)

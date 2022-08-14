@@ -44,7 +44,7 @@ class AssetpkgRoot(MemStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		yield 'asset_path', Pointer, (0, generated.formats.base.basic.ZString)
 		yield 'zero', Uint64, (0, None)
 

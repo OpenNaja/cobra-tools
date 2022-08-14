@@ -42,7 +42,7 @@ class SinglePtr(MemStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		yield 'ptr', Pointer, (0, instance.template)
 
 	def get_info_str(self, indent=0):

@@ -45,7 +45,7 @@ class UserinterfaceicondataRoot(MemStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		yield 'tex_name', Pointer, (0, generated.formats.base.basic.ZString)
 		yield 'ovl_name', Pointer, (0, generated.formats.base.basic.ZString)
 

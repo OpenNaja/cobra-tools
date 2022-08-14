@@ -52,7 +52,7 @@ class HIRCSection(BaseStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		yield 'length', Uint, (0, None)
 		yield 'count', Uint, (0, None)
 		yield 'hirc_pointers', Array, ((instance.count,), HircPointer, 0, None)

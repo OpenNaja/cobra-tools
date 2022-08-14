@@ -76,7 +76,7 @@ class NasutoJointEntry(BaseStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		yield 'child', Ubyte, (0, None)
 		yield 'parent', Ubyte, (0, None)
 		yield 'zero', Ushort, (0, None)

@@ -73,7 +73,7 @@ class FileEntry(BaseStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		yield 'offset', Uint, (0, None)
 		yield 'file_hash', Uint, (0, None)
 		yield 'pool_type', Byte, (0, None)

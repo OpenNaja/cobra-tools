@@ -50,7 +50,7 @@ class BooleanData(MemStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		yield 'value', Ubyte, (0, None)
 		yield 'default', Ubyte, (0, None)
 		yield 'unused', Array, ((6,), Ubyte, 0, None)

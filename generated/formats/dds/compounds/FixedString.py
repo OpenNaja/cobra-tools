@@ -13,7 +13,7 @@ class FixedString(BaseStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 
 	def __init__(self, context, arg=0, template=None):
 		self.name = ''

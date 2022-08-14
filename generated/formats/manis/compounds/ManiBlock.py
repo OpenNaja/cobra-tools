@@ -251,7 +251,7 @@ class ManiBlock(BaseStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		yield 'ref', Empty, (0, None)
 		if instance.context.version == 18:
 			yield 'pos_bones', Array, ((instance.arg.pos_bone_count,), Ushort, 0, None)

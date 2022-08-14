@@ -79,7 +79,7 @@ class State(MemStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		yield 'abstract_name', Pointer, (0, generated.formats.base.basic.ZString)
 		yield 'concrete_name', Pointer, (0, generated.formats.base.basic.ZString)
 		yield 'debug_name', Pointer, (0, generated.formats.base.basic.ZString)

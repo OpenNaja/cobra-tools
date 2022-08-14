@@ -189,10 +189,10 @@ class Array(list):
         cls._to_xml(instance, sub, debug)
 
     @classmethod
-    def _to_xml(cls, instance, elem, dtype, debug):
-        dtype_name = dtype.__name__.lower()
+    def _to_xml(cls, instance, elem, debug):
+        # dtype_name = dtype.__name__.lower()
         for i, dtype, arguments in cls._get_filtered_attribute_list(instance, instance.dtype):
-            dtype.to_xml(elem, f'{dtype_name}{i}', instance[i], debug)
+            dtype.to_xml(elem, f'member{i}', instance[i], (), debug)
 
 
 def _class_to_name(cls):

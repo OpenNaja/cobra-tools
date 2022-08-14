@@ -59,7 +59,7 @@ class RenderParametersRoot(MemStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		yield 'param_name', Pointer, (0, generated.formats.ovl_base.basic.ZStringObfuscated)
 		yield 'params', Pointer, (instance.count, generated.formats.renderparameters.compounds.ParamList.ParamList)
 		yield 'count', Uint64, (0, None)

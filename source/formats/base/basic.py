@@ -105,7 +105,7 @@ def class_from_struct(struct, from_value_func):
 
         @staticmethod
         def to_xml_array(elem, prop, instance, arguments, debug):
-            shape, arg, template = arguments
+            shape, dtype, arg, template = arguments
             sub = ET.SubElement(elem, prop)
             sub.text = " ".join([str(member) for member in instance.flat])
 

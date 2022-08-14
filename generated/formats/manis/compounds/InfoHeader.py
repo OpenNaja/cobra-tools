@@ -66,7 +66,7 @@ class InfoHeader(GenericHeader):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		yield 'mani_count', Uint, (0, None)
 		yield 'names', Array, ((instance.mani_count,), ZString, 0, None)
 		yield 'header', SizedStrData, (0, None)

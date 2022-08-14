@@ -48,7 +48,7 @@ class ZlibInfo(BaseStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		yield 'zlib_thing_1', Uint, (0, None)
 		yield 'zlib_thing_2', Uint, (0, None)
 

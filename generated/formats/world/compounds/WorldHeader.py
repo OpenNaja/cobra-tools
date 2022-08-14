@@ -93,7 +93,7 @@ class WorldHeader(MemStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		yield 'world_type', Uint64, (0, None)
 		yield 'asset_pkgs', Pointer, (instance.asset_pkg_count, generated.formats.world.compounds.PtrList.PtrList)
 		yield 'asset_pkg_count', Uint64, (0, None)

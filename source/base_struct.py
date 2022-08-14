@@ -116,12 +116,18 @@ class BaseStruct:
 	@classmethod
 	def to_xml(cls, elem, prop, instance, arguments, debug):
 		"""Adds this struct to 'elem', recursively"""
-		sub = ET.SubElement(elem, cls.__name__)
+		print("to_xml", cls, prop, arguments, debug)
+		# sub = ET.SubElement(elem, cls.__name__)
+		sub = ET.SubElement(elem, prop)
 		cls._to_xml(instance, sub, debug)
 
 	@classmethod
 	def _to_xml(cls, instance, elem, debug):
+		print("_to_xml", cls, debug)
 		# go over all fields of this struct
+		# print(instance.__class__)
+		li = list(cls._get_filtered_attribute_list(instance))
+		# print(li)
 		for prop, field_type, arguments in cls._get_filtered_attribute_list(instance):
 			if prop in SKIPS:
 				continue
@@ -140,7 +146,7 @@ class BaseStruct:
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		pass
+		yield from ()
 
 	@classmethod
 	def from_stream(cls, stream, context, arg=0, template=None):

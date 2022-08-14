@@ -54,7 +54,7 @@ class Dxt10Header(BaseStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		yield 'dxgi_format', DxgiFormat, (0, None)
 		yield 'resource_dimension', D3D10ResourceDimension, (0, None)
 		yield 'misc_flag', Uint, (0, None)

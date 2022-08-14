@@ -93,7 +93,7 @@ class Perk(MemStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		yield 'unk_0', Uint64, (0, None)
 		yield 'building_cost', Uint64, (0, None)
 		yield 'running_cost_base', Uint64, (0, None)

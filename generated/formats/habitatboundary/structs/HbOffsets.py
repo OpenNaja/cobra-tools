@@ -49,7 +49,7 @@ class HbOffsets(MemStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		yield 'physics', HbPhysicsOffsets, (0, None)
 		yield 'post_height_offset', Float, (0, None)
 		yield 'wall_height', Float, (0, None)

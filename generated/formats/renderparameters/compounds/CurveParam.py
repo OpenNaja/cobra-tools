@@ -63,7 +63,7 @@ class CurveParam(MemStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		yield 'attribute_name', Pointer, (0, generated.formats.base.basic.ZString)
 		yield 'dtype', Int, (0, None)
 		yield 'do_interpolation', Uint, (0, None)

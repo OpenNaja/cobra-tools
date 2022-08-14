@@ -61,7 +61,7 @@ class ResearchLevel(MemStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		yield 'level_name', Pointer, (0, generated.formats.base.basic.ZString)
 		yield 'next_levels', Pointer, (instance.next_level_count, generated.formats.animalresearch.compounds.PtrList.PtrList)
 		yield 'next_level_count', Uint64, (0, None)

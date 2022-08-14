@@ -86,7 +86,7 @@ class RestaurantSettingsRoot(MemStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		yield 'running_cost_base', Uint64, (0, None)
 		yield 'unk_1', Uint, (0, None)
 		yield 'unk_2', Float, (0, None)

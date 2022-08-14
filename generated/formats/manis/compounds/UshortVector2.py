@@ -48,7 +48,7 @@ class UshortVector2(BaseStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		yield 'u', Ushort, (0, None)
 		yield 'v', Ushort, (0, None)
 

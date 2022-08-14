@@ -1,7 +1,16 @@
 # START_GLOBALS
 import struct
+import xml.etree.ElementTree as ET
 from generated.base_struct import BaseStruct
 # from generated.formats.ovl.compounds.Fragment import Fragment
+
+ZERO = b"\x00"
+# these attributes present on the MemStruct will not be stored on the XML
+SKIPS = ("_context", "arg", "name", "io_start", "io_size", "template")
+POOL_TYPE = "pool_type"
+DTYPE = "dtype"
+XML_STR = "xml_string"
+DEPENDENCY_TAG = "dependency"
 
 # END_GLOBALS
 
@@ -77,6 +86,32 @@ class Pointer(BaseStruct):
 	def write_template(self):
 		assert self.template is not None
 		self.frag.struct_ptr.write_instance(self.template, self.data)
+
+	@classmethod
+	def to_xml(cls, elem, prop, instance, arguments, debug):
+		"""Adds this struct to 'elem', recursively"""
+		print("to_xml", cls, prop, arguments, debug)
+		# sub = ET.SubElement(elem, cls.__name__)
+		sub = ET.SubElement(elem, prop)
+		if instance.frag and hasattr(instance.frag, "struct_ptr"):
+			f_ptr = instance.frag.struct_ptr
+			if debug:
+				sub.set("_address", f"{f_ptr.pool_index} {f_ptr.data_offset}")
+				sub.set("_size", f"{f_ptr.data_size}")
+			sub.set(POOL_TYPE, f"{f_ptr.pool.type}")
+		elif hasattr(instance, POOL_TYPE):
+			if instance.pool_type is not None:
+				# todo - make conditional on dtype
+				sub.set(POOL_TYPE, f"{instance.pool_type}")
+		cls._to_xml(instance, sub, debug)
+
+	@classmethod
+	def _to_xml(cls, instance, elem, debug):
+		"""Assigns data self to xml elem"""
+		# elem, prop, instance, arguments, debug
+		# instance.template.to_xml(elem, instance._handle_xml_str(prop), instance.data, arguments, debug)
+		# instance.template.to_xml(elem, "data", instance.data, (), debug)
+		instance.template._to_xml(instance.data, elem, debug)
 
 	def __repr__(self):
 		s = self.get_info_str()

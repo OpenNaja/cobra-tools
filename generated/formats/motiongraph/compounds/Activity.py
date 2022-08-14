@@ -80,7 +80,7 @@ class Activity(MemStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		yield 'data_type', Pointer, (0, generated.formats.base.basic.ZString)
 		yield 'ptr', Pointer, (0, None)
 		yield 'count_2', Uint64, (0, None)

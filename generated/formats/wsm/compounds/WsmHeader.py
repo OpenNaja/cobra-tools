@@ -70,7 +70,7 @@ class WsmHeader(MemStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		yield 'duration', Float, (0, None)
 		yield 'frame_count', Uint, (0, None)
 		yield 'unknowns', Array, ((8,), Float, 0, None)

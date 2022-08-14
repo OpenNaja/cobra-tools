@@ -368,7 +368,7 @@ class MemStructLoader(BaseFile):
 	def extract(self, out_dir):
 		name = self.root_entry.name
 		out_path = out_dir(name)
-		self.header.to_xml_file(out_path)
+		self.header.to_xml_file(self.header, out_path)
 		return out_path,
 
 	def collect(self):

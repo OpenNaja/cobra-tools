@@ -74,7 +74,7 @@ class MergedetailsRoot(MemStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		yield 'merge_names', Pointer, (instance.count, generated.formats.mergedetails.compounds.PtrList.PtrList)
 		yield 'zero_0', Uint64, (0, None)
 		yield 'zero_1', Uint64, (0, None)

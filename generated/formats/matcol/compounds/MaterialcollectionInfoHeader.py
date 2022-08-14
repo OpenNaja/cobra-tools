@@ -56,7 +56,7 @@ class MaterialcollectionInfoHeader(GenericHeader):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		yield 'root', MatcolRoot, (0, None)
 		yield 'info', RootFrag, (0, None)
 		yield 'textures', Array, ((instance.info.tex_count,), Texture, 0, None)

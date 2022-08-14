@@ -49,7 +49,7 @@ class PathSupport(MemStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		yield 'support', Pointer, (0, generated.formats.base.basic.ZString)
 		yield 'unk_float_1', Float, (0, None)
 		yield 'unk_int_1', Uint, (0, None)

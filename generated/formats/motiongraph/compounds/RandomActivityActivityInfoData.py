@@ -64,7 +64,7 @@ class RandomActivityActivityInfoData(MemStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		yield 'enum_variable', Pointer, (0, generated.formats.base.basic.ZString)
 		yield 'activities', Pointer, (0, None)
 		yield 'activities_count', Uint64, (0, None)

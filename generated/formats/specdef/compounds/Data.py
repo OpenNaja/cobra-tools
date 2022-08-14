@@ -133,7 +133,7 @@ class Data(MemStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		if instance.arg == 0:
 			yield 'dtype', BooleanData, (0, None)
 		if instance.arg == 1:
