@@ -118,7 +118,7 @@ def create_material(in_dir, matname):
 			tree.links.new(diffuse.outputs[0], principled.inputs["Base Color"])
 			break
 
-	for normal_name in ("pnormaltexture", "pbasenormaltexture_[0]"):
+	for normal_name in ("pnormaltexture", "pbasenormaltexture_[00]"):
 		# get diffuse
 		if normal_name in tex_dic:
 			normal = tex_dic[normal_name]
@@ -136,7 +136,7 @@ def create_material(in_dir, matname):
 			tree.links.new(specular.outputs[0], principled.inputs["Specular"])
 
 	# PZ - roughness?
-	for roughness_name in ("proughnesspackedtexture_[01]", "pbasenormaltexture_[2]"): # "pspecularmaptexture_[01]" ?
+	for roughness_name in ("proughnesspackedtexture_[01]", "pbasenormaltexture_[02]"): # "pspecularmaptexture_[01]" ?
 		if roughness_name in tex_dic:
 			roughness = tex_dic[roughness_name]
 			roughness.image.colorspace_settings.name = "Non-Color"

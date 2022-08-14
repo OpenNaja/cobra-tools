@@ -7,6 +7,7 @@ from root_path import root_dir
 
 
 def save_config(cfg_dict):
+	logging.info(f"Saving config")
 	with open(os.path.join(root_dir, "config.json"), "w") as json_writer:
 		json.dump(cfg_dict, json_writer, indent="\t", sort_keys=True)
 
