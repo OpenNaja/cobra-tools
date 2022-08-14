@@ -118,6 +118,13 @@ def name_enum_key(name):
     return '_'.join(part.upper() for part in name_parts(name))
 
 
+def name_enum_key_if_necessary(name):
+    if len(name.split()) > 1 or name.upper() != name:
+        return name_enum_key(name)
+    else:
+        return name
+
+
 def clean_comment_str(comment_str="", indent="", class_comment=""):
     """Reformats an XML comment string into multi-line a python style comment block"""
     if comment_str is None:
@@ -142,9 +149,23 @@ def name_module(name):
     return name.lower()
 
 
+def str_is_number(str_expr):
+    # check if it might be an int:
+    try:
+        int_value = int(str_expr, 0)
+        return True
+    except ValueError:
+        # could still be a float
+        try:
+            float_value = float(str_expr)
+            return True
+        except ValueError:
+            return False
+
+
 def format_potential_tuple(value):
-    """Converts xml attribute value lists to tuples if space is present,
-    otherwise leaves it alone.
+    """Converts xml attribute value lists to tuples if space is present and all
+    space-separated values can be converted to numbers, otherwise leaves it alone.
     :param value: the string that is the value of an attribute
     :return: original string if no space is present, or commas as separators
     and surrounding parentheses if whitespace is present.
@@ -153,7 +174,10 @@ def format_potential_tuple(value):
     >>> format_potential_tuple('1.0 1.0 1.0')
     '(1.0, 1.0, 1.0)'"""
     if ' ' in value:
-        return f"({', '.join(value.split())})"
+        if all([str_is_number(potential_number) for potential_number in value.split()]):
+            return f"({', '.join(value.split())})"
+        else:
+            return value
     else:
         return value
 

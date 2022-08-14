@@ -5,7 +5,7 @@ import logging
 import numpy as np
 from collections import defaultdict, Counter
 
-from generated.formats.fgm.compound.FgmHeader import FgmHeader
+from generated.formats.fgm.compounds.FgmHeader import FgmHeader
 from generated.formats.ovl_base import OvlContext
 
 from generated.formats.ms2 import Ms2File

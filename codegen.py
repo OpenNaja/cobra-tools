@@ -47,9 +47,10 @@ class XmlParser:
             "BasicBitfield": "bitfield",
             "BitfieldMember": "bitfield",
             "basic_map": os.path.join(self.base_segments, "basic"),
-            "versions": "versions",
+            "versions": self.base_segments,
             "ContextReference": "context",
             "BaseEnum": "base_enum",
+            "BaseStruct": "base_struct",
             }
         # enum name -> storage name
         self.storage_dict = {}
@@ -74,6 +75,7 @@ class XmlParser:
             # only check stuff that has a name - ignore version tags
             if child.tag.split('}')[-1] not in ("version", "token", "include", "verattr"):
                 base_segments = self.base_segments
+                name_safe_tag = child.tag
                 if child.tag == "module":
                     # for modules, set the path to base/module_name
                     class_name = child.attrib["name"]
@@ -82,17 +84,22 @@ class XmlParser:
                     class_segments = ["basic"]
                     class_name = child.attrib["name"]
                     if Basics.suitable_for_enum(child):
-                        self.path_dict[Enum.base_from_storage(class_name)] = os.path.join(base_segments, 'enum',)
+                        self.path_dict[Enum.base_from_storage(class_name)] = os.path.join(base_segments, 'enums',)
+                        # self.path_dict[Enum.base_from_storage(class_name)] = os.path.join(base_segments, 'enum',)
                 else:
+                    name_safe_tag = child.tag + "s"
                     # for classes, set the path to module_path/tag/class_name or
                     # base/tag/class_name if it's not part of a module
                     class_name = child.attrib["name"]
                     if child.attrib.get("module"):
                         base_segments = self.path_dict[child.attrib["module"]]
-                    class_segments = [child.tag, class_name, ]
+                    # if child.tag == "enum":
+                    #     tag = "enums"
+                    class_segments = [name_safe_tag, class_name, ]
                 # store the final relative module path for this class
                 self.path_dict[class_name] = os.path.join(base_segments, *class_segments)
-                self.tag_dict[class_name.lower()] = child.tag
+                # self.tag_dict[class_name.lower()] = child.tag
+                self.tag_dict[class_name.lower()] = name_safe_tag
 
     def load_xml(self, xml_file, parsed_xmls=None):
         """Loads an XML (can be filepath or open file) and does all parsing
@@ -196,6 +203,8 @@ class XmlParser:
                 self.apply_convention(struct, convention.force_bool, ("boolean", "integral", "countable", "generic"))
             elif struct.tag == "enum":
                 self.apply_convention(struct, convention.name_class, ("storage",))
+                for option in struct:
+                    self.apply_convention(option, convention.name_enum_key_if_necessary, ("name", ))
             elif struct.tag in self.bitstruct_types:
                 self.apply_convention(struct, convention.name_class, ("storage",))
                 # a bitfield/bitflags fields
@@ -203,6 +212,7 @@ class XmlParser:
                     self.apply_convention(field, convention.name_attribute, ("name",))
                     self.apply_convention(field, convention.name_class, ("type",))
             elif struct.tag in self.struct_types:
+                self.apply_convention(struct, convention.force_bool, ("generic",))
                 # a struct's fields
                 for field in struct:
                     self.apply_convention(field, convention.name_attribute, ("name",))

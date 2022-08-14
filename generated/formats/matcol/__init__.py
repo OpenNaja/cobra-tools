@@ -1,5 +1,5 @@
 from generated.formats.matcol.basic import basic_map
-from generated.formats.matcol.compound.MaterialcollectionInfoHeader import MaterialcollectionInfoHeader
+from generated.formats.matcol.compounds.MaterialcollectionInfoHeader import MaterialcollectionInfoHeader
 from generated.formats.ovl_base import OvlContext
 from generated.io import IoFile
 

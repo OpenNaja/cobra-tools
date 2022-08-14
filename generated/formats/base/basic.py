@@ -1,13 +1,10 @@
+from ast import literal_eval
+import logging
 import numpy as np
 from struct import Struct
+import xml.etree.ElementTree as ET
 from generated.array import Array
 from generated.io import MAX_LEN
-
-
-def fmt_member(member, indent=0):
-    lines = str(member).split("\n")
-    lines_new = [lines[0], ] + ["\t" * indent + line for line in lines[1:]]
-    return "\n".join(lines_new)
 
 
 def class_from_struct(struct, from_value_func):
@@ -88,6 +85,30 @@ def class_from_struct(struct, from_value_func):
 
             return read_value, write_value, read_values, write_values
 
+        @staticmethod
+        def from_xml(target, elem, prop, arguments=None):
+            return literal_eval(elem[prop])
+
+        @staticmethod
+        def from_xml_array(target, elem, prop, arguments=None):
+            shape, arg, template = arguments
+            sub = elem.find(f'.//{prop}')
+            if sub is None:
+                logging.warning(f"Missing sub-element '{prop}' on XML element '{elem.tag}'")
+                return
+            flat_array = np.fromstring(sub.text, dtype=dtype, sep=" ")
+            return flat_array.reshape(shape)
+
+        @staticmethod
+        def to_xml(elem, prop, instance, arguments, debug):
+            elem.attrib[prop] = str(instance)
+
+        @staticmethod
+        def to_xml_array(elem, prop, instance, arguments, debug):
+            shape, arg, template = arguments
+            sub = ET.SubElement(elem, prop)
+            sub.text = " ".join([str(member) for member in instance.flat])
+
     return ConstructedClass
 
 
@@ -164,6 +185,14 @@ class ZString:
             return Array.to_stream(stream, instance, instance.shape, cls, None)
 
         return read_zstring, write_zstring, read_zstrings, write_zstrings
+
+    @staticmethod
+    def from_xml(target, elem, prop, arguments=None):
+        return elem[prop]
+
+    @staticmethod
+    def to_xml(elem, prop, instance, arguments, debug):
+        elem.attrib[prop] = instance
 
 
 basic_map = {

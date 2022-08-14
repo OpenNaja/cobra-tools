@@ -1,4 +1,4 @@
-from generated.formats.userinterfaceicondata.compound.UserinterfaceicondataRoot import UserinterfaceicondataRoot
+from generated.formats.userinterfaceicondata.compounds.UserinterfaceicondataRoot import UserinterfaceicondataRoot
 from modules.formats.BaseFormat import MemStructLoader
 
 

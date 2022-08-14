@@ -1,4 +1,4 @@
-from generated.formats.renderparameters.compound.RenderParameterCurvesRoot import RenderParameterCurvesRoot
+from generated.formats.renderparameters.compounds.RenderParameterCurvesRoot import RenderParameterCurvesRoot
 from modules.formats.BaseFormat import MemStructLoader
 
 

@@ -35,8 +35,8 @@ from . import addon_updater_ops
 from plugin import import_bani, import_manis, import_matcol, import_ms2, export_ms2, import_voxelskirt, import_fgm
 from plugin.modules_import.hair import vcol_to_comb, comb_to_vcol, transfer_hair_combing
 from plugin.utils import shell
-from generated.formats.ms2.compound.packing_utils import PACKEDVEC_MAX
-from generated.formats.ms2.enum.MeshFormat import MeshFormat
+from generated.formats.ms2.compounds.packing_utils import PACKEDVEC_MAX
+from generated.formats.ms2.enums.MeshFormat import MeshFormat
 from root_path import root_dir
 
 

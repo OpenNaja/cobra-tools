@@ -75,7 +75,7 @@ def condition_indent(base_indent, conditionals, condition=""):
 
 class Union:
     def __init__(self, compound, union_name):
-        self.compound = compound
+        self.compounds = compound
         self.name = union_name
         self.members = []
 
@@ -107,10 +107,10 @@ class Union:
         if template:
             # template can be either a type or a reference to a local field
             template_class = convention.name_class(template)
-            if template_class not in self.compound.parser.path_dict:
+            if template_class not in self.compounds.parser.path_dict:
                 template = Expression(template, expression_prefix)
             else:
-                template = f'{Imports.import_from_module_path(self.compound.parser.path_dict[template_class])}.{template_class}'
+                template = f'{Imports.import_from_module_path(self.compounds.parser.path_dict[template_class])}.{template_class}'
         if arg:
             arg = Expression(arg, expression_prefix)
         if arr1:
@@ -122,13 +122,14 @@ class Union:
     def get_default_string(self, default_string, context, arg, template, arr1, arr2, field_name, field_type):
         # get the default (or the best guess of it)
         field_type_lower = field_type.lower()
-        tag_of_field_type = self.compound.parser.tag_dict.get(field_type_lower)
-        _, return_type = self.compound.parser.map_type(field_type, arr1)
+        tag_of_field_type = self.compounds.parser.tag_dict.get(field_type_lower)
+        _, return_type = self.compounds.parser.map_type(field_type, arr1)
         if tag_of_field_type == "enum" and default_string:
+            default_string = convention.name_enum_key_if_necessary(default_string)
             default_string = f'{field_type}.{default_string}'
 
         if arr1:
-            arr_str = self.compound.parser.arrs_to_tuple(arr1, arr2)
+            arr_str = self.compounds.parser.arrs_to_tuple(arr1, arr2)
             if default_string:
                 if return_type[0] == 'numpy':
                     return f'numpy.full({arr_str}, dtype={return_type[1]}, fill_value={default_string})'
@@ -141,7 +142,7 @@ class Union:
                     return f'Array({arr_str}, {field_type}, {context}, {arg}, {template})'
         else:
             if default_string:
-                if return_type in self.compound.parser.builtin_literals or tag_of_field_type == "enum":
+                if return_type in self.compounds.parser.builtin_literals or tag_of_field_type == "enum":
                     # the default string, when evaluated, gives the correct type
                     return default_string
                 else:
@@ -149,9 +150,9 @@ class Union:
                     return f'{field_type}.from_value({default_string})'
             else:
                 # we don't have a specified default, guess one
-                if return_type in self.compound.parser.builtin_literals:
+                if return_type in self.compounds.parser.builtin_literals:
                     # this type can be returned from a literal
-                    return repr(self.compound.parser.builtin_literals[return_type])
+                    return repr(self.compounds.parser.builtin_literals[return_type])
                 else:
                     # instantiate like a generic type: dtype(context, arg, template)
                     return f'{field_type}({context}, {arg}, {template})'
@@ -188,33 +189,46 @@ class Union:
 
     def write_init(self, f):
         base_indent = "\n\t\t"
+        debug_strs = []
         for field in self.members:
             field_debug_str = convention.clean_comment_str(field.text, indent="\t\t")
             arg, template, arr1, arr2, conditionals, field_name, field_type, pad_mode = self.get_params(field)
-            if field_debug_str.strip():
-                f.write(field_debug_str)
+            if field_debug_str.strip() and field_debug_str not in debug_strs:
+                debug_strs.append(field_debug_str)
 
-            # we init each field with its basic default string so that the field exists regardless of any condition
-            field_default = self.get_default_string(field.attrib.get('default'), f'self.{CONTEXT_SUFFIX}', arg, template, arr1, arr2, field_name,
-                                                    field_type)
-            f.write(f'{base_indent}self.{field_name} = {field_default}')
+        # add every (unique) debug string:
+        for field_debug_str in debug_strs:
+            f.write(field_debug_str)
+        # we init each field with its basic default string so that the field exists regardless of any condition
+        field_default = self.get_default_string(field.attrib.get('default'), f'self.{CONTEXT_SUFFIX}', arg, template,
+                                                arr1, arr2, field_name,
+                                                field_type)
+        # nice idea, but causes too much trouble
+        # we init each field with 0 to prevent overhead, but still allow the field to be used in conditionals
+        # field_default = 0
+        f.write(f'{base_indent}self.{field_name} = {field_default}')
 
     def write_defaults(self, f, condition=""):
         base_indent = "\n\t\t"
         for field in self.members:
             arg, template, arr1, arr2, conditionals, field_name, field_type, pad_mode = self.get_params(field)
 
-            indent, condition = condition_indent(base_indent, conditionals, condition)
+            indent, new_condition = condition_indent(base_indent, conditionals, condition)
 
             defaults = self.default_assigns(field, f'self.{CONTEXT_SUFFIX}', arg, template, arr1, arr2, field_name, field_type, indent)
 
-            # if defaults:
-            if condition:
-                f.write(f"{base_indent}{condition}")
-            for condition, default in defaults:
-                if condition:
-                    f.write(condition)
-                f.write(default)
+            if field_name == "dtype":
+                f.write(f"{base_indent}# leaving self.dtype alone")
+            else:
+                # if defaults:
+                if new_condition:
+                    f.write(f"{base_indent}{new_condition}")
+                if new_condition or indent == base_indent:
+                    condition = new_condition
+                for default_condition, default in defaults:
+                    if default_condition:
+                        f.write(default_condition)
+                    f.write(default)
         return condition
 
     def write_io(self, f, method_type, condition="", target_variable="self"):
@@ -222,13 +236,15 @@ class Union:
         base_indent = "\n\t\t"
         for field in self.members:
             arg, template, arr1, arr2, conditionals, field_name, field_type, pad_mode = self.get_params(field, f'{target_variable}.')
-            indent, condition = condition_indent(base_indent, conditionals, condition)
-            if condition:
-                f.write(f"{base_indent}{condition}")
+            indent, new_condition = condition_indent(base_indent, conditionals, condition)
+            if new_condition:
+                f.write(f"{base_indent}{new_condition}")
+            if new_condition or indent == base_indent:
+                condition = new_condition
             if method_type == 'read':
-                f.write(f"{indent}{target_variable}.{field_name} = {self.compound.parser.read_for_type(field_type, CONTEXT, arg, template, arr1, arr2)}")
+                f.write(f"{indent}{target_variable}.{field_name} = {self.compounds.parser.read_for_type(field_type, CONTEXT, arg, template, arr1, arr2)}")
                 # store version related fields on the context on read
-                for k, (access, dtype) in self.compound.parser.verattrs.items():
+                for k, (access, dtype) in self.compounds.parser.verattrs.items():
                     # check all version-related global variables registered with the verattr tag
                     attr_path = access.split('.')
                     if field_name == attr_path[0]:
@@ -238,9 +254,26 @@ class Union:
                             break
             else:
                 # if arr1 and pad_mode: resize array to the specified size
-                if arr1 and pad_mode and self.compound.parser.tag_dict[field_type.lower()] == "basic":
-                    f.write(f"{indent}{target_variable}.{field_name}.resize({self.compound.parser.arrs_to_tuple(arr1, arr2)})")
-                f.write(f"{indent}{self.compound.parser.write_for_type(field_type, f'{target_variable}.{field_name}', CONTEXT, arg, template, arr1, arr2)}")
+                if arr1 and pad_mode and self.compounds.parser.tag_dict[field_type.lower()] == "basic":
+                    f.write(f"{indent}{target_variable}.{field_name}.resize({self.compounds.parser.arrs_to_tuple(arr1, arr2)})")
+                f.write(f"{indent}{self.compounds.parser.write_for_type(field_type, f'{target_variable}.{field_name}', CONTEXT, arg, template, arr1, arr2)}")
+        return condition
+
+    def write_filtered_attributes(self, f, condition, target_variable="self"):
+        base_indent = "\n\t\t"
+        for field in self.members:
+            arg, template, arr1, arr2, conditionals, field_name, field_type, pad_mode = self.get_params(field, f'{target_variable}.')
+            indent, new_condition = condition_indent(base_indent, conditionals, condition)
+            if new_condition:
+                f.write(f"{base_indent}{new_condition}")
+            if new_condition or indent == base_indent:
+                condition = new_condition
+            if arr1 is None:
+                arguments = f"({arg}, {template})"
+            else:
+                arguments = f"({self.compounds.parser.arrs_to_tuple(arr1, arr2)}, {field_type}, {arg}, {template})"
+                field_type = "Array"
+            f.write(f"{indent}yield '{field_name}', {field_type}, {arguments}")
         return condition
 
     def write_arg_update(self, f, method_type):
@@ -248,4 +281,5 @@ class Union:
         for field in self.members:
             arg, template, arr1, arr2, conditionals, field_name, field_type, pad_mode = self.get_params(field, f'instance.')
             if method_type == 'read':
-                f.write(f"{base_indent}instance.{field_name}.arg = {arg}")
+                f.write(f"{base_indent}if not isinstance(instance.{field_name}, int):")
+                f.write(f"{base_indent}\tinstance.{field_name}.arg = {arg}")

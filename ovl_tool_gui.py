@@ -23,7 +23,7 @@ try:
 	from modules import walker
 	from root_path import root_dir
 	from generated.formats.ovl import OvlFile, games, get_game, set_game, IGNORE_TYPES
-	from generated.formats.ovl_base.enum.Compression import Compression
+	from generated.formats.ovl_base.enums.Compression import Compression
 	games_list = [g.value for g in games]
 except:
 	logging.exception("Some modules could not be imported; make sure you install the required dependencies with pip!")
@@ -228,7 +228,7 @@ class MainWindow(widgets.MainWindow):
 		self.ovl_data.included_ovls_list.connect(self.included_ovls_view.set_data)
 		self.ovl_data.progress_percentage.connect(self.p_action.setValue)
 		self.ovl_data.current_action.connect(self.t_action.setText)
-		self.run_threaded("load_hash_table")
+		# self.run_threaded("load_hash_table")
 
 	def run_threaded(self, function_name, *args, **kwargs):
 		# Step 2: Create a QThread object
@@ -402,13 +402,13 @@ class MainWindow(widgets.MainWindow):
 	def drag_files(self, file_names):
 		logging.info(f"Dragging {file_names}")
 		drag = QtGui.QDrag(self)
+		data = QtCore.QMimeData()
 		temp_dir = tempfile.mkdtemp("-cobra")
 		try:
 			out_paths, errors = self.ovl_data.extract(
 				temp_dir, only_names=file_names, show_temp_files=self.show_temp_files)
-
-			data = QtCore.QMimeData()
-			data.setUrls([QtCore.QUrl.fromLocalFile(path) for path in out_paths])
+			if out_paths:
+				data.setUrls([QtCore.QUrl.fromLocalFile(path) for path in out_paths])
 			drag.setMimeData(data)
 			drag.exec_()
 			logging.info(f"Tried to extract {len(file_names)} files, got {len(errors)} errors")

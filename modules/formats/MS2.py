@@ -5,7 +5,7 @@ import logging
 import traceback
 
 from generated.formats.ms2 import Ms2File, Ms2Context
-from generated.formats.ms2.compound.Ms2Root import Ms2Root
+from generated.formats.ms2.compounds.Ms2Root import Ms2Root
 
 import generated.formats.ovl.versions as ovl_versions
 from generated.formats.ovl_base.basic import ConvStream
@@ -14,7 +14,6 @@ from modules.formats.shared import get_padding
 from modules.formats.BaseFormat import BaseFile
 from modules.helpers import as_bytes
 from ovl_util import interaction
-from ovl_util.interaction import showdialog
 
 
 class Mdl2Loader(BaseFile):
@@ -58,7 +57,7 @@ class Ms2Loader(BaseFile):
 				for func in (
 						self.detect_biosyn_format_from_manis,
 						self.detect_biosyn_format_from_ptrs,
-						self.detect_biosyn_format_from_user_input,):
+						self.detect_biosyn_default,):
 					check = func()
 					if check is not None:
 						self.ovl.is_biosyn = check
@@ -66,9 +65,10 @@ class Ms2Loader(BaseFile):
 		else:
 			return False
 
-	def detect_biosyn_format_from_user_input(self):
-		logging.info("Detecting Biosyn format from user input")
-		return showdialog(f"Does {self.ovl.name} use the mesh format from the Biosyn update?", ask=True)
+	def detect_biosyn_default(self):
+		logging.info("Assuming Biosyn format")
+		# todo - query a biosyn_default setting on ovl, set before from gui or config
+		return True
 
 	def detect_biosyn_format_from_manis(self):
 		logging.info("Detecting Biosyn format from .manis")
@@ -86,34 +86,28 @@ class Ms2Loader(BaseFile):
 		logging.info("Detecting Biosyn format from pointers")
 		is_biosyn = False
 		is_older = False
-		older_buffer_entry = 56
-		biosyn_buffer_entry = 88
-		buffer_frag = self._rel_at(self.root_ptr, 24)
-		if buffer_frag:
-			buffer_size = buffer_frag.struct_ptr.data_size
-			if buffer_size:
-				if not buffer_size % biosyn_buffer_entry:
-					is_biosyn = True
-				if not buffer_size % older_buffer_entry:
-					is_older = True
-		# print(f"is_biosyn {is_biosyn}")
-		older_model_entry = 192
-		biosyn_model_entry = 160
-		model_infos_frag = self._rel_at(self.root_ptr, 32)
-		if model_infos_frag:
-			models_size = model_infos_frag.struct_ptr.data_size
-			if models_size:
-				if not models_size % biosyn_model_entry:
-					is_biosyn = True
-				if not models_size % older_model_entry:
-					is_older = True
+		# BufferInfo
+		is_biosyn, is_older = self._biosyn_check_ptr(is_biosyn, is_older, 24, 56, 88)
+		# ModelInfo
+		is_biosyn, is_older = self._biosyn_check_ptr(is_biosyn, is_older, 32, 192, 160)
+		# good, trust it
 		if is_biosyn and not is_older:
-			# good, trust it
 			return True
 		elif is_older and not is_biosyn:
-			# good, trust it
 			return False
+		# inconclusive result, don't trust it
 		return None
+
+	def _biosyn_check_ptr(self, is_biosyn, is_older, offset, older_size, biosyn_size):
+		frag = self._rel_at(self.root_ptr, offset)
+		if frag:
+			size = frag.struct_ptr.data_size
+			if size:
+				if not size % biosyn_size:
+					is_biosyn = True
+				if not size % older_size:
+					is_older = True
+		return is_biosyn, is_older
 
 	def link_streams(self):
 		"""Collect other loaders"""
@@ -142,7 +136,6 @@ class Ms2Loader(BaseFile):
 		self.get_version()
 		self.header = Ms2Root.from_stream(self.root_ptr.stream, self.context)
 		self.header.read_ptrs(self.root_ptr.pool)
-		# self.header.debug_ptrs()
 		# print(self.header)
 		expected_frag = self.get_buffer_presence()
 		frag_data = self.header.buffers_presence.frag.struct_ptr.data

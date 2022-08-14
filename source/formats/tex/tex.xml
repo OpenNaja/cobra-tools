@@ -200,13 +200,5 @@
 		<add name="pad dla" type="uint64" until="15"/>
     </compound>
 
-    <compound name="TexInfoHeader" inherit="GenericHeader">
-		<add name="tex info" type="TexHeader"/>
-		<add name="frag_01" type="TexBufferPc" arr1="tex info \ stream_count" since="17" until="18"/>
-		<add name="frag_01" type="TexBuffer" arr1="tex info \ stream_count" since="19"/>
-		<add name="frag_11" type="SizeInfo" since="19"/>
-		<add name="padding" type="ubyte" arr1="320 - (frag_11 \ io_size)" vercond="#PZ16# #OR# #PZ# #OR# #JWE2#">pad whole frag_11 struct to 320 bytes</add>
-		<add name="padding" type="ubyte" arr1="384 - (frag_11 \ io_size)" vercond="#JWE#">pad whole frag_11 struct to 320 bytes</add>
-    </compound>
 </fileformat>
 

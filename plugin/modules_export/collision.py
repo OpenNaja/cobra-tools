@@ -3,14 +3,14 @@ import logging
 import mathutils
 import numpy as np
 
-from generated.formats.ms2.compound.BoundingBox import BoundingBox
-from generated.formats.ms2.compound.Capsule import Capsule
-from generated.formats.ms2.compound.ConvexHull import ConvexHull
-from generated.formats.ms2.compound.Cylinder import Cylinder
-from generated.formats.ms2.compound.MeshCollision import MeshCollision
-from generated.formats.ms2.compound.Sphere import Sphere
-from generated.formats.ms2.compound.packing_utils import pack_swizzle
-from generated.formats.ms2.enum.CollisionType import CollisionType
+from generated.formats.ms2.compounds.BoundingBox import BoundingBox
+from generated.formats.ms2.compounds.Capsule import Capsule
+from generated.formats.ms2.compounds.ConvexHull import ConvexHull
+from generated.formats.ms2.compounds.Cylinder import Cylinder
+from generated.formats.ms2.compounds.MeshCollision import MeshCollision
+from generated.formats.ms2.compounds.Sphere import Sphere
+from generated.formats.ms2.compounds.packing_utils import pack_swizzle
+from generated.formats.ms2.enums.CollisionType import CollisionType
 
 v = 9999
 

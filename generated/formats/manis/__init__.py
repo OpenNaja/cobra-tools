@@ -1,6 +1,6 @@
 from generated.formats.manis.basic import basic_map
-from generated.formats.manis.compound.ManiBlock import ManiBlock
-from generated.formats.manis.compound.InfoHeader import InfoHeader
+from generated.formats.manis.compounds.ManiBlock import ManiBlock
+from generated.formats.manis.compounds.InfoHeader import InfoHeader
 from generated.formats.ovl_base import OvlContext
 from generated.io import IoFile
 import os

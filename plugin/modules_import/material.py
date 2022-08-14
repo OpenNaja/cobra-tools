@@ -4,7 +4,7 @@ import traceback
 import bpy
 import os
 
-from generated.formats.fgm.compound.FgmHeader import FgmHeader
+from generated.formats.fgm.compounds.FgmHeader import FgmHeader
 from generated.formats.ovl.versions import is_jwe, is_jwe2
 from generated.formats.ovl_base import OvlContext
 from plugin.utils.node_arrange import nodes_iterate

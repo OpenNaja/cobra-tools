@@ -49,3 +49,11 @@ class String:
             return Array.to_stream(stream, instance, cls, None)
 
         return read_string, write_string, read_strings, write_strings
+
+    @staticmethod
+    def from_xml(target, elem, prop, arguments=None):
+        return elem[prop]
+
+    @classmethod
+    def to_xml(elem, prop, instance, arguments, debug):
+        elem.attrib[prop] = instance

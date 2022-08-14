@@ -1,5 +1,5 @@
-from generated.formats.animalresearch.compound.ResearchRoot import ResearchRoot
-from generated.formats.animalresearch.compound.ResearchStartRoot import ResearchStartRoot
+from generated.formats.animalresearch.compounds.ResearchRoot import ResearchRoot
+from generated.formats.animalresearch.compounds.ResearchStartRoot import ResearchStartRoot
 from modules.formats.BaseFormat import MemStructLoader
 
 
@@ -9,7 +9,6 @@ class AnimalresearchunlockssettingsLoader(MemStructLoader):
 
 	def collect(self):
 		super().collect()
-		# self.header.debug_ptrs()
 		# print(self.header)
 
 	def prep(self):

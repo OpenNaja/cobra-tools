@@ -2,8 +2,8 @@
 import logging
 import os
 
-from generated.formats.dinosaurmaterialvariants.compound.DinoLayersHeader import DinoLayersHeader
-from generated.formats.fgm.compound.FgmHeader import FgmHeader
+from generated.formats.dinosaurmaterialvariants.compounds.DinoLayersHeader import DinoLayersHeader
+from generated.formats.fgm.compounds.FgmHeader import FgmHeader
 from generated.formats.ovl_base import OvlContext
 
 

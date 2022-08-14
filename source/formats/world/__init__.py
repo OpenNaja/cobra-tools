@@ -1,8 +1,8 @@
 import logging
 
-from generated.formats.fgm.compound.AttributeInfo import AttributeInfo
-from generated.formats.fgm.compound.FgmInfoHeader import FgmInfoHeader
-from generated.formats.fgm.compound.TextureInfo import TextureInfo
+from generated.formats.fgm.compounds.AttributeInfo import AttributeInfo
+from generated.formats.fgm.compounds.FgmInfoHeader import FgmInfoHeader
+from generated.formats.fgm.compounds.TextureInfo import TextureInfo
 from generated.formats.ovl_base import OvlContext
 from generated.formats.ovl_base.basic import ConvStream
 from generated.io import IoFile

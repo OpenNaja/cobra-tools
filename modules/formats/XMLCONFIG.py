@@ -1,4 +1,4 @@
-from generated.formats.xmlconfig.compound.XmlconfigRoot import XmlconfigRoot
+from generated.formats.xmlconfig.compounds.XmlconfigRoot import XmlconfigRoot
 from modules.formats.BaseFormat import MemStructLoader
 
 

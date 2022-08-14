@@ -1,4 +1,4 @@
-from generated.formats.pscollection.compound.PscollectionRoot import PscollectionRoot
+from generated.formats.pscollection.compounds.PscollectionRoot import PscollectionRoot
 from modules.formats.BaseFormat import MemStructLoader
 
 

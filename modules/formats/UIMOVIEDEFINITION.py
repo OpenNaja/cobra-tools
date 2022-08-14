@@ -1,4 +1,4 @@
-from generated.formats.uimoviedefinition.compound.UiMovieHeader import UiMovieHeader
+from generated.formats.uimoviedefinition.compounds.UiMovieHeader import UiMovieHeader
 from modules.formats.BaseFormat import MemStructLoader
 
 

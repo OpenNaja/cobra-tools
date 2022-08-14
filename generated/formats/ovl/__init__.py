@@ -6,27 +6,27 @@ import time
 import logging
 from contextlib import contextmanager
 
-from generated.formats.ovl.compound.Fragment import Fragment
-from generated.formats.ovl.compound.PoolGroup import PoolGroup
-from generated.formats.ovl.compound.StreamEntry import StreamEntry
+from generated.formats.ovl.compounds.Fragment import Fragment
+from generated.formats.ovl.compounds.PoolGroup import PoolGroup
+from generated.formats.ovl.compounds.StreamEntry import StreamEntry
 from generated.formats.ovl_base import OvlContext
 from generated.formats.ovl_base.basic import ConvStream
-from generated.formats.ovl_base.enum.Compression import Compression
+from generated.formats.ovl_base.enums.Compression import Compression
 from ovl_util.oodle.oodle import OodleDecompressEnum, oodle_compressor
 
 from generated.io import IoFile
 from generated.formats.ovl.versions import *
 from generated.formats.ovl.basic import basic_map
-from generated.formats.ovl.compound.AssetEntry import AssetEntry
-from generated.formats.ovl.compound.Header import Header
-from generated.formats.ovl.compound.OvsHeader import OvsHeader
-from generated.formats.ovl.compound.SetEntry import SetEntry
-from generated.formats.ovl.compound.ArchiveEntry import ArchiveEntry
-from generated.formats.ovl.compound.IncludedOvl import IncludedOvl
-from generated.formats.ovl.compound.FileEntry import FileEntry
-from generated.formats.ovl.compound.MimeEntry import MimeEntry
-from generated.formats.ovl.compound.BufferGroup import BufferGroup
-from generated.formats.ovl.compound.ZlibInfo import ZlibInfo
+from generated.formats.ovl.compounds.AssetEntry import AssetEntry
+from generated.formats.ovl.compounds.Header import Header
+from generated.formats.ovl.compounds.OvsHeader import OvsHeader
+from generated.formats.ovl.compounds.SetEntry import SetEntry
+from generated.formats.ovl.compounds.ArchiveEntry import ArchiveEntry
+from generated.formats.ovl.compounds.IncludedOvl import IncludedOvl
+from generated.formats.ovl.compounds.FileEntry import FileEntry
+from generated.formats.ovl.compounds.MimeEntry import MimeEntry
+from generated.formats.ovl.compounds.BufferGroup import BufferGroup
+from generated.formats.ovl.compounds.ZlibInfo import ZlibInfo
 
 from modules.formats.shared import djb2
 from modules.formats.formats_dict import build_formats_dict
@@ -655,7 +655,7 @@ class OvlFile(Header, IoFile):
 				ret_paths = loader.extract(out_dir_func)
 				ret_paths = loader.handle_paths(ret_paths, show_temp_files)
 				out_paths.extend(ret_paths)
-			except BaseException as error:
+			except:
 				logging.exception(f"An exception occurred while extracting {loader.file_entry.name}")
 				error_files.append(loader.file_entry.name)
 		return out_paths, error_files
@@ -691,7 +691,7 @@ class OvlFile(Header, IoFile):
 			file_entry.update_constants(self)
 			return file_entry
 		except KeyError:
-			logging.warning(f"Unsupported file type: {filename}")
+			logging.warning(f"Unsupported file type {file_entry.ext} for game {get_game(self.context)[0].name}")
 			return
 
 	def pad_pools(self):
@@ -925,7 +925,7 @@ class OvlFile(Header, IoFile):
 		elif "get_file_names" in self.commands:
 			return [file_entry.name for file_entry in self.files]
 		else:
-			self.files_list.emit([(file.name, file.ext) for file in self.files])
+			self.files_list.emit([[file.name, file.ext] for file in self.files])
 			# initialize the loaders right here
 			for file_entry in self.files:
 				self.loaders[file_entry.name] = self.init_loader(file_entry)

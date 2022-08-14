@@ -1,4 +1,4 @@
-from generated.formats.ovl_base.bitfield.VersionInfo import VersionInfo
+from generated.formats.ovl_base.bitfields.VersionInfo import VersionInfo
 
 
 class OvlContext(object):

@@ -1,10 +1,10 @@
-from generated.formats.path.compound.PathExtrusion import PathExtrusion
-from generated.formats.path.compound.PathMaterial import PathMaterial
-from generated.formats.path.compound.PathResource import PathResource
-from generated.formats.path.compound.PathSupport import PathSupport
-from generated.formats.path.compound.PathType import PathType
-from generated.formats.path.compound.SupportSetRoot import SupportSetRoot
-from generated.formats.path.compound.PathJoinPartResourceRoot import PathJoinPartResourceRoot
+from generated.formats.path.compounds.PathExtrusion import PathExtrusion
+from generated.formats.path.compounds.PathMaterial import PathMaterial
+from generated.formats.path.compounds.PathResource import PathResource
+from generated.formats.path.compounds.PathSupport import PathSupport
+from generated.formats.path.compounds.PathType import PathType
+from generated.formats.path.compounds.SupportSetRoot import SupportSetRoot
+from generated.formats.path.compounds.PathJoinPartResourceRoot import PathJoinPartResourceRoot
 from modules.formats.BaseFormat import MemStructLoader
 
 

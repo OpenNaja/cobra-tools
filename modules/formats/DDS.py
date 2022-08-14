@@ -7,9 +7,9 @@ import tempfile
 import imageio.v3 as iio
 
 from generated.formats.dds import DdsFile
-from generated.formats.dds.enum.DxgiFormat import DxgiFormat
+from generated.formats.dds.enums.DxgiFormat import DxgiFormat
 from generated.formats.ovl.versions import *
-from generated.formats.tex.compound.TexHeader import TexHeader
+from generated.formats.tex.compounds.TexHeader import TexHeader
 from modules.formats.BaseFormat import MemStructLoader, BaseFile
 from modules.helpers import split_path
 
@@ -137,47 +137,32 @@ class DdsLoader(MemStructLoader):
 		# load dds
 		dds_file = DdsFile()
 		dds_file.load(file_path)
-		sorted_streams = self.get_sorted_streams()
 		tex_buffers = self.header.buffer_infos.data
 		if is_pc(self.ovl):
-			for buffer, tex_header_3 in zip(sorted_streams, tex_buffers):
-				dds_buff = dds_file.pack_mips_pc(tex_header_3.num_mips)
-				self.overwrite_buffer(buffer, dds_buff)
+			buffer_bytes = [dds_file.pack_mips_pc(b.num_mips) for b in tex_buffers]
 		else:
-			out_bytes = dds_file.pack_mips(size_info.mip_maps)
-			# update data in buffers according to tex header buffer specifications
-			for buffer_entry, b_info in zip(sorted_streams, tex_buffers):
-				self.overwrite_buffer(buffer_entry, out_bytes[b_info.offset: b_info.offset + b_info.size])
-			# sanity check
-			sum_of_buffers = sum(buffer.size for buffer in sorted_streams)
-			if len(out_bytes) != sum_of_buffers:
-				logging.warning(
-					f"Packing of MipMaps failed. OVL expects {sum_of_buffers} bytes, but packing generated {len(out_bytes)} bytes.")
+			packed = dds_file.pack_mips(size_info.mip_maps)
+			# slice packed bytes according to tex header buffer specifications
+			buffer_bytes = [packed[b.offset: b.offset + b.size] for b in tex_buffers]
+		# set data on the buffers
+		for buffer_entry, b_slice in zip(self.get_sorted_streams(), buffer_bytes):
+			buffer_entry.update_data(b_slice)
 		# fix as we don't use the data.update_data api here
-		all_datas = [self.data_entry, ] + [loader.data_entry for loader in self.streams]
-		for data in all_datas:
-			data.size_1 = 0
-			data.size_2 = sum(buffer.size for buffer in data.buffers)
+		for data_entry in self.get_sorted_datas():
+			data_entry.size_1 = 0
+			data_entry.size_2 = sum(buffer.size for buffer in data_entry.buffers)
+
+	def get_sorted_datas(self):
+		# lod0 | lod1 | static
+		return [loader.data_entry for loader in sorted(self.streams, key=lambda f: f.file_entry.name)] + [self.data_entry, ]
 
 	def get_sorted_streams(self):
-		# lod0 | lod1 | static
 		# PZ assigns the buffer index for the complete struct 0 | 1 | 2, 3
 		# from JWE2, buffer index for streams is 0 | 0 | 0, 1
 		# the last buffer is always 0 bytes
-		all_buffers = []
-		for loader in sorted(self.streams, key=lambda f: f.file_entry.name):
-			# seen 1 per stream
-			all_buffers.extend(loader.data_entry.buffers)
-		# seen 2
-		all_buffers.extend(self.data_entry.buffers)
-		return all_buffers
-
-	@staticmethod
-	def overwrite_buffer(buffer, dds_buff):
-		if len(dds_buff) < buffer.size:
-			logging.warning(f"Last {buffer.size - len(dds_buff)} bytes of DDS buffer are not overwritten!")
-			dds_buff = dds_buff + buffer.data[len(dds_buff):]
-		buffer.update_data(dds_buff)
+		# seen 1 buffer per stream
+		# seen 2 buffer for static
+		return [b for data_entry in self.get_sorted_datas() for b in data_entry.buffers]
 
 	def get_tex_structs(self):
 		if is_dla(self.ovl):

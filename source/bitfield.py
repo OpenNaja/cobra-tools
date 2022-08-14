@@ -1,6 +1,3 @@
-import types
-
-
 class BitfieldMember(object):
 
     def __init__(self, pos=0, width=0, mask=0, return_type=bool):
@@ -44,6 +41,14 @@ class BasicBitfield(object):
         instance = cls(None, set_default=False)
         instance._value = value
         return instance
+
+    @classmethod
+    def from_xml(cls, target, elem, prop, arguments=None):
+        return cls.from_value(int(elem.attib[prop], 0))
+
+    @staticmethod
+    def to_xml(elem, prop, instance, arguments, debug):
+        elem.attrib[prop] = str(instance._value)
 
     def __repr__(self):
         return self.__str__()
