@@ -468,10 +468,10 @@ class MainWindow(widgets.MainWindow):
 		self.update_gui_table()
 
 	def is_open_ovl(self):
-		if not self.file_widget.filename:
-			interaction.showdialog("You must open an OVL file first!")
-		else:
+		if self.file_widget.filename or self.file_widget.dirty:
 			return True
+		else:
+			interaction.showdialog("You must open an OVL file first!")
 
 	def update_files_ui(self, f_list):
 		start_time = time.time()
@@ -489,6 +489,7 @@ class MainWindow(widgets.MainWindow):
 		self.update_progress("Operation completed!", value=1, vmax=1)
 
 	def save_as_ovl(self):
+		"""Saves ovl, always ask for file path"""
 		if self.is_open_ovl():
 			filepath = QtWidgets.QFileDialog.getSaveFileName(
 				self, 'Save OVL', os.path.join(self.cfg.get("dir_ovls_out", "C://"), self.file_widget.filename),
@@ -499,10 +500,18 @@ class MainWindow(widgets.MainWindow):
 				self._save_ovl()
 
 	def save_ovl(self):
+		"""Saves ovl, overwrite if path has been set, else ask"""
+		# yes, there is some data for saving
 		if self.is_open_ovl():
-			self._save_ovl()
+			# do we have a filename already?
+			if self.file_widget.filename:
+				self._save_ovl()
+			# nope, ask user
+			else:
+				self.save_as_ovl()
 
 	def _save_ovl(self, ):
+		"""Saves ovl to file_widget.filepath, clears dirty flag"""
 		try:
 			self.ovl_data.save(self.file_widget.filepath)
 			self.file_widget.dirty = False
