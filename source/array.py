@@ -173,15 +173,8 @@ class Array(list):
 
     @classmethod
     def _from_xml(cls, instance, elem):
-        args = list(cls._get_filtered_attribute_list(instance, instance.dtype))
-        # combined_iterator = zip(elem, args)
-        # dtype_name = dtype.__name__.lower()
-        # init each array member from the given dtype match it to xml elem element
-        # content = [dtype._from_xml(dtype(*arguments), elem) for elem, (i, dtype, arguments) in combined_iterator]
-        # todo - the returns of Array._get_filtered_attribute_list is not usable for this
-        instance[:] = [instance.dtype(instance._context, 0, instance.template) for bad_arguments in args]
-        for subelem, member in zip(elem, instance):
-            member._from_xml(member, subelem)
+        # init each member from corresponding sub-elem
+        instance[:] = [instance.dtype._from_xml(instance.dtype(instance._context, 0, instance.template), sub) for sub in elem]
         return instance
 
     @classmethod
