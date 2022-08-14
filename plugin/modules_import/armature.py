@@ -20,7 +20,7 @@ def import_armature(scene, model_info, b_bone_names):
 	# print(f"is_old_orientation {is_old_orientation}")
 	corrector = matrix_util.Corrector(is_old_orientation)
 	bone_info = model_info.bone_info
-	logging.debug(bone_info)
+	# logging.debug(bone_info)
 	if bone_info:
 		armature_name = f"{scene.name}_armature"
 		b_armature_data = bpy.data.armatures.new(armature_name)
