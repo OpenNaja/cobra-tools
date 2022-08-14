@@ -109,7 +109,6 @@ class Pointer(BaseStruct):
 			if debug:
 				elem.set("_address", f"{f_ptr.pool_index} {f_ptr.data_offset}")
 				elem.set("_size", f"{f_ptr.data_size}")
-			elem.set(POOL_TYPE, f"{f_ptr.pool.type}")
 			cls._set_pool_type(elem, f_ptr.pool.type, instance.template)
 		elif hasattr(instance, POOL_TYPE):
 			if instance.pool_type is not None:
@@ -118,7 +117,8 @@ class Pointer(BaseStruct):
 	@staticmethod
 	def _set_pool_type(elem, pool_type, template):
 		"""Set the pool type, unless it is obvious"""
-		if template not in (ZString, ZStringObfuscated):
+		# if template not in (ZString, ZStringObfuscated):
+		if pool_type != 2:
 			elem.set(POOL_TYPE, f"{pool_type}")
 
 	@classmethod
@@ -137,6 +137,8 @@ class Pointer(BaseStruct):
 		if POOL_TYPE in elem.attrib:
 			instance.pool_type = int(elem.attrib[POOL_TYPE])
 			logging.debug(f"Set pool type {instance.pool_type} for pointer {elem.tag}")
+		else:
+			instance.pool_type = 2
 
 	@classmethod
 	def from_xml(cls, target, elem, prop, arguments):
