@@ -1,8 +1,8 @@
 
 import struct
 import xml.etree.ElementTree as ET
+import logging
 from generated.base_struct import BaseStruct
-# from generated.formats.ovl.compounds.Fragment import Fragment
 from generated.formats.base.basic import ZString
 from generated.formats.ovl_base.basic import ZStringObfuscated
 
@@ -121,16 +121,7 @@ class Pointer(BaseStruct):
 	def to_xml(cls, elem, prop, instance, arguments, debug):
 		"""Adds this struct to 'elem', recursively"""
 		sub = ET.SubElement(elem, prop)
-		if instance.frag and hasattr(instance.frag, "struct_ptr"):
-			f_ptr = instance.frag.struct_ptr
-			if debug:
-				sub.set("_address", f"{f_ptr.pool_index} {f_ptr.data_offset}")
-				sub.set("_size", f"{f_ptr.data_size}")
-			sub.set(POOL_TYPE, f"{f_ptr.pool.type}")
-			cls._set_pool_type(sub, f_ptr.pool.type, instance.template)
-		elif hasattr(instance, POOL_TYPE):
-			if instance.pool_type is not None:
-				cls._set_pool_type(sub, instance.pool_type, instance.template)
+		cls.pool_type_to_xml(sub, instance, debug)
 		if instance.data is not None:
 			# xml string
 			if prop == XML_STR:
@@ -138,8 +129,23 @@ class Pointer(BaseStruct):
 			else:
 				cls._to_xml(instance, sub, debug)
 
+	@classmethod
+	def pool_type_to_xml(cls, elem, instance, debug):
+		"""Sets the pool type of instance to elem's attrib"""
+		if instance.frag and hasattr(instance.frag, "struct_ptr"):
+			f_ptr = instance.frag.struct_ptr
+			if debug:
+				elem.set("_address", f"{f_ptr.pool_index} {f_ptr.data_offset}")
+				elem.set("_size", f"{f_ptr.data_size}")
+			elem.set(POOL_TYPE, f"{f_ptr.pool.type}")
+			cls._set_pool_type(elem, f_ptr.pool.type, instance.template)
+		elif hasattr(instance, POOL_TYPE):
+			if instance.pool_type is not None:
+				cls._set_pool_type(elem, instance.pool_type, instance.template)
+
 	@staticmethod
 	def _set_pool_type(elem, pool_type, template):
+		"""Set the pool type, unless it is obvious"""
 		if template not in (ZString, ZStringObfuscated):
 			elem.set(POOL_TYPE, f"{pool_type}")
 
@@ -153,6 +159,43 @@ class Pointer(BaseStruct):
 		else:
 			if instance.template is not None:
 				instance.template._to_xml(instance.data, elem, debug)
+
+	@classmethod
+	def pool_type_from_xml(cls, elem, instance):
+		if POOL_TYPE in elem.attrib:
+			instance.pool_type = int(elem.attrib[POOL_TYPE])
+			logging.debug(f"Set pool type {instance.pool_type} for pointer {elem.tag}")
+
+	@classmethod
+	def from_xml(cls, target, elem, prop, arguments):
+		"""Creates object for parent object 'target', from parent element elem."""
+		sub = elem.find(f'.//{prop}')
+		if sub is None:
+			logging.warning(f"Missing sub-element '{prop}' on XML element '{elem.tag}'")
+			return
+		instance = cls(target.context, *arguments, set_default=False)
+
+		cls.pool_type_from_xml(elem, instance)
+		if prop == XML_STR:
+			instance.data = ET.tostring(sub[0], encoding="unicode").replace("\t", "").replace("\n", "")
+		else:
+			cls._from_xml(instance, sub)
+		return instance
+
+	@classmethod
+	def _from_xml(cls, instance, elem):
+		if instance.template is None:
+			if DEPENDENCY_TAG in elem.tag:
+				if elem.text and elem.text != "None":
+					logging.debug(f"Setting dependency {type(instance).__name__}.data = {elem.text}")
+					instance.data = elem.text
+			return
+		elif instance.template in (ZString, ZStringObfuscated):
+			if elem.text:
+				instance.data = elem.text
+		else:
+			instance.data = instance.template(instance.context, instance.arg, None)
+			instance.template._from_xml(instance.data, elem)
 
 	def __repr__(self):
 		s = self.get_info_str()

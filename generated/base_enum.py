@@ -41,7 +41,7 @@ class BaseEnum(IntEnum, metaclass=DefaultEnumMeta):
 
 	@classmethod
 	def from_xml(cls, target, elem, prop, arguments=None):
-		return cls.from_str(elem.attib[prop])
+		return cls.from_str(elem.attrib[prop])
 
 	@staticmethod
 	def to_xml(elem, prop, instance, arguments, debug):

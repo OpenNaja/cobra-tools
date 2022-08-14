@@ -87,7 +87,7 @@ def class_from_struct(struct, from_value_func):
 
         @staticmethod
         def from_xml(target, elem, prop, arguments=None):
-            return literal_eval(elem[prop])
+            return literal_eval(elem.attrib[prop])
 
         @staticmethod
         def from_xml_array(target, elem, prop, arguments=None):
@@ -97,7 +97,9 @@ def class_from_struct(struct, from_value_func):
                 logging.warning(f"Missing sub-element '{prop}' on XML element '{elem.tag}'")
                 return
             flat_array = np.fromstring(sub.text, dtype=dtype, sep=" ")
-            return flat_array.reshape(shape)
+            # todo - the passed shape may not be compatible to flat_array's shape
+            # flat_array = flat_array.reshape(shape)
+            return flat_array
 
         @staticmethod
         def to_xml(elem, prop, instance, arguments, debug):

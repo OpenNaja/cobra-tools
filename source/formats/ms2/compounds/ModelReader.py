@@ -139,12 +139,12 @@ class ModelReader(BaseStruct):
 		# 				h.io_start - bone_info.joints.io_start)
 		# 			):
 		# 			# any of those may not actually be padding
-		# 			for sub in (range(pad_l)):
-		# 				rel_size = size-sub
+		# 			for elem in (range(pad_l)):
+		# 				rel_size = size-elem
 		# 				for al in (32, 40, 48, 64):
 		# 					mod = rel_size % al
 		# 					# logging.debug(f"rel_size: {rel_size} mod{al}: {mod}")
-		# 					k = (t, sub, al)
+		# 					k = (t, elem, al)
 		# 					# see if it modulos to 0
 		# 					if not mod:
 		# 						if k not in self.dic:

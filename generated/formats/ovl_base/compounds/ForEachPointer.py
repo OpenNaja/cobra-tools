@@ -77,6 +77,14 @@ class ForEachPointer(Pointer):
 		"""Assigns data self to xml elem"""
 		Array._to_xml(instance.data, elem, debug)
 
+	@classmethod
+	def _from_xml(cls, instance, elem):
+		instance.data = Array((len(elem)), instance.template, instance.context, arg=instance.arg.data, set_default=False)
+		# need set_default to fix dtype according to each member of arg's input array
+		instance.data[:] = [instance.template(instance.context, member, instance.template, set_default=True) for member in instance.arg.data]
+		for subelem, member in zip(elem, instance.data):
+			member._from_xml(member, subelem)
+	
 	# def write_template(self):
 	# 	assert self.template is not None
 	# 	# Array.to_stream(self.frag.struct_ptr.stream, self.data, (len(self.data),), self.template, self.context, 0, None)
