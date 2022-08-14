@@ -192,7 +192,7 @@ def get_fgm_values(gui, start_dir, walk_ovls=True, walk_fgms=True):
 					header = FgmHeader.from_xml_file(fgm_path, context)
 					shaders.add(header.shader_name)
 					for i, attrib in enumerate(header.attributes.data):
-						val = tuple(header.data_lib.data[i].value)
+						val = tuple(header.value_foreach_attributes.data[i].value)
 						if attributes.get(attrib.name):
 							attributes[attrib.name][1].append(val)
 						else:

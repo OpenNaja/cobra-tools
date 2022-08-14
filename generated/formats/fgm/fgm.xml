@@ -41,9 +41,9 @@
         <add name="attribute_count" type="uint64" since="17"/>
         followed by 32 bytes for 4 pointers, which are not always all used
         <add name="textures" type="ArrayPointer" template="TextureInfo" arg="texture_count"/>
-        <add name="attributes" type="ArrayPointer" template="AttributeInfo" arg="attribute_count"/>
-        <add name="dependencies" type="ForEachPointer" template="DependencyInfo" arg="textures"/>
-        <add name="data_lib" type="ForEachPointer" template="AttribData" arg="attributes"/>
+        <add name="attributes" type="ArrayPointer" template="AttribInfo" arg="attribute_count"/>
+        <add name="name_foreach_textures" type="ForEachPointer" template="TextureData" arg="textures"/>
+        <add name="value_foreach_attributes" type="ForEachPointer" template="AttribData" arg="attributes"/>
         and finally 16 bytes, apparently unused
         <add name="unk 0" type="uint64"/>
         <add name="unk 1" type="uint64"/>
@@ -70,12 +70,12 @@
         <add name="array_index" type="uint" since="18">index of tile if an array texture is used eg JWE swatches</add>
     </compound>
 
-	<compound name="AttributeInfo" inherit="GenericInfo">
+	<compound name="AttribInfo" inherit="GenericInfo">
 		part of fgm fragment, repeated per attribute
 		<add name="value offset" type="uint64" >byte offset to first value in the data_lib pointer, usually or always sorted in stock</add>
     </compound>
 
-	<compound name="DependencyInfo" inherit="MemStruct">
+	<compound name="TextureData" inherit="MemStruct">
 		<add name="dependency_name" type="Pointer" cond="#ARG#\dtype #EQ# 8">only present if textured</add>
     </compound>
 

@@ -46,7 +46,7 @@ def create_material(in_dir, matname):
 	all_textures = [file for file in os.listdir(in_dir) if file.lower().endswith(".png")]
 	# map texture names to node
 	tex_dic = {}
-	for dep_info in fgm_data.dependencies.data:
+	for dep_info in fgm_data.name_foreach_textures.data:
 		if not dep_info.dependency_name.data:
 			continue
 		png_base, ext = os.path.splitext(dep_info.dependency_name.data.lower())
@@ -173,7 +173,7 @@ def create_material(in_dir, matname):
 		b_mat.blend_method = "CLIP"
 		b_mat.shadow_method = "CLIP"
 		# attr_dict = {attrib.name.lower(): attrib for attrib in fgm_data.attributes.data}
-		for attr, attr_data in zip(fgm_data.attributes.data, fgm_data.data_lib.data):
+		for attr, attr_data in zip(fgm_data.attributes.data, fgm_data.value_foreach_attributes.data):
 			if "palphatestref" in attr.name.lower():
 				# blender appears to be stricter with the alpha clipping
 				# PZ ele has it set to 1.0 in fgm, which makes it invisible in blender
