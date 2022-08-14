@@ -72,7 +72,7 @@ class AttribData(MemStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		if instance.arg.dtype == 0:
 			yield 'value', Array, ((1,), Float, 0, None)
 		if instance.arg.dtype == 1:

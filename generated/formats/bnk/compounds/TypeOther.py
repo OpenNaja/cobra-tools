@@ -51,7 +51,7 @@ class TypeOther(BaseStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		yield 'length', Uint, (0, None)
 		yield 'raw', Array, ((instance.length,), Byte, 0, None)
 

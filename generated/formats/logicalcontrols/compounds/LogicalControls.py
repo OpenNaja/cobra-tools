@@ -89,7 +89,7 @@ class LogicalControls(MemStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		yield 'buttons', ArrayPointer, (instance.button_count, generated.formats.logicalcontrols.compounds.Button.Button)
 		yield 'axes', ArrayPointer, (instance.axis_count, generated.formats.logicalcontrols.compounds.AxisValue.AxisValue)
 		yield 'c', ArrayPointer, (instance.count_3, )

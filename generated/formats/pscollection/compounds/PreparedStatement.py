@@ -58,7 +58,7 @@ class PreparedStatement(MemStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		yield 'args', ArrayPointer, (instance.arg_count, generated.formats.pscollection.compounds.Arg.Arg)
 		yield 'arg_count', Uint64, (0, None)
 		yield 'statement_name', Pointer, (0, generated.formats.base.basic.ZString)

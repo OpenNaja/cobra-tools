@@ -114,7 +114,7 @@ class SupportSetRoot(MemStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		yield 'connector_1', ArrayPointer, (instance.num_connector_1, generated.formats.path.compounds.Connector.Connector)
 		yield 'connector_2', ArrayPointer, (instance.num_connector_2, generated.formats.path.compounds.ConnectorMultiJoint.ConnectorMultiJoint)
 		yield 'pillar', Pointer, (0, generated.formats.path.compounds.Pillar.Pillar)

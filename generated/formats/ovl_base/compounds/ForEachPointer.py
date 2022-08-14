@@ -44,7 +44,7 @@ class ForEachPointer(Pointer):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 
 	def get_info_str(self, indent=0):
 		return f'ForEachPointer [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
@@ -72,6 +72,19 @@ class ForEachPointer(Pointer):
 			# 	logging.debug(f"Argument {i} = {arg}, template {self.template}")
 			self.data[:] = [self.template.from_stream(stream, self.context, arg) for arg in args]
 
+	@classmethod
+	def _to_xml(cls, instance, elem, debug):
+		"""Assigns data self to xml elem"""
+		Array._to_xml(instance.data, elem, debug)
+
+	@classmethod
+	def _from_xml(cls, instance, elem):
+		instance.data = Array((len(elem)), instance.template, instance.context, arg=instance.arg.data, set_default=False)
+		# need set_default to fix dtype according to each member of arg's input array
+		instance.data[:] = [instance.template(instance.context, member, instance.template, set_default=True) for member in instance.arg.data]
+		for subelem, member in zip(elem, instance.data):
+			member._from_xml(member, subelem)
+	
 	# def write_template(self):
 	# 	assert self.template is not None
 	# 	# Array.to_stream(self.frag.struct_ptr.stream, self.data, (len(self.data),), self.template, self.context, 0, None)

@@ -54,7 +54,7 @@ class Vector3Short(BaseStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		yield 'x', Short, (0, None)
 		yield 'y', Short, (0, None)
 		yield 'z', Short, (0, None)

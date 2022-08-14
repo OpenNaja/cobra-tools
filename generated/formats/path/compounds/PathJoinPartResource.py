@@ -114,7 +114,7 @@ class PathJoinPartResource(MemStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		yield 'unk_points_1', Pointer, (instance.num_points_1, generated.formats.path.compounds.PointsList.PointsList)
 		yield 'unk_points_2', Pointer, (instance.num_points_2, generated.formats.path.compounds.PointsList.PointsList)
 		yield 'unk_vector', ArrayPointer, (1, generated.formats.path.compounds.Vector4.Vector4)

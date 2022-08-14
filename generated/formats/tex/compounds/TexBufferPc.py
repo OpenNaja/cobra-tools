@@ -55,7 +55,7 @@ class TexBufferPc(MemStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		yield 'width', Ushort, (0, None)
 		yield 'height', Ushort, (0, None)
 		if not (instance.context.version == 17):

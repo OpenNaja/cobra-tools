@@ -99,7 +99,7 @@ class Model(BaseStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		yield 'materials', Array, ((instance.arg.num_materials,), MaterialName, 0, None)
 		yield 'lods', Array, ((instance.arg.num_lods,), LodInfo, 0, None)
 		yield 'objects', Array, ((instance.arg.num_objects,), Object, 0, None)

@@ -85,7 +85,7 @@ class FctRoot(MemStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		yield 'u_0', Short, (0, None)
 		yield 'u_1', Short, (0, None)
 		yield 'a', Float, (0, None)

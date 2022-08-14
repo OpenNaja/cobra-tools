@@ -60,7 +60,7 @@ class Layer(BaseStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		yield 'info', LayerFrag, (0, None)
 		yield 'name', ZString, (0, None)
 		yield 'infos', Array, ((instance.info.info_count,), Info, 0, None)

@@ -65,7 +65,7 @@ class RideSettingsRoot(MemStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		yield 'unk_0', Float, (0, None)
 		yield 'unk_1', Uint, (0, None)
 		yield 'array_1', ArrayPointer, (instance.count, generated.formats.ridesettings.compounds.Pair.Pair)

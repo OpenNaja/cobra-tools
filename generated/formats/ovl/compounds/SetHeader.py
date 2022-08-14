@@ -67,7 +67,7 @@ class SetHeader(BaseStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		yield 'set_count', Uint, (0, None)
 		yield 'asset_count', Uint, (0, None)
 		yield 'sig_a', Uint, (0, None)

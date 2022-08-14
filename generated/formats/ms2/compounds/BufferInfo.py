@@ -132,7 +132,7 @@ class BufferInfo(BaseStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		if 32 <= instance.context.version <= 47:
 			yield 'u_0', Uint64, (0, None)
 			yield 'u_1', Uint64, (0, None)

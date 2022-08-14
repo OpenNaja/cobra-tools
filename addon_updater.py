@@ -969,7 +969,7 @@ class SingletonUpdater:
                 else:
                     unpath = os.path.join(unpath, self._subfolder_path)
 
-            # Smarter check for additional sub folders for a single folder
+            # Smarter check for additional elem folders for a single folder
             # containing the __init__.py file.
             if not os.path.isfile(os.path.join(unpath, "__init__.py")):
                 print("Not a valid addon found")
@@ -1058,12 +1058,12 @@ class SingletonUpdater:
                             print("Failed to pre-remove " + file)
                             self.print_trace()
 
-        # Walk through the temp addon sub folder for replacements
+        # Walk through the temp addon elem folder for replacements
         # this implements the overwrite rules, which apply after
         # the above pre-removal rules. This also performs the
         # actual file copying/replacements.
         for path, dirs, files in os.walk(merger):
-            # Verify structure works to prune updater sub folder overwriting.
+            # Verify structure works to prune updater elem folder overwriting.
             dirs[:] = [d for d in dirs
                        if os.path.join(path, d) not in [self._updater_path]]
             rel_path = os.path.relpath(path, merger)

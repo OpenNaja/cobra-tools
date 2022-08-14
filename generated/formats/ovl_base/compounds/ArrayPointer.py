@@ -41,7 +41,7 @@ class ArrayPointer(Pointer):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 
 	def get_info_str(self, indent=0):
 		return f'ArrayPointer [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
@@ -60,6 +60,16 @@ class ArrayPointer(Pointer):
 	def read_template(self):
 		if self.template:
 			self.data = Array.from_stream(self.frag.struct_ptr.stream, (self.arg,), self.template, self.context, 0, None)
+
+	@classmethod
+	def _to_xml(cls, instance, elem, debug):
+		"""Assigns data self to xml elem"""
+		Array._to_xml(instance.data, elem, debug)
+
+	@classmethod
+	def _from_xml(cls, instance, elem):
+		arr = Array((len(elem)), instance.template, instance.context, set_default=False)
+		instance.data = Array._from_xml(arr, elem)
 
 	# def write_template(self):
 	# 	assert self.template is not None

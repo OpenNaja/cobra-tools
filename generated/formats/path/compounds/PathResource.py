@@ -80,7 +80,7 @@ class PathResource(MemStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		yield 'pathmaterial', Pointer, (0, generated.formats.base.basic.ZString)
 		yield 'pathextrusion_kerb', Pointer, (0, generated.formats.base.basic.ZString)
 		yield 'pathextrusion_railing', Pointer, (0, generated.formats.base.basic.ZString)

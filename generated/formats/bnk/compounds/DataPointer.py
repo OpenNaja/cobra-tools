@@ -52,7 +52,7 @@ class DataPointer(BaseStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		yield 'wem_id', Uint, (0, None)
 		yield 'data_section_offset', Uint, (0, None)
 		yield 'wem_filesize', Uint, (0, None)

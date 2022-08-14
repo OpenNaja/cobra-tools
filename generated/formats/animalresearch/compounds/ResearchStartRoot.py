@@ -44,7 +44,7 @@ class ResearchStartRoot(MemStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		yield 'states', ArrayPointer, (instance.count, generated.formats.animalresearch.compounds.UnlockState.UnlockState)
 		yield 'count', Uint64, (0, None)
 

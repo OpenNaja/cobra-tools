@@ -69,7 +69,7 @@ class PathExtrusion(MemStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		yield 'model', Pointer, (0, generated.formats.base.basic.ZString)
 		yield 'post_model', Pointer, (0, generated.formats.base.basic.ZString)
 		yield 'endcap_model', Pointer, (0, generated.formats.base.basic.ZString)

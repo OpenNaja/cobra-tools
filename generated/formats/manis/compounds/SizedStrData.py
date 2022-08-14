@@ -70,7 +70,7 @@ class SizedStrData(BaseStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		yield 'names_size', Ushort, (0, None)
 		yield 'hash_block_size', Ushort, (0, None)
 		yield 'zero_0', Uint64, (0, None)

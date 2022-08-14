@@ -47,7 +47,7 @@ class MeshCollisionBit(BaseStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		yield 'countd', Array, ((34,), Ushort, 0, None)
 		yield 'consts', Array, ((3,), Uint, 0, None)
 

@@ -62,7 +62,7 @@ class SplRoot(MemStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		yield 'spline_data', Pointer, (instance.count, None)
 		yield 'count', Ushort, (0, None)
 		yield 'sixteen', Ubyte, (0, None)

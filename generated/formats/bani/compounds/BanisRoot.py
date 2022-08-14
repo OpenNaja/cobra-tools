@@ -80,7 +80,7 @@ class BanisRoot(MemStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		yield 'zeros', Array, ((2,), Uint64, 0, None)
 		yield 'bytes_per_frame', Uint, (0, None)
 		yield 'bytes_per_bone', Uint, (0, None)

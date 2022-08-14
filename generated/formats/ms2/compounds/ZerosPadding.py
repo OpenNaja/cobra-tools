@@ -54,7 +54,7 @@ class ZerosPadding(BaseStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		yield 'hier_2_padding_0', Uint64, (0, None)
 		if 64 < instance.arg:
 			yield 'hier_2_padding_1', Uint64, (0, None)

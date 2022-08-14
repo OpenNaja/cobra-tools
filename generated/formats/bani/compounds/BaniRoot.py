@@ -70,7 +70,7 @@ class BaniRoot(MemStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		yield 'banis', Pointer, (0, None)
 		yield 'read_start_frame', Uint, (0, None)
 		yield 'num_frames', Uint, (0, None)

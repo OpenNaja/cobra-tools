@@ -184,7 +184,7 @@ class BoneInfo(BaseStruct):
 			self.inventory_datas_2 = numpy.zeros((self.inv_data_count, 2,), dtype=numpy.dtype('int32'))
 		if not (self.context.version < 47) and self.zeros_count:
 			self.zeros_padding = ZerosPadding(self.context, self.zeros_count, None)
-		if self.context.version < 47 and self.zeros_count:
+		if self.context.version >= 47 and self.zeros_count:
 			self.minus_padding = MinusPadding(self.context, self.zeros_count, None)
 		if self.count_7:
 			self.struct_7 = Struct7(self.context, 0, None)
@@ -260,7 +260,7 @@ class BoneInfo(BaseStruct):
 			instance.inventory_datas_2 = stream.read_ints((instance.inv_data_count, 2,))
 		if not (instance.context.version < 47) and instance.zeros_count:
 			instance.zeros_padding = ZerosPadding.from_stream(stream, instance.context, instance.zeros_count, None)
-		if instance.context.version < 47 and instance.zeros_count:
+		if instance.context.version >= 47 and instance.zeros_count:
 			instance.minus_padding = MinusPadding.from_stream(stream, instance.context, instance.zeros_count, None)
 		if instance.count_7:
 			instance.struct_7 = Struct7.from_stream(stream, instance.context, 0, None)
@@ -329,7 +329,7 @@ class BoneInfo(BaseStruct):
 			stream.write_ints(instance.inventory_datas_2)
 		if not (instance.context.version < 47) and instance.zeros_count:
 			ZerosPadding.to_stream(stream, instance.zeros_padding)
-		if instance.context.version < 47 and instance.zeros_count:
+		if instance.context.version >= 47 and instance.zeros_count:
 			MinusPadding.to_stream(stream, instance.minus_padding)
 		if instance.count_7:
 			Struct7.to_stream(stream, instance.struct_7)
@@ -338,7 +338,7 @@ class BoneInfo(BaseStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		yield 'name_count', Uint, (0, None)
 		yield 'z_0', Ushort, (0, None)
 		yield 'inv_names_count', Ushort, (0, None)
@@ -395,7 +395,7 @@ class BoneInfo(BaseStruct):
 			yield 'inventory_datas_2', Array, ((instance.inv_data_count, 2,), Int, 0, None)
 		if not (instance.context.version < 47) and instance.zeros_count:
 			yield 'zeros_padding', ZerosPadding, (instance.zeros_count, None)
-		if instance.context.version < 47 and instance.zeros_count:
+		if instance.context.version >= 47 and instance.zeros_count:
 			yield 'minus_padding', MinusPadding, (instance.zeros_count, None)
 		if instance.count_7:
 			yield 'struct_7', Struct7, (0, None)

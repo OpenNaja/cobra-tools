@@ -217,7 +217,7 @@ class HabitatBoundaryDataRoot(MemStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		yield 'prefab', Pointer, (0, generated.formats.base.basic.ZString)
 		yield 'walls_extrusion', Pointer, (0, generated.formats.base.basic.ZString)
 		yield 'walls_extrusion_end', Pointer, (0, generated.formats.base.basic.ZString)

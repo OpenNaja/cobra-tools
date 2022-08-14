@@ -44,7 +44,7 @@ class PathJoinPartResourceRoot(MemStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		yield 'resources_list', Pointer, (instance.num_res, generated.formats.path.compounds.PathJoinPartResourceList.PathJoinPartResourceList)
 		yield 'num_res', Uint64, (0, None)
 

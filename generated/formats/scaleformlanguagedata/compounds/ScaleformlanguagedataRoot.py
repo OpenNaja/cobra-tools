@@ -65,7 +65,7 @@ class ScaleformlanguagedataRoot(MemStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		yield 'zero_0', Uint64, (0, None)
 		yield 'zero_1', Uint64, (0, None)
 		yield 'fonts', ArrayPointer, (instance.count, generated.formats.scaleformlanguagedata.compounds.FontInfo.FontInfo)

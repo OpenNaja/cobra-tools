@@ -163,20 +163,25 @@ class Array(list):
         shape, dtype, arg, template = arguments
         if callable(getattr(dtype, "from_xml_array", None)):
             return dtype.from_xml_array(target, elem, prop, (shape, arg, template))
-        instance = cls(target.context, *arguments, set_default=False)
+        instance = cls(shape, dtype, target.context, arg, template, set_default=False)
         sub = elem.find(f'.//{prop}')
         if sub is None:
             logging.warning(f"Missing sub-element '{prop}' on XML element '{elem.tag}'")
             return
-        cls._from_xml(instance, sub, dtype)
+        cls._from_xml(instance, sub)
         return instance
 
     @classmethod
-    def _from_xml(cls, instance, elem, dtype):
-        combined_iterator = zip(elem, cls._get_filtered_attribute_list(instance, dtype))
-        dtype_name = dtype.__name__.lower()
-        content = [field_type.from_xml(instance, child, f'{dtype_name}{i}', arguments) for child, (i, field_type, arguments) in combined_iterator]
-        instance[:] = content
+    def _from_xml(cls, instance, elem):
+        args = list(cls._get_filtered_attribute_list(instance, instance.dtype))
+        # combined_iterator = zip(elem, args)
+        # dtype_name = dtype.__name__.lower()
+        # init each array member from the given dtype match it to xml elem element
+        # content = [dtype._from_xml(dtype(*arguments), elem) for elem, (i, dtype, arguments) in combined_iterator]
+        # todo - the returns of Array._get_filtered_attribute_list is not usable for this
+        instance[:] = [instance.dtype(instance._context, 0, instance.template) for bad_arguments in args]
+        for subelem, member in zip(elem, instance):
+            member._from_xml(member, subelem)
         return instance
 
     @classmethod
@@ -189,10 +194,11 @@ class Array(list):
         cls._to_xml(instance, sub, debug)
 
     @classmethod
-    def _to_xml(cls, instance, elem, dtype, debug):
-        dtype_name = dtype.__name__.lower()
+    def _to_xml(cls, instance, elem, debug):
+        # dtype_name = dtype.__name__.lower()
         for i, dtype, arguments in cls._get_filtered_attribute_list(instance, instance.dtype):
-            dtype.to_xml(elem, f'{dtype_name}{i}', instance[i], debug)
+            # dtype.to_xml(elem, f'{dtype.__name__.lower()}{i}', instance[i], (), debug)
+            dtype.to_xml(elem, dtype.__name__.lower(), instance[i], (), debug)
 
 
 def _class_to_name(cls):

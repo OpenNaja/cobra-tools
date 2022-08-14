@@ -105,7 +105,7 @@ class SpecdefRoot(MemStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		yield 'attrib_count', Ushort, (0, None)
 		yield 'flags', Ushort, (0, None)
 		yield 'name_count', Ubyte, (0, None)

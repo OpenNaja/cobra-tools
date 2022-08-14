@@ -49,7 +49,7 @@ class TexIndex(MemStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		yield 'index', Uint, (0, None)
 		if instance.context.version >= 18:
 			yield 'array_index', Uint, (0, None)

@@ -158,7 +158,7 @@ class TableModel(QtCore.QAbstractTableModel):
 		if role in (QtCore.Qt.DisplayRole, QtCore.Qt.EditRole):
 			# See below for the nested-list data structure.
 			# .row() indexes into the outer list,
-			# .column() indexes into the sub-list
+			# .column() indexes into the elem-list
 			if len(file_row):
 				return self._data[index.row()][index.column()]
 
@@ -200,7 +200,7 @@ class TableModel(QtCore.QAbstractTableModel):
 		return len(self._data)
 
 	def columnCount(self, index):
-		# The following takes the first sub-list, and returns
+		# The following takes the first elem-list, and returns
 		# the length (only works if all rows are an equal length)
 		return len(self.header_labels)
 

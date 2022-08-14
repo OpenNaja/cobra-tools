@@ -79,7 +79,7 @@ class LayerFrag(MemStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		yield 'layer_name', Pointer, (0, generated.formats.base.basic.ZString)
 		yield 'u_0', Uint64, (0, None)
 		yield 'u_1', Uint64, (0, None)

@@ -104,7 +104,7 @@ class DinoEffectsHeader(MemStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		yield 'fgm_name', Pointer, (0, generated.formats.ovl_base.basic.ZStringObfuscated)
 		yield 'vec_0', Vector3F, (0, None)
 		yield 'vec_1', Vector3F, (0, None)

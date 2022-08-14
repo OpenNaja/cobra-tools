@@ -536,7 +536,7 @@
 		<add name="inventory_datas_2" type="int" arr1="inv_data_count" arr2="2" vercond="#DLA#">zeros</add>
 
 		<add name="ZerosPadding" type="ZerosPadding" cond="zeros count" arg="zeros count" vercond="!#OLD#">weird zeros</add>
-		<add name="MinusPadding" type="MinusPadding" cond="zeros count" arg="zeros count" vercond="#OLD#">weird -1s</add>
+		<add name="MinusPadding" type="MinusPadding" cond="zeros count" arg="zeros count" since="47">weird -1s</add>
 
 <!--		<add name="unkPc" type="uint64" cond="unk_pc_count" vercond="#PC#">present in anubis bone info 6</add>-->
 		<add name="struct 7" type="Struct7" cond="count7" >ragdoll links?</add>

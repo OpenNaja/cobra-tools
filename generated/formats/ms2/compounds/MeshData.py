@@ -75,7 +75,7 @@ class MeshData(MemStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		if instance.context.version <= 32:
 			yield 'stream_index', Uint64, (0, None)
 		if instance.context.version >= 47:

@@ -44,7 +44,7 @@ class Font(MemStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		yield 'data_size', Uint64, (0, None)
 		yield 'zero', Uint64, (0, None)
 

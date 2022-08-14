@@ -80,7 +80,7 @@ class MRFMember2(MemStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		yield 'transition', Pointer, (0, generated.formats.motiongraph.compounds.Transition.Transition)
 		yield 'count_0', Uint64, (0, None)
 		yield 'count_1', Uint64, (0, None)

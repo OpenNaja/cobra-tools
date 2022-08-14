@@ -77,7 +77,7 @@ class ClimbproofDataRoot(MemStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		yield 'climb_proof', Pointer, (0, generated.formats.base.basic.ZString)
 		yield 'climb_proof_cap_start', Pointer, (0, generated.formats.base.basic.ZString)
 		yield 'climb_proof_cap_end', Pointer, (0, generated.formats.base.basic.ZString)

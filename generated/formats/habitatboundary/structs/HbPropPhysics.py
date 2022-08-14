@@ -68,7 +68,7 @@ class HbPropPhysics(MemStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		yield 'pad_top', Float, (0, None)
 		yield 'z_pos', Float, (0, None)
 		yield 'half_width', Float, (0, None)

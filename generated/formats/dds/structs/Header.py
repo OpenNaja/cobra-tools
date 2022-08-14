@@ -115,7 +115,7 @@ class Header(BaseStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		yield 'header_string', FixedString, (4, None)
 		yield 'size', Uint, (0, None)
 		yield 'flags', HeaderFlags, (0, None)

@@ -64,7 +64,7 @@ class Capsule(BaseStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		yield 'offset', Vector3, (0, None)
 		yield 'direction', Vector3, (0, None)
 		yield 'radius', Float, (0, None)

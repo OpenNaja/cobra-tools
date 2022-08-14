@@ -285,7 +285,7 @@ class Header(GenericHeader):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		yield 'lod_depth', Uint, (0, None)
 		yield 'len_names', Uint, (0, None)
 		yield 'zero_2', Uint, (0, None)

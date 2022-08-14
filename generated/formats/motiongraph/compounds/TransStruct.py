@@ -47,7 +47,7 @@ class TransStruct(MemStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		yield 'another_mrfentry_2', Pointer, (0, None)
 		yield 'states', StateArray, (0, None)
 

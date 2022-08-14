@@ -68,7 +68,7 @@ class Bone(BaseStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		if instance.context.version <= 47:
 			yield 'loc', Vector3, (0, None)
 			yield 'scale', Float, (0, None)

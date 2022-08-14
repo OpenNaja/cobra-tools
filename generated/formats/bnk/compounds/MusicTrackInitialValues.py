@@ -83,7 +83,7 @@ class MusicTrackInitialValues(BaseStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		yield 'u_flags', Ubyte, (0, None)
 		yield 'num_sources', Uint, (0, None)
 		yield 'p_source', Array, ((instance.num_sources,), AkBankSourceData, 0, None)

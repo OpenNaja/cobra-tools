@@ -79,7 +79,7 @@ class BufferGroup(BaseStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		yield 'buffer_offset', Uint, (0, None)
 		yield 'buffer_count', Uint, (0, None)
 		yield 'ext_index', Uint, (0, None)

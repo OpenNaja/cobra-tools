@@ -50,7 +50,7 @@ class MatcolRoot(MemStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		yield 'main', Pointer, (0, generated.formats.matcol.compounds.RootFrag.RootFrag)
 		yield 'one', Uint64, (0, None)
 

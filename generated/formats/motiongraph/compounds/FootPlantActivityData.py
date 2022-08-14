@@ -48,7 +48,7 @@ class FootPlantActivityData(MemStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		yield 'weight', FloatInputData, (0, None)
 		yield 'rotation_no_i_k_weight', FloatInputData, (0, None)
 		yield 'sticky_feet_weight', FloatInputData, (0, None)

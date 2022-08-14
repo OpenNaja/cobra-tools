@@ -15,17 +15,17 @@ def import_collider(hitcheck, armature_ob, bone_name, corrector):
 	hitcheck_name = f"{bpy.context.scene.name}_{hitcheck.name}"
 	coll = hitcheck.collider
 	# print(hitcheck)
-	if hitcheck.type == CollisionType.Sphere:
+	if hitcheck.type == CollisionType.SPHERE:
 		ob = import_spherebv(coll, hitcheck_name)
-	elif hitcheck.type == CollisionType.BoundingBox:
+	elif hitcheck.type == CollisionType.BOUNDING_BOX:
 		ob = import_boxbv(coll, hitcheck_name, corrector)
-	elif hitcheck.type == CollisionType.Capsule:
+	elif hitcheck.type == CollisionType.CAPSULE:
 		ob = import_capsulebv(coll, hitcheck_name)
-	elif hitcheck.type == CollisionType.Cylinder:
+	elif hitcheck.type == CollisionType.CYLINDER:
 		ob = import_cylinderbv(coll, hitcheck_name)
-	elif hitcheck.type == CollisionType.MeshCollision:
+	elif hitcheck.type == CollisionType.MESH_COLLISION:
 		ob = import_meshbv(coll, hitcheck_name, corrector)
-	elif hitcheck.type == CollisionType.ConvexHull:
+	elif hitcheck.type == CollisionType.CONVEX_HULL:
 		ob = import_hullbv(coll, hitcheck_name, corrector)
 	else:
 		logging.warning(f"Unsupported collider type {hitcheck.type}")

@@ -54,7 +54,7 @@ class Size(BaseStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		yield 'id', Uint64, (0, None)
 		yield 'width_1', Uint64, (0, None)
 		yield 'height_1', Uint64, (0, None)

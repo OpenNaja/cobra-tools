@@ -37,7 +37,7 @@ class MRFArray2(MemStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		yield 'states', Array, ((instance.arg,), MRFEntry2, 0, None)
 
 	def get_info_str(self, indent=0):

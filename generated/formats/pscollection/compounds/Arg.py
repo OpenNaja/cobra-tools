@@ -64,7 +64,7 @@ class Arg(MemStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		yield 'u_0', Ubyte, (0, None)
 		yield 'arg_type', Ubyte, (0, None)
 		yield 'arg_index', Ubyte, (0, None)

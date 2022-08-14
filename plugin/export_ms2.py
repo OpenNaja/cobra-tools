@@ -66,7 +66,7 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 	if mesh.context.biosyn:
 		mesh.mesh_format = MeshFormat[b_me.cobra.mesh_format]
 		if not mesh_mode:
-			if mesh.mesh_format == MeshFormat.Separate:
+			if mesh.mesh_format == MeshFormat.SEPARATE:
 				raise NedryError()
 	mesh.update_dtype()
 	num_uvs = mesh.get_uv_count()

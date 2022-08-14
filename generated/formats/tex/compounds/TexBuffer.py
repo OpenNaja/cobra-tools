@@ -72,7 +72,7 @@ class TexBuffer(MemStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		yield 'offset', Uint64, (0, None)
 		yield 'size', Uint64, (0, None)
 		yield 'first_mip', Ubyte, (0, None)

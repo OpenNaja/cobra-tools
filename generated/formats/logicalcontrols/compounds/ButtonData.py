@@ -59,7 +59,7 @@ class ButtonData(MemStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		yield 'k_1_a', Ushort, (0, None)
 		yield 'k_1_b', Ushort, (0, None)
 		yield 'k_2', Uint, (0, None)

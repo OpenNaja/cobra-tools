@@ -135,7 +135,7 @@ class SizedStrData(BaseStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		yield 'zero', Uint64, (0, None)
 		yield 'data_size', Uint64, (0, None)
 		yield 'x', Uint64, (0, None)

@@ -54,7 +54,7 @@ class HbDoorCutout(MemStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		yield 'height', Float, (0, None)
 		yield 'right', Float, (0, None)
 		yield 'left', Float, (0, None)

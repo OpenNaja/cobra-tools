@@ -72,7 +72,7 @@ class Transition(MemStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		yield 'count_0', Uint, (0, None)
 		yield 'count_1', Uint, (0, None)
 		yield 'ptr_0', Pointer, (instance.count_1, generated.formats.motiongraph.compounds.PtrList.PtrList)

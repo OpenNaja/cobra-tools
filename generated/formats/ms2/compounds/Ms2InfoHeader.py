@@ -107,7 +107,7 @@ class Ms2InfoHeader(BaseStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		yield 'biosyn', Uint, (0, None)
 		yield 'bone_info_size', Uint, (0, None)
 		yield 'info', Ms2Root, (0, None)

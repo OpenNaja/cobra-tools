@@ -161,7 +161,7 @@ def import_mesh_layers(b_me, mesh, use_custom_normals, mat_name):
 		normals = b_me.attributes.new("ct_normals", "FLOAT_VECTOR", "CORNER")
 		normals.data.foreach_set("vector", per_loop(b_me, mesh.normals))
 
-	if mesh.flag == 517 or mesh.mesh_format == MeshFormat.Interleaved32:
+	if mesh.flag == 517 or mesh.mesh_format == MeshFormat.INTERLEAVED_32:
 		cols = b_me.attributes.new("ct_floats", "FLOAT_COLOR", "CORNER")
 		cols.data.foreach_set("color", per_loop(b_me, mesh.floats))
 
@@ -176,7 +176,7 @@ def import_mesh_layers(b_me, mesh, use_custom_normals, mat_name):
 
 
 def import_shapekeys(b_obj, mesh):
-	if mesh.flag == 517 or mesh.mesh_format == MeshFormat.Interleaved32:
+	if mesh.flag == 517 or mesh.mesh_format == MeshFormat.INTERLEAVED_32:
 		b_mesh = b_obj.data
 		# insert base key
 		sk_basis = b_obj.shape_key_add(name="Basis")

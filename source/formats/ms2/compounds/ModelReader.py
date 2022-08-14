@@ -139,12 +139,12 @@ class ModelReader(BaseStruct):
 		# 				h.io_start - bone_info.joints.io_start)
 		# 			):
 		# 			# any of those may not actually be padding
-		# 			for sub in (range(pad_l)):
-		# 				rel_size = size-sub
+		# 			for elem in (range(pad_l)):
+		# 				rel_size = size-elem
 		# 				for al in (32, 40, 48, 64):
 		# 					mod = rel_size % al
 		# 					# logging.debug(f"rel_size: {rel_size} mod{al}: {mod}")
-		# 					k = (t, sub, al)
+		# 					k = (t, elem, al)
 		# 					# see if it modulos to 0
 		# 					if not mod:
 		# 						if k not in self.dic:
@@ -166,11 +166,11 @@ class ModelReader(BaseStruct):
 		try:
 			logging.debug(f"Reading additional hitcheck data")
 			for hitcheck in self.get_hitchecks(bone_info):
-				if hitcheck.type in (CollisionType.ConvexHullPC, CollisionType.ConvexHull):
+				if hitcheck.type in (CollisionType.CONVEX_HULL_P_C, CollisionType.CONVEX_HULL):
 					logging.debug(f"Reading vertices for {hitcheck.type}")
 					hitcheck.collider.vertices = stream.read_floats((hitcheck.collider.vertex_count, 3))
-		except BaseException:
-			logging.error(f"Reading hitchecks failed")
+		except:
+			logging.exception(f"Reading hitchecks failed")
 
 	def write_hitcheck_verts(self, bone_info, stream):
 		logging.debug(f"Writing additional hitcheck data")

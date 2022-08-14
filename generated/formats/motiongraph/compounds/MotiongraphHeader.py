@@ -100,7 +100,7 @@ class MotiongraphHeader(MemStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		yield 'ptr_0', Pointer, (0, generated.formats.motiongraph.compounds.MotiongraphRootFrag.MotiongraphRootFrag)
 		yield 'state_output_entries', Pointer, (0, generated.formats.motiongraph.compounds.StateArray.StateArray)
 		yield 'ptr_2', Pointer, (0, generated.formats.motiongraph.compounds.MGTwo.MGTwo)

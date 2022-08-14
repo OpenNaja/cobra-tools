@@ -61,7 +61,7 @@ class UACJointFF(BaseStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		yield 'eleven', Uint, (0, None)
 		yield 'f_fs', Array, ((4,), Int, 0, None)
 		yield 'name_offset', Uint, (0, None)

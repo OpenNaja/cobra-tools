@@ -104,7 +104,7 @@ class Struct7(BaseStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		if instance.context.version <= 13:
 			yield 'weird_padding', SmartPadding, (0, None)
 		yield 'count_7', Uint64, (0, None)

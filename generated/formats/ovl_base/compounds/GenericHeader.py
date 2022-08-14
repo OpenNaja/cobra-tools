@@ -77,7 +77,7 @@ class GenericHeader(BaseStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		yield 'magic', FixedString, (4, None)
 		yield 'version_flag', Byte, (0, None)
 		yield 'version', Byte, (0, None)

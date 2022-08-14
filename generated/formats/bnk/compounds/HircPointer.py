@@ -58,7 +58,7 @@ class HircPointer(BaseStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		yield 'id', HircType, (0, None)
 		if instance.id == 2:
 			yield 'data', SoundSfxVoice, (0, None)

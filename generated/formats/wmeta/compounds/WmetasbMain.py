@@ -131,7 +131,7 @@ class WmetasbMain(MemStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		yield 'hash', Uint, (0, None)
 		yield 'unk', Uint, (0, None)
 		yield 'block_name', Pointer, (0, generated.formats.base.basic.ZString)

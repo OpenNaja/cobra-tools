@@ -43,7 +43,7 @@ class DependencyInfo(MemStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		if instance.arg.dtype == 8:
 			yield 'dependency_name', Pointer, (0, None)
 

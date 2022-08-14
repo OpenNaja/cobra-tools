@@ -44,7 +44,7 @@ class PosInfo(Material):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		yield 'ff', Int, (0, None)
 		yield 'ff_or_zero', Int, (0, None)
 

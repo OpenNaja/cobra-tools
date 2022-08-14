@@ -51,7 +51,7 @@ class MinusPadding(BaseStruct):
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
-		super()._get_filtered_attribute_list(instance)
+		yield from super()._get_filtered_attribute_list(instance)
 		yield 'indices', Array, ((instance.arg,), Short, 0, None)
 		yield 'padding', Array, (((16 - ((instance.arg * 2) % 16)) % 16,), Byte, 0, None)
 
