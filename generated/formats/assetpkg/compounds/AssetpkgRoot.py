@@ -8,21 +8,21 @@ class AssetpkgRoot(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.zero = 0
+		self._zero = 0
 		self.asset_path = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
 		super().set_defaults()
-		self.zero = 0
+		self._zero = 0
 		self.asset_path = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
 		instance.asset_path = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
-		instance.zero = Uint64.from_stream(stream, instance.context, 0, None)
+		instance._zero = Uint64.from_stream(stream, instance.context, 0, None)
 		if not isinstance(instance.asset_path, int):
 			instance.asset_path.arg = 0
 
@@ -30,13 +30,13 @@ class AssetpkgRoot(MemStruct):
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
 		Pointer.to_stream(stream, instance.asset_path)
-		Uint64.to_stream(stream, instance.zero)
+		Uint64.to_stream(stream, instance._zero)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
 		yield 'asset_path', Pointer, (0, generated.formats.base.basic.ZString), (False, None)
-		yield 'zero', Uint64, (0, None), (False, None)
+		yield '_zero', Uint64, (0, None), (False, None)
 
 	def get_info_str(self, indent=0):
 		return f'AssetpkgRoot [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
@@ -45,7 +45,7 @@ class AssetpkgRoot(MemStruct):
 		s = ''
 		s += super().get_fields_str()
 		s += f'\n	* asset_path = {self.fmt_member(self.asset_path, indent+1)}'
-		s += f'\n	* zero = {self.fmt_member(self.zero, indent+1)}'
+		s += f'\n	* _zero = {self.fmt_member(self._zero, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):
