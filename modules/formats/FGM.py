@@ -1,4 +1,5 @@
 from generated.formats.fgm.compounds.FgmHeader import FgmHeader
+from generated.formats.fgm.enums.FgmDtype import FgmDtype
 from generated.formats.ovl_base.basic import ConvStream
 from modules.formats.BaseFormat import MemStructLoader
 
@@ -43,6 +44,8 @@ class FgmLoader(MemStructLoader):
 
 	def update_names_buffer(self):
 		"""Rewrites the name buffer and updates the offsets"""
+		self.header.attribute_count = len(self.header.attributes.data)
+		self.header.texture_count = len(self.header.textures.data)
 		names_writer = ConvStream()
 		# shader name is at 0
 		names_writer.write_zstring(self.header.shader_name)
@@ -53,6 +56,9 @@ class FgmLoader(MemStructLoader):
 				for member in arr:
 					member.offset = names_writer.tell()
 					names_writer.write_zstring(member.name)
+
+		for i, tex in enumerate([t for t in self.header.textures.data if t.dtype == FgmDtype.TEXTURE]):
+			tex.value[0].index = i
 		value_offset = 0
 		for attrib, attrib_data in zip(self.header.attributes.data, self.header.attributes.data):
 			attrib.value_offset = value_offset

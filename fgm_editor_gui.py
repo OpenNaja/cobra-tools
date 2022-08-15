@@ -24,15 +24,6 @@ from ovl_util.config import logging_setup
 
 logging_setup("fgm_editor")
 
-attrib_sizes = {
-	0: 4,  # FgmDtype.Float
-	1: 8,  # FgmDtype.Float2
-	2: 12,  # FgmDtype.FLOAT_3
-	3: 16,  # FgmDtype.Float4
-	5: 4,  # FgmDtype.Int
-	6: 4,  # FgmDtype.Bool
-}
-
 
 class MainWindow(widgets.MainWindow):
 
@@ -146,12 +137,6 @@ class MainWindow(widgets.MainWindow):
 	def set_dirty(self):
 		self.file_widget.dirty = True
 
-	def set_tex_count(self, count=None):
-		self.header.texture_count = count if count is not None else len(self.header.textures.data)
-
-	def set_attrib_count(self, count=None):
-		self.header.attribute_count = count if count is not None else len(self.header.attributes.data)
-
 	def update_choices(self):
 		shader_name = self.shader_choice.entry.currentText()
 		if self.fgm_dict and shader_name:
@@ -200,7 +185,6 @@ class MainWindow(widgets.MainWindow):
 			logging.exception("Could not merge texture values")
 		finally:
 			# Fix indices again after merge
-			self.fix_tex_indices(self.header.textures.data)
 			self.tex_container.update_gui(self.header.textures.data, self.header.name_foreach_textures.data)
 			self.set_dirty()
 
@@ -256,10 +240,6 @@ class MainWindow(widgets.MainWindow):
 	def create_tex_name(self, prefix, suffix):
 		return f'{prefix.replace(".fgm", "")}.{suffix.lower()}.tex'
 
-	def fix_tex_indices(self, textures):
-		for i, tex in enumerate([t for t in textures if t.dtype == FgmDtype.TEXTURE]):
-			tex.value[0].index = i
-
 	def fix_dependencies(self, deps):
 		for i, dep in enumerate(deps):
 			tex_dtype = self.header.textures.data[i].dtype
@@ -270,40 +250,45 @@ class MainWindow(widgets.MainWindow):
 		textures = self.header.textures.data
 		deps = self.header.name_foreach_textures.data
 		textures[:], deps[:] = zip(*sorted(zip(textures, deps), key=lambda p: p[0].name))
-		self.fix_tex_indices(textures)
 		return textures, deps
 
 	def add_texture_clicked(self):
 		self.add_texture(self.texture_choice.entry.currentText(), update_gui=True)
 
 	def add_texture(self, tex_name, update_gui=False):
-		textures = self.header.textures.data
-		for tex in textures:
-			if tex.name == tex_name:
-				logging.warning(f"Texture '{tex_name}' already exists. Ignoring.")
-				return
+		try:
+			if self.header.textures.data is None:
+				self.header.textures.data = Array((1,), TextureInfo, self.context, set_default=False)
+			if self.header.name_foreach_textures.data is None:
+				self.header.name_foreach_textures.data = Array((1,), TextureData, self.context, set_default=False)
+			textures = self.header.textures.data
+			for tex in textures:
+				if tex.name == tex_name:
+					logging.warning(f"Texture '{tex_name}' already exists. Ignoring.")
+					return
 
-		tex_index = TexIndex(self.context, set_default=False)
-		tex_index.set_defaults()
+			tex_index = TexIndex(self.context, set_default=False)
+			tex_index.set_defaults()
 
-		tex = TextureInfo(self.context, set_default=False)
-		tex.dtype = FgmDtype.TEXTURE
-		tex.set_defaults()
-		tex.name = tex_name
-		tex.value[:] = [tex_index]
-		textures.append(tex)
+			tex = TextureInfo(self.context, set_default=False)
+			tex.dtype = FgmDtype.TEXTURE
+			tex.set_defaults()
+			tex.name = tex_name
+			tex.value[:] = [tex_index]
+			textures.append(tex)
 
-		deps = self.header.name_foreach_textures.data
-		dep = TextureData(self.context, arg=tex, set_default=False)
-		dep.set_defaults()
-		dep.dependency_name.data = ''
-		deps.append(dep)
+			deps = self.header.name_foreach_textures.data
+			dep = TextureData(self.context, arg=tex, set_default=False)
+			dep.set_defaults()
+			dep.dependency_name.data = ''
+			deps.append(dep)
 
-		self.header.textures.data[:], self.header.name_foreach_textures.data[:] = self.sort_textures()
-		self.set_tex_count()
+			self.header.textures.data[:], self.header.name_foreach_textures.data[:] = self.sort_textures()
 
-		if update_gui:
-			self.tex_container.update_gui(self.header.textures.data, self.header.name_foreach_textures.data)
+			if update_gui:
+				self.tex_container.update_gui(self.header.textures.data, self.header.name_foreach_textures.data)
+		except:
+			logging.exception(f"Tex failed")
 
 	def sort_attributes(self):
 		attribs = self.header.attributes.data
@@ -335,7 +320,6 @@ class MainWindow(widgets.MainWindow):
 		data_lib.append(data)
 
 		self.header.attributes.data[:], self.header.value_foreach_attributes.data[:] = self.sort_attributes()
-		self.set_attrib_count()
 
 		if update_gui:
 			self.attrib_container.update_gui(self.header.attributes.data, self.header.value_foreach_attributes.data)
@@ -531,8 +515,6 @@ class TextureVisual:
 		try:
 			self.container.entry_list.remove(self.entry)
 			self.container.data_list.remove(self.data)
-			self.container.gui.set_tex_count()
-			self.container.gui.set_attrib_count()
 			self.container.update_gui(self.container.entry_list, self.container.data_list)
 		except:
 			logging.exception("Deleting errored")
@@ -542,7 +524,6 @@ class TextureVisual:
 	def update(self):
 		if self.entry.dtype == FgmDtype.TEXTURE or self.entry.dtype == FgmDtype.RGBA:
 			# Update texture indices after changing texture type
-			self.container.gui.fix_tex_indices(self.container.entry_list)
 			self.container.gui.fix_dependencies(self.container.data_list)
 		self.container.gui.set_dirty()
 
