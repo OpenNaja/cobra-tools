@@ -37,8 +37,8 @@ class BufferPresence(BaseStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
-		yield 'pool_index', Int, (0, None)
-		yield 'data_offset', Int, (0, None)
+		yield 'pool_index', Int, (0, None), (False, None)
+		yield 'data_offset', Int, (0, None), (False, None)
 
 	def get_info_str(self, indent=0):
 		return f'BufferPresence [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

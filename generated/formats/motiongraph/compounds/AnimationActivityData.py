@@ -84,17 +84,17 @@ class AnimationActivityData(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
-		yield 'mani', Pointer, (0, generated.formats.base.basic.ZString)
-		yield 'animation_flags', AnimationFlags, (0, None)
-		yield 'priorities', Uint, (0, None)
-		yield 'weight', FloatInputData, (0, None)
-		yield 'speed', FloatInputData, (0, None)
-		yield 'starting_prop_through', Float, (0, None)
-		yield 'lead_out_time', Float, (0, None)
-		yield 'sync_prop_through_variable', Pointer, (0, generated.formats.base.basic.ZString)
-		yield 'count_6', Uint64, (0, None)
-		yield 'output_prop_through_variable', Pointer, (0, generated.formats.base.basic.ZString)
-		yield 'additional_data_streams', DataStreamResourceDataList, (0, None)
+		yield 'mani', Pointer, (0, generated.formats.base.basic.ZString), (False, None)
+		yield 'animation_flags', AnimationFlags, (0, None), (False, None)
+		yield 'priorities', Uint, (0, None), (False, None)
+		yield 'weight', FloatInputData, (0, None), (False, None)
+		yield 'speed', FloatInputData, (0, None), (False, None)
+		yield 'starting_prop_through', Float, (0, None), (False, None)
+		yield 'lead_out_time', Float, (0, None), (False, None)
+		yield 'sync_prop_through_variable', Pointer, (0, generated.formats.base.basic.ZString), (False, None)
+		yield 'count_6', Uint64, (0, None), (False, None)
+		yield 'output_prop_through_variable', Pointer, (0, generated.formats.base.basic.ZString), (False, None)
+		yield 'additional_data_streams', DataStreamResourceDataList, (0, None), (False, None)
 
 	def get_info_str(self, indent=0):
 		return f'AnimationActivityData [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

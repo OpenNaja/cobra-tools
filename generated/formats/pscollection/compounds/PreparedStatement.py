@@ -49,10 +49,10 @@ class PreparedStatement(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
-		yield 'args', ArrayPointer, (instance.arg_count, generated.formats.pscollection.compounds.Arg.Arg)
-		yield 'arg_count', Uint64, (0, None)
-		yield 'statement_name', Pointer, (0, generated.formats.base.basic.ZString)
-		yield 'sql_query', Pointer, (0, generated.formats.base.basic.ZString)
+		yield 'args', ArrayPointer, (instance.arg_count, generated.formats.pscollection.compounds.Arg.Arg), (False, None)
+		yield 'arg_count', Uint64, (0, None), (False, None)
+		yield 'statement_name', Pointer, (0, generated.formats.base.basic.ZString), (False, None)
+		yield 'sql_query', Pointer, (0, generated.formats.base.basic.ZString), (False, None)
 
 	def get_info_str(self, indent=0):
 		return f'PreparedStatement [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

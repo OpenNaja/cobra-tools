@@ -47,9 +47,9 @@ class Some(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
-		yield 'some_name', Pointer, (0, generated.formats.base.basic.ZString)
-		yield 'some_data', ArrayPointer, (instance.some_count, generated.formats.logicalcontrols.compounds.SomeData.SomeData)
-		yield 'some_count', Uint64, (0, None)
+		yield 'some_name', Pointer, (0, generated.formats.base.basic.ZString), (False, None)
+		yield 'some_data', ArrayPointer, (instance.some_count, generated.formats.logicalcontrols.compounds.SomeData.SomeData), (False, None)
+		yield 'some_count', Uint64, (0, None), (False, None)
 
 	def get_info_str(self, indent=0):
 		return f'Some [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

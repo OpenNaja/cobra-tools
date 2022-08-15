@@ -45,11 +45,11 @@ class Dxt10Header(BaseStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
-		yield 'dxgi_format', DxgiFormat, (0, None)
-		yield 'resource_dimension', D3D10ResourceDimension, (0, None)
-		yield 'misc_flag', Uint, (0, None)
-		yield 'array_size', Uint, (0, None)
-		yield 'misc_flag_2', Uint, (0, None)
+		yield 'dxgi_format', DxgiFormat, (0, None), (False, None)
+		yield 'resource_dimension', D3D10ResourceDimension, (0, None), (False, None)
+		yield 'misc_flag', Uint, (0, None), (False, None)
+		yield 'array_size', Uint, (0, None), (False, None)
+		yield 'misc_flag_2', Uint, (0, None), (False, None)
 
 	def get_info_str(self, indent=0):
 		return f'Dxt10Header [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

@@ -113,21 +113,21 @@ class LodInfo(BaseStruct):
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
 		if instance.context.version <= 13:
-			yield 'full', Short, (0, None)
-			yield 'half', Short, (0, None)
-			yield 'lod_index', Ushort, (0, None)
+			yield 'full', Short, (0, None), (False, None)
+			yield 'half', Short, (0, None), (False, None)
+			yield 'lod_index', Ushort, (0, None), (False, None)
 		if instance.context.version >= 32:
-			yield 'distance', Float, (0, None)
-			yield 'zero', Ushort, (0, None)
-		yield 'bone_index', Ushort, (0, None)
-		yield 'first_object_index', Ushort, (0, None)
+			yield 'distance', Float, (0, None), (False, None)
+			yield 'zero', Ushort, (0, None), (False, None)
+		yield 'bone_index', Ushort, (0, None), (False, None)
+		yield 'first_object_index', Ushort, (0, None), (False, None)
 		if instance.context.version <= 13:
-			yield 'first_object_index_1', Ushort, (0, None)
-			yield 'first_object_index_2', Ushort, (0, None)
-		yield 'last_object_index', Ushort, (0, None)
+			yield 'first_object_index_1', Ushort, (0, None), (False, None)
+			yield 'first_object_index_2', Ushort, (0, None), (False, None)
+		yield 'last_object_index', Ushort, (0, None), (False, None)
 		if instance.context.version >= 32 and not ((instance.context.version == 51) and instance.context.biosyn):
-			yield 'vertex_count', Uint, (0, None)
-			yield 'tri_index_count', Uint, (0, None)
+			yield 'vertex_count', Uint, (0, None), (False, None)
+			yield 'tri_index_count', Uint, (0, None), (False, None)
 
 	def get_info_str(self, indent=0):
 		return f'LodInfo [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

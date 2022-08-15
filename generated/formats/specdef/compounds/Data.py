@@ -125,37 +125,37 @@ class Data(MemStruct):
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
 		if instance.arg == 0:
-			yield 'dtype', BooleanData, (0, None)
+			yield 'dtype', BooleanData, (0, None), (False, None)
 		if instance.arg == 1:
-			yield 'dtype', Int8Data, (0, None)
+			yield 'dtype', Int8Data, (0, None), (False, None)
 		if instance.arg == 2:
-			yield 'dtype', Int16Data, (0, None)
+			yield 'dtype', Int16Data, (0, None), (False, None)
 		if instance.arg == 3:
-			yield 'dtype', Int32Data, (0, None)
+			yield 'dtype', Int32Data, (0, None), (False, None)
 		if instance.arg == 4:
-			yield 'dtype', Int64Data, (0, None)
+			yield 'dtype', Int64Data, (0, None), (False, None)
 		if instance.arg == 5:
-			yield 'dtype', Uint8Data, (0, None)
+			yield 'dtype', Uint8Data, (0, None), (False, None)
 		if instance.arg == 6:
-			yield 'dtype', Uint16Data, (0, None)
+			yield 'dtype', Uint16Data, (0, None), (False, None)
 		if instance.arg == 7:
-			yield 'dtype', Uint32Data, (0, None)
+			yield 'dtype', Uint32Data, (0, None), (False, None)
 		if instance.arg == 8:
-			yield 'dtype', Uint64Data, (0, None)
+			yield 'dtype', Uint64Data, (0, None), (False, None)
 		if instance.arg == 9:
-			yield 'dtype', FloatData, (0, None)
+			yield 'dtype', FloatData, (0, None), (False, None)
 		if instance.arg == 10:
-			yield 'dtype', StringData, (0, None)
+			yield 'dtype', StringData, (0, None), (False, None)
 		if instance.arg == 11:
-			yield 'dtype', Vector2, (0, None)
+			yield 'dtype', Vector2, (0, None), (False, None)
 		if instance.arg == 12:
-			yield 'dtype', Vector3, (0, None)
+			yield 'dtype', Vector3, (0, None), (False, None)
 		if instance.arg == 13:
-			yield 'dtype', ArrayData, (0, None)
+			yield 'dtype', ArrayData, (0, None), (False, None)
 		if instance.arg == 14:
-			yield 'dtype', ChildSpecData, (0, None)
+			yield 'dtype', ChildSpecData, (0, None), (False, None)
 		if instance.arg == 15:
-			yield 'dtype', ReferenceToObjectData, (0, None)
+			yield 'dtype', ReferenceToObjectData, (0, None), (False, None)
 
 	def get_info_str(self, indent=0):
 		return f'Data [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

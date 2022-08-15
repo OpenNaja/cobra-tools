@@ -55,11 +55,11 @@ class Capsule(BaseStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
-		yield 'offset', Vector3, (0, None)
-		yield 'direction', Vector3, (0, None)
-		yield 'radius', Float, (0, None)
-		yield 'extent', Float, (0, None)
-		yield 'zero', Uint, (0, None)
+		yield 'offset', Vector3, (0, None), (False, None)
+		yield 'direction', Vector3, (0, None), (False, None)
+		yield 'radius', Float, (0, None), (False, None)
+		yield 'extent', Float, (0, None), (False, None)
+		yield 'zero', Uint, (0, None), (False, None)
 
 	def get_info_str(self, indent=0):
 		return f'Capsule [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

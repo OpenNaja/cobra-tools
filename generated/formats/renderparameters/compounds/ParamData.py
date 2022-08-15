@@ -96,25 +96,25 @@ class ParamData(MemStruct):
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
 		if instance.arg == 0:
-			yield 'data', Array, ((1,), Bool, 0, None)
+			yield 'data', Array, ((1,), Bool, 0, None), (False, None)
 		if instance.arg == 1:
-			yield 'data', Array, ((1,), Float, 0, None)
+			yield 'data', Array, ((1,), Float, 0, None), (False, None)
 		if instance.arg == 2:
-			yield 'data', Array, ((1,), Int, 0, None)
+			yield 'data', Array, ((1,), Int, 0, None), (False, None)
 		if instance.arg == 3:
-			yield 'data', Array, ((1,), Uint, 0, None)
+			yield 'data', Array, ((1,), Uint, 0, None), (False, None)
 		if instance.arg == 4:
-			yield 'data', Array, ((2,), Float, 0, None)
+			yield 'data', Array, ((2,), Float, 0, None), (False, None)
 		if instance.arg == 5:
-			yield 'data', Array, ((3,), Float, 0, None)
+			yield 'data', Array, ((3,), Float, 0, None), (False, None)
 		if instance.arg == 6:
-			yield 'data', Array, ((4,), Float, 0, None)
+			yield 'data', Array, ((4,), Float, 0, None), (False, None)
 		if instance.arg == 7:
-			yield 'data', Array, ((4,), Ubyte, 0, None)
+			yield 'data', Array, ((4,), Ubyte, 0, None), (False, None)
 		if instance.arg == 8:
-			yield 'data', Array, ((4,), Float, 0, None)
+			yield 'data', Array, ((4,), Float, 0, None), (False, None)
 		if instance.arg == 9:
-			yield 'data', Array, ((1,), ZStrPtr, 0, None)
+			yield 'data', Array, ((1,), ZStrPtr, 0, None), (False, None)
 
 	def get_info_str(self, indent=0):
 		return f'ParamData [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

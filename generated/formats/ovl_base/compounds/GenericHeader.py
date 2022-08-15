@@ -68,12 +68,12 @@ class GenericHeader(BaseStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
-		yield 'magic', FixedString, (4, None)
-		yield 'version_flag', Byte, (0, None)
-		yield 'version', Byte, (0, None)
-		yield 'bitswap', Byte, (0, None)
-		yield 'seventh_byte', Byte, (0, None)
-		yield 'user_version', VersionInfo, (0, None)
+		yield 'magic', FixedString, (4, None), (False, None)
+		yield 'version_flag', Byte, (0, None), (False, None)
+		yield 'version', Byte, (0, None), (False, None)
+		yield 'bitswap', Byte, (0, None), (False, None)
+		yield 'seventh_byte', Byte, (0, None), (False, 1)
+		yield 'user_version', VersionInfo, (0, None), (False, None)
 
 	def get_info_str(self, indent=0):
 		return f'GenericHeader [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

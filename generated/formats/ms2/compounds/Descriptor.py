@@ -35,8 +35,8 @@ class Descriptor(BaseStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
-		yield 'parent', Ushort, (0, None)
-		yield 'child', Ushort, (0, None)
+		yield 'parent', Ushort, (0, None), (False, None)
+		yield 'child', Ushort, (0, None), (False, None)
 
 	def get_info_str(self, indent=0):
 		return f'Descriptor [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

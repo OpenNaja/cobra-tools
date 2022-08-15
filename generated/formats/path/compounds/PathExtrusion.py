@@ -60,13 +60,13 @@ class PathExtrusion(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
-		yield 'model', Pointer, (0, generated.formats.base.basic.ZString)
-		yield 'post_model', Pointer, (0, generated.formats.base.basic.ZString)
-		yield 'endcap_model', Pointer, (0, generated.formats.base.basic.ZString)
-		yield 'unk_float_1', Float, (0, None)
-		yield 'unk_float_2', Float, (0, None)
-		yield 'is_kerb', Bool, (0, None)
-		yield 'is_not_ground', Bool, (0, None)
+		yield 'model', Pointer, (0, generated.formats.base.basic.ZString), (False, None)
+		yield 'post_model', Pointer, (0, generated.formats.base.basic.ZString), (False, None)
+		yield 'endcap_model', Pointer, (0, generated.formats.base.basic.ZString), (False, None)
+		yield 'unk_float_1', Float, (0, None), (False, None)
+		yield 'unk_float_2', Float, (0, None), (False, None)
+		yield 'is_kerb', Bool, (0, None), (False, None)
+		yield 'is_not_ground', Bool, (0, None), (False, None)
 
 	def get_info_str(self, indent=0):
 		return f'PathExtrusion [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

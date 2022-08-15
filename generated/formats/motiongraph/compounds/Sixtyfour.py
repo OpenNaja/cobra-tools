@@ -68,14 +68,14 @@ class Sixtyfour(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
-		yield 'count_0', Uint64, (0, None)
-		yield 'ptr_0', Pointer, (0, None)
-		yield 'ptr_1', Pointer, (0, None)
-		yield 'count_1', Uint64, (0, None)
-		yield 'count_2', Uint64, (0, None)
-		yield 'ptr_2', Pointer, (0, None)
-		yield 'ptr_3', Pointer, (0, None)
-		yield 'count_3', Uint64, (0, None)
+		yield 'count_0', Uint64, (0, None), (False, None)
+		yield 'ptr_0', Pointer, (0, None), (False, None)
+		yield 'ptr_1', Pointer, (0, None), (False, None)
+		yield 'count_1', Uint64, (0, None), (False, None)
+		yield 'count_2', Uint64, (0, None), (False, None)
+		yield 'ptr_2', Pointer, (0, None), (False, None)
+		yield 'ptr_3', Pointer, (0, None), (False, None)
+		yield 'count_3', Uint64, (0, None), (False, None)
 
 	def get_info_str(self, indent=0):
 		return f'Sixtyfour [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

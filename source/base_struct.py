@@ -85,13 +85,13 @@ class BaseStruct:
 		"""Sets the data from the XML to this struct"""
 		set_fields = set()
 		# go over all (active through conditions) fields of this struct
-		for prop, field_type, arguments in cls._get_filtered_attribute_list(instance):
+		for prop, field_type, arguments, (optional, default) in cls._get_filtered_attribute_list(instance):
 			set_fields.add(prop)
 			# skip dummy properties
 			if prop in SKIPS:
 				continue
 			# keep clean XML
-			if prop.startswith(DO_NOT_SERIALIZE):
+			if prop.startswith(DO_NOT_SERIALIZE) or (optional and getattr(instance, prop) == default):
 				continue
 			setattr(instance, prop, field_type.from_xml(instance, elem, prop, arguments))
 
@@ -122,11 +122,11 @@ class BaseStruct:
 	@classmethod
 	def _to_xml(cls, instance, elem, debug):
 		# go over all fields of this struct
-		for prop, field_type, arguments in cls._get_filtered_attribute_list(instance):
+		for prop, field_type, arguments, (optional, default) in cls._get_filtered_attribute_list(instance):
 			if prop in SKIPS:
 				continue
 			# keep clean XML
-			if prop.startswith(DO_NOT_SERIALIZE):
+			if prop.startswith(DO_NOT_SERIALIZE) or (optional and getattr(instance, prop) == default):
 				continue
 			field_type.to_xml(elem, prop, getattr(instance, prop), arguments, debug)
 		potential_name = getattr(instance, "name", "")

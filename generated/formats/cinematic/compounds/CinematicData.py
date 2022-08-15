@@ -43,9 +43,9 @@ class CinematicData(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
-		yield 'default_name', Pointer, (0, generated.formats.base.basic.ZString)
-		yield 'next_levels', ArrayPointer, (instance.next_level_count, generated.formats.cinematic.compounds.State.State)
-		yield 'next_level_count', Uint64, (0, None)
+		yield 'default_name', Pointer, (0, generated.formats.base.basic.ZString), (False, None)
+		yield 'next_levels', ArrayPointer, (instance.next_level_count, generated.formats.cinematic.compounds.State.State), (False, None)
+		yield 'next_level_count', Uint64, (0, None), (False, None)
 
 	def get_info_str(self, indent=0):
 		return f'CinematicData [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

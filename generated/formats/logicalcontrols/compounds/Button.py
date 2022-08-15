@@ -47,10 +47,10 @@ class Button(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
-		yield 'button_name', Pointer, (0, generated.formats.base.basic.ZString)
-		yield 'datas', ArrayPointer, (instance.datas_count, generated.formats.logicalcontrols.compounds.ButtonData.ButtonData)
-		yield 'datas_count', Uint, (0, None)
-		yield 'flags', Uint, (0, None)
+		yield 'button_name', Pointer, (0, generated.formats.base.basic.ZString), (False, None)
+		yield 'datas', ArrayPointer, (instance.datas_count, generated.formats.logicalcontrols.compounds.ButtonData.ButtonData), (False, None)
+		yield 'datas_count', Uint, (0, None), (False, None)
+		yield 'flags', Uint, (0, None), (False, None)
 
 	def get_info_str(self, indent=0):
 		return f'Button [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

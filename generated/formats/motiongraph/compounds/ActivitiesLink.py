@@ -29,7 +29,7 @@ class ActivitiesLink(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
-		yield 'linked', Pointer, (0, None)
+		yield 'linked', Pointer, (0, None), (False, None)
 
 	def get_info_str(self, indent=0):
 		return f'ActivitiesLink [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

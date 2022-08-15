@@ -35,8 +35,8 @@ class HbPostPos(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
-		yield 'right', Float, (0, None)
-		yield 'left', Float, (0, None)
+		yield 'right', Float, (0, None), (False, None)
+		yield 'left', Float, (0, None), (False, None)
 
 	def get_info_str(self, indent=0):
 		return f'HbPostPos [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

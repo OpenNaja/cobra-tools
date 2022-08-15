@@ -30,7 +30,7 @@ class XmlconfigRoot(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
-		yield 'xml_string', Pointer, (0, generated.formats.base.basic.ZString)
+		yield 'xml_string', Pointer, (0, generated.formats.base.basic.ZString), (False, None)
 
 	def get_info_str(self, indent=0):
 		return f'XmlconfigRoot [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

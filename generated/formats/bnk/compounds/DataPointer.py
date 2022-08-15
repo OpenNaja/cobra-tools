@@ -43,9 +43,9 @@ class DataPointer(BaseStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
-		yield 'wem_id', Uint, (0, None)
-		yield 'data_section_offset', Uint, (0, None)
-		yield 'wem_filesize', Uint, (0, None)
+		yield 'wem_id', Uint, (0, None), (False, None)
+		yield 'data_section_offset', Uint, (0, None), (False, None)
+		yield 'wem_filesize', Uint, (0, None), (False, None)
 
 	def get_info_str(self, indent=0):
 		return f'DataPointer [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

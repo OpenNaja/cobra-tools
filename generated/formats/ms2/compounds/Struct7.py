@@ -96,19 +96,19 @@ class Struct7(BaseStruct):
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
 		if instance.context.version <= 13:
-			yield 'weird_padding', SmartPadding, (0, None)
-		yield 'count_7', Uint64, (0, None)
-		yield 'zero_0', Uint64, (0, None)
+			yield 'weird_padding', SmartPadding, (0, None), (False, None)
+		yield 'count_7', Uint64, (0, None), (False, None)
+		yield 'zero_0', Uint64, (0, None), (False, None)
 		if instance.context.version >= 48:
-			yield 'flag', Uint64, (0, None)
-			yield 'zero_2', Uint64, (0, None)
+			yield 'flag', Uint64, (0, None), (False, None)
+			yield 'zero_2', Uint64, (0, None), (False, None)
 		if instance.context.version <= 13:
-			yield 'unknown_list', Array, ((instance.count_7,), UACJoint, 0, None)
+			yield 'unknown_list', Array, ((instance.count_7,), UACJoint, 0, None), (False, None)
 		if instance.context.version >= 32:
-			yield 'unknown_list', Array, ((instance.count_7,), NasutoJointEntry, 0, None)
-		yield 'padding', Array, (((8 - ((instance.count_7 * 60) % 8)) % 8,), Ubyte, 0, None)
+			yield 'unknown_list', Array, ((instance.count_7,), NasutoJointEntry, 0, None), (False, None)
+		yield 'padding', Array, (((8 - ((instance.count_7 * 60) % 8)) % 8,), Ubyte, 0, None), (False, None)
 		if instance.context.version >= 50 and instance.flag:
-			yield 'alignment', Uint64, (0, None)
+			yield 'alignment', Uint64, (0, None), (False, None)
 
 	def get_info_str(self, indent=0):
 		return f'Struct7 [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

@@ -70,14 +70,14 @@ class State(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
-		yield 'abstract_name', Pointer, (0, generated.formats.base.basic.ZString)
-		yield 'concrete_name', Pointer, (0, generated.formats.base.basic.ZString)
-		yield 'debug_name', Pointer, (0, generated.formats.base.basic.ZString)
-		yield 'a', Uint64, (0, None)
-		yield 'b', Uint64, (0, None)
-		yield 'c', Uint64, (0, None)
-		yield 'events_list', Pointer, (0, generated.formats.cinematic.compounds.EventsList.EventsList)
-		yield 'd', Uint64, (0, None)
+		yield 'abstract_name', Pointer, (0, generated.formats.base.basic.ZString), (False, None)
+		yield 'concrete_name', Pointer, (0, generated.formats.base.basic.ZString), (False, None)
+		yield 'debug_name', Pointer, (0, generated.formats.base.basic.ZString), (False, None)
+		yield 'a', Uint64, (0, None), (False, None)
+		yield 'b', Uint64, (0, None), (False, None)
+		yield 'c', Uint64, (0, None), (False, None)
+		yield 'events_list', Pointer, (0, generated.formats.cinematic.compounds.EventsList.EventsList), (False, None)
+		yield 'd', Uint64, (0, None), (False, None)
 
 	def get_info_str(self, indent=0):
 		return f'State [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

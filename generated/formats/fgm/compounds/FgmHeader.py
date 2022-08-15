@@ -93,19 +93,19 @@ class FgmHeader(MemStruct):
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
 		if instance.context.version <= 15:
-			yield '_texture_count', Uint, (0, None)
+			yield '_texture_count', Uint, (0, None), (False, None)
 		if instance.context.version >= 17:
-			yield '_texture_count', Uint64, (0, None)
+			yield '_texture_count', Uint64, (0, None), (False, None)
 		if instance.context.version <= 15:
-			yield '_attribute_count', Uint, (0, None)
+			yield '_attribute_count', Uint, (0, None), (False, None)
 		if instance.context.version >= 17:
-			yield '_attribute_count', Uint64, (0, None)
-		yield 'textures', ArrayPointer, (instance._texture_count, generated.formats.fgm.compounds.TextureInfo.TextureInfo)
-		yield 'attributes', ArrayPointer, (instance._attribute_count, generated.formats.fgm.compounds.AttribInfo.AttribInfo)
-		yield 'name_foreach_textures', ForEachPointer, (instance.textures, generated.formats.fgm.compounds.TextureData.TextureData)
-		yield 'value_foreach_attributes', ForEachPointer, (instance.attributes, generated.formats.fgm.compounds.AttribData.AttribData)
-		yield '_unk_0', Uint64, (0, None)
-		yield '_unk_1', Uint64, (0, None)
+			yield '_attribute_count', Uint64, (0, None), (False, None)
+		yield 'textures', ArrayPointer, (instance._texture_count, generated.formats.fgm.compounds.TextureInfo.TextureInfo), (False, None)
+		yield 'attributes', ArrayPointer, (instance._attribute_count, generated.formats.fgm.compounds.AttribInfo.AttribInfo), (False, None)
+		yield 'name_foreach_textures', ForEachPointer, (instance.textures, generated.formats.fgm.compounds.TextureData.TextureData), (False, None)
+		yield 'value_foreach_attributes', ForEachPointer, (instance.attributes, generated.formats.fgm.compounds.AttribData.AttribData), (False, None)
+		yield '_unk_0', Uint64, (0, None), (False, None)
+		yield '_unk_1', Uint64, (0, None), (False, None)
 
 	def get_info_str(self, indent=0):
 		return f'FgmHeader [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

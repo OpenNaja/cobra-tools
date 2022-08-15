@@ -57,13 +57,13 @@ class AssetEntry(BaseStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
-		yield 'file_hash', Uint, (0, None)
-		yield 'zero_0', Uint, (0, None)
+		yield 'file_hash', Uint, (0, None), (False, None)
+		yield 'zero_0', Uint, (0, None), (False, None)
 		if instance.context.version >= 19:
-			yield 'ext_hash', Uint, (0, None)
-			yield 'zero_1', Uint, (0, None)
-		yield 'file_index', Uint, (0, None)
-		yield 'zero_2', Uint, (0, None)
+			yield 'ext_hash', Uint, (0, None), (False, None)
+			yield 'zero_1', Uint, (0, None), (False, None)
+		yield 'file_index', Uint, (0, None), (False, None)
+		yield 'zero_2', Uint, (0, None), (False, None)
 
 	def get_info_str(self, indent=0):
 		return f'AssetEntry [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

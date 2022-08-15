@@ -63,12 +63,12 @@ class ListCEntry(BaseStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
-		yield 'one', Uint, (0, None)
-		yield 'loc', Vector3, (0, None)
-		yield 'constant', Float, (0, None)
-		yield 'a', Float, (0, None)
-		yield 'floats', Array, ((4,), Float, 0, None)
-		yield 'a_2', Float, (0, None)
+		yield 'one', Uint, (0, None), (False, None)
+		yield 'loc', Vector3, (0, None), (False, None)
+		yield 'constant', Float, (0, None), (False, None)
+		yield 'a', Float, (0, None), (False, None)
+		yield 'floats', Array, ((4,), Float, 0, None), (False, None)
+		yield 'a_2', Float, (0, None), (False, None)
 
 	def get_info_str(self, indent=0):
 		return f'ListCEntry [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

@@ -56,12 +56,12 @@ class LutHeader(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
-		yield 'colors', ArrayPointer, (instance.colors_count, generated.formats.lut.compounds.Vector3.Vector3)
-		yield 'colors_count', Ushort, (0, None)
-		yield 'unk_0', Ushort, (0, None)
-		yield 'unk_1', Uint, (0, None)
-		yield 'colors_in_column_count', Uint, (0, None)
-		yield 'unk_2', Uint, (0, None)
+		yield 'colors', ArrayPointer, (instance.colors_count, generated.formats.lut.compounds.Vector3.Vector3), (False, None)
+		yield 'colors_count', Ushort, (0, None), (False, None)
+		yield 'unk_0', Ushort, (0, None), (False, None)
+		yield 'unk_1', Uint, (0, None), (False, None)
+		yield 'colors_in_column_count', Uint, (0, None), (False, None)
+		yield 'unk_2', Uint, (0, None), (False, None)
 
 	def get_info_str(self, indent=0):
 		return f'LutHeader [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

@@ -71,12 +71,12 @@ class Activity(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
-		yield 'data_type', Pointer, (0, generated.formats.base.basic.ZString)
-		yield 'ptr', Pointer, (0, None)
-		yield 'count_2', Uint64, (0, None)
-		yield 'count_3', Uint64, (0, None)
-		yield 'minus_one', Int64, (0, None)
-		yield 'name_b', Pointer, (0, generated.formats.base.basic.ZString)
+		yield 'data_type', Pointer, (0, generated.formats.base.basic.ZString), (False, None)
+		yield 'ptr', Pointer, (0, None), (False, None)
+		yield 'count_2', Uint64, (0, None), (False, None)
+		yield 'count_3', Uint64, (0, None), (False, None)
+		yield 'minus_one', Int64, (0, None), (False, None)
+		yield 'name_b', Pointer, (0, generated.formats.base.basic.ZString), (False, None)
 
 	def get_info_str(self, indent=0):
 		return f'Activity [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

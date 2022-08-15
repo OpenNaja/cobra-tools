@@ -84,19 +84,19 @@ class Perk(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
-		yield 'unk_0', Uint64, (0, None)
-		yield 'building_cost', Uint64, (0, None)
-		yield 'running_cost_base', Uint64, (0, None)
-		yield 'running_cost_per_extension', Uint64, (0, None)
-		yield 'unk_4', Float, (0, None)
-		yield 'unk_5', Float, (0, None)
-		yield 'label', Pointer, (0, generated.formats.base.basic.ZString)
-		yield 'desc', Pointer, (0, generated.formats.base.basic.ZString)
-		yield 'icon', Pointer, (0, generated.formats.base.basic.ZString)
-		yield 'unk_6', Float, (0, None)
-		yield 'appeal_adults', Float, (0, None)
-		yield 'appeal_families', Float, (0, None)
-		yield 'appeal_teenagers', Float, (0, None)
+		yield 'unk_0', Uint64, (0, None), (False, None)
+		yield 'building_cost', Uint64, (0, None), (False, None)
+		yield 'running_cost_base', Uint64, (0, None), (False, None)
+		yield 'running_cost_per_extension', Uint64, (0, None), (False, None)
+		yield 'unk_4', Float, (0, None), (False, None)
+		yield 'unk_5', Float, (0, None), (False, None)
+		yield 'label', Pointer, (0, generated.formats.base.basic.ZString), (False, None)
+		yield 'desc', Pointer, (0, generated.formats.base.basic.ZString), (False, None)
+		yield 'icon', Pointer, (0, generated.formats.base.basic.ZString), (False, None)
+		yield 'unk_6', Float, (0, None), (False, None)
+		yield 'appeal_adults', Float, (0, None), (False, None)
+		yield 'appeal_families', Float, (0, None), (False, None)
+		yield 'appeal_teenagers', Float, (0, None), (False, None)
 
 	def get_info_str(self, indent=0):
 		return f'Perk [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

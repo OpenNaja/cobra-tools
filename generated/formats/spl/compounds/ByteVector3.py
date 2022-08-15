@@ -45,9 +45,9 @@ class ByteVector3(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
-		yield 'x', Byte, (0, None)
-		yield 'y', Byte, (0, None)
-		yield 'z', Byte, (0, None)
+		yield 'x', Byte, (0, None), (False, None)
+		yield 'y', Byte, (0, None), (False, None)
+		yield 'z', Byte, (0, None), (False, None)
 
 	def get_info_str(self, indent=0):
 		return f'ByteVector3 [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

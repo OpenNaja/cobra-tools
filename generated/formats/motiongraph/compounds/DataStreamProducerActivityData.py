@@ -78,15 +78,15 @@ class DataStreamProducerActivityData(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
-		yield 'curve_type', Uint64, (0, None)
-		yield 'ds_name', Pointer, (0, generated.formats.base.basic.ZString)
-		yield 'type', Pointer, (0, generated.formats.base.basic.ZString)
-		yield 'bone_i_d', Pointer, (0, generated.formats.base.basic.ZString)
-		yield 'location', Pointer, (0, generated.formats.base.basic.ZString)
-		yield 'curve', CurveData, (0, None)
-		yield 'time_limit_mode', TimeLimitMode, (0, None)
-		yield 'data_stream_producer_flags', Uint, (0, None)
-		yield 'prop_through_variable', Pointer, (0, generated.formats.base.basic.ZString)
+		yield 'curve_type', Uint64, (0, None), (False, None)
+		yield 'ds_name', Pointer, (0, generated.formats.base.basic.ZString), (False, None)
+		yield 'type', Pointer, (0, generated.formats.base.basic.ZString), (False, None)
+		yield 'bone_i_d', Pointer, (0, generated.formats.base.basic.ZString), (False, None)
+		yield 'location', Pointer, (0, generated.formats.base.basic.ZString), (False, None)
+		yield 'curve', CurveData, (0, None), (False, None)
+		yield 'time_limit_mode', TimeLimitMode, (0, None), (False, None)
+		yield 'data_stream_producer_flags', Uint, (0, None), (False, None)
+		yield 'prop_through_variable', Pointer, (0, generated.formats.base.basic.ZString), (False, None)
 
 	def get_info_str(self, indent=0):
 		return f'DataStreamProducerActivityData [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

@@ -74,15 +74,15 @@ class TriChunk(BaseStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
-		yield 'bounds_min', Vector3, (0, None)
-		yield 'material_index', Ushort, (0, None)
-		yield 'tris_count', Ushort, (0, None)
-		yield 'bounds_max', Vector3, (0, None)
-		yield 'tris_offset', Uint, (0, None)
-		yield 'loc', Vector3, (0, None)
-		yield 'rot', QuatWFirst, (0, None)
-		yield 'u_2', Ushort, (0, None)
-		yield 'u_3', Ushort, (0, None)
+		yield 'bounds_min', Vector3, (0, None), (False, None)
+		yield 'material_index', Ushort, (0, None), (False, None)
+		yield 'tris_count', Ushort, (0, None), (False, None)
+		yield 'bounds_max', Vector3, (0, None), (False, None)
+		yield 'tris_offset', Uint, (0, None), (False, None)
+		yield 'loc', Vector3, (0, None), (False, None)
+		yield 'rot', QuatWFirst, (0, None), (False, None)
+		yield 'u_2', Ushort, (0, None), (False, None)
+		yield 'u_3', Ushort, (0, None), (False, None)
 
 	def get_info_str(self, indent=0):
 		return f'TriChunk [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

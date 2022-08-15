@@ -237,45 +237,45 @@ class ModelInfo(MemStruct):
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
 		if instance.context.version <= 7:
-			yield 'unk_dla', Uint64, (0, None)
-		yield 'bounds_min', Vector3, (0, None)
+			yield 'unk_dla', Uint64, (0, None), (False, None)
+		yield 'bounds_min', Vector3, (0, None), (False, None)
 		if instance.context.version >= 47 and not ((instance.context.version == 51) and instance.context.biosyn):
-			yield 'unk_float_a', Float, (0, None)
-		yield 'bounds_max', Vector3, (0, None)
+			yield 'unk_float_a', Float, (0, None), (False, None)
+		yield 'bounds_max', Vector3, (0, None), (False, None)
 		if instance.context.version >= 47 and not ((instance.context.version == 51) and instance.context.biosyn):
-			yield 'pack_base', Float, (0, None)
-		yield 'center', Vector3, (0, None)
-		yield 'radius', Float, (0, None)
+			yield 'pack_base', Float, (0, None), (False, None)
+		yield 'center', Vector3, (0, None), (False, None)
+		yield 'radius', Float, (0, None), (False, None)
 		if instance.context.version >= 48 and not ((instance.context.version == 51) and instance.context.biosyn):
-			yield 'num_lods_2', Uint64, (0, None)
-			yield 'zero', Uint64, (0, None)
+			yield 'num_lods_2', Uint64, (0, None), (False, None)
+			yield 'zero', Uint64, (0, None), (False, None)
 		if instance.context.version >= 32:
-			yield 'bounds_min_repeat', Vector3, (0, None)
-			yield 'bounds_max_repeat', Vector3, (0, None)
-		yield 'num_materials', Ushort, (0, None)
-		yield 'num_lods', Ushort, (0, None)
-		yield 'num_objects', Ushort, (0, None)
-		yield 'num_meshes', Ushort, (0, None)
-		yield 'last_count', Ushort, (0, None)
-		yield 'render_flag', RenderFlag, (0, None)
-		yield 'unks', Array, ((7,), Ushort, 0, None)
-		yield 'pad', Array, ((3,), Ushort, 0, None)
-		yield 'materials', ArrayPointer, (instance.num_materials, generated.formats.ms2.compounds.MaterialName.MaterialName)
-		yield 'lods', ArrayPointer, (instance.num_lods, generated.formats.ms2.compounds.LodInfo.LodInfo)
-		yield 'objects', ArrayPointer, (instance.num_objects, generated.formats.ms2.compounds.Object.Object)
-		yield 'meshes', ArrayPointer, (instance.num_meshes, generated.formats.ms2.compounds.MeshDataWrap.MeshDataWrap)
-		yield 'first_model', Pointer, (0, None)
+			yield 'bounds_min_repeat', Vector3, (0, None), (False, None)
+			yield 'bounds_max_repeat', Vector3, (0, None), (False, None)
+		yield 'num_materials', Ushort, (0, None), (False, None)
+		yield 'num_lods', Ushort, (0, None), (False, None)
+		yield 'num_objects', Ushort, (0, None), (False, None)
+		yield 'num_meshes', Ushort, (0, None), (False, None)
+		yield 'last_count', Ushort, (0, None), (False, None)
+		yield 'render_flag', RenderFlag, (0, None), (False, None)
+		yield 'unks', Array, ((7,), Ushort, 0, None), (False, None)
+		yield 'pad', Array, ((3,), Ushort, 0, None), (False, None)
+		yield 'materials', ArrayPointer, (instance.num_materials, generated.formats.ms2.compounds.MaterialName.MaterialName), (False, None)
+		yield 'lods', ArrayPointer, (instance.num_lods, generated.formats.ms2.compounds.LodInfo.LodInfo), (False, None)
+		yield 'objects', ArrayPointer, (instance.num_objects, generated.formats.ms2.compounds.Object.Object), (False, None)
+		yield 'meshes', ArrayPointer, (instance.num_meshes, generated.formats.ms2.compounds.MeshDataWrap.MeshDataWrap), (False, None)
+		yield 'first_model', Pointer, (0, None), (False, None)
 		if instance.context.version == 13:
-			yield 'zeros', Array, ((4,), Uint64, 0, None)
+			yield 'zeros', Array, ((4,), Uint64, 0, None), (False, None)
 		if instance.context.version == 7:
-			yield 'zeros', Array, ((2,), Uint64, 0, None)
-		yield 'increment_flag', Uint64, (0, None)
+			yield 'zeros', Array, ((2,), Uint64, 0, None), (False, None)
+		yield 'increment_flag', Uint64, (0, None), (False, None)
 		if not (instance.context.version == 7):
-			yield 'zero_0', Uint64, (0, None)
+			yield 'zero_0', Uint64, (0, None), (False, None)
 		if not (instance.context.version == 32):
-			yield 'zero_1', Uint64, (0, None)
+			yield 'zero_1', Uint64, (0, None), (False, None)
 		if instance.context.version >= 47 and not ((instance.context.version == 51) and instance.context.biosyn):
-			yield 'zero_2', Uint64, (0, None)
+			yield 'zero_2', Uint64, (0, None), (False, None)
 
 	def get_info_str(self, indent=0):
 		return f'ModelInfo [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

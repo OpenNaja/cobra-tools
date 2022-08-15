@@ -50,11 +50,11 @@ class Uint16Data(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
-		yield 'imin', Ushort, (0, None)
-		yield 'imax', Ushort, (0, None)
-		yield 'ivalue', Ushort, (0, None)
-		yield 'ioptional', Ushort, (0, None)
-		yield 'enum', Pointer, (0, None)
+		yield 'imin', Ushort, (0, None), (False, None)
+		yield 'imax', Ushort, (0, None), (False, None)
+		yield 'ivalue', Ushort, (0, None), (False, None)
+		yield 'ioptional', Ushort, (0, None), (False, None)
+		yield 'enum', Pointer, (0, None), (False, None)
 
 	def get_info_str(self, indent=0):
 		return f'Uint16Data [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
