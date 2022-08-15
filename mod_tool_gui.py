@@ -31,6 +31,18 @@ __version__ = '0.1'
 __author__ = 'Open-Naja'
 
 
+class OvlReporter(OvlFile, QtCore.QObject):
+    """Adds PyQt signals to OvlFile to report of progress"""
+
+    files_list = QtCore.pyqtSignal(list)
+    included_ovls_list = QtCore.pyqtSignal(list)
+    progress_percentage = QtCore.pyqtSignal(int)
+    current_action = QtCore.pyqtSignal(str)
+
+    def __init__(self):
+        super().__init__()
+        super(QtCore.QObject, self).__init__()
+
 class ModToolGUI(MainWindow):
     """Main's View (GUI)."""
 
@@ -53,6 +65,7 @@ class ModToolGUI(MainWindow):
         button_data = (
             (file_menu, "Open", self.load_config, "CTRL+O", "dir"),
             (file_menu, "Save", self.save_config, "CTRL+S", "save"),
+            (file_menu, "Unpack", self.unpack_mod, "CTRL+U", None),
             (file_menu, "Exit", self.close, "", "exit"),
             (help_menu, "Report Bug", self.report_bug, "", "report"),
             (help_menu, "Documentation", self.online_support, "", "manual"))
@@ -91,6 +104,7 @@ class ModToolGUI(MainWindow):
         self.boxLayout.addWidget(self.game_container)
 
         self.packButton = QPushButton("Pack")
+        self.packButton.setShortcut("Ctrl+P")
         self.boxLayout.addWidget(self.packButton)
         self.packButton.clicked.connect(self.pack_mod)
 
@@ -186,10 +200,31 @@ class ModToolGUI(MainWindow):
 
         return non_empty_dirs
 
+    def get_dst_folder_list(self, basepath=''):
+
+        if basepath == '':
+            basepath = self.dst_widget.filepath
+
+        root = pathlib.Path(basepath)
+        non_empty_dirs = {os.path.relpath(str(p.parent), basepath) for p in root.rglob('*') if p.is_file()}
+
+        return non_empty_dirs
+
     def get_src_file_list(self, basepath=''):
 
         if basepath == '':
             basepath = self.src_widget.filepath
+
+        file_list = list()
+        for (dirpath, dirnames, filenames) in os.walk(basepath):
+            file_list += [os.path.join(dirpath, file) for file in filenames]
+
+        return file_list
+
+    def get_dst_file_list(self, basepath=''):
+
+        if basepath == '':
+            basepath = self.dst_widget.filepath
 
         file_list = list()
         for (dirpath, dirnames, filenames) in os.walk(basepath):
@@ -267,6 +302,26 @@ class ModToolGUI(MainWindow):
 
         self.create_ovl(src_path, dst_file)
 
+    # file has full path.
+    def unpack_ovl(self, file):
+        srcbasepath = self.src_widget.filepath
+        dstbasepath = self.dst_widget.filepath
+        dstfolder   = os.path.relpath(file, dstbasepath)
+        print(f"Unpacking {file}")
+        filename    = os.path.splitext(os.path.basename(dstfolder))[0]
+        srcfolder   = os.path.join(srcbasepath, os.path.dirname( dstfolder), filename)
+
+        if not os.path.exists(srcfolder):
+            print(srcfolder)
+            os.makedirs(srcfolder)
+            ovl_data = OvlReporter()
+            ovl_data.load(file)
+            out_paths, error_files = ovl_data.extract(srcfolder,show_temp_files=False)
+            #if error_files:
+            #    print(error_files)
+            #if out_paths:
+            #    print(out_paths)
+
     def copy_file(self, srcpath, dstpath, fname):
         try:
             shutil.copyfile(os.path.join(srcpath, fname), os.path.join(dstpath, fname))
@@ -289,6 +344,25 @@ class ModToolGUI(MainWindow):
         self.copy_file(srcbasepath, dstbasepath, "Manifest.xml")
         self.copy_file(srcbasepath, dstbasepath, "Readme.md")
 
+    def unpack_mod(self):
+        srcbasepath = self.src_widget.filepath
+        dstbasepath = self.dst_widget.filepath
+        if not srcbasepath or not dstbasepath:
+            return
+
+        print("Unpacking mod")
+        dstfiles = self.get_dst_file_list()
+
+        for file in dstfiles:
+            # ignore all other files, unpack ovl files only.
+            if file.lower().endswith(".ovl"):
+                self.unpack_ovl(file)
+                continue
+
+        # The previous loop will not copy Manifest.xml and Readme.md files if any
+        self.copy_file(dstbasepath, srcbasepath, "Manifest.xml")
+        self.copy_file(dstbasepath, srcbasepath, "Readme.md")
+        self.copy_file(dstbasepath, srcbasepath, "License")
 
 if __name__ == '__main__':
     startup(ModToolGUI)
