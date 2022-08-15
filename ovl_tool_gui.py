@@ -451,6 +451,7 @@ class MainWindow(widgets.MainWindow):
 				# self.ovl_data.load(self.file_widget.filepath)
 				self.run_threaded("load", self.file_widget.filepath)
 			except:
+				logging.info(self.ovl_data)
 				self.handle_error("OVL loading failed, see log!")
 
 	def choices_update(self):

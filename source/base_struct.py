@@ -158,13 +158,15 @@ class BaseStruct:
 	# @classmethod
 	# def read_fields(cls, stream, instance):
 	# 	for prop, dtype, arguments in cls._get_filtered_attribute_list(instance):
-	# 		print(dtype, stream, instance.context, *arguments)
+	# 		# print(dtype, stream, instance.context, *arguments)
 	# 		setattr(instance, prop, dtype.from_stream(stream, instance.context, *arguments))
 	#
 	# @classmethod
 	# def write_fields(cls, stream, instance):
 	# 	for prop, dtype, arguments in cls._get_filtered_attribute_list(instance):
-	# 		setattr(instance, prop, dtype.from_stream(stream, instance.context, *arguments))
+	# 		data = getattr(instance, prop, None)
+	# 		if data is not None:
+	# 			dtype.to_stream(stream, data)
 
 	@classmethod
 	def read_fields(cls, stream, instance):
