@@ -72,7 +72,7 @@
 
 	<compound name="AttribInfo" inherit="GenericInfo">
 		part of fgm fragment, repeated per attribute
-		<add name="value offset" type="uint64" >byte offset to first value in the data_lib pointer, usually or always sorted in stock</add>
+		<add name="value_offset" type="uint64" >byte offset to first value in the data_lib pointer, usually or always sorted in stock</add>
     </compound>
 
 	<compound name="TextureData" inherit="MemStruct">

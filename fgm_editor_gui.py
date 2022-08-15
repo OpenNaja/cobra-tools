@@ -309,18 +309,10 @@ class MainWindow(widgets.MainWindow):
 		attribs = self.header.attributes.data
 		data = self.header.value_foreach_attributes.data
 		attribs[:], data[:] = zip(*sorted(zip(attribs, data), key=lambda p: p[0].name))
-		self.fix_att_offsets(attribs)
 		return attribs, data
 
 	def add_attribute_clicked(self):
 		self.add_attribute(self.attribute_choice.entry.currentText(), update_gui=True)
-
-	def fix_att_offsets(self, attributes):
-		for i, att in enumerate(attributes):
-			att.value_offset = self.offset_for_index(i)
-
-	def offset_for_index(self, index):
-		return attrib_sizes[int(self.header.attributes.data[index-1].dtype)] + self.header.attributes.data[index-1].value_offset if index > 0 else 0
 
 	def add_attribute(self, att_name, update_gui=False):
 		attributes = self.header.attributes.data
@@ -332,7 +324,6 @@ class MainWindow(widgets.MainWindow):
 		att = AttribInfo(self.context, set_default=False)
 		att.dtype = FgmDtype.from_value(self.fgm_dict.attributes[att_name][0])
 		att.name = att_name
-		att.value_offset = self.offset_for_index(len(self.header.attributes.data))
 		attributes.append(att)
 
 		data_lib = self.header.value_foreach_attributes.data
@@ -553,9 +544,6 @@ class TextureVisual:
 			# Update texture indices after changing texture type
 			self.container.gui.fix_tex_indices(self.container.entry_list)
 			self.container.gui.fix_dependencies(self.container.data_list)
-		else:
-			# Update attribute offsets after changing type
-			self.container.gui.fix_att_offsets(self.container.entry_list)
 		self.container.gui.set_dirty()
 
 	def update_dtype(self, ind):

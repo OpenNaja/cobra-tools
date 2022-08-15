@@ -2,6 +2,15 @@ from generated.formats.fgm.compounds.FgmHeader import FgmHeader
 from generated.formats.ovl_base.basic import ConvStream
 from modules.formats.BaseFormat import MemStructLoader
 
+attrib_sizes = {
+	0: 4,  # FgmDtype.Float
+	1: 8,  # FgmDtype.Float2
+	2: 12,  # FgmDtype.FLOAT_3
+	3: 16,  # FgmDtype.Float4
+	5: 4,  # FgmDtype.Int
+	6: 4,  # FgmDtype.Bool
+}
+
 
 class FgmLoader(MemStructLoader):
 	target_class = FgmHeader
@@ -44,4 +53,8 @@ class FgmLoader(MemStructLoader):
 				for member in arr:
 					member.offset = names_writer.tell()
 					names_writer.write_zstring(member.name)
+		value_offset = 0
+		for attrib, attrib_data in zip(self.header.attributes.data, self.header.attributes.data):
+			attrib.value_offset = value_offset
+			value_offset += attrib_sizes[attrib.dtype]
 		return names_writer.getvalue()
