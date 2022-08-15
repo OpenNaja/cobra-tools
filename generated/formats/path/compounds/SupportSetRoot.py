@@ -109,7 +109,7 @@ class SupportSetRoot(MemStruct):
 		yield 'connector_2', ArrayPointer, (instance.num_connector_2, generated.formats.path.compounds.ConnectorMultiJoint.ConnectorMultiJoint), (False, None)
 		yield 'pillar', Pointer, (0, generated.formats.path.compounds.Pillar.Pillar), (False, None)
 		yield 'footer', Pointer, (0, generated.formats.path.compounds.Footer.Footer), (False, None)
-		yield 'padding', Uint64, (0, None), (False, None)
+		yield 'padding', Uint64, (0, None), (True, 0)
 		yield 'unk_vector_1', Vector3, (0, None), (False, None)
 		yield 'unk_vector_2', Vector2, (0, None), (False, None)
 		yield 'unk_vector_3', Vector3, (0, None), (False, None)
@@ -117,7 +117,7 @@ class SupportSetRoot(MemStruct):
 		yield 'num_connector_1', Uint, (0, None), (False, None)
 		yield 'num_connector_2', Uint, (0, None), (False, None)
 		yield 'unk_ints', Array, ((7,), Uint, 0, None), (False, None)
-		yield 'padding_2', Uint64, (0, None), (False, None)
+		yield 'padding_2', Uint64, (0, None), (True, 0)
 		yield 'data', ArrayPointer, (instance.num_data, generated.formats.path.compounds.SupportSetData.SupportSetData), (False, None)
 		yield 'num_data', Uint, (0, None), (False, None)
 

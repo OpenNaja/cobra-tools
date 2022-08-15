@@ -110,7 +110,7 @@ class PathJoinPartResource(MemStruct):
 		yield 'unk_vector', ArrayPointer, (1, generated.formats.path.compounds.Vector4.Vector4), (False, None)
 		yield 'unk_shorts', ArrayPointer, (8, generated.formats.base.basic.Ushort), (False, None)
 		yield 'unk_points_3', Pointer, (instance.num_points_3, generated.formats.path.compounds.PointsList.PointsList), (False, None)
-		yield 'padding_1', Uint64, (0, None), (False, None)
+		yield 'padding_1', Uint64, (0, None), (True, 0)
 		yield 'pathresource', Pointer, (0, generated.formats.base.basic.ZString), (False, None)
 		yield 'unk_byte_1', Byte, (0, None), (False, None)
 		yield 'unk_byte_2', Byte, (0, None), (False, None)
@@ -120,7 +120,7 @@ class PathJoinPartResource(MemStruct):
 		yield 'num_points_2', Byte, (0, None), (False, None)
 		yield 'num_points_2_copy', Byte, (0, None), (False, None)
 		yield 'num_points_3', Byte, (0, None), (False, None)
-		yield 'padding_2', Uint64, (0, None), (False, None)
+		yield 'padding_2', Uint64, (0, None), (True, 0)
 
 	def get_info_str(self, indent=0):
 		return f'PathJoinPartResource [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

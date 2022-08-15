@@ -10,7 +10,7 @@ class PathResource(MemStruct):
 		super().__init__(context, arg, template, set_default=False)
 		self.path_type = 0
 		self.path_sub_type = 0
-		self.unk_byte_1 = 0
+		self.unk_byte_1 = 1
 		self.unk_byte_2 = 0
 		self.pathmaterial = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 		self.pathextrusion_kerb = Pointer(self.context, 0, generated.formats.base.basic.ZString)
@@ -24,7 +24,7 @@ class PathResource(MemStruct):
 		super().set_defaults()
 		self.path_type = 0
 		self.path_sub_type = 0
-		self.unk_byte_1 = 0
+		self.unk_byte_1 = 1
 		self.unk_byte_2 = 0
 		self.pathmaterial = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 		self.pathextrusion_kerb = Pointer(self.context, 0, generated.formats.base.basic.ZString)
@@ -78,7 +78,7 @@ class PathResource(MemStruct):
 		yield 'pathsupport', Pointer, (0, generated.formats.base.basic.ZString), (False, None)
 		yield 'path_type', Byte, (0, None), (False, None)
 		yield 'path_sub_type', Byte, (0, None), (False, None)
-		yield 'unk_byte_1', Byte, (0, None), (False, None)
+		yield 'unk_byte_1', Byte, (0, None), (False, 1)
 		yield 'unk_byte_2', Byte, (0, None), (False, None)
 
 	def get_info_str(self, indent=0):
