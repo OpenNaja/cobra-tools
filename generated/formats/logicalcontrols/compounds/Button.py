@@ -29,8 +29,8 @@ class Button(MemStruct):
 		super().read_fields(stream, instance)
 		instance.button_name = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
 		instance.datas = ArrayPointer.from_stream(stream, instance.context, instance.datas_count, generated.formats.logicalcontrols.compounds.ButtonData.ButtonData)
-		instance.datas_count = stream.read_uint()
-		instance.flags = stream.read_uint()
+		instance.datas_count = Uint.from_stream(stream, instance.context, 0, None)
+		instance.flags = Uint.from_stream(stream, instance.context, 0, None)
 		if not isinstance(instance.button_name, int):
 			instance.button_name.arg = 0
 		if not isinstance(instance.datas, int):

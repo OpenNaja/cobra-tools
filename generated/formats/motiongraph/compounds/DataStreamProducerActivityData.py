@@ -42,14 +42,14 @@ class DataStreamProducerActivityData(MemStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.curve_type = stream.read_uint64()
+		instance.curve_type = Uint64.from_stream(stream, instance.context, 0, None)
 		instance.ds_name = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
 		instance.type = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
 		instance.bone_i_d = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
 		instance.location = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
 		instance.curve = CurveData.from_stream(stream, instance.context, 0, None)
 		instance.time_limit_mode = TimeLimitMode.from_stream(stream, instance.context, 0, None)
-		instance.data_stream_producer_flags = stream.read_uint()
+		instance.data_stream_producer_flags = Uint.from_stream(stream, instance.context, 0, None)
 		instance.prop_through_variable = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
 		if not isinstance(instance.ds_name, int):
 			instance.ds_name.arg = 0

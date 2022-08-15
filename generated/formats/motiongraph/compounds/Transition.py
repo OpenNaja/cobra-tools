@@ -37,10 +37,10 @@ class Transition(MemStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.count_0 = stream.read_uint()
-		instance.count_1 = stream.read_uint()
+		instance.count_0 = Uint.from_stream(stream, instance.context, 0, None)
+		instance.count_1 = Uint.from_stream(stream, instance.context, 0, None)
 		instance.ptr_0 = Pointer.from_stream(stream, instance.context, instance.count_1, generated.formats.motiongraph.compounds.PtrList.PtrList)
-		instance.count_2 = stream.read_uint64()
+		instance.count_2 = Uint64.from_stream(stream, instance.context, 0, None)
 		instance.ptr_1 = Pointer.from_stream(stream, instance.context, instance.count_2, generated.formats.motiongraph.compounds.TransStructArray.TransStructArray)
 		instance.id = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
 		if not isinstance(instance.ptr_0, int):

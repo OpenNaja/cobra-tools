@@ -21,7 +21,7 @@ class EnumnamerRoot(MemStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.count = stream.read_uint64()
+		instance.count = Uint64.from_stream(stream, instance.context, 0, None)
 		instance.strings = Pointer.from_stream(stream, instance.context, instance.count, generated.formats.enumnamer.compounds.PtrList.PtrList)
 		if not isinstance(instance.strings, int):
 			instance.strings.arg = instance.count

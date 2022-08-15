@@ -34,12 +34,12 @@ class ScaleformlanguagedataRoot(MemStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.zero_0 = stream.read_uint64()
-		instance.zero_1 = stream.read_uint64()
+		instance.zero_0 = Uint64.from_stream(stream, instance.context, 0, None)
+		instance.zero_1 = Uint64.from_stream(stream, instance.context, 0, None)
 		instance.fonts = ArrayPointer.from_stream(stream, instance.context, instance.count, generated.formats.scaleformlanguagedata.compounds.FontInfo.FontInfo)
-		instance.count = stream.read_uint64()
-		instance.zero_2 = stream.read_uint64()
-		instance.zero_3 = stream.read_uint64()
+		instance.count = Uint64.from_stream(stream, instance.context, 0, None)
+		instance.zero_2 = Uint64.from_stream(stream, instance.context, 0, None)
+		instance.zero_3 = Uint64.from_stream(stream, instance.context, 0, None)
 		if not isinstance(instance.fonts, int):
 			instance.fonts.arg = instance.count
 

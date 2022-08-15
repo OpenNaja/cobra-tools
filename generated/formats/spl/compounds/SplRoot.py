@@ -36,10 +36,10 @@ class SplRoot(MemStruct):
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
 		instance.spline_data = Pointer.from_stream(stream, instance.context, instance.count, generated.formats.spl.compounds.SplData.SplData)
-		instance.count = stream.read_ushort()
-		instance.sixteen = stream.read_ubyte()
-		instance.one = stream.read_ubyte()
-		instance.length = stream.read_float()
+		instance.count = Ushort.from_stream(stream, instance.context, 0, None)
+		instance.sixteen = Ubyte.from_stream(stream, instance.context, 0, None)
+		instance.one = Ubyte.from_stream(stream, instance.context, 0, None)
+		instance.length = Float.from_stream(stream, instance.context, 0, None)
 		if not isinstance(instance.spline_data, int):
 			instance.spline_data.arg = instance.count
 

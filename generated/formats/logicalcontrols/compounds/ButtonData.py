@@ -32,11 +32,11 @@ class ButtonData(MemStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.k_1_a = stream.read_ushort()
-		instance.k_1_b = stream.read_ushort()
-		instance.k_2 = stream.read_uint()
-		instance.k_3 = stream.read_uint()
-		instance.k_4 = stream.read_uint()
+		instance.k_1_a = Ushort.from_stream(stream, instance.context, 0, None)
+		instance.k_1_b = Ushort.from_stream(stream, instance.context, 0, None)
+		instance.k_2 = Uint.from_stream(stream, instance.context, 0, None)
+		instance.k_3 = Uint.from_stream(stream, instance.context, 0, None)
+		instance.k_4 = Uint.from_stream(stream, instance.context, 0, None)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

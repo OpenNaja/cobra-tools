@@ -28,10 +28,10 @@ class SetEntry(BaseStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.file_hash = stream.read_uint()
+		instance.file_hash = Uint.from_stream(stream, instance.context, 0, None)
 		if instance.context.version >= 19:
-			instance.ext_hash = stream.read_uint()
-		instance.start = stream.read_uint()
+			instance.ext_hash = Uint.from_stream(stream, instance.context, 0, None)
+		instance.start = Uint.from_stream(stream, instance.context, 0, None)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

@@ -28,7 +28,7 @@ class PreparedStatement(MemStruct):
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
 		instance.args = ArrayPointer.from_stream(stream, instance.context, instance.arg_count, generated.formats.pscollection.compounds.Arg.Arg)
-		instance.arg_count = stream.read_uint64()
+		instance.arg_count = Uint64.from_stream(stream, instance.context, 0, None)
 		instance.statement_name = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
 		instance.sql_query = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
 		if not isinstance(instance.args, int):

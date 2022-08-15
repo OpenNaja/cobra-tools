@@ -71,13 +71,13 @@ class HitCheckEntry(BaseStruct):
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
 		instance.dtype = CollisionType.from_stream(stream, instance.context, 0, None)
-		instance.flag_0 = stream.read_ushort()
-		instance.flag_1 = stream.read_ushort()
-		instance.flag_2 = stream.read_uint()
-		instance.flag_3 = stream.read_uint()
+		instance.flag_0 = Ushort.from_stream(stream, instance.context, 0, None)
+		instance.flag_1 = Ushort.from_stream(stream, instance.context, 0, None)
+		instance.flag_2 = Uint.from_stream(stream, instance.context, 0, None)
+		instance.flag_3 = Uint.from_stream(stream, instance.context, 0, None)
 		if instance.context.version < 47:
-			instance.zero_extra_pc_unk = stream.read_uint()
-		instance.name_offset = stream.read_uint()
+			instance.zero_extra_pc_unk = Uint.from_stream(stream, instance.context, 0, None)
+		instance.name_offset = Uint.from_stream(stream, instance.context, 0, None)
 		if instance.dtype == 0:
 			instance.collider = Sphere.from_stream(stream, instance.context, 0, None)
 		if instance.dtype == 1:
@@ -93,7 +93,7 @@ class HitCheckEntry(BaseStruct):
 		if instance.dtype == 10:
 			instance.collider = MeshCollision.from_stream(stream, instance.context, 0, None)
 		if instance.context.version == 13:
-			instance.zero_extra_zt = stream.read_uint()
+			instance.zero_extra_zt = Uint.from_stream(stream, instance.context, 0, None)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

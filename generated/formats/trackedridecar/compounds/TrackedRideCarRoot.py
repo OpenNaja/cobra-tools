@@ -42,12 +42,12 @@ class TrackedRideCarRoot(MemStruct):
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
 		instance.sub = ArrayPointer.from_stream(stream, instance.context, instance.sub_count, generated.formats.trackedridecar.compounds.TrackedRideCarSub.TrackedRideCarSub)
-		instance.sub_count = stream.read_uint()
-		instance.total_vecs_count = stream.read_uint()
-		instance.vec = stream.read_floats((3,))
-		instance.zero_0 = stream.read_uint()
+		instance.sub_count = Uint.from_stream(stream, instance.context, 0, None)
+		instance.total_vecs_count = Uint.from_stream(stream, instance.context, 0, None)
+		instance.vec = Array.from_stream(stream, instance.context, 0, None, (3,), Float)
+		instance.zero_0 = Uint.from_stream(stream, instance.context, 0, None)
 		instance.some_name = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
-		instance.zero_1 = stream.read_uint64()
+		instance.zero_1 = Uint64.from_stream(stream, instance.context, 0, None)
 		if not isinstance(instance.sub, int):
 			instance.sub.arg = instance.sub_count
 		if not isinstance(instance.some_name, int):

@@ -39,12 +39,12 @@ class HbPropPhysics(MemStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.pad_top = stream.read_float()
-		instance.z_pos = stream.read_float()
-		instance.half_width = stream.read_float()
-		instance.pad_bottom = stream.read_float()
-		instance.half_depth = stream.read_float()
-		instance.u_6 = stream.read_float()
+		instance.pad_top = Float.from_stream(stream, instance.context, 0, None)
+		instance.z_pos = Float.from_stream(stream, instance.context, 0, None)
+		instance.half_width = Float.from_stream(stream, instance.context, 0, None)
+		instance.pad_bottom = Float.from_stream(stream, instance.context, 0, None)
+		instance.half_depth = Float.from_stream(stream, instance.context, 0, None)
+		instance.u_6 = Float.from_stream(stream, instance.context, 0, None)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

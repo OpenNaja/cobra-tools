@@ -21,7 +21,7 @@ class Variant(MemStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.has_ptr = stream.read_uint64()
+		instance.has_ptr = Uint64.from_stream(stream, instance.context, 0, None)
 		instance.variant_name = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
 		if not isinstance(instance.variant_name, int):
 			instance.variant_name.arg = 0

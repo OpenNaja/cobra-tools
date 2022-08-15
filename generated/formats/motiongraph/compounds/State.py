@@ -37,10 +37,10 @@ class State(MemStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.unk = stream.read_uint()
-		instance.activities_count = stream.read_uint()
+		instance.unk = Uint.from_stream(stream, instance.context, 0, None)
+		instance.activities_count = Uint.from_stream(stream, instance.context, 0, None)
 		instance.activities = Pointer.from_stream(stream, instance.context, instance.activities_count, generated.formats.motiongraph.compounds.PtrList.PtrList)
-		instance.count_2 = stream.read_uint64()
+		instance.count_2 = Uint64.from_stream(stream, instance.context, 0, None)
 		instance.array_2 = Pointer.from_stream(stream, instance.context, instance.count_2, generated.formats.motiongraph.compounds.TransStructStopList.TransStructStopList)
 		instance.id = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
 		if not isinstance(instance.activities, int):

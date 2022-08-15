@@ -32,17 +32,17 @@ class AttribData(MemStruct):
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
 		if instance.arg.dtype == 0:
-			instance.value = stream.read_floats((1,))
+			instance.value = Array.from_stream(stream, instance.context, 0, None, (1,), Float)
 		if instance.arg.dtype == 1:
-			instance.value = stream.read_floats((2,))
+			instance.value = Array.from_stream(stream, instance.context, 0, None, (2,), Float)
 		if instance.arg.dtype == 2:
-			instance.value = stream.read_floats((3,))
+			instance.value = Array.from_stream(stream, instance.context, 0, None, (3,), Float)
 		if instance.arg.dtype == 3:
-			instance.value = stream.read_floats((4,))
+			instance.value = Array.from_stream(stream, instance.context, 0, None, (4,), Float)
 		if instance.arg.dtype == 5:
-			instance.value = stream.read_ints((1,))
+			instance.value = Array.from_stream(stream, instance.context, 0, None, (1,), Int)
 		if instance.arg.dtype == 6:
-			instance.value = stream.read_ints((1,))
+			instance.value = Array.from_stream(stream, instance.context, 0, None, (1,), Int)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

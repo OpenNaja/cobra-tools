@@ -23,10 +23,10 @@ class KeyPoint(MemStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.time = stream.read_float()
-		instance.value = stream.read_float()
-		instance.tangent_before = stream.read_float()
-		instance.tangent_after = stream.read_float()
+		instance.time = Float.from_stream(stream, instance.context, 0, None)
+		instance.value = Float.from_stream(stream, instance.context, 0, None)
+		instance.tangent_before = Float.from_stream(stream, instance.context, 0, None)
+		instance.tangent_after = Float.from_stream(stream, instance.context, 0, None)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

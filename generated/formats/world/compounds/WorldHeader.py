@@ -42,15 +42,15 @@ class WorldHeader(MemStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.world_type = stream.read_uint64()
+		instance.world_type = Uint64.from_stream(stream, instance.context, 0, None)
 		instance.asset_pkgs = Pointer.from_stream(stream, instance.context, instance.asset_pkg_count, generated.formats.world.compounds.PtrList.PtrList)
-		instance.asset_pkg_count = stream.read_uint64()
+		instance.asset_pkg_count = Uint64.from_stream(stream, instance.context, 0, None)
 		instance.lua_name = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
 		instance.ptr_0 = Pointer.from_stream(stream, instance.context, 0, None)
 		instance.ptr_1 = Pointer.from_stream(stream, instance.context, 0, None)
 		instance.prefabs = Pointer.from_stream(stream, instance.context, instance.prefab_count, generated.formats.world.compounds.PtrList.PtrList)
 		instance.ptr_2 = Pointer.from_stream(stream, instance.context, 0, None)
-		instance.prefab_count = stream.read_uint64()
+		instance.prefab_count = Uint64.from_stream(stream, instance.context, 0, None)
 		instance.ptr_3 = Pointer.from_stream(stream, instance.context, 0, None)
 		if not isinstance(instance.asset_pkgs, int):
 			instance.asset_pkgs.arg = instance.asset_pkg_count

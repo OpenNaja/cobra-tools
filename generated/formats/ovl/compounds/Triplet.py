@@ -31,9 +31,9 @@ class Triplet(BaseStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.a = stream.read_ubyte()
-		instance.b = stream.read_ubyte()
-		instance.c = stream.read_ubyte()
+		instance.a = Ubyte.from_stream(stream, instance.context, 0, None)
+		instance.b = Ubyte.from_stream(stream, instance.context, 0, None)
+		instance.c = Ubyte.from_stream(stream, instance.context, 0, None)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

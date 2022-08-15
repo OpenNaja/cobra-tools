@@ -28,11 +28,11 @@ class TexBufferPc(MemStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.width = stream.read_ushort()
-		instance.height = stream.read_ushort()
+		instance.width = Ushort.from_stream(stream, instance.context, 0, None)
+		instance.height = Ushort.from_stream(stream, instance.context, 0, None)
 		if not (instance.context.version == 17):
-			instance.array_size = stream.read_ushort()
-		instance.mip_index = stream.read_ushort()
+			instance.array_size = Ushort.from_stream(stream, instance.context, 0, None)
+		instance.mip_index = Ushort.from_stream(stream, instance.context, 0, None)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

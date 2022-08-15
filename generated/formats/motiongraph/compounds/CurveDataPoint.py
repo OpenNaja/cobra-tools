@@ -31,11 +31,11 @@ class CurveDataPoint(MemStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.x = stream.read_float()
-		instance.y = stream.read_short()
+		instance.x = Float.from_stream(stream, instance.context, 0, None)
+		instance.y = Short.from_stream(stream, instance.context, 0, None)
 		instance.sub_curve_type = SubCurveType.from_stream(stream, instance.context, 0, None)
-		instance.subsequent_curve_param = stream.read_short()
-		instance.subsequent_curve_param_b = stream.read_short()
+		instance.subsequent_curve_param = Short.from_stream(stream, instance.context, 0, None)
+		instance.subsequent_curve_param_b = Short.from_stream(stream, instance.context, 0, None)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

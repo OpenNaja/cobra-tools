@@ -38,10 +38,10 @@ class SetHeader(BaseStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.set_count = stream.read_uint()
-		instance.asset_count = stream.read_uint()
-		instance.sig_a = stream.read_uint()
-		instance.sig_b = stream.read_uint()
+		instance.set_count = Uint.from_stream(stream, instance.context, 0, None)
+		instance.asset_count = Uint.from_stream(stream, instance.context, 0, None)
+		instance.sig_a = Uint.from_stream(stream, instance.context, 0, None)
+		instance.sig_b = Uint.from_stream(stream, instance.context, 0, None)
 		instance.sets = Array.from_stream(stream, instance.context, 0, None, (instance.set_count,), SetEntry)
 		instance.assets = Array.from_stream(stream, instance.context, 0, None, (instance.asset_count,), AssetEntry)
 

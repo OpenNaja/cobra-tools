@@ -42,10 +42,10 @@ class BaniRoot(MemStruct):
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
 		instance.banis = Pointer.from_stream(stream, instance.context, 0, None)
-		instance.read_start_frame = stream.read_uint()
-		instance.num_frames = stream.read_uint()
-		instance.animation_length = stream.read_float()
-		instance.loop_flag = stream.read_uint()
+		instance.read_start_frame = Uint.from_stream(stream, instance.context, 0, None)
+		instance.num_frames = Uint.from_stream(stream, instance.context, 0, None)
+		instance.animation_length = Float.from_stream(stream, instance.context, 0, None)
+		instance.loop_flag = Uint.from_stream(stream, instance.context, 0, None)
 		if not isinstance(instance.banis, int):
 			instance.banis.arg = 0
 

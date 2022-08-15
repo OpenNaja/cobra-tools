@@ -25,7 +25,7 @@ class PCJointThing(BaseStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.shorts = stream.read_shorts((4,))
+		instance.shorts = Array.from_stream(stream, instance.context, 0, None, (4,), Short)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

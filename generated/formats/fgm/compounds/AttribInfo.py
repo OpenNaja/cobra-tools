@@ -23,7 +23,7 @@ class AttribInfo(GenericInfo):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance._value_offset = stream.read_uint64()
+		instance._value_offset = Uint64.from_stream(stream, instance.context, 0, None)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

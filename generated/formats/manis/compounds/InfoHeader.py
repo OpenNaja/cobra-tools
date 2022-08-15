@@ -37,8 +37,8 @@ class InfoHeader(GenericHeader):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.mani_count = stream.read_uint()
-		instance.names = stream.read_zstrings((instance.mani_count,))
+		instance.mani_count = Uint.from_stream(stream, instance.context, 0, None)
+		instance.names = Array.from_stream(stream, instance.context, 0, None, (instance.mani_count,), ZString)
 		instance.header = SizedStrData.from_stream(stream, instance.context, 0, None)
 		instance.mani_infos = Array.from_stream(stream, instance.context, 0, None, (instance.mani_count,), ManiInfo)
 		instance.name_buffer = Buffer1.from_stream(stream, instance.context, int(instance.header.hash_block_size / 4), None)

@@ -37,11 +37,11 @@ class DinoVariantsHeader(MemStruct):
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
 		instance.fgm_name = Pointer.from_stream(stream, instance.context, 0, generated.formats.ovl_base.basic.ZStringObfuscated)
-		instance.has_sets = stream.read_uint64()
+		instance.has_sets = Uint64.from_stream(stream, instance.context, 0, None)
 		instance.set_name = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
 		instance.variants = Pointer.from_stream(stream, instance.context, instance.variant_count, generated.formats.dinosaurmaterialvariants.compounds.VariantArray.VariantArray)
-		instance.variant_count = stream.read_uint64()
-		instance.zero = stream.read_uint64()
+		instance.variant_count = Uint64.from_stream(stream, instance.context, 0, None)
+		instance.zero = Uint64.from_stream(stream, instance.context, 0, None)
 		if not isinstance(instance.fgm_name, int):
 			instance.fgm_name.arg = 0
 		if not isinstance(instance.set_name, int):

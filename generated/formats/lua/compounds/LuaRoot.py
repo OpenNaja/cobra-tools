@@ -41,15 +41,15 @@ class LuaRoot(MemStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.lua_size = stream.read_uint()
-		instance.sixteenk = stream.read_uint()
-		instance.hash = stream.read_uint()
-		instance.zero_0 = stream.read_uint()
+		instance.lua_size = Uint.from_stream(stream, instance.context, 0, None)
+		instance.sixteenk = Uint.from_stream(stream, instance.context, 0, None)
+		instance.hash = Uint.from_stream(stream, instance.context, 0, None)
+		instance.zero_0 = Uint.from_stream(stream, instance.context, 0, None)
 		if instance.context.version >= 18:
 			instance.source_path = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
 			instance.likely_alignment = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
-		instance.zero_1 = stream.read_uint64()
-		instance.zero_2 = stream.read_uint64()
+		instance.zero_1 = Uint64.from_stream(stream, instance.context, 0, None)
+		instance.zero_2 = Uint64.from_stream(stream, instance.context, 0, None)
 		if not isinstance(instance.source_path, int):
 			instance.source_path.arg = 0
 		if not isinstance(instance.likely_alignment, int):

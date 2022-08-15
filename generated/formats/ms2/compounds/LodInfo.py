@@ -73,21 +73,21 @@ class LodInfo(BaseStruct):
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
 		if instance.context.version <= 13:
-			instance.full = stream.read_short()
-			instance.half = stream.read_short()
-			instance.lod_index = stream.read_ushort()
+			instance.full = Short.from_stream(stream, instance.context, 0, None)
+			instance.half = Short.from_stream(stream, instance.context, 0, None)
+			instance.lod_index = Ushort.from_stream(stream, instance.context, 0, None)
 		if instance.context.version >= 32:
-			instance.distance = stream.read_float()
-			instance.zero = stream.read_ushort()
-		instance.bone_index = stream.read_ushort()
-		instance.first_object_index = stream.read_ushort()
+			instance.distance = Float.from_stream(stream, instance.context, 0, None)
+			instance.zero = Ushort.from_stream(stream, instance.context, 0, None)
+		instance.bone_index = Ushort.from_stream(stream, instance.context, 0, None)
+		instance.first_object_index = Ushort.from_stream(stream, instance.context, 0, None)
 		if instance.context.version <= 13:
-			instance.first_object_index_1 = stream.read_ushort()
-			instance.first_object_index_2 = stream.read_ushort()
-		instance.last_object_index = stream.read_ushort()
+			instance.first_object_index_1 = Ushort.from_stream(stream, instance.context, 0, None)
+			instance.first_object_index_2 = Ushort.from_stream(stream, instance.context, 0, None)
+		instance.last_object_index = Ushort.from_stream(stream, instance.context, 0, None)
 		if instance.context.version >= 32 and not ((instance.context.version == 51) and instance.context.biosyn):
-			instance.vertex_count = stream.read_uint()
-			instance.tri_index_count = stream.read_uint()
+			instance.vertex_count = Uint.from_stream(stream, instance.context, 0, None)
+			instance.tri_index_count = Uint.from_stream(stream, instance.context, 0, None)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

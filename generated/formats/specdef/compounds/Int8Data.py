@@ -35,11 +35,11 @@ class Int8Data(MemStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.imin = stream.read_byte()
-		instance.imax = stream.read_byte()
-		instance.ivalue = stream.read_byte()
-		instance.ioptional = stream.read_byte()
-		instance.unused = stream.read_ubytes((4,))
+		instance.imin = Byte.from_stream(stream, instance.context, 0, None)
+		instance.imax = Byte.from_stream(stream, instance.context, 0, None)
+		instance.ivalue = Byte.from_stream(stream, instance.context, 0, None)
+		instance.ioptional = Byte.from_stream(stream, instance.context, 0, None)
+		instance.unused = Array.from_stream(stream, instance.context, 0, None, (4,), Ubyte)
 		instance.enum = Pointer.from_stream(stream, instance.context, 0, None)
 		if not isinstance(instance.enum, int):
 			instance.enum.arg = 0

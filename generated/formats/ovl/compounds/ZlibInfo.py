@@ -27,8 +27,8 @@ class ZlibInfo(BaseStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.zlib_thing_1 = stream.read_uint()
-		instance.zlib_thing_2 = stream.read_uint()
+		instance.zlib_thing_1 = Uint.from_stream(stream, instance.context, 0, None)
+		instance.zlib_thing_2 = Uint.from_stream(stream, instance.context, 0, None)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

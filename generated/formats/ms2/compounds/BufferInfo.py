@@ -70,28 +70,28 @@ class BufferInfo(BaseStruct):
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
 		if 32 <= instance.context.version <= 47:
-			instance.u_0 = stream.read_uint64()
-			instance.u_1 = stream.read_uint64()
+			instance.u_0 = Uint64.from_stream(stream, instance.context, 0, None)
+			instance.u_1 = Uint64.from_stream(stream, instance.context, 0, None)
 		if (instance.context.version == 51) and instance.context.biosyn:
-			instance.tri_chunks_size = stream.read_uint64()
-			instance.tri_chunks_ptr = stream.read_uint64()
-			instance.vert_chunks_size = stream.read_uint64()
-			instance.vert_chunks_ptr = stream.read_uint64()
-		instance.verts_size = stream.read_uint64()
-		instance.verts_ptr = stream.read_uint64()
+			instance.tri_chunks_size = Uint64.from_stream(stream, instance.context, 0, None)
+			instance.tri_chunks_ptr = Uint64.from_stream(stream, instance.context, 0, None)
+			instance.vert_chunks_size = Uint64.from_stream(stream, instance.context, 0, None)
+			instance.vert_chunks_ptr = Uint64.from_stream(stream, instance.context, 0, None)
+		instance.verts_size = Uint64.from_stream(stream, instance.context, 0, None)
+		instance.verts_ptr = Uint64.from_stream(stream, instance.context, 0, None)
 		if instance.context.version >= 48:
-			instance.u_3 = stream.read_uint64()
+			instance.u_3 = Uint64.from_stream(stream, instance.context, 0, None)
 		if not (instance.context.version == 32):
-			instance.tris_size = stream.read_uint64()
-			instance.tris_ptr = stream.read_uint64()
+			instance.tris_size = Uint64.from_stream(stream, instance.context, 0, None)
+			instance.tris_ptr = Uint64.from_stream(stream, instance.context, 0, None)
 		if instance.context.version >= 48:
-			instance.u_5 = stream.read_uint64()
-			instance.u_6 = stream.read_uint64()
+			instance.u_5 = Uint64.from_stream(stream, instance.context, 0, None)
+			instance.u_6 = Uint64.from_stream(stream, instance.context, 0, None)
 		if instance.context.version <= 13:
-			instance.u_5 = stream.read_uint64()
-			instance.uvs_size = stream.read_uint64()
-			instance.u_6 = stream.read_uint64()
-			instance.u_7 = stream.read_uint64()
+			instance.u_5 = Uint64.from_stream(stream, instance.context, 0, None)
+			instance.uvs_size = Uint64.from_stream(stream, instance.context, 0, None)
+			instance.u_6 = Uint64.from_stream(stream, instance.context, 0, None)
+			instance.u_7 = Uint64.from_stream(stream, instance.context, 0, None)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

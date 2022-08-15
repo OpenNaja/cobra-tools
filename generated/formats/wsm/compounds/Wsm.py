@@ -29,8 +29,8 @@ class Wsm(GenericHeader):
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
 		instance.header = WsmHeader.from_stream(stream, instance.context, 0, None)
-		instance.locs = stream.read_floats((instance.header.frame_count, 3,))
-		instance.quats = stream.read_floats((instance.header.frame_count, 4,))
+		instance.locs = Array.from_stream(stream, instance.context, 0, None, (instance.header.frame_count, 3,), Float)
+		instance.quats = Array.from_stream(stream, instance.context, 0, None, (instance.header.frame_count, 4,), Float)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

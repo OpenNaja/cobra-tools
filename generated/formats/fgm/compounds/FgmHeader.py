@@ -49,19 +49,19 @@ class FgmHeader(MemStruct):
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
 		if instance.context.version <= 15:
-			instance._texture_count = stream.read_uint()
+			instance._texture_count = Uint.from_stream(stream, instance.context, 0, None)
 		if instance.context.version >= 17:
-			instance._texture_count = stream.read_uint64()
+			instance._texture_count = Uint64.from_stream(stream, instance.context, 0, None)
 		if instance.context.version <= 15:
-			instance._attribute_count = stream.read_uint()
+			instance._attribute_count = Uint.from_stream(stream, instance.context, 0, None)
 		if instance.context.version >= 17:
-			instance._attribute_count = stream.read_uint64()
+			instance._attribute_count = Uint64.from_stream(stream, instance.context, 0, None)
 		instance.textures = ArrayPointer.from_stream(stream, instance.context, instance._texture_count, generated.formats.fgm.compounds.TextureInfo.TextureInfo)
 		instance.attributes = ArrayPointer.from_stream(stream, instance.context, instance._attribute_count, generated.formats.fgm.compounds.AttribInfo.AttribInfo)
 		instance.name_foreach_textures = ForEachPointer.from_stream(stream, instance.context, instance.textures, generated.formats.fgm.compounds.TextureData.TextureData)
 		instance.value_foreach_attributes = ForEachPointer.from_stream(stream, instance.context, instance.attributes, generated.formats.fgm.compounds.AttribData.AttribData)
-		instance._unk_0 = stream.read_uint64()
-		instance._unk_1 = stream.read_uint64()
+		instance._unk_0 = Uint64.from_stream(stream, instance.context, 0, None)
+		instance._unk_1 = Uint64.from_stream(stream, instance.context, 0, None)
 		if not isinstance(instance.textures, int):
 			instance.textures.arg = instance._texture_count
 		if not isinstance(instance.attributes, int):

@@ -42,13 +42,13 @@ class MRFMember2(MemStruct):
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
 		instance.transition = Pointer.from_stream(stream, instance.context, 0, generated.formats.motiongraph.compounds.Transition.Transition)
-		instance.count_0 = stream.read_uint64()
-		instance.count_1 = stream.read_uint64()
-		instance.count_2 = stream.read_uint64()
-		instance.count_3 = stream.read_uint64()
-		instance.count_4 = stream.read_uint64()
-		instance.count_5 = stream.read_uint64()
-		instance.count_6 = stream.read_uint64()
+		instance.count_0 = Uint64.from_stream(stream, instance.context, 0, None)
+		instance.count_1 = Uint64.from_stream(stream, instance.context, 0, None)
+		instance.count_2 = Uint64.from_stream(stream, instance.context, 0, None)
+		instance.count_3 = Uint64.from_stream(stream, instance.context, 0, None)
+		instance.count_4 = Uint64.from_stream(stream, instance.context, 0, None)
+		instance.count_5 = Uint64.from_stream(stream, instance.context, 0, None)
+		instance.count_6 = Uint64.from_stream(stream, instance.context, 0, None)
 		instance.id = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
 		if not isinstance(instance.transition, int):
 			instance.transition.arg = 0

@@ -22,7 +22,7 @@ class GenericInfo(MemStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance._name_offset = stream.read_uint()
+		instance._name_offset = Uint.from_stream(stream, instance.context, 0, None)
 		instance.dtype = FgmDtype.from_stream(stream, instance.context, 0, None)
 
 	@classmethod

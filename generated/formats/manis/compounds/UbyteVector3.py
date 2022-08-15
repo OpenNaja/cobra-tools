@@ -31,9 +31,9 @@ class UbyteVector3(BaseStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.x = stream.read_ubyte()
-		instance.y = stream.read_ubyte()
-		instance.z = stream.read_ubyte()
+		instance.x = Ubyte.from_stream(stream, instance.context, 0, None)
+		instance.y = Ubyte.from_stream(stream, instance.context, 0, None)
+		instance.z = Ubyte.from_stream(stream, instance.context, 0, None)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

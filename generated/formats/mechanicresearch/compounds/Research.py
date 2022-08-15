@@ -36,13 +36,13 @@ class Research(MemStruct):
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
 		instance.item_name = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
-		instance.unk_0 = stream.read_uint()
-		instance.is_entry_level = stream.read_uint()
-		instance.unk_2 = stream.read_uint64()
+		instance.unk_0 = Uint.from_stream(stream, instance.context, 0, None)
+		instance.is_entry_level = Uint.from_stream(stream, instance.context, 0, None)
+		instance.unk_2 = Uint64.from_stream(stream, instance.context, 0, None)
 		instance.next_research = Pointer.from_stream(stream, instance.context, instance.next_research_count, generated.formats.mechanicresearch.compounds.NextResearch.NextResearch)
-		instance.next_research_count = stream.read_uint64()
-		instance.unk_3 = stream.read_uint64()
-		instance.unk_4 = stream.read_uint64()
+		instance.next_research_count = Uint64.from_stream(stream, instance.context, 0, None)
+		instance.unk_3 = Uint64.from_stream(stream, instance.context, 0, None)
+		instance.unk_4 = Uint64.from_stream(stream, instance.context, 0, None)
 		if not isinstance(instance.item_name, int):
 			instance.item_name.arg = 0
 		if not isinstance(instance.next_research, int):

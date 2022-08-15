@@ -28,10 +28,10 @@ class FloatData(MemStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.imin = stream.read_float()
-		instance.imax = stream.read_float()
-		instance.ivalue = stream.read_float()
-		instance.ioptional = stream.read_uint()
+		instance.imin = Float.from_stream(stream, instance.context, 0, None)
+		instance.imax = Float.from_stream(stream, instance.context, 0, None)
+		instance.ivalue = Float.from_stream(stream, instance.context, 0, None)
+		instance.ioptional = Uint.from_stream(stream, instance.context, 0, None)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

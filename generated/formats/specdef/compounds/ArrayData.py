@@ -30,7 +30,7 @@ class ArrayData(MemStruct):
 		super().read_fields(stream, instance)
 		instance.item = Pointer.from_stream(stream, instance.context, instance.dtype, generated.formats.specdef.compounds.Data.Data)
 		instance.dtype = SpecdefDtype.from_stream(stream, instance.context, 0, None)
-		instance.unused = stream.read_uint()
+		instance.unused = Uint.from_stream(stream, instance.context, 0, None)
 		if not isinstance(instance.item, int):
 			instance.item.arg = instance.dtype
 

@@ -23,8 +23,8 @@ class PosInfo(Material):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.ff = stream.read_int()
-		instance.ff_or_zero = stream.read_int()
+		instance.ff = Int.from_stream(stream, instance.context, 0, None)
+		instance.ff_or_zero = Int.from_stream(stream, instance.context, 0, None)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

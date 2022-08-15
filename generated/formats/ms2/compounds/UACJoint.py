@@ -30,8 +30,8 @@ class UACJoint(BaseStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.unk = stream.read_ushorts((6,))
-		instance.floats = stream.read_floats((6,))
+		instance.unk = Array.from_stream(stream, instance.context, 0, None, (6,), Ushort)
+		instance.floats = Array.from_stream(stream, instance.context, 0, None, (6,), Float)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

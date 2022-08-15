@@ -28,7 +28,7 @@ class MatcolRoot(MemStruct):
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
 		instance.main = Pointer.from_stream(stream, instance.context, 0, generated.formats.matcol.compounds.RootFrag.RootFrag)
-		instance.one = stream.read_uint64()
+		instance.one = Uint64.from_stream(stream, instance.context, 0, None)
 		if not isinstance(instance.main, int):
 			instance.main.arg = 0
 

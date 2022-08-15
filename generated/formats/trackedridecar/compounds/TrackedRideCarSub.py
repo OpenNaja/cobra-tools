@@ -33,11 +33,11 @@ class TrackedRideCarSub(MemStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.float = stream.read_float()
-		instance.u_0 = stream.read_uint()
+		instance.float = Float.from_stream(stream, instance.context, 0, None)
+		instance.u_0 = Uint.from_stream(stream, instance.context, 0, None)
 		instance.vectors = ArrayPointer.from_stream(stream, instance.context, instance.vecs_count, generated.formats.trackedridecar.compounds.Vector3.Vector3)
-		instance.vecs_count = stream.read_uint64()
-		instance.zero_1 = stream.read_uint64()
+		instance.vecs_count = Uint64.from_stream(stream, instance.context, 0, None)
+		instance.zero_1 = Uint64.from_stream(stream, instance.context, 0, None)
 		if not isinstance(instance.vectors, int):
 			instance.vectors.arg = instance.vecs_count
 

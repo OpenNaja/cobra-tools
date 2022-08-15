@@ -41,11 +41,11 @@ class State(MemStruct):
 		instance.abstract_name = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
 		instance.concrete_name = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
 		instance.debug_name = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
-		instance.a = stream.read_uint64()
-		instance.b = stream.read_uint64()
-		instance.c = stream.read_uint64()
+		instance.a = Uint64.from_stream(stream, instance.context, 0, None)
+		instance.b = Uint64.from_stream(stream, instance.context, 0, None)
+		instance.c = Uint64.from_stream(stream, instance.context, 0, None)
 		instance.events_list = Pointer.from_stream(stream, instance.context, 0, generated.formats.cinematic.compounds.EventsList.EventsList)
-		instance.d = stream.read_uint64()
+		instance.d = Uint64.from_stream(stream, instance.context, 0, None)
 		if not isinstance(instance.abstract_name, int):
 			instance.abstract_name.arg = 0
 		if not isinstance(instance.concrete_name, int):

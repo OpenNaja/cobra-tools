@@ -114,31 +114,31 @@ class MeshCollision(BaseStruct):
 		super().read_fields(stream, instance)
 		instance.rotation = Matrix33.from_stream(stream, instance.context, 0, None)
 		instance.offset = Vector3.from_stream(stream, instance.context, 0, None)
-		instance.unk_1 = stream.read_ushorts((3, 2,))
-		instance.vertex_count = stream.read_uint64()
-		instance.tri_count = stream.read_uint64()
+		instance.unk_1 = Array.from_stream(stream, instance.context, 0, None, (3, 2,), Ushort)
+		instance.vertex_count = Uint64.from_stream(stream, instance.context, 0, None)
+		instance.tri_count = Uint64.from_stream(stream, instance.context, 0, None)
 		instance.bounds_min = Vector3.from_stream(stream, instance.context, 0, None)
 		instance.bounds_max = Vector3.from_stream(stream, instance.context, 0, None)
-		instance.ones_or_zeros = stream.read_uint64s((7,))
+		instance.ones_or_zeros = Array.from_stream(stream, instance.context, 0, None, (7,), Uint64)
 		if instance.context.version <= 32:
-			instance.ff_or_zero = stream.read_ints((10,))
+			instance.ff_or_zero = Array.from_stream(stream, instance.context, 0, None, (10,), Int)
 		if instance.context.version >= 47:
-			instance.ff_or_zero = stream.read_ints((8,))
+			instance.ff_or_zero = Array.from_stream(stream, instance.context, 0, None, (8,), Int)
 		if instance.context.version <= 32:
 			instance.bounds_min_repeat = Vector3.from_stream(stream, instance.context, 0, None)
 			instance.bounds_max_repeat = Vector3.from_stream(stream, instance.context, 0, None)
-			instance.tri_flags_count = stream.read_uint()
-			instance.count_bits = stream.read_ushort()
-			instance.stuff = stream.read_ushorts((9,))
+			instance.tri_flags_count = Uint.from_stream(stream, instance.context, 0, None)
+			instance.count_bits = Ushort.from_stream(stream, instance.context, 0, None)
+			instance.stuff = Array.from_stream(stream, instance.context, 0, None, (9,), Ushort)
 			instance.collision_bits = Array.from_stream(stream, instance.context, 0, None, (instance.count_bits,), MeshCollisionBit)
-			instance.zeros = stream.read_uints((4,))
-		instance.vertices = stream.read_floats((instance.vertex_count, 3,))
-		instance.triangles = stream.read_ushorts((instance.tri_count, 3,))
+			instance.zeros = Array.from_stream(stream, instance.context, 0, None, (4,), Uint)
+		instance.vertices = Array.from_stream(stream, instance.context, 0, None, (instance.vertex_count, 3,), Float)
+		instance.triangles = Array.from_stream(stream, instance.context, 0, None, (instance.tri_count, 3,), Ushort)
 		if instance.context.version <= 32:
-			instance.const = stream.read_uint()
+			instance.const = Uint.from_stream(stream, instance.context, 0, None)
 		if instance.context.version <= 32 and instance.const:
-			instance.triangle_flags = stream.read_uints((instance.tri_flags_count,))
-		instance.zero_end = stream.read_uint()
+			instance.triangle_flags = Array.from_stream(stream, instance.context, 0, None, (instance.tri_flags_count,), Uint)
+		instance.zero_end = Uint.from_stream(stream, instance.context, 0, None)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

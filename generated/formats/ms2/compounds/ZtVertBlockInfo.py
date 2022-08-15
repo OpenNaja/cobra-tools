@@ -28,9 +28,9 @@ class ZtVertBlockInfo(BaseStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.vertex_count = stream.read_uint()
-		instance.flags = stream.read_ubytes((8,))
-		instance.zero = stream.read_uint()
+		instance.vertex_count = Uint.from_stream(stream, instance.context, 0, None)
+		instance.flags = Array.from_stream(stream, instance.context, 0, None, (8,), Ubyte)
+		instance.zero = Uint.from_stream(stream, instance.context, 0, None)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

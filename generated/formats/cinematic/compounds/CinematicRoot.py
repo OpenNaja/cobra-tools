@@ -23,8 +23,8 @@ class CinematicRoot(MemStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.u_0 = stream.read_uint64()
-		instance.u_1 = stream.read_uint64()
+		instance.u_0 = Uint64.from_stream(stream, instance.context, 0, None)
+		instance.u_1 = Uint64.from_stream(stream, instance.context, 0, None)
 		instance.data = Pointer.from_stream(stream, instance.context, 0, generated.formats.cinematic.compounds.CinematicData.CinematicData)
 		if not isinstance(instance.data, int):
 			instance.data.arg = 0

@@ -79,11 +79,11 @@ class TexHeader(MemStruct):
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
 		if instance.context.version <= 15:
-			instance.zero_0 = stream.read_uint()
+			instance.zero_0 = Uint.from_stream(stream, instance.context, 0, None)
 		if instance.context.version >= 17:
-			instance.zero_0 = stream.read_uint64()
+			instance.zero_0 = Uint64.from_stream(stream, instance.context, 0, None)
 		if instance.context.version >= 19:
-			instance.zero_1 = stream.read_uint64()
+			instance.zero_1 = Uint64.from_stream(stream, instance.context, 0, None)
 		if 17 <= instance.context.version <= 18:
 			instance.buffer_infos = ArrayPointer.from_stream(stream, instance.context, instance.stream_count, generated.formats.tex.compounds.TexBufferPc.TexBufferPc)
 		if instance.context.version >= 19:
@@ -93,17 +93,17 @@ class TexHeader(MemStruct):
 			instance.compression_type = DdsTypeCoaster.from_stream(stream, instance.context, 0, None)
 		if not (instance.context.version < 19):
 			instance.compression_type = DdsType.from_stream(stream, instance.context, 0, None)
-		instance.one_0 = stream.read_ubyte()
+		instance.one_0 = Ubyte.from_stream(stream, instance.context, 0, None)
 		if instance.context.version <= 15:
-			instance.num_mips = stream.read_ushort()
-			instance.width = stream.read_ushort()
-			instance.height = stream.read_ushort()
+			instance.num_mips = Ushort.from_stream(stream, instance.context, 0, None)
+			instance.width = Ushort.from_stream(stream, instance.context, 0, None)
+			instance.height = Ushort.from_stream(stream, instance.context, 0, None)
 		if instance.context.version >= 17:
-			instance.stream_count = stream.read_ubyte()
-			instance.stream_count_repeat = stream.read_ubyte()
-		instance.pad = stream.read_uint()
+			instance.stream_count = Ubyte.from_stream(stream, instance.context, 0, None)
+			instance.stream_count_repeat = Ubyte.from_stream(stream, instance.context, 0, None)
+		instance.pad = Uint.from_stream(stream, instance.context, 0, None)
 		if instance.context.version <= 15:
-			instance.pad_dla = stream.read_uint64()
+			instance.pad_dla = Uint64.from_stream(stream, instance.context, 0, None)
 		if not isinstance(instance.buffer_infos, int):
 			instance.buffer_infos.arg = instance.stream_count
 		if not isinstance(instance.buffer_infos, int):

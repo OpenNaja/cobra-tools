@@ -39,9 +39,9 @@ class Capsule(BaseStruct):
 		super().read_fields(stream, instance)
 		instance.offset = Vector3.from_stream(stream, instance.context, 0, None)
 		instance.direction = Vector3.from_stream(stream, instance.context, 0, None)
-		instance.radius = stream.read_float()
-		instance.extent = stream.read_float()
-		instance.zero = stream.read_uint()
+		instance.radius = Float.from_stream(stream, instance.context, 0, None)
+		instance.extent = Float.from_stream(stream, instance.context, 0, None)
+		instance.zero = Uint.from_stream(stream, instance.context, 0, None)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

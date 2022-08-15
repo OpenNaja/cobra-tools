@@ -25,9 +25,9 @@ class Repeat(BaseStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.zeros_0 = stream.read_uint64s((7,))
-		instance.byte_size = stream.read_uint64()
-		instance.zeros_1 = stream.read_uint64s((2,))
+		instance.zeros_0 = Array.from_stream(stream, instance.context, 0, None, (7,), Uint64)
+		instance.byte_size = Uint64.from_stream(stream, instance.context, 0, None)
+		instance.zeros_1 = Array.from_stream(stream, instance.context, 0, None, (2,), Uint64)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

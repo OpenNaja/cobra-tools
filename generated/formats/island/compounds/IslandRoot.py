@@ -33,10 +33,10 @@ class IslandRoot(MemStruct):
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
 		instance.path_name = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
-		instance.a = stream.read_float()
-		instance.b = stream.read_float()
-		instance.count = stream.read_uint64()
-		instance.zero = stream.read_uint64()
+		instance.a = Float.from_stream(stream, instance.context, 0, None)
+		instance.b = Float.from_stream(stream, instance.context, 0, None)
+		instance.count = Uint64.from_stream(stream, instance.context, 0, None)
+		instance.zero = Uint64.from_stream(stream, instance.context, 0, None)
 		if not isinstance(instance.path_name, int):
 			instance.path_name.arg = 0
 

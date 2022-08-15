@@ -25,7 +25,7 @@ class DataStreamResourceDataList(MemStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.count = stream.read_uint64()
+		instance.count = Uint64.from_stream(stream, instance.context, 0, None)
 		instance.data_stream_resource_data = Pointer.from_stream(stream, instance.context, instance.count, generated.formats.motiongraph.compounds.DataStreamResourceDataPoints.DataStreamResourceDataPoints)
 		if not isinstance(instance.data_stream_resource_data, int):
 			instance.data_stream_resource_data.arg = instance.count

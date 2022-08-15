@@ -42,9 +42,9 @@ class ClimbproofDataRoot(MemStruct):
 		instance.climb_proof_cap_start = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
 		instance.climb_proof_cap_end = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
 		instance.climb_proof_bracket = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
-		instance.post_gap = stream.read_float()
-		instance.u_1 = stream.read_float()
-		instance.zero = stream.read_uint64()
+		instance.post_gap = Float.from_stream(stream, instance.context, 0, None)
+		instance.u_1 = Float.from_stream(stream, instance.context, 0, None)
+		instance.zero = Uint64.from_stream(stream, instance.context, 0, None)
 		if not isinstance(instance.climb_proof, int):
 			instance.climb_proof.arg = 0
 		if not isinstance(instance.climb_proof_cap_start, int):

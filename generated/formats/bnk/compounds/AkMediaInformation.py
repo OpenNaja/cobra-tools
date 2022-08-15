@@ -22,9 +22,9 @@ class AkMediaInformation(BaseStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.source_i_d = stream.read_uint()
-		instance.u_in_memory_media_size = stream.read_uint()
-		instance.u_source_bits = stream.read_ubyte()
+		instance.source_i_d = Uint.from_stream(stream, instance.context, 0, None)
+		instance.u_in_memory_media_size = Uint.from_stream(stream, instance.context, 0, None)
+		instance.u_source_bits = Ubyte.from_stream(stream, instance.context, 0, None)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

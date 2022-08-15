@@ -44,14 +44,14 @@ class Driver(MemStruct):
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
 		instance.joint_name = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
-		instance.a = stream.read_ubyte()
-		instance.b = stream.read_ubyte()
-		instance.c = stream.read_ushort()
-		instance.d = stream.read_uint()
+		instance.a = Ubyte.from_stream(stream, instance.context, 0, None)
+		instance.b = Ubyte.from_stream(stream, instance.context, 0, None)
+		instance.c = Ushort.from_stream(stream, instance.context, 0, None)
+		instance.d = Uint.from_stream(stream, instance.context, 0, None)
 		instance.driven_joint_name = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
-		instance.unk_1 = stream.read_uint64()
+		instance.unk_1 = Uint64.from_stream(stream, instance.context, 0, None)
 		instance.data = Pointer.from_stream(stream, instance.context, 0, generated.formats.posedriverdef.compounds.Data.Data)
-		instance.unk_2 = stream.read_uint64()
+		instance.unk_2 = Uint64.from_stream(stream, instance.context, 0, None)
 		if not isinstance(instance.joint_name, int):
 			instance.joint_name.arg = 0
 		if not isinstance(instance.driven_joint_name, int):

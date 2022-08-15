@@ -27,8 +27,8 @@ class Attrib(MemStruct):
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
 		instance.attrib_name = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
-		instance.attrib = stream.read_bytes((4,))
-		instance.padding = stream.read_uint()
+		instance.attrib = Array.from_stream(stream, instance.context, 0, None, (4,), Byte)
+		instance.padding = Uint.from_stream(stream, instance.context, 0, None)
 		if not isinstance(instance.attrib_name, int):
 			instance.attrib_name.arg = 0
 

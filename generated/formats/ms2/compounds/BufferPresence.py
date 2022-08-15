@@ -25,8 +25,8 @@ class BufferPresence(BaseStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.pool_index = stream.read_int()
-		instance.data_offset = stream.read_int()
+		instance.pool_index = Int.from_stream(stream, instance.context, 0, None)
+		instance.data_offset = Int.from_stream(stream, instance.context, 0, None)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

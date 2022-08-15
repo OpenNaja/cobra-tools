@@ -22,7 +22,7 @@ class CurveRoot(MemStruct):
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
 		instance.keys = ArrayPointer.from_stream(stream, instance.context, instance.count, generated.formats.curve.compounds.Key.Key)
-		instance.count = stream.read_uint64()
+		instance.count = Uint64.from_stream(stream, instance.context, 0, None)
 		if not isinstance(instance.keys, int):
 			instance.keys.arg = instance.count
 

@@ -31,9 +31,9 @@ class HbDoorCutout(MemStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.height = stream.read_float()
-		instance.right = stream.read_float()
-		instance.left = stream.read_float()
+		instance.height = Float.from_stream(stream, instance.context, 0, None)
+		instance.right = Float.from_stream(stream, instance.context, 0, None)
+		instance.left = Float.from_stream(stream, instance.context, 0, None)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

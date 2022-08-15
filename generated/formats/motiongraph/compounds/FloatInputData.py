@@ -27,9 +27,9 @@ class FloatInputData(MemStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.float = stream.read_float()
-		instance.optional_var_and_curve_count = stream.read_uint()
-		instance.optional_var_and_curve = stream.read_uint64()
+		instance.float = Float.from_stream(stream, instance.context, 0, None)
+		instance.optional_var_and_curve_count = Uint.from_stream(stream, instance.context, 0, None)
+		instance.optional_var_and_curve = Uint64.from_stream(stream, instance.context, 0, None)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

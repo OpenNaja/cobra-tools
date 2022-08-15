@@ -60,19 +60,19 @@ class WmetasbMain(MemStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.hash = stream.read_uint()
-		instance.unk = stream.read_uint()
+		instance.hash = Uint.from_stream(stream, instance.context, 0, None)
+		instance.unk = Uint.from_stream(stream, instance.context, 0, None)
 		instance.block_name = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
 		if instance.context.version <= 18:
 			instance.media_name = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
 			instance.bnk_name = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
 		instance.events = ArrayPointer.from_stream(stream, instance.context, instance.events_count, generated.formats.wmeta.compounds.EventEntry.EventEntry)
-		instance.events_count = stream.read_uint64()
+		instance.events_count = Uint64.from_stream(stream, instance.context, 0, None)
 		if instance.context.version <= 18:
 			instance.hashes = ArrayPointer.from_stream(stream, instance.context, instance.hashes_count, generated.formats.base.basic.Uint)
-			instance.hashes_count = stream.read_uint64()
+			instance.hashes_count = Uint64.from_stream(stream, instance.context, 0, None)
 			instance.media = ArrayPointer.from_stream(stream, instance.context, instance.media_count, generated.formats.wmeta.compounds.MediaEntry.MediaEntry)
-			instance.media_count = stream.read_uint64()
+			instance.media_count = Uint64.from_stream(stream, instance.context, 0, None)
 			instance.unused_2 = Pointer.from_stream(stream, instance.context, 0, None)
 			instance.unused_3 = Pointer.from_stream(stream, instance.context, 0, None)
 			instance.unused_4 = Pointer.from_stream(stream, instance.context, 0, None)

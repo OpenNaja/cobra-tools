@@ -55,9 +55,9 @@ class PathMaterial(MemStruct):
 		instance.underside_mat_2 = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
 		instance.stairs_mat_1 = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
 		instance.stairs_mat_2 = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
-		instance.path_sub_type = stream.read_uint64()
+		instance.path_sub_type = Uint64.from_stream(stream, instance.context, 0, None)
 		instance.mat_data = ArrayPointer.from_stream(stream, instance.context, instance.num_data, generated.formats.path.compounds.PathMaterialData.PathMaterialData)
-		instance.num_data = stream.read_uint64()
+		instance.num_data = Uint64.from_stream(stream, instance.context, 0, None)
 		if not isinstance(instance.elevated_mat, int):
 			instance.elevated_mat.arg = 0
 		if not isinstance(instance.elevated_mat_valid, int):

@@ -29,9 +29,9 @@ class DataPointer(BaseStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.wem_id = stream.read_uint()
-		instance.data_section_offset = stream.read_uint()
-		instance.wem_filesize = stream.read_uint()
+		instance.wem_id = Uint.from_stream(stream, instance.context, 0, None)
+		instance.data_section_offset = Uint.from_stream(stream, instance.context, 0, None)
+		instance.wem_filesize = Uint.from_stream(stream, instance.context, 0, None)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

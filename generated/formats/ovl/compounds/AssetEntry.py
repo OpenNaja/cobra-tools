@@ -35,13 +35,13 @@ class AssetEntry(BaseStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.file_hash = stream.read_uint()
-		instance.zero_0 = stream.read_uint()
+		instance.file_hash = Uint.from_stream(stream, instance.context, 0, None)
+		instance.zero_0 = Uint.from_stream(stream, instance.context, 0, None)
 		if instance.context.version >= 19:
-			instance.ext_hash = stream.read_uint()
-			instance.zero_1 = stream.read_uint()
-		instance.file_index = stream.read_uint()
-		instance.zero_2 = stream.read_uint()
+			instance.ext_hash = Uint.from_stream(stream, instance.context, 0, None)
+			instance.zero_1 = Uint.from_stream(stream, instance.context, 0, None)
+		instance.file_index = Uint.from_stream(stream, instance.context, 0, None)
+		instance.zero_2 = Uint.from_stream(stream, instance.context, 0, None)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

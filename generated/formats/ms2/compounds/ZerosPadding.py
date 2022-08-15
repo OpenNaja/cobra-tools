@@ -27,11 +27,11 @@ class ZerosPadding(BaseStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.hier_2_padding_0 = stream.read_uint64()
+		instance.hier_2_padding_0 = Uint64.from_stream(stream, instance.context, 0, None)
 		if 64 < instance.arg:
-			instance.hier_2_padding_1 = stream.read_uint64()
+			instance.hier_2_padding_1 = Uint64.from_stream(stream, instance.context, 0, None)
 		if 128 < instance.arg:
-			instance.hier_2_padding_2 = stream.read_uint64()
+			instance.hier_2_padding_2 = Uint64.from_stream(stream, instance.context, 0, None)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

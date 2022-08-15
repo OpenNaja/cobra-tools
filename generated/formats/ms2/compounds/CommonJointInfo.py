@@ -30,10 +30,10 @@ class CommonJointInfo(BaseStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.eleven = stream.read_uint()
-		instance.f_fs = stream.read_ints((3,))
-		instance.name_offset = stream.read_uint()
-		instance.hitcheck_count = stream.read_uint()
+		instance.eleven = Uint.from_stream(stream, instance.context, 0, None)
+		instance.f_fs = Array.from_stream(stream, instance.context, 0, None, (3,), Int)
+		instance.name_offset = Uint.from_stream(stream, instance.context, 0, None)
+		instance.hitcheck_count = Uint.from_stream(stream, instance.context, 0, None)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

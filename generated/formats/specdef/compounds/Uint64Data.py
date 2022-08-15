@@ -30,10 +30,10 @@ class Uint64Data(MemStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.imin = stream.read_uint64()
-		instance.imax = stream.read_uint64()
-		instance.ivalue = stream.read_uint64()
-		instance.ioptional = stream.read_uint64()
+		instance.imin = Uint64.from_stream(stream, instance.context, 0, None)
+		instance.imax = Uint64.from_stream(stream, instance.context, 0, None)
+		instance.ivalue = Uint64.from_stream(stream, instance.context, 0, None)
+		instance.ioptional = Uint64.from_stream(stream, instance.context, 0, None)
 		instance.enum = Pointer.from_stream(stream, instance.context, 0, None)
 		if not isinstance(instance.enum, int):
 			instance.enum.arg = 0

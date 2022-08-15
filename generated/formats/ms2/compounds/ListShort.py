@@ -38,8 +38,8 @@ class ListShort(Descriptor):
 		super().read_fields(stream, instance)
 		instance.loc = Vector3.from_stream(stream, instance.context, 0, None)
 		instance.direction = Vector3.from_stream(stream, instance.context, 0, None)
-		instance.min = stream.read_float()
-		instance.max = stream.read_float()
+		instance.min = Float.from_stream(stream, instance.context, 0, None)
+		instance.max = Float.from_stream(stream, instance.context, 0, None)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

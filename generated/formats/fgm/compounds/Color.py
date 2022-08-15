@@ -27,10 +27,10 @@ class Color(MemStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.r = stream.read_ubyte()
-		instance.g = stream.read_ubyte()
-		instance.b = stream.read_ubyte()
-		instance.a = stream.read_ubyte()
+		instance.r = Ubyte.from_stream(stream, instance.context, 0, None)
+		instance.g = Ubyte.from_stream(stream, instance.context, 0, None)
+		instance.b = Ubyte.from_stream(stream, instance.context, 0, None)
+		instance.a = Ubyte.from_stream(stream, instance.context, 0, None)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

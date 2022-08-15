@@ -43,12 +43,12 @@ class TexBuffer(MemStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.offset = stream.read_uint64()
-		instance.size = stream.read_uint64()
-		instance.first_mip = stream.read_ubyte()
-		instance.mip_count = stream.read_ubyte()
-		instance.padding_0 = stream.read_short()
-		instance.padding_1 = stream.read_int()
+		instance.offset = Uint64.from_stream(stream, instance.context, 0, None)
+		instance.size = Uint64.from_stream(stream, instance.context, 0, None)
+		instance.first_mip = Ubyte.from_stream(stream, instance.context, 0, None)
+		instance.mip_count = Ubyte.from_stream(stream, instance.context, 0, None)
+		instance.padding_0 = Short.from_stream(stream, instance.context, 0, None)
+		instance.padding_1 = Int.from_stream(stream, instance.context, 0, None)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

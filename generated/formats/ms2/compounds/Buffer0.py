@@ -36,10 +36,10 @@ class Buffer0(BaseStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.name_hashes = stream.read_uints((instance.arg.name_count,))
-		instance.names = stream.read_zstrings((instance.arg.name_count,))
+		instance.name_hashes = Array.from_stream(stream, instance.context, 0, None, (instance.arg.name_count,), Uint)
+		instance.names = Array.from_stream(stream, instance.context, 0, None, (instance.arg.name_count,), ZString)
 		if instance.context.version >= 50:
-			instance.names_padding = stream.read_ubytes(((4 - (instance.names.io_size % 4)) % 4,))
+			instance.names_padding = Array.from_stream(stream, instance.context, 0, None, ((4 - (instance.names.io_size % 4)) % 4,), Ubyte)
 		if instance.context.version <= 13:
 			instance.zt_streams_header = StreamsZTHeader.from_stream(stream, instance.context, instance.arg, None)
 

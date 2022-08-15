@@ -30,13 +30,13 @@ class AkTrackSrcInfo(BaseStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.track_i_d = stream.read_uint()
-		instance.source_i_d = stream.read_uint()
-		instance.event_i_d = stream.read_uint()
-		instance.f_play_at = stream.read_double()
-		instance.f_begin_trim_offset = stream.read_double()
-		instance.f_end_trim_offset = stream.read_double()
-		instance.f_src_duration = stream.read_double()
+		instance.track_i_d = Uint.from_stream(stream, instance.context, 0, None)
+		instance.source_i_d = Uint.from_stream(stream, instance.context, 0, None)
+		instance.event_i_d = Uint.from_stream(stream, instance.context, 0, None)
+		instance.f_play_at = Double.from_stream(stream, instance.context, 0, None)
+		instance.f_begin_trim_offset = Double.from_stream(stream, instance.context, 0, None)
+		instance.f_end_trim_offset = Double.from_stream(stream, instance.context, 0, None)
+		instance.f_src_duration = Double.from_stream(stream, instance.context, 0, None)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

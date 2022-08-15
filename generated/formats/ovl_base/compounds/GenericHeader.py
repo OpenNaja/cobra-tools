@@ -46,12 +46,12 @@ class GenericHeader(BaseStruct):
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
 		instance.magic = FixedString.from_stream(stream, instance.context, 4, None)
-		instance.version_flag = stream.read_byte()
+		instance.version_flag = Byte.from_stream(stream, instance.context, 0, None)
 		instance.context.version_flag = instance.version_flag
-		instance.version = stream.read_byte()
+		instance.version = Byte.from_stream(stream, instance.context, 0, None)
 		instance.context.version = instance.version
-		instance.bitswap = stream.read_byte()
-		instance.seventh_byte = stream.read_byte()
+		instance.bitswap = Byte.from_stream(stream, instance.context, 0, None)
+		instance.seventh_byte = Byte.from_stream(stream, instance.context, 0, None)
 		instance.user_version = VersionInfo.from_stream(stream, instance.context, 0, None)
 		instance.context.user_version = instance.user_version
 

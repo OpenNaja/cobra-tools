@@ -23,8 +23,8 @@ class HbUiOptions(MemStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.straight_curve = stream.read_bool()
-		instance.windows = stream.read_bool()
+		instance.straight_curve = Bool.from_stream(stream, instance.context, 0, None)
+		instance.windows = Bool.from_stream(stream, instance.context, 0, None)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

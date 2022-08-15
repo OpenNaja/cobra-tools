@@ -194,60 +194,60 @@ class BoneInfo(BaseStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.name_count = stream.read_uint()
-		instance.z_0 = stream.read_ushort()
-		instance.inv_names_count = stream.read_ushort()
+		instance.name_count = Uint.from_stream(stream, instance.context, 0, None)
+		instance.z_0 = Ushort.from_stream(stream, instance.context, 0, None)
+		instance.inv_names_count = Ushort.from_stream(stream, instance.context, 0, None)
 		if instance.context.version >= 32:
-			instance.knownff = stream.read_short()
-			instance.zero_0 = stream.read_short()
-			instance.unknown_0_c = stream.read_uint()
-		instance.unk_count = stream.read_uint64()
-		instance.bind_matrix_count = stream.read_uint64()
-		instance.zeros = stream.read_uint64s((2,))
-		instance.inv_data_count = stream.read_uint64()
-		instance.bone_count = stream.read_uint64()
-		instance.unknown_40 = stream.read_uint64()
-		instance.parents_count = stream.read_uint64()
+			instance.knownff = Short.from_stream(stream, instance.context, 0, None)
+			instance.zero_0 = Short.from_stream(stream, instance.context, 0, None)
+			instance.unknown_0_c = Uint.from_stream(stream, instance.context, 0, None)
+		instance.unk_count = Uint64.from_stream(stream, instance.context, 0, None)
+		instance.bind_matrix_count = Uint64.from_stream(stream, instance.context, 0, None)
+		instance.zeros = Array.from_stream(stream, instance.context, 0, None, (2,), Uint64)
+		instance.inv_data_count = Uint64.from_stream(stream, instance.context, 0, None)
+		instance.bone_count = Uint64.from_stream(stream, instance.context, 0, None)
+		instance.unknown_40 = Uint64.from_stream(stream, instance.context, 0, None)
+		instance.parents_count = Uint64.from_stream(stream, instance.context, 0, None)
 		if (instance.context.version == 7) or ((instance.context.version == 13) or (((instance.context.version == 48) or (instance.context.version == 50)) or (instance.context.version == 51))):
-			instance.extra_zero = stream.read_uint64()
-		instance.enum_count = stream.read_uint64()
-		instance.unknown_58 = stream.read_uint64()
-		instance.one = stream.read_uint64()
-		instance.zeros_count = stream.read_uint64()
+			instance.extra_zero = Uint64.from_stream(stream, instance.context, 0, None)
+		instance.enum_count = Uint64.from_stream(stream, instance.context, 0, None)
+		instance.unknown_58 = Uint64.from_stream(stream, instance.context, 0, None)
+		instance.one = Uint64.from_stream(stream, instance.context, 0, None)
+		instance.zeros_count = Uint64.from_stream(stream, instance.context, 0, None)
 		if instance.context.version == 32:
-			instance.unk_pc_count = stream.read_uint64()
-		instance.count_7 = stream.read_uint64()
-		instance.joint_count = stream.read_uint64()
-		instance.unk_78_count = stream.read_uint64()
+			instance.unk_pc_count = Uint64.from_stream(stream, instance.context, 0, None)
+		instance.count_7 = Uint64.from_stream(stream, instance.context, 0, None)
+		instance.joint_count = Uint64.from_stream(stream, instance.context, 0, None)
+		instance.unk_78_count = Uint64.from_stream(stream, instance.context, 0, None)
 		if instance.context.version <= 13:
-			instance.unk_extra = stream.read_uint64()
+			instance.unk_extra = Uint64.from_stream(stream, instance.context, 0, None)
 		if (instance.context.version == 47) or (instance.context.version == 39):
-			instance.unk_extra_jwe = stream.read_uint64()
+			instance.unk_extra_jwe = Uint64.from_stream(stream, instance.context, 0, None)
 		if not (instance.context.version < 47):
-			instance.name_indices = stream.read_uints((instance.name_count,))
+			instance.name_indices = Array.from_stream(stream, instance.context, 0, None, (instance.name_count,), Uint)
 		if instance.context.version < 47:
-			instance.name_indices = stream.read_ushorts((instance.name_count,))
-			instance.inventory_name_indices = stream.read_ushorts((instance.inv_names_count,))
+			instance.name_indices = Array.from_stream(stream, instance.context, 0, None, (instance.name_count,), Ushort)
+			instance.inventory_name_indices = Array.from_stream(stream, instance.context, 0, None, (instance.inv_names_count,), Ushort)
 		if not (instance.context.version < 47):
-			instance.name_padding = stream.read_bytes(((16 - (((instance.name_count + instance.inv_names_count) * 4) % 16)) % 16,))
+			instance.name_padding = Array.from_stream(stream, instance.context, 0, None, ((16 - (((instance.name_count + instance.inv_names_count) * 4) % 16)) % 16,), Byte)
 		if instance.context.version < 47:
-			instance.name_padding = stream.read_bytes(((16 - (((instance.name_count + instance.inv_names_count) * 2) % 16)) % 16,))
+			instance.name_padding = Array.from_stream(stream, instance.context, 0, None, ((16 - (((instance.name_count + instance.inv_names_count) * 2) % 16)) % 16,), Byte)
 		instance.inverse_bind_matrices = Array.from_stream(stream, instance.context, 0, None, (instance.bind_matrix_count,), Matrix44)
 		instance.bones = Array.from_stream(stream, instance.context, 0, None, (instance.bone_count,), Bone)
-		instance.parents = stream.read_ubytes((instance.parents_count,))
+		instance.parents = Array.from_stream(stream, instance.context, 0, None, (instance.parents_count,), Ubyte)
 		if instance.context.version >= 32:
-			instance.parents_padding = stream.read_bytes(((8 - (instance.parents_count % 8)) % 8,))
+			instance.parents_padding = Array.from_stream(stream, instance.context, 0, None, ((8 - (instance.parents_count % 8)) % 8,), Byte)
 		if instance.context.version >= 32 and instance.one:
-			instance.enumeration = stream.read_uints((instance.enum_count, 2,))
+			instance.enumeration = Array.from_stream(stream, instance.context, 0, None, (instance.enum_count, 2,), Uint)
 		if instance.context.version <= 13 and instance.one:
-			instance.enumeration = stream.read_ubytes((instance.enum_count,))
+			instance.enumeration = Array.from_stream(stream, instance.context, 0, None, (instance.enum_count,), Ubyte)
 		if instance.context.version == 7:
-			instance.inventory_datas = stream.read_bytes((instance.inv_data_count, 6,))
-			instance.weirdness = stream.read_shorts((8,))
+			instance.inventory_datas = Array.from_stream(stream, instance.context, 0, None, (instance.inv_data_count, 6,), Byte)
+			instance.weirdness = Array.from_stream(stream, instance.context, 0, None, (8,), Short)
 		if instance.context.version == 13:
-			instance.weirdness = stream.read_shorts((10,))
+			instance.weirdness = Array.from_stream(stream, instance.context, 0, None, (10,), Short)
 		if instance.context.version == 7:
-			instance.inventory_datas_2 = stream.read_ints((instance.inv_data_count, 2,))
+			instance.inventory_datas_2 = Array.from_stream(stream, instance.context, 0, None, (instance.inv_data_count, 2,), Int)
 		if not (instance.context.version < 47) and instance.zeros_count:
 			instance.zeros_padding = ZerosPadding.from_stream(stream, instance.context, instance.zeros_count, None)
 		if instance.context.version >= 47 and instance.zeros_count:

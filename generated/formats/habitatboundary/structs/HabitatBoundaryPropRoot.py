@@ -56,20 +56,20 @@ class HabitatBoundaryPropRoot(MemStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.type = stream.read_uint64()
+		instance.type = Uint64.from_stream(stream, instance.context, 0, None)
 		instance.prefab = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
-		instance.u_1 = stream.read_uint64()
+		instance.u_1 = Uint64.from_stream(stream, instance.context, 0, None)
 		instance.post = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
 		instance.wall = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
-		instance.is_guest = stream.read_uint()
+		instance.is_guest = Uint.from_stream(stream, instance.context, 0, None)
 		instance.post_position = HbPostPos.from_stream(stream, instance.context, 0, None)
-		instance.u_2 = stream.read_float()
+		instance.u_2 = Float.from_stream(stream, instance.context, 0, None)
 		instance.door_physics = HbPropPhysics.from_stream(stream, instance.context, 0, None)
 		instance.path_physics = HbPropPhysics.from_stream(stream, instance.context, 0, None)
 		instance.path_join_part = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
 		instance.door_cutout = HbDoorCutout.from_stream(stream, instance.context, 0, None)
-		instance.small = stream.read_uint()
-		instance.height = stream.read_float()
+		instance.small = Uint.from_stream(stream, instance.context, 0, None)
+		instance.height = Float.from_stream(stream, instance.context, 0, None)
 		if not isinstance(instance.prefab, int):
 			instance.prefab.arg = 0
 		if not isinstance(instance.post, int):

@@ -27,7 +27,7 @@ class DIDXSection(BaseStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.length = stream.read_uint()
+		instance.length = Uint.from_stream(stream, instance.context, 0, None)
 		instance.data_pointers = Array.from_stream(stream, instance.context, 0, None, (int(instance.length / 12),), DataPointer)
 
 	@classmethod

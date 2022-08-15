@@ -28,10 +28,10 @@ class SomeData(MemStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.key = stream.read_uint()
-		instance.extra = stream.read_uint()
-		instance.a = stream.read_float()
-		instance.b = stream.read_float()
+		instance.key = Uint.from_stream(stream, instance.context, 0, None)
+		instance.extra = Uint.from_stream(stream, instance.context, 0, None)
+		instance.a = Float.from_stream(stream, instance.context, 0, None)
+		instance.b = Float.from_stream(stream, instance.context, 0, None)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

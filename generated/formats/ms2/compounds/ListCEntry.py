@@ -43,12 +43,12 @@ class ListCEntry(BaseStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.one = stream.read_uint()
+		instance.one = Uint.from_stream(stream, instance.context, 0, None)
 		instance.loc = Vector3.from_stream(stream, instance.context, 0, None)
-		instance.constant = stream.read_float()
-		instance.a = stream.read_float()
-		instance.floats = stream.read_floats((4,))
-		instance.a_2 = stream.read_float()
+		instance.constant = Float.from_stream(stream, instance.context, 0, None)
+		instance.a = Float.from_stream(stream, instance.context, 0, None)
+		instance.floats = Array.from_stream(stream, instance.context, 0, None, (4,), Float)
+		instance.a_2 = Float.from_stream(stream, instance.context, 0, None)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

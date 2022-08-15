@@ -19,7 +19,7 @@ class NodeBaseParams(BaseStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.raw = stream.read_bytes((30,))
+		instance.raw = Array.from_stream(stream, instance.context, 0, None, (30,), Byte)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

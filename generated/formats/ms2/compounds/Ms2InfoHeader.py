@@ -57,19 +57,19 @@ class Ms2InfoHeader(BaseStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.biosyn = stream.read_uint()
+		instance.biosyn = Uint.from_stream(stream, instance.context, 0, None)
 		instance.context.biosyn = instance.biosyn
-		instance.bone_info_size = stream.read_uint()
+		instance.bone_info_size = Uint.from_stream(stream, instance.context, 0, None)
 		instance.info = Ms2Root.from_stream(stream, instance.context, 0, None)
 		if instance.context.version >= 7:
 			instance.buffers_presence = Array.from_stream(stream, instance.context, 0, None, (instance.info.vertex_buffer_count,), BufferPresence)
-		instance.mdl_2_names = stream.read_zstrings((instance.info.mdl_2_count,))
+		instance.mdl_2_names = Array.from_stream(stream, instance.context, 0, None, (instance.info.mdl_2_count,), ZString)
 		if instance.context.version <= 7 and instance.info.vertex_buffer_count:
-			instance.modelstream_names = stream.read_zstrings((instance.info.vertex_buffer_count - instance.info.stream_count,))
+			instance.modelstream_names = Array.from_stream(stream, instance.context, 0, None, (instance.info.vertex_buffer_count - instance.info.stream_count,), ZString)
 		if 13 <= instance.context.version <= 13 and instance.info.vertex_buffer_count:
-			instance.modelstream_names = stream.read_zstrings((instance.info.vertex_buffer_count,))
+			instance.modelstream_names = Array.from_stream(stream, instance.context, 0, None, (instance.info.vertex_buffer_count,), ZString)
 		if instance.context.version >= 39 and instance.info.vertex_buffer_count:
-			instance.modelstream_names = stream.read_zstrings((instance.info.stream_count,))
+			instance.modelstream_names = Array.from_stream(stream, instance.context, 0, None, (instance.info.stream_count,), ZString)
 		instance.buffer_0 = Buffer0.from_stream(stream, instance.context, instance.info, None)
 		instance.buffer_infos = Array.from_stream(stream, instance.context, 0, None, (instance.info.vertex_buffer_count,), BufferInfo)
 		instance.model_infos = Array.from_stream(stream, instance.context, 0, None, (instance.info.mdl_2_count,), ModelInfo)

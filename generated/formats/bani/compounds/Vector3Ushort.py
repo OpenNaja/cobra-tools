@@ -31,9 +31,9 @@ class Vector3Ushort(BaseStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.x = stream.read_ushort()
-		instance.y = stream.read_ushort()
-		instance.z = stream.read_ushort()
+		instance.x = Ushort.from_stream(stream, instance.context, 0, None)
+		instance.y = Ushort.from_stream(stream, instance.context, 0, None)
+		instance.z = Ushort.from_stream(stream, instance.context, 0, None)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

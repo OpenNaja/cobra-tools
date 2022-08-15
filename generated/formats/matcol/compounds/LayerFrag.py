@@ -39,14 +39,14 @@ class LayerFrag(MemStruct):
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
 		instance.layer_name = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
-		instance.u_0 = stream.read_uint64()
-		instance.u_1 = stream.read_uint64()
+		instance.u_0 = Uint64.from_stream(stream, instance.context, 0, None)
+		instance.u_1 = Uint64.from_stream(stream, instance.context, 0, None)
 		instance.infos = ArrayPointer.from_stream(stream, instance.context, instance.info_count, generated.formats.matcol.compounds.Info.Info)
-		instance.info_count = stream.read_uint64()
-		instance.u_2 = stream.read_uint64()
-		instance.u_3 = stream.read_uint64()
+		instance.info_count = Uint64.from_stream(stream, instance.context, 0, None)
+		instance.u_2 = Uint64.from_stream(stream, instance.context, 0, None)
+		instance.u_3 = Uint64.from_stream(stream, instance.context, 0, None)
 		instance.attribs = ArrayPointer.from_stream(stream, instance.context, instance.attrib_count, generated.formats.matcol.compounds.Attrib.Attrib)
-		instance.attrib_count = stream.read_uint64()
+		instance.attrib_count = Uint64.from_stream(stream, instance.context, 0, None)
 		if not isinstance(instance.layer_name, int):
 			instance.layer_name.arg = 0
 		if not isinstance(instance.infos, int):

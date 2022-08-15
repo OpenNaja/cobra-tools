@@ -49,13 +49,13 @@ class BanisRoot(MemStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.zeros = stream.read_uint64s((2,))
-		instance.bytes_per_frame = stream.read_uint()
-		instance.bytes_per_bone = stream.read_uint()
-		instance.num_frames = stream.read_uint()
-		instance.num_bones = stream.read_uint()
-		instance.loc_scale = stream.read_float()
-		instance.loc_offset = stream.read_float()
+		instance.zeros = Array.from_stream(stream, instance.context, 0, None, (2,), Uint64)
+		instance.bytes_per_frame = Uint.from_stream(stream, instance.context, 0, None)
+		instance.bytes_per_bone = Uint.from_stream(stream, instance.context, 0, None)
+		instance.num_frames = Uint.from_stream(stream, instance.context, 0, None)
+		instance.num_bones = Uint.from_stream(stream, instance.context, 0, None)
+		instance.loc_scale = Float.from_stream(stream, instance.context, 0, None)
+		instance.loc_offset = Float.from_stream(stream, instance.context, 0, None)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

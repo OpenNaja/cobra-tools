@@ -33,10 +33,10 @@ class CurveParam(MemStruct):
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
 		instance.attribute_name = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
-		instance.dtype = stream.read_int()
-		instance.do_interpolation = stream.read_uint()
+		instance.dtype = Int.from_stream(stream, instance.context, 0, None)
+		instance.do_interpolation = Uint.from_stream(stream, instance.context, 0, None)
 		instance.curve_entries = Pointer.from_stream(stream, instance.context, instance.count, generated.formats.renderparameters.compounds.CurveList.CurveList)
-		instance.count = stream.read_uint64()
+		instance.count = Uint64.from_stream(stream, instance.context, 0, None)
 		if not isinstance(instance.attribute_name, int):
 			instance.attribute_name.arg = 0
 		if not isinstance(instance.curve_entries, int):

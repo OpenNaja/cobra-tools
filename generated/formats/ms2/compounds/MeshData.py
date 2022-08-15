@@ -45,11 +45,11 @@ class MeshData(MemStruct):
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
 		if instance.context.version <= 32:
-			instance.stream_index = stream.read_uint64()
+			instance.stream_index = Uint64.from_stream(stream, instance.context, 0, None)
 		if instance.context.version >= 47:
 			instance.stream_info = Pointer.from_stream(stream, instance.context, 0, generated.formats.ms2.compounds.BufferInfo.BufferInfo)
 		if not ((instance.context.version == 51) and instance.context.biosyn):
-			instance.some_index = stream.read_uint64()
+			instance.some_index = Uint64.from_stream(stream, instance.context, 0, None)
 		if not isinstance(instance.stream_info, int):
 			instance.stream_info.arg = 0
 

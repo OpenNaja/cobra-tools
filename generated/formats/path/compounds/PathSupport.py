@@ -25,8 +25,8 @@ class PathSupport(MemStruct):
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
 		instance.support = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
-		instance.unk_float_1 = stream.read_float()
-		instance.unk_int_1 = stream.read_uint()
+		instance.unk_float_1 = Float.from_stream(stream, instance.context, 0, None)
+		instance.unk_int_1 = Uint.from_stream(stream, instance.context, 0, None)
 		if not isinstance(instance.support, int):
 			instance.support.arg = 0
 

@@ -35,8 +35,8 @@ class RandomActivityActivityInfoData(MemStruct):
 		super().read_fields(stream, instance)
 		instance.enum_variable = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
 		instance.activities = Pointer.from_stream(stream, instance.context, 0, None)
-		instance.activities_count = stream.read_uint64()
-		instance.blend_time = stream.read_float()
+		instance.activities_count = Uint64.from_stream(stream, instance.context, 0, None)
+		instance.blend_time = Float.from_stream(stream, instance.context, 0, None)
 		instance.mode = SelectActivityActivityMode.from_stream(stream, instance.context, 0, None)
 		if not isinstance(instance.enum_variable, int):
 			instance.enum_variable.arg = 0

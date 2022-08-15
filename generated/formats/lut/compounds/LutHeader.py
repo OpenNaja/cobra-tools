@@ -35,11 +35,11 @@ class LutHeader(MemStruct):
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
 		instance.colors = ArrayPointer.from_stream(stream, instance.context, instance.colors_count, generated.formats.lut.compounds.Vector3.Vector3)
-		instance.colors_count = stream.read_ushort()
-		instance.unk_0 = stream.read_ushort()
-		instance.unk_1 = stream.read_uint()
-		instance.colors_in_column_count = stream.read_uint()
-		instance.unk_2 = stream.read_uint()
+		instance.colors_count = Ushort.from_stream(stream, instance.context, 0, None)
+		instance.unk_0 = Ushort.from_stream(stream, instance.context, 0, None)
+		instance.unk_1 = Uint.from_stream(stream, instance.context, 0, None)
+		instance.colors_in_column_count = Uint.from_stream(stream, instance.context, 0, None)
+		instance.unk_2 = Uint.from_stream(stream, instance.context, 0, None)
 		if not isinstance(instance.colors, int):
 			instance.colors.arg = instance.colors_count
 

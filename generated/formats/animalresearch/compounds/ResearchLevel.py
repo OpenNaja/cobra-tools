@@ -30,9 +30,9 @@ class ResearchLevel(MemStruct):
 		super().read_fields(stream, instance)
 		instance.level_name = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
 		instance.next_levels = Pointer.from_stream(stream, instance.context, instance.next_level_count, generated.formats.animalresearch.compounds.PtrList.PtrList)
-		instance.next_level_count = stream.read_uint64()
+		instance.next_level_count = Uint64.from_stream(stream, instance.context, 0, None)
 		instance.children = Pointer.from_stream(stream, instance.context, instance.children_count, generated.formats.animalresearch.compounds.PtrList.PtrList)
-		instance.children_count = stream.read_uint64()
+		instance.children_count = Uint64.from_stream(stream, instance.context, 0, None)
 		if not isinstance(instance.level_name, int):
 			instance.level_name.arg = 0
 		if not isinstance(instance.next_levels, int):

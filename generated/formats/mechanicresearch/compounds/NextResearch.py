@@ -23,7 +23,7 @@ class NextResearch(MemStruct):
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
 		instance.item_name = Array.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString, (instance.arg,), Pointer)
-		instance.unk_1 = stream.read_uint64()
+		instance.unk_1 = Uint64.from_stream(stream, instance.context, 0, None)
 		if not isinstance(instance.item_name, int):
 			instance.item_name.arg = 0
 

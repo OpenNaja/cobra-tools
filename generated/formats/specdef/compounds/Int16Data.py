@@ -30,10 +30,10 @@ class Int16Data(MemStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.imin = stream.read_short()
-		instance.imax = stream.read_short()
-		instance.ivalue = stream.read_short()
-		instance.ioptional = stream.read_short()
+		instance.imin = Short.from_stream(stream, instance.context, 0, None)
+		instance.imax = Short.from_stream(stream, instance.context, 0, None)
+		instance.ivalue = Short.from_stream(stream, instance.context, 0, None)
+		instance.ioptional = Short.from_stream(stream, instance.context, 0, None)
 		instance.enum = Pointer.from_stream(stream, instance.context, 0, None)
 		if not isinstance(instance.enum, int):
 			instance.enum.arg = 0

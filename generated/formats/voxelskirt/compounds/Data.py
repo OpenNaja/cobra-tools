@@ -35,10 +35,10 @@ class Data(BaseStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.id = stream.read_uint64()
-		instance.type = stream.read_uint64()
-		instance.offset = stream.read_uint64()
-		instance.dsize = stream.read_uint64()
+		instance.id = Uint64.from_stream(stream, instance.context, 0, None)
+		instance.type = Uint64.from_stream(stream, instance.context, 0, None)
+		instance.offset = Uint64.from_stream(stream, instance.context, 0, None)
+		instance.dsize = Uint64.from_stream(stream, instance.context, 0, None)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

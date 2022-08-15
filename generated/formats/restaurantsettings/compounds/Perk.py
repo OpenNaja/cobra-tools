@@ -44,19 +44,19 @@ class Perk(MemStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.unk_0 = stream.read_uint64()
-		instance.building_cost = stream.read_uint64()
-		instance.running_cost_base = stream.read_uint64()
-		instance.running_cost_per_extension = stream.read_uint64()
-		instance.unk_4 = stream.read_float()
-		instance.unk_5 = stream.read_float()
+		instance.unk_0 = Uint64.from_stream(stream, instance.context, 0, None)
+		instance.building_cost = Uint64.from_stream(stream, instance.context, 0, None)
+		instance.running_cost_base = Uint64.from_stream(stream, instance.context, 0, None)
+		instance.running_cost_per_extension = Uint64.from_stream(stream, instance.context, 0, None)
+		instance.unk_4 = Float.from_stream(stream, instance.context, 0, None)
+		instance.unk_5 = Float.from_stream(stream, instance.context, 0, None)
 		instance.label = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
 		instance.desc = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
 		instance.icon = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
-		instance.unk_6 = stream.read_float()
-		instance.appeal_adults = stream.read_float()
-		instance.appeal_families = stream.read_float()
-		instance.appeal_teenagers = stream.read_float()
+		instance.unk_6 = Float.from_stream(stream, instance.context, 0, None)
+		instance.appeal_adults = Float.from_stream(stream, instance.context, 0, None)
+		instance.appeal_families = Float.from_stream(stream, instance.context, 0, None)
+		instance.appeal_teenagers = Float.from_stream(stream, instance.context, 0, None)
 		if not isinstance(instance.label, int):
 			instance.label.arg = 0
 		if not isinstance(instance.desc, int):

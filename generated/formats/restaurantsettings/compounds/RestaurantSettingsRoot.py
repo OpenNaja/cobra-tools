@@ -43,18 +43,18 @@ class RestaurantSettingsRoot(MemStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.running_cost_base = stream.read_uint64()
-		instance.unk_1 = stream.read_uint()
-		instance.unk_2 = stream.read_float()
-		instance.unk_3 = stream.read_float()
-		instance.unk_4 = stream.read_float()
-		instance.unk_5 = stream.read_float()
-		instance.unk_6 = stream.read_float()
-		instance.running_cost_per_extension = stream.read_uint64()
-		instance.unk_8 = stream.read_uint()
-		instance.unk_9 = stream.read_float()
+		instance.running_cost_base = Uint64.from_stream(stream, instance.context, 0, None)
+		instance.unk_1 = Uint.from_stream(stream, instance.context, 0, None)
+		instance.unk_2 = Float.from_stream(stream, instance.context, 0, None)
+		instance.unk_3 = Float.from_stream(stream, instance.context, 0, None)
+		instance.unk_4 = Float.from_stream(stream, instance.context, 0, None)
+		instance.unk_5 = Float.from_stream(stream, instance.context, 0, None)
+		instance.unk_6 = Float.from_stream(stream, instance.context, 0, None)
+		instance.running_cost_per_extension = Uint64.from_stream(stream, instance.context, 0, None)
+		instance.unk_8 = Uint.from_stream(stream, instance.context, 0, None)
+		instance.unk_9 = Float.from_stream(stream, instance.context, 0, None)
 		instance.perks = ArrayPointer.from_stream(stream, instance.context, instance.count, generated.formats.restaurantsettings.compounds.Perk.Perk)
-		instance.count = stream.read_uint64()
+		instance.count = Uint64.from_stream(stream, instance.context, 0, None)
 		if not isinstance(instance.perks, int):
 			instance.perks.arg = instance.count
 

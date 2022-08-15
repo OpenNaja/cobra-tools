@@ -26,9 +26,9 @@ class TexIndex(MemStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance._tex_index = stream.read_uint()
+		instance._tex_index = Uint.from_stream(stream, instance.context, 0, None)
 		if instance.context.version >= 18:
-			instance.array_index = stream.read_uint()
+			instance.array_index = Uint.from_stream(stream, instance.context, 0, None)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

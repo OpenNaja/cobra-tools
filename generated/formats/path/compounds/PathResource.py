@@ -40,10 +40,10 @@ class PathResource(MemStruct):
 		instance.pathextrusion_railing = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
 		instance.pathextrusion_ground = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
 		instance.pathsupport = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
-		instance.path_type = stream.read_byte()
-		instance.path_sub_type = stream.read_byte()
-		instance.unk_byte_1 = stream.read_byte()
-		instance.unk_byte_2 = stream.read_byte()
+		instance.path_type = Byte.from_stream(stream, instance.context, 0, None)
+		instance.path_sub_type = Byte.from_stream(stream, instance.context, 0, None)
+		instance.unk_byte_1 = Byte.from_stream(stream, instance.context, 0, None)
+		instance.unk_byte_2 = Byte.from_stream(stream, instance.context, 0, None)
 		if not isinstance(instance.pathmaterial, int):
 			instance.pathmaterial.arg = 0
 		if not isinstance(instance.pathextrusion_kerb, int):

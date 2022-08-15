@@ -64,13 +64,13 @@ class BioMeshData(MeshData):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.chunks_offset = stream.read_uint()
-		instance.chunks_count = stream.read_uint()
-		instance.tris_count = stream.read_uint()
-		instance.vertex_count = stream.read_uint()
-		instance.zero_1 = stream.read_uint64()
-		instance.poweroftwo = stream.read_uint()
-		instance.unk_floats = stream.read_floats((2,))
+		instance.chunks_offset = Uint.from_stream(stream, instance.context, 0, None)
+		instance.chunks_count = Uint.from_stream(stream, instance.context, 0, None)
+		instance.tris_count = Uint.from_stream(stream, instance.context, 0, None)
+		instance.vertex_count = Uint.from_stream(stream, instance.context, 0, None)
+		instance.zero_1 = Uint64.from_stream(stream, instance.context, 0, None)
+		instance.poweroftwo = Uint.from_stream(stream, instance.context, 0, None)
+		instance.unk_floats = Array.from_stream(stream, instance.context, 0, None, (2,), Float)
 		instance.flag = BioModelFlag.from_stream(stream, instance.context, 0, None)
 
 	@classmethod

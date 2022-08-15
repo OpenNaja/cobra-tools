@@ -30,8 +30,8 @@ class TypeOther(BaseStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.length = stream.read_uint()
-		instance.raw = stream.read_bytes((instance.length,))
+		instance.length = Uint.from_stream(stream, instance.context, 0, None)
+		instance.raw = Array.from_stream(stream, instance.context, 0, None, (instance.length,), Byte)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

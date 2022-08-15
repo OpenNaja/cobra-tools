@@ -35,12 +35,12 @@ class RootFrag(MemStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.mat_type = stream.read_uint64()
+		instance.mat_type = Uint64.from_stream(stream, instance.context, 0, None)
 		instance.textures = ArrayPointer.from_stream(stream, instance.context, instance.tex_count, generated.formats.matcol.compounds.Texture.Texture)
-		instance.tex_count = stream.read_uint64()
+		instance.tex_count = Uint64.from_stream(stream, instance.context, 0, None)
 		instance.materials = ArrayPointer.from_stream(stream, instance.context, instance.mat_count, generated.formats.matcol.compounds.LayerFrag.LayerFrag)
-		instance.mat_count = stream.read_uint64()
-		instance.unk = stream.read_uint64()
+		instance.mat_count = Uint64.from_stream(stream, instance.context, 0, None)
+		instance.unk = Uint64.from_stream(stream, instance.context, 0, None)
 		if not isinstance(instance.textures, int):
 			instance.textures.arg = instance.tex_count
 		if not isinstance(instance.materials, int):

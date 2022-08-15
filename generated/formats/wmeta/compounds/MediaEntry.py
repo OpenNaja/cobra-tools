@@ -31,8 +31,8 @@ class MediaEntry(MemStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.hash = stream.read_uint()
-		instance.zero = stream.read_uint()
+		instance.hash = Uint.from_stream(stream, instance.context, 0, None)
+		instance.zero = Uint.from_stream(stream, instance.context, 0, None)
 		instance.block_name = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
 		instance.wav_name = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
 		instance.wem_name = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)

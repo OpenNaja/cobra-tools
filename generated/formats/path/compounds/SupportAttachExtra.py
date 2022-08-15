@@ -23,9 +23,9 @@ class SupportAttachExtra(SupportAttach):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.unk_float_1 = stream.read_float()
-		instance.unk_int_3 = stream.read_uint()
-		instance.padding = stream.read_uint64()
+		instance.unk_float_1 = Float.from_stream(stream, instance.context, 0, None)
+		instance.unk_int_3 = Uint.from_stream(stream, instance.context, 0, None)
+		instance.padding = Uint64.from_stream(stream, instance.context, 0, None)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

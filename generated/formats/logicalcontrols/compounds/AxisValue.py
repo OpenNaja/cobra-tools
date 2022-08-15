@@ -32,12 +32,12 @@ class AxisValue(MemStruct):
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
 		instance.axis_name = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
-		instance.u_0 = stream.read_uint64()
-		instance.u_1 = stream.read_uint64()
-		instance.u_2 = stream.read_uint64()
+		instance.u_0 = Uint64.from_stream(stream, instance.context, 0, None)
+		instance.u_1 = Uint64.from_stream(stream, instance.context, 0, None)
+		instance.u_2 = Uint64.from_stream(stream, instance.context, 0, None)
 		instance.value_name = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
-		instance.u_3 = stream.read_uint64()
-		instance.u_4 = stream.read_uint64()
+		instance.u_3 = Uint64.from_stream(stream, instance.context, 0, None)
+		instance.u_4 = Uint64.from_stream(stream, instance.context, 0, None)
 		if not isinstance(instance.axis_name, int):
 			instance.axis_name.arg = 0
 		if not isinstance(instance.value_name, int):

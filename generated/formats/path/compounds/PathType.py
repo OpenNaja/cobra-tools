@@ -24,10 +24,10 @@ class PathType(MemStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.enum_value = stream.read_uint()
-		instance.unk_float_1 = stream.read_float()
-		instance.unk_float_2 = stream.read_float()
-		instance.unk_int_2 = stream.read_uint()
+		instance.enum_value = Uint.from_stream(stream, instance.context, 0, None)
+		instance.unk_float_1 = Float.from_stream(stream, instance.context, 0, None)
+		instance.unk_float_2 = Float.from_stream(stream, instance.context, 0, None)
+		instance.unk_int_2 = Uint.from_stream(stream, instance.context, 0, None)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

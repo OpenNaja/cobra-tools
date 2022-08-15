@@ -45,8 +45,8 @@ class TextureInfo(GenericInfo):
 		if instance.context.version <= 17 and instance.dtype == 7:
 			instance.value = Array.from_stream(stream, instance.context, 0, None, (1,), Color)
 		if instance.context.version >= 18:
-			instance.some_index_0 = stream.read_uint()
-			instance.some_index_1 = stream.read_uint()
+			instance.some_index_0 = Uint.from_stream(stream, instance.context, 0, None)
+			instance.some_index_1 = Uint.from_stream(stream, instance.context, 0, None)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

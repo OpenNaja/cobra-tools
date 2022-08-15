@@ -1,17 +1,19 @@
 from generated.base_enum import BaseEnum
 
+from generated.formats.dds.basic import Ubyte
+
 
 class UbyteEnum(BaseEnum):
 
 	def read(self, stream):
-		self._value_ = stream.read_ubyte()
+		self._value_ = Ubyte.from_stream(stream, None, 0, None)
 
 	def write(self, stream):
 		stream.write_ubyte(self.value)
 
 	@classmethod
 	def from_stream(cls, stream, context=None, arg=0, template=None):
-		instance = cls.from_value(stream.read_ubyte())
+		instance = cls.from_value(Ubyte.from_stream(stream, None, 0, None))
 		return instance
 
 	@classmethod
@@ -19,18 +21,20 @@ class UbyteEnum(BaseEnum):
 		stream.write_ubyte(instance.value)
 		return instance
 
+from generated.formats.dds.basic import Ushort
+
 
 class UshortEnum(BaseEnum):
 
 	def read(self, stream):
-		self._value_ = stream.read_ushort()
+		self._value_ = Ushort.from_stream(stream, None, 0, None)
 
 	def write(self, stream):
 		stream.write_ushort(self.value)
 
 	@classmethod
 	def from_stream(cls, stream, context=None, arg=0, template=None):
-		instance = cls.from_value(stream.read_ushort())
+		instance = cls.from_value(Ushort.from_stream(stream, None, 0, None))
 		return instance
 
 	@classmethod
@@ -38,18 +42,20 @@ class UshortEnum(BaseEnum):
 		stream.write_ushort(instance.value)
 		return instance
 
+from generated.formats.dds.basic import Uint
+
 
 class UintEnum(BaseEnum):
 
 	def read(self, stream):
-		self._value_ = stream.read_uint()
+		self._value_ = Uint.from_stream(stream, None, 0, None)
 
 	def write(self, stream):
 		stream.write_uint(self.value)
 
 	@classmethod
 	def from_stream(cls, stream, context=None, arg=0, template=None):
-		instance = cls.from_value(stream.read_uint())
+		instance = cls.from_value(Uint.from_stream(stream, None, 0, None))
 		return instance
 
 	@classmethod

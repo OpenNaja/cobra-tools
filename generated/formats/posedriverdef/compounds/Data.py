@@ -19,7 +19,7 @@ class Data(MemStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.floats = stream.read_floats((16,))
+		instance.floats = Array.from_stream(stream, instance.context, 0, None, (16,), Float)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

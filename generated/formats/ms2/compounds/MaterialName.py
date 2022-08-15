@@ -31,13 +31,13 @@ class MaterialName(BaseStruct):
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
 		if instance.context.version >= 47:
-			instance.name_index = stream.read_uint()
+			instance.name_index = Uint.from_stream(stream, instance.context, 0, None)
 		if instance.context.version <= 32:
-			instance.name_index = stream.read_ushort()
+			instance.name_index = Ushort.from_stream(stream, instance.context, 0, None)
 		if instance.context.version >= 47:
-			instance.some_index = stream.read_uint()
+			instance.some_index = Uint.from_stream(stream, instance.context, 0, None)
 		if instance.context.version <= 32:
-			instance.some_index = stream.read_ushort()
+			instance.some_index = Ushort.from_stream(stream, instance.context, 0, None)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

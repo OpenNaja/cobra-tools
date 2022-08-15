@@ -36,14 +36,14 @@ class Sixtyfour(MemStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.count_0 = stream.read_uint64()
+		instance.count_0 = Uint64.from_stream(stream, instance.context, 0, None)
 		instance.ptr_0 = Pointer.from_stream(stream, instance.context, 0, None)
 		instance.ptr_1 = Pointer.from_stream(stream, instance.context, 0, None)
-		instance.count_1 = stream.read_uint64()
-		instance.count_2 = stream.read_uint64()
+		instance.count_1 = Uint64.from_stream(stream, instance.context, 0, None)
+		instance.count_2 = Uint64.from_stream(stream, instance.context, 0, None)
 		instance.ptr_2 = Pointer.from_stream(stream, instance.context, 0, None)
 		instance.ptr_3 = Pointer.from_stream(stream, instance.context, 0, None)
-		instance.count_3 = stream.read_uint64()
+		instance.count_3 = Uint64.from_stream(stream, instance.context, 0, None)
 		if not isinstance(instance.ptr_0, int):
 			instance.ptr_0.arg = 0
 		if not isinstance(instance.ptr_1, int):

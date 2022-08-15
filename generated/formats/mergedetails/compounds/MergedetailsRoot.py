@@ -38,12 +38,12 @@ class MergedetailsRoot(MemStruct):
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
 		instance.merge_names = Pointer.from_stream(stream, instance.context, instance.count, generated.formats.mergedetails.compounds.PtrList.PtrList)
-		instance.zero_0 = stream.read_uint64()
-		instance.zero_1 = stream.read_uint64()
+		instance.zero_0 = Uint64.from_stream(stream, instance.context, 0, None)
+		instance.zero_1 = Uint64.from_stream(stream, instance.context, 0, None)
 		instance.queries = Pointer.from_stream(stream, instance.context, instance.count, generated.formats.mergedetails.compounds.PtrList.PtrList)
 		instance.field_name = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
-		instance.count = stream.read_uint()
-		instance.flag = stream.read_uint()
+		instance.count = Uint.from_stream(stream, instance.context, 0, None)
+		instance.flag = Uint.from_stream(stream, instance.context, 0, None)
 		if not isinstance(instance.merge_names, int):
 			instance.merge_names.arg = instance.count
 		if not isinstance(instance.queries, int):

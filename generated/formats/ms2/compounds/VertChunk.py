@@ -42,12 +42,12 @@ class VertChunk(BaseStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.flags = stream.read_ubytes((4,))
-		instance.pack_base = stream.read_float()
-		instance.vertex_offset = stream.read_uint()
-		instance.vertex_count = stream.read_ubyte()
+		instance.flags = Array.from_stream(stream, instance.context, 0, None, (4,), Ubyte)
+		instance.pack_base = Float.from_stream(stream, instance.context, 0, None)
+		instance.vertex_offset = Uint.from_stream(stream, instance.context, 0, None)
+		instance.vertex_count = Ubyte.from_stream(stream, instance.context, 0, None)
 		instance.weights_flag = WeightsFlag.from_stream(stream, instance.context, 0, None)
-		instance.zero = stream.read_ubyte()
+		instance.zero = Ubyte.from_stream(stream, instance.context, 0, None)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

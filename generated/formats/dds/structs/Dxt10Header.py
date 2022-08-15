@@ -29,9 +29,9 @@ class Dxt10Header(BaseStruct):
 		super().read_fields(stream, instance)
 		instance.dxgi_format = DxgiFormat.from_stream(stream, instance.context, 0, None)
 		instance.resource_dimension = D3D10ResourceDimension.from_stream(stream, instance.context, 0, None)
-		instance.misc_flag = stream.read_uint()
-		instance.array_size = stream.read_uint()
-		instance.misc_flag_2 = stream.read_uint()
+		instance.misc_flag = Uint.from_stream(stream, instance.context, 0, None)
+		instance.array_size = Uint.from_stream(stream, instance.context, 0, None)
+		instance.misc_flag_2 = Uint.from_stream(stream, instance.context, 0, None)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

@@ -30,8 +30,8 @@ class Sphere(BaseStruct):
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
 		instance.center = Vector3.from_stream(stream, instance.context, 0, None)
-		instance.radius = stream.read_float()
-		instance.zero = stream.read_uint()
+		instance.radius = Float.from_stream(stream, instance.context, 0, None)
+		instance.zero = Uint.from_stream(stream, instance.context, 0, None)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

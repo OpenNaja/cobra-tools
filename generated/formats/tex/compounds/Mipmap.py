@@ -39,11 +39,11 @@ class Mipmap(MemStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.offset = stream.read_uint()
-		instance.size = stream.read_uint()
-		instance.size_array = stream.read_uint()
-		instance.size_scan = stream.read_uint()
-		instance.size_data = stream.read_uint()
+		instance.offset = Uint.from_stream(stream, instance.context, 0, None)
+		instance.size = Uint.from_stream(stream, instance.context, 0, None)
+		instance.size_array = Uint.from_stream(stream, instance.context, 0, None)
+		instance.size_scan = Uint.from_stream(stream, instance.context, 0, None)
+		instance.size_data = Uint.from_stream(stream, instance.context, 0, None)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

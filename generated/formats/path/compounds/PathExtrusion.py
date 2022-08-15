@@ -35,10 +35,10 @@ class PathExtrusion(MemStruct):
 		instance.model = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
 		instance.post_model = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
 		instance.endcap_model = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
-		instance.unk_float_1 = stream.read_float()
-		instance.unk_float_2 = stream.read_float()
-		instance.is_kerb = stream.read_bool()
-		instance.is_not_ground = stream.read_bool()
+		instance.unk_float_1 = Float.from_stream(stream, instance.context, 0, None)
+		instance.unk_float_2 = Float.from_stream(stream, instance.context, 0, None)
+		instance.is_kerb = Bool.from_stream(stream, instance.context, 0, None)
+		instance.is_not_ground = Bool.from_stream(stream, instance.context, 0, None)
 		if not isinstance(instance.model, int):
 			instance.model.arg = 0
 		if not isinstance(instance.post_model, int):

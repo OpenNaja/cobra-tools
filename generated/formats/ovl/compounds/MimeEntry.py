@@ -59,16 +59,16 @@ class MimeEntry(BaseStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.offset = stream.read_uint()
-		instance.unknown = stream.read_uint()
-		instance.mime_hash = stream.read_uint()
-		instance.mime_version = stream.read_uint()
+		instance.offset = Uint.from_stream(stream, instance.context, 0, None)
+		instance.unknown = Uint.from_stream(stream, instance.context, 0, None)
+		instance.mime_hash = Uint.from_stream(stream, instance.context, 0, None)
+		instance.mime_version = Uint.from_stream(stream, instance.context, 0, None)
 		instance.context.mime_version = instance.mime_version
-		instance.file_index_offset = stream.read_uint()
-		instance.file_count = stream.read_uint()
+		instance.file_index_offset = Uint.from_stream(stream, instance.context, 0, None)
+		instance.file_count = Uint.from_stream(stream, instance.context, 0, None)
 		if instance.context.version >= 20:
-			instance.triplet_count = stream.read_uint()
-			instance.triplet_offset = stream.read_uint()
+			instance.triplet_count = Uint.from_stream(stream, instance.context, 0, None)
+			instance.triplet_offset = Uint.from_stream(stream, instance.context, 0, None)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

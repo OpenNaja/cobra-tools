@@ -36,9 +36,9 @@ class DependencyEntry(BaseStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.file_hash = stream.read_uint()
-		instance.offset = stream.read_uint()
-		instance.file_index = stream.read_uint()
+		instance.file_hash = Uint.from_stream(stream, instance.context, 0, None)
+		instance.offset = Uint.from_stream(stream, instance.context, 0, None)
+		instance.file_index = Uint.from_stream(stream, instance.context, 0, None)
 		instance.link_ptr = HeaderPointer.from_stream(stream, instance.context, 0, None)
 
 	@classmethod

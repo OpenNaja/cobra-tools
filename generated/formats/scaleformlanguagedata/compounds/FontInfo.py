@@ -29,7 +29,7 @@ class FontInfo(MemStruct):
 		super().read_fields(stream, instance)
 		instance.style_name = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
 		instance.font_file = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
-		instance.flag_or_count = stream.read_uint64()
+		instance.flag_or_count = Uint64.from_stream(stream, instance.context, 0, None)
 		if not isinstance(instance.style_name, int):
 			instance.style_name.arg = 0
 		if not isinstance(instance.font_file, int):

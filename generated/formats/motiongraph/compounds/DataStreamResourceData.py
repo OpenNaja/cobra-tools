@@ -34,7 +34,7 @@ class DataStreamResourceData(MemStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.curve_type = stream.read_uint64()
+		instance.curve_type = Uint64.from_stream(stream, instance.context, 0, None)
 		instance.ds_name = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
 		instance.type = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
 		instance.bone_i_d = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)

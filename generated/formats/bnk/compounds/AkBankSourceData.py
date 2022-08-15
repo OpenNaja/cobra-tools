@@ -23,8 +23,8 @@ class AkBankSourceData(BaseStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.ul_plugin_i_d = stream.read_uint()
-		instance.stream_type = stream.read_ubyte()
+		instance.ul_plugin_i_d = Uint.from_stream(stream, instance.context, 0, None)
+		instance.stream_type = Ubyte.from_stream(stream, instance.context, 0, None)
 		instance.ak_media_information = AkMediaInformation.from_stream(stream, instance.context, 0, None)
 
 	@classmethod

@@ -30,9 +30,9 @@ class Info(MemStruct):
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
 		instance.info_name = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
-		instance.flags = stream.read_bytes((4,))
-		instance.value = stream.read_floats((4,))
-		instance.padding = stream.read_uint()
+		instance.flags = Array.from_stream(stream, instance.context, 0, None, (4,), Byte)
+		instance.value = Array.from_stream(stream, instance.context, 0, None, (4,), Float)
+		instance.padding = Uint.from_stream(stream, instance.context, 0, None)
 		if not isinstance(instance.info_name, int):
 			instance.info_name.arg = 0
 

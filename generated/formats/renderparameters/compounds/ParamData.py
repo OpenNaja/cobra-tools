@@ -48,23 +48,23 @@ class ParamData(MemStruct):
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
 		if instance.arg == 0:
-			instance.data = stream.read_bools((1,))
+			instance.data = Array.from_stream(stream, instance.context, 0, None, (1,), Bool)
 		if instance.arg == 1:
-			instance.data = stream.read_floats((1,))
+			instance.data = Array.from_stream(stream, instance.context, 0, None, (1,), Float)
 		if instance.arg == 2:
-			instance.data = stream.read_ints((1,))
+			instance.data = Array.from_stream(stream, instance.context, 0, None, (1,), Int)
 		if instance.arg == 3:
-			instance.data = stream.read_uints((1,))
+			instance.data = Array.from_stream(stream, instance.context, 0, None, (1,), Uint)
 		if instance.arg == 4:
-			instance.data = stream.read_floats((2,))
+			instance.data = Array.from_stream(stream, instance.context, 0, None, (2,), Float)
 		if instance.arg == 5:
-			instance.data = stream.read_floats((3,))
+			instance.data = Array.from_stream(stream, instance.context, 0, None, (3,), Float)
 		if instance.arg == 6:
-			instance.data = stream.read_floats((4,))
+			instance.data = Array.from_stream(stream, instance.context, 0, None, (4,), Float)
 		if instance.arg == 7:
-			instance.data = stream.read_ubytes((4,))
+			instance.data = Array.from_stream(stream, instance.context, 0, None, (4,), Ubyte)
 		if instance.arg == 8:
-			instance.data = stream.read_floats((4,))
+			instance.data = Array.from_stream(stream, instance.context, 0, None, (4,), Float)
 		if instance.arg == 9:
 			instance.data = Array.from_stream(stream, instance.context, 0, None, (1,), ZStrPtr)
 

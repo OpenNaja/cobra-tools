@@ -37,12 +37,12 @@ class Bone(BaseStruct):
 		super().read_fields(stream, instance)
 		if instance.context.version <= 47:
 			instance.loc = Vector3.from_stream(stream, instance.context, 0, None)
-			instance.scale = stream.read_float()
+			instance.scale = Float.from_stream(stream, instance.context, 0, None)
 			instance.rot = Vector4.from_stream(stream, instance.context, 0, None)
 		if instance.context.version >= 48:
 			instance.rot = Vector4.from_stream(stream, instance.context, 0, None)
 			instance.loc = Vector3.from_stream(stream, instance.context, 0, None)
-			instance.scale = stream.read_float()
+			instance.scale = Float.from_stream(stream, instance.context, 0, None)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

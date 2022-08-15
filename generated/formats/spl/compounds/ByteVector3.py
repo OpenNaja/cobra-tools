@@ -31,9 +31,9 @@ class ByteVector3(MemStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.x = stream.read_byte()
-		instance.y = stream.read_byte()
-		instance.z = stream.read_byte()
+		instance.x = Byte.from_stream(stream, instance.context, 0, None)
+		instance.y = Byte.from_stream(stream, instance.context, 0, None)
+		instance.z = Byte.from_stream(stream, instance.context, 0, None)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

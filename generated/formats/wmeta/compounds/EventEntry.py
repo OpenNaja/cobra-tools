@@ -59,24 +59,24 @@ class EventEntry(MemStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.hash = stream.read_uint()
-		instance.zero = stream.read_uint()
+		instance.hash = Uint.from_stream(stream, instance.context, 0, None)
+		instance.zero = Uint.from_stream(stream, instance.context, 0, None)
 		if instance.context.version <= 18:
 			instance.block_name = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
-			instance.zero_2 = stream.read_ushort()
-			instance.size = stream.read_ushort()
-		instance.flag_0 = stream.read_uint()
-		instance.flag_1 = stream.read_uint()
-		instance.flag_2 = stream.read_uint()
+			instance.zero_2 = Ushort.from_stream(stream, instance.context, 0, None)
+			instance.size = Ushort.from_stream(stream, instance.context, 0, None)
+		instance.flag_0 = Uint.from_stream(stream, instance.context, 0, None)
+		instance.flag_1 = Uint.from_stream(stream, instance.context, 0, None)
+		instance.flag_2 = Uint.from_stream(stream, instance.context, 0, None)
 		if instance.context.version <= 18:
-			instance.zero_3 = stream.read_uint64()
-			instance.flag_3 = stream.read_uint()
-		instance.hash_b = stream.read_uint()
-		instance.hash_c = stream.read_uint()
-		instance.zero_4 = stream.read_uint()
+			instance.zero_3 = Uint64.from_stream(stream, instance.context, 0, None)
+			instance.flag_3 = Uint.from_stream(stream, instance.context, 0, None)
+		instance.hash_b = Uint.from_stream(stream, instance.context, 0, None)
+		instance.hash_c = Uint.from_stream(stream, instance.context, 0, None)
+		instance.zero_4 = Uint.from_stream(stream, instance.context, 0, None)
 		if instance.context.version >= 19:
-			instance.u_2 = stream.read_uint()
-			instance.u_1 = stream.read_uint()
+			instance.u_2 = Uint.from_stream(stream, instance.context, 0, None)
+			instance.u_1 = Uint.from_stream(stream, instance.context, 0, None)
 		if not isinstance(instance.block_name, int):
 			instance.block_name.arg = 0
 

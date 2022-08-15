@@ -233,14 +233,14 @@ class XmlParser:
 
     def read_for_type(self, dtype, context, arg=0, template=None, arr1=None, arr2=None):
         type_tag = self.tag_dict.get(dtype.lower())
-        if type_tag == "basic":
-            # check for presence of stream registering functions
-            if callable(getattr(self.basics.basic_map[dtype], "functions_for_stream", None)):
-                # if they're present, use them
-                if arr1 is not None:
-                    return f'stream.read_{dtype.lower()}s({self.arrs_to_tuple(arr1, arr2)})'
-                else:
-                    return f'stream.read_{dtype.lower()}()'
+        # if type_tag == "basic":
+        #     # check for presence of stream registering functions
+        #     if callable(getattr(self.basics.basic_map[dtype], "functions_for_stream", None)):
+        #         # if they're present, use them
+        #         if arr1 is not None:
+        #             return f'stream.read_{dtype.lower()}s({self.arrs_to_tuple(arr1, arr2)})'
+        #         else:
+        #             return f'stream.read_{dtype.lower()}()'
         if arr1 is not None:
             return f'Array.from_stream(stream, {context}, {arg}, {template}, {self.arrs_to_tuple(arr1, arr2)}, {dtype})'
         else:

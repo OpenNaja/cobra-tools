@@ -27,9 +27,9 @@ class SizeInfo(MemStruct):
 		super().read_fields(stream, instance)
 		instance.data = SizeInfoRaw.from_stream(stream, instance.context, 0, None)
 		if ((not instance.context.user_version.is_jwe) and (instance.context.version == 20)) or (((not instance.context.user_version.is_jwe) and (instance.context.version >= 19)) or (instance.context.user_version.is_jwe and (instance.context.version == 20))):
-			instance.padding = stream.read_ubytes((320 - instance.data.io_size,))
+			instance.padding = Array.from_stream(stream, instance.context, 0, None, (320 - instance.data.io_size,), Ubyte)
 		if instance.context.user_version.is_jwe and (instance.context.version == 19):
-			instance.padding = stream.read_ubytes((384 - instance.data.io_size,))
+			instance.padding = Array.from_stream(stream, instance.context, 0, None, (384 - instance.data.io_size,), Ubyte)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

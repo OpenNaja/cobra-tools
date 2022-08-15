@@ -71,16 +71,16 @@ class NewMeshData(MeshData):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.vertex_count = stream.read_uint()
-		instance.tri_index_count = stream.read_uint()
-		instance.zero_1 = stream.read_uint()
-		instance.poweroftwo = stream.read_uint()
-		instance.vertex_offset = stream.read_uint()
-		instance.size_of_vertex = stream.read_uint()
-		instance.tri_offset = stream.read_uint()
-		instance.zero_2 = stream.read_uint()
-		instance.unk_floats = stream.read_floats((2,))
-		instance.zero_3 = stream.read_uint()
+		instance.vertex_count = Uint.from_stream(stream, instance.context, 0, None)
+		instance.tri_index_count = Uint.from_stream(stream, instance.context, 0, None)
+		instance.zero_1 = Uint.from_stream(stream, instance.context, 0, None)
+		instance.poweroftwo = Uint.from_stream(stream, instance.context, 0, None)
+		instance.vertex_offset = Uint.from_stream(stream, instance.context, 0, None)
+		instance.size_of_vertex = Uint.from_stream(stream, instance.context, 0, None)
+		instance.tri_offset = Uint.from_stream(stream, instance.context, 0, None)
+		instance.zero_2 = Uint.from_stream(stream, instance.context, 0, None)
+		instance.unk_floats = Array.from_stream(stream, instance.context, 0, None, (2,), Float)
+		instance.zero_3 = Uint.from_stream(stream, instance.context, 0, None)
 		instance.flag = ModelFlag.from_stream(stream, instance.context, 0, None)
 
 	@classmethod

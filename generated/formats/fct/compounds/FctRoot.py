@@ -46,16 +46,16 @@ class FctRoot(MemStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.u_0 = stream.read_short()
-		instance.u_1 = stream.read_short()
-		instance.a = stream.read_float()
-		instance.b = stream.read_float()
-		instance.c = stream.read_float()
-		instance.minus_1 = stream.read_short()
-		instance.z_0 = stream.read_short()
-		instance.z_1 = stream.read_int()
-		instance.z_2 = stream.read_uint64()
-		instance.offset = stream.read_uint64()
+		instance.u_0 = Short.from_stream(stream, instance.context, 0, None)
+		instance.u_1 = Short.from_stream(stream, instance.context, 0, None)
+		instance.a = Float.from_stream(stream, instance.context, 0, None)
+		instance.b = Float.from_stream(stream, instance.context, 0, None)
+		instance.c = Float.from_stream(stream, instance.context, 0, None)
+		instance.minus_1 = Short.from_stream(stream, instance.context, 0, None)
+		instance.z_0 = Short.from_stream(stream, instance.context, 0, None)
+		instance.z_1 = Int.from_stream(stream, instance.context, 0, None)
+		instance.z_2 = Uint64.from_stream(stream, instance.context, 0, None)
+		instance.offset = Uint64.from_stream(stream, instance.context, 0, None)
 		instance.fonts = Array.from_stream(stream, instance.context, 0, None, (4,), Font)
 
 	@classmethod

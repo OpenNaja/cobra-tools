@@ -19,8 +19,8 @@ class UIntPair(MemStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.value_0 = stream.read_uint()
-		instance.value_1 = stream.read_uint()
+		instance.value_0 = Uint.from_stream(stream, instance.context, 0, None)
+		instance.value_1 = Uint.from_stream(stream, instance.context, 0, None)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

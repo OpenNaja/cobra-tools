@@ -36,12 +36,12 @@ class ConnectorMultiJoint(MemStruct):
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
 		instance.model_name = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
-		instance.padding = stream.read_uint64()
+		instance.padding = Uint64.from_stream(stream, instance.context, 0, None)
 		instance.joints = ArrayPointer.from_stream(stream, instance.context, instance.num_joints, generated.formats.path.compounds.Joint.Joint)
-		instance.num_joints = stream.read_uint64()
-		instance.unk_float_1 = stream.read_float()
-		instance.unk_int_1 = stream.read_uint()
-		instance.padding = stream.read_uint64()
+		instance.num_joints = Uint64.from_stream(stream, instance.context, 0, None)
+		instance.unk_float_1 = Float.from_stream(stream, instance.context, 0, None)
+		instance.unk_int_1 = Uint.from_stream(stream, instance.context, 0, None)
+		instance.padding = Uint64.from_stream(stream, instance.context, 0, None)
 		if not isinstance(instance.model_name, int):
 			instance.model_name.arg = 0
 		if not isinstance(instance.joints, int):

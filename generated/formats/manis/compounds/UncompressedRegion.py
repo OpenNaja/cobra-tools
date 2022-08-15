@@ -38,16 +38,16 @@ class UncompressedRegion(BaseStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.zeros_0 = stream.read_uints((2,))
-		instance.unk_0 = stream.read_ushort()
-		instance.unk_1 = stream.read_ushort()
-		instance.zeros_1 = stream.read_uints((3,))
-		instance.unk_2 = stream.read_uint()
-		instance.unk_3 = stream.read_uint()
-		instance.zeros_2 = stream.read_uints((2,))
-		instance.unk_4 = stream.read_uint()
-		instance.unk_5 = stream.read_uint()
-		instance.zeros_3 = stream.read_uints((2,))
+		instance.zeros_0 = Array.from_stream(stream, instance.context, 0, None, (2,), Uint)
+		instance.unk_0 = Ushort.from_stream(stream, instance.context, 0, None)
+		instance.unk_1 = Ushort.from_stream(stream, instance.context, 0, None)
+		instance.zeros_1 = Array.from_stream(stream, instance.context, 0, None, (3,), Uint)
+		instance.unk_2 = Uint.from_stream(stream, instance.context, 0, None)
+		instance.unk_3 = Uint.from_stream(stream, instance.context, 0, None)
+		instance.zeros_2 = Array.from_stream(stream, instance.context, 0, None, (2,), Uint)
+		instance.unk_4 = Uint.from_stream(stream, instance.context, 0, None)
+		instance.unk_5 = Uint.from_stream(stream, instance.context, 0, None)
+		instance.zeros_3 = Array.from_stream(stream, instance.context, 0, None, (2,), Uint)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

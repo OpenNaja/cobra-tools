@@ -34,8 +34,8 @@ class BaniInfoHeader(BaseStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.magic = stream.read_bytes((4,))
-		instance.banis_name = stream.read_zstring()
+		instance.magic = Array.from_stream(stream, instance.context, 0, None, (4,), Byte)
+		instance.banis_name = ZString.from_stream(stream, instance.context, 0, None)
 		instance.data = BaniRoot.from_stream(stream, instance.context, 0, None)
 
 	@classmethod

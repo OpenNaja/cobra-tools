@@ -31,9 +31,9 @@ class ShortVector3(MemStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.x = stream.read_short()
-		instance.y = stream.read_short()
-		instance.z = stream.read_short()
+		instance.x = Short.from_stream(stream, instance.context, 0, None)
+		instance.y = Short.from_stream(stream, instance.context, 0, None)
+		instance.z = Short.from_stream(stream, instance.context, 0, None)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

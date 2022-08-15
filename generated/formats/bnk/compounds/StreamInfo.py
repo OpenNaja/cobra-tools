@@ -30,10 +30,10 @@ class StreamInfo(BaseStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.offset = stream.read_uint64()
-		instance.size = stream.read_uint64()
-		instance.event_id = stream.read_uint()
-		instance.zero = stream.read_uint()
+		instance.offset = Uint64.from_stream(stream, instance.context, 0, None)
+		instance.size = Uint64.from_stream(stream, instance.context, 0, None)
+		instance.event_id = Uint.from_stream(stream, instance.context, 0, None)
+		instance.zero = Uint.from_stream(stream, instance.context, 0, None)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

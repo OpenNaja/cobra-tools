@@ -32,8 +32,8 @@ class RenderParameterCurvesRoot(MemStruct):
 		super().read_fields(stream, instance)
 		instance.param_name = Pointer.from_stream(stream, instance.context, 0, generated.formats.ovl_base.basic.ZStringObfuscated)
 		instance.params = Pointer.from_stream(stream, instance.context, instance.count, generated.formats.renderparameters.compounds.CurveParamList.CurveParamList)
-		instance.count = stream.read_uint64()
-		instance.unk = stream.read_uint64()
+		instance.count = Uint64.from_stream(stream, instance.context, 0, None)
+		instance.unk = Uint64.from_stream(stream, instance.context, 0, None)
 		if not isinstance(instance.param_name, int):
 			instance.param_name.arg = 0
 		if not isinstance(instance.params, int):

@@ -20,13 +20,13 @@ class SoundSfxVoice(BaseStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.length = stream.read_uint()
-		instance.id = stream.read_uint()
-		instance.const_a = stream.read_uint()
-		instance.const_b = stream.read_byte()
-		instance.didx_id = stream.read_uint()
-		instance.wem_length = stream.read_uint()
-		instance.extra = stream.read_bytes((instance.length - 17,))
+		instance.length = Uint.from_stream(stream, instance.context, 0, None)
+		instance.id = Uint.from_stream(stream, instance.context, 0, None)
+		instance.const_a = Uint.from_stream(stream, instance.context, 0, None)
+		instance.const_b = Byte.from_stream(stream, instance.context, 0, None)
+		instance.didx_id = Uint.from_stream(stream, instance.context, 0, None)
+		instance.wem_length = Uint.from_stream(stream, instance.context, 0, None)
+		instance.extra = Array.from_stream(stream, instance.context, 0, None, (instance.length - 17,), Byte)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

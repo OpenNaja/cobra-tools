@@ -22,8 +22,8 @@ class FloatsY(BaseStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.floats = stream.read_floats((8,))
-		instance.index = stream.read_uint()
+		instance.floats = Array.from_stream(stream, instance.context, 0, None, (8,), Float)
+		instance.index = Uint.from_stream(stream, instance.context, 0, None)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

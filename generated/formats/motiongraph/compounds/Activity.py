@@ -47,9 +47,9 @@ class Activity(MemStruct):
 		super().read_fields(stream, instance)
 		instance.data_type = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
 		instance.ptr = Pointer.from_stream(stream, instance.context, 0, None)
-		instance.count_2 = stream.read_uint64()
-		instance.count_3 = stream.read_uint64()
-		instance.minus_one = stream.read_int64()
+		instance.count_2 = Uint64.from_stream(stream, instance.context, 0, None)
+		instance.count_3 = Uint64.from_stream(stream, instance.context, 0, None)
+		instance.minus_one = Int64.from_stream(stream, instance.context, 0, None)
 		instance.name_b = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
 		if not isinstance(instance.data_type, int):
 			instance.data_type.arg = 0

@@ -32,7 +32,7 @@ class Key(MemStruct):
 		instance.pos = ShortVector3.from_stream(stream, instance.context, 0, None)
 		instance.handle_left = ByteVector3.from_stream(stream, instance.context, 0, None)
 		instance.handle_right = ByteVector3.from_stream(stream, instance.context, 0, None)
-		instance.handle_scale = stream.read_float()
+		instance.handle_scale = Float.from_stream(stream, instance.context, 0, None)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

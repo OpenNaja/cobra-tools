@@ -47,12 +47,12 @@ class NasutoJointEntry(BaseStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.child = stream.read_ubyte()
-		instance.parent = stream.read_ubyte()
-		instance.zero = stream.read_ushort()
+		instance.child = Ubyte.from_stream(stream, instance.context, 0, None)
+		instance.parent = Ubyte.from_stream(stream, instance.context, 0, None)
+		instance.zero = Ushort.from_stream(stream, instance.context, 0, None)
 		instance.matrix = Matrix33.from_stream(stream, instance.context, 0, None)
 		instance.vector = Vector4.from_stream(stream, instance.context, 0, None)
-		instance.one = stream.read_uint()
+		instance.one = Uint.from_stream(stream, instance.context, 0, None)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

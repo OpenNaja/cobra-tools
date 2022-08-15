@@ -27,8 +27,8 @@ class SupportAttach(MemStruct):
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
 		instance.model_name = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
-		instance.unk_int_1 = stream.read_uint64()
-		instance.unk_int_2 = stream.read_uint64()
+		instance.unk_int_1 = Uint64.from_stream(stream, instance.context, 0, None)
+		instance.unk_int_2 = Uint64.from_stream(stream, instance.context, 0, None)
 		instance.unk_vector = Vector2.from_stream(stream, instance.context, 0, None)
 		if not isinstance(instance.model_name, int):
 			instance.model_name.arg = 0

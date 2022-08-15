@@ -48,13 +48,13 @@ class BufferGroup(BaseStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.buffer_offset = stream.read_uint()
-		instance.buffer_count = stream.read_uint()
-		instance.ext_index = stream.read_uint()
-		instance.buffer_index = stream.read_uint()
-		instance.size = stream.read_uint64()
-		instance.data_offset = stream.read_uint()
-		instance.data_count = stream.read_uint()
+		instance.buffer_offset = Uint.from_stream(stream, instance.context, 0, None)
+		instance.buffer_count = Uint.from_stream(stream, instance.context, 0, None)
+		instance.ext_index = Uint.from_stream(stream, instance.context, 0, None)
+		instance.buffer_index = Uint.from_stream(stream, instance.context, 0, None)
+		instance.size = Uint64.from_stream(stream, instance.context, 0, None)
+		instance.data_offset = Uint.from_stream(stream, instance.context, 0, None)
+		instance.data_count = Uint.from_stream(stream, instance.context, 0, None)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

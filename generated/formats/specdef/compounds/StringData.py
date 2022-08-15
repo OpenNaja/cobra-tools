@@ -26,7 +26,7 @@ class StringData(MemStruct):
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
 		instance.str_name = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
-		instance.ioptional = stream.read_uint()
+		instance.ioptional = Uint.from_stream(stream, instance.context, 0, None)
 		if not isinstance(instance.str_name, int):
 			instance.str_name.arg = 0
 

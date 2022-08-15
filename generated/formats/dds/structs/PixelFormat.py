@@ -52,14 +52,14 @@ class PixelFormat(BaseStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.size = stream.read_uint()
+		instance.size = Uint.from_stream(stream, instance.context, 0, None)
 		instance.flags = PixelFormatFlags.from_stream(stream, instance.context, 0, None)
 		instance.four_c_c = FourCC.from_stream(stream, instance.context, 0, None)
-		instance.bit_count = stream.read_uint()
-		instance.r_mask = stream.read_uint()
-		instance.g_mask = stream.read_uint()
-		instance.b_mask = stream.read_uint()
-		instance.a_mask = stream.read_uint()
+		instance.bit_count = Uint.from_stream(stream, instance.context, 0, None)
+		instance.r_mask = Uint.from_stream(stream, instance.context, 0, None)
+		instance.g_mask = Uint.from_stream(stream, instance.context, 0, None)
+		instance.b_mask = Uint.from_stream(stream, instance.context, 0, None)
+		instance.a_mask = Uint.from_stream(stream, instance.context, 0, None)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

@@ -38,6 +38,7 @@ class Basics:
                 # if nothing in file, add enum base class import
                 if not f.tell():
                     f.write(f"from {Imports.import_from_module_path(self.parser.path_dict['BaseEnum'])} import BaseEnum\n")
+                f.write(f"\nfrom {Imports.import_from_module_path(self.parser.path_dict[basic_name])} import {basic_name}\n")
                 # class declaration
                 f.write(f'\n\nclass {enum_name}(BaseEnum):')
                 # read method for compatibility

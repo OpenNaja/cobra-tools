@@ -29,8 +29,8 @@ class DinoLayersHeader(MemStruct):
 		super().read_fields(stream, instance)
 		instance.fgm_name = Pointer.from_stream(stream, instance.context, 0, generated.formats.ovl_base.basic.ZStringObfuscated)
 		instance.layers = ArrayPointer.from_stream(stream, instance.context, instance.layer_count, generated.formats.dinosaurmaterialvariants.compounds.Layer.Layer)
-		instance.layer_count = stream.read_uint64()
-		instance.zero = stream.read_uint64()
+		instance.layer_count = Uint64.from_stream(stream, instance.context, 0, None)
+		instance.zero = Uint64.from_stream(stream, instance.context, 0, None)
 		if not isinstance(instance.fgm_name, int):
 			instance.fgm_name.arg = 0
 		if not isinstance(instance.layers, int):

@@ -72,20 +72,20 @@ class MemPool(BaseStruct):
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
 		if instance.context.version >= 17:
-			instance.zero_1 = stream.read_uint64()
-		instance.size = stream.read_uint()
-		instance.offset = stream.read_uint()
+			instance.zero_1 = Uint64.from_stream(stream, instance.context, 0, None)
+		instance.size = Uint.from_stream(stream, instance.context, 0, None)
+		instance.offset = Uint.from_stream(stream, instance.context, 0, None)
 		if instance.context.version <= 15:
-			instance.zero_2 = stream.read_uint64()
-		instance.file_hash = stream.read_uint()
+			instance.zero_2 = Uint64.from_stream(stream, instance.context, 0, None)
+		instance.file_hash = Uint.from_stream(stream, instance.context, 0, None)
 		if instance.context.version <= 15:
-			instance.disney_zero = stream.read_ushort()
-			instance.num_files = stream.read_ushort()
+			instance.disney_zero = Ushort.from_stream(stream, instance.context, 0, None)
+			instance.num_files = Ushort.from_stream(stream, instance.context, 0, None)
 		if instance.context.version >= 17:
-			instance.num_files = stream.read_uint()
+			instance.num_files = Uint.from_stream(stream, instance.context, 0, None)
 		if instance.context.version >= 19:
-			instance.ext_hash = stream.read_uint()
-			instance.zero_3 = stream.read_uint()
+			instance.ext_hash = Uint.from_stream(stream, instance.context, 0, None)
+			instance.zero_3 = Uint.from_stream(stream, instance.context, 0, None)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

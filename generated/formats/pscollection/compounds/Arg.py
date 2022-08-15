@@ -33,13 +33,13 @@ class Arg(MemStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.u_0 = stream.read_ubyte()
-		instance.arg_type = stream.read_ubyte()
-		instance.arg_index = stream.read_ubyte()
-		instance.u_1 = stream.read_ubyte()
-		instance.u_2 = stream.read_uint()
-		instance.u_3 = stream.read_uint64()
-		instance.u_4 = stream.read_uint64()
+		instance.u_0 = Ubyte.from_stream(stream, instance.context, 0, None)
+		instance.arg_type = Ubyte.from_stream(stream, instance.context, 0, None)
+		instance.arg_index = Ubyte.from_stream(stream, instance.context, 0, None)
+		instance.u_1 = Ubyte.from_stream(stream, instance.context, 0, None)
+		instance.u_2 = Uint.from_stream(stream, instance.context, 0, None)
+		instance.u_3 = Uint64.from_stream(stream, instance.context, 0, None)
+		instance.u_4 = Uint64.from_stream(stream, instance.context, 0, None)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

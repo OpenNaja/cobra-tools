@@ -28,8 +28,8 @@ class JointInfo(CommonJointInfo):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.zero = stream.read_uint64()
-		instance.zeros_per_hitcheck = stream.read_uint64s((instance.hitcheck_count,))
+		instance.zero = Uint64.from_stream(stream, instance.context, 0, None)
+		instance.zeros_per_hitcheck = Array.from_stream(stream, instance.context, 0, None, (instance.hitcheck_count,), Uint64)
 		instance.hitchecks = Array.from_stream(stream, instance.context, 0, None, (instance.hitcheck_count,), HitCheckEntry)
 
 	@classmethod

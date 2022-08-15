@@ -22,7 +22,7 @@ class AssetpkgRoot(MemStruct):
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
 		instance.asset_path = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
-		instance.zero = stream.read_uint64()
+		instance.zero = Uint64.from_stream(stream, instance.context, 0, None)
 		if not isinstance(instance.asset_path, int):
 			instance.asset_path.arg = 0
 

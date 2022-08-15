@@ -36,13 +36,13 @@ class ConvexHull(BaseStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.vertex_count = stream.read_uint()
+		instance.vertex_count = Uint.from_stream(stream, instance.context, 0, None)
 		instance.rotation = Matrix33.from_stream(stream, instance.context, 0, None)
 		instance.offset = Vector3.from_stream(stream, instance.context, 0, None)
 		if instance.context.version == 32:
-			instance.zeros = stream.read_uints((5,))
+			instance.zeros = Array.from_stream(stream, instance.context, 0, None, (5,), Uint)
 		if ((instance.context.version == 48) or (instance.context.version == 50)) or (instance.context.version == 51):
-			instance.zeros = stream.read_uints((2,))
+			instance.zeros = Array.from_stream(stream, instance.context, 0, None, (2,), Uint)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

@@ -25,15 +25,15 @@ class BKHDSection(BaseStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.length = stream.read_uint()
-		instance.version = stream.read_uint()
+		instance.length = Uint.from_stream(stream, instance.context, 0, None)
+		instance.version = Uint.from_stream(stream, instance.context, 0, None)
 		instance.context.version = instance.version
-		instance.id_a = stream.read_uint()
-		instance.id_b = stream.read_uint()
-		instance.constant_a = stream.read_uint()
-		instance.constant_b = stream.read_uint()
-		instance.unk = stream.read_uint()
-		instance.zeroes = stream.read_ubytes((instance.length - 24,))
+		instance.id_a = Uint.from_stream(stream, instance.context, 0, None)
+		instance.id_b = Uint.from_stream(stream, instance.context, 0, None)
+		instance.constant_a = Uint.from_stream(stream, instance.context, 0, None)
+		instance.constant_b = Uint.from_stream(stream, instance.context, 0, None)
+		instance.unk = Uint.from_stream(stream, instance.context, 0, None)
+		instance.zeroes = Array.from_stream(stream, instance.context, 0, None, (instance.length - 24,), Ubyte)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

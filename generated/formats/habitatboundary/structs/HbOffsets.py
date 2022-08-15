@@ -27,8 +27,8 @@ class HbOffsets(MemStruct):
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
 		instance.physics = HbPhysicsOffsets.from_stream(stream, instance.context, 0, None)
-		instance.post_height_offset = stream.read_float()
-		instance.wall_height = stream.read_float()
+		instance.post_height_offset = Float.from_stream(stream, instance.context, 0, None)
+		instance.wall_height = Float.from_stream(stream, instance.context, 0, None)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

@@ -53,15 +53,15 @@ class DataEntry(BaseStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.file_hash = stream.read_uint()
+		instance.file_hash = Uint.from_stream(stream, instance.context, 0, None)
 		if instance.context.version >= 19:
-			instance.ext_hash = stream.read_uint()
-		instance.set_index = stream.read_ushort()
-		instance.buffer_count = stream.read_ushort()
+			instance.ext_hash = Uint.from_stream(stream, instance.context, 0, None)
+		instance.set_index = Ushort.from_stream(stream, instance.context, 0, None)
+		instance.buffer_count = Ushort.from_stream(stream, instance.context, 0, None)
 		if instance.context.version >= 19:
-			instance.zero = stream.read_uint()
-		instance.size_1 = stream.read_uint64()
-		instance.size_2 = stream.read_uint64()
+			instance.zero = Uint.from_stream(stream, instance.context, 0, None)
+		instance.size_1 = Uint64.from_stream(stream, instance.context, 0, None)
+		instance.size_2 = Uint64.from_stream(stream, instance.context, 0, None)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

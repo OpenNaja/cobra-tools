@@ -25,7 +25,7 @@ class Matrix44(BaseStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.data = stream.read_floats((4, 4,))
+		instance.data = Array.from_stream(stream, instance.context, 0, None, (4, 4,), Float)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

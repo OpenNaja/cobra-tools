@@ -60,13 +60,13 @@ class Ms2Root(MemStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.version = stream.read_uint()
+		instance.version = Uint.from_stream(stream, instance.context, 0, None)
 		instance.context.version = instance.version
-		instance.vertex_buffer_count = stream.read_ushort()
-		instance.mdl_2_count = stream.read_ushort()
-		instance.name_count = stream.read_ushort()
-		instance.stream_count = stream.read_short()
-		instance.zeros = stream.read_uints((3,))
+		instance.vertex_buffer_count = Ushort.from_stream(stream, instance.context, 0, None)
+		instance.mdl_2_count = Ushort.from_stream(stream, instance.context, 0, None)
+		instance.name_count = Ushort.from_stream(stream, instance.context, 0, None)
+		instance.stream_count = Short.from_stream(stream, instance.context, 0, None)
+		instance.zeros = Array.from_stream(stream, instance.context, 0, None, (3,), Uint)
 		instance.buffer_infos = ArrayPointer.from_stream(stream, instance.context, instance.vertex_buffer_count, generated.formats.ms2.compounds.BufferInfo.BufferInfo)
 		instance.model_infos = ArrayPointer.from_stream(stream, instance.context, instance.mdl_2_count, generated.formats.ms2.compounds.ModelInfo.ModelInfo)
 		instance.buffers_presence = ArrayPointer.from_stream(stream, instance.context, instance.vertex_buffer_count, generated.formats.ms2.compounds.BufferPresence.BufferPresence)

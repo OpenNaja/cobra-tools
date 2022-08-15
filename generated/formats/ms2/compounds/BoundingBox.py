@@ -38,7 +38,7 @@ class BoundingBox(BaseStruct):
 		instance.center = Vector3.from_stream(stream, instance.context, 0, None)
 		instance.extent = Vector3.from_stream(stream, instance.context, 0, None)
 		if instance.context.version == 32:
-			instance.zeros = stream.read_uints((3,))
+			instance.zeros = Array.from_stream(stream, instance.context, 0, None, (3,), Uint)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

@@ -23,8 +23,8 @@ class HbPostPos(MemStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.right = stream.read_float()
-		instance.left = stream.read_float()
+		instance.right = Float.from_stream(stream, instance.context, 0, None)
+		instance.left = Float.from_stream(stream, instance.context, 0, None)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

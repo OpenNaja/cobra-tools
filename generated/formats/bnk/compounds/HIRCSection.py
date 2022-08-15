@@ -29,8 +29,8 @@ class HIRCSection(BaseStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.length = stream.read_uint()
-		instance.count = stream.read_uint()
+		instance.length = Uint.from_stream(stream, instance.context, 0, None)
+		instance.count = Uint.from_stream(stream, instance.context, 0, None)
 		instance.hirc_pointers = Array.from_stream(stream, instance.context, 0, None, (instance.count,), HircPointer)
 
 	@classmethod

@@ -139,45 +139,45 @@ class ModelInfo(MemStruct):
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
 		if instance.context.version <= 7:
-			instance.unk_dla = stream.read_uint64()
+			instance.unk_dla = Uint64.from_stream(stream, instance.context, 0, None)
 		instance.bounds_min = Vector3.from_stream(stream, instance.context, 0, None)
 		if instance.context.version >= 47 and not ((instance.context.version == 51) and instance.context.biosyn):
-			instance.unk_float_a = stream.read_float()
+			instance.unk_float_a = Float.from_stream(stream, instance.context, 0, None)
 		instance.bounds_max = Vector3.from_stream(stream, instance.context, 0, None)
 		if instance.context.version >= 47 and not ((instance.context.version == 51) and instance.context.biosyn):
-			instance.pack_base = stream.read_float()
+			instance.pack_base = Float.from_stream(stream, instance.context, 0, None)
 		instance.center = Vector3.from_stream(stream, instance.context, 0, None)
-		instance.radius = stream.read_float()
+		instance.radius = Float.from_stream(stream, instance.context, 0, None)
 		if instance.context.version >= 48 and not ((instance.context.version == 51) and instance.context.biosyn):
-			instance.num_lods_2 = stream.read_uint64()
-			instance.zero = stream.read_uint64()
+			instance.num_lods_2 = Uint64.from_stream(stream, instance.context, 0, None)
+			instance.zero = Uint64.from_stream(stream, instance.context, 0, None)
 		if instance.context.version >= 32:
 			instance.bounds_min_repeat = Vector3.from_stream(stream, instance.context, 0, None)
 			instance.bounds_max_repeat = Vector3.from_stream(stream, instance.context, 0, None)
-		instance.num_materials = stream.read_ushort()
-		instance.num_lods = stream.read_ushort()
-		instance.num_objects = stream.read_ushort()
-		instance.num_meshes = stream.read_ushort()
-		instance.last_count = stream.read_ushort()
+		instance.num_materials = Ushort.from_stream(stream, instance.context, 0, None)
+		instance.num_lods = Ushort.from_stream(stream, instance.context, 0, None)
+		instance.num_objects = Ushort.from_stream(stream, instance.context, 0, None)
+		instance.num_meshes = Ushort.from_stream(stream, instance.context, 0, None)
+		instance.last_count = Ushort.from_stream(stream, instance.context, 0, None)
 		instance.render_flag = RenderFlag.from_stream(stream, instance.context, 0, None)
-		instance.unks = stream.read_ushorts((7,))
-		instance.pad = stream.read_ushorts((3,))
+		instance.unks = Array.from_stream(stream, instance.context, 0, None, (7,), Ushort)
+		instance.pad = Array.from_stream(stream, instance.context, 0, None, (3,), Ushort)
 		instance.materials = ArrayPointer.from_stream(stream, instance.context, instance.num_materials, generated.formats.ms2.compounds.MaterialName.MaterialName)
 		instance.lods = ArrayPointer.from_stream(stream, instance.context, instance.num_lods, generated.formats.ms2.compounds.LodInfo.LodInfo)
 		instance.objects = ArrayPointer.from_stream(stream, instance.context, instance.num_objects, generated.formats.ms2.compounds.Object.Object)
 		instance.meshes = ArrayPointer.from_stream(stream, instance.context, instance.num_meshes, generated.formats.ms2.compounds.MeshDataWrap.MeshDataWrap)
 		instance.first_model = Pointer.from_stream(stream, instance.context, 0, None)
 		if instance.context.version == 13:
-			instance.zeros = stream.read_uint64s((4,))
+			instance.zeros = Array.from_stream(stream, instance.context, 0, None, (4,), Uint64)
 		if instance.context.version == 7:
-			instance.zeros = stream.read_uint64s((2,))
-		instance.increment_flag = stream.read_uint64()
+			instance.zeros = Array.from_stream(stream, instance.context, 0, None, (2,), Uint64)
+		instance.increment_flag = Uint64.from_stream(stream, instance.context, 0, None)
 		if not (instance.context.version == 7):
-			instance.zero_0 = stream.read_uint64()
+			instance.zero_0 = Uint64.from_stream(stream, instance.context, 0, None)
 		if not (instance.context.version == 32):
-			instance.zero_1 = stream.read_uint64()
+			instance.zero_1 = Uint64.from_stream(stream, instance.context, 0, None)
 		if instance.context.version >= 47 and not ((instance.context.version == 51) and instance.context.biosyn):
-			instance.zero_2 = stream.read_uint64()
+			instance.zero_2 = Uint64.from_stream(stream, instance.context, 0, None)
 		if not isinstance(instance.materials, int):
 			instance.materials.arg = instance.num_materials
 		if not isinstance(instance.lods, int):

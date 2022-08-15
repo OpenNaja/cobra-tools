@@ -59,15 +59,15 @@ class SizeInfoRaw(MemStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.zero = stream.read_uint64()
-		instance.data_size = stream.read_uint()
-		instance.width = stream.read_uint()
-		instance.height = stream.read_uint()
-		instance.depth = stream.read_uint()
-		instance.array_size = stream.read_uint()
-		instance.num_mips = stream.read_uint()
+		instance.zero = Uint64.from_stream(stream, instance.context, 0, None)
+		instance.data_size = Uint.from_stream(stream, instance.context, 0, None)
+		instance.width = Uint.from_stream(stream, instance.context, 0, None)
+		instance.height = Uint.from_stream(stream, instance.context, 0, None)
+		instance.depth = Uint.from_stream(stream, instance.context, 0, None)
+		instance.array_size = Uint.from_stream(stream, instance.context, 0, None)
+		instance.num_mips = Uint.from_stream(stream, instance.context, 0, None)
 		if instance.context.version >= 20:
-			instance.unk_pz = stream.read_uint64()
+			instance.unk_pz = Uint64.from_stream(stream, instance.context, 0, None)
 		instance.mip_maps = Array.from_stream(stream, instance.context, 0, None, (instance.num_mips,), Mipmap)
 
 	@classmethod

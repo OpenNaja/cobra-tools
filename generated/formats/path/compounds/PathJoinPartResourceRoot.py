@@ -22,7 +22,7 @@ class PathJoinPartResourceRoot(MemStruct):
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
 		instance.resources_list = Pointer.from_stream(stream, instance.context, instance.num_res, generated.formats.path.compounds.PathJoinPartResourceList.PathJoinPartResourceList)
-		instance.num_res = stream.read_uint64()
+		instance.num_res = Uint64.from_stream(stream, instance.context, 0, None)
 		if not isinstance(instance.resources_list, int):
 			instance.resources_list.arg = instance.num_res
 

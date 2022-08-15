@@ -46,11 +46,11 @@ class FileEntry(BaseStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.offset = stream.read_uint()
-		instance.file_hash = stream.read_uint()
-		instance.pool_type = stream.read_byte()
-		instance.set_pool_type = stream.read_byte()
-		instance.extension = stream.read_ushort()
+		instance.offset = Uint.from_stream(stream, instance.context, 0, None)
+		instance.file_hash = Uint.from_stream(stream, instance.context, 0, None)
+		instance.pool_type = Byte.from_stream(stream, instance.context, 0, None)
+		instance.set_pool_type = Byte.from_stream(stream, instance.context, 0, None)
+		instance.extension = Ushort.from_stream(stream, instance.context, 0, None)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

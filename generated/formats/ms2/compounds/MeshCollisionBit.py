@@ -26,8 +26,8 @@ class MeshCollisionBit(BaseStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.countd = stream.read_ushorts((34,))
-		instance.consts = stream.read_uints((3,))
+		instance.countd = Array.from_stream(stream, instance.context, 0, None, (34,), Ushort)
+		instance.consts = Array.from_stream(stream, instance.context, 0, None, (3,), Uint)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

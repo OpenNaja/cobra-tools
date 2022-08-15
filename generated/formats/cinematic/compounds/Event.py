@@ -34,12 +34,12 @@ class Event(MemStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.start_time = stream.read_float()
-		instance.b = stream.read_float()
+		instance.start_time = Float.from_stream(stream, instance.context, 0, None)
+		instance.b = Float.from_stream(stream, instance.context, 0, None)
 		instance.module_name = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
 		instance.attributes = Pointer.from_stream(stream, instance.context, 0, generated.formats.cinematic.compounds.EventAttributes.EventAttributes)
-		instance.duration = stream.read_float()
-		instance.d = stream.read_float()
+		instance.duration = Float.from_stream(stream, instance.context, 0, None)
+		instance.d = Float.from_stream(stream, instance.context, 0, None)
 		if not isinstance(instance.module_name, int):
 			instance.module_name.arg = 0
 		if not isinstance(instance.attributes, int):

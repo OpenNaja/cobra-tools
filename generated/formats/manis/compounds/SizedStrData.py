@@ -39,13 +39,13 @@ class SizedStrData(BaseStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.names_size = stream.read_ushort()
-		instance.hash_block_size = stream.read_ushort()
-		instance.zero_0 = stream.read_uint64()
-		instance.count = stream.read_uint()
-		instance.zero_1 = stream.read_uint64()
+		instance.names_size = Ushort.from_stream(stream, instance.context, 0, None)
+		instance.hash_block_size = Ushort.from_stream(stream, instance.context, 0, None)
+		instance.zero_0 = Uint64.from_stream(stream, instance.context, 0, None)
+		instance.count = Uint.from_stream(stream, instance.context, 0, None)
+		instance.zero_1 = Uint64.from_stream(stream, instance.context, 0, None)
 		if instance.context.version >= 20:
-			instance.zero_2 = stream.read_uint64()
+			instance.zero_2 = Uint64.from_stream(stream, instance.context, 0, None)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

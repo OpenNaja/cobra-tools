@@ -32,11 +32,11 @@ class Layer(BaseStruct):
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
 		instance.info = LayerFrag.from_stream(stream, instance.context, 0, None)
-		instance.name = stream.read_zstring()
+		instance.name = ZString.from_stream(stream, instance.context, 0, None)
 		instance.infos = Array.from_stream(stream, instance.context, 0, None, (instance.info.info_count,), Info)
-		instance.info_names = stream.read_zstrings((instance.info.info_count,))
+		instance.info_names = Array.from_stream(stream, instance.context, 0, None, (instance.info.info_count,), ZString)
 		instance.attribs = Array.from_stream(stream, instance.context, 0, None, (instance.info.attrib_count,), Attrib)
-		instance.attrib_names = stream.read_zstrings((instance.info.attrib_count,))
+		instance.attrib_names = Array.from_stream(stream, instance.context, 0, None, (instance.info.attrib_count,), ZString)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

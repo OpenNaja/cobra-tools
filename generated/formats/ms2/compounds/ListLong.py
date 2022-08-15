@@ -35,8 +35,8 @@ class ListLong(Descriptor):
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
 		instance.loc = Vector3.from_stream(stream, instance.context, 0, None)
-		instance.floats = stream.read_floats((5, 3,))
-		instance.radians = stream.read_floats((8,))
+		instance.floats = Array.from_stream(stream, instance.context, 0, None, (5, 3,), Float)
+		instance.radians = Array.from_stream(stream, instance.context, 0, None, (8,), Float)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

@@ -22,7 +22,6 @@ class Enum(BaseClass):
                 if option.text:
                     f.write(f"\n\t# {option.text}")
                 f.write(f"\n\t{option.attrib['name']} = {option.attrib['value']}")
-            # self.parser.write_storage_io_methods(f, storage, attr='self._value_')
             f.write(f"\n")
 
     @staticmethod

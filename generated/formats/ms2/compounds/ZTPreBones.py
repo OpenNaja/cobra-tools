@@ -29,11 +29,11 @@ class ZTPreBones(BaseStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.zeros = stream.read_uint64s((2,))
-		instance.unks = stream.read_uints((8,))
-		instance.unks_2 = stream.read_uints((10,))
-		instance.floats = stream.read_floats((4,))
-		instance.unks_3 = stream.read_uints((2,))
+		instance.zeros = Array.from_stream(stream, instance.context, 0, None, (2,), Uint64)
+		instance.unks = Array.from_stream(stream, instance.context, 0, None, (8,), Uint)
+		instance.unks_2 = Array.from_stream(stream, instance.context, 0, None, (10,), Uint)
+		instance.floats = Array.from_stream(stream, instance.context, 0, None, (4,), Float)
+		instance.unks_3 = Array.from_stream(stream, instance.context, 0, None, (2,), Uint)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

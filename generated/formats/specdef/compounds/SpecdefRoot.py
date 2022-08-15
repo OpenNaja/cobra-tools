@@ -49,12 +49,12 @@ class SpecdefRoot(MemStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.attrib_count = stream.read_ushort()
-		instance.flags = stream.read_ushort()
-		instance.name_count = stream.read_ubyte()
-		instance.childspec_count = stream.read_ubyte()
-		instance.manager_count = stream.read_ubyte()
-		instance.script_count = stream.read_ubyte()
+		instance.attrib_count = Ushort.from_stream(stream, instance.context, 0, None)
+		instance.flags = Ushort.from_stream(stream, instance.context, 0, None)
+		instance.name_count = Ubyte.from_stream(stream, instance.context, 0, None)
+		instance.childspec_count = Ubyte.from_stream(stream, instance.context, 0, None)
+		instance.manager_count = Ubyte.from_stream(stream, instance.context, 0, None)
+		instance.script_count = Ubyte.from_stream(stream, instance.context, 0, None)
 		instance.attribs = ArrayPointer.from_stream(stream, instance.context, instance.attrib_count, generated.formats.specdef.compounds.Spec.Spec)
 		instance.name_foreach_attribs = ForEachPointer.from_stream(stream, instance.context, instance.attribs, generated.formats.specdef.compounds.NamePtr.NamePtr)
 		instance.data_foreach_attribs = ForEachPointer.from_stream(stream, instance.context, instance.attribs, generated.formats.specdef.compounds.DataPtr.DataPtr)

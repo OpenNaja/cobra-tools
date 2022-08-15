@@ -82,23 +82,23 @@ class ZtMeshData(MeshData):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.tri_index_count = stream.read_uint()
-		instance.vertex_count = stream.read_uint()
-		instance.tri_info_offset = stream.read_uint()
-		instance.vert_info_offset = stream.read_uint()
-		instance.known_ff_0 = stream.read_int()
-		instance.tri_offset = stream.read_uint()
-		instance.uv_offset = stream.read_uint()
-		instance.vertex_offset = stream.read_uint()
-		instance.unk_index = stream.read_short()
-		instance.one_0 = stream.read_ushort()
-		instance.one_1 = stream.read_ushort()
-		instance.poweroftwo = stream.read_ushort()
+		instance.tri_index_count = Uint.from_stream(stream, instance.context, 0, None)
+		instance.vertex_count = Uint.from_stream(stream, instance.context, 0, None)
+		instance.tri_info_offset = Uint.from_stream(stream, instance.context, 0, None)
+		instance.vert_info_offset = Uint.from_stream(stream, instance.context, 0, None)
+		instance.known_ff_0 = Int.from_stream(stream, instance.context, 0, None)
+		instance.tri_offset = Uint.from_stream(stream, instance.context, 0, None)
+		instance.uv_offset = Uint.from_stream(stream, instance.context, 0, None)
+		instance.vertex_offset = Uint.from_stream(stream, instance.context, 0, None)
+		instance.unk_index = Short.from_stream(stream, instance.context, 0, None)
+		instance.one_0 = Ushort.from_stream(stream, instance.context, 0, None)
+		instance.one_1 = Ushort.from_stream(stream, instance.context, 0, None)
+		instance.poweroftwo = Ushort.from_stream(stream, instance.context, 0, None)
 		if instance.context.version <= 7:
 			instance.flag = ModelFlagDLA.from_stream(stream, instance.context, 0, None)
 		if instance.context.version >= 13:
 			instance.flag = ModelFlagZT.from_stream(stream, instance.context, 0, None)
-		instance.zero_uac = stream.read_uint()
+		instance.zero_uac = Uint.from_stream(stream, instance.context, 0, None)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

@@ -32,11 +32,11 @@ class DinoPatternsHeader(MemStruct):
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
 		instance.fgm_name = Pointer.from_stream(stream, instance.context, 0, generated.formats.ovl_base.basic.ZStringObfuscated)
-		instance.set_count = stream.read_uint64()
+		instance.set_count = Uint64.from_stream(stream, instance.context, 0, None)
 		instance.set_name = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
 		instance.patterns = Pointer.from_stream(stream, instance.context, instance.pattern_count, generated.formats.dinosaurmaterialvariants.compounds.PatternArray.PatternArray)
-		instance.pattern_count = stream.read_uint64()
-		instance.zero = stream.read_uint64()
+		instance.pattern_count = Uint64.from_stream(stream, instance.context, 0, None)
+		instance.zero = Uint64.from_stream(stream, instance.context, 0, None)
 		if not isinstance(instance.fgm_name, int):
 			instance.fgm_name.arg = 0
 		if not isinstance(instance.set_name, int):

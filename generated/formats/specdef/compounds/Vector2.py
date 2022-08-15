@@ -28,10 +28,10 @@ class Vector2(MemStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.x = stream.read_float()
-		instance.y = stream.read_float()
-		instance.ioptional = stream.read_uint()
-		instance.unused = stream.read_uint()
+		instance.x = Float.from_stream(stream, instance.context, 0, None)
+		instance.y = Float.from_stream(stream, instance.context, 0, None)
+		instance.ioptional = Uint.from_stream(stream, instance.context, 0, None)
+		instance.unused = Uint.from_stream(stream, instance.context, 0, None)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

@@ -25,8 +25,8 @@ class InfoZTMemPool(BaseStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.unk_count = stream.read_ushort()
-		instance.unks = stream.read_ushorts((instance.unk_count, 2,))
+		instance.unk_count = Ushort.from_stream(stream, instance.context, 0, None)
+		instance.unks = Array.from_stream(stream, instance.context, 0, None, (instance.unk_count, 2,), Ushort)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

@@ -44,17 +44,17 @@ class MusicTrackInitialValues(BaseStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.u_flags = stream.read_ubyte()
-		instance.num_sources = stream.read_uint()
+		instance.u_flags = Ubyte.from_stream(stream, instance.context, 0, None)
+		instance.num_sources = Uint.from_stream(stream, instance.context, 0, None)
 		instance.p_source = Array.from_stream(stream, instance.context, 0, None, (instance.num_sources,), AkBankSourceData)
-		instance.num_playlist_item = stream.read_uint()
+		instance.num_playlist_item = Uint.from_stream(stream, instance.context, 0, None)
 		instance.p_playlist = Array.from_stream(stream, instance.context, 0, None, (instance.num_playlist_item,), AkTrackSrcInfo)
-		instance.num_sub_track = stream.read_uint()
-		instance.num_clip_automation_item = stream.read_uint()
-		instance.p_items = stream.read_uints((instance.num_clip_automation_item,))
+		instance.num_sub_track = Uint.from_stream(stream, instance.context, 0, None)
+		instance.num_clip_automation_item = Uint.from_stream(stream, instance.context, 0, None)
+		instance.p_items = Array.from_stream(stream, instance.context, 0, None, (instance.num_clip_automation_item,), Uint)
 		instance.node_base_params = NodeBaseParams.from_stream(stream, instance.context, 0, None)
-		instance.e_track_type = stream.read_ubyte()
-		instance.i_look_ahead_time = stream.read_int()
+		instance.e_track_type = Ubyte.from_stream(stream, instance.context, 0, None)
+		instance.i_look_ahead_time = Int.from_stream(stream, instance.context, 0, None)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

@@ -27,8 +27,8 @@ class Buffer1(BaseStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.bone_hashes = stream.read_uints((instance.arg,))
-		instance.bone_names = stream.read_zstrings((instance.arg,))
+		instance.bone_hashes = Array.from_stream(stream, instance.context, 0, None, (instance.arg,), Uint)
+		instance.bone_names = Array.from_stream(stream, instance.context, 0, None, (instance.arg,), ZString)
 		instance.bone_pad = PadAlign.from_stream(stream, instance.context, 4, instance.bone_names)
 
 	@classmethod

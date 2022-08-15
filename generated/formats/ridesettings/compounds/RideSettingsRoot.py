@@ -32,13 +32,13 @@ class RideSettingsRoot(MemStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.unk_0 = stream.read_float()
-		instance.unk_1 = stream.read_uint()
+		instance.unk_0 = Float.from_stream(stream, instance.context, 0, None)
+		instance.unk_1 = Uint.from_stream(stream, instance.context, 0, None)
 		instance.array_1 = ArrayPointer.from_stream(stream, instance.context, instance.count, generated.formats.ridesettings.compounds.Pair.Pair)
-		instance.count = stream.read_uint()
-		instance.pad_0 = stream.read_uint()
-		instance.pad_1 = stream.read_uint()
-		instance.pad_2 = stream.read_uint()
+		instance.count = Uint.from_stream(stream, instance.context, 0, None)
+		instance.pad_0 = Uint.from_stream(stream, instance.context, 0, None)
+		instance.pad_1 = Uint.from_stream(stream, instance.context, 0, None)
+		instance.pad_2 = Uint.from_stream(stream, instance.context, 0, None)
 		if not isinstance(instance.array_1, int):
 			instance.array_1.arg = instance.count
 

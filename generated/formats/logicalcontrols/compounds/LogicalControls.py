@@ -46,11 +46,11 @@ class LogicalControls(MemStruct):
 		instance.axes = ArrayPointer.from_stream(stream, instance.context, instance.axis_count, generated.formats.logicalcontrols.compounds.AxisValue.AxisValue)
 		instance.c = ArrayPointer.from_stream(stream, instance.context, instance.count_3, )
 		instance.d = ArrayPointer.from_stream(stream, instance.context, instance.count_4, generated.formats.logicalcontrols.compounds.Some.Some)
-		instance.button_count = stream.read_ubyte()
-		instance.axis_count = stream.read_ubyte()
-		instance.count_3 = stream.read_ubyte()
-		instance.count_4 = stream.read_ubyte()
-		instance.flags = stream.read_uint()
+		instance.button_count = Ubyte.from_stream(stream, instance.context, 0, None)
+		instance.axis_count = Ubyte.from_stream(stream, instance.context, 0, None)
+		instance.count_3 = Ubyte.from_stream(stream, instance.context, 0, None)
+		instance.count_4 = Ubyte.from_stream(stream, instance.context, 0, None)
+		instance.flags = Uint.from_stream(stream, instance.context, 0, None)
 		instance.unsure = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
 		if not isinstance(instance.buttons, int):
 			instance.buttons.arg = instance.button_count

@@ -34,11 +34,11 @@ class UACJointFF(BaseStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.eleven = stream.read_uint()
-		instance.f_fs = stream.read_ints((4,))
-		instance.name_offset = stream.read_uint()
-		instance.hitcheck_count = stream.read_uint()
-		instance.zeros = stream.read_uints((3,))
+		instance.eleven = Uint.from_stream(stream, instance.context, 0, None)
+		instance.f_fs = Array.from_stream(stream, instance.context, 0, None, (4,), Int)
+		instance.name_offset = Uint.from_stream(stream, instance.context, 0, None)
+		instance.hitcheck_count = Uint.from_stream(stream, instance.context, 0, None)
+		instance.zeros = Array.from_stream(stream, instance.context, 0, None, (3,), Uint)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

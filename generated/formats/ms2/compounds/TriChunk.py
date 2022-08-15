@@ -49,14 +49,14 @@ class TriChunk(BaseStruct):
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
 		instance.bounds_min = Vector3.from_stream(stream, instance.context, 0, None)
-		instance.material_index = stream.read_ushort()
-		instance.tris_count = stream.read_ushort()
+		instance.material_index = Ushort.from_stream(stream, instance.context, 0, None)
+		instance.tris_count = Ushort.from_stream(stream, instance.context, 0, None)
 		instance.bounds_max = Vector3.from_stream(stream, instance.context, 0, None)
-		instance.tris_offset = stream.read_uint()
+		instance.tris_offset = Uint.from_stream(stream, instance.context, 0, None)
 		instance.loc = Vector3.from_stream(stream, instance.context, 0, None)
 		instance.rot = QuatWFirst.from_stream(stream, instance.context, 0, None)
-		instance.u_2 = stream.read_ushort()
-		instance.u_3 = stream.read_ushort()
+		instance.u_2 = Ushort.from_stream(stream, instance.context, 0, None)
+		instance.u_3 = Ushort.from_stream(stream, instance.context, 0, None)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

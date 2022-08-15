@@ -27,9 +27,9 @@ class BooleanData(MemStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.value = stream.read_ubyte()
-		instance.default = stream.read_ubyte()
-		instance.unused = stream.read_ubytes((6,))
+		instance.value = Ubyte.from_stream(stream, instance.context, 0, None)
+		instance.default = Ubyte.from_stream(stream, instance.context, 0, None)
+		instance.unused = Array.from_stream(stream, instance.context, 0, None, (6,), Ubyte)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

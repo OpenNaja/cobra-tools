@@ -31,9 +31,9 @@ class AuxEntry(BaseStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.file_index = stream.read_uint()
-		instance.offset = stream.read_uint()
-		instance.size = stream.read_uint()
+		instance.file_index = Uint.from_stream(stream, instance.context, 0, None)
+		instance.offset = Uint.from_stream(stream, instance.context, 0, None)
+		instance.size = Uint.from_stream(stream, instance.context, 0, None)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

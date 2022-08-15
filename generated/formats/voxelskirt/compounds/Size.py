@@ -27,11 +27,11 @@ class Size(BaseStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.id = stream.read_uint64()
-		instance.width_1 = stream.read_uint64()
-		instance.height_1 = stream.read_uint64()
-		instance.width_2 = stream.read_uint64()
-		instance.height_2 = stream.read_uint64()
+		instance.id = Uint64.from_stream(stream, instance.context, 0, None)
+		instance.width_1 = Uint64.from_stream(stream, instance.context, 0, None)
+		instance.height_1 = Uint64.from_stream(stream, instance.context, 0, None)
+		instance.width_2 = Uint64.from_stream(stream, instance.context, 0, None)
+		instance.height_2 = Uint64.from_stream(stream, instance.context, 0, None)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

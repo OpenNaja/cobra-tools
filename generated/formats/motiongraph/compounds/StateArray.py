@@ -25,7 +25,7 @@ class StateArray(MemStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.count = stream.read_uint64()
+		instance.count = Uint64.from_stream(stream, instance.context, 0, None)
 		instance.ptr = Pointer.from_stream(stream, instance.context, instance.count, generated.formats.motiongraph.compounds.StateList.StateList)
 		if not isinstance(instance.ptr, int):
 			instance.ptr.arg = instance.count

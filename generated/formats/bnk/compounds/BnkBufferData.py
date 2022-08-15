@@ -66,18 +66,18 @@ class BnkBufferData(BaseStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.size_b = stream.read_uint64()
-		instance.buffer_count = stream.read_uint()
-		instance.count_2 = stream.read_uint()
-		instance.stream_info_count = stream.read_uint()
-		instance.zeros = stream.read_uints((7,))
-		instance.zeros_per_buffer = stream.read_uint64s((instance.buffer_count, 2,))
+		instance.size_b = Uint64.from_stream(stream, instance.context, 0, None)
+		instance.buffer_count = Uint.from_stream(stream, instance.context, 0, None)
+		instance.count_2 = Uint.from_stream(stream, instance.context, 0, None)
+		instance.stream_info_count = Uint.from_stream(stream, instance.context, 0, None)
+		instance.zeros = Array.from_stream(stream, instance.context, 0, None, (7,), Uint)
+		instance.zeros_per_buffer = Array.from_stream(stream, instance.context, 0, None, (instance.buffer_count, 2,), Uint64)
 		instance.stream_infos = Array.from_stream(stream, instance.context, 0, None, (instance.stream_info_count,), StreamInfo)
-		instance.name = stream.read_zstring()
+		instance.name = ZString.from_stream(stream, instance.context, 0, None)
 		if instance.buffer_count:
-			instance.external_b_suffix = stream.read_zstring()
+			instance.external_b_suffix = ZString.from_stream(stream, instance.context, 0, None)
 		if instance.stream_info_count:
-			instance.external_s_suffix = stream.read_zstring()
+			instance.external_s_suffix = ZString.from_stream(stream, instance.context, 0, None)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

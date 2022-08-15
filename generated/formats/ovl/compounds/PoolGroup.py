@@ -27,8 +27,8 @@ class PoolGroup(BaseStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.type = stream.read_ushort()
-		instance.num_pools = stream.read_ushort()
+		instance.type = Ushort.from_stream(stream, instance.context, 0, None)
+		instance.num_pools = Ushort.from_stream(stream, instance.context, 0, None)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

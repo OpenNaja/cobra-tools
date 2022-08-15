@@ -24,8 +24,8 @@ class MusicTrack(BaseStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.length = stream.read_uint()
-		instance.id = stream.read_uint()
+		instance.length = Uint.from_stream(stream, instance.context, 0, None)
+		instance.id = Uint.from_stream(stream, instance.context, 0, None)
 		instance.data = MusicTrackInitialValues.from_stream(stream, instance.context, 0, None)
 
 	@classmethod

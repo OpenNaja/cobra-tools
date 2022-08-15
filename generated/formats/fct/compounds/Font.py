@@ -23,8 +23,8 @@ class Font(MemStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.data_size = stream.read_uint64()
-		instance.zero = stream.read_uint64()
+		instance.data_size = Uint64.from_stream(stream, instance.context, 0, None)
+		instance.zero = Uint64.from_stream(stream, instance.context, 0, None)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

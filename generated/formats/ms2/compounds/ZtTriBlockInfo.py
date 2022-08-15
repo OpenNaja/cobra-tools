@@ -26,9 +26,9 @@ class ZtTriBlockInfo(BaseStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.tri_index_count = stream.read_uint()
-		instance.a = stream.read_short()
-		instance.unk_index = stream.read_short()
+		instance.tri_index_count = Uint.from_stream(stream, instance.context, 0, None)
+		instance.a = Short.from_stream(stream, instance.context, 0, None)
+		instance.unk_index = Short.from_stream(stream, instance.context, 0, None)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

@@ -30,8 +30,8 @@ class MinusPadding(BaseStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.indices = stream.read_shorts((instance.arg,))
-		instance.padding = stream.read_bytes(((16 - ((instance.arg * 2) % 16)) % 16,))
+		instance.indices = Array.from_stream(stream, instance.context, 0, None, (instance.arg,), Short)
+		instance.padding = Array.from_stream(stream, instance.context, 0, None, ((16 - ((instance.arg * 2) % 16)) % 16,), Byte)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

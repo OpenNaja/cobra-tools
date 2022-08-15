@@ -34,10 +34,10 @@ class HbPhysicsOffsets(MemStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.thickness = stream.read_float()
+		instance.thickness = Float.from_stream(stream, instance.context, 0, None)
 		instance.post_size = HbPostSize.from_stream(stream, instance.context, 0, None)
-		instance.wall_pad_top = stream.read_float()
-		instance.wall_post_gap = stream.read_float()
+		instance.wall_pad_top = Float.from_stream(stream, instance.context, 0, None)
+		instance.wall_post_gap = Float.from_stream(stream, instance.context, 0, None)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

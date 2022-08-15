@@ -27,9 +27,9 @@ class HbPostSize(MemStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.front_back = stream.read_float()
-		instance.left_right = stream.read_float()
-		instance.top = stream.read_float()
+		instance.front_back = Float.from_stream(stream, instance.context, 0, None)
+		instance.left_right = Float.from_stream(stream, instance.context, 0, None)
+		instance.top = Float.from_stream(stream, instance.context, 0, None)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

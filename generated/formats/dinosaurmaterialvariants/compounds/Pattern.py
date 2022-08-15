@@ -21,7 +21,7 @@ class Pattern(MemStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.has_ptr = stream.read_uint64()
+		instance.has_ptr = Uint64.from_stream(stream, instance.context, 0, None)
 		instance.pattern_name = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
 		if not isinstance(instance.pattern_name, int):
 			instance.pattern_name.arg = 0

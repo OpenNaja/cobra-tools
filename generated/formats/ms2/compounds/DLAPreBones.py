@@ -19,7 +19,7 @@ class DLAPreBones(BaseStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.unk = stream.read_ubytes((120,))
+		instance.unk = Array.from_stream(stream, instance.context, 0, None, (120,), Ubyte)
 
 	@classmethod
 	def write_fields(cls, stream, instance):
