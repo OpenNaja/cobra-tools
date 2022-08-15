@@ -380,5 +380,5 @@ class MemStructLoader(BaseFile):
 	def create(self):
 		self.create_root_entry()
 		self.header = self.target_class.from_xml_file(self.file_entry.path, self.ovl.context)
-		print(self.header)
+		# print(self.header)
 		self.header.write_ptrs(self, self.root_ptr, self.file_entry.pool_type)

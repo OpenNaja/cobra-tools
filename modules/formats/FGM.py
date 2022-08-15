@@ -40,12 +40,12 @@ class FgmLoader(MemStructLoader):
 		for arr in (self.header.attributes.data, self.header.textures.data):
 			if arr:
 				for member in arr:
-					member.name = self.read_z_str(stream, member.offset)
+					member.name = self.read_z_str(stream, member._name_offset)
 
 	def update_names_buffer(self):
 		"""Rewrites the name buffer and updates the offsets"""
-		self.header.attribute_count = len(self.header.attributes.data)
-		self.header.texture_count = len(self.header.textures.data)
+		self.header._attribute_count = len(self.header.attributes.data)
+		self.header._texture_count = len(self.header.textures.data)
 		names_writer = ConvStream()
 		# shader name is at 0
 		names_writer.write_zstring(self.header.shader_name)
@@ -54,13 +54,13 @@ class FgmLoader(MemStructLoader):
 		for arr in (self.header.attributes.data, self.header.textures.data):
 			if arr:
 				for member in arr:
-					member.offset = names_writer.tell()
+					member._name_offset = names_writer.tell()
 					names_writer.write_zstring(member.name)
 
 		for i, tex in enumerate([t for t in self.header.textures.data if t.dtype == FgmDtype.TEXTURE]):
-			tex.value[0].index = i
+			tex.value[0]._tex_index = i
 		value_offset = 0
 		for attrib, attrib_data in zip(self.header.attributes.data, self.header.attributes.data):
-			attrib.value_offset = value_offset
+			attrib._value_offset = value_offset
 			value_offset += attrib_sizes[attrib.dtype]
 		return names_writer.getvalue()

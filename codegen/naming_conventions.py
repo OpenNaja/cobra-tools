@@ -85,7 +85,8 @@ def name_attribute(name):
     >>> name_attribute('unknown?')
     'unknown'
     """
-    return '_'.join(part.lower() for part in name_parts(name))
+    prefix = "_" if name.startswith("_") else ""
+    return prefix + '_'.join(part.lower() for part in name_parts(name))
 
 
 def name_access(access):

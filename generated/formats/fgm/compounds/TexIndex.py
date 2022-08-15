@@ -10,7 +10,7 @@ class TexIndex(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.index = 0
+		self._tex_index = 0
 
 		# index of tile if an array texture is used eg JWE swatches
 		self.array_index = 0
@@ -19,7 +19,7 @@ class TexIndex(MemStruct):
 
 	def set_defaults(self):
 		super().set_defaults()
-		self.index = 0
+		self._tex_index = 0
 		if self.context.version >= 18:
 			self.array_index = 0
 
@@ -36,21 +36,21 @@ class TexIndex(MemStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.index = stream.read_uint()
+		instance._tex_index = stream.read_uint()
 		if instance.context.version >= 18:
 			instance.array_index = stream.read_uint()
 
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_uint(instance.index)
+		stream.write_uint(instance._tex_index)
 		if instance.context.version >= 18:
 			stream.write_uint(instance.array_index)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
-		yield 'index', Uint, (0, None)
+		yield '_tex_index', Uint, (0, None)
 		if instance.context.version >= 18:
 			yield 'array_index', Uint, (0, None)
 
@@ -60,7 +60,7 @@ class TexIndex(MemStruct):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* index = {self.fmt_member(self.index, indent+1)}'
+		s += f'\n	* _tex_index = {self.fmt_member(self._tex_index, indent+1)}'
 		s += f'\n	* array_index = {self.fmt_member(self.array_index, indent+1)}'
 		return s
 

@@ -22,7 +22,6 @@
     </compound>
 
     <enum name="FgmDtype" numbytes="4" storage="uint" default="0">
-        dtypes = {0: "f", 1: "ff", 2: "fff", 3: "ffff", 5: "i", 6: "i"}  # 4:"I", 8:"I"
 		<option value="0" name="Float" />
 		<option value="1" name="Float2" />
 		<option value="2" name="Float3" />
@@ -35,22 +34,22 @@
 
     <compound name="FgmHeader" inherit="MemStruct">
 		# JWE2 patternset fgms seem to be in pool type 3, everything else in 2
-        <add name="texture_count" type="uint" until="15"/>
-        <add name="texture_count" type="uint64" since="17"/>
-        <add name="attribute_count" type="uint" until="15"/>
-        <add name="attribute_count" type="uint64" since="17"/>
+        <add name="_texture_count" type="uint" until="15"/>
+        <add name="_texture_count" type="uint64" since="17"/>
+        <add name="_attribute_count" type="uint" until="15"/>
+        <add name="_attribute_count" type="uint64" since="17"/>
         followed by 32 bytes for 4 pointers, which are not always all used
-        <add name="textures" type="ArrayPointer" template="TextureInfo" arg="texture_count"/>
-        <add name="attributes" type="ArrayPointer" template="AttribInfo" arg="attribute_count"/>
+        <add name="textures" type="ArrayPointer" template="TextureInfo" arg="_texture_count"/>
+        <add name="attributes" type="ArrayPointer" template="AttribInfo" arg="_attribute_count"/>
         <add name="name_foreach_textures" type="ForEachPointer" template="TextureData" arg="textures"/>
         <add name="value_foreach_attributes" type="ForEachPointer" template="AttribData" arg="attributes"/>
         and finally 16 bytes, apparently unused
-        <add name="unk 0" type="uint64"/>
-        <add name="unk 1" type="uint64"/>
+        <add name="_unk_0" type="uint64"/>
+        <add name="_unk_1" type="uint64"/>
     </compound>
 
 	<compound name="GenericInfo" inherit="MemStruct">
-		<add name="offset" type="uint" >byte offset to name in fgm buffer</add>
+		<add name="_name_offset" type="uint" >byte offset to name in fgm buffer</add>
         <add name="dtype" type="FgmDtype"/>
     </compound>
 
@@ -66,13 +65,13 @@
 
 	<compound name="TexIndex" inherit="MemStruct">
         stores index into shader and array index of texture
-        <add name="index" type="uint" />
+        <add name="_tex_index" type="uint" />
         <add name="array_index" type="uint" since="18">index of tile if an array texture is used eg JWE swatches</add>
     </compound>
 
 	<compound name="AttribInfo" inherit="GenericInfo">
 		part of fgm fragment, repeated per attribute
-		<add name="value_offset" type="uint64" >byte offset to first value in the data_lib pointer, usually or always sorted in stock</add>
+		<add name="_value_offset" type="uint64" >byte offset to first value in the data_lib pointer, usually or always sorted in stock</add>
     </compound>
 
 	<compound name="TextureData" inherit="MemStruct">
