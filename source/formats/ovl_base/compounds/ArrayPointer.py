@@ -19,10 +19,16 @@ class ArrayPointer(Pointer):
 	@classmethod
 	def _to_xml(cls, instance, elem, debug):
 		"""Assigns data self to xml elem"""
+		if callable(getattr(instance.template, "_to_xml_array", None)):
+			instance.template._to_xml_array(instance.data, elem, debug)
+			return
 		Array._to_xml(instance.data, elem, debug)
 
 	@classmethod
 	def _from_xml(cls, instance, elem):
+		if callable(getattr(instance.template, "_from_xml_array", None)):
+			instance.data = instance.template._from_xml_array(None, elem)
+			return
 		arr = Array((len(elem)), instance.template, instance.context, set_default=False)
 		instance.data = Array._from_xml(arr, elem)
 

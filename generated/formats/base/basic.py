@@ -90,26 +90,16 @@ def class_from_struct(struct, from_value_func):
             return literal_eval(elem.attrib[prop])
 
         @staticmethod
-        def from_xml_array(target, elem, prop, arguments=None):
-            shape, arg, template = arguments
-            sub = elem.find(f'.//{prop}')
-            if sub is None:
-                logging.warning(f"Missing sub-element '{prop}' on XML element '{elem.tag}'")
-                return
-            flat_array = np.fromstring(sub.text, dtype=dtype, sep=" ")
-            # todo - the passed shape may not be compatible to flat_array's shape
-            # flat_array = flat_array.reshape(shape)
-            return flat_array
+        def _from_xml_array(instance, elem):
+            return np.fromstring(elem.text, dtype=dtype, sep=" ")
 
         @staticmethod
         def to_xml(elem, prop, instance, arguments, debug):
             elem.attrib[prop] = str(instance)
 
         @staticmethod
-        def to_xml_array(elem, prop, instance, arguments, debug):
-            shape, dtype, arg, template = arguments
-            sub = ET.SubElement(elem, prop)
-            sub.text = " ".join([str(member) for member in instance.flat])
+        def _to_xml_array(instance, elem, debug):
+            elem.text = " ".join([str(member) for member in instance.flat])
 
     return ConstructedClass
 

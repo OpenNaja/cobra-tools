@@ -161,13 +161,13 @@ class Array(list):
     @classmethod
     def from_xml(cls, target, elem, prop, arguments):
         shape, dtype, arg, template = arguments
-        if callable(getattr(dtype, "from_xml_array", None)):
-            return dtype.from_xml_array(target, elem, prop, (shape, arg, template))
-        instance = cls(shape, dtype, target.context, arg, template, set_default=False)
         sub = elem.find(f'.//{prop}')
         if sub is None:
             logging.warning(f"Missing sub-element '{prop}' on XML element '{elem.tag}'")
             return
+        if callable(getattr(dtype, "_from_xml_array", None)):
+            return dtype._from_xml_array(None, sub)
+        instance = cls(shape, dtype, target.context, arg, template, set_default=False)
         cls._from_xml(instance, sub)
         return instance
 
@@ -180,10 +180,10 @@ class Array(list):
     @classmethod
     def to_xml(cls, elem, prop, instance, arguments, debug):
         shape, dtype, arg, template = arguments
-        if callable(getattr(dtype, "to_xml_array", None)):
-            dtype.to_xml_array(elem, prop, instance, arguments, debug)
-            return
         sub = ET.SubElement(elem, prop)
+        if callable(getattr(dtype, "_to_xml_array", None)):
+            dtype._to_xml_array(instance, sub, debug)
+            return
         cls._to_xml(instance, sub, debug)
 
     @classmethod
