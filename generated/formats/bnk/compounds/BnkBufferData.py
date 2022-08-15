@@ -72,7 +72,7 @@ class BnkBufferData(BaseStruct):
 		instance.stream_info_count = stream.read_uint()
 		instance.zeros = stream.read_uints((7,))
 		instance.zeros_per_buffer = stream.read_uint64s((instance.buffer_count, 2,))
-		instance.stream_infos = Array.from_stream(stream, (instance.stream_info_count,), StreamInfo, instance.context, 0, None)
+		instance.stream_infos = Array.from_stream(stream, instance.context, 0, None, (instance.stream_info_count,), StreamInfo)
 		instance.name = stream.read_zstring()
 		if instance.buffer_count:
 			instance.external_b_suffix = stream.read_zstring()

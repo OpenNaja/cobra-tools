@@ -18,7 +18,7 @@ class TransStructStopList(MemStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.ptrs = Array.from_stream(stream, (instance.arg,), TransStructStop, instance.context, 0, None)
+		instance.ptrs = Array.from_stream(stream, instance.context, 0, None, (instance.arg,), TransStructStop)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

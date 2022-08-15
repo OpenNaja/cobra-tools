@@ -18,7 +18,7 @@ class TransStructArray(MemStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.array = Array.from_stream(stream, (instance.arg,), TransStruct, instance.context, 0, None)
+		instance.array = Array.from_stream(stream, instance.context, 0, None, (instance.arg,), TransStruct)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

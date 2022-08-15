@@ -212,21 +212,21 @@ class Header(GenericHeader):
 		instance.names = ZStringBuffer.from_stream(stream, instance.context, instance.len_names, None)
 		if instance.context.version <= 15:
 			instance.names_pad = stream.read_ubytes(((16 - (instance.len_names % 16)) % 16,))
-		instance.mimes = Array.from_stream(stream, (instance.num_mimes,), MimeEntry, instance.context, 0, None)
+		instance.mimes = Array.from_stream(stream, instance.context, 0, None, (instance.num_mimes,), MimeEntry)
 		if instance.context.version >= 20:
-			instance.triplets = Array.from_stream(stream, (instance.num_triplets,), Triplet, instance.context, 0, None)
+			instance.triplets = Array.from_stream(stream, instance.context, 0, None, (instance.num_triplets,), Triplet)
 			instance.triplets_pad = PadAlign.from_stream(stream, instance.context, 4, instance.triplets)
-		instance.files = Array.from_stream(stream, (instance.num_files,), FileEntry, instance.context, 0, None)
+		instance.files = Array.from_stream(stream, instance.context, 0, None, (instance.num_files,), FileEntry)
 		instance.archive_names = ZStringBuffer.from_stream(stream, instance.context, instance.len_archive_names, None)
-		instance.archives = Array.from_stream(stream, (instance.num_archives,), ArchiveEntry, instance.context, 0, None)
-		instance.included_ovls = Array.from_stream(stream, (instance.num_included_ovls,), IncludedOvl, instance.context, 0, None)
+		instance.archives = Array.from_stream(stream, instance.context, 0, None, (instance.num_archives,), ArchiveEntry)
+		instance.included_ovls = Array.from_stream(stream, instance.context, 0, None, (instance.num_included_ovls,), IncludedOvl)
 		if instance.context.version >= 19:
-			instance.dependencies = Array.from_stream(stream, (instance.num_dependencies,), DependencyEntry, instance.context, 0, None)
-		instance.aux_entries = Array.from_stream(stream, (instance.num_aux_entries,), AuxEntry, instance.context, 0, None)
+			instance.dependencies = Array.from_stream(stream, instance.context, 0, None, (instance.num_dependencies,), DependencyEntry)
+		instance.aux_entries = Array.from_stream(stream, instance.context, 0, None, (instance.num_aux_entries,), AuxEntry)
 		if instance.context.version <= 18:
-			instance.dependencies = Array.from_stream(stream, (instance.num_dependencies,), DependencyEntry, instance.context, 0, None)
-		instance.stream_files = Array.from_stream(stream, (instance.num_stream_files,), StreamEntry, instance.context, 0, None)
-		instance.zlibs = Array.from_stream(stream, (instance.num_archives,), ZlibInfo, instance.context, 0, None)
+			instance.dependencies = Array.from_stream(stream, instance.context, 0, None, (instance.num_dependencies,), DependencyEntry)
+		instance.stream_files = Array.from_stream(stream, instance.context, 0, None, (instance.num_stream_files,), StreamEntry)
+		instance.zlibs = Array.from_stream(stream, instance.context, 0, None, (instance.num_archives,), ZlibInfo)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

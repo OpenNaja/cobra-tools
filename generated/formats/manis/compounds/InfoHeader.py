@@ -40,7 +40,7 @@ class InfoHeader(GenericHeader):
 		instance.mani_count = stream.read_uint()
 		instance.names = stream.read_zstrings((instance.mani_count,))
 		instance.header = SizedStrData.from_stream(stream, instance.context, 0, None)
-		instance.mani_infos = Array.from_stream(stream, (instance.mani_count,), ManiInfo, instance.context, 0, None)
+		instance.mani_infos = Array.from_stream(stream, instance.context, 0, None, (instance.mani_count,), ManiInfo)
 		instance.name_buffer = Buffer1.from_stream(stream, instance.context, int(instance.header.hash_block_size / 4), None)
 		instance.keys_buffer = KeysReader.from_stream(stream, instance.context, instance.mani_infos, None)
 

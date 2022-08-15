@@ -18,7 +18,7 @@ class VariantArray(MemStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.variants = Array.from_stream(stream, (instance.arg,), Variant, instance.context, 0, None)
+		instance.variants = Array.from_stream(stream, instance.context, 0, None, (instance.arg,), Variant)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

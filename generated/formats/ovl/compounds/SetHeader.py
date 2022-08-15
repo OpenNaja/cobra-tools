@@ -42,8 +42,8 @@ class SetHeader(BaseStruct):
 		instance.asset_count = stream.read_uint()
 		instance.sig_a = stream.read_uint()
 		instance.sig_b = stream.read_uint()
-		instance.sets = Array.from_stream(stream, (instance.set_count,), SetEntry, instance.context, 0, None)
-		instance.assets = Array.from_stream(stream, (instance.asset_count,), AssetEntry, instance.context, 0, None)
+		instance.sets = Array.from_stream(stream, instance.context, 0, None, (instance.set_count,), SetEntry)
+		instance.assets = Array.from_stream(stream, instance.context, 0, None, (instance.asset_count,), AssetEntry)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

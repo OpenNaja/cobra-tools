@@ -170,7 +170,7 @@ class ZString:
 
         def read_zstrings(shape):
             # pass empty context
-            return Array.from_stream(stream, shape, cls, None)
+            return Array.from_stream(stream, None, 0, None, shape, cls)
 
         def write_zstrings(instance):
             # pass empty context

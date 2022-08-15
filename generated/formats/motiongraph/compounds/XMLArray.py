@@ -18,7 +18,7 @@ class XMLArray(MemStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.xmls = Array.from_stream(stream, (instance.arg,), XMLEntry, instance.context, 0, None)
+		instance.xmls = Array.from_stream(stream, instance.context, 0, None, (instance.arg,), XMLEntry)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

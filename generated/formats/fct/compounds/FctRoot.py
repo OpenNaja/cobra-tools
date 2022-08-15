@@ -56,7 +56,7 @@ class FctRoot(MemStruct):
 		instance.z_1 = stream.read_int()
 		instance.z_2 = stream.read_uint64()
 		instance.offset = stream.read_uint64()
-		instance.fonts = Array.from_stream(stream, (4,), Font, instance.context, 0, None)
+		instance.fonts = Array.from_stream(stream, instance.context, 0, None, (4,), Font)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

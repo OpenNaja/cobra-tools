@@ -235,10 +235,10 @@ class BioMeshData:
 
 	def read_chunk_infos(self):
 		self.buffer_info.tri_chunks.seek(self.tri_chunks_address)
-		self.tri_chunks = Array.from_stream(self.buffer_info.tri_chunks, (self.chunks_count,), TriChunk, self.context)
+		self.tri_chunks = Array.from_stream(self.buffer_info.tri_chunks, self.context, 0, None, (self.chunks_count,), TriChunk)
 		# logging.debug(f"{self.chunks_count} tri_chunks at {self.tri_chunks_address}")
 		self.buffer_info.vert_chunks.seek(self.vert_chunks_address)
-		self.vert_chunks = Array.from_stream(self.buffer_info.vert_chunks, (self.chunks_count,), VertChunk, self.context)
+		self.vert_chunks = Array.from_stream(self.buffer_info.vert_chunks, self.context, 0, None, (self.chunks_count,), VertChunk)
 		# logging.debug(f"{self.chunks_count} vert_chunks at {self.vert_chunks_address}")
 
 	@property

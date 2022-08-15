@@ -31,7 +31,7 @@ class HIRCSection(BaseStruct):
 		super().read_fields(stream, instance)
 		instance.length = stream.read_uint()
 		instance.count = stream.read_uint()
-		instance.hirc_pointers = Array.from_stream(stream, (instance.count,), HircPointer, instance.context, 0, None)
+		instance.hirc_pointers = Array.from_stream(stream, instance.context, 0, None, (instance.count,), HircPointer)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

@@ -30,7 +30,7 @@ class SplData(MemStruct):
 		super().read_fields(stream, instance)
 		instance.offset = Vector3.from_stream(stream, instance.context, 0, None)
 		instance.scale = stream.read_float()
-		instance.keys = Array.from_stream(stream, (instance.arg,), Key, instance.context, 0, None)
+		instance.keys = Array.from_stream(stream, instance.context, 0, None, (instance.arg,), Key)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

@@ -22,7 +22,7 @@ class DataStreamResourceDataPoints(MemStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.data = Array.from_stream(stream, (instance.arg,), DataStreamResourceData, instance.context, 0, None)
+		instance.data = Array.from_stream(stream, instance.context, 0, None, (instance.arg,), DataStreamResourceData)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

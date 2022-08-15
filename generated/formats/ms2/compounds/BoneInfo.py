@@ -232,8 +232,8 @@ class BoneInfo(BaseStruct):
 			instance.name_padding = stream.read_bytes(((16 - (((instance.name_count + instance.inv_names_count) * 4) % 16)) % 16,))
 		if instance.context.version < 47:
 			instance.name_padding = stream.read_bytes(((16 - (((instance.name_count + instance.inv_names_count) * 2) % 16)) % 16,))
-		instance.inverse_bind_matrices = Array.from_stream(stream, (instance.bind_matrix_count,), Matrix44, instance.context, 0, None)
-		instance.bones = Array.from_stream(stream, (instance.bone_count,), Bone, instance.context, 0, None)
+		instance.inverse_bind_matrices = Array.from_stream(stream, instance.context, 0, None, (instance.bind_matrix_count,), Matrix44)
+		instance.bones = Array.from_stream(stream, instance.context, 0, None, (instance.bone_count,), Bone)
 		instance.parents = stream.read_ubytes((instance.parents_count,))
 		if instance.context.version >= 32:
 			instance.parents_padding = stream.read_bytes(((8 - (instance.parents_count % 8)) % 8,))

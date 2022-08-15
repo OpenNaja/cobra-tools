@@ -22,7 +22,7 @@ class CurveDataPoints(MemStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.data = Array.from_stream(stream, (instance.arg,), CurveDataPoint, instance.context, 0, None)
+		instance.data = Array.from_stream(stream, instance.context, 0, None, (instance.arg,), CurveDataPoint)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

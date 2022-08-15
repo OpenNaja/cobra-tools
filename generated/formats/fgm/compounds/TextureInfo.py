@@ -39,11 +39,11 @@ class TextureInfo(GenericInfo):
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
 		if instance.dtype == 8:
-			instance.value = Array.from_stream(stream, (1,), TexIndex, instance.context, 0, None)
+			instance.value = Array.from_stream(stream, instance.context, 0, None, (1,), TexIndex)
 		if instance.context.version >= 18 and instance.dtype == 7:
-			instance.value = Array.from_stream(stream, (2,), Color, instance.context, 0, None)
+			instance.value = Array.from_stream(stream, instance.context, 0, None, (2,), Color)
 		if instance.context.version <= 17 and instance.dtype == 7:
-			instance.value = Array.from_stream(stream, (1,), Color, instance.context, 0, None)
+			instance.value = Array.from_stream(stream, instance.context, 0, None, (1,), Color)
 		if instance.context.version >= 18:
 			instance.some_index_0 = stream.read_uint()
 			instance.some_index_1 = stream.read_uint()

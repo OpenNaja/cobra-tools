@@ -33,9 +33,9 @@ class Layer(BaseStruct):
 		super().read_fields(stream, instance)
 		instance.info = LayerFrag.from_stream(stream, instance.context, 0, None)
 		instance.name = stream.read_zstring()
-		instance.infos = Array.from_stream(stream, (instance.info.info_count,), Info, instance.context, 0, None)
+		instance.infos = Array.from_stream(stream, instance.context, 0, None, (instance.info.info_count,), Info)
 		instance.info_names = stream.read_zstrings((instance.info.info_count,))
-		instance.attribs = Array.from_stream(stream, (instance.info.attrib_count,), Attrib, instance.context, 0, None)
+		instance.attribs = Array.from_stream(stream, instance.context, 0, None, (instance.info.attrib_count,), Attrib)
 		instance.attrib_names = stream.read_zstrings((instance.info.attrib_count,))
 
 	@classmethod

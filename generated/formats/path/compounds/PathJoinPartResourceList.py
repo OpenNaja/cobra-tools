@@ -18,7 +18,7 @@ class PathJoinPartResourceList(MemStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.resources = Array.from_stream(stream, (instance.arg,), PathJoinPartResource, instance.context, 0, None)
+		instance.resources = Array.from_stream(stream, instance.context, 0, None, (instance.arg,), PathJoinPartResource)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

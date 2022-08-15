@@ -31,7 +31,7 @@ class StreamsZTHeader(BaseStruct):
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
 		instance.weird_padding = SmartPadding.from_stream(stream, instance.context, 0, None)
-		instance.unks = Array.from_stream(stream, (instance.arg.stream_count,), InfoZTMemPool, instance.context, 0, None)
+		instance.unks = Array.from_stream(stream, instance.context, 0, None, (instance.arg.stream_count,), InfoZTMemPool)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

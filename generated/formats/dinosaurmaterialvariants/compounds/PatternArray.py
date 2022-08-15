@@ -18,7 +18,7 @@ class PatternArray(MemStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.patterns = Array.from_stream(stream, (instance.arg,), Pattern, instance.context, 0, None)
+		instance.patterns = Array.from_stream(stream, instance.context, 0, None, (instance.arg,), Pattern)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

@@ -67,9 +67,9 @@ class Struct7(BaseStruct):
 			instance.flag = stream.read_uint64()
 			instance.zero_2 = stream.read_uint64()
 		if instance.context.version <= 13:
-			instance.unknown_list = Array.from_stream(stream, (instance.count_7,), UACJoint, instance.context, 0, None)
+			instance.unknown_list = Array.from_stream(stream, instance.context, 0, None, (instance.count_7,), UACJoint)
 		if instance.context.version >= 32:
-			instance.unknown_list = Array.from_stream(stream, (instance.count_7,), NasutoJointEntry, instance.context, 0, None)
+			instance.unknown_list = Array.from_stream(stream, instance.context, 0, None, (instance.count_7,), NasutoJointEntry)
 		instance.padding = stream.read_ubytes(((8 - ((instance.count_7 * 60) % 8)) % 8,))
 		if instance.context.version >= 50 and instance.flag:
 			instance.alignment = stream.read_uint64()

@@ -130,7 +130,7 @@ class MeshCollision(BaseStruct):
 			instance.tri_flags_count = stream.read_uint()
 			instance.count_bits = stream.read_ushort()
 			instance.stuff = stream.read_ushorts((9,))
-			instance.collision_bits = Array.from_stream(stream, (instance.count_bits,), MeshCollisionBit, instance.context, 0, None)
+			instance.collision_bits = Array.from_stream(stream, instance.context, 0, None, (instance.count_bits,), MeshCollisionBit)
 			instance.zeros = stream.read_uints((4,))
 		instance.vertices = stream.read_floats((instance.vertex_count, 3,))
 		instance.triangles = stream.read_ushorts((instance.tri_count, 3,))

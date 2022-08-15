@@ -18,7 +18,7 @@ class Activities(MemStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.states = Array.from_stream(stream, (instance.arg,), ActivityEntry, instance.context, 0, None)
+		instance.states = Array.from_stream(stream, instance.context, 0, None, (instance.arg,), ActivityEntry)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

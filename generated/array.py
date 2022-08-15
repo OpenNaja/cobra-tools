@@ -71,7 +71,7 @@ class Array(list):
         return self
 
     @classmethod
-    def from_stream(cls, stream, shape, dtype, context, arg=0, template=None):
+    def from_stream(cls, stream, context, arg=0, template=None, shape=(), dtype=None):
         # basic types have read_array method defined on their class
         if callable(getattr(dtype, 'read_array', None)):
             return dtype.read_array(stream, shape, context, arg, template)

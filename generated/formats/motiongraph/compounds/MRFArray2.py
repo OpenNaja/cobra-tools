@@ -18,7 +18,7 @@ class MRFArray2(MemStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.states = Array.from_stream(stream, (instance.arg,), MRFEntry2, instance.context, 0, None)
+		instance.states = Array.from_stream(stream, instance.context, 0, None, (instance.arg,), MRFEntry2)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

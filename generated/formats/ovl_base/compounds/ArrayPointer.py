@@ -49,7 +49,7 @@ class ArrayPointer(Pointer):
 
 	def read_template(self):
 		if self.template:
-			self.data = Array.from_stream(self.frag.struct_ptr.stream, (self.arg,), self.template, self.context, 0, None)
+			self.data = Array.from_stream(self.frag.struct_ptr.stream, self.context, 0, None, (self.arg,), self.template)
 
 	@classmethod
 	def _to_xml(cls, instance, elem, debug):

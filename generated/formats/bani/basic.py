@@ -42,7 +42,7 @@ class String:
         
         def read_strings(shape):
             # pass empty context
-            return Array.from_stream(stream, shape, cls, None)
+            return Array.from_stream(stream, None, 0, None, shape, cls)
             
         def write_strings(instance):
             # pass empty context

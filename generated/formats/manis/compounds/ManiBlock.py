@@ -182,7 +182,7 @@ class ManiBlock(BaseStruct):
 		instance.unk = stream.read_uint()
 		if instance.context.version == 18:
 			instance.extra_pc_zero = stream.read_uint64()
-		instance.repeats = Array.from_stream(stream, (instance.count,), Repeat, instance.context, 0, None)
+		instance.repeats = Array.from_stream(stream, instance.context, 0, None, (instance.count,), Repeat)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

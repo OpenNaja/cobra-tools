@@ -68,7 +68,7 @@ class SizeInfoRaw(MemStruct):
 		instance.num_mips = stream.read_uint()
 		if instance.context.version >= 20:
 			instance.unk_pz = stream.read_uint64()
-		instance.mip_maps = Array.from_stream(stream, (instance.num_mips,), Mipmap, instance.context, 0, None)
+		instance.mip_maps = Array.from_stream(stream, instance.context, 0, None, (instance.num_mips,), Mipmap)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

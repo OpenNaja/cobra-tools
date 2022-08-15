@@ -30,7 +30,7 @@ class JointInfo(CommonJointInfo):
 		super().read_fields(stream, instance)
 		instance.zero = stream.read_uint64()
 		instance.zeros_per_hitcheck = stream.read_uint64s((instance.hitcheck_count,))
-		instance.hitchecks = Array.from_stream(stream, (instance.hitcheck_count,), HitCheckEntry, instance.context, 0, None)
+		instance.hitchecks = Array.from_stream(stream, instance.context, 0, None, (instance.hitcheck_count,), HitCheckEntry)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

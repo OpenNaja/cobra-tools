@@ -18,7 +18,7 @@ class PointsList(MemStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.points = Array.from_stream(stream, (instance.arg,), Vector3, instance.context, 0, None)
+		instance.points = Array.from_stream(stream, instance.context, 0, None, (instance.arg,), Vector3)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

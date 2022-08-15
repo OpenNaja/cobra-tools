@@ -66,7 +66,7 @@ class ParamData(MemStruct):
 		if instance.arg == 8:
 			instance.data = stream.read_floats((4,))
 		if instance.arg == 9:
-			instance.data = Array.from_stream(stream, (1,), ZStrPtr, instance.context, 0, None)
+			instance.data = Array.from_stream(stream, instance.context, 0, None, (1,), ZStrPtr)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

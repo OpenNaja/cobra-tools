@@ -23,7 +23,7 @@ class StateList(MemStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.ptrs = Array.from_stream(stream, (instance.arg,), SinglePtr, instance.context, 0, generated.formats.motiongraph.compounds.State.State)
+		instance.ptrs = Array.from_stream(stream, instance.context, 0, generated.formats.motiongraph.compounds.State.State, (instance.arg,), SinglePtr)
 
 	@classmethod
 	def write_fields(cls, stream, instance):
