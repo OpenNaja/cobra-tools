@@ -191,7 +191,7 @@ class MeshData:
 		for vertex_index, (use_blended, bone_index) in enumerate(zip(use_blended_weights, bone_indices)):
 			if not use_blended:
 				self.add_to_weights(bone_index, vertex_index, 1.0)
-			self.add_to_weights("use_blended_weights", vertex_index, use_blended)
+			# self.add_to_weights("use_blended_weights", vertex_index, use_blended)
 
 	def add_to_weights(self, bone, vertex_index, weight):
 		# create a dict for new bone key

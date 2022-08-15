@@ -191,7 +191,7 @@ class ModelReader(BaseStruct):
 	def write_hitcheck_verts(self, bone_info, stream):
 		logging.debug(f"Writing additional hitcheck data")
 		for hitcheck in self.get_hitchecks(bone_info):
-			if hitcheck.type in (CollisionType.ConvexHullPC, CollisionType.ConvexHull):
+			if hitcheck.type in (CollisionType.CONVEX_HULL_P_C, CollisionType.CONVEX_HULL):
 				logging.debug(f"Writing vertices for {hitcheck.type}")
 				stream.write_floats(hitcheck.collider.vertices)
 
