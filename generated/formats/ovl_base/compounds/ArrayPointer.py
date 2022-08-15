@@ -76,6 +76,7 @@ class ArrayPointer(Pointer):
 			return
 		arr = Array((len(elem)), instance.template, instance.context, set_default=False)
 		instance.data = Array._from_xml(arr, elem)
+		return instance
 
 	# def write_template(self):
 	# 	assert self.template is not None

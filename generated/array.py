@@ -82,11 +82,12 @@ class Array(list):
 
     @classmethod
     def to_stream(cls, stream, instance, shape, dtype, context, arg=0, template=None):
-        if callable(getattr(dtype, 'write_array', None)):
-            dtype.write_array(stream, instance)
-        else:
-            instance.store_params(shape, dtype, context, arg, template)
-            instance.write(stream)
+        if instance is not None:
+            if callable(getattr(dtype, 'write_array', None)):
+                dtype.write_array(stream, instance)
+            else:
+                instance.store_params(shape, dtype, context, arg, template)
+                instance.write(stream)
 
     @classmethod
     def from_value(cls, shape, dtype, value):

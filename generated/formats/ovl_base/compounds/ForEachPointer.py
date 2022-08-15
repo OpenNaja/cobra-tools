@@ -87,6 +87,7 @@ class ForEachPointer(Pointer):
 		instance.data[:] = [instance.template(instance.context, member, instance.template, set_default=True) for member in instance.arg.data]
 		for subelem, member in zip(elem, instance.data):
 			member._from_xml(member, subelem)
+		return instance
 
 	@classmethod
 	def to_xml(cls, elem, prop, instance, arguments, debug):

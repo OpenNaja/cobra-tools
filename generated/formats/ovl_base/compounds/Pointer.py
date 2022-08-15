@@ -198,6 +198,7 @@ class Pointer(BaseStruct):
 		else:
 			instance.data = instance.template(instance.context, instance.arg, None)
 			instance.template._from_xml(instance.data, elem)
+		return instance
 
 	def __repr__(self):
 		s = self.get_info_str()
