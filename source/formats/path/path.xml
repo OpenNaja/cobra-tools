@@ -120,8 +120,8 @@
     <compound name="PathType" inherit="MemStruct">
         <!-- Size 16 -->
         <add name="enum_value" type="uint" /> <!-- Matches the EnumValue column in c0paths.fdb -->
-        <add name="unkFloat1" type="float" />
-        <add name="unkFloat2" type="float" />
+        <add name="min_width" type="float" default="4.0" />
+        <add name="max_width" type="float" default="10.0" />
         <add name="unkInt2" type="uint" />
     </compound>
 
