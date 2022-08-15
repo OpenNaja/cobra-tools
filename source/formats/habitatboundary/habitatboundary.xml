@@ -65,7 +65,7 @@
         <field name="PathJoinPart" type="Pointer" template="ZString"/>
         <field name="DoorCutout" type="HB_DoorCutout" />
         <field name="Small" type="uint" />
-        <field name="Height" type="float" />
+        <field name="Height" type="float" default="2.0" />
     </struct>
 
     <struct name="HabitatBoundaryDataRoot" inherit="MemStruct">
@@ -91,16 +91,16 @@
         <field name="Broken_10m" type="Pointer" template="ZString"/>
         <field name="Post" type="Pointer" template="ZString"/>
         <field name="Post_Cap" type="Pointer" template="ZString"/>
-        <field name="u1" type="uint">3 for everything but null barrier which is 0</field>
+        <field name="u1" type="uint" default="3">3 for everything but null barrier which is 0</field>
         <field name="u2" type="float" />
-        <field name="u3" type="ushort">0 for everything but wood logs barrier which is 1</field>
+        <field name="u3" type="ushort" default="0">0 for everything but wood logs barrier which is 1</field>
         <field name="ui_options" type="HB_UI_Options" />
-        <field name="u4" type="float" />
-        <field name="u5" type="float" />
+        <field name="u4" type="float" default="1.5" />
+        <field name="u5" type="float" default="2.5" />
         <field name="Offsets" type="HB_Offsets" />
         <field name="WallReplaceLevel" type="byte">Posts of N Level can only use Walls of less than N Level</field>
         <field name="Type" type="byte">0 = Glass, 1 = Null, 3 = Solid Opaques (Brick, Concrete), 4 = 1-Way Glass, 5 = Wire Fences, 7 = Electrified Wire Fence</field>
-        <field name="padding" type="ushort" />
+        <field name="padding" type="ushort" default="0" optional="True" />
     </struct>
 
     <struct name="ClimbproofDataRoot" inherit="MemStruct">
@@ -110,8 +110,8 @@
         <field name="Climb_Proof_Cap_End" type="Pointer" template="ZString"/>
         <field name="Climb_Proof_Bracket" type="Pointer" template="ZString"/>
         <field name="Post_Gap" type="float">Distance between post center and start of bracket.</field>
-        <field name="u1" type="float" />
-        <field name="zero" type="uint64" />
+        <field name="u1" type="float" default="2.0" />
+        <field name="zero" type="uint64" default="0" optional="True" />
     </struct>
 
 </niftoolsxml>

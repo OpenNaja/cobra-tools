@@ -28,7 +28,7 @@ class HabitatBoundaryPropRoot(MemStruct):
 		self.path_physics = HbPropPhysics(self.context, 0, None)
 		self.door_cutout = HbDoorCutout(self.context, 0, None)
 		self.small = 0
-		self.height = 0.0
+		self.height = 2.0
 		self.prefab = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 		self.post = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 		self.wall = Pointer(self.context, 0, generated.formats.base.basic.ZString)
@@ -47,7 +47,7 @@ class HabitatBoundaryPropRoot(MemStruct):
 		self.path_physics = HbPropPhysics(self.context, 0, None)
 		self.door_cutout = HbDoorCutout(self.context, 0, None)
 		self.small = 0
-		self.height = 0.0
+		self.height = 2.0
 		self.prefab = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 		self.post = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 		self.wall = Pointer(self.context, 0, generated.formats.base.basic.ZString)
@@ -113,7 +113,7 @@ class HabitatBoundaryPropRoot(MemStruct):
 		yield 'path_join_part', Pointer, (0, generated.formats.base.basic.ZString), (False, None)
 		yield 'door_cutout', HbDoorCutout, (0, None), (False, None)
 		yield 'small', Uint, (0, None), (False, None)
-		yield 'height', Float, (0, None), (False, None)
+		yield 'height', Float, (0, None), (False, 2.0)
 
 	def get_info_str(self, indent=0):
 		return f'HabitatBoundaryPropRoot [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

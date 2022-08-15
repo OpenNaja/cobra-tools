@@ -16,7 +16,7 @@ class ClimbproofDataRoot(MemStruct):
 
 		# Distance between post center and start of bracket.
 		self.post_gap = 0.0
-		self.u_1 = 0.0
+		self.u_1 = 2.0
 		self.zero = 0
 		self.climb_proof = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 		self.climb_proof_cap_start = Pointer(self.context, 0, generated.formats.base.basic.ZString)
@@ -28,7 +28,7 @@ class ClimbproofDataRoot(MemStruct):
 	def set_defaults(self):
 		super().set_defaults()
 		self.post_gap = 0.0
-		self.u_1 = 0.0
+		self.u_1 = 2.0
 		self.zero = 0
 		self.climb_proof = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 		self.climb_proof_cap_start = Pointer(self.context, 0, generated.formats.base.basic.ZString)
@@ -73,8 +73,8 @@ class ClimbproofDataRoot(MemStruct):
 		yield 'climb_proof_cap_end', Pointer, (0, generated.formats.base.basic.ZString), (False, None)
 		yield 'climb_proof_bracket', Pointer, (0, generated.formats.base.basic.ZString), (False, None)
 		yield 'post_gap', Float, (0, None), (False, None)
-		yield 'u_1', Float, (0, None), (False, None)
-		yield 'zero', Uint64, (0, None), (False, None)
+		yield 'u_1', Float, (0, None), (False, 2.0)
+		yield 'zero', Uint64, (0, None), (True, 0)
 
 	def get_info_str(self, indent=0):
 		return f'ClimbproofDataRoot [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
