@@ -30,7 +30,7 @@ def check_any(iterable, string):
 
 
 def has_rgb_a(png_file_path):
-	return check_any(("pmossbasecolourroughnesspackedtexture", "ppackedtexture"), png_file_path)
+	return check_any(("pmossbasecolourroughnesspackedtexture", "ppackedtexture", "palbedoandroughnessdetail"), png_file_path)
 
 
 def has_rg_b_a(png_file_path):
