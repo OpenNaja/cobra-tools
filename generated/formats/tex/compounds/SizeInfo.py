@@ -22,16 +22,6 @@ class SizeInfo(MemStruct):
 		if self.context.user_version.is_jwe and (self.context.version == 19):
 			self.padding = numpy.zeros((384 - self.data.io_size,), dtype=numpy.dtype('uint8'))
 
-	def read(self, stream):
-		self.io_start = stream.tell()
-		self.read_fields(stream, self)
-		self.io_size = stream.tell() - self.io_start
-
-	def write(self, stream):
-		self.io_start = stream.tell()
-		self.write_fields(stream, self)
-		self.io_size = stream.tell() - self.io_start
-
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)

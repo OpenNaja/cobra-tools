@@ -25,16 +25,6 @@ class JointInfo(CommonJointInfo):
 		self.zeros_per_hitcheck = numpy.zeros((self.hitcheck_count,), dtype=numpy.dtype('uint64'))
 		self.hitchecks = Array((self.hitcheck_count,), HitCheckEntry, self.context, 0, None)
 
-	def read(self, stream):
-		self.io_start = stream.tell()
-		self.read_fields(stream, self)
-		self.io_size = stream.tell() - self.io_start
-
-	def write(self, stream):
-		self.io_start = stream.tell()
-		self.write_fields(stream, self)
-		self.io_size = stream.tell() - self.io_start
-
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)

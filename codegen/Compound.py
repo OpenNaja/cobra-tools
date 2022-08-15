@@ -94,19 +94,6 @@ class Compound(BaseClass):
                 if f.tell() == end:
                     self.write_line(f, 2, "pass")
 
-            # write the load() method
-            for method_type in ("read", "write"):
-                method_str = f"def {method_type}(self, stream):"
-                # read/write the fields for an object from the stream
-                if method_str in self.src_code:
-                    continue
-                self.write_line(f)
-                self.write_line(f, 1, method_str)
-                # retain the io_start
-                self.write_line(f, 2, "self.io_start = stream.tell()")
-                self.write_line(f, 2, f"self.{method_type}_fields(stream, self)")
-                self.write_line(f, 2, "self.io_size = stream.tell() - self.io_start")
-
             # write the read_fields/write_fields methods
             for method_type in ("read", "write"):
                 method_str = f"def {method_type}_fields(cls, stream, instance):"
@@ -116,6 +103,7 @@ class Compound(BaseClass):
                 self.write_line(f, 1, '@classmethod')
                 self.write_line(f, 1, method_str)
                 # classes that this class inherits from have to be read/written first
+
                 if self.class_basename:
                     self.write_line(f, 2, f"super().{method_type}_fields(stream, instance)")
 

@@ -57,16 +57,6 @@ class Ms2Root(MemStruct):
 		self.model_infos = ArrayPointer(self.context, self.mdl_2_count, generated.formats.ms2.compounds.ModelInfo.ModelInfo)
 		self.buffers_presence = ArrayPointer(self.context, self.vertex_buffer_count, generated.formats.ms2.compounds.BufferPresence.BufferPresence)
 
-	def read(self, stream):
-		self.io_start = stream.tell()
-		self.read_fields(stream, self)
-		self.io_size = stream.tell() - self.io_start
-
-	def write(self, stream):
-		self.io_start = stream.tell()
-		self.write_fields(stream, self)
-		self.io_size = stream.tell() - self.io_start
-
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)

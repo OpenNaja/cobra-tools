@@ -35,16 +35,6 @@ class UncompressedRegion(BaseStruct):
 		self.unk_5 = 0
 		self.zeros_3 = numpy.zeros((2,), dtype=numpy.dtype('uint32'))
 
-	def read(self, stream):
-		self.io_start = stream.tell()
-		self.read_fields(stream, self)
-		self.io_size = stream.tell() - self.io_start
-
-	def write(self, stream):
-		self.io_start = stream.tell()
-		self.write_fields(stream, self)
-		self.io_size = stream.tell() - self.io_start
-
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)

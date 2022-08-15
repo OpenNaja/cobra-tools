@@ -22,16 +22,6 @@ class Matrix44(BaseStruct):
 		super().set_defaults()
 		self.data = numpy.zeros((4, 4,), dtype=numpy.dtype('float32'))
 
-	def read(self, stream):
-		self.io_start = stream.tell()
-		self.read_fields(stream, self)
-		self.io_size = stream.tell() - self.io_start
-
-	def write(self, stream):
-		self.io_start = stream.tell()
-		self.write_fields(stream, self)
-		self.io_size = stream.tell() - self.io_start
-
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)

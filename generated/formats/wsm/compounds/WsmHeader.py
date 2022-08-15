@@ -36,16 +36,6 @@ class WsmHeader(MemStruct):
 		self.locs = ArrayPointer(self.context, self.frame_count, generated.formats.wsm.compounds.Vector3.Vector3)
 		self.quats = ArrayPointer(self.context, self.frame_count, generated.formats.wsm.compounds.Vector4.Vector4)
 
-	def read(self, stream):
-		self.io_start = stream.tell()
-		self.read_fields(stream, self)
-		self.io_size = stream.tell() - self.io_start
-
-	def write(self, stream):
-		self.io_start = stream.tell()
-		self.write_fields(stream, self)
-		self.io_size = stream.tell() - self.io_start
-
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)

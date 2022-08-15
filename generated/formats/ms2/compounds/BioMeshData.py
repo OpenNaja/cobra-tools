@@ -61,16 +61,6 @@ class BioMeshData(MeshData):
 		self.unk_floats = numpy.zeros((2,), dtype=numpy.dtype('float32'))
 		self.flag = BioModelFlag(self.context, 0, None)
 
-	def read(self, stream):
-		self.io_start = stream.tell()
-		self.read_fields(stream, self)
-		self.io_size = stream.tell() - self.io_start
-
-	def write(self, stream):
-		self.io_start = stream.tell()
-		self.write_fields(stream, self)
-		self.io_size = stream.tell() - self.io_start
-
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)

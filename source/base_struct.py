@@ -141,6 +141,32 @@ class BaseStruct:
 				logging.debug(f"Adding string metadata '{prop} = {val}' to XML element '{elem.tag}'")
 				elem.attrib[prop] = val
 
+
+	def read(self, stream):
+		# deprecated
+		self.io_start = stream.tell()
+		self.read_fields(stream, self)
+		self.io_size = stream.tell() - self.io_start
+
+	def write(self, stream):
+		# deprecated
+		self.io_start = stream.tell()
+		self.write_fields(stream, self)
+		self.io_size = stream.tell() - self.io_start
+
+	# @classmethod
+	# def read_fields(cls, stream, instance):
+	# 	for prop, dtype, arguments in cls._get_filtered_attribute_list(instance):
+	# 		print(dtype, stream, instance.context, *arguments)
+	# 		setattr(instance, prop, dtype.from_stream(stream, instance.context, *arguments))
+	# 		# (12,) <class 'generated.formats.base.basic.class_from_struct.<locals>.ConstructedClass'> 0 None
+	# 		# Array.from_stream(stream, (instance.num_mimes,), MimeEntry, instance.context, 0, None)
+	# 		# ARRAY takesstream, shape, dtype, context, arg=0, template=None)
+	# @classmethod
+	# def write_fields(cls, stream, instance):
+	# 	for prop, dtype, arguments in cls._get_filtered_attribute_list(instance):
+	# 		setattr(instance, prop, dtype.from_stream(stream, instance.context, *arguments))
+
 	@classmethod
 	def read_fields(cls, stream, instance):
 		pass

@@ -32,16 +32,6 @@ class Int8Data(MemStruct):
 		self.unused = numpy.zeros((4,), dtype=numpy.dtype('uint8'))
 		self.enum = Pointer(self.context, 0, None)
 
-	def read(self, stream):
-		self.io_start = stream.tell()
-		self.read_fields(stream, self)
-		self.io_size = stream.tell() - self.io_start
-
-	def write(self, stream):
-		self.io_start = stream.tell()
-		self.write_fields(stream, self)
-		self.io_size = stream.tell() - self.io_start
-
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)

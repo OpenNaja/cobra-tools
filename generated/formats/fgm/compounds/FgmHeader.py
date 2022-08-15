@@ -45,16 +45,6 @@ class FgmHeader(MemStruct):
 		self.name_foreach_textures = ForEachPointer(self.context, self.textures, generated.formats.fgm.compounds.TextureData.TextureData)
 		self.value_foreach_attributes = ForEachPointer(self.context, self.attributes, generated.formats.fgm.compounds.AttribData.AttribData)
 
-	def read(self, stream):
-		self.io_start = stream.tell()
-		self.read_fields(stream, self)
-		self.io_size = stream.tell() - self.io_start
-
-	def write(self, stream):
-		self.io_start = stream.tell()
-		self.write_fields(stream, self)
-		self.io_size = stream.tell() - self.io_start
-
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)

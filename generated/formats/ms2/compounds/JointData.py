@@ -160,16 +160,6 @@ class JointData(BaseStruct):
 		if self.context.version <= 32:
 			self.hitcheck_reader = HitcheckReader(self.context, self.joint_infos, None)
 
-	def read(self, stream):
-		self.io_start = stream.tell()
-		self.read_fields(stream, self)
-		self.io_size = stream.tell() - self.io_start
-
-	def write(self, stream):
-		self.io_start = stream.tell()
-		self.write_fields(stream, self)
-		self.io_size = stream.tell() - self.io_start
-
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)

@@ -32,16 +32,6 @@ class SplRoot(MemStruct):
 		self.length = 0.0
 		self.spline_data = Pointer(self.context, self.count, generated.formats.spl.compounds.SplData.SplData)
 
-	def read(self, stream):
-		self.io_start = stream.tell()
-		self.read_fields(stream, self)
-		self.io_size = stream.tell() - self.io_start
-
-	def write(self, stream):
-		self.io_start = stream.tell()
-		self.write_fields(stream, self)
-		self.io_size = stream.tell() - self.io_start
-
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)

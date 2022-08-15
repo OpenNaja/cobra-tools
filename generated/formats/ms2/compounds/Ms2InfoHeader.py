@@ -54,16 +54,6 @@ class Ms2InfoHeader(BaseStruct):
 		self.model_infos = Array((self.info.mdl_2_count,), ModelInfo, self.context, 0, None)
 		self.models_reader = ModelReader(self.context, self.model_infos, None)
 
-	def read(self, stream):
-		self.io_start = stream.tell()
-		self.read_fields(stream, self)
-		self.io_size = stream.tell() - self.io_start
-
-	def write(self, stream):
-		self.io_start = stream.tell()
-		self.write_fields(stream, self)
-		self.io_size = stream.tell() - self.io_start
-
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)

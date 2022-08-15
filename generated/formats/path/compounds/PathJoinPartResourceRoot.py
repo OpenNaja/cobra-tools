@@ -18,16 +18,6 @@ class PathJoinPartResourceRoot(MemStruct):
 		self.num_res = 0
 		self.resources_list = Pointer(self.context, self.num_res, generated.formats.path.compounds.PathJoinPartResourceList.PathJoinPartResourceList)
 
-	def read(self, stream):
-		self.io_start = stream.tell()
-		self.read_fields(stream, self)
-		self.io_size = stream.tell() - self.io_start
-
-	def write(self, stream):
-		self.io_start = stream.tell()
-		self.write_fields(stream, self)
-		self.io_size = stream.tell() - self.io_start
-
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)

@@ -37,16 +37,6 @@ class MotiongraphRootFrag(MemStruct):
 		self.ptr_2 = Pointer(self.context, self.count_2, generated.formats.motiongraph.compounds.MRFArray2.MRFArray2)
 		self.ptr_xmls = Pointer(self.context, self.num_xmls, generated.formats.motiongraph.compounds.XMLArray.XMLArray)
 
-	def read(self, stream):
-		self.io_start = stream.tell()
-		self.read_fields(stream, self)
-		self.io_size = stream.tell() - self.io_start
-
-	def write(self, stream):
-		self.io_start = stream.tell()
-		self.write_fields(stream, self)
-		self.io_size = stream.tell() - self.io_start
-
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)

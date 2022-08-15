@@ -34,16 +34,6 @@ class InfoHeader(GenericHeader):
 		self.name_buffer = Buffer1(self.context, int(self.header.hash_block_size / 4), None)
 		self.keys_buffer = KeysReader(self.context, self.mani_infos, None)
 
-	def read(self, stream):
-		self.io_start = stream.tell()
-		self.read_fields(stream, self)
-		self.io_size = stream.tell() - self.io_start
-
-	def write(self, stream):
-		self.io_start = stream.tell()
-		self.write_fields(stream, self)
-		self.io_size = stream.tell() - self.io_start
-
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)

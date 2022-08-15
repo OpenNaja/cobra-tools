@@ -28,16 +28,6 @@ class DinoPatternsHeader(MemStruct):
 		self.set_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 		self.patterns = Pointer(self.context, self.pattern_count, generated.formats.dinosaurmaterialvariants.compounds.PatternArray.PatternArray)
 
-	def read(self, stream):
-		self.io_start = stream.tell()
-		self.read_fields(stream, self)
-		self.io_size = stream.tell() - self.io_start
-
-	def write(self, stream):
-		self.io_start = stream.tell()
-		self.write_fields(stream, self)
-		self.io_size = stream.tell() - self.io_start
-
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
