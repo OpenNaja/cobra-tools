@@ -704,7 +704,7 @@
 	</compound>
 
 	<compound name="HitCheck Entry">
-		<add name="type" type="CollisionType"/>
+		<add name="dtype" type="CollisionType"/>
 		<add name="flag 0" type="ushort">0</add>
 		<add name="flag 1" type="ushort">JWE1: 16, PZ, JWE2: 0</add>
 		<add name="flag 2" type="uint">JWE1: 564267, PZ: seen 17 and 22, JWE2: 34, 30</add>
@@ -712,13 +712,13 @@
 		<add name="zero extra pc unk" type="uint" vercond="#OLD#">?</add>
 		<add name="name offset" type="uint">offset into joint names</add>
 
-		<add name="collider" type="Sphere" cond="type == 0" />
-		<add name="collider" type="BoundingBox" cond="type == 1" />
-		<add name="collider" type="Capsule" cond="type == 2" />
-		<add name="collider" type="Cylinder" cond="type == 3" />
-		<add name="collider" type="ConvexHull" cond="type == 7" />
-		<add name="collider" type="ConvexHull" cond="type == 8" />
-		<add name="collider" type="MeshCollision" cond="type == 10" />
+		<add name="collider" type="Sphere" cond="dtype == 0" />
+		<add name="collider" type="BoundingBox" cond="dtype == 1" />
+		<add name="collider" type="Capsule" cond="dtype == 2" />
+		<add name="collider" type="Cylinder" cond="dtype == 3" />
+		<add name="collider" type="ConvexHull" cond="dtype == 7" />
+		<add name="collider" type="ConvexHull" cond="dtype == 8" />
+		<add name="collider" type="MeshCollision" cond="dtype == 10" />
 		<add name="zero extra zt" type="uint" vercond="#ZTUAC#">?</add>
 	</compound>
 

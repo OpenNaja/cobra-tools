@@ -172,8 +172,8 @@ class ModelReader(BaseStruct):
 		try:
 			logging.debug(f"Reading additional hitcheck data")
 			for hitcheck in self.get_hitchecks(bone_info):
-				if hitcheck.type in (CollisionType.CONVEX_HULL_P_C, CollisionType.CONVEX_HULL):
-					logging.debug(f"Reading vertices for {hitcheck.type}")
+				if hitcheck.dtype in (CollisionType.CONVEX_HULL_P_C, CollisionType.CONVEX_HULL):
+					logging.debug(f"Reading vertices for {hitcheck.dtype}")
 					hitcheck.collider.vertices = stream.read_floats((hitcheck.collider.vertex_count, 3))
 		except:
 			logging.exception(f"Reading hitchecks failed")
@@ -181,8 +181,8 @@ class ModelReader(BaseStruct):
 	def write_hitcheck_verts(self, bone_info, stream):
 		logging.debug(f"Writing additional hitcheck data")
 		for hitcheck in self.get_hitchecks(bone_info):
-			if hitcheck.type in (CollisionType.CONVEX_HULL_P_C, CollisionType.CONVEX_HULL):
-				logging.debug(f"Writing vertices for {hitcheck.type}")
+			if hitcheck.dtype in (CollisionType.CONVEX_HULL_P_C, CollisionType.CONVEX_HULL):
+				logging.debug(f"Writing vertices for {hitcheck.dtype}")
 				stream.write_floats(hitcheck.collider.vertices)
 
 	@classmethod

@@ -11,24 +11,24 @@ from plugin.utils.quickhull import qhull3d
 
 
 def import_collider(hitcheck, armature_ob, bone_name, corrector):
-	logging.info(f"{hitcheck.name} type {hitcheck.type}")
+	logging.info(f"{hitcheck.name} type {hitcheck.dtype}")
 	hitcheck_name = f"{bpy.context.scene.name}_{hitcheck.name}"
 	coll = hitcheck.collider
 	# print(hitcheck)
-	if hitcheck.type == CollisionType.SPHERE:
+	if hitcheck.dtype == CollisionType.SPHERE:
 		ob = import_spherebv(coll, hitcheck_name)
-	elif hitcheck.type == CollisionType.BOUNDING_BOX:
+	elif hitcheck.dtype == CollisionType.BOUNDING_BOX:
 		ob = import_boxbv(coll, hitcheck_name, corrector)
-	elif hitcheck.type == CollisionType.CAPSULE:
+	elif hitcheck.dtype == CollisionType.CAPSULE:
 		ob = import_capsulebv(coll, hitcheck_name)
-	elif hitcheck.type == CollisionType.CYLINDER:
+	elif hitcheck.dtype == CollisionType.CYLINDER:
 		ob = import_cylinderbv(coll, hitcheck_name)
-	elif hitcheck.type == CollisionType.MESH_COLLISION:
+	elif hitcheck.dtype == CollisionType.MESH_COLLISION:
 		ob = import_meshbv(coll, hitcheck_name, corrector)
-	elif hitcheck.type == CollisionType.CONVEX_HULL:
+	elif hitcheck.dtype == CollisionType.CONVEX_HULL:
 		ob = import_hullbv(coll, hitcheck_name, corrector)
 	else:
-		logging.warning(f"Unsupported collider type {hitcheck.type}")
+		logging.warning(f"Unsupported collider type {hitcheck.dtype}")
 		return
 	parent_to(armature_ob, ob, bone_name)
 	# h = HitCheckEntry()

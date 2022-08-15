@@ -14,7 +14,7 @@ class HitCheckEntry(BaseStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.type = CollisionType(self.context, 0, None)
+		self.dtype = CollisionType(self.context, 0, None)
 
 		# 0
 		self.flag_0 = 0
@@ -42,7 +42,7 @@ class HitCheckEntry(BaseStruct):
 
 	def set_defaults(self):
 		super().set_defaults()
-		self.type = CollisionType(self.context, 0, None)
+		# leaving self.dtype alone
 		self.flag_0 = 0
 		self.flag_1 = 0
 		self.flag_2 = 0
@@ -50,19 +50,19 @@ class HitCheckEntry(BaseStruct):
 		if self.context.version < 47:
 			self.zero_extra_pc_unk = 0
 		self.name_offset = 0
-		if self.type == 0:
+		if self.dtype == 0:
 			self.collider = Sphere(self.context, 0, None)
-		if self.type == 1:
+		if self.dtype == 1:
 			self.collider = BoundingBox(self.context, 0, None)
-		if self.type == 2:
+		if self.dtype == 2:
 			self.collider = Capsule(self.context, 0, None)
-		if self.type == 3:
+		if self.dtype == 3:
 			self.collider = Cylinder(self.context, 0, None)
-		if self.type == 7:
+		if self.dtype == 7:
 			self.collider = ConvexHull(self.context, 0, None)
-		if self.type == 8:
+		if self.dtype == 8:
 			self.collider = ConvexHull(self.context, 0, None)
-		if self.type == 10:
+		if self.dtype == 10:
 			self.collider = MeshCollision(self.context, 0, None)
 		if self.context.version == 13:
 			self.zero_extra_zt = 0
@@ -70,7 +70,7 @@ class HitCheckEntry(BaseStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.type = CollisionType.from_stream(stream, instance.context, 0, None)
+		instance.dtype = CollisionType.from_stream(stream, instance.context, 0, None)
 		instance.flag_0 = stream.read_ushort()
 		instance.flag_1 = stream.read_ushort()
 		instance.flag_2 = stream.read_uint()
@@ -78,19 +78,19 @@ class HitCheckEntry(BaseStruct):
 		if instance.context.version < 47:
 			instance.zero_extra_pc_unk = stream.read_uint()
 		instance.name_offset = stream.read_uint()
-		if instance.type == 0:
+		if instance.dtype == 0:
 			instance.collider = Sphere.from_stream(stream, instance.context, 0, None)
-		if instance.type == 1:
+		if instance.dtype == 1:
 			instance.collider = BoundingBox.from_stream(stream, instance.context, 0, None)
-		if instance.type == 2:
+		if instance.dtype == 2:
 			instance.collider = Capsule.from_stream(stream, instance.context, 0, None)
-		if instance.type == 3:
+		if instance.dtype == 3:
 			instance.collider = Cylinder.from_stream(stream, instance.context, 0, None)
-		if instance.type == 7:
+		if instance.dtype == 7:
 			instance.collider = ConvexHull.from_stream(stream, instance.context, 0, None)
-		if instance.type == 8:
+		if instance.dtype == 8:
 			instance.collider = ConvexHull.from_stream(stream, instance.context, 0, None)
-		if instance.type == 10:
+		if instance.dtype == 10:
 			instance.collider = MeshCollision.from_stream(stream, instance.context, 0, None)
 		if instance.context.version == 13:
 			instance.zero_extra_zt = stream.read_uint()
@@ -98,7 +98,7 @@ class HitCheckEntry(BaseStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		CollisionType.to_stream(stream, instance.type)
+		CollisionType.to_stream(stream, instance.dtype)
 		stream.write_ushort(instance.flag_0)
 		stream.write_ushort(instance.flag_1)
 		stream.write_uint(instance.flag_2)
@@ -106,19 +106,19 @@ class HitCheckEntry(BaseStruct):
 		if instance.context.version < 47:
 			stream.write_uint(instance.zero_extra_pc_unk)
 		stream.write_uint(instance.name_offset)
-		if instance.type == 0:
+		if instance.dtype == 0:
 			Sphere.to_stream(stream, instance.collider)
-		if instance.type == 1:
+		if instance.dtype == 1:
 			BoundingBox.to_stream(stream, instance.collider)
-		if instance.type == 2:
+		if instance.dtype == 2:
 			Capsule.to_stream(stream, instance.collider)
-		if instance.type == 3:
+		if instance.dtype == 3:
 			Cylinder.to_stream(stream, instance.collider)
-		if instance.type == 7:
+		if instance.dtype == 7:
 			ConvexHull.to_stream(stream, instance.collider)
-		if instance.type == 8:
+		if instance.dtype == 8:
 			ConvexHull.to_stream(stream, instance.collider)
-		if instance.type == 10:
+		if instance.dtype == 10:
 			MeshCollision.to_stream(stream, instance.collider)
 		if instance.context.version == 13:
 			stream.write_uint(instance.zero_extra_zt)
@@ -126,7 +126,7 @@ class HitCheckEntry(BaseStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
-		yield 'type', CollisionType, (0, None)
+		yield 'dtype', CollisionType, (0, None)
 		yield 'flag_0', Ushort, (0, None)
 		yield 'flag_1', Ushort, (0, None)
 		yield 'flag_2', Uint, (0, None)
@@ -134,19 +134,19 @@ class HitCheckEntry(BaseStruct):
 		if instance.context.version < 47:
 			yield 'zero_extra_pc_unk', Uint, (0, None)
 		yield 'name_offset', Uint, (0, None)
-		if instance.type == 0:
+		if instance.dtype == 0:
 			yield 'collider', Sphere, (0, None)
-		if instance.type == 1:
+		if instance.dtype == 1:
 			yield 'collider', BoundingBox, (0, None)
-		if instance.type == 2:
+		if instance.dtype == 2:
 			yield 'collider', Capsule, (0, None)
-		if instance.type == 3:
+		if instance.dtype == 3:
 			yield 'collider', Cylinder, (0, None)
-		if instance.type == 7:
+		if instance.dtype == 7:
 			yield 'collider', ConvexHull, (0, None)
-		if instance.type == 8:
+		if instance.dtype == 8:
 			yield 'collider', ConvexHull, (0, None)
-		if instance.type == 10:
+		if instance.dtype == 10:
 			yield 'collider', MeshCollision, (0, None)
 		if instance.context.version == 13:
 			yield 'zero_extra_zt', Uint, (0, None)
@@ -157,7 +157,7 @@ class HitCheckEntry(BaseStruct):
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* type = {self.fmt_member(self.type, indent+1)}'
+		s += f'\n	* dtype = {self.fmt_member(self.dtype, indent+1)}'
 		s += f'\n	* flag_0 = {self.fmt_member(self.flag_0, indent+1)}'
 		s += f'\n	* flag_1 = {self.fmt_member(self.flag_1, indent+1)}'
 		s += f'\n	* flag_2 = {self.fmt_member(self.flag_2, indent+1)}'
