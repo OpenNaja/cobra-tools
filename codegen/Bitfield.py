@@ -16,7 +16,6 @@ class Bitfield(BaseClass):
     def get_mask(self):
         """Generate position if it does not exist"""
         for field in self.struct:
-
             if not field.attrib.get('mask'):
                 if "numbits" in field.attrib:
                     num_bits = int(field.attrib["numbits"])
@@ -67,9 +66,9 @@ class Bitfield(BaseClass):
                 field_default = field.attrib.get("default")
                 # write the field's default, if it exists
                 if field_default:
-                    # we have to check if the default is an enum default value, in which case it has to be a member of that enum
+                    # if the default is an enum default value, access member of that enum
                     if self.parser.tag_dict[field_type.lower()] == "enum":
-                        field_default = field_type+"."+field_default
+                        field_default = f"{field_type}.{field_default}"
                     defaults.append((field_name, field_default))
             if defaults:
                 for field_name, field_default in defaults:
