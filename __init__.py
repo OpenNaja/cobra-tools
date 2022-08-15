@@ -32,7 +32,7 @@ from bpy.types import PropertyGroup, Object
 from bpy_extras.io_utils import ImportHelper, ExportHelper
 from . import addon_updater_ops
 
-from plugin import import_bani, import_manis, import_matcol, import_ms2, export_ms2, import_voxelskirt, import_fgm
+from plugin import import_bani, import_manis, import_matcol, import_ms2, export_ms2, import_voxelskirt, import_fgm, import_spl
 from plugin.modules_import.hair import vcol_to_comb, comb_to_vcol, transfer_hair_combing
 from plugin.utils import shell
 from generated.formats.ms2.compounds.packing_utils import PACKEDVEC_MAX
@@ -174,6 +174,19 @@ class ImportMS2(bpy.types.Operator, ImportHelper):
     def execute(self, context):
         keywords = self.as_keywords(ignore=("axis_forward", "axis_up", "filter_glob"))
         return handle_errors(self, import_ms2.load, keywords)
+
+
+class ImportSPL(bpy.types.Operator, ImportHelper):
+    """Import from spline file format (.spl)"""
+    bl_idname = "import_scene.cobra_spl"
+    bl_label = 'Import SPL'
+    bl_options = {'UNDO'}
+    filename_ext = ".spl"
+    filter_glob: StringProperty(default="*.spl", options={'HIDDEN'})
+
+    def execute(self, context):
+        keywords = self.as_keywords(ignore=("axis_forward", "axis_up", "filter_glob"))
+        return handle_errors(self, import_spl.load, keywords)
 
 
 class ImportVoxelskirt(bpy.types.Operator, ImportHelper):
@@ -374,6 +387,7 @@ def menu_func_import(self, context):
     self.layout.operator(ImportMS2.bl_idname, text="Cobra Model (.ms2)", icon_value=icon)
     self.layout.operator(ImportBani.bl_idname, text="Cobra Baked Anim (.bani)", icon_value=icon)
     # self.layout.operator(ImportManis.bl_idname, text="Cobra Anim (.manis)", icon_value=icon)
+    self.layout.operator(ImportSPL.bl_idname, text="Cobra Spline (.spl)", icon_value=icon)
     self.layout.operator(ImportVoxelskirt.bl_idname, text="Cobra Map (.voxelskirt)", icon_value=icon)
 
 
@@ -383,6 +397,7 @@ classes = (
     ImportMatcol,
     ImportFgm,
     ImportMS2,
+    ImportSPL,
     ExportMS2,
     ImportVoxelskirt,
     CreateFins,

@@ -14,7 +14,7 @@ class SplData(MemStruct):
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		self.offset = Vector3(self.context, 0, None)
-		self.d = 0.0
+		self.scale = 0.0
 		self.keys = Array((self.arg,), Key, self.context, 0, None)
 		if set_default:
 			self.set_defaults()
@@ -22,7 +22,7 @@ class SplData(MemStruct):
 	def set_defaults(self):
 		super().set_defaults()
 		self.offset = Vector3(self.context, 0, None)
-		self.d = 0.0
+		self.scale = 0.0
 		self.keys = Array((self.arg,), Key, self.context, 0, None)
 
 	def read(self, stream):
@@ -39,21 +39,21 @@ class SplData(MemStruct):
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
 		instance.offset = Vector3.from_stream(stream, instance.context, 0, None)
-		instance.d = stream.read_float()
+		instance.scale = stream.read_float()
 		instance.keys = Array.from_stream(stream, (instance.arg,), Key, instance.context, 0, None)
 
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
 		Vector3.to_stream(stream, instance.offset)
-		stream.write_float(instance.d)
+		stream.write_float(instance.scale)
 		Array.to_stream(stream, instance.keys, (instance.arg,), Key, instance.context, 0, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
 		yield 'offset', Vector3, (0, None)
-		yield 'd', Float, (0, None)
+		yield 'scale', Float, (0, None)
 		yield 'keys', Array, ((instance.arg,), Key, 0, None)
 
 	def get_info_str(self, indent=0):
@@ -63,7 +63,7 @@ class SplData(MemStruct):
 		s = ''
 		s += super().get_fields_str()
 		s += f'\n	* offset = {self.fmt_member(self.offset, indent+1)}'
-		s += f'\n	* d = {self.fmt_member(self.d, indent+1)}'
+		s += f'\n	* scale = {self.fmt_member(self.scale, indent+1)}'
 		s += f'\n	* keys = {self.fmt_member(self.keys, indent+1)}'
 		return s
 

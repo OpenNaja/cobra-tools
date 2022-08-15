@@ -31,22 +31,22 @@
         <add name="count" type="ushort" />
         <add name="sixteen" type="ubyte" />
         <add name="one" type="ubyte" />
-        <add name="scale" type="float" >multiply this with short vector to get coord</add>
+        <add name="length" type="float" >total length of the interpolated curve, cf blender curvetools.CurveLength</add>
     </compound>
 
     <compound name="SplData" inherit="MemStruct">
         JWE2: 16 + n*16 bytes
         <add name="offset" type="Vector3" />sometimes blank
-        <add name="d" type="float" />
+        <add name="scale" type="float" />multiply this with short vector to get coord
         <add name="keys" type="Key" arr1="#ARG#" />
     </compound>
 
     <compound name="Key" inherit="MemStruct">
         JWE2: 16 bytes
         <add name="pos" type="ShortVector3" />
-        <add name="handle_a" type="ByteVector3" />
-        <add name="handle_b" type="ByteVector3" />
-        <add name="handle_size" type="float" />
+        <add name="handle_left" type="ByteVector3" />relative to pos
+        <add name="handle_right" type="ByteVector3" />relative to pos
+        <add name="handle_scale" type="float" />multiply this with byte vector to get handles
     </compound>
 
 </niftoolsxml>

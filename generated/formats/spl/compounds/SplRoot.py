@@ -18,8 +18,8 @@ class SplRoot(MemStruct):
 		self.sixteen = 0
 		self.one = 0
 
-		# multiply this with short vector to get coord
-		self.scale = 0.0
+		# total length of the interpolated curve, cf blender curvetools.CurveLength
+		self.length = 0.0
 		self.spline_data = Pointer(self.context, self.count, generated.formats.spl.compounds.SplData.SplData)
 		if set_default:
 			self.set_defaults()
@@ -29,7 +29,7 @@ class SplRoot(MemStruct):
 		self.count = 0
 		self.sixteen = 0
 		self.one = 0
-		self.scale = 0.0
+		self.length = 0.0
 		self.spline_data = Pointer(self.context, self.count, generated.formats.spl.compounds.SplData.SplData)
 
 	def read(self, stream):
@@ -49,7 +49,7 @@ class SplRoot(MemStruct):
 		instance.count = stream.read_ushort()
 		instance.sixteen = stream.read_ubyte()
 		instance.one = stream.read_ubyte()
-		instance.scale = stream.read_float()
+		instance.length = stream.read_float()
 		if not isinstance(instance.spline_data, int):
 			instance.spline_data.arg = instance.count
 
@@ -60,7 +60,7 @@ class SplRoot(MemStruct):
 		stream.write_ushort(instance.count)
 		stream.write_ubyte(instance.sixteen)
 		stream.write_ubyte(instance.one)
-		stream.write_float(instance.scale)
+		stream.write_float(instance.length)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
@@ -69,7 +69,7 @@ class SplRoot(MemStruct):
 		yield 'count', Ushort, (0, None)
 		yield 'sixteen', Ubyte, (0, None)
 		yield 'one', Ubyte, (0, None)
-		yield 'scale', Float, (0, None)
+		yield 'length', Float, (0, None)
 
 	def get_info_str(self, indent=0):
 		return f'SplRoot [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
@@ -81,7 +81,7 @@ class SplRoot(MemStruct):
 		s += f'\n	* count = {self.fmt_member(self.count, indent+1)}'
 		s += f'\n	* sixteen = {self.fmt_member(self.sixteen, indent+1)}'
 		s += f'\n	* one = {self.fmt_member(self.one, indent+1)}'
-		s += f'\n	* scale = {self.fmt_member(self.scale, indent+1)}'
+		s += f'\n	* length = {self.fmt_member(self.length, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):
