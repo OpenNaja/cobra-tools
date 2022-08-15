@@ -159,9 +159,7 @@ class BaseStruct:
 	# 	for prop, dtype, arguments in cls._get_filtered_attribute_list(instance):
 	# 		print(dtype, stream, instance.context, *arguments)
 	# 		setattr(instance, prop, dtype.from_stream(stream, instance.context, *arguments))
-	# 		# (12,) <class 'generated.formats.base.basic.class_from_struct.<locals>.ConstructedClass'> 0 None
-	# 		# Array.from_stream(stream, (instance.num_mimes,), MimeEntry, instance.context, 0, None)
-	# 		# ARRAY takesstream, shape, dtype, context, arg=0, template=None)
+	#
 	# @classmethod
 	# def write_fields(cls, stream, instance):
 	# 	for prop, dtype, arguments in cls._get_filtered_attribute_list(instance):
