@@ -244,11 +244,6 @@ class XmlParser:
         if arr1 is not None:
             return f'Array.from_stream(stream, {context}, {arg}, {template}, {self.arrs_to_tuple(arr1, arr2)}, {dtype})'
         else:
-            # if type_tag == "enum":
-            #     # enum is a special case where you can convert the basic type to a enum using from_value
-            #     storage = self.storage_dict[dtype]
-            #     return f'{dtype}.from_value({self.read_for_type(storage, arg, template, arr1, arr2)})'
-
             # use the standard functionality
             return f'{dtype}.from_stream(stream, {context}, {arg}, {template})'
 
