@@ -307,20 +307,17 @@ class ModToolGUI(MainWindow):
         srcbasepath = self.src_widget.filepath
         dstbasepath = self.dst_widget.filepath
         dstfolder   = os.path.relpath(file, dstbasepath)
-        print(f"Unpacking {file}")
+        print(f"Unpacking {dstfolder}")
         filename    = os.path.splitext(os.path.basename(dstfolder))[0]
         srcfolder   = os.path.join(srcbasepath, os.path.dirname( dstfolder), filename)
 
         if not os.path.exists(srcfolder):
             print(srcfolder)
             os.makedirs(srcfolder)
-            ovl_data = OvlReporter()
-            ovl_data.load(file)
-            out_paths, error_files = ovl_data.extract(srcfolder,show_temp_files=False)
-            #if error_files:
-            #    print(error_files)
-            #if out_paths:
-            #    print(out_paths)
+
+        ovl_data = OvlReporter()
+        ovl_data.load(file)
+        out_paths, error_files = ovl_data.extract(srcfolder, show_temp_files=False)
 
     def copy_file(self, srcpath, dstpath, fname):
         try:
@@ -343,6 +340,7 @@ class ModToolGUI(MainWindow):
         dstbasepath = self.dst_widget.filepath
         self.copy_file(srcbasepath, dstbasepath, "Manifest.xml")
         self.copy_file(srcbasepath, dstbasepath, "Readme.md")
+        self.copy_file(srcbasepath, dstbasepath, "License")
 
     def unpack_mod(self):
         srcbasepath = self.src_widget.filepath
