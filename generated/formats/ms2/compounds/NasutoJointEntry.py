@@ -57,12 +57,12 @@ class NasutoJointEntry(BaseStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_ubyte(instance.child)
-		stream.write_ubyte(instance.parent)
-		stream.write_ushort(instance.zero)
+		Ubyte.to_stream(stream, instance.child)
+		Ubyte.to_stream(stream, instance.parent)
+		Ushort.to_stream(stream, instance.zero)
 		Matrix33.to_stream(stream, instance.matrix)
 		Vector4.to_stream(stream, instance.vector)
-		stream.write_uint(instance.one)
+		Uint.to_stream(stream, instance.one)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

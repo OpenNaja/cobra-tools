@@ -29,8 +29,8 @@ class Descriptor(BaseStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_ushort(instance.parent)
-		stream.write_ushort(instance.child)
+		Ushort.to_stream(stream, instance.parent)
+		Ushort.to_stream(stream, instance.child)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

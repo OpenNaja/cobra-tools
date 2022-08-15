@@ -49,12 +49,12 @@ class RootFrag(MemStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_uint64(instance.mat_type)
+		Uint64.to_stream(stream, instance.mat_type)
 		ArrayPointer.to_stream(stream, instance.textures)
-		stream.write_uint64(instance.tex_count)
+		Uint64.to_stream(stream, instance.tex_count)
 		ArrayPointer.to_stream(stream, instance.materials)
-		stream.write_uint64(instance.mat_count)
-		stream.write_uint64(instance.unk)
+		Uint64.to_stream(stream, instance.mat_count)
+		Uint64.to_stream(stream, instance.unk)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

@@ -41,10 +41,10 @@ class Int32Data(MemStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_int(instance.imin)
-		stream.write_int(instance.imax)
-		stream.write_int(instance.ivalue)
-		stream.write_int(instance.ioptional)
+		Int.to_stream(stream, instance.imin)
+		Int.to_stream(stream, instance.imax)
+		Int.to_stream(stream, instance.ivalue)
+		Int.to_stream(stream, instance.ioptional)
 		Pointer.to_stream(stream, instance.enum)
 
 	@classmethod

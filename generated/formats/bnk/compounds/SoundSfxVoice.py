@@ -31,13 +31,13 @@ class SoundSfxVoice(BaseStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_uint(instance.length)
-		stream.write_uint(instance.id)
-		stream.write_uint(instance.const_a)
-		stream.write_byte(instance.const_b)
-		stream.write_uint(instance.didx_id)
-		stream.write_uint(instance.wem_length)
-		stream.write_bytes(instance.extra)
+		Uint.to_stream(stream, instance.length)
+		Uint.to_stream(stream, instance.id)
+		Uint.to_stream(stream, instance.const_a)
+		Byte.to_stream(stream, instance.const_b)
+		Uint.to_stream(stream, instance.didx_id)
+		Uint.to_stream(stream, instance.wem_length)
+		Array.to_stream(stream, instance.extra, (instance.length - 17,), Byte, instance.context, 0, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

@@ -83,24 +83,24 @@ class EventEntry(MemStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_uint(instance.hash)
-		stream.write_uint(instance.zero)
+		Uint.to_stream(stream, instance.hash)
+		Uint.to_stream(stream, instance.zero)
 		if instance.context.version <= 18:
 			Pointer.to_stream(stream, instance.block_name)
-			stream.write_ushort(instance.zero_2)
-			stream.write_ushort(instance.size)
-		stream.write_uint(instance.flag_0)
-		stream.write_uint(instance.flag_1)
-		stream.write_uint(instance.flag_2)
+			Ushort.to_stream(stream, instance.zero_2)
+			Ushort.to_stream(stream, instance.size)
+		Uint.to_stream(stream, instance.flag_0)
+		Uint.to_stream(stream, instance.flag_1)
+		Uint.to_stream(stream, instance.flag_2)
 		if instance.context.version <= 18:
-			stream.write_uint64(instance.zero_3)
-			stream.write_uint(instance.flag_3)
-		stream.write_uint(instance.hash_b)
-		stream.write_uint(instance.hash_c)
-		stream.write_uint(instance.zero_4)
+			Uint64.to_stream(stream, instance.zero_3)
+			Uint.to_stream(stream, instance.flag_3)
+		Uint.to_stream(stream, instance.hash_b)
+		Uint.to_stream(stream, instance.hash_c)
+		Uint.to_stream(stream, instance.zero_4)
 		if instance.context.version >= 19:
-			stream.write_uint(instance.u_2)
-			stream.write_uint(instance.u_1)
+			Uint.to_stream(stream, instance.u_2)
+			Uint.to_stream(stream, instance.u_1)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

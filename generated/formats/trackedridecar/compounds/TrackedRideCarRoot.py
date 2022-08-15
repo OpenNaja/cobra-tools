@@ -57,12 +57,12 @@ class TrackedRideCarRoot(MemStruct):
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
 		ArrayPointer.to_stream(stream, instance.sub)
-		stream.write_uint(instance.sub_count)
-		stream.write_uint(instance.total_vecs_count)
-		stream.write_floats(instance.vec)
-		stream.write_uint(instance.zero_0)
+		Uint.to_stream(stream, instance.sub_count)
+		Uint.to_stream(stream, instance.total_vecs_count)
+		Array.to_stream(stream, instance.vec, (3,), Float, instance.context, 0, None)
+		Uint.to_stream(stream, instance.zero_0)
 		Pointer.to_stream(stream, instance.some_name)
-		stream.write_uint64(instance.zero_1)
+		Uint64.to_stream(stream, instance.zero_1)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

@@ -52,10 +52,10 @@ class PathExtrusion(MemStruct):
 		Pointer.to_stream(stream, instance.model)
 		Pointer.to_stream(stream, instance.post_model)
 		Pointer.to_stream(stream, instance.endcap_model)
-		stream.write_float(instance.unk_float_1)
-		stream.write_float(instance.unk_float_2)
-		stream.write_bool(instance.is_kerb)
-		stream.write_bool(instance.is_not_ground)
+		Float.to_stream(stream, instance.unk_float_1)
+		Float.to_stream(stream, instance.unk_float_2)
+		Bool.to_stream(stream, instance.is_kerb)
+		Bool.to_stream(stream, instance.is_not_ground)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

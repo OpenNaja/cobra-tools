@@ -30,7 +30,7 @@ class PathJoinPartResourceRoot(MemStruct):
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
 		Pointer.to_stream(stream, instance.resources_list)
-		stream.write_uint64(instance.num_res)
+		Uint64.to_stream(stream, instance.num_res)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

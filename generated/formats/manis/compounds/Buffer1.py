@@ -34,8 +34,8 @@ class Buffer1(BaseStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_uints(instance.bone_hashes)
-		stream.write_zstrings(instance.bone_names)
+		Array.to_stream(stream, instance.bone_hashes, (instance.arg,), Uint, instance.context, 0, None)
+		Array.to_stream(stream, instance.bone_names, (instance.arg,), ZString, instance.context, 0, None)
 		PadAlign.to_stream(stream, instance.bone_pad)
 
 	@classmethod

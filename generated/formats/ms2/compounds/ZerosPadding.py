@@ -36,11 +36,11 @@ class ZerosPadding(BaseStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_uint64(instance.hier_2_padding_0)
+		Uint64.to_stream(stream, instance.hier_2_padding_0)
 		if 64 < instance.arg:
-			stream.write_uint64(instance.hier_2_padding_1)
+			Uint64.to_stream(stream, instance.hier_2_padding_1)
 		if 128 < instance.arg:
-			stream.write_uint64(instance.hier_2_padding_2)
+			Uint64.to_stream(stream, instance.hier_2_padding_2)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

@@ -25,8 +25,8 @@ class UIntPair(MemStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_uint(instance.value_0)
-		stream.write_uint(instance.value_1)
+		Uint.to_stream(stream, instance.value_0)
+		Uint.to_stream(stream, instance.value_1)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

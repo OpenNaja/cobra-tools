@@ -42,7 +42,7 @@ class PreparedStatement(MemStruct):
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
 		ArrayPointer.to_stream(stream, instance.args)
-		stream.write_uint64(instance.arg_count)
+		Uint64.to_stream(stream, instance.arg_count)
 		Pointer.to_stream(stream, instance.statement_name)
 		Pointer.to_stream(stream, instance.sql_query)
 

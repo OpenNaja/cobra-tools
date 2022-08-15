@@ -47,10 +47,10 @@ class SplRoot(MemStruct):
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
 		Pointer.to_stream(stream, instance.spline_data)
-		stream.write_ushort(instance.count)
-		stream.write_ubyte(instance.sixteen)
-		stream.write_ubyte(instance.one)
-		stream.write_float(instance.length)
+		Ushort.to_stream(stream, instance.count)
+		Ubyte.to_stream(stream, instance.sixteen)
+		Ubyte.to_stream(stream, instance.one)
+		Float.to_stream(stream, instance.length)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

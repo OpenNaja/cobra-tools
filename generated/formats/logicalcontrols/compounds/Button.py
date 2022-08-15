@@ -41,8 +41,8 @@ class Button(MemStruct):
 		super().write_fields(stream, instance)
 		Pointer.to_stream(stream, instance.button_name)
 		ArrayPointer.to_stream(stream, instance.datas)
-		stream.write_uint(instance.datas_count)
-		stream.write_uint(instance.flags)
+		Uint.to_stream(stream, instance.datas_count)
+		Uint.to_stream(stream, instance.flags)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

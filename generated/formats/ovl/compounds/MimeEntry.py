@@ -73,15 +73,15 @@ class MimeEntry(BaseStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_uint(instance.offset)
-		stream.write_uint(instance.unknown)
-		stream.write_uint(instance.mime_hash)
-		stream.write_uint(instance.mime_version)
-		stream.write_uint(instance.file_index_offset)
-		stream.write_uint(instance.file_count)
+		Uint.to_stream(stream, instance.offset)
+		Uint.to_stream(stream, instance.unknown)
+		Uint.to_stream(stream, instance.mime_hash)
+		Uint.to_stream(stream, instance.mime_version)
+		Uint.to_stream(stream, instance.file_index_offset)
+		Uint.to_stream(stream, instance.file_count)
 		if instance.context.version >= 20:
-			stream.write_uint(instance.triplet_count)
-			stream.write_uint(instance.triplet_offset)
+			Uint.to_stream(stream, instance.triplet_count)
+			Uint.to_stream(stream, instance.triplet_offset)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

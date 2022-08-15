@@ -31,10 +31,10 @@ class KeyPoint(MemStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_float(instance.time)
-		stream.write_float(instance.value)
-		stream.write_float(instance.tangent_before)
-		stream.write_float(instance.tangent_after)
+		Float.to_stream(stream, instance.time)
+		Float.to_stream(stream, instance.value)
+		Float.to_stream(stream, instance.tangent_before)
+		Float.to_stream(stream, instance.tangent_after)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

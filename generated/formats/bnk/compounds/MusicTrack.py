@@ -31,8 +31,8 @@ class MusicTrack(BaseStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_uint(instance.length)
-		stream.write_uint(instance.id)
+		Uint.to_stream(stream, instance.length)
+		Uint.to_stream(stream, instance.id)
 		MusicTrackInitialValues.to_stream(stream, instance.data)
 
 	@classmethod

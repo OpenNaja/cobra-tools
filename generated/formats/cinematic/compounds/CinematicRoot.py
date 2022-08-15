@@ -32,8 +32,8 @@ class CinematicRoot(MemStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_uint64(instance.u_0)
-		stream.write_uint64(instance.u_1)
+		Uint64.to_stream(stream, instance.u_0)
+		Uint64.to_stream(stream, instance.u_1)
 		Pointer.to_stream(stream, instance.data)
 
 	@classmethod

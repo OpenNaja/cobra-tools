@@ -40,11 +40,11 @@ class CurveDataPoint(MemStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_float(instance.x)
-		stream.write_short(instance.y)
+		Float.to_stream(stream, instance.x)
+		Short.to_stream(stream, instance.y)
 		SubCurveType.to_stream(stream, instance.sub_curve_type)
-		stream.write_short(instance.subsequent_curve_param)
-		stream.write_short(instance.subsequent_curve_param_b)
+		Short.to_stream(stream, instance.subsequent_curve_param)
+		Short.to_stream(stream, instance.subsequent_curve_param_b)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

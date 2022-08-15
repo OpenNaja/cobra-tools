@@ -55,12 +55,12 @@ class MergedetailsRoot(MemStruct):
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
 		Pointer.to_stream(stream, instance.merge_names)
-		stream.write_uint64(instance.zero_0)
-		stream.write_uint64(instance.zero_1)
+		Uint64.to_stream(stream, instance.zero_0)
+		Uint64.to_stream(stream, instance.zero_1)
 		Pointer.to_stream(stream, instance.queries)
 		Pointer.to_stream(stream, instance.field_name)
-		stream.write_uint(instance.count)
-		stream.write_uint(instance.flag)
+		Uint.to_stream(stream, instance.count)
+		Uint.to_stream(stream, instance.flag)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

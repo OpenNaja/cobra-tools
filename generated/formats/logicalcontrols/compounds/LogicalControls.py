@@ -70,11 +70,11 @@ class LogicalControls(MemStruct):
 		ArrayPointer.to_stream(stream, instance.axes)
 		ArrayPointer.to_stream(stream, instance.c)
 		ArrayPointer.to_stream(stream, instance.d)
-		stream.write_ubyte(instance.button_count)
-		stream.write_ubyte(instance.axis_count)
-		stream.write_ubyte(instance.count_3)
-		stream.write_ubyte(instance.count_4)
-		stream.write_uint(instance.flags)
+		Ubyte.to_stream(stream, instance.button_count)
+		Ubyte.to_stream(stream, instance.axis_count)
+		Ubyte.to_stream(stream, instance.count_3)
+		Ubyte.to_stream(stream, instance.count_4)
+		Uint.to_stream(stream, instance.flags)
 		Pointer.to_stream(stream, instance.unsure)
 
 	@classmethod

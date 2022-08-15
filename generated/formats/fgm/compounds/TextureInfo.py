@@ -58,8 +58,8 @@ class TextureInfo(GenericInfo):
 		if instance.context.version <= 17 and instance.dtype == 7:
 			Array.to_stream(stream, instance.value, (1,), Color, instance.context, 0, None)
 		if instance.context.version >= 18:
-			stream.write_uint(instance.some_index_0)
-			stream.write_uint(instance.some_index_1)
+			Uint.to_stream(stream, instance.some_index_0)
+			Uint.to_stream(stream, instance.some_index_1)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

@@ -33,7 +33,7 @@ class DIDXSection(BaseStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_uint(instance.length)
+		Uint.to_stream(stream, instance.length)
 		Array.to_stream(stream, instance.data_pointers, (int(instance.length / 12),), DataPointer, instance.context, 0, None)
 
 	@classmethod

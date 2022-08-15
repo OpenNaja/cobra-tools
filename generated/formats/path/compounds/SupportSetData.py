@@ -32,10 +32,10 @@ class SupportSetData(MemStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_uint(instance.unk_index)
-		stream.write_uint(instance.unk_int_1)
-		stream.write_uint(instance.unk_int_2)
-		stream.write_float(instance.unk_float_1)
+		Uint.to_stream(stream, instance.unk_index)
+		Uint.to_stream(stream, instance.unk_int_1)
+		Uint.to_stream(stream, instance.unk_int_2)
+		Float.to_stream(stream, instance.unk_float_1)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

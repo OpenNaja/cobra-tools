@@ -59,13 +59,13 @@ class BufferGroup(BaseStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_uint(instance.buffer_offset)
-		stream.write_uint(instance.buffer_count)
-		stream.write_uint(instance.ext_index)
-		stream.write_uint(instance.buffer_index)
-		stream.write_uint64(instance.size)
-		stream.write_uint(instance.data_offset)
-		stream.write_uint(instance.data_count)
+		Uint.to_stream(stream, instance.buffer_offset)
+		Uint.to_stream(stream, instance.buffer_count)
+		Uint.to_stream(stream, instance.ext_index)
+		Uint.to_stream(stream, instance.buffer_index)
+		Uint64.to_stream(stream, instance.size)
+		Uint.to_stream(stream, instance.data_offset)
+		Uint.to_stream(stream, instance.data_count)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

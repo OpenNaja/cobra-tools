@@ -49,12 +49,12 @@ class Bone(BaseStruct):
 		super().write_fields(stream, instance)
 		if instance.context.version <= 47:
 			Vector3.to_stream(stream, instance.loc)
-			stream.write_float(instance.scale)
+			Float.to_stream(stream, instance.scale)
 			Vector4.to_stream(stream, instance.rot)
 		if instance.context.version >= 48:
 			Vector4.to_stream(stream, instance.rot)
 			Vector3.to_stream(stream, instance.loc)
-			stream.write_float(instance.scale)
+			Float.to_stream(stream, instance.scale)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

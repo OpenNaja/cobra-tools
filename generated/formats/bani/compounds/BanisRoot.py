@@ -60,13 +60,13 @@ class BanisRoot(MemStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_uint64s(instance.zeros)
-		stream.write_uint(instance.bytes_per_frame)
-		stream.write_uint(instance.bytes_per_bone)
-		stream.write_uint(instance.num_frames)
-		stream.write_uint(instance.num_bones)
-		stream.write_float(instance.loc_scale)
-		stream.write_float(instance.loc_offset)
+		Array.to_stream(stream, instance.zeros, (2,), Uint64, instance.context, 0, None)
+		Uint.to_stream(stream, instance.bytes_per_frame)
+		Uint.to_stream(stream, instance.bytes_per_bone)
+		Uint.to_stream(stream, instance.num_frames)
+		Uint.to_stream(stream, instance.num_bones)
+		Float.to_stream(stream, instance.loc_scale)
+		Float.to_stream(stream, instance.loc_offset)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

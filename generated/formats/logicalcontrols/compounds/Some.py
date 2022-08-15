@@ -42,7 +42,7 @@ class Some(MemStruct):
 		super().write_fields(stream, instance)
 		Pointer.to_stream(stream, instance.some_name)
 		ArrayPointer.to_stream(stream, instance.some_data)
-		stream.write_uint64(instance.some_count)
+		Uint64.to_stream(stream, instance.some_count)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

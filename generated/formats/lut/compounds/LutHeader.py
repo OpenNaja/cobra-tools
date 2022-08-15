@@ -47,11 +47,11 @@ class LutHeader(MemStruct):
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
 		ArrayPointer.to_stream(stream, instance.colors)
-		stream.write_ushort(instance.colors_count)
-		stream.write_ushort(instance.unk_0)
-		stream.write_uint(instance.unk_1)
-		stream.write_uint(instance.colors_in_column_count)
-		stream.write_uint(instance.unk_2)
+		Ushort.to_stream(stream, instance.colors_count)
+		Ushort.to_stream(stream, instance.unk_0)
+		Uint.to_stream(stream, instance.unk_1)
+		Uint.to_stream(stream, instance.colors_in_column_count)
+		Uint.to_stream(stream, instance.unk_2)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

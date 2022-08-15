@@ -1,4 +1,3 @@
-from generated.formats.wsm.basic import basic_map
 from generated.formats.wsm.compounds.Wsm import Wsm
 from generated.io import IoFile
 import os
@@ -14,8 +13,6 @@ class ManisContext(object):
 
 
 class WsmFile(Wsm, IoFile):
-
-    basic_map = basic_map
 
     def __init__(self):
         super().__init__(ManisContext())

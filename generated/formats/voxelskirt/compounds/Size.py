@@ -36,11 +36,11 @@ class Size(BaseStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_uint64(instance.id)
-		stream.write_uint64(instance.width_1)
-		stream.write_uint64(instance.height_1)
-		stream.write_uint64(instance.width_2)
-		stream.write_uint64(instance.height_2)
+		Uint64.to_stream(stream, instance.id)
+		Uint64.to_stream(stream, instance.width_1)
+		Uint64.to_stream(stream, instance.height_1)
+		Uint64.to_stream(stream, instance.width_2)
+		Uint64.to_stream(stream, instance.height_2)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

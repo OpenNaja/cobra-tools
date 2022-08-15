@@ -97,28 +97,28 @@ class BufferInfo(BaseStruct):
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
 		if 32 <= instance.context.version <= 47:
-			stream.write_uint64(instance.u_0)
-			stream.write_uint64(instance.u_1)
+			Uint64.to_stream(stream, instance.u_0)
+			Uint64.to_stream(stream, instance.u_1)
 		if (instance.context.version == 51) and instance.context.biosyn:
-			stream.write_uint64(instance.tri_chunks_size)
-			stream.write_uint64(instance.tri_chunks_ptr)
-			stream.write_uint64(instance.vert_chunks_size)
-			stream.write_uint64(instance.vert_chunks_ptr)
-		stream.write_uint64(instance.verts_size)
-		stream.write_uint64(instance.verts_ptr)
+			Uint64.to_stream(stream, instance.tri_chunks_size)
+			Uint64.to_stream(stream, instance.tri_chunks_ptr)
+			Uint64.to_stream(stream, instance.vert_chunks_size)
+			Uint64.to_stream(stream, instance.vert_chunks_ptr)
+		Uint64.to_stream(stream, instance.verts_size)
+		Uint64.to_stream(stream, instance.verts_ptr)
 		if instance.context.version >= 48:
-			stream.write_uint64(instance.u_3)
+			Uint64.to_stream(stream, instance.u_3)
 		if not (instance.context.version == 32):
-			stream.write_uint64(instance.tris_size)
-			stream.write_uint64(instance.tris_ptr)
+			Uint64.to_stream(stream, instance.tris_size)
+			Uint64.to_stream(stream, instance.tris_ptr)
 		if instance.context.version >= 48:
-			stream.write_uint64(instance.u_5)
-			stream.write_uint64(instance.u_6)
+			Uint64.to_stream(stream, instance.u_5)
+			Uint64.to_stream(stream, instance.u_6)
 		if instance.context.version <= 13:
-			stream.write_uint64(instance.u_5)
-			stream.write_uint64(instance.uvs_size)
-			stream.write_uint64(instance.u_6)
-			stream.write_uint64(instance.u_7)
+			Uint64.to_stream(stream, instance.u_5)
+			Uint64.to_stream(stream, instance.uvs_size)
+			Uint64.to_stream(stream, instance.u_6)
+			Uint64.to_stream(stream, instance.u_7)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

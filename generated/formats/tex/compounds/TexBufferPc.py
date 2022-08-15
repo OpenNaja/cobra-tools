@@ -37,11 +37,11 @@ class TexBufferPc(MemStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_ushort(instance.width)
-		stream.write_ushort(instance.height)
+		Ushort.to_stream(stream, instance.width)
+		Ushort.to_stream(stream, instance.height)
 		if not (instance.context.version == 17):
-			stream.write_ushort(instance.array_size)
-		stream.write_ushort(instance.mip_index)
+			Ushort.to_stream(stream, instance.array_size)
+		Ushort.to_stream(stream, instance.mip_index)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

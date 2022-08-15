@@ -45,9 +45,9 @@ class ResearchLevel(MemStruct):
 		super().write_fields(stream, instance)
 		Pointer.to_stream(stream, instance.level_name)
 		Pointer.to_stream(stream, instance.next_levels)
-		stream.write_uint64(instance.next_level_count)
+		Uint64.to_stream(stream, instance.next_level_count)
 		Pointer.to_stream(stream, instance.children)
-		stream.write_uint64(instance.children_count)
+		Uint64.to_stream(stream, instance.children_count)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

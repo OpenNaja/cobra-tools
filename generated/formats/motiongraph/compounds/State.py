@@ -53,10 +53,10 @@ class State(MemStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_uint(instance.unk)
-		stream.write_uint(instance.activities_count)
+		Uint.to_stream(stream, instance.unk)
+		Uint.to_stream(stream, instance.activities_count)
 		Pointer.to_stream(stream, instance.activities)
-		stream.write_uint64(instance.count_2)
+		Uint64.to_stream(stream, instance.count_2)
 		Pointer.to_stream(stream, instance.array_2)
 		Pointer.to_stream(stream, instance.id)
 

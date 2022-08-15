@@ -38,9 +38,9 @@ class Vector3(BaseStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_float(instance.x)
-		stream.write_float(instance.y)
-		stream.write_float(instance.z)
+		Float.to_stream(stream, instance.x)
+		Float.to_stream(stream, instance.y)
+		Float.to_stream(stream, instance.z)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

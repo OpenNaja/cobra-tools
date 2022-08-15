@@ -46,10 +46,10 @@ class CurveParam(MemStruct):
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
 		Pointer.to_stream(stream, instance.attribute_name)
-		stream.write_int(instance.dtype)
-		stream.write_uint(instance.do_interpolation)
+		Int.to_stream(stream, instance.dtype)
+		Uint.to_stream(stream, instance.do_interpolation)
 		Pointer.to_stream(stream, instance.curve_entries)
-		stream.write_uint64(instance.count)
+		Uint64.to_stream(stream, instance.count)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

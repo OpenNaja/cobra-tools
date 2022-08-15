@@ -34,8 +34,8 @@ class PathSupport(MemStruct):
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
 		Pointer.to_stream(stream, instance.support)
-		stream.write_float(instance.unk_float_1)
-		stream.write_uint(instance.unk_int_1)
+		Float.to_stream(stream, instance.unk_float_1)
+		Uint.to_stream(stream, instance.unk_int_1)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

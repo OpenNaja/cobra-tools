@@ -29,9 +29,9 @@ class AkMediaInformation(BaseStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_uint(instance.source_i_d)
-		stream.write_uint(instance.u_in_memory_media_size)
-		stream.write_ubyte(instance.u_source_bits)
+		Uint.to_stream(stream, instance.source_i_d)
+		Uint.to_stream(stream, instance.u_in_memory_media_size)
+		Ubyte.to_stream(stream, instance.u_source_bits)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

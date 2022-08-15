@@ -50,13 +50,13 @@ class SizedStrData(BaseStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_ushort(instance.names_size)
-		stream.write_ushort(instance.hash_block_size)
-		stream.write_uint64(instance.zero_0)
-		stream.write_uint(instance.count)
-		stream.write_uint64(instance.zero_1)
+		Ushort.to_stream(stream, instance.names_size)
+		Ushort.to_stream(stream, instance.hash_block_size)
+		Uint64.to_stream(stream, instance.zero_0)
+		Uint.to_stream(stream, instance.count)
+		Uint64.to_stream(stream, instance.zero_1)
 		if instance.context.version >= 20:
-			stream.write_uint64(instance.zero_2)
+			Uint64.to_stream(stream, instance.zero_2)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

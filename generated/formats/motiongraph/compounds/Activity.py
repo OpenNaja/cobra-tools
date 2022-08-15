@@ -63,9 +63,9 @@ class Activity(MemStruct):
 		super().write_fields(stream, instance)
 		Pointer.to_stream(stream, instance.data_type)
 		Pointer.to_stream(stream, instance.ptr)
-		stream.write_uint64(instance.count_2)
-		stream.write_uint64(instance.count_3)
-		stream.write_int64(instance.minus_one)
+		Uint64.to_stream(stream, instance.count_2)
+		Uint64.to_stream(stream, instance.count_3)
+		Int64.to_stream(stream, instance.minus_one)
 		Pointer.to_stream(stream, instance.name_b)
 
 	@classmethod

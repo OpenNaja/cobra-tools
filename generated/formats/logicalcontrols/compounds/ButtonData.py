@@ -41,11 +41,11 @@ class ButtonData(MemStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_ushort(instance.k_1_a)
-		stream.write_ushort(instance.k_1_b)
-		stream.write_uint(instance.k_2)
-		stream.write_uint(instance.k_3)
-		stream.write_uint(instance.k_4)
+		Ushort.to_stream(stream, instance.k_1_a)
+		Ushort.to_stream(stream, instance.k_1_b)
+		Uint.to_stream(stream, instance.k_2)
+		Uint.to_stream(stream, instance.k_3)
+		Uint.to_stream(stream, instance.k_4)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

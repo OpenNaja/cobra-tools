@@ -59,17 +59,17 @@ class MusicTrackInitialValues(BaseStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_ubyte(instance.u_flags)
-		stream.write_uint(instance.num_sources)
+		Ubyte.to_stream(stream, instance.u_flags)
+		Uint.to_stream(stream, instance.num_sources)
 		Array.to_stream(stream, instance.p_source, (instance.num_sources,), AkBankSourceData, instance.context, 0, None)
-		stream.write_uint(instance.num_playlist_item)
+		Uint.to_stream(stream, instance.num_playlist_item)
 		Array.to_stream(stream, instance.p_playlist, (instance.num_playlist_item,), AkTrackSrcInfo, instance.context, 0, None)
-		stream.write_uint(instance.num_sub_track)
-		stream.write_uint(instance.num_clip_automation_item)
-		stream.write_uints(instance.p_items)
+		Uint.to_stream(stream, instance.num_sub_track)
+		Uint.to_stream(stream, instance.num_clip_automation_item)
+		Array.to_stream(stream, instance.p_items, (instance.num_clip_automation_item,), Uint, instance.context, 0, None)
 		NodeBaseParams.to_stream(stream, instance.node_base_params)
-		stream.write_ubyte(instance.e_track_type)
-		stream.write_int(instance.i_look_ahead_time)
+		Ubyte.to_stream(stream, instance.e_track_type)
+		Int.to_stream(stream, instance.i_look_ahead_time)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

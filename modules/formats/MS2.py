@@ -8,7 +8,7 @@ from generated.formats.ms2 import Ms2File, Ms2Context
 from generated.formats.ms2.compounds.Ms2Root import Ms2Root
 
 import generated.formats.ovl.versions as ovl_versions
-from generated.formats.ovl_base.basic import ConvStream
+from io import BytesIO
 
 from modules.formats.shared import get_padding
 from modules.formats.BaseFormat import BaseFile
@@ -224,7 +224,7 @@ class Ms2Loader(BaseFile):
 		# write the ms2 file
 		out_path = out_dir(name)
 		out_paths = [out_path, ]
-		with ConvStream() as stream:
+		with BytesIO() as stream:
 			stream.write(ms2_header)
 			self.header.write(stream)
 			# present since DLA

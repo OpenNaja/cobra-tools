@@ -28,7 +28,7 @@ class GenericInfo(MemStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_uint(instance._name_offset)
+		Uint.to_stream(stream, instance._name_offset)
 		FgmDtype.to_stream(stream, instance.dtype)
 
 	@classmethod

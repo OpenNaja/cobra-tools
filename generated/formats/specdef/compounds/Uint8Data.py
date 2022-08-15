@@ -46,11 +46,11 @@ class Uint8Data(MemStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_ubyte(instance.imin)
-		stream.write_ubyte(instance.imax)
-		stream.write_ubyte(instance.ivalue)
-		stream.write_ubyte(instance.ioptional)
-		stream.write_ubytes(instance.unused)
+		Ubyte.to_stream(stream, instance.imin)
+		Ubyte.to_stream(stream, instance.imax)
+		Ubyte.to_stream(stream, instance.ivalue)
+		Ubyte.to_stream(stream, instance.ioptional)
+		Array.to_stream(stream, instance.unused, (4,), Ubyte, instance.context, 0, None)
 		Pointer.to_stream(stream, instance.enum)
 
 	@classmethod

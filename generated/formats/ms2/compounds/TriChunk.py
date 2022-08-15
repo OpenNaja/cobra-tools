@@ -62,14 +62,14 @@ class TriChunk(BaseStruct):
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
 		Vector3.to_stream(stream, instance.bounds_min)
-		stream.write_ushort(instance.material_index)
-		stream.write_ushort(instance.tris_count)
+		Ushort.to_stream(stream, instance.material_index)
+		Ushort.to_stream(stream, instance.tris_count)
 		Vector3.to_stream(stream, instance.bounds_max)
-		stream.write_uint(instance.tris_offset)
+		Uint.to_stream(stream, instance.tris_offset)
 		Vector3.to_stream(stream, instance.loc)
 		QuatWFirst.to_stream(stream, instance.rot)
-		stream.write_ushort(instance.u_2)
-		stream.write_ushort(instance.u_3)
+		Ushort.to_stream(stream, instance.u_2)
+		Ushort.to_stream(stream, instance.u_3)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

@@ -79,18 +79,18 @@ class Struct7(BaseStruct):
 		super().write_fields(stream, instance)
 		if instance.context.version <= 13:
 			SmartPadding.to_stream(stream, instance.weird_padding)
-		stream.write_uint64(instance.count_7)
-		stream.write_uint64(instance.zero_0)
+		Uint64.to_stream(stream, instance.count_7)
+		Uint64.to_stream(stream, instance.zero_0)
 		if instance.context.version >= 48:
-			stream.write_uint64(instance.flag)
-			stream.write_uint64(instance.zero_2)
+			Uint64.to_stream(stream, instance.flag)
+			Uint64.to_stream(stream, instance.zero_2)
 		if instance.context.version <= 13:
 			Array.to_stream(stream, instance.unknown_list, (instance.count_7,), UACJoint, instance.context, 0, None)
 		if instance.context.version >= 32:
 			Array.to_stream(stream, instance.unknown_list, (instance.count_7,), NasutoJointEntry, instance.context, 0, None)
-		stream.write_ubytes(instance.padding)
+		Array.to_stream(stream, instance.padding, ((8 - ((instance.count_7 * 60) % 8)) % 8,), Ubyte, instance.context, 0, None)
 		if instance.context.version >= 50 and instance.flag:
-			stream.write_uint64(instance.alignment)
+			Uint64.to_stream(stream, instance.alignment)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

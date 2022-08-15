@@ -36,10 +36,10 @@ class SomeData(MemStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_uint(instance.key)
-		stream.write_uint(instance.extra)
-		stream.write_float(instance.a)
-		stream.write_float(instance.b)
+		Uint.to_stream(stream, instance.key)
+		Uint.to_stream(stream, instance.extra)
+		Float.to_stream(stream, instance.a)
+		Float.to_stream(stream, instance.b)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

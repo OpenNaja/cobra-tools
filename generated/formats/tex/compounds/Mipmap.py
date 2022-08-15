@@ -48,11 +48,11 @@ class Mipmap(MemStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_uint(instance.offset)
-		stream.write_uint(instance.size)
-		stream.write_uint(instance.size_array)
-		stream.write_uint(instance.size_scan)
-		stream.write_uint(instance.size_data)
+		Uint.to_stream(stream, instance.offset)
+		Uint.to_stream(stream, instance.size)
+		Uint.to_stream(stream, instance.size_array)
+		Uint.to_stream(stream, instance.size_scan)
+		Uint.to_stream(stream, instance.size_data)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

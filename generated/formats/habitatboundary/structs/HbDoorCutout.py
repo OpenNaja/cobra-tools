@@ -38,9 +38,9 @@ class HbDoorCutout(MemStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_float(instance.height)
-		stream.write_float(instance.right)
-		stream.write_float(instance.left)
+		Float.to_stream(stream, instance.height)
+		Float.to_stream(stream, instance.right)
+		Float.to_stream(stream, instance.left)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

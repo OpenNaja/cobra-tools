@@ -61,16 +61,16 @@ class FctRoot(MemStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_short(instance.u_0)
-		stream.write_short(instance.u_1)
-		stream.write_float(instance.a)
-		stream.write_float(instance.b)
-		stream.write_float(instance.c)
-		stream.write_short(instance.minus_1)
-		stream.write_short(instance.z_0)
-		stream.write_int(instance.z_1)
-		stream.write_uint64(instance.z_2)
-		stream.write_uint64(instance.offset)
+		Short.to_stream(stream, instance.u_0)
+		Short.to_stream(stream, instance.u_1)
+		Float.to_stream(stream, instance.a)
+		Float.to_stream(stream, instance.b)
+		Float.to_stream(stream, instance.c)
+		Short.to_stream(stream, instance.minus_1)
+		Short.to_stream(stream, instance.z_0)
+		Int.to_stream(stream, instance.z_1)
+		Uint64.to_stream(stream, instance.z_2)
+		Uint64.to_stream(stream, instance.offset)
 		Array.to_stream(stream, instance.fonts, (4,), Font, instance.context, 0, None)
 
 	@classmethod

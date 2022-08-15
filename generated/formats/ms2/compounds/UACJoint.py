@@ -36,8 +36,8 @@ class UACJoint(BaseStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_ushorts(instance.unk)
-		stream.write_floats(instance.floats)
+		Array.to_stream(stream, instance.unk, (6,), Ushort, instance.context, 0, None)
+		Array.to_stream(stream, instance.floats, (6,), Float, instance.context, 0, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

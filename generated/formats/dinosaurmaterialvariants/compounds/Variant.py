@@ -29,7 +29,7 @@ class Variant(MemStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_uint64(instance.has_ptr)
+		Uint64.to_stream(stream, instance.has_ptr)
 		Pointer.to_stream(stream, instance.variant_name)
 
 	@classmethod

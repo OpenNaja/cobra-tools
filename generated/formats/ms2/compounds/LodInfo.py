@@ -93,21 +93,21 @@ class LodInfo(BaseStruct):
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
 		if instance.context.version <= 13:
-			stream.write_short(instance.full)
-			stream.write_short(instance.half)
-			stream.write_ushort(instance.lod_index)
+			Short.to_stream(stream, instance.full)
+			Short.to_stream(stream, instance.half)
+			Ushort.to_stream(stream, instance.lod_index)
 		if instance.context.version >= 32:
-			stream.write_float(instance.distance)
-			stream.write_ushort(instance.zero)
-		stream.write_ushort(instance.bone_index)
-		stream.write_ushort(instance.first_object_index)
+			Float.to_stream(stream, instance.distance)
+			Ushort.to_stream(stream, instance.zero)
+		Ushort.to_stream(stream, instance.bone_index)
+		Ushort.to_stream(stream, instance.first_object_index)
 		if instance.context.version <= 13:
-			stream.write_ushort(instance.first_object_index_1)
-			stream.write_ushort(instance.first_object_index_2)
-		stream.write_ushort(instance.last_object_index)
+			Ushort.to_stream(stream, instance.first_object_index_1)
+			Ushort.to_stream(stream, instance.first_object_index_2)
+		Ushort.to_stream(stream, instance.last_object_index)
 		if instance.context.version >= 32 and not ((instance.context.version == 51) and instance.context.biosyn):
-			stream.write_uint(instance.vertex_count)
-			stream.write_uint(instance.tri_index_count)
+			Uint.to_stream(stream, instance.vertex_count)
+			Uint.to_stream(stream, instance.tri_index_count)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

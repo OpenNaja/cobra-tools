@@ -35,8 +35,8 @@ class JointInfo(CommonJointInfo):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_uint64(instance.zero)
-		stream.write_uint64s(instance.zeros_per_hitcheck)
+		Uint64.to_stream(stream, instance.zero)
+		Array.to_stream(stream, instance.zeros_per_hitcheck, (instance.hitcheck_count,), Uint64, instance.context, 0, None)
 		Array.to_stream(stream, instance.hitchecks, (instance.hitcheck_count,), HitCheckEntry, instance.context, 0, None)
 
 	@classmethod

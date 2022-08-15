@@ -30,8 +30,8 @@ class AkBankSourceData(BaseStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_uint(instance.ul_plugin_i_d)
-		stream.write_ubyte(instance.stream_type)
+		Uint.to_stream(stream, instance.ul_plugin_i_d)
+		Ubyte.to_stream(stream, instance.stream_type)
 		AkMediaInformation.to_stream(stream, instance.ak_media_information)
 
 	@classmethod

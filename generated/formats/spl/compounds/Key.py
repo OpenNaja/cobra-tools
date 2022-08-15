@@ -40,7 +40,7 @@ class Key(MemStruct):
 		ShortVector3.to_stream(stream, instance.pos)
 		ByteVector3.to_stream(stream, instance.handle_left)
 		ByteVector3.to_stream(stream, instance.handle_right)
-		stream.write_float(instance.handle_scale)
+		Float.to_stream(stream, instance.handle_scale)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

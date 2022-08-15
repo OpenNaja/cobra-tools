@@ -115,11 +115,11 @@ class TexHeader(MemStruct):
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
 		if instance.context.version <= 15:
-			stream.write_uint(instance.zero_0)
+			Uint.to_stream(stream, instance.zero_0)
 		if instance.context.version >= 17:
-			stream.write_uint64(instance.zero_0)
+			Uint64.to_stream(stream, instance.zero_0)
 		if instance.context.version >= 19:
-			stream.write_uint64(instance.zero_1)
+			Uint64.to_stream(stream, instance.zero_1)
 		if 17 <= instance.context.version <= 18:
 			ArrayPointer.to_stream(stream, instance.buffer_infos)
 		if instance.context.version >= 19:
@@ -129,17 +129,17 @@ class TexHeader(MemStruct):
 			DdsTypeCoaster.to_stream(stream, instance.compression_type)
 		if not (instance.context.version < 19):
 			DdsType.to_stream(stream, instance.compression_type)
-		stream.write_ubyte(instance.one_0)
+		Ubyte.to_stream(stream, instance.one_0)
 		if instance.context.version <= 15:
-			stream.write_ushort(instance.num_mips)
-			stream.write_ushort(instance.width)
-			stream.write_ushort(instance.height)
+			Ushort.to_stream(stream, instance.num_mips)
+			Ushort.to_stream(stream, instance.width)
+			Ushort.to_stream(stream, instance.height)
 		if instance.context.version >= 17:
-			stream.write_ubyte(instance.stream_count)
-			stream.write_ubyte(instance.stream_count_repeat)
-		stream.write_uint(instance.pad)
+			Ubyte.to_stream(stream, instance.stream_count)
+			Ubyte.to_stream(stream, instance.stream_count_repeat)
+		Uint.to_stream(stream, instance.pad)
 		if instance.context.version <= 15:
-			stream.write_uint64(instance.pad_dla)
+			Uint64.to_stream(stream, instance.pad_dla)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

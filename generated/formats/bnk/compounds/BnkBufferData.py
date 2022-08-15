@@ -82,18 +82,18 @@ class BnkBufferData(BaseStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_uint64(instance.size_b)
-		stream.write_uint(instance.buffer_count)
-		stream.write_uint(instance.count_2)
-		stream.write_uint(instance.stream_info_count)
-		stream.write_uints(instance.zeros)
-		stream.write_uint64s(instance.zeros_per_buffer)
+		Uint64.to_stream(stream, instance.size_b)
+		Uint.to_stream(stream, instance.buffer_count)
+		Uint.to_stream(stream, instance.count_2)
+		Uint.to_stream(stream, instance.stream_info_count)
+		Array.to_stream(stream, instance.zeros, (7,), Uint, instance.context, 0, None)
+		Array.to_stream(stream, instance.zeros_per_buffer, (instance.buffer_count, 2,), Uint64, instance.context, 0, None)
 		Array.to_stream(stream, instance.stream_infos, (instance.stream_info_count,), StreamInfo, instance.context, 0, None)
-		stream.write_zstring(instance.name)
+		ZString.to_stream(stream, instance.name)
 		if instance.buffer_count:
-			stream.write_zstring(instance.external_b_suffix)
+			ZString.to_stream(stream, instance.external_b_suffix)
 		if instance.stream_info_count:
-			stream.write_zstring(instance.external_s_suffix)
+			ZString.to_stream(stream, instance.external_s_suffix)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

@@ -61,18 +61,18 @@ class RestaurantSettingsRoot(MemStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_uint64(instance.running_cost_base)
-		stream.write_uint(instance.unk_1)
-		stream.write_float(instance.unk_2)
-		stream.write_float(instance.unk_3)
-		stream.write_float(instance.unk_4)
-		stream.write_float(instance.unk_5)
-		stream.write_float(instance.unk_6)
-		stream.write_uint64(instance.running_cost_per_extension)
-		stream.write_uint(instance.unk_8)
-		stream.write_float(instance.unk_9)
+		Uint64.to_stream(stream, instance.running_cost_base)
+		Uint.to_stream(stream, instance.unk_1)
+		Float.to_stream(stream, instance.unk_2)
+		Float.to_stream(stream, instance.unk_3)
+		Float.to_stream(stream, instance.unk_4)
+		Float.to_stream(stream, instance.unk_5)
+		Float.to_stream(stream, instance.unk_6)
+		Uint64.to_stream(stream, instance.running_cost_per_extension)
+		Uint.to_stream(stream, instance.unk_8)
+		Float.to_stream(stream, instance.unk_9)
 		ArrayPointer.to_stream(stream, instance.perks)
-		stream.write_uint64(instance.count)
+		Uint64.to_stream(stream, instance.count)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

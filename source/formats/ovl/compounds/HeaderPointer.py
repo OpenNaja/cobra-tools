@@ -5,7 +5,6 @@ import traceback
 import numpy as np
 
 from generated.array import Array
-from generated.formats.ovl_base.basic import ConvStream
 
 
 # END_GLOBALS

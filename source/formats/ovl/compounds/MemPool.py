@@ -2,7 +2,6 @@
 import logging
 import io
 
-from generated.formats.ovl_base.basic import ConvStream
 from modules.formats.shared import get_padding
 
 

@@ -46,8 +46,8 @@ class MediaEntry(MemStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_uint(instance.hash)
-		stream.write_uint(instance.zero)
+		Uint.to_stream(stream, instance.hash)
+		Uint.to_stream(stream, instance.zero)
 		Pointer.to_stream(stream, instance.block_name)
 		Pointer.to_stream(stream, instance.wav_name)
 		Pointer.to_stream(stream, instance.wem_name)

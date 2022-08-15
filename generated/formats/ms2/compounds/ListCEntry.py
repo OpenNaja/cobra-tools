@@ -53,12 +53,12 @@ class ListCEntry(BaseStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_uint(instance.one)
+		Uint.to_stream(stream, instance.one)
 		Vector3.to_stream(stream, instance.loc)
-		stream.write_float(instance.constant)
-		stream.write_float(instance.a)
-		stream.write_floats(instance.floats)
-		stream.write_float(instance.a_2)
+		Float.to_stream(stream, instance.constant)
+		Float.to_stream(stream, instance.a)
+		Array.to_stream(stream, instance.floats, (4,), Float, instance.context, 0, None)
+		Float.to_stream(stream, instance.a_2)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

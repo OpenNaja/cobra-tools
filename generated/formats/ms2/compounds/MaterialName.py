@@ -43,13 +43,13 @@ class MaterialName(BaseStruct):
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
 		if instance.context.version >= 47:
-			stream.write_uint(instance.name_index)
+			Uint.to_stream(stream, instance.name_index)
 		if instance.context.version <= 32:
-			stream.write_ushort(instance.name_index)
+			Ushort.to_stream(stream, instance.name_index)
 		if instance.context.version >= 47:
-			stream.write_uint(instance.some_index)
+			Uint.to_stream(stream, instance.some_index)
 		if instance.context.version <= 32:
-			stream.write_ushort(instance.some_index)
+			Ushort.to_stream(stream, instance.some_index)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

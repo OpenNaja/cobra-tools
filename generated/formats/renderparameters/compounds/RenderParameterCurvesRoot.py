@@ -44,8 +44,8 @@ class RenderParameterCurvesRoot(MemStruct):
 		super().write_fields(stream, instance)
 		Pointer.to_stream(stream, instance.param_name)
 		Pointer.to_stream(stream, instance.params)
-		stream.write_uint64(instance.count)
-		stream.write_uint64(instance.unk)
+		Uint64.to_stream(stream, instance.count)
+		Uint64.to_stream(stream, instance.unk)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

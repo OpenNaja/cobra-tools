@@ -25,8 +25,8 @@ class Key(MemStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_float(instance.time)
-		stream.write_float(instance.value)
+		Float.to_stream(stream, instance.time)
+		Float.to_stream(stream, instance.value)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

@@ -41,10 +41,10 @@ class Int64Data(MemStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_int64(instance.imin)
-		stream.write_int64(instance.imax)
-		stream.write_int64(instance.ivalue)
-		stream.write_int64(instance.ioptional)
+		Int64.to_stream(stream, instance.imin)
+		Int64.to_stream(stream, instance.imax)
+		Int64.to_stream(stream, instance.ivalue)
+		Int64.to_stream(stream, instance.ioptional)
 		Pointer.to_stream(stream, instance.enum)
 
 	@classmethod

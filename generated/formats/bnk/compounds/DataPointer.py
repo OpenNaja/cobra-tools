@@ -36,9 +36,9 @@ class DataPointer(BaseStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_uint(instance.wem_id)
-		stream.write_uint(instance.data_section_offset)
-		stream.write_uint(instance.wem_filesize)
+		Uint.to_stream(stream, instance.wem_id)
+		Uint.to_stream(stream, instance.data_section_offset)
+		Uint.to_stream(stream, instance.wem_filesize)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

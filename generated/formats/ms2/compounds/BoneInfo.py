@@ -260,63 +260,63 @@ class BoneInfo(BaseStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_uint(instance.name_count)
-		stream.write_ushort(instance.z_0)
-		stream.write_ushort(instance.inv_names_count)
+		Uint.to_stream(stream, instance.name_count)
+		Ushort.to_stream(stream, instance.z_0)
+		Ushort.to_stream(stream, instance.inv_names_count)
 		if instance.context.version >= 32:
-			stream.write_short(instance.knownff)
-			stream.write_short(instance.zero_0)
-			stream.write_uint(instance.unknown_0_c)
-		stream.write_uint64(instance.unk_count)
-		stream.write_uint64(instance.bind_matrix_count)
-		stream.write_uint64s(instance.zeros)
-		stream.write_uint64(instance.inv_data_count)
-		stream.write_uint64(instance.bone_count)
-		stream.write_uint64(instance.unknown_40)
-		stream.write_uint64(instance.parents_count)
+			Short.to_stream(stream, instance.knownff)
+			Short.to_stream(stream, instance.zero_0)
+			Uint.to_stream(stream, instance.unknown_0_c)
+		Uint64.to_stream(stream, instance.unk_count)
+		Uint64.to_stream(stream, instance.bind_matrix_count)
+		Array.to_stream(stream, instance.zeros, (2,), Uint64, instance.context, 0, None)
+		Uint64.to_stream(stream, instance.inv_data_count)
+		Uint64.to_stream(stream, instance.bone_count)
+		Uint64.to_stream(stream, instance.unknown_40)
+		Uint64.to_stream(stream, instance.parents_count)
 		if (instance.context.version == 7) or ((instance.context.version == 13) or (((instance.context.version == 48) or (instance.context.version == 50)) or (instance.context.version == 51))):
-			stream.write_uint64(instance.extra_zero)
-		stream.write_uint64(instance.enum_count)
-		stream.write_uint64(instance.unknown_58)
-		stream.write_uint64(instance.one)
-		stream.write_uint64(instance.zeros_count)
+			Uint64.to_stream(stream, instance.extra_zero)
+		Uint64.to_stream(stream, instance.enum_count)
+		Uint64.to_stream(stream, instance.unknown_58)
+		Uint64.to_stream(stream, instance.one)
+		Uint64.to_stream(stream, instance.zeros_count)
 		if instance.context.version == 32:
-			stream.write_uint64(instance.unk_pc_count)
-		stream.write_uint64(instance.count_7)
-		stream.write_uint64(instance.joint_count)
-		stream.write_uint64(instance.unk_78_count)
+			Uint64.to_stream(stream, instance.unk_pc_count)
+		Uint64.to_stream(stream, instance.count_7)
+		Uint64.to_stream(stream, instance.joint_count)
+		Uint64.to_stream(stream, instance.unk_78_count)
 		if instance.context.version <= 13:
-			stream.write_uint64(instance.unk_extra)
+			Uint64.to_stream(stream, instance.unk_extra)
 		if (instance.context.version == 47) or (instance.context.version == 39):
-			stream.write_uint64(instance.unk_extra_jwe)
+			Uint64.to_stream(stream, instance.unk_extra_jwe)
 		if not (instance.context.version < 47):
-			stream.write_uints(instance.name_indices)
+			Array.to_stream(stream, instance.name_indices, (instance.name_count,), Uint, instance.context, 0, None)
 		if instance.context.version < 47:
-			stream.write_ushorts(instance.name_indices)
-			stream.write_ushorts(instance.inventory_name_indices)
+			Array.to_stream(stream, instance.name_indices, (instance.name_count,), Ushort, instance.context, 0, None)
+			Array.to_stream(stream, instance.inventory_name_indices, (instance.inv_names_count,), Ushort, instance.context, 0, None)
 		if not (instance.context.version < 47):
 			instance.name_padding.resize(((16 - (((instance.name_count + instance.inv_names_count) * 4) % 16)) % 16,))
-			stream.write_bytes(instance.name_padding)
+			Array.to_stream(stream, instance.name_padding, ((16 - (((instance.name_count + instance.inv_names_count) * 4) % 16)) % 16,), Byte, instance.context, 0, None)
 		if instance.context.version < 47:
 			instance.name_padding.resize(((16 - (((instance.name_count + instance.inv_names_count) * 2) % 16)) % 16,))
-			stream.write_bytes(instance.name_padding)
+			Array.to_stream(stream, instance.name_padding, ((16 - (((instance.name_count + instance.inv_names_count) * 2) % 16)) % 16,), Byte, instance.context, 0, None)
 		Array.to_stream(stream, instance.inverse_bind_matrices, (instance.bind_matrix_count,), Matrix44, instance.context, 0, None)
 		Array.to_stream(stream, instance.bones, (instance.bone_count,), Bone, instance.context, 0, None)
-		stream.write_ubytes(instance.parents)
+		Array.to_stream(stream, instance.parents, (instance.parents_count,), Ubyte, instance.context, 0, None)
 		if instance.context.version >= 32:
 			instance.parents_padding.resize(((8 - (instance.parents_count % 8)) % 8,))
-			stream.write_bytes(instance.parents_padding)
+			Array.to_stream(stream, instance.parents_padding, ((8 - (instance.parents_count % 8)) % 8,), Byte, instance.context, 0, None)
 		if instance.context.version >= 32 and instance.one:
-			stream.write_uints(instance.enumeration)
+			Array.to_stream(stream, instance.enumeration, (instance.enum_count, 2,), Uint, instance.context, 0, None)
 		if instance.context.version <= 13 and instance.one:
-			stream.write_ubytes(instance.enumeration)
+			Array.to_stream(stream, instance.enumeration, (instance.enum_count,), Ubyte, instance.context, 0, None)
 		if instance.context.version == 7:
-			stream.write_bytes(instance.inventory_datas)
-			stream.write_shorts(instance.weirdness)
+			Array.to_stream(stream, instance.inventory_datas, (instance.inv_data_count, 6,), Byte, instance.context, 0, None)
+			Array.to_stream(stream, instance.weirdness, (8,), Short, instance.context, 0, None)
 		if instance.context.version == 13:
-			stream.write_shorts(instance.weirdness)
+			Array.to_stream(stream, instance.weirdness, (10,), Short, instance.context, 0, None)
 		if instance.context.version == 7:
-			stream.write_ints(instance.inventory_datas_2)
+			Array.to_stream(stream, instance.inventory_datas_2, (instance.inv_data_count, 2,), Int, instance.context, 0, None)
 		if not (instance.context.version < 47) and instance.zeros_count:
 			ZerosPadding.to_stream(stream, instance.zeros_padding)
 		if instance.context.version >= 47 and instance.zeros_count:

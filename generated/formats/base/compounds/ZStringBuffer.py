@@ -1,7 +1,8 @@
 
+from io import BytesIO
 import logging
 
-from generated.formats.ovl_base.basic import ConvStream
+from generated.formats.base.basic import ZString
 from modules.formats.shared import get_padding
 
 ZERO = b"\x00"
@@ -44,7 +45,7 @@ class ZStringBuffer(BaseStruct):
 		logging.debug("Updating name buffer")
 		self.strings = []
 		offset_dic = {}
-		with ConvStream() as stream:
+		with BytesIO() as stream:
 
 			for array, attrib in list_of_arrays:
 				for item in sorted(array, key=lambda i: getattr(i, attrib)):
@@ -57,7 +58,7 @@ class ZStringBuffer(BaseStruct):
 						address = stream.tell()
 						self.strings.append(name)
 						offset_dic[name] = address
-						stream.write_zstring(name)
+						ZString.to_stream(stream, name)
 					# store offset on item
 					item.offset = address
 			# get the actual result buffer

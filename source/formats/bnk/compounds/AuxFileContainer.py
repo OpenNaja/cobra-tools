@@ -140,6 +140,7 @@ class AuxFileContainer(BaseStruct):
 		if instance.data:
 			data = b"".join(pointer.data + pointer.pad for pointer in instance.didx.data_pointers)
 			stream.write(b"DATA")
+			# todo
 			stream.write_uint(len(data) - len(pointer.pad))
 			stream.write(data)
 			# ovl ignores the padding of the last wem

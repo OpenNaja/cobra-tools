@@ -101,19 +101,19 @@ class WmetasbMain(MemStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_uint(instance.hash)
-		stream.write_uint(instance.unk)
+		Uint.to_stream(stream, instance.hash)
+		Uint.to_stream(stream, instance.unk)
 		Pointer.to_stream(stream, instance.block_name)
 		if instance.context.version <= 18:
 			Pointer.to_stream(stream, instance.media_name)
 			Pointer.to_stream(stream, instance.bnk_name)
 		ArrayPointer.to_stream(stream, instance.events)
-		stream.write_uint64(instance.events_count)
+		Uint64.to_stream(stream, instance.events_count)
 		if instance.context.version <= 18:
 			ArrayPointer.to_stream(stream, instance.hashes)
-			stream.write_uint64(instance.hashes_count)
+			Uint64.to_stream(stream, instance.hashes_count)
 			ArrayPointer.to_stream(stream, instance.media)
-			stream.write_uint64(instance.media_count)
+			Uint64.to_stream(stream, instance.media_count)
 			Pointer.to_stream(stream, instance.unused_2)
 			Pointer.to_stream(stream, instance.unused_3)
 			Pointer.to_stream(stream, instance.unused_4)

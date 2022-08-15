@@ -33,9 +33,9 @@ class TexIndex(MemStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_uint(instance._tex_index)
+		Uint.to_stream(stream, instance._tex_index)
 		if instance.context.version >= 18:
-			stream.write_uint(instance.array_index)
+			Uint.to_stream(stream, instance.array_index)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

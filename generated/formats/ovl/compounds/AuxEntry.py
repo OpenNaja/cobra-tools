@@ -38,9 +38,9 @@ class AuxEntry(BaseStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_uint(instance.file_index)
-		stream.write_uint(instance.offset)
-		stream.write_uint(instance.size)
+		Uint.to_stream(stream, instance.file_index)
+		Uint.to_stream(stream, instance.offset)
+		Uint.to_stream(stream, instance.size)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

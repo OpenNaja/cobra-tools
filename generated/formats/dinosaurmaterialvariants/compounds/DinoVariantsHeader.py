@@ -53,11 +53,11 @@ class DinoVariantsHeader(MemStruct):
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
 		Pointer.to_stream(stream, instance.fgm_name)
-		stream.write_uint64(instance.has_sets)
+		Uint64.to_stream(stream, instance.has_sets)
 		Pointer.to_stream(stream, instance.set_name)
 		Pointer.to_stream(stream, instance.variants)
-		stream.write_uint64(instance.variant_count)
-		stream.write_uint64(instance.zero)
+		Uint64.to_stream(stream, instance.variant_count)
+		Uint64.to_stream(stream, instance.zero)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

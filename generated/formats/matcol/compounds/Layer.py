@@ -42,11 +42,11 @@ class Layer(BaseStruct):
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
 		LayerFrag.to_stream(stream, instance.info)
-		stream.write_zstring(instance.name)
+		ZString.to_stream(stream, instance.name)
 		Array.to_stream(stream, instance.infos, (instance.info.info_count,), Info, instance.context, 0, None)
-		stream.write_zstrings(instance.info_names)
+		Array.to_stream(stream, instance.info_names, (instance.info.info_count,), ZString, instance.context, 0, None)
 		Array.to_stream(stream, instance.attribs, (instance.info.attrib_count,), Attrib, instance.context, 0, None)
-		stream.write_zstrings(instance.attrib_names)
+		Array.to_stream(stream, instance.attrib_names, (instance.info.attrib_count,), ZString, instance.context, 0, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

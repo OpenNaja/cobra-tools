@@ -58,15 +58,15 @@ class LuaRoot(MemStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_uint(instance.lua_size)
-		stream.write_uint(instance.sixteenk)
-		stream.write_uint(instance.hash)
-		stream.write_uint(instance.zero_0)
+		Uint.to_stream(stream, instance.lua_size)
+		Uint.to_stream(stream, instance.sixteenk)
+		Uint.to_stream(stream, instance.hash)
+		Uint.to_stream(stream, instance.zero_0)
 		if instance.context.version >= 18:
 			Pointer.to_stream(stream, instance.source_path)
 			Pointer.to_stream(stream, instance.likely_alignment)
-		stream.write_uint64(instance.zero_1)
-		stream.write_uint64(instance.zero_2)
+		Uint64.to_stream(stream, instance.zero_1)
+		Uint64.to_stream(stream, instance.zero_2)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

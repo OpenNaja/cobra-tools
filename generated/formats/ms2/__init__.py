@@ -1,3 +1,4 @@
+from io import BytesIO
 import os
 import time
 import logging
@@ -5,8 +6,6 @@ from copy import copy
 
 from generated.formats.ms2.compounds.Ms2InfoHeader import Ms2InfoHeader
 from generated.formats.ms2.versions import *
-from generated.formats.ovl_base.basic import ConvStream
-from generated.formats.ovl.basic import basic_map
 from generated.io import IoFile
 from modules.formats.shared import djb2, get_padding
 
@@ -24,8 +23,6 @@ class Ms2Context:
 
 
 class Ms2File(Ms2InfoHeader, IoFile):
-
-	basic_map = basic_map
 
 	def __init__(self, ):
 		super().__init__(Ms2Context())
@@ -150,7 +147,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 						f.write(b)
 			else:
 				b = b""
-			setattr(buffer_info, buffer_name, ConvStream(b))
+			setattr(buffer_info, buffer_name, BytesIO(b))
 
 	def load_meshes(self):
 		for model_info in self.model_infos:
@@ -276,12 +273,12 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			self.buffer_0.name_hashes[name_i] = djb2(name.lower())
 
 	def update_buffer_0_bytes(self):
-		with ConvStream() as temp_writer:
+		with BytesIO() as temp_writer:
 			self.buffer_0.write(temp_writer)
 			self.buffer_0_bytes = temp_writer.getvalue()
 
 	def update_buffer_1_bytes(self):
-		with ConvStream() as temp_bone_writer:
+		with BytesIO() as temp_bone_writer:
 			self.models_reader.write(temp_bone_writer)
 			self.buffer_1_bytes = temp_bone_writer.getvalue()[self.models_reader.bone_info_start:]
 			self.bone_info_size = self.models_reader.bone_info_size

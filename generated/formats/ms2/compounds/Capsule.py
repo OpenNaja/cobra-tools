@@ -48,9 +48,9 @@ class Capsule(BaseStruct):
 		super().write_fields(stream, instance)
 		Vector3.to_stream(stream, instance.offset)
 		Vector3.to_stream(stream, instance.direction)
-		stream.write_float(instance.radius)
-		stream.write_float(instance.extent)
-		stream.write_uint(instance.zero)
+		Float.to_stream(stream, instance.radius)
+		Float.to_stream(stream, instance.extent)
+		Uint.to_stream(stream, instance.zero)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

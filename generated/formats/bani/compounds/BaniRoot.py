@@ -53,10 +53,10 @@ class BaniRoot(MemStruct):
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
 		Pointer.to_stream(stream, instance.banis)
-		stream.write_uint(instance.read_start_frame)
-		stream.write_uint(instance.num_frames)
-		stream.write_float(instance.animation_length)
-		stream.write_uint(instance.loop_flag)
+		Uint.to_stream(stream, instance.read_start_frame)
+		Uint.to_stream(stream, instance.num_frames)
+		Float.to_stream(stream, instance.animation_length)
+		Uint.to_stream(stream, instance.loop_flag)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

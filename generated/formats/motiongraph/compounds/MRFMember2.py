@@ -59,13 +59,13 @@ class MRFMember2(MemStruct):
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
 		Pointer.to_stream(stream, instance.transition)
-		stream.write_uint64(instance.count_0)
-		stream.write_uint64(instance.count_1)
-		stream.write_uint64(instance.count_2)
-		stream.write_uint64(instance.count_3)
-		stream.write_uint64(instance.count_4)
-		stream.write_uint64(instance.count_5)
-		stream.write_uint64(instance.count_6)
+		Uint64.to_stream(stream, instance.count_0)
+		Uint64.to_stream(stream, instance.count_1)
+		Uint64.to_stream(stream, instance.count_2)
+		Uint64.to_stream(stream, instance.count_3)
+		Uint64.to_stream(stream, instance.count_4)
+		Uint64.to_stream(stream, instance.count_5)
+		Uint64.to_stream(stream, instance.count_6)
 		Pointer.to_stream(stream, instance.id)
 
 	@classmethod

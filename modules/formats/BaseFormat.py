@@ -2,6 +2,7 @@ import logging
 import os
 import struct
 import tempfile
+from io import BytesIO
 
 from generated.formats.ovl import UNK_HASH
 from generated.formats.ovl.compounds.DependencyEntry import DependencyEntry
@@ -10,7 +11,6 @@ from generated.formats.ovl.compounds.BufferEntry import BufferEntry
 from generated.formats.ovl.compounds.MemPool import MemPool
 from generated.formats.ovl.compounds.RootEntry import RootEntry
 from generated.formats.ovl.compounds.DataEntry import DataEntry
-from generated.formats.ovl_base.basic import ConvStream
 from modules.formats.shared import djb2
 from ovl_util.interaction import showdialog
 
@@ -100,7 +100,7 @@ class BaseFile:
 				return pool
 		# nope, means we gotta create pool
 		pool = MemPool(self.ovl.context)
-		pool.data = ConvStream()
+		pool.data = BytesIO()
 		pool.type = pool_type_key
 		# we write to the pool IO directly, so do not reconstruct its data from the pointers' data
 		pool.clear_data()

@@ -46,12 +46,12 @@ class ScaleformlanguagedataRoot(MemStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_uint64(instance.zero_0)
-		stream.write_uint64(instance.zero_1)
+		Uint64.to_stream(stream, instance.zero_0)
+		Uint64.to_stream(stream, instance.zero_1)
 		ArrayPointer.to_stream(stream, instance.fonts)
-		stream.write_uint64(instance.count)
-		stream.write_uint64(instance.zero_2)
-		stream.write_uint64(instance.zero_3)
+		Uint64.to_stream(stream, instance.count)
+		Uint64.to_stream(stream, instance.zero_2)
+		Uint64.to_stream(stream, instance.zero_3)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

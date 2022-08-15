@@ -63,10 +63,10 @@ class PathResource(MemStruct):
 		Pointer.to_stream(stream, instance.pathextrusion_railing)
 		Pointer.to_stream(stream, instance.pathextrusion_ground)
 		Pointer.to_stream(stream, instance.pathsupport)
-		stream.write_byte(instance.path_type)
-		stream.write_byte(instance.path_sub_type)
-		stream.write_byte(instance.unk_byte_1)
-		stream.write_byte(instance.unk_byte_2)
+		Byte.to_stream(stream, instance.path_type)
+		Byte.to_stream(stream, instance.path_sub_type)
+		Byte.to_stream(stream, instance.unk_byte_1)
+		Byte.to_stream(stream, instance.unk_byte_2)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

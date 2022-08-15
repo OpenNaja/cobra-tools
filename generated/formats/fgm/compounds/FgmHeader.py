@@ -75,19 +75,19 @@ class FgmHeader(MemStruct):
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
 		if instance.context.version <= 15:
-			stream.write_uint(instance._texture_count)
+			Uint.to_stream(stream, instance._texture_count)
 		if instance.context.version >= 17:
-			stream.write_uint64(instance._texture_count)
+			Uint64.to_stream(stream, instance._texture_count)
 		if instance.context.version <= 15:
-			stream.write_uint(instance._attribute_count)
+			Uint.to_stream(stream, instance._attribute_count)
 		if instance.context.version >= 17:
-			stream.write_uint64(instance._attribute_count)
+			Uint64.to_stream(stream, instance._attribute_count)
 		ArrayPointer.to_stream(stream, instance.textures)
 		ArrayPointer.to_stream(stream, instance.attributes)
 		ForEachPointer.to_stream(stream, instance.name_foreach_textures)
 		ForEachPointer.to_stream(stream, instance.value_foreach_attributes)
-		stream.write_uint64(instance._unk_0)
-		stream.write_uint64(instance._unk_1)
+		Uint64.to_stream(stream, instance._unk_0)
+		Uint64.to_stream(stream, instance._unk_1)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

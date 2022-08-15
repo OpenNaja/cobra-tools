@@ -52,7 +52,7 @@ class DataStreamResourceData(MemStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_uint64(instance.curve_type)
+		Uint64.to_stream(stream, instance.curve_type)
 		Pointer.to_stream(stream, instance.ds_name)
 		Pointer.to_stream(stream, instance.type)
 		Pointer.to_stream(stream, instance.bone_i_d)

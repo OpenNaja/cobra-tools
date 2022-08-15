@@ -5,7 +5,6 @@ import traceback
 import numpy as np
 
 from generated.array import Array
-from generated.formats.ovl_base.basic import ConvStream
 
 
 from generated.base_struct import BaseStruct
@@ -33,8 +32,8 @@ class HeaderPointer(BaseStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_int(instance.pool_index)
-		stream.write_uint(instance.data_offset)
+		Int.to_stream(stream, instance.pool_index)
+		Uint.to_stream(stream, instance.data_offset)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

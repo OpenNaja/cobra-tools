@@ -63,14 +63,14 @@ class Driver(MemStruct):
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
 		Pointer.to_stream(stream, instance.joint_name)
-		stream.write_ubyte(instance.a)
-		stream.write_ubyte(instance.b)
-		stream.write_ushort(instance.c)
-		stream.write_uint(instance.d)
+		Ubyte.to_stream(stream, instance.a)
+		Ubyte.to_stream(stream, instance.b)
+		Ushort.to_stream(stream, instance.c)
+		Uint.to_stream(stream, instance.d)
 		Pointer.to_stream(stream, instance.driven_joint_name)
-		stream.write_uint64(instance.unk_1)
+		Uint64.to_stream(stream, instance.unk_1)
 		Pointer.to_stream(stream, instance.data)
-		stream.write_uint64(instance.unk_2)
+		Uint64.to_stream(stream, instance.unk_2)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

@@ -38,14 +38,14 @@ class BKHDSection(BaseStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_uint(instance.length)
-		stream.write_uint(instance.version)
-		stream.write_uint(instance.id_a)
-		stream.write_uint(instance.id_b)
-		stream.write_uint(instance.constant_a)
-		stream.write_uint(instance.constant_b)
-		stream.write_uint(instance.unk)
-		stream.write_ubytes(instance.zeroes)
+		Uint.to_stream(stream, instance.length)
+		Uint.to_stream(stream, instance.version)
+		Uint.to_stream(stream, instance.id_a)
+		Uint.to_stream(stream, instance.id_b)
+		Uint.to_stream(stream, instance.constant_a)
+		Uint.to_stream(stream, instance.constant_b)
+		Uint.to_stream(stream, instance.unk)
+		Array.to_stream(stream, instance.zeroes, (instance.length - 24,), Ubyte, instance.context, 0, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

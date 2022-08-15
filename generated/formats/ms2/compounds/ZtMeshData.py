@@ -103,23 +103,23 @@ class ZtMeshData(MeshData):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_uint(instance.tri_index_count)
-		stream.write_uint(instance.vertex_count)
-		stream.write_uint(instance.tri_info_offset)
-		stream.write_uint(instance.vert_info_offset)
-		stream.write_int(instance.known_ff_0)
-		stream.write_uint(instance.tri_offset)
-		stream.write_uint(instance.uv_offset)
-		stream.write_uint(instance.vertex_offset)
-		stream.write_short(instance.unk_index)
-		stream.write_ushort(instance.one_0)
-		stream.write_ushort(instance.one_1)
-		stream.write_ushort(instance.poweroftwo)
+		Uint.to_stream(stream, instance.tri_index_count)
+		Uint.to_stream(stream, instance.vertex_count)
+		Uint.to_stream(stream, instance.tri_info_offset)
+		Uint.to_stream(stream, instance.vert_info_offset)
+		Int.to_stream(stream, instance.known_ff_0)
+		Uint.to_stream(stream, instance.tri_offset)
+		Uint.to_stream(stream, instance.uv_offset)
+		Uint.to_stream(stream, instance.vertex_offset)
+		Short.to_stream(stream, instance.unk_index)
+		Ushort.to_stream(stream, instance.one_0)
+		Ushort.to_stream(stream, instance.one_1)
+		Ushort.to_stream(stream, instance.poweroftwo)
 		if instance.context.version <= 7:
 			ModelFlagDLA.to_stream(stream, instance.flag)
 		if instance.context.version >= 13:
 			ModelFlagZT.to_stream(stream, instance.flag)
-		stream.write_uint(instance.zero_uac)
+		Uint.to_stream(stream, instance.zero_uac)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

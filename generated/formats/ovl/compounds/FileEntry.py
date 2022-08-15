@@ -55,11 +55,11 @@ class FileEntry(BaseStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_uint(instance.offset)
-		stream.write_uint(instance.file_hash)
-		stream.write_byte(instance.pool_type)
-		stream.write_byte(instance.set_pool_type)
-		stream.write_ushort(instance.extension)
+		Uint.to_stream(stream, instance.offset)
+		Uint.to_stream(stream, instance.file_hash)
+		Byte.to_stream(stream, instance.pool_type)
+		Byte.to_stream(stream, instance.set_pool_type)
+		Ushort.to_stream(stream, instance.extension)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

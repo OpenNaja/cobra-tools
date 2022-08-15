@@ -52,13 +52,13 @@ class Research(MemStruct):
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
 		Pointer.to_stream(stream, instance.item_name)
-		stream.write_uint(instance.unk_0)
-		stream.write_uint(instance.is_entry_level)
-		stream.write_uint64(instance.unk_2)
+		Uint.to_stream(stream, instance.unk_0)
+		Uint.to_stream(stream, instance.is_entry_level)
+		Uint64.to_stream(stream, instance.unk_2)
 		Pointer.to_stream(stream, instance.next_research)
-		stream.write_uint64(instance.next_research_count)
-		stream.write_uint64(instance.unk_3)
-		stream.write_uint64(instance.unk_4)
+		Uint64.to_stream(stream, instance.next_research_count)
+		Uint64.to_stream(stream, instance.unk_3)
+		Uint64.to_stream(stream, instance.unk_4)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

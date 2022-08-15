@@ -28,7 +28,7 @@ class IncludedOvl(BaseStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_uint(instance.offset)
+		Uint.to_stream(stream, instance.offset)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

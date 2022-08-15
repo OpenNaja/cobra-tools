@@ -73,15 +73,15 @@ class SizeInfoRaw(MemStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_uint64(instance.zero)
-		stream.write_uint(instance.data_size)
-		stream.write_uint(instance.width)
-		stream.write_uint(instance.height)
-		stream.write_uint(instance.depth)
-		stream.write_uint(instance.array_size)
-		stream.write_uint(instance.num_mips)
+		Uint64.to_stream(stream, instance.zero)
+		Uint.to_stream(stream, instance.data_size)
+		Uint.to_stream(stream, instance.width)
+		Uint.to_stream(stream, instance.height)
+		Uint.to_stream(stream, instance.depth)
+		Uint.to_stream(stream, instance.array_size)
+		Uint.to_stream(stream, instance.num_mips)
 		if instance.context.version >= 20:
-			stream.write_uint64(instance.unk_pz)
+			Uint64.to_stream(stream, instance.unk_pz)
 		Array.to_stream(stream, instance.mip_maps, (instance.num_mips,), Mipmap, instance.context, 0, None)
 
 	@classmethod

@@ -61,11 +61,11 @@ class State(MemStruct):
 		Pointer.to_stream(stream, instance.abstract_name)
 		Pointer.to_stream(stream, instance.concrete_name)
 		Pointer.to_stream(stream, instance.debug_name)
-		stream.write_uint64(instance.a)
-		stream.write_uint64(instance.b)
-		stream.write_uint64(instance.c)
+		Uint64.to_stream(stream, instance.a)
+		Uint64.to_stream(stream, instance.b)
+		Uint64.to_stream(stream, instance.c)
 		Pointer.to_stream(stream, instance.events_list)
-		stream.write_uint64(instance.d)
+		Uint64.to_stream(stream, instance.d)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

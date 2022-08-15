@@ -44,9 +44,9 @@ class DependencyEntry(BaseStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_uint(instance.file_hash)
-		stream.write_uint(instance.offset)
-		stream.write_uint(instance.file_index)
+		Uint.to_stream(stream, instance.file_hash)
+		Uint.to_stream(stream, instance.offset)
+		Uint.to_stream(stream, instance.file_index)
 		HeaderPointer.to_stream(stream, instance.link_ptr)
 
 	@classmethod

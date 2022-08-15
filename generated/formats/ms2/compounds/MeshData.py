@@ -57,11 +57,11 @@ class MeshData(MemStruct):
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
 		if instance.context.version <= 32:
-			stream.write_uint64(instance.stream_index)
+			Uint64.to_stream(stream, instance.stream_index)
 		if instance.context.version >= 47:
 			Pointer.to_stream(stream, instance.stream_info)
 		if not ((instance.context.version == 51) and instance.context.biosyn):
-			stream.write_uint64(instance.some_index)
+			Uint64.to_stream(stream, instance.some_index)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

@@ -2,6 +2,8 @@
 import logging
 import traceback
 
+from generated.array import Array
+from generated.formats.base.basic import Float
 from generated.formats.ms2.versions import is_old
 from generated.formats.ms2.compounds.Model import Model
 from generated.formats.ms2.compounds.BoneInfo import BoneInfo
@@ -167,7 +169,7 @@ class ModelReader(BaseStruct):
 			for hitcheck in self.get_hitchecks(bone_info):
 				if hitcheck.dtype in (CollisionType.CONVEX_HULL_P_C, CollisionType.CONVEX_HULL):
 					logging.debug(f"Reading vertices for {hitcheck.dtype}")
-					hitcheck.collider.vertices = stream.read_floats((hitcheck.collider.vertex_count, 3))
+					hitcheck.collider.vertices = Array.from_stream(stream, self.context, 0, None, (hitcheck.collider.vertex_count, 3), Float)
 		except:
 			logging.exception(f"Reading hitchecks failed")
 
@@ -176,7 +178,8 @@ class ModelReader(BaseStruct):
 		for hitcheck in self.get_hitchecks(bone_info):
 			if hitcheck.dtype in (CollisionType.CONVEX_HULL_P_C, CollisionType.CONVEX_HULL):
 				logging.debug(f"Writing vertices for {hitcheck.dtype}")
-				stream.write_floats(hitcheck.collider.vertices)
+				# stream.write_floats(hitcheck.collider.vertices)
+				Array.to_stream(stream, hitcheck.collider.vertices, (hitcheck.collider.vertex_count, 3), Float, self.context)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

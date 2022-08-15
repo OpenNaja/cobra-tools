@@ -2,17 +2,8 @@ from struct import Struct
 
 from generated.array import Array
 from generated.formats.base.basic import class_from_struct, ZString, r_zstr, w_zstr
-from generated.io import BinaryStream
 
 Bool = class_from_struct(Struct("<?"), bool)
-
-
-class ConvStream(BinaryStream):
-    """Just a convenience stream that has basic types available by default"""
-
-    def __init__(self, initial_bytes=None):
-        super().__init__(initial_bytes)
-        self.register_basic_functions(basic_map)
 
 
 separator = "::"
@@ -72,20 +63,3 @@ class ZStringObfuscated(ZString):
 
 
 from generated.formats.base.basic import Byte, Ubyte, Uint64, Int64, Uint, Ushort, Int, Short, Char, Float, Double, ZString
-
-basic_map = {
-			'Byte': Byte,
-			'Ubyte': Ubyte,
-			'Uint64': Uint64,
-			'Int64': Int64,
-			'Uint': Uint,
-			'Ushort': Ushort,
-			'Int': Int,
-			'Short': Short,
-			'Char': Char,
-			'Float': Float,
-			'Double': Double,
-			'ZString': ZString,
-			'Bool': Bool,
-			'ZStringObfuscated': ZStringObfuscated,
-}

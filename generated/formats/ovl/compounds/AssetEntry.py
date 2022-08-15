@@ -46,13 +46,13 @@ class AssetEntry(BaseStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_uint(instance.file_hash)
-		stream.write_uint(instance.zero_0)
+		Uint.to_stream(stream, instance.file_hash)
+		Uint.to_stream(stream, instance.zero_0)
 		if instance.context.version >= 19:
-			stream.write_uint(instance.ext_hash)
-			stream.write_uint(instance.zero_1)
-		stream.write_uint(instance.file_index)
-		stream.write_uint(instance.zero_2)
+			Uint.to_stream(stream, instance.ext_hash)
+			Uint.to_stream(stream, instance.zero_1)
+		Uint.to_stream(stream, instance.file_index)
+		Uint.to_stream(stream, instance.zero_2)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

@@ -56,14 +56,14 @@ class Sixtyfour(MemStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_uint64(instance.count_0)
+		Uint64.to_stream(stream, instance.count_0)
 		Pointer.to_stream(stream, instance.ptr_0)
 		Pointer.to_stream(stream, instance.ptr_1)
-		stream.write_uint64(instance.count_1)
-		stream.write_uint64(instance.count_2)
+		Uint64.to_stream(stream, instance.count_1)
+		Uint64.to_stream(stream, instance.count_2)
 		Pointer.to_stream(stream, instance.ptr_2)
 		Pointer.to_stream(stream, instance.ptr_3)
-		stream.write_uint64(instance.count_3)
+		Uint64.to_stream(stream, instance.count_3)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

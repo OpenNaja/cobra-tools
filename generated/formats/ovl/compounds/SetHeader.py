@@ -48,10 +48,10 @@ class SetHeader(BaseStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_uint(instance.set_count)
-		stream.write_uint(instance.asset_count)
-		stream.write_uint(instance.sig_a)
-		stream.write_uint(instance.sig_b)
+		Uint.to_stream(stream, instance.set_count)
+		Uint.to_stream(stream, instance.asset_count)
+		Uint.to_stream(stream, instance.sig_a)
+		Uint.to_stream(stream, instance.sig_b)
 		Array.to_stream(stream, instance.sets, (instance.set_count,), SetEntry, instance.context, 0, None)
 		Array.to_stream(stream, instance.assets, (instance.asset_count,), AssetEntry, instance.context, 0, None)
 

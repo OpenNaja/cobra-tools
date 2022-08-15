@@ -31,7 +31,7 @@ class NextResearch(MemStruct):
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
 		Array.to_stream(stream, instance.item_name, (instance.arg,), Pointer, instance.context, 0, generated.formats.base.basic.ZString)
-		stream.write_uint64(instance.unk_1)
+		Uint64.to_stream(stream, instance.unk_1)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

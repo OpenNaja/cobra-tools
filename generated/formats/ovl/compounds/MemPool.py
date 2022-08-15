@@ -2,7 +2,6 @@
 import logging
 import io
 
-from generated.formats.ovl_base.basic import ConvStream
 from modules.formats.shared import get_padding
 
 
@@ -91,20 +90,20 @@ class MemPool(BaseStruct):
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
 		if instance.context.version >= 17:
-			stream.write_uint64(instance.zero_1)
-		stream.write_uint(instance.size)
-		stream.write_uint(instance.offset)
+			Uint64.to_stream(stream, instance.zero_1)
+		Uint.to_stream(stream, instance.size)
+		Uint.to_stream(stream, instance.offset)
 		if instance.context.version <= 15:
-			stream.write_uint64(instance.zero_2)
-		stream.write_uint(instance.file_hash)
+			Uint64.to_stream(stream, instance.zero_2)
+		Uint.to_stream(stream, instance.file_hash)
 		if instance.context.version <= 15:
-			stream.write_ushort(instance.disney_zero)
-			stream.write_ushort(instance.num_files)
+			Ushort.to_stream(stream, instance.disney_zero)
+			Ushort.to_stream(stream, instance.num_files)
 		if instance.context.version >= 17:
-			stream.write_uint(instance.num_files)
+			Uint.to_stream(stream, instance.num_files)
 		if instance.context.version >= 19:
-			stream.write_uint(instance.ext_hash)
-			stream.write_uint(instance.zero_3)
+			Uint.to_stream(stream, instance.ext_hash)
+			Uint.to_stream(stream, instance.zero_3)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

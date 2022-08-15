@@ -45,13 +45,13 @@ class RideSettingsRoot(MemStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_float(instance.unk_0)
-		stream.write_uint(instance.unk_1)
+		Float.to_stream(stream, instance.unk_0)
+		Uint.to_stream(stream, instance.unk_1)
 		ArrayPointer.to_stream(stream, instance.array_1)
-		stream.write_uint(instance.count)
-		stream.write_uint(instance.pad_0)
-		stream.write_uint(instance.pad_1)
-		stream.write_uint(instance.pad_2)
+		Uint.to_stream(stream, instance.count)
+		Uint.to_stream(stream, instance.pad_0)
+		Uint.to_stream(stream, instance.pad_1)
+		Uint.to_stream(stream, instance.pad_2)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

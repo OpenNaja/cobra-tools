@@ -43,11 +43,11 @@ class UACJointFF(BaseStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_uint(instance.eleven)
-		stream.write_ints(instance.f_fs)
-		stream.write_uint(instance.name_offset)
-		stream.write_uint(instance.hitcheck_count)
-		stream.write_uints(instance.zeros)
+		Uint.to_stream(stream, instance.eleven)
+		Array.to_stream(stream, instance.f_fs, (4,), Int, instance.context, 0, None)
+		Uint.to_stream(stream, instance.name_offset)
+		Uint.to_stream(stream, instance.hitcheck_count)
+		Array.to_stream(stream, instance.zeros, (3,), Uint, instance.context, 0, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

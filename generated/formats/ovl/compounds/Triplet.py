@@ -38,9 +38,9 @@ class Triplet(BaseStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_ubyte(instance.a)
-		stream.write_ubyte(instance.b)
-		stream.write_ubyte(instance.c)
+		Ubyte.to_stream(stream, instance.a)
+		Ubyte.to_stream(stream, instance.b)
+		Ubyte.to_stream(stream, instance.c)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

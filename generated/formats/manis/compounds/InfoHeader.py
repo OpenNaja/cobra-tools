@@ -47,8 +47,8 @@ class InfoHeader(GenericHeader):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_uint(instance.mani_count)
-		stream.write_zstrings(instance.names)
+		Uint.to_stream(stream, instance.mani_count)
+		Array.to_stream(stream, instance.names, (instance.mani_count,), ZString, instance.context, 0, None)
 		SizedStrData.to_stream(stream, instance.header)
 		Array.to_stream(stream, instance.mani_infos, (instance.mani_count,), ManiInfo, instance.context, 0, None)
 		Buffer1.to_stream(stream, instance.name_buffer)

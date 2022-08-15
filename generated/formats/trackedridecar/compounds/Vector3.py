@@ -28,7 +28,7 @@ class Vector3(MemStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_floats(instance.floats)
+		Array.to_stream(stream, instance.floats, (3,), Float, instance.context, 0, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

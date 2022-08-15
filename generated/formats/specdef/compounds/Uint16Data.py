@@ -41,10 +41,10 @@ class Uint16Data(MemStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_ushort(instance.imin)
-		stream.write_ushort(instance.imax)
-		stream.write_ushort(instance.ivalue)
-		stream.write_ushort(instance.ioptional)
+		Ushort.to_stream(stream, instance.imin)
+		Ushort.to_stream(stream, instance.imax)
+		Ushort.to_stream(stream, instance.ivalue)
+		Ushort.to_stream(stream, instance.ioptional)
 		Pointer.to_stream(stream, instance.enum)
 
 	@classmethod

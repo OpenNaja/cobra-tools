@@ -41,13 +41,13 @@ class AkTrackSrcInfo(BaseStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_uint(instance.track_i_d)
-		stream.write_uint(instance.source_i_d)
-		stream.write_uint(instance.event_i_d)
-		stream.write_double(instance.f_play_at)
-		stream.write_double(instance.f_begin_trim_offset)
-		stream.write_double(instance.f_end_trim_offset)
-		stream.write_double(instance.f_src_duration)
+		Uint.to_stream(stream, instance.track_i_d)
+		Uint.to_stream(stream, instance.source_i_d)
+		Uint.to_stream(stream, instance.event_i_d)
+		Double.to_stream(stream, instance.f_play_at)
+		Double.to_stream(stream, instance.f_begin_trim_offset)
+		Double.to_stream(stream, instance.f_end_trim_offset)
+		Double.to_stream(stream, instance.f_src_duration)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

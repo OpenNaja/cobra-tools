@@ -67,19 +67,19 @@ class Perk(MemStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_uint64(instance.unk_0)
-		stream.write_uint64(instance.building_cost)
-		stream.write_uint64(instance.running_cost_base)
-		stream.write_uint64(instance.running_cost_per_extension)
-		stream.write_float(instance.unk_4)
-		stream.write_float(instance.unk_5)
+		Uint64.to_stream(stream, instance.unk_0)
+		Uint64.to_stream(stream, instance.building_cost)
+		Uint64.to_stream(stream, instance.running_cost_base)
+		Uint64.to_stream(stream, instance.running_cost_per_extension)
+		Float.to_stream(stream, instance.unk_4)
+		Float.to_stream(stream, instance.unk_5)
 		Pointer.to_stream(stream, instance.label)
 		Pointer.to_stream(stream, instance.desc)
 		Pointer.to_stream(stream, instance.icon)
-		stream.write_float(instance.unk_6)
-		stream.write_float(instance.appeal_adults)
-		stream.write_float(instance.appeal_families)
-		stream.write_float(instance.appeal_teenagers)
+		Float.to_stream(stream, instance.unk_6)
+		Float.to_stream(stream, instance.appeal_adults)
+		Float.to_stream(stream, instance.appeal_families)
+		Float.to_stream(stream, instance.appeal_teenagers)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

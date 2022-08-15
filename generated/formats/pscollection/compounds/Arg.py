@@ -44,13 +44,13 @@ class Arg(MemStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_ubyte(instance.u_0)
-		stream.write_ubyte(instance.arg_type)
-		stream.write_ubyte(instance.arg_index)
-		stream.write_ubyte(instance.u_1)
-		stream.write_uint(instance.u_2)
-		stream.write_uint64(instance.u_3)
-		stream.write_uint64(instance.u_4)
+		Ubyte.to_stream(stream, instance.u_0)
+		Ubyte.to_stream(stream, instance.arg_type)
+		Ubyte.to_stream(stream, instance.arg_index)
+		Ubyte.to_stream(stream, instance.u_1)
+		Uint.to_stream(stream, instance.u_2)
+		Uint64.to_stream(stream, instance.u_3)
+		Uint64.to_stream(stream, instance.u_4)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

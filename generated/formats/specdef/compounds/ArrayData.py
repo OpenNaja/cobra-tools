@@ -39,7 +39,7 @@ class ArrayData(MemStruct):
 		super().write_fields(stream, instance)
 		Pointer.to_stream(stream, instance.item)
 		SpecdefDtype.to_stream(stream, instance.dtype)
-		stream.write_uint(instance.unused)
+		Uint.to_stream(stream, instance.unused)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

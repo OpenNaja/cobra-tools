@@ -34,7 +34,7 @@ class StringData(MemStruct):
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
 		Pointer.to_stream(stream, instance.str_name)
-		stream.write_uint(instance.ioptional)
+		Uint.to_stream(stream, instance.ioptional)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

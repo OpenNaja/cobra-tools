@@ -5,11 +5,9 @@ import os
 from generated.array import Array
 from generated.formats.ovl.versions import *
 from generated.formats.ovl_base import OvlContext
-from generated.formats.ovl_base.basic import ConvStream
 from generated.formats.voxelskirt.compounds.Data import Data
 from generated.formats.voxelskirt.compounds.Header import Header
 # from generated.formats.ovl.versions import *
-from generated.formats.voxelskirt.basic import basic_map
 from generated.formats.voxelskirt.compounds.Material import Material
 from generated.formats.voxelskirt.compounds.PosInfo import PosInfo
 from generated.formats.voxelskirt.compounds.Size import Size
@@ -18,8 +16,6 @@ from modules.formats.shared import get_padding_size, get_padding
 
 
 class VoxelskirtFile(Header, IoFile):
-
-	basic_map = basic_map
 
 	def __init__(self, context):
 		super().__init__(context)
@@ -171,7 +167,7 @@ class VoxelskirtFile(Header, IoFile):
 			self.info.height_array_size_pc = self.info.x * self.info.y * 4
 
 		# write the buffer data to a temporary stream
-		with ConvStream() as stream:
+		with BytesIO() as stream:
 			# write the images
 			if is_pc(self):
 				stream.write_floats(self.heightmap)

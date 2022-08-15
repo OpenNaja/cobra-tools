@@ -40,9 +40,9 @@ class StreamEntry(BaseStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_uint(instance.stream_offset)
-		stream.write_uint(instance.file_offset)
-		stream.write_uint(instance.zero)
+		Uint.to_stream(stream, instance.stream_offset)
+		Uint.to_stream(stream, instance.file_offset)
+		Uint.to_stream(stream, instance.zero)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

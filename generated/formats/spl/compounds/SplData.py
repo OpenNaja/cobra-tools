@@ -36,7 +36,7 @@ class SplData(MemStruct):
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
 		Vector3.to_stream(stream, instance.offset)
-		stream.write_float(instance.scale)
+		Float.to_stream(stream, instance.scale)
 		Array.to_stream(stream, instance.keys, (instance.arg,), Key, instance.context, 0, None)
 
 	@classmethod

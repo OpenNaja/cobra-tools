@@ -31,8 +31,8 @@ class BufferPresence(BaseStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_int(instance.pool_index)
-		stream.write_int(instance.data_offset)
+		Int.to_stream(stream, instance.pool_index)
+		Int.to_stream(stream, instance.data_offset)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

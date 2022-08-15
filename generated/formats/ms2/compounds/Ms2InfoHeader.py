@@ -78,18 +78,18 @@ class Ms2InfoHeader(BaseStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_uint(instance.biosyn)
-		stream.write_uint(instance.bone_info_size)
+		Uint.to_stream(stream, instance.biosyn)
+		Uint.to_stream(stream, instance.bone_info_size)
 		Ms2Root.to_stream(stream, instance.info)
 		if instance.context.version >= 7:
 			Array.to_stream(stream, instance.buffers_presence, (instance.info.vertex_buffer_count,), BufferPresence, instance.context, 0, None)
-		stream.write_zstrings(instance.mdl_2_names)
+		Array.to_stream(stream, instance.mdl_2_names, (instance.info.mdl_2_count,), ZString, instance.context, 0, None)
 		if instance.context.version <= 7 and instance.info.vertex_buffer_count:
-			stream.write_zstrings(instance.modelstream_names)
+			Array.to_stream(stream, instance.modelstream_names, (instance.info.vertex_buffer_count - instance.info.stream_count,), ZString, instance.context, 0, None)
 		if 13 <= instance.context.version <= 13 and instance.info.vertex_buffer_count:
-			stream.write_zstrings(instance.modelstream_names)
+			Array.to_stream(stream, instance.modelstream_names, (instance.info.vertex_buffer_count,), ZString, instance.context, 0, None)
 		if instance.context.version >= 39 and instance.info.vertex_buffer_count:
-			stream.write_zstrings(instance.modelstream_names)
+			Array.to_stream(stream, instance.modelstream_names, (instance.info.stream_count,), ZString, instance.context, 0, None)
 		Buffer0.to_stream(stream, instance.buffer_0)
 		Array.to_stream(stream, instance.buffer_infos, (instance.info.vertex_buffer_count,), BufferInfo, instance.context, 0, None)
 		Array.to_stream(stream, instance.model_infos, (instance.info.mdl_2_count,), ModelInfo, instance.context, 0, None)

@@ -51,12 +51,12 @@ class ConnectorMultiJoint(MemStruct):
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
 		Pointer.to_stream(stream, instance.model_name)
-		stream.write_uint64(instance.padding)
+		Uint64.to_stream(stream, instance.padding)
 		ArrayPointer.to_stream(stream, instance.joints)
-		stream.write_uint64(instance.num_joints)
-		stream.write_float(instance.unk_float_1)
-		stream.write_uint(instance.unk_int_1)
-		stream.write_uint64(instance.padding)
+		Uint64.to_stream(stream, instance.num_joints)
+		Float.to_stream(stream, instance.unk_float_1)
+		Uint.to_stream(stream, instance.unk_int_1)
+		Uint64.to_stream(stream, instance.padding)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

@@ -32,10 +32,10 @@ class PathMaterialData(MemStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_uint(instance.unk_int_1)
-		stream.write_float(instance.unk_float_1)
-		stream.write_uint(instance.unk_int_2)
-		stream.write_uint(instance.unk_int_3)
+		Uint.to_stream(stream, instance.unk_int_1)
+		Float.to_stream(stream, instance.unk_float_1)
+		Uint.to_stream(stream, instance.unk_int_2)
+		Uint.to_stream(stream, instance.unk_int_3)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

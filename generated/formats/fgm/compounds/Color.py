@@ -35,10 +35,10 @@ class Color(MemStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_ubyte(instance.r)
-		stream.write_ubyte(instance.g)
-		stream.write_ubyte(instance.b)
-		stream.write_ubyte(instance.a)
+		Ubyte.to_stream(stream, instance.r)
+		Ubyte.to_stream(stream, instance.g)
+		Ubyte.to_stream(stream, instance.b)
+		Ubyte.to_stream(stream, instance.a)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

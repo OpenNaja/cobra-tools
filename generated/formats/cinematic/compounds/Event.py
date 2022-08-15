@@ -48,12 +48,12 @@ class Event(MemStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_float(instance.start_time)
-		stream.write_float(instance.b)
+		Float.to_stream(stream, instance.start_time)
+		Float.to_stream(stream, instance.b)
 		Pointer.to_stream(stream, instance.module_name)
 		Pointer.to_stream(stream, instance.attributes)
-		stream.write_float(instance.duration)
-		stream.write_float(instance.d)
+		Float.to_stream(stream, instance.duration)
+		Float.to_stream(stream, instance.d)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

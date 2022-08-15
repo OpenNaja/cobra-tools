@@ -59,10 +59,10 @@ class GenericHeader(BaseStruct):
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
 		FixedString.to_stream(stream, instance.magic)
-		stream.write_byte(instance.version_flag)
-		stream.write_byte(instance.version)
-		stream.write_byte(instance.bitswap)
-		stream.write_byte(instance.seventh_byte)
+		Byte.to_stream(stream, instance.version_flag)
+		Byte.to_stream(stream, instance.version)
+		Byte.to_stream(stream, instance.bitswap)
+		Byte.to_stream(stream, instance.seventh_byte)
 		VersionInfo.to_stream(stream, instance.user_version)
 
 	@classmethod

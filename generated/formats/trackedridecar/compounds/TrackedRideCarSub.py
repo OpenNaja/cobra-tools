@@ -44,11 +44,11 @@ class TrackedRideCarSub(MemStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_float(instance.float)
-		stream.write_uint(instance.u_0)
+		Float.to_stream(stream, instance.float)
+		Uint.to_stream(stream, instance.u_0)
 		ArrayPointer.to_stream(stream, instance.vectors)
-		stream.write_uint64(instance.vecs_count)
-		stream.write_uint64(instance.zero_1)
+		Uint64.to_stream(stream, instance.vecs_count)
+		Uint64.to_stream(stream, instance.zero_1)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

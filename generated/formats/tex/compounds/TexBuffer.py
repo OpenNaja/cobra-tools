@@ -53,12 +53,12 @@ class TexBuffer(MemStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_uint64(instance.offset)
-		stream.write_uint64(instance.size)
-		stream.write_ubyte(instance.first_mip)
-		stream.write_ubyte(instance.mip_count)
-		stream.write_short(instance.padding_0)
-		stream.write_int(instance.padding_1)
+		Uint64.to_stream(stream, instance.offset)
+		Uint64.to_stream(stream, instance.size)
+		Ubyte.to_stream(stream, instance.first_mip)
+		Ubyte.to_stream(stream, instance.mip_count)
+		Short.to_stream(stream, instance.padding_0)
+		Int.to_stream(stream, instance.padding_1)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

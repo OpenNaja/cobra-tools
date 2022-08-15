@@ -49,8 +49,8 @@ class SelectActivityActivityData(MemStruct):
 		super().write_fields(stream, instance)
 		Pointer.to_stream(stream, instance.enum_variable)
 		Pointer.to_stream(stream, instance.activities)
-		stream.write_uint64(instance.num_activities)
-		stream.write_float(instance.blend_time)
+		Uint64.to_stream(stream, instance.num_activities)
+		Float.to_stream(stream, instance.blend_time)
 		SelectActivityActivityMode.to_stream(stream, instance.mode)
 
 	@classmethod

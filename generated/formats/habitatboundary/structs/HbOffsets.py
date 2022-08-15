@@ -34,8 +34,8 @@ class HbOffsets(MemStruct):
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
 		HbPhysicsOffsets.to_stream(stream, instance.physics)
-		stream.write_float(instance.post_height_offset)
-		stream.write_float(instance.wall_height)
+		Float.to_stream(stream, instance.post_height_offset)
+		Float.to_stream(stream, instance.wall_height)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

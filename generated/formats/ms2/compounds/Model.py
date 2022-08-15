@@ -78,7 +78,7 @@ class Model(BaseStruct):
 		Array.to_stream(stream, instance.lods, (instance.arg.num_lods,), LodInfo, instance.context, 0, None)
 		Array.to_stream(stream, instance.objects, (instance.arg.num_objects,), Object, instance.context, 0, None)
 		if instance.context.version <= 13 and (instance.arg.num_materials + instance.arg.num_objects) % 2:
-			stream.write_uint(instance.objects_padding)
+			Uint.to_stream(stream, instance.objects_padding)
 		Array.to_stream(stream, instance.meshes, (instance.arg.num_meshes,), MeshDataWrap, instance.context, 0, None)
 		if instance.context.version == 13 and instance.arg.last_count:
 			ZTPreBones.to_stream(stream, instance.pre_bones)

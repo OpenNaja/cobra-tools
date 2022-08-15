@@ -36,10 +36,10 @@ class Vector2(MemStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_float(instance.x)
-		stream.write_float(instance.y)
-		stream.write_uint(instance.ioptional)
-		stream.write_uint(instance.unused)
+		Float.to_stream(stream, instance.x)
+		Float.to_stream(stream, instance.y)
+		Uint.to_stream(stream, instance.ioptional)
+		Uint.to_stream(stream, instance.unused)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

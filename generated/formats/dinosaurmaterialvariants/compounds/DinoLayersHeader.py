@@ -41,8 +41,8 @@ class DinoLayersHeader(MemStruct):
 		super().write_fields(stream, instance)
 		Pointer.to_stream(stream, instance.fgm_name)
 		ArrayPointer.to_stream(stream, instance.layers)
-		stream.write_uint64(instance.layer_count)
-		stream.write_uint64(instance.zero)
+		Uint64.to_stream(stream, instance.layer_count)
+		Uint64.to_stream(stream, instance.zero)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

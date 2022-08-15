@@ -33,8 +33,8 @@ class PoolGroup(BaseStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_ushort(instance.type)
-		stream.write_ushort(instance.num_pools)
+		Ushort.to_stream(stream, instance.type)
+		Ushort.to_stream(stream, instance.num_pools)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

@@ -1,7 +1,7 @@
 import os
 import struct
 import zlib
-import io
+from io import BytesIO
 import time
 import logging
 from contextlib import contextmanager
@@ -10,13 +10,11 @@ from generated.formats.ovl.compounds.Fragment import Fragment
 from generated.formats.ovl.compounds.PoolGroup import PoolGroup
 from generated.formats.ovl.compounds.StreamEntry import StreamEntry
 from generated.formats.ovl_base import OvlContext
-from generated.formats.ovl_base.basic import ConvStream
 from generated.formats.ovl_base.enums.Compression import Compression
 from ovl_util.oodle.oodle import OodleDecompressEnum, oodle_compressor
 
 from generated.io import IoFile
 from generated.formats.ovl.versions import *
-from generated.formats.ovl.basic import basic_map
 from generated.formats.ovl.compounds.AssetEntry import AssetEntry
 from generated.formats.ovl.compounds.Header import Header
 from generated.formats.ovl.compounds.OvsHeader import OvsHeader
@@ -42,7 +40,6 @@ IGNORE_TYPES = (".mani", ".mdl2", ".texturestream", ".datastreams", ".model2stre
 
 
 class OvsFile(OvsHeader):
-	basic_map = basic_map
 
 	def __init__(self, context, ovl_inst, archive_entry):
 		# init with a dummy default archive
@@ -62,9 +59,9 @@ class OvsFile(OvsHeader):
 
 	def get_bytes(self):
 		# write the internal data
-		stream = ConvStream()
-		self.write_archive(stream)
-		return stream.getbuffer()
+		with BytesIO() as stream:
+			self.write_archive(stream)
+			return stream.getbuffer()
 
 	@contextmanager
 	def unzipper(self, compressed_bytes, uncompressed_size):
@@ -84,7 +81,7 @@ class OvsFile(OvsHeader):
 			logging.debug("No compression")
 			decompressed = compressed_bytes
 		logging.info(f"Decompressed in {time.time() - start_time:.2f} seconds")
-		with ConvStream(decompressed) as stream:
+		with BytesIO(decompressed) as stream:
 			yield stream
 
 	def compress(self, uncompressed_bytes):
@@ -196,7 +193,7 @@ class OvsFile(OvsHeader):
 
 	def read_pools(self, stream):
 		for pool in self.pools:
-			pool.data = ConvStream(stream.read(pool.size))
+			pool.data = BytesIO(stream.read(pool.size))
 
 	def map_assets(self):
 		"""Store start and stop indices to asset entries, translate hierarchy to sizedstr entries"""
@@ -572,7 +569,6 @@ class OvsFile(OvsHeader):
 
 
 class OvlFile(Header, IoFile):
-	basic_map = basic_map
 
 	def __init__(self):
 		# create a context

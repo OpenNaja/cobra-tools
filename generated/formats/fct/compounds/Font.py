@@ -29,8 +29,8 @@ class Font(MemStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_uint64(instance.data_size)
-		stream.write_uint64(instance.zero)
+		Uint64.to_stream(stream, instance.data_size)
+		Uint64.to_stream(stream, instance.zero)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

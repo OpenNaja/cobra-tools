@@ -46,8 +46,8 @@ class ListShort(Descriptor):
 		super().write_fields(stream, instance)
 		Vector3.to_stream(stream, instance.loc)
 		Vector3.to_stream(stream, instance.direction)
-		stream.write_float(instance.min)
-		stream.write_float(instance.max)
+		Float.to_stream(stream, instance.min)
+		Float.to_stream(stream, instance.max)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

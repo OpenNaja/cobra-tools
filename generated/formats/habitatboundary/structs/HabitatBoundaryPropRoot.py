@@ -82,20 +82,20 @@ class HabitatBoundaryPropRoot(MemStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_uint64(instance.type)
+		Uint64.to_stream(stream, instance.type)
 		Pointer.to_stream(stream, instance.prefab)
-		stream.write_uint64(instance.u_1)
+		Uint64.to_stream(stream, instance.u_1)
 		Pointer.to_stream(stream, instance.post)
 		Pointer.to_stream(stream, instance.wall)
-		stream.write_uint(instance.is_guest)
+		Uint.to_stream(stream, instance.is_guest)
 		HbPostPos.to_stream(stream, instance.post_position)
-		stream.write_float(instance.u_2)
+		Float.to_stream(stream, instance.u_2)
 		HbPropPhysics.to_stream(stream, instance.door_physics)
 		HbPropPhysics.to_stream(stream, instance.path_physics)
 		Pointer.to_stream(stream, instance.path_join_part)
 		HbDoorCutout.to_stream(stream, instance.door_cutout)
-		stream.write_uint(instance.small)
-		stream.write_float(instance.height)
+		Uint.to_stream(stream, instance.small)
+		Float.to_stream(stream, instance.height)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

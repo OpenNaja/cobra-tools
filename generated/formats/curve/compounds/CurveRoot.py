@@ -30,7 +30,7 @@ class CurveRoot(MemStruct):
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
 		ArrayPointer.to_stream(stream, instance.keys)
-		stream.write_uint64(instance.count)
+		Uint64.to_stream(stream, instance.count)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

@@ -66,15 +66,15 @@ class DataEntry(BaseStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_uint(instance.file_hash)
+		Uint.to_stream(stream, instance.file_hash)
 		if instance.context.version >= 19:
-			stream.write_uint(instance.ext_hash)
-		stream.write_ushort(instance.set_index)
-		stream.write_ushort(instance.buffer_count)
+			Uint.to_stream(stream, instance.ext_hash)
+		Ushort.to_stream(stream, instance.set_index)
+		Ushort.to_stream(stream, instance.buffer_count)
 		if instance.context.version >= 19:
-			stream.write_uint(instance.zero)
-		stream.write_uint64(instance.size_1)
-		stream.write_uint64(instance.size_2)
+			Uint.to_stream(stream, instance.zero)
+		Uint64.to_stream(stream, instance.size_1)
+		Uint64.to_stream(stream, instance.size_2)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

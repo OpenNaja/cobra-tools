@@ -41,10 +41,10 @@ class Uint32Data(MemStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_uint(instance.imin)
-		stream.write_uint(instance.imax)
-		stream.write_uint(instance.ivalue)
-		stream.write_uint(instance.ioptional)
+		Uint.to_stream(stream, instance.imin)
+		Uint.to_stream(stream, instance.imax)
+		Uint.to_stream(stream, instance.ivalue)
+		Uint.to_stream(stream, instance.ioptional)
 		Pointer.to_stream(stream, instance.enum)
 
 	@classmethod

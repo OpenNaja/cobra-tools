@@ -36,10 +36,10 @@ class FloatData(MemStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_float(instance.imin)
-		stream.write_float(instance.imax)
-		stream.write_float(instance.ivalue)
-		stream.write_uint(instance.ioptional)
+		Float.to_stream(stream, instance.imin)
+		Float.to_stream(stream, instance.imax)
+		Float.to_stream(stream, instance.ivalue)
+		Uint.to_stream(stream, instance.ioptional)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

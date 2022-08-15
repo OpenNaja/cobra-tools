@@ -40,7 +40,7 @@ class FontInfo(MemStruct):
 		super().write_fields(stream, instance)
 		Pointer.to_stream(stream, instance.style_name)
 		Pointer.to_stream(stream, instance.font_file)
-		stream.write_uint64(instance.flag_or_count)
+		Uint64.to_stream(stream, instance.flag_or_count)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

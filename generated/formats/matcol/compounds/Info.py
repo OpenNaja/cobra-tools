@@ -40,9 +40,9 @@ class Info(MemStruct):
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
 		Pointer.to_stream(stream, instance.info_name)
-		stream.write_bytes(instance.flags)
-		stream.write_floats(instance.value)
-		stream.write_uint(instance.padding)
+		Array.to_stream(stream, instance.flags, (4,), Byte, instance.context, 0, None)
+		Array.to_stream(stream, instance.value, (4,), Float, instance.context, 0, None)
+		Uint.to_stream(stream, instance.padding)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

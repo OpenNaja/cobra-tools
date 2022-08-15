@@ -145,31 +145,31 @@ class MeshCollision(BaseStruct):
 		super().write_fields(stream, instance)
 		Matrix33.to_stream(stream, instance.rotation)
 		Vector3.to_stream(stream, instance.offset)
-		stream.write_ushorts(instance.unk_1)
-		stream.write_uint64(instance.vertex_count)
-		stream.write_uint64(instance.tri_count)
+		Array.to_stream(stream, instance.unk_1, (3, 2,), Ushort, instance.context, 0, None)
+		Uint64.to_stream(stream, instance.vertex_count)
+		Uint64.to_stream(stream, instance.tri_count)
 		Vector3.to_stream(stream, instance.bounds_min)
 		Vector3.to_stream(stream, instance.bounds_max)
-		stream.write_uint64s(instance.ones_or_zeros)
+		Array.to_stream(stream, instance.ones_or_zeros, (7,), Uint64, instance.context, 0, None)
 		if instance.context.version <= 32:
-			stream.write_ints(instance.ff_or_zero)
+			Array.to_stream(stream, instance.ff_or_zero, (10,), Int, instance.context, 0, None)
 		if instance.context.version >= 47:
-			stream.write_ints(instance.ff_or_zero)
+			Array.to_stream(stream, instance.ff_or_zero, (8,), Int, instance.context, 0, None)
 		if instance.context.version <= 32:
 			Vector3.to_stream(stream, instance.bounds_min_repeat)
 			Vector3.to_stream(stream, instance.bounds_max_repeat)
-			stream.write_uint(instance.tri_flags_count)
-			stream.write_ushort(instance.count_bits)
-			stream.write_ushorts(instance.stuff)
+			Uint.to_stream(stream, instance.tri_flags_count)
+			Ushort.to_stream(stream, instance.count_bits)
+			Array.to_stream(stream, instance.stuff, (9,), Ushort, instance.context, 0, None)
 			Array.to_stream(stream, instance.collision_bits, (instance.count_bits,), MeshCollisionBit, instance.context, 0, None)
-			stream.write_uints(instance.zeros)
-		stream.write_floats(instance.vertices)
-		stream.write_ushorts(instance.triangles)
+			Array.to_stream(stream, instance.zeros, (4,), Uint, instance.context, 0, None)
+		Array.to_stream(stream, instance.vertices, (instance.vertex_count, 3,), Float, instance.context, 0, None)
+		Array.to_stream(stream, instance.triangles, (instance.tri_count, 3,), Ushort, instance.context, 0, None)
 		if instance.context.version <= 32:
-			stream.write_uint(instance.const)
+			Uint.to_stream(stream, instance.const)
 		if instance.context.version <= 32 and instance.const:
-			stream.write_uints(instance.triangle_flags)
-		stream.write_uint(instance.zero_end)
+			Array.to_stream(stream, instance.triangle_flags, (instance.tri_flags_count,), Uint, instance.context, 0, None)
+		Uint.to_stream(stream, instance.zero_end)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

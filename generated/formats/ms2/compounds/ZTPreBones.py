@@ -38,11 +38,11 @@ class ZTPreBones(BaseStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_uint64s(instance.zeros)
-		stream.write_uints(instance.unks)
-		stream.write_uints(instance.unks_2)
-		stream.write_floats(instance.floats)
-		stream.write_uints(instance.unks_3)
+		Array.to_stream(stream, instance.zeros, (2,), Uint64, instance.context, 0, None)
+		Array.to_stream(stream, instance.unks, (8,), Uint, instance.context, 0, None)
+		Array.to_stream(stream, instance.unks_2, (10,), Uint, instance.context, 0, None)
+		Array.to_stream(stream, instance.floats, (4,), Float, instance.context, 0, None)
+		Array.to_stream(stream, instance.unks_3, (2,), Uint, instance.context, 0, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

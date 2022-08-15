@@ -76,13 +76,13 @@ class BioMeshData(MeshData):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_uint(instance.chunks_offset)
-		stream.write_uint(instance.chunks_count)
-		stream.write_uint(instance.tris_count)
-		stream.write_uint(instance.vertex_count)
-		stream.write_uint64(instance.zero_1)
-		stream.write_uint(instance.poweroftwo)
-		stream.write_floats(instance.unk_floats)
+		Uint.to_stream(stream, instance.chunks_offset)
+		Uint.to_stream(stream, instance.chunks_count)
+		Uint.to_stream(stream, instance.tris_count)
+		Uint.to_stream(stream, instance.vertex_count)
+		Uint64.to_stream(stream, instance.zero_1)
+		Uint.to_stream(stream, instance.poweroftwo)
+		Array.to_stream(stream, instance.unk_floats, (2,), Float, instance.context, 0, None)
 		BioModelFlag.to_stream(stream, instance.flag)
 
 	@classmethod

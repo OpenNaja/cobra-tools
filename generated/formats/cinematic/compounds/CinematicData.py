@@ -38,7 +38,7 @@ class CinematicData(MemStruct):
 		super().write_fields(stream, instance)
 		Pointer.to_stream(stream, instance.default_name)
 		ArrayPointer.to_stream(stream, instance.next_levels)
-		stream.write_uint64(instance.next_level_count)
+		Uint64.to_stream(stream, instance.next_level_count)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

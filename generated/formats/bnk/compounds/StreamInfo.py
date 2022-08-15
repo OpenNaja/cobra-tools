@@ -38,10 +38,10 @@ class StreamInfo(BaseStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_uint64(instance.offset)
-		stream.write_uint64(instance.size)
-		stream.write_uint(instance.event_id)
-		stream.write_uint(instance.zero)
+		Uint64.to_stream(stream, instance.offset)
+		Uint64.to_stream(stream, instance.size)
+		Uint.to_stream(stream, instance.event_id)
+		Uint.to_stream(stream, instance.zero)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

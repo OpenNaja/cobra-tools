@@ -36,10 +36,10 @@ class SetEntry(BaseStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_uint(instance.file_hash)
+		Uint.to_stream(stream, instance.file_hash)
 		if instance.context.version >= 19:
-			stream.write_uint(instance.ext_hash)
-		stream.write_uint(instance.start)
+			Uint.to_stream(stream, instance.ext_hash)
+		Uint.to_stream(stream, instance.start)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

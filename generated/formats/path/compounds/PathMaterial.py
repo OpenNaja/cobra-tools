@@ -94,9 +94,9 @@ class PathMaterial(MemStruct):
 		Pointer.to_stream(stream, instance.underside_mat_2)
 		Pointer.to_stream(stream, instance.stairs_mat_1)
 		Pointer.to_stream(stream, instance.stairs_mat_2)
-		stream.write_uint64(instance.path_sub_type)
+		Uint64.to_stream(stream, instance.path_sub_type)
 		ArrayPointer.to_stream(stream, instance.mat_data)
-		stream.write_uint64(instance.num_data)
+		Uint64.to_stream(stream, instance.num_data)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

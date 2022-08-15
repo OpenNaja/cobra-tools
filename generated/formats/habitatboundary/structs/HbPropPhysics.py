@@ -49,12 +49,12 @@ class HbPropPhysics(MemStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_float(instance.pad_top)
-		stream.write_float(instance.z_pos)
-		stream.write_float(instance.half_width)
-		stream.write_float(instance.pad_bottom)
-		stream.write_float(instance.half_depth)
-		stream.write_float(instance.u_6)
+		Float.to_stream(stream, instance.pad_top)
+		Float.to_stream(stream, instance.z_pos)
+		Float.to_stream(stream, instance.half_width)
+		Float.to_stream(stream, instance.pad_bottom)
+		Float.to_stream(stream, instance.half_depth)
+		Float.to_stream(stream, instance.u_6)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

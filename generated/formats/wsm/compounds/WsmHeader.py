@@ -52,9 +52,9 @@ class WsmHeader(MemStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_float(instance.duration)
-		stream.write_uint(instance.frame_count)
-		stream.write_floats(instance.unknowns)
+		Float.to_stream(stream, instance.duration)
+		Uint.to_stream(stream, instance.frame_count)
+		Array.to_stream(stream, instance.unknowns, (8,), Float, instance.context, 0, None)
 		ArrayPointer.to_stream(stream, instance.locs)
 		ArrayPointer.to_stream(stream, instance.quats)
 

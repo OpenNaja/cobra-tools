@@ -38,9 +38,9 @@ class ByteVector3(MemStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_byte(instance.x)
-		stream.write_byte(instance.y)
-		stream.write_byte(instance.z)
+		Byte.to_stream(stream, instance.x)
+		Byte.to_stream(stream, instance.y)
+		Byte.to_stream(stream, instance.z)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

@@ -1,4 +1,3 @@
-from generated.formats.manis.basic import basic_map
 from generated.formats.manis.compounds.ManiBlock import ManiBlock
 from generated.formats.manis.compounds.InfoHeader import InfoHeader
 from generated.formats.ovl_base import OvlContext
@@ -15,8 +14,6 @@ def hex_test():
 
 
 class ManisFile(InfoHeader, IoFile):
-
-	basic_map = basic_map
 
 	def __init__(self):
 		super().__init__(OvlContext())

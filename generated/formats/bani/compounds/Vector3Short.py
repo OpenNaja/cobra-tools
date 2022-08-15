@@ -38,9 +38,9 @@ class Vector3Short(BaseStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_short(instance.x)
-		stream.write_short(instance.y)
-		stream.write_short(instance.z)
+		Short.to_stream(stream, instance.x)
+		Short.to_stream(stream, instance.y)
+		Short.to_stream(stream, instance.z)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

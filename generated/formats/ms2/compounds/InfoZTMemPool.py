@@ -31,8 +31,8 @@ class InfoZTMemPool(BaseStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_ushort(instance.unk_count)
-		stream.write_ushorts(instance.unks)
+		Ushort.to_stream(stream, instance.unk_count)
+		Array.to_stream(stream, instance.unks, (instance.unk_count, 2,), Ushort, instance.context, 0, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

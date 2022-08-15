@@ -48,11 +48,11 @@ class DinoPatternsHeader(MemStruct):
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
 		Pointer.to_stream(stream, instance.fgm_name)
-		stream.write_uint64(instance.set_count)
+		Uint64.to_stream(stream, instance.set_count)
 		Pointer.to_stream(stream, instance.set_name)
 		Pointer.to_stream(stream, instance.patterns)
-		stream.write_uint64(instance.pattern_count)
-		stream.write_uint64(instance.zero)
+		Uint64.to_stream(stream, instance.pattern_count)
+		Uint64.to_stream(stream, instance.zero)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

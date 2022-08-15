@@ -29,8 +29,8 @@ class PosInfo(Material):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_int(instance.ff)
-		stream.write_int(instance.ff_or_zero)
+		Int.to_stream(stream, instance.ff)
+		Int.to_stream(stream, instance.ff_or_zero)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

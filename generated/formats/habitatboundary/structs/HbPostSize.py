@@ -34,9 +34,9 @@ class HbPostSize(MemStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_float(instance.front_back)
-		stream.write_float(instance.left_right)
-		stream.write_float(instance.top)
+		Float.to_stream(stream, instance.front_back)
+		Float.to_stream(stream, instance.left_right)
+		Float.to_stream(stream, instance.top)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

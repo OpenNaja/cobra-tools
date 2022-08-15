@@ -70,15 +70,15 @@ class WorldHeader(MemStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_uint64(instance.world_type)
+		Uint64.to_stream(stream, instance.world_type)
 		Pointer.to_stream(stream, instance.asset_pkgs)
-		stream.write_uint64(instance.asset_pkg_count)
+		Uint64.to_stream(stream, instance.asset_pkg_count)
 		Pointer.to_stream(stream, instance.lua_name)
 		Pointer.to_stream(stream, instance.ptr_0)
 		Pointer.to_stream(stream, instance.ptr_1)
 		Pointer.to_stream(stream, instance.prefabs)
 		Pointer.to_stream(stream, instance.ptr_2)
-		stream.write_uint64(instance.prefab_count)
+		Uint64.to_stream(stream, instance.prefab_count)
 		Pointer.to_stream(stream, instance.ptr_3)
 
 	@classmethod

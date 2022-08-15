@@ -80,12 +80,12 @@ class Ms2Root(MemStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_uint(instance.version)
-		stream.write_ushort(instance.vertex_buffer_count)
-		stream.write_ushort(instance.mdl_2_count)
-		stream.write_ushort(instance.name_count)
-		stream.write_short(instance.stream_count)
-		stream.write_uints(instance.zeros)
+		Uint.to_stream(stream, instance.version)
+		Ushort.to_stream(stream, instance.vertex_buffer_count)
+		Ushort.to_stream(stream, instance.mdl_2_count)
+		Ushort.to_stream(stream, instance.name_count)
+		Short.to_stream(stream, instance.stream_count)
+		Array.to_stream(stream, instance.zeros, (3,), Uint, instance.context, 0, None)
 		ArrayPointer.to_stream(stream, instance.buffer_infos)
 		ArrayPointer.to_stream(stream, instance.model_infos)
 		ArrayPointer.to_stream(stream, instance.buffers_presence)

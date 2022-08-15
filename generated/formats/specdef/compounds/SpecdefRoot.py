@@ -80,12 +80,12 @@ class SpecdefRoot(MemStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_ushort(instance.attrib_count)
-		stream.write_ushort(instance.flags)
-		stream.write_ubyte(instance.name_count)
-		stream.write_ubyte(instance.childspec_count)
-		stream.write_ubyte(instance.manager_count)
-		stream.write_ubyte(instance.script_count)
+		Ushort.to_stream(stream, instance.attrib_count)
+		Ushort.to_stream(stream, instance.flags)
+		Ubyte.to_stream(stream, instance.name_count)
+		Ubyte.to_stream(stream, instance.childspec_count)
+		Ubyte.to_stream(stream, instance.manager_count)
+		Ubyte.to_stream(stream, instance.script_count)
 		ArrayPointer.to_stream(stream, instance.attribs)
 		ForEachPointer.to_stream(stream, instance.name_foreach_attribs)
 		ForEachPointer.to_stream(stream, instance.data_foreach_attribs)

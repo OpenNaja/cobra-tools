@@ -33,8 +33,8 @@ class ZlibInfo(BaseStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_uint(instance.zlib_thing_1)
-		stream.write_uint(instance.zlib_thing_2)
+		Uint.to_stream(stream, instance.zlib_thing_1)
+		Uint.to_stream(stream, instance.zlib_thing_2)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

@@ -47,7 +47,7 @@ class BoundingBox(BaseStruct):
 		Vector3.to_stream(stream, instance.center)
 		Vector3.to_stream(stream, instance.extent)
 		if instance.context.version == 32:
-			stream.write_uints(instance.zeros)
+			Array.to_stream(stream, instance.zeros, (3,), Uint, instance.context, 0, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

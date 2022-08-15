@@ -144,7 +144,7 @@ class XmlParser:
                 traceback.print_exc()
         out_file = BaseClass.get_out_path(os.path.join(self.base_segments, "versions"))
         self.versions.write(out_file)
-        self.basics.write_basic_map()
+        # self.basics.write_basic_map()
         parsed_xmls[xml_path] = self
 
     # the following constructs do not create classes
@@ -232,15 +232,6 @@ class XmlParser:
         return arr_str
 
     def read_for_type(self, dtype, context, arg=0, template=None, arr1=None, arr2=None):
-        type_tag = self.tag_dict.get(dtype.lower())
-        # if type_tag == "basic":
-        #     # check for presence of stream registering functions
-        #     if callable(getattr(self.basics.basic_map[dtype], "functions_for_stream", None)):
-        #         # if they're present, use them
-        #         if arr1 is not None:
-        #             return f'stream.read_{dtype.lower()}s({self.arrs_to_tuple(arr1, arr2)})'
-        #         else:
-        #             return f'stream.read_{dtype.lower()}()'
         if arr1 is not None:
             return f'Array.from_stream(stream, {context}, {arg}, {template}, {self.arrs_to_tuple(arr1, arr2)}, {dtype})'
         else:
@@ -248,15 +239,6 @@ class XmlParser:
             return f'{dtype}.from_stream(stream, {context}, {arg}, {template})'
 
     def write_for_type(self, dtype, attr, context, arg=0, template=None, arr1=None, arr2=None):
-        type_tag = self.tag_dict.get(dtype.lower())
-        if type_tag == "basic":
-            # check for presence of stream registering functions
-            if callable(getattr(self.basics.basic_map[dtype], "functions_for_stream", None)):
-                # if they're present, use them
-                if arr1:
-                    return f'stream.write_{dtype.lower()}s({attr})'
-                else:
-                    return f'stream.write_{dtype.lower()}({attr})'
         if arr1:
             return f'Array.to_stream(stream, {attr}, {self.arrs_to_tuple(arr1, arr2)}, '\
                    f'{dtype}, {context}, {arg}, {template})'

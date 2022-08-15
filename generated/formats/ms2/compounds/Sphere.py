@@ -37,8 +37,8 @@ class Sphere(BaseStruct):
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
 		Vector3.to_stream(stream, instance.center)
-		stream.write_float(instance.radius)
-		stream.write_uint(instance.zero)
+		Float.to_stream(stream, instance.radius)
+		Uint.to_stream(stream, instance.zero)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

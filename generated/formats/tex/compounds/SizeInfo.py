@@ -36,9 +36,9 @@ class SizeInfo(MemStruct):
 		super().write_fields(stream, instance)
 		SizeInfoRaw.to_stream(stream, instance.data)
 		if ((not instance.context.user_version.is_jwe) and (instance.context.version == 20)) or (((not instance.context.user_version.is_jwe) and (instance.context.version >= 19)) or (instance.context.user_version.is_jwe and (instance.context.version == 20))):
-			stream.write_ubytes(instance.padding)
+			Array.to_stream(stream, instance.padding, (320 - instance.data.io_size,), Ubyte, instance.context, 0, None)
 		if instance.context.user_version.is_jwe and (instance.context.version == 19):
-			stream.write_ubytes(instance.padding)
+			Array.to_stream(stream, instance.padding, (384 - instance.data.io_size,), Ubyte, instance.context, 0, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

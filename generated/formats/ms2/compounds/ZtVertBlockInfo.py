@@ -35,9 +35,9 @@ class ZtVertBlockInfo(BaseStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_uint(instance.vertex_count)
-		stream.write_ubytes(instance.flags)
-		stream.write_uint(instance.zero)
+		Uint.to_stream(stream, instance.vertex_count)
+		Array.to_stream(stream, instance.flags, (8,), Ubyte, instance.context, 0, None)
+		Uint.to_stream(stream, instance.zero)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

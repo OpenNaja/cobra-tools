@@ -185,19 +185,3 @@ class ZString:
     @staticmethod
     def to_xml(elem, prop, instance, arguments, debug):
         elem.attrib[prop] = instance
-
-
-basic_map = {
-			'Byte': Byte,
-			'Ubyte': Ubyte,
-			'Uint64': Uint64,
-			'Int64': Int64,
-			'Uint': Uint,
-			'Ushort': Ushort,
-			'Int': Int,
-			'Short': Short,
-			'Char': Char,
-			'Float': Float,
-			'Double': Double,
-			'ZString': ZString,
-}

@@ -47,10 +47,10 @@ class BufferEntry(BaseStruct):
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
 		if instance.context.version <= 19:
-			stream.write_uint(instance.index)
-		stream.write_uint(instance.size)
+			Uint.to_stream(stream, instance.index)
+		Uint.to_stream(stream, instance.size)
 		if instance.context.version >= 20:
-			stream.write_uint(instance.file_hash)
+			Uint.to_stream(stream, instance.file_hash)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

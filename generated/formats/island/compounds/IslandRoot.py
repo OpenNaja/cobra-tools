@@ -44,10 +44,10 @@ class IslandRoot(MemStruct):
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
 		Pointer.to_stream(stream, instance.path_name)
-		stream.write_float(instance.a)
-		stream.write_float(instance.b)
-		stream.write_uint64(instance.count)
-		stream.write_uint64(instance.zero)
+		Float.to_stream(stream, instance.a)
+		Float.to_stream(stream, instance.b)
+		Uint64.to_stream(stream, instance.count)
+		Uint64.to_stream(stream, instance.zero)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

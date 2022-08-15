@@ -29,8 +29,8 @@ class Object(BaseStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_ushort(instance.material_index)
-		stream.write_ushort(instance.mesh_index)
+		Ushort.to_stream(stream, instance.material_index)
+		Ushort.to_stream(stream, instance.mesh_index)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

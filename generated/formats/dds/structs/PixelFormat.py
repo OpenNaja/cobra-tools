@@ -64,14 +64,14 @@ class PixelFormat(BaseStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_uint(instance.size)
+		Uint.to_stream(stream, instance.size)
 		PixelFormatFlags.to_stream(stream, instance.flags)
 		FourCC.to_stream(stream, instance.four_c_c)
-		stream.write_uint(instance.bit_count)
-		stream.write_uint(instance.r_mask)
-		stream.write_uint(instance.g_mask)
-		stream.write_uint(instance.b_mask)
-		stream.write_uint(instance.a_mask)
+		Uint.to_stream(stream, instance.bit_count)
+		Uint.to_stream(stream, instance.r_mask)
+		Uint.to_stream(stream, instance.g_mask)
+		Uint.to_stream(stream, instance.b_mask)
+		Uint.to_stream(stream, instance.a_mask)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

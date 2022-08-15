@@ -99,13 +99,13 @@ class HitCheckEntry(BaseStruct):
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
 		CollisionType.to_stream(stream, instance.dtype)
-		stream.write_ushort(instance.flag_0)
-		stream.write_ushort(instance.flag_1)
-		stream.write_uint(instance.flag_2)
-		stream.write_uint(instance.flag_3)
+		Ushort.to_stream(stream, instance.flag_0)
+		Ushort.to_stream(stream, instance.flag_1)
+		Uint.to_stream(stream, instance.flag_2)
+		Uint.to_stream(stream, instance.flag_3)
 		if instance.context.version < 47:
-			stream.write_uint(instance.zero_extra_pc_unk)
-		stream.write_uint(instance.name_offset)
+			Uint.to_stream(stream, instance.zero_extra_pc_unk)
+		Uint.to_stream(stream, instance.name_offset)
 		if instance.dtype == 0:
 			Sphere.to_stream(stream, instance.collider)
 		if instance.dtype == 1:
@@ -121,7 +121,7 @@ class HitCheckEntry(BaseStruct):
 		if instance.dtype == 10:
 			MeshCollision.to_stream(stream, instance.collider)
 		if instance.context.version == 13:
-			stream.write_uint(instance.zero_extra_zt)
+			Uint.to_stream(stream, instance.zero_extra_zt)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

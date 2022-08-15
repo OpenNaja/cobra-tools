@@ -24,7 +24,7 @@ class DLAPreBones(BaseStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_ubytes(instance.unk)
+		Array.to_stream(stream, instance.unk, (120,), Ubyte, instance.context, 0, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

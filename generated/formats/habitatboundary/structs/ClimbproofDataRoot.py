@@ -61,9 +61,9 @@ class ClimbproofDataRoot(MemStruct):
 		Pointer.to_stream(stream, instance.climb_proof_cap_start)
 		Pointer.to_stream(stream, instance.climb_proof_cap_end)
 		Pointer.to_stream(stream, instance.climb_proof_bracket)
-		stream.write_float(instance.post_gap)
-		stream.write_float(instance.u_1)
-		stream.write_uint64(instance.zero)
+		Float.to_stream(stream, instance.post_gap)
+		Float.to_stream(stream, instance.u_1)
+		Uint64.to_stream(stream, instance.zero)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

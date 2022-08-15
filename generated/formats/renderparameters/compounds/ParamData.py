@@ -72,23 +72,23 @@ class ParamData(MemStruct):
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
 		if instance.arg == 0:
-			stream.write_bools(instance.data)
+			Array.to_stream(stream, instance.data, (1,), Bool, instance.context, 0, None)
 		if instance.arg == 1:
-			stream.write_floats(instance.data)
+			Array.to_stream(stream, instance.data, (1,), Float, instance.context, 0, None)
 		if instance.arg == 2:
-			stream.write_ints(instance.data)
+			Array.to_stream(stream, instance.data, (1,), Int, instance.context, 0, None)
 		if instance.arg == 3:
-			stream.write_uints(instance.data)
+			Array.to_stream(stream, instance.data, (1,), Uint, instance.context, 0, None)
 		if instance.arg == 4:
-			stream.write_floats(instance.data)
+			Array.to_stream(stream, instance.data, (2,), Float, instance.context, 0, None)
 		if instance.arg == 5:
-			stream.write_floats(instance.data)
+			Array.to_stream(stream, instance.data, (3,), Float, instance.context, 0, None)
 		if instance.arg == 6:
-			stream.write_floats(instance.data)
+			Array.to_stream(stream, instance.data, (4,), Float, instance.context, 0, None)
 		if instance.arg == 7:
-			stream.write_ubytes(instance.data)
+			Array.to_stream(stream, instance.data, (4,), Ubyte, instance.context, 0, None)
 		if instance.arg == 8:
-			stream.write_floats(instance.data)
+			Array.to_stream(stream, instance.data, (4,), Float, instance.context, 0, None)
 		if instance.arg == 9:
 			Array.to_stream(stream, instance.data, (1,), ZStrPtr, instance.context, 0, None)
 

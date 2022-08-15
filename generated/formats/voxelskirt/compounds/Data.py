@@ -43,10 +43,10 @@ class Data(BaseStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_uint64(instance.id)
-		stream.write_uint64(instance.type)
-		stream.write_uint64(instance.offset)
-		stream.write_uint64(instance.dsize)
+		Uint64.to_stream(stream, instance.id)
+		Uint64.to_stream(stream, instance.type)
+		Uint64.to_stream(stream, instance.offset)
+		Uint64.to_stream(stream, instance.dsize)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

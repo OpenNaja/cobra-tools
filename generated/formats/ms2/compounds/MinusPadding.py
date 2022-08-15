@@ -36,8 +36,8 @@ class MinusPadding(BaseStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_shorts(instance.indices)
-		stream.write_bytes(instance.padding)
+		Array.to_stream(stream, instance.indices, (instance.arg,), Short, instance.context, 0, None)
+		Array.to_stream(stream, instance.padding, ((16 - ((instance.arg * 2) % 16)) % 16,), Byte, instance.context, 0, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

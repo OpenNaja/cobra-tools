@@ -193,45 +193,45 @@ class ModelInfo(MemStruct):
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
 		if instance.context.version <= 7:
-			stream.write_uint64(instance.unk_dla)
+			Uint64.to_stream(stream, instance.unk_dla)
 		Vector3.to_stream(stream, instance.bounds_min)
 		if instance.context.version >= 47 and not ((instance.context.version == 51) and instance.context.biosyn):
-			stream.write_float(instance.unk_float_a)
+			Float.to_stream(stream, instance.unk_float_a)
 		Vector3.to_stream(stream, instance.bounds_max)
 		if instance.context.version >= 47 and not ((instance.context.version == 51) and instance.context.biosyn):
-			stream.write_float(instance.pack_base)
+			Float.to_stream(stream, instance.pack_base)
 		Vector3.to_stream(stream, instance.center)
-		stream.write_float(instance.radius)
+		Float.to_stream(stream, instance.radius)
 		if instance.context.version >= 48 and not ((instance.context.version == 51) and instance.context.biosyn):
-			stream.write_uint64(instance.num_lods_2)
-			stream.write_uint64(instance.zero)
+			Uint64.to_stream(stream, instance.num_lods_2)
+			Uint64.to_stream(stream, instance.zero)
 		if instance.context.version >= 32:
 			Vector3.to_stream(stream, instance.bounds_min_repeat)
 			Vector3.to_stream(stream, instance.bounds_max_repeat)
-		stream.write_ushort(instance.num_materials)
-		stream.write_ushort(instance.num_lods)
-		stream.write_ushort(instance.num_objects)
-		stream.write_ushort(instance.num_meshes)
-		stream.write_ushort(instance.last_count)
+		Ushort.to_stream(stream, instance.num_materials)
+		Ushort.to_stream(stream, instance.num_lods)
+		Ushort.to_stream(stream, instance.num_objects)
+		Ushort.to_stream(stream, instance.num_meshes)
+		Ushort.to_stream(stream, instance.last_count)
 		RenderFlag.to_stream(stream, instance.render_flag)
-		stream.write_ushorts(instance.unks)
-		stream.write_ushorts(instance.pad)
+		Array.to_stream(stream, instance.unks, (7,), Ushort, instance.context, 0, None)
+		Array.to_stream(stream, instance.pad, (3,), Ushort, instance.context, 0, None)
 		ArrayPointer.to_stream(stream, instance.materials)
 		ArrayPointer.to_stream(stream, instance.lods)
 		ArrayPointer.to_stream(stream, instance.objects)
 		ArrayPointer.to_stream(stream, instance.meshes)
 		Pointer.to_stream(stream, instance.first_model)
 		if instance.context.version == 13:
-			stream.write_uint64s(instance.zeros)
+			Array.to_stream(stream, instance.zeros, (4,), Uint64, instance.context, 0, None)
 		if instance.context.version == 7:
-			stream.write_uint64s(instance.zeros)
-		stream.write_uint64(instance.increment_flag)
+			Array.to_stream(stream, instance.zeros, (2,), Uint64, instance.context, 0, None)
+		Uint64.to_stream(stream, instance.increment_flag)
 		if not (instance.context.version == 7):
-			stream.write_uint64(instance.zero_0)
+			Uint64.to_stream(stream, instance.zero_0)
 		if not (instance.context.version == 32):
-			stream.write_uint64(instance.zero_1)
+			Uint64.to_stream(stream, instance.zero_1)
 		if instance.context.version >= 47 and not ((instance.context.version == 51) and instance.context.biosyn):
-			stream.write_uint64(instance.zero_2)
+			Uint64.to_stream(stream, instance.zero_2)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

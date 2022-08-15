@@ -53,10 +53,10 @@ class Transition(MemStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_uint(instance.count_0)
-		stream.write_uint(instance.count_1)
+		Uint.to_stream(stream, instance.count_0)
+		Uint.to_stream(stream, instance.count_1)
 		Pointer.to_stream(stream, instance.ptr_0)
-		stream.write_uint64(instance.count_2)
+		Uint64.to_stream(stream, instance.count_2)
 		Pointer.to_stream(stream, instance.ptr_1)
 		Pointer.to_stream(stream, instance.id)
 

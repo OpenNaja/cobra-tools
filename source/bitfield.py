@@ -41,14 +41,6 @@ class BasicBitfield(object):
         else:
             self._value = 0
 
-    def read(self, stream):
-        logging.warning(f"BasicBitfield.read is deprecated")
-        self._value = stream.read_uint()
-
-    def write(self, stream):
-        logging.warning(f"BasicBitfield.write is deprecated")
-        stream.write_uint(self._value)
-
     @classmethod
     def from_stream(cls, stream, context=None, arg=0, template=None):
         return cls.from_value(cls.storage.from_stream(stream, context=None, arg=0, template=None))

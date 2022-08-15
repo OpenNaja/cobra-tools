@@ -38,7 +38,7 @@ class Layer(MemStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_uint64(instance.has_ptr)
+		Uint64.to_stream(stream, instance.has_ptr)
 		Pointer.to_stream(stream, instance.texture_fgm_name)
 		Pointer.to_stream(stream, instance.transform_fgm_name)
 

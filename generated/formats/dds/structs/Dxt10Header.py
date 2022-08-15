@@ -38,9 +38,9 @@ class Dxt10Header(BaseStruct):
 		super().write_fields(stream, instance)
 		DxgiFormat.to_stream(stream, instance.dxgi_format)
 		D3D10ResourceDimension.to_stream(stream, instance.resource_dimension)
-		stream.write_uint(instance.misc_flag)
-		stream.write_uint(instance.array_size)
-		stream.write_uint(instance.misc_flag_2)
+		Uint.to_stream(stream, instance.misc_flag)
+		Uint.to_stream(stream, instance.array_size)
+		Uint.to_stream(stream, instance.misc_flag_2)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

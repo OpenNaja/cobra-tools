@@ -37,8 +37,8 @@ class SupportAttach(MemStruct):
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
 		Pointer.to_stream(stream, instance.model_name)
-		stream.write_uint64(instance.unk_int_1)
-		stream.write_uint64(instance.unk_int_2)
+		Uint64.to_stream(stream, instance.unk_int_1)
+		Uint64.to_stream(stream, instance.unk_int_2)
 		Vector2.to_stream(stream, instance.unk_vector)
 
 	@classmethod

@@ -86,16 +86,16 @@ class NewMeshData(MeshData):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_uint(instance.vertex_count)
-		stream.write_uint(instance.tri_index_count)
-		stream.write_uint(instance.zero_1)
-		stream.write_uint(instance.poweroftwo)
-		stream.write_uint(instance.vertex_offset)
-		stream.write_uint(instance.size_of_vertex)
-		stream.write_uint(instance.tri_offset)
-		stream.write_uint(instance.zero_2)
-		stream.write_floats(instance.unk_floats)
-		stream.write_uint(instance.zero_3)
+		Uint.to_stream(stream, instance.vertex_count)
+		Uint.to_stream(stream, instance.tri_index_count)
+		Uint.to_stream(stream, instance.zero_1)
+		Uint.to_stream(stream, instance.poweroftwo)
+		Uint.to_stream(stream, instance.vertex_offset)
+		Uint.to_stream(stream, instance.size_of_vertex)
+		Uint.to_stream(stream, instance.tri_offset)
+		Uint.to_stream(stream, instance.zero_2)
+		Array.to_stream(stream, instance.unk_floats, (2,), Float, instance.context, 0, None)
+		Uint.to_stream(stream, instance.zero_3)
 		ModelFlag.to_stream(stream, instance.flag)
 
 	@classmethod

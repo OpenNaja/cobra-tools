@@ -52,16 +52,16 @@ class UncompressedRegion(BaseStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_uints(instance.zeros_0)
-		stream.write_ushort(instance.unk_0)
-		stream.write_ushort(instance.unk_1)
-		stream.write_uints(instance.zeros_1)
-		stream.write_uint(instance.unk_2)
-		stream.write_uint(instance.unk_3)
-		stream.write_uints(instance.zeros_2)
-		stream.write_uint(instance.unk_4)
-		stream.write_uint(instance.unk_5)
-		stream.write_uints(instance.zeros_3)
+		Array.to_stream(stream, instance.zeros_0, (2,), Uint, instance.context, 0, None)
+		Ushort.to_stream(stream, instance.unk_0)
+		Ushort.to_stream(stream, instance.unk_1)
+		Array.to_stream(stream, instance.zeros_1, (3,), Uint, instance.context, 0, None)
+		Uint.to_stream(stream, instance.unk_2)
+		Uint.to_stream(stream, instance.unk_3)
+		Array.to_stream(stream, instance.zeros_2, (2,), Uint, instance.context, 0, None)
+		Uint.to_stream(stream, instance.unk_4)
+		Uint.to_stream(stream, instance.unk_5)
+		Array.to_stream(stream, instance.zeros_3, (2,), Uint, instance.context, 0, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

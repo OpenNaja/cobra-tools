@@ -30,9 +30,9 @@ class SupportAttachExtra(SupportAttach):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_float(instance.unk_float_1)
-		stream.write_uint(instance.unk_int_3)
-		stream.write_uint64(instance.padding)
+		Float.to_stream(stream, instance.unk_float_1)
+		Uint.to_stream(stream, instance.unk_int_3)
+		Uint64.to_stream(stream, instance.padding)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

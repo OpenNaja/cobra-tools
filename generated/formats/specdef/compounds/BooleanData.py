@@ -34,9 +34,9 @@ class BooleanData(MemStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_ubyte(instance.value)
-		stream.write_ubyte(instance.default)
-		stream.write_ubytes(instance.unused)
+		Ubyte.to_stream(stream, instance.value)
+		Ubyte.to_stream(stream, instance.default)
+		Array.to_stream(stream, instance.unused, (6,), Ubyte, instance.context, 0, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

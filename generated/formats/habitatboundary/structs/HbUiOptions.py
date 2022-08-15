@@ -29,8 +29,8 @@ class HbUiOptions(MemStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_bool(instance.straight_curve)
-		stream.write_bool(instance.windows)
+		Bool.to_stream(stream, instance.straight_curve)
+		Bool.to_stream(stream, instance.windows)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

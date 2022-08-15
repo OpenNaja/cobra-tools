@@ -36,7 +36,7 @@ class MatcolRoot(MemStruct):
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
 		Pointer.to_stream(stream, instance.main)
-		stream.write_uint64(instance.one)
+		Uint64.to_stream(stream, instance.one)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

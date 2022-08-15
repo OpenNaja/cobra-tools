@@ -29,7 +29,7 @@ class EnumnamerRoot(MemStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_uint64(instance.count)
+		Uint64.to_stream(stream, instance.count)
 		Pointer.to_stream(stream, instance.strings)
 
 	@classmethod

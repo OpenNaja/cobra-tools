@@ -38,10 +38,10 @@ class CommonJointInfo(BaseStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_uint(instance.eleven)
-		stream.write_ints(instance.f_fs)
-		stream.write_uint(instance.name_offset)
-		stream.write_uint(instance.hitcheck_count)
+		Uint.to_stream(stream, instance.eleven)
+		Array.to_stream(stream, instance.f_fs, (3,), Int, instance.context, 0, None)
+		Uint.to_stream(stream, instance.name_offset)
+		Uint.to_stream(stream, instance.hitcheck_count)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

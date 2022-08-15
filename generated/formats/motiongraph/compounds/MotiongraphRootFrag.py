@@ -60,13 +60,13 @@ class MotiongraphRootFrag(MemStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_uint64(instance.num_activities)
+		Uint64.to_stream(stream, instance.num_activities)
 		Pointer.to_stream(stream, instance.activities)
-		stream.write_uint64(instance.count_1)
+		Uint64.to_stream(stream, instance.count_1)
 		Pointer.to_stream(stream, instance.ptr_1)
-		stream.write_uint64(instance.count_2)
+		Uint64.to_stream(stream, instance.count_2)
 		Pointer.to_stream(stream, instance.ptr_2)
-		stream.write_uint64(instance.num_xmls)
+		Uint64.to_stream(stream, instance.num_xmls)
 		Pointer.to_stream(stream, instance.ptr_xmls)
 
 	@classmethod

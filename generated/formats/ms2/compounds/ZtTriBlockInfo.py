@@ -33,9 +33,9 @@ class ZtTriBlockInfo(BaseStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_uint(instance.tri_index_count)
-		stream.write_short(instance.a)
-		stream.write_short(instance.unk_index)
+		Uint.to_stream(stream, instance.tri_index_count)
+		Short.to_stream(stream, instance.a)
+		Short.to_stream(stream, instance.unk_index)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

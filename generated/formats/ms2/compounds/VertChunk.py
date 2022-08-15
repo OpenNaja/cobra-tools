@@ -52,12 +52,12 @@ class VertChunk(BaseStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_ubytes(instance.flags)
-		stream.write_float(instance.pack_base)
-		stream.write_uint(instance.vertex_offset)
-		stream.write_ubyte(instance.vertex_count)
+		Array.to_stream(stream, instance.flags, (4,), Ubyte, instance.context, 0, None)
+		Float.to_stream(stream, instance.pack_base)
+		Uint.to_stream(stream, instance.vertex_offset)
+		Ubyte.to_stream(stream, instance.vertex_count)
 		WeightsFlag.to_stream(stream, instance.weights_flag)
-		stream.write_ubyte(instance.zero)
+		Ubyte.to_stream(stream, instance.zero)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

@@ -58,14 +58,14 @@ class LayerFrag(MemStruct):
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
 		Pointer.to_stream(stream, instance.layer_name)
-		stream.write_uint64(instance.u_0)
-		stream.write_uint64(instance.u_1)
+		Uint64.to_stream(stream, instance.u_0)
+		Uint64.to_stream(stream, instance.u_1)
 		ArrayPointer.to_stream(stream, instance.infos)
-		stream.write_uint64(instance.info_count)
-		stream.write_uint64(instance.u_2)
-		stream.write_uint64(instance.u_3)
+		Uint64.to_stream(stream, instance.info_count)
+		Uint64.to_stream(stream, instance.u_2)
+		Uint64.to_stream(stream, instance.u_3)
 		ArrayPointer.to_stream(stream, instance.attribs)
-		stream.write_uint64(instance.attrib_count)
+		Uint64.to_stream(stream, instance.attrib_count)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

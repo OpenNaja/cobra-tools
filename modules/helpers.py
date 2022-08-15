@@ -1,7 +1,7 @@
 import os
 import numpy as np
 
-from generated.formats.ovl_base.basic import ConvStream
+from io import BytesIO
 from generated.array import Array
 
 
@@ -24,7 +24,7 @@ def as_bytes(inst):
 		return inst.encode() + b"\x00"
 	if isinstance(inst, (bytes, bytearray)):
 		return inst
-	with ConvStream() as stream:
+	with BytesIO() as stream:
 		inst.write(stream)
 		return stream.getvalue()
 

@@ -65,14 +65,14 @@ class DataStreamProducerActivityData(MemStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_uint64(instance.curve_type)
+		Uint64.to_stream(stream, instance.curve_type)
 		Pointer.to_stream(stream, instance.ds_name)
 		Pointer.to_stream(stream, instance.type)
 		Pointer.to_stream(stream, instance.bone_i_d)
 		Pointer.to_stream(stream, instance.location)
 		CurveData.to_stream(stream, instance.curve)
 		TimeLimitMode.to_stream(stream, instance.time_limit_mode)
-		stream.write_uint(instance.data_stream_producer_flags)
+		Uint.to_stream(stream, instance.data_stream_producer_flags)
 		Pointer.to_stream(stream, instance.prop_through_variable)
 
 	@classmethod

@@ -33,8 +33,8 @@ class UshortVector2(BaseStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		stream.write_ushort(instance.u)
-		stream.write_ushort(instance.v)
+		Ushort.to_stream(stream, instance.u)
+		Ushort.to_stream(stream, instance.v)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
