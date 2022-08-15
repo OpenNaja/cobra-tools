@@ -35,29 +35,11 @@ class Bitfield(BaseClass):
             # else:
             #   print("old:", field.attrib['mask'])
 
-    def write_storage_io_methods(self, f, storage, attr='self._value'):
-        for method_type in ("read", "write"):
-            self.write_line(f)
-            self.write_line(f, 1, f"def {method_type}(self, stream):")
-            if method_type == "read":
-                self.write_line(f, 2, f"self._value = {self.parser.read_for_type(storage, 'self.context')}")
-            elif method_type == "write":
-                self.write_line(f, 2, f"{self.parser.write_for_type(storage, attr, 'self.context')}")
-
-        self.write_line(f)
-        self.write_line(f, 1, "@classmethod")
-        self.write_line(f, 1, "def from_stream(cls, stream, context=None, arg=0, template=None):")
-        self.write_line(f, 2, f"return cls.from_value({self.parser.read_for_type(storage, 'context')})")
-
-        self.write_line(f)
-        self.write_line(f, 1, "@classmethod")
-        self.write_line(f, 1, "def to_stream(cls, stream, instance):")
-        self.write_line(f, 2, f"{self.parser.write_for_type(storage, 'instance._value', 'context')}")
-        # f.write(f"\n")
-
     def read(self):
         """Create a self.struct class"""
         super().read()
+        storage = self.struct.attrib["storage"]
+        self.imports.add(storage)
         self.imports.add("BasicBitfield")
         self.imports.add("BitfieldMember")
         self.class_basename = "BasicBitfield"
@@ -66,6 +48,7 @@ class Bitfield(BaseClass):
         with open(self.out_file, "w", encoding=self.parser.encoding) as f:
             # write the header stuff
             super().write(f)
+            f.write(f"\n\tstorage = {storage}")
             self.map_pos()
             self.get_mask()
             for field in self.struct:
@@ -74,8 +57,6 @@ class Bitfield(BaseClass):
                 # print(field_name, field_type)
                 if field_type not in self.parser.builtin_literals:
                     field_type = f'{field_type}.from_value'
-                # else:
-                #     field_type = field_type.lower()
                 f.write(f"\n\t{field_name} = BitfieldMember(pos={field.attrib['pos']}, mask={field.attrib['mask']}, return_type={field_type})")
 
             f.write("\n\n\tdef set_defaults(self):")
@@ -96,7 +77,5 @@ class Bitfield(BaseClass):
             else:
                 f.write(f"\n\t\tpass")
 
-            storage = self.struct.attrib["storage"]
-            self.write_storage_io_methods(f, storage)
             f.write(f"\n")
 

@@ -1,8 +1,10 @@
 from generated.bitfield import BasicBitfield
 from generated.bitfield import BitfieldMember
+from generated.formats.dds.basic import Uint
 
 
 class Caps2(BasicBitfield):
+	storage = Uint
 	reserved_1 = BitfieldMember(pos=0, mask=0x1ff, return_type=int)
 	cubemap = BitfieldMember(pos=9, mask=0x200, return_type=int)
 	cubemap_pos_x = BitfieldMember(pos=10, mask=0x400, return_type=int)
@@ -16,17 +18,3 @@ class Caps2(BasicBitfield):
 
 	def set_defaults(self):
 		pass
-
-	def read(self, stream):
-		self._value = stream.read_uint()
-
-	def write(self, stream):
-		stream.write_uint(self._value)
-
-	@classmethod
-	def from_stream(cls, stream, context=None, arg=0, template=None):
-		return cls.from_value(stream.read_uint())
-
-	@classmethod
-	def to_stream(cls, stream, instance):
-		stream.write_uint(instance._value)

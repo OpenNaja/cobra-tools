@@ -19,6 +19,8 @@ class BitfieldMember(object):
 
 class BasicBitfield(object):
     _value: int = 0
+    # must be overwritten by concrete implementation
+    storage = None
 
     def set_defaults(self):
         """This function has to be overwritten by concrete implementations to set defaults for the bitfield."""
@@ -35,6 +37,20 @@ class BasicBitfield(object):
             self.set_defaults()
         else:
             self._value = 0
+
+    def read(self, stream):
+        self._value = stream.read_uint()
+
+    def write(self, stream):
+        stream.write_uint(self._value)
+
+    @classmethod
+    def from_stream(cls, stream, context=None, arg=0, template=None):
+        return cls.from_value(cls.storage.from_stream(stream, context=None, arg=0, template=None))
+
+    @classmethod
+    def to_stream(cls, stream, instance):
+        cls.storage.to_stream(stream, instance._value)
 
     @classmethod
     def from_value(cls, value):

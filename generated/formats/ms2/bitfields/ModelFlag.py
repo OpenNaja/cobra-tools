@@ -1,5 +1,6 @@
 from generated.bitfield import BasicBitfield
 from generated.bitfield import BitfieldMember
+from generated.formats.base.basic import Uint
 
 
 class ModelFlag(BasicBitfield):
@@ -7,6 +8,7 @@ class ModelFlag(BasicBitfield):
 	"""
 	Determines the data held by a mesh.
 	"""
+	storage = Uint
 	stripify = BitfieldMember(pos=3, mask=0x8, return_type=bool)
 	weights = BitfieldMember(pos=4, mask=0x10, return_type=bool)
 	repeat_tris = BitfieldMember(pos=5, mask=0x20, return_type=bool)
@@ -15,17 +17,3 @@ class ModelFlag(BasicBitfield):
 
 	def set_defaults(self):
 		pass
-
-	def read(self, stream):
-		self._value = stream.read_uint()
-
-	def write(self, stream):
-		stream.write_uint(self._value)
-
-	@classmethod
-	def from_stream(cls, stream, context=None, arg=0, template=None):
-		return cls.from_value(stream.read_uint())
-
-	@classmethod
-	def to_stream(cls, stream, instance):
-		stream.write_uint(instance._value)

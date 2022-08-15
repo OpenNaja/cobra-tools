@@ -1,8 +1,10 @@
 from generated.bitfield import BasicBitfield
 from generated.bitfield import BitfieldMember
+from generated.formats.dds.basic import Uint
 
 
 class HeaderFlags(BasicBitfield):
+	storage = Uint
 	caps = BitfieldMember(pos=0, mask=0x1, return_type=int)
 	height = BitfieldMember(pos=1, mask=0x2, return_type=int)
 	width = BitfieldMember(pos=2, mask=0x4, return_type=int)
@@ -19,17 +21,3 @@ class HeaderFlags(BasicBitfield):
 	def set_defaults(self):
 		self.caps = 1
 		self.pixel_format = 1
-
-	def read(self, stream):
-		self._value = stream.read_uint()
-
-	def write(self, stream):
-		stream.write_uint(self._value)
-
-	@classmethod
-	def from_stream(cls, stream, context=None, arg=0, template=None):
-		return cls.from_value(stream.read_uint())
-
-	@classmethod
-	def to_stream(cls, stream, instance):
-		stream.write_uint(instance._value)

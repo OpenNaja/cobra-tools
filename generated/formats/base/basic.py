@@ -26,7 +26,7 @@ def class_from_struct(struct, from_value_func):
 
         @staticmethod
         def from_stream(stream, context=None, arg=0, template=None):
-            return unpack(stream.read(size))
+            return unpack(stream.read(size))[0]
 
         @staticmethod
         def to_stream(stream, instance):
