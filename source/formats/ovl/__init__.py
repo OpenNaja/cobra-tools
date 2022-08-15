@@ -146,7 +146,7 @@ class OvsFile(OvsHeader):
 		compressed_bytes = stream.read(archive_entry.compressed_size)
 		with self.unzipper(compressed_bytes, archive_entry.uncompressed_size) as stream:
 			start_time = time.time()
-			super().read(stream)
+			super().read_fields(stream, self)
 			logging.info(f"Read decompressed stream in {time.time() - start_time:.2f} seconds")
 			# print(self)
 			pool_index = 0

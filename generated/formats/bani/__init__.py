@@ -48,9 +48,8 @@ class BaniFile(BaniInfoHeader, IoFile):
 		self.file = filepath
 		self.dir, self.basename = os.path.split(filepath)
 		self.path_no_ext = os.path.splitext(self.file)[0]
-
-		with self.reader(filepath) as stream:
-			self.read(stream)
+		with open(filepath, "rb") as stream:
+			self.read_fields(stream, self)
 
 	def read_banis(self, ):
 		# get banis file
@@ -134,8 +133,8 @@ class BanisFile(BanisRoot, IoFile):
 		self.dir, self.basename = os.path.split(filepath)
 		self.path_no_ext = os.path.splitext(self.file)[0]
 
-		with self.reader(filepath) as stream:
-			self.read(stream)
+		with open(filepath, "rb") as stream:
+			self.read_fields(stream, self)
 			dt = np.dtype([
 				("euler", np.short, (3,)),
 				("loc", np.ushort, (3,)),

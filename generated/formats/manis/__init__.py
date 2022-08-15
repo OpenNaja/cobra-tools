@@ -24,8 +24,8 @@ class ManisFile(InfoHeader, IoFile):
 		self.dir, self.basename = os.path.split(filepath)
 		self.path_no_ext = os.path.splitext(self.file)[0]
 
-		with self.reader(filepath) as stream:
-			self.read(stream)
+		with open(filepath, "rb") as stream:
+			self.read_fields(stream, self)
 			self.eoh = stream.tell()
 			for mi, name in zip(self.mani_infos, self.names):
 				mi.name = name

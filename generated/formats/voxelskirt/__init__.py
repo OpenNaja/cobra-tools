@@ -34,8 +34,8 @@ class VoxelskirtFile(Header, IoFile):
 		self.basename = os.path.basename(self.filepath)
 		logging.info(f"Loading {self.basename}...")
 
-		with self.reader(filepath) as stream:
-			self.read(stream)
+		with open(filepath, "rb") as stream:
+			self.read_fields(stream, self)
 			self.eoh = stream.tell()
 			# logging.info(self)
 			# print(self.eoh)
@@ -224,8 +224,8 @@ class VoxelskirtFile(Header, IoFile):
 		print(f"Saved {self.basename} in {time.time()-start_time:.2f} seconds")
 
 	def get_structs(self, filepath):
-		with self.reader(filepath) as stream:
-			self.read(stream)
+		with open(filepath, "rb") as stream:
+			self.read_fields(stream, self)
 			self.eoh = stream.tell()
 			buffer_bytes = stream.read()
 			stream.seek(self.info.io_start)

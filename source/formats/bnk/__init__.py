@@ -11,8 +11,8 @@ class BnkFile(BnkFileContainer, IoFile):
 		super().__init__(OvlContext())
 
 	def load(self, filepath):
-		with self.reader(filepath) as stream:
-			self.read(stream)
+		with open(filepath, "rb") as stream:
+			self.read_fields(stream, self)
 
 	def save(self, filepath):
 		self.old_size = os.path.getsize(filepath)
@@ -26,8 +26,8 @@ class AuxFile(AuxFileContainer, IoFile):
 		super().__init__(OvlContext())
 
 	def load(self, filepath):
-		with self.reader(filepath) as stream:
-			self.read(stream)
+		with open(filepath, "rb") as stream:
+			self.read_fields(stream, self)
 
 	def save(self, filepath):
 		self.old_size = os.path.getsize(filepath)

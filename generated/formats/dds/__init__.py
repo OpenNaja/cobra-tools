@@ -46,8 +46,8 @@ class DdsFile(Header, IoFile):
         self.tiles = []
 
     def load(self, filepath):
-        with self.reader(filepath) as stream:
-            self.read(stream)
+        with open(filepath, "rb") as stream:
+            self.read_fields(stream, self)
             self.read_mips(stream)
 
     def save(self, filepath):

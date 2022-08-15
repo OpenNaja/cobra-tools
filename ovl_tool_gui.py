@@ -448,8 +448,8 @@ class MainWindow(widgets.MainWindow):
 		if self.file_widget.filepath:
 			self.file_widget.dirty = False
 			try:
-				# self.ovl_data.load(self.file_widget.filepath)
-				self.run_threaded("load", self.file_widget.filepath)
+				self.ovl_data.load(self.file_widget.filepath)
+				# self.run_threaded("load", self.file_widget.filepath)
 			except:
 				logging.info(self.ovl_data)
 				self.handle_error("OVL loading failed, see log!")

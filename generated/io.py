@@ -23,23 +23,14 @@ HFloat = Struct("<e")  # float16
 class IoFile:
 
 	def load(self, filepath):
-		with self.reader(filepath) as stream:
-			self.read(stream)
-			# self.from_stream(stream, self.context)
+		with open(filepath, "rb") as stream:
+			self.read_fields(stream, self)
 			return stream.tell()
 
 	def save(self, filepath):
 		with self.writer(filepath) as stream:
 			self.write(stream)
 			return stream.tell()
-
-	@classmethod
-	@contextmanager
-	def reader(cls, filepath) -> Generator[BytesIO, None, None]:
-		with open(filepath, "rb") as f:
-			data = f.read()
-		with BytesIO(data) as stream:
-			yield stream  # type: ignore
 
 	@classmethod
 	@contextmanager
