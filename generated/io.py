@@ -43,6 +43,7 @@ class IoFile:
 	def load(self, filepath):
 		with self.reader(filepath) as stream:
 			self.read(stream)
+			# self.from_stream(stream, self.context)
 			return stream.tell()
 
 	def save(self, filepath):
@@ -55,6 +56,7 @@ class IoFile:
 	def reader(cls, filepath) -> Generator[BinaryStream, None, None]:
 		with open(filepath, "rb") as f:
 			data = f.read()
+		# todo - remove BinaryStream
 		with BinaryStream(data) as stream:
 			if cls.basic_map is not None:
 				stream.register_basic_functions(cls.basic_map)

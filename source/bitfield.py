@@ -1,3 +1,6 @@
+import logging
+
+
 class BitfieldMember(object):
 
     def __init__(self, pos=0, width=0, mask=0, return_type=bool):
@@ -39,9 +42,11 @@ class BasicBitfield(object):
             self._value = 0
 
     def read(self, stream):
+        logging.warning(f"BasicBitfield.read is deprecated")
         self._value = stream.read_uint()
 
     def write(self, stream):
+        logging.warning(f"BasicBitfield.write is deprecated")
         stream.write_uint(self._value)
 
     @classmethod

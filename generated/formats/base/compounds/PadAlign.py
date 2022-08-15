@@ -1,5 +1,6 @@
 
-from generated.io import MAX_LEN
+import logging
+
 from generated.base_struct import BaseStruct
 from modules.formats.shared import get_padding_size
 
@@ -32,9 +33,11 @@ class PadAlign(BaseStruct):
 		self.data = b""
 
 	def read(self, stream):
+		logging.warning(f"PadAlign.read is deprecated")
 		self.read_fields(stream, self)
 
 	def write(self, stream):
+		logging.warning(f"PadAlign.write is deprecated")
 		self.write_fields(stream, self)
 
 	def get_pad(self, stream):

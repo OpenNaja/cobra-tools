@@ -141,15 +141,16 @@ class BaseStruct:
 				logging.debug(f"Adding string metadata '{prop} = {val}' to XML element '{elem.tag}'")
 				elem.attrib[prop] = val
 
-
 	def read(self, stream):
 		# deprecated
+		logging.warning(f"BaseStruct.read is deprecated")
 		self.io_start = stream.tell()
 		self.read_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
 		# deprecated
+		logging.warning(f"BaseStruct.write is deprecated")
 		self.io_start = stream.tell()
 		self.write_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start

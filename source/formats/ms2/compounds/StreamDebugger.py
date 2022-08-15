@@ -24,11 +24,13 @@ class StreamDebugger(BaseStruct):
 		pass
 
 	def read(self, stream):
+		logging.warning(f"StreamDebugger.read is deprecated")
 		self.io_start = stream.tell()
 		logging.debug(f"Debugger at {stream.tell()}")
 		self.io_size = stream.tell() - self.io_start
 
 	def write(self, stream):
+		logging.warning(f"StreamDebugger.write is deprecated")
 		self.io_start = stream.tell()
 
 		self.io_size = stream.tell() - self.io_start

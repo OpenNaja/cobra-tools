@@ -119,8 +119,7 @@ class ModelReader(BaseStruct):
 		# if not is_old(self.context) and i == 0:
 		if (not is_old(self.context)) and i:
 			self.get_padding(stream)
-		bone_info = BoneInfo(self.context)
-		bone_info.read(stream)
+		bone_info = BoneInfo.from_stream(stream, self.context)
 		# logging.info(bone_info)
 		self.read_hitcheck_verts(bone_info, stream)
 		logging.debug(f"end of bone info {i} at {stream.tell()}")
