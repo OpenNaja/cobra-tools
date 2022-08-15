@@ -71,8 +71,8 @@ class TextureInfo(GenericInfo):
 		if instance.context.version <= 17 and instance.dtype == 7:
 			yield 'value', Array, ((1,), Color, 0, None), (False, None)
 		if instance.context.version >= 18:
-			yield 'some_index_0', Uint, (0, None), (False, None)
-			yield 'some_index_1', Uint, (0, None), (False, None)
+			yield 'some_index_0', Uint, (0, None), (True, 0)
+			yield 'some_index_1', Uint, (0, None), (True, 0)
 
 	def get_info_str(self, indent=0):
 		return f'TextureInfo [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
