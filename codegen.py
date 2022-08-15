@@ -261,11 +261,6 @@ class XmlParser:
             return f'Array.to_stream(stream, {attr}, {self.arrs_to_tuple(arr1, arr2)}, '\
                    f'{dtype}, {context}, {arg}, {template})'
         else:
-            if type_tag == "enum":
-                # enum is a special case where you can treat the enum.value like a basic type
-                storage = self.storage_dict[dtype]
-                return f"{self.write_for_type(storage, f'{attr}.value', arg, template, arr1, arr2)}"
-
             # use the standard functionality
             return f'{dtype}.to_stream(stream, {attr})'
 
