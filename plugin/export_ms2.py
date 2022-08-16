@@ -26,6 +26,8 @@ from root_path import root_dir
 mesh_mode = os.path.isdir(os.path.join(root_dir, ".git"))
 DISCARD_STATIC_TRIS = 16
 DYNAMIC_ID = -1
+SOFT_MAX_VERTS = 200
+SOFT_MAX_TRIS = 200
 
 
 def ensure_tri_modifier(ob):
@@ -164,6 +166,10 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 					logging.info(f"Moving {len(bone_tris)} tris for bone {face_vertex_bone_id} to dynamic chunk")
 					v_list = t_map.pop(face_vertex_bone_id)
 					t_map[DYNAMIC_ID].extend(v_list)
+		# now try to sort the tris so that vertices are re-used as often as possible
+		sort_tri_map(t_map)
+		# for face_vertex_bone_id, bone_tris in tuple(t_map.items()):
+		# 	t_map[face_vertex_bone_id] = list(sorted(bone_tris, key=lambda x: tuple(x.vertices)))
 	else:
 		# no chunking by weights, just take all faces
 		t_map = {-1: eval_me.polygons}
@@ -191,7 +197,7 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 			if mesh.context.biosyn:
 				# tris are apparently not allowed to exceed 64 in stock
 				# seen chunks with more than 100 verts
-				if len(dummy_vertices) >= 100 or len(tris_chunks[-1][1]) >= 192:
+				if len(dummy_vertices) >= SOFT_MAX_VERTS or len(tris_chunks[-1][1]) >= SOFT_MAX_TRIS:
 					logging.debug(f"Starting new chunk")
 					tris_chunks.append((b_chunk_bone_id, []))
 					dummy_vertices = {}
@@ -282,6 +288,45 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 	except ValueError as err:
 		raise AttributeError(f"Could not export {b_ob.name}!")
 	return wrapper
+
+
+def sort_tri_map(t_map):
+	for face_vertex_bone_id, bone_tris in tuple(t_map.items()):
+		tris_per_v_index = {}
+		added_tris = set()
+		for f in bone_tris:
+			for v_index in f.vertices:
+				if v_index not in tris_per_v_index:
+					tris_per_v_index[v_index] = set()
+				if f not in added_tris:
+					added_tris.add(f)
+					tris_per_v_index[v_index].add(f)
+		current_tri = bone_tris[0]
+		sorted_tris = []
+		while current_tri:
+			all_neighbors = set()
+			for v_index in current_tri.vertices:
+				neighbor_tris = tris_per_v_index.pop(v_index, [])
+				all_neighbors.update(neighbor_tris)
+				if neighbor_tris:
+					for tri in neighbor_tris:
+						if tri not in sorted_tris:
+							sorted_tris.append(tri)
+							added_tris.remove(tri)
+				else:
+					# neighbors are used up, continue, with a new tri
+					if added_tris:
+						current_tri = next(iter(added_tris))
+					else:
+						current_tri = None
+			if all_neighbors:
+				for neighbor in all_neighbors:
+					for v_index in neighbor.vertices:
+						if v_index in tris_per_v_index:
+							current_tri = neighbor
+							break
+		assert len(sorted_tris) == len(bone_tris)
+		t_map[face_vertex_bone_id] = sorted_tris
 
 
 def validate_vertex_groups(b_ob, bones_table):
