@@ -173,7 +173,7 @@ class BaseFile:
 		"""This is the fallback that is used when the loader class itself does not implement custom methods"""
 		self.rename_fragments(name_tuples)
 		# not all loaders have a header
-		if hasattr(self, "header"):
+		if self.header is not None:
 			self.header.read_ptrs(self.root_ptr.pool)
 		# todo - rename in buffers
 
