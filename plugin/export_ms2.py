@@ -67,9 +67,9 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 	# register this format for all vert chunks that will be created later
 	if mesh.context.biosyn:
 		mesh.mesh_format = MeshFormat[b_me.cobra.mesh_format]
-		if not mesh_mode:
-			if mesh.mesh_format == MeshFormat.SEPARATE:
-				raise NedryError()
+		# if not mesh_mode:
+		# 	if mesh.mesh_format == MeshFormat.SEPARATE:
+		# 		raise NedryError()
 	mesh.update_dtype()
 	num_uvs = mesh.get_uv_count()
 	num_vcols = mesh.get_vcol_count()
@@ -114,14 +114,8 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 	else:
 		rgba0_layer = None
 
-	# stores values retrieved from blender, will be packed into array later
-	verts = []
 	unweighted_vertices = []
-	# use a dict mapping dummy vertices to their index for fast lookup
-	# this is used to convert blender vertices (several UVs, normals per face corner) to ms2 vertices
-	dummy_vertices = {}
-	count_unique = 0
-	count_reused = 0
+
 	shell_ob = None
 	shapekey = (0, 0, 0)
 	vcols = (0, 0, 0, 0)
@@ -162,23 +156,20 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 			if face_vertex_bone_id not in t_map:
 				t_map[face_vertex_bone_id] = list()
 			t_map[face_vertex_bone_id].append(face)
-		# logging.info(f"Preliminary tris")
-		# for face_vertex_bone_id, bone_tris in t_map.items():
-		# 	logging.info(f"Bone index {face_vertex_bone_id} - {len(bone_tris)} tris")
 		# deleting small static chunks only on dynamic meshes, static meshes will not have -1 in
 		if DYNAMIC_ID in t_map:
 			for face_vertex_bone_id, bone_tris in tuple(t_map.items()):
 				# delete small static chunk
 				if face_vertex_bone_id != DYNAMIC_ID and len(bone_tris) < DISCARD_STATIC_TRIS:
-					logging.info(f"Moving {bone_tris} tris for bone {face_vertex_bone_id} to dynamic chunk")
+					logging.info(f"Moving {len(bone_tris)} tris for bone {face_vertex_bone_id} to dynamic chunk")
 					v_list = t_map.pop(face_vertex_bone_id)
 					t_map[DYNAMIC_ID].extend(v_list)
-		# logging.info(f"Trimmed tris")
-		# for face_vertex_bone_id, bone_tris in t_map.items():
-		# 	logging.info(f"Bone index {face_vertex_bone_id} - {len(bone_tris)} tris")
 	else:
+		# no chunking by weights, just take all faces
 		t_map = {-1: eval_me.polygons}
 
+	# stores values retrieved from blender, will be packed into array later
+	verts = []
 	# list of tri lists to support chunks
 	# always add to last entry
 	tris_chunks = []
@@ -186,6 +177,8 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 		logging.info(f"Exporting {len(b_chunk_faces)} tris for bone index {b_chunk_bone_id}")
 		# create new chunk
 		tris_chunks.append((b_chunk_bone_id, []))
+		# use a dict mapping dummy vertices to their index for fast lookup
+		# this is used to convert blender vertices (several UVs, normals per face corner) to ms2 vertices
 		dummy_vertices = {}
 		count_unique = 0
 		count_reused = 0
@@ -276,8 +269,8 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 			# add it to the latest chunk
 			tris_chunks[-1][1].append(tri)
 
-	logging.debug(f"count_unique {count_unique}")
-	logging.debug(f"count_reused {count_reused}")
+		logging.debug(f"count_unique {count_unique}")
+		logging.debug(f"count_reused {count_reused}")
 	logging.debug(f"count_chunks {len(tris_chunks)}")
 
 	# update vert & tri array
