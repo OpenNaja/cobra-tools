@@ -24,6 +24,8 @@ from plugin.utils.shell import get_collection, is_shell, is_fin
 from root_path import root_dir
 
 mesh_mode = os.path.isdir(os.path.join(root_dir, ".git"))
+DISCARD_STATIC_TRIS = 16
+DYNAMIC_ID = -1
 
 
 def ensure_tri_modifier(ob):
@@ -115,9 +117,6 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 	# stores values retrieved from blender, will be packed into array later
 	verts = []
 	unweighted_vertices = []
-	# list of tri lists to support chunks
-	# always add to last entry
-	tris_chunks = [[], ]
 	# use a dict mapping dummy vertices to their index for fast lookup
 	# this is used to convert blender vertices (several UVs, normals per face corner) to ms2 vertices
 	dummy_vertices = {}
@@ -129,6 +128,7 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 
 	validate_vertex_groups(b_ob, bones_table)
 	# calculate bone weights per vertex first to reuse data
+	# vertex_bone_id, weights, fur_length, fur_width
 	weights_data = [export_weights(b_ob, b_vert, bones_table, hair_length, unweighted_vertices) for b_vert in
 					eval_me.vertices]
 
@@ -151,92 +151,130 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 			shell_kd = fill_kd_tree(shell_eval_me)
 			fin_uv_layer = eval_me.uv_layers[0].data
 
-	# loop faces and collect unique and repeated vertices
-	for face in eval_me.polygons:
-		if len(face.loop_indices) != 3:
-			# this is a bug - we are applying the triangulation modifier above
-			raise AttributeError(f"Mesh {b_ob.name} is not triangulated!")
+	t_map = {}
+	if mesh.context.biosyn:
+		# check which bones are used per face
+		for face in eval_me.polygons:
+			r = list(set(weights_data[v_index][0] for v_index in face.vertices))
+			# do all verts of this face use the same bone id?
+			face_vertex_bone_id = r[0] if len(r) == 1 else DYNAMIC_ID
+			# append face for this bone id
+			if face_vertex_bone_id not in t_map:
+				t_map[face_vertex_bone_id] = list()
+			t_map[face_vertex_bone_id].append(face)
+		# logging.info(f"Preliminary tris")
+		# for face_vertex_bone_id, bone_tris in t_map.items():
+		# 	logging.info(f"Bone index {face_vertex_bone_id} - {len(bone_tris)} tris")
+		# deleting small static chunks only on dynamic meshes, static meshes will not have -1 in
+		if DYNAMIC_ID in t_map:
+			for face_vertex_bone_id, bone_tris in tuple(t_map.items()):
+				# delete small static chunk
+				if face_vertex_bone_id != DYNAMIC_ID and len(bone_tris) < DISCARD_STATIC_TRIS:
+					logging.info(f"Moving {bone_tris} tris for bone {face_vertex_bone_id} to dynamic chunk")
+					v_list = t_map.pop(face_vertex_bone_id)
+					t_map[DYNAMIC_ID].extend(v_list)
+		# logging.info(f"Trimmed tris")
+		# for face_vertex_bone_id, bone_tris in t_map.items():
+		# 	logging.info(f"Bone index {face_vertex_bone_id} - {len(bone_tris)} tris")
+	else:
+		t_map = {-1: eval_me.polygons}
 
-		if mesh.context.biosyn:
-			# tris are apparently not allowed to exceed 64 in stock
-			# seen chunks with more than 100 verts
-			if len(dummy_vertices) >= 100 or len(tris_chunks[-1]) >= 192:
-				logging.debug(f"Starting new chunk")
-				tris_chunks.append([])
-				dummy_vertices = {}
-				count_unique = 0
-				count_reused = 0
+	# list of tri lists to support chunks
+	# always add to last entry
+	tris_chunks = []
+	for b_chunk_bone_id, b_chunk_faces in t_map.items():
+		logging.info(f"Exporting {len(b_chunk_faces)} tris for bone index {b_chunk_bone_id}")
+		# create new chunk
+		tris_chunks.append([])
+		dummy_vertices = {}
+		count_unique = 0
+		count_reused = 0
+		# loop faces and collect unique and repeated vertices
+		for face in b_chunk_faces:
+			if len(face.loop_indices) != 3:
+				# this is a bug - we are applying the triangulation modifier above
+				raise AttributeError(f"Mesh {b_ob.name} is not triangulated!")
 
-		# build indices into vertex buffer for the current face and chunk
-		tri = []
-		# loop over face loop to get access to face corner data (normals, uvs, vcols, etc)
-		for loop_index in face.loop_indices:
-			b_loop = eval_me.loops[loop_index]
-			b_vert = eval_me.vertices[b_loop.vertex_index]
+			if mesh.context.biosyn:
+				# tris are apparently not allowed to exceed 64 in stock
+				# seen chunks with more than 100 verts
+				if len(dummy_vertices) >= 100 or len(tris_chunks[-1]) >= 192:
+					logging.debug(f"Starting new chunk")
+					tris_chunks.append([])
+					dummy_vertices = {}
+					count_unique = 0
+					count_reused = 0
 
-			# get the vectors
-			position = b_vert.co
-			if shell_ob:
-				lookup = fin_uv_layer[b_loop.index].uv.to_3d()
-				lookup.z = b_vert.co.x
-				co, index, dist = shell_kd.find(lookup)
-				shell_loop = shell_eval_me.loops[index]
-				normal = shell_loop.normal
-				tangent = shell_loop.tangent
-				negate_bitangent = False
-			else:
-				normal = b_loop.normal
-				tangent = b_loop.tangent
-				negate_bitangent = b_loop.bitangent_sign < 0.0
-			# reindeer is a special case: has edited beard normals pointing straight down for shell & fins
-			# if the custom normal is used, the tangent generated by blender does not appear to be correct
-			# override with custom data if asked
-			if use_stock_normals_tangents:
-				normal = ct_normals.data[loop_index].vector
-				tangent = ct_tangents.data[loop_index].vector
+			# build indices into vertex buffer for the current face and chunk
+			tri = []
+			# loop over face loop to get access to face corner data (normals, uvs, vcols, etc)
+			for loop_index in face.loop_indices:
+				b_loop = eval_me.loops[loop_index]
+				b_vert = eval_me.vertices[b_loop.vertex_index]
 
-			# shape key morphing
-			b_key = b_me.shape_keys
-			if b_key and len(b_key.key_blocks) > 1:
-				lod_key = b_key.key_blocks[1]
-				# yes, there is a key object attached
-				if lod_key.name.startswith("LOD"):
-					shapekey = lod_key.data[b_loop.vertex_index].co
+				# get the vectors
+				position = b_vert.co
+				if shell_ob:
+					lookup = fin_uv_layer[b_loop.index].uv.to_3d()
+					lookup.z = b_vert.co.x
+					co, index, dist = shell_kd.find(lookup)
+					shell_loop = shell_eval_me.loops[index]
+					normal = shell_loop.normal
+					tangent = shell_loop.tangent
+					negate_bitangent = False
+				else:
+					normal = b_loop.normal
+					tangent = b_loop.tangent
+					negate_bitangent = b_loop.bitangent_sign < 0.0
+				# reindeer is a special case: has edited beard normals pointing straight down for shell & fins
+				# if the custom normal is used, the tangent generated by blender does not appear to be correct
+				# override with custom data if asked
+				if use_stock_normals_tangents:
+					normal = ct_normals.data[loop_index].vector
+					tangent = ct_tangents.data[loop_index].vector
 
-			uvs = [(layer.data[loop_index].uv.x, 1 - layer.data[loop_index].uv.y) for layer in eval_me.uv_layers]
-			# create a dummy bytes str for indexing
-			float_items = [c for uv in uvs[:2] for c in uv]
-			dummy = struct.pack(f'<HB{len(float_items)}f', b_loop.vertex_index, negate_bitangent, *float_items)
+				# shape key morphing
+				b_key = b_me.shape_keys
+				if b_key and len(b_key.key_blocks) > 1:
+					lod_key = b_key.key_blocks[1]
+					# yes, there is a key object attached
+					if lod_key.name.startswith("LOD"):
+						shapekey = lod_key.data[b_loop.vertex_index].co
 
-			# see if this dummy key exists
-			try:
-				# if it does - reuse it by grabbing its index from the dict
-				v_index = dummy_vertices[dummy]
-				count_reused += 1
-			except KeyError:
-				# it doesn't, so we have to fill in additional data
-				v_index = count_unique
-				if v_index > USHORT_MAX:
-					raise OverflowError(
-						f"{b_ob.name} has too many ms2 verts. The limit is {USHORT_MAX}. "
-						f"\nBlender vertices have to be duplicated on every UV seam, hence the increase.")
-				dummy_vertices[dummy] = v_index
-				count_unique += 1
+				uvs = [(layer.data[loop_index].uv.x, 1 - layer.data[loop_index].uv.y) for layer in eval_me.uv_layers]
+				# create a dummy bytes str for indexing
+				float_items = [c for uv in uvs[:2] for c in uv]
+				dummy = struct.pack(f'<HB{len(float_items)}f', b_loop.vertex_index, negate_bitangent, *float_items)
 
-				# now collect any missing vert data that was not needed for the splitting of blender verts
-				# use attribute api, ensure fallback so array setting does not choke
-				if rgba0_layer:
-					vcols = rgba0_layer.data[loop_index].color
-				use_blended_weights, weights, fur_length, fur_width = weights_data[b_loop.vertex_index]
-				if num_fur_weights:
-					# append to uv
-					uvs.append((fur_length, remap(fur_width, 0, 1, -16, 16)))
-				# store all raw blender data
-				verts.append((position, use_blended_weights is True, normal, negate_bitangent, tangent, uvs, vcols,
-							  weights, shapekey))
-			tri.append(v_index)
-		# add it to the latest chunk
-		tris_chunks[-1].append(tri)
+				# see if this dummy key exists
+				try:
+					# if it does - reuse it by grabbing its index from the dict
+					v_index = dummy_vertices[dummy]
+					count_reused += 1
+				except KeyError:
+					# it doesn't, so we have to fill in additional data
+					v_index = count_unique
+					if v_index > USHORT_MAX:
+						raise OverflowError(
+							f"{b_ob.name} has too many ms2 verts. The limit is {USHORT_MAX}. "
+							f"\nBlender vertices have to be duplicated on every UV seam, hence the increase.")
+					dummy_vertices[dummy] = v_index
+					count_unique += 1
+
+					# now collect any missing vert data that was not needed for the splitting of blender verts
+					# use attribute api, ensure fallback so array setting does not choke
+					if rgba0_layer:
+						vcols = rgba0_layer.data[loop_index].color
+					vertex_bone_id, weights, fur_length, fur_width = weights_data[b_loop.vertex_index]
+					if num_fur_weights:
+						# append to uv
+						uvs.append((fur_length, remap(fur_width, 0, 1, -16, 16)))
+					# store all raw blender data
+					verts.append((position, vertex_bone_id == DYNAMIC_ID, normal, negate_bitangent, tangent, uvs, vcols,
+								  weights, shapekey))
+				tri.append(v_index)
+			# add it to the latest chunk
+			tris_chunks[-1].append(tri)
 
 	logging.debug(f"count_unique {count_unique}")
 	logging.debug(f"count_reused {count_reused}")
@@ -266,7 +304,7 @@ def validate_vertex_groups(b_ob, bones_table):
 def export_weights(b_ob, b_vert, bones_table, hair_length, unweighted_vertices):
 	# defaults that may or may not be set later on
 	# True if used, bone index if it isn't
-	use_blended_weights = True
+	vertex_bone_id = DYNAMIC_ID
 	fur_length = 0
 	fur_width = 0
 	bone_index_cutoff = get_property(b_ob, "bone")
@@ -286,22 +324,24 @@ def export_weights(b_ob, b_vert, bones_table, hair_length, unweighted_vertices):
 					logging.error(
 						f"Mesh {b_ob.name} has weights for bone {v_group_name} [{bone_index}] over the LOD's cutoff at {bone_index_cutoff}!"
 						f"\nThis will cause distortions ingame!")
-				w.append([bone_index, v_group.weight])
+				if v_group.weight > 0.0:
+					w.append([bone_index, v_group.weight])
 		except:
 			logging.exception(
 				f"Vert with {len(b_vert.groups)} groups, index {v_group.group} into {len(b_ob.vertex_groups)} groups failed in {b_ob.name}")
 	# get the strongest influences on this vert, truncate to 4
-	weights_sorted = sorted(w, key=lambda x: x[1], reverse=True)[0:4]
+	weights_sorted = sorted(w, key=lambda x: x[1], reverse=True)[:4]
 	# are there any weights at all
 	if not weights_sorted:
 		unweighted_vertices.append(b_vert.index)
+	# this should no longer happen
 	# is the strongest one actually weighted
 	elif not weights_sorted[0][1] > 0.0:
 		unweighted_vertices.append(b_vert.index)
 	# more than one valid bone weight for this vertex?
 	elif len(weights_sorted) == 1:
-		use_blended_weights = weights_sorted[0][0]
-	return use_blended_weights, weights_sorted, fur_length, fur_width
+		vertex_bone_id = weights_sorted[0][0]
+	return vertex_bone_id, weights_sorted, fur_length, fur_width
 
 
 def get_property(ob, prop_name):

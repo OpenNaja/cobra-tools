@@ -23,6 +23,9 @@ def create_material(in_dir, matname):
 	except FileNotFoundError:
 		logging.warning(f"{fgm_path} does not exist!")
 		return b_mat
+	except:
+		logging.warning(f"{fgm_path} could not be loaded!")
+		return b_mat
 	# base_index = fgm_data.textures[0].layers[1]
 	# height_index = fgm_data.textures[1].layers[1]
 	tree = get_tree(b_mat)
