@@ -51,7 +51,7 @@ class Compound(BaseClass):
                     self.write_line(f, 2, "super().__init__(context, arg, template, set_default=False)")
                     # self.write_line(f, 2, "super().__init__(context, arg, template, set_default)")
                 else:
-                    # no inheritance, so set the standerd attributes
+                    # no inheritance, so set the standard attributes
                     self.write_lines(f, 2, (
                         "self.name = ''",
                         "self._context = context",

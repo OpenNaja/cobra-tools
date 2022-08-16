@@ -1,7 +1,54 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" xml:space="preserve">
-    <g fill="#ffffff">
-        <path fill="#ffffff" d="M48.5 578a.5.5 0 0 0-.5.5l-.008 10.5c0 1.517 1.22 3 2.985 3s3.015-1.475 3.015-3L54 578.5a.5.5 0 0 0-.5-.5zm2.5 10c.546 0 1 .454 1 1s-.454 1-1 1-1-.454-1-1 .454-1 1-1z" transform="translate(-44.996 -575)"/>
-        <path fill="#ffffff" d="M58.492 586a.5.5 0 0 0-.353.146l-4.75 4.75a.5.5 0 0 0-.147.354v.25a.5.5 0 0 0 .5.5H60.5a.5.5 0 0 0 .5-.5v-5a.5.5 0 0 0-.5-.5z" transform="translate(-43.996 -575)"/>
-        <path fill="#ffffff" d="M56.486 579a.502.502 0 0 0-.347.146l-2 2a.5.5 0 0 0-.147.354v6a.5.5 0 0 0 .854.354l5-5a.5.5 0 0 0 0-.708l-3-3a.5.5 0 0 0-.36-.146z" transform="translate(-43.996 -575)"/>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   viewBox="0 0 16 16"
+   xml:space="preserve"
+   version="1.1"
+   id="svg645"
+   sodipodi:docname="lut.svg"
+   width="16"
+   height="16"
+   inkscape:version="1.2.1 (9c6d41e410, 2022-07-14)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"><defs
+   id="defs649" /><sodipodi:namedview
+   id="namedview647"
+   pagecolor="#ffffff"
+   bordercolor="#000000"
+   borderopacity="0.25"
+   inkscape:showpageshadow="2"
+   inkscape:pageopacity="0.0"
+   inkscape:pagecheckerboard="0"
+   inkscape:deskcolor="#d1d1d1"
+   showgrid="false"
+   inkscape:zoom="43.85"
+   inkscape:cx="9.9885975"
+   inkscape:cy="9.9885975"
+   inkscape:window-width="1920"
+   inkscape:window-height="1057"
+   inkscape:window-x="-8"
+   inkscape:window-y="-8"
+   inkscape:window-maximized="1"
+   inkscape:current-layer="svg645" />
+    <g
+   fill="#ffffff"
+   id="g643"
+   transform="translate(-1.996,-2)">
+        <path
+   fill="#ffffff"
+   d="M 48.5,578 A 0.5,0.5 0 0 0 48,578.5 L 47.992,589 c 0,1.517 1.22,3 2.985,3 1.765,0 3.015,-1.475 3.015,-3 L 54,578.5 A 0.5,0.5 0 0 0 53.5,578 Z m 2.5,10 c 0.546,0 1,0.454 1,1 0,0.546 -0.454,1 -1,1 -0.546,0 -1,-0.454 -1,-1 0,-0.546 0.454,-1 1,-1 z"
+   transform="translate(-44.996,-575)"
+   id="path637" />
+        <path
+   fill="#ffffff"
+   d="m 58.492,586 a 0.5,0.5 0 0 0 -0.353,0.146 l -4.75,4.75 a 0.5,0.5 0 0 0 -0.147,0.354 v 0.25 a 0.5,0.5 0 0 0 0.5,0.5 H 60.5 a 0.5,0.5 0 0 0 0.5,-0.5 v -5 A 0.5,0.5 0 0 0 60.5,586 Z"
+   transform="translate(-43.996,-575)"
+   id="path639" />
+        <path
+   fill="#ffffff"
+   d="m 56.486,579 a 0.502,0.502 0 0 0 -0.347,0.146 l -2,2 a 0.5,0.5 0 0 0 -0.147,0.354 v 6 a 0.5,0.5 0 0 0 0.854,0.354 l 5,-5 a 0.5,0.5 0 0 0 0,-0.708 l -3,-3 A 0.5,0.5 0 0 0 56.486,579 Z"
+   transform="translate(-43.996,-575)"
+   id="path641" />
     </g>
 </svg>

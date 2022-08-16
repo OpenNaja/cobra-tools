@@ -211,8 +211,8 @@ class MainWindow(widgets.MainWindow):
 			(util_menu, "Inspect Models", self.inspect_models, "", ""),
 			(util_menu, "Inspect FGMs", self.walker_fgm, "", ""),
 			(util_menu, "Generate Hash Table", self.walker_hash, "", ""),
-			(util_menu, "Dump Debug Data", self.dump_debug_data, "", ""),
-			(util_menu, "Open Tools Dir", self.open_tools_dir, "", ""),
+			(util_menu, "Dump Debug Data", self.dump_debug_data, "", "dump_debug"),
+			(util_menu, "Open Tools Dir", self.open_tools_dir, "", "home"),
 			(util_menu, "Export File List", self.save_file_list, "", ""),
 			(util_menu, "Export included ovl list", self.save_included_ovls, "", ""),
 			(util_menu, "Compare with other OVL", self.compare_ovls, "", ""),
@@ -448,8 +448,8 @@ class MainWindow(widgets.MainWindow):
 		if self.file_widget.filepath:
 			self.file_widget.dirty = False
 			try:
-				self.ovl_data.load(self.file_widget.filepath)
-				# self.run_threaded("load", self.file_widget.filepath)
+				# self.ovl_data.load(self.file_widget.filepath)
+				self.run_threaded("load", self.file_widget.filepath)
 			except:
 				logging.info(self.ovl_data)
 				self.handle_error("OVL loading failed, see log!")
