@@ -172,7 +172,9 @@ class BaseFile:
 	def rename_content(self, name_tuples):
 		"""This is the fallback that is used when the loader class itself does not implement custom methods"""
 		self.rename_fragments(name_tuples)
-		self.header.read_ptrs(self.root_ptr.pool)
+		# not all loaders have a header
+		if hasattr(self, "header"):
+			self.header.read_ptrs(self.root_ptr.pool)
 		# todo - rename in buffers
 
 	def rename_fragments(self, name_tuples):
