@@ -255,10 +255,10 @@ class BioMeshData:
 	@tris.setter
 	def tris(self, list_of_b_tris):
 		# create chunks for each segment in tris
-		self.tris_count = sum(len(b_tris) for b_tris in list_of_b_tris)
+		self.tris_count = sum(len(tup[1]) for tup in list_of_b_tris)
 		self.vert_chunks = Array((len(list_of_b_tris),), VertChunk, self.context)
 		self.tri_chunks = Array((len(list_of_b_tris),), TriChunk, self.context)
-		for vert_chunk, tri_chunk, b_tris in zip(self.vert_chunks, self.tri_chunks, list_of_b_tris):
+		for vert_chunk, tri_chunk, (b_bone_id, b_tris) in zip(self.vert_chunks, self.tri_chunks, list_of_b_tris):
 			# logging.info(b_tris)
 			# cast to uint16
 			raw_tris = np.array(b_tris, dtype=np.uint8)
@@ -270,6 +270,11 @@ class BioMeshData:
 			# get the vertex count from the tri indices
 			vert_chunk.vertex_count = np.max(tri_chunk.tri_indices) + 1
 			vert_chunk.weights_flag.mesh_format = self.mesh_format
+			if b_bone_id == -1:
+				vert_chunk.weights_flag.has_weights = True
+			else:
+				vert_chunk.weights_flag.has_weights = False
+				vert_chunk.weights_flag.bone_index = b_bone_id
 			vert_chunk.pack_base = self.pack_base
 			vert_chunk.flags = (2, 16, 0, 58)
 			# logging.info(f"vert_chunk.vertex_count {vert_chunk.vertex_count}")
@@ -297,13 +302,9 @@ class BioMeshData:
 			if vert_chunk.weights_flag.mesh_format == MeshFormat.SEPARATE:
 				scale_pack_vectorized(vert_chunk.vertices, vert_chunk.pack_base)
 				pack_int64_vector(vert_chunk.packed_verts, vert_chunk.vertices.astype(np.int64), vert_chunk.negate_bitangents)
-				# just force weights for now?
-				vert_chunk.weights_flag.has_weights = True
-				for vert, weight in zip(vert_chunk.weights, self.weights[v_slice]):
-					vert["bone ids"], vert["bone weights"] = self.unpack_weights_list(weight)
-				# vert_chunk.weights_flag.has_weights = False
-				# # vert_chunk.weights = self.weights[v_slice]
-				# vert_chunk.weights_flag.bone_index = self.weights[v_slice][0][0][0]
+				if vert_chunk.weights_flag.has_weights:
+					for vert, weight in zip(vert_chunk.weights, self.weights[v_slice]):
+						vert["bone ids"], vert["bone weights"] = self.unpack_weights_list(weight)
 			elif vert_chunk.weights_flag.mesh_format in (MeshFormat.INTERLEAVED_32, MeshFormat.INTERLEAVED_48):
 				vert_chunk.meta["pos"] = vert_chunk.vertices
 				vert_chunk.weights_flag.has_weights = False

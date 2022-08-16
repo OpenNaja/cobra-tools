@@ -226,7 +226,7 @@ class MeshData(MemStruct):
 	def tris(self, list_of_b_tris):
 		# just take the first and only chunk
 		assert len(list_of_b_tris) == 1
-		b_tris = list_of_b_tris[0]
+		b_tris = list_of_b_tris[0][1]
 		# cast to uint16
 		raw_tris = np.array(b_tris, dtype=np.uint16)
 		# reverse tris

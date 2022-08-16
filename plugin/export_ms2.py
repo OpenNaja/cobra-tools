@@ -151,8 +151,8 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 			shell_kd = fill_kd_tree(shell_eval_me)
 			fin_uv_layer = eval_me.uv_layers[0].data
 
-	t_map = {}
 	if mesh.context.biosyn:
+		t_map = {}
 		# check which bones are used per face
 		for face in eval_me.polygons:
 			r = list(set(weights_data[v_index][0] for v_index in face.vertices))
@@ -185,7 +185,7 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 	for b_chunk_bone_id, b_chunk_faces in t_map.items():
 		logging.info(f"Exporting {len(b_chunk_faces)} tris for bone index {b_chunk_bone_id}")
 		# create new chunk
-		tris_chunks.append([])
+		tris_chunks.append((b_chunk_bone_id, []))
 		dummy_vertices = {}
 		count_unique = 0
 		count_reused = 0
@@ -198,9 +198,9 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 			if mesh.context.biosyn:
 				# tris are apparently not allowed to exceed 64 in stock
 				# seen chunks with more than 100 verts
-				if len(dummy_vertices) >= 100 or len(tris_chunks[-1]) >= 192:
+				if len(dummy_vertices) >= 100 or len(tris_chunks[-1][1]) >= 192:
 					logging.debug(f"Starting new chunk")
-					tris_chunks.append([])
+					tris_chunks.append((b_chunk_bone_id, []))
 					dummy_vertices = {}
 					count_unique = 0
 					count_reused = 0
@@ -274,7 +274,7 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 								  weights, shapekey))
 				tri.append(v_index)
 			# add it to the latest chunk
-			tris_chunks[-1].append(tri)
+			tris_chunks[-1][1].append(tri)
 
 	logging.debug(f"count_unique {count_unique}")
 	logging.debug(f"count_reused {count_reused}")
