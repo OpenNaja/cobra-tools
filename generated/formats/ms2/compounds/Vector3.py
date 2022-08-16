@@ -45,9 +45,9 @@ class Vector3(BaseStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
-		yield 'x', Float, (0, None)
-		yield 'y', Float, (0, None)
-		yield 'z', Float, (0, None)
+		yield 'x', Float, (0, None), (False, None)
+		yield 'y', Float, (0, None), (False, None)
+		yield 'z', Float, (0, None), (False, None)
 
 	def set(self, vec):
 		if hasattr(vec, "x"):

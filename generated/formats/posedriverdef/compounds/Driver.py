@@ -75,15 +75,15 @@ class Driver(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
-		yield 'joint_name', Pointer, (0, generated.formats.base.basic.ZString)
-		yield 'a', Ubyte, (0, None)
-		yield 'b', Ubyte, (0, None)
-		yield 'c', Ushort, (0, None)
-		yield 'd', Uint, (0, None)
-		yield 'driven_joint_name', Pointer, (0, generated.formats.base.basic.ZString)
-		yield 'unk_1', Uint64, (0, None)
-		yield 'data', Pointer, (0, generated.formats.posedriverdef.compounds.Data.Data)
-		yield 'unk_2', Uint64, (0, None)
+		yield 'joint_name', Pointer, (0, generated.formats.base.basic.ZString), (False, None)
+		yield 'a', Ubyte, (0, None), (False, None)
+		yield 'b', Ubyte, (0, None), (False, None)
+		yield 'c', Ushort, (0, None), (False, None)
+		yield 'd', Uint, (0, None), (False, None)
+		yield 'driven_joint_name', Pointer, (0, generated.formats.base.basic.ZString), (False, None)
+		yield 'unk_1', Uint64, (0, None), (False, None)
+		yield 'data', Pointer, (0, generated.formats.posedriverdef.compounds.Data.Data), (False, None)
+		yield 'unk_2', Uint64, (0, None), (False, None)
 
 	def get_info_str(self, indent=0):
 		return f'Driver [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

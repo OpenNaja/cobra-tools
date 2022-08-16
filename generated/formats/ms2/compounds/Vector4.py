@@ -51,10 +51,10 @@ class Vector4(BaseStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
-		yield 'x', Float, (0, None)
-		yield 'y', Float, (0, None)
-		yield 'z', Float, (0, None)
-		yield 'w', Float, (0, None)
+		yield 'x', Float, (0, None), (False, None)
+		yield 'y', Float, (0, None), (False, None)
+		yield 'z', Float, (0, None), (False, None)
+		yield 'w', Float, (0, None), (False, None)
 
 	def __repr__(self):
 		return f"[ {self.x:6.3f} {self.y:6.3f} {self.z:6.3f} {self.w:6.3f} ]"

@@ -61,11 +61,11 @@ class WsmHeader(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
-		yield 'duration', Float, (0, None)
-		yield 'frame_count', Uint, (0, None)
-		yield 'unknowns', Array, ((8,), Float, 0, None)
-		yield 'locs', ArrayPointer, (instance.frame_count, generated.formats.wsm.compounds.Vector3.Vector3)
-		yield 'quats', ArrayPointer, (instance.frame_count, generated.formats.wsm.compounds.Vector4.Vector4)
+		yield 'duration', Float, (0, None), (False, None)
+		yield 'frame_count', Uint, (0, None), (False, None)
+		yield 'unknowns', Array, ((8,), Float, 0, None), (False, None)
+		yield 'locs', ArrayPointer, (instance.frame_count, generated.formats.wsm.compounds.Vector3.Vector3), (False, None)
+		yield 'quats', ArrayPointer, (instance.frame_count, generated.formats.wsm.compounds.Vector4.Vector4), (False, None)
 
 	def get_info_str(self, indent=0):
 		return f'WsmHeader [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

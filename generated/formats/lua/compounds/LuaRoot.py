@@ -71,15 +71,15 @@ class LuaRoot(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
-		yield 'lua_size', Uint, (0, None)
-		yield 'sixteenk', Uint, (0, None)
-		yield 'hash', Uint, (0, None)
-		yield 'zero_0', Uint, (0, None)
+		yield 'lua_size', Uint, (0, None), (False, None)
+		yield 'sixteenk', Uint, (0, None), (False, None)
+		yield 'hash', Uint, (0, None), (False, None)
+		yield 'zero_0', Uint, (0, None), (False, None)
 		if instance.context.version >= 18:
-			yield 'source_path', Pointer, (0, generated.formats.base.basic.ZString)
-			yield 'likely_alignment', Pointer, (0, generated.formats.base.basic.ZString)
-		yield 'zero_1', Uint64, (0, None)
-		yield 'zero_2', Uint64, (0, None)
+			yield 'source_path', Pointer, (0, generated.formats.base.basic.ZString), (False, None)
+			yield 'likely_alignment', Pointer, (0, generated.formats.base.basic.ZString), (False, None)
+		yield 'zero_1', Uint64, (0, None), (False, None)
+		yield 'zero_2', Uint64, (0, None), (False, None)
 
 	def get_info_str(self, indent=0):
 		return f'LuaRoot [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

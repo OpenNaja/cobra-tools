@@ -42,9 +42,9 @@ class JointInfo(CommonJointInfo):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
-		yield 'zero', Uint64, (0, None)
-		yield 'zeros_per_hitcheck', Array, ((instance.hitcheck_count,), Uint64, 0, None)
-		yield 'hitchecks', Array, ((instance.hitcheck_count,), HitCheckEntry, 0, None)
+		yield 'zero', Uint64, (0, None), (False, None)
+		yield 'zeros_per_hitcheck', Array, ((instance.hitcheck_count,), Uint64, 0, None), (False, None)
+		yield 'hitchecks', Array, ((instance.hitcheck_count,), HitCheckEntry, 0, None), (False, None)
 
 	def get_info_str(self, indent=0):
 		return f'JointInfo [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

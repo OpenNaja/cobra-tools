@@ -16,7 +16,7 @@ class ConnectorMultiJoint(MemStruct):
 		self.num_joints = 0
 		self.unk_float_1 = 0.0
 		self.unk_int_1 = 0
-		self.padding = 0
+		self.padding_2 = 0
 		self.model_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 		self.joints = ArrayPointer(self.context, self.num_joints, generated.formats.path.compounds.Joint.Joint)
 		if set_default:
@@ -28,7 +28,7 @@ class ConnectorMultiJoint(MemStruct):
 		self.num_joints = 0
 		self.unk_float_1 = 0.0
 		self.unk_int_1 = 0
-		self.padding = 0
+		self.padding_2 = 0
 		self.model_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 		self.joints = ArrayPointer(self.context, self.num_joints, generated.formats.path.compounds.Joint.Joint)
 
@@ -41,7 +41,7 @@ class ConnectorMultiJoint(MemStruct):
 		instance.num_joints = Uint64.from_stream(stream, instance.context, 0, None)
 		instance.unk_float_1 = Float.from_stream(stream, instance.context, 0, None)
 		instance.unk_int_1 = Uint.from_stream(stream, instance.context, 0, None)
-		instance.padding = Uint64.from_stream(stream, instance.context, 0, None)
+		instance.padding_2 = Uint64.from_stream(stream, instance.context, 0, None)
 		if not isinstance(instance.model_name, int):
 			instance.model_name.arg = 0
 		if not isinstance(instance.joints, int):
@@ -56,18 +56,18 @@ class ConnectorMultiJoint(MemStruct):
 		Uint64.to_stream(stream, instance.num_joints)
 		Float.to_stream(stream, instance.unk_float_1)
 		Uint.to_stream(stream, instance.unk_int_1)
-		Uint64.to_stream(stream, instance.padding)
+		Uint64.to_stream(stream, instance.padding_2)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
-		yield 'model_name', Pointer, (0, generated.formats.base.basic.ZString)
-		yield 'padding', Uint64, (0, None)
-		yield 'joints', ArrayPointer, (instance.num_joints, generated.formats.path.compounds.Joint.Joint)
-		yield 'num_joints', Uint64, (0, None)
-		yield 'unk_float_1', Float, (0, None)
-		yield 'unk_int_1', Uint, (0, None)
-		yield 'padding', Uint64, (0, None)
+		yield 'model_name', Pointer, (0, generated.formats.base.basic.ZString), (False, None)
+		yield 'padding', Uint64, (0, None), (True, 0)
+		yield 'joints', ArrayPointer, (instance.num_joints, generated.formats.path.compounds.Joint.Joint), (False, None)
+		yield 'num_joints', Uint64, (0, None), (False, None)
+		yield 'unk_float_1', Float, (0, None), (False, None)
+		yield 'unk_int_1', Uint, (0, None), (False, None)
+		yield 'padding_2', Uint64, (0, None), (True, 0)
 
 	def get_info_str(self, indent=0):
 		return f'ConnectorMultiJoint [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
@@ -81,7 +81,7 @@ class ConnectorMultiJoint(MemStruct):
 		s += f'\n	* num_joints = {self.fmt_member(self.num_joints, indent+1)}'
 		s += f'\n	* unk_float_1 = {self.fmt_member(self.unk_float_1, indent+1)}'
 		s += f'\n	* unk_int_1 = {self.fmt_member(self.unk_int_1, indent+1)}'
-		s += f'\n	* padding = {self.fmt_member(self.padding, indent+1)}'
+		s += f'\n	* padding_2 = {self.fmt_member(self.padding_2, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

@@ -47,10 +47,10 @@ class Info(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
-		yield 'info_name', Pointer, (0, generated.formats.base.basic.ZString)
-		yield 'flags', Array, ((4,), Byte, 0, None)
-		yield 'value', Array, ((4,), Float, 0, None)
-		yield 'padding', Uint, (0, None)
+		yield 'info_name', Pointer, (0, generated.formats.base.basic.ZString), (False, None)
+		yield 'flags', Array, ((4,), Byte, 0, None), (False, None)
+		yield 'value', Array, ((4,), Float, 0, None), (False, None)
+		yield 'padding', Uint, (0, None), (False, None)
 
 	def get_info_str(self, indent=0):
 		return f'Info [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

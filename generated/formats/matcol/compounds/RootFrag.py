@@ -59,12 +59,12 @@ class RootFrag(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
-		yield 'mat_type', Uint64, (0, None)
-		yield 'textures', ArrayPointer, (instance.tex_count, generated.formats.matcol.compounds.Texture.Texture)
-		yield 'tex_count', Uint64, (0, None)
-		yield 'materials', ArrayPointer, (instance.mat_count, generated.formats.matcol.compounds.LayerFrag.LayerFrag)
-		yield 'mat_count', Uint64, (0, None)
-		yield 'unk', Uint64, (0, None)
+		yield 'mat_type', Uint64, (0, None), (False, None)
+		yield 'textures', ArrayPointer, (instance.tex_count, generated.formats.matcol.compounds.Texture.Texture), (False, None)
+		yield 'tex_count', Uint64, (0, None), (False, None)
+		yield 'materials', ArrayPointer, (instance.mat_count, generated.formats.matcol.compounds.LayerFrag.LayerFrag), (False, None)
+		yield 'mat_count', Uint64, (0, None), (False, None)
+		yield 'unk', Uint64, (0, None), (False, None)
 
 	def get_info_str(self, indent=0):
 		return f'RootFrag [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

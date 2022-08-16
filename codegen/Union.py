@@ -82,7 +82,7 @@ class Union:
     def is_ovl_ptr(self):
         """Check if this union is used as an ovl memory pointer"""
         for field in self.members:
-            arg, template, arr1, arr2, conditionals, field_name, field_type, pad_mode = self.get_params(field)
+            arg, template, arr1, arr2, conditionals, field_name, field_type, pad_mode, _ = self.get_params(field)
             if field_type in ("Pointer", "ArrayPointer", "ForEachPointer"):
                 return True
 
@@ -98,6 +98,7 @@ class Union:
             field_type = f'{expression_prefix}{field_type}'
         pad_mode = field.attrib.get("padding")
         template = field.attrib.get("template")
+        optional = (field.attrib.get("optional", "False"), field.attrib.get("default"))
 
         conditionals = get_conditions(field, expression_prefix)
 
@@ -117,7 +118,7 @@ class Union:
             arr1 = Expression(arr1, expression_prefix)
         if arr2:
             arr2 = Expression(arr2, expression_prefix)
-        return arg, template, arr1, arr2, conditionals, field_name, field_type, pad_mode
+        return arg, template, arr1, arr2, conditionals, field_name, field_type, pad_mode, optional
 
     def get_default_string(self, default_string, context, arg, template, arr1, arr2, field_name, field_type):
         # get the default (or the best guess of it)
@@ -192,7 +193,7 @@ class Union:
         debug_strs = []
         for field in self.members:
             field_debug_str = convention.clean_comment_str(field.text, indent="\t\t")
-            arg, template, arr1, arr2, conditionals, field_name, field_type, pad_mode = self.get_params(field)
+            arg, template, arr1, arr2, conditionals, field_name, field_type, pad_mode, _ = self.get_params(field)
             if field_debug_str.strip() and field_debug_str not in debug_strs:
                 debug_strs.append(field_debug_str)
 
@@ -211,7 +212,7 @@ class Union:
     def write_defaults(self, f, condition=""):
         base_indent = "\n\t\t"
         for field in self.members:
-            arg, template, arr1, arr2, conditionals, field_name, field_type, pad_mode = self.get_params(field)
+            arg, template, arr1, arr2, conditionals, field_name, field_type, pad_mode, _ = self.get_params(field)
 
             indent, new_condition = condition_indent(base_indent, conditionals, condition)
 
@@ -235,7 +236,7 @@ class Union:
         CONTEXT = f'{target_variable}.{CONTEXT_SUFFIX}'
         base_indent = "\n\t\t"
         for field in self.members:
-            arg, template, arr1, arr2, conditionals, field_name, field_type, pad_mode = self.get_params(field, f'{target_variable}.')
+            arg, template, arr1, arr2, conditionals, field_name, field_type, pad_mode, _ = self.get_params(field, f'{target_variable}.')
             indent, new_condition = condition_indent(base_indent, conditionals, condition)
             if new_condition:
                 f.write(f"{base_indent}{new_condition}")
@@ -262,7 +263,7 @@ class Union:
     def write_filtered_attributes(self, f, condition, target_variable="self"):
         base_indent = "\n\t\t"
         for field in self.members:
-            arg, template, arr1, arr2, conditionals, field_name, field_type, pad_mode = self.get_params(field, f'{target_variable}.')
+            arg, template, arr1, arr2, conditionals, field_name, field_type, pad_mode, (optional, default) = self.get_params(field, f'{target_variable}.')
             indent, new_condition = condition_indent(base_indent, conditionals, condition)
             if new_condition:
                 f.write(f"{base_indent}{new_condition}")
@@ -273,13 +274,13 @@ class Union:
             else:
                 arguments = f"({self.compounds.parser.arrs_to_tuple(arr1, arr2)}, {field_type}, {arg}, {template})"
                 field_type = "Array"
-            f.write(f"{indent}yield '{field_name}', {field_type}, {arguments}")
+            f.write(f"{indent}yield '{field_name}', {field_type}, {arguments}, ({optional}, {default})")
         return condition
 
     def write_arg_update(self, f, method_type):
         base_indent = "\n\t\t"
         for field in self.members:
-            arg, template, arr1, arr2, conditionals, field_name, field_type, pad_mode = self.get_params(field, f'instance.')
+            arg, template, arr1, arr2, conditionals, field_name, field_type, pad_mode, _ = self.get_params(field, f'instance.')
             if method_type == 'read':
                 f.write(f"{base_indent}if not isinstance(instance.{field_name}, int):")
                 f.write(f"{base_indent}\tinstance.{field_name}.arg = {arg}")

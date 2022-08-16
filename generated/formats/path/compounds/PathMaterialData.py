@@ -40,10 +40,10 @@ class PathMaterialData(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
-		yield 'unk_int_1', Uint, (0, None)
-		yield 'unk_float_1', Float, (0, None)
-		yield 'unk_int_2', Uint, (0, None)
-		yield 'unk_int_3', Uint, (0, None)
+		yield 'unk_int_1', Uint, (0, None), (False, None)
+		yield 'unk_float_1', Float, (0, None), (False, None)
+		yield 'unk_int_2', Uint, (0, None), (False, None)
+		yield 'unk_int_3', Uint, (0, None), (False, None)
 
 	def get_info_str(self, indent=0):
 		return f'PathMaterialData [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

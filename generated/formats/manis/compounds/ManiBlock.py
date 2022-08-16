@@ -242,57 +242,57 @@ class ManiBlock(BaseStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
-		yield 'ref', Empty, (0, None)
+		yield 'ref', Empty, (0, None), (False, None)
 		if instance.context.version == 18:
-			yield 'pos_bones', Array, ((instance.arg.pos_bone_count,), Ushort, 0, None)
+			yield 'pos_bones', Array, ((instance.arg.pos_bone_count,), Ushort, 0, None), (False, None)
 		if not (instance.context.version == 18):
-			yield 'pos_bones', Array, ((instance.arg.pos_bone_count,), Uint, 0, None)
+			yield 'pos_bones', Array, ((instance.arg.pos_bone_count,), Uint, 0, None), (False, None)
 		if instance.context.version == 18:
-			yield 'ori_bones', Array, ((instance.arg.ori_bone_count,), Ushort, 0, None)
+			yield 'ori_bones', Array, ((instance.arg.ori_bone_count,), Ushort, 0, None), (False, None)
 		if not (instance.context.version == 18):
-			yield 'ori_bones', Array, ((instance.arg.ori_bone_count,), Uint, 0, None)
+			yield 'ori_bones', Array, ((instance.arg.ori_bone_count,), Uint, 0, None), (False, None)
 		if instance.context.version == 18:
-			yield 'scl_bones', Array, ((instance.arg.scl_bone_count,), Ushort, 0, None)
+			yield 'scl_bones', Array, ((instance.arg.scl_bone_count,), Ushort, 0, None), (False, None)
 		if not (instance.context.version == 18):
-			yield 'scl_bones', Array, ((instance.arg.scl_bone_count,), Uint, 0, None)
+			yield 'scl_bones', Array, ((instance.arg.scl_bone_count,), Uint, 0, None), (False, None)
 		if instance.context.version == 18:
-			yield 'floats', Array, ((instance.arg.float_count,), Ushort, 0, None)
+			yield 'floats', Array, ((instance.arg.float_count,), Ushort, 0, None), (False, None)
 		if not (instance.context.version == 18):
-			yield 'floats', Array, ((instance.arg.float_count,), Uint, 0, None)
-		yield 'pos_bones_p', Array, ((instance.arg.pos_bone_count,), Ubyte, 0, None)
-		yield 'ori_bones_p', Array, ((instance.arg.ori_bone_count,), Ubyte, 0, None)
-		yield 'scl_bones_p', Array, ((instance.arg.scl_bone_count,), Ubyte, 0, None)
+			yield 'floats', Array, ((instance.arg.float_count,), Uint, 0, None), (False, None)
+		yield 'pos_bones_p', Array, ((instance.arg.pos_bone_count,), Ubyte, 0, None), (False, None)
+		yield 'ori_bones_p', Array, ((instance.arg.ori_bone_count,), Ubyte, 0, None), (False, None)
+		yield 'scl_bones_p', Array, ((instance.arg.scl_bone_count,), Ubyte, 0, None), (False, None)
 		if instance.arg.pos_bone_min >= 0:
-			yield 'pos_bones_delta', Array, (((instance.arg.pos_bone_max - instance.arg.pos_bone_min) + 1,), Ubyte, 0, None)
+			yield 'pos_bones_delta', Array, (((instance.arg.pos_bone_max - instance.arg.pos_bone_min) + 1,), Ubyte, 0, None), (False, None)
 		if instance.arg.ori_bone_min >= 0:
-			yield 'ori_bones_delta', Array, (((instance.arg.ori_bone_max - instance.arg.ori_bone_min) + 1,), Ubyte, 0, None)
+			yield 'ori_bones_delta', Array, (((instance.arg.ori_bone_max - instance.arg.ori_bone_min) + 1,), Ubyte, 0, None), (False, None)
 		if instance.arg.scl_bone_min >= 0:
-			yield 'scl_bones_delta', Array, (((instance.arg.scl_bone_max - instance.arg.scl_bone_min) + 1,), Ubyte, 0, None)
-		yield 'pad', PadAlign, (4, instance.ref)
-		yield 'floatsa', Array, ((instance.arg.frame_count, instance.arg.float_count,), Float, 0, None)
-		yield 'pad_2', SmartPadding, (0, None)
-		yield 'frame_count', Uint, (0, None)
-		yield 'ori_bone_count', Uint, (0, None)
-		yield 'pos_bone_count', Uint, (0, None)
-		yield 'scl_bone_count', Uint, (0, None)
-		yield 'zeros_18', Array, ((18,), Uint, 0, None)
-		yield 'count', Ushort, (0, None)
-		yield 'quantisation_level', Ushort, (0, None)
-		yield 'ref_2', Empty, (0, None)
-		yield 'zeros', Array, ((instance.pos_bone_count,), Ubyte, 0, None)
-		yield 'flag_0', Ubyte, (0, None)
-		yield 'flag_1', Ubyte, (0, None)
-		yield 'flag_2', Ubyte, (0, None)
-		yield 'flag_3', Ubyte, (0, None)
-		yield 'anoth_pad', PadAlign, (4, instance.ref_2)
-		yield 'floatsb', Array, ((6,), Float, 0, None)
-		yield 'floats_second', Array, ((instance.flag_1, 6,), Float, 0, None)
+			yield 'scl_bones_delta', Array, (((instance.arg.scl_bone_max - instance.arg.scl_bone_min) + 1,), Ubyte, 0, None), (False, None)
+		yield 'pad', PadAlign, (4, instance.ref), (False, None)
+		yield 'floatsa', Array, ((instance.arg.frame_count, instance.arg.float_count,), Float, 0, None), (False, None)
+		yield 'pad_2', SmartPadding, (0, None), (False, None)
+		yield 'frame_count', Uint, (0, None), (False, None)
+		yield 'ori_bone_count', Uint, (0, None), (False, None)
+		yield 'pos_bone_count', Uint, (0, None), (False, None)
+		yield 'scl_bone_count', Uint, (0, None), (False, None)
+		yield 'zeros_18', Array, ((18,), Uint, 0, None), (False, None)
+		yield 'count', Ushort, (0, None), (False, None)
+		yield 'quantisation_level', Ushort, (0, None), (False, None)
+		yield 'ref_2', Empty, (0, None), (False, None)
+		yield 'zeros', Array, ((instance.pos_bone_count,), Ubyte, 0, None), (False, None)
+		yield 'flag_0', Ubyte, (0, None), (False, None)
+		yield 'flag_1', Ubyte, (0, None), (False, None)
+		yield 'flag_2', Ubyte, (0, None), (False, None)
+		yield 'flag_3', Ubyte, (0, None), (False, None)
+		yield 'anoth_pad', PadAlign, (4, instance.ref_2), (False, None)
+		yield 'floatsb', Array, ((6,), Float, 0, None), (False, None)
+		yield 'floats_second', Array, ((instance.flag_1, 6,), Float, 0, None), (False, None)
 		if instance.flag_2 > 1:
-			yield 'floats_third', Array, ((6,), Float, 0, None)
-		yield 'unk', Uint, (0, None)
+			yield 'floats_third', Array, ((6,), Float, 0, None), (False, None)
+		yield 'unk', Uint, (0, None), (False, None)
 		if instance.context.version == 18:
-			yield 'extra_pc_zero', Uint64, (0, None)
-		yield 'repeats', Array, ((instance.count,), Repeat, 0, None)
+			yield 'extra_pc_zero', Uint64, (0, None), (False, None)
+		yield 'repeats', Array, ((instance.count,), Repeat, 0, None), (False, None)
 
 	def get_info_str(self, indent=0):
 		return f'ManiBlock [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

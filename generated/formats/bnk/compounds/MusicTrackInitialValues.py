@@ -74,17 +74,17 @@ class MusicTrackInitialValues(BaseStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
-		yield 'u_flags', Ubyte, (0, None)
-		yield 'num_sources', Uint, (0, None)
-		yield 'p_source', Array, ((instance.num_sources,), AkBankSourceData, 0, None)
-		yield 'num_playlist_item', Uint, (0, None)
-		yield 'p_playlist', Array, ((instance.num_playlist_item,), AkTrackSrcInfo, 0, None)
-		yield 'num_sub_track', Uint, (0, None)
-		yield 'num_clip_automation_item', Uint, (0, None)
-		yield 'p_items', Array, ((instance.num_clip_automation_item,), Uint, 0, None)
-		yield 'node_base_params', NodeBaseParams, (0, None)
-		yield 'e_track_type', Ubyte, (0, None)
-		yield 'i_look_ahead_time', Int, (0, None)
+		yield 'u_flags', Ubyte, (0, None), (False, None)
+		yield 'num_sources', Uint, (0, None), (False, None)
+		yield 'p_source', Array, ((instance.num_sources,), AkBankSourceData, 0, None), (False, None)
+		yield 'num_playlist_item', Uint, (0, None), (False, None)
+		yield 'p_playlist', Array, ((instance.num_playlist_item,), AkTrackSrcInfo, 0, None), (False, None)
+		yield 'num_sub_track', Uint, (0, None), (False, None)
+		yield 'num_clip_automation_item', Uint, (0, None), (False, None)
+		yield 'p_items', Array, ((instance.num_clip_automation_item,), Uint, 0, None), (False, None)
+		yield 'node_base_params', NodeBaseParams, (0, None), (False, None)
+		yield 'e_track_type', Ubyte, (0, None), (False, None)
+		yield 'i_look_ahead_time', Int, (0, None), (False, None)
 
 	def get_info_str(self, indent=0):
 		return f'MusicTrackInitialValues [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

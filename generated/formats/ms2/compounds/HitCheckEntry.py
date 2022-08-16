@@ -126,30 +126,30 @@ class HitCheckEntry(BaseStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
-		yield 'dtype', CollisionType, (0, None)
-		yield 'flag_0', Ushort, (0, None)
-		yield 'flag_1', Ushort, (0, None)
-		yield 'flag_2', Uint, (0, None)
-		yield 'flag_3', Uint, (0, None)
+		yield 'dtype', CollisionType, (0, None), (False, None)
+		yield 'flag_0', Ushort, (0, None), (False, None)
+		yield 'flag_1', Ushort, (0, None), (False, None)
+		yield 'flag_2', Uint, (0, None), (False, None)
+		yield 'flag_3', Uint, (0, None), (False, None)
 		if instance.context.version < 47:
-			yield 'zero_extra_pc_unk', Uint, (0, None)
-		yield 'name_offset', Uint, (0, None)
+			yield 'zero_extra_pc_unk', Uint, (0, None), (False, None)
+		yield 'name_offset', Uint, (0, None), (False, None)
 		if instance.dtype == 0:
-			yield 'collider', Sphere, (0, None)
+			yield 'collider', Sphere, (0, None), (False, None)
 		if instance.dtype == 1:
-			yield 'collider', BoundingBox, (0, None)
+			yield 'collider', BoundingBox, (0, None), (False, None)
 		if instance.dtype == 2:
-			yield 'collider', Capsule, (0, None)
+			yield 'collider', Capsule, (0, None), (False, None)
 		if instance.dtype == 3:
-			yield 'collider', Cylinder, (0, None)
+			yield 'collider', Cylinder, (0, None), (False, None)
 		if instance.dtype == 7:
-			yield 'collider', ConvexHull, (0, None)
+			yield 'collider', ConvexHull, (0, None), (False, None)
 		if instance.dtype == 8:
-			yield 'collider', ConvexHull, (0, None)
+			yield 'collider', ConvexHull, (0, None), (False, None)
 		if instance.dtype == 10:
-			yield 'collider', MeshCollision, (0, None)
+			yield 'collider', MeshCollision, (0, None), (False, None)
 		if instance.context.version == 13:
-			yield 'zero_extra_zt', Uint, (0, None)
+			yield 'zero_extra_zt', Uint, (0, None), (False, None)
 
 	def get_info_str(self, indent=0):
 		return f'HitCheckEntry [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

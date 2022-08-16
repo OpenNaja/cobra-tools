@@ -28,7 +28,7 @@ class LayerArray(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
-		yield 'layers', Array, ((instance.arg,), Layer, 0, None)
+		yield 'layers', Array, ((instance.arg,), Layer, 0, None), (False, None)
 
 	def get_info_str(self, indent=0):
 		return f'LayerArray [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

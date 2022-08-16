@@ -43,11 +43,11 @@ class SizeInfo(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
-		yield 'data', SizeInfoRaw, (0, None)
+		yield 'data', SizeInfoRaw, (0, None), (False, None)
 		if ((not instance.context.user_version.is_jwe) and (instance.context.version == 20)) or (((not instance.context.user_version.is_jwe) and (instance.context.version >= 19)) or (instance.context.user_version.is_jwe and (instance.context.version == 20))):
-			yield 'padding', Array, ((320 - instance.data.io_size,), Ubyte, 0, None)
+			yield 'padding', Array, ((320 - instance.data.io_size,), Ubyte, 0, None), (False, None)
 		if instance.context.user_version.is_jwe and (instance.context.version == 19):
-			yield 'padding', Array, ((384 - instance.data.io_size,), Ubyte, 0, None)
+			yield 'padding', Array, ((384 - instance.data.io_size,), Ubyte, 0, None), (False, None)
 
 	def get_info_str(self, indent=0):
 		return f'SizeInfo [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

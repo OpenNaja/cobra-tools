@@ -91,16 +91,16 @@ class MotiongraphHeader(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
-		yield 'ptr_0', Pointer, (0, generated.formats.motiongraph.compounds.MotiongraphRootFrag.MotiongraphRootFrag)
-		yield 'state_output_entries', Pointer, (0, generated.formats.motiongraph.compounds.StateArray.StateArray)
-		yield 'ptr_2', Pointer, (0, generated.formats.motiongraph.compounds.MGTwo.MGTwo)
-		yield 'ptr_3', Pointer, (0, generated.formats.motiongraph.compounds.MRFMember1.MRFMember1)
-		yield 'count_0', Uint, (0, None)
-		yield 'count_1', Uint, (0, None)
-		yield 'lua_modules', Pointer, (0, generated.formats.motiongraph.compounds.LuaModules.LuaModules)
-		yield 'lua_results', Pointer, (0, generated.formats.base.basic.ZString)
-		yield 'first_non_transition_state', Pointer, (0, generated.formats.motiongraph.compounds.MRFMember2.MRFMember2)
-		yield 'empty_str', Pointer, (0, generated.formats.base.basic.ZString)
+		yield 'ptr_0', Pointer, (0, generated.formats.motiongraph.compounds.MotiongraphRootFrag.MotiongraphRootFrag), (False, None)
+		yield 'state_output_entries', Pointer, (0, generated.formats.motiongraph.compounds.StateArray.StateArray), (False, None)
+		yield 'ptr_2', Pointer, (0, generated.formats.motiongraph.compounds.MGTwo.MGTwo), (False, None)
+		yield 'ptr_3', Pointer, (0, generated.formats.motiongraph.compounds.MRFMember1.MRFMember1), (False, None)
+		yield 'count_0', Uint, (0, None), (False, None)
+		yield 'count_1', Uint, (0, None), (False, None)
+		yield 'lua_modules', Pointer, (0, generated.formats.motiongraph.compounds.LuaModules.LuaModules), (False, None)
+		yield 'lua_results', Pointer, (0, generated.formats.base.basic.ZString), (False, None)
+		yield 'first_non_transition_state', Pointer, (0, generated.formats.motiongraph.compounds.MRFMember2.MRFMember2), (False, None)
+		yield 'empty_str', Pointer, (0, generated.formats.base.basic.ZString), (False, None)
 
 	def get_info_str(self, indent=0):
 		return f'MotiongraphHeader [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

@@ -122,23 +122,23 @@ class WmetasbMain(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
-		yield 'hash', Uint, (0, None)
-		yield 'unk', Uint, (0, None)
-		yield 'block_name', Pointer, (0, generated.formats.base.basic.ZString)
+		yield 'hash', Uint, (0, None), (False, None)
+		yield 'unk', Uint, (0, None), (False, None)
+		yield 'block_name', Pointer, (0, generated.formats.base.basic.ZString), (False, None)
 		if instance.context.version <= 18:
-			yield 'media_name', Pointer, (0, generated.formats.base.basic.ZString)
-			yield 'bnk_name', Pointer, (0, generated.formats.base.basic.ZString)
-		yield 'events', ArrayPointer, (instance.events_count, generated.formats.wmeta.compounds.EventEntry.EventEntry)
-		yield 'events_count', Uint64, (0, None)
+			yield 'media_name', Pointer, (0, generated.formats.base.basic.ZString), (False, None)
+			yield 'bnk_name', Pointer, (0, generated.formats.base.basic.ZString), (False, None)
+		yield 'events', ArrayPointer, (instance.events_count, generated.formats.wmeta.compounds.EventEntry.EventEntry), (False, None)
+		yield 'events_count', Uint64, (0, None), (False, None)
 		if instance.context.version <= 18:
-			yield 'hashes', ArrayPointer, (instance.hashes_count, generated.formats.base.basic.Uint)
-			yield 'hashes_count', Uint64, (0, None)
-			yield 'media', ArrayPointer, (instance.media_count, generated.formats.wmeta.compounds.MediaEntry.MediaEntry)
-			yield 'media_count', Uint64, (0, None)
-			yield 'unused_2', Pointer, (0, None)
-			yield 'unused_3', Pointer, (0, None)
-			yield 'unused_4', Pointer, (0, None)
-			yield 'unused_5', Pointer, (0, None)
+			yield 'hashes', ArrayPointer, (instance.hashes_count, generated.formats.base.basic.Uint), (False, None)
+			yield 'hashes_count', Uint64, (0, None), (False, None)
+			yield 'media', ArrayPointer, (instance.media_count, generated.formats.wmeta.compounds.MediaEntry.MediaEntry), (False, None)
+			yield 'media_count', Uint64, (0, None), (False, None)
+			yield 'unused_2', Pointer, (0, None), (False, None)
+			yield 'unused_3', Pointer, (0, None), (False, None)
+			yield 'unused_4', Pointer, (0, None), (False, None)
+			yield 'unused_5', Pointer, (0, None), (False, None)
 
 	def get_info_str(self, indent=0):
 		return f'WmetasbMain [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

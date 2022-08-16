@@ -70,15 +70,15 @@ class LayerFrag(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
-		yield 'layer_name', Pointer, (0, generated.formats.base.basic.ZString)
-		yield 'u_0', Uint64, (0, None)
-		yield 'u_1', Uint64, (0, None)
-		yield 'infos', ArrayPointer, (instance.info_count, generated.formats.matcol.compounds.Info.Info)
-		yield 'info_count', Uint64, (0, None)
-		yield 'u_2', Uint64, (0, None)
-		yield 'u_3', Uint64, (0, None)
-		yield 'attribs', ArrayPointer, (instance.attrib_count, generated.formats.matcol.compounds.Attrib.Attrib)
-		yield 'attrib_count', Uint64, (0, None)
+		yield 'layer_name', Pointer, (0, generated.formats.base.basic.ZString), (False, None)
+		yield 'u_0', Uint64, (0, None), (False, None)
+		yield 'u_1', Uint64, (0, None), (False, None)
+		yield 'infos', ArrayPointer, (instance.info_count, generated.formats.matcol.compounds.Info.Info), (False, None)
+		yield 'info_count', Uint64, (0, None), (False, None)
+		yield 'u_2', Uint64, (0, None), (False, None)
+		yield 'u_3', Uint64, (0, None), (False, None)
+		yield 'attribs', ArrayPointer, (instance.attrib_count, generated.formats.matcol.compounds.Attrib.Attrib), (False, None)
+		yield 'attrib_count', Uint64, (0, None), (False, None)
 
 	def get_info_str(self, indent=0):
 		return f'LayerFrag [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

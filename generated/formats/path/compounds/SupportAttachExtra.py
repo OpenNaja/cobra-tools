@@ -37,9 +37,9 @@ class SupportAttachExtra(SupportAttach):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
-		yield 'unk_float_1', Float, (0, None)
-		yield 'unk_int_3', Uint, (0, None)
-		yield 'padding', Uint64, (0, None)
+		yield 'unk_float_1', Float, (0, None), (False, None)
+		yield 'unk_int_3', Uint, (0, None), (False, None)
+		yield 'padding', Uint64, (0, None), (True, 0)
 
 	def get_info_str(self, indent=0):
 		return f'SupportAttachExtra [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

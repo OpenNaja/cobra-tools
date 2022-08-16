@@ -93,15 +93,15 @@ class Ms2Root(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
-		yield 'version', Uint, (0, None)
-		yield 'vertex_buffer_count', Ushort, (0, None)
-		yield 'mdl_2_count', Ushort, (0, None)
-		yield 'name_count', Ushort, (0, None)
-		yield 'stream_count', Short, (0, None)
-		yield 'zeros', Array, ((3,), Uint, 0, None)
-		yield 'buffer_infos', ArrayPointer, (instance.vertex_buffer_count, generated.formats.ms2.compounds.BufferInfo.BufferInfo)
-		yield 'model_infos', ArrayPointer, (instance.mdl_2_count, generated.formats.ms2.compounds.ModelInfo.ModelInfo)
-		yield 'buffers_presence', ArrayPointer, (instance.vertex_buffer_count, generated.formats.ms2.compounds.BufferPresence.BufferPresence)
+		yield 'version', Uint, (0, None), (False, None)
+		yield 'vertex_buffer_count', Ushort, (0, None), (False, None)
+		yield 'mdl_2_count', Ushort, (0, None), (False, None)
+		yield 'name_count', Ushort, (0, None), (False, None)
+		yield 'stream_count', Short, (0, None), (False, None)
+		yield 'zeros', Array, ((3,), Uint, 0, None), (False, None)
+		yield 'buffer_infos', ArrayPointer, (instance.vertex_buffer_count, generated.formats.ms2.compounds.BufferInfo.BufferInfo), (False, None)
+		yield 'model_infos', ArrayPointer, (instance.mdl_2_count, generated.formats.ms2.compounds.ModelInfo.ModelInfo), (False, None)
+		yield 'buffers_presence', ArrayPointer, (instance.vertex_buffer_count, generated.formats.ms2.compounds.BufferPresence.BufferPresence), (False, None)
 
 	def get_info_str(self, indent=0):
 		return f'Ms2Root [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

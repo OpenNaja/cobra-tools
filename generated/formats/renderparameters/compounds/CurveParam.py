@@ -54,11 +54,11 @@ class CurveParam(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
-		yield 'attribute_name', Pointer, (0, generated.formats.base.basic.ZString)
-		yield 'dtype', Int, (0, None)
-		yield 'do_interpolation', Uint, (0, None)
-		yield 'curve_entries', Pointer, (instance.count, generated.formats.renderparameters.compounds.CurveList.CurveList)
-		yield 'count', Uint64, (0, None)
+		yield 'attribute_name', Pointer, (0, generated.formats.base.basic.ZString), (False, None)
+		yield 'dtype', Int, (0, None), (False, None)
+		yield 'do_interpolation', Uint, (0, None), (False, None)
+		yield 'curve_entries', Pointer, (instance.count, generated.formats.renderparameters.compounds.CurveList.CurveList), (False, None)
+		yield 'count', Uint64, (0, None), (False, None)
 
 	def get_info_str(self, indent=0):
 		return f'CurveParam [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

@@ -12,7 +12,7 @@ class PathExtrusion(MemStruct):
 		self.unk_float_1 = 0.0
 		self.unk_float_2 = 0.0
 		self.is_kerb = False
-		self.is_not_ground = False
+		self.is_not_ground = True
 		self.model = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 		self.post_model = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 		self.endcap_model = Pointer(self.context, 0, generated.formats.base.basic.ZString)
@@ -24,7 +24,7 @@ class PathExtrusion(MemStruct):
 		self.unk_float_1 = 0.0
 		self.unk_float_2 = 0.0
 		self.is_kerb = False
-		self.is_not_ground = False
+		self.is_not_ground = True
 		self.model = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 		self.post_model = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 		self.endcap_model = Pointer(self.context, 0, generated.formats.base.basic.ZString)
@@ -60,13 +60,13 @@ class PathExtrusion(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
-		yield 'model', Pointer, (0, generated.formats.base.basic.ZString)
-		yield 'post_model', Pointer, (0, generated.formats.base.basic.ZString)
-		yield 'endcap_model', Pointer, (0, generated.formats.base.basic.ZString)
-		yield 'unk_float_1', Float, (0, None)
-		yield 'unk_float_2', Float, (0, None)
-		yield 'is_kerb', Bool, (0, None)
-		yield 'is_not_ground', Bool, (0, None)
+		yield 'model', Pointer, (0, generated.formats.base.basic.ZString), (False, None)
+		yield 'post_model', Pointer, (0, generated.formats.base.basic.ZString), (False, None)
+		yield 'endcap_model', Pointer, (0, generated.formats.base.basic.ZString), (False, None)
+		yield 'unk_float_1', Float, (0, None), (False, None)
+		yield 'unk_float_2', Float, (0, None), (False, None)
+		yield 'is_kerb', Bool, (0, None), (False, None)
+		yield 'is_not_ground', Bool, (0, None), (False, True)
 
 	def get_info_str(self, indent=0):
 		return f'PathExtrusion [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

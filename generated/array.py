@@ -149,10 +149,10 @@ class Array(list):
             template = getattr(instance, "template", None)
             if len(instance.shape) > 1:
                 for i in range(instance.shape[0]):
-                    yield (i, cls, (instance.shape[1:], dtype, arg, template))
+                    yield (i, cls, (instance.shape[1:], dtype, arg, template), (False, None))
             else:
                 for i in range(instance.shape[0]):
-                    yield (i, dtype, (arg, template))
+                    yield (i, dtype, (arg, template), (False, None))
 
     @property
     def class_name(self):

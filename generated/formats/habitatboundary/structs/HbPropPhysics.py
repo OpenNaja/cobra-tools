@@ -59,12 +59,12 @@ class HbPropPhysics(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
-		yield 'pad_top', Float, (0, None)
-		yield 'z_pos', Float, (0, None)
-		yield 'half_width', Float, (0, None)
-		yield 'pad_bottom', Float, (0, None)
-		yield 'half_depth', Float, (0, None)
-		yield 'u_6', Float, (0, None)
+		yield 'pad_top', Float, (0, None), (False, None)
+		yield 'z_pos', Float, (0, None), (False, None)
+		yield 'half_width', Float, (0, None), (False, None)
+		yield 'pad_bottom', Float, (0, None), (False, None)
+		yield 'half_depth', Float, (0, None), (False, None)
+		yield 'u_6', Float, (0, None), (False, None)
 
 	def get_info_str(self, indent=0):
 		return f'HbPropPhysics [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

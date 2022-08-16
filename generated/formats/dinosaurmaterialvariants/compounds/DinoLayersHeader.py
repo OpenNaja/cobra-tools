@@ -47,10 +47,10 @@ class DinoLayersHeader(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
-		yield 'fgm_name', Pointer, (0, generated.formats.ovl_base.basic.ZStringObfuscated)
-		yield 'layers', ArrayPointer, (instance.layer_count, generated.formats.dinosaurmaterialvariants.compounds.Layer.Layer)
-		yield 'layer_count', Uint64, (0, None)
-		yield 'zero', Uint64, (0, None)
+		yield 'fgm_name', Pointer, (0, generated.formats.ovl_base.basic.ZStringObfuscated), (False, None)
+		yield 'layers', ArrayPointer, (instance.layer_count, generated.formats.dinosaurmaterialvariants.compounds.Layer.Layer), (False, None)
+		yield 'layer_count', Uint64, (0, None), (False, None)
+		yield 'zero', Uint64, (0, None), (False, None)
 
 	def get_info_str(self, indent=0):
 		return f'DinoLayersHeader [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

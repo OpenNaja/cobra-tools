@@ -33,7 +33,7 @@
         <add name="unkFloat1" type="float" />
         <add name="unkFloat2" type="float" />
         <add name="is_kerb" type="bool" />
-        <add name="is_not_ground" type="bool" /> <!-- Only False values are natural ground paths _ground.pathextrusion -->
+        <add name="is_not_ground" type="bool" default="True" /> <!-- Only False values are natural ground paths _ground.pathextrusion -->
     </compound>
 
     <compound name="PathMaterial" inherit="MemStruct">
@@ -70,7 +70,7 @@
         <add name="pathsupport" type="Pointer" template="ZString"/>
         <add name="path_type" type="byte" /> <!-- 0 for Guest, 1 for Queue, 2 for Staff -->
         <add name="path_sub_type" type="byte" /> <!-- 0 = None, 1 = Natural, matches PathSubType column in c0paths.fdb -->
-        <add name="unkByte1" type="byte" /> <!-- Always 1 -->
+        <add name="unkByte1" type="byte" default="1" />
         <add name="unkByte2" type="byte" />
     </compound>
 
@@ -92,7 +92,7 @@
         <add name="unkVector" type="ArrayPointer" template="Vector4" arg="1" />
         <add name="unkShorts" type="ArrayPointer" template="ushort" arg="8" />
         <add name="unkPoints3" type="Pointer" template="PointsList" arg="num_points_3" />
-        <add name="padding_1" type="uint64" />
+        <add name="padding_1" type="uint64" default="0" optional="True" />
         <add name="pathresource" type="Pointer" template="ZString"/>
         <add name="unkByte1" type="byte" />
         <add name="unkByte2" type="byte" />
@@ -102,7 +102,7 @@
         <add name="num_points_2" type="byte" />
         <add name="num_points_2_copy" type="byte" />
         <add name="num_points_3" type="byte" />
-        <add name="padding_2" type="uint64" /> <!-- Required as part of list -->
+        <add name="padding_2" type="uint64" default="0" optional="True" />
     </compound>
 
     <compound name="PointsList" inherit="MemStruct">
@@ -113,16 +113,16 @@
     <compound name="PathSupport" inherit="MemStruct">
         <!-- Size 16 -->
         <add name="support" type="Pointer" template="ZString"/>
-        <add name="unkFloat1" type="float" />
-        <add name="unkInt1" type="uint" />
+        <add name="distance" type="float" default="10.0" />
+        <add name="_unkInt1" type="uint" />
     </compound>
 
     <compound name="PathType" inherit="MemStruct">
         <!-- Size 16 -->
         <add name="enum_value" type="uint" /> <!-- Matches the EnumValue column in c0paths.fdb -->
-        <add name="unkFloat1" type="float" />
-        <add name="unkFloat2" type="float" />
-        <add name="unkInt2" type="uint" />
+        <add name="min_width" type="float" default="4.0" />
+        <add name="max_width" type="float" default="10.0" />
+        <add name="_unkInt2" type="uint" />
     </compound>
 
     <compound name="SupportSetRoot" inherit="MemStruct">
@@ -131,7 +131,7 @@
         <add name="connector_2" type="ArrayPointer" template="ConnectorMultiJoint" arg="num_connector_2" />
         <add name="pillar" type="Pointer" template="Pillar" />
         <add name="footer" type="Pointer" template="Footer" />
-        <add name="padding" type="uint64" />
+        <add name="padding" type="uint64" default="0" optional="True" />
         <add name="unkVector1" type="Vector3" />
         <add name="unkVector2" type="Vector2" />
         <add name="unkVector3" type="Vector3" />
@@ -139,7 +139,7 @@
         <add name="num_connector_1" type="uint" />
         <add name="num_connector_2" type="uint" />
         <add name="unkInts" type="uint" arr1="7" />
-        <add name="padding_2" type="uint64" />
+        <add name="padding_2" type="uint64" default="0" optional="True" />
         <add name="data" type="ArrayPointer" template="SupportSetData" arg="num_data" />
         <add name="num_data" type="uint" />
     </compound>
@@ -154,12 +154,12 @@
     <compound name="ConnectorMultiJoint" inherit="MemStruct">
         <!-- Size 48 -->
         <add name="model_name" type="Pointer" template="ZString"/>
-        <add name="padding" type="uint64" />
+        <add name="padding" type="uint64" default="0" optional="True" />
         <add name="joints" type="ArrayPointer" template="Joint" arg="num_joints" />
         <add name="num_joints" type="uint64" />
         <add name="unkFloat1" type="float" />
         <add name="unkInt1" type="uint" />
-        <add name="padding" type="uint64" /> <!-- Unsure if padding, keep -->
+        <add name="padding_2" type="uint64" default="0" optional="True" />
     </compound>
 
     <compound name="SupportAttach" inherit="MemStruct">
@@ -174,7 +174,7 @@
         <!-- Size 16 -->
         <add name="unkFloat1" type="float" />
         <add name="unkInt3" type="uint" />
-        <add name="padding" type="uint64" /> <!-- Unsure if padding, keep -->
+        <add name="padding" type="uint64" default="0" optional="True" />
     </compound>
 
     <compound name="Joint" inherit="SupportAttachExtra">

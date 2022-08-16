@@ -55,13 +55,13 @@ class Arg(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
-		yield 'u_0', Ubyte, (0, None)
-		yield 'arg_type', Ubyte, (0, None)
-		yield 'arg_index', Ubyte, (0, None)
-		yield 'u_1', Ubyte, (0, None)
-		yield 'u_2', Uint, (0, None)
-		yield 'u_3', Uint64, (0, None)
-		yield 'u_4', Uint64, (0, None)
+		yield 'u_0', Ubyte, (0, None), (False, None)
+		yield 'arg_type', Ubyte, (0, None), (False, None)
+		yield 'arg_index', Ubyte, (0, None), (False, None)
+		yield 'u_1', Ubyte, (0, None), (False, None)
+		yield 'u_2', Uint, (0, None), (False, None)
+		yield 'u_3', Uint64, (0, None), (False, None)
+		yield 'u_4', Uint64, (0, None), (False, None)
 
 	def get_info_str(self, indent=0):
 		return f'Arg [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

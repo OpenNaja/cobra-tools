@@ -42,9 +42,9 @@ class Wsm(GenericHeader):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
-		yield 'header', WsmHeader, (0, None)
-		yield 'locs', Array, ((instance.header.frame_count, 3,), Float, 0, None)
-		yield 'quats', Array, ((instance.header.frame_count, 4,), Float, 0, None)
+		yield 'header', WsmHeader, (0, None), (False, None)
+		yield 'locs', Array, ((instance.header.frame_count, 3,), Float, 0, None), (False, None)
+		yield 'quats', Array, ((instance.header.frame_count, 4,), Float, 0, None), (False, None)
 
 	def get_info_str(self, indent=0):
 		return f'Wsm [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

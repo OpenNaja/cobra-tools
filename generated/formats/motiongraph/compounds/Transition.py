@@ -63,12 +63,12 @@ class Transition(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
-		yield 'count_0', Uint, (0, None)
-		yield 'count_1', Uint, (0, None)
-		yield 'ptr_0', Pointer, (instance.count_1, generated.formats.motiongraph.compounds.PtrList.PtrList)
-		yield 'count_2', Uint64, (0, None)
-		yield 'ptr_1', Pointer, (instance.count_2, generated.formats.motiongraph.compounds.TransStructArray.TransStructArray)
-		yield 'id', Pointer, (0, generated.formats.base.basic.ZString)
+		yield 'count_0', Uint, (0, None), (False, None)
+		yield 'count_1', Uint, (0, None), (False, None)
+		yield 'ptr_0', Pointer, (instance.count_1, generated.formats.motiongraph.compounds.PtrList.PtrList), (False, None)
+		yield 'count_2', Uint64, (0, None), (False, None)
+		yield 'ptr_1', Pointer, (instance.count_2, generated.formats.motiongraph.compounds.TransStructArray.TransStructArray), (False, None)
+		yield 'id', Pointer, (0, generated.formats.base.basic.ZString), (False, None)
 
 	def get_info_str(self, indent=0):
 		return f'Transition [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

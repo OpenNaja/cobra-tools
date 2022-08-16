@@ -59,8 +59,8 @@
 		<add name="value" type="Color" arr1="2" cond="dtype == 7" since="18">Stores 2 rgba colors</add>
 		<add name="value" type="Color" arr1="1" cond="dtype == 7" until="17">Stores rgba color</add>
         used in JWE swatches, purpose unknown
-        <add name="some_index_0" type="uint" since="18"/>
-        <add name="some_index_1" type="uint" since="18"/>
+        <add name="some_index_0" type="uint" since="18" default="0" optional="True" />
+        <add name="some_index_1" type="uint" since="18" default="0" optional="True" />
     </compound>
 
 	<compound name="TexIndex" inherit="MemStruct">

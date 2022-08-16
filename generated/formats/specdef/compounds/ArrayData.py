@@ -44,9 +44,9 @@ class ArrayData(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
-		yield 'item', Pointer, (instance.dtype, generated.formats.specdef.compounds.Data.Data)
-		yield 'dtype', SpecdefDtype, (0, None)
-		yield 'unused', Uint, (0, None)
+		yield 'item', Pointer, (instance.dtype, generated.formats.specdef.compounds.Data.Data), (False, None)
+		yield 'dtype', SpecdefDtype, (0, None), (False, None)
+		yield 'unused', Uint, (0, None), (False, None)
 
 	def get_info_str(self, indent=0):
 		return f'ArrayData [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

@@ -35,8 +35,8 @@ class Variant(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
-		yield 'has_ptr', Uint64, (0, None)
-		yield 'variant_name', Pointer, (0, generated.formats.base.basic.ZString)
+		yield 'has_ptr', Uint64, (0, None), (False, None)
+		yield 'variant_name', Pointer, (0, generated.formats.base.basic.ZString), (False, None)
 
 	def get_info_str(self, indent=0):
 		return f'Variant [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

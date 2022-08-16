@@ -76,17 +76,17 @@ class FctRoot(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
-		yield 'u_0', Short, (0, None)
-		yield 'u_1', Short, (0, None)
-		yield 'a', Float, (0, None)
-		yield 'b', Float, (0, None)
-		yield 'c', Float, (0, None)
-		yield 'minus_1', Short, (0, None)
-		yield 'z_0', Short, (0, None)
-		yield 'z_1', Int, (0, None)
-		yield 'z_2', Uint64, (0, None)
-		yield 'offset', Uint64, (0, None)
-		yield 'fonts', Array, ((4,), Font, 0, None)
+		yield 'u_0', Short, (0, None), (False, None)
+		yield 'u_1', Short, (0, None), (False, None)
+		yield 'a', Float, (0, None), (False, None)
+		yield 'b', Float, (0, None), (False, None)
+		yield 'c', Float, (0, None), (False, None)
+		yield 'minus_1', Short, (0, None), (False, None)
+		yield 'z_0', Short, (0, None), (False, None)
+		yield 'z_1', Int, (0, None), (False, None)
+		yield 'z_2', Uint64, (0, None), (False, None)
+		yield 'offset', Uint64, (0, None), (False, None)
+		yield 'fonts', Array, ((4,), Font, 0, None), (False, None)
 
 	def get_info_str(self, indent=0):
 		return f'FctRoot [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

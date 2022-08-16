@@ -19,14 +19,14 @@ class HabitatBoundaryDataRoot(MemStruct):
 		super().__init__(context, arg, template, set_default=False)
 
 		# 3 for everything but null barrier which is 0
-		self.u_1 = 0
+		self.u_1 = 3
 		self.u_2 = 0.0
 
 		# 0 for everything but wood logs barrier which is 1
 		self.u_3 = 0
 		self.ui_options = HbUiOptions(self.context, 0, None)
-		self.u_4 = 0.0
-		self.u_5 = 0.0
+		self.u_4 = 1.5
+		self.u_5 = 2.5
 		self.offsets = HbOffsets(self.context, 0, None)
 
 		# Posts of N Level can only use Walls of less than N Level
@@ -61,12 +61,12 @@ class HabitatBoundaryDataRoot(MemStruct):
 
 	def set_defaults(self):
 		super().set_defaults()
-		self.u_1 = 0
+		self.u_1 = 3
 		self.u_2 = 0.0
 		self.u_3 = 0
 		self.ui_options = HbUiOptions(self.context, 0, None)
-		self.u_4 = 0.0
-		self.u_5 = 0.0
+		self.u_4 = 1.5
+		self.u_5 = 2.5
 		self.offsets = HbOffsets(self.context, 0, None)
 		self.wall_replace_level = 0
 		self.type = 0
@@ -208,37 +208,37 @@ class HabitatBoundaryDataRoot(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
-		yield 'prefab', Pointer, (0, generated.formats.base.basic.ZString)
-		yield 'walls_extrusion', Pointer, (0, generated.formats.base.basic.ZString)
-		yield 'walls_extrusion_end', Pointer, (0, generated.formats.base.basic.ZString)
-		yield 'walls_extrusion_top', Pointer, (0, generated.formats.base.basic.ZString)
-		yield 'walls_extrusion_cap_top', Pointer, (0, generated.formats.base.basic.ZString)
-		yield 'walls_extrusion_bottom', Pointer, (0, generated.formats.base.basic.ZString)
-		yield 'walls_unk_2', Pointer, (0, generated.formats.base.basic.ZString)
-		yield 'walls_unk_3', Pointer, (0, generated.formats.base.basic.ZString)
-		yield 'walls_unk_4', Pointer, (0, generated.formats.base.basic.ZString)
-		yield 'walls_extrusion_door_cap_side', Pointer, (0, generated.formats.base.basic.ZString)
-		yield 'walls_extrusion_door_cap_end', Pointer, (0, generated.formats.base.basic.ZString)
-		yield 'walls_extrusion_door_cap_underside', Pointer, (0, generated.formats.base.basic.ZString)
-		yield 'climb_proof_data', Pointer, (0, generated.formats.base.basic.ZString)
-		yield 'broken_post', Pointer, (0, generated.formats.base.basic.ZString)
-		yield 'broken_extrusion', Pointer, (0, generated.formats.base.basic.ZString)
-		yield 'broken_extrusion_pile', Pointer, (0, generated.formats.base.basic.ZString)
-		yield 'broken_ground', Pointer, (0, generated.formats.base.basic.ZString)
-		yield 'broken_1_m', Pointer, (0, generated.formats.base.basic.ZString)
-		yield 'broken_10_m', Pointer, (0, generated.formats.base.basic.ZString)
-		yield 'post', Pointer, (0, generated.formats.base.basic.ZString)
-		yield 'post_cap', Pointer, (0, generated.formats.base.basic.ZString)
-		yield 'u_1', Uint, (0, None)
-		yield 'u_2', Float, (0, None)
-		yield 'u_3', Ushort, (0, None)
-		yield 'ui_options', HbUiOptions, (0, None)
-		yield 'u_4', Float, (0, None)
-		yield 'u_5', Float, (0, None)
-		yield 'offsets', HbOffsets, (0, None)
-		yield 'wall_replace_level', Byte, (0, None)
-		yield 'type', Byte, (0, None)
-		yield 'padding', Ushort, (0, None)
+		yield 'prefab', Pointer, (0, generated.formats.base.basic.ZString), (False, None)
+		yield 'walls_extrusion', Pointer, (0, generated.formats.base.basic.ZString), (False, None)
+		yield 'walls_extrusion_end', Pointer, (0, generated.formats.base.basic.ZString), (False, None)
+		yield 'walls_extrusion_top', Pointer, (0, generated.formats.base.basic.ZString), (False, None)
+		yield 'walls_extrusion_cap_top', Pointer, (0, generated.formats.base.basic.ZString), (False, None)
+		yield 'walls_extrusion_bottom', Pointer, (0, generated.formats.base.basic.ZString), (False, None)
+		yield 'walls_unk_2', Pointer, (0, generated.formats.base.basic.ZString), (False, None)
+		yield 'walls_unk_3', Pointer, (0, generated.formats.base.basic.ZString), (False, None)
+		yield 'walls_unk_4', Pointer, (0, generated.formats.base.basic.ZString), (False, None)
+		yield 'walls_extrusion_door_cap_side', Pointer, (0, generated.formats.base.basic.ZString), (False, None)
+		yield 'walls_extrusion_door_cap_end', Pointer, (0, generated.formats.base.basic.ZString), (False, None)
+		yield 'walls_extrusion_door_cap_underside', Pointer, (0, generated.formats.base.basic.ZString), (False, None)
+		yield 'climb_proof_data', Pointer, (0, generated.formats.base.basic.ZString), (False, None)
+		yield 'broken_post', Pointer, (0, generated.formats.base.basic.ZString), (False, None)
+		yield 'broken_extrusion', Pointer, (0, generated.formats.base.basic.ZString), (False, None)
+		yield 'broken_extrusion_pile', Pointer, (0, generated.formats.base.basic.ZString), (False, None)
+		yield 'broken_ground', Pointer, (0, generated.formats.base.basic.ZString), (False, None)
+		yield 'broken_1_m', Pointer, (0, generated.formats.base.basic.ZString), (False, None)
+		yield 'broken_10_m', Pointer, (0, generated.formats.base.basic.ZString), (False, None)
+		yield 'post', Pointer, (0, generated.formats.base.basic.ZString), (False, None)
+		yield 'post_cap', Pointer, (0, generated.formats.base.basic.ZString), (False, None)
+		yield 'u_1', Uint, (0, None), (False, 3)
+		yield 'u_2', Float, (0, None), (False, None)
+		yield 'u_3', Ushort, (0, None), (False, 0)
+		yield 'ui_options', HbUiOptions, (0, None), (False, None)
+		yield 'u_4', Float, (0, None), (False, 1.5)
+		yield 'u_5', Float, (0, None), (False, 2.5)
+		yield 'offsets', HbOffsets, (0, None), (False, None)
+		yield 'wall_replace_level', Byte, (0, None), (False, None)
+		yield 'type', Byte, (0, None), (False, None)
+		yield 'padding', Ushort, (0, None), (True, 0)
 
 	def get_info_str(self, indent=0):
 		return f'HabitatBoundaryDataRoot [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

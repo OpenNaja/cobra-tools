@@ -50,11 +50,11 @@ class Int64Data(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
-		yield 'imin', Int64, (0, None)
-		yield 'imax', Int64, (0, None)
-		yield 'ivalue', Int64, (0, None)
-		yield 'ioptional', Int64, (0, None)
-		yield 'enum', Pointer, (0, None)
+		yield 'imin', Int64, (0, None), (False, None)
+		yield 'imax', Int64, (0, None), (False, None)
+		yield 'ivalue', Int64, (0, None), (False, None)
+		yield 'ioptional', Int64, (0, None), (False, None)
+		yield 'enum', Pointer, (0, None), (False, None)
 
 	def get_info_str(self, indent=0):
 		return f'Int64Data [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

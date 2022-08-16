@@ -36,8 +36,8 @@ class NextResearch(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
-		yield 'item_name', Array, ((instance.arg,), Pointer, 0, generated.formats.base.basic.ZString)
-		yield 'unk_1', Uint64, (0, None)
+		yield 'item_name', Array, ((instance.arg,), Pointer, 0, generated.formats.base.basic.ZString), (False, None)
+		yield 'unk_1', Uint64, (0, None), (False, None)
 
 	def get_info_str(self, indent=0):
 		return f'NextResearch [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

@@ -124,23 +124,23 @@ class ZtMeshData(MeshData):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
-		yield 'tri_index_count', Uint, (0, None)
-		yield 'vertex_count', Uint, (0, None)
-		yield 'tri_info_offset', Uint, (0, None)
-		yield 'vert_info_offset', Uint, (0, None)
-		yield 'known_ff_0', Int, (0, None)
-		yield 'tri_offset', Uint, (0, None)
-		yield 'uv_offset', Uint, (0, None)
-		yield 'vertex_offset', Uint, (0, None)
-		yield 'unk_index', Short, (0, None)
-		yield 'one_0', Ushort, (0, None)
-		yield 'one_1', Ushort, (0, None)
-		yield 'poweroftwo', Ushort, (0, None)
+		yield 'tri_index_count', Uint, (0, None), (False, None)
+		yield 'vertex_count', Uint, (0, None), (False, None)
+		yield 'tri_info_offset', Uint, (0, None), (False, None)
+		yield 'vert_info_offset', Uint, (0, None), (False, None)
+		yield 'known_ff_0', Int, (0, None), (False, None)
+		yield 'tri_offset', Uint, (0, None), (False, None)
+		yield 'uv_offset', Uint, (0, None), (False, None)
+		yield 'vertex_offset', Uint, (0, None), (False, None)
+		yield 'unk_index', Short, (0, None), (False, None)
+		yield 'one_0', Ushort, (0, None), (False, None)
+		yield 'one_1', Ushort, (0, None), (False, None)
+		yield 'poweroftwo', Ushort, (0, None), (False, None)
 		if instance.context.version <= 7:
-			yield 'flag', ModelFlagDLA, (0, None)
+			yield 'flag', ModelFlagDLA, (0, None), (False, None)
 		if instance.context.version >= 13:
-			yield 'flag', ModelFlagZT, (0, None)
-		yield 'zero_uac', Uint, (0, None)
+			yield 'flag', ModelFlagZT, (0, None), (False, None)
+		yield 'zero_uac', Uint, (0, None), (False, None)
 
 	def get_info_str(self, indent=0):
 		return f'ZtMeshData [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

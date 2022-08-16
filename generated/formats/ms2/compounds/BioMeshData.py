@@ -88,14 +88,14 @@ class BioMeshData(MeshData):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
-		yield 'chunks_offset', Uint, (0, None)
-		yield 'chunks_count', Uint, (0, None)
-		yield 'tris_count', Uint, (0, None)
-		yield 'vertex_count', Uint, (0, None)
-		yield 'zero_1', Uint64, (0, None)
-		yield 'poweroftwo', Uint, (0, None)
-		yield 'unk_floats', Array, ((2,), Float, 0, None)
-		yield 'flag', BioModelFlag, (0, None)
+		yield 'chunks_offset', Uint, (0, None), (False, None)
+		yield 'chunks_count', Uint, (0, None), (False, None)
+		yield 'tris_count', Uint, (0, None), (False, None)
+		yield 'vertex_count', Uint, (0, None), (False, None)
+		yield 'zero_1', Uint64, (0, None), (False, None)
+		yield 'poweroftwo', Uint, (0, None), (False, None)
+		yield 'unk_floats', Array, ((2,), Float, 0, None), (False, None)
+		yield 'flag', BioModelFlag, (0, None), (False, None)
 
 	def get_info_str(self, indent=0):
 		return f'BioMeshData [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

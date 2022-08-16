@@ -84,16 +84,16 @@ class WorldHeader(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
-		yield 'world_type', Uint64, (0, None)
-		yield 'asset_pkgs', Pointer, (instance.asset_pkg_count, generated.formats.world.compounds.PtrList.PtrList)
-		yield 'asset_pkg_count', Uint64, (0, None)
-		yield 'lua_name', Pointer, (0, generated.formats.base.basic.ZString)
-		yield 'ptr_0', Pointer, (0, None)
-		yield 'ptr_1', Pointer, (0, None)
-		yield 'prefabs', Pointer, (instance.prefab_count, generated.formats.world.compounds.PtrList.PtrList)
-		yield 'ptr_2', Pointer, (0, None)
-		yield 'prefab_count', Uint64, (0, None)
-		yield 'ptr_3', Pointer, (0, None)
+		yield 'world_type', Uint64, (0, None), (False, None)
+		yield 'asset_pkgs', Pointer, (instance.asset_pkg_count, generated.formats.world.compounds.PtrList.PtrList), (False, None)
+		yield 'asset_pkg_count', Uint64, (0, None), (False, None)
+		yield 'lua_name', Pointer, (0, generated.formats.base.basic.ZString), (False, None)
+		yield 'ptr_0', Pointer, (0, None), (False, None)
+		yield 'ptr_1', Pointer, (0, None), (False, None)
+		yield 'prefabs', Pointer, (instance.prefab_count, generated.formats.world.compounds.PtrList.PtrList), (False, None)
+		yield 'ptr_2', Pointer, (0, None), (False, None)
+		yield 'prefab_count', Uint64, (0, None), (False, None)
+		yield 'ptr_3', Pointer, (0, None), (False, None)
 
 	def get_info_str(self, indent=0):
 		return f'WorldHeader [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

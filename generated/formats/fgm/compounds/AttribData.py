@@ -64,17 +64,17 @@ class AttribData(MemStruct):
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
 		if instance.arg.dtype == 0:
-			yield 'value', Array, ((1,), Float, 0, None)
+			yield 'value', Array, ((1,), Float, 0, None), (False, None)
 		if instance.arg.dtype == 1:
-			yield 'value', Array, ((2,), Float, 0, None)
+			yield 'value', Array, ((2,), Float, 0, None), (False, None)
 		if instance.arg.dtype == 2:
-			yield 'value', Array, ((3,), Float, 0, None)
+			yield 'value', Array, ((3,), Float, 0, None), (False, None)
 		if instance.arg.dtype == 3:
-			yield 'value', Array, ((4,), Float, 0, None)
+			yield 'value', Array, ((4,), Float, 0, None), (False, None)
 		if instance.arg.dtype == 5:
-			yield 'value', Array, ((1,), Int, 0, None)
+			yield 'value', Array, ((1,), Int, 0, None), (False, None)
 		if instance.arg.dtype == 6:
-			yield 'value', Array, ((1,), Int, 0, None)
+			yield 'value', Array, ((1,), Int, 0, None), (False, None)
 
 	def get_info_str(self, indent=0):
 		return f'AttribData [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

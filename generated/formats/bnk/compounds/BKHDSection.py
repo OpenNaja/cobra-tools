@@ -50,14 +50,14 @@ class BKHDSection(BaseStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
-		yield 'length', Uint, (0, None)
-		yield 'version', Uint, (0, None)
-		yield 'id_a', Uint, (0, None)
-		yield 'id_b', Uint, (0, None)
-		yield 'constant_a', Uint, (0, None)
-		yield 'constant_b', Uint, (0, None)
-		yield 'unk', Uint, (0, None)
-		yield 'zeroes', Array, ((instance.length - 24,), Ubyte, 0, None)
+		yield 'length', Uint, (0, None), (False, None)
+		yield 'version', Uint, (0, None), (False, None)
+		yield 'id_a', Uint, (0, None), (False, None)
+		yield 'id_b', Uint, (0, None), (False, None)
+		yield 'constant_a', Uint, (0, None), (False, None)
+		yield 'constant_b', Uint, (0, None), (False, None)
+		yield 'unk', Uint, (0, None), (False, None)
+		yield 'zeroes', Array, ((instance.length - 24,), Ubyte, 0, None), (False, None)
 
 	def get_info_str(self, indent=0):
 		return f'BKHDSection [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

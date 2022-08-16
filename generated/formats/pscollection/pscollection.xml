@@ -11,7 +11,7 @@
 
     <compound name="PreparedStatement" inherit="MemStruct">
         <add name="args" type="ArrayPointer" template="Arg" arg="arg_count"/>
-        <add name="arg_count" type="uint64" />
+        <add name="arg_count" type="uint64" default="0" optional="True" />
         <add name="statement_name" type="Pointer" template="ZString"/>
         <add name="sql_query" type="Pointer" template="ZString"/>
     </compound>

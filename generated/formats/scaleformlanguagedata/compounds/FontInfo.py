@@ -45,9 +45,9 @@ class FontInfo(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
-		yield 'style_name', Pointer, (0, generated.formats.base.basic.ZString)
-		yield 'font_file', Pointer, (0, generated.formats.base.basic.ZString)
-		yield 'flag_or_count', Uint64, (0, None)
+		yield 'style_name', Pointer, (0, generated.formats.base.basic.ZString), (False, None)
+		yield 'font_file', Pointer, (0, generated.formats.base.basic.ZString), (False, None)
+		yield 'flag_or_count', Uint64, (0, None), (False, None)
 
 	def get_info_str(self, indent=0):
 		return f'FontInfo [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

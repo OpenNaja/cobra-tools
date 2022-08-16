@@ -57,13 +57,13 @@ class AxisValue(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
-		yield 'axis_name', Pointer, (0, generated.formats.base.basic.ZString)
-		yield 'u_0', Uint64, (0, None)
-		yield 'u_1', Uint64, (0, None)
-		yield 'u_2', Uint64, (0, None)
-		yield 'value_name', Pointer, (0, generated.formats.base.basic.ZString)
-		yield 'u_3', Uint64, (0, None)
-		yield 'u_4', Uint64, (0, None)
+		yield 'axis_name', Pointer, (0, generated.formats.base.basic.ZString), (False, None)
+		yield 'u_0', Uint64, (0, None), (False, None)
+		yield 'u_1', Uint64, (0, None), (False, None)
+		yield 'u_2', Uint64, (0, None), (False, None)
+		yield 'value_name', Pointer, (0, generated.formats.base.basic.ZString), (False, None)
+		yield 'u_3', Uint64, (0, None), (False, None)
+		yield 'u_4', Uint64, (0, None), (False, None)
 
 	def get_info_str(self, indent=0):
 		return f'AxisValue [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

@@ -46,10 +46,10 @@ class StreamInfo(BaseStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
-		yield 'offset', Uint64, (0, None)
-		yield 'size', Uint64, (0, None)
-		yield 'event_id', Uint, (0, None)
-		yield 'zero', Uint, (0, None)
+		yield 'offset', Uint64, (0, None), (False, None)
+		yield 'size', Uint64, (0, None), (False, None)
+		yield 'event_id', Uint, (0, None), (False, None)
+		yield 'zero', Uint, (0, None), (False, None)
 
 	def get_info_str(self, indent=0):
 		return f'StreamInfo [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

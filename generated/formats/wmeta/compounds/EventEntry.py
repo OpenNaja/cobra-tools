@@ -105,24 +105,24 @@ class EventEntry(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
-		yield 'hash', Uint, (0, None)
-		yield 'zero', Uint, (0, None)
+		yield 'hash', Uint, (0, None), (False, None)
+		yield 'zero', Uint, (0, None), (False, None)
 		if instance.context.version <= 18:
-			yield 'block_name', Pointer, (0, generated.formats.base.basic.ZString)
-			yield 'zero_2', Ushort, (0, None)
-			yield 'size', Ushort, (0, None)
-		yield 'flag_0', Uint, (0, None)
-		yield 'flag_1', Uint, (0, None)
-		yield 'flag_2', Uint, (0, None)
+			yield 'block_name', Pointer, (0, generated.formats.base.basic.ZString), (False, None)
+			yield 'zero_2', Ushort, (0, None), (False, None)
+			yield 'size', Ushort, (0, None), (False, None)
+		yield 'flag_0', Uint, (0, None), (False, None)
+		yield 'flag_1', Uint, (0, None), (False, None)
+		yield 'flag_2', Uint, (0, None), (False, None)
 		if instance.context.version <= 18:
-			yield 'zero_3', Uint64, (0, None)
-			yield 'flag_3', Uint, (0, None)
-		yield 'hash_b', Uint, (0, None)
-		yield 'hash_c', Uint, (0, None)
-		yield 'zero_4', Uint, (0, None)
+			yield 'zero_3', Uint64, (0, None), (False, None)
+			yield 'flag_3', Uint, (0, None), (False, None)
+		yield 'hash_b', Uint, (0, None), (False, None)
+		yield 'hash_c', Uint, (0, None), (False, None)
+		yield 'zero_4', Uint, (0, None), (False, None)
 		if instance.context.version >= 19:
-			yield 'u_2', Uint, (0, None)
-			yield 'u_1', Uint, (0, None)
+			yield 'u_2', Uint, (0, None), (False, None)
+			yield 'u_1', Uint, (0, None), (False, None)
 
 	def get_info_str(self, indent=0):
 		return f'EventEntry [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

@@ -45,9 +45,9 @@ class UbyteVector3(BaseStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
-		yield 'x', Ubyte, (0, None)
-		yield 'y', Ubyte, (0, None)
-		yield 'z', Ubyte, (0, None)
+		yield 'x', Ubyte, (0, None), (False, None)
+		yield 'y', Ubyte, (0, None), (False, None)
+		yield 'z', Ubyte, (0, None), (False, None)
 
 	def get_info_str(self, indent=0):
 		return f'UbyteVector3 [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

@@ -80,16 +80,16 @@ class LogicalControls(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
-		yield 'buttons', ArrayPointer, (instance.button_count, generated.formats.logicalcontrols.compounds.Button.Button)
-		yield 'axes', ArrayPointer, (instance.axis_count, generated.formats.logicalcontrols.compounds.AxisValue.AxisValue)
-		yield 'c', ArrayPointer, (instance.count_3, )
-		yield 'd', ArrayPointer, (instance.count_4, generated.formats.logicalcontrols.compounds.Some.Some)
-		yield 'button_count', Ubyte, (0, None)
-		yield 'axis_count', Ubyte, (0, None)
-		yield 'count_3', Ubyte, (0, None)
-		yield 'count_4', Ubyte, (0, None)
-		yield 'flags', Uint, (0, None)
-		yield 'unsure', Pointer, (0, generated.formats.base.basic.ZString)
+		yield 'buttons', ArrayPointer, (instance.button_count, generated.formats.logicalcontrols.compounds.Button.Button), (False, None)
+		yield 'axes', ArrayPointer, (instance.axis_count, generated.formats.logicalcontrols.compounds.AxisValue.AxisValue), (False, None)
+		yield 'c', ArrayPointer, (instance.count_3, ), (False, None)
+		yield 'd', ArrayPointer, (instance.count_4, generated.formats.logicalcontrols.compounds.Some.Some), (False, None)
+		yield 'button_count', Ubyte, (0, None), (False, None)
+		yield 'axis_count', Ubyte, (0, None), (False, None)
+		yield 'count_3', Ubyte, (0, None), (False, None)
+		yield 'count_4', Ubyte, (0, None), (False, None)
+		yield 'flags', Uint, (0, None), (False, None)
+		yield 'unsure', Pointer, (0, generated.formats.base.basic.ZString), (False, None)
 
 	def get_info_str(self, indent=0):
 		return f'LogicalControls [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
