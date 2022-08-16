@@ -218,8 +218,8 @@ class VoxelskirtFile(Header, IoFile):
 			buffer_bytes = stream.getvalue()
 
 		# write the actual file
-		with self.writer(filepath) as stream:
-			self.write(stream)
+		with open(filepath, "wb") as stream:
+			self.write_fields(stream, self)
 			stream.write(buffer_bytes)
 		print(f"Saved {self.basename} in {time.time()-start_time:.2f} seconds")
 

@@ -334,9 +334,9 @@ class Ms2File(Ms2InfoHeader, IoFile):
 		self.update_buffer_1_bytes()
 		self.update_buffer_2_bytes()
 		logging.info(f"Writing to {filepath}")
-		with self.writer(filepath) as f:
-			self.write(f)
-			f.write(self.buffer_2_bytes)
+		with open(filepath, "wb") as stream:
+			self.write_fields(stream, self)
+			stream.write(self.buffer_2_bytes)
 		# save multiple buffer_infos
 		for buffer_info in self.buffer_infos:
 			if buffer_info.name != "STATIC":

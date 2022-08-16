@@ -111,9 +111,8 @@ class BaniFile(BaniInfoHeader, IoFile):
 		# write the file
 		# todo - this is not properly implemented
 		self.encode_eulers()
-		with self.writer(filepath) as stream:
-			# first header
-			self.write(stream)
+		with open(filepath, "wb") as stream:
+			self.write_fields(stream, self)
 		# got to write the banis too
 
 
@@ -144,8 +143,8 @@ class BanisFile(BanisRoot, IoFile):
 
 	def save(self, filepath):
 		self.num_frames, self.num_bones = self.data.shape
-		with self.writer(filepath) as stream:
-			self.write(stream)
+		with open(filepath, "wb") as stream:
+			self.write_fields(stream, self)
 			stream.write(self.data.tobytes())
 
 

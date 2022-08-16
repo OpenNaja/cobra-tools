@@ -1,34 +1,32 @@
+import logging
 import os
 import struct
-import zlib
-from io import BytesIO
 import time
-import logging
+import zlib
 from contextlib import contextmanager
+from io import BytesIO
 
+from generated.formats.ovl.compounds.ArchiveEntry import ArchiveEntry
+from generated.formats.ovl.compounds.AssetEntry import AssetEntry
+from generated.formats.ovl.compounds.BufferGroup import BufferGroup
+from generated.formats.ovl.compounds.FileEntry import FileEntry
 from generated.formats.ovl.compounds.Fragment import Fragment
+from generated.formats.ovl.compounds.Header import Header
+from generated.formats.ovl.compounds.IncludedOvl import IncludedOvl
+from generated.formats.ovl.compounds.MimeEntry import MimeEntry
+from generated.formats.ovl.compounds.OvsHeader import OvsHeader
 from generated.formats.ovl.compounds.PoolGroup import PoolGroup
+from generated.formats.ovl.compounds.SetEntry import SetEntry
 from generated.formats.ovl.compounds.StreamEntry import StreamEntry
+from generated.formats.ovl.compounds.ZlibInfo import ZlibInfo
+from generated.formats.ovl.versions import *
 from generated.formats.ovl_base import OvlContext
 from generated.formats.ovl_base.enums.Compression import Compression
-from ovl_util.oodle.oodle import OodleDecompressEnum, oodle_compressor
-
 from generated.io import IoFile
-from generated.formats.ovl.versions import *
-from generated.formats.ovl.compounds.AssetEntry import AssetEntry
-from generated.formats.ovl.compounds.Header import Header
-from generated.formats.ovl.compounds.OvsHeader import OvsHeader
-from generated.formats.ovl.compounds.SetEntry import SetEntry
-from generated.formats.ovl.compounds.ArchiveEntry import ArchiveEntry
-from generated.formats.ovl.compounds.IncludedOvl import IncludedOvl
-from generated.formats.ovl.compounds.FileEntry import FileEntry
-from generated.formats.ovl.compounds.MimeEntry import MimeEntry
-from generated.formats.ovl.compounds.BufferGroup import BufferGroup
-from generated.formats.ovl.compounds.ZlibInfo import ZlibInfo
-
-from modules.formats.shared import djb2
 from modules.formats.formats_dict import build_formats_dict
+from modules.formats.shared import djb2
 from modules.helpers import split_path
+from ovl_util.oodle.oodle import OodleDecompressEnum, oodle_compressor
 from root_path import root_dir
 
 UNK_HASH = "Unknown Hash"
@@ -56,12 +54,6 @@ class OvsFile(OvsHeader):
 		self.data_entries.clear()
 		self.buffer_entries.clear()
 		self.buffer_groups.clear()
-
-	def get_bytes(self):
-		# write the internal data
-		with BytesIO() as stream:
-			self.write_archive(stream)
-			return stream.getbuffer()
 
 	@contextmanager
 	def unzipper(self, compressed_bytes, uncompressed_size):
@@ -541,7 +533,7 @@ class OvsFile(OvsHeader):
 	def write_pools(self):
 		logging.debug(f"Writing pools for {self.arg.name}")
 		# do this first so pools can be updated
-		pools_data_writer = io.BytesIO()
+		pools_data_writer = BytesIO()
 		for pool in self.pools:
 			# make sure that all pools are padded before writing
 			pool.pad()
@@ -557,15 +549,17 @@ class OvsFile(OvsHeader):
 			pools_data_writer.write(pool_bytes)
 		self.pools_data = pools_data_writer.getvalue()
 
-	def write_archive(self, stream):
+	def write_archive(self):
 		logging.info(f"Writing archive {self.arg.name}")
-		# write out all entries
-		super().write(stream)
-		# write the pools data containing all the pointers' datas
-		stream.write(self.pools_data)
-		# write buffer data
-		for b in self.buffers_io_order:
-			stream.write(b.data)
+		with BytesIO() as stream:
+			# write out all entries
+			super().write_fields(stream, self)
+			# write the pools data containing all the pointers' datas
+			stream.write(self.pools_data)
+			# write buffer data
+			for b in self.buffers_io_order:
+				stream.write(b.data)
+			return stream.getvalue()
 
 
 class OvlFile(Header, IoFile):
@@ -1295,6 +1289,7 @@ class OvlFile(Header, IoFile):
 				loader.dump_buffer_infos(f)
 
 	def save(self, filepath):
+		start_time = time.time()
 		self.store_filepath(filepath)
 		logging.info(f"Writing {self.name}")
 		self.rebuild_ovs_arrays()
@@ -1311,7 +1306,7 @@ class OvlFile(Header, IoFile):
 		# compress data stream
 		for archive in self.iter_progress(self.archives, "Saving archives"):
 			# write archive into bytes IO stream
-			uncompressed = archive.content.get_bytes()
+			uncompressed = archive.content.write_archive()
 			archive.uncompressed_size, archive.compressed_size, compressed = archive.content.compress(
 				uncompressed)
 			# update set data size
@@ -1332,10 +1327,10 @@ class OvlFile(Header, IoFile):
 			self.zlibs.append(new_zlib)
 
 		self.close_ovs_streams()
-		eof = super().save(filepath)
-		with self.writer(filepath) as stream:
-			self.write(stream)
+		with open(filepath, "wb") as stream:
+			self.write_fields(stream, self)
 			stream.write(ovl_compressed)
+		logging.info(f"Saved OVL in {time.time() - start_time:.2f} seconds")
 
 
 if __name__ == "__main__":

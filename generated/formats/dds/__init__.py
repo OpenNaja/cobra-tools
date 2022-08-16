@@ -51,8 +51,8 @@ class DdsFile(Header, IoFile):
             self.read_mips(stream)
 
     def save(self, filepath):
-        with self.writer(filepath) as stream:
-            self.write(stream)
+        with open(filepath, "wb") as stream:
+            self.write_fields(stream, self)
             stream.write(self.buffer)
 
     def get_bytes_size(self, num_pixels):
