@@ -423,6 +423,7 @@ class MainWindow(widgets.MainWindow):
 			return
 		event.accept()
 
+
 class PropertyContainer(QtWidgets.QGroupBox):
 	def __init__(self, gui, name):
 		super().__init__(name)
