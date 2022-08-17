@@ -12,7 +12,6 @@ from generated.formats.ovl.compounds.MemPool import MemPool
 from generated.formats.ovl.compounds.RootEntry import RootEntry
 from generated.formats.ovl.compounds.DataEntry import DataEntry
 from modules.formats.shared import djb2
-from ovl_util.interaction import showdialog
 
 
 class BaseFile:
@@ -187,8 +186,8 @@ class BaseFile:
 				byte_name_tups.append((old.encode(), new.encode()))
 			for fragment in self.fragments:
 				fragment.struct_ptr.replace_bytes(byte_name_tups)
-		except Exception as err:
-			showdialog(str(err))
+		except:
+			logging.exception(f"Renaming frags failed for {self.file_entry.name}")
 
 	def rename(self, name_tuples):
 		"""Rename all entries controlled by this loader"""

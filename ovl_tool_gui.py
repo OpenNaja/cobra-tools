@@ -49,16 +49,16 @@ class OvlReporter(OvlFile, QtCore.QObject):
 class Worker(QtCore.QObject):
 	finished = QtCore.pyqtSignal()
 
-	def __init__(self, function, *args, **kwargs):
+	def __init__(self, func, *args, **kwargs):
 		super().__init__()
-		self.function_name = function
+		self.func = func
 		self.args = args
 		self.kwargs = kwargs
 
 	def run(self):
 		# mutex.lock()
-		func = getattr(self.thread().ovl_data, self.function_name)
-		func(*self.args, **self.kwargs)
+		# func = getattr(self.thread().ovl_data, self.function_name)
+		self.func(*self.args, **self.kwargs)
 		# mutex.unlock()
 		self.finished.emit()
 
@@ -228,14 +228,13 @@ class MainWindow(widgets.MainWindow):
 		self.ovl_data.included_ovls_list.connect(self.included_ovls_view.set_data)
 		self.ovl_data.progress_percentage.connect(self.p_action.setValue)
 		self.ovl_data.current_action.connect(self.t_action.setText)
-		self.run_threaded("load_hash_table")
+		self.run_threaded(self.ovl_data.load_hash_table)
 
-	def run_threaded(self, function_name, *args, **kwargs):
+	def run_threaded(self, func, *args, **kwargs):
 		# Step 2: Create a QThread object
 		self.thread = QtCore.QThread()
-		self.thread.ovl_data = self.ovl_data
 		# Step 3: Create a worker object
-		self.worker = Worker(function_name, *args, **kwargs)
+		self.worker = Worker(func, *args, **kwargs)
 		# Step 4: Move worker to the thread
 		self.worker.moveToThread(self.thread)
 		# Step 5: Connect signals and slots
@@ -449,7 +448,7 @@ class MainWindow(widgets.MainWindow):
 			self.file_widget.dirty = False
 			try:
 				# self.ovl_data.load(self.file_widget.filepath)
-				self.run_threaded("load", self.file_widget.filepath)
+				self.run_threaded(self.ovl_data.load, self.file_widget.filepath)
 			except:
 				logging.info(self.ovl_data)
 				self.handle_error("OVL loading failed, see log!")
@@ -552,11 +551,14 @@ class MainWindow(widgets.MainWindow):
 		if files:
 			self.cfg["dir_inject"] = os.path.dirname(files[0])
 			try:
+
 				error_files = self.ovl_data.inject(files, self.show_temp_files)
+				# error_files = []
+				# self.run_threaded(self.ovl_data.inject, files, self.show_temp_files)
 				self.file_widget.dirty = True
-				if error_files:
-					interaction.showdialog(f"Injection caused errors on {len(error_files)} files, see console for details!")
-				self.update_gui_table()
+				# if error_files:
+				# 	interaction.showdialog(f"Injection caused errors on {len(error_files)} files, see console for details!")
+				# self.update_gui_table()
 				self.update_progress("Injection completed", value=1, vmax=1)
 			except:
 				self.handle_error("Injection failed, see log!")

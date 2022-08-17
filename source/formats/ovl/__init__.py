@@ -650,7 +650,7 @@ class OvlFile(Header, IoFile):
 				error_files.append(loader.file_entry.name)
 		return out_paths, error_files
 
-	def inject(self, file_paths, show_temp_files):
+	def inject(self, file_paths, show_temp_files=False):
 		"""Inject files into archive"""
 		logging.info(f"Injecting {len(file_paths)} files")
 		error_files = []
@@ -720,6 +720,7 @@ class OvlFile(Header, IoFile):
 		for file_path in self.iter_progress(file_paths, "Adding files"):
 			loader = self.create_file(file_path)
 			self.register_loader(loader)
+		self.files_list.emit([[loader.file_entry.name, loader.file_entry.ext] for loader in self.loaders.values()])
 
 	def register_loader(self, loader):
 		if loader:
