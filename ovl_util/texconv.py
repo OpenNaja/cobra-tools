@@ -96,7 +96,7 @@ def png_to_uncompressed_dds(png_file_path, height, out_dir, codec="BC7_UNORM"):
 	name = os.path.splitext(in_name)[0]
 	run_smart([
 		# BINARY, "-l", "-y", "-ft", "dds", "-o", out_dir, "-f", "R8G8B8A8_UNORM", "-fl", "12.1", "-h", str(height), "-if", "BOX",
-		BINARY, "-l", "-y", "-ft", "dds", "-o", out_dir, "-f", codec, "-fl", "12.1", "-h", str(height), "-if", "POINT",
+		BINARY, "-l", "-y", "-ft", "dds", "-o", out_dir, "-f", codec, "-fl", "12.1", "-h", str(height), "-if", "FANT_DITHER_DIFFUSION",
 		"-dx10", "-m", "1", "-srgb", "-sepalpha", "-alpha", png_file_path])
 	return os.path.join(out_dir, name + '.dds')
 
@@ -109,7 +109,7 @@ def add_mips_to_dds(dds_file_path, out_dir, codec="BC7_UNORM", mips=0):
 	os.makedirs(exp_dir, exist_ok=True)
 	with_mips = os.path.join(exp_dir, in_name)
 	run_smart([
-		BINARY, "-l", "-y", "-ft", "dds", "-o", exp_dir, "-f", codec, "-fl", "12.1", "-if", "POINT",
+		BINARY, "-l", "-y", "-ft", "dds", "-o", exp_dir, "-f", codec, "-fl", "12.1", "-if", "FANT_DITHER_DIFFUSION",
 		"-dx10", "-m", str(mips), "-srgb", "-sepalpha", "-alpha", dds_file_path])
 	return with_mips
 
