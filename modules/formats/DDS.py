@@ -204,44 +204,40 @@ class DdsLoader(MemStructLoader):
 			dds_file.mipmap_count = size_info.mip_index
 			dds_file.depth = 1
 		else:
-			if not len(buffer_data) == size_info.data_size:
-				logging.warning(
-					f"7_1 data size ({size_info.data_size}) and actual data size of combined buffers ({len(buffer_data)}) do not match up (bug)")
 			dds_file.width = size_info.width
 			# hack until we have proper support for array_size on the image editors
 			dds_file.height = size_info.height * size_info.array_size
 			dds_file.depth = size_info.depth
 			dds_file.mipmap_count = size_info.num_mips
-			# todo - regenerate continous buffer data
-			# buffer_datas = []
 		try:
-			dds_type = self.header.compression_type.name
+			compression_name = self.header.compression_type.name
 			logging.info(self.header.compression_type)
 			# account for aliases
-			if dds_type.endswith(("_B", "_C")):
-				dds_type = dds_type[:-2]
-			dds_compression_types = ((dds_type, DxgiFormat[dds_type]),)
+			if compression_name.endswith(("_B", "_C")):
+				compression_name = compression_name[:-2]
+			dds_compression_types = ((compression_name, DxgiFormat[compression_name]),)
 		except KeyError:
 			dds_compression_types = [(x.name, x) for x in DxgiFormat]
 			logging.warning(f"Unknown compression type {self.header.compression_type}, trying all compression types")
 		logging.debug(f"dds_compression_type {dds_compression_types}")
 
-		dds_file.buffer = buffer_data
-		dds_file.linear_size = len(buffer_data)
 		# write out everything for each compression type
-		for dds_type, dds_value in dds_compression_types:
-			# print(dds_file.width)
+		for compression_name, compression_type in dds_compression_types:
 			# header attribs
 			if not is_ztuac(self.ovl):
-				dds_file.width = align_to(dds_file.width, dds_type)
+				dds_file.width = align_to(dds_file.width, compression_name)
 	
-			# dx 10 stuff
-			dds_file.dx_10.dxgi_format = dds_value
-	
+			# set compression
+			dds_file.dx_10.dxgi_format = compression_type
+			if not (is_ztuac(self.ovl) or is_pc(self.ovl) or is_dla(self.ovl)):
+				# regenerate continous buffer data, depending on compression type
+				buffer_data = dds_file.unpack_mips(size_info.mip_maps, buffer_data)
+			dds_file.buffer = buffer_data
+			dds_file.linear_size = len(buffer_data)
 			# start out
 			dds_path = out_dir(dds_name)
 			if len(dds_compression_types) > 1:
-				dds_path += f"_{dds_type}.dds"
+				dds_path += f"_{compression_name}.dds"
 	
 			# write dds
 			dds_file.save(dds_path)
