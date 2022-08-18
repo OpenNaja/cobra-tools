@@ -190,7 +190,7 @@ def png_from_tex(tex_file_path, tmp_dir):
 	lower_files = [file.lower() for file in os.listdir(in_dir)]
 	corresponding_png_textures = [file for file in lower_files if is_corresponding_png(file, in_name)]
 	if not corresponding_png_textures:
-		raise FileNotFoundError(f"Found no .png files for {tex_file_path}")
+		return
 	# print(corresponding_png_textures)
 	in_name_bare, suffix = split_name_suffix(os.path.splitext(corresponding_png_textures[0])[0])
 	# join arrays if there is a suffix

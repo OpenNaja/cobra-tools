@@ -97,14 +97,16 @@ class DdsLoader(MemStructLoader):
 		self.load_image(self.file_entry.path)
 
 	def load_image(self, file_path):
-		# this assumes self.header matches the specs of the tex in file_path
 		logging.debug(f"Loading image {file_path}")
 		tmp_dir = tempfile.mkdtemp("-cobra-tools")
 		png_path = imarray.png_from_tex(file_path, tmp_dir)
+		dds_path = f"{os.path.splitext(file_path)[0]}.dds"
 		if png_path:
 			self.load_png(png_path, tmp_dir)
-		# elif ext == ".dds":
-		# 	self.load_dds(file_path)
+		elif os.path.isfile(dds_path):
+			self.load_dds(dds_path)
+		else:
+			raise FileNotFoundError(f"Found no associated image files for {file_path}")
 		shutil.rmtree(tmp_dir)
 
 	def load_png(self, file_path, tmp_dir):
