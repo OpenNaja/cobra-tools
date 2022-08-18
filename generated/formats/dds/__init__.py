@@ -139,7 +139,7 @@ class DdsFile(Header, IoFile):
         dds = io.BytesIO(self.buffer)
         with io.BytesIO() as tex:
             for data_size, padding_size in self.mip_pack_generator(mip_infos):
-                logging.info(f"Writing {data_size}, padding {padding_size}")
+                # logging.info(f"Writing {data_size}, padding {padding_size}")
                 tex.write(dds.read(data_size))
                 tex.write(b"\x00" * padding_size)
             return tex.getvalue()
@@ -150,7 +150,7 @@ class DdsFile(Header, IoFile):
         tex = io.BytesIO(tex_buffer_data)
         with io.BytesIO() as dds:
             for data_size, padding_size in self.mip_pack_generator(mip_infos):
-                logging.info(f"Writing {data_size}, skipping {padding_size}")
+                # logging.info(f"Writing {data_size}, skipping {padding_size}")
                 data = tex.read(data_size)
                 dds.write(data)
                 padding = tex.read(padding_size)
