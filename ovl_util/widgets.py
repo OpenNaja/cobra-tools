@@ -1067,10 +1067,26 @@ class FileWidget(QtWidgets.QWidget):
 			self.decide_open(filepath)
 
 	def ask_open(self):
-		filepath = QtWidgets.QFileDialog.getOpenFileName(self, f'Load {self.dtype}',
-														 self.cfg.get(f"dir_{self.dtype_l}s_in", "C://") if not self.root else self.root,
-														 f"{self.dtype} files (*.{self.dtype_l})")[0]
+		cfg_str = f"dir_{self.dtype_l}s_in"
+		filepath = QtWidgets.QFileDialog.getOpenFileName(
+			self, f'Load {self.dtype}', self.cfg_path(cfg_str), self.files_filter_str)[0]
 		self.decide_open(filepath)
+
+	def cfg_path(self, cfg_str):
+		return self.cfg.get(cfg_str, "C://") if not self.root else self.root
+
+	@property
+	def files_filter_str(self):
+		return f"{self.dtype} files (*.{self.dtype_l})"
+
+	def ask_save_as(self):
+		cfg_str = f"dir_{self.dtype_l}s_out"
+		filepath = QtWidgets.QFileDialog.getSaveFileName(
+			self, f'Save {self.dtype}', self.cfg_path(cfg_str), self.files_filter_str)[0]
+		if filepath:
+			self.cfg[cfg_str], file_name = os.path.split(filepath)
+			self._set_file_path(filepath)
+			return filepath
 
 	def decide_open(self, filepath):
 		if self.accept_file(filepath) and self.poll:
