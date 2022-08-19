@@ -294,7 +294,7 @@ class MainWindow(widgets.MainWindow):
 			if filepath:
 				other_ovl_data = OvlReporter()
 				other_ovl_data.load_hash_table()
-				other_ovl_data.load(filepath, commands=self.commands)
+				other_ovl_data.load(filepath)
 				for file_name in selected_file_names:
 					try:
 						loader_a = self.ovl_data.loaders[file_name]
