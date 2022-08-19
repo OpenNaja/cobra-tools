@@ -101,8 +101,8 @@ class MainWindow(widgets.MainWindow):
 		button_data = (
 			(file_menu, "New", self.new_file, "CTRL+N", "new"),
 			(file_menu, "Open", self.file_widget.ask_open, "CTRL+O", "dir"),
-			(file_menu, "Save", self.save_fgm, "CTRL+S", "save"),
-			(file_menu, "Save As", self.save_as_fgm, "CTRL+SHIFT+S", "save"),
+			(file_menu, "Save", self.file_widget.ask_save, "CTRL+S", "save"),
+			(file_menu, "Save As", self.file_widget.ask_save_as, "CTRL+SHIFT+S", "save"),
 			(file_menu, "Exit", self.close, "", "exit"),
 			(edit_menu, "Import Texture Values", self.import_tex, "", ""),
 			(edit_menu, "Import Attribute Values", self.import_att, "", ""),
@@ -389,26 +389,14 @@ class MainWindow(widgets.MainWindow):
 				ovl_util.interaction.showdialog(str(ex))
 				logging.exception("Importing fgm errored")
 
-	def _save_fgm(self, filepath):
-		if filepath:
-			try:
-				self.header.to_xml_file(self.header, filepath)
-			except BaseException as err:
-				interaction.showdialog(str(err))
-				logging.exception("Saving fgm errored")
-			logging.info("Done!")
-
-	def save_fgm(self):
-		self._save_fgm(self.file_widget.filepath)
-		self.file_widget.dirty = False
-
-	def save_as_fgm(self):
-		file_out = QtWidgets.QFileDialog.getSaveFileName(self, 'Save FGM', os.path.join(self.cfg.get("dir_fgms_out", "C://"), self.fgm_name), "FGM files (*.fgm)",)[0]
-		if file_out:
-			self.cfg["dir_fgms_out"], fgm_name = os.path.split(file_out)
+	def _save(self):
+		try:
+			self.header.to_xml_file(self.header, self.file_widget.filepath)
 			self.file_widget.dirty = False
-			self._save_fgm(file_out)
-			self.file_widget.set_file_path(file_out)
+		except BaseException as err:
+			interaction.showdialog(str(err))
+			logging.exception("Saving fgm errored")
+		logging.info("Done!")
 
 	def close_file(self):
 		if self.file_widget.dirty:

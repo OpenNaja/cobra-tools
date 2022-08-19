@@ -200,8 +200,8 @@ class MainWindow(widgets.MainWindow):
 		button_data = (
 			(file_menu, "New", self.file_widget.ask_open_dir, "CTRL+N", "new"),
 			(file_menu, "Open", self.file_widget.ask_open, "CTRL+O", "dir"),
-			(file_menu, "Save", self.save_ovl, "CTRL+S", "save"),
-			(file_menu, "Save As", self.save_as_ovl, "CTRL+SHIFT+S", "save"),
+			(file_menu, "Save", self.file_widget.ask_save, "CTRL+S", "save"),
+			(file_menu, "Save As", self.file_widget.ask_save_as, "CTRL+SHIFT+S", "save"),
 			(file_menu, "Exit", self.close, "", "exit"),
 			(edit_menu, "Unpack", self.extract_all, "CTRL+U", "extract"),
 			(edit_menu, "Inject", self.inject_ask, "CTRL+I", "inject"),
@@ -374,7 +374,7 @@ class MainWindow(widgets.MainWindow):
 					# process each
 					yield self.ovl_data
 					if save_over:
-						self._save_ovl()
+						self._save()
 			else:
 				interaction.showdialog("Select a root directory!")
 		# just the one that's currently open
@@ -489,29 +489,7 @@ class MainWindow(widgets.MainWindow):
 		logging.info(f"Loaded GUI in {time.time() - start_time:.2f} seconds")
 		self.update_progress("Operation completed!", value=1, vmax=1)
 
-	def save_as_ovl(self):
-		"""Saves ovl, always ask for file path"""
-		if self.is_open_ovl():
-			filepath = QtWidgets.QFileDialog.getSaveFileName(
-				self, 'Save OVL', os.path.join(self.cfg.get("dir_ovls_out", "C://"), self.file_widget.filename),
-				"OVL files (*.ovl)", )[0]
-			if filepath:
-				self.cfg["dir_ovls_out"], ovl_name = os.path.split(filepath)
-				self.file_widget._set_file_path(filepath)
-				self._save_ovl()
-
-	def save_ovl(self):
-		"""Saves ovl, overwrite if path has been set, else ask"""
-		# yes, there is some data for saving
-		if self.is_open_ovl():
-			# do we have a filename already?
-			if self.file_widget.filename:
-				self._save_ovl()
-			# nope, ask user
-			else:
-				self.save_as_ovl()
-
-	def _save_ovl(self, ):
+	def _save(self, ):
 		"""Saves ovl to file_widget.filepath, clears dirty flag"""
 		try:
 			self.ovl_data.save(self.file_widget.filepath)

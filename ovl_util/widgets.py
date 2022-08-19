@@ -1080,13 +1080,25 @@ class FileWidget(QtWidgets.QWidget):
 		return f"{self.dtype} files (*.{self.dtype_l})"
 
 	def ask_save_as(self):
-		cfg_str = f"dir_{self.dtype_l}s_out"
-		filepath = QtWidgets.QFileDialog.getSaveFileName(
-			self, f'Save {self.dtype}', self.cfg_path(cfg_str), self.files_filter_str)[0]
-		if filepath:
-			self.cfg[cfg_str], file_name = os.path.split(filepath)
-			self._set_file_path(filepath)
-			return filepath
+		"""Saves file, always ask for file path"""
+		if self.is_open():
+			cfg_str = f"dir_{self.dtype_l}s_out"
+			filepath = QtWidgets.QFileDialog.getSaveFileName(
+				self, f'Save {self.dtype}', self.cfg_path(cfg_str), self.files_filter_str)[0]
+			if filepath:
+				self.cfg[cfg_str], file_name = os.path.split(filepath)
+				self._set_file_path(filepath)
+				self.parent._save()
+
+	def ask_save(self):
+		"""Saves file, overwrite if path has been set, else ask"""
+		if self.is_open():
+			# do we have a filename already?
+			if self.filename:
+				self.parent._save()
+			# nope, ask user - modified, but no file name yet
+			else:
+				self.ask_save_as()
 
 	def decide_open(self, filepath):
 		if self.accept_file(filepath) and self.poll:
@@ -1103,6 +1115,12 @@ class FileWidget(QtWidgets.QWidget):
 	def mousePressEvent(self, event):
 		if not self.editable:
 			self.ask_open()
+
+	def is_open(self):
+		if self.filename or self.dirty:
+			return True
+		else:
+			interaction.showdialog("You must open a file first!")
 
 
 # Creates a dir widget, same as file but for directories
