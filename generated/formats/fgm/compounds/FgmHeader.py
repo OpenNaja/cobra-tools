@@ -12,6 +12,8 @@ from generated.formats.ovl_base.compounds.MemStruct import MemStruct
 class FgmHeader(MemStruct):
 
 	"""
+	# JWE1, PZ - 64 bytes
+	# JWE2 - 80 bytes
 	# JWE2 patternset fgms seem to be in pool type 3, everything else in 2
 	"""
 
@@ -21,6 +23,8 @@ class FgmHeader(MemStruct):
 		self._attribute_count = 0
 		self._unk_0 = 0
 		self._unk_1 = 0
+		self._unk_2 = 0
+		self._unk_3 = 0
 		self.textures = ArrayPointer(self.context, self._texture_count, generated.formats.fgm.compounds.TextureInfo.TextureInfo)
 		self.attributes = ArrayPointer(self.context, self._attribute_count, generated.formats.fgm.compounds.AttribInfo.AttribInfo)
 		self.name_foreach_textures = ForEachPointer(self.context, self.textures, generated.formats.fgm.compounds.TextureData.TextureData)
@@ -40,6 +44,9 @@ class FgmHeader(MemStruct):
 			self._attribute_count = 0
 		self._unk_0 = 0
 		self._unk_1 = 0
+		if self.context.user_version.is_jwe and (self.context.version == 20):
+			self._unk_2 = 0
+			self._unk_3 = 0
 		self.textures = ArrayPointer(self.context, self._texture_count, generated.formats.fgm.compounds.TextureInfo.TextureInfo)
 		self.attributes = ArrayPointer(self.context, self._attribute_count, generated.formats.fgm.compounds.AttribInfo.AttribInfo)
 		self.name_foreach_textures = ForEachPointer(self.context, self.textures, generated.formats.fgm.compounds.TextureData.TextureData)
@@ -62,6 +69,9 @@ class FgmHeader(MemStruct):
 		instance.value_foreach_attributes = ForEachPointer.from_stream(stream, instance.context, instance.attributes, generated.formats.fgm.compounds.AttribData.AttribData)
 		instance._unk_0 = Uint64.from_stream(stream, instance.context, 0, None)
 		instance._unk_1 = Uint64.from_stream(stream, instance.context, 0, None)
+		if instance.context.user_version.is_jwe and (instance.context.version == 20):
+			instance._unk_2 = Uint64.from_stream(stream, instance.context, 0, None)
+			instance._unk_3 = Uint64.from_stream(stream, instance.context, 0, None)
 		if not isinstance(instance.textures, int):
 			instance.textures.arg = instance._texture_count
 		if not isinstance(instance.attributes, int):
@@ -88,6 +98,9 @@ class FgmHeader(MemStruct):
 		ForEachPointer.to_stream(stream, instance.value_foreach_attributes)
 		Uint64.to_stream(stream, instance._unk_0)
 		Uint64.to_stream(stream, instance._unk_1)
+		if instance.context.user_version.is_jwe and (instance.context.version == 20):
+			Uint64.to_stream(stream, instance._unk_2)
+			Uint64.to_stream(stream, instance._unk_3)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
@@ -106,6 +119,9 @@ class FgmHeader(MemStruct):
 		yield 'value_foreach_attributes', ForEachPointer, (instance.attributes, generated.formats.fgm.compounds.AttribData.AttribData), (False, None)
 		yield '_unk_0', Uint64, (0, None), (False, None)
 		yield '_unk_1', Uint64, (0, None), (False, None)
+		if instance.context.user_version.is_jwe and (instance.context.version == 20):
+			yield '_unk_2', Uint64, (0, None), (False, None)
+			yield '_unk_3', Uint64, (0, None), (False, None)
 
 	def get_info_str(self, indent=0):
 		return f'FgmHeader [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
@@ -121,6 +137,8 @@ class FgmHeader(MemStruct):
 		s += f'\n	* value_foreach_attributes = {self.fmt_member(self.value_foreach_attributes, indent+1)}'
 		s += f'\n	* _unk_0 = {self.fmt_member(self._unk_0, indent+1)}'
 		s += f'\n	* _unk_1 = {self.fmt_member(self._unk_1, indent+1)}'
+		s += f'\n	* _unk_2 = {self.fmt_member(self._unk_2, indent+1)}'
+		s += f'\n	* _unk_3 = {self.fmt_member(self._unk_3, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

@@ -33,6 +33,8 @@
     </enum>
 
     <compound name="FgmHeader" inherit="MemStruct">
+        # JWE1, PZ - 64 bytes
+        # JWE2 - 80 bytes
 		# JWE2 patternset fgms seem to be in pool type 3, everything else in 2
         <add name="_texture_count" type="uint" until="15"/>
         <add name="_texture_count" type="uint64" since="17"/>
@@ -46,6 +48,9 @@
         and finally 16 bytes, apparently unused
         <add name="_unk_0" type="uint64"/>
         <add name="_unk_1" type="uint64"/>
+        JWE2 has 16 more unused bytes
+        <add name="_unk_2" type="uint64" vercond="#JWE2#"/>
+        <add name="_unk_3" type="uint64" vercond="#JWE2#"/>
     </compound>
 
 	<compound name="GenericInfo" inherit="MemStruct">
