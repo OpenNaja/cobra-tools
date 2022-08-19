@@ -67,8 +67,9 @@ class MainWindow(widgets.MainWindow):
 		edit_menu = main_menu.addMenu('Edit')
 		button_data = (
 			(file_menu, "Open", self.file_widget.ask_open, "CTRL+O", "dir"),
-			(file_menu, "Save", self.save_ms2, "CTRL+S", "save"),
-			(file_menu, "Save As", self.save_as_ms2, "CTRL+SHIFT+S", "save"),
+			(file_menu, "Append", self.append, "", "append"),
+			(file_menu, "Save", self.file_widget.ask_save, "CTRL+S", "save"),
+			(file_menu, "Save As", self.file_widget.ask_save_as, "CTRL+SHIFT+S", "save"),
 			(file_menu, "Exit", self.close, "", "exit"),
 			(edit_menu, "Duplicate Selected", self.duplicate, "SHIFT+D", "duplicate_mesh"),
 			(edit_menu, "Remove Selected", self.remove, "DEL", "delete_mesh"),
@@ -119,11 +120,19 @@ class MainWindow(widgets.MainWindow):
 				self.handle_error("Loading failed, see log!")
 			self.update_gui_table()
 
-	def is_open_ms2(self):
-		if not self.file_widget.filename:
-			interaction.showdialog("You must open a MS2 file first!")
-		else:
-			return True
+	def append(self):
+		if self.file_widget.is_open():
+			append_path = QtWidgets.QFileDialog.getOpenFileName(
+				self, f'Append MS2', self.cfg.get(f"dir_ms2s_in", "C://"), self.file_widget.files_filter_str)[0]
+			if append_path:
+				try:
+					other_ms2_file = Ms2File()
+					other_ms2_file.load(append_path, read_editable=True)
+					self.ms2_file.model_infos.extend(other_ms2_file.model_infos)
+					self.file_widget.dirty = True
+				except:
+					self.handle_error("Appending failed, see log!")
+				self.update_gui_table()
 
 	def update_gui_table(self, ):
 		start_time = time.time()
@@ -135,21 +144,7 @@ class MainWindow(widgets.MainWindow):
 		except:
 			self.handle_error("GUI update failed, see log!")
 
-	def save_as_ms2(self):
-		if self.is_open_ms2():
-			filepath = QtWidgets.QFileDialog.getSaveFileName(
-				self, 'Save MS2', os.path.join(self.cfg.get("dir_ms2s_out", "C://"), self.file_widget.filename),
-				"MS2 files (*.ms2)", )[0]
-			if filepath:
-				self.cfg["dir_ms2s_out"], ms2_name = os.path.split(filepath)
-				self.file_widget._set_file_path(filepath)
-				self._save_ms2()
-
-	def save_ms2(self):
-		if self.is_open_ms2():
-			self._save_ms2()
-
-	def _save_ms2(self, ):
+	def _save(self, ):
 		try:
 			self.ms2_file.save(self.file_widget.filepath)
 			self.file_widget.dirty = False
