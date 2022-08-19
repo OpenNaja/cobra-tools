@@ -75,8 +75,8 @@ class MainWindow(widgets.MainWindow):
 		edit_menu = main_menu.addMenu('Edit')
 		button_data = (
 			(file_menu, "Open", self.file_widget.ask_open, "CTRL+O", "dir"),
-			(file_menu, "Save", self.save_bnk, "CTRL+S", "save"),
-			(file_menu, "Save As", self.save_as_bnk, "CTRL+SHIFT+S", "save"),
+			(file_menu, "Save", self.file_widget.ask_save, "CTRL+S", "save"),
+			(file_menu, "Save As", self.file_widget.ask_save_as, "CTRL+SHIFT+S", "save"),
 			(file_menu, "Exit", self.close, "", "exit"),
 			(edit_menu, "Unpack", self.extract_all, "CTRL+U", "extract"),
 			(edit_menu, "Inject", self.inject_ask, "CTRL+I", "inject")
@@ -205,23 +205,9 @@ class MainWindow(widgets.MainWindow):
 		logging.info(f"Loaded GUI in {time.time() - start_time:.2f} seconds")
 		self.update_progress("Operation completed!", value=1, vmax=1)
 
-	def save_as_bnk(self):
-		if self.is_open_bnk():
-			filepath = QtWidgets.QFileDialog.getSaveFileName(
-				self, 'Save BNK', os.path.join(self.cfg.get("dir_ovls_out", "C://"), self.file_widget.filename),
-				"BNK files (*.bnk)", )[0]
-			if filepath:
-				self.cfg["dir_bnks_out"], ovl_name = os.path.split(filepath)
-				self._save_bnk(filepath)
-
-	def save_bnk(self):
-		if self.is_open_bnk():
-			self._save_bnk(self.file_widget.filepath)
-
-	def _save_bnk(self, filepath):
+	def _save(self):
 		try:
-			ext_path = self.dat_widget.filepath if self.use_ext_dat else ""
-			self.bnk_file.save(filepath, ext_path)
+			self.bnk_file.save(self.file_widget.filepath)
 			self.file_widget.dirty = False
 			self.update_progress(f"Saved {self.bnk_file.basename}", value=1, vmax=1)
 		except:
