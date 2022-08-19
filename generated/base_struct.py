@@ -91,7 +91,7 @@ class BaseStruct:
 			if prop in SKIPS:
 				continue
 			# keep clean XML
-			if prop.startswith(DO_NOT_SERIALIZE) or (optional and getattr(instance, prop) == default):
+			if prop.startswith(DO_NOT_SERIALIZE) or (optional and not elem.attrib.get(prop)):
 				continue
 			setattr(instance, prop, field_type.from_xml(instance, elem, prop, arguments))
 
