@@ -12,6 +12,7 @@ import os
 import shutil
 import pathlib
 import traceback
+import logging
 
 from PyQt5 import QtCore
 from PyQt5.QtWidgets import QWidget
@@ -23,7 +24,11 @@ from PyQt5.QtWidgets import QPushButton
 from PyQt5.QtWidgets import QCheckBox
 
 from ovl_util import widgets
-from ovl_util import config
+from ovl_util.config import logging_setup, get_version_str, get_commit_str, read_config, write_config
+logging_setup("mod_tool_gui")
+logging.info(f"Running python {sys.version}")
+logging.info(f"Running cobra-tools {get_version_str()}, {get_commit_str()}")
+
 from ovl_util.widgets import startup, MainWindow
 from generated.formats.ovl import OvlFile, games, set_game
 
@@ -113,7 +118,7 @@ class ModToolGUI(MainWindow):
 
     def apply_from_config(self, path):
         try:
-            tconfig = config.read_config(path)
+            tconfig = read_config(path)
             self.src_widget.filepath = tconfig['src_path'] or ''
             self.src_widget.setText(tconfig['src_path'] or '')
             self.dst_widget.filepath = tconfig['dst_path'] or ''
@@ -155,7 +160,7 @@ class ModToolGUI(MainWindow):
         try:
             tconfig = {'src_path': self.src_widget.filepath, 'dst_path': self.dst_widget.filepath,
                        'game': self.game_container.entry.currentText(), 'watcher_enabled': self.watch.isChecked()}
-            config.write_config(self.config_path, tconfig)
+            write_config(self.config_path, tconfig)
         except IOError:
             print("Config save failed.")
 
@@ -316,6 +321,7 @@ class ModToolGUI(MainWindow):
             os.makedirs(srcfolder)
 
         ovl_data = OvlReporter()
+        ovl_data.load_hash_table()
         ovl_data.load(file)
         out_paths, error_files = ovl_data.extract(srcfolder, show_temp_files=False)
 
