@@ -316,6 +316,7 @@ class ModToolGUI(MainWindow):
             os.makedirs(srcfolder)
 
         ovl_data = OvlReporter()
+        ovl_data.load_hash_table()
         ovl_data.load(file)
         out_paths, error_files = ovl_data.extract(srcfolder, show_temp_files=False)
 
