@@ -229,9 +229,9 @@ class DdsLoader(MemStructLoader):
 	
 			# set compression
 			dds_file.dx_10.dxgi_format = compression_type
-			if not (is_ztuac(self.ovl) or is_pc(self.ovl) or is_dla(self.ovl)):
-				# regenerate continous buffer data, depending on compression type
-				buffer_data = dds_file.unpack_mips(size_info.mip_maps, buffer_data)
+			# if not (is_ztuac(self.ovl) or is_pc(self.ovl) or is_dla(self.ovl)):
+			# 	# regenerate continous buffer data, depending on compression type
+			# 	buffer_data = dds_file.unpack_mips(size_info.mip_maps, buffer_data)
 			dds_file.buffer = buffer_data
 			dds_file.linear_size = len(buffer_data)
 			# start out

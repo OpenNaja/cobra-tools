@@ -154,7 +154,8 @@ class DdsFile(Header, IoFile):
                 data = tex.read(data_size)
                 dds.write(data)
                 padding = tex.read(padding_size)
-                assert b"\x00" * len(padding) == padding
+                if padding != b"\x00" * len(padding):
+                    logging.warning(f"Tex padding is non-zero at {tex.tell()-padding_size}")
             return dds.getvalue()
 
     def pack_mips_pc(self, num_mips):
