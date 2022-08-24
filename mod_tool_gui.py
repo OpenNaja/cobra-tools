@@ -29,24 +29,12 @@ logging_setup("mod_tool_gui")
 logging.info(f"Running python {sys.version}")
 logging.info(f"Running cobra-tools {get_version_str()}, {get_commit_str()}")
 
-from ovl_util.widgets import startup, MainWindow
+from ovl_util.widgets import startup, MainWindow, OvlReporter
 from generated.formats.ovl import OvlFile, games, set_game
 
 __version__ = '0.1'
 __author__ = 'Open-Naja'
 
-
-class OvlReporter(OvlFile, QtCore.QObject):
-    """Adds PyQt signals to OvlFile to report of progress"""
-
-    files_list = QtCore.pyqtSignal(list)
-    included_ovls_list = QtCore.pyqtSignal(list)
-    progress_percentage = QtCore.pyqtSignal(int)
-    current_action = QtCore.pyqtSignal(str)
-
-    def __init__(self):
-        super().__init__()
-        super(QtCore.QObject, self).__init__()
 
 class ModToolGUI(MainWindow):
     """Main's View (GUI)."""
@@ -61,7 +49,7 @@ class ModToolGUI(MainWindow):
 
         # Set some main window's properties
         self.setWindowTitle('Mod Pack Tool ' + __version__)
-        self.setFixedSize(435, 125)
+        # self.setFixedSize(435, 250)
 
         # Add a menu
         main_menu = QMenuBar(self)
@@ -91,6 +79,8 @@ class ModToolGUI(MainWindow):
         self.dst_widget = widgets.DirWidget(self, {})
         self.dst_widget.setToolTip("Destination folder to pack files to.")
         self.generalLayout.addWidget(self.dst_widget)
+        self.generalLayout.addWidget(self.p_action)
+        self.generalLayout.addWidget(self.t_action)
 
         # Add a line for controls
         self.boxLayout = QHBoxLayout()

@@ -5,6 +5,7 @@ import time
 import logging
 import tempfile
 
+from ovl_util.widgets import Worker
 
 try:
 	import winreg
@@ -30,39 +31,6 @@ except:
 	time.sleep(15)
 
 
-mutex = QtCore.QMutex()
-
-
-class OvlReporter(OvlFile, QtCore.QObject):
-	"""Adds PyQt signals to OvlFile to report of progress"""
-
-	files_list = QtCore.pyqtSignal(list)
-	included_ovls_list = QtCore.pyqtSignal(list)
-	progress_percentage = QtCore.pyqtSignal(int)
-	current_action = QtCore.pyqtSignal(str)
-
-	def __init__(self):
-		super().__init__()
-		super(QtCore.QObject, self).__init__()
-
-
-class Worker(QtCore.QObject):
-	finished = QtCore.pyqtSignal()
-
-	def __init__(self, func, *args, **kwargs):
-		super().__init__()
-		self.func = func
-		self.args = args
-		self.kwargs = kwargs
-
-	def run(self):
-		# mutex.lock()
-		# func = getattr(self.thread().ovl_data, self.function_name)
-		self.func(*self.args, **self.kwargs)
-		# mutex.unlock()
-		self.finished.emit()
-
-
 class MainWindow(widgets.MainWindow):
 
 	def __init__(self):
@@ -70,7 +38,7 @@ class MainWindow(widgets.MainWindow):
 		self.resize(800, 600)
 		self.setAcceptDrops(True)
 
-		self.ovl_data = OvlReporter()
+		self.ovl_data = widgets.OvlReporter()
 
 		supported_types = [ext for ext in self.ovl_data.formats_dict.keys()]
 		self.filter = "Supported files ({})".format(" ".join("*" + t for t in supported_types))
@@ -292,7 +260,7 @@ class MainWindow(widgets.MainWindow):
 			filepath = QtWidgets.QFileDialog.getOpenFileName(
 				self, "Open OVL to compare with", self.cfg.get(f"dir_ovls_in", "C://"), f"OVL files (*.ovl)")[0]
 			if filepath:
-				other_ovl_data = OvlReporter()
+				other_ovl_data = widgets.OvlReporter()
 				other_ovl_data.load_hash_table()
 				other_ovl_data.load(filepath)
 				for file_name in selected_file_names:
@@ -460,7 +428,7 @@ class MainWindow(widgets.MainWindow):
 
 	def create_ovl(self, ovl_dir):
 		# clear the ovl
-		self.ovl_data = OvlReporter()
+		self.ovl_data = widgets.OvlReporter()
 		self.game_changed()
 		try:
 			self.ovl_data.create(ovl_dir)

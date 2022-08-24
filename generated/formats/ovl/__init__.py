@@ -37,6 +37,15 @@ TAB = '  '
 IGNORE_TYPES = (".mani", ".mdl2", ".texturestream", ".datastreams", ".model2stream")
 
 
+class DummySignal:
+
+	def emit(self, val):
+		logging.debug(f"Emitted {val}")
+
+	def connect(self, func):
+		pass
+
+
 class OvsFile(OvsHeader):
 
 	def __init__(self, context, ovl_inst, archive_entry):
@@ -563,6 +572,11 @@ class OvsFile(OvsHeader):
 
 
 class OvlFile(Header, IoFile):
+
+	files_list = DummySignal()
+	included_ovls_list = DummySignal()
+	progress_percentage = DummySignal()
+	current_action = DummySignal()
 
 	def __init__(self):
 		# create a context

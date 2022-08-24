@@ -5,6 +5,7 @@ from pathlib import Path
 
 from PyQt5 import QtGui, QtCore, QtWidgets
 
+from generated.formats.ovl import OvlFile
 from ovl_util.config import get_commit_str
 from ovl_util.interaction import showdialog
 from ovl_util import config, qt_theme, interaction
@@ -1324,3 +1325,35 @@ class MainWindow(QtWidgets.QMainWindow):
 		if path:
 			self.file_widget.decide_open(path)
 
+
+class OvlReporter(OvlFile, QtCore.QObject):
+	"""Adds PyQt signals to OvlFile to report of progress"""
+
+	files_list = QtCore.pyqtSignal(list)
+	included_ovls_list = QtCore.pyqtSignal(list)
+	progress_percentage = QtCore.pyqtSignal(int)
+	current_action = QtCore.pyqtSignal(str)
+
+	def __init__(self):
+		super().__init__()
+		super(QtCore.QObject, self).__init__()
+
+
+mutex = QtCore.QMutex()
+
+
+class Worker(QtCore.QObject):
+	finished = QtCore.pyqtSignal()
+
+	def __init__(self, func, *args, **kwargs):
+		super().__init__()
+		self.func = func
+		self.args = args
+		self.kwargs = kwargs
+
+	def run(self):
+		# mutex.lock()
+		# func = getattr(self.thread().ovl_data, self.function_name)
+		self.func(*self.args, **self.kwargs)
+		# mutex.unlock()
+		self.finished.emit()
