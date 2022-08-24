@@ -391,12 +391,14 @@ class MainWindow(widgets.MainWindow):
 		# just an example of what can be done when something is selected
 		file_entry = self.ovl_data.files[file_index]
 
-	def load(self):
+	def load(self, threaded=False):
 		if self.file_widget.filepath:
 			self.file_widget.dirty = False
 			try:
-				# self.ovl_data.load(self.file_widget.filepath)
-				self.run_threaded(self.ovl_data.load, self.file_widget.filepath)
+				if threaded:
+					self.run_threaded(self.ovl_data.load, self.file_widget.filepath)
+				else:
+					self.ovl_data.load(self.file_widget.filepath)
 			except:
 				logging.info(self.ovl_data)
 				self.handle_error("OVL loading failed, see log!")
