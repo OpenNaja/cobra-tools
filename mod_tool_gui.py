@@ -20,7 +20,6 @@ from PyQt5.QtWidgets import QFileDialog
 from PyQt5.QtWidgets import QVBoxLayout
 from PyQt5.QtWidgets import QHBoxLayout
 from PyQt5.QtWidgets import QMenuBar
-from PyQt5.QtWidgets import QPushButton
 from PyQt5.QtWidgets import QCheckBox
 
 from ovl_util import widgets
@@ -31,7 +30,7 @@ logging.info(f"Running python {sys.version}")
 logging.info(f"Running cobra-tools {get_version_str()}, {get_commit_str()}")
 
 from ovl_util.widgets import startup, MainWindow, OvlReporter
-from generated.formats.ovl import OvlFile, games, set_game
+from generated.formats.ovl import games, set_game
 
 __version__ = '0.1'
 __author__ = 'Open-Naja'
@@ -105,7 +104,8 @@ class ModToolGUI(MainWindow):
 			self.apply_from_config(sys.argv[1])
 
 		self.ovl_data = OvlReporter()
-		self.ovl_data.load_hash_table()
+		# self.ovl_data.load_hash_table()
+		self.run_threaded(self.ovl_data.load_hash_table)
 
 	def apply_from_config(self, path):
 		try:

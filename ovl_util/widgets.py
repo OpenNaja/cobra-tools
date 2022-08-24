@@ -1307,6 +1307,33 @@ class MainWindow(QtWidgets.QMainWindow):
 			self.t_action.setText(message)
 			self.t_action_current_message = message
 
+
+	def run_threaded(self, func, *args, **kwargs):
+		# Step 2: Create a QThread object
+		self.thread = QtCore.QThread()
+		# Step 3: Create a worker object
+		self.worker = Worker(func, *args, **kwargs)
+		# Step 4: Move worker to the thread
+		self.worker.moveToThread(self.thread)
+		# Step 5: Connect signals and slots
+		self.thread.started.connect(self.worker.run)
+		self.worker.finished.connect(self.thread.quit)
+		self.worker.finished.connect(self.worker.deleteLater)
+		self.thread.finished.connect(self.thread.deleteLater)
+		# Step 6: Start the thread
+		self.thread.start()
+
+		# Final resets
+		self.enable_gui_options(False)
+		self.thread.finished.connect(self.enable_gui_options)
+		self.thread.finished.connect(self.choices_update)
+
+	def enable_gui_options(self, enable=True):
+		pass
+
+	def choices_update(self):
+		pass
+
 	def dragEnterEvent(self, e):
 		if not self.file_widget:
 			return
