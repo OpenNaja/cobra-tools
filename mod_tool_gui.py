@@ -59,7 +59,8 @@ class ModToolGUI(MainWindow):
 		button_data = (
 			(file_menu, "Open", self.load_config, "CTRL+O", "dir"),
 			(file_menu, "Save", self.save_config, "CTRL+S", "save"),
-			(file_menu, "Unpack", self.unpack_mod, "CTRL+U", None),
+			(file_menu, "Pack", self.pack_mod, "CTRL+P", "inject"),
+			(file_menu, "Unpack", self.unpack_mod, "CTRL+U", "extract"),
 			(file_menu, "Exit", self.close, "", "exit"),
 			(help_menu, "Report Bug", self.report_bug, "", "report"),
 			(help_menu, "Documentation", self.online_support, "", "manual"))
@@ -80,8 +81,6 @@ class ModToolGUI(MainWindow):
 		self.dst_widget = widgets.DirWidget(self, {})
 		self.dst_widget.setToolTip("Destination folder to pack files to.")
 		self.generalLayout.addWidget(self.dst_widget)
-		self.generalLayout.addWidget(self.p_action)
-		self.generalLayout.addWidget(self.t_action)
 
 		# Add a line for controls
 		self.boxLayout = QHBoxLayout()
@@ -99,10 +98,8 @@ class ModToolGUI(MainWindow):
 		self.game_container = widgets.LabelCombo("Game:", [g.value for g in games])
 		self.boxLayout.addWidget(self.game_container)
 
-		self.packButton = QPushButton("Pack")
-		self.packButton.setShortcut("Ctrl+P")
-		self.boxLayout.addWidget(self.packButton)
-		self.packButton.clicked.connect(self.pack_mod)
+		self.generalLayout.addWidget(self.p_action)
+		self.generalLayout.addWidget(self.t_action)
 
 		if len(sys.argv) > 1:
 			self.apply_from_config(sys.argv[1])
