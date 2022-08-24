@@ -104,6 +104,9 @@ class ModToolGUI(MainWindow):
 		if len(sys.argv) > 1:
 			self.apply_from_config(sys.argv[1])
 
+		self.ovl_data = OvlReporter()
+		self.ovl_data.load_hash_table()
+
 	def apply_from_config(self, path):
 		try:
 			tconfig = read_config(path)
@@ -114,7 +117,7 @@ class ModToolGUI(MainWindow):
 			self.game_container.entry.setText(tconfig['game'] or '')
 			self.watch.setChecked(bool(tconfig['watcher_enabled']) or False)
 		except IOError:
-			print("Config load failed.")
+			logging.info("Config load failed.")
 		pass
 
 	def load_config(self):
@@ -128,7 +131,7 @@ class ModToolGUI(MainWindow):
 		else:
 			return
 		if self.config_path == "":
-			print("No file name selected.")
+			logging.info("No file name selected.")
 			return
 		self.apply_from_config(self.config_path)
 
@@ -143,14 +146,14 @@ class ModToolGUI(MainWindow):
 		else:
 			return
 		if self.config_path == "":
-			print("No file name selected.")
+			logging.info("No file name selected.")
 			return
 		try:
 			tconfig = {'src_path': self.src_widget.filepath, 'dst_path': self.dst_widget.filepath,
 					   'game': self.game_container.entry.currentText(), 'watcher_enabled': self.watch.isChecked()}
 			write_config(self.config_path, tconfig)
 		except IOError:
-			print("Config save failed.")
+			logging.info("Config save failed.")
 
 	def set_src_path(self, sPath):
 		self.src_widget.setText(sPath)
@@ -167,7 +170,7 @@ class ModToolGUI(MainWindow):
 		set_game(self.ovl_data, game)
 
 	def directory_changed(self, path):
-		print(f'Detected changes in {path}')
+		logging.info(f'Detected changes in {path}')
 		# read the current folder list and proceed to pack that folder
 		folders = self.get_src_folder_list()
 		self.watcher_add_folders(folders)
@@ -177,11 +180,11 @@ class ModToolGUI(MainWindow):
 		if relpath == '.':
 			return
 
-		print(f're-packing ovl: {relpath}')
+		logging.info(f're-packing ovl: {relpath}')
 		self.pack_folder(relpath)
 
 	def file_changed(self, path):
-		print(f'Detected file changes in {path}')
+		logging.info(f'Detected file changes in {path}')
 
 	def get_src_folder_list(self, basepath=''):
 
@@ -238,12 +241,12 @@ class ModToolGUI(MainWindow):
 
 	def watchChanged(self):
 		if self.src_widget.filepath == '':
-			print('select source path to enable watch')
+			logging.info('select source path to enable watch')
 			self.watch.setChecked(False)
 			return
 
 		if self.dst_widget.filepath == '':
-			print('select destination path to enable watch')
+			logging.info('select destination path to enable watch')
 			self.watch.setChecked(False)
 			return
 
@@ -255,10 +258,10 @@ class ModToolGUI(MainWindow):
 			self.watcher_add_folders(folders)
 			files = self.get_src_file_list()
 			self.watcher_add_files(files)
-			print("Watch enabled")
+			logging.info("Watch enabled")
 		else:
 			self.watch.setChecked(False)
-			print("Watch disabled")
+			logging.info("Watch disabled")
 			self.fs_watcher.directoryChanged.disconnect(self.directory_changed)
 			self.fs_watcher.fileChanged.disconnect(self.file_changed)
 
@@ -271,7 +274,7 @@ class ModToolGUI(MainWindow):
 
 	def create_ovl(self, ovl_dir, dst_file):
 		# clear the ovl
-		self.ovl_data = OvlFile()
+		self.ovl_data = OvlReporter()
 		self.game_changed()
 		try:
 			self.ovl_data.create(ovl_dir)
@@ -283,7 +286,7 @@ class ModToolGUI(MainWindow):
 
 	# relative path
 	def pack_folder(self, folder):
-		print(f"Packing {folder}")
+		logging.info(f"Packing {folder}")
 		srcbasepath = self.src_widget.filepath
 		dstbasepath = self.dst_widget.filepath
 
@@ -300,32 +303,30 @@ class ModToolGUI(MainWindow):
 		srcbasepath = self.src_widget.filepath
 		dstbasepath = self.dst_widget.filepath
 		dstfolder = os.path.relpath(file, dstbasepath)
-		print(f"Unpacking {dstfolder}")
+		logging.info(f"Unpacking {dstfolder}")
 		filename = os.path.splitext(os.path.basename(dstfolder))[0]
 		srcfolder = os.path.join(srcbasepath, os.path.dirname(dstfolder), filename)
 
 		if not os.path.exists(srcfolder):
-			print(srcfolder)
+			logging.info(srcfolder)
 			os.makedirs(srcfolder)
 
-		ovl_data = OvlReporter()
-		ovl_data.load_hash_table()
-		ovl_data.load(file)
-		out_paths, error_files = ovl_data.extract(srcfolder, show_temp_files=False)
+		self.ovl_data.load(file)
+		out_paths, error_files = self.ovl_data.extract(srcfolder, show_temp_files=False)
 
 	def copy_file(self, srcpath, dstpath, fname):
 		try:
 			shutil.copyfile(os.path.join(srcpath, fname), os.path.join(dstpath, fname))
 		except:
-			print("error copying: " + fname)
+			logging.info(f"error copying: {fname}")
 
 	def pack_mod(self):
-		print("Packing mod")
+		logging.info("Packing mod")
 		subfolders = self.get_src_folder_list()
 		for folder in subfolders:
 			# ignore the project root for packing
 			if folder == '.':
-				# print(f"Skipping {folder}: root")
+				# logging.info(f"Skipping {folder}: root")
 				continue
 			self.pack_folder(folder)
 
@@ -342,7 +343,7 @@ class ModToolGUI(MainWindow):
 		if not srcbasepath or not dstbasepath:
 			return
 
-		print("Unpacking mod")
+		logging.info("Unpacking mod")
 		dstfiles = self.get_dst_file_list()
 
 		for file in dstfiles:
