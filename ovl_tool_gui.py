@@ -318,7 +318,8 @@ class MainWindow(widgets.MainWindow):
 				ovls = walker.walk_type(selected_dir, extension=".ovl")
 				for ovl_path in ovls:
 					# open ovl file
-					self.file_widget.decide_open(ovl_path)
+					self.file_widget.accept_file(ovl_path)
+					self.load(threaded=False)
 					# process each
 					yield self.ovl_data
 					if save_over:
@@ -391,9 +392,10 @@ class MainWindow(widgets.MainWindow):
 		# just an example of what can be done when something is selected
 		file_entry = self.ovl_data.files[file_index]
 
-	def load(self, threaded=False):
+	def load(self, threaded=True):
 		if self.file_widget.filepath:
 			self.file_widget.dirty = False
+			logging.info(f"Loading threaded {threaded}")
 			try:
 				if threaded:
 					self.run_threaded(self.ovl_data.load, self.file_widget.filepath)
