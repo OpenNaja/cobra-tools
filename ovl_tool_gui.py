@@ -412,7 +412,7 @@ class MainWindow(widgets.MainWindow):
 
 	def create_ovl(self, ovl_dir):
 		# clear the ovl
-		self.ovl_data = widgets.OvlReporter()
+		self.ovl_data.clear()
 		self.game_changed()
 		try:
 			self.ovl_data.create(ovl_dir)

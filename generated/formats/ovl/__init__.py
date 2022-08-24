@@ -589,6 +589,12 @@ class OvlFile(Header, IoFile):
 		self.formats_dict = build_formats_dict()
 		self.loaders = {}
 
+	def clear(self):
+		self.archives.clear()
+		self.files.clear()
+		self.mimes.clear()
+		self.loaders = {}
+
 	def init_loader(self, file_entry):
 		# fall back to BaseFile loader
 		from modules.formats.BaseFormat import BaseFile
