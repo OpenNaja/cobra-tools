@@ -206,14 +206,11 @@ class ModToolGUI(MainWindow):
 
 		return non_empty_dirs
 
-	def get_src_file_list(self, basepath=''):
-
-		if basepath == '':
-			basepath = self.src_widget.filepath
-
-		file_list = list()
-		for (dirpath, dirnames, filenames) in os.walk(basepath):
-			file_list += [os.path.join(dirpath, file) for file in filenames]
+	def get_src_file_list(self):
+		file_list = []
+		if self.src_widget.filepath:
+			for (dirpath, dirnames, filenames) in os.walk(self.src_widget.filepath):
+				file_list += [os.path.join(dirpath, file) for file in filenames]
 
 		return file_list
 
@@ -290,6 +287,9 @@ class ModToolGUI(MainWindow):
 		srcbasepath = self.src_widget.filepath
 		dstbasepath = self.dst_widget.filepath
 
+		if not srcbasepath:
+			logging.warning(f"Source must be set")
+			return
 		src_path = os.path.join(srcbasepath, folder)
 		dst_file = os.path.join(dstbasepath, folder) + ".ovl"
 		dst_path = os.path.dirname(dst_file)
