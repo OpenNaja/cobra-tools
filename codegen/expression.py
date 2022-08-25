@@ -59,7 +59,7 @@ class Version(object):
 
 class Expression(object):
 
-    operators = {'==', '!=', '>=', '<=', '&&', '||', '&', '|', '-', '!', '<', '>', '/', '*', '+', '%'}
+    operators = {'!', '*', '/', '%', '+', '-', '<<', '>>', '&', '|', '==', '!=', '>', '>=', '<', '<=', '&&', '||'}
 
     def __init__(self, expr_str, attribute_prefix=""):
         try:
