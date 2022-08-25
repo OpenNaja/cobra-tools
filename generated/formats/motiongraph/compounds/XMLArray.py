@@ -5,6 +5,8 @@ from generated.formats.ovl_base.compounds.MemStruct import MemStruct
 
 class XMLArray(MemStruct):
 
+	__name__ = XMLArray
+
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		self.xmls = Array((0,), XMLEntry, self.context, 0, None)

@@ -6,6 +6,8 @@ class DxgiFormat(UintEnum):
 	"""
 	An unsigned 32-bit integer, describing the DxgiFormat.
 	"""
+
+	__name__ = DxgiFormat
 	UNKNOWN = 0
 	R32G32B32A32_TYPELESS = 1
 	R32G32B32A32_FLOAT = 2

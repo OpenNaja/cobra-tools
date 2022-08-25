@@ -8,6 +8,8 @@ from generated.formats.ovl_base.compounds.MemStruct import MemStruct
 
 class RestaurantSettingsRoot(MemStruct):
 
+	__name__ = RestaurantSettingsRoot
+
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		self.running_cost_base = 0

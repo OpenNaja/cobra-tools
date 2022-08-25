@@ -2,6 +2,8 @@ from generated.formats.base.enums import UintEnum
 
 
 class CollisionType(UintEnum):
+
+	__name__ = CollisionType
 	SPHERE = 0
 	BOUNDING_BOX = 1
 	CAPSULE = 2

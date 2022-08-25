@@ -6,6 +6,8 @@ from generated.formats.ms2.compounds.Descriptor import Descriptor
 
 class ListFirst(Descriptor):
 
+	__name__ = ListFirst
+
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		self.floats = Array((0,), Float, self.context, 0, None)

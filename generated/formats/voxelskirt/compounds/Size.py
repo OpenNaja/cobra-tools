@@ -4,6 +4,8 @@ from generated.formats.base.basic import Uint64
 
 class Size(BaseStruct):
 
+	__name__ = Size
+
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 

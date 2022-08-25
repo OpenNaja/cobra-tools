@@ -11,6 +11,8 @@ class TextureInfo(GenericInfo):
 	part of fgm fragment, per texture involved
 	"""
 
+	__name__ = TextureInfo
+
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 

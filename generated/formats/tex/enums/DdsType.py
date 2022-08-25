@@ -6,6 +6,8 @@ class DdsType(UbyteEnum):
 	"""
 	maps the OVL's dds type to name of compression format
 	"""
+
+	__name__ = DdsType
 	UNKNOWN = 0
 	R32G32B32A32_FLOAT = 1
 	R32G32B32A32_UINT = 2

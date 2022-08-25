@@ -13,6 +13,8 @@ class SmartPadding(BaseStruct):
 	Grabs 00 bytes only
 	"""
 
+	__name__ = SmartPadding
+
 	def set_defaults(self):
 		super().set_defaults()
 		pass

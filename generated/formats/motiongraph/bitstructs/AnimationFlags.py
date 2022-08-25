@@ -4,6 +4,8 @@ from generated.formats.base.basic import Uint
 
 
 class AnimationFlags(BasicBitfield):
+
+	__name__ = AnimationFlags
 	storage = Uint
 	looping = BitfieldMember(pos=0, mask=0x1, return_type=int)
 	additive = BitfieldMember(pos=1, mask=0x2, return_type=int)

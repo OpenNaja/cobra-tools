@@ -10,6 +10,8 @@ from generated.formats.ovl_base.compounds.Pointer import Pointer
 
 class DinoEffectsHeader(MemStruct):
 
+	__name__ = DinoEffectsHeader
+
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		self.vec_0 = Vector3F(self.context, 0, None)

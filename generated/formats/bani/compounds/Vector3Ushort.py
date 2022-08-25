@@ -8,6 +8,8 @@ class Vector3Ushort(BaseStruct):
 	A signed int16 vector in 3D space (x,y,z).
 	"""
 
+	__name__ = Vector3Ushort
+
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 

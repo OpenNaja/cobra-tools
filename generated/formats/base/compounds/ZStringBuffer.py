@@ -17,6 +17,8 @@ class ZStringBuffer(BaseStruct):
 	Holds a buffer of zero-terminated strings
 	"""
 
+	__name__ = ZStringBuffer
+
 	def set_defaults(self):
 		super().set_defaults()
 		pass

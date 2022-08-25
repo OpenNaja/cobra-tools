@@ -5,6 +5,8 @@ from generated.formats.ovl_base.compounds.MemStruct import MemStruct
 
 class HbOffsets(MemStruct):
 
+	__name__ = HbOffsets
+
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		self.physics = HbPhysicsOffsets(self.context, 0, None)

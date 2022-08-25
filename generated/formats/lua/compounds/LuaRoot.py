@@ -13,6 +13,8 @@ class LuaRoot(MemStruct):
 	all meta data except lua size seems to just be meta data, can be zeroed
 	"""
 
+	__name__ = LuaRoot
+
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		self.lua_size = 0

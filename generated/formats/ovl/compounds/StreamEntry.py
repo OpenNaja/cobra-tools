@@ -12,6 +12,8 @@ class StreamEntry(BaseStruct):
 	interestingly, the order of root_entry entries per ovs is consistent with decreasing pool offset
 	"""
 
+	__name__ = StreamEntry
+
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 

@@ -8,6 +8,8 @@ class BufferPresence(BaseStruct):
 	in DLA and JWE2, this can be a dependency to a model2stream
 	"""
 
+	__name__ = BufferPresence
+
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 

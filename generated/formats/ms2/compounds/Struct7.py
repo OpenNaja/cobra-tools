@@ -10,6 +10,8 @@ from generated.formats.ovl_base.compounds.SmartPadding import SmartPadding
 
 class Struct7(BaseStruct):
 
+	__name__ = Struct7
+
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 

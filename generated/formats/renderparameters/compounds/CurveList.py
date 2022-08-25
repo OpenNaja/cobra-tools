@@ -10,6 +10,8 @@ class CurveList(MemStruct):
 	this is not null ptr terminated, but padded to 16 bytes at the end
 	"""
 
+	__name__ = CurveList
+
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		self.ptrs = Array((0,), Pointer, self.context, 0, generated.formats.renderparameters.compounds.KeyPoint.KeyPoint)

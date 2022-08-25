@@ -11,6 +11,8 @@ class WorldHeader(MemStruct):
 	# NOTE, World struct in JWE1 has an extra pointer this import/export is not accounting for yet
 	"""
 
+	__name__ = WorldHeader
+
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		self.world_type = 0

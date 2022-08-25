@@ -13,6 +13,8 @@ class DinoVariantsHeader(MemStruct):
 	# no set_count for rex 93 - has no materialpatterns, so that's probably why it's different
 	"""
 
+	__name__ = DinoVariantsHeader
+
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		self.has_sets = 0

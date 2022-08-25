@@ -12,6 +12,8 @@ class SplRoot(MemStruct):
 	JWE2: 16 bytes
 	"""
 
+	__name__ = SplRoot
+
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		self.count = 0

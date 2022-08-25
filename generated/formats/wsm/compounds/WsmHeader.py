@@ -14,6 +14,8 @@ class WsmHeader(MemStruct):
 	56 bytes for JWE2
 	"""
 
+	__name__ = WsmHeader
+
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		self.duration = 0.0

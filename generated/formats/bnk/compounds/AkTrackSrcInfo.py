@@ -5,6 +5,8 @@ from generated.formats.base.basic import Uint
 
 class AkTrackSrcInfo(BaseStruct):
 
+	__name__ = AkTrackSrcInfo
+
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		self.track_i_d = 0

@@ -197,6 +197,7 @@ class XmlParser:
             struct.text = clean_comment_str(struct.text, indent="", class_comment='"""')[2:]
         else:
             # it is a tag with a class
+            struct.attrib["__name__"] = struct.attrib["name"]
             self.apply_convention(struct, convention.name_class, ("name", "inherit"))
             self.apply_convention(struct, convention.name_module, ("module",))
             if struct.tag == "basic":

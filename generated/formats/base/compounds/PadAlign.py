@@ -14,6 +14,8 @@ class PadAlign(BaseStruct):
 	Grabs 00 bytes only
 	"""
 
+	__name__ = PadAlign
+
 	def set_defaults(self):
 		super().set_defaults()
 		pass

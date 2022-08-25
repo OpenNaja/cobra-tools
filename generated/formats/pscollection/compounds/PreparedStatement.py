@@ -8,6 +8,8 @@ from generated.formats.ovl_base.compounds.Pointer import Pointer
 
 class PreparedStatement(MemStruct):
 
+	__name__ = PreparedStatement
+
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		self.arg_count = 0

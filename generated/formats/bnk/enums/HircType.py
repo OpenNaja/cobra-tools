@@ -2,6 +2,8 @@ from generated.formats.base.enums import UbyteEnum
 
 
 class HircType(UbyteEnum):
+
+	__name__ = HircType
 	NONE = 0
 	SETTINGS = 1
 	SOUND_SFX_VOICE = 2

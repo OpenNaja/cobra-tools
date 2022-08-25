@@ -7,6 +7,8 @@ class FixedString(BaseStruct):
 	The string "DDS ".
 	"""
 
+	__name__ = FixedString
+
 	def set_defaults(self):
 		super().set_defaults()
 		pass

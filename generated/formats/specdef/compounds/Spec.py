@@ -4,6 +4,8 @@ from generated.formats.specdef.enums.SpecdefDtype import SpecdefDtype
 
 class Spec(MemStruct):
 
+	__name__ = Spec
+
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		self.dtype = SpecdefDtype(self.context, 0, None)

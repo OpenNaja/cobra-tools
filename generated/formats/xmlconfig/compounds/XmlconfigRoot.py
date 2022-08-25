@@ -5,6 +5,8 @@ from generated.formats.ovl_base.compounds.Pointer import Pointer
 
 class XmlconfigRoot(MemStruct):
 
+	__name__ = XmlconfigRoot
+
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		self.xml_string = Pointer(self.context, 0, generated.formats.base.basic.ZString)

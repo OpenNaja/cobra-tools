@@ -12,6 +12,8 @@ from generated.formats.ms2.enums.CollisionType import CollisionType
 
 class HitCheckEntry(BaseStruct):
 
+	__name__ = HitCheckEntry
+
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		self.dtype = CollisionType(self.context, 0, None)

@@ -6,6 +6,8 @@ class DdsTypeCoaster(UbyteEnum):
 	"""
 	maps the OVL's dds type to name of compression format
 	"""
+
+	__name__ = DdsTypeCoaster
 	# ZTUAC ele heights textures
 	D24_UNORM_S8_UINT = 74
 	# ?

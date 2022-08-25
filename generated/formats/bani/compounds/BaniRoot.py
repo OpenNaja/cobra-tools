@@ -10,6 +10,8 @@ class BaniRoot(MemStruct):
 	24 bytes This varies per bani animation file and describes the bani's frames and duration
 	"""
 
+	__name__ = BaniRoot
+
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 

@@ -18,6 +18,8 @@ class VersionInfo(BasicBitfield):
 	# JWE zlib				24724	01100000 10010100
 	# JWE oodle (switch)	25108	01100010 00010100
 	"""
+
+	__name__ = VersionInfo
 	storage = Uint
 	unk_1 = BitfieldMember(pos=2, mask=0x4, return_type=bool)
 	unk_2 = BitfieldMember(pos=4, mask=0x10, return_type=bool)

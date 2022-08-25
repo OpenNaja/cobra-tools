@@ -9,6 +9,8 @@ from generated.formats.ovl_base.compounds.Pointer import Pointer
 
 class LayerFrag(MemStruct):
 
+	__name__ = LayerFrag
+
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		self.u_0 = 0

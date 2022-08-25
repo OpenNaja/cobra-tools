@@ -8,6 +8,8 @@ from generated.formats.ovl_base.compounds.Pointer import Pointer
 
 class DinoLayersHeader(MemStruct):
 
+	__name__ = DinoLayersHeader
+
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		self.layer_count = 0

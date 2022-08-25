@@ -9,6 +9,8 @@ class RootEntry(BaseStruct):
 	Main file entry in the ovs, one per FileEntry
 	"""
 
+	__name__ = RootEntry
+
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 

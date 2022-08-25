@@ -10,6 +10,8 @@ class HIRCSection(BaseStruct):
 	The HIRC section contains all the Wwise objects, including the events, the containers to group sounds, and the references to the sound files.
 	"""
 
+	__name__ = HIRCSection
+
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 

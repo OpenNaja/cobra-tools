@@ -13,6 +13,8 @@ class StreamDebugger(BaseStruct):
 	logs stream address to debug log
 	"""
 
+	__name__ = StreamDebugger
+
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)

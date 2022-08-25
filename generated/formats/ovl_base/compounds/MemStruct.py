@@ -41,6 +41,8 @@ class MemStruct(BaseStruct):
 	this is a struct that is capable of having pointers
 	"""
 
+	__name__ = MemStruct
+
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		if set_default:

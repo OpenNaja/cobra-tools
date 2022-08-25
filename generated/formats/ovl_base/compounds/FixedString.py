@@ -7,6 +7,8 @@ class FixedString(BaseStruct):
 	Holds a string of a fixed size, given as an argument.
 	"""
 
+	__name__ = FixedString
+
 	def set_defaults(self):
 		super().set_defaults()
 		pass

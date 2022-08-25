@@ -4,6 +4,8 @@ from generated.formats.dds.basic import Uint
 
 
 class PixelFormatFlags(BasicBitfield):
+
+	__name__ = PixelFormatFlags
 	storage = Uint
 	alpha_pixels = BitfieldMember(pos=0, mask=0x1, return_type=int)
 	alpha = BitfieldMember(pos=1, mask=0x2, return_type=int)

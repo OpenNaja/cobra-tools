@@ -8,6 +8,8 @@ class BnkFileContainer(GenericHeader):
 	custom struct
 	"""
 
+	__name__ = BnkFileContainer
+
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		self.bnk_header = BnkBufferData(self.context, 0, None)

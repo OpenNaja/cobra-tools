@@ -22,6 +22,8 @@ class BoneInfo(BaseStruct):
 	# 858 in DLA c_cl_thread_.ms2
 	"""
 
+	__name__ = BoneInfo
+
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 

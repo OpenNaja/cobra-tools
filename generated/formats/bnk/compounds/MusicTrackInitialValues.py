@@ -11,6 +11,8 @@ from generated.formats.bnk.compounds.NodeBaseParams import NodeBaseParams
 
 class MusicTrackInitialValues(BaseStruct):
 
+	__name__ = MusicTrackInitialValues
+
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		self.u_flags = 0

@@ -6,6 +6,8 @@ from generated.formats.path.compounds.Vector2 import Vector2
 
 class Connector(MemStruct):
 
+	__name__ = Connector
+
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		self.unk_vector = Vector2(self.context, 0, None)
