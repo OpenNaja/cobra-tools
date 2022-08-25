@@ -7,7 +7,7 @@ from generated.formats.ovl_base.compounds.MemStruct import MemStruct
 
 class AttribData(MemStruct):
 
-	__name__ = AttribData
+	__name__ = 'AttribData'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)

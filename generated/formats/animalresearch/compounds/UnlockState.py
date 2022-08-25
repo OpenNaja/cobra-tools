@@ -5,7 +5,7 @@ from generated.formats.ovl_base.compounds.Pointer import Pointer
 
 class UnlockState(MemStruct):
 
-	__name__ = UnlockState
+	__name__ = 'UnlockState'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)

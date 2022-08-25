@@ -12,7 +12,7 @@ class MRFMember2(MemStruct):
 	only used if transition is in 'id'
 	"""
 
-	__name__ = MRFMember2
+	__name__ = 'MRFMember2'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)

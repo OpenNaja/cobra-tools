@@ -4,7 +4,7 @@ from generated.formats.ovl_base.compounds.MemStruct import MemStruct
 
 class HbPostSize(MemStruct):
 
-	__name__ = HbPostSize
+	__name__ = 'HbPostSize'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)

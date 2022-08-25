@@ -5,7 +5,7 @@ from generated.formats.ovl_base.compounds.MemStruct import MemStruct
 
 class PatternArray(MemStruct):
 
-	__name__ = PatternArray
+	__name__ = 'PatternArray'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)

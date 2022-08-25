@@ -41,10 +41,22 @@ class Imports:
                     self.add_mapped_type(field_type)
                     if xml_struct.tag in parser.struct_types:
                         self.add(field_type)
+                onlyT = field.attrib.get("onlyT")
+                if onlyT:
+                    self.add_module(onlyT)
+                excludeT = field.attrib.get("excludeT")
+                if excludeT:
+                    self.add_module(excludeT)
                 for default in field:
                     if default.tag in ("default",):
                         if default.attrib.get("versions"):
                             self.add("versions")
+                        onlyT = default.attrib.get("onlyT")
+                        if onlyT:
+                            self.add_module(onlyT)
+                        excludeT = default.attrib.get("excludeT")
+                        if excludeT:
+                            self.add_module(excludeT)
 
     def add_mapped_type(self, cls_to_import, array=False):
         if cls_to_import:

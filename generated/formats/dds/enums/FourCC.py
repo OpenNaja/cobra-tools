@@ -10,7 +10,7 @@ class FourCC(UintEnum):
 	indicates the true format. When using a four-character code, dwFlags must include DDPF_FOURCC.
 	"""
 
-	__name__ = FourCC
+	__name__ = 'FourCC'
 	LINEAR = 0x00000000
 	DXT1 = 0x31545844
 	DXT2 = 0x32545844

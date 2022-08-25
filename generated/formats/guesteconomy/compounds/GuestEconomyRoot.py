@@ -40,7 +40,7 @@ class GuestEconomyRoot(MemStruct):
 	# I f I f I 27f
 	"""
 
-	__name__ = GuestEconomyRoot
+	__name__ = 'GuestEconomyRoot'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)

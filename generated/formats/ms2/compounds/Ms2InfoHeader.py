@@ -16,7 +16,7 @@ class Ms2InfoHeader(BaseStruct):
 	Custom header struct
 	"""
 
-	__name__ = Ms2InfoHeader
+	__name__ = 'Ms2InfoHeader'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)

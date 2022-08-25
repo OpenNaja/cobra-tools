@@ -15,7 +15,7 @@ class AnimationActivityData(MemStruct):
 	96 bytes
 	"""
 
-	__name__ = AnimationActivityData
+	__name__ = 'AnimationActivityData'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)

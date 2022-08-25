@@ -7,7 +7,7 @@ from generated.formats.wsm.compounds.WsmHeader import WsmHeader
 
 class Wsm(GenericHeader):
 
-	__name__ = Wsm
+	__name__ = 'Wsm'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)

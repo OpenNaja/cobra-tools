@@ -10,7 +10,7 @@ class PCJointThing(BaseStruct):
 	8 bytes
 	"""
 
-	__name__ = PCJointThing
+	__name__ = 'PCJointThing'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)

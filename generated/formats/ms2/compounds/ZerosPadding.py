@@ -4,7 +4,7 @@ from generated.formats.base.basic import Uint64
 
 class ZerosPadding(BaseStruct):
 
-	__name__ = ZerosPadding
+	__name__ = 'ZerosPadding'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)

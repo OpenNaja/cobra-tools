@@ -222,8 +222,8 @@ class XmlParser:
                     # template can refer to a type of an attribute
                     self.apply_convention(field, convention.format_potential_tuple, ("default",))
                     for default in field:
-                        self.apply_convention(field, convention.name_class, ("onlyT",))
-                        self.apply_convention(field, convention.format_potential_tuple, ("value",))
+                        self.apply_convention(default, convention.name_class, ("onlyT",))
+                        self.apply_convention(default, convention.format_potential_tuple, ("value",))
             # filter comment str
             struct.text = clean_comment_str(struct.text, indent="\t", class_comment='"""')
 

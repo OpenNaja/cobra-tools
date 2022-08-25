@@ -11,7 +11,7 @@ class SizedStrData(BaseStruct):
 	32 bytes for PZ1.6+, JWFloatCount
 	"""
 
-	__name__ = SizedStrData
+	__name__ = 'SizedStrData'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)

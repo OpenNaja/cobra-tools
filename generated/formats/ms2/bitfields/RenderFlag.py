@@ -9,7 +9,7 @@ class RenderFlag(BasicBitfield):
 	Determines how the model is rendered.
 	"""
 
-	__name__ = RenderFlag
+	__name__ = 'RenderFlag'
 	storage = Ushort
 	a = BitfieldMember(pos=0, mask=0x1, return_type=bool)
 	b = BitfieldMember(pos=1, mask=0x2, return_type=bool)

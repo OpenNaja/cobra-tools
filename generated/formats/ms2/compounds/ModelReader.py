@@ -21,7 +21,7 @@ class ModelReader(BaseStruct):
 	This reads and assigns models to each model_info that is passed to it
 	"""
 
-	__name__ = ModelReader
+	__name__ = 'ModelReader'
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

@@ -23,7 +23,7 @@ class ModelInfo(MemStruct):
 	There is a versioning issue introduced by the Biosyn update as the ms2 version has not been incremented
 	"""
 
-	__name__ = ModelInfo
+	__name__ = 'ModelInfo'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)

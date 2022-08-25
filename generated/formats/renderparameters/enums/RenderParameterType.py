@@ -3,7 +3,7 @@ from generated.formats.base.enums import Uint64Enum
 
 class RenderParameterType(Uint64Enum):
 
-	__name__ = RenderParameterType
+	__name__ = 'RenderParameterType'
 	BOOL = 0
 	FLOAT = 1
 	INT = 2

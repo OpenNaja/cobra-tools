@@ -10,7 +10,7 @@ from generated.formats.ovl_base.compounds.Pointer import Pointer
 
 class PathJoinPartResource(MemStruct):
 
-	__name__ = PathJoinPartResource
+	__name__ = 'PathJoinPartResource'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)

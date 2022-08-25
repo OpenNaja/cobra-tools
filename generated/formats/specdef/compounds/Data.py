@@ -24,7 +24,7 @@ class Data(MemStruct):
 	todo - enum, grab, implement, fetch
 	"""
 
-	__name__ = Data
+	__name__ = 'Data'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)

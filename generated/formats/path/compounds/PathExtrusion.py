@@ -7,7 +7,7 @@ from generated.formats.ovl_base.compounds.Pointer import Pointer
 
 class PathExtrusion(MemStruct):
 
-	__name__ = PathExtrusion
+	__name__ = 'PathExtrusion'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)

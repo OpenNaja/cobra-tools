@@ -8,7 +8,7 @@ from generated.formats.ovl_base.compounds.Pointer import Pointer
 
 class Research(MemStruct):
 
-	__name__ = Research
+	__name__ = 'Research'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)

@@ -13,7 +13,7 @@ class BaniInfoHeader(BaseStruct):
 	includes fragments but none of the 3 data buffers
 	"""
 
-	__name__ = BaniInfoHeader
+	__name__ = 'BaniInfoHeader'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)

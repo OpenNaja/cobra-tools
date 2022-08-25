@@ -9,7 +9,7 @@ class AxisButton(MemStruct):
 	24 bytes, can be padded to 32
 	"""
 
-	__name__ = AxisButton
+	__name__ = 'AxisButton'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)

@@ -12,7 +12,7 @@ from generated.base_struct import BaseStruct
 
 class KeysReader(BaseStruct):
 
-	__name__ = KeysReader
+	__name__ = 'KeysReader'
 
 	@classmethod
 	def read_fields(cls, stream, instance):

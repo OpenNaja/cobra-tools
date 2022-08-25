@@ -17,7 +17,7 @@ class MemPool(BaseStruct):
 	Description of one archive header entry
 	"""
 
-	__name__ = MemPool
+	__name__ = 'MemPool'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)

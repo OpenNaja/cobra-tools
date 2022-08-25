@@ -6,7 +6,7 @@ from generated.formats.base.basic import Ubyte
 
 class DLAPreBones(BaseStruct):
 
-	__name__ = DLAPreBones
+	__name__ = 'DLAPreBones'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)

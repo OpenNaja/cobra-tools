@@ -3,7 +3,7 @@ from generated.formats.path.compounds.SupportAttach import SupportAttach
 
 class Footer(SupportAttach):
 
-	__name__ = Footer
+	__name__ = 'Footer'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)

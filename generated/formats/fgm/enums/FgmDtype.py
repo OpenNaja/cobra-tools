@@ -3,7 +3,7 @@ from generated.formats.base.enums import UintEnum
 
 class FgmDtype(UintEnum):
 
-	__name__ = FgmDtype
+	__name__ = 'FgmDtype'
 	FLOAT = 0
 	FLOAT_2 = 1
 	FLOAT_3 = 2

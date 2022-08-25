@@ -16,7 +16,7 @@ class OvsHeader(BaseStruct):
 	Description of one archive's content
 	"""
 
-	__name__ = OvsHeader
+	__name__ = 'OvsHeader'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)

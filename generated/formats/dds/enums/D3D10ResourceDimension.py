@@ -7,7 +7,7 @@ class D3D10ResourceDimension(UintEnum):
 	An unsigned 32-bit integer. Identifies the type of resource being used.
 	"""
 
-	__name__ = D3D10ResourceDimension
+	__name__ = 'D3D10ResourceDimension'
 	D3D10_RESOURCE_DIMENSION_UNKNOWN = 0
 	D3D10_RESOURCE_DIMENSION_BUFFER = 1
 	D3D10_RESOURCE_DIMENSION_TEXTURE1D = 2

@@ -17,45 +17,6 @@ def get_attr_with_backups(field, attribute_keys):
         return None
 
 
-def get_conditions(field, expression_prefix="self."):
-    CONTEXT = f'{expression_prefix}{CONTEXT_SUFFIX}'
-    VER = f"{CONTEXT}.version"
-    conditionals = []
-    ver1 = get_attr_with_backups(field, ["ver1", "since"])
-    if ver1:
-        ver1 = Version(ver1)
-    ver2 = get_attr_with_backups(field, ["ver2", "until"])
-
-    if ver2:
-        ver2 = Version(ver2)
-    vercond = field.attrib.get("vercond")
-    valid_versions = field.attrib.get("versions")
-    if valid_versions:
-        valid_versions = [Versions.format_id(version) for version in valid_versions.split(" ")]
-    cond = field.attrib.get("cond")
-    onlyT = field.attrib.get("onlyT")
-    excludeT = field.attrib.get("excludeT")
-    if ver1 and ver2:
-        conditionals.append(f"{ver1} <= {VER} <= {ver2}")
-    elif ver1:
-        conditionals.append(f"{VER} >= {ver1}")
-    elif ver2:
-        conditionals.append(f"{VER} <= {ver2}")
-    if vercond:
-        vercond = Expression(vercond, f'{expression_prefix}context.')
-        conditionals.append(f"{vercond}")
-    if valid_versions:
-        conditionals.append(f"({' or '.join([f'versions.is_{version}({CONTEXT})' for version in valid_versions])})")
-    if cond:
-        cond = Expression(cond, f'{expression_prefix}')
-        conditionals.append(f"{cond}")
-    if onlyT:
-        conditionals.append(f"'{onlyT}' in [parent.__name__ for parent in type({expression_prefix[:-1]}).__mro__]")
-    if excludeT:
-        conditionals.append(f"'{excludeT}' not in [parent.__name__ for parent in type({expression_prefix[:-1]}).__mro__]")
-    return conditionals
-
-
 def condition_indent(base_indent, conditionals, condition=""):
     # determine the python condition and indentation level based on whether the
     # last used condition was the same.
@@ -89,6 +50,47 @@ class Union:
     def append(self, member):
         self.members.append(member)
 
+
+    def get_conditions(self, field, expression_prefix="self."):
+        CONTEXT = f'{expression_prefix}{CONTEXT_SUFFIX}'
+        VER = f"{CONTEXT}.version"
+        conditionals = []
+        ver1 = get_attr_with_backups(field, ["ver1", "since"])
+        if ver1:
+            ver1 = Version(ver1)
+        ver2 = get_attr_with_backups(field, ["ver2", "until"])
+
+        if ver2:
+            ver2 = Version(ver2)
+        vercond = field.attrib.get("vercond")
+        valid_versions = field.attrib.get("versions")
+        if valid_versions:
+            valid_versions = [Versions.format_id(version) for version in valid_versions.split(" ")]
+        cond = field.attrib.get("cond")
+        onlyT = field.attrib.get("onlyT")
+        excludeT = field.attrib.get("excludeT")
+        if ver1 and ver2:
+            conditionals.append(f"{ver1} <= {VER} <= {ver2}")
+        elif ver1:
+            conditionals.append(f"{VER} >= {ver1}")
+        elif ver2:
+            conditionals.append(f"{VER} <= {ver2}")
+        if vercond:
+            vercond = Expression(vercond, f'{expression_prefix}context.')
+            conditionals.append(f"{vercond}")
+        if valid_versions:
+            conditionals.append(f"({' or '.join([f'versions.is_{version}({CONTEXT})' for version in valid_versions])})")
+        if cond:
+            cond = Expression(cond, f'{expression_prefix}')
+            conditionals.append(f"{cond}")
+        if onlyT:
+            class_access = f'{Imports.import_from_module_path(self.compounds.parser.path_dict[onlyT])}.{onlyT}'
+            conditionals.append(f"isinstance({expression_prefix[:-1]}, {class_access})")
+        if excludeT:
+            class_access = f'{Imports.import_from_module_path(self.compounds.parser.path_dict[excludeT])}.{excludeT}'
+            conditionals.append(f"not isinstance({expression_prefix[:-1]}, {class_access})")
+        return conditionals
+
     def get_params(self, field, expression_prefix="self."):
         # parse all attributes and return the python-evaluatable string
 
@@ -100,7 +102,7 @@ class Union:
         template = field.attrib.get("template")
         optional = (field.attrib.get("optional", "False"), field.attrib.get("default"))
 
-        conditionals = get_conditions(field, expression_prefix)
+        conditionals = self.get_conditions(field, expression_prefix)
 
         arg = field.attrib.get("arg", 0)
         arr1 = get_attr_with_backups(field, ["arr1", "length"])
@@ -169,7 +171,7 @@ class Union:
             for i, default_element in enumerate(default_children):
 
                 # get the condition
-                conditionals = get_conditions(default_element)
+                conditionals = self.get_conditions(default_element)
                 indent, condition = condition_indent(base_indent, conditionals, condition)
                 if not condition:
                     raise AttributeError(

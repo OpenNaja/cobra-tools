@@ -3,7 +3,7 @@ from generated.formats.base.enums import UshortEnum
 
 class SubCurveType(UshortEnum):
 
-	__name__ = SubCurveType
+	__name__ = 'SubCurveType'
 	CONSTANT = 0
 	LINEAR = 1
 	POLYNOMIAL = 2

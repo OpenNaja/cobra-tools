@@ -20,7 +20,7 @@ class TexHeader(MemStruct):
 	JWE, PZ, JWE2: 40 bytes, with 2 pointers
 	"""
 
-	__name__ = TexHeader
+	__name__ = 'TexHeader'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)

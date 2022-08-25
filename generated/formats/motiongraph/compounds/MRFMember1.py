@@ -10,7 +10,7 @@ class MRFMember1(MemStruct):
 	72 bytes, is like ThirdFrag, but different templates
 	"""
 
-	__name__ = MRFMember1
+	__name__ = 'MRFMember1'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)

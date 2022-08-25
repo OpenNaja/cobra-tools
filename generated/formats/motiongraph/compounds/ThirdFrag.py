@@ -12,7 +12,7 @@ class ThirdFrag(MemStruct):
 	72 bytes
 	"""
 
-	__name__ = ThirdFrag
+	__name__ = 'ThirdFrag'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)

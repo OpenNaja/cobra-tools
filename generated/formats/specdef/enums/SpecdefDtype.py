@@ -3,7 +3,7 @@ from generated.formats.base.enums import UintEnum
 
 class SpecdefDtype(UintEnum):
 
-	__name__ = SpecdefDtype
+	__name__ = 'SpecdefDtype'
 	BOOLEAN = 0
 	INT_8 = 1
 	INT_16 = 2

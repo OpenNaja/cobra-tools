@@ -7,7 +7,7 @@ from generated.formats.base.basic import Uint
 
 class SoundSfxVoice(BaseStruct):
 
-	__name__ = SoundSfxVoice
+	__name__ = 'SoundSfxVoice'
 
 	def set_defaults(self):
 		super().set_defaults()

@@ -32,7 +32,7 @@ class BaseClass:
         if self.class_debug_str:
             stream.write(self.class_debug_str)
         self.write_line(stream)
-        self.write_line(stream, 1, f"__name__ = {self.struct.attrib.get('name')}")
+        self.write_line(stream, 1, f"__name__ = '{self.struct.attrib.get('name')}'")
 
     def write_line(self, stream, indent=0, line=""):
         stream.write("\n" + indent*"\t" + line)

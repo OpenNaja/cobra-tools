@@ -7,7 +7,7 @@ from generated.formats.ovl_base.compounds.Pointer import Pointer
 
 class PathSupport(MemStruct):
 
-	__name__ = PathSupport
+	__name__ = 'PathSupport'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)

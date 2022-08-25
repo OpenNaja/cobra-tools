@@ -5,7 +5,7 @@ from generated.formats.dds.basic import Uint
 
 class Caps2(BasicBitfield):
 
-	__name__ = Caps2
+	__name__ = 'Caps2'
 	storage = Uint
 	reserved_1 = BitfieldMember(pos=0, mask=0x1ff, return_type=int)
 	cubemap = BitfieldMember(pos=9, mask=0x200, return_type=int)

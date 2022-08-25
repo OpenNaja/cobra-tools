@@ -12,7 +12,7 @@ from generated.formats.ms2.compounds.MeshData import MeshData
 
 class PcMeshData(MeshData):
 
-	__name__ = PcMeshData
+	__name__ = 'PcMeshData'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)

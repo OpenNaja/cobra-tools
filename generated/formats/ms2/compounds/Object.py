@@ -4,7 +4,7 @@ from generated.formats.base.basic import Ushort
 
 class Object(BaseStruct):
 
-	__name__ = Object
+	__name__ = 'Object'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)

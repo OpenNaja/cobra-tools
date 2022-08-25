@@ -16,7 +16,7 @@ class WmetasbMain(MemStruct):
 	todo - versioning that catches JWE1, needs wmetasb version from fileentry
 	"""
 
-	__name__ = WmetasbMain
+	__name__ = 'WmetasbMain'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)

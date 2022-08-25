@@ -17,7 +17,7 @@ class FgmHeader(MemStruct):
 	# JWE2 patternset fgms seem to be in pool type 3, everything else in 2
 	"""
 
-	__name__ = FgmHeader
+	__name__ = 'FgmHeader'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)

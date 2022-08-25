@@ -8,7 +8,7 @@ from generated.formats.ms2.compounds.Vector3 import Vector3
 
 class ListCEntry(BaseStruct):
 
-	__name__ = ListCEntry
+	__name__ = 'ListCEntry'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)

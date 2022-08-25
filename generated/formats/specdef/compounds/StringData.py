@@ -10,7 +10,7 @@ class StringData(MemStruct):
 	16 bytes in log
 	"""
 
-	__name__ = StringData
+	__name__ = 'StringData'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)

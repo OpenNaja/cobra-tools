@@ -8,7 +8,7 @@ class IncludedOvl(BaseStruct):
 	Description of one included ovl file that is force-loaded by this ovl
 	"""
 
-	__name__ = IncludedOvl
+	__name__ = 'IncludedOvl'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)

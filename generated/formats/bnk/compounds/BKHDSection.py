@@ -11,7 +11,7 @@ class BKHDSection(BaseStruct):
 	First Section of a soundbank aux
 	"""
 
-	__name__ = BKHDSection
+	__name__ = 'BKHDSection'
 
 	def set_defaults(self):
 		super().set_defaults()

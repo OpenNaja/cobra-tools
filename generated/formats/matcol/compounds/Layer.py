@@ -8,7 +8,7 @@ from generated.formats.matcol.compounds.LayerFrag import LayerFrag
 
 class Layer(BaseStruct):
 
-	__name__ = Layer
+	__name__ = 'Layer'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)

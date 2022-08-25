@@ -6,7 +6,7 @@ from generated.formats.base.basic import Uint64
 
 class Repeat(BaseStruct):
 
-	__name__ = Repeat
+	__name__ = 'Repeat'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)

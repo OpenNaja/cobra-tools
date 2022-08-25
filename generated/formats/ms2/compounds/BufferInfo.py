@@ -16,7 +16,7 @@ class BufferInfo(BaseStruct):
 	JWE and PC, 16 bytes of 00 padding
 	"""
 
-	__name__ = BufferInfo
+	__name__ = 'BufferInfo'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)

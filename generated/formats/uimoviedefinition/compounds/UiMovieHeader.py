@@ -13,7 +13,7 @@ from generated.formats.ovl_base.compounds.Pointer import Pointer
 
 class UiMovieHeader(MemStruct):
 
-	__name__ = UiMovieHeader
+	__name__ = 'UiMovieHeader'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)

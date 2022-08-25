@@ -15,7 +15,7 @@ class MimeEntry(BaseStruct):
 	Inside the archive not the stored mime hash is used but the extension hash, has to be generated, eg. djb2("bani") == 2090104799
 	"""
 
-	__name__ = MimeEntry
+	__name__ = 'MimeEntry'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)

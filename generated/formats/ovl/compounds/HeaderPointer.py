@@ -18,7 +18,7 @@ class HeaderPointer(BaseStruct):
 	Not standalone, used by RootEntry, Fragment and DependencyEntry
 	"""
 
-	__name__ = HeaderPointer
+	__name__ = 'HeaderPointer'
 
 	def set_defaults(self):
 		super().set_defaults()

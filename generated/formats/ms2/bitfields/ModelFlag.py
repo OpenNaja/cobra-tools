@@ -9,7 +9,7 @@ class ModelFlag(BasicBitfield):
 	Determines the data held by a mesh.
 	"""
 
-	__name__ = ModelFlag
+	__name__ = 'ModelFlag'
 	storage = Uint
 	stripify = BitfieldMember(pos=3, mask=0x8, return_type=bool)
 	weights = BitfieldMember(pos=4, mask=0x10, return_type=bool)

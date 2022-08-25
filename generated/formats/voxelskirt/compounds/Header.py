@@ -8,7 +8,7 @@ class Header(GenericHeader):
 	Found at the beginning of every OVL file
 	"""
 
-	__name__ = Header
+	__name__ = 'Header'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)

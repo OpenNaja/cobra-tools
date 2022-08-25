@@ -7,7 +7,7 @@ from generated.formats.bnk.enums.HircType import HircType
 
 class HircPointer(BaseStruct):
 
-	__name__ = HircPointer
+	__name__ = 'HircPointer'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)

@@ -16,7 +16,7 @@ class MotiongraphHeader(MemStruct):
 	# if self.ovl.context.version > 47:
 	"""
 
-	__name__ = MotiongraphHeader
+	__name__ = 'MotiongraphHeader'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
