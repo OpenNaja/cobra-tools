@@ -1,11 +1,11 @@
-import generated.formats.ms2.compounds.BufferInfo
-import generated.formats.ms2.compounds.BufferPresence
-import generated.formats.ms2.compounds.ModelInfo
 import numpy
 from generated.array import Array
 from generated.formats.base.basic import Short
 from generated.formats.base.basic import Uint
 from generated.formats.base.basic import Ushort
+from generated.formats.ms2.compounds.BufferInfo import BufferInfo
+from generated.formats.ms2.compounds.BufferPresence import BufferPresence
+from generated.formats.ms2.compounds.ModelInfo import ModelInfo
 from generated.formats.ovl_base.compounds.ArrayPointer import ArrayPointer
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
 
@@ -18,6 +18,8 @@ class Ms2Root(MemStruct):
 	"""
 
 	__name__ = 'Ms2Root'
+
+	_import_path = 'generated.formats.ms2.compounds.Ms2Root'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
@@ -37,13 +39,13 @@ class Ms2Root(MemStruct):
 		self.zeros = Array((0,), Uint, self.context, 0, None)
 
 		# ms2's static buffer_info or empty (if no buffers)
-		self.buffer_infos = ArrayPointer(self.context, self.vertex_buffer_count, generated.formats.ms2.compounds.BufferInfo.BufferInfo)
+		self.buffer_infos = ArrayPointer(self.context, self.vertex_buffer_count, BufferInfo)
 
 		# one for each mdl2
-		self.model_infos = ArrayPointer(self.context, self.mdl_2_count, generated.formats.ms2.compounds.ModelInfo.ModelInfo)
+		self.model_infos = ArrayPointer(self.context, self.mdl_2_count, ModelInfo)
 
 		# data as in get_buffer_presence()
-		self.buffers_presence = ArrayPointer(self.context, self.vertex_buffer_count, generated.formats.ms2.compounds.BufferPresence.BufferPresence)
+		self.buffers_presence = ArrayPointer(self.context, self.vertex_buffer_count, BufferPresence)
 		if set_default:
 			self.set_defaults()
 
@@ -55,9 +57,9 @@ class Ms2Root(MemStruct):
 		self.name_count = 0
 		self.stream_count = 0
 		self.zeros = numpy.zeros((3,), dtype=numpy.dtype('uint32'))
-		self.buffer_infos = ArrayPointer(self.context, self.vertex_buffer_count, generated.formats.ms2.compounds.BufferInfo.BufferInfo)
-		self.model_infos = ArrayPointer(self.context, self.mdl_2_count, generated.formats.ms2.compounds.ModelInfo.ModelInfo)
-		self.buffers_presence = ArrayPointer(self.context, self.vertex_buffer_count, generated.formats.ms2.compounds.BufferPresence.BufferPresence)
+		self.buffer_infos = ArrayPointer(self.context, self.vertex_buffer_count, BufferInfo)
+		self.model_infos = ArrayPointer(self.context, self.mdl_2_count, ModelInfo)
+		self.buffers_presence = ArrayPointer(self.context, self.vertex_buffer_count, BufferPresence)
 
 	@classmethod
 	def read_fields(cls, stream, instance):
@@ -69,9 +71,9 @@ class Ms2Root(MemStruct):
 		instance.name_count = Ushort.from_stream(stream, instance.context, 0, None)
 		instance.stream_count = Short.from_stream(stream, instance.context, 0, None)
 		instance.zeros = Array.from_stream(stream, instance.context, 0, None, (3,), Uint)
-		instance.buffer_infos = ArrayPointer.from_stream(stream, instance.context, instance.vertex_buffer_count, generated.formats.ms2.compounds.BufferInfo.BufferInfo)
-		instance.model_infos = ArrayPointer.from_stream(stream, instance.context, instance.mdl_2_count, generated.formats.ms2.compounds.ModelInfo.ModelInfo)
-		instance.buffers_presence = ArrayPointer.from_stream(stream, instance.context, instance.vertex_buffer_count, generated.formats.ms2.compounds.BufferPresence.BufferPresence)
+		instance.buffer_infos = ArrayPointer.from_stream(stream, instance.context, instance.vertex_buffer_count, BufferInfo)
+		instance.model_infos = ArrayPointer.from_stream(stream, instance.context, instance.mdl_2_count, ModelInfo)
+		instance.buffers_presence = ArrayPointer.from_stream(stream, instance.context, instance.vertex_buffer_count, BufferPresence)
 		if not isinstance(instance.buffer_infos, int):
 			instance.buffer_infos.arg = instance.vertex_buffer_count
 		if not isinstance(instance.model_infos, int):
@@ -101,9 +103,9 @@ class Ms2Root(MemStruct):
 		yield 'name_count', Ushort, (0, None), (False, None)
 		yield 'stream_count', Short, (0, None), (False, None)
 		yield 'zeros', Array, ((3,), Uint, 0, None), (False, None)
-		yield 'buffer_infos', ArrayPointer, (instance.vertex_buffer_count, generated.formats.ms2.compounds.BufferInfo.BufferInfo), (False, None)
-		yield 'model_infos', ArrayPointer, (instance.mdl_2_count, generated.formats.ms2.compounds.ModelInfo.ModelInfo), (False, None)
-		yield 'buffers_presence', ArrayPointer, (instance.vertex_buffer_count, generated.formats.ms2.compounds.BufferPresence.BufferPresence), (False, None)
+		yield 'buffer_infos', ArrayPointer, (instance.vertex_buffer_count, BufferInfo), (False, None)
+		yield 'model_infos', ArrayPointer, (instance.mdl_2_count, ModelInfo), (False, None)
+		yield 'buffers_presence', ArrayPointer, (instance.vertex_buffer_count, BufferPresence), (False, None)
 
 	def get_info_str(self, indent=0):
 		return f'Ms2Root [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

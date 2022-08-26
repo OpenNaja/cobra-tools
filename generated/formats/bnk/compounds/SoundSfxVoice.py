@@ -9,6 +9,8 @@ class SoundSfxVoice(BaseStruct):
 
 	__name__ = 'SoundSfxVoice'
 
+	_import_path = 'generated.formats.bnk.compounds.SoundSfxVoice'
+
 	def set_defaults(self):
 		super().set_defaults()
 		self.length = 0

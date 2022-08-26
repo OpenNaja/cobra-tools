@@ -1,7 +1,7 @@
-import generated.formats.base.basic
 from generated.formats.base.basic import Float
 from generated.formats.base.basic import Uint
 from generated.formats.base.basic import Uint64
+from generated.formats.base.basic import ZString
 from generated.formats.habitatboundary.structs.HbDoorCutout import HbDoorCutout
 from generated.formats.habitatboundary.structs.HbPostPos import HbPostPos
 from generated.formats.habitatboundary.structs.HbPropPhysics import HbPropPhysics
@@ -17,6 +17,8 @@ class HabitatBoundaryPropRoot(MemStruct):
 
 	__name__ = 'HabitatBoundaryPropRoot'
 
+	_import_path = 'generated.formats.habitatboundary.structs.HabitatBoundaryPropRoot'
+
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 
@@ -31,10 +33,10 @@ class HabitatBoundaryPropRoot(MemStruct):
 		self.door_cutout = HbDoorCutout(self.context, 0, None)
 		self.small = 0
 		self.height = 2.0
-		self.prefab = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.post = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.wall = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.path_join_part = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.prefab = Pointer(self.context, 0, ZString)
+		self.post = Pointer(self.context, 0, ZString)
+		self.wall = Pointer(self.context, 0, ZString)
+		self.path_join_part = Pointer(self.context, 0, ZString)
 		if set_default:
 			self.set_defaults()
 
@@ -50,25 +52,25 @@ class HabitatBoundaryPropRoot(MemStruct):
 		self.door_cutout = HbDoorCutout(self.context, 0, None)
 		self.small = 0
 		self.height = 2.0
-		self.prefab = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.post = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.wall = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.path_join_part = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.prefab = Pointer(self.context, 0, ZString)
+		self.post = Pointer(self.context, 0, ZString)
+		self.wall = Pointer(self.context, 0, ZString)
+		self.path_join_part = Pointer(self.context, 0, ZString)
 
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
 		instance.type = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.prefab = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
+		instance.prefab = Pointer.from_stream(stream, instance.context, 0, ZString)
 		instance.u_1 = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.post = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
-		instance.wall = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
+		instance.post = Pointer.from_stream(stream, instance.context, 0, ZString)
+		instance.wall = Pointer.from_stream(stream, instance.context, 0, ZString)
 		instance.is_guest = Uint.from_stream(stream, instance.context, 0, None)
 		instance.post_position = HbPostPos.from_stream(stream, instance.context, 0, None)
 		instance.u_2 = Float.from_stream(stream, instance.context, 0, None)
 		instance.door_physics = HbPropPhysics.from_stream(stream, instance.context, 0, None)
 		instance.path_physics = HbPropPhysics.from_stream(stream, instance.context, 0, None)
-		instance.path_join_part = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
+		instance.path_join_part = Pointer.from_stream(stream, instance.context, 0, ZString)
 		instance.door_cutout = HbDoorCutout.from_stream(stream, instance.context, 0, None)
 		instance.small = Uint.from_stream(stream, instance.context, 0, None)
 		instance.height = Float.from_stream(stream, instance.context, 0, None)
@@ -103,16 +105,16 @@ class HabitatBoundaryPropRoot(MemStruct):
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
 		yield 'type', Uint64, (0, None), (False, None)
-		yield 'prefab', Pointer, (0, generated.formats.base.basic.ZString), (False, None)
+		yield 'prefab', Pointer, (0, ZString), (False, None)
 		yield 'u_1', Uint64, (0, None), (False, None)
-		yield 'post', Pointer, (0, generated.formats.base.basic.ZString), (False, None)
-		yield 'wall', Pointer, (0, generated.formats.base.basic.ZString), (False, None)
+		yield 'post', Pointer, (0, ZString), (False, None)
+		yield 'wall', Pointer, (0, ZString), (False, None)
 		yield 'is_guest', Uint, (0, None), (False, None)
 		yield 'post_position', HbPostPos, (0, None), (False, None)
 		yield 'u_2', Float, (0, None), (False, None)
 		yield 'door_physics', HbPropPhysics, (0, None), (False, None)
 		yield 'path_physics', HbPropPhysics, (0, None), (False, None)
-		yield 'path_join_part', Pointer, (0, generated.formats.base.basic.ZString), (False, None)
+		yield 'path_join_part', Pointer, (0, ZString), (False, None)
 		yield 'door_cutout', HbDoorCutout, (0, None), (False, None)
 		yield 'small', Uint, (0, None), (False, None)
 		yield 'height', Float, (0, None), (False, 2.0)

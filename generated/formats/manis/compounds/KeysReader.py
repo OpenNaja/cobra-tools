@@ -14,6 +14,8 @@ class KeysReader(BaseStruct):
 
 	__name__ = 'KeysReader'
 
+	_import_path = 'generated.formats.manis.compounds.KeysReader'
+
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)

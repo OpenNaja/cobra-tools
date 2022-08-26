@@ -1,8 +1,7 @@
-import generated.formats.base.basic
-import generated.formats.janitorsettings.compounds.UIntPair
 from generated.formats.base.basic import Float
 from generated.formats.base.basic import Ubyte
 from generated.formats.base.basic import Uint
+from generated.formats.janitorsettings.compounds.UIntPair import UIntPair
 from generated.formats.ovl_base.compounds.ArrayPointer import ArrayPointer
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
 
@@ -14,6 +13,8 @@ class JanitorSettingsRoot(MemStruct):
 	"""
 
 	__name__ = 'JanitorSettingsRoot'
+
+	_import_path = 'generated.formats.janitorsettings.compounds.JanitorSettingsRoot'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
@@ -70,21 +71,21 @@ class JanitorSettingsRoot(MemStruct):
 		self.unk_30 = 0.0
 		self.unk_31 = 0.0
 		self.unk_32 = 0.0
-		self.array_0 = ArrayPointer(self.context, self.count_0, generated.formats.janitorsettings.compounds.UIntPair.UIntPair)
-		self.array_1 = ArrayPointer(self.context, self.count_1, generated.formats.janitorsettings.compounds.UIntPair.UIntPair)
-		self.array_2 = ArrayPointer(self.context, self.count_2, generated.formats.janitorsettings.compounds.UIntPair.UIntPair)
-		self.array_3 = ArrayPointer(self.context, self.count_3, generated.formats.janitorsettings.compounds.UIntPair.UIntPair)
-		self.array_4 = ArrayPointer(self.context, self.count_4, generated.formats.janitorsettings.compounds.UIntPair.UIntPair)
-		self.array_5 = ArrayPointer(self.context, self.count_5, generated.formats.janitorsettings.compounds.UIntPair.UIntPair)
-		self.array_6 = ArrayPointer(self.context, self.count_6, generated.formats.base.basic.Uint)
-		self.array_7 = ArrayPointer(self.context, self.count_7, generated.formats.base.basic.Uint)
-		self.array_8 = ArrayPointer(self.context, self.count_8, generated.formats.base.basic.Uint)
-		self.array_9 = ArrayPointer(self.context, self.count_9, generated.formats.base.basic.Float)
-		self.array_10 = ArrayPointer(self.context, self.count_10, generated.formats.base.basic.Float)
-		self.array_11 = ArrayPointer(self.context, self.count_11, generated.formats.base.basic.Float)
-		self.array_12 = ArrayPointer(self.context, self.count_12, generated.formats.base.basic.Float)
-		self.array_13 = ArrayPointer(self.context, self.count_13, generated.formats.base.basic.Float)
-		self.array_14 = ArrayPointer(self.context, self.count_14, generated.formats.base.basic.Float)
+		self.array_0 = ArrayPointer(self.context, self.count_0, UIntPair)
+		self.array_1 = ArrayPointer(self.context, self.count_1, UIntPair)
+		self.array_2 = ArrayPointer(self.context, self.count_2, UIntPair)
+		self.array_3 = ArrayPointer(self.context, self.count_3, UIntPair)
+		self.array_4 = ArrayPointer(self.context, self.count_4, UIntPair)
+		self.array_5 = ArrayPointer(self.context, self.count_5, UIntPair)
+		self.array_6 = ArrayPointer(self.context, self.count_6, Uint)
+		self.array_7 = ArrayPointer(self.context, self.count_7, Uint)
+		self.array_8 = ArrayPointer(self.context, self.count_8, Uint)
+		self.array_9 = ArrayPointer(self.context, self.count_9, Float)
+		self.array_10 = ArrayPointer(self.context, self.count_10, Float)
+		self.array_11 = ArrayPointer(self.context, self.count_11, Float)
+		self.array_12 = ArrayPointer(self.context, self.count_12, Float)
+		self.array_13 = ArrayPointer(self.context, self.count_13, Float)
+		self.array_14 = ArrayPointer(self.context, self.count_14, Float)
 		if set_default:
 			self.set_defaults()
 
@@ -143,40 +144,40 @@ class JanitorSettingsRoot(MemStruct):
 		self.unk_30 = 0.0
 		self.unk_31 = 0.0
 		self.unk_32 = 0.0
-		self.array_0 = ArrayPointer(self.context, self.count_0, generated.formats.janitorsettings.compounds.UIntPair.UIntPair)
-		self.array_1 = ArrayPointer(self.context, self.count_1, generated.formats.janitorsettings.compounds.UIntPair.UIntPair)
-		self.array_2 = ArrayPointer(self.context, self.count_2, generated.formats.janitorsettings.compounds.UIntPair.UIntPair)
-		self.array_3 = ArrayPointer(self.context, self.count_3, generated.formats.janitorsettings.compounds.UIntPair.UIntPair)
-		self.array_4 = ArrayPointer(self.context, self.count_4, generated.formats.janitorsettings.compounds.UIntPair.UIntPair)
-		self.array_5 = ArrayPointer(self.context, self.count_5, generated.formats.janitorsettings.compounds.UIntPair.UIntPair)
-		self.array_6 = ArrayPointer(self.context, self.count_6, generated.formats.base.basic.Uint)
-		self.array_7 = ArrayPointer(self.context, self.count_7, generated.formats.base.basic.Uint)
-		self.array_8 = ArrayPointer(self.context, self.count_8, generated.formats.base.basic.Uint)
-		self.array_9 = ArrayPointer(self.context, self.count_9, generated.formats.base.basic.Float)
-		self.array_10 = ArrayPointer(self.context, self.count_10, generated.formats.base.basic.Float)
-		self.array_11 = ArrayPointer(self.context, self.count_11, generated.formats.base.basic.Float)
-		self.array_12 = ArrayPointer(self.context, self.count_12, generated.formats.base.basic.Float)
-		self.array_13 = ArrayPointer(self.context, self.count_13, generated.formats.base.basic.Float)
-		self.array_14 = ArrayPointer(self.context, self.count_14, generated.formats.base.basic.Float)
+		self.array_0 = ArrayPointer(self.context, self.count_0, UIntPair)
+		self.array_1 = ArrayPointer(self.context, self.count_1, UIntPair)
+		self.array_2 = ArrayPointer(self.context, self.count_2, UIntPair)
+		self.array_3 = ArrayPointer(self.context, self.count_3, UIntPair)
+		self.array_4 = ArrayPointer(self.context, self.count_4, UIntPair)
+		self.array_5 = ArrayPointer(self.context, self.count_5, UIntPair)
+		self.array_6 = ArrayPointer(self.context, self.count_6, Uint)
+		self.array_7 = ArrayPointer(self.context, self.count_7, Uint)
+		self.array_8 = ArrayPointer(self.context, self.count_8, Uint)
+		self.array_9 = ArrayPointer(self.context, self.count_9, Float)
+		self.array_10 = ArrayPointer(self.context, self.count_10, Float)
+		self.array_11 = ArrayPointer(self.context, self.count_11, Float)
+		self.array_12 = ArrayPointer(self.context, self.count_12, Float)
+		self.array_13 = ArrayPointer(self.context, self.count_13, Float)
+		self.array_14 = ArrayPointer(self.context, self.count_14, Float)
 
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.array_0 = ArrayPointer.from_stream(stream, instance.context, instance.count_0, generated.formats.janitorsettings.compounds.UIntPair.UIntPair)
-		instance.array_1 = ArrayPointer.from_stream(stream, instance.context, instance.count_1, generated.formats.janitorsettings.compounds.UIntPair.UIntPair)
-		instance.array_2 = ArrayPointer.from_stream(stream, instance.context, instance.count_2, generated.formats.janitorsettings.compounds.UIntPair.UIntPair)
-		instance.array_3 = ArrayPointer.from_stream(stream, instance.context, instance.count_3, generated.formats.janitorsettings.compounds.UIntPair.UIntPair)
-		instance.array_4 = ArrayPointer.from_stream(stream, instance.context, instance.count_4, generated.formats.janitorsettings.compounds.UIntPair.UIntPair)
-		instance.array_5 = ArrayPointer.from_stream(stream, instance.context, instance.count_5, generated.formats.janitorsettings.compounds.UIntPair.UIntPair)
-		instance.array_6 = ArrayPointer.from_stream(stream, instance.context, instance.count_6, generated.formats.base.basic.Uint)
-		instance.array_7 = ArrayPointer.from_stream(stream, instance.context, instance.count_7, generated.formats.base.basic.Uint)
-		instance.array_8 = ArrayPointer.from_stream(stream, instance.context, instance.count_8, generated.formats.base.basic.Uint)
-		instance.array_9 = ArrayPointer.from_stream(stream, instance.context, instance.count_9, generated.formats.base.basic.Float)
-		instance.array_10 = ArrayPointer.from_stream(stream, instance.context, instance.count_10, generated.formats.base.basic.Float)
-		instance.array_11 = ArrayPointer.from_stream(stream, instance.context, instance.count_11, generated.formats.base.basic.Float)
-		instance.array_12 = ArrayPointer.from_stream(stream, instance.context, instance.count_12, generated.formats.base.basic.Float)
-		instance.array_13 = ArrayPointer.from_stream(stream, instance.context, instance.count_13, generated.formats.base.basic.Float)
-		instance.array_14 = ArrayPointer.from_stream(stream, instance.context, instance.count_14, generated.formats.base.basic.Float)
+		instance.array_0 = ArrayPointer.from_stream(stream, instance.context, instance.count_0, UIntPair)
+		instance.array_1 = ArrayPointer.from_stream(stream, instance.context, instance.count_1, UIntPair)
+		instance.array_2 = ArrayPointer.from_stream(stream, instance.context, instance.count_2, UIntPair)
+		instance.array_3 = ArrayPointer.from_stream(stream, instance.context, instance.count_3, UIntPair)
+		instance.array_4 = ArrayPointer.from_stream(stream, instance.context, instance.count_4, UIntPair)
+		instance.array_5 = ArrayPointer.from_stream(stream, instance.context, instance.count_5, UIntPair)
+		instance.array_6 = ArrayPointer.from_stream(stream, instance.context, instance.count_6, Uint)
+		instance.array_7 = ArrayPointer.from_stream(stream, instance.context, instance.count_7, Uint)
+		instance.array_8 = ArrayPointer.from_stream(stream, instance.context, instance.count_8, Uint)
+		instance.array_9 = ArrayPointer.from_stream(stream, instance.context, instance.count_9, Float)
+		instance.array_10 = ArrayPointer.from_stream(stream, instance.context, instance.count_10, Float)
+		instance.array_11 = ArrayPointer.from_stream(stream, instance.context, instance.count_11, Float)
+		instance.array_12 = ArrayPointer.from_stream(stream, instance.context, instance.count_12, Float)
+		instance.array_13 = ArrayPointer.from_stream(stream, instance.context, instance.count_13, Float)
+		instance.array_14 = ArrayPointer.from_stream(stream, instance.context, instance.count_14, Float)
 		instance.unk_0 = Float.from_stream(stream, instance.context, 0, None)
 		instance.unk_1 = Float.from_stream(stream, instance.context, 0, None)
 		instance.unk_2 = Float.from_stream(stream, instance.context, 0, None)
@@ -336,21 +337,21 @@ class JanitorSettingsRoot(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
-		yield 'array_0', ArrayPointer, (instance.count_0, generated.formats.janitorsettings.compounds.UIntPair.UIntPair), (False, None)
-		yield 'array_1', ArrayPointer, (instance.count_1, generated.formats.janitorsettings.compounds.UIntPair.UIntPair), (False, None)
-		yield 'array_2', ArrayPointer, (instance.count_2, generated.formats.janitorsettings.compounds.UIntPair.UIntPair), (False, None)
-		yield 'array_3', ArrayPointer, (instance.count_3, generated.formats.janitorsettings.compounds.UIntPair.UIntPair), (False, None)
-		yield 'array_4', ArrayPointer, (instance.count_4, generated.formats.janitorsettings.compounds.UIntPair.UIntPair), (False, None)
-		yield 'array_5', ArrayPointer, (instance.count_5, generated.formats.janitorsettings.compounds.UIntPair.UIntPair), (False, None)
-		yield 'array_6', ArrayPointer, (instance.count_6, generated.formats.base.basic.Uint), (False, None)
-		yield 'array_7', ArrayPointer, (instance.count_7, generated.formats.base.basic.Uint), (False, None)
-		yield 'array_8', ArrayPointer, (instance.count_8, generated.formats.base.basic.Uint), (False, None)
-		yield 'array_9', ArrayPointer, (instance.count_9, generated.formats.base.basic.Float), (False, None)
-		yield 'array_10', ArrayPointer, (instance.count_10, generated.formats.base.basic.Float), (False, None)
-		yield 'array_11', ArrayPointer, (instance.count_11, generated.formats.base.basic.Float), (False, None)
-		yield 'array_12', ArrayPointer, (instance.count_12, generated.formats.base.basic.Float), (False, None)
-		yield 'array_13', ArrayPointer, (instance.count_13, generated.formats.base.basic.Float), (False, None)
-		yield 'array_14', ArrayPointer, (instance.count_14, generated.formats.base.basic.Float), (False, None)
+		yield 'array_0', ArrayPointer, (instance.count_0, UIntPair), (False, None)
+		yield 'array_1', ArrayPointer, (instance.count_1, UIntPair), (False, None)
+		yield 'array_2', ArrayPointer, (instance.count_2, UIntPair), (False, None)
+		yield 'array_3', ArrayPointer, (instance.count_3, UIntPair), (False, None)
+		yield 'array_4', ArrayPointer, (instance.count_4, UIntPair), (False, None)
+		yield 'array_5', ArrayPointer, (instance.count_5, UIntPair), (False, None)
+		yield 'array_6', ArrayPointer, (instance.count_6, Uint), (False, None)
+		yield 'array_7', ArrayPointer, (instance.count_7, Uint), (False, None)
+		yield 'array_8', ArrayPointer, (instance.count_8, Uint), (False, None)
+		yield 'array_9', ArrayPointer, (instance.count_9, Float), (False, None)
+		yield 'array_10', ArrayPointer, (instance.count_10, Float), (False, None)
+		yield 'array_11', ArrayPointer, (instance.count_11, Float), (False, None)
+		yield 'array_12', ArrayPointer, (instance.count_12, Float), (False, None)
+		yield 'array_13', ArrayPointer, (instance.count_13, Float), (False, None)
+		yield 'array_14', ArrayPointer, (instance.count_14, Float), (False, None)
 		yield 'unk_0', Float, (0, None), (False, None)
 		yield 'unk_1', Float, (0, None), (False, None)
 		yield 'unk_2', Float, (0, None), (False, None)

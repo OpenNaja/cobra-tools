@@ -1,4 +1,5 @@
 import logging
+from generated.base_struct import StructMetaClass
 
 
 class BitfieldMember(object):
@@ -20,7 +21,7 @@ class BitfieldMember(object):
         instance._value |= (value << self.pos) & self.mask
 
 
-class BasicBitfield(object):
+class BasicBitfield(object, metaclass=StructMetaClass):
     _value: int = 0
     # must be overwritten by concrete implementation
     storage = None

@@ -11,6 +11,8 @@ class TransStruct(MemStruct):
 
 	__name__ = 'TransStruct'
 
+	_import_path = 'generated.formats.motiongraph.compounds.TransStruct'
+
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		self.states = StateArray(self.context, 0, None)

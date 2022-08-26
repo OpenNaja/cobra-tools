@@ -26,6 +26,8 @@ class Pointer(BaseStruct):
 
 	__name__ = 'Pointer'
 
+	_import_path = 'generated.formats.ovl_base.compounds.Pointer'
+
 	def set_defaults(self):
 		super().set_defaults()
 		self.offset = 0

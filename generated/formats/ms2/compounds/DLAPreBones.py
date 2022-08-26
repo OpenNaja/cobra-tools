@@ -8,6 +8,8 @@ class DLAPreBones(BaseStruct):
 
 	__name__ = 'DLAPreBones'
 
+	_import_path = 'generated.formats.ms2.compounds.DLAPreBones'
+
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		self.unk = Array((0,), Ubyte, self.context, 0, None)

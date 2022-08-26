@@ -8,6 +8,8 @@ class Arg(MemStruct):
 
 	__name__ = 'Arg'
 
+	_import_path = 'generated.formats.pscollection.compounds.Arg'
+
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		self.u_0 = 0

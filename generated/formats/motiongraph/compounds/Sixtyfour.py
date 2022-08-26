@@ -11,6 +11,8 @@ class Sixtyfour(MemStruct):
 
 	__name__ = 'Sixtyfour'
 
+	_import_path = 'generated.formats.motiongraph.compounds.Sixtyfour'
+
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		self.count_0 = 0

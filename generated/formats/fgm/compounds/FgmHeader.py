@@ -1,9 +1,9 @@
-import generated.formats.fgm.compounds.AttribData
-import generated.formats.fgm.compounds.AttribInfo
-import generated.formats.fgm.compounds.TextureData
-import generated.formats.fgm.compounds.TextureInfo
 from generated.formats.base.basic import Uint
 from generated.formats.base.basic import Uint64
+from generated.formats.fgm.compounds.AttribData import AttribData
+from generated.formats.fgm.compounds.AttribInfo import AttribInfo
+from generated.formats.fgm.compounds.TextureData import TextureData
+from generated.formats.fgm.compounds.TextureInfo import TextureInfo
 from generated.formats.ovl_base.compounds.ArrayPointer import ArrayPointer
 from generated.formats.ovl_base.compounds.ForEachPointer import ForEachPointer
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
@@ -19,6 +19,8 @@ class FgmHeader(MemStruct):
 
 	__name__ = 'FgmHeader'
 
+	_import_path = 'generated.formats.fgm.compounds.FgmHeader'
+
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		self._texture_count = 0
@@ -27,10 +29,10 @@ class FgmHeader(MemStruct):
 		self._unk_1 = 0
 		self._unk_2 = 0
 		self._unk_3 = 0
-		self.textures = ArrayPointer(self.context, self._texture_count, generated.formats.fgm.compounds.TextureInfo.TextureInfo)
-		self.attributes = ArrayPointer(self.context, self._attribute_count, generated.formats.fgm.compounds.AttribInfo.AttribInfo)
-		self.name_foreach_textures = ForEachPointer(self.context, self.textures, generated.formats.fgm.compounds.TextureData.TextureData)
-		self.value_foreach_attributes = ForEachPointer(self.context, self.attributes, generated.formats.fgm.compounds.AttribData.AttribData)
+		self.textures = ArrayPointer(self.context, self._texture_count, TextureInfo)
+		self.attributes = ArrayPointer(self.context, self._attribute_count, AttribInfo)
+		self.name_foreach_textures = ForEachPointer(self.context, self.textures, TextureData)
+		self.value_foreach_attributes = ForEachPointer(self.context, self.attributes, AttribData)
 		if set_default:
 			self.set_defaults()
 
@@ -49,10 +51,10 @@ class FgmHeader(MemStruct):
 		if self.context.user_version.is_jwe and (self.context.version == 20):
 			self._unk_2 = 0
 			self._unk_3 = 0
-		self.textures = ArrayPointer(self.context, self._texture_count, generated.formats.fgm.compounds.TextureInfo.TextureInfo)
-		self.attributes = ArrayPointer(self.context, self._attribute_count, generated.formats.fgm.compounds.AttribInfo.AttribInfo)
-		self.name_foreach_textures = ForEachPointer(self.context, self.textures, generated.formats.fgm.compounds.TextureData.TextureData)
-		self.value_foreach_attributes = ForEachPointer(self.context, self.attributes, generated.formats.fgm.compounds.AttribData.AttribData)
+		self.textures = ArrayPointer(self.context, self._texture_count, TextureInfo)
+		self.attributes = ArrayPointer(self.context, self._attribute_count, AttribInfo)
+		self.name_foreach_textures = ForEachPointer(self.context, self.textures, TextureData)
+		self.value_foreach_attributes = ForEachPointer(self.context, self.attributes, AttribData)
 
 	@classmethod
 	def read_fields(cls, stream, instance):
@@ -65,10 +67,10 @@ class FgmHeader(MemStruct):
 			instance._attribute_count = Uint.from_stream(stream, instance.context, 0, None)
 		if instance.context.version >= 17:
 			instance._attribute_count = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.textures = ArrayPointer.from_stream(stream, instance.context, instance._texture_count, generated.formats.fgm.compounds.TextureInfo.TextureInfo)
-		instance.attributes = ArrayPointer.from_stream(stream, instance.context, instance._attribute_count, generated.formats.fgm.compounds.AttribInfo.AttribInfo)
-		instance.name_foreach_textures = ForEachPointer.from_stream(stream, instance.context, instance.textures, generated.formats.fgm.compounds.TextureData.TextureData)
-		instance.value_foreach_attributes = ForEachPointer.from_stream(stream, instance.context, instance.attributes, generated.formats.fgm.compounds.AttribData.AttribData)
+		instance.textures = ArrayPointer.from_stream(stream, instance.context, instance._texture_count, TextureInfo)
+		instance.attributes = ArrayPointer.from_stream(stream, instance.context, instance._attribute_count, AttribInfo)
+		instance.name_foreach_textures = ForEachPointer.from_stream(stream, instance.context, instance.textures, TextureData)
+		instance.value_foreach_attributes = ForEachPointer.from_stream(stream, instance.context, instance.attributes, AttribData)
 		instance._unk_0 = Uint64.from_stream(stream, instance.context, 0, None)
 		instance._unk_1 = Uint64.from_stream(stream, instance.context, 0, None)
 		if instance.context.user_version.is_jwe and (instance.context.version == 20):
@@ -115,10 +117,10 @@ class FgmHeader(MemStruct):
 			yield '_attribute_count', Uint, (0, None), (False, None)
 		if instance.context.version >= 17:
 			yield '_attribute_count', Uint64, (0, None), (False, None)
-		yield 'textures', ArrayPointer, (instance._texture_count, generated.formats.fgm.compounds.TextureInfo.TextureInfo), (False, None)
-		yield 'attributes', ArrayPointer, (instance._attribute_count, generated.formats.fgm.compounds.AttribInfo.AttribInfo), (False, None)
-		yield 'name_foreach_textures', ForEachPointer, (instance.textures, generated.formats.fgm.compounds.TextureData.TextureData), (False, None)
-		yield 'value_foreach_attributes', ForEachPointer, (instance.attributes, generated.formats.fgm.compounds.AttribData.AttribData), (False, None)
+		yield 'textures', ArrayPointer, (instance._texture_count, TextureInfo), (False, None)
+		yield 'attributes', ArrayPointer, (instance._attribute_count, AttribInfo), (False, None)
+		yield 'name_foreach_textures', ForEachPointer, (instance.textures, TextureData), (False, None)
+		yield 'value_foreach_attributes', ForEachPointer, (instance.attributes, AttribData), (False, None)
 		yield '_unk_0', Uint64, (0, None), (False, None)
 		yield '_unk_1', Uint64, (0, None), (False, None)
 		if instance.context.user_version.is_jwe and (instance.context.version == 20):

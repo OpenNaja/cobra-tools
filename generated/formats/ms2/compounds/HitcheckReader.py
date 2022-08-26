@@ -13,6 +13,8 @@ class HitcheckReader(BaseStruct):
 
 	__name__ = 'HitcheckReader'
 
+	_import_path = 'generated.formats.ms2.compounds.HitcheckReader'
+
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)

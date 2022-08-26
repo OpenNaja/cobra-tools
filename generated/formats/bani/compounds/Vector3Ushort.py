@@ -10,6 +10,8 @@ class Vector3Ushort(BaseStruct):
 
 	__name__ = 'Vector3Ushort'
 
+	_import_path = 'generated.formats.bani.compounds.Vector3Ushort'
+
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 

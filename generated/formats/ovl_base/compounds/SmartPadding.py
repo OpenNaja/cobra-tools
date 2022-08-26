@@ -15,6 +15,8 @@ class SmartPadding(BaseStruct):
 
 	__name__ = 'SmartPadding'
 
+	_import_path = 'generated.formats.ovl_base.compounds.SmartPadding'
+
 	def set_defaults(self):
 		super().set_defaults()
 		pass

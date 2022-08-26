@@ -9,6 +9,8 @@ class MeshDataWrap(MemStruct):
 
 	__name__ = 'MeshDataWrap'
 
+	_import_path = 'generated.formats.ms2.compounds.MeshDataWrap'
+
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		self.mesh = ZtMeshData(self.context, 0, None)

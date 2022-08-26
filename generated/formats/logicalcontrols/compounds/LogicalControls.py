@@ -1,10 +1,10 @@
-import generated.formats.base.basic
-import generated.formats.logicalcontrols.compounds.AxisButton
-import generated.formats.logicalcontrols.compounds.AxisValue
-import generated.formats.logicalcontrols.compounds.Button
-import generated.formats.logicalcontrols.compounds.Some
 from generated.formats.base.basic import Ubyte
 from generated.formats.base.basic import Uint
+from generated.formats.base.basic import ZString
+from generated.formats.logicalcontrols.compounds.AxisButton import AxisButton
+from generated.formats.logicalcontrols.compounds.AxisValue import AxisValue
+from generated.formats.logicalcontrols.compounds.Button import Button
+from generated.formats.logicalcontrols.compounds.Some import Some
 from generated.formats.ovl_base.compounds.ArrayPointer import ArrayPointer
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
 from generated.formats.ovl_base.compounds.Pointer import Pointer
@@ -14,6 +14,8 @@ class LogicalControls(MemStruct):
 
 	__name__ = 'LogicalControls'
 
+	_import_path = 'generated.formats.logicalcontrols.compounds.LogicalControls'
+
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		self.button_count = 0
@@ -21,11 +23,11 @@ class LogicalControls(MemStruct):
 		self.count_3 = 0
 		self.count_4 = 0
 		self.flags = 0
-		self.buttons = ArrayPointer(self.context, self.button_count, generated.formats.logicalcontrols.compounds.Button.Button)
-		self.axes = ArrayPointer(self.context, self.axis_count, generated.formats.logicalcontrols.compounds.AxisValue.AxisValue)
-		self.axis_buttons = ArrayPointer(self.context, self.count_3, generated.formats.logicalcontrols.compounds.AxisButton.AxisButton)
-		self.d = ArrayPointer(self.context, self.count_4, generated.formats.logicalcontrols.compounds.Some.Some)
-		self.unsure = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.buttons = ArrayPointer(self.context, self.button_count, Button)
+		self.axes = ArrayPointer(self.context, self.axis_count, AxisValue)
+		self.axis_buttons = ArrayPointer(self.context, self.count_3, AxisButton)
+		self.d = ArrayPointer(self.context, self.count_4, Some)
+		self.unsure = Pointer(self.context, 0, ZString)
 		if set_default:
 			self.set_defaults()
 
@@ -36,25 +38,25 @@ class LogicalControls(MemStruct):
 		self.count_3 = 0
 		self.count_4 = 0
 		self.flags = 0
-		self.buttons = ArrayPointer(self.context, self.button_count, generated.formats.logicalcontrols.compounds.Button.Button)
-		self.axes = ArrayPointer(self.context, self.axis_count, generated.formats.logicalcontrols.compounds.AxisValue.AxisValue)
-		self.axis_buttons = ArrayPointer(self.context, self.count_3, generated.formats.logicalcontrols.compounds.AxisButton.AxisButton)
-		self.d = ArrayPointer(self.context, self.count_4, generated.formats.logicalcontrols.compounds.Some.Some)
-		self.unsure = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.buttons = ArrayPointer(self.context, self.button_count, Button)
+		self.axes = ArrayPointer(self.context, self.axis_count, AxisValue)
+		self.axis_buttons = ArrayPointer(self.context, self.count_3, AxisButton)
+		self.d = ArrayPointer(self.context, self.count_4, Some)
+		self.unsure = Pointer(self.context, 0, ZString)
 
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.buttons = ArrayPointer.from_stream(stream, instance.context, instance.button_count, generated.formats.logicalcontrols.compounds.Button.Button)
-		instance.axes = ArrayPointer.from_stream(stream, instance.context, instance.axis_count, generated.formats.logicalcontrols.compounds.AxisValue.AxisValue)
-		instance.axis_buttons = ArrayPointer.from_stream(stream, instance.context, instance.count_3, generated.formats.logicalcontrols.compounds.AxisButton.AxisButton)
-		instance.d = ArrayPointer.from_stream(stream, instance.context, instance.count_4, generated.formats.logicalcontrols.compounds.Some.Some)
+		instance.buttons = ArrayPointer.from_stream(stream, instance.context, instance.button_count, Button)
+		instance.axes = ArrayPointer.from_stream(stream, instance.context, instance.axis_count, AxisValue)
+		instance.axis_buttons = ArrayPointer.from_stream(stream, instance.context, instance.count_3, AxisButton)
+		instance.d = ArrayPointer.from_stream(stream, instance.context, instance.count_4, Some)
 		instance.button_count = Ubyte.from_stream(stream, instance.context, 0, None)
 		instance.axis_count = Ubyte.from_stream(stream, instance.context, 0, None)
 		instance.count_3 = Ubyte.from_stream(stream, instance.context, 0, None)
 		instance.count_4 = Ubyte.from_stream(stream, instance.context, 0, None)
 		instance.flags = Uint.from_stream(stream, instance.context, 0, None)
-		instance.unsure = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
+		instance.unsure = Pointer.from_stream(stream, instance.context, 0, ZString)
 		if not isinstance(instance.buttons, int):
 			instance.buttons.arg = instance.button_count
 		if not isinstance(instance.axes, int):
@@ -83,16 +85,16 @@ class LogicalControls(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
-		yield 'buttons', ArrayPointer, (instance.button_count, generated.formats.logicalcontrols.compounds.Button.Button), (False, None)
-		yield 'axes', ArrayPointer, (instance.axis_count, generated.formats.logicalcontrols.compounds.AxisValue.AxisValue), (False, None)
-		yield 'axis_buttons', ArrayPointer, (instance.count_3, generated.formats.logicalcontrols.compounds.AxisButton.AxisButton), (False, None)
-		yield 'd', ArrayPointer, (instance.count_4, generated.formats.logicalcontrols.compounds.Some.Some), (False, None)
+		yield 'buttons', ArrayPointer, (instance.button_count, Button), (False, None)
+		yield 'axes', ArrayPointer, (instance.axis_count, AxisValue), (False, None)
+		yield 'axis_buttons', ArrayPointer, (instance.count_3, AxisButton), (False, None)
+		yield 'd', ArrayPointer, (instance.count_4, Some), (False, None)
 		yield 'button_count', Ubyte, (0, None), (False, None)
 		yield 'axis_count', Ubyte, (0, None), (False, None)
 		yield 'count_3', Ubyte, (0, None), (False, None)
 		yield 'count_4', Ubyte, (0, None), (False, None)
 		yield 'flags', Uint, (0, None), (False, None)
-		yield 'unsure', Pointer, (0, generated.formats.base.basic.ZString), (False, None)
+		yield 'unsure', Pointer, (0, ZString), (False, None)
 
 	def get_info_str(self, indent=0):
 		return f'LogicalControls [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

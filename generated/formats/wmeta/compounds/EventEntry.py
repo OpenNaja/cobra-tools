@@ -1,7 +1,7 @@
-import generated.formats.base.basic
 from generated.formats.base.basic import Uint
 from generated.formats.base.basic import Uint64
 from generated.formats.base.basic import Ushort
+from generated.formats.base.basic import ZString
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
 from generated.formats.ovl_base.compounds.Pointer import Pointer
 
@@ -15,6 +15,8 @@ class EventEntry(MemStruct):
 	"""
 
 	__name__ = 'EventEntry'
+
+	_import_path = 'generated.formats.wmeta.compounds.EventEntry'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
@@ -32,7 +34,7 @@ class EventEntry(MemStruct):
 		self.zero_4 = 0
 		self.u_2 = 0
 		self.u_1 = 0
-		self.block_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.block_name = Pointer(self.context, 0, ZString)
 		if set_default:
 			self.set_defaults()
 
@@ -56,7 +58,7 @@ class EventEntry(MemStruct):
 			self.u_2 = 0
 			self.u_1 = 0
 		if self.context.version <= 18:
-			self.block_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+			self.block_name = Pointer(self.context, 0, ZString)
 
 	@classmethod
 	def read_fields(cls, stream, instance):
@@ -64,7 +66,7 @@ class EventEntry(MemStruct):
 		instance.hash = Uint.from_stream(stream, instance.context, 0, None)
 		instance.zero = Uint.from_stream(stream, instance.context, 0, None)
 		if instance.context.version <= 18:
-			instance.block_name = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
+			instance.block_name = Pointer.from_stream(stream, instance.context, 0, ZString)
 			instance.zero_2 = Ushort.from_stream(stream, instance.context, 0, None)
 			instance.size = Ushort.from_stream(stream, instance.context, 0, None)
 		instance.flag_0 = Uint.from_stream(stream, instance.context, 0, None)
@@ -110,7 +112,7 @@ class EventEntry(MemStruct):
 		yield 'hash', Uint, (0, None), (False, None)
 		yield 'zero', Uint, (0, None), (False, None)
 		if instance.context.version <= 18:
-			yield 'block_name', Pointer, (0, generated.formats.base.basic.ZString), (False, None)
+			yield 'block_name', Pointer, (0, ZString), (False, None)
 			yield 'zero_2', Ushort, (0, None), (False, None)
 			yield 'size', Ushort, (0, None), (False, None)
 		yield 'flag_0', Uint, (0, None), (False, None)

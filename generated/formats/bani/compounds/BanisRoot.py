@@ -14,6 +14,8 @@ class BanisRoot(MemStruct):
 
 	__name__ = 'BanisRoot'
 
+	_import_path = 'generated.formats.bani.compounds.BanisRoot'
+
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		self.zeros = Array((0,), Uint64, self.context, 0, None)

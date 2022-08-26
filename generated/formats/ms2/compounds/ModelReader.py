@@ -23,6 +23,8 @@ class ModelReader(BaseStruct):
 
 	__name__ = 'ModelReader'
 
+	_import_path = 'generated.formats.ms2.compounds.ModelReader'
+
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)

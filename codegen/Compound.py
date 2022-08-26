@@ -2,6 +2,7 @@ import collections
 import re
 
 from .BaseClass import BaseClass
+from .Imports import Imports
 from .Union import Union
 
 FIELD_TYPES = ("add", "field")
@@ -34,6 +35,9 @@ class Compound(BaseClass):
         with open(self.out_file, "w", encoding=self.parser.encoding) as f:
             # write the header stuff
             super().write(f)
+
+            self.write_line(f)
+            self.write_line(f, 1, f"_import_path = '{Imports.import_from_module_path(self.parser.path_dict[self.class_name])}'")
 
             # check all fields/members in this class and write them as fields
             # for union in self.field_unions.values():

@@ -9,6 +9,8 @@ class UncompressedRegion(BaseStruct):
 
 	__name__ = 'UncompressedRegion'
 
+	_import_path = 'generated.formats.manis.compounds.UncompressedRegion'
+
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		self.zeros_0 = Array((0,), Uint, self.context, 0, None)

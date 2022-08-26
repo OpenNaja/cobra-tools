@@ -1,6 +1,6 @@
-import generated.formats.base.basic
 from generated.formats.base.basic import Uint
 from generated.formats.base.basic import Uint64
+from generated.formats.base.basic import ZString
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
 from generated.formats.ovl_base.compounds.Pointer import Pointer
 
@@ -15,6 +15,8 @@ class LuaRoot(MemStruct):
 
 	__name__ = 'LuaRoot'
 
+	_import_path = 'generated.formats.lua.compounds.LuaRoot'
+
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		self.lua_size = 0
@@ -23,8 +25,8 @@ class LuaRoot(MemStruct):
 		self.zero_0 = 0
 		self.zero_1 = 0
 		self.zero_2 = 0
-		self.source_path = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.likely_alignment = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.source_path = Pointer(self.context, 0, ZString)
+		self.likely_alignment = Pointer(self.context, 0, ZString)
 		if set_default:
 			self.set_defaults()
 
@@ -37,8 +39,8 @@ class LuaRoot(MemStruct):
 		self.zero_1 = 0
 		self.zero_2 = 0
 		if self.context.version >= 18:
-			self.source_path = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-			self.likely_alignment = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+			self.source_path = Pointer(self.context, 0, ZString)
+			self.likely_alignment = Pointer(self.context, 0, ZString)
 
 	@classmethod
 	def read_fields(cls, stream, instance):
@@ -48,8 +50,8 @@ class LuaRoot(MemStruct):
 		instance.hash = Uint.from_stream(stream, instance.context, 0, None)
 		instance.zero_0 = Uint.from_stream(stream, instance.context, 0, None)
 		if instance.context.version >= 18:
-			instance.source_path = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
-			instance.likely_alignment = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
+			instance.source_path = Pointer.from_stream(stream, instance.context, 0, ZString)
+			instance.likely_alignment = Pointer.from_stream(stream, instance.context, 0, ZString)
 		instance.zero_1 = Uint64.from_stream(stream, instance.context, 0, None)
 		instance.zero_2 = Uint64.from_stream(stream, instance.context, 0, None)
 		if not isinstance(instance.source_path, int):
@@ -78,8 +80,8 @@ class LuaRoot(MemStruct):
 		yield 'hash', Uint, (0, None), (False, None)
 		yield 'zero_0', Uint, (0, None), (False, None)
 		if instance.context.version >= 18:
-			yield 'source_path', Pointer, (0, generated.formats.base.basic.ZString), (False, None)
-			yield 'likely_alignment', Pointer, (0, generated.formats.base.basic.ZString), (False, None)
+			yield 'source_path', Pointer, (0, ZString), (False, None)
+			yield 'likely_alignment', Pointer, (0, ZString), (False, None)
 		yield 'zero_1', Uint64, (0, None), (False, None)
 		yield 'zero_2', Uint64, (0, None), (False, None)
 

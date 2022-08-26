@@ -16,6 +16,8 @@ class PadAlign(BaseStruct):
 
 	__name__ = 'PadAlign'
 
+	_import_path = 'generated.formats.base.compounds.PadAlign'
+
 	def set_defaults(self):
 		super().set_defaults()
 		pass

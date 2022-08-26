@@ -6,6 +6,8 @@ class Object(BaseStruct):
 
 	__name__ = 'Object'
 
+	_import_path = 'generated.formats.ms2.compounds.Object'
+
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 

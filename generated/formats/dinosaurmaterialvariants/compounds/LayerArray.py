@@ -7,6 +7,8 @@ class LayerArray(MemStruct):
 
 	__name__ = 'LayerArray'
 
+	_import_path = 'generated.formats.dinosaurmaterialvariants.compounds.LayerArray'
+
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		self.layers = Array((0,), Layer, self.context, 0, None)

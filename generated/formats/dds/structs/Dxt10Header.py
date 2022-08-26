@@ -8,6 +8,8 @@ class Dxt10Header(BaseStruct):
 
 	__name__ = 'Dxt10Header'
 
+	_import_path = 'generated.formats.dds.structs.Dxt10Header'
+
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		self.dxgi_format = DxgiFormat(self.context, 0, None)

@@ -16,6 +16,8 @@ class InfoHeader(GenericHeader):
 
 	__name__ = 'InfoHeader'
 
+	_import_path = 'generated.formats.manis.compounds.InfoHeader'
+
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		self.mani_count = 0

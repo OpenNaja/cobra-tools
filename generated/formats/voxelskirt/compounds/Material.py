@@ -6,6 +6,8 @@ class Material(BaseStruct):
 
 	__name__ = 'Material'
 
+	_import_path = 'generated.formats.voxelskirt.compounds.Material'
+
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 

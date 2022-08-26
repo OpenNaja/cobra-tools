@@ -15,6 +15,8 @@ class MeshCollision(BaseStruct):
 
 	__name__ = 'MeshCollision'
 
+	_import_path = 'generated.formats.ms2.compounds.MeshCollision'
+
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		self.rotation = Matrix33(self.context, 0, None)

@@ -13,8 +13,9 @@ class DefaultEnumMeta(EnumMeta):
 
 	# Execute base __new__ https://github.com/python/cpython/blob/32959108f9c543e3cb9f2b68bbc782bddded6f42/Lib/enum.py#L410
 	# and then move __new__ to from_value, while the new __new__ accepts the standardized arguments
-	def __new__(metacls, *args, **kwargs):
-		enum_class = super(metacls, metacls).__new__(metacls, *args, **kwargs)
+	def __new__(metacls, cls, bases, classdict, *args, **kwargs):
+		cls = classdict.get("__name__", cls)
+		enum_class = super(metacls, metacls).__new__(metacls, cls, bases, classdict, *args, **kwargs)
 		new_function = enum_class.__new__
 		# from_value doesn't need to be a proper __new__-like function, because specified enums can't be inherited from
 		enum_class.from_value = classmethod(lambda cls, value: new_function(cls, value))

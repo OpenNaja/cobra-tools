@@ -1,11 +1,11 @@
-import generated.formats.base.basic
-import generated.formats.posedriverdef.compounds.Data
 from generated.formats.base.basic import Ubyte
 from generated.formats.base.basic import Uint
 from generated.formats.base.basic import Uint64
 from generated.formats.base.basic import Ushort
+from generated.formats.base.basic import ZString
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
 from generated.formats.ovl_base.compounds.Pointer import Pointer
+from generated.formats.posedriverdef.compounds.Data import Data
 
 
 class Driver(MemStruct):
@@ -16,6 +16,8 @@ class Driver(MemStruct):
 
 	__name__ = 'Driver'
 
+	_import_path = 'generated.formats.posedriverdef.compounds.Driver'
+
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		self.a = 0
@@ -24,9 +26,9 @@ class Driver(MemStruct):
 		self.d = 0
 		self.unk_1 = 0
 		self.unk_2 = 0
-		self.joint_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.driven_joint_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.data = Pointer(self.context, 0, generated.formats.posedriverdef.compounds.Data.Data)
+		self.joint_name = Pointer(self.context, 0, ZString)
+		self.driven_joint_name = Pointer(self.context, 0, ZString)
+		self.data = Pointer(self.context, 0, Data)
 		if set_default:
 			self.set_defaults()
 
@@ -38,21 +40,21 @@ class Driver(MemStruct):
 		self.d = 0
 		self.unk_1 = 0
 		self.unk_2 = 0
-		self.joint_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.driven_joint_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.data = Pointer(self.context, 0, generated.formats.posedriverdef.compounds.Data.Data)
+		self.joint_name = Pointer(self.context, 0, ZString)
+		self.driven_joint_name = Pointer(self.context, 0, ZString)
+		self.data = Pointer(self.context, 0, Data)
 
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.joint_name = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
+		instance.joint_name = Pointer.from_stream(stream, instance.context, 0, ZString)
 		instance.a = Ubyte.from_stream(stream, instance.context, 0, None)
 		instance.b = Ubyte.from_stream(stream, instance.context, 0, None)
 		instance.c = Ushort.from_stream(stream, instance.context, 0, None)
 		instance.d = Uint.from_stream(stream, instance.context, 0, None)
-		instance.driven_joint_name = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
+		instance.driven_joint_name = Pointer.from_stream(stream, instance.context, 0, ZString)
 		instance.unk_1 = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.data = Pointer.from_stream(stream, instance.context, 0, generated.formats.posedriverdef.compounds.Data.Data)
+		instance.data = Pointer.from_stream(stream, instance.context, 0, Data)
 		instance.unk_2 = Uint64.from_stream(stream, instance.context, 0, None)
 		if not isinstance(instance.joint_name, int):
 			instance.joint_name.arg = 0
@@ -77,14 +79,14 @@ class Driver(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
-		yield 'joint_name', Pointer, (0, generated.formats.base.basic.ZString), (False, None)
+		yield 'joint_name', Pointer, (0, ZString), (False, None)
 		yield 'a', Ubyte, (0, None), (False, None)
 		yield 'b', Ubyte, (0, None), (False, None)
 		yield 'c', Ushort, (0, None), (False, None)
 		yield 'd', Uint, (0, None), (False, None)
-		yield 'driven_joint_name', Pointer, (0, generated.formats.base.basic.ZString), (False, None)
+		yield 'driven_joint_name', Pointer, (0, ZString), (False, None)
 		yield 'unk_1', Uint64, (0, None), (False, None)
-		yield 'data', Pointer, (0, generated.formats.posedriverdef.compounds.Data.Data), (False, None)
+		yield 'data', Pointer, (0, Data), (False, None)
 		yield 'unk_2', Uint64, (0, None), (False, None)
 
 	def get_info_str(self, indent=0):

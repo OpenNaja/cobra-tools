@@ -1,18 +1,20 @@
-import generated.formats.specdef.compounds.DataPtr
-import generated.formats.specdef.compounds.NamePtr
-import generated.formats.specdef.compounds.PtrList
-import generated.formats.specdef.compounds.Spec
 from generated.formats.base.basic import Ubyte
 from generated.formats.base.basic import Ushort
 from generated.formats.ovl_base.compounds.ArrayPointer import ArrayPointer
 from generated.formats.ovl_base.compounds.ForEachPointer import ForEachPointer
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
 from generated.formats.ovl_base.compounds.Pointer import Pointer
+from generated.formats.specdef.compounds.DataPtr import DataPtr
+from generated.formats.specdef.compounds.NamePtr import NamePtr
+from generated.formats.specdef.compounds.PtrList import PtrList
+from generated.formats.specdef.compounds.Spec import Spec
 
 
 class SpecdefRoot(MemStruct):
 
 	__name__ = 'SpecdefRoot'
+
+	_import_path = 'generated.formats.specdef.compounds.SpecdefRoot'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
@@ -22,13 +24,13 @@ class SpecdefRoot(MemStruct):
 		self.childspec_count = 0
 		self.manager_count = 0
 		self.script_count = 0
-		self.attribs = ArrayPointer(self.context, self.attrib_count, generated.formats.specdef.compounds.Spec.Spec)
-		self.name_foreach_attribs = ForEachPointer(self.context, self.attribs, generated.formats.specdef.compounds.NamePtr.NamePtr)
-		self.data_foreach_attribs = ForEachPointer(self.context, self.attribs, generated.formats.specdef.compounds.DataPtr.DataPtr)
-		self.names = Pointer(self.context, self.name_count, generated.formats.specdef.compounds.PtrList.PtrList)
-		self.childspecs = Pointer(self.context, self.childspec_count, generated.formats.specdef.compounds.PtrList.PtrList)
-		self.managers = Pointer(self.context, self.manager_count, generated.formats.specdef.compounds.PtrList.PtrList)
-		self.scripts = Pointer(self.context, self.script_count, generated.formats.specdef.compounds.PtrList.PtrList)
+		self.attribs = ArrayPointer(self.context, self.attrib_count, Spec)
+		self.name_foreach_attribs = ForEachPointer(self.context, self.attribs, NamePtr)
+		self.data_foreach_attribs = ForEachPointer(self.context, self.attribs, DataPtr)
+		self.names = Pointer(self.context, self.name_count, PtrList)
+		self.childspecs = Pointer(self.context, self.childspec_count, PtrList)
+		self.managers = Pointer(self.context, self.manager_count, PtrList)
+		self.scripts = Pointer(self.context, self.script_count, PtrList)
 		if set_default:
 			self.set_defaults()
 
@@ -40,13 +42,13 @@ class SpecdefRoot(MemStruct):
 		self.childspec_count = 0
 		self.manager_count = 0
 		self.script_count = 0
-		self.attribs = ArrayPointer(self.context, self.attrib_count, generated.formats.specdef.compounds.Spec.Spec)
-		self.name_foreach_attribs = ForEachPointer(self.context, self.attribs, generated.formats.specdef.compounds.NamePtr.NamePtr)
-		self.data_foreach_attribs = ForEachPointer(self.context, self.attribs, generated.formats.specdef.compounds.DataPtr.DataPtr)
-		self.names = Pointer(self.context, self.name_count, generated.formats.specdef.compounds.PtrList.PtrList)
-		self.childspecs = Pointer(self.context, self.childspec_count, generated.formats.specdef.compounds.PtrList.PtrList)
-		self.managers = Pointer(self.context, self.manager_count, generated.formats.specdef.compounds.PtrList.PtrList)
-		self.scripts = Pointer(self.context, self.script_count, generated.formats.specdef.compounds.PtrList.PtrList)
+		self.attribs = ArrayPointer(self.context, self.attrib_count, Spec)
+		self.name_foreach_attribs = ForEachPointer(self.context, self.attribs, NamePtr)
+		self.data_foreach_attribs = ForEachPointer(self.context, self.attribs, DataPtr)
+		self.names = Pointer(self.context, self.name_count, PtrList)
+		self.childspecs = Pointer(self.context, self.childspec_count, PtrList)
+		self.managers = Pointer(self.context, self.manager_count, PtrList)
+		self.scripts = Pointer(self.context, self.script_count, PtrList)
 
 	@classmethod
 	def read_fields(cls, stream, instance):
@@ -57,13 +59,13 @@ class SpecdefRoot(MemStruct):
 		instance.childspec_count = Ubyte.from_stream(stream, instance.context, 0, None)
 		instance.manager_count = Ubyte.from_stream(stream, instance.context, 0, None)
 		instance.script_count = Ubyte.from_stream(stream, instance.context, 0, None)
-		instance.attribs = ArrayPointer.from_stream(stream, instance.context, instance.attrib_count, generated.formats.specdef.compounds.Spec.Spec)
-		instance.name_foreach_attribs = ForEachPointer.from_stream(stream, instance.context, instance.attribs, generated.formats.specdef.compounds.NamePtr.NamePtr)
-		instance.data_foreach_attribs = ForEachPointer.from_stream(stream, instance.context, instance.attribs, generated.formats.specdef.compounds.DataPtr.DataPtr)
-		instance.names = Pointer.from_stream(stream, instance.context, instance.name_count, generated.formats.specdef.compounds.PtrList.PtrList)
-		instance.childspecs = Pointer.from_stream(stream, instance.context, instance.childspec_count, generated.formats.specdef.compounds.PtrList.PtrList)
-		instance.managers = Pointer.from_stream(stream, instance.context, instance.manager_count, generated.formats.specdef.compounds.PtrList.PtrList)
-		instance.scripts = Pointer.from_stream(stream, instance.context, instance.script_count, generated.formats.specdef.compounds.PtrList.PtrList)
+		instance.attribs = ArrayPointer.from_stream(stream, instance.context, instance.attrib_count, Spec)
+		instance.name_foreach_attribs = ForEachPointer.from_stream(stream, instance.context, instance.attribs, NamePtr)
+		instance.data_foreach_attribs = ForEachPointer.from_stream(stream, instance.context, instance.attribs, DataPtr)
+		instance.names = Pointer.from_stream(stream, instance.context, instance.name_count, PtrList)
+		instance.childspecs = Pointer.from_stream(stream, instance.context, instance.childspec_count, PtrList)
+		instance.managers = Pointer.from_stream(stream, instance.context, instance.manager_count, PtrList)
+		instance.scripts = Pointer.from_stream(stream, instance.context, instance.script_count, PtrList)
 		if not isinstance(instance.attribs, int):
 			instance.attribs.arg = instance.attrib_count
 		if not isinstance(instance.name_foreach_attribs, int):
@@ -105,13 +107,13 @@ class SpecdefRoot(MemStruct):
 		yield 'childspec_count', Ubyte, (0, None), (False, None)
 		yield 'manager_count', Ubyte, (0, None), (False, None)
 		yield 'script_count', Ubyte, (0, None), (False, None)
-		yield 'attribs', ArrayPointer, (instance.attrib_count, generated.formats.specdef.compounds.Spec.Spec), (False, None)
-		yield 'name_foreach_attribs', ForEachPointer, (instance.attribs, generated.formats.specdef.compounds.NamePtr.NamePtr), (False, None)
-		yield 'data_foreach_attribs', ForEachPointer, (instance.attribs, generated.formats.specdef.compounds.DataPtr.DataPtr), (False, None)
-		yield 'names', Pointer, (instance.name_count, generated.formats.specdef.compounds.PtrList.PtrList), (False, None)
-		yield 'childspecs', Pointer, (instance.childspec_count, generated.formats.specdef.compounds.PtrList.PtrList), (False, None)
-		yield 'managers', Pointer, (instance.manager_count, generated.formats.specdef.compounds.PtrList.PtrList), (False, None)
-		yield 'scripts', Pointer, (instance.script_count, generated.formats.specdef.compounds.PtrList.PtrList), (False, None)
+		yield 'attribs', ArrayPointer, (instance.attrib_count, Spec), (False, None)
+		yield 'name_foreach_attribs', ForEachPointer, (instance.attribs, NamePtr), (False, None)
+		yield 'data_foreach_attribs', ForEachPointer, (instance.attribs, DataPtr), (False, None)
+		yield 'names', Pointer, (instance.name_count, PtrList), (False, None)
+		yield 'childspecs', Pointer, (instance.childspec_count, PtrList), (False, None)
+		yield 'managers', Pointer, (instance.manager_count, PtrList), (False, None)
+		yield 'scripts', Pointer, (instance.script_count, PtrList), (False, None)
 
 	def get_info_str(self, indent=0):
 		return f'SpecdefRoot [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

@@ -8,6 +8,18 @@ DTYPE = "dtype"
 DO_NOT_SERIALIZE = "_"
 
 
+class StructMetaClass(type):
+
+	def __new__(metacls, name, bases, dict, **kwds):
+		name = dict.get("__name__", name)
+		return super().__new__(metacls, name, bases, dict, **kwds)
+
+	def __init__(cls, name, bases, dict, **kwds):
+		if "_import_path" in dict:
+			cls._import_path_map[dict['_import_path']] = cls
+		super().__init__(name, bases, dict, **kwds)
+
+
 def indent(e, level=0):
 	i = "\n" + level * "	"
 	if len(e):
@@ -33,9 +45,12 @@ def str_to_bool(s):
 		raise ValueError
 
 
-class BaseStruct:
+class BaseStruct(metaclass=StructMetaClass):
 
 	context = ContextReference()
+
+	_import_path_map = {}
+	_import_path = "generated.base_struct"
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''

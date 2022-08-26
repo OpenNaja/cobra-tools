@@ -6,6 +6,8 @@ class Vector3F(MemStruct):
 
 	__name__ = 'Vector3F'
 
+	_import_path = 'generated.formats.dinosaurmaterialvariants.compounds.Vector3F'
+
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		self.x = 0.0

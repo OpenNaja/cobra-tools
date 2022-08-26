@@ -9,6 +9,8 @@ class Wsm(GenericHeader):
 
 	__name__ = 'Wsm'
 
+	_import_path = 'generated.formats.wsm.compounds.Wsm'
+
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		self.header = WsmHeader(self.context, 0, None)

@@ -1,5 +1,5 @@
-import generated.formats.base.basic
 from generated.formats.base.basic import Uint
+from generated.formats.base.basic import ZString
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
 from generated.formats.ovl_base.compounds.Pointer import Pointer
 
@@ -8,14 +8,16 @@ class ParticleAtlasHeader(MemStruct):
 
 	__name__ = 'ParticleAtlasHeader'
 
+	_import_path = 'generated.formats.particle.compounds.ParticleAtlasHeader'
+
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 
 		# matches number in tex file name
 		self.id = 0
 		self.zero = 0
-		self.tex_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.gfr_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.tex_name = Pointer(self.context, 0, ZString)
+		self.gfr_name = Pointer(self.context, 0, ZString)
 
 		# tex file used by atlas
 		self.dependency_name = Pointer(self.context, 0, None)
@@ -26,15 +28,15 @@ class ParticleAtlasHeader(MemStruct):
 		super().set_defaults()
 		self.id = 0
 		self.zero = 0
-		self.tex_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.gfr_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.tex_name = Pointer(self.context, 0, ZString)
+		self.gfr_name = Pointer(self.context, 0, ZString)
 		self.dependency_name = Pointer(self.context, 0, None)
 
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.tex_name = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
-		instance.gfr_name = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
+		instance.tex_name = Pointer.from_stream(stream, instance.context, 0, ZString)
+		instance.gfr_name = Pointer.from_stream(stream, instance.context, 0, ZString)
 		instance.id = Uint.from_stream(stream, instance.context, 0, None)
 		instance.zero = Uint.from_stream(stream, instance.context, 0, None)
 		instance.dependency_name = Pointer.from_stream(stream, instance.context, 0, None)
@@ -57,8 +59,8 @@ class ParticleAtlasHeader(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
-		yield 'tex_name', Pointer, (0, generated.formats.base.basic.ZString), (False, None)
-		yield 'gfr_name', Pointer, (0, generated.formats.base.basic.ZString), (False, None)
+		yield 'tex_name', Pointer, (0, ZString), (False, None)
+		yield 'gfr_name', Pointer, (0, ZString), (False, None)
 		yield 'id', Uint, (0, None), (False, None)
 		yield 'zero', Uint, (0, None), (False, None)
 		yield 'dependency_name', Pointer, (0, None), (False, None)

@@ -1,6 +1,6 @@
-import generated.formats.base.basic
-import generated.formats.cinematic.compounds.EventAttributes
 from generated.formats.base.basic import Float
+from generated.formats.base.basic import ZString
+from generated.formats.cinematic.compounds.EventAttributes import EventAttributes
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
 from generated.formats.ovl_base.compounds.Pointer import Pointer
 
@@ -13,14 +13,16 @@ class Event(MemStruct):
 
 	__name__ = 'Event'
 
+	_import_path = 'generated.formats.cinematic.compounds.Event'
+
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		self.start_time = 0.0
 		self.b = 0.0
 		self.duration = 0.0
 		self.d = 0.0
-		self.module_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.attributes = Pointer(self.context, 0, generated.formats.cinematic.compounds.EventAttributes.EventAttributes)
+		self.module_name = Pointer(self.context, 0, ZString)
+		self.attributes = Pointer(self.context, 0, EventAttributes)
 		if set_default:
 			self.set_defaults()
 
@@ -30,16 +32,16 @@ class Event(MemStruct):
 		self.b = 0.0
 		self.duration = 0.0
 		self.d = 0.0
-		self.module_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.attributes = Pointer(self.context, 0, generated.formats.cinematic.compounds.EventAttributes.EventAttributes)
+		self.module_name = Pointer(self.context, 0, ZString)
+		self.attributes = Pointer(self.context, 0, EventAttributes)
 
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
 		instance.start_time = Float.from_stream(stream, instance.context, 0, None)
 		instance.b = Float.from_stream(stream, instance.context, 0, None)
-		instance.module_name = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
-		instance.attributes = Pointer.from_stream(stream, instance.context, 0, generated.formats.cinematic.compounds.EventAttributes.EventAttributes)
+		instance.module_name = Pointer.from_stream(stream, instance.context, 0, ZString)
+		instance.attributes = Pointer.from_stream(stream, instance.context, 0, EventAttributes)
 		instance.duration = Float.from_stream(stream, instance.context, 0, None)
 		instance.d = Float.from_stream(stream, instance.context, 0, None)
 		if not isinstance(instance.module_name, int):
@@ -62,8 +64,8 @@ class Event(MemStruct):
 		yield from super()._get_filtered_attribute_list(instance)
 		yield 'start_time', Float, (0, None), (False, None)
 		yield 'b', Float, (0, None), (False, None)
-		yield 'module_name', Pointer, (0, generated.formats.base.basic.ZString), (False, None)
-		yield 'attributes', Pointer, (0, generated.formats.cinematic.compounds.EventAttributes.EventAttributes), (False, None)
+		yield 'module_name', Pointer, (0, ZString), (False, None)
+		yield 'attributes', Pointer, (0, EventAttributes), (False, None)
 		yield 'duration', Float, (0, None), (False, None)
 		yield 'd', Float, (0, None), (False, None)
 

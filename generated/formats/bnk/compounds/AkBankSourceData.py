@@ -8,6 +8,8 @@ class AkBankSourceData(BaseStruct):
 
 	__name__ = 'AkBankSourceData'
 
+	_import_path = 'generated.formats.bnk.compounds.AkBankSourceData'
+
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		self.ul_plugin_i_d = 0

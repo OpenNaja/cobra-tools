@@ -1,29 +1,31 @@
-import generated.formats.pscollection.compounds.PreparedStatement
 from generated.formats.base.basic import Uint64
 from generated.formats.ovl_base.compounds.ArrayPointer import ArrayPointer
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
+from generated.formats.pscollection.compounds.PreparedStatement import PreparedStatement
 
 
 class PscollectionRoot(MemStruct):
 
 	__name__ = 'PscollectionRoot'
 
+	_import_path = 'generated.formats.pscollection.compounds.PscollectionRoot'
+
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		self.count = 0
-		self.prepared_statements = ArrayPointer(self.context, self.count, generated.formats.pscollection.compounds.PreparedStatement.PreparedStatement)
+		self.prepared_statements = ArrayPointer(self.context, self.count, PreparedStatement)
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
 		super().set_defaults()
 		self.count = 0
-		self.prepared_statements = ArrayPointer(self.context, self.count, generated.formats.pscollection.compounds.PreparedStatement.PreparedStatement)
+		self.prepared_statements = ArrayPointer(self.context, self.count, PreparedStatement)
 
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.prepared_statements = ArrayPointer.from_stream(stream, instance.context, instance.count, generated.formats.pscollection.compounds.PreparedStatement.PreparedStatement)
+		instance.prepared_statements = ArrayPointer.from_stream(stream, instance.context, instance.count, PreparedStatement)
 		instance.count = Uint64.from_stream(stream, instance.context, 0, None)
 		if not isinstance(instance.prepared_statements, int):
 			instance.prepared_statements.arg = instance.count
@@ -37,7 +39,7 @@ class PscollectionRoot(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
-		yield 'prepared_statements', ArrayPointer, (instance.count, generated.formats.pscollection.compounds.PreparedStatement.PreparedStatement), (False, None)
+		yield 'prepared_statements', ArrayPointer, (instance.count, PreparedStatement), (False, None)
 		yield 'count', Uint64, (0, None), (False, None)
 
 	def get_info_str(self, indent=0):

@@ -1,7 +1,7 @@
-import generated.formats.base.basic
-import generated.formats.motiongraph.compounds.Sixtyfour
-import generated.formats.motiongraph.compounds.TwoPtrFirst
 from generated.formats.base.basic import Uint64
+from generated.formats.base.basic import ZString
+from generated.formats.motiongraph.compounds.Sixtyfour import Sixtyfour
+from generated.formats.motiongraph.compounds.TwoPtrFirst import TwoPtrFirst
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
 from generated.formats.ovl_base.compounds.Pointer import Pointer
 
@@ -14,6 +14,8 @@ class ThirdFrag(MemStruct):
 
 	__name__ = 'ThirdFrag'
 
+	_import_path = 'generated.formats.motiongraph.compounds.ThirdFrag'
+
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		self.count_0 = 0
@@ -21,10 +23,10 @@ class ThirdFrag(MemStruct):
 		self.count_2 = 0
 		self.count_3 = 0
 		self.count_4 = 0
-		self.lua_method = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.ptr_1 = Pointer(self.context, 0, generated.formats.motiongraph.compounds.TwoPtrFirst.TwoPtrFirst)
-		self.ptr_2 = Pointer(self.context, 0, generated.formats.motiongraph.compounds.Sixtyfour.Sixtyfour)
-		self.member = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.lua_method = Pointer(self.context, 0, ZString)
+		self.ptr_1 = Pointer(self.context, 0, TwoPtrFirst)
+		self.ptr_2 = Pointer(self.context, 0, Sixtyfour)
+		self.member = Pointer(self.context, 0, ZString)
 		if set_default:
 			self.set_defaults()
 
@@ -35,23 +37,23 @@ class ThirdFrag(MemStruct):
 		self.count_2 = 0
 		self.count_3 = 0
 		self.count_4 = 0
-		self.lua_method = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.ptr_1 = Pointer(self.context, 0, generated.formats.motiongraph.compounds.TwoPtrFirst.TwoPtrFirst)
-		self.ptr_2 = Pointer(self.context, 0, generated.formats.motiongraph.compounds.Sixtyfour.Sixtyfour)
-		self.member = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.lua_method = Pointer(self.context, 0, ZString)
+		self.ptr_1 = Pointer(self.context, 0, TwoPtrFirst)
+		self.ptr_2 = Pointer(self.context, 0, Sixtyfour)
+		self.member = Pointer(self.context, 0, ZString)
 
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.lua_method = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
+		instance.lua_method = Pointer.from_stream(stream, instance.context, 0, ZString)
 		instance.count_0 = Uint64.from_stream(stream, instance.context, 0, None)
 		instance.count_1 = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.ptr_1 = Pointer.from_stream(stream, instance.context, 0, generated.formats.motiongraph.compounds.TwoPtrFirst.TwoPtrFirst)
+		instance.ptr_1 = Pointer.from_stream(stream, instance.context, 0, TwoPtrFirst)
 		instance.count_2 = Uint64.from_stream(stream, instance.context, 0, None)
 		instance.count_3 = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.ptr_2 = Pointer.from_stream(stream, instance.context, 0, generated.formats.motiongraph.compounds.Sixtyfour.Sixtyfour)
+		instance.ptr_2 = Pointer.from_stream(stream, instance.context, 0, Sixtyfour)
 		instance.count_4 = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.member = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
+		instance.member = Pointer.from_stream(stream, instance.context, 0, ZString)
 		if not isinstance(instance.lua_method, int):
 			instance.lua_method.arg = 0
 		if not isinstance(instance.ptr_1, int):
@@ -77,15 +79,15 @@ class ThirdFrag(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
-		yield 'lua_method', Pointer, (0, generated.formats.base.basic.ZString), (False, None)
+		yield 'lua_method', Pointer, (0, ZString), (False, None)
 		yield 'count_0', Uint64, (0, None), (False, None)
 		yield 'count_1', Uint64, (0, None), (False, None)
-		yield 'ptr_1', Pointer, (0, generated.formats.motiongraph.compounds.TwoPtrFirst.TwoPtrFirst), (False, None)
+		yield 'ptr_1', Pointer, (0, TwoPtrFirst), (False, None)
 		yield 'count_2', Uint64, (0, None), (False, None)
 		yield 'count_3', Uint64, (0, None), (False, None)
-		yield 'ptr_2', Pointer, (0, generated.formats.motiongraph.compounds.Sixtyfour.Sixtyfour), (False, None)
+		yield 'ptr_2', Pointer, (0, Sixtyfour), (False, None)
 		yield 'count_4', Uint64, (0, None), (False, None)
-		yield 'member', Pointer, (0, generated.formats.base.basic.ZString), (False, None)
+		yield 'member', Pointer, (0, ZString), (False, None)
 
 	def get_info_str(self, indent=0):
 		return f'ThirdFrag [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

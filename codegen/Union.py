@@ -51,6 +51,13 @@ class Union:
         self.members.append(member)
 
 
+    def indirect_class_access(self, field_type):
+        if self.compounds.parser.tag_dict[field_type.lower()] in self.compounds.parser.struct_types:
+            class_access = f'{self.compounds.class_name}._import_path_map[{Imports.import_from_module_path(self.compounds.parser.path_dict[field_type])}]'
+        else:
+            class_access = field_type
+        return class_access
+
     def get_conditions(self, field, expression_prefix="self."):
         CONTEXT = f'{expression_prefix}{CONTEXT_SUFFIX}'
         VER = f"{CONTEXT}.version"
@@ -84,11 +91,11 @@ class Union:
             cond = Expression(cond, f'{expression_prefix}')
             conditionals.append(f"{cond}")
         if onlyT:
-            class_access = f'{Imports.import_from_module_path(self.compounds.parser.path_dict[onlyT])}.{onlyT}'
-            conditionals.append(f"isinstance({expression_prefix[:-1]}, {class_access})")
+            onlyT = self.indirect_class_access(onlyT)
+            conditionals.append(f"isinstance({expression_prefix[:-1]}, {onlyT})")
         if excludeT:
-            class_access = f'{Imports.import_from_module_path(self.compounds.parser.path_dict[excludeT])}.{excludeT}'
-            conditionals.append(f"not isinstance({expression_prefix[:-1]}, {class_access})")
+            excludeT = self.indirect_class_access(excludeT)
+            conditionals.append(f"not isinstance({expression_prefix[:-1]}, {excludeT})")
         return conditionals
 
     def get_params(self, field, expression_prefix="self."):
@@ -113,7 +120,7 @@ class Union:
             if template_class not in self.compounds.parser.path_dict:
                 template = Expression(template, expression_prefix)
             else:
-                template = f'{Imports.import_from_module_path(self.compounds.parser.path_dict[template_class])}.{template_class}'
+                template = self.indirect_class_access(template_class)
         if arg:
             arg = Expression(arg, expression_prefix)
         if arr1:

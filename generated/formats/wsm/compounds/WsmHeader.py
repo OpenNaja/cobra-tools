@@ -1,11 +1,11 @@
-import generated.formats.wsm.compounds.Vector3
-import generated.formats.wsm.compounds.Vector4
 import numpy
 from generated.array import Array
 from generated.formats.base.basic import Float
 from generated.formats.base.basic import Uint
 from generated.formats.ovl_base.compounds.ArrayPointer import ArrayPointer
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
+from generated.formats.wsm.compounds.Vector3 import Vector3
+from generated.formats.wsm.compounds.Vector4 import Vector4
 
 
 class WsmHeader(MemStruct):
@@ -16,6 +16,8 @@ class WsmHeader(MemStruct):
 
 	__name__ = 'WsmHeader'
 
+	_import_path = 'generated.formats.wsm.compounds.WsmHeader'
+
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		self.duration = 0.0
@@ -25,8 +27,8 @@ class WsmHeader(MemStruct):
 
 		# unk
 		self.unknowns = Array((0,), Float, self.context, 0, None)
-		self.locs = ArrayPointer(self.context, self.frame_count, generated.formats.wsm.compounds.Vector3.Vector3)
-		self.quats = ArrayPointer(self.context, self.frame_count, generated.formats.wsm.compounds.Vector4.Vector4)
+		self.locs = ArrayPointer(self.context, self.frame_count, Vector3)
+		self.quats = ArrayPointer(self.context, self.frame_count, Vector4)
 		if set_default:
 			self.set_defaults()
 
@@ -35,8 +37,8 @@ class WsmHeader(MemStruct):
 		self.duration = 0.0
 		self.frame_count = 0
 		self.unknowns = numpy.zeros((8,), dtype=numpy.dtype('float32'))
-		self.locs = ArrayPointer(self.context, self.frame_count, generated.formats.wsm.compounds.Vector3.Vector3)
-		self.quats = ArrayPointer(self.context, self.frame_count, generated.formats.wsm.compounds.Vector4.Vector4)
+		self.locs = ArrayPointer(self.context, self.frame_count, Vector3)
+		self.quats = ArrayPointer(self.context, self.frame_count, Vector4)
 
 	@classmethod
 	def read_fields(cls, stream, instance):
@@ -44,8 +46,8 @@ class WsmHeader(MemStruct):
 		instance.duration = Float.from_stream(stream, instance.context, 0, None)
 		instance.frame_count = Uint.from_stream(stream, instance.context, 0, None)
 		instance.unknowns = Array.from_stream(stream, instance.context, 0, None, (8,), Float)
-		instance.locs = ArrayPointer.from_stream(stream, instance.context, instance.frame_count, generated.formats.wsm.compounds.Vector3.Vector3)
-		instance.quats = ArrayPointer.from_stream(stream, instance.context, instance.frame_count, generated.formats.wsm.compounds.Vector4.Vector4)
+		instance.locs = ArrayPointer.from_stream(stream, instance.context, instance.frame_count, Vector3)
+		instance.quats = ArrayPointer.from_stream(stream, instance.context, instance.frame_count, Vector4)
 		if not isinstance(instance.locs, int):
 			instance.locs.arg = instance.frame_count
 		if not isinstance(instance.quats, int):
@@ -66,8 +68,8 @@ class WsmHeader(MemStruct):
 		yield 'duration', Float, (0, None), (False, None)
 		yield 'frame_count', Uint, (0, None), (False, None)
 		yield 'unknowns', Array, ((8,), Float, 0, None), (False, None)
-		yield 'locs', ArrayPointer, (instance.frame_count, generated.formats.wsm.compounds.Vector3.Vector3), (False, None)
-		yield 'quats', ArrayPointer, (instance.frame_count, generated.formats.wsm.compounds.Vector4.Vector4), (False, None)
+		yield 'locs', ArrayPointer, (instance.frame_count, Vector3), (False, None)
+		yield 'quats', ArrayPointer, (instance.frame_count, Vector4), (False, None)
 
 	def get_info_str(self, indent=0):
 		return f'WsmHeader [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

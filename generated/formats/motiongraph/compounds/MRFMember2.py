@@ -1,6 +1,6 @@
-import generated.formats.base.basic
-import generated.formats.motiongraph.compounds.Transition
 from generated.formats.base.basic import Uint64
+from generated.formats.base.basic import ZString
+from generated.formats.motiongraph.compounds.Transition import Transition
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
 from generated.formats.ovl_base.compounds.Pointer import Pointer
 
@@ -14,6 +14,8 @@ class MRFMember2(MemStruct):
 
 	__name__ = 'MRFMember2'
 
+	_import_path = 'generated.formats.motiongraph.compounds.MRFMember2'
+
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		self.count_0 = 0
@@ -23,8 +25,8 @@ class MRFMember2(MemStruct):
 		self.count_4 = 0
 		self.count_5 = 0
 		self.count_6 = 0
-		self.transition = Pointer(self.context, 0, generated.formats.motiongraph.compounds.Transition.Transition)
-		self.id = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.transition = Pointer(self.context, 0, Transition)
+		self.id = Pointer(self.context, 0, ZString)
 		if set_default:
 			self.set_defaults()
 
@@ -37,13 +39,13 @@ class MRFMember2(MemStruct):
 		self.count_4 = 0
 		self.count_5 = 0
 		self.count_6 = 0
-		self.transition = Pointer(self.context, 0, generated.formats.motiongraph.compounds.Transition.Transition)
-		self.id = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.transition = Pointer(self.context, 0, Transition)
+		self.id = Pointer(self.context, 0, ZString)
 
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.transition = Pointer.from_stream(stream, instance.context, 0, generated.formats.motiongraph.compounds.Transition.Transition)
+		instance.transition = Pointer.from_stream(stream, instance.context, 0, Transition)
 		instance.count_0 = Uint64.from_stream(stream, instance.context, 0, None)
 		instance.count_1 = Uint64.from_stream(stream, instance.context, 0, None)
 		instance.count_2 = Uint64.from_stream(stream, instance.context, 0, None)
@@ -51,7 +53,7 @@ class MRFMember2(MemStruct):
 		instance.count_4 = Uint64.from_stream(stream, instance.context, 0, None)
 		instance.count_5 = Uint64.from_stream(stream, instance.context, 0, None)
 		instance.count_6 = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.id = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
+		instance.id = Pointer.from_stream(stream, instance.context, 0, ZString)
 		if not isinstance(instance.transition, int):
 			instance.transition.arg = 0
 		if not isinstance(instance.id, int):
@@ -73,7 +75,7 @@ class MRFMember2(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
-		yield 'transition', Pointer, (0, generated.formats.motiongraph.compounds.Transition.Transition), (False, None)
+		yield 'transition', Pointer, (0, Transition), (False, None)
 		yield 'count_0', Uint64, (0, None), (False, None)
 		yield 'count_1', Uint64, (0, None), (False, None)
 		yield 'count_2', Uint64, (0, None), (False, None)
@@ -81,7 +83,7 @@ class MRFMember2(MemStruct):
 		yield 'count_4', Uint64, (0, None), (False, None)
 		yield 'count_5', Uint64, (0, None), (False, None)
 		yield 'count_6', Uint64, (0, None), (False, None)
-		yield 'id', Pointer, (0, generated.formats.base.basic.ZString), (False, None)
+		yield 'id', Pointer, (0, ZString), (False, None)
 
 	def get_info_str(self, indent=0):
 		return f'MRFMember2 [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

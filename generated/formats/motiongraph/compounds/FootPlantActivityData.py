@@ -10,6 +10,8 @@ class FootPlantActivityData(MemStruct):
 
 	__name__ = 'FootPlantActivityData'
 
+	_import_path = 'generated.formats.motiongraph.compounds.FootPlantActivityData'
+
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		self.weight = FloatInputData(self.context, 0, None)

@@ -13,6 +13,8 @@ class BKHDSection(BaseStruct):
 
 	__name__ = 'BKHDSection'
 
+	_import_path = 'generated.formats.bnk.compounds.BKHDSection'
+
 	def set_defaults(self):
 		super().set_defaults()
 		self.length = 0

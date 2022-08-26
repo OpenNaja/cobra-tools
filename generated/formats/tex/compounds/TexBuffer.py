@@ -14,6 +14,8 @@ class TexBuffer(MemStruct):
 
 	__name__ = 'TexBuffer'
 
+	_import_path = 'generated.formats.tex.compounds.TexBuffer'
+
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 

@@ -1,13 +1,15 @@
-import generated.formats.ridesettings.compounds.Pair
 from generated.formats.base.basic import Float
 from generated.formats.base.basic import Uint
 from generated.formats.ovl_base.compounds.ArrayPointer import ArrayPointer
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
+from generated.formats.ridesettings.compounds.Pair import Pair
 
 
 class RideSettingsRoot(MemStruct):
 
 	__name__ = 'RideSettingsRoot'
+
+	_import_path = 'generated.formats.ridesettings.compounds.RideSettingsRoot'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
@@ -17,7 +19,7 @@ class RideSettingsRoot(MemStruct):
 		self.pad_0 = 0
 		self.pad_1 = 0
 		self.pad_2 = 0
-		self.array_1 = ArrayPointer(self.context, self.count, generated.formats.ridesettings.compounds.Pair.Pair)
+		self.array_1 = ArrayPointer(self.context, self.count, Pair)
 		if set_default:
 			self.set_defaults()
 
@@ -29,14 +31,14 @@ class RideSettingsRoot(MemStruct):
 		self.pad_0 = 0
 		self.pad_1 = 0
 		self.pad_2 = 0
-		self.array_1 = ArrayPointer(self.context, self.count, generated.formats.ridesettings.compounds.Pair.Pair)
+		self.array_1 = ArrayPointer(self.context, self.count, Pair)
 
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
 		instance.unk_0 = Float.from_stream(stream, instance.context, 0, None)
 		instance.unk_1 = Uint.from_stream(stream, instance.context, 0, None)
-		instance.array_1 = ArrayPointer.from_stream(stream, instance.context, instance.count, generated.formats.ridesettings.compounds.Pair.Pair)
+		instance.array_1 = ArrayPointer.from_stream(stream, instance.context, instance.count, Pair)
 		instance.count = Uint.from_stream(stream, instance.context, 0, None)
 		instance.pad_0 = Uint.from_stream(stream, instance.context, 0, None)
 		instance.pad_1 = Uint.from_stream(stream, instance.context, 0, None)
@@ -60,7 +62,7 @@ class RideSettingsRoot(MemStruct):
 		yield from super()._get_filtered_attribute_list(instance)
 		yield 'unk_0', Float, (0, None), (False, None)
 		yield 'unk_1', Uint, (0, None), (False, None)
-		yield 'array_1', ArrayPointer, (instance.count, generated.formats.ridesettings.compounds.Pair.Pair), (False, None)
+		yield 'array_1', ArrayPointer, (instance.count, Pair), (False, None)
 		yield 'count', Uint, (0, None), (False, None)
 		yield 'pad_0', Uint, (0, None), (False, None)
 		yield 'pad_1', Uint, (0, None), (False, None)

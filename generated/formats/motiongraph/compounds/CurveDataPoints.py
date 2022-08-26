@@ -11,6 +11,8 @@ class CurveDataPoints(MemStruct):
 
 	__name__ = 'CurveDataPoints'
 
+	_import_path = 'generated.formats.motiongraph.compounds.CurveDataPoints'
+
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		self.data = Array((0,), CurveDataPoint, self.context, 0, None)

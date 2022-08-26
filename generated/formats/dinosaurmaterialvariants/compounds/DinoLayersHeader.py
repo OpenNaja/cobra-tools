@@ -1,6 +1,6 @@
-import generated.formats.dinosaurmaterialvariants.compounds.Layer
-import generated.formats.ovl_base.basic
 from generated.formats.base.basic import Uint64
+from generated.formats.dinosaurmaterialvariants.compounds.Layer import Layer
+from generated.formats.ovl_base.basic import ZStringObfuscated
 from generated.formats.ovl_base.compounds.ArrayPointer import ArrayPointer
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
 from generated.formats.ovl_base.compounds.Pointer import Pointer
@@ -10,12 +10,14 @@ class DinoLayersHeader(MemStruct):
 
 	__name__ = 'DinoLayersHeader'
 
+	_import_path = 'generated.formats.dinosaurmaterialvariants.compounds.DinoLayersHeader'
+
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		self.layer_count = 0
 		self.zero = 0
-		self.fgm_name = Pointer(self.context, 0, generated.formats.ovl_base.basic.ZStringObfuscated)
-		self.layers = ArrayPointer(self.context, self.layer_count, generated.formats.dinosaurmaterialvariants.compounds.Layer.Layer)
+		self.fgm_name = Pointer(self.context, 0, ZStringObfuscated)
+		self.layers = ArrayPointer(self.context, self.layer_count, Layer)
 		if set_default:
 			self.set_defaults()
 
@@ -23,14 +25,14 @@ class DinoLayersHeader(MemStruct):
 		super().set_defaults()
 		self.layer_count = 0
 		self.zero = 0
-		self.fgm_name = Pointer(self.context, 0, generated.formats.ovl_base.basic.ZStringObfuscated)
-		self.layers = ArrayPointer(self.context, self.layer_count, generated.formats.dinosaurmaterialvariants.compounds.Layer.Layer)
+		self.fgm_name = Pointer(self.context, 0, ZStringObfuscated)
+		self.layers = ArrayPointer(self.context, self.layer_count, Layer)
 
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.fgm_name = Pointer.from_stream(stream, instance.context, 0, generated.formats.ovl_base.basic.ZStringObfuscated)
-		instance.layers = ArrayPointer.from_stream(stream, instance.context, instance.layer_count, generated.formats.dinosaurmaterialvariants.compounds.Layer.Layer)
+		instance.fgm_name = Pointer.from_stream(stream, instance.context, 0, ZStringObfuscated)
+		instance.layers = ArrayPointer.from_stream(stream, instance.context, instance.layer_count, Layer)
 		instance.layer_count = Uint64.from_stream(stream, instance.context, 0, None)
 		instance.zero = Uint64.from_stream(stream, instance.context, 0, None)
 		if not isinstance(instance.fgm_name, int):
@@ -49,8 +51,8 @@ class DinoLayersHeader(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
-		yield 'fgm_name', Pointer, (0, generated.formats.ovl_base.basic.ZStringObfuscated), (False, None)
-		yield 'layers', ArrayPointer, (instance.layer_count, generated.formats.dinosaurmaterialvariants.compounds.Layer.Layer), (False, None)
+		yield 'fgm_name', Pointer, (0, ZStringObfuscated), (False, None)
+		yield 'layers', ArrayPointer, (instance.layer_count, Layer), (False, None)
 		yield 'layer_count', Uint64, (0, None), (False, None)
 		yield 'zero', Uint64, (0, None), (False, None)
 

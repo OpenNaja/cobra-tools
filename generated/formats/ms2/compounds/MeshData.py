@@ -6,8 +6,8 @@ import numpy as np
 from generated.formats.ms2.compounds.packing_utils import FUR_OVERHEAD, remap
 from plugin.utils.tristrip import triangulate
 
-import generated.formats.ms2.compounds.BufferInfo
 from generated.formats.base.basic import Uint64
+from generated.formats.ms2.compounds.BufferInfo import BufferInfo
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
 from generated.formats.ovl_base.compounds.Pointer import Pointer
 
@@ -20,6 +20,8 @@ class MeshData(MemStruct):
 
 	__name__ = 'MeshData'
 
+	_import_path = 'generated.formats.ms2.compounds.MeshData'
+
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 
@@ -30,7 +32,7 @@ class MeshData(MemStruct):
 		self.some_index = 0
 
 		# PZ and JWE use a ptr instead
-		self.stream_info = Pointer(self.context, 0, generated.formats.ms2.compounds.BufferInfo.BufferInfo)
+		self.stream_info = Pointer(self.context, 0, BufferInfo)
 		if set_default:
 			self.set_defaults()
 
@@ -41,7 +43,7 @@ class MeshData(MemStruct):
 		if not ((self.context.version == 51) and self.context.biosyn):
 			self.some_index = 0
 		if self.context.version >= 47:
-			self.stream_info = Pointer(self.context, 0, generated.formats.ms2.compounds.BufferInfo.BufferInfo)
+			self.stream_info = Pointer(self.context, 0, BufferInfo)
 
 	@classmethod
 	def read_fields(cls, stream, instance):
@@ -49,7 +51,7 @@ class MeshData(MemStruct):
 		if instance.context.version <= 32:
 			instance.stream_index = Uint64.from_stream(stream, instance.context, 0, None)
 		if instance.context.version >= 47:
-			instance.stream_info = Pointer.from_stream(stream, instance.context, 0, generated.formats.ms2.compounds.BufferInfo.BufferInfo)
+			instance.stream_info = Pointer.from_stream(stream, instance.context, 0, BufferInfo)
 		if not ((instance.context.version == 51) and instance.context.biosyn):
 			instance.some_index = Uint64.from_stream(stream, instance.context, 0, None)
 		if not isinstance(instance.stream_info, int):
@@ -71,7 +73,7 @@ class MeshData(MemStruct):
 		if instance.context.version <= 32:
 			yield 'stream_index', Uint64, (0, None), (False, None)
 		if instance.context.version >= 47:
-			yield 'stream_info', Pointer, (0, generated.formats.ms2.compounds.BufferInfo.BufferInfo), (False, None)
+			yield 'stream_info', Pointer, (0, BufferInfo), (False, None)
 		if not ((instance.context.version == 51) and instance.context.biosyn):
 			yield 'some_index', Uint64, (0, None), (False, None)
 

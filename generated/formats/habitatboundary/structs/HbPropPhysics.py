@@ -6,6 +6,8 @@ class HbPropPhysics(MemStruct):
 
 	__name__ = 'HbPropPhysics'
 
+	_import_path = 'generated.formats.habitatboundary.structs.HbPropPhysics'
+
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 

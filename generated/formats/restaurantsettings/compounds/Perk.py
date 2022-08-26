@@ -1,6 +1,6 @@
-import generated.formats.base.basic
 from generated.formats.base.basic import Float
 from generated.formats.base.basic import Uint64
+from generated.formats.base.basic import ZString
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
 from generated.formats.ovl_base.compounds.Pointer import Pointer
 
@@ -8,6 +8,8 @@ from generated.formats.ovl_base.compounds.Pointer import Pointer
 class Perk(MemStruct):
 
 	__name__ = 'Perk'
+
+	_import_path = 'generated.formats.restaurantsettings.compounds.Perk'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
@@ -21,9 +23,9 @@ class Perk(MemStruct):
 		self.appeal_adults = 0.0
 		self.appeal_families = 0.0
 		self.appeal_teenagers = 0.0
-		self.label = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.desc = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.icon = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.label = Pointer(self.context, 0, ZString)
+		self.desc = Pointer(self.context, 0, ZString)
+		self.icon = Pointer(self.context, 0, ZString)
 		if set_default:
 			self.set_defaults()
 
@@ -39,9 +41,9 @@ class Perk(MemStruct):
 		self.appeal_adults = 0.0
 		self.appeal_families = 0.0
 		self.appeal_teenagers = 0.0
-		self.label = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.desc = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.icon = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.label = Pointer(self.context, 0, ZString)
+		self.desc = Pointer(self.context, 0, ZString)
+		self.icon = Pointer(self.context, 0, ZString)
 
 	@classmethod
 	def read_fields(cls, stream, instance):
@@ -52,9 +54,9 @@ class Perk(MemStruct):
 		instance.running_cost_per_extension = Uint64.from_stream(stream, instance.context, 0, None)
 		instance.unk_4 = Float.from_stream(stream, instance.context, 0, None)
 		instance.unk_5 = Float.from_stream(stream, instance.context, 0, None)
-		instance.label = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
-		instance.desc = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
-		instance.icon = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
+		instance.label = Pointer.from_stream(stream, instance.context, 0, ZString)
+		instance.desc = Pointer.from_stream(stream, instance.context, 0, ZString)
+		instance.icon = Pointer.from_stream(stream, instance.context, 0, ZString)
 		instance.unk_6 = Float.from_stream(stream, instance.context, 0, None)
 		instance.appeal_adults = Float.from_stream(stream, instance.context, 0, None)
 		instance.appeal_families = Float.from_stream(stream, instance.context, 0, None)
@@ -92,9 +94,9 @@ class Perk(MemStruct):
 		yield 'running_cost_per_extension', Uint64, (0, None), (False, None)
 		yield 'unk_4', Float, (0, None), (False, None)
 		yield 'unk_5', Float, (0, None), (False, None)
-		yield 'label', Pointer, (0, generated.formats.base.basic.ZString), (False, None)
-		yield 'desc', Pointer, (0, generated.formats.base.basic.ZString), (False, None)
-		yield 'icon', Pointer, (0, generated.formats.base.basic.ZString), (False, None)
+		yield 'label', Pointer, (0, ZString), (False, None)
+		yield 'desc', Pointer, (0, ZString), (False, None)
+		yield 'icon', Pointer, (0, ZString), (False, None)
 		yield 'unk_6', Float, (0, None), (False, None)
 		yield 'appeal_adults', Float, (0, None), (False, None)
 		yield 'appeal_families', Float, (0, None), (False, None)

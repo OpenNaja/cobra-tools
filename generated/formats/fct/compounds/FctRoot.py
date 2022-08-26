@@ -15,6 +15,8 @@ class FctRoot(MemStruct):
 
 	__name__ = 'FctRoot'
 
+	_import_path = 'generated.formats.fct.compounds.FctRoot'
+
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		self.u_0 = 0

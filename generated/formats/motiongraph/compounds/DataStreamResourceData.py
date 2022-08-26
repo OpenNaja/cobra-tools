@@ -1,5 +1,5 @@
-import generated.formats.base.basic
 from generated.formats.base.basic import Uint64
+from generated.formats.base.basic import ZString
 from generated.formats.motiongraph.compounds.CurveData import CurveData
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
 from generated.formats.ovl_base.compounds.Pointer import Pointer
@@ -13,14 +13,16 @@ class DataStreamResourceData(MemStruct):
 
 	__name__ = 'DataStreamResourceData'
 
+	_import_path = 'generated.formats.motiongraph.compounds.DataStreamResourceData'
+
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		self.curve_type = 0
 		self.curve = CurveData(self.context, 0, None)
-		self.ds_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.type = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.bone_i_d = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.location = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.ds_name = Pointer(self.context, 0, ZString)
+		self.type = Pointer(self.context, 0, ZString)
+		self.bone_i_d = Pointer(self.context, 0, ZString)
+		self.location = Pointer(self.context, 0, ZString)
 		if set_default:
 			self.set_defaults()
 
@@ -28,19 +30,19 @@ class DataStreamResourceData(MemStruct):
 		super().set_defaults()
 		self.curve_type = 0
 		self.curve = CurveData(self.context, 0, None)
-		self.ds_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.type = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.bone_i_d = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.location = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.ds_name = Pointer(self.context, 0, ZString)
+		self.type = Pointer(self.context, 0, ZString)
+		self.bone_i_d = Pointer(self.context, 0, ZString)
+		self.location = Pointer(self.context, 0, ZString)
 
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
 		instance.curve_type = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.ds_name = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
-		instance.type = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
-		instance.bone_i_d = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
-		instance.location = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
+		instance.ds_name = Pointer.from_stream(stream, instance.context, 0, ZString)
+		instance.type = Pointer.from_stream(stream, instance.context, 0, ZString)
+		instance.bone_i_d = Pointer.from_stream(stream, instance.context, 0, ZString)
+		instance.location = Pointer.from_stream(stream, instance.context, 0, ZString)
 		instance.curve = CurveData.from_stream(stream, instance.context, 0, None)
 		if not isinstance(instance.ds_name, int):
 			instance.ds_name.arg = 0
@@ -65,10 +67,10 @@ class DataStreamResourceData(MemStruct):
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
 		yield 'curve_type', Uint64, (0, None), (False, None)
-		yield 'ds_name', Pointer, (0, generated.formats.base.basic.ZString), (False, None)
-		yield 'type', Pointer, (0, generated.formats.base.basic.ZString), (False, None)
-		yield 'bone_i_d', Pointer, (0, generated.formats.base.basic.ZString), (False, None)
-		yield 'location', Pointer, (0, generated.formats.base.basic.ZString), (False, None)
+		yield 'ds_name', Pointer, (0, ZString), (False, None)
+		yield 'type', Pointer, (0, ZString), (False, None)
+		yield 'bone_i_d', Pointer, (0, ZString), (False, None)
+		yield 'location', Pointer, (0, ZString), (False, None)
 		yield 'curve', CurveData, (0, None), (False, None)
 
 	def get_info_str(self, indent=0):

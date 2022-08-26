@@ -20,6 +20,8 @@ class HeaderPointer(BaseStruct):
 
 	__name__ = 'HeaderPointer'
 
+	_import_path = 'generated.formats.ovl.compounds.HeaderPointer'
+
 	def set_defaults(self):
 		super().set_defaults()
 		self.pool_index = 0

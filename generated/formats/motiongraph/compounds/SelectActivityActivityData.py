@@ -1,7 +1,7 @@
-import generated.formats.base.basic
-import generated.formats.motiongraph.compounds.ActivitiesLinks
 from generated.formats.base.basic import Float
 from generated.formats.base.basic import Uint64
+from generated.formats.base.basic import ZString
+from generated.formats.motiongraph.compounds.ActivitiesLinks import ActivitiesLinks
 from generated.formats.motiongraph.enums.SelectActivityActivityMode import SelectActivityActivityMode
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
 from generated.formats.ovl_base.compounds.Pointer import Pointer
@@ -15,13 +15,15 @@ class SelectActivityActivityData(MemStruct):
 
 	__name__ = 'SelectActivityActivityData'
 
+	_import_path = 'generated.formats.motiongraph.compounds.SelectActivityActivityData'
+
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		self.num_activities = 0
 		self.blend_time = 0.0
 		self.mode = SelectActivityActivityMode(self.context, 0, None)
-		self.enum_variable = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.activities = Pointer(self.context, self.num_activities, generated.formats.motiongraph.compounds.ActivitiesLinks.ActivitiesLinks)
+		self.enum_variable = Pointer(self.context, 0, ZString)
+		self.activities = Pointer(self.context, self.num_activities, ActivitiesLinks)
 		if set_default:
 			self.set_defaults()
 
@@ -30,14 +32,14 @@ class SelectActivityActivityData(MemStruct):
 		self.num_activities = 0
 		self.blend_time = 0.0
 		self.mode = SelectActivityActivityMode(self.context, 0, None)
-		self.enum_variable = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.activities = Pointer(self.context, self.num_activities, generated.formats.motiongraph.compounds.ActivitiesLinks.ActivitiesLinks)
+		self.enum_variable = Pointer(self.context, 0, ZString)
+		self.activities = Pointer(self.context, self.num_activities, ActivitiesLinks)
 
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.enum_variable = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
-		instance.activities = Pointer.from_stream(stream, instance.context, instance.num_activities, generated.formats.motiongraph.compounds.ActivitiesLinks.ActivitiesLinks)
+		instance.enum_variable = Pointer.from_stream(stream, instance.context, 0, ZString)
+		instance.activities = Pointer.from_stream(stream, instance.context, instance.num_activities, ActivitiesLinks)
 		instance.num_activities = Uint64.from_stream(stream, instance.context, 0, None)
 		instance.blend_time = Float.from_stream(stream, instance.context, 0, None)
 		instance.mode = SelectActivityActivityMode.from_stream(stream, instance.context, 0, None)
@@ -58,8 +60,8 @@ class SelectActivityActivityData(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
-		yield 'enum_variable', Pointer, (0, generated.formats.base.basic.ZString), (False, None)
-		yield 'activities', Pointer, (instance.num_activities, generated.formats.motiongraph.compounds.ActivitiesLinks.ActivitiesLinks), (False, None)
+		yield 'enum_variable', Pointer, (0, ZString), (False, None)
+		yield 'activities', Pointer, (instance.num_activities, ActivitiesLinks), (False, None)
 		yield 'num_activities', Uint64, (0, None), (False, None)
 		yield 'blend_time', Float, (0, None), (False, None)
 		yield 'mode', SelectActivityActivityMode, (0, None), (False, None)
