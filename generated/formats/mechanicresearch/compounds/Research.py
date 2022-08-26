@@ -1,7 +1,6 @@
 from generated.formats.base.basic import Uint
 from generated.formats.base.basic import Uint64
 from generated.formats.base.basic import ZString
-from generated.formats.mechanicresearch.compounds.NextResearch import NextResearch
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
 from generated.formats.ovl_base.compounds.Pointer import Pointer
 
@@ -21,7 +20,7 @@ class Research(MemStruct):
 		self.unk_3 = 0
 		self.unk_4 = 0
 		self.item_name = Pointer(self.context, 0, ZString)
-		self.next_research = Pointer(self.context, self.next_research_count, NextResearch)
+		self.next_research = Pointer(self.context, self.next_research_count, Research._import_path_map["generated.formats.mechanicresearch.compounds.NextResearch"])
 		if set_default:
 			self.set_defaults()
 
@@ -34,7 +33,7 @@ class Research(MemStruct):
 		self.unk_3 = 0
 		self.unk_4 = 0
 		self.item_name = Pointer(self.context, 0, ZString)
-		self.next_research = Pointer(self.context, self.next_research_count, NextResearch)
+		self.next_research = Pointer(self.context, self.next_research_count, Research._import_path_map["generated.formats.mechanicresearch.compounds.NextResearch"])
 
 	@classmethod
 	def read_fields(cls, stream, instance):
@@ -43,7 +42,7 @@ class Research(MemStruct):
 		instance.unk_0 = Uint.from_stream(stream, instance.context, 0, None)
 		instance.is_entry_level = Uint.from_stream(stream, instance.context, 0, None)
 		instance.unk_2 = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.next_research = Pointer.from_stream(stream, instance.context, instance.next_research_count, NextResearch)
+		instance.next_research = Pointer.from_stream(stream, instance.context, instance.next_research_count, Research._import_path_map["generated.formats.mechanicresearch.compounds.NextResearch"])
 		instance.next_research_count = Uint64.from_stream(stream, instance.context, 0, None)
 		instance.unk_3 = Uint64.from_stream(stream, instance.context, 0, None)
 		instance.unk_4 = Uint64.from_stream(stream, instance.context, 0, None)
@@ -71,7 +70,7 @@ class Research(MemStruct):
 		yield 'unk_0', Uint, (0, None), (False, None)
 		yield 'is_entry_level', Uint, (0, None), (False, None)
 		yield 'unk_2', Uint64, (0, None), (False, None)
-		yield 'next_research', Pointer, (instance.next_research_count, NextResearch), (False, None)
+		yield 'next_research', Pointer, (instance.next_research_count, Research._import_path_map["generated.formats.mechanicresearch.compounds.NextResearch"]), (False, None)
 		yield 'next_research_count', Uint64, (0, None), (False, None)
 		yield 'unk_3', Uint64, (0, None), (False, None)
 		yield 'unk_4', Uint64, (0, None), (False, None)

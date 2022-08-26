@@ -1,5 +1,4 @@
 from generated.formats.base.basic import Uint64
-from generated.formats.motiongraph.compounds.PtrList import PtrList
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
 from generated.formats.ovl_base.compounds.Pointer import Pointer
 
@@ -17,20 +16,20 @@ class MGTwo(MemStruct):
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		self.count = 0
-		self.ptr = Pointer(self.context, self.count, PtrList)
+		self.ptr = Pointer(self.context, self.count, MGTwo._import_path_map["generated.formats.motiongraph.compounds.PtrList"])
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
 		super().set_defaults()
 		self.count = 0
-		self.ptr = Pointer(self.context, self.count, PtrList)
+		self.ptr = Pointer(self.context, self.count, MGTwo._import_path_map["generated.formats.motiongraph.compounds.PtrList"])
 
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
 		instance.count = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.ptr = Pointer.from_stream(stream, instance.context, instance.count, PtrList)
+		instance.ptr = Pointer.from_stream(stream, instance.context, instance.count, MGTwo._import_path_map["generated.formats.motiongraph.compounds.PtrList"])
 		if not isinstance(instance.ptr, int):
 			instance.ptr.arg = instance.count
 
@@ -44,7 +43,7 @@ class MGTwo(MemStruct):
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
 		yield 'count', Uint64, (0, None), (False, None)
-		yield 'ptr', Pointer, (instance.count, PtrList), (False, None)
+		yield 'ptr', Pointer, (instance.count, MGTwo._import_path_map["generated.formats.motiongraph.compounds.PtrList"]), (False, None)
 
 	def get_info_str(self, indent=0):
 		return f'MGTwo [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

@@ -1,8 +1,6 @@
 from generated.formats.base.basic import Uint
 from generated.formats.base.basic import Uint64
 from generated.formats.base.basic import ZString
-from generated.formats.motiongraph.compounds.PtrList import PtrList
-from generated.formats.motiongraph.compounds.TransStructStopList import TransStructStopList
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
 from generated.formats.ovl_base.compounds.Pointer import Pointer
 
@@ -23,8 +21,8 @@ class State(MemStruct):
 		self.unk = 0
 		self.activities_count = 0
 		self.count_2 = 0
-		self.activities = Pointer(self.context, self.activities_count, PtrList)
-		self.array_2 = Pointer(self.context, self.count_2, TransStructStopList)
+		self.activities = Pointer(self.context, self.activities_count, State._import_path_map["generated.formats.motiongraph.compounds.PtrList"])
+		self.array_2 = Pointer(self.context, self.count_2, State._import_path_map["generated.formats.motiongraph.compounds.TransStructStopList"])
 		self.id = Pointer(self.context, 0, ZString)
 		if set_default:
 			self.set_defaults()
@@ -34,8 +32,8 @@ class State(MemStruct):
 		self.unk = 0
 		self.activities_count = 0
 		self.count_2 = 0
-		self.activities = Pointer(self.context, self.activities_count, PtrList)
-		self.array_2 = Pointer(self.context, self.count_2, TransStructStopList)
+		self.activities = Pointer(self.context, self.activities_count, State._import_path_map["generated.formats.motiongraph.compounds.PtrList"])
+		self.array_2 = Pointer(self.context, self.count_2, State._import_path_map["generated.formats.motiongraph.compounds.TransStructStopList"])
 		self.id = Pointer(self.context, 0, ZString)
 
 	@classmethod
@@ -43,9 +41,9 @@ class State(MemStruct):
 		super().read_fields(stream, instance)
 		instance.unk = Uint.from_stream(stream, instance.context, 0, None)
 		instance.activities_count = Uint.from_stream(stream, instance.context, 0, None)
-		instance.activities = Pointer.from_stream(stream, instance.context, instance.activities_count, PtrList)
+		instance.activities = Pointer.from_stream(stream, instance.context, instance.activities_count, State._import_path_map["generated.formats.motiongraph.compounds.PtrList"])
 		instance.count_2 = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.array_2 = Pointer.from_stream(stream, instance.context, instance.count_2, TransStructStopList)
+		instance.array_2 = Pointer.from_stream(stream, instance.context, instance.count_2, State._import_path_map["generated.formats.motiongraph.compounds.TransStructStopList"])
 		instance.id = Pointer.from_stream(stream, instance.context, 0, ZString)
 		if not isinstance(instance.activities, int):
 			instance.activities.arg = instance.activities_count
@@ -69,9 +67,9 @@ class State(MemStruct):
 		yield from super()._get_filtered_attribute_list(instance)
 		yield 'unk', Uint, (0, None), (False, None)
 		yield 'activities_count', Uint, (0, None), (False, None)
-		yield 'activities', Pointer, (instance.activities_count, PtrList), (False, None)
+		yield 'activities', Pointer, (instance.activities_count, State._import_path_map["generated.formats.motiongraph.compounds.PtrList"]), (False, None)
 		yield 'count_2', Uint64, (0, None), (False, None)
-		yield 'array_2', Pointer, (instance.count_2, TransStructStopList), (False, None)
+		yield 'array_2', Pointer, (instance.count_2, State._import_path_map["generated.formats.motiongraph.compounds.TransStructStopList"]), (False, None)
 		yield 'id', Pointer, (0, ZString), (False, None)
 
 	def get_info_str(self, indent=0):

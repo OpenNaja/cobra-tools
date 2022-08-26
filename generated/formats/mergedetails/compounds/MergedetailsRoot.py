@@ -1,7 +1,6 @@
 from generated.formats.base.basic import Uint
 from generated.formats.base.basic import Uint64
 from generated.formats.base.basic import ZString
-from generated.formats.mergedetails.compounds.PtrList import PtrList
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
 from generated.formats.ovl_base.compounds.Pointer import Pointer
 
@@ -22,8 +21,8 @@ class MergedetailsRoot(MemStruct):
 		self.zero_1 = 0
 		self.count = 0
 		self.flag = 0
-		self.merge_names = Pointer(self.context, self.count, PtrList)
-		self.queries = Pointer(self.context, self.count, PtrList)
+		self.merge_names = Pointer(self.context, self.count, MergedetailsRoot._import_path_map["generated.formats.mergedetails.compounds.PtrList"])
+		self.queries = Pointer(self.context, self.count, MergedetailsRoot._import_path_map["generated.formats.mergedetails.compounds.PtrList"])
 		self.field_name = Pointer(self.context, 0, ZString)
 		if set_default:
 			self.set_defaults()
@@ -34,17 +33,17 @@ class MergedetailsRoot(MemStruct):
 		self.zero_1 = 0
 		self.count = 0
 		self.flag = 0
-		self.merge_names = Pointer(self.context, self.count, PtrList)
-		self.queries = Pointer(self.context, self.count, PtrList)
+		self.merge_names = Pointer(self.context, self.count, MergedetailsRoot._import_path_map["generated.formats.mergedetails.compounds.PtrList"])
+		self.queries = Pointer(self.context, self.count, MergedetailsRoot._import_path_map["generated.formats.mergedetails.compounds.PtrList"])
 		self.field_name = Pointer(self.context, 0, ZString)
 
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.merge_names = Pointer.from_stream(stream, instance.context, instance.count, PtrList)
+		instance.merge_names = Pointer.from_stream(stream, instance.context, instance.count, MergedetailsRoot._import_path_map["generated.formats.mergedetails.compounds.PtrList"])
 		instance.zero_0 = Uint64.from_stream(stream, instance.context, 0, None)
 		instance.zero_1 = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.queries = Pointer.from_stream(stream, instance.context, instance.count, PtrList)
+		instance.queries = Pointer.from_stream(stream, instance.context, instance.count, MergedetailsRoot._import_path_map["generated.formats.mergedetails.compounds.PtrList"])
 		instance.field_name = Pointer.from_stream(stream, instance.context, 0, ZString)
 		instance.count = Uint.from_stream(stream, instance.context, 0, None)
 		instance.flag = Uint.from_stream(stream, instance.context, 0, None)
@@ -69,10 +68,10 @@ class MergedetailsRoot(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
-		yield 'merge_names', Pointer, (instance.count, PtrList), (False, None)
+		yield 'merge_names', Pointer, (instance.count, MergedetailsRoot._import_path_map["generated.formats.mergedetails.compounds.PtrList"]), (False, None)
 		yield 'zero_0', Uint64, (0, None), (False, None)
 		yield 'zero_1', Uint64, (0, None), (False, None)
-		yield 'queries', Pointer, (instance.count, PtrList), (False, None)
+		yield 'queries', Pointer, (instance.count, MergedetailsRoot._import_path_map["generated.formats.mergedetails.compounds.PtrList"]), (False, None)
 		yield 'field_name', Pointer, (0, ZString), (False, None)
 		yield 'count', Uint, (0, None), (False, None)
 		yield 'flag', Uint, (0, None), (False, None)

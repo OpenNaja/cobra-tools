@@ -53,7 +53,7 @@ class Union:
 
     def indirect_class_access(self, field_type):
         if self.compounds.parser.tag_dict[field_type.lower()] in self.compounds.parser.struct_types:
-            class_access = f'{self.compounds.class_name}._import_path_map[{Imports.import_from_module_path(self.compounds.parser.path_dict[field_type])}]'
+            class_access = f'{self.compounds.class_name}._import_path_map["{Imports.import_from_module_path(self.compounds.parser.path_dict[field_type])}"]'
         else:
             class_access = field_type
         return class_access

@@ -5,7 +5,6 @@ from generated.formats.base.basic import Ushort
 from generated.formats.base.basic import ZString
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
 from generated.formats.ovl_base.compounds.Pointer import Pointer
-from generated.formats.posedriverdef.compounds.Data import Data
 
 
 class Driver(MemStruct):
@@ -28,7 +27,7 @@ class Driver(MemStruct):
 		self.unk_2 = 0
 		self.joint_name = Pointer(self.context, 0, ZString)
 		self.driven_joint_name = Pointer(self.context, 0, ZString)
-		self.data = Pointer(self.context, 0, Data)
+		self.data = Pointer(self.context, 0, Driver._import_path_map["generated.formats.posedriverdef.compounds.Data"])
 		if set_default:
 			self.set_defaults()
 
@@ -42,7 +41,7 @@ class Driver(MemStruct):
 		self.unk_2 = 0
 		self.joint_name = Pointer(self.context, 0, ZString)
 		self.driven_joint_name = Pointer(self.context, 0, ZString)
-		self.data = Pointer(self.context, 0, Data)
+		self.data = Pointer(self.context, 0, Driver._import_path_map["generated.formats.posedriverdef.compounds.Data"])
 
 	@classmethod
 	def read_fields(cls, stream, instance):
@@ -54,7 +53,7 @@ class Driver(MemStruct):
 		instance.d = Uint.from_stream(stream, instance.context, 0, None)
 		instance.driven_joint_name = Pointer.from_stream(stream, instance.context, 0, ZString)
 		instance.unk_1 = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.data = Pointer.from_stream(stream, instance.context, 0, Data)
+		instance.data = Pointer.from_stream(stream, instance.context, 0, Driver._import_path_map["generated.formats.posedriverdef.compounds.Data"])
 		instance.unk_2 = Uint64.from_stream(stream, instance.context, 0, None)
 		if not isinstance(instance.joint_name, int):
 			instance.joint_name.arg = 0
@@ -86,7 +85,7 @@ class Driver(MemStruct):
 		yield 'd', Uint, (0, None), (False, None)
 		yield 'driven_joint_name', Pointer, (0, ZString), (False, None)
 		yield 'unk_1', Uint64, (0, None), (False, None)
-		yield 'data', Pointer, (0, Data), (False, None)
+		yield 'data', Pointer, (0, Driver._import_path_map["generated.formats.posedriverdef.compounds.Data"]), (False, None)
 		yield 'unk_2', Uint64, (0, None), (False, None)
 
 	def get_info_str(self, indent=0):

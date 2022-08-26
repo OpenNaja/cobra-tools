@@ -3,7 +3,6 @@ from generated.formats.base.basic import Uint
 from generated.formats.base.basic import Uint64
 from generated.formats.ovl_base.compounds.ArrayPointer import ArrayPointer
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
-from generated.formats.trackedridecar.compounds.Vector3 import Vector3
 
 
 class TrackedRideCarSub(MemStruct):
@@ -22,7 +21,7 @@ class TrackedRideCarSub(MemStruct):
 		self.u_0 = 0
 		self.vecs_count = 0
 		self.zero_1 = 0
-		self.vectors = ArrayPointer(self.context, self.vecs_count, Vector3)
+		self.vectors = ArrayPointer(self.context, self.vecs_count, TrackedRideCarSub._import_path_map["generated.formats.trackedridecar.compounds.Vector3"])
 		if set_default:
 			self.set_defaults()
 
@@ -32,14 +31,14 @@ class TrackedRideCarSub(MemStruct):
 		self.u_0 = 0
 		self.vecs_count = 0
 		self.zero_1 = 0
-		self.vectors = ArrayPointer(self.context, self.vecs_count, Vector3)
+		self.vectors = ArrayPointer(self.context, self.vecs_count, TrackedRideCarSub._import_path_map["generated.formats.trackedridecar.compounds.Vector3"])
 
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
 		instance.float = Float.from_stream(stream, instance.context, 0, None)
 		instance.u_0 = Uint.from_stream(stream, instance.context, 0, None)
-		instance.vectors = ArrayPointer.from_stream(stream, instance.context, instance.vecs_count, Vector3)
+		instance.vectors = ArrayPointer.from_stream(stream, instance.context, instance.vecs_count, TrackedRideCarSub._import_path_map["generated.formats.trackedridecar.compounds.Vector3"])
 		instance.vecs_count = Uint64.from_stream(stream, instance.context, 0, None)
 		instance.zero_1 = Uint64.from_stream(stream, instance.context, 0, None)
 		if not isinstance(instance.vectors, int):
@@ -59,7 +58,7 @@ class TrackedRideCarSub(MemStruct):
 		yield from super()._get_filtered_attribute_list(instance)
 		yield 'float', Float, (0, None), (False, None)
 		yield 'u_0', Uint, (0, None), (False, None)
-		yield 'vectors', ArrayPointer, (instance.vecs_count, Vector3), (False, None)
+		yield 'vectors', ArrayPointer, (instance.vecs_count, TrackedRideCarSub._import_path_map["generated.formats.trackedridecar.compounds.Vector3"]), (False, None)
 		yield 'vecs_count', Uint64, (0, None), (False, None)
 		yield 'zero_1', Uint64, (0, None), (False, None)
 

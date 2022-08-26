@@ -1,6 +1,5 @@
 from generated.formats.base.basic import Uint
 from generated.formats.base.basic import ZString
-from generated.formats.logicalcontrols.compounds.ButtonData import ButtonData
 from generated.formats.ovl_base.compounds.ArrayPointer import ArrayPointer
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
 from generated.formats.ovl_base.compounds.Pointer import Pointer
@@ -17,7 +16,7 @@ class Button(MemStruct):
 		self.datas_count = 0
 		self.flags = 0
 		self.button_name = Pointer(self.context, 0, ZString)
-		self.datas = ArrayPointer(self.context, self.datas_count, ButtonData)
+		self.datas = ArrayPointer(self.context, self.datas_count, Button._import_path_map["generated.formats.logicalcontrols.compounds.ButtonData"])
 		if set_default:
 			self.set_defaults()
 
@@ -26,13 +25,13 @@ class Button(MemStruct):
 		self.datas_count = 0
 		self.flags = 0
 		self.button_name = Pointer(self.context, 0, ZString)
-		self.datas = ArrayPointer(self.context, self.datas_count, ButtonData)
+		self.datas = ArrayPointer(self.context, self.datas_count, Button._import_path_map["generated.formats.logicalcontrols.compounds.ButtonData"])
 
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
 		instance.button_name = Pointer.from_stream(stream, instance.context, 0, ZString)
-		instance.datas = ArrayPointer.from_stream(stream, instance.context, instance.datas_count, ButtonData)
+		instance.datas = ArrayPointer.from_stream(stream, instance.context, instance.datas_count, Button._import_path_map["generated.formats.logicalcontrols.compounds.ButtonData"])
 		instance.datas_count = Uint.from_stream(stream, instance.context, 0, None)
 		instance.flags = Uint.from_stream(stream, instance.context, 0, None)
 		if not isinstance(instance.button_name, int):
@@ -52,7 +51,7 @@ class Button(MemStruct):
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
 		yield 'button_name', Pointer, (0, ZString), (False, None)
-		yield 'datas', ArrayPointer, (instance.datas_count, ButtonData), (False, None)
+		yield 'datas', ArrayPointer, (instance.datas_count, Button._import_path_map["generated.formats.logicalcontrols.compounds.ButtonData"]), (False, None)
 		yield 'datas_count', Uint, (0, None), (False, None)
 		yield 'flags', Uint, (0, None), (False, None)
 

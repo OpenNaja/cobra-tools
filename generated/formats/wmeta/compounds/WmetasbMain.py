@@ -4,8 +4,6 @@ from generated.formats.base.basic import ZString
 from generated.formats.ovl_base.compounds.ArrayPointer import ArrayPointer
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
 from generated.formats.ovl_base.compounds.Pointer import Pointer
-from generated.formats.wmeta.compounds.EventEntry import EventEntry
-from generated.formats.wmeta.compounds.MediaEntry import MediaEntry
 
 
 class WmetasbMain(MemStruct):
@@ -30,9 +28,9 @@ class WmetasbMain(MemStruct):
 		self.block_name = Pointer(self.context, 0, ZString)
 		self.media_name = Pointer(self.context, 0, ZString)
 		self.bnk_name = Pointer(self.context, 0, ZString)
-		self.events = ArrayPointer(self.context, self.events_count, EventEntry)
+		self.events = ArrayPointer(self.context, self.events_count, WmetasbMain._import_path_map["generated.formats.wmeta.compounds.EventEntry"])
 		self.hashes = ArrayPointer(self.context, self.hashes_count, Uint)
-		self.media = ArrayPointer(self.context, self.media_count, MediaEntry)
+		self.media = ArrayPointer(self.context, self.media_count, WmetasbMain._import_path_map["generated.formats.wmeta.compounds.MediaEntry"])
 		self.unused_2 = Pointer(self.context, 0, None)
 		self.unused_3 = Pointer(self.context, 0, None)
 		self.unused_4 = Pointer(self.context, 0, None)
@@ -52,10 +50,10 @@ class WmetasbMain(MemStruct):
 		if self.context.version <= 18:
 			self.media_name = Pointer(self.context, 0, ZString)
 			self.bnk_name = Pointer(self.context, 0, ZString)
-		self.events = ArrayPointer(self.context, self.events_count, EventEntry)
+		self.events = ArrayPointer(self.context, self.events_count, WmetasbMain._import_path_map["generated.formats.wmeta.compounds.EventEntry"])
 		if self.context.version <= 18:
 			self.hashes = ArrayPointer(self.context, self.hashes_count, Uint)
-			self.media = ArrayPointer(self.context, self.media_count, MediaEntry)
+			self.media = ArrayPointer(self.context, self.media_count, WmetasbMain._import_path_map["generated.formats.wmeta.compounds.MediaEntry"])
 			self.unused_2 = Pointer(self.context, 0, None)
 			self.unused_3 = Pointer(self.context, 0, None)
 			self.unused_4 = Pointer(self.context, 0, None)
@@ -70,12 +68,12 @@ class WmetasbMain(MemStruct):
 		if instance.context.version <= 18:
 			instance.media_name = Pointer.from_stream(stream, instance.context, 0, ZString)
 			instance.bnk_name = Pointer.from_stream(stream, instance.context, 0, ZString)
-		instance.events = ArrayPointer.from_stream(stream, instance.context, instance.events_count, EventEntry)
+		instance.events = ArrayPointer.from_stream(stream, instance.context, instance.events_count, WmetasbMain._import_path_map["generated.formats.wmeta.compounds.EventEntry"])
 		instance.events_count = Uint64.from_stream(stream, instance.context, 0, None)
 		if instance.context.version <= 18:
 			instance.hashes = ArrayPointer.from_stream(stream, instance.context, instance.hashes_count, Uint)
 			instance.hashes_count = Uint64.from_stream(stream, instance.context, 0, None)
-			instance.media = ArrayPointer.from_stream(stream, instance.context, instance.media_count, MediaEntry)
+			instance.media = ArrayPointer.from_stream(stream, instance.context, instance.media_count, WmetasbMain._import_path_map["generated.formats.wmeta.compounds.MediaEntry"])
 			instance.media_count = Uint64.from_stream(stream, instance.context, 0, None)
 			instance.unused_2 = Pointer.from_stream(stream, instance.context, 0, None)
 			instance.unused_3 = Pointer.from_stream(stream, instance.context, 0, None)
@@ -132,12 +130,12 @@ class WmetasbMain(MemStruct):
 		if instance.context.version <= 18:
 			yield 'media_name', Pointer, (0, ZString), (False, None)
 			yield 'bnk_name', Pointer, (0, ZString), (False, None)
-		yield 'events', ArrayPointer, (instance.events_count, EventEntry), (False, None)
+		yield 'events', ArrayPointer, (instance.events_count, WmetasbMain._import_path_map["generated.formats.wmeta.compounds.EventEntry"]), (False, None)
 		yield 'events_count', Uint64, (0, None), (False, None)
 		if instance.context.version <= 18:
 			yield 'hashes', ArrayPointer, (instance.hashes_count, Uint), (False, None)
 			yield 'hashes_count', Uint64, (0, None), (False, None)
-			yield 'media', ArrayPointer, (instance.media_count, MediaEntry), (False, None)
+			yield 'media', ArrayPointer, (instance.media_count, WmetasbMain._import_path_map["generated.formats.wmeta.compounds.MediaEntry"]), (False, None)
 			yield 'media_count', Uint64, (0, None), (False, None)
 			yield 'unused_2', Pointer, (0, None), (False, None)
 			yield 'unused_3', Pointer, (0, None), (False, None)

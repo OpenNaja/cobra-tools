@@ -5,7 +5,6 @@ from generated.formats.base.basic import ZString
 from generated.formats.ovl_base.compounds.ArrayPointer import ArrayPointer
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
 from generated.formats.ovl_base.compounds.Pointer import Pointer
-from generated.formats.path.compounds.Joint import Joint
 
 
 class ConnectorMultiJoint(MemStruct):
@@ -22,7 +21,7 @@ class ConnectorMultiJoint(MemStruct):
 		self.unk_int_1 = 0
 		self.padding_2 = 0
 		self.model_name = Pointer(self.context, 0, ZString)
-		self.joints = ArrayPointer(self.context, self.num_joints, Joint)
+		self.joints = ArrayPointer(self.context, self.num_joints, ConnectorMultiJoint._import_path_map["generated.formats.path.compounds.Joint"])
 		if set_default:
 			self.set_defaults()
 
@@ -34,14 +33,14 @@ class ConnectorMultiJoint(MemStruct):
 		self.unk_int_1 = 0
 		self.padding_2 = 0
 		self.model_name = Pointer(self.context, 0, ZString)
-		self.joints = ArrayPointer(self.context, self.num_joints, Joint)
+		self.joints = ArrayPointer(self.context, self.num_joints, ConnectorMultiJoint._import_path_map["generated.formats.path.compounds.Joint"])
 
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
 		instance.model_name = Pointer.from_stream(stream, instance.context, 0, ZString)
 		instance.padding = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.joints = ArrayPointer.from_stream(stream, instance.context, instance.num_joints, Joint)
+		instance.joints = ArrayPointer.from_stream(stream, instance.context, instance.num_joints, ConnectorMultiJoint._import_path_map["generated.formats.path.compounds.Joint"])
 		instance.num_joints = Uint64.from_stream(stream, instance.context, 0, None)
 		instance.unk_float_1 = Float.from_stream(stream, instance.context, 0, None)
 		instance.unk_int_1 = Uint.from_stream(stream, instance.context, 0, None)
@@ -67,7 +66,7 @@ class ConnectorMultiJoint(MemStruct):
 		yield from super()._get_filtered_attribute_list(instance)
 		yield 'model_name', Pointer, (0, ZString), (False, None)
 		yield 'padding', Uint64, (0, None), (True, 0)
-		yield 'joints', ArrayPointer, (instance.num_joints, Joint), (False, None)
+		yield 'joints', ArrayPointer, (instance.num_joints, ConnectorMultiJoint._import_path_map["generated.formats.path.compounds.Joint"]), (False, None)
 		yield 'num_joints', Uint64, (0, None), (False, None)
 		yield 'unk_float_1', Float, (0, None), (False, None)
 		yield 'unk_int_1', Uint, (0, None), (False, None)

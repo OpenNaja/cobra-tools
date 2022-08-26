@@ -1,10 +1,6 @@
 from generated.formats.base.basic import Ubyte
 from generated.formats.base.basic import Uint
 from generated.formats.base.basic import ZString
-from generated.formats.logicalcontrols.compounds.AxisButton import AxisButton
-from generated.formats.logicalcontrols.compounds.AxisValue import AxisValue
-from generated.formats.logicalcontrols.compounds.Button import Button
-from generated.formats.logicalcontrols.compounds.Some import Some
 from generated.formats.ovl_base.compounds.ArrayPointer import ArrayPointer
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
 from generated.formats.ovl_base.compounds.Pointer import Pointer
@@ -23,10 +19,10 @@ class LogicalControls(MemStruct):
 		self.count_3 = 0
 		self.count_4 = 0
 		self.flags = 0
-		self.buttons = ArrayPointer(self.context, self.button_count, Button)
-		self.axes = ArrayPointer(self.context, self.axis_count, AxisValue)
-		self.axis_buttons = ArrayPointer(self.context, self.count_3, AxisButton)
-		self.d = ArrayPointer(self.context, self.count_4, Some)
+		self.buttons = ArrayPointer(self.context, self.button_count, LogicalControls._import_path_map["generated.formats.logicalcontrols.compounds.Button"])
+		self.axes = ArrayPointer(self.context, self.axis_count, LogicalControls._import_path_map["generated.formats.logicalcontrols.compounds.AxisValue"])
+		self.axis_buttons = ArrayPointer(self.context, self.count_3, LogicalControls._import_path_map["generated.formats.logicalcontrols.compounds.AxisButton"])
+		self.d = ArrayPointer(self.context, self.count_4, LogicalControls._import_path_map["generated.formats.logicalcontrols.compounds.Some"])
 		self.unsure = Pointer(self.context, 0, ZString)
 		if set_default:
 			self.set_defaults()
@@ -38,19 +34,19 @@ class LogicalControls(MemStruct):
 		self.count_3 = 0
 		self.count_4 = 0
 		self.flags = 0
-		self.buttons = ArrayPointer(self.context, self.button_count, Button)
-		self.axes = ArrayPointer(self.context, self.axis_count, AxisValue)
-		self.axis_buttons = ArrayPointer(self.context, self.count_3, AxisButton)
-		self.d = ArrayPointer(self.context, self.count_4, Some)
+		self.buttons = ArrayPointer(self.context, self.button_count, LogicalControls._import_path_map["generated.formats.logicalcontrols.compounds.Button"])
+		self.axes = ArrayPointer(self.context, self.axis_count, LogicalControls._import_path_map["generated.formats.logicalcontrols.compounds.AxisValue"])
+		self.axis_buttons = ArrayPointer(self.context, self.count_3, LogicalControls._import_path_map["generated.formats.logicalcontrols.compounds.AxisButton"])
+		self.d = ArrayPointer(self.context, self.count_4, LogicalControls._import_path_map["generated.formats.logicalcontrols.compounds.Some"])
 		self.unsure = Pointer(self.context, 0, ZString)
 
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.buttons = ArrayPointer.from_stream(stream, instance.context, instance.button_count, Button)
-		instance.axes = ArrayPointer.from_stream(stream, instance.context, instance.axis_count, AxisValue)
-		instance.axis_buttons = ArrayPointer.from_stream(stream, instance.context, instance.count_3, AxisButton)
-		instance.d = ArrayPointer.from_stream(stream, instance.context, instance.count_4, Some)
+		instance.buttons = ArrayPointer.from_stream(stream, instance.context, instance.button_count, LogicalControls._import_path_map["generated.formats.logicalcontrols.compounds.Button"])
+		instance.axes = ArrayPointer.from_stream(stream, instance.context, instance.axis_count, LogicalControls._import_path_map["generated.formats.logicalcontrols.compounds.AxisValue"])
+		instance.axis_buttons = ArrayPointer.from_stream(stream, instance.context, instance.count_3, LogicalControls._import_path_map["generated.formats.logicalcontrols.compounds.AxisButton"])
+		instance.d = ArrayPointer.from_stream(stream, instance.context, instance.count_4, LogicalControls._import_path_map["generated.formats.logicalcontrols.compounds.Some"])
 		instance.button_count = Ubyte.from_stream(stream, instance.context, 0, None)
 		instance.axis_count = Ubyte.from_stream(stream, instance.context, 0, None)
 		instance.count_3 = Ubyte.from_stream(stream, instance.context, 0, None)
@@ -85,10 +81,10 @@ class LogicalControls(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
-		yield 'buttons', ArrayPointer, (instance.button_count, Button), (False, None)
-		yield 'axes', ArrayPointer, (instance.axis_count, AxisValue), (False, None)
-		yield 'axis_buttons', ArrayPointer, (instance.count_3, AxisButton), (False, None)
-		yield 'd', ArrayPointer, (instance.count_4, Some), (False, None)
+		yield 'buttons', ArrayPointer, (instance.button_count, LogicalControls._import_path_map["generated.formats.logicalcontrols.compounds.Button"]), (False, None)
+		yield 'axes', ArrayPointer, (instance.axis_count, LogicalControls._import_path_map["generated.formats.logicalcontrols.compounds.AxisValue"]), (False, None)
+		yield 'axis_buttons', ArrayPointer, (instance.count_3, LogicalControls._import_path_map["generated.formats.logicalcontrols.compounds.AxisButton"]), (False, None)
+		yield 'd', ArrayPointer, (instance.count_4, LogicalControls._import_path_map["generated.formats.logicalcontrols.compounds.Some"]), (False, None)
 		yield 'button_count', Ubyte, (0, None), (False, None)
 		yield 'axis_count', Ubyte, (0, None), (False, None)
 		yield 'count_3', Ubyte, (0, None), (False, None)

@@ -3,7 +3,6 @@ from generated.formats.base.basic import ZString
 from generated.formats.ovl_base.compounds.ArrayPointer import ArrayPointer
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
 from generated.formats.ovl_base.compounds.Pointer import Pointer
-from generated.formats.path.compounds.PathMaterialData import PathMaterialData
 
 
 class PathMaterial(MemStruct):
@@ -26,7 +25,7 @@ class PathMaterial(MemStruct):
 		self.underside_mat_2 = Pointer(self.context, 0, ZString)
 		self.stairs_mat_1 = Pointer(self.context, 0, ZString)
 		self.stairs_mat_2 = Pointer(self.context, 0, ZString)
-		self.mat_data = ArrayPointer(self.context, self.num_data, PathMaterialData)
+		self.mat_data = ArrayPointer(self.context, self.num_data, PathMaterial._import_path_map["generated.formats.path.compounds.PathMaterialData"])
 		if set_default:
 			self.set_defaults()
 
@@ -44,7 +43,7 @@ class PathMaterial(MemStruct):
 		self.underside_mat_2 = Pointer(self.context, 0, ZString)
 		self.stairs_mat_1 = Pointer(self.context, 0, ZString)
 		self.stairs_mat_2 = Pointer(self.context, 0, ZString)
-		self.mat_data = ArrayPointer(self.context, self.num_data, PathMaterialData)
+		self.mat_data = ArrayPointer(self.context, self.num_data, PathMaterial._import_path_map["generated.formats.path.compounds.PathMaterialData"])
 
 	@classmethod
 	def read_fields(cls, stream, instance):
@@ -60,7 +59,7 @@ class PathMaterial(MemStruct):
 		instance.stairs_mat_1 = Pointer.from_stream(stream, instance.context, 0, ZString)
 		instance.stairs_mat_2 = Pointer.from_stream(stream, instance.context, 0, ZString)
 		instance.path_sub_type = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.mat_data = ArrayPointer.from_stream(stream, instance.context, instance.num_data, PathMaterialData)
+		instance.mat_data = ArrayPointer.from_stream(stream, instance.context, instance.num_data, PathMaterial._import_path_map["generated.formats.path.compounds.PathMaterialData"])
 		instance.num_data = Uint64.from_stream(stream, instance.context, 0, None)
 		if not isinstance(instance.elevated_mat, int):
 			instance.elevated_mat.arg = 0
@@ -116,7 +115,7 @@ class PathMaterial(MemStruct):
 		yield 'stairs_mat_1', Pointer, (0, ZString), (False, None)
 		yield 'stairs_mat_2', Pointer, (0, ZString), (False, None)
 		yield 'path_sub_type', Uint64, (0, None), (False, None)
-		yield 'mat_data', ArrayPointer, (instance.num_data, PathMaterialData), (False, None)
+		yield 'mat_data', ArrayPointer, (instance.num_data, PathMaterial._import_path_map["generated.formats.path.compounds.PathMaterialData"]), (False, None)
 		yield 'num_data', Uint64, (0, None), (False, None)
 
 	def get_info_str(self, indent=0):

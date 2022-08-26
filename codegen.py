@@ -98,8 +98,7 @@ class XmlParser:
                     class_segments = [name_safe_tag, class_name, ]
                 # store the final relative module path for this class
                 self.path_dict[class_name] = os.path.join(base_segments, *class_segments)
-                # self.tag_dict[class_name.lower()] = child.tag
-                self.tag_dict[class_name.lower()] = name_safe_tag
+                self.tag_dict[class_name.lower()] = child.tag
 
     def load_xml(self, xml_file, parsed_xmls=None):
         """Loads an XML (can be filepath or open file) and does all parsing

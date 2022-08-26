@@ -5,11 +5,6 @@ from generated.formats.base.basic import Uint64
 from generated.formats.ovl_base.compounds.ArrayPointer import ArrayPointer
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
 from generated.formats.ovl_base.compounds.Pointer import Pointer
-from generated.formats.path.compounds.Connector import Connector
-from generated.formats.path.compounds.ConnectorMultiJoint import ConnectorMultiJoint
-from generated.formats.path.compounds.Footer import Footer
-from generated.formats.path.compounds.Pillar import Pillar
-from generated.formats.path.compounds.SupportSetData import SupportSetData
 from generated.formats.path.compounds.Vector2 import Vector2
 from generated.formats.path.compounds.Vector3 import Vector3
 
@@ -32,11 +27,11 @@ class SupportSetRoot(MemStruct):
 		self.unk_ints = Array((0,), Uint, self.context, 0, None)
 		self.padding_2 = 0
 		self.num_data = 0
-		self.connector_1 = ArrayPointer(self.context, self.num_connector_1, Connector)
-		self.connector_2 = ArrayPointer(self.context, self.num_connector_2, ConnectorMultiJoint)
-		self.pillar = Pointer(self.context, 0, Pillar)
-		self.footer = Pointer(self.context, 0, Footer)
-		self.data = ArrayPointer(self.context, self.num_data, SupportSetData)
+		self.connector_1 = ArrayPointer(self.context, self.num_connector_1, SupportSetRoot._import_path_map["generated.formats.path.compounds.Connector"])
+		self.connector_2 = ArrayPointer(self.context, self.num_connector_2, SupportSetRoot._import_path_map["generated.formats.path.compounds.ConnectorMultiJoint"])
+		self.pillar = Pointer(self.context, 0, SupportSetRoot._import_path_map["generated.formats.path.compounds.Pillar"])
+		self.footer = Pointer(self.context, 0, SupportSetRoot._import_path_map["generated.formats.path.compounds.Footer"])
+		self.data = ArrayPointer(self.context, self.num_data, SupportSetRoot._import_path_map["generated.formats.path.compounds.SupportSetData"])
 		if set_default:
 			self.set_defaults()
 
@@ -52,19 +47,19 @@ class SupportSetRoot(MemStruct):
 		self.unk_ints = numpy.zeros((7,), dtype=numpy.dtype('uint32'))
 		self.padding_2 = 0
 		self.num_data = 0
-		self.connector_1 = ArrayPointer(self.context, self.num_connector_1, Connector)
-		self.connector_2 = ArrayPointer(self.context, self.num_connector_2, ConnectorMultiJoint)
-		self.pillar = Pointer(self.context, 0, Pillar)
-		self.footer = Pointer(self.context, 0, Footer)
-		self.data = ArrayPointer(self.context, self.num_data, SupportSetData)
+		self.connector_1 = ArrayPointer(self.context, self.num_connector_1, SupportSetRoot._import_path_map["generated.formats.path.compounds.Connector"])
+		self.connector_2 = ArrayPointer(self.context, self.num_connector_2, SupportSetRoot._import_path_map["generated.formats.path.compounds.ConnectorMultiJoint"])
+		self.pillar = Pointer(self.context, 0, SupportSetRoot._import_path_map["generated.formats.path.compounds.Pillar"])
+		self.footer = Pointer(self.context, 0, SupportSetRoot._import_path_map["generated.formats.path.compounds.Footer"])
+		self.data = ArrayPointer(self.context, self.num_data, SupportSetRoot._import_path_map["generated.formats.path.compounds.SupportSetData"])
 
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.connector_1 = ArrayPointer.from_stream(stream, instance.context, instance.num_connector_1, Connector)
-		instance.connector_2 = ArrayPointer.from_stream(stream, instance.context, instance.num_connector_2, ConnectorMultiJoint)
-		instance.pillar = Pointer.from_stream(stream, instance.context, 0, Pillar)
-		instance.footer = Pointer.from_stream(stream, instance.context, 0, Footer)
+		instance.connector_1 = ArrayPointer.from_stream(stream, instance.context, instance.num_connector_1, SupportSetRoot._import_path_map["generated.formats.path.compounds.Connector"])
+		instance.connector_2 = ArrayPointer.from_stream(stream, instance.context, instance.num_connector_2, SupportSetRoot._import_path_map["generated.formats.path.compounds.ConnectorMultiJoint"])
+		instance.pillar = Pointer.from_stream(stream, instance.context, 0, SupportSetRoot._import_path_map["generated.formats.path.compounds.Pillar"])
+		instance.footer = Pointer.from_stream(stream, instance.context, 0, SupportSetRoot._import_path_map["generated.formats.path.compounds.Footer"])
 		instance.padding = Uint64.from_stream(stream, instance.context, 0, None)
 		instance.unk_vector_1 = Vector3.from_stream(stream, instance.context, 0, None)
 		instance.unk_vector_2 = Vector2.from_stream(stream, instance.context, 0, None)
@@ -74,7 +69,7 @@ class SupportSetRoot(MemStruct):
 		instance.num_connector_2 = Uint.from_stream(stream, instance.context, 0, None)
 		instance.unk_ints = Array.from_stream(stream, instance.context, 0, None, (7,), Uint)
 		instance.padding_2 = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.data = ArrayPointer.from_stream(stream, instance.context, instance.num_data, SupportSetData)
+		instance.data = ArrayPointer.from_stream(stream, instance.context, instance.num_data, SupportSetRoot._import_path_map["generated.formats.path.compounds.SupportSetData"])
 		instance.num_data = Uint.from_stream(stream, instance.context, 0, None)
 		if not isinstance(instance.connector_1, int):
 			instance.connector_1.arg = instance.num_connector_1
@@ -109,10 +104,10 @@ class SupportSetRoot(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
-		yield 'connector_1', ArrayPointer, (instance.num_connector_1, Connector), (False, None)
-		yield 'connector_2', ArrayPointer, (instance.num_connector_2, ConnectorMultiJoint), (False, None)
-		yield 'pillar', Pointer, (0, Pillar), (False, None)
-		yield 'footer', Pointer, (0, Footer), (False, None)
+		yield 'connector_1', ArrayPointer, (instance.num_connector_1, SupportSetRoot._import_path_map["generated.formats.path.compounds.Connector"]), (False, None)
+		yield 'connector_2', ArrayPointer, (instance.num_connector_2, SupportSetRoot._import_path_map["generated.formats.path.compounds.ConnectorMultiJoint"]), (False, None)
+		yield 'pillar', Pointer, (0, SupportSetRoot._import_path_map["generated.formats.path.compounds.Pillar"]), (False, None)
+		yield 'footer', Pointer, (0, SupportSetRoot._import_path_map["generated.formats.path.compounds.Footer"]), (False, None)
 		yield 'padding', Uint64, (0, None), (True, 0)
 		yield 'unk_vector_1', Vector3, (0, None), (False, None)
 		yield 'unk_vector_2', Vector2, (0, None), (False, None)
@@ -122,7 +117,7 @@ class SupportSetRoot(MemStruct):
 		yield 'num_connector_2', Uint, (0, None), (False, None)
 		yield 'unk_ints', Array, ((7,), Uint, 0, None), (False, None)
 		yield 'padding_2', Uint64, (0, None), (True, 0)
-		yield 'data', ArrayPointer, (instance.num_data, SupportSetData), (False, None)
+		yield 'data', ArrayPointer, (instance.num_data, SupportSetRoot._import_path_map["generated.formats.path.compounds.SupportSetData"]), (False, None)
 		yield 'num_data', Uint, (0, None), (False, None)
 
 	def get_info_str(self, indent=0):

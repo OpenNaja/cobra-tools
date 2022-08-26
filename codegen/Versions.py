@@ -47,7 +47,7 @@ class Versions:
 							suffix = ""
 							if k in self.parent.verattrs:
 								name, attr_type = self.parent.verattrs[k]
-								if attr_type and self.parent.tag_dict[attr_type.lower()] == 'bitfields':
+								if attr_type and self.parent.tag_dict[attr_type.lower()] in self.parent.bitstruct_types:
 									suffix = "._value"
 							else:
 								name = k.lower()

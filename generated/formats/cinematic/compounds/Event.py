@@ -1,6 +1,5 @@
 from generated.formats.base.basic import Float
 from generated.formats.base.basic import ZString
-from generated.formats.cinematic.compounds.EventAttributes import EventAttributes
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
 from generated.formats.ovl_base.compounds.Pointer import Pointer
 
@@ -22,7 +21,7 @@ class Event(MemStruct):
 		self.duration = 0.0
 		self.d = 0.0
 		self.module_name = Pointer(self.context, 0, ZString)
-		self.attributes = Pointer(self.context, 0, EventAttributes)
+		self.attributes = Pointer(self.context, 0, Event._import_path_map["generated.formats.cinematic.compounds.EventAttributes"])
 		if set_default:
 			self.set_defaults()
 
@@ -33,7 +32,7 @@ class Event(MemStruct):
 		self.duration = 0.0
 		self.d = 0.0
 		self.module_name = Pointer(self.context, 0, ZString)
-		self.attributes = Pointer(self.context, 0, EventAttributes)
+		self.attributes = Pointer(self.context, 0, Event._import_path_map["generated.formats.cinematic.compounds.EventAttributes"])
 
 	@classmethod
 	def read_fields(cls, stream, instance):
@@ -41,7 +40,7 @@ class Event(MemStruct):
 		instance.start_time = Float.from_stream(stream, instance.context, 0, None)
 		instance.b = Float.from_stream(stream, instance.context, 0, None)
 		instance.module_name = Pointer.from_stream(stream, instance.context, 0, ZString)
-		instance.attributes = Pointer.from_stream(stream, instance.context, 0, EventAttributes)
+		instance.attributes = Pointer.from_stream(stream, instance.context, 0, Event._import_path_map["generated.formats.cinematic.compounds.EventAttributes"])
 		instance.duration = Float.from_stream(stream, instance.context, 0, None)
 		instance.d = Float.from_stream(stream, instance.context, 0, None)
 		if not isinstance(instance.module_name, int):
@@ -65,7 +64,7 @@ class Event(MemStruct):
 		yield 'start_time', Float, (0, None), (False, None)
 		yield 'b', Float, (0, None), (False, None)
 		yield 'module_name', Pointer, (0, ZString), (False, None)
-		yield 'attributes', Pointer, (0, EventAttributes), (False, None)
+		yield 'attributes', Pointer, (0, Event._import_path_map["generated.formats.cinematic.compounds.EventAttributes"]), (False, None)
 		yield 'duration', Float, (0, None), (False, None)
 		yield 'd', Float, (0, None), (False, None)
 

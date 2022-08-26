@@ -1,6 +1,5 @@
 from generated.formats.base.basic import Uint64
 from generated.formats.base.basic import ZString
-from generated.formats.cinematic.compounds.EventsList import EventsList
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
 from generated.formats.ovl_base.compounds.Pointer import Pointer
 
@@ -24,7 +23,7 @@ class State(MemStruct):
 		self.abstract_name = Pointer(self.context, 0, ZString)
 		self.concrete_name = Pointer(self.context, 0, ZString)
 		self.debug_name = Pointer(self.context, 0, ZString)
-		self.events_list = Pointer(self.context, 0, EventsList)
+		self.events_list = Pointer(self.context, 0, State._import_path_map["generated.formats.cinematic.compounds.EventsList"])
 		if set_default:
 			self.set_defaults()
 
@@ -37,7 +36,7 @@ class State(MemStruct):
 		self.abstract_name = Pointer(self.context, 0, ZString)
 		self.concrete_name = Pointer(self.context, 0, ZString)
 		self.debug_name = Pointer(self.context, 0, ZString)
-		self.events_list = Pointer(self.context, 0, EventsList)
+		self.events_list = Pointer(self.context, 0, State._import_path_map["generated.formats.cinematic.compounds.EventsList"])
 
 	@classmethod
 	def read_fields(cls, stream, instance):
@@ -48,7 +47,7 @@ class State(MemStruct):
 		instance.a = Uint64.from_stream(stream, instance.context, 0, None)
 		instance.b = Uint64.from_stream(stream, instance.context, 0, None)
 		instance.c = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.events_list = Pointer.from_stream(stream, instance.context, 0, EventsList)
+		instance.events_list = Pointer.from_stream(stream, instance.context, 0, State._import_path_map["generated.formats.cinematic.compounds.EventsList"])
 		instance.d = Uint64.from_stream(stream, instance.context, 0, None)
 		if not isinstance(instance.abstract_name, int):
 			instance.abstract_name.arg = 0
@@ -80,7 +79,7 @@ class State(MemStruct):
 		yield 'a', Uint64, (0, None), (False, None)
 		yield 'b', Uint64, (0, None), (False, None)
 		yield 'c', Uint64, (0, None), (False, None)
-		yield 'events_list', Pointer, (0, EventsList), (False, None)
+		yield 'events_list', Pointer, (0, State._import_path_map["generated.formats.cinematic.compounds.EventsList"]), (False, None)
 		yield 'd', Uint64, (0, None), (False, None)
 
 	def get_info_str(self, indent=0):

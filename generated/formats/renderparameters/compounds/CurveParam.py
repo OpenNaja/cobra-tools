@@ -4,7 +4,6 @@ from generated.formats.base.basic import Uint64
 from generated.formats.base.basic import ZString
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
 from generated.formats.ovl_base.compounds.Pointer import Pointer
-from generated.formats.renderparameters.compounds.CurveList import CurveList
 
 
 class CurveParam(MemStruct):
@@ -21,7 +20,7 @@ class CurveParam(MemStruct):
 		self.do_interpolation = 0
 		self.count = 0
 		self.attribute_name = Pointer(self.context, 0, ZString)
-		self.curve_entries = Pointer(self.context, self.count, CurveList)
+		self.curve_entries = Pointer(self.context, self.count, CurveParam._import_path_map["generated.formats.renderparameters.compounds.CurveList"])
 		if set_default:
 			self.set_defaults()
 
@@ -31,7 +30,7 @@ class CurveParam(MemStruct):
 		self.do_interpolation = 0
 		self.count = 0
 		self.attribute_name = Pointer(self.context, 0, ZString)
-		self.curve_entries = Pointer(self.context, self.count, CurveList)
+		self.curve_entries = Pointer(self.context, self.count, CurveParam._import_path_map["generated.formats.renderparameters.compounds.CurveList"])
 
 	@classmethod
 	def read_fields(cls, stream, instance):
@@ -39,7 +38,7 @@ class CurveParam(MemStruct):
 		instance.attribute_name = Pointer.from_stream(stream, instance.context, 0, ZString)
 		instance.dtype = Int.from_stream(stream, instance.context, 0, None)
 		instance.do_interpolation = Uint.from_stream(stream, instance.context, 0, None)
-		instance.curve_entries = Pointer.from_stream(stream, instance.context, instance.count, CurveList)
+		instance.curve_entries = Pointer.from_stream(stream, instance.context, instance.count, CurveParam._import_path_map["generated.formats.renderparameters.compounds.CurveList"])
 		instance.count = Uint64.from_stream(stream, instance.context, 0, None)
 		if not isinstance(instance.attribute_name, int):
 			instance.attribute_name.arg = 0
@@ -61,7 +60,7 @@ class CurveParam(MemStruct):
 		yield 'attribute_name', Pointer, (0, ZString), (False, None)
 		yield 'dtype', Int, (0, None), (False, None)
 		yield 'do_interpolation', Uint, (0, None), (False, None)
-		yield 'curve_entries', Pointer, (instance.count, CurveList), (False, None)
+		yield 'curve_entries', Pointer, (instance.count, CurveParam._import_path_map["generated.formats.renderparameters.compounds.CurveList"]), (False, None)
 		yield 'count', Uint64, (0, None), (False, None)
 
 	def get_info_str(self, indent=0):

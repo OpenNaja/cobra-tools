@@ -3,7 +3,6 @@ from generated.formats.base.basic import Ubyte
 from generated.formats.base.basic import Ushort
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
 from generated.formats.ovl_base.compounds.Pointer import Pointer
-from generated.formats.spl.compounds.SplData import SplData
 
 
 class SplRoot(MemStruct):
@@ -24,7 +23,7 @@ class SplRoot(MemStruct):
 
 		# total length of the interpolated curve, cf blender curvetools.CurveLength
 		self.length = 0.0
-		self.spline_data = Pointer(self.context, self.count, SplData)
+		self.spline_data = Pointer(self.context, self.count, SplRoot._import_path_map["generated.formats.spl.compounds.SplData"])
 		if set_default:
 			self.set_defaults()
 
@@ -34,12 +33,12 @@ class SplRoot(MemStruct):
 		self.sixteen = 0
 		self.one = 0
 		self.length = 0.0
-		self.spline_data = Pointer(self.context, self.count, SplData)
+		self.spline_data = Pointer(self.context, self.count, SplRoot._import_path_map["generated.formats.spl.compounds.SplData"])
 
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.spline_data = Pointer.from_stream(stream, instance.context, instance.count, SplData)
+		instance.spline_data = Pointer.from_stream(stream, instance.context, instance.count, SplRoot._import_path_map["generated.formats.spl.compounds.SplData"])
 		instance.count = Ushort.from_stream(stream, instance.context, 0, None)
 		instance.sixteen = Ubyte.from_stream(stream, instance.context, 0, None)
 		instance.one = Ubyte.from_stream(stream, instance.context, 0, None)
@@ -59,7 +58,7 @@ class SplRoot(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
-		yield 'spline_data', Pointer, (instance.count, SplData), (False, None)
+		yield 'spline_data', Pointer, (instance.count, SplRoot._import_path_map["generated.formats.spl.compounds.SplData"]), (False, None)
 		yield 'count', Ushort, (0, None), (False, None)
 		yield 'sixteen', Ubyte, (0, None), (False, None)
 		yield 'one', Ubyte, (0, None), (False, None)

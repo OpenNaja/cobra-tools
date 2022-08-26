@@ -1,4 +1,3 @@
-from generated.formats.animalresearch.compounds.PtrList import PtrList
 from generated.formats.base.basic import Uint64
 from generated.formats.base.basic import ZString
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
@@ -16,8 +15,8 @@ class ResearchLevel(MemStruct):
 		self.next_level_count = 0
 		self.children_count = 0
 		self.level_name = Pointer(self.context, 0, ZString)
-		self.next_levels = Pointer(self.context, self.next_level_count, PtrList)
-		self.children = Pointer(self.context, self.children_count, PtrList)
+		self.next_levels = Pointer(self.context, self.next_level_count, ResearchLevel._import_path_map["generated.formats.animalresearch.compounds.PtrList"])
+		self.children = Pointer(self.context, self.children_count, ResearchLevel._import_path_map["generated.formats.animalresearch.compounds.PtrList"])
 		if set_default:
 			self.set_defaults()
 
@@ -26,16 +25,16 @@ class ResearchLevel(MemStruct):
 		self.next_level_count = 0
 		self.children_count = 0
 		self.level_name = Pointer(self.context, 0, ZString)
-		self.next_levels = Pointer(self.context, self.next_level_count, PtrList)
-		self.children = Pointer(self.context, self.children_count, PtrList)
+		self.next_levels = Pointer(self.context, self.next_level_count, ResearchLevel._import_path_map["generated.formats.animalresearch.compounds.PtrList"])
+		self.children = Pointer(self.context, self.children_count, ResearchLevel._import_path_map["generated.formats.animalresearch.compounds.PtrList"])
 
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
 		instance.level_name = Pointer.from_stream(stream, instance.context, 0, ZString)
-		instance.next_levels = Pointer.from_stream(stream, instance.context, instance.next_level_count, PtrList)
+		instance.next_levels = Pointer.from_stream(stream, instance.context, instance.next_level_count, ResearchLevel._import_path_map["generated.formats.animalresearch.compounds.PtrList"])
 		instance.next_level_count = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.children = Pointer.from_stream(stream, instance.context, instance.children_count, PtrList)
+		instance.children = Pointer.from_stream(stream, instance.context, instance.children_count, ResearchLevel._import_path_map["generated.formats.animalresearch.compounds.PtrList"])
 		instance.children_count = Uint64.from_stream(stream, instance.context, 0, None)
 		if not isinstance(instance.level_name, int):
 			instance.level_name.arg = 0
@@ -57,9 +56,9 @@ class ResearchLevel(MemStruct):
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
 		yield 'level_name', Pointer, (0, ZString), (False, None)
-		yield 'next_levels', Pointer, (instance.next_level_count, PtrList), (False, None)
+		yield 'next_levels', Pointer, (instance.next_level_count, ResearchLevel._import_path_map["generated.formats.animalresearch.compounds.PtrList"]), (False, None)
 		yield 'next_level_count', Uint64, (0, None), (False, None)
-		yield 'children', Pointer, (instance.children_count, PtrList), (False, None)
+		yield 'children', Pointer, (instance.children_count, ResearchLevel._import_path_map["generated.formats.animalresearch.compounds.PtrList"]), (False, None)
 		yield 'children_count', Uint64, (0, None), (False, None)
 
 	def get_info_str(self, indent=0):

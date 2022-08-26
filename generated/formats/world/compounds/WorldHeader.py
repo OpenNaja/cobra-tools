@@ -2,7 +2,6 @@ from generated.formats.base.basic import Uint64
 from generated.formats.base.basic import ZString
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
 from generated.formats.ovl_base.compounds.Pointer import Pointer
-from generated.formats.world.compounds.PtrList import PtrList
 
 
 class WorldHeader(MemStruct):
@@ -20,11 +19,11 @@ class WorldHeader(MemStruct):
 		self.world_type = 0
 		self.asset_pkg_count = 0
 		self.prefab_count = 0
-		self.asset_pkgs = Pointer(self.context, self.asset_pkg_count, PtrList)
+		self.asset_pkgs = Pointer(self.context, self.asset_pkg_count, WorldHeader._import_path_map["generated.formats.world.compounds.PtrList"])
 		self.lua_name = Pointer(self.context, 0, ZString)
 		self.ptr_0 = Pointer(self.context, 0, None)
 		self.ptr_1 = Pointer(self.context, 0, None)
-		self.prefabs = Pointer(self.context, self.prefab_count, PtrList)
+		self.prefabs = Pointer(self.context, self.prefab_count, WorldHeader._import_path_map["generated.formats.world.compounds.PtrList"])
 		self.ptr_2 = Pointer(self.context, 0, None)
 		self.ptr_3 = Pointer(self.context, 0, None)
 		if set_default:
@@ -35,11 +34,11 @@ class WorldHeader(MemStruct):
 		self.world_type = 0
 		self.asset_pkg_count = 0
 		self.prefab_count = 0
-		self.asset_pkgs = Pointer(self.context, self.asset_pkg_count, PtrList)
+		self.asset_pkgs = Pointer(self.context, self.asset_pkg_count, WorldHeader._import_path_map["generated.formats.world.compounds.PtrList"])
 		self.lua_name = Pointer(self.context, 0, ZString)
 		self.ptr_0 = Pointer(self.context, 0, None)
 		self.ptr_1 = Pointer(self.context, 0, None)
-		self.prefabs = Pointer(self.context, self.prefab_count, PtrList)
+		self.prefabs = Pointer(self.context, self.prefab_count, WorldHeader._import_path_map["generated.formats.world.compounds.PtrList"])
 		self.ptr_2 = Pointer(self.context, 0, None)
 		self.ptr_3 = Pointer(self.context, 0, None)
 
@@ -47,12 +46,12 @@ class WorldHeader(MemStruct):
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
 		instance.world_type = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.asset_pkgs = Pointer.from_stream(stream, instance.context, instance.asset_pkg_count, PtrList)
+		instance.asset_pkgs = Pointer.from_stream(stream, instance.context, instance.asset_pkg_count, WorldHeader._import_path_map["generated.formats.world.compounds.PtrList"])
 		instance.asset_pkg_count = Uint64.from_stream(stream, instance.context, 0, None)
 		instance.lua_name = Pointer.from_stream(stream, instance.context, 0, ZString)
 		instance.ptr_0 = Pointer.from_stream(stream, instance.context, 0, None)
 		instance.ptr_1 = Pointer.from_stream(stream, instance.context, 0, None)
-		instance.prefabs = Pointer.from_stream(stream, instance.context, instance.prefab_count, PtrList)
+		instance.prefabs = Pointer.from_stream(stream, instance.context, instance.prefab_count, WorldHeader._import_path_map["generated.formats.world.compounds.PtrList"])
 		instance.ptr_2 = Pointer.from_stream(stream, instance.context, 0, None)
 		instance.prefab_count = Uint64.from_stream(stream, instance.context, 0, None)
 		instance.ptr_3 = Pointer.from_stream(stream, instance.context, 0, None)
@@ -89,12 +88,12 @@ class WorldHeader(MemStruct):
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
 		yield 'world_type', Uint64, (0, None), (False, None)
-		yield 'asset_pkgs', Pointer, (instance.asset_pkg_count, PtrList), (False, None)
+		yield 'asset_pkgs', Pointer, (instance.asset_pkg_count, WorldHeader._import_path_map["generated.formats.world.compounds.PtrList"]), (False, None)
 		yield 'asset_pkg_count', Uint64, (0, None), (False, None)
 		yield 'lua_name', Pointer, (0, ZString), (False, None)
 		yield 'ptr_0', Pointer, (0, None), (False, None)
 		yield 'ptr_1', Pointer, (0, None), (False, None)
-		yield 'prefabs', Pointer, (instance.prefab_count, PtrList), (False, None)
+		yield 'prefabs', Pointer, (instance.prefab_count, WorldHeader._import_path_map["generated.formats.world.compounds.PtrList"]), (False, None)
 		yield 'ptr_2', Pointer, (0, None), (False, None)
 		yield 'prefab_count', Uint64, (0, None), (False, None)
 		yield 'ptr_3', Pointer, (0, None), (False, None)

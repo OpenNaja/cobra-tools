@@ -5,9 +5,6 @@ from generated.formats.base.basic import Ushort
 from generated.formats.ovl_base.compounds.ArrayPointer import ArrayPointer
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
 from generated.formats.ovl_base.compounds.Pointer import Pointer
-from generated.formats.tex.compounds.SizeInfo import SizeInfo
-from generated.formats.tex.compounds.TexBuffer import TexBuffer
-from generated.formats.tex.compounds.TexBufferPc import TexBufferPc
 from generated.formats.tex.enums.DdsType import DdsType
 from generated.formats.tex.enums.DdsTypeCoaster import DdsTypeCoaster
 
@@ -45,8 +42,8 @@ class TexHeader(MemStruct):
 		# 0
 		self.pad = 0
 		self.pad_dla = 0
-		self.buffer_infos = ArrayPointer(self.context, self.stream_count, TexBuffer)
-		self.size_info = Pointer(self.context, 0, SizeInfo)
+		self.buffer_infos = ArrayPointer(self.context, self.stream_count, TexHeader._import_path_map["generated.formats.tex.compounds.TexBuffer"])
+		self.size_info = Pointer(self.context, 0, TexHeader._import_path_map["generated.formats.tex.compounds.SizeInfo"])
 		if set_default:
 			self.set_defaults()
 
@@ -74,10 +71,10 @@ class TexHeader(MemStruct):
 		if self.context.version <= 15:
 			self.pad_dla = 0
 		if 17 <= self.context.version <= 18:
-			self.buffer_infos = ArrayPointer(self.context, self.stream_count, TexBufferPc)
+			self.buffer_infos = ArrayPointer(self.context, self.stream_count, TexHeader._import_path_map["generated.formats.tex.compounds.TexBufferPc"])
 		if self.context.version >= 19:
-			self.buffer_infos = ArrayPointer(self.context, self.stream_count, TexBuffer)
-			self.size_info = Pointer(self.context, 0, SizeInfo)
+			self.buffer_infos = ArrayPointer(self.context, self.stream_count, TexHeader._import_path_map["generated.formats.tex.compounds.TexBuffer"])
+			self.size_info = Pointer(self.context, 0, TexHeader._import_path_map["generated.formats.tex.compounds.SizeInfo"])
 
 	@classmethod
 	def read_fields(cls, stream, instance):
@@ -89,10 +86,10 @@ class TexHeader(MemStruct):
 		if instance.context.version >= 19:
 			instance.zero_1 = Uint64.from_stream(stream, instance.context, 0, None)
 		if 17 <= instance.context.version <= 18:
-			instance.buffer_infos = ArrayPointer.from_stream(stream, instance.context, instance.stream_count, TexBufferPc)
+			instance.buffer_infos = ArrayPointer.from_stream(stream, instance.context, instance.stream_count, TexHeader._import_path_map["generated.formats.tex.compounds.TexBufferPc"])
 		if instance.context.version >= 19:
-			instance.buffer_infos = ArrayPointer.from_stream(stream, instance.context, instance.stream_count, TexBuffer)
-			instance.size_info = Pointer.from_stream(stream, instance.context, 0, SizeInfo)
+			instance.buffer_infos = ArrayPointer.from_stream(stream, instance.context, instance.stream_count, TexHeader._import_path_map["generated.formats.tex.compounds.TexBuffer"])
+			instance.size_info = Pointer.from_stream(stream, instance.context, 0, TexHeader._import_path_map["generated.formats.tex.compounds.SizeInfo"])
 		if instance.context.version < 19:
 			instance.compression_type = DdsTypeCoaster.from_stream(stream, instance.context, 0, None)
 		if not (instance.context.version < 19):
@@ -155,10 +152,10 @@ class TexHeader(MemStruct):
 		if instance.context.version >= 19:
 			yield 'zero_1', Uint64, (0, None), (False, None)
 		if 17 <= instance.context.version <= 18:
-			yield 'buffer_infos', ArrayPointer, (instance.stream_count, TexBufferPc), (False, None)
+			yield 'buffer_infos', ArrayPointer, (instance.stream_count, TexHeader._import_path_map["generated.formats.tex.compounds.TexBufferPc"]), (False, None)
 		if instance.context.version >= 19:
-			yield 'buffer_infos', ArrayPointer, (instance.stream_count, TexBuffer), (False, None)
-			yield 'size_info', Pointer, (0, SizeInfo), (False, None)
+			yield 'buffer_infos', ArrayPointer, (instance.stream_count, TexHeader._import_path_map["generated.formats.tex.compounds.TexBuffer"]), (False, None)
+			yield 'size_info', Pointer, (0, TexHeader._import_path_map["generated.formats.tex.compounds.SizeInfo"]), (False, None)
 		if instance.context.version < 19:
 			yield 'compression_type', DdsTypeCoaster, (0, None), (False, None)
 		if not (instance.context.version < 19):

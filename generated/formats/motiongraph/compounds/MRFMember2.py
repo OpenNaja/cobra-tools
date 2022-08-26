@@ -1,6 +1,5 @@
 from generated.formats.base.basic import Uint64
 from generated.formats.base.basic import ZString
-from generated.formats.motiongraph.compounds.Transition import Transition
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
 from generated.formats.ovl_base.compounds.Pointer import Pointer
 
@@ -25,7 +24,7 @@ class MRFMember2(MemStruct):
 		self.count_4 = 0
 		self.count_5 = 0
 		self.count_6 = 0
-		self.transition = Pointer(self.context, 0, Transition)
+		self.transition = Pointer(self.context, 0, MRFMember2._import_path_map["generated.formats.motiongraph.compounds.Transition"])
 		self.id = Pointer(self.context, 0, ZString)
 		if set_default:
 			self.set_defaults()
@@ -39,13 +38,13 @@ class MRFMember2(MemStruct):
 		self.count_4 = 0
 		self.count_5 = 0
 		self.count_6 = 0
-		self.transition = Pointer(self.context, 0, Transition)
+		self.transition = Pointer(self.context, 0, MRFMember2._import_path_map["generated.formats.motiongraph.compounds.Transition"])
 		self.id = Pointer(self.context, 0, ZString)
 
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.transition = Pointer.from_stream(stream, instance.context, 0, Transition)
+		instance.transition = Pointer.from_stream(stream, instance.context, 0, MRFMember2._import_path_map["generated.formats.motiongraph.compounds.Transition"])
 		instance.count_0 = Uint64.from_stream(stream, instance.context, 0, None)
 		instance.count_1 = Uint64.from_stream(stream, instance.context, 0, None)
 		instance.count_2 = Uint64.from_stream(stream, instance.context, 0, None)
@@ -75,7 +74,7 @@ class MRFMember2(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
-		yield 'transition', Pointer, (0, Transition), (False, None)
+		yield 'transition', Pointer, (0, MRFMember2._import_path_map["generated.formats.motiongraph.compounds.Transition"]), (False, None)
 		yield 'count_0', Uint64, (0, None), (False, None)
 		yield 'count_1', Uint64, (0, None), (False, None)
 		yield 'count_2', Uint64, (0, None), (False, None)

@@ -1,8 +1,6 @@
 from generated.formats.base.basic import Uint
 from generated.formats.base.basic import Uint64
 from generated.formats.base.basic import ZString
-from generated.formats.motiongraph.compounds.PtrList import PtrList
-from generated.formats.motiongraph.compounds.TransStructArray import TransStructArray
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
 from generated.formats.ovl_base.compounds.Pointer import Pointer
 
@@ -23,8 +21,8 @@ class Transition(MemStruct):
 		self.count_0 = 0
 		self.count_1 = 0
 		self.count_2 = 0
-		self.ptr_0 = Pointer(self.context, self.count_1, PtrList)
-		self.ptr_1 = Pointer(self.context, self.count_2, TransStructArray)
+		self.ptr_0 = Pointer(self.context, self.count_1, Transition._import_path_map["generated.formats.motiongraph.compounds.PtrList"])
+		self.ptr_1 = Pointer(self.context, self.count_2, Transition._import_path_map["generated.formats.motiongraph.compounds.TransStructArray"])
 		self.id = Pointer(self.context, 0, ZString)
 		if set_default:
 			self.set_defaults()
@@ -34,8 +32,8 @@ class Transition(MemStruct):
 		self.count_0 = 0
 		self.count_1 = 0
 		self.count_2 = 0
-		self.ptr_0 = Pointer(self.context, self.count_1, PtrList)
-		self.ptr_1 = Pointer(self.context, self.count_2, TransStructArray)
+		self.ptr_0 = Pointer(self.context, self.count_1, Transition._import_path_map["generated.formats.motiongraph.compounds.PtrList"])
+		self.ptr_1 = Pointer(self.context, self.count_2, Transition._import_path_map["generated.formats.motiongraph.compounds.TransStructArray"])
 		self.id = Pointer(self.context, 0, ZString)
 
 	@classmethod
@@ -43,9 +41,9 @@ class Transition(MemStruct):
 		super().read_fields(stream, instance)
 		instance.count_0 = Uint.from_stream(stream, instance.context, 0, None)
 		instance.count_1 = Uint.from_stream(stream, instance.context, 0, None)
-		instance.ptr_0 = Pointer.from_stream(stream, instance.context, instance.count_1, PtrList)
+		instance.ptr_0 = Pointer.from_stream(stream, instance.context, instance.count_1, Transition._import_path_map["generated.formats.motiongraph.compounds.PtrList"])
 		instance.count_2 = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.ptr_1 = Pointer.from_stream(stream, instance.context, instance.count_2, TransStructArray)
+		instance.ptr_1 = Pointer.from_stream(stream, instance.context, instance.count_2, Transition._import_path_map["generated.formats.motiongraph.compounds.TransStructArray"])
 		instance.id = Pointer.from_stream(stream, instance.context, 0, ZString)
 		if not isinstance(instance.ptr_0, int):
 			instance.ptr_0.arg = instance.count_1
@@ -69,9 +67,9 @@ class Transition(MemStruct):
 		yield from super()._get_filtered_attribute_list(instance)
 		yield 'count_0', Uint, (0, None), (False, None)
 		yield 'count_1', Uint, (0, None), (False, None)
-		yield 'ptr_0', Pointer, (instance.count_1, PtrList), (False, None)
+		yield 'ptr_0', Pointer, (instance.count_1, Transition._import_path_map["generated.formats.motiongraph.compounds.PtrList"]), (False, None)
 		yield 'count_2', Uint64, (0, None), (False, None)
-		yield 'ptr_1', Pointer, (instance.count_2, TransStructArray), (False, None)
+		yield 'ptr_1', Pointer, (instance.count_2, Transition._import_path_map["generated.formats.motiongraph.compounds.TransStructArray"]), (False, None)
 		yield 'id', Pointer, (0, ZString), (False, None)
 
 	def get_info_str(self, indent=0):

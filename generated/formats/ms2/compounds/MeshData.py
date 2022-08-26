@@ -7,7 +7,6 @@ from generated.formats.ms2.compounds.packing_utils import FUR_OVERHEAD, remap
 from plugin.utils.tristrip import triangulate
 
 from generated.formats.base.basic import Uint64
-from generated.formats.ms2.compounds.BufferInfo import BufferInfo
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
 from generated.formats.ovl_base.compounds.Pointer import Pointer
 
@@ -32,7 +31,7 @@ class MeshData(MemStruct):
 		self.some_index = 0
 
 		# PZ and JWE use a ptr instead
-		self.stream_info = Pointer(self.context, 0, BufferInfo)
+		self.stream_info = Pointer(self.context, 0, MeshData._import_path_map["generated.formats.ms2.compounds.BufferInfo"])
 		if set_default:
 			self.set_defaults()
 
@@ -43,7 +42,7 @@ class MeshData(MemStruct):
 		if not ((self.context.version == 51) and self.context.biosyn):
 			self.some_index = 0
 		if self.context.version >= 47:
-			self.stream_info = Pointer(self.context, 0, BufferInfo)
+			self.stream_info = Pointer(self.context, 0, MeshData._import_path_map["generated.formats.ms2.compounds.BufferInfo"])
 
 	@classmethod
 	def read_fields(cls, stream, instance):
@@ -51,7 +50,7 @@ class MeshData(MemStruct):
 		if instance.context.version <= 32:
 			instance.stream_index = Uint64.from_stream(stream, instance.context, 0, None)
 		if instance.context.version >= 47:
-			instance.stream_info = Pointer.from_stream(stream, instance.context, 0, BufferInfo)
+			instance.stream_info = Pointer.from_stream(stream, instance.context, 0, MeshData._import_path_map["generated.formats.ms2.compounds.BufferInfo"])
 		if not ((instance.context.version == 51) and instance.context.biosyn):
 			instance.some_index = Uint64.from_stream(stream, instance.context, 0, None)
 		if not isinstance(instance.stream_info, int):
@@ -73,7 +72,7 @@ class MeshData(MemStruct):
 		if instance.context.version <= 32:
 			yield 'stream_index', Uint64, (0, None), (False, None)
 		if instance.context.version >= 47:
-			yield 'stream_info', Pointer, (0, BufferInfo), (False, None)
+			yield 'stream_info', Pointer, (0, MeshData._import_path_map["generated.formats.ms2.compounds.BufferInfo"]), (False, None)
 		if not ((instance.context.version == 51) and instance.context.biosyn):
 			yield 'some_index', Uint64, (0, None), (False, None)
 
