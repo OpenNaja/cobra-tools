@@ -277,17 +277,48 @@ class Union:
         base_indent = "\n\t\t"
         for field in self.members:
             arg, template, arr1, arr2, conditionals, field_name, field_type, pad_mode, (optional, default) = self.get_params(field, f'{target_variable}.')
-            indent, new_condition = condition_indent(base_indent, conditionals, condition)
-            if new_condition:
-                f.write(f"{base_indent}{new_condition}")
-            if new_condition or indent == base_indent:
-                condition = new_condition
             if arr1 is None:
                 arguments = f"({arg}, {template})"
             else:
                 arguments = f"({self.compounds.parser.arrs_to_tuple(arr1, arr2)}, {field_type}, {arg}, {template})"
                 field_type = "Array"
-            f.write(f"{indent}yield '{field_name}', {field_type}, {arguments}, ({optional}, {default})")
+
+            indent, new_condition = condition_indent(base_indent, conditionals, condition)
+            if new_condition:
+                f.write(f"{base_indent}{new_condition}")
+            if new_condition or indent == base_indent:
+                condition = new_condition
+
+            default_children = field.findall("default")
+            if default_children:
+
+                condition_defaults = [(f'{indent}else:', default)]
+                last_default = len(default_children) - 1
+                def_condition = ""
+                for i, default_element in enumerate(default_children):
+    
+                    # get the condition
+                    conditionals = self.get_conditions(default_element, expression_prefix=f'{target_variable}.')
+                    def_indent, def_condition = condition_indent(indent, conditionals, def_condition)
+                    if not def_condition:
+                        raise AttributeError(
+                            f"Default tag without or with overlapping conditionals on {field.attrib['name']} {def_condition} {default_element.get('value')}")
+                    if i != last_default:
+                        def_condition = f'{indent}el{def_condition}'
+                    else:
+                        def_condition = f'{indent}{def_condition}'
+                    condition_defaults.append((def_condition, default_element.attrib.get("value")))
+                condition_defaults = condition_defaults[::-1]
+            else:
+                condition_defaults = [("", default)]
+
+            for def_condition, default in condition_defaults:
+                if def_condition:
+                    f.write(def_condition)
+                    def_indent = f'{indent}\t'
+                else:
+                    def_indent = indent
+                f.write(f"{def_indent}yield '{field_name}', {field_type}, {arguments}, ({optional}, {default})")
         return condition
 
     def write_arg_update(self, f, method_type):
