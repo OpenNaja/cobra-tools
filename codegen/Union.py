@@ -129,14 +129,18 @@ class Union:
             arr2 = Expression(arr2, expression_prefix)
         return arg, template, arr1, arr2, conditionals, field_name, field_type, pad_mode, optional
 
+    def default_to_value(self, default_string, field_type):
+        if default_string and field_type in self.compounds.parser.path_dict and self.compounds.parser.tag_dict[field_type.lower()] == "enum":
+            default_string = convention.name_enum_key_if_necessary(default_string)
+            default_string = f'{field_type}.{default_string}'
+        return default_string
+
     def get_default_string(self, default_string, context, arg, template, arr1, arr2, field_name, field_type):
         # get the default (or the best guess of it)
         field_type_lower = field_type.lower()
         tag_of_field_type = self.compounds.parser.tag_dict.get(field_type_lower)
         _, return_type = self.compounds.parser.map_type(field_type, arr1)
-        if tag_of_field_type == "enum" and default_string:
-            default_string = convention.name_enum_key_if_necessary(default_string)
-            default_string = f'{field_type}.{default_string}'
+        default_string = self.default_to_value(default_string, field_type)
 
         if arr1:
             arr_str = self.compounds.parser.arrs_to_tuple(arr1, arr2)
@@ -277,6 +281,7 @@ class Union:
         base_indent = "\n\t\t"
         for field in self.members:
             arg, template, arr1, arr2, conditionals, field_name, field_type, pad_mode, (optional, default) = self.get_params(field, f'{target_variable}.')
+            default = self.default_to_value(default, field_type)
             if arr1 is None:
                 arguments = f"({arg}, {template})"
             else:
@@ -307,7 +312,7 @@ class Union:
                         def_condition = f'{indent}el{def_condition}'
                     else:
                         def_condition = f'{indent}{def_condition}'
-                    condition_defaults.append((def_condition, default_element.attrib.get("value")))
+                    condition_defaults.append((def_condition, self.default_to_value(default_element.attrib.get("value"), field_type)))
                 condition_defaults = condition_defaults[::-1]
             else:
                 condition_defaults = [("", default)]
