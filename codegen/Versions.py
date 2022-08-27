@@ -20,7 +20,7 @@ class Versions:
 
 	def write(self, out_file):
 		if self.versions:
-			with open(out_file, "w", encoding=self.parent.encoding) as stream:
+			with open(out_file, "a", encoding=self.parent.encoding) as stream:
 				stream.write(f"from enum import Enum\n\n\n")
 
 				for version in self.versions:
