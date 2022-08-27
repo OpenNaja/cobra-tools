@@ -4,7 +4,7 @@ from generated.formats.ovl_base.compounds.MemStruct import MemStruct
 
 class HbUiOptions(MemStruct):
 
-	__name__ = 'HbUiOptions'
+	__name__ = 'HB_UI_Options'
 
 	_import_path = 'generated.formats.habitatboundary.structs.HbUiOptions'
 

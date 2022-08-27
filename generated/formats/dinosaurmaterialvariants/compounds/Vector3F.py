@@ -4,7 +4,7 @@ from generated.formats.ovl_base.compounds.MemStruct import MemStruct
 
 class Vector3F(MemStruct):
 
-	__name__ = 'Vector3F'
+	__name__ = 'Vector3f'
 
 	_import_path = 'generated.formats.dinosaurmaterialvariants.compounds.Vector3F'
 

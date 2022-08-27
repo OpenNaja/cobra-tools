@@ -4,7 +4,7 @@ from generated.formats.ovl_base.compounds.MemStruct import MemStruct
 
 class HbPostPos(MemStruct):
 
-	__name__ = 'HbPostPos'
+	__name__ = 'HB_PostPos'
 
 	_import_path = 'generated.formats.habitatboundary.structs.HbPostPos'
 

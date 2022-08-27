@@ -6,7 +6,7 @@ from generated.formats.dds.enums.DxgiFormat import DxgiFormat
 
 class Dxt10Header(BaseStruct):
 
-	__name__ = 'Dxt10Header'
+	__name__ = 'DXT10Header'
 
 	_import_path = 'generated.formats.dds.structs.Dxt10Header'
 

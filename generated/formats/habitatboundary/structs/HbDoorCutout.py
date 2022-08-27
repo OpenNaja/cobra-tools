@@ -8,7 +8,7 @@ class HbDoorCutout(MemStruct):
 	Positions to create door cutout in a wall.
 	"""
 
-	__name__ = 'HbDoorCutout'
+	__name__ = 'HB_DoorCutout'
 
 	_import_path = 'generated.formats.habitatboundary.structs.HbDoorCutout'
 

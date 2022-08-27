@@ -5,7 +5,7 @@ from generated.formats.ovl_base.compounds.MemStruct import MemStruct
 
 class HbOffsets(MemStruct):
 
-	__name__ = 'HbOffsets'
+	__name__ = 'HB_Offsets'
 
 	_import_path = 'generated.formats.habitatboundary.structs.HbOffsets'
 

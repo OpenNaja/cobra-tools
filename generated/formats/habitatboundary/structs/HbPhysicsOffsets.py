@@ -9,7 +9,7 @@ class HbPhysicsOffsets(MemStruct):
 	Physics values for barriers.
 	"""
 
-	__name__ = 'HbPhysicsOffsets'
+	__name__ = 'HB_PhysicsOffsets'
 
 	_import_path = 'generated.formats.habitatboundary.structs.HbPhysicsOffsets'
 

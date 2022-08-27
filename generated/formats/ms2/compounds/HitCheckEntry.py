@@ -12,7 +12,7 @@ from generated.formats.ms2.enums.CollisionType import CollisionType
 
 class HitCheckEntry(BaseStruct):
 
-	__name__ = 'HitCheckEntry'
+	__name__ = 'HitCheck Entry'
 
 	_import_path = 'generated.formats.ms2.compounds.HitCheckEntry'
 

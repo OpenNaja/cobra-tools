@@ -4,7 +4,7 @@ from generated.formats.ovl_base.compounds.MemStruct import MemStruct
 
 class HbPropPhysics(MemStruct):
 
-	__name__ = 'HbPropPhysics'
+	__name__ = 'HB_PropPhysics'
 
 	_import_path = 'generated.formats.habitatboundary.structs.HbPropPhysics'
 
