@@ -2,6 +2,15 @@ import logging
 from generated.base_struct import StructMetaClass
 
 
+class BitfieldMetaClass(StructMetaClass):
+
+    def __init__(cls, name, bases, dict, **kwds):
+        total_members = []
+        for key, value in dict.items():
+            if isinstance(value, BitfieldMember):
+                total_members.append(key)
+        cls.__members__ = total_members
+
 class BitfieldMember(object):
 
     def __init__(self, pos=0, width=0, mask=0, return_type=bool):
@@ -21,7 +30,7 @@ class BitfieldMember(object):
         instance._value |= (value << self.pos) & self.mask
 
 
-class BasicBitfield(object, metaclass=StructMetaClass):
+class BasicBitfield(object, metaclass=BitfieldMetaClass):
     _value: int = 0
     # must be overwritten by concrete implementation
     storage = None
@@ -68,7 +77,7 @@ class BasicBitfield(object, metaclass=StructMetaClass):
         return self.__str__()
 
     def __str__(self):
-        fields = [(key, getattr(self, key)) for key, value in self.__class__.__dict__.items() if isinstance(value, BitfieldMember)]
+        fields = [(key, getattr(self, key)) for key in self.__members__]
         items = [f"{key} = {str(val)}" for key, val in fields if val is not False]
         info = f"{self.__class__.__name__}: {self._value} {bin(self._value)} {items}"
         # print(info)
