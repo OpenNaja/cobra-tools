@@ -1,3 +1,4 @@
+import importlib
 import logging
 import xml.etree.ElementTree as ET
 from generated.context import ContextReference
@@ -45,11 +46,24 @@ def str_to_bool(s):
 		raise ValueError
 
 
+class ImportMap(dict):
+
+	def __getitem__(self, k):
+		try:
+			return dict.__getitem__(self, k)
+		except KeyError:
+			# assume the last part of the module is the same as the name of the class
+			class_module = importlib.import_module(k)
+			found_class = getattr(class_module, k.split(".")[-1])
+			self[k] = found_class
+			return self[k]
+
+
 class BaseStruct(metaclass=StructMetaClass):
 
 	context = ContextReference()
 
-	_import_path_map = {}
+	_import_path_map = ImportMap()
 	_import_path = "generated.base_struct"
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
