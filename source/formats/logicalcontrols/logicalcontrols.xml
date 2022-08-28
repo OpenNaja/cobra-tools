@@ -10,8 +10,7 @@
     <compound name="LogicalControls" inherit="MemStruct">
         <add name="buttons" type="ArrayPointer" template="Button" arg="button_count"/>
         <add name="axes" type="ArrayPointer" template="AxisValue" arg="axis_count"/>
-        todo
-        <add name="c" type="ArrayPointer" template="" arg="count3"/>
+        <add name="axis_buttons" type="ArrayPointer" template="AxisButton" arg="count3"/>
         <add name="d" type="ArrayPointer" template="Some" arg="count4"/>
         <add name="button_count" type="ubyte" />
         <add name="axis_count" type="ubyte" />
@@ -47,6 +46,13 @@
         <add name="value_name" type="Pointer" template="ZString"/>
         <add name="u3" type="uint64"/>
         <add name="u4" type="uint64"/>
+    </compound>
+
+    <compound name="AxisButton" inherit="MemStruct">
+        24 bytes, can be padded to 32
+        <add name="button_name" type="Pointer" template="ZString"/>
+        <add name="axis_name_x" type="Pointer" template="ZString"/>
+        <add name="axis_name_y" type="Pointer" template="ZString"/>
     </compound>
 
     <compound name="Some" inherit="MemStruct">
