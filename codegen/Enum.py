@@ -1,5 +1,5 @@
 from .BaseClass import BaseClass
-
+from .naming_conventions import clean_comment_str
 
 class Enum(BaseClass):
 
@@ -20,7 +20,7 @@ class Enum(BaseClass):
             super().write(f)
             for option in self.struct:
                 if option.text:
-                    f.write(f"\n\t# {option.text}")
+                    f.write(clean_comment_str(option.text, indent="\t"))
                 f.write(f"\n\t{option.attrib['name']} = {option.attrib['value']}")
             f.write(f"\n")
 

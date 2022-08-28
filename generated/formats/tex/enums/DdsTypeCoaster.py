@@ -8,8 +8,10 @@ class DdsTypeCoaster(UbyteEnum):
 	"""
 
 	__name__ = 'DdsTypeCoaster'
+
 	# ZTUAC ele heights textures
 	D24_UNORM_S8_UINT = 74
+
 	# ?
 	D24_UNORM_S8_UINT_B = 76
 	BC1_UNORM = 97
