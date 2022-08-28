@@ -53,3 +53,10 @@ class MemPool:
 		padding_bytes = get_padding(size, alignment)
 		logging.debug(f"Padded pool of ({size} bytes) with {len(padding_bytes)}, alignment = {alignment}")
 		self.data.write(padding_bytes)
+
+	def move_empty_pointers_to_end(self):
+		for offset, entries in self.offset_2_struct_entries.items():
+			for entry in entries:
+				if entry.struct_ptr.data_size == 0:
+					if entry.struct_ptr.data_offset != self.get_size():
+						logging.warning(f"Empty pointer is not at end of pool, will work but mess with the stack log")
