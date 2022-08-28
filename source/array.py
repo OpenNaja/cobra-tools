@@ -95,7 +95,7 @@ class Array(list):
             return dtype.create_array(shape, default=value)
         else:
             new_array = cls(shape, dtype, None, set_default=False)
-            new_array[:] = cls.create_nested_list(lambda: dtype.from_value(value), shape)
+            new_array.fill(lambda: dtype.from_value(value))
             return new_array
 
     @property
