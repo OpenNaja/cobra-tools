@@ -1,13 +1,16 @@
-from generated.formats.dds.enums import UintEnum
+from generated.base_enum import BaseEnum
+from generated.formats.dds.basic import Uint
 
 
-class DxgiFormat(UintEnum):
+class DxgiFormat(BaseEnum):
 
 	"""
 	An unsigned 32-bit integer, describing the DxgiFormat.
 	"""
 
 	__name__ = 'DxgiFormat'
+	_storage = Uint
+
 	UNKNOWN = 0
 	R32G32B32A32_TYPELESS = 1
 	R32G32B32A32_FLOAT = 2

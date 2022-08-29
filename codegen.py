@@ -83,9 +83,6 @@ class XmlParser:
                 elif child.tag == "basic":
                     class_segments = ["basic"]
                     class_name = child.attrib["name"]
-                    if Basics.suitable_for_enum(child):
-                        self.path_dict[Enum.base_from_storage(class_name)] = os.path.join(base_segments, 'enums',)
-                        # self.path_dict[Enum.base_from_storage(class_name)] = os.path.join(base_segments, 'enum',)
                 else:
                     name_safe_tag = child.tag + "s"
                     # for classes, set the path to module_path/tag/class_name or

@@ -1,9 +1,12 @@
-from generated.formats.base.enums import UshortEnum
+from generated.base_enum import BaseEnum
+from generated.formats.base.basic import Ushort
 
 
-class SubCurveType(UshortEnum):
+class SubCurveType(BaseEnum):
 
 	__name__ = 'SubCurveType'
+	_storage = Ushort
+
 	CONSTANT = 0
 	LINEAR = 1
 	POLYNOMIAL = 2

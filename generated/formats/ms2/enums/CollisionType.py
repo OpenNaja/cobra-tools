@@ -1,9 +1,12 @@
-from generated.formats.base.enums import UintEnum
+from generated.base_enum import BaseEnum
+from generated.formats.base.basic import Uint
 
 
-class CollisionType(UintEnum):
+class CollisionType(BaseEnum):
 
 	__name__ = 'CollisionType'
+	_storage = Uint
+
 	SPHERE = 0
 	BOUNDING_BOX = 1
 	CAPSULE = 2

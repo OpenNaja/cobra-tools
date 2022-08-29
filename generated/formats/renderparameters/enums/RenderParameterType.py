@@ -1,9 +1,12 @@
-from generated.formats.base.enums import Uint64Enum
+from generated.base_enum import BaseEnum
+from generated.formats.base.basic import Uint64
 
 
-class RenderParameterType(Uint64Enum):
+class RenderParameterType(BaseEnum):
 
 	__name__ = 'RenderParameterType'
+	_storage = Uint64
+
 	BOOL = 0
 	FLOAT = 1
 	INT = 2

@@ -2,7 +2,7 @@ from enum import EnumMeta, IntEnum, _EnumDict
 
 
 class _AttributeEnumDict(_EnumDict):
-	"""_non_members_ is added as special class variable much like _ignore_, 
+	"""_non_members_ is added as special class variable much like _ignore_,
 	except these are actually recorded on the class, rather than having to set
 	them later
 	"""
@@ -79,6 +79,23 @@ class BaseEnum(IntEnum, metaclass=DefaultEnumMeta):
 	pass
 
 	_non_members_ = ["_storage"]
+
+
+	def read(self, stream):
+		self._value_ = self._storage.from_stream(stream, None, 0, None)
+
+	def write(self, stream):
+		self._storage.to_stream(stream, self.value)
+
+	@classmethod
+	def from_stream(cls, stream, context=None, arg=0, template=None):
+		instance = cls.from_value(cls._storage.from_stream(stream, None, 0, None))
+		return instance
+
+	@classmethod
+	def to_stream(cls, stream, instance):
+		cls._storage.to_stream(stream, instance.value)
+		return instance
 
 	@classmethod
 	def from_str(cls, label):

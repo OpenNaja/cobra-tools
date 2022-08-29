@@ -80,6 +80,23 @@ class BaseEnum(IntEnum, metaclass=DefaultEnumMeta):
 
 	_non_members_ = ["_storage"]
 
+
+	def read(self, stream):
+		self._value_ = self._storage.from_stream(stream, None, 0, None)
+
+	def write(self, stream):
+		self._storage.to_stream(stream, self.value)
+
+	@classmethod
+	def from_stream(cls, stream, context=None, arg=0, template=None):
+		instance = cls.from_value(cls._storage.from_stream(stream, None, 0, None))
+		return instance
+
+	@classmethod
+	def to_stream(cls, stream, instance):
+		cls._storage.to_stream(stream, instance.value)
+		return instance
+
 	@classmethod
 	def from_str(cls, label):
 		"""Creates the enum from its str representation"""
