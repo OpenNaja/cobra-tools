@@ -115,9 +115,12 @@ class ModelReader(BaseStruct):
 		return i
 
 	def get_hitchecks(self, bone_info):
-		# collect all hitchecks in a flat list
-		h = [hitcheck for joint in bone_info.joints.joint_infos for hitcheck in joint.hitchecks]
-		return h
+		"""Collect all hitchecks in a flat list"""
+		# need to handle bone infos that have no joints
+		if bone_info.joints:
+			h = [hitcheck for joint in bone_info.joints.joint_infos for hitcheck in joint.hitchecks]
+			return h
+		return []
 
 	def read_bone_info(self, stream, i):
 

@@ -24,7 +24,7 @@ class ListCEntry(BaseStruct):
 		self.a = 0.0
 
 		# ?
-		self.floats = numpy.zeros((4,), dtype=numpy.dtype('float32'))
+		self.floats = Array((0,), Float, self.context, 0, None)
 
 		# sometimes repeat of a
 		self.a_2 = 0.0

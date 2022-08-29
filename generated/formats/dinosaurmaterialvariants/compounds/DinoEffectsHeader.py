@@ -24,7 +24,7 @@ class DinoEffectsHeader(MemStruct):
 		self.e = 0.0
 		self.f = 0.0
 		self.g = 0
-		self.floats = numpy.zeros((39,), dtype=numpy.dtype('float32'))
+		self.floats = Array((0,), Float, self.context, 0, None)
 		self.d = 0
 		self.e = 0.0
 		self.fgm_name = Pointer(self.context, 0, generated.formats.ovl_base.basic.ZStringObfuscated)

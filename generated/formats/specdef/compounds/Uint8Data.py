@@ -17,7 +17,7 @@ class Uint8Data(MemStruct):
 		self.imax = 0
 		self.ivalue = 0
 		self.ioptional = 0
-		self.unused = numpy.zeros((4,), dtype=numpy.dtype('uint8'))
+		self.unused = Array((0,), Ubyte, self.context, 0, None)
 		self.enum = Pointer(self.context, 0, None)
 		if set_default:
 			self.set_defaults()

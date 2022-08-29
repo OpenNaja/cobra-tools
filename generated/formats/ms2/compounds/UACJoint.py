@@ -15,10 +15,10 @@ class UACJoint(BaseStruct):
 		super().__init__(context, arg, template, set_default=False)
 
 		# variable
-		self.unk = numpy.zeros((6,), dtype=numpy.dtype('uint16'))
+		self.unk = Array((0,), Ushort, self.context, 0, None)
 
 		# some at least
-		self.floats = numpy.zeros((6,), dtype=numpy.dtype('float32'))
+		self.floats = Array((0,), Float, self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 

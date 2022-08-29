@@ -72,9 +72,9 @@ class ModelInfo(MemStruct):
 		self.render_flag = RenderFlag(self.context, 0, None)
 
 		# ?
-		self.unks = numpy.zeros((7,), dtype=numpy.dtype('uint16'))
-		self.pad = numpy.zeros((3,), dtype=numpy.dtype('uint16'))
-		self.zeros = numpy.zeros((2,), dtype=numpy.dtype('uint64'))
+		self.unks = Array((0,), Ushort, self.context, 0, None)
+		self.pad = Array((0,), Ushort, self.context, 0, None)
+		self.zeros = Array((0,), Uint64, self.context, 0, None)
 
 		# unknown, probably used to increment skeleton
 		self.increment_flag = 0

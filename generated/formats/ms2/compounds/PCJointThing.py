@@ -14,7 +14,7 @@ class PCJointThing(BaseStruct):
 		super().__init__(context, arg, template, set_default=False)
 
 		# -1
-		self.shorts = numpy.zeros((4,), dtype=numpy.dtype('int16'))
+		self.shorts = Array((0,), Short, self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 

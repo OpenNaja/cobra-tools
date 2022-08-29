@@ -15,12 +15,12 @@ class MusicTrackInitialValues(BaseStruct):
 		super().__init__(context, arg, template, set_default=False)
 		self.u_flags = 0
 		self.num_sources = 0
-		self.p_source = Array((self.num_sources,), AkBankSourceData, self.context, 0, None)
+		self.p_source = Array((0,), AkBankSourceData, self.context, 0, None)
 		self.num_playlist_item = 0
-		self.p_playlist = Array((self.num_playlist_item,), AkTrackSrcInfo, self.context, 0, None)
+		self.p_playlist = Array((0,), AkTrackSrcInfo, self.context, 0, None)
 		self.num_sub_track = 0
 		self.num_clip_automation_item = 0
-		self.p_items = numpy.zeros((self.num_clip_automation_item,), dtype=numpy.dtype('uint32'))
+		self.p_items = Array((0,), Uint, self.context, 0, None)
 		self.node_base_params = NodeBaseParams(self.context, 0, None)
 		self.e_track_type = 0
 		self.i_look_ahead_time = 0

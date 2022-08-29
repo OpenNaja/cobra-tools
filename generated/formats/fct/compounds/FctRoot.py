@@ -25,7 +25,7 @@ class FctRoot(MemStruct):
 		self.z_1 = 0
 		self.z_2 = 0
 		self.offset = 0
-		self.fonts = Array((4,), Font, self.context, 0, None)
+		self.fonts = Array((0,), Font, self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 

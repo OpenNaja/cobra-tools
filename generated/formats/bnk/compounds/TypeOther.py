@@ -18,7 +18,7 @@ class TypeOther(BaseStruct):
 		self.length = 0
 
 		# id of this Sound SFX object
-		self.raw = numpy.zeros((self.length,), dtype=numpy.dtype('int8'))
+		self.raw = Array((0,), Byte, self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 

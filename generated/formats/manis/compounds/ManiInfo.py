@@ -23,7 +23,7 @@ class ManiInfo(BaseStruct):
 
 		# ?
 		self.b = 0
-		self.zeros_0 = numpy.zeros((6,), dtype=numpy.dtype('uint16'))
+		self.zeros_0 = Array((0,), Ushort, self.context, 0, None)
 		self.extra_pc_1 = 0
 		self.pos_bone_count = 0
 		self.ori_bone_count = 0
@@ -53,10 +53,10 @@ class ManiInfo(BaseStruct):
 		self.g = 0
 
 		# rest 228 bytes
-		self.zeros_2 = numpy.zeros((57,), dtype=numpy.dtype('uint32'))
+		self.zeros_2 = Array((0,), Uint, self.context, 0, None)
 
 		# rest 14 bytes
-		self.extra_zeros_pc = numpy.zeros((6,), dtype=numpy.dtype('uint16'))
+		self.extra_zeros_pc = Array((0,), Ushort, self.context, 0, None)
 		self.pos_bone_min = 0
 		self.pos_bone_max = 0
 		self.ori_bone_min = 0

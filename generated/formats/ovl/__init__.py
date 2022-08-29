@@ -51,7 +51,7 @@ class OvsFile(OvsHeader):
 	def __init__(self, context, ovl_inst, archive_entry):
 		# init with a dummy default archive
 		dummy_archive = ArchiveEntry(context, None, None)
-		super().__init__(context, dummy_archive, None, set_default=False)
+		super().__init__(context, dummy_archive, None)
 		self.ovl = ovl_inst
 		# set arg later to avoid initializing huge arrays with default data
 		self.arg = archive_entry

@@ -22,7 +22,7 @@ class WsmHeader(MemStruct):
 		self.frame_count = 0
 
 		# unk
-		self.unknowns = numpy.zeros((8,), dtype=numpy.dtype('float32'))
+		self.unknowns = Array((0,), Float, self.context, 0, None)
 		self.locs = ArrayPointer(self.context, self.frame_count, generated.formats.wsm.compounds.Vector3.Vector3)
 		self.quats = ArrayPointer(self.context, self.frame_count, generated.formats.wsm.compounds.Vector4.Vector4)
 		if set_default:

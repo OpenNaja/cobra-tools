@@ -17,22 +17,22 @@ class ManiBlock(BaseStruct):
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		self.ref = Empty(self.context, 0, None)
-		self.pos_bones = numpy.zeros((self.arg.pos_bone_count,), dtype=numpy.dtype('uint32'))
-		self.ori_bones = numpy.zeros((self.arg.ori_bone_count,), dtype=numpy.dtype('uint32'))
-		self.scl_bones = numpy.zeros((self.arg.scl_bone_count,), dtype=numpy.dtype('uint32'))
-		self.floats = numpy.zeros((self.arg.float_count,), dtype=numpy.dtype('uint32'))
-		self.pos_bones_p = numpy.zeros((self.arg.pos_bone_count,), dtype=numpy.dtype('uint8'))
-		self.ori_bones_p = numpy.zeros((self.arg.ori_bone_count,), dtype=numpy.dtype('uint8'))
-		self.scl_bones_p = numpy.zeros((self.arg.scl_bone_count,), dtype=numpy.dtype('uint8'))
-		self.pos_bones_delta = numpy.zeros(((self.arg.pos_bone_max - self.arg.pos_bone_min) + 1,), dtype=numpy.dtype('uint8'))
-		self.ori_bones_delta = numpy.zeros(((self.arg.ori_bone_max - self.arg.ori_bone_min) + 1,), dtype=numpy.dtype('uint8'))
-		self.scl_bones_delta = numpy.zeros(((self.arg.scl_bone_max - self.arg.scl_bone_min) + 1,), dtype=numpy.dtype('uint8'))
+		self.pos_bones = Array((0,), Uint, self.context, 0, None)
+		self.ori_bones = Array((0,), Uint, self.context, 0, None)
+		self.scl_bones = Array((0,), Uint, self.context, 0, None)
+		self.floats = Array((0,), Uint, self.context, 0, None)
+		self.pos_bones_p = Array((0,), Ubyte, self.context, 0, None)
+		self.ori_bones_p = Array((0,), Ubyte, self.context, 0, None)
+		self.scl_bones_p = Array((0,), Ubyte, self.context, 0, None)
+		self.pos_bones_delta = Array((0,), Ubyte, self.context, 0, None)
+		self.ori_bones_delta = Array((0,), Ubyte, self.context, 0, None)
+		self.scl_bones_delta = Array((0,), Ubyte, self.context, 0, None)
 
 		# ?
 		self.pad = PadAlign(self.context, 4, self.ref)
 
 		# these are likely a scale reference or factor
-		self.floatsa = numpy.zeros((self.arg.frame_count, self.arg.float_count,), dtype=numpy.dtype('float32'))
+		self.floatsa = Array((0,), Float, self.context, 0, None)
 
 		# ?
 		self.pad_2 = SmartPadding(self.context, 0, None)
@@ -44,13 +44,13 @@ class ManiBlock(BaseStruct):
 		self.scl_bone_count = 0
 
 		# fixed
-		self.zeros_18 = numpy.zeros((18,), dtype=numpy.dtype('uint32'))
+		self.zeros_18 = Array((0,), Uint, self.context, 0, None)
 		self.count = 0
 
 		# usually 420, or 0
 		self.quantisation_level = 0
 		self.ref_2 = Empty(self.context, 0, None)
-		self.zeros = numpy.zeros((self.pos_bone_count,), dtype=numpy.dtype('uint8'))
+		self.zeros = Array((0,), Ubyte, self.context, 0, None)
 		self.flag_0 = 0
 		self.flag_1 = 0
 		self.flag_2 = 0
@@ -58,20 +58,20 @@ class ManiBlock(BaseStruct):
 		self.anoth_pad = PadAlign(self.context, 4, self.ref_2)
 
 		# these are likely a scale reference or factor
-		self.floatsb = numpy.zeros((6,), dtype=numpy.dtype('float32'))
+		self.floatsb = Array((0,), Float, self.context, 0, None)
 
 		# these are likely a scale reference or factor
-		self.floats_second = numpy.zeros((self.flag_1, 6,), dtype=numpy.dtype('float32'))
+		self.floats_second = Array((0,), Float, self.context, 0, None)
 
 		# these are likely a scale reference or factor
-		self.floats_third = numpy.zeros((6,), dtype=numpy.dtype('float32'))
+		self.floats_third = Array((0,), Float, self.context, 0, None)
 
 		# ?
 		self.unk = 0
 
 		# this seems to be vaguely related, but not always there?
 		self.extra_pc_zero = 0
-		self.repeats = Array((self.count,), Repeat, self.context, 0, None)
+		self.repeats = Array((0,), Repeat, self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 

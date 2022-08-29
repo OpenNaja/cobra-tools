@@ -43,7 +43,7 @@ class BioMeshData(MeshData):
 		self.poweroftwo = 0
 
 		# some floats, purpose unknown
-		self.unk_floats = numpy.zeros((2,), dtype=numpy.dtype('float32'))
+		self.unk_floats = Array((0,), Float, self.context, 0, None)
 
 		# seen 1 or 13
 		self.flag = BioModelFlag(self.context, 0, None)

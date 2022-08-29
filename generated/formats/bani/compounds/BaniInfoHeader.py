@@ -17,7 +17,7 @@ class BaniInfoHeader(BaseStruct):
 		super().__init__(context, arg, template, set_default=False)
 
 		# 'BANI'
-		self.magic = numpy.zeros((4,), dtype=numpy.dtype('int8'))
+		self.magic = Array((0,), Byte, self.context, 0, None)
 
 		# name of the banis file buffer
 		self.banis_name = ''

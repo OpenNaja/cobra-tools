@@ -29,13 +29,13 @@ class BnkBufferData(BaseStruct):
 		self.stream_info_count = 0
 
 		# 0
-		self.zeros = numpy.zeros((7,), dtype=numpy.dtype('uint32'))
+		self.zeros = Array((0,), Uint, self.context, 0, None)
 
 		# variable
-		self.zeros_per_buffer = numpy.zeros((self.buffer_count, 2,), dtype=numpy.dtype('uint64'))
+		self.zeros_per_buffer = Array((0,), Uint64, self.context, 0, None)
 
 		# data
-		self.stream_infos = Array((self.stream_info_count,), StreamInfo, self.context, 0, None)
+		self.stream_infos = Array((0,), StreamInfo, self.context, 0, None)
 
 		# data
 		self.name = ''

@@ -12,10 +12,10 @@ class Layer(BaseStruct):
 		super().__init__(context, arg, template, set_default=False)
 		self.info = LayerFrag(self.context, 0, None)
 		self.name = ''
-		self.infos = Array((self.info.info_count,), Info, self.context, 0, None)
-		self.info_names = Array((self.info.info_count,), ZString, self.context, 0, None)
-		self.attribs = Array((self.info.attrib_count,), Attrib, self.context, 0, None)
-		self.attrib_names = Array((self.info.attrib_count,), ZString, self.context, 0, None)
+		self.infos = Array((0,), Info, self.context, 0, None)
+		self.info_names = Array((0,), ZString, self.context, 0, None)
+		self.attribs = Array((0,), Attrib, self.context, 0, None)
+		self.attrib_names = Array((0,), ZString, self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 

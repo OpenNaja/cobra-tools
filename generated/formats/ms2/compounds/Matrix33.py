@@ -14,7 +14,7 @@ class Matrix33(BaseStruct):
 		super().__init__(context, arg, template, set_default=False)
 
 		# Stored in OpenGL column-major format.
-		self.data = numpy.zeros((3, 3,), dtype=numpy.dtype('float32'))
+		self.data = Array((0,), Float, self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 

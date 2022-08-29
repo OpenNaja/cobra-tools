@@ -30,7 +30,7 @@ class Header(BaseStruct):
 		self.linear_size = 0
 		self.depth = 0
 		self.mipmap_count = 0
-		self.reserved_1 = numpy.zeros((11,), dtype=numpy.dtype('uint32'))
+		self.reserved_1 = Array((0,), Uint, self.context, 0, None)
 		self.pixel_format = PixelFormat(self.context, 0, None)
 		self.caps_1 = Caps1(self.context, 0, None)
 		self.caps_2 = Caps2(self.context, 0, None)

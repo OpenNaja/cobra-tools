@@ -7,7 +7,7 @@ class TransStructStopList(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.ptrs = Array((self.arg,), TransStructStop, self.context, 0, None)
+		self.ptrs = Array((0,), TransStructStop, self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 

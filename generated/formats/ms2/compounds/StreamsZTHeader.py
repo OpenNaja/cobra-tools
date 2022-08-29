@@ -18,7 +18,7 @@ class StreamsZTHeader(BaseStruct):
 		self.weird_padding = SmartPadding(self.context, 0, None)
 
 		# ?
-		self.unks = Array((self.arg.stream_count,), InfoZTMemPool, self.context, 0, None)
+		self.unks = Array((0,), InfoZTMemPool, self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 

@@ -46,7 +46,7 @@ class BoneInfo(BaseStruct):
 
 		# seems to match bone count
 		self.bind_matrix_count = 0
-		self.zeros = numpy.zeros((2,), dtype=numpy.dtype('uint64'))
+		self.zeros = Array((0,), Uint64, self.context, 0, None)
 		self.inv_data_count = 0
 		self.bone_count = 0
 		self.unknown_40 = 0
@@ -82,35 +82,35 @@ class BoneInfo(BaseStruct):
 
 		# zero
 		self.unk_extra_jwe = 0
-		self.name_indices = numpy.zeros((self.name_count,), dtype=numpy.dtype('uint16'))
-		self.inventory_name_indices = numpy.zeros((self.inv_names_count,), dtype=numpy.dtype('uint16'))
-		self.name_padding = numpy.zeros(((16 - (((self.name_count + self.inv_names_count) * 2) % 16)) % 16,), dtype=numpy.dtype('int8'))
+		self.name_indices = Array((0,), Ushort, self.context, 0, None)
+		self.inventory_name_indices = Array((0,), Ushort, self.context, 0, None)
+		self.name_padding = Array((0,), Byte, self.context, 0, None)
 
 		# used for skinning
-		self.inverse_bind_matrices = Array((self.bind_matrix_count,), Matrix44, self.context, 0, None)
-		self.bones = Array((self.bone_count,), Bone, self.context, 0, None)
+		self.inverse_bind_matrices = Array((0,), Matrix44, self.context, 0, None)
+		self.bones = Array((0,), Bone, self.context, 0, None)
 
 		# 255 = root, index in this list is the current bone index, value is the bone's parent index
-		self.parents = numpy.zeros((self.parents_count,), dtype=numpy.dtype('uint8'))
+		self.parents = Array((0,), Ubyte, self.context, 0, None)
 
 		# zeros
-		self.parents_padding = numpy.zeros(((8 - (self.parents_count % 8)) % 8,), dtype=numpy.dtype('int8'))
+		self.parents_padding = Array((0,), Byte, self.context, 0, None)
 
 		# enumerates all bone indices, 4 may be flags
 
 		# enumerates all bone indices
-		self.enumeration = numpy.zeros((self.enum_count,), dtype=numpy.dtype('uint8'))
+		self.enumeration = Array((0,), Ubyte, self.context, 0, None)
 
 		# zeros
-		self.inventory_datas = numpy.zeros((self.inv_data_count, 6,), dtype=numpy.dtype('int8'))
+		self.inventory_datas = Array((0,), Byte, self.context, 0, None)
 
 		# -1s and 0s
 
 		# zeros
-		self.weirdness = numpy.zeros((10,), dtype=numpy.dtype('int16'))
+		self.weirdness = Array((0,), Short, self.context, 0, None)
 
 		# zeros
-		self.inventory_datas_2 = numpy.zeros((self.inv_data_count, 2,), dtype=numpy.dtype('int32'))
+		self.inventory_datas_2 = Array((0,), Int, self.context, 0, None)
 
 		# weird zeros
 		self.zeros_padding = ZerosPadding(self.context, self.zeros_count, None)

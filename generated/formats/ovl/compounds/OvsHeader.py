@@ -18,13 +18,13 @@ class OvsHeader(BaseStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.pool_groups = Array((self.arg.num_pool_groups,), PoolGroup, self.context, 0, None)
-		self.pools = Array((self.arg.num_pools,), MemPool, self.context, 0, None)
-		self.data_entries = Array((self.arg.num_datas,), DataEntry, self.context, 0, None)
-		self.buffer_entries = Array((self.arg.num_buffers,), BufferEntry, self.context, 0, None)
-		self.buffer_groups = Array((self.arg.num_buffer_groups,), BufferGroup, self.context, 0, None)
-		self.root_entries = Array((self.arg.num_root_entries,), RootEntry, self.context, 0, None)
-		self.fragments = Array((self.arg.num_fragments,), Fragment, self.context, 0, None)
+		self.pool_groups = Array((0,), PoolGroup, self.context, 0, None)
+		self.pools = Array((0,), MemPool, self.context, 0, None)
+		self.data_entries = Array((0,), DataEntry, self.context, 0, None)
+		self.buffer_entries = Array((0,), BufferEntry, self.context, 0, None)
+		self.buffer_groups = Array((0,), BufferGroup, self.context, 0, None)
+		self.root_entries = Array((0,), RootEntry, self.context, 0, None)
+		self.fragments = Array((0,), Fragment, self.context, 0, None)
 		self.set_header = SetHeader(self.context, 0, None)
 		if set_default:
 			self.set_defaults()

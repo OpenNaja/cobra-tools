@@ -12,10 +12,10 @@ class Wsm(GenericHeader):
 		self.header = WsmHeader(self.context, 0, None)
 
 		# xyz
-		self.locs = numpy.zeros((self.header.frame_count, 3,), dtype=numpy.dtype('float32'))
+		self.locs = Array((0,), Float, self.context, 0, None)
 
 		# xyzw
-		self.quats = numpy.zeros((self.header.frame_count, 4,), dtype=numpy.dtype('float32'))
+		self.quats = Array((0,), Float, self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 
