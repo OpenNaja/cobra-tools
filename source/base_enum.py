@@ -1,9 +1,47 @@
-from enum import EnumMeta, IntEnum
+from enum import EnumMeta, IntEnum, _EnumDict
 
+
+class _AttributeEnumDict(_EnumDict):
+	"""_non_members_ is added as special class variable much like _ignore_,
+	except these are actually recorded on the class, rather than having to set
+	them later
+	"""
+
+	def __init__(self):
+		super().__init__()
+		self._non_members_ = []
+
+	def __setitem__(self, key, value):
+		if key == "_non_members_":
+			self._non_members_.append("_non_members_")
+			# set _non_members_ on self to allow recovery for inheritance
+			dict.__setitem__(self, key, value)
+			self._non_members_ = value
+		elif key in self._non_members_:
+			dict.__setitem__(self, key, value)
+		else:
+			super().__setitem__(key, value)
 
 # https://stackoverflow.com/questions/44867597/is-there-a-way-to-specify-a-default-value-for-python-enums
 class DefaultEnumMeta(EnumMeta):
 	default = object()
+
+	@classmethod
+	def __prepare__(metacls, cls, bases, **kwds):
+		base_namespace = super().__prepare__(cls, bases, **kwds)
+		# no easy way to convert between _EnumDict and _AttributeEnumDict, so
+		# copy all vars and the content of the dictionary
+		copied_namespace = _AttributeEnumDict()
+		for key, item in vars(base_namespace).items():
+			setattr(copied_namespace, key, item)
+		copied_namespace.update(base_namespace)
+		# Extend copied_namespace with _non_members_ of base classes, if they
+		# have it. Will be overwritten by child _non_members_.
+		for base in bases:
+			if hasattr(base, "_non_members_"):
+				copied_namespace._non_members_ = getattr(base, "_non_members_")
+				break
+		return copied_namespace
 
 	def __call__(cls, *args, value=default, **kwargs):
 		if value is DefaultEnumMeta.default:
@@ -14,8 +52,19 @@ class DefaultEnumMeta(EnumMeta):
 	# Execute base __new__ https://github.com/python/cpython/blob/32959108f9c543e3cb9f2b68bbc782bddded6f42/Lib/enum.py#L410
 	# and then move __new__ to from_value, while the new __new__ accepts the standardized arguments
 	def __new__(metacls, cls, bases, classdict, *args, **kwargs):
+		# extract __name__ from the classdict and force it to be the class's name
 		cls = classdict.get("__name__", cls)
+		# extract all _non_members_ from the classdict
+		stored_non_members_ = {}
+		for key in classdict._non_members_:
+			if key in classdict:
+				stored_non_members_[key] = classdict.pop(key)
+		# create the enum class with the modified data
 		enum_class = super(metacls, metacls).__new__(metacls, cls, bases, classdict, *args, **kwargs)
+		# reassign the extracted _non_members_ back to the class
+		for key, value in stored_non_members_.items():
+			setattr(enum_class, key, value)
+		# move the __new__ function to from_value, and make the new __new__ behave like calling from_value without arguments
 		new_function = enum_class.__new__
 		# from_value doesn't need to be a proper __new__-like function, because specified enums can't be inherited from
 		enum_class.from_value = classmethod(lambda cls, value: new_function(cls, value))
@@ -28,6 +77,8 @@ class BaseEnum(IntEnum, metaclass=DefaultEnumMeta):
 	def __int__(self):
 		return self.value
 	pass
+
+	_non_members_ = ["_storage"]
 
 	@classmethod
 	def from_str(cls, label):
