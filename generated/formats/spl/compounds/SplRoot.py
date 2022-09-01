@@ -15,10 +15,10 @@ class SplRoot(MemStruct):
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		self.count = 0
-		self.sixteen = 0
-		self.one = 0
+		self.sixteen = 16
+		self.one = 1
 
-		# total length of the interpolated curve, cf blender curvetools.CurveLength
+		# total length of the interpolated curve, cf blender Spline.calc_length()
 		self.length = 0.0
 		self.spline_data = Pointer(self.context, self.count, generated.formats.spl.compounds.SplData.SplData)
 		if set_default:
@@ -27,8 +27,8 @@ class SplRoot(MemStruct):
 	def set_defaults(self):
 		super().set_defaults()
 		self.count = 0
-		self.sixteen = 0
-		self.one = 0
+		self.sixteen = 16
+		self.one = 1
 		self.length = 0.0
 		self.spline_data = Pointer(self.context, self.count, generated.formats.spl.compounds.SplData.SplData)
 
@@ -57,8 +57,8 @@ class SplRoot(MemStruct):
 		yield from super()._get_filtered_attribute_list(instance)
 		yield 'spline_data', Pointer, (instance.count, generated.formats.spl.compounds.SplData.SplData), (False, None)
 		yield 'count', Ushort, (0, None), (False, None)
-		yield 'sixteen', Ubyte, (0, None), (False, None)
-		yield 'one', Ubyte, (0, None), (False, None)
+		yield 'sixteen', Ubyte, (0, None), (False, 16)
+		yield 'one', Ubyte, (0, None), (False, 1)
 		yield 'length', Float, (0, None), (False, None)
 
 	def get_info_str(self, indent=0):

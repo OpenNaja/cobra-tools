@@ -3,51 +3,38 @@ import os
 import bpy
 import mathutils
 
-from generated.formats.ms2.compounds.packing_utils import unpack_swizzle
+from generated.formats.ms2.compounds.packing_utils import pack_swizzle
 from generated.formats.spl.compounds.SplRoot import SplRoot
+from generated.formats.spl.compounds.SplData import SplData
 
 
-def unpack(v, s):
-	return mathutils.Vector(unpack_swizzle([i * s for i in (v.x, v.y, v.z)]))
+def pack(c_v, b_v, s):
+	c_v.x, c_v.y, c_v.z = pack_swizzle([i / s for i in b_v])
 
 
 def save(filepath=""):
-	# get selected curve ob
-	ob = bpy.context.object
-	curve_data = ob.data
-	if ob.type != "CURVE":
+	# get selected curve b_ob
+	b_ob = bpy.context.object
+	b_cu = b_ob.data
+	if b_ob.type != "CURVE":
 		raise AttributeError(f"Can only export curve objects")
-	# export
-	# in_dir, spl_name = os.path.split(filepath)
-	# spl_basename, ext = os.path.splitext(spl_name)
-	#
-	# spl_root = SplRoot.from_xml_file(filepath, None)
-	#
-	# # create the Curve Datablock
-	# curve_data = bpy.data.curves.new(spl_basename, type='CURVE')
-	# curve_data.dimensions = '3D'
-	# curve_data.resolution_u = 12
-	#
-	# # map coords to spline
-	# polyline = curve_data.splines.new('BEZIER')
-	# spline_data = spl_root.spline_data.data
-	# # one key exists in the newly created curve
-	# polyline.bezier_points.add(len(spline_data.keys)-1)
-	# # https://docs.blender.org/api/current/bpy.types.BezierSplinePoint.html?highlight=bezier#bpy.types.BezierSplinePoint
-	# for key, bezier in zip(spline_data.keys, polyline.bezier_points):
-	#     # x, y, z = coord
+	context = object()
+	# export the curve data
+	spl_root = SplRoot(context)
+	spline_data = SplData(context)
+	spl_root.spline_data.data = spline_data
+
+	# get basic data from b_spline
+	b_spline = b_cu.splines[0]
+	spl_root.count = len(b_spline.bezier_points)
+	spl_root.length = b_spline.calc_length()
+
+	pack(spline_data.offset, b_ob.location, 1.0)
+
+	# for key, bezier in zip(spline_data.keys, b_spline.bezier_points):
 	#     bezier.co = unpack(key.pos, spline_data.scale)
 	#     bezier.handle_left = bezier.co + unpack(key.handle_left, key.handle_scale)
 	#     bezier.handle_right = bezier.co + unpack(key.handle_right, key.handle_scale)
-	#
-	# # create Object
-	# ob = bpy.data.objects.new(spl_basename, curve_data)
-	# # maybe add it to bezier.co instead?
-	# ob.location = unpack(spline_data.offset, 1.0)
-	# # attach to scene and validate context
-	# scene = bpy.context.scene
-	# scene.collection.objects.link(ob)
 
-	spl_header = SplRoot(context=object())
-	SplRoot.to_xml_file(spl_header, filepath)
+	SplRoot.to_xml_file(spl_root, filepath)
 	return f"Finished SPL export",

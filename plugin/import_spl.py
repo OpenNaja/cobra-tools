@@ -18,28 +18,27 @@ def load(filepath=""):
     spl_root = SplRoot.from_xml_file(filepath, None)
 
     # create the Curve Datablock
-    curve_data = bpy.data.curves.new(spl_basename, type='CURVE')
-    curve_data.dimensions = '3D'
-    curve_data.resolution_u = 12
+    b_cu = bpy.data.curves.new(spl_basename, type='CURVE')
+    b_cu.dimensions = '3D'
+    b_cu.resolution_u = 12
 
     # map coords to spline
-    polyline = curve_data.splines.new('BEZIER')
+    b_spline = b_cu.splines.new('BEZIER')
     spline_data = spl_root.spline_data.data
     # one key exists in the newly created curve
-    polyline.bezier_points.add(len(spline_data.keys)-1)
+    b_spline.bezier_points.add(len(spline_data.keys)-1)
     # https://docs.blender.org/api/current/bpy.types.BezierSplinePoint.html?highlight=bezier#bpy.types.BezierSplinePoint
-    for key, bezier in zip(spline_data.keys, polyline.bezier_points):
-        # x, y, z = coord
+    for key, bezier in zip(spline_data.keys, b_spline.bezier_points):
         bezier.co = unpack(key.pos, spline_data.scale)
         bezier.handle_left = bezier.co + unpack(key.handle_left, key.handle_scale)
         bezier.handle_right = bezier.co + unpack(key.handle_right, key.handle_scale)
 
     # create Object
-    ob = bpy.data.objects.new(spl_basename, curve_data)
+    b_ob = bpy.data.objects.new(spl_basename, b_cu)
     # maybe add it to bezier.co instead?
-    ob.location = unpack(spline_data.offset, 1.0)
+    b_ob.location = unpack(spline_data.offset, 1.0)
     # attach to scene and validate context
     scene = bpy.context.scene
-    scene.collection.objects.link(ob)
+    scene.collection.objects.link(b_ob)
 
     return f"Finished SPL import",
