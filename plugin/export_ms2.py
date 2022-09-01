@@ -26,6 +26,7 @@ from root_path import root_dir
 mesh_mode = os.path.isdir(os.path.join(root_dir, ".git"))
 DISCARD_STATIC_TRIS = 16
 DYNAMIC_ID = -1
+NO_BONES_ID = -2
 SOFT_MAX_VERTS = 200
 SOFT_MAX_TRIS = 200
 
@@ -130,7 +131,7 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 
 	# report unweighted vertices
 	should_have_no_weights = (hasattr(mesh.flag, "weights") and not mesh.flag.weights)
-	if unweighted_vertices:
+	if unweighted_vertices and bones_table:
 		if should_have_no_weights:
 			logging.info(f"Should have no weights and has none.")
 		else:
@@ -152,8 +153,14 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 		# check which bones are used per face
 		for face in eval_me.polygons:
 			r = list(set(weights_data[v_index][0] for v_index in face.vertices))
+			# are there weights at all?
+			if not bones_table:
+				face_vertex_bone_id = NO_BONES_ID
 			# do all verts of this face use the same bone id?
-			face_vertex_bone_id = r[0] if len(r) == 1 else DYNAMIC_ID
+			elif len(r) == 1:
+				face_vertex_bone_id = r[0]
+			else:
+				face_vertex_bone_id = DYNAMIC_ID
 			# append face for this bone id
 			if face_vertex_bone_id not in t_map:
 				t_map[face_vertex_bone_id] = list()
@@ -415,24 +422,26 @@ def save(filepath='', apply_transforms=False, edit_bones=False, use_stock_normal
 
 		# make active scene
 		bpy.context.window.scene = scene
-		# ensure that we have objects in the scene
-		if not has_objects_in_scene(scene):
-			raise AttributeError(f"No objects in scene '{scene.name}', nothing to export!")
-		b_armature_ob = get_armature(scene)
-		if not b_armature_ob:
-			raise AttributeError(f"No armature was found in scene '{scene.name}' - did you delete it?")
-		# clear pose
-		for pbone in b_armature_ob.pose.bones:
-			pbone.matrix_basis = mathutils.Matrix()
-
 		if not scene.cobra.pack_base:
 			raise AttributeError(f"Set the pack base value for scene '{scene.name}'!")
 
 		model_info = model_info_lut[scene.name]
 		model_info.pack_base = scene.cobra.pack_base
 		model_info.render_flag._value = get_property(scene, "render_flag")
-		if edit_bones:
-			export_bones_custom(b_armature_ob, model_info)
+		# ensure that we have objects in the scene
+		if not has_objects_in_scene(scene):
+			raise AttributeError(f"No objects in scene '{scene.name}', nothing to export!")
+
+		b_armature_ob = get_armature(scene)
+		if not b_armature_ob:
+			logging.warning(f"No armature was found in scene '{scene.name}' - did you delete it?")
+		else:
+			# clear pose
+			for pbone in b_armature_ob.pose.bones:
+				pbone.matrix_basis = mathutils.Matrix()
+			if edit_bones:
+				export_bones_custom(b_armature_ob, model_info)
+
 		# used to get index from bone name for faster weights
 		bones_table = dict(((b, i) for i, b in enumerate(get_bone_names(model_info))))
 
