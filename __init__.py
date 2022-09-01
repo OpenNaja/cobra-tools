@@ -32,13 +32,13 @@ from bpy.types import PropertyGroup, Object
 from bpy_extras.io_utils import ImportHelper, ExportHelper
 from . import addon_updater_ops
 
-from plugin import import_bani, import_manis, import_matcol, import_ms2, export_ms2, import_voxelskirt, import_fgm, import_spl
+from plugin import import_bani, import_manis, import_matcol, import_ms2, export_ms2, import_voxelskirt, import_fgm, \
+    import_spl, export_spl
 from plugin.modules_import.hair import vcol_to_comb, comb_to_vcol, transfer_hair_combing
 from plugin.utils import shell
 from generated.formats.ms2.compounds.packing_utils import PACKEDVEC_MAX
 from generated.formats.ms2.enums.MeshFormat import MeshFormat
 from root_path import root_dir
-
 
 preview_collection = bpy.utils.previews.new()
 
@@ -135,6 +135,7 @@ class ImportMatcol(bpy.types.Operator, ImportHelper):
     bl_label = 'Import Matcol'
     bl_options = {'UNDO'}
     filename_ext = ".dinosaurmateriallayers"
+
     # filter_glob: StringProperty(default="*.matcol", options={'HIDDEN'})
     # filter_glob: StringProperty(default="*.matcol", options={'HIDDEN'})
 
@@ -212,12 +213,26 @@ class ExportMS2(bpy.types.Operator, ExportHelper):
                                    description="Automatically applies object transforms to meshes.", default=False)
     edit_bones: BoolProperty(name="Edit Bones", description="Overwrite bone transforms - tends to break skeletons!",
                              default=False)
-    use_stock_normals_tangents: BoolProperty(name="Use Stock Normals & Tangents", description="Use to preserve normals and tangents from stock, if fur depends on custom normals",
-                                     default=False)
+    use_stock_normals_tangents: BoolProperty(
+        name="Use Stock Normals & Tangents",
+        description="Use to preserve normals and tangents from stock, if fur depends on custom normals",
+        default=False)
 
     def execute(self, context):
         keywords = self.as_keywords(ignore=("axis_forward", "axis_up", "filter_glob", "check_existing"))
         return handle_errors(self, export_ms2.save, keywords)
+
+
+class ExportSPL(bpy.types.Operator, ExportHelper):
+    """Export to spline file format (.spl)"""
+    bl_idname = "export_scene.cobra_spl"
+    bl_label = 'Export SPL'
+    filename_ext = ".spl"
+    filter_glob: StringProperty(default="*.spl", options={'HIDDEN'})
+
+    def execute(self, context):
+        keywords = self.as_keywords(ignore=("axis_forward", "axis_up", "filter_glob", "check_existing"))
+        return handle_errors(self, export_spl.save, keywords)
 
 
 class CreateFins(bpy.types.Operator):
@@ -365,11 +380,10 @@ class CobraSceneSettings(PropertyGroup):
 
 
 class CobraMeshSettings(PropertyGroup):
-
     mesh_format: EnumProperty(
         name='Mesh Format',
         description='Mesh formatused for this mesh - JWE2 after Biosyn update',
-        items=[("NONE", "None", "")]+[(item.name, item.name, "") for i, item in enumerate(MeshFormat)],
+        items=[("NONE", "None", "")] + [(item.name, item.name, "") for i, item in enumerate(MeshFormat)],
         # default = 'MO_SYS_FIXED',
 
     )
@@ -378,12 +392,14 @@ class CobraMeshSettings(PropertyGroup):
 def menu_func_export(self, context):
     icon = preview_collection["frontier.png"].icon_id
     self.layout.operator(ExportMS2.bl_idname, text="Cobra Model (.ms2)", icon_value=icon)
+    self.layout.operator(ExportSPL.bl_idname, text="Cobra Spline (.spl)", icon_value=icon)
 
 
 def menu_func_import(self, context):
     icon = preview_collection["frontier.png"].icon_id
     self.layout.operator(ImportFgm.bl_idname, text="Cobra Material (.fgm)", icon_value=icon)
-    self.layout.operator(ImportMatcol.bl_idname, text="Cobra Material (.matcol, .dinosaurmateriallayers)", icon_value=icon)
+    self.layout.operator(ImportMatcol.bl_idname, text="Cobra Material (.matcol, .dinosaurmateriallayers)",
+                         icon_value=icon)
     self.layout.operator(ImportMS2.bl_idname, text="Cobra Model (.ms2)", icon_value=icon)
     self.layout.operator(ImportBani.bl_idname, text="Cobra Baked Anim (.bani)", icon_value=icon)
     # self.layout.operator(ImportManis.bl_idname, text="Cobra Anim (.manis)", icon_value=icon)
@@ -399,6 +415,7 @@ classes = (
     ImportMS2,
     ImportSPL,
     ExportMS2,
+    ExportSPL,
     ImportVoxelskirt,
     CreateFins,
     CreateLods,
