@@ -1,7 +1,20 @@
 """Expression parser (for arr1, arr2, cond, and vercond xml attributes of
 <add> tag)."""
+import math
 
 from codegen.naming_conventions import name_access
+
+
+class LiteralFloat(float):
+
+    def __new__(cls, *args, **kwargs):
+        return super(LiteralFloat, cls).__new__(cls, *args, **kwargs)
+
+    def __str__(self):
+        if self in (math.inf, -math.inf):
+            return f"float('{super(LiteralFloat, LiteralFloat).__str__(self)}')"
+        else:
+            return super().__str__()
 
 
 class Version(object):
@@ -97,19 +110,19 @@ class Expression(object):
         if not expr_str:
             # empty string
             return None
+        # try to convert it to one of the following classes
+        for create_cls in (int, Version, LiteralFloat):
+            try:
+                return create_cls(expr_str)
+            # failed
+            except ValueError:
+                pass
         # brackets or operators => expression
         if ("(" in expr_str) or (")" in expr_str):
             return Expression(expr_str, prefix)
         for op in cls.operators:
             if expr_str.find(op) != -1:
                 return Expression(expr_str, prefix)
-        # try to convert it to one of the following classes
-        for create_cls in (int, Version):
-            try:
-                return create_cls(expr_str)
-            # failed
-            except ValueError:
-                pass
         # at this point, expr_str is a single attribute
         # apply name filter on each component separately
         # (where a dot separates components)
