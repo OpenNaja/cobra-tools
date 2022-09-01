@@ -52,8 +52,6 @@ class XmlParser:
             "BaseEnum": "base_enum",
             "BaseStruct": "base_struct",
             }
-        # enum name -> storage name
-        self.storage_dict = {}
         # maps each type to its member tag type
         self.tag_dict = {}
 
@@ -303,7 +301,6 @@ class XmlParser:
         self.tokens.extend(other_parser.tokens)
         self.copy_dict_info(self.verattrs, other_parser.verattrs)
         self.copy_dict_info(self.path_dict, other_parser.path_dict)
-        self.copy_dict_info(self.storage_dict, other_parser.storage_dict)
         self.copy_dict_info(self.tag_dict, other_parser.tag_dict)
         self.basics.add_other_basics(other_parser.basics, other_parser.path_dict["basic_map"])
 

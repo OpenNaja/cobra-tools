@@ -10,7 +10,6 @@ class Enum(BaseClass):
         storage = self.struct.attrib["storage"]
         # todo - handle case where storage is given as size instead of name
         # store storage format in dict so it can be accessed during compound writing
-        self.parser.storage_dict[self.class_name] = storage
         self.class_basename = "BaseEnum"
         self.imports.add("BaseEnum")
         self.imports.add(storage)

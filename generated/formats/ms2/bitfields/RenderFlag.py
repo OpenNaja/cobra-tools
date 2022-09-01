@@ -10,7 +10,7 @@ class RenderFlag(BasicBitfield):
 	"""
 
 	__name__ = 'RenderFlag'
-	storage = Ushort
+	_storage = Ushort
 	a = BitfieldMember(pos=0, mask=0x1, return_type=bool)
 	b = BitfieldMember(pos=1, mask=0x2, return_type=bool)
 	c = BitfieldMember(pos=2, mask=0x4, return_type=bool)

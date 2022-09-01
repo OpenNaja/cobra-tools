@@ -10,7 +10,7 @@ class ModelFlagDLA(BasicBitfield):
 	"""
 
 	__name__ = 'ModelFlagDLA'
-	storage = Uint
+	_storage = Uint
 	vertex_offset = BitfieldMember(pos=1, mask=0x2, return_type=bool)
 	stripify = BitfieldMember(pos=5, mask=0x20, return_type=bool)
 

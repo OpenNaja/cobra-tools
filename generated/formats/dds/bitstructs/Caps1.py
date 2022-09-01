@@ -6,7 +6,7 @@ from generated.formats.dds.basic import Uint
 class Caps1(BasicBitfield):
 
 	__name__ = 'Caps1'
-	storage = Uint
+	_storage = Uint
 	reserved_1 = BitfieldMember(pos=0, mask=0x7, return_type=int)
 	complex = BitfieldMember(pos=3, mask=0x8, return_type=int)
 	reserved_2 = BitfieldMember(pos=4, mask=0xff0, return_type=int)

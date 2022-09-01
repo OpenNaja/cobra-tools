@@ -20,7 +20,7 @@ class VersionInfo(BasicBitfield):
 	"""
 
 	__name__ = 'VersionInfo'
-	storage = Uint
+	_storage = Uint
 	unk_1 = BitfieldMember(pos=2, mask=0x4, return_type=bool)
 	unk_2 = BitfieldMember(pos=4, mask=0x10, return_type=bool)
 	compression = BitfieldMember(pos=7, mask=0x380, return_type=Compression.from_value)
