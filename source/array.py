@@ -14,6 +14,9 @@ class Array(list):
     context = ContextReference()
 
     def __new__(cls, shape, dtype, context, arg=0, template=None, set_default=True):
+        if cls.is_ragged_shape(shape):
+            # the passed shape is 2D with an iterable in the 2nd dimension, so it's a ragged array
+            return RaggedArray(shape, dtype, context, arg, template, set_default)
         if callable(getattr(dtype, 'create_array', None)):
             # there is a more efficient method of creating this array on the class (may not return Array instance)
             return dtype.create_array(shape, None, context, arg, template)
@@ -71,9 +74,25 @@ class Array(list):
         return self
 
     @classmethod
+    def assign_from_function(cls, instance, function_to_generate, ndim):
+        # assign every element of the array with a value generated via function_to_generate
+        # assumes that every element of the array already exists
+        if ndim > 1:
+            [cls.assign_from_function(subarray, function_to_generate, ndim - 1) for subarray in instance]
+        else:
+            for i in range(len(instance)):
+                instance[i] = function_to_generate()
+
+    @staticmethod
+    def is_ragged_shape(shape):
+        return hasattr(shape, "__getitem__") and len(shape) == 2 and hasattr(shape[1], "__iter__")
+
+    @classmethod
     def from_stream(cls, stream, context, arg=0, template=None, shape=(), dtype=None):
+        if cls.is_ragged_shape(shape):
+            return RaggedArray.from_stream(stream, context, arg, template, shape, dtype)
         # basic types have read_array method defined on their class
-        if callable(getattr(dtype, 'read_array', None)):
+        elif callable(getattr(dtype, 'read_array', None)):
             return dtype.read_array(stream, shape, context, arg, template)
         else:
             new_array = cls(shape, dtype, context, arg, template, set_default=False)
@@ -83,7 +102,9 @@ class Array(list):
     @classmethod
     def to_stream(cls, stream, instance, shape, dtype, context, arg=0, template=None):
         if instance is not None:
-            if callable(getattr(dtype, 'write_array', None)):
+            if cls.is_ragged_shape(shape):
+                RaggedArray.to_stream(stream, instance, shape, dtype, context, arg, template)
+            elif callable(getattr(dtype, 'write_array', None)):
                 dtype.write_array(stream, instance)
             else:
                 instance.store_params(shape, dtype, context, arg, template)
@@ -91,7 +112,9 @@ class Array(list):
 
     @classmethod
     def from_value(cls, shape, dtype, value):
-        if callable(getattr(dtype, 'create_array', None)):
+        if cls.is_ragged_shape(shape):
+            return RaggedArray.from_value(shape, dtype, value)
+        elif callable(getattr(dtype, 'create_array', None)):
             return dtype.create_array(shape, default=value)
         else:
             new_array = cls(shape, dtype, None, set_default=False)
@@ -142,7 +165,9 @@ class Array(list):
 
     @classmethod
     def _get_filtered_attribute_list(cls, instance, dtype):
-        if callable(getattr(dtype, "_get_filtered_attribute_list_array", None)):
+        if cls.is_ragged_shape(instance.shape):
+            return RaggedArray._get_filtered_attribute_list(instance, dtype)
+        elif callable(getattr(dtype, "_get_filtered_attribute_list_array", None)):
             return dtype._get_filtered_attribute_list_array(instance)
         else:
             arg = getattr(instance, "arg", 0)
@@ -194,6 +219,79 @@ class Array(list):
         for member in instance:
             dtype.to_xml(elem, dtype_name, member, (), debug)
 
+
+class RaggedArray(Array):
+    """Class responsible for creating, reading and storing (nested) lists of the custom data types, functioning
+    mostly like a 2D ragged array. Not referenced directly in code generation.
+    """
+
+    context = ContextReference()
+
+    def __new__(cls, shape, dtype, context, arg=0, template=None, set_default=True):
+        if callable(getattr(dtype, 'create_ragged_array', None)):
+            # there is a more efficient method of creating this array on the class (may not return RaggedArray instance)
+            return dtype.create_ragged_array(shape, None, context, arg, template)
+        else:
+            return list.__new__(cls)
+
+    def fill(self, function_to_generate):
+        # fill every entry of this array using the function_to_generate
+        # a multi-dimensional array must be filled with subarrays to allow .shape access on them
+        array_list = [Array((self.shape[1][i], *self.shape[2:]), self.dtype, self.context, self.arg, self.template, set_default=False) for i in range(self.shape[0])]
+        if callable(getattr(self.dtype, "create_array", None)):
+            # the dtype has not returned an Array type, and may therefore not have a .fill function
+            type(self).assign_from_function(array_list, function_to_generate, self.ndim)
+        else:
+            self[:] = [array.fill(function_to_generate) for array in array_list]
+        return self
+
+    @property
+    def shape(self):
+        return self._shape
+
+    @shape.setter
+    def shape(self, shape_input):
+        # conversion to int happens using the 'index' operator
+        shape = (index(shape_input[0]), shape_input[1], *(index(i) for i in shape_input[2:]))
+        self._shape = shape
+
+    @classmethod
+    def from_stream(cls, stream, context, arg=0, template=None, shape=(), dtype=None):
+        # basic types have read_array method defined on their class
+        if callable(getattr(dtype, 'read_ragged_array', None)):
+            return dtype.read_ragged_array(stream, shape, context, arg, template)
+        else:
+            new_array = cls(shape, dtype, context, arg, template, set_default=False)
+            new_array.read(stream)
+            return new_array
+
+    @classmethod
+    def to_stream(cls, stream, instance, shape, dtype, context, arg=0, template=None):
+        if instance is not None:
+            if callable(getattr(dtype, 'write_ragged_array', None)):
+                dtype.write_ragged_array(stream, instance)
+            else:
+                instance.store_params(shape, dtype, context, arg, template)
+                instance.write(stream)
+
+    @classmethod
+    def from_value(cls, shape, dtype, value):
+        if callable(getattr(dtype, 'create_ragged_array', None)):
+            return dtype.create_ragged_array(shape, default=value)
+        else:
+            new_array = cls(shape, dtype, None, set_default=False)
+            new_array.fill(lambda: dtype.from_value(value))
+            return new_array
+
+    @classmethod
+    def _get_filtered_attribute_list(cls, instance, dtype):
+        if callable(getattr(dtype, "_get_filtered_attribute_list_ragged_array", None)):
+            return dtype._get_filtered_attribute_list_ragged_array(instance)
+        else:
+            arg = getattr(instance, "arg", 0)
+            template = getattr(instance, "template", None)
+            for i in range(instance.shape[0]):
+                yield (i, cls, (instance.shape[1][i], dtype, arg, template), (False, None))
 
 def _class_to_name(cls):
     cls_str = str(cls)
