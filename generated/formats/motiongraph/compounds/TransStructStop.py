@@ -10,6 +10,10 @@ class TransStructStop(MemStruct):
 	actually same as above, just don't keep reading here
 	"""
 
+	__name__ = 'TransStructStop'
+
+	_import_path = 'generated.formats.motiongraph.compounds.TransStructStop'
+
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		self.other_states = MGTwo(self.context, 0, None)

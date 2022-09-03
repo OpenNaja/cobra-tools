@@ -13,6 +13,10 @@ class StreamDebugger(BaseStruct):
 	logs stream address to debug log
 	"""
 
+	__name__ = 'StreamDebugger'
+
+	_import_path = 'generated.formats.ms2.compounds.StreamDebugger'
+
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)

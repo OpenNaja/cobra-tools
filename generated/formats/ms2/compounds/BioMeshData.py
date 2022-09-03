@@ -23,6 +23,10 @@ class BioMeshData(MeshData):
 	JWE2 after Biosyn update - 48 bytes incl. inheritance
 	"""
 
+	__name__ = 'BioMeshData'
+
+	_import_path = 'generated.formats.ms2.compounds.BioMeshData'
+
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 

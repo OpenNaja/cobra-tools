@@ -11,6 +11,10 @@ class ButtonData(MemStruct):
 	# HUD_Notifications:    14  210     n and N
 	"""
 
+	__name__ = 'ButtonData'
+
+	_import_path = 'generated.formats.logicalcontrols.compounds.ButtonData'
+
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		self.k_1_a = 0

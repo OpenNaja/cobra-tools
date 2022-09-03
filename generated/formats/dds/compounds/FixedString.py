@@ -7,6 +7,10 @@ class FixedString(BaseStruct):
 	The string "DDS ".
 	"""
 
+	__name__ = 'FixedString'
+
+	_import_path = 'generated.formats.dds.compounds.FixedString'
+
 	def set_defaults(self):
 		super().set_defaults()
 		pass

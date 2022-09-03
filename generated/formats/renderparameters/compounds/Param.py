@@ -1,4 +1,4 @@
-import generated.formats.base.basic
+from generated.formats.base.basic import ZString
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
 from generated.formats.ovl_base.compounds.Pointer import Pointer
 from generated.formats.renderparameters.compounds.ParamData import ParamData
@@ -11,11 +11,15 @@ class Param(MemStruct):
 	32 bytes
 	"""
 
+	__name__ = 'Param'
+
+	_import_path = 'generated.formats.renderparameters.compounds.Param'
+
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		self.dtype = RenderParameterType(self.context, 0, None)
 		self.data = ParamData(self.context, self.dtype, None)
-		self.attribute_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.attribute_name = Pointer(self.context, 0, ZString)
 		if set_default:
 			self.set_defaults()
 
@@ -23,12 +27,12 @@ class Param(MemStruct):
 		super().set_defaults()
 		# leaving self.dtype alone
 		self.data = ParamData(self.context, self.dtype, None)
-		self.attribute_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.attribute_name = Pointer(self.context, 0, ZString)
 
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.attribute_name = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
+		instance.attribute_name = Pointer.from_stream(stream, instance.context, 0, ZString)
 		instance.dtype = RenderParameterType.from_stream(stream, instance.context, 0, None)
 		instance.data = ParamData.from_stream(stream, instance.context, instance.dtype, None)
 		if not isinstance(instance.attribute_name, int):
@@ -44,7 +48,7 @@ class Param(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
-		yield 'attribute_name', Pointer, (0, generated.formats.base.basic.ZString), (False, None)
+		yield 'attribute_name', Pointer, (0, ZString), (False, None)
 		yield 'dtype', RenderParameterType, (0, None), (False, None)
 		yield 'data', ParamData, (instance.dtype, None), (False, None)
 

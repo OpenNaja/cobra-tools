@@ -1,5 +1,15 @@
 import logging
+from generated.base_struct import StructMetaClass
 
+
+class BitfieldMetaClass(StructMetaClass):
+
+    def __init__(cls, name, bases, dict, **kwds):
+        total_members = []
+        for key, value in dict.items():
+            if isinstance(value, BitfieldMember):
+                total_members.append(key)
+        cls.__members__ = total_members
 
 class BitfieldMember(object):
 
@@ -20,10 +30,10 @@ class BitfieldMember(object):
         instance._value |= (value << self.pos) & self.mask
 
 
-class BasicBitfield(object):
+class BasicBitfield(object, metaclass=BitfieldMetaClass):
     _value: int = 0
     # must be overwritten by concrete implementation
-    storage = None
+    _storage = None
 
     def set_defaults(self):
         """This function has to be overwritten by concrete implementations to set defaults for the bitfield."""
@@ -43,11 +53,11 @@ class BasicBitfield(object):
 
     @classmethod
     def from_stream(cls, stream, context=None, arg=0, template=None):
-        return cls.from_value(cls.storage.from_stream(stream, context=None, arg=0, template=None))
+        return cls.from_value(cls._storage.from_stream(stream, context=None, arg=0, template=None))
 
     @classmethod
     def to_stream(cls, stream, instance):
-        cls.storage.to_stream(stream, instance._value)
+        cls._storage.to_stream(stream, instance._value)
 
     @classmethod
     def from_value(cls, value):
@@ -67,7 +77,7 @@ class BasicBitfield(object):
         return self.__str__()
 
     def __str__(self):
-        fields = [(key, getattr(self, key)) for key, value in self.__class__.__dict__.items() if isinstance(value, BitfieldMember)]
+        fields = [(key, getattr(self, key)) for key in self.__members__]
         items = [f"{key} = {str(val)}" for key, val in fields if val is not False]
         info = f"{self.__class__.__name__}: {self._value} {bin(self._value)} {items}"
         # print(info)

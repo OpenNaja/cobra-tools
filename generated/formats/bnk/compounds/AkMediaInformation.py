@@ -5,6 +5,10 @@ from generated.formats.base.basic import Uint
 
 class AkMediaInformation(BaseStruct):
 
+	__name__ = 'AkMediaInformation'
+
+	_import_path = 'generated.formats.bnk.compounds.AkMediaInformation'
+
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		self.source_i_d = 0

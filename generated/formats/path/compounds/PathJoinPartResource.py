@@ -1,14 +1,17 @@
-import generated.formats.base.basic
-import generated.formats.path.compounds.PointsList
-import generated.formats.path.compounds.Vector4
 from generated.formats.base.basic import Byte
 from generated.formats.base.basic import Uint64
+from generated.formats.base.basic import Ushort
+from generated.formats.base.basic import ZString
 from generated.formats.ovl_base.compounds.ArrayPointer import ArrayPointer
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
 from generated.formats.ovl_base.compounds.Pointer import Pointer
 
 
 class PathJoinPartResource(MemStruct):
+
+	__name__ = 'PathJoinPartResource'
+
+	_import_path = 'generated.formats.path.compounds.PathJoinPartResource'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
@@ -22,12 +25,12 @@ class PathJoinPartResource(MemStruct):
 		self.num_points_2_copy = 0
 		self.num_points_3 = 0
 		self.padding_2 = 0
-		self.unk_points_1 = Pointer(self.context, self.num_points_1, generated.formats.path.compounds.PointsList.PointsList)
-		self.unk_points_2 = Pointer(self.context, self.num_points_2, generated.formats.path.compounds.PointsList.PointsList)
-		self.unk_vector = ArrayPointer(self.context, 1, generated.formats.path.compounds.Vector4.Vector4)
-		self.unk_shorts = ArrayPointer(self.context, 8, generated.formats.base.basic.Ushort)
-		self.unk_points_3 = Pointer(self.context, self.num_points_3, generated.formats.path.compounds.PointsList.PointsList)
-		self.pathresource = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.unk_points_1 = Pointer(self.context, self.num_points_1, PathJoinPartResource._import_path_map["generated.formats.path.compounds.PointsList"])
+		self.unk_points_2 = Pointer(self.context, self.num_points_2, PathJoinPartResource._import_path_map["generated.formats.path.compounds.PointsList"])
+		self.unk_vector = ArrayPointer(self.context, 1, PathJoinPartResource._import_path_map["generated.formats.path.compounds.Vector4"])
+		self.unk_shorts = ArrayPointer(self.context, 8, Ushort)
+		self.unk_points_3 = Pointer(self.context, self.num_points_3, PathJoinPartResource._import_path_map["generated.formats.path.compounds.PointsList"])
+		self.pathresource = Pointer(self.context, 0, ZString)
 		if set_default:
 			self.set_defaults()
 
@@ -43,23 +46,23 @@ class PathJoinPartResource(MemStruct):
 		self.num_points_2_copy = 0
 		self.num_points_3 = 0
 		self.padding_2 = 0
-		self.unk_points_1 = Pointer(self.context, self.num_points_1, generated.formats.path.compounds.PointsList.PointsList)
-		self.unk_points_2 = Pointer(self.context, self.num_points_2, generated.formats.path.compounds.PointsList.PointsList)
-		self.unk_vector = ArrayPointer(self.context, 1, generated.formats.path.compounds.Vector4.Vector4)
-		self.unk_shorts = ArrayPointer(self.context, 8, generated.formats.base.basic.Ushort)
-		self.unk_points_3 = Pointer(self.context, self.num_points_3, generated.formats.path.compounds.PointsList.PointsList)
-		self.pathresource = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.unk_points_1 = Pointer(self.context, self.num_points_1, PathJoinPartResource._import_path_map["generated.formats.path.compounds.PointsList"])
+		self.unk_points_2 = Pointer(self.context, self.num_points_2, PathJoinPartResource._import_path_map["generated.formats.path.compounds.PointsList"])
+		self.unk_vector = ArrayPointer(self.context, 1, PathJoinPartResource._import_path_map["generated.formats.path.compounds.Vector4"])
+		self.unk_shorts = ArrayPointer(self.context, 8, Ushort)
+		self.unk_points_3 = Pointer(self.context, self.num_points_3, PathJoinPartResource._import_path_map["generated.formats.path.compounds.PointsList"])
+		self.pathresource = Pointer(self.context, 0, ZString)
 
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.unk_points_1 = Pointer.from_stream(stream, instance.context, instance.num_points_1, generated.formats.path.compounds.PointsList.PointsList)
-		instance.unk_points_2 = Pointer.from_stream(stream, instance.context, instance.num_points_2, generated.formats.path.compounds.PointsList.PointsList)
-		instance.unk_vector = ArrayPointer.from_stream(stream, instance.context, 1, generated.formats.path.compounds.Vector4.Vector4)
-		instance.unk_shorts = ArrayPointer.from_stream(stream, instance.context, 8, generated.formats.base.basic.Ushort)
-		instance.unk_points_3 = Pointer.from_stream(stream, instance.context, instance.num_points_3, generated.formats.path.compounds.PointsList.PointsList)
+		instance.unk_points_1 = Pointer.from_stream(stream, instance.context, instance.num_points_1, PathJoinPartResource._import_path_map["generated.formats.path.compounds.PointsList"])
+		instance.unk_points_2 = Pointer.from_stream(stream, instance.context, instance.num_points_2, PathJoinPartResource._import_path_map["generated.formats.path.compounds.PointsList"])
+		instance.unk_vector = ArrayPointer.from_stream(stream, instance.context, 1, PathJoinPartResource._import_path_map["generated.formats.path.compounds.Vector4"])
+		instance.unk_shorts = ArrayPointer.from_stream(stream, instance.context, 8, Ushort)
+		instance.unk_points_3 = Pointer.from_stream(stream, instance.context, instance.num_points_3, PathJoinPartResource._import_path_map["generated.formats.path.compounds.PointsList"])
 		instance.padding_1 = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.pathresource = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
+		instance.pathresource = Pointer.from_stream(stream, instance.context, 0, ZString)
 		instance.unk_byte_1 = Byte.from_stream(stream, instance.context, 0, None)
 		instance.unk_byte_2 = Byte.from_stream(stream, instance.context, 0, None)
 		instance.unk_byte_3 = Byte.from_stream(stream, instance.context, 0, None)
@@ -105,13 +108,13 @@ class PathJoinPartResource(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
-		yield 'unk_points_1', Pointer, (instance.num_points_1, generated.formats.path.compounds.PointsList.PointsList), (False, None)
-		yield 'unk_points_2', Pointer, (instance.num_points_2, generated.formats.path.compounds.PointsList.PointsList), (False, None)
-		yield 'unk_vector', ArrayPointer, (1, generated.formats.path.compounds.Vector4.Vector4), (False, None)
-		yield 'unk_shorts', ArrayPointer, (8, generated.formats.base.basic.Ushort), (False, None)
-		yield 'unk_points_3', Pointer, (instance.num_points_3, generated.formats.path.compounds.PointsList.PointsList), (False, None)
+		yield 'unk_points_1', Pointer, (instance.num_points_1, PathJoinPartResource._import_path_map["generated.formats.path.compounds.PointsList"]), (False, None)
+		yield 'unk_points_2', Pointer, (instance.num_points_2, PathJoinPartResource._import_path_map["generated.formats.path.compounds.PointsList"]), (False, None)
+		yield 'unk_vector', ArrayPointer, (1, PathJoinPartResource._import_path_map["generated.formats.path.compounds.Vector4"]), (False, None)
+		yield 'unk_shorts', ArrayPointer, (8, Ushort), (False, None)
+		yield 'unk_points_3', Pointer, (instance.num_points_3, PathJoinPartResource._import_path_map["generated.formats.path.compounds.PointsList"]), (False, None)
 		yield 'padding_1', Uint64, (0, None), (True, 0)
-		yield 'pathresource', Pointer, (0, generated.formats.base.basic.ZString), (False, None)
+		yield 'pathresource', Pointer, (0, ZString), (False, None)
 		yield 'unk_byte_1', Byte, (0, None), (False, None)
 		yield 'unk_byte_2', Byte, (0, None), (False, None)
 		yield 'unk_byte_3', Byte, (0, None), (False, None)

@@ -1,5 +1,3 @@
-import generated.formats.matcol.compounds.LayerFrag
-import generated.formats.matcol.compounds.Texture
 from generated.formats.base.basic import Uint64
 from generated.formats.ovl_base.compounds.ArrayPointer import ArrayPointer
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
@@ -12,14 +10,18 @@ class RootFrag(MemStruct):
 	(3=variant, 2=layered)
 	"""
 
+	__name__ = 'RootFrag'
+
+	_import_path = 'generated.formats.matcol.compounds.RootFrag'
+
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		self.mat_type = 0
 		self.tex_count = 0
 		self.mat_count = 0
 		self.unk = 0
-		self.textures = ArrayPointer(self.context, self.tex_count, generated.formats.matcol.compounds.Texture.Texture)
-		self.materials = ArrayPointer(self.context, self.mat_count, generated.formats.matcol.compounds.LayerFrag.LayerFrag)
+		self.textures = ArrayPointer(self.context, self.tex_count, RootFrag._import_path_map["generated.formats.matcol.compounds.Texture"])
+		self.materials = ArrayPointer(self.context, self.mat_count, RootFrag._import_path_map["generated.formats.matcol.compounds.LayerFrag"])
 		if set_default:
 			self.set_defaults()
 
@@ -29,16 +31,16 @@ class RootFrag(MemStruct):
 		self.tex_count = 0
 		self.mat_count = 0
 		self.unk = 0
-		self.textures = ArrayPointer(self.context, self.tex_count, generated.formats.matcol.compounds.Texture.Texture)
-		self.materials = ArrayPointer(self.context, self.mat_count, generated.formats.matcol.compounds.LayerFrag.LayerFrag)
+		self.textures = ArrayPointer(self.context, self.tex_count, RootFrag._import_path_map["generated.formats.matcol.compounds.Texture"])
+		self.materials = ArrayPointer(self.context, self.mat_count, RootFrag._import_path_map["generated.formats.matcol.compounds.LayerFrag"])
 
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
 		instance.mat_type = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.textures = ArrayPointer.from_stream(stream, instance.context, instance.tex_count, generated.formats.matcol.compounds.Texture.Texture)
+		instance.textures = ArrayPointer.from_stream(stream, instance.context, instance.tex_count, RootFrag._import_path_map["generated.formats.matcol.compounds.Texture"])
 		instance.tex_count = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.materials = ArrayPointer.from_stream(stream, instance.context, instance.mat_count, generated.formats.matcol.compounds.LayerFrag.LayerFrag)
+		instance.materials = ArrayPointer.from_stream(stream, instance.context, instance.mat_count, RootFrag._import_path_map["generated.formats.matcol.compounds.LayerFrag"])
 		instance.mat_count = Uint64.from_stream(stream, instance.context, 0, None)
 		instance.unk = Uint64.from_stream(stream, instance.context, 0, None)
 		if not isinstance(instance.textures, int):
@@ -60,9 +62,9 @@ class RootFrag(MemStruct):
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
 		yield 'mat_type', Uint64, (0, None), (False, None)
-		yield 'textures', ArrayPointer, (instance.tex_count, generated.formats.matcol.compounds.Texture.Texture), (False, None)
+		yield 'textures', ArrayPointer, (instance.tex_count, RootFrag._import_path_map["generated.formats.matcol.compounds.Texture"]), (False, None)
 		yield 'tex_count', Uint64, (0, None), (False, None)
-		yield 'materials', ArrayPointer, (instance.mat_count, generated.formats.matcol.compounds.LayerFrag.LayerFrag), (False, None)
+		yield 'materials', ArrayPointer, (instance.mat_count, RootFrag._import_path_map["generated.formats.matcol.compounds.LayerFrag"]), (False, None)
 		yield 'mat_count', Uint64, (0, None), (False, None)
 		yield 'unk', Uint64, (0, None), (False, None)
 

@@ -1,7 +1,12 @@
-from generated.formats.base.enums import UintEnum
+from generated.base_enum import BaseEnum
+from generated.formats.base.basic import Uint
 
 
-class SpecdefDtype(UintEnum):
+class SpecdefDtype(BaseEnum):
+
+	__name__ = 'SpecdefDtype'
+	_storage = Uint
+
 	BOOLEAN = 0
 	INT_8 = 1
 	INT_16 = 2

@@ -1,11 +1,16 @@
-from generated.formats.base.enums import UbyteEnum
+from generated.base_enum import BaseEnum
+from generated.formats.base.basic import Ubyte
 
 
-class DdsType(UbyteEnum):
+class DdsType(BaseEnum):
 
 	"""
 	maps the OVL's dds type to name of compression format
 	"""
+
+	__name__ = 'DdsType'
+	_storage = Ubyte
+
 	UNKNOWN = 0
 	R32G32B32A32_FLOAT = 1
 	R32G32B32A32_UINT = 2

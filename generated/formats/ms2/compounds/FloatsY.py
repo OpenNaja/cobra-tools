@@ -7,6 +7,10 @@ from generated.formats.base.basic import Uint
 
 class FloatsY(BaseStruct):
 
+	__name__ = 'FloatsY'
+
+	_import_path = 'generated.formats.ms2.compounds.FloatsY'
+
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		self.floats = Array((0,), Float, self.context, 0, None)

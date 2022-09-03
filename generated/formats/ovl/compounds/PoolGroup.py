@@ -8,6 +8,10 @@ class PoolGroup(BaseStruct):
 	Located at start of deflated archive stream
 	"""
 
+	__name__ = 'PoolGroup'
+
+	_import_path = 'generated.formats.ovl.compounds.PoolGroup'
+
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 

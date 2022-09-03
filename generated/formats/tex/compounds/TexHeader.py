@@ -1,6 +1,3 @@
-import generated.formats.tex.compounds.SizeInfo
-import generated.formats.tex.compounds.TexBuffer
-import generated.formats.tex.compounds.TexBufferPc
 from generated.formats.base.basic import Ubyte
 from generated.formats.base.basic import Uint
 from generated.formats.base.basic import Uint64
@@ -19,6 +16,10 @@ class TexHeader(MemStruct):
 	ZTUAC, PC: 24 bytes, with 1 pointer
 	JWE, PZ, JWE2: 40 bytes, with 2 pointers
 	"""
+
+	__name__ = 'TexHeader'
+
+	_import_path = 'generated.formats.tex.compounds.TexHeader'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
@@ -41,8 +42,8 @@ class TexHeader(MemStruct):
 		# 0
 		self.pad = 0
 		self.pad_dla = 0
-		self.buffer_infos = ArrayPointer(self.context, self.stream_count, generated.formats.tex.compounds.TexBuffer.TexBuffer)
-		self.size_info = Pointer(self.context, 0, generated.formats.tex.compounds.SizeInfo.SizeInfo)
+		self.buffer_infos = ArrayPointer(self.context, self.stream_count, TexHeader._import_path_map["generated.formats.tex.compounds.TexBuffer"])
+		self.size_info = Pointer(self.context, 0, TexHeader._import_path_map["generated.formats.tex.compounds.SizeInfo"])
 		if set_default:
 			self.set_defaults()
 
@@ -70,10 +71,10 @@ class TexHeader(MemStruct):
 		if self.context.version <= 15:
 			self.pad_dla = 0
 		if 17 <= self.context.version <= 18:
-			self.buffer_infos = ArrayPointer(self.context, self.stream_count, generated.formats.tex.compounds.TexBufferPc.TexBufferPc)
+			self.buffer_infos = ArrayPointer(self.context, self.stream_count, TexHeader._import_path_map["generated.formats.tex.compounds.TexBufferPc"])
 		if self.context.version >= 19:
-			self.buffer_infos = ArrayPointer(self.context, self.stream_count, generated.formats.tex.compounds.TexBuffer.TexBuffer)
-			self.size_info = Pointer(self.context, 0, generated.formats.tex.compounds.SizeInfo.SizeInfo)
+			self.buffer_infos = ArrayPointer(self.context, self.stream_count, TexHeader._import_path_map["generated.formats.tex.compounds.TexBuffer"])
+			self.size_info = Pointer(self.context, 0, TexHeader._import_path_map["generated.formats.tex.compounds.SizeInfo"])
 
 	@classmethod
 	def read_fields(cls, stream, instance):
@@ -85,10 +86,10 @@ class TexHeader(MemStruct):
 		if instance.context.version >= 19:
 			instance.zero_1 = Uint64.from_stream(stream, instance.context, 0, None)
 		if 17 <= instance.context.version <= 18:
-			instance.buffer_infos = ArrayPointer.from_stream(stream, instance.context, instance.stream_count, generated.formats.tex.compounds.TexBufferPc.TexBufferPc)
+			instance.buffer_infos = ArrayPointer.from_stream(stream, instance.context, instance.stream_count, TexHeader._import_path_map["generated.formats.tex.compounds.TexBufferPc"])
 		if instance.context.version >= 19:
-			instance.buffer_infos = ArrayPointer.from_stream(stream, instance.context, instance.stream_count, generated.formats.tex.compounds.TexBuffer.TexBuffer)
-			instance.size_info = Pointer.from_stream(stream, instance.context, 0, generated.formats.tex.compounds.SizeInfo.SizeInfo)
+			instance.buffer_infos = ArrayPointer.from_stream(stream, instance.context, instance.stream_count, TexHeader._import_path_map["generated.formats.tex.compounds.TexBuffer"])
+			instance.size_info = Pointer.from_stream(stream, instance.context, 0, TexHeader._import_path_map["generated.formats.tex.compounds.SizeInfo"])
 		if instance.context.version < 19:
 			instance.compression_type = DdsTypeCoaster.from_stream(stream, instance.context, 0, None)
 		if not (instance.context.version < 19):
@@ -151,10 +152,10 @@ class TexHeader(MemStruct):
 		if instance.context.version >= 19:
 			yield 'zero_1', Uint64, (0, None), (False, None)
 		if 17 <= instance.context.version <= 18:
-			yield 'buffer_infos', ArrayPointer, (instance.stream_count, generated.formats.tex.compounds.TexBufferPc.TexBufferPc), (False, None)
+			yield 'buffer_infos', ArrayPointer, (instance.stream_count, TexHeader._import_path_map["generated.formats.tex.compounds.TexBufferPc"]), (False, None)
 		if instance.context.version >= 19:
-			yield 'buffer_infos', ArrayPointer, (instance.stream_count, generated.formats.tex.compounds.TexBuffer.TexBuffer), (False, None)
-			yield 'size_info', Pointer, (0, generated.formats.tex.compounds.SizeInfo.SizeInfo), (False, None)
+			yield 'buffer_infos', ArrayPointer, (instance.stream_count, TexHeader._import_path_map["generated.formats.tex.compounds.TexBuffer"]), (False, None)
+			yield 'size_info', Pointer, (0, TexHeader._import_path_map["generated.formats.tex.compounds.SizeInfo"]), (False, None)
 		if instance.context.version < 19:
 			yield 'compression_type', DdsTypeCoaster, (0, None), (False, None)
 		if not (instance.context.version < 19):

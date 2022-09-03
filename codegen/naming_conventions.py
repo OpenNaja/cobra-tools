@@ -166,17 +166,17 @@ def str_is_number(str_expr):
 
 def format_potential_tuple(value):
     """Converts xml attribute value lists to tuples if space is present and all
-    space-separated values can be converted to numbers, otherwise leaves it alone.
+    comma-space-separated values can be converted to numbers, otherwise leaves it alone.
     :param value: the string that is the value of an attribute
     :return: original string if no space is present, or commas as separators
     and surrounding parentheses if whitespace is present.
     >>> format_potential_tuple('1.0')
     '1.0
-    >>> format_potential_tuple('1.0 1.0 1.0')
+    >>> format_potential_tuple('1.0, 1.0, 1.0')
     '(1.0, 1.0, 1.0)'"""
     if ' ' in value:
-        if all([str_is_number(potential_number) for potential_number in value.split()]):
-            return f"({', '.join(value.split())})"
+        if all([str_is_number(potential_number) for potential_number in value.split(', ')]):
+            return f"({value})"
         else:
             return value
     else:

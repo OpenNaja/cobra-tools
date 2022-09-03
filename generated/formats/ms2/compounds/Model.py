@@ -12,6 +12,10 @@ from generated.formats.ms2.compounds.ZTPreBones import ZTPreBones
 
 class Model(BaseStruct):
 
+	__name__ = 'Model'
+
+	_import_path = 'generated.formats.ms2.compounds.Model'
+
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 

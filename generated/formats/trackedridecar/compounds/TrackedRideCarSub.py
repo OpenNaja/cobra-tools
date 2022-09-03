@@ -1,4 +1,3 @@
-import generated.formats.trackedridecar.compounds.Vector3
 from generated.formats.base.basic import Float
 from generated.formats.base.basic import Uint
 from generated.formats.base.basic import Uint64
@@ -12,13 +11,17 @@ class TrackedRideCarSub(MemStruct):
 	32 bytes
 	"""
 
+	__name__ = 'TrackedRideCarSub'
+
+	_import_path = 'generated.formats.trackedridecar.compounds.TrackedRideCarSub'
+
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		self.float = 0.0
 		self.u_0 = 0
 		self.vecs_count = 0
 		self.zero_1 = 0
-		self.vectors = ArrayPointer(self.context, self.vecs_count, generated.formats.trackedridecar.compounds.Vector3.Vector3)
+		self.vectors = ArrayPointer(self.context, self.vecs_count, TrackedRideCarSub._import_path_map["generated.formats.trackedridecar.compounds.Vector3"])
 		if set_default:
 			self.set_defaults()
 
@@ -28,14 +31,14 @@ class TrackedRideCarSub(MemStruct):
 		self.u_0 = 0
 		self.vecs_count = 0
 		self.zero_1 = 0
-		self.vectors = ArrayPointer(self.context, self.vecs_count, generated.formats.trackedridecar.compounds.Vector3.Vector3)
+		self.vectors = ArrayPointer(self.context, self.vecs_count, TrackedRideCarSub._import_path_map["generated.formats.trackedridecar.compounds.Vector3"])
 
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
 		instance.float = Float.from_stream(stream, instance.context, 0, None)
 		instance.u_0 = Uint.from_stream(stream, instance.context, 0, None)
-		instance.vectors = ArrayPointer.from_stream(stream, instance.context, instance.vecs_count, generated.formats.trackedridecar.compounds.Vector3.Vector3)
+		instance.vectors = ArrayPointer.from_stream(stream, instance.context, instance.vecs_count, TrackedRideCarSub._import_path_map["generated.formats.trackedridecar.compounds.Vector3"])
 		instance.vecs_count = Uint64.from_stream(stream, instance.context, 0, None)
 		instance.zero_1 = Uint64.from_stream(stream, instance.context, 0, None)
 		if not isinstance(instance.vectors, int):
@@ -55,7 +58,7 @@ class TrackedRideCarSub(MemStruct):
 		yield from super()._get_filtered_attribute_list(instance)
 		yield 'float', Float, (0, None), (False, None)
 		yield 'u_0', Uint, (0, None), (False, None)
-		yield 'vectors', ArrayPointer, (instance.vecs_count, generated.formats.trackedridecar.compounds.Vector3.Vector3), (False, None)
+		yield 'vectors', ArrayPointer, (instance.vecs_count, TrackedRideCarSub._import_path_map["generated.formats.trackedridecar.compounds.Vector3"]), (False, None)
 		yield 'vecs_count', Uint64, (0, None), (False, None)
 		yield 'zero_1', Uint64, (0, None), (False, None)
 

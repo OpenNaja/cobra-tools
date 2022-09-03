@@ -10,6 +10,10 @@ class CurveDataPoint(MemStruct):
 	12 bytes
 	"""
 
+	__name__ = 'CurveDataPoint'
+
+	_import_path = 'generated.formats.motiongraph.compounds.CurveDataPoint'
+
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		self.x = 0.0

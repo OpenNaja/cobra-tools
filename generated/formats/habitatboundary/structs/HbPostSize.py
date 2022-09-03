@@ -4,6 +4,10 @@ from generated.formats.ovl_base.compounds.MemStruct import MemStruct
 
 class HbPostSize(MemStruct):
 
+	__name__ = 'HB_PostSize'
+
+	_import_path = 'generated.formats.habitatboundary.structs.HbPostSize'
+
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 

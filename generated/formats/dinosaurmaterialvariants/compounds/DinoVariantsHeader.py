@@ -1,7 +1,6 @@
-import generated.formats.base.basic
-import generated.formats.dinosaurmaterialvariants.compounds.VariantArray
-import generated.formats.ovl_base.basic
 from generated.formats.base.basic import Uint64
+from generated.formats.base.basic import ZString
+from generated.formats.ovl_base.basic import ZStringObfuscated
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
 from generated.formats.ovl_base.compounds.Pointer import Pointer
 
@@ -13,14 +12,18 @@ class DinoVariantsHeader(MemStruct):
 	# no set_count for rex 93 - has no materialpatterns, so that's probably why it's different
 	"""
 
+	__name__ = 'DinoVariantsHeader'
+
+	_import_path = 'generated.formats.dinosaurmaterialvariants.compounds.DinoVariantsHeader'
+
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		self.has_sets = 0
 		self.variant_count = 0
 		self.zero = 0
-		self.fgm_name = Pointer(self.context, 0, generated.formats.ovl_base.basic.ZStringObfuscated)
-		self.set_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.variants = Pointer(self.context, self.variant_count, generated.formats.dinosaurmaterialvariants.compounds.VariantArray.VariantArray)
+		self.fgm_name = Pointer(self.context, 0, ZStringObfuscated)
+		self.set_name = Pointer(self.context, 0, ZString)
+		self.variants = Pointer(self.context, self.variant_count, DinoVariantsHeader._import_path_map["generated.formats.dinosaurmaterialvariants.compounds.VariantArray"])
 		if set_default:
 			self.set_defaults()
 
@@ -29,17 +32,17 @@ class DinoVariantsHeader(MemStruct):
 		self.has_sets = 0
 		self.variant_count = 0
 		self.zero = 0
-		self.fgm_name = Pointer(self.context, 0, generated.formats.ovl_base.basic.ZStringObfuscated)
-		self.set_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.variants = Pointer(self.context, self.variant_count, generated.formats.dinosaurmaterialvariants.compounds.VariantArray.VariantArray)
+		self.fgm_name = Pointer(self.context, 0, ZStringObfuscated)
+		self.set_name = Pointer(self.context, 0, ZString)
+		self.variants = Pointer(self.context, self.variant_count, DinoVariantsHeader._import_path_map["generated.formats.dinosaurmaterialvariants.compounds.VariantArray"])
 
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.fgm_name = Pointer.from_stream(stream, instance.context, 0, generated.formats.ovl_base.basic.ZStringObfuscated)
+		instance.fgm_name = Pointer.from_stream(stream, instance.context, 0, ZStringObfuscated)
 		instance.has_sets = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.set_name = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
-		instance.variants = Pointer.from_stream(stream, instance.context, instance.variant_count, generated.formats.dinosaurmaterialvariants.compounds.VariantArray.VariantArray)
+		instance.set_name = Pointer.from_stream(stream, instance.context, 0, ZString)
+		instance.variants = Pointer.from_stream(stream, instance.context, instance.variant_count, DinoVariantsHeader._import_path_map["generated.formats.dinosaurmaterialvariants.compounds.VariantArray"])
 		instance.variant_count = Uint64.from_stream(stream, instance.context, 0, None)
 		instance.zero = Uint64.from_stream(stream, instance.context, 0, None)
 		if not isinstance(instance.fgm_name, int):
@@ -62,10 +65,10 @@ class DinoVariantsHeader(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
-		yield 'fgm_name', Pointer, (0, generated.formats.ovl_base.basic.ZStringObfuscated), (False, None)
+		yield 'fgm_name', Pointer, (0, ZStringObfuscated), (False, None)
 		yield 'has_sets', Uint64, (0, None), (False, None)
-		yield 'set_name', Pointer, (0, generated.formats.base.basic.ZString), (False, None)
-		yield 'variants', Pointer, (instance.variant_count, generated.formats.dinosaurmaterialvariants.compounds.VariantArray.VariantArray), (False, None)
+		yield 'set_name', Pointer, (0, ZString), (False, None)
+		yield 'variants', Pointer, (instance.variant_count, DinoVariantsHeader._import_path_map["generated.formats.dinosaurmaterialvariants.compounds.VariantArray"]), (False, None)
 		yield 'variant_count', Uint64, (0, None), (False, None)
 		yield 'zero', Uint64, (0, None), (False, None)
 

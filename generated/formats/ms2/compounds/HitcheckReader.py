@@ -11,6 +11,10 @@ class HitcheckReader(BaseStruct):
 	This reads and assigns hitchecks to each jointinfo that is passed to it
 	"""
 
+	__name__ = 'HitcheckReader'
+
+	_import_path = 'generated.formats.ms2.compounds.HitcheckReader'
+
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)

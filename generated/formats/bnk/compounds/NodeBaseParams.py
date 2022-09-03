@@ -6,6 +6,10 @@ from generated.formats.base.basic import Byte
 
 class NodeBaseParams(BaseStruct):
 
+	__name__ = 'NodeBaseParams'
+
+	_import_path = 'generated.formats.bnk.compounds.NodeBaseParams'
+
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		self.raw = Array((0,), Byte, self.context, 0, None)

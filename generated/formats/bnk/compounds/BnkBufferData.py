@@ -13,6 +13,10 @@ class BnkBufferData(BaseStruct):
 	Buffer data of bnk files
 	"""
 
+	__name__ = 'BnkBufferData'
+
+	_import_path = 'generated.formats.bnk.compounds.BnkBufferData'
+
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 

@@ -4,7 +4,9 @@ from generated.formats.dds.basic import Uint
 
 
 class HeaderFlags(BasicBitfield):
-	storage = Uint
+
+	__name__ = 'HeaderFlags'
+	_storage = Uint
 	caps = BitfieldMember(pos=0, mask=0x1, return_type=int)
 	height = BitfieldMember(pos=1, mask=0x2, return_type=int)
 	width = BitfieldMember(pos=2, mask=0x4, return_type=int)

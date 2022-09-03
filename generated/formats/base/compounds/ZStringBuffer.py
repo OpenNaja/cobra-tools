@@ -17,6 +17,10 @@ class ZStringBuffer(BaseStruct):
 	Holds a buffer of zero-terminated strings
 	"""
 
+	__name__ = 'ZStringBuffer'
+
+	_import_path = 'generated.formats.base.compounds.ZStringBuffer'
+
 	def set_defaults(self):
 		super().set_defaults()
 		pass

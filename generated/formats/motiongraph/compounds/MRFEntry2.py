@@ -1,4 +1,3 @@
-import generated.formats.motiongraph.compounds.MRFMember2
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
 from generated.formats.ovl_base.compounds.Pointer import Pointer
 
@@ -9,20 +8,24 @@ class MRFEntry2(MemStruct):
 	8 bytes
 	"""
 
+	__name__ = 'MRFEntry2'
+
+	_import_path = 'generated.formats.motiongraph.compounds.MRFEntry2'
+
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.value = Pointer(self.context, 0, generated.formats.motiongraph.compounds.MRFMember2.MRFMember2)
+		self.value = Pointer(self.context, 0, MRFEntry2._import_path_map["generated.formats.motiongraph.compounds.MRFMember2"])
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
 		super().set_defaults()
-		self.value = Pointer(self.context, 0, generated.formats.motiongraph.compounds.MRFMember2.MRFMember2)
+		self.value = Pointer(self.context, 0, MRFEntry2._import_path_map["generated.formats.motiongraph.compounds.MRFMember2"])
 
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.value = Pointer.from_stream(stream, instance.context, 0, generated.formats.motiongraph.compounds.MRFMember2.MRFMember2)
+		instance.value = Pointer.from_stream(stream, instance.context, 0, MRFEntry2._import_path_map["generated.formats.motiongraph.compounds.MRFMember2"])
 		if not isinstance(instance.value, int):
 			instance.value.arg = 0
 
@@ -34,7 +37,7 @@ class MRFEntry2(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
-		yield 'value', Pointer, (0, generated.formats.motiongraph.compounds.MRFMember2.MRFMember2), (False, None)
+		yield 'value', Pointer, (0, MRFEntry2._import_path_map["generated.formats.motiongraph.compounds.MRFMember2"]), (False, None)
 
 	def get_info_str(self, indent=0):
 		return f'MRFEntry2 [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

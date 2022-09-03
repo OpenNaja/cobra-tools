@@ -6,6 +6,10 @@ from generated.formats.ovl_base.compounds.MemStruct import MemStruct
 
 class Data(MemStruct):
 
+	__name__ = 'Data'
+
+	_import_path = 'generated.formats.posedriverdef.compounds.Data'
+
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		self.floats = Array((0,), Float, self.context, 0, None)

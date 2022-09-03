@@ -47,7 +47,7 @@ class Bitfield(BaseClass):
         with open(self.out_file, "w", encoding=self.parser.encoding) as f:
             # write the header stuff
             super().write(f)
-            f.write(f"\n\tstorage = {storage}")
+            f.write(f"\n\t_storage = {storage}")
             self.map_pos()
             self.get_mask()
             for field in self.struct:

@@ -7,6 +7,10 @@ from generated.formats.ovl_base.compounds.MemStruct import MemStruct
 
 class AttribData(MemStruct):
 
+	__name__ = 'AttribData'
+
+	_import_path = 'generated.formats.fgm.compounds.AttribData'
+
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		self.value = Array((0,), Int, self.context, 0, None)

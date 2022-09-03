@@ -4,6 +4,10 @@ from generated.formats.ovl_base.compounds.Pointer import Pointer
 
 class TextureData(MemStruct):
 
+	__name__ = 'TextureData'
+
+	_import_path = 'generated.formats.fgm.compounds.TextureData'
+
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 

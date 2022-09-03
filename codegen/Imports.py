@@ -28,7 +28,7 @@ class Imports:
                     # only import if a type
                     template_class = convention.name_class(template)
                     if template_class in self.path_dict:
-                        self.add_module(template_class)
+                        self.add_indirect_import(template_class)
                 arr1 = field.attrib.get("arr1")
                 if arr1 is None:
                     arr1 = field.attrib.get("length")
@@ -41,10 +41,22 @@ class Imports:
                     self.add_mapped_type(field_type)
                     if xml_struct.tag in parser.struct_types:
                         self.add(field_type)
+                onlyT = field.attrib.get("onlyT")
+                if onlyT:
+                    self.add_indirect_import(onlyT)
+                excludeT = field.attrib.get("excludeT")
+                if excludeT:
+                    self.add_indirect_import(excludeT)
                 for default in field:
                     if default.tag in ("default",):
                         if default.attrib.get("versions"):
                             self.add("versions")
+                        onlyT = default.attrib.get("onlyT")
+                        if onlyT:
+                            self.add_indirect_import(onlyT)
+                        excludeT = default.attrib.get("excludeT")
+                        if excludeT:
+                            self.add_indirect_import(excludeT)
 
     def add_mapped_type(self, cls_to_import, array=False):
         if cls_to_import:
@@ -61,10 +73,10 @@ class Imports:
         if cls_to_import:
             self.imports.append(cls_to_import.split('.')[0])
 
-    def add_module(self, cls_to_import):
-        # provide class access through the module to prevent circular import
-        if cls_to_import:
-            self.imports.append(self.import_from_module_path(self.path_dict[cls_to_import]))
+    def add_indirect_import(self, cls_to_import):
+        # import the class directly, but only if it's not a struct (because those could lead to circular imports)
+        if cls_to_import and self.parent.tag_dict[cls_to_import.lower()] not in self.parent.struct_types:
+            self.add(cls_to_import)
 
     def write(self, stream):
         module_imports = []
