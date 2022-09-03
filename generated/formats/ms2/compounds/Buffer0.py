@@ -13,13 +13,13 @@ class Buffer0(BaseStruct):
 		super().__init__(context, arg, template, set_default=False)
 
 		# djb2 hashes
-		self.name_hashes = numpy.zeros((self.arg.name_count,), dtype=numpy.dtype('uint32'))
+		self.name_hashes = Array((0,), Uint, self.context, 0, None)
 
 		# names
-		self.names = Array((self.arg.name_count,), ZString, self.context, 0, None)
+		self.names = Array((0,), ZString, self.context, 0, None)
 
 		# align to 4
-		self.names_padding = numpy.zeros(((4 - (self.names.io_size % 4)) % 4,), dtype=numpy.dtype('uint8'))
+		self.names_padding = Array((0,), Ubyte, self.context, 0, None)
 		self.zt_streams_header = StreamsZTHeader(self.context, self.arg, None)
 		if set_default:
 			self.set_defaults()

@@ -31,6 +31,9 @@ class Ms2File(Ms2InfoHeader, IoFile):
 		if not hasattr(bone_info, "joints"):
 			logging.warning(f"Joints deactivated for debugging")
 			return
+		if not bone_info.joints:
+			logging.debug(f"Joints not used")
+			return
 		if self.context.version >= 47:
 			for i, x in enumerate(bone_info.struct_7.unknown_list):
 				# print(i)

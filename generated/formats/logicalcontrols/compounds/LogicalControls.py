@@ -1,4 +1,5 @@
 import generated.formats.base.basic
+import generated.formats.logicalcontrols.compounds.AxisButton
 import generated.formats.logicalcontrols.compounds.AxisValue
 import generated.formats.logicalcontrols.compounds.Button
 import generated.formats.logicalcontrols.compounds.Some
@@ -20,7 +21,7 @@ class LogicalControls(MemStruct):
 		self.flags = 0
 		self.buttons = ArrayPointer(self.context, self.button_count, generated.formats.logicalcontrols.compounds.Button.Button)
 		self.axes = ArrayPointer(self.context, self.axis_count, generated.formats.logicalcontrols.compounds.AxisValue.AxisValue)
-		self.c = ArrayPointer(self.context, self.count_3, )
+		self.axis_buttons = ArrayPointer(self.context, self.count_3, generated.formats.logicalcontrols.compounds.AxisButton.AxisButton)
 		self.d = ArrayPointer(self.context, self.count_4, generated.formats.logicalcontrols.compounds.Some.Some)
 		self.unsure = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 		if set_default:
@@ -35,7 +36,7 @@ class LogicalControls(MemStruct):
 		self.flags = 0
 		self.buttons = ArrayPointer(self.context, self.button_count, generated.formats.logicalcontrols.compounds.Button.Button)
 		self.axes = ArrayPointer(self.context, self.axis_count, generated.formats.logicalcontrols.compounds.AxisValue.AxisValue)
-		self.c = ArrayPointer(self.context, self.count_3, )
+		self.axis_buttons = ArrayPointer(self.context, self.count_3, generated.formats.logicalcontrols.compounds.AxisButton.AxisButton)
 		self.d = ArrayPointer(self.context, self.count_4, generated.formats.logicalcontrols.compounds.Some.Some)
 		self.unsure = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 
@@ -44,7 +45,7 @@ class LogicalControls(MemStruct):
 		super().read_fields(stream, instance)
 		instance.buttons = ArrayPointer.from_stream(stream, instance.context, instance.button_count, generated.formats.logicalcontrols.compounds.Button.Button)
 		instance.axes = ArrayPointer.from_stream(stream, instance.context, instance.axis_count, generated.formats.logicalcontrols.compounds.AxisValue.AxisValue)
-		instance.c = ArrayPointer.from_stream(stream, instance.context, instance.count_3, )
+		instance.axis_buttons = ArrayPointer.from_stream(stream, instance.context, instance.count_3, generated.formats.logicalcontrols.compounds.AxisButton.AxisButton)
 		instance.d = ArrayPointer.from_stream(stream, instance.context, instance.count_4, generated.formats.logicalcontrols.compounds.Some.Some)
 		instance.button_count = Ubyte.from_stream(stream, instance.context, 0, None)
 		instance.axis_count = Ubyte.from_stream(stream, instance.context, 0, None)
@@ -56,8 +57,8 @@ class LogicalControls(MemStruct):
 			instance.buttons.arg = instance.button_count
 		if not isinstance(instance.axes, int):
 			instance.axes.arg = instance.axis_count
-		if not isinstance(instance.c, int):
-			instance.c.arg = instance.count_3
+		if not isinstance(instance.axis_buttons, int):
+			instance.axis_buttons.arg = instance.count_3
 		if not isinstance(instance.d, int):
 			instance.d.arg = instance.count_4
 		if not isinstance(instance.unsure, int):
@@ -68,7 +69,7 @@ class LogicalControls(MemStruct):
 		super().write_fields(stream, instance)
 		ArrayPointer.to_stream(stream, instance.buttons)
 		ArrayPointer.to_stream(stream, instance.axes)
-		ArrayPointer.to_stream(stream, instance.c)
+		ArrayPointer.to_stream(stream, instance.axis_buttons)
 		ArrayPointer.to_stream(stream, instance.d)
 		Ubyte.to_stream(stream, instance.button_count)
 		Ubyte.to_stream(stream, instance.axis_count)
@@ -82,7 +83,7 @@ class LogicalControls(MemStruct):
 		yield from super()._get_filtered_attribute_list(instance)
 		yield 'buttons', ArrayPointer, (instance.button_count, generated.formats.logicalcontrols.compounds.Button.Button), (False, None)
 		yield 'axes', ArrayPointer, (instance.axis_count, generated.formats.logicalcontrols.compounds.AxisValue.AxisValue), (False, None)
-		yield 'c', ArrayPointer, (instance.count_3, ), (False, None)
+		yield 'axis_buttons', ArrayPointer, (instance.count_3, generated.formats.logicalcontrols.compounds.AxisButton.AxisButton), (False, None)
 		yield 'd', ArrayPointer, (instance.count_4, generated.formats.logicalcontrols.compounds.Some.Some), (False, None)
 		yield 'button_count', Ubyte, (0, None), (False, None)
 		yield 'axis_count', Ubyte, (0, None), (False, None)
@@ -99,7 +100,7 @@ class LogicalControls(MemStruct):
 		s += super().get_fields_str()
 		s += f'\n	* buttons = {self.fmt_member(self.buttons, indent+1)}'
 		s += f'\n	* axes = {self.fmt_member(self.axes, indent+1)}'
-		s += f'\n	* c = {self.fmt_member(self.c, indent+1)}'
+		s += f'\n	* axis_buttons = {self.fmt_member(self.axis_buttons, indent+1)}'
 		s += f'\n	* d = {self.fmt_member(self.d, indent+1)}'
 		s += f'\n	* button_count = {self.fmt_member(self.button_count, indent+1)}'
 		s += f'\n	* axis_count = {self.fmt_member(self.axis_count, indent+1)}'

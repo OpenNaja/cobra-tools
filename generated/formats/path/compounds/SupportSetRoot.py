@@ -25,7 +25,7 @@ class SupportSetRoot(MemStruct):
 		self.unk_int_1 = 0
 		self.num_connector_1 = 0
 		self.num_connector_2 = 0
-		self.unk_ints = numpy.zeros((7,), dtype=numpy.dtype('uint32'))
+		self.unk_ints = Array((0,), Uint, self.context, 0, None)
 		self.padding_2 = 0
 		self.num_data = 0
 		self.connector_1 = ArrayPointer(self.context, self.num_connector_1, generated.formats.path.compounds.Connector.Connector)

@@ -43,7 +43,7 @@ class BioMeshData(MeshData):
 		self.poweroftwo = 0
 
 		# some floats, purpose unknown
-		self.unk_floats = numpy.zeros((2,), dtype=numpy.dtype('float32'))
+		self.unk_floats = Array((0,), Float, self.context, 0, None)
 
 		# seen 1 or 13
 		self.flag = BioModelFlag(self.context, 0, None)
@@ -234,8 +234,6 @@ class BioMeshData(MeshData):
 		max_verts = max(vert_chunk.vertex_count for vert_chunk in self.vert_chunks)
 		logging.info(f"max_verts {max_verts}")
 
-		for vertex_index, use_blended in enumerate(self.negate_bitangents):
-			self.add_to_weights("negate_bitangents", vertex_index, use_blended)
 		# slower
 		# decode_oct(vert_chunk.tangents, vert_chunk.meta["tangent_oct"])
 		# decode_oct(vert_chunk.normals, vert_chunk.meta["normal_oct"])
@@ -375,8 +373,14 @@ class BioMeshData(MeshData):
 			vert_chunk.vertex_count = np.max(tri_chunk.tri_indices) + 1
 			vert_chunk.weights_flag.mesh_format = self.mesh_format
 			if b_bone_id == -1:
+				# dynamic weights, extra array
 				vert_chunk.weights_flag.has_weights = True
+			elif b_bone_id == -2:
+				# no bone info, no weights
+				vert_chunk.weights_flag.has_weights = False
+				vert_chunk.weights_flag.bone_index = 0
 			else:
+				# static weights
 				vert_chunk.weights_flag.has_weights = False
 				vert_chunk.weights_flag.bone_index = b_bone_id
 			vert_chunk.pack_base = self.pack_base

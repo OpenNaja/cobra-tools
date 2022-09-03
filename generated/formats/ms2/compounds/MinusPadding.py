@@ -15,10 +15,10 @@ class MinusPadding(BaseStruct):
 		super().__init__(context, arg, template, set_default=False)
 
 		# -1
-		self.indices = numpy.zeros((self.arg,), dtype=numpy.dtype('int16'))
+		self.indices = Array((0,), Short, self.context, 0, None)
 
 		# 0
-		self.padding = numpy.zeros(((16 - ((self.arg * 2) % 16)) % 16,), dtype=numpy.dtype('int8'))
+		self.padding = Array((0,), Byte, self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 

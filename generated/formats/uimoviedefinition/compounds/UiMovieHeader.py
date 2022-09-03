@@ -18,7 +18,7 @@ class UiMovieHeader(MemStruct):
 		self.flag_1 = 0
 		self.flag_2 = 0
 		self.flag_3 = 0
-		self.floats = numpy.zeros((3,), dtype=numpy.dtype('float32'))
+		self.floats = Array((0,), Float, self.context, 0, None)
 		self.u_0 = 0
 		self.num_ui_triggers = 0
 		self.u_1 = 0

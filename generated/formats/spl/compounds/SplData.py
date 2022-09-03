@@ -15,7 +15,7 @@ class SplData(MemStruct):
 		super().__init__(context, arg, template, set_default=False)
 		self.offset = Vector3(self.context, 0, None)
 		self.scale = 0.0
-		self.keys = Array((self.arg,), Key, self.context, 0, None)
+		self.keys = Array((0,), Key, self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 

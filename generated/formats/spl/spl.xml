@@ -29,9 +29,9 @@
         JWE2: 16 bytes
         <add name="spline_data" type="Pointer" arg="count" template="SplData"/>
         <add name="count" type="ushort" />
-        <add name="sixteen" type="ubyte" />
-        <add name="one" type="ubyte" />
-        <add name="length" type="float" >total length of the interpolated curve, cf blender curvetools.CurveLength</add>
+        <add name="sixteen" type="ubyte" default="16" />
+        <add name="one" type="ubyte" default="1" />
+        <add name="length" type="float" >total length of the interpolated curve, cf blender Spline.calc_length()</add>
     </compound>
 
     <compound name="SplData" inherit="MemStruct">

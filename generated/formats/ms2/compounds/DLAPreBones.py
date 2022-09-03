@@ -8,7 +8,7 @@ class DLAPreBones(BaseStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.unk = numpy.zeros((120,), dtype=numpy.dtype('uint8'))
+		self.unk = Array((0,), Ubyte, self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 

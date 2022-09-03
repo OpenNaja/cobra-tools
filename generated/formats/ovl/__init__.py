@@ -51,7 +51,7 @@ class OvsFile(OvsHeader):
 	def __init__(self, context, ovl_inst, archive_entry):
 		# init with a dummy default archive
 		dummy_archive = ArchiveEntry(context, None, None)
-		super().__init__(context, dummy_archive, None, set_default=False)
+		super().__init__(context, dummy_archive, None)
 		self.ovl = ovl_inst
 		# set arg later to avoid initializing huge arrays with default data
 		self.arg = archive_entry
@@ -546,6 +546,7 @@ class OvsFile(OvsHeader):
 		for pool in self.pools:
 			# make sure that all pools are padded before writing
 			pool.pad()
+			pool.move_empty_pointers_to_end()
 			pool_bytes = pool.data.getvalue()
 			# JWE, JWE2: relative offset for each pool
 			if self.ovl.user_version.is_jwe:
@@ -703,11 +704,6 @@ class OvlFile(Header, IoFile):
 		except KeyError:
 			logging.warning(f"Unsupported file type {file_entry.ext} for game {get_game(self.context)[0].name}")
 			return
-
-	def pad_pools(self):
-		# make sure that all pools are padded
-		for archive in self.archives:
-			archive.content.pad_pools()
 
 	def create_file(self, file_path, ovs_name="STATIC"):
 		"""Register a file entry from a file path, add a loader"""

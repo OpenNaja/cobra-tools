@@ -21,7 +21,7 @@ class MeshCollision(BaseStruct):
 		self.offset = Vector3(self.context, 0, None)
 
 		# not floats, maybe 6 ushorts, shared among (all?) redwoods
-		self.unk_1 = numpy.zeros((3, 2,), dtype=numpy.dtype('uint16'))
+		self.unk_1 = Array((0,), Ushort, self.context, 0, None)
 
 		# vertices (3 float)
 		self.vertex_count = 0
@@ -36,10 +36,10 @@ class MeshCollision(BaseStruct):
 		self.bounds_max = Vector3(self.context, 0, None)
 
 		# seemingly fixed
-		self.ones_or_zeros = numpy.zeros((7,), dtype=numpy.dtype('uint64'))
+		self.ones_or_zeros = Array((0,), Uint64, self.context, 0, None)
 
 		# seemingly fixed
-		self.ff_or_zero = numpy.zeros((8,), dtype=numpy.dtype('int32'))
+		self.ff_or_zero = Array((0,), Int, self.context, 0, None)
 
 		# verbatim
 		self.bounds_min_repeat = Vector3(self.context, 0, None)
@@ -54,25 +54,25 @@ class MeshCollision(BaseStruct):
 		self.count_bits = 0
 
 		# ?
-		self.stuff = numpy.zeros((9,), dtype=numpy.dtype('uint16'))
+		self.stuff = Array((0,), Ushort, self.context, 0, None)
 
 		# ?
-		self.collision_bits = Array((self.count_bits,), MeshCollisionBit, self.context, 0, None)
+		self.collision_bits = Array((0,), MeshCollisionBit, self.context, 0, None)
 
 		# always 25
-		self.zeros = numpy.zeros((4,), dtype=numpy.dtype('uint32'))
+		self.zeros = Array((0,), Uint, self.context, 0, None)
 
 		# array of vertices
-		self.vertices = numpy.zeros((self.vertex_count, 3,), dtype=numpy.dtype('float32'))
+		self.vertices = Array((0,), Float, self.context, 0, None)
 
 		# triangle indices into vertex list
-		self.triangles = numpy.zeros((self.tri_count, 3,), dtype=numpy.dtype('uint16'))
+		self.triangles = Array((0,), Ushort, self.context, 0, None)
 
 		# ?
 		self.const = 0
 
 		# always 25
-		self.triangle_flags = numpy.zeros((self.tri_flags_count,), dtype=numpy.dtype('uint32'))
+		self.triangle_flags = Array((0,), Uint, self.context, 0, None)
 
 		# might be padding!
 		self.zero_end = 0

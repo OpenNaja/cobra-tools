@@ -12,8 +12,8 @@ class Info(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.flags = numpy.zeros((4,), dtype=numpy.dtype('int8'))
-		self.value = numpy.zeros((4,), dtype=numpy.dtype('float32'))
+		self.flags = Array((0,), Byte, self.context, 0, None)
+		self.value = Array((0,), Float, self.context, 0, None)
 		self.padding = 0
 		self.info_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
 		if set_default:

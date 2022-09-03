@@ -11,7 +11,7 @@ class PtrList(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.ptrs = Array((self.arg,), SinglePtr, self.context, 0, self.template)
+		self.ptrs = Array((0,), SinglePtr, self.context, 0, self.template)
 		if set_default:
 			self.set_defaults()
 

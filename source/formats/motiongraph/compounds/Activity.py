@@ -12,7 +12,7 @@ from generated.formats.ovl_base.compounds.Pointer import Pointer
 # END_GLOBALS
 
 
-class MRFMember0(MemStruct):
+class Activity(MemStruct):
 
 	"""
 	48 bytes
@@ -23,9 +23,10 @@ class MRFMember0(MemStruct):
 	def get_ptr_template(self, prop):
 		"""Returns the appropriate template for a pointer named 'prop', if exists.
 		Must be overwritten in subclass"""
-		# print(f"get_ptr_template MRFMember0")
-		if prop == "pointer":
+		# print(f"get_ptr_template Activity")
+		if prop == "ptr":
 			activity = self.data_type.data
+			# print(f"data_type {self.data_type.data}")
 			if activity == "AnimationActivity":
 				# print(f"data_type {self.data_type.data}")
 				return generated.formats.motiongraph.compounds.AnimationActivityData.AnimationActivityData

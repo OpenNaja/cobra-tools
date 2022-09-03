@@ -10,8 +10,8 @@ class Buffer1(BaseStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.bone_hashes = numpy.zeros((self.arg,), dtype=numpy.dtype('uint32'))
-		self.bone_names = Array((self.arg,), ZString, self.context, 0, None)
+		self.bone_hashes = Array((0,), Uint, self.context, 0, None)
+		self.bone_names = Array((0,), ZString, self.context, 0, None)
 
 		# ?
 		self.bone_pad = PadAlign(self.context, 4, self.bone_names)

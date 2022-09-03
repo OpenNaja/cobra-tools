@@ -18,10 +18,10 @@ class ListLong(Descriptor):
 		self.loc = Vector3(self.context, 0, None)
 
 		# each of the vec3 components is normalized, these might represent axes for the angles
-		self.floats = numpy.zeros((5, 3,), dtype=numpy.dtype('float32'))
+		self.floats = Array((0,), Float, self.context, 0, None)
 
 		# radians
-		self.radians = numpy.zeros((8,), dtype=numpy.dtype('float32'))
+		self.radians = Array((0,), Float, self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 

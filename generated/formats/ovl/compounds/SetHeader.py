@@ -21,8 +21,8 @@ class SetHeader(BaseStruct):
 
 		# must be 16909320
 		self.sig_b = 16909320
-		self.sets = Array((self.set_count,), SetEntry, self.context, 0, None)
-		self.assets = Array((self.asset_count,), AssetEntry, self.context, 0, None)
+		self.sets = Array((0,), SetEntry, self.context, 0, None)
+		self.assets = Array((0,), AssetEntry, self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 

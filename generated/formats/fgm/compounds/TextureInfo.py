@@ -17,7 +17,7 @@ class TextureInfo(GenericInfo):
 		# Stores 2 rgba colors
 
 		# Stores rgba color
-		self.value = Array((1,), Color, self.context, 0, None)
+		self.value = Array((0,), Color, self.context, 0, None)
 		self.some_index_0 = 0
 		self.some_index_1 = 0
 		if set_default:

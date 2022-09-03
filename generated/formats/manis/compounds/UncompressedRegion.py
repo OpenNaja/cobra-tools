@@ -9,16 +9,16 @@ class UncompressedRegion(BaseStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.zeros_0 = numpy.zeros((2,), dtype=numpy.dtype('uint32'))
+		self.zeros_0 = Array((0,), Uint, self.context, 0, None)
 		self.unk_0 = 0
 		self.unk_1 = 0
-		self.zeros_1 = numpy.zeros((3,), dtype=numpy.dtype('uint32'))
+		self.zeros_1 = Array((0,), Uint, self.context, 0, None)
 		self.unk_2 = 0
 		self.unk_3 = 0
-		self.zeros_2 = numpy.zeros((2,), dtype=numpy.dtype('uint32'))
+		self.zeros_2 = Array((0,), Uint, self.context, 0, None)
 		self.unk_4 = 0
 		self.unk_5 = 0
-		self.zeros_3 = numpy.zeros((2,), dtype=numpy.dtype('uint32'))
+		self.zeros_3 = Array((0,), Uint, self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 

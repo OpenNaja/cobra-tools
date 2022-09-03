@@ -93,49 +93,49 @@ class Header(GenericHeader):
 		self.num_triplets = 0
 
 		# zeros
-		self.reserved = numpy.zeros((12,), dtype=numpy.dtype('uint32'))
+		self.reserved = Array((0,), Uint, self.context, 0, None)
 
 		# Name buffer for assets and file mime types.
 		self.names = ZStringBuffer(self.context, self.len_names, None)
 
 		# used in DLA
-		self.names_pad = numpy.zeros(((16 - (self.len_names % 16)) % 16,), dtype=numpy.dtype('uint8'))
+		self.names_pad = Array((0,), Ubyte, self.context, 0, None)
 
 		# Array of MimeEntry objects that represent a mime type (file extension) each.
-		self.mimes = Array((self.num_mimes,), MimeEntry, self.context, 0, None)
+		self.mimes = Array((0,), MimeEntry, self.context, 0, None)
 
 		# ?
-		self.triplets = Array((self.num_triplets,), Triplet, self.context, 0, None)
+		self.triplets = Array((0,), Triplet, self.context, 0, None)
 
 		# ?
 		self.triplets_pad = PadAlign(self.context, 4, self.triplets)
 
 		# Array of FileEntry objects.
-		self.files = Array((self.num_files,), FileEntry, self.context, 0, None)
+		self.files = Array((0,), FileEntry, self.context, 0, None)
 
 		# Name buffer for archives, usually will be STATIC followed by any OVS names
 		self.archive_names = ZStringBuffer(self.context, self.len_archive_names, None)
 
 		# Array of ArchiveEntry objects.
-		self.archives = Array((self.num_archives,), ArchiveEntry, self.context, 0, None)
+		self.archives = Array((0,), ArchiveEntry, self.context, 0, None)
 
 		# Array of IncludedOvl objects.
-		self.included_ovls = Array((self.num_included_ovls,), IncludedOvl, self.context, 0, None)
+		self.included_ovls = Array((0,), IncludedOvl, self.context, 0, None)
 
 		# aka InstancesArray of DependencyEntry objects.
-		self.dependencies = Array((self.num_dependencies,), DependencyEntry, self.context, 0, None)
+		self.dependencies = Array((0,), DependencyEntry, self.context, 0, None)
 
 		# Array of AuxEntry objects.
-		self.aux_entries = Array((self.num_aux_entries,), AuxEntry, self.context, 0, None)
+		self.aux_entries = Array((0,), AuxEntry, self.context, 0, None)
 
 		# after aux in ZTUAC and PC
-		self.dependencies = Array((self.num_dependencies,), DependencyEntry, self.context, 0, None)
+		self.dependencies = Array((0,), DependencyEntry, self.context, 0, None)
 
 		# Array of StreamEntry objects.
-		self.stream_files = Array((self.num_stream_files,), StreamEntry, self.context, 0, None)
+		self.stream_files = Array((0,), StreamEntry, self.context, 0, None)
 
 		# repeats by archive count
-		self.zlibs = Array((self.num_archives,), ZlibInfo, self.context, 0, None)
+		self.zlibs = Array((0,), ZlibInfo, self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 

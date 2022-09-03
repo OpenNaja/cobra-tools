@@ -19,7 +19,7 @@ class BoundingBox(BaseStruct):
 		self.extent = Vector3(self.context, 0, None)
 
 		# probably padding
-		self.zeros = numpy.zeros((3,), dtype=numpy.dtype('uint32'))
+		self.zeros = Array((0,), Uint, self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 
