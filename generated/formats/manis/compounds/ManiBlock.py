@@ -50,7 +50,7 @@ class ManiBlock(BaseStruct):
 		# usually 420, or 0
 		self.quantisation_level = 0
 		self.ref_2 = Empty(self.context, 0, None)
-		self.zeros = Array((0,), Ubyte, self.context, 0, None)
+		self.some_indices = Array((0,), Ubyte, self.context, 0, None)
 		self.flag_0 = 0
 		self.flag_1 = 0
 		self.flag_2 = 0
@@ -66,7 +66,7 @@ class ManiBlock(BaseStruct):
 		# these are likely a scale reference or factor
 		self.floats_third = Array((0,), Float, self.context, 0, None)
 
-		# ?
+		# present in feeder, not in dino
 		self.unk = 0
 
 		# this seems to be vaguely related, but not always there?
@@ -114,7 +114,7 @@ class ManiBlock(BaseStruct):
 		self.count = 0
 		self.quantisation_level = 0
 		self.ref_2 = Empty(self.context, 0, None)
-		self.zeros = numpy.zeros((self.pos_bone_count,), dtype=numpy.dtype('uint8'))
+		self.some_indices = numpy.zeros((self.pos_bone_count,), dtype=numpy.dtype('uint8'))
 		self.flag_0 = 0
 		self.flag_1 = 0
 		self.flag_2 = 0
@@ -124,7 +124,8 @@ class ManiBlock(BaseStruct):
 		self.floats_second = numpy.zeros((self.flag_1, 6,), dtype=numpy.dtype('float32'))
 		if self.flag_2 > 1:
 			self.floats_third = numpy.zeros((6,), dtype=numpy.dtype('float32'))
-		self.unk = 0
+		if self.arg.count_a == 255:
+			self.unk = 0
 		if self.context.version <= 257:
 			self.extra_pc_zero = 0
 		self.repeats = Array((self.count,), Repeat, self.context, 0, None)
@@ -169,7 +170,7 @@ class ManiBlock(BaseStruct):
 		instance.count = Ushort.from_stream(stream, instance.context, 0, None)
 		instance.quantisation_level = Ushort.from_stream(stream, instance.context, 0, None)
 		instance.ref_2 = Empty.from_stream(stream, instance.context, 0, None)
-		instance.zeros = Array.from_stream(stream, instance.context, 0, None, (instance.pos_bone_count,), Ubyte)
+		instance.some_indices = Array.from_stream(stream, instance.context, 0, None, (instance.pos_bone_count,), Ubyte)
 		instance.flag_0 = Ubyte.from_stream(stream, instance.context, 0, None)
 		instance.flag_1 = Ubyte.from_stream(stream, instance.context, 0, None)
 		instance.flag_2 = Ubyte.from_stream(stream, instance.context, 0, None)
@@ -179,7 +180,8 @@ class ManiBlock(BaseStruct):
 		instance.floats_second = Array.from_stream(stream, instance.context, 0, None, (instance.flag_1, 6,), Float)
 		if instance.flag_2 > 1:
 			instance.floats_third = Array.from_stream(stream, instance.context, 0, None, (6,), Float)
-		instance.unk = Uint.from_stream(stream, instance.context, 0, None)
+		if instance.arg.count_a == 255:
+			instance.unk = Uint.from_stream(stream, instance.context, 0, None)
 		if instance.context.version <= 257:
 			instance.extra_pc_zero = Uint64.from_stream(stream, instance.context, 0, None)
 		instance.repeats = Array.from_stream(stream, instance.context, 0, None, (instance.count,), Repeat)
@@ -224,7 +226,7 @@ class ManiBlock(BaseStruct):
 		Ushort.to_stream(stream, instance.count)
 		Ushort.to_stream(stream, instance.quantisation_level)
 		Empty.to_stream(stream, instance.ref_2)
-		Array.to_stream(stream, instance.zeros, (instance.pos_bone_count,), Ubyte, instance.context, 0, None)
+		Array.to_stream(stream, instance.some_indices, (instance.pos_bone_count,), Ubyte, instance.context, 0, None)
 		Ubyte.to_stream(stream, instance.flag_0)
 		Ubyte.to_stream(stream, instance.flag_1)
 		Ubyte.to_stream(stream, instance.flag_2)
@@ -234,7 +236,8 @@ class ManiBlock(BaseStruct):
 		Array.to_stream(stream, instance.floats_second, (instance.flag_1, 6,), Float, instance.context, 0, None)
 		if instance.flag_2 > 1:
 			Array.to_stream(stream, instance.floats_third, (6,), Float, instance.context, 0, None)
-		Uint.to_stream(stream, instance.unk)
+		if instance.arg.count_a == 255:
+			Uint.to_stream(stream, instance.unk)
 		if instance.context.version <= 257:
 			Uint64.to_stream(stream, instance.extra_pc_zero)
 		Array.to_stream(stream, instance.repeats, (instance.count,), Repeat, instance.context, 0, None)
@@ -279,7 +282,7 @@ class ManiBlock(BaseStruct):
 		yield 'count', Ushort, (0, None), (False, None)
 		yield 'quantisation_level', Ushort, (0, None), (False, None)
 		yield 'ref_2', Empty, (0, None), (False, None)
-		yield 'zeros', Array, ((instance.pos_bone_count,), Ubyte, 0, None), (False, None)
+		yield 'some_indices', Array, ((instance.pos_bone_count,), Ubyte, 0, None), (False, None)
 		yield 'flag_0', Ubyte, (0, None), (False, None)
 		yield 'flag_1', Ubyte, (0, None), (False, None)
 		yield 'flag_2', Ubyte, (0, None), (False, None)
@@ -289,7 +292,8 @@ class ManiBlock(BaseStruct):
 		yield 'floats_second', Array, ((instance.flag_1, 6,), Float, 0, None), (False, None)
 		if instance.flag_2 > 1:
 			yield 'floats_third', Array, ((6,), Float, 0, None), (False, None)
-		yield 'unk', Uint, (0, None), (False, None)
+		if instance.arg.count_a == 255:
+			yield 'unk', Uint, (0, None), (False, None)
 		if instance.context.version <= 257:
 			yield 'extra_pc_zero', Uint64, (0, None), (False, None)
 		yield 'repeats', Array, ((instance.count,), Repeat, 0, None), (False, None)
@@ -322,7 +326,7 @@ class ManiBlock(BaseStruct):
 		s += f'\n	* count = {self.fmt_member(self.count, indent+1)}'
 		s += f'\n	* quantisation_level = {self.fmt_member(self.quantisation_level, indent+1)}'
 		s += f'\n	* ref_2 = {self.fmt_member(self.ref_2, indent+1)}'
-		s += f'\n	* zeros = {self.fmt_member(self.zeros, indent+1)}'
+		s += f'\n	* some_indices = {self.fmt_member(self.some_indices, indent+1)}'
 		s += f'\n	* flag_0 = {self.fmt_member(self.flag_0, indent+1)}'
 		s += f'\n	* flag_1 = {self.fmt_member(self.flag_1, indent+1)}'
 		s += f'\n	* flag_2 = {self.fmt_member(self.flag_2, indent+1)}'

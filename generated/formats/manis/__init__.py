@@ -74,4 +74,5 @@ if __name__ == "__main__":
 	# print(mani)
 
 	mani.load("C:/Users/arnfi/Desktop/manis/fee_feeder_ground.maniset2759dfaf.manis")
+	# mani.load("C:/Users/arnfi/Desktop/manis/motionextracted.maniset167ed454.manis")
 	# hex_test()
