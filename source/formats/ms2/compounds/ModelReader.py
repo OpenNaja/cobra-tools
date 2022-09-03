@@ -111,7 +111,7 @@ class ModelReader(BaseStruct):
 	def get_hitchecks(self, bone_info):
 		"""Collect all hitchecks in a flat list"""
 		# need to handle bone infos that have no joints
-		if bone_info.joints:
+		if hasattr(bone_info, "joints") and bone_info.joints:
 			h = [hitcheck for joint in bone_info.joints.joint_infos for hitcheck in joint.hitchecks]
 			return h
 		return []
