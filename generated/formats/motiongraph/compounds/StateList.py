@@ -36,7 +36,7 @@ class StateList(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
-		yield 'ptrs', Array, ((instance.arg,), SinglePtr, 0, StateList._import_path_map["generated.formats.motiongraph.compounds.State"]), (False, None)
+		yield 'ptrs', Array, (0, StateList._import_path_map["generated.formats.motiongraph.compounds.State"], (instance.arg,), SinglePtr), (False, None)
 
 	def get_info_str(self, indent=0):
 		return f'StateList [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

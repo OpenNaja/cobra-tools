@@ -221,7 +221,7 @@ class ManiInfo(BaseStruct):
 		yield 'duration', Float, (0, None), (False, None)
 		yield 'frame_count', Uint, (0, None), (False, None)
 		yield 'b', Uint, (0, None), (False, None)
-		yield 'zeros_0', Array, ((6,), Ushort, 0, None), (False, None)
+		yield 'zeros_0', Array, (0, None, (6,), Ushort), (False, None)
 		if instance.context.version <= 257:
 			yield 'extra_pc_1', Ushort, (0, None), (False, None)
 		yield 'pos_bone_count', Ushort, (0, None), (False, None)
@@ -240,9 +240,9 @@ class ManiInfo(BaseStruct):
 		yield 'count_b', Ubyte, (0, None), (False, None)
 		yield 'target_bone_count', Ushort, (0, None), (False, None)
 		yield 'g', Ushort, (0, None), (False, None)
-		yield 'zeros_2', Array, ((57,), Uint, 0, None), (False, None)
+		yield 'zeros_2', Array, (0, None, (57,), Uint), (False, None)
 		if instance.context.version <= 257:
-			yield 'extra_zeros_pc', Array, ((6,), Ushort, 0, None), (False, None)
+			yield 'extra_zeros_pc', Array, (0, None, (6,), Ushort), (False, None)
 		yield 'pos_bone_min', Ubyte, (0, None), (False, None)
 		yield 'pos_bone_max', Ubyte, (0, None), (False, None)
 		yield 'ori_bone_min', Ubyte, (0, None), (False, None)

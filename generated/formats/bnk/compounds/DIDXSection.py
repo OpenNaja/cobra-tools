@@ -44,7 +44,7 @@ class DIDXSection(BaseStruct):
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
 		yield 'length', Uint, (0, None), (False, None)
-		yield 'data_pointers', Array, ((int(instance.length / 12),), DataPointer, 0, None), (False, None)
+		yield 'data_pointers', Array, (0, None, (int(instance.length / 12),), DataPointer), (False, None)
 
 	def get_info_str(self, indent=0):
 		return f'DIDXSection [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

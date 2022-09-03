@@ -13,7 +13,7 @@ class Array(list):
 
     context = ContextReference()
 
-    def __new__(cls, shape, dtype, context, arg=0, template=None, set_default=True):
+    def __new__(cls, context, arg=0, template=None, shape=(), dtype=None, set_default=True):
         if cls.is_ragged_shape(shape):
             # the passed shape is 2D with an iterable in the 2nd dimension, so it's a ragged array
             return RaggedArray(shape, dtype, context, arg, template, set_default)
@@ -23,17 +23,17 @@ class Array(list):
         else:
             return super(cls, cls).__new__(cls)
 
-    def __init__(self, shape, dtype, context, arg=0, template=None, set_default=True):
+    def __init__(self, context, arg=0, template=None, shape=(), dtype=None, set_default=True):
         """Create a new array of the specified shape and type.
+        :param context: The context object to use for this array (necessary for version and other global conditions).
+        :type context: Any object which supports accessing for global conditions.
+        :param arg: 'arg' parameter to use for instancing objects in this array.
+        :param template: 'template' parameter to use for instancing objects in this array.
         :param shape: Shape of the resulting array. Zero-dimensional arrays are not supported.
         :type shape: Union[int, Tuple[int, ...]]
         :param dtype: The class to use for instancing objects in this array. If it supports create_array, that will
         be used instead.
         :type dtype: type
-        :param context: The context object to use for this array (necessary for version and other global conditions).
-        :type context: Any object which supports accessing for global conditions.
-        :param arg: 'arg' parameter to use for instancing objects in this array.
-        :param template: 'template' parameter to use for instancing objects in this array.
         :param set_default: Whether to create the elements of this array on init. If false, it is assumed that these
         elements will be created by another process immediately after init.
         :type set_default: bool, optional
@@ -67,7 +67,7 @@ class Array(list):
         # fill every entry of this array using the function_to_generate
         if len(self.shape) > 1:
             # a multi-dimensional array must be filled with subarrays to allow .shape access on them
-            array_list = [Array(self.shape[1:], self.dtype, self.context, self.arg, self.template, set_default=False) for _ in range(self.shape[0])]
+            array_list = [Array(self.context, self.arg, self.template, self.shape[1:], self.dtype, set_default=False) for _ in range(self.shape[0])]
             self[:] = [array.fill(function_to_generate) for array in array_list]
         else:
             self[:] = [function_to_generate() for _ in range(self.shape[0])]
@@ -95,15 +95,15 @@ class Array(list):
         elif callable(getattr(dtype, 'read_array', None)):
             return dtype.read_array(stream, shape, context, arg, template)
         else:
-            new_array = cls(shape, dtype, context, arg, template, set_default=False)
+            new_array = cls(context, arg, template, shape, dtype, set_default=False)
             new_array.read(stream)
             return new_array
 
     @classmethod
-    def to_stream(cls, stream, instance, shape, dtype, context, arg=0, template=None):
+    def to_stream(cls, stream, instance, context, arg=0, template=None, shape=(), dtype=None):
         if instance is not None:
             if cls.is_ragged_shape(shape):
-                RaggedArray.to_stream(stream, instance, shape, dtype, context, arg, template)
+                RaggedArray.to_stream(stream, instance, context, arg, template, shape, dtype)
             elif callable(getattr(dtype, 'write_array', None)):
                 dtype.write_array(stream, instance)
             else:
@@ -156,12 +156,12 @@ class Array(list):
         else:
             return [efunc(element) for element in nested_iterable]
 
-    def store_params(self, shape, dtype, context, arg, template):
-        self.shape = shape
-        self.dtype = dtype
+    def store_params(self, context, arg, template, shape, dtype):
         self._context = context
         self.arg = arg
         self.template = template
+        self.shape = shape
+        self.dtype = dtype
 
     @classmethod
     def _get_filtered_attribute_list(cls, instance, dtype):
@@ -174,10 +174,18 @@ class Array(list):
             template = getattr(instance, "template", None)
             if len(instance.shape) > 1:
                 for i in range(instance.shape[0]):
-                    yield (i, cls, (instance.shape[1:], dtype, arg, template), (False, None))
+                    yield (i, cls, (arg, template, instance.shape[1:], dtype), (False, None))
             else:
                 for i in range(instance.shape[0]):
                     yield (i, dtype, (arg, template), (False, None))
+
+    @staticmethod
+    def get_field(instance, key):
+        return instance[key]
+
+    @staticmethod
+    def set_field(instance, key, value):
+        instance[key] = value
 
     @property
     def class_name(self):
@@ -227,7 +235,7 @@ class RaggedArray(Array):
 
     context = ContextReference()
 
-    def __new__(cls, shape, dtype, context, arg=0, template=None, set_default=True):
+    def __new__(cls, context, arg=0, template=None, shape=(), dtype=None, set_default=True):
         if callable(getattr(dtype, 'create_ragged_array', None)):
             # there is a more efficient method of creating this array on the class (may not return RaggedArray instance)
             return dtype.create_ragged_array(shape, None, context, arg, template)
@@ -237,7 +245,7 @@ class RaggedArray(Array):
     def fill(self, function_to_generate):
         # fill every entry of this array using the function_to_generate
         # a multi-dimensional array must be filled with subarrays to allow .shape access on them
-        array_list = [Array((self.shape[1][i], *self.shape[2:]), self.dtype, self.context, self.arg, self.template, set_default=False) for i in range(self.shape[0])]
+        array_list = [Array(self.context, self.arg, self.template, (self.shape[1][i], *self.shape[2:]), self.dtype, set_default=False) for i in range(self.shape[0])]
         if callable(getattr(self.dtype, "create_array", None)):
             # the dtype has not returned an Array type, and may therefore not have a .fill function
             type(self).assign_from_function(array_list, function_to_generate, self.ndim)
@@ -266,7 +274,7 @@ class RaggedArray(Array):
             return new_array
 
     @classmethod
-    def to_stream(cls, stream, instance, shape, dtype, context, arg=0, template=None):
+    def to_stream(cls, stream, instance, context, arg=0, template=None, shape=(), dtype=None):
         if instance is not None:
             if callable(getattr(dtype, 'write_ragged_array', None)):
                 dtype.write_ragged_array(stream, instance)
@@ -291,7 +299,7 @@ class RaggedArray(Array):
             arg = getattr(instance, "arg", 0)
             template = getattr(instance, "template", None)
             for i in range(instance.shape[0]):
-                yield (i, cls, (instance.shape[1][i], dtype, arg, template), (False, None))
+                yield (i, cls, (arg, template, instance.shape[1][i], dtype), (False, None))
 
 def _class_to_name(cls):
     cls_str = str(cls)

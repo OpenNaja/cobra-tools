@@ -53,8 +53,8 @@ class ListLong(Descriptor):
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
 		yield 'loc', Vector3, (0, None), (False, None)
-		yield 'floats', Array, ((5, 3,), Float, 0, None), (False, None)
-		yield 'radians', Array, ((8,), Float, 0, None), (False, None)
+		yield 'floats', Array, (0, None, (5, 3,), Float), (False, None)
+		yield 'radians', Array, (0, None, (8,), Float), (False, None)
 
 	def get_info_str(self, indent=0):
 		return f'ListLong [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

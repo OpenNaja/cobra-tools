@@ -61,7 +61,7 @@ class BKHDSection(BaseStruct):
 		yield 'constant_a', Uint, (0, None), (False, None)
 		yield 'constant_b', Uint, (0, None), (False, None)
 		yield 'unk', Uint, (0, None), (False, None)
-		yield 'zeroes', Array, ((instance.length - 24,), Ubyte, 0, None), (False, None)
+		yield 'zeroes', Array, (0, None, (instance.length - 24,), Ubyte), (False, None)
 
 	def get_info_str(self, indent=0):
 		return f'BKHDSection [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

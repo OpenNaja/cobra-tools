@@ -68,9 +68,9 @@ class InfoHeader(BaseStruct):
 		yield from super()._get_filtered_attribute_list(instance)
 		yield 'version', Uint, (0, None), (False, None)
 		yield 'mani_count', Uint, (0, None), (False, None)
-		yield 'names', Array, ((instance.mani_count,), ZString, 0, None), (False, None)
+		yield 'names', Array, (0, None, (instance.mani_count,), ZString), (False, None)
 		yield 'header', SizedStrData, (0, None), (False, None)
-		yield 'mani_infos', Array, ((instance.mani_count,), ManiInfo, 0, None), (False, None)
+		yield 'mani_infos', Array, (0, None, (instance.mani_count,), ManiInfo), (False, None)
 		yield 'name_buffer', Buffer1, (int(instance.header.hash_block_size / 4), None), (False, None)
 		yield 'keys_buffer', KeysReader, (instance.mani_infos, None), (False, None)
 

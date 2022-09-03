@@ -190,7 +190,7 @@ class UiMovieHeader(MemStruct):
 		yield 'flag_1', Uint, (0, None), (False, None)
 		yield 'flag_2', Ushort, (0, None), (False, None)
 		yield 'flag_3', Ushort, (0, None), (False, None)
-		yield 'floats', Array, ((3,), Float, 0, None), (False, None)
+		yield 'floats', Array, (0, None, (3,), Float), (False, None)
 		yield 'u_0', Ubyte, (0, None), (False, None)
 		yield 'num_ui_triggers', Ubyte, (0, None), (False, None)
 		yield 'u_1', Ubyte, (0, None), (False, None)

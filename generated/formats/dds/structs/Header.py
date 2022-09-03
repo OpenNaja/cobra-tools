@@ -118,7 +118,7 @@ class Header(BaseStruct):
 		yield 'linear_size', Uint, (0, None), (False, None)
 		yield 'depth', Uint, (0, None), (False, 1)
 		yield 'mipmap_count', Uint, (0, None), (False, None)
-		yield 'reserved_1', Array, ((11,), Uint, 0, None), (False, None)
+		yield 'reserved_1', Array, (0, None, (11,), Uint), (False, None)
 		yield 'pixel_format', PixelFormat, (0, None), (False, None)
 		yield 'caps_1', Caps1, (0, None), (False, None)
 		yield 'caps_2', Caps2, (0, None), (False, None)

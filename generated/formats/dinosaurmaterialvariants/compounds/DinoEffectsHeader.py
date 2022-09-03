@@ -112,7 +112,7 @@ class DinoEffectsHeader(MemStruct):
 		yield 'e', Float, (0, None), (False, None)
 		yield 'f', Float, (0, None), (False, None)
 		yield 'g', Uint, (0, None), (False, None)
-		yield 'floats', Array, ((39,), Float, 0, None), (False, None)
+		yield 'floats', Array, (0, None, (39,), Float), (False, None)
 		yield 'd', Uint, (0, None), (False, None)
 		yield 'e', Float, (0, None), (False, None)
 

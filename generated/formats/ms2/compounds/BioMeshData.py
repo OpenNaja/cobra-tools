@@ -98,7 +98,7 @@ class BioMeshData(MeshData):
 		yield 'vertex_count', Uint, (0, None), (False, None)
 		yield 'zero_1', Uint64, (0, None), (False, None)
 		yield 'poweroftwo', Uint, (0, None), (False, None)
-		yield 'unk_floats', Array, ((2,), Float, 0, None), (False, None)
+		yield 'unk_floats', Array, (0, None, (2,), Float), (False, None)
 		yield 'flag', BioModelFlag, (0, None), (False, None)
 
 	def get_info_str(self, indent=0):

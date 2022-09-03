@@ -57,10 +57,10 @@ class UACJointFF(BaseStruct):
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
 		yield 'eleven', Uint, (0, None), (False, None)
-		yield 'f_fs', Array, ((4,), Int, 0, None), (False, None)
+		yield 'f_fs', Array, (0, None, (4,), Int), (False, None)
 		yield 'name_offset', Uint, (0, None), (False, None)
 		yield 'hitcheck_count', Uint, (0, None), (False, None)
-		yield 'zeros', Array, ((3,), Uint, 0, None), (False, None)
+		yield 'zeros', Array, (0, None, (3,), Uint), (False, None)
 
 	def get_info_str(self, indent=0):
 		return f'UACJointFF [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

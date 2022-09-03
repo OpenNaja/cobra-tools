@@ -45,8 +45,8 @@ class Buffer1(BaseStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
-		yield 'bone_hashes', Array, ((instance.arg,), Uint, 0, None), (False, None)
-		yield 'bone_names', Array, ((instance.arg,), ZString, 0, None), (False, None)
+		yield 'bone_hashes', Array, (0, None, (instance.arg,), Uint), (False, None)
+		yield 'bone_names', Array, (0, None, (instance.arg,), ZString), (False, None)
 		yield 'bone_pad', PadAlign, (4, instance.bone_names), (False, None)
 
 	def get_info_str(self, indent=0):

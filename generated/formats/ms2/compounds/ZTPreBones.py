@@ -51,11 +51,11 @@ class ZTPreBones(BaseStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
-		yield 'zeros', Array, ((2,), Uint64, 0, None), (False, None)
-		yield 'unks', Array, ((8,), Uint, 0, None), (False, None)
-		yield 'unks_2', Array, ((10,), Uint, 0, None), (False, None)
-		yield 'floats', Array, ((4,), Float, 0, None), (False, None)
-		yield 'unks_3', Array, ((2,), Uint, 0, None), (False, None)
+		yield 'zeros', Array, (0, None, (2,), Uint64), (False, None)
+		yield 'unks', Array, (0, None, (8,), Uint), (False, None)
+		yield 'unks_2', Array, (0, None, (10,), Uint), (False, None)
+		yield 'floats', Array, (0, None, (4,), Float), (False, None)
+		yield 'unks_3', Array, (0, None, (2,), Uint), (False, None)
 
 	def get_info_str(self, indent=0):
 		return f'ZTPreBones [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

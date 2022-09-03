@@ -66,9 +66,9 @@ class ConvexHull(BaseStruct):
 		yield 'rotation', Matrix33, (0, None), (False, None)
 		yield 'offset', Vector3, (0, None), (False, None)
 		if instance.context.version == 32:
-			yield 'zeros', Array, ((5,), Uint, 0, None), (False, None)
+			yield 'zeros', Array, (0, None, (5,), Uint), (False, None)
 		if ((instance.context.version == 48) or (instance.context.version == 50)) or (instance.context.version == 51):
-			yield 'zeros', Array, ((2,), Uint, 0, None), (False, None)
+			yield 'zeros', Array, (0, None, (2,), Uint), (False, None)
 
 	def get_info_str(self, indent=0):
 		return f'ConvexHull [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

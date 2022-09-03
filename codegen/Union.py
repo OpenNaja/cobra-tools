@@ -285,7 +285,7 @@ class Union:
             if arr1 is None:
                 arguments = f"({arg}, {template})"
             else:
-                arguments = f"({self.compounds.parser.arrs_to_tuple(arr1, arr2)}, {field_type}, {arg}, {template})"
+                arguments = f"({arg}, {template}, {self.compounds.parser.arrs_to_tuple(arr1, arr2)}, {field_type})"
                 field_type = "Array"
 
             indent, new_condition = condition_indent(base_indent, conditionals, condition)

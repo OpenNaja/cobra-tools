@@ -32,7 +32,7 @@ class XMLArray(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
-		yield 'xmls', Array, ((instance.arg,), XMLEntry, 0, None), (False, None)
+		yield 'xmls', Array, (0, None, (instance.arg,), XMLEntry), (False, None)
 
 	def get_info_str(self, indent=0):
 		return f'XMLArray [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

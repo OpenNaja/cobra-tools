@@ -66,7 +66,7 @@ class VertChunk(BaseStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
-		yield 'flags', Array, ((4,), Ubyte, 0, None), (False, None)
+		yield 'flags', Array, (0, None, (4,), Ubyte), (False, None)
 		yield 'pack_base', Float, (0, None), (False, None)
 		yield 'vertex_offset', Uint, (0, None), (False, None)
 		yield 'vertex_count', Ubyte, (0, None), (False, None)

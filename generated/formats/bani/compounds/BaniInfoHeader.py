@@ -52,7 +52,7 @@ class BaniInfoHeader(BaseStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
-		yield 'magic', Array, ((4,), Byte, 0, None), (False, None)
+		yield 'magic', Array, (0, None, (4,), Byte), (False, None)
 		yield 'banis_name', ZString, (0, None), (False, None)
 		yield 'data', BaniRoot, (0, None), (False, None)
 

@@ -107,10 +107,10 @@ class Struct7(BaseStruct):
 			yield 'flag', Uint64, (0, None), (False, None)
 			yield 'zero_2', Uint64, (0, None), (False, None)
 		if instance.context.version <= 13:
-			yield 'unknown_list', Array, ((instance.count_7,), UACJoint, 0, None), (False, None)
+			yield 'unknown_list', Array, (0, None, (instance.count_7,), UACJoint), (False, None)
 		if instance.context.version >= 32:
-			yield 'unknown_list', Array, ((instance.count_7,), NasutoJointEntry, 0, None), (False, None)
-		yield 'padding', Array, (((8 - ((instance.count_7 * 60) % 8)) % 8,), Ubyte, 0, None), (False, None)
+			yield 'unknown_list', Array, (0, None, (instance.count_7,), NasutoJointEntry), (False, None)
+		yield 'padding', Array, (0, None, ((8 - ((instance.count_7 * 60) % 8)) % 8,), Ubyte), (False, None)
 		if instance.context.version >= 50 and instance.flag:
 			yield 'alignment', Uint64, (0, None), (False, None)
 

@@ -32,7 +32,7 @@ class TransStructArray(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
-		yield 'array', Array, ((instance.arg,), TransStruct, 0, None), (False, None)
+		yield 'array', Array, (0, None, (instance.arg,), TransStruct), (False, None)
 
 	def get_info_str(self, indent=0):
 		return f'TransStructArray [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

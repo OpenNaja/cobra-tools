@@ -66,8 +66,8 @@ class SetHeader(BaseStruct):
 		yield 'asset_count', Uint, (0, None), (False, None)
 		yield 'sig_a', Uint, (0, None), (False, 1065336831)
 		yield 'sig_b', Uint, (0, None), (False, 16909320)
-		yield 'sets', Array, ((instance.set_count,), SetEntry, 0, None), (False, None)
-		yield 'assets', Array, ((instance.asset_count,), AssetEntry, 0, None), (False, None)
+		yield 'sets', Array, (0, None, (instance.set_count,), SetEntry), (False, None)
+		yield 'assets', Array, (0, None, (instance.asset_count,), AssetEntry), (False, None)
 
 	def get_info_str(self, indent=0):
 		return f'SetHeader [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

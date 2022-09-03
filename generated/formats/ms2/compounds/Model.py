@@ -94,18 +94,18 @@ class Model(BaseStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
-		yield 'materials', Array, ((instance.arg.num_materials,), MaterialName, 0, None), (False, None)
-		yield 'lods', Array, ((instance.arg.num_lods,), LodInfo, 0, None), (False, None)
-		yield 'objects', Array, ((instance.arg.num_objects,), Object, 0, None), (False, None)
+		yield 'materials', Array, (0, None, (instance.arg.num_materials,), MaterialName), (False, None)
+		yield 'lods', Array, (0, None, (instance.arg.num_lods,), LodInfo), (False, None)
+		yield 'objects', Array, (0, None, (instance.arg.num_objects,), Object), (False, None)
 		if instance.context.version <= 13 and (instance.arg.num_materials + instance.arg.num_objects) % 2:
 			yield 'objects_padding', Uint, (0, None), (False, None)
-		yield 'meshes', Array, ((instance.arg.num_meshes,), MeshDataWrap, 0, None), (False, None)
+		yield 'meshes', Array, (0, None, (instance.arg.num_meshes,), MeshDataWrap), (False, None)
 		if instance.context.version == 13 and instance.arg.last_count:
 			yield 'pre_bones', ZTPreBones, (0, None), (False, None)
 		if instance.context.version == 7 and instance.arg.last_count:
 			yield 'pre_bones', DLAPreBones, (0, None), (False, None)
 		if instance.context.version <= 32:
-			yield 'floatsy', Array, ((instance.arg.render_flag,), FloatsY, 0, None), (False, None)
+			yield 'floatsy', Array, (0, None, (instance.arg.render_flag,), FloatsY), (False, None)
 
 	def get_info_str(self, indent=0):
 		return f'Model [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

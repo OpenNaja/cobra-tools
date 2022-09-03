@@ -106,9 +106,9 @@ class BnkBufferData(BaseStruct):
 		yield 'buffer_count', Uint, (0, None), (False, None)
 		yield 'count_2', Uint, (0, None), (False, None)
 		yield 'stream_info_count', Uint, (0, None), (False, None)
-		yield 'zeros', Array, ((7,), Uint, 0, None), (False, None)
-		yield 'zeros_per_buffer', Array, ((instance.buffer_count, 2,), Uint64, 0, None), (False, None)
-		yield 'stream_infos', Array, ((instance.stream_info_count,), StreamInfo, 0, None), (False, None)
+		yield 'zeros', Array, (0, None, (7,), Uint), (False, None)
+		yield 'zeros_per_buffer', Array, (0, None, (instance.buffer_count, 2,), Uint64), (False, None)
+		yield 'stream_infos', Array, (0, None, (instance.stream_info_count,), StreamInfo), (False, None)
 		yield 'name', ZString, (0, None), (False, None)
 		if instance.buffer_count:
 			yield 'external_b_suffix', ZString, (0, None), (False, None)

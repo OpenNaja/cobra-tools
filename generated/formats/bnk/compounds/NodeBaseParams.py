@@ -33,7 +33,7 @@ class NodeBaseParams(BaseStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
-		yield 'raw', Array, ((30,), Byte, 0, None), (False, None)
+		yield 'raw', Array, (0, None, (30,), Byte), (False, None)
 
 	def get_info_str(self, indent=0):
 		return f'NodeBaseParams [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

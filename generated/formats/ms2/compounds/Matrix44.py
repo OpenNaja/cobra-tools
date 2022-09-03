@@ -39,7 +39,7 @@ class Matrix44(BaseStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
-		yield 'data', Array, ((4, 4,), Float, 0, None), (False, None)
+		yield 'data', Array, (0, None, (4, 4,), Float), (False, None)
 
 	def get_info_str(self, indent=0):
 		return f'Matrix44 [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

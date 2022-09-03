@@ -65,7 +65,7 @@ class Int8Data(MemStruct):
 		yield 'imax', Byte, (0, None), (False, None)
 		yield 'ivalue', Byte, (0, None), (False, None)
 		yield 'ioptional', Byte, (0, None), (False, None)
-		yield 'unused', Array, ((4,), Ubyte, 0, None), (False, None)
+		yield 'unused', Array, (0, None, (4,), Ubyte), (False, None)
 		yield 'enum', Pointer, (0, None), (False, None)
 
 	def get_info_str(self, indent=0):

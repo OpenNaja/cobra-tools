@@ -113,7 +113,7 @@ class NewMeshData(MeshData):
 		yield 'size_of_vertex', Uint, (0, None), (False, None)
 		yield 'tri_offset', Uint, (0, None), (False, None)
 		yield 'zero_2', Uint, (0, None), (False, None)
-		yield 'unk_floats', Array, ((2,), Float, 0, None), (False, None)
+		yield 'unk_floats', Array, (0, None, (2,), Float), (False, None)
 		yield 'zero_3', Uint, (0, None), (False, None)
 		yield 'flag', ModelFlag, (0, None), (False, None)
 

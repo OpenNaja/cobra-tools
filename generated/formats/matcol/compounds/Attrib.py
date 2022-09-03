@@ -47,7 +47,7 @@ class Attrib(MemStruct):
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
 		yield 'attrib_name', Pointer, (0, ZString), (False, None)
-		yield 'attrib', Array, ((4,), Byte, 0, None), (False, None)
+		yield 'attrib', Array, (0, None, (4,), Byte), (False, None)
 		yield 'padding', Uint, (0, None), (False, None)
 
 	def get_info_str(self, indent=0):

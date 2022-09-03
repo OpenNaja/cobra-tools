@@ -99,7 +99,7 @@ class Ms2Root(MemStruct):
 		yield 'mdl_2_count', Ushort, (0, None), (False, None)
 		yield 'name_count', Ushort, (0, None), (False, None)
 		yield 'stream_count', Short, (0, None), (False, None)
-		yield 'zeros', Array, ((3,), Uint, 0, None), (False, None)
+		yield 'zeros', Array, (0, None, (3,), Uint), (False, None)
 		yield 'buffer_infos', ArrayPointer, (instance.vertex_buffer_count, Ms2Root._import_path_map["generated.formats.ms2.compounds.BufferInfo"]), (False, None)
 		yield 'model_infos', ArrayPointer, (instance.mdl_2_count, Ms2Root._import_path_map["generated.formats.ms2.compounds.ModelInfo"]), (False, None)
 		yield 'buffers_presence', ArrayPointer, (instance.vertex_buffer_count, Ms2Root._import_path_map["generated.formats.ms2.compounds.BufferPresence"]), (False, None)

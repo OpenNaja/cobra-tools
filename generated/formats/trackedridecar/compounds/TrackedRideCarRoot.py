@@ -73,7 +73,7 @@ class TrackedRideCarRoot(MemStruct):
 		yield 'sub', ArrayPointer, (instance.sub_count, TrackedRideCarRoot._import_path_map["generated.formats.trackedridecar.compounds.TrackedRideCarSub"]), (False, None)
 		yield 'sub_count', Uint, (0, None), (False, None)
 		yield 'total_vecs_count', Uint, (0, None), (False, None)
-		yield 'vec', Array, ((3,), Float, 0, None), (False, None)
+		yield 'vec', Array, (0, None, (3,), Float), (False, None)
 		yield 'zero_0', Uint, (0, None), (False, None)
 		yield 'some_name', Pointer, (0, ZString), (False, None)
 		yield 'zero_1', Uint64, (0, None), (False, None)

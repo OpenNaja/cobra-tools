@@ -69,11 +69,11 @@ class TextureInfo(GenericInfo):
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
 		if instance.dtype == 8:
-			yield 'value', Array, ((1,), TexIndex, 0, None), (False, None)
+			yield 'value', Array, (0, None, (1,), TexIndex), (False, None)
 		if instance.context.version >= 18 and instance.dtype == 7:
-			yield 'value', Array, ((2,), Color, 0, None), (False, None)
+			yield 'value', Array, (0, None, (2,), Color), (False, None)
 		if instance.context.version <= 17 and instance.dtype == 7:
-			yield 'value', Array, ((1,), Color, 0, None), (False, None)
+			yield 'value', Array, (0, None, (1,), Color), (False, None)
 		if instance.context.version >= 18:
 			yield 'some_index_0', Uint, (0, None), (True, 0)
 			yield 'some_index_1', Uint, (0, None), (True, 0)

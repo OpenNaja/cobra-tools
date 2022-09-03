@@ -277,34 +277,34 @@ class JointData(BaseStruct):
 		if 13 <= instance.context.version <= 32:
 			yield 'zero_1', Uint, (0, None), (False, None)
 		yield 'namespace_length', Uint, (0, None), (False, None)
-		yield 'zeros_0', Array, ((5,), Uint, 0, None), (False, None)
+		yield 'zeros_0', Array, (0, None, (5,), Uint), (False, None)
 		yield 'pc_count', Uint, (0, None), (False, None)
-		yield 'zeros_1', Array, ((7,), Uint, 0, None), (False, None)
+		yield 'zeros_1', Array, (0, None, (7,), Uint), (False, None)
 		if 13 <= instance.context.version <= 32:
-			yield 'extra_zeros_2', Array, ((4,), Uint, 0, None), (False, None)
+			yield 'extra_zeros_2', Array, (0, None, (4,), Uint), (False, None)
 		if instance.context.version >= 13:
-			yield 'ones', Array, ((2,), Uint64, 0, None), (False, None)
+			yield 'ones', Array, (0, None, (2,), Uint64), (False, None)
 		yield 'bone_count', Uint, (0, None), (False, None)
 		yield 'joint_entry_count', Uint, (0, None), (False, None)
-		yield 'zeros_2', Array, ((4,), Uint, 0, None), (False, None)
+		yield 'zeros_2', Array, (0, None, (4,), Uint), (False, None)
 		if instance.context.version <= 7:
 			yield 'zeros_3', Uint, (0, None), (False, None)
-		yield 'joint_transforms', Array, ((instance.joint_count,), JointEntry, 0, None), (False, None)
+		yield 'joint_transforms', Array, (0, None, (instance.joint_count,), JointEntry), (False, None)
 		if instance.context.version >= 47:
-			yield 'zeros_3', Array, ((instance.joint_count,), Uint64, 0, None), (False, None)
-			yield 'unknown_listc', Array, ((instance.joint_count,), ListCEntry, 0, None), (False, None)
-			yield 'first_list', Array, ((instance.count_0,), ListFirst, 0, None), (False, None)
-			yield 'short_list', Array, ((instance.count_1,), ListShort, 0, None), (False, None)
-			yield 'long_list', Array, ((instance.count_2,), ListLong, 0, None), (False, None)
+			yield 'zeros_3', Array, (0, None, (instance.joint_count,), Uint64), (False, None)
+			yield 'unknown_listc', Array, (0, None, (instance.joint_count,), ListCEntry), (False, None)
+			yield 'first_list', Array, (0, None, (instance.count_0,), ListFirst), (False, None)
+			yield 'short_list', Array, (0, None, (instance.count_1,), ListShort), (False, None)
+			yield 'long_list', Array, (0, None, (instance.count_2,), ListLong), (False, None)
 		if instance.context.version <= 32:
-			yield 'joint_infos', Array, ((instance.joint_count,), UACJointFF, 0, None), (False, None)
-			yield 'pc_floats', Array, ((instance.pc_count, 10,), Float, 0, None), (False, None)
-		yield 'joint_indices', Array, ((instance.joint_count,), Int, 0, None), (False, None)
-		yield 'bone_indices', Array, ((instance.bone_count,), Int, 0, None), (False, None)
+			yield 'joint_infos', Array, (0, None, (instance.joint_count,), UACJointFF), (False, None)
+			yield 'pc_floats', Array, (0, None, (instance.pc_count, 10,), Float), (False, None)
+		yield 'joint_indices', Array, (0, None, (instance.joint_count,), Int), (False, None)
+		yield 'bone_indices', Array, (0, None, (instance.bone_count,), Int), (False, None)
 		yield 'joint_names', ZStringBuffer, (instance.namespace_length, None), (False, None)
 		yield 'joint_names_padding', SmartPadding, (0, None), (False, None)
 		if instance.context.version >= 47:
-			yield 'joint_infos', Array, ((instance.joint_count,), JointInfo, 0, None), (False, None)
+			yield 'joint_infos', Array, (0, None, (instance.joint_count,), JointInfo), (False, None)
 		if instance.context.version <= 32:
 			yield 'hitcheck_reader', HitcheckReader, (instance.joint_infos, None), (False, None)
 

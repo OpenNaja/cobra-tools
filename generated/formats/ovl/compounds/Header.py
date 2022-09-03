@@ -302,25 +302,25 @@ class Header(GenericHeader):
 		yield 'num_files_3', Uint, (0, None), (False, None)
 		yield 'len_type_names', Uint, (0, None), (False, None)
 		yield 'num_triplets', Uint, (0, None), (False, None)
-		yield 'reserved', Array, ((12,), Uint, 0, None), (False, None)
+		yield 'reserved', Array, (0, None, (12,), Uint), (False, None)
 		yield 'names', ZStringBuffer, (instance.len_names, None), (False, None)
 		if instance.context.version <= 15:
-			yield 'names_pad', Array, (((16 - (instance.len_names % 16)) % 16,), Ubyte, 0, None), (False, None)
-		yield 'mimes', Array, ((instance.num_mimes,), MimeEntry, 0, None), (False, None)
+			yield 'names_pad', Array, (0, None, ((16 - (instance.len_names % 16)) % 16,), Ubyte), (False, None)
+		yield 'mimes', Array, (0, None, (instance.num_mimes,), MimeEntry), (False, None)
 		if instance.context.version >= 20:
-			yield 'triplets', Array, ((instance.num_triplets,), Triplet, 0, None), (False, None)
+			yield 'triplets', Array, (0, None, (instance.num_triplets,), Triplet), (False, None)
 			yield 'triplets_pad', PadAlign, (4, instance.triplets), (False, None)
-		yield 'files', Array, ((instance.num_files,), FileEntry, 0, None), (False, None)
+		yield 'files', Array, (0, None, (instance.num_files,), FileEntry), (False, None)
 		yield 'archive_names', ZStringBuffer, (instance.len_archive_names, None), (False, None)
-		yield 'archives', Array, ((instance.num_archives,), ArchiveEntry, 0, None), (False, None)
-		yield 'included_ovls', Array, ((instance.num_included_ovls,), IncludedOvl, 0, None), (False, None)
+		yield 'archives', Array, (0, None, (instance.num_archives,), ArchiveEntry), (False, None)
+		yield 'included_ovls', Array, (0, None, (instance.num_included_ovls,), IncludedOvl), (False, None)
 		if instance.context.version >= 19:
-			yield 'dependencies', Array, ((instance.num_dependencies,), DependencyEntry, 0, None), (False, None)
-		yield 'aux_entries', Array, ((instance.num_aux_entries,), AuxEntry, 0, None), (False, None)
+			yield 'dependencies', Array, (0, None, (instance.num_dependencies,), DependencyEntry), (False, None)
+		yield 'aux_entries', Array, (0, None, (instance.num_aux_entries,), AuxEntry), (False, None)
 		if instance.context.version <= 18:
-			yield 'dependencies', Array, ((instance.num_dependencies,), DependencyEntry, 0, None), (False, None)
-		yield 'stream_files', Array, ((instance.num_stream_files,), StreamEntry, 0, None), (False, None)
-		yield 'zlibs', Array, ((instance.num_archives,), ZlibInfo, 0, None), (False, None)
+			yield 'dependencies', Array, (0, None, (instance.num_dependencies,), DependencyEntry), (False, None)
+		yield 'stream_files', Array, (0, None, (instance.num_stream_files,), StreamEntry), (False, None)
+		yield 'zlibs', Array, (0, None, (instance.num_archives,), ZlibInfo), (False, None)
 
 	def get_info_str(self, indent=0):
 		return f'Header [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

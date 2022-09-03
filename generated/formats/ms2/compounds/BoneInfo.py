@@ -342,7 +342,7 @@ class BoneInfo(BaseStruct):
 			yield 'unknown_0_c', Uint, (0, None), (False, None)
 		yield 'unk_count', Uint64, (0, None), (False, None)
 		yield 'bind_matrix_count', Uint64, (0, None), (False, None)
-		yield 'zeros', Array, ((2,), Uint64, 0, None), (False, None)
+		yield 'zeros', Array, (0, None, (2,), Uint64), (False, None)
 		yield 'inv_data_count', Uint64, (0, None), (False, None)
 		yield 'bone_count', Uint64, (0, None), (False, None)
 		yield 'unknown_40', Uint64, (0, None), (False, None)
@@ -363,30 +363,30 @@ class BoneInfo(BaseStruct):
 		if (instance.context.version == 47) or (instance.context.version == 39):
 			yield 'unk_extra_jwe', Uint64, (0, None), (False, None)
 		if not (instance.context.version < 47):
-			yield 'name_indices', Array, ((instance.name_count,), Uint, 0, None), (False, None)
+			yield 'name_indices', Array, (0, None, (instance.name_count,), Uint), (False, None)
 		if instance.context.version < 47:
-			yield 'name_indices', Array, ((instance.name_count,), Ushort, 0, None), (False, None)
-			yield 'inventory_name_indices', Array, ((instance.inv_names_count,), Ushort, 0, None), (False, None)
+			yield 'name_indices', Array, (0, None, (instance.name_count,), Ushort), (False, None)
+			yield 'inventory_name_indices', Array, (0, None, (instance.inv_names_count,), Ushort), (False, None)
 		if not (instance.context.version < 47):
-			yield 'name_padding', Array, (((16 - (((instance.name_count + instance.inv_names_count) * 4) % 16)) % 16,), Byte, 0, None), (False, None)
+			yield 'name_padding', Array, (0, None, ((16 - (((instance.name_count + instance.inv_names_count) * 4) % 16)) % 16,), Byte), (False, None)
 		if instance.context.version < 47:
-			yield 'name_padding', Array, (((16 - (((instance.name_count + instance.inv_names_count) * 2) % 16)) % 16,), Byte, 0, None), (False, None)
-		yield 'inverse_bind_matrices', Array, ((instance.bind_matrix_count,), Matrix44, 0, None), (False, None)
-		yield 'bones', Array, ((instance.bone_count,), Bone, 0, None), (False, None)
-		yield 'parents', Array, ((instance.parents_count,), Ubyte, 0, None), (False, None)
+			yield 'name_padding', Array, (0, None, ((16 - (((instance.name_count + instance.inv_names_count) * 2) % 16)) % 16,), Byte), (False, None)
+		yield 'inverse_bind_matrices', Array, (0, None, (instance.bind_matrix_count,), Matrix44), (False, None)
+		yield 'bones', Array, (0, None, (instance.bone_count,), Bone), (False, None)
+		yield 'parents', Array, (0, None, (instance.parents_count,), Ubyte), (False, None)
 		if instance.context.version >= 32:
-			yield 'parents_padding', Array, (((8 - (instance.parents_count % 8)) % 8,), Byte, 0, None), (False, None)
+			yield 'parents_padding', Array, (0, None, ((8 - (instance.parents_count % 8)) % 8,), Byte), (False, None)
 		if instance.context.version >= 32 and instance.one:
-			yield 'enumeration', Array, ((instance.enum_count, 2,), Uint, 0, None), (False, None)
+			yield 'enumeration', Array, (0, None, (instance.enum_count, 2,), Uint), (False, None)
 		if instance.context.version <= 13 and instance.one:
-			yield 'enumeration', Array, ((instance.enum_count,), Ubyte, 0, None), (False, None)
+			yield 'enumeration', Array, (0, None, (instance.enum_count,), Ubyte), (False, None)
 		if instance.context.version == 7:
-			yield 'inventory_datas', Array, ((instance.inv_data_count, 6,), Byte, 0, None), (False, None)
-			yield 'weirdness', Array, ((8,), Short, 0, None), (False, None)
+			yield 'inventory_datas', Array, (0, None, (instance.inv_data_count, 6,), Byte), (False, None)
+			yield 'weirdness', Array, (0, None, (8,), Short), (False, None)
 		if instance.context.version == 13:
-			yield 'weirdness', Array, ((10,), Short, 0, None), (False, None)
+			yield 'weirdness', Array, (0, None, (10,), Short), (False, None)
 		if instance.context.version == 7:
-			yield 'inventory_datas_2', Array, ((instance.inv_data_count, 2,), Int, 0, None), (False, None)
+			yield 'inventory_datas_2', Array, (0, None, (instance.inv_data_count, 2,), Int), (False, None)
 		if not (instance.context.version < 47) and instance.zeros_count:
 			yield 'zeros_padding', ZerosPadding, (instance.zeros_count, None), (False, None)
 		if instance.context.version >= 48 and instance.zeros_count:

@@ -51,7 +51,7 @@ class CommonJointInfo(BaseStruct):
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
 		yield 'eleven', Uint, (0, None), (False, None)
-		yield 'f_fs', Array, ((3,), Int, 0, None), (False, None)
+		yield 'f_fs', Array, (0, None, (3,), Int), (False, None)
 		yield 'name_offset', Uint, (0, None), (False, None)
 		yield 'hitcheck_count', Uint, (0, None), (False, None)
 

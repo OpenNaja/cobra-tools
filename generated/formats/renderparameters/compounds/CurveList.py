@@ -38,7 +38,7 @@ class CurveList(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
-		yield 'ptrs', Array, ((instance.arg,), Pointer, 0, CurveList._import_path_map["generated.formats.renderparameters.compounds.KeyPoint"]), (False, None)
+		yield 'ptrs', Array, (0, CurveList._import_path_map["generated.formats.renderparameters.compounds.KeyPoint"], (instance.arg,), Pointer), (False, None)
 
 	def get_info_str(self, indent=0):
 		return f'CurveList [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

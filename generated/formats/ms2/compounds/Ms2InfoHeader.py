@@ -106,17 +106,17 @@ class Ms2InfoHeader(BaseStruct):
 		yield 'bone_info_size', Uint, (0, None), (False, None)
 		yield 'info', Ms2Root, (0, None), (False, None)
 		if instance.context.version >= 7:
-			yield 'buffers_presence', Array, ((instance.info.vertex_buffer_count,), BufferPresence, 0, None), (False, None)
-		yield 'mdl_2_names', Array, ((instance.info.mdl_2_count,), ZString, 0, None), (False, None)
+			yield 'buffers_presence', Array, (0, None, (instance.info.vertex_buffer_count,), BufferPresence), (False, None)
+		yield 'mdl_2_names', Array, (0, None, (instance.info.mdl_2_count,), ZString), (False, None)
 		if instance.context.version <= 7 and instance.info.vertex_buffer_count:
-			yield 'modelstream_names', Array, ((instance.info.vertex_buffer_count - instance.info.stream_count,), ZString, 0, None), (False, None)
+			yield 'modelstream_names', Array, (0, None, (instance.info.vertex_buffer_count - instance.info.stream_count,), ZString), (False, None)
 		if 13 <= instance.context.version <= 13 and instance.info.vertex_buffer_count:
-			yield 'modelstream_names', Array, ((instance.info.vertex_buffer_count,), ZString, 0, None), (False, None)
+			yield 'modelstream_names', Array, (0, None, (instance.info.vertex_buffer_count,), ZString), (False, None)
 		if instance.context.version >= 39 and instance.info.vertex_buffer_count:
-			yield 'modelstream_names', Array, ((instance.info.stream_count,), ZString, 0, None), (False, None)
+			yield 'modelstream_names', Array, (0, None, (instance.info.stream_count,), ZString), (False, None)
 		yield 'buffer_0', Buffer0, (instance.info, None), (False, None)
-		yield 'buffer_infos', Array, ((instance.info.vertex_buffer_count,), BufferInfo, 0, None), (False, None)
-		yield 'model_infos', Array, ((instance.info.mdl_2_count,), ModelInfo, 0, None), (False, None)
+		yield 'buffer_infos', Array, (0, None, (instance.info.vertex_buffer_count,), BufferInfo), (False, None)
+		yield 'model_infos', Array, (0, None, (instance.info.mdl_2_count,), ModelInfo), (False, None)
 		yield 'models_reader', ModelReader, (instance.model_infos, None), (False, None)
 
 	def get_info_str(self, indent=0):

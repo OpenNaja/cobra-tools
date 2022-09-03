@@ -203,6 +203,14 @@ class BaseStruct(metaclass=StructMetaClass):
 	def _get_filtered_attribute_list(cls, instance):
 		yield from ()
 
+	@staticmethod
+	def get_field(instance, key):
+		return getattr(instance, key)
+
+	@classmethod
+	def set_field(cls, instance, key, value):
+		return setattr(instance, key, value)
+
 	@classmethod
 	def from_stream(cls, stream, context, arg=0, template=None):
 		instance = cls(context, arg, template, set_default=False)
