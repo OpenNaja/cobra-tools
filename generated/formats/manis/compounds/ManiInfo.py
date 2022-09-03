@@ -86,18 +86,18 @@ class ManiInfo(BaseStruct):
 		self.frame_count = 0
 		self.b = 0
 		self.zeros_0 = numpy.zeros((6,), dtype=numpy.dtype('uint16'))
-		if self.context.version == 18:
+		if self.context.version <= 257:
 			self.extra_pc_1 = 0
 		self.pos_bone_count = 0
 		self.ori_bone_count = 0
 		self.scl_bone_count = 0
-		if self.context.version == 18:
+		if self.context.version <= 257:
 			self.extra_pc = 0
 			self.pos_bone_count_repeat = 0
 			self.ori_bone_count_repeat = 0
 			self.scl_bone_count_repeat = 0
 		self.zeros_1 = 0
-		if not (self.context.version == 18):
+		if self.context.version >= 258:
 			self.zeros_1_new = 0
 		self.float_count = 0
 		self.count_a = 0
@@ -105,7 +105,7 @@ class ManiInfo(BaseStruct):
 		self.target_bone_count = 0
 		self.g = 0
 		self.zeros_2 = numpy.zeros((57,), dtype=numpy.dtype('uint32'))
-		if self.context.version == 18:
+		if self.context.version <= 257:
 			self.extra_zeros_pc = numpy.zeros((6,), dtype=numpy.dtype('uint16'))
 		self.pos_bone_min = 0
 		self.pos_bone_max = 0
@@ -113,7 +113,7 @@ class ManiInfo(BaseStruct):
 		self.ori_bone_max = 0
 		self.scl_bone_min = 0
 		self.scl_bone_max = 0
-		if not (self.context.version == 18):
+		if self.context.version >= 258:
 			self.pos_bone_count_related = 0
 			self.pos_bone_count_repeat = 0
 			self.ori_bone_count_related = 0
@@ -130,18 +130,18 @@ class ManiInfo(BaseStruct):
 		instance.frame_count = Uint.from_stream(stream, instance.context, 0, None)
 		instance.b = Uint.from_stream(stream, instance.context, 0, None)
 		instance.zeros_0 = Array.from_stream(stream, instance.context, 0, None, (6,), Ushort)
-		if instance.context.version == 18:
+		if instance.context.version <= 257:
 			instance.extra_pc_1 = Ushort.from_stream(stream, instance.context, 0, None)
 		instance.pos_bone_count = Ushort.from_stream(stream, instance.context, 0, None)
 		instance.ori_bone_count = Ushort.from_stream(stream, instance.context, 0, None)
 		instance.scl_bone_count = Ushort.from_stream(stream, instance.context, 0, None)
-		if instance.context.version == 18:
+		if instance.context.version <= 257:
 			instance.extra_pc = Uint64.from_stream(stream, instance.context, 0, None)
 			instance.pos_bone_count_repeat = Ushort.from_stream(stream, instance.context, 0, None)
 			instance.ori_bone_count_repeat = Ushort.from_stream(stream, instance.context, 0, None)
 			instance.scl_bone_count_repeat = Ushort.from_stream(stream, instance.context, 0, None)
 		instance.zeros_1 = Ushort.from_stream(stream, instance.context, 0, None)
-		if not (instance.context.version == 18):
+		if instance.context.version >= 258:
 			instance.zeros_1_new = Uint.from_stream(stream, instance.context, 0, None)
 		instance.float_count = Ushort.from_stream(stream, instance.context, 0, None)
 		instance.count_a = Ubyte.from_stream(stream, instance.context, 0, None)
@@ -149,7 +149,7 @@ class ManiInfo(BaseStruct):
 		instance.target_bone_count = Ushort.from_stream(stream, instance.context, 0, None)
 		instance.g = Ushort.from_stream(stream, instance.context, 0, None)
 		instance.zeros_2 = Array.from_stream(stream, instance.context, 0, None, (57,), Uint)
-		if instance.context.version == 18:
+		if instance.context.version <= 257:
 			instance.extra_zeros_pc = Array.from_stream(stream, instance.context, 0, None, (6,), Ushort)
 		instance.pos_bone_min = Ubyte.from_stream(stream, instance.context, 0, None)
 		instance.pos_bone_max = Ubyte.from_stream(stream, instance.context, 0, None)
@@ -157,7 +157,7 @@ class ManiInfo(BaseStruct):
 		instance.ori_bone_max = Ubyte.from_stream(stream, instance.context, 0, None)
 		instance.scl_bone_min = Byte.from_stream(stream, instance.context, 0, None)
 		instance.scl_bone_max = Byte.from_stream(stream, instance.context, 0, None)
-		if not (instance.context.version == 18):
+		if instance.context.version >= 258:
 			instance.pos_bone_count_related = Ubyte.from_stream(stream, instance.context, 0, None)
 			instance.pos_bone_count_repeat = Ubyte.from_stream(stream, instance.context, 0, None)
 			instance.ori_bone_count_related = Ubyte.from_stream(stream, instance.context, 0, None)
@@ -174,18 +174,18 @@ class ManiInfo(BaseStruct):
 		Uint.to_stream(stream, instance.frame_count)
 		Uint.to_stream(stream, instance.b)
 		Array.to_stream(stream, instance.zeros_0, (6,), Ushort, instance.context, 0, None)
-		if instance.context.version == 18:
+		if instance.context.version <= 257:
 			Ushort.to_stream(stream, instance.extra_pc_1)
 		Ushort.to_stream(stream, instance.pos_bone_count)
 		Ushort.to_stream(stream, instance.ori_bone_count)
 		Ushort.to_stream(stream, instance.scl_bone_count)
-		if instance.context.version == 18:
+		if instance.context.version <= 257:
 			Uint64.to_stream(stream, instance.extra_pc)
 			Ushort.to_stream(stream, instance.pos_bone_count_repeat)
 			Ushort.to_stream(stream, instance.ori_bone_count_repeat)
 			Ushort.to_stream(stream, instance.scl_bone_count_repeat)
 		Ushort.to_stream(stream, instance.zeros_1)
-		if not (instance.context.version == 18):
+		if instance.context.version >= 258:
 			Uint.to_stream(stream, instance.zeros_1_new)
 		Ushort.to_stream(stream, instance.float_count)
 		Ubyte.to_stream(stream, instance.count_a)
@@ -193,7 +193,7 @@ class ManiInfo(BaseStruct):
 		Ushort.to_stream(stream, instance.target_bone_count)
 		Ushort.to_stream(stream, instance.g)
 		Array.to_stream(stream, instance.zeros_2, (57,), Uint, instance.context, 0, None)
-		if instance.context.version == 18:
+		if instance.context.version <= 257:
 			Array.to_stream(stream, instance.extra_zeros_pc, (6,), Ushort, instance.context, 0, None)
 		Ubyte.to_stream(stream, instance.pos_bone_min)
 		Ubyte.to_stream(stream, instance.pos_bone_max)
@@ -201,7 +201,7 @@ class ManiInfo(BaseStruct):
 		Ubyte.to_stream(stream, instance.ori_bone_max)
 		Byte.to_stream(stream, instance.scl_bone_min)
 		Byte.to_stream(stream, instance.scl_bone_max)
-		if not (instance.context.version == 18):
+		if instance.context.version >= 258:
 			Ubyte.to_stream(stream, instance.pos_bone_count_related)
 			Ubyte.to_stream(stream, instance.pos_bone_count_repeat)
 			Ubyte.to_stream(stream, instance.ori_bone_count_related)
@@ -218,18 +218,18 @@ class ManiInfo(BaseStruct):
 		yield 'frame_count', Uint, (0, None), (False, None)
 		yield 'b', Uint, (0, None), (False, None)
 		yield 'zeros_0', Array, ((6,), Ushort, 0, None), (False, None)
-		if instance.context.version == 18:
+		if instance.context.version <= 257:
 			yield 'extra_pc_1', Ushort, (0, None), (False, None)
 		yield 'pos_bone_count', Ushort, (0, None), (False, None)
 		yield 'ori_bone_count', Ushort, (0, None), (False, None)
 		yield 'scl_bone_count', Ushort, (0, None), (False, None)
-		if instance.context.version == 18:
+		if instance.context.version <= 257:
 			yield 'extra_pc', Uint64, (0, None), (False, None)
 			yield 'pos_bone_count_repeat', Ushort, (0, None), (False, None)
 			yield 'ori_bone_count_repeat', Ushort, (0, None), (False, None)
 			yield 'scl_bone_count_repeat', Ushort, (0, None), (False, None)
 		yield 'zeros_1', Ushort, (0, None), (False, None)
-		if not (instance.context.version == 18):
+		if instance.context.version >= 258:
 			yield 'zeros_1_new', Uint, (0, None), (False, None)
 		yield 'float_count', Ushort, (0, None), (False, None)
 		yield 'count_a', Ubyte, (0, None), (False, None)
@@ -237,7 +237,7 @@ class ManiInfo(BaseStruct):
 		yield 'target_bone_count', Ushort, (0, None), (False, None)
 		yield 'g', Ushort, (0, None), (False, None)
 		yield 'zeros_2', Array, ((57,), Uint, 0, None), (False, None)
-		if instance.context.version == 18:
+		if instance.context.version <= 257:
 			yield 'extra_zeros_pc', Array, ((6,), Ushort, 0, None), (False, None)
 		yield 'pos_bone_min', Ubyte, (0, None), (False, None)
 		yield 'pos_bone_max', Ubyte, (0, None), (False, None)
@@ -245,7 +245,7 @@ class ManiInfo(BaseStruct):
 		yield 'ori_bone_max', Ubyte, (0, None), (False, None)
 		yield 'scl_bone_min', Byte, (0, None), (False, None)
 		yield 'scl_bone_max', Byte, (0, None), (False, None)
-		if not (instance.context.version == 18):
+		if instance.context.version >= 258:
 			yield 'pos_bone_count_related', Ubyte, (0, None), (False, None)
 			yield 'pos_bone_count_repeat', Ubyte, (0, None), (False, None)
 			yield 'ori_bone_count_related', Ubyte, (0, None), (False, None)

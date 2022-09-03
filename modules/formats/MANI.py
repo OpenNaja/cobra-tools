@@ -25,7 +25,6 @@ class ManisLoader(BaseFile):
 			raise AttributeError(f"No data entry for {name}")
 		# buffers = self.data_entry.buffer_datas
 		# print(len(buffers))
-		ovl_header = self.pack_header(b"MANI")
 		manis_header = struct.pack("<I", len(self.children))
 
 		# sized str data gives general info
@@ -34,7 +33,7 @@ class ManisLoader(BaseFile):
 		# buffer 2 - actual keys
 		out_path = out_dir(name)
 		with open(out_path, 'wb') as outfile:
-			outfile.write(ovl_header)
+			outfile.write(struct.pack("<I", self.file_entry.mime.mime_version))
 			outfile.write(manis_header)
 			for mani in self.children:
 				outfile.write(as_bytes(mani.file_entry.basename))

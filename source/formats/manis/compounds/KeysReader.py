@@ -29,12 +29,13 @@ class KeysReader(BaseStruct):
 	def set_defaults(self):
 		pass
 
-	def read(self, stream):
-		self.io_start = stream.tell()
-		for mani_info in self.arg:
+	@classmethod
+	def read_fields(cls, stream, instance):
+		instance.io_start = stream.tell()
+		for mani_info in instance.arg:
 			print(mani_info)
 			print(stream.tell())
-			mani_info.keys = ManiBlock.from_stream(stream, self.context, mani_info, None)
+			mani_info.keys = ManiBlock.from_stream(stream, instance.context, mani_info, None)
 			print(mani_info.keys)
 
 			sum_bytes = sum(mb.byte_size for mb in mani_info.keys.repeats)
@@ -47,16 +48,17 @@ class KeysReader(BaseStruct):
 				pad_size = get_padding_size(mb.byte_size)
 				mb.padding = stream.read(pad_size)
 				# print("end", stream.tell())
-		self.io_size = stream.tell() - self.io_start
+		instance.io_size = stream.tell() - instance.io_start
 
-	def write(self, stream):
-		self.io_start = stream.tell()
-		for mani_info in self.arg:
+	@classmethod
+	def write_fields(cls, stream, instance):
+		instance.io_start = stream.tell()
+		for mani_info in instance.arg:
 			mani_info.keys.write(stream)
 			for mb in mani_info.keys.repeats:
 				stream.write(mb.data)
 				stream.write(get_padding(mb.byte_size))
-		self.io_size = stream.tell() - self.io_start
+		instance.io_size = stream.tell() - instance.io_start
 
 	def get_info_str(self):
 		return f'Model [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

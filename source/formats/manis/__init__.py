@@ -29,7 +29,7 @@ class ManisFile(InfoHeader, IoFile):
 			self.eoh = stream.tell()
 			for mi, name in zip(self.mani_infos, self.names):
 				mi.name = name
-				print(mi)
+				# print(mi)
 				assert mi.pos_bone_count == mi.pos_bone_count_repeat
 				assert mi.ori_bone_count == mi.ori_bone_count_repeat
 				assert mi.g == 0
@@ -62,7 +62,7 @@ if __name__ == "__main__":
 	# mani.load("C:/Users/arnfi/Desktop/Coding/Frontier/anim/wheel/animation.maniset9637aeb4.manis")
 
 	# mani.load("C:/Users/arnfi/Desktop/Coding/Frontier/anim/Iron_piston/ugcres.maniset8982114c.manis")
-	mani.load("C:/Users/arnfi/Desktop/Coding/Frontier/anim/pc dino/animation.maniset293c241f.manis")
+	# mani.load("C:/Users/arnfi/Desktop/Coding/Frontier/anim/pc dino/animation.maniset293c241f.manis")
 
 	# mani.load("C:/Users/arnfi/Desktop/Coding/Frontier/anim/dilo/notmotionextracted.manisetf2b1fd43.manis")  # ok 0000 24 bytes f
 	# mani.load("C:/Users/arnfi/Desktop/Coding/Frontier/anim/dilo/motionextracted.maniset1823adb0.manis")  # 0111 48 bytes f
@@ -72,4 +72,6 @@ if __name__ == "__main__":
 	# mani.load("C:/Users/arnfi/Desktop/Coding/Frontier/anim/ceara/motionextracted.maniset7e6b0db3.manis") # keys are external
 	# mani.load("C:/Users/arnfi/Desktop/Coding/Frontier/anim/ceara/motionextracted.manisetf2b6c52d.manis")
 	# print(mani)
+
+	mani.load("C:/Users/arnfi/Desktop/manis/fee_feeder_ground.maniset2759dfaf.manis")
 	# hex_test()

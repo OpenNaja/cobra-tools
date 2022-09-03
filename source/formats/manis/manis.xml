@@ -2,7 +2,26 @@
 <!DOCTYPE niftoolsxml>
 <niftoolsxml version="0.7.1.0">
 
+<!--    <token name="verexpr" attrs="vercond">-->
+<!--		<verexpr token="#PC#" string="(#VER# #EQ# 257)">PC</verexpr>-->
+<!--    </token>-->
+
+	<token name="global" attrs="vercond access">
+        Global Tokens.
+        NOTE: These must be listed after the above tokens so that they replace last. For example, `verexpr` uses these tokens.
+        <global token="#VER#" string="version" />
+    </token>
+
 	<xi:include href="../ovl_base/ovl_base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
+
+<!--    <version id="old" version="257" >Old</version>-->
+    <version id="DLA" version="257" >DLA</version>
+<!--    <version id="ZTUAC" version="257" >ZTUAC</version>-->
+    <version id="PC" version="257" >PC</version>
+    <version id="JWE1" version="258" >JWE1</version>
+    <version id="PZ" version="260" >PZ</version>
+    <version id="JWE2_DEV" version="261" >JWE2 Dev Build</version>
+    <version id="JWE2" version="262" >JWE2</version>
 
     <compound name="Empty">
         Grabs 00 bytes only
@@ -37,19 +56,21 @@
     </compound>
 
 
+
     <compound name="SizedStrData">
 		24 bytes for DLA, ZTUAC, PC, JWE1, old PZ
 		32 bytes for PZ1.6+, JWFloatCount
 		<add name="names size" type="ushort">seemingly related to the names of mani files stripped from their prefix, but usually slightly smaller than what is actually needed</add>
         <add name="hash block size" type="ushort"/>
-        <add name="zero 0" type="uint64" />
-		<add name="count" type="uint">haven't seen this one actually used, may be wrong</add>
+		<add name="zero 0" type="uint"/>
         <add name="zero 1" type="uint64" />
-        <add name="zero 2" type="uint64" since="20" />
+        <add name="zero 2" type="uint64" />
+        <add name="zero 3" type="uint64" since="20" />
     </compound>
 
-    <compound name="InfoHeader" inherit="GenericHeader">
+    <compound name="InfoHeader">
         Custom header struct
+        <add name="version" type="uint"/>
         <add name="mani count" type="uint"/>
         <add name="names" type="ZString" arr1="mani count"/>
         <add name="header" type="SizedStrData"/>
@@ -76,36 +97,36 @@
 		<add name="FrameCount" type="uint"/>
 		<add name="b" type="uint" >?</add>
 		<add name="zeros 0 " type="ushort" arr1="6"/>
-		<add name="extra pc 1" type="ushort" vercond="#PC#"> </add>
+		<add name="extra pc 1" type="ushort" until="257"> </add>
 		<add name="PosBoneCount" type="ushort"/>
 		<add name="OriBoneCount" type="ushort"/>
 		<add name="SclBoneCount" type="ushort" >likely</add>
-		<add name="extra pc" type="uint64" vercond="#PC#">zero</add>
-		<add name="PosBoneCount Repeat" type="ushort" vercond="#PC#"/>
-		<add name="OriBoneCount Repeat" type="ushort" vercond="#PC#"/>
-		<add name="SclBoneCount Repeat" type="ushort" vercond="#PC#"> </add>
+		<add name="extra pc" type="uint64" until="257">zero</add>
+		<add name="PosBoneCount Repeat" type="ushort" until="257"/>
+		<add name="OriBoneCount Repeat" type="ushort" until="257"/>
+		<add name="SclBoneCount Repeat" type="ushort" until="257"> </add>
 		<add name="zeros 1" type="ushort" />
-		<add name="zeros 1 new" type="uint" vercond="!#PC#"/>
+		<add name="zeros 1 new" type="uint" since="258"/>
 		<add name="FloatCount" type="ushort" > </add>
 		<add name="count a" type="ubyte">FF if unused</add>
 		<add name="count b" type="ubyte">FF if unused</add>
 		<add name="target bone count" type="ushort" >usually matches ms2 bone count, at least for JWE2 dinos. Doesn't match for PZ water wheel 5 vs ms2 2</add>
 		<add name="g" type="ushort" >zero</add>
 		<add name="zeros 2" type="uint" arr1="57" > rest 228 bytes </add>
-		<add name="extra zeros pc" type="ushort" arr1="6" vercond="#PC#" > rest 14 bytes </add>
+		<add name="extra zeros pc" type="ushort" arr1="6" until="257" > rest 14 bytes </add>
 		<add name="PosBoneMin" type="ubyte"/>
 		<add name="PosBoneMax" type="ubyte"/>
 		<add name="OriBoneMin" type="ubyte"/>
 		<add name="OriBoneMax" type="ubyte"/>
 		<add name="SclBoneMin" type="byte" >always FF</add>
 		<add name="SclBoneMax" type="byte" >always 00</add>
-		<add name="PosBoneCount Related" type="ubyte" vercond="!#PC#" > </add>
-		<add name="PosBoneCount Repeat" type="ubyte" vercond="!#PC#"/>
-		<add name="OriBoneCount Related" type="ubyte" vercond="!#PC#" > </add>
-		<add name="OriBoneCount Repeat" type="ubyte" vercond="!#PC#"/>
-		<add name="SclBoneCount Related" type="byte" vercond="!#PC#" >maybe, not observed yet</add>
-		<add name="SclBoneCount Repeat" type="byte" vercond="!#PC#"/>
-		<add name="zeros end" type="ushort" vercond="!#PC#" > </add>
+		<add name="PosBoneCount Related" type="ubyte" since="258" > </add>
+		<add name="PosBoneCount Repeat" type="ubyte" since="258"/>
+		<add name="OriBoneCount Related" type="ubyte" since="258" > </add>
+		<add name="OriBoneCount Repeat" type="ubyte" since="258"/>
+		<add name="SclBoneCount Related" type="byte" since="258" >maybe, not observed yet</add>
+		<add name="SclBoneCount Repeat" type="byte" since="258"/>
+		<add name="zeros end" type="ushort" since="258" > </add>
 		<add name="zero 2 end" type="ushort"> </add>
     </compound>
 
@@ -113,17 +134,17 @@
 		<add name="ref" type="Empty"/>
 <!--    PC uses ushort-->
 <!--    JWE uses uint-->
-		<add name="PosBones" type="ushort" arr1="#ARG#\PosBoneCount" vercond="#PC#" > </add>
-		<add name="PosBones" type="uint" arr1="#ARG#\PosBoneCount" vercond="!#PC#" > </add>
+		<add name="PosBones" type="ushort" arr1="#ARG#\PosBoneCount" until="257" > </add>
+		<add name="PosBones" type="uint" arr1="#ARG#\PosBoneCount" since="258" > </add>
 
-		<add name="OriBones" type="ushort" arr1="#ARG#\OriBoneCount" vercond="#PC#" > </add>
-		<add name="OriBones" type="uint" arr1="#ARG#\OriBoneCount" vercond="!#PC#" > </add>
+		<add name="OriBones" type="ushort" arr1="#ARG#\OriBoneCount" until="257" > </add>
+		<add name="OriBones" type="uint" arr1="#ARG#\OriBoneCount" since="258" > </add>
 
-		<add name="SclBones" type="ushort" arr1="#ARG#\SclBoneCount" vercond="#PC#" > </add>
-		<add name="SclBones" type="uint" arr1="#ARG#\SclBoneCount" vercond="!#PC#" > </add>
+		<add name="SclBones" type="ushort" arr1="#ARG#\SclBoneCount" until="257" > </add>
+		<add name="SclBones" type="uint" arr1="#ARG#\SclBoneCount" since="258" > </add>
 
-		<add name="Floats" type="ushort" arr1="#ARG#\FloatCount" vercond="#PC#" > </add>
-		<add name="Floats" type="uint" arr1="#ARG#\FloatCount" vercond="!#PC#" > </add>
+		<add name="Floats" type="ushort" arr1="#ARG#\FloatCount" until="257" > </add>
+		<add name="Floats" type="uint" arr1="#ARG#\FloatCount" since="258" > </add>
 
 		<add name="PosBones P" type="ubyte" arr1="#ARG#\PosBoneCount" > </add>
 		<add name="OriBones P" type="ubyte" arr1="#ARG#\OriBoneCount" > </add>
@@ -160,7 +181,7 @@
 		<add name="floats second" type="float" arr1="flag 1" arr2="6"  >these are likely a scale reference or factor</add>
 		<add name="floats third" type="float" arr1="6" cond="flag 2 #GT# 1" >these are likely a scale reference or factor</add>
 		<add name="unk" type="uint" >?</add>
-		<add name="extra pc zero" type="uint64" vercond="#PC#" >this seems to be vaguely related, but not always there?</add>
+		<add name="extra pc zero" type="uint64" until="257" >this seems to be vaguely related, but not always there?</add>
 <!--		<add name="unk for FloatCount" type="uint64" cond="#ARG# \ FloatCount">this seems to be vaguely related, but not always there?</add>-->
 <!--		<add name="floats extra" type="float" arr1="#ARG#\FloatCount" >nope likely wrong</add>-->
 		<add name="repeats" type="Repeat" arr1="count" > </add>
@@ -172,20 +193,5 @@
 		<add name="byte size" type="uint64" >to be read sequentially starting after this array </add>
 		<add name="zeros 1" type="uint64" arr1="2" > </add>
     </compound>
-	
-	
-    <compound name="UncompressedRegion" >
-		<add name="zeros 0" type="uint" arr1="2" > </add>
-		<add name="unk0" type="ushort" ></add>
-		<add name="unk1" type="ushort" ></add>
-		<add name="zeros 1" type="uint" arr1="3" > </add>
-		<add name="unk2" type="uint" ></add>
-		<add name="unk3" type="uint" ></add>
-		<add name="zeros 2" type="uint" arr1="2" > </add>
-		<add name="unk4" type="uint" ></add>
-		<add name="unk5" type="uint" ></add>
-		<add name="zeros 3" type="uint" arr1="2" > </add>
-    </compound>
-
 
 </niftoolsxml>

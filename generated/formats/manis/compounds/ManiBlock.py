@@ -78,21 +78,21 @@ class ManiBlock(BaseStruct):
 	def set_defaults(self):
 		super().set_defaults()
 		self.ref = Empty(self.context, 0, None)
-		if self.context.version == 18:
+		if self.context.version <= 257:
 			self.pos_bones = numpy.zeros((self.arg.pos_bone_count,), dtype=numpy.dtype('uint16'))
-		if not (self.context.version == 18):
+		if self.context.version >= 258:
 			self.pos_bones = numpy.zeros((self.arg.pos_bone_count,), dtype=numpy.dtype('uint32'))
-		if self.context.version == 18:
+		if self.context.version <= 257:
 			self.ori_bones = numpy.zeros((self.arg.ori_bone_count,), dtype=numpy.dtype('uint16'))
-		if not (self.context.version == 18):
+		if self.context.version >= 258:
 			self.ori_bones = numpy.zeros((self.arg.ori_bone_count,), dtype=numpy.dtype('uint32'))
-		if self.context.version == 18:
+		if self.context.version <= 257:
 			self.scl_bones = numpy.zeros((self.arg.scl_bone_count,), dtype=numpy.dtype('uint16'))
-		if not (self.context.version == 18):
+		if self.context.version >= 258:
 			self.scl_bones = numpy.zeros((self.arg.scl_bone_count,), dtype=numpy.dtype('uint32'))
-		if self.context.version == 18:
+		if self.context.version <= 257:
 			self.floats = numpy.zeros((self.arg.float_count,), dtype=numpy.dtype('uint16'))
-		if not (self.context.version == 18):
+		if self.context.version >= 258:
 			self.floats = numpy.zeros((self.arg.float_count,), dtype=numpy.dtype('uint32'))
 		self.pos_bones_p = numpy.zeros((self.arg.pos_bone_count,), dtype=numpy.dtype('uint8'))
 		self.ori_bones_p = numpy.zeros((self.arg.ori_bone_count,), dtype=numpy.dtype('uint8'))
@@ -125,7 +125,7 @@ class ManiBlock(BaseStruct):
 		if self.flag_2 > 1:
 			self.floats_third = numpy.zeros((6,), dtype=numpy.dtype('float32'))
 		self.unk = 0
-		if self.context.version == 18:
+		if self.context.version <= 257:
 			self.extra_pc_zero = 0
 		self.repeats = Array((self.count,), Repeat, self.context, 0, None)
 
@@ -133,21 +133,21 @@ class ManiBlock(BaseStruct):
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
 		instance.ref = Empty.from_stream(stream, instance.context, 0, None)
-		if instance.context.version == 18:
+		if instance.context.version <= 257:
 			instance.pos_bones = Array.from_stream(stream, instance.context, 0, None, (instance.arg.pos_bone_count,), Ushort)
-		if not (instance.context.version == 18):
+		if instance.context.version >= 258:
 			instance.pos_bones = Array.from_stream(stream, instance.context, 0, None, (instance.arg.pos_bone_count,), Uint)
-		if instance.context.version == 18:
+		if instance.context.version <= 257:
 			instance.ori_bones = Array.from_stream(stream, instance.context, 0, None, (instance.arg.ori_bone_count,), Ushort)
-		if not (instance.context.version == 18):
+		if instance.context.version >= 258:
 			instance.ori_bones = Array.from_stream(stream, instance.context, 0, None, (instance.arg.ori_bone_count,), Uint)
-		if instance.context.version == 18:
+		if instance.context.version <= 257:
 			instance.scl_bones = Array.from_stream(stream, instance.context, 0, None, (instance.arg.scl_bone_count,), Ushort)
-		if not (instance.context.version == 18):
+		if instance.context.version >= 258:
 			instance.scl_bones = Array.from_stream(stream, instance.context, 0, None, (instance.arg.scl_bone_count,), Uint)
-		if instance.context.version == 18:
+		if instance.context.version <= 257:
 			instance.floats = Array.from_stream(stream, instance.context, 0, None, (instance.arg.float_count,), Ushort)
-		if not (instance.context.version == 18):
+		if instance.context.version >= 258:
 			instance.floats = Array.from_stream(stream, instance.context, 0, None, (instance.arg.float_count,), Uint)
 		instance.pos_bones_p = Array.from_stream(stream, instance.context, 0, None, (instance.arg.pos_bone_count,), Ubyte)
 		instance.ori_bones_p = Array.from_stream(stream, instance.context, 0, None, (instance.arg.ori_bone_count,), Ubyte)
@@ -180,7 +180,7 @@ class ManiBlock(BaseStruct):
 		if instance.flag_2 > 1:
 			instance.floats_third = Array.from_stream(stream, instance.context, 0, None, (6,), Float)
 		instance.unk = Uint.from_stream(stream, instance.context, 0, None)
-		if instance.context.version == 18:
+		if instance.context.version <= 257:
 			instance.extra_pc_zero = Uint64.from_stream(stream, instance.context, 0, None)
 		instance.repeats = Array.from_stream(stream, instance.context, 0, None, (instance.count,), Repeat)
 
@@ -188,21 +188,21 @@ class ManiBlock(BaseStruct):
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
 		Empty.to_stream(stream, instance.ref)
-		if instance.context.version == 18:
+		if instance.context.version <= 257:
 			Array.to_stream(stream, instance.pos_bones, (instance.arg.pos_bone_count,), Ushort, instance.context, 0, None)
-		if not (instance.context.version == 18):
+		if instance.context.version >= 258:
 			Array.to_stream(stream, instance.pos_bones, (instance.arg.pos_bone_count,), Uint, instance.context, 0, None)
-		if instance.context.version == 18:
+		if instance.context.version <= 257:
 			Array.to_stream(stream, instance.ori_bones, (instance.arg.ori_bone_count,), Ushort, instance.context, 0, None)
-		if not (instance.context.version == 18):
+		if instance.context.version >= 258:
 			Array.to_stream(stream, instance.ori_bones, (instance.arg.ori_bone_count,), Uint, instance.context, 0, None)
-		if instance.context.version == 18:
+		if instance.context.version <= 257:
 			Array.to_stream(stream, instance.scl_bones, (instance.arg.scl_bone_count,), Ushort, instance.context, 0, None)
-		if not (instance.context.version == 18):
+		if instance.context.version >= 258:
 			Array.to_stream(stream, instance.scl_bones, (instance.arg.scl_bone_count,), Uint, instance.context, 0, None)
-		if instance.context.version == 18:
+		if instance.context.version <= 257:
 			Array.to_stream(stream, instance.floats, (instance.arg.float_count,), Ushort, instance.context, 0, None)
-		if not (instance.context.version == 18):
+		if instance.context.version >= 258:
 			Array.to_stream(stream, instance.floats, (instance.arg.float_count,), Uint, instance.context, 0, None)
 		Array.to_stream(stream, instance.pos_bones_p, (instance.arg.pos_bone_count,), Ubyte, instance.context, 0, None)
 		Array.to_stream(stream, instance.ori_bones_p, (instance.arg.ori_bone_count,), Ubyte, instance.context, 0, None)
@@ -235,7 +235,7 @@ class ManiBlock(BaseStruct):
 		if instance.flag_2 > 1:
 			Array.to_stream(stream, instance.floats_third, (6,), Float, instance.context, 0, None)
 		Uint.to_stream(stream, instance.unk)
-		if instance.context.version == 18:
+		if instance.context.version <= 257:
 			Uint64.to_stream(stream, instance.extra_pc_zero)
 		Array.to_stream(stream, instance.repeats, (instance.count,), Repeat, instance.context, 0, None)
 
@@ -243,21 +243,21 @@ class ManiBlock(BaseStruct):
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
 		yield 'ref', Empty, (0, None), (False, None)
-		if instance.context.version == 18:
+		if instance.context.version <= 257:
 			yield 'pos_bones', Array, ((instance.arg.pos_bone_count,), Ushort, 0, None), (False, None)
-		if not (instance.context.version == 18):
+		if instance.context.version >= 258:
 			yield 'pos_bones', Array, ((instance.arg.pos_bone_count,), Uint, 0, None), (False, None)
-		if instance.context.version == 18:
+		if instance.context.version <= 257:
 			yield 'ori_bones', Array, ((instance.arg.ori_bone_count,), Ushort, 0, None), (False, None)
-		if not (instance.context.version == 18):
+		if instance.context.version >= 258:
 			yield 'ori_bones', Array, ((instance.arg.ori_bone_count,), Uint, 0, None), (False, None)
-		if instance.context.version == 18:
+		if instance.context.version <= 257:
 			yield 'scl_bones', Array, ((instance.arg.scl_bone_count,), Ushort, 0, None), (False, None)
-		if not (instance.context.version == 18):
+		if instance.context.version >= 258:
 			yield 'scl_bones', Array, ((instance.arg.scl_bone_count,), Uint, 0, None), (False, None)
-		if instance.context.version == 18:
+		if instance.context.version <= 257:
 			yield 'floats', Array, ((instance.arg.float_count,), Ushort, 0, None), (False, None)
-		if not (instance.context.version == 18):
+		if instance.context.version >= 258:
 			yield 'floats', Array, ((instance.arg.float_count,), Uint, 0, None), (False, None)
 		yield 'pos_bones_p', Array, ((instance.arg.pos_bone_count,), Ubyte, 0, None), (False, None)
 		yield 'ori_bones_p', Array, ((instance.arg.ori_bone_count,), Ubyte, 0, None), (False, None)
@@ -290,7 +290,7 @@ class ManiBlock(BaseStruct):
 		if instance.flag_2 > 1:
 			yield 'floats_third', Array, ((6,), Float, 0, None), (False, None)
 		yield 'unk', Uint, (0, None), (False, None)
-		if instance.context.version == 18:
+		if instance.context.version <= 257:
 			yield 'extra_pc_zero', Uint64, (0, None), (False, None)
 		yield 'repeats', Array, ((instance.count,), Repeat, 0, None), (False, None)
 
