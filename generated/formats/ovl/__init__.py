@@ -373,50 +373,45 @@ class OvsFile(OvsHeader):
 	def map_buffers(self):
 		"""Map buffers to data entries"""
 		logging.info("Mapping buffers")
-		if is_pz16(self.ovl) or is_jwe2(self.ovl):
+		if self.ovl.version >= 20:
 			for data in self.data_entries:
 				data.buffers = []
 			logging.debug("Assigning buffer indices")
 			for b_group in self.buffer_groups:
 				b_group.ext = self.ovl.mimes[b_group.ext_index].ext
-				# logging.debug(f"Buffer group {b_group.ext}, index {b_group.buffer_index}")
-				# print(b_group)
-				# print(b_group.buffer_count, b_group.data_count)
 				# note that datas can be bigger than buffers
 				buffers = self.buffer_entries[b_group.buffer_offset: b_group.buffer_offset + b_group.buffer_count]
 				datas = self.data_entries[b_group.data_offset: b_group.data_offset + b_group.data_count]
 				for buffer in buffers:
 					buffer.index = b_group.buffer_index
-					# logging.debug(f"Buffer hash {buffer.file_hash}")
 					for data in datas:
 						if buffer.file_hash == data.file_hash:
-							buffer.name = data.name
-							buffer.ext = data.ext
+							self.transfer_identity(data, buffer)
 							data.buffers.append(buffer)
-							# logging.debug(f"Buffer group match {buffer.name}")
 							break
 					else:
 						raise BufferError(
 							f"Buffer group {b_group.ext}, index {b_group.buffer_index} did not find a data entry for buffer {buffer.file_hash}")
 		else:
 			# sequentially attach buffers to data entries by each entry's buffer count
-			buff_ind = 0
-			for i, data in enumerate(self.data_entries):
-				data.buffers = []
-				for j in range(data.buffer_count):
-					# print("data",i,"buffer",j, "buff_ind",buff_ind)
-					buffer = self.buffer_entries[buff_ind]
-					buffer.name = data.name
-					buffer.ext = data.ext
-					data.buffers.append(buffer)
-					buff_ind += 1
+			i = 0
+			for data in self.data_entries:
+				data.buffers = self.buffer_entries[i: i+data.buffer_count]
+				for buffer in data.buffers:
+					self.transfer_identity(data, buffer)
+				i += data.buffer_count
 
 	@property
 	def buffers_io_order(self):
 		"""sort buffers into load order"""
-		if is_pz16(self.ovl) or is_jwe2(self.ovl):
+		if self.ovl.version >= 20:
 			return self.buffer_entries
 		else:
+			# first read the first buffer for every file
+			# then the second if it has any
+			# and so on, until there is no data entry left with unprocessed buffers
+			# for this to work, buffers need to have hashes assigned
+			# return sorted(self.buffer_entries, key=lambda b: (b.index, b.ext, b.file_hash))
 			# this holds the buffers in the order they are read from the file
 			io_order = []
 			# only do this if there are any data entries so that max() doesn't choke
