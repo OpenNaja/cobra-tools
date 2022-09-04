@@ -113,27 +113,3 @@ class SpecdefRoot(MemStruct):
 
 	def get_info_str(self, indent=0):
 		return f'SpecdefRoot [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
-
-	def get_fields_str(self, indent=0):
-		s = ''
-		s += super().get_fields_str()
-		s += f'\n	* attrib_count = {self.fmt_member(self.attrib_count, indent+1)}'
-		s += f'\n	* flags = {self.fmt_member(self.flags, indent+1)}'
-		s += f'\n	* name_count = {self.fmt_member(self.name_count, indent+1)}'
-		s += f'\n	* childspec_count = {self.fmt_member(self.childspec_count, indent+1)}'
-		s += f'\n	* manager_count = {self.fmt_member(self.manager_count, indent+1)}'
-		s += f'\n	* script_count = {self.fmt_member(self.script_count, indent+1)}'
-		s += f'\n	* attribs = {self.fmt_member(self.attribs, indent+1)}'
-		s += f'\n	* name_foreach_attribs = {self.fmt_member(self.name_foreach_attribs, indent+1)}'
-		s += f'\n	* data_foreach_attribs = {self.fmt_member(self.data_foreach_attribs, indent+1)}'
-		s += f'\n	* names = {self.fmt_member(self.names, indent+1)}'
-		s += f'\n	* childspecs = {self.fmt_member(self.childspecs, indent+1)}'
-		s += f'\n	* managers = {self.fmt_member(self.managers, indent+1)}'
-		s += f'\n	* scripts = {self.fmt_member(self.scripts, indent+1)}'
-		return s
-
-	def __repr__(self, indent=0):
-		s = self.get_info_str(indent)
-		s += self.get_fields_str(indent)
-		s += '\n'
-		return s

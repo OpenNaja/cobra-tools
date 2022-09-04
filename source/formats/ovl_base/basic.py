@@ -60,3 +60,9 @@ class ZStringObfuscated(ZString):
             return Array.to_stream(stream, instance, instance.shape, cls, None)
 
         return read_zstring, write_zstring, read_zstrings, write_zstrings
+
+    @staticmethod
+    def fmt_member(member, indent=0):
+        lines = str(member).split("\n")
+        lines_new = [lines[0], ] + ["\t" * indent + line for line in lines[1:]]
+        return "\n".join(lines_new)

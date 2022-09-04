@@ -77,14 +77,24 @@ class BaseStruct(metaclass=StructMetaClass):
 	def set_defaults(self):
 		pass
 
-	def get_fields_str(self, indent=0):
-		return ""
+	@classmethod
+	def get_fields_str(cls, instance, indent=0):
+		s = ''
+		for field_name, field_type, arguments, _ in cls._get_filtered_attribute_list(instance):
+			s += f'\n	* {field_name} = {field_type.fmt_member(cls.get_field(instance, field_name), indent+1)}'
+		return s
 
 	@staticmethod
 	def fmt_member(member, indent=0):
 		lines = str(member).split("\n")
 		lines_new = [lines[0], ] + ["\t" * indent + line for line in lines[1:]]
 		return "\n".join(lines_new)
+
+	def __repr__(self, indent=0):
+		s = self.get_info_str(indent)
+		s += self.get_fields_str(self, indent)
+		s += '\n'
+		return s
 
 	@classmethod
 	def from_xml_file(cls, file_path, context, arg=0, template=None):

@@ -120,27 +120,3 @@ class PathMaterial(MemStruct):
 
 	def get_info_str(self, indent=0):
 		return f'PathMaterial [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
-
-	def get_fields_str(self, indent=0):
-		s = ''
-		s += super().get_fields_str()
-		s += f'\n	* elevated_mat = {self.fmt_member(self.elevated_mat, indent+1)}'
-		s += f'\n	* elevated_mat_valid = {self.fmt_member(self.elevated_mat_valid, indent+1)}'
-		s += f'\n	* elevated_mat_invalid = {self.fmt_member(self.elevated_mat_invalid, indent+1)}'
-		s += f'\n	* terrain_mat = {self.fmt_member(self.terrain_mat, indent+1)}'
-		s += f'\n	* terrain_mat_valid = {self.fmt_member(self.terrain_mat_valid, indent+1)}'
-		s += f'\n	* terrain_mat_invalid = {self.fmt_member(self.terrain_mat_invalid, indent+1)}'
-		s += f'\n	* underside_mat_1 = {self.fmt_member(self.underside_mat_1, indent+1)}'
-		s += f'\n	* underside_mat_2 = {self.fmt_member(self.underside_mat_2, indent+1)}'
-		s += f'\n	* stairs_mat_1 = {self.fmt_member(self.stairs_mat_1, indent+1)}'
-		s += f'\n	* stairs_mat_2 = {self.fmt_member(self.stairs_mat_2, indent+1)}'
-		s += f'\n	* path_sub_type = {self.fmt_member(self.path_sub_type, indent+1)}'
-		s += f'\n	* mat_data = {self.fmt_member(self.mat_data, indent+1)}'
-		s += f'\n	* num_data = {self.fmt_member(self.num_data, indent+1)}'
-		return s
-
-	def __repr__(self, indent=0):
-		s = self.get_info_str(indent)
-		s += self.get_fields_str(indent)
-		s += '\n'
-		return s

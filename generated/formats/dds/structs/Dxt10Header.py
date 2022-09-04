@@ -57,19 +57,3 @@ class Dxt10Header(BaseStruct):
 
 	def get_info_str(self, indent=0):
 		return f'Dxt10Header [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
-
-	def get_fields_str(self, indent=0):
-		s = ''
-		s += super().get_fields_str()
-		s += f'\n	* dxgi_format = {self.fmt_member(self.dxgi_format, indent+1)}'
-		s += f'\n	* resource_dimension = {self.fmt_member(self.resource_dimension, indent+1)}'
-		s += f'\n	* misc_flag = {self.fmt_member(self.misc_flag, indent+1)}'
-		s += f'\n	* array_size = {self.fmt_member(self.array_size, indent+1)}'
-		s += f'\n	* misc_flag_2 = {self.fmt_member(self.misc_flag_2, indent+1)}'
-		return s
-
-	def __repr__(self, indent=0):
-		s = self.get_info_str(indent)
-		s += self.get_fields_str(indent)
-		s += '\n'
-		return s

@@ -130,29 +130,3 @@ class EventEntry(MemStruct):
 
 	def get_info_str(self, indent=0):
 		return f'EventEntry [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
-
-	def get_fields_str(self, indent=0):
-		s = ''
-		s += super().get_fields_str()
-		s += f'\n	* hash = {self.fmt_member(self.hash, indent+1)}'
-		s += f'\n	* zero = {self.fmt_member(self.zero, indent+1)}'
-		s += f'\n	* block_name = {self.fmt_member(self.block_name, indent+1)}'
-		s += f'\n	* zero_2 = {self.fmt_member(self.zero_2, indent+1)}'
-		s += f'\n	* size = {self.fmt_member(self.size, indent+1)}'
-		s += f'\n	* flag_0 = {self.fmt_member(self.flag_0, indent+1)}'
-		s += f'\n	* flag_1 = {self.fmt_member(self.flag_1, indent+1)}'
-		s += f'\n	* flag_2 = {self.fmt_member(self.flag_2, indent+1)}'
-		s += f'\n	* zero_3 = {self.fmt_member(self.zero_3, indent+1)}'
-		s += f'\n	* flag_3 = {self.fmt_member(self.flag_3, indent+1)}'
-		s += f'\n	* hash_b = {self.fmt_member(self.hash_b, indent+1)}'
-		s += f'\n	* hash_c = {self.fmt_member(self.hash_c, indent+1)}'
-		s += f'\n	* zero_4 = {self.fmt_member(self.zero_4, indent+1)}'
-		s += f'\n	* u_2 = {self.fmt_member(self.u_2, indent+1)}'
-		s += f'\n	* u_1 = {self.fmt_member(self.u_1, indent+1)}'
-		return s
-
-	def __repr__(self, indent=0):
-		s = self.get_info_str(indent)
-		s += self.get_fields_str(indent)
-		s += '\n'
-		return s

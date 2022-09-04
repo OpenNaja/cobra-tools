@@ -25,6 +25,9 @@ class SmartPadding(BaseStruct):
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
 
+	def get_info_str(self, indent=0):
+		return f'SmartPadding [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+
 	def __init__(self, context, arg=None, template=None, set_default=True):
 		self.name = ''
 		self._context = context

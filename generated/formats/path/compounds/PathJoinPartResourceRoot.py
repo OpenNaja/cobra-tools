@@ -43,16 +43,3 @@ class PathJoinPartResourceRoot(MemStruct):
 
 	def get_info_str(self, indent=0):
 		return f'PathJoinPartResourceRoot [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
-
-	def get_fields_str(self, indent=0):
-		s = ''
-		s += super().get_fields_str()
-		s += f'\n	* resources_list = {self.fmt_member(self.resources_list, indent+1)}'
-		s += f'\n	* num_res = {self.fmt_member(self.num_res, indent+1)}'
-		return s
-
-	def __repr__(self, indent=0):
-		s = self.get_info_str(indent)
-		s += self.get_fields_str(indent)
-		s += '\n'
-		return s

@@ -106,26 +106,3 @@ class TrackElementData(MemStruct):
 
 	def get_info_str(self, indent=0):
 		return f'TrackElementData [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
-
-	def get_fields_str(self, indent=0):
-		s = ''
-		s += super().get_fields_str()
-		s += f'\n	* loop_name = {self.fmt_member(self.loop_name, indent+1)}'
-		s += f'\n	* ovl_name = {self.fmt_member(self.ovl_name, indent+1)}'
-		s += f'\n	* catwalk = {self.fmt_member(self.catwalk, indent+1)}'
-		s += f'\n	* unk_0 = {self.fmt_member(self.unk_0, indent+1)}'
-		s += f'\n	* optional_catwalk = {self.fmt_member(self.optional_catwalk, indent+1)}'
-		s += f'\n	* unk_1 = {self.fmt_member(self.unk_1, indent+1)}'
-		s += f'\n	* unk_2 = {self.fmt_member(self.unk_2, indent+1)}'
-		s += f'\n	* unk_3 = {self.fmt_member(self.unk_3, indent+1)}'
-		s += f'\n	* unk_4 = {self.fmt_member(self.unk_4, indent+1)}'
-		s += f'\n	* unk_5 = {self.fmt_member(self.unk_5, indent+1)}'
-		s += f'\n	* unk_6 = {self.fmt_member(self.unk_6, indent+1)}'
-		s += f'\n	* unk_7 = {self.fmt_member(self.unk_7, indent+1)}'
-		return s
-
-	def __repr__(self, indent=0):
-		s = self.get_info_str(indent)
-		s += self.get_fields_str(indent)
-		s += '\n'
-		return s

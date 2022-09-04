@@ -68,20 +68,3 @@ class LutHeader(MemStruct):
 
 	def get_info_str(self, indent=0):
 		return f'LutHeader [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
-
-	def get_fields_str(self, indent=0):
-		s = ''
-		s += super().get_fields_str()
-		s += f'\n	* colors = {self.fmt_member(self.colors, indent+1)}'
-		s += f'\n	* colors_count = {self.fmt_member(self.colors_count, indent+1)}'
-		s += f'\n	* unk_0 = {self.fmt_member(self.unk_0, indent+1)}'
-		s += f'\n	* unk_1 = {self.fmt_member(self.unk_1, indent+1)}'
-		s += f'\n	* colors_in_column_count = {self.fmt_member(self.colors_in_column_count, indent+1)}'
-		s += f'\n	* unk_2 = {self.fmt_member(self.unk_2, indent+1)}'
-		return s
-
-	def __repr__(self, indent=0):
-		s = self.get_info_str(indent)
-		s += self.get_fields_str(indent)
-		s += '\n'
-		return s

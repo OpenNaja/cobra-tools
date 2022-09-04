@@ -52,17 +52,3 @@ class CinematicData(MemStruct):
 
 	def get_info_str(self, indent=0):
 		return f'CinematicData [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
-
-	def get_fields_str(self, indent=0):
-		s = ''
-		s += super().get_fields_str()
-		s += f'\n	* default_name = {self.fmt_member(self.default_name, indent+1)}'
-		s += f'\n	* next_levels = {self.fmt_member(self.next_levels, indent+1)}'
-		s += f'\n	* next_level_count = {self.fmt_member(self.next_level_count, indent+1)}'
-		return s
-
-	def __repr__(self, indent=0):
-		s = self.get_info_str(indent)
-		s += self.get_fields_str(indent)
-		s += '\n'
-		return s

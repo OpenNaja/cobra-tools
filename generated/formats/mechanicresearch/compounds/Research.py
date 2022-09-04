@@ -77,22 +77,3 @@ class Research(MemStruct):
 
 	def get_info_str(self, indent=0):
 		return f'Research [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
-
-	def get_fields_str(self, indent=0):
-		s = ''
-		s += super().get_fields_str()
-		s += f'\n	* item_name = {self.fmt_member(self.item_name, indent+1)}'
-		s += f'\n	* unk_0 = {self.fmt_member(self.unk_0, indent+1)}'
-		s += f'\n	* is_entry_level = {self.fmt_member(self.is_entry_level, indent+1)}'
-		s += f'\n	* unk_2 = {self.fmt_member(self.unk_2, indent+1)}'
-		s += f'\n	* next_research = {self.fmt_member(self.next_research, indent+1)}'
-		s += f'\n	* next_research_count = {self.fmt_member(self.next_research_count, indent+1)}'
-		s += f'\n	* unk_3 = {self.fmt_member(self.unk_3, indent+1)}'
-		s += f'\n	* unk_4 = {self.fmt_member(self.unk_4, indent+1)}'
-		return s
-
-	def __repr__(self, indent=0):
-		s = self.get_info_str(indent)
-		s += self.get_fields_str(indent)
-		s += '\n'
-		return s

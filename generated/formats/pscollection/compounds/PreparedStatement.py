@@ -59,18 +59,3 @@ class PreparedStatement(MemStruct):
 
 	def get_info_str(self, indent=0):
 		return f'PreparedStatement [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
-
-	def get_fields_str(self, indent=0):
-		s = ''
-		s += super().get_fields_str()
-		s += f'\n	* args = {self.fmt_member(self.args, indent+1)}'
-		s += f'\n	* arg_count = {self.fmt_member(self.arg_count, indent+1)}'
-		s += f'\n	* statement_name = {self.fmt_member(self.statement_name, indent+1)}'
-		s += f'\n	* sql_query = {self.fmt_member(self.sql_query, indent+1)}'
-		return s
-
-	def __repr__(self, indent=0):
-		s = self.get_info_str(indent)
-		s += self.get_fields_str(indent)
-		s += '\n'
-		return s

@@ -70,18 +70,3 @@ class Buffer0(BaseStruct):
 
 	def get_info_str(self, indent=0):
 		return f'Buffer0 [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
-
-	def get_fields_str(self, indent=0):
-		s = ''
-		s += super().get_fields_str()
-		s += f'\n	* name_hashes = {self.fmt_member(self.name_hashes, indent+1)}'
-		s += f'\n	* names = {self.fmt_member(self.names, indent+1)}'
-		s += f'\n	* names_padding = {self.fmt_member(self.names_padding, indent+1)}'
-		s += f'\n	* zt_streams_header = {self.fmt_member(self.zt_streams_header, indent+1)}'
-		return s
-
-	def __repr__(self, indent=0):
-		s = self.get_info_str(indent)
-		s += self.get_fields_str(indent)
-		s += '\n'
-		return s

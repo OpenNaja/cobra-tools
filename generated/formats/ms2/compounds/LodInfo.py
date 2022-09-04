@@ -135,26 +135,3 @@ class LodInfo(BaseStruct):
 
 	def get_info_str(self, indent=0):
 		return f'LodInfo [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
-
-	def get_fields_str(self, indent=0):
-		s = ''
-		s += super().get_fields_str()
-		s += f'\n	* full = {self.fmt_member(self.full, indent+1)}'
-		s += f'\n	* half = {self.fmt_member(self.half, indent+1)}'
-		s += f'\n	* lod_index = {self.fmt_member(self.lod_index, indent+1)}'
-		s += f'\n	* distance = {self.fmt_member(self.distance, indent+1)}'
-		s += f'\n	* zero = {self.fmt_member(self.zero, indent+1)}'
-		s += f'\n	* bone_index = {self.fmt_member(self.bone_index, indent+1)}'
-		s += f'\n	* first_object_index = {self.fmt_member(self.first_object_index, indent+1)}'
-		s += f'\n	* first_object_index_1 = {self.fmt_member(self.first_object_index_1, indent+1)}'
-		s += f'\n	* first_object_index_2 = {self.fmt_member(self.first_object_index_2, indent+1)}'
-		s += f'\n	* last_object_index = {self.fmt_member(self.last_object_index, indent+1)}'
-		s += f'\n	* vertex_count = {self.fmt_member(self.vertex_count, indent+1)}'
-		s += f'\n	* tri_index_count = {self.fmt_member(self.tri_index_count, indent+1)}'
-		return s
-
-	def __repr__(self, indent=0):
-		s = self.get_info_str(indent)
-		s += self.get_fields_str(indent)
-		s += '\n'
-		return s

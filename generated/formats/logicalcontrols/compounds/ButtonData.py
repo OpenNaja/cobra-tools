@@ -62,19 +62,3 @@ class ButtonData(MemStruct):
 
 	def get_info_str(self, indent=0):
 		return f'ButtonData [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
-
-	def get_fields_str(self, indent=0):
-		s = ''
-		s += super().get_fields_str()
-		s += f'\n	* k_1_a = {self.fmt_member(self.k_1_a, indent+1)}'
-		s += f'\n	* k_1_b = {self.fmt_member(self.k_1_b, indent+1)}'
-		s += f'\n	* k_2 = {self.fmt_member(self.k_2, indent+1)}'
-		s += f'\n	* k_3 = {self.fmt_member(self.k_3, indent+1)}'
-		s += f'\n	* k_4 = {self.fmt_member(self.k_4, indent+1)}'
-		return s
-
-	def __repr__(self, indent=0):
-		s = self.get_info_str(indent)
-		s += self.get_fields_str(indent)
-		s += '\n'
-		return s

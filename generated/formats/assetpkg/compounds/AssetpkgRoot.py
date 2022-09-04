@@ -44,16 +44,3 @@ class AssetpkgRoot(MemStruct):
 
 	def get_info_str(self, indent=0):
 		return f'AssetpkgRoot [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
-
-	def get_fields_str(self, indent=0):
-		s = ''
-		s += super().get_fields_str()
-		s += f'\n	* asset_path = {self.fmt_member(self.asset_path, indent+1)}'
-		s += f'\n	* _zero = {self.fmt_member(self._zero, indent+1)}'
-		return s
-
-	def __repr__(self, indent=0):
-		s = self.get_info_str(indent)
-		s += self.get_fields_str(indent)
-		s += '\n'
-		return s

@@ -121,24 +121,3 @@ class Ms2InfoHeader(BaseStruct):
 
 	def get_info_str(self, indent=0):
 		return f'Ms2InfoHeader [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
-
-	def get_fields_str(self, indent=0):
-		s = ''
-		s += super().get_fields_str()
-		s += f'\n	* biosyn = {self.fmt_member(self.biosyn, indent+1)}'
-		s += f'\n	* bone_info_size = {self.fmt_member(self.bone_info_size, indent+1)}'
-		s += f'\n	* info = {self.fmt_member(self.info, indent+1)}'
-		s += f'\n	* buffers_presence = {self.fmt_member(self.buffers_presence, indent+1)}'
-		s += f'\n	* mdl_2_names = {self.fmt_member(self.mdl_2_names, indent+1)}'
-		s += f'\n	* modelstream_names = {self.fmt_member(self.modelstream_names, indent+1)}'
-		s += f'\n	* buffer_0 = {self.fmt_member(self.buffer_0, indent+1)}'
-		s += f'\n	* buffer_infos = {self.fmt_member(self.buffer_infos, indent+1)}'
-		s += f'\n	* model_infos = {self.fmt_member(self.model_infos, indent+1)}'
-		s += f'\n	* models_reader = {self.fmt_member(self.models_reader, indent+1)}'
-		return s
-
-	def __repr__(self, indent=0):
-		s = self.get_info_str(indent)
-		s += self.get_fields_str(indent)
-		s += '\n'
-		return s

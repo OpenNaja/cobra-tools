@@ -208,35 +208,3 @@ class MeshCollision(BaseStruct):
 
 	def get_info_str(self, indent=0):
 		return f'MeshCollision [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
-
-	def get_fields_str(self, indent=0):
-		s = ''
-		s += super().get_fields_str()
-		s += f'\n	* rotation = {self.fmt_member(self.rotation, indent+1)}'
-		s += f'\n	* offset = {self.fmt_member(self.offset, indent+1)}'
-		s += f'\n	* unk_1 = {self.fmt_member(self.unk_1, indent+1)}'
-		s += f'\n	* vertex_count = {self.fmt_member(self.vertex_count, indent+1)}'
-		s += f'\n	* tri_count = {self.fmt_member(self.tri_count, indent+1)}'
-		s += f'\n	* bounds_min = {self.fmt_member(self.bounds_min, indent+1)}'
-		s += f'\n	* bounds_max = {self.fmt_member(self.bounds_max, indent+1)}'
-		s += f'\n	* ones_or_zeros = {self.fmt_member(self.ones_or_zeros, indent+1)}'
-		s += f'\n	* ff_or_zero = {self.fmt_member(self.ff_or_zero, indent+1)}'
-		s += f'\n	* bounds_min_repeat = {self.fmt_member(self.bounds_min_repeat, indent+1)}'
-		s += f'\n	* bounds_max_repeat = {self.fmt_member(self.bounds_max_repeat, indent+1)}'
-		s += f'\n	* tri_flags_count = {self.fmt_member(self.tri_flags_count, indent+1)}'
-		s += f'\n	* count_bits = {self.fmt_member(self.count_bits, indent+1)}'
-		s += f'\n	* stuff = {self.fmt_member(self.stuff, indent+1)}'
-		s += f'\n	* collision_bits = {self.fmt_member(self.collision_bits, indent+1)}'
-		s += f'\n	* zeros = {self.fmt_member(self.zeros, indent+1)}'
-		s += f'\n	* vertices = {self.fmt_member(self.vertices, indent+1)}'
-		s += f'\n	* triangles = {self.fmt_member(self.triangles, indent+1)}'
-		s += f'\n	* const = {self.fmt_member(self.const, indent+1)}'
-		s += f'\n	* triangle_flags = {self.fmt_member(self.triangle_flags, indent+1)}'
-		s += f'\n	* zero_end = {self.fmt_member(self.zero_end, indent+1)}'
-		return s
-
-	def __repr__(self, indent=0):
-		s = self.get_info_str(indent)
-		s += self.get_fields_str(indent)
-		s += '\n'
-		return s

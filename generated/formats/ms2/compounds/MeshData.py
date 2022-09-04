@@ -79,20 +79,6 @@ class MeshData(MemStruct):
 	def get_info_str(self, indent=0):
 		return f'MeshData [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
-	def get_fields_str(self, indent=0):
-		s = ''
-		s += super().get_fields_str()
-		s += f'\n	* stream_index = {self.fmt_member(self.stream_index, indent+1)}'
-		s += f'\n	* stream_info = {self.fmt_member(self.stream_info, indent+1)}'
-		s += f'\n	* some_index = {self.fmt_member(self.some_index, indent+1)}'
-		return s
-
-	def __repr__(self, indent=0):
-		s = self.get_info_str(indent)
-		s += self.get_fields_str(indent)
-		s += '\n'
-		return s
-
 	# @property
 	def get_stream_index(self):
 		# logging.debug(f"Using stream {self.stream_index}")

@@ -127,30 +127,3 @@ class PathJoinPartResource(MemStruct):
 
 	def get_info_str(self, indent=0):
 		return f'PathJoinPartResource [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
-
-	def get_fields_str(self, indent=0):
-		s = ''
-		s += super().get_fields_str()
-		s += f'\n	* unk_points_1 = {self.fmt_member(self.unk_points_1, indent+1)}'
-		s += f'\n	* unk_points_2 = {self.fmt_member(self.unk_points_2, indent+1)}'
-		s += f'\n	* unk_vector = {self.fmt_member(self.unk_vector, indent+1)}'
-		s += f'\n	* unk_shorts = {self.fmt_member(self.unk_shorts, indent+1)}'
-		s += f'\n	* unk_points_3 = {self.fmt_member(self.unk_points_3, indent+1)}'
-		s += f'\n	* padding_1 = {self.fmt_member(self.padding_1, indent+1)}'
-		s += f'\n	* pathresource = {self.fmt_member(self.pathresource, indent+1)}'
-		s += f'\n	* unk_byte_1 = {self.fmt_member(self.unk_byte_1, indent+1)}'
-		s += f'\n	* unk_byte_2 = {self.fmt_member(self.unk_byte_2, indent+1)}'
-		s += f'\n	* unk_byte_3 = {self.fmt_member(self.unk_byte_3, indent+1)}'
-		s += f'\n	* num_points_1 = {self.fmt_member(self.num_points_1, indent+1)}'
-		s += f'\n	* num_points_1_copy = {self.fmt_member(self.num_points_1_copy, indent+1)}'
-		s += f'\n	* num_points_2 = {self.fmt_member(self.num_points_2, indent+1)}'
-		s += f'\n	* num_points_2_copy = {self.fmt_member(self.num_points_2_copy, indent+1)}'
-		s += f'\n	* num_points_3 = {self.fmt_member(self.num_points_3, indent+1)}'
-		s += f'\n	* padding_2 = {self.fmt_member(self.padding_2, indent+1)}'
-		return s
-
-	def __repr__(self, indent=0):
-		s = self.get_info_str(indent)
-		s += self.get_fields_str(indent)
-		s += '\n'
-		return s

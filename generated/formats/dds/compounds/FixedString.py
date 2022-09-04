@@ -19,6 +19,9 @@ class FixedString(BaseStruct):
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
 
+	def get_info_str(self, indent=0):
+		return f'FixedString [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+
 	def __init__(self, context, arg=0, template=None):
 		self.name = ''
 		self._context = context

@@ -37,15 +37,3 @@ class ActivitiesLink(MemStruct):
 
 	def get_info_str(self, indent=0):
 		return f'ActivitiesLink [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
-
-	def get_fields_str(self, indent=0):
-		s = ''
-		s += super().get_fields_str()
-		s += f'\n	* linked = {self.fmt_member(self.linked, indent+1)}'
-		return s
-
-	def __repr__(self, indent=0):
-		s = self.get_info_str(indent)
-		s += self.get_fields_str(indent)
-		s += '\n'
-		return s

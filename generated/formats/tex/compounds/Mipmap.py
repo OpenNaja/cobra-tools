@@ -69,19 +69,3 @@ class Mipmap(MemStruct):
 
 	def get_info_str(self, indent=0):
 		return f'Mipmap [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
-
-	def get_fields_str(self, indent=0):
-		s = ''
-		s += super().get_fields_str()
-		s += f'\n	* offset = {self.fmt_member(self.offset, indent+1)}'
-		s += f'\n	* size = {self.fmt_member(self.size, indent+1)}'
-		s += f'\n	* size_array = {self.fmt_member(self.size_array, indent+1)}'
-		s += f'\n	* size_scan = {self.fmt_member(self.size_scan, indent+1)}'
-		s += f'\n	* size_data = {self.fmt_member(self.size_data, indent+1)}'
-		return s
-
-	def __repr__(self, indent=0):
-		s = self.get_info_str(indent)
-		s += self.get_fields_str(indent)
-		s += '\n'
-		return s

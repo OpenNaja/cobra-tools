@@ -55,17 +55,3 @@ class HbDoorCutout(MemStruct):
 
 	def get_info_str(self, indent=0):
 		return f'HbDoorCutout [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
-
-	def get_fields_str(self, indent=0):
-		s = ''
-		s += super().get_fields_str()
-		s += f'\n	* height = {self.fmt_member(self.height, indent+1)}'
-		s += f'\n	* right = {self.fmt_member(self.right, indent+1)}'
-		s += f'\n	* left = {self.fmt_member(self.left, indent+1)}'
-		return s
-
-	def __repr__(self, indent=0):
-		s = self.get_info_str(indent)
-		s += self.get_fields_str(indent)
-		s += '\n'
-		return s

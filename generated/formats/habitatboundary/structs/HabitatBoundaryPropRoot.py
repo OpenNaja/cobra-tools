@@ -121,28 +121,3 @@ class HabitatBoundaryPropRoot(MemStruct):
 
 	def get_info_str(self, indent=0):
 		return f'HabitatBoundaryPropRoot [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
-
-	def get_fields_str(self, indent=0):
-		s = ''
-		s += super().get_fields_str()
-		s += f'\n	* type = {self.fmt_member(self.type, indent+1)}'
-		s += f'\n	* prefab = {self.fmt_member(self.prefab, indent+1)}'
-		s += f'\n	* u_1 = {self.fmt_member(self.u_1, indent+1)}'
-		s += f'\n	* post = {self.fmt_member(self.post, indent+1)}'
-		s += f'\n	* wall = {self.fmt_member(self.wall, indent+1)}'
-		s += f'\n	* is_guest = {self.fmt_member(self.is_guest, indent+1)}'
-		s += f'\n	* post_position = {self.fmt_member(self.post_position, indent+1)}'
-		s += f'\n	* u_2 = {self.fmt_member(self.u_2, indent+1)}'
-		s += f'\n	* door_physics = {self.fmt_member(self.door_physics, indent+1)}'
-		s += f'\n	* path_physics = {self.fmt_member(self.path_physics, indent+1)}'
-		s += f'\n	* path_join_part = {self.fmt_member(self.path_join_part, indent+1)}'
-		s += f'\n	* door_cutout = {self.fmt_member(self.door_cutout, indent+1)}'
-		s += f'\n	* small = {self.fmt_member(self.small, indent+1)}'
-		s += f'\n	* height = {self.fmt_member(self.height, indent+1)}'
-		return s
-
-	def __repr__(self, indent=0):
-		s = self.get_info_str(indent)
-		s += self.get_fields_str(indent)
-		s += '\n'
-		return s

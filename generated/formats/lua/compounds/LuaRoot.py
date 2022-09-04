@@ -87,22 +87,3 @@ class LuaRoot(MemStruct):
 
 	def get_info_str(self, indent=0):
 		return f'LuaRoot [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
-
-	def get_fields_str(self, indent=0):
-		s = ''
-		s += super().get_fields_str()
-		s += f'\n	* lua_size = {self.fmt_member(self.lua_size, indent+1)}'
-		s += f'\n	* sixteenk = {self.fmt_member(self.sixteenk, indent+1)}'
-		s += f'\n	* hash = {self.fmt_member(self.hash, indent+1)}'
-		s += f'\n	* zero_0 = {self.fmt_member(self.zero_0, indent+1)}'
-		s += f'\n	* source_path = {self.fmt_member(self.source_path, indent+1)}'
-		s += f'\n	* likely_alignment = {self.fmt_member(self.likely_alignment, indent+1)}'
-		s += f'\n	* zero_1 = {self.fmt_member(self.zero_1, indent+1)}'
-		s += f'\n	* zero_2 = {self.fmt_member(self.zero_2, indent+1)}'
-		return s
-
-	def __repr__(self, indent=0):
-		s = self.get_info_str(indent)
-		s += self.get_fields_str(indent)
-		s += '\n'
-		return s

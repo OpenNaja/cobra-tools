@@ -67,19 +67,3 @@ class ParticleAtlasHeader(MemStruct):
 
 	def get_info_str(self, indent=0):
 		return f'ParticleAtlasHeader [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
-
-	def get_fields_str(self, indent=0):
-		s = ''
-		s += super().get_fields_str()
-		s += f'\n	* tex_name = {self.fmt_member(self.tex_name, indent+1)}'
-		s += f'\n	* gfr_name = {self.fmt_member(self.gfr_name, indent+1)}'
-		s += f'\n	* id = {self.fmt_member(self.id, indent+1)}'
-		s += f'\n	* zero = {self.fmt_member(self.zero, indent+1)}'
-		s += f'\n	* dependency_name = {self.fmt_member(self.dependency_name, indent+1)}'
-		return s
-
-	def __repr__(self, indent=0):
-		s = self.get_info_str(indent)
-		s += self.get_fields_str(indent)
-		s += '\n'
-		return s

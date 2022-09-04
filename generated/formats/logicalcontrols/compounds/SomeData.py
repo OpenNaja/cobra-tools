@@ -55,18 +55,3 @@ class SomeData(MemStruct):
 
 	def get_info_str(self, indent=0):
 		return f'SomeData [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
-
-	def get_fields_str(self, indent=0):
-		s = ''
-		s += super().get_fields_str()
-		s += f'\n	* key = {self.fmt_member(self.key, indent+1)}'
-		s += f'\n	* extra = {self.fmt_member(self.extra, indent+1)}'
-		s += f'\n	* a = {self.fmt_member(self.a, indent+1)}'
-		s += f'\n	* b = {self.fmt_member(self.b, indent+1)}'
-		return s
-
-	def __repr__(self, indent=0):
-		s = self.get_info_str(indent)
-		s += self.get_fields_str(indent)
-		s += '\n'
-		return s

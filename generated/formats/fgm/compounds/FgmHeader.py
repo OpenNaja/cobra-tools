@@ -125,24 +125,3 @@ class FgmHeader(MemStruct):
 
 	def get_info_str(self, indent=0):
 		return f'FgmHeader [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
-
-	def get_fields_str(self, indent=0):
-		s = ''
-		s += super().get_fields_str()
-		s += f'\n	* _texture_count = {self.fmt_member(self._texture_count, indent+1)}'
-		s += f'\n	* _attribute_count = {self.fmt_member(self._attribute_count, indent+1)}'
-		s += f'\n	* textures = {self.fmt_member(self.textures, indent+1)}'
-		s += f'\n	* attributes = {self.fmt_member(self.attributes, indent+1)}'
-		s += f'\n	* name_foreach_textures = {self.fmt_member(self.name_foreach_textures, indent+1)}'
-		s += f'\n	* value_foreach_attributes = {self.fmt_member(self.value_foreach_attributes, indent+1)}'
-		s += f'\n	* _unk_0 = {self.fmt_member(self._unk_0, indent+1)}'
-		s += f'\n	* _unk_1 = {self.fmt_member(self._unk_1, indent+1)}'
-		s += f'\n	* _unk_2 = {self.fmt_member(self._unk_2, indent+1)}'
-		s += f'\n	* _unk_3 = {self.fmt_member(self._unk_3, indent+1)}'
-		return s
-
-	def __repr__(self, indent=0):
-		s = self.get_info_str(indent)
-		s += self.get_fields_str(indent)
-		s += '\n'
-		return s

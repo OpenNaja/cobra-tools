@@ -70,20 +70,3 @@ class RootFrag(MemStruct):
 
 	def get_info_str(self, indent=0):
 		return f'RootFrag [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
-
-	def get_fields_str(self, indent=0):
-		s = ''
-		s += super().get_fields_str()
-		s += f'\n	* mat_type = {self.fmt_member(self.mat_type, indent+1)}'
-		s += f'\n	* textures = {self.fmt_member(self.textures, indent+1)}'
-		s += f'\n	* tex_count = {self.fmt_member(self.tex_count, indent+1)}'
-		s += f'\n	* materials = {self.fmt_member(self.materials, indent+1)}'
-		s += f'\n	* mat_count = {self.fmt_member(self.mat_count, indent+1)}'
-		s += f'\n	* unk = {self.fmt_member(self.unk, indent+1)}'
-		return s
-
-	def __repr__(self, indent=0):
-		s = self.get_info_str(indent)
-		s += self.get_fields_str(indent)
-		s += '\n'
-		return s

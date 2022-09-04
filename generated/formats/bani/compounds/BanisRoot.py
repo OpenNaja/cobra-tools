@@ -85,21 +85,3 @@ class BanisRoot(MemStruct):
 
 	def get_info_str(self, indent=0):
 		return f'BanisRoot [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
-
-	def get_fields_str(self, indent=0):
-		s = ''
-		s += super().get_fields_str()
-		s += f'\n	* zeros = {self.fmt_member(self.zeros, indent+1)}'
-		s += f'\n	* bytes_per_frame = {self.fmt_member(self.bytes_per_frame, indent+1)}'
-		s += f'\n	* bytes_per_bone = {self.fmt_member(self.bytes_per_bone, indent+1)}'
-		s += f'\n	* num_frames = {self.fmt_member(self.num_frames, indent+1)}'
-		s += f'\n	* num_bones = {self.fmt_member(self.num_bones, indent+1)}'
-		s += f'\n	* loc_scale = {self.fmt_member(self.loc_scale, indent+1)}'
-		s += f'\n	* loc_offset = {self.fmt_member(self.loc_offset, indent+1)}'
-		return s
-
-	def __repr__(self, indent=0):
-		s = self.get_info_str(indent)
-		s += self.get_fields_str(indent)
-		s += '\n'
-		return s

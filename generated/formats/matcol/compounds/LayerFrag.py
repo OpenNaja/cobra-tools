@@ -84,23 +84,3 @@ class LayerFrag(MemStruct):
 
 	def get_info_str(self, indent=0):
 		return f'LayerFrag [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
-
-	def get_fields_str(self, indent=0):
-		s = ''
-		s += super().get_fields_str()
-		s += f'\n	* layer_name = {self.fmt_member(self.layer_name, indent+1)}'
-		s += f'\n	* u_0 = {self.fmt_member(self.u_0, indent+1)}'
-		s += f'\n	* u_1 = {self.fmt_member(self.u_1, indent+1)}'
-		s += f'\n	* infos = {self.fmt_member(self.infos, indent+1)}'
-		s += f'\n	* info_count = {self.fmt_member(self.info_count, indent+1)}'
-		s += f'\n	* u_2 = {self.fmt_member(self.u_2, indent+1)}'
-		s += f'\n	* u_3 = {self.fmt_member(self.u_3, indent+1)}'
-		s += f'\n	* attribs = {self.fmt_member(self.attribs, indent+1)}'
-		s += f'\n	* attrib_count = {self.fmt_member(self.attrib_count, indent+1)}'
-		return s
-
-	def __repr__(self, indent=0):
-		s = self.get_info_str(indent)
-		s += self.get_fields_str(indent)
-		s += '\n'
-		return s

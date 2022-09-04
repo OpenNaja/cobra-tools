@@ -96,24 +96,6 @@ class DataEntry(BaseStruct):
 	def get_info_str(self, indent=0):
 		return f'DataEntry [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
-	def get_fields_str(self, indent=0):
-		s = ''
-		s += super().get_fields_str()
-		s += f'\n	* file_hash = {self.fmt_member(self.file_hash, indent+1)}'
-		s += f'\n	* ext_hash = {self.fmt_member(self.ext_hash, indent+1)}'
-		s += f'\n	* set_index = {self.fmt_member(self.set_index, indent+1)}'
-		s += f'\n	* buffer_count = {self.fmt_member(self.buffer_count, indent+1)}'
-		s += f'\n	* zero = {self.fmt_member(self.zero, indent+1)}'
-		s += f'\n	* size_1 = {self.fmt_member(self.size_1, indent+1)}'
-		s += f'\n	* size_2 = {self.fmt_member(self.size_2, indent+1)}'
-		return s
-
-	def __repr__(self, indent=0):
-		s = self.get_info_str(indent)
-		s += self.get_fields_str(indent)
-		s += '\n'
-		return s
-
 	def update_data(self, datas):
 		"""Load datas into this DataEntry's buffers, and update its size values according to an assumed pattern
 		data : list of bytes object, each representing the data of one buffer for this data entry"""

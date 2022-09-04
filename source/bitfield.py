@@ -73,6 +73,12 @@ class BasicBitfield(object, metaclass=BitfieldMetaClass):
     def to_xml(elem, prop, instance, arguments, debug):
         elem.attrib[prop] = str(instance._value)
 
+    @staticmethod
+    def fmt_member(member, indent=0):
+        lines = str(member).split("\n")
+        lines_new = [lines[0], ] + ["\t" * indent + line for line in lines[1:]]
+        return "\n".join(lines_new)
+
     def __repr__(self):
         return self.__str__()
 

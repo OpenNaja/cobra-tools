@@ -117,24 +117,3 @@ class BnkBufferData(BaseStruct):
 
 	def get_info_str(self, indent=0):
 		return f'BnkBufferData [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
-
-	def get_fields_str(self, indent=0):
-		s = ''
-		s += super().get_fields_str()
-		s += f'\n	* size_b = {self.fmt_member(self.size_b, indent+1)}'
-		s += f'\n	* buffer_count = {self.fmt_member(self.buffer_count, indent+1)}'
-		s += f'\n	* count_2 = {self.fmt_member(self.count_2, indent+1)}'
-		s += f'\n	* stream_info_count = {self.fmt_member(self.stream_info_count, indent+1)}'
-		s += f'\n	* zeros = {self.fmt_member(self.zeros, indent+1)}'
-		s += f'\n	* zeros_per_buffer = {self.fmt_member(self.zeros_per_buffer, indent+1)}'
-		s += f'\n	* stream_infos = {self.fmt_member(self.stream_infos, indent+1)}'
-		s += f'\n	* name = {self.fmt_member(self.name, indent+1)}'
-		s += f'\n	* external_b_suffix = {self.fmt_member(self.external_b_suffix, indent+1)}'
-		s += f'\n	* external_s_suffix = {self.fmt_member(self.external_s_suffix, indent+1)}'
-		return s
-
-	def __repr__(self, indent=0):
-		s = self.get_info_str(indent)
-		s += self.get_fields_str(indent)
-		s += '\n'
-		return s

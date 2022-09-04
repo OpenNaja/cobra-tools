@@ -51,16 +51,3 @@ class StreamsZTHeader(BaseStruct):
 
 	def get_info_str(self, indent=0):
 		return f'StreamsZTHeader [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
-
-	def get_fields_str(self, indent=0):
-		s = ''
-		s += super().get_fields_str()
-		s += f'\n	* weird_padding = {self.fmt_member(self.weird_padding, indent+1)}'
-		s += f'\n	* unks = {self.fmt_member(self.unks, indent+1)}'
-		return s
-
-	def __repr__(self, indent=0):
-		s = self.get_info_str(indent)
-		s += self.get_fields_str(indent)
-		s += '\n'
-		return s

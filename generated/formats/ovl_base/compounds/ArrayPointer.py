@@ -40,17 +40,6 @@ class ArrayPointer(Pointer):
 	def get_info_str(self, indent=0):
 		return f'ArrayPointer [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
-	def get_fields_str(self, indent=0):
-		s = ''
-		s += super().get_fields_str()
-		return s
-
-	def __repr__(self, indent=0):
-		s = self.get_info_str(indent)
-		s += self.get_fields_str(indent)
-		s += '\n'
-		return s
-
 	def read_template(self):
 		if self.template:
 			self.data = Array.from_stream(self.frag.struct_ptr.stream, self.context, 0, None, (self.arg,), self.template)

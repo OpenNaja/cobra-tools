@@ -116,22 +116,3 @@ class Struct7(BaseStruct):
 
 	def get_info_str(self, indent=0):
 		return f'Struct7 [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
-
-	def get_fields_str(self, indent=0):
-		s = ''
-		s += super().get_fields_str()
-		s += f'\n	* weird_padding = {self.fmt_member(self.weird_padding, indent+1)}'
-		s += f'\n	* count_7 = {self.fmt_member(self.count_7, indent+1)}'
-		s += f'\n	* zero_0 = {self.fmt_member(self.zero_0, indent+1)}'
-		s += f'\n	* flag = {self.fmt_member(self.flag, indent+1)}'
-		s += f'\n	* zero_2 = {self.fmt_member(self.zero_2, indent+1)}'
-		s += f'\n	* unknown_list = {self.fmt_member(self.unknown_list, indent+1)}'
-		s += f'\n	* padding = {self.fmt_member(self.padding, indent+1)}'
-		s += f'\n	* alignment = {self.fmt_member(self.alignment, indent+1)}'
-		return s
-
-	def __repr__(self, indent=0):
-		s = self.get_info_str(indent)
-		s += self.get_fields_str(indent)
-		s += '\n'
-		return s

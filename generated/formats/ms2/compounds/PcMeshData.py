@@ -135,31 +135,6 @@ class PcMeshData(MeshData):
 	def get_info_str(self, indent=0):
 		return f'PcMeshData [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
-	def get_fields_str(self, indent=0):
-		s = ''
-		s += super().get_fields_str()
-		s += f'\n	* tri_index_count_a = {self.fmt_member(self.tri_index_count_a, indent+1)}'
-		s += f'\n	* vertex_count = {self.fmt_member(self.vertex_count, indent+1)}'
-		s += f'\n	* tri_offset = {self.fmt_member(self.tri_offset, indent+1)}'
-		s += f'\n	* tri_index_count = {self.fmt_member(self.tri_index_count, indent+1)}'
-		s += f'\n	* vertex_offset = {self.fmt_member(self.vertex_offset, indent+1)}'
-		s += f'\n	* weights_offset = {self.fmt_member(self.weights_offset, indent+1)}'
-		s += f'\n	* uv_offset = {self.fmt_member(self.uv_offset, indent+1)}'
-		s += f'\n	* zero_b = {self.fmt_member(self.zero_b, indent+1)}'
-		s += f'\n	* vertex_color_offset = {self.fmt_member(self.vertex_color_offset, indent+1)}'
-		s += f'\n	* vertex_offset_within_lod = {self.fmt_member(self.vertex_offset_within_lod, indent+1)}'
-		s += f'\n	* poweroftwo = {self.fmt_member(self.poweroftwo, indent+1)}'
-		s += f'\n	* zero = {self.fmt_member(self.zero, indent+1)}'
-		s += f'\n	* unknown_07 = {self.fmt_member(self.unknown_07, indent+1)}'
-		s += f'\n	* flag = {self.fmt_member(self.flag, indent+1)}'
-		return s
-
-	def __repr__(self, indent=0):
-		s = self.get_info_str(indent)
-		s += self.get_fields_str(indent)
-		s += '\n'
-		return s
-
 	def init_arrays(self):
 		self.vertices = np.empty((self.vertex_count, 3), np.float32)
 		self.use_blended_weights = np.empty(self.vertex_count, np.bool)

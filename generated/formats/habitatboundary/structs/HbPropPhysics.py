@@ -72,20 +72,3 @@ class HbPropPhysics(MemStruct):
 
 	def get_info_str(self, indent=0):
 		return f'HbPropPhysics [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
-
-	def get_fields_str(self, indent=0):
-		s = ''
-		s += super().get_fields_str()
-		s += f'\n	* pad_top = {self.fmt_member(self.pad_top, indent+1)}'
-		s += f'\n	* z_pos = {self.fmt_member(self.z_pos, indent+1)}'
-		s += f'\n	* half_width = {self.fmt_member(self.half_width, indent+1)}'
-		s += f'\n	* pad_bottom = {self.fmt_member(self.pad_bottom, indent+1)}'
-		s += f'\n	* half_depth = {self.fmt_member(self.half_depth, indent+1)}'
-		s += f'\n	* u_6 = {self.fmt_member(self.u_6, indent+1)}'
-		return s
-
-	def __repr__(self, indent=0):
-		s = self.get_info_str(indent)
-		s += self.get_fields_str(indent)
-		s += '\n'
-		return s

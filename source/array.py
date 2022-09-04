@@ -187,6 +187,12 @@ class Array(list):
     def set_field(instance, key, value):
         instance[key] = value
 
+    @staticmethod
+    def fmt_member(member, indent=0):
+        lines = str(member).split("\n")
+        lines_new = [lines[0], ] + ["\t" * indent + line for line in lines[1:]]
+        return "\n".join(lines_new)
+
     @property
     def class_name(self):
         """Returns the lowercase name of the class, eg. 'variant'"""

@@ -51,17 +51,3 @@ class HbPostSize(MemStruct):
 
 	def get_info_str(self, indent=0):
 		return f'HbPostSize [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
-
-	def get_fields_str(self, indent=0):
-		s = ''
-		s += super().get_fields_str()
-		s += f'\n	* front_back = {self.fmt_member(self.front_back, indent+1)}'
-		s += f'\n	* left_right = {self.fmt_member(self.left_right, indent+1)}'
-		s += f'\n	* top = {self.fmt_member(self.top, indent+1)}'
-		return s
-
-	def __repr__(self, indent=0):
-		s = self.get_info_str(indent)
-		s += self.get_fields_str(indent)
-		s += '\n'
-		return s

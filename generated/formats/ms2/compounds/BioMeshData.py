@@ -104,25 +104,6 @@ class BioMeshData(MeshData):
 	def get_info_str(self, indent=0):
 		return f'BioMeshData [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
-	def get_fields_str(self, indent=0):
-		s = ''
-		s += super().get_fields_str()
-		s += f'\n	* chunks_offset = {self.fmt_member(self.chunks_offset, indent+1)}'
-		s += f'\n	* chunks_count = {self.fmt_member(self.chunks_count, indent+1)}'
-		s += f'\n	* tris_count = {self.fmt_member(self.tris_count, indent+1)}'
-		s += f'\n	* vertex_count = {self.fmt_member(self.vertex_count, indent+1)}'
-		s += f'\n	* zero_1 = {self.fmt_member(self.zero_1, indent+1)}'
-		s += f'\n	* poweroftwo = {self.fmt_member(self.poweroftwo, indent+1)}'
-		s += f'\n	* unk_floats = {self.fmt_member(self.unk_floats, indent+1)}'
-		s += f'\n	* flag = {self.fmt_member(self.flag, indent+1)}'
-		return s
-
-	def __repr__(self, indent=0):
-		s = self.get_info_str(indent)
-		s += self.get_fields_str(indent)
-		s += '\n'
-		return s
-
 	# @property
 	def get_stream_index(self):
 		# logging.debug(f"Using stream {self.stream_info.offset}")

@@ -53,17 +53,3 @@ class DataPointer(BaseStruct):
 
 	def get_info_str(self, indent=0):
 		return f'DataPointer [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
-
-	def get_fields_str(self, indent=0):
-		s = ''
-		s += super().get_fields_str()
-		s += f'\n	* wem_id = {self.fmt_member(self.wem_id, indent+1)}'
-		s += f'\n	* data_section_offset = {self.fmt_member(self.data_section_offset, indent+1)}'
-		s += f'\n	* wem_filesize = {self.fmt_member(self.wem_filesize, indent+1)}'
-		return s
-
-	def __repr__(self, indent=0):
-		s = self.get_info_str(indent)
-		s += self.get_fields_str(indent)
-		s += '\n'
-		return s

@@ -52,17 +52,3 @@ class JointInfo(CommonJointInfo):
 
 	def get_info_str(self, indent=0):
 		return f'JointInfo [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
-
-	def get_fields_str(self, indent=0):
-		s = ''
-		s += super().get_fields_str()
-		s += f'\n	* zero = {self.fmt_member(self.zero, indent+1)}'
-		s += f'\n	* zeros_per_hitcheck = {self.fmt_member(self.zeros_per_hitcheck, indent+1)}'
-		s += f'\n	* hitchecks = {self.fmt_member(self.hitchecks, indent+1)}'
-		return s
-
-	def __repr__(self, indent=0):
-		s = self.get_info_str(indent)
-		s += self.get_fields_str(indent)
-		s += '\n'
-		return s

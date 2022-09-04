@@ -87,23 +87,3 @@ class PathResource(MemStruct):
 
 	def get_info_str(self, indent=0):
 		return f'PathResource [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
-
-	def get_fields_str(self, indent=0):
-		s = ''
-		s += super().get_fields_str()
-		s += f'\n	* pathmaterial = {self.fmt_member(self.pathmaterial, indent+1)}'
-		s += f'\n	* pathextrusion_kerb = {self.fmt_member(self.pathextrusion_kerb, indent+1)}'
-		s += f'\n	* pathextrusion_railing = {self.fmt_member(self.pathextrusion_railing, indent+1)}'
-		s += f'\n	* pathextrusion_ground = {self.fmt_member(self.pathextrusion_ground, indent+1)}'
-		s += f'\n	* pathsupport = {self.fmt_member(self.pathsupport, indent+1)}'
-		s += f'\n	* path_type = {self.fmt_member(self.path_type, indent+1)}'
-		s += f'\n	* path_sub_type = {self.fmt_member(self.path_sub_type, indent+1)}'
-		s += f'\n	* unk_byte_1 = {self.fmt_member(self.unk_byte_1, indent+1)}'
-		s += f'\n	* unk_byte_2 = {self.fmt_member(self.unk_byte_2, indent+1)}'
-		return s
-
-	def __repr__(self, indent=0):
-		s = self.get_info_str(indent)
-		s += self.get_fields_str(indent)
-		s += '\n'
-		return s

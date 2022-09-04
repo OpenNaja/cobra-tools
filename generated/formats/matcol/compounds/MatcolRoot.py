@@ -49,16 +49,3 @@ class MatcolRoot(MemStruct):
 
 	def get_info_str(self, indent=0):
 		return f'MatcolRoot [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
-
-	def get_fields_str(self, indent=0):
-		s = ''
-		s += super().get_fields_str()
-		s += f'\n	* main = {self.fmt_member(self.main, indent+1)}'
-		s += f'\n	* one = {self.fmt_member(self.one, indent+1)}'
-		return s
-
-	def __repr__(self, indent=0):
-		s = self.get_info_str(indent)
-		s += self.get_fields_str(indent)
-		s += '\n'
-		return s

@@ -102,25 +102,3 @@ class AnimationActivityData(MemStruct):
 
 	def get_info_str(self, indent=0):
 		return f'AnimationActivityData [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
-
-	def get_fields_str(self, indent=0):
-		s = ''
-		s += super().get_fields_str()
-		s += f'\n	* mani = {self.fmt_member(self.mani, indent+1)}'
-		s += f'\n	* animation_flags = {self.fmt_member(self.animation_flags, indent+1)}'
-		s += f'\n	* priorities = {self.fmt_member(self.priorities, indent+1)}'
-		s += f'\n	* weight = {self.fmt_member(self.weight, indent+1)}'
-		s += f'\n	* speed = {self.fmt_member(self.speed, indent+1)}'
-		s += f'\n	* starting_prop_through = {self.fmt_member(self.starting_prop_through, indent+1)}'
-		s += f'\n	* lead_out_time = {self.fmt_member(self.lead_out_time, indent+1)}'
-		s += f'\n	* sync_prop_through_variable = {self.fmt_member(self.sync_prop_through_variable, indent+1)}'
-		s += f'\n	* count_6 = {self.fmt_member(self.count_6, indent+1)}'
-		s += f'\n	* output_prop_through_variable = {self.fmt_member(self.output_prop_through_variable, indent+1)}'
-		s += f'\n	* additional_data_streams = {self.fmt_member(self.additional_data_streams, indent+1)}'
-		return s
-
-	def __repr__(self, indent=0):
-		s = self.get_info_str(indent)
-		s += self.get_fields_str(indent)
-		s += '\n'
-		return s

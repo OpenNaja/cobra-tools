@@ -48,16 +48,3 @@ class TransStructStop(MemStruct):
 
 	def get_info_str(self, indent=0):
 		return f'TransStructStop [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
-
-	def get_fields_str(self, indent=0):
-		s = ''
-		s += super().get_fields_str()
-		s += f'\n	* another_mrfentry_2 = {self.fmt_member(self.another_mrfentry_2, indent+1)}'
-		s += f'\n	* other_states = {self.fmt_member(self.other_states, indent+1)}'
-		return s
-
-	def __repr__(self, indent=0):
-		s = self.get_info_str(indent)
-		s += self.get_fields_str(indent)
-		s += '\n'
-		return s

@@ -54,17 +54,3 @@ class Texture(MemStruct):
 
 	def get_info_str(self, indent=0):
 		return f'Texture [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
-
-	def get_fields_str(self, indent=0):
-		s = ''
-		s += super().get_fields_str()
-		s += f'\n	* fgm_name = {self.fmt_member(self.fgm_name, indent+1)}'
-		s += f'\n	* texture_suffix = {self.fmt_member(self.texture_suffix, indent+1)}'
-		s += f'\n	* texture_type = {self.fmt_member(self.texture_type, indent+1)}'
-		return s
-
-	def __repr__(self, indent=0):
-		s = self.get_info_str(indent)
-		s += self.get_fields_str(indent)
-		s += '\n'
-		return s

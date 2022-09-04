@@ -136,30 +136,10 @@ class Compound(BaseClass):
                 for union in self.field_unions:
                     condition = union.write_filtered_attributes(f, condition, target_variable="instance")
 
-            if "def __repr__(" not in self.src_code:
+            if "def get_info_str(" not in self.src_code:
                 self.write_line(f)
                 self.write_line(f, 1, "def get_info_str(self, indent=0):")
                 self.write_line(f, 2, f"return f'{self.class_name} [Size: {{self.io_size}}, Address: {{self.io_start}}] {{self.name}}'")
-
-                self.write_line(f)
-                self.write_line(f, 1, "def get_fields_str(self, indent=0):")
-                self.write_line(f, 2, "s = ''")
-                if self.class_basename:
-                    self.write_line(f, 2, "s += super().get_fields_str()")
-                for union in self.field_unions:
-                    # rep = f"self.{union.name}.__repr__(indent+1)"
-                    rep = f"self.fmt_member(self.{union.name}, indent+1)"
-                    self.write_line(f, 2, f"s += f'\\n\t* {union.name} = {{{rep}}}'")
-                self.write_line(f, 2, "return s")
-
-                self.write_line(f)
-                self.write_line(f, 1, "def __repr__(self, indent=0):")
-                self.write_lines(f, 2, (
-                    "s = self.get_info_str(indent)",
-                    "s += self.get_fields_str(indent)",
-                    "s += '\\n'",
-                    "return s"
-                ))
 
             f.write(self.grab_src_snippet("# START_CLASS"))
             self.write_line(f)

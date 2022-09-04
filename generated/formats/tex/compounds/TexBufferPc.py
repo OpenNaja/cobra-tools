@@ -62,18 +62,3 @@ class TexBufferPc(MemStruct):
 
 	def get_info_str(self, indent=0):
 		return f'TexBufferPc [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
-
-	def get_fields_str(self, indent=0):
-		s = ''
-		s += super().get_fields_str()
-		s += f'\n	* width = {self.fmt_member(self.width, indent+1)}'
-		s += f'\n	* height = {self.fmt_member(self.height, indent+1)}'
-		s += f'\n	* array_size = {self.fmt_member(self.array_size, indent+1)}'
-		s += f'\n	* num_mips = {self.fmt_member(self.num_mips, indent+1)}'
-		return s
-
-	def __repr__(self, indent=0):
-		s = self.get_info_str(indent)
-		s += self.get_fields_str(indent)
-		s += '\n'
-		return s

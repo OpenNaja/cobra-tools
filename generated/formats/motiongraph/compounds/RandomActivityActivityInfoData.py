@@ -67,19 +67,3 @@ class RandomActivityActivityInfoData(MemStruct):
 
 	def get_info_str(self, indent=0):
 		return f'RandomActivityActivityInfoData [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
-
-	def get_fields_str(self, indent=0):
-		s = ''
-		s += super().get_fields_str()
-		s += f'\n	* enum_variable = {self.fmt_member(self.enum_variable, indent+1)}'
-		s += f'\n	* activities = {self.fmt_member(self.activities, indent+1)}'
-		s += f'\n	* activities_count = {self.fmt_member(self.activities_count, indent+1)}'
-		s += f'\n	* blend_time = {self.fmt_member(self.blend_time, indent+1)}'
-		s += f'\n	* mode = {self.fmt_member(self.mode, indent+1)}'
-		return s
-
-	def __repr__(self, indent=0):
-		s = self.get_info_str(indent)
-		s += self.get_fields_str(indent)
-		s += '\n'
-		return s

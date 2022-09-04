@@ -61,19 +61,3 @@ class Area(BaseStruct):
 
 	def get_info_str(self, indent=0):
 		return f'Area [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
-
-	def get_fields_str(self, indent=0):
-		s = ''
-		s += super().get_fields_str()
-		s += f'\n	* id = {self.fmt_member(self.id, indent+1)}'
-		s += f'\n	* width_1 = {self.fmt_member(self.width_1, indent+1)}'
-		s += f'\n	* height_1 = {self.fmt_member(self.height_1, indent+1)}'
-		s += f'\n	* width_2 = {self.fmt_member(self.width_2, indent+1)}'
-		s += f'\n	* height_2 = {self.fmt_member(self.height_2, indent+1)}'
-		return s
-
-	def __repr__(self, indent=0):
-		s = self.get_info_str(indent)
-		s += self.get_fields_str(indent)
-		s += '\n'
-		return s

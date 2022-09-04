@@ -56,20 +56,6 @@ class Triplet(BaseStruct):
 	def get_info_str(self, indent=0):
 		return f'Triplet [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
-	def get_fields_str(self, indent=0):
-		s = ''
-		s += super().get_fields_str()
-		s += f'\n	* a = {self.fmt_member(self.a, indent+1)}'
-		s += f'\n	* b = {self.fmt_member(self.b, indent+1)}'
-		s += f'\n	* c = {self.fmt_member(self.c, indent+1)}'
-		return s
-
-	def __repr__(self, indent=0):
-		s = self.get_info_str(indent)
-		s += self.get_fields_str(indent)
-		s += '\n'
-		return s
-
 	def __eq__(self, other):
 		if isinstance(other, Triplet):
 			return self.a == other.a and self.b == other.b and self.c == other.c

@@ -116,27 +116,3 @@ class VoxelskirtRoot(MemStruct):
 
 	def get_info_str(self, indent=0):
 		return f'VoxelskirtRoot [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
-
-	def get_fields_str(self, indent=0):
-		s = ''
-		s += super().get_fields_str()
-		s += f'\n	* zero = {self.fmt_member(self.zero, indent+1)}'
-		s += f'\n	* data_size = {self.fmt_member(self.data_size, indent+1)}'
-		s += f'\n	* x = {self.fmt_member(self.x, indent+1)}'
-		s += f'\n	* y = {self.fmt_member(self.y, indent+1)}'
-		s += f'\n	* scale = {self.fmt_member(self.scale, indent+1)}'
-		s += f'\n	* padding = {self.fmt_member(self.padding, indent+1)}'
-		s += f'\n	* height_offset = {self.fmt_member(self.height_offset, indent+1)}'
-		s += f'\n	* weights_offset = {self.fmt_member(self.weights_offset, indent+1)}'
-		s += f'\n	* layers = {self.fmt_member(self.layers, indent+1)}'
-		s += f'\n	* areas = {self.fmt_member(self.areas, indent+1)}'
-		s += f'\n	* entity_groups = {self.fmt_member(self.entity_groups, indent+1)}'
-		s += f'\n	* materials = {self.fmt_member(self.materials, indent+1)}'
-		s += f'\n	* names = {self.fmt_member(self.names, indent+1)}'
-		return s
-
-	def __repr__(self, indent=0):
-		s = self.get_info_str(indent)
-		s += self.get_fields_str(indent)
-		s += '\n'
-		return s

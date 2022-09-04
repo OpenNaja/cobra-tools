@@ -100,24 +100,3 @@ class WorldHeader(MemStruct):
 
 	def get_info_str(self, indent=0):
 		return f'WorldHeader [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
-
-	def get_fields_str(self, indent=0):
-		s = ''
-		s += super().get_fields_str()
-		s += f'\n	* world_type = {self.fmt_member(self.world_type, indent+1)}'
-		s += f'\n	* asset_pkgs = {self.fmt_member(self.asset_pkgs, indent+1)}'
-		s += f'\n	* asset_pkg_count = {self.fmt_member(self.asset_pkg_count, indent+1)}'
-		s += f'\n	* lua_name = {self.fmt_member(self.lua_name, indent+1)}'
-		s += f'\n	* ptr_0 = {self.fmt_member(self.ptr_0, indent+1)}'
-		s += f'\n	* ptr_1 = {self.fmt_member(self.ptr_1, indent+1)}'
-		s += f'\n	* prefabs = {self.fmt_member(self.prefabs, indent+1)}'
-		s += f'\n	* ptr_2 = {self.fmt_member(self.ptr_2, indent+1)}'
-		s += f'\n	* prefab_count = {self.fmt_member(self.prefab_count, indent+1)}'
-		s += f'\n	* ptr_3 = {self.fmt_member(self.ptr_3, indent+1)}'
-		return s
-
-	def __repr__(self, indent=0):
-		s = self.get_info_str(indent)
-		s += self.get_fields_str(indent)
-		s += '\n'
-		return s

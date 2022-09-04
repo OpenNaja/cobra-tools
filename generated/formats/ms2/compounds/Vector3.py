@@ -53,6 +53,9 @@ class Vector3(BaseStruct):
 		yield 'y', Float, (0, None), (False, None)
 		yield 'z', Float, (0, None), (False, None)
 
+	def get_info_str(self, indent=0):
+		return f'Vector3 [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+
 	def set(self, vec):
 		if hasattr(vec, "x"):
 			self.x = vec.x

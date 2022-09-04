@@ -75,20 +75,3 @@ class DataStreamResourceData(MemStruct):
 
 	def get_info_str(self, indent=0):
 		return f'DataStreamResourceData [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
-
-	def get_fields_str(self, indent=0):
-		s = ''
-		s += super().get_fields_str()
-		s += f'\n	* curve_type = {self.fmt_member(self.curve_type, indent+1)}'
-		s += f'\n	* ds_name = {self.fmt_member(self.ds_name, indent+1)}'
-		s += f'\n	* type = {self.fmt_member(self.type, indent+1)}'
-		s += f'\n	* bone_i_d = {self.fmt_member(self.bone_i_d, indent+1)}'
-		s += f'\n	* location = {self.fmt_member(self.location, indent+1)}'
-		s += f'\n	* curve = {self.fmt_member(self.curve, indent+1)}'
-		return s
-
-	def __repr__(self, indent=0):
-		s = self.get_info_str(indent)
-		s += self.get_fields_str(indent)
-		s += '\n'
-		return s

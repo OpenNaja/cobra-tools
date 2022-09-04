@@ -82,22 +82,3 @@ class OvsHeader(BaseStruct):
 
 	def get_info_str(self, indent=0):
 		return f'OvsHeader [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
-
-	def get_fields_str(self, indent=0):
-		s = ''
-		s += super().get_fields_str()
-		s += f'\n	* pool_groups = {self.fmt_member(self.pool_groups, indent+1)}'
-		s += f'\n	* pools = {self.fmt_member(self.pools, indent+1)}'
-		s += f'\n	* data_entries = {self.fmt_member(self.data_entries, indent+1)}'
-		s += f'\n	* buffer_entries = {self.fmt_member(self.buffer_entries, indent+1)}'
-		s += f'\n	* buffer_groups = {self.fmt_member(self.buffer_groups, indent+1)}'
-		s += f'\n	* root_entries = {self.fmt_member(self.root_entries, indent+1)}'
-		s += f'\n	* fragments = {self.fmt_member(self.fragments, indent+1)}'
-		s += f'\n	* set_header = {self.fmt_member(self.set_header, indent+1)}'
-		return s
-
-	def __repr__(self, indent=0):
-		s = self.get_info_str(indent)
-		s += self.get_fields_str(indent)
-		s += '\n'
-		return s

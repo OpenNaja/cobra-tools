@@ -82,21 +82,3 @@ class ClimbproofDataRoot(MemStruct):
 
 	def get_info_str(self, indent=0):
 		return f'ClimbproofDataRoot [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
-
-	def get_fields_str(self, indent=0):
-		s = ''
-		s += super().get_fields_str()
-		s += f'\n	* climb_proof = {self.fmt_member(self.climb_proof, indent+1)}'
-		s += f'\n	* climb_proof_cap_start = {self.fmt_member(self.climb_proof_cap_start, indent+1)}'
-		s += f'\n	* climb_proof_cap_end = {self.fmt_member(self.climb_proof_cap_end, indent+1)}'
-		s += f'\n	* climb_proof_bracket = {self.fmt_member(self.climb_proof_bracket, indent+1)}'
-		s += f'\n	* post_gap = {self.fmt_member(self.post_gap, indent+1)}'
-		s += f'\n	* u_1 = {self.fmt_member(self.u_1, indent+1)}'
-		s += f'\n	* zero = {self.fmt_member(self.zero, indent+1)}'
-		return s
-
-	def __repr__(self, indent=0):
-		s = self.get_info_str(indent)
-		s += self.get_fields_str(indent)
-		s += '\n'
-		return s

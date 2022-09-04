@@ -94,25 +94,3 @@ class FctRoot(MemStruct):
 
 	def get_info_str(self, indent=0):
 		return f'FctRoot [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
-
-	def get_fields_str(self, indent=0):
-		s = ''
-		s += super().get_fields_str()
-		s += f'\n	* u_0 = {self.fmt_member(self.u_0, indent+1)}'
-		s += f'\n	* u_1 = {self.fmt_member(self.u_1, indent+1)}'
-		s += f'\n	* a = {self.fmt_member(self.a, indent+1)}'
-		s += f'\n	* b = {self.fmt_member(self.b, indent+1)}'
-		s += f'\n	* c = {self.fmt_member(self.c, indent+1)}'
-		s += f'\n	* minus_1 = {self.fmt_member(self.minus_1, indent+1)}'
-		s += f'\n	* z_0 = {self.fmt_member(self.z_0, indent+1)}'
-		s += f'\n	* z_1 = {self.fmt_member(self.z_1, indent+1)}'
-		s += f'\n	* z_2 = {self.fmt_member(self.z_2, indent+1)}'
-		s += f'\n	* offset = {self.fmt_member(self.offset, indent+1)}'
-		s += f'\n	* fonts = {self.fmt_member(self.fonts, indent+1)}'
-		return s
-
-	def __repr__(self, indent=0):
-		s = self.get_info_str(indent)
-		s += self.get_fields_str(indent)
-		s += '\n'
-		return s

@@ -50,17 +50,3 @@ class PathSupport(MemStruct):
 
 	def get_info_str(self, indent=0):
 		return f'PathSupport [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
-
-	def get_fields_str(self, indent=0):
-		s = ''
-		s += super().get_fields_str()
-		s += f'\n	* support = {self.fmt_member(self.support, indent+1)}'
-		s += f'\n	* distance = {self.fmt_member(self.distance, indent+1)}'
-		s += f'\n	* _unk_int_1 = {self.fmt_member(self._unk_int_1, indent+1)}'
-		return s
-
-	def __repr__(self, indent=0):
-		s = self.get_info_str(indent)
-		s += self.get_fields_str(indent)
-		s += '\n'
-		return s

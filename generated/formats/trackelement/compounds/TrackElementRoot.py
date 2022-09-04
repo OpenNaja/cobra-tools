@@ -57,18 +57,3 @@ class TrackElementRoot(MemStruct):
 
 	def get_info_str(self, indent=0):
 		return f'TrackElementRoot [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
-
-	def get_fields_str(self, indent=0):
-		s = ''
-		s += super().get_fields_str()
-		s += f'\n	* track_data = {self.fmt_member(self.track_data, indent+1)}'
-		s += f'\n	* count = {self.fmt_member(self.count, indent+1)}'
-		s += f'\n	* unk_0 = {self.fmt_member(self.unk_0, indent+1)}'
-		s += f'\n	* unk_1 = {self.fmt_member(self.unk_1, indent+1)}'
-		return s
-
-	def __repr__(self, indent=0):
-		s = self.get_info_str(indent)
-		s += self.get_fields_str(indent)
-		s += '\n'
-		return s

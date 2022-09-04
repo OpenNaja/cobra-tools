@@ -64,20 +64,3 @@ class Layer(BaseStruct):
 
 	def get_info_str(self, indent=0):
 		return f'Layer [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
-
-	def get_fields_str(self, indent=0):
-		s = ''
-		s += super().get_fields_str()
-		s += f'\n	* info = {self.fmt_member(self.info, indent+1)}'
-		s += f'\n	* name = {self.fmt_member(self.name, indent+1)}'
-		s += f'\n	* infos = {self.fmt_member(self.infos, indent+1)}'
-		s += f'\n	* info_names = {self.fmt_member(self.info_names, indent+1)}'
-		s += f'\n	* attribs = {self.fmt_member(self.attribs, indent+1)}'
-		s += f'\n	* attrib_names = {self.fmt_member(self.attrib_names, indent+1)}'
-		return s
-
-	def __repr__(self, indent=0):
-		s = self.get_info_str(indent)
-		s += self.get_fields_str(indent)
-		s += '\n'
-		return s

@@ -52,17 +52,3 @@ class Wsm(GenericHeader):
 
 	def get_info_str(self, indent=0):
 		return f'Wsm [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
-
-	def get_fields_str(self, indent=0):
-		s = ''
-		s += super().get_fields_str()
-		s += f'\n	* header = {self.fmt_member(self.header, indent+1)}'
-		s += f'\n	* locs = {self.fmt_member(self.locs, indent+1)}'
-		s += f'\n	* quats = {self.fmt_member(self.quats, indent+1)}'
-		return s
-
-	def __repr__(self, indent=0):
-		s = self.get_info_str(indent)
-		s += self.get_fields_str(indent)
-		s += '\n'
-		return s

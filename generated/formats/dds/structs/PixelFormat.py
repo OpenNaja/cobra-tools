@@ -91,22 +91,3 @@ class PixelFormat(BaseStruct):
 
 	def get_info_str(self, indent=0):
 		return f'PixelFormat [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
-
-	def get_fields_str(self, indent=0):
-		s = ''
-		s += super().get_fields_str()
-		s += f'\n	* size = {self.fmt_member(self.size, indent+1)}'
-		s += f'\n	* flags = {self.fmt_member(self.flags, indent+1)}'
-		s += f'\n	* four_c_c = {self.fmt_member(self.four_c_c, indent+1)}'
-		s += f'\n	* bit_count = {self.fmt_member(self.bit_count, indent+1)}'
-		s += f'\n	* r_mask = {self.fmt_member(self.r_mask, indent+1)}'
-		s += f'\n	* g_mask = {self.fmt_member(self.g_mask, indent+1)}'
-		s += f'\n	* b_mask = {self.fmt_member(self.b_mask, indent+1)}'
-		s += f'\n	* a_mask = {self.fmt_member(self.a_mask, indent+1)}'
-		return s
-
-	def __repr__(self, indent=0):
-		s = self.get_info_str(indent)
-		s += self.get_fields_str(indent)
-		s += '\n'
-		return s

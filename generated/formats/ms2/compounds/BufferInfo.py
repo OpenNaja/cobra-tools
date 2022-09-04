@@ -153,31 +153,3 @@ class BufferInfo(BaseStruct):
 
 	def get_info_str(self, indent=0):
 		return f'BufferInfo [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
-
-	def get_fields_str(self, indent=0):
-		s = ''
-		s += super().get_fields_str()
-		s += f'\n	* u_0 = {self.fmt_member(self.u_0, indent+1)}'
-		s += f'\n	* u_1 = {self.fmt_member(self.u_1, indent+1)}'
-		s += f'\n	* tri_chunks_size = {self.fmt_member(self.tri_chunks_size, indent+1)}'
-		s += f'\n	* tri_chunks_ptr = {self.fmt_member(self.tri_chunks_ptr, indent+1)}'
-		s += f'\n	* vert_chunks_size = {self.fmt_member(self.vert_chunks_size, indent+1)}'
-		s += f'\n	* vert_chunks_ptr = {self.fmt_member(self.vert_chunks_ptr, indent+1)}'
-		s += f'\n	* verts_size = {self.fmt_member(self.verts_size, indent+1)}'
-		s += f'\n	* verts_ptr = {self.fmt_member(self.verts_ptr, indent+1)}'
-		s += f'\n	* u_3 = {self.fmt_member(self.u_3, indent+1)}'
-		s += f'\n	* tris_size = {self.fmt_member(self.tris_size, indent+1)}'
-		s += f'\n	* tris_ptr = {self.fmt_member(self.tris_ptr, indent+1)}'
-		s += f'\n	* u_5 = {self.fmt_member(self.u_5, indent+1)}'
-		s += f'\n	* u_6 = {self.fmt_member(self.u_6, indent+1)}'
-		s += f'\n	* u_5 = {self.fmt_member(self.u_5, indent+1)}'
-		s += f'\n	* uvs_size = {self.fmt_member(self.uvs_size, indent+1)}'
-		s += f'\n	* u_6 = {self.fmt_member(self.u_6, indent+1)}'
-		s += f'\n	* u_7 = {self.fmt_member(self.u_7, indent+1)}'
-		return s
-
-	def __repr__(self, indent=0):
-		s = self.get_info_str(indent)
-		s += self.get_fields_str(indent)
-		s += '\n'
-		return s

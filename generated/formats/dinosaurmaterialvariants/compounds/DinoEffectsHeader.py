@@ -118,30 +118,3 @@ class DinoEffectsHeader(MemStruct):
 
 	def get_info_str(self, indent=0):
 		return f'DinoEffectsHeader [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
-
-	def get_fields_str(self, indent=0):
-		s = ''
-		s += super().get_fields_str()
-		s += f'\n	* fgm_name = {self.fmt_member(self.fgm_name, indent+1)}'
-		s += f'\n	* vec_0 = {self.fmt_member(self.vec_0, indent+1)}'
-		s += f'\n	* vec_1 = {self.fmt_member(self.vec_1, indent+1)}'
-		s += f'\n	* a = {self.fmt_member(self.a, indent+1)}'
-		s += f'\n	* b = {self.fmt_member(self.b, indent+1)}'
-		s += f'\n	* vec_2 = {self.fmt_member(self.vec_2, indent+1)}'
-		s += f'\n	* vec_3 = {self.fmt_member(self.vec_3, indent+1)}'
-		s += f'\n	* vec_4 = {self.fmt_member(self.vec_4, indent+1)}'
-		s += f'\n	* c = {self.fmt_member(self.c, indent+1)}'
-		s += f'\n	* d = {self.fmt_member(self.d, indent+1)}'
-		s += f'\n	* e = {self.fmt_member(self.e, indent+1)}'
-		s += f'\n	* f = {self.fmt_member(self.f, indent+1)}'
-		s += f'\n	* g = {self.fmt_member(self.g, indent+1)}'
-		s += f'\n	* floats = {self.fmt_member(self.floats, indent+1)}'
-		s += f'\n	* d = {self.fmt_member(self.d, indent+1)}'
-		s += f'\n	* e = {self.fmt_member(self.e, indent+1)}'
-		return s
-
-	def __repr__(self, indent=0):
-		s = self.get_info_str(indent)
-		s += self.get_fields_str(indent)
-		s += '\n'
-		return s

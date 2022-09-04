@@ -55,18 +55,3 @@ class SupportAttach(MemStruct):
 
 	def get_info_str(self, indent=0):
 		return f'SupportAttach [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
-
-	def get_fields_str(self, indent=0):
-		s = ''
-		s += super().get_fields_str()
-		s += f'\n	* model_name = {self.fmt_member(self.model_name, indent+1)}'
-		s += f'\n	* unk_int_1 = {self.fmt_member(self.unk_int_1, indent+1)}'
-		s += f'\n	* unk_int_2 = {self.fmt_member(self.unk_int_2, indent+1)}'
-		s += f'\n	* unk_vector = {self.fmt_member(self.unk_vector, indent+1)}'
-		return s
-
-	def __repr__(self, indent=0):
-		s = self.get_info_str(indent)
-		s += self.get_fields_str(indent)
-		s += '\n'
-		return s

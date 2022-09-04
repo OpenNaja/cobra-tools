@@ -102,24 +102,3 @@ class MotiongraphHeader(MemStruct):
 
 	def get_info_str(self, indent=0):
 		return f'MotiongraphHeader [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
-
-	def get_fields_str(self, indent=0):
-		s = ''
-		s += super().get_fields_str()
-		s += f'\n	* ptr_0 = {self.fmt_member(self.ptr_0, indent+1)}'
-		s += f'\n	* state_output_entries = {self.fmt_member(self.state_output_entries, indent+1)}'
-		s += f'\n	* ptr_2 = {self.fmt_member(self.ptr_2, indent+1)}'
-		s += f'\n	* ptr_3 = {self.fmt_member(self.ptr_3, indent+1)}'
-		s += f'\n	* count_0 = {self.fmt_member(self.count_0, indent+1)}'
-		s += f'\n	* count_1 = {self.fmt_member(self.count_1, indent+1)}'
-		s += f'\n	* lua_modules = {self.fmt_member(self.lua_modules, indent+1)}'
-		s += f'\n	* lua_results = {self.fmt_member(self.lua_results, indent+1)}'
-		s += f'\n	* first_non_transition_state = {self.fmt_member(self.first_non_transition_state, indent+1)}'
-		s += f'\n	* empty_str = {self.fmt_member(self.empty_str, indent+1)}'
-		return s
-
-	def __repr__(self, indent=0):
-		s = self.get_info_str(indent)
-		s += self.get_fields_str(indent)
-		s += '\n'
-		return s

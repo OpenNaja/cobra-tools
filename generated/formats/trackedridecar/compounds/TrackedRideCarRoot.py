@@ -80,21 +80,3 @@ class TrackedRideCarRoot(MemStruct):
 
 	def get_info_str(self, indent=0):
 		return f'TrackedRideCarRoot [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
-
-	def get_fields_str(self, indent=0):
-		s = ''
-		s += super().get_fields_str()
-		s += f'\n	* sub = {self.fmt_member(self.sub, indent+1)}'
-		s += f'\n	* sub_count = {self.fmt_member(self.sub_count, indent+1)}'
-		s += f'\n	* total_vecs_count = {self.fmt_member(self.total_vecs_count, indent+1)}'
-		s += f'\n	* vec = {self.fmt_member(self.vec, indent+1)}'
-		s += f'\n	* zero_0 = {self.fmt_member(self.zero_0, indent+1)}'
-		s += f'\n	* some_name = {self.fmt_member(self.some_name, indent+1)}'
-		s += f'\n	* zero_1 = {self.fmt_member(self.zero_1, indent+1)}'
-		return s
-
-	def __repr__(self, indent=0):
-		s = self.get_info_str(indent)
-		s += self.get_fields_str(indent)
-		s += '\n'
-		return s

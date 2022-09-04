@@ -70,20 +70,3 @@ class Event(MemStruct):
 
 	def get_info_str(self, indent=0):
 		return f'Event [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
-
-	def get_fields_str(self, indent=0):
-		s = ''
-		s += super().get_fields_str()
-		s += f'\n	* start_time = {self.fmt_member(self.start_time, indent+1)}'
-		s += f'\n	* b = {self.fmt_member(self.b, indent+1)}'
-		s += f'\n	* module_name = {self.fmt_member(self.module_name, indent+1)}'
-		s += f'\n	* attributes = {self.fmt_member(self.attributes, indent+1)}'
-		s += f'\n	* duration = {self.fmt_member(self.duration, indent+1)}'
-		s += f'\n	* d = {self.fmt_member(self.d, indent+1)}'
-		return s
-
-	def __repr__(self, indent=0):
-		s = self.get_info_str(indent)
-		s += self.get_fields_str(indent)
-		s += '\n'
-		return s

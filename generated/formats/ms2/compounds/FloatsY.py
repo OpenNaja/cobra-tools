@@ -43,16 +43,3 @@ class FloatsY(BaseStruct):
 
 	def get_info_str(self, indent=0):
 		return f'FloatsY [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
-
-	def get_fields_str(self, indent=0):
-		s = ''
-		s += super().get_fields_str()
-		s += f'\n	* floats = {self.fmt_member(self.floats, indent+1)}'
-		s += f'\n	* index = {self.fmt_member(self.index, indent+1)}'
-		return s
-
-	def __repr__(self, indent=0):
-		s = self.get_info_str(indent)
-		s += self.get_fields_str(indent)
-		s += '\n'
-		return s

@@ -51,18 +51,3 @@ class PathType(MemStruct):
 
 	def get_info_str(self, indent=0):
 		return f'PathType [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
-
-	def get_fields_str(self, indent=0):
-		s = ''
-		s += super().get_fields_str()
-		s += f'\n	* enum_value = {self.fmt_member(self.enum_value, indent+1)}'
-		s += f'\n	* min_width = {self.fmt_member(self.min_width, indent+1)}'
-		s += f'\n	* max_width = {self.fmt_member(self.max_width, indent+1)}'
-		s += f'\n	* _unk_int_2 = {self.fmt_member(self._unk_int_2, indent+1)}'
-		return s
-
-	def __repr__(self, indent=0):
-		s = self.get_info_str(indent)
-		s += self.get_fields_str(indent)
-		s += '\n'
-		return s

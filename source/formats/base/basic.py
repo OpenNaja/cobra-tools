@@ -101,6 +101,12 @@ def class_from_struct(struct, from_value_func):
         def _to_xml_array(instance, elem, debug):
             elem.text = " ".join([str(member) for member in instance.flat])
 
+        @staticmethod
+        def fmt_member(member, indent=0):
+            lines = str(member).split("\n")
+            lines_new = [lines[0], ] + ["\t" * indent + line for line in lines[1:]]
+            return "\n".join(lines_new)
+
     return ConstructedClass
 
 
@@ -185,3 +191,9 @@ class ZString:
     @staticmethod
     def to_xml(elem, prop, instance, arguments, debug):
         elem.attrib[prop] = instance
+
+    @staticmethod
+    def fmt_member(member, indent=0):
+        lines = str(member).split("\n")
+        lines_new = [lines[0], ] + ["\t" * indent + line for line in lines[1:]]
+        return "\n".join(lines_new)

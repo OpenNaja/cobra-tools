@@ -85,23 +85,6 @@ class Activity(MemStruct):
 	def get_info_str(self, indent=0):
 		return f'Activity [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
-	def get_fields_str(self, indent=0):
-		s = ''
-		s += super().get_fields_str()
-		s += f'\n	* data_type = {self.fmt_member(self.data_type, indent+1)}'
-		s += f'\n	* ptr = {self.fmt_member(self.ptr, indent+1)}'
-		s += f'\n	* count_2 = {self.fmt_member(self.count_2, indent+1)}'
-		s += f'\n	* count_3 = {self.fmt_member(self.count_3, indent+1)}'
-		s += f'\n	* minus_one = {self.fmt_member(self.minus_one, indent+1)}'
-		s += f'\n	* name_b = {self.fmt_member(self.name_b, indent+1)}'
-		return s
-
-	def __repr__(self, indent=0):
-		s = self.get_info_str(indent)
-		s += self.get_fields_str(indent)
-		s += '\n'
-		return s
-
 	def get_ptr_template(self, prop):
 		"""Returns the appropriate template for a pointer named 'prop', if exists.
 		Must be overwritten in subclass"""

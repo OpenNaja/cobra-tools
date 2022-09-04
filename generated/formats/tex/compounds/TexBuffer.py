@@ -76,20 +76,3 @@ class TexBuffer(MemStruct):
 
 	def get_info_str(self, indent=0):
 		return f'TexBuffer [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
-
-	def get_fields_str(self, indent=0):
-		s = ''
-		s += super().get_fields_str()
-		s += f'\n	* offset = {self.fmt_member(self.offset, indent+1)}'
-		s += f'\n	* size = {self.fmt_member(self.size, indent+1)}'
-		s += f'\n	* first_mip = {self.fmt_member(self.first_mip, indent+1)}'
-		s += f'\n	* mip_count = {self.fmt_member(self.mip_count, indent+1)}'
-		s += f'\n	* padding_0 = {self.fmt_member(self.padding_0, indent+1)}'
-		s += f'\n	* padding_1 = {self.fmt_member(self.padding_1, indent+1)}'
-		return s
-
-	def __repr__(self, indent=0):
-		s = self.get_info_str(indent)
-		s += self.get_fields_str(indent)
-		s += '\n'
-		return s

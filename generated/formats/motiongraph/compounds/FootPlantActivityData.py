@@ -49,17 +49,3 @@ class FootPlantActivityData(MemStruct):
 
 	def get_info_str(self, indent=0):
 		return f'FootPlantActivityData [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
-
-	def get_fields_str(self, indent=0):
-		s = ''
-		s += super().get_fields_str()
-		s += f'\n	* weight = {self.fmt_member(self.weight, indent+1)}'
-		s += f'\n	* rotation_no_i_k_weight = {self.fmt_member(self.rotation_no_i_k_weight, indent+1)}'
-		s += f'\n	* sticky_feet_weight = {self.fmt_member(self.sticky_feet_weight, indent+1)}'
-		return s
-
-	def __repr__(self, indent=0):
-		s = self.get_info_str(indent)
-		s += self.get_fields_str(indent)
-		s += '\n'
-		return s

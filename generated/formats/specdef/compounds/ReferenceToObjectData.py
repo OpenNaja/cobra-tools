@@ -48,16 +48,3 @@ class ReferenceToObjectData(MemStruct):
 
 	def get_info_str(self, indent=0):
 		return f'ReferenceToObjectData [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
-
-	def get_fields_str(self, indent=0):
-		s = ''
-		s += super().get_fields_str()
-		s += f'\n	* obj_name = {self.fmt_member(self.obj_name, indent+1)}'
-		s += f'\n	* ioptional = {self.fmt_member(self.ioptional, indent+1)}'
-		return s
-
-	def __repr__(self, indent=0):
-		s = self.get_info_str(indent)
-		s += self.get_fields_str(indent)
-		s += '\n'
-		return s

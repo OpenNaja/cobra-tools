@@ -71,19 +71,3 @@ class WsmHeader(MemStruct):
 
 	def get_info_str(self, indent=0):
 		return f'WsmHeader [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
-
-	def get_fields_str(self, indent=0):
-		s = ''
-		s += super().get_fields_str()
-		s += f'\n	* duration = {self.fmt_member(self.duration, indent+1)}'
-		s += f'\n	* frame_count = {self.fmt_member(self.frame_count, indent+1)}'
-		s += f'\n	* unknowns = {self.fmt_member(self.unknowns, indent+1)}'
-		s += f'\n	* locs = {self.fmt_member(self.locs, indent+1)}'
-		s += f'\n	* quats = {self.fmt_member(self.quats, indent+1)}'
-		return s
-
-	def __repr__(self, indent=0):
-		s = self.get_info_str(indent)
-		s += self.get_fields_str(indent)
-		s += '\n'
-		return s

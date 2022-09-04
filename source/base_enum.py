@@ -108,6 +108,12 @@ class BaseEnum(IntEnum, metaclass=DefaultEnumMeta):
 			raise KeyError(f"Key '{value}' not found in enum '{cls.__name__}', outdated definition?")
 		return enum
 
+	@staticmethod
+	def fmt_member(member, indent=0):
+		lines = str(member).split("\n")
+		lines_new = [lines[0], ] + ["\t" * indent + line for line in lines[1:]]
+		return "\n".join(lines_new)
+
 	@classmethod
 	def from_xml(cls, target, elem, prop, arguments=None):
 		return cls.from_str(elem.attrib[prop])

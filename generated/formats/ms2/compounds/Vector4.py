@@ -60,6 +60,9 @@ class Vector4(BaseStruct):
 		yield 'z', Float, (0, None), (False, None)
 		yield 'w', Float, (0, None), (False, None)
 
+	def get_info_str(self, indent=0):
+		return f'Vector4 [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+
 	def __repr__(self):
 		return f"[ {self.x:6.3f} {self.y:6.3f} {self.z:6.3f} {self.w:6.3f} ]"
 

@@ -64,19 +64,3 @@ class TrackedRideCarSub(MemStruct):
 
 	def get_info_str(self, indent=0):
 		return f'TrackedRideCarSub [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
-
-	def get_fields_str(self, indent=0):
-		s = ''
-		s += super().get_fields_str()
-		s += f'\n	* float = {self.fmt_member(self.float, indent+1)}'
-		s += f'\n	* u_0 = {self.fmt_member(self.u_0, indent+1)}'
-		s += f'\n	* vectors = {self.fmt_member(self.vectors, indent+1)}'
-		s += f'\n	* vecs_count = {self.fmt_member(self.vecs_count, indent+1)}'
-		s += f'\n	* zero_1 = {self.fmt_member(self.zero_1, indent+1)}'
-		return s
-
-	def __repr__(self, indent=0):
-		s = self.get_info_str(indent)
-		s += self.get_fields_str(indent)
-		s += '\n'
-		return s

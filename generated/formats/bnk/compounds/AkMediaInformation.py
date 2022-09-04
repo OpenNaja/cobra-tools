@@ -46,17 +46,3 @@ class AkMediaInformation(BaseStruct):
 
 	def get_info_str(self, indent=0):
 		return f'AkMediaInformation [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
-
-	def get_fields_str(self, indent=0):
-		s = ''
-		s += super().get_fields_str()
-		s += f'\n	* source_i_d = {self.fmt_member(self.source_i_d, indent+1)}'
-		s += f'\n	* u_in_memory_media_size = {self.fmt_member(self.u_in_memory_media_size, indent+1)}'
-		s += f'\n	* u_source_bits = {self.fmt_member(self.u_source_bits, indent+1)}'
-		return s
-
-	def __repr__(self, indent=0):
-		s = self.get_info_str(indent)
-		s += self.get_fields_str(indent)
-		s += '\n'
-		return s

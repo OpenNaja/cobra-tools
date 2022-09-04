@@ -83,22 +83,3 @@ class Sixtyfour(MemStruct):
 
 	def get_info_str(self, indent=0):
 		return f'Sixtyfour [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
-
-	def get_fields_str(self, indent=0):
-		s = ''
-		s += super().get_fields_str()
-		s += f'\n	* count_0 = {self.fmt_member(self.count_0, indent+1)}'
-		s += f'\n	* ptr_0 = {self.fmt_member(self.ptr_0, indent+1)}'
-		s += f'\n	* ptr_1 = {self.fmt_member(self.ptr_1, indent+1)}'
-		s += f'\n	* count_1 = {self.fmt_member(self.count_1, indent+1)}'
-		s += f'\n	* count_2 = {self.fmt_member(self.count_2, indent+1)}'
-		s += f'\n	* ptr_2 = {self.fmt_member(self.ptr_2, indent+1)}'
-		s += f'\n	* ptr_3 = {self.fmt_member(self.ptr_3, indent+1)}'
-		s += f'\n	* count_3 = {self.fmt_member(self.count_3, indent+1)}'
-		return s
-
-	def __repr__(self, indent=0):
-		s = self.get_info_str(indent)
-		s += self.get_fields_str(indent)
-		s += '\n'
-		return s

@@ -59,19 +59,3 @@ class ZTPreBones(BaseStruct):
 
 	def get_info_str(self, indent=0):
 		return f'ZTPreBones [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
-
-	def get_fields_str(self, indent=0):
-		s = ''
-		s += super().get_fields_str()
-		s += f'\n	* zeros = {self.fmt_member(self.zeros, indent+1)}'
-		s += f'\n	* unks = {self.fmt_member(self.unks, indent+1)}'
-		s += f'\n	* unks_2 = {self.fmt_member(self.unks_2, indent+1)}'
-		s += f'\n	* floats = {self.fmt_member(self.floats, indent+1)}'
-		s += f'\n	* unks_3 = {self.fmt_member(self.unks_3, indent+1)}'
-		return s
-
-	def __repr__(self, indent=0):
-		s = self.get_info_str(indent)
-		s += self.get_fields_str(indent)
-		s += '\n'
-		return s

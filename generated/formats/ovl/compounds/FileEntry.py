@@ -77,22 +77,6 @@ class FileEntry(BaseStruct):
 	def get_info_str(self, indent=0):
 		return f'FileEntry [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
-	def get_fields_str(self, indent=0):
-		s = ''
-		s += super().get_fields_str()
-		s += f'\n	* offset = {self.fmt_member(self.offset, indent+1)}'
-		s += f'\n	* file_hash = {self.fmt_member(self.file_hash, indent+1)}'
-		s += f'\n	* pool_type = {self.fmt_member(self.pool_type, indent+1)}'
-		s += f'\n	* set_pool_type = {self.fmt_member(self.set_pool_type, indent+1)}'
-		s += f'\n	* extension = {self.fmt_member(self.extension, indent+1)}'
-		return s
-
-	def __repr__(self, indent=0):
-		s = self.get_info_str(indent)
-		s += self.get_fields_str(indent)
-		s += '\n'
-		return s
-
 	def update_constants(self, ovl):
 		"""Update the constants"""
 

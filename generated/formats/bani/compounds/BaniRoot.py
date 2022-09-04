@@ -73,19 +73,3 @@ class BaniRoot(MemStruct):
 
 	def get_info_str(self, indent=0):
 		return f'BaniRoot [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
-
-	def get_fields_str(self, indent=0):
-		s = ''
-		s += super().get_fields_str()
-		s += f'\n	* banis = {self.fmt_member(self.banis, indent+1)}'
-		s += f'\n	* read_start_frame = {self.fmt_member(self.read_start_frame, indent+1)}'
-		s += f'\n	* num_frames = {self.fmt_member(self.num_frames, indent+1)}'
-		s += f'\n	* animation_length = {self.fmt_member(self.animation_length, indent+1)}'
-		s += f'\n	* loop_flag = {self.fmt_member(self.loop_flag, indent+1)}'
-		return s
-
-	def __repr__(self, indent=0):
-		s = self.get_info_str(indent)
-		s += self.get_fields_str(indent)
-		s += '\n'
-		return s

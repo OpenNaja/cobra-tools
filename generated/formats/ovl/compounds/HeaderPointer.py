@@ -45,6 +45,9 @@ class HeaderPointer(BaseStruct):
 		yield 'pool_index', Int, (0, None), (False, None)
 		yield 'data_offset', Uint, (0, None), (False, None)
 
+	def get_info_str(self, indent=0):
+		return f'HeaderPointer [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
 		self._context = context
