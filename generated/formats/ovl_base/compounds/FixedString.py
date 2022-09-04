@@ -7,6 +7,10 @@ class FixedString(BaseStruct):
 	Holds a string of a fixed size, given as an argument.
 	"""
 
+	__name__ = 'FixedString'
+
+	_import_path = 'generated.formats.ovl_base.compounds.FixedString'
+
 	def set_defaults(self):
 		super().set_defaults()
 		pass

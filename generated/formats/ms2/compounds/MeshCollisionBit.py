@@ -7,6 +7,10 @@ from generated.formats.base.basic import Ushort
 
 class MeshCollisionBit(BaseStruct):
 
+	__name__ = 'MeshCollisionBit'
+
+	_import_path = 'generated.formats.ms2.compounds.MeshCollisionBit'
+
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 

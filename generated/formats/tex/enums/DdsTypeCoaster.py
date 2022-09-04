@@ -1,13 +1,20 @@
-from generated.formats.base.enums import UbyteEnum
+from generated.base_enum import BaseEnum
+from generated.formats.base.basic import Ubyte
 
 
-class DdsTypeCoaster(UbyteEnum):
+class DdsTypeCoaster(BaseEnum):
 
 	"""
 	maps the OVL's dds type to name of compression format
 	"""
+
+	__name__ = 'DdsTypeCoaster'
+	_storage = Ubyte
+
+
 	# ZTUAC ele heights textures
 	D24_UNORM_S8_UINT = 74
+
 	# ?
 	D24_UNORM_S8_UINT_B = 76
 	BC1_UNORM = 97

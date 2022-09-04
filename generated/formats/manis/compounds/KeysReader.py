@@ -12,6 +12,10 @@ from generated.base_struct import BaseStruct
 
 class KeysReader(BaseStruct):
 
+	__name__ = 'KeysReader'
+
+	_import_path = 'generated.formats.manis.compounds.KeysReader'
+
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)

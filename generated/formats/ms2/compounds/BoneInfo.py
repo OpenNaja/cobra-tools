@@ -22,6 +22,10 @@ class BoneInfo(BaseStruct):
 	# 858 in DLA c_cl_thread_.ms2
 	"""
 
+	__name__ = 'BoneInfo'
+
+	_import_path = 'generated.formats.ms2.compounds.BoneInfo'
+
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 
@@ -184,7 +188,7 @@ class BoneInfo(BaseStruct):
 			self.inventory_datas_2 = numpy.zeros((self.inv_data_count, 2,), dtype=numpy.dtype('int32'))
 		if not (self.context.version < 47) and self.zeros_count:
 			self.zeros_padding = ZerosPadding(self.context, self.zeros_count, None)
-		if self.context.version >= 47 and self.zeros_count:
+		if self.context.version >= 48 and self.zeros_count:
 			self.minus_padding = MinusPadding(self.context, self.zeros_count, None)
 		if self.count_7:
 			self.struct_7 = Struct7(self.context, 0, None)
@@ -250,7 +254,7 @@ class BoneInfo(BaseStruct):
 			instance.inventory_datas_2 = Array.from_stream(stream, instance.context, 0, None, (instance.inv_data_count, 2,), Int)
 		if not (instance.context.version < 47) and instance.zeros_count:
 			instance.zeros_padding = ZerosPadding.from_stream(stream, instance.context, instance.zeros_count, None)
-		if instance.context.version >= 47 and instance.zeros_count:
+		if instance.context.version >= 48 and instance.zeros_count:
 			instance.minus_padding = MinusPadding.from_stream(stream, instance.context, instance.zeros_count, None)
 		if instance.count_7:
 			instance.struct_7 = Struct7.from_stream(stream, instance.context, 0, None)
@@ -319,7 +323,7 @@ class BoneInfo(BaseStruct):
 			Array.to_stream(stream, instance.inventory_datas_2, (instance.inv_data_count, 2,), Int, instance.context, 0, None)
 		if not (instance.context.version < 47) and instance.zeros_count:
 			ZerosPadding.to_stream(stream, instance.zeros_padding)
-		if instance.context.version >= 47 and instance.zeros_count:
+		if instance.context.version >= 48 and instance.zeros_count:
 			MinusPadding.to_stream(stream, instance.minus_padding)
 		if instance.count_7:
 			Struct7.to_stream(stream, instance.struct_7)
@@ -385,7 +389,7 @@ class BoneInfo(BaseStruct):
 			yield 'inventory_datas_2', Array, ((instance.inv_data_count, 2,), Int, 0, None), (False, None)
 		if not (instance.context.version < 47) and instance.zeros_count:
 			yield 'zeros_padding', ZerosPadding, (instance.zeros_count, None), (False, None)
-		if instance.context.version >= 47 and instance.zeros_count:
+		if instance.context.version >= 48 and instance.zeros_count:
 			yield 'minus_padding', MinusPadding, (instance.zeros_count, None), (False, None)
 		if instance.count_7:
 			yield 'struct_7', Struct7, (0, None), (False, None)

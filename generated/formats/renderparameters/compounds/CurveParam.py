@@ -1,13 +1,16 @@
-import generated.formats.base.basic
-import generated.formats.renderparameters.compounds.CurveList
 from generated.formats.base.basic import Int
 from generated.formats.base.basic import Uint
 from generated.formats.base.basic import Uint64
+from generated.formats.base.basic import ZString
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
 from generated.formats.ovl_base.compounds.Pointer import Pointer
 
 
 class CurveParam(MemStruct):
+
+	__name__ = 'CurveParam'
+
+	_import_path = 'generated.formats.renderparameters.compounds.CurveParam'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
@@ -16,8 +19,8 @@ class CurveParam(MemStruct):
 		# set to 1 if count > 1
 		self.do_interpolation = 0
 		self.count = 0
-		self.attribute_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.curve_entries = Pointer(self.context, self.count, generated.formats.renderparameters.compounds.CurveList.CurveList)
+		self.attribute_name = Pointer(self.context, 0, ZString)
+		self.curve_entries = Pointer(self.context, self.count, CurveParam._import_path_map["generated.formats.renderparameters.compounds.CurveList"])
 		if set_default:
 			self.set_defaults()
 
@@ -26,16 +29,16 @@ class CurveParam(MemStruct):
 		# leaving self.dtype alone
 		self.do_interpolation = 0
 		self.count = 0
-		self.attribute_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.curve_entries = Pointer(self.context, self.count, generated.formats.renderparameters.compounds.CurveList.CurveList)
+		self.attribute_name = Pointer(self.context, 0, ZString)
+		self.curve_entries = Pointer(self.context, self.count, CurveParam._import_path_map["generated.formats.renderparameters.compounds.CurveList"])
 
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.attribute_name = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
+		instance.attribute_name = Pointer.from_stream(stream, instance.context, 0, ZString)
 		instance.dtype = Int.from_stream(stream, instance.context, 0, None)
 		instance.do_interpolation = Uint.from_stream(stream, instance.context, 0, None)
-		instance.curve_entries = Pointer.from_stream(stream, instance.context, instance.count, generated.formats.renderparameters.compounds.CurveList.CurveList)
+		instance.curve_entries = Pointer.from_stream(stream, instance.context, instance.count, CurveParam._import_path_map["generated.formats.renderparameters.compounds.CurveList"])
 		instance.count = Uint64.from_stream(stream, instance.context, 0, None)
 		if not isinstance(instance.attribute_name, int):
 			instance.attribute_name.arg = 0
@@ -54,10 +57,10 @@ class CurveParam(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
-		yield 'attribute_name', Pointer, (0, generated.formats.base.basic.ZString), (False, None)
+		yield 'attribute_name', Pointer, (0, ZString), (False, None)
 		yield 'dtype', Int, (0, None), (False, None)
 		yield 'do_interpolation', Uint, (0, None), (False, None)
-		yield 'curve_entries', Pointer, (instance.count, generated.formats.renderparameters.compounds.CurveList.CurveList), (False, None)
+		yield 'curve_entries', Pointer, (instance.count, CurveParam._import_path_map["generated.formats.renderparameters.compounds.CurveList"]), (False, None)
 		yield 'count', Uint64, (0, None), (False, None)
 
 	def get_info_str(self, indent=0):

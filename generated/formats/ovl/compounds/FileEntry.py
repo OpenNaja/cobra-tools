@@ -15,6 +15,10 @@ class FileEntry(BaseStruct):
 	Description of one file in the archive
 	"""
 
+	__name__ = 'FileEntry'
+
+	_import_path = 'generated.formats.ovl.compounds.FileEntry'
+
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 

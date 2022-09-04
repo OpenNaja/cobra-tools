@@ -1,21 +1,24 @@
-import generated.formats.base.basic
-import generated.formats.dinosaurmaterialvariants.compounds.PatternArray
-import generated.formats.ovl_base.basic
 from generated.formats.base.basic import Uint64
+from generated.formats.base.basic import ZString
+from generated.formats.ovl_base.basic import ZStringObfuscated
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
 from generated.formats.ovl_base.compounds.Pointer import Pointer
 
 
 class DinoPatternsHeader(MemStruct):
 
+	__name__ = 'DinoPatternsHeader'
+
+	_import_path = 'generated.formats.dinosaurmaterialvariants.compounds.DinoPatternsHeader'
+
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		self.set_count = 0
 		self.pattern_count = 0
 		self.zero = 0
-		self.fgm_name = Pointer(self.context, 0, generated.formats.ovl_base.basic.ZStringObfuscated)
-		self.set_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.patterns = Pointer(self.context, self.pattern_count, generated.formats.dinosaurmaterialvariants.compounds.PatternArray.PatternArray)
+		self.fgm_name = Pointer(self.context, 0, ZStringObfuscated)
+		self.set_name = Pointer(self.context, 0, ZString)
+		self.patterns = Pointer(self.context, self.pattern_count, DinoPatternsHeader._import_path_map["generated.formats.dinosaurmaterialvariants.compounds.PatternArray"])
 		if set_default:
 			self.set_defaults()
 
@@ -24,17 +27,17 @@ class DinoPatternsHeader(MemStruct):
 		self.set_count = 0
 		self.pattern_count = 0
 		self.zero = 0
-		self.fgm_name = Pointer(self.context, 0, generated.formats.ovl_base.basic.ZStringObfuscated)
-		self.set_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.patterns = Pointer(self.context, self.pattern_count, generated.formats.dinosaurmaterialvariants.compounds.PatternArray.PatternArray)
+		self.fgm_name = Pointer(self.context, 0, ZStringObfuscated)
+		self.set_name = Pointer(self.context, 0, ZString)
+		self.patterns = Pointer(self.context, self.pattern_count, DinoPatternsHeader._import_path_map["generated.formats.dinosaurmaterialvariants.compounds.PatternArray"])
 
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.fgm_name = Pointer.from_stream(stream, instance.context, 0, generated.formats.ovl_base.basic.ZStringObfuscated)
+		instance.fgm_name = Pointer.from_stream(stream, instance.context, 0, ZStringObfuscated)
 		instance.set_count = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.set_name = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
-		instance.patterns = Pointer.from_stream(stream, instance.context, instance.pattern_count, generated.formats.dinosaurmaterialvariants.compounds.PatternArray.PatternArray)
+		instance.set_name = Pointer.from_stream(stream, instance.context, 0, ZString)
+		instance.patterns = Pointer.from_stream(stream, instance.context, instance.pattern_count, DinoPatternsHeader._import_path_map["generated.formats.dinosaurmaterialvariants.compounds.PatternArray"])
 		instance.pattern_count = Uint64.from_stream(stream, instance.context, 0, None)
 		instance.zero = Uint64.from_stream(stream, instance.context, 0, None)
 		if not isinstance(instance.fgm_name, int):
@@ -57,10 +60,10 @@ class DinoPatternsHeader(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
-		yield 'fgm_name', Pointer, (0, generated.formats.ovl_base.basic.ZStringObfuscated), (False, None)
+		yield 'fgm_name', Pointer, (0, ZStringObfuscated), (False, None)
 		yield 'set_count', Uint64, (0, None), (False, None)
-		yield 'set_name', Pointer, (0, generated.formats.base.basic.ZString), (False, None)
-		yield 'patterns', Pointer, (instance.pattern_count, generated.formats.dinosaurmaterialvariants.compounds.PatternArray.PatternArray), (False, None)
+		yield 'set_name', Pointer, (0, ZString), (False, None)
+		yield 'patterns', Pointer, (instance.pattern_count, DinoPatternsHeader._import_path_map["generated.formats.dinosaurmaterialvariants.compounds.PatternArray"]), (False, None)
 		yield 'pattern_count', Uint64, (0, None), (False, None)
 		yield 'zero', Uint64, (0, None), (False, None)
 

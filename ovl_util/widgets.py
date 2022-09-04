@@ -1353,9 +1353,12 @@ class MainWindow(QtWidgets.QMainWindow):
 			self.file_widget.decide_open(path)
 
 
-class OvlReporter(OvlFile, QtCore.QObject):
-	"""Adds PyQt signals to OvlFile to report of progress"""
+class CombinedMeta(type(QtCore.QObject), type(OvlFile)):
+	pass
 
+
+class OvlReporter(OvlFile, QtCore.QObject, metaclass=CombinedMeta):
+	"""Adds PyQt signals to OvlFile to report of progress"""
 	files_list = QtCore.pyqtSignal(list)
 	included_ovls_list = QtCore.pyqtSignal(list)
 	progress_percentage = QtCore.pyqtSignal(int)
@@ -1366,7 +1369,7 @@ class OvlReporter(OvlFile, QtCore.QObject):
 		super(QtCore.QObject, self).__init__()
 
 
-mutex = QtCore.QMutex()
+# mutex = QtCore.QMutex()
 
 
 class Worker(QtCore.QObject):

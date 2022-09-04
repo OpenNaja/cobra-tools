@@ -9,6 +9,10 @@ class AssetEntry(BaseStruct):
 	It seems to point exclusively to RootEntry's whose Ext Hash is FF FF FF FF aka max uint32
 	"""
 
+	__name__ = 'AssetEntry'
+
+	_import_path = 'generated.formats.ovl.compounds.AssetEntry'
+
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		self.file_hash = 0

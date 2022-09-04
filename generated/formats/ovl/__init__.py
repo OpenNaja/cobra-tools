@@ -777,6 +777,8 @@ class OvlFile(Header, IoFile):
 				if p != self._percentage:
 					self.progress_percentage.emit(p)
 					self._percentage = p
+		if hasattr(self,  'current_action'):
+			self.current_action.emit(f"Finished {message}")
 
 	def store_filepath(self, filepath):
 		# store file name for later

@@ -9,6 +9,10 @@ class StreamInfo(BaseStruct):
 	Describes a wem file in an s type bank stream
 	"""
 
+	__name__ = 'StreamInfo'
+
+	_import_path = 'generated.formats.bnk.compounds.StreamInfo'
+
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		self.offset = 0

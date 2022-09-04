@@ -17,45 +17,6 @@ def get_attr_with_backups(field, attribute_keys):
         return None
 
 
-def get_conditions(field, expression_prefix="self."):
-    CONTEXT = f'{expression_prefix}{CONTEXT_SUFFIX}'
-    VER = f"{CONTEXT}.version"
-    conditionals = []
-    ver1 = get_attr_with_backups(field, ["ver1", "since"])
-    if ver1:
-        ver1 = Version(ver1)
-    ver2 = get_attr_with_backups(field, ["ver2", "until"])
-
-    if ver2:
-        ver2 = Version(ver2)
-    vercond = field.attrib.get("vercond")
-    valid_versions = field.attrib.get("versions")
-    if valid_versions:
-        valid_versions = [Versions.format_id(version) for version in valid_versions.split(" ")]
-    cond = field.attrib.get("cond")
-    onlyT = field.attrib.get("onlyT")
-    excludeT = field.attrib.get("excludeT")
-    if ver1 and ver2:
-        conditionals.append(f"{ver1} <= {VER} <= {ver2}")
-    elif ver1:
-        conditionals.append(f"{VER} >= {ver1}")
-    elif ver2:
-        conditionals.append(f"{VER} <= {ver2}")
-    if vercond:
-        vercond = Expression(vercond, f'{expression_prefix}context.')
-        conditionals.append(f"{vercond}")
-    if valid_versions:
-        conditionals.append(f"({' or '.join([f'versions.is_{version}({CONTEXT})' for version in valid_versions])})")
-    if cond:
-        cond = Expression(cond, f'{expression_prefix}')
-        conditionals.append(f"{cond}")
-    if onlyT:
-        conditionals.append(f"'{onlyT}' in [parent.__name__ for parent in type({expression_prefix[:-1]}).__mro__]")
-    if excludeT:
-        conditionals.append(f"'{excludeT}' not in [parent.__name__ for parent in type({expression_prefix[:-1]}).__mro__]")
-    return conditionals
-
-
 def condition_indent(base_indent, conditionals, condition=""):
     # determine the python condition and indentation level based on whether the
     # last used condition was the same.
@@ -89,6 +50,54 @@ class Union:
     def append(self, member):
         self.members.append(member)
 
+
+    def indirect_class_access(self, field_type):
+        if self.compounds.parser.tag_dict[field_type.lower()] in self.compounds.parser.struct_types:
+            class_access = f'{self.compounds.class_name}._import_path_map["{Imports.import_from_module_path(self.compounds.parser.path_dict[field_type])}"]'
+        else:
+            class_access = field_type
+        return class_access
+
+    def get_conditions(self, field, expression_prefix="self."):
+        CONTEXT = f'{expression_prefix}{CONTEXT_SUFFIX}'
+        VER = f"{CONTEXT}.version"
+        conditionals = []
+        ver1 = get_attr_with_backups(field, ["ver1", "since"])
+        if ver1:
+            ver1 = Version(ver1)
+        ver2 = get_attr_with_backups(field, ["ver2", "until"])
+
+        if ver2:
+            ver2 = Version(ver2)
+        vercond = field.attrib.get("vercond")
+        valid_versions = field.attrib.get("versions")
+        if valid_versions:
+            valid_versions = [Versions.format_id(version) for version in valid_versions.split(" ")]
+        cond = field.attrib.get("cond")
+        onlyT = field.attrib.get("onlyT")
+        excludeT = field.attrib.get("excludeT")
+        if ver1 and ver2:
+            conditionals.append(f"{ver1} <= {VER} <= {ver2}")
+        elif ver1:
+            conditionals.append(f"{VER} >= {ver1}")
+        elif ver2:
+            conditionals.append(f"{VER} <= {ver2}")
+        if vercond:
+            vercond = Expression(vercond, f'{expression_prefix}context.')
+            conditionals.append(f"{vercond}")
+        if valid_versions:
+            conditionals.append(f"({' or '.join([f'versions.is_{version}({CONTEXT})' for version in valid_versions])})")
+        if cond:
+            cond = Expression(cond, f'{expression_prefix}')
+            conditionals.append(f"{cond}")
+        if onlyT:
+            onlyT = self.indirect_class_access(onlyT)
+            conditionals.append(f"isinstance({expression_prefix[:-1]}, {onlyT})")
+        if excludeT:
+            excludeT = self.indirect_class_access(excludeT)
+            conditionals.append(f"not isinstance({expression_prefix[:-1]}, {excludeT})")
+        return conditionals
+
     def get_params(self, field, expression_prefix="self."):
         # parse all attributes and return the python-evaluatable string
 
@@ -100,7 +109,7 @@ class Union:
         template = field.attrib.get("template")
         optional = (field.attrib.get("optional", "False"), field.attrib.get("default"))
 
-        conditionals = get_conditions(field, expression_prefix)
+        conditionals = self.get_conditions(field, expression_prefix)
 
         arg = field.attrib.get("arg", 0)
         arr1 = get_attr_with_backups(field, ["arr1", "length"])
@@ -111,7 +120,7 @@ class Union:
             if template_class not in self.compounds.parser.path_dict:
                 template = Expression(template, expression_prefix)
             else:
-                template = f'{Imports.import_from_module_path(self.compounds.parser.path_dict[template_class])}.{template_class}'
+                template = self.indirect_class_access(template_class)
         if arg:
             arg = Expression(arg, expression_prefix)
         if arr1:
@@ -120,14 +129,18 @@ class Union:
             arr2 = Expression(arr2, expression_prefix)
         return arg, template, arr1, arr2, conditionals, field_name, field_type, pad_mode, optional
 
+    def default_to_value(self, default_string, field_type):
+        if default_string and field_type in self.compounds.parser.path_dict and self.compounds.parser.tag_dict[field_type.lower()] == "enum":
+            default_string = convention.name_enum_key_if_necessary(default_string)
+            default_string = f'{field_type}.{default_string}'
+        return default_string
+
     def get_default_string(self, default_string, context, arg, template, arr1, arr2, field_name, field_type):
         # get the default (or the best guess of it)
         field_type_lower = field_type.lower()
         tag_of_field_type = self.compounds.parser.tag_dict.get(field_type_lower)
         _, return_type = self.compounds.parser.map_type(field_type, arr1)
-        if tag_of_field_type == "enum" and default_string:
-            default_string = convention.name_enum_key_if_necessary(default_string)
-            default_string = f'{field_type}.{default_string}'
+        default_string = self.default_to_value(default_string, field_type)
 
         if arr1:
             arr_str = self.compounds.parser.arrs_to_tuple(arr1, arr2)
@@ -169,7 +182,7 @@ class Union:
             for i, default_element in enumerate(default_children):
 
                 # get the condition
-                conditionals = get_conditions(default_element)
+                conditionals = self.get_conditions(default_element)
                 indent, condition = condition_indent(base_indent, conditionals, condition)
                 if not condition:
                     raise AttributeError(
@@ -268,17 +281,49 @@ class Union:
         base_indent = "\n\t\t"
         for field in self.members:
             arg, template, arr1, arr2, conditionals, field_name, field_type, pad_mode, (optional, default) = self.get_params(field, f'{target_variable}.')
-            indent, new_condition = condition_indent(base_indent, conditionals, condition)
-            if new_condition:
-                f.write(f"{base_indent}{new_condition}")
-            if new_condition or indent == base_indent:
-                condition = new_condition
+            default = self.default_to_value(default, field_type)
             if arr1 is None:
                 arguments = f"({arg}, {template})"
             else:
                 arguments = f"({self.compounds.parser.arrs_to_tuple(arr1, arr2)}, {field_type}, {arg}, {template})"
                 field_type = "Array"
-            f.write(f"{indent}yield '{field_name}', {field_type}, {arguments}, ({optional}, {default})")
+
+            indent, new_condition = condition_indent(base_indent, conditionals, condition)
+            if new_condition:
+                f.write(f"{base_indent}{new_condition}")
+            if new_condition or indent == base_indent:
+                condition = new_condition
+
+            default_children = field.findall("default")
+            if default_children:
+
+                condition_defaults = [(f'{indent}else:', default)]
+                last_default = len(default_children) - 1
+                def_condition = ""
+                for i, default_element in enumerate(default_children):
+    
+                    # get the condition
+                    conditionals = self.get_conditions(default_element, expression_prefix=f'{target_variable}.')
+                    def_indent, def_condition = condition_indent(indent, conditionals, def_condition)
+                    if not def_condition:
+                        raise AttributeError(
+                            f"Default tag without or with overlapping conditionals on {field.attrib['name']} {def_condition} {default_element.get('value')}")
+                    if i != last_default:
+                        def_condition = f'{indent}el{def_condition}'
+                    else:
+                        def_condition = f'{indent}{def_condition}'
+                    condition_defaults.append((def_condition, self.default_to_value(default_element.attrib.get("value"), field_type)))
+                condition_defaults = condition_defaults[::-1]
+            else:
+                condition_defaults = [("", default)]
+
+            for def_condition, default in condition_defaults:
+                if def_condition:
+                    f.write(def_condition)
+                    def_indent = f'{indent}\t'
+                else:
+                    def_indent = indent
+                f.write(f"{def_indent}yield '{field_name}', {field_type}, {arguments}, ({optional}, {default})")
         return condition
 
     def write_arg_update(self, f, method_type):

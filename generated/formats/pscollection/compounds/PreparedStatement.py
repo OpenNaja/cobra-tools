@@ -1,6 +1,5 @@
-import generated.formats.base.basic
-import generated.formats.pscollection.compounds.Arg
 from generated.formats.base.basic import Uint64
+from generated.formats.base.basic import ZString
 from generated.formats.ovl_base.compounds.ArrayPointer import ArrayPointer
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
 from generated.formats.ovl_base.compounds.Pointer import Pointer
@@ -8,29 +7,33 @@ from generated.formats.ovl_base.compounds.Pointer import Pointer
 
 class PreparedStatement(MemStruct):
 
+	__name__ = 'PreparedStatement'
+
+	_import_path = 'generated.formats.pscollection.compounds.PreparedStatement'
+
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		self.arg_count = 0
-		self.args = ArrayPointer(self.context, self.arg_count, generated.formats.pscollection.compounds.Arg.Arg)
-		self.statement_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.sql_query = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.args = ArrayPointer(self.context, self.arg_count, PreparedStatement._import_path_map["generated.formats.pscollection.compounds.Arg"])
+		self.statement_name = Pointer(self.context, 0, ZString)
+		self.sql_query = Pointer(self.context, 0, ZString)
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
 		super().set_defaults()
 		self.arg_count = 0
-		self.args = ArrayPointer(self.context, self.arg_count, generated.formats.pscollection.compounds.Arg.Arg)
-		self.statement_name = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.sql_query = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.args = ArrayPointer(self.context, self.arg_count, PreparedStatement._import_path_map["generated.formats.pscollection.compounds.Arg"])
+		self.statement_name = Pointer(self.context, 0, ZString)
+		self.sql_query = Pointer(self.context, 0, ZString)
 
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.args = ArrayPointer.from_stream(stream, instance.context, instance.arg_count, generated.formats.pscollection.compounds.Arg.Arg)
+		instance.args = ArrayPointer.from_stream(stream, instance.context, instance.arg_count, PreparedStatement._import_path_map["generated.formats.pscollection.compounds.Arg"])
 		instance.arg_count = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.statement_name = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
-		instance.sql_query = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
+		instance.statement_name = Pointer.from_stream(stream, instance.context, 0, ZString)
+		instance.sql_query = Pointer.from_stream(stream, instance.context, 0, ZString)
 		if not isinstance(instance.args, int):
 			instance.args.arg = instance.arg_count
 		if not isinstance(instance.statement_name, int):
@@ -49,10 +52,10 @@ class PreparedStatement(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
-		yield 'args', ArrayPointer, (instance.arg_count, generated.formats.pscollection.compounds.Arg.Arg), (False, None)
+		yield 'args', ArrayPointer, (instance.arg_count, PreparedStatement._import_path_map["generated.formats.pscollection.compounds.Arg"]), (False, None)
 		yield 'arg_count', Uint64, (0, None), (True, 0)
-		yield 'statement_name', Pointer, (0, generated.formats.base.basic.ZString), (False, None)
-		yield 'sql_query', Pointer, (0, generated.formats.base.basic.ZString), (False, None)
+		yield 'statement_name', Pointer, (0, ZString), (False, None)
+		yield 'sql_query', Pointer, (0, ZString), (False, None)
 
 	def get_info_str(self, indent=0):
 		return f'PreparedStatement [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

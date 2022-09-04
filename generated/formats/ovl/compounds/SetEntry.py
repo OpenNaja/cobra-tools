@@ -8,6 +8,10 @@ class SetEntry(BaseStruct):
 	the asset indices of two consecutive SetEntries define a set of AssetEntries
 	"""
 
+	__name__ = 'SetEntry'
+
+	_import_path = 'generated.formats.ovl.compounds.SetEntry'
+
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		self.file_hash = 0

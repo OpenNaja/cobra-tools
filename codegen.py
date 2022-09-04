@@ -52,8 +52,6 @@ class XmlParser:
             "BaseEnum": "base_enum",
             "BaseStruct": "base_struct",
             }
-        # enum name -> storage name
-        self.storage_dict = {}
         # maps each type to its member tag type
         self.tag_dict = {}
 
@@ -83,9 +81,6 @@ class XmlParser:
                 elif child.tag == "basic":
                     class_segments = ["basic"]
                     class_name = child.attrib["name"]
-                    if Basics.suitable_for_enum(child):
-                        self.path_dict[Enum.base_from_storage(class_name)] = os.path.join(base_segments, 'enums',)
-                        # self.path_dict[Enum.base_from_storage(class_name)] = os.path.join(base_segments, 'enum',)
                 else:
                     name_safe_tag = child.tag + "s"
                     # for classes, set the path to module_path/tag/class_name or
@@ -98,8 +93,7 @@ class XmlParser:
                     class_segments = [name_safe_tag, class_name, ]
                 # store the final relative module path for this class
                 self.path_dict[class_name] = os.path.join(base_segments, *class_segments)
-                # self.tag_dict[class_name.lower()] = child.tag
-                self.tag_dict[class_name.lower()] = name_safe_tag
+                self.tag_dict[class_name.lower()] = child.tag
 
     def load_xml(self, xml_file, parsed_xmls=None):
         """Loads an XML (can be filepath or open file) and does all parsing
@@ -197,6 +191,7 @@ class XmlParser:
             struct.text = clean_comment_str(struct.text, indent="", class_comment='"""')[2:]
         else:
             # it is a tag with a class
+            struct.attrib["__name__"] = struct.attrib["name"]
             self.apply_convention(struct, convention.name_class, ("name", "inherit"))
             self.apply_convention(struct, convention.name_module, ("module",))
             if struct.tag == "basic":
@@ -217,11 +212,12 @@ class XmlParser:
                 for field in struct:
                     self.apply_convention(field, convention.name_attribute, ("name",))
                     self.apply_convention(field, convention.name_class, ("type", "onlyT", "excludeT"))
+                    self.apply_convention(field, convention.force_bool, ("optional",))
                     # template can refer to a type of an attribute
                     self.apply_convention(field, convention.format_potential_tuple, ("default",))
                     for default in field:
-                        self.apply_convention(field, convention.name_class, ("onlyT",))
-                        self.apply_convention(field, convention.format_potential_tuple, ("value",))
+                        self.apply_convention(default, convention.name_class, ("onlyT",))
+                        self.apply_convention(default, convention.format_potential_tuple, ("value",))
             # filter comment str
             struct.text = clean_comment_str(struct.text, indent="\t", class_comment='"""')
 
@@ -305,7 +301,6 @@ class XmlParser:
         self.tokens.extend(other_parser.tokens)
         self.copy_dict_info(self.verattrs, other_parser.verattrs)
         self.copy_dict_info(self.path_dict, other_parser.path_dict)
-        self.copy_dict_info(self.storage_dict, other_parser.storage_dict)
         self.copy_dict_info(self.tag_dict, other_parser.tag_dict)
         self.basics.add_other_basics(other_parser.basics, other_parser.path_dict["basic_map"])
 

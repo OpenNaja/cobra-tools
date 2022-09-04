@@ -13,6 +13,10 @@ class LodInfo(BaseStruct):
 	JWE2 Biosyn - 12 bytes, skips the vert / tris counts
 	"""
 
+	__name__ = 'LodInfo'
+
+	_import_path = 'generated.formats.ms2.compounds.LodInfo'
+
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 

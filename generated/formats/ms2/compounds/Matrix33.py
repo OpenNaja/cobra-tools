@@ -10,6 +10,10 @@ class Matrix33(BaseStruct):
 	A 3x3 rotation matrix; M^T M=identity, det(M)=1.
 	"""
 
+	__name__ = 'Matrix33'
+
+	_import_path = 'generated.formats.ms2.compounds.Matrix33'
+
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 

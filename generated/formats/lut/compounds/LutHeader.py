@@ -1,4 +1,3 @@
-import generated.formats.lut.compounds.Vector3
 from generated.formats.base.basic import Uint
 from generated.formats.base.basic import Ushort
 from generated.formats.ovl_base.compounds.ArrayPointer import ArrayPointer
@@ -11,6 +10,10 @@ class LutHeader(MemStruct):
 	24 bytes for JWE2
 	"""
 
+	__name__ = 'LutHeader'
+
+	_import_path = 'generated.formats.lut.compounds.LutHeader'
+
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		self.colors_count = 0
@@ -18,7 +21,7 @@ class LutHeader(MemStruct):
 		self.unk_1 = 0
 		self.colors_in_column_count = 0
 		self.unk_2 = 0
-		self.colors = ArrayPointer(self.context, self.colors_count, generated.formats.lut.compounds.Vector3.Vector3)
+		self.colors = ArrayPointer(self.context, self.colors_count, LutHeader._import_path_map["generated.formats.lut.compounds.Vector3"])
 		if set_default:
 			self.set_defaults()
 
@@ -29,12 +32,12 @@ class LutHeader(MemStruct):
 		self.unk_1 = 0
 		self.colors_in_column_count = 0
 		self.unk_2 = 0
-		self.colors = ArrayPointer(self.context, self.colors_count, generated.formats.lut.compounds.Vector3.Vector3)
+		self.colors = ArrayPointer(self.context, self.colors_count, LutHeader._import_path_map["generated.formats.lut.compounds.Vector3"])
 
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.colors = ArrayPointer.from_stream(stream, instance.context, instance.colors_count, generated.formats.lut.compounds.Vector3.Vector3)
+		instance.colors = ArrayPointer.from_stream(stream, instance.context, instance.colors_count, LutHeader._import_path_map["generated.formats.lut.compounds.Vector3"])
 		instance.colors_count = Ushort.from_stream(stream, instance.context, 0, None)
 		instance.unk_0 = Ushort.from_stream(stream, instance.context, 0, None)
 		instance.unk_1 = Uint.from_stream(stream, instance.context, 0, None)
@@ -56,7 +59,7 @@ class LutHeader(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
-		yield 'colors', ArrayPointer, (instance.colors_count, generated.formats.lut.compounds.Vector3.Vector3), (False, None)
+		yield 'colors', ArrayPointer, (instance.colors_count, LutHeader._import_path_map["generated.formats.lut.compounds.Vector3"]), (False, None)
 		yield 'colors_count', Ushort, (0, None), (False, None)
 		yield 'unk_0', Ushort, (0, None), (False, None)
 		yield 'unk_1', Uint, (0, None), (False, None)

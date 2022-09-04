@@ -1,14 +1,18 @@
-import generated.formats.ovl_base.basic
 import numpy
 from generated.array import Array
 from generated.formats.base.basic import Float
 from generated.formats.base.basic import Uint
 from generated.formats.dinosaurmaterialvariants.compounds.Vector3F import Vector3F
+from generated.formats.ovl_base.basic import ZStringObfuscated
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
 from generated.formats.ovl_base.compounds.Pointer import Pointer
 
 
 class DinoEffectsHeader(MemStruct):
+
+	__name__ = 'DinoEffectsHeader'
+
+	_import_path = 'generated.formats.dinosaurmaterialvariants.compounds.DinoEffectsHeader'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
@@ -27,7 +31,7 @@ class DinoEffectsHeader(MemStruct):
 		self.floats = Array((0,), Float, self.context, 0, None)
 		self.d = 0
 		self.e = 0.0
-		self.fgm_name = Pointer(self.context, 0, generated.formats.ovl_base.basic.ZStringObfuscated)
+		self.fgm_name = Pointer(self.context, 0, ZStringObfuscated)
 		if set_default:
 			self.set_defaults()
 
@@ -48,12 +52,12 @@ class DinoEffectsHeader(MemStruct):
 		self.floats = numpy.zeros((39,), dtype=numpy.dtype('float32'))
 		self.d = 0
 		self.e = 0.0
-		self.fgm_name = Pointer(self.context, 0, generated.formats.ovl_base.basic.ZStringObfuscated)
+		self.fgm_name = Pointer(self.context, 0, ZStringObfuscated)
 
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.fgm_name = Pointer.from_stream(stream, instance.context, 0, generated.formats.ovl_base.basic.ZStringObfuscated)
+		instance.fgm_name = Pointer.from_stream(stream, instance.context, 0, ZStringObfuscated)
 		instance.vec_0 = Vector3F.from_stream(stream, instance.context, 0, None)
 		instance.vec_1 = Vector3F.from_stream(stream, instance.context, 0, None)
 		instance.a = Uint.from_stream(stream, instance.context, 0, None)
@@ -95,7 +99,7 @@ class DinoEffectsHeader(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
-		yield 'fgm_name', Pointer, (0, generated.formats.ovl_base.basic.ZStringObfuscated), (False, None)
+		yield 'fgm_name', Pointer, (0, ZStringObfuscated), (False, None)
 		yield 'vec_0', Vector3F, (0, None), (False, None)
 		yield 'vec_1', Vector3F, (0, None), (False, None)
 		yield 'a', Uint, (0, None), (False, None)

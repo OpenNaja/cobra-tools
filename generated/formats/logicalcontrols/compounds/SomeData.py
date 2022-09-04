@@ -9,6 +9,10 @@ class SomeData(MemStruct):
 	16 bytes
 	"""
 
+	__name__ = 'SomeData'
+
+	_import_path = 'generated.formats.logicalcontrols.compounds.SomeData'
+
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		self.key = 0

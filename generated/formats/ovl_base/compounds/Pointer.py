@@ -24,6 +24,10 @@ class Pointer(BaseStruct):
 	a pointer in an ovl memory layout, can point to a struct or a dependency entry
 	"""
 
+	__name__ = 'Pointer'
+
+	_import_path = 'generated.formats.ovl_base.compounds.Pointer'
+
 	def set_defaults(self):
 		super().set_defaults()
 		self.offset = 0

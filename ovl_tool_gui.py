@@ -5,8 +5,6 @@ import time
 import logging
 import tempfile
 
-from ovl_util.widgets import Worker
-
 try:
 	import winreg
 	import numpy as np

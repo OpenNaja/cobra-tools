@@ -30,34 +30,6 @@ class Basics:
             self.basic_map[basic_name] = getattr(self.base_module, basic_name)
         else:
             raise AttributeError(f"Basic type {basic_name} in {self.parser.format_name}.xml but not in associated basic.py module!")
-        if self.suitable_for_enum(xml_struct):
-            # this basic is suitable for enums
-            enum_name = Enum.base_from_storage(basic_name)
-            enum_path = BaseClass.get_out_path(os.path.join(self.parser.path_dict[enum_name], '__init__'))
-            with open(enum_path, "a", encoding=self.parser.encoding) as f:
-                # if nothing in file, add enum base class import
-                if not f.tell():
-                    f.write(f"from {Imports.import_from_module_path(self.parser.path_dict['BaseEnum'])} import BaseEnum\n")
-                f.write(f"\nfrom {Imports.import_from_module_path(self.parser.path_dict[basic_name])} import {basic_name}\n")
-                # class declaration
-                f.write(f'\n\nclass {enum_name}(BaseEnum):')
-                # read method for compatibility
-                f.write(f'\n\n\tdef read(self, stream):')
-                f.write(f'\n\t\tself._value_ = {self.parser.read_for_type(basic_name, None)}')
-                # write method for compatibility
-                f.write(f'\n\n\tdef write(self, stream):')
-                f.write(f'\n\t\t{self.parser.write_for_type(basic_name, "self.value", None)}')
-                # from_stream
-                f.write(f'\n\n\t@classmethod')
-                f.write(f'\n\tdef from_stream(cls, stream, context=None, arg=0, template=None):')
-                f.write(f'\n\t\tinstance = cls.from_value({self.parser.read_for_type(basic_name, None)})')
-                f.write(f'\n\t\treturn instance')
-                # to_stream
-                f.write(f'\n\n\t@classmethod')
-                f.write(f'\n\tdef to_stream(cls, stream, instance):')
-                f.write(f"\n\t\t{self.parser.write_for_type(basic_name, 'instance.value', None)}")
-                f.write(f"\n\t\treturn instance")
-                f.write(f'\n')
 
     def add_other_basics(self, other_basics, other_basic_path):
         to_import = []

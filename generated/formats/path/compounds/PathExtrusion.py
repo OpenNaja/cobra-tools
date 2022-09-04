@@ -1,5 +1,5 @@
-import generated.formats.base.basic
 from generated.formats.base.basic import Float
+from generated.formats.base.basic import ZString
 from generated.formats.ovl_base.basic import Bool
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
 from generated.formats.ovl_base.compounds.Pointer import Pointer
@@ -7,15 +7,19 @@ from generated.formats.ovl_base.compounds.Pointer import Pointer
 
 class PathExtrusion(MemStruct):
 
+	__name__ = 'PathExtrusion'
+
+	_import_path = 'generated.formats.path.compounds.PathExtrusion'
+
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		self.unk_float_1 = 0.0
 		self.unk_float_2 = 0.0
 		self.is_kerb = False
 		self.is_not_ground = True
-		self.model = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.post_model = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.endcap_model = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.model = Pointer(self.context, 0, ZString)
+		self.post_model = Pointer(self.context, 0, ZString)
+		self.endcap_model = Pointer(self.context, 0, ZString)
 		if set_default:
 			self.set_defaults()
 
@@ -25,16 +29,16 @@ class PathExtrusion(MemStruct):
 		self.unk_float_2 = 0.0
 		self.is_kerb = False
 		self.is_not_ground = True
-		self.model = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.post_model = Pointer(self.context, 0, generated.formats.base.basic.ZString)
-		self.endcap_model = Pointer(self.context, 0, generated.formats.base.basic.ZString)
+		self.model = Pointer(self.context, 0, ZString)
+		self.post_model = Pointer(self.context, 0, ZString)
+		self.endcap_model = Pointer(self.context, 0, ZString)
 
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.model = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
-		instance.post_model = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
-		instance.endcap_model = Pointer.from_stream(stream, instance.context, 0, generated.formats.base.basic.ZString)
+		instance.model = Pointer.from_stream(stream, instance.context, 0, ZString)
+		instance.post_model = Pointer.from_stream(stream, instance.context, 0, ZString)
+		instance.endcap_model = Pointer.from_stream(stream, instance.context, 0, ZString)
 		instance.unk_float_1 = Float.from_stream(stream, instance.context, 0, None)
 		instance.unk_float_2 = Float.from_stream(stream, instance.context, 0, None)
 		instance.is_kerb = Bool.from_stream(stream, instance.context, 0, None)
@@ -60,9 +64,9 @@ class PathExtrusion(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
-		yield 'model', Pointer, (0, generated.formats.base.basic.ZString), (False, None)
-		yield 'post_model', Pointer, (0, generated.formats.base.basic.ZString), (False, None)
-		yield 'endcap_model', Pointer, (0, generated.formats.base.basic.ZString), (False, None)
+		yield 'model', Pointer, (0, ZString), (False, None)
+		yield 'post_model', Pointer, (0, ZString), (False, None)
+		yield 'endcap_model', Pointer, (0, ZString), (False, None)
 		yield 'unk_float_1', Float, (0, None), (False, None)
 		yield 'unk_float_2', Float, (0, None), (False, None)
 		yield 'is_kerb', Bool, (0, None), (False, None)
