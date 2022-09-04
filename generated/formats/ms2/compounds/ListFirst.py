@@ -12,7 +12,7 @@ class ListFirst(Descriptor):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.floats = Array((0,), Float, self.context, 0, None)
+		self.floats = Array(self.context, 0, None, (0,), Float)
 		if set_default:
 			self.set_defaults()
 
@@ -28,7 +28,7 @@ class ListFirst(Descriptor):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		Array.to_stream(stream, instance.floats, (3,), Float, instance.context, 0, None)
+		Array.to_stream(stream, instance.floats, instance.context, 0, None, (3,), Float)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

@@ -34,7 +34,7 @@ class Header(BaseStruct):
 		self.linear_size = 0
 		self.depth = 1
 		self.mipmap_count = 0
-		self.reserved_1 = Array((0,), Uint, self.context, 0, None)
+		self.reserved_1 = Array(self.context, 0, None, (0,), Uint)
 		self.pixel_format = PixelFormat(self.context, 0, None)
 		self.caps_1 = Caps1(self.context, 0, None)
 		self.caps_2 = Caps2(self.context, 0, None)
@@ -97,7 +97,7 @@ class Header(BaseStruct):
 		Uint.to_stream(stream, instance.linear_size)
 		Uint.to_stream(stream, instance.depth)
 		Uint.to_stream(stream, instance.mipmap_count)
-		Array.to_stream(stream, instance.reserved_1, (11,), Uint, instance.context, 0, None)
+		Array.to_stream(stream, instance.reserved_1, instance.context, 0, None, (11,), Uint)
 		PixelFormat.to_stream(stream, instance.pixel_format)
 		Caps1.to_stream(stream, instance.caps_1)
 		Caps2.to_stream(stream, instance.caps_2)

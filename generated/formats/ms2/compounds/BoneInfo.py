@@ -50,7 +50,7 @@ class BoneInfo(BaseStruct):
 
 		# seems to match bone count
 		self.bind_matrix_count = 0
-		self.zeros = Array((0,), Uint64, self.context, 0, None)
+		self.zeros = Array(self.context, 0, None, (0,), Uint64)
 		self.inv_data_count = 0
 		self.bone_count = 0
 		self.unknown_40 = 0
@@ -86,35 +86,35 @@ class BoneInfo(BaseStruct):
 
 		# zero
 		self.unk_extra_jwe = 0
-		self.name_indices = Array((0,), Ushort, self.context, 0, None)
-		self.inventory_name_indices = Array((0,), Ushort, self.context, 0, None)
-		self.name_padding = Array((0,), Byte, self.context, 0, None)
+		self.name_indices = Array(self.context, 0, None, (0,), Ushort)
+		self.inventory_name_indices = Array(self.context, 0, None, (0,), Ushort)
+		self.name_padding = Array(self.context, 0, None, (0,), Byte)
 
 		# used for skinning
-		self.inverse_bind_matrices = Array((0,), Matrix44, self.context, 0, None)
-		self.bones = Array((0,), Bone, self.context, 0, None)
+		self.inverse_bind_matrices = Array(self.context, 0, None, (0,), Matrix44)
+		self.bones = Array(self.context, 0, None, (0,), Bone)
 
 		# 255 = root, index in this list is the current bone index, value is the bone's parent index
-		self.parents = Array((0,), Ubyte, self.context, 0, None)
+		self.parents = Array(self.context, 0, None, (0,), Ubyte)
 
 		# zeros
-		self.parents_padding = Array((0,), Byte, self.context, 0, None)
+		self.parents_padding = Array(self.context, 0, None, (0,), Byte)
 
 		# enumerates all bone indices, 4 may be flags
 
 		# enumerates all bone indices
-		self.enumeration = Array((0,), Ubyte, self.context, 0, None)
+		self.enumeration = Array(self.context, 0, None, (0,), Ubyte)
 
 		# zeros
-		self.inventory_datas = Array((0,), Byte, self.context, 0, None)
+		self.inventory_datas = Array(self.context, 0, None, (0,), Byte)
 
 		# -1s and 0s
 
 		# zeros
-		self.weirdness = Array((0,), Short, self.context, 0, None)
+		self.weirdness = Array(self.context, 0, None, (0,), Short)
 
 		# zeros
-		self.inventory_datas_2 = Array((0,), Int, self.context, 0, None)
+		self.inventory_datas_2 = Array(self.context, 0, None, (0,), Int)
 
 		# weird zeros
 		self.zeros_padding = ZerosPadding(self.context, self.zeros_count, None)
@@ -170,8 +170,8 @@ class BoneInfo(BaseStruct):
 			self.name_padding = numpy.zeros(((16 - (((self.name_count + self.inv_names_count) * 4) % 16)) % 16,), dtype=numpy.dtype('int8'))
 		if self.context.version < 47:
 			self.name_padding = numpy.zeros(((16 - (((self.name_count + self.inv_names_count) * 2) % 16)) % 16,), dtype=numpy.dtype('int8'))
-		self.inverse_bind_matrices = Array((self.bind_matrix_count,), Matrix44, self.context, 0, None)
-		self.bones = Array((self.bone_count,), Bone, self.context, 0, None)
+		self.inverse_bind_matrices = Array(self.context, 0, None, (self.bind_matrix_count,), Matrix44)
+		self.bones = Array(self.context, 0, None, (self.bone_count,), Bone)
 		self.parents = numpy.zeros((self.parents_count,), dtype=numpy.dtype('uint8'))
 		if self.context.version >= 32:
 			self.parents_padding = numpy.zeros(((8 - (self.parents_count % 8)) % 8,), dtype=numpy.dtype('int8'))
@@ -273,7 +273,7 @@ class BoneInfo(BaseStruct):
 			Uint.to_stream(stream, instance.unknown_0_c)
 		Uint64.to_stream(stream, instance.unk_count)
 		Uint64.to_stream(stream, instance.bind_matrix_count)
-		Array.to_stream(stream, instance.zeros, (2,), Uint64, instance.context, 0, None)
+		Array.to_stream(stream, instance.zeros, instance.context, 0, None, (2,), Uint64)
 		Uint64.to_stream(stream, instance.inv_data_count)
 		Uint64.to_stream(stream, instance.bone_count)
 		Uint64.to_stream(stream, instance.unknown_40)
@@ -294,33 +294,33 @@ class BoneInfo(BaseStruct):
 		if (instance.context.version == 47) or (instance.context.version == 39):
 			Uint64.to_stream(stream, instance.unk_extra_jwe)
 		if not (instance.context.version < 47):
-			Array.to_stream(stream, instance.name_indices, (instance.name_count,), Uint, instance.context, 0, None)
+			Array.to_stream(stream, instance.name_indices, instance.context, 0, None, (instance.name_count,), Uint)
 		if instance.context.version < 47:
-			Array.to_stream(stream, instance.name_indices, (instance.name_count,), Ushort, instance.context, 0, None)
-			Array.to_stream(stream, instance.inventory_name_indices, (instance.inv_names_count,), Ushort, instance.context, 0, None)
+			Array.to_stream(stream, instance.name_indices, instance.context, 0, None, (instance.name_count,), Ushort)
+			Array.to_stream(stream, instance.inventory_name_indices, instance.context, 0, None, (instance.inv_names_count,), Ushort)
 		if not (instance.context.version < 47):
 			instance.name_padding.resize(((16 - (((instance.name_count + instance.inv_names_count) * 4) % 16)) % 16,))
-			Array.to_stream(stream, instance.name_padding, ((16 - (((instance.name_count + instance.inv_names_count) * 4) % 16)) % 16,), Byte, instance.context, 0, None)
+			Array.to_stream(stream, instance.name_padding, instance.context, 0, None, ((16 - (((instance.name_count + instance.inv_names_count) * 4) % 16)) % 16,), Byte)
 		if instance.context.version < 47:
 			instance.name_padding.resize(((16 - (((instance.name_count + instance.inv_names_count) * 2) % 16)) % 16,))
-			Array.to_stream(stream, instance.name_padding, ((16 - (((instance.name_count + instance.inv_names_count) * 2) % 16)) % 16,), Byte, instance.context, 0, None)
-		Array.to_stream(stream, instance.inverse_bind_matrices, (instance.bind_matrix_count,), Matrix44, instance.context, 0, None)
-		Array.to_stream(stream, instance.bones, (instance.bone_count,), Bone, instance.context, 0, None)
-		Array.to_stream(stream, instance.parents, (instance.parents_count,), Ubyte, instance.context, 0, None)
+			Array.to_stream(stream, instance.name_padding, instance.context, 0, None, ((16 - (((instance.name_count + instance.inv_names_count) * 2) % 16)) % 16,), Byte)
+		Array.to_stream(stream, instance.inverse_bind_matrices, instance.context, 0, None, (instance.bind_matrix_count,), Matrix44)
+		Array.to_stream(stream, instance.bones, instance.context, 0, None, (instance.bone_count,), Bone)
+		Array.to_stream(stream, instance.parents, instance.context, 0, None, (instance.parents_count,), Ubyte)
 		if instance.context.version >= 32:
 			instance.parents_padding.resize(((8 - (instance.parents_count % 8)) % 8,))
-			Array.to_stream(stream, instance.parents_padding, ((8 - (instance.parents_count % 8)) % 8,), Byte, instance.context, 0, None)
+			Array.to_stream(stream, instance.parents_padding, instance.context, 0, None, ((8 - (instance.parents_count % 8)) % 8,), Byte)
 		if instance.context.version >= 32 and instance.one:
-			Array.to_stream(stream, instance.enumeration, (instance.enum_count, 2,), Uint, instance.context, 0, None)
+			Array.to_stream(stream, instance.enumeration, instance.context, 0, None, (instance.enum_count, 2,), Uint)
 		if instance.context.version <= 13 and instance.one:
-			Array.to_stream(stream, instance.enumeration, (instance.enum_count,), Ubyte, instance.context, 0, None)
+			Array.to_stream(stream, instance.enumeration, instance.context, 0, None, (instance.enum_count,), Ubyte)
 		if instance.context.version == 7:
-			Array.to_stream(stream, instance.inventory_datas, (instance.inv_data_count, 6,), Byte, instance.context, 0, None)
-			Array.to_stream(stream, instance.weirdness, (8,), Short, instance.context, 0, None)
+			Array.to_stream(stream, instance.inventory_datas, instance.context, 0, None, (instance.inv_data_count, 6,), Byte)
+			Array.to_stream(stream, instance.weirdness, instance.context, 0, None, (8,), Short)
 		if instance.context.version == 13:
-			Array.to_stream(stream, instance.weirdness, (10,), Short, instance.context, 0, None)
+			Array.to_stream(stream, instance.weirdness, instance.context, 0, None, (10,), Short)
 		if instance.context.version == 7:
-			Array.to_stream(stream, instance.inventory_datas_2, (instance.inv_data_count, 2,), Int, instance.context, 0, None)
+			Array.to_stream(stream, instance.inventory_datas_2, instance.context, 0, None, (instance.inv_data_count, 2,), Int)
 		if not (instance.context.version < 47) and instance.zeros_count:
 			ZerosPadding.to_stream(stream, instance.zeros_padding)
 		if instance.context.version >= 48 and instance.zeros_count:

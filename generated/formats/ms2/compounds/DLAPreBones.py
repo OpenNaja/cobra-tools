@@ -12,7 +12,7 @@ class DLAPreBones(BaseStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.unk = Array((0,), Ubyte, self.context, 0, None)
+		self.unk = Array(self.context, 0, None, (0,), Ubyte)
 		if set_default:
 			self.set_defaults()
 
@@ -28,7 +28,7 @@ class DLAPreBones(BaseStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		Array.to_stream(stream, instance.unk, (120,), Ubyte, instance.context, 0, None)
+		Array.to_stream(stream, instance.unk, instance.context, 0, None, (120,), Ubyte)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

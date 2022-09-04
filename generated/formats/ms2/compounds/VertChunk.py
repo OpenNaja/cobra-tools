@@ -19,7 +19,7 @@ class VertChunk(BaseStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.flags = Array((0,), Ubyte, self.context, 0, None)
+		self.flags = Array(self.context, 0, None, (0,), Ubyte)
 
 		# scale: pack_base / 512, also added as offset
 		self.pack_base = 0.0
@@ -56,7 +56,7 @@ class VertChunk(BaseStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		Array.to_stream(stream, instance.flags, (4,), Ubyte, instance.context, 0, None)
+		Array.to_stream(stream, instance.flags, instance.context, 0, None, (4,), Ubyte)
 		Float.to_stream(stream, instance.pack_base)
 		Uint.to_stream(stream, instance.vertex_offset)
 		Ubyte.to_stream(stream, instance.vertex_count)

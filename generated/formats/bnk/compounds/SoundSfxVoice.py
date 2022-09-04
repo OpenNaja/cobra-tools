@@ -41,7 +41,7 @@ class SoundSfxVoice(BaseStruct):
 		Byte.to_stream(stream, instance.const_b)
 		Uint.to_stream(stream, instance.didx_id)
 		Uint.to_stream(stream, instance.wem_length)
-		Array.to_stream(stream, instance.extra, (instance.length - 17,), Byte, instance.context, 0, None)
+		Array.to_stream(stream, instance.extra, instance.context, 0, None, (instance.length - 17,), Byte)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

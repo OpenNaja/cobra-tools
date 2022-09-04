@@ -47,7 +47,7 @@ class BioMeshData(MeshData):
 		self.poweroftwo = 0
 
 		# some floats, purpose unknown
-		self.unk_floats = Array((0,), Float, self.context, 0, None)
+		self.unk_floats = Array(self.context, 0, None, (0,), Float)
 
 		# seen 1 or 13
 		self.flag = BioModelFlag(self.context, 0, None)
@@ -86,7 +86,7 @@ class BioMeshData(MeshData):
 		Uint.to_stream(stream, instance.vertex_count)
 		Uint64.to_stream(stream, instance.zero_1)
 		Uint.to_stream(stream, instance.poweroftwo)
-		Array.to_stream(stream, instance.unk_floats, (2,), Float, instance.context, 0, None)
+		Array.to_stream(stream, instance.unk_floats, instance.context, 0, None, (2,), Float)
 		BioModelFlag.to_stream(stream, instance.flag)
 
 	@classmethod

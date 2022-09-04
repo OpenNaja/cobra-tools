@@ -16,10 +16,10 @@ class Layer(BaseStruct):
 		super().__init__(context, arg, template, set_default=False)
 		self.info = LayerFrag(self.context, 0, None)
 		self.name = ''
-		self.infos = Array((0,), Info, self.context, 0, None)
-		self.info_names = Array((0,), ZString, self.context, 0, None)
-		self.attribs = Array((0,), Attrib, self.context, 0, None)
-		self.attrib_names = Array((0,), ZString, self.context, 0, None)
+		self.infos = Array(self.context, 0, None, (0,), Info)
+		self.info_names = Array(self.context, 0, None, (0,), ZString)
+		self.attribs = Array(self.context, 0, None, (0,), Attrib)
+		self.attrib_names = Array(self.context, 0, None, (0,), ZString)
 		if set_default:
 			self.set_defaults()
 
@@ -27,10 +27,10 @@ class Layer(BaseStruct):
 		super().set_defaults()
 		self.info = LayerFrag(self.context, 0, None)
 		self.name = ''
-		self.infos = Array((self.info.info_count,), Info, self.context, 0, None)
-		self.info_names = Array((self.info.info_count,), ZString, self.context, 0, None)
-		self.attribs = Array((self.info.attrib_count,), Attrib, self.context, 0, None)
-		self.attrib_names = Array((self.info.attrib_count,), ZString, self.context, 0, None)
+		self.infos = Array(self.context, 0, None, (self.info.info_count,), Info)
+		self.info_names = Array(self.context, 0, None, (self.info.info_count,), ZString)
+		self.attribs = Array(self.context, 0, None, (self.info.attrib_count,), Attrib)
+		self.attrib_names = Array(self.context, 0, None, (self.info.attrib_count,), ZString)
 
 	@classmethod
 	def read_fields(cls, stream, instance):
@@ -47,10 +47,10 @@ class Layer(BaseStruct):
 		super().write_fields(stream, instance)
 		LayerFrag.to_stream(stream, instance.info)
 		ZString.to_stream(stream, instance.name)
-		Array.to_stream(stream, instance.infos, (instance.info.info_count,), Info, instance.context, 0, None)
-		Array.to_stream(stream, instance.info_names, (instance.info.info_count,), ZString, instance.context, 0, None)
-		Array.to_stream(stream, instance.attribs, (instance.info.attrib_count,), Attrib, instance.context, 0, None)
-		Array.to_stream(stream, instance.attrib_names, (instance.info.attrib_count,), ZString, instance.context, 0, None)
+		Array.to_stream(stream, instance.infos, instance.context, 0, None, (instance.info.info_count,), Info)
+		Array.to_stream(stream, instance.info_names, instance.context, 0, None, (instance.info.info_count,), ZString)
+		Array.to_stream(stream, instance.attribs, instance.context, 0, None, (instance.info.attrib_count,), Attrib)
+		Array.to_stream(stream, instance.attrib_names, instance.context, 0, None, (instance.info.attrib_count,), ZString)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

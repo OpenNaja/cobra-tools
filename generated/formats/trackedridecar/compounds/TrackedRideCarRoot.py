@@ -23,7 +23,7 @@ class TrackedRideCarRoot(MemStruct):
 		super().__init__(context, arg, template, set_default=False)
 		self.sub_count = 0
 		self.total_vecs_count = 0
-		self.vec = Array((0,), Float, self.context, 0, None)
+		self.vec = Array(self.context, 0, None, (0,), Float)
 		self.zero_0 = 0
 		self.zero_1 = 0
 		self.sub = ArrayPointer(self.context, self.sub_count, TrackedRideCarRoot._import_path_map["generated.formats.trackedridecar.compounds.TrackedRideCarSub"])
@@ -62,7 +62,7 @@ class TrackedRideCarRoot(MemStruct):
 		ArrayPointer.to_stream(stream, instance.sub)
 		Uint.to_stream(stream, instance.sub_count)
 		Uint.to_stream(stream, instance.total_vecs_count)
-		Array.to_stream(stream, instance.vec, (3,), Float, instance.context, 0, None)
+		Array.to_stream(stream, instance.vec, instance.context, 0, None, (3,), Float)
 		Uint.to_stream(stream, instance.zero_0)
 		Pointer.to_stream(stream, instance.some_name)
 		Uint64.to_stream(stream, instance.zero_1)

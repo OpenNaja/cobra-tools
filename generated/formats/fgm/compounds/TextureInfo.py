@@ -21,7 +21,7 @@ class TextureInfo(GenericInfo):
 		# Stores 2 rgba colors
 
 		# Stores rgba color
-		self.value = Array((0,), Color, self.context, 0, None)
+		self.value = Array(self.context, 0, None, (0,), Color)
 		self.some_index_0 = 0
 		self.some_index_1 = 0
 		if set_default:
@@ -30,11 +30,11 @@ class TextureInfo(GenericInfo):
 	def set_defaults(self):
 		super().set_defaults()
 		if self.dtype == 8:
-			self.value = Array((1,), TexIndex, self.context, 0, None)
+			self.value = Array(self.context, 0, None, (1,), TexIndex)
 		if self.context.version >= 18 and self.dtype == 7:
-			self.value = Array((2,), Color, self.context, 0, None)
+			self.value = Array(self.context, 0, None, (2,), Color)
 		if self.context.version <= 17 and self.dtype == 7:
-			self.value = Array((1,), Color, self.context, 0, None)
+			self.value = Array(self.context, 0, None, (1,), Color)
 		if self.context.version >= 18:
 			self.some_index_0 = 0
 			self.some_index_1 = 0
@@ -56,11 +56,11 @@ class TextureInfo(GenericInfo):
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
 		if instance.dtype == 8:
-			Array.to_stream(stream, instance.value, (1,), TexIndex, instance.context, 0, None)
+			Array.to_stream(stream, instance.value, instance.context, 0, None, (1,), TexIndex)
 		if instance.context.version >= 18 and instance.dtype == 7:
-			Array.to_stream(stream, instance.value, (2,), Color, instance.context, 0, None)
+			Array.to_stream(stream, instance.value, instance.context, 0, None, (2,), Color)
 		if instance.context.version <= 17 and instance.dtype == 7:
-			Array.to_stream(stream, instance.value, (1,), Color, instance.context, 0, None)
+			Array.to_stream(stream, instance.value, instance.context, 0, None, (1,), Color)
 		if instance.context.version >= 18:
 			Uint.to_stream(stream, instance.some_index_0)
 			Uint.to_stream(stream, instance.some_index_1)

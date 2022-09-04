@@ -21,7 +21,7 @@ class ParamData(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.data = Array((0,), ZStrPtr, self.context, 0, None)
+		self.data = Array(self.context, 0, None, (0,), ZStrPtr)
 		if set_default:
 			self.set_defaults()
 
@@ -46,7 +46,7 @@ class ParamData(MemStruct):
 		if self.arg == 8:
 			self.data = numpy.zeros((4,), dtype=numpy.dtype('float32'))
 		if self.arg == 9:
-			self.data = Array((1,), ZStrPtr, self.context, 0, None)
+			self.data = Array(self.context, 0, None, (1,), ZStrPtr)
 
 	@classmethod
 	def read_fields(cls, stream, instance):
@@ -76,25 +76,25 @@ class ParamData(MemStruct):
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
 		if instance.arg == 0:
-			Array.to_stream(stream, instance.data, (1,), Bool, instance.context, 0, None)
+			Array.to_stream(stream, instance.data, instance.context, 0, None, (1,), Bool)
 		if instance.arg == 1:
-			Array.to_stream(stream, instance.data, (1,), Float, instance.context, 0, None)
+			Array.to_stream(stream, instance.data, instance.context, 0, None, (1,), Float)
 		if instance.arg == 2:
-			Array.to_stream(stream, instance.data, (1,), Int, instance.context, 0, None)
+			Array.to_stream(stream, instance.data, instance.context, 0, None, (1,), Int)
 		if instance.arg == 3:
-			Array.to_stream(stream, instance.data, (1,), Uint, instance.context, 0, None)
+			Array.to_stream(stream, instance.data, instance.context, 0, None, (1,), Uint)
 		if instance.arg == 4:
-			Array.to_stream(stream, instance.data, (2,), Float, instance.context, 0, None)
+			Array.to_stream(stream, instance.data, instance.context, 0, None, (2,), Float)
 		if instance.arg == 5:
-			Array.to_stream(stream, instance.data, (3,), Float, instance.context, 0, None)
+			Array.to_stream(stream, instance.data, instance.context, 0, None, (3,), Float)
 		if instance.arg == 6:
-			Array.to_stream(stream, instance.data, (4,), Float, instance.context, 0, None)
+			Array.to_stream(stream, instance.data, instance.context, 0, None, (4,), Float)
 		if instance.arg == 7:
-			Array.to_stream(stream, instance.data, (4,), Ubyte, instance.context, 0, None)
+			Array.to_stream(stream, instance.data, instance.context, 0, None, (4,), Ubyte)
 		if instance.arg == 8:
-			Array.to_stream(stream, instance.data, (4,), Float, instance.context, 0, None)
+			Array.to_stream(stream, instance.data, instance.context, 0, None, (4,), Float)
 		if instance.arg == 9:
-			Array.to_stream(stream, instance.data, (1,), ZStrPtr, instance.context, 0, None)
+			Array.to_stream(stream, instance.data, instance.context, 0, None, (1,), ZStrPtr)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

@@ -28,7 +28,7 @@ class ListCEntry(BaseStruct):
 		self.a = 0.0
 
 		# ?
-		self.floats = Array((0,), Float, self.context, 0, None)
+		self.floats = Array(self.context, 0, None, (0,), Float)
 
 		# sometimes repeat of a
 		self.a_2 = 0.0
@@ -61,7 +61,7 @@ class ListCEntry(BaseStruct):
 		Vector3.to_stream(stream, instance.loc)
 		Float.to_stream(stream, instance.constant)
 		Float.to_stream(stream, instance.a)
-		Array.to_stream(stream, instance.floats, (4,), Float, instance.context, 0, None)
+		Array.to_stream(stream, instance.floats, instance.context, 0, None, (4,), Float)
 		Float.to_stream(stream, instance.a_2)
 
 	@classmethod

@@ -22,10 +22,10 @@ class ListLong(Descriptor):
 		self.loc = Vector3(self.context, 0, None)
 
 		# each of the vec3 components is normalized, these might represent axes for the angles
-		self.floats = Array((0,), Float, self.context, 0, None)
+		self.floats = Array(self.context, 0, None, (0,), Float)
 
 		# radians
-		self.radians = Array((0,), Float, self.context, 0, None)
+		self.radians = Array(self.context, 0, None, (0,), Float)
 		if set_default:
 			self.set_defaults()
 
@@ -46,8 +46,8 @@ class ListLong(Descriptor):
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
 		Vector3.to_stream(stream, instance.loc)
-		Array.to_stream(stream, instance.floats, (5, 3,), Float, instance.context, 0, None)
-		Array.to_stream(stream, instance.radians, (8,), Float, instance.context, 0, None)
+		Array.to_stream(stream, instance.floats, instance.context, 0, None, (5, 3,), Float)
+		Array.to_stream(stream, instance.radians, instance.context, 0, None, (8,), Float)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

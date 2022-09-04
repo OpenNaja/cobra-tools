@@ -29,7 +29,7 @@ class FctRoot(MemStruct):
 		self.z_1 = 0
 		self.z_2 = 0
 		self.offset = 0
-		self.fonts = Array((0,), Font, self.context, 0, None)
+		self.fonts = Array(self.context, 0, None, (0,), Font)
 		if set_default:
 			self.set_defaults()
 
@@ -45,7 +45,7 @@ class FctRoot(MemStruct):
 		self.z_1 = 0
 		self.z_2 = 0
 		self.offset = 0
-		self.fonts = Array((4,), Font, self.context, 0, None)
+		self.fonts = Array(self.context, 0, None, (4,), Font)
 
 	@classmethod
 	def read_fields(cls, stream, instance):
@@ -75,7 +75,7 @@ class FctRoot(MemStruct):
 		Int.to_stream(stream, instance.z_1)
 		Uint64.to_stream(stream, instance.z_2)
 		Uint64.to_stream(stream, instance.offset)
-		Array.to_stream(stream, instance.fonts, (4,), Font, instance.context, 0, None)
+		Array.to_stream(stream, instance.fonts, instance.context, 0, None, (4,), Font)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

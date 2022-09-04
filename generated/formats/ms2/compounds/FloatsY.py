@@ -13,7 +13,7 @@ class FloatsY(BaseStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.floats = Array((0,), Float, self.context, 0, None)
+		self.floats = Array(self.context, 0, None, (0,), Float)
 		self.index = 0
 		if set_default:
 			self.set_defaults()
@@ -32,7 +32,7 @@ class FloatsY(BaseStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		Array.to_stream(stream, instance.floats, (8,), Float, instance.context, 0, None)
+		Array.to_stream(stream, instance.floats, instance.context, 0, None, (8,), Float)
 		Uint.to_stream(stream, instance.index)
 
 	@classmethod

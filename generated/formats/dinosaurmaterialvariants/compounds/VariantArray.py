@@ -11,13 +11,13 @@ class VariantArray(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.variants = Array((0,), Variant, self.context, 0, None)
+		self.variants = Array(self.context, 0, None, (0,), Variant)
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
 		super().set_defaults()
-		self.variants = Array((self.arg,), Variant, self.context, 0, None)
+		self.variants = Array(self.context, 0, None, (self.arg,), Variant)
 
 	@classmethod
 	def read_fields(cls, stream, instance):
@@ -27,7 +27,7 @@ class VariantArray(MemStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		Array.to_stream(stream, instance.variants, (instance.arg,), Variant, instance.context, 0, None)
+		Array.to_stream(stream, instance.variants, instance.context, 0, None, (instance.arg,), Variant)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

@@ -19,7 +19,7 @@ class SplData(MemStruct):
 		super().__init__(context, arg, template, set_default=False)
 		self.offset = Vector3(self.context, 0, None)
 		self.scale = 0.0
-		self.keys = Array((0,), Key, self.context, 0, None)
+		self.keys = Array(self.context, 0, None, (0,), Key)
 		if set_default:
 			self.set_defaults()
 
@@ -27,7 +27,7 @@ class SplData(MemStruct):
 		super().set_defaults()
 		self.offset = Vector3(self.context, 0, None)
 		self.scale = 0.0
-		self.keys = Array((self.arg,), Key, self.context, 0, None)
+		self.keys = Array(self.context, 0, None, (self.arg,), Key)
 
 	@classmethod
 	def read_fields(cls, stream, instance):
@@ -41,7 +41,7 @@ class SplData(MemStruct):
 		super().write_fields(stream, instance)
 		Vector3.to_stream(stream, instance.offset)
 		Float.to_stream(stream, instance.scale)
-		Array.to_stream(stream, instance.keys, (instance.arg,), Key, instance.context, 0, None)
+		Array.to_stream(stream, instance.keys, instance.context, 0, None, (instance.arg,), Key)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

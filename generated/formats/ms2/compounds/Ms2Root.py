@@ -33,7 +33,7 @@ class Ms2Root(MemStruct):
 
 		# -1 if there is no vertex buffer at all; else count of static buffers
 		self.stream_count = 0
-		self.zeros = Array((0,), Uint, self.context, 0, None)
+		self.zeros = Array(self.context, 0, None, (0,), Uint)
 
 		# ms2's static buffer_info or empty (if no buffers)
 		self.buffer_infos = ArrayPointer(self.context, self.vertex_buffer_count, Ms2Root._import_path_map["generated.formats.ms2.compounds.BufferInfo"])
@@ -86,7 +86,7 @@ class Ms2Root(MemStruct):
 		Ushort.to_stream(stream, instance.mdl_2_count)
 		Ushort.to_stream(stream, instance.name_count)
 		Short.to_stream(stream, instance.stream_count)
-		Array.to_stream(stream, instance.zeros, (3,), Uint, instance.context, 0, None)
+		Array.to_stream(stream, instance.zeros, instance.context, 0, None, (3,), Uint)
 		ArrayPointer.to_stream(stream, instance.buffer_infos)
 		ArrayPointer.to_stream(stream, instance.model_infos)
 		ArrayPointer.to_stream(stream, instance.buffers_presence)

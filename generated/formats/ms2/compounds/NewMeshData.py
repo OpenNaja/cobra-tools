@@ -48,7 +48,7 @@ class NewMeshData(MeshData):
 		self.zero_2 = 0
 
 		# some floats, purpose unknown
-		self.unk_floats = Array((0,), Float, self.context, 0, None)
+		self.unk_floats = Array(self.context, 0, None, (0,), Float)
 
 		# always zero
 		self.zero_3 = 0
@@ -98,7 +98,7 @@ class NewMeshData(MeshData):
 		Uint.to_stream(stream, instance.size_of_vertex)
 		Uint.to_stream(stream, instance.tri_offset)
 		Uint.to_stream(stream, instance.zero_2)
-		Array.to_stream(stream, instance.unk_floats, (2,), Float, instance.context, 0, None)
+		Array.to_stream(stream, instance.unk_floats, instance.context, 0, None, (2,), Float)
 		Uint.to_stream(stream, instance.zero_3)
 		ModelFlag.to_stream(stream, instance.flag)
 

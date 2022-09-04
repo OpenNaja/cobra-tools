@@ -13,7 +13,7 @@ class AttribData(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.value = Array((0,), Int, self.context, 0, None)
+		self.value = Array(self.context, 0, None, (0,), Int)
 		if set_default:
 			self.set_defaults()
 
@@ -52,17 +52,17 @@ class AttribData(MemStruct):
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
 		if instance.arg.dtype == 0:
-			Array.to_stream(stream, instance.value, (1,), Float, instance.context, 0, None)
+			Array.to_stream(stream, instance.value, instance.context, 0, None, (1,), Float)
 		if instance.arg.dtype == 1:
-			Array.to_stream(stream, instance.value, (2,), Float, instance.context, 0, None)
+			Array.to_stream(stream, instance.value, instance.context, 0, None, (2,), Float)
 		if instance.arg.dtype == 2:
-			Array.to_stream(stream, instance.value, (3,), Float, instance.context, 0, None)
+			Array.to_stream(stream, instance.value, instance.context, 0, None, (3,), Float)
 		if instance.arg.dtype == 3:
-			Array.to_stream(stream, instance.value, (4,), Float, instance.context, 0, None)
+			Array.to_stream(stream, instance.value, instance.context, 0, None, (4,), Float)
 		if instance.arg.dtype == 5:
-			Array.to_stream(stream, instance.value, (1,), Int, instance.context, 0, None)
+			Array.to_stream(stream, instance.value, instance.context, 0, None, (1,), Int)
 		if instance.arg.dtype == 6:
-			Array.to_stream(stream, instance.value, (1,), Int, instance.context, 0, None)
+			Array.to_stream(stream, instance.value, instance.context, 0, None, (1,), Int)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

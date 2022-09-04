@@ -19,10 +19,10 @@ class MinusPadding(BaseStruct):
 		super().__init__(context, arg, template, set_default=False)
 
 		# -1
-		self.indices = Array((0,), Short, self.context, 0, None)
+		self.indices = Array(self.context, 0, None, (0,), Short)
 
 		# 0
-		self.padding = Array((0,), Byte, self.context, 0, None)
+		self.padding = Array(self.context, 0, None, (0,), Byte)
 		if set_default:
 			self.set_defaults()
 
@@ -40,8 +40,8 @@ class MinusPadding(BaseStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		Array.to_stream(stream, instance.indices, (instance.arg,), Short, instance.context, 0, None)
-		Array.to_stream(stream, instance.padding, ((16 - ((instance.arg * 2) % 16)) % 16,), Byte, instance.context, 0, None)
+		Array.to_stream(stream, instance.indices, instance.context, 0, None, (instance.arg,), Short)
+		Array.to_stream(stream, instance.padding, instance.context, 0, None, ((16 - ((instance.arg * 2) % 16)) % 16,), Byte)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

@@ -33,13 +33,13 @@ class BnkBufferData(BaseStruct):
 		self.stream_info_count = 0
 
 		# 0
-		self.zeros = Array((0,), Uint, self.context, 0, None)
+		self.zeros = Array(self.context, 0, None, (0,), Uint)
 
 		# variable
-		self.zeros_per_buffer = Array((0,), Uint64, self.context, 0, None)
+		self.zeros_per_buffer = Array(self.context, 0, None, (0,), Uint64)
 
 		# data
-		self.stream_infos = Array((0,), StreamInfo, self.context, 0, None)
+		self.stream_infos = Array(self.context, 0, None, (0,), StreamInfo)
 
 		# data
 		self.name = ''
@@ -60,7 +60,7 @@ class BnkBufferData(BaseStruct):
 		self.stream_info_count = 0
 		self.zeros = numpy.zeros((7,), dtype=numpy.dtype('uint32'))
 		self.zeros_per_buffer = numpy.zeros((self.buffer_count, 2,), dtype=numpy.dtype('uint64'))
-		self.stream_infos = Array((self.stream_info_count,), StreamInfo, self.context, 0, None)
+		self.stream_infos = Array(self.context, 0, None, (self.stream_info_count,), StreamInfo)
 		self.name = ''
 		if self.buffer_count:
 			self.external_b_suffix = ''
@@ -90,9 +90,9 @@ class BnkBufferData(BaseStruct):
 		Uint.to_stream(stream, instance.buffer_count)
 		Uint.to_stream(stream, instance.count_2)
 		Uint.to_stream(stream, instance.stream_info_count)
-		Array.to_stream(stream, instance.zeros, (7,), Uint, instance.context, 0, None)
-		Array.to_stream(stream, instance.zeros_per_buffer, (instance.buffer_count, 2,), Uint64, instance.context, 0, None)
-		Array.to_stream(stream, instance.stream_infos, (instance.stream_info_count,), StreamInfo, instance.context, 0, None)
+		Array.to_stream(stream, instance.zeros, instance.context, 0, None, (7,), Uint)
+		Array.to_stream(stream, instance.zeros_per_buffer, instance.context, 0, None, (instance.buffer_count, 2,), Uint64)
+		Array.to_stream(stream, instance.stream_infos, instance.context, 0, None, (instance.stream_info_count,), StreamInfo)
 		ZString.to_stream(stream, instance.name)
 		if instance.buffer_count:
 			ZString.to_stream(stream, instance.external_b_suffix)

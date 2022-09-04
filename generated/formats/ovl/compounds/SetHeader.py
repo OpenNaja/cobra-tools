@@ -25,8 +25,8 @@ class SetHeader(BaseStruct):
 
 		# must be 16909320
 		self.sig_b = 16909320
-		self.sets = Array((0,), SetEntry, self.context, 0, None)
-		self.assets = Array((0,), AssetEntry, self.context, 0, None)
+		self.sets = Array(self.context, 0, None, (0,), SetEntry)
+		self.assets = Array(self.context, 0, None, (0,), AssetEntry)
 		if set_default:
 			self.set_defaults()
 
@@ -36,8 +36,8 @@ class SetHeader(BaseStruct):
 		self.asset_count = 0
 		self.sig_a = 1065336831
 		self.sig_b = 16909320
-		self.sets = Array((self.set_count,), SetEntry, self.context, 0, None)
-		self.assets = Array((self.asset_count,), AssetEntry, self.context, 0, None)
+		self.sets = Array(self.context, 0, None, (self.set_count,), SetEntry)
+		self.assets = Array(self.context, 0, None, (self.asset_count,), AssetEntry)
 
 	@classmethod
 	def read_fields(cls, stream, instance):
@@ -56,8 +56,8 @@ class SetHeader(BaseStruct):
 		Uint.to_stream(stream, instance.asset_count)
 		Uint.to_stream(stream, instance.sig_a)
 		Uint.to_stream(stream, instance.sig_b)
-		Array.to_stream(stream, instance.sets, (instance.set_count,), SetEntry, instance.context, 0, None)
-		Array.to_stream(stream, instance.assets, (instance.asset_count,), AssetEntry, instance.context, 0, None)
+		Array.to_stream(stream, instance.sets, instance.context, 0, None, (instance.set_count,), SetEntry)
+		Array.to_stream(stream, instance.assets, instance.context, 0, None, (instance.asset_count,), AssetEntry)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

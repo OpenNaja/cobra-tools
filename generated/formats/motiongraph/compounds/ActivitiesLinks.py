@@ -11,13 +11,13 @@ class ActivitiesLinks(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.activities = Array((0,), ActivitiesLink, self.context, 0, None)
+		self.activities = Array(self.context, 0, None, (0,), ActivitiesLink)
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
 		super().set_defaults()
-		self.activities = Array((self.arg,), ActivitiesLink, self.context, 0, None)
+		self.activities = Array(self.context, 0, None, (self.arg,), ActivitiesLink)
 
 	@classmethod
 	def read_fields(cls, stream, instance):
@@ -27,7 +27,7 @@ class ActivitiesLinks(MemStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		Array.to_stream(stream, instance.activities, (instance.arg,), ActivitiesLink, instance.context, 0, None)
+		Array.to_stream(stream, instance.activities, instance.context, 0, None, (instance.arg,), ActivitiesLink)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

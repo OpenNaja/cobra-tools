@@ -21,7 +21,7 @@ class BaniInfoHeader(BaseStruct):
 		super().__init__(context, arg, template, set_default=False)
 
 		# 'BANI'
-		self.magic = Array((0,), Byte, self.context, 0, None)
+		self.magic = Array(self.context, 0, None, (0,), Byte)
 
 		# name of the banis file buffer
 		self.banis_name = ''
@@ -45,7 +45,7 @@ class BaniInfoHeader(BaseStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		Array.to_stream(stream, instance.magic, (4,), Byte, instance.context, 0, None)
+		Array.to_stream(stream, instance.magic, instance.context, 0, None, (4,), Byte)
 		ZString.to_stream(stream, instance.banis_name)
 		BaniRoot.to_stream(stream, instance.data)
 

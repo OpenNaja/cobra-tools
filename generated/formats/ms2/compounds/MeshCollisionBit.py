@@ -15,10 +15,10 @@ class MeshCollisionBit(BaseStruct):
 		super().__init__(context, arg, template, set_default=False)
 
 		# ?
-		self.countd = Array((0,), Ushort, self.context, 0, None)
+		self.countd = Array(self.context, 0, None, (0,), Ushort)
 
 		# always 2954754766?
-		self.consts = Array((0,), Uint, self.context, 0, None)
+		self.consts = Array(self.context, 0, None, (0,), Uint)
 		if set_default:
 			self.set_defaults()
 
@@ -36,8 +36,8 @@ class MeshCollisionBit(BaseStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		Array.to_stream(stream, instance.countd, (34,), Ushort, instance.context, 0, None)
-		Array.to_stream(stream, instance.consts, (3,), Uint, instance.context, 0, None)
+		Array.to_stream(stream, instance.countd, instance.context, 0, None, (34,), Ushort)
+		Array.to_stream(stream, instance.consts, instance.context, 0, None, (3,), Uint)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

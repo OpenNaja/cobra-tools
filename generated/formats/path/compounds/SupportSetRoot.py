@@ -24,7 +24,7 @@ class SupportSetRoot(MemStruct):
 		self.unk_int_1 = 0
 		self.num_connector_1 = 0
 		self.num_connector_2 = 0
-		self.unk_ints = Array((0,), Uint, self.context, 0, None)
+		self.unk_ints = Array(self.context, 0, None, (0,), Uint)
 		self.padding_2 = 0
 		self.num_data = 0
 		self.connector_1 = ArrayPointer(self.context, self.num_connector_1, SupportSetRoot._import_path_map["generated.formats.path.compounds.Connector"])
@@ -96,7 +96,7 @@ class SupportSetRoot(MemStruct):
 		Uint.to_stream(stream, instance.unk_int_1)
 		Uint.to_stream(stream, instance.num_connector_1)
 		Uint.to_stream(stream, instance.num_connector_2)
-		Array.to_stream(stream, instance.unk_ints, (7,), Uint, instance.context, 0, None)
+		Array.to_stream(stream, instance.unk_ints, instance.context, 0, None, (7,), Uint)
 		Uint64.to_stream(stream, instance.padding_2)
 		ArrayPointer.to_stream(stream, instance.data)
 		Uint.to_stream(stream, instance.num_data)

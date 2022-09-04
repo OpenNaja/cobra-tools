@@ -18,7 +18,7 @@ class PCJointThing(BaseStruct):
 		super().__init__(context, arg, template, set_default=False)
 
 		# -1
-		self.shorts = Array((0,), Short, self.context, 0, None)
+		self.shorts = Array(self.context, 0, None, (0,), Short)
 		if set_default:
 			self.set_defaults()
 
@@ -34,7 +34,7 @@ class PCJointThing(BaseStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		Array.to_stream(stream, instance.shorts, (4,), Short, instance.context, 0, None)
+		Array.to_stream(stream, instance.shorts, instance.context, 0, None, (4,), Short)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

@@ -21,7 +21,7 @@ class UiMovieHeader(MemStruct):
 		self.flag_1 = 0
 		self.flag_2 = 0
 		self.flag_3 = 0
-		self.floats = Array((0,), Float, self.context, 0, None)
+		self.floats = Array(self.context, 0, None, (0,), Float)
 		self.u_0 = 0
 		self.num_ui_triggers = 0
 		self.u_1 = 0
@@ -156,7 +156,7 @@ class UiMovieHeader(MemStruct):
 		Uint.to_stream(stream, instance.flag_1)
 		Ushort.to_stream(stream, instance.flag_2)
 		Ushort.to_stream(stream, instance.flag_3)
-		Array.to_stream(stream, instance.floats, (3,), Float, instance.context, 0, None)
+		Array.to_stream(stream, instance.floats, instance.context, 0, None, (3,), Float)
 		Ubyte.to_stream(stream, instance.u_0)
 		Ubyte.to_stream(stream, instance.num_ui_triggers)
 		Ubyte.to_stream(stream, instance.u_1)

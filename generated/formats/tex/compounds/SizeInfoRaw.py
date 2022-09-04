@@ -43,7 +43,7 @@ class SizeInfoRaw(MemStruct):
 		self.unk_pz = 0
 
 		# info about mip levels
-		self.mip_maps = Array((0,), Mipmap, self.context, 0, None)
+		self.mip_maps = Array(self.context, 0, None, (0,), Mipmap)
 		if set_default:
 			self.set_defaults()
 
@@ -58,7 +58,7 @@ class SizeInfoRaw(MemStruct):
 		self.num_mips = 0
 		if self.context.version >= 20:
 			self.unk_pz = 0
-		self.mip_maps = Array((self.num_mips,), Mipmap, self.context, 0, None)
+		self.mip_maps = Array(self.context, 0, None, (self.num_mips,), Mipmap)
 
 	@classmethod
 	def read_fields(cls, stream, instance):
@@ -86,7 +86,7 @@ class SizeInfoRaw(MemStruct):
 		Uint.to_stream(stream, instance.num_mips)
 		if instance.context.version >= 20:
 			Uint64.to_stream(stream, instance.unk_pz)
-		Array.to_stream(stream, instance.mip_maps, (instance.num_mips,), Mipmap, instance.context, 0, None)
+		Array.to_stream(stream, instance.mip_maps, instance.context, 0, None, (instance.num_mips,), Mipmap)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

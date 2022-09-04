@@ -12,7 +12,7 @@ class NodeBaseParams(BaseStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.raw = Array((0,), Byte, self.context, 0, None)
+		self.raw = Array(self.context, 0, None, (0,), Byte)
 		if set_default:
 			self.set_defaults()
 
@@ -28,7 +28,7 @@ class NodeBaseParams(BaseStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		Array.to_stream(stream, instance.raw, (30,), Byte, instance.context, 0, None)
+		Array.to_stream(stream, instance.raw, instance.context, 0, None, (30,), Byte)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

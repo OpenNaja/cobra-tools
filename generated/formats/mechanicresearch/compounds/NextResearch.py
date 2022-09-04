@@ -14,14 +14,14 @@ class NextResearch(MemStruct):
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		self.unk_1 = 0
-		self.item_name = Array((0,), Pointer, self.context, 0, ZString)
+		self.item_name = Array(self.context, 0, ZString, (0,), Pointer)
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
 		super().set_defaults()
 		self.unk_1 = 0
-		self.item_name = Array((self.arg,), Pointer, self.context, 0, ZString)
+		self.item_name = Array(self.context, 0, ZString, (self.arg,), Pointer)
 
 	@classmethod
 	def read_fields(cls, stream, instance):
@@ -34,7 +34,7 @@ class NextResearch(MemStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		Array.to_stream(stream, instance.item_name, (instance.arg,), Pointer, instance.context, 0, ZString)
+		Array.to_stream(stream, instance.item_name, instance.context, 0, ZString, (instance.arg,), Pointer)
 		Uint64.to_stream(stream, instance.unk_1)
 
 	@classmethod

@@ -19,14 +19,14 @@ class DIDXSection(BaseStruct):
 
 		# length of following data
 		self.length = 0
-		self.data_pointers = Array((0,), DataPointer, self.context, 0, None)
+		self.data_pointers = Array(self.context, 0, None, (0,), DataPointer)
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
 		super().set_defaults()
 		self.length = 0
-		self.data_pointers = Array((int(self.length / 12),), DataPointer, self.context, 0, None)
+		self.data_pointers = Array(self.context, 0, None, (int(self.length / 12),), DataPointer)
 
 	@classmethod
 	def read_fields(cls, stream, instance):
@@ -38,7 +38,7 @@ class DIDXSection(BaseStruct):
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
 		Uint.to_stream(stream, instance.length)
-		Array.to_stream(stream, instance.data_pointers, (int(instance.length / 12),), DataPointer, instance.context, 0, None)
+		Array.to_stream(stream, instance.data_pointers, instance.context, 0, None, (int(instance.length / 12),), DataPointer)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

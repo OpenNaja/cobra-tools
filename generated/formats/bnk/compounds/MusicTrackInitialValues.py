@@ -19,12 +19,12 @@ class MusicTrackInitialValues(BaseStruct):
 		super().__init__(context, arg, template, set_default=False)
 		self.u_flags = 0
 		self.num_sources = 0
-		self.p_source = Array((0,), AkBankSourceData, self.context, 0, None)
+		self.p_source = Array(self.context, 0, None, (0,), AkBankSourceData)
 		self.num_playlist_item = 0
-		self.p_playlist = Array((0,), AkTrackSrcInfo, self.context, 0, None)
+		self.p_playlist = Array(self.context, 0, None, (0,), AkTrackSrcInfo)
 		self.num_sub_track = 0
 		self.num_clip_automation_item = 0
-		self.p_items = Array((0,), Uint, self.context, 0, None)
+		self.p_items = Array(self.context, 0, None, (0,), Uint)
 		self.node_base_params = NodeBaseParams(self.context, 0, None)
 		self.e_track_type = 0
 		self.i_look_ahead_time = 0
@@ -35,9 +35,9 @@ class MusicTrackInitialValues(BaseStruct):
 		super().set_defaults()
 		self.u_flags = 0
 		self.num_sources = 0
-		self.p_source = Array((self.num_sources,), AkBankSourceData, self.context, 0, None)
+		self.p_source = Array(self.context, 0, None, (self.num_sources,), AkBankSourceData)
 		self.num_playlist_item = 0
-		self.p_playlist = Array((self.num_playlist_item,), AkTrackSrcInfo, self.context, 0, None)
+		self.p_playlist = Array(self.context, 0, None, (self.num_playlist_item,), AkTrackSrcInfo)
 		self.num_sub_track = 0
 		self.num_clip_automation_item = 0
 		self.p_items = numpy.zeros((self.num_clip_automation_item,), dtype=numpy.dtype('uint32'))
@@ -65,12 +65,12 @@ class MusicTrackInitialValues(BaseStruct):
 		super().write_fields(stream, instance)
 		Ubyte.to_stream(stream, instance.u_flags)
 		Uint.to_stream(stream, instance.num_sources)
-		Array.to_stream(stream, instance.p_source, (instance.num_sources,), AkBankSourceData, instance.context, 0, None)
+		Array.to_stream(stream, instance.p_source, instance.context, 0, None, (instance.num_sources,), AkBankSourceData)
 		Uint.to_stream(stream, instance.num_playlist_item)
-		Array.to_stream(stream, instance.p_playlist, (instance.num_playlist_item,), AkTrackSrcInfo, instance.context, 0, None)
+		Array.to_stream(stream, instance.p_playlist, instance.context, 0, None, (instance.num_playlist_item,), AkTrackSrcInfo)
 		Uint.to_stream(stream, instance.num_sub_track)
 		Uint.to_stream(stream, instance.num_clip_automation_item)
-		Array.to_stream(stream, instance.p_items, (instance.num_clip_automation_item,), Uint, instance.context, 0, None)
+		Array.to_stream(stream, instance.p_items, instance.context, 0, None, (instance.num_clip_automation_item,), Uint)
 		NodeBaseParams.to_stream(stream, instance.node_base_params)
 		Ubyte.to_stream(stream, instance.e_track_type)
 		Int.to_stream(stream, instance.i_look_ahead_time)

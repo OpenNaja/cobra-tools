@@ -18,12 +18,12 @@ class UACJointFF(BaseStruct):
 		self.eleven = 0
 
 		# bunch of -1's, and constants
-		self.f_fs = Array((0,), Int, self.context, 0, None)
+		self.f_fs = Array(self.context, 0, None, (0,), Int)
 		self.name_offset = 0
 		self.hitcheck_count = 0
 
 		# 12 bytes of zeros
-		self.zeros = Array((0,), Uint, self.context, 0, None)
+		self.zeros = Array(self.context, 0, None, (0,), Uint)
 		if set_default:
 			self.set_defaults()
 
@@ -48,10 +48,10 @@ class UACJointFF(BaseStruct):
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
 		Uint.to_stream(stream, instance.eleven)
-		Array.to_stream(stream, instance.f_fs, (4,), Int, instance.context, 0, None)
+		Array.to_stream(stream, instance.f_fs, instance.context, 0, None, (4,), Int)
 		Uint.to_stream(stream, instance.name_offset)
 		Uint.to_stream(stream, instance.hitcheck_count)
-		Array.to_stream(stream, instance.zeros, (3,), Uint, instance.context, 0, None)
+		Array.to_stream(stream, instance.zeros, instance.context, 0, None, (3,), Uint)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

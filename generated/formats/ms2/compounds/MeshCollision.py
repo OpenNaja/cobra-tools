@@ -25,7 +25,7 @@ class MeshCollision(BaseStruct):
 		self.offset = Vector3(self.context, 0, None)
 
 		# not floats, maybe 6 ushorts, shared among (all?) redwoods
-		self.unk_1 = Array((0,), Ushort, self.context, 0, None)
+		self.unk_1 = Array(self.context, 0, None, (0,), Ushort)
 
 		# vertices (3 float)
 		self.vertex_count = 0
@@ -40,10 +40,10 @@ class MeshCollision(BaseStruct):
 		self.bounds_max = Vector3(self.context, 0, None)
 
 		# seemingly fixed
-		self.ones_or_zeros = Array((0,), Uint64, self.context, 0, None)
+		self.ones_or_zeros = Array(self.context, 0, None, (0,), Uint64)
 
 		# seemingly fixed
-		self.ff_or_zero = Array((0,), Int, self.context, 0, None)
+		self.ff_or_zero = Array(self.context, 0, None, (0,), Int)
 
 		# verbatim
 		self.bounds_min_repeat = Vector3(self.context, 0, None)
@@ -58,25 +58,25 @@ class MeshCollision(BaseStruct):
 		self.count_bits = 0
 
 		# ?
-		self.stuff = Array((0,), Ushort, self.context, 0, None)
+		self.stuff = Array(self.context, 0, None, (0,), Ushort)
 
 		# ?
-		self.collision_bits = Array((0,), MeshCollisionBit, self.context, 0, None)
+		self.collision_bits = Array(self.context, 0, None, (0,), MeshCollisionBit)
 
 		# always 25
-		self.zeros = Array((0,), Uint, self.context, 0, None)
+		self.zeros = Array(self.context, 0, None, (0,), Uint)
 
 		# array of vertices
-		self.vertices = Array((0,), Float, self.context, 0, None)
+		self.vertices = Array(self.context, 0, None, (0,), Float)
 
 		# triangle indices into vertex list
-		self.triangles = Array((0,), Ushort, self.context, 0, None)
+		self.triangles = Array(self.context, 0, None, (0,), Ushort)
 
 		# ?
 		self.const = 0
 
 		# always 25
-		self.triangle_flags = Array((0,), Uint, self.context, 0, None)
+		self.triangle_flags = Array(self.context, 0, None, (0,), Uint)
 
 		# might be padding!
 		self.zero_end = 0
@@ -103,7 +103,7 @@ class MeshCollision(BaseStruct):
 			self.tri_flags_count = 0
 			self.count_bits = 0
 			self.stuff = numpy.zeros((9,), dtype=numpy.dtype('uint16'))
-			self.collision_bits = Array((self.count_bits,), MeshCollisionBit, self.context, 0, None)
+			self.collision_bits = Array(self.context, 0, None, (self.count_bits,), MeshCollisionBit)
 			self.zeros = numpy.zeros((4,), dtype=numpy.dtype('uint32'))
 		self.vertices = numpy.zeros((self.vertex_count, 3,), dtype=numpy.dtype('float32'))
 		self.triangles = numpy.zeros((self.tri_count, 3,), dtype=numpy.dtype('uint16'))
@@ -149,30 +149,30 @@ class MeshCollision(BaseStruct):
 		super().write_fields(stream, instance)
 		Matrix33.to_stream(stream, instance.rotation)
 		Vector3.to_stream(stream, instance.offset)
-		Array.to_stream(stream, instance.unk_1, (3, 2,), Ushort, instance.context, 0, None)
+		Array.to_stream(stream, instance.unk_1, instance.context, 0, None, (3, 2,), Ushort)
 		Uint64.to_stream(stream, instance.vertex_count)
 		Uint64.to_stream(stream, instance.tri_count)
 		Vector3.to_stream(stream, instance.bounds_min)
 		Vector3.to_stream(stream, instance.bounds_max)
-		Array.to_stream(stream, instance.ones_or_zeros, (7,), Uint64, instance.context, 0, None)
+		Array.to_stream(stream, instance.ones_or_zeros, instance.context, 0, None, (7,), Uint64)
 		if instance.context.version <= 32:
-			Array.to_stream(stream, instance.ff_or_zero, (10,), Int, instance.context, 0, None)
+			Array.to_stream(stream, instance.ff_or_zero, instance.context, 0, None, (10,), Int)
 		if instance.context.version >= 47:
-			Array.to_stream(stream, instance.ff_or_zero, (8,), Int, instance.context, 0, None)
+			Array.to_stream(stream, instance.ff_or_zero, instance.context, 0, None, (8,), Int)
 		if instance.context.version <= 32:
 			Vector3.to_stream(stream, instance.bounds_min_repeat)
 			Vector3.to_stream(stream, instance.bounds_max_repeat)
 			Uint.to_stream(stream, instance.tri_flags_count)
 			Ushort.to_stream(stream, instance.count_bits)
-			Array.to_stream(stream, instance.stuff, (9,), Ushort, instance.context, 0, None)
-			Array.to_stream(stream, instance.collision_bits, (instance.count_bits,), MeshCollisionBit, instance.context, 0, None)
-			Array.to_stream(stream, instance.zeros, (4,), Uint, instance.context, 0, None)
-		Array.to_stream(stream, instance.vertices, (instance.vertex_count, 3,), Float, instance.context, 0, None)
-		Array.to_stream(stream, instance.triangles, (instance.tri_count, 3,), Ushort, instance.context, 0, None)
+			Array.to_stream(stream, instance.stuff, instance.context, 0, None, (9,), Ushort)
+			Array.to_stream(stream, instance.collision_bits, instance.context, 0, None, (instance.count_bits,), MeshCollisionBit)
+			Array.to_stream(stream, instance.zeros, instance.context, 0, None, (4,), Uint)
+		Array.to_stream(stream, instance.vertices, instance.context, 0, None, (instance.vertex_count, 3,), Float)
+		Array.to_stream(stream, instance.triangles, instance.context, 0, None, (instance.tri_count, 3,), Ushort)
 		if instance.context.version <= 32:
 			Uint.to_stream(stream, instance.const)
 		if instance.context.version <= 32 and instance.const:
-			Array.to_stream(stream, instance.triangle_flags, (instance.tri_flags_count,), Uint, instance.context, 0, None)
+			Array.to_stream(stream, instance.triangle_flags, instance.context, 0, None, (instance.tri_flags_count,), Uint)
 		Uint.to_stream(stream, instance.zero_end)
 
 	@classmethod

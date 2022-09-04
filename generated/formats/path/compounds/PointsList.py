@@ -11,13 +11,13 @@ class PointsList(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.points = Array((0,), Vector3, self.context, 0, None)
+		self.points = Array(self.context, 0, None, (0,), Vector3)
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
 		super().set_defaults()
-		self.points = Array((self.arg,), Vector3, self.context, 0, None)
+		self.points = Array(self.context, 0, None, (self.arg,), Vector3)
 
 	@classmethod
 	def read_fields(cls, stream, instance):
@@ -27,7 +27,7 @@ class PointsList(MemStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		Array.to_stream(stream, instance.points, (instance.arg,), Vector3, instance.context, 0, None)
+		Array.to_stream(stream, instance.points, instance.context, 0, None, (instance.arg,), Vector3)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

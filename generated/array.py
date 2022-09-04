@@ -165,7 +165,7 @@ class Array(list):
 
     @classmethod
     def _get_filtered_attribute_list(cls, instance, dtype):
-        if cls.is_ragged_shape(instance.shape):
+        if cls.is_ragged_shape(getattr(instance, "shape", ())):
             return RaggedArray._get_filtered_attribute_list(instance, dtype)
         elif callable(getattr(dtype, "_get_filtered_attribute_list_array", None)):
             return dtype._get_filtered_attribute_list_array(instance)

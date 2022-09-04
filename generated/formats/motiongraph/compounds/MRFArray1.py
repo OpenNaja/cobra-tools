@@ -11,13 +11,13 @@ class MRFArray1(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.states = Array((0,), MRFEntry1, self.context, 0, None)
+		self.states = Array(self.context, 0, None, (0,), MRFEntry1)
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
 		super().set_defaults()
-		self.states = Array((self.arg,), MRFEntry1, self.context, 0, None)
+		self.states = Array(self.context, 0, None, (self.arg,), MRFEntry1)
 
 	@classmethod
 	def read_fields(cls, stream, instance):
@@ -27,7 +27,7 @@ class MRFArray1(MemStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		Array.to_stream(stream, instance.states, (instance.arg,), MRFEntry1, instance.context, 0, None)
+		Array.to_stream(stream, instance.states, instance.context, 0, None, (instance.arg,), MRFEntry1)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

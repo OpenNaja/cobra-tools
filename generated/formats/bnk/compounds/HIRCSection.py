@@ -20,7 +20,7 @@ class HIRCSection(BaseStruct):
 		# length of following data
 		self.length = 0
 		self.count = 0
-		self.hirc_pointers = Array((0,), HircPointer, self.context, 0, None)
+		self.hirc_pointers = Array(self.context, 0, None, (0,), HircPointer)
 		if set_default:
 			self.set_defaults()
 
@@ -28,7 +28,7 @@ class HIRCSection(BaseStruct):
 		super().set_defaults()
 		self.length = 0
 		self.count = 0
-		self.hirc_pointers = Array((self.count,), HircPointer, self.context, 0, None)
+		self.hirc_pointers = Array(self.context, 0, None, (self.count,), HircPointer)
 
 	@classmethod
 	def read_fields(cls, stream, instance):
@@ -42,7 +42,7 @@ class HIRCSection(BaseStruct):
 		super().write_fields(stream, instance)
 		Uint.to_stream(stream, instance.length)
 		Uint.to_stream(stream, instance.count)
-		Array.to_stream(stream, instance.hirc_pointers, (instance.count,), HircPointer, instance.context, 0, None)
+		Array.to_stream(stream, instance.hirc_pointers, instance.context, 0, None, (instance.count,), HircPointer)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

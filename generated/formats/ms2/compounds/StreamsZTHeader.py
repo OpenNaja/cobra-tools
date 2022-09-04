@@ -22,14 +22,14 @@ class StreamsZTHeader(BaseStruct):
 		self.weird_padding = SmartPadding(self.context, 0, None)
 
 		# ?
-		self.unks = Array((0,), InfoZTMemPool, self.context, 0, None)
+		self.unks = Array(self.context, 0, None, (0,), InfoZTMemPool)
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
 		super().set_defaults()
 		self.weird_padding = SmartPadding(self.context, 0, None)
-		self.unks = Array((self.arg.stream_count,), InfoZTMemPool, self.context, 0, None)
+		self.unks = Array(self.context, 0, None, (self.arg.stream_count,), InfoZTMemPool)
 
 	@classmethod
 	def read_fields(cls, stream, instance):
@@ -41,7 +41,7 @@ class StreamsZTHeader(BaseStruct):
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
 		SmartPadding.to_stream(stream, instance.weird_padding)
-		Array.to_stream(stream, instance.unks, (instance.arg.stream_count,), InfoZTMemPool, instance.context, 0, None)
+		Array.to_stream(stream, instance.unks, instance.context, 0, None, (instance.arg.stream_count,), InfoZTMemPool)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

@@ -22,9 +22,9 @@ class InfoHeader(BaseStruct):
 		super().__init__(context, arg, template, set_default=False)
 		self.version = 0
 		self.mani_count = 0
-		self.names = Array((0,), ZString, self.context, 0, None)
+		self.names = Array(self.context, 0, None, (0,), ZString)
 		self.header = SizedStrData(self.context, 0, None)
-		self.mani_infos = Array((0,), ManiInfo, self.context, 0, None)
+		self.mani_infos = Array(self.context, 0, None, (0,), ManiInfo)
 		self.name_buffer = Buffer1(self.context, int(self.header.hash_block_size / 4), None)
 		self.keys_buffer = KeysReader(self.context, self.mani_infos, None)
 		if set_default:
@@ -34,9 +34,9 @@ class InfoHeader(BaseStruct):
 		super().set_defaults()
 		self.version = 0
 		self.mani_count = 0
-		self.names = Array((self.mani_count,), ZString, self.context, 0, None)
+		self.names = Array(self.context, 0, None, (self.mani_count,), ZString)
 		self.header = SizedStrData(self.context, 0, None)
-		self.mani_infos = Array((self.mani_count,), ManiInfo, self.context, 0, None)
+		self.mani_infos = Array(self.context, 0, None, (self.mani_count,), ManiInfo)
 		self.name_buffer = Buffer1(self.context, int(self.header.hash_block_size / 4), None)
 		self.keys_buffer = KeysReader(self.context, self.mani_infos, None)
 
@@ -57,9 +57,9 @@ class InfoHeader(BaseStruct):
 		super().write_fields(stream, instance)
 		Uint.to_stream(stream, instance.version)
 		Uint.to_stream(stream, instance.mani_count)
-		Array.to_stream(stream, instance.names, (instance.mani_count,), ZString, instance.context, 0, None)
+		Array.to_stream(stream, instance.names, instance.context, 0, None, (instance.mani_count,), ZString)
 		SizedStrData.to_stream(stream, instance.header)
-		Array.to_stream(stream, instance.mani_infos, (instance.mani_count,), ManiInfo, instance.context, 0, None)
+		Array.to_stream(stream, instance.mani_infos, instance.context, 0, None, (instance.mani_count,), ManiInfo)
 		Buffer1.to_stream(stream, instance.name_buffer)
 		KeysReader.to_stream(stream, instance.keys_buffer)
 

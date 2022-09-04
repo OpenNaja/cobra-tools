@@ -14,11 +14,11 @@ class ZTPreBones(BaseStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.zeros = Array((0,), Uint64, self.context, 0, None)
-		self.unks = Array((0,), Uint, self.context, 0, None)
-		self.unks_2 = Array((0,), Uint, self.context, 0, None)
-		self.floats = Array((0,), Float, self.context, 0, None)
-		self.unks_3 = Array((0,), Uint, self.context, 0, None)
+		self.zeros = Array(self.context, 0, None, (0,), Uint64)
+		self.unks = Array(self.context, 0, None, (0,), Uint)
+		self.unks_2 = Array(self.context, 0, None, (0,), Uint)
+		self.floats = Array(self.context, 0, None, (0,), Float)
+		self.unks_3 = Array(self.context, 0, None, (0,), Uint)
 		if set_default:
 			self.set_defaults()
 
@@ -42,11 +42,11 @@ class ZTPreBones(BaseStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		Array.to_stream(stream, instance.zeros, (2,), Uint64, instance.context, 0, None)
-		Array.to_stream(stream, instance.unks, (8,), Uint, instance.context, 0, None)
-		Array.to_stream(stream, instance.unks_2, (10,), Uint, instance.context, 0, None)
-		Array.to_stream(stream, instance.floats, (4,), Float, instance.context, 0, None)
-		Array.to_stream(stream, instance.unks_3, (2,), Uint, instance.context, 0, None)
+		Array.to_stream(stream, instance.zeros, instance.context, 0, None, (2,), Uint64)
+		Array.to_stream(stream, instance.unks, instance.context, 0, None, (8,), Uint)
+		Array.to_stream(stream, instance.unks_2, instance.context, 0, None, (10,), Uint)
+		Array.to_stream(stream, instance.floats, instance.context, 0, None, (4,), Float)
+		Array.to_stream(stream, instance.unks_3, instance.context, 0, None, (2,), Uint)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

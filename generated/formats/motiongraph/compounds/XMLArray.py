@@ -11,13 +11,13 @@ class XMLArray(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.xmls = Array((0,), XMLEntry, self.context, 0, None)
+		self.xmls = Array(self.context, 0, None, (0,), XMLEntry)
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
 		super().set_defaults()
-		self.xmls = Array((self.arg,), XMLEntry, self.context, 0, None)
+		self.xmls = Array(self.context, 0, None, (self.arg,), XMLEntry)
 
 	@classmethod
 	def read_fields(cls, stream, instance):
@@ -27,7 +27,7 @@ class XMLArray(MemStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		Array.to_stream(stream, instance.xmls, (instance.arg,), XMLEntry, instance.context, 0, None)
+		Array.to_stream(stream, instance.xmls, instance.context, 0, None, (instance.arg,), XMLEntry)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

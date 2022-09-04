@@ -18,7 +18,7 @@ class BooleanData(MemStruct):
 		super().__init__(context, arg, template, set_default=False)
 		self.value = 0
 		self.default = 0
-		self.unused = Array((0,), Ubyte, self.context, 0, None)
+		self.unused = Array(self.context, 0, None, (0,), Ubyte)
 		if set_default:
 			self.set_defaults()
 
@@ -40,7 +40,7 @@ class BooleanData(MemStruct):
 		super().write_fields(stream, instance)
 		Ubyte.to_stream(stream, instance.value)
 		Ubyte.to_stream(stream, instance.default)
-		Array.to_stream(stream, instance.unused, (6,), Ubyte, instance.context, 0, None)
+		Array.to_stream(stream, instance.unused, instance.context, 0, None, (6,), Ubyte)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

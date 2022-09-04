@@ -18,8 +18,8 @@ class JointInfo(CommonJointInfo):
 		self.zero = 0
 
 		# 8 bytes of zeros per hitcheck
-		self.zeros_per_hitcheck = Array((0,), Uint64, self.context, 0, None)
-		self.hitchecks = Array((0,), HitCheckEntry, self.context, 0, None)
+		self.zeros_per_hitcheck = Array(self.context, 0, None, (0,), Uint64)
+		self.hitchecks = Array(self.context, 0, None, (0,), HitCheckEntry)
 		if set_default:
 			self.set_defaults()
 
@@ -27,7 +27,7 @@ class JointInfo(CommonJointInfo):
 		super().set_defaults()
 		self.zero = 0
 		self.zeros_per_hitcheck = numpy.zeros((self.hitcheck_count,), dtype=numpy.dtype('uint64'))
-		self.hitchecks = Array((self.hitcheck_count,), HitCheckEntry, self.context, 0, None)
+		self.hitchecks = Array(self.context, 0, None, (self.hitcheck_count,), HitCheckEntry)
 
 	@classmethod
 	def read_fields(cls, stream, instance):
@@ -40,8 +40,8 @@ class JointInfo(CommonJointInfo):
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
 		Uint64.to_stream(stream, instance.zero)
-		Array.to_stream(stream, instance.zeros_per_hitcheck, (instance.hitcheck_count,), Uint64, instance.context, 0, None)
-		Array.to_stream(stream, instance.hitchecks, (instance.hitcheck_count,), HitCheckEntry, instance.context, 0, None)
+		Array.to_stream(stream, instance.zeros_per_hitcheck, instance.context, 0, None, (instance.hitcheck_count,), Uint64)
+		Array.to_stream(stream, instance.hitchecks, instance.context, 0, None, (instance.hitcheck_count,), HitCheckEntry)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

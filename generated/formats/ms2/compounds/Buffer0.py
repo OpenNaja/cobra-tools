@@ -17,13 +17,13 @@ class Buffer0(BaseStruct):
 		super().__init__(context, arg, template, set_default=False)
 
 		# djb2 hashes
-		self.name_hashes = Array((0,), Uint, self.context, 0, None)
+		self.name_hashes = Array(self.context, 0, None, (0,), Uint)
 
 		# names
-		self.names = Array((0,), ZString, self.context, 0, None)
+		self.names = Array(self.context, 0, None, (0,), ZString)
 
 		# align to 4
-		self.names_padding = Array((0,), Ubyte, self.context, 0, None)
+		self.names_padding = Array(self.context, 0, None, (0,), Ubyte)
 		self.zt_streams_header = StreamsZTHeader(self.context, self.arg, None)
 		if set_default:
 			self.set_defaults()
@@ -31,7 +31,7 @@ class Buffer0(BaseStruct):
 	def set_defaults(self):
 		super().set_defaults()
 		self.name_hashes = numpy.zeros((self.arg.name_count,), dtype=numpy.dtype('uint32'))
-		self.names = Array((self.arg.name_count,), ZString, self.context, 0, None)
+		self.names = Array(self.context, 0, None, (self.arg.name_count,), ZString)
 		if self.context.version >= 50:
 			self.names_padding = numpy.zeros(((4 - (self.names.io_size % 4)) % 4,), dtype=numpy.dtype('uint8'))
 		if self.context.version <= 13:
@@ -50,11 +50,11 @@ class Buffer0(BaseStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		Array.to_stream(stream, instance.name_hashes, (instance.arg.name_count,), Uint, instance.context, 0, None)
-		Array.to_stream(stream, instance.names, (instance.arg.name_count,), ZString, instance.context, 0, None)
+		Array.to_stream(stream, instance.name_hashes, instance.context, 0, None, (instance.arg.name_count,), Uint)
+		Array.to_stream(stream, instance.names, instance.context, 0, None, (instance.arg.name_count,), ZString)
 		if instance.context.version >= 50:
 			instance.names_padding.resize(((4 - (instance.names.io_size % 4)) % 4,))
-			Array.to_stream(stream, instance.names_padding, ((4 - (instance.names.io_size % 4)) % 4,), Ubyte, instance.context, 0, None)
+			Array.to_stream(stream, instance.names_padding, instance.context, 0, None, ((4 - (instance.names.io_size % 4)) % 4,), Ubyte)
 		if instance.context.version <= 13:
 			StreamsZTHeader.to_stream(stream, instance.zt_streams_header)
 

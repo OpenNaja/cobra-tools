@@ -15,7 +15,7 @@ class Attrib(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.attrib = Array((0,), Byte, self.context, 0, None)
+		self.attrib = Array(self.context, 0, None, (0,), Byte)
 		self.padding = 0
 		self.attrib_name = Pointer(self.context, 0, ZString)
 		if set_default:
@@ -40,7 +40,7 @@ class Attrib(MemStruct):
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
 		Pointer.to_stream(stream, instance.attrib_name)
-		Array.to_stream(stream, instance.attrib, (4,), Byte, instance.context, 0, None)
+		Array.to_stream(stream, instance.attrib, instance.context, 0, None, (4,), Byte)
 		Uint.to_stream(stream, instance.padding)
 
 	@classmethod

@@ -22,7 +22,7 @@ class TypeOther(BaseStruct):
 		self.length = 0
 
 		# id of this Sound SFX object
-		self.raw = Array((0,), Byte, self.context, 0, None)
+		self.raw = Array(self.context, 0, None, (0,), Byte)
 		if set_default:
 			self.set_defaults()
 
@@ -41,7 +41,7 @@ class TypeOther(BaseStruct):
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
 		Uint.to_stream(stream, instance.length)
-		Array.to_stream(stream, instance.raw, (instance.length,), Byte, instance.context, 0, None)
+		Array.to_stream(stream, instance.raw, instance.context, 0, None, (instance.length,), Byte)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

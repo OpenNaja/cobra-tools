@@ -14,7 +14,7 @@ class SizeInfo(MemStruct):
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		self.data = SizeInfoRaw(self.context, 0, None)
-		self.padding = Array((0,), Ubyte, self.context, 0, None)
+		self.padding = Array(self.context, 0, None, (0,), Ubyte)
 		if set_default:
 			self.set_defaults()
 
@@ -40,9 +40,9 @@ class SizeInfo(MemStruct):
 		super().write_fields(stream, instance)
 		SizeInfoRaw.to_stream(stream, instance.data)
 		if ((not instance.context.user_version.is_jwe) and (instance.context.version == 20)) or (((not instance.context.user_version.is_jwe) and (instance.context.version >= 19)) or (instance.context.user_version.is_jwe and (instance.context.version == 20))):
-			Array.to_stream(stream, instance.padding, (320 - instance.data.io_size,), Ubyte, instance.context, 0, None)
+			Array.to_stream(stream, instance.padding, instance.context, 0, None, (320 - instance.data.io_size,), Ubyte)
 		if instance.context.user_version.is_jwe and (instance.context.version == 19):
-			Array.to_stream(stream, instance.padding, (384 - instance.data.io_size,), Ubyte, instance.context, 0, None)
+			Array.to_stream(stream, instance.padding, instance.context, 0, None, (384 - instance.data.io_size,), Ubyte)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

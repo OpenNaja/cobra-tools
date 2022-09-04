@@ -16,8 +16,8 @@ class Info(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.flags = Array((0,), Byte, self.context, 0, None)
-		self.value = Array((0,), Float, self.context, 0, None)
+		self.flags = Array(self.context, 0, None, (0,), Byte)
+		self.value = Array(self.context, 0, None, (0,), Float)
 		self.padding = 0
 		self.info_name = Pointer(self.context, 0, ZString)
 		if set_default:
@@ -44,8 +44,8 @@ class Info(MemStruct):
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
 		Pointer.to_stream(stream, instance.info_name)
-		Array.to_stream(stream, instance.flags, (4,), Byte, instance.context, 0, None)
-		Array.to_stream(stream, instance.value, (4,), Float, instance.context, 0, None)
+		Array.to_stream(stream, instance.flags, instance.context, 0, None, (4,), Byte)
+		Array.to_stream(stream, instance.value, instance.context, 0, None, (4,), Float)
 		Uint.to_stream(stream, instance.padding)
 
 	@classmethod

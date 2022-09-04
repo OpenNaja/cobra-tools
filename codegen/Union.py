@@ -153,7 +153,7 @@ class Union:
                 if return_type[0] == 'numpy':
                     return f'numpy.zeros({arr_str}, dtype={return_type[1]})'
                 else:
-                    return f'Array({arr_str}, {field_type}, {context}, {arg}, {template})'
+                    return f'Array({context}, {arg}, {template}, {arr_str}, {field_type})'
         else:
             if default_string:
                 if return_type in self.compounds.parser.builtin_literals or tag_of_field_type == "enum":
@@ -216,7 +216,7 @@ class Union:
         # nice idea, but causes too much trouble
         if arr1:
             # init with empty shape to work regardless of condition
-            field_default = f'Array((0,), {field_type}, self.{CONTEXT_SUFFIX}, {arg}, {template})'
+            field_default = f'Array(self.{CONTEXT_SUFFIX}, {arg}, {template}, (0,), {field_type})'
         else:
             # we init each field with 0 to prevent overhead, but still allow the field to be used in conditionals
             # field_default = 0

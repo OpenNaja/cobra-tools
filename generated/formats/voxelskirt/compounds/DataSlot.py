@@ -21,7 +21,7 @@ class DataSlot(BaseStruct):
 
 		# also counts the stuff after names
 		self.count = 0
-		self.data = Array((0,), self.template, self.context, 0, None)
+		self.data = Array(self.context, 0, None, (0,), self.template)
 		if set_default:
 			self.set_defaults()
 
@@ -29,7 +29,7 @@ class DataSlot(BaseStruct):
 		super().set_defaults()
 		self.offset = 0
 		self.count = 0
-		self.data = Array((0,), self.template, self.context, 0, None)
+		self.data = Array(self.context, 0, None, (0,), self.template)
 
 	@classmethod
 	def read_fields(cls, stream, instance):
@@ -43,7 +43,7 @@ class DataSlot(BaseStruct):
 		super().write_fields(stream, instance)
 		Uint64.to_stream(stream, instance.offset)
 		Uint64.to_stream(stream, instance.count)
-		Array.to_stream(stream, instance.data, (0,), instance.template, instance.context, 0, None)
+		Array.to_stream(stream, instance.data, instance.context, 0, None, (0,), instance.template)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

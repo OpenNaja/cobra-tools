@@ -33,10 +33,10 @@ class Struct7(BaseStruct):
 		# 36 bytes per entry
 
 		# 60 bytes per entry
-		self.unknown_list = Array((0,), NasutoJointEntry, self.context, 0, None)
+		self.unknown_list = Array(self.context, 0, None, (0,), NasutoJointEntry)
 
 		# align list to multiples of 8
-		self.padding = Array((0,), Ubyte, self.context, 0, None)
+		self.padding = Array(self.context, 0, None, (0,), Ubyte)
 
 		# latest PZ and jwe2 only - if flag is non-zero, 8 bytes, else 0
 		self.alignment = 0
@@ -53,9 +53,9 @@ class Struct7(BaseStruct):
 			self.flag = 0
 			self.zero_2 = 0
 		if self.context.version <= 13:
-			self.unknown_list = Array((self.count_7,), UACJoint, self.context, 0, None)
+			self.unknown_list = Array(self.context, 0, None, (self.count_7,), UACJoint)
 		if self.context.version >= 32:
-			self.unknown_list = Array((self.count_7,), NasutoJointEntry, self.context, 0, None)
+			self.unknown_list = Array(self.context, 0, None, (self.count_7,), NasutoJointEntry)
 		self.padding = numpy.zeros(((8 - ((self.count_7 * 60) % 8)) % 8,), dtype=numpy.dtype('uint8'))
 		if self.context.version >= 50 and self.flag:
 			self.alignment = 0
@@ -89,10 +89,10 @@ class Struct7(BaseStruct):
 			Uint64.to_stream(stream, instance.flag)
 			Uint64.to_stream(stream, instance.zero_2)
 		if instance.context.version <= 13:
-			Array.to_stream(stream, instance.unknown_list, (instance.count_7,), UACJoint, instance.context, 0, None)
+			Array.to_stream(stream, instance.unknown_list, instance.context, 0, None, (instance.count_7,), UACJoint)
 		if instance.context.version >= 32:
-			Array.to_stream(stream, instance.unknown_list, (instance.count_7,), NasutoJointEntry, instance.context, 0, None)
-		Array.to_stream(stream, instance.padding, ((8 - ((instance.count_7 * 60) % 8)) % 8,), Ubyte, instance.context, 0, None)
+			Array.to_stream(stream, instance.unknown_list, instance.context, 0, None, (instance.count_7,), NasutoJointEntry)
+		Array.to_stream(stream, instance.padding, instance.context, 0, None, ((8 - ((instance.count_7 * 60) % 8)) % 8,), Ubyte)
 		if instance.context.version >= 50 and instance.flag:
 			Uint64.to_stream(stream, instance.alignment)
 

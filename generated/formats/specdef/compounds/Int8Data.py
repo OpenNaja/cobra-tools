@@ -22,7 +22,7 @@ class Int8Data(MemStruct):
 		self.imax = 0
 		self.ivalue = 0
 		self.ioptional = 0
-		self.unused = Array((0,), Ubyte, self.context, 0, None)
+		self.unused = Array(self.context, 0, None, (0,), Ubyte)
 		self.enum = Pointer(self.context, 0, None)
 		if set_default:
 			self.set_defaults()
@@ -55,7 +55,7 @@ class Int8Data(MemStruct):
 		Byte.to_stream(stream, instance.imax)
 		Byte.to_stream(stream, instance.ivalue)
 		Byte.to_stream(stream, instance.ioptional)
-		Array.to_stream(stream, instance.unused, (4,), Ubyte, instance.context, 0, None)
+		Array.to_stream(stream, instance.unused, instance.context, 0, None, (4,), Ubyte)
 		Pointer.to_stream(stream, instance.enum)
 
 	@classmethod

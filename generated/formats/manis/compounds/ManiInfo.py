@@ -27,7 +27,7 @@ class ManiInfo(BaseStruct):
 
 		# ?
 		self.b = 0
-		self.zeros_0 = Array((0,), Ushort, self.context, 0, None)
+		self.zeros_0 = Array(self.context, 0, None, (0,), Ushort)
 		self.extra_pc_1 = 0
 		self.pos_bone_count = 0
 		self.ori_bone_count = 0
@@ -57,10 +57,10 @@ class ManiInfo(BaseStruct):
 		self.g = 0
 
 		# rest 228 bytes
-		self.zeros_2 = Array((0,), Uint, self.context, 0, None)
+		self.zeros_2 = Array(self.context, 0, None, (0,), Uint)
 
 		# rest 14 bytes
-		self.extra_zeros_pc = Array((0,), Ushort, self.context, 0, None)
+		self.extra_zeros_pc = Array(self.context, 0, None, (0,), Ushort)
 		self.pos_bone_min = 0
 		self.pos_bone_max = 0
 		self.ori_bone_min = 0
@@ -177,7 +177,7 @@ class ManiInfo(BaseStruct):
 		Float.to_stream(stream, instance.duration)
 		Uint.to_stream(stream, instance.frame_count)
 		Uint.to_stream(stream, instance.b)
-		Array.to_stream(stream, instance.zeros_0, (6,), Ushort, instance.context, 0, None)
+		Array.to_stream(stream, instance.zeros_0, instance.context, 0, None, (6,), Ushort)
 		if instance.context.version <= 257:
 			Ushort.to_stream(stream, instance.extra_pc_1)
 		Ushort.to_stream(stream, instance.pos_bone_count)
@@ -196,9 +196,9 @@ class ManiInfo(BaseStruct):
 		Ubyte.to_stream(stream, instance.count_b)
 		Ushort.to_stream(stream, instance.target_bone_count)
 		Ushort.to_stream(stream, instance.g)
-		Array.to_stream(stream, instance.zeros_2, (57,), Uint, instance.context, 0, None)
+		Array.to_stream(stream, instance.zeros_2, instance.context, 0, None, (57,), Uint)
 		if instance.context.version <= 257:
-			Array.to_stream(stream, instance.extra_zeros_pc, (6,), Ushort, instance.context, 0, None)
+			Array.to_stream(stream, instance.extra_zeros_pc, instance.context, 0, None, (6,), Ushort)
 		Ubyte.to_stream(stream, instance.pos_bone_min)
 		Ubyte.to_stream(stream, instance.pos_bone_max)
 		Ubyte.to_stream(stream, instance.ori_bone_min)

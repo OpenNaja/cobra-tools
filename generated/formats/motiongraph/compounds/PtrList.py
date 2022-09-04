@@ -15,13 +15,13 @@ class PtrList(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.ptrs = Array((0,), SinglePtr, self.context, 0, self.template)
+		self.ptrs = Array(self.context, 0, self.template, (0,), SinglePtr)
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
 		super().set_defaults()
-		self.ptrs = Array((self.arg,), SinglePtr, self.context, 0, self.template)
+		self.ptrs = Array(self.context, 0, self.template, (self.arg,), SinglePtr)
 
 	@classmethod
 	def read_fields(cls, stream, instance):
@@ -31,7 +31,7 @@ class PtrList(MemStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		Array.to_stream(stream, instance.ptrs, (instance.arg,), SinglePtr, instance.context, 0, instance.template)
+		Array.to_stream(stream, instance.ptrs, instance.context, 0, instance.template, (instance.arg,), SinglePtr)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

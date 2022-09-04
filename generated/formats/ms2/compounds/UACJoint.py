@@ -19,10 +19,10 @@ class UACJoint(BaseStruct):
 		super().__init__(context, arg, template, set_default=False)
 
 		# variable
-		self.unk = Array((0,), Ushort, self.context, 0, None)
+		self.unk = Array(self.context, 0, None, (0,), Ushort)
 
 		# some at least
-		self.floats = Array((0,), Float, self.context, 0, None)
+		self.floats = Array(self.context, 0, None, (0,), Float)
 		if set_default:
 			self.set_defaults()
 
@@ -40,8 +40,8 @@ class UACJoint(BaseStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		Array.to_stream(stream, instance.unk, (6,), Ushort, instance.context, 0, None)
-		Array.to_stream(stream, instance.floats, (6,), Float, instance.context, 0, None)
+		Array.to_stream(stream, instance.unk, instance.context, 0, None, (6,), Ushort)
+		Array.to_stream(stream, instance.floats, instance.context, 0, None, (6,), Float)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

@@ -72,9 +72,9 @@ class ModelInfo(MemStruct):
 		self.render_flag = RenderFlag(self.context, 0, None)
 
 		# ?
-		self.unks = Array((0,), Ushort, self.context, 0, None)
-		self.pad = Array((0,), Ushort, self.context, 0, None)
-		self.zeros = Array((0,), Uint64, self.context, 0, None)
+		self.unks = Array(self.context, 0, None, (0,), Ushort)
+		self.pad = Array(self.context, 0, None, (0,), Ushort)
+		self.zeros = Array(self.context, 0, None, (0,), Uint64)
 
 		# unknown, probably used to increment skeleton
 		self.increment_flag = 0
@@ -214,17 +214,17 @@ class ModelInfo(MemStruct):
 		Ushort.to_stream(stream, instance.num_meshes)
 		Ushort.to_stream(stream, instance.last_count)
 		RenderFlag.to_stream(stream, instance.render_flag)
-		Array.to_stream(stream, instance.unks, (7,), Ushort, instance.context, 0, None)
-		Array.to_stream(stream, instance.pad, (3,), Ushort, instance.context, 0, None)
+		Array.to_stream(stream, instance.unks, instance.context, 0, None, (7,), Ushort)
+		Array.to_stream(stream, instance.pad, instance.context, 0, None, (3,), Ushort)
 		ArrayPointer.to_stream(stream, instance.materials)
 		ArrayPointer.to_stream(stream, instance.lods)
 		ArrayPointer.to_stream(stream, instance.objects)
 		ArrayPointer.to_stream(stream, instance.meshes)
 		Pointer.to_stream(stream, instance.first_model)
 		if instance.context.version == 13:
-			Array.to_stream(stream, instance.zeros, (4,), Uint64, instance.context, 0, None)
+			Array.to_stream(stream, instance.zeros, instance.context, 0, None, (4,), Uint64)
 		if instance.context.version == 7:
-			Array.to_stream(stream, instance.zeros, (2,), Uint64, instance.context, 0, None)
+			Array.to_stream(stream, instance.zeros, instance.context, 0, None, (2,), Uint64)
 		Uint64.to_stream(stream, instance.increment_flag)
 		if not (instance.context.version == 7):
 			Uint64.to_stream(stream, instance.zero_0)

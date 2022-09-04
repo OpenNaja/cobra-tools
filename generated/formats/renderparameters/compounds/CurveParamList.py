@@ -15,13 +15,13 @@ class CurveParamList(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.ptrs = Array((0,), Pointer, self.context, 0, CurveParamList._import_path_map["generated.formats.renderparameters.compounds.CurveParam"])
+		self.ptrs = Array(self.context, 0, CurveParamList._import_path_map["generated.formats.renderparameters.compounds.CurveParam"], (0,), Pointer)
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
 		super().set_defaults()
-		self.ptrs = Array((self.arg,), Pointer, self.context, 0, CurveParamList._import_path_map["generated.formats.renderparameters.compounds.CurveParam"])
+		self.ptrs = Array(self.context, 0, CurveParamList._import_path_map["generated.formats.renderparameters.compounds.CurveParam"], (self.arg,), Pointer)
 
 	@classmethod
 	def read_fields(cls, stream, instance):
@@ -33,7 +33,7 @@ class CurveParamList(MemStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		Array.to_stream(stream, instance.ptrs, (instance.arg,), Pointer, instance.context, 0, CurveParamList._import_path_map["generated.formats.renderparameters.compounds.CurveParam"])
+		Array.to_stream(stream, instance.ptrs, instance.context, 0, CurveParamList._import_path_map["generated.formats.renderparameters.compounds.CurveParam"], (instance.arg,), Pointer)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

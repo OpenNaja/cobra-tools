@@ -14,8 +14,8 @@ class Buffer1(BaseStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.bone_hashes = Array((0,), Uint, self.context, 0, None)
-		self.bone_names = Array((0,), ZString, self.context, 0, None)
+		self.bone_hashes = Array(self.context, 0, None, (0,), Uint)
+		self.bone_names = Array(self.context, 0, None, (0,), ZString)
 
 		# ?
 		self.bone_pad = PadAlign(self.context, 4, self.bone_names)
@@ -25,7 +25,7 @@ class Buffer1(BaseStruct):
 	def set_defaults(self):
 		super().set_defaults()
 		self.bone_hashes = numpy.zeros((self.arg,), dtype=numpy.dtype('uint32'))
-		self.bone_names = Array((self.arg,), ZString, self.context, 0, None)
+		self.bone_names = Array(self.context, 0, None, (self.arg,), ZString)
 		self.bone_pad = PadAlign(self.context, 4, self.bone_names)
 
 	@classmethod
@@ -38,8 +38,8 @@ class Buffer1(BaseStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		Array.to_stream(stream, instance.bone_hashes, (instance.arg,), Uint, instance.context, 0, None)
-		Array.to_stream(stream, instance.bone_names, (instance.arg,), ZString, instance.context, 0, None)
+		Array.to_stream(stream, instance.bone_hashes, instance.context, 0, None, (instance.arg,), Uint)
+		Array.to_stream(stream, instance.bone_names, instance.context, 0, None, (instance.arg,), ZString)
 		PadAlign.to_stream(stream, instance.bone_pad)
 
 	@classmethod

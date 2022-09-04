@@ -23,7 +23,7 @@ class BoundingBox(BaseStruct):
 		self.extent = Vector3(self.context, 0, None)
 
 		# probably padding
-		self.zeros = Array((0,), Uint, self.context, 0, None)
+		self.zeros = Array(self.context, 0, None, (0,), Uint)
 		if set_default:
 			self.set_defaults()
 
@@ -51,7 +51,7 @@ class BoundingBox(BaseStruct):
 		Vector3.to_stream(stream, instance.center)
 		Vector3.to_stream(stream, instance.extent)
 		if instance.context.version == 32:
-			Array.to_stream(stream, instance.zeros, (3,), Uint, instance.context, 0, None)
+			Array.to_stream(stream, instance.zeros, instance.context, 0, None, (3,), Uint)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

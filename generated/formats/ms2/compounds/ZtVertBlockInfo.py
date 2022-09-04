@@ -18,7 +18,7 @@ class ZtVertBlockInfo(BaseStruct):
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		self.vertex_count = 0
-		self.flags = Array((0,), Ubyte, self.context, 0, None)
+		self.flags = Array(self.context, 0, None, (0,), Ubyte)
 		self.zero = 0
 		if set_default:
 			self.set_defaults()
@@ -40,7 +40,7 @@ class ZtVertBlockInfo(BaseStruct):
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
 		Uint.to_stream(stream, instance.vertex_count)
-		Array.to_stream(stream, instance.flags, (8,), Ubyte, instance.context, 0, None)
+		Array.to_stream(stream, instance.flags, instance.context, 0, None, (8,), Ubyte)
 		Uint.to_stream(stream, instance.zero)
 
 	@classmethod

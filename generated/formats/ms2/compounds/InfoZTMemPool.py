@@ -17,7 +17,7 @@ class InfoZTMemPool(BaseStruct):
 		self.unk_count = 0
 
 		# ?
-		self.unks = Array((0,), Ushort, self.context, 0, None)
+		self.unks = Array(self.context, 0, None, (0,), Ushort)
 		if set_default:
 			self.set_defaults()
 
@@ -36,7 +36,7 @@ class InfoZTMemPool(BaseStruct):
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
 		Ushort.to_stream(stream, instance.unk_count)
-		Array.to_stream(stream, instance.unks, (instance.unk_count, 2,), Ushort, instance.context, 0, None)
+		Array.to_stream(stream, instance.unks, instance.context, 0, None, (instance.unk_count, 2,), Ushort)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

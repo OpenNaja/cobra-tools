@@ -18,7 +18,7 @@ class Matrix33(BaseStruct):
 		super().__init__(context, arg, template, set_default=False)
 
 		# Stored in OpenGL column-major format.
-		self.data = Array((0,), Float, self.context, 0, None)
+		self.data = Array(self.context, 0, None, (0,), Float)
 		if set_default:
 			self.set_defaults()
 
@@ -34,7 +34,7 @@ class Matrix33(BaseStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		Array.to_stream(stream, instance.data, (3, 3,), Float, instance.context, 0, None)
+		Array.to_stream(stream, instance.data, instance.context, 0, None, (3, 3,), Float)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

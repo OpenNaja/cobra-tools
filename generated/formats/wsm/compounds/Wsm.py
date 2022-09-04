@@ -16,10 +16,10 @@ class Wsm(GenericHeader):
 		self.header = WsmHeader(self.context, 0, None)
 
 		# xyz
-		self.locs = Array((0,), Float, self.context, 0, None)
+		self.locs = Array(self.context, 0, None, (0,), Float)
 
 		# xyzw
-		self.quats = Array((0,), Float, self.context, 0, None)
+		self.quats = Array(self.context, 0, None, (0,), Float)
 		if set_default:
 			self.set_defaults()
 
@@ -40,8 +40,8 @@ class Wsm(GenericHeader):
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
 		WsmHeader.to_stream(stream, instance.header)
-		Array.to_stream(stream, instance.locs, (instance.header.frame_count, 3,), Float, instance.context, 0, None)
-		Array.to_stream(stream, instance.quats, (instance.header.frame_count, 4,), Float, instance.context, 0, None)
+		Array.to_stream(stream, instance.locs, instance.context, 0, None, (instance.header.frame_count, 3,), Float)
+		Array.to_stream(stream, instance.quats, instance.context, 0, None, (instance.header.frame_count, 4,), Float)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

@@ -97,49 +97,49 @@ class Header(GenericHeader):
 		self.num_triplets = 0
 
 		# zeros
-		self.reserved = Array((0,), Uint, self.context, 0, None)
+		self.reserved = Array(self.context, 0, None, (0,), Uint)
 
 		# Name buffer for assets and file mime types.
 		self.names = ZStringBuffer(self.context, self.len_names, None)
 
 		# used in DLA
-		self.names_pad = Array((0,), Ubyte, self.context, 0, None)
+		self.names_pad = Array(self.context, 0, None, (0,), Ubyte)
 
 		# Array of MimeEntry objects that represent a mime type (file extension) each.
-		self.mimes = Array((0,), MimeEntry, self.context, 0, None)
+		self.mimes = Array(self.context, 0, None, (0,), MimeEntry)
 
 		# ?
-		self.triplets = Array((0,), Triplet, self.context, 0, None)
+		self.triplets = Array(self.context, 0, None, (0,), Triplet)
 
 		# ?
 		self.triplets_pad = PadAlign(self.context, 4, self.triplets)
 
 		# Array of FileEntry objects.
-		self.files = Array((0,), FileEntry, self.context, 0, None)
+		self.files = Array(self.context, 0, None, (0,), FileEntry)
 
 		# Name buffer for archives, usually will be STATIC followed by any OVS names
 		self.archive_names = ZStringBuffer(self.context, self.len_archive_names, None)
 
 		# Array of ArchiveEntry objects.
-		self.archives = Array((0,), ArchiveEntry, self.context, 0, None)
+		self.archives = Array(self.context, 0, None, (0,), ArchiveEntry)
 
 		# Array of IncludedOvl objects.
-		self.included_ovls = Array((0,), IncludedOvl, self.context, 0, None)
+		self.included_ovls = Array(self.context, 0, None, (0,), IncludedOvl)
 
 		# aka InstancesArray of DependencyEntry objects.
-		self.dependencies = Array((0,), DependencyEntry, self.context, 0, None)
+		self.dependencies = Array(self.context, 0, None, (0,), DependencyEntry)
 
 		# Array of AuxEntry objects.
-		self.aux_entries = Array((0,), AuxEntry, self.context, 0, None)
+		self.aux_entries = Array(self.context, 0, None, (0,), AuxEntry)
 
 		# after aux in ZTUAC and PC
-		self.dependencies = Array((0,), DependencyEntry, self.context, 0, None)
+		self.dependencies = Array(self.context, 0, None, (0,), DependencyEntry)
 
 		# Array of StreamEntry objects.
-		self.stream_files = Array((0,), StreamEntry, self.context, 0, None)
+		self.stream_files = Array(self.context, 0, None, (0,), StreamEntry)
 
 		# repeats by archive count
-		self.zlibs = Array((0,), ZlibInfo, self.context, 0, None)
+		self.zlibs = Array(self.context, 0, None, (0,), ZlibInfo)
 		if set_default:
 			self.set_defaults()
 
@@ -171,21 +171,21 @@ class Header(GenericHeader):
 		self.names = ZStringBuffer(self.context, self.len_names, None)
 		if self.context.version <= 15:
 			self.names_pad = numpy.zeros(((16 - (self.len_names % 16)) % 16,), dtype=numpy.dtype('uint8'))
-		self.mimes = Array((self.num_mimes,), MimeEntry, self.context, 0, None)
+		self.mimes = Array(self.context, 0, None, (self.num_mimes,), MimeEntry)
 		if self.context.version >= 20:
-			self.triplets = Array((self.num_triplets,), Triplet, self.context, 0, None)
+			self.triplets = Array(self.context, 0, None, (self.num_triplets,), Triplet)
 			self.triplets_pad = PadAlign(self.context, 4, self.triplets)
-		self.files = Array((self.num_files,), FileEntry, self.context, 0, None)
+		self.files = Array(self.context, 0, None, (self.num_files,), FileEntry)
 		self.archive_names = ZStringBuffer(self.context, self.len_archive_names, None)
-		self.archives = Array((self.num_archives,), ArchiveEntry, self.context, 0, None)
-		self.included_ovls = Array((self.num_included_ovls,), IncludedOvl, self.context, 0, None)
+		self.archives = Array(self.context, 0, None, (self.num_archives,), ArchiveEntry)
+		self.included_ovls = Array(self.context, 0, None, (self.num_included_ovls,), IncludedOvl)
 		if self.context.version >= 19:
-			self.dependencies = Array((self.num_dependencies,), DependencyEntry, self.context, 0, None)
-		self.aux_entries = Array((self.num_aux_entries,), AuxEntry, self.context, 0, None)
+			self.dependencies = Array(self.context, 0, None, (self.num_dependencies,), DependencyEntry)
+		self.aux_entries = Array(self.context, 0, None, (self.num_aux_entries,), AuxEntry)
 		if self.context.version <= 18:
-			self.dependencies = Array((self.num_dependencies,), DependencyEntry, self.context, 0, None)
-		self.stream_files = Array((self.num_stream_files,), StreamEntry, self.context, 0, None)
-		self.zlibs = Array((self.num_archives,), ZlibInfo, self.context, 0, None)
+			self.dependencies = Array(self.context, 0, None, (self.num_dependencies,), DependencyEntry)
+		self.stream_files = Array(self.context, 0, None, (self.num_stream_files,), StreamEntry)
+		self.zlibs = Array(self.context, 0, None, (self.num_archives,), ZlibInfo)
 
 	@classmethod
 	def read_fields(cls, stream, instance):
@@ -257,25 +257,25 @@ class Header(GenericHeader):
 		Uint.to_stream(stream, instance.num_files_3)
 		Uint.to_stream(stream, instance.len_type_names)
 		Uint.to_stream(stream, instance.num_triplets)
-		Array.to_stream(stream, instance.reserved, (12,), Uint, instance.context, 0, None)
+		Array.to_stream(stream, instance.reserved, instance.context, 0, None, (12,), Uint)
 		ZStringBuffer.to_stream(stream, instance.names)
 		if instance.context.version <= 15:
-			Array.to_stream(stream, instance.names_pad, ((16 - (instance.len_names % 16)) % 16,), Ubyte, instance.context, 0, None)
-		Array.to_stream(stream, instance.mimes, (instance.num_mimes,), MimeEntry, instance.context, 0, None)
+			Array.to_stream(stream, instance.names_pad, instance.context, 0, None, ((16 - (instance.len_names % 16)) % 16,), Ubyte)
+		Array.to_stream(stream, instance.mimes, instance.context, 0, None, (instance.num_mimes,), MimeEntry)
 		if instance.context.version >= 20:
-			Array.to_stream(stream, instance.triplets, (instance.num_triplets,), Triplet, instance.context, 0, None)
+			Array.to_stream(stream, instance.triplets, instance.context, 0, None, (instance.num_triplets,), Triplet)
 			PadAlign.to_stream(stream, instance.triplets_pad)
-		Array.to_stream(stream, instance.files, (instance.num_files,), FileEntry, instance.context, 0, None)
+		Array.to_stream(stream, instance.files, instance.context, 0, None, (instance.num_files,), FileEntry)
 		ZStringBuffer.to_stream(stream, instance.archive_names)
-		Array.to_stream(stream, instance.archives, (instance.num_archives,), ArchiveEntry, instance.context, 0, None)
-		Array.to_stream(stream, instance.included_ovls, (instance.num_included_ovls,), IncludedOvl, instance.context, 0, None)
+		Array.to_stream(stream, instance.archives, instance.context, 0, None, (instance.num_archives,), ArchiveEntry)
+		Array.to_stream(stream, instance.included_ovls, instance.context, 0, None, (instance.num_included_ovls,), IncludedOvl)
 		if instance.context.version >= 19:
-			Array.to_stream(stream, instance.dependencies, (instance.num_dependencies,), DependencyEntry, instance.context, 0, None)
-		Array.to_stream(stream, instance.aux_entries, (instance.num_aux_entries,), AuxEntry, instance.context, 0, None)
+			Array.to_stream(stream, instance.dependencies, instance.context, 0, None, (instance.num_dependencies,), DependencyEntry)
+		Array.to_stream(stream, instance.aux_entries, instance.context, 0, None, (instance.num_aux_entries,), AuxEntry)
 		if instance.context.version <= 18:
-			Array.to_stream(stream, instance.dependencies, (instance.num_dependencies,), DependencyEntry, instance.context, 0, None)
-		Array.to_stream(stream, instance.stream_files, (instance.num_stream_files,), StreamEntry, instance.context, 0, None)
-		Array.to_stream(stream, instance.zlibs, (instance.num_archives,), ZlibInfo, instance.context, 0, None)
+			Array.to_stream(stream, instance.dependencies, instance.context, 0, None, (instance.num_dependencies,), DependencyEntry)
+		Array.to_stream(stream, instance.stream_files, instance.context, 0, None, (instance.num_stream_files,), StreamEntry)
+		Array.to_stream(stream, instance.zlibs, instance.context, 0, None, (instance.num_archives,), ZlibInfo)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

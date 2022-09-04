@@ -24,7 +24,7 @@ class WsmHeader(MemStruct):
 		self.frame_count = 0
 
 		# unk
-		self.unknowns = Array((0,), Float, self.context, 0, None)
+		self.unknowns = Array(self.context, 0, None, (0,), Float)
 		self.locs = ArrayPointer(self.context, self.frame_count, WsmHeader._import_path_map["generated.formats.wsm.compounds.Vector3"])
 		self.quats = ArrayPointer(self.context, self.frame_count, WsmHeader._import_path_map["generated.formats.wsm.compounds.Vector4"])
 		if set_default:
@@ -56,7 +56,7 @@ class WsmHeader(MemStruct):
 		super().write_fields(stream, instance)
 		Float.to_stream(stream, instance.duration)
 		Uint.to_stream(stream, instance.frame_count)
-		Array.to_stream(stream, instance.unknowns, (8,), Float, instance.context, 0, None)
+		Array.to_stream(stream, instance.unknowns, instance.context, 0, None, (8,), Float)
 		ArrayPointer.to_stream(stream, instance.locs)
 		ArrayPointer.to_stream(stream, instance.quats)
 

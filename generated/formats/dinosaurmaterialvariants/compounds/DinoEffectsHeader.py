@@ -28,7 +28,7 @@ class DinoEffectsHeader(MemStruct):
 		self.e = 0.0
 		self.f = 0.0
 		self.g = 0
-		self.floats = Array((0,), Float, self.context, 0, None)
+		self.floats = Array(self.context, 0, None, (0,), Float)
 		self.d = 0
 		self.e = 0.0
 		self.fgm_name = Pointer(self.context, 0, ZStringObfuscated)
@@ -92,7 +92,7 @@ class DinoEffectsHeader(MemStruct):
 		Float.to_stream(stream, instance.e)
 		Float.to_stream(stream, instance.f)
 		Uint.to_stream(stream, instance.g)
-		Array.to_stream(stream, instance.floats, (39,), Float, instance.context, 0, None)
+		Array.to_stream(stream, instance.floats, instance.context, 0, None, (39,), Float)
 		Uint.to_stream(stream, instance.d)
 		Float.to_stream(stream, instance.e)
 

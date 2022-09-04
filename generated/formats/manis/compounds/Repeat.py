@@ -12,11 +12,11 @@ class Repeat(BaseStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.zeros_0 = Array((0,), Uint64, self.context, 0, None)
+		self.zeros_0 = Array(self.context, 0, None, (0,), Uint64)
 
 		# to be read sequentially starting after this array
 		self.byte_size = 0
-		self.zeros_1 = Array((0,), Uint64, self.context, 0, None)
+		self.zeros_1 = Array(self.context, 0, None, (0,), Uint64)
 		if set_default:
 			self.set_defaults()
 
@@ -36,9 +36,9 @@ class Repeat(BaseStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		Array.to_stream(stream, instance.zeros_0, (7,), Uint64, instance.context, 0, None)
+		Array.to_stream(stream, instance.zeros_0, instance.context, 0, None, (7,), Uint64)
 		Uint64.to_stream(stream, instance.byte_size)
-		Array.to_stream(stream, instance.zeros_1, (2,), Uint64, instance.context, 0, None)
+		Array.to_stream(stream, instance.zeros_1, instance.context, 0, None, (2,), Uint64)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):

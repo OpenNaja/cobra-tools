@@ -18,7 +18,7 @@ class BanisRoot(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.zeros = Array((0,), Uint64, self.context, 0, None)
+		self.zeros = Array(self.context, 0, None, (0,), Uint64)
 
 		# bytes per bone * num bones
 		self.bytes_per_frame = 0
@@ -64,7 +64,7 @@ class BanisRoot(MemStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		Array.to_stream(stream, instance.zeros, (2,), Uint64, instance.context, 0, None)
+		Array.to_stream(stream, instance.zeros, instance.context, 0, None, (2,), Uint64)
 		Uint.to_stream(stream, instance.bytes_per_frame)
 		Uint.to_stream(stream, instance.bytes_per_bone)
 		Uint.to_stream(stream, instance.num_frames)

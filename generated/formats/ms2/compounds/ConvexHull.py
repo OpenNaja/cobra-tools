@@ -23,7 +23,7 @@ class ConvexHull(BaseStruct):
 		self.offset = Vector3(self.context, 0, None)
 
 		# probably padding
-		self.zeros = Array((0,), Uint, self.context, 0, None)
+		self.zeros = Array(self.context, 0, None, (0,), Uint)
 		if set_default:
 			self.set_defaults()
 
@@ -55,9 +55,9 @@ class ConvexHull(BaseStruct):
 		Matrix33.to_stream(stream, instance.rotation)
 		Vector3.to_stream(stream, instance.offset)
 		if instance.context.version == 32:
-			Array.to_stream(stream, instance.zeros, (5,), Uint, instance.context, 0, None)
+			Array.to_stream(stream, instance.zeros, instance.context, 0, None, (5,), Uint)
 		if ((instance.context.version == 48) or (instance.context.version == 50)) or (instance.context.version == 51):
-			Array.to_stream(stream, instance.zeros, (2,), Uint, instance.context, 0, None)
+			Array.to_stream(stream, instance.zeros, instance.context, 0, None, (2,), Uint)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
