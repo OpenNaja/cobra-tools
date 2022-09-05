@@ -689,6 +689,8 @@ class OvlFile(Header, IoFile):
 		file_entry = FileEntry(self.context)
 		file_entry.path = file_path
 		file_entry.name = filename
+		# just init it here
+		file_entry.ext_hash = 0
 		file_entry.basename, file_entry.ext = os.path.splitext(filename)
 		try:
 			file_entry.update_constants(self)
