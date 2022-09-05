@@ -19,13 +19,13 @@ class BufferEntry(BaseStruct):
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 
-		# index of buffer in file, up to pz 1.6
+		# index of buffer in file; id from sorting of data entries
 		self.index = 0
 
 		# in bytes
 		self.size = 0
 
-		# id, new for pz 1.6
+		# id; index is taken from buffer group
 		self.file_hash = 0
 		if set_default:
 			self.set_defaults()

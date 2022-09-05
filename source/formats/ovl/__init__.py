@@ -104,15 +104,15 @@ class OvsFile(OvsHeader):
 			return 0, len(uncompressed_bytes), uncompressed_bytes
 		return len(uncompressed_bytes), len(compressed), compressed
 
-	def update_hashes(self, file_name_lut, mime_lut):
+	def update_hashes(self, file_name_lut):
 		logging.info(f"Updating hashes for {self.arg.name}")
 		entry_lists = (
 			self.pools,
 			self.root_entries,
 			self.data_entries,
-			self.set_header.sets,
-			self.set_header.assets,
-			self.buffer_entries
+			# self.set_header.sets,
+			# self.set_header.assets,
+			# self.buffer_entries
 		)
 		# update references to ovl files
 		for entry_list in entry_lists:
@@ -134,9 +134,6 @@ class OvsFile(OvsHeader):
 				else:
 					entry.file_hash = file_index
 				entry.ext_hash = file.ext_hash
-		# update buffer groups
-		for buffer_group in self.buffer_groups:
-			buffer_group.ext_index = mime_lut.get(buffer_group.ext)
 
 	def unzip(self, archive_entry, start):
 		filepath = archive_entry.ovs_path
@@ -219,6 +216,8 @@ class OvsFile(OvsHeader):
 	def transfer_identity(source_entry, target_entry):
 		source_entry.basename, source_entry.ext = os.path.splitext(target_entry.name)
 		source_entry.name = target_entry.name
+		source_entry.file_hash = target_entry.file_hash
+		source_entry.ext_hash = target_entry.ext_hash
 
 	def rebuild_assets(self):
 		"""Update archive asset grouping from children list on root_entries"""
@@ -248,20 +247,18 @@ class OvsFile(OvsHeader):
 					# set_index is 1-based, so the first set = 1, so we do it after the increment
 					loader.data_entry.set_index = self.set_header.set_count
 
-	def rebuild_buffer_groups(self):
+	def rebuild_buffer_groups(self, mime_lut):
 		logging.info(f"Updating buffer groups for {self.arg.name}")
 		if self.data_entries:
 			for data_entry in self.data_entries:
 				for buffer in data_entry.buffers:
 					self.transfer_identity(buffer, data_entry)
+			# sort buffers
 			if self.ovl.version < 20:
-				# todo it appears we rely on the data_entry's hashes for sorting for JWE1
-				# raise NotImplementedError(f"Can't save old style OVL with buffers")
+				# rely on the data_entry's hashes for sorting for JWE1
 				# sorting by index is not enforced in JWE1 stock
 				self.buffer_entries.sort(key=lambda b: (b.ext, b.file_hash, b.index))
 			else:
-				# v20: PZ1.6, JWE2
-				# sort datas and buffers to be what 1.6 needs
 				# cobra < 20 used buffer index per data entry
 				self.buffer_entries.sort(key=lambda b: (b.ext, b.index, b.file_hash))
 
@@ -332,6 +329,9 @@ class OvsFile(OvsHeader):
 					for x in range(self.buffer_groups[-1].buffer_index + 1):
 						self.buffer_groups[-1 - x].data_count = len(self.data_entries) - self.buffer_groups[
 							-1 - x].data_offset
+		# update buffer groups
+		for buffer_group in self.buffer_groups:
+			buffer_group.ext_index = mime_lut.get(buffer_group.ext)
 
 	def rebuild_pools(self):
 		logging.info("Updating pool names, deleting unused pools")
@@ -386,7 +386,7 @@ class OvsFile(OvsHeader):
 					buffer.index = b_group.buffer_index
 					for data in datas:
 						if buffer.file_hash == data.file_hash:
-							self.transfer_identity(data, buffer)
+							self.transfer_identity(buffer, data)
 							data.buffers.append(buffer)
 							break
 					else:
@@ -398,7 +398,7 @@ class OvsFile(OvsHeader):
 			for data in self.data_entries:
 				data.buffers = self.buffer_entries[i: i+data.buffer_count]
 				for buffer in data.buffers:
-					self.transfer_identity(data, buffer)
+					self.transfer_identity(buffer, data)
 				i += data.buffer_count
 
 	@property
@@ -1095,16 +1095,13 @@ class OvlFile(Header, IoFile):
 		# sort the different lists according to the criteria specified
 		self.files.sort(key=lambda x: (x.ext, x.file_hash))
 		self.dependencies.sort(key=lambda x: x.file_hash)
-		# todo - could this be used instead throughout the loaders?
-		# for file_i, file in enumerate(self.files):
-		# 	file.file_index = file_i
+
 		# build a lookup table mapping file name to its index
 		file_name_lut = {file.name: file_i for file_i, file in enumerate(self.files)}
 		# update indices into ovl.files
 		for loader in self.loaders.values():
 			for entry in loader.dependencies + loader.aux_entries:
 				entry.file_index = file_name_lut[loader.file_entry.name]
-		# entry.file_index = loader.file_entry.file_index
 		self.aux_entries.sort(key=lambda x: x.file_index)
 
 		# map all files by their extension
@@ -1129,10 +1126,6 @@ class OvlFile(Header, IoFile):
 				file_entry.update_constants(self)
 				file_entry.extension = len(self.mimes)
 			self.mimes.append(mime_entry)
-
-		# generate a mime lut for the index of the mimes
-		mime_lut = {mime.ext: i for i, mime in enumerate(self.mimes)}
-
 		# update ovl counts
 		self.num_dependencies = len(self.dependencies)
 		self.num_aux_entries = len(self.aux_entries)
@@ -1140,9 +1133,14 @@ class OvlFile(Header, IoFile):
 		self.num_mimes = len(self.mimes)
 		self.num_files = self.num_files_2 = self.num_files_3 = len(self.files)
 
-		for archive in self.archives:
-			# change the hashes / indices of all entries to be valid for the current game version
-			archive.content.update_hashes(file_name_lut, mime_lut)
+	# def rebuild_ovs_extras(self):
+	# 	"""Produces valid ovl.pools and ovs.pools and valid links for everything that points to them"""
+	# 	for archive in self.archives:
+	# 		ovs = archive.content
+	# 		# depends on correct hashes applied to buffers and datas
+	# 		ovs.rebuild_buffer_groups()
+	# 		# depends on sorted root_entries
+	# 		ovs.rebuild_assets()
 
 	def rebuild_ovs_arrays(self):
 		"""Produces valid ovl.pools and ovs.pools and valid links for everything that points to them"""
@@ -1150,17 +1148,24 @@ class OvlFile(Header, IoFile):
 			logging.debug(f"Sorting pools by type and updating pool groups")
 			self.archives.sort(key=lambda a: a.name)
 
+			# generate a mime lut for the index of the mimes
+			mime_lut = {mime.ext: i for i, mime in enumerate(self.mimes)}
+
 			# remove all entries to rebuild them from the loaders
 			for archive in self.archives:
 				archive.content.clear_ovs_arrays()
 
 			# add entries to correct ovs
 			for loader in self.loaders.values():
+				# attach the entries used by this loader to the ovs lists
 				loader.register_entries()
 				# force an update on the loader's data for older versions' data
 				# and link entries like bani to banis
 				loader.update()
 
+			# todo - maybe reuse the lut?
+			# build a lookup table mapping file name to its index
+			file_name_lut = {file.name: file_i for file_i, file in enumerate(self.files)}
 			pools_byte_offset = 0
 			pools_offset = 0
 			# make a temporary copy so we can delete archive if needed
@@ -1169,13 +1174,18 @@ class OvlFile(Header, IoFile):
 				logging.debug(f"Sorting pools for {archive.name}")
 				ovs = archive.content
 
+				# needs to happen after loader.register_entries
+				# change the hashes / indices of all entries to be valid for the current game version
+				ovs.update_hashes(file_name_lut)
 				# sort pools by their type
 				ovs.pools.sort(key=lambda p: p.type)
 				# sort fragments by their first pointer just to keep saves consistent for easier debugging
 				ovs.fragments.sort(key=lambda f: (f.struct_ptr.pool_index, f.struct_ptr.data_offset))
 				ovs.root_entries.sort(key=lambda b: (b.ext, b.file_hash))
 				ovs.data_entries.sort(key=lambda b: (b.ext, b.file_hash))
-				ovs.rebuild_buffer_groups()
+
+				# depends on correct hashes applied to buffers and datas
+				ovs.rebuild_buffer_groups(mime_lut)
 				# depends on sorted root_entries
 				ovs.rebuild_assets()
 
@@ -1306,9 +1316,13 @@ class OvlFile(Header, IoFile):
 		start_time = time.time()
 		self.store_filepath(filepath)
 		logging.info(f"Writing {self.name}")
-		self.rebuild_ovs_arrays()
 		# do this last so we also catch the assets & sets
 		self.rebuild_ovl_arrays()
+		self.rebuild_ovs_arrays()
+		# self.rebuild_ovs_extras()
+		# todo - this needs attention rebuild_ovs_arrays relies on ids already, which are only assigned during rebuild_ovl_arrays
+		# sorting of buffers relies on hashes as well
+		# assets should only be updated after everything, and transfer their id from source entries
 		# these need to be done after the rest
 		self.update_pool_indices()
 		self.update_stream_files()

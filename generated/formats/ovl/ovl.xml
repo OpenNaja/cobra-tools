@@ -187,9 +187,9 @@
 
 	<compound name="BufferEntry" >
 		8 bytes
-		<add name="index" type="uint" until="19">index of buffer in file, up to pz 1.6</add>
+		<add name="index" type="uint" until="19">index of buffer in file; id from sorting of data entries</add>
 		<add name="size" type="uint">in bytes</add>
-		<add name="file_hash" type="uint" since="20">id, new for pz 1.6</add>
+		<add name="file_hash" type="uint" since="20">id; index is taken from buffer group</add>
     </compound>
 
 	<compound name="BufferGroup" >
