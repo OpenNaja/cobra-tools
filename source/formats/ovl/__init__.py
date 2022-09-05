@@ -187,7 +187,9 @@ class OvsFile(OvsHeader):
 			# add IO object to every pool
 			self.read_pools(stream)
 			self.map_buffers()
-			self.read_buffer_datas(stream)
+			for buffer in self.buffers_io_order:
+				# read buffer data and store it in buffer object
+				buffer.read_data(stream)
 
 	def read_pools(self, stream):
 		for pool in self.pools:
@@ -253,6 +255,9 @@ class OvsFile(OvsHeader):
 			for data_entry in self.data_entries:
 				for buffer in data_entry.buffers:
 					self.transfer_identity(buffer, data_entry)
+				# to ensure that the io order matches, sort buffers per data too, as that will influence the order
+				if self.ovl.version < 20:
+					data_entry.buffers.sort(key=lambda b: b.index)
 			# sort buffers
 			if self.ovl.version < 20:
 				# rely on the data_entry's hashes for sorting for JWE1
@@ -403,16 +408,11 @@ class OvsFile(OvsHeader):
 
 	@property
 	def buffers_io_order(self):
-		"""sort buffers into load order"""
+		"""sort buffers into the order in which they are read from the file"""
 		if self.ovl.version >= 20:
 			return self.buffer_entries
 		else:
-			# first read the first buffer for every file
-			# then the second if it has any
-			# and so on, until there is no data entry left with unprocessed buffers
-			# for this to work, buffers need to have hashes assigned
-			# return sorted(self.buffer_entries, key=lambda b: (b.index, b.ext, b.file_hash))
-			# this holds the buffers in the order they are read from the file
+			# sorting depends on order of data entries, and order of buffers therein (not necessarily sorted by index)
 			io_order = []
 			# only do this if there are any data entries so that max() doesn't choke
 			if self.data_entries:
@@ -426,13 +426,6 @@ class OvsFile(OvsHeader):
 						if i < data.buffer_count:
 							io_order.append(data.buffers[i])
 			return io_order
-
-	def read_buffer_datas(self, stream):
-		# finally, we have the buffers in the correct sorting so we can read their contents
-		logging.info("Reading from buffers")
-		for buffer in self.buffers_io_order:
-			# read buffer data and store it in buffer object
-			buffer.read_data(stream)
 
 	def dump_pools(self):
 		"""for debugging"""
@@ -453,6 +446,10 @@ class OvsFile(OvsHeader):
 		buff_log_path = os.path.join(self.ovl.dir, f"{self.ovl.name}_{self.arg.name}_buffers.log")
 		logging.info(f"Dumping buffer log to {buff_log_path}")
 		with open(buff_log_path, "w") as f:
+			f.write("\nBuffers IO order")
+			for x, buffer in enumerate(self.buffers_io_order):
+				f.write(f"\n{buffer.name} index: {buffer.index}| {buffer.size}")
+			f.write("\n\nBuffers")
 			for x, buffer in enumerate(self.buffer_entries):
 				f.write(f"\n{buffer.name} index: {buffer.index}| {buffer.size}")
 			f.write("\n\n")
