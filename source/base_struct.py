@@ -222,6 +222,14 @@ class BaseStruct(metaclass=StructMetaClass):
 		return setattr(instance, key, value)
 
 	@classmethod
+	def get_size(cls, context, instance, arguments=()):
+		"""arguments is optional because it is not required for _get_filtered_attribute_list"""
+		size = 0
+		for field_name, field_type, arguments, _ in cls._get_filtered_attribute_list(instance):
+			size += field_type.get_size(context, cls.get_field(instance, field_name), arguments)
+		return size
+
+	@classmethod
 	def from_stream(cls, stream, context, arg=0, template=None):
 		instance = cls(context, arg, template, set_default=False)
 		instance.io_start = stream.tell()

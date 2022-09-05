@@ -33,6 +33,10 @@ def class_from_struct(struct, from_value_func):
             stream.write(pack(instance))
 
         @staticmethod
+        def get_size(context, instance, arguments=()):
+            return size
+
+        @staticmethod
         def create_array(shape, default=None, context=None, arg=0, template=None):
             if default:
                 return np.full(shape, default, dtype)

@@ -60,6 +60,11 @@ class BasicBitfield(object, metaclass=BitfieldMetaClass):
         cls._storage.to_stream(stream, instance._value)
 
     @classmethod
+    def get_size(cls, context, instance, argument=()):
+        return cls._storage.get_size(context, instance)
+
+
+    @classmethod
     def from_value(cls, value):
         instance = cls(None, set_default=False)
         instance._value = value

@@ -88,6 +88,10 @@ class BaseEnum(IntEnum, metaclass=DefaultEnumMeta):
 		self._storage.to_stream(stream, self.value)
 
 	@classmethod
+	def get_size(cls, context, instance, arguments=()):
+		return cls._storage.get_size(context, instance)
+
+	@classmethod
 	def from_stream(cls, stream, context=None, arg=0, template=None):
 		instance = cls.from_value(cls._storage.from_stream(stream, None, 0, None))
 		return instance

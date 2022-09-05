@@ -107,7 +107,7 @@ class Array(list):
             elif callable(getattr(dtype, 'write_array', None)):
                 dtype.write_array(stream, instance)
             else:
-                instance.store_params(shape, dtype, context, arg, template)
+                instance.store_params(context, arg, template, shape, dtype)
                 instance.write(stream)
 
     @classmethod
@@ -186,6 +186,13 @@ class Array(list):
     @staticmethod
     def set_field(instance, key, value):
         instance[key] = value
+
+    @classmethod
+    def get_size(cls, context, instance, arguments):
+        size = 0
+        for field_name, field_type, arguments, _ in cls._get_filtered_attribute_list(instance, *arguments[3:4]):
+            size += field_type.get_size(context, cls.get_field(instance, field_name), arguments)
+        return size
 
     @staticmethod
     def fmt_member(member, indent=0):
@@ -269,6 +276,10 @@ class RaggedArray(Array):
         shape = (index(shape_input[0]), shape_input[1], *(index(i) for i in shape_input[2:]))
         self._shape = shape
 
+    @property
+    def size(self):
+        return self.shape[0] * sum(self.shape[1]) * math.prod(self.shape[2:])
+
     @classmethod
     def from_stream(cls, stream, context, arg=0, template=None, shape=(), dtype=None):
         # basic types have read_array method defined on their class
@@ -285,7 +296,7 @@ class RaggedArray(Array):
             if callable(getattr(dtype, 'write_ragged_array', None)):
                 dtype.write_ragged_array(stream, instance)
             else:
-                instance.store_params(shape, dtype, context, arg, template)
+                instance.store_params(context, arg, template, shape, dtype)
                 instance.write(stream)
 
     @classmethod
