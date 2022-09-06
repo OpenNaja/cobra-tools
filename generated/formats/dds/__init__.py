@@ -102,15 +102,16 @@ class DdsFile(Header, IoFile):
     def mip_pack_generator(self, mip_infos):
         """Yields data size to be read from stream + amount of padding applied for packed representation)"""
         tiles_per_mips = zip(*self.calculate_mip_sizes())
-        # mip_offset = 0
+        mip_offset = 0
         for mip_i, (tiles_per_mip, mip_info) in enumerate(zip(tiles_per_mips, mip_infos)):
             # mip_offset = stream.tell()
             for tile_i, (height, width, tile_byte_size) in enumerate(tiles_per_mip):
                 bytes_width = self.get_bytes_size(width)
-                # logging.debug(f"offset {mip_info.offset}, {mip_offset}")
+                # logging.debug(f"tile {tile_i}, offset {mip_info.offset} {mip_offset}, height {height}, width {width}")
                 # logging.debug(f"width {width}, bytes width {bytes_width}")
                 if bytes_width > 32:
                     yield tile_byte_size, 0
+                    mip_offset += tile_byte_size
                     # logging.debug(f"Wrote mip {mip_i} for tile {tile_i}, {len(tile_bytes)} raw bytes")
                 else:
                     # no matter what pixel size the mips represent, they must be at least one 4x4 chunk
@@ -120,15 +121,21 @@ class DdsFile(Header, IoFile):
                     # get count of h slices, 1 block is 4x4 px
                     num_slices_y = height // self.block_len_pixels_1d
                     bytes_per_line = tile_byte_size // num_slices_y
+                    padding_per_line = get_padding_size(bytes_per_line, alignment=256)
 
+                    # logging.debug(
+                    #     f"num_slices_y {num_slices_y}, bytes_per_line {bytes_per_line}, padding_per_line {padding_per_line}")
                     # write the bytes for this line from the mip bytes
                     for slice_i in range(num_slices_y):
                         # get the bytes that represent the blocks of this line and fill the line with padding blocks
-                        yield bytes_per_line, get_padding_size(bytes_per_line, alignment=256)
+                        yield bytes_per_line, padding_per_line
+                        mip_offset += bytes_per_line
+                        mip_offset += padding_per_line
 
                     # add one fully blank line for those cases
                     if num_slices_y == 1:
                         yield 0, 256
+                        mip_offset += 256
                     #
                     # logging.debug(
                     #     f"Packed mip {mip_i} for tile {tile_i}, {len(tile_bytes)} raw bytes, {num_slices_y} Y slices, {stream.tell() - mip_offset} total bytes")

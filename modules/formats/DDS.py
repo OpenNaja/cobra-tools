@@ -198,15 +198,13 @@ class DdsLoader(MemStructLoader):
 			dds_file.depth = 1
 		elif is_pc(self.ovl) or is_ztuac(self.ovl):
 			dds_file.width = size_info.width
-			# hack until we have proper support for array_size on the image editors
-			# todo - this is most assuredly not array size for ED
-			dds_file.height = size_info.height  # * max(1, size_info.array_size)
+			dds_file.height = size_info.height
 			dds_file.mipmap_count = size_info.num_mips
 			dds_file.depth = 1
 		else:
 			dds_file.width = size_info.width
-			# hack until we have proper support for array_size on the image editors
-			dds_file.height = size_info.height * size_info.array_size
+			dds_file.dx_10.array_size = size_info.array_size
+			dds_file.height = size_info.height
 			dds_file.depth = size_info.depth
 			dds_file.mipmap_count = size_info.num_mips
 		try:
@@ -229,9 +227,12 @@ class DdsLoader(MemStructLoader):
 	
 			# set compression
 			dds_file.dx_10.dxgi_format = compression_type
-			# if not (is_ztuac(self.ovl) or is_pc(self.ovl) or is_dla(self.ovl)):
-			# 	# regenerate continous buffer data, depending on compression type
-			# 	buffer_data = dds_file.unpack_mips(size_info.mip_maps, buffer_data)
+			if not (is_ztuac(self.ovl) or is_pc(self.ovl) or is_dla(self.ovl)):
+				# regenerate continous buffer data, depending on compression type
+				buffer_data = dds_file.unpack_mips(size_info.mip_maps, buffer_data)
+			# hack until we have proper support for array_size for texconv, after packing has been undone
+			dds_file.height *= dds_file.dx_10.array_size
+			dds_file.dx_10.array_size = 1
 			dds_file.buffer = buffer_data
 			dds_file.linear_size = len(buffer_data)
 			# start out
