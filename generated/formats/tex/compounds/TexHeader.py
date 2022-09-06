@@ -39,7 +39,7 @@ class TexHeader(MemStruct):
 		# usually as above
 		self.stream_count_repeat = 0
 
-		# 0
+		# 0; 1 for PC
 		self.pad = 0
 		self.pad_dla = 0
 		self.buffer_infos = ArrayPointer(self.context, self.stream_count, TexHeader._import_path_map["generated.formats.tex.compounds.TexBuffer"])
@@ -55,9 +55,9 @@ class TexHeader(MemStruct):
 			self.zero_0 = 0
 		if self.context.version >= 19:
 			self.zero_1 = 0
-		if self.context.version < 19:
+		if self.context.version <= 18:
 			self.compression_type = DdsTypeCoaster(self.context, 0, None)
-		if not (self.context.version < 19):
+		if self.context.version >= 19:
 			self.compression_type = DdsType(self.context, 0, None)
 		self.one_0 = 0
 		if self.context.version <= 15:
@@ -90,9 +90,9 @@ class TexHeader(MemStruct):
 		if instance.context.version >= 19:
 			instance.buffer_infos = ArrayPointer.from_stream(stream, instance.context, instance.stream_count, TexHeader._import_path_map["generated.formats.tex.compounds.TexBuffer"])
 			instance.size_info = Pointer.from_stream(stream, instance.context, 0, TexHeader._import_path_map["generated.formats.tex.compounds.SizeInfo"])
-		if instance.context.version < 19:
+		if instance.context.version <= 18:
 			instance.compression_type = DdsTypeCoaster.from_stream(stream, instance.context, 0, None)
-		if not (instance.context.version < 19):
+		if instance.context.version >= 19:
 			instance.compression_type = DdsType.from_stream(stream, instance.context, 0, None)
 		instance.one_0 = Ubyte.from_stream(stream, instance.context, 0, None)
 		if instance.context.version <= 15:
@@ -126,9 +126,9 @@ class TexHeader(MemStruct):
 		if instance.context.version >= 19:
 			ArrayPointer.to_stream(stream, instance.buffer_infos)
 			Pointer.to_stream(stream, instance.size_info)
-		if instance.context.version < 19:
+		if instance.context.version <= 18:
 			DdsTypeCoaster.to_stream(stream, instance.compression_type)
-		if not (instance.context.version < 19):
+		if instance.context.version >= 19:
 			DdsType.to_stream(stream, instance.compression_type)
 		Ubyte.to_stream(stream, instance.one_0)
 		if instance.context.version <= 15:
@@ -156,9 +156,9 @@ class TexHeader(MemStruct):
 		if instance.context.version >= 19:
 			yield 'buffer_infos', ArrayPointer, (instance.stream_count, TexHeader._import_path_map["generated.formats.tex.compounds.TexBuffer"]), (False, None)
 			yield 'size_info', Pointer, (0, TexHeader._import_path_map["generated.formats.tex.compounds.SizeInfo"]), (False, None)
-		if instance.context.version < 19:
+		if instance.context.version <= 18:
 			yield 'compression_type', DdsTypeCoaster, (0, None), (False, None)
-		if not (instance.context.version < 19):
+		if instance.context.version >= 19:
 			yield 'compression_type', DdsType, (0, None), (False, None)
 		yield 'one_0', Ubyte, (0, None), (False, None)
 		if instance.context.version <= 15:

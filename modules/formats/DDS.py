@@ -141,7 +141,7 @@ class DdsLoader(MemStructLoader):
 		dds_file.load(file_path)
 		tex_buffers = self.header.buffer_infos.data
 		if is_pc(self.ovl):
-			buffer_bytes = [dds_file.pack_mips_pc(b.num_mips) for b in tex_buffers]
+			buffer_bytes = dds_file.pack_mips_pc(tex_buffers)
 		else:
 			packed = dds_file.pack_mips(size_info.mip_maps)
 			# slice packed bytes according to tex header buffer specifications
@@ -201,7 +201,7 @@ class DdsLoader(MemStructLoader):
 			# hack until we have proper support for array_size on the image editors
 			# todo - this is most assuredly not array size for ED
 			dds_file.height = size_info.height  # * max(1, size_info.array_size)
-			dds_file.mipmap_count = size_info.mip_index
+			dds_file.mipmap_count = size_info.num_mips
 			dds_file.depth = 1
 		else:
 			dds_file.width = size_info.width
@@ -257,7 +257,10 @@ class DdsLoader(MemStructLoader):
 		png_width, png_height = iio.immeta(png_file_path)["shape"]
 		tex_h = size_info.height
 		tex_w = size_info.width
-		tex_d = size_info.depth
+		if hasattr(size_info, "tex_d"):
+			tex_d = size_info.depth
+		else:
+			tex_d = 1
 		tex_a = size_info.array_size
 		tex_w = align_to(tex_w, self.header.compression_type.name)
 		if png_width * png_height != tex_h * tex_w * tex_d * tex_a:

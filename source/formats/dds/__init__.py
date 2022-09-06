@@ -158,13 +158,22 @@ class DdsFile(Header, IoFile):
                     logging.warning(f"Tex padding is non-zero at {tex.tell()-padding_size}")
             return dds.getvalue()
 
-    def pack_mips_pc(self, num_mips):
+    def pack_mips_pc(self, buffer_infos):
         """Grab the lower mip levels according to the count"""
-        first_mip_index = self.mipmap_count - num_mips
-        print("first mip", first_mip_index)
-
-        # get final merged output bytes
-        return b"".join([b for h, w, b in self.mips[first_mip_index:]])
+        tiles_per_mips = list(zip(*self.calculate_mip_sizes()))
+        mip_cuts = [self.mipmap_count - b.num_mips for b in buffer_infos]
+        mip_cuts.append(self.mipmap_count)
+        # print(mip_cuts)
+        buffers = []
+        dds = io.BytesIO(self.buffer)
+        for i in range(len(mip_cuts)-1):
+            mip_0 = mip_cuts[i]
+            mip_1 = mip_cuts[i+1]
+            tiles_per_selected_mips = tiles_per_mips[mip_0: mip_1]
+            bytes_size = sum(tile[2] for mip in tiles_per_selected_mips for tile in mip)
+            # print(mip_0, mip_1, bytes_size)
+            buffers.append(dds.read(bytes_size))
+        return buffers
 
 
 if __name__ == "__main__":
