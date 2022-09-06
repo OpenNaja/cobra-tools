@@ -141,10 +141,11 @@
     </compound>
 
 	<compound name="TexBufferPc" inherit="MemStruct" >
+		The different tex buffers contain the smallest mip
 		<add name="width" type="ushort"/>
 		<add name="height" type="ushort"/>
 		<add name="array size" type="ushort" since="18">may be depth</add>
-		<add name="num mips" type="ushort">max mip index in this buffer</add>
+		<add name="num mips" type="ushort">the first ie. biggest levels are clipped off</add>
     </compound>
 
 	<compound name="SizeInfoRaw" inherit="MemStruct" >

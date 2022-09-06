@@ -4,6 +4,10 @@ from generated.formats.ovl_base.compounds.MemStruct import MemStruct
 
 class TexBufferPc(MemStruct):
 
+	"""
+	The different tex buffers contain the smallest mip
+	"""
+
 	__name__ = 'TexBufferPc'
 
 	_import_path = 'generated.formats.tex.compounds.TexBufferPc'
@@ -16,7 +20,7 @@ class TexBufferPc(MemStruct):
 		# may be depth
 		self.array_size = 0
 
-		# max mip index in this buffer
+		# the first ie. biggest levels are clipped off
 		self.num_mips = 0
 		if set_default:
 			self.set_defaults()

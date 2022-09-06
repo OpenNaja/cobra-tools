@@ -162,17 +162,13 @@ class DdsFile(Header, IoFile):
         """Grab the lower mip levels according to the count"""
         tiles_per_mips = list(zip(*self.calculate_mip_sizes()))
         mip_cuts = [self.mipmap_count - b.num_mips for b in buffer_infos]
-        mip_cuts.append(self.mipmap_count)
         # print(mip_cuts)
         buffers = []
-        dds = io.BytesIO(self.buffer)
-        for i in range(len(mip_cuts)-1):
-            mip_0 = mip_cuts[i]
-            mip_1 = mip_cuts[i+1]
-            tiles_per_selected_mips = tiles_per_mips[mip_0: mip_1]
-            bytes_size = sum(tile[2] for mip in tiles_per_selected_mips for tile in mip)
-            # print(mip_0, mip_1, bytes_size)
-            buffers.append(dds.read(bytes_size))
+        for mip_0 in mip_cuts:
+            # get the size for all tiles of the valid mip levels
+            bytes_size = sum([tile[2] for mip in tiles_per_mips[mip_0:] for tile in mip])
+            # print(mip_0, bytes_size, tile_sizes)
+            buffers.append(self.buffer[-bytes_size:])
         return buffers
 
 
