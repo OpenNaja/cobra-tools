@@ -27,10 +27,10 @@ class VoxelskirtRoot(MemStruct):
 		self.padding = 0.0
 
 		# zero, for PC only
-		self.zero_pc = 0
+		self.height_offset = 0
 
 		# x*y*4, for PC only
-		self.height_array_size_pc = 0
+		self.weights_offset = 0
 		self.layers = DataSlot(self.context, 0, VoxelskirtRoot._import_path_map["generated.formats.voxelskirt.compounds.Layer"])
 
 		# entries of 40 bytes
@@ -52,8 +52,8 @@ class VoxelskirtRoot(MemStruct):
 		self.scale = 0.0
 		self.padding = 0.0
 		if self.context.version == 18:
-			self.zero_pc = 0
-			self.height_array_size_pc = 0
+			self.height_offset = 0
+			self.weights_offset = 0
 		if not (self.context.version == 18):
 			self.layers = DataSlot(self.context, 0, VoxelskirtRoot._import_path_map["generated.formats.voxelskirt.compounds.Layer"])
 			self.areas = DataSlot(self.context, 0, VoxelskirtRoot._import_path_map["generated.formats.voxelskirt.compounds.Area"])
@@ -71,8 +71,8 @@ class VoxelskirtRoot(MemStruct):
 		instance.scale = Float.from_stream(stream, instance.context, 0, None)
 		instance.padding = Float.from_stream(stream, instance.context, 0, None)
 		if instance.context.version == 18:
-			instance.zero_pc = Uint64.from_stream(stream, instance.context, 0, None)
-			instance.height_array_size_pc = Uint64.from_stream(stream, instance.context, 0, None)
+			instance.height_offset = Uint64.from_stream(stream, instance.context, 0, None)
+			instance.weights_offset = Uint64.from_stream(stream, instance.context, 0, None)
 		if not (instance.context.version == 18):
 			instance.layers = DataSlot.from_stream(stream, instance.context, 0, VoxelskirtRoot._import_path_map["generated.formats.voxelskirt.compounds.Layer"])
 			instance.areas = DataSlot.from_stream(stream, instance.context, 0, VoxelskirtRoot._import_path_map["generated.formats.voxelskirt.compounds.Area"])
@@ -90,8 +90,8 @@ class VoxelskirtRoot(MemStruct):
 		Float.to_stream(stream, instance.scale)
 		Float.to_stream(stream, instance.padding)
 		if instance.context.version == 18:
-			Uint64.to_stream(stream, instance.zero_pc)
-			Uint64.to_stream(stream, instance.height_array_size_pc)
+			Uint64.to_stream(stream, instance.height_offset)
+			Uint64.to_stream(stream, instance.weights_offset)
 		if not (instance.context.version == 18):
 			DataSlot.to_stream(stream, instance.layers)
 			DataSlot.to_stream(stream, instance.areas)
@@ -109,8 +109,8 @@ class VoxelskirtRoot(MemStruct):
 		yield 'scale', Float, (0, None), (False, None)
 		yield 'padding', Float, (0, None), (False, None)
 		if instance.context.version == 18:
-			yield 'zero_pc', Uint64, (0, None), (False, None)
-			yield 'height_array_size_pc', Uint64, (0, None), (False, None)
+			yield 'height_offset', Uint64, (0, None), (False, None)
+			yield 'weights_offset', Uint64, (0, None), (False, None)
 		if not (instance.context.version == 18):
 			yield 'layers', DataSlot, (0, VoxelskirtRoot._import_path_map["generated.formats.voxelskirt.compounds.Layer"]), (False, None)
 			yield 'areas', DataSlot, (0, VoxelskirtRoot._import_path_map["generated.formats.voxelskirt.compounds.Area"]), (False, None)
@@ -130,8 +130,8 @@ class VoxelskirtRoot(MemStruct):
 		s += f'\n	* y = {self.fmt_member(self.y, indent+1)}'
 		s += f'\n	* scale = {self.fmt_member(self.scale, indent+1)}'
 		s += f'\n	* padding = {self.fmt_member(self.padding, indent+1)}'
-		s += f'\n	* zero_pc = {self.fmt_member(self.zero_pc, indent+1)}'
-		s += f'\n	* height_array_size_pc = {self.fmt_member(self.height_array_size_pc, indent+1)}'
+		s += f'\n	* height_offset = {self.fmt_member(self.height_offset, indent+1)}'
+		s += f'\n	* weights_offset = {self.fmt_member(self.weights_offset, indent+1)}'
 		s += f'\n	* layers = {self.fmt_member(self.layers, indent+1)}'
 		s += f'\n	* areas = {self.fmt_member(self.areas, indent+1)}'
 		s += f'\n	* entity_groups = {self.fmt_member(self.entity_groups, indent+1)}'

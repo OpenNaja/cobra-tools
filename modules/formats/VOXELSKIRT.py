@@ -56,7 +56,7 @@ class VoxelskirtLoader(MemStructLoader):
 				entry.data = Array.from_stream(stream, self.ovl.context, 0, None, (entry.count, ), EntityInstance)
 
 		# read PC style height map and masks
-		if self.header.height_array_size_pc:
+		if self.header.weights_offset:
 			stream.seek(0)
 			# same as the other games
 			self.heightmap = Float.read_array(stream, (self.header.x, self.header.y), self.ovl.context, 0, None)
