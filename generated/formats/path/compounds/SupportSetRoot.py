@@ -102,8 +102,8 @@ class SupportSetRoot(MemStruct):
 		Uint.to_stream(stream, instance.num_data)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'connector_1', ArrayPointer, (instance.num_connector_1, SupportSetRoot._import_path_map["generated.formats.path.compounds.Connector"]), (False, None)
 		yield 'connector_2', ArrayPointer, (instance.num_connector_2, SupportSetRoot._import_path_map["generated.formats.path.compounds.ConnectorMultiJoint"]), (False, None)
 		yield 'pillar', Pointer, (0, SupportSetRoot._import_path_map["generated.formats.path.compounds.Pillar"]), (False, None)

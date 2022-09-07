@@ -176,8 +176,8 @@ class MeshCollision(BaseStruct):
 		Uint.to_stream(stream, instance.zero_end)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'rotation', Matrix33, (0, None), (False, None)
 		yield 'offset', Vector3, (0, None), (False, None)
 		yield 'unk_1', Array, (0, None, (3, 2,), Ushort), (False, None)

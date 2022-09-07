@@ -106,8 +106,8 @@ class PathJoinPartResource(MemStruct):
 		Uint64.to_stream(stream, instance.padding_2)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'unk_points_1', Pointer, (instance.num_points_1, PathJoinPartResource._import_path_map["generated.formats.path.compounds.PointsList"]), (False, None)
 		yield 'unk_points_2', Pointer, (instance.num_points_2, PathJoinPartResource._import_path_map["generated.formats.path.compounds.PointsList"]), (False, None)
 		yield 'unk_vector', ArrayPointer, (1, PathJoinPartResource._import_path_map["generated.formats.path.compounds.Vector4"]), (False, None)

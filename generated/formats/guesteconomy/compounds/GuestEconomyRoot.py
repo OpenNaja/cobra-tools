@@ -189,8 +189,8 @@ class GuestEconomyRoot(MemStruct):
 		Uint.to_stream(stream, instance.u_14)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'target_profit', Uint, (0, None), (False, None)
 		yield 'u_00', Float, (0, None), (False, None)
 		yield 'target_dinosaur_prestige', Uint, (0, None), (False, None)

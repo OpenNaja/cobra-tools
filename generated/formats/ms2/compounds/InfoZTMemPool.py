@@ -39,8 +39,8 @@ class InfoZTMemPool(BaseStruct):
 		Array.to_stream(stream, instance.unks, instance.context, 0, None, (instance.unk_count, 2,), Ushort)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'unk_count', Ushort, (0, None), (False, None)
 		yield 'unks', Array, (0, None, (instance.unk_count, 2,), Ushort), (False, None)
 

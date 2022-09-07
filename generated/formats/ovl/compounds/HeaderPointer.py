@@ -40,8 +40,8 @@ class HeaderPointer(BaseStruct):
 		Uint.to_stream(stream, instance.data_offset)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'pool_index', Int, (0, None), (False, None)
 		yield 'data_offset', Uint, (0, None), (False, None)
 

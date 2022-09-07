@@ -97,8 +97,8 @@ class Struct7(BaseStruct):
 			Uint64.to_stream(stream, instance.alignment)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		if instance.context.version <= 13:
 			yield 'weird_padding', SmartPadding, (0, None), (False, None)
 		yield 'count_7', Uint64, (0, None), (False, None)

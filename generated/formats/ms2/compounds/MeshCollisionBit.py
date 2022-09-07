@@ -40,8 +40,8 @@ class MeshCollisionBit(BaseStruct):
 		Array.to_stream(stream, instance.consts, instance.context, 0, None, (3,), Uint)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'countd', Array, (0, None, (34,), Ushort), (False, None)
 		yield 'consts', Array, (0, None, (3,), Uint), (False, None)
 

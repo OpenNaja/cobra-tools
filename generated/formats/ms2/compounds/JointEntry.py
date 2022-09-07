@@ -42,8 +42,8 @@ class JointEntry(BaseStruct):
 		Vector3.to_stream(stream, instance.loc)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'rot', Matrix33, (0, None), (False, None)
 		yield 'loc', Vector3, (0, None), (False, None)
 

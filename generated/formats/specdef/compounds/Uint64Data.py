@@ -52,8 +52,8 @@ class Uint64Data(MemStruct):
 		Pointer.to_stream(stream, instance.enum)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'imin', Uint64, (0, None), (False, None)
 		yield 'imax', Uint64, (0, None), (False, None)
 		yield 'ivalue', Uint64, (0, None), (False, None)

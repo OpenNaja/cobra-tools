@@ -85,8 +85,8 @@ class WorldHeader(MemStruct):
 		Pointer.to_stream(stream, instance.ptr_3)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'world_type', Uint64, (0, None), (False, None)
 		yield 'asset_pkgs', Pointer, (instance.asset_pkg_count, WorldHeader._import_path_map["generated.formats.world.compounds.PtrList"]), (False, None)
 		yield 'asset_pkg_count', Uint64, (0, None), (False, None)

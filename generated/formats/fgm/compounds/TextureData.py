@@ -36,8 +36,8 @@ class TextureData(MemStruct):
 			Pointer.to_stream(stream, instance.dependency_name)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		if instance.arg.dtype == 8:
 			yield 'dependency_name', Pointer, (0, None), (False, None)
 

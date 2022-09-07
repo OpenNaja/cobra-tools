@@ -76,8 +76,8 @@ class TriChunk(BaseStruct):
 		Ushort.to_stream(stream, instance.u_3)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'bounds_min', Vector3, (0, None), (False, None)
 		yield 'material_index', Ushort, (0, None), (False, None)
 		yield 'tris_count', Ushort, (0, None), (False, None)

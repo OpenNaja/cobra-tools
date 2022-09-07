@@ -92,8 +92,8 @@ class Model(BaseStruct):
 			Array.to_stream(stream, instance.floatsy, instance.context, 0, None, (instance.arg.render_flag,), FloatsY)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'materials', Array, (0, None, (instance.arg.num_materials,), MaterialName), (False, None)
 		yield 'lods', Array, (0, None, (instance.arg.num_lods,), LodInfo), (False, None)
 		yield 'objects', Array, (0, None, (instance.arg.num_objects,), Object), (False, None)

@@ -164,11 +164,11 @@ class Array(list):
         self.dtype = dtype
 
     @classmethod
-    def _get_filtered_attribute_list(cls, instance, dtype):
+    def _get_filtered_attribute_list(cls, instance, dtype, include_abstract=True):
         if cls.is_ragged_shape(getattr(instance, "shape", ())):
-            return RaggedArray._get_filtered_attribute_list(instance, dtype)
+            return RaggedArray._get_filtered_attribute_list(instance, dtype, include_abstract)
         elif callable(getattr(dtype, "_get_filtered_attribute_list_array", None)):
-            return dtype._get_filtered_attribute_list_array(instance)
+            return dtype._get_filtered_attribute_list_array(instance, include_abstract)
         else:
             arg = getattr(instance, "arg", 0)
             template = getattr(instance, "template", None)
@@ -190,7 +190,7 @@ class Array(list):
     @classmethod
     def get_size(cls, context, instance, arguments):
         size = 0
-        for field_name, field_type, arguments, _ in cls._get_filtered_attribute_list(instance, *arguments[3:4]):
+        for field_name, field_type, arguments, _ in cls._get_filtered_attribute_list(instance, *arguments[3:4], include_abstract=False):
             size += field_type.get_size(context, cls.get_field(instance, field_name), arguments)
         return size
 
@@ -309,9 +309,9 @@ class RaggedArray(Array):
             return new_array
 
     @classmethod
-    def _get_filtered_attribute_list(cls, instance, dtype):
+    def _get_filtered_attribute_list(cls, instance, dtype, include_abstract=True):
         if callable(getattr(dtype, "_get_filtered_attribute_list_ragged_array", None)):
-            return dtype._get_filtered_attribute_list_ragged_array(instance)
+            return dtype._get_filtered_attribute_list_ragged_array(instance, include_abstract)
         else:
             arg = getattr(instance, "arg", 0)
             template = getattr(instance, "template", None)

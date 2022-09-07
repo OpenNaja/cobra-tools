@@ -125,8 +125,8 @@ class BufferInfo(BaseStruct):
 			Uint64.to_stream(stream, instance.u_7)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		if 32 <= instance.context.version <= 47:
 			yield 'u_0', Uint64, (0, None), (False, None)
 			yield 'u_1', Uint64, (0, None), (False, None)

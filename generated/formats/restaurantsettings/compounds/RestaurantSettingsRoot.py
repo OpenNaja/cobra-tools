@@ -78,8 +78,8 @@ class RestaurantSettingsRoot(MemStruct):
 		Uint64.to_stream(stream, instance.count)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'running_cost_base', Uint64, (0, None), (False, None)
 		yield 'unk_1', Uint, (0, None), (False, None)
 		yield 'unk_2', Float, (0, None), (False, None)

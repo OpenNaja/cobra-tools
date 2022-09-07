@@ -59,8 +59,8 @@ class Int8Data(MemStruct):
 		Pointer.to_stream(stream, instance.enum)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'imin', Byte, (0, None), (False, None)
 		yield 'imax', Byte, (0, None), (False, None)
 		yield 'ivalue', Byte, (0, None), (False, None)

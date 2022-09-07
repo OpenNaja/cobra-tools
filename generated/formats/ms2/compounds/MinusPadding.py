@@ -44,8 +44,8 @@ class MinusPadding(BaseStruct):
 		Array.to_stream(stream, instance.padding, instance.context, 0, None, ((16 - ((instance.arg * 2) % 16)) % 16,), Byte)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'indices', Array, (0, None, (instance.arg,), Short), (False, None)
 		yield 'padding', Array, (0, None, ((16 - ((instance.arg * 2) % 16)) % 16,), Byte), (False, None)
 

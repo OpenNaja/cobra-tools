@@ -52,8 +52,8 @@ class HbPhysicsOffsets(MemStruct):
 		Float.to_stream(stream, instance.wall_post_gap)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'thickness', Float, (0, None), (False, None)
 		yield 'post_size', HbPostSize, (0, None), (False, None)
 		yield 'wall_pad_top', Float, (0, None), (False, None)

@@ -49,8 +49,8 @@ class Info(MemStruct):
 		Uint.to_stream(stream, instance.padding)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'info_name', Pointer, (0, ZString), (False, None)
 		yield 'flags', Array, (0, None, (4,), Byte), (False, None)
 		yield 'value', Array, (0, None, (4,), Float), (False, None)

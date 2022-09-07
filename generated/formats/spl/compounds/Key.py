@@ -47,8 +47,8 @@ class Key(MemStruct):
 		Float.to_stream(stream, instance.handle_scale)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'pos', ShortVector3, (0, None), (False, None)
 		yield 'handle_left', ByteVector3, (0, None), (False, None)
 		yield 'handle_right', ByteVector3, (0, None), (False, None)

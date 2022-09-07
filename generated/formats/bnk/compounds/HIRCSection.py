@@ -45,8 +45,8 @@ class HIRCSection(BaseStruct):
 		Array.to_stream(stream, instance.hirc_pointers, instance.context, 0, None, (instance.count,), HircPointer)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'length', Uint, (0, None), (False, None)
 		yield 'count', Uint, (0, None), (False, None)
 		yield 'hirc_pointers', Array, (0, None, (instance.count,), HircPointer), (False, None)

@@ -63,8 +63,8 @@ class BaniRoot(MemStruct):
 		Uint.to_stream(stream, instance.loop_flag)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'banis', Pointer, (0, None), (False, None)
 		yield 'read_start_frame', Uint, (0, None), (False, None)
 		yield 'num_frames', Uint, (0, None), (False, None)

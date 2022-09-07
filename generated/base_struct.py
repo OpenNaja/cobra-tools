@@ -210,7 +210,7 @@ class BaseStruct(metaclass=StructMetaClass):
 		pass
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from ()
 
 	@staticmethod
@@ -225,7 +225,7 @@ class BaseStruct(metaclass=StructMetaClass):
 	def get_size(cls, context, instance, arguments=()):
 		"""arguments is optional because it is not required for _get_filtered_attribute_list"""
 		size = 0
-		for field_name, field_type, arguments, _ in cls._get_filtered_attribute_list(instance):
+		for field_name, field_type, arguments, _ in cls._get_filtered_attribute_list(instance, include_abstract=False):
 			size += field_type.get_size(context, cls.get_field(instance, field_name), arguments)
 		return size
 

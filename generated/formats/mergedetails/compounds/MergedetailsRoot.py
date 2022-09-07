@@ -66,8 +66,8 @@ class MergedetailsRoot(MemStruct):
 		Uint.to_stream(stream, instance.flag)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'merge_names', Pointer, (instance.count, MergedetailsRoot._import_path_map["generated.formats.mergedetails.compounds.PtrList"]), (False, None)
 		yield 'zero_0', Uint64, (0, None), (False, None)
 		yield 'zero_1', Uint64, (0, None), (False, None)

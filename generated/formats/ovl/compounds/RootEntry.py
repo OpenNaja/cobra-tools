@@ -51,8 +51,8 @@ class RootEntry(BaseStruct):
 		HeaderPointer.to_stream(stream, instance.struct_ptr)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'file_hash', Uint, (0, None), (False, None)
 		if instance.context.version >= 19:
 			yield 'ext_hash', Uint, (0, None), (False, None)

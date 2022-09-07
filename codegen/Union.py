@@ -58,7 +58,7 @@ class Union:
             class_access = field_type
         return class_access
 
-    def get_conditions(self, field, expression_prefix="self."):
+    def get_conditions(self, field, expression_prefix="self.", use_abstract=False):
         CONTEXT = f'{expression_prefix}{CONTEXT_SUFFIX}'
         VER = f"{CONTEXT}.version"
         conditionals = []
@@ -96,9 +96,12 @@ class Union:
         if excludeT:
             excludeT = self.indirect_class_access(excludeT)
             conditionals.append(f"not isinstance({expression_prefix[:-1]}, {excludeT})")
+        if use_abstract:
+            if field.attrib.get("abstract", "False") == "True":
+                conditionals.append("include_abstract")
         return conditionals
 
-    def get_params(self, field, expression_prefix="self."):
+    def get_params(self, field, expression_prefix="self.", use_abstract=False):
         # parse all attributes and return the python-evaluatable string
 
         field_name = field.attrib["name"]
@@ -109,7 +112,7 @@ class Union:
         template = field.attrib.get("template")
         optional = (field.attrib.get("optional", "False"), field.attrib.get("default"))
 
-        conditionals = self.get_conditions(field, expression_prefix)
+        conditionals = self.get_conditions(field, expression_prefix, use_abstract)
 
         arg = field.attrib.get("arg", 0)
         arr1 = get_attr_with_backups(field, ["arr1", "length"])
@@ -253,6 +256,8 @@ class Union:
         CONTEXT = f'{target_variable}.{CONTEXT_SUFFIX}'
         base_indent = "\n\t\t"
         for field in self.members:
+            if field.attrib.get("abstract", "False") == "True":
+                continue
             arg, template, arr1, arr2, conditionals, field_name, field_type, pad_mode, _ = self.get_params(field, f'{target_variable}.')
             indent, new_condition = condition_indent(base_indent, conditionals, condition)
             if new_condition:
@@ -280,7 +285,7 @@ class Union:
     def write_filtered_attributes(self, f, condition, target_variable="self"):
         base_indent = "\n\t\t"
         for field in self.members:
-            arg, template, arr1, arr2, conditionals, field_name, field_type, pad_mode, (optional, default) = self.get_params(field, f'{target_variable}.')
+            arg, template, arr1, arr2, conditionals, field_name, field_type, pad_mode, (optional, default) = self.get_params(field, f'{target_variable}.', use_abstract=True)
             default = self.default_to_value(default, field_type)
             if arr1 is None:
                 arguments = f"({arg}, {template})"

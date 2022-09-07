@@ -36,8 +36,8 @@ class XMLEntry(MemStruct):
 		Pointer.to_stream(stream, instance.xml_string)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'xml_string', Pointer, (0, ZString), (False, None)
 
 	def get_info_str(self, indent=0):

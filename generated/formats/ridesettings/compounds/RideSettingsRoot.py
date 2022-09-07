@@ -57,8 +57,8 @@ class RideSettingsRoot(MemStruct):
 		Uint.to_stream(stream, instance.pad_2)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'unk_0', Float, (0, None), (False, None)
 		yield 'unk_1', Uint, (0, None), (False, None)
 		yield 'array_1', ArrayPointer, (instance.count, RideSettingsRoot._import_path_map["generated.formats.ridesettings.compounds.Pair"]), (False, None)

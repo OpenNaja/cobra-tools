@@ -125,14 +125,14 @@ class Compound(BaseClass):
                     self.write_line(f, 2, "pass")
 
             # write the _get_filtered_attribute_list method
-            method_str = "def _get_filtered_attribute_list(cls, instance):"
+            method_str = "def _get_filtered_attribute_list(cls, instance, include_abstract=True):"
             if "def _get_filtered_attribute_list(" not in self.src_code:
                 self.write_line(f)
                 self.write_line(f, 1, "@classmethod")
                 self.write_line(f, 1, method_str)
                 condition = ""
                 if self.class_basename:
-                    self.write_line(f, 2, "yield from super()._get_filtered_attribute_list(instance)")
+                    self.write_line(f, 2, "yield from super()._get_filtered_attribute_list(instance, include_abstract)")
                 for union in self.field_unions:
                     condition = union.write_filtered_attributes(f, condition, target_variable="instance")
 

@@ -59,8 +59,8 @@ class MeshDataWrap(MemStruct):
 			ZtMeshData.to_stream(stream, instance.mesh)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		if instance.context.version >= 47 and (instance.context.version == 51) and instance.context.biosyn:
 			yield 'mesh', BioMeshData, (0, None), (False, None)
 		if instance.context.version >= 47 and not ((instance.context.version == 51) and instance.context.biosyn):

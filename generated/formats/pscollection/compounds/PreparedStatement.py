@@ -50,8 +50,8 @@ class PreparedStatement(MemStruct):
 		Pointer.to_stream(stream, instance.sql_query)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'args', ArrayPointer, (instance.arg_count, PreparedStatement._import_path_map["generated.formats.pscollection.compounds.Arg"]), (False, None)
 		yield 'arg_count', Uint64, (0, None), (True, 0)
 		yield 'statement_name', Pointer, (0, ZString), (False, None)

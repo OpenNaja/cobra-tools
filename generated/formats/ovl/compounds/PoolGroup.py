@@ -41,8 +41,8 @@ class PoolGroup(BaseStruct):
 		Ushort.to_stream(stream, instance.num_pools)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'type', Ushort, (0, None), (False, None)
 		yield 'num_pools', Ushort, (0, None), (False, None)
 

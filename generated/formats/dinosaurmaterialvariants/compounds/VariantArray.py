@@ -30,8 +30,8 @@ class VariantArray(MemStruct):
 		Array.to_stream(stream, instance.variants, instance.context, 0, None, (instance.arg,), Variant)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'variants', Array, (0, None, (instance.arg,), Variant), (False, None)
 
 	def get_info_str(self, indent=0):

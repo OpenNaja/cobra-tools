@@ -71,8 +71,8 @@ class State(MemStruct):
 		Uint64.to_stream(stream, instance.d)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'abstract_name', Pointer, (0, ZString), (False, None)
 		yield 'concrete_name', Pointer, (0, ZString), (False, None)
 		yield 'debug_name', Pointer, (0, ZString), (False, None)

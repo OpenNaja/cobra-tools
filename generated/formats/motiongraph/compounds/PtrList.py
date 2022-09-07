@@ -34,8 +34,8 @@ class PtrList(MemStruct):
 		Array.to_stream(stream, instance.ptrs, instance.context, 0, instance.template, (instance.arg,), SinglePtr)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'ptrs', Array, (0, instance.template, (instance.arg,), SinglePtr), (False, None)
 
 	def get_info_str(self, indent=0):

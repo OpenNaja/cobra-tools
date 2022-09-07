@@ -37,8 +37,8 @@ class Descriptor(BaseStruct):
 		Ushort.to_stream(stream, instance.child)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'parent', Ushort, (0, None), (False, None)
 		yield 'child', Ushort, (0, None), (False, None)
 

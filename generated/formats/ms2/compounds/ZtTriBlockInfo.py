@@ -42,8 +42,8 @@ class ZtTriBlockInfo(BaseStruct):
 		Short.to_stream(stream, instance.unk_index)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'tri_index_count', Uint, (0, None), (False, None)
 		yield 'a', Short, (0, None), (False, None)
 		yield 'unk_index', Short, (0, None), (False, None)

@@ -128,8 +128,8 @@ class HitCheckEntry(BaseStruct):
 			Uint.to_stream(stream, instance.zero_extra_zt)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'dtype', CollisionType, (0, None), (False, None)
 		yield 'flag_0', Ushort, (0, None), (False, None)
 		yield 'flag_1', Ushort, (0, None), (False, None)

@@ -46,8 +46,8 @@ class DataSlot(BaseStruct):
 		Array.to_stream(stream, instance.data, instance.context, 0, None, (0,), instance.template)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'offset', Uint64, (0, None), (False, None)
 		yield 'count', Uint64, (0, None), (False, None)
 		yield 'data', Array, (0, None, (0,), instance.template), (False, None)

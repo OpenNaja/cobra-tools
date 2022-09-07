@@ -36,8 +36,8 @@ class EnumnamerRoot(MemStruct):
 		Pointer.to_stream(stream, instance.strings)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'count', Uint64, (0, None), (False, None)
 		yield 'strings', Pointer, (instance.count, EnumnamerRoot._import_path_map["generated.formats.enumnamer.compounds.PtrList"]), (False, None)
 

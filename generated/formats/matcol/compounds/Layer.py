@@ -53,8 +53,8 @@ class Layer(BaseStruct):
 		Array.to_stream(stream, instance.attrib_names, instance.context, 0, None, (instance.info.attrib_count,), ZString)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'info', LayerFrag, (0, None), (False, None)
 		yield 'name', ZString, (0, None), (False, None)
 		yield 'infos', Array, (0, None, (instance.info.info_count,), Info), (False, None)

@@ -72,8 +72,8 @@ class BufferGroup(BaseStruct):
 		Uint.to_stream(stream, instance.data_count)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'buffer_offset', Uint, (0, None), (False, None)
 		yield 'buffer_count', Uint, (0, None), (False, None)
 		yield 'ext_index', Uint, (0, None), (False, None)

@@ -42,8 +42,8 @@ class TexIndex(MemStruct):
 			Uint.to_stream(stream, instance.array_index)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield '_tex_index', Uint, (0, None), (False, None)
 		if instance.context.version >= 18:
 			yield 'array_index', Uint, (0, None), (False, None)

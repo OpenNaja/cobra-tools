@@ -92,8 +92,8 @@ class Ms2Root(MemStruct):
 		ArrayPointer.to_stream(stream, instance.buffers_presence)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'version', Uint, (0, None), (False, None)
 		yield 'vertex_buffer_count', Ushort, (0, None), (False, None)
 		yield 'mdl_2_count', Ushort, (0, None), (False, None)

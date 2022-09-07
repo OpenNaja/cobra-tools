@@ -42,8 +42,8 @@ class PathSupport(MemStruct):
 		Uint.to_stream(stream, instance._unk_int_1)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'support', Pointer, (0, ZString), (False, None)
 		yield 'distance', Float, (0, None), (False, 10.0)
 		yield '_unk_int_1', Uint, (0, None), (False, None)

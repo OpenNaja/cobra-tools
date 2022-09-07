@@ -40,8 +40,8 @@ class TransStruct(MemStruct):
 		StateArray.to_stream(stream, instance.states)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'another_mrfentry_2', Pointer, (0, None), (False, None)
 		yield 'states', StateArray, (0, None), (False, None)
 

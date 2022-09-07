@@ -78,8 +78,8 @@ class FctRoot(MemStruct):
 		Array.to_stream(stream, instance.fonts, instance.context, 0, None, (4,), Font)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'u_0', Short, (0, None), (False, None)
 		yield 'u_1', Short, (0, None), (False, None)
 		yield 'a', Float, (0, None), (False, None)

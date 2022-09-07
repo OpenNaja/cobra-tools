@@ -43,8 +43,8 @@ class HbPostSize(MemStruct):
 		Float.to_stream(stream, instance.top)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'front_back', Float, (0, None), (False, None)
 		yield 'left_right', Float, (0, None), (False, None)
 		yield 'top', Float, (0, None), (False, None)

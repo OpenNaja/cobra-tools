@@ -47,8 +47,8 @@ class ByteVector3(MemStruct):
 		Byte.to_stream(stream, instance.z)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'x', Byte, (0, None), (False, None)
 		yield 'y', Byte, (0, None), (False, None)
 		yield 'z', Byte, (0, None), (False, None)

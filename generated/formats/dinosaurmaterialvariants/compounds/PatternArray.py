@@ -30,8 +30,8 @@ class PatternArray(MemStruct):
 		Array.to_stream(stream, instance.patterns, instance.context, 0, None, (instance.arg,), Pattern)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'patterns', Array, (0, None, (instance.arg,), Pattern), (False, None)
 
 	def get_info_str(self, indent=0):

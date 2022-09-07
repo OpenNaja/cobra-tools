@@ -45,8 +45,8 @@ class Color(MemStruct):
 		Ubyte.to_stream(stream, instance.a)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'r', Ubyte, (0, None), (False, None)
 		yield 'g', Ubyte, (0, None), (False, None)
 		yield 'b', Ubyte, (0, None), (False, None)

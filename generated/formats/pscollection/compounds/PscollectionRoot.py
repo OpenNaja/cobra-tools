@@ -36,8 +36,8 @@ class PscollectionRoot(MemStruct):
 		Uint64.to_stream(stream, instance.count)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'prepared_statements', ArrayPointer, (instance.count, PscollectionRoot._import_path_map["generated.formats.pscollection.compounds.PreparedStatement"]), (False, None)
 		yield 'count', Uint64, (0, None), (False, None)
 

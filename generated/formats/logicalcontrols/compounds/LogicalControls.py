@@ -79,8 +79,8 @@ class LogicalControls(MemStruct):
 		Pointer.to_stream(stream, instance.unsure)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'buttons', ArrayPointer, (instance.button_count, LogicalControls._import_path_map["generated.formats.logicalcontrols.compounds.Button"]), (False, None)
 		yield 'axes', ArrayPointer, (instance.axis_count, LogicalControls._import_path_map["generated.formats.logicalcontrols.compounds.AxisValue"]), (False, None)
 		yield 'axis_buttons', ArrayPointer, (instance.count_3, LogicalControls._import_path_map["generated.formats.logicalcontrols.compounds.AxisButton"]), (False, None)

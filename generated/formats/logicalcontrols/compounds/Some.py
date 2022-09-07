@@ -48,8 +48,8 @@ class Some(MemStruct):
 		Uint64.to_stream(stream, instance.some_count)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'some_name', Pointer, (0, ZString), (False, None)
 		yield 'some_data', ArrayPointer, (instance.some_count, Some._import_path_map["generated.formats.logicalcontrols.compounds.SomeData"]), (False, None)
 		yield 'some_count', Uint64, (0, None), (False, None)

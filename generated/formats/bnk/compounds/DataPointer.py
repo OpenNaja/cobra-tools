@@ -45,8 +45,8 @@ class DataPointer(BaseStruct):
 		Uint.to_stream(stream, instance.wem_filesize)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'wem_id', Uint, (0, None), (False, None)
 		yield 'data_section_offset', Uint, (0, None), (False, None)
 		yield 'wem_filesize', Uint, (0, None), (False, None)

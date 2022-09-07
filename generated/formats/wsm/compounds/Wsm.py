@@ -44,8 +44,8 @@ class Wsm(GenericHeader):
 		Array.to_stream(stream, instance.quats, instance.context, 0, None, (instance.header.frame_count, 4,), Float)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'header', WsmHeader, (0, None), (False, None)
 		yield 'locs', Array, (0, None, (instance.header.frame_count, 3,), Float), (False, None)
 		yield 'quats', Array, (0, None, (instance.header.frame_count, 4,), Float), (False, None)

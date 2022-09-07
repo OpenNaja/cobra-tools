@@ -89,8 +89,8 @@ class SizeInfoRaw(MemStruct):
 		Array.to_stream(stream, instance.mip_maps, instance.context, 0, None, (instance.num_mips,), Mipmap)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'zero', Uint64, (0, None), (False, None)
 		yield 'data_size', Uint, (0, None), (False, None)
 		yield 'width', Uint, (0, None), (False, None)

@@ -61,8 +61,8 @@ class Bone(BaseStruct):
 			Float.to_stream(stream, instance.scale)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		if instance.context.version <= 47:
 			yield 'loc', Vector3, (0, None), (False, None)
 			yield 'scale', Float, (0, None), (False, None)

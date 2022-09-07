@@ -72,8 +72,8 @@ class MRFMember2(MemStruct):
 		Pointer.to_stream(stream, instance.id)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'transition', Pointer, (0, MRFMember2._import_path_map["generated.formats.motiongraph.compounds.Transition"]), (False, None)
 		yield 'count_0', Uint64, (0, None), (False, None)
 		yield 'count_1', Uint64, (0, None), (False, None)

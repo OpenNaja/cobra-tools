@@ -261,8 +261,8 @@ class JointData(BaseStruct):
 			HitcheckReader.to_stream(stream, instance.hitcheck_reader)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		if instance.context.version == 32:
 			yield 'start_pc', SmartPadding, (0, None), (False, None)
 		if instance.context.version <= 7:

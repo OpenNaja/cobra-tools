@@ -59,8 +59,8 @@ class RootFrag(MemStruct):
 		Uint64.to_stream(stream, instance.unk)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'mat_type', Uint64, (0, None), (False, None)
 		yield 'textures', ArrayPointer, (instance.tex_count, RootFrag._import_path_map["generated.formats.matcol.compounds.Texture"]), (False, None)
 		yield 'tex_count', Uint64, (0, None), (False, None)

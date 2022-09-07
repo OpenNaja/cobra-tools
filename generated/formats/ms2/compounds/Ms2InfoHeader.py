@@ -100,8 +100,8 @@ class Ms2InfoHeader(BaseStruct):
 		ModelReader.to_stream(stream, instance.models_reader)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'biosyn', Uint, (0, None), (False, None)
 		yield 'bone_info_size', Uint, (0, None), (False, None)
 		yield 'info', Ms2Root, (0, None), (False, None)

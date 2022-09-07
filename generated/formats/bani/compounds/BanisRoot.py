@@ -73,8 +73,8 @@ class BanisRoot(MemStruct):
 		Float.to_stream(stream, instance.loc_offset)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'zeros', Array, (0, None, (2,), Uint64), (False, None)
 		yield 'bytes_per_frame', Uint, (0, None), (False, None)
 		yield 'bytes_per_bone', Uint, (0, None), (False, None)

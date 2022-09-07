@@ -40,8 +40,8 @@ class Material(BaseStruct):
 		Uint64.to_stream(stream, instance.id)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'entity_instances', DataSlot, (0, Material._import_path_map["generated.formats.voxelskirt.compounds.EntityInstance"]), (False, None)
 		yield 'id', Uint64, (0, None), (False, None)
 

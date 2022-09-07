@@ -47,8 +47,8 @@ class FontInfo(MemStruct):
 		Uint64.to_stream(stream, instance.flag_or_count)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'style_name', Pointer, (0, ZString), (False, None)
 		yield 'font_file', Pointer, (0, ZString), (False, None)
 		yield 'flag_or_count', Uint64, (0, None), (False, None)

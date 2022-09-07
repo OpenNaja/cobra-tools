@@ -35,8 +35,8 @@ class AttribInfo(GenericInfo):
 		Uint64.to_stream(stream, instance._value_offset)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield '_value_offset', Uint64, (0, None), (False, None)
 
 	def get_info_str(self, indent=0):

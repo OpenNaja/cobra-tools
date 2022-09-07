@@ -64,8 +64,8 @@ class VertChunk(BaseStruct):
 		Ubyte.to_stream(stream, instance.zero)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'flags', Array, (0, None, (4,), Ubyte), (False, None)
 		yield 'pack_base', Float, (0, None), (False, None)
 		yield 'vertex_offset', Uint, (0, None), (False, None)

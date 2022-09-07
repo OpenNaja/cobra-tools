@@ -65,8 +65,8 @@ class ListCEntry(BaseStruct):
 		Float.to_stream(stream, instance.a_2)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'one', Uint, (0, None), (False, None)
 		yield 'loc', Vector3, (0, None), (False, None)
 		yield 'constant', Float, (0, None), (False, None)

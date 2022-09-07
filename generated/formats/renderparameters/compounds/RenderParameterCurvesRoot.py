@@ -51,8 +51,8 @@ class RenderParameterCurvesRoot(MemStruct):
 		Uint64.to_stream(stream, instance.unk)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'param_name', Pointer, (0, ZStringObfuscated), (False, None)
 		yield 'params', Pointer, (instance.count, RenderParameterCurvesRoot._import_path_map["generated.formats.renderparameters.compounds.CurveParamList"]), (False, None)
 		yield 'count', Uint64, (0, None), (False, None)

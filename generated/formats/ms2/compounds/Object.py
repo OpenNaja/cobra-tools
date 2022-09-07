@@ -37,8 +37,8 @@ class Object(BaseStruct):
 		Ushort.to_stream(stream, instance.mesh_index)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'material_index', Ushort, (0, None), (False, None)
 		yield 'mesh_index', Ushort, (0, None), (False, None)
 

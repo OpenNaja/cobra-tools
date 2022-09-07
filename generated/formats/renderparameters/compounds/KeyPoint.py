@@ -41,8 +41,8 @@ class KeyPoint(MemStruct):
 		Float.to_stream(stream, instance.tangent_after)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'time', Float, (0, None), (False, None)
 		yield 'value', Float, (0, None), (False, None)
 		yield 'tangent_before', Float, (0, None), (False, None)

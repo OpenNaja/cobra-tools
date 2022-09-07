@@ -60,8 +60,8 @@ class ConvexHull(BaseStruct):
 			Array.to_stream(stream, instance.zeros, instance.context, 0, None, (2,), Uint)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'vertex_count', Uint, (0, None), (False, None)
 		yield 'rotation', Matrix33, (0, None), (False, None)
 		yield 'offset', Vector3, (0, None), (False, None)

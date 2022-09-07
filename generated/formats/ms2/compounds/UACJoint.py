@@ -44,8 +44,8 @@ class UACJoint(BaseStruct):
 		Array.to_stream(stream, instance.floats, instance.context, 0, None, (6,), Float)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'unk', Array, (0, None, (6,), Ushort), (False, None)
 		yield 'floats', Array, (0, None, (6,), Float), (False, None)
 

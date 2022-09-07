@@ -30,8 +30,8 @@ class MRFArray1(MemStruct):
 		Array.to_stream(stream, instance.states, instance.context, 0, None, (instance.arg,), MRFEntry1)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'states', Array, (0, None, (instance.arg,), MRFEntry1), (False, None)
 
 	def get_info_str(self, indent=0):

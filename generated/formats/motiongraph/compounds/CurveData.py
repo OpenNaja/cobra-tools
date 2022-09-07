@@ -40,8 +40,8 @@ class CurveData(MemStruct):
 		Pointer.to_stream(stream, instance.points)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'count', Uint64, (0, None), (False, None)
 		yield 'points', Pointer, (instance.count, CurveData._import_path_map["generated.formats.motiongraph.compounds.CurveDataPoints"]), (False, None)
 

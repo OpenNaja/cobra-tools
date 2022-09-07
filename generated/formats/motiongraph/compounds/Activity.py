@@ -73,8 +73,8 @@ class Activity(MemStruct):
 		Pointer.to_stream(stream, instance.name_b)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'data_type', Pointer, (0, ZString), (False, None)
 		yield 'ptr', Pointer, (0, None), (False, None)
 		yield 'count_2', Uint64, (0, None), (False, None)

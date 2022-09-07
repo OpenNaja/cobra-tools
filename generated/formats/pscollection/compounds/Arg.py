@@ -57,8 +57,8 @@ class Arg(MemStruct):
 		Uint64.to_stream(stream, instance.u_4)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'u_0', Ubyte, (0, None), (False, None)
 		yield 'arg_type', Ubyte, (0, None), (False, None)
 		yield 'arg_index', Ubyte, (0, None), (False, None)

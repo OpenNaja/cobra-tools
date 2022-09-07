@@ -48,8 +48,8 @@ class Button(MemStruct):
 		Uint.to_stream(stream, instance.flags)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'button_name', Pointer, (0, ZString), (False, None)
 		yield 'datas', ArrayPointer, (instance.datas_count, Button._import_path_map["generated.formats.logicalcontrols.compounds.ButtonData"]), (False, None)
 		yield 'datas_count', Uint, (0, None), (False, None)

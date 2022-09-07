@@ -76,8 +76,8 @@ class MusicTrackInitialValues(BaseStruct):
 		Int.to_stream(stream, instance.i_look_ahead_time)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'u_flags', Ubyte, (0, None), (False, None)
 		yield 'num_sources', Uint, (0, None), (False, None)
 		yield 'p_source', Array, (0, None, (instance.num_sources,), AkBankSourceData), (False, None)

@@ -42,8 +42,8 @@ class PathMaterialData(MemStruct):
 		Uint.to_stream(stream, instance.unk_int_3)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'unk_int_1', Uint, (0, None), (False, None)
 		yield 'unk_float_1', Float, (0, None), (False, None)
 		yield 'unk_int_2', Uint, (0, None), (False, None)

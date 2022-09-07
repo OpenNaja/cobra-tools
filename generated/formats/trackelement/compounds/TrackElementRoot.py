@@ -48,8 +48,8 @@ class TrackElementRoot(MemStruct):
 		Uint64.to_stream(stream, instance.unk_1)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'track_data', ArrayPointer, (instance.count, TrackElementRoot._import_path_map["generated.formats.trackelement.compounds.TrackElementData"]), (False, None)
 		yield 'count', Uint64, (0, None), (False, None)
 		yield 'unk_0', Uint64, (0, None), (False, 0)

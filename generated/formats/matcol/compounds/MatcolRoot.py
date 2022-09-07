@@ -42,8 +42,8 @@ class MatcolRoot(MemStruct):
 		Uint64.to_stream(stream, instance.one)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'main', Pointer, (0, MatcolRoot._import_path_map["generated.formats.matcol.compounds.RootFrag"]), (False, None)
 		yield 'one', Uint64, (0, None), (False, None)
 

@@ -36,8 +36,8 @@ class PathJoinPartResourceRoot(MemStruct):
 		Uint64.to_stream(stream, instance.num_res)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'resources_list', Pointer, (instance.num_res, PathJoinPartResourceRoot._import_path_map["generated.formats.path.compounds.PathJoinPartResourceList"]), (False, None)
 		yield 'num_res', Uint64, (0, None), (False, None)
 

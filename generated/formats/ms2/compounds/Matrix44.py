@@ -37,8 +37,8 @@ class Matrix44(BaseStruct):
 		Array.to_stream(stream, instance.data, instance.context, 0, None, (4, 4,), Float)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'data', Array, (0, None, (4, 4,), Float), (False, None)
 
 	def get_info_str(self, indent=0):

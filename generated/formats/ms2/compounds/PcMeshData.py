@@ -115,8 +115,8 @@ class PcMeshData(MeshData):
 		ModelFlag.to_stream(stream, instance.flag)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'tri_index_count_a', Uint, (0, None), (False, None)
 		yield 'vertex_count', Uint, (0, None), (False, None)
 		yield 'tri_offset', Uint, (0, None), (False, None)

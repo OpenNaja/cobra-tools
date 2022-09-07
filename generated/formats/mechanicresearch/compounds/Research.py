@@ -64,8 +64,8 @@ class Research(MemStruct):
 		Uint64.to_stream(stream, instance.unk_4)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'item_name', Pointer, (0, ZString), (False, None)
 		yield 'unk_0', Uint, (0, None), (False, None)
 		yield 'is_entry_level', Uint, (0, None), (False, None)

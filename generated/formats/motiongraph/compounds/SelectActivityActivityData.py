@@ -57,8 +57,8 @@ class SelectActivityActivityData(MemStruct):
 		SelectActivityActivityMode.to_stream(stream, instance.mode)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'enum_variable', Pointer, (0, ZString), (False, None)
 		yield 'activities', Pointer, (instance.num_activities, SelectActivityActivityData._import_path_map["generated.formats.motiongraph.compounds.ActivitiesLinks"]), (False, None)
 		yield 'num_activities', Uint64, (0, None), (False, None)

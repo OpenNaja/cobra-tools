@@ -46,8 +46,8 @@ class FloatData(MemStruct):
 		Uint.to_stream(stream, instance.ioptional)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'imin', Float, (0, None), (False, None)
 		yield 'imax', Float, (0, None), (False, None)
 		yield 'ivalue', Float, (0, None), (False, None)

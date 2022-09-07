@@ -36,8 +36,8 @@ class CurveParamList(MemStruct):
 		Array.to_stream(stream, instance.ptrs, instance.context, 0, CurveParamList._import_path_map["generated.formats.renderparameters.compounds.CurveParam"], (instance.arg,), Pointer)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'ptrs', Array, (0, CurveParamList._import_path_map["generated.formats.renderparameters.compounds.CurveParam"], (instance.arg,), Pointer), (False, None)
 
 	def get_info_str(self, indent=0):

@@ -51,8 +51,8 @@ class CurveDataPoint(MemStruct):
 		Short.to_stream(stream, instance.subsequent_curve_param_b)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'x', Float, (0, None), (False, None)
 		yield 'y', Short, (0, None), (False, None)
 		yield 'sub_curve_type', SubCurveType, (0, None), (False, None)

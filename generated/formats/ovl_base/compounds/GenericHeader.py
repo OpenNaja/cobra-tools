@@ -70,8 +70,8 @@ class GenericHeader(BaseStruct):
 		VersionInfo.to_stream(stream, instance.user_version)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'magic', FixedString, (4, None), (False, None)
 		yield 'version_flag', Byte, (0, None), (False, None)
 		yield 'version', Byte, (0, None), (False, None)

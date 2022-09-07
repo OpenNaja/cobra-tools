@@ -89,8 +89,8 @@ class TrackElementData(MemStruct):
 		Uint64.to_stream(stream, instance.unk_7)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'loop_name', Pointer, (0, ZString), (False, None)
 		yield 'ovl_name', Pointer, (0, ZString), (False, None)
 		yield 'catwalk', Pointer, (0, TrackElementData._import_path_map["generated.formats.trackelement.compounds.TrackElementSub"]), (False, None)

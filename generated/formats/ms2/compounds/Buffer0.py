@@ -59,8 +59,8 @@ class Buffer0(BaseStruct):
 			StreamsZTHeader.to_stream(stream, instance.zt_streams_header)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'name_hashes', Array, (0, None, (instance.arg.name_count,), Uint), (False, None)
 		yield 'names', Array, (0, None, (instance.arg.name_count,), ZString), (False, None)
 		if instance.context.version >= 50:

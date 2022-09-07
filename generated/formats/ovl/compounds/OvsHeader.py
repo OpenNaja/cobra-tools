@@ -69,8 +69,8 @@ class OvsHeader(BaseStruct):
 		SetHeader.to_stream(stream, instance.set_header)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'pool_groups', Array, (0, None, (instance.arg.num_pool_groups,), PoolGroup), (False, None)
 		yield 'pools', Array, (0, None, (instance.arg.num_pools,), MemPool), (False, None)
 		yield 'data_entries', Array, (0, None, (instance.arg.num_datas,), DataEntry), (False, None)

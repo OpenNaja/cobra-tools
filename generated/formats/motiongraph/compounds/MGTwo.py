@@ -40,8 +40,8 @@ class MGTwo(MemStruct):
 		Pointer.to_stream(stream, instance.ptr)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'count', Uint64, (0, None), (False, None)
 		yield 'ptr', Pointer, (instance.count, MGTwo._import_path_map["generated.formats.motiongraph.compounds.PtrList"]), (False, None)
 

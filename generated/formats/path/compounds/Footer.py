@@ -27,8 +27,8 @@ class Footer(SupportAttach):
 		pass
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 
 	def get_info_str(self, indent=0):
 		return f'Footer [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

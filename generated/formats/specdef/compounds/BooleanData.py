@@ -43,8 +43,8 @@ class BooleanData(MemStruct):
 		Array.to_stream(stream, instance.unused, instance.context, 0, None, (6,), Ubyte)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'value', Ubyte, (0, None), (False, None)
 		yield 'default', Ubyte, (0, None), (False, None)
 		yield 'unused', Array, (0, None, (6,), Ubyte), (False, None)

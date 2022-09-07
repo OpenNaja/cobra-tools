@@ -47,8 +47,8 @@ class Dxt10Header(BaseStruct):
 		Uint.to_stream(stream, instance.misc_flag_2)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'dxgi_format', DxgiFormat, (0, None), (False, None)
 		yield 'resource_dimension', D3D10ResourceDimension, (0, None), (False, None)
 		yield 'misc_flag', Uint, (0, None), (False, None)

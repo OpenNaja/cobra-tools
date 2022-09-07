@@ -65,8 +65,8 @@ class AttribData(MemStruct):
 			Array.to_stream(stream, instance.value, instance.context, 0, None, (1,), Int)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		if instance.arg.dtype == 0:
 			yield 'value', Array, (0, None, (1,), Float), (False, None)
 		if instance.arg.dtype == 1:

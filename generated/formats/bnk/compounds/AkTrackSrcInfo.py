@@ -54,8 +54,8 @@ class AkTrackSrcInfo(BaseStruct):
 		Double.to_stream(stream, instance.f_src_duration)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'track_i_d', Uint, (0, None), (False, None)
 		yield 'source_i_d', Uint, (0, None), (False, None)
 		yield 'event_i_d', Uint, (0, None), (False, None)

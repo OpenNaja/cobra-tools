@@ -49,8 +49,8 @@ class ZTPreBones(BaseStruct):
 		Array.to_stream(stream, instance.unks_3, instance.context, 0, None, (2,), Uint)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'zeros', Array, (0, None, (2,), Uint64), (False, None)
 		yield 'unks', Array, (0, None, (8,), Uint), (False, None)
 		yield 'unks_2', Array, (0, None, (10,), Uint), (False, None)

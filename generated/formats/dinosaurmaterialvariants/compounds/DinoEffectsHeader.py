@@ -97,8 +97,8 @@ class DinoEffectsHeader(MemStruct):
 		Float.to_stream(stream, instance.e)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'fgm_name', Pointer, (0, ZStringObfuscated), (False, None)
 		yield 'vec_0', Vector3F, (0, None), (False, None)
 		yield 'vec_1', Vector3F, (0, None), (False, None)

@@ -50,8 +50,8 @@ class ListLong(Descriptor):
 		Array.to_stream(stream, instance.radians, instance.context, 0, None, (8,), Float)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'loc', Vector3, (0, None), (False, None)
 		yield 'floats', Array, (0, None, (5, 3,), Float), (False, None)
 		yield 'radians', Array, (0, None, (8,), Float), (False, None)

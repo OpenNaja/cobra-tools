@@ -52,8 +52,8 @@ class BKHDSection(BaseStruct):
 		Array.to_stream(stream, instance.zeroes, instance.context, 0, None, (instance.length - 24,), Ubyte)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'length', Uint, (0, None), (False, None)
 		yield 'version', Uint, (0, None), (False, None)
 		yield 'id_a', Uint, (0, None), (False, None)

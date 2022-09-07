@@ -40,8 +40,8 @@ class DataStreamResourceDataList(MemStruct):
 		Pointer.to_stream(stream, instance.data_stream_resource_data)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'count', Uint64, (0, None), (False, None)
 		yield 'data_stream_resource_data', Pointer, (instance.count, DataStreamResourceDataList._import_path_map["generated.formats.motiongraph.compounds.DataStreamResourceDataPoints"]), (False, None)
 

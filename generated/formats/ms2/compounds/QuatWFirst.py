@@ -41,8 +41,8 @@ class QuatWFirst(BaseStruct):
 		Float.to_stream(stream, instance.z)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'w', Float, (0, None), (False, 1.0)
 		yield 'x', Float, (0, None), (False, 0.0)
 		yield 'y', Float, (0, None), (False, 0.0)

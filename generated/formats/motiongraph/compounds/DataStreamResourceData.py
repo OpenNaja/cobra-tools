@@ -64,8 +64,8 @@ class DataStreamResourceData(MemStruct):
 		CurveData.to_stream(stream, instance.curve)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'curve_type', Uint64, (0, None), (False, None)
 		yield 'ds_name', Pointer, (0, ZString), (False, None)
 		yield 'type', Pointer, (0, ZString), (False, None)

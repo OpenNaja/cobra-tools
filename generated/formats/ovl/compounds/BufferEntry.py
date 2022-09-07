@@ -57,8 +57,8 @@ class BufferEntry(BaseStruct):
 			Uint.to_stream(stream, instance.file_hash)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		if instance.context.version <= 19:
 			yield 'index', Uint, (0, None), (False, None)
 		yield 'size', Uint, (0, None), (False, None)

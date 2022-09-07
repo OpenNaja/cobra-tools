@@ -36,8 +36,8 @@ class CurveRoot(MemStruct):
 		Uint64.to_stream(stream, instance.count)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'keys', ArrayPointer, (instance.count, CurveRoot._import_path_map["generated.formats.curve.compounds.Key"]), (False, None)
 		yield 'count', Uint64, (0, None), (False, None)
 

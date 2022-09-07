@@ -37,8 +37,8 @@ class HbUiOptions(MemStruct):
 		Bool.to_stream(stream, instance.windows)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'straight_curve', Bool, (0, None), (False, None)
 		yield 'windows', Bool, (0, None), (False, None)
 

@@ -76,8 +76,8 @@ class Driver(MemStruct):
 		Uint64.to_stream(stream, instance.unk_2)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'joint_name', Pointer, (0, ZString), (False, None)
 		yield 'a', Ubyte, (0, None), (False, None)
 		yield 'b', Ubyte, (0, None), (False, None)

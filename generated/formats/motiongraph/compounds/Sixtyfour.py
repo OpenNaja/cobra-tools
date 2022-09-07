@@ -70,8 +70,8 @@ class Sixtyfour(MemStruct):
 		Uint64.to_stream(stream, instance.count_3)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'count_0', Uint64, (0, None), (False, None)
 		yield 'ptr_0', Pointer, (0, None), (False, None)
 		yield 'ptr_1', Pointer, (0, None), (False, None)

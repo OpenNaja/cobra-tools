@@ -44,8 +44,8 @@ class StreamsZTHeader(BaseStruct):
 		Array.to_stream(stream, instance.unks, instance.context, 0, None, (instance.arg.stream_count,), InfoZTMemPool)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'weird_padding', SmartPadding, (0, None), (False, None)
 		yield 'unks', Array, (0, None, (instance.arg.stream_count,), InfoZTMemPool), (False, None)
 

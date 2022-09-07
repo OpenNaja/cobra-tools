@@ -68,8 +68,8 @@ class TrackedRideCarRoot(MemStruct):
 		Uint64.to_stream(stream, instance.zero_1)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'sub', ArrayPointer, (instance.sub_count, TrackedRideCarRoot._import_path_map["generated.formats.trackedridecar.compounds.TrackedRideCarSub"]), (False, None)
 		yield 'sub_count', Uint, (0, None), (False, None)
 		yield 'total_vecs_count', Uint, (0, None), (False, None)

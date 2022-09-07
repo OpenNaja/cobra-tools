@@ -50,8 +50,8 @@ class BaniInfoHeader(BaseStruct):
 		BaniRoot.to_stream(stream, instance.data)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'magic', Array, (0, None, (4,), Byte), (False, None)
 		yield 'banis_name', ZString, (0, None), (False, None)
 		yield 'data', BaniRoot, (0, None), (False, None)

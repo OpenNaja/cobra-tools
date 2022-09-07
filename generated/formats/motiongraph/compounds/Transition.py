@@ -63,8 +63,8 @@ class Transition(MemStruct):
 		Pointer.to_stream(stream, instance.id)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'count_0', Uint, (0, None), (False, None)
 		yield 'count_1', Uint, (0, None), (False, None)
 		yield 'ptr_0', Pointer, (instance.count_1, Transition._import_path_map["generated.formats.motiongraph.compounds.PtrList"]), (False, None)

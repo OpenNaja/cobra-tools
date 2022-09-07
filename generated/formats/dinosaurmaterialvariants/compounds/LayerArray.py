@@ -30,8 +30,8 @@ class LayerArray(MemStruct):
 		Array.to_stream(stream, instance.layers, instance.context, 0, None, (instance.arg,), Layer)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'layers', Array, (0, None, (instance.arg,), Layer), (False, None)
 
 	def get_info_str(self, indent=0):

@@ -96,8 +96,8 @@ class VoxelskirtRoot(MemStruct):
 		DataSlot.to_stream(stream, instance.names)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'zero', Uint64, (0, None), (False, None)
 		yield 'data_size', Uint64, (0, None), (False, None)
 		yield 'x', Uint64, (0, None), (False, None)

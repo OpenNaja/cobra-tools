@@ -37,8 +37,8 @@ class HbPostPos(MemStruct):
 		Float.to_stream(stream, instance.left)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'right', Float, (0, None), (False, None)
 		yield 'left', Float, (0, None), (False, None)
 

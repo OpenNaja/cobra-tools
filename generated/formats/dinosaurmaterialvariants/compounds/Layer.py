@@ -47,8 +47,8 @@ class Layer(MemStruct):
 		Pointer.to_stream(stream, instance.transform_fgm_name)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'has_ptr', Uint64, (0, None), (False, None)
 		yield 'texture_fgm_name', Pointer, (0, ZString), (False, None)
 		yield 'transform_fgm_name', Pointer, (0, ZString), (False, None)

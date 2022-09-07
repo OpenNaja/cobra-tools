@@ -46,8 +46,8 @@ class Texture(MemStruct):
 		Pointer.to_stream(stream, instance.texture_type)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'fgm_name', Pointer, (0, ZString), (False, None)
 		yield 'texture_suffix', Pointer, (0, ZString), (False, None)
 		yield 'texture_type', Pointer, (0, ZString), (False, None)

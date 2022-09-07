@@ -42,8 +42,8 @@ class PathType(MemStruct):
 		Uint.to_stream(stream, instance._unk_int_2)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'enum_value', Uint, (0, None), (False, None)
 		yield 'min_width', Float, (0, None), (False, 4.0)
 		yield 'max_width', Float, (0, None), (False, 10.0)

@@ -108,8 +108,8 @@ class Header(BaseStruct):
 			Dxt10Header.to_stream(stream, instance.dx_10)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'header_string', FixedString, (4, None), (False, None)
 		yield 'size', Uint, (0, None), (False, 124)
 		yield 'flags', HeaderFlags, (0, None), (False, None)

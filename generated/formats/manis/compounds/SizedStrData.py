@@ -61,8 +61,8 @@ class SizedStrData(BaseStruct):
 			Uint64.to_stream(stream, instance.zero_3)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'names_size', Ushort, (0, None), (False, None)
 		yield 'hash_block_size', Ushort, (0, None), (False, None)
 		yield 'zero_0', Uint, (0, None), (False, None)

@@ -66,8 +66,8 @@ class TextureInfo(GenericInfo):
 			Uint.to_stream(stream, instance.some_index_1)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		if instance.dtype == 8:
 			yield 'value', Array, (0, None, (1,), TexIndex), (False, None)
 		if instance.context.version >= 18 and instance.dtype == 7:

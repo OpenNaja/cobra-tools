@@ -40,8 +40,8 @@ class CinematicRoot(MemStruct):
 		Pointer.to_stream(stream, instance.data)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'u_0', Uint64, (0, None), (False, None)
 		yield 'u_1', Uint64, (0, None), (False, None)
 		yield 'data', Pointer, (0, CinematicRoot._import_path_map["generated.formats.cinematic.compounds.CinematicData"]), (False, None)

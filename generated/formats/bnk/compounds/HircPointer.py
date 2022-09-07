@@ -51,8 +51,8 @@ class HircPointer(BaseStruct):
 			TypeOther.to_stream(stream, instance.data)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'id', HircType, (0, None), (False, None)
 		if instance.id == 2:
 			yield 'data', SoundSfxVoice, (0, None), (False, None)

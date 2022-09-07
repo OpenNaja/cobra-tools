@@ -78,8 +78,8 @@ class PixelFormat(BaseStruct):
 		Uint.to_stream(stream, instance.a_mask)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'size', Uint, (0, None), (False, 32)
 		yield 'flags', PixelFormatFlags, (0, None), (False, None)
 		yield 'four_c_c', FourCC, (0, None), (False, None)

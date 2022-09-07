@@ -216,8 +216,8 @@ class ManiInfo(BaseStruct):
 		Ushort.to_stream(stream, instance.zero_2_end)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'duration', Float, (0, None), (False, None)
 		yield 'frame_count', Uint, (0, None), (False, None)
 		yield 'b', Uint, (0, None), (False, None)

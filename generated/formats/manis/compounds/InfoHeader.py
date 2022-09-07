@@ -64,8 +64,8 @@ class InfoHeader(BaseStruct):
 		KeysReader.to_stream(stream, instance.keys_buffer)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'version', Uint, (0, None), (False, None)
 		yield 'mani_count', Uint, (0, None), (False, None)
 		yield 'names', Array, (0, None, (instance.mani_count,), ZString), (False, None)

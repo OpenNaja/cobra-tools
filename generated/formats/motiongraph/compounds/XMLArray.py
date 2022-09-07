@@ -30,8 +30,8 @@ class XMLArray(MemStruct):
 		Array.to_stream(stream, instance.xmls, instance.context, 0, None, (instance.arg,), XMLEntry)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'xmls', Array, (0, None, (instance.arg,), XMLEntry), (False, None)
 
 	def get_info_str(self, indent=0):

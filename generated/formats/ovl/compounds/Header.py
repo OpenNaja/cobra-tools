@@ -278,8 +278,8 @@ class Header(GenericHeader):
 		Array.to_stream(stream, instance.zlibs, instance.context, 0, None, (instance.num_archives,), ZlibInfo)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'lod_depth', Uint, (0, None), (False, None)
 		yield 'len_names', Uint, (0, None), (False, None)
 		yield 'zero_2', Uint, (0, None), (False, None)

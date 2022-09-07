@@ -97,8 +97,8 @@ class ParamData(MemStruct):
 			Array.to_stream(stream, instance.data, instance.context, 0, None, (1,), ZStrPtr)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		if instance.arg == 0:
 			yield 'data', Array, (0, None, (1,), Bool), (False, None)
 		if instance.arg == 1:

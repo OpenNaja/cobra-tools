@@ -54,8 +54,8 @@ class ListShort(Descriptor):
 		Float.to_stream(stream, instance.max)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'loc', Vector3, (0, None), (False, None)
 		yield 'direction', Vector3, (0, None), (False, None)
 		yield 'min', Float, (0, None), (False, None)

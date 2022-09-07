@@ -87,8 +87,8 @@ class MotiongraphHeader(MemStruct):
 		Pointer.to_stream(stream, instance.empty_str)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'ptr_0', Pointer, (0, MotiongraphHeader._import_path_map["generated.formats.motiongraph.compounds.MotiongraphRootFrag"]), (False, None)
 		yield 'state_output_entries', Pointer, (0, MotiongraphHeader._import_path_map["generated.formats.motiongraph.compounds.StateArray"]), (False, None)
 		yield 'ptr_2', Pointer, (0, MotiongraphHeader._import_path_map["generated.formats.motiongraph.compounds.MGTwo"]), (False, None)

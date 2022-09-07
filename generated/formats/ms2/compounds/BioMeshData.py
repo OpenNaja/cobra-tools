@@ -90,8 +90,8 @@ class BioMeshData(MeshData):
 		BioModelFlag.to_stream(stream, instance.flag)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'chunks_offset', Uint, (0, None), (False, None)
 		yield 'chunks_count', Uint, (0, None), (False, None)
 		yield 'tris_count', Uint, (0, None), (False, None)

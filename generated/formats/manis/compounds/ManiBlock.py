@@ -247,8 +247,8 @@ class ManiBlock(BaseStruct):
 		Array.to_stream(stream, instance.repeats, instance.context, 0, None, (instance.count,), Repeat)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'ref', Empty, (0, None), (False, None)
 		if instance.context.version <= 257:
 			yield 'pos_bones', Array, (0, None, (instance.arg.pos_bone_count,), Ushort), (False, None)

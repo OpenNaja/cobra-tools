@@ -39,8 +39,8 @@ class SupportAttachExtra(SupportAttach):
 		Uint64.to_stream(stream, instance.padding)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'unk_float_1', Float, (0, None), (False, None)
 		yield 'unk_int_3', Uint, (0, None), (False, None)
 		yield 'padding', Uint64, (0, None), (True, 0)

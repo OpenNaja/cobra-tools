@@ -53,8 +53,8 @@ class ResearchLevel(MemStruct):
 		Uint64.to_stream(stream, instance.children_count)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'level_name', Pointer, (0, ZString), (False, None)
 		yield 'next_levels', Pointer, (instance.next_level_count, ResearchLevel._import_path_map["generated.formats.animalresearch.compounds.PtrList"]), (False, None)
 		yield 'next_level_count', Uint64, (0, None), (False, None)

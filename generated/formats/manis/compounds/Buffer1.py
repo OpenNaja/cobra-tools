@@ -43,8 +43,8 @@ class Buffer1(BaseStruct):
 		PadAlign.to_stream(stream, instance.bone_pad)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'bone_hashes', Array, (0, None, (instance.arg,), Uint), (False, None)
 		yield 'bone_names', Array, (0, None, (instance.arg,), ZString), (False, None)
 		yield 'bone_pad', PadAlign, (4, instance.bone_names), (False, None)

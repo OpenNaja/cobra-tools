@@ -100,8 +100,8 @@ class BnkBufferData(BaseStruct):
 			ZString.to_stream(stream, instance.external_s_suffix)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'size_b', Uint64, (0, None), (False, None)
 		yield 'buffer_count', Uint, (0, None), (False, None)
 		yield 'count_2', Uint, (0, None), (False, None)

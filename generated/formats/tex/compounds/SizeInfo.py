@@ -45,8 +45,8 @@ class SizeInfo(MemStruct):
 			Array.to_stream(stream, instance.padding, instance.context, 0, None, (384 - instance.data.io_size,), Ubyte)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'data', SizeInfoRaw, (0, None), (False, None)
 		if ((not instance.context.user_version.is_jwe) and (instance.context.version == 20)) or (((not instance.context.user_version.is_jwe) and (instance.context.version >= 19)) or (instance.context.user_version.is_jwe and (instance.context.version == 20))):
 			yield 'padding', Array, (0, None, (320 - instance.data.io_size,), Ubyte), (False, None)

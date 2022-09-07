@@ -31,8 +31,8 @@ class DLAPreBones(BaseStruct):
 		Array.to_stream(stream, instance.unk, instance.context, 0, None, (120,), Ubyte)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'unk', Array, (0, None, (120,), Ubyte), (False, None)
 
 	def get_info_str(self, indent=0):

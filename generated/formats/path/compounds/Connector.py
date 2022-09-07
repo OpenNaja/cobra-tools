@@ -43,8 +43,8 @@ class Connector(MemStruct):
 		Vector2.to_stream(stream, instance.unk_vector)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'model_name', Pointer, (0, ZString), (False, None)
 		yield 'joint_name', Pointer, (0, ZString), (False, None)
 		yield 'unk_vector', Vector2, (0, None), (False, None)

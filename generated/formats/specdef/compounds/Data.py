@@ -126,8 +126,8 @@ class Data(MemStruct):
 			ReferenceToObjectData.to_stream(stream, instance.dtype)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		if instance.arg == 0:
 			yield 'dtype', BooleanData, (0, None), (False, None)
 		if instance.arg == 1:

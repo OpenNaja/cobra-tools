@@ -62,8 +62,8 @@ class ConnectorMultiJoint(MemStruct):
 		Uint64.to_stream(stream, instance.padding_2)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'model_name', Pointer, (0, ZString), (False, None)
 		yield 'padding', Uint64, (0, None), (True, 0)
 		yield 'joints', ArrayPointer, (instance.num_joints, ConnectorMultiJoint._import_path_map["generated.formats.path.compounds.Joint"]), (False, None)

@@ -38,8 +38,8 @@ class AkMediaInformation(BaseStruct):
 		Ubyte.to_stream(stream, instance.u_source_bits)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'source_i_d', Uint, (0, None), (False, None)
 		yield 'u_in_memory_media_size', Uint, (0, None), (False, None)
 		yield 'u_source_bits', Ubyte, (0, None), (False, None)

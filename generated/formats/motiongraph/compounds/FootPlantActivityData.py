@@ -41,8 +41,8 @@ class FootPlantActivityData(MemStruct):
 		FloatInputData.to_stream(stream, instance.sticky_feet_weight)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'weight', FloatInputData, (0, None), (False, None)
 		yield 'rotation_no_i_k_weight', FloatInputData, (0, None), (False, None)
 		yield 'sticky_feet_weight', FloatInputData, (0, None), (False, None)

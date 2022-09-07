@@ -34,8 +34,8 @@ class Key(BaseStruct):
 		Vector3Ushort.to_stream(stream, instance.translation)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'euler', Vector3Short, (0, None), (False, None)
 		yield 'translation', Vector3Ushort, (0, None), (False, None)
 

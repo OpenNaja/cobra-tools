@@ -46,8 +46,8 @@ class Param(MemStruct):
 		ParamData.to_stream(stream, instance.data)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'attribute_name', Pointer, (0, ZString), (False, None)
 		yield 'dtype', RenderParameterType, (0, None), (False, None)
 		yield 'data', ParamData, (instance.dtype, None), (False, None)

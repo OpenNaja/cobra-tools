@@ -48,8 +48,8 @@ class DinoLayersHeader(MemStruct):
 		Uint64.to_stream(stream, instance.zero)
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'fgm_name', Pointer, (0, ZStringObfuscated), (False, None)
 		yield 'layers', ArrayPointer, (instance.layer_count, DinoLayersHeader._import_path_map["generated.formats.dinosaurmaterialvariants.compounds.Layer"]), (False, None)
 		yield 'layer_count', Uint64, (0, None), (False, None)
