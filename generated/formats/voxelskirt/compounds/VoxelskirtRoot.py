@@ -1,17 +1,19 @@
-from generated.base_struct import BaseStruct
 from generated.formats.base.basic import Float
 from generated.formats.base.basic import Uint64
+from generated.formats.ovl_base.compounds.MemStruct import MemStruct
+from generated.formats.voxelskirt.compounds.DataSlot import DataSlot
 
 
-class SizedStrData(BaseStruct):
+class VoxelskirtRoot(MemStruct):
 
 	"""
 	# size varies according to game
+	JWE2 - 120 bytes
 	"""
 
-	__name__ = 'SizedStrData'
+	__name__ = 'VoxelskirtRoot'
 
-	_import_path = 'generated.formats.voxelskirt.compounds.SizedStrData'
+	_import_path = 'generated.formats.voxelskirt.compounds.VoxelskirtRoot'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
@@ -29,30 +31,17 @@ class SizedStrData(BaseStruct):
 
 		# x*y*4, for PC only
 		self.height_array_size_pc = 0
-		self.data_offset = 0
 
 		# entries of 32 bytes
-		self.data_count = 0
-		self.size_offset = 0
+		self.datas = DataSlot(self.context, 0, VoxelskirtRoot._import_path_map["generated.formats.voxelskirt.compounds.Data"])
 
 		# entries of 40 bytes
-		self.size_count = 0
-
-		# slightly smaller than total size of buffer data
-		self.position_offset = 0
+		self.sizes = DataSlot(self.context, 0, VoxelskirtRoot._import_path_map["generated.formats.voxelskirt.compounds.Size"])
 
 		# counts the -1 structs; entries of 32 bytes
-		self.position_count = 0
-
-		# offset into buffer to start of sth; only given if some count is nonzero
-		self.mat_offset = 0
-		self.mat_count = 0
-
-		# offset into buffer to start of name zstrings
-		self.name_buffer_offset = 0
-
-		# also counts the stuff after names
-		self.name_count = 0
+		self.positions = DataSlot(self.context, 0, None)
+		self.materials = DataSlot(self.context, 0, VoxelskirtRoot._import_path_map["generated.formats.voxelskirt.compounds.Material"])
+		self.names = DataSlot(self.context, 0, VoxelskirtRoot._import_path_map["generated.formats.voxelskirt.compounds.Name"])
 		if set_default:
 			self.set_defaults()
 
@@ -68,16 +57,11 @@ class SizedStrData(BaseStruct):
 			self.zero_pc = 0
 			self.height_array_size_pc = 0
 		if not (self.context.version == 18):
-			self.data_offset = 0
-			self.data_count = 0
-			self.size_offset = 0
-			self.size_count = 0
-		self.position_offset = 0
-		self.position_count = 0
-		self.mat_offset = 0
-		self.mat_count = 0
-		self.name_buffer_offset = 0
-		self.name_count = 0
+			self.datas = DataSlot(self.context, 0, VoxelskirtRoot._import_path_map["generated.formats.voxelskirt.compounds.Data"])
+			self.sizes = DataSlot(self.context, 0, VoxelskirtRoot._import_path_map["generated.formats.voxelskirt.compounds.Size"])
+		self.positions = DataSlot(self.context, 0, None)
+		self.materials = DataSlot(self.context, 0, VoxelskirtRoot._import_path_map["generated.formats.voxelskirt.compounds.Material"])
+		self.names = DataSlot(self.context, 0, VoxelskirtRoot._import_path_map["generated.formats.voxelskirt.compounds.Name"])
 
 	@classmethod
 	def read_fields(cls, stream, instance):
@@ -92,16 +76,11 @@ class SizedStrData(BaseStruct):
 			instance.zero_pc = Uint64.from_stream(stream, instance.context, 0, None)
 			instance.height_array_size_pc = Uint64.from_stream(stream, instance.context, 0, None)
 		if not (instance.context.version == 18):
-			instance.data_offset = Uint64.from_stream(stream, instance.context, 0, None)
-			instance.data_count = Uint64.from_stream(stream, instance.context, 0, None)
-			instance.size_offset = Uint64.from_stream(stream, instance.context, 0, None)
-			instance.size_count = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.position_offset = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.position_count = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.mat_offset = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.mat_count = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.name_buffer_offset = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.name_count = Uint64.from_stream(stream, instance.context, 0, None)
+			instance.datas = DataSlot.from_stream(stream, instance.context, 0, VoxelskirtRoot._import_path_map["generated.formats.voxelskirt.compounds.Data"])
+			instance.sizes = DataSlot.from_stream(stream, instance.context, 0, VoxelskirtRoot._import_path_map["generated.formats.voxelskirt.compounds.Size"])
+		instance.positions = DataSlot.from_stream(stream, instance.context, 0, None)
+		instance.materials = DataSlot.from_stream(stream, instance.context, 0, VoxelskirtRoot._import_path_map["generated.formats.voxelskirt.compounds.Material"])
+		instance.names = DataSlot.from_stream(stream, instance.context, 0, VoxelskirtRoot._import_path_map["generated.formats.voxelskirt.compounds.Name"])
 
 	@classmethod
 	def write_fields(cls, stream, instance):
@@ -116,16 +95,11 @@ class SizedStrData(BaseStruct):
 			Uint64.to_stream(stream, instance.zero_pc)
 			Uint64.to_stream(stream, instance.height_array_size_pc)
 		if not (instance.context.version == 18):
-			Uint64.to_stream(stream, instance.data_offset)
-			Uint64.to_stream(stream, instance.data_count)
-			Uint64.to_stream(stream, instance.size_offset)
-			Uint64.to_stream(stream, instance.size_count)
-		Uint64.to_stream(stream, instance.position_offset)
-		Uint64.to_stream(stream, instance.position_count)
-		Uint64.to_stream(stream, instance.mat_offset)
-		Uint64.to_stream(stream, instance.mat_count)
-		Uint64.to_stream(stream, instance.name_buffer_offset)
-		Uint64.to_stream(stream, instance.name_count)
+			DataSlot.to_stream(stream, instance.datas)
+			DataSlot.to_stream(stream, instance.sizes)
+		DataSlot.to_stream(stream, instance.positions)
+		DataSlot.to_stream(stream, instance.materials)
+		DataSlot.to_stream(stream, instance.names)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
@@ -140,19 +114,14 @@ class SizedStrData(BaseStruct):
 			yield 'zero_pc', Uint64, (0, None), (False, None)
 			yield 'height_array_size_pc', Uint64, (0, None), (False, None)
 		if not (instance.context.version == 18):
-			yield 'data_offset', Uint64, (0, None), (False, None)
-			yield 'data_count', Uint64, (0, None), (False, None)
-			yield 'size_offset', Uint64, (0, None), (False, None)
-			yield 'size_count', Uint64, (0, None), (False, None)
-		yield 'position_offset', Uint64, (0, None), (False, None)
-		yield 'position_count', Uint64, (0, None), (False, None)
-		yield 'mat_offset', Uint64, (0, None), (False, None)
-		yield 'mat_count', Uint64, (0, None), (False, None)
-		yield 'name_buffer_offset', Uint64, (0, None), (False, None)
-		yield 'name_count', Uint64, (0, None), (False, None)
+			yield 'datas', DataSlot, (0, VoxelskirtRoot._import_path_map["generated.formats.voxelskirt.compounds.Data"]), (False, None)
+			yield 'sizes', DataSlot, (0, VoxelskirtRoot._import_path_map["generated.formats.voxelskirt.compounds.Size"]), (False, None)
+		yield 'positions', DataSlot, (0, None), (False, None)
+		yield 'materials', DataSlot, (0, VoxelskirtRoot._import_path_map["generated.formats.voxelskirt.compounds.Material"]), (False, None)
+		yield 'names', DataSlot, (0, VoxelskirtRoot._import_path_map["generated.formats.voxelskirt.compounds.Name"]), (False, None)
 
 	def get_info_str(self, indent=0):
-		return f'SizedStrData [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+		return f'VoxelskirtRoot [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
 	def get_fields_str(self, indent=0):
 		s = ''
@@ -165,16 +134,11 @@ class SizedStrData(BaseStruct):
 		s += f'\n	* padding = {self.fmt_member(self.padding, indent+1)}'
 		s += f'\n	* zero_pc = {self.fmt_member(self.zero_pc, indent+1)}'
 		s += f'\n	* height_array_size_pc = {self.fmt_member(self.height_array_size_pc, indent+1)}'
-		s += f'\n	* data_offset = {self.fmt_member(self.data_offset, indent+1)}'
-		s += f'\n	* data_count = {self.fmt_member(self.data_count, indent+1)}'
-		s += f'\n	* size_offset = {self.fmt_member(self.size_offset, indent+1)}'
-		s += f'\n	* size_count = {self.fmt_member(self.size_count, indent+1)}'
-		s += f'\n	* position_offset = {self.fmt_member(self.position_offset, indent+1)}'
-		s += f'\n	* position_count = {self.fmt_member(self.position_count, indent+1)}'
-		s += f'\n	* mat_offset = {self.fmt_member(self.mat_offset, indent+1)}'
-		s += f'\n	* mat_count = {self.fmt_member(self.mat_count, indent+1)}'
-		s += f'\n	* name_buffer_offset = {self.fmt_member(self.name_buffer_offset, indent+1)}'
-		s += f'\n	* name_count = {self.fmt_member(self.name_count, indent+1)}'
+		s += f'\n	* datas = {self.fmt_member(self.datas, indent+1)}'
+		s += f'\n	* sizes = {self.fmt_member(self.sizes, indent+1)}'
+		s += f'\n	* positions = {self.fmt_member(self.positions, indent+1)}'
+		s += f'\n	* materials = {self.fmt_member(self.materials, indent+1)}'
+		s += f'\n	* names = {self.fmt_member(self.names, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

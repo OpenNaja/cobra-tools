@@ -1,49 +1,47 @@
-from generated.formats.ovl_base.compounds.GenericHeader import GenericHeader
-from generated.formats.voxelskirt.compounds.VoxelskirtRoot import VoxelskirtRoot
+from generated.base_struct import BaseStruct
+from generated.formats.base.basic import Uint64
 
 
-class Header(GenericHeader):
+class Name(BaseStruct):
 
-	"""
-	Found at the beginning of every OVL file
-	"""
+	__name__ = 'Name'
 
-	__name__ = 'Header'
-
-	_import_path = 'generated.formats.voxelskirt.compounds.Header'
+	_import_path = 'generated.formats.voxelskirt.compounds.Name'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.info = VoxelskirtRoot(self.context, 0, None)
+
+		# address of this data layer
+		self.offset = 0
 		if set_default:
 			self.set_defaults()
 
 	def set_defaults(self):
 		super().set_defaults()
-		self.info = VoxelskirtRoot(self.context, 0, None)
+		self.offset = 0
 
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
-		instance.info = VoxelskirtRoot.from_stream(stream, instance.context, 0, None)
+		instance.offset = Uint64.from_stream(stream, instance.context, 0, None)
 
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		VoxelskirtRoot.to_stream(stream, instance.info)
+		Uint64.to_stream(stream, instance.offset)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
-		yield 'info', VoxelskirtRoot, (0, None), (False, None)
+		yield 'offset', Uint64, (0, None), (False, None)
 
 	def get_info_str(self, indent=0):
-		return f'Header [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+		return f'Name [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
 	def get_fields_str(self, indent=0):
 		s = ''
 		s += super().get_fields_str()
-		s += f'\n	* info = {self.fmt_member(self.info, indent+1)}'
+		s += f'\n	* offset = {self.fmt_member(self.offset, indent+1)}'
 		return s
 
 	def __repr__(self, indent=0):

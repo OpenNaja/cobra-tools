@@ -9,37 +9,42 @@
     <compound name="Header" inherit="GenericHeader">
         Found at the beginning of every OVL file
 
-        <add name="info" type="SizedStrData" >always = 0</add>
+        <add name="info" type="VoxelskirtRoot"/>
 
     </compound>
 
-    <compound name="SizedStrData">
+    <compound name="VoxelskirtRoot" inherit="MemStruct">
         # size varies according to game
-        <add name="zero" type="uint64" ></add>
+        JWE2 - 120 bytes
+        <add name="zero" type="uint64"/>
         <add name="data size" type="uint64" >total size of buffer data</add>
-        <add name="x" type="uint64" ></add>
-        <add name="y" type="uint64" ></add>
-        <add name="scale" type="float"></add>
-        <add name="padding" type="float" ></add>
+        <add name="x" type="uint64"/>
+        <add name="y" type="uint64"/>
+        <add name="scale" type="float"/>
+        <add name="padding" type="float"/>
         <add name="zero pc" type="uint64" vercond="#PC#">zero, for PC only</add>
         <add name="height array size pc" type="uint64" vercond="#PC#" >x*y*4, for PC only</add>
-        <add name="data offset" type="uint64" vercond="!#PC#"></add>
-        <add name="data count" type="uint64" vercond="!#PC#">entries of 32 bytes</add>
-        <add name="size offset" type="uint64" vercond="!#PC#"></add>
-        <add name="size count" type="uint64" vercond="!#PC#">entries of 40 bytes</add>
+        <add name="datas" type="DataSlot" vercond="!#PC#" template="Data" >entries of 32 bytes</add>
+        <add name="sizes" type="DataSlot" vercond="!#PC#" template="Size" >entries of 40 bytes</add>
+        <add name="positions" type="DataSlot" >counts the -1 structs; entries of 32 bytes</add>
+        <add name="materials" type="DataSlot" template="Material"/>
+        <add name="names" type="DataSlot" template="Name"/>
+    </compound>
 
-        <add name="position offset" type="uint64" >slightly smaller than total size of buffer data</add>
-        <add name="position count" type="uint64" >counts the -1 structs; entries of 32 bytes</add>
-        <add name="mat offset" type="uint64" >offset into buffer to start of sth; only given if some count is nonzero</add>
-        <add name="mat count" type="uint64" ></add>
-        <add name="name buffer offset" type="uint64" >offset into buffer to start of name zstrings</add>
-        <add name="name count" type="uint64" >also counts the stuff after names</add>
+    <compound name="DataSlot">
+        offset into buffer to start of sth; only given if some count is nonzero
+        <add name="offset" type="uint64" >offset into buffer to start</add>
+        <add name="count" type="uint64" >also counts the stuff after names</add>
+    </compound>
+
+    <compound name="Name">
+        <add name="offset" type="uint64" >address of this data layer</add>
     </compound>
 
     <compound name="Data">
         PZ and JWE only, describes a data layer image
         <add name="id" type="uint64" >index into name list</add>
-        <add name="type" type="uint64" >0 = ubyte, 2 = float</add>
+        <add name="dtype" type="uint64" >0 = ubyte, 2 = float</add>
         <add name="offset" type="uint64" >address of this data layer</add>
         <add name="dsize" type="uint64" >data size of this layer, in bytes</add>
     </compound>
