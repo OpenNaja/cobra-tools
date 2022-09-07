@@ -2,11 +2,15 @@ from generated.formats.base.basic import Int
 from generated.formats.voxelskirt.compounds.Material import Material
 
 
-class PosInfo(Material):
+class EntityGroup(Material):
 
-	__name__ = 'PosInfo'
+	"""
+	describes a list of instances of one entity
+	"""
 
-	_import_path = 'generated.formats.voxelskirt.compounds.PosInfo'
+	__name__ = 'EntityGroup'
+
+	_import_path = 'generated.formats.voxelskirt.compounds.EntityGroup'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
@@ -43,7 +47,7 @@ class PosInfo(Material):
 		yield 'ff_or_zero', Int, (0, None), (False, None)
 
 	def get_info_str(self, indent=0):
-		return f'PosInfo [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+		return f'EntityGroup [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
 	def get_fields_str(self, indent=0):
 		s = ''

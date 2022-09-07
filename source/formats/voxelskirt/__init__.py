@@ -9,8 +9,8 @@ from generated.formats.voxelskirt.compounds.Layer import Layer
 from generated.formats.voxelskirt.compounds.Header import Header
 # from generated.formats.ovl.versions import *
 from generated.formats.voxelskirt.compounds.Material import Material
-from generated.formats.voxelskirt.compounds.PosInfo import PosInfo
-from generated.formats.voxelskirt.compounds.Size import Size
+# from generated.formats.voxelskirt.compounds.PosInfo import PosInfo
+# from generated.formats.voxelskirt.compounds.Size import Size
 from generated.io import IoFile
 from modules.formats.shared import get_padding_size, get_padding
 
@@ -47,17 +47,6 @@ class VoxelskirtFile(Header, IoFile):
 				stream.seek(int(self.eoh + offset))
 				self.names.append(stream.read_zstring())
 
-			stream.seek(self.eoh + self.info.data_offset)
-			self.datas = Array.from_stream(stream, self.context, 0, None, (self.info.data_count,), Data)
-
-			stream.seek(self.eoh + self.info.size_offset)
-			self.sizes = Array.from_stream(stream, self.context, 0, None, (self.info.size_count,), Size)
-
-			stream.seek(self.eoh + self.info.position_offset)
-			self.positions = Array.from_stream(stream, self.context, 0, None, (self.info.position_count,), PosInfo)
-
-			stream.seek(self.eoh + self.info.mat_offset)
-			self.materials = Array.from_stream(stream, self.context, 0, None, (self.info.mat_count,), Material)
 
 			# assign names...
 			for s in (self.datas, self.sizes, self.positions, self.materials):

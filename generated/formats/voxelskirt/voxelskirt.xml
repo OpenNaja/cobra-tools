@@ -25,17 +25,22 @@
         <add name="zero pc" type="uint64" vercond="#PC#">zero, for PC only</add>
         <add name="height array size pc" type="uint64" vercond="#PC#" >x*y*4, for PC only</add>
         <add name="layers" type="DataSlot" vercond="!#PC#" template="Layer"/>
-        <add name="sizes" type="DataSlot" vercond="!#PC#" template="Size" >entries of 40 bytes</add>
-        <add name="positions" type="DataSlot" >counts the -1 structs; entries of 32 bytes</add>
+        <add name="areas" type="DataSlot" vercond="!#PC#" template="Area" >entries of 40 bytes</add>
+        <add name="entity_groups" type="DataSlot" template="EntityGroup">counts the -1 structs; entries of 32 bytes</add>
         <add name="materials" type="DataSlot" template="Material"/>
         <add name="names" type="DataSlot" template="Name"/>
+    </compound>
+
+    <compound name="Empty">
     </compound>
 
     <compound name="DataSlot">
         offset into buffer to start of sth; only given if some count is nonzero
         <add name="offset" type="uint64" >offset into buffer to start</add>
         <add name="count" type="uint64" >also counts the stuff after names</add>
+        <add name="data" type="empty"/>
     </compound>
+
 
     <compound name="Name">
         <add name="offset" type="uint64" >address of this data layer</add>
@@ -50,7 +55,7 @@
         <add name="dsize" type="uint64" >data size of this layer, in bytes</add>
     </compound>
 
-    <compound name="Size">
+    <compound name="Area">
         40 bytes
         <add name="id" type="uint64" >index into name list</add>
         <add name="width 1" type="uint64" ></add>
@@ -59,13 +64,27 @@
         <add name="height 2" type="uint64" ></add>
     </compound>
 
+    <compound name="Vector3f">
+        <add name="x" type="float"/>
+        <add name="y" type="float"/>
+        <add name="z" type="float"/>
+    </compound>
+
+    <compound name="EntityInstance">
+        Describes the position of one instanced entity
+        <add name="loc" type="Vector3f"/>
+        <add name="z rot" type="float"/>
+    </compound>
+
     <compound name="Material">
         <add name="offset" type="uint64" >address of child data</add>
         <add name="count" type="uint64" >repeat count of child structs (4 floats)</add>
         <add name="id" type="uint64" >index into name list</add>
+        <add name="data" type="empty"/>
     </compound>
 
-    <compound name="PosInfo" inherit="Material">
+    <compound name="EntityGroup" inherit="Material">
+        describes a list of instances of one entity
         <add name="ff" type="int" >-1</add>
         <add name="ff or zero" type="int" >-1, 0 for PC</add>
     </compound>

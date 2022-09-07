@@ -2,15 +2,15 @@ from generated.base_struct import BaseStruct
 from generated.formats.base.basic import Uint64
 
 
-class Size(BaseStruct):
+class Area(BaseStruct):
 
 	"""
 	40 bytes
 	"""
 
-	__name__ = 'Size'
+	__name__ = 'Area'
 
-	_import_path = 'generated.formats.voxelskirt.compounds.Size'
+	_import_path = 'generated.formats.voxelskirt.compounds.Area'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
@@ -60,7 +60,7 @@ class Size(BaseStruct):
 		yield 'height_2', Uint64, (0, None), (False, None)
 
 	def get_info_str(self, indent=0):
-		return f'Size [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+		return f'Area [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
 	def get_fields_str(self, indent=0):
 		s = ''
