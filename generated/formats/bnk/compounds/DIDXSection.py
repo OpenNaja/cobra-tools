@@ -38,7 +38,7 @@ class DIDXSection(BaseStruct):
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
 		Uint.to_stream(stream, instance.length)
-		Array.to_stream(stream, instance.data_pointers, instance.context, 0, None, (int(instance.length / 12),), DataPointer)
+		Array.to_stream(stream, instance.data_pointers, DataPointer)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

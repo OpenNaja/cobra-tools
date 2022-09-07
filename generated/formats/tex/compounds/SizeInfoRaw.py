@@ -86,7 +86,7 @@ class SizeInfoRaw(MemStruct):
 		Uint.to_stream(stream, instance.num_mips)
 		if instance.context.version >= 20:
 			Uint64.to_stream(stream, instance.unk_pz)
-		Array.to_stream(stream, instance.mip_maps, instance.context, 0, None, (instance.num_mips,), Mipmap)
+		Array.to_stream(stream, instance.mip_maps, Mipmap)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

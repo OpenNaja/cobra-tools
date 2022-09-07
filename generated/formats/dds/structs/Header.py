@@ -97,7 +97,7 @@ class Header(BaseStruct):
 		Uint.to_stream(stream, instance.linear_size)
 		Uint.to_stream(stream, instance.depth)
 		Uint.to_stream(stream, instance.mipmap_count)
-		Array.to_stream(stream, instance.reserved_1, instance.context, 0, None, (11,), Uint)
+		Array.to_stream(stream, instance.reserved_1, Uint)
 		PixelFormat.to_stream(stream, instance.pixel_format)
 		Caps1.to_stream(stream, instance.caps_1)
 		Caps2.to_stream(stream, instance.caps_2)

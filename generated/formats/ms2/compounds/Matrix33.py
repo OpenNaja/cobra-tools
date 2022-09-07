@@ -34,7 +34,7 @@ class Matrix33(BaseStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		Array.to_stream(stream, instance.data, instance.context, 0, None, (3, 3,), Float)
+		Array.to_stream(stream, instance.data, Float)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

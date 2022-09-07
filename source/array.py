@@ -100,14 +100,14 @@ class Array(list):
             return new_array
 
     @classmethod
-    def to_stream(cls, stream, instance, context, arg=0, template=None, shape=(), dtype=None):
+    def to_stream(cls, stream, instance, dtype=None):
         if instance is not None:
-            if cls.is_ragged_shape(shape):
-                RaggedArray.to_stream(stream, instance, context, arg, template, shape, dtype)
+            if cls.is_ragged_shape(instance.shape):
+                RaggedArray.to_stream(stream, instance, dtype)
             elif callable(getattr(dtype, 'write_array', None)):
                 dtype.write_array(stream, instance)
             else:
-                instance.store_params(context, arg, template, shape, dtype)
+                # this must be an instance of cls that has the write function on itself
                 instance.write(stream)
 
     @classmethod
@@ -291,12 +291,11 @@ class RaggedArray(Array):
             return new_array
 
     @classmethod
-    def to_stream(cls, stream, instance, context, arg=0, template=None, shape=(), dtype=None):
+    def to_stream(cls, stream, instance, dtype=None):
         if instance is not None:
             if callable(getattr(dtype, 'write_ragged_array', None)):
                 dtype.write_ragged_array(stream, instance)
             else:
-                instance.store_params(context, arg, template, shape, dtype)
                 instance.write(stream)
 
     @classmethod

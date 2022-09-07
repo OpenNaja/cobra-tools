@@ -177,7 +177,7 @@ class ManiInfo(BaseStruct):
 		Float.to_stream(stream, instance.duration)
 		Uint.to_stream(stream, instance.frame_count)
 		Uint.to_stream(stream, instance.b)
-		Array.to_stream(stream, instance.zeros_0, instance.context, 0, None, (6,), Ushort)
+		Array.to_stream(stream, instance.zeros_0, Ushort)
 		if instance.context.version <= 257:
 			Ushort.to_stream(stream, instance.extra_pc_1)
 		Ushort.to_stream(stream, instance.pos_bone_count)
@@ -196,9 +196,9 @@ class ManiInfo(BaseStruct):
 		Ubyte.to_stream(stream, instance.count_b)
 		Ushort.to_stream(stream, instance.target_bone_count)
 		Ushort.to_stream(stream, instance.g)
-		Array.to_stream(stream, instance.zeros_2, instance.context, 0, None, (57,), Uint)
+		Array.to_stream(stream, instance.zeros_2, Uint)
 		if instance.context.version <= 257:
-			Array.to_stream(stream, instance.extra_zeros_pc, instance.context, 0, None, (6,), Ushort)
+			Array.to_stream(stream, instance.extra_zeros_pc, Ushort)
 		Ubyte.to_stream(stream, instance.pos_bone_min)
 		Ubyte.to_stream(stream, instance.pos_bone_max)
 		Ubyte.to_stream(stream, instance.ori_bone_min)

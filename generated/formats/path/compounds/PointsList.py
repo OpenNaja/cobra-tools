@@ -27,7 +27,7 @@ class PointsList(MemStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		Array.to_stream(stream, instance.points, instance.context, 0, None, (instance.arg,), Vector3)
+		Array.to_stream(stream, instance.points, Vector3)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

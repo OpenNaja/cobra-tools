@@ -54,7 +54,7 @@ class Uint8Data(MemStruct):
 		Ubyte.to_stream(stream, instance.imax)
 		Ubyte.to_stream(stream, instance.ivalue)
 		Ubyte.to_stream(stream, instance.ioptional)
-		Array.to_stream(stream, instance.unused, instance.context, 0, None, (4,), Ubyte)
+		Array.to_stream(stream, instance.unused, Ubyte)
 		Pointer.to_stream(stream, instance.enum)
 
 	@classmethod

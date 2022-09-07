@@ -90,9 +90,9 @@ class BnkBufferData(BaseStruct):
 		Uint.to_stream(stream, instance.buffer_count)
 		Uint.to_stream(stream, instance.count_2)
 		Uint.to_stream(stream, instance.stream_info_count)
-		Array.to_stream(stream, instance.zeros, instance.context, 0, None, (7,), Uint)
-		Array.to_stream(stream, instance.zeros_per_buffer, instance.context, 0, None, (instance.buffer_count, 2,), Uint64)
-		Array.to_stream(stream, instance.stream_infos, instance.context, 0, None, (instance.stream_info_count,), StreamInfo)
+		Array.to_stream(stream, instance.zeros, Uint)
+		Array.to_stream(stream, instance.zeros_per_buffer, Uint64)
+		Array.to_stream(stream, instance.stream_infos, StreamInfo)
 		ZString.to_stream(stream, instance.name)
 		if instance.buffer_count:
 			ZString.to_stream(stream, instance.external_b_suffix)

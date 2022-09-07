@@ -56,11 +56,11 @@ class TextureInfo(GenericInfo):
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
 		if instance.dtype == 8:
-			Array.to_stream(stream, instance.value, instance.context, 0, None, (1,), TexIndex)
+			Array.to_stream(stream, instance.value, TexIndex)
 		if instance.context.version >= 18 and instance.dtype == 7:
-			Array.to_stream(stream, instance.value, instance.context, 0, None, (2,), Color)
+			Array.to_stream(stream, instance.value, Color)
 		if instance.context.version <= 17 and instance.dtype == 7:
-			Array.to_stream(stream, instance.value, instance.context, 0, None, (1,), Color)
+			Array.to_stream(stream, instance.value, Color)
 		if instance.context.version >= 18:
 			Uint.to_stream(stream, instance.some_index_0)
 			Uint.to_stream(stream, instance.some_index_1)

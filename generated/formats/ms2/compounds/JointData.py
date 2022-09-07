@@ -229,34 +229,34 @@ class JointData(BaseStruct):
 		if 13 <= instance.context.version <= 32:
 			Uint.to_stream(stream, instance.zero_1)
 		Uint.to_stream(stream, instance.namespace_length)
-		Array.to_stream(stream, instance.zeros_0, instance.context, 0, None, (5,), Uint)
+		Array.to_stream(stream, instance.zeros_0, Uint)
 		Uint.to_stream(stream, instance.pc_count)
-		Array.to_stream(stream, instance.zeros_1, instance.context, 0, None, (7,), Uint)
+		Array.to_stream(stream, instance.zeros_1, Uint)
 		if 13 <= instance.context.version <= 32:
-			Array.to_stream(stream, instance.extra_zeros_2, instance.context, 0, None, (4,), Uint)
+			Array.to_stream(stream, instance.extra_zeros_2, Uint)
 		if instance.context.version >= 13:
-			Array.to_stream(stream, instance.ones, instance.context, 0, None, (2,), Uint64)
+			Array.to_stream(stream, instance.ones, Uint64)
 		Uint.to_stream(stream, instance.bone_count)
 		Uint.to_stream(stream, instance.joint_entry_count)
-		Array.to_stream(stream, instance.zeros_2, instance.context, 0, None, (4,), Uint)
+		Array.to_stream(stream, instance.zeros_2, Uint)
 		if instance.context.version <= 7:
 			Uint.to_stream(stream, instance.zeros_3)
-		Array.to_stream(stream, instance.joint_transforms, instance.context, 0, None, (instance.joint_count,), JointEntry)
+		Array.to_stream(stream, instance.joint_transforms, JointEntry)
 		if instance.context.version >= 47:
-			Array.to_stream(stream, instance.zeros_3, instance.context, 0, None, (instance.joint_count,), Uint64)
-			Array.to_stream(stream, instance.unknown_listc, instance.context, 0, None, (instance.joint_count,), ListCEntry)
-			Array.to_stream(stream, instance.first_list, instance.context, 0, None, (instance.count_0,), ListFirst)
-			Array.to_stream(stream, instance.short_list, instance.context, 0, None, (instance.count_1,), ListShort)
-			Array.to_stream(stream, instance.long_list, instance.context, 0, None, (instance.count_2,), ListLong)
+			Array.to_stream(stream, instance.zeros_3, Uint64)
+			Array.to_stream(stream, instance.unknown_listc, ListCEntry)
+			Array.to_stream(stream, instance.first_list, ListFirst)
+			Array.to_stream(stream, instance.short_list, ListShort)
+			Array.to_stream(stream, instance.long_list, ListLong)
 		if instance.context.version <= 32:
-			Array.to_stream(stream, instance.joint_infos, instance.context, 0, None, (instance.joint_count,), UACJointFF)
-			Array.to_stream(stream, instance.pc_floats, instance.context, 0, None, (instance.pc_count, 10,), Float)
-		Array.to_stream(stream, instance.joint_indices, instance.context, 0, None, (instance.joint_count,), Int)
-		Array.to_stream(stream, instance.bone_indices, instance.context, 0, None, (instance.bone_count,), Int)
+			Array.to_stream(stream, instance.joint_infos, UACJointFF)
+			Array.to_stream(stream, instance.pc_floats, Float)
+		Array.to_stream(stream, instance.joint_indices, Int)
+		Array.to_stream(stream, instance.bone_indices, Int)
 		ZStringBuffer.to_stream(stream, instance.joint_names)
 		SmartPadding.to_stream(stream, instance.joint_names_padding)
 		if instance.context.version >= 47:
-			Array.to_stream(stream, instance.joint_infos, instance.context, 0, None, (instance.joint_count,), JointInfo)
+			Array.to_stream(stream, instance.joint_infos, JointInfo)
 		if instance.context.version <= 32:
 			HitcheckReader.to_stream(stream, instance.hitcheck_reader)
 

@@ -46,7 +46,7 @@ class String:
             
         def write_strings(instance):
             # pass empty context
-            return Array.to_stream(stream, instance, cls, None)
+            return Array.to_stream(stream, instance, cls)
 
         return read_string, write_string, read_strings, write_strings
 

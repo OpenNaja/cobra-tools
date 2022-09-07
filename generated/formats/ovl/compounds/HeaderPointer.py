@@ -112,7 +112,7 @@ class HeaderPointer(BaseStruct):
 		logging.debug(f"write_instance of class {cls.__name__}")
 		if self.align_write(instance, overwrite=False):
 			if isinstance(instance, Array):
-				Array.to_stream(self.pool.data, instance, (len(instance),), cls, instance.context, 0, None)
+				Array.to_stream(self.pool.data, instance, cls)
 			# special case to avoid falling back on basic.to_stream
 			elif isinstance(instance, np.ndarray):
 				# self.pool.data.write(instance.tobytes())

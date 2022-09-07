@@ -27,7 +27,7 @@ class LayerArray(MemStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		Array.to_stream(stream, instance.layers, instance.context, 0, None, (instance.arg,), Layer)
+		Array.to_stream(stream, instance.layers, Layer)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

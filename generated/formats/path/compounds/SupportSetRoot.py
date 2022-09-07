@@ -96,7 +96,7 @@ class SupportSetRoot(MemStruct):
 		Uint.to_stream(stream, instance.unk_int_1)
 		Uint.to_stream(stream, instance.num_connector_1)
 		Uint.to_stream(stream, instance.num_connector_2)
-		Array.to_stream(stream, instance.unk_ints, instance.context, 0, None, (7,), Uint)
+		Array.to_stream(stream, instance.unk_ints, Uint)
 		Uint64.to_stream(stream, instance.padding_2)
 		ArrayPointer.to_stream(stream, instance.data)
 		Uint.to_stream(stream, instance.num_data)

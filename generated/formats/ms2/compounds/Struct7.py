@@ -89,10 +89,10 @@ class Struct7(BaseStruct):
 			Uint64.to_stream(stream, instance.flag)
 			Uint64.to_stream(stream, instance.zero_2)
 		if instance.context.version <= 13:
-			Array.to_stream(stream, instance.unknown_list, instance.context, 0, None, (instance.count_7,), UACJoint)
+			Array.to_stream(stream, instance.unknown_list, UACJoint)
 		if instance.context.version >= 32:
-			Array.to_stream(stream, instance.unknown_list, instance.context, 0, None, (instance.count_7,), NasutoJointEntry)
-		Array.to_stream(stream, instance.padding, instance.context, 0, None, ((8 - ((instance.count_7 * 60) % 8)) % 8,), Ubyte)
+			Array.to_stream(stream, instance.unknown_list, NasutoJointEntry)
+		Array.to_stream(stream, instance.padding, Ubyte)
 		if instance.context.version >= 50 and instance.flag:
 			Uint64.to_stream(stream, instance.alignment)
 

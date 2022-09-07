@@ -64,7 +64,7 @@ class BanisRoot(MemStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		Array.to_stream(stream, instance.zeros, instance.context, 0, None, (2,), Uint64)
+		Array.to_stream(stream, instance.zeros, Uint64)
 		Uint.to_stream(stream, instance.bytes_per_frame)
 		Uint.to_stream(stream, instance.bytes_per_bone)
 		Uint.to_stream(stream, instance.num_frames)

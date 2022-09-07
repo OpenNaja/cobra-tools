@@ -75,7 +75,7 @@ class FctRoot(MemStruct):
 		Int.to_stream(stream, instance.z_1)
 		Uint64.to_stream(stream, instance.z_2)
 		Uint64.to_stream(stream, instance.offset)
-		Array.to_stream(stream, instance.fonts, instance.context, 0, None, (4,), Font)
+		Array.to_stream(stream, instance.fonts, Font)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

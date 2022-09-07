@@ -31,7 +31,7 @@ class DataStreamResourceDataPoints(MemStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		Array.to_stream(stream, instance.data, instance.context, 0, None, (instance.arg,), DataStreamResourceData)
+		Array.to_stream(stream, instance.data, DataStreamResourceData)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

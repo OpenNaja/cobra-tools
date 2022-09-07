@@ -361,5 +361,5 @@ class BioMeshData:
 		# write the chunks
 		self.chunks_offset = self.buffer_info.tri_chunks.tell() // 64
 		self.chunks_count = len(self.tri_chunks)
-		Array.to_stream(self.buffer_info.tri_chunks, self.tri_chunks, (self.chunks_count,), TriChunk, self.context, 0, None)
-		Array.to_stream(self.buffer_info.vert_chunks, self.vert_chunks, (self.chunks_count,), VertChunk, self.context, 0, None)
+		Array.to_stream(self.buffer_info.tri_chunks, self.tri_chunks, TriChunk)
+		Array.to_stream(self.buffer_info.vert_chunks, self.vert_chunks, VertChunk)

@@ -34,7 +34,7 @@ class PCJointThing(BaseStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		Array.to_stream(stream, instance.shorts, instance.context, 0, None, (4,), Short)
+		Array.to_stream(stream, instance.shorts, Short)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

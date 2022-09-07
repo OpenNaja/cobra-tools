@@ -192,7 +192,7 @@ class ModelReader(BaseStruct):
 			if hitcheck.dtype in (CollisionType.CONVEX_HULL_P_C, CollisionType.CONVEX_HULL):
 				logging.debug(f"Writing vertices for {hitcheck.dtype}")
 				# stream.write_floats(hitcheck.collider.vertices)
-				Array.to_stream(stream, hitcheck.collider.vertices, (hitcheck.collider.vertex_count, 3), Float, self.context)
+				Array.to_stream(stream, hitcheck.collider.vertices, Float)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

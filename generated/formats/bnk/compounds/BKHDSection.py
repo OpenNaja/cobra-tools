@@ -49,7 +49,7 @@ class BKHDSection(BaseStruct):
 		Uint.to_stream(stream, instance.constant_a)
 		Uint.to_stream(stream, instance.constant_b)
 		Uint.to_stream(stream, instance.unk)
-		Array.to_stream(stream, instance.zeroes, instance.context, 0, None, (instance.length - 24,), Ubyte)
+		Array.to_stream(stream, instance.zeroes, Ubyte)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

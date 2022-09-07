@@ -59,13 +59,13 @@ class OvsHeader(BaseStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		Array.to_stream(stream, instance.pool_groups, instance.context, 0, None, (instance.arg.num_pool_groups,), PoolGroup)
-		Array.to_stream(stream, instance.pools, instance.context, 0, None, (instance.arg.num_pools,), MemPool)
-		Array.to_stream(stream, instance.data_entries, instance.context, 0, None, (instance.arg.num_datas,), DataEntry)
-		Array.to_stream(stream, instance.buffer_entries, instance.context, 0, None, (instance.arg.num_buffers,), BufferEntry)
-		Array.to_stream(stream, instance.buffer_groups, instance.context, 0, None, (instance.arg.num_buffer_groups,), BufferGroup)
-		Array.to_stream(stream, instance.root_entries, instance.context, 0, None, (instance.arg.num_root_entries,), RootEntry)
-		Array.to_stream(stream, instance.fragments, instance.context, 0, None, (instance.arg.num_fragments,), Fragment)
+		Array.to_stream(stream, instance.pool_groups, PoolGroup)
+		Array.to_stream(stream, instance.pools, MemPool)
+		Array.to_stream(stream, instance.data_entries, DataEntry)
+		Array.to_stream(stream, instance.buffer_entries, BufferEntry)
+		Array.to_stream(stream, instance.buffer_groups, BufferGroup)
+		Array.to_stream(stream, instance.root_entries, RootEntry)
+		Array.to_stream(stream, instance.fragments, Fragment)
 		SetHeader.to_stream(stream, instance.set_header)
 
 	@classmethod

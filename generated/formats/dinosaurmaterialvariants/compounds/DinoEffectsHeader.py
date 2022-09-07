@@ -92,7 +92,7 @@ class DinoEffectsHeader(MemStruct):
 		Float.to_stream(stream, instance.e)
 		Float.to_stream(stream, instance.f)
 		Uint.to_stream(stream, instance.g)
-		Array.to_stream(stream, instance.floats, instance.context, 0, None, (39,), Float)
+		Array.to_stream(stream, instance.floats, Float)
 		Uint.to_stream(stream, instance.d)
 		Float.to_stream(stream, instance.e)
 

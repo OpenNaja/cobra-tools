@@ -34,7 +34,7 @@ class NextResearch(MemStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		Array.to_stream(stream, instance.item_name, instance.context, 0, ZString, (instance.arg,), Pointer)
+		Array.to_stream(stream, instance.item_name, Pointer)
 		Uint64.to_stream(stream, instance.unk_1)
 
 	@classmethod

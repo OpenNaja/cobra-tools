@@ -98,7 +98,7 @@ class NewMeshData(MeshData):
 		Uint.to_stream(stream, instance.size_of_vertex)
 		Uint.to_stream(stream, instance.tri_offset)
 		Uint.to_stream(stream, instance.zero_2)
-		Array.to_stream(stream, instance.unk_floats, instance.context, 0, None, (2,), Float)
+		Array.to_stream(stream, instance.unk_floats, Float)
 		Uint.to_stream(stream, instance.zero_3)
 		ModelFlag.to_stream(stream, instance.flag)
 

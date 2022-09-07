@@ -40,7 +40,7 @@ class ZtVertBlockInfo(BaseStruct):
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
 		Uint.to_stream(stream, instance.vertex_count)
-		Array.to_stream(stream, instance.flags, instance.context, 0, None, (8,), Ubyte)
+		Array.to_stream(stream, instance.flags, Ubyte)
 		Uint.to_stream(stream, instance.zero)
 
 	@classmethod

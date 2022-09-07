@@ -62,7 +62,7 @@ class TrackedRideCarRoot(MemStruct):
 		ArrayPointer.to_stream(stream, instance.sub)
 		Uint.to_stream(stream, instance.sub_count)
 		Uint.to_stream(stream, instance.total_vecs_count)
-		Array.to_stream(stream, instance.vec, instance.context, 0, None, (3,), Float)
+		Array.to_stream(stream, instance.vec, Float)
 		Uint.to_stream(stream, instance.zero_0)
 		Pointer.to_stream(stream, instance.some_name)
 		Uint64.to_stream(stream, instance.zero_1)

@@ -52,17 +52,17 @@ class AttribData(MemStruct):
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
 		if instance.arg.dtype == 0:
-			Array.to_stream(stream, instance.value, instance.context, 0, None, (1,), Float)
+			Array.to_stream(stream, instance.value, Float)
 		if instance.arg.dtype == 1:
-			Array.to_stream(stream, instance.value, instance.context, 0, None, (2,), Float)
+			Array.to_stream(stream, instance.value, Float)
 		if instance.arg.dtype == 2:
-			Array.to_stream(stream, instance.value, instance.context, 0, None, (3,), Float)
+			Array.to_stream(stream, instance.value, Float)
 		if instance.arg.dtype == 3:
-			Array.to_stream(stream, instance.value, instance.context, 0, None, (4,), Float)
+			Array.to_stream(stream, instance.value, Float)
 		if instance.arg.dtype == 5:
-			Array.to_stream(stream, instance.value, instance.context, 0, None, (1,), Int)
+			Array.to_stream(stream, instance.value, Int)
 		if instance.arg.dtype == 6:
-			Array.to_stream(stream, instance.value, instance.context, 0, None, (1,), Int)
+			Array.to_stream(stream, instance.value, Int)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

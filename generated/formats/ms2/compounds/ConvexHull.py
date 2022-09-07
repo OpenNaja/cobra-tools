@@ -55,9 +55,9 @@ class ConvexHull(BaseStruct):
 		Matrix33.to_stream(stream, instance.rotation)
 		Vector3.to_stream(stream, instance.offset)
 		if instance.context.version == 32:
-			Array.to_stream(stream, instance.zeros, instance.context, 0, None, (5,), Uint)
+			Array.to_stream(stream, instance.zeros, Uint)
 		if ((instance.context.version == 48) or (instance.context.version == 50)) or (instance.context.version == 51):
-			Array.to_stream(stream, instance.zeros, instance.context, 0, None, (2,), Uint)
+			Array.to_stream(stream, instance.zeros, Uint)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

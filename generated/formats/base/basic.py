@@ -184,7 +184,7 @@ class ZString:
 
         def write_zstrings(instance):
             # pass empty context
-            return Array.to_stream(stream, instance, instance.shape, cls, None)
+            return Array.to_stream(stream, instance, cls)
 
         return read_zstring, write_zstring, read_zstrings, write_zstrings
 

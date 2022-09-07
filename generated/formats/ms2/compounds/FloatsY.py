@@ -32,7 +32,7 @@ class FloatsY(BaseStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		Array.to_stream(stream, instance.floats, instance.context, 0, None, (8,), Float)
+		Array.to_stream(stream, instance.floats, Float)
 		Uint.to_stream(stream, instance.index)
 
 	@classmethod

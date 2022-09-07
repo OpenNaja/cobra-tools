@@ -36,8 +36,8 @@ class MeshCollisionBit(BaseStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		Array.to_stream(stream, instance.countd, instance.context, 0, None, (34,), Ushort)
-		Array.to_stream(stream, instance.consts, instance.context, 0, None, (3,), Uint)
+		Array.to_stream(stream, instance.countd, Ushort)
+		Array.to_stream(stream, instance.consts, Uint)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

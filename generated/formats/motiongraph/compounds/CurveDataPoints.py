@@ -31,7 +31,7 @@ class CurveDataPoints(MemStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		Array.to_stream(stream, instance.data, instance.context, 0, None, (instance.arg,), CurveDataPoint)
+		Array.to_stream(stream, instance.data, CurveDataPoint)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

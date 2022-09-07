@@ -61,7 +61,7 @@ class ListCEntry(BaseStruct):
 		Vector3.to_stream(stream, instance.loc)
 		Float.to_stream(stream, instance.constant)
 		Float.to_stream(stream, instance.a)
-		Array.to_stream(stream, instance.floats, instance.context, 0, None, (4,), Float)
+		Array.to_stream(stream, instance.floats, Float)
 		Float.to_stream(stream, instance.a_2)
 
 	@classmethod

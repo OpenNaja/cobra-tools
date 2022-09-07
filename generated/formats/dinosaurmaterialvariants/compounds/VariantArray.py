@@ -27,7 +27,7 @@ class VariantArray(MemStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		Array.to_stream(stream, instance.variants, instance.context, 0, None, (instance.arg,), Variant)
+		Array.to_stream(stream, instance.variants, Variant)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

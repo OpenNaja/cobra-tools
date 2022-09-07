@@ -27,7 +27,7 @@ class ActivitiesLinks(MemStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		Array.to_stream(stream, instance.activities, instance.context, 0, None, (instance.arg,), ActivitiesLink)
+		Array.to_stream(stream, instance.activities, ActivitiesLink)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

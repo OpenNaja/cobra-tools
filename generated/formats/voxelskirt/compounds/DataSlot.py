@@ -43,7 +43,7 @@ class DataSlot(BaseStruct):
 		super().write_fields(stream, instance)
 		Uint64.to_stream(stream, instance.offset)
 		Uint64.to_stream(stream, instance.count)
-		Array.to_stream(stream, instance.data, instance.context, 0, None, (0,), instance.template)
+		Array.to_stream(stream, instance.data, instance.template)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

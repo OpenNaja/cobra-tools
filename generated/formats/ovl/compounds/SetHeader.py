@@ -56,8 +56,8 @@ class SetHeader(BaseStruct):
 		Uint.to_stream(stream, instance.asset_count)
 		Uint.to_stream(stream, instance.sig_a)
 		Uint.to_stream(stream, instance.sig_b)
-		Array.to_stream(stream, instance.sets, instance.context, 0, None, (instance.set_count,), SetEntry)
-		Array.to_stream(stream, instance.assets, instance.context, 0, None, (instance.asset_count,), AssetEntry)
+		Array.to_stream(stream, instance.sets, SetEntry)
+		Array.to_stream(stream, instance.assets, AssetEntry)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

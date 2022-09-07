@@ -57,9 +57,9 @@ class InfoHeader(BaseStruct):
 		super().write_fields(stream, instance)
 		Uint.to_stream(stream, instance.version)
 		Uint.to_stream(stream, instance.mani_count)
-		Array.to_stream(stream, instance.names, instance.context, 0, None, (instance.mani_count,), ZString)
+		Array.to_stream(stream, instance.names, ZString)
 		SizedStrData.to_stream(stream, instance.header)
-		Array.to_stream(stream, instance.mani_infos, instance.context, 0, None, (instance.mani_count,), ManiInfo)
+		Array.to_stream(stream, instance.mani_infos, ManiInfo)
 		Buffer1.to_stream(stream, instance.name_buffer)
 		KeysReader.to_stream(stream, instance.keys_buffer)
 

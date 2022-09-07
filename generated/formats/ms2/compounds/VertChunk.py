@@ -56,7 +56,7 @@ class VertChunk(BaseStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		Array.to_stream(stream, instance.flags, instance.context, 0, None, (4,), Ubyte)
+		Array.to_stream(stream, instance.flags, Ubyte)
 		Float.to_stream(stream, instance.pack_base)
 		Uint.to_stream(stream, instance.vertex_offset)
 		Ubyte.to_stream(stream, instance.vertex_count)

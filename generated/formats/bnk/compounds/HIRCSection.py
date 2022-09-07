@@ -42,7 +42,7 @@ class HIRCSection(BaseStruct):
 		super().write_fields(stream, instance)
 		Uint.to_stream(stream, instance.length)
 		Uint.to_stream(stream, instance.count)
-		Array.to_stream(stream, instance.hirc_pointers, instance.context, 0, None, (instance.count,), HircPointer)
+		Array.to_stream(stream, instance.hirc_pointers, HircPointer)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

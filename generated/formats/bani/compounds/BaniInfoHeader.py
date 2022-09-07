@@ -45,7 +45,7 @@ class BaniInfoHeader(BaseStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		Array.to_stream(stream, instance.magic, instance.context, 0, None, (4,), Byte)
+		Array.to_stream(stream, instance.magic, Byte)
 		ZString.to_stream(stream, instance.banis_name)
 		BaniRoot.to_stream(stream, instance.data)
 

@@ -36,9 +36,9 @@ class Repeat(BaseStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		Array.to_stream(stream, instance.zeros_0, instance.context, 0, None, (7,), Uint64)
+		Array.to_stream(stream, instance.zeros_0, Uint64)
 		Uint64.to_stream(stream, instance.byte_size)
-		Array.to_stream(stream, instance.zeros_1, instance.context, 0, None, (2,), Uint64)
+		Array.to_stream(stream, instance.zeros_1, Uint64)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

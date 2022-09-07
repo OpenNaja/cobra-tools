@@ -273,7 +273,7 @@ class BoneInfo(BaseStruct):
 			Uint.to_stream(stream, instance.unknown_0_c)
 		Uint64.to_stream(stream, instance.unk_count)
 		Uint64.to_stream(stream, instance.bind_matrix_count)
-		Array.to_stream(stream, instance.zeros, instance.context, 0, None, (2,), Uint64)
+		Array.to_stream(stream, instance.zeros, Uint64)
 		Uint64.to_stream(stream, instance.inv_data_count)
 		Uint64.to_stream(stream, instance.bone_count)
 		Uint64.to_stream(stream, instance.unknown_40)
@@ -294,33 +294,33 @@ class BoneInfo(BaseStruct):
 		if (instance.context.version == 47) or (instance.context.version == 39):
 			Uint64.to_stream(stream, instance.unk_extra_jwe)
 		if not (instance.context.version < 47):
-			Array.to_stream(stream, instance.name_indices, instance.context, 0, None, (instance.name_count,), Uint)
+			Array.to_stream(stream, instance.name_indices, Uint)
 		if instance.context.version < 47:
-			Array.to_stream(stream, instance.name_indices, instance.context, 0, None, (instance.name_count,), Ushort)
-			Array.to_stream(stream, instance.inventory_name_indices, instance.context, 0, None, (instance.inv_names_count,), Ushort)
+			Array.to_stream(stream, instance.name_indices, Ushort)
+			Array.to_stream(stream, instance.inventory_name_indices, Ushort)
 		if not (instance.context.version < 47):
 			instance.name_padding.resize(((16 - (((instance.name_count + instance.inv_names_count) * 4) % 16)) % 16,))
-			Array.to_stream(stream, instance.name_padding, instance.context, 0, None, ((16 - (((instance.name_count + instance.inv_names_count) * 4) % 16)) % 16,), Byte)
+			Array.to_stream(stream, instance.name_padding, Byte)
 		if instance.context.version < 47:
 			instance.name_padding.resize(((16 - (((instance.name_count + instance.inv_names_count) * 2) % 16)) % 16,))
-			Array.to_stream(stream, instance.name_padding, instance.context, 0, None, ((16 - (((instance.name_count + instance.inv_names_count) * 2) % 16)) % 16,), Byte)
-		Array.to_stream(stream, instance.inverse_bind_matrices, instance.context, 0, None, (instance.bind_matrix_count,), Matrix44)
-		Array.to_stream(stream, instance.bones, instance.context, 0, None, (instance.bone_count,), Bone)
-		Array.to_stream(stream, instance.parents, instance.context, 0, None, (instance.parents_count,), Ubyte)
+			Array.to_stream(stream, instance.name_padding, Byte)
+		Array.to_stream(stream, instance.inverse_bind_matrices, Matrix44)
+		Array.to_stream(stream, instance.bones, Bone)
+		Array.to_stream(stream, instance.parents, Ubyte)
 		if instance.context.version >= 32:
 			instance.parents_padding.resize(((8 - (instance.parents_count % 8)) % 8,))
-			Array.to_stream(stream, instance.parents_padding, instance.context, 0, None, ((8 - (instance.parents_count % 8)) % 8,), Byte)
+			Array.to_stream(stream, instance.parents_padding, Byte)
 		if instance.context.version >= 32 and instance.one:
-			Array.to_stream(stream, instance.enumeration, instance.context, 0, None, (instance.enum_count, 2,), Uint)
+			Array.to_stream(stream, instance.enumeration, Uint)
 		if instance.context.version <= 13 and instance.one:
-			Array.to_stream(stream, instance.enumeration, instance.context, 0, None, (instance.enum_count,), Ubyte)
+			Array.to_stream(stream, instance.enumeration, Ubyte)
 		if instance.context.version == 7:
-			Array.to_stream(stream, instance.inventory_datas, instance.context, 0, None, (instance.inv_data_count, 6,), Byte)
-			Array.to_stream(stream, instance.weirdness, instance.context, 0, None, (8,), Short)
+			Array.to_stream(stream, instance.inventory_datas, Byte)
+			Array.to_stream(stream, instance.weirdness, Short)
 		if instance.context.version == 13:
-			Array.to_stream(stream, instance.weirdness, instance.context, 0, None, (10,), Short)
+			Array.to_stream(stream, instance.weirdness, Short)
 		if instance.context.version == 7:
-			Array.to_stream(stream, instance.inventory_datas_2, instance.context, 0, None, (instance.inv_data_count, 2,), Int)
+			Array.to_stream(stream, instance.inventory_datas_2, Int)
 		if not (instance.context.version < 47) and instance.zeros_count:
 			ZerosPadding.to_stream(stream, instance.zeros_padding)
 		if instance.context.version >= 48 and instance.zeros_count:

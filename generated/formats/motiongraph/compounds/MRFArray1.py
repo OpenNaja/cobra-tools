@@ -27,7 +27,7 @@ class MRFArray1(MemStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		Array.to_stream(stream, instance.states, instance.context, 0, None, (instance.arg,), MRFEntry1)
+		Array.to_stream(stream, instance.states, MRFEntry1)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

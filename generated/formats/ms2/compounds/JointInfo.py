@@ -40,8 +40,8 @@ class JointInfo(CommonJointInfo):
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
 		Uint64.to_stream(stream, instance.zero)
-		Array.to_stream(stream, instance.zeros_per_hitcheck, instance.context, 0, None, (instance.hitcheck_count,), Uint64)
-		Array.to_stream(stream, instance.hitchecks, instance.context, 0, None, (instance.hitcheck_count,), HitCheckEntry)
+		Array.to_stream(stream, instance.zeros_per_hitcheck, Uint64)
+		Array.to_stream(stream, instance.hitchecks, HitCheckEntry)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

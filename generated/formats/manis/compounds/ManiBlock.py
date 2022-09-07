@@ -195,56 +195,56 @@ class ManiBlock(BaseStruct):
 		super().write_fields(stream, instance)
 		Empty.to_stream(stream, instance.ref)
 		if instance.context.version <= 257:
-			Array.to_stream(stream, instance.pos_bones, instance.context, 0, None, (instance.arg.pos_bone_count,), Ushort)
+			Array.to_stream(stream, instance.pos_bones, Ushort)
 		if instance.context.version >= 258:
-			Array.to_stream(stream, instance.pos_bones, instance.context, 0, None, (instance.arg.pos_bone_count,), Uint)
+			Array.to_stream(stream, instance.pos_bones, Uint)
 		if instance.context.version <= 257:
-			Array.to_stream(stream, instance.ori_bones, instance.context, 0, None, (instance.arg.ori_bone_count,), Ushort)
+			Array.to_stream(stream, instance.ori_bones, Ushort)
 		if instance.context.version >= 258:
-			Array.to_stream(stream, instance.ori_bones, instance.context, 0, None, (instance.arg.ori_bone_count,), Uint)
+			Array.to_stream(stream, instance.ori_bones, Uint)
 		if instance.context.version <= 257:
-			Array.to_stream(stream, instance.scl_bones, instance.context, 0, None, (instance.arg.scl_bone_count,), Ushort)
+			Array.to_stream(stream, instance.scl_bones, Ushort)
 		if instance.context.version >= 258:
-			Array.to_stream(stream, instance.scl_bones, instance.context, 0, None, (instance.arg.scl_bone_count,), Uint)
+			Array.to_stream(stream, instance.scl_bones, Uint)
 		if instance.context.version <= 257:
-			Array.to_stream(stream, instance.floats, instance.context, 0, None, (instance.arg.float_count,), Ushort)
+			Array.to_stream(stream, instance.floats, Ushort)
 		if instance.context.version >= 258:
-			Array.to_stream(stream, instance.floats, instance.context, 0, None, (instance.arg.float_count,), Uint)
-		Array.to_stream(stream, instance.pos_bones_p, instance.context, 0, None, (instance.arg.pos_bone_count,), Ubyte)
-		Array.to_stream(stream, instance.ori_bones_p, instance.context, 0, None, (instance.arg.ori_bone_count,), Ubyte)
-		Array.to_stream(stream, instance.scl_bones_p, instance.context, 0, None, (instance.arg.scl_bone_count,), Ubyte)
+			Array.to_stream(stream, instance.floats, Uint)
+		Array.to_stream(stream, instance.pos_bones_p, Ubyte)
+		Array.to_stream(stream, instance.ori_bones_p, Ubyte)
+		Array.to_stream(stream, instance.scl_bones_p, Ubyte)
 		if instance.arg.pos_bone_min >= 0:
-			Array.to_stream(stream, instance.pos_bones_delta, instance.context, 0, None, ((instance.arg.pos_bone_max - instance.arg.pos_bone_min) + 1,), Ubyte)
+			Array.to_stream(stream, instance.pos_bones_delta, Ubyte)
 		if instance.arg.ori_bone_min >= 0:
-			Array.to_stream(stream, instance.ori_bones_delta, instance.context, 0, None, ((instance.arg.ori_bone_max - instance.arg.ori_bone_min) + 1,), Ubyte)
+			Array.to_stream(stream, instance.ori_bones_delta, Ubyte)
 		if instance.arg.scl_bone_min >= 0:
-			Array.to_stream(stream, instance.scl_bones_delta, instance.context, 0, None, ((instance.arg.scl_bone_max - instance.arg.scl_bone_min) + 1,), Ubyte)
+			Array.to_stream(stream, instance.scl_bones_delta, Ubyte)
 		PadAlign.to_stream(stream, instance.pad)
-		Array.to_stream(stream, instance.floatsa, instance.context, 0, None, (instance.arg.frame_count, instance.arg.float_count,), Float)
+		Array.to_stream(stream, instance.floatsa, Float)
 		SmartPadding.to_stream(stream, instance.pad_2)
 		Uint.to_stream(stream, instance.frame_count)
 		Uint.to_stream(stream, instance.ori_bone_count)
 		Uint.to_stream(stream, instance.pos_bone_count)
 		Uint.to_stream(stream, instance.scl_bone_count)
-		Array.to_stream(stream, instance.zeros_18, instance.context, 0, None, (18,), Uint)
+		Array.to_stream(stream, instance.zeros_18, Uint)
 		Ushort.to_stream(stream, instance.count)
 		Ushort.to_stream(stream, instance.quantisation_level)
 		Empty.to_stream(stream, instance.ref_2)
-		Array.to_stream(stream, instance.some_indices, instance.context, 0, None, (instance.pos_bone_count,), Ubyte)
+		Array.to_stream(stream, instance.some_indices, Ubyte)
 		Ubyte.to_stream(stream, instance.flag_0)
 		Ubyte.to_stream(stream, instance.flag_1)
 		Ubyte.to_stream(stream, instance.flag_2)
 		Ubyte.to_stream(stream, instance.flag_3)
 		PadAlign.to_stream(stream, instance.anoth_pad)
-		Array.to_stream(stream, instance.floatsb, instance.context, 0, None, (6,), Float)
-		Array.to_stream(stream, instance.floats_second, instance.context, 0, None, (instance.flag_1, 6,), Float)
+		Array.to_stream(stream, instance.floatsb, Float)
+		Array.to_stream(stream, instance.floats_second, Float)
 		if instance.flag_2 > 1:
-			Array.to_stream(stream, instance.floats_third, instance.context, 0, None, (6,), Float)
+			Array.to_stream(stream, instance.floats_third, Float)
 		if instance.arg.count_a == 255:
 			Uint.to_stream(stream, instance.unk)
 		if instance.context.version <= 257:
 			Uint64.to_stream(stream, instance.extra_pc_zero)
-		Array.to_stream(stream, instance.repeats, instance.context, 0, None, (instance.count,), Repeat)
+		Array.to_stream(stream, instance.repeats, Repeat)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

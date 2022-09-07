@@ -31,7 +31,7 @@ class StateList(MemStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		Array.to_stream(stream, instance.ptrs, instance.context, 0, StateList._import_path_map["generated.formats.motiongraph.compounds.State"], (instance.arg,), SinglePtr)
+		Array.to_stream(stream, instance.ptrs, SinglePtr)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

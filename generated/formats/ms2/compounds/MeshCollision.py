@@ -149,30 +149,30 @@ class MeshCollision(BaseStruct):
 		super().write_fields(stream, instance)
 		Matrix33.to_stream(stream, instance.rotation)
 		Vector3.to_stream(stream, instance.offset)
-		Array.to_stream(stream, instance.unk_1, instance.context, 0, None, (3, 2,), Ushort)
+		Array.to_stream(stream, instance.unk_1, Ushort)
 		Uint64.to_stream(stream, instance.vertex_count)
 		Uint64.to_stream(stream, instance.tri_count)
 		Vector3.to_stream(stream, instance.bounds_min)
 		Vector3.to_stream(stream, instance.bounds_max)
-		Array.to_stream(stream, instance.ones_or_zeros, instance.context, 0, None, (7,), Uint64)
+		Array.to_stream(stream, instance.ones_or_zeros, Uint64)
 		if instance.context.version <= 32:
-			Array.to_stream(stream, instance.ff_or_zero, instance.context, 0, None, (10,), Int)
+			Array.to_stream(stream, instance.ff_or_zero, Int)
 		if instance.context.version >= 47:
-			Array.to_stream(stream, instance.ff_or_zero, instance.context, 0, None, (8,), Int)
+			Array.to_stream(stream, instance.ff_or_zero, Int)
 		if instance.context.version <= 32:
 			Vector3.to_stream(stream, instance.bounds_min_repeat)
 			Vector3.to_stream(stream, instance.bounds_max_repeat)
 			Uint.to_stream(stream, instance.tri_flags_count)
 			Ushort.to_stream(stream, instance.count_bits)
-			Array.to_stream(stream, instance.stuff, instance.context, 0, None, (9,), Ushort)
-			Array.to_stream(stream, instance.collision_bits, instance.context, 0, None, (instance.count_bits,), MeshCollisionBit)
-			Array.to_stream(stream, instance.zeros, instance.context, 0, None, (4,), Uint)
-		Array.to_stream(stream, instance.vertices, instance.context, 0, None, (instance.vertex_count, 3,), Float)
-		Array.to_stream(stream, instance.triangles, instance.context, 0, None, (instance.tri_count, 3,), Ushort)
+			Array.to_stream(stream, instance.stuff, Ushort)
+			Array.to_stream(stream, instance.collision_bits, MeshCollisionBit)
+			Array.to_stream(stream, instance.zeros, Uint)
+		Array.to_stream(stream, instance.vertices, Float)
+		Array.to_stream(stream, instance.triangles, Ushort)
 		if instance.context.version <= 32:
 			Uint.to_stream(stream, instance.const)
 		if instance.context.version <= 32 and instance.const:
-			Array.to_stream(stream, instance.triangle_flags, instance.context, 0, None, (instance.tri_flags_count,), Uint)
+			Array.to_stream(stream, instance.triangle_flags, Uint)
 		Uint.to_stream(stream, instance.zero_end)
 
 	@classmethod

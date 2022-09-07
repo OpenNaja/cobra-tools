@@ -257,25 +257,25 @@ class Header(GenericHeader):
 		Uint.to_stream(stream, instance.num_files_3)
 		Uint.to_stream(stream, instance.len_type_names)
 		Uint.to_stream(stream, instance.num_triplets)
-		Array.to_stream(stream, instance.reserved, instance.context, 0, None, (12,), Uint)
+		Array.to_stream(stream, instance.reserved, Uint)
 		ZStringBuffer.to_stream(stream, instance.names)
 		if instance.context.version <= 15:
-			Array.to_stream(stream, instance.names_pad, instance.context, 0, None, ((16 - (instance.len_names % 16)) % 16,), Ubyte)
-		Array.to_stream(stream, instance.mimes, instance.context, 0, None, (instance.num_mimes,), MimeEntry)
+			Array.to_stream(stream, instance.names_pad, Ubyte)
+		Array.to_stream(stream, instance.mimes, MimeEntry)
 		if instance.context.version >= 20:
-			Array.to_stream(stream, instance.triplets, instance.context, 0, None, (instance.num_triplets,), Triplet)
+			Array.to_stream(stream, instance.triplets, Triplet)
 			PadAlign.to_stream(stream, instance.triplets_pad)
-		Array.to_stream(stream, instance.files, instance.context, 0, None, (instance.num_files,), FileEntry)
+		Array.to_stream(stream, instance.files, FileEntry)
 		ZStringBuffer.to_stream(stream, instance.archive_names)
-		Array.to_stream(stream, instance.archives, instance.context, 0, None, (instance.num_archives,), ArchiveEntry)
-		Array.to_stream(stream, instance.included_ovls, instance.context, 0, None, (instance.num_included_ovls,), IncludedOvl)
+		Array.to_stream(stream, instance.archives, ArchiveEntry)
+		Array.to_stream(stream, instance.included_ovls, IncludedOvl)
 		if instance.context.version >= 19:
-			Array.to_stream(stream, instance.dependencies, instance.context, 0, None, (instance.num_dependencies,), DependencyEntry)
-		Array.to_stream(stream, instance.aux_entries, instance.context, 0, None, (instance.num_aux_entries,), AuxEntry)
+			Array.to_stream(stream, instance.dependencies, DependencyEntry)
+		Array.to_stream(stream, instance.aux_entries, AuxEntry)
 		if instance.context.version <= 18:
-			Array.to_stream(stream, instance.dependencies, instance.context, 0, None, (instance.num_dependencies,), DependencyEntry)
-		Array.to_stream(stream, instance.stream_files, instance.context, 0, None, (instance.num_stream_files,), StreamEntry)
-		Array.to_stream(stream, instance.zlibs, instance.context, 0, None, (instance.num_archives,), ZlibInfo)
+			Array.to_stream(stream, instance.dependencies, DependencyEntry)
+		Array.to_stream(stream, instance.stream_files, StreamEntry)
+		Array.to_stream(stream, instance.zlibs, ZlibInfo)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

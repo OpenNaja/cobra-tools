@@ -156,7 +156,7 @@ class UiMovieHeader(MemStruct):
 		Uint.to_stream(stream, instance.flag_1)
 		Ushort.to_stream(stream, instance.flag_2)
 		Ushort.to_stream(stream, instance.flag_3)
-		Array.to_stream(stream, instance.floats, instance.context, 0, None, (3,), Float)
+		Array.to_stream(stream, instance.floats, Float)
 		Ubyte.to_stream(stream, instance.u_0)
 		Ubyte.to_stream(stream, instance.num_ui_triggers)
 		Ubyte.to_stream(stream, instance.u_1)

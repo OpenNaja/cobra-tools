@@ -86,7 +86,7 @@ class BioMeshData(MeshData):
 		Uint.to_stream(stream, instance.vertex_count)
 		Uint64.to_stream(stream, instance.zero_1)
 		Uint.to_stream(stream, instance.poweroftwo)
-		Array.to_stream(stream, instance.unk_floats, instance.context, 0, None, (2,), Float)
+		Array.to_stream(stream, instance.unk_floats, Float)
 		BioModelFlag.to_stream(stream, instance.flag)
 
 	@classmethod
@@ -450,6 +450,6 @@ class BioMeshData(MeshData):
 		# write the chunks
 		self.chunks_offset = self.buffer_info.tri_chunks.tell() // 64
 		self.chunks_count = len(self.tri_chunks)
-		Array.to_stream(self.buffer_info.tri_chunks, self.tri_chunks, (self.chunks_count,), TriChunk, self.context, 0, None)
-		Array.to_stream(self.buffer_info.vert_chunks, self.vert_chunks, (self.chunks_count,), VertChunk, self.context, 0, None)
+		Array.to_stream(self.buffer_info.tri_chunks, self.tri_chunks, TriChunk)
+		Array.to_stream(self.buffer_info.vert_chunks, self.vert_chunks, VertChunk)
 

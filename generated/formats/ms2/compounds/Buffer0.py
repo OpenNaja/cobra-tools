@@ -50,11 +50,11 @@ class Buffer0(BaseStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		Array.to_stream(stream, instance.name_hashes, instance.context, 0, None, (instance.arg.name_count,), Uint)
-		Array.to_stream(stream, instance.names, instance.context, 0, None, (instance.arg.name_count,), ZString)
+		Array.to_stream(stream, instance.name_hashes, Uint)
+		Array.to_stream(stream, instance.names, ZString)
 		if instance.context.version >= 50:
 			instance.names_padding.resize(((4 - (instance.names.io_size % 4)) % 4,))
-			Array.to_stream(stream, instance.names_padding, instance.context, 0, None, ((4 - (instance.names.io_size % 4)) % 4,), Ubyte)
+			Array.to_stream(stream, instance.names_padding, Ubyte)
 		if instance.context.version <= 13:
 			StreamsZTHeader.to_stream(stream, instance.zt_streams_header)
 

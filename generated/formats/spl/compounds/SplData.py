@@ -41,7 +41,7 @@ class SplData(MemStruct):
 		super().write_fields(stream, instance)
 		Vector3.to_stream(stream, instance.offset)
 		Float.to_stream(stream, instance.scale)
-		Array.to_stream(stream, instance.keys, instance.context, 0, None, (instance.arg,), Key)
+		Array.to_stream(stream, instance.keys, Key)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

@@ -56,7 +56,7 @@ class WsmHeader(MemStruct):
 		super().write_fields(stream, instance)
 		Float.to_stream(stream, instance.duration)
 		Uint.to_stream(stream, instance.frame_count)
-		Array.to_stream(stream, instance.unknowns, instance.context, 0, None, (8,), Float)
+		Array.to_stream(stream, instance.unknowns, Float)
 		ArrayPointer.to_stream(stream, instance.locs)
 		ArrayPointer.to_stream(stream, instance.quats)
 

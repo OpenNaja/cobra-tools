@@ -40,7 +40,7 @@ class BooleanData(MemStruct):
 		super().write_fields(stream, instance)
 		Ubyte.to_stream(stream, instance.value)
 		Ubyte.to_stream(stream, instance.default)
-		Array.to_stream(stream, instance.unused, instance.context, 0, None, (6,), Ubyte)
+		Array.to_stream(stream, instance.unused, Ubyte)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

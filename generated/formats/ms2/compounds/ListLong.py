@@ -46,8 +46,8 @@ class ListLong(Descriptor):
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
 		Vector3.to_stream(stream, instance.loc)
-		Array.to_stream(stream, instance.floats, instance.context, 0, None, (5, 3,), Float)
-		Array.to_stream(stream, instance.radians, instance.context, 0, None, (8,), Float)
+		Array.to_stream(stream, instance.floats, Float)
+		Array.to_stream(stream, instance.radians, Float)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

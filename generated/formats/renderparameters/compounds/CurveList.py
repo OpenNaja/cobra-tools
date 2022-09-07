@@ -33,7 +33,7 @@ class CurveList(MemStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		Array.to_stream(stream, instance.ptrs, instance.context, 0, CurveList._import_path_map["generated.formats.renderparameters.compounds.KeyPoint"], (instance.arg,), Pointer)
+		Array.to_stream(stream, instance.ptrs, Pointer)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

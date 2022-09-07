@@ -76,25 +76,25 @@ class ParamData(MemStruct):
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
 		if instance.arg == 0:
-			Array.to_stream(stream, instance.data, instance.context, 0, None, (1,), Bool)
+			Array.to_stream(stream, instance.data, Bool)
 		if instance.arg == 1:
-			Array.to_stream(stream, instance.data, instance.context, 0, None, (1,), Float)
+			Array.to_stream(stream, instance.data, Float)
 		if instance.arg == 2:
-			Array.to_stream(stream, instance.data, instance.context, 0, None, (1,), Int)
+			Array.to_stream(stream, instance.data, Int)
 		if instance.arg == 3:
-			Array.to_stream(stream, instance.data, instance.context, 0, None, (1,), Uint)
+			Array.to_stream(stream, instance.data, Uint)
 		if instance.arg == 4:
-			Array.to_stream(stream, instance.data, instance.context, 0, None, (2,), Float)
+			Array.to_stream(stream, instance.data, Float)
 		if instance.arg == 5:
-			Array.to_stream(stream, instance.data, instance.context, 0, None, (3,), Float)
+			Array.to_stream(stream, instance.data, Float)
 		if instance.arg == 6:
-			Array.to_stream(stream, instance.data, instance.context, 0, None, (4,), Float)
+			Array.to_stream(stream, instance.data, Float)
 		if instance.arg == 7:
-			Array.to_stream(stream, instance.data, instance.context, 0, None, (4,), Ubyte)
+			Array.to_stream(stream, instance.data, Ubyte)
 		if instance.arg == 8:
-			Array.to_stream(stream, instance.data, instance.context, 0, None, (4,), Float)
+			Array.to_stream(stream, instance.data, Float)
 		if instance.arg == 9:
-			Array.to_stream(stream, instance.data, instance.context, 0, None, (1,), ZStrPtr)
+			Array.to_stream(stream, instance.data, ZStrPtr)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

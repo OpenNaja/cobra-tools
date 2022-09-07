@@ -40,7 +40,7 @@ class Attrib(MemStruct):
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
 		Pointer.to_stream(stream, instance.attrib_name)
-		Array.to_stream(stream, instance.attrib, instance.context, 0, None, (4,), Byte)
+		Array.to_stream(stream, instance.attrib, Byte)
 		Uint.to_stream(stream, instance.padding)
 
 	@classmethod

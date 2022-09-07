@@ -87,11 +87,11 @@ class VoxelskirtFile(Header, IoFile):
 
 			self.info.data_offset = stream.tell()
 			self.info.data_count = len(self.datas)
-			Array.to_stream(stream, self.datas, (self.info.data_count,), Data, self.context, 0, None)
+			Array.to_stream(stream, self.datas, Data)
 
 			self.info.size_offset = stream.tell()
 			self.info.size_count = len(self.sizes)
-			Array.to_stream(stream, self.sizes, (self.info.size_count,), Size, self.context, 0, None)
+			Array.to_stream(stream, self.sizes, Size)
 
 			# write object positions
 			for pos in self.positions:
@@ -99,7 +99,7 @@ class VoxelskirtFile(Header, IoFile):
 				stream.write_floats(pos.locs)
 			self.info.position_offset = stream.tell()
 			self.info.position_count = len(self.positions)
-			Array.to_stream(stream, self.positions, (self.info.position_count,), PosInfo, self.context, 0, None)
+			Array.to_stream(stream, self.positions, PosInfo)
 
 			# write 'materials' / bbox / whatever
 			for mat in self.materials:
@@ -107,7 +107,7 @@ class VoxelskirtFile(Header, IoFile):
 				stream.write_floats(mat.locs)
 			self.info.material_offset = stream.tell()
 			self.info.material_count = len(self.materials)
-			Array.to_stream(stream, self.materials, (self.info.material_count,), Material, self.context, 0, None)
+			Array.to_stream(stream, self.materials, Material)
 
 			# write names
 			name_addresses = []

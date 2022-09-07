@@ -86,7 +86,7 @@ class Ms2Root(MemStruct):
 		Ushort.to_stream(stream, instance.mdl_2_count)
 		Ushort.to_stream(stream, instance.name_count)
 		Short.to_stream(stream, instance.stream_count)
-		Array.to_stream(stream, instance.zeros, instance.context, 0, None, (3,), Uint)
+		Array.to_stream(stream, instance.zeros, Uint)
 		ArrayPointer.to_stream(stream, instance.buffer_infos)
 		ArrayPointer.to_stream(stream, instance.model_infos)
 		ArrayPointer.to_stream(stream, instance.buffers_presence)

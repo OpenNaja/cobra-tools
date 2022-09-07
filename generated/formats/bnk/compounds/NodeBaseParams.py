@@ -28,7 +28,7 @@ class NodeBaseParams(BaseStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		Array.to_stream(stream, instance.raw, instance.context, 0, None, (30,), Byte)
+		Array.to_stream(stream, instance.raw, Byte)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

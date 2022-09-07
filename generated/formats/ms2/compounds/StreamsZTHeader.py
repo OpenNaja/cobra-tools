@@ -41,7 +41,7 @@ class StreamsZTHeader(BaseStruct):
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
 		SmartPadding.to_stream(stream, instance.weird_padding)
-		Array.to_stream(stream, instance.unks, instance.context, 0, None, (instance.arg.stream_count,), InfoZTMemPool)
+		Array.to_stream(stream, instance.unks, InfoZTMemPool)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

@@ -27,7 +27,7 @@ class TransStructStopList(MemStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
-		Array.to_stream(stream, instance.ptrs, instance.context, 0, None, (instance.arg,), TransStructStop)
+		Array.to_stream(stream, instance.ptrs, TransStructStop)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

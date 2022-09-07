@@ -43,7 +43,7 @@ class CommonJointInfo(BaseStruct):
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
 		Uint.to_stream(stream, instance.eleven)
-		Array.to_stream(stream, instance.f_fs, instance.context, 0, None, (3,), Int)
+		Array.to_stream(stream, instance.f_fs, Int)
 		Uint.to_stream(stream, instance.name_offset)
 		Uint.to_stream(stream, instance.hitcheck_count)
 

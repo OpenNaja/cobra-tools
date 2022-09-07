@@ -44,8 +44,8 @@ class Info(MemStruct):
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
 		Pointer.to_stream(stream, instance.info_name)
-		Array.to_stream(stream, instance.flags, instance.context, 0, None, (4,), Byte)
-		Array.to_stream(stream, instance.value, instance.context, 0, None, (4,), Float)
+		Array.to_stream(stream, instance.flags, Byte)
+		Array.to_stream(stream, instance.value, Float)
 		Uint.to_stream(stream, instance.padding)
 
 	@classmethod

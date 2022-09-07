@@ -237,8 +237,7 @@ class XmlParser:
 
     def write_for_type(self, dtype, attr, context, arg=0, template=None, arr1=None, arr2=None):
         if arr1:
-            return f'Array.to_stream(stream, {attr}, {context}, {arg}, '\
-                   f'{template}, {self.arrs_to_tuple(arr1, arr2)}, {dtype})'
+            return f'Array.to_stream(stream, {attr}, {dtype})'
         else:
             # use the standard functionality
             return f'{dtype}.to_stream(stream, {attr})'

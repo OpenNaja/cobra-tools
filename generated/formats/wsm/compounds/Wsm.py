@@ -40,8 +40,8 @@ class Wsm(GenericHeader):
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
 		WsmHeader.to_stream(stream, instance.header)
-		Array.to_stream(stream, instance.locs, instance.context, 0, None, (instance.header.frame_count, 3,), Float)
-		Array.to_stream(stream, instance.quats, instance.context, 0, None, (instance.header.frame_count, 4,), Float)
+		Array.to_stream(stream, instance.locs, Float)
+		Array.to_stream(stream, instance.quats, Float)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
