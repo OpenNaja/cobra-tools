@@ -5,7 +5,6 @@ import imageio.v3 as iio
 from generated.array import Array
 from generated.formats.base.basic import Ubyte, Float, ZString
 from generated.formats.ovl import is_pc
-from generated.formats.voxelskirt import VoxelskirtFile
 from generated.formats.voxelskirt.compounds.EntityInstance import EntityInstance
 from generated.formats.voxelskirt.compounds.VoxelskirtRoot import VoxelskirtRoot
 from modules.formats.BaseFormat import MemStructLoader
@@ -17,10 +16,13 @@ class VoxelskirtLoader(MemStructLoader):
 
 	def create(self):
 		self.create_root_entry()
-		vox = VoxelskirtFile(self.ovl.context)
-		root_data, buffer_bytes = vox.get_structs(self.file_entry.path)
+		self.header = self.target_class.from_xml_file(self.file_entry.path, self.ovl.context)
+		stream = io.BytesIO()
+		# ...
+		buffer_bytes = stream.getvalue()
 		self.create_data_entry((buffer_bytes,))
-		self.write_data_to_pool(self.root_entry.struct_ptr, 2, root_data)
+		# need to update before writing ptrs
+		self.header.write_ptrs(self, self.root_ptr, self.file_entry.pool_type)
 
 	def collect(self):
 		super().collect()

@@ -80,7 +80,7 @@
         <add name="offset" type="uint64" >address of child data</add>
         <add name="count" type="uint64" >repeat count of child structs (4 floats)</add>
         <add name="id" type="uint64" >index into name list</add>
-        <add name="data" type="empty"/>
+        <add name="data" type="empty"/>4 floats, could be a bounding sphere?
     </compound>
 
     <compound name="EntityGroup" inherit="Material">
