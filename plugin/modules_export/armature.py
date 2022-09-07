@@ -48,6 +48,15 @@ def get_bone_names_from_armature(b_armature_ob):
 
 def assign_p_bone_indices(b_armature_ob):
 	print("assigning pbone indices")
+	# map index to name to track duplicated indices
+	indices = {}
+	for p_bone in b_armature_ob.pose.bones:
+		if "index" in p_bone:
+			p_ind = p_bone["index"]
+			if p_ind not in indices:
+				indices[p_ind] = p_bone.name
+			else:
+				raise IndexError(f"Bone {p_bone.name} uses same bone index as {indices[p_ind]}")
 	bones_with_index = [p_bone for p_bone in b_armature_ob.pose.bones if "index" in p_bone]
 	bones_with_index.sort(key=lambda p_bone: p_bone["index"])
 	bones_without_index = [p_bone for p_bone in b_armature_ob.pose.bones if "index" not in p_bone]
