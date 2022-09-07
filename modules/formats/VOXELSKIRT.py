@@ -18,6 +18,12 @@ class VoxelskirtLoader(MemStructLoader):
 		self.create_root_entry()
 		self.header = self.target_class.from_xml_file(self.file_entry.path, self.ovl.context)
 		stream = io.BytesIO()
+		# print(self.header)
+		for data_slot in self.named_slots:
+			data_slot.offset = stream.tell()
+			Array.to_stream(stream, data_slot.data, (len(data_slot.data), ), data_slot.data.dtype, self.ovl.context, 0, None)
+			# need to handle this so that it is available for export, but not written to header
+			data_slot.data.clear()
 		# ...
 		buffer_bytes = stream.getvalue()
 		self.create_data_entry((buffer_bytes,))

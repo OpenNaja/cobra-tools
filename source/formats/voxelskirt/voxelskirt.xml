@@ -38,7 +38,7 @@
         offset into buffer to start of sth; only given if some count is nonzero
         <add name="offset" type="uint64" >offset into buffer to start</add>
         <add name="count" type="uint64" >also counts the stuff after names</add>
-        <add name="data" type="empty" arr1="1"/>
+        <add name="data" type="#T#" arr1="1"/>
     </compound>
 
 
