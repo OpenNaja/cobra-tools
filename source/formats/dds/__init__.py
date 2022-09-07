@@ -7,7 +7,9 @@ from generated.formats.dds.enums.FourCC import FourCC
 from generated.formats.dds.structs.Dxt10Header import Dxt10Header
 from generated.formats.dds.structs.Header import Header
 from generated.io import IoFile
-from modules.formats.shared import get_padding, get_padding_size
+from modules.formats.shared import get_padding_size
+
+LINE_BYTES = 256
 
 
 class DdsContext(object):
@@ -112,18 +114,16 @@ class DdsFile(Header, IoFile):
         mip_offset = 0
         for mip_i, (tiles_per_mip, mip_info) in enumerate(zip(tiles_per_mips, mip_infos)):
             for tile_i, (height, width, tile_byte_size) in enumerate(tiles_per_mip):
-                bytes_width = self.get_bytes_size(width)
-                # logging.debug(f"tile {tile_i}, offset {mip_info.offset} {mip_offset}, height {height}, width {width}, bytes_width {bytes_width}")
-                if bytes_width > 32:
+                # get count of h slices, 1 block is 4x4 px, sub-block sizes require a whole block
+                num_lines = self.pad_block(height) // self.block_len_pixels_1d
+                bytes_per_line = tile_byte_size // num_lines
+                # logging.debug(f"tile {tile_i}, offset {mip_info.offset} {mip_offset}, height {height}, width {width}")
+                if bytes_per_line >= LINE_BYTES:
                     yield tile_byte_size, 0
                     mip_offset += tile_byte_size
                     # logging.debug(f"Wrote mip {mip_i} for tile {tile_i}, {tile_byte_size} raw bytes")
                 else:
-                    # get count of h slices, 1 block is 4x4 px, sub-block sizes require a whole block
-                    num_lines = self.pad_block(height) // self.block_len_pixels_1d
-                    bytes_per_line = tile_byte_size // num_lines
-                    padding_per_line = get_padding_size(bytes_per_line, alignment=256)
-
+                    padding_per_line = get_padding_size(bytes_per_line, alignment=LINE_BYTES)
                     # logging.debug(
                     #     f"tile_byte_size {tile_byte_size}, num_lines {num_lines}, bytes_per_line {bytes_per_line}, padding_per_line {padding_per_line}")
                     # write the bytes for this line from the mip bytes
@@ -135,8 +135,8 @@ class DdsFile(Header, IoFile):
 
                     # add one fully blank line as padding for odd slice counts
                     if num_lines % 2:
-                        yield 0, 256
-                        mip_offset += 256
+                        yield 0, LINE_BYTES
+                        mip_offset += LINE_BYTES
 
     def pack_mips(self, mip_infos):
         """From a standard DDS stream, pack the lower mip levels into one image and pad with empty bytes"""
