@@ -21,6 +21,7 @@ class VoxelskirtLoader(MemStructLoader):
 		# ...
 		buffer_bytes = stream.getvalue()
 		self.create_data_entry((buffer_bytes,))
+		self.header.data_size = len(buffer_bytes)
 		# need to update before writing ptrs
 		self.header.write_ptrs(self, self.root_ptr, self.file_entry.pool_type)
 
@@ -71,7 +72,7 @@ class VoxelskirtLoader(MemStructLoader):
 
 	def extract(self, out_dir):
 		out_files = list(super().extract(out_dir))
-		out_files += self.dump_buffers(out_dir)
+		# out_files += self.dump_buffers(out_dir)
 		basename = out_dir(self.file_entry.basename)
 		# print(self.header)
 		if is_pc(self.ovl):

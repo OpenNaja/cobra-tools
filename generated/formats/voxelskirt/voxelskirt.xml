@@ -38,7 +38,7 @@
         offset into buffer to start of sth; only given if some count is nonzero
         <add name="offset" type="uint64" >offset into buffer to start</add>
         <add name="count" type="uint64" >also counts the stuff after names</add>
-        <add name="data" type="empty"/>
+        <add name="data" type="empty" arr1="1"/>
     </compound>
 
 
@@ -80,7 +80,7 @@
         <add name="offset" type="uint64" >address of child data</add>
         <add name="count" type="uint64" >repeat count of child structs (4 floats)</add>
         <add name="id" type="uint64" >index into name list</add>
-        <add name="data" type="empty"/>4 floats, could be a bounding sphere?
+        <add name="data" type="empty" arr1="1"/>4 floats, could be a bounding sphere?
     </compound>
 
     <compound name="EntityGroup" inherit="Material">
