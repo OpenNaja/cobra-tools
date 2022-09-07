@@ -24,7 +24,7 @@
         <add name="padding" type="float"/>
         <add name="zero pc" type="uint64" vercond="#PC#">zero, for PC only</add>
         <add name="height array size pc" type="uint64" vercond="#PC#" >x*y*4, for PC only</add>
-        <add name="datas" type="DataSlot" vercond="!#PC#" template="Data" >entries of 32 bytes</add>
+        <add name="layers" type="DataSlot" vercond="!#PC#" template="Layer"/>
         <add name="sizes" type="DataSlot" vercond="!#PC#" template="Size" >entries of 40 bytes</add>
         <add name="positions" type="DataSlot" >counts the -1 structs; entries of 32 bytes</add>
         <add name="materials" type="DataSlot" template="Material"/>
@@ -41,7 +41,8 @@
         <add name="offset" type="uint64" >address of this data layer</add>
     </compound>
 
-    <compound name="Data">
+    <compound name="Layer">
+        32 bytes
         PZ and JWE only, describes a data layer image
         <add name="id" type="uint64" >index into name list</add>
         <add name="dtype" type="uint64" >0 = ubyte, 2 = float</add>
@@ -50,6 +51,7 @@
     </compound>
 
     <compound name="Size">
+        40 bytes
         <add name="id" type="uint64" >index into name list</add>
         <add name="width 1" type="uint64" ></add>
         <add name="height 1" type="uint64" ></add>

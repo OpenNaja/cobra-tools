@@ -2,15 +2,16 @@ from generated.base_struct import BaseStruct
 from generated.formats.base.basic import Uint64
 
 
-class Data(BaseStruct):
+class Layer(BaseStruct):
 
 	"""
+	32 bytes
 	PZ and JWE only, describes a data layer image
 	"""
 
-	__name__ = 'Data'
+	__name__ = 'Layer'
 
-	_import_path = 'generated.formats.voxelskirt.compounds.Data'
+	_import_path = 'generated.formats.voxelskirt.compounds.Layer'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
@@ -61,7 +62,7 @@ class Data(BaseStruct):
 		yield 'dsize', Uint64, (0, None), (False, None)
 
 	def get_info_str(self, indent=0):
-		return f'Data [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+		return f'Layer [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
 	def get_fields_str(self, indent=0):
 		s = ''

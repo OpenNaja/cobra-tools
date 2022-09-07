@@ -24,19 +24,29 @@ class VoxelskirtLoader(MemStructLoader):
 		logging.info(f"Writing {name}")
 		print(self.header)
 		stream = io.BytesIO(self.data_entry.buffer_datas[0])
-		for data_slot in (self.header.datas, self.header.names):
+		# read the arrays
+		for data_slot in (self.header.layers, self.header.sizes, self.header.names):
 			stream.seek(data_slot.offset)
 			data_slot.data = Array.from_stream(stream, self.ovl.context, 0, None, (data_slot.count, ), data_slot.template)
-		for data in self.header.datas.data:
-			stream.seek(data.offset)
-			if data.dtype == 0:
-				data.im = Ubyte.read_array(stream, (self.header.x, self.header.y), self.ovl.context, 0, None)
-			elif data.dtype == 2:
-				data.im = Float.read_array(stream, (self.header.x, self.header.y), self.ovl.context, 0, None)
+
+		# get names
 		for name in self.header.names.data:
 			stream.seek(name.offset)
 			name.name = ZString.from_stream(stream, self.ovl.context)
-			print(name.name)
+
+		# assign names
+		for data_slot in (self.header.layers, self.header.sizes): #self.header.layers.data, self.positions, self.materials):
+			for item in data_slot.data:
+				item.name = self.header.names.data[item.id].name
+			# print(data_slot.data)
+
+		# get layers
+		for layer in self.header.layers.data:
+			stream.seek(layer.offset)
+			if layer.dtype == 0:
+				layer.im = Ubyte.read_array(stream, (self.header.x, self.header.y), self.ovl.context, 0, None)
+			elif layer.dtype == 2:
+				layer.im = Float.read_array(stream, (self.header.x, self.header.y), self.ovl.context, 0, None)
 		# with open(out_path, 'wb') as outfile:
 		# 	# write the sized str and buffers
 		# 	# print(root_entry.struct_ptr.data)

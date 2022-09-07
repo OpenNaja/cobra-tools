@@ -4,6 +4,10 @@ from generated.formats.base.basic import Uint64
 
 class Size(BaseStruct):
 
+	"""
+	40 bytes
+	"""
+
 	__name__ = 'Size'
 
 	_import_path = 'generated.formats.voxelskirt.compounds.Size'

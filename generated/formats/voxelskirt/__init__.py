@@ -5,7 +5,7 @@ import os
 from generated.array import Array
 from generated.formats.ovl.versions import *
 from generated.formats.ovl_base import OvlContext
-from generated.formats.voxelskirt.compounds.Data import Data
+from generated.formats.voxelskirt.compounds.Layer import Layer
 from generated.formats.voxelskirt.compounds.Header import Header
 # from generated.formats.ovl.versions import *
 from generated.formats.voxelskirt.compounds.Material import Material
