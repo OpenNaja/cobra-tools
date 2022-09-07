@@ -1,5 +1,6 @@
 import io
 import logging
+import math
 
 from generated.formats.dds.enums.D3D10ResourceDimension import D3D10ResourceDimension
 from generated.formats.dds.enums.FourCC import FourCC
@@ -57,6 +58,11 @@ class DdsFile(Header, IoFile):
     def get_bytes_size(self, num_pixels):
         return int(round(num_pixels / self.pixels_per_byte))
 
+    def pad_block(self, x):
+        """Returns a pixel count padded to as many blocks as needed"""
+        num_blocks = math.ceil(x / self.block_len_pixels_1d)
+        return num_blocks * self.block_len_pixels_1d
+
     def calculate_mip_sizes(self):
         logging.info("Calculating mip map sizes")
         self.get_pixel_fmt()
@@ -67,15 +73,16 @@ class DdsFile(Header, IoFile):
             w = self.width
             tiles.append(tile_mips)
             for mip_i in range(self.mipmap_count):
-                # go per tile
-                # note that array_size is not set by texconv
-                num_pixels = h * w
-                # read at least one block
-                num_bytes = max(self.block_byte_size, self.get_bytes_size(num_pixels))
-                logging.debug(f"Tile {array_i} Mip {mip_i} with {num_pixels} pixels, {num_bytes} bytes")
+                # get pixels as represented by blocks, usually 4x4
+                num_pixels = self.pad_block(h) * self.pad_block(w)
+                num_bytes = self.get_bytes_size(num_pixels)
+                # logging.debug(f"Tile {array_i} Mip {mip_i} with {num_pixels} pixels, {num_bytes} bytes")
                 tile_mips.append((h, w, num_bytes))
                 h //= 2
                 w //= 2
+                # don't allow any to become 0
+                h = max(h, 1)
+                w = max(w, 1)
         return tiles
 
     def get_pixel_fmt(self):
@@ -104,41 +111,32 @@ class DdsFile(Header, IoFile):
         tiles_per_mips = zip(*self.calculate_mip_sizes())
         mip_offset = 0
         for mip_i, (tiles_per_mip, mip_info) in enumerate(zip(tiles_per_mips, mip_infos)):
-            # mip_offset = stream.tell()
             for tile_i, (height, width, tile_byte_size) in enumerate(tiles_per_mip):
                 bytes_width = self.get_bytes_size(width)
-                # logging.debug(f"tile {tile_i}, offset {mip_info.offset} {mip_offset}, height {height}, width {width}")
-                # logging.debug(f"width {width}, bytes width {bytes_width}")
+                # logging.debug(f"tile {tile_i}, offset {mip_info.offset} {mip_offset}, height {height}, width {width}, bytes_width {bytes_width}")
                 if bytes_width > 32:
                     yield tile_byte_size, 0
                     mip_offset += tile_byte_size
-                    # logging.debug(f"Wrote mip {mip_i} for tile {tile_i}, {len(tile_bytes)} raw bytes")
+                    # logging.debug(f"Wrote mip {mip_i} for tile {tile_i}, {tile_byte_size} raw bytes")
                 else:
-                    # no matter what pixel size the mips represent, they must be at least one 4x4 chunk
-                    height = max(self.block_len_pixels_1d, height)
-
-                    # write horizontal lines
-                    # get count of h slices, 1 block is 4x4 px
-                    num_slices_y = height // self.block_len_pixels_1d
-                    bytes_per_line = tile_byte_size // num_slices_y
+                    # get count of h slices, 1 block is 4x4 px, sub-block sizes require a whole block
+                    num_lines = self.pad_block(height) // self.block_len_pixels_1d
+                    bytes_per_line = tile_byte_size // num_lines
                     padding_per_line = get_padding_size(bytes_per_line, alignment=256)
 
                     # logging.debug(
-                    #     f"num_slices_y {num_slices_y}, bytes_per_line {bytes_per_line}, padding_per_line {padding_per_line}")
+                    #     f"tile_byte_size {tile_byte_size}, num_lines {num_lines}, bytes_per_line {bytes_per_line}, padding_per_line {padding_per_line}")
                     # write the bytes for this line from the mip bytes
-                    for slice_i in range(num_slices_y):
+                    for _ in range(num_lines):
                         # get the bytes that represent the blocks of this line and fill the line with padding blocks
                         yield bytes_per_line, padding_per_line
                         mip_offset += bytes_per_line
                         mip_offset += padding_per_line
 
-                    # add one fully blank line for those cases
-                    if num_slices_y == 1:
+                    # add one fully blank line as padding for odd slice counts
+                    if num_lines % 2:
                         yield 0, 256
                         mip_offset += 256
-                    #
-                    # logging.debug(
-                    #     f"Packed mip {mip_i} for tile {tile_i}, {len(tile_bytes)} raw bytes, {num_slices_y} Y slices, {stream.tell() - mip_offset} total bytes")
 
     def pack_mips(self, mip_infos):
         """From a standard DDS stream, pack the lower mip levels into one image and pad with empty bytes"""
@@ -162,7 +160,7 @@ class DdsFile(Header, IoFile):
                 dds.write(data)
                 padding = tex.read(padding_size)
                 if padding != b"\x00" * len(padding):
-                    logging.warning(f"Tex padding is non-zero at {tex.tell()-padding_size}")
+                    logging.warning(f"Tex padding is non-zero at {tex.tell()-padding_size}, padding_size {padding_size}")
             return dds.getvalue()
 
     def pack_mips_pc(self, buffer_infos):

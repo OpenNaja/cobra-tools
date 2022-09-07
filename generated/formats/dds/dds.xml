@@ -300,7 +300,7 @@
         <add name="Height" type="uint">The texture height.</add>
         <add name="Width" type="uint">The texture width.</add>
         <add name="Linear Size" type="uint" />
-        <add name="Depth" type="uint" />
+        <add name="Depth" type="uint" default="1"/>
         <add name="Mipmap Count" type="uint" />
         <add name="Reserved 1" type="uint" arr1="11" />
         <add name="Pixel Format" type="PixelFormat" />
@@ -314,11 +314,11 @@
         <add name="DX10" type="DXT10Header" cond="Pixel Format\FourCC == 808540228" />
     </struct>
 
-    <struct name="DXT10Header">
+    <struct name="DXT10Header" numbytes="20">
         <add name="DxgiFormat" type="DxgiFormat" />
         <add name="Resource Dimension" type="D3D10 RESOURCE DIMENSION" />
         <add name="Misc Flag" type="uint" />
-        <add name="Array Size" type="uint" />
+        <add name="Array Size" type="uint" default="1" />
         <add name="Misc Flag 2" type="uint" />
     </struct>
 </fileformat>

@@ -191,22 +191,14 @@ class DdsLoader(MemStructLoader):
 
 		dds_file = DdsFile()
 		size_info = self.get_tex_structs()
-		if is_dla(self.ovl):
-			dds_file.width = size_info.width
-			dds_file.height = size_info.height
-			dds_file.mipmap_count = size_info.num_mips
-			dds_file.depth = 1
-		elif is_pc(self.ovl) or is_ztuac(self.ovl):
-			dds_file.width = size_info.width
-			dds_file.height = size_info.height
-			dds_file.mipmap_count = size_info.num_mips
-			dds_file.depth = 1
-		else:
-			dds_file.width = size_info.width
-			dds_file.dx_10.array_size = size_info.array_size
-			dds_file.height = size_info.height
+
+		dds_file.width = size_info.width
+		dds_file.height = size_info.height
+		dds_file.mipmap_count = size_info.num_mips
+		if hasattr(size_info, "depth") and size_info.depth:
 			dds_file.depth = size_info.depth
-			dds_file.mipmap_count = size_info.num_mips
+		if hasattr(size_info, "array_size") and size_info.array_size:
+			dds_file.dx_10.array_size = size_info.array_size
 		try:
 			compression_name = self.header.compression_type.name
 			logging.info(self.header.compression_type)

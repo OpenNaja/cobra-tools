@@ -32,7 +32,7 @@ class Header(BaseStruct):
 		# The texture width.
 		self.width = 0
 		self.linear_size = 0
-		self.depth = 0
+		self.depth = 1
 		self.mipmap_count = 0
 		self.reserved_1 = Array((0,), Uint, self.context, 0, None)
 		self.pixel_format = PixelFormat(self.context, 0, None)
@@ -53,7 +53,7 @@ class Header(BaseStruct):
 		self.height = 0
 		self.width = 0
 		self.linear_size = 0
-		self.depth = 0
+		self.depth = 1
 		self.mipmap_count = 0
 		self.reserved_1 = numpy.zeros((11,), dtype=numpy.dtype('uint32'))
 		self.pixel_format = PixelFormat(self.context, 0, None)
@@ -116,7 +116,7 @@ class Header(BaseStruct):
 		yield 'height', Uint, (0, None), (False, None)
 		yield 'width', Uint, (0, None), (False, None)
 		yield 'linear_size', Uint, (0, None), (False, None)
-		yield 'depth', Uint, (0, None), (False, None)
+		yield 'depth', Uint, (0, None), (False, 1)
 		yield 'mipmap_count', Uint, (0, None), (False, None)
 		yield 'reserved_1', Array, ((11,), Uint, 0, None), (False, None)
 		yield 'pixel_format', PixelFormat, (0, None), (False, None)
