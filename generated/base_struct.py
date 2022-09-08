@@ -76,12 +76,16 @@ class BaseStruct(metaclass=StructMetaClass):
 
 	def set_defaults(self):
 		for field_name, field_type, arguments, (optional, default) in type(self)._get_filtered_attribute_list(self):
-			if default is None:
-				# continue with standard arguments
-				field_value = field_type(self.context, *arguments)
-			else:
-				# use the from_value function
-				field_value = field_type.from_value(*arguments[2:4], default)
+			try:
+				if default is None:
+					# continue with standard arguments
+					field_value = field_type(self.context, *arguments)
+				else:
+					# use the from_value function
+					field_value = field_type.from_value(*arguments[2:4], default)
+			except:
+				logging.error(f"failed writing field {field_name} on type {type(self)}")
+				raise
 			setattr(self, field_name, field_value)
 
 	@classmethod
