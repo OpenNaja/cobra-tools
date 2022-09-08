@@ -38,7 +38,7 @@
         offset into buffer to start of sth; only given if some count is nonzero
         <add name="offset" type="uint64" >offset into buffer to start</add>
         <add name="count" type="uint64" >also counts the stuff after names</add>
-        <add name="data" type="#T#" arr1="1"/>
+        <add name="data" type="#T#" arr1="0"/>
     </compound>
 
 
@@ -77,10 +77,8 @@
     </compound>
 
     <compound name="Material">
-        <add name="offset" type="uint64" >address of child data</add>
-        <add name="count" type="uint64" >repeat count of child structs (4 floats)</add>
+        <add name="entity_instances" type="DataSlot" template="EntityInstance"/>
         <add name="id" type="uint64" >index into name list</add>
-        <add name="data" type="empty" arr1="1"/>4 floats, could be a bounding sphere?
     </compound>
 
     <compound name="EntityGroup" inherit="Material">

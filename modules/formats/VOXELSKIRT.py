@@ -61,11 +61,12 @@ class VoxelskirtLoader(MemStructLoader):
 		# get additional position slots
 		for data_slot in (self.header.entity_groups, self.header.materials):
 			for entry in data_slot.data:
-				stream.seek(entry.offset)
-				entry.data = Array.from_stream(stream, self.ovl.context, 0, None, (entry.count, ), EntityInstance)
+				slot = entry.entity_instances
+				stream.seek(slot.offset)
+				slot.data = Array.from_stream(stream, self.ovl.context, 0, None, (slot.count, ), slot.template)
 
 		# read PC style height map and masks
-		if self.header.weights_offset:
+		if is_pc(self.ovl):
 			stream.seek(0)
 			# same as the other games
 			self.heightmap = Float.read_array(stream, (self.header.x, self.header.y), self.ovl.context, 0, None)

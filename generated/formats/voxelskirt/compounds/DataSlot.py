@@ -29,28 +29,28 @@ class DataSlot(BaseStruct):
 		super().set_defaults()
 		self.offset = 0
 		self.count = 0
-		self.data = Array((1,), self.template, self.context, 0, None)
+		self.data = Array((0,), self.template, self.context, 0, None)
 
 	@classmethod
 	def read_fields(cls, stream, instance):
 		super().read_fields(stream, instance)
 		instance.offset = Uint64.from_stream(stream, instance.context, 0, None)
 		instance.count = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.data = Array.from_stream(stream, instance.context, 0, None, (1,), instance.template)
+		instance.data = Array.from_stream(stream, instance.context, 0, None, (0,), instance.template)
 
 	@classmethod
 	def write_fields(cls, stream, instance):
 		super().write_fields(stream, instance)
 		Uint64.to_stream(stream, instance.offset)
 		Uint64.to_stream(stream, instance.count)
-		Array.to_stream(stream, instance.data, (1,), instance.template, instance.context, 0, None)
+		Array.to_stream(stream, instance.data, (0,), instance.template, instance.context, 0, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance):
 		yield from super()._get_filtered_attribute_list(instance)
 		yield 'offset', Uint64, (0, None), (False, None)
 		yield 'count', Uint64, (0, None), (False, None)
-		yield 'data', Array, ((1,), instance.template, 0, None), (False, None)
+		yield 'data', Array, ((0,), instance.template, 0, None), (False, None)
 
 	def get_info_str(self, indent=0):
 		return f'DataSlot [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
