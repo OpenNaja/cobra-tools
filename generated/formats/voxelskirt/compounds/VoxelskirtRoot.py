@@ -1,4 +1,5 @@
 from generated.formats.base.basic import Float
+from generated.formats.base.basic import Uint
 from generated.formats.base.basic import Uint64
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
 from generated.formats.voxelskirt.compounds.DataSlot import DataSlot
@@ -23,8 +24,10 @@ class VoxelskirtRoot(MemStruct):
 		self.data_size = 0
 		self.x = 0
 		self.y = 0
+
+		# multiply by x or y to get the actual dimension of skirt, eg 512px * 16.0 = 8192.0m
 		self.scale = 0.0
-		self.padding = 0.0
+		self.padding = 0
 
 		# zero, for PC only
 		self.height_offset = 0
@@ -46,7 +49,7 @@ class VoxelskirtRoot(MemStruct):
 		self.x = 0
 		self.y = 0
 		self.scale = 0.0
-		self.padding = 0.0
+		self.padding = 0
 		if self.context.version == 18:
 			self.height_offset = 0
 			self.weights_offset = 0
@@ -65,7 +68,7 @@ class VoxelskirtRoot(MemStruct):
 		instance.x = Uint64.from_stream(stream, instance.context, 0, None)
 		instance.y = Uint64.from_stream(stream, instance.context, 0, None)
 		instance.scale = Float.from_stream(stream, instance.context, 0, None)
-		instance.padding = Float.from_stream(stream, instance.context, 0, None)
+		instance.padding = Uint.from_stream(stream, instance.context, 0, None)
 		if instance.context.version == 18:
 			instance.height_offset = Uint64.from_stream(stream, instance.context, 0, None)
 			instance.weights_offset = Uint64.from_stream(stream, instance.context, 0, None)
@@ -84,7 +87,7 @@ class VoxelskirtRoot(MemStruct):
 		Uint64.to_stream(stream, instance.x)
 		Uint64.to_stream(stream, instance.y)
 		Float.to_stream(stream, instance.scale)
-		Float.to_stream(stream, instance.padding)
+		Uint.to_stream(stream, instance.padding)
 		if instance.context.version == 18:
 			Uint64.to_stream(stream, instance.height_offset)
 			Uint64.to_stream(stream, instance.weights_offset)
@@ -103,7 +106,7 @@ class VoxelskirtRoot(MemStruct):
 		yield 'x', Uint64, (0, None), (False, None)
 		yield 'y', Uint64, (0, None), (False, None)
 		yield 'scale', Float, (0, None), (False, None)
-		yield 'padding', Float, (0, None), (False, None)
+		yield 'padding', Uint, (0, None), (False, None)
 		if instance.context.version == 18:
 			yield 'height_offset', Uint64, (0, None), (False, None)
 			yield 'weights_offset', Uint64, (0, None), (False, None)
