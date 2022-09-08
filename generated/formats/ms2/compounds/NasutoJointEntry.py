@@ -49,26 +49,6 @@ class NasutoJointEntry(BaseStruct):
 		self.one = 0
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.child = Ubyte.from_stream(stream, instance.context, 0, None)
-		instance.parent = Ubyte.from_stream(stream, instance.context, 0, None)
-		instance.zero = Ushort.from_stream(stream, instance.context, 0, None)
-		instance.matrix = Matrix33.from_stream(stream, instance.context, 0, None)
-		instance.vector = Vector4.from_stream(stream, instance.context, 0, None)
-		instance.one = Uint.from_stream(stream, instance.context, 0, None)
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Ubyte.to_stream(stream, instance.child)
-		Ubyte.to_stream(stream, instance.parent)
-		Ushort.to_stream(stream, instance.zero)
-		Matrix33.to_stream(stream, instance.matrix)
-		Vector4.to_stream(stream, instance.vector)
-		Uint.to_stream(stream, instance.one)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'child', Ubyte, (0, None), (False, None)

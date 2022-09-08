@@ -24,16 +24,6 @@ class DataStreamResourceDataPoints(MemStruct):
 		self.data = Array(self.context, 0, None, (self.arg,), DataStreamResourceData)
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.data = Array.from_stream(stream, instance.context, 0, None, (instance.arg,), DataStreamResourceData)
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Array.to_stream(stream, instance.data, DataStreamResourceData)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'data', Array, (0, None, (instance.arg,), DataStreamResourceData), (False, None)

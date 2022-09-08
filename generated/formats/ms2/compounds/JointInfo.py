@@ -30,20 +30,6 @@ class JointInfo(CommonJointInfo):
 		self.hitchecks = Array(self.context, 0, None, (self.hitcheck_count,), HitCheckEntry)
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.zero = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.zeros_per_hitcheck = Array.from_stream(stream, instance.context, 0, None, (instance.hitcheck_count,), Uint64)
-		instance.hitchecks = Array.from_stream(stream, instance.context, 0, None, (instance.hitcheck_count,), HitCheckEntry)
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Uint64.to_stream(stream, instance.zero)
-		Array.to_stream(stream, instance.zeros_per_hitcheck, Uint64)
-		Array.to_stream(stream, instance.hitchecks, HitCheckEntry)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'zero', Uint64, (0, None), (False, None)

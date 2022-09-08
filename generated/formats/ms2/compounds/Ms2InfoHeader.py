@@ -59,47 +59,6 @@ class Ms2InfoHeader(BaseStruct):
 		self.models_reader = ModelReader(self.context, self.model_infos, None)
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.biosyn = Uint.from_stream(stream, instance.context, 0, None)
-		instance.context.biosyn = instance.biosyn
-		instance.bone_info_size = Uint.from_stream(stream, instance.context, 0, None)
-		instance.info = Ms2Root.from_stream(stream, instance.context, 0, None)
-		if instance.context.version >= 7:
-			instance.buffers_presence = Array.from_stream(stream, instance.context, 0, None, (instance.info.vertex_buffer_count,), BufferPresence)
-		instance.mdl_2_names = Array.from_stream(stream, instance.context, 0, None, (instance.info.mdl_2_count,), ZString)
-		if instance.context.version <= 7 and instance.info.vertex_buffer_count:
-			instance.modelstream_names = Array.from_stream(stream, instance.context, 0, None, (instance.info.vertex_buffer_count - instance.info.stream_count,), ZString)
-		if 13 <= instance.context.version <= 13 and instance.info.vertex_buffer_count:
-			instance.modelstream_names = Array.from_stream(stream, instance.context, 0, None, (instance.info.vertex_buffer_count,), ZString)
-		if instance.context.version >= 39 and instance.info.vertex_buffer_count:
-			instance.modelstream_names = Array.from_stream(stream, instance.context, 0, None, (instance.info.stream_count,), ZString)
-		instance.buffer_0 = Buffer0.from_stream(stream, instance.context, instance.info, None)
-		instance.buffer_infos = Array.from_stream(stream, instance.context, 0, None, (instance.info.vertex_buffer_count,), BufferInfo)
-		instance.model_infos = Array.from_stream(stream, instance.context, 0, None, (instance.info.mdl_2_count,), ModelInfo)
-		instance.models_reader = ModelReader.from_stream(stream, instance.context, instance.model_infos, None)
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Uint.to_stream(stream, instance.biosyn)
-		Uint.to_stream(stream, instance.bone_info_size)
-		Ms2Root.to_stream(stream, instance.info)
-		if instance.context.version >= 7:
-			Array.to_stream(stream, instance.buffers_presence, BufferPresence)
-		Array.to_stream(stream, instance.mdl_2_names, ZString)
-		if instance.context.version <= 7 and instance.info.vertex_buffer_count:
-			Array.to_stream(stream, instance.modelstream_names, ZString)
-		if 13 <= instance.context.version <= 13 and instance.info.vertex_buffer_count:
-			Array.to_stream(stream, instance.modelstream_names, ZString)
-		if instance.context.version >= 39 and instance.info.vertex_buffer_count:
-			Array.to_stream(stream, instance.modelstream_names, ZString)
-		Buffer0.to_stream(stream, instance.buffer_0)
-		Array.to_stream(stream, instance.buffer_infos, BufferInfo)
-		Array.to_stream(stream, instance.model_infos, ModelInfo)
-		ModelReader.to_stream(stream, instance.models_reader)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'biosyn', Uint, (0, None), (False, None)

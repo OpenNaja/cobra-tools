@@ -22,20 +22,6 @@ class ResearchRoot(MemStruct):
 		self.levels = ArrayPointer(self.context, self.count, ResearchRoot._import_path_map["generated.formats.animalresearch.compounds.ResearchLevel"])
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.levels = ArrayPointer.from_stream(stream, instance.context, instance.count, ResearchRoot._import_path_map["generated.formats.animalresearch.compounds.ResearchLevel"])
-		instance.count = Uint64.from_stream(stream, instance.context, 0, None)
-		if not isinstance(instance.levels, int):
-			instance.levels.arg = instance.count
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		ArrayPointer.to_stream(stream, instance.levels)
-		Uint64.to_stream(stream, instance.count)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'levels', ArrayPointer, (instance.count, ResearchRoot._import_path_map["generated.formats.animalresearch.compounds.ResearchLevel"]), (False, None)

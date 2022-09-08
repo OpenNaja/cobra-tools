@@ -31,24 +31,6 @@ class Info(MemStruct):
 		self.info_name = Pointer(self.context, 0, ZString)
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.info_name = Pointer.from_stream(stream, instance.context, 0, ZString)
-		instance.flags = Array.from_stream(stream, instance.context, 0, None, (4,), Byte)
-		instance.value = Array.from_stream(stream, instance.context, 0, None, (4,), Float)
-		instance.padding = Uint.from_stream(stream, instance.context, 0, None)
-		if not isinstance(instance.info_name, int):
-			instance.info_name.arg = 0
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Pointer.to_stream(stream, instance.info_name)
-		Array.to_stream(stream, instance.flags, Byte)
-		Array.to_stream(stream, instance.value, Float)
-		Uint.to_stream(stream, instance.padding)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'info_name', Pointer, (0, ZString), (False, None)

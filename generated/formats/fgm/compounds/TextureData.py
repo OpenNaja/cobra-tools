@@ -22,20 +22,6 @@ class TextureData(MemStruct):
 			self.dependency_name = Pointer(self.context, 0, None)
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		if instance.arg.dtype == 8:
-			instance.dependency_name = Pointer.from_stream(stream, instance.context, 0, None)
-		if not isinstance(instance.dependency_name, int):
-			instance.dependency_name.arg = 0
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		if instance.arg.dtype == 8:
-			Pointer.to_stream(stream, instance.dependency_name)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		if instance.arg.dtype == 8:

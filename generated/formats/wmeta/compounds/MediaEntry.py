@@ -33,30 +33,6 @@ class MediaEntry(MemStruct):
 		self.wem_name = Pointer(self.context, 0, ZString)
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.hash = Uint.from_stream(stream, instance.context, 0, None)
-		instance.zero = Uint.from_stream(stream, instance.context, 0, None)
-		instance.block_name = Pointer.from_stream(stream, instance.context, 0, ZString)
-		instance.wav_name = Pointer.from_stream(stream, instance.context, 0, ZString)
-		instance.wem_name = Pointer.from_stream(stream, instance.context, 0, ZString)
-		if not isinstance(instance.block_name, int):
-			instance.block_name.arg = 0
-		if not isinstance(instance.wav_name, int):
-			instance.wav_name.arg = 0
-		if not isinstance(instance.wem_name, int):
-			instance.wem_name.arg = 0
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Uint.to_stream(stream, instance.hash)
-		Uint.to_stream(stream, instance.zero)
-		Pointer.to_stream(stream, instance.block_name)
-		Pointer.to_stream(stream, instance.wav_name)
-		Pointer.to_stream(stream, instance.wem_name)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'hash', Uint, (0, None), (False, None)

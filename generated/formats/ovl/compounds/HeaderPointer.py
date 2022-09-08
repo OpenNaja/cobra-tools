@@ -28,18 +28,6 @@ class HeaderPointer(BaseStruct):
 		self.data_offset = 0
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.pool_index = Int.from_stream(stream, instance.context, 0, None)
-		instance.data_offset = Uint.from_stream(stream, instance.context, 0, None)
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Int.to_stream(stream, instance.pool_index)
-		Uint.to_stream(stream, instance.data_offset)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'pool_index', Int, (0, None), (False, None)

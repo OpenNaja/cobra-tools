@@ -20,16 +20,6 @@ class TransStructStopList(MemStruct):
 		self.ptrs = Array(self.context, 0, None, (self.arg,), TransStructStop)
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.ptrs = Array.from_stream(stream, instance.context, 0, None, (instance.arg,), TransStructStop)
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Array.to_stream(stream, instance.ptrs, TransStructStop)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'ptrs', Array, (0, None, (instance.arg,), TransStructStop), (False, None)

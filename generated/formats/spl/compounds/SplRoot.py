@@ -36,26 +36,6 @@ class SplRoot(MemStruct):
 		self.spline_data = Pointer(self.context, self.count, SplRoot._import_path_map["generated.formats.spl.compounds.SplData"])
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.spline_data = Pointer.from_stream(stream, instance.context, instance.count, SplRoot._import_path_map["generated.formats.spl.compounds.SplData"])
-		instance.count = Ushort.from_stream(stream, instance.context, 0, None)
-		instance.sixteen = Ubyte.from_stream(stream, instance.context, 0, None)
-		instance.one = Ubyte.from_stream(stream, instance.context, 0, None)
-		instance.length = Float.from_stream(stream, instance.context, 0, None)
-		if not isinstance(instance.spline_data, int):
-			instance.spline_data.arg = instance.count
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Pointer.to_stream(stream, instance.spline_data)
-		Ushort.to_stream(stream, instance.count)
-		Ubyte.to_stream(stream, instance.sixteen)
-		Ubyte.to_stream(stream, instance.one)
-		Float.to_stream(stream, instance.length)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'spline_data', Pointer, (instance.count, SplRoot._import_path_map["generated.formats.spl.compounds.SplData"]), (False, None)

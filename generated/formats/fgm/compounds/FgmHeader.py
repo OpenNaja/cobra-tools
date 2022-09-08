@@ -53,56 +53,6 @@ class FgmHeader(MemStruct):
 		self.value_foreach_attributes = ForEachPointer(self.context, self.attributes, FgmHeader._import_path_map["generated.formats.fgm.compounds.AttribData"])
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		if instance.context.version <= 15:
-			instance._texture_count = Uint.from_stream(stream, instance.context, 0, None)
-		if instance.context.version >= 17:
-			instance._texture_count = Uint64.from_stream(stream, instance.context, 0, None)
-		if instance.context.version <= 15:
-			instance._attribute_count = Uint.from_stream(stream, instance.context, 0, None)
-		if instance.context.version >= 17:
-			instance._attribute_count = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.textures = ArrayPointer.from_stream(stream, instance.context, instance._texture_count, FgmHeader._import_path_map["generated.formats.fgm.compounds.TextureInfo"])
-		instance.attributes = ArrayPointer.from_stream(stream, instance.context, instance._attribute_count, FgmHeader._import_path_map["generated.formats.fgm.compounds.AttribInfo"])
-		instance.name_foreach_textures = ForEachPointer.from_stream(stream, instance.context, instance.textures, FgmHeader._import_path_map["generated.formats.fgm.compounds.TextureData"])
-		instance.value_foreach_attributes = ForEachPointer.from_stream(stream, instance.context, instance.attributes, FgmHeader._import_path_map["generated.formats.fgm.compounds.AttribData"])
-		instance._unk_0 = Uint64.from_stream(stream, instance.context, 0, None)
-		instance._unk_1 = Uint64.from_stream(stream, instance.context, 0, None)
-		if instance.context.user_version.is_jwe and (instance.context.version == 20):
-			instance._unk_2 = Uint64.from_stream(stream, instance.context, 0, None)
-			instance._unk_3 = Uint64.from_stream(stream, instance.context, 0, None)
-		if not isinstance(instance.textures, int):
-			instance.textures.arg = instance._texture_count
-		if not isinstance(instance.attributes, int):
-			instance.attributes.arg = instance._attribute_count
-		if not isinstance(instance.name_foreach_textures, int):
-			instance.name_foreach_textures.arg = instance.textures
-		if not isinstance(instance.value_foreach_attributes, int):
-			instance.value_foreach_attributes.arg = instance.attributes
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		if instance.context.version <= 15:
-			Uint.to_stream(stream, instance._texture_count)
-		if instance.context.version >= 17:
-			Uint64.to_stream(stream, instance._texture_count)
-		if instance.context.version <= 15:
-			Uint.to_stream(stream, instance._attribute_count)
-		if instance.context.version >= 17:
-			Uint64.to_stream(stream, instance._attribute_count)
-		ArrayPointer.to_stream(stream, instance.textures)
-		ArrayPointer.to_stream(stream, instance.attributes)
-		ForEachPointer.to_stream(stream, instance.name_foreach_textures)
-		ForEachPointer.to_stream(stream, instance.value_foreach_attributes)
-		Uint64.to_stream(stream, instance._unk_0)
-		Uint64.to_stream(stream, instance._unk_1)
-		if instance.context.user_version.is_jwe and (instance.context.version == 20):
-			Uint64.to_stream(stream, instance._unk_2)
-			Uint64.to_stream(stream, instance._unk_3)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		if instance.context.version <= 15:

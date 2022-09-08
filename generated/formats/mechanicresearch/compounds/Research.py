@@ -36,34 +36,6 @@ class Research(MemStruct):
 		self.next_research = Pointer(self.context, self.next_research_count, Research._import_path_map["generated.formats.mechanicresearch.compounds.NextResearch"])
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.item_name = Pointer.from_stream(stream, instance.context, 0, ZString)
-		instance.unk_0 = Uint.from_stream(stream, instance.context, 0, None)
-		instance.is_entry_level = Uint.from_stream(stream, instance.context, 0, None)
-		instance.unk_2 = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.next_research = Pointer.from_stream(stream, instance.context, instance.next_research_count, Research._import_path_map["generated.formats.mechanicresearch.compounds.NextResearch"])
-		instance.next_research_count = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.unk_3 = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.unk_4 = Uint64.from_stream(stream, instance.context, 0, None)
-		if not isinstance(instance.item_name, int):
-			instance.item_name.arg = 0
-		if not isinstance(instance.next_research, int):
-			instance.next_research.arg = instance.next_research_count
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Pointer.to_stream(stream, instance.item_name)
-		Uint.to_stream(stream, instance.unk_0)
-		Uint.to_stream(stream, instance.is_entry_level)
-		Uint64.to_stream(stream, instance.unk_2)
-		Pointer.to_stream(stream, instance.next_research)
-		Uint64.to_stream(stream, instance.next_research_count)
-		Uint64.to_stream(stream, instance.unk_3)
-		Uint64.to_stream(stream, instance.unk_4)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'item_name', Pointer, (0, ZString), (False, None)

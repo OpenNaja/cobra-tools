@@ -48,24 +48,6 @@ class FileEntry(BaseStruct):
 		self.extension = 0
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.offset = Uint.from_stream(stream, instance.context, 0, None)
-		instance.file_hash = Uint.from_stream(stream, instance.context, 0, None)
-		instance.pool_type = Byte.from_stream(stream, instance.context, 0, None)
-		instance.set_pool_type = Byte.from_stream(stream, instance.context, 0, None)
-		instance.extension = Ushort.from_stream(stream, instance.context, 0, None)
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Uint.to_stream(stream, instance.offset)
-		Uint.to_stream(stream, instance.file_hash)
-		Byte.to_stream(stream, instance.pool_type)
-		Byte.to_stream(stream, instance.set_pool_type)
-		Ushort.to_stream(stream, instance.extension)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'offset', Uint, (0, None), (False, None)

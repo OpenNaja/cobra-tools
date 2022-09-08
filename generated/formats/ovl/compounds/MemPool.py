@@ -72,44 +72,6 @@ class MemPool(BaseStruct):
 			self.zero_3 = 0
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		if instance.context.version >= 17:
-			instance.zero_1 = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.size = Uint.from_stream(stream, instance.context, 0, None)
-		instance.offset = Uint.from_stream(stream, instance.context, 0, None)
-		if instance.context.version <= 15:
-			instance.zero_2 = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.file_hash = Uint.from_stream(stream, instance.context, 0, None)
-		if instance.context.version <= 15:
-			instance.disney_zero = Ushort.from_stream(stream, instance.context, 0, None)
-			instance.num_files = Ushort.from_stream(stream, instance.context, 0, None)
-		if instance.context.version >= 17:
-			instance.num_files = Uint.from_stream(stream, instance.context, 0, None)
-		if instance.context.version >= 19:
-			instance.ext_hash = Uint.from_stream(stream, instance.context, 0, None)
-			instance.zero_3 = Uint.from_stream(stream, instance.context, 0, None)
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		if instance.context.version >= 17:
-			Uint64.to_stream(stream, instance.zero_1)
-		Uint.to_stream(stream, instance.size)
-		Uint.to_stream(stream, instance.offset)
-		if instance.context.version <= 15:
-			Uint64.to_stream(stream, instance.zero_2)
-		Uint.to_stream(stream, instance.file_hash)
-		if instance.context.version <= 15:
-			Ushort.to_stream(stream, instance.disney_zero)
-			Ushort.to_stream(stream, instance.num_files)
-		if instance.context.version >= 17:
-			Uint.to_stream(stream, instance.num_files)
-		if instance.context.version >= 19:
-			Uint.to_stream(stream, instance.ext_hash)
-			Uint.to_stream(stream, instance.zero_3)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		if instance.context.version >= 17:

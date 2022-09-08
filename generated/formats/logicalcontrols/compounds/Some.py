@@ -30,24 +30,6 @@ class Some(MemStruct):
 		self.some_data = ArrayPointer(self.context, self.some_count, Some._import_path_map["generated.formats.logicalcontrols.compounds.SomeData"])
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.some_name = Pointer.from_stream(stream, instance.context, 0, ZString)
-		instance.some_data = ArrayPointer.from_stream(stream, instance.context, instance.some_count, Some._import_path_map["generated.formats.logicalcontrols.compounds.SomeData"])
-		instance.some_count = Uint64.from_stream(stream, instance.context, 0, None)
-		if not isinstance(instance.some_name, int):
-			instance.some_name.arg = 0
-		if not isinstance(instance.some_data, int):
-			instance.some_data.arg = instance.some_count
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Pointer.to_stream(stream, instance.some_name)
-		ArrayPointer.to_stream(stream, instance.some_data)
-		Uint64.to_stream(stream, instance.some_count)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'some_name', Pointer, (0, ZString), (False, None)

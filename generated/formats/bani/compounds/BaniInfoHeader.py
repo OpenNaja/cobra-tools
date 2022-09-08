@@ -36,20 +36,6 @@ class BaniInfoHeader(BaseStruct):
 		self.data = BaniRoot(self.context, 0, None)
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.magic = Array.from_stream(stream, instance.context, 0, None, (4,), Byte)
-		instance.banis_name = ZString.from_stream(stream, instance.context, 0, None)
-		instance.data = BaniRoot.from_stream(stream, instance.context, 0, None)
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Array.to_stream(stream, instance.magic, Byte)
-		ZString.to_stream(stream, instance.banis_name)
-		BaniRoot.to_stream(stream, instance.data)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'magic', Array, (0, None, (4,), Byte), (False, None)

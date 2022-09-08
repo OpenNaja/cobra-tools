@@ -22,20 +22,6 @@ class EnumnamerRoot(MemStruct):
 		self.strings = Pointer(self.context, self.count, EnumnamerRoot._import_path_map["generated.formats.enumnamer.compounds.PtrList"])
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.count = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.strings = Pointer.from_stream(stream, instance.context, instance.count, EnumnamerRoot._import_path_map["generated.formats.enumnamer.compounds.PtrList"])
-		if not isinstance(instance.strings, int):
-			instance.strings.arg = instance.count
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Uint64.to_stream(stream, instance.count)
-		Pointer.to_stream(stream, instance.strings)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'count', Uint64, (0, None), (False, None)

@@ -33,26 +33,6 @@ class Layer(BaseStruct):
 		self.attrib_names = Array(self.context, 0, None, (self.info.attrib_count,), ZString)
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.info = LayerFrag.from_stream(stream, instance.context, 0, None)
-		instance.name = ZString.from_stream(stream, instance.context, 0, None)
-		instance.infos = Array.from_stream(stream, instance.context, 0, None, (instance.info.info_count,), Info)
-		instance.info_names = Array.from_stream(stream, instance.context, 0, None, (instance.info.info_count,), ZString)
-		instance.attribs = Array.from_stream(stream, instance.context, 0, None, (instance.info.attrib_count,), Attrib)
-		instance.attrib_names = Array.from_stream(stream, instance.context, 0, None, (instance.info.attrib_count,), ZString)
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		LayerFrag.to_stream(stream, instance.info)
-		ZString.to_stream(stream, instance.name)
-		Array.to_stream(stream, instance.infos, Info)
-		Array.to_stream(stream, instance.info_names, ZString)
-		Array.to_stream(stream, instance.attribs, Attrib)
-		Array.to_stream(stream, instance.attrib_names, ZString)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'info', LayerFrag, (0, None), (False, None)

@@ -34,24 +34,6 @@ class TexBufferPc(MemStruct):
 		self.num_mips = 0
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.width = Ushort.from_stream(stream, instance.context, 0, None)
-		instance.height = Ushort.from_stream(stream, instance.context, 0, None)
-		if instance.context.version >= 18:
-			instance.array_size = Ushort.from_stream(stream, instance.context, 0, None)
-		instance.num_mips = Ushort.from_stream(stream, instance.context, 0, None)
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Ushort.to_stream(stream, instance.width)
-		Ushort.to_stream(stream, instance.height)
-		if instance.context.version >= 18:
-			Ushort.to_stream(stream, instance.array_size)
-		Ushort.to_stream(stream, instance.num_mips)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'width', Ushort, (0, None), (False, None)

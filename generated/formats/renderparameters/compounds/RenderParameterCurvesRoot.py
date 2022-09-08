@@ -31,26 +31,6 @@ class RenderParameterCurvesRoot(MemStruct):
 		self.params = Pointer(self.context, self.count, RenderParameterCurvesRoot._import_path_map["generated.formats.renderparameters.compounds.CurveParamList"])
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.param_name = Pointer.from_stream(stream, instance.context, 0, ZStringObfuscated)
-		instance.params = Pointer.from_stream(stream, instance.context, instance.count, RenderParameterCurvesRoot._import_path_map["generated.formats.renderparameters.compounds.CurveParamList"])
-		instance.count = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.unk = Uint64.from_stream(stream, instance.context, 0, None)
-		if not isinstance(instance.param_name, int):
-			instance.param_name.arg = 0
-		if not isinstance(instance.params, int):
-			instance.params.arg = instance.count
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Pointer.to_stream(stream, instance.param_name)
-		Pointer.to_stream(stream, instance.params)
-		Uint64.to_stream(stream, instance.count)
-		Uint64.to_stream(stream, instance.unk)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'param_name', Pointer, (0, ZStringObfuscated), (False, None)

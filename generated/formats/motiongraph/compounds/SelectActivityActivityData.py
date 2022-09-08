@@ -35,28 +35,6 @@ class SelectActivityActivityData(MemStruct):
 		self.activities = Pointer(self.context, self.num_activities, SelectActivityActivityData._import_path_map["generated.formats.motiongraph.compounds.ActivitiesLinks"])
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.enum_variable = Pointer.from_stream(stream, instance.context, 0, ZString)
-		instance.activities = Pointer.from_stream(stream, instance.context, instance.num_activities, SelectActivityActivityData._import_path_map["generated.formats.motiongraph.compounds.ActivitiesLinks"])
-		instance.num_activities = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.blend_time = Float.from_stream(stream, instance.context, 0, None)
-		instance.mode = SelectActivityActivityMode.from_stream(stream, instance.context, 0, None)
-		if not isinstance(instance.enum_variable, int):
-			instance.enum_variable.arg = 0
-		if not isinstance(instance.activities, int):
-			instance.activities.arg = instance.num_activities
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Pointer.to_stream(stream, instance.enum_variable)
-		Pointer.to_stream(stream, instance.activities)
-		Uint64.to_stream(stream, instance.num_activities)
-		Float.to_stream(stream, instance.blend_time)
-		SelectActivityActivityMode.to_stream(stream, instance.mode)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'enum_variable', Pointer, (0, ZString), (False, None)

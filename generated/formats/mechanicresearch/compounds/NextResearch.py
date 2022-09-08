@@ -24,20 +24,6 @@ class NextResearch(MemStruct):
 		self.item_name = Array(self.context, 0, ZString, (self.arg,), Pointer)
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.item_name = Array.from_stream(stream, instance.context, 0, ZString, (instance.arg,), Pointer)
-		instance.unk_1 = Uint64.from_stream(stream, instance.context, 0, None)
-		if not isinstance(instance.item_name, int):
-			instance.item_name.arg = 0
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Array.to_stream(stream, instance.item_name, Pointer)
-		Uint64.to_stream(stream, instance.unk_1)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'item_name', Array, (0, ZString, (instance.arg,), Pointer), (False, None)

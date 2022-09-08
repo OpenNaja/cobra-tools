@@ -61,33 +61,6 @@ class MimeEntry(BaseStruct):
 			self.triplet_offset = 0
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.offset = Uint.from_stream(stream, instance.context, 0, None)
-		instance.unknown = Uint.from_stream(stream, instance.context, 0, None)
-		instance.mime_hash = Uint.from_stream(stream, instance.context, 0, None)
-		instance.mime_version = Uint.from_stream(stream, instance.context, 0, None)
-		instance.context.mime_version = instance.mime_version
-		instance.file_index_offset = Uint.from_stream(stream, instance.context, 0, None)
-		instance.file_count = Uint.from_stream(stream, instance.context, 0, None)
-		if instance.context.version >= 20:
-			instance.triplet_count = Uint.from_stream(stream, instance.context, 0, None)
-			instance.triplet_offset = Uint.from_stream(stream, instance.context, 0, None)
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Uint.to_stream(stream, instance.offset)
-		Uint.to_stream(stream, instance.unknown)
-		Uint.to_stream(stream, instance.mime_hash)
-		Uint.to_stream(stream, instance.mime_version)
-		Uint.to_stream(stream, instance.file_index_offset)
-		Uint.to_stream(stream, instance.file_count)
-		if instance.context.version >= 20:
-			Uint.to_stream(stream, instance.triplet_count)
-			Uint.to_stream(stream, instance.triplet_offset)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'offset', Uint, (0, None), (False, None)

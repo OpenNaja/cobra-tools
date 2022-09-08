@@ -40,32 +40,6 @@ class TextureInfo(GenericInfo):
 			self.some_index_1 = 0
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		if instance.dtype == 8:
-			instance.value = Array.from_stream(stream, instance.context, 0, None, (1,), TexIndex)
-		if instance.context.version >= 18 and instance.dtype == 7:
-			instance.value = Array.from_stream(stream, instance.context, 0, None, (2,), Color)
-		if instance.context.version <= 17 and instance.dtype == 7:
-			instance.value = Array.from_stream(stream, instance.context, 0, None, (1,), Color)
-		if instance.context.version >= 18:
-			instance.some_index_0 = Uint.from_stream(stream, instance.context, 0, None)
-			instance.some_index_1 = Uint.from_stream(stream, instance.context, 0, None)
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		if instance.dtype == 8:
-			Array.to_stream(stream, instance.value, TexIndex)
-		if instance.context.version >= 18 and instance.dtype == 7:
-			Array.to_stream(stream, instance.value, Color)
-		if instance.context.version <= 17 and instance.dtype == 7:
-			Array.to_stream(stream, instance.value, Color)
-		if instance.context.version >= 18:
-			Uint.to_stream(stream, instance.some_index_0)
-			Uint.to_stream(stream, instance.some_index_1)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		if instance.dtype == 8:

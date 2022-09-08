@@ -31,20 +31,6 @@ class DataPointer(BaseStruct):
 		self.wem_filesize = 0
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.wem_id = Uint.from_stream(stream, instance.context, 0, None)
-		instance.data_section_offset = Uint.from_stream(stream, instance.context, 0, None)
-		instance.wem_filesize = Uint.from_stream(stream, instance.context, 0, None)
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Uint.to_stream(stream, instance.wem_id)
-		Uint.to_stream(stream, instance.data_section_offset)
-		Uint.to_stream(stream, instance.wem_filesize)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'wem_id', Uint, (0, None), (False, None)

@@ -41,40 +41,6 @@ class ThirdFrag(MemStruct):
 		self.member = Pointer(self.context, 0, ZString)
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.lua_method = Pointer.from_stream(stream, instance.context, 0, ZString)
-		instance.count_0 = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.count_1 = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.ptr_1 = Pointer.from_stream(stream, instance.context, 0, ThirdFrag._import_path_map["generated.formats.motiongraph.compounds.TwoPtrFirst"])
-		instance.count_2 = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.count_3 = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.ptr_2 = Pointer.from_stream(stream, instance.context, 0, ThirdFrag._import_path_map["generated.formats.motiongraph.compounds.Sixtyfour"])
-		instance.count_4 = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.member = Pointer.from_stream(stream, instance.context, 0, ZString)
-		if not isinstance(instance.lua_method, int):
-			instance.lua_method.arg = 0
-		if not isinstance(instance.ptr_1, int):
-			instance.ptr_1.arg = 0
-		if not isinstance(instance.ptr_2, int):
-			instance.ptr_2.arg = 0
-		if not isinstance(instance.member, int):
-			instance.member.arg = 0
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Pointer.to_stream(stream, instance.lua_method)
-		Uint64.to_stream(stream, instance.count_0)
-		Uint64.to_stream(stream, instance.count_1)
-		Pointer.to_stream(stream, instance.ptr_1)
-		Uint64.to_stream(stream, instance.count_2)
-		Uint64.to_stream(stream, instance.count_3)
-		Pointer.to_stream(stream, instance.ptr_2)
-		Uint64.to_stream(stream, instance.count_4)
-		Pointer.to_stream(stream, instance.member)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'lua_method', Pointer, (0, ZString), (False, None)

@@ -188,26 +188,23 @@ class BaseStruct(metaclass=StructMetaClass):
 		self.write_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
 
-	# @classmethod
-	# def read_fields(cls, stream, instance):
-	# 	for prop, dtype, arguments in cls._get_filtered_attribute_list(instance):
-	# 		# print(dtype, stream, instance.context, *arguments)
-	# 		setattr(instance, prop, dtype.from_stream(stream, instance.context, *arguments))
-	#
-	# @classmethod
-	# def write_fields(cls, stream, instance):
-	# 	for prop, dtype, arguments in cls._get_filtered_attribute_list(instance):
-	# 		data = getattr(instance, prop, None)
-	# 		if data is not None:
-	# 			dtype.to_stream(stream, data)
-
 	@classmethod
 	def read_fields(cls, stream, instance):
-		pass
+		for field_name, field_type, arguments, _ in cls._get_filtered_attribute_list(instance, include_abstract=False):
+			try:
+				setattr(instance, field_name, field_type.from_stream(stream, instance.context, *arguments))
+			except:
+				logging.error(f"failed reading field {field_name} on type {cls}")
+				raise
 
 	@classmethod
 	def write_fields(cls, stream, instance):
-		pass
+		for field_name, field_type, arguments, _ in cls._get_filtered_attribute_list(instance, include_abstract=False):
+			try:
+				field_type.to_stream(stream, getattr(instance, field_name), *arguments[3:4])
+			except:
+				logging.error(f"failed writing field {field_name} on type {cls}")
+				raise
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

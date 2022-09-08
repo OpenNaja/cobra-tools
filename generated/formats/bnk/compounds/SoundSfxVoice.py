@@ -22,28 +22,6 @@ class SoundSfxVoice(BaseStruct):
 		self.extra = numpy.zeros((self.length - 17,), dtype=numpy.dtype('int8'))
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.length = Uint.from_stream(stream, instance.context, 0, None)
-		instance.id = Uint.from_stream(stream, instance.context, 0, None)
-		instance.const_a = Uint.from_stream(stream, instance.context, 0, None)
-		instance.const_b = Byte.from_stream(stream, instance.context, 0, None)
-		instance.didx_id = Uint.from_stream(stream, instance.context, 0, None)
-		instance.wem_length = Uint.from_stream(stream, instance.context, 0, None)
-		instance.extra = Array.from_stream(stream, instance.context, 0, None, (instance.length - 17,), Byte)
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Uint.to_stream(stream, instance.length)
-		Uint.to_stream(stream, instance.id)
-		Uint.to_stream(stream, instance.const_a)
-		Byte.to_stream(stream, instance.const_b)
-		Uint.to_stream(stream, instance.didx_id)
-		Uint.to_stream(stream, instance.wem_length)
-		Array.to_stream(stream, instance.extra, Byte)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'length', Uint, (0, None), (False, None)

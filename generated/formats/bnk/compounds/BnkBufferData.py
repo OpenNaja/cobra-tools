@@ -68,38 +68,6 @@ class BnkBufferData(BaseStruct):
 			self.external_s_suffix = ''
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.size_b = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.buffer_count = Uint.from_stream(stream, instance.context, 0, None)
-		instance.count_2 = Uint.from_stream(stream, instance.context, 0, None)
-		instance.stream_info_count = Uint.from_stream(stream, instance.context, 0, None)
-		instance.zeros = Array.from_stream(stream, instance.context, 0, None, (7,), Uint)
-		instance.zeros_per_buffer = Array.from_stream(stream, instance.context, 0, None, (instance.buffer_count, 2,), Uint64)
-		instance.stream_infos = Array.from_stream(stream, instance.context, 0, None, (instance.stream_info_count,), StreamInfo)
-		instance.name = ZString.from_stream(stream, instance.context, 0, None)
-		if instance.buffer_count:
-			instance.external_b_suffix = ZString.from_stream(stream, instance.context, 0, None)
-		if instance.stream_info_count:
-			instance.external_s_suffix = ZString.from_stream(stream, instance.context, 0, None)
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Uint64.to_stream(stream, instance.size_b)
-		Uint.to_stream(stream, instance.buffer_count)
-		Uint.to_stream(stream, instance.count_2)
-		Uint.to_stream(stream, instance.stream_info_count)
-		Array.to_stream(stream, instance.zeros, Uint)
-		Array.to_stream(stream, instance.zeros_per_buffer, Uint64)
-		Array.to_stream(stream, instance.stream_infos, StreamInfo)
-		ZString.to_stream(stream, instance.name)
-		if instance.buffer_count:
-			ZString.to_stream(stream, instance.external_b_suffix)
-		if instance.stream_info_count:
-			ZString.to_stream(stream, instance.external_s_suffix)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'size_b', Uint64, (0, None), (False, None)

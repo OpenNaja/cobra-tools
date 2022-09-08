@@ -24,18 +24,6 @@ class ZStrPtr(MemStruct):
 		self.string = Pointer(self.context, 0, ZString)
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.string = Pointer.from_stream(stream, instance.context, 0, ZString)
-		if not isinstance(instance.string, int):
-			instance.string.arg = 0
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Pointer.to_stream(stream, instance.string)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'string', Pointer, (0, ZString), (False, None)

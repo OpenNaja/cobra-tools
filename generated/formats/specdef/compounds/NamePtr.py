@@ -20,18 +20,6 @@ class NamePtr(MemStruct):
 		self.name_ptr = Pointer(self.context, 0, ZString)
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.name_ptr = Pointer.from_stream(stream, instance.context, 0, ZString)
-		if not isinstance(instance.name_ptr, int):
-			instance.name_ptr.arg = 0
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Pointer.to_stream(stream, instance.name_ptr)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'name_ptr', Pointer, (0, ZString), (False, None)

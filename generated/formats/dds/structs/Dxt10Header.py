@@ -29,24 +29,6 @@ class Dxt10Header(BaseStruct):
 		self.misc_flag_2 = 0
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.dxgi_format = DxgiFormat.from_stream(stream, instance.context, 0, None)
-		instance.resource_dimension = D3D10ResourceDimension.from_stream(stream, instance.context, 0, None)
-		instance.misc_flag = Uint.from_stream(stream, instance.context, 0, None)
-		instance.array_size = Uint.from_stream(stream, instance.context, 0, None)
-		instance.misc_flag_2 = Uint.from_stream(stream, instance.context, 0, None)
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		DxgiFormat.to_stream(stream, instance.dxgi_format)
-		D3D10ResourceDimension.to_stream(stream, instance.resource_dimension)
-		Uint.to_stream(stream, instance.misc_flag)
-		Uint.to_stream(stream, instance.array_size)
-		Uint.to_stream(stream, instance.misc_flag_2)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'dxgi_format', DxgiFormat, (0, None), (False, None)

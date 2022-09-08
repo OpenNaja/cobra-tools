@@ -45,28 +45,6 @@ class MeshData(MemStruct):
 			self.stream_info = Pointer(self.context, 0, MeshData._import_path_map["generated.formats.ms2.compounds.BufferInfo"])
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		if instance.context.version <= 32:
-			instance.stream_index = Uint64.from_stream(stream, instance.context, 0, None)
-		if instance.context.version >= 47:
-			instance.stream_info = Pointer.from_stream(stream, instance.context, 0, MeshData._import_path_map["generated.formats.ms2.compounds.BufferInfo"])
-		if not ((instance.context.version == 51) and instance.context.biosyn):
-			instance.some_index = Uint64.from_stream(stream, instance.context, 0, None)
-		if not isinstance(instance.stream_info, int):
-			instance.stream_info.arg = 0
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		if instance.context.version <= 32:
-			Uint64.to_stream(stream, instance.stream_index)
-		if instance.context.version >= 47:
-			Pointer.to_stream(stream, instance.stream_info)
-		if not ((instance.context.version == 51) and instance.context.biosyn):
-			Uint64.to_stream(stream, instance.some_index)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		if instance.context.version <= 32:

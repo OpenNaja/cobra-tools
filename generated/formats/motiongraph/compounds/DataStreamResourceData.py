@@ -36,34 +36,6 @@ class DataStreamResourceData(MemStruct):
 		self.location = Pointer(self.context, 0, ZString)
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.curve_type = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.ds_name = Pointer.from_stream(stream, instance.context, 0, ZString)
-		instance.type = Pointer.from_stream(stream, instance.context, 0, ZString)
-		instance.bone_i_d = Pointer.from_stream(stream, instance.context, 0, ZString)
-		instance.location = Pointer.from_stream(stream, instance.context, 0, ZString)
-		instance.curve = CurveData.from_stream(stream, instance.context, 0, None)
-		if not isinstance(instance.ds_name, int):
-			instance.ds_name.arg = 0
-		if not isinstance(instance.type, int):
-			instance.type.arg = 0
-		if not isinstance(instance.bone_i_d, int):
-			instance.bone_i_d.arg = 0
-		if not isinstance(instance.location, int):
-			instance.location.arg = 0
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Uint64.to_stream(stream, instance.curve_type)
-		Pointer.to_stream(stream, instance.ds_name)
-		Pointer.to_stream(stream, instance.type)
-		Pointer.to_stream(stream, instance.bone_i_d)
-		Pointer.to_stream(stream, instance.location)
-		CurveData.to_stream(stream, instance.curve)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'curve_type', Uint64, (0, None), (False, None)

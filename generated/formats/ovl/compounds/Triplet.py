@@ -33,20 +33,6 @@ class Triplet(BaseStruct):
 		self.c = 0
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.a = Ubyte.from_stream(stream, instance.context, 0, None)
-		instance.b = Ubyte.from_stream(stream, instance.context, 0, None)
-		instance.c = Ubyte.from_stream(stream, instance.context, 0, None)
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Ubyte.to_stream(stream, instance.a)
-		Ubyte.to_stream(stream, instance.b)
-		Ubyte.to_stream(stream, instance.c)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'a', Ubyte, (0, None), (False, None)

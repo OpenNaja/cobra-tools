@@ -28,26 +28,6 @@ class EventAttributes(MemStruct):
 		self.empty_string = Pointer(self.context, 0, ZString)
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.anim_name = Pointer.from_stream(stream, instance.context, 0, ZString)
-		instance.event_name = Pointer.from_stream(stream, instance.context, 0, ZString)
-		instance.empty_string = Pointer.from_stream(stream, instance.context, 0, ZString)
-		if not isinstance(instance.anim_name, int):
-			instance.anim_name.arg = 0
-		if not isinstance(instance.event_name, int):
-			instance.event_name.arg = 0
-		if not isinstance(instance.empty_string, int):
-			instance.empty_string.arg = 0
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Pointer.to_stream(stream, instance.anim_name)
-		Pointer.to_stream(stream, instance.event_name)
-		Pointer.to_stream(stream, instance.empty_string)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'anim_name', Pointer, (0, ZString), (False, None)

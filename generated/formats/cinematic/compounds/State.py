@@ -39,38 +39,6 @@ class State(MemStruct):
 		self.events_list = Pointer(self.context, 0, State._import_path_map["generated.formats.cinematic.compounds.EventsList"])
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.abstract_name = Pointer.from_stream(stream, instance.context, 0, ZString)
-		instance.concrete_name = Pointer.from_stream(stream, instance.context, 0, ZString)
-		instance.debug_name = Pointer.from_stream(stream, instance.context, 0, ZString)
-		instance.a = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.b = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.c = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.events_list = Pointer.from_stream(stream, instance.context, 0, State._import_path_map["generated.formats.cinematic.compounds.EventsList"])
-		instance.d = Uint64.from_stream(stream, instance.context, 0, None)
-		if not isinstance(instance.abstract_name, int):
-			instance.abstract_name.arg = 0
-		if not isinstance(instance.concrete_name, int):
-			instance.concrete_name.arg = 0
-		if not isinstance(instance.debug_name, int):
-			instance.debug_name.arg = 0
-		if not isinstance(instance.events_list, int):
-			instance.events_list.arg = 0
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Pointer.to_stream(stream, instance.abstract_name)
-		Pointer.to_stream(stream, instance.concrete_name)
-		Pointer.to_stream(stream, instance.debug_name)
-		Uint64.to_stream(stream, instance.a)
-		Uint64.to_stream(stream, instance.b)
-		Uint64.to_stream(stream, instance.c)
-		Pointer.to_stream(stream, instance.events_list)
-		Uint64.to_stream(stream, instance.d)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'abstract_name', Pointer, (0, ZString), (False, None)

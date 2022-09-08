@@ -34,26 +34,6 @@ class TrackedRideCarSub(MemStruct):
 		self.vectors = ArrayPointer(self.context, self.vecs_count, TrackedRideCarSub._import_path_map["generated.formats.trackedridecar.compounds.Vector3"])
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.float = Float.from_stream(stream, instance.context, 0, None)
-		instance.u_0 = Uint.from_stream(stream, instance.context, 0, None)
-		instance.vectors = ArrayPointer.from_stream(stream, instance.context, instance.vecs_count, TrackedRideCarSub._import_path_map["generated.formats.trackedridecar.compounds.Vector3"])
-		instance.vecs_count = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.zero_1 = Uint64.from_stream(stream, instance.context, 0, None)
-		if not isinstance(instance.vectors, int):
-			instance.vectors.arg = instance.vecs_count
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Float.to_stream(stream, instance.float)
-		Uint.to_stream(stream, instance.u_0)
-		ArrayPointer.to_stream(stream, instance.vectors)
-		Uint64.to_stream(stream, instance.vecs_count)
-		Uint64.to_stream(stream, instance.zero_1)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'float', Float, (0, None), (False, None)

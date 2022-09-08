@@ -32,18 +32,6 @@ class MinusPadding(BaseStruct):
 		self.padding = numpy.zeros(((16 - ((self.arg * 2) % 16)) % 16,), dtype=numpy.dtype('int8'))
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.indices = Array.from_stream(stream, instance.context, 0, None, (instance.arg,), Short)
-		instance.padding = Array.from_stream(stream, instance.context, 0, None, ((16 - ((instance.arg * 2) % 16)) % 16,), Byte)
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Array.to_stream(stream, instance.indices, Short)
-		Array.to_stream(stream, instance.padding, Byte)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'indices', Array, (0, None, (instance.arg,), Short), (False, None)

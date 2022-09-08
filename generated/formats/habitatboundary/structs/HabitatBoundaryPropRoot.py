@@ -58,50 +58,6 @@ class HabitatBoundaryPropRoot(MemStruct):
 		self.path_join_part = Pointer(self.context, 0, ZString)
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.type = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.prefab = Pointer.from_stream(stream, instance.context, 0, ZString)
-		instance.u_1 = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.post = Pointer.from_stream(stream, instance.context, 0, ZString)
-		instance.wall = Pointer.from_stream(stream, instance.context, 0, ZString)
-		instance.is_guest = Uint.from_stream(stream, instance.context, 0, None)
-		instance.post_position = HbPostPos.from_stream(stream, instance.context, 0, None)
-		instance.u_2 = Float.from_stream(stream, instance.context, 0, None)
-		instance.door_physics = HbPropPhysics.from_stream(stream, instance.context, 0, None)
-		instance.path_physics = HbPropPhysics.from_stream(stream, instance.context, 0, None)
-		instance.path_join_part = Pointer.from_stream(stream, instance.context, 0, ZString)
-		instance.door_cutout = HbDoorCutout.from_stream(stream, instance.context, 0, None)
-		instance.small = Uint.from_stream(stream, instance.context, 0, None)
-		instance.height = Float.from_stream(stream, instance.context, 0, None)
-		if not isinstance(instance.prefab, int):
-			instance.prefab.arg = 0
-		if not isinstance(instance.post, int):
-			instance.post.arg = 0
-		if not isinstance(instance.wall, int):
-			instance.wall.arg = 0
-		if not isinstance(instance.path_join_part, int):
-			instance.path_join_part.arg = 0
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Uint64.to_stream(stream, instance.type)
-		Pointer.to_stream(stream, instance.prefab)
-		Uint64.to_stream(stream, instance.u_1)
-		Pointer.to_stream(stream, instance.post)
-		Pointer.to_stream(stream, instance.wall)
-		Uint.to_stream(stream, instance.is_guest)
-		HbPostPos.to_stream(stream, instance.post_position)
-		Float.to_stream(stream, instance.u_2)
-		HbPropPhysics.to_stream(stream, instance.door_physics)
-		HbPropPhysics.to_stream(stream, instance.path_physics)
-		Pointer.to_stream(stream, instance.path_join_part)
-		HbDoorCutout.to_stream(stream, instance.door_cutout)
-		Uint.to_stream(stream, instance.small)
-		Float.to_stream(stream, instance.height)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'type', Uint64, (0, None), (False, None)

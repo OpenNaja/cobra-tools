@@ -35,28 +35,6 @@ class LutHeader(MemStruct):
 		self.colors = ArrayPointer(self.context, self.colors_count, LutHeader._import_path_map["generated.formats.lut.compounds.Vector3"])
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.colors = ArrayPointer.from_stream(stream, instance.context, instance.colors_count, LutHeader._import_path_map["generated.formats.lut.compounds.Vector3"])
-		instance.colors_count = Ushort.from_stream(stream, instance.context, 0, None)
-		instance.unk_0 = Ushort.from_stream(stream, instance.context, 0, None)
-		instance.unk_1 = Uint.from_stream(stream, instance.context, 0, None)
-		instance.colors_in_column_count = Uint.from_stream(stream, instance.context, 0, None)
-		instance.unk_2 = Uint.from_stream(stream, instance.context, 0, None)
-		if not isinstance(instance.colors, int):
-			instance.colors.arg = instance.colors_count
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		ArrayPointer.to_stream(stream, instance.colors)
-		Ushort.to_stream(stream, instance.colors_count)
-		Ushort.to_stream(stream, instance.unk_0)
-		Uint.to_stream(stream, instance.unk_1)
-		Uint.to_stream(stream, instance.colors_in_column_count)
-		Uint.to_stream(stream, instance.unk_2)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'colors', ArrayPointer, (instance.colors_count, LutHeader._import_path_map["generated.formats.lut.compounds.Vector3"]), (False, None)

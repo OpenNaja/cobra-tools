@@ -32,28 +32,6 @@ class AkTrackSrcInfo(BaseStruct):
 		self.f_src_duration = 0.0
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.track_i_d = Uint.from_stream(stream, instance.context, 0, None)
-		instance.source_i_d = Uint.from_stream(stream, instance.context, 0, None)
-		instance.event_i_d = Uint.from_stream(stream, instance.context, 0, None)
-		instance.f_play_at = Double.from_stream(stream, instance.context, 0, None)
-		instance.f_begin_trim_offset = Double.from_stream(stream, instance.context, 0, None)
-		instance.f_end_trim_offset = Double.from_stream(stream, instance.context, 0, None)
-		instance.f_src_duration = Double.from_stream(stream, instance.context, 0, None)
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Uint.to_stream(stream, instance.track_i_d)
-		Uint.to_stream(stream, instance.source_i_d)
-		Uint.to_stream(stream, instance.event_i_d)
-		Double.to_stream(stream, instance.f_play_at)
-		Double.to_stream(stream, instance.f_begin_trim_offset)
-		Double.to_stream(stream, instance.f_end_trim_offset)
-		Double.to_stream(stream, instance.f_src_duration)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'track_i_d', Uint, (0, None), (False, None)

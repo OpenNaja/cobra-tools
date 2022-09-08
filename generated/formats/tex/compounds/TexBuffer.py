@@ -45,26 +45,6 @@ class TexBuffer(MemStruct):
 		self.padding_1 = 0
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.offset = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.size = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.first_mip = Ubyte.from_stream(stream, instance.context, 0, None)
-		instance.mip_count = Ubyte.from_stream(stream, instance.context, 0, None)
-		instance.padding_0 = Short.from_stream(stream, instance.context, 0, None)
-		instance.padding_1 = Int.from_stream(stream, instance.context, 0, None)
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Uint64.to_stream(stream, instance.offset)
-		Uint64.to_stream(stream, instance.size)
-		Ubyte.to_stream(stream, instance.first_mip)
-		Ubyte.to_stream(stream, instance.mip_count)
-		Short.to_stream(stream, instance.padding_0)
-		Int.to_stream(stream, instance.padding_1)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'offset', Uint64, (0, None), (False, None)

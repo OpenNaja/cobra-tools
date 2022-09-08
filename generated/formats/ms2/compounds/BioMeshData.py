@@ -66,30 +66,6 @@ class BioMeshData(MeshData):
 		self.flag = BioModelFlag(self.context, 0, None)
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.chunks_offset = Uint.from_stream(stream, instance.context, 0, None)
-		instance.chunks_count = Uint.from_stream(stream, instance.context, 0, None)
-		instance.tris_count = Uint.from_stream(stream, instance.context, 0, None)
-		instance.vertex_count = Uint.from_stream(stream, instance.context, 0, None)
-		instance.zero_1 = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.poweroftwo = Uint.from_stream(stream, instance.context, 0, None)
-		instance.unk_floats = Array.from_stream(stream, instance.context, 0, None, (2,), Float)
-		instance.flag = BioModelFlag.from_stream(stream, instance.context, 0, None)
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Uint.to_stream(stream, instance.chunks_offset)
-		Uint.to_stream(stream, instance.chunks_count)
-		Uint.to_stream(stream, instance.tris_count)
-		Uint.to_stream(stream, instance.vertex_count)
-		Uint64.to_stream(stream, instance.zero_1)
-		Uint.to_stream(stream, instance.poweroftwo)
-		Array.to_stream(stream, instance.unk_floats, Float)
-		BioModelFlag.to_stream(stream, instance.flag)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'chunks_offset', Uint, (0, None), (False, None)

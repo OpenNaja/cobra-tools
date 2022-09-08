@@ -99,30 +99,30 @@ class Compound(BaseClass):
                     self.write_line(f, 2, "pass")
 
             # write the read_fields/write_fields methods
-            for method_type in ("read", "write"):
-                method_str = f"def {method_type}_fields(cls, stream, instance):"
-                if method_str in self.src_code:
-                    continue
-                self.write_line(f)
-                self.write_line(f, 1, '@classmethod')
-                self.write_line(f, 1, method_str)
-                # classes that this class inherits from have to be read/written first
+            # for method_type in ("read", "write"):
+            #     method_str = f"def {method_type}_fields(cls, stream, instance):"
+            #     if method_str in self.src_code:
+            #         continue
+            #     self.write_line(f)
+            #     self.write_line(f, 1, '@classmethod')
+            #     self.write_line(f, 1, method_str)
+            #     # classes that this class inherits from have to be read/written first
 
-                if self.class_basename:
-                    self.write_line(f, 2, f"super().{method_type}_fields(stream, instance)")
+            #     if self.class_basename:
+            #         self.write_line(f, 2, f"super().{method_type}_fields(stream, instance)")
 
-                # write all fields, merge conditions
-                condition = ""
-                for union in self.field_unions:
-                    condition = union.write_io(f, method_type, condition, target_variable="instance")
-                # for ovl memory structs, some pointers may have counts that are defined before the count
-                # so for set_defaults, write pointers last
-                for union in self.field_unions:
-                    if union.is_ovl_ptr():
-                        condition = union.write_arg_update(f, method_type)
-                # handle empty structs
-                if not self.field_unions:
-                    self.write_line(f, 2, "pass")
+            #     # write all fields, merge conditions
+            #     condition = ""
+            #     for union in self.field_unions:
+            #         condition = union.write_io(f, method_type, condition, target_variable="instance")
+            #     # for ovl memory structs, some pointers may have counts that are defined before the count
+            #     # so for set_defaults, write pointers last
+            #     for union in self.field_unions:
+            #         if union.is_ovl_ptr():
+            #             condition = union.write_arg_update(f, method_type)
+            #     # handle empty structs
+            #     if not self.field_unions:
+            #         self.write_line(f, 2, "pass")
 
             # write the _get_filtered_attribute_list method
             method_str = "def _get_filtered_attribute_list(cls, instance, include_abstract=True):"

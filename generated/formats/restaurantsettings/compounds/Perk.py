@@ -46,46 +46,6 @@ class Perk(MemStruct):
 		self.icon = Pointer(self.context, 0, ZString)
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.unk_0 = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.building_cost = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.running_cost_base = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.running_cost_per_extension = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.unk_4 = Float.from_stream(stream, instance.context, 0, None)
-		instance.unk_5 = Float.from_stream(stream, instance.context, 0, None)
-		instance.label = Pointer.from_stream(stream, instance.context, 0, ZString)
-		instance.desc = Pointer.from_stream(stream, instance.context, 0, ZString)
-		instance.icon = Pointer.from_stream(stream, instance.context, 0, ZString)
-		instance.unk_6 = Float.from_stream(stream, instance.context, 0, None)
-		instance.appeal_adults = Float.from_stream(stream, instance.context, 0, None)
-		instance.appeal_families = Float.from_stream(stream, instance.context, 0, None)
-		instance.appeal_teenagers = Float.from_stream(stream, instance.context, 0, None)
-		if not isinstance(instance.label, int):
-			instance.label.arg = 0
-		if not isinstance(instance.desc, int):
-			instance.desc.arg = 0
-		if not isinstance(instance.icon, int):
-			instance.icon.arg = 0
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Uint64.to_stream(stream, instance.unk_0)
-		Uint64.to_stream(stream, instance.building_cost)
-		Uint64.to_stream(stream, instance.running_cost_base)
-		Uint64.to_stream(stream, instance.running_cost_per_extension)
-		Float.to_stream(stream, instance.unk_4)
-		Float.to_stream(stream, instance.unk_5)
-		Pointer.to_stream(stream, instance.label)
-		Pointer.to_stream(stream, instance.desc)
-		Pointer.to_stream(stream, instance.icon)
-		Float.to_stream(stream, instance.unk_6)
-		Float.to_stream(stream, instance.appeal_adults)
-		Float.to_stream(stream, instance.appeal_families)
-		Float.to_stream(stream, instance.appeal_teenagers)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'unk_0', Uint64, (0, None), (False, None)

@@ -39,28 +39,6 @@ class SizedStrData(BaseStruct):
 			self.zero_3 = 0
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.names_size = Ushort.from_stream(stream, instance.context, 0, None)
-		instance.hash_block_size = Ushort.from_stream(stream, instance.context, 0, None)
-		instance.zero_0 = Uint.from_stream(stream, instance.context, 0, None)
-		instance.zero_1 = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.zero_2 = Uint64.from_stream(stream, instance.context, 0, None)
-		if instance.context.version >= 20:
-			instance.zero_3 = Uint64.from_stream(stream, instance.context, 0, None)
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Ushort.to_stream(stream, instance.names_size)
-		Ushort.to_stream(stream, instance.hash_block_size)
-		Uint.to_stream(stream, instance.zero_0)
-		Uint64.to_stream(stream, instance.zero_1)
-		Uint64.to_stream(stream, instance.zero_2)
-		if instance.context.version >= 20:
-			Uint64.to_stream(stream, instance.zero_3)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'names_size', Ushort, (0, None), (False, None)

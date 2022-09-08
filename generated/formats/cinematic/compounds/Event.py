@@ -35,30 +35,6 @@ class Event(MemStruct):
 		self.attributes = Pointer(self.context, 0, Event._import_path_map["generated.formats.cinematic.compounds.EventAttributes"])
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.start_time = Float.from_stream(stream, instance.context, 0, None)
-		instance.b = Float.from_stream(stream, instance.context, 0, None)
-		instance.module_name = Pointer.from_stream(stream, instance.context, 0, ZString)
-		instance.attributes = Pointer.from_stream(stream, instance.context, 0, Event._import_path_map["generated.formats.cinematic.compounds.EventAttributes"])
-		instance.duration = Float.from_stream(stream, instance.context, 0, None)
-		instance.d = Float.from_stream(stream, instance.context, 0, None)
-		if not isinstance(instance.module_name, int):
-			instance.module_name.arg = 0
-		if not isinstance(instance.attributes, int):
-			instance.attributes.arg = 0
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Float.to_stream(stream, instance.start_time)
-		Float.to_stream(stream, instance.b)
-		Pointer.to_stream(stream, instance.module_name)
-		Pointer.to_stream(stream, instance.attributes)
-		Float.to_stream(stream, instance.duration)
-		Float.to_stream(stream, instance.d)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'start_time', Float, (0, None), (False, None)

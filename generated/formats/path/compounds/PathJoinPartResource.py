@@ -54,58 +54,6 @@ class PathJoinPartResource(MemStruct):
 		self.pathresource = Pointer(self.context, 0, ZString)
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.unk_points_1 = Pointer.from_stream(stream, instance.context, instance.num_points_1, PathJoinPartResource._import_path_map["generated.formats.path.compounds.PointsList"])
-		instance.unk_points_2 = Pointer.from_stream(stream, instance.context, instance.num_points_2, PathJoinPartResource._import_path_map["generated.formats.path.compounds.PointsList"])
-		instance.unk_vector = ArrayPointer.from_stream(stream, instance.context, 1, PathJoinPartResource._import_path_map["generated.formats.path.compounds.Vector4"])
-		instance.unk_shorts = ArrayPointer.from_stream(stream, instance.context, 8, Ushort)
-		instance.unk_points_3 = Pointer.from_stream(stream, instance.context, instance.num_points_3, PathJoinPartResource._import_path_map["generated.formats.path.compounds.PointsList"])
-		instance.padding_1 = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.pathresource = Pointer.from_stream(stream, instance.context, 0, ZString)
-		instance.unk_byte_1 = Byte.from_stream(stream, instance.context, 0, None)
-		instance.unk_byte_2 = Byte.from_stream(stream, instance.context, 0, None)
-		instance.unk_byte_3 = Byte.from_stream(stream, instance.context, 0, None)
-		instance.num_points_1 = Byte.from_stream(stream, instance.context, 0, None)
-		instance.num_points_1_copy = Byte.from_stream(stream, instance.context, 0, None)
-		instance.num_points_2 = Byte.from_stream(stream, instance.context, 0, None)
-		instance.num_points_2_copy = Byte.from_stream(stream, instance.context, 0, None)
-		instance.num_points_3 = Byte.from_stream(stream, instance.context, 0, None)
-		instance.padding_2 = Uint64.from_stream(stream, instance.context, 0, None)
-		if not isinstance(instance.unk_points_1, int):
-			instance.unk_points_1.arg = instance.num_points_1
-		if not isinstance(instance.unk_points_2, int):
-			instance.unk_points_2.arg = instance.num_points_2
-		if not isinstance(instance.unk_vector, int):
-			instance.unk_vector.arg = 1
-		if not isinstance(instance.unk_shorts, int):
-			instance.unk_shorts.arg = 8
-		if not isinstance(instance.unk_points_3, int):
-			instance.unk_points_3.arg = instance.num_points_3
-		if not isinstance(instance.pathresource, int):
-			instance.pathresource.arg = 0
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Pointer.to_stream(stream, instance.unk_points_1)
-		Pointer.to_stream(stream, instance.unk_points_2)
-		ArrayPointer.to_stream(stream, instance.unk_vector)
-		ArrayPointer.to_stream(stream, instance.unk_shorts)
-		Pointer.to_stream(stream, instance.unk_points_3)
-		Uint64.to_stream(stream, instance.padding_1)
-		Pointer.to_stream(stream, instance.pathresource)
-		Byte.to_stream(stream, instance.unk_byte_1)
-		Byte.to_stream(stream, instance.unk_byte_2)
-		Byte.to_stream(stream, instance.unk_byte_3)
-		Byte.to_stream(stream, instance.num_points_1)
-		Byte.to_stream(stream, instance.num_points_1_copy)
-		Byte.to_stream(stream, instance.num_points_2)
-		Byte.to_stream(stream, instance.num_points_2_copy)
-		Byte.to_stream(stream, instance.num_points_3)
-		Uint64.to_stream(stream, instance.padding_2)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'unk_points_1', Pointer, (instance.num_points_1, PathJoinPartResource._import_path_map["generated.formats.path.compounds.PointsList"]), (False, None)

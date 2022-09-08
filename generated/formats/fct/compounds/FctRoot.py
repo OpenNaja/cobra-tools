@@ -48,36 +48,6 @@ class FctRoot(MemStruct):
 		self.fonts = Array(self.context, 0, None, (4,), Font)
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.u_0 = Short.from_stream(stream, instance.context, 0, None)
-		instance.u_1 = Short.from_stream(stream, instance.context, 0, None)
-		instance.a = Float.from_stream(stream, instance.context, 0, None)
-		instance.b = Float.from_stream(stream, instance.context, 0, None)
-		instance.c = Float.from_stream(stream, instance.context, 0, None)
-		instance.minus_1 = Short.from_stream(stream, instance.context, 0, None)
-		instance.z_0 = Short.from_stream(stream, instance.context, 0, None)
-		instance.z_1 = Int.from_stream(stream, instance.context, 0, None)
-		instance.z_2 = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.offset = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.fonts = Array.from_stream(stream, instance.context, 0, None, (4,), Font)
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Short.to_stream(stream, instance.u_0)
-		Short.to_stream(stream, instance.u_1)
-		Float.to_stream(stream, instance.a)
-		Float.to_stream(stream, instance.b)
-		Float.to_stream(stream, instance.c)
-		Short.to_stream(stream, instance.minus_1)
-		Short.to_stream(stream, instance.z_0)
-		Int.to_stream(stream, instance.z_1)
-		Uint64.to_stream(stream, instance.z_2)
-		Uint64.to_stream(stream, instance.offset)
-		Array.to_stream(stream, instance.fonts, Font)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'u_0', Short, (0, None), (False, None)

@@ -28,26 +28,6 @@ class Button(MemStruct):
 		self.datas = ArrayPointer(self.context, self.datas_count, Button._import_path_map["generated.formats.logicalcontrols.compounds.ButtonData"])
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.button_name = Pointer.from_stream(stream, instance.context, 0, ZString)
-		instance.datas = ArrayPointer.from_stream(stream, instance.context, instance.datas_count, Button._import_path_map["generated.formats.logicalcontrols.compounds.ButtonData"])
-		instance.datas_count = Uint.from_stream(stream, instance.context, 0, None)
-		instance.flags = Uint.from_stream(stream, instance.context, 0, None)
-		if not isinstance(instance.button_name, int):
-			instance.button_name.arg = 0
-		if not isinstance(instance.datas, int):
-			instance.datas.arg = instance.datas_count
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Pointer.to_stream(stream, instance.button_name)
-		ArrayPointer.to_stream(stream, instance.datas)
-		Uint.to_stream(stream, instance.datas_count)
-		Uint.to_stream(stream, instance.flags)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'button_name', Pointer, (0, ZString), (False, None)

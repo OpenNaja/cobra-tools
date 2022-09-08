@@ -27,16 +27,6 @@ class PCJointThing(BaseStruct):
 		self.shorts = numpy.zeros((4,), dtype=numpy.dtype('int16'))
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.shorts = Array.from_stream(stream, instance.context, 0, None, (4,), Short)
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Array.to_stream(stream, instance.shorts, Short)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'shorts', Array, (0, None, (4,), Short), (False, None)

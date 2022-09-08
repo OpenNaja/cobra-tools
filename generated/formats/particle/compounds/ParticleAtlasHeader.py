@@ -33,30 +33,6 @@ class ParticleAtlasHeader(MemStruct):
 		self.dependency_name = Pointer(self.context, 0, None)
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.tex_name = Pointer.from_stream(stream, instance.context, 0, ZString)
-		instance.gfr_name = Pointer.from_stream(stream, instance.context, 0, ZString)
-		instance.id = Uint.from_stream(stream, instance.context, 0, None)
-		instance.zero = Uint.from_stream(stream, instance.context, 0, None)
-		instance.dependency_name = Pointer.from_stream(stream, instance.context, 0, None)
-		if not isinstance(instance.tex_name, int):
-			instance.tex_name.arg = 0
-		if not isinstance(instance.gfr_name, int):
-			instance.gfr_name.arg = 0
-		if not isinstance(instance.dependency_name, int):
-			instance.dependency_name.arg = 0
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Pointer.to_stream(stream, instance.tex_name)
-		Pointer.to_stream(stream, instance.gfr_name)
-		Uint.to_stream(stream, instance.id)
-		Uint.to_stream(stream, instance.zero)
-		Pointer.to_stream(stream, instance.dependency_name)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'tex_name', Pointer, (0, ZString), (False, None)

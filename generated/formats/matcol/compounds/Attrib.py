@@ -28,22 +28,6 @@ class Attrib(MemStruct):
 		self.attrib_name = Pointer(self.context, 0, ZString)
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.attrib_name = Pointer.from_stream(stream, instance.context, 0, ZString)
-		instance.attrib = Array.from_stream(stream, instance.context, 0, None, (4,), Byte)
-		instance.padding = Uint.from_stream(stream, instance.context, 0, None)
-		if not isinstance(instance.attrib_name, int):
-			instance.attrib_name.arg = 0
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Pointer.to_stream(stream, instance.attrib_name)
-		Array.to_stream(stream, instance.attrib, Byte)
-		Uint.to_stream(stream, instance.padding)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'attrib_name', Pointer, (0, ZString), (False, None)

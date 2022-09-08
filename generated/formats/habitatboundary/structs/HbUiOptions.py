@@ -25,18 +25,6 @@ class HbUiOptions(MemStruct):
 		self.windows = False
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.straight_curve = Bool.from_stream(stream, instance.context, 0, None)
-		instance.windows = Bool.from_stream(stream, instance.context, 0, None)
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Bool.to_stream(stream, instance.straight_curve)
-		Bool.to_stream(stream, instance.windows)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'straight_curve', Bool, (0, None), (False, None)

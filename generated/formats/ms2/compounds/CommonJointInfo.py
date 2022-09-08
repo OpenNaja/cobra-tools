@@ -32,22 +32,6 @@ class CommonJointInfo(BaseStruct):
 		self.hitcheck_count = 0
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.eleven = Uint.from_stream(stream, instance.context, 0, None)
-		instance.f_fs = Array.from_stream(stream, instance.context, 0, None, (3,), Int)
-		instance.name_offset = Uint.from_stream(stream, instance.context, 0, None)
-		instance.hitcheck_count = Uint.from_stream(stream, instance.context, 0, None)
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Uint.to_stream(stream, instance.eleven)
-		Array.to_stream(stream, instance.f_fs, Int)
-		Uint.to_stream(stream, instance.name_offset)
-		Uint.to_stream(stream, instance.hitcheck_count)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'eleven', Uint, (0, None), (False, None)

@@ -20,16 +20,6 @@ class VariantArray(MemStruct):
 		self.variants = Array(self.context, 0, None, (self.arg,), Variant)
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.variants = Array.from_stream(stream, instance.context, 0, None, (instance.arg,), Variant)
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Array.to_stream(stream, instance.variants, Variant)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'variants', Array, (0, None, (instance.arg,), Variant), (False, None)

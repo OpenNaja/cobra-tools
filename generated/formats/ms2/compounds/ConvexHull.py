@@ -38,28 +38,6 @@ class ConvexHull(BaseStruct):
 			self.zeros = numpy.zeros((2,), dtype=numpy.dtype('uint32'))
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.vertex_count = Uint.from_stream(stream, instance.context, 0, None)
-		instance.rotation = Matrix33.from_stream(stream, instance.context, 0, None)
-		instance.offset = Vector3.from_stream(stream, instance.context, 0, None)
-		if instance.context.version == 32:
-			instance.zeros = Array.from_stream(stream, instance.context, 0, None, (5,), Uint)
-		if ((instance.context.version == 48) or (instance.context.version == 50)) or (instance.context.version == 51):
-			instance.zeros = Array.from_stream(stream, instance.context, 0, None, (2,), Uint)
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Uint.to_stream(stream, instance.vertex_count)
-		Matrix33.to_stream(stream, instance.rotation)
-		Vector3.to_stream(stream, instance.offset)
-		if instance.context.version == 32:
-			Array.to_stream(stream, instance.zeros, Uint)
-		if ((instance.context.version == 48) or (instance.context.version == 50)) or (instance.context.version == 51):
-			Array.to_stream(stream, instance.zeros, Uint)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'vertex_count', Uint, (0, None), (False, None)

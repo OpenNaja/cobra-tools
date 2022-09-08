@@ -71,60 +71,6 @@ class BufferInfo(BaseStruct):
 			self.u_7 = 0
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		if 32 <= instance.context.version <= 47:
-			instance.u_0 = Uint64.from_stream(stream, instance.context, 0, None)
-			instance.u_1 = Uint64.from_stream(stream, instance.context, 0, None)
-		if (instance.context.version == 51) and instance.context.biosyn:
-			instance.tri_chunks_size = Uint64.from_stream(stream, instance.context, 0, None)
-			instance.tri_chunks_ptr = Uint64.from_stream(stream, instance.context, 0, None)
-			instance.vert_chunks_size = Uint64.from_stream(stream, instance.context, 0, None)
-			instance.vert_chunks_ptr = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.verts_size = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.verts_ptr = Uint64.from_stream(stream, instance.context, 0, None)
-		if instance.context.version >= 48:
-			instance.u_3 = Uint64.from_stream(stream, instance.context, 0, None)
-		if not (instance.context.version == 32):
-			instance.tris_size = Uint64.from_stream(stream, instance.context, 0, None)
-			instance.tris_ptr = Uint64.from_stream(stream, instance.context, 0, None)
-		if instance.context.version >= 48:
-			instance.u_5 = Uint64.from_stream(stream, instance.context, 0, None)
-			instance.u_6 = Uint64.from_stream(stream, instance.context, 0, None)
-		if instance.context.version <= 13:
-			instance.u_5 = Uint64.from_stream(stream, instance.context, 0, None)
-			instance.uvs_size = Uint64.from_stream(stream, instance.context, 0, None)
-			instance.u_6 = Uint64.from_stream(stream, instance.context, 0, None)
-			instance.u_7 = Uint64.from_stream(stream, instance.context, 0, None)
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		if 32 <= instance.context.version <= 47:
-			Uint64.to_stream(stream, instance.u_0)
-			Uint64.to_stream(stream, instance.u_1)
-		if (instance.context.version == 51) and instance.context.biosyn:
-			Uint64.to_stream(stream, instance.tri_chunks_size)
-			Uint64.to_stream(stream, instance.tri_chunks_ptr)
-			Uint64.to_stream(stream, instance.vert_chunks_size)
-			Uint64.to_stream(stream, instance.vert_chunks_ptr)
-		Uint64.to_stream(stream, instance.verts_size)
-		Uint64.to_stream(stream, instance.verts_ptr)
-		if instance.context.version >= 48:
-			Uint64.to_stream(stream, instance.u_3)
-		if not (instance.context.version == 32):
-			Uint64.to_stream(stream, instance.tris_size)
-			Uint64.to_stream(stream, instance.tris_ptr)
-		if instance.context.version >= 48:
-			Uint64.to_stream(stream, instance.u_5)
-			Uint64.to_stream(stream, instance.u_6)
-		if instance.context.version <= 13:
-			Uint64.to_stream(stream, instance.u_5)
-			Uint64.to_stream(stream, instance.uvs_size)
-			Uint64.to_stream(stream, instance.u_6)
-			Uint64.to_stream(stream, instance.u_7)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		if 32 <= instance.context.version <= 47:

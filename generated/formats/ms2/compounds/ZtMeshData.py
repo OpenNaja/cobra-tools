@@ -84,48 +84,6 @@ class ZtMeshData(MeshData):
 		self.zero_uac = 0
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.tri_index_count = Uint.from_stream(stream, instance.context, 0, None)
-		instance.vertex_count = Uint.from_stream(stream, instance.context, 0, None)
-		instance.tri_info_offset = Uint.from_stream(stream, instance.context, 0, None)
-		instance.vert_info_offset = Uint.from_stream(stream, instance.context, 0, None)
-		instance.known_ff_0 = Int.from_stream(stream, instance.context, 0, None)
-		instance.tri_offset = Uint.from_stream(stream, instance.context, 0, None)
-		instance.uv_offset = Uint.from_stream(stream, instance.context, 0, None)
-		instance.vertex_offset = Uint.from_stream(stream, instance.context, 0, None)
-		instance.unk_index = Short.from_stream(stream, instance.context, 0, None)
-		instance.one_0 = Ushort.from_stream(stream, instance.context, 0, None)
-		instance.one_1 = Ushort.from_stream(stream, instance.context, 0, None)
-		instance.poweroftwo = Ushort.from_stream(stream, instance.context, 0, None)
-		if instance.context.version <= 7:
-			instance.flag = ModelFlagDLA.from_stream(stream, instance.context, 0, None)
-		if instance.context.version >= 13:
-			instance.flag = ModelFlagZT.from_stream(stream, instance.context, 0, None)
-		instance.zero_uac = Uint.from_stream(stream, instance.context, 0, None)
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Uint.to_stream(stream, instance.tri_index_count)
-		Uint.to_stream(stream, instance.vertex_count)
-		Uint.to_stream(stream, instance.tri_info_offset)
-		Uint.to_stream(stream, instance.vert_info_offset)
-		Int.to_stream(stream, instance.known_ff_0)
-		Uint.to_stream(stream, instance.tri_offset)
-		Uint.to_stream(stream, instance.uv_offset)
-		Uint.to_stream(stream, instance.vertex_offset)
-		Short.to_stream(stream, instance.unk_index)
-		Ushort.to_stream(stream, instance.one_0)
-		Ushort.to_stream(stream, instance.one_1)
-		Ushort.to_stream(stream, instance.poweroftwo)
-		if instance.context.version <= 7:
-			ModelFlagDLA.to_stream(stream, instance.flag)
-		if instance.context.version >= 13:
-			ModelFlagZT.to_stream(stream, instance.flag)
-		Uint.to_stream(stream, instance.zero_uac)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'tri_index_count', Uint, (0, None), (False, None)

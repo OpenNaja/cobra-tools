@@ -24,18 +24,6 @@ class XMLEntry(MemStruct):
 		self.xml_string = Pointer(self.context, 0, ZString)
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.xml_string = Pointer.from_stream(stream, instance.context, 0, ZString)
-		if not isinstance(instance.xml_string, int):
-			instance.xml_string.arg = 0
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Pointer.to_stream(stream, instance.xml_string)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'xml_string', Pointer, (0, ZString), (False, None)

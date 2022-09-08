@@ -21,16 +21,6 @@ class DLAPreBones(BaseStruct):
 		self.unk = numpy.zeros((120,), dtype=numpy.dtype('uint8'))
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.unk = Array.from_stream(stream, instance.context, 0, None, (120,), Ubyte)
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Array.to_stream(stream, instance.unk, Ubyte)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'unk', Array, (0, None, (120,), Ubyte), (False, None)

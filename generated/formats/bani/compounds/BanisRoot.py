@@ -51,28 +51,6 @@ class BanisRoot(MemStruct):
 		self.loc_offset = 0.0
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.zeros = Array.from_stream(stream, instance.context, 0, None, (2,), Uint64)
-		instance.bytes_per_frame = Uint.from_stream(stream, instance.context, 0, None)
-		instance.bytes_per_bone = Uint.from_stream(stream, instance.context, 0, None)
-		instance.num_frames = Uint.from_stream(stream, instance.context, 0, None)
-		instance.num_bones = Uint.from_stream(stream, instance.context, 0, None)
-		instance.loc_scale = Float.from_stream(stream, instance.context, 0, None)
-		instance.loc_offset = Float.from_stream(stream, instance.context, 0, None)
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Array.to_stream(stream, instance.zeros, Uint64)
-		Uint.to_stream(stream, instance.bytes_per_frame)
-		Uint.to_stream(stream, instance.bytes_per_bone)
-		Uint.to_stream(stream, instance.num_frames)
-		Uint.to_stream(stream, instance.num_bones)
-		Float.to_stream(stream, instance.loc_scale)
-		Float.to_stream(stream, instance.loc_offset)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'zeros', Array, (0, None, (2,), Uint64), (False, None)

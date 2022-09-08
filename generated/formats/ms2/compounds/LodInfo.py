@@ -74,46 +74,6 @@ class LodInfo(BaseStruct):
 			self.tri_index_count = 0
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		if instance.context.version <= 13:
-			instance.full = Short.from_stream(stream, instance.context, 0, None)
-			instance.half = Short.from_stream(stream, instance.context, 0, None)
-			instance.lod_index = Ushort.from_stream(stream, instance.context, 0, None)
-		if instance.context.version >= 32:
-			instance.distance = Float.from_stream(stream, instance.context, 0, None)
-			instance.zero = Ushort.from_stream(stream, instance.context, 0, None)
-		instance.bone_index = Ushort.from_stream(stream, instance.context, 0, None)
-		instance.first_object_index = Ushort.from_stream(stream, instance.context, 0, None)
-		if instance.context.version <= 13:
-			instance.first_object_index_1 = Ushort.from_stream(stream, instance.context, 0, None)
-			instance.first_object_index_2 = Ushort.from_stream(stream, instance.context, 0, None)
-		instance.last_object_index = Ushort.from_stream(stream, instance.context, 0, None)
-		if instance.context.version >= 32 and not ((instance.context.version == 51) and instance.context.biosyn):
-			instance.vertex_count = Uint.from_stream(stream, instance.context, 0, None)
-			instance.tri_index_count = Uint.from_stream(stream, instance.context, 0, None)
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		if instance.context.version <= 13:
-			Short.to_stream(stream, instance.full)
-			Short.to_stream(stream, instance.half)
-			Ushort.to_stream(stream, instance.lod_index)
-		if instance.context.version >= 32:
-			Float.to_stream(stream, instance.distance)
-			Ushort.to_stream(stream, instance.zero)
-		Ushort.to_stream(stream, instance.bone_index)
-		Ushort.to_stream(stream, instance.first_object_index)
-		if instance.context.version <= 13:
-			Ushort.to_stream(stream, instance.first_object_index_1)
-			Ushort.to_stream(stream, instance.first_object_index_2)
-		Ushort.to_stream(stream, instance.last_object_index)
-		if instance.context.version >= 32 and not ((instance.context.version == 51) and instance.context.biosyn):
-			Uint.to_stream(stream, instance.vertex_count)
-			Uint.to_stream(stream, instance.tri_index_count)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		if instance.context.version <= 13:

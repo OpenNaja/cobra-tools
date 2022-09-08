@@ -38,27 +38,6 @@ class Buffer0(BaseStruct):
 			self.zt_streams_header = StreamsZTHeader(self.context, self.arg, None)
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.name_hashes = Array.from_stream(stream, instance.context, 0, None, (instance.arg.name_count,), Uint)
-		instance.names = Array.from_stream(stream, instance.context, 0, None, (instance.arg.name_count,), ZString)
-		if instance.context.version >= 50:
-			instance.names_padding = Array.from_stream(stream, instance.context, 0, None, ((4 - (instance.names.io_size % 4)) % 4,), Ubyte)
-		if instance.context.version <= 13:
-			instance.zt_streams_header = StreamsZTHeader.from_stream(stream, instance.context, instance.arg, None)
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Array.to_stream(stream, instance.name_hashes, Uint)
-		Array.to_stream(stream, instance.names, ZString)
-		if instance.context.version >= 50:
-			instance.names_padding.resize(((4 - (instance.names.io_size % 4)) % 4,))
-			Array.to_stream(stream, instance.names_padding, Ubyte)
-		if instance.context.version <= 13:
-			StreamsZTHeader.to_stream(stream, instance.zt_streams_header)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'name_hashes', Array, (0, None, (instance.arg.name_count,), Uint), (False, None)

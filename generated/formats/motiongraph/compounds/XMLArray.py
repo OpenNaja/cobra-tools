@@ -20,16 +20,6 @@ class XMLArray(MemStruct):
 		self.xmls = Array(self.context, 0, None, (self.arg,), XMLEntry)
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.xmls = Array.from_stream(stream, instance.context, 0, None, (instance.arg,), XMLEntry)
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Array.to_stream(stream, instance.xmls, XMLEntry)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'xmls', Array, (0, None, (instance.arg,), XMLEntry), (False, None)

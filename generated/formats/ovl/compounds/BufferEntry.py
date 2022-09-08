@@ -39,24 +39,6 @@ class BufferEntry(BaseStruct):
 			self.file_hash = 0
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		if instance.context.version <= 19:
-			instance.index = Uint.from_stream(stream, instance.context, 0, None)
-		instance.size = Uint.from_stream(stream, instance.context, 0, None)
-		if instance.context.version >= 20:
-			instance.file_hash = Uint.from_stream(stream, instance.context, 0, None)
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		if instance.context.version <= 19:
-			Uint.to_stream(stream, instance.index)
-		Uint.to_stream(stream, instance.size)
-		if instance.context.version >= 20:
-			Uint.to_stream(stream, instance.file_hash)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		if instance.context.version <= 19:

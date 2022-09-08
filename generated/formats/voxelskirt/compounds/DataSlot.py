@@ -32,20 +32,6 @@ class DataSlot(BaseStruct):
 		self.data = Array(self.context, 0, None, (0,), self.template)
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.offset = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.count = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.data = Array.from_stream(stream, instance.context, 0, None, (0,), instance.template)
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Uint64.to_stream(stream, instance.offset)
-		Uint64.to_stream(stream, instance.count)
-		Array.to_stream(stream, instance.data, instance.template)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'offset', Uint64, (0, None), (False, None)

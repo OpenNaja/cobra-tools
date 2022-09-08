@@ -34,34 +34,6 @@ class PathExtrusion(MemStruct):
 		self.endcap_model = Pointer(self.context, 0, ZString)
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.model = Pointer.from_stream(stream, instance.context, 0, ZString)
-		instance.post_model = Pointer.from_stream(stream, instance.context, 0, ZString)
-		instance.endcap_model = Pointer.from_stream(stream, instance.context, 0, ZString)
-		instance.unk_float_1 = Float.from_stream(stream, instance.context, 0, None)
-		instance.unk_float_2 = Float.from_stream(stream, instance.context, 0, None)
-		instance.is_kerb = Bool.from_stream(stream, instance.context, 0, None)
-		instance.is_not_ground = Bool.from_stream(stream, instance.context, 0, None)
-		if not isinstance(instance.model, int):
-			instance.model.arg = 0
-		if not isinstance(instance.post_model, int):
-			instance.post_model.arg = 0
-		if not isinstance(instance.endcap_model, int):
-			instance.endcap_model.arg = 0
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Pointer.to_stream(stream, instance.model)
-		Pointer.to_stream(stream, instance.post_model)
-		Pointer.to_stream(stream, instance.endcap_model)
-		Float.to_stream(stream, instance.unk_float_1)
-		Float.to_stream(stream, instance.unk_float_2)
-		Bool.to_stream(stream, instance.is_kerb)
-		Bool.to_stream(stream, instance.is_not_ground)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'model', Pointer, (0, ZString), (False, None)

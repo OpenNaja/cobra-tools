@@ -29,20 +29,6 @@ class BooleanData(MemStruct):
 		self.unused = numpy.zeros((6,), dtype=numpy.dtype('uint8'))
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.value = Ubyte.from_stream(stream, instance.context, 0, None)
-		instance.default = Ubyte.from_stream(stream, instance.context, 0, None)
-		instance.unused = Array.from_stream(stream, instance.context, 0, None, (6,), Ubyte)
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Ubyte.to_stream(stream, instance.value)
-		Ubyte.to_stream(stream, instance.default)
-		Array.to_stream(stream, instance.unused, Ubyte)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'value', Ubyte, (0, None), (False, None)

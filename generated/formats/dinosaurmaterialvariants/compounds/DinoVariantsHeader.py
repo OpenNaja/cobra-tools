@@ -37,32 +37,6 @@ class DinoVariantsHeader(MemStruct):
 		self.variants = Pointer(self.context, self.variant_count, DinoVariantsHeader._import_path_map["generated.formats.dinosaurmaterialvariants.compounds.VariantArray"])
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.fgm_name = Pointer.from_stream(stream, instance.context, 0, ZStringObfuscated)
-		instance.has_sets = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.set_name = Pointer.from_stream(stream, instance.context, 0, ZString)
-		instance.variants = Pointer.from_stream(stream, instance.context, instance.variant_count, DinoVariantsHeader._import_path_map["generated.formats.dinosaurmaterialvariants.compounds.VariantArray"])
-		instance.variant_count = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.zero = Uint64.from_stream(stream, instance.context, 0, None)
-		if not isinstance(instance.fgm_name, int):
-			instance.fgm_name.arg = 0
-		if not isinstance(instance.set_name, int):
-			instance.set_name.arg = 0
-		if not isinstance(instance.variants, int):
-			instance.variants.arg = instance.variant_count
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Pointer.to_stream(stream, instance.fgm_name)
-		Uint64.to_stream(stream, instance.has_sets)
-		Pointer.to_stream(stream, instance.set_name)
-		Pointer.to_stream(stream, instance.variants)
-		Uint64.to_stream(stream, instance.variant_count)
-		Uint64.to_stream(stream, instance.zero)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'fgm_name', Pointer, (0, ZStringObfuscated), (False, None)

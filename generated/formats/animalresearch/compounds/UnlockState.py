@@ -22,22 +22,6 @@ class UnlockState(MemStruct):
 		self.level_name = Pointer(self.context, 0, ZString)
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.entity_name = Pointer.from_stream(stream, instance.context, 0, ZString)
-		instance.level_name = Pointer.from_stream(stream, instance.context, 0, ZString)
-		if not isinstance(instance.entity_name, int):
-			instance.entity_name.arg = 0
-		if not isinstance(instance.level_name, int):
-			instance.level_name.arg = 0
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Pointer.to_stream(stream, instance.entity_name)
-		Pointer.to_stream(stream, instance.level_name)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'entity_name', Pointer, (0, ZString), (False, None)

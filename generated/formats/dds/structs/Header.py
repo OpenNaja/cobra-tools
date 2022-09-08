@@ -66,48 +66,6 @@ class Header(BaseStruct):
 			self.dx_10 = Dxt10Header(self.context, 0, None)
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.header_string = FixedString.from_stream(stream, instance.context, 4, None)
-		instance.size = Uint.from_stream(stream, instance.context, 0, None)
-		instance.flags = HeaderFlags.from_stream(stream, instance.context, 0, None)
-		instance.height = Uint.from_stream(stream, instance.context, 0, None)
-		instance.width = Uint.from_stream(stream, instance.context, 0, None)
-		instance.linear_size = Uint.from_stream(stream, instance.context, 0, None)
-		instance.depth = Uint.from_stream(stream, instance.context, 0, None)
-		instance.mipmap_count = Uint.from_stream(stream, instance.context, 0, None)
-		instance.reserved_1 = Array.from_stream(stream, instance.context, 0, None, (11,), Uint)
-		instance.pixel_format = PixelFormat.from_stream(stream, instance.context, 0, None)
-		instance.caps_1 = Caps1.from_stream(stream, instance.context, 0, None)
-		instance.caps_2 = Caps2.from_stream(stream, instance.context, 0, None)
-		instance.caps_3 = Uint.from_stream(stream, instance.context, 0, None)
-		instance.caps_4 = Uint.from_stream(stream, instance.context, 0, None)
-		instance.unused = Uint.from_stream(stream, instance.context, 0, None)
-		if instance.pixel_format.four_c_c == 808540228:
-			instance.dx_10 = Dxt10Header.from_stream(stream, instance.context, 0, None)
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		FixedString.to_stream(stream, instance.header_string)
-		Uint.to_stream(stream, instance.size)
-		HeaderFlags.to_stream(stream, instance.flags)
-		Uint.to_stream(stream, instance.height)
-		Uint.to_stream(stream, instance.width)
-		Uint.to_stream(stream, instance.linear_size)
-		Uint.to_stream(stream, instance.depth)
-		Uint.to_stream(stream, instance.mipmap_count)
-		Array.to_stream(stream, instance.reserved_1, Uint)
-		PixelFormat.to_stream(stream, instance.pixel_format)
-		Caps1.to_stream(stream, instance.caps_1)
-		Caps2.to_stream(stream, instance.caps_2)
-		Uint.to_stream(stream, instance.caps_3)
-		Uint.to_stream(stream, instance.caps_4)
-		Uint.to_stream(stream, instance.unused)
-		if instance.pixel_format.four_c_c == 808540228:
-			Dxt10Header.to_stream(stream, instance.dx_10)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'header_string', FixedString, (4, None), (False, None)

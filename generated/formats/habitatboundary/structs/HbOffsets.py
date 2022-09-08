@@ -28,20 +28,6 @@ class HbOffsets(MemStruct):
 		self.wall_height = 0.0
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.physics = HbPhysicsOffsets.from_stream(stream, instance.context, 0, None)
-		instance.post_height_offset = Float.from_stream(stream, instance.context, 0, None)
-		instance.wall_height = Float.from_stream(stream, instance.context, 0, None)
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		HbPhysicsOffsets.to_stream(stream, instance.physics)
-		Float.to_stream(stream, instance.post_height_offset)
-		Float.to_stream(stream, instance.wall_height)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'physics', HbPhysicsOffsets, (0, None), (False, None)

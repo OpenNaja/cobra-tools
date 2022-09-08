@@ -26,20 +26,6 @@ class CurveData(MemStruct):
 		self.points = Pointer(self.context, self.count, CurveData._import_path_map["generated.formats.motiongraph.compounds.CurveDataPoints"])
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.count = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.points = Pointer.from_stream(stream, instance.context, instance.count, CurveData._import_path_map["generated.formats.motiongraph.compounds.CurveDataPoints"])
-		if not isinstance(instance.points, int):
-			instance.points.arg = instance.count
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Uint64.to_stream(stream, instance.count)
-		Pointer.to_stream(stream, instance.points)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'count', Uint64, (0, None), (False, None)

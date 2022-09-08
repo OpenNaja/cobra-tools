@@ -33,30 +33,6 @@ class RideSettingsRoot(MemStruct):
 		self.array_1 = ArrayPointer(self.context, self.count, RideSettingsRoot._import_path_map["generated.formats.ridesettings.compounds.Pair"])
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.unk_0 = Float.from_stream(stream, instance.context, 0, None)
-		instance.unk_1 = Uint.from_stream(stream, instance.context, 0, None)
-		instance.array_1 = ArrayPointer.from_stream(stream, instance.context, instance.count, RideSettingsRoot._import_path_map["generated.formats.ridesettings.compounds.Pair"])
-		instance.count = Uint.from_stream(stream, instance.context, 0, None)
-		instance.pad_0 = Uint.from_stream(stream, instance.context, 0, None)
-		instance.pad_1 = Uint.from_stream(stream, instance.context, 0, None)
-		instance.pad_2 = Uint.from_stream(stream, instance.context, 0, None)
-		if not isinstance(instance.array_1, int):
-			instance.array_1.arg = instance.count
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Float.to_stream(stream, instance.unk_0)
-		Uint.to_stream(stream, instance.unk_1)
-		ArrayPointer.to_stream(stream, instance.array_1)
-		Uint.to_stream(stream, instance.count)
-		Uint.to_stream(stream, instance.pad_0)
-		Uint.to_stream(stream, instance.pad_1)
-		Uint.to_stream(stream, instance.pad_2)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'unk_0', Float, (0, None), (False, None)

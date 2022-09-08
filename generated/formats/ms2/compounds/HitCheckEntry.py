@@ -72,62 +72,6 @@ class HitCheckEntry(BaseStruct):
 			self.zero_extra_zt = 0
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.dtype = CollisionType.from_stream(stream, instance.context, 0, None)
-		instance.flag_0 = Ushort.from_stream(stream, instance.context, 0, None)
-		instance.flag_1 = Ushort.from_stream(stream, instance.context, 0, None)
-		instance.flag_2 = Uint.from_stream(stream, instance.context, 0, None)
-		instance.flag_3 = Uint.from_stream(stream, instance.context, 0, None)
-		if instance.context.version < 47:
-			instance.zero_extra_pc_unk = Uint.from_stream(stream, instance.context, 0, None)
-		instance.name_offset = Uint.from_stream(stream, instance.context, 0, None)
-		if instance.dtype == 0:
-			instance.collider = Sphere.from_stream(stream, instance.context, 0, None)
-		if instance.dtype == 1:
-			instance.collider = BoundingBox.from_stream(stream, instance.context, 0, None)
-		if instance.dtype == 2:
-			instance.collider = Capsule.from_stream(stream, instance.context, 0, None)
-		if instance.dtype == 3:
-			instance.collider = Cylinder.from_stream(stream, instance.context, 0, None)
-		if instance.dtype == 7:
-			instance.collider = ConvexHull.from_stream(stream, instance.context, 0, None)
-		if instance.dtype == 8:
-			instance.collider = ConvexHull.from_stream(stream, instance.context, 0, None)
-		if instance.dtype == 10:
-			instance.collider = MeshCollision.from_stream(stream, instance.context, 0, None)
-		if instance.context.version == 13:
-			instance.zero_extra_zt = Uint.from_stream(stream, instance.context, 0, None)
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		CollisionType.to_stream(stream, instance.dtype)
-		Ushort.to_stream(stream, instance.flag_0)
-		Ushort.to_stream(stream, instance.flag_1)
-		Uint.to_stream(stream, instance.flag_2)
-		Uint.to_stream(stream, instance.flag_3)
-		if instance.context.version < 47:
-			Uint.to_stream(stream, instance.zero_extra_pc_unk)
-		Uint.to_stream(stream, instance.name_offset)
-		if instance.dtype == 0:
-			Sphere.to_stream(stream, instance.collider)
-		if instance.dtype == 1:
-			BoundingBox.to_stream(stream, instance.collider)
-		if instance.dtype == 2:
-			Capsule.to_stream(stream, instance.collider)
-		if instance.dtype == 3:
-			Cylinder.to_stream(stream, instance.collider)
-		if instance.dtype == 7:
-			ConvexHull.to_stream(stream, instance.collider)
-		if instance.dtype == 8:
-			ConvexHull.to_stream(stream, instance.collider)
-		if instance.dtype == 10:
-			MeshCollision.to_stream(stream, instance.collider)
-		if instance.context.version == 13:
-			Uint.to_stream(stream, instance.zero_extra_zt)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'dtype', CollisionType, (0, None), (False, None)

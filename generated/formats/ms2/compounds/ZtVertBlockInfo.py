@@ -30,20 +30,6 @@ class ZtVertBlockInfo(BaseStruct):
 		self.zero = 0
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.vertex_count = Uint.from_stream(stream, instance.context, 0, None)
-		instance.flags = Array.from_stream(stream, instance.context, 0, None, (8,), Ubyte)
-		instance.zero = Uint.from_stream(stream, instance.context, 0, None)
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Uint.to_stream(stream, instance.vertex_count)
-		Array.to_stream(stream, instance.flags, Ubyte)
-		Uint.to_stream(stream, instance.zero)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'vertex_count', Uint, (0, None), (False, None)

@@ -27,20 +27,6 @@ class Repeat(BaseStruct):
 		self.zeros_1 = numpy.zeros((2,), dtype=numpy.dtype('uint64'))
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.zeros_0 = Array.from_stream(stream, instance.context, 0, None, (7,), Uint64)
-		instance.byte_size = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.zeros_1 = Array.from_stream(stream, instance.context, 0, None, (2,), Uint64)
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Array.to_stream(stream, instance.zeros_0, Uint64)
-		Uint64.to_stream(stream, instance.byte_size)
-		Array.to_stream(stream, instance.zeros_1, Uint64)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'zeros_0', Array, (0, None, (7,), Uint64), (False, None)

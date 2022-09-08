@@ -41,44 +41,6 @@ class LogicalControls(MemStruct):
 		self.unsure = Pointer(self.context, 0, ZString)
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.buttons = ArrayPointer.from_stream(stream, instance.context, instance.button_count, LogicalControls._import_path_map["generated.formats.logicalcontrols.compounds.Button"])
-		instance.axes = ArrayPointer.from_stream(stream, instance.context, instance.axis_count, LogicalControls._import_path_map["generated.formats.logicalcontrols.compounds.AxisValue"])
-		instance.axis_buttons = ArrayPointer.from_stream(stream, instance.context, instance.count_3, LogicalControls._import_path_map["generated.formats.logicalcontrols.compounds.AxisButton"])
-		instance.d = ArrayPointer.from_stream(stream, instance.context, instance.count_4, LogicalControls._import_path_map["generated.formats.logicalcontrols.compounds.Some"])
-		instance.button_count = Ubyte.from_stream(stream, instance.context, 0, None)
-		instance.axis_count = Ubyte.from_stream(stream, instance.context, 0, None)
-		instance.count_3 = Ubyte.from_stream(stream, instance.context, 0, None)
-		instance.count_4 = Ubyte.from_stream(stream, instance.context, 0, None)
-		instance.flags = Uint.from_stream(stream, instance.context, 0, None)
-		instance.unsure = Pointer.from_stream(stream, instance.context, 0, ZString)
-		if not isinstance(instance.buttons, int):
-			instance.buttons.arg = instance.button_count
-		if not isinstance(instance.axes, int):
-			instance.axes.arg = instance.axis_count
-		if not isinstance(instance.axis_buttons, int):
-			instance.axis_buttons.arg = instance.count_3
-		if not isinstance(instance.d, int):
-			instance.d.arg = instance.count_4
-		if not isinstance(instance.unsure, int):
-			instance.unsure.arg = 0
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		ArrayPointer.to_stream(stream, instance.buttons)
-		ArrayPointer.to_stream(stream, instance.axes)
-		ArrayPointer.to_stream(stream, instance.axis_buttons)
-		ArrayPointer.to_stream(stream, instance.d)
-		Ubyte.to_stream(stream, instance.button_count)
-		Ubyte.to_stream(stream, instance.axis_count)
-		Ubyte.to_stream(stream, instance.count_3)
-		Ubyte.to_stream(stream, instance.count_4)
-		Uint.to_stream(stream, instance.flags)
-		Pointer.to_stream(stream, instance.unsure)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'buttons', ArrayPointer, (instance.button_count, LogicalControls._import_path_map["generated.formats.logicalcontrols.compounds.Button"]), (False, None)

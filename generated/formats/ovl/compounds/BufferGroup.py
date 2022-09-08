@@ -50,28 +50,6 @@ class BufferGroup(BaseStruct):
 		self.data_count = 0
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.buffer_offset = Uint.from_stream(stream, instance.context, 0, None)
-		instance.buffer_count = Uint.from_stream(stream, instance.context, 0, None)
-		instance.ext_index = Uint.from_stream(stream, instance.context, 0, None)
-		instance.buffer_index = Uint.from_stream(stream, instance.context, 0, None)
-		instance.size = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.data_offset = Uint.from_stream(stream, instance.context, 0, None)
-		instance.data_count = Uint.from_stream(stream, instance.context, 0, None)
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Uint.to_stream(stream, instance.buffer_offset)
-		Uint.to_stream(stream, instance.buffer_count)
-		Uint.to_stream(stream, instance.ext_index)
-		Uint.to_stream(stream, instance.buffer_index)
-		Uint64.to_stream(stream, instance.size)
-		Uint.to_stream(stream, instance.data_offset)
-		Uint.to_stream(stream, instance.data_count)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'buffer_offset', Uint, (0, None), (False, None)

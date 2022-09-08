@@ -27,18 +27,6 @@ class InfoZTMemPool(BaseStruct):
 		self.unks = numpy.zeros((self.unk_count, 2,), dtype=numpy.dtype('uint16'))
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.unk_count = Ushort.from_stream(stream, instance.context, 0, None)
-		instance.unks = Array.from_stream(stream, instance.context, 0, None, (instance.unk_count, 2,), Ushort)
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Ushort.to_stream(stream, instance.unk_count)
-		Array.to_stream(stream, instance.unks, Ushort)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'unk_count', Ushort, (0, None), (False, None)

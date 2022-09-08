@@ -45,26 +45,6 @@ class ListCEntry(BaseStruct):
 		self.a_2 = 0.0
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.one = Uint.from_stream(stream, instance.context, 0, None)
-		instance.loc = Vector3.from_stream(stream, instance.context, 0, None)
-		instance.constant = Float.from_stream(stream, instance.context, 0, None)
-		instance.a = Float.from_stream(stream, instance.context, 0, None)
-		instance.floats = Array.from_stream(stream, instance.context, 0, None, (4,), Float)
-		instance.a_2 = Float.from_stream(stream, instance.context, 0, None)
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Uint.to_stream(stream, instance.one)
-		Vector3.to_stream(stream, instance.loc)
-		Float.to_stream(stream, instance.constant)
-		Float.to_stream(stream, instance.a)
-		Array.to_stream(stream, instance.floats, Float)
-		Float.to_stream(stream, instance.a_2)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'one', Uint, (0, None), (False, None)

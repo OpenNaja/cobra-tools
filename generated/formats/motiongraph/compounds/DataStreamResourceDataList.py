@@ -26,20 +26,6 @@ class DataStreamResourceDataList(MemStruct):
 		self.data_stream_resource_data = Pointer(self.context, self.count, DataStreamResourceDataList._import_path_map["generated.formats.motiongraph.compounds.DataStreamResourceDataPoints"])
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.count = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.data_stream_resource_data = Pointer.from_stream(stream, instance.context, instance.count, DataStreamResourceDataList._import_path_map["generated.formats.motiongraph.compounds.DataStreamResourceDataPoints"])
-		if not isinstance(instance.data_stream_resource_data, int):
-			instance.data_stream_resource_data.arg = instance.count
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Uint64.to_stream(stream, instance.count)
-		Pointer.to_stream(stream, instance.data_stream_resource_data)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'count', Uint64, (0, None), (False, None)

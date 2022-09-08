@@ -30,22 +30,6 @@ class Vector2(MemStruct):
 		self.unused = 0
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.x = Float.from_stream(stream, instance.context, 0, None)
-		instance.y = Float.from_stream(stream, instance.context, 0, None)
-		instance.ioptional = Uint.from_stream(stream, instance.context, 0, None)
-		instance.unused = Uint.from_stream(stream, instance.context, 0, None)
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Float.to_stream(stream, instance.x)
-		Float.to_stream(stream, instance.y)
-		Uint.to_stream(stream, instance.ioptional)
-		Uint.to_stream(stream, instance.unused)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'x', Float, (0, None), (False, None)

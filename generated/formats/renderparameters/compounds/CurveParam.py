@@ -33,28 +33,6 @@ class CurveParam(MemStruct):
 		self.curve_entries = Pointer(self.context, self.count, CurveParam._import_path_map["generated.formats.renderparameters.compounds.CurveList"])
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.attribute_name = Pointer.from_stream(stream, instance.context, 0, ZString)
-		instance.dtype = Int.from_stream(stream, instance.context, 0, None)
-		instance.do_interpolation = Uint.from_stream(stream, instance.context, 0, None)
-		instance.curve_entries = Pointer.from_stream(stream, instance.context, instance.count, CurveParam._import_path_map["generated.formats.renderparameters.compounds.CurveList"])
-		instance.count = Uint64.from_stream(stream, instance.context, 0, None)
-		if not isinstance(instance.attribute_name, int):
-			instance.attribute_name.arg = 0
-		if not isinstance(instance.curve_entries, int):
-			instance.curve_entries.arg = instance.count
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Pointer.to_stream(stream, instance.attribute_name)
-		Int.to_stream(stream, instance.dtype)
-		Uint.to_stream(stream, instance.do_interpolation)
-		Pointer.to_stream(stream, instance.curve_entries)
-		Uint64.to_stream(stream, instance.count)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'attribute_name', Pointer, (0, ZString), (False, None)

@@ -31,24 +31,6 @@ class ZTPreBones(BaseStruct):
 		self.unks_3 = numpy.zeros((2,), dtype=numpy.dtype('uint32'))
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.zeros = Array.from_stream(stream, instance.context, 0, None, (2,), Uint64)
-		instance.unks = Array.from_stream(stream, instance.context, 0, None, (8,), Uint)
-		instance.unks_2 = Array.from_stream(stream, instance.context, 0, None, (10,), Uint)
-		instance.floats = Array.from_stream(stream, instance.context, 0, None, (4,), Float)
-		instance.unks_3 = Array.from_stream(stream, instance.context, 0, None, (2,), Uint)
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Array.to_stream(stream, instance.zeros, Uint64)
-		Array.to_stream(stream, instance.unks, Uint)
-		Array.to_stream(stream, instance.unks_2, Uint)
-		Array.to_stream(stream, instance.floats, Float)
-		Array.to_stream(stream, instance.unks_3, Uint)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'zeros', Array, (0, None, (2,), Uint64), (False, None)

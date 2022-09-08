@@ -36,20 +36,6 @@ class ListLong(Descriptor):
 		self.radians = numpy.zeros((8,), dtype=numpy.dtype('float32'))
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.loc = Vector3.from_stream(stream, instance.context, 0, None)
-		instance.floats = Array.from_stream(stream, instance.context, 0, None, (5, 3,), Float)
-		instance.radians = Array.from_stream(stream, instance.context, 0, None, (8,), Float)
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Vector3.to_stream(stream, instance.loc)
-		Array.to_stream(stream, instance.floats, Float)
-		Array.to_stream(stream, instance.radians, Float)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'loc', Vector3, (0, None), (False, None)

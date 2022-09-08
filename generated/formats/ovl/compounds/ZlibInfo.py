@@ -29,18 +29,6 @@ class ZlibInfo(BaseStruct):
 		self.zlib_thing_2 = 0
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.zlib_thing_1 = Uint.from_stream(stream, instance.context, 0, None)
-		instance.zlib_thing_2 = Uint.from_stream(stream, instance.context, 0, None)
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Uint.to_stream(stream, instance.zlib_thing_1)
-		Uint.to_stream(stream, instance.zlib_thing_2)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'zlib_thing_1', Uint, (0, None), (False, None)

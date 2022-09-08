@@ -25,20 +25,6 @@ class SupportAttachExtra(SupportAttach):
 		self.padding = 0
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.unk_float_1 = Float.from_stream(stream, instance.context, 0, None)
-		instance.unk_int_3 = Uint.from_stream(stream, instance.context, 0, None)
-		instance.padding = Uint64.from_stream(stream, instance.context, 0, None)
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Float.to_stream(stream, instance.unk_float_1)
-		Uint.to_stream(stream, instance.unk_int_3)
-		Uint64.to_stream(stream, instance.padding)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'unk_float_1', Float, (0, None), (False, None)

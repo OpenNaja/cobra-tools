@@ -49,54 +49,6 @@ class ParamData(MemStruct):
 			self.data = Array(self.context, 0, None, (1,), ZStrPtr)
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		if instance.arg == 0:
-			instance.data = Array.from_stream(stream, instance.context, 0, None, (1,), Bool)
-		if instance.arg == 1:
-			instance.data = Array.from_stream(stream, instance.context, 0, None, (1,), Float)
-		if instance.arg == 2:
-			instance.data = Array.from_stream(stream, instance.context, 0, None, (1,), Int)
-		if instance.arg == 3:
-			instance.data = Array.from_stream(stream, instance.context, 0, None, (1,), Uint)
-		if instance.arg == 4:
-			instance.data = Array.from_stream(stream, instance.context, 0, None, (2,), Float)
-		if instance.arg == 5:
-			instance.data = Array.from_stream(stream, instance.context, 0, None, (3,), Float)
-		if instance.arg == 6:
-			instance.data = Array.from_stream(stream, instance.context, 0, None, (4,), Float)
-		if instance.arg == 7:
-			instance.data = Array.from_stream(stream, instance.context, 0, None, (4,), Ubyte)
-		if instance.arg == 8:
-			instance.data = Array.from_stream(stream, instance.context, 0, None, (4,), Float)
-		if instance.arg == 9:
-			instance.data = Array.from_stream(stream, instance.context, 0, None, (1,), ZStrPtr)
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		if instance.arg == 0:
-			Array.to_stream(stream, instance.data, Bool)
-		if instance.arg == 1:
-			Array.to_stream(stream, instance.data, Float)
-		if instance.arg == 2:
-			Array.to_stream(stream, instance.data, Int)
-		if instance.arg == 3:
-			Array.to_stream(stream, instance.data, Uint)
-		if instance.arg == 4:
-			Array.to_stream(stream, instance.data, Float)
-		if instance.arg == 5:
-			Array.to_stream(stream, instance.data, Float)
-		if instance.arg == 6:
-			Array.to_stream(stream, instance.data, Float)
-		if instance.arg == 7:
-			Array.to_stream(stream, instance.data, Ubyte)
-		if instance.arg == 8:
-			Array.to_stream(stream, instance.data, Float)
-		if instance.arg == 9:
-			Array.to_stream(stream, instance.data, ZStrPtr)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		if instance.arg == 0:

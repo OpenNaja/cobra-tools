@@ -29,18 +29,6 @@ class Fragment(BaseStruct):
 		self.struct_ptr = HeaderPointer(self.context, 0, None)
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.link_ptr = HeaderPointer.from_stream(stream, instance.context, 0, None)
-		instance.struct_ptr = HeaderPointer.from_stream(stream, instance.context, 0, None)
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		HeaderPointer.to_stream(stream, instance.link_ptr)
-		HeaderPointer.to_stream(stream, instance.struct_ptr)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'link_ptr', HeaderPointer, (0, None), (False, None)

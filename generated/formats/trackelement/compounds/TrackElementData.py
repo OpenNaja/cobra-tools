@@ -49,46 +49,6 @@ class TrackElementData(MemStruct):
 		self.optional_catwalk = Pointer(self.context, 0, ZString)
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.loop_name = Pointer.from_stream(stream, instance.context, 0, ZString)
-		instance.ovl_name = Pointer.from_stream(stream, instance.context, 0, ZString)
-		instance.catwalk = Pointer.from_stream(stream, instance.context, 0, TrackElementData._import_path_map["generated.formats.trackelement.compounds.TrackElementSub"])
-		instance.unk_0 = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.optional_catwalk = Pointer.from_stream(stream, instance.context, 0, ZString)
-		instance.unk_1 = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.unk_2 = Ushort.from_stream(stream, instance.context, 0, None)
-		instance.unk_3 = Ushort.from_stream(stream, instance.context, 0, None)
-		instance.unk_4 = Uint.from_stream(stream, instance.context, 0, None)
-		instance.unk_5 = Uint.from_stream(stream, instance.context, 0, None)
-		instance.unk_6 = Uint.from_stream(stream, instance.context, 0, None)
-		instance.unk_7 = Uint64.from_stream(stream, instance.context, 0, None)
-		if not isinstance(instance.loop_name, int):
-			instance.loop_name.arg = 0
-		if not isinstance(instance.ovl_name, int):
-			instance.ovl_name.arg = 0
-		if not isinstance(instance.catwalk, int):
-			instance.catwalk.arg = 0
-		if not isinstance(instance.optional_catwalk, int):
-			instance.optional_catwalk.arg = 0
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Pointer.to_stream(stream, instance.loop_name)
-		Pointer.to_stream(stream, instance.ovl_name)
-		Pointer.to_stream(stream, instance.catwalk)
-		Uint64.to_stream(stream, instance.unk_0)
-		Pointer.to_stream(stream, instance.optional_catwalk)
-		Uint64.to_stream(stream, instance.unk_1)
-		Ushort.to_stream(stream, instance.unk_2)
-		Ushort.to_stream(stream, instance.unk_3)
-		Uint.to_stream(stream, instance.unk_4)
-		Uint.to_stream(stream, instance.unk_5)
-		Uint.to_stream(stream, instance.unk_6)
-		Uint64.to_stream(stream, instance.unk_7)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'loop_name', Pointer, (0, ZString), (False, None)

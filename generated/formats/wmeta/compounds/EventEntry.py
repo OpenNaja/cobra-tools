@@ -61,52 +61,6 @@ class EventEntry(MemStruct):
 			self.block_name = Pointer(self.context, 0, ZString)
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.hash = Uint.from_stream(stream, instance.context, 0, None)
-		instance.zero = Uint.from_stream(stream, instance.context, 0, None)
-		if instance.context.version <= 18:
-			instance.block_name = Pointer.from_stream(stream, instance.context, 0, ZString)
-			instance.zero_2 = Ushort.from_stream(stream, instance.context, 0, None)
-			instance.size = Ushort.from_stream(stream, instance.context, 0, None)
-		instance.flag_0 = Uint.from_stream(stream, instance.context, 0, None)
-		instance.flag_1 = Uint.from_stream(stream, instance.context, 0, None)
-		instance.flag_2 = Uint.from_stream(stream, instance.context, 0, None)
-		if instance.context.version <= 18:
-			instance.zero_3 = Uint64.from_stream(stream, instance.context, 0, None)
-			instance.flag_3 = Uint.from_stream(stream, instance.context, 0, None)
-		instance.hash_b = Uint.from_stream(stream, instance.context, 0, None)
-		instance.hash_c = Uint.from_stream(stream, instance.context, 0, None)
-		instance.zero_4 = Uint.from_stream(stream, instance.context, 0, None)
-		if instance.context.version >= 19:
-			instance.u_2 = Uint.from_stream(stream, instance.context, 0, None)
-			instance.u_1 = Uint.from_stream(stream, instance.context, 0, None)
-		if not isinstance(instance.block_name, int):
-			instance.block_name.arg = 0
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Uint.to_stream(stream, instance.hash)
-		Uint.to_stream(stream, instance.zero)
-		if instance.context.version <= 18:
-			Pointer.to_stream(stream, instance.block_name)
-			Ushort.to_stream(stream, instance.zero_2)
-			Ushort.to_stream(stream, instance.size)
-		Uint.to_stream(stream, instance.flag_0)
-		Uint.to_stream(stream, instance.flag_1)
-		Uint.to_stream(stream, instance.flag_2)
-		if instance.context.version <= 18:
-			Uint64.to_stream(stream, instance.zero_3)
-			Uint.to_stream(stream, instance.flag_3)
-		Uint.to_stream(stream, instance.hash_b)
-		Uint.to_stream(stream, instance.hash_c)
-		Uint.to_stream(stream, instance.zero_4)
-		if instance.context.version >= 19:
-			Uint.to_stream(stream, instance.u_2)
-			Uint.to_stream(stream, instance.u_1)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'hash', Uint, (0, None), (False, None)

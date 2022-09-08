@@ -32,18 +32,6 @@ class TypeOther(BaseStruct):
 		self.raw = numpy.zeros((self.length,), dtype=numpy.dtype('int8'))
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.length = Uint.from_stream(stream, instance.context, 0, None)
-		instance.raw = Array.from_stream(stream, instance.context, 0, None, (instance.length,), Byte)
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Uint.to_stream(stream, instance.length)
-		Array.to_stream(stream, instance.raw, Byte)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'length', Uint, (0, None), (False, None)

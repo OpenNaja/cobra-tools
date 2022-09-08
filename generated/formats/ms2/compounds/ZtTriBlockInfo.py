@@ -28,20 +28,6 @@ class ZtTriBlockInfo(BaseStruct):
 		self.unk_index = 0
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.tri_index_count = Uint.from_stream(stream, instance.context, 0, None)
-		instance.a = Short.from_stream(stream, instance.context, 0, None)
-		instance.unk_index = Short.from_stream(stream, instance.context, 0, None)
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Uint.to_stream(stream, instance.tri_index_count)
-		Short.to_stream(stream, instance.a)
-		Short.to_stream(stream, instance.unk_index)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'tri_index_count', Uint, (0, None), (False, None)

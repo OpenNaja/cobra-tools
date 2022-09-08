@@ -29,20 +29,6 @@ class FloatInputData(MemStruct):
 		self.optional_var_and_curve = 0
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.float = Float.from_stream(stream, instance.context, 0, None)
-		instance.optional_var_and_curve_count = Uint.from_stream(stream, instance.context, 0, None)
-		instance.optional_var_and_curve = Uint64.from_stream(stream, instance.context, 0, None)
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Float.to_stream(stream, instance.float)
-		Uint.to_stream(stream, instance.optional_var_and_curve_count)
-		Uint64.to_stream(stream, instance.optional_var_and_curve)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'float', Float, (0, None), (False, None)

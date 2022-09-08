@@ -29,28 +29,6 @@ class HircPointer(BaseStruct):
 			self.data = TypeOther(self.context, 0, None)
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.id = HircType.from_stream(stream, instance.context, 0, None)
-		if instance.id == 2:
-			instance.data = SoundSfxVoice.from_stream(stream, instance.context, 0, None)
-		if instance.id == 11:
-			instance.data = MusicTrack.from_stream(stream, instance.context, 0, None)
-		if (instance.id != 2) and (instance.id != 11):
-			instance.data = TypeOther.from_stream(stream, instance.context, 0, None)
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		HircType.to_stream(stream, instance.id)
-		if instance.id == 2:
-			SoundSfxVoice.to_stream(stream, instance.data)
-		if instance.id == 11:
-			MusicTrack.to_stream(stream, instance.data)
-		if (instance.id != 2) and (instance.id != 11):
-			TypeOther.to_stream(stream, instance.data)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'id', HircType, (0, None), (False, None)

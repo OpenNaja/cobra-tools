@@ -26,26 +26,6 @@ class Texture(MemStruct):
 		self.texture_type = Pointer(self.context, 0, ZString)
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.fgm_name = Pointer.from_stream(stream, instance.context, 0, ZString)
-		instance.texture_suffix = Pointer.from_stream(stream, instance.context, 0, ZString)
-		instance.texture_type = Pointer.from_stream(stream, instance.context, 0, ZString)
-		if not isinstance(instance.fgm_name, int):
-			instance.fgm_name.arg = 0
-		if not isinstance(instance.texture_suffix, int):
-			instance.texture_suffix.arg = 0
-		if not isinstance(instance.texture_type, int):
-			instance.texture_type.arg = 0
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Pointer.to_stream(stream, instance.fgm_name)
-		Pointer.to_stream(stream, instance.texture_suffix)
-		Pointer.to_stream(stream, instance.texture_type)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'fgm_name', Pointer, (0, ZString), (False, None)

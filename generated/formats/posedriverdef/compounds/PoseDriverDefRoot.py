@@ -22,20 +22,6 @@ class PoseDriverDefRoot(MemStruct):
 		self.drivers = ArrayPointer(self.context, self.count, PoseDriverDefRoot._import_path_map["generated.formats.posedriverdef.compounds.Driver"])
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.drivers = ArrayPointer.from_stream(stream, instance.context, instance.count, PoseDriverDefRoot._import_path_map["generated.formats.posedriverdef.compounds.Driver"])
-		instance.count = Uint64.from_stream(stream, instance.context, 0, None)
-		if not isinstance(instance.drivers, int):
-			instance.drivers.arg = instance.count
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		ArrayPointer.to_stream(stream, instance.drivers)
-		Uint64.to_stream(stream, instance.count)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'drivers', ArrayPointer, (instance.count, PoseDriverDefRoot._import_path_map["generated.formats.posedriverdef.compounds.Driver"]), (False, None)

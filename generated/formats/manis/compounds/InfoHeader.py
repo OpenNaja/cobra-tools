@@ -41,29 +41,6 @@ class InfoHeader(BaseStruct):
 		self.keys_buffer = KeysReader(self.context, self.mani_infos, None)
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.version = Uint.from_stream(stream, instance.context, 0, None)
-		instance.context.version = instance.version
-		instance.mani_count = Uint.from_stream(stream, instance.context, 0, None)
-		instance.names = Array.from_stream(stream, instance.context, 0, None, (instance.mani_count,), ZString)
-		instance.header = SizedStrData.from_stream(stream, instance.context, 0, None)
-		instance.mani_infos = Array.from_stream(stream, instance.context, 0, None, (instance.mani_count,), ManiInfo)
-		instance.name_buffer = Buffer1.from_stream(stream, instance.context, int(instance.header.hash_block_size / 4), None)
-		instance.keys_buffer = KeysReader.from_stream(stream, instance.context, instance.mani_infos, None)
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Uint.to_stream(stream, instance.version)
-		Uint.to_stream(stream, instance.mani_count)
-		Array.to_stream(stream, instance.names, ZString)
-		SizedStrData.to_stream(stream, instance.header)
-		Array.to_stream(stream, instance.mani_infos, ManiInfo)
-		Buffer1.to_stream(stream, instance.name_buffer)
-		KeysReader.to_stream(stream, instance.keys_buffer)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'version', Uint, (0, None), (False, None)

@@ -60,38 +60,6 @@ class Model(BaseStruct):
 			self.floatsy = Array(self.context, 0, None, (self.arg.render_flag,), FloatsY)
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.materials = Array.from_stream(stream, instance.context, 0, None, (instance.arg.num_materials,), MaterialName)
-		instance.lods = Array.from_stream(stream, instance.context, 0, None, (instance.arg.num_lods,), LodInfo)
-		instance.objects = Array.from_stream(stream, instance.context, 0, None, (instance.arg.num_objects,), Object)
-		if instance.context.version <= 13 and (instance.arg.num_materials + instance.arg.num_objects) % 2:
-			instance.objects_padding = Uint.from_stream(stream, instance.context, 0, None)
-		instance.meshes = Array.from_stream(stream, instance.context, 0, None, (instance.arg.num_meshes,), MeshDataWrap)
-		if instance.context.version == 13 and instance.arg.last_count:
-			instance.pre_bones = ZTPreBones.from_stream(stream, instance.context, 0, None)
-		if instance.context.version == 7 and instance.arg.last_count:
-			instance.pre_bones = DLAPreBones.from_stream(stream, instance.context, 0, None)
-		if instance.context.version <= 32:
-			instance.floatsy = Array.from_stream(stream, instance.context, 0, None, (instance.arg.render_flag,), FloatsY)
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Array.to_stream(stream, instance.materials, MaterialName)
-		Array.to_stream(stream, instance.lods, LodInfo)
-		Array.to_stream(stream, instance.objects, Object)
-		if instance.context.version <= 13 and (instance.arg.num_materials + instance.arg.num_objects) % 2:
-			Uint.to_stream(stream, instance.objects_padding)
-		Array.to_stream(stream, instance.meshes, MeshDataWrap)
-		if instance.context.version == 13 and instance.arg.last_count:
-			ZTPreBones.to_stream(stream, instance.pre_bones)
-		if instance.context.version == 7 and instance.arg.last_count:
-			DLAPreBones.to_stream(stream, instance.pre_bones)
-		if instance.context.version <= 32:
-			Array.to_stream(stream, instance.floatsy, FloatsY)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'materials', Array, (0, None, (instance.arg.num_materials,), MaterialName), (False, None)

@@ -33,20 +33,6 @@ class Vector3Ushort(BaseStruct):
 		self.z = 0
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.x = Ushort.from_stream(stream, instance.context, 0, None)
-		instance.y = Ushort.from_stream(stream, instance.context, 0, None)
-		instance.z = Ushort.from_stream(stream, instance.context, 0, None)
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Ushort.to_stream(stream, instance.x)
-		Ushort.to_stream(stream, instance.y)
-		Ushort.to_stream(stream, instance.z)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'x', Ushort, (0, None), (False, None)

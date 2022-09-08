@@ -42,32 +42,6 @@ class TrackedRideCarRoot(MemStruct):
 		self.some_name = Pointer(self.context, 0, ZString)
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.sub = ArrayPointer.from_stream(stream, instance.context, instance.sub_count, TrackedRideCarRoot._import_path_map["generated.formats.trackedridecar.compounds.TrackedRideCarSub"])
-		instance.sub_count = Uint.from_stream(stream, instance.context, 0, None)
-		instance.total_vecs_count = Uint.from_stream(stream, instance.context, 0, None)
-		instance.vec = Array.from_stream(stream, instance.context, 0, None, (3,), Float)
-		instance.zero_0 = Uint.from_stream(stream, instance.context, 0, None)
-		instance.some_name = Pointer.from_stream(stream, instance.context, 0, ZString)
-		instance.zero_1 = Uint64.from_stream(stream, instance.context, 0, None)
-		if not isinstance(instance.sub, int):
-			instance.sub.arg = instance.sub_count
-		if not isinstance(instance.some_name, int):
-			instance.some_name.arg = 0
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		ArrayPointer.to_stream(stream, instance.sub)
-		Uint.to_stream(stream, instance.sub_count)
-		Uint.to_stream(stream, instance.total_vecs_count)
-		Array.to_stream(stream, instance.vec, Float)
-		Uint.to_stream(stream, instance.zero_0)
-		Pointer.to_stream(stream, instance.some_name)
-		Uint64.to_stream(stream, instance.zero_1)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'sub', ArrayPointer, (instance.sub_count, TrackedRideCarRoot._import_path_map["generated.formats.trackedridecar.compounds.TrackedRideCarSub"]), (False, None)

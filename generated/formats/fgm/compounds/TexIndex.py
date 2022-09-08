@@ -28,20 +28,6 @@ class TexIndex(MemStruct):
 			self.array_index = 0
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance._tex_index = Uint.from_stream(stream, instance.context, 0, None)
-		if instance.context.version >= 18:
-			instance.array_index = Uint.from_stream(stream, instance.context, 0, None)
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Uint.to_stream(stream, instance._tex_index)
-		if instance.context.version >= 18:
-			Uint.to_stream(stream, instance.array_index)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield '_tex_index', Uint, (0, None), (False, None)

@@ -44,40 +44,6 @@ class RestaurantSettingsRoot(MemStruct):
 		self.perks = ArrayPointer(self.context, self.count, RestaurantSettingsRoot._import_path_map["generated.formats.restaurantsettings.compounds.Perk"])
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.running_cost_base = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.unk_1 = Uint.from_stream(stream, instance.context, 0, None)
-		instance.unk_2 = Float.from_stream(stream, instance.context, 0, None)
-		instance.unk_3 = Float.from_stream(stream, instance.context, 0, None)
-		instance.unk_4 = Float.from_stream(stream, instance.context, 0, None)
-		instance.unk_5 = Float.from_stream(stream, instance.context, 0, None)
-		instance.unk_6 = Float.from_stream(stream, instance.context, 0, None)
-		instance.running_cost_per_extension = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.unk_8 = Uint.from_stream(stream, instance.context, 0, None)
-		instance.unk_9 = Float.from_stream(stream, instance.context, 0, None)
-		instance.perks = ArrayPointer.from_stream(stream, instance.context, instance.count, RestaurantSettingsRoot._import_path_map["generated.formats.restaurantsettings.compounds.Perk"])
-		instance.count = Uint64.from_stream(stream, instance.context, 0, None)
-		if not isinstance(instance.perks, int):
-			instance.perks.arg = instance.count
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Uint64.to_stream(stream, instance.running_cost_base)
-		Uint.to_stream(stream, instance.unk_1)
-		Float.to_stream(stream, instance.unk_2)
-		Float.to_stream(stream, instance.unk_3)
-		Float.to_stream(stream, instance.unk_4)
-		Float.to_stream(stream, instance.unk_5)
-		Float.to_stream(stream, instance.unk_6)
-		Uint64.to_stream(stream, instance.running_cost_per_extension)
-		Uint.to_stream(stream, instance.unk_8)
-		Float.to_stream(stream, instance.unk_9)
-		ArrayPointer.to_stream(stream, instance.perks)
-		Uint64.to_stream(stream, instance.count)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'running_cost_base', Uint64, (0, None), (False, None)

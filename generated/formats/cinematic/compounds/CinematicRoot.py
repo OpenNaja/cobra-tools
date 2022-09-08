@@ -24,22 +24,6 @@ class CinematicRoot(MemStruct):
 		self.data = Pointer(self.context, 0, CinematicRoot._import_path_map["generated.formats.cinematic.compounds.CinematicData"])
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.u_0 = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.u_1 = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.data = Pointer.from_stream(stream, instance.context, 0, CinematicRoot._import_path_map["generated.formats.cinematic.compounds.CinematicData"])
-		if not isinstance(instance.data, int):
-			instance.data.arg = 0
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Uint64.to_stream(stream, instance.u_0)
-		Uint64.to_stream(stream, instance.u_1)
-		Pointer.to_stream(stream, instance.data)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'u_0', Uint64, (0, None), (False, None)

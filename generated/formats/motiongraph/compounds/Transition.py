@@ -37,32 +37,6 @@ class Transition(MemStruct):
 		self.id = Pointer(self.context, 0, ZString)
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.count_0 = Uint.from_stream(stream, instance.context, 0, None)
-		instance.count_1 = Uint.from_stream(stream, instance.context, 0, None)
-		instance.ptr_0 = Pointer.from_stream(stream, instance.context, instance.count_1, Transition._import_path_map["generated.formats.motiongraph.compounds.PtrList"])
-		instance.count_2 = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.ptr_1 = Pointer.from_stream(stream, instance.context, instance.count_2, Transition._import_path_map["generated.formats.motiongraph.compounds.TransStructArray"])
-		instance.id = Pointer.from_stream(stream, instance.context, 0, ZString)
-		if not isinstance(instance.ptr_0, int):
-			instance.ptr_0.arg = instance.count_1
-		if not isinstance(instance.ptr_1, int):
-			instance.ptr_1.arg = instance.count_2
-		if not isinstance(instance.id, int):
-			instance.id.arg = 0
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Uint.to_stream(stream, instance.count_0)
-		Uint.to_stream(stream, instance.count_1)
-		Pointer.to_stream(stream, instance.ptr_0)
-		Uint64.to_stream(stream, instance.count_2)
-		Pointer.to_stream(stream, instance.ptr_1)
-		Pointer.to_stream(stream, instance.id)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'count_0', Uint, (0, None), (False, None)

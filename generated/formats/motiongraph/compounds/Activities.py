@@ -20,16 +20,6 @@ class Activities(MemStruct):
 		self.states = Array(self.context, 0, None, (self.arg,), ActivityEntry)
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.states = Array.from_stream(stream, instance.context, 0, None, (instance.arg,), ActivityEntry)
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Array.to_stream(stream, instance.states, ActivityEntry)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'states', Array, (0, None, (instance.arg,), ActivityEntry), (False, None)

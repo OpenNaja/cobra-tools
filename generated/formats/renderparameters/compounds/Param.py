@@ -30,22 +30,6 @@ class Param(MemStruct):
 		self.attribute_name = Pointer(self.context, 0, ZString)
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.attribute_name = Pointer.from_stream(stream, instance.context, 0, ZString)
-		instance.dtype = RenderParameterType.from_stream(stream, instance.context, 0, None)
-		instance.data = ParamData.from_stream(stream, instance.context, instance.dtype, None)
-		if not isinstance(instance.attribute_name, int):
-			instance.attribute_name.arg = 0
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Pointer.to_stream(stream, instance.attribute_name)
-		RenderParameterType.to_stream(stream, instance.dtype)
-		ParamData.to_stream(stream, instance.data)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'attribute_name', Pointer, (0, ZString), (False, None)

@@ -24,18 +24,6 @@ class ParamList(MemStruct):
 		self.ptrs = Array(self.context, 0, ParamList._import_path_map["generated.formats.renderparameters.compounds.Param"], (self.arg,), Pointer)
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.ptrs = Array.from_stream(stream, instance.context, 0, ParamList._import_path_map["generated.formats.renderparameters.compounds.Param"], (instance.arg,), Pointer)
-		if not isinstance(instance.ptrs, int):
-			instance.ptrs.arg = 0
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Array.to_stream(stream, instance.ptrs, Pointer)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'ptrs', Array, (0, ParamList._import_path_map["generated.formats.renderparameters.compounds.Param"], (instance.arg,), Pointer), (False, None)

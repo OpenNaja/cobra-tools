@@ -36,22 +36,6 @@ class HbPhysicsOffsets(MemStruct):
 		self.wall_post_gap = 0.0
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.thickness = Float.from_stream(stream, instance.context, 0, None)
-		instance.post_size = HbPostSize.from_stream(stream, instance.context, 0, None)
-		instance.wall_pad_top = Float.from_stream(stream, instance.context, 0, None)
-		instance.wall_post_gap = Float.from_stream(stream, instance.context, 0, None)
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Float.to_stream(stream, instance.thickness)
-		HbPostSize.to_stream(stream, instance.post_size)
-		Float.to_stream(stream, instance.wall_pad_top)
-		Float.to_stream(stream, instance.wall_post_gap)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'thickness', Float, (0, None), (False, None)

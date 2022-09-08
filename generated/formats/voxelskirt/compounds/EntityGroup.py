@@ -30,18 +30,6 @@ class EntityGroup(Material):
 		self.ff_or_zero = 0
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.ff = Int.from_stream(stream, instance.context, 0, None)
-		instance.ff_or_zero = Int.from_stream(stream, instance.context, 0, None)
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Int.to_stream(stream, instance.ff)
-		Int.to_stream(stream, instance.ff_or_zero)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'ff', Int, (0, None), (False, None)

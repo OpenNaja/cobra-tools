@@ -28,20 +28,6 @@ class MatcolRoot(MemStruct):
 		self.main = Pointer(self.context, 0, MatcolRoot._import_path_map["generated.formats.matcol.compounds.RootFrag"])
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.main = Pointer.from_stream(stream, instance.context, 0, MatcolRoot._import_path_map["generated.formats.matcol.compounds.RootFrag"])
-		instance.one = Uint64.from_stream(stream, instance.context, 0, None)
-		if not isinstance(instance.main, int):
-			instance.main.arg = 0
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Pointer.to_stream(stream, instance.main)
-		Uint64.to_stream(stream, instance.one)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'main', Pointer, (0, MatcolRoot._import_path_map["generated.formats.matcol.compounds.RootFrag"]), (False, None)

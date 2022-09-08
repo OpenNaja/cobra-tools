@@ -44,26 +44,6 @@ class VertChunk(BaseStruct):
 		self.zero = 0
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.flags = Array.from_stream(stream, instance.context, 0, None, (4,), Ubyte)
-		instance.pack_base = Float.from_stream(stream, instance.context, 0, None)
-		instance.vertex_offset = Uint.from_stream(stream, instance.context, 0, None)
-		instance.vertex_count = Ubyte.from_stream(stream, instance.context, 0, None)
-		instance.weights_flag = WeightsFlag.from_stream(stream, instance.context, 0, None)
-		instance.zero = Ubyte.from_stream(stream, instance.context, 0, None)
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Array.to_stream(stream, instance.flags, Ubyte)
-		Float.to_stream(stream, instance.pack_base)
-		Uint.to_stream(stream, instance.vertex_offset)
-		Ubyte.to_stream(stream, instance.vertex_count)
-		WeightsFlag.to_stream(stream, instance.weights_flag)
-		Ubyte.to_stream(stream, instance.zero)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'flags', Array, (0, None, (4,), Ubyte), (False, None)

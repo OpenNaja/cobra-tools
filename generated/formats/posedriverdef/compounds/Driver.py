@@ -44,38 +44,6 @@ class Driver(MemStruct):
 		self.data = Pointer(self.context, 0, Driver._import_path_map["generated.formats.posedriverdef.compounds.Data"])
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.joint_name = Pointer.from_stream(stream, instance.context, 0, ZString)
-		instance.a = Ubyte.from_stream(stream, instance.context, 0, None)
-		instance.b = Ubyte.from_stream(stream, instance.context, 0, None)
-		instance.c = Ushort.from_stream(stream, instance.context, 0, None)
-		instance.d = Uint.from_stream(stream, instance.context, 0, None)
-		instance.driven_joint_name = Pointer.from_stream(stream, instance.context, 0, ZString)
-		instance.unk_1 = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.data = Pointer.from_stream(stream, instance.context, 0, Driver._import_path_map["generated.formats.posedriverdef.compounds.Data"])
-		instance.unk_2 = Uint64.from_stream(stream, instance.context, 0, None)
-		if not isinstance(instance.joint_name, int):
-			instance.joint_name.arg = 0
-		if not isinstance(instance.driven_joint_name, int):
-			instance.driven_joint_name.arg = 0
-		if not isinstance(instance.data, int):
-			instance.data.arg = 0
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Pointer.to_stream(stream, instance.joint_name)
-		Ubyte.to_stream(stream, instance.a)
-		Ubyte.to_stream(stream, instance.b)
-		Ushort.to_stream(stream, instance.c)
-		Uint.to_stream(stream, instance.d)
-		Pointer.to_stream(stream, instance.driven_joint_name)
-		Uint64.to_stream(stream, instance.unk_1)
-		Pointer.to_stream(stream, instance.data)
-		Uint64.to_stream(stream, instance.unk_2)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'joint_name', Pointer, (0, ZString), (False, None)

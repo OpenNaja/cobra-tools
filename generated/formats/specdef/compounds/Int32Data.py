@@ -32,26 +32,6 @@ class Int32Data(MemStruct):
 		self.enum = Pointer(self.context, 0, None)
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.imin = Int.from_stream(stream, instance.context, 0, None)
-		instance.imax = Int.from_stream(stream, instance.context, 0, None)
-		instance.ivalue = Int.from_stream(stream, instance.context, 0, None)
-		instance.ioptional = Int.from_stream(stream, instance.context, 0, None)
-		instance.enum = Pointer.from_stream(stream, instance.context, 0, None)
-		if not isinstance(instance.enum, int):
-			instance.enum.arg = 0
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Int.to_stream(stream, instance.imin)
-		Int.to_stream(stream, instance.imax)
-		Int.to_stream(stream, instance.ivalue)
-		Int.to_stream(stream, instance.ioptional)
-		Pointer.to_stream(stream, instance.enum)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'imin', Int, (0, None), (False, None)

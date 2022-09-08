@@ -30,20 +30,6 @@ class SplData(MemStruct):
 		self.keys = Array(self.context, 0, None, (self.arg,), Key)
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.offset = Vector3.from_stream(stream, instance.context, 0, None)
-		instance.scale = Float.from_stream(stream, instance.context, 0, None)
-		instance.keys = Array.from_stream(stream, instance.context, 0, None, (instance.arg,), Key)
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Vector3.to_stream(stream, instance.offset)
-		Float.to_stream(stream, instance.scale)
-		Array.to_stream(stream, instance.keys, Key)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'offset', Vector3, (0, None), (False, None)

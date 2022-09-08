@@ -25,18 +25,6 @@ class Object(BaseStruct):
 		self.mesh_index = 0
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.material_index = Ushort.from_stream(stream, instance.context, 0, None)
-		instance.mesh_index = Ushort.from_stream(stream, instance.context, 0, None)
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Ushort.to_stream(stream, instance.material_index)
-		Ushort.to_stream(stream, instance.mesh_index)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'material_index', Ushort, (0, None), (False, None)

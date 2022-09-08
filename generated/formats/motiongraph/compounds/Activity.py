@@ -47,32 +47,6 @@ class Activity(MemStruct):
 		self.name_b = Pointer(self.context, 0, ZString)
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.data_type = Pointer.from_stream(stream, instance.context, 0, ZString)
-		instance.ptr = Pointer.from_stream(stream, instance.context, 0, None)
-		instance.count_2 = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.count_3 = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.minus_one = Int64.from_stream(stream, instance.context, 0, None)
-		instance.name_b = Pointer.from_stream(stream, instance.context, 0, ZString)
-		if not isinstance(instance.data_type, int):
-			instance.data_type.arg = 0
-		if not isinstance(instance.ptr, int):
-			instance.ptr.arg = 0
-		if not isinstance(instance.name_b, int):
-			instance.name_b.arg = 0
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Pointer.to_stream(stream, instance.data_type)
-		Pointer.to_stream(stream, instance.ptr)
-		Uint64.to_stream(stream, instance.count_2)
-		Uint64.to_stream(stream, instance.count_3)
-		Int64.to_stream(stream, instance.minus_one)
-		Pointer.to_stream(stream, instance.name_b)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'data_type', Pointer, (0, ZString), (False, None)

@@ -22,18 +22,6 @@ class Key(BaseStruct):
 		self.translation = Vector3Ushort(self.context, 0, None)
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.euler = Vector3Short.from_stream(stream, instance.context, 0, None)
-		instance.translation = Vector3Ushort.from_stream(stream, instance.context, 0, None)
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Vector3Short.to_stream(stream, instance.euler)
-		Vector3Ushort.to_stream(stream, instance.translation)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'euler', Vector3Short, (0, None), (False, None)

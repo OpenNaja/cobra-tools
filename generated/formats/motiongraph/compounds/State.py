@@ -37,32 +37,6 @@ class State(MemStruct):
 		self.id = Pointer(self.context, 0, ZString)
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.unk = Uint.from_stream(stream, instance.context, 0, None)
-		instance.activities_count = Uint.from_stream(stream, instance.context, 0, None)
-		instance.activities = Pointer.from_stream(stream, instance.context, instance.activities_count, State._import_path_map["generated.formats.motiongraph.compounds.PtrList"])
-		instance.count_2 = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.array_2 = Pointer.from_stream(stream, instance.context, instance.count_2, State._import_path_map["generated.formats.motiongraph.compounds.TransStructStopList"])
-		instance.id = Pointer.from_stream(stream, instance.context, 0, ZString)
-		if not isinstance(instance.activities, int):
-			instance.activities.arg = instance.activities_count
-		if not isinstance(instance.array_2, int):
-			instance.array_2.arg = instance.count_2
-		if not isinstance(instance.id, int):
-			instance.id.arg = 0
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Uint.to_stream(stream, instance.unk)
-		Uint.to_stream(stream, instance.activities_count)
-		Pointer.to_stream(stream, instance.activities)
-		Uint64.to_stream(stream, instance.count_2)
-		Pointer.to_stream(stream, instance.array_2)
-		Pointer.to_stream(stream, instance.id)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'unk', Uint, (0, None), (False, None)

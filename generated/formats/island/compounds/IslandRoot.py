@@ -34,26 +34,6 @@ class IslandRoot(MemStruct):
 		self.path_name = Pointer(self.context, 0, ZString)
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.path_name = Pointer.from_stream(stream, instance.context, 0, ZString)
-		instance.a = Float.from_stream(stream, instance.context, 0, None)
-		instance.b = Float.from_stream(stream, instance.context, 0, None)
-		instance.count = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.zero = Uint64.from_stream(stream, instance.context, 0, None)
-		if not isinstance(instance.path_name, int):
-			instance.path_name.arg = 0
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Pointer.to_stream(stream, instance.path_name)
-		Float.to_stream(stream, instance.a)
-		Float.to_stream(stream, instance.b)
-		Uint64.to_stream(stream, instance.count)
-		Uint64.to_stream(stream, instance.zero)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'path_name', Pointer, (0, ZString), (False, None)

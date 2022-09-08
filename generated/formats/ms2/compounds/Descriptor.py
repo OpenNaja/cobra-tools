@@ -25,18 +25,6 @@ class Descriptor(BaseStruct):
 		self.child = 0
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.parent = Ushort.from_stream(stream, instance.context, 0, None)
-		instance.child = Ushort.from_stream(stream, instance.context, 0, None)
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Ushort.to_stream(stream, instance.parent)
-		Ushort.to_stream(stream, instance.child)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'parent', Ushort, (0, None), (False, None)

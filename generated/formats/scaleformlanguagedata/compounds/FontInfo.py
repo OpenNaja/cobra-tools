@@ -29,24 +29,6 @@ class FontInfo(MemStruct):
 		self.font_file = Pointer(self.context, 0, ZString)
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.style_name = Pointer.from_stream(stream, instance.context, 0, ZString)
-		instance.font_file = Pointer.from_stream(stream, instance.context, 0, ZString)
-		instance.flag_or_count = Uint64.from_stream(stream, instance.context, 0, None)
-		if not isinstance(instance.style_name, int):
-			instance.style_name.arg = 0
-		if not isinstance(instance.font_file, int):
-			instance.font_file.arg = 0
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Pointer.to_stream(stream, instance.style_name)
-		Pointer.to_stream(stream, instance.font_file)
-		Uint64.to_stream(stream, instance.flag_or_count)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'style_name', Pointer, (0, ZString), (False, None)

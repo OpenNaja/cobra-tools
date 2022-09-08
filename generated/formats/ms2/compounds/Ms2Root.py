@@ -59,39 +59,6 @@ class Ms2Root(MemStruct):
 		self.buffers_presence = ArrayPointer(self.context, self.vertex_buffer_count, Ms2Root._import_path_map["generated.formats.ms2.compounds.BufferPresence"])
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.version = Uint.from_stream(stream, instance.context, 0, None)
-		instance.context.version = instance.version
-		instance.vertex_buffer_count = Ushort.from_stream(stream, instance.context, 0, None)
-		instance.mdl_2_count = Ushort.from_stream(stream, instance.context, 0, None)
-		instance.name_count = Ushort.from_stream(stream, instance.context, 0, None)
-		instance.stream_count = Short.from_stream(stream, instance.context, 0, None)
-		instance.zeros = Array.from_stream(stream, instance.context, 0, None, (3,), Uint)
-		instance.buffer_infos = ArrayPointer.from_stream(stream, instance.context, instance.vertex_buffer_count, Ms2Root._import_path_map["generated.formats.ms2.compounds.BufferInfo"])
-		instance.model_infos = ArrayPointer.from_stream(stream, instance.context, instance.mdl_2_count, Ms2Root._import_path_map["generated.formats.ms2.compounds.ModelInfo"])
-		instance.buffers_presence = ArrayPointer.from_stream(stream, instance.context, instance.vertex_buffer_count, Ms2Root._import_path_map["generated.formats.ms2.compounds.BufferPresence"])
-		if not isinstance(instance.buffer_infos, int):
-			instance.buffer_infos.arg = instance.vertex_buffer_count
-		if not isinstance(instance.model_infos, int):
-			instance.model_infos.arg = instance.mdl_2_count
-		if not isinstance(instance.buffers_presence, int):
-			instance.buffers_presence.arg = instance.vertex_buffer_count
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Uint.to_stream(stream, instance.version)
-		Ushort.to_stream(stream, instance.vertex_buffer_count)
-		Ushort.to_stream(stream, instance.mdl_2_count)
-		Ushort.to_stream(stream, instance.name_count)
-		Short.to_stream(stream, instance.stream_count)
-		Array.to_stream(stream, instance.zeros, Uint)
-		ArrayPointer.to_stream(stream, instance.buffer_infos)
-		ArrayPointer.to_stream(stream, instance.model_infos)
-		ArrayPointer.to_stream(stream, instance.buffers_presence)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'version', Uint, (0, None), (False, None)

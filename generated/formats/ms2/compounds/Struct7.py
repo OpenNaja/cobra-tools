@@ -61,42 +61,6 @@ class Struct7(BaseStruct):
 			self.alignment = 0
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		if instance.context.version <= 13:
-			instance.weird_padding = SmartPadding.from_stream(stream, instance.context, 0, None)
-		instance.count_7 = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.zero_0 = Uint64.from_stream(stream, instance.context, 0, None)
-		if instance.context.version >= 48:
-			instance.flag = Uint64.from_stream(stream, instance.context, 0, None)
-			instance.zero_2 = Uint64.from_stream(stream, instance.context, 0, None)
-		if instance.context.version <= 13:
-			instance.unknown_list = Array.from_stream(stream, instance.context, 0, None, (instance.count_7,), UACJoint)
-		if instance.context.version >= 32:
-			instance.unknown_list = Array.from_stream(stream, instance.context, 0, None, (instance.count_7,), NasutoJointEntry)
-		instance.padding = Array.from_stream(stream, instance.context, 0, None, ((8 - ((instance.count_7 * 60) % 8)) % 8,), Ubyte)
-		if instance.context.version >= 50 and instance.flag:
-			instance.alignment = Uint64.from_stream(stream, instance.context, 0, None)
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		if instance.context.version <= 13:
-			SmartPadding.to_stream(stream, instance.weird_padding)
-		Uint64.to_stream(stream, instance.count_7)
-		Uint64.to_stream(stream, instance.zero_0)
-		if instance.context.version >= 48:
-			Uint64.to_stream(stream, instance.flag)
-			Uint64.to_stream(stream, instance.zero_2)
-		if instance.context.version <= 13:
-			Array.to_stream(stream, instance.unknown_list, UACJoint)
-		if instance.context.version >= 32:
-			Array.to_stream(stream, instance.unknown_list, NasutoJointEntry)
-		Array.to_stream(stream, instance.padding, Ubyte)
-		if instance.context.version >= 50 and instance.flag:
-			Uint64.to_stream(stream, instance.alignment)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		if instance.context.version <= 13:

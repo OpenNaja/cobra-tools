@@ -22,20 +22,6 @@ class PathJoinPartResourceRoot(MemStruct):
 		self.resources_list = Pointer(self.context, self.num_res, PathJoinPartResourceRoot._import_path_map["generated.formats.path.compounds.PathJoinPartResourceList"])
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.resources_list = Pointer.from_stream(stream, instance.context, instance.num_res, PathJoinPartResourceRoot._import_path_map["generated.formats.path.compounds.PathJoinPartResourceList"])
-		instance.num_res = Uint64.from_stream(stream, instance.context, 0, None)
-		if not isinstance(instance.resources_list, int):
-			instance.resources_list.arg = instance.num_res
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Pointer.to_stream(stream, instance.resources_list)
-		Uint64.to_stream(stream, instance.num_res)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'resources_list', Pointer, (instance.num_res, PathJoinPartResourceRoot._import_path_map["generated.formats.path.compounds.PathJoinPartResourceList"]), (False, None)

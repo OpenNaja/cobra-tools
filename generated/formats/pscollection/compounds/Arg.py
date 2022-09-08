@@ -35,28 +35,6 @@ class Arg(MemStruct):
 		self.u_4 = 0
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.u_0 = Ubyte.from_stream(stream, instance.context, 0, None)
-		instance.arg_type = Ubyte.from_stream(stream, instance.context, 0, None)
-		instance.arg_index = Ubyte.from_stream(stream, instance.context, 0, None)
-		instance.u_1 = Ubyte.from_stream(stream, instance.context, 0, None)
-		instance.u_2 = Uint.from_stream(stream, instance.context, 0, None)
-		instance.u_3 = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.u_4 = Uint64.from_stream(stream, instance.context, 0, None)
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Ubyte.to_stream(stream, instance.u_0)
-		Ubyte.to_stream(stream, instance.arg_type)
-		Ubyte.to_stream(stream, instance.arg_index)
-		Ubyte.to_stream(stream, instance.u_1)
-		Uint.to_stream(stream, instance.u_2)
-		Uint64.to_stream(stream, instance.u_3)
-		Uint64.to_stream(stream, instance.u_4)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'u_0', Ubyte, (0, None), (False, None)

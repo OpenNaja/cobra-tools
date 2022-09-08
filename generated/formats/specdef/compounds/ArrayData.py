@@ -29,22 +29,6 @@ class ArrayData(MemStruct):
 		self.item = Pointer(self.context, self.dtype, ArrayData._import_path_map["generated.formats.specdef.compounds.Data"])
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.item = Pointer.from_stream(stream, instance.context, instance.dtype, ArrayData._import_path_map["generated.formats.specdef.compounds.Data"])
-		instance.dtype = SpecdefDtype.from_stream(stream, instance.context, 0, None)
-		instance.unused = Uint.from_stream(stream, instance.context, 0, None)
-		if not isinstance(instance.item, int):
-			instance.item.arg = instance.dtype
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Pointer.to_stream(stream, instance.item)
-		SpecdefDtype.to_stream(stream, instance.dtype)
-		Uint.to_stream(stream, instance.unused)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'item', Pointer, (instance.dtype, ArrayData._import_path_map["generated.formats.specdef.compounds.Data"]), (False, None)

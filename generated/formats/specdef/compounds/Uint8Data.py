@@ -36,28 +36,6 @@ class Uint8Data(MemStruct):
 		self.enum = Pointer(self.context, 0, None)
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.imin = Ubyte.from_stream(stream, instance.context, 0, None)
-		instance.imax = Ubyte.from_stream(stream, instance.context, 0, None)
-		instance.ivalue = Ubyte.from_stream(stream, instance.context, 0, None)
-		instance.ioptional = Ubyte.from_stream(stream, instance.context, 0, None)
-		instance.unused = Array.from_stream(stream, instance.context, 0, None, (4,), Ubyte)
-		instance.enum = Pointer.from_stream(stream, instance.context, 0, None)
-		if not isinstance(instance.enum, int):
-			instance.enum.arg = 0
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Ubyte.to_stream(stream, instance.imin)
-		Ubyte.to_stream(stream, instance.imax)
-		Ubyte.to_stream(stream, instance.ivalue)
-		Ubyte.to_stream(stream, instance.ioptional)
-		Array.to_stream(stream, instance.unused, Ubyte)
-		Pointer.to_stream(stream, instance.enum)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'imin', Ubyte, (0, None), (False, None)

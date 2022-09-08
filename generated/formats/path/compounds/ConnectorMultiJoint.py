@@ -36,32 +36,6 @@ class ConnectorMultiJoint(MemStruct):
 		self.joints = ArrayPointer(self.context, self.num_joints, ConnectorMultiJoint._import_path_map["generated.formats.path.compounds.Joint"])
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.model_name = Pointer.from_stream(stream, instance.context, 0, ZString)
-		instance.padding = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.joints = ArrayPointer.from_stream(stream, instance.context, instance.num_joints, ConnectorMultiJoint._import_path_map["generated.formats.path.compounds.Joint"])
-		instance.num_joints = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.unk_float_1 = Float.from_stream(stream, instance.context, 0, None)
-		instance.unk_int_1 = Uint.from_stream(stream, instance.context, 0, None)
-		instance.padding_2 = Uint64.from_stream(stream, instance.context, 0, None)
-		if not isinstance(instance.model_name, int):
-			instance.model_name.arg = 0
-		if not isinstance(instance.joints, int):
-			instance.joints.arg = instance.num_joints
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Pointer.to_stream(stream, instance.model_name)
-		Uint64.to_stream(stream, instance.padding)
-		ArrayPointer.to_stream(stream, instance.joints)
-		Uint64.to_stream(stream, instance.num_joints)
-		Float.to_stream(stream, instance.unk_float_1)
-		Uint.to_stream(stream, instance.unk_int_1)
-		Uint64.to_stream(stream, instance.padding_2)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'model_name', Pointer, (0, ZString), (False, None)

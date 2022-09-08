@@ -37,30 +37,6 @@ class Bone(BaseStruct):
 			self.scale = 0.0
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		if instance.context.version <= 47:
-			instance.loc = Vector3.from_stream(stream, instance.context, 0, None)
-			instance.scale = Float.from_stream(stream, instance.context, 0, None)
-			instance.rot = Vector4.from_stream(stream, instance.context, 0, None)
-		if instance.context.version >= 48:
-			instance.rot = Vector4.from_stream(stream, instance.context, 0, None)
-			instance.loc = Vector3.from_stream(stream, instance.context, 0, None)
-			instance.scale = Float.from_stream(stream, instance.context, 0, None)
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		if instance.context.version <= 47:
-			Vector3.to_stream(stream, instance.loc)
-			Float.to_stream(stream, instance.scale)
-			Vector4.to_stream(stream, instance.rot)
-		if instance.context.version >= 48:
-			Vector4.to_stream(stream, instance.rot)
-			Vector3.to_stream(stream, instance.loc)
-			Float.to_stream(stream, instance.scale)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		if instance.context.version <= 47:

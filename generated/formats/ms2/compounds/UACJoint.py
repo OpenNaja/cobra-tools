@@ -32,18 +32,6 @@ class UACJoint(BaseStruct):
 		self.floats = numpy.zeros((6,), dtype=numpy.dtype('float32'))
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.unk = Array.from_stream(stream, instance.context, 0, None, (6,), Ushort)
-		instance.floats = Array.from_stream(stream, instance.context, 0, None, (6,), Float)
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Array.to_stream(stream, instance.unk, Ushort)
-		Array.to_stream(stream, instance.floats, Float)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'unk', Array, (0, None, (6,), Ushort), (False, None)

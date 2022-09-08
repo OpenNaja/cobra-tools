@@ -27,20 +27,6 @@ class StringData(MemStruct):
 		self.str_name = Pointer(self.context, 0, ZString)
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.str_name = Pointer.from_stream(stream, instance.context, 0, ZString)
-		instance.ioptional = Uint.from_stream(stream, instance.context, 0, None)
-		if not isinstance(instance.str_name, int):
-			instance.str_name.arg = 0
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Pointer.to_stream(stream, instance.str_name)
-		Uint.to_stream(stream, instance.ioptional)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'str_name', Pointer, (0, ZString), (False, None)

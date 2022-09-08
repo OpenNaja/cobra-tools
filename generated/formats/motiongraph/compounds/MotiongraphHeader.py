@@ -43,50 +43,6 @@ class MotiongraphHeader(MemStruct):
 		self.empty_str = Pointer(self.context, 0, ZString)
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.ptr_0 = Pointer.from_stream(stream, instance.context, 0, MotiongraphHeader._import_path_map["generated.formats.motiongraph.compounds.MotiongraphRootFrag"])
-		instance.state_output_entries = Pointer.from_stream(stream, instance.context, 0, MotiongraphHeader._import_path_map["generated.formats.motiongraph.compounds.StateArray"])
-		instance.ptr_2 = Pointer.from_stream(stream, instance.context, 0, MotiongraphHeader._import_path_map["generated.formats.motiongraph.compounds.MGTwo"])
-		instance.ptr_3 = Pointer.from_stream(stream, instance.context, 0, MotiongraphHeader._import_path_map["generated.formats.motiongraph.compounds.MRFMember1"])
-		instance.count_0 = Uint.from_stream(stream, instance.context, 0, None)
-		instance.count_1 = Uint.from_stream(stream, instance.context, 0, None)
-		instance.lua_modules = Pointer.from_stream(stream, instance.context, 0, MotiongraphHeader._import_path_map["generated.formats.motiongraph.compounds.LuaModules"])
-		instance.lua_results = Pointer.from_stream(stream, instance.context, 0, ZString)
-		instance.first_non_transition_state = Pointer.from_stream(stream, instance.context, 0, MotiongraphHeader._import_path_map["generated.formats.motiongraph.compounds.MRFMember2"])
-		instance.empty_str = Pointer.from_stream(stream, instance.context, 0, ZString)
-		if not isinstance(instance.ptr_0, int):
-			instance.ptr_0.arg = 0
-		if not isinstance(instance.state_output_entries, int):
-			instance.state_output_entries.arg = 0
-		if not isinstance(instance.ptr_2, int):
-			instance.ptr_2.arg = 0
-		if not isinstance(instance.ptr_3, int):
-			instance.ptr_3.arg = 0
-		if not isinstance(instance.lua_modules, int):
-			instance.lua_modules.arg = 0
-		if not isinstance(instance.lua_results, int):
-			instance.lua_results.arg = 0
-		if not isinstance(instance.first_non_transition_state, int):
-			instance.first_non_transition_state.arg = 0
-		if not isinstance(instance.empty_str, int):
-			instance.empty_str.arg = 0
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Pointer.to_stream(stream, instance.ptr_0)
-		Pointer.to_stream(stream, instance.state_output_entries)
-		Pointer.to_stream(stream, instance.ptr_2)
-		Pointer.to_stream(stream, instance.ptr_3)
-		Uint.to_stream(stream, instance.count_0)
-		Uint.to_stream(stream, instance.count_1)
-		Pointer.to_stream(stream, instance.lua_modules)
-		Pointer.to_stream(stream, instance.lua_results)
-		Pointer.to_stream(stream, instance.first_non_transition_state)
-		Pointer.to_stream(stream, instance.empty_str)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'ptr_0', Pointer, (0, MotiongraphHeader._import_path_map["generated.formats.motiongraph.compounds.MotiongraphRootFrag"]), (False, None)

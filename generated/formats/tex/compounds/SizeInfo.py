@@ -27,24 +27,6 @@ class SizeInfo(MemStruct):
 			self.padding = numpy.zeros((384 - self.data.io_size,), dtype=numpy.dtype('uint8'))
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.data = SizeInfoRaw.from_stream(stream, instance.context, 0, None)
-		if ((not instance.context.user_version.is_jwe) and (instance.context.version == 20)) or (((not instance.context.user_version.is_jwe) and (instance.context.version >= 19)) or (instance.context.user_version.is_jwe and (instance.context.version == 20))):
-			instance.padding = Array.from_stream(stream, instance.context, 0, None, (320 - instance.data.io_size,), Ubyte)
-		if instance.context.user_version.is_jwe and (instance.context.version == 19):
-			instance.padding = Array.from_stream(stream, instance.context, 0, None, (384 - instance.data.io_size,), Ubyte)
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		SizeInfoRaw.to_stream(stream, instance.data)
-		if ((not instance.context.user_version.is_jwe) and (instance.context.version == 20)) or (((not instance.context.user_version.is_jwe) and (instance.context.version >= 19)) or (instance.context.user_version.is_jwe and (instance.context.version == 20))):
-			Array.to_stream(stream, instance.padding, Ubyte)
-		if instance.context.user_version.is_jwe and (instance.context.version == 19):
-			Array.to_stream(stream, instance.padding, Ubyte)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'data', SizeInfoRaw, (0, None), (False, None)

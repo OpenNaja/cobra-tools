@@ -73,36 +73,6 @@ class NewMeshData(MeshData):
 		self.flag = ModelFlag(self.context, 0, None)
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.vertex_count = Uint.from_stream(stream, instance.context, 0, None)
-		instance.tri_index_count = Uint.from_stream(stream, instance.context, 0, None)
-		instance.zero_1 = Uint.from_stream(stream, instance.context, 0, None)
-		instance.poweroftwo = Uint.from_stream(stream, instance.context, 0, None)
-		instance.vertex_offset = Uint.from_stream(stream, instance.context, 0, None)
-		instance.size_of_vertex = Uint.from_stream(stream, instance.context, 0, None)
-		instance.tri_offset = Uint.from_stream(stream, instance.context, 0, None)
-		instance.zero_2 = Uint.from_stream(stream, instance.context, 0, None)
-		instance.unk_floats = Array.from_stream(stream, instance.context, 0, None, (2,), Float)
-		instance.zero_3 = Uint.from_stream(stream, instance.context, 0, None)
-		instance.flag = ModelFlag.from_stream(stream, instance.context, 0, None)
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Uint.to_stream(stream, instance.vertex_count)
-		Uint.to_stream(stream, instance.tri_index_count)
-		Uint.to_stream(stream, instance.zero_1)
-		Uint.to_stream(stream, instance.poweroftwo)
-		Uint.to_stream(stream, instance.vertex_offset)
-		Uint.to_stream(stream, instance.size_of_vertex)
-		Uint.to_stream(stream, instance.tri_offset)
-		Uint.to_stream(stream, instance.zero_2)
-		Array.to_stream(stream, instance.unk_floats, Float)
-		Uint.to_stream(stream, instance.zero_3)
-		ModelFlag.to_stream(stream, instance.flag)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'vertex_count', Uint, (0, None), (False, None)

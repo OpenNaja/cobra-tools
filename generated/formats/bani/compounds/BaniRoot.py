@@ -43,26 +43,6 @@ class BaniRoot(MemStruct):
 		self.banis = Pointer(self.context, 0, None)
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.banis = Pointer.from_stream(stream, instance.context, 0, None)
-		instance.read_start_frame = Uint.from_stream(stream, instance.context, 0, None)
-		instance.num_frames = Uint.from_stream(stream, instance.context, 0, None)
-		instance.animation_length = Float.from_stream(stream, instance.context, 0, None)
-		instance.loop_flag = Uint.from_stream(stream, instance.context, 0, None)
-		if not isinstance(instance.banis, int):
-			instance.banis.arg = 0
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Pointer.to_stream(stream, instance.banis)
-		Uint.to_stream(stream, instance.read_start_frame)
-		Uint.to_stream(stream, instance.num_frames)
-		Float.to_stream(stream, instance.animation_length)
-		Uint.to_stream(stream, instance.loop_flag)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'banis', Pointer, (0, None), (False, None)

@@ -23,18 +23,6 @@ class DataPtr(MemStruct):
 		self.data_ptr = Pointer(self.context, self.arg.dtype, DataPtr._import_path_map["generated.formats.specdef.compounds.Data"])
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.data_ptr = Pointer.from_stream(stream, instance.context, instance.arg.dtype, DataPtr._import_path_map["generated.formats.specdef.compounds.Data"])
-		if not isinstance(instance.data_ptr, int):
-			instance.data_ptr.arg = instance.arg.dtype
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Pointer.to_stream(stream, instance.data_ptr)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'data_ptr', Pointer, (instance.arg.dtype, DataPtr._import_path_map["generated.formats.specdef.compounds.Data"]), (False, None)

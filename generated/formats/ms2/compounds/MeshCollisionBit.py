@@ -28,18 +28,6 @@ class MeshCollisionBit(BaseStruct):
 		self.consts = numpy.zeros((3,), dtype=numpy.dtype('uint32'))
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.countd = Array.from_stream(stream, instance.context, 0, None, (34,), Ushort)
-		instance.consts = Array.from_stream(stream, instance.context, 0, None, (3,), Uint)
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Array.to_stream(stream, instance.countd, Ushort)
-		Array.to_stream(stream, instance.consts, Uint)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'countd', Array, (0, None, (34,), Ushort), (False, None)

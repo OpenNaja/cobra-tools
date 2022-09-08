@@ -60,68 +60,6 @@ class WmetasbMain(MemStruct):
 			self.unused_5 = Pointer(self.context, 0, None)
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.hash = Uint.from_stream(stream, instance.context, 0, None)
-		instance.unk = Uint.from_stream(stream, instance.context, 0, None)
-		instance.block_name = Pointer.from_stream(stream, instance.context, 0, ZString)
-		if instance.context.version <= 18:
-			instance.media_name = Pointer.from_stream(stream, instance.context, 0, ZString)
-			instance.bnk_name = Pointer.from_stream(stream, instance.context, 0, ZString)
-		instance.events = ArrayPointer.from_stream(stream, instance.context, instance.events_count, WmetasbMain._import_path_map["generated.formats.wmeta.compounds.EventEntry"])
-		instance.events_count = Uint64.from_stream(stream, instance.context, 0, None)
-		if instance.context.version <= 18:
-			instance.hashes = ArrayPointer.from_stream(stream, instance.context, instance.hashes_count, Uint)
-			instance.hashes_count = Uint64.from_stream(stream, instance.context, 0, None)
-			instance.media = ArrayPointer.from_stream(stream, instance.context, instance.media_count, WmetasbMain._import_path_map["generated.formats.wmeta.compounds.MediaEntry"])
-			instance.media_count = Uint64.from_stream(stream, instance.context, 0, None)
-			instance.unused_2 = Pointer.from_stream(stream, instance.context, 0, None)
-			instance.unused_3 = Pointer.from_stream(stream, instance.context, 0, None)
-			instance.unused_4 = Pointer.from_stream(stream, instance.context, 0, None)
-			instance.unused_5 = Pointer.from_stream(stream, instance.context, 0, None)
-		if not isinstance(instance.block_name, int):
-			instance.block_name.arg = 0
-		if not isinstance(instance.media_name, int):
-			instance.media_name.arg = 0
-		if not isinstance(instance.bnk_name, int):
-			instance.bnk_name.arg = 0
-		if not isinstance(instance.events, int):
-			instance.events.arg = instance.events_count
-		if not isinstance(instance.hashes, int):
-			instance.hashes.arg = instance.hashes_count
-		if not isinstance(instance.media, int):
-			instance.media.arg = instance.media_count
-		if not isinstance(instance.unused_2, int):
-			instance.unused_2.arg = 0
-		if not isinstance(instance.unused_3, int):
-			instance.unused_3.arg = 0
-		if not isinstance(instance.unused_4, int):
-			instance.unused_4.arg = 0
-		if not isinstance(instance.unused_5, int):
-			instance.unused_5.arg = 0
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Uint.to_stream(stream, instance.hash)
-		Uint.to_stream(stream, instance.unk)
-		Pointer.to_stream(stream, instance.block_name)
-		if instance.context.version <= 18:
-			Pointer.to_stream(stream, instance.media_name)
-			Pointer.to_stream(stream, instance.bnk_name)
-		ArrayPointer.to_stream(stream, instance.events)
-		Uint64.to_stream(stream, instance.events_count)
-		if instance.context.version <= 18:
-			ArrayPointer.to_stream(stream, instance.hashes)
-			Uint64.to_stream(stream, instance.hashes_count)
-			ArrayPointer.to_stream(stream, instance.media)
-			Uint64.to_stream(stream, instance.media_count)
-			Pointer.to_stream(stream, instance.unused_2)
-			Pointer.to_stream(stream, instance.unused_3)
-			Pointer.to_stream(stream, instance.unused_4)
-			Pointer.to_stream(stream, instance.unused_5)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'hash', Uint, (0, None), (False, None)

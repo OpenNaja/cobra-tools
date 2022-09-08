@@ -23,16 +23,6 @@ class BnkFileContainer(GenericHeader):
 		self.bnk_header = BnkBufferData(self.context, 0, None)
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.bnk_header = BnkBufferData.from_stream(stream, instance.context, 0, None)
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		BnkBufferData.to_stream(stream, instance.bnk_header)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'bnk_header', BnkBufferData, (0, None), (False, None)

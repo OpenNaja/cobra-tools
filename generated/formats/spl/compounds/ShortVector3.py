@@ -33,20 +33,6 @@ class ShortVector3(MemStruct):
 		self.z = 0
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.x = Short.from_stream(stream, instance.context, 0, None)
-		instance.y = Short.from_stream(stream, instance.context, 0, None)
-		instance.z = Short.from_stream(stream, instance.context, 0, None)
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Short.to_stream(stream, instance.x)
-		Short.to_stream(stream, instance.y)
-		Short.to_stream(stream, instance.z)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'x', Short, (0, None), (False, None)

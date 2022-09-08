@@ -28,26 +28,6 @@ class LuaModules(MemStruct):
 		self.motion_graph_actions = Pointer(self.context, 0, ZString)
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.motion_graph = Pointer.from_stream(stream, instance.context, 0, ZString)
-		instance.motion_graph_event_handling = Pointer.from_stream(stream, instance.context, 0, ZString)
-		instance.motion_graph_actions = Pointer.from_stream(stream, instance.context, 0, ZString)
-		if not isinstance(instance.motion_graph, int):
-			instance.motion_graph.arg = 0
-		if not isinstance(instance.motion_graph_event_handling, int):
-			instance.motion_graph_event_handling.arg = 0
-		if not isinstance(instance.motion_graph_actions, int):
-			instance.motion_graph_actions.arg = 0
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Pointer.to_stream(stream, instance.motion_graph)
-		Pointer.to_stream(stream, instance.motion_graph_event_handling)
-		Pointer.to_stream(stream, instance.motion_graph_actions)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'motion_graph', Pointer, (0, ZString), (False, None)

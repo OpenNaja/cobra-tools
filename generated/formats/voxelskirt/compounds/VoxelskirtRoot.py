@@ -58,44 +58,6 @@ class VoxelskirtRoot(MemStruct):
 		self.names = DataSlot(self.context, 0, VoxelskirtRoot._import_path_map["generated.formats.voxelskirt.compounds.Name"])
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.zero = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.data_size = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.x = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.y = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.scale = Float.from_stream(stream, instance.context, 0, None)
-		instance.padding = Float.from_stream(stream, instance.context, 0, None)
-		if instance.context.version == 18:
-			instance.height_offset = Uint64.from_stream(stream, instance.context, 0, None)
-			instance.weights_offset = Uint64.from_stream(stream, instance.context, 0, None)
-		if not (instance.context.version == 18):
-			instance.layers = DataSlot.from_stream(stream, instance.context, 0, VoxelskirtRoot._import_path_map["generated.formats.voxelskirt.compounds.Layer"])
-			instance.areas = DataSlot.from_stream(stream, instance.context, 0, VoxelskirtRoot._import_path_map["generated.formats.voxelskirt.compounds.Area"])
-		instance.entity_groups = DataSlot.from_stream(stream, instance.context, 0, VoxelskirtRoot._import_path_map["generated.formats.voxelskirt.compounds.EntityGroup"])
-		instance.materials = DataSlot.from_stream(stream, instance.context, 0, VoxelskirtRoot._import_path_map["generated.formats.voxelskirt.compounds.Material"])
-		instance.names = DataSlot.from_stream(stream, instance.context, 0, VoxelskirtRoot._import_path_map["generated.formats.voxelskirt.compounds.Name"])
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Uint64.to_stream(stream, instance.zero)
-		Uint64.to_stream(stream, instance.data_size)
-		Uint64.to_stream(stream, instance.x)
-		Uint64.to_stream(stream, instance.y)
-		Float.to_stream(stream, instance.scale)
-		Float.to_stream(stream, instance.padding)
-		if instance.context.version == 18:
-			Uint64.to_stream(stream, instance.height_offset)
-			Uint64.to_stream(stream, instance.weights_offset)
-		if not (instance.context.version == 18):
-			DataSlot.to_stream(stream, instance.layers)
-			DataSlot.to_stream(stream, instance.areas)
-		DataSlot.to_stream(stream, instance.entity_groups)
-		DataSlot.to_stream(stream, instance.materials)
-		DataSlot.to_stream(stream, instance.names)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'zero', Uint64, (0, None), (False, None)

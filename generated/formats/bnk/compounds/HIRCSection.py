@@ -31,20 +31,6 @@ class HIRCSection(BaseStruct):
 		self.hirc_pointers = Array(self.context, 0, None, (self.count,), HircPointer)
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.length = Uint.from_stream(stream, instance.context, 0, None)
-		instance.count = Uint.from_stream(stream, instance.context, 0, None)
-		instance.hirc_pointers = Array.from_stream(stream, instance.context, 0, None, (instance.count,), HircPointer)
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Uint.to_stream(stream, instance.length)
-		Uint.to_stream(stream, instance.count)
-		Array.to_stream(stream, instance.hirc_pointers, HircPointer)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'length', Uint, (0, None), (False, None)

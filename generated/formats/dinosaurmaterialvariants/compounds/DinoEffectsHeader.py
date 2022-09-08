@@ -55,48 +55,6 @@ class DinoEffectsHeader(MemStruct):
 		self.fgm_name = Pointer(self.context, 0, ZStringObfuscated)
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.fgm_name = Pointer.from_stream(stream, instance.context, 0, ZStringObfuscated)
-		instance.vec_0 = Vector3F.from_stream(stream, instance.context, 0, None)
-		instance.vec_1 = Vector3F.from_stream(stream, instance.context, 0, None)
-		instance.a = Uint.from_stream(stream, instance.context, 0, None)
-		instance.b = Uint.from_stream(stream, instance.context, 0, None)
-		instance.vec_2 = Vector3F.from_stream(stream, instance.context, 0, None)
-		instance.vec_3 = Vector3F.from_stream(stream, instance.context, 0, None)
-		instance.vec_4 = Vector3F.from_stream(stream, instance.context, 0, None)
-		instance.c = Uint.from_stream(stream, instance.context, 0, None)
-		instance.d = Uint.from_stream(stream, instance.context, 0, None)
-		instance.e = Float.from_stream(stream, instance.context, 0, None)
-		instance.f = Float.from_stream(stream, instance.context, 0, None)
-		instance.g = Uint.from_stream(stream, instance.context, 0, None)
-		instance.floats = Array.from_stream(stream, instance.context, 0, None, (39,), Float)
-		instance.d = Uint.from_stream(stream, instance.context, 0, None)
-		instance.e = Float.from_stream(stream, instance.context, 0, None)
-		if not isinstance(instance.fgm_name, int):
-			instance.fgm_name.arg = 0
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Pointer.to_stream(stream, instance.fgm_name)
-		Vector3F.to_stream(stream, instance.vec_0)
-		Vector3F.to_stream(stream, instance.vec_1)
-		Uint.to_stream(stream, instance.a)
-		Uint.to_stream(stream, instance.b)
-		Vector3F.to_stream(stream, instance.vec_2)
-		Vector3F.to_stream(stream, instance.vec_3)
-		Vector3F.to_stream(stream, instance.vec_4)
-		Uint.to_stream(stream, instance.c)
-		Uint.to_stream(stream, instance.d)
-		Float.to_stream(stream, instance.e)
-		Float.to_stream(stream, instance.f)
-		Uint.to_stream(stream, instance.g)
-		Array.to_stream(stream, instance.floats, Float)
-		Uint.to_stream(stream, instance.d)
-		Float.to_stream(stream, instance.e)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'fgm_name', Pointer, (0, ZStringObfuscated), (False, None)

@@ -27,31 +27,6 @@ class BKHDSection(BaseStruct):
 		self.zeroes = numpy.zeros((self.length - 24,), dtype=numpy.dtype('uint8'))
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.length = Uint.from_stream(stream, instance.context, 0, None)
-		instance.version = Uint.from_stream(stream, instance.context, 0, None)
-		instance.context.version = instance.version
-		instance.id_a = Uint.from_stream(stream, instance.context, 0, None)
-		instance.id_b = Uint.from_stream(stream, instance.context, 0, None)
-		instance.constant_a = Uint.from_stream(stream, instance.context, 0, None)
-		instance.constant_b = Uint.from_stream(stream, instance.context, 0, None)
-		instance.unk = Uint.from_stream(stream, instance.context, 0, None)
-		instance.zeroes = Array.from_stream(stream, instance.context, 0, None, (instance.length - 24,), Ubyte)
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Uint.to_stream(stream, instance.length)
-		Uint.to_stream(stream, instance.version)
-		Uint.to_stream(stream, instance.id_a)
-		Uint.to_stream(stream, instance.id_b)
-		Uint.to_stream(stream, instance.constant_a)
-		Uint.to_stream(stream, instance.constant_b)
-		Uint.to_stream(stream, instance.unk)
-		Array.to_stream(stream, instance.zeroes, Ubyte)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'length', Uint, (0, None), (False, None)

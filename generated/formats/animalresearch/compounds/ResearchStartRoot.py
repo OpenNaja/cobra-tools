@@ -22,20 +22,6 @@ class ResearchStartRoot(MemStruct):
 		self.states = ArrayPointer(self.context, self.count, ResearchStartRoot._import_path_map["generated.formats.animalresearch.compounds.UnlockState"])
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.states = ArrayPointer.from_stream(stream, instance.context, instance.count, ResearchStartRoot._import_path_map["generated.formats.animalresearch.compounds.UnlockState"])
-		instance.count = Uint64.from_stream(stream, instance.context, 0, None)
-		if not isinstance(instance.states, int):
-			instance.states.arg = instance.count
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		ArrayPointer.to_stream(stream, instance.states)
-		Uint64.to_stream(stream, instance.count)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'states', ArrayPointer, (instance.count, ResearchStartRoot._import_path_map["generated.formats.animalresearch.compounds.UnlockState"]), (False, None)

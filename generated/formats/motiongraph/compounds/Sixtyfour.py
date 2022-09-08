@@ -38,38 +38,6 @@ class Sixtyfour(MemStruct):
 		self.ptr_3 = Pointer(self.context, 0, None)
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.count_0 = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.ptr_0 = Pointer.from_stream(stream, instance.context, 0, None)
-		instance.ptr_1 = Pointer.from_stream(stream, instance.context, 0, None)
-		instance.count_1 = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.count_2 = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.ptr_2 = Pointer.from_stream(stream, instance.context, 0, None)
-		instance.ptr_3 = Pointer.from_stream(stream, instance.context, 0, None)
-		instance.count_3 = Uint64.from_stream(stream, instance.context, 0, None)
-		if not isinstance(instance.ptr_0, int):
-			instance.ptr_0.arg = 0
-		if not isinstance(instance.ptr_1, int):
-			instance.ptr_1.arg = 0
-		if not isinstance(instance.ptr_2, int):
-			instance.ptr_2.arg = 0
-		if not isinstance(instance.ptr_3, int):
-			instance.ptr_3.arg = 0
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Uint64.to_stream(stream, instance.count_0)
-		Pointer.to_stream(stream, instance.ptr_0)
-		Pointer.to_stream(stream, instance.ptr_1)
-		Uint64.to_stream(stream, instance.count_1)
-		Uint64.to_stream(stream, instance.count_2)
-		Pointer.to_stream(stream, instance.ptr_2)
-		Pointer.to_stream(stream, instance.ptr_3)
-		Uint64.to_stream(stream, instance.count_3)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'count_0', Uint64, (0, None), (False, None)

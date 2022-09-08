@@ -21,16 +21,6 @@ class Data(MemStruct):
 		self.floats = numpy.zeros((16,), dtype=numpy.dtype('float32'))
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.floats = Array.from_stream(stream, instance.context, 0, None, (16,), Float)
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Array.to_stream(stream, instance.floats, Float)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'floats', Array, (0, None, (16,), Float), (False, None)

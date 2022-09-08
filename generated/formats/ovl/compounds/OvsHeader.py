@@ -45,30 +45,6 @@ class OvsHeader(BaseStruct):
 		self.set_header = SetHeader(self.context, 0, None)
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.pool_groups = Array.from_stream(stream, instance.context, 0, None, (instance.arg.num_pool_groups,), PoolGroup)
-		instance.pools = Array.from_stream(stream, instance.context, 0, None, (instance.arg.num_pools,), MemPool)
-		instance.data_entries = Array.from_stream(stream, instance.context, 0, None, (instance.arg.num_datas,), DataEntry)
-		instance.buffer_entries = Array.from_stream(stream, instance.context, 0, None, (instance.arg.num_buffers,), BufferEntry)
-		instance.buffer_groups = Array.from_stream(stream, instance.context, 0, None, (instance.arg.num_buffer_groups,), BufferGroup)
-		instance.root_entries = Array.from_stream(stream, instance.context, 0, None, (instance.arg.num_root_entries,), RootEntry)
-		instance.fragments = Array.from_stream(stream, instance.context, 0, None, (instance.arg.num_fragments,), Fragment)
-		instance.set_header = SetHeader.from_stream(stream, instance.context, 0, None)
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Array.to_stream(stream, instance.pool_groups, PoolGroup)
-		Array.to_stream(stream, instance.pools, MemPool)
-		Array.to_stream(stream, instance.data_entries, DataEntry)
-		Array.to_stream(stream, instance.buffer_entries, BufferEntry)
-		Array.to_stream(stream, instance.buffer_groups, BufferGroup)
-		Array.to_stream(stream, instance.root_entries, RootEntry)
-		Array.to_stream(stream, instance.fragments, Fragment)
-		SetHeader.to_stream(stream, instance.set_header)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'pool_groups', Array, (0, None, (instance.arg.num_pool_groups,), PoolGroup), (False, None)

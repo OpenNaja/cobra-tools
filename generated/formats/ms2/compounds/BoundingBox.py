@@ -36,24 +36,6 @@ class BoundingBox(BaseStruct):
 			self.zeros = numpy.zeros((3,), dtype=numpy.dtype('uint32'))
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.rotation = Matrix33.from_stream(stream, instance.context, 0, None)
-		instance.center = Vector3.from_stream(stream, instance.context, 0, None)
-		instance.extent = Vector3.from_stream(stream, instance.context, 0, None)
-		if instance.context.version == 32:
-			instance.zeros = Array.from_stream(stream, instance.context, 0, None, (3,), Uint)
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Matrix33.to_stream(stream, instance.rotation)
-		Vector3.to_stream(stream, instance.center)
-		Vector3.to_stream(stream, instance.extent)
-		if instance.context.version == 32:
-			Array.to_stream(stream, instance.zeros, Uint)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'rotation', Matrix33, (0, None), (False, None)

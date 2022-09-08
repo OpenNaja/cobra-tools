@@ -29,20 +29,6 @@ class HbPostSize(MemStruct):
 		self.top = 0.0
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.front_back = Float.from_stream(stream, instance.context, 0, None)
-		instance.left_right = Float.from_stream(stream, instance.context, 0, None)
-		instance.top = Float.from_stream(stream, instance.context, 0, None)
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Float.to_stream(stream, instance.front_back)
-		Float.to_stream(stream, instance.left_right)
-		Float.to_stream(stream, instance.top)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'front_back', Float, (0, None), (False, None)

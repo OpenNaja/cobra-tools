@@ -33,20 +33,6 @@ class AuxEntry(BaseStruct):
 		self.size = 0
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.file_index = Uint.from_stream(stream, instance.context, 0, None)
-		instance.offset = Uint.from_stream(stream, instance.context, 0, None)
-		instance.size = Uint.from_stream(stream, instance.context, 0, None)
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Uint.to_stream(stream, instance.file_index)
-		Uint.to_stream(stream, instance.offset)
-		Uint.to_stream(stream, instance.size)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'file_index', Uint, (0, None), (False, None)

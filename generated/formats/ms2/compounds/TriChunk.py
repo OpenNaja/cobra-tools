@@ -50,32 +50,6 @@ class TriChunk(BaseStruct):
 		self.u_3 = 0
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.bounds_min = Vector3.from_stream(stream, instance.context, 0, None)
-		instance.material_index = Ushort.from_stream(stream, instance.context, 0, None)
-		instance.tris_count = Ushort.from_stream(stream, instance.context, 0, None)
-		instance.bounds_max = Vector3.from_stream(stream, instance.context, 0, None)
-		instance.tris_offset = Uint.from_stream(stream, instance.context, 0, None)
-		instance.loc = Vector3.from_stream(stream, instance.context, 0, None)
-		instance.rot = QuatWFirst.from_stream(stream, instance.context, 0, None)
-		instance.u_2 = Ushort.from_stream(stream, instance.context, 0, None)
-		instance.u_3 = Ushort.from_stream(stream, instance.context, 0, None)
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Vector3.to_stream(stream, instance.bounds_min)
-		Ushort.to_stream(stream, instance.material_index)
-		Ushort.to_stream(stream, instance.tris_count)
-		Vector3.to_stream(stream, instance.bounds_max)
-		Uint.to_stream(stream, instance.tris_offset)
-		Vector3.to_stream(stream, instance.loc)
-		QuatWFirst.to_stream(stream, instance.rot)
-		Ushort.to_stream(stream, instance.u_2)
-		Ushort.to_stream(stream, instance.u_3)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'bounds_min', Vector3, (0, None), (False, None)

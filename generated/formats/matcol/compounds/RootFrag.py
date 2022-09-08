@@ -35,30 +35,6 @@ class RootFrag(MemStruct):
 		self.materials = ArrayPointer(self.context, self.mat_count, RootFrag._import_path_map["generated.formats.matcol.compounds.LayerFrag"])
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.mat_type = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.textures = ArrayPointer.from_stream(stream, instance.context, instance.tex_count, RootFrag._import_path_map["generated.formats.matcol.compounds.Texture"])
-		instance.tex_count = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.materials = ArrayPointer.from_stream(stream, instance.context, instance.mat_count, RootFrag._import_path_map["generated.formats.matcol.compounds.LayerFrag"])
-		instance.mat_count = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.unk = Uint64.from_stream(stream, instance.context, 0, None)
-		if not isinstance(instance.textures, int):
-			instance.textures.arg = instance.tex_count
-		if not isinstance(instance.materials, int):
-			instance.materials.arg = instance.mat_count
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Uint64.to_stream(stream, instance.mat_type)
-		ArrayPointer.to_stream(stream, instance.textures)
-		Uint64.to_stream(stream, instance.tex_count)
-		ArrayPointer.to_stream(stream, instance.materials)
-		Uint64.to_stream(stream, instance.mat_count)
-		Uint64.to_stream(stream, instance.unk)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'mat_type', Uint64, (0, None), (False, None)

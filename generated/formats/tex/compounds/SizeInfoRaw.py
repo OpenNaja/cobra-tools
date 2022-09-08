@@ -61,34 +61,6 @@ class SizeInfoRaw(MemStruct):
 		self.mip_maps = Array(self.context, 0, None, (self.num_mips,), Mipmap)
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.zero = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.data_size = Uint.from_stream(stream, instance.context, 0, None)
-		instance.width = Uint.from_stream(stream, instance.context, 0, None)
-		instance.height = Uint.from_stream(stream, instance.context, 0, None)
-		instance.depth = Uint.from_stream(stream, instance.context, 0, None)
-		instance.array_size = Uint.from_stream(stream, instance.context, 0, None)
-		instance.num_mips = Uint.from_stream(stream, instance.context, 0, None)
-		if instance.context.version >= 20:
-			instance.unk_pz = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.mip_maps = Array.from_stream(stream, instance.context, 0, None, (instance.num_mips,), Mipmap)
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Uint64.to_stream(stream, instance.zero)
-		Uint.to_stream(stream, instance.data_size)
-		Uint.to_stream(stream, instance.width)
-		Uint.to_stream(stream, instance.height)
-		Uint.to_stream(stream, instance.depth)
-		Uint.to_stream(stream, instance.array_size)
-		Uint.to_stream(stream, instance.num_mips)
-		if instance.context.version >= 20:
-			Uint64.to_stream(stream, instance.unk_pz)
-		Array.to_stream(stream, instance.mip_maps, Mipmap)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'zero', Uint64, (0, None), (False, None)

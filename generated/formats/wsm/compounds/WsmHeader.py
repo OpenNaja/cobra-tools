@@ -39,28 +39,6 @@ class WsmHeader(MemStruct):
 		self.quats = ArrayPointer(self.context, self.frame_count, WsmHeader._import_path_map["generated.formats.wsm.compounds.Vector4"])
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.duration = Float.from_stream(stream, instance.context, 0, None)
-		instance.frame_count = Uint.from_stream(stream, instance.context, 0, None)
-		instance.unknowns = Array.from_stream(stream, instance.context, 0, None, (8,), Float)
-		instance.locs = ArrayPointer.from_stream(stream, instance.context, instance.frame_count, WsmHeader._import_path_map["generated.formats.wsm.compounds.Vector3"])
-		instance.quats = ArrayPointer.from_stream(stream, instance.context, instance.frame_count, WsmHeader._import_path_map["generated.formats.wsm.compounds.Vector4"])
-		if not isinstance(instance.locs, int):
-			instance.locs.arg = instance.frame_count
-		if not isinstance(instance.quats, int):
-			instance.quats.arg = instance.frame_count
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Float.to_stream(stream, instance.duration)
-		Uint.to_stream(stream, instance.frame_count)
-		Array.to_stream(stream, instance.unknowns, Float)
-		ArrayPointer.to_stream(stream, instance.locs)
-		ArrayPointer.to_stream(stream, instance.quats)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'duration', Float, (0, None), (False, None)

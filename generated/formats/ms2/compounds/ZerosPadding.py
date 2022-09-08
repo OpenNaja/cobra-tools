@@ -29,24 +29,6 @@ class ZerosPadding(BaseStruct):
 			self.hier_2_padding_2 = 0
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.hier_2_padding_0 = Uint64.from_stream(stream, instance.context, 0, None)
-		if 64 < instance.arg:
-			instance.hier_2_padding_1 = Uint64.from_stream(stream, instance.context, 0, None)
-		if 128 < instance.arg:
-			instance.hier_2_padding_2 = Uint64.from_stream(stream, instance.context, 0, None)
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Uint64.to_stream(stream, instance.hier_2_padding_0)
-		if 64 < instance.arg:
-			Uint64.to_stream(stream, instance.hier_2_padding_1)
-		if 128 < instance.arg:
-			Uint64.to_stream(stream, instance.hier_2_padding_2)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'hier_2_padding_0', Uint64, (0, None), (False, None)

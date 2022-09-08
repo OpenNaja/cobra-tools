@@ -40,36 +40,6 @@ class ClimbproofDataRoot(MemStruct):
 		self.climb_proof_bracket = Pointer(self.context, 0, ZString)
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.climb_proof = Pointer.from_stream(stream, instance.context, 0, ZString)
-		instance.climb_proof_cap_start = Pointer.from_stream(stream, instance.context, 0, ZString)
-		instance.climb_proof_cap_end = Pointer.from_stream(stream, instance.context, 0, ZString)
-		instance.climb_proof_bracket = Pointer.from_stream(stream, instance.context, 0, ZString)
-		instance.post_gap = Float.from_stream(stream, instance.context, 0, None)
-		instance.u_1 = Float.from_stream(stream, instance.context, 0, None)
-		instance.zero = Uint64.from_stream(stream, instance.context, 0, None)
-		if not isinstance(instance.climb_proof, int):
-			instance.climb_proof.arg = 0
-		if not isinstance(instance.climb_proof_cap_start, int):
-			instance.climb_proof_cap_start.arg = 0
-		if not isinstance(instance.climb_proof_cap_end, int):
-			instance.climb_proof_cap_end.arg = 0
-		if not isinstance(instance.climb_proof_bracket, int):
-			instance.climb_proof_bracket.arg = 0
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Pointer.to_stream(stream, instance.climb_proof)
-		Pointer.to_stream(stream, instance.climb_proof_cap_start)
-		Pointer.to_stream(stream, instance.climb_proof_cap_end)
-		Pointer.to_stream(stream, instance.climb_proof_bracket)
-		Float.to_stream(stream, instance.post_gap)
-		Float.to_stream(stream, instance.u_1)
-		Uint64.to_stream(stream, instance.zero)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'climb_proof', Pointer, (0, ZString), (False, None)

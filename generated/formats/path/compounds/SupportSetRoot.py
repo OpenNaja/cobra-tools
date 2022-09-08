@@ -54,54 +54,6 @@ class SupportSetRoot(MemStruct):
 		self.data = ArrayPointer(self.context, self.num_data, SupportSetRoot._import_path_map["generated.formats.path.compounds.SupportSetData"])
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.connector_1 = ArrayPointer.from_stream(stream, instance.context, instance.num_connector_1, SupportSetRoot._import_path_map["generated.formats.path.compounds.Connector"])
-		instance.connector_2 = ArrayPointer.from_stream(stream, instance.context, instance.num_connector_2, SupportSetRoot._import_path_map["generated.formats.path.compounds.ConnectorMultiJoint"])
-		instance.pillar = Pointer.from_stream(stream, instance.context, 0, SupportSetRoot._import_path_map["generated.formats.path.compounds.Pillar"])
-		instance.footer = Pointer.from_stream(stream, instance.context, 0, SupportSetRoot._import_path_map["generated.formats.path.compounds.Footer"])
-		instance.padding = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.unk_vector_1 = Vector3.from_stream(stream, instance.context, 0, None)
-		instance.unk_vector_2 = Vector2.from_stream(stream, instance.context, 0, None)
-		instance.unk_vector_3 = Vector3.from_stream(stream, instance.context, 0, None)
-		instance.unk_int_1 = Uint.from_stream(stream, instance.context, 0, None)
-		instance.num_connector_1 = Uint.from_stream(stream, instance.context, 0, None)
-		instance.num_connector_2 = Uint.from_stream(stream, instance.context, 0, None)
-		instance.unk_ints = Array.from_stream(stream, instance.context, 0, None, (7,), Uint)
-		instance.padding_2 = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.data = ArrayPointer.from_stream(stream, instance.context, instance.num_data, SupportSetRoot._import_path_map["generated.formats.path.compounds.SupportSetData"])
-		instance.num_data = Uint.from_stream(stream, instance.context, 0, None)
-		if not isinstance(instance.connector_1, int):
-			instance.connector_1.arg = instance.num_connector_1
-		if not isinstance(instance.connector_2, int):
-			instance.connector_2.arg = instance.num_connector_2
-		if not isinstance(instance.pillar, int):
-			instance.pillar.arg = 0
-		if not isinstance(instance.footer, int):
-			instance.footer.arg = 0
-		if not isinstance(instance.data, int):
-			instance.data.arg = instance.num_data
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		ArrayPointer.to_stream(stream, instance.connector_1)
-		ArrayPointer.to_stream(stream, instance.connector_2)
-		Pointer.to_stream(stream, instance.pillar)
-		Pointer.to_stream(stream, instance.footer)
-		Uint64.to_stream(stream, instance.padding)
-		Vector3.to_stream(stream, instance.unk_vector_1)
-		Vector2.to_stream(stream, instance.unk_vector_2)
-		Vector3.to_stream(stream, instance.unk_vector_3)
-		Uint.to_stream(stream, instance.unk_int_1)
-		Uint.to_stream(stream, instance.num_connector_1)
-		Uint.to_stream(stream, instance.num_connector_2)
-		Array.to_stream(stream, instance.unk_ints, Uint)
-		Uint64.to_stream(stream, instance.padding_2)
-		ArrayPointer.to_stream(stream, instance.data)
-		Uint.to_stream(stream, instance.num_data)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'connector_1', ArrayPointer, (instance.num_connector_1, SupportSetRoot._import_path_map["generated.formats.path.compounds.Connector"]), (False, None)

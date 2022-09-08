@@ -34,24 +34,6 @@ class ButtonData(MemStruct):
 		self.k_4 = 0
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.k_1_a = Ushort.from_stream(stream, instance.context, 0, None)
-		instance.k_1_b = Ushort.from_stream(stream, instance.context, 0, None)
-		instance.k_2 = Uint.from_stream(stream, instance.context, 0, None)
-		instance.k_3 = Uint.from_stream(stream, instance.context, 0, None)
-		instance.k_4 = Uint.from_stream(stream, instance.context, 0, None)
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Ushort.to_stream(stream, instance.k_1_a)
-		Ushort.to_stream(stream, instance.k_1_b)
-		Uint.to_stream(stream, instance.k_2)
-		Uint.to_stream(stream, instance.k_3)
-		Uint.to_stream(stream, instance.k_4)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'k_1_a', Ushort, (0, None), (False, None)

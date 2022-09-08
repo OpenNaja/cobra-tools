@@ -30,20 +30,6 @@ class Wsm(GenericHeader):
 		self.quats = numpy.zeros((self.header.frame_count, 4,), dtype=numpy.dtype('float32'))
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.header = WsmHeader.from_stream(stream, instance.context, 0, None)
-		instance.locs = Array.from_stream(stream, instance.context, 0, None, (instance.header.frame_count, 3,), Float)
-		instance.quats = Array.from_stream(stream, instance.context, 0, None, (instance.header.frame_count, 4,), Float)
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		WsmHeader.to_stream(stream, instance.header)
-		Array.to_stream(stream, instance.locs, Float)
-		Array.to_stream(stream, instance.quats, Float)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'header', WsmHeader, (0, None), (False, None)

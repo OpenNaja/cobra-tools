@@ -26,22 +26,6 @@ class PathSupport(MemStruct):
 		self.support = Pointer(self.context, 0, ZString)
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.support = Pointer.from_stream(stream, instance.context, 0, ZString)
-		instance.distance = Float.from_stream(stream, instance.context, 0, None)
-		instance._unk_int_1 = Uint.from_stream(stream, instance.context, 0, None)
-		if not isinstance(instance.support, int):
-			instance.support.arg = 0
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Pointer.to_stream(stream, instance.support)
-		Float.to_stream(stream, instance.distance)
-		Uint.to_stream(stream, instance._unk_int_1)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'support', Pointer, (0, ZString), (False, None)

@@ -33,38 +33,6 @@ class AttribData(MemStruct):
 			self.value = numpy.zeros((1,), dtype=numpy.dtype('int32'))
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		if instance.arg.dtype == 0:
-			instance.value = Array.from_stream(stream, instance.context, 0, None, (1,), Float)
-		if instance.arg.dtype == 1:
-			instance.value = Array.from_stream(stream, instance.context, 0, None, (2,), Float)
-		if instance.arg.dtype == 2:
-			instance.value = Array.from_stream(stream, instance.context, 0, None, (3,), Float)
-		if instance.arg.dtype == 3:
-			instance.value = Array.from_stream(stream, instance.context, 0, None, (4,), Float)
-		if instance.arg.dtype == 5:
-			instance.value = Array.from_stream(stream, instance.context, 0, None, (1,), Int)
-		if instance.arg.dtype == 6:
-			instance.value = Array.from_stream(stream, instance.context, 0, None, (1,), Int)
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		if instance.arg.dtype == 0:
-			Array.to_stream(stream, instance.value, Float)
-		if instance.arg.dtype == 1:
-			Array.to_stream(stream, instance.value, Float)
-		if instance.arg.dtype == 2:
-			Array.to_stream(stream, instance.value, Float)
-		if instance.arg.dtype == 3:
-			Array.to_stream(stream, instance.value, Float)
-		if instance.arg.dtype == 5:
-			Array.to_stream(stream, instance.value, Int)
-		if instance.arg.dtype == 6:
-			Array.to_stream(stream, instance.value, Int)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		if instance.arg.dtype == 0:

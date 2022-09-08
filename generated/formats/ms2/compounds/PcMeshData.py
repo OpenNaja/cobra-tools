@@ -79,42 +79,6 @@ class PcMeshData(MeshData):
 		self.flag = ModelFlag(self.context, 0, None)
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.tri_index_count_a = Uint.from_stream(stream, instance.context, 0, None)
-		instance.vertex_count = Uint.from_stream(stream, instance.context, 0, None)
-		instance.tri_offset = Uint.from_stream(stream, instance.context, 0, None)
-		instance.tri_index_count = Uint.from_stream(stream, instance.context, 0, None)
-		instance.vertex_offset = Uint.from_stream(stream, instance.context, 0, None)
-		instance.weights_offset = Uint.from_stream(stream, instance.context, 0, None)
-		instance.uv_offset = Uint.from_stream(stream, instance.context, 0, None)
-		instance.zero_b = Uint.from_stream(stream, instance.context, 0, None)
-		instance.vertex_color_offset = Uint.from_stream(stream, instance.context, 0, None)
-		instance.vertex_offset_within_lod = Uint.from_stream(stream, instance.context, 0, None)
-		instance.poweroftwo = Uint.from_stream(stream, instance.context, 0, None)
-		instance.zero = Uint.from_stream(stream, instance.context, 0, None)
-		instance.unknown_07 = Float.from_stream(stream, instance.context, 0, None)
-		instance.flag = ModelFlag.from_stream(stream, instance.context, 0, None)
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Uint.to_stream(stream, instance.tri_index_count_a)
-		Uint.to_stream(stream, instance.vertex_count)
-		Uint.to_stream(stream, instance.tri_offset)
-		Uint.to_stream(stream, instance.tri_index_count)
-		Uint.to_stream(stream, instance.vertex_offset)
-		Uint.to_stream(stream, instance.weights_offset)
-		Uint.to_stream(stream, instance.uv_offset)
-		Uint.to_stream(stream, instance.zero_b)
-		Uint.to_stream(stream, instance.vertex_color_offset)
-		Uint.to_stream(stream, instance.vertex_offset_within_lod)
-		Uint.to_stream(stream, instance.poweroftwo)
-		Uint.to_stream(stream, instance.zero)
-		Float.to_stream(stream, instance.unknown_07)
-		ModelFlag.to_stream(stream, instance.flag)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'tri_index_count_a', Uint, (0, None), (False, None)

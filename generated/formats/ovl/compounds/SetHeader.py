@@ -40,26 +40,6 @@ class SetHeader(BaseStruct):
 		self.assets = Array(self.context, 0, None, (self.asset_count,), AssetEntry)
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.set_count = Uint.from_stream(stream, instance.context, 0, None)
-		instance.asset_count = Uint.from_stream(stream, instance.context, 0, None)
-		instance.sig_a = Uint.from_stream(stream, instance.context, 0, None)
-		instance.sig_b = Uint.from_stream(stream, instance.context, 0, None)
-		instance.sets = Array.from_stream(stream, instance.context, 0, None, (instance.set_count,), SetEntry)
-		instance.assets = Array.from_stream(stream, instance.context, 0, None, (instance.asset_count,), AssetEntry)
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Uint.to_stream(stream, instance.set_count)
-		Uint.to_stream(stream, instance.asset_count)
-		Uint.to_stream(stream, instance.sig_a)
-		Uint.to_stream(stream, instance.sig_b)
-		Array.to_stream(stream, instance.sets, SetEntry)
-		Array.to_stream(stream, instance.assets, AssetEntry)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'set_count', Uint, (0, None), (False, None)

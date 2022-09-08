@@ -91,48 +91,6 @@ class ArchiveEntry(BaseStruct):
 		self.ovs_offset = 0
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.offset = Uint.from_stream(stream, instance.context, 0, None)
-		instance.pools_offset = Uint.from_stream(stream, instance.context, 0, None)
-		instance.stream_files_offset = Uint.from_stream(stream, instance.context, 0, None)
-		instance.num_pools = Uint.from_stream(stream, instance.context, 0, None)
-		instance.num_datas = Ushort.from_stream(stream, instance.context, 0, None)
-		instance.num_pool_groups = Ushort.from_stream(stream, instance.context, 0, None)
-		instance.num_buffer_groups = Uint.from_stream(stream, instance.context, 0, None)
-		instance.num_buffers = Uint.from_stream(stream, instance.context, 0, None)
-		instance.num_fragments = Uint.from_stream(stream, instance.context, 0, None)
-		instance.num_root_entries = Uint.from_stream(stream, instance.context, 0, None)
-		instance.read_start = Uint.from_stream(stream, instance.context, 0, None)
-		instance.set_data_size = Uint.from_stream(stream, instance.context, 0, None)
-		instance.compressed_size = Uint.from_stream(stream, instance.context, 0, None)
-		instance.uncompressed_size = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.pools_start = Uint.from_stream(stream, instance.context, 0, None)
-		instance.pools_end = Uint.from_stream(stream, instance.context, 0, None)
-		instance.ovs_offset = Uint.from_stream(stream, instance.context, 0, None)
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Uint.to_stream(stream, instance.offset)
-		Uint.to_stream(stream, instance.pools_offset)
-		Uint.to_stream(stream, instance.stream_files_offset)
-		Uint.to_stream(stream, instance.num_pools)
-		Ushort.to_stream(stream, instance.num_datas)
-		Ushort.to_stream(stream, instance.num_pool_groups)
-		Uint.to_stream(stream, instance.num_buffer_groups)
-		Uint.to_stream(stream, instance.num_buffers)
-		Uint.to_stream(stream, instance.num_fragments)
-		Uint.to_stream(stream, instance.num_root_entries)
-		Uint.to_stream(stream, instance.read_start)
-		Uint.to_stream(stream, instance.set_data_size)
-		Uint.to_stream(stream, instance.compressed_size)
-		Uint64.to_stream(stream, instance.uncompressed_size)
-		Uint.to_stream(stream, instance.pools_start)
-		Uint.to_stream(stream, instance.pools_end)
-		Uint.to_stream(stream, instance.ovs_offset)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'offset', Uint, (0, None), (False, None)

@@ -25,22 +25,6 @@ class KeyPoint(MemStruct):
 		self.tangent_after = 0.0
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.time = Float.from_stream(stream, instance.context, 0, None)
-		instance.value = Float.from_stream(stream, instance.context, 0, None)
-		instance.tangent_before = Float.from_stream(stream, instance.context, 0, None)
-		instance.tangent_after = Float.from_stream(stream, instance.context, 0, None)
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Float.to_stream(stream, instance.time)
-		Float.to_stream(stream, instance.value)
-		Float.to_stream(stream, instance.tangent_before)
-		Float.to_stream(stream, instance.tangent_after)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'time', Float, (0, None), (False, None)

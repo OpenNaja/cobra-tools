@@ -31,34 +31,6 @@ class MeshDataWrap(MemStruct):
 			self.mesh = ZtMeshData(self.context, 0, None)
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		if instance.context.version >= 47 and (instance.context.version == 51) and instance.context.biosyn:
-			instance.mesh = BioMeshData.from_stream(stream, instance.context, 0, None)
-		if instance.context.version >= 47 and not ((instance.context.version == 51) and instance.context.biosyn):
-			instance.mesh = NewMeshData.from_stream(stream, instance.context, 0, None)
-		if instance.context.version == 32:
-			instance.mesh = PcMeshData.from_stream(stream, instance.context, 0, None)
-		if instance.context.version == 13:
-			instance.mesh = ZtMeshData.from_stream(stream, instance.context, 0, None)
-		if instance.context.version == 7:
-			instance.mesh = ZtMeshData.from_stream(stream, instance.context, 0, None)
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		if instance.context.version >= 47 and (instance.context.version == 51) and instance.context.biosyn:
-			BioMeshData.to_stream(stream, instance.mesh)
-		if instance.context.version >= 47 and not ((instance.context.version == 51) and instance.context.biosyn):
-			NewMeshData.to_stream(stream, instance.mesh)
-		if instance.context.version == 32:
-			PcMeshData.to_stream(stream, instance.mesh)
-		if instance.context.version == 13:
-			ZtMeshData.to_stream(stream, instance.mesh)
-		if instance.context.version == 7:
-			ZtMeshData.to_stream(stream, instance.mesh)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		if instance.context.version >= 47 and (instance.context.version == 51) and instance.context.biosyn:

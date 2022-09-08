@@ -32,32 +32,6 @@ class DinoPatternsHeader(MemStruct):
 		self.patterns = Pointer(self.context, self.pattern_count, DinoPatternsHeader._import_path_map["generated.formats.dinosaurmaterialvariants.compounds.PatternArray"])
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.fgm_name = Pointer.from_stream(stream, instance.context, 0, ZStringObfuscated)
-		instance.set_count = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.set_name = Pointer.from_stream(stream, instance.context, 0, ZString)
-		instance.patterns = Pointer.from_stream(stream, instance.context, instance.pattern_count, DinoPatternsHeader._import_path_map["generated.formats.dinosaurmaterialvariants.compounds.PatternArray"])
-		instance.pattern_count = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.zero = Uint64.from_stream(stream, instance.context, 0, None)
-		if not isinstance(instance.fgm_name, int):
-			instance.fgm_name.arg = 0
-		if not isinstance(instance.set_name, int):
-			instance.set_name.arg = 0
-		if not isinstance(instance.patterns, int):
-			instance.patterns.arg = instance.pattern_count
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Pointer.to_stream(stream, instance.fgm_name)
-		Uint64.to_stream(stream, instance.set_count)
-		Pointer.to_stream(stream, instance.set_name)
-		Pointer.to_stream(stream, instance.patterns)
-		Uint64.to_stream(stream, instance.pattern_count)
-		Uint64.to_stream(stream, instance.zero)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'fgm_name', Pointer, (0, ZStringObfuscated), (False, None)

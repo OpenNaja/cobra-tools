@@ -31,22 +31,6 @@ class Key(MemStruct):
 		self.handle_scale = 0.0
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.pos = ShortVector3.from_stream(stream, instance.context, 0, None)
-		instance.handle_left = ByteVector3.from_stream(stream, instance.context, 0, None)
-		instance.handle_right = ByteVector3.from_stream(stream, instance.context, 0, None)
-		instance.handle_scale = Float.from_stream(stream, instance.context, 0, None)
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		ShortVector3.to_stream(stream, instance.pos)
-		ByteVector3.to_stream(stream, instance.handle_left)
-		ByteVector3.to_stream(stream, instance.handle_right)
-		Float.to_stream(stream, instance.handle_scale)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'pos', ShortVector3, (0, None), (False, None)

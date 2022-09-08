@@ -38,34 +38,6 @@ class MergedetailsRoot(MemStruct):
 		self.field_name = Pointer(self.context, 0, ZString)
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.merge_names = Pointer.from_stream(stream, instance.context, instance.count, MergedetailsRoot._import_path_map["generated.formats.mergedetails.compounds.PtrList"])
-		instance.zero_0 = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.zero_1 = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.queries = Pointer.from_stream(stream, instance.context, instance.count, MergedetailsRoot._import_path_map["generated.formats.mergedetails.compounds.PtrList"])
-		instance.field_name = Pointer.from_stream(stream, instance.context, 0, ZString)
-		instance.count = Uint.from_stream(stream, instance.context, 0, None)
-		instance.flag = Uint.from_stream(stream, instance.context, 0, None)
-		if not isinstance(instance.merge_names, int):
-			instance.merge_names.arg = instance.count
-		if not isinstance(instance.queries, int):
-			instance.queries.arg = instance.count
-		if not isinstance(instance.field_name, int):
-			instance.field_name.arg = 0
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Pointer.to_stream(stream, instance.merge_names)
-		Uint64.to_stream(stream, instance.zero_0)
-		Uint64.to_stream(stream, instance.zero_1)
-		Pointer.to_stream(stream, instance.queries)
-		Pointer.to_stream(stream, instance.field_name)
-		Uint.to_stream(stream, instance.count)
-		Uint.to_stream(stream, instance.flag)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'merge_names', Pointer, (instance.count, MergedetailsRoot._import_path_map["generated.formats.mergedetails.compounds.PtrList"]), (False, None)

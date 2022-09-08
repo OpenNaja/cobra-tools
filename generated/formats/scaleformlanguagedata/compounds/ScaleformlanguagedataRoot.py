@@ -35,28 +35,6 @@ class ScaleformlanguagedataRoot(MemStruct):
 		self.fonts = ArrayPointer(self.context, self.count, ScaleformlanguagedataRoot._import_path_map["generated.formats.scaleformlanguagedata.compounds.FontInfo"])
 
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.zero_0 = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.zero_1 = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.fonts = ArrayPointer.from_stream(stream, instance.context, instance.count, ScaleformlanguagedataRoot._import_path_map["generated.formats.scaleformlanguagedata.compounds.FontInfo"])
-		instance.count = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.zero_2 = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.zero_3 = Uint64.from_stream(stream, instance.context, 0, None)
-		if not isinstance(instance.fonts, int):
-			instance.fonts.arg = instance.count
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Uint64.to_stream(stream, instance.zero_0)
-		Uint64.to_stream(stream, instance.zero_1)
-		ArrayPointer.to_stream(stream, instance.fonts)
-		Uint64.to_stream(stream, instance.count)
-		Uint64.to_stream(stream, instance.zero_2)
-		Uint64.to_stream(stream, instance.zero_3)
-
-	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'zero_0', Uint64, (0, None), (False, None)
