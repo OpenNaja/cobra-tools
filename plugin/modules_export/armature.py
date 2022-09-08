@@ -102,6 +102,9 @@ def handle_transforms(ob, me, apply=True):
 def export_bones_custom(b_armature_ob, model_info):
 	is_old_orientation = is_ztuac(model_info.context) or is_dla(model_info.context)
 	corrector = matrix_util.Corrector(is_old_orientation)
+	# both options below crash JWE2 instantly, might be due to bone count though
+	# b_bone_names = ovl_bones_jwe(b_armature_ob)
+	# b_bone_names = [bone.name for bone in b_armature_ob.data.bones]
 	# now get bone names from b_armature.data
 	if is_jwe(model_info.context):
 		b_bone_names = ovl_bones_jwe(b_armature_ob)
