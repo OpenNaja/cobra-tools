@@ -3,7 +3,10 @@ import os
 import time
 import bpy
 
+from generated.formats.ms2.compounds.packing_utils import unpack_swizzle
+from generated.formats.ovl_base import OvlContext
 from generated.formats.voxelskirt import VoxelskirtFile
+from generated.formats.voxelskirt.compounds.VoxelskirtRoot import VoxelskirtRoot
 from plugin.utils.object import mesh_from_data, create_ob
 
 
@@ -62,27 +65,19 @@ def load(filepath=""):
 	file_name = os.path.basename(filepath)
 
 	logging.info(f"Importing {file_name}")
-	vox = VoxelskirtFile()
-	vox.load(filepath)
-	# old for JWE
-	# with open(filepath, 'rb') as stream:
-	#
-	#     header = stream.read(120)
-	#     info = unpack_from('30I', header)
-	#     print(info)
-	#     x = info[4]
-	#     y = info[6]
-	#     print(x, y)
-	#
-	#     heightmap = np.fromfile(stream, dtype=np.float32, count=x * y)
-	# print(heightmap)
-	verts, quads = generate_mesh(vox.info.x, vox.info.y, 1.0, vox.heightmap / vox.info.height)
-	map_ob, me = mesh_from_data("map", verts, quads, False)
-	for i, (x, z, y, r) in enumerate(vox.positions):
-		ob = create_ob(bpy.context.scene, f"Position{i}", None)
-		ob.location = (x, y, z)
-		ob.rotation_euler.z = r
-	import_vertex_groups(map_ob, vox.weights)
+	context = OvlContext()
+	vox = VoxelskirtRoot.from_xml_file(filepath, context)
+
+	# verts, quads = generate_mesh(vox.info.x, vox.info.y, 1.0, vox.heightmap / vox.info.height)
+	# map_ob, me = mesh_from_data("map", verts, quads, False)
+	for entity_group in vox.entity_groups.data:
+		if entity_group.entity_instances:
+			for i, entity_instance in enumerate(entity_group.entity_instances.data):
+				ob = create_ob(bpy.context.scene, f"{entity_group.name}_{i}", None)
+				loc = entity_instance.loc
+				ob.location = unpack_swizzle((loc.x, loc.y, loc.z))
+				ob.rotation_euler.z = entity_instance.z_rot
+	# import_vertex_groups(map_ob, vox.weights)
 	# verts, quads = generate_mesh(vox.info.x, vox.info.y, 1.0, vox.layer)
 	# for face in me.polygons:
 	# 	face.use_smooth = True
