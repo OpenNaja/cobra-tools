@@ -18,12 +18,6 @@ class AkBankSourceData(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		self.ul_plugin_i_d = 0
-		self.stream_type = 0
-		self.ak_media_information = AkMediaInformation(self.context, 0, None)
-
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

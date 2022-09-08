@@ -17,21 +17,6 @@ class AttribData(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		if self.arg.dtype == 0:
-			self.value = numpy.zeros((1,), dtype=numpy.dtype('float32'))
-		if self.arg.dtype == 1:
-			self.value = numpy.zeros((2,), dtype=numpy.dtype('float32'))
-		if self.arg.dtype == 2:
-			self.value = numpy.zeros((3,), dtype=numpy.dtype('float32'))
-		if self.arg.dtype == 3:
-			self.value = numpy.zeros((4,), dtype=numpy.dtype('float32'))
-		if self.arg.dtype == 5:
-			self.value = numpy.zeros((1,), dtype=numpy.dtype('int32'))
-		if self.arg.dtype == 6:
-			self.value = numpy.zeros((1,), dtype=numpy.dtype('int32'))
-
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

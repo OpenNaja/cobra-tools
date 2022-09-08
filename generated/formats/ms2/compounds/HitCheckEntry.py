@@ -44,33 +44,6 @@ class HitCheckEntry(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		# leaving self.dtype alone
-		self.flag_0 = 0
-		self.flag_1 = 0
-		self.flag_2 = 0
-		self.flag_3 = 0
-		if self.context.version < 47:
-			self.zero_extra_pc_unk = 0
-		self.name_offset = 0
-		if self.dtype == 0:
-			self.collider = Sphere(self.context, 0, None)
-		if self.dtype == 1:
-			self.collider = BoundingBox(self.context, 0, None)
-		if self.dtype == 2:
-			self.collider = Capsule(self.context, 0, None)
-		if self.dtype == 3:
-			self.collider = Cylinder(self.context, 0, None)
-		if self.dtype == 7:
-			self.collider = ConvexHull(self.context, 0, None)
-		if self.dtype == 8:
-			self.collider = ConvexHull(self.context, 0, None)
-		if self.dtype == 10:
-			self.collider = MeshCollision(self.context, 0, None)
-		if self.context.version == 13:
-			self.zero_extra_zt = 0
-
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

@@ -30,14 +30,6 @@ class BufferEntry(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		if self.context.version <= 19:
-			self.index = 0
-		self.size = 0
-		if self.context.version >= 20:
-			self.file_hash = 0
-
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

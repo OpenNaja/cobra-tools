@@ -44,32 +44,6 @@ class BufferInfo(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		if 32 <= self.context.version <= 47:
-			self.u_0 = 0
-			self.u_1 = 0
-		if (self.context.version == 51) and self.context.biosyn:
-			self.tri_chunks_size = 0
-			self.tri_chunks_ptr = 0
-			self.vert_chunks_size = 0
-			self.vert_chunks_ptr = 0
-		self.verts_size = 0
-		self.verts_ptr = 0
-		if self.context.version >= 48:
-			self.u_3 = 0
-		if not (self.context.version == 32):
-			self.tris_size = 0
-			self.tris_ptr = 0
-		if self.context.version >= 48:
-			self.u_5 = 0
-			self.u_6 = 0
-		if self.context.version <= 13:
-			self.u_5 = 0
-			self.uvs_size = 0
-			self.u_6 = 0
-			self.u_7 = 0
-
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

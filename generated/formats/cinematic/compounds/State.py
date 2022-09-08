@@ -27,17 +27,6 @@ class State(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		self.a = 0
-		self.b = 0
-		self.c = 0
-		self.d = 0
-		self.abstract_name = Pointer(self.context, 0, ZString)
-		self.concrete_name = Pointer(self.context, 0, ZString)
-		self.debug_name = Pointer(self.context, 0, ZString)
-		self.events_list = Pointer(self.context, 0, State._import_path_map["generated.formats.cinematic.compounds.EventsList"])
-
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

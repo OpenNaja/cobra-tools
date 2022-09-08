@@ -27,18 +27,6 @@ class TextureInfo(GenericInfo):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		if self.dtype == 8:
-			self.value = Array(self.context, 0, None, (1,), TexIndex)
-		if self.context.version >= 18 and self.dtype == 7:
-			self.value = Array(self.context, 0, None, (2,), Color)
-		if self.context.version <= 17 and self.dtype == 7:
-			self.value = Array(self.context, 0, None, (1,), Color)
-		if self.context.version >= 18:
-			self.some_index_0 = 0
-			self.some_index_1 = 0
-
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

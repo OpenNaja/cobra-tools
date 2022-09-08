@@ -27,19 +27,6 @@ class LogicalControls(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		self.button_count = 0
-		self.axis_count = 0
-		self.count_3 = 0
-		self.count_4 = 0
-		self.flags = 0
-		self.buttons = ArrayPointer(self.context, self.button_count, LogicalControls._import_path_map["generated.formats.logicalcontrols.compounds.Button"])
-		self.axes = ArrayPointer(self.context, self.axis_count, LogicalControls._import_path_map["generated.formats.logicalcontrols.compounds.AxisValue"])
-		self.axis_buttons = ArrayPointer(self.context, self.count_3, LogicalControls._import_path_map["generated.formats.logicalcontrols.compounds.AxisButton"])
-		self.d = ArrayPointer(self.context, self.count_4, LogicalControls._import_path_map["generated.formats.logicalcontrols.compounds.Some"])
-		self.unsure = Pointer(self.context, 0, ZString)
-
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

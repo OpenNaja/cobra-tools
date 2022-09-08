@@ -20,14 +20,6 @@ class Dxt10Header(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		self.dxgi_format = DxgiFormat(self.context, 0, None)
-		self.resource_dimension = D3D10ResourceDimension(self.context, 0, None)
-		self.misc_flag = 0
-		self.array_size = 1
-		self.misc_flag_2 = 0
-
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

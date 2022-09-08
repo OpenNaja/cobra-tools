@@ -20,14 +20,6 @@ class ZerosPadding(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		self.hier_2_padding_0 = 0
-		if 64 < self.arg:
-			self.hier_2_padding_1 = 0
-		if 128 < self.arg:
-			self.hier_2_padding_2 = 0
-
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

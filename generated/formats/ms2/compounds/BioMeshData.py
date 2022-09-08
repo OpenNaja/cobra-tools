@@ -54,17 +54,6 @@ class BioMeshData(MeshData):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		self.chunks_offset = 0
-		self.chunks_count = 0
-		self.tris_count = 0
-		self.vertex_count = 0
-		self.zero_1 = 0
-		self.poweroftwo = 0
-		self.unk_floats = numpy.zeros((2,), dtype=numpy.dtype('float32'))
-		self.flag = BioModelFlag(self.context, 0, None)
-
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

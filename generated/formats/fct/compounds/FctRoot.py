@@ -33,20 +33,6 @@ class FctRoot(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		self.u_0 = 0
-		self.u_1 = 0
-		self.a = 0.0
-		self.b = 0.0
-		self.c = 0.0
-		self.minus_1 = 0
-		self.z_0 = 0
-		self.z_1 = 0
-		self.z_2 = 0
-		self.offset = 0
-		self.fonts = Array(self.context, 0, None, (4,), Font)
-
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

@@ -52,21 +52,6 @@ class BnkBufferData(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		self.size_b = 0
-		self.buffer_count = 0
-		self.count_2 = 0
-		self.stream_info_count = 0
-		self.zeros = numpy.zeros((7,), dtype=numpy.dtype('uint32'))
-		self.zeros_per_buffer = numpy.zeros((self.buffer_count, 2,), dtype=numpy.dtype('uint64'))
-		self.stream_infos = Array(self.context, 0, None, (self.stream_info_count,), StreamInfo)
-		self.name = ''
-		if self.buffer_count:
-			self.external_b_suffix = ''
-		if self.stream_info_count:
-			self.external_s_suffix = ''
-
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

@@ -24,11 +24,6 @@ class DATASection(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		self.length = 0
-		self.wem_datas = numpy.zeros((self.length,), dtype=numpy.dtype('int8'))
-
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

@@ -23,13 +23,6 @@ class RenderParameterCurvesRoot(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		self.count = 0
-		self.unk = 0
-		self.param_name = Pointer(self.context, 0, ZStringObfuscated)
-		self.params = Pointer(self.context, self.count, RenderParameterCurvesRoot._import_path_map["generated.formats.renderparameters.compounds.CurveParamList"])
-
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

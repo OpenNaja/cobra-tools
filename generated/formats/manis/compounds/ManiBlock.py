@@ -79,61 +79,6 @@ class ManiBlock(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		self.ref = Empty(self.context, 0, None)
-		if self.context.version <= 257:
-			self.pos_bones = numpy.zeros((self.arg.pos_bone_count,), dtype=numpy.dtype('uint16'))
-		if self.context.version >= 258:
-			self.pos_bones = numpy.zeros((self.arg.pos_bone_count,), dtype=numpy.dtype('uint32'))
-		if self.context.version <= 257:
-			self.ori_bones = numpy.zeros((self.arg.ori_bone_count,), dtype=numpy.dtype('uint16'))
-		if self.context.version >= 258:
-			self.ori_bones = numpy.zeros((self.arg.ori_bone_count,), dtype=numpy.dtype('uint32'))
-		if self.context.version <= 257:
-			self.scl_bones = numpy.zeros((self.arg.scl_bone_count,), dtype=numpy.dtype('uint16'))
-		if self.context.version >= 258:
-			self.scl_bones = numpy.zeros((self.arg.scl_bone_count,), dtype=numpy.dtype('uint32'))
-		if self.context.version <= 257:
-			self.floats = numpy.zeros((self.arg.float_count,), dtype=numpy.dtype('uint16'))
-		if self.context.version >= 258:
-			self.floats = numpy.zeros((self.arg.float_count,), dtype=numpy.dtype('uint32'))
-		self.pos_bones_p = numpy.zeros((self.arg.pos_bone_count,), dtype=numpy.dtype('uint8'))
-		self.ori_bones_p = numpy.zeros((self.arg.ori_bone_count,), dtype=numpy.dtype('uint8'))
-		self.scl_bones_p = numpy.zeros((self.arg.scl_bone_count,), dtype=numpy.dtype('uint8'))
-		if self.arg.pos_bone_min >= 0:
-			self.pos_bones_delta = numpy.zeros(((self.arg.pos_bone_max - self.arg.pos_bone_min) + 1,), dtype=numpy.dtype('uint8'))
-		if self.arg.ori_bone_min >= 0:
-			self.ori_bones_delta = numpy.zeros(((self.arg.ori_bone_max - self.arg.ori_bone_min) + 1,), dtype=numpy.dtype('uint8'))
-		if self.arg.scl_bone_min >= 0:
-			self.scl_bones_delta = numpy.zeros(((self.arg.scl_bone_max - self.arg.scl_bone_min) + 1,), dtype=numpy.dtype('uint8'))
-		self.pad = PadAlign(self.context, 4, self.ref)
-		self.floatsa = numpy.zeros((self.arg.frame_count, self.arg.float_count,), dtype=numpy.dtype('float32'))
-		self.pad_2 = SmartPadding(self.context, 0, None)
-		self.frame_count = 0
-		self.ori_bone_count = 0
-		self.pos_bone_count = 0
-		self.scl_bone_count = 0
-		self.zeros_18 = numpy.zeros((18,), dtype=numpy.dtype('uint32'))
-		self.count = 0
-		self.quantisation_level = 0
-		self.ref_2 = Empty(self.context, 0, None)
-		self.some_indices = numpy.zeros((self.pos_bone_count,), dtype=numpy.dtype('uint8'))
-		self.flag_0 = 0
-		self.flag_1 = 0
-		self.flag_2 = 0
-		self.flag_3 = 0
-		self.anoth_pad = PadAlign(self.context, 4, self.ref_2)
-		self.floatsb = numpy.zeros((6,), dtype=numpy.dtype('float32'))
-		self.floats_second = numpy.zeros((self.flag_1, 6,), dtype=numpy.dtype('float32'))
-		if self.flag_2 > 1:
-			self.floats_third = numpy.zeros((6,), dtype=numpy.dtype('float32'))
-		if self.arg.count_a == 255:
-			self.unk = 0
-		if self.context.version <= 257:
-			self.extra_pc_zero = 0
-		self.repeats = Array(self.context, 0, None, (self.count,), Repeat)
-
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

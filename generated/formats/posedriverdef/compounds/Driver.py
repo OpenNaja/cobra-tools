@@ -31,18 +31,6 @@ class Driver(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		self.a = 0
-		self.b = 0
-		self.c = 0
-		self.d = 0
-		self.unk_1 = 0
-		self.unk_2 = 0
-		self.joint_name = Pointer(self.context, 0, ZString)
-		self.driven_joint_name = Pointer(self.context, 0, ZString)
-		self.data = Pointer(self.context, 0, Driver._import_path_map["generated.formats.posedriverdef.compounds.Data"])
-
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

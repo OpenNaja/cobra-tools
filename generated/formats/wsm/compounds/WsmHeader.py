@@ -30,14 +30,6 @@ class WsmHeader(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		self.duration = 0.0
-		self.frame_count = 0
-		self.unknowns = numpy.zeros((8,), dtype=numpy.dtype('float32'))
-		self.locs = ArrayPointer(self.context, self.frame_count, WsmHeader._import_path_map["generated.formats.wsm.compounds.Vector3"])
-		self.quats = ArrayPointer(self.context, self.frame_count, WsmHeader._import_path_map["generated.formats.wsm.compounds.Vector4"])
-
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

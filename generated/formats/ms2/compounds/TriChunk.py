@@ -37,18 +37,6 @@ class TriChunk(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		self.bounds_min = Vector3(self.context, 0, None)
-		self.material_index = 0
-		self.tris_count = 0
-		self.bounds_max = Vector3(self.context, 0, None)
-		self.tris_offset = 0
-		self.loc = Vector3(self.context, 0, None)
-		self.rot = QuatWFirst(self.context, 0, None)
-		self.u_2 = 0
-		self.u_3 = 0
-
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

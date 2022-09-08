@@ -24,14 +24,6 @@ class CurveParam(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		# leaving self.dtype alone
-		self.do_interpolation = 0
-		self.count = 0
-		self.attribute_name = Pointer(self.context, 0, ZString)
-		self.curve_entries = Pointer(self.context, self.count, CurveParam._import_path_map["generated.formats.renderparameters.compounds.CurveList"])
-
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

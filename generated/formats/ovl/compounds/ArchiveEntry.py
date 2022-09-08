@@ -70,26 +70,6 @@ class ArchiveEntry(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		self.offset = 0
-		self.pools_offset = 0
-		self.stream_files_offset = 0
-		self.num_pools = 0
-		self.num_datas = 0
-		self.num_pool_groups = 0
-		self.num_buffer_groups = 0
-		self.num_buffers = 0
-		self.num_fragments = 0
-		self.num_root_entries = 0
-		self.read_start = 0
-		self.set_data_size = 0
-		self.compressed_size = 0
-		self.uncompressed_size = 0
-		self.pools_start = 0
-		self.pools_end = 0
-		self.ovs_offset = 0
-
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

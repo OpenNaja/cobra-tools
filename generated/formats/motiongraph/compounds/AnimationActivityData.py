@@ -35,20 +35,6 @@ class AnimationActivityData(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		self.animation_flags = AnimationFlags(self.context, 0, None)
-		self.priorities = 0
-		self.weight = FloatInputData(self.context, 0, None)
-		self.speed = FloatInputData(self.context, 0, None)
-		self.starting_prop_through = 0.0
-		self.lead_out_time = 0.0
-		self.count_6 = 0
-		self.additional_data_streams = DataStreamResourceDataList(self.context, 0, None)
-		self.mani = Pointer(self.context, 0, ZString)
-		self.sync_prop_through_variable = Pointer(self.context, 0, ZString)
-		self.output_prop_through_variable = Pointer(self.context, 0, ZString)
-
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

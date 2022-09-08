@@ -16,11 +16,6 @@ class Key(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		self.euler = Vector3Short(self.context, 0, None)
-		self.translation = Vector3Ushort(self.context, 0, None)
-
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

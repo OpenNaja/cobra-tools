@@ -29,22 +29,6 @@ class PathMaterial(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		self.path_sub_type = 0
-		self.num_data = 0
-		self.elevated_mat = Pointer(self.context, 0, ZString)
-		self.elevated_mat_valid = Pointer(self.context, 0, ZString)
-		self.elevated_mat_invalid = Pointer(self.context, 0, ZString)
-		self.terrain_mat = Pointer(self.context, 0, ZString)
-		self.terrain_mat_valid = Pointer(self.context, 0, ZString)
-		self.terrain_mat_invalid = Pointer(self.context, 0, ZString)
-		self.underside_mat_1 = Pointer(self.context, 0, ZString)
-		self.underside_mat_2 = Pointer(self.context, 0, ZString)
-		self.stairs_mat_1 = Pointer(self.context, 0, ZString)
-		self.stairs_mat_2 = Pointer(self.context, 0, ZString)
-		self.mat_data = ArrayPointer(self.context, self.num_data, PathMaterial._import_path_map["generated.formats.path.compounds.PathMaterialData"])
-
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

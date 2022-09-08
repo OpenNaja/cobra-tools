@@ -40,16 +40,6 @@ class BanisRoot(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		self.zeros = numpy.zeros((2,), dtype=numpy.dtype('uint64'))
-		self.bytes_per_frame = 0
-		self.bytes_per_bone = 0
-		self.num_frames = 0
-		self.num_bones = 0
-		self.loc_scale = 0.0
-		self.loc_offset = 0.0
-
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

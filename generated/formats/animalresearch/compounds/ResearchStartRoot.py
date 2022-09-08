@@ -16,11 +16,6 @@ class ResearchStartRoot(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		self.count = 0
-		self.states = ArrayPointer(self.context, self.count, ResearchStartRoot._import_path_map["generated.formats.animalresearch.compounds.UnlockState"])
-
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

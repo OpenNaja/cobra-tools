@@ -39,25 +39,6 @@ class Ms2InfoHeader(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		self.biosyn = 0
-		self.bone_info_size = 0
-		self.info = Ms2Root(self.context, 0, None)
-		if self.context.version >= 7:
-			self.buffers_presence = Array(self.context, 0, None, (self.info.vertex_buffer_count,), BufferPresence)
-		self.mdl_2_names = Array(self.context, 0, None, (self.info.mdl_2_count,), ZString)
-		if self.context.version <= 7 and self.info.vertex_buffer_count:
-			self.modelstream_names = Array(self.context, 0, None, (self.info.vertex_buffer_count - self.info.stream_count,), ZString)
-		if 13 <= self.context.version <= 13 and self.info.vertex_buffer_count:
-			self.modelstream_names = Array(self.context, 0, None, (self.info.vertex_buffer_count,), ZString)
-		if self.context.version >= 39 and self.info.vertex_buffer_count:
-			self.modelstream_names = Array(self.context, 0, None, (self.info.stream_count,), ZString)
-		self.buffer_0 = Buffer0(self.context, self.info, None)
-		self.buffer_infos = Array(self.context, 0, None, (self.info.vertex_buffer_count,), BufferInfo)
-		self.model_infos = Array(self.context, 0, None, (self.info.mdl_2_count,), ModelInfo)
-		self.models_reader = ModelReader(self.context, self.model_infos, None)
-
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

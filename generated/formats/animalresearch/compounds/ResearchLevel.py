@@ -20,14 +20,6 @@ class ResearchLevel(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		self.next_level_count = 0
-		self.children_count = 0
-		self.level_name = Pointer(self.context, 0, ZString)
-		self.next_levels = Pointer(self.context, self.next_level_count, ResearchLevel._import_path_map["generated.formats.animalresearch.compounds.PtrList"])
-		self.children = Pointer(self.context, self.children_count, ResearchLevel._import_path_map["generated.formats.animalresearch.compounds.PtrList"])
-
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

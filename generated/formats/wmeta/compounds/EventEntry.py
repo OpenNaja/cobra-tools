@@ -38,28 +38,6 @@ class EventEntry(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		self.hash = 0
-		self.zero = 0
-		if self.context.version <= 18:
-			self.zero_2 = 0
-			self.size = 0
-		self.flag_0 = 0
-		self.flag_1 = 0
-		self.flag_2 = 0
-		if self.context.version <= 18:
-			self.zero_3 = 0
-			self.flag_3 = 0
-		self.hash_b = 0
-		self.hash_c = 0
-		self.zero_4 = 0
-		if self.context.version >= 19:
-			self.u_2 = 0
-			self.u_1 = 0
-		if self.context.version <= 18:
-			self.block_name = Pointer(self.context, 0, ZString)
-
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

@@ -29,12 +29,6 @@ class BaniInfoHeader(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		self.magic = numpy.zeros((4,), dtype=numpy.dtype('int8'))
-		self.banis_name = ''
-		self.data = BaniRoot(self.context, 0, None)
-
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

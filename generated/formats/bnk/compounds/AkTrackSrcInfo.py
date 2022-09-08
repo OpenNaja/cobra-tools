@@ -21,16 +21,6 @@ class AkTrackSrcInfo(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		self.track_i_d = 0
-		self.source_i_d = 0
-		self.event_i_d = 0
-		self.f_play_at = 0.0
-		self.f_begin_trim_offset = 0.0
-		self.f_end_trim_offset = 0.0
-		self.f_src_duration = 0.0
-
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

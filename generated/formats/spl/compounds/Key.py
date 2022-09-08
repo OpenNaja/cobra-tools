@@ -23,13 +23,6 @@ class Key(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		self.pos = ShortVector3(self.context, 0, None)
-		self.handle_left = ByteVector3(self.context, 0, None)
-		self.handle_right = ByteVector3(self.context, 0, None)
-		self.handle_scale = 0.0
-
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

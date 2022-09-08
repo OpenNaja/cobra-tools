@@ -25,14 +25,6 @@ class TrackedRideCarSub(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		self.float = 0.0
-		self.u_0 = 0
-		self.vecs_count = 0
-		self.zero_1 = 0
-		self.vectors = ArrayPointer(self.context, self.vecs_count, TrackedRideCarSub._import_path_map["generated.formats.trackedridecar.compounds.Vector3"])
-
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

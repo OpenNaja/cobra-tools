@@ -26,17 +26,6 @@ class MotiongraphRootFrag(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		self.num_activities = 0
-		self.count_1 = 0
-		self.count_2 = 0
-		self.num_xmls = 0
-		self.activities = Pointer(self.context, self.num_activities, MotiongraphRootFrag._import_path_map["generated.formats.motiongraph.compounds.Activities"])
-		self.ptr_1 = Pointer(self.context, self.count_1, MotiongraphRootFrag._import_path_map["generated.formats.motiongraph.compounds.MRFArray1"])
-		self.ptr_2 = Pointer(self.context, self.count_2, MotiongraphRootFrag._import_path_map["generated.formats.motiongraph.compounds.MRFArray2"])
-		self.ptr_xmls = Pointer(self.context, self.num_xmls, MotiongraphRootFrag._import_path_map["generated.formats.motiongraph.compounds.XMLArray"])
-
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

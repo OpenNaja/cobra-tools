@@ -37,15 +37,6 @@ class Activity(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		self.count_2 = 0
-		self.count_3 = 0
-		self.minus_one = 0
-		self.data_type = Pointer(self.context, 0, ZString)
-		self.ptr = Pointer(self.context, 0, None)
-		self.name_b = Pointer(self.context, 0, ZString)
-
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

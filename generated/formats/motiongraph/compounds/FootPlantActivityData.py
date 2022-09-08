@@ -20,12 +20,6 @@ class FootPlantActivityData(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		self.weight = FloatInputData(self.context, 0, None)
-		self.rotation_no_i_k_weight = FloatInputData(self.context, 0, None)
-		self.sticky_feet_weight = FloatInputData(self.context, 0, None)
-
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

@@ -143,50 +143,6 @@ class Header(GenericHeader):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		self.lod_depth = 0
-		self.len_names = 0
-		self.zero_2 = 0
-		self.num_aux_entries = 0
-		self.num_included_ovls = 0
-		self.num_mimes = 0
-		self.num_files = 0
-		self.num_files_2 = 0
-		self.num_dependencies = 0
-		self.num_archives = 0
-		self.num_pool_groups = 0
-		self.num_pools = 0
-		self.num_datas = 0
-		self.num_buffers = 0
-		self.num_stream_files = 0
-		self.ztuac_unk_0 = 0
-		self.ztuac_unk_1 = 0
-		self.ztuac_unk_2 = 0
-		self.len_archive_names = 0
-		self.num_files_3 = 0
-		self.len_type_names = 0
-		self.num_triplets = 0
-		self.reserved = numpy.zeros((12,), dtype=numpy.dtype('uint32'))
-		self.names = ZStringBuffer(self.context, self.len_names, None)
-		if self.context.version <= 15:
-			self.names_pad = numpy.zeros(((16 - (self.len_names % 16)) % 16,), dtype=numpy.dtype('uint8'))
-		self.mimes = Array(self.context, 0, None, (self.num_mimes,), MimeEntry)
-		if self.context.version >= 20:
-			self.triplets = Array(self.context, 0, None, (self.num_triplets,), Triplet)
-			self.triplets_pad = PadAlign(self.context, 4, self.triplets)
-		self.files = Array(self.context, 0, None, (self.num_files,), FileEntry)
-		self.archive_names = ZStringBuffer(self.context, self.len_archive_names, None)
-		self.archives = Array(self.context, 0, None, (self.num_archives,), ArchiveEntry)
-		self.included_ovls = Array(self.context, 0, None, (self.num_included_ovls,), IncludedOvl)
-		if self.context.version >= 19:
-			self.dependencies = Array(self.context, 0, None, (self.num_dependencies,), DependencyEntry)
-		self.aux_entries = Array(self.context, 0, None, (self.num_aux_entries,), AuxEntry)
-		if self.context.version <= 18:
-			self.dependencies = Array(self.context, 0, None, (self.num_dependencies,), DependencyEntry)
-		self.stream_files = Array(self.context, 0, None, (self.num_stream_files,), StreamEntry)
-		self.zlibs = Array(self.context, 0, None, (self.num_archives,), ZlibInfo)
-
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

@@ -51,39 +51,6 @@ class UiMovieHeader(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		self.flag_1 = 0
-		self.flag_2 = 0
-		self.flag_3 = 0
-		self.floats = numpy.zeros((3,), dtype=numpy.dtype('float32'))
-		self.u_0 = 0
-		self.num_ui_triggers = 0
-		self.u_1 = 0
-		self.num_ui_names = 0
-		self.num_assetpkgs = 0
-		self.u_2 = 0
-		self.num_list_1 = 0
-		self.num_list_2 = 0
-		self.num_ui_interfaces = 0
-		self.u_3 = 0
-		self.u_4 = 0
-		self.u_5 = 0
-		self.movie_name = Pointer(self.context, 0, ZString)
-		self.pkg_name = Pointer(self.context, 0, ZString)
-		self.category_name = Pointer(self.context, 0, ZString)
-		self.type_name = Pointer(self.context, 0, ZString)
-		self.ptr_0 = Pointer(self.context, 0, None)
-		self.ui_triggers = Pointer(self.context, self.num_ui_triggers, UiMovieHeader._import_path_map["generated.formats.uimoviedefinition.compounds.PtrList"])
-		self.ptr_1 = Pointer(self.context, 0, None)
-		self.ui_names = Pointer(self.context, self.num_ui_names, UiMovieHeader._import_path_map["generated.formats.uimoviedefinition.compounds.PtrList"])
-		self.assetpkgs = Pointer(self.context, self.num_assetpkgs, UiMovieHeader._import_path_map["generated.formats.uimoviedefinition.compounds.PtrList"])
-		self.ptr_2 = Pointer(self.context, 0, None)
-		self.list_1 = ArrayPointer(self.context, self.num_list_1, Uint)
-		self.list_2 = ArrayPointer(self.context, self.num_list_2, Uint)
-		self.ui_interfaces = Pointer(self.context, self.num_ui_interfaces, UiMovieHeader._import_path_map["generated.formats.uimoviedefinition.compounds.PtrList"])
-		self.ptr_3 = Pointer(self.context, 0, None)
-
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

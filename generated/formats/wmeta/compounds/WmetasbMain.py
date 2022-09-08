@@ -38,27 +38,6 @@ class WmetasbMain(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		self.hash = 0
-		self.unk = 0
-		self.events_count = 0
-		if self.context.version <= 18:
-			self.hashes_count = 0
-			self.media_count = 0
-		self.block_name = Pointer(self.context, 0, ZString)
-		if self.context.version <= 18:
-			self.media_name = Pointer(self.context, 0, ZString)
-			self.bnk_name = Pointer(self.context, 0, ZString)
-		self.events = ArrayPointer(self.context, self.events_count, WmetasbMain._import_path_map["generated.formats.wmeta.compounds.EventEntry"])
-		if self.context.version <= 18:
-			self.hashes = ArrayPointer(self.context, self.hashes_count, Uint)
-			self.media = ArrayPointer(self.context, self.media_count, WmetasbMain._import_path_map["generated.formats.wmeta.compounds.MediaEntry"])
-			self.unused_2 = Pointer(self.context, 0, None)
-			self.unused_3 = Pointer(self.context, 0, None)
-			self.unused_4 = Pointer(self.context, 0, None)
-			self.unused_5 = Pointer(self.context, 0, None)
-
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

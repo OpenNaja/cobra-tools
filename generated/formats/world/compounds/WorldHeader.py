@@ -29,19 +29,6 @@ class WorldHeader(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		self.world_type = 0
-		self.asset_pkg_count = 0
-		self.prefab_count = 0
-		self.asset_pkgs = Pointer(self.context, self.asset_pkg_count, WorldHeader._import_path_map["generated.formats.world.compounds.PtrList"])
-		self.lua_name = Pointer(self.context, 0, ZString)
-		self.ptr_0 = Pointer(self.context, 0, None)
-		self.ptr_1 = Pointer(self.context, 0, None)
-		self.prefabs = Pointer(self.context, self.prefab_count, WorldHeader._import_path_map["generated.formats.world.compounds.PtrList"])
-		self.ptr_2 = Pointer(self.context, 0, None)
-		self.ptr_3 = Pointer(self.context, 0, None)
-
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

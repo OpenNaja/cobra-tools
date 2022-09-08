@@ -35,15 +35,6 @@ class MeshData(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		if self.context.version <= 32:
-			self.stream_index = 0
-		if not ((self.context.version == 51) and self.context.biosyn):
-			self.some_index = 0
-		if self.context.version >= 47:
-			self.stream_info = Pointer(self.context, 0, MeshData._import_path_map["generated.formats.ms2.compounds.BufferInfo"])
-
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

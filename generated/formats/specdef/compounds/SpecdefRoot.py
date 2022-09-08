@@ -30,22 +30,6 @@ class SpecdefRoot(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		self.attrib_count = 0
-		self.flags = 0
-		self.name_count = 0
-		self.childspec_count = 0
-		self.manager_count = 0
-		self.script_count = 0
-		self.attribs = ArrayPointer(self.context, self.attrib_count, SpecdefRoot._import_path_map["generated.formats.specdef.compounds.Spec"])
-		self.name_foreach_attribs = ForEachPointer(self.context, self.attribs, SpecdefRoot._import_path_map["generated.formats.specdef.compounds.NamePtr"])
-		self.data_foreach_attribs = ForEachPointer(self.context, self.attribs, SpecdefRoot._import_path_map["generated.formats.specdef.compounds.DataPtr"])
-		self.names = Pointer(self.context, self.name_count, SpecdefRoot._import_path_map["generated.formats.specdef.compounds.PtrList"])
-		self.childspecs = Pointer(self.context, self.childspec_count, SpecdefRoot._import_path_map["generated.formats.specdef.compounds.PtrList"])
-		self.managers = Pointer(self.context, self.manager_count, SpecdefRoot._import_path_map["generated.formats.specdef.compounds.PtrList"])
-		self.scripts = Pointer(self.context, self.script_count, SpecdefRoot._import_path_map["generated.formats.specdef.compounds.PtrList"])
-
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

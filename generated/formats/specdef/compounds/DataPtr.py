@@ -18,10 +18,6 @@ class DataPtr(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		self.data_ptr = Pointer(self.context, self.arg.dtype, DataPtr._import_path_map["generated.formats.specdef.compounds.Data"])
-
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

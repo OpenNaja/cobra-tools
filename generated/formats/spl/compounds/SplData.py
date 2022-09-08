@@ -23,12 +23,6 @@ class SplData(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		self.offset = Vector3(self.context, 0, None)
-		self.scale = 0.0
-		self.keys = Array(self.context, 0, None, (self.arg,), Key)
-
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

@@ -63,40 +63,6 @@ class HabitatBoundaryDataRoot(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		self.u_1 = 3
-		self.u_2 = 0.0
-		self.u_3 = 0
-		self.ui_options = HbUiOptions(self.context, 0, None)
-		self.u_4 = 1.5
-		self.u_5 = 2.5
-		self.offsets = HbOffsets(self.context, 0, None)
-		self.wall_replace_level = 0
-		self.type = 0
-		self.padding = 0
-		self.prefab = Pointer(self.context, 0, ZString)
-		self.walls_extrusion = Pointer(self.context, 0, ZString)
-		self.walls_extrusion_end = Pointer(self.context, 0, ZString)
-		self.walls_extrusion_top = Pointer(self.context, 0, ZString)
-		self.walls_extrusion_cap_top = Pointer(self.context, 0, ZString)
-		self.walls_extrusion_bottom = Pointer(self.context, 0, ZString)
-		self.walls_unk_2 = Pointer(self.context, 0, ZString)
-		self.walls_unk_3 = Pointer(self.context, 0, ZString)
-		self.walls_unk_4 = Pointer(self.context, 0, ZString)
-		self.walls_extrusion_door_cap_side = Pointer(self.context, 0, ZString)
-		self.walls_extrusion_door_cap_end = Pointer(self.context, 0, ZString)
-		self.walls_extrusion_door_cap_underside = Pointer(self.context, 0, ZString)
-		self.climb_proof_data = Pointer(self.context, 0, ZString)
-		self.broken_post = Pointer(self.context, 0, ZString)
-		self.broken_extrusion = Pointer(self.context, 0, ZString)
-		self.broken_extrusion_pile = Pointer(self.context, 0, ZString)
-		self.broken_ground = Pointer(self.context, 0, ZString)
-		self.broken_1_m = Pointer(self.context, 0, ZString)
-		self.broken_10_m = Pointer(self.context, 0, ZString)
-		self.post = Pointer(self.context, 0, ZString)
-		self.post_cap = Pointer(self.context, 0, ZString)
-
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

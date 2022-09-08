@@ -37,15 +37,6 @@ class GenericHeader(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		self.magic = FixedString(self.context, 4, None)
-		self.version_flag = 0
-		self.version = 0
-		self.bitswap = 0
-		self.seventh_byte = 1
-		self.user_version = VersionInfo(self.context, 0, None)
-
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

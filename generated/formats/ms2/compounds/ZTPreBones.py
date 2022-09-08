@@ -22,14 +22,6 @@ class ZTPreBones(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		self.zeros = numpy.zeros((2,), dtype=numpy.dtype('uint64'))
-		self.unks = numpy.zeros((8,), dtype=numpy.dtype('uint32'))
-		self.unks_2 = numpy.zeros((10,), dtype=numpy.dtype('uint32'))
-		self.floats = numpy.zeros((4,), dtype=numpy.dtype('float32'))
-		self.unks_3 = numpy.zeros((2,), dtype=numpy.dtype('uint32'))
-
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

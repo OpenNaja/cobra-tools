@@ -44,21 +44,6 @@ class Model(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		self.materials = Array(self.context, 0, None, (self.arg.num_materials,), MaterialName)
-		self.lods = Array(self.context, 0, None, (self.arg.num_lods,), LodInfo)
-		self.objects = Array(self.context, 0, None, (self.arg.num_objects,), Object)
-		if self.context.version <= 13 and (self.arg.num_materials + self.arg.num_objects) % 2:
-			self.objects_padding = 0
-		self.meshes = Array(self.context, 0, None, (self.arg.num_meshes,), MeshDataWrap)
-		if self.context.version == 13 and self.arg.last_count:
-			self.pre_bones = ZTPreBones(self.context, 0, None)
-		if self.context.version == 7 and self.arg.last_count:
-			self.pre_bones = DLAPreBones(self.context, 0, None)
-		if self.context.version <= 32:
-			self.floatsy = Array(self.context, 0, None, (self.arg.render_flag,), FloatsY)
-
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

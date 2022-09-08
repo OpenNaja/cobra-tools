@@ -54,25 +54,6 @@ class LodInfo(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		if self.context.version <= 13:
-			self.full = 0
-			self.half = 0
-			self.lod_index = 0
-		if self.context.version >= 32:
-			self.distance = 0.0
-			self.zero = 0
-		self.bone_index = 0
-		self.first_object_index = 0
-		if self.context.version <= 13:
-			self.first_object_index_1 = 0
-			self.first_object_index_2 = 0
-		self.last_object_index = 0
-		if self.context.version >= 32 and not ((self.context.version == 51) and self.context.biosyn):
-			self.vertex_count = 0
-			self.tri_index_count = 0
-
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

@@ -30,13 +30,6 @@ class Layer(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		self.id = 0
-		# leaving self.dtype alone
-		self.offset = 0
-		self.dsize = 0
-
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

@@ -27,16 +27,6 @@ class ConvexHull(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		self.vertex_count = 0
-		self.rotation = Matrix33(self.context, 0, None)
-		self.offset = Vector3(self.context, 0, None)
-		if self.context.version == 32:
-			self.zeros = numpy.zeros((5,), dtype=numpy.dtype('uint32'))
-		if ((self.context.version == 48) or (self.context.version == 50)) or (self.context.version == 51):
-			self.zeros = numpy.zeros((2,), dtype=numpy.dtype('uint32'))
-
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

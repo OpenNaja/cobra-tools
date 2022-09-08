@@ -33,17 +33,6 @@ class OvsHeader(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		self.pool_groups = Array(self.context, 0, None, (self.arg.num_pool_groups,), PoolGroup)
-		self.pools = Array(self.context, 0, None, (self.arg.num_pools,), MemPool)
-		self.data_entries = Array(self.context, 0, None, (self.arg.num_datas,), DataEntry)
-		self.buffer_entries = Array(self.context, 0, None, (self.arg.num_buffers,), BufferEntry)
-		self.buffer_groups = Array(self.context, 0, None, (self.arg.num_buffer_groups,), BufferGroup)
-		self.root_entries = Array(self.context, 0, None, (self.arg.num_root_entries,), RootEntry)
-		self.fragments = Array(self.context, 0, None, (self.arg.num_fragments,), Fragment)
-		self.set_header = SetHeader(self.context, 0, None)
-
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

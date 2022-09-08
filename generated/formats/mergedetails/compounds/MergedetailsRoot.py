@@ -27,16 +27,6 @@ class MergedetailsRoot(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		self.zero_0 = 0
-		self.zero_1 = 0
-		self.count = 0
-		self.flag = 0
-		self.merge_names = Pointer(self.context, self.count, MergedetailsRoot._import_path_map["generated.formats.mergedetails.compounds.PtrList"])
-		self.queries = Pointer(self.context, self.count, MergedetailsRoot._import_path_map["generated.formats.mergedetails.compounds.PtrList"])
-		self.field_name = Pointer(self.context, 0, ZString)
-
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

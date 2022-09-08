@@ -22,16 +22,6 @@ class AxisValue(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		self.u_0 = 0
-		self.u_1 = 0
-		self.u_2 = 0
-		self.u_3 = 0
-		self.u_4 = 0
-		self.axis_name = Pointer(self.context, 0, ZString)
-		self.value_name = Pointer(self.context, 0, ZString)
-
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

@@ -25,29 +25,6 @@ class ParamData(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		if self.arg == 0:
-			self.data = numpy.zeros((1,), dtype=numpy.dtype('bool'))
-		if self.arg == 1:
-			self.data = numpy.zeros((1,), dtype=numpy.dtype('float32'))
-		if self.arg == 2:
-			self.data = numpy.zeros((1,), dtype=numpy.dtype('int32'))
-		if self.arg == 3:
-			self.data = numpy.zeros((1,), dtype=numpy.dtype('uint32'))
-		if self.arg == 4:
-			self.data = numpy.zeros((2,), dtype=numpy.dtype('float32'))
-		if self.arg == 5:
-			self.data = numpy.zeros((3,), dtype=numpy.dtype('float32'))
-		if self.arg == 6:
-			self.data = numpy.zeros((4,), dtype=numpy.dtype('float32'))
-		if self.arg == 7:
-			self.data = numpy.zeros((4,), dtype=numpy.dtype('uint8'))
-		if self.arg == 8:
-			self.data = numpy.zeros((4,), dtype=numpy.dtype('float32'))
-		if self.arg == 9:
-			self.data = Array(self.context, 0, None, (1,), ZStrPtr)
-
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

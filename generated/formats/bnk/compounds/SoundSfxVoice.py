@@ -11,16 +11,6 @@ class SoundSfxVoice(BaseStruct):
 
 	_import_path = 'generated.formats.bnk.compounds.SoundSfxVoice'
 
-	def set_defaults(self):
-		super().set_defaults()
-		self.length = 0
-		self.id = 0
-		self.const_a = 0
-		self.const_b = 0
-		self.didx_id = 0
-		self.wem_length = 0
-		self.extra = numpy.zeros((self.length - 17,), dtype=numpy.dtype('int8'))
-
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

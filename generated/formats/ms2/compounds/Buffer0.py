@@ -28,15 +28,6 @@ class Buffer0(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		self.name_hashes = numpy.zeros((self.arg.name_count,), dtype=numpy.dtype('uint32'))
-		self.names = Array(self.context, 0, None, (self.arg.name_count,), ZString)
-		if self.context.version >= 50:
-			self.names_padding = numpy.zeros(((4 - (self.names.io_size % 4)) % 4,), dtype=numpy.dtype('uint8'))
-		if self.context.version <= 13:
-			self.zt_streams_header = StreamsZTHeader(self.context, self.arg, None)
-
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

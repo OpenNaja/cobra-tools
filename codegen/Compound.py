@@ -76,27 +76,27 @@ class Compound(BaseClass):
                 self.write_line(f, 2, "if set_default:")
                 self.write_line(f, 3, "self.set_defaults()")
 
-            if "def set_defaults(" not in self.src_code:
-                self.write_line(f)
-                self.write_line(f, 1, "def set_defaults(self):")
-                # todo - needs testing
-                if self.class_basename:
-                    self.write_line(f, 2, f"super().set_defaults()")
-                # self.write_line(f, 2, "print(f'set_defaults {self.__class__.__name__}')")
-                end = f.tell()
-                # write all fields, merge conditions
-                condition = ""
-                # for ovl memory structs, some pointers may have counts that are defined before the count
-                # so for set_defaults, write pointers last
-                for union in self.field_unions:
-                    if not union.is_ovl_ptr():
-                        condition = union.write_defaults(f, condition)
-                for union in self.field_unions:
-                    if union.is_ovl_ptr():
-                        condition = union.write_defaults(f, condition)
-                # if no defaults have been written
-                if f.tell() == end:
-                    self.write_line(f, 2, "pass")
+            # if "def set_defaults(" not in self.src_code:
+            #     self.write_line(f)
+            #     self.write_line(f, 1, "def set_defaults(self):")
+            #     # todo - needs testing
+            #     if self.class_basename:
+            #         self.write_line(f, 2, f"super().set_defaults()")
+            #     # self.write_line(f, 2, "print(f'set_defaults {self.__class__.__name__}')")
+            #     end = f.tell()
+            #     # write all fields, merge conditions
+            #     condition = ""
+            #     # for ovl memory structs, some pointers may have counts that are defined before the count
+            #     # so for set_defaults, write pointers last
+            #     for union in self.field_unions:
+            #         if not union.is_ovl_ptr():
+            #             condition = union.write_defaults(f, condition)
+            #     for union in self.field_unions:
+            #         if union.is_ovl_ptr():
+            #             condition = union.write_defaults(f, condition)
+            #     # if no defaults have been written
+            #     if f.tell() == end:
+            #         self.write_line(f, 2, "pass")
 
             # write the read_fields/write_fields methods
             # for method_type in ("read", "write"):

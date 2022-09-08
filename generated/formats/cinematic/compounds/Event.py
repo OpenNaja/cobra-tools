@@ -25,15 +25,6 @@ class Event(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		self.start_time = 0.0
-		self.b = 0.0
-		self.duration = 0.0
-		self.d = 0.0
-		self.module_name = Pointer(self.context, 0, ZString)
-		self.attributes = Pointer(self.context, 0, Event._import_path_map["generated.formats.cinematic.compounds.EventAttributes"])
-
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

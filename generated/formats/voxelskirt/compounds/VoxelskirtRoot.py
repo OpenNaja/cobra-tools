@@ -39,24 +39,6 @@ class VoxelskirtRoot(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		self.zero = 0
-		self.data_size = 0
-		self.x = 0
-		self.y = 0
-		self.scale = 0.0
-		self.padding = 0.0
-		if self.context.version == 18:
-			self.height_offset = 0
-			self.weights_offset = 0
-		if not (self.context.version == 18):
-			self.layers = DataSlot(self.context, 0, VoxelskirtRoot._import_path_map["generated.formats.voxelskirt.compounds.Layer"])
-			self.areas = DataSlot(self.context, 0, VoxelskirtRoot._import_path_map["generated.formats.voxelskirt.compounds.Area"])
-		self.entity_groups = DataSlot(self.context, 0, VoxelskirtRoot._import_path_map["generated.formats.voxelskirt.compounds.EntityGroup"])
-		self.materials = DataSlot(self.context, 0, VoxelskirtRoot._import_path_map["generated.formats.voxelskirt.compounds.Material"])
-		self.names = DataSlot(self.context, 0, VoxelskirtRoot._import_path_map["generated.formats.voxelskirt.compounds.Name"])
-
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

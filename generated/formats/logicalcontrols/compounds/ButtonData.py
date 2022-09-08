@@ -25,14 +25,6 @@ class ButtonData(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		self.k_1_a = 0
-		self.k_1_b = 0
-		self.k_2 = 0
-		self.k_3 = 0
-		self.k_4 = 0
-
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

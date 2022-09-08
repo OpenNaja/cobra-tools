@@ -26,14 +26,6 @@ class SelectActivityActivityData(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		self.num_activities = 0
-		self.blend_time = 0.0
-		self.mode = SelectActivityActivityMode(self.context, 0, None)
-		self.enum_variable = Pointer(self.context, 0, ZString)
-		self.activities = Pointer(self.context, self.num_activities, SelectActivityActivityData._import_path_map["generated.formats.motiongraph.compounds.ActivitiesLinks"])
-
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

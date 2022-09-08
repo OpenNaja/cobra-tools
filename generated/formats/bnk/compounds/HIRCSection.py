@@ -24,12 +24,6 @@ class HIRCSection(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		self.length = 0
-		self.count = 0
-		self.hirc_pointers = Array(self.context, 0, None, (self.count,), HircPointer)
-
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

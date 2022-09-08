@@ -28,16 +28,6 @@ class SizedStrData(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		self.names_size = 0
-		self.hash_block_size = 0
-		self.zero_0 = 0
-		self.zero_1 = 0
-		self.zero_2 = 0
-		if self.context.version >= 20:
-			self.zero_3 = 0
-
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

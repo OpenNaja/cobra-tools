@@ -117,53 +117,6 @@ class JointData(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		if self.context.version == 32:
-			self.start_pc = SmartPadding(self.context, 0, None)
-		if self.context.version <= 7:
-			self.before_dla_0 = 0
-			self.before_dla_1 = 0
-		self.joint_count = 0
-		self.count_0 = 0
-		self.count_1 = 0
-		self.count_2 = 0
-		if self.context.version <= 32:
-			self.zero_0 = 0
-		if 13 <= self.context.version <= 32:
-			self.zero_1 = 0
-		self.namespace_length = 0
-		self.zeros_0 = numpy.zeros((5,), dtype=numpy.dtype('uint32'))
-		self.pc_count = 0
-		self.zeros_1 = numpy.zeros((7,), dtype=numpy.dtype('uint32'))
-		if 13 <= self.context.version <= 32:
-			self.extra_zeros_2 = numpy.zeros((4,), dtype=numpy.dtype('uint32'))
-		if self.context.version >= 13:
-			self.ones = numpy.zeros((2,), dtype=numpy.dtype('uint64'))
-		self.bone_count = 0
-		self.joint_entry_count = 0
-		self.zeros_2 = numpy.zeros((4,), dtype=numpy.dtype('uint32'))
-		if self.context.version <= 7:
-			self.zeros_3 = 0
-		self.joint_transforms = Array(self.context, 0, None, (self.joint_count,), JointEntry)
-		if self.context.version >= 47:
-			self.zeros_3 = numpy.zeros((self.joint_count,), dtype=numpy.dtype('uint64'))
-			self.unknown_listc = Array(self.context, 0, None, (self.joint_count,), ListCEntry)
-			self.first_list = Array(self.context, 0, None, (self.count_0,), ListFirst)
-			self.short_list = Array(self.context, 0, None, (self.count_1,), ListShort)
-			self.long_list = Array(self.context, 0, None, (self.count_2,), ListLong)
-		if self.context.version <= 32:
-			self.joint_infos = Array(self.context, 0, None, (self.joint_count,), UACJointFF)
-			self.pc_floats = numpy.zeros((self.pc_count, 10,), dtype=numpy.dtype('float32'))
-		self.joint_indices = numpy.zeros((self.joint_count,), dtype=numpy.dtype('int32'))
-		self.bone_indices = numpy.zeros((self.bone_count,), dtype=numpy.dtype('int32'))
-		self.joint_names = ZStringBuffer(self.context, self.namespace_length, None)
-		self.joint_names_padding = SmartPadding(self.context, 0, None)
-		if self.context.version >= 47:
-			self.joint_infos = Array(self.context, 0, None, (self.joint_count,), JointInfo)
-		if self.context.version <= 32:
-			self.hitcheck_reader = HitcheckReader(self.context, self.joint_infos, None)
-
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

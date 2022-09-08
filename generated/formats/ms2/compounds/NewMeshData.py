@@ -58,20 +58,6 @@ class NewMeshData(MeshData):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		self.vertex_count = 0
-		self.tri_index_count = 0
-		self.zero_1 = 0
-		self.poweroftwo = 0
-		self.vertex_offset = 0
-		self.size_of_vertex = 0
-		self.tri_offset = 0
-		self.zero_2 = 0
-		self.unk_floats = numpy.zeros((2,), dtype=numpy.dtype('float32'))
-		self.zero_3 = 0
-		self.flag = ModelFlag(self.context, 0, None)
-
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

@@ -34,25 +34,6 @@ class PathJoinPartResource(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		self.padding_1 = 0
-		self.unk_byte_1 = 0
-		self.unk_byte_2 = 0
-		self.unk_byte_3 = 0
-		self.num_points_1 = 0
-		self.num_points_1_copy = 0
-		self.num_points_2 = 0
-		self.num_points_2_copy = 0
-		self.num_points_3 = 0
-		self.padding_2 = 0
-		self.unk_points_1 = Pointer(self.context, self.num_points_1, PathJoinPartResource._import_path_map["generated.formats.path.compounds.PointsList"])
-		self.unk_points_2 = Pointer(self.context, self.num_points_2, PathJoinPartResource._import_path_map["generated.formats.path.compounds.PointsList"])
-		self.unk_vector = ArrayPointer(self.context, 1, PathJoinPartResource._import_path_map["generated.formats.path.compounds.Vector4"])
-		self.unk_shorts = ArrayPointer(self.context, 8, Ushort)
-		self.unk_points_3 = Pointer(self.context, self.num_points_3, PathJoinPartResource._import_path_map["generated.formats.path.compounds.PointsList"])
-		self.pathresource = Pointer(self.context, 0, ZString)
-
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

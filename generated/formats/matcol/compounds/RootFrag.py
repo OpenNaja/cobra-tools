@@ -25,15 +25,6 @@ class RootFrag(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		self.mat_type = 0
-		self.tex_count = 0
-		self.mat_count = 0
-		self.unk = 0
-		self.textures = ArrayPointer(self.context, self.tex_count, RootFrag._import_path_map["generated.formats.matcol.compounds.Texture"])
-		self.materials = ArrayPointer(self.context, self.mat_count, RootFrag._import_path_map["generated.formats.matcol.compounds.LayerFrag"])
-
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

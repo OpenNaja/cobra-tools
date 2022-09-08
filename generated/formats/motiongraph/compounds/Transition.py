@@ -27,15 +27,6 @@ class Transition(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		self.count_0 = 0
-		self.count_1 = 0
-		self.count_2 = 0
-		self.ptr_0 = Pointer(self.context, self.count_1, Transition._import_path_map["generated.formats.motiongraph.compounds.PtrList"])
-		self.ptr_1 = Pointer(self.context, self.count_2, Transition._import_path_map["generated.formats.motiongraph.compounds.TransStructArray"])
-		self.id = Pointer(self.context, 0, ZString)
-
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

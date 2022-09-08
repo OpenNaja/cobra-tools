@@ -46,18 +46,6 @@ class Ms2Root(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		self.version = 0
-		self.vertex_buffer_count = 0
-		self.mdl_2_count = 0
-		self.name_count = 0
-		self.stream_count = 0
-		self.zeros = numpy.zeros((3,), dtype=numpy.dtype('uint32'))
-		self.buffer_infos = ArrayPointer(self.context, self.vertex_buffer_count, Ms2Root._import_path_map["generated.formats.ms2.compounds.BufferInfo"])
-		self.model_infos = ArrayPointer(self.context, self.mdl_2_count, Ms2Root._import_path_map["generated.formats.ms2.compounds.ModelInfo"])
-		self.buffers_presence = ArrayPointer(self.context, self.vertex_buffer_count, Ms2Root._import_path_map["generated.formats.ms2.compounds.BufferPresence"])
-
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

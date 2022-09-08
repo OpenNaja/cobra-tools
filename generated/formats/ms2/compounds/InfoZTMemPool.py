@@ -21,11 +21,6 @@ class InfoZTMemPool(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		self.unk_count = 0
-		self.unks = numpy.zeros((self.unk_count, 2,), dtype=numpy.dtype('uint16'))
-
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

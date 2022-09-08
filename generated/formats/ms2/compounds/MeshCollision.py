@@ -83,36 +83,6 @@ class MeshCollision(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		self.rotation = Matrix33(self.context, 0, None)
-		self.offset = Vector3(self.context, 0, None)
-		self.unk_1 = numpy.zeros((3, 2,), dtype=numpy.dtype('uint16'))
-		self.vertex_count = 0
-		self.tri_count = 0
-		self.bounds_min = Vector3(self.context, 0, None)
-		self.bounds_max = Vector3(self.context, 0, None)
-		self.ones_or_zeros = numpy.zeros((7,), dtype=numpy.dtype('uint64'))
-		if self.context.version <= 32:
-			self.ff_or_zero = numpy.zeros((10,), dtype=numpy.dtype('int32'))
-		if self.context.version >= 47:
-			self.ff_or_zero = numpy.zeros((8,), dtype=numpy.dtype('int32'))
-		if self.context.version <= 32:
-			self.bounds_min_repeat = Vector3(self.context, 0, None)
-			self.bounds_max_repeat = Vector3(self.context, 0, None)
-			self.tri_flags_count = 0
-			self.count_bits = 0
-			self.stuff = numpy.zeros((9,), dtype=numpy.dtype('uint16'))
-			self.collision_bits = Array(self.context, 0, None, (self.count_bits,), MeshCollisionBit)
-			self.zeros = numpy.zeros((4,), dtype=numpy.dtype('uint32'))
-		self.vertices = numpy.zeros((self.vertex_count, 3,), dtype=numpy.dtype('float32'))
-		self.triangles = numpy.zeros((self.tri_count, 3,), dtype=numpy.dtype('uint16'))
-		if self.context.version <= 32:
-			self.const = 0
-		if self.context.version <= 32 and self.const:
-			self.triangle_flags = numpy.zeros((self.tri_flags_count,), dtype=numpy.dtype('uint32'))
-		self.zero_end = 0
-
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

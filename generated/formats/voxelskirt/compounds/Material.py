@@ -22,11 +22,6 @@ class Material(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		self.entity_instances = DataSlot(self.context, 0, Material._import_path_map["generated.formats.voxelskirt.compounds.EntityInstance"])
-		self.id = 0
-
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

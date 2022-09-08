@@ -47,35 +47,6 @@ class TexHeader(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		if self.context.version <= 15:
-			self.zero_0 = 0
-		if self.context.version >= 17:
-			self.zero_0 = 0
-		if self.context.version >= 19:
-			self.zero_1 = 0
-		if self.context.version <= 18:
-			self.compression_type = DdsTypeCoaster(self.context, 0, None)
-		if self.context.version >= 19:
-			self.compression_type = DdsType(self.context, 0, None)
-		self.one_0 = 0
-		if self.context.version <= 15:
-			self.num_mips = 0
-			self.width = 0
-			self.height = 0
-		if self.context.version >= 17:
-			self.stream_count = 0
-			self.stream_count_repeat = 0
-		self.pad = 0
-		if self.context.version <= 15:
-			self.pad_dla = 0
-		if 17 <= self.context.version <= 18:
-			self.buffer_infos = ArrayPointer(self.context, self.stream_count, TexHeader._import_path_map["generated.formats.tex.compounds.TexBufferPc"])
-		if self.context.version >= 19:
-			self.buffer_infos = ArrayPointer(self.context, self.stream_count, TexHeader._import_path_map["generated.formats.tex.compounds.TexBuffer"])
-			self.size_info = Pointer(self.context, 0, TexHeader._import_path_map["generated.formats.tex.compounds.SizeInfo"])
-
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

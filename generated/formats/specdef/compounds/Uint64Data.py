@@ -23,14 +23,6 @@ class Uint64Data(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		self.imin = 0
-		self.imax = 0
-		self.ivalue = 0
-		self.ioptional = 0
-		self.enum = Pointer(self.context, 0, None)
-
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

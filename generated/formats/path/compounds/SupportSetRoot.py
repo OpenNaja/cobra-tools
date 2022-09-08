@@ -35,24 +35,6 @@ class SupportSetRoot(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		self.padding = 0
-		self.unk_vector_1 = Vector3(self.context, 0, None)
-		self.unk_vector_2 = Vector2(self.context, 0, None)
-		self.unk_vector_3 = Vector3(self.context, 0, None)
-		self.unk_int_1 = 0
-		self.num_connector_1 = 0
-		self.num_connector_2 = 0
-		self.unk_ints = numpy.zeros((7,), dtype=numpy.dtype('uint32'))
-		self.padding_2 = 0
-		self.num_data = 0
-		self.connector_1 = ArrayPointer(self.context, self.num_connector_1, SupportSetRoot._import_path_map["generated.formats.path.compounds.Connector"])
-		self.connector_2 = ArrayPointer(self.context, self.num_connector_2, SupportSetRoot._import_path_map["generated.formats.path.compounds.ConnectorMultiJoint"])
-		self.pillar = Pointer(self.context, 0, SupportSetRoot._import_path_map["generated.formats.path.compounds.Pillar"])
-		self.footer = Pointer(self.context, 0, SupportSetRoot._import_path_map["generated.formats.path.compounds.Footer"])
-		self.data = ArrayPointer(self.context, self.num_data, SupportSetRoot._import_path_map["generated.formats.path.compounds.SupportSetData"])
-
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

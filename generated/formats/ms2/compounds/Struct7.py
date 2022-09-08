@@ -43,23 +43,6 @@ class Struct7(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		if self.context.version <= 13:
-			self.weird_padding = SmartPadding(self.context, 0, None)
-		self.count_7 = 0
-		self.zero_0 = 0
-		if self.context.version >= 48:
-			self.flag = 0
-			self.zero_2 = 0
-		if self.context.version <= 13:
-			self.unknown_list = Array(self.context, 0, None, (self.count_7,), UACJoint)
-		if self.context.version >= 32:
-			self.unknown_list = Array(self.context, 0, None, (self.count_7,), NasutoJointEntry)
-		self.padding = numpy.zeros(((8 - ((self.count_7 * 60) % 8)) % 8,), dtype=numpy.dtype('uint8'))
-		if self.context.version >= 50 and self.flag:
-			self.alignment = 0
-
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

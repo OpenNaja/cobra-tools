@@ -18,13 +18,6 @@ class PathType(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		self.enum_value = 0
-		self.min_width = 4.0
-		self.max_width = 10.0
-		self._unk_int_2 = 0
-
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

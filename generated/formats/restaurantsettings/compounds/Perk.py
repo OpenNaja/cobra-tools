@@ -29,22 +29,6 @@ class Perk(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		self.unk_0 = 0
-		self.building_cost = 0
-		self.running_cost_base = 0
-		self.running_cost_per_extension = 0
-		self.unk_4 = 0.0
-		self.unk_5 = 0.0
-		self.unk_6 = 0.0
-		self.appeal_adults = 0.0
-		self.appeal_families = 0.0
-		self.appeal_teenagers = 0.0
-		self.label = Pointer(self.context, 0, ZString)
-		self.desc = Pointer(self.context, 0, ZString)
-		self.icon = Pointer(self.context, 0, ZString)
-
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

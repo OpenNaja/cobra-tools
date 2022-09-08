@@ -53,24 +53,6 @@ class MemPool(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		if self.context.version >= 17:
-			self.zero_1 = 0
-		self.size = 0
-		self.offset = 0
-		if self.context.version <= 15:
-			self.zero_2 = 0
-		self.file_hash = 0
-		if self.context.version <= 15:
-			self.disney_zero = 0
-			self.num_files = 0
-		if self.context.version >= 17:
-			self.num_files = 0
-		if self.context.version >= 19:
-			self.ext_hash = 0
-			self.zero_3 = 0
-
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

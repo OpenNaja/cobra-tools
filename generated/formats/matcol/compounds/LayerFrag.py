@@ -25,18 +25,6 @@ class LayerFrag(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		self.u_0 = 0
-		self.u_1 = 0
-		self.info_count = 0
-		self.u_2 = 0
-		self.u_3 = 0
-		self.attrib_count = 0
-		self.layer_name = Pointer(self.context, 0, ZString)
-		self.infos = ArrayPointer(self.context, self.info_count, LayerFrag._import_path_map["generated.formats.matcol.compounds.Info"])
-		self.attribs = ArrayPointer(self.context, self.attrib_count, LayerFrag._import_path_map["generated.formats.matcol.compounds.Attrib"])
-
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

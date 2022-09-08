@@ -22,15 +22,6 @@ class DinoPatternsHeader(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		self.set_count = 0
-		self.pattern_count = 0
-		self.zero = 0
-		self.fgm_name = Pointer(self.context, 0, ZStringObfuscated)
-		self.set_name = Pointer(self.context, 0, ZString)
-		self.patterns = Pointer(self.context, self.pattern_count, DinoPatternsHeader._import_path_map["generated.formats.dinosaurmaterialvariants.compounds.PatternArray"])
-
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

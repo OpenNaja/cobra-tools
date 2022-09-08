@@ -17,12 +17,6 @@ class CinematicRoot(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		self.u_0 = 0
-		self.u_1 = 0
-		self.data = Pointer(self.context, 0, CinematicRoot._import_path_map["generated.formats.cinematic.compounds.CinematicData"])
-
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

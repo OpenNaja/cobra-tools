@@ -22,12 +22,6 @@ class Buffer1(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		self.bone_hashes = numpy.zeros((self.arg,), dtype=numpy.dtype('uint32'))
-		self.bone_names = Array(self.context, 0, None, (self.arg,), ZString)
-		self.bone_pad = PadAlign(self.context, 4, self.bone_names)
-
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

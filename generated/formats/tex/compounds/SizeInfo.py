@@ -18,14 +18,6 @@ class SizeInfo(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		self.data = SizeInfoRaw(self.context, 0, None)
-		if ((not self.context.user_version.is_jwe) and (self.context.version == 20)) or (((not self.context.user_version.is_jwe) and (self.context.version >= 19)) or (self.context.user_version.is_jwe and (self.context.version == 20))):
-			self.padding = numpy.zeros((320 - self.data.io_size,), dtype=numpy.dtype('uint8'))
-		if self.context.user_version.is_jwe and (self.context.version == 19):
-			self.padding = numpy.zeros((384 - self.data.io_size,), dtype=numpy.dtype('uint8'))
-
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

@@ -63,26 +63,6 @@ class ZtMeshData(MeshData):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		self.tri_index_count = 0
-		self.vertex_count = 0
-		self.tri_info_offset = 0
-		self.vert_info_offset = 0
-		self.known_ff_0 = 0
-		self.tri_offset = 0
-		self.uv_offset = 0
-		self.vertex_offset = 0
-		self.unk_index = 0
-		self.one_0 = 0
-		self.one_1 = 0
-		self.poweroftwo = 0
-		if self.context.version <= 7:
-			self.flag = ModelFlagDLA(self.context, 0, None)
-		if self.context.version >= 13:
-			self.flag = ModelFlagZT(self.context, 0, None)
-		self.zero_uac = 0
-
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

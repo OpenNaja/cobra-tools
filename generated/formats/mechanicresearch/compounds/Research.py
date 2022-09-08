@@ -24,17 +24,6 @@ class Research(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		self.unk_0 = 0
-		self.is_entry_level = 0
-		self.unk_2 = 0
-		self.next_research_count = 0
-		self.unk_3 = 0
-		self.unk_4 = 0
-		self.item_name = Pointer(self.context, 0, ZString)
-		self.next_research = Pointer(self.context, self.next_research_count, Research._import_path_map["generated.formats.mechanicresearch.compounds.NextResearch"])
-
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

@@ -28,21 +28,6 @@ class RestaurantSettingsRoot(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		self.running_cost_base = 0
-		self.unk_1 = 0
-		self.unk_2 = 0.0
-		self.unk_3 = 0.0
-		self.unk_4 = 0.0
-		self.unk_5 = 0.0
-		self.unk_6 = 0.0
-		self.running_cost_per_extension = 0
-		self.unk_8 = 0
-		self.unk_9 = 0.0
-		self.count = 0
-		self.perks = ArrayPointer(self.context, self.count, RestaurantSettingsRoot._import_path_map["generated.formats.restaurantsettings.compounds.Perk"])
-
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

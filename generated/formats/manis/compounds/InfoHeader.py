@@ -30,16 +30,6 @@ class InfoHeader(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		self.version = 0
-		self.mani_count = 0
-		self.names = Array(self.context, 0, None, (self.mani_count,), ZString)
-		self.header = SizedStrData(self.context, 0, None)
-		self.mani_infos = Array(self.context, 0, None, (self.mani_count,), ManiInfo)
-		self.name_buffer = Buffer1(self.context, int(self.header.hash_block_size / 4), None)
-		self.keys_buffer = KeysReader(self.context, self.mani_infos, None)
-
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

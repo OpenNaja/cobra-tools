@@ -25,15 +25,6 @@ class LutHeader(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		self.colors_count = 0
-		self.unk_0 = 0
-		self.unk_1 = 0
-		self.colors_in_column_count = 0
-		self.unk_2 = 0
-		self.colors = ArrayPointer(self.context, self.colors_count, LutHeader._import_path_map["generated.formats.lut.compounds.Vector3"])
-
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

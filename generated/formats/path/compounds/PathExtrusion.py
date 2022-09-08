@@ -23,16 +23,6 @@ class PathExtrusion(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		self.unk_float_1 = 0.0
-		self.unk_float_2 = 0.0
-		self.is_kerb = False
-		self.is_not_ground = True
-		self.model = Pointer(self.context, 0, ZString)
-		self.post_model = Pointer(self.context, 0, ZString)
-		self.endcap_model = Pointer(self.context, 0, ZString)
-
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

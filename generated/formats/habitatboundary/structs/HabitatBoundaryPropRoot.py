@@ -40,23 +40,6 @@ class HabitatBoundaryPropRoot(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		self.type = 0
-		self.u_1 = 0
-		self.is_guest = 0
-		self.post_position = HbPostPos(self.context, 0, None)
-		self.u_2 = 0.0
-		self.door_physics = HbPropPhysics(self.context, 0, None)
-		self.path_physics = HbPropPhysics(self.context, 0, None)
-		self.door_cutout = HbDoorCutout(self.context, 0, None)
-		self.small = 0
-		self.height = 2.0
-		self.prefab = Pointer(self.context, 0, ZString)
-		self.post = Pointer(self.context, 0, ZString)
-		self.wall = Pointer(self.context, 0, ZString)
-		self.path_join_part = Pointer(self.context, 0, ZString)
-
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

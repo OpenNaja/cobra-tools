@@ -45,26 +45,6 @@ class Header(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		self.header_string = FixedString(self.context, 4, None)
-		self.size = 124
-		self.flags = HeaderFlags(self.context, 0, None)
-		self.height = 0
-		self.width = 0
-		self.linear_size = 0
-		self.depth = 1
-		self.mipmap_count = 0
-		self.reserved_1 = numpy.zeros((11,), dtype=numpy.dtype('uint32'))
-		self.pixel_format = PixelFormat(self.context, 0, None)
-		self.caps_1 = Caps1(self.context, 0, None)
-		self.caps_2 = Caps2(self.context, 0, None)
-		self.caps_3 = 0
-		self.caps_4 = 0
-		self.unused = 0
-		if self.pixel_format.four_c_c == 808540228:
-			self.dx_10 = Dxt10Header(self.context, 0, None)
-
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

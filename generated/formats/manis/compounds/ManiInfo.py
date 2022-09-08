@@ -84,49 +84,6 @@ class ManiInfo(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		self.duration = 0.0
-		self.frame_count = 0
-		self.b = 0
-		self.zeros_0 = numpy.zeros((6,), dtype=numpy.dtype('uint16'))
-		if self.context.version <= 257:
-			self.extra_pc_1 = 0
-		self.pos_bone_count = 0
-		self.ori_bone_count = 0
-		self.scl_bone_count = 0
-		if self.context.version <= 257:
-			self.extra_pc = 0
-			self.pos_bone_count_repeat = 0
-			self.ori_bone_count_repeat = 0
-			self.scl_bone_count_repeat = 0
-		self.zeros_1 = 0
-		if self.context.version >= 258:
-			self.zeros_1_new = 0
-		self.float_count = 0
-		self.count_a = 0
-		self.count_b = 0
-		self.target_bone_count = 0
-		self.g = 0
-		self.zeros_2 = numpy.zeros((57,), dtype=numpy.dtype('uint32'))
-		if self.context.version <= 257:
-			self.extra_zeros_pc = numpy.zeros((6,), dtype=numpy.dtype('uint16'))
-		self.pos_bone_min = 0
-		self.pos_bone_max = 0
-		self.ori_bone_min = 0
-		self.ori_bone_max = 0
-		self.scl_bone_min = 0
-		self.scl_bone_max = 0
-		if self.context.version >= 258:
-			self.pos_bone_count_related = 0
-			self.pos_bone_count_repeat = 0
-			self.ori_bone_count_related = 0
-			self.ori_bone_count_repeat = 0
-			self.scl_bone_count_related = 0
-			self.scl_bone_count_repeat = 0
-			self.zeros_end = 0
-		self.zero_2_end = 0
-
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

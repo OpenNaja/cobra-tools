@@ -61,23 +61,6 @@ class PcMeshData(MeshData):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		self.tri_index_count_a = 0
-		self.vertex_count = 0
-		self.tri_offset = 0
-		self.tri_index_count = 0
-		self.vertex_offset = 0
-		self.weights_offset = 0
-		self.uv_offset = 0
-		self.zero_b = 0
-		self.vertex_color_offset = 0
-		self.vertex_offset_within_lod = 0
-		self.poweroftwo = 0
-		self.zero = 0
-		self.unknown_07 = 0.0
-		self.flag = ModelFlag(self.context, 0, None)
-
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

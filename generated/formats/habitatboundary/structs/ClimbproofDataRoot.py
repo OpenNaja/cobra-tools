@@ -29,16 +29,6 @@ class ClimbproofDataRoot(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		self.post_gap = 0.0
-		self.u_1 = 2.0
-		self.zero = 0
-		self.climb_proof = Pointer(self.context, 0, ZString)
-		self.climb_proof_cap_start = Pointer(self.context, 0, ZString)
-		self.climb_proof_cap_end = Pointer(self.context, 0, ZString)
-		self.climb_proof_bracket = Pointer(self.context, 0, ZString)
-
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

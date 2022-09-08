@@ -81,41 +81,6 @@ class GuestEconomyRoot(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		self.target_profit = 0
-		self.u_00 = 0.0
-		self.target_dinosaur_prestige = 0
-		self.dinosaur_prestige_power = 0.0
-		self.u_01 = 0
-		self.u_02 = 0.0
-		self.u_03 = 0.0
-		self.u_04 = 0.0
-		self.visitor_arrival_rate = 0.0
-		self.visitor_departure_rate = 0.0
-		self.u_05 = 0.0
-		self.u_06 = 0.0
-		self.u_07 = 0.0
-		self.u_08 = 0.0
-		self.u_09 = 0.0
-		self.u_10 = 0.0
-		self.u_11 = 0.0
-		self.ticket_price_visitor_proportion_power = 0.0
-		self.ticket_price_full_visitor_proportion = 0.0
-		self.ticket_price_minimum_price_fraction = 0.0
-		self.visitor_deaths_decay_rate = 0.0
-		self.visitor_deaths_limit = 0.0
-		self.danger_exposure_safe_decay_rate = 0.0
-		self.danger_exposure_unnecessary_shelter_punishment = 0.0
-		self.danger_exposure_storm_exposure_punishment = 0.0
-		self.danger_exposure_dinosaur_exposure_punishment = 0.0
-		self.danger_exposure_dinosaur_danger_radius = 0.0
-		self.danger_exposure_limit = 0.0
-		self.transport_rating_disabled = 0
-		self.u_12 = 0
-		self.u_13 = 0
-		self.u_14 = 0
-
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

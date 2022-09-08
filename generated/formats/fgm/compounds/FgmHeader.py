@@ -32,26 +32,6 @@ class FgmHeader(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		if self.context.version <= 15:
-			self._texture_count = 0
-		if self.context.version >= 17:
-			self._texture_count = 0
-		if self.context.version <= 15:
-			self._attribute_count = 0
-		if self.context.version >= 17:
-			self._attribute_count = 0
-		self._unk_0 = 0
-		self._unk_1 = 0
-		if self.context.user_version.is_jwe and (self.context.version == 20):
-			self._unk_2 = 0
-			self._unk_3 = 0
-		self.textures = ArrayPointer(self.context, self._texture_count, FgmHeader._import_path_map["generated.formats.fgm.compounds.TextureInfo"])
-		self.attributes = ArrayPointer(self.context, self._attribute_count, FgmHeader._import_path_map["generated.formats.fgm.compounds.AttribInfo"])
-		self.name_foreach_textures = ForEachPointer(self.context, self.textures, FgmHeader._import_path_map["generated.formats.fgm.compounds.TextureData"])
-		self.value_foreach_attributes = ForEachPointer(self.context, self.attributes, FgmHeader._import_path_map["generated.formats.fgm.compounds.AttribData"])
-
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

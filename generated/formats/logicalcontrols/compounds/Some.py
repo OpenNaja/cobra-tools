@@ -23,12 +23,6 @@ class Some(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		self.some_count = 0
-		self.some_name = Pointer(self.context, 0, ZString)
-		self.some_data = ArrayPointer(self.context, self.some_count, Some._import_path_map["generated.formats.logicalcontrols.compounds.SomeData"])
-
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

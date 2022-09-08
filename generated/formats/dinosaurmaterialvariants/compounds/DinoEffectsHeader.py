@@ -35,25 +35,6 @@ class DinoEffectsHeader(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		self.vec_0 = Vector3F(self.context, 0, None)
-		self.vec_1 = Vector3F(self.context, 0, None)
-		self.a = 0
-		self.b = 0
-		self.vec_2 = Vector3F(self.context, 0, None)
-		self.vec_3 = Vector3F(self.context, 0, None)
-		self.vec_4 = Vector3F(self.context, 0, None)
-		self.c = 0
-		self.d = 0
-		self.e = 0.0
-		self.f = 0.0
-		self.g = 0
-		self.floats = numpy.zeros((39,), dtype=numpy.dtype('float32'))
-		self.d = 0
-		self.e = 0.0
-		self.fgm_name = Pointer(self.context, 0, ZStringObfuscated)
-
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

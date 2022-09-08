@@ -22,16 +22,6 @@ class RideSettingsRoot(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		self.unk_0 = 0.0
-		self.unk_1 = 0
-		self.count = 0
-		self.pad_0 = 0
-		self.pad_1 = 0
-		self.pad_2 = 0
-		self.array_1 = ArrayPointer(self.context, self.count, RideSettingsRoot._import_path_map["generated.formats.ridesettings.compounds.Pair"])
-
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

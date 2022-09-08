@@ -92,49 +92,6 @@ class ModelInfo(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		if self.context.version <= 7:
-			self.unk_dla = 0
-		self.bounds_min = Vector3(self.context, 0, None)
-		if self.context.version >= 47 and not ((self.context.version == 51) and self.context.biosyn):
-			self.unk_float_a = 0.0
-		self.bounds_max = Vector3(self.context, 0, None)
-		if self.context.version >= 47 and not ((self.context.version == 51) and self.context.biosyn):
-			self.pack_base = 0.0
-		self.center = Vector3(self.context, 0, None)
-		self.radius = 0.0
-		if self.context.version >= 48 and not ((self.context.version == 51) and self.context.biosyn):
-			self.num_lods_2 = 0
-			self.zero = 0
-		if self.context.version >= 32:
-			self.bounds_min_repeat = Vector3(self.context, 0, None)
-			self.bounds_max_repeat = Vector3(self.context, 0, None)
-		self.num_materials = 0
-		self.num_lods = 0
-		self.num_objects = 0
-		self.num_meshes = 0
-		self.last_count = 0
-		self.render_flag = RenderFlag(self.context, 0, None)
-		self.unks = numpy.zeros((7,), dtype=numpy.dtype('uint16'))
-		self.pad = numpy.zeros((3,), dtype=numpy.dtype('uint16'))
-		if self.context.version == 13:
-			self.zeros = numpy.zeros((4,), dtype=numpy.dtype('uint64'))
-		if self.context.version == 7:
-			self.zeros = numpy.zeros((2,), dtype=numpy.dtype('uint64'))
-		self.increment_flag = 0
-		if not (self.context.version == 7):
-			self.zero_0 = 0
-		if not (self.context.version == 32):
-			self.zero_1 = 0
-		if self.context.version >= 47 and not ((self.context.version == 51) and self.context.biosyn):
-			self.zero_2 = 0
-		self.materials = ArrayPointer(self.context, self.num_materials, ModelInfo._import_path_map["generated.formats.ms2.compounds.MaterialName"])
-		self.lods = ArrayPointer(self.context, self.num_lods, ModelInfo._import_path_map["generated.formats.ms2.compounds.LodInfo"])
-		self.objects = ArrayPointer(self.context, self.num_objects, ModelInfo._import_path_map["generated.formats.ms2.compounds.Object"])
-		self.meshes = ArrayPointer(self.context, self.num_meshes, ModelInfo._import_path_map["generated.formats.ms2.compounds.MeshDataWrap"])
-		self.first_model = Pointer(self.context, 0, None)
-
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

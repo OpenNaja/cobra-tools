@@ -19,12 +19,6 @@ class CinematicData(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		self.next_level_count = 0
-		self.default_name = Pointer(self.context, 0, ZString)
-		self.next_levels = ArrayPointer(self.context, self.next_level_count, CinematicData._import_path_map["generated.formats.cinematic.compounds.State"])
-
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

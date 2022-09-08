@@ -19,12 +19,6 @@ class Texture(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		self.fgm_name = Pointer(self.context, 0, ZString)
-		self.texture_suffix = Pointer(self.context, 0, ZString)
-		self.texture_type = Pointer(self.context, 0, ZString)
-
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

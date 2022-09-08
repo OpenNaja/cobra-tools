@@ -30,15 +30,6 @@ class SetHeader(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		self.set_count = 0
-		self.asset_count = 0
-		self.sig_a = 1065336831
-		self.sig_b = 16909320
-		self.sets = Array(self.context, 0, None, (self.set_count,), SetEntry)
-		self.assets = Array(self.context, 0, None, (self.asset_count,), AssetEntry)
-
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
