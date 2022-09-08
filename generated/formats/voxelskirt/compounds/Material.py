@@ -5,6 +5,10 @@ from generated.formats.voxelskirt.compounds.DataSlot import DataSlot
 
 class Material(BaseStruct):
 
+	"""
+	24 bytes
+	"""
+
 	__name__ = 'Material'
 
 	_import_path = 'generated.formats.voxelskirt.compounds.Material'

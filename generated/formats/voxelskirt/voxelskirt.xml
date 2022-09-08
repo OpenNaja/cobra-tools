@@ -25,8 +25,8 @@
         <add name="height_offset" type="uint64" vercond="#PC#">zero, for PC only</add>
         <add name="weights_offset" type="uint64" vercond="#PC#" >x*y*4, for PC only</add>
         <add name="layers" type="DataSlot" vercond="!#PC#" template="Layer"/>
-        <add name="areas" type="DataSlot" vercond="!#PC#" template="Area" >entries of 40 bytes</add>
-        <add name="entity_groups" type="DataSlot" template="EntityGroup">counts the -1 structs; entries of 32 bytes</add>
+        <add name="areas" type="DataSlot" vercond="!#PC#" template="Area"/>
+        <add name="entity_groups" type="DataSlot" template="EntityGroup"/>
         <add name="materials" type="DataSlot" template="Material"/>
         <add name="names" type="DataSlot" template="Name"/>
     </compound>
@@ -40,7 +40,6 @@
         <add name="count" type="uint64" >also counts the stuff after names</add>
         <add name="data" type="#T#" arr1="0"/>
     </compound>
-
 
     <compound name="Name">
         <add name="offset" type="uint64" >address of this data layer</add>
@@ -58,10 +57,10 @@
     <compound name="Area">
         40 bytes
         <add name="id" type="uint64" >index into name list</add>
-        <add name="width 1" type="uint64" ></add>
-        <add name="height 1" type="uint64" ></add>
-        <add name="width 2" type="uint64" ></add>
-        <add name="height 2" type="uint64" ></add>
+        <add name="width 1" type="uint64"/>
+        <add name="height 1" type="uint64"/>
+        <add name="width 2" type="uint64"/>
+        <add name="height 2" type="uint64"/>
     </compound>
 
     <compound name="Vector3f">
@@ -77,11 +76,13 @@
     </compound>
 
     <compound name="Material">
+        24 bytes
         <add name="entity_instances" type="DataSlot" template="EntityInstance"/>
         <add name="id" type="uint64" >index into name list</add>
     </compound>
 
     <compound name="EntityGroup" inherit="Material">
+        32 bytes
         describes a list of instances of one entity
         <add name="ff" type="int" >-1</add>
         <add name="ff or zero" type="int" >-1, 0 for PC</add>

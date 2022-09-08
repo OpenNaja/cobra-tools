@@ -5,6 +5,7 @@ from generated.formats.voxelskirt.compounds.Material import Material
 class EntityGroup(Material):
 
 	"""
+	32 bytes
 	describes a list of instances of one entity
 	"""
 

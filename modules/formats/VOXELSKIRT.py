@@ -5,7 +5,6 @@ import imageio.v3 as iio
 from generated.array import Array
 from generated.formats.base.basic import Ubyte, Float, ZString
 from generated.formats.ovl import is_pc
-from generated.formats.voxelskirt.compounds.EntityInstance import EntityInstance
 from generated.formats.voxelskirt.compounds.VoxelskirtRoot import VoxelskirtRoot
 from modules.formats.BaseFormat import MemStructLoader
 
@@ -13,6 +12,10 @@ from modules.formats.BaseFormat import MemStructLoader
 class VoxelskirtLoader(MemStructLoader):
 	extension = ".voxelskirt"
 	target_class = VoxelskirtRoot
+
+	def load_slot(self, data_slot, stream):
+		stream.seek(data_slot.offset)
+		data_slot.data = Array.from_stream(stream, self.ovl.context, 0, None, (data_slot.count, ), data_slot.template)
 
 	def create(self):
 		self.create_root_entry()
@@ -36,8 +39,7 @@ class VoxelskirtLoader(MemStructLoader):
 		stream = io.BytesIO(self.data_entry.buffer_datas[0])
 		# read the arrays
 		for data_slot in (*self.named_slots, self.header.names):
-			stream.seek(data_slot.offset)
-			data_slot.data = Array.from_stream(stream, self.ovl.context, 0, None, (data_slot.count, ), data_slot.template)
+			self.load_slot(data_slot, stream)
 
 		# get names
 		for name in self.header.names.data:
@@ -61,9 +63,7 @@ class VoxelskirtLoader(MemStructLoader):
 		# get additional position slots
 		for data_slot in (self.header.entity_groups, self.header.materials):
 			for entry in data_slot.data:
-				slot = entry.entity_instances
-				stream.seek(slot.offset)
-				slot.data = Array.from_stream(stream, self.ovl.context, 0, None, (slot.count, ), slot.template)
+				self.load_slot(entry.entity_instances, stream)
 
 		# read PC style height map and masks
 		if is_pc(self.ovl):
