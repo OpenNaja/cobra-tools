@@ -49,10 +49,13 @@ def str_to_bool(s):
 class ImportMap(dict):
 
 	def __getitem__(self, k):
+		# The keys only get added to the import map when the file the class is in is run
+		# so unless you run every single struct class file beforehand you might have issues
 		try:
 			return dict.__getitem__(self, k)
 		except KeyError:
 			# assume the last part of the module is the same as the name of the class
+			# restore full path from import key
 			class_module = importlib.import_module(f"generated.formats.{k}")
 			found_class = getattr(class_module, k.split(".")[-1])
 			self[k] = found_class

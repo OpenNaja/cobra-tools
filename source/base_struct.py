@@ -49,6 +49,8 @@ def str_to_bool(s):
 class ImportMap(dict):
 
 	def __getitem__(self, k):
+		# The keys only get added to the import map when the file the class is in is run
+		# so unless you run every single struct class file beforehand you might have issues
 		try:
 			return dict.__getitem__(self, k)
 		except KeyError:
