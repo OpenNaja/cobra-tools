@@ -102,13 +102,16 @@ class Array(list):
     @classmethod
     def to_stream(cls, stream, instance, dtype=None):
         if instance is not None:
-            if cls.is_ragged_shape(instance.shape):
-                RaggedArray.to_stream(stream, instance, dtype)
-            elif callable(getattr(dtype, 'write_array', None)):
-                dtype.write_array(stream, instance)
-            else:
-                # this must be an instance of cls that has the write function on itself
-                instance.write(stream)
+            try:
+                if cls.is_ragged_shape(instance.shape):
+                    RaggedArray.to_stream(stream, instance, dtype)
+                elif callable(getattr(dtype, 'write_array', None)):
+                    dtype.write_array(stream, instance)
+                else:
+                    # this must be an instance of cls that has the write function on itself
+                    instance.write(stream)
+            except:
+                logging.exception(f"Array.to_stream failed for {instance} {dtype}")
 
     @classmethod
     def from_value(cls, shape, dtype, value):

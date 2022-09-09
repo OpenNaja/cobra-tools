@@ -331,7 +331,7 @@ class BioMeshData(MeshData):
 				vert_chunk.weights_flag.has_weights = False
 				vert_chunk.weights_flag.bone_index = b_bone_id
 			vert_chunk.pack_base = self.pack_base
-			vert_chunk.flags = (2, 16, 0, 58)
+			vert_chunk.flags[:] = (2, 16, 0, 58)
 			# logging.info(f"vert_chunk.vertex_count {vert_chunk.vertex_count}")
 
 	def pack_verts(self):
