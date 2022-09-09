@@ -48,13 +48,11 @@ class Pointer(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
-	def get_info_str(self):
-		return f'Pointer [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
-
-	def get_fields_str(self):
+	@classmethod
+	def get_fields_str(cls, instance, indent=0):
 		s = ''
-		s += f'\n	* offset = {self.offset.__repr__()}'
-		s += f'\n	* data = {self.data.__repr__()}'
+		s += f'\n	* offset = {instance.offset.__repr__()}'
+		s += f'\n	* data = {instance.data.__repr__()}'
 		return s
 
 	def read_ptr(self, pool):
@@ -179,10 +177,4 @@ class Pointer(BaseStruct):
 			instance.data = instance.template(instance.context, instance.arg, None)
 			instance.template._from_xml(instance.data, elem)
 		return instance
-
-	def __repr__(self):
-		s = self.get_info_str()
-		s += self.get_fields_str()
-		s += '\n'
-		return s
 

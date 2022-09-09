@@ -60,17 +60,9 @@ class KeysReader(BaseStruct):
 				stream.write(get_padding(mb.byte_size))
 		instance.io_size = stream.tell() - instance.io_start
 
-	def get_info_str(self):
-		return f'Model [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
-
 	def get_fields_str(self):
 		s = ''
 		for mani_info in self.arg:
 			s += str(mani_info.keys)
 		return s
 
-	def __repr__(self):
-		s = self.get_info_str()
-		s += self.get_fields_str()
-		s += '\n'
-		return s

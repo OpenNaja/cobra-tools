@@ -145,14 +145,3 @@ class MemStruct:
 				# points to a normal struct or basic type, which can't have any pointers
 				pass
 
-	def get_info_str(self):
-		return f'\nMemStruct'
-
-	def get_fields_str(self):
-		return ""
-
-	def __repr__(self):
-		s = self.get_info_str()
-		s += self.get_fields_str()
-		s += '\n'
-		return ""

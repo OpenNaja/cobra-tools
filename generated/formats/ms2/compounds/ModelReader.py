@@ -227,19 +227,11 @@ class ModelReader(BaseStruct):
 			instance.bone_info_size = stream.tell() - instance.bone_info_start
 		instance.io_size = stream.tell() - instance.io_start
 
-	def get_info_str(self):
-		return f'Model [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
-
-	def get_fields_str(self):
+	@classmethod
+	def get_fields_str(cls, instance, indent=0):
 		s = ''
-		for model_info in self.arg:
+		for model_info in instance.arg:
 			s += str(model_info.model)
 			s += str(model_info.bone_info)
-		return s
-
-	def __repr__(self):
-		s = self.get_info_str()
-		s += self.get_fields_str()
-		s += '\n'
 		return s
 

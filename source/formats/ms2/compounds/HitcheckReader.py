@@ -35,17 +35,10 @@ class HitcheckReader(BaseStruct):
 	def write_fields(cls, stream, instance):
 		pass
 
-	def get_info_str(self):
-		return f'HitcheckReader [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
-
-	def get_fields_str(self):
+	@classmethod
+	def get_fields_str(cls, instance, indent=0):
 		s = ''
-		for jointinfo in self.arg:
+		for jointinfo in instance.arg:
 			s += str(jointinfo.hitchecks)
 		return s
 
-	def __repr__(self):
-		s = self.get_info_str()
-		s += self.get_fields_str()
-		s += '\n'
-		return s
