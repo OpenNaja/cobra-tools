@@ -515,9 +515,6 @@
 		pad to multiples of 16 bytes
 		<add name="name padding" padding="1" type="byte" arr1="(16 - (((name count + inv_names_count) * 4) % 16)) % 16" vercond="!#OLD#"/>
 		<add name="name padding" padding="1" type="byte" arr1="(16 - (((name count + inv_names_count) * 2) % 16)) % 16" vercond="#OLD#"/>
-
-
-<!--		<add name="inventory data" type="ubyte" arr1="inv_data_count" arr2="46">used for skinning</add>-->
 		# hook size 8256
 		<add name="inverse bind matrices" type="Matrix44" arr1="bind matrix count">used for skinning</add>
 		# hook start at 13153

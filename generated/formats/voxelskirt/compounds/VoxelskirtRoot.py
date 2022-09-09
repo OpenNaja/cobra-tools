@@ -1,4 +1,5 @@
 from generated.formats.base.basic import Float
+from generated.formats.base.basic import Uint
 from generated.formats.base.basic import Uint64
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
 from generated.formats.voxelskirt.compounds.DataSlot import DataSlot
@@ -23,8 +24,10 @@ class VoxelskirtRoot(MemStruct):
 		self.data_size = 0
 		self.x = 0
 		self.y = 0
+
+		# multiply by x or y to get the actual dimension of skirt, eg 512px * 16.0 = 8192.0m
 		self.scale = 0.0
-		self.padding = 0.0
+		self.padding = 0
 
 		# zero, for PC only
 		self.height_offset = 0
@@ -47,7 +50,7 @@ class VoxelskirtRoot(MemStruct):
 		yield 'x', Uint64, (0, None), (False, None)
 		yield 'y', Uint64, (0, None), (False, None)
 		yield 'scale', Float, (0, None), (False, None)
-		yield 'padding', Float, (0, None), (False, None)
+		yield 'padding', Uint, (0, None), (False, None)
 		if instance.context.version == 18:
 			yield 'height_offset', Uint64, (0, None), (False, None)
 			yield 'weights_offset', Uint64, (0, None), (False, None)

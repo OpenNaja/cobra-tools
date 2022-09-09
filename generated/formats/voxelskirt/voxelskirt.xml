@@ -20,8 +20,8 @@
         <add name="data size" type="uint64" >total size of buffer data</add>
         <add name="x" type="uint64"/>
         <add name="y" type="uint64"/>
-        <add name="scale" type="float"/>
-        <add name="padding" type="float"/>
+        <add name="scale" type="float" >multiply by x or y to get the actual dimension of skirt, eg 512px * 16.0 = 8192.0m</add>
+        <add name="padding" type="uint"/>
         <add name="height_offset" type="uint64" vercond="#PC#">zero, for PC only</add>
         <add name="weights_offset" type="uint64" vercond="#PC#" >x*y*4, for PC only</add>
         <add name="layers" type="DataSlot" vercond="!#PC#" template="Layer"/>
