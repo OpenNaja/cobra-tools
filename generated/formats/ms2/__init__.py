@@ -277,12 +277,12 @@ class Ms2File(Ms2InfoHeader, IoFile):
 
 	def update_buffer_0_bytes(self):
 		with BytesIO() as temp_writer:
-			self.buffer_0.write(temp_writer)
+			self.buffer_0.to_stream(temp_writer, self.buffer_0)
 			self.buffer_0_bytes = temp_writer.getvalue()
 
 	def update_buffer_1_bytes(self):
 		with BytesIO() as temp_bone_writer:
-			self.models_reader.write(temp_bone_writer)
+			self.models_reader.to_stream(temp_bone_writer, self.models_reader)
 			self.buffer_1_bytes = temp_bone_writer.getvalue()[self.models_reader.bone_info_start:]
 			self.bone_info_size = self.models_reader.bone_info_size
 

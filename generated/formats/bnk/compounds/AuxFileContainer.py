@@ -147,15 +147,3 @@ class AuxFileContainer(BaseStruct):
 			instance.size_for_ovl = stream.tell() - len(pointer.pad)
 		logging.info(f"AUX size for OVL {instance.size_for_ovl}")
 
-	def read(self, stream):
-		logging.warning(f"AuxFileContainer.read is deprecated")
-		self.io_start = stream.tell()
-		self.read_fields(stream, self)
-		self.io_size = stream.tell() - self.io_start
-
-	def write(self, stream):
-		logging.warning(f"AuxFileContainer.write is deprecated")
-		self.io_start = stream.tell()
-		self.write_fields(stream, self)
-		self.io_size = stream.tell() - self.io_start
-

@@ -23,12 +23,6 @@ class FixedString(BaseStruct):
 		self.template = template
 		self.data = b""
 
-	def read(self, stream):
-		self.read_fields(stream, self)
-
-	def write(self, stream):
-		self.write_fields(stream, self)
-
 	def __repr__(self):
 		return str(self.data)
 

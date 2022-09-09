@@ -47,20 +47,16 @@ class ModelReader(BaseStruct):
 			instance.bone_info_start = stream.tell()
 			for model_info in instance.arg:
 				# logging.debug(model_info)
-				model_info.model = Model(instance.context, model_info)
-				# todo - really only read if objects?
-				if model_info.num_objects:
-					# instance.get_padding(stream, alignment=8) # 21346
-					# instance.get_padding(stream)
-					# pc alignment
-					# if instance.context.version == 32:
-					# 	model_info.padding = instance.get_padding(stream, alignment=8)
-					try:
-						model_info.model.read(stream)
-					except:
-						logging.warning(f"Failed reading model for model_info {model_info}")
-						logging.warning(model_info.model)
-						traceback.print_exc()
+				# instance.get_padding(stream, alignment=8) # 21346
+				# instance.get_padding(stream)
+				# pc alignment
+				# if instance.context.version == 32:
+				# 	model_info.padding = instance.get_padding(stream, alignment=8)
+				try:
+					model_info.model = Model.from_stream(stream, instance.context, model_info)
+				except:
+					logging.exception(f"Failed reading model for model_info {model_info}")
+					# logging.warning(model_info.model)
 				# logging.debug(model_info.model)
 				# alignment, not sure if really correct
 				if model_info.increment_flag:
@@ -73,9 +69,7 @@ class ModelReader(BaseStruct):
 		else:
 			for model_info in instance.arg:
 				# logging.debug(model_info)
-				model_info.model = Model(instance.context, model_info)
-				# if model_info.num_objects:
-				model_info.model.read(stream)
+				model_info.model = Model.from_stream(stream, instance.context, model_info)
 				# logging.debug(model_info.model)
 			instance.bone_info_start = stream.tell()
 			for model_info in instance.arg:

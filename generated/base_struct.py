@@ -184,18 +184,6 @@ class BaseStruct(metaclass=StructMetaClass):
 				continue
 			field_type.to_xml(elem, prop, getattr(instance, prop), arguments, debug)
 
-	def read(self, stream):
-		logging.warning(f"BaseStruct.read is deprecated on {self.__class__.__name__}")
-		self.io_start = stream.tell()
-		self.read_fields(stream, self)
-		self.io_size = stream.tell() - self.io_start
-
-	def write(self, stream):
-		logging.warning(f"BaseStruct.write is deprecated on {self.__class__.__name__}")
-		self.io_start = stream.tell()
-		self.write_fields(stream, self)
-		self.io_size = stream.tell() - self.io_start
-
 	@classmethod
 	def read_fields(cls, stream, instance):
 		for field_name, field_type, arguments, _ in cls._get_filtered_attribute_list(instance, include_abstract=False):
