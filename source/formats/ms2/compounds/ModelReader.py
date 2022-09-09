@@ -193,7 +193,7 @@ class ModelReader(BaseStruct):
 			raise NotImplementedError("Can't write old style mesh and bone info blocks")
 		else:
 			for model_info in instance.arg:
-				model_info.model.write(stream)
+				model_info.model.to_stream(stream, model_info.model)
 			instance.bone_info_start = stream.tell()
 			for model_info in instance.arg:
 				# check if they have a different bone info
@@ -201,7 +201,7 @@ class ModelReader(BaseStruct):
 					logging.debug(f"{model_info.name} has its own bone_info")
 					model_info.increment_flag = 1
 					logging.debug(f"BONE INFO {i} starts at {stream.tell()}")
-					model_info.bone_info.write(stream)
+					model_info.bone_info.to_stream(stream, model_info.bone_info)
 					instance.write_hitcheck_verts(model_info.bone_info, stream)
 					# PZ lion needs padding after last boneinfo, crashes if missing, adding probably won't hurt other cases
 					# if i + 1 < len(instance.bone_infos):

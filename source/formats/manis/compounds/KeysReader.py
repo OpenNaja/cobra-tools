@@ -14,21 +14,6 @@ class KeysReader(BaseStruct):
 
 	# START_CLASS
 
-	def __init__(self, context, arg=0, template=None, set_default=True):
-		super().__init__(context, arg, template, set_default=False)
-		self.name = ''
-		self._context = context
-		self.arg = arg
-		self.template = template
-		self.io_size = 0
-		self.io_start = 0
-		self.bone_infos = []
-		self.set_defaults()
-		self.bone_info_start = 0
-
-	def set_defaults(self):
-		pass
-
 	@classmethod
 	def read_fields(cls, stream, instance):
 		instance.io_start = stream.tell()
@@ -54,15 +39,16 @@ class KeysReader(BaseStruct):
 	def write_fields(cls, stream, instance):
 		instance.io_start = stream.tell()
 		for mani_info in instance.arg:
-			mani_info.keys.write(stream)
+			ManiBlock.to_stream(stream, mani_info.keys)
 			for mb in mani_info.keys.repeats:
 				stream.write(mb.data)
 				stream.write(get_padding(mb.byte_size))
 		instance.io_size = stream.tell() - instance.io_start
 
-	def get_fields_str(self):
+	@classmethod
+	def get_fields_str(cls, instance, indent=0):
 		s = ''
-		for mani_info in self.arg:
+		for mani_info in instance.arg:
 			s += str(mani_info.keys)
 		return s
 

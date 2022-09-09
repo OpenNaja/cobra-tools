@@ -81,7 +81,6 @@ class HeaderPointer:
 				Array.to_stream(self.pool.data, instance, cls)
 			# special case to avoid falling back on basic.to_stream
 			elif isinstance(instance, np.ndarray):
-				# self.pool.data.write(instance.tobytes())
 				cls.write_array(self.pool.data, instance)
 			else:
 				cls.to_stream(self.pool.data, instance)
