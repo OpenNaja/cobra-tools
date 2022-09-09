@@ -201,6 +201,9 @@ class BaseStruct(metaclass=StructMetaClass):
 		for field_name, field_type, arguments, _ in cls._get_filtered_attribute_list(instance, include_abstract=False):
 			try:
 				setattr(instance, field_name, field_type.from_stream(stream, instance.context, *arguments))
+				# copy version to context
+				if "version" in field_name:
+					setattr(instance.context, field_name, getattr(instance, field_name))
 			except:
 				logging.error(f"failed reading field {field_name} on type {cls}")
 				raise
