@@ -43,7 +43,7 @@ class ArrayPointer(Pointer):
 		if callable(getattr(instance.template, "_from_xml_array", None)):
 			instance.data = instance.template._from_xml_array(None, elem)
 			return
-		arr = Array((len(elem)), instance.template, instance.context, set_default=False)
+		arr = Array(instance.context, 0, None, (len(elem)), instance.template, set_default=False)
 		instance.data = Array._from_xml(arr, elem)
 		return instance
 
