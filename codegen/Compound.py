@@ -48,20 +48,8 @@ class Compound(BaseClass):
                 if self.struct.attrib.get("generic", "False") == "True":
                     self.write_line(f, 2, "if template is None:")
                     self.write_line(f, 3, "raise TypeError(f'{type(self).__name__} requires template is not None')")
-                # classes that this class inherits from have to be read first
-                if self.class_basename:
-                    # the standard attributes are handled by the parent class
-                    self.write_line(f, 2, "super().__init__(context, arg, template, set_default=False)")
-                else:
-                    # no inheritance, so set the standard attributes
-                    self.write_lines(f, 2, (
-                        "self.name = ''",
-                        "self._context = context",
-                        "self.arg = arg",
-                        "self.template = template",
-                        "self.io_size = 0",
-                        "self.io_start = 0"
-                    ))
+                # the standard attributes are handled by the parent class
+                self.write_line(f, 2, "super().__init__(context, arg, template, set_default=False)")
 
                 # for ovl memory structs, some pointers may have counts that are defined before the count
                 # so for init, write pointers last
