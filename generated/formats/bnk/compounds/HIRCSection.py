@@ -30,6 +30,3 @@ class HIRCSection(BaseStruct):
 		yield 'length', Uint, (0, None), (False, None)
 		yield 'count', Uint, (0, None), (False, None)
 		yield 'hirc_pointers', Array, (0, None, (instance.count,), HircPointer), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'HIRCSection [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

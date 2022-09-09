@@ -32,6 +32,3 @@ class CurveParam(MemStruct):
 		yield 'do_interpolation', Uint, (0, None), (False, None)
 		yield 'curve_entries', Pointer, (instance.count, CurveParam._import_path_map["generated.formats.renderparameters.compounds.CurveList"]), (False, None)
 		yield 'count', Uint64, (0, None), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'CurveParam [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

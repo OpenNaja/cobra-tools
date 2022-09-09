@@ -31,6 +31,3 @@ class AkTrackSrcInfo(BaseStruct):
 		yield 'f_begin_trim_offset', Double, (0, None), (False, None)
 		yield 'f_end_trim_offset', Double, (0, None), (False, None)
 		yield 'f_src_duration', Double, (0, None), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'AkTrackSrcInfo [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

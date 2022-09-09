@@ -33,6 +33,3 @@ class ButtonData(MemStruct):
 		yield 'k_2', Uint, (0, None), (False, None)
 		yield 'k_3', Uint, (0, None), (False, None)
 		yield 'k_4', Uint, (0, None), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'ButtonData [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

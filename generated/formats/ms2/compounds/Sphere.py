@@ -30,6 +30,3 @@ class Sphere(BaseStruct):
 		yield 'center', Vector3, (0, None), (False, None)
 		yield 'radius', Float, (0, None), (False, None)
 		yield 'zero', Uint, (0, None), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'Sphere [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

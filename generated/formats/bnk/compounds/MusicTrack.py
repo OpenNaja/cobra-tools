@@ -25,6 +25,3 @@ class MusicTrack(BaseStruct):
 		yield 'length', Uint, (0, None), (False, None)
 		yield 'id', Uint, (0, None), (False, None)
 		yield 'data', MusicTrackInitialValues, (0, None), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'MusicTrack [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

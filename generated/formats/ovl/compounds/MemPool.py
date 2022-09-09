@@ -72,9 +72,6 @@ class MemPool(BaseStruct):
 			yield 'ext_hash', Uint, (0, None), (False, None)
 			yield 'zero_3', Uint, (0, None), (False, None)
 
-	def get_info_str(self, indent=0):
-		return f'MemPool [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
-
 	def clear_data(self):
 		self.new = False
 		# lookup by offset

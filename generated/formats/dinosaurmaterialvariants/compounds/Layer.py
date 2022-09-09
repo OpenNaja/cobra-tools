@@ -28,6 +28,3 @@ class Layer(MemStruct):
 		yield 'has_ptr', Uint64, (0, None), (False, None)
 		yield 'texture_fgm_name', Pointer, (0, ZString), (False, None)
 		yield 'transform_fgm_name', Pointer, (0, ZString), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'Layer [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

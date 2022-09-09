@@ -134,6 +134,3 @@ class ManiBlock(BaseStruct):
 		if instance.context.version <= 257:
 			yield 'extra_pc_zero', Uint64, (0, None), (False, None)
 		yield 'repeats', Array, (0, None, (instance.count,), Repeat), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'ManiBlock [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

@@ -34,6 +34,3 @@ class RootFrag(MemStruct):
 		yield 'materials', ArrayPointer, (instance.mat_count, RootFrag._import_path_map["generated.formats.matcol.compounds.LayerFrag"]), (False, None)
 		yield 'mat_count', Uint64, (0, None), (False, None)
 		yield 'unk', Uint64, (0, None), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'RootFrag [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

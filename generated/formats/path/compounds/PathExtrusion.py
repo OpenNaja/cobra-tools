@@ -33,6 +33,3 @@ class PathExtrusion(MemStruct):
 		yield 'unk_float_2', Float, (0, None), (False, None)
 		yield 'is_kerb', Bool, (0, None), (False, None)
 		yield 'is_not_ground', Bool, (0, None), (False, True)
-
-	def get_info_str(self, indent=0):
-		return f'PathExtrusion [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

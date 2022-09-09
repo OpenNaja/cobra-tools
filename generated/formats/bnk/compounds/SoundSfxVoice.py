@@ -22,9 +22,6 @@ class SoundSfxVoice(BaseStruct):
 		yield 'wem_length', Uint, (0, None), (False, None)
 		yield 'extra', Array, (0, None, (instance.length - 17,), Byte), (False, None)
 
-	def get_info_str(self, indent=0):
-		return f'SoundSfxVoice [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
-
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		self._context = context
 		self.name = ''

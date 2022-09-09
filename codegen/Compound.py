@@ -136,10 +136,5 @@ class Compound(BaseClass):
                 for union in self.field_unions:
                     condition = union.write_filtered_attributes(f, condition, target_variable="instance")
 
-            if "def get_info_str(" not in self.src_code:
-                self.write_line(f)
-                self.write_line(f, 1, "def get_info_str(self, indent=0):")
-                self.write_line(f, 2, f"return f'{self.class_name} [Size: {{self.io_size}}, Address: {{self.io_start}}] {{self.name}}'")
-
             f.write(self.grab_src_snippet("# START_CLASS"))
             self.write_line(f)

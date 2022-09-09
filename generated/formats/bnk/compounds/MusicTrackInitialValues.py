@@ -45,6 +45,3 @@ class MusicTrackInitialValues(BaseStruct):
 		yield 'node_base_params', NodeBaseParams, (0, None), (False, None)
 		yield 'e_track_type', Ubyte, (0, None), (False, None)
 		yield 'i_look_ahead_time', Int, (0, None), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'MusicTrackInitialValues [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

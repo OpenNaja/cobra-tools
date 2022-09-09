@@ -37,6 +37,3 @@ class Sixtyfour(MemStruct):
 		yield 'ptr_2', Pointer, (0, None), (False, None)
 		yield 'ptr_3', Pointer, (0, None), (False, None)
 		yield 'count_3', Uint64, (0, None), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'Sixtyfour [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

@@ -43,6 +43,3 @@ class VertChunk(BaseStruct):
 		yield 'vertex_count', Ubyte, (0, None), (False, None)
 		yield 'weights_flag', WeightsFlag, (0, None), (False, None)
 		yield 'zero', Ubyte, (0, None), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'VertChunk [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

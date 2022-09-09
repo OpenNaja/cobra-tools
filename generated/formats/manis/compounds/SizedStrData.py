@@ -38,6 +38,3 @@ class SizedStrData(BaseStruct):
 		yield 'zero_2', Uint64, (0, None), (False, None)
 		if instance.context.version >= 20:
 			yield 'zero_3', Uint64, (0, None), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'SizedStrData [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

@@ -28,6 +28,3 @@ class HircPointer(BaseStruct):
 			yield 'data', MusicTrack, (0, None), (False, None)
 		if (instance.id != 2) and (instance.id != 11):
 			yield 'data', TypeOther, (0, None), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'HircPointer [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

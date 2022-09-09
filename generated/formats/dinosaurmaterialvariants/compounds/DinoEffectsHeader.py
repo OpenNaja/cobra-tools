@@ -54,6 +54,3 @@ class DinoEffectsHeader(MemStruct):
 		yield 'floats', Array, (0, None, (39,), Float), (False, None)
 		yield 'd', Uint, (0, None), (False, None)
 		yield 'e', Float, (0, None), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'DinoEffectsHeader [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

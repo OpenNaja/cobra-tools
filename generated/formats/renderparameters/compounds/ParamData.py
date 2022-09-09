@@ -48,6 +48,3 @@ class ParamData(MemStruct):
 			yield 'data', Array, (0, None, (4,), Float), (False, None)
 		if instance.arg == 9:
 			yield 'data', Array, (0, None, (1,), ZStrPtr), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'ParamData [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

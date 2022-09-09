@@ -35,6 +35,3 @@ class SplRoot(MemStruct):
 		yield 'sixteen', Ubyte, (0, None), (False, 16)
 		yield 'one', Ubyte, (0, None), (False, 1)
 		yield 'length', Float, (0, None), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'SplRoot [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

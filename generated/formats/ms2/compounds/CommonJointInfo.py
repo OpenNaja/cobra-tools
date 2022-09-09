@@ -31,6 +31,3 @@ class CommonJointInfo(BaseStruct):
 		yield 'f_fs', Array, (0, None, (3,), Int), (False, None)
 		yield 'name_offset', Uint, (0, None), (False, None)
 		yield 'hitcheck_count', Uint, (0, None), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'CommonJointInfo [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

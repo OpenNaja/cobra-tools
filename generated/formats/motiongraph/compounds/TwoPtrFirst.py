@@ -25,6 +25,3 @@ class TwoPtrFirst(MemStruct):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'ptr', Pointer, (0, None), (False, None)
 		yield 'count_0', Uint64, (0, None), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'TwoPtrFirst [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

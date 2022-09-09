@@ -27,6 +27,3 @@ class LuaModules(MemStruct):
 		yield 'motion_graph', Pointer, (0, ZString), (False, None)
 		yield 'motion_graph_event_handling', Pointer, (0, ZString), (False, None)
 		yield 'motion_graph_actions', Pointer, (0, ZString), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'LuaModules [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

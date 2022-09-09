@@ -60,6 +60,3 @@ class Struct7(BaseStruct):
 		yield 'padding', Array, (0, None, ((8 - ((instance.count_7 * 60) % 8)) % 8,), Ubyte), (False, None)
 		if instance.context.version >= 50 and instance.flag:
 			yield 'alignment', Uint64, (0, None), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'Struct7 [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

@@ -38,6 +38,3 @@ class WsmHeader(MemStruct):
 		yield 'unknowns', Array, (0, None, (8,), Float), (False, None)
 		yield 'locs', ArrayPointer, (instance.frame_count, WsmHeader._import_path_map["generated.formats.wsm.compounds.Vector3"]), (False, None)
 		yield 'quats', ArrayPointer, (instance.frame_count, WsmHeader._import_path_map["generated.formats.wsm.compounds.Vector4"]), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'WsmHeader [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

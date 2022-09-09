@@ -164,6 +164,3 @@ class JointData(BaseStruct):
 			yield 'joint_infos', Array, (0, None, (instance.joint_count,), JointInfo), (False, None)
 		if instance.context.version <= 32:
 			yield 'hitcheck_reader', HitcheckReader, (instance.joint_infos, None), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'JointData [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

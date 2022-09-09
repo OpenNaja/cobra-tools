@@ -27,6 +27,3 @@ class ZtTriBlockInfo(BaseStruct):
 		yield 'tri_index_count', Uint, (0, None), (False, None)
 		yield 'a', Short, (0, None), (False, None)
 		yield 'unk_index', Short, (0, None), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'ZtTriBlockInfo [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

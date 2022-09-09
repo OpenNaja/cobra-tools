@@ -33,6 +33,3 @@ class TexBufferPc(MemStruct):
 		if instance.context.version >= 18:
 			yield 'array_size', Ushort, (0, None), (False, None)
 		yield 'num_mips', Ushort, (0, None), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'TexBufferPc [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

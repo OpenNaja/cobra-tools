@@ -47,9 +47,6 @@ class Activity(MemStruct):
 		yield 'minus_one', Int64, (0, None), (False, None)
 		yield 'name_b', Pointer, (0, ZString), (False, None)
 
-	def get_info_str(self, indent=0):
-		return f'Activity [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
-
 	def get_ptr_template(self, prop):
 		"""Returns the appropriate template for a pointer named 'prop', if exists.
 		Must be overwritten in subclass"""

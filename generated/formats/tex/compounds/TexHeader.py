@@ -76,6 +76,3 @@ class TexHeader(MemStruct):
 		yield 'pad', Uint, (0, None), (False, None)
 		if instance.context.version <= 15:
 			yield 'pad_dla', Uint64, (0, None), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'TexHeader [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

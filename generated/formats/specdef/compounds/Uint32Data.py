@@ -31,6 +31,3 @@ class Uint32Data(MemStruct):
 		yield 'ivalue', Uint, (0, None), (False, None)
 		yield 'ioptional', Uint, (0, None), (False, None)
 		yield 'enum', Pointer, (0, None), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'Uint32Data [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

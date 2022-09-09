@@ -30,6 +30,3 @@ class MeshDataWrap(MemStruct):
 			yield 'mesh', ZtMeshData, (0, None), (False, None)
 		if instance.context.version == 7:
 			yield 'mesh', ZtMeshData, (0, None), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'MeshDataWrap [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

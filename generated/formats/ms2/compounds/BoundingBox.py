@@ -35,6 +35,3 @@ class BoundingBox(BaseStruct):
 		yield 'extent', Vector3, (0, None), (False, None)
 		if instance.context.version == 32:
 			yield 'zeros', Array, (0, None, (3,), Uint), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'BoundingBox [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

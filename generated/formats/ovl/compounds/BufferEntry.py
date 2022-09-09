@@ -39,9 +39,6 @@ class BufferEntry(BaseStruct):
 		if instance.context.version >= 20:
 			yield 'file_hash', Uint, (0, None), (False, None)
 
-	def get_info_str(self, indent=0):
-		return f'BufferEntry [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
-
 	def read_data(self, stream):
 		"""Load data from archive stream into self for modification and io"""
 		self.data = stream.read(self.size)

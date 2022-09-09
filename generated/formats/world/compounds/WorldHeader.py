@@ -42,6 +42,3 @@ class WorldHeader(MemStruct):
 		yield 'ptr_2', Pointer, (0, None), (False, None)
 		yield 'prefab_count', Uint64, (0, None), (False, None)
 		yield 'ptr_3', Pointer, (0, None), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'WorldHeader [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

@@ -28,6 +28,3 @@ class ResearchLevel(MemStruct):
 		yield 'next_level_count', Uint64, (0, None), (False, None)
 		yield 'children', Pointer, (instance.children_count, ResearchLevel._import_path_map["generated.formats.animalresearch.compounds.PtrList"]), (False, None)
 		yield 'children_count', Uint64, (0, None), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'ResearchLevel [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

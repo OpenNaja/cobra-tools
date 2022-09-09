@@ -30,6 +30,3 @@ class TrackElementSub(MemStruct):
 		yield 'catwalk_left_lsm', Pointer, (0, ZString), (False, None)
 		yield 'catwalk_both_lsm', Pointer, (0, ZString), (False, None)
 		yield 'unk_0', Uint64, (0, None), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'TrackElementSub [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

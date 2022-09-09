@@ -53,6 +53,3 @@ class PathJoinPartResource(MemStruct):
 		yield 'num_points_2_copy', Byte, (0, None), (False, None)
 		yield 'num_points_3', Byte, (0, None), (False, None)
 		yield 'padding_2', Uint64, (0, None), (True, 0)
-
-	def get_info_str(self, indent=0):
-		return f'PathJoinPartResource [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

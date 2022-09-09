@@ -58,6 +58,3 @@ class Ms2InfoHeader(BaseStruct):
 		yield 'buffer_infos', Array, (0, None, (instance.info.vertex_buffer_count,), BufferInfo), (False, None)
 		yield 'model_infos', Array, (0, None, (instance.info.mdl_2_count,), ModelInfo), (False, None)
 		yield 'models_reader', ModelReader, (instance.model_infos, None), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'Ms2InfoHeader [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

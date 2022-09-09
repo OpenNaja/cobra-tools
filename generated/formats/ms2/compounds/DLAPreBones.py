@@ -20,6 +20,3 @@ class DLAPreBones(BaseStruct):
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'unk', Array, (0, None, (120,), Ubyte), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'DLAPreBones [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

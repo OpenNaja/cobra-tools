@@ -28,6 +28,3 @@ class ZerosPadding(BaseStruct):
 			yield 'hier_2_padding_1', Uint64, (0, None), (False, None)
 		if 128 < instance.arg:
 			yield 'hier_2_padding_2', Uint64, (0, None), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'ZerosPadding [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

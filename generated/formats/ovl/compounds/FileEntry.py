@@ -48,9 +48,6 @@ class FileEntry(BaseStruct):
 		yield 'set_pool_type', Byte, (0, None), (False, None)
 		yield 'extension', Ushort, (0, None), (False, None)
 
-	def get_info_str(self, indent=0):
-		return f'FileEntry [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
-
 	def update_constants(self, ovl):
 		"""Update the constants"""
 

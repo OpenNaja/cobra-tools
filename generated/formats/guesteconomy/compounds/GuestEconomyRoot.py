@@ -116,6 +116,3 @@ class GuestEconomyRoot(MemStruct):
 		yield 'u_12', Uint, (0, None), (False, None)
 		yield 'u_13', Uint, (0, None), (False, None)
 		yield 'u_14', Uint, (0, None), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'GuestEconomyRoot [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

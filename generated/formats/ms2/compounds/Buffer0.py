@@ -37,6 +37,3 @@ class Buffer0(BaseStruct):
 			yield 'names_padding', Array, (0, None, ((4 - (instance.names.io_size % 4)) % 4,), Ubyte), (False, None)
 		if instance.context.version <= 13:
 			yield 'zt_streams_header', StreamsZTHeader, (instance.arg, None), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'Buffer0 [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

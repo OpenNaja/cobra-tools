@@ -28,6 +28,3 @@ class Color(MemStruct):
 		yield 'g', Ubyte, (0, None), (False, None)
 		yield 'b', Ubyte, (0, None), (False, None)
 		yield 'a', Ubyte, (0, None), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'Color [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

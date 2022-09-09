@@ -52,6 +52,3 @@ class FgmHeader(MemStruct):
 		if instance.context.user_version.is_jwe and (instance.context.version == 20):
 			yield '_unk_2', Uint64, (0, None), (False, None)
 			yield '_unk_3', Uint64, (0, None), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'FgmHeader [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

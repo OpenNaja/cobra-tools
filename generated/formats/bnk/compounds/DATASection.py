@@ -29,6 +29,3 @@ class DATASection(BaseStruct):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'length', Uint, (0, None), (False, None)
 		yield 'wem_datas', Array, (0, None, (instance.length,), Byte), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'DATASection [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

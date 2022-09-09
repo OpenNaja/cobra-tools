@@ -23,9 +23,6 @@ class ArrayPointer(Pointer):
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 
-	def get_info_str(self, indent=0):
-		return f'ArrayPointer [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
-
 	def read_template(self):
 		if self.template:
 			self.data = Array.from_stream(self.frag.struct_ptr.stream, self.context, 0, None, (self.arg,), self.template)

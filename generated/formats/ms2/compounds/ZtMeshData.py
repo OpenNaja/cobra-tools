@@ -84,9 +84,6 @@ class ZtMeshData(MeshData):
 			yield 'flag', ModelFlagZT, (0, None), (False, None)
 		yield 'zero_uac', Uint, (0, None), (False, None)
 
-	def get_info_str(self, indent=0):
-		return f'ZtMeshData [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
-
 	def init_arrays(self):
 		self.vertices = np.empty((self.vertex_count, 3), np.float32)
 		self.normals = np.empty((self.vertex_count, 3), np.float32)

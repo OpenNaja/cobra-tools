@@ -37,9 +37,6 @@ class Bone(BaseStruct):
 			yield 'loc', Vector3, (0, None), (False, None)
 			yield 'scale', Float, (0, None), (False, None)
 
-	def get_info_str(self, indent=0):
-		return f'Bone [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
-
 	def set_bone(self, matrix):
 		pos, quat, sca = matrix.decompose()
 		self.loc.x, self.loc.y, self.loc.z = pos.x, pos.y, pos.z

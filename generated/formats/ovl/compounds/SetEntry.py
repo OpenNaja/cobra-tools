@@ -29,6 +29,3 @@ class SetEntry(BaseStruct):
 		if instance.context.version >= 19:
 			yield 'ext_hash', Uint, (0, None), (False, None)
 		yield 'start', Uint, (0, None), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'SetEntry [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

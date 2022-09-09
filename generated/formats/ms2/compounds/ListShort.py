@@ -37,6 +37,3 @@ class ListShort(Descriptor):
 		yield 'direction', Vector3, (0, None), (False, None)
 		yield 'min', Float, (0, None), (False, None)
 		yield 'max', Float, (0, None), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'ListShort [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

@@ -27,6 +27,3 @@ class PreparedStatement(MemStruct):
 		yield 'arg_count', Uint64, (0, None), (True, 0)
 		yield 'statement_name', Pointer, (0, ZString), (False, None)
 		yield 'sql_query', Pointer, (0, ZString), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'PreparedStatement [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

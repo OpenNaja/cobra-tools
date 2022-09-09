@@ -48,6 +48,3 @@ class TrackElementData(MemStruct):
 		yield 'unk_5', Uint, (0, None), (False, 1)
 		yield 'unk_6', Uint, (0, None), (False, 1)
 		yield 'unk_7', Uint64, (0, None), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'TrackElementData [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

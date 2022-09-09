@@ -34,6 +34,3 @@ class Event(MemStruct):
 		yield 'attributes', Pointer, (0, Event._import_path_map["generated.formats.cinematic.compounds.EventAttributes"]), (False, None)
 		yield 'duration', Float, (0, None), (False, None)
 		yield 'd', Float, (0, None), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'Event [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

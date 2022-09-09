@@ -23,6 +23,3 @@ class CinematicRoot(MemStruct):
 		yield 'u_0', Uint64, (0, None), (False, None)
 		yield 'u_1', Uint64, (0, None), (False, None)
 		yield 'data', Pointer, (0, CinematicRoot._import_path_map["generated.formats.cinematic.compounds.CinematicData"]), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'CinematicRoot [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

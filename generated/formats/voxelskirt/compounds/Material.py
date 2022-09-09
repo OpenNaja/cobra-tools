@@ -27,6 +27,3 @@ class Material(BaseStruct):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'entity_instances', DataSlot, (0, Material._import_path_map["generated.formats.voxelskirt.compounds.EntityInstance"]), (False, None)
 		yield 'id', Uint64, (0, None), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'Material [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

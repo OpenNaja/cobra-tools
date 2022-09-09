@@ -66,9 +66,6 @@ class BioMeshData(MeshData):
 		yield 'unk_floats', Array, (0, None, (2,), Float), (False, None)
 		yield 'flag', BioModelFlag, (0, None), (False, None)
 
-	def get_info_str(self, indent=0):
-		return f'BioMeshData [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
-
 	# @property
 	def get_stream_index(self):
 		# logging.debug(f"Using stream {self.stream_info.offset}")

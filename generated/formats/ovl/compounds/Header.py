@@ -187,6 +187,3 @@ class Header(GenericHeader):
 			yield 'dependencies', Array, (0, None, (instance.num_dependencies,), DependencyEntry), (False, None)
 		yield 'stream_files', Array, (0, None, (instance.num_stream_files,), StreamEntry), (False, None)
 		yield 'zlibs', Array, (0, None, (instance.num_archives,), ZlibInfo), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'Header [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

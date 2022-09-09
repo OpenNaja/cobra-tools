@@ -23,6 +23,3 @@ class CurveParamList(MemStruct):
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'ptrs', Array, (0, CurveParamList._import_path_map["generated.formats.renderparameters.compounds.CurveParam"], (instance.arg,), Pointer), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'CurveParamList [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

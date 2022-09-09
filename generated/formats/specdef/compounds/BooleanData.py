@@ -28,6 +28,3 @@ class BooleanData(MemStruct):
 		yield 'value', Ubyte, (0, None), (False, None)
 		yield 'default', Ubyte, (0, None), (False, None)
 		yield 'unused', Array, (0, None, (6,), Ubyte), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'BooleanData [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

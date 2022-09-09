@@ -28,6 +28,3 @@ class PoolGroup(BaseStruct):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'type', Ushort, (0, None), (False, None)
 		yield 'num_pools', Ushort, (0, None), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'PoolGroup [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

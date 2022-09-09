@@ -32,6 +32,3 @@ class Vector3Short(BaseStruct):
 		yield 'x', Short, (0, None), (False, None)
 		yield 'y', Short, (0, None), (False, None)
 		yield 'z', Short, (0, None), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'Vector3Short [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

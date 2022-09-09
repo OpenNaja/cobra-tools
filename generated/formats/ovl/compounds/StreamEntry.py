@@ -34,6 +34,3 @@ class StreamEntry(BaseStruct):
 		yield 'stream_offset', Uint, (0, None), (False, None)
 		yield 'file_offset', Uint, (0, None), (False, None)
 		yield 'zero', Uint, (0, None), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'StreamEntry [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

@@ -113,6 +113,3 @@ class MeshCollision(BaseStruct):
 		if instance.context.version <= 32 and instance.const:
 			yield 'triangle_flags', Array, (0, None, (instance.tri_flags_count,), Uint), (False, None)
 		yield 'zero_end', Uint, (0, None), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'MeshCollision [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

@@ -70,6 +70,3 @@ class BufferInfo(BaseStruct):
 			yield 'uvs_size', Uint64, (0, None), (False, None)
 			yield 'u_6', Uint64, (0, None), (False, None)
 			yield 'u_7', Uint64, (0, None), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'BufferInfo [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

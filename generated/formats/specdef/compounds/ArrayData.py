@@ -28,6 +28,3 @@ class ArrayData(MemStruct):
 		yield 'item', Pointer, (instance.dtype, ArrayData._import_path_map["generated.formats.specdef.compounds.Data"]), (False, None)
 		yield 'dtype', SpecdefDtype, (0, None), (False, None)
 		yield 'unused', Uint, (0, None), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'ArrayData [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

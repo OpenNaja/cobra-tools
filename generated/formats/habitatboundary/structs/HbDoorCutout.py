@@ -32,6 +32,3 @@ class HbDoorCutout(MemStruct):
 		yield 'height', Float, (0, None), (False, None)
 		yield 'right', Float, (0, None), (False, None)
 		yield 'left', Float, (0, None), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'HbDoorCutout [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

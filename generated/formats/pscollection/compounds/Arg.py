@@ -34,6 +34,3 @@ class Arg(MemStruct):
 		yield 'u_2', Uint, (0, None), (False, None)
 		yield 'u_3', Uint64, (0, None), (False, None)
 		yield 'u_4', Uint64, (0, None), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'Arg [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

@@ -27,6 +27,3 @@ class AxisButton(MemStruct):
 		yield 'button_name', Pointer, (0, ZString), (False, None)
 		yield 'axis_name_x', Pointer, (0, ZString), (False, None)
 		yield 'axis_name_y', Pointer, (0, ZString), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'AxisButton [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

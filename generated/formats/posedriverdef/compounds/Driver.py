@@ -43,6 +43,3 @@ class Driver(MemStruct):
 		yield 'unk_1', Uint64, (0, None), (False, None)
 		yield 'data', Pointer, (0, Driver._import_path_map["generated.formats.posedriverdef.compounds.Data"]), (False, None)
 		yield 'unk_2', Uint64, (0, None), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'Driver [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

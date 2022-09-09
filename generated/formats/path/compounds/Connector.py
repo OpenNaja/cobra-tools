@@ -24,6 +24,3 @@ class Connector(MemStruct):
 		yield 'model_name', Pointer, (0, ZString), (False, None)
 		yield 'joint_name', Pointer, (0, ZString), (False, None)
 		yield 'unk_vector', Vector2, (0, None), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'Connector [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

@@ -25,6 +25,3 @@ class PathType(MemStruct):
 		yield 'min_width', Float, (0, None), (False, 4.0)
 		yield 'max_width', Float, (0, None), (False, 10.0)
 		yield '_unk_int_2', Uint, (0, None), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'PathType [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

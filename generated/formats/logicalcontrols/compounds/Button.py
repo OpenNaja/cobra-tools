@@ -27,6 +27,3 @@ class Button(MemStruct):
 		yield 'datas', ArrayPointer, (instance.datas_count, Button._import_path_map["generated.formats.logicalcontrols.compounds.ButtonData"]), (False, None)
 		yield 'datas_count', Uint, (0, None), (False, None)
 		yield 'flags', Uint, (0, None), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'Button [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

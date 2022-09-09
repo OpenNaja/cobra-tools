@@ -37,6 +37,3 @@ class MotiongraphRootFrag(MemStruct):
 		yield 'ptr_2', Pointer, (instance.count_2, MotiongraphRootFrag._import_path_map["generated.formats.motiongraph.compounds.MRFArray2"]), (False, None)
 		yield 'num_xmls', Uint64, (0, None), (False, None)
 		yield 'ptr_xmls', Pointer, (instance.num_xmls, MotiongraphRootFrag._import_path_map["generated.formats.motiongraph.compounds.XMLArray"]), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'MotiongraphRootFrag [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

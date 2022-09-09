@@ -36,6 +36,3 @@ class AssetEntry(BaseStruct):
 			yield 'zero_1', Uint, (0, None), (False, None)
 		yield 'file_index', Uint, (0, None), (False, None)
 		yield 'zero_2', Uint, (0, None), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'AssetEntry [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

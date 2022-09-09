@@ -53,6 +53,3 @@ class SupportSetRoot(MemStruct):
 		yield 'padding_2', Uint64, (0, None), (True, 0)
 		yield 'data', ArrayPointer, (instance.num_data, SupportSetRoot._import_path_map["generated.formats.path.compounds.SupportSetData"]), (False, None)
 		yield 'num_data', Uint, (0, None), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'SupportSetRoot [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

@@ -53,6 +53,3 @@ class PixelFormat(BaseStruct):
 		yield 'g_mask', Uint, (0, None), (False, None)
 		yield 'b_mask', Uint, (0, None), (False, None)
 		yield 'a_mask', Uint, (0, None), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'PixelFormat [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

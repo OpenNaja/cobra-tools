@@ -40,6 +40,3 @@ class LogicalControls(MemStruct):
 		yield 'count_4', Ubyte, (0, None), (False, None)
 		yield 'flags', Uint, (0, None), (False, None)
 		yield 'unsure', Pointer, (0, ZString), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'LogicalControls [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

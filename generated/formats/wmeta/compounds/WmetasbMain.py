@@ -58,6 +58,3 @@ class WmetasbMain(MemStruct):
 			yield 'unused_3', Pointer, (0, None), (False, None)
 			yield 'unused_4', Pointer, (0, None), (False, None)
 			yield 'unused_5', Pointer, (0, None), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'WmetasbMain [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

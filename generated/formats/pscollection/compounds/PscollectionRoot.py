@@ -21,6 +21,3 @@ class PscollectionRoot(MemStruct):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'prepared_statements', ArrayPointer, (instance.count, PscollectionRoot._import_path_map["generated.formats.pscollection.compounds.PreparedStatement"]), (False, None)
 		yield 'count', Uint64, (0, None), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'PscollectionRoot [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

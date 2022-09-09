@@ -29,6 +29,3 @@ class SplData(MemStruct):
 		yield 'offset', Vector3, (0, None), (False, None)
 		yield 'scale', Float, (0, None), (False, None)
 		yield 'keys', Array, (0, None, (instance.arg,), Key), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'SplData [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

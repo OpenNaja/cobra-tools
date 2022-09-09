@@ -60,6 +60,3 @@ class VoxelskirtRoot(MemStruct):
 		yield 'entity_groups', DataSlot, (0, VoxelskirtRoot._import_path_map["generated.formats.voxelskirt.compounds.EntityGroup"]), (False, None)
 		yield 'materials', DataSlot, (0, VoxelskirtRoot._import_path_map["generated.formats.voxelskirt.compounds.Material"]), (False, None)
 		yield 'names', DataSlot, (0, VoxelskirtRoot._import_path_map["generated.formats.voxelskirt.compounds.Name"]), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'VoxelskirtRoot [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

@@ -28,6 +28,3 @@ class Buffer1(BaseStruct):
 		yield 'bone_hashes', Array, (0, None, (instance.arg,), Uint), (False, None)
 		yield 'bone_names', Array, (0, None, (instance.arg,), ZString), (False, None)
 		yield 'bone_pad', PadAlign, (4, instance.bone_names), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'Buffer1 [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

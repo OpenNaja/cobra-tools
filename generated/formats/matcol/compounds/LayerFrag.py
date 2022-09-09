@@ -37,6 +37,3 @@ class LayerFrag(MemStruct):
 		yield 'u_3', Uint64, (0, None), (False, None)
 		yield 'attribs', ArrayPointer, (instance.attrib_count, LayerFrag._import_path_map["generated.formats.matcol.compounds.Attrib"]), (False, None)
 		yield 'attrib_count', Uint64, (0, None), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'LayerFrag [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

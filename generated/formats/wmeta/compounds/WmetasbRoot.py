@@ -21,6 +21,3 @@ class WmetasbRoot(MemStruct):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'levels', ArrayPointer, (instance.count, WmetasbRoot._import_path_map["generated.formats.wmeta.compounds.WmetasbMain"]), (False, None)
 		yield 'count', Uint64, (0, None), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'WmetasbRoot [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

@@ -24,6 +24,3 @@ class Object(BaseStruct):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'material_index', Ushort, (0, None), (False, None)
 		yield 'mesh_index', Ushort, (0, None), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'Object [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

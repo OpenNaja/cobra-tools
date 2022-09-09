@@ -195,6 +195,3 @@ class BoneInfo(BaseStruct):
 			yield 'struct_7', Struct7, (0, None), (False, None)
 		if instance.joint_count:
 			yield 'joints', JointData, (0, None), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'BoneInfo [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

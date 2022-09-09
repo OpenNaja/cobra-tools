@@ -35,6 +35,3 @@ class Research(MemStruct):
 		yield 'next_research_count', Uint64, (0, None), (False, None)
 		yield 'unk_3', Uint64, (0, None), (False, None)
 		yield 'unk_4', Uint64, (0, None), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'Research [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

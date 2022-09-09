@@ -45,6 +45,3 @@ class Perk(MemStruct):
 		yield 'appeal_adults', Float, (0, None), (False, None)
 		yield 'appeal_families', Float, (0, None), (False, None)
 		yield 'appeal_teenagers', Float, (0, None), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'Perk [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

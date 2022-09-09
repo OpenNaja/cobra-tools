@@ -35,6 +35,3 @@ class ConnectorMultiJoint(MemStruct):
 		yield 'unk_float_1', Float, (0, None), (False, None)
 		yield 'unk_int_1', Uint, (0, None), (False, None)
 		yield 'padding_2', Uint64, (0, None), (True, 0)
-
-	def get_info_str(self, indent=0):
-		return f'ConnectorMultiJoint [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

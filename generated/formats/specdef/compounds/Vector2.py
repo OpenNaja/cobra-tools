@@ -29,6 +29,3 @@ class Vector2(MemStruct):
 		yield 'y', Float, (0, None), (False, None)
 		yield 'ioptional', Uint, (0, None), (False, None)
 		yield 'unused', Uint, (0, None), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'Vector2 [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

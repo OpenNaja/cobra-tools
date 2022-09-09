@@ -31,6 +31,3 @@ class DinoPatternsHeader(MemStruct):
 		yield 'patterns', Pointer, (instance.pattern_count, DinoPatternsHeader._import_path_map["generated.formats.dinosaurmaterialvariants.compounds.PatternArray"]), (False, None)
 		yield 'pattern_count', Uint64, (0, None), (False, None)
 		yield 'zero', Uint64, (0, None), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'DinoPatternsHeader [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

@@ -37,6 +37,3 @@ class DependencyEntry(BaseStruct):
 		yield 'offset', Uint, (0, None), (False, None)
 		yield 'file_index', Uint, (0, None), (False, None)
 		yield 'link_ptr', HeaderPointer, (0, None), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'DependencyEntry [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

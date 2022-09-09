@@ -40,6 +40,3 @@ class ThirdFrag(MemStruct):
 		yield 'ptr_2', Pointer, (0, ThirdFrag._import_path_map["generated.formats.motiongraph.compounds.Sixtyfour"]), (False, None)
 		yield 'count_4', Uint64, (0, None), (False, None)
 		yield 'member', Pointer, (0, ZString), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'ThirdFrag [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

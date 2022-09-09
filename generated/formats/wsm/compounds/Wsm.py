@@ -29,6 +29,3 @@ class Wsm(GenericHeader):
 		yield 'header', WsmHeader, (0, None), (False, None)
 		yield 'locs', Array, (0, None, (instance.header.frame_count, 3,), Float), (False, None)
 		yield 'quats', Array, (0, None, (instance.header.frame_count, 4,), Float), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'Wsm [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

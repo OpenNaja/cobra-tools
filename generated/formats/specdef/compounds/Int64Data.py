@@ -31,6 +31,3 @@ class Int64Data(MemStruct):
 		yield 'ivalue', Int64, (0, None), (False, None)
 		yield 'ioptional', Int64, (0, None), (False, None)
 		yield 'enum', Pointer, (0, None), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'Int64Data [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

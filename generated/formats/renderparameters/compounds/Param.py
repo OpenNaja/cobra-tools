@@ -29,6 +29,3 @@ class Param(MemStruct):
 		yield 'attribute_name', Pointer, (0, ZString), (False, None)
 		yield 'dtype', RenderParameterType, (0, None), (False, None)
 		yield 'data', ParamData, (instance.dtype, None), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'Param [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

@@ -32,6 +32,3 @@ class MediaEntry(MemStruct):
 		yield 'block_name', Pointer, (0, ZString), (False, None)
 		yield 'wav_name', Pointer, (0, ZString), (False, None)
 		yield 'wem_name', Pointer, (0, ZString), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'MediaEntry [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

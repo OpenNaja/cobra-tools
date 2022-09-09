@@ -22,9 +22,6 @@ class PadAlign(BaseStruct):
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 
-	def get_info_str(self, indent=0):
-		return f'PadAlign [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
-
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		self.data = b""

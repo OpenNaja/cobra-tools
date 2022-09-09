@@ -45,9 +45,6 @@ class MeshData(MemStruct):
 		if not ((instance.context.version == 51) and instance.context.biosyn):
 			yield 'some_index', Uint64, (0, None), (False, None)
 
-	def get_info_str(self, indent=0):
-		return f'MeshData [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
-
 	# @property
 	def get_stream_index(self):
 		# logging.debug(f"Using stream {self.stream_index}")

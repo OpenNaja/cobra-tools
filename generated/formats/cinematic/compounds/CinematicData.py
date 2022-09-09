@@ -25,6 +25,3 @@ class CinematicData(MemStruct):
 		yield 'default_name', Pointer, (0, ZString), (False, None)
 		yield 'next_levels', ArrayPointer, (instance.next_level_count, CinematicData._import_path_map["generated.formats.cinematic.compounds.State"]), (False, None)
 		yield 'next_level_count', Uint64, (0, None), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'CinematicData [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

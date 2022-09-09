@@ -29,6 +29,3 @@ class ZtVertBlockInfo(BaseStruct):
 		yield 'vertex_count', Uint, (0, None), (False, None)
 		yield 'flags', Array, (0, None, (8,), Ubyte), (False, None)
 		yield 'zero', Uint, (0, None), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'ZtVertBlockInfo [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

@@ -34,6 +34,3 @@ class RootEntry(BaseStruct):
 		if instance.context.version >= 19:
 			yield 'ext_hash', Uint, (0, None), (False, None)
 		yield 'struct_ptr', HeaderPointer, (0, None), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'RootEntry [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

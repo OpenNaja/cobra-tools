@@ -40,6 +40,3 @@ class InfoHeader(BaseStruct):
 		yield 'mani_infos', Array, (0, None, (instance.mani_count,), ManiInfo), (False, None)
 		yield 'name_buffer', Buffer1, (int(instance.header.hash_block_size / 4), None), (False, None)
 		yield 'keys_buffer', KeysReader, (instance.mani_infos, None), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'InfoHeader [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

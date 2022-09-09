@@ -73,9 +73,6 @@ class NewMeshData(MeshData):
 		yield 'zero_3', Uint, (0, None), (False, None)
 		yield 'flag', ModelFlag, (0, None), (False, None)
 
-	def get_info_str(self, indent=0):
-		return f'NewMeshData [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
-
 	# @property
 	def get_stream_index(self):
 		# logging.debug(f"Using stream {self.stream_info.offset}")

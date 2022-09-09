@@ -23,6 +23,3 @@ class GenericInfo(MemStruct):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield '_name_offset', Uint, (0, None), (False, None)
 		yield 'dtype', FgmDtype, (0, None), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'GenericInfo [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

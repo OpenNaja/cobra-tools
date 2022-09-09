@@ -67,6 +67,3 @@ class BnkBufferData(BaseStruct):
 			yield 'external_b_suffix', ZString, (0, None), (False, None)
 		if instance.stream_info_count:
 			yield 'external_s_suffix', ZString, (0, None), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'BnkBufferData [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

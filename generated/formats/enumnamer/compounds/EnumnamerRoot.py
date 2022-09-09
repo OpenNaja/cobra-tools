@@ -21,6 +21,3 @@ class EnumnamerRoot(MemStruct):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'count', Uint64, (0, None), (False, None)
 		yield 'strings', Pointer, (instance.count, EnumnamerRoot._import_path_map["generated.formats.enumnamer.compounds.PtrList"]), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'EnumnamerRoot [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

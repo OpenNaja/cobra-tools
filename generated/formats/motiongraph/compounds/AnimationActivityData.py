@@ -49,6 +49,3 @@ class AnimationActivityData(MemStruct):
 		yield 'count_6', Uint64, (0, None), (False, None)
 		yield 'output_prop_through_variable', Pointer, (0, ZString), (False, None)
 		yield 'additional_data_streams', DataStreamResourceDataList, (0, None), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'AnimationActivityData [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

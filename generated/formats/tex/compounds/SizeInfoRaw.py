@@ -60,6 +60,3 @@ class SizeInfoRaw(MemStruct):
 		if instance.context.version >= 20:
 			yield 'unk_pz', Uint64, (0, None), (False, None)
 		yield 'mip_maps', Array, (0, None, (instance.num_mips,), Mipmap), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'SizeInfoRaw [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

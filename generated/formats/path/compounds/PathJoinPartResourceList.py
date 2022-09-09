@@ -19,6 +19,3 @@ class PathJoinPartResourceList(MemStruct):
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'resources', Array, (0, None, (instance.arg,), PathJoinPartResource), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'PathJoinPartResourceList [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

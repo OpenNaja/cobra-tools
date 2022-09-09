@@ -97,6 +97,3 @@ class HabitatBoundaryDataRoot(MemStruct):
 		yield 'wall_replace_level', Byte, (0, None), (False, None)
 		yield 'type', Byte, (0, None), (False, None)
 		yield 'padding', Ushort, (0, None), (True, 0)
-
-	def get_info_str(self, indent=0):
-		return f'HabitatBoundaryDataRoot [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

@@ -31,6 +31,3 @@ class StreamsZTHeader(BaseStruct):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'weird_padding', SmartPadding, (0, None), (False, None)
 		yield 'unks', Array, (0, None, (instance.arg.stream_count,), InfoZTMemPool), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'StreamsZTHeader [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

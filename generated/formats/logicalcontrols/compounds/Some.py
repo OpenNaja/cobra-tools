@@ -29,6 +29,3 @@ class Some(MemStruct):
 		yield 'some_name', Pointer, (0, ZString), (False, None)
 		yield 'some_data', ArrayPointer, (instance.some_count, Some._import_path_map["generated.formats.logicalcontrols.compounds.SomeData"]), (False, None)
 		yield 'some_count', Uint64, (0, None), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'Some [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

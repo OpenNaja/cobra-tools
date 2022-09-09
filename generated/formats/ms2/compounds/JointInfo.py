@@ -29,6 +29,3 @@ class JointInfo(CommonJointInfo):
 		yield 'zero', Uint64, (0, None), (False, None)
 		yield 'zeros_per_hitcheck', Array, (0, None, (instance.hitcheck_count,), Uint64), (False, None)
 		yield 'hitchecks', Array, (0, None, (instance.hitcheck_count,), HitCheckEntry), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'JointInfo [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

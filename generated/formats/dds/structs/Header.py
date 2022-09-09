@@ -65,6 +65,3 @@ class Header(BaseStruct):
 		yield 'unused', Uint, (0, None), (False, None)
 		if instance.pixel_format.four_c_c == 808540228:
 			yield 'dx_10', Dxt10Header, (0, None), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'Header [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

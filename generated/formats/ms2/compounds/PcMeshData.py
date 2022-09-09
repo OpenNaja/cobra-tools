@@ -79,9 +79,6 @@ class PcMeshData(MeshData):
 		yield 'unknown_07', Float, (0, None), (False, None)
 		yield 'flag', ModelFlag, (0, None), (False, None)
 
-	def get_info_str(self, indent=0):
-		return f'PcMeshData [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
-
 	def init_arrays(self):
 		self.vertices = np.empty((self.vertex_count, 3), np.float32)
 		self.use_blended_weights = np.empty(self.vertex_count, np.bool)

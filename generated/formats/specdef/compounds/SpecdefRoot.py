@@ -46,6 +46,3 @@ class SpecdefRoot(MemStruct):
 		yield 'childspecs', Pointer, (instance.childspec_count, SpecdefRoot._import_path_map["generated.formats.specdef.compounds.PtrList"]), (False, None)
 		yield 'managers', Pointer, (instance.manager_count, SpecdefRoot._import_path_map["generated.formats.specdef.compounds.PtrList"]), (False, None)
 		yield 'scripts', Pointer, (instance.script_count, SpecdefRoot._import_path_map["generated.formats.specdef.compounds.PtrList"]), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'SpecdefRoot [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

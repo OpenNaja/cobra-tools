@@ -38,6 +38,3 @@ class State(MemStruct):
 		yield 'c', Uint64, (0, None), (False, None)
 		yield 'events_list', Pointer, (0, State._import_path_map["generated.formats.cinematic.compounds.EventsList"]), (False, None)
 		yield 'd', Uint64, (0, None), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'State [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

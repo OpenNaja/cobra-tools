@@ -23,6 +23,3 @@ class NextResearch(MemStruct):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'item_name', Array, (0, ZString, (instance.arg,), Pointer), (False, None)
 		yield 'unk_1', Uint64, (0, None), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'NextResearch [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

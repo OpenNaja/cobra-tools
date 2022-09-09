@@ -31,6 +31,3 @@ class DataSlot(BaseStruct):
 		yield 'offset', Uint64, (0, None), (False, None)
 		yield 'count', Uint64, (0, None), (False, None)
 		yield 'data', Array, (0, None, (0,), instance.template), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'DataSlot [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

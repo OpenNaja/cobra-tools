@@ -42,6 +42,3 @@ class LuaRoot(MemStruct):
 			yield 'likely_alignment', Pointer, (0, ZString), (False, None)
 		yield 'zero_1', Uint64, (0, None), (False, None)
 		yield 'zero_2', Uint64, (0, None), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'LuaRoot [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

@@ -37,6 +37,3 @@ class MergedetailsRoot(MemStruct):
 		yield 'field_name', Pointer, (0, ZString), (False, None)
 		yield 'count', Uint, (0, None), (False, None)
 		yield 'flag', Uint, (0, None), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'MergedetailsRoot [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

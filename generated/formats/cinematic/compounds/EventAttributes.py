@@ -27,6 +27,3 @@ class EventAttributes(MemStruct):
 		yield 'anim_name', Pointer, (0, ZString), (False, None)
 		yield 'event_name', Pointer, (0, ZString), (False, None)
 		yield 'empty_string', Pointer, (0, ZString), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'EventAttributes [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

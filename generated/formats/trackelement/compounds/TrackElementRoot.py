@@ -29,6 +29,3 @@ class TrackElementRoot(MemStruct):
 		yield 'count', Uint64, (0, None), (False, None)
 		yield 'unk_0', Uint64, (0, None), (False, 0)
 		yield 'unk_1', Uint64, (0, None), (False, 0)
-
-	def get_info_str(self, indent=0):
-		return f'TrackElementRoot [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

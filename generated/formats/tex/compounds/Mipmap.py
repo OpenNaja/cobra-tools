@@ -40,6 +40,3 @@ class Mipmap(MemStruct):
 		yield 'size_array', Uint, (0, None), (False, None)
 		yield 'size_scan', Uint, (0, None), (False, None)
 		yield 'size_data', Uint, (0, None), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'Mipmap [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

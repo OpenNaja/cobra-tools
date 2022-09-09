@@ -32,6 +32,3 @@ class AttribData(MemStruct):
 			yield 'value', Array, (0, None, (1,), Int), (False, None)
 		if instance.arg.dtype == 6:
 			yield 'value', Array, (0, None, (1,), Int), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'AttribData [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

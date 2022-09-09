@@ -28,6 +28,3 @@ class Vector2(MemStruct):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'x', Float, (0, None), (False, None)
 		yield 'y', Float, (0, None), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'Vector2 [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

@@ -50,6 +50,3 @@ class BanisRoot(MemStruct):
 		yield 'num_bones', Uint, (0, None), (False, None)
 		yield 'loc_scale', Float, (0, None), (False, None)
 		yield 'loc_offset', Float, (0, None), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'BanisRoot [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

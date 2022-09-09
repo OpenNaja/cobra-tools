@@ -73,6 +73,3 @@ class LodInfo(BaseStruct):
 		if instance.context.version >= 32 and not ((instance.context.version == 51) and instance.context.biosyn):
 			yield 'vertex_count', Uint, (0, None), (False, None)
 			yield 'tri_index_count', Uint, (0, None), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'LodInfo [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

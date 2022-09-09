@@ -31,6 +31,3 @@ class MaterialName(BaseStruct):
 			yield 'some_index', Uint, (0, None), (False, None)
 		if instance.context.version <= 32:
 			yield 'some_index', Ushort, (0, None), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'MaterialName [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

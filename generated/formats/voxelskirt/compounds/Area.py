@@ -32,6 +32,3 @@ class Area(BaseStruct):
 		yield 'height_1', Uint64, (0, None), (False, None)
 		yield 'width_2', Uint64, (0, None), (False, None)
 		yield 'height_2', Uint64, (0, None), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'Area [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

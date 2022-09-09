@@ -28,6 +28,3 @@ class Dxt10Header(BaseStruct):
 		yield 'misc_flag', Uint, (0, None), (False, None)
 		yield 'array_size', Uint, (0, None), (False, 1)
 		yield 'misc_flag_2', Uint, (0, None), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'Dxt10Header [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

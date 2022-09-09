@@ -25,6 +25,3 @@ class PathSupport(MemStruct):
 		yield 'support', Pointer, (0, ZString), (False, None)
 		yield 'distance', Float, (0, None), (False, 10.0)
 		yield '_unk_int_1', Uint, (0, None), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'PathSupport [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

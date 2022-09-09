@@ -27,6 +27,3 @@ class TexIndex(MemStruct):
 		yield '_tex_index', Uint, (0, None), (False, None)
 		if instance.context.version >= 18:
 			yield 'array_index', Uint, (0, None), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'TexIndex [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

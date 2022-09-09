@@ -101,6 +101,9 @@ class BaseStruct(metaclass=StructMetaClass):
 		lines_new = [lines[0], ] + ["\t" * indent + line for line in lines[1:]]
 		return "\n".join(lines_new)
 
+	def get_info_str(self, indent=0):
+		return f'{self.__name__} [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+
 	def __repr__(self, indent=0):
 		s = self.get_info_str(indent)
 		s += self.get_fields_str(self, indent)

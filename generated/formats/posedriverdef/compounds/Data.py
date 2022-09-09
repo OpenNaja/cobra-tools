@@ -20,6 +20,3 @@ class Data(MemStruct):
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'floats', Array, (0, None, (16,), Float), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'Data [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

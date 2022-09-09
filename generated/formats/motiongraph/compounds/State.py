@@ -36,6 +36,3 @@ class State(MemStruct):
 		yield 'count_2', Uint64, (0, None), (False, None)
 		yield 'array_2', Pointer, (instance.count_2, State._import_path_map["generated.formats.motiongraph.compounds.TransStructStopList"]), (False, None)
 		yield 'id', Pointer, (0, ZString), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'State [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

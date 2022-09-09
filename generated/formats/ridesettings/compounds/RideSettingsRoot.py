@@ -32,6 +32,3 @@ class RideSettingsRoot(MemStruct):
 		yield 'pad_0', Uint, (0, None), (False, None)
 		yield 'pad_1', Uint, (0, None), (False, None)
 		yield 'pad_2', Uint, (0, None), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'RideSettingsRoot [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

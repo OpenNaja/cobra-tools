@@ -41,6 +41,3 @@ class MRFMember2(MemStruct):
 		yield 'count_5', Uint64, (0, None), (False, None)
 		yield 'count_6', Uint64, (0, None), (False, None)
 		yield 'id', Pointer, (0, ZString), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'MRFMember2 [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

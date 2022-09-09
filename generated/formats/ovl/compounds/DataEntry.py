@@ -55,9 +55,6 @@ class DataEntry(BaseStruct):
 		yield 'size_1', Uint64, (0, None), (False, None)
 		yield 'size_2', Uint64, (0, None), (False, None)
 
-	def get_info_str(self, indent=0):
-		return f'DataEntry [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
-
 	def update_data(self, datas):
 		"""Load datas into this DataEntry's buffers, and update its size values according to an assumed pattern
 		data : list of bytes object, each representing the data of one buffer for this data entry"""

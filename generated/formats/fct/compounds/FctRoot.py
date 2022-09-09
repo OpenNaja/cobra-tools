@@ -47,6 +47,3 @@ class FctRoot(MemStruct):
 		yield 'z_2', Uint64, (0, None), (False, None)
 		yield 'offset', Uint64, (0, None), (False, None)
 		yield 'fonts', Array, (0, None, (4,), Font), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'FctRoot [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

@@ -30,6 +30,3 @@ class RenderParameterCurvesRoot(MemStruct):
 		yield 'params', Pointer, (instance.count, RenderParameterCurvesRoot._import_path_map["generated.formats.renderparameters.compounds.CurveParamList"]), (False, None)
 		yield 'count', Uint64, (0, None), (False, None)
 		yield 'unk', Uint64, (0, None), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'RenderParameterCurvesRoot [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

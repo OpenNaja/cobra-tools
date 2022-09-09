@@ -57,6 +57,3 @@ class HabitatBoundaryPropRoot(MemStruct):
 		yield 'door_cutout', HbDoorCutout, (0, None), (False, None)
 		yield 'small', Uint, (0, None), (False, None)
 		yield 'height', Float, (0, None), (False, 2.0)
-
-	def get_info_str(self, indent=0):
-		return f'HabitatBoundaryPropRoot [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

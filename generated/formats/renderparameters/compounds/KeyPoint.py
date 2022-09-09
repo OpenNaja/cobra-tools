@@ -24,6 +24,3 @@ class KeyPoint(MemStruct):
 		yield 'value', Float, (0, None), (False, None)
 		yield 'tangent_before', Float, (0, None), (False, None)
 		yield 'tangent_after', Float, (0, None), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'KeyPoint [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

@@ -90,6 +90,3 @@ class ArchiveEntry(BaseStruct):
 		yield 'pools_start', Uint, (0, None), (False, None)
 		yield 'pools_end', Uint, (0, None), (False, None)
 		yield 'ovs_offset', Uint, (0, None), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'ArchiveEntry [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

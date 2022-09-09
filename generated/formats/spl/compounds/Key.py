@@ -30,6 +30,3 @@ class Key(MemStruct):
 		yield 'handle_left', ByteVector3, (0, None), (False, None)
 		yield 'handle_right', ByteVector3, (0, None), (False, None)
 		yield 'handle_scale', Float, (0, None), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'Key [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

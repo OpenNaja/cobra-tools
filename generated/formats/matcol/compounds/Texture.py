@@ -25,6 +25,3 @@ class Texture(MemStruct):
 		yield 'fgm_name', Pointer, (0, ZString), (False, None)
 		yield 'texture_suffix', Pointer, (0, ZString), (False, None)
 		yield 'texture_type', Pointer, (0, ZString), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'Texture [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

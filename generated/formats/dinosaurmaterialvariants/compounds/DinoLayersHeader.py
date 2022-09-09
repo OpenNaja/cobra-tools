@@ -27,6 +27,3 @@ class DinoLayersHeader(MemStruct):
 		yield 'layers', ArrayPointer, (instance.layer_count, DinoLayersHeader._import_path_map["generated.formats.dinosaurmaterialvariants.compounds.Layer"]), (False, None)
 		yield 'layer_count', Uint64, (0, None), (False, None)
 		yield 'zero', Uint64, (0, None), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'DinoLayersHeader [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

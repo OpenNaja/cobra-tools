@@ -33,6 +33,3 @@ class IslandRoot(MemStruct):
 		yield 'b', Float, (0, None), (False, None)
 		yield 'count', Uint64, (0, None), (False, None)
 		yield 'zero', Uint64, (0, None), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'IslandRoot [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

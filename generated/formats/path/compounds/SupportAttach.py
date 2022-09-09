@@ -27,6 +27,3 @@ class SupportAttach(MemStruct):
 		yield 'unk_int_1', Uint64, (0, None), (False, None)
 		yield 'unk_int_2', Uint64, (0, None), (False, None)
 		yield 'unk_vector', Vector2, (0, None), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'SupportAttach [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

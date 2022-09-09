@@ -84,6 +84,3 @@ class UiMovieHeader(MemStruct):
 		yield 'list_2', ArrayPointer, (instance.num_list_2, Uint), (False, None)
 		yield 'ui_interfaces', Pointer, (instance.num_ui_interfaces, UiMovieHeader._import_path_map["generated.formats.uimoviedefinition.compounds.PtrList"]), (False, None)
 		yield 'ptr_3', Pointer, (0, None), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'UiMovieHeader [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

@@ -36,6 +36,3 @@ class Transition(MemStruct):
 		yield 'count_2', Uint64, (0, None), (False, None)
 		yield 'ptr_1', Pointer, (instance.count_2, Transition._import_path_map["generated.formats.motiongraph.compounds.TransStructArray"]), (False, None)
 		yield 'id', Pointer, (0, ZString), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'Transition [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

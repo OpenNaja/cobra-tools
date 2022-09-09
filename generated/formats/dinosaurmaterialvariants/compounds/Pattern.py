@@ -22,6 +22,3 @@ class Pattern(MemStruct):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'has_ptr', Uint64, (0, None), (False, None)
 		yield 'pattern_name', Pointer, (0, ZString), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'Pattern [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

@@ -69,6 +69,3 @@ class Data(MemStruct):
 			yield 'dtype', ChildSpecData, (0, None), (False, None)
 		if instance.arg == 15:
 			yield 'dtype', ReferenceToObjectData, (0, None), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'Data [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

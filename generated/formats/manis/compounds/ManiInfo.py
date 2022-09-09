@@ -127,6 +127,3 @@ class ManiInfo(BaseStruct):
 			yield 'scl_bone_count_repeat', Byte, (0, None), (False, None)
 			yield 'zeros_end', Ushort, (0, None), (False, None)
 		yield 'zero_2_end', Ushort, (0, None), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'ManiInfo [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

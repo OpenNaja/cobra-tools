@@ -42,6 +42,3 @@ class MotiongraphHeader(MemStruct):
 		yield 'lua_results', Pointer, (0, ZString), (False, None)
 		yield 'first_non_transition_state', Pointer, (0, MotiongraphHeader._import_path_map["generated.formats.motiongraph.compounds.MRFMember2"]), (False, None)
 		yield 'empty_str', Pointer, (0, ZString), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'MotiongraphHeader [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

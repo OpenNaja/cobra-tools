@@ -39,6 +39,3 @@ class SetHeader(BaseStruct):
 		yield 'sig_b', Uint, (0, None), (False, 16909320)
 		yield 'sets', Array, (0, None, (instance.set_count,), SetEntry), (False, None)
 		yield 'assets', Array, (0, None, (instance.asset_count,), AssetEntry), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'SetHeader [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

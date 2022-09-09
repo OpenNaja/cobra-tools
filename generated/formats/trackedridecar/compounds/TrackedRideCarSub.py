@@ -33,6 +33,3 @@ class TrackedRideCarSub(MemStruct):
 		yield 'vectors', ArrayPointer, (instance.vecs_count, TrackedRideCarSub._import_path_map["generated.formats.trackedridecar.compounds.Vector3"]), (False, None)
 		yield 'vecs_count', Uint64, (0, None), (False, None)
 		yield 'zero_1', Uint64, (0, None), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'TrackedRideCarSub [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

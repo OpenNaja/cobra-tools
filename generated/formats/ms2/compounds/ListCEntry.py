@@ -44,6 +44,3 @@ class ListCEntry(BaseStruct):
 		yield 'a', Float, (0, None), (False, None)
 		yield 'floats', Array, (0, None, (4,), Float), (False, None)
 		yield 'a_2', Float, (0, None), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'ListCEntry [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

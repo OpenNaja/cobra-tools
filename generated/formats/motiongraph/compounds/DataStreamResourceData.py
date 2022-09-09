@@ -35,6 +35,3 @@ class DataStreamResourceData(MemStruct):
 		yield 'bone_i_d', Pointer, (0, ZString), (False, None)
 		yield 'location', Pointer, (0, ZString), (False, None)
 		yield 'curve', CurveData, (0, None), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'DataStreamResourceData [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

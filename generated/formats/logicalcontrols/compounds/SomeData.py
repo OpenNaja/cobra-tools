@@ -29,6 +29,3 @@ class SomeData(MemStruct):
 		yield 'extra', Uint, (0, None), (False, None)
 		yield 'a', Float, (0, None), (False, None)
 		yield 'b', Float, (0, None), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'SomeData [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

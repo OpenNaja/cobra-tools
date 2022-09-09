@@ -27,6 +27,3 @@ class Attrib(MemStruct):
 		yield 'attrib_name', Pointer, (0, ZString), (False, None)
 		yield 'attrib', Array, (0, None, (4,), Byte), (False, None)
 		yield 'padding', Uint, (0, None), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'Attrib [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

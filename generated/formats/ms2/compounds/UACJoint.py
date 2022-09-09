@@ -31,6 +31,3 @@ class UACJoint(BaseStruct):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'unk', Array, (0, None, (6,), Ushort), (False, None)
 		yield 'floats', Array, (0, None, (6,), Float), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'UACJoint [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

@@ -48,6 +48,3 @@ class NasutoJointEntry(BaseStruct):
 		yield 'matrix', Matrix33, (0, None), (False, None)
 		yield 'vector', Vector4, (0, None), (False, None)
 		yield 'one', Uint, (0, None), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'NasutoJointEntry [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

@@ -35,6 +35,3 @@ class BaniInfoHeader(BaseStruct):
 		yield 'magic', Array, (0, None, (4,), Byte), (False, None)
 		yield 'banis_name', ZString, (0, None), (False, None)
 		yield 'data', BaniRoot, (0, None), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'BaniInfoHeader [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

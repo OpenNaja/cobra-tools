@@ -27,6 +27,3 @@ class HbOffsets(MemStruct):
 		yield 'physics', HbPhysicsOffsets, (0, None), (False, None)
 		yield 'post_height_offset', Float, (0, None), (False, None)
 		yield 'wall_height', Float, (0, None), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'HbOffsets [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

@@ -30,6 +30,3 @@ class ZTPreBones(BaseStruct):
 		yield 'unks_2', Array, (0, None, (10,), Uint), (False, None)
 		yield 'floats', Array, (0, None, (4,), Float), (False, None)
 		yield 'unks_3', Array, (0, None, (2,), Uint), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'ZTPreBones [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

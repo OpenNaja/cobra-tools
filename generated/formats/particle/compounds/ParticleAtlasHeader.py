@@ -32,6 +32,3 @@ class ParticleAtlasHeader(MemStruct):
 		yield 'id', Uint, (0, None), (False, None)
 		yield 'zero', Uint, (0, None), (False, None)
 		yield 'dependency_name', Pointer, (0, None), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'ParticleAtlasHeader [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

@@ -43,6 +43,3 @@ class RestaurantSettingsRoot(MemStruct):
 		yield 'unk_9', Float, (0, None), (False, None)
 		yield 'perks', ArrayPointer, (instance.count, RestaurantSettingsRoot._import_path_map["generated.formats.restaurantsettings.compounds.Perk"]), (False, None)
 		yield 'count', Uint64, (0, None), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'RestaurantSettingsRoot [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

@@ -46,6 +46,3 @@ class GenericHeader(BaseStruct):
 		yield 'bitswap', Byte, (0, None), (False, None)
 		yield 'seventh_byte', Byte, (0, None), (False, 1)
 		yield 'user_version', VersionInfo, (0, None), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'GenericHeader [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

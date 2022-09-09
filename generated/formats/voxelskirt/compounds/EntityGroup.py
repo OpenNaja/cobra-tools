@@ -29,6 +29,3 @@ class EntityGroup(Material):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'ff', Int, (0, None), (False, None)
 		yield 'ff_or_zero', Int, (0, None), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'EntityGroup [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

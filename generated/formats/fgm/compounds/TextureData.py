@@ -21,6 +21,3 @@ class TextureData(MemStruct):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		if instance.arg.dtype == 8:
 			yield 'dependency_name', Pointer, (0, None), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'TextureData [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

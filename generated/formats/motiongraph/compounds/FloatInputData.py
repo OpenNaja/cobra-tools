@@ -28,6 +28,3 @@ class FloatInputData(MemStruct):
 		yield 'float', Float, (0, None), (False, None)
 		yield 'optional_var_and_curve_count', Uint, (0, None), (False, None)
 		yield 'optional_var_and_curve', Uint64, (0, None), (False, None)
-
-	def get_info_str(self, indent=0):
-		return f'FloatInputData [Size: {self.io_size}, Address: {self.io_start}] {self.name}'

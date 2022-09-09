@@ -39,6 +39,3 @@ class ClimbproofDataRoot(MemStruct):
 		yield 'post_gap', Float, (0, None), (False, None)
 		yield 'u_1', Float, (0, None), (False, 2.0)
 		yield 'zero', Uint64, (0, None), (True, 0)
-
-	def get_info_str(self, indent=0):
-		return f'ClimbproofDataRoot [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
