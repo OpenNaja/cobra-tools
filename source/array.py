@@ -206,7 +206,7 @@ class Array(list):
         return _class_to_name(self.dtype).lower()
 
     @classmethod
-    def from_xml(cls, target, elem, prop, arguments):
+    def from_xml(cls, instance, elem, prop, arguments):
         arg, template, shape, dtype = arguments
         sub = elem.find(f'.//{prop}')
         if sub is None:
@@ -214,7 +214,7 @@ class Array(list):
             return
         if callable(getattr(dtype, "_from_xml_array", None)):
             return dtype._from_xml_array(None, sub)
-        instance = cls(shape, dtype, target.context, arg, template, set_default=False)
+        instance = Array(instance.context, arg, template, shape, dtype, set_default=False)
         cls._from_xml(instance, sub)
         return instance
 
