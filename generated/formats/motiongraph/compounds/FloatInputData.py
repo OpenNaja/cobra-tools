@@ -12,7 +12,7 @@ class FloatInputData(MemStruct):
 
 	__name__ = 'FloatInputData'
 
-	_import_path = 'generated.formats.motiongraph.compounds.FloatInputData'
+	_import_key = 'motiongraph.compounds.FloatInputData'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)

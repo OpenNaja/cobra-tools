@@ -12,7 +12,7 @@ class LutHeader(MemStruct):
 
 	__name__ = 'LutHeader'
 
-	_import_path = 'generated.formats.lut.compounds.LutHeader'
+	_import_key = 'lut.compounds.LutHeader'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
@@ -21,14 +21,14 @@ class LutHeader(MemStruct):
 		self.unk_1 = 0
 		self.colors_in_column_count = 0
 		self.unk_2 = 0
-		self.colors = ArrayPointer(self.context, self.colors_count, LutHeader._import_path_map["generated.formats.lut.compounds.Vector3"])
+		self.colors = ArrayPointer(self.context, self.colors_count, LutHeader._import_map["lut.compounds.Vector3"])
 		if set_default:
 			self.set_defaults()
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'colors', ArrayPointer, (instance.colors_count, LutHeader._import_path_map["generated.formats.lut.compounds.Vector3"]), (False, None)
+		yield 'colors', ArrayPointer, (instance.colors_count, LutHeader._import_map["lut.compounds.Vector3"]), (False, None)
 		yield 'colors_count', Ushort, (0, None), (False, None)
 		yield 'unk_0', Ushort, (0, None), (False, None)
 		yield 'unk_1', Uint, (0, None), (False, None)

@@ -21,7 +21,7 @@ class ModelInfo(MemStruct):
 
 	__name__ = 'ModelInfo'
 
-	_import_path = 'generated.formats.ms2.compounds.ModelInfo'
+	_import_key = 'ms2.compounds.ModelInfo'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
@@ -81,10 +81,10 @@ class ModelInfo(MemStruct):
 		self.zero_0 = 0
 		self.zero_1 = 0
 		self.zero_2 = 0
-		self.materials = ArrayPointer(self.context, self.num_materials, ModelInfo._import_path_map["generated.formats.ms2.compounds.MaterialName"])
-		self.lods = ArrayPointer(self.context, self.num_lods, ModelInfo._import_path_map["generated.formats.ms2.compounds.LodInfo"])
-		self.objects = ArrayPointer(self.context, self.num_objects, ModelInfo._import_path_map["generated.formats.ms2.compounds.Object"])
-		self.meshes = ArrayPointer(self.context, self.num_meshes, ModelInfo._import_path_map["generated.formats.ms2.compounds.MeshDataWrap"])
+		self.materials = ArrayPointer(self.context, self.num_materials, ModelInfo._import_map["ms2.compounds.MaterialName"])
+		self.lods = ArrayPointer(self.context, self.num_lods, ModelInfo._import_map["ms2.compounds.LodInfo"])
+		self.objects = ArrayPointer(self.context, self.num_objects, ModelInfo._import_map["ms2.compounds.Object"])
+		self.meshes = ArrayPointer(self.context, self.num_meshes, ModelInfo._import_map["ms2.compounds.MeshDataWrap"])
 
 		# points to the start of this ModelInfo's model, usually starts at materials
 		# stays the same for successive mdl2s in the same model; or points to nil if no models are present
@@ -119,10 +119,10 @@ class ModelInfo(MemStruct):
 		yield 'render_flag', RenderFlag, (0, None), (False, None)
 		yield 'unks', Array, (0, None, (7,), Ushort), (False, None)
 		yield 'pad', Array, (0, None, (3,), Ushort), (False, None)
-		yield 'materials', ArrayPointer, (instance.num_materials, ModelInfo._import_path_map["generated.formats.ms2.compounds.MaterialName"]), (False, None)
-		yield 'lods', ArrayPointer, (instance.num_lods, ModelInfo._import_path_map["generated.formats.ms2.compounds.LodInfo"]), (False, None)
-		yield 'objects', ArrayPointer, (instance.num_objects, ModelInfo._import_path_map["generated.formats.ms2.compounds.Object"]), (False, None)
-		yield 'meshes', ArrayPointer, (instance.num_meshes, ModelInfo._import_path_map["generated.formats.ms2.compounds.MeshDataWrap"]), (False, None)
+		yield 'materials', ArrayPointer, (instance.num_materials, ModelInfo._import_map["ms2.compounds.MaterialName"]), (False, None)
+		yield 'lods', ArrayPointer, (instance.num_lods, ModelInfo._import_map["ms2.compounds.LodInfo"]), (False, None)
+		yield 'objects', ArrayPointer, (instance.num_objects, ModelInfo._import_map["ms2.compounds.Object"]), (False, None)
+		yield 'meshes', ArrayPointer, (instance.num_meshes, ModelInfo._import_map["ms2.compounds.MeshDataWrap"]), (False, None)
 		yield 'first_model', Pointer, (0, None), (False, None)
 		if instance.context.version == 13:
 			yield 'zeros', Array, (0, None, (4,), Uint64), (False, None)

@@ -9,7 +9,7 @@ class PathSupport(MemStruct):
 
 	__name__ = 'PathSupport'
 
-	_import_path = 'generated.formats.path.compounds.PathSupport'
+	_import_key = 'path.compounds.PathSupport'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)

@@ -15,7 +15,7 @@ class StreamDebugger(BaseStruct):
 
 	__name__ = 'StreamDebugger'
 
-	_import_path = 'generated.formats.ms2.compounds.StreamDebugger'
+	_import_key = 'ms2.compounds.StreamDebugger'
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

@@ -19,7 +19,7 @@ class TexHeader(MemStruct):
 
 	__name__ = 'TexHeader'
 
-	_import_path = 'generated.formats.tex.compounds.TexHeader'
+	_import_key = 'tex.compounds.TexHeader'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
@@ -42,8 +42,8 @@ class TexHeader(MemStruct):
 		# 0; 1 for PC
 		self.pad = 0
 		self.pad_dla = 0
-		self.buffer_infos = ArrayPointer(self.context, self.stream_count, TexHeader._import_path_map["generated.formats.tex.compounds.TexBuffer"])
-		self.size_info = Pointer(self.context, 0, TexHeader._import_path_map["generated.formats.tex.compounds.SizeInfo"])
+		self.buffer_infos = ArrayPointer(self.context, self.stream_count, TexHeader._import_map["tex.compounds.TexBuffer"])
+		self.size_info = Pointer(self.context, 0, TexHeader._import_map["tex.compounds.SizeInfo"])
 		if set_default:
 			self.set_defaults()
 
@@ -57,10 +57,10 @@ class TexHeader(MemStruct):
 		if instance.context.version >= 19:
 			yield 'zero_1', Uint64, (0, None), (False, None)
 		if 17 <= instance.context.version <= 18:
-			yield 'buffer_infos', ArrayPointer, (instance.stream_count, TexHeader._import_path_map["generated.formats.tex.compounds.TexBufferPc"]), (False, None)
+			yield 'buffer_infos', ArrayPointer, (instance.stream_count, TexHeader._import_map["tex.compounds.TexBufferPc"]), (False, None)
 		if instance.context.version >= 19:
-			yield 'buffer_infos', ArrayPointer, (instance.stream_count, TexHeader._import_path_map["generated.formats.tex.compounds.TexBuffer"]), (False, None)
-			yield 'size_info', Pointer, (0, TexHeader._import_path_map["generated.formats.tex.compounds.SizeInfo"]), (False, None)
+			yield 'buffer_infos', ArrayPointer, (instance.stream_count, TexHeader._import_map["tex.compounds.TexBuffer"]), (False, None)
+			yield 'size_info', Pointer, (0, TexHeader._import_map["tex.compounds.SizeInfo"]), (False, None)
 		if instance.context.version <= 18:
 			yield 'compression_type', DdsTypeCoaster, (0, None), (False, None)
 		if instance.context.version >= 19:

@@ -19,7 +19,7 @@ class ZStringBuffer(BaseStruct):
 
 	__name__ = 'ZStringBuffer'
 
-	_import_path = 'generated.formats.base.compounds.ZStringBuffer'
+	_import_key = 'base.compounds.ZStringBuffer'
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

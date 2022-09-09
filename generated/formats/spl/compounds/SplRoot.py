@@ -13,7 +13,7 @@ class SplRoot(MemStruct):
 
 	__name__ = 'SplRoot'
 
-	_import_path = 'generated.formats.spl.compounds.SplRoot'
+	_import_key = 'spl.compounds.SplRoot'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
@@ -23,14 +23,14 @@ class SplRoot(MemStruct):
 
 		# total length of the interpolated curve, cf blender Spline.calc_length()
 		self.length = 0.0
-		self.spline_data = Pointer(self.context, self.count, SplRoot._import_path_map["generated.formats.spl.compounds.SplData"])
+		self.spline_data = Pointer(self.context, self.count, SplRoot._import_map["spl.compounds.SplData"])
 		if set_default:
 			self.set_defaults()
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'spline_data', Pointer, (instance.count, SplRoot._import_path_map["generated.formats.spl.compounds.SplData"]), (False, None)
+		yield 'spline_data', Pointer, (instance.count, SplRoot._import_map["spl.compounds.SplData"]), (False, None)
 		yield 'count', Ushort, (0, None), (False, None)
 		yield 'sixteen', Ubyte, (0, None), (False, 16)
 		yield 'one', Ubyte, (0, None), (False, 1)

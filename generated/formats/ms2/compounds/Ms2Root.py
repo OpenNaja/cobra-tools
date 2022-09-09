@@ -16,7 +16,7 @@ class Ms2Root(MemStruct):
 
 	__name__ = 'Ms2Root'
 
-	_import_path = 'generated.formats.ms2.compounds.Ms2Root'
+	_import_key = 'ms2.compounds.Ms2Root'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
@@ -36,13 +36,13 @@ class Ms2Root(MemStruct):
 		self.zeros = Array(self.context, 0, None, (0,), Uint)
 
 		# ms2's static buffer_info or empty (if no buffers)
-		self.buffer_infos = ArrayPointer(self.context, self.vertex_buffer_count, Ms2Root._import_path_map["generated.formats.ms2.compounds.BufferInfo"])
+		self.buffer_infos = ArrayPointer(self.context, self.vertex_buffer_count, Ms2Root._import_map["ms2.compounds.BufferInfo"])
 
 		# one for each mdl2
-		self.model_infos = ArrayPointer(self.context, self.mdl_2_count, Ms2Root._import_path_map["generated.formats.ms2.compounds.ModelInfo"])
+		self.model_infos = ArrayPointer(self.context, self.mdl_2_count, Ms2Root._import_map["ms2.compounds.ModelInfo"])
 
 		# data as in get_buffer_presence()
-		self.buffers_presence = ArrayPointer(self.context, self.vertex_buffer_count, Ms2Root._import_path_map["generated.formats.ms2.compounds.BufferPresence"])
+		self.buffers_presence = ArrayPointer(self.context, self.vertex_buffer_count, Ms2Root._import_map["ms2.compounds.BufferPresence"])
 		if set_default:
 			self.set_defaults()
 
@@ -55,6 +55,6 @@ class Ms2Root(MemStruct):
 		yield 'name_count', Ushort, (0, None), (False, None)
 		yield 'stream_count', Short, (0, None), (False, None)
 		yield 'zeros', Array, (0, None, (3,), Uint), (False, None)
-		yield 'buffer_infos', ArrayPointer, (instance.vertex_buffer_count, Ms2Root._import_path_map["generated.formats.ms2.compounds.BufferInfo"]), (False, None)
-		yield 'model_infos', ArrayPointer, (instance.mdl_2_count, Ms2Root._import_path_map["generated.formats.ms2.compounds.ModelInfo"]), (False, None)
-		yield 'buffers_presence', ArrayPointer, (instance.vertex_buffer_count, Ms2Root._import_path_map["generated.formats.ms2.compounds.BufferPresence"]), (False, None)
+		yield 'buffer_infos', ArrayPointer, (instance.vertex_buffer_count, Ms2Root._import_map["ms2.compounds.BufferInfo"]), (False, None)
+		yield 'model_infos', ArrayPointer, (instance.mdl_2_count, Ms2Root._import_map["ms2.compounds.ModelInfo"]), (False, None)
+		yield 'buffers_presence', ArrayPointer, (instance.vertex_buffer_count, Ms2Root._import_map["ms2.compounds.BufferPresence"]), (False, None)

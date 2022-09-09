@@ -14,7 +14,7 @@ class TrackElementData(MemStruct):
 
 	__name__ = 'TrackElementData'
 
-	_import_path = 'generated.formats.trackelement.compounds.TrackElementData'
+	_import_key = 'trackelement.compounds.TrackElementData'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
@@ -28,7 +28,7 @@ class TrackElementData(MemStruct):
 		self.unk_7 = 0
 		self.loop_name = Pointer(self.context, 0, ZString)
 		self.ovl_name = Pointer(self.context, 0, ZString)
-		self.catwalk = Pointer(self.context, 0, TrackElementData._import_path_map["generated.formats.trackelement.compounds.TrackElementSub"])
+		self.catwalk = Pointer(self.context, 0, TrackElementData._import_map["trackelement.compounds.TrackElementSub"])
 		self.optional_catwalk = Pointer(self.context, 0, ZString)
 		if set_default:
 			self.set_defaults()
@@ -38,7 +38,7 @@ class TrackElementData(MemStruct):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'loop_name', Pointer, (0, ZString), (False, None)
 		yield 'ovl_name', Pointer, (0, ZString), (False, None)
-		yield 'catwalk', Pointer, (0, TrackElementData._import_path_map["generated.formats.trackelement.compounds.TrackElementSub"]), (False, None)
+		yield 'catwalk', Pointer, (0, TrackElementData._import_map["trackelement.compounds.TrackElementSub"]), (False, None)
 		yield 'unk_0', Uint64, (0, None), (False, None)
 		yield 'optional_catwalk', Pointer, (0, ZString), (False, None)
 		yield 'unk_1', Uint64, (0, None), (False, None)

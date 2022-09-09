@@ -14,7 +14,7 @@ class VoxelskirtRoot(MemStruct):
 
 	__name__ = 'VoxelskirtRoot'
 
-	_import_path = 'generated.formats.voxelskirt.compounds.VoxelskirtRoot'
+	_import_key = 'voxelskirt.compounds.VoxelskirtRoot'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
@@ -34,11 +34,11 @@ class VoxelskirtRoot(MemStruct):
 
 		# x*y*4, for PC only
 		self.weights_offset = 0
-		self.layers = DataSlot(self.context, 0, VoxelskirtRoot._import_path_map["generated.formats.voxelskirt.compounds.Layer"])
-		self.areas = DataSlot(self.context, 0, VoxelskirtRoot._import_path_map["generated.formats.voxelskirt.compounds.Area"])
-		self.entity_groups = DataSlot(self.context, 0, VoxelskirtRoot._import_path_map["generated.formats.voxelskirt.compounds.EntityGroup"])
-		self.materials = DataSlot(self.context, 0, VoxelskirtRoot._import_path_map["generated.formats.voxelskirt.compounds.Material"])
-		self.names = DataSlot(self.context, 0, VoxelskirtRoot._import_path_map["generated.formats.voxelskirt.compounds.Name"])
+		self.layers = DataSlot(self.context, 0, VoxelskirtRoot._import_map["voxelskirt.compounds.Layer"])
+		self.areas = DataSlot(self.context, 0, VoxelskirtRoot._import_map["voxelskirt.compounds.Area"])
+		self.entity_groups = DataSlot(self.context, 0, VoxelskirtRoot._import_map["voxelskirt.compounds.EntityGroup"])
+		self.materials = DataSlot(self.context, 0, VoxelskirtRoot._import_map["voxelskirt.compounds.Material"])
+		self.names = DataSlot(self.context, 0, VoxelskirtRoot._import_map["voxelskirt.compounds.Name"])
 		if set_default:
 			self.set_defaults()
 
@@ -55,8 +55,8 @@ class VoxelskirtRoot(MemStruct):
 			yield 'height_offset', Uint64, (0, None), (False, None)
 			yield 'weights_offset', Uint64, (0, None), (False, None)
 		if not (instance.context.version == 18):
-			yield 'layers', DataSlot, (0, VoxelskirtRoot._import_path_map["generated.formats.voxelskirt.compounds.Layer"]), (False, None)
-			yield 'areas', DataSlot, (0, VoxelskirtRoot._import_path_map["generated.formats.voxelskirt.compounds.Area"]), (False, None)
-		yield 'entity_groups', DataSlot, (0, VoxelskirtRoot._import_path_map["generated.formats.voxelskirt.compounds.EntityGroup"]), (False, None)
-		yield 'materials', DataSlot, (0, VoxelskirtRoot._import_path_map["generated.formats.voxelskirt.compounds.Material"]), (False, None)
-		yield 'names', DataSlot, (0, VoxelskirtRoot._import_path_map["generated.formats.voxelskirt.compounds.Name"]), (False, None)
+			yield 'layers', DataSlot, (0, VoxelskirtRoot._import_map["voxelskirt.compounds.Layer"]), (False, None)
+			yield 'areas', DataSlot, (0, VoxelskirtRoot._import_map["voxelskirt.compounds.Area"]), (False, None)
+		yield 'entity_groups', DataSlot, (0, VoxelskirtRoot._import_map["voxelskirt.compounds.EntityGroup"]), (False, None)
+		yield 'materials', DataSlot, (0, VoxelskirtRoot._import_map["voxelskirt.compounds.Material"]), (False, None)
+		yield 'names', DataSlot, (0, VoxelskirtRoot._import_map["voxelskirt.compounds.Name"]), (False, None)

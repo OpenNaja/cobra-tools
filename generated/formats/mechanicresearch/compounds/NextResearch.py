@@ -9,7 +9,7 @@ class NextResearch(MemStruct):
 
 	__name__ = 'NextResearch'
 
-	_import_path = 'generated.formats.mechanicresearch.compounds.NextResearch'
+	_import_key = 'mechanicresearch.compounds.NextResearch'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)

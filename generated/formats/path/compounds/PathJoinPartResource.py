@@ -11,7 +11,7 @@ class PathJoinPartResource(MemStruct):
 
 	__name__ = 'PathJoinPartResource'
 
-	_import_path = 'generated.formats.path.compounds.PathJoinPartResource'
+	_import_key = 'path.compounds.PathJoinPartResource'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
@@ -25,11 +25,11 @@ class PathJoinPartResource(MemStruct):
 		self.num_points_2_copy = 0
 		self.num_points_3 = 0
 		self.padding_2 = 0
-		self.unk_points_1 = Pointer(self.context, self.num_points_1, PathJoinPartResource._import_path_map["generated.formats.path.compounds.PointsList"])
-		self.unk_points_2 = Pointer(self.context, self.num_points_2, PathJoinPartResource._import_path_map["generated.formats.path.compounds.PointsList"])
-		self.unk_vector = ArrayPointer(self.context, 1, PathJoinPartResource._import_path_map["generated.formats.path.compounds.Vector4"])
+		self.unk_points_1 = Pointer(self.context, self.num_points_1, PathJoinPartResource._import_map["path.compounds.PointsList"])
+		self.unk_points_2 = Pointer(self.context, self.num_points_2, PathJoinPartResource._import_map["path.compounds.PointsList"])
+		self.unk_vector = ArrayPointer(self.context, 1, PathJoinPartResource._import_map["path.compounds.Vector4"])
 		self.unk_shorts = ArrayPointer(self.context, 8, Ushort)
-		self.unk_points_3 = Pointer(self.context, self.num_points_3, PathJoinPartResource._import_path_map["generated.formats.path.compounds.PointsList"])
+		self.unk_points_3 = Pointer(self.context, self.num_points_3, PathJoinPartResource._import_map["path.compounds.PointsList"])
 		self.pathresource = Pointer(self.context, 0, ZString)
 		if set_default:
 			self.set_defaults()
@@ -37,11 +37,11 @@ class PathJoinPartResource(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'unk_points_1', Pointer, (instance.num_points_1, PathJoinPartResource._import_path_map["generated.formats.path.compounds.PointsList"]), (False, None)
-		yield 'unk_points_2', Pointer, (instance.num_points_2, PathJoinPartResource._import_path_map["generated.formats.path.compounds.PointsList"]), (False, None)
-		yield 'unk_vector', ArrayPointer, (1, PathJoinPartResource._import_path_map["generated.formats.path.compounds.Vector4"]), (False, None)
+		yield 'unk_points_1', Pointer, (instance.num_points_1, PathJoinPartResource._import_map["path.compounds.PointsList"]), (False, None)
+		yield 'unk_points_2', Pointer, (instance.num_points_2, PathJoinPartResource._import_map["path.compounds.PointsList"]), (False, None)
+		yield 'unk_vector', ArrayPointer, (1, PathJoinPartResource._import_map["path.compounds.Vector4"]), (False, None)
 		yield 'unk_shorts', ArrayPointer, (8, Ushort), (False, None)
-		yield 'unk_points_3', Pointer, (instance.num_points_3, PathJoinPartResource._import_path_map["generated.formats.path.compounds.PointsList"]), (False, None)
+		yield 'unk_points_3', Pointer, (instance.num_points_3, PathJoinPartResource._import_map["path.compounds.PointsList"]), (False, None)
 		yield 'padding_1', Uint64, (0, None), (True, 0)
 		yield 'pathresource', Pointer, (0, ZString), (False, None)
 		yield 'unk_byte_1', Byte, (0, None), (False, None)

@@ -9,7 +9,7 @@ class Cylinder(Capsule):
 
 	__name__ = 'Cylinder'
 
-	_import_path = 'generated.formats.ms2.compounds.Cylinder'
+	_import_key = 'ms2.compounds.Cylinder'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)

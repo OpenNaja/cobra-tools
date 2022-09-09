@@ -25,7 +25,7 @@ class Header(GenericHeader):
 
 	__name__ = 'Header'
 
-	_import_path = 'generated.formats.ovl.compounds.Header'
+	_import_key = 'ovl.compounds.Header'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)

@@ -13,7 +13,7 @@ class DataStreamResourceData(MemStruct):
 
 	__name__ = 'DataStreamResourceData'
 
-	_import_path = 'generated.formats.motiongraph.compounds.DataStreamResourceData'
+	_import_key = 'motiongraph.compounds.DataStreamResourceData'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)

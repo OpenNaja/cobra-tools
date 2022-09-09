@@ -13,7 +13,7 @@ class JanitorSettingsRoot(MemStruct):
 
 	__name__ = 'JanitorSettingsRoot'
 
-	_import_path = 'generated.formats.janitorsettings.compounds.JanitorSettingsRoot'
+	_import_key = 'janitorsettings.compounds.JanitorSettingsRoot'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
@@ -70,12 +70,12 @@ class JanitorSettingsRoot(MemStruct):
 		self.unk_30 = 0.0
 		self.unk_31 = 0.0
 		self.unk_32 = 0.0
-		self.array_0 = ArrayPointer(self.context, self.count_0, JanitorSettingsRoot._import_path_map["generated.formats.janitorsettings.compounds.UIntPair"])
-		self.array_1 = ArrayPointer(self.context, self.count_1, JanitorSettingsRoot._import_path_map["generated.formats.janitorsettings.compounds.UIntPair"])
-		self.array_2 = ArrayPointer(self.context, self.count_2, JanitorSettingsRoot._import_path_map["generated.formats.janitorsettings.compounds.UIntPair"])
-		self.array_3 = ArrayPointer(self.context, self.count_3, JanitorSettingsRoot._import_path_map["generated.formats.janitorsettings.compounds.UIntPair"])
-		self.array_4 = ArrayPointer(self.context, self.count_4, JanitorSettingsRoot._import_path_map["generated.formats.janitorsettings.compounds.UIntPair"])
-		self.array_5 = ArrayPointer(self.context, self.count_5, JanitorSettingsRoot._import_path_map["generated.formats.janitorsettings.compounds.UIntPair"])
+		self.array_0 = ArrayPointer(self.context, self.count_0, JanitorSettingsRoot._import_map["janitorsettings.compounds.UIntPair"])
+		self.array_1 = ArrayPointer(self.context, self.count_1, JanitorSettingsRoot._import_map["janitorsettings.compounds.UIntPair"])
+		self.array_2 = ArrayPointer(self.context, self.count_2, JanitorSettingsRoot._import_map["janitorsettings.compounds.UIntPair"])
+		self.array_3 = ArrayPointer(self.context, self.count_3, JanitorSettingsRoot._import_map["janitorsettings.compounds.UIntPair"])
+		self.array_4 = ArrayPointer(self.context, self.count_4, JanitorSettingsRoot._import_map["janitorsettings.compounds.UIntPair"])
+		self.array_5 = ArrayPointer(self.context, self.count_5, JanitorSettingsRoot._import_map["janitorsettings.compounds.UIntPair"])
 		self.array_6 = ArrayPointer(self.context, self.count_6, Uint)
 		self.array_7 = ArrayPointer(self.context, self.count_7, Uint)
 		self.array_8 = ArrayPointer(self.context, self.count_8, Uint)
@@ -91,12 +91,12 @@ class JanitorSettingsRoot(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'array_0', ArrayPointer, (instance.count_0, JanitorSettingsRoot._import_path_map["generated.formats.janitorsettings.compounds.UIntPair"]), (False, None)
-		yield 'array_1', ArrayPointer, (instance.count_1, JanitorSettingsRoot._import_path_map["generated.formats.janitorsettings.compounds.UIntPair"]), (False, None)
-		yield 'array_2', ArrayPointer, (instance.count_2, JanitorSettingsRoot._import_path_map["generated.formats.janitorsettings.compounds.UIntPair"]), (False, None)
-		yield 'array_3', ArrayPointer, (instance.count_3, JanitorSettingsRoot._import_path_map["generated.formats.janitorsettings.compounds.UIntPair"]), (False, None)
-		yield 'array_4', ArrayPointer, (instance.count_4, JanitorSettingsRoot._import_path_map["generated.formats.janitorsettings.compounds.UIntPair"]), (False, None)
-		yield 'array_5', ArrayPointer, (instance.count_5, JanitorSettingsRoot._import_path_map["generated.formats.janitorsettings.compounds.UIntPair"]), (False, None)
+		yield 'array_0', ArrayPointer, (instance.count_0, JanitorSettingsRoot._import_map["janitorsettings.compounds.UIntPair"]), (False, None)
+		yield 'array_1', ArrayPointer, (instance.count_1, JanitorSettingsRoot._import_map["janitorsettings.compounds.UIntPair"]), (False, None)
+		yield 'array_2', ArrayPointer, (instance.count_2, JanitorSettingsRoot._import_map["janitorsettings.compounds.UIntPair"]), (False, None)
+		yield 'array_3', ArrayPointer, (instance.count_3, JanitorSettingsRoot._import_map["janitorsettings.compounds.UIntPair"]), (False, None)
+		yield 'array_4', ArrayPointer, (instance.count_4, JanitorSettingsRoot._import_map["janitorsettings.compounds.UIntPair"]), (False, None)
+		yield 'array_5', ArrayPointer, (instance.count_5, JanitorSettingsRoot._import_map["janitorsettings.compounds.UIntPair"]), (False, None)
 		yield 'array_6', ArrayPointer, (instance.count_6, Uint), (False, None)
 		yield 'array_7', ArrayPointer, (instance.count_7, Uint), (False, None)
 		yield 'array_8', ArrayPointer, (instance.count_8, Uint), (False, None)

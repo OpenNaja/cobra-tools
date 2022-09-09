@@ -10,7 +10,7 @@ class ByteVector3(MemStruct):
 
 	__name__ = 'ByteVector3'
 
-	_import_path = 'generated.formats.spl.compounds.ByteVector3'
+	_import_key = 'spl.compounds.ByteVector3'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)

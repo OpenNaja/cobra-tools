@@ -11,15 +11,15 @@ class ParamList(MemStruct):
 
 	__name__ = 'ParamList'
 
-	_import_path = 'generated.formats.renderparameters.compounds.ParamList'
+	_import_key = 'renderparameters.compounds.ParamList'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.ptrs = Array(self.context, 0, ParamList._import_path_map["generated.formats.renderparameters.compounds.Param"], (0,), Pointer)
+		self.ptrs = Array(self.context, 0, ParamList._import_map["renderparameters.compounds.Param"], (0,), Pointer)
 		if set_default:
 			self.set_defaults()
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'ptrs', Array, (0, ParamList._import_path_map["generated.formats.renderparameters.compounds.Param"], (instance.arg,), Pointer), (False, None)
+		yield 'ptrs', Array, (0, ParamList._import_map["renderparameters.compounds.Param"], (instance.arg,), Pointer), (False, None)

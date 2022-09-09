@@ -14,7 +14,7 @@ class UiMovieHeader(MemStruct):
 
 	__name__ = 'UiMovieHeader'
 
-	_import_path = 'generated.formats.uimoviedefinition.compounds.UiMovieHeader'
+	_import_key = 'uimoviedefinition.compounds.UiMovieHeader'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
@@ -39,14 +39,14 @@ class UiMovieHeader(MemStruct):
 		self.category_name = Pointer(self.context, 0, ZString)
 		self.type_name = Pointer(self.context, 0, ZString)
 		self.ptr_0 = Pointer(self.context, 0, None)
-		self.ui_triggers = Pointer(self.context, self.num_ui_triggers, UiMovieHeader._import_path_map["generated.formats.uimoviedefinition.compounds.PtrList"])
+		self.ui_triggers = Pointer(self.context, self.num_ui_triggers, UiMovieHeader._import_map["uimoviedefinition.compounds.PtrList"])
 		self.ptr_1 = Pointer(self.context, 0, None)
-		self.ui_names = Pointer(self.context, self.num_ui_names, UiMovieHeader._import_path_map["generated.formats.uimoviedefinition.compounds.PtrList"])
-		self.assetpkgs = Pointer(self.context, self.num_assetpkgs, UiMovieHeader._import_path_map["generated.formats.uimoviedefinition.compounds.PtrList"])
+		self.ui_names = Pointer(self.context, self.num_ui_names, UiMovieHeader._import_map["uimoviedefinition.compounds.PtrList"])
+		self.assetpkgs = Pointer(self.context, self.num_assetpkgs, UiMovieHeader._import_map["uimoviedefinition.compounds.PtrList"])
 		self.ptr_2 = Pointer(self.context, 0, None)
 		self.list_1 = ArrayPointer(self.context, self.num_list_1, Uint)
 		self.list_2 = ArrayPointer(self.context, self.num_list_2, Uint)
-		self.ui_interfaces = Pointer(self.context, self.num_ui_interfaces, UiMovieHeader._import_path_map["generated.formats.uimoviedefinition.compounds.PtrList"])
+		self.ui_interfaces = Pointer(self.context, self.num_ui_interfaces, UiMovieHeader._import_map["uimoviedefinition.compounds.PtrList"])
 		self.ptr_3 = Pointer(self.context, 0, None)
 		if set_default:
 			self.set_defaults()
@@ -75,12 +75,12 @@ class UiMovieHeader(MemStruct):
 		yield 'u_4', Ubyte, (0, None), (False, None)
 		yield 'u_5', Ubyte, (0, None), (False, None)
 		yield 'ptr_0', Pointer, (0, None), (False, None)
-		yield 'ui_triggers', Pointer, (instance.num_ui_triggers, UiMovieHeader._import_path_map["generated.formats.uimoviedefinition.compounds.PtrList"]), (False, None)
+		yield 'ui_triggers', Pointer, (instance.num_ui_triggers, UiMovieHeader._import_map["uimoviedefinition.compounds.PtrList"]), (False, None)
 		yield 'ptr_1', Pointer, (0, None), (False, None)
-		yield 'ui_names', Pointer, (instance.num_ui_names, UiMovieHeader._import_path_map["generated.formats.uimoviedefinition.compounds.PtrList"]), (False, None)
-		yield 'assetpkgs', Pointer, (instance.num_assetpkgs, UiMovieHeader._import_path_map["generated.formats.uimoviedefinition.compounds.PtrList"]), (False, None)
+		yield 'ui_names', Pointer, (instance.num_ui_names, UiMovieHeader._import_map["uimoviedefinition.compounds.PtrList"]), (False, None)
+		yield 'assetpkgs', Pointer, (instance.num_assetpkgs, UiMovieHeader._import_map["uimoviedefinition.compounds.PtrList"]), (False, None)
 		yield 'ptr_2', Pointer, (0, None), (False, None)
 		yield 'list_1', ArrayPointer, (instance.num_list_1, Uint), (False, None)
 		yield 'list_2', ArrayPointer, (instance.num_list_2, Uint), (False, None)
-		yield 'ui_interfaces', Pointer, (instance.num_ui_interfaces, UiMovieHeader._import_path_map["generated.formats.uimoviedefinition.compounds.PtrList"]), (False, None)
+		yield 'ui_interfaces', Pointer, (instance.num_ui_interfaces, UiMovieHeader._import_map["uimoviedefinition.compounds.PtrList"]), (False, None)
 		yield 'ptr_3', Pointer, (0, None), (False, None)

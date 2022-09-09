@@ -7,13 +7,13 @@ class CinematicRoot(MemStruct):
 
 	__name__ = 'CinematicRoot'
 
-	_import_path = 'generated.formats.cinematic.compounds.CinematicRoot'
+	_import_key = 'cinematic.compounds.CinematicRoot'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		self.u_0 = 0
 		self.u_1 = 0
-		self.data = Pointer(self.context, 0, CinematicRoot._import_path_map["generated.formats.cinematic.compounds.CinematicData"])
+		self.data = Pointer(self.context, 0, CinematicRoot._import_map["cinematic.compounds.CinematicData"])
 		if set_default:
 			self.set_defaults()
 
@@ -22,4 +22,4 @@ class CinematicRoot(MemStruct):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'u_0', Uint64, (0, None), (False, None)
 		yield 'u_1', Uint64, (0, None), (False, None)
-		yield 'data', Pointer, (0, CinematicRoot._import_path_map["generated.formats.cinematic.compounds.CinematicData"]), (False, None)
+		yield 'data', Pointer, (0, CinematicRoot._import_map["cinematic.compounds.CinematicData"]), (False, None)

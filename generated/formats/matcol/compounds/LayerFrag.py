@@ -9,7 +9,7 @@ class LayerFrag(MemStruct):
 
 	__name__ = 'LayerFrag'
 
-	_import_path = 'generated.formats.matcol.compounds.LayerFrag'
+	_import_key = 'matcol.compounds.LayerFrag'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
@@ -20,8 +20,8 @@ class LayerFrag(MemStruct):
 		self.u_3 = 0
 		self.attrib_count = 0
 		self.layer_name = Pointer(self.context, 0, ZString)
-		self.infos = ArrayPointer(self.context, self.info_count, LayerFrag._import_path_map["generated.formats.matcol.compounds.Info"])
-		self.attribs = ArrayPointer(self.context, self.attrib_count, LayerFrag._import_path_map["generated.formats.matcol.compounds.Attrib"])
+		self.infos = ArrayPointer(self.context, self.info_count, LayerFrag._import_map["matcol.compounds.Info"])
+		self.attribs = ArrayPointer(self.context, self.attrib_count, LayerFrag._import_map["matcol.compounds.Attrib"])
 		if set_default:
 			self.set_defaults()
 
@@ -31,9 +31,9 @@ class LayerFrag(MemStruct):
 		yield 'layer_name', Pointer, (0, ZString), (False, None)
 		yield 'u_0', Uint64, (0, None), (False, None)
 		yield 'u_1', Uint64, (0, None), (False, None)
-		yield 'infos', ArrayPointer, (instance.info_count, LayerFrag._import_path_map["generated.formats.matcol.compounds.Info"]), (False, None)
+		yield 'infos', ArrayPointer, (instance.info_count, LayerFrag._import_map["matcol.compounds.Info"]), (False, None)
 		yield 'info_count', Uint64, (0, None), (False, None)
 		yield 'u_2', Uint64, (0, None), (False, None)
 		yield 'u_3', Uint64, (0, None), (False, None)
-		yield 'attribs', ArrayPointer, (instance.attrib_count, LayerFrag._import_path_map["generated.formats.matcol.compounds.Attrib"]), (False, None)
+		yield 'attribs', ArrayPointer, (instance.attrib_count, LayerFrag._import_map["matcol.compounds.Attrib"]), (False, None)
 		yield 'attrib_count', Uint64, (0, None), (False, None)

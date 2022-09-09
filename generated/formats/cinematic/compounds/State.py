@@ -12,7 +12,7 @@ class State(MemStruct):
 
 	__name__ = 'State'
 
-	_import_path = 'generated.formats.cinematic.compounds.State'
+	_import_key = 'cinematic.compounds.State'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
@@ -23,7 +23,7 @@ class State(MemStruct):
 		self.abstract_name = Pointer(self.context, 0, ZString)
 		self.concrete_name = Pointer(self.context, 0, ZString)
 		self.debug_name = Pointer(self.context, 0, ZString)
-		self.events_list = Pointer(self.context, 0, State._import_path_map["generated.formats.cinematic.compounds.EventsList"])
+		self.events_list = Pointer(self.context, 0, State._import_map["cinematic.compounds.EventsList"])
 		if set_default:
 			self.set_defaults()
 
@@ -36,5 +36,5 @@ class State(MemStruct):
 		yield 'a', Uint64, (0, None), (False, None)
 		yield 'b', Uint64, (0, None), (False, None)
 		yield 'c', Uint64, (0, None), (False, None)
-		yield 'events_list', Pointer, (0, State._import_path_map["generated.formats.cinematic.compounds.EventsList"]), (False, None)
+		yield 'events_list', Pointer, (0, State._import_map["cinematic.compounds.EventsList"]), (False, None)
 		yield 'd', Uint64, (0, None), (False, None)

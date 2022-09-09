@@ -13,13 +13,13 @@ class Some(MemStruct):
 
 	__name__ = 'Some'
 
-	_import_path = 'generated.formats.logicalcontrols.compounds.Some'
+	_import_key = 'logicalcontrols.compounds.Some'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		self.some_count = 0
 		self.some_name = Pointer(self.context, 0, ZString)
-		self.some_data = ArrayPointer(self.context, self.some_count, Some._import_path_map["generated.formats.logicalcontrols.compounds.SomeData"])
+		self.some_data = ArrayPointer(self.context, self.some_count, Some._import_map["logicalcontrols.compounds.SomeData"])
 		if set_default:
 			self.set_defaults()
 
@@ -27,5 +27,5 @@ class Some(MemStruct):
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'some_name', Pointer, (0, ZString), (False, None)
-		yield 'some_data', ArrayPointer, (instance.some_count, Some._import_path_map["generated.formats.logicalcontrols.compounds.SomeData"]), (False, None)
+		yield 'some_data', ArrayPointer, (instance.some_count, Some._import_map["logicalcontrols.compounds.SomeData"]), (False, None)
 		yield 'some_count', Uint64, (0, None), (False, None)

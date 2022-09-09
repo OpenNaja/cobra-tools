@@ -11,7 +11,7 @@ class TwoPtrFirst(MemStruct):
 
 	__name__ = 'TwoPtrFirst'
 
-	_import_path = 'generated.formats.motiongraph.compounds.TwoPtrFirst'
+	_import_key = 'motiongraph.compounds.TwoPtrFirst'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)

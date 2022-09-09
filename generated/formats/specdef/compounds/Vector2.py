@@ -11,7 +11,7 @@ class Vector2(MemStruct):
 
 	__name__ = 'Vector2'
 
-	_import_path = 'generated.formats.specdef.compounds.Vector2'
+	_import_key = 'specdef.compounds.Vector2'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)

@@ -11,12 +11,12 @@ class DataStreamResourceDataList(MemStruct):
 
 	__name__ = 'DataStreamResourceDataList'
 
-	_import_path = 'generated.formats.motiongraph.compounds.DataStreamResourceDataList'
+	_import_key = 'motiongraph.compounds.DataStreamResourceDataList'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		self.count = 0
-		self.data_stream_resource_data = Pointer(self.context, self.count, DataStreamResourceDataList._import_path_map["generated.formats.motiongraph.compounds.DataStreamResourceDataPoints"])
+		self.data_stream_resource_data = Pointer(self.context, self.count, DataStreamResourceDataList._import_map["motiongraph.compounds.DataStreamResourceDataPoints"])
 		if set_default:
 			self.set_defaults()
 
@@ -24,4 +24,4 @@ class DataStreamResourceDataList(MemStruct):
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'count', Uint64, (0, None), (False, None)
-		yield 'data_stream_resource_data', Pointer, (instance.count, DataStreamResourceDataList._import_path_map["generated.formats.motiongraph.compounds.DataStreamResourceDataPoints"]), (False, None)
+		yield 'data_stream_resource_data', Pointer, (instance.count, DataStreamResourceDataList._import_map["motiongraph.compounds.DataStreamResourceDataPoints"]), (False, None)

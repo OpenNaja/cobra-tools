@@ -9,7 +9,7 @@ class Research(MemStruct):
 
 	__name__ = 'Research'
 
-	_import_path = 'generated.formats.mechanicresearch.compounds.Research'
+	_import_key = 'mechanicresearch.compounds.Research'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
@@ -20,7 +20,7 @@ class Research(MemStruct):
 		self.unk_3 = 0
 		self.unk_4 = 0
 		self.item_name = Pointer(self.context, 0, ZString)
-		self.next_research = Pointer(self.context, self.next_research_count, Research._import_path_map["generated.formats.mechanicresearch.compounds.NextResearch"])
+		self.next_research = Pointer(self.context, self.next_research_count, Research._import_map["mechanicresearch.compounds.NextResearch"])
 		if set_default:
 			self.set_defaults()
 
@@ -31,7 +31,7 @@ class Research(MemStruct):
 		yield 'unk_0', Uint, (0, None), (False, None)
 		yield 'is_entry_level', Uint, (0, None), (False, None)
 		yield 'unk_2', Uint64, (0, None), (False, None)
-		yield 'next_research', Pointer, (instance.next_research_count, Research._import_path_map["generated.formats.mechanicresearch.compounds.NextResearch"]), (False, None)
+		yield 'next_research', Pointer, (instance.next_research_count, Research._import_map["mechanicresearch.compounds.NextResearch"]), (False, None)
 		yield 'next_research_count', Uint64, (0, None), (False, None)
 		yield 'unk_3', Uint64, (0, None), (False, None)
 		yield 'unk_4', Uint64, (0, None), (False, None)

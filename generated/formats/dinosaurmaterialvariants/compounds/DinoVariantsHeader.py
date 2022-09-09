@@ -14,7 +14,7 @@ class DinoVariantsHeader(MemStruct):
 
 	__name__ = 'DinoVariantsHeader'
 
-	_import_path = 'generated.formats.dinosaurmaterialvariants.compounds.DinoVariantsHeader'
+	_import_key = 'dinosaurmaterialvariants.compounds.DinoVariantsHeader'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
@@ -23,7 +23,7 @@ class DinoVariantsHeader(MemStruct):
 		self.zero = 0
 		self.fgm_name = Pointer(self.context, 0, ZStringObfuscated)
 		self.set_name = Pointer(self.context, 0, ZString)
-		self.variants = Pointer(self.context, self.variant_count, DinoVariantsHeader._import_path_map["generated.formats.dinosaurmaterialvariants.compounds.VariantArray"])
+		self.variants = Pointer(self.context, self.variant_count, DinoVariantsHeader._import_map["dinosaurmaterialvariants.compounds.VariantArray"])
 		if set_default:
 			self.set_defaults()
 
@@ -33,6 +33,6 @@ class DinoVariantsHeader(MemStruct):
 		yield 'fgm_name', Pointer, (0, ZStringObfuscated), (False, None)
 		yield 'has_sets', Uint64, (0, None), (False, None)
 		yield 'set_name', Pointer, (0, ZString), (False, None)
-		yield 'variants', Pointer, (instance.variant_count, DinoVariantsHeader._import_path_map["generated.formats.dinosaurmaterialvariants.compounds.VariantArray"]), (False, None)
+		yield 'variants', Pointer, (instance.variant_count, DinoVariantsHeader._import_map["dinosaurmaterialvariants.compounds.VariantArray"]), (False, None)
 		yield 'variant_count', Uint64, (0, None), (False, None)
 		yield 'zero', Uint64, (0, None), (False, None)

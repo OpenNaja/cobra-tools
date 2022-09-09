@@ -13,7 +13,7 @@ class UACJoint(BaseStruct):
 
 	__name__ = 'UACJoint'
 
-	_import_path = 'generated.formats.ms2.compounds.UACJoint'
+	_import_key = 'ms2.compounds.UACJoint'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)

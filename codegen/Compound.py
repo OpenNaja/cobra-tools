@@ -37,7 +37,7 @@ class Compound(BaseClass):
             super().write(f)
 
             self.write_line(f)
-            self.write_line(f, 1, f"_import_path = '{Imports.import_from_module_path(self.parser.path_dict[self.class_name])}'")
+            self.write_line(f, 1, f"_import_key = '{Imports.import_map_key(self.parser.path_dict[self.class_name])}'")
 
             # check all fields/members in this class and write them as fields
             # for union in self.field_unions.values():

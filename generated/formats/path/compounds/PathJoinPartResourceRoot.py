@@ -7,17 +7,17 @@ class PathJoinPartResourceRoot(MemStruct):
 
 	__name__ = 'PathJoinPartResourceRoot'
 
-	_import_path = 'generated.formats.path.compounds.PathJoinPartResourceRoot'
+	_import_key = 'path.compounds.PathJoinPartResourceRoot'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		self.num_res = 0
-		self.resources_list = Pointer(self.context, self.num_res, PathJoinPartResourceRoot._import_path_map["generated.formats.path.compounds.PathJoinPartResourceList"])
+		self.resources_list = Pointer(self.context, self.num_res, PathJoinPartResourceRoot._import_map["path.compounds.PathJoinPartResourceList"])
 		if set_default:
 			self.set_defaults()
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'resources_list', Pointer, (instance.num_res, PathJoinPartResourceRoot._import_path_map["generated.formats.path.compounds.PathJoinPartResourceList"]), (False, None)
+		yield 'resources_list', Pointer, (instance.num_res, PathJoinPartResourceRoot._import_map["path.compounds.PathJoinPartResourceList"]), (False, None)
 		yield 'num_res', Uint64, (0, None), (False, None)

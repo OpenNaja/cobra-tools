@@ -8,7 +8,7 @@ class Layer(MemStruct):
 
 	__name__ = 'Layer'
 
-	_import_path = 'generated.formats.dinosaurmaterialvariants.compounds.Layer'
+	_import_key = 'dinosaurmaterialvariants.compounds.Layer'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)

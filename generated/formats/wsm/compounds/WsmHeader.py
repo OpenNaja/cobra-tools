@@ -14,7 +14,7 @@ class WsmHeader(MemStruct):
 
 	__name__ = 'WsmHeader'
 
-	_import_path = 'generated.formats.wsm.compounds.WsmHeader'
+	_import_key = 'wsm.compounds.WsmHeader'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
@@ -25,8 +25,8 @@ class WsmHeader(MemStruct):
 
 		# unk
 		self.unknowns = Array(self.context, 0, None, (0,), Float)
-		self.locs = ArrayPointer(self.context, self.frame_count, WsmHeader._import_path_map["generated.formats.wsm.compounds.Vector3"])
-		self.quats = ArrayPointer(self.context, self.frame_count, WsmHeader._import_path_map["generated.formats.wsm.compounds.Vector4"])
+		self.locs = ArrayPointer(self.context, self.frame_count, WsmHeader._import_map["wsm.compounds.Vector3"])
+		self.quats = ArrayPointer(self.context, self.frame_count, WsmHeader._import_map["wsm.compounds.Vector4"])
 		if set_default:
 			self.set_defaults()
 
@@ -36,5 +36,5 @@ class WsmHeader(MemStruct):
 		yield 'duration', Float, (0, None), (False, None)
 		yield 'frame_count', Uint, (0, None), (False, None)
 		yield 'unknowns', Array, (0, None, (8,), Float), (False, None)
-		yield 'locs', ArrayPointer, (instance.frame_count, WsmHeader._import_path_map["generated.formats.wsm.compounds.Vector3"]), (False, None)
-		yield 'quats', ArrayPointer, (instance.frame_count, WsmHeader._import_path_map["generated.formats.wsm.compounds.Vector4"]), (False, None)
+		yield 'locs', ArrayPointer, (instance.frame_count, WsmHeader._import_map["wsm.compounds.Vector3"]), (False, None)
+		yield 'quats', ArrayPointer, (instance.frame_count, WsmHeader._import_map["wsm.compounds.Vector4"]), (False, None)

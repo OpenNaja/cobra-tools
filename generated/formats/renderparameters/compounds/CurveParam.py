@@ -10,7 +10,7 @@ class CurveParam(MemStruct):
 
 	__name__ = 'CurveParam'
 
-	_import_path = 'generated.formats.renderparameters.compounds.CurveParam'
+	_import_key = 'renderparameters.compounds.CurveParam'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
@@ -20,7 +20,7 @@ class CurveParam(MemStruct):
 		self.do_interpolation = 0
 		self.count = 0
 		self.attribute_name = Pointer(self.context, 0, ZString)
-		self.curve_entries = Pointer(self.context, self.count, CurveParam._import_path_map["generated.formats.renderparameters.compounds.CurveList"])
+		self.curve_entries = Pointer(self.context, self.count, CurveParam._import_map["renderparameters.compounds.CurveList"])
 		if set_default:
 			self.set_defaults()
 
@@ -30,5 +30,5 @@ class CurveParam(MemStruct):
 		yield 'attribute_name', Pointer, (0, ZString), (False, None)
 		yield 'dtype', Int, (0, None), (False, None)
 		yield 'do_interpolation', Uint, (0, None), (False, None)
-		yield 'curve_entries', Pointer, (instance.count, CurveParam._import_path_map["generated.formats.renderparameters.compounds.CurveList"]), (False, None)
+		yield 'curve_entries', Pointer, (instance.count, CurveParam._import_map["renderparameters.compounds.CurveList"]), (False, None)
 		yield 'count', Uint64, (0, None), (False, None)

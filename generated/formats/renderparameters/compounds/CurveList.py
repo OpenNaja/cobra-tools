@@ -11,15 +11,15 @@ class CurveList(MemStruct):
 
 	__name__ = 'CurveList'
 
-	_import_path = 'generated.formats.renderparameters.compounds.CurveList'
+	_import_key = 'renderparameters.compounds.CurveList'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.ptrs = Array(self.context, 0, CurveList._import_path_map["generated.formats.renderparameters.compounds.KeyPoint"], (0,), Pointer)
+		self.ptrs = Array(self.context, 0, CurveList._import_map["renderparameters.compounds.KeyPoint"], (0,), Pointer)
 		if set_default:
 			self.set_defaults()
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'ptrs', Array, (0, CurveList._import_path_map["generated.formats.renderparameters.compounds.KeyPoint"], (instance.arg,), Pointer), (False, None)
+		yield 'ptrs', Array, (0, CurveList._import_map["renderparameters.compounds.KeyPoint"], (instance.arg,), Pointer), (False, None)

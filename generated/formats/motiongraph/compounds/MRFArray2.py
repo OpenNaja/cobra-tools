@@ -7,7 +7,7 @@ class MRFArray2(MemStruct):
 
 	__name__ = 'MRFArray2'
 
-	_import_path = 'generated.formats.motiongraph.compounds.MRFArray2'
+	_import_key = 'motiongraph.compounds.MRFArray2'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)

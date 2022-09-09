@@ -12,7 +12,7 @@ class Event(MemStruct):
 
 	__name__ = 'Event'
 
-	_import_path = 'generated.formats.cinematic.compounds.Event'
+	_import_key = 'cinematic.compounds.Event'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
@@ -21,7 +21,7 @@ class Event(MemStruct):
 		self.duration = 0.0
 		self.d = 0.0
 		self.module_name = Pointer(self.context, 0, ZString)
-		self.attributes = Pointer(self.context, 0, Event._import_path_map["generated.formats.cinematic.compounds.EventAttributes"])
+		self.attributes = Pointer(self.context, 0, Event._import_map["cinematic.compounds.EventAttributes"])
 		if set_default:
 			self.set_defaults()
 
@@ -31,6 +31,6 @@ class Event(MemStruct):
 		yield 'start_time', Float, (0, None), (False, None)
 		yield 'b', Float, (0, None), (False, None)
 		yield 'module_name', Pointer, (0, ZString), (False, None)
-		yield 'attributes', Pointer, (0, Event._import_path_map["generated.formats.cinematic.compounds.EventAttributes"]), (False, None)
+		yield 'attributes', Pointer, (0, Event._import_map["cinematic.compounds.EventAttributes"]), (False, None)
 		yield 'duration', Float, (0, None), (False, None)
 		yield 'd', Float, (0, None), (False, None)

@@ -20,7 +20,7 @@ class HeaderPointer(BaseStruct):
 
 	__name__ = 'HeaderPointer'
 
-	_import_path = 'generated.formats.ovl.compounds.HeaderPointer'
+	_import_key = 'ovl.compounds.HeaderPointer'
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

@@ -19,7 +19,7 @@ class MeshData(MemStruct):
 
 	__name__ = 'MeshData'
 
-	_import_path = 'generated.formats.ms2.compounds.MeshData'
+	_import_key = 'ms2.compounds.MeshData'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
@@ -31,7 +31,7 @@ class MeshData(MemStruct):
 		self.some_index = 0
 
 		# PZ and JWE use a ptr instead
-		self.stream_info = Pointer(self.context, 0, MeshData._import_path_map["generated.formats.ms2.compounds.BufferInfo"])
+		self.stream_info = Pointer(self.context, 0, MeshData._import_map["ms2.compounds.BufferInfo"])
 		if set_default:
 			self.set_defaults()
 
@@ -41,7 +41,7 @@ class MeshData(MemStruct):
 		if instance.context.version <= 32:
 			yield 'stream_index', Uint64, (0, None), (False, None)
 		if instance.context.version >= 47:
-			yield 'stream_info', Pointer, (0, MeshData._import_path_map["generated.formats.ms2.compounds.BufferInfo"]), (False, None)
+			yield 'stream_info', Pointer, (0, MeshData._import_map["ms2.compounds.BufferInfo"]), (False, None)
 		if not ((instance.context.version == 51) and instance.context.biosyn):
 			yield 'some_index', Uint64, (0, None), (False, None)
 

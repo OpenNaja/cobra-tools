@@ -9,7 +9,7 @@ class SoundSfxVoice(BaseStruct):
 
 	__name__ = 'SoundSfxVoice'
 
-	_import_path = 'generated.formats.bnk.compounds.SoundSfxVoice'
+	_import_key = 'bnk.compounds.SoundSfxVoice'
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

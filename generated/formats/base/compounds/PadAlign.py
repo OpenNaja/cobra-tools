@@ -16,7 +16,7 @@ class PadAlign(BaseStruct):
 
 	__name__ = 'PadAlign'
 
-	_import_path = 'generated.formats.base.compounds.PadAlign'
+	_import_key = 'base.compounds.PadAlign'
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

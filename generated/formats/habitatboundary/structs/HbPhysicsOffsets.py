@@ -11,7 +11,7 @@ class HbPhysicsOffsets(MemStruct):
 
 	__name__ = 'HB_PhysicsOffsets'
 
-	_import_path = 'generated.formats.habitatboundary.structs.HbPhysicsOffsets'
+	_import_key = 'habitatboundary.structs.HbPhysicsOffsets'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)

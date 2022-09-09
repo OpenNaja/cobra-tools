@@ -15,7 +15,7 @@ class SmartPadding(BaseStruct):
 
 	__name__ = 'SmartPadding'
 
-	_import_path = 'generated.formats.ovl_base.compounds.SmartPadding'
+	_import_key = 'ovl_base.compounds.SmartPadding'
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

@@ -8,7 +8,7 @@ class RideSettingsRoot(MemStruct):
 
 	__name__ = 'RideSettingsRoot'
 
-	_import_path = 'generated.formats.ridesettings.compounds.RideSettingsRoot'
+	_import_key = 'ridesettings.compounds.RideSettingsRoot'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
@@ -18,7 +18,7 @@ class RideSettingsRoot(MemStruct):
 		self.pad_0 = 0
 		self.pad_1 = 0
 		self.pad_2 = 0
-		self.array_1 = ArrayPointer(self.context, self.count, RideSettingsRoot._import_path_map["generated.formats.ridesettings.compounds.Pair"])
+		self.array_1 = ArrayPointer(self.context, self.count, RideSettingsRoot._import_map["ridesettings.compounds.Pair"])
 		if set_default:
 			self.set_defaults()
 
@@ -27,7 +27,7 @@ class RideSettingsRoot(MemStruct):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'unk_0', Float, (0, None), (False, None)
 		yield 'unk_1', Uint, (0, None), (False, None)
-		yield 'array_1', ArrayPointer, (instance.count, RideSettingsRoot._import_path_map["generated.formats.ridesettings.compounds.Pair"]), (False, None)
+		yield 'array_1', ArrayPointer, (instance.count, RideSettingsRoot._import_map["ridesettings.compounds.Pair"]), (False, None)
 		yield 'count', Uint, (0, None), (False, None)
 		yield 'pad_0', Uint, (0, None), (False, None)
 		yield 'pad_1', Uint, (0, None), (False, None)

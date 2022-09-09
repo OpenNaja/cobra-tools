@@ -8,7 +8,7 @@ class Pattern(MemStruct):
 
 	__name__ = 'Pattern'
 
-	_import_path = 'generated.formats.dinosaurmaterialvariants.compounds.Pattern'
+	_import_key = 'dinosaurmaterialvariants.compounds.Pattern'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)

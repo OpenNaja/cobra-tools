@@ -8,7 +8,7 @@ class AxisValue(MemStruct):
 
 	__name__ = 'AxisValue'
 
-	_import_path = 'generated.formats.logicalcontrols.compounds.AxisValue'
+	_import_key = 'logicalcontrols.compounds.AxisValue'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)

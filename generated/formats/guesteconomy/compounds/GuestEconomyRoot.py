@@ -42,7 +42,7 @@ class GuestEconomyRoot(MemStruct):
 
 	__name__ = 'GuestEconomyRoot'
 
-	_import_path = 'generated.formats.guesteconomy.compounds.GuestEconomyRoot'
+	_import_key = 'guesteconomy.compounds.GuestEconomyRoot'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)

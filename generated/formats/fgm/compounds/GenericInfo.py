@@ -7,7 +7,7 @@ class GenericInfo(MemStruct):
 
 	__name__ = 'GenericInfo'
 
-	_import_path = 'generated.formats.fgm.compounds.GenericInfo'
+	_import_key = 'fgm.compounds.GenericInfo'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)

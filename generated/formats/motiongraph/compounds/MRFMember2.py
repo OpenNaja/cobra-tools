@@ -13,7 +13,7 @@ class MRFMember2(MemStruct):
 
 	__name__ = 'MRFMember2'
 
-	_import_path = 'generated.formats.motiongraph.compounds.MRFMember2'
+	_import_key = 'motiongraph.compounds.MRFMember2'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
@@ -24,7 +24,7 @@ class MRFMember2(MemStruct):
 		self.count_4 = 0
 		self.count_5 = 0
 		self.count_6 = 0
-		self.transition = Pointer(self.context, 0, MRFMember2._import_path_map["generated.formats.motiongraph.compounds.Transition"])
+		self.transition = Pointer(self.context, 0, MRFMember2._import_map["motiongraph.compounds.Transition"])
 		self.id = Pointer(self.context, 0, ZString)
 		if set_default:
 			self.set_defaults()
@@ -32,7 +32,7 @@ class MRFMember2(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'transition', Pointer, (0, MRFMember2._import_path_map["generated.formats.motiongraph.compounds.Transition"]), (False, None)
+		yield 'transition', Pointer, (0, MRFMember2._import_map["motiongraph.compounds.Transition"]), (False, None)
 		yield 'count_0', Uint64, (0, None), (False, None)
 		yield 'count_1', Uint64, (0, None), (False, None)
 		yield 'count_2', Uint64, (0, None), (False, None)

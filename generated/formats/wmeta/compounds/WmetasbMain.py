@@ -16,7 +16,7 @@ class WmetasbMain(MemStruct):
 
 	__name__ = 'WmetasbMain'
 
-	_import_path = 'generated.formats.wmeta.compounds.WmetasbMain'
+	_import_key = 'wmeta.compounds.WmetasbMain'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
@@ -28,9 +28,9 @@ class WmetasbMain(MemStruct):
 		self.block_name = Pointer(self.context, 0, ZString)
 		self.media_name = Pointer(self.context, 0, ZString)
 		self.bnk_name = Pointer(self.context, 0, ZString)
-		self.events = ArrayPointer(self.context, self.events_count, WmetasbMain._import_path_map["generated.formats.wmeta.compounds.EventEntry"])
+		self.events = ArrayPointer(self.context, self.events_count, WmetasbMain._import_map["wmeta.compounds.EventEntry"])
 		self.hashes = ArrayPointer(self.context, self.hashes_count, Uint)
-		self.media = ArrayPointer(self.context, self.media_count, WmetasbMain._import_path_map["generated.formats.wmeta.compounds.MediaEntry"])
+		self.media = ArrayPointer(self.context, self.media_count, WmetasbMain._import_map["wmeta.compounds.MediaEntry"])
 		self.unused_2 = Pointer(self.context, 0, None)
 		self.unused_3 = Pointer(self.context, 0, None)
 		self.unused_4 = Pointer(self.context, 0, None)
@@ -47,12 +47,12 @@ class WmetasbMain(MemStruct):
 		if instance.context.version <= 18:
 			yield 'media_name', Pointer, (0, ZString), (False, None)
 			yield 'bnk_name', Pointer, (0, ZString), (False, None)
-		yield 'events', ArrayPointer, (instance.events_count, WmetasbMain._import_path_map["generated.formats.wmeta.compounds.EventEntry"]), (False, None)
+		yield 'events', ArrayPointer, (instance.events_count, WmetasbMain._import_map["wmeta.compounds.EventEntry"]), (False, None)
 		yield 'events_count', Uint64, (0, None), (False, None)
 		if instance.context.version <= 18:
 			yield 'hashes', ArrayPointer, (instance.hashes_count, Uint), (False, None)
 			yield 'hashes_count', Uint64, (0, None), (False, None)
-			yield 'media', ArrayPointer, (instance.media_count, WmetasbMain._import_path_map["generated.formats.wmeta.compounds.MediaEntry"]), (False, None)
+			yield 'media', ArrayPointer, (instance.media_count, WmetasbMain._import_map["wmeta.compounds.MediaEntry"]), (False, None)
 			yield 'media_count', Uint64, (0, None), (False, None)
 			yield 'unused_2', Pointer, (0, None), (False, None)
 			yield 'unused_3', Pointer, (0, None), (False, None)

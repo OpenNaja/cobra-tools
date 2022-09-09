@@ -12,18 +12,18 @@ class WorldHeader(MemStruct):
 
 	__name__ = 'WorldHeader'
 
-	_import_path = 'generated.formats.world.compounds.WorldHeader'
+	_import_key = 'world.compounds.WorldHeader'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		self.world_type = 0
 		self.asset_pkg_count = 0
 		self.prefab_count = 0
-		self.asset_pkgs = Pointer(self.context, self.asset_pkg_count, WorldHeader._import_path_map["generated.formats.world.compounds.PtrList"])
+		self.asset_pkgs = Pointer(self.context, self.asset_pkg_count, WorldHeader._import_map["world.compounds.PtrList"])
 		self.lua_name = Pointer(self.context, 0, ZString)
 		self.ptr_0 = Pointer(self.context, 0, None)
 		self.ptr_1 = Pointer(self.context, 0, None)
-		self.prefabs = Pointer(self.context, self.prefab_count, WorldHeader._import_path_map["generated.formats.world.compounds.PtrList"])
+		self.prefabs = Pointer(self.context, self.prefab_count, WorldHeader._import_map["world.compounds.PtrList"])
 		self.ptr_2 = Pointer(self.context, 0, None)
 		self.ptr_3 = Pointer(self.context, 0, None)
 		if set_default:
@@ -33,12 +33,12 @@ class WorldHeader(MemStruct):
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'world_type', Uint64, (0, None), (False, None)
-		yield 'asset_pkgs', Pointer, (instance.asset_pkg_count, WorldHeader._import_path_map["generated.formats.world.compounds.PtrList"]), (False, None)
+		yield 'asset_pkgs', Pointer, (instance.asset_pkg_count, WorldHeader._import_map["world.compounds.PtrList"]), (False, None)
 		yield 'asset_pkg_count', Uint64, (0, None), (False, None)
 		yield 'lua_name', Pointer, (0, ZString), (False, None)
 		yield 'ptr_0', Pointer, (0, None), (False, None)
 		yield 'ptr_1', Pointer, (0, None), (False, None)
-		yield 'prefabs', Pointer, (instance.prefab_count, WorldHeader._import_path_map["generated.formats.world.compounds.PtrList"]), (False, None)
+		yield 'prefabs', Pointer, (instance.prefab_count, WorldHeader._import_map["world.compounds.PtrList"]), (False, None)
 		yield 'ptr_2', Pointer, (0, None), (False, None)
 		yield 'prefab_count', Uint64, (0, None), (False, None)
 		yield 'ptr_3', Pointer, (0, None), (False, None)

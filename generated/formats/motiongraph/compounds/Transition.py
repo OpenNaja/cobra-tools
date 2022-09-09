@@ -14,15 +14,15 @@ class Transition(MemStruct):
 
 	__name__ = 'Transition'
 
-	_import_path = 'generated.formats.motiongraph.compounds.Transition'
+	_import_key = 'motiongraph.compounds.Transition'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		self.count_0 = 0
 		self.count_1 = 0
 		self.count_2 = 0
-		self.ptr_0 = Pointer(self.context, self.count_1, Transition._import_path_map["generated.formats.motiongraph.compounds.PtrList"])
-		self.ptr_1 = Pointer(self.context, self.count_2, Transition._import_path_map["generated.formats.motiongraph.compounds.TransStructArray"])
+		self.ptr_0 = Pointer(self.context, self.count_1, Transition._import_map["motiongraph.compounds.PtrList"])
+		self.ptr_1 = Pointer(self.context, self.count_2, Transition._import_map["motiongraph.compounds.TransStructArray"])
 		self.id = Pointer(self.context, 0, ZString)
 		if set_default:
 			self.set_defaults()
@@ -32,7 +32,7 @@ class Transition(MemStruct):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'count_0', Uint, (0, None), (False, None)
 		yield 'count_1', Uint, (0, None), (False, None)
-		yield 'ptr_0', Pointer, (instance.count_1, Transition._import_path_map["generated.formats.motiongraph.compounds.PtrList"]), (False, None)
+		yield 'ptr_0', Pointer, (instance.count_1, Transition._import_map["motiongraph.compounds.PtrList"]), (False, None)
 		yield 'count_2', Uint64, (0, None), (False, None)
-		yield 'ptr_1', Pointer, (instance.count_2, Transition._import_path_map["generated.formats.motiongraph.compounds.TransStructArray"]), (False, None)
+		yield 'ptr_1', Pointer, (instance.count_2, Transition._import_map["motiongraph.compounds.TransStructArray"]), (False, None)
 		yield 'id', Pointer, (0, ZString), (False, None)

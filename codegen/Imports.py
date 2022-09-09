@@ -100,3 +100,7 @@ class Imports:
     @staticmethod
     def import_from_module_path(module_path):
         return f"generated.{module_path.replace(path.sep, '.')}"
+
+    @staticmethod
+    def import_map_key(module_path):
+        return Imports.import_from_module_path(module_path).replace("generated.formats.", "")

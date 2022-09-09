@@ -12,7 +12,7 @@ class ScaleformlanguagedataRoot(MemStruct):
 
 	__name__ = 'ScaleformlanguagedataRoot'
 
-	_import_path = 'generated.formats.scaleformlanguagedata.compounds.ScaleformlanguagedataRoot'
+	_import_key = 'scaleformlanguagedata.compounds.ScaleformlanguagedataRoot'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
@@ -21,7 +21,7 @@ class ScaleformlanguagedataRoot(MemStruct):
 		self.count = 0
 		self.zero_2 = 0
 		self.zero_3 = 0
-		self.fonts = ArrayPointer(self.context, self.count, ScaleformlanguagedataRoot._import_path_map["generated.formats.scaleformlanguagedata.compounds.FontInfo"])
+		self.fonts = ArrayPointer(self.context, self.count, ScaleformlanguagedataRoot._import_map["scaleformlanguagedata.compounds.FontInfo"])
 		if set_default:
 			self.set_defaults()
 
@@ -30,7 +30,7 @@ class ScaleformlanguagedataRoot(MemStruct):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'zero_0', Uint64, (0, None), (False, None)
 		yield 'zero_1', Uint64, (0, None), (False, None)
-		yield 'fonts', ArrayPointer, (instance.count, ScaleformlanguagedataRoot._import_path_map["generated.formats.scaleformlanguagedata.compounds.FontInfo"]), (False, None)
+		yield 'fonts', ArrayPointer, (instance.count, ScaleformlanguagedataRoot._import_map["scaleformlanguagedata.compounds.FontInfo"]), (False, None)
 		yield 'count', Uint64, (0, None), (False, None)
 		yield 'zero_2', Uint64, (0, None), (False, None)
 		yield 'zero_3', Uint64, (0, None), (False, None)

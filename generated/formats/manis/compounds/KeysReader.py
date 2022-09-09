@@ -14,7 +14,7 @@ class KeysReader(BaseStruct):
 
 	__name__ = 'KeysReader'
 
-	_import_path = 'generated.formats.manis.compounds.KeysReader'
+	_import_key = 'manis.compounds.KeysReader'
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

@@ -9,7 +9,7 @@ class HircPointer(BaseStruct):
 
 	__name__ = 'HircPointer'
 
-	_import_path = 'generated.formats.bnk.compounds.HircPointer'
+	_import_key = 'bnk.compounds.HircPointer'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)

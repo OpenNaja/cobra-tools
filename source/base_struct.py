@@ -16,8 +16,8 @@ class StructMetaClass(type):
 		return super().__new__(metacls, name, bases, dict, **kwds)
 
 	def __init__(cls, name, bases, dict, **kwds):
-		if "_import_path" in dict:
-			cls._import_path_map[dict['_import_path']] = cls
+		if "_import_key" in dict:
+			cls._import_map[dict['_import_key']] = cls
 		super().__init__(name, bases, dict, **kwds)
 
 
@@ -53,7 +53,8 @@ class ImportMap(dict):
 			return dict.__getitem__(self, k)
 		except KeyError:
 			# assume the last part of the module is the same as the name of the class
-			class_module = importlib.import_module(k)
+			# restore full path from import key
+			class_module = importlib.import_module(f"generated.formats.{k}")
 			found_class = getattr(class_module, k.split(".")[-1])
 			self[k] = found_class
 			return self[k]
@@ -63,8 +64,8 @@ class BaseStruct(metaclass=StructMetaClass):
 
 	context = ContextReference()
 
-	_import_path_map = ImportMap()
-	_import_path = "generated.base_struct"
+	_import_map = ImportMap()
+	_import_key = "base_struct"
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''

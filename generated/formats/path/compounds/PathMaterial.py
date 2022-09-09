@@ -9,7 +9,7 @@ class PathMaterial(MemStruct):
 
 	__name__ = 'PathMaterial'
 
-	_import_path = 'generated.formats.path.compounds.PathMaterial'
+	_import_key = 'path.compounds.PathMaterial'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
@@ -25,7 +25,7 @@ class PathMaterial(MemStruct):
 		self.underside_mat_2 = Pointer(self.context, 0, ZString)
 		self.stairs_mat_1 = Pointer(self.context, 0, ZString)
 		self.stairs_mat_2 = Pointer(self.context, 0, ZString)
-		self.mat_data = ArrayPointer(self.context, self.num_data, PathMaterial._import_path_map["generated.formats.path.compounds.PathMaterialData"])
+		self.mat_data = ArrayPointer(self.context, self.num_data, PathMaterial._import_map["path.compounds.PathMaterialData"])
 		if set_default:
 			self.set_defaults()
 
@@ -43,5 +43,5 @@ class PathMaterial(MemStruct):
 		yield 'stairs_mat_1', Pointer, (0, ZString), (False, None)
 		yield 'stairs_mat_2', Pointer, (0, ZString), (False, None)
 		yield 'path_sub_type', Uint64, (0, None), (False, None)
-		yield 'mat_data', ArrayPointer, (instance.num_data, PathMaterial._import_path_map["generated.formats.path.compounds.PathMaterialData"]), (False, None)
+		yield 'mat_data', ArrayPointer, (instance.num_data, PathMaterial._import_map["path.compounds.PathMaterialData"]), (False, None)
 		yield 'num_data', Uint64, (0, None), (False, None)

@@ -17,7 +17,7 @@ class TrackedRideCarRoot(MemStruct):
 
 	__name__ = 'TrackedRideCarRoot'
 
-	_import_path = 'generated.formats.trackedridecar.compounds.TrackedRideCarRoot'
+	_import_key = 'trackedridecar.compounds.TrackedRideCarRoot'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
@@ -26,7 +26,7 @@ class TrackedRideCarRoot(MemStruct):
 		self.vec = Array(self.context, 0, None, (0,), Float)
 		self.zero_0 = 0
 		self.zero_1 = 0
-		self.sub = ArrayPointer(self.context, self.sub_count, TrackedRideCarRoot._import_path_map["generated.formats.trackedridecar.compounds.TrackedRideCarSub"])
+		self.sub = ArrayPointer(self.context, self.sub_count, TrackedRideCarRoot._import_map["trackedridecar.compounds.TrackedRideCarSub"])
 		self.some_name = Pointer(self.context, 0, ZString)
 		if set_default:
 			self.set_defaults()
@@ -34,7 +34,7 @@ class TrackedRideCarRoot(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'sub', ArrayPointer, (instance.sub_count, TrackedRideCarRoot._import_path_map["generated.formats.trackedridecar.compounds.TrackedRideCarSub"]), (False, None)
+		yield 'sub', ArrayPointer, (instance.sub_count, TrackedRideCarRoot._import_map["trackedridecar.compounds.TrackedRideCarSub"]), (False, None)
 		yield 'sub_count', Uint, (0, None), (False, None)
 		yield 'total_vecs_count', Uint, (0, None), (False, None)
 		yield 'vec', Array, (0, None, (3,), Float), (False, None)

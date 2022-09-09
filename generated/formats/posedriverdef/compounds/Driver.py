@@ -15,7 +15,7 @@ class Driver(MemStruct):
 
 	__name__ = 'Driver'
 
-	_import_path = 'generated.formats.posedriverdef.compounds.Driver'
+	_import_key = 'posedriverdef.compounds.Driver'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
@@ -27,7 +27,7 @@ class Driver(MemStruct):
 		self.unk_2 = 0
 		self.joint_name = Pointer(self.context, 0, ZString)
 		self.driven_joint_name = Pointer(self.context, 0, ZString)
-		self.data = Pointer(self.context, 0, Driver._import_path_map["generated.formats.posedriverdef.compounds.Data"])
+		self.data = Pointer(self.context, 0, Driver._import_map["posedriverdef.compounds.Data"])
 		if set_default:
 			self.set_defaults()
 
@@ -41,5 +41,5 @@ class Driver(MemStruct):
 		yield 'd', Uint, (0, None), (False, None)
 		yield 'driven_joint_name', Pointer, (0, ZString), (False, None)
 		yield 'unk_1', Uint64, (0, None), (False, None)
-		yield 'data', Pointer, (0, Driver._import_path_map["generated.formats.posedriverdef.compounds.Data"]), (False, None)
+		yield 'data', Pointer, (0, Driver._import_map["posedriverdef.compounds.Data"]), (False, None)
 		yield 'unk_2', Uint64, (0, None), (False, None)

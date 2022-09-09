@@ -6,7 +6,7 @@ class Name(BaseStruct):
 
 	__name__ = 'Name'
 
-	_import_path = 'generated.formats.voxelskirt.compounds.Name'
+	_import_key = 'voxelskirt.compounds.Name'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)

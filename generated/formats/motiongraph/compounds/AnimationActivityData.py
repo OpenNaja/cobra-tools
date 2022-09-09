@@ -17,7 +17,7 @@ class AnimationActivityData(MemStruct):
 
 	__name__ = 'AnimationActivityData'
 
-	_import_path = 'generated.formats.motiongraph.compounds.AnimationActivityData'
+	_import_key = 'motiongraph.compounds.AnimationActivityData'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)

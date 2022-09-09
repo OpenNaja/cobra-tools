@@ -10,7 +10,7 @@ class BufferPresence(BaseStruct):
 
 	__name__ = 'BufferPresence'
 
-	_import_path = 'generated.formats.ms2.compounds.BufferPresence'
+	_import_key = 'ms2.compounds.BufferPresence'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)

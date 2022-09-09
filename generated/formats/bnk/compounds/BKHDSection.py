@@ -13,7 +13,7 @@ class BKHDSection(BaseStruct):
 
 	__name__ = 'BKHDSection'
 
-	_import_path = 'generated.formats.bnk.compounds.BKHDSection'
+	_import_key = 'bnk.compounds.BKHDSection'
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

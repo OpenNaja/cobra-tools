@@ -13,7 +13,7 @@ class MergedetailsRoot(MemStruct):
 
 	__name__ = 'MergedetailsRoot'
 
-	_import_path = 'generated.formats.mergedetails.compounds.MergedetailsRoot'
+	_import_key = 'mergedetails.compounds.MergedetailsRoot'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
@@ -21,8 +21,8 @@ class MergedetailsRoot(MemStruct):
 		self.zero_1 = 0
 		self.count = 0
 		self.flag = 0
-		self.merge_names = Pointer(self.context, self.count, MergedetailsRoot._import_path_map["generated.formats.mergedetails.compounds.PtrList"])
-		self.queries = Pointer(self.context, self.count, MergedetailsRoot._import_path_map["generated.formats.mergedetails.compounds.PtrList"])
+		self.merge_names = Pointer(self.context, self.count, MergedetailsRoot._import_map["mergedetails.compounds.PtrList"])
+		self.queries = Pointer(self.context, self.count, MergedetailsRoot._import_map["mergedetails.compounds.PtrList"])
 		self.field_name = Pointer(self.context, 0, ZString)
 		if set_default:
 			self.set_defaults()
@@ -30,10 +30,10 @@ class MergedetailsRoot(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'merge_names', Pointer, (instance.count, MergedetailsRoot._import_path_map["generated.formats.mergedetails.compounds.PtrList"]), (False, None)
+		yield 'merge_names', Pointer, (instance.count, MergedetailsRoot._import_map["mergedetails.compounds.PtrList"]), (False, None)
 		yield 'zero_0', Uint64, (0, None), (False, None)
 		yield 'zero_1', Uint64, (0, None), (False, None)
-		yield 'queries', Pointer, (instance.count, MergedetailsRoot._import_path_map["generated.formats.mergedetails.compounds.PtrList"]), (False, None)
+		yield 'queries', Pointer, (instance.count, MergedetailsRoot._import_map["mergedetails.compounds.PtrList"]), (False, None)
 		yield 'field_name', Pointer, (0, ZString), (False, None)
 		yield 'count', Uint, (0, None), (False, None)
 		yield 'flag', Uint, (0, None), (False, None)

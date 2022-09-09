@@ -7,17 +7,17 @@ class EventsList(MemStruct):
 
 	__name__ = 'EventsList'
 
-	_import_path = 'generated.formats.cinematic.compounds.EventsList'
+	_import_key = 'cinematic.compounds.EventsList'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		self.count = 0
-		self.events = ArrayPointer(self.context, self.count, EventsList._import_path_map["generated.formats.cinematic.compounds.Event"])
+		self.events = ArrayPointer(self.context, self.count, EventsList._import_map["cinematic.compounds.Event"])
 		if set_default:
 			self.set_defaults()
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'events', ArrayPointer, (instance.count, EventsList._import_path_map["generated.formats.cinematic.compounds.Event"]), (False, None)
+		yield 'events', ArrayPointer, (instance.count, EventsList._import_map["cinematic.compounds.Event"]), (False, None)
 		yield 'count', Uint64, (0, None), (False, None)

@@ -9,7 +9,7 @@ class FixedString(BaseStruct):
 
 	__name__ = 'FixedString'
 
-	_import_path = 'generated.formats.dds.compounds.FixedString'
+	_import_key = 'dds.compounds.FixedString'
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

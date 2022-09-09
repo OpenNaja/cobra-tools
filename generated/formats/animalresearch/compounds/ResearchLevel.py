@@ -8,15 +8,15 @@ class ResearchLevel(MemStruct):
 
 	__name__ = 'ResearchLevel'
 
-	_import_path = 'generated.formats.animalresearch.compounds.ResearchLevel'
+	_import_key = 'animalresearch.compounds.ResearchLevel'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		self.next_level_count = 0
 		self.children_count = 0
 		self.level_name = Pointer(self.context, 0, ZString)
-		self.next_levels = Pointer(self.context, self.next_level_count, ResearchLevel._import_path_map["generated.formats.animalresearch.compounds.PtrList"])
-		self.children = Pointer(self.context, self.children_count, ResearchLevel._import_path_map["generated.formats.animalresearch.compounds.PtrList"])
+		self.next_levels = Pointer(self.context, self.next_level_count, ResearchLevel._import_map["animalresearch.compounds.PtrList"])
+		self.children = Pointer(self.context, self.children_count, ResearchLevel._import_map["animalresearch.compounds.PtrList"])
 		if set_default:
 			self.set_defaults()
 
@@ -24,7 +24,7 @@ class ResearchLevel(MemStruct):
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'level_name', Pointer, (0, ZString), (False, None)
-		yield 'next_levels', Pointer, (instance.next_level_count, ResearchLevel._import_path_map["generated.formats.animalresearch.compounds.PtrList"]), (False, None)
+		yield 'next_levels', Pointer, (instance.next_level_count, ResearchLevel._import_map["animalresearch.compounds.PtrList"]), (False, None)
 		yield 'next_level_count', Uint64, (0, None), (False, None)
-		yield 'children', Pointer, (instance.children_count, ResearchLevel._import_path_map["generated.formats.animalresearch.compounds.PtrList"]), (False, None)
+		yield 'children', Pointer, (instance.children_count, ResearchLevel._import_map["animalresearch.compounds.PtrList"]), (False, None)
 		yield 'children_count', Uint64, (0, None), (False, None)
