@@ -226,10 +226,10 @@ class Ms2Loader(BaseFile):
 		out_paths = [out_path, ]
 		with BytesIO() as stream:
 			stream.write(ms2_header)
-			self.header.write(stream)
+			self.header.to_stream(stream, self.header)
 			# present since DLA
 			if self.header.buffers_presence.data is not None:
-				self.header.buffers_presence.data.write(stream)
+				self.header.buffers_presence.data.to_stream(stream, self.header.buffers_presence.data)
 			for mdl2_loader in self.children:
 				mdl2_entry = mdl2_loader.file_entry
 				logging.debug(f"Writing {mdl2_entry.name}")
@@ -252,11 +252,11 @@ class Ms2Loader(BaseFile):
 						buffer_info_bytes = wrapper.mesh.stream_info.frag.struct_ptr.data
 						wrapper.mesh.stream_info.offset = buffer_infos.index(buffer_info_bytes)
 				if self.header.buffer_infos.data is not None:
-					self.header.buffer_infos.data.write(stream)
-				self.header.model_infos.data.write(stream)
+					self.header.buffer_infos.data.to_stream(stream, self.header.buffer_infos.data)
+				self.header.model_infos.data.to_stream(stream, self.header.model_infos.data)
 				for model_info in self.header.model_infos.data:
 					for ptr in (model_info.materials, model_info.lods, model_info.objects, model_info.meshes):
-						ptr.data.write(stream)
+						ptr.data.to_stream(stream, ptr.data)
 		
 			with open(out_path, 'wb') as outfile:
 				outfile.write(stream.getvalue())

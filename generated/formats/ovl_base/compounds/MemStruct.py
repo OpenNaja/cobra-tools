@@ -7,31 +7,6 @@ from generated.formats.ovl_base.compounds.Pointer import Pointer
 DEPENDENCY_TAG = "dependency"
 
 
-def indent(e, level=0):
-	i = "\n" + level * "	"
-	if len(e):
-		if not e.text or not e.text.strip():
-			e.text = i + "	"
-		if not e.tail or not e.tail.strip():
-			e.tail = i
-		for e in e:
-			indent(e, level + 1)
-		if not e.tail or not e.tail.strip():
-			e.tail = i
-	else:
-		if level and (not e.tail or not e.tail.strip()):
-			e.tail = i
-
-
-def str_to_bool(s):
-	if s.lower() == 'true':
-		return True
-	elif s.lower() == 'false':
-		return False
-	else:
-		raise ValueError
-
-
 from generated.base_struct import BaseStruct
 
 
@@ -113,6 +88,11 @@ class MemStruct(BaseStruct):
 	def read_ptrs(self, pool):
 		# logging.debug(f"read_ptrs for {self.__class__.__name__}")
 		# get all pointers in this struct
+		for field_name, field_type, arguments, _ in self._get_filtered_attribute_list(self, include_abstract=False):
+			ptr = getattr(self, field_name)
+			if isinstance(ptr, Pointer):
+				ptr.arg, template = arguments
+				self.handle_pointer(field_name, ptr, pool)
 		for prop, ptr in self.get_props_and_ptrs():
 			self.handle_pointer(prop, ptr, pool)
 		# read arrays attached to this memstruct
@@ -123,6 +103,7 @@ class MemStruct(BaseStruct):
 				if isinstance(member, MemStruct):
 					# print("member is a memstruct")
 					member.read_ptrs(pool)
+				# these do not have arg, so no need to patch
 				elif isinstance(member, Pointer):
 					self.handle_pointer(None, member, pool)
 		# continue reading elem-memstructs directly attached to this memstruct

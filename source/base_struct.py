@@ -37,15 +37,6 @@ def indent(e, level=0):
 			e.tail = i
 
 
-def str_to_bool(s):
-	if s.lower() == 'true':
-		return True
-	elif s.lower() == 'false':
-		return False
-	else:
-		raise ValueError
-
-
 class ImportMap(dict):
 
 	def __getitem__(self, k):
