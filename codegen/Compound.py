@@ -51,9 +51,7 @@ class Compound(BaseClass):
                 # classes that this class inherits from have to be read first
                 if self.class_basename:
                     # the standard attributes are handled by the parent class
-                    # todo - needs testing
                     self.write_line(f, 2, "super().__init__(context, arg, template, set_default=False)")
-                    # self.write_line(f, 2, "super().__init__(context, arg, template, set_default)")
                 else:
                     # no inheritance, so set the standard attributes
                     self.write_lines(f, 2, (
