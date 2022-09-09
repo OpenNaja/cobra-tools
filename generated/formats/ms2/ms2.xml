@@ -35,6 +35,13 @@
     <version id="PZ16" version="50" >PZ16</version>
     <version id="JWE2" version="51" >JWE2</version>
 
+    <basic name="BiosynVersion" integral="true" countable="true">
+        An unsigned 32-bit integer.
+    </basic>
+    <basic name="MainVersion" integral="true" countable="true">
+        An unsigned 32-bit integer.
+    </basic>
+
 <!--Count from the end!!!-->
 	<bitfield name="WeightsFlag" storage="ushort">
 		<member width="1" pos="0" name="has_weights" type="bool"/>
@@ -153,7 +160,7 @@
 	<compound name="Ms2Root" inherit="MemStruct">
 		root header of the ms2
 		48 bytes
-		<add name="version" type="uint" >see version tag</add>
+		<add name="version" type="MainVersion" >see version tag</add>
 		<add name="vertex_buffer_count" type="ushort" >total count of vertex buffers, including streamed buffers</add>
 		<add name="mdl2 count" type="ushort"/>
 		<add name="name count" type="ushort" >count of names in ms2 buffer0</add>
@@ -328,7 +335,7 @@
 
 	<compound name="Ms2InfoHeader">
 		Custom header struct
-		<add name="biosyn" type="uint"/>
+		<add name="biosyn" type="BiosynVersion"/>
 		<add name="bone_info_size" type="uint"/>
 		<add name="info" type="MS2Root"/>
 		<add name="buffers_presence" type="BufferPresence" arr1="info \ vertex_buffer_count" since="7">used since DLA</add>

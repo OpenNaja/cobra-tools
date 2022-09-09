@@ -17,6 +17,7 @@ BUFFER_NAMES = ("verts", "tris", "uvs", "tri_chunks", "vert_chunks")
 class Ms2Context:
 	def __init__(self):
 		self.version = 0
+		self.biosyn = 0
 
 	def __repr__(self):
 		return f"{self.version}"

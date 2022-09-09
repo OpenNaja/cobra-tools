@@ -3,6 +3,7 @@ from generated.array import Array
 from generated.formats.base.basic import Short
 from generated.formats.base.basic import Uint
 from generated.formats.base.basic import Ushort
+from generated.formats.ms2.basic import MainVersion
 from generated.formats.ovl_base.compounds.ArrayPointer import ArrayPointer
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
 
@@ -49,7 +50,7 @@ class Ms2Root(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'version', Uint, (0, None), (False, None)
+		yield 'version', MainVersion, (0, None), (False, None)
 		yield 'vertex_buffer_count', Ushort, (0, None), (False, None)
 		yield 'mdl_2_count', Ushort, (0, None), (False, None)
 		yield 'name_count', Ushort, (0, None), (False, None)

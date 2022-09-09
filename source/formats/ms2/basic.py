@@ -19,6 +19,3 @@ class MainVersion(Uint):
 		value = super().from_stream(stream, context, arg, template)
 		context.version = value
 		return value
-
-
-from generated.formats.ovl_base.basic import Byte, Ubyte, Uint64, Int64, Uint, Ushort, Int, Short, Char, Float, Double, ZString, Bool, ZStringObfuscated

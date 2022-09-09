@@ -305,8 +305,8 @@ class BioMeshData(MeshData):
 	def tris(self, list_of_b_tris):
 		# create chunks for each segment in tris
 		self.tris_count = sum(len(tup[1]) for tup in list_of_b_tris)
-		self.vert_chunks = Array((len(list_of_b_tris),), VertChunk, self.context)
-		self.tri_chunks = Array((len(list_of_b_tris),), TriChunk, self.context)
+		self.vert_chunks = Array(self.context, 0, None, (len(list_of_b_tris),), VertChunk,)
+		self.tri_chunks = Array(self.context, 0, None, (len(list_of_b_tris),), TriChunk)
 		for vert_chunk, tri_chunk, (b_bone_id, b_tris) in zip(self.vert_chunks, self.tri_chunks, list_of_b_tris):
 			# logging.info(b_tris)
 			# cast to uint16

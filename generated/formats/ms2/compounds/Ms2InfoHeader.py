@@ -2,6 +2,7 @@ from generated.array import Array
 from generated.base_struct import BaseStruct
 from generated.formats.base.basic import Uint
 from generated.formats.base.basic import ZString
+from generated.formats.ms2.basic import BiosynVersion
 from generated.formats.ms2.compounds.Buffer0 import Buffer0
 from generated.formats.ms2.compounds.BufferInfo import BufferInfo
 from generated.formats.ms2.compounds.BufferPresence import BufferPresence
@@ -42,7 +43,7 @@ class Ms2InfoHeader(BaseStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'biosyn', Uint, (0, None), (False, None)
+		yield 'biosyn', BiosynVersion, (0, None), (False, None)
 		yield 'bone_info_size', Uint, (0, None), (False, None)
 		yield 'info', Ms2Root, (0, None), (False, None)
 		if instance.context.version >= 7:
