@@ -33,6 +33,10 @@ def class_from_struct(struct, from_value_func):
             stream.write(pack(instance))
 
         @staticmethod
+        def get_size(context, instance, arguments=()):
+            return size
+
+        @staticmethod
         def create_array(shape, default=None, context=None, arg=0, template=None):
             if default:
                 return np.full(shape, default, dtype)
@@ -100,6 +104,12 @@ def class_from_struct(struct, from_value_func):
         @staticmethod
         def _to_xml_array(instance, elem, debug):
             elem.text = " ".join([str(member) for member in instance.flat])
+
+        @staticmethod
+        def fmt_member(member, indent=0):
+            lines = str(member).split("\n")
+            lines_new = [lines[0], ] + ["\t" * indent + line for line in lines[1:]]
+            return "\n".join(lines_new)
 
     return ConstructedClass
 
@@ -174,7 +184,7 @@ class ZString:
 
         def write_zstrings(instance):
             # pass empty context
-            return Array.to_stream(stream, instance, instance.shape, cls, None)
+            return Array.to_stream(stream, instance, cls)
 
         return read_zstring, write_zstring, read_zstrings, write_zstrings
 
@@ -185,3 +195,9 @@ class ZString:
     @staticmethod
     def to_xml(elem, prop, instance, arguments, debug):
         elem.attrib[prop] = instance
+
+    @staticmethod
+    def fmt_member(member, indent=0):
+        lines = str(member).split("\n")
+        lines_new = [lines[0], ] + ["\t" * indent + line for line in lines[1:]]
+        return "\n".join(lines_new)

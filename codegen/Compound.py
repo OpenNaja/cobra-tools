@@ -76,90 +76,70 @@ class Compound(BaseClass):
                 self.write_line(f, 2, "if set_default:")
                 self.write_line(f, 3, "self.set_defaults()")
 
-            if "def set_defaults(" not in self.src_code:
-                self.write_line(f)
-                self.write_line(f, 1, "def set_defaults(self):")
-                # todo - needs testing
-                if self.class_basename:
-                    self.write_line(f, 2, f"super().set_defaults()")
-                # self.write_line(f, 2, "print(f'set_defaults {self.__class__.__name__}')")
-                end = f.tell()
-                # write all fields, merge conditions
-                condition = ""
-                # for ovl memory structs, some pointers may have counts that are defined before the count
-                # so for set_defaults, write pointers last
-                for union in self.field_unions:
-                    if not union.is_ovl_ptr():
-                        condition = union.write_defaults(f, condition)
-                for union in self.field_unions:
-                    if union.is_ovl_ptr():
-                        condition = union.write_defaults(f, condition)
-                # if no defaults have been written
-                if f.tell() == end:
-                    self.write_line(f, 2, "pass")
+            # if "def set_defaults(" not in self.src_code:
+            #     self.write_line(f)
+            #     self.write_line(f, 1, "def set_defaults(self):")
+            #     # todo - needs testing
+            #     if self.class_basename:
+            #         self.write_line(f, 2, f"super().set_defaults()")
+            #     # self.write_line(f, 2, "print(f'set_defaults {self.__class__.__name__}')")
+            #     end = f.tell()
+            #     # write all fields, merge conditions
+            #     condition = ""
+            #     # for ovl memory structs, some pointers may have counts that are defined before the count
+            #     # so for set_defaults, write pointers last
+            #     for union in self.field_unions:
+            #         if not union.is_ovl_ptr():
+            #             condition = union.write_defaults(f, condition)
+            #     for union in self.field_unions:
+            #         if union.is_ovl_ptr():
+            #             condition = union.write_defaults(f, condition)
+            #     # if no defaults have been written
+            #     if f.tell() == end:
+            #         self.write_line(f, 2, "pass")
 
             # write the read_fields/write_fields methods
-            for method_type in ("read", "write"):
-                method_str = f"def {method_type}_fields(cls, stream, instance):"
-                if method_str in self.src_code:
-                    continue
-                self.write_line(f)
-                self.write_line(f, 1, '@classmethod')
-                self.write_line(f, 1, method_str)
-                # classes that this class inherits from have to be read/written first
+            # for method_type in ("read", "write"):
+            #     method_str = f"def {method_type}_fields(cls, stream, instance):"
+            #     if method_str in self.src_code:
+            #         continue
+            #     self.write_line(f)
+            #     self.write_line(f, 1, '@classmethod')
+            #     self.write_line(f, 1, method_str)
+            #     # classes that this class inherits from have to be read/written first
 
-                if self.class_basename:
-                    self.write_line(f, 2, f"super().{method_type}_fields(stream, instance)")
+            #     if self.class_basename:
+            #         self.write_line(f, 2, f"super().{method_type}_fields(stream, instance)")
 
-                # write all fields, merge conditions
-                condition = ""
-                for union in self.field_unions:
-                    condition = union.write_io(f, method_type, condition, target_variable="instance")
-                # for ovl memory structs, some pointers may have counts that are defined before the count
-                # so for set_defaults, write pointers last
-                for union in self.field_unions:
-                    if union.is_ovl_ptr():
-                        condition = union.write_arg_update(f, method_type)
-                # handle empty structs
-                if not self.field_unions:
-                    self.write_line(f, 2, "pass")
+            #     # write all fields, merge conditions
+            #     condition = ""
+            #     for union in self.field_unions:
+            #         condition = union.write_io(f, method_type, condition, target_variable="instance")
+            #     # for ovl memory structs, some pointers may have counts that are defined before the count
+            #     # so for set_defaults, write pointers last
+            #     for union in self.field_unions:
+            #         if union.is_ovl_ptr():
+            #             condition = union.write_arg_update(f, method_type)
+            #     # handle empty structs
+            #     if not self.field_unions:
+            #         self.write_line(f, 2, "pass")
 
             # write the _get_filtered_attribute_list method
-            method_str = "def _get_filtered_attribute_list(cls, instance):"
+            method_str = "def _get_filtered_attribute_list(cls, instance, include_abstract=True):"
             if "def _get_filtered_attribute_list(" not in self.src_code:
                 self.write_line(f)
                 self.write_line(f, 1, "@classmethod")
                 self.write_line(f, 1, method_str)
                 condition = ""
                 if self.class_basename:
-                    self.write_line(f, 2, "yield from super()._get_filtered_attribute_list(instance)")
+                    self.write_line(f, 2, "yield from super()._get_filtered_attribute_list(instance, include_abstract)")
                 for union in self.field_unions:
                     condition = union.write_filtered_attributes(f, condition, target_variable="instance")
 
-            if "def __repr__(" not in self.src_code:
+            if "def get_info_str(" not in self.src_code:
                 self.write_line(f)
                 self.write_line(f, 1, "def get_info_str(self, indent=0):")
                 self.write_line(f, 2, f"return f'{self.class_name} [Size: {{self.io_size}}, Address: {{self.io_start}}] {{self.name}}'")
-
-                self.write_line(f)
-                self.write_line(f, 1, "def get_fields_str(self, indent=0):")
-                self.write_line(f, 2, "s = ''")
-                if self.class_basename:
-                    self.write_line(f, 2, "s += super().get_fields_str()")
-                for union in self.field_unions:
-                    # rep = f"self.{union.name}.__repr__(indent+1)"
-                    rep = f"self.fmt_member(self.{union.name}, indent+1)"
-                    self.write_line(f, 2, f"s += f'\\n\t* {union.name} = {{{rep}}}'")
-                self.write_line(f, 2, "return s")
-
-                self.write_line(f)
-                self.write_line(f, 1, "def __repr__(self, indent=0):")
-                self.write_lines(f, 2, (
-                    "s = self.get_info_str(indent)",
-                    "s += self.get_fields_str(indent)",
-                    "s += '\\n'",
-                    "return s"
-                ))
 
             f.write(self.grab_src_snippet("# START_CLASS"))
             self.write_line(f)

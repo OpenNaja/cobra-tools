@@ -19,50 +19,16 @@ class SplData(MemStruct):
 		super().__init__(context, arg, template, set_default=False)
 		self.offset = Vector3(self.context, 0, None)
 		self.scale = 0.0
-		self.keys = Array((0,), Key, self.context, 0, None)
+		self.keys = Array(self.context, 0, None, (0,), Key)
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		self.offset = Vector3(self.context, 0, None)
-		self.scale = 0.0
-		self.keys = Array((self.arg,), Key, self.context, 0, None)
-
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.offset = Vector3.from_stream(stream, instance.context, 0, None)
-		instance.scale = Float.from_stream(stream, instance.context, 0, None)
-		instance.keys = Array.from_stream(stream, instance.context, 0, None, (instance.arg,), Key)
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Vector3.to_stream(stream, instance.offset)
-		Float.to_stream(stream, instance.scale)
-		Array.to_stream(stream, instance.keys, (instance.arg,), Key, instance.context, 0, None)
-
-	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'offset', Vector3, (0, None), (False, None)
 		yield 'scale', Float, (0, None), (False, None)
-		yield 'keys', Array, ((instance.arg,), Key, 0, None), (False, None)
+		yield 'keys', Array, (0, None, (instance.arg,), Key), (False, None)
 
 	def get_info_str(self, indent=0):
 		return f'SplData [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
-
-	def get_fields_str(self, indent=0):
-		s = ''
-		s += super().get_fields_str()
-		s += f'\n	* offset = {self.fmt_member(self.offset, indent+1)}'
-		s += f'\n	* scale = {self.fmt_member(self.scale, indent+1)}'
-		s += f'\n	* keys = {self.fmt_member(self.keys, indent+1)}'
-		return s
-
-	def __repr__(self, indent=0):
-		s = self.get_info_str(indent)
-		s += self.get_fields_str(indent)
-		s += '\n'
-		return s

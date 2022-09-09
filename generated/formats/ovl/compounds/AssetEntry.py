@@ -26,41 +26,9 @@ class AssetEntry(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		self.file_hash = 0
-		self.zero_0 = 0
-		if self.context.version >= 19:
-			self.ext_hash = 0
-			self.zero_1 = 0
-		self.file_index = 0
-		self.zero_2 = 0
-
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.file_hash = Uint.from_stream(stream, instance.context, 0, None)
-		instance.zero_0 = Uint.from_stream(stream, instance.context, 0, None)
-		if instance.context.version >= 19:
-			instance.ext_hash = Uint.from_stream(stream, instance.context, 0, None)
-			instance.zero_1 = Uint.from_stream(stream, instance.context, 0, None)
-		instance.file_index = Uint.from_stream(stream, instance.context, 0, None)
-		instance.zero_2 = Uint.from_stream(stream, instance.context, 0, None)
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Uint.to_stream(stream, instance.file_hash)
-		Uint.to_stream(stream, instance.zero_0)
-		if instance.context.version >= 19:
-			Uint.to_stream(stream, instance.ext_hash)
-			Uint.to_stream(stream, instance.zero_1)
-		Uint.to_stream(stream, instance.file_index)
-		Uint.to_stream(stream, instance.zero_2)
-
-	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'file_hash', Uint, (0, None), (False, None)
 		yield 'zero_0', Uint, (0, None), (False, None)
 		if instance.context.version >= 19:
@@ -71,20 +39,3 @@ class AssetEntry(BaseStruct):
 
 	def get_info_str(self, indent=0):
 		return f'AssetEntry [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
-
-	def get_fields_str(self, indent=0):
-		s = ''
-		s += super().get_fields_str()
-		s += f'\n	* file_hash = {self.fmt_member(self.file_hash, indent+1)}'
-		s += f'\n	* zero_0 = {self.fmt_member(self.zero_0, indent+1)}'
-		s += f'\n	* ext_hash = {self.fmt_member(self.ext_hash, indent+1)}'
-		s += f'\n	* zero_1 = {self.fmt_member(self.zero_1, indent+1)}'
-		s += f'\n	* file_index = {self.fmt_member(self.file_index, indent+1)}'
-		s += f'\n	* zero_2 = {self.fmt_member(self.zero_2, indent+1)}'
-		return s
-
-	def __repr__(self, indent=0):
-		s = self.get_info_str(indent)
-		s += self.get_fields_str(indent)
-		s += '\n'
-		return s

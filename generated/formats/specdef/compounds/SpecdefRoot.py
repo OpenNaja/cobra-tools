@@ -30,73 +30,9 @@ class SpecdefRoot(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		self.attrib_count = 0
-		self.flags = 0
-		self.name_count = 0
-		self.childspec_count = 0
-		self.manager_count = 0
-		self.script_count = 0
-		self.attribs = ArrayPointer(self.context, self.attrib_count, SpecdefRoot._import_path_map["generated.formats.specdef.compounds.Spec"])
-		self.name_foreach_attribs = ForEachPointer(self.context, self.attribs, SpecdefRoot._import_path_map["generated.formats.specdef.compounds.NamePtr"])
-		self.data_foreach_attribs = ForEachPointer(self.context, self.attribs, SpecdefRoot._import_path_map["generated.formats.specdef.compounds.DataPtr"])
-		self.names = Pointer(self.context, self.name_count, SpecdefRoot._import_path_map["generated.formats.specdef.compounds.PtrList"])
-		self.childspecs = Pointer(self.context, self.childspec_count, SpecdefRoot._import_path_map["generated.formats.specdef.compounds.PtrList"])
-		self.managers = Pointer(self.context, self.manager_count, SpecdefRoot._import_path_map["generated.formats.specdef.compounds.PtrList"])
-		self.scripts = Pointer(self.context, self.script_count, SpecdefRoot._import_path_map["generated.formats.specdef.compounds.PtrList"])
-
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.attrib_count = Ushort.from_stream(stream, instance.context, 0, None)
-		instance.flags = Ushort.from_stream(stream, instance.context, 0, None)
-		instance.name_count = Ubyte.from_stream(stream, instance.context, 0, None)
-		instance.childspec_count = Ubyte.from_stream(stream, instance.context, 0, None)
-		instance.manager_count = Ubyte.from_stream(stream, instance.context, 0, None)
-		instance.script_count = Ubyte.from_stream(stream, instance.context, 0, None)
-		instance.attribs = ArrayPointer.from_stream(stream, instance.context, instance.attrib_count, SpecdefRoot._import_path_map["generated.formats.specdef.compounds.Spec"])
-		instance.name_foreach_attribs = ForEachPointer.from_stream(stream, instance.context, instance.attribs, SpecdefRoot._import_path_map["generated.formats.specdef.compounds.NamePtr"])
-		instance.data_foreach_attribs = ForEachPointer.from_stream(stream, instance.context, instance.attribs, SpecdefRoot._import_path_map["generated.formats.specdef.compounds.DataPtr"])
-		instance.names = Pointer.from_stream(stream, instance.context, instance.name_count, SpecdefRoot._import_path_map["generated.formats.specdef.compounds.PtrList"])
-		instance.childspecs = Pointer.from_stream(stream, instance.context, instance.childspec_count, SpecdefRoot._import_path_map["generated.formats.specdef.compounds.PtrList"])
-		instance.managers = Pointer.from_stream(stream, instance.context, instance.manager_count, SpecdefRoot._import_path_map["generated.formats.specdef.compounds.PtrList"])
-		instance.scripts = Pointer.from_stream(stream, instance.context, instance.script_count, SpecdefRoot._import_path_map["generated.formats.specdef.compounds.PtrList"])
-		if not isinstance(instance.attribs, int):
-			instance.attribs.arg = instance.attrib_count
-		if not isinstance(instance.name_foreach_attribs, int):
-			instance.name_foreach_attribs.arg = instance.attribs
-		if not isinstance(instance.data_foreach_attribs, int):
-			instance.data_foreach_attribs.arg = instance.attribs
-		if not isinstance(instance.names, int):
-			instance.names.arg = instance.name_count
-		if not isinstance(instance.childspecs, int):
-			instance.childspecs.arg = instance.childspec_count
-		if not isinstance(instance.managers, int):
-			instance.managers.arg = instance.manager_count
-		if not isinstance(instance.scripts, int):
-			instance.scripts.arg = instance.script_count
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Ushort.to_stream(stream, instance.attrib_count)
-		Ushort.to_stream(stream, instance.flags)
-		Ubyte.to_stream(stream, instance.name_count)
-		Ubyte.to_stream(stream, instance.childspec_count)
-		Ubyte.to_stream(stream, instance.manager_count)
-		Ubyte.to_stream(stream, instance.script_count)
-		ArrayPointer.to_stream(stream, instance.attribs)
-		ForEachPointer.to_stream(stream, instance.name_foreach_attribs)
-		ForEachPointer.to_stream(stream, instance.data_foreach_attribs)
-		Pointer.to_stream(stream, instance.names)
-		Pointer.to_stream(stream, instance.childspecs)
-		Pointer.to_stream(stream, instance.managers)
-		Pointer.to_stream(stream, instance.scripts)
-
-	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'attrib_count', Ushort, (0, None), (False, None)
 		yield 'flags', Ushort, (0, None), (False, None)
 		yield 'name_count', Ubyte, (0, None), (False, None)
@@ -113,27 +49,3 @@ class SpecdefRoot(MemStruct):
 
 	def get_info_str(self, indent=0):
 		return f'SpecdefRoot [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
-
-	def get_fields_str(self, indent=0):
-		s = ''
-		s += super().get_fields_str()
-		s += f'\n	* attrib_count = {self.fmt_member(self.attrib_count, indent+1)}'
-		s += f'\n	* flags = {self.fmt_member(self.flags, indent+1)}'
-		s += f'\n	* name_count = {self.fmt_member(self.name_count, indent+1)}'
-		s += f'\n	* childspec_count = {self.fmt_member(self.childspec_count, indent+1)}'
-		s += f'\n	* manager_count = {self.fmt_member(self.manager_count, indent+1)}'
-		s += f'\n	* script_count = {self.fmt_member(self.script_count, indent+1)}'
-		s += f'\n	* attribs = {self.fmt_member(self.attribs, indent+1)}'
-		s += f'\n	* name_foreach_attribs = {self.fmt_member(self.name_foreach_attribs, indent+1)}'
-		s += f'\n	* data_foreach_attribs = {self.fmt_member(self.data_foreach_attribs, indent+1)}'
-		s += f'\n	* names = {self.fmt_member(self.names, indent+1)}'
-		s += f'\n	* childspecs = {self.fmt_member(self.childspecs, indent+1)}'
-		s += f'\n	* managers = {self.fmt_member(self.managers, indent+1)}'
-		s += f'\n	* scripts = {self.fmt_member(self.scripts, indent+1)}'
-		return s
-
-	def __repr__(self, indent=0):
-		s = self.get_info_str(indent)
-		s += self.get_fields_str(indent)
-		s += '\n'
-		return s

@@ -20,46 +20,12 @@ class FootPlantActivityData(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		self.weight = FloatInputData(self.context, 0, None)
-		self.rotation_no_i_k_weight = FloatInputData(self.context, 0, None)
-		self.sticky_feet_weight = FloatInputData(self.context, 0, None)
-
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.weight = FloatInputData.from_stream(stream, instance.context, 0, None)
-		instance.rotation_no_i_k_weight = FloatInputData.from_stream(stream, instance.context, 0, None)
-		instance.sticky_feet_weight = FloatInputData.from_stream(stream, instance.context, 0, None)
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		FloatInputData.to_stream(stream, instance.weight)
-		FloatInputData.to_stream(stream, instance.rotation_no_i_k_weight)
-		FloatInputData.to_stream(stream, instance.sticky_feet_weight)
-
-	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'weight', FloatInputData, (0, None), (False, None)
 		yield 'rotation_no_i_k_weight', FloatInputData, (0, None), (False, None)
 		yield 'sticky_feet_weight', FloatInputData, (0, None), (False, None)
 
 	def get_info_str(self, indent=0):
 		return f'FootPlantActivityData [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
-
-	def get_fields_str(self, indent=0):
-		s = ''
-		s += super().get_fields_str()
-		s += f'\n	* weight = {self.fmt_member(self.weight, indent+1)}'
-		s += f'\n	* rotation_no_i_k_weight = {self.fmt_member(self.rotation_no_i_k_weight, indent+1)}'
-		s += f'\n	* sticky_feet_weight = {self.fmt_member(self.sticky_feet_weight, indent+1)}'
-		return s
-
-	def __repr__(self, indent=0):
-		s = self.get_info_str(indent)
-		s += self.get_fields_str(indent)
-		s += '\n'
-		return s

@@ -27,44 +27,9 @@ class Transition(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		self.count_0 = 0
-		self.count_1 = 0
-		self.count_2 = 0
-		self.ptr_0 = Pointer(self.context, self.count_1, Transition._import_path_map["generated.formats.motiongraph.compounds.PtrList"])
-		self.ptr_1 = Pointer(self.context, self.count_2, Transition._import_path_map["generated.formats.motiongraph.compounds.TransStructArray"])
-		self.id = Pointer(self.context, 0, ZString)
-
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.count_0 = Uint.from_stream(stream, instance.context, 0, None)
-		instance.count_1 = Uint.from_stream(stream, instance.context, 0, None)
-		instance.ptr_0 = Pointer.from_stream(stream, instance.context, instance.count_1, Transition._import_path_map["generated.formats.motiongraph.compounds.PtrList"])
-		instance.count_2 = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.ptr_1 = Pointer.from_stream(stream, instance.context, instance.count_2, Transition._import_path_map["generated.formats.motiongraph.compounds.TransStructArray"])
-		instance.id = Pointer.from_stream(stream, instance.context, 0, ZString)
-		if not isinstance(instance.ptr_0, int):
-			instance.ptr_0.arg = instance.count_1
-		if not isinstance(instance.ptr_1, int):
-			instance.ptr_1.arg = instance.count_2
-		if not isinstance(instance.id, int):
-			instance.id.arg = 0
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Uint.to_stream(stream, instance.count_0)
-		Uint.to_stream(stream, instance.count_1)
-		Pointer.to_stream(stream, instance.ptr_0)
-		Uint64.to_stream(stream, instance.count_2)
-		Pointer.to_stream(stream, instance.ptr_1)
-		Pointer.to_stream(stream, instance.id)
-
-	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'count_0', Uint, (0, None), (False, None)
 		yield 'count_1', Uint, (0, None), (False, None)
 		yield 'ptr_0', Pointer, (instance.count_1, Transition._import_path_map["generated.formats.motiongraph.compounds.PtrList"]), (False, None)
@@ -74,20 +39,3 @@ class Transition(MemStruct):
 
 	def get_info_str(self, indent=0):
 		return f'Transition [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
-
-	def get_fields_str(self, indent=0):
-		s = ''
-		s += super().get_fields_str()
-		s += f'\n	* count_0 = {self.fmt_member(self.count_0, indent+1)}'
-		s += f'\n	* count_1 = {self.fmt_member(self.count_1, indent+1)}'
-		s += f'\n	* ptr_0 = {self.fmt_member(self.ptr_0, indent+1)}'
-		s += f'\n	* count_2 = {self.fmt_member(self.count_2, indent+1)}'
-		s += f'\n	* ptr_1 = {self.fmt_member(self.ptr_1, indent+1)}'
-		s += f'\n	* id = {self.fmt_member(self.id, indent+1)}'
-		return s
-
-	def __repr__(self, indent=0):
-		s = self.get_info_str(indent)
-		s += self.get_fields_str(indent)
-		s += '\n'
-		return s

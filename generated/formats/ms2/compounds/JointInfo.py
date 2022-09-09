@@ -18,51 +18,17 @@ class JointInfo(CommonJointInfo):
 		self.zero = 0
 
 		# 8 bytes of zeros per hitcheck
-		self.zeros_per_hitcheck = Array((0,), Uint64, self.context, 0, None)
-		self.hitchecks = Array((0,), HitCheckEntry, self.context, 0, None)
+		self.zeros_per_hitcheck = Array(self.context, 0, None, (0,), Uint64)
+		self.hitchecks = Array(self.context, 0, None, (0,), HitCheckEntry)
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		self.zero = 0
-		self.zeros_per_hitcheck = numpy.zeros((self.hitcheck_count,), dtype=numpy.dtype('uint64'))
-		self.hitchecks = Array((self.hitcheck_count,), HitCheckEntry, self.context, 0, None)
-
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.zero = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.zeros_per_hitcheck = Array.from_stream(stream, instance.context, 0, None, (instance.hitcheck_count,), Uint64)
-		instance.hitchecks = Array.from_stream(stream, instance.context, 0, None, (instance.hitcheck_count,), HitCheckEntry)
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Uint64.to_stream(stream, instance.zero)
-		Array.to_stream(stream, instance.zeros_per_hitcheck, (instance.hitcheck_count,), Uint64, instance.context, 0, None)
-		Array.to_stream(stream, instance.hitchecks, (instance.hitcheck_count,), HitCheckEntry, instance.context, 0, None)
-
-	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'zero', Uint64, (0, None), (False, None)
-		yield 'zeros_per_hitcheck', Array, ((instance.hitcheck_count,), Uint64, 0, None), (False, None)
-		yield 'hitchecks', Array, ((instance.hitcheck_count,), HitCheckEntry, 0, None), (False, None)
+		yield 'zeros_per_hitcheck', Array, (0, None, (instance.hitcheck_count,), Uint64), (False, None)
+		yield 'hitchecks', Array, (0, None, (instance.hitcheck_count,), HitCheckEntry), (False, None)
 
 	def get_info_str(self, indent=0):
 		return f'JointInfo [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
-
-	def get_fields_str(self, indent=0):
-		s = ''
-		s += super().get_fields_str()
-		s += f'\n	* zero = {self.fmt_member(self.zero, indent+1)}'
-		s += f'\n	* zeros_per_hitcheck = {self.fmt_member(self.zeros_per_hitcheck, indent+1)}'
-		s += f'\n	* hitchecks = {self.fmt_member(self.hitchecks, indent+1)}'
-		return s
-
-	def __repr__(self, indent=0):
-		s = self.get_info_str(indent)
-		s += self.get_fields_str(indent)
-		s += '\n'
-		return s

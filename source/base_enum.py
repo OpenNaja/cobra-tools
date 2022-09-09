@@ -88,6 +88,10 @@ class BaseEnum(IntEnum, metaclass=DefaultEnumMeta):
 		self._storage.to_stream(stream, self.value)
 
 	@classmethod
+	def get_size(cls, context, instance, arguments=()):
+		return cls._storage.get_size(context, instance)
+
+	@classmethod
 	def from_stream(cls, stream, context=None, arg=0, template=None):
 		instance = cls.from_value(cls._storage.from_stream(stream, None, 0, None))
 		return instance
@@ -107,6 +111,12 @@ class BaseEnum(IntEnum, metaclass=DefaultEnumMeta):
 		except KeyError:
 			raise KeyError(f"Key '{value}' not found in enum '{cls.__name__}', outdated definition?")
 		return enum
+
+	@staticmethod
+	def fmt_member(member, indent=0):
+		lines = str(member).split("\n")
+		lines_new = [lines[0], ] + ["\t" * indent + line for line in lines[1:]]
+		return "\n".join(lines_new)
 
 	@classmethod
 	def from_xml(cls, target, elem, prop, arguments=None):

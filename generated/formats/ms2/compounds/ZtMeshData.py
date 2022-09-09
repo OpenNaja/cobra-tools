@@ -63,71 +63,9 @@ class ZtMeshData(MeshData):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		self.tri_index_count = 0
-		self.vertex_count = 0
-		self.tri_info_offset = 0
-		self.vert_info_offset = 0
-		self.known_ff_0 = 0
-		self.tri_offset = 0
-		self.uv_offset = 0
-		self.vertex_offset = 0
-		self.unk_index = 0
-		self.one_0 = 0
-		self.one_1 = 0
-		self.poweroftwo = 0
-		if self.context.version <= 7:
-			self.flag = ModelFlagDLA(self.context, 0, None)
-		if self.context.version >= 13:
-			self.flag = ModelFlagZT(self.context, 0, None)
-		self.zero_uac = 0
-
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.tri_index_count = Uint.from_stream(stream, instance.context, 0, None)
-		instance.vertex_count = Uint.from_stream(stream, instance.context, 0, None)
-		instance.tri_info_offset = Uint.from_stream(stream, instance.context, 0, None)
-		instance.vert_info_offset = Uint.from_stream(stream, instance.context, 0, None)
-		instance.known_ff_0 = Int.from_stream(stream, instance.context, 0, None)
-		instance.tri_offset = Uint.from_stream(stream, instance.context, 0, None)
-		instance.uv_offset = Uint.from_stream(stream, instance.context, 0, None)
-		instance.vertex_offset = Uint.from_stream(stream, instance.context, 0, None)
-		instance.unk_index = Short.from_stream(stream, instance.context, 0, None)
-		instance.one_0 = Ushort.from_stream(stream, instance.context, 0, None)
-		instance.one_1 = Ushort.from_stream(stream, instance.context, 0, None)
-		instance.poweroftwo = Ushort.from_stream(stream, instance.context, 0, None)
-		if instance.context.version <= 7:
-			instance.flag = ModelFlagDLA.from_stream(stream, instance.context, 0, None)
-		if instance.context.version >= 13:
-			instance.flag = ModelFlagZT.from_stream(stream, instance.context, 0, None)
-		instance.zero_uac = Uint.from_stream(stream, instance.context, 0, None)
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Uint.to_stream(stream, instance.tri_index_count)
-		Uint.to_stream(stream, instance.vertex_count)
-		Uint.to_stream(stream, instance.tri_info_offset)
-		Uint.to_stream(stream, instance.vert_info_offset)
-		Int.to_stream(stream, instance.known_ff_0)
-		Uint.to_stream(stream, instance.tri_offset)
-		Uint.to_stream(stream, instance.uv_offset)
-		Uint.to_stream(stream, instance.vertex_offset)
-		Short.to_stream(stream, instance.unk_index)
-		Ushort.to_stream(stream, instance.one_0)
-		Ushort.to_stream(stream, instance.one_1)
-		Ushort.to_stream(stream, instance.poweroftwo)
-		if instance.context.version <= 7:
-			ModelFlagDLA.to_stream(stream, instance.flag)
-		if instance.context.version >= 13:
-			ModelFlagZT.to_stream(stream, instance.flag)
-		Uint.to_stream(stream, instance.zero_uac)
-
-	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'tri_index_count', Uint, (0, None), (False, None)
 		yield 'vertex_count', Uint, (0, None), (False, None)
 		yield 'tri_info_offset', Uint, (0, None), (False, None)
@@ -148,31 +86,6 @@ class ZtMeshData(MeshData):
 
 	def get_info_str(self, indent=0):
 		return f'ZtMeshData [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
-
-	def get_fields_str(self, indent=0):
-		s = ''
-		s += super().get_fields_str()
-		s += f'\n	* tri_index_count = {self.fmt_member(self.tri_index_count, indent+1)}'
-		s += f'\n	* vertex_count = {self.fmt_member(self.vertex_count, indent+1)}'
-		s += f'\n	* tri_info_offset = {self.fmt_member(self.tri_info_offset, indent+1)}'
-		s += f'\n	* vert_info_offset = {self.fmt_member(self.vert_info_offset, indent+1)}'
-		s += f'\n	* known_ff_0 = {self.fmt_member(self.known_ff_0, indent+1)}'
-		s += f'\n	* tri_offset = {self.fmt_member(self.tri_offset, indent+1)}'
-		s += f'\n	* uv_offset = {self.fmt_member(self.uv_offset, indent+1)}'
-		s += f'\n	* vertex_offset = {self.fmt_member(self.vertex_offset, indent+1)}'
-		s += f'\n	* unk_index = {self.fmt_member(self.unk_index, indent+1)}'
-		s += f'\n	* one_0 = {self.fmt_member(self.one_0, indent+1)}'
-		s += f'\n	* one_1 = {self.fmt_member(self.one_1, indent+1)}'
-		s += f'\n	* poweroftwo = {self.fmt_member(self.poweroftwo, indent+1)}'
-		s += f'\n	* flag = {self.fmt_member(self.flag, indent+1)}'
-		s += f'\n	* zero_uac = {self.fmt_member(self.zero_uac, indent+1)}'
-		return s
-
-	def __repr__(self, indent=0):
-		s = self.get_info_str(indent)
-		s += self.get_fields_str(indent)
-		s += '\n'
-		return s
 
 	def init_arrays(self):
 		self.vertices = np.empty((self.vertex_count, 3), np.float32)

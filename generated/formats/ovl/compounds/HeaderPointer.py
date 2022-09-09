@@ -22,28 +22,14 @@ class HeaderPointer(BaseStruct):
 
 	_import_path = 'generated.formats.ovl.compounds.HeaderPointer'
 
-	def set_defaults(self):
-		super().set_defaults()
-		self.pool_index = 0
-		self.data_offset = 0
-
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.pool_index = Int.from_stream(stream, instance.context, 0, None)
-		instance.data_offset = Uint.from_stream(stream, instance.context, 0, None)
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Int.to_stream(stream, instance.pool_index)
-		Uint.to_stream(stream, instance.data_offset)
-
-	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'pool_index', Int, (0, None), (False, None)
 		yield 'data_offset', Uint, (0, None), (False, None)
+
+	def get_info_str(self, indent=0):
+		return f'HeaderPointer [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
@@ -109,7 +95,7 @@ class HeaderPointer(BaseStruct):
 		logging.debug(f"write_instance of class {cls.__name__}")
 		if self.align_write(instance, overwrite=False):
 			if isinstance(instance, Array):
-				Array.to_stream(self.pool.data, instance, (len(instance),), cls, instance.context, 0, None)
+				Array.to_stream(self.pool.data, instance, cls)
 			# special case to avoid falling back on basic.to_stream
 			elif isinstance(instance, np.ndarray):
 				# self.pool.data.write(instance.tobytes())

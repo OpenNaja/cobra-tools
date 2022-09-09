@@ -24,66 +24,20 @@ class WsmHeader(MemStruct):
 		self.frame_count = 0
 
 		# unk
-		self.unknowns = Array((0,), Float, self.context, 0, None)
+		self.unknowns = Array(self.context, 0, None, (0,), Float)
 		self.locs = ArrayPointer(self.context, self.frame_count, WsmHeader._import_path_map["generated.formats.wsm.compounds.Vector3"])
 		self.quats = ArrayPointer(self.context, self.frame_count, WsmHeader._import_path_map["generated.formats.wsm.compounds.Vector4"])
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		self.duration = 0.0
-		self.frame_count = 0
-		self.unknowns = numpy.zeros((8,), dtype=numpy.dtype('float32'))
-		self.locs = ArrayPointer(self.context, self.frame_count, WsmHeader._import_path_map["generated.formats.wsm.compounds.Vector3"])
-		self.quats = ArrayPointer(self.context, self.frame_count, WsmHeader._import_path_map["generated.formats.wsm.compounds.Vector4"])
-
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.duration = Float.from_stream(stream, instance.context, 0, None)
-		instance.frame_count = Uint.from_stream(stream, instance.context, 0, None)
-		instance.unknowns = Array.from_stream(stream, instance.context, 0, None, (8,), Float)
-		instance.locs = ArrayPointer.from_stream(stream, instance.context, instance.frame_count, WsmHeader._import_path_map["generated.formats.wsm.compounds.Vector3"])
-		instance.quats = ArrayPointer.from_stream(stream, instance.context, instance.frame_count, WsmHeader._import_path_map["generated.formats.wsm.compounds.Vector4"])
-		if not isinstance(instance.locs, int):
-			instance.locs.arg = instance.frame_count
-		if not isinstance(instance.quats, int):
-			instance.quats.arg = instance.frame_count
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Float.to_stream(stream, instance.duration)
-		Uint.to_stream(stream, instance.frame_count)
-		Array.to_stream(stream, instance.unknowns, (8,), Float, instance.context, 0, None)
-		ArrayPointer.to_stream(stream, instance.locs)
-		ArrayPointer.to_stream(stream, instance.quats)
-
-	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'duration', Float, (0, None), (False, None)
 		yield 'frame_count', Uint, (0, None), (False, None)
-		yield 'unknowns', Array, ((8,), Float, 0, None), (False, None)
+		yield 'unknowns', Array, (0, None, (8,), Float), (False, None)
 		yield 'locs', ArrayPointer, (instance.frame_count, WsmHeader._import_path_map["generated.formats.wsm.compounds.Vector3"]), (False, None)
 		yield 'quats', ArrayPointer, (instance.frame_count, WsmHeader._import_path_map["generated.formats.wsm.compounds.Vector4"]), (False, None)
 
 	def get_info_str(self, indent=0):
 		return f'WsmHeader [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
-
-	def get_fields_str(self, indent=0):
-		s = ''
-		s += super().get_fields_str()
-		s += f'\n	* duration = {self.fmt_member(self.duration, indent+1)}'
-		s += f'\n	* frame_count = {self.fmt_member(self.frame_count, indent+1)}'
-		s += f'\n	* unknowns = {self.fmt_member(self.unknowns, indent+1)}'
-		s += f'\n	* locs = {self.fmt_member(self.locs, indent+1)}'
-		s += f'\n	* quats = {self.fmt_member(self.quats, indent+1)}'
-		return s
-
-	def __repr__(self, indent=0):
-		s = self.get_info_str(indent)
-		s += self.get_fields_str(indent)
-		s += '\n'
-		return s

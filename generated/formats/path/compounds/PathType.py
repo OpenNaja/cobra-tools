@@ -18,32 +18,9 @@ class PathType(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		self.enum_value = 0
-		self.min_width = 4.0
-		self.max_width = 10.0
-		self._unk_int_2 = 0
-
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.enum_value = Uint.from_stream(stream, instance.context, 0, None)
-		instance.min_width = Float.from_stream(stream, instance.context, 0, None)
-		instance.max_width = Float.from_stream(stream, instance.context, 0, None)
-		instance._unk_int_2 = Uint.from_stream(stream, instance.context, 0, None)
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Uint.to_stream(stream, instance.enum_value)
-		Float.to_stream(stream, instance.min_width)
-		Float.to_stream(stream, instance.max_width)
-		Uint.to_stream(stream, instance._unk_int_2)
-
-	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'enum_value', Uint, (0, None), (False, None)
 		yield 'min_width', Float, (0, None), (False, 4.0)
 		yield 'max_width', Float, (0, None), (False, 10.0)
@@ -51,18 +28,3 @@ class PathType(MemStruct):
 
 	def get_info_str(self, indent=0):
 		return f'PathType [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
-
-	def get_fields_str(self, indent=0):
-		s = ''
-		s += super().get_fields_str()
-		s += f'\n	* enum_value = {self.fmt_member(self.enum_value, indent+1)}'
-		s += f'\n	* min_width = {self.fmt_member(self.min_width, indent+1)}'
-		s += f'\n	* max_width = {self.fmt_member(self.max_width, indent+1)}'
-		s += f'\n	* _unk_int_2 = {self.fmt_member(self._unk_int_2, indent+1)}'
-		return s
-
-	def __repr__(self, indent=0):
-		s = self.get_info_str(indent)
-		s += self.get_fields_str(indent)
-		s += '\n'
-		return s

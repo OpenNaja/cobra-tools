@@ -34,37 +34,9 @@ class BaniRoot(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		self.read_start_frame = 0
-		self.num_frames = 0
-		self.animation_length = 0.0
-		self.loop_flag = 0
-		self.banis = Pointer(self.context, 0, None)
-
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.banis = Pointer.from_stream(stream, instance.context, 0, None)
-		instance.read_start_frame = Uint.from_stream(stream, instance.context, 0, None)
-		instance.num_frames = Uint.from_stream(stream, instance.context, 0, None)
-		instance.animation_length = Float.from_stream(stream, instance.context, 0, None)
-		instance.loop_flag = Uint.from_stream(stream, instance.context, 0, None)
-		if not isinstance(instance.banis, int):
-			instance.banis.arg = 0
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Pointer.to_stream(stream, instance.banis)
-		Uint.to_stream(stream, instance.read_start_frame)
-		Uint.to_stream(stream, instance.num_frames)
-		Float.to_stream(stream, instance.animation_length)
-		Uint.to_stream(stream, instance.loop_flag)
-
-	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'banis', Pointer, (0, None), (False, None)
 		yield 'read_start_frame', Uint, (0, None), (False, None)
 		yield 'num_frames', Uint, (0, None), (False, None)
@@ -73,19 +45,3 @@ class BaniRoot(MemStruct):
 
 	def get_info_str(self, indent=0):
 		return f'BaniRoot [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
-
-	def get_fields_str(self, indent=0):
-		s = ''
-		s += super().get_fields_str()
-		s += f'\n	* banis = {self.fmt_member(self.banis, indent+1)}'
-		s += f'\n	* read_start_frame = {self.fmt_member(self.read_start_frame, indent+1)}'
-		s += f'\n	* num_frames = {self.fmt_member(self.num_frames, indent+1)}'
-		s += f'\n	* animation_length = {self.fmt_member(self.animation_length, indent+1)}'
-		s += f'\n	* loop_flag = {self.fmt_member(self.loop_flag, indent+1)}'
-		return s
-
-	def __repr__(self, indent=0):
-		s = self.get_info_str(indent)
-		s += self.get_fields_str(indent)
-		s += '\n'
-		return s

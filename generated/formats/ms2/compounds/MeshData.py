@@ -35,40 +35,9 @@ class MeshData(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		if self.context.version <= 32:
-			self.stream_index = 0
-		if not ((self.context.version == 51) and self.context.biosyn):
-			self.some_index = 0
-		if self.context.version >= 47:
-			self.stream_info = Pointer(self.context, 0, MeshData._import_path_map["generated.formats.ms2.compounds.BufferInfo"])
-
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		if instance.context.version <= 32:
-			instance.stream_index = Uint64.from_stream(stream, instance.context, 0, None)
-		if instance.context.version >= 47:
-			instance.stream_info = Pointer.from_stream(stream, instance.context, 0, MeshData._import_path_map["generated.formats.ms2.compounds.BufferInfo"])
-		if not ((instance.context.version == 51) and instance.context.biosyn):
-			instance.some_index = Uint64.from_stream(stream, instance.context, 0, None)
-		if not isinstance(instance.stream_info, int):
-			instance.stream_info.arg = 0
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		if instance.context.version <= 32:
-			Uint64.to_stream(stream, instance.stream_index)
-		if instance.context.version >= 47:
-			Pointer.to_stream(stream, instance.stream_info)
-		if not ((instance.context.version == 51) and instance.context.biosyn):
-			Uint64.to_stream(stream, instance.some_index)
-
-	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		if instance.context.version <= 32:
 			yield 'stream_index', Uint64, (0, None), (False, None)
 		if instance.context.version >= 47:
@@ -78,20 +47,6 @@ class MeshData(MemStruct):
 
 	def get_info_str(self, indent=0):
 		return f'MeshData [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
-
-	def get_fields_str(self, indent=0):
-		s = ''
-		s += super().get_fields_str()
-		s += f'\n	* stream_index = {self.fmt_member(self.stream_index, indent+1)}'
-		s += f'\n	* stream_info = {self.fmt_member(self.stream_info, indent+1)}'
-		s += f'\n	* some_index = {self.fmt_member(self.some_index, indent+1)}'
-		return s
-
-	def __repr__(self, indent=0):
-		s = self.get_info_str(indent)
-		s += self.get_fields_str(indent)
-		s += '\n'
-		return s
 
 	# @property
 	def get_stream_index(self):

@@ -48,7 +48,7 @@ class NewMeshData(MeshData):
 		self.zero_2 = 0
 
 		# some floats, purpose unknown
-		self.unk_floats = Array((0,), Float, self.context, 0, None)
+		self.unk_floats = Array(self.context, 0, None, (0,), Float)
 
 		# always zero
 		self.zero_3 = 0
@@ -58,53 +58,9 @@ class NewMeshData(MeshData):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		self.vertex_count = 0
-		self.tri_index_count = 0
-		self.zero_1 = 0
-		self.poweroftwo = 0
-		self.vertex_offset = 0
-		self.size_of_vertex = 0
-		self.tri_offset = 0
-		self.zero_2 = 0
-		self.unk_floats = numpy.zeros((2,), dtype=numpy.dtype('float32'))
-		self.zero_3 = 0
-		self.flag = ModelFlag(self.context, 0, None)
-
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.vertex_count = Uint.from_stream(stream, instance.context, 0, None)
-		instance.tri_index_count = Uint.from_stream(stream, instance.context, 0, None)
-		instance.zero_1 = Uint.from_stream(stream, instance.context, 0, None)
-		instance.poweroftwo = Uint.from_stream(stream, instance.context, 0, None)
-		instance.vertex_offset = Uint.from_stream(stream, instance.context, 0, None)
-		instance.size_of_vertex = Uint.from_stream(stream, instance.context, 0, None)
-		instance.tri_offset = Uint.from_stream(stream, instance.context, 0, None)
-		instance.zero_2 = Uint.from_stream(stream, instance.context, 0, None)
-		instance.unk_floats = Array.from_stream(stream, instance.context, 0, None, (2,), Float)
-		instance.zero_3 = Uint.from_stream(stream, instance.context, 0, None)
-		instance.flag = ModelFlag.from_stream(stream, instance.context, 0, None)
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Uint.to_stream(stream, instance.vertex_count)
-		Uint.to_stream(stream, instance.tri_index_count)
-		Uint.to_stream(stream, instance.zero_1)
-		Uint.to_stream(stream, instance.poweroftwo)
-		Uint.to_stream(stream, instance.vertex_offset)
-		Uint.to_stream(stream, instance.size_of_vertex)
-		Uint.to_stream(stream, instance.tri_offset)
-		Uint.to_stream(stream, instance.zero_2)
-		Array.to_stream(stream, instance.unk_floats, (2,), Float, instance.context, 0, None)
-		Uint.to_stream(stream, instance.zero_3)
-		ModelFlag.to_stream(stream, instance.flag)
-
-	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'vertex_count', Uint, (0, None), (False, None)
 		yield 'tri_index_count', Uint, (0, None), (False, None)
 		yield 'zero_1', Uint, (0, None), (False, None)
@@ -113,34 +69,12 @@ class NewMeshData(MeshData):
 		yield 'size_of_vertex', Uint, (0, None), (False, None)
 		yield 'tri_offset', Uint, (0, None), (False, None)
 		yield 'zero_2', Uint, (0, None), (False, None)
-		yield 'unk_floats', Array, ((2,), Float, 0, None), (False, None)
+		yield 'unk_floats', Array, (0, None, (2,), Float), (False, None)
 		yield 'zero_3', Uint, (0, None), (False, None)
 		yield 'flag', ModelFlag, (0, None), (False, None)
 
 	def get_info_str(self, indent=0):
 		return f'NewMeshData [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
-
-	def get_fields_str(self, indent=0):
-		s = ''
-		s += super().get_fields_str()
-		s += f'\n	* vertex_count = {self.fmt_member(self.vertex_count, indent+1)}'
-		s += f'\n	* tri_index_count = {self.fmt_member(self.tri_index_count, indent+1)}'
-		s += f'\n	* zero_1 = {self.fmt_member(self.zero_1, indent+1)}'
-		s += f'\n	* poweroftwo = {self.fmt_member(self.poweroftwo, indent+1)}'
-		s += f'\n	* vertex_offset = {self.fmt_member(self.vertex_offset, indent+1)}'
-		s += f'\n	* size_of_vertex = {self.fmt_member(self.size_of_vertex, indent+1)}'
-		s += f'\n	* tri_offset = {self.fmt_member(self.tri_offset, indent+1)}'
-		s += f'\n	* zero_2 = {self.fmt_member(self.zero_2, indent+1)}'
-		s += f'\n	* unk_floats = {self.fmt_member(self.unk_floats, indent+1)}'
-		s += f'\n	* zero_3 = {self.fmt_member(self.zero_3, indent+1)}'
-		s += f'\n	* flag = {self.fmt_member(self.flag, indent+1)}'
-		return s
-
-	def __repr__(self, indent=0):
-		s = self.get_info_str(indent)
-		s += self.get_fields_str(indent)
-		s += '\n'
-		return s
 
 	# @property
 	def get_stream_index(self):

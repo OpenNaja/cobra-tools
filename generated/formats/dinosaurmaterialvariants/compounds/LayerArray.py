@@ -11,40 +11,14 @@ class LayerArray(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.layers = Array((0,), Layer, self.context, 0, None)
+		self.layers = Array(self.context, 0, None, (0,), Layer)
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		self.layers = Array((self.arg,), Layer, self.context, 0, None)
-
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.layers = Array.from_stream(stream, instance.context, 0, None, (instance.arg,), Layer)
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Array.to_stream(stream, instance.layers, (instance.arg,), Layer, instance.context, 0, None)
-
-	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
-		yield 'layers', Array, ((instance.arg,), Layer, 0, None), (False, None)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
+		yield 'layers', Array, (0, None, (instance.arg,), Layer), (False, None)
 
 	def get_info_str(self, indent=0):
 		return f'LayerArray [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
-
-	def get_fields_str(self, indent=0):
-		s = ''
-		s += super().get_fields_str()
-		s += f'\n	* layers = {self.fmt_member(self.layers, indent+1)}'
-		return s
-
-	def __repr__(self, indent=0):
-		s = self.get_info_str(indent)
-		s += self.get_fields_str(indent)
-		s += '\n'
-		return s

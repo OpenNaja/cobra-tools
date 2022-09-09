@@ -30,51 +30,9 @@ class LuaRoot(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		self.lua_size = 0
-		self.sixteenk = 0
-		self.hash = 0
-		self.zero_0 = 0
-		self.zero_1 = 0
-		self.zero_2 = 0
-		if self.context.version >= 18:
-			self.source_path = Pointer(self.context, 0, ZString)
-			self.likely_alignment = Pointer(self.context, 0, ZString)
-
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.lua_size = Uint.from_stream(stream, instance.context, 0, None)
-		instance.sixteenk = Uint.from_stream(stream, instance.context, 0, None)
-		instance.hash = Uint.from_stream(stream, instance.context, 0, None)
-		instance.zero_0 = Uint.from_stream(stream, instance.context, 0, None)
-		if instance.context.version >= 18:
-			instance.source_path = Pointer.from_stream(stream, instance.context, 0, ZString)
-			instance.likely_alignment = Pointer.from_stream(stream, instance.context, 0, ZString)
-		instance.zero_1 = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.zero_2 = Uint64.from_stream(stream, instance.context, 0, None)
-		if not isinstance(instance.source_path, int):
-			instance.source_path.arg = 0
-		if not isinstance(instance.likely_alignment, int):
-			instance.likely_alignment.arg = 0
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Uint.to_stream(stream, instance.lua_size)
-		Uint.to_stream(stream, instance.sixteenk)
-		Uint.to_stream(stream, instance.hash)
-		Uint.to_stream(stream, instance.zero_0)
-		if instance.context.version >= 18:
-			Pointer.to_stream(stream, instance.source_path)
-			Pointer.to_stream(stream, instance.likely_alignment)
-		Uint64.to_stream(stream, instance.zero_1)
-		Uint64.to_stream(stream, instance.zero_2)
-
-	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'lua_size', Uint, (0, None), (False, None)
 		yield 'sixteenk', Uint, (0, None), (False, None)
 		yield 'hash', Uint, (0, None), (False, None)
@@ -87,22 +45,3 @@ class LuaRoot(MemStruct):
 
 	def get_info_str(self, indent=0):
 		return f'LuaRoot [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
-
-	def get_fields_str(self, indent=0):
-		s = ''
-		s += super().get_fields_str()
-		s += f'\n	* lua_size = {self.fmt_member(self.lua_size, indent+1)}'
-		s += f'\n	* sixteenk = {self.fmt_member(self.sixteenk, indent+1)}'
-		s += f'\n	* hash = {self.fmt_member(self.hash, indent+1)}'
-		s += f'\n	* zero_0 = {self.fmt_member(self.zero_0, indent+1)}'
-		s += f'\n	* source_path = {self.fmt_member(self.source_path, indent+1)}'
-		s += f'\n	* likely_alignment = {self.fmt_member(self.likely_alignment, indent+1)}'
-		s += f'\n	* zero_1 = {self.fmt_member(self.zero_1, indent+1)}'
-		s += f'\n	* zero_2 = {self.fmt_member(self.zero_2, indent+1)}'
-		return s
-
-	def __repr__(self, indent=0):
-		s = self.get_info_str(indent)
-		s += self.get_fields_str(indent)
-		s += '\n'
-		return s

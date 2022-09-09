@@ -53,65 +53,9 @@ class MemPool(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		if self.context.version >= 17:
-			self.zero_1 = 0
-		self.size = 0
-		self.offset = 0
-		if self.context.version <= 15:
-			self.zero_2 = 0
-		self.file_hash = 0
-		if self.context.version <= 15:
-			self.disney_zero = 0
-			self.num_files = 0
-		if self.context.version >= 17:
-			self.num_files = 0
-		if self.context.version >= 19:
-			self.ext_hash = 0
-			self.zero_3 = 0
-
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		if instance.context.version >= 17:
-			instance.zero_1 = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.size = Uint.from_stream(stream, instance.context, 0, None)
-		instance.offset = Uint.from_stream(stream, instance.context, 0, None)
-		if instance.context.version <= 15:
-			instance.zero_2 = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.file_hash = Uint.from_stream(stream, instance.context, 0, None)
-		if instance.context.version <= 15:
-			instance.disney_zero = Ushort.from_stream(stream, instance.context, 0, None)
-			instance.num_files = Ushort.from_stream(stream, instance.context, 0, None)
-		if instance.context.version >= 17:
-			instance.num_files = Uint.from_stream(stream, instance.context, 0, None)
-		if instance.context.version >= 19:
-			instance.ext_hash = Uint.from_stream(stream, instance.context, 0, None)
-			instance.zero_3 = Uint.from_stream(stream, instance.context, 0, None)
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		if instance.context.version >= 17:
-			Uint64.to_stream(stream, instance.zero_1)
-		Uint.to_stream(stream, instance.size)
-		Uint.to_stream(stream, instance.offset)
-		if instance.context.version <= 15:
-			Uint64.to_stream(stream, instance.zero_2)
-		Uint.to_stream(stream, instance.file_hash)
-		if instance.context.version <= 15:
-			Ushort.to_stream(stream, instance.disney_zero)
-			Ushort.to_stream(stream, instance.num_files)
-		if instance.context.version >= 17:
-			Uint.to_stream(stream, instance.num_files)
-		if instance.context.version >= 19:
-			Uint.to_stream(stream, instance.ext_hash)
-			Uint.to_stream(stream, instance.zero_3)
-
-	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		if instance.context.version >= 17:
 			yield 'zero_1', Uint64, (0, None), (False, None)
 		yield 'size', Uint, (0, None), (False, None)
@@ -130,26 +74,6 @@ class MemPool(BaseStruct):
 
 	def get_info_str(self, indent=0):
 		return f'MemPool [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
-
-	def get_fields_str(self, indent=0):
-		s = ''
-		s += super().get_fields_str()
-		s += f'\n	* zero_1 = {self.fmt_member(self.zero_1, indent+1)}'
-		s += f'\n	* size = {self.fmt_member(self.size, indent+1)}'
-		s += f'\n	* offset = {self.fmt_member(self.offset, indent+1)}'
-		s += f'\n	* zero_2 = {self.fmt_member(self.zero_2, indent+1)}'
-		s += f'\n	* file_hash = {self.fmt_member(self.file_hash, indent+1)}'
-		s += f'\n	* disney_zero = {self.fmt_member(self.disney_zero, indent+1)}'
-		s += f'\n	* num_files = {self.fmt_member(self.num_files, indent+1)}'
-		s += f'\n	* ext_hash = {self.fmt_member(self.ext_hash, indent+1)}'
-		s += f'\n	* zero_3 = {self.fmt_member(self.zero_3, indent+1)}'
-		return s
-
-	def __repr__(self, indent=0):
-		s = self.get_info_str(indent)
-		s += self.get_fields_str(indent)
-		s += '\n'
-		return s
 
 	def clear_data(self):
 		self.new = False

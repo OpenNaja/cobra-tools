@@ -23,38 +23,9 @@ class TrackElementSub(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		self.unk_0 = 0
-		self.catwalk_right_lsm = Pointer(self.context, 0, ZString)
-		self.catwalk_left_lsm = Pointer(self.context, 0, ZString)
-		self.catwalk_both_lsm = Pointer(self.context, 0, ZString)
-
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.catwalk_right_lsm = Pointer.from_stream(stream, instance.context, 0, ZString)
-		instance.catwalk_left_lsm = Pointer.from_stream(stream, instance.context, 0, ZString)
-		instance.catwalk_both_lsm = Pointer.from_stream(stream, instance.context, 0, ZString)
-		instance.unk_0 = Uint64.from_stream(stream, instance.context, 0, None)
-		if not isinstance(instance.catwalk_right_lsm, int):
-			instance.catwalk_right_lsm.arg = 0
-		if not isinstance(instance.catwalk_left_lsm, int):
-			instance.catwalk_left_lsm.arg = 0
-		if not isinstance(instance.catwalk_both_lsm, int):
-			instance.catwalk_both_lsm.arg = 0
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Pointer.to_stream(stream, instance.catwalk_right_lsm)
-		Pointer.to_stream(stream, instance.catwalk_left_lsm)
-		Pointer.to_stream(stream, instance.catwalk_both_lsm)
-		Uint64.to_stream(stream, instance.unk_0)
-
-	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'catwalk_right_lsm', Pointer, (0, ZString), (False, None)
 		yield 'catwalk_left_lsm', Pointer, (0, ZString), (False, None)
 		yield 'catwalk_both_lsm', Pointer, (0, ZString), (False, None)
@@ -62,18 +33,3 @@ class TrackElementSub(MemStruct):
 
 	def get_info_str(self, indent=0):
 		return f'TrackElementSub [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
-
-	def get_fields_str(self, indent=0):
-		s = ''
-		s += super().get_fields_str()
-		s += f'\n	* catwalk_right_lsm = {self.fmt_member(self.catwalk_right_lsm, indent+1)}'
-		s += f'\n	* catwalk_left_lsm = {self.fmt_member(self.catwalk_left_lsm, indent+1)}'
-		s += f'\n	* catwalk_both_lsm = {self.fmt_member(self.catwalk_both_lsm, indent+1)}'
-		s += f'\n	* unk_0 = {self.fmt_member(self.unk_0, indent+1)}'
-		return s
-
-	def __repr__(self, indent=0):
-		s = self.get_info_str(indent)
-		s += self.get_fields_str(indent)
-		s += '\n'
-		return s

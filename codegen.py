@@ -4,6 +4,7 @@ import xml.etree.ElementTree as ET
 import os
 import distutils.dir_util as dir_util
 from html import unescape
+import shutil
 import traceback
 from numpy import ndarray
 
@@ -212,7 +213,7 @@ class XmlParser:
                 for field in struct:
                     self.apply_convention(field, convention.name_attribute, ("name",))
                     self.apply_convention(field, convention.name_class, ("type", "onlyT", "excludeT"))
-                    self.apply_convention(field, convention.force_bool, ("optional",))
+                    self.apply_convention(field, convention.force_bool, ("optional", "abstract"))
                     # template can refer to a type of an attribute
                     self.apply_convention(field, convention.format_potential_tuple, ("default",))
                     for default in field:
@@ -236,8 +237,7 @@ class XmlParser:
 
     def write_for_type(self, dtype, attr, context, arg=0, template=None, arr1=None, arr2=None):
         if arr1:
-            return f'Array.to_stream(stream, {attr}, {self.arrs_to_tuple(arr1, arr2)}, '\
-                   f'{dtype}, {context}, {arg}, {template})'
+            return f'Array.to_stream(stream, {attr}, {dtype})'
         else:
             # use the standard functionality
             return f'{dtype}.to_stream(stream, {attr})'
@@ -308,11 +308,10 @@ class XmlParser:
 def copy_src_to_generated(src_dir, trg_dir):
     """copies the files from the source folder to the generated folder"""
     # remove old codegen
-    dir_util.remove_tree(trg_dir)
-    # necessary to not error if you have manually removed a subdirectory in generated
-    dir_util._path_created = {}
-    # do the actual copying
-    dir_util.copy_tree(src_dir, trg_dir)
+    if os.path.exists(trg_dir):
+        shutil.rmtree(trg_dir)
+    # do the actual copying (ignore .git folders because there's trouble deleting them)
+    shutil.copytree(src_dir, trg_dir, ignore=shutil.ignore_patterns('.git',))
 
 
 def create_inits(base_dir):

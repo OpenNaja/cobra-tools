@@ -47,81 +47,27 @@ class BioMeshData(MeshData):
 		self.poweroftwo = 0
 
 		# some floats, purpose unknown
-		self.unk_floats = Array((0,), Float, self.context, 0, None)
+		self.unk_floats = Array(self.context, 0, None, (0,), Float)
 
 		# seen 1 or 13
 		self.flag = BioModelFlag(self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		self.chunks_offset = 0
-		self.chunks_count = 0
-		self.tris_count = 0
-		self.vertex_count = 0
-		self.zero_1 = 0
-		self.poweroftwo = 0
-		self.unk_floats = numpy.zeros((2,), dtype=numpy.dtype('float32'))
-		self.flag = BioModelFlag(self.context, 0, None)
-
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.chunks_offset = Uint.from_stream(stream, instance.context, 0, None)
-		instance.chunks_count = Uint.from_stream(stream, instance.context, 0, None)
-		instance.tris_count = Uint.from_stream(stream, instance.context, 0, None)
-		instance.vertex_count = Uint.from_stream(stream, instance.context, 0, None)
-		instance.zero_1 = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.poweroftwo = Uint.from_stream(stream, instance.context, 0, None)
-		instance.unk_floats = Array.from_stream(stream, instance.context, 0, None, (2,), Float)
-		instance.flag = BioModelFlag.from_stream(stream, instance.context, 0, None)
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Uint.to_stream(stream, instance.chunks_offset)
-		Uint.to_stream(stream, instance.chunks_count)
-		Uint.to_stream(stream, instance.tris_count)
-		Uint.to_stream(stream, instance.vertex_count)
-		Uint64.to_stream(stream, instance.zero_1)
-		Uint.to_stream(stream, instance.poweroftwo)
-		Array.to_stream(stream, instance.unk_floats, (2,), Float, instance.context, 0, None)
-		BioModelFlag.to_stream(stream, instance.flag)
-
-	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'chunks_offset', Uint, (0, None), (False, None)
 		yield 'chunks_count', Uint, (0, None), (False, None)
 		yield 'tris_count', Uint, (0, None), (False, None)
 		yield 'vertex_count', Uint, (0, None), (False, None)
 		yield 'zero_1', Uint64, (0, None), (False, None)
 		yield 'poweroftwo', Uint, (0, None), (False, None)
-		yield 'unk_floats', Array, ((2,), Float, 0, None), (False, None)
+		yield 'unk_floats', Array, (0, None, (2,), Float), (False, None)
 		yield 'flag', BioModelFlag, (0, None), (False, None)
 
 	def get_info_str(self, indent=0):
 		return f'BioMeshData [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
-
-	def get_fields_str(self, indent=0):
-		s = ''
-		s += super().get_fields_str()
-		s += f'\n	* chunks_offset = {self.fmt_member(self.chunks_offset, indent+1)}'
-		s += f'\n	* chunks_count = {self.fmt_member(self.chunks_count, indent+1)}'
-		s += f'\n	* tris_count = {self.fmt_member(self.tris_count, indent+1)}'
-		s += f'\n	* vertex_count = {self.fmt_member(self.vertex_count, indent+1)}'
-		s += f'\n	* zero_1 = {self.fmt_member(self.zero_1, indent+1)}'
-		s += f'\n	* poweroftwo = {self.fmt_member(self.poweroftwo, indent+1)}'
-		s += f'\n	* unk_floats = {self.fmt_member(self.unk_floats, indent+1)}'
-		s += f'\n	* flag = {self.fmt_member(self.flag, indent+1)}'
-		return s
-
-	def __repr__(self, indent=0):
-		s = self.get_info_str(indent)
-		s += self.get_fields_str(indent)
-		s += '\n'
-		return s
 
 	# @property
 	def get_stream_index(self):
@@ -469,6 +415,6 @@ class BioMeshData(MeshData):
 		# write the chunks
 		self.chunks_offset = self.buffer_info.tri_chunks.tell() // 64
 		self.chunks_count = len(self.tri_chunks)
-		Array.to_stream(self.buffer_info.tri_chunks, self.tri_chunks, (self.chunks_count,), TriChunk, self.context, 0, None)
-		Array.to_stream(self.buffer_info.vert_chunks, self.vert_chunks, (self.chunks_count,), VertChunk, self.context, 0, None)
+		Array.to_stream(self.buffer_info.tri_chunks, self.tri_chunks, TriChunk)
+		Array.to_stream(self.buffer_info.vert_chunks, self.vert_chunks, VertChunk)
 

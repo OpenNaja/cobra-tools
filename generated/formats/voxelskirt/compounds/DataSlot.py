@@ -21,50 +21,16 @@ class DataSlot(BaseStruct):
 
 		# also counts the stuff after names
 		self.count = 0
-		self.data = Array((0,), self.template, self.context, 0, None)
+		self.data = Array(self.context, 0, None, (0,), self.template)
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		self.offset = 0
-		self.count = 0
-		self.data = Array((0,), self.template, self.context, 0, None)
-
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.offset = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.count = Uint64.from_stream(stream, instance.context, 0, None)
-		instance.data = Array.from_stream(stream, instance.context, 0, None, (0,), instance.template)
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Uint64.to_stream(stream, instance.offset)
-		Uint64.to_stream(stream, instance.count)
-		Array.to_stream(stream, instance.data, (0,), instance.template, instance.context, 0, None)
-
-	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'offset', Uint64, (0, None), (False, None)
 		yield 'count', Uint64, (0, None), (False, None)
-		yield 'data', Array, ((0,), instance.template, 0, None), (False, None)
+		yield 'data', Array, (0, None, (0,), instance.template), (False, None)
 
 	def get_info_str(self, indent=0):
 		return f'DataSlot [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
-
-	def get_fields_str(self, indent=0):
-		s = ''
-		s += super().get_fields_str()
-		s += f'\n	* offset = {self.fmt_member(self.offset, indent+1)}'
-		s += f'\n	* count = {self.fmt_member(self.count, indent+1)}'
-		s += f'\n	* data = {self.fmt_member(self.data, indent+1)}'
-		return s
-
-	def __repr__(self, indent=0):
-		s = self.get_info_str(indent)
-		s += self.get_fields_str(indent)
-		s += '\n'
-		return s

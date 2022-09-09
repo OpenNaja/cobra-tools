@@ -46,7 +46,7 @@ class String:
             
         def write_strings(instance):
             # pass empty context
-            return Array.to_stream(stream, instance, cls, None)
+            return Array.to_stream(stream, instance, cls)
 
         return read_string, write_string, read_strings, write_strings
 
@@ -57,6 +57,12 @@ class String:
     @classmethod
     def to_xml(elem, prop, instance, arguments, debug):
         elem.attrib[prop] = instance
+
+    @staticmethod
+    def fmt_member(member, indent=0):
+        lines = str(member).split("\n")
+        lines_new = [lines[0], ] + ["\t" * indent + line for line in lines[1:]]
+        return "\n".join(lines_new)
 
 
 from generated.formats.ovl_base.basic import Byte, Ubyte, Uint64, Int64, Uint, Ushort, Int, Short, Char, Float, Double, ZString, Bool, ZStringObfuscated

@@ -26,8 +26,8 @@ class ModelReader(BaseStruct):
 	_import_path = 'generated.formats.ms2.compounds.ModelReader'
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 
 	def __init__(self, context, arg=None, template=None, set_default=True):
 		self.name = ''
@@ -192,7 +192,7 @@ class ModelReader(BaseStruct):
 			if hitcheck.dtype in (CollisionType.CONVEX_HULL_P_C, CollisionType.CONVEX_HULL):
 				logging.debug(f"Writing vertices for {hitcheck.dtype}")
 				# stream.write_floats(hitcheck.collider.vertices)
-				Array.to_stream(stream, hitcheck.collider.vertices, (hitcheck.collider.vertex_count, 3), Float, self.context)
+				Array.to_stream(stream, hitcheck.collider.vertices, Float)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

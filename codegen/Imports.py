@@ -70,7 +70,7 @@ class Imports:
             [self.add(import_class) for import_class in import_type]
 
     def add(self, cls_to_import):
-        if cls_to_import:
+        if cls_to_import and cls_to_import != self.xml_struct.attrib["name"]:
             self.imports.append(cls_to_import.split('.')[0])
 
     def add_indirect_import(self, cls_to_import):

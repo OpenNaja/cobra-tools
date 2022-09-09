@@ -34,100 +34,9 @@ class Data(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		# leaving self.dtype alone
-		# leaving self.dtype alone
-		# leaving self.dtype alone
-		# leaving self.dtype alone
-		# leaving self.dtype alone
-		# leaving self.dtype alone
-		# leaving self.dtype alone
-		# leaving self.dtype alone
-		# leaving self.dtype alone
-		# leaving self.dtype alone
-		# leaving self.dtype alone
-		# leaving self.dtype alone
-		# leaving self.dtype alone
-		# leaving self.dtype alone
-		# leaving self.dtype alone
-		# leaving self.dtype alone
-
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		if instance.arg == 0:
-			instance.dtype = BooleanData.from_stream(stream, instance.context, 0, None)
-		if instance.arg == 1:
-			instance.dtype = Int8Data.from_stream(stream, instance.context, 0, None)
-		if instance.arg == 2:
-			instance.dtype = Int16Data.from_stream(stream, instance.context, 0, None)
-		if instance.arg == 3:
-			instance.dtype = Int32Data.from_stream(stream, instance.context, 0, None)
-		if instance.arg == 4:
-			instance.dtype = Int64Data.from_stream(stream, instance.context, 0, None)
-		if instance.arg == 5:
-			instance.dtype = Uint8Data.from_stream(stream, instance.context, 0, None)
-		if instance.arg == 6:
-			instance.dtype = Uint16Data.from_stream(stream, instance.context, 0, None)
-		if instance.arg == 7:
-			instance.dtype = Uint32Data.from_stream(stream, instance.context, 0, None)
-		if instance.arg == 8:
-			instance.dtype = Uint64Data.from_stream(stream, instance.context, 0, None)
-		if instance.arg == 9:
-			instance.dtype = FloatData.from_stream(stream, instance.context, 0, None)
-		if instance.arg == 10:
-			instance.dtype = StringData.from_stream(stream, instance.context, 0, None)
-		if instance.arg == 11:
-			instance.dtype = Vector2.from_stream(stream, instance.context, 0, None)
-		if instance.arg == 12:
-			instance.dtype = Vector3.from_stream(stream, instance.context, 0, None)
-		if instance.arg == 13:
-			instance.dtype = ArrayData.from_stream(stream, instance.context, 0, None)
-		if instance.arg == 14:
-			instance.dtype = ChildSpecData.from_stream(stream, instance.context, 0, None)
-		if instance.arg == 15:
-			instance.dtype = ReferenceToObjectData.from_stream(stream, instance.context, 0, None)
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		if instance.arg == 0:
-			BooleanData.to_stream(stream, instance.dtype)
-		if instance.arg == 1:
-			Int8Data.to_stream(stream, instance.dtype)
-		if instance.arg == 2:
-			Int16Data.to_stream(stream, instance.dtype)
-		if instance.arg == 3:
-			Int32Data.to_stream(stream, instance.dtype)
-		if instance.arg == 4:
-			Int64Data.to_stream(stream, instance.dtype)
-		if instance.arg == 5:
-			Uint8Data.to_stream(stream, instance.dtype)
-		if instance.arg == 6:
-			Uint16Data.to_stream(stream, instance.dtype)
-		if instance.arg == 7:
-			Uint32Data.to_stream(stream, instance.dtype)
-		if instance.arg == 8:
-			Uint64Data.to_stream(stream, instance.dtype)
-		if instance.arg == 9:
-			FloatData.to_stream(stream, instance.dtype)
-		if instance.arg == 10:
-			StringData.to_stream(stream, instance.dtype)
-		if instance.arg == 11:
-			Vector2.to_stream(stream, instance.dtype)
-		if instance.arg == 12:
-			Vector3.to_stream(stream, instance.dtype)
-		if instance.arg == 13:
-			ArrayData.to_stream(stream, instance.dtype)
-		if instance.arg == 14:
-			ChildSpecData.to_stream(stream, instance.dtype)
-		if instance.arg == 15:
-			ReferenceToObjectData.to_stream(stream, instance.dtype)
-
-	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		if instance.arg == 0:
 			yield 'dtype', BooleanData, (0, None), (False, None)
 		if instance.arg == 1:
@@ -163,15 +72,3 @@ class Data(MemStruct):
 
 	def get_info_str(self, indent=0):
 		return f'Data [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
-
-	def get_fields_str(self, indent=0):
-		s = ''
-		s += super().get_fields_str()
-		s += f'\n	* dtype = {self.fmt_member(self.dtype, indent+1)}'
-		return s
-
-	def __repr__(self, indent=0):
-		s = self.get_info_str(indent)
-		s += self.get_fields_str(indent)
-		s += '\n'
-		return s

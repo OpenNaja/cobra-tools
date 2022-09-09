@@ -75,16 +75,37 @@ class BaseStruct(metaclass=StructMetaClass):
 		self.io_start = 0
 
 	def set_defaults(self):
-		pass
+		for field_name, field_type, arguments, (optional, default) in type(self)._get_filtered_attribute_list(self):
+			try:
+				if default is None:
+					# continue with standard arguments
+					field_value = field_type(self.context, *arguments)
+				else:
+					# use the from_value function
+					field_value = field_type.from_value(*arguments[2:4], default)
+			except:
+				logging.error(f"failed writing field {field_name} on type {type(self)}")
+				raise
+			setattr(self, field_name, field_value)
 
-	def get_fields_str(self, indent=0):
-		return ""
+	@classmethod
+	def get_fields_str(cls, instance, indent=0):
+		s = ''
+		for field_name, field_type, arguments, _ in cls._get_filtered_attribute_list(instance):
+			s += f'\n	* {field_name} = {field_type.fmt_member(cls.get_field(instance, field_name), indent+1)}'
+		return s
 
 	@staticmethod
 	def fmt_member(member, indent=0):
 		lines = str(member).split("\n")
 		lines_new = [lines[0], ] + ["\t" * indent + line for line in lines[1:]]
 		return "\n".join(lines_new)
+
+	def __repr__(self, indent=0):
+		s = self.get_info_str(indent)
+		s += self.get_fields_str(self, indent)
+		s += '\n'
+		return s
 
 	@classmethod
 	def from_xml_file(cls, file_path, context, arg=0, template=None):
@@ -178,30 +199,43 @@ class BaseStruct(metaclass=StructMetaClass):
 		self.write_fields(stream, self)
 		self.io_size = stream.tell() - self.io_start
 
-	# @classmethod
-	# def read_fields(cls, stream, instance):
-	# 	for prop, dtype, arguments in cls._get_filtered_attribute_list(instance):
-	# 		# print(dtype, stream, instance.context, *arguments)
-	# 		setattr(instance, prop, dtype.from_stream(stream, instance.context, *arguments))
-	#
-	# @classmethod
-	# def write_fields(cls, stream, instance):
-	# 	for prop, dtype, arguments in cls._get_filtered_attribute_list(instance):
-	# 		data = getattr(instance, prop, None)
-	# 		if data is not None:
-	# 			dtype.to_stream(stream, data)
-
 	@classmethod
 	def read_fields(cls, stream, instance):
-		pass
+		for field_name, field_type, arguments, _ in cls._get_filtered_attribute_list(instance, include_abstract=False):
+			try:
+				setattr(instance, field_name, field_type.from_stream(stream, instance.context, *arguments))
+			except:
+				logging.error(f"failed reading field {field_name} on type {cls}")
+				raise
 
 	@classmethod
 	def write_fields(cls, stream, instance):
-		pass
+		for field_name, field_type, arguments, _ in cls._get_filtered_attribute_list(instance, include_abstract=False):
+			try:
+				field_type.to_stream(stream, getattr(instance, field_name), *arguments[3:4])
+			except:
+				logging.error(f"failed writing field {field_name} on type {cls}")
+				raise
 
 	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from ()
+
+	@staticmethod
+	def get_field(instance, key):
+		return getattr(instance, key)
+
+	@classmethod
+	def set_field(cls, instance, key, value):
+		return setattr(instance, key, value)
+
+	@classmethod
+	def get_size(cls, context, instance, arguments=()):
+		"""arguments is optional because it is not required for _get_filtered_attribute_list"""
+		size = 0
+		for field_name, field_type, arguments, _ in cls._get_filtered_attribute_list(instance, include_abstract=False):
+			size += field_type.get_size(context, cls.get_field(instance, field_name), arguments)
+		return size
 
 	@classmethod
 	def from_stream(cls, stream, context, arg=0, template=None):

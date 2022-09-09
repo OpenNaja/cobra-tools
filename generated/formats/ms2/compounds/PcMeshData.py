@@ -61,62 +61,9 @@ class PcMeshData(MeshData):
 		if set_default:
 			self.set_defaults()
 
-	def set_defaults(self):
-		super().set_defaults()
-		self.tri_index_count_a = 0
-		self.vertex_count = 0
-		self.tri_offset = 0
-		self.tri_index_count = 0
-		self.vertex_offset = 0
-		self.weights_offset = 0
-		self.uv_offset = 0
-		self.zero_b = 0
-		self.vertex_color_offset = 0
-		self.vertex_offset_within_lod = 0
-		self.poweroftwo = 0
-		self.zero = 0
-		self.unknown_07 = 0.0
-		self.flag = ModelFlag(self.context, 0, None)
-
 	@classmethod
-	def read_fields(cls, stream, instance):
-		super().read_fields(stream, instance)
-		instance.tri_index_count_a = Uint.from_stream(stream, instance.context, 0, None)
-		instance.vertex_count = Uint.from_stream(stream, instance.context, 0, None)
-		instance.tri_offset = Uint.from_stream(stream, instance.context, 0, None)
-		instance.tri_index_count = Uint.from_stream(stream, instance.context, 0, None)
-		instance.vertex_offset = Uint.from_stream(stream, instance.context, 0, None)
-		instance.weights_offset = Uint.from_stream(stream, instance.context, 0, None)
-		instance.uv_offset = Uint.from_stream(stream, instance.context, 0, None)
-		instance.zero_b = Uint.from_stream(stream, instance.context, 0, None)
-		instance.vertex_color_offset = Uint.from_stream(stream, instance.context, 0, None)
-		instance.vertex_offset_within_lod = Uint.from_stream(stream, instance.context, 0, None)
-		instance.poweroftwo = Uint.from_stream(stream, instance.context, 0, None)
-		instance.zero = Uint.from_stream(stream, instance.context, 0, None)
-		instance.unknown_07 = Float.from_stream(stream, instance.context, 0, None)
-		instance.flag = ModelFlag.from_stream(stream, instance.context, 0, None)
-
-	@classmethod
-	def write_fields(cls, stream, instance):
-		super().write_fields(stream, instance)
-		Uint.to_stream(stream, instance.tri_index_count_a)
-		Uint.to_stream(stream, instance.vertex_count)
-		Uint.to_stream(stream, instance.tri_offset)
-		Uint.to_stream(stream, instance.tri_index_count)
-		Uint.to_stream(stream, instance.vertex_offset)
-		Uint.to_stream(stream, instance.weights_offset)
-		Uint.to_stream(stream, instance.uv_offset)
-		Uint.to_stream(stream, instance.zero_b)
-		Uint.to_stream(stream, instance.vertex_color_offset)
-		Uint.to_stream(stream, instance.vertex_offset_within_lod)
-		Uint.to_stream(stream, instance.poweroftwo)
-		Uint.to_stream(stream, instance.zero)
-		Float.to_stream(stream, instance.unknown_07)
-		ModelFlag.to_stream(stream, instance.flag)
-
-	@classmethod
-	def _get_filtered_attribute_list(cls, instance):
-		yield from super()._get_filtered_attribute_list(instance)
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'tri_index_count_a', Uint, (0, None), (False, None)
 		yield 'vertex_count', Uint, (0, None), (False, None)
 		yield 'tri_offset', Uint, (0, None), (False, None)
@@ -134,31 +81,6 @@ class PcMeshData(MeshData):
 
 	def get_info_str(self, indent=0):
 		return f'PcMeshData [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
-
-	def get_fields_str(self, indent=0):
-		s = ''
-		s += super().get_fields_str()
-		s += f'\n	* tri_index_count_a = {self.fmt_member(self.tri_index_count_a, indent+1)}'
-		s += f'\n	* vertex_count = {self.fmt_member(self.vertex_count, indent+1)}'
-		s += f'\n	* tri_offset = {self.fmt_member(self.tri_offset, indent+1)}'
-		s += f'\n	* tri_index_count = {self.fmt_member(self.tri_index_count, indent+1)}'
-		s += f'\n	* vertex_offset = {self.fmt_member(self.vertex_offset, indent+1)}'
-		s += f'\n	* weights_offset = {self.fmt_member(self.weights_offset, indent+1)}'
-		s += f'\n	* uv_offset = {self.fmt_member(self.uv_offset, indent+1)}'
-		s += f'\n	* zero_b = {self.fmt_member(self.zero_b, indent+1)}'
-		s += f'\n	* vertex_color_offset = {self.fmt_member(self.vertex_color_offset, indent+1)}'
-		s += f'\n	* vertex_offset_within_lod = {self.fmt_member(self.vertex_offset_within_lod, indent+1)}'
-		s += f'\n	* poweroftwo = {self.fmt_member(self.poweroftwo, indent+1)}'
-		s += f'\n	* zero = {self.fmt_member(self.zero, indent+1)}'
-		s += f'\n	* unknown_07 = {self.fmt_member(self.unknown_07, indent+1)}'
-		s += f'\n	* flag = {self.fmt_member(self.flag, indent+1)}'
-		return s
-
-	def __repr__(self, indent=0):
-		s = self.get_info_str(indent)
-		s += self.get_fields_str(indent)
-		s += '\n'
-		return s
 
 	def init_arrays(self):
 		self.vertices = np.empty((self.vertex_count, 3), np.float32)
