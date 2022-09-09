@@ -93,8 +93,6 @@ class MemStruct(BaseStruct):
 			if isinstance(ptr, Pointer):
 				ptr.arg, template = arguments
 				self.handle_pointer(field_name, ptr, pool)
-		for prop, ptr in self.get_props_and_ptrs():
-			self.handle_pointer(prop, ptr, pool)
 		# read arrays attached to this memstruct
 		arrays = self.get_arrays()
 		for prop, array in arrays:
