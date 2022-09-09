@@ -207,7 +207,7 @@ class Array(list):
 
     @classmethod
     def from_xml(cls, target, elem, prop, arguments):
-        shape, dtype, arg, template = arguments
+        arg, template, shape, dtype = arguments
         sub = elem.find(f'.//{prop}')
         if sub is None:
             logging.warning(f"Missing sub-element '{prop}' on XML element '{elem.tag}'")
@@ -226,7 +226,7 @@ class Array(list):
 
     @classmethod
     def to_xml(cls, elem, prop, instance, arguments, debug):
-        shape, dtype, arg, template = arguments
+        arg, template, shape, dtype = arguments
         sub = ET.SubElement(elem, prop)
         if callable(getattr(dtype, "_to_xml_array", None)):
             dtype._to_xml_array(instance, sub, debug)
