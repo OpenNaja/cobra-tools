@@ -45,11 +45,11 @@ def generate_mesh(x, y, scale):
 	return verts, quads, uvs
 
 
-def create_tex(fp, basename):
+def create_tex(fp):
 	b_img = load_img(fp)
 	# set linear colorspace
 	b_img.colorspace_settings.name = 'Linear'
-	b_tex = bpy.data.textures.new(basename, type="IMAGE")
+	b_tex = bpy.data.textures.new(os.path.splitext(os.path.basename(fp))[0], type="IMAGE")
 	b_tex.image = b_img
 	# disable clamp
 	b_tex.use_clamp = False
@@ -84,7 +84,6 @@ def load(filepath=""):
 	logging.info(f"Importing {file_name}")
 	context = OvlContext()
 	vox = VoxelskirtRoot.from_xml_file(filepath, context)
-
 	verts, quads, uvs = generate_mesh(vox.x, vox.y, vox.scale)
 	map_ob, b_me = mesh_from_data(scene, "map", verts, quads, False)
 	b_me.polygons[0].use_smooth = True
@@ -96,14 +95,16 @@ def load(filepath=""):
 	# add subsurf & displacement modifiers
 	append_subsurf_modifiers(map_ob, num_subdivisions)
 	# import textures
-	for layer in vox.layers.data:
-		if layer.dtype == 0:
-			ext = ".png"
-			b_tex = create_tex(f"{path_no_ext}_{layer.name}{ext}", layer.name)
-		else:
-			ext = ".tiff"
-			b_tex = create_tex(f"{path_no_ext}_{layer.name}{ext}", layer.name)
-			append_displacement_modifier(map_ob, b_tex)
+	if "COASTER" in vox.game:
+		b_tex = create_tex(f"{path_no_ext}_height.tiff")
+		append_displacement_modifier(map_ob, b_tex)
+	else:
+		for layer in vox.layers.data:
+			if layer.dtype == 0:
+				b_tex = create_tex(f"{path_no_ext}_{layer.name}.png")
+			else:
+				b_tex = create_tex(f"{path_no_ext}_{layer.name}.tiff")
+				append_displacement_modifier(map_ob, b_tex)
 
 	for entity_group in vox.entity_groups.data:
 		coll = get_collection(scene, f"{entity_group.name}")
