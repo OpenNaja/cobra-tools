@@ -1,3 +1,4 @@
+import logging
 import os
 import bpy
 
@@ -12,18 +13,21 @@ def get_tree(mat):
 	return tree
 
 
-def load_tex(tree, tex_path):
+def load_img(tex_path):
 	name = os.path.basename(tex_path)
 	if name not in bpy.data.images:
 		try:
 			img = bpy.data.images.load(tex_path)
 		except:
-			print("Could not find image "+tex_path+", generating blank image!")
+			logging.warning(f"Could not find image '{tex_path}', generating blank image!")
 			img = bpy.data.images.new(name, 1, 1)
 	else:
 		img = bpy.data.images[name]
-	tex = tree.nodes.new('ShaderNodeTexImage')
-	tex.image = img
-	tex.interpolation = "Smart"
+	return img
 
+
+def load_tex_node(tree, tex_path):
+	tex = tree.nodes.new('ShaderNodeTexImage')
+	tex.image = load_img(tex_path)
+	tex.interpolation = "Smart"
 	return tex

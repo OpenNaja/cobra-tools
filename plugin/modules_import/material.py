@@ -8,7 +8,7 @@ from generated.formats.fgm.compounds.FgmHeader import FgmHeader
 from generated.formats.ovl.versions import is_jwe, is_jwe2
 from generated.formats.ovl_base import OvlContext
 from plugin.utils.node_arrange import nodes_iterate
-from plugin.utils.node_util import get_tree, load_tex
+from plugin.utils.node_util import get_tree, load_tex_node
 
 
 def create_material(in_dir, matname):
@@ -16,7 +16,7 @@ def create_material(in_dir, matname):
 	logging.info(f"Importing material {matname}")
 	b_mat = bpy.data.materials.new(matname)
 
-	fgm_path = os.path.join(in_dir, matname + ".fgm")
+	fgm_path = os.path.join(in_dir, f"{matname}.fgm")
 	# print(fgm_path)
 	try:
 		fgm_data = FgmHeader.from_xml_file(fgm_path, OvlContext())
@@ -56,15 +56,10 @@ def create_material(in_dir, matname):
 		if "blendweights" in png_base or "warpoffset" in png_base:
 			continue
 		textures = [file for file in all_textures if file.lower().startswith(png_base)]
-		if not textures:
-			png_base = png_base.lower().replace("_eyes", "").replace("_fin", "").replace("_shell", "")
-			textures = [file for file in all_textures if file.lower().startswith(png_base)]
-		if not textures:
-			textures = [png_base + ".png", ]
 		# print(textures)
 		for png_name in textures:
 			png_path = os.path.join(in_dir, png_name)
-			b_tex = load_tex(tree, png_path)
+			b_tex = load_tex_node(tree, png_path)
 			k = png_name.lower().split(".")[1]
 			tex_dic[k] = b_tex
 

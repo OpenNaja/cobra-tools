@@ -5,7 +5,7 @@ import math
 
 from generated.formats.dinosaurmaterialvariants import LayeredMaterial
 from plugin.utils.node_arrange import nodes_iterate
-from plugin.utils.node_util import load_tex, get_tree
+from plugin.utils.node_util import load_tex_node, get_tree
 
 
 def load(filepath=""):
@@ -266,9 +266,9 @@ def create_material(matcol_path):
 		logging.info(f"Slot {i}")
 		# mask_path = os.path.join(mat_dir, f"{mat_basename}.playered_blendweights_[{i:02}].png")
 		# load the tiled height_texture
-		tex = load_tex(tree, slot.height_tile_png_path)
+		tex = load_tex_node(tree, slot.height_tile_png_path)
 		# load the blendweights layer mask
-		mask = load_tex(tree, slot.mask_png_path)
+		mask = load_tex_node(tree, slot.mask_png_path)
 
 		# # height offset attribute
 		# print([i for i in infos[1].info.value][:2])
@@ -321,7 +321,7 @@ def create_material(matcol_path):
 	# JWE2 style
 	if not os.path.isfile(normal_path):
 		normal_path = os.path.join(mat_dir, mat_basename + ".pbasenormaltexture_[0].png")
-	normal = load_tex(tree, normal_path)
+	normal = load_tex_node(tree, normal_path)
 	normal.image.colorspace_settings.name = "Non-Color"
 	normal_map = tree.nodes.new('ShaderNodeNormalMap')
 	tree.links.new(normal.outputs[0], normal_map.inputs[1])
@@ -343,14 +343,14 @@ def create_material(matcol_path):
 	# tree.links.new(mixRGB.outputs[0], bump.inputs[2])
 
 	diffuse_path = os.path.join(mat_dir, mat_basename + ".pbasediffusetexture.png")
-	diffuse = load_tex(tree, diffuse_path)
+	diffuse = load_tex_node(tree, diffuse_path)
 
 	roughness_path = os.path.join(mat_dir, mat_basename + ".pbasepackedtexture_01.png")
-	roughness = load_tex(tree, roughness_path)
+	roughness = load_tex_node(tree, roughness_path)
 	roughness.image.colorspace_settings.name = "Non-Color"
 
 	ao_path = os.path.join(mat_dir, mat_basename + ".pbasepackedtexture_03.png")
-	ao = load_tex(tree, ao_path)
+	ao = load_tex_node(tree, ao_path)
 	ao.image.colorspace_settings.name = "Non-Color"
 
 	# apply AO to diffuse
