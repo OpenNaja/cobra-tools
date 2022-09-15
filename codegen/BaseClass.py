@@ -34,7 +34,7 @@ class BaseClass:
         class_call = f"class {self.class_name}{inheritance}:"
         if (sys.version_info.major, sys.version_info.minor) >= (3, 9):
             # if python version >= 3.9, use ast, because it's more robust
-            src_ast = ast.parse(self.src_code)
+            src_ast = ast.parse(self.src_code, type_comments=True)
             if self.src_code:
                 found_classes = [ast_node for ast_node in src_ast.body if isinstance(ast_node, ast.ClassDef) and ast_node.name == self.class_name]
                 if found_classes:
@@ -71,7 +71,9 @@ class BaseClass:
         return class_call
 
     def write(self, stream):
-        stream.write(self.grab_src_snippet("# START_GLOBALS", "# END_GLOBALS"))
+        src_globals = self.grab_src_snippet("# START_GLOBALS", "# END_GLOBALS")
+        src_globals = "\n".join(src_globals.split("\n")[1:])
+        stream.write(src_globals)
 
         self.imports.write(stream)
 
@@ -93,7 +95,7 @@ class BaseClass:
         src_dir = os.path.join(root_dir, "source")
         py_name = f"{self.class_name.lower()}.py"
 
-        for root, dirs, files in os.walk(src_dir):
+        for root, dirs, files in os.walk(src_dir, followlinks=True):
             for name in files:
                 if self.parser.format_name in root and py_name == name.lower():
                     src_path = os.path.join(root, name)

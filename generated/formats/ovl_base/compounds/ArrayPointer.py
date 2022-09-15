@@ -1,4 +1,3 @@
-
 from generated.array import Array
 from generated.formats.ovl_base.compounds.Pointer import Pointer
 from generated.formats.ovl_base.compounds.Pointer import Pointer

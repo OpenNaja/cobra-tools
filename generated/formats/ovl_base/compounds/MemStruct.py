@@ -1,4 +1,3 @@
-
 from generated.array import Array
 from generated.formats.ovl_base.compounds.ArrayPointer import ArrayPointer
 from generated.formats.ovl_base.compounds.ForEachPointer import ForEachPointer

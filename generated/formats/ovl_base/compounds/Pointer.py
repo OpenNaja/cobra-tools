@@ -1,4 +1,3 @@
-
 import struct
 import xml.etree.ElementTree as ET
 import logging

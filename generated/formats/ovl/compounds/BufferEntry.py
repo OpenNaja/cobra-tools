@@ -1,5 +1,4 @@
 
-
 import logging
 
 from generated.base_struct import BaseStruct

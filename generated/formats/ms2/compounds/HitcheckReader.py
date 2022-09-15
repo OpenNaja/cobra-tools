@@ -1,4 +1,3 @@
-
 from generated.formats.ms2.compounds.HitCheckEntry import HitCheckEntry
 from generated.base_struct import BaseStruct
 
