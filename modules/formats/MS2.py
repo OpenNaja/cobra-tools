@@ -171,15 +171,22 @@ class Ms2Loader(BaseFile):
 				# undo what we did on export
 				wrapper.mesh.stream_info.offset = 0
 		# print(self.header)
+		# determine ovs names
+		if len(ms2_file.modelstream_names) == 1:
+			# older JWE2 versions
+			ovs_names = ["HighPolyModels", ]
+		else:
+			# current JWE2 as of 2022-09-17
+			ovs_names = [f"Models_L{i}" for i in range(len(ms2_file.modelstream_names))]
 		# create modelstreams
-		for modelstream_name in ms2_file.modelstream_names:
+		for modelstream_name, ovs_name in zip(ms2_file.modelstream_names, ovs_names):
 			modelstream_path = os.path.join(ms2_dir, modelstream_name)
-			modelstream_loader = self.ovl.create_file(modelstream_path, ovs_name="HighPolyModels")
+			modelstream_loader = self.ovl.create_file(modelstream_path, ovs_name=ovs_name)
 			self.streams.append(modelstream_loader)
 
 		# create root_entries and mesh data fragments
 		for model_info, mdl2_name in zip(ms2_file.model_infos, ms2_file.mdl_2_names):
-			mdl2_path = os.path.join(ms2_dir, mdl2_name+".mdl2")
+			mdl2_path = os.path.join(ms2_dir, f"{mdl2_name}.mdl2")
 			mdl2_loader = self.ovl.create_file(mdl2_path)
 			self.children.append(mdl2_loader)
 
