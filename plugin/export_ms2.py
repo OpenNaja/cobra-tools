@@ -250,7 +250,7 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 
 				uvs = [(layer.data[loop_index].uv.x, 1 - layer.data[loop_index].uv.y) for layer in eval_me.uv_layers]
 				# create a dummy bytes str for indexing
-				float_items = [c for uv in uvs[:2] for c in uv]
+				float_items = [c for uv in uvs[:2] for c in uv] + [*normal]
 				dummy = struct.pack(f'<HB{len(float_items)}f', b_loop.vertex_index, negate_bitangent, *float_items)
 
 				# see if this dummy key exists
