@@ -66,6 +66,7 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 	mesh.size_of_vertex = 48
 	mesh.flag._value = get_property(b_me, "flag")
 	mesh.unk_floats[:] = (get_property(b_me, "unk_f0"), get_property(b_me, "unk_f1"))
+	mesh.stream_info.offset = get_property(b_me, "stream")
 
 	# register this format for all vert chunks that will be created later
 	if mesh.context.biosyn:
