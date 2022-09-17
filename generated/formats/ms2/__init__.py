@@ -324,6 +324,9 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			if self.buffer_infos:
 				buffer_info = self.buffer_infos[-1]
 				self.buffer_2_bytes = b"".join((getattr(buffer_info, f"{b_name}_bytes") for b_name in BUFFER_NAMES))
+			else:
+				# Assing an empty buffer, maybe it is better to add an 'if attrib' in the saving?
+				self.buffer_2_bytes = b""
 
 	@property
 	def buffers(self):
