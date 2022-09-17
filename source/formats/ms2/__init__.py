@@ -383,9 +383,9 @@ class Ms2File(Ms2InfoHeader, IoFile):
 
 if __name__ == "__main__":
 	m = Ms2File()
-	m.load("C:/Users/arnfi/Desktop/camarasaurus.ms2", read_editable=True)
-	# for mo in m.model_infos:
-	# 	print(mo.bone_info)
+	m.load("C:/Users/arnfi/Desktop/hazard_ceilingfan_.ms2", read_editable=True)
+	for mo in m.model_infos:
+		print(mo.bone_info)
 	# m.load("C:/Users/arnfi/Desktop/park_captainhook_.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/export/models.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/baryo/models.ms2", read_editable=True)

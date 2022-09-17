@@ -363,6 +363,15 @@ class BaseFile:
 				same = False
 		return same
 
+	def log_versions(self):
+		logging.info(f"{self.file_entry.ext} {self.file_entry.mime.mime_version}")
+		for loader in self.children:
+			entry = loader.file_entry
+			logging.info(f"{entry.ext} {entry.mime.mime_version}")
+		for loader in self.streams:
+			entry = loader.file_entry
+			logging.info(f"{entry.ext} {entry.mime.mime_version}")
+
 
 class MemStructLoader(BaseFile):
 	target_class: None
