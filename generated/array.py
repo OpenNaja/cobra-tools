@@ -103,7 +103,7 @@ class Array(list):
     def to_stream(cls, stream, instance, dtype=None):
         if instance is not None:
             try:
-                if cls.is_ragged_shape(instance.shape):
+                if cls.is_ragged_shape(getattr(instance, "shape", len(instance))):
                     RaggedArray.to_stream(stream, instance, dtype)
                 elif callable(getattr(dtype, 'write_array', None)):
                     dtype.write_array(stream, instance)

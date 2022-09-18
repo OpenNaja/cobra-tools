@@ -206,6 +206,15 @@ class BaseStruct(metaclass=StructMetaClass):
 				logging.error(f"failed writing field {field_name} on type {cls}")
 				raise
 
+	def reset_field(self, field_name):
+		for name, field_type, arguments, (optional, default) in type(self)._get_filtered_attribute_list(self):
+			if name == field_name:
+				if default is None:
+					field_value = field_type(self.context, *arguments)
+				else:
+					field_value = field_type.from_value(*arguments[2:4], default)
+				type(self).set_field(self, field_name, field_value)
+
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from ()
