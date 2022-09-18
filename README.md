@@ -48,7 +48,7 @@ By downloading and using this software, you agree to the following conditions:
 - **Do not use this software to circumvent copy protections.** Especially, do not try to unlock downloadable content for free, share official artwork or intellectual property or engage in so-called data mining to announce game content before an official announcement.
 - **Do not seek monetary compensation for mods made with this software.** Do not charge money or ask for donations in order to download the mods. Do not accept payment in exchange for exclusive rights (even if temporary) to commissioners of mods.
 - **Secure permission to use other parties' work in your mods.** This includes but is not limited to using IP, artwork, skin designs and 3D models (eg. porting models from another game). If you don't have the approval of the copyright holder(s), be prepared to face the consequences.
-- **DO NOT AFECT ONLINE* modes of the game drastically, or to gain any advantage above other players using this software. Online gameplay and modifications should be restricted as much as possible and not encouraged.
+- **DO NOT AFECT ONLINE** modes of the game drastically, or to gain any advantage above other players using this software. Online gameplay and modifications should be restricted as much as possible and not encouraged.
 
 
 ### Credits
