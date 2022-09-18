@@ -106,7 +106,7 @@ class BioMeshData(MeshData):
 		return self.chunks_offset * size_of_chunk
 
 	def read_verts(self):
-		logging.debug(self)
+		# logging.debug(self)
 		self.read_chunk_infos()
 		# check first vert_chunk
 		vert_chunk = self.vert_chunks[0]
@@ -124,7 +124,7 @@ class BioMeshData(MeshData):
 		mesh_formats = set()
 		for i, (tri_chunk, vert_chunk) in enumerate(zip(self.tri_chunks, self.vert_chunks)):
 			# bones_per_chunk = set()
-			logging.debug(f"{i}, {tri_chunk}, {vert_chunk}")
+			# logging.debug(f"{i}, {tri_chunk}, {vert_chunk}")
 			# these sometimes correspond but not always
 			# logging.info(f"chunk {i} tris at {tri_chunk.tris_offset}, weights_flag {vert_chunk.weights_flag}")
 

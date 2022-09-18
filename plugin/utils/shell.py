@@ -45,6 +45,7 @@ def create_lods():
 			# delete old target
 			bpy.data.objects.remove(ob, do_unlink=True)
 
+	stream_index = 0
 	for lod_index, (lod_coll, ratio) in enumerate(zip(lod_collections, lod_ratios)):
 		if lod_index > 0:
 			for ob_index, ob in enumerate(lod_collections[0].objects):
@@ -53,6 +54,7 @@ def create_lods():
 					continue
 				obj1 = copy_ob(ob, f"{scn.name}_LOD{lod_index}")
 				obj1.name = f"{scn.name}_lod{lod_index}_ob{ob_index}"
+				b_me = obj1.data
 
 				# Decimating duplicated object
 				decimate = obj1.modifiers.new("Decimate", 'DECIMATE')
@@ -60,11 +62,13 @@ def create_lods():
 
 				# Changing shells to skin
 				if is_shell(ob) and lod_index > 1:
-					b_me = obj1.data
 					# todo - actually toggle the flag on the bitfield to maintain the other bits
 					b_me["flag"] = 565
 					# remove shell material
 					b_me.materials.pop(index=1)
+				b_me["stream"] = stream_index
+		if lod_index < scn.cobra.num_streams:
+			stream_index += 1
 
 	msgs.append("LOD objects generated succesfully")
 	return msgs

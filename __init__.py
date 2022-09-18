@@ -355,6 +355,8 @@ class SCENE_PT_CobraTools(bpy.types.Panel):
         row = layout.row(align=True)
         row.prop(context.scene.cobra, "pack_base")
         row.prop(context.scene.cobra, "resolution")
+        row = layout.row(align=True)
+        row.prop(context.scene.cobra, "num_streams")
         col = self.layout.box().column()
 
 
@@ -376,6 +378,13 @@ class CobraSceneSettings(PropertyGroup):
         description="Minimum distance between two vertices on export - closer snaps together.",
         default=0,
         subtype="DISTANCE"
+    )
+    num_streams: IntProperty(
+        name="External Streams",
+        description="Number of lod levels stored in external .modelstream files",
+        default=0,
+        min=0,
+        max=6
     )
 
 
