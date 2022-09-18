@@ -16,11 +16,16 @@ You need to have installed:
 - [Microsoft Visual C++ Redistributable 2017 x64](https://support.microsoft.com/en-us/help/2977003/the-latest-supported-visual-c-downloads) (needed for texture conversion - you will likely have this installed already)
 - [Microsoft Visual C++ Redistributable 2013 x86](https://support.microsoft.com/en-us/help/2977003/the-latest-supported-visual-c-downloads) (needed for lua decompile - x86 version for now)
 #### Install python dependencies
-- open a command shell and execute the following line: 
+- open a command shell and execute the following lines: 
 ```
 pip install pyqt5 imageio
 ```  
-In case this commands tells you upgrade pip, follow the instructions and then try again until all the requirements are met.
+In case this commands tells you to upgrade pip, follow the instructions and then try again until all the requirements are met. Execute the following lines:
+
+```
+pip install --upgrade pip
+pip install imageio --upgrade
+```
 
 ### Blender Plugin Installation
 - [Blender Plugin - How to Use](https://github.com/OpenNaja/cobra-tools/wiki/Blender-Plugin---How-to-Use)
