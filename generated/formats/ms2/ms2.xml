@@ -208,8 +208,8 @@
 		<add name="half" type="short" until="13" >7F7F</add>
 		<add name="lod index" type="ushort" until="13" >increasing</add>
 		<add name="distance" type="float" since="32" >usually first lod is 900</add>
-		<add name="zero" type="ushort" since="32" >always 0</add>
-		<add name="bone index" type="ushort" >Last bone that is used by this lod's models; usually decreases with increasing lod index to decimate bones. However: JWE detailobjects - nat_groundcover_searocket_patchy_02 due to dedicated lod nodes</add>
+		<add name="stream_index" type="ushort" since="32" >matches the buffer index used by this LOD's meshes</add>
+		<add name="bone_index" type="ushort" >Last bone that is used by this lod's models; usually decreases with increasing lod index to decimate bones. However: JWE detailobjects - nat_groundcover_searocket_patchy_02 due to dedicated lod nodes</add>
 		<add name="first_object_index" type="ushort" >first object for this lod in objects list</add>
 		# apparent repeats, purpose unknown
 		<add name="first_object_index_1" type="ushort" until="13"/>

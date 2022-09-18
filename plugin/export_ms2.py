@@ -462,10 +462,10 @@ def save(filepath='', apply_transforms=False, edit_bones=False, use_stock_normal
 			m_lod.objects = []
 			model_info.model.lods.append(m_lod)
 			for b_ob in lod_coll.objects:
+				b_me = b_ob.data
 				# store & set bone index for lod
 				m_lod.bone_index = get_property(b_ob, "bone")
-
-				b_me = b_ob.data
+				m_lod.stream_index = get_property(b_me, "stream")
 				if b_me not in b_models:
 					b_models.append(b_me)
 					wrapper = export_model(model_info, lod_coll, b_ob, b_me, bones_table, bounds, apply_transforms,

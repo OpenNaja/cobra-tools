@@ -150,7 +150,7 @@ class MainWindow(widgets.MainWindow):
 			self.file_widget.dirty = False
 			self.update_progress(f"Saved {self.ms2_file.name}", value=1, vmax=1)
 		except:
-			self.handle_error("Saving OVL failed, see log!")
+			self.handle_error("Saving MS2 failed, see log!")
 
 
 if __name__ == '__main__':

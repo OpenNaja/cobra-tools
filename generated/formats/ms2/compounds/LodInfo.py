@@ -32,8 +32,8 @@ class LodInfo(BaseStruct):
 		# usually first lod is 900
 		self.distance = 0.0
 
-		# always 0
-		self.zero = 0
+		# matches the buffer index used by this LOD's meshes
+		self.stream_index = 0
 
 		# Last bone that is used by this lod's models; usually decreases with increasing lod index to decimate bones. However: JWE detailobjects - nat_groundcover_searocket_patchy_02 due to dedicated lod nodes
 		self.bone_index = 0
@@ -63,7 +63,7 @@ class LodInfo(BaseStruct):
 			yield 'lod_index', Ushort, (0, None), (False, None)
 		if instance.context.version >= 32:
 			yield 'distance', Float, (0, None), (False, None)
-			yield 'zero', Ushort, (0, None), (False, None)
+			yield 'stream_index', Ushort, (0, None), (False, None)
 		yield 'bone_index', Ushort, (0, None), (False, None)
 		yield 'first_object_index', Ushort, (0, None), (False, None)
 		if instance.context.version <= 13:
