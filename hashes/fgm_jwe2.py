@@ -1,6 +1,11 @@
 # Attributes, their dtypes, and 5 most common values
 # To generate full usage values, you must run FGM Walker on all Content FGMs
 attributes = {
+
+
+    #"pEnableAlphaTestRefFade", "pEnableScreenSpaceAO", "pExtrusionScaling", "pFlexiColourBlended", "pFlexiColourTexCoordIndex", "pFlexiColourUseAdditiveBlend", "pFlexiColourVertexColour", "pRenderLayerOverride", "pTransmittance", "pVerticalTiling", "pWaterEdge_Falloff", "pWaterEdge_NoiseScale", "pWaterEdge_NoiseSpeed","pWaterEdge_NoiseStrength", "pWaterEdge_WaterEdgeThreshold"
+
+    "pDistanceFieldParams": (0, [((1.0,), 4), ((0.114,), 3), ((0.5,), 2), ((0.15,), 2), ((0.0,), 2)]),
     "gAnisotropicStrength": (0, [((1.0,), 4), ((0.114,), 3), ((0.5,), 2), ((0.15,), 2), ((0.0,), 2)]),
     "gBendStretchScale": (0, [((0.03,), 1), ((0.279,), 1), ((0.5,), 1), ((0.036,), 1), ((0.942,), 1)]),
     "gDirectionScale": (0, [((1.0,), 8), ((3.76,), 2), ((0.0,), 1), ((0.49,), 1), ((0.262,), 1)]),
@@ -776,6 +781,7 @@ textures = {
 }
 
 shaders = {
+    'Metallic_Roughness_Clip_Text',
     "Building_BiomeLayer",
     "Collection_Pattern",
     "Depth_Fade",
@@ -881,6 +887,9 @@ shaders = {
 }
 
 shader_textures = {
+    "Metallic_Roughness_Clip_Text":
+         ['pBaseColourTexture', 'pFlexiColourMasksTexture', 'pNormalTexture', 'pRoughnessPackedTexture'],
+
     "Building_BiomeLayer":
          ['pAOTexture', 'pBaseColourTexture', 'pHeightTexture', 'pNormalTexture', 'pRoughnessPackedTexture'],
 
@@ -1190,6 +1199,9 @@ shader_textures = {
 }
 
 shader_attribs = {
+    "Metallic_Roughness_Clip_Text":
+         ['pAlphaTestRef', "pDistanceFieldParams", "pEnableAlphaTestRefFade", "pEnableScreenSpaceAO", "pExtrusionScaling", "pFlexiColourBlended", "pFlexiColourTexCoordIndex", "pFlexiColourUseAdditiveBlend", "pFlexiColourVertexColour", "pRenderLayerOverride", "pTransmittance", "pVerticalTiling", "pWaterEdge_Falloff", "pWaterEdge_NoiseScale", "pWaterEdge_NoiseSpeed","pWaterEdge_NoiseStrength", "pWaterEdge_WaterEdgeThreshold"],
+
     "Building_BiomeLayer":
          ['pBlendDistance', 'pBlendMode'],
 
