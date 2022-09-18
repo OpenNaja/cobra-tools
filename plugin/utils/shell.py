@@ -39,7 +39,7 @@ def create_lods():
 	# Setup default lod ratio values
 	lod_ratios = np.linspace(1.0, 0.05, num=len(lod_collections))
 
-	# Deleting old LODS
+	# Deleting old LODs
 	for lod_coll in lod_collections[1:]:
 		for ob in lod_coll.objects:
 			# delete old target
@@ -70,7 +70,7 @@ def create_lods():
 		if lod_index < scn.cobra.num_streams:
 			stream_index += 1
 
-	msgs.append("LOD objects generated succesfully")
+	msgs.append("LOD objects generated successfully")
 	return msgs
 
 
