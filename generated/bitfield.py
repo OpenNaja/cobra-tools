@@ -57,7 +57,7 @@ class BasicBitfield(object, metaclass=BitfieldMetaClass):
 
     @classmethod
     def to_stream(cls, stream, instance):
-        cls._storage.to_stream(stream, instance._value)
+        cls._storage.to_stream(stream, int(instance))
 
     @classmethod
     def get_size(cls, context, instance, argument=()):

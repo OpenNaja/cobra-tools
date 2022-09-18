@@ -98,7 +98,7 @@ class BaseEnum(IntEnum, metaclass=DefaultEnumMeta):
 
 	@classmethod
 	def to_stream(cls, stream, instance):
-		cls._storage.to_stream(stream, instance.value)
+		cls._storage.to_stream(stream, int(instance))
 		return instance
 
 	@classmethod
