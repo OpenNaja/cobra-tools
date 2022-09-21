@@ -84,6 +84,10 @@ class BasicBitfield(object, metaclass=BitfieldMetaClass):
         lines_new = [lines[0], ] + ["\t" * indent + line for line in lines[1:]]
         return "\n".join(lines_new)
 
+    @classmethod
+    def validate_instance(cls, instance, context, arguments):
+        cls._storage.validate_instance(int(instance))
+
     def __repr__(self):
         return self.__str__()
 

@@ -125,3 +125,7 @@ class BaseEnum(IntEnum, metaclass=DefaultEnumMeta):
 	@classmethod
 	def to_xml(cls, elem, prop, instance, arguments, debug):
 		elem.attrib[prop] = str(instance)
+
+	@classmethod
+	def validate_instance(cls, instance, context, arguments):
+		cls._storage.validate_instance(int(instance))

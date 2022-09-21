@@ -78,7 +78,7 @@ class BaseStruct(metaclass=StructMetaClass):
 					# use the from_value function
 					field_value = field_type.from_value(*arguments[2:4], default)
 			except:
-				logging.error(f"failed writing field {field_name} on type {type(self)}")
+				logging.error(f"failed setting default on field {field_name} on type {type(self)}")
 				raise
 			setattr(self, field_name, field_value)
 
@@ -214,6 +214,21 @@ class BaseStruct(metaclass=StructMetaClass):
 				else:
 					field_value = field_type.from_value(*arguments[2:4], default)
 				type(self).set_field(self, field_name, field_value)
+
+	@classmethod
+	def validate_instance(cls, instance, context, arguments):
+		try:
+			assert instance.context == context
+			assert instance.arg == arguments[0]
+			assert instance.template == arguments[1]
+		except AssertionError:
+			logging.error(f"validation failed on {cls}")
+		for f_name, f_type, f_arguments, _ in cls._get_filtered_attribute_list(instance):
+			try:
+				f_type.validate_instance(cls.get_field(instance, f_name), context, f_arguments)
+			except AssertionError:
+				logging.error(f"validation failed on field {f_name} on type {cls}")
+				raise
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

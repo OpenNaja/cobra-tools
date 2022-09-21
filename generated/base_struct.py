@@ -216,6 +216,18 @@ class BaseStruct(metaclass=StructMetaClass):
 				type(self).set_field(self, field_name, field_value)
 
 	@classmethod
+	def validate_instance(cls, instance, context, arguments):
+		assert instance.context == context
+		assert instance.arg == arguments[0]
+		assert instance.template == arguments[1]
+		for f_name, f_type, f_arguments, _ in cls._get_filtered_attribute_list(instance):
+			try:
+				f_type.validate_instance(cls.get_field(instance, f_name), context, f_arguments)
+			except AssertionError:
+				logging.error(f"validation failed on field {f_name} on type {cls}")
+				raise
+
+	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from ()
 
