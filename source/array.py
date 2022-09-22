@@ -189,11 +189,11 @@ class Array(list):
         elif callable(getattr(arguments[3], "validate_array", None)):
             return arguments[3].validate_array(instance, context, arguments[:3])
         try:
-            assert instance.context == context
-            assert instance.arg == arguments[0]
-            assert instance.template == arguments[1]
-            assert instance.shape == arguments[2]
-            assert instance.dtype == arguments[3]
+	        assert instance.context == context, f"context {instance.context} doesn't match {context} on {cls}"
+	        assert instance.arg == arguments[0], f"argument {instance.argument} doesn't match {arguments[0]} on {cls}"
+	        assert instance.template == arguments[1], f"template {instance.template} doesn't match {arguments[1]} on {cls}"
+	        assert instance.shape == arguments[2], f"shape {instance.shape} doesn't match {arguments[2]} on {cls}"
+	        assert instance.dtype == arguments[3], f"dtype {instance.dtype} doesn't match {arguments[3]} on {cls}"
         except AssertionError:
             logging.error(f"validation failed on {cls}[{arguments[3]}]")
             raise
@@ -346,11 +346,15 @@ class RaggedArray(Array):
     def validate_instance(cls, instance, context, arguments):
         if callable(getattr(arguments[3], "validate_ragged_array", None)):
             return arguments[3].validate_ragged_array(instance, context, arguments[:3])
-        assert instance.context == context
-        assert instance.arg == arguments[0]
-        assert instance.template == arguments[1]
-        assert instance.shape == arguments[2]
-        assert instance.dtype == arguments[3]
+        try:
+	        assert instance.context == context, f"context {instance.context} doesn't match {context} on {cls}"
+	        assert instance.arg == arguments[0], f"argument {instance.argument} doesn't match {arguments[0]} on {cls}"
+	        assert instance.template == arguments[1], f"template {instance.template} doesn't match {arguments[1]} on {cls}"
+	        assert instance.shape == arguments[2], f"shape {instance.shape} doesn't match {arguments[2]} on {cls}"
+	        assert instance.dtype == arguments[3], f"dtype {instance.dtype} doesn't match {arguments[3]} on {cls}"
+        except AssertionError:
+            logging.error(f"validation failed on {cls}[{arguments[3]}]")
+            raise
         for f_name, f_type, f_arguments, _ in cls._get_filtered_attribute_list(instance, arguments[3]):
             try:
                 f_type.validate_instance(cls.get_field(instance, f_name), context, f_arguments)

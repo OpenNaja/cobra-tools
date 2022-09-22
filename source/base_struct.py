@@ -218,11 +218,12 @@ class BaseStruct(metaclass=StructMetaClass):
 	@classmethod
 	def validate_instance(cls, instance, context, arguments):
 		try:
-			assert instance.context == context
-			assert instance.arg == arguments[0]
-			assert instance.template == arguments[1]
+			assert instance.context == context, f"context {instance.context} doesn't match {context} on {cls}"
+			assert instance.arg == arguments[0], f"argument {instance.argument} doesn't match {arguments[0]} on {cls}"
+			assert instance.template == arguments[1], f"template {instance.template} doesn't match {arguments[1]} on {cls}"
 		except AssertionError:
 			logging.error(f"validation failed on {cls}")
+			raise
 		for f_name, f_type, f_arguments, _ in cls._get_filtered_attribute_list(instance):
 			try:
 				f_type.validate_instance(cls.get_field(instance, f_name), context, f_arguments)
