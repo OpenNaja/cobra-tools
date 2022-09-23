@@ -8,12 +8,14 @@ from generated.formats.base.basic import Ubyte
 from generated.formats.base.basic import Uint
 from generated.formats.base.basic import Uint64
 from generated.formats.base.basic import Ushort
+from generated.formats.base.compounds.PadAlign import PadAlign
 from generated.formats.ms2.compounds.Bone import Bone
 from generated.formats.ms2.compounds.JointData import JointData
 from generated.formats.ms2.compounds.Matrix44 import Matrix44
 from generated.formats.ms2.compounds.MinusPadding import MinusPadding
 from generated.formats.ms2.compounds.Struct7 import Struct7
 from generated.formats.ms2.compounds.ZerosPadding import ZerosPadding
+from generated.formats.ovl_base.compounds.Empty import Empty
 
 
 class BoneInfo(BaseStruct):
@@ -86,9 +88,12 @@ class BoneInfo(BaseStruct):
 
 		# zero
 		self.unk_extra_jwe = 0
+		self.names_ref = Empty(self.context, 0, None)
 		self.name_indices = Array(self.context, 0, None, (0,), Ushort)
 		self.inventory_name_indices = Array(self.context, 0, None, (0,), Ushort)
-		self.name_padding = Array(self.context, 0, None, (0,), Byte)
+
+		# align to 16 bytes
+		self.name_padding = PadAlign(self.context, 16, self.names_ref)
 
 		# used for skinning
 		self.inverse_bind_matrices = Array(self.context, 0, None, (0,), Matrix44)
@@ -97,8 +102,8 @@ class BoneInfo(BaseStruct):
 		# 255 = root, index in this list is the current bone index, value is the bone's parent index
 		self.parents = Array(self.context, 0, None, (0,), Ubyte)
 
-		# zeros
-		self.parents_padding = Array(self.context, 0, None, (0,), Byte)
+		# align to 8 bytes
+		self.parents_padding = PadAlign(self.context, 8, self.names_ref)
 
 		# enumerates all bone indices, 4 may be flags
 
@@ -162,20 +167,18 @@ class BoneInfo(BaseStruct):
 			yield 'unk_extra', Uint64, (0, None), (False, None)
 		if (instance.context.version == 47) or (instance.context.version == 39):
 			yield 'unk_extra_jwe', Uint64, (0, None), (False, None)
+		yield 'names_ref', Empty, (0, None), (False, None)
 		if not (instance.context.version < 47):
 			yield 'name_indices', Array, (0, None, (instance.name_count,), Uint), (False, None)
 		if instance.context.version < 47:
 			yield 'name_indices', Array, (0, None, (instance.name_count,), Ushort), (False, None)
 			yield 'inventory_name_indices', Array, (0, None, (instance.inv_names_count,), Ushort), (False, None)
-		if not (instance.context.version < 47):
-			yield 'name_padding', Array, (0, None, ((16 - (((instance.name_count + instance.inv_names_count) * 4) % 16)) % 16,), Byte), (False, None)
-		if instance.context.version < 47:
-			yield 'name_padding', Array, (0, None, ((16 - (((instance.name_count + instance.inv_names_count) * 2) % 16)) % 16,), Byte), (False, None)
+		yield 'name_padding', PadAlign, (16, instance.names_ref), (False, None)
 		yield 'inverse_bind_matrices', Array, (0, None, (instance.bind_matrix_count,), Matrix44), (False, None)
 		yield 'bones', Array, (0, None, (instance.bone_count,), Bone), (False, None)
 		yield 'parents', Array, (0, None, (instance.parents_count,), Ubyte), (False, None)
 		if instance.context.version >= 32:
-			yield 'parents_padding', Array, (0, None, ((8 - (instance.parents_count % 8)) % 8,), Byte), (False, None)
+			yield 'parents_padding', PadAlign, (8, instance.names_ref), (False, None)
 		if instance.context.version >= 32 and instance.one:
 			yield 'enumeration', Array, (0, None, (instance.enum_count, 2,), Uint), (False, None)
 		if instance.context.version <= 13 and instance.one:

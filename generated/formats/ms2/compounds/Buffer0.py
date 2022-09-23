@@ -1,9 +1,9 @@
 import numpy
 from generated.array import Array
 from generated.base_struct import BaseStruct
-from generated.formats.base.basic import Ubyte
 from generated.formats.base.basic import Uint
 from generated.formats.base.basic import ZString
+from generated.formats.base.compounds.PadAlign import PadAlign
 from generated.formats.ms2.compounds.StreamsZTHeader import StreamsZTHeader
 
 
@@ -23,7 +23,7 @@ class Buffer0(BaseStruct):
 		self.names = Array(self.context, 0, None, (0,), ZString)
 
 		# align to 4
-		self.names_padding = Array(self.context, 0, None, (0,), Ubyte)
+		self.names_padding = PadAlign(self.context, 4, self.names)
 		self.zt_streams_header = StreamsZTHeader(self.context, self.arg, None)
 		if set_default:
 			self.set_defaults()
@@ -34,6 +34,6 @@ class Buffer0(BaseStruct):
 		yield 'name_hashes', Array, (0, None, (instance.arg.name_count,), Uint), (False, None)
 		yield 'names', Array, (0, None, (instance.arg.name_count,), ZString), (False, None)
 		if instance.context.version >= 50:
-			yield 'names_padding', Array, (0, None, ((4 - (instance.names.io_size % 4)) % 4,), Ubyte), (False, None)
+			yield 'names_padding', PadAlign, (4, instance.names), (False, None)
 		if instance.context.version <= 13:
 			yield 'zt_streams_header', StreamsZTHeader, (instance.arg, None), (False, None)

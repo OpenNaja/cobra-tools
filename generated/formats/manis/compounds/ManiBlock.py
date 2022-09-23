@@ -7,8 +7,8 @@ from generated.formats.base.basic import Uint
 from generated.formats.base.basic import Uint64
 from generated.formats.base.basic import Ushort
 from generated.formats.base.compounds.PadAlign import PadAlign
-from generated.formats.manis.compounds.Empty import Empty
 from generated.formats.manis.compounds.Repeat import Repeat
+from generated.formats.ovl_base.compounds.Empty import Empty
 from generated.formats.ovl_base.compounds.SmartPadding import SmartPadding
 
 

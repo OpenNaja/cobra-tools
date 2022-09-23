@@ -76,7 +76,7 @@
     </compound>
 
     <compound name="PadAlign">
-        Grabs 00 bytes only
+        Grabs as many bytes as needed to align #ARG# bytes from the start of #TEMPLATE#
     </compound>
 
 </niftoolsxml>

@@ -521,6 +521,7 @@ class TextureVisual:
 	def update_dtype(self, ind):
 		dtype_name = self.w_dtype.currentText()
 		self.entry.dtype = FgmDtype[dtype_name]
+		logging.info(f"Dtype {self.entry.dtype}")
 		try:
 			self.data.set_defaults()
 			if self.entry.dtype == FgmDtype.TEXTURE:
@@ -529,6 +530,7 @@ class TextureVisual:
 
 			self.entry.set_defaults()
 
+			logging.info(f"Dtype {self.entry.dtype}")
 			# Set RGBA values to middle gray
 			if self.entry.dtype == FgmDtype.RGBA:
 				self.entry.value[0].r = 127

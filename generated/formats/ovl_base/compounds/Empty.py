@@ -3,9 +3,13 @@ from generated.base_struct import BaseStruct
 
 class Empty(BaseStruct):
 
+	"""
+	An empty object, used to reference stream offsets
+	"""
+
 	__name__ = 'Empty'
 
-	_import_key = 'voxelskirt.compounds.Empty'
+	_import_key = 'ovl_base.compounds.Empty'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)

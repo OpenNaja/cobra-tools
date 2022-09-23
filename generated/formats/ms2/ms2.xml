@@ -369,7 +369,7 @@
 	<compound name="Buffer0" >
 		<add name="name hashes" type="uint" arr1="#ARG#\name count" >djb2 hashes</add>
 		<add name="names" type="ZString" arr1="#ARG#\name count" >names</add>
-		<add name="names padding" padding="1" type="ubyte" since="50" arr1="(4 - ( names \ io_size #MOD# 4)) % 4">align to 4</add>
+		<add name="names padding" type="PadAlign" template="names" arg="4" since="50">align to 4</add>
 		<add name="zt streams header" type="StreamsZTHeader" until="13" arg="#ARG#" />
 	</compound>
 
@@ -516,18 +516,18 @@
 		<add name="unk extra jwe" type="uint64" vercond="#JWE#" >zero</add>
 
 		index into ms2 string table for bones used here
+		<add name="names ref" type="Empty"/>
 		<add name="name indices" type="uint" arr1="name count" vercond="!#OLD#"/>
 		<add name="name indices" type="ushort" arr1="name count" vercond="#OLD#"/>
 		<add name="inventory name indices" type="ushort" arr1="inv_names_count" vercond="#OLD#"/>
-		pad to multiples of 16 bytes
-		<add name="name padding" padding="1" type="byte" arr1="(16 - (((name count + inv_names_count) * 4) % 16)) % 16" vercond="!#OLD#"/>
-		<add name="name padding" padding="1" type="byte" arr1="(16 - (((name count + inv_names_count) * 2) % 16)) % 16" vercond="#OLD#"/>
+
+		<add name="name padding" type="PadAlign" template="names ref" arg="16" >align to 16 bytes</add>
 		# hook size 8256
 		<add name="inverse bind matrices" type="Matrix44" arr1="bind matrix count">used for skinning</add>
 		# hook start at 13153
 		<add name="bones" type="Bone" arr1="bone count"/>
 		<add name="parents" type="ubyte" arr1="parents count" >255 = root, index in this list is the current bone index, value is the bone's parent index</add>
-		<add name="parents_padding" padding="1" type="byte" arr1="(8 - (parents count % 8)) % 8" since="32">zeros</add>
+		<add name="parents_padding" type="PadAlign" template="names ref" arg="8" since="32">align to 8 bytes</add>
 		<add name="enumeration" type="uint" arr1="enum count" arr2="2" cond="one" since="32" >enumerates all bone indices, 4 may be flags</add>
 		<add name="enumeration" type="ubyte" arr1="enum count" cond="one" until="13" >enumerates all bone indices</add>
 

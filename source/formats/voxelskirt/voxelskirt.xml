@@ -31,9 +31,6 @@
         <add name="names" type="DataSlot" template="Name"/>
     </compound>
 
-    <compound name="Empty">
-    </compound>
-
     <compound name="DataSlot">
         offset into buffer to start of sth; only given if some count is nonzero
         <add name="offset" type="uint64" >offset into buffer to start</add>

@@ -23,10 +23,6 @@
     <version id="JWE2_DEV" version="261" >JWE2 Dev Build</version>
     <version id="JWE2" version="262" >JWE2</version>
 
-    <compound name="Empty">
-        Grabs 00 bytes only
-    </compound>
-
     <compound name="SizedStrData">
 		24 bytes for DLA, ZTUAC, PC, JWE1, old PZ
 		32 bytes for PZ1.6+, JWFloatCount

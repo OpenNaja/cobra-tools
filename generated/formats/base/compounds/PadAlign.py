@@ -11,7 +11,7 @@ from generated.base_struct import BaseStruct
 class PadAlign(BaseStruct):
 
 	"""
-	Grabs 00 bytes only
+	Grabs as many bytes as needed to align #ARG# bytes from the start of #TEMPLATE#
 	"""
 
 	__name__ = 'PadAlign'

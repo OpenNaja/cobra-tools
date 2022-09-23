@@ -107,4 +107,7 @@
         <add name="user_version" type="VersionInfo" >determines compression format (none, zlib or oodle) and apparently type of data (additional fields)</add>
     </compound>
 
+    <compound name="Empty">
+        An empty object, used to reference stream offsets
+    </compound>
 </niftoolsxml>
