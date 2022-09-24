@@ -129,7 +129,7 @@ class OvsFile(OvsHeader):
 						f"Can't find '{entry.name}' [{entry.__class__.__name__}] in name LUT, cannot update hash")
 					continue
 				file = self.ovl.files[file_index]
-				if self.ovl.user_version.is_jwe:
+				if self.ovl.user_version.use_djb:
 					entry.file_hash = file.file_hash
 				else:
 					entry.file_hash = file_index
@@ -505,7 +505,7 @@ class OvsFile(OvsHeader):
 	def assign_name(self, entry):
 		"""Fetch a filename for an entry"""
 		# JWE style
-		if self.ovl.user_version.is_jwe:
+		if self.ovl.user_version.use_djb:
 			try:
 				n = self.ovl.hash_table_local[entry.file_hash]
 				e = self.ovl.hash_table_local[entry.ext_hash]
@@ -540,16 +540,19 @@ class OvsFile(OvsHeader):
 			pool.pad()
 			pool.move_empty_pointers_to_end()
 			pool_bytes = pool.data.getvalue()
-			# JWE, JWE2: relative offset for each pool
-			if self.ovl.user_version.is_jwe:
-				pool.offset = pools_data_writer.tell()
-			# PZ, PC: offsets relative to the whole pool block
-			else:
-				pool.offset = self.arg.pools_start + pools_data_writer.tell()
+			pool.offset = self.get_pool_offset(pools_data_writer.tell())
 			logging.debug(f"pool.offset {pool.offset}, pools_start {self.arg.pools_start}")
 			pool.size = len(pool_bytes)
 			pools_data_writer.write(pool_bytes)
 		self.pools_data = pools_data_writer.getvalue()
+
+	def get_pool_offset(self, in_offset):
+		# JWE, JWE2: relative offset for each pool
+		if self.ovl.user_version.use_djb:
+			return in_offset
+		# PZ, PC: offsets relative to the whole pool block
+		else:
+			return self.arg.pools_start + in_offset
 
 	def write_archive(self):
 		logging.info(f"Writing archive {self.arg.name}")

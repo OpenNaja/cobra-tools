@@ -49,6 +49,6 @@ class FgmHeader(MemStruct):
 		yield 'value_foreach_attributes', ForEachPointer, (instance.attributes, FgmHeader._import_map["fgm.compounds.AttribData"]), (False, None)
 		yield '_unk_0', Uint64, (0, None), (False, None)
 		yield '_unk_1', Uint64, (0, None), (False, None)
-		if instance.context.user_version.is_jwe and (instance.context.version == 20):
+		if instance.context.user_version.use_djb and (instance.context.version == 20):
 			yield '_unk_2', Uint64, (0, None), (False, None)
 			yield '_unk_3', Uint64, (0, None), (False, None)

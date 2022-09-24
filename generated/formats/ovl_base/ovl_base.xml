@@ -8,10 +8,10 @@
         <verexpr token="#ZTUAC#" string="(#VER# #EQ# 17)">ZTUAC</verexpr>
 		<verexpr token="#PC#" string="(#VER# #EQ# 18)">PC</verexpr>
 		<verexpr token="#OLD#" string="(#VER# #LT# 19)">PC</verexpr>
-        <verexpr token="#PZ#" string="((! #USER# \ is_jwe) #AND# (#VER# #GTE# 19))">PZ</verexpr>
-        <verexpr token="#PZ16#" string="((! #USER# \ is_jwe) #AND# (#VER# #EQ# 20))">PZ</verexpr>
-        <verexpr token="#JWE#" string="((#USER# \ is_jwe) #AND# (#VER# #EQ# 19))">JWE</verexpr>
-        <verexpr token="#JWE2#" string="((#USER# \ is_jwe) #AND# (#VER# #EQ# 20))">JWE2</verexpr>
+        <verexpr token="#PZ#" string="((! #USER# \ use_djb) #AND# (#VER# #GTE# 19))">PZ</verexpr>
+        <verexpr token="#PZ16#" string="((! #USER# \ use_djb) #AND# (#VER# #EQ# 20))">PZ</verexpr>
+        <verexpr token="#JWE#" string="((#USER# \ use_djb) #AND# (#VER# #EQ# 19))">JWE</verexpr>
+        <verexpr token="#JWE2#" string="((#USER# \ use_djb) #AND# (#VER# #EQ# 20))">JWE2</verexpr>
     </token>
 
 	<token name="global" attrs="vercond access">
@@ -57,7 +57,7 @@
         <member width="1" pos="4" name="unk2" type="bool"/>
         <member width="3" pos="7" name="compression" type="Compression"/>
         <member width="1" pos="13" name="unk3" type="bool"/>
-        <member width="1" pos="14" name="is jwe" type="bool"/>
+        <member width="1" pos="14" name="use_djb" type="bool">makes OVS use DJB internally instead of indices into OVL lists, also affects memory offsets</member>
     </bitfield>
 
     <enum name="Compression" numbytes="4" storage="uint" default="0">
