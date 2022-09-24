@@ -211,6 +211,30 @@
         <add name="OutputPropThroughVariable" type="Pointer" template="ZString"/>
     </compound>
 
+    <compound name="RagdollPhysicsActivityData" inherit="MemStruct">
+        ? bytes
+        <add name="flag" type="RagdollPhysicsActivityFlags" />
+        <add name="_flag_pad" type="uint" />
+        <add name="RootBoneName" type="Pointer" template="ZString"/>
+        <add name="CollisionExcludeMask" type="uint64" />8 bit mask + padding
+        <add name="CollisionExclude0" type="Pointer" template="ZString"/>
+        <add name="CollisionExclude1" type="Pointer" template="ZString"/>
+        <add name="CollisionExclude2" type="Pointer" template="ZString"/>
+        <add name="CollisionExclude3" type="Pointer" template="ZString"/>
+        <add name="CollisionExclude4" type="Pointer" template="ZString"/>
+        <add name="CollisionExclude5" type="Pointer" template="ZString"/>
+        <add name="CollisionExclude6" type="Pointer" template="ZString"/>
+        <add name="CollisionExclude7" type="Pointer" template="ZString"/>
+        <add name="MinMotorDrivingForce" type="float"/>
+        <add name="MaxMotorDrivingForce" type="float"/>
+        <add name="MotorWeightVariable" type="Pointer" template="ZString"/>
+        <add name="PoseMatchLinThreshold" type="float"/>
+        <add name="PoseMatchAngThreshold" type="float"/>
+        <add name="BoneChainPriority" type="uint64" />32 bit + padding
+        <add name="DataStreamName" type="Pointer" template="ZString"/>
+        <add name="DataStreamType" type="Pointer" template="ZString"/>
+    </compound>
+
     <compound name="FootPlantActivityData" inherit="MemStruct">
         48 bytes
         <add name="Weight" type="FloatInputData"/>
@@ -246,6 +270,27 @@
         <bits name="FlagOnLoop" numbits="1" />
         <bits name="ResetRandomOnLoop" numbits="1" />
         <bits name="SuppressResourceDataStreams" numbits="1" />
+    </bitstruct>
+
+    <bitstruct name="RagdollPhysicsActivityFlags" numbytes="4" storage="uint">
+        <bits name="AutoSleepEnabled" numbits="1" />
+        <bits name="CollisionEnabled" numbits="1" />
+        <bits name="SpatialEnabled" numbits="1" />
+        <bits name="MotorDrivingEnabled" numbits="1" />
+        <bits name="ConstraintProjection" numbits="1" />
+        <bits name="ActivateOnStartup" numbits="1" />
+        <bits name="ActivateOnCollision" numbits="1" />
+        <bits name="ActivateOneTimeOnly" numbits="1" />
+        <bits name="ActivateByDataStream" numbits="1" />
+        <bits name="WakeOnActivation" numbits="1" />
+        <bits name="ActivationDisabled" numbits="1" />
+        <bits name="LockPoseOnActivation" numbits="1" />
+        <bits name="DeactivatePoseMatch" numbits="1" />
+        <bits name="MotorPoseMatching" numbits="1" />
+        <bits name="MotorJointStiffening" numbits="1" />
+        <bits name="ForceSubStepSynch" numbits="1" />
+        <bits name="ForceDisableSynch" numbits="1" />
+        <bits name="ForceCallbacks" numbits="1" />
     </bitstruct>
 
     <compound name="DataStreamProducerActivityData" inherit="MemStruct">

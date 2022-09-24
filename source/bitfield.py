@@ -63,7 +63,6 @@ class BasicBitfield(object, metaclass=BitfieldMetaClass):
     def get_size(cls, context, instance, argument=()):
         return cls._storage.get_size(context, instance)
 
-
     @classmethod
     def from_value(cls, value):
         instance = cls(None, set_default=False)
