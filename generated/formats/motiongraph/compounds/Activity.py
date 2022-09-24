@@ -49,22 +49,11 @@ class Activity(MemStruct):
 	def get_ptr_template(self, prop):
 		"""Returns the appropriate template for a pointer named 'prop', if exists.
 		Must be overwritten in subclass"""
-		# print(f"get_ptr_template Activity")
 		if prop == "ptr":
 			activity = self.data_type.data
-			# print(f"data_type {self.data_type.data}")
-			if activity == "AnimationActivity":
-				# print(f"data_type {self.data_type.data}")
-				return generated.formats.motiongraph.compounds.AnimationActivityData.AnimationActivityData
-			elif activity == "FootPlantActivity":
-				# print(f"data_type {self.data_type.data}")
-				return generated.formats.motiongraph.compounds.FootPlantActivityData.FootPlantActivityData
-			elif activity == "DataStreamProducerActivity":
-				# print(f"data_type {self.data_type.data}")
-				return generated.formats.motiongraph.compounds.DataStreamProducerActivityData.DataStreamProducerActivityData
-			elif activity == "SelectActivityActivity":
-				# print(f"data_type {self.data_type.data}")
-				return generated.formats.motiongraph.compounds.SelectActivityActivityData.SelectActivityActivityData
-			else:
+			key = f"motiongraph.compounds.{activity}Data"
+			try:
+				return Activity._import_map[key]
+			except:
 				logging.warning(f"Unsupported activity '{activity}'")
 
