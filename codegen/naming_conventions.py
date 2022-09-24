@@ -202,6 +202,6 @@ def force_bool(value):
     else:
         try:
             int_value = int(value)
-        except:
+        except ValueError:
             return value
         return repr(bool(int_value))

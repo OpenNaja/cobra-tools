@@ -1,4 +1,3 @@
-
 from generated.base_struct import BaseStruct
 from modules.formats.shared import get_padding_size
 

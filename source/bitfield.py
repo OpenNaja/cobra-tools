@@ -57,7 +57,7 @@ class BasicBitfield(object, metaclass=BitfieldMetaClass):
 
     @classmethod
     def to_stream(cls, stream, instance):
-        cls._storage.to_stream(stream, instance._value)
+        cls._storage.to_stream(stream, int(instance))
 
     @classmethod
     def get_size(cls, context, instance, argument=()):
@@ -83,6 +83,10 @@ class BasicBitfield(object, metaclass=BitfieldMetaClass):
         lines = str(member).split("\n")
         lines_new = [lines[0], ] + ["\t" * indent + line for line in lines[1:]]
         return "\n".join(lines_new)
+
+    @classmethod
+    def validate_instance(cls, instance, context, arguments):
+        cls._storage.validate_instance(int(instance))
 
     def __repr__(self):
         return self.__str__()

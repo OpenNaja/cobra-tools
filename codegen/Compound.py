@@ -6,8 +6,6 @@ from .Imports import Imports
 from .Union import Union
 
 FIELD_TYPES = ("add", "field")
-from_stream_re = re.compile(r"def from_stream\((([a-z]*), )?stream, context(=.*)?, arg(=.*)?, template.*\):")
-to_stream_re = re.compile(r"def to_stream\((([a-z]*), )?stream, instance\):")
 
 
 class Compound(BaseClass):

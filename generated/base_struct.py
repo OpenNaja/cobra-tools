@@ -78,7 +78,7 @@ class BaseStruct(metaclass=StructMetaClass):
 					# use the from_value function
 					field_value = field_type.from_value(*arguments[2:4], default)
 			except:
-				logging.error(f"failed writing field {field_name} on type {type(self)}")
+				logging.error(f"failed setting default on field {field_name} on type {type(self)}")
 				raise
 			setattr(self, field_name, field_value)
 
@@ -204,6 +204,31 @@ class BaseStruct(metaclass=StructMetaClass):
 				field_type.to_stream(stream, getattr(instance, field_name), *arguments[3:4])
 			except:
 				logging.error(f"failed writing field {field_name} on type {cls}")
+				raise
+
+	def reset_field(self, field_name):
+		for name, field_type, arguments, (optional, default) in type(self)._get_filtered_attribute_list(self):
+			if name == field_name:
+				if default is None:
+					field_value = field_type(self.context, *arguments)
+				else:
+					field_value = field_type.from_value(*arguments[2:4], default)
+				type(self).set_field(self, field_name, field_value)
+
+	@classmethod
+	def validate_instance(cls, instance, context, arguments):
+		try:
+			assert instance.context == context, f"context {instance.context} doesn't match {context} on {cls}"
+			assert instance.arg == arguments[0], f"argument {instance.argument} doesn't match {arguments[0]} on {cls}"
+			assert instance.template == arguments[1], f"template {instance.template} doesn't match {arguments[1]} on {cls}"
+		except AssertionError:
+			logging.error(f"validation failed on {cls}")
+			raise
+		for f_name, f_type, f_arguments, _ in cls._get_filtered_attribute_list(instance):
+			try:
+				f_type.validate_instance(cls.get_field(instance, f_name), context, f_arguments)
+			except AssertionError:
+				logging.error(f"validation failed on field {f_name} on type {cls}")
 				raise
 
 	@classmethod

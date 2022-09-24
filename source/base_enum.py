@@ -98,7 +98,7 @@ class BaseEnum(IntEnum, metaclass=DefaultEnumMeta):
 
 	@classmethod
 	def to_stream(cls, stream, instance):
-		cls._storage.to_stream(stream, instance.value)
+		cls._storage.to_stream(stream, int(instance))
 		return instance
 
 	@classmethod
@@ -125,3 +125,7 @@ class BaseEnum(IntEnum, metaclass=DefaultEnumMeta):
 	@classmethod
 	def to_xml(cls, elem, prop, instance, arguments, debug):
 		elem.attrib[prop] = str(instance)
+
+	@classmethod
+	def validate_instance(cls, instance, context, arguments):
+		cls._storage.validate_instance(int(instance))

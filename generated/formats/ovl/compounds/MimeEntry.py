@@ -1,4 +1,3 @@
-
 from generated.formats.ovl.compounds.Triplet import Triplet
 from generated.formats.ovl.versions import *
 from hashes import constants_jwe, constants_pz, constants_jwe2, constants_pc, constants_dla

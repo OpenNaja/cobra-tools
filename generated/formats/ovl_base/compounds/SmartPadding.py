@@ -1,4 +1,3 @@
-
 from generated.io import MAX_LEN
 
 ZERO = b"\x00"

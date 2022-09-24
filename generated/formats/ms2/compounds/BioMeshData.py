@@ -1,4 +1,3 @@
-
 import logging
 from generated.array import Array
 from generated.formats.ms2.compounds.VertChunk import VertChunk

@@ -111,6 +111,15 @@ def class_from_struct(struct, from_value_func):
             lines_new = [lines[0], ] + ["\t" * indent + line for line in lines[1:]]
             return "\n".join(lines_new)
 
+        @classmethod
+        def validate_instance(cls, instance, context=None, arguments=()):
+            assert(instance == cls.from_value(instance))
+
+        @classmethod
+        def validate_array(cls, instance, context=None, arguments=()):
+            assert instance.shape == arguments[2]
+            assert instance.dtype.char == dtype.char
+
     return ConstructedClass
 
 
