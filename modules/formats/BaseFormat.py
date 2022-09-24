@@ -374,7 +374,7 @@ class MemStructLoader(BaseFile):
 		name = self.root_entry.name
 		if self.header:
 			out_path = out_dir(name)
-			self.header.to_xml_file(self.header, out_path)
+			self.header.to_xml_file(self.header, out_path, debug=self.ovl.do_debug)
 			return out_path,
 		else:
 			logging.warning(f"File '{name}' has no header - has the OVL finished loading?")

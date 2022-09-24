@@ -581,6 +581,7 @@ class OvlFile(Header, IoFile):
 		self.hash_table_global = {}
 
 		self.is_biosyn = None
+		self.do_debug = False
 
 		self.formats_dict = build_formats_dict()
 		self.loaders = {}
@@ -641,6 +642,7 @@ class OvlFile(Header, IoFile):
 			"""Helper function to generate temporary output file name"""
 			return os.path.normpath(os.path.join(out_dir, n))
 
+		self.do_debug = show_temp_files
 		error_files = []
 		out_paths = []
 		loaders_for_extract = []

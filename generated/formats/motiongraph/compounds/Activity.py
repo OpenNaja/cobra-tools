@@ -31,6 +31,8 @@ class Activity(MemStruct):
 		self.count_3 = 0
 		self.minus_one = 0
 		self.data_type = Pointer(self.context, 0, ZString)
+
+		# template has to be defined according to data type ie 'AnimationActivity' + 'Data'
 		self.ptr = Pointer(self.context, 0, None)
 		self.name_b = Pointer(self.context, 0, ZString)
 		if set_default:

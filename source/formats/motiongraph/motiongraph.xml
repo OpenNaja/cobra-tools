@@ -55,20 +55,12 @@
     <compound name="Activity" inherit="MemStruct">
         48 bytes
         <add name="data_type" type="Pointer" template="ZString"/>
-        # can point to data of changing size
-        template has to be defined according to data type ie 'AnimationActivity' + 'Data'
-        <add name="ptr" type="Pointer" />
-<!--        <add name="pointer" type="Pointer" template="ActivityData" arg="data_type\data"/>-->
+        <add name="ptr" type="Pointer" >template has to be defined according to data type ie 'AnimationActivity' + 'Data'</add>
         <add name="count_2" type="uint64"/>
         <add name="count_3" type="uint64"/>
         <add name="minus one" type="int64"/>
         <add name="name b" type="Pointer" template="ZString"/>
     </compound>
-
-<!--    <compound name="ActivityData" inherit="MemStruct" >-->
-<!--        investigate if this is a viable alternative, change codegen if needed to support string comparison-->
-<!--        <add name="data" type="AnimationActivityData" cond="#ARG# #EQ# 'AnimationActivity'" />-->
-<!--    </compound>-->
 
     <compound name="MRFArray1" inherit="MemStruct" >
         <add name="states" type="MRFEntry1" arr1="#ARG#" />
@@ -205,13 +197,26 @@
         <add name="AdditionalDataStreams" type="DataStreamResourceDataList"/>
     </compound>
 
+    <compound name="CoordinatedAnimationActivityData" inherit="MemStruct">
+        72 bytes
+        <add name="CoordGroup" type="Pointer" template="ZString"/>
+        <add name="WaitingAnim" type="Pointer" template="ZString"/>
+        <add name="WaitingAnimDataStreams" type="DataStreamResourceDataList"/>
+        <add name="CoordinatedAnim" type="Pointer" template="ZString"/>
+        <add name="CoordinatedAnimDataStreams" type="DataStreamResourceDataList"/>
+        <add name="Priorities" type="ubyte"/>
+        <add name="Looping" type="ubyte"/>
+        <add name="_pad" type="ushort"/>
+        <add name="BlendTime" type="float"/>
+        <add name="OutputPropThroughVariable" type="Pointer" template="ZString"/>
+    </compound>
+
     <compound name="FootPlantActivityData" inherit="MemStruct">
         48 bytes
         <add name="Weight" type="FloatInputData"/>
         <add name="RotationNoIKWeight" type="FloatInputData"/>
         <add name="StickyFeetWeight" type="FloatInputData"/>
     </compound>
-
 
     <enum name="TimeLimitMode" numbytes="4" storage="uint" default="0">
 		<option value="0" name="Wrap" />
