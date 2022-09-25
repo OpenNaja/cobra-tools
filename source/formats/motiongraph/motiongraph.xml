@@ -235,6 +235,53 @@
         <add name="DataStreamType" type="Pointer" template="ZString"/>
     </compound>
 
+    <compound name="Locomotion2ActivityData" inherit="MemStruct">
+        ? bytes
+        <add name="animation_count" type="uint64"/>
+        <add name="animations" type="ArrayPointer" template="Locomotion2AnimationInfo" arg="animation_count"/>
+        <add name="flags" type="uint" />Locomotion2Flags
+        <add name="StoppingDistance" type="float" default="0.0"/>
+        <add name="StrafeTurnBlend" type="float" default="0.2"/>
+        <add name="TurnBlendLimit" type="float" default="1.0"/>
+        <add name="TurnSpeedMultiplier" type="float" default="1.0"/>
+        <add name="FlexSpeedMultiplier" type="float" default="1.0"/>
+        <add name="BlendSpace" type="Locomotion2BlendSpace" />
+        <add name="OutputPropThroughVariable" type="Pointer" template="ZString"/>
+        <add name="SpeedVariable" type="Pointer" template="ZString"/>
+        <add name="OrientationVariable" type="Pointer" template="ZString"/>
+        <add name="DataStreams_count" type="uint64"/>
+        <add name="DataStreams" type="ArrayPointer" template="DataStreamResourceDataList" arg="DataStreams_count"/>
+    </compound>
+
+    <compound name="Locomotion2AnimationInfo" inherit="MemStruct">
+        16 bytes
+        <add name="anim_name" type="Pointer" template="ZString"/>
+        <add name="PhaseEntryWindow" type="float" default="1.5"/>
+        <add name="Priority" type="ushort" />Priorities
+        <add name="AnimType" type="ubyte" />Locomotion2AnimType
+        <add name="_pad" type="ubyte" />
+    </compound>
+
+    <compound name="Locomotion2BlendSpace" inherit="MemStruct">
+        32 bytes
+        <add name="YAxis" type="BlendSpaceAxis"/>
+        <add name="XAxis" type="BlendSpaceAxis"/>
+        <add name="Nodes_count" type="uint64" />
+        <add name="Nodes" type="ArrayPointer" template="Locomotion2BlendSpaceNode" arg="nodes_count"/>
+    </compound>
+
+    <compound name="BlendSpaceAxis" inherit="MemStruct">
+        8 bytes
+        <add name="VariableName" type="Pointer" template="ZString"/>
+    </compound>
+
+    <compound name="Locomotion2BlendSpaceNode" inherit="MemStruct">
+        16 bytes
+        <add name="anim_name" type="Pointer" template="ZString"/>
+        <add name="speed" type="float"/>
+        <add name="orientation" type="float"/>
+    </compound>
+
     <compound name="FootPlantActivityData" inherit="MemStruct">
         48 bytes
         <add name="Weight" type="FloatInputData"/>

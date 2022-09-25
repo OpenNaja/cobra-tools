@@ -105,7 +105,7 @@ class Pointer(BaseStruct):
 		if instance.frag and hasattr(instance.frag, "struct_ptr"):
 			f_ptr = instance.frag.struct_ptr
 			if debug:
-				elem.set("_address", f"{f_ptr.pool_index} {f_ptr.data_offset}")
+				elem.set("_address", f"{f_ptr.pool_index} | {f_ptr.data_offset}")
 				elem.set("_size", f"{f_ptr.data_size}")
 			cls._set_pool_type(elem, f_ptr.pool.type, instance.template)
 		elif hasattr(instance, POOL_TYPE):
