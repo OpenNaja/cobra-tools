@@ -180,6 +180,7 @@ class MainWindow(widgets.MainWindow):
 					for j, t_new in enumerate(tex_new):
 						if t_old.name == t_new.name:
 							t_new.dtype = t_old.dtype
+							t_new.reset_field("value")
 							t_new.value = t_old.value
 							dep_new[j].dependency_name.data = dep_old[i].dependency_name.data
 							break
@@ -214,30 +215,32 @@ class MainWindow(widgets.MainWindow):
 		"""Run only during user activation"""
 		self.header.shader_name = self.shader_choice.entry.currentText()
 		self.update_choices()
+		try:
+			# Show New File dialog in a blank window when changing shader type
+			# Return if the dialog is cancelled
+			if not self.file_widget.filepath and not self.has_data() and not self.new_file():
+				return
 
-		# Show New File dialog in a blank window when changing shader type
-		# Return if the dialog is cancelled
-		if not self.file_widget.filepath and not self.has_data() and not self.new_file():
-			return
+			tex_data_old = (self.header.textures.data.copy(), self.header.name_foreach_textures.data.copy()) if self.has_data() else None
+			attrib_data_old = (self.header.attributes.data.copy(), self.header.value_foreach_attributes.data.copy()) if self.has_data() else None
+			self.set_dirty()
 
-		tex_data_old = (self.header.textures.data.copy(), self.header.name_foreach_textures.data.copy()) if self.has_data() else None
-		attrib_data_old = (self.header.attributes.data.copy(), self.header.value_foreach_attributes.data.copy()) if self.has_data() else None
-		self.set_dirty()
+			self.header.textures.data = Array(self.context, 0, None, (0,), self.header.textures.template)
+			self.header.attributes.data = Array(self.context, 0, None, (0,), self.header.attributes.template)
+			self.header.name_foreach_textures.data = Array(self.context, self.header.textures, None, (0,), self.header.name_foreach_textures.template)
+			self.header.value_foreach_attributes.data = Array(self.context, self.header.attributes, None, (0,), self.header.value_foreach_attributes.template)
 
-		self.header.textures.data = Array((1,), self.header.textures.template, self.context, set_default=False)
-		self.header.attributes.data = Array((1,), self.header.attributes.template, self.context, set_default=False)
-		self.header.name_foreach_textures.data = Array((1,), self.header.name_foreach_textures.template, self.context, set_default=False)
-		self.header.value_foreach_attributes.data = Array((1,), self.header.value_foreach_attributes.template, self.context, set_default=False)
+			for tex in self.fgm_dict.shader_textures[self.header.shader_name]:
+				self.add_texture(tex)
 
-		for tex in self.fgm_dict.shader_textures[self.header.shader_name]:
-			self.add_texture(tex)
+			for att in self.fgm_dict.shader_attribs[self.header.shader_name]:
+				self.add_attribute(att)
 
-		for att in self.fgm_dict.shader_attribs[self.header.shader_name]:
-			self.add_attribute(att)
-
-		# Preserve old values when possible
-		self.merge_textures(tex_data_old, (self.header.textures.data, self.header.name_foreach_textures.data))
-		self.merge_attributes(attrib_data_old, (self.header.attributes.data, self.header.value_foreach_attributes.data))
+			# Preserve old values when possible
+			self.merge_textures(tex_data_old, (self.header.textures.data, self.header.name_foreach_textures.data))
+			self.merge_attributes(attrib_data_old, (self.header.attributes.data, self.header.value_foreach_attributes.data))
+		except:
+			logging.exception(f"Shader change failed")
 
 	def create_tex_name(self, prefix, suffix):
 		return f'{prefix.replace(".fgm", "")}.{suffix.lower()}.tex'
@@ -251,8 +254,7 @@ class MainWindow(widgets.MainWindow):
 	def sort_textures(self):
 		textures = self.header.textures.data
 		deps = self.header.name_foreach_textures.data
-		textures[:], deps[:] = zip(*sorted(zip(textures, deps), key=lambda p: p[0].name))
-		return textures, deps
+		self.header.textures.data[:], self.header.name_foreach_textures.data[:] = zip(*sorted(zip(textures, deps), key=lambda p: p[0].name))
 
 	def add_texture_clicked(self):
 		self.add_texture(self.texture_choice.entry.currentText(), update_gui=True)
@@ -260,32 +262,29 @@ class MainWindow(widgets.MainWindow):
 	def add_texture(self, tex_name, update_gui=False):
 		try:
 			if self.header.textures.data is None:
-				self.header.textures.data = Array((1,), TextureInfo, self.context, set_default=False)
+				self.header.textures.data = Array(self.context, 0, None, (0,), TextureInfo)
 			if self.header.name_foreach_textures.data is None:
-				self.header.name_foreach_textures.data = Array((1,), TextureData, self.context, set_default=False)
+				self.header.name_foreach_textures.data = Array(self.context, self.header.textures, None, (0,), TextureData)
 			textures = self.header.textures.data
 			for tex in textures:
 				if tex.name == tex_name:
 					logging.warning(f"Texture '{tex_name}' already exists. Ignoring.")
 					return
 
-			tex_index = TexIndex(self.context, set_default=False)
-			tex_index.set_defaults()
+			tex_index = TexIndex(self.context)
 
-			tex = TextureInfo(self.context, set_default=False)
+			tex = TextureInfo(self.context)
 			tex.dtype = FgmDtype.TEXTURE
-			tex.set_defaults()
 			tex.name = tex_name
+			tex.reset_field("value")
 			tex.value[:] = [tex_index]
 			textures.append(tex)
 
-			deps = self.header.name_foreach_textures.data
-			dep = TextureData(self.context, arg=tex, set_default=False)
-			dep.set_defaults()
+			dep = TextureData(self.context, arg=tex)
 			dep.dependency_name.data = ''
-			deps.append(dep)
+			self.header.name_foreach_textures.data.append(dep)
 
-			self.header.textures.data[:], self.header.name_foreach_textures.data[:] = self.sort_textures()
+			self.sort_textures()
 
 			if update_gui:
 				self.tex_container.update_gui(self.header.textures.data, self.header.name_foreach_textures.data)
@@ -308,14 +307,13 @@ class MainWindow(widgets.MainWindow):
 				logging.warning(f"Attribute '{att_name}' already exists. Ignoring.")
 				return
 
-		att = AttribInfo(self.context, set_default=False)
+		att = AttribInfo(self.context)
 		att.dtype = FgmDtype.from_value(self.fgm_dict.attributes[att_name][0])
 		att.name = att_name
 		attributes.append(att)
 
 		data_lib = self.header.value_foreach_attributes.data
-		data = AttribData(self.context, arg=att, set_default=False)
-		data.set_defaults()
+		data = AttribData(self.context, arg=att)
 		# Assign default value from attributes dict
 		if self.fgm_dict.attributes.get(att.name):
 			data.value = np.array(self.fgm_dict.attributes[att.name][1][0][0], data.value.dtype)
