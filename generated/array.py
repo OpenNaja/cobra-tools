@@ -16,7 +16,7 @@ class Array(list):
     def __new__(cls, context, arg=0, template=None, shape=(), dtype=None, set_default=True):
         if cls.is_ragged_shape(shape):
             # the passed shape is 2D with an iterable in the 2nd dimension, so it's a ragged array
-            return RaggedArray(shape, dtype, context, arg, template, set_default)
+            return RaggedArray(context, arg, template, shape, dtype, set_default)
         if callable(getattr(dtype, 'create_array', None)):
             # there is a more efficient method of creating this array on the class (may not return Array instance)
             return dtype.create_array(shape, None, context, arg, template)
@@ -311,7 +311,7 @@ class RaggedArray(Array):
         if callable(getattr(dtype, 'read_ragged_array', None)):
             return dtype.read_ragged_array(stream, shape, context, arg, template)
         else:
-            new_array = cls(shape, dtype, context, arg, template, set_default=False)
+            new_array = cls(context, arg, template, shape, dtype, set_default=False)
             new_array.read(stream)
             return new_array
 

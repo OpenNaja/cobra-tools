@@ -1,4 +1,5 @@
 from enum import EnumMeta, IntEnum, _EnumDict
+import logging
 
 
 class _AttributeEnumDict(_EnumDict):
@@ -93,12 +94,21 @@ class BaseEnum(IntEnum, metaclass=DefaultEnumMeta):
 
 	@classmethod
 	def from_stream(cls, stream, context=None, arg=0, template=None):
-		instance = cls.from_value(cls._storage.from_stream(stream, None, 0, None))
+		value = cls._storage.from_stream(stream, None, 0, None)
+		try:
+			instance = cls.from_value(value)
+		except ValueError:
+			logging.debug(f"value {value} is not a member of the {cls} class, returning int")
+			instance = value
 		return instance
 
 	@classmethod
 	def to_stream(cls, stream, instance):
-		cls._storage.to_stream(stream, int(instance))
+		if isinstance(instance, cls):
+			cls._storage.to_stream(stream, instance.value)
+		else:
+			logging.debug(f"instance {instance} is not a member of the {cls} class, writing int")
+			cls._storage.to_stream(stream, int(instance))
 		return instance
 
 	@classmethod
@@ -128,4 +138,6 @@ class BaseEnum(IntEnum, metaclass=DefaultEnumMeta):
 
 	@classmethod
 	def validate_instance(cls, instance, context, arguments):
+		if not isinstance(instance, cls):
+			logging.warning(f"instance {instance} is not a member of the {cls} class")
 		cls._storage.validate_instance(int(instance))
