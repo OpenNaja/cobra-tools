@@ -520,31 +520,21 @@ class TextureVisual:
 
 	def update_dtype(self, ind):
 		dtype_name = self.w_dtype.currentText()
+		self.entry.set_defaults()
 		self.entry.dtype = FgmDtype[dtype_name]
-		logging.info(f"Dtype {self.entry.dtype}")
 		try:
 			self.data.set_defaults()
 			if self.entry.dtype == FgmDtype.TEXTURE:
 				self.entry.value = None
 				self.data.dependency_name.data = ''
-
-			self.entry.set_defaults()
-
-			logging.info(f"Dtype {self.entry.dtype}")
+			self.entry.reset_field("value")
 			# Set RGBA values to middle gray
 			if self.entry.dtype == FgmDtype.RGBA:
-				self.entry.value[0].r = 127
-				self.entry.value[0].g = 127
-				self.entry.value[0].b = 127
-				self.entry.value[0].a = 255
-				self.entry.value[1].r = 127
-				self.entry.value[1].g = 127
-				self.entry.value[1].b = 127
-				self.entry.value[1].a = 255
-
+				for v in self.entry.value:
+					v.r = v.g = v.b = 127
+					v.a = 255
 			self.create_fields_w_layout()
 			self.update()
-
 		except:
 			logging.exception("Updating dtype errored")
 
