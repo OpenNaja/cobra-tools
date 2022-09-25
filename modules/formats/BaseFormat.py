@@ -54,7 +54,15 @@ class BaseFile:
 	@property
 	def abs_mem_offset(self):
 		"""Returns the memory offset of this loader's root_entry"""
-		return self.ovs.get_pool_offset(self.root_ptr.pool.offset + self.root_ptr.data_offset)
+		# this is inverted compared to get_pool_offset
+		# return self.ovs.get_pool_offset(self.root_ptr.pool.offset + self.root_ptr.data_offset)
+		offset = self.root_ptr.pool.offset + self.root_ptr.data_offset
+		# JWE, JWE2: relative offset for each pool
+		if self.ovl.user_version.use_djb:
+			return self.ovs.arg.pools_start + offset
+		# PZ, PC: offsets relative to the whole pool block
+		else:
+			return offset
 
 	def link_streams(self):
 		"""Collect other loaders"""
