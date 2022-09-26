@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Filename: mod_tool_gui.py
+# Filename: mod_tool_cmd.py
 
 """Mod Packing tool - Command line version"""
 
