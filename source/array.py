@@ -265,6 +265,14 @@ class Array(list):
         for member in instance:
             dtype.to_xml(elem, dtype_name, member, (), debug)
 
+    def append(self, x):
+        self.shape = (self.shape[0] + 1, *self.shape[1:])
+        super().append(x)
+
+    def extend(self, x):
+        self.shape = (self.shape[0] + len(x), *self.shape[1:])
+        super().extend(x)
+
 
 class RaggedArray(Array):
     """Class responsible for creating, reading and storing (nested) lists of the custom data types, functioning
