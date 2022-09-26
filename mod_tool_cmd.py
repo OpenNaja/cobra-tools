@@ -4,9 +4,6 @@
 
 """Mod Packing tool - Command line version"""
 
-# TODO: split getting src folder list, watcher folder should contain all 
-# directiories, or it wont detect changes in empty folders.
-
 import sys
 import os
 import shutil
@@ -21,7 +18,7 @@ logging_setup("mod_tool_cmd")
 logging.info(f"Running python {sys.version}")
 logging.info(f"Running cobra-tools {get_version_str()}, {get_commit_str()}")
 
-from ovl_util.widgets import startup, MainWindow, OvlReporter
+from ovl_util.widgets import OvlReporter
 from generated.formats.ovl import games, set_game
 
 __version__ = '0.1'
@@ -185,4 +182,4 @@ if __name__ == '__main__':
 	if action.lower() == 'unpack':
 		unpack_mod(gamestr, pathsrc, pathdst)
 
-	print("NICE.\n\n")
+	print("done.\n\n")
