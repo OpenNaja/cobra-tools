@@ -674,6 +674,12 @@ class OvlFile(Header, IoFile):
 		error_files = []
 		for file_path in self.iter_progress(file_paths, "Injecting"):
 			name_ext, name, ext = split_path(file_path)
+
+			# ilo: ignore file extensions in the IGNORE list
+			if ext in IGNORE_TYPES:
+				logging.info(f"Ignoring {file_path}")
+				continue
+
 			name_lower = name_ext.lower()
 			# todo - aliases will not be handled, but no problem for now
 			# if ext in aliases:
@@ -733,6 +739,14 @@ class OvlFile(Header, IoFile):
 		logging.info(f"Adding {len(file_paths)} files to OVL")
 		logging.info(f"Game: {get_game(self)[0].name}")
 		for file_path in self.iter_progress(file_paths, "Adding files"):
+
+			# ilo: ignore file extensions in the IGNORE list
+			# todo: should add this to remove too?
+			name, ext = os.path.splitext(file_path)
+			if ext in IGNORE_TYPES:
+				logging.info(f"Ignoring {file_path}")
+				continue
+
 			loader = self.create_file(file_path)
 			self.register_loader(loader)
 		self.files_list.emit([[loader.file_entry.name, loader.file_entry.ext] for loader in self.loaders.values()])
