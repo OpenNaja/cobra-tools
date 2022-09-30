@@ -1,5 +1,7 @@
 from enum import Enum
 
+from generated.base_version import VersionBase
+
 
 def is_dla(context):
 	if context.version == 15:
@@ -188,3 +190,30 @@ def set_game(context, game):
 		return set_jwe2(context)
 
 
+class ManisVersion(VersionBase):
+
+	_file_format = 'manis'
+	_verattrs = ('version', 'user_version', 'version_flag')
+
+	def __init__(self, *args, version=(), user_version=(), version_flag=(), **kwargs):
+		super().__init__(*args, **kwargs)
+		self.version = self._force_tuple(version)
+		self.user_version = self._force_tuple(user_version)
+		self.version_flag = self._force_tuple(version_flag)
+
+
+dla = ManisVersion(id='DLA', version=(15,))
+ztuac = ManisVersion(id='ZTUAC', version=(17,))
+pc = ManisVersion(id='PC', version=(18,), user_version=(VersionInfo.from_value(8340), VersionInfo.from_value(8724), VersionInfo.from_value(8212),), version_flag=(8,))
+pz = ManisVersion(id='PZ', version=(19,), user_version=(VersionInfo.from_value(8340), VersionInfo.from_value(8724), VersionInfo.from_value(8212),))
+pz16 = ManisVersion(id='PZ16', version=(20,), user_version=(VersionInfo.from_value(8340), VersionInfo.from_value(8724), VersionInfo.from_value(8212),))
+jwe = ManisVersion(id='JWE', version=(19,), user_version=(VersionInfo.from_value(24724), VersionInfo.from_value(25108), VersionInfo.from_value(24596),))
+jwe2 = ManisVersion(id='JWE2', version=(20,), user_version=(VersionInfo.from_value(24724), VersionInfo.from_value(25108), VersionInfo.from_value(24596),))
+dla = ManisVersion(id='DLA', version=(257,))
+pc = ManisVersion(id='PC', version=(257,))
+jwe1 = ManisVersion(id='JWE1', version=(258,))
+pz = ManisVersion(id='PZ', version=(260,))
+jwe2_dev = ManisVersion(id='JWE2_DEV', version=(261,))
+jwe2 = ManisVersion(id='JWE2', version=(262,))
+
+versions = [dla, ztuac, pc, pz, pz16, jwe, jwe2, dla, pc, jwe1, pz, jwe2_dev, jwe2]

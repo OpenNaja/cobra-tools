@@ -1,5 +1,7 @@
 from enum import Enum
 
+from generated.base_version import VersionBase
+
 
 def is_dla(context):
 	if context.version == 15:
@@ -214,3 +216,33 @@ def set_game(context, game):
 		return set_jwe2(context)
 
 
+class Ms2Version(VersionBase):
+
+	_file_format = 'ms2'
+	_verattrs = ('version', 'user_version', 'version_flag', 'biosyn')
+
+	def __init__(self, *args, version=(), user_version=(), version_flag=(), biosyn=(), **kwargs):
+		super().__init__(*args, **kwargs)
+		self.version = self._force_tuple(version)
+		self.user_version = self._force_tuple(user_version)
+		self.version_flag = self._force_tuple(version_flag)
+		self.biosyn = self._force_tuple(biosyn)
+
+
+dla = Ms2Version(id='DLA', version=(15,))
+ztuac = Ms2Version(id='ZTUAC', version=(17,))
+pc = Ms2Version(id='PC', version=(18,), user_version=(VersionInfo.from_value(8340), VersionInfo.from_value(8724), VersionInfo.from_value(8212),), version_flag=(8,))
+pz = Ms2Version(id='PZ', version=(19,), user_version=(VersionInfo.from_value(8340), VersionInfo.from_value(8724), VersionInfo.from_value(8212),))
+pz16 = Ms2Version(id='PZ16', version=(20,), user_version=(VersionInfo.from_value(8340), VersionInfo.from_value(8724), VersionInfo.from_value(8212),))
+jwe = Ms2Version(id='JWE', version=(19,), user_version=(VersionInfo.from_value(24724), VersionInfo.from_value(25108), VersionInfo.from_value(24596),))
+jwe2 = Ms2Version(id='JWE2', version=(20,), user_version=(VersionInfo.from_value(24724), VersionInfo.from_value(25108), VersionInfo.from_value(24596),))
+old = Ms2Version(id='old', version=(7, 13, 32,))
+dla = Ms2Version(id='DLA', version=(7,))
+ztuac = Ms2Version(id='ZTUAC', version=(13,))
+pc = Ms2Version(id='PC', version=(32,))
+jwe1 = Ms2Version(id='JWE1', version=(47, 39,))
+pz = Ms2Version(id='PZ', version=(48, 50,))
+pz16 = Ms2Version(id='PZ16', version=(50,))
+jwe2 = Ms2Version(id='JWE2', version=(51,))
+
+versions = [dla, ztuac, pc, pz, pz16, jwe, jwe2, old, dla, ztuac, pc, jwe1, pz, pz16, jwe2]

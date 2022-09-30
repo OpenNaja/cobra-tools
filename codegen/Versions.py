@@ -4,8 +4,43 @@ from codegen.expression import Version
 
 base_ver_attrs = ("id", "supported", "custom", "ext")
 
+def split_parenthesis_aware(input_string, delimiter):
+	split_string = []
+	par_level = 0
+	last_start = 0
+	i = 0
+	while i < len(input_string):
+		char = input_string[i]
+		if char == "(":
+			par_level += 1
+		elif char == ")":
+			par_level -= 1
+		else:
+			if not par_level:
+				if input_string[i:i + len(delimiter)] == delimiter:
+					split_string.append(input_string[last_start:i])
+					i += len(delimiter)
+					last_start = i
+					continue
+		i += 1
+	# there is a part left
+	split_string.append(input_string[last_start:i])
+	return split_string
+
 class Versions:
 	"""Creates and writes a version block"""
+
+	@staticmethod
+	def get_default_games(version):
+		game_names = split_parenthesis_aware(version.text, delimiter=', ')
+		default_games = []
+		all_games = []
+		for name in game_names:
+			if name[:2] == "{{" and name[-2:] == "}}":
+				name = name[2:-2]
+				default_games.append(name)
+			all_games.append(name)
+		return default_games, all_games
 
 	@staticmethod
 	def format_id(version_id):
@@ -16,12 +51,21 @@ class Versions:
 		self.versions = []
 
 	def read(self, xml_struct):
+		# apply Version(num) for every entry in a version-defining attribute
+		# can't do this in xmlparser apply_conventions because it doesn't know
+		# which attributes are the version-defining ones
+		for k, v in tuple(xml_struct.attrib.items()):
+			if k not in base_ver_attrs:
+				# it must be a version-denoting attribute
+				values = v.split()
+				xml_struct.attrib[k] = ', '.join([str(Version(value)) for value in values])
 		self.versions.append(xml_struct)
 
 	def write(self, out_file):
 		if self.versions:
 			with open(out_file, "a", encoding=self.parent.encoding) as stream:
-				stream.write(f"from enum import Enum\n\n\n")
+				stream.write(f"from enum import Enum\n\n")
+				stream.write(f"from generated.base_version import VersionBase\n\n\n")
 
 				for version in self.versions:
 					stream.write(f"def is_{self.format_id(version.attrib['id'])}(context):")
@@ -33,10 +77,10 @@ class Versions:
 							else:
 								name = k.lower()
 							val = v.strip()
-							if " " in val:
-								conds_list.append(f"context.{name} in ({', '.join([str(Version(nr)) for nr in val.split(' ')])})")
+							if ", " in val:
+								conds_list.append(f"context.{name} in ({val})")
 							else:
-								conds_list.append(f"context.{name} == {str(Version(val))}")
+								conds_list.append(f"context.{name} == {val}")
 					stream.write("\n\tif " + " and ".join(conds_list) + ":")
 					stream.write("\n\t\treturn True")
 					stream.write("\n\n\n")
@@ -52,9 +96,9 @@ class Versions:
 							else:
 								name = k.lower()
 							val = v.strip()
-							if " " in val:
-								val = val.split(" ")[0]
-							stream.write(f"\n\tcontext.{name}{suffix} = {str(Version(val))}")
+							if ", " in val:
+								val = val.split(", ")[0]
+							stream.write(f"\n\tcontext.{name}{suffix} = {val}")
 					stream.write("\n\n\n")
 
 				# go through all the games, record them and map defaults to versions
@@ -63,19 +107,13 @@ class Versions:
 				version_game_map = {}
 				for version in self.versions:
 					version_default_map[version.attrib['id']] = set()
-					game_names = version.text.split(', ')
-					for i, game_name in enumerate(game_names):
-						game_name = game_name.strip()
-						# detect defaults and add them to the map
-						if len(game_name) > 4:
-							if game_name[:2] == '{{' and game_name[-2:] == '}}':
-								game_name = game_name[2:-2]
-
-								version_default_map[version.attrib['id']].add(name_enum_key(game_name))
-								game_names[i] = game_name
-						if game_name not in full_name_key_map:
-							full_name_key_map[game_name] = name_enum_key(game_name)
-					version_game_map[version.attrib['id']] = [full_name_key_map[game_name] for game_name in game_names]
+					default_games, all_games = self.get_default_games(version)
+					for game in default_games:
+						version_default_map[version.attrib['id']].add(name_enum_key(game))
+					for game in all_games:
+						if game not in full_name_key_map:
+							full_name_key_map[game] = name_enum_key(game)
+					version_game_map[version.attrib['id']] = [full_name_key_map[game_name] for game_name in all_games]
 
 				# define game enum
 				full_name_key_map = {full_name: key for full_name, key in sorted(full_name_key_map.items(), key=lambda item: item[1])}
@@ -108,3 +146,40 @@ class Versions:
 						stream.write(f"\n\t\treturn set_{self.format_id(version.attrib['id'])}(context)")
 				stream.write("\n\n\n")
 
+				if self.parent.verattrs:
+					version_class = f'{self.parent.format_name.capitalize()}Version'
+					stream.write(f"class {version_class}(VersionBase):\n\n")
+					stream.write(f"\t_file_format = {repr(self.parent.format_name.lower())}\n")
+					stream.write(f"\t_verattrs = ({', '.join(repr(attr) for attr in self.parent.verattrs)})\n\n")
+					verattr_arguments = ', '.join([f'{verattr}=()'for verattr in self.parent.verattrs])
+					stream.write(f"\tdef __init__(self, *args, {verattr_arguments}, **kwargs):\n")
+					stream.write(f'\t\tsuper().__init__(*args, **kwargs)\n')
+					for verattr in self.parent.verattrs:
+						stream.write(f'\t\tself.{verattr} = self._force_tuple({verattr})\n')
+					stream.write("\n\n")
+
+					for version in self.versions:
+						default_games, all_games = self.get_default_games(version)
+						stream.write(f"{self.format_id(version.attrib['id'])} = {version_class}(")
+						stream.write(f"id={repr(version.attrib['id'])}")
+						for verattr, (access, attr_type) in self.parent.verattrs.items():
+							values = version.attrib.get(verattr)
+							if values:
+								values = values.split(', ')
+								str_values = []
+								for value in values:
+									if attr_type:
+										str_values.append(f'{attr_type}.from_value({value})')
+									else:
+										str_values.append(value)
+								stream.write(f", {verattr}=({', '.join(str_values)},)")
+						if version.attrib.get("supported"):
+							stream.write(f", supported={version.attrib['supported']}")
+						if version.attrib.get("custom"):
+							stream.write(f", custom={version.attrib['custom']}")
+						if version.attrib.get("ext"):
+							stream.write(f", ext=({', '.join([repr(extension) for extension in version.attrib['ext'].split()],)})")
+						stream.write(")\n")
+
+					stream.write(f"\nversions = [{', '.join([self.format_id(version.attrib['id']) for version in self.versions])}]")
+					stream.write("\n")
