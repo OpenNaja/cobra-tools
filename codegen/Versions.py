@@ -179,6 +179,11 @@ class Versions:
 							stream.write(f", custom={version.attrib['custom']}")
 						if version.attrib.get("ext"):
 							stream.write(f", ext=({', '.join([repr(extension) for extension in version.attrib['ext'].split()],)})")
+						default_games, all_games = self.get_default_games(version)
+						default_games = [f'games.{name_enum_key(game)}' for game in default_games]
+						all_games = [f'games.{name_enum_key(game)}' for game in all_games]
+						stream.write(f", primary_games=[{', '.join(default_games)}]")
+						stream.write(f", all_games=[{', '.join(all_games)}]")
 						stream.write(")\n")
 
 					stream.write(f"\nversions = [{', '.join([self.format_id(version.attrib['id']) for version in self.versions])}]")
