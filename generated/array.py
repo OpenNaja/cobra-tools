@@ -296,7 +296,8 @@ class RaggedArray(Array):
             # the dtype has not returned an Array type, and may therefore not have a .fill function
             type(self).assign_from_function(array_list, function_to_generate, self.ndim)
         else:
-            self[:] = [array.fill(function_to_generate) for array in array_list]
+            array_list = [array.fill(function_to_generate) for array in array_list]
+        self[:] = array_list
         return self
 
     @property
