@@ -92,7 +92,7 @@ def get_split_mode(png_file_path):
 
 def split_image(array_size, must_flip_gb, out_files, png_file_path, channels=None):
 	logging.info(f"Splitting {png_file_path} into {array_size} tiles for {channels} channels")
-	im = iio.imread(png_file_path)
+	im = imread(png_file_path)
 	h, w, d = im.shape
 	h //= array_size
 	if must_flip_gb:
@@ -178,6 +178,12 @@ def check_same_dimensions(dimensions, files):
 		raise AttributeError(f"Array tiles have different dimensions:\n{t_str}")
 
 
+def imread(uri):
+	# using pngs with palettes requires a conversion
+	# print(iio.immeta(uri))
+	return iio.imread(uri, mode="RGBA")
+
+
 def png_from_tex(tex_file_path, tmp_dir):
 	"""This finds and if required, creates, a png file that is ready for DDS conversion (arrays or flipped channels)"""
 
@@ -213,13 +219,13 @@ def png_from_tex(tex_file_path, tmp_dir):
 	if not join_array and not join_channels:
 		check_too_many_pngs(corresponding_png_textures, in_name_ext, png_file_path)
 		# just read the one input file
-		im = iio.imread(png_file_path)
+		im = imread(png_file_path)
 
 	# rebuild array from separated tiles
 	if join_array or join_channels:
 		array_textures = [file for file in corresponding_png_textures if is_array_tile(file, in_name_bare)]
 		# read all images into arrays
-		ims = [iio.imread(os.path.join(in_dir, file)) for file in array_textures]
+		ims = [imread(os.path.join(in_dir, file)) for file in array_textures]
 		logging.debug(f"Array tile names: {array_textures}")
 		# load them all, then build im array from scratch
 		array_size = len(array_textures)
@@ -259,13 +265,7 @@ def png_from_tex(tex_file_path, tmp_dir):
 			layer_i = 0
 			for hi in range(array_size):
 				for di in range(d):
-					tile_shape = ims[layer_i].shape
-					if len(tile_shape) == 2:
-						im[hi * h:(hi + 1) * h, :, di] = ims[layer_i]
-					elif len(tile_shape) == 3:
-						logging.warning(
-							f"Tile {array_textures[layer_i]} is not the expected single-channel float format, using first channel.")
-						im[hi * h:(hi + 1) * h, :, di] = ims[layer_i][:, :, 0]
+					im[hi * h:(hi + 1) * h, :, di] = get_single_channel(ims[layer_i], array_textures[layer_i])
 					layer_i += 1
 		elif join_channels == "RG_B_A":
 			logging.debug("Rebuilding array texture from RG + B + A")
@@ -323,6 +323,7 @@ def get_single_channel(im, name):
 	tile_shape = im.shape
 	if len(tile_shape) == 2:
 		return im
+	# with imread converting to RGBA, this is now the only case
 	elif len(tile_shape) == 3:
-		logging.warning(f"Tile {name} is not the expected single-channel float format, using first channel.")
+		logging.debug(f"Tile {name} is not the expected single-channel format, using first channel.")
 		return im[:, :, 0]
