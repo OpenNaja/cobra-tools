@@ -2,7 +2,7 @@
 import logging
 import io
 
-from modules.formats.shared import get_padding
+from generated.formats.base.compounds.PadAlign import get_padding
 
 
 # END_GLOBALS

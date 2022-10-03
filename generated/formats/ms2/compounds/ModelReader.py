@@ -3,12 +3,12 @@ import traceback
 
 from generated.array import Array
 from generated.formats.base.basic import Float
+from generated.formats.base.compounds.PadAlign import get_padding_size, get_padding
 from generated.formats.ms2.versions import is_old
 from generated.formats.ms2.compounds.Model import Model
 from generated.formats.ms2.compounds.BoneInfo import BoneInfo
 from generated.formats.ms2.enums.CollisionType import CollisionType
 from generated.base_struct import BaseStruct
-from modules.formats.shared import get_padding_size, get_padding
 
 
 from generated.base_struct import BaseStruct

@@ -4,10 +4,11 @@ import time
 import logging
 from copy import copy
 
+from generated.formats.base.compounds.PadAlign import get_padding
 from generated.formats.ms2.compounds.Ms2InfoHeader import Ms2InfoHeader
 from generated.formats.ms2.versions import *
 from generated.io import IoFile
-from modules.formats.shared import djb2, get_padding
+from modules.formats.shared import djb2
 
 logging.basicConfig(level=logging.DEBUG)
 

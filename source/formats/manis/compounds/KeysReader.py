@@ -3,8 +3,8 @@ import logging
 import traceback
 
 from generated.base_struct import BaseStruct
+from generated.formats.base.compounds.PadAlign import get_padding_size, get_padding
 from generated.formats.manis.compounds.ManiBlock import ManiBlock
-from modules.formats.shared import get_padding_size, get_padding
 
 
 # END_GLOBALS

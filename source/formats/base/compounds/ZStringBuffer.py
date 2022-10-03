@@ -3,7 +3,7 @@ from io import BytesIO
 import logging
 
 from generated.formats.base.basic import ZString
-from modules.formats.shared import get_padding
+from generated.formats.base.compounds.PadAlign import get_padding
 
 ZERO = b"\x00"
 
