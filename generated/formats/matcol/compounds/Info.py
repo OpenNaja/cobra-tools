@@ -23,6 +23,13 @@ class Info(MemStruct):
 		if set_default:
 			self.set_defaults()
 
+	_attribute_list = MemStruct._attribute_list + [
+		('info_name', Pointer, (0, ZString), (False, None), None),
+		('flags', Array, (0, None, (4,), Byte), (False, None), None),
+		('value', Array, (0, None, (4,), Float), (False, None), None),
+		('padding', Uint, (0, None), (False, None), None),
+		]
+
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

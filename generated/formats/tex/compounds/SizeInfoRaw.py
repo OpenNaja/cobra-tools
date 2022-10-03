@@ -47,6 +47,18 @@ class SizeInfoRaw(MemStruct):
 		if set_default:
 			self.set_defaults()
 
+	_attribute_list = MemStruct._attribute_list + [
+		('zero', Uint64, (0, None), (False, None), None),
+		('data_size', Uint, (0, None), (False, None), None),
+		('width', Uint, (0, None), (False, None), None),
+		('height', Uint, (0, None), (False, None), None),
+		('depth', Uint, (0, None), (False, None), None),
+		('array_size', Uint, (0, None), (False, None), None),
+		('num_mips', Uint, (0, None), (False, None), None),
+		('unk_pz', Uint64, (0, None), (False, None), True),
+		('mip_maps', Array, (0, None, (None,), Mipmap), (False, None), None),
+		]
+
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

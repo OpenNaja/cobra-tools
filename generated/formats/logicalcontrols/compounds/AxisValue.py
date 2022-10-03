@@ -22,6 +22,16 @@ class AxisValue(MemStruct):
 		if set_default:
 			self.set_defaults()
 
+	_attribute_list = MemStruct._attribute_list + [
+		('axis_name', Pointer, (0, ZString), (False, None), None),
+		('u_0', Uint64, (0, None), (False, None), None),
+		('u_1', Uint64, (0, None), (False, None), None),
+		('u_2', Uint64, (0, None), (False, None), None),
+		('value_name', Pointer, (0, ZString), (False, None), None),
+		('u_3', Uint64, (0, None), (False, None), None),
+		('u_4', Uint64, (0, None), (False, None), None),
+		]
+
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

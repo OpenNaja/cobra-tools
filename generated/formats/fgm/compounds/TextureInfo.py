@@ -27,6 +27,14 @@ class TextureInfo(GenericInfo):
 		if set_default:
 			self.set_defaults()
 
+	_attribute_list = GenericInfo._attribute_list + [
+		('value', Array, (0, None, (1,), TexIndex), (False, None), True),
+		('value', Array, (0, None, (2,), Color), (False, None), True),
+		('value', Array, (0, None, (1,), Color), (False, None), True),
+		('some_index_0', Uint, (0, None), (True, 0), True),
+		('some_index_1', Uint, (0, None), (True, 0), True),
+		]
+
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

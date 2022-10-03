@@ -47,6 +47,17 @@ class MimeEntry(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
+	_attribute_list = BaseStruct._attribute_list + [
+		('offset', Uint, (0, None), (False, None), None),
+		('unknown', Uint, (0, None), (False, None), None),
+		('mime_hash', Uint, (0, None), (False, None), None),
+		('mime_version', Uint, (0, None), (False, None), None),
+		('file_index_offset', Uint, (0, None), (False, None), None),
+		('file_count', Uint, (0, None), (False, None), None),
+		('triplet_count', Uint, (0, None), (False, None), True),
+		('triplet_offset', Uint, (0, None), (False, None), True),
+		]
+
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

@@ -18,6 +18,13 @@ class HircPointer(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
+	_attribute_list = BaseStruct._attribute_list + [
+		('id', HircType, (0, None), (False, None), None),
+		('data', SoundSfxVoice, (0, None), (False, None), True),
+		('data', MusicTrack, (0, None), (False, None), True),
+		('data', TypeOther, (0, None), (False, None), True),
+		]
+
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

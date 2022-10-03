@@ -30,6 +30,22 @@ class SpecdefRoot(MemStruct):
 		if set_default:
 			self.set_defaults()
 
+	_attribute_list = MemStruct._attribute_list + [
+		('attrib_count', Ushort, (0, None), (False, None), None),
+		('flags', Ushort, (0, None), (False, None), None),
+		('name_count', Ubyte, (0, None), (False, None), None),
+		('childspec_count', Ubyte, (0, None), (False, None), None),
+		('manager_count', Ubyte, (0, None), (False, None), None),
+		('script_count', Ubyte, (0, None), (False, None), None),
+		('attribs', ArrayPointer, (None, None), (False, None), None),
+		('name_foreach_attribs', ForEachPointer, (None, None), (False, None), None),
+		('data_foreach_attribs', ForEachPointer, (None, None), (False, None), None),
+		('names', Pointer, (None, None), (False, None), None),
+		('childspecs', Pointer, (None, None), (False, None), None),
+		('managers', Pointer, (None, None), (False, None), None),
+		('scripts', Pointer, (None, None), (False, None), None),
+		]
+
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

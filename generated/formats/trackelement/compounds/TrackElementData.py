@@ -33,6 +33,21 @@ class TrackElementData(MemStruct):
 		if set_default:
 			self.set_defaults()
 
+	_attribute_list = MemStruct._attribute_list + [
+		('loop_name', Pointer, (0, ZString), (False, None), None),
+		('ovl_name', Pointer, (0, ZString), (False, None), None),
+		('catwalk', Pointer, (0, None), (False, None), None),
+		('unk_0', Uint64, (0, None), (False, None), None),
+		('optional_catwalk', Pointer, (0, ZString), (False, None), None),
+		('unk_1', Uint64, (0, None), (False, None), None),
+		('unk_2', Ushort, (0, None), (False, 0), None),
+		('unk_3', Ushort, (0, None), (False, 32), None),
+		('unk_4', Uint, (0, None), (False, 1024), None),
+		('unk_5', Uint, (0, None), (False, 1), None),
+		('unk_6', Uint, (0, None), (False, 1), None),
+		('unk_7', Uint64, (0, None), (False, None), None),
+		]
+
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

@@ -22,6 +22,11 @@ class MeshCollisionBit(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
+	_attribute_list = BaseStruct._attribute_list + [
+		('countd', Array, (0, None, (34,), Ushort), (False, None), None),
+		('consts', Array, (0, None, (3,), Uint), (False, None), None),
+		]
+
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

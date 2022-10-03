@@ -45,6 +45,24 @@ class HitCheck(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
+	_attribute_list = BaseStruct._attribute_list + [
+		('dtype', CollisionType, (0, None), (False, None), None),
+		('flag_0', Ushort, (0, None), (False, None), None),
+		('flag_1', Ushort, (0, None), (False, None), None),
+		('flag_2', Uint, (0, None), (False, None), None),
+		('flag_3', Uint, (0, None), (False, None), None),
+		('zero_extra_pc_unk', Uint, (0, None), (False, None), True),
+		('name_offset', Uint, (0, None), (False, None), None),
+		('collider', Sphere, (0, None), (False, None), True),
+		('collider', BoundingBox, (0, None), (False, None), True),
+		('collider', Capsule, (0, None), (False, None), True),
+		('collider', Cylinder, (0, None), (False, None), True),
+		('collider', ConvexHull, (0, None), (False, None), True),
+		('collider', ConvexHull, (0, None), (False, None), True),
+		('collider', MeshCollision, (0, None), (False, None), True),
+		('zero_extra_zt', Uint, (0, None), (False, None), True),
+		]
+
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

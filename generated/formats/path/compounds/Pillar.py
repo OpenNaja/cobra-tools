@@ -12,6 +12,9 @@ class Pillar(SupportAttachExtra):
 		if set_default:
 			self.set_defaults()
 
+	_attribute_list = SupportAttachExtra._attribute_list + [
+		]
+
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

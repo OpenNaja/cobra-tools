@@ -40,6 +40,21 @@ class Ms2InfoHeader(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
+	_attribute_list = BaseStruct._attribute_list + [
+		('biosyn', BiosynVersion, (0, None), (False, None), None),
+		('bone_info_size', Uint, (0, None), (False, None), None),
+		('info', Ms2Root, (0, None), (False, None), None),
+		('buffers_presence', Array, (0, None, (None,), BufferPresence), (False, None), True),
+		('mdl_2_names', Array, (0, None, (None,), ZString), (False, None), None),
+		('modelstream_names', Array, (0, None, (None,), ZString), (False, None), True),
+		('modelstream_names', Array, (0, None, (None,), ZString), (False, None), True),
+		('modelstream_names', Array, (0, None, (None,), ZString), (False, None), True),
+		('buffer_0', Buffer0, (None, None), (False, None), None),
+		('buffer_infos', Array, (0, None, (None,), BufferInfo), (False, None), None),
+		('model_infos', Array, (0, None, (None,), ModelInfo), (False, None), None),
+		('models_reader', ModelReader, (None, None), (False, None), None),
+		]
+
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

@@ -24,6 +24,9 @@ class ModelReader(BaseStruct):
 
 	_import_key = 'ms2.compounds.ModelReader'
 
+	_attribute_list = BaseStruct._attribute_list + [
+		]
+
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

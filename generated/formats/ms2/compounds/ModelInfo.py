@@ -92,6 +92,39 @@ class ModelInfo(MemStruct):
 		if set_default:
 			self.set_defaults()
 
+	_attribute_list = MemStruct._attribute_list + [
+		('unk_dla', Uint64, (0, None), (False, None), True),
+		('bounds_min', Vector3, (0, None), (False, None), None),
+		('unk_float_a', Float, (0, None), (False, None), True),
+		('bounds_max', Vector3, (0, None), (False, None), None),
+		('pack_base', Float, (0, None), (False, None), True),
+		('center', Vector3, (0, None), (False, None), None),
+		('radius', Float, (0, None), (False, None), None),
+		('num_lods_2', Uint64, (0, None), (False, None), True),
+		('zero', Uint64, (0, None), (False, None), True),
+		('bounds_min_repeat', Vector3, (0, None), (False, None), True),
+		('bounds_max_repeat', Vector3, (0, None), (False, None), True),
+		('num_materials', Ushort, (0, None), (False, None), None),
+		('num_lods', Ushort, (0, None), (False, None), None),
+		('num_objects', Ushort, (0, None), (False, None), None),
+		('num_meshes', Ushort, (0, None), (False, None), None),
+		('last_count', Ushort, (0, None), (False, None), None),
+		('render_flag', RenderFlag, (0, None), (False, None), None),
+		('unks', Array, (0, None, (7,), Ushort), (False, None), None),
+		('pad', Array, (0, None, (3,), Ushort), (False, None), None),
+		('materials', ArrayPointer, (None, None), (False, None), None),
+		('lods', ArrayPointer, (None, None), (False, None), None),
+		('objects', ArrayPointer, (None, None), (False, None), None),
+		('meshes', ArrayPointer, (None, None), (False, None), None),
+		('first_model', Pointer, (0, None), (False, None), None),
+		('zeros', Array, (0, None, (4,), Uint64), (False, None), True),
+		('zeros', Array, (0, None, (2,), Uint64), (False, None), True),
+		('increment_flag', Uint64, (0, None), (False, None), None),
+		('zero_0', Uint64, (0, None), (False, None), True),
+		('zero_1', Uint64, (0, None), (False, None), True),
+		('zero_2', Uint64, (0, None), (False, None), True),
+		]
+
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

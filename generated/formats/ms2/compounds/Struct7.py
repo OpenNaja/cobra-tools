@@ -43,6 +43,18 @@ class Struct7(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
+	_attribute_list = BaseStruct._attribute_list + [
+		('weird_padding', SmartPadding, (0, None), (False, None), True),
+		('count_7', Uint64, (0, None), (False, None), None),
+		('zero_0', Uint64, (0, None), (False, None), None),
+		('flag', Uint64, (0, None), (False, None), True),
+		('zero_2', Uint64, (0, None), (False, None), True),
+		('unknown_list', Array, (0, None, (None,), UACJoint), (False, None), True),
+		('unknown_list', Array, (0, None, (None,), NasutoJointEntry), (False, None), True),
+		('padding', Array, (0, None, (None,), Ubyte), (False, None), None),
+		('alignment', Uint64, (0, None), (False, None), True),
+		]
+
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

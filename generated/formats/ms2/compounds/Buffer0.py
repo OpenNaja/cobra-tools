@@ -28,6 +28,13 @@ class Buffer0(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
+	_attribute_list = BaseStruct._attribute_list + [
+		('name_hashes', Array, (0, None, (None,), Uint), (False, None), None),
+		('names', Array, (0, None, (None,), ZString), (False, None), None),
+		('names_padding', Array, (0, None, (None,), Ubyte), (False, None), True),
+		('zt_streams_header', StreamsZTHeader, (None, None), (False, None), True),
+		]
+
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

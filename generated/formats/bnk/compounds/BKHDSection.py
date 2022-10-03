@@ -15,6 +15,17 @@ class BKHDSection(BaseStruct):
 
 	_import_key = 'bnk.compounds.BKHDSection'
 
+	_attribute_list = BaseStruct._attribute_list + [
+		('length', Uint, (0, None), (False, None), None),
+		('version', Uint, (0, None), (False, None), None),
+		('id_a', Uint, (0, None), (False, None), None),
+		('id_b', Uint, (0, None), (False, None), None),
+		('constant_a', Uint, (0, None), (False, None), None),
+		('constant_b', Uint, (0, None), (False, None), None),
+		('unk', Uint, (0, None), (False, None), None),
+		('zeroes', Array, (0, None, (None,), Ubyte), (False, None), None),
+		]
+
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

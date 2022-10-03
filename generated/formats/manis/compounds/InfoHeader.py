@@ -30,6 +30,16 @@ class InfoHeader(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
+	_attribute_list = BaseStruct._attribute_list + [
+		('version', Uint, (0, None), (False, None), None),
+		('mani_count', Uint, (0, None), (False, None), None),
+		('names', Array, (0, None, (None,), ZString), (False, None), None),
+		('header', SizedStrData, (0, None), (False, None), None),
+		('mani_infos', Array, (0, None, (None,), ManiInfo), (False, None), None),
+		('name_buffer', Buffer1, (None, None), (False, None), None),
+		('keys_buffer', KeysReader, (None, None), (False, None), None),
+		]
+
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

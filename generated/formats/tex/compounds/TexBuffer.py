@@ -35,6 +35,15 @@ class TexBuffer(MemStruct):
 		if set_default:
 			self.set_defaults()
 
+	_attribute_list = MemStruct._attribute_list + [
+		('offset', Uint64, (0, None), (False, None), None),
+		('size', Uint64, (0, None), (False, None), None),
+		('first_mip', Ubyte, (0, None), (False, None), None),
+		('mip_count', Ubyte, (0, None), (False, None), None),
+		('padding_0', Short, (0, None), (False, None), None),
+		('padding_1', Int, (0, None), (False, None), None),
+		]
+
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

@@ -47,6 +47,18 @@ class Ms2Root(MemStruct):
 		if set_default:
 			self.set_defaults()
 
+	_attribute_list = MemStruct._attribute_list + [
+		('version', MainVersion, (0, None), (False, None), None),
+		('vertex_buffer_count', Ushort, (0, None), (False, None), None),
+		('mdl_2_count', Ushort, (0, None), (False, None), None),
+		('name_count', Ushort, (0, None), (False, None), None),
+		('stream_count', Short, (0, None), (False, None), None),
+		('zeros', Array, (0, None, (3,), Uint), (False, None), None),
+		('buffer_infos', ArrayPointer, (None, None), (False, None), None),
+		('model_infos', ArrayPointer, (None, None), (False, None), None),
+		('buffers_presence', ArrayPointer, (None, None), (False, None), None),
+		]
+
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

@@ -84,6 +84,44 @@ class ManiInfo(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
+	_attribute_list = BaseStruct._attribute_list + [
+		('duration', Float, (0, None), (False, None), None),
+		('frame_count', Uint, (0, None), (False, None), None),
+		('b', Uint, (0, None), (False, None), None),
+		('zeros_0', Array, (0, None, (6,), Ushort), (False, None), None),
+		('extra_pc_1', Ushort, (0, None), (False, None), True),
+		('pos_bone_count', Ushort, (0, None), (False, None), None),
+		('ori_bone_count', Ushort, (0, None), (False, None), None),
+		('scl_bone_count', Ushort, (0, None), (False, None), None),
+		('extra_pc', Uint64, (0, None), (False, None), True),
+		('pos_bone_count_repeat', Ushort, (0, None), (False, None), True),
+		('ori_bone_count_repeat', Ushort, (0, None), (False, None), True),
+		('scl_bone_count_repeat', Ushort, (0, None), (False, None), True),
+		('zeros_1', Ushort, (0, None), (False, None), None),
+		('zeros_1_new', Uint, (0, None), (False, None), True),
+		('float_count', Ushort, (0, None), (False, None), None),
+		('count_a', Ubyte, (0, None), (False, None), None),
+		('count_b', Ubyte, (0, None), (False, None), None),
+		('target_bone_count', Ushort, (0, None), (False, None), None),
+		('g', Ushort, (0, None), (False, None), None),
+		('zeros_2', Array, (0, None, (57,), Uint), (False, None), None),
+		('extra_zeros_pc', Array, (0, None, (6,), Ushort), (False, None), True),
+		('pos_bone_min', Ubyte, (0, None), (False, None), None),
+		('pos_bone_max', Ubyte, (0, None), (False, None), None),
+		('ori_bone_min', Ubyte, (0, None), (False, None), None),
+		('ori_bone_max', Ubyte, (0, None), (False, None), None),
+		('scl_bone_min', Byte, (0, None), (False, None), None),
+		('scl_bone_max', Byte, (0, None), (False, None), None),
+		('pos_bone_count_related', Ubyte, (0, None), (False, None), True),
+		('pos_bone_count_repeat', Ubyte, (0, None), (False, None), True),
+		('ori_bone_count_related', Ubyte, (0, None), (False, None), True),
+		('ori_bone_count_repeat', Ubyte, (0, None), (False, None), True),
+		('scl_bone_count_related', Byte, (0, None), (False, None), True),
+		('scl_bone_count_repeat', Byte, (0, None), (False, None), True),
+		('zeros_end', Ushort, (0, None), (False, None), True),
+		('zero_2_end', Ushort, (0, None), (False, None), None),
+		]
+
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

@@ -25,6 +25,19 @@ class ParamData(MemStruct):
 		if set_default:
 			self.set_defaults()
 
+	_attribute_list = MemStruct._attribute_list + [
+		('data', Array, (0, None, (1,), Bool), (False, None), True),
+		('data', Array, (0, None, (1,), Float), (False, None), True),
+		('data', Array, (0, None, (1,), Int), (False, None), True),
+		('data', Array, (0, None, (1,), Uint), (False, None), True),
+		('data', Array, (0, None, (2,), Float), (False, None), True),
+		('data', Array, (0, None, (3,), Float), (False, None), True),
+		('data', Array, (0, None, (4,), Float), (False, None), True),
+		('data', Array, (0, None, (4,), Ubyte), (False, None), True),
+		('data', Array, (0, None, (4,), Float), (False, None), True),
+		('data', Array, (0, None, (1,), ZStrPtr), (False, None), True),
+		]
+
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

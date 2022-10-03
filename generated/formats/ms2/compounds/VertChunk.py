@@ -34,6 +34,15 @@ class VertChunk(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
+	_attribute_list = BaseStruct._attribute_list + [
+		('flags', Array, (0, None, (4,), Ubyte), (False, None), None),
+		('pack_base', Float, (0, None), (False, None), None),
+		('vertex_offset', Uint, (0, None), (False, None), None),
+		('vertex_count', Ubyte, (0, None), (False, None), None),
+		('weights_flag', WeightsFlag, (0, None), (False, None), None),
+		('zero', Ubyte, (0, None), (False, None), None),
+		]
+
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

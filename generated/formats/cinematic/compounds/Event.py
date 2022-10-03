@@ -25,6 +25,15 @@ class Event(MemStruct):
 		if set_default:
 			self.set_defaults()
 
+	_attribute_list = MemStruct._attribute_list + [
+		('start_time', Float, (0, None), (False, None), None),
+		('b', Float, (0, None), (False, None), None),
+		('module_name', Pointer, (0, ZString), (False, None), None),
+		('attributes', Pointer, (0, None), (False, None), None),
+		('duration', Float, (0, None), (False, None), None),
+		('d', Float, (0, None), (False, None), None),
+		]
+
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

@@ -29,6 +29,18 @@ class MRFMember2(MemStruct):
 		if set_default:
 			self.set_defaults()
 
+	_attribute_list = MemStruct._attribute_list + [
+		('transition', Pointer, (0, None), (False, None), None),
+		('count_0', Uint64, (0, None), (False, None), None),
+		('count_1', Uint64, (0, None), (False, None), None),
+		('count_2', Uint64, (0, None), (False, None), None),
+		('count_3', Uint64, (0, None), (False, None), None),
+		('count_4', Uint64, (0, None), (False, None), None),
+		('count_5', Uint64, (0, None), (False, None), None),
+		('count_6', Uint64, (0, None), (False, None), None),
+		('id', Pointer, (0, ZString), (False, None), None),
+		]
+
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

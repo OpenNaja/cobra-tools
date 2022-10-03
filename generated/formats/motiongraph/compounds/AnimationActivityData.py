@@ -35,6 +35,20 @@ class AnimationActivityData(MemStruct):
 		if set_default:
 			self.set_defaults()
 
+	_attribute_list = MemStruct._attribute_list + [
+		('mani', Pointer, (0, ZString), (False, None), None),
+		('animation_flags', AnimationFlags, (0, None), (False, None), None),
+		('priorities', Uint, (0, None), (False, None), None),
+		('weight', FloatInputData, (0, None), (False, None), None),
+		('speed', FloatInputData, (0, None), (False, None), None),
+		('starting_prop_through', Float, (0, None), (False, None), None),
+		('lead_out_time', Float, (0, None), (False, None), None),
+		('sync_prop_through_variable', Pointer, (0, ZString), (False, None), None),
+		('count_6', Uint64, (0, None), (False, None), None),
+		('output_prop_through_variable', Pointer, (0, ZString), (False, None), None),
+		('additional_data_streams', DataStreamResourceDataList, (0, None), (False, None), None),
+		]
+
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

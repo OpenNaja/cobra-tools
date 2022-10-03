@@ -37,6 +37,15 @@ class GenericHeader(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
+	_attribute_list = BaseStruct._attribute_list + [
+		('magic', FixedString, (4, None), (False, None), None),
+		('version_flag', Byte, (0, None), (False, None), None),
+		('version', Byte, (0, None), (False, None), None),
+		('bitswap', Byte, (0, None), (False, None), None),
+		('seventh_byte', Byte, (0, None), (False, 1), None),
+		('user_version', VersionInfo, (0, None), (False, None), None),
+		]
+
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

@@ -27,6 +27,15 @@ class DinoVariantsHeader(MemStruct):
 		if set_default:
 			self.set_defaults()
 
+	_attribute_list = MemStruct._attribute_list + [
+		('fgm_name', Pointer, (0, ZStringObfuscated), (False, None), None),
+		('has_sets', Uint64, (0, None), (False, None), None),
+		('set_name', Pointer, (0, ZString), (False, None), None),
+		('variants', Pointer, (None, None), (False, None), None),
+		('variant_count', Uint64, (0, None), (False, None), None),
+		('zero', Uint64, (0, None), (False, None), None),
+		]
+
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

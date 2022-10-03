@@ -54,6 +54,21 @@ class LodInfo(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
+	_attribute_list = BaseStruct._attribute_list + [
+		('full', Short, (0, None), (False, None), True),
+		('half', Short, (0, None), (False, None), True),
+		('lod_index', Ushort, (0, None), (False, None), True),
+		('distance', Float, (0, None), (False, None), True),
+		('zero', Ushort, (0, None), (False, None), True),
+		('bone_index', Ushort, (0, None), (False, None), None),
+		('first_object_index', Ushort, (0, None), (False, None), None),
+		('first_object_index_1', Ushort, (0, None), (False, None), True),
+		('first_object_index_2', Ushort, (0, None), (False, None), True),
+		('last_object_index', Ushort, (0, None), (False, None), None),
+		('vertex_count', Uint, (0, None), (False, None), True),
+		('tri_index_count', Uint, (0, None), (False, None), True),
+		]
+
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

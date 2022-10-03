@@ -44,6 +44,26 @@ class BufferInfo(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
+	_attribute_list = BaseStruct._attribute_list + [
+		('u_0', Uint64, (0, None), (False, None), True),
+		('u_1', Uint64, (0, None), (False, None), True),
+		('tri_chunks_size', Uint64, (0, None), (False, None), True),
+		('tri_chunks_ptr', Uint64, (0, None), (False, None), True),
+		('vert_chunks_size', Uint64, (0, None), (False, None), True),
+		('vert_chunks_ptr', Uint64, (0, None), (False, None), True),
+		('verts_size', Uint64, (0, None), (False, None), None),
+		('verts_ptr', Uint64, (0, None), (False, None), None),
+		('u_3', Uint64, (0, None), (False, None), True),
+		('tris_size', Uint64, (0, None), (False, None), True),
+		('tris_ptr', Uint64, (0, None), (False, None), True),
+		('u_5', Uint64, (0, None), (False, None), True),
+		('u_6', Uint64, (0, None), (False, None), True),
+		('u_5', Uint64, (0, None), (False, None), True),
+		('uvs_size', Uint64, (0, None), (False, None), True),
+		('u_6', Uint64, (0, None), (False, None), True),
+		('u_7', Uint64, (0, None), (False, None), True),
+		]
+
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

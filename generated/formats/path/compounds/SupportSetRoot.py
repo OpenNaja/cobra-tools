@@ -35,6 +35,24 @@ class SupportSetRoot(MemStruct):
 		if set_default:
 			self.set_defaults()
 
+	_attribute_list = MemStruct._attribute_list + [
+		('connector_1', ArrayPointer, (None, None), (False, None), None),
+		('connector_2', ArrayPointer, (None, None), (False, None), None),
+		('pillar', Pointer, (0, None), (False, None), None),
+		('footer', Pointer, (0, None), (False, None), None),
+		('padding', Uint64, (0, None), (True, 0), None),
+		('unk_vector_1', Vector3, (0, None), (False, None), None),
+		('unk_vector_2', Vector2, (0, None), (False, None), None),
+		('unk_vector_3', Vector3, (0, None), (False, None), None),
+		('unk_int_1', Uint, (0, None), (False, None), None),
+		('num_connector_1', Uint, (0, None), (False, None), None),
+		('num_connector_2', Uint, (0, None), (False, None), None),
+		('unk_ints', Array, (0, None, (7,), Uint), (False, None), None),
+		('padding_2', Uint64, (0, None), (True, 0), None),
+		('data', ArrayPointer, (None, None), (False, None), None),
+		('num_data', Uint, (0, None), (False, None), None),
+		]
+
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

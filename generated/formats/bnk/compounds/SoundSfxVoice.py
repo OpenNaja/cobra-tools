@@ -11,6 +11,16 @@ class SoundSfxVoice(BaseStruct):
 
 	_import_key = 'bnk.compounds.SoundSfxVoice'
 
+	_attribute_list = BaseStruct._attribute_list + [
+		('length', Uint, (0, None), (False, None), None),
+		('id', Uint, (0, None), (False, None), None),
+		('const_a', Uint, (0, None), (False, None), None),
+		('const_b', Byte, (0, None), (False, None), None),
+		('didx_id', Uint, (0, None), (False, None), None),
+		('wem_length', Uint, (0, None), (False, None), None),
+		('extra', Array, (0, None, (None,), Byte), (False, None), None),
+		]
+
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

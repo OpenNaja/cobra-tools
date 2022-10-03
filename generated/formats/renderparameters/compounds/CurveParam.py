@@ -24,6 +24,14 @@ class CurveParam(MemStruct):
 		if set_default:
 			self.set_defaults()
 
+	_attribute_list = MemStruct._attribute_list + [
+		('attribute_name', Pointer, (0, ZString), (False, None), None),
+		('dtype', Int, (0, None), (False, None), None),
+		('do_interpolation', Uint, (0, None), (False, None), None),
+		('curve_entries', Pointer, (None, None), (False, None), None),
+		('count', Uint64, (0, None), (False, None), None),
+		]
+
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

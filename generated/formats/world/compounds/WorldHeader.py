@@ -29,6 +29,19 @@ class WorldHeader(MemStruct):
 		if set_default:
 			self.set_defaults()
 
+	_attribute_list = MemStruct._attribute_list + [
+		('world_type', Uint64, (0, None), (False, None), None),
+		('asset_pkgs', Pointer, (None, None), (False, None), None),
+		('asset_pkg_count', Uint64, (0, None), (False, None), None),
+		('lua_name', Pointer, (0, ZString), (False, None), None),
+		('ptr_0', Pointer, (0, None), (False, None), None),
+		('ptr_1', Pointer, (0, None), (False, None), None),
+		('prefabs', Pointer, (None, None), (False, None), None),
+		('ptr_2', Pointer, (0, None), (False, None), None),
+		('prefab_count', Uint64, (0, None), (False, None), None),
+		('ptr_3', Pointer, (0, None), (False, None), None),
+		]
+
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

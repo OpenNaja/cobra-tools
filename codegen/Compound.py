@@ -108,6 +108,17 @@ class Compound(BaseClass):
             #     if not self.field_unions:
             #         self.write_line(f, 2, "pass")
 
+            # write attribute list
+            method_str = "_attribute_list = "
+            if "_attribute_list = " not in self.src_code:
+                self.write_line(f)
+                self.write_line(f, 1, method_str)
+                if self.class_basename:
+                    f.write(f"{self.class_basename}._attribute_list + [\n\t\t")
+                for union in self.field_unions:
+                    union.write_attributes(f)
+                f.write("]")
+
             # write the _get_filtered_attribute_list method
             method_str = "def _get_filtered_attribute_list(cls, instance, include_abstract=True):"
             if "def _get_filtered_attribute_list(" not in self.src_code:

@@ -24,6 +24,14 @@ class MediaEntry(MemStruct):
 		if set_default:
 			self.set_defaults()
 
+	_attribute_list = MemStruct._attribute_list + [
+		('hash', Uint, (0, None), (False, None), None),
+		('zero', Uint, (0, None), (False, None), None),
+		('block_name', Pointer, (0, ZString), (False, None), None),
+		('wav_name', Pointer, (0, ZString), (False, None), None),
+		('wem_name', Pointer, (0, ZString), (False, None), None),
+		]
+
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

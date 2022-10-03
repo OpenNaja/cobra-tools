@@ -113,7 +113,7 @@ class Union:
 
         conditionals = self.get_conditions(field, expression_prefix, use_abstract)
 
-        arg = field.attrib.get("arg", 0)
+        arg = field.attrib.get("arg", "0")
         arr1 = get_attr_with_backups(field, ["arr1", "length"])
         arr2 = get_attr_with_backups(field, ["arr2", "width"])
         if template:
@@ -281,6 +281,38 @@ class Union:
     #             f.write(f"{indent}{self.compounds.parser.write_for_type(field_type, f'{target_variable}.{field_name}', CONTEXT, arg, template, arr1, arr2)}")
     #     return condition
 
+    def write_attributes(self, f):
+        for field in self.members:
+            arg, template, arr1, arr2, conditionals, field_name, field_type, pad_mode, (optional, default) = self.get_params(field, f'x.')
+            # replace all non-static values with None for now
+            try:
+                arg = int(str(arg), 0)
+            except:
+                arg = None
+            if template not in self.compounds.parser.path_dict:
+                template = None
+            if field_type not in self.compounds.parser.path_dict:
+                field_type = None
+            default = self.default_to_value(default, field_type)
+            if arr1 is None:
+                arguments = f"({arg}, {template})"
+            else:
+                shape = self.compounds.parser.arrs_to_tuple(arr1, arr2)
+                shape_parts = shape[1:-1].split(",")
+                resolved_shape_parts = []
+                for dim in shape_parts:
+                    dim = dim.strip()
+                    if dim:
+                        try:
+                            dim = int(dim, 0)
+                        except:
+                            dim = None
+                        resolved_shape_parts.append(str(dim))
+                shape = f"({', '.join(resolved_shape_parts)},)"
+                arguments = f"({arg}, {template}, {shape}, {field_type})"
+                field_type = "Array"
+            f.write(f"({repr(field_name)}, {field_type}, {arguments}, ({optional}, {default}), {True if conditionals else None}),\n\t\t")
+
     def write_filtered_attributes(self, f, condition, target_variable="self"):
         base_indent = "\n\t\t"
         for field in self.members:
@@ -327,7 +359,7 @@ class Union:
                     def_indent = f'{indent}\t'
                 else:
                     def_indent = indent
-                f.write(f"{def_indent}yield '{field_name}', {field_type}, {arguments}, ({optional}, {default})")
+                f.write(f"{def_indent}yield {repr(field_name)}, {field_type}, {arguments}, ({optional}, {default})")
         return condition
 
     # def write_arg_update(self, f, method_type):

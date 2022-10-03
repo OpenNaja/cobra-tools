@@ -18,6 +18,12 @@ class SizeInfo(MemStruct):
 		if set_default:
 			self.set_defaults()
 
+	_attribute_list = MemStruct._attribute_list + [
+		('data', SizeInfoRaw, (0, None), (False, None), None),
+		('padding', Array, (0, None, (None,), Ubyte), (False, None), True),
+		('padding', Array, (0, None, (None,), Ubyte), (False, None), True),
+		]
+
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

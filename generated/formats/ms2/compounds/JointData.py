@@ -113,6 +113,42 @@ class JointData(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
+	_attribute_list = BaseStruct._attribute_list + [
+		('start_pc', SmartPadding, (0, None), (False, None), True),
+		('before_dla_0', Uint64, (0, None), (False, None), True),
+		('before_dla_1', Uint64, (0, None), (False, None), True),
+		('joint_count', Uint, (0, None), (False, None), None),
+		('count_0', Uint, (0, None), (False, None), None),
+		('count_1', Uint, (0, None), (False, None), None),
+		('count_2', Uint, (0, None), (False, None), None),
+		('zero_0', Uint, (0, None), (False, None), True),
+		('zero_1', Uint, (0, None), (False, None), True),
+		('namespace_length', Uint, (0, None), (False, None), None),
+		('zeros_0', Array, (0, None, (5,), Uint), (False, None), None),
+		('pc_count', Uint, (0, None), (False, None), None),
+		('zeros_1', Array, (0, None, (7,), Uint), (False, None), None),
+		('extra_zeros_2', Array, (0, None, (4,), Uint), (False, None), True),
+		('ones', Array, (0, None, (2,), Uint64), (False, None), True),
+		('bone_count', Uint, (0, None), (False, None), None),
+		('joint_entry_count', Uint, (0, None), (False, None), None),
+		('zeros_2', Array, (0, None, (4,), Uint), (False, None), None),
+		('zeros_3', Uint, (0, None), (False, None), True),
+		('joint_transforms', Array, (0, None, (None,), JointEntry), (False, None), None),
+		('zeros_3', Array, (0, None, (None,), Uint64), (False, None), True),
+		('unknown_listc', Array, (0, None, (None,), ListCEntry), (False, None), True),
+		('first_list', Array, (0, None, (None,), ListFirst), (False, None), True),
+		('short_list', Array, (0, None, (None,), ListShort), (False, None), True),
+		('long_list', Array, (0, None, (None,), ListLong), (False, None), True),
+		('joint_infos', Array, (0, None, (None,), UACJointFF), (False, None), True),
+		('pc_floats', Array, (0, None, (None, 10,), Float), (False, None), True),
+		('joint_indices', Array, (0, None, (None,), Int), (False, None), None),
+		('bone_indices', Array, (0, None, (None,), Int), (False, None), None),
+		('joint_names', ZStringBuffer, (None, None), (False, None), None),
+		('joint_names_padding', SmartPadding, (0, None), (False, None), None),
+		('joint_infos', Array, (0, None, (None,), JointInfo), (False, None), True),
+		('hitcheck_reader', HitcheckReader, (None, None), (False, None), True),
+		]
+
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

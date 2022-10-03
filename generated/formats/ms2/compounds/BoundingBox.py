@@ -27,6 +27,13 @@ class BoundingBox(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
+	_attribute_list = BaseStruct._attribute_list + [
+		('rotation', Matrix33, (0, None), (False, None), None),
+		('center', Vector3, (0, None), (False, None), None),
+		('extent', Vector3, (0, None), (False, None), None),
+		('zeros', Array, (0, None, (3,), Uint), (False, None), True),
+		]
+
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
