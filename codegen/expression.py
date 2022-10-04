@@ -2,8 +2,7 @@
 <add> tag)."""
 import math
 
-from codegen.naming_conventions import name_access
-
+import codegen.naming_conventions as naming_conventions
 
 class LiteralFloat(float):
 
@@ -70,6 +69,24 @@ class Version(object):
             return ""
 
 
+def interpret_literal(input_str, include_version=False):
+	# interpret numeric values as written in the xml and return the unambiguous python equivalent (back-printable to their literals)
+	try:
+		return int(input_str, 0)
+	except ValueError:
+		pass
+	try:
+		return LiteralFloat(input_str)
+	except:
+		pass
+	if include_version:
+		try:
+			Version(input_str)
+		except:
+			pass
+	return None
+
+
 class Expression(object):
 
     operators = {'!', '*', '/', '%', '+', '-', '<<', '>>', '&', '|', '==', '!=', '>', '>=', '<', '<=', '&&', '||'}
@@ -111,12 +128,9 @@ class Expression(object):
             # empty string
             return None
         # try to convert it to one of the following classes
-        for create_cls in (int, Version, LiteralFloat):
-            try:
-                return create_cls(expr_str)
-            # failed
-            except ValueError:
-                pass
+        literal_object = interpret_literal(expr_str)
+        if literal_object is not None:
+            return literal_object
         # brackets or operators => expression
         if ("(" in expr_str) or (")" in expr_str):
             return Expression(expr_str, prefix)
@@ -126,7 +140,7 @@ class Expression(object):
         # at this point, expr_str is a single attribute
         # apply name filter on each component separately
         # (where a dot separates components)
-        return prefix + name_access(expr_str)
+        return prefix + naming_conventions.name_access(expr_str)
 
     @classmethod
     def _partition(cls, expr_str):

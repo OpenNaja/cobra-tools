@@ -1,4 +1,4 @@
-from codegen.expression import Expression, Version
+from codegen.expression import Expression, Version, interpret_literal
 from codegen.Imports import Imports
 from codegen.Versions import Versions
 import codegen.naming_conventions as convention
@@ -132,9 +132,29 @@ class Union:
         return arg, template, arr1, arr2, conditionals, field_name, field_type, pad_mode, optional
 
     def default_to_value(self, default_string, field_type):
-        if default_string and field_type in self.compounds.parser.path_dict and self.compounds.parser.tag_dict[field_type.lower()] == "enum":
-            default_string = convention.name_enum_key_if_necessary(default_string)
-            default_string = f'{field_type}.{default_string}'
+        if default_string:
+            if field_type in self.compounds.parser.path_dict and self.compounds.parser.tag_dict[field_type.lower()] == "enum":
+                default_string = convention.name_enum_key_if_necessary(default_string)
+                return f'{field_type}.{default_string}'
+            else:
+                if ", " in default_string:
+                    # already formatted by format_potential_tuple
+                    pass
+                else:
+                    # check for boolean
+                    if field_type in self.compounds.parser.path_dict and \
+                    self.compounds.parser.tag_dict[field_type.lower()] == "basic" and \
+                        field_type in self.compounds.parser.basics.booleans:
+                        # boolean basics *can* be used as booleans, but don't have to be
+                        if default_string.capitalize() in ("True", "False"):
+                            default_string = default_string.capitalize()
+                            return default_string
+                    value = interpret_literal(default_string)
+                    if value is not None:
+                        default_string = str(value)
+                    else:
+                        # not interpretable, must be a string
+                        default_string = repr(default_string)
         return default_string
 
     def get_default_string(self, default_string, context, arg, template, arr1, arr2, field_name, field_type):
@@ -287,7 +307,7 @@ class Union:
             # replace all non-static values with None for now
             try:
                 arg = int(str(arg), 0)
-            except:
+            except ValueError:
                 arg = None
             if template not in self.compounds.parser.path_dict:
                 template = None
@@ -305,7 +325,7 @@ class Union:
                     if dim:
                         try:
                             dim = int(dim, 0)
-                        except:
+                        except ValueError:
                             dim = None
                         resolved_shape_parts.append(str(dim))
                 shape = f"({', '.join(resolved_shape_parts)},)"
