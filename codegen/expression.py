@@ -81,7 +81,7 @@ def interpret_literal(input_str, include_version=False):
 		pass
 	if include_version:
 		try:
-			Version(input_str)
+			return Version(input_str)
 		except:
 			pass
 	return None
@@ -128,7 +128,7 @@ class Expression(object):
             # empty string
             return None
         # try to convert it to one of the following classes
-        literal_object = interpret_literal(expr_str)
+        literal_object = interpret_literal(expr_str, include_version=True)
         if literal_object is not None:
             return literal_object
         # brackets or operators => expression

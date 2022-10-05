@@ -25,7 +25,7 @@ class StructMetaClass(type):
 			attr_names = [name for name, f_type, arguments, _, cond in attribute_list]
 			attr_types = [f_type for name, f_type, arguments, _, cond in attribute_list]
 			attr_conds = [cond for name, f_type, arguments, _, cond in attribute_list]
-			if all(cond is None for cond in attr_conds):
+			if all(cond is None for cond in attr_conds) and all(attr_type is not None for attr_type in attr_types):
 				# all fields are static
 				if len(set(attr_types)) == 1:
 					# every field is the same type, iteration makes sense
@@ -42,6 +42,14 @@ class StructMetaClass(type):
 						def __iter__(self):
 							yield from (getattr(self, attr_name) for attr_name in attr_names)
 						cls.__iter__ = __iter__
+				if all(callable(getattr(attr_type, "from_value", None)) for attr_type in attr_types):
+					def from_value(value):
+						# from_value implies context-independence so pass None as context
+						instance = cls(None)
+						for f_name, f_type, value_element in zip(attr_names, attr_types, value):
+							setattr(instance, f_name, f_type.from_value(value_element))
+						return instance
+					cls.from_value = from_value
 
 
 def indent(e, level=0):
