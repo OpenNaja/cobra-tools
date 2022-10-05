@@ -43,13 +43,16 @@ class StructMetaClass(type):
 							yield from (getattr(self, attr_name) for attr_name in attr_names)
 						cls.__iter__ = __iter__
 				if all(callable(getattr(attr_type, "from_value", None)) for attr_type in attr_types):
-					def from_value(value):
-						# from_value implies context-independence so pass None as context
-						instance = cls(None)
-						for f_name, f_type, value_element in zip(attr_names, attr_types, value):
-							setattr(instance, f_name, f_type.from_value(value_element))
-						return instance
-					cls.from_value = from_value
+					# since all fields are static and have a from_value function defined, this struct can also have
+					# from_value defined
+					if not callable(getattr(cls, "from_value", None)):
+						def from_value(value):
+							# from_value implies context-independence so pass None as context
+							instance = cls(None)
+							for f_name, f_type, value_element in zip(attr_names, attr_types, value):
+								setattr(instance, f_name, f_type.from_value(value_element))
+							return instance
+						cls.from_value = from_value
 
 
 def indent(e, level=0):
