@@ -171,13 +171,10 @@ class Ms2Loader(BaseFile):
 				# undo what we did on export
 				wrapper.mesh.stream_info.offset = 0
 		# print(self.header)
-		# determine ovs names
-		if len(ms2_file.modelstream_names) == 1:
-			# older JWE2 versions
-			ovs_names = ["HighPolyModels", ]
-		else:
-			# current JWE2 as of 2022-09-17
-			ovs_names = [f"Models_L{i}" for i in range(len(ms2_file.modelstream_names))]
+		# determine ovs names. these differ by game version and there is no real way to predict them
+		# older JWE2 versions used "HighPolyModels" exclusively
+		# current JWE2 as of 2022-09-17, even when there is just 1 stream (as in DEC_RaptorPaddock.ovl models2lods.ms2)
+		ovs_names = [f"Models_L{i}" for i in range(len(ms2_file.modelstream_names))]
 		# create modelstreams
 		for modelstream_name, ovs_name in zip(ms2_file.modelstream_names, ovs_names):
 			modelstream_path = os.path.join(ms2_dir, modelstream_name)
