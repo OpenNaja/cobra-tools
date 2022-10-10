@@ -41,6 +41,9 @@
 	<basic name="MainVersion" integral="true" countable="true">
 		An unsigned 32-bit integer.
 	</basic>
+    <basic name="OffsetString" integral="true" countable="true">
+        An unsigned 32-bit integer.
+    </basic>
 
 <!--Count from the end!!!-->
 	<bitfield name="WeightsFlag" storage="ushort">
@@ -634,11 +637,11 @@
 
 		<add name="joint_indices" type="int" arr1="joint_count" >index into bone info bones for each joint; bone that the joint is attached to</add>
 		<add name="bone_indices" type="int" arr1="bone count" >the inverse of the above; for each bone info bone, index of the corresponding joint or -1 if no joint</add>
-		<add name="joint names" type="ZStringBuffer" arg="namespace length">zstring name buffer</add>
+		<add name="joint_names" type="ZStringBuffer" arg="namespace length">zstring name buffer</add>
 <!--        <add name="JointNamesPadding" type="byte" arr1="(4 - (namespace length % 8)) % 8" ></add>-->
 		<add name="JointNamesPadding" type="SmartPadding" >?</add>
 		the padding goes wrong on 144 because its first hitcheck has collision type 0
-		<add name="joint_infos" type="JointInfo" arr1="joint count" since="47">new style - includes name offset, some flags and the hitchecks</add>
+		<add name="joint_infos" type="JointInfo" arr1="joint count" arg="joint_names" since="47">new style - includes name offset, some flags and the hitchecks</add>
 		<add name="hitcheck_reader" type="HitcheckReader" arg="joint infos" until="32">old style - for each joint, read the hitchecks</add>
 	</compound>
 
@@ -689,17 +692,16 @@
 		<add name="dynamic friction" type="float">coefficient of dynamic friction</add>
 	</compound>
 
-	<compound name="CommonJointInfo">
+	<compound name="JointInfo">
+		#ARG# is the names buffer
 		<add name="eleven" type="uint">must be 11</add>
 		<add name="FFs" type="int" arr1="3">bunch of -1's</add>
-		<add name="name offset" type="uint"/>
+		<add name="name" type="OffsetString" arg="#ARG#"/>
 		<add name="hitcheck count" type="uint"/>
-	</compound>
-
-	<compound name="JointInfo" inherit="CommonJointInfo">
+<!--	<compound name="JointInfo" inherit="CommonJointInfo">-->
 		<add name="zero" type="uint64" >8 bytes of zeros</add>
 		<add name="zeros per hitcheck" type="uint64" arr1="hitcheck count">8 bytes of zeros per hitcheck</add>
-		<add name="hitchecks" type="HitCheck" arr1="hitcheck count"/>
+		<add name="hitchecks" type="HitCheck" arr1="hitcheck count" arg="#ARG#"/>
 	</compound>
 
 	<compound name="UACJointFF">
@@ -714,10 +716,10 @@
 		<add name="dtype" type="CollisionType"/>
 		<add name="flag 0" type="ushort">0</add>
 		<add name="flag 1" type="ushort">JWE1: 16, PZ, JWE2: 0</add>
-		<add name="flag 2" type="uint">JWE1: 564267, PZ: seen 17 and 22, JWE2: 34, 30</add>
-		<add name="flag 3" type="uint">JWE1: 46, PZ: same as above, JWE2: 21, 27</add>
+		<add name="collision_ignore" type="OffsetString" arg="#ARG#">offset into joint names</add>
+		<add name="collision_use" type="OffsetString" arg="#ARG#">offset into joint names</add>
 		<add name="zero extra pc unk" type="uint" vercond="#OLD#">?</add>
-		<add name="name offset" type="uint">offset into joint names</add>
+		<add name="name" type="OffsetString" arg="#ARG#">offset into joint names</add>
 
 		<add name="collider" type="Sphere" cond="dtype == 0" />
 		<add name="collider" type="BoundingBox" cond="dtype == 1" />

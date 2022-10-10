@@ -49,11 +49,6 @@ class Ms2File(Ms2InfoHeader, IoFile):
 		assert bone_info.zeros_count == 0 or bone_info.zeros_count == bone_info.name_count
 		assert bone_info.unk_78_count == 0 and bone_info.unk_extra == 0
 		joints = bone_info.joints
-		for joint_info in joints.joint_infos:
-			joint_info.name = joints.joint_names.get_str_at(joint_info.name_offset)
-			for hit in joint_info.hitchecks:
-				hit.name = joints.joint_names.get_str_at(hit.name_offset)
-		# print(joints)
 
 		# for ix, li in enumerate((joints.first_list, joints.short_list, joints.long_list)):
 		# 	print(f"List {ix}")

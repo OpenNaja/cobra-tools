@@ -1,6 +1,7 @@
 from generated.base_struct import BaseStruct
 from generated.formats.base.basic import Uint
 from generated.formats.base.basic import Ushort
+from generated.formats.ms2.basic import OffsetString
 from generated.formats.ms2.compounds.BoundingBox import BoundingBox
 from generated.formats.ms2.compounds.Capsule import Capsule
 from generated.formats.ms2.compounds.ConvexHull import ConvexHull
@@ -26,17 +27,17 @@ class HitCheck(BaseStruct):
 		# JWE1: 16, PZ, JWE2: 0
 		self.flag_1 = 0
 
-		# JWE1: 564267, PZ: seen 17 and 22, JWE2: 34, 30
-		self.flag_2 = 0
+		# offset into joint names
+		self.collision_ignore = 0
 
-		# JWE1: 46, PZ: same as above, JWE2: 21, 27
-		self.flag_3 = 0
+		# offset into joint names
+		self.collision_use = 0
 
 		# ?
 		self.zero_extra_pc_unk = 0
 
 		# offset into joint names
-		self.name_offset = 0
+		self.name = 0
 		self.collider = MeshCollision(self.context, 0, None)
 
 		# ?
@@ -50,11 +51,11 @@ class HitCheck(BaseStruct):
 		yield 'dtype', CollisionType, (0, None), (False, None)
 		yield 'flag_0', Ushort, (0, None), (False, None)
 		yield 'flag_1', Ushort, (0, None), (False, None)
-		yield 'flag_2', Uint, (0, None), (False, None)
-		yield 'flag_3', Uint, (0, None), (False, None)
+		yield 'collision_ignore', OffsetString, (instance.arg, None), (False, None)
+		yield 'collision_use', OffsetString, (instance.arg, None), (False, None)
 		if instance.context.version < 47:
 			yield 'zero_extra_pc_unk', Uint, (0, None), (False, None)
-		yield 'name_offset', Uint, (0, None), (False, None)
+		yield 'name', OffsetString, (instance.arg, None), (False, None)
 		if instance.dtype == 0:
 			yield 'collider', Sphere, (0, None), (False, None)
 		if instance.dtype == 1:

@@ -106,7 +106,7 @@ class JointData(BaseStruct):
 		self.joint_names_padding = SmartPadding(self.context, 0, None)
 
 		# new style - includes name offset, some flags and the hitchecks
-		self.joint_infos = Array(self.context, 0, None, (0,), JointInfo)
+		self.joint_infos = Array(self.context, self.joint_names, None, (0,), JointInfo)
 
 		# old style - for each joint, read the hitchecks
 		self.hitcheck_reader = HitcheckReader(self.context, self.joint_infos, None)
@@ -157,6 +157,6 @@ class JointData(BaseStruct):
 		yield 'joint_names', ZStringBuffer, (instance.namespace_length, None), (False, None)
 		yield 'joint_names_padding', SmartPadding, (0, None), (False, None)
 		if instance.context.version >= 47:
-			yield 'joint_infos', Array, (0, None, (instance.joint_count,), JointInfo), (False, None)
+			yield 'joint_infos', Array, (instance.joint_names, None, (instance.joint_count,), JointInfo), (False, None)
 		if instance.context.version <= 32:
 			yield 'hitcheck_reader', HitcheckReader, (instance.joint_infos, None), (False, None)
