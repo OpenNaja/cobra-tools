@@ -2,7 +2,7 @@ import numpy
 from generated.array import Array
 from generated.formats.base.basic import Uint64
 from generated.formats.ms2.compounds.CommonJointInfo import CommonJointInfo
-from generated.formats.ms2.compounds.HitCheckEntry import HitCheckEntry
+from generated.formats.ms2.compounds.HitCheck import HitCheck
 
 
 class JointInfo(CommonJointInfo):
@@ -19,7 +19,7 @@ class JointInfo(CommonJointInfo):
 
 		# 8 bytes of zeros per hitcheck
 		self.zeros_per_hitcheck = Array(self.context, 0, None, (0,), Uint64)
-		self.hitchecks = Array(self.context, 0, None, (0,), HitCheckEntry)
+		self.hitchecks = Array(self.context, 0, None, (0,), HitCheck)
 		if set_default:
 			self.set_defaults()
 
@@ -28,4 +28,4 @@ class JointInfo(CommonJointInfo):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'zero', Uint64, (0, None), (False, None)
 		yield 'zeros_per_hitcheck', Array, (0, None, (instance.hitcheck_count,), Uint64), (False, None)
-		yield 'hitchecks', Array, (0, None, (instance.hitcheck_count,), HitCheckEntry), (False, None)
+		yield 'hitchecks', Array, (0, None, (instance.hitcheck_count,), HitCheck), (False, None)

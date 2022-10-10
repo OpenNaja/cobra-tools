@@ -1,5 +1,5 @@
 # START_GLOBALS
-from generated.formats.ms2.compounds.HitCheckEntry import HitCheckEntry
+from generated.formats.ms2.compounds.HitCheck import HitCheck
 from generated.base_struct import BaseStruct
 
 # END_GLOBALS
@@ -27,8 +27,7 @@ class HitcheckReader(BaseStruct):
 		for jointinfo in instance.arg:
 			jointinfo.hitchecks = []
 			for i in range(jointinfo.hitcheck_count):
-				hc = HitCheckEntry(instance.context)
-				hc.read(stream)
+				hc = HitCheck.from_stream(stream, instance.context)
 				jointinfo.hitchecks.append(hc)
 
 	@classmethod

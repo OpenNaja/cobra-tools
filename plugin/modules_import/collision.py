@@ -31,7 +31,7 @@ def import_collider(hitcheck, armature_ob, bone_name, corrector):
 		logging.warning(f"Unsupported collider type {hitcheck.dtype}")
 		return
 	parent_to(armature_ob, ob, bone_name)
-	# h = HitCheckEntry()
+	# h = HitCheck()
 	# print(export_hitcheck(ob, h))
 
 

@@ -2,7 +2,7 @@
 <!DOCTYPE niftoolsxml>
 <niftoolsxml version="0.7.1.0">
 
-    <token name="verexpr" attrs="vercond">
+	<token name="verexpr" attrs="vercond">
 		<verexpr token="#OLD#" string="(#VER# #LT# 47)">PC, ZTUAC, old JWE1</verexpr>
 		<verexpr token="#DLA#" string="(#VER# #EQ# 7)">DLA</verexpr>
 		<verexpr token="#ZTUAC#" string="(#VER# #EQ# 13)">ZTUAC</verexpr>
@@ -12,35 +12,35 @@
 		<verexpr token="#PZ16#" string="(#VER# #EQ# 50)">PZ 1.6+</verexpr>
 		<verexpr token="#JWE2#" string="(#VER# #EQ# 51)">JWE2</verexpr>
 		<verexpr token="#JWE2_BIO#" string="((#VER# #EQ# 51) #AND# (#BIOSYN#))">JWE2</verexpr>
-    </token>
+	</token>
 
 	<token name="global" attrs="vercond access">
-        Global Tokens.
-        NOTE: These must be listed after the above tokens so that they replace last. For example, `verexpr` uses these tokens.
-        <global token="#VER#" string="version" />
-        <global token="#BIOSYN#" string="biosyn" />
-    </token>
+		Global Tokens.
+		NOTE: These must be listed after the above tokens so that they replace last. For example, `verexpr` uses these tokens.
+		<global token="#VER#" string="version" />
+		<global token="#BIOSYN#" string="biosyn" />
+	</token>
 
 	<xi:include href="../ovl_base/ovl_base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
 
 	<verattr name="biosyn" access="#BIOSYN#" index="1" />
 
 	13 if ZTUAC, 32 if PC, 39 if old JWE1, 47 if JWE1, 48 if PZ, 50 for PZ 1.6+, 51 for JWE2
-    <version id="old" version="7 13 32" >Old</version>
-    <version id="DLA" version="7" >DLA</version>
-    <version id="ZTUAC" version="13" >ZTUAC</version>
-    <version id="PC" version="32" >PC</version>
-    <version id="JWE1" version="47 39" >JWE1</version>
-    <version id="PZ" version="48 50" >PZ</version>
-    <version id="PZ16" version="50" >PZ16</version>
-    <version id="JWE2" version="51" >JWE2</version>
+	<version id="old" version="7 13 32" >Old</version>
+	<version id="DLA" version="7" >DLA</version>
+	<version id="ZTUAC" version="13" >ZTUAC</version>
+	<version id="PC" version="32" >PC</version>
+	<version id="JWE1" version="47 39" >JWE1</version>
+	<version id="PZ" version="48 50" >PZ</version>
+	<version id="PZ16" version="50" >PZ16</version>
+	<version id="JWE2" version="51" >JWE2</version>
 
-    <basic name="BiosynVersion" integral="true" countable="true">
-        An unsigned 32-bit integer.
-    </basic>
-    <basic name="MainVersion" integral="true" countable="true">
-        An unsigned 32-bit integer.
-    </basic>
+	<basic name="BiosynVersion" integral="true" countable="true">
+		An unsigned 32-bit integer.
+	</basic>
+	<basic name="MainVersion" integral="true" countable="true">
+		An unsigned 32-bit integer.
+	</basic>
 
 <!--Count from the end!!!-->
 	<bitfield name="WeightsFlag" storage="ushort">
@@ -623,8 +623,8 @@
 		<add name="zeros 3" type="uint" until="7" >usually 0s</add>
 		<add name="joint_transforms" type="JointEntry" arr1="joint_count" >corresponds to bone transforms</add>
 
-		<add name="zeros 3" type="uint64" arr1="joint_count" since="47">might be pointers</add>
-		<add name="UnknownListc" type="ListCEntry" arr1="joint_count" since="47">?</add>
+		<add name="RigidBody pointers" type="uint64" arr1="joint_count" since="47"/>
+		<add name="RigidBody list" type="RigidBody" arr1="joint_count" since="47"/>
 		<add name="first list" type="ListFirst" arr1="count_0" since="47">used by ptero, 16 bytes per entry</add>
 		<add name="short list" type="ListShort" arr1="count_1" since="47">?</add>
 		<add name="long list" type="ListLong" arr1="count_2" since="47">?</add>
@@ -677,13 +677,16 @@
 		<add name="loc" type="Vector3" >the location of the joint</add>
 	</compound>
 
-	<compound name="ListCEntry">
-		<add name="one" type="uint">1 for carch and nasuto</add>
-		<add name="loc" type="Vector3" >center of the collider</add>
-		<add name="constant" type="float">-1 for PZ, 80 for JWE</add>
-		<add name="a" type="float">?</add>
-		<add name="floats" type="float" arr1="4">?</add>
-		<add name="a 2" type="float">sometimes repeat of a</add>
+	<compound name="RigidBody">
+		<add name="flag" type="uint">2 kinematic, 0 1 static</add>
+		<add name="loc" type="Vector3" >center of mass - from the head of the bone the collider is attached to</add>
+		<add name="mass" type="float">mass of joint or object</add>
+		<add name="static friction" type="float">coefficient of static friction(small wants to roll, larger wants to slide)</add>
+		<add name="unk 1" type="float">?</add>
+		<add name="unk 2" type="float">Related to Bounciness</add>
+		<add name="unknown friction" type="float">NOT air resistance</add>
+		<add name="unk 4" type="float">?</add>
+		<add name="dynamic friction" type="float">coefficient of dynamic friction</add>
 	</compound>
 
 	<compound name="CommonJointInfo">
@@ -696,7 +699,7 @@
 	<compound name="JointInfo" inherit="CommonJointInfo">
 		<add name="zero" type="uint64" >8 bytes of zeros</add>
 		<add name="zeros per hitcheck" type="uint64" arr1="hitcheck count">8 bytes of zeros per hitcheck</add>
-		<add name="hitchecks" type="HitCheck Entry" arr1="hitcheck count"/>
+		<add name="hitchecks" type="HitCheck" arr1="hitcheck count"/>
 	</compound>
 
 	<compound name="UACJointFF">
@@ -707,7 +710,7 @@
 		<add name="zeros" type="uint" arr1="3" >12 bytes of zeros</add>
 	</compound>
 
-	<compound name="HitCheck Entry">
+	<compound name="HitCheck">
 		<add name="dtype" type="CollisionType"/>
 		<add name="flag 0" type="ushort">0</add>
 		<add name="flag 1" type="ushort">JWE1: 16, PZ, JWE2: 0</add>
