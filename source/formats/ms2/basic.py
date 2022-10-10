@@ -31,4 +31,6 @@ class OffsetString(Uint):
 
 	@staticmethod
 	def to_stream(stream, instance):
+		# arg = ZStringBuffer needs to be filled before writing
+		# now we just take the index prepared by the string table
 		raise NotImplementedError("OffsetString needs implementation for writing")
