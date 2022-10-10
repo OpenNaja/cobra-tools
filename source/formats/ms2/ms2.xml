@@ -624,7 +624,7 @@
 		<add name="joint_transforms" type="JointEntry" arr1="joint_count" >corresponds to bone transforms</add>
 
 		<add name="zeros 3" type="uint64" arr1="joint_count" since="47">might be pointers</add>
-		<add name="UnknownListc" type="ListCEntry" arr1="joint_count" since="47">?</add>
+		<add name="rigidbody list" type="RigidBodyEntry" arr1="joint_count" since="47">?</add>
 		<add name="first list" type="ListFirst" arr1="count_0" since="47">used by ptero, 16 bytes per entry</add>
 		<add name="short list" type="ListShort" arr1="count_1" since="47">?</add>
 		<add name="long list" type="ListLong" arr1="count_2" since="47">?</add>
@@ -677,13 +677,16 @@
 		<add name="loc" type="Vector3" >the location of the joint</add>
 	</compound>
 
-	<compound name="ListCEntry">
-		<add name="one" type="uint">1 for carch and nasuto</add>
+	<compound name="RigidBodyEntry">
+		<add name="flag" type="uint">possibly a flag for is kinematic</add>
 		<add name="loc" type="Vector3" >center of the collider</add>
-		<add name="constant" type="float">-1 for PZ, 80 for JWE</add>
-		<add name="a" type="float">?</add>
-		<add name="floats" type="float" arr1="4">?</add>
-		<add name="a 2" type="float">sometimes repeat of a</add>
+		<add name="mass" type="float">-1 for PZ, 80 for JWE</add>
+		<add name="friction 1" type="float">?</add>
+		<add name="unk 1" type="float">?</add>
+		<add name="unk 1" type="float">?</add>
+		<add name="unk 1" type="float">possibly air resistance</add>
+		<add name="unk 1" type="float">?</add>
+		<add name="friction 2" type="float">sometimes repeat of a</add>
 	</compound>
 
 	<compound name="CommonJointInfo">
