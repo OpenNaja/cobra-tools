@@ -683,9 +683,9 @@
 		<add name="mass" type="float">-1 for PZ, 80 for JWE</add>
 		<add name="friction 1" type="float">?</add>
 		<add name="unk 1" type="float">?</add>
-		<add name="unk 1" type="float">?</add>
-		<add name="unk 1" type="float">possibly air resistance</add>
-		<add name="unk 1" type="float">?</add>
+		<add name="unk 2" type="float">?</add>
+		<add name="unk 3" type="float">possibly air resistance</add>
+		<add name="unk 4" type="float">?</add>
 		<add name="friction 2" type="float">sometimes repeat of a</add>
 	</compound>
 
