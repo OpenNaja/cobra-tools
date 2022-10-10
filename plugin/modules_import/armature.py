@@ -5,7 +5,7 @@ import bpy
 import mathutils
 
 from generated.formats.ms2.versions import is_ztuac, is_dla
-from plugin.modules_import.collision import import_collider
+from plugin.modules_import.collision import import_collider, parent_to
 
 from plugin.utils.object import create_ob, link_to_collection
 from plugin.utils import matrix_util
@@ -139,23 +139,30 @@ def get_bone_names(model_info):
 
 def import_joints(scene, armature_ob, bone_info, b_bone_names, corrector):
 	logging.info("Importing joints")
-	for bone_index, joint_info in zip(bone_info.joints.joint_indices, bone_info.joints.joint_infos):
-		bone_name = b_bone_names[bone_index]
+	j = bone_info.joints
+	for bone_index, joint_info, joint_transform in zip(j.joint_indices, j.joint_infos, j.joint_transforms):
 		logging.debug(f"joint {joint_info.name}")
-		# if hasattr(joint_info, "hitchecks"):
-		for hitcheck in joint_info.hitchecks:
-			import_collider(hitcheck, armature_ob, bone_name, corrector)
-	for bone_index, joint_transform in zip(bone_info.joints.joint_indices, bone_info.joints.joint_transforms):
+		# create an empty representing the joint
+		b_joint = create_ob(scene, f"{bpy.context.scene.name}_{joint_info.name}", None, coll_name="joints")
+		b_joint.empty_display_type = "ARROWS"
+		b_joint.empty_display_size = 0.03
+		b_joint.matrix_local = get_matrix(corrector, joint_transform)
+		if hasattr(joint_info, "hitchecks"):
+			for hitcheck in joint_info.hitchecks:
+				import_collider(hitcheck, b_joint, corrector)
+		# attach joint to bone
 		bone_name = b_bone_names[bone_index]
-		joint = create_ob(scene, "joint_"+bone_name, None, coll_name="joints")
-		n_bind = mathutils.Matrix(joint_transform.rot.data).inverted().to_4x4()
-		n_bind.translation = (joint_transform.loc.x, joint_transform.loc.y, joint_transform.loc.z)
-		b_bind = corrector.nif_bind_to_blender_bind(n_bind)
-		joint.empty_display_type = "ARROWS"
-		joint.empty_display_size = 0.03
-		joint.matrix_local = b_bind
-		joint.parent = armature_ob
-	# try:
+		parent_to(armature_ob, b_joint, bone_name)
+
+
+def get_matrix(corrector, joint_transform):
+	n_bind = mathutils.Matrix(joint_transform.rot.data).inverted().to_4x4()
+	n_bind.translation = (joint_transform.loc.x, joint_transform.loc.y, joint_transform.loc.z)
+	b_bind = corrector.nif_bind_to_blender_bind(n_bind)
+	return b_bind
+
+
+# try:
 	# 	for item in bone_info.struct_7.unknown_list:
 	# 		bone_name_0 = b_bone_names[item.parent]
 	# 		bone_name_1 = b_bone_names[item.child]

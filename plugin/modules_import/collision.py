@@ -10,7 +10,7 @@ from plugin.utils.object import mesh_from_data, create_ob
 from plugin.utils.quickhull import qhull3d
 
 
-def import_collider(hitcheck, armature_ob, bone_name, corrector):
+def import_collider(hitcheck, b_joint, corrector):
 	logging.info(f"{hitcheck.name} type {hitcheck.dtype}")
 	hitcheck_name = f"{bpy.context.scene.name}_{hitcheck.name}"
 	coll = hitcheck.collider
@@ -30,7 +30,7 @@ def import_collider(hitcheck, armature_ob, bone_name, corrector):
 	else:
 		logging.warning(f"Unsupported collider type {hitcheck.dtype}")
 		return
-	parent_to(armature_ob, ob, bone_name)
+	parent_to(b_joint, ob)
 	# h = HitCheck()
 	# print(export_hitcheck(ob, h))
 
@@ -172,12 +172,11 @@ def import_hullbv(coll, hitcheck_name, corrector):
 	return b_obj
 
 
-def parent_to(armature_ob, ob, bone_name):
+def parent_to(armature_ob, ob, bone_name=None):
 	ob.parent = armature_ob
-	ob.parent_type = 'BONE'
-	ob.parent_bone = bone_name
-	b_bone = armature_ob.data.bones[bone_name]
-	# re-set matrix to update the binding
+	if bone_name is not None:
+		ob.parent_type = 'BONE'
+		ob.parent_bone = bone_name
 	ob.matrix_local = ob.matrix_local
 
 
