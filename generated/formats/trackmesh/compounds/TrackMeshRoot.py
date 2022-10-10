@@ -24,8 +24,8 @@ class TrackMeshRoot(MemStruct):
 		self.last_count = 0
 		self.lod_count = 0
 		self.g = 0
-		self.track_data = ArrayPointer(self.context, self.count_0, TrackMeshRoot._import_map["trackmesh.compounds.SomeData"])
-		self.next_data = ArrayPointer(self.context, self.next_count, TrackMeshRoot._import_map["trackmesh.compounds.NextData"])
+		self.offset_data = ArrayPointer(self.context, self.count_0, TrackMeshRoot._import_map["trackmesh.compounds.OffsetData"])
+		self.track_data = ArrayPointer(self.context, self.next_count, TrackMeshRoot._import_map["trackmesh.compounds.TrackData"])
 		self.last = ArrayPointer(self.context, self.last_count, TrackMeshRoot._import_map["trackmesh.compounds.LastData"])
 		self.lods = ArrayPointer(self.context, self.lod_count, TrackMeshRoot._import_map["trackmesh.compounds.Lod"])
 		self.heatmap_name = Pointer(self.context, 0, ZString)
@@ -36,8 +36,8 @@ class TrackMeshRoot(MemStruct):
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'a', Uint64, (0, None), (False, None)
-		yield 'track_data', ArrayPointer, (instance.count_0, TrackMeshRoot._import_map["trackmesh.compounds.SomeData"]), (False, None)
-		yield 'next_data', ArrayPointer, (instance.next_count, TrackMeshRoot._import_map["trackmesh.compounds.NextData"]), (False, None)
+		yield 'offset_data', ArrayPointer, (instance.count_0, TrackMeshRoot._import_map["trackmesh.compounds.OffsetData"]), (False, None)
+		yield 'track_data', ArrayPointer, (instance.next_count, TrackMeshRoot._import_map["trackmesh.compounds.TrackData"]), (False, None)
 		yield 'last', ArrayPointer, (instance.last_count, TrackMeshRoot._import_map["trackmesh.compounds.LastData"]), (False, None)
 		yield 'count_0', Uint, (0, None), (False, None)
 		yield 'next_count', Uint, (0, None), (False, None)
