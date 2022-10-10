@@ -22,7 +22,7 @@ class OffsetData(MemStruct):
 		self.z_0 = 0
 		self.z_1 = 0
 		self.relative_offset = Vector3(self.context, 0, None)
-		self.float_3 = 0.0
+		self.spacing = 0.0
 		self.one = 0
 		self.z_2 = 0
 		self.z_3 = 0
@@ -40,7 +40,7 @@ class OffsetData(MemStruct):
 		yield 'z_0', Uint64, (0, None), (False, None)
 		yield 'z_1', Uint64, (0, None), (False, None)
 		yield 'relative_offset', Vector3, (0, None), (False, None)
-		yield 'float_3', Float, (0, None), (False, None)
+		yield 'spacing', Float, (0, None), (False, None)
 		yield 'one', Uint, (0, None), (False, None)
 		yield 'z_2', Uint, (0, None), (False, None)
 		yield 'z_3', Uint, (0, None), (False, None)

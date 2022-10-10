@@ -33,7 +33,7 @@
         <add name="z0" type="uint64" />
         <add name="z1" type="uint64" />
         <add name="relative_offset" type="Vector3" />
-        <add name="float 3" type="float" />
+        <add name="spacing" type="float" />
         <add name="one" type="uint" />
         <add name="z2" type="uint" />
         <add name="z3" type="uint" />
