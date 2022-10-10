@@ -682,7 +682,7 @@
 		<add name="loc" type="Vector3" >center of mass - from the head of the bone the collider is attached to</add>
 		<add name="mass" type="float">mass of joint or object</add>
 		<add name="static friction" type="float">coefficient of static friction(small wants to roll, larger wants to slide)</add>
-		<add name="unk 1" type="float">?</add>
+		<add name="unk 1" type="float">2.0 in unk1 makes the object not to stop ever, it is breakdancing</add>
 		<add name="unk 2" type="float">Related to Bounciness</add>
 		<add name="unknown friction" type="float">NOT air resistance</add>
 		<add name="unk 4" type="float">?</add>

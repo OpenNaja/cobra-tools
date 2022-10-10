@@ -25,7 +25,7 @@ class RigidBody(BaseStruct):
 		# coefficient of static friction(small wants to roll, larger wants to slide)
 		self.static_friction = 0.0
 
-		# ?
+		# 2.0 in unk1 makes the object not to stop ever, it is breakdancing
 		self.unk_1 = 0.0
 
 		# Related to Bounciness
