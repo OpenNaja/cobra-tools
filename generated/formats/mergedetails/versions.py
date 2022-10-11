@@ -133,4 +133,4 @@ pz16 = MergedetailsVersion(id='PZ16', version=(20,), user_version=(VersionInfo.f
 jwe = MergedetailsVersion(id='JWE', version=(19,), user_version=(VersionInfo.from_value(24724), VersionInfo.from_value(25108), VersionInfo.from_value(24596),), primary_games=[], all_games=[games.JURASSIC_WORLD_EVOLUTION])
 jwe2 = MergedetailsVersion(id='JWE2', version=(20,), user_version=(VersionInfo.from_value(24724), VersionInfo.from_value(25108), VersionInfo.from_value(24596),), primary_games=[], all_games=[games.JURASSIC_WORLD_EVOLUTION_2])
 
-versions = [dla, ztuac, pc, pz, pz16, jwe, jwe2]
+available_versions = [dla, ztuac, pc, pz, pz16, jwe, jwe2]
