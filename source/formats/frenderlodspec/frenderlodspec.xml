@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE niftoolsxml>
+<niftoolsxml version="0.7.1.0">
+
+	<xi:include href="../ovl_base/ovl_base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
+
+    <compound name="FRenderLodSpecRoot" inherit="MemStruct">
+        <add name="spec_list"   type="ArrayPointer" template="LodSpecItem" arg="spec_count"/>
+        <add name="spec_count"  type="uint64" />
+        <add name="unknown"     type="uint64" />
+    </compound>
+
+    <compound name="LodSpecItem" inherit="MemStruct">
+        <add name="spec_name"   type="Pointer" template="ZString"/>
+        <add name="unknown_1"   type="uint" />
+        <add name="distance"    type="float" />
+
+        <add name="flags1"      type="ushort" />
+        <add name="flags2"      type="ushort" />
+        <add name="float1"      type="float" />
+        <add name="float2"      type="float" />
+        <add name="float3"      type="float" />
+
+        <add name="float4"      type="float" />
+        <add name="float5"      type="float" />
+        <add name="float6"      type="float" />
+        <add name="unknown_2"   type="uint" />
+
+        <add name="unknown_3"   type="uint" />
+        <add name="unknown_4"   type="uint" />
+
+    </compound>
+
+</niftoolsxml>
