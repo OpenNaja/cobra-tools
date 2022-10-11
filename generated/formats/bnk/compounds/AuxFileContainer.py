@@ -15,9 +15,7 @@ class AuxFileContainer(BaseStruct):
 	# Custom file struct
 
 	def __init__(self, context, arg=0, template=None, set_default=False):
-		self._context = context
-		self.arg = arg
-		self.template = template
+		super().__init__(context, arg, template, set_default=False)
 		self.chunks = []
 		self.bhkd = None
 		self.didx = None

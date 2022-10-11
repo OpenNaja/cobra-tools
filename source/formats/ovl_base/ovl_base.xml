@@ -89,10 +89,6 @@
 		Grabs 00 bytes only
 	</compound>
 
-    <compound name="FixedString" count="0" >
-        Holds a string of a fixed size, given as an argument.
-    </compound>
-
     <basic name="ZStringObfuscated" integral="false">
         A string that ends with a null byte (0x00), and additionally has its bytes modified.
     </basic>

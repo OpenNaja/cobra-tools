@@ -1,8 +1,6 @@
 from ast import literal_eval
-import logging
 import numpy as np
 from struct import Struct
-import xml.etree.ElementTree as ET
 from generated.array import Array
 from generated.io import MAX_LEN
 

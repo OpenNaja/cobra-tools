@@ -698,7 +698,6 @@
 		<add name="FFs" type="int" arr1="3">bunch of -1's</add>
 		<add name="name" type="OffsetString" arg="#ARG#"/>
 		<add name="hitcheck count" type="uint"/>
-<!--	<compound name="JointInfo" inherit="CommonJointInfo">-->
 		<add name="zero" type="uint64" >8 bytes of zeros</add>
 		<add name="zeros per hitcheck" type="uint64" arr1="hitcheck count">8 bytes of zeros per hitcheck</add>
 		<add name="hitchecks" type="HitCheck" arr1="hitcheck count" arg="#ARG#"/>

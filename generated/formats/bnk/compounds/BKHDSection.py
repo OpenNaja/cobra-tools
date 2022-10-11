@@ -15,25 +15,8 @@ class BKHDSection(BaseStruct):
 
 	_import_key = 'bnk.compounds.BKHDSection'
 
-	@classmethod
-	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
-		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'length', Uint, (0, None), (False, None)
-		yield 'version', Uint, (0, None), (False, None)
-		yield 'id_a', Uint, (0, None), (False, None)
-		yield 'id_b', Uint, (0, None), (False, None)
-		yield 'constant_a', Uint, (0, None), (False, None)
-		yield 'constant_b', Uint, (0, None), (False, None)
-		yield 'unk', Uint, (0, None), (False, None)
-		yield 'zeroes', Array, (0, None, (instance.length - 24,), Ubyte), (False, None)
-
 	def __init__(self, context, arg=0, template=None, set_default=True):
-		self.name = ''
-		self._context = context
-		self.arg = arg
-		self.template = template
-		self.io_size = 0
-		self.io_start = 0
+		super().__init__(context, arg, template, set_default=False)
 
 		# length of following data
 		self.length = 0
@@ -45,6 +28,18 @@ class BKHDSection(BaseStruct):
 		self.unk = 0
 
 		# sometimes present
-		# self.zeroes = numpy.zeros((self.length - 24,), dtype=numpy.dtype('uint8'))
+		self.zeroes = Array(self.context, 0, None, (0,), Ubyte)
+		if set_default:
+			self.set_defaults()
 
-
+	@classmethod
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
+		yield 'length', Uint, (0, None), (False, None)
+		yield 'version', Uint, (0, None), (False, None)
+		yield 'id_a', Uint, (0, None), (False, None)
+		yield 'id_b', Uint, (0, None), (False, None)
+		yield 'constant_a', Uint, (0, None), (False, None)
+		yield 'constant_b', Uint, (0, None), (False, None)
+		yield 'unk', Uint, (0, None), (False, None)
+		yield 'zeroes', Array, (0, None, (instance.length - 24,), Ubyte), (False, None)

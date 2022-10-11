@@ -194,7 +194,7 @@ class BaseStruct(metaclass=StructMetaClass):
 				if "version" in field_name:
 					setattr(instance.context, field_name, getattr(instance, field_name))
 			except:
-				logging.error(f"failed reading field {field_name} on type {cls}")
+				logging.exception(f"failed reading field '{field_name}' on type {cls}")
 				raise
 
 	@classmethod

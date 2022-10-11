@@ -80,13 +80,6 @@ class BaseEnum(IntEnum, metaclass=DefaultEnumMeta):
 
 	_non_members_ = ["_storage"]
 
-
-	def read(self, stream):
-		self._value_ = self._storage.from_stream(stream, None, 0, None)
-
-	def write(self, stream):
-		self._storage.to_stream(stream, self.value)
-
 	@classmethod
 	def get_size(cls, context, instance, arguments=()):
 		return cls._storage.get_size(context, instance)

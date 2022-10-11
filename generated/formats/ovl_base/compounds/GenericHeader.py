@@ -1,7 +1,7 @@
 from generated.base_struct import BaseStruct
 from generated.formats.base.basic import Byte
+from generated.formats.base.compounds.FixedString import FixedString
 from generated.formats.ovl_base.bitfields.VersionInfo import VersionInfo
-from generated.formats.ovl_base.compounds.FixedString import FixedString
 
 
 class GenericHeader(BaseStruct):
