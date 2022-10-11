@@ -53,11 +53,11 @@ class BasicBitfield(object, metaclass=BitfieldMetaClass):
 
     @classmethod
     def from_stream(cls, stream, context=None, arg=0, template=None):
-        return cls.from_value(cls._storage.from_stream(stream, context=None, arg=0, template=None))
+        return cls.from_value(cls._storage.from_stream(stream, context, arg, template))
 
     @classmethod
-    def to_stream(cls, stream, instance):
-        cls._storage.to_stream(stream, int(instance))
+    def to_stream(cls, instance, stream, context, arg=0, template=None):
+        cls._storage.to_stream(int(instance), stream, context, arg, template)
 
     @classmethod
     def get_size(cls, context, instance, argument=()):

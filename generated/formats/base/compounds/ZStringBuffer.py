@@ -56,7 +56,7 @@ class ZStringBuffer(BaseStruct):
 						address = stream.tell()
 						self.strings.append(name)
 						offset_dic[name] = address
-						ZString.to_stream(stream, name)
+						ZString.to_stream(name, stream)
 					# store offset on item
 					item.offset = address
 			# get the actual result buffer

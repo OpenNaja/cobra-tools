@@ -29,7 +29,7 @@ def class_from_struct(struct, from_value_func):
             return unpack(stream.read(size))[0]
 
         @staticmethod
-        def to_stream(stream, instance):
+        def to_stream(instance, stream, context=None, arg=0, template=None):
             stream.write(pack(instance))
 
         @staticmethod
@@ -168,7 +168,7 @@ class ZString:
         return r_zstr(stream.read)
 
     @staticmethod
-    def to_stream(stream, instance):
+    def to_stream(instance, stream, context=None, arg=0, template=None):
         w_zstr(stream.write, instance)
 
     @staticmethod
@@ -193,7 +193,7 @@ class ZString:
 
         def write_zstrings(instance):
             # pass empty context
-            return Array.to_stream(stream, instance, cls)
+            return Array.to_stream(instance, stream, None, 0, None, dtype=cls)
 
         return read_zstring, write_zstring, read_zstrings, write_zstrings
 

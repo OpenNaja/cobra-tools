@@ -60,7 +60,7 @@ class Array(list):
 
     def write(self, stream):
         self.io_start = stream.tell()
-        self.perform_nested_func(self, lambda x: self.dtype.to_stream(stream, x), self.ndim)
+        self.perform_nested_func(self, lambda x: self.dtype.to_stream(x, stream, self.context, self.arg, self.template), self.ndim)
         self.io_size = stream.tell() - self.io_start
 
     def fill(self, function_to_generate):
@@ -100,18 +100,21 @@ class Array(list):
             return new_array
 
     @classmethod
-    def to_stream(cls, stream, instance, dtype=None):
+    def to_stream(cls, instance, stream, context, arg=0, template=None, shape=(), dtype=None):
         if instance is not None:
             try:
+                # check if it's a ragged array instance
                 if cls.is_ragged_shape(getattr(instance, "shape", len(instance))):
-                    RaggedArray.to_stream(stream, instance, dtype)
+                    RaggedArray.to_stream(instance, stream, context, arg, template, shape, dtype)
+                # or if there is a vectorized write method
                 elif callable(getattr(dtype, 'write_array', None)):
                     dtype.write_array(stream, instance)
+                # must be an instance of Array that has the write function on itself
                 else:
-                    # this must be an instance of cls that has the write function on itself
                     instance.write(stream)
             except:
                 logging.exception(f"Array.to_stream failed for {instance} {dtype}")
+                raise
 
     @classmethod
     def from_value(cls, shape, dtype, value):
@@ -325,7 +328,7 @@ class RaggedArray(Array):
             return new_array
 
     @classmethod
-    def to_stream(cls, stream, instance, dtype=None):
+    def to_stream(cls, instance, stream, context, arg=0, template=None, shape=(), dtype=None):
         if instance is not None:
             if callable(getattr(dtype, 'write_ragged_array', None)):
                 dtype.write_ragged_array(stream, instance)

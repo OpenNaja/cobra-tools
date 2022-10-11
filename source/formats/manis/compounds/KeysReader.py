@@ -39,7 +39,7 @@ class KeysReader(BaseStruct):
 	def write_fields(cls, stream, instance):
 		instance.io_start = stream.tell()
 		for mani_info in instance.arg:
-			ManiBlock.to_stream(stream, mani_info.keys)
+			ManiBlock.to_stream(mani_info.keys, stream)
 			for mb in mani_info.keys.repeats:
 				stream.write(mb.data)
 				stream.write(get_padding(mb.byte_size))

@@ -236,9 +236,9 @@ class BaseStruct(metaclass=StructMetaClass):
 	def write_fields(cls, stream, instance):
 		for field_name, field_type, arguments, _ in cls._get_filtered_attribute_list(instance, include_abstract=False):
 			try:
-				field_type.to_stream(stream, getattr(instance, field_name), *arguments[3:4])
+				field_type.to_stream(getattr(instance, field_name), stream, instance.context, *arguments)
 			except:
-				logging.error(f"failed writing field {field_name} on type {cls}")
+				logging.error(f"failed writing field '{field_name}' on type {cls}")
 				raise
 
 	def reset_field(self, field_name):
@@ -295,7 +295,7 @@ class BaseStruct(metaclass=StructMetaClass):
 		return instance
 
 	@classmethod
-	def to_stream(cls, stream, instance):
+	def to_stream(cls, instance, stream, context, arg=0, template=None):
 		instance.io_start = stream.tell()
 		cls.write_fields(stream, instance)
 		instance.io_size = stream.tell() - instance.io_start
