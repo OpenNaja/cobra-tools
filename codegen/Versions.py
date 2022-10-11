@@ -27,6 +27,7 @@ def split_parenthesis_aware(input_string, delimiter):
 	split_string.append(input_string[last_start:i])
 	return split_string
 
+
 class Versions:
 	"""Creates and writes a version block"""
 
