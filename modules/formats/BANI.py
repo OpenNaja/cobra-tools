@@ -48,7 +48,7 @@ class BaniLoader(MemStructLoader):
 		with open(out_path, 'wb') as stream:
 			stream.write(b"BANI")
 			stream.write(as_bytes(banis_name))
-			self.header.to_stream(stream, self.header.context)
+			self.header.to_stream(self.header, stream, self.header.context)
 
 		return out_path,
 
@@ -74,7 +74,7 @@ class BanisLoader(MemStructLoader):
 		out_path = out_dir(name)
 		out_paths = [out_path, ]
 		with open(out_path, 'wb') as stream:
-			self.header.to_stream(stream, self.header.context)
+			self.header.to_stream(self.header, stream, self.header.context)
 			stream.write(buffers[0])
 
 		return out_paths

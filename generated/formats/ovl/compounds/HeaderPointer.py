@@ -95,11 +95,9 @@ class HeaderPointer(BaseStruct):
 		"""Write instance to end of stream and set offset"""
 		logging.debug(f"write_instance of class {cls.__name__}")
 		if self.align_write(instance, overwrite=False):
-			if isinstance(instance, Array):
-				Array.to_stream(instance, self.pool.data, dtype=cls)
-			# special case to avoid falling back on basic.to_stream
-			elif isinstance(instance, np.ndarray):
-				cls.write_array(self.pool.data, instance)
+			if isinstance(instance, (Array, np.ndarray)):
+				context = None
+				Array.to_stream(instance, self.pool.data, context, dtype=cls)
 			else:
 				cls.to_stream(instance, self.pool.data)
 			self.data_size = self.pool.data.tell() - self.data_offset

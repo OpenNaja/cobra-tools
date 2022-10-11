@@ -108,7 +108,7 @@ class Array(list):
                     RaggedArray.to_stream(instance, stream, context, arg, template, shape, dtype)
                 # or if there is a vectorized write method
                 elif callable(getattr(dtype, 'write_array', None)):
-                    dtype.write_array(stream, instance)
+                    dtype.write_array(instance, stream)
                 # must be an instance of Array that has the write function on itself
                 else:
                     instance.write(stream)

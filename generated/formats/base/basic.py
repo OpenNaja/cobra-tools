@@ -50,7 +50,7 @@ def class_from_struct(struct, from_value_func):
             return array
 
         @staticmethod
-        def write_array(stream, instance):
+        def write_array(instance, stream):
             # check that it is a numpy array
             if not isinstance(instance, np.ndarray):
                 instance = np.array(instance, dtype)
