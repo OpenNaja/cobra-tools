@@ -38,10 +38,14 @@ class JointInfo(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = CommonJointInfo._attribute_list + [
+	_attribute_list = BaseStruct._attribute_list + [
+		('eleven', Uint, (0, None), (False, None), None),
+		('f_fs', Array, (0, None, (3,), Int), (False, None), None),
+		('name', OffsetString, (None, None), (False, None), None),
+		('hitcheck_count', Uint, (0, None), (False, None), None),
 		('zero', Uint64, (0, None), (False, None), None),
 		('zeros_per_hitcheck', Array, (0, None, (None,), Uint64), (False, None), None),
-		('hitchecks', Array, (0, None, (None,), HitCheckEntry), (False, None), None),
+		('hitchecks', Array, (None, None, (None,), HitCheck), (False, None), None),
 		]
 
 	@classmethod
