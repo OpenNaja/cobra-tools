@@ -246,4 +246,4 @@ pz = Ms2Version(id='PZ', version=(48, 50,), primary_games=[], all_games=[games.P
 pz16 = Ms2Version(id='PZ16', version=(50,), primary_games=[], all_games=[games.PZ_16])
 jwe2 = Ms2Version(id='JWE2', version=(51,), primary_games=[], all_games=[games.JWE_2])
 
-versions = [dla, ztuac, pc, pz, pz16, jwe, jwe2, old, dla, ztuac, pc, jwe1, pz, pz16, jwe2]
+available_versions = [dla, ztuac, pc, pz, pz16, jwe, jwe2, old, dla, ztuac, pc, jwe1, pz, pz16, jwe2]

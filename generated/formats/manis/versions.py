@@ -217,4 +217,4 @@ pz = ManisVersion(id='PZ', version=(260,), primary_games=[], all_games=[games.PZ
 jwe2_dev = ManisVersion(id='JWE2_DEV', version=(261,), primary_games=[], all_games=[games.JWE_2_DEV_BUILD])
 jwe2 = ManisVersion(id='JWE2', version=(262,), primary_games=[], all_games=[games.JWE_2])
 
-versions = [dla, ztuac, pc, pz, pz16, jwe, jwe2, dla, pc, jwe1, pz, jwe2_dev, jwe2]
+available_versions = [dla, ztuac, pc, pz, pz16, jwe, jwe2, dla, pc, jwe1, pz, jwe2_dev, jwe2]

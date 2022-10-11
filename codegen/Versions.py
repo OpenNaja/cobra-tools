@@ -193,5 +193,5 @@ class Versions:
 						stream.write(f", all_games=[{', '.join(all_games)}]")
 						stream.write(")\n")
 
-					stream.write(f"\nversions = [{', '.join([self.format_id(version.attrib['id']) for version in self.versions])}]")
+					stream.write(f"\navailable_versions = [{', '.join([self.format_id(version.attrib['id']) for version in self.versions])}]")
 					stream.write("\n")
