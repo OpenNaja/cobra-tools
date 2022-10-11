@@ -1,6 +1,7 @@
 from enum import Enum
 
 from generated.base_version import VersionBase
+from generated.formats.ovl_base.bitfields.VersionInfo import VersionInfo
 
 
 def is_dla(context):
