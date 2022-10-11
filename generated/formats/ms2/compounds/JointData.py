@@ -134,8 +134,8 @@ class JointData(BaseStruct):
 		('zeros_2', Array, (0, None, (4,), Uint), (False, None), None),
 		('zeros_3', Uint, (0, None), (False, None), True),
 		('joint_transforms', Array, (0, None, (None,), JointEntry), (False, None), None),
-		('zeros_3', Array, (0, None, (None,), Uint64), (False, None), True),
-		('unknown_listc', Array, (0, None, (None,), ListCEntry), (False, None), True),
+		('rigid_body_pointers', Array, (0, None, (None,), Uint64), (False, None), True),
+		('rigid_body_list', Array, (0, None, (None,), RigidBody), (False, None), True),
 		('first_list', Array, (0, None, (None,), ListFirst), (False, None), True),
 		('short_list', Array, (0, None, (None,), ListShort), (False, None), True),
 		('long_list', Array, (0, None, (None,), ListLong), (False, None), True),
@@ -145,7 +145,7 @@ class JointData(BaseStruct):
 		('bone_indices', Array, (0, None, (None,), Int), (False, None), None),
 		('joint_names', ZStringBuffer, (None, None), (False, None), None),
 		('joint_names_padding', SmartPadding, (0, None), (False, None), None),
-		('joint_infos', Array, (0, None, (None,), JointInfo), (False, None), True),
+		('joint_infos', Array, (None, None, (None,), JointInfo), (False, None), True),
 		('hitcheck_reader', HitcheckReader, (None, None), (False, None), True),
 		]
 

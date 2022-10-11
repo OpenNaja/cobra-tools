@@ -34,6 +34,24 @@ class LastData(MemStruct):
 		if set_default:
 			self.set_defaults()
 
+	_attribute_list = MemStruct._attribute_list + [
+		('some_name', Pointer, (0, ZString), (False, None), None),
+		('p_1', Pointer, (0, None), (False, None), None),
+		('p_1_count', Uint64, (0, None), (False, None), None),
+		('b', Uint64, (0, None), (False, None), None),
+		('c', Uint64, (0, None), (False, None), None),
+		('p_2', Pointer, (0, None), (False, None), None),
+		('p_2_count', Uint64, (0, None), (False, None), None),
+		('p_3', Pointer, (0, None), (False, None), None),
+		('p_3_count', Uint64, (0, None), (False, None), None),
+		('f', Uint64, (0, None), (False, None), None),
+		('g', Uint64, (0, None), (False, None), None),
+		('p_4', Pointer, (0, None), (False, None), None),
+		('p_4_count', Uint64, (0, None), (False, None), None),
+		('p_5', Pointer, (0, None), (False, None), None),
+		('p_5_count', Uint64, (0, None), (False, None), None),
+		]
+
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

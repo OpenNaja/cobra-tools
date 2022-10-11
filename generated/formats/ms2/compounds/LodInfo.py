@@ -59,7 +59,7 @@ class LodInfo(BaseStruct):
 		('half', Short, (0, None), (False, None), True),
 		('lod_index', Ushort, (0, None), (False, None), True),
 		('distance', Float, (0, None), (False, None), True),
-		('zero', Ushort, (0, None), (False, None), True),
+		('stream_index', Ushort, (0, None), (False, None), True),
 		('bone_index', Ushort, (0, None), (False, None), None),
 		('first_object_index', Ushort, (0, None), (False, None), None),
 		('first_object_index_1', Ushort, (0, None), (False, None), True),

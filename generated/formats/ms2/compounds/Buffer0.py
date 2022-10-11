@@ -31,7 +31,7 @@ class Buffer0(BaseStruct):
 	_attribute_list = BaseStruct._attribute_list + [
 		('name_hashes', Array, (0, None, (None,), Uint), (False, None), None),
 		('names', Array, (0, None, (None,), ZString), (False, None), None),
-		('names_padding', Array, (0, None, (None,), Ubyte), (False, None), True),
+		('names_padding', PadAlign, (4, None), (False, None), True),
 		('zt_streams_header', StreamsZTHeader, (None, None), (False, None), True),
 		]
 

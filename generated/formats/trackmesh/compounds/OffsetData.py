@@ -33,6 +33,20 @@ class OffsetData(MemStruct):
 		if set_default:
 			self.set_defaults()
 
+	_attribute_list = MemStruct._attribute_list + [
+		('offset_id', Pointer, (0, ZString), (False, None), None),
+		('z_0', Uint64, (0, None), (False, None), None),
+		('z_1', Uint64, (0, None), (False, None), None),
+		('relative_offset', Vector3, (0, None), (False, None), None),
+		('spacing', Float, (0, None), (False, None), None),
+		('one', Uint, (0, None), (False, None), None),
+		('z_2', Uint, (0, None), (False, None), None),
+		('z_3', Uint, (0, None), (False, None), None),
+		('count', Uint, (0, None), (False, None), None),
+		('z_4', Uint, (0, None), (False, None), None),
+		('z_5', Uint, (0, None), (False, None), None),
+		]
+
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

@@ -12,7 +12,7 @@ class EmptyStruct(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = BaseStruct._attribute_list + [
+	_attribute_list = MemStruct._attribute_list + [
 		]
 
 	@classmethod

@@ -32,6 +32,20 @@ class TrackMeshRoot(MemStruct):
 		if set_default:
 			self.set_defaults()
 
+	_attribute_list = MemStruct._attribute_list + [
+		('a', Uint64, (0, None), (False, None), None),
+		('offset_data', ArrayPointer, (None, None), (False, None), None),
+		('track_data', ArrayPointer, (None, None), (False, None), None),
+		('last', ArrayPointer, (None, None), (False, None), None),
+		('count_0', Uint, (0, None), (False, None), None),
+		('next_count', Uint, (0, None), (False, None), None),
+		('last_count', Uint64, (0, None), (False, None), None),
+		('lods', ArrayPointer, (None, None), (False, None), None),
+		('lod_count', Uint64, (0, None), (False, None), None),
+		('heatmap_name', Pointer, (0, ZString), (False, None), None),
+		('g', Uint64, (0, None), (False, None), None),
+		]
+
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
