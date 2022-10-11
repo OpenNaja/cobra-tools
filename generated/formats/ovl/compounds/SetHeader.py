@@ -30,6 +30,15 @@ class SetHeader(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
+	_attribute_list = BaseStruct._attribute_list + [
+		('set_count', Uint, (0, None), (False, None), None),
+		('asset_count', Uint, (0, None), (False, None), None),
+		('sig_a', Uint, (0, None), (False, 1065336831), None),
+		('sig_b', Uint, (0, None), (False, 16909320), None),
+		('sets', Array, (0, None, (None,), SetEntry), (False, None), None),
+		('assets', Array, (0, None, (None,), AssetEntry), (False, None), None),
+		]
+
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

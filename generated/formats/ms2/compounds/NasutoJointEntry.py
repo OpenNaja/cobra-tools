@@ -39,6 +39,15 @@ class NasutoJointEntry(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
+	_attribute_list = BaseStruct._attribute_list + [
+		('child', Ubyte, (0, None), (False, None), None),
+		('parent', Ubyte, (0, None), (False, None), None),
+		('zero', Ushort, (0, None), (False, None), None),
+		('matrix', Matrix33, (0, None), (False, None), None),
+		('vector', Vector4, (0, None), (False, None), None),
+		('one', Uint, (0, None), (False, None), None),
+		]
+
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

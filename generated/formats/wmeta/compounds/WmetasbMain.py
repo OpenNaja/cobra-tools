@@ -38,6 +38,24 @@ class WmetasbMain(MemStruct):
 		if set_default:
 			self.set_defaults()
 
+	_attribute_list = MemStruct._attribute_list + [
+		('hash', Uint, (0, None), (False, None), None),
+		('unk', Uint, (0, None), (False, None), None),
+		('block_name', Pointer, (0, ZString), (False, None), None),
+		('media_name', Pointer, (0, ZString), (False, None), True),
+		('bnk_name', Pointer, (0, ZString), (False, None), True),
+		('events', ArrayPointer, (None, None), (False, None), None),
+		('events_count', Uint64, (0, None), (False, None), None),
+		('hashes', ArrayPointer, (None, Uint), (False, None), True),
+		('hashes_count', Uint64, (0, None), (False, None), True),
+		('media', ArrayPointer, (None, None), (False, None), True),
+		('media_count', Uint64, (0, None), (False, None), True),
+		('unused_2', Pointer, (0, None), (False, None), True),
+		('unused_3', Pointer, (0, None), (False, None), True),
+		('unused_4', Pointer, (0, None), (False, None), True),
+		('unused_5', Pointer, (0, None), (False, None), True),
+		]
+
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

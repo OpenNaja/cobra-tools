@@ -1,7 +1,19 @@
 from generated.base_struct import BaseStruct
-from modules.formats.shared import get_padding_size
 
 ZERO = b"\x00"
+
+def get_padding_size(size, alignment=16):
+	mod = size % alignment
+	if mod:
+		return alignment - mod
+	return 0
+
+
+def get_padding(size, alignment=16):
+	if alignment:
+		# create the new blank padding
+		return ZERO * get_padding_size(size, alignment=alignment)
+	return b""
 
 
 from generated.base_struct import BaseStruct
@@ -16,6 +28,9 @@ class PadAlign(BaseStruct):
 	__name__ = 'PadAlign'
 
 	_import_key = 'base.compounds.PadAlign'
+
+	_attribute_list = BaseStruct._attribute_list + [
+		]
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

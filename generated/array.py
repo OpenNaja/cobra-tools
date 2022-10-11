@@ -16,7 +16,7 @@ class Array(list):
     def __new__(cls, context, arg=0, template=None, shape=(), dtype=None, set_default=True):
         if cls.is_ragged_shape(shape):
             # the passed shape is 2D with an iterable in the 2nd dimension, so it's a ragged array
-            return RaggedArray(shape, dtype, context, arg, template, set_default)
+            return RaggedArray(context, arg, template, shape, dtype, set_default)
         if callable(getattr(dtype, 'create_array', None)):
             # there is a more efficient method of creating this array on the class (may not return Array instance)
             return dtype.create_array(shape, None, context, arg, template)
@@ -265,6 +265,14 @@ class Array(list):
         for member in instance:
             dtype.to_xml(elem, dtype_name, member, (), debug)
 
+    def append(self, x):
+        self.shape = (self.shape[0] + 1, *self.shape[1:])
+        super().append(x)
+
+    def extend(self, x):
+        self.shape = (self.shape[0] + len(x), *self.shape[1:])
+        super().extend(x)
+
 
 class RaggedArray(Array):
     """Class responsible for creating, reading and storing (nested) lists of the custom data types, functioning
@@ -288,7 +296,8 @@ class RaggedArray(Array):
             # the dtype has not returned an Array type, and may therefore not have a .fill function
             type(self).assign_from_function(array_list, function_to_generate, self.ndim)
         else:
-            self[:] = [array.fill(function_to_generate) for array in array_list]
+            array_list = [array.fill(function_to_generate) for array in array_list]
+        self[:] = array_list
         return self
 
     @property
@@ -311,7 +320,7 @@ class RaggedArray(Array):
         if callable(getattr(dtype, 'read_ragged_array', None)):
             return dtype.read_ragged_array(stream, shape, context, arg, template)
         else:
-            new_array = cls(shape, dtype, context, arg, template, set_default=False)
+            new_array = cls(context, arg, template, shape, dtype, set_default=False)
             new_array.read(stream)
             return new_array
 

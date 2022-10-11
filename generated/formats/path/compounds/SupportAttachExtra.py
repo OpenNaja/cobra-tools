@@ -18,6 +18,12 @@ class SupportAttachExtra(SupportAttach):
 		if set_default:
 			self.set_defaults()
 
+	_attribute_list = SupportAttach._attribute_list + [
+		('unk_float_1', Float, (0, None), (False, None), None),
+		('unk_int_3', Uint, (0, None), (False, None), None),
+		('padding', Uint64, (0, None), (True, 0), None),
+		]
+
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

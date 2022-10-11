@@ -38,6 +38,12 @@ class JointInfo(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
+	_attribute_list = CommonJointInfo._attribute_list + [
+		('zero', Uint64, (0, None), (False, None), None),
+		('zeros_per_hitcheck', Array, (0, None, (None,), Uint64), (False, None), None),
+		('hitchecks', Array, (0, None, (None,), HitCheckEntry), (False, None), None),
+		]
+
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

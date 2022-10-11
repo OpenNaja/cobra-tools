@@ -33,6 +33,20 @@ class FctRoot(MemStruct):
 		if set_default:
 			self.set_defaults()
 
+	_attribute_list = MemStruct._attribute_list + [
+		('u_0', Short, (0, None), (False, None), None),
+		('u_1', Short, (0, None), (False, None), None),
+		('a', Float, (0, None), (False, None), None),
+		('b', Float, (0, None), (False, None), None),
+		('c', Float, (0, None), (False, None), None),
+		('minus_1', Short, (0, None), (False, None), None),
+		('z_0', Short, (0, None), (False, None), None),
+		('z_1', Int, (0, None), (False, None), None),
+		('z_2', Uint64, (0, None), (False, None), None),
+		('offset', Uint64, (0, None), (False, None), None),
+		('fonts', Array, (0, None, (4,), Font), (False, None), None),
+		]
+
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

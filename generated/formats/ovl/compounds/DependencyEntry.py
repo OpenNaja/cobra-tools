@@ -30,6 +30,13 @@ class DependencyEntry(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
+	_attribute_list = BaseStruct._attribute_list + [
+		('file_hash', Uint, (0, None), (False, None), None),
+		('offset', Uint, (0, None), (False, None), None),
+		('file_index', Uint, (0, None), (False, None), None),
+		('link_ptr', HeaderPointer, (0, None), (False, None), None),
+		]
+
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

@@ -15,22 +15,16 @@ class BKHDSection(BaseStruct):
 
 	_import_key = 'bnk.compounds.BKHDSection'
 
-	def __init__(self, context, arg=0, template=None, set_default=True):
-		super().__init__(context, arg, template, set_default=False)
-
-		# length of following data
-		self.length = 0
-		self.version = 0
-		self.id_a = 0
-		self.id_b = 0
-		self.constant_a = 0
-		self.constant_b = 0
-		self.unk = 0
-
-		# sometimes present
-		self.zeroes = Array(self.context, 0, None, (0,), Ubyte)
-		if set_default:
-			self.set_defaults()
+	_attribute_list = BaseStruct._attribute_list + [
+		('length', Uint, (0, None), (False, None), None),
+		('version', Uint, (0, None), (False, None), None),
+		('id_a', Uint, (0, None), (False, None), None),
+		('id_b', Uint, (0, None), (False, None), None),
+		('constant_a', Uint, (0, None), (False, None), None),
+		('constant_b', Uint, (0, None), (False, None), None),
+		('unk', Uint, (0, None), (False, None), None),
+		('zeroes', Array, (0, None, (None,), Ubyte), (False, None), None),
+		]
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -43,3 +37,25 @@ class BKHDSection(BaseStruct):
 		yield 'constant_b', Uint, (0, None), (False, None)
 		yield 'unk', Uint, (0, None), (False, None)
 		yield 'zeroes', Array, (0, None, (instance.length - 24,), Ubyte), (False, None)
+
+	def __init__(self, context, arg=0, template=None, set_default=True):
+		self.name = ''
+		self._context = context
+		self.arg = arg
+		self.template = template
+		self.io_size = 0
+		self.io_start = 0
+
+		# length of following data
+		self.length = 0
+		self.version = 0
+		self.id_a = 0
+		self.id_b = 0
+		self.constant_a = 0
+		self.constant_b = 0
+		self.unk = 0
+
+		# sometimes present
+		# self.zeroes = numpy.zeros((self.length - 24,), dtype=numpy.dtype('uint8'))
+
+

@@ -2,7 +2,7 @@ from io import BytesIO
 import logging
 
 from generated.formats.base.basic import ZString
-from modules.formats.shared import get_padding
+from generated.formats.base.compounds.PadAlign import get_padding
 
 ZERO = b"\x00"
 
@@ -19,6 +19,9 @@ class ZStringBuffer(BaseStruct):
 	__name__ = 'ZStringBuffer'
 
 	_import_key = 'base.compounds.ZStringBuffer'
+
+	_attribute_list = BaseStruct._attribute_list + [
+		]
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

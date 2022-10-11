@@ -13,6 +13,7 @@ class Basics:
         self.parser = parser
         self.base_module = None
         self.basic_map = {}
+        self.booleans = set()
         self.basics_file = basics_file
         self.imports = []
         self.load_base_module()
@@ -28,6 +29,8 @@ class Basics:
         basic_name = xml_struct.attrib["name"]
         if hasattr(self.base_module, basic_name):
             self.basic_map[basic_name] = getattr(self.base_module, basic_name)
+            if xml_struct.attrib.get("boolean", "False") == "True":
+                self.booleans.add(basic_name)
         else:
             raise AttributeError(f"Basic type {basic_name} in {self.parser.format_name}.xml but not in associated basic.py module!")
 
@@ -36,6 +39,7 @@ class Basics:
         for basic, object in other_basics.basic_map.items():
             if basic not in self.basic_map:
                 self.basic_map[basic] = object
+                self.booleans.add(basic)
                 to_import.append(basic)
         if to_import:
             with open(self.basics_file, "a", encoding=self.parser.encoding) as f:

@@ -60,6 +60,23 @@ class PcMeshData(MeshData):
 		if set_default:
 			self.set_defaults()
 
+	_attribute_list = MeshData._attribute_list + [
+		('tri_index_count_a', Uint, (0, None), (False, None), None),
+		('vertex_count', Uint, (0, None), (False, None), None),
+		('tri_offset', Uint, (0, None), (False, None), None),
+		('tri_index_count', Uint, (0, None), (False, None), None),
+		('vertex_offset', Uint, (0, None), (False, None), None),
+		('weights_offset', Uint, (0, None), (False, None), None),
+		('uv_offset', Uint, (0, None), (False, None), None),
+		('zero_b', Uint, (0, None), (False, None), None),
+		('vertex_color_offset', Uint, (0, None), (False, None), None),
+		('vertex_offset_within_lod', Uint, (0, None), (False, None), None),
+		('poweroftwo', Uint, (0, None), (False, None), None),
+		('zero', Uint, (0, None), (False, None), None),
+		('unknown_07', Float, (0, None), (False, None), None),
+		('flag', ModelFlag, (0, None), (False, None), None),
+		]
+
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

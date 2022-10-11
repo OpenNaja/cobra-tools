@@ -1,7 +1,7 @@
 import logging
 import io
 
-from modules.formats.shared import get_padding
+from generated.formats.base.compounds.PadAlign import get_padding
 
 
 from generated.base_struct import BaseStruct
@@ -51,6 +51,19 @@ class MemPool(BaseStruct):
 		self.zero_3 = 0
 		if set_default:
 			self.set_defaults()
+
+	_attribute_list = BaseStruct._attribute_list + [
+		('zero_1', Uint64, (0, None), (False, None), True),
+		('size', Uint, (0, None), (False, None), None),
+		('offset', Uint, (0, None), (False, None), None),
+		('zero_2', Uint64, (0, None), (False, None), True),
+		('file_hash', Uint, (0, None), (False, None), None),
+		('disney_zero', Ushort, (0, None), (False, None), True),
+		('num_files', Ushort, (0, None), (False, None), True),
+		('num_files', Uint, (0, None), (False, None), True),
+		('ext_hash', Uint, (0, None), (False, None), True),
+		('zero_3', Uint, (0, None), (False, None), True),
+		]
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

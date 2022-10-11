@@ -28,6 +28,21 @@ class RestaurantSettingsRoot(MemStruct):
 		if set_default:
 			self.set_defaults()
 
+	_attribute_list = MemStruct._attribute_list + [
+		('running_cost_base', Uint64, (0, None), (False, None), None),
+		('unk_1', Uint, (0, None), (False, None), None),
+		('unk_2', Float, (0, None), (False, None), None),
+		('unk_3', Float, (0, None), (False, None), None),
+		('unk_4', Float, (0, None), (False, None), None),
+		('unk_5', Float, (0, None), (False, None), None),
+		('unk_6', Float, (0, None), (False, None), None),
+		('running_cost_per_extension', Uint64, (0, None), (False, None), None),
+		('unk_8', Uint, (0, None), (False, None), None),
+		('unk_9', Float, (0, None), (False, None), None),
+		('perks', ArrayPointer, (None, None), (False, None), None),
+		('count', Uint64, (0, None), (False, None), None),
+		]
+
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

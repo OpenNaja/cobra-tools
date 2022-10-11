@@ -24,6 +24,18 @@ class PathResource(MemStruct):
 		if set_default:
 			self.set_defaults()
 
+	_attribute_list = MemStruct._attribute_list + [
+		('pathmaterial', Pointer, (0, ZString), (False, None), None),
+		('pathextrusion_kerb', Pointer, (0, ZString), (False, None), None),
+		('pathextrusion_railing', Pointer, (0, ZString), (False, None), None),
+		('pathextrusion_ground', Pointer, (0, ZString), (False, None), None),
+		('pathsupport', Pointer, (0, ZString), (False, None), None),
+		('path_type', Byte, (0, None), (False, None), None),
+		('path_sub_type', Byte, (0, None), (False, None), None),
+		('unk_byte_1', Byte, (0, None), (False, 1), None),
+		('unk_byte_2', Byte, (0, None), (False, None), None),
+		]
+
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

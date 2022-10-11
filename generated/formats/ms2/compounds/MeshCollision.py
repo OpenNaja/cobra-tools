@@ -83,6 +83,31 @@ class MeshCollision(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
+	_attribute_list = BaseStruct._attribute_list + [
+		('rotation', Matrix33, (0, None), (False, None), None),
+		('offset', Vector3, (0, None), (False, None), None),
+		('unk_1', Array, (0, None, (3, 2,), Ushort), (False, None), None),
+		('vertex_count', Uint64, (0, None), (False, None), None),
+		('tri_count', Uint64, (0, None), (False, None), None),
+		('bounds_min', Vector3, (0, None), (False, None), None),
+		('bounds_max', Vector3, (0, None), (False, None), None),
+		('ones_or_zeros', Array, (0, None, (7,), Uint64), (False, None), None),
+		('ff_or_zero', Array, (0, None, (10,), Int), (False, None), True),
+		('ff_or_zero', Array, (0, None, (8,), Int), (False, None), True),
+		('bounds_min_repeat', Vector3, (0, None), (False, None), True),
+		('bounds_max_repeat', Vector3, (0, None), (False, None), True),
+		('tri_flags_count', Uint, (0, None), (False, None), True),
+		('count_bits', Ushort, (0, None), (False, None), True),
+		('stuff', Array, (0, None, (9,), Ushort), (False, None), True),
+		('collision_bits', Array, (0, None, (None,), MeshCollisionBit), (False, None), True),
+		('zeros', Array, (0, None, (4,), Uint), (False, None), True),
+		('vertices', Array, (0, None, (None, 3,), Float), (False, None), None),
+		('triangles', Array, (0, None, (None, 3,), Ushort), (False, None), None),
+		('const', Uint, (0, None), (False, None), True),
+		('triangle_flags', Array, (0, None, (None,), Uint), (False, None), True),
+		('zero_end', Uint, (0, None), (False, None), None),
+		]
+
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

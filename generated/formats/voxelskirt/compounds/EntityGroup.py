@@ -24,6 +24,11 @@ class EntityGroup(Material):
 		if set_default:
 			self.set_defaults()
 
+	_attribute_list = Material._attribute_list + [
+		('ff', Int, (0, None), (False, None), None),
+		('ff_or_zero', Int, (0, None), (False, None), None),
+		]
+
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

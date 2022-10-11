@@ -31,6 +31,20 @@ class MusicTrackInitialValues(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
+	_attribute_list = BaseStruct._attribute_list + [
+		('u_flags', Ubyte, (0, None), (False, None), None),
+		('num_sources', Uint, (0, None), (False, None), None),
+		('p_source', Array, (0, None, (None,), AkBankSourceData), (False, None), None),
+		('num_playlist_item', Uint, (0, None), (False, None), None),
+		('p_playlist', Array, (0, None, (None,), AkTrackSrcInfo), (False, None), None),
+		('num_sub_track', Uint, (0, None), (False, None), None),
+		('num_clip_automation_item', Uint, (0, None), (False, None), None),
+		('p_items', Array, (0, None, (None,), Uint), (False, None), None),
+		('node_base_params', NodeBaseParams, (0, None), (False, None), None),
+		('e_track_type', Ubyte, (0, None), (False, None), None),
+		('i_look_ahead_time', Int, (0, None), (False, None), None),
+		]
+
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

@@ -10,7 +10,7 @@ from generated.formats.ms2.compounds.Ms2Root import Ms2Root
 import generated.formats.ovl.versions as ovl_versions
 from io import BytesIO
 
-from modules.formats.shared import get_padding
+from generated.formats.base.compounds.PadAlign import get_padding
 from modules.formats.BaseFormat import BaseFile
 from modules.helpers import as_bytes
 from ovl_util import interaction

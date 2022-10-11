@@ -79,6 +79,47 @@ class ManiBlock(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
+	_attribute_list = BaseStruct._attribute_list + [
+		('ref', Empty, (0, None), (False, None), None),
+		('pos_bones', Array, (0, None, (None,), Ushort), (False, None), True),
+		('pos_bones', Array, (0, None, (None,), Uint), (False, None), True),
+		('ori_bones', Array, (0, None, (None,), Ushort), (False, None), True),
+		('ori_bones', Array, (0, None, (None,), Uint), (False, None), True),
+		('scl_bones', Array, (0, None, (None,), Ushort), (False, None), True),
+		('scl_bones', Array, (0, None, (None,), Uint), (False, None), True),
+		('floats', Array, (0, None, (None,), Ushort), (False, None), True),
+		('floats', Array, (0, None, (None,), Uint), (False, None), True),
+		('pos_bones_p', Array, (0, None, (None,), Ubyte), (False, None), None),
+		('ori_bones_p', Array, (0, None, (None,), Ubyte), (False, None), None),
+		('scl_bones_p', Array, (0, None, (None,), Ubyte), (False, None), None),
+		('pos_bones_delta', Array, (0, None, (None,), Ubyte), (False, None), True),
+		('ori_bones_delta', Array, (0, None, (None,), Ubyte), (False, None), True),
+		('scl_bones_delta', Array, (0, None, (None,), Ubyte), (False, None), True),
+		('pad', PadAlign, (4, None), (False, None), None),
+		('floatsa', Array, (0, None, (None, None,), Float), (False, None), None),
+		('pad_2', SmartPadding, (0, None), (False, None), None),
+		('frame_count', Uint, (0, None), (False, None), None),
+		('ori_bone_count', Uint, (0, None), (False, None), None),
+		('pos_bone_count', Uint, (0, None), (False, None), None),
+		('scl_bone_count', Uint, (0, None), (False, None), None),
+		('zeros_18', Array, (0, None, (18,), Uint), (False, None), None),
+		('count', Ushort, (0, None), (False, None), None),
+		('quantisation_level', Ushort, (0, None), (False, None), None),
+		('ref_2', Empty, (0, None), (False, None), None),
+		('some_indices', Array, (0, None, (None,), Ubyte), (False, None), None),
+		('flag_0', Ubyte, (0, None), (False, None), None),
+		('flag_1', Ubyte, (0, None), (False, None), None),
+		('flag_2', Ubyte, (0, None), (False, None), None),
+		('flag_3', Ubyte, (0, None), (False, None), None),
+		('anoth_pad', PadAlign, (4, None), (False, None), None),
+		('floatsb', Array, (0, None, (6,), Float), (False, None), None),
+		('floats_second', Array, (0, None, (None, 6,), Float), (False, None), None),
+		('floats_third', Array, (0, None, (6,), Float), (False, None), True),
+		('unk', Uint, (0, None), (False, None), True),
+		('extra_pc_zero', Uint64, (0, None), (False, None), True),
+		('repeats', Array, (0, None, (None,), Repeat), (False, None), None),
+		]
+
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

@@ -35,6 +35,25 @@ class DinoEffectsHeader(MemStruct):
 		if set_default:
 			self.set_defaults()
 
+	_attribute_list = MemStruct._attribute_list + [
+		('fgm_name', Pointer, (0, ZStringObfuscated), (False, None), None),
+		('vec_0', Vector3F, (0, None), (False, None), None),
+		('vec_1', Vector3F, (0, None), (False, None), None),
+		('a', Uint, (0, None), (False, None), None),
+		('b', Uint, (0, None), (False, None), None),
+		('vec_2', Vector3F, (0, None), (False, None), None),
+		('vec_3', Vector3F, (0, None), (False, None), None),
+		('vec_4', Vector3F, (0, None), (False, None), None),
+		('c', Uint, (0, None), (False, None), None),
+		('d', Uint, (0, None), (False, None), None),
+		('e', Float, (0, None), (False, None), None),
+		('f', Float, (0, None), (False, None), None),
+		('g', Uint, (0, None), (False, None), None),
+		('floats', Array, (0, None, (39,), Float), (False, None), None),
+		('d', Uint, (0, None), (False, None), None),
+		('e', Float, (0, None), (False, None), None),
+		]
+
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

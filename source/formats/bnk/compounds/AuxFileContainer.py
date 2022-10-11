@@ -7,7 +7,7 @@ from generated.formats.bnk.compounds.DATASection import DATASection
 from generated.formats.bnk.compounds.DIDXSection import DIDXSection
 from generated.formats.bnk.compounds.HIRCSection import HIRCSection
 from generated.base_struct import BaseStruct
-from modules.formats.shared import get_padding
+from generated.formats.base.compounds.PadAlign import get_padding
 from ovl_util.texconv import write_riff_file
 
 

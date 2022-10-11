@@ -1,5 +1,7 @@
 from enum import Enum
 
+from generated.base_version import VersionBase
+
 
 def is_dla(context):
 	if context.version == 15:
@@ -110,3 +112,25 @@ def set_game(context, game):
 		return set_jwe2(context)
 
 
+class OvlVersion(VersionBase):
+
+	_file_format = 'ovl'
+	_verattrs = ('version', 'user_version', 'version_flag', 'mime_version')
+
+	def __init__(self, *args, version=(), user_version=(), version_flag=(), mime_version=(), **kwargs):
+		super().__init__(*args, **kwargs)
+		self.version = self._force_tuple(version)
+		self.user_version = self._force_tuple(user_version)
+		self.version_flag = self._force_tuple(version_flag)
+		self.mime_version = self._force_tuple(mime_version)
+
+
+dla = OvlVersion(id='DLA', version=(15,), primary_games=[], all_games=[games.DISNEYLAND_ADVENTURE])
+ztuac = OvlVersion(id='ZTUAC', version=(17,), primary_games=[], all_games=[games.ZOO_TYCOON_ULTIMATE_ANIMAL_COLLECTION])
+pc = OvlVersion(id='PC', version=(18,), user_version=(VersionInfo.from_value(8340), VersionInfo.from_value(8724), VersionInfo.from_value(8212),), version_flag=(8,), primary_games=[], all_games=[games.PLANET_COASTER])
+pz = OvlVersion(id='PZ', version=(19,), user_version=(VersionInfo.from_value(8340), VersionInfo.from_value(8724), VersionInfo.from_value(8212),), primary_games=[], all_games=[games.PLANET_ZOO_PRE_1_6])
+pz16 = OvlVersion(id='PZ16', version=(20,), user_version=(VersionInfo.from_value(8340), VersionInfo.from_value(8724), VersionInfo.from_value(8212),), primary_games=[], all_games=[games.PLANET_ZOO])
+jwe = OvlVersion(id='JWE', version=(19,), user_version=(VersionInfo.from_value(24724), VersionInfo.from_value(25108), VersionInfo.from_value(24596),), primary_games=[], all_games=[games.JURASSIC_WORLD_EVOLUTION])
+jwe2 = OvlVersion(id='JWE2', version=(20,), user_version=(VersionInfo.from_value(24724), VersionInfo.from_value(25108), VersionInfo.from_value(24596),), primary_games=[], all_games=[games.JURASSIC_WORLD_EVOLUTION_2])
+
+versions = [dla, ztuac, pc, pz, pz16, jwe, jwe2]

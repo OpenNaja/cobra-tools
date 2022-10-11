@@ -28,13 +28,13 @@ Every class must have three basic functions. These functions are necessary for r
     - template: corresponds to the `template` attribute specified in a field.
 * Class- or static method `from_stream` which reads from the stream and returns an instance of the same type as instantiation does.
   - Function signature: `class.from_stream(stream, context, arg, template)`
-    - stream: binary stream from which to read the object
+    - stream: binary stream from which to read the object.
     - context: object which stores file-specific variables.
     - arg: corresponds to the `arg` attribute specified in a field.
     - template: corresponds to the `template` attribute specified in a field.
 * Class- or static method `to_stream` which writes an instance to the stream. 
   - Function signature: `class.to_stream(stream, instance)`
-    - stream: binary stream to which to write the object
+    - stream: binary stream to which to write the object.
     - instance: object that quacks like the object returned by instantiation/reading of this class.
 
 ### Optional
@@ -52,17 +52,22 @@ The following functions are implemented on the 4 classes included by default in 
     - arguments: arguments for the field as provided by the parent.
 - Class- or static method `from_xml`, used for conversion from xml file to python objects in much the same way as `from_stream` does from binary.
   - Function signature: `class.from_xml(target, elem, prop, arguments)`
-    - target: parent object
-    - elem: xml element associated with the parent object
-    - prop: name of the field of the parent where the instance should be
-    - arguments: arguments for the field as specified in the parent
+    - target: parent object.
+    - elem: xml element associated with the parent object.
+    - prop: name of the field of the parent where the instance should be.
+    - arguments: arguments for the field as specified in the parent.
 - Class- or static method `to_xml`, used for conversion from python objects to xml file in much the same way as `to_stream` does to binary.
   - Function signature: `class.to_xml(elem, prop, instance, arguments, debug)`
-    - elem: xml element associated with the parent object
-    - prop: name of the field of the parent where the instance should be
+    - elem: xml element associated with the parent object.
+    - prop: name of the field of the parent where the instance should be.
     - instance: object that quacks like the object returned by instantiation/reading of this class.
-    - arguments: arguments for the field as specified in the parent
-    - debug: whether to write in debugging mode
+    - arguments: arguments for the field as specified in the parent.
+    - debug: whether to write in debugging mode.
+- Class- or static method `validate_instance`, used to check whether the instance matches the given arguments. Can be used before file writing to find incorrect fields.
+  - Function signature: `class.validate_instance(instance, context, arguments)`
+    - instance: object that quacks like the object returned by instantiation/reading of this class.
+    - context: object which stores file-specific variables.
+    - arguments: arguments for the field as specified in the parent.
 
 #### Optional per-class
  The following functions don't have to be implemented on any classes, but may be implemented on some.
@@ -83,8 +88,13 @@ The following functions are implemented on the 4 classes included by default in 
     - context: object which stores file-specific variables.
 - Class- or static method `write_array`. If present, is used to write arrays to the stream instead of the Array class.
   - Function signature: `class.write_array(stream, instance)`
-    - stream: binary stream to which to write the array
+    - stream: binary stream to which to write the array.
     - instance: array that quacks like the array returned by instantiation/reading of this dtype's array.
+- Class- or static method `validate_array`. If present, is used to validate arrays instead of the Array class.
+  - Function signature: `class.validate_array(instance, context, arguments)`
+    - instance: array
+    - context: array that quacks like the array returned by instantiation/reading of this dtype's array.
+    - arguments: arguments for the field as specified in the parent/
 
 ## Class specific
 

@@ -143,6 +143,46 @@ class Header(GenericHeader):
 		if set_default:
 			self.set_defaults()
 
+	_attribute_list = GenericHeader._attribute_list + [
+		('lod_depth', Uint, (0, None), (False, None), None),
+		('len_names', Uint, (0, None), (False, None), None),
+		('zero_2', Uint, (0, None), (False, None), None),
+		('num_aux_entries', Uint, (0, None), (False, None), None),
+		('num_included_ovls', Ushort, (0, None), (False, None), None),
+		('num_mimes', Ushort, (0, None), (False, None), None),
+		('num_files', Uint, (0, None), (False, None), None),
+		('num_files_2', Uint, (0, None), (False, None), None),
+		('num_dependencies', Uint, (0, None), (False, None), None),
+		('num_archives', Uint, (0, None), (False, None), None),
+		('num_pool_groups', Uint, (0, None), (False, None), None),
+		('num_pools', Uint, (0, None), (False, None), None),
+		('num_datas', Uint, (0, None), (False, None), None),
+		('num_buffers', Uint, (0, None), (False, None), None),
+		('num_stream_files', Uint, (0, None), (False, None), None),
+		('ztuac_unk_0', Uint, (0, None), (False, None), None),
+		('ztuac_unk_1', Uint, (0, None), (False, None), None),
+		('ztuac_unk_2', Uint, (0, None), (False, None), None),
+		('len_archive_names', Uint, (0, None), (False, None), None),
+		('num_files_3', Uint, (0, None), (False, None), None),
+		('len_type_names', Uint, (0, None), (False, None), None),
+		('num_triplets', Uint, (0, None), (False, None), None),
+		('reserved', Array, (0, None, (12,), Uint), (False, None), None),
+		('names', ZStringBuffer, (None, None), (False, None), None),
+		('names_pad', Array, (0, None, (None,), Ubyte), (False, None), True),
+		('mimes', Array, (0, None, (None,), MimeEntry), (False, None), None),
+		('triplets', Array, (0, None, (None,), Triplet), (False, None), True),
+		('triplets_pad', PadAlign, (4, None), (False, None), True),
+		('files', Array, (0, None, (None,), FileEntry), (False, None), None),
+		('archive_names', ZStringBuffer, (None, None), (False, None), None),
+		('archives', Array, (0, None, (None,), ArchiveEntry), (False, None), None),
+		('included_ovls', Array, (0, None, (None,), IncludedOvl), (False, None), None),
+		('dependencies', Array, (0, None, (None,), DependencyEntry), (False, None), True),
+		('aux_entries', Array, (0, None, (None,), AuxEntry), (False, None), None),
+		('dependencies', Array, (0, None, (None,), DependencyEntry), (False, None), True),
+		('stream_files', Array, (0, None, (None,), StreamEntry), (False, None), None),
+		('zlibs', Array, (0, None, (None,), ZlibInfo), (False, None), None),
+		]
+
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

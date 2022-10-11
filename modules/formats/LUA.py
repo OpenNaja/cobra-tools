@@ -1,7 +1,7 @@
 import logging
+from generated.formats.base.compounds.PadAlign import get_padding
 from generated.formats.lua.compounds.LuaRoot import LuaRoot
 from modules.formats.BaseFormat import MemStructLoader
-from modules.formats.shared import get_padding
 from ovl_util import texconv
 from ovl_util.interaction import showdialog
 

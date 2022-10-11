@@ -180,9 +180,11 @@ class XmlParser:
 
     def apply_conventions(self, struct):
         # struct top level
-        if struct.tag in ("version", "token"):
+        if struct.tag in ("token",):
             # don't apply conventions to these types (or there are none to apply)
             return
+        elif struct.tag == "version":
+            self.apply_convention(struct, convention.force_bool, ("supported", "custom"))
         elif struct.tag == "verattr":
             self.apply_convention(struct, convention.name_class, ("type",))
             self.apply_convention(struct, convention.name_access, ("access",))
@@ -297,7 +299,7 @@ class XmlParser:
 
     def copy_xml_dicts(self, other_parser):
         """Copy information necessary for linking and generation from another parser as if we'd read the file"""
-        [self.versions.read(version) for version in other_parser.versions.versions]
+        [self.versions.versions.append(version) for version in other_parser.versions.versions]
         self.tokens.extend(other_parser.tokens)
         self.copy_dict_info(self.verattrs, other_parser.verattrs)
         self.copy_dict_info(self.path_dict, other_parser.path_dict)

@@ -2,8 +2,8 @@ import logging
 import traceback
 
 from generated.base_struct import BaseStruct
+from generated.formats.base.compounds.PadAlign import get_padding_size, get_padding
 from generated.formats.manis.compounds.ManiBlock import ManiBlock
-from modules.formats.shared import get_padding_size, get_padding
 
 
 from generated.base_struct import BaseStruct
@@ -19,6 +19,9 @@ class KeysReader(BaseStruct):
 		super().__init__(context, arg, template, set_default=False)
 		if set_default:
 			self.set_defaults()
+
+	_attribute_list = BaseStruct._attribute_list + [
+		]
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

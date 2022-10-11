@@ -17,6 +17,8 @@ def class_from_struct(struct, from_value_func):
 
     class ConstructedClass:
 
+        np_dtype = dtype
+
         def __new__(cls, context=None, arg=0, template=None):
             return base_value
 

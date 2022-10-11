@@ -20,6 +20,13 @@ class MaterialName(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
+	_attribute_list = BaseStruct._attribute_list + [
+		('name_index', Uint, (0, None), (False, None), True),
+		('name_index', Ushort, (0, None), (False, None), True),
+		('some_index', Uint, (0, None), (False, None), True),
+		('some_index', Ushort, (0, None), (False, None), True),
+		]
+
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

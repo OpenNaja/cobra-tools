@@ -52,6 +52,19 @@ class BnkBufferData(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
+	_attribute_list = BaseStruct._attribute_list + [
+		('size_b', Uint64, (0, None), (False, None), None),
+		('buffer_count', Uint, (0, None), (False, None), None),
+		('count_2', Uint, (0, None), (False, None), None),
+		('stream_info_count', Uint, (0, None), (False, None), None),
+		('zeros', Array, (0, None, (7,), Uint), (False, None), None),
+		('zeros_per_buffer', Array, (0, None, (None, 2,), Uint64), (False, None), None),
+		('stream_infos', Array, (0, None, (None,), StreamInfo), (False, None), None),
+		('name', ZString, (0, None), (False, None), None),
+		('external_b_suffix', ZString, (0, None), (False, None), True),
+		('external_s_suffix', ZString, (0, None), (False, None), True),
+		]
+
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

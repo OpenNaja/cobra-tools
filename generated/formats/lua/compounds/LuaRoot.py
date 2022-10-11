@@ -30,6 +30,17 @@ class LuaRoot(MemStruct):
 		if set_default:
 			self.set_defaults()
 
+	_attribute_list = MemStruct._attribute_list + [
+		('lua_size', Uint, (0, None), (False, None), None),
+		('sixteenk', Uint, (0, None), (False, None), None),
+		('hash', Uint, (0, None), (False, None), None),
+		('zero_0', Uint, (0, None), (False, None), None),
+		('source_path', Pointer, (0, ZString), (False, None), True),
+		('likely_alignment', Pointer, (0, ZString), (False, None), True),
+		('zero_1', Uint64, (0, None), (False, None), None),
+		('zero_2', Uint64, (0, None), (False, None), None),
+		]
+
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

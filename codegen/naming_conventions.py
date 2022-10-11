@@ -1,5 +1,7 @@
 import re
 
+import codegen.expression as expression
+
 # precompiled regular expressions, used in name_parts
 
 _RE_NAME_SEP = re.compile('[_\W]+')
@@ -152,16 +154,7 @@ def name_module(name):
 
 def str_is_number(str_expr):
     # check if it might be an int:
-    try:
-        int_value = int(str_expr, 0)
-        return True
-    except ValueError:
-        # could still be a float
-        try:
-            float_value = float(str_expr)
-            return True
-        except ValueError:
-            return False
+    return expression.interpret_literal is None
 
 
 def format_potential_tuple(value):
@@ -174,9 +167,10 @@ def format_potential_tuple(value):
     '1.0
     >>> format_potential_tuple('1.0, 1.0, 1.0')
     '(1.0, 1.0, 1.0)'"""
-    if ' ' in value:
-        if all([str_is_number(potential_number) for potential_number in value.split(', ')]):
-            return f"({value})"
+    if ', ' in value:
+        interpreted_literals = [expression.interpret_literal(potential_number) for potential_number in value.split(', ')]
+        if all([interpreted is not None for interpreted in interpreted_literals]):
+            return f"({', '.join([str(interpreted) for interpreted in interpreted_literals])})"
         else:
             return value
     else:

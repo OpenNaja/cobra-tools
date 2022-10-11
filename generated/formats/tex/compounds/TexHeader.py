@@ -47,6 +47,25 @@ class TexHeader(MemStruct):
 		if set_default:
 			self.set_defaults()
 
+	_attribute_list = MemStruct._attribute_list + [
+		('zero_0', Uint, (0, None), (False, None), True),
+		('zero_0', Uint64, (0, None), (False, None), True),
+		('zero_1', Uint64, (0, None), (False, None), True),
+		('buffer_infos', ArrayPointer, (None, None), (False, None), True),
+		('buffer_infos', ArrayPointer, (None, None), (False, None), True),
+		('size_info', Pointer, (0, None), (False, None), True),
+		('compression_type', DdsTypeCoaster, (0, None), (False, None), True),
+		('compression_type', DdsType, (0, None), (False, None), True),
+		('one_0', Ubyte, (0, None), (False, None), None),
+		('num_mips', Ushort, (0, None), (False, None), True),
+		('width', Ushort, (0, None), (False, None), True),
+		('height', Ushort, (0, None), (False, None), True),
+		('stream_count', Ubyte, (0, None), (False, None), True),
+		('stream_count_repeat', Ubyte, (0, None), (False, None), True),
+		('pad', Uint, (0, None), (False, None), None),
+		('pad_dla', Uint64, (0, None), (False, None), True),
+		]
+
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

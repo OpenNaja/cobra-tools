@@ -22,6 +22,12 @@ class Buffer1(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
+	_attribute_list = BaseStruct._attribute_list + [
+		('bone_hashes', Array, (0, None, (None,), Uint), (False, None), None),
+		('bone_names', Array, (0, None, (None,), ZString), (False, None), None),
+		('bone_pad', PadAlign, (4, None), (False, None), None),
+		]
+
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

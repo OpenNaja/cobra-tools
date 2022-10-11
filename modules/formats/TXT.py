@@ -1,7 +1,7 @@
 import struct
+from generated.formats.base.compounds.PadAlign import get_padding
 from generated.formats.ovl.versions import is_dla
 from modules.formats.BaseFormat import BaseFile
-from modules.formats.shared import get_padding
 
 
 class TxtLoader(BaseFile):

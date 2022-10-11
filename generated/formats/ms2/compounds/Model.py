@@ -44,6 +44,17 @@ class Model(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
+	_attribute_list = BaseStruct._attribute_list + [
+		('materials', Array, (0, None, (None,), MaterialName), (False, None), None),
+		('lods', Array, (0, None, (None,), LodInfo), (False, None), None),
+		('objects', Array, (0, None, (None,), Object), (False, None), None),
+		('objects_padding', Uint, (0, None), (False, None), True),
+		('meshes', Array, (0, None, (None,), MeshDataWrap), (False, None), None),
+		('pre_bones', ZTPreBones, (0, None), (False, None), True),
+		('pre_bones', DLAPreBones, (0, None), (False, None), True),
+		('floatsy', Array, (0, None, (None,), FloatsY), (False, None), True),
+		]
+
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

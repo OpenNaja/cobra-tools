@@ -25,6 +25,16 @@ class ConnectorMultiJoint(MemStruct):
 		if set_default:
 			self.set_defaults()
 
+	_attribute_list = MemStruct._attribute_list + [
+		('model_name', Pointer, (0, ZString), (False, None), None),
+		('padding', Uint64, (0, None), (True, 0), None),
+		('joints', ArrayPointer, (None, None), (False, None), None),
+		('num_joints', Uint64, (0, None), (False, None), None),
+		('unk_float_1', Float, (0, None), (False, None), None),
+		('unk_int_1', Uint, (0, None), (False, None), None),
+		('padding_2', Uint64, (0, None), (True, 0), None),
+		]
+
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)

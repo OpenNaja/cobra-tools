@@ -31,6 +31,18 @@ class DataStreamProducerActivityData(MemStruct):
 		if set_default:
 			self.set_defaults()
 
+	_attribute_list = MemStruct._attribute_list + [
+		('curve_type', Uint64, (0, None), (False, None), None),
+		('ds_name', Pointer, (0, ZString), (False, None), None),
+		('type', Pointer, (0, ZString), (False, None), None),
+		('bone_i_d', Pointer, (0, ZString), (False, None), None),
+		('location', Pointer, (0, ZString), (False, None), None),
+		('curve', CurveData, (0, None), (False, None), None),
+		('time_limit_mode', TimeLimitMode, (0, None), (False, None), None),
+		('data_stream_producer_flags', Uint, (0, None), (False, None), None),
+		('prop_through_variable', Pointer, (0, ZString), (False, None), None),
+		]
+
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
