@@ -35,8 +35,21 @@ class Model2streamLoader(BaseFile):
 
 	def create(self):
 		self.create_root_entry()
-		self.write_data_to_pool(self.root_entry.struct_ptr, self.file_entry.pool_type, b"\x00"*16)
+        
+		if ovl_versions.is_jwe2(self.ovl):
+			lod_index = int(self.file_entry.basename[-1])
+			root_data = struct.pack("<QQ", 0, lod_index)
+		else:
+			# JWE1, PZ, PC  all untested 
+			root_data = struct.pack("<Q", 0)  
+		self.write_data_to_pool(self.root_entry.struct_ptr, self.file_entry.pool_type, root_data)
 		self.create_data_entry((self.get_content(self.file_entry.path),))
+		for buffer in self.data_entry.buffers:
+			buffer.index = 2
+		temp1 = self.data_entry.size_1
+		temp2 = self.data_entry.size_2
+		self.data_entry.size_1 = temp2
+		self.data_entry.size_2 = temp1
 
 
 class Ms2Loader(BaseFile):
