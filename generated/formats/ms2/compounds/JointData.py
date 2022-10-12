@@ -1,3 +1,7 @@
+from generated.base_struct import BaseStruct
+from generated.formats.ms2.basic import OffsetString
+import logging
+
 import numpy
 from generated.array import Array
 from generated.base_struct import BaseStruct
@@ -196,3 +200,18 @@ class JointData(BaseStruct):
 			yield 'joint_infos', Array, (instance.joint_names, None, (instance.joint_count,), JointInfo), (False, None)
 		if instance.context.version <= 32:
 			yield 'hitcheck_reader', HitcheckReader, (instance.joint_infos, None), (False, None)
+
+	def get_strings(self):
+		"""Get all strings in the structure."""
+		condition_function = lambda x: issubclass(x[1], OffsetString)
+		for val in self.get_condition_values_recursive(self, condition_function):
+			if val:
+				yield val
+
+	@classmethod
+	def write_fields(cls, stream, instance):
+		instance.joint_names.update_strings(instance.get_strings())
+		instance.namespace_length = len(instance.joint_names.data)
+		# todo JointNamesPadding
+		super().write_fields(stream, instance)
+

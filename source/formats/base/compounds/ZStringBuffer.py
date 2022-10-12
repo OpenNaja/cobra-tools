@@ -53,6 +53,22 @@ class ZStringBuffer:
 
 		self.data = buffer_bytes + get_padding(len(buffer_bytes), alignment=8)
 
+	def update_strings(self, list_of_strs):
+		"""Updates this name buffer with a list of names"""
+		logging.debug("Updating name buffer")
+		self.strings = sorted(set(list_of_strs))
+		self.offset_dic = {}
+		with BytesIO() as stream:
+			for name in self.strings:
+				# store offset and write zstring
+				self.offset_dic[name] = stream.tell()
+				ZString.to_stream(name, stream, self.context)
+			# get the actual result buffer
+			buffer_bytes = stream.getvalue()
+		print(self.offset_dic)
+		# pad it
+		self.data = buffer_bytes + get_padding(len(buffer_bytes), alignment=8)
+
 	def __repr__(self):
 		return str(self.strings)
 

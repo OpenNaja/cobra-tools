@@ -270,6 +270,37 @@ class BaseStruct(metaclass=StructMetaClass):
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from ()
 
+	@classmethod
+	def get_conditioned_attributes(cls, struct_type, struct_instance, condition_function, arguments=(),
+								   include_abstract=True):
+		for attribute in struct_type._get_filtered_attribute_list(struct_instance, *arguments[3:4], include_abstract):
+			if condition_function(attribute):
+				yield attribute
+
+	@classmethod
+	def get_condition_attributes_recursive(cls, struct_type, struct_instance, condition_function, arguments=(),
+										   include_abstract=True):
+		for attribute in struct_type._get_filtered_attribute_list(struct_instance, *arguments[3:4], include_abstract):
+			field_name, field_type, field_arguments = attribute[0:3]
+			if condition_function(attribute):
+				yield struct_type, struct_instance, attribute
+			if callable(getattr(field_type, "_get_filtered_attribute_list", None)):
+				yield from cls.get_condition_attributes_recursive(field_type,
+														  struct_type.get_field(struct_instance, field_name),
+														  condition_function,
+														  field_arguments,
+														  include_abstract)
+
+	@classmethod
+	def get_condition_values_recursive(cls, instance, condition_function, arguments=(), include_abstract=True):
+		for s_type, s_inst, (f_name, f_type, arguments, _) in cls.get_condition_attributes_recursive(type(instance),
+																								 instance,
+																								 condition_function,
+																								 arguments,
+																								 include_abstract):
+			val = s_type.get_field(s_inst, f_name)
+			yield val
+
 	@staticmethod
 	def get_field(instance, key):
 		return getattr(instance, key)
