@@ -99,7 +99,7 @@ class HeaderPointer(BaseStruct):
 				context = None
 				Array.to_stream(instance, self.pool.data, context, dtype=cls)
 			else:
-				cls.to_stream(instance, self.pool.data)
+				cls.to_stream(instance, self.pool.data, instance.context)
 			self.data_size = self.pool.data.tell() - self.data_offset
 			logging.debug(f"start at {self.data_offset}, size {self.data_size}")
 		else:

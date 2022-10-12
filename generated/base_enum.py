@@ -98,10 +98,10 @@ class BaseEnum(IntEnum, metaclass=DefaultEnumMeta):
 	@classmethod
 	def to_stream(cls, instance, stream, context=None, arg=0, template=None):
 		if isinstance(instance, cls):
-			cls._storage.to_stream(instance.value, stream)
+			cls._storage.to_stream(instance.value, stream, context)
 		else:
 			logging.debug(f"instance {instance} is not a member of the {cls} class, writing int")
-			cls._storage.to_stream(int(instance), stream)
+			cls._storage.to_stream(int(instance), stream, context)
 		return instance
 
 	@classmethod

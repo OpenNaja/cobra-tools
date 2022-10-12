@@ -31,6 +31,7 @@ class ZStringBuffer(BaseStruct):
 		super().__init__(context, arg, template, set_default=False)
 		self.data = b""
 		self.strings = []
+		self.offset_dic = {}
 
 	def get_str_at(self, pos):
 		end = self.data.find(ZERO, pos)
@@ -42,21 +43,21 @@ class ZStringBuffer(BaseStruct):
 		[attrib]: string"""
 		logging.debug("Updating name buffer")
 		self.strings = []
-		offset_dic = {}
+		self.offset_dic = {}
 		with BytesIO() as stream:
 
 			for array, attrib in list_of_arrays:
 				for item in sorted(array, key=lambda i: getattr(i, attrib)):
 					name = getattr(item, attrib)
-					if name in offset_dic:
+					if name in self.offset_dic:
 						# known string, just get offset
-						address = offset_dic[name]
+						address = self.offset_dic[name]
 					else:
 						# new string, store offset and write zstring
 						address = stream.tell()
 						self.strings.append(name)
-						offset_dic[name] = address
-						ZString.to_stream(name, stream)
+						self.offset_dic[name] = address
+						ZString.to_stream(name, stream, self.context)
 					# store offset on item
 					item.offset = address
 			# get the actual result buffer

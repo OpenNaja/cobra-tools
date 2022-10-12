@@ -128,7 +128,7 @@ class AuxFileContainer(BaseStruct):
 				continue
 			# print(stream.tell(), chunk_id, chunk)
 			stream.write(chunk_id)
-			chunk.to_stream(chunk, stream)
+			chunk.to_stream(chunk, stream, instance.context)
 		if instance.hirc:
 			# stream.write(bytearray(instance.old_size - stream.tell()))
 			# logging.info(f"End of HIRC at {stream.tell()}")

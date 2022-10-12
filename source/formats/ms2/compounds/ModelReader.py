@@ -175,8 +175,7 @@ class ModelReader(BaseStruct):
 		for hitcheck in self.get_hitchecks(bone_info):
 			if hitcheck.dtype in (CollisionType.CONVEX_HULL_P_C, CollisionType.CONVEX_HULL):
 				logging.debug(f"Writing vertices for {hitcheck.dtype}")
-				# stream.write_floats(hitcheck.collider.vertices)
-				Array.to_stream(hitcheck.collider.vertices, stream, dtype=Float)
+				Array.to_stream(hitcheck.collider.vertices, stream, self.context, dtype=Float)
 
 	@classmethod
 	def write_fields(cls, stream, instance):
@@ -187,7 +186,7 @@ class ModelReader(BaseStruct):
 			raise NotImplementedError("Can't write old style mesh and bone info blocks")
 		else:
 			for model_info in instance.arg:
-				model_info.model.to_stream(model_info.model, stream)
+				model_info.model.to_stream(model_info.model, stream, instance.context)
 			instance.bone_info_start = stream.tell()
 			for model_info in instance.arg:
 				# check if they have a different bone info
@@ -195,7 +194,7 @@ class ModelReader(BaseStruct):
 					logging.debug(f"{model_info.name} has its own bone_info")
 					model_info.increment_flag = 1
 					logging.debug(f"BONE INFO {i} starts at {stream.tell()}")
-					model_info.bone_info.to_stream(model_info.bone_info, stream)
+					model_info.bone_info.to_stream(model_info.bone_info, stream, instance.context)
 					instance.write_hitcheck_verts(model_info.bone_info, stream)
 					# PZ lion needs padding after last boneinfo, crashes if missing, adding probably won't hurt other cases
 					# if i + 1 < len(instance.bone_infos):

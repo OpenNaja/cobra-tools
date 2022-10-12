@@ -230,20 +230,6 @@ class XmlParser:
         arr_str = f'({", ".join(valid_arrs)},)'
         return arr_str
 
-    def read_for_type(self, dtype, context, arg=0, template=None, arr1=None, arr2=None):
-        if arr1 is not None:
-            return f'Array.from_stream(stream, {context}, {arg}, {template}, {self.arrs_to_tuple(arr1, arr2)}, {dtype})'
-        else:
-            # use the standard functionality
-            return f'{dtype}.from_stream(stream, {context}, {arg}, {template})'
-
-    def write_for_type(self, dtype, attr, context, arg=0, template=None, arr1=None, arr2=None):
-        if arr1:
-            return f'Array.to_stream(stream, {attr}, {dtype})'
-        else:
-            # use the standard functionality
-            return f'{dtype}.to_stream(stream, {attr})'
-
     def map_type(self, in_type, array=False):
         has_stream_functions = False
         if array:

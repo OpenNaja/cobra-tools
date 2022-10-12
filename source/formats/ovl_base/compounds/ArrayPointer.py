@@ -32,8 +32,3 @@ class ArrayPointer(Pointer):
 		arr = Array(instance.context, 0, None, (len(elem)), instance.template, set_default=False)
 		instance.data = Array._from_xml(arr, elem)
 		return instance
-
-	# def write_template(self):
-	# 	assert self.template is not None
-	# 	# Array.to_stream(self.frag.struct_ptr.stream, self.data, (len(self.data),), self.template, self.context, 0, None)
-	# 	self.frag.struct_ptr.write_instance(self.template, self.data)

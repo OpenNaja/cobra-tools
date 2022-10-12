@@ -271,36 +271,6 @@ class Union:
     #                 f.write(default)
     #     return condition
 
-    # def write_io(self, f, method_type, condition="", target_variable="self"):
-    #     CONTEXT = f'{target_variable}.{CONTEXT_SUFFIX}'
-    #     base_indent = "\n\t\t"
-    #     for field in self.members:
-    #         if field.attrib.get("abstract", "False") == "True":
-    #             continue
-    #         arg, template, arr1, arr2, conditionals, field_name, field_type, pad_mode, _ = self.get_params(field, f'{target_variable}.')
-    #         indent, new_condition = condition_indent(base_indent, conditionals, condition)
-    #         if new_condition:
-    #             f.write(f"{base_indent}{new_condition}")
-    #         if new_condition or indent == base_indent:
-    #             condition = new_condition
-    #         if method_type == 'read':
-    #             f.write(f"{indent}{target_variable}.{field_name} = {self.compounds.parser.read_for_type(field_type, CONTEXT, arg, template, arr1, arr2)}")
-    #             # store version related fields on the context on read
-    #             for k, (access, dtype) in self.compounds.parser.verattrs.items():
-    #                 # check all version-related global variables registered with the verattr tag
-    #                 attr_path = access.split('.')
-    #                 if field_name == attr_path[0]:
-    #                     if dtype is None or len(attr_path) > 1 or field_type == dtype:
-    #                         # the verattr type isn't known, we can't check it or it matches
-    #                         f.write(f"{indent}{CONTEXT}.{field_name} = {target_variable}.{field_name}")
-    #                         break
-    #         else:
-    #             # if arr1 and pad_mode: resize array to the specified size
-    #             if arr1 and pad_mode and self.compounds.parser.tag_dict[field_type.lower()] == "basic":
-    #                 f.write(f"{indent}{target_variable}.{field_name}.resize({self.compounds.parser.arrs_to_tuple(arr1, arr2)})")
-    #             f.write(f"{indent}{self.compounds.parser.write_for_type(field_type, f'{target_variable}.{field_name}', CONTEXT, arg, template, arr1, arr2)}")
-    #     return condition
-
     def write_attributes(self, f):
         for field in self.members:
             arg, template, arr1, arr2, conditionals, field_name, field_type, pad_mode, (optional, default) = self.get_params(field, f'x.')
