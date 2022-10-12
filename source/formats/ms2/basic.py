@@ -31,6 +31,7 @@ class OffsetString(Int):
 
 	@classmethod
 	def to_stream(cls, instance, stream, context, arg=0, template=None):
+		# todo update ZStringBuffer before writing
 		# arg = ZStringBuffer needs to be filled before writing
 		# now we just take the index prepared by the string table
 		offset = arg.offset_dic.get(instance, -1)
