@@ -1,9 +1,7 @@
 import logging
-import traceback
-
 import numpy as np
-
 from generated.array import Array
+from generated.base_struct import BaseStruct
 
 
 from generated.base_struct import BaseStruct
@@ -33,13 +31,7 @@ class HeaderPointer(BaseStruct):
 		yield 'data_offset', Uint, (0, None), (False, None)
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
-		self.name = ''
-		self._context = context
-		self.arg = arg
-		self.template = template
-		self.io_size = 0
-		self.io_start = 0
-
+		super().__init__(context, arg, template, set_default)
 		# The index of the MemPool this one relates to; OR, for entries referred to from AssetEntries: -1 (FF FF FF FF)
 		self.pool_index = 0
 
@@ -93,15 +85,15 @@ class HeaderPointer(BaseStruct):
 
 	def write_instance(self, cls, instance):
 		"""Write instance to end of stream and set offset"""
-		logging.debug(f"write_instance of class {cls.__name__}")
+		# logging.debug(f"write_instance of class {cls.__name__}")
+		context = None
 		if self.align_write(instance, overwrite=False):
 			if isinstance(instance, (Array, np.ndarray)):
-				context = None
 				Array.to_stream(instance, self.pool.data, context, dtype=cls)
 			else:
-				cls.to_stream(instance, self.pool.data, instance.context)
+				cls.to_stream(instance, self.pool.data, context)
 			self.data_size = self.pool.data.tell() - self.data_offset
-			logging.debug(f"start at {self.data_offset}, size {self.data_size}")
+			# logging.debug(f"start at {self.data_offset}, size {self.data_size}")
 		else:
 			logging.warning(f"Pool missing, can not write {cls}")
 
