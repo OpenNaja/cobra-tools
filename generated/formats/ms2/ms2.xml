@@ -638,8 +638,8 @@
 		<add name="joint_indices" type="int" arr1="joint_count" >index into bone info bones for each joint; bone that the joint is attached to</add>
 		<add name="bone_indices" type="int" arr1="bone count" >the inverse of the above; for each bone info bone, index of the corresponding joint or -1 if no joint</add>
 		<add name="joint_names" type="ZStringBuffer" arg="namespace length">zstring name buffer</add>
-<!--        <add name="JointNamesPadding" type="byte" arr1="(4 - (namespace length % 8)) % 8" ></add>-->
-		<add name="JointNamesPadding" type="SmartPadding" >?</add>
+		<add name="JointNamesPadding" type="PadAlign" template="joint_names" arg="8" since="47">align to 4</add>
+		<add name="JointNamesPadding" type="SmartPadding" until="32">?</add>
 		the padding goes wrong on 144 because its first hitcheck has collision type 0
 		<add name="joint_infos" type="JointInfo" arr1="joint count" arg="joint_names" since="47">new style - includes name offset, some flags and the hitchecks</add>
 		<add name="hitcheck_reader" type="HitcheckReader" arg="joint infos" until="32">old style - for each joint, read the hitchecks</add>

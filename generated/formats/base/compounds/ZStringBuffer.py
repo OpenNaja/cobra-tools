@@ -77,9 +77,9 @@ class ZStringBuffer(BaseStruct):
 				ZString.to_stream(name, stream, self.context)
 			# get the actual result buffer
 			buffer_bytes = stream.getvalue()
-		print(self.offset_dic)
+		# print(self.offset_dic)
 		# pad it
-		self.data = buffer_bytes + get_padding(len(buffer_bytes), alignment=8)
+		self.data = buffer_bytes  # + get_padding(len(buffer_bytes), alignment=8)
 
 	def __repr__(self):
 		return str(self.strings)

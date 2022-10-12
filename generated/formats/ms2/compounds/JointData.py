@@ -9,6 +9,7 @@ from generated.formats.base.basic import Float
 from generated.formats.base.basic import Int
 from generated.formats.base.basic import Uint
 from generated.formats.base.basic import Uint64
+from generated.formats.base.compounds.PadAlign import PadAlign
 from generated.formats.base.compounds.ZStringBuffer import ZStringBuffer
 from generated.formats.ms2.compounds.HitcheckReader import HitcheckReader
 from generated.formats.ms2.compounds.JointEntry import JointEntry
@@ -106,6 +107,8 @@ class JointData(BaseStruct):
 		# zstring name buffer
 		self.joint_names = ZStringBuffer(self.context, self.namespace_length, None)
 
+		# align to 4
+
 		# ?
 		self.joint_names_padding = SmartPadding(self.context, 0, None)
 
@@ -148,7 +151,8 @@ class JointData(BaseStruct):
 		('joint_indices', Array, (0, None, (None,), Int), (False, None), None),
 		('bone_indices', Array, (0, None, (None,), Int), (False, None), None),
 		('joint_names', ZStringBuffer, (None, None), (False, None), None),
-		('joint_names_padding', SmartPadding, (0, None), (False, None), None),
+		('joint_names_padding', PadAlign, (8, None), (False, None), True),
+		('joint_names_padding', SmartPadding, (0, None), (False, None), True),
 		('joint_infos', Array, (None, None, (None,), JointInfo), (False, None), True),
 		('hitcheck_reader', HitcheckReader, (None, None), (False, None), True),
 		]
@@ -195,7 +199,10 @@ class JointData(BaseStruct):
 		yield 'joint_indices', Array, (0, None, (instance.joint_count,), Int), (False, None)
 		yield 'bone_indices', Array, (0, None, (instance.bone_count,), Int), (False, None)
 		yield 'joint_names', ZStringBuffer, (instance.namespace_length, None), (False, None)
-		yield 'joint_names_padding', SmartPadding, (0, None), (False, None)
+		if instance.context.version >= 47:
+			yield 'joint_names_padding', PadAlign, (8, instance.joint_names), (False, None)
+		if instance.context.version <= 32:
+			yield 'joint_names_padding', SmartPadding, (0, None), (False, None)
 		if instance.context.version >= 47:
 			yield 'joint_infos', Array, (instance.joint_names, None, (instance.joint_count,), JointInfo), (False, None)
 		if instance.context.version <= 32:
