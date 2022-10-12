@@ -52,10 +52,13 @@ class DdsFile(Header, IoFile):
             self.read_fields(stream, self)
             self.buffer = stream.read()
 
-    def save(self, filepath):
-        with open(filepath, "wb") as stream:
+    def write(self, stream):
             self.write_fields(stream, self)
             stream.write(self.buffer)
+
+    def save(self, filepath):
+        with open(filepath, "wb") as stream:
+            self.write(stream)
 
     def get_bytes_size(self, num_pixels):
         return int(round(num_pixels / self.pixels_per_byte))
