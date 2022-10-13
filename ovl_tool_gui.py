@@ -126,10 +126,6 @@ class MainWindow(widgets.MainWindow):
 		self.t_mesh_ovl.setToolTip("Renames only MS2, MDL2 and MOTIONGRAPH files.")
 		self.t_mesh_ovl.setChecked(False)
 
-		self.t_walk_ovl = QtWidgets.QCheckBox("Walker extracts OVLs")
-		self.t_walk_ovl.setToolTip("Extract from OVLS when doing bulk operations: fgm or ms2.")
-		self.t_walk_ovl.setChecked(False)
-
 		self.e_name_old = QtWidgets.QTextEdit("")
 		self.e_name_old.setPlaceholderText("Find")
 		self.e_name_old.setToolTip("Old strings - one item per line")
@@ -155,7 +151,6 @@ class MainWindow(widgets.MainWindow):
 		self.qgrid.addWidget(self.t_mesh_ovl, 2, 3)
 		self.qgrid.addWidget(self.game_choice, 0, 4,)
 		self.qgrid.addWidget(self.compression_choice, 1, 4,)
-		self.qgrid.addWidget(self.t_walk_ovl, 2, 4)
 
 		self.qgrid.addWidget(self.splitter, 5, 0, 1, 5)
 		self.qgrid.addWidget(self.p_action, 6, 0, 1, 5)
@@ -190,6 +185,17 @@ class MainWindow(widgets.MainWindow):
 			(help_menu, "Report Bug", self.report_bug, "", "report"),
 			(help_menu, "Documentation", self.online_support, "", "manual"))
 		self.add_to_menu(button_data)
+
+		# add checkbox to extract from ovls for the diff walkers
+		self.t_walk_ovl = QtWidgets.QAction("Walker extracts OVLs")
+		self.t_walk_ovl.setToolTip("Extract from OVLS when doing bulk operations: fgm or ms2.")
+		self.t_walk_ovl.setCheckable(True)
+		self.t_walk_ovl.setChecked(False)
+		separator_action = self.actions['generate hash table']
+		# we are not adding this to the action list, shall we?
+		util_menu.insertAction( separator_action, self.t_walk_ovl )
+		util_menu.insertSeparator( separator_action )
+
 		self.check_version()
 		# run once here to make sure we catch the default game
 		self.populate_game_widget()
