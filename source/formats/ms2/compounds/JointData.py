@@ -21,5 +21,4 @@ class JointData(BaseStruct):
 	def write_fields(cls, stream, instance):
 		instance.joint_names.update_strings(instance.get_strings())
 		instance.namespace_length = len(instance.joint_names.data)
-		# todo JointNamesPadding
 		super().write_fields(stream, instance)

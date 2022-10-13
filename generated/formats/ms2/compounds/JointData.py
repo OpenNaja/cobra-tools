@@ -19,6 +19,7 @@ from generated.formats.ms2.compounds.ListLong import ListLong
 from generated.formats.ms2.compounds.ListShort import ListShort
 from generated.formats.ms2.compounds.RigidBody import RigidBody
 from generated.formats.ms2.compounds.UACJointFF import UACJointFF
+from generated.formats.ovl_base.compounds.Empty import Empty
 from generated.formats.ovl_base.compounds.SmartPadding import SmartPadding
 
 
@@ -77,6 +78,7 @@ class JointData(BaseStruct):
 
 		# usually 0s
 		self.zeros_3 = 0
+		self.names_ref = Empty(self.context, 0, None)
 
 		# corresponds to bone transforms
 		self.joint_transforms = Array(self.context, 0, None, (0,), JointEntry)
@@ -140,6 +142,7 @@ class JointData(BaseStruct):
 		('joint_entry_count', Uint, (0, None), (False, None), None),
 		('zeros_2', Array, (0, None, (4,), Uint), (False, None), None),
 		('zeros_3', Uint, (0, None), (False, None), True),
+		('names_ref', Empty, (0, None), (False, None), None),
 		('joint_transforms', Array, (0, None, (None,), JointEntry), (False, None), None),
 		('rigid_body_pointers', Array, (0, None, (None,), Uint64), (False, None), True),
 		('rigid_body_list', Array, (0, None, (None,), RigidBody), (False, None), True),
@@ -186,6 +189,7 @@ class JointData(BaseStruct):
 		yield 'zeros_2', Array, (0, None, (4,), Uint), (False, None)
 		if instance.context.version <= 7:
 			yield 'zeros_3', Uint, (0, None), (False, None)
+		yield 'names_ref', Empty, (0, None), (False, None)
 		yield 'joint_transforms', Array, (0, None, (instance.joint_count,), JointEntry), (False, None)
 		if instance.context.version >= 47:
 			yield 'rigid_body_pointers', Array, (0, None, (instance.joint_count,), Uint64), (False, None)
@@ -200,7 +204,7 @@ class JointData(BaseStruct):
 		yield 'bone_indices', Array, (0, None, (instance.bone_count,), Int), (False, None)
 		yield 'joint_names', ZStringBuffer, (instance.namespace_length, None), (False, None)
 		if instance.context.version >= 47:
-			yield 'joint_names_padding', PadAlign, (8, instance.joint_names), (False, None)
+			yield 'joint_names_padding', PadAlign, (8, instance.names_ref), (False, None)
 		if instance.context.version <= 32:
 			yield 'joint_names_padding', SmartPadding, (0, None), (False, None)
 		if instance.context.version >= 47:
@@ -219,6 +223,5 @@ class JointData(BaseStruct):
 	def write_fields(cls, stream, instance):
 		instance.joint_names.update_strings(instance.get_strings())
 		instance.namespace_length = len(instance.joint_names.data)
-		# todo JointNamesPadding
 		super().write_fields(stream, instance)
 

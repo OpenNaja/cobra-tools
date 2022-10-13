@@ -30,6 +30,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 		super().__init__(Ms2Context())
 
 	def assign_joints(self, bone_info):
+		# logging.info(bone_info)
 		if not hasattr(bone_info, "joints"):
 			logging.warning(f"Joints deactivated for debugging")
 			return
