@@ -51,7 +51,7 @@ class FgmLoader(MemStructLoader):
 		self.header._texture_count = len(self.header.textures.data)
 		with BytesIO() as names_writer:
 			# shader name is at 0
-			ZString.to_stream(self.header.shader_name, self.header.context)
+			ZString.to_stream(self.header.shader_name, names_writer, self.header.context)
 			names_writer.write(b"\x00")
 			# attribs are written first
 			for arr in (self.header.attributes.data, self.header.textures.data):
