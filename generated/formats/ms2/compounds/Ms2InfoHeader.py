@@ -25,6 +25,7 @@ class Ms2InfoHeader(BaseStruct):
 		super().__init__(context, arg, template, set_default=False)
 		self.biosyn = 0
 		self.bone_info_size = 0
+		self.num_streams = 0
 		self.info = Ms2Root(self.context, 0, None)
 
 		# used since DLA
@@ -43,12 +44,11 @@ class Ms2InfoHeader(BaseStruct):
 	_attribute_list = BaseStruct._attribute_list + [
 		('biosyn', BiosynVersion, (0, None), (False, None), None),
 		('bone_info_size', Uint, (0, None), (False, None), None),
+		('num_streams', Uint, (0, None), (False, None), None),
 		('info', Ms2Root, (0, None), (False, None), None),
 		('buffers_presence', Array, (0, None, (None,), BufferPresence), (False, None), True),
 		('mdl_2_names', Array, (0, None, (None,), ZString), (False, None), None),
-		('modelstream_names', Array, (0, None, (None,), ZString), (False, None), True),
-		('modelstream_names', Array, (0, None, (None,), ZString), (False, None), True),
-		('modelstream_names', Array, (0, None, (None,), ZString), (False, None), True),
+		('modelstream_names', Array, (0, None, (None,), ZString), (False, None), None),
 		('buffer_0', Buffer0, (None, None), (False, None), None),
 		('buffer_infos', Array, (0, None, (None,), BufferInfo), (False, None), None),
 		('model_infos', Array, (0, None, (None,), ModelInfo), (False, None), None),
@@ -60,16 +60,12 @@ class Ms2InfoHeader(BaseStruct):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'biosyn', BiosynVersion, (0, None), (False, None)
 		yield 'bone_info_size', Uint, (0, None), (False, None)
+		yield 'num_streams', Uint, (0, None), (False, None)
 		yield 'info', Ms2Root, (0, None), (False, None)
 		if instance.context.version >= 7:
 			yield 'buffers_presence', Array, (0, None, (instance.info.vertex_buffer_count,), BufferPresence), (False, None)
 		yield 'mdl_2_names', Array, (0, None, (instance.info.mdl_2_count,), ZString), (False, None)
-		if instance.context.version <= 7 and instance.info.vertex_buffer_count:
-			yield 'modelstream_names', Array, (0, None, (instance.info.vertex_buffer_count - instance.info.stream_count,), ZString), (False, None)
-		if 13 <= instance.context.version <= 13 and instance.info.vertex_buffer_count:
-			yield 'modelstream_names', Array, (0, None, (instance.info.vertex_buffer_count,), ZString), (False, None)
-		if instance.context.version >= 39 and instance.info.vertex_buffer_count:
-			yield 'modelstream_names', Array, (0, None, (instance.info.stream_count,), ZString), (False, None)
+		yield 'modelstream_names', Array, (0, None, (instance.num_streams,), ZString), (False, None)
 		yield 'buffer_0', Buffer0, (instance.info, None), (False, None)
 		yield 'buffer_infos', Array, (0, None, (instance.info.vertex_buffer_count,), BufferInfo), (False, None)
 		yield 'model_infos', Array, (0, None, (instance.info.mdl_2_count,), ModelInfo), (False, None)

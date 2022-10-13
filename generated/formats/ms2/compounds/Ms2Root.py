@@ -32,8 +32,8 @@ class Ms2Root(MemStruct):
 		# count of names in ms2 buffer0
 		self.name_count = 0
 
-		# -1 if there is no vertex buffer at all; else count of static buffers
-		self.stream_count = 0
+		# -1 if there is no vertex buffer at all; else index of static buffers in total buffers
+		self.static_buffer_index = 0
 		self.zeros = Array(self.context, 0, None, (0,), Uint)
 
 		# ms2's static buffer_info or empty (if no buffers)
@@ -52,7 +52,7 @@ class Ms2Root(MemStruct):
 		('vertex_buffer_count', Ushort, (0, None), (False, None), None),
 		('mdl_2_count', Ushort, (0, None), (False, None), None),
 		('name_count', Ushort, (0, None), (False, None), None),
-		('stream_count', Short, (0, None), (False, None), None),
+		('static_buffer_index', Short, (0, None), (False, None), None),
 		('zeros', Array, (0, None, (3,), Uint), (False, None), None),
 		('buffer_infos', ArrayPointer, (None, None), (False, None), None),
 		('model_infos', ArrayPointer, (None, None), (False, None), None),
@@ -66,7 +66,7 @@ class Ms2Root(MemStruct):
 		yield 'vertex_buffer_count', Ushort, (0, None), (False, None)
 		yield 'mdl_2_count', Ushort, (0, None), (False, None)
 		yield 'name_count', Ushort, (0, None), (False, None)
-		yield 'stream_count', Short, (0, None), (False, None)
+		yield 'static_buffer_index', Short, (0, None), (False, None)
 		yield 'zeros', Array, (0, None, (3,), Uint), (False, None)
 		yield 'buffer_infos', ArrayPointer, (instance.vertex_buffer_count, Ms2Root._import_map["ms2.compounds.BufferInfo"]), (False, None)
 		yield 'model_infos', ArrayPointer, (instance.mdl_2_count, Ms2Root._import_map["ms2.compounds.ModelInfo"]), (False, None)

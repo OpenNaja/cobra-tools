@@ -138,10 +138,11 @@ class Ms2Loader(BaseFile):
 	def get_buffer_presence(self):
 		# some in JWE2 have a model2stream again
 		expected_frag = b""
+		# todo - this may not be correct, investigate for different amounts of streams
 		if self.header.vertex_buffer_count:
-			for stream in range(self.header.stream_count):
+			for stream in range(self.header.static_buffer_index):
 				expected_frag += struct.pack("<ii", 0, 0)
-			for stream in range(self.header.vertex_buffer_count - self.header.stream_count):
+			for stream in range(self.header.vertex_buffer_count - self.header.static_buffer_index):
 				expected_frag += struct.pack("<ii", -1, 0)
 		return expected_frag
 
@@ -237,7 +238,7 @@ class Ms2Loader(BaseFile):
 		logging.info(f"Writing {name}")
 		# print(self.header)
 		name_buffer, bone_infos, verts = self.get_ms2_buffer_datas()
-		ms2_header = struct.pack("<II", self.context.biosyn, len(bone_infos))
+		ms2_header = struct.pack("<III", self.context.biosyn, len(bone_infos), len(self.streams))
 		# write the ms2 file
 		out_path = out_dir(name)
 		out_paths = [out_path, ]
