@@ -83,6 +83,7 @@ def bulk_test_models(gui, start_dir, walk_ovls=True, walk_models=True):
 	errors = []
 	if start_dir:
 		export_dir = os.path.join(start_dir, "walker_export")
+
 		ms2_data = Ms2File()
 		if walk_ovls:
 			bulk_extract_ovls(errors, export_dir, gui, start_dir, (".ms2",))
