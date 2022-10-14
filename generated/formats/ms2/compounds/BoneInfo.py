@@ -89,7 +89,7 @@ class BoneInfo(BaseStruct):
 		# zero
 		self.unk_extra_jwe = 0
 		self.names_ref = Empty(self.context, 0, None)
-		self.name_indices = Array(self.context, 0, None, (0,), Ushort)
+		self.name_indices = Array(self.context, 0, None, (0,), Uint)
 		self.inventory_name_indices = Array(self.context, 0, None, (0,), Ushort)
 
 		# align to 16 bytes
@@ -121,11 +121,11 @@ class BoneInfo(BaseStruct):
 		# zeros
 		self.inventory_datas_2 = Array(self.context, 0, None, (0,), Int)
 
-		# weird zeros
-		self.zeros_padding = ZerosPadding(self.context, self.zeros_count, None)
-
 		# weird -1s
 		self.minus_padding = MinusPadding(self.context, self.zeros_count, None)
+
+		# weird zeros
+		self.zeros_padding = ZerosPadding(self.context, self.zeros_count, None)
 
 		# ragdoll links?
 		self.struct_7 = Struct7(self.context, 0, None)
@@ -161,8 +161,8 @@ class BoneInfo(BaseStruct):
 		('unk_extra', Uint64, (0, None), (False, None), True),
 		('unk_extra_jwe', Uint64, (0, None), (False, None), True),
 		('names_ref', Empty, (0, None), (False, None), None),
-		('name_indices', Array, (0, None, (None,), Uint), (False, None), True),
 		('name_indices', Array, (0, None, (None,), Ushort), (False, None), True),
+		('name_indices', Array, (0, None, (None,), Uint), (False, None), True),
 		('inventory_name_indices', Array, (0, None, (None,), Ushort), (False, None), True),
 		('name_padding', PadAlign, (16, None), (False, None), None),
 		('inverse_bind_matrices', Array, (0, None, (None,), Matrix44), (False, None), None),
@@ -175,8 +175,8 @@ class BoneInfo(BaseStruct):
 		('weirdness', Array, (0, None, (8,), Short), (False, None), True),
 		('weirdness', Array, (0, None, (10,), Short), (False, None), True),
 		('inventory_datas_2', Array, (0, None, (None, 2,), Int), (False, None), True),
-		('zeros_padding', ZerosPadding, (None, None), (False, None), True),
 		('minus_padding', MinusPadding, (None, None), (False, None), True),
+		('zeros_padding', ZerosPadding, (None, None), (False, None), True),
 		('struct_7', Struct7, (0, None), (False, None), True),
 		('joints', JointData, (0, None), (False, None), True),
 		]
@@ -214,10 +214,11 @@ class BoneInfo(BaseStruct):
 		if (instance.context.version == 47) or (instance.context.version == 39):
 			yield 'unk_extra_jwe', Uint64, (0, None), (False, None)
 		yield 'names_ref', Empty, (0, None), (False, None)
-		if not (instance.context.version < 47):
-			yield 'name_indices', Array, (0, None, (instance.name_count,), Uint), (False, None)
-		if instance.context.version < 47:
+		if instance.context.version <= 32:
 			yield 'name_indices', Array, (0, None, (instance.name_count,), Ushort), (False, None)
+		if instance.context.version >= 47:
+			yield 'name_indices', Array, (0, None, (instance.name_count,), Uint), (False, None)
+		if instance.context.version <= 32:
 			yield 'inventory_name_indices', Array, (0, None, (instance.inv_names_count,), Ushort), (False, None)
 		yield 'name_padding', PadAlign, (16, instance.names_ref), (False, None)
 		yield 'inverse_bind_matrices', Array, (0, None, (instance.bind_matrix_count,), Matrix44), (False, None)
@@ -236,10 +237,10 @@ class BoneInfo(BaseStruct):
 			yield 'weirdness', Array, (0, None, (10,), Short), (False, None)
 		if instance.context.version == 7:
 			yield 'inventory_datas_2', Array, (0, None, (instance.inv_data_count, 2,), Int), (False, None)
-		if not (instance.context.version < 47) and instance.zeros_count:
-			yield 'zeros_padding', ZerosPadding, (instance.zeros_count, None), (False, None)
-		if instance.context.version >= 48 and instance.zeros_count:
+		if instance.context.version <= 32 and instance.zeros_count:
 			yield 'minus_padding', MinusPadding, (instance.zeros_count, None), (False, None)
+		if instance.context.version >= 48 and instance.zeros_count:
+			yield 'zeros_padding', ZerosPadding, (instance.zeros_count, None), (False, None)
 		if instance.count_7:
 			yield 'struct_7', Struct7, (0, None), (False, None)
 		if instance.joint_count:
