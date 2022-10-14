@@ -18,12 +18,13 @@
 
     <compound name="AtlasItem" inherit="MemStruct">
         <add name="atlas_name" type="Pointer" template="ZString"/>
-        <add name="float1" type="float" />
-        <add name="float2" type="float" />
-        <add name="float3" type="float" />
-        <add name="float4" type="float" />
-        <add name="unk1" type="uint" />
-        <add name="unk2" type="uint" />
+        <add name="startx" type="float" />
+        <add name="starty" type="float" />
+        <add name="endx" type="float" />
+        <add name="endy" type="float" />
+        <add name="layer" type="uint" />
+        <add name="flags1" type="ushort" />
+        <add name="flags2" type="ushort" />
 
     </compound>
 
