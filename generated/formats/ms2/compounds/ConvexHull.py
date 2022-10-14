@@ -43,5 +43,5 @@ class ConvexHull(BaseStruct):
 		yield 'offset', Vector3, (0, None), (False, None)
 		if instance.context.version == 32:
 			yield 'zeros', Array, (0, None, (5,), Uint), (False, None)
-		if ((instance.context.version == 48) or (instance.context.version == 50)) or (instance.context.version == 51):
+		if instance.context.version >= 48:
 			yield 'zeros', Array, (0, None, (2,), Uint), (False, None)

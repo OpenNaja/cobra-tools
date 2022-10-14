@@ -21,10 +21,10 @@ class HitCheck(BaseStruct):
 		super().__init__(context, arg, template, set_default=False)
 		self.dtype = CollisionType(self.context, 0, None)
 
-		# 0
+		# PZ, JWE2 always 0
 		self.flag_0 = 0
 
-		# JWE1: 16, PZ, JWE2: 0
+		# JWE1: 16; PZ, JWE2 always 0
 		self.flag_1 = 0
 
 		# offset into joint names
@@ -34,7 +34,7 @@ class HitCheck(BaseStruct):
 		self.collision_use = 0
 
 		# ?
-		self.zero_extra_pc_unk = 0
+		self.zero_extra_pc = 0
 
 		# offset into joint names
 		self.name = 0
@@ -47,11 +47,11 @@ class HitCheck(BaseStruct):
 
 	_attribute_list = BaseStruct._attribute_list + [
 		('dtype', CollisionType, (0, None), (False, None), None),
-		('flag_0', Ushort, (0, None), (False, None), None),
-		('flag_1', Ushort, (0, None), (False, None), None),
+		('flag_0', Ushort, (0, None), (False, 0), None),
+		('flag_1', Ushort, (0, None), (False, 0), None),
 		('collision_ignore', OffsetString, (None, None), (False, None), None),
 		('collision_use', OffsetString, (None, None), (False, None), None),
-		('zero_extra_pc_unk', Uint, (0, None), (False, None), True),
+		('zero_extra_pc', Uint, (0, None), (False, None), True),
 		('name', OffsetString, (None, None), (False, None), None),
 		('collider', Sphere, (0, None), (False, None), True),
 		('collider', BoundingBox, (0, None), (False, None), True),
@@ -67,12 +67,12 @@ class HitCheck(BaseStruct):
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'dtype', CollisionType, (0, None), (False, None)
-		yield 'flag_0', Ushort, (0, None), (False, None)
-		yield 'flag_1', Ushort, (0, None), (False, None)
+		yield 'flag_0', Ushort, (0, None), (False, 0)
+		yield 'flag_1', Ushort, (0, None), (False, 0)
 		yield 'collision_ignore', OffsetString, (instance.arg, None), (False, None)
 		yield 'collision_use', OffsetString, (instance.arg, None), (False, None)
-		if instance.context.version < 47:
-			yield 'zero_extra_pc_unk', Uint, (0, None), (False, None)
+		if instance.context.version <= 32:
+			yield 'zero_extra_pc', Uint, (0, None), (False, None)
 		yield 'name', OffsetString, (instance.arg, None), (False, None)
 		if instance.dtype == 0:
 			yield 'collider', Sphere, (0, None), (False, None)

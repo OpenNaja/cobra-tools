@@ -31,6 +31,8 @@ def import_collider(hitcheck, b_joint, corrector):
 		logging.warning(f"Unsupported collider type {hitcheck.dtype}")
 		return
 	parent_to(b_joint, ob)
+	ob["collision_ignore"] = hitcheck.collision_ignore
+	ob["collision_use"] = hitcheck.collision_use
 	# h = HitCheck()
 	# print(export_hitcheck(ob, h))
 

@@ -564,11 +564,6 @@
 		<add name="padding" type="byte" arr1="(16 - ((#ARG# * 2) % 16)) % 16" >0</add>
 	</compound>
 
-	<compound name="PCJointThing">
-		8 bytes
-		<add name="shorts" type="short" arr1="4" >-1</add>
-	</compound>
-
 	<compound name="Struct7">
 		<add name="weird padding" type="SmartPadding" until="13" >needed for ZTUAC</add>
 <!--		<add name="zeros start" type="ubyte" until="13" arr1="6">guess for ZTUAC rhino, wrong for afr ele child</add>-->
@@ -692,11 +687,14 @@
 
 	<compound name="JointInfo">
 		#ARG# is the names buffer
-		<add name="eleven" type="uint">must be 11</add>
-		<add name="FFs" type="int" arr1="3">bunch of -1's</add>
+		the following defaults are all the same in PZ and JWE2 as of 2022-10-14
+		<add name="eleven" type="uint" default="11"/>
+		<add name="zero_0" type="int" default="0"/>
+		<add name="zero_1" type="int" default="0"/>
+		<add name="minus_1" type="int" default="-1"/>
 		<add name="name" type="OffsetString" arg="#ARG#"/>
 		<add name="hitcheck count" type="uint"/>
-		<add name="zero" type="uint64" >8 bytes of zeros</add>
+		<add name="zero_2" type="uint64" >8 bytes of zeros</add>
 		<add name="zeros per hitcheck" type="uint64" arr1="hitcheck count">8 bytes of zeros per hitcheck</add>
 		<add name="hitchecks" type="HitCheck" arr1="hitcheck count" arg="#ARG#"/>
 	</compound>
@@ -711,11 +709,11 @@
 
 	<compound name="HitCheck">
 		<add name="dtype" type="CollisionType"/>
-		<add name="flag 0" type="ushort">0</add>
-		<add name="flag 1" type="ushort">JWE1: 16, PZ, JWE2: 0</add>
+		<add name="flag_0" type="ushort" default="0">PZ, JWE2 always 0</add>
+		<add name="flag_1" type="ushort" default="0">JWE1: 16; PZ, JWE2 always 0</add>
 		<add name="collision_ignore" type="OffsetString" arg="#ARG#">offset into joint names</add>
 		<add name="collision_use" type="OffsetString" arg="#ARG#">offset into joint names</add>
-		<add name="zero extra pc unk" type="uint" vercond="#OLD#">?</add>
+		<add name="zero_extra_pc" type="uint" until="32">?</add>
 		<add name="name" type="OffsetString" arg="#ARG#">offset into joint names</add>
 
 		<add name="collider" type="Sphere" cond="dtype == 0" />
@@ -725,7 +723,7 @@
 		<add name="collider" type="ConvexHull" cond="dtype == 7" />
 		<add name="collider" type="ConvexHull" cond="dtype == 8" />
 		<add name="collider" type="MeshCollision" cond="dtype == 10" />
-		<add name="zero extra zt" type="uint" vercond="#ZTUAC#">?</add>
+		<add name="zero_extra_zt" type="uint" vercond="#ZTUAC#">?</add>
 	</compound>
 
 	<compound name="Sphere">
@@ -758,7 +756,7 @@
 		<add name="rotation" type="Matrix33"/>
 		<add name="offset" type="Vector3" >center of the box</add>
 		<add name="zeros" type="uint" arr1="5" vercond="#PC#" >probably padding</add>
-		<add name="zeros" type="uint" arr1="2" vercond="#PZ# #OR# #JWE2#" >probably padding</add>
+		<add name="zeros" type="uint" arr1="2" since="48" >probably padding</add>
 	</compound>
 
 	<compound name="MeshCollision">
