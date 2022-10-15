@@ -197,10 +197,10 @@ class Union:
                     return f'{field_type}({context}, {arg}, {template})'
 
     def write_init(self, f):
-        base_indent = "\n\t\t"
+        base_indent = "\t\t"
         debug_strs = []
         for field in self.members:
-            field_debug_str = convention.clean_comment_str(field.text, indent="\t\t")
+            field_debug_str = convention.clean_comment_str(field.text, indent=base_indent)
             arg, template, arr1, arr2, conditionals, field_name, field_type, pad_mode, _ = self.get_params(field)
             if field_debug_str.strip() and field_debug_str not in debug_strs:
                 debug_strs.append(field_debug_str)
@@ -217,9 +217,8 @@ class Union:
             # field_default = 0
             # we init each field with its basic default string so that the field exists regardless of any condition
             field_default = self.get_default_string(field.attrib.get('default'), f'self.{CONTEXT_SUFFIX}', arg, template,
-                                                    arr1, arr2, field_name,
-                                                    field_type)
-        f.write(f'{base_indent}self.{field_name} = {field_default}')
+                                                    arr1, arr2, field_name, field_type)
+        f.write(f'\n{base_indent}self.{field_name} = {field_default}')
 
     def write_attributes(self, f):
         for field in self.members:
