@@ -1268,7 +1268,6 @@ class MainWindow(QtWidgets.QMainWindow):
 			action.triggered.connect(func)
 			if shortcut:
 				action.setShortcut(shortcut)
-			print(f"Action {action_name.lower()}")
 			self.actions[action_name.lower()] = action
 			submenu.addAction(action)
 
