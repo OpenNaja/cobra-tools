@@ -57,8 +57,9 @@ class Union:
             class_access = field_type
         return class_access
 
-    def get_conditions(self, field, expression_prefix="self.", use_abstract=False):
-        CONTEXT = f'{expression_prefix}{CONTEXT_SUFFIX}'
+    def get_conditions(self, field, target_variable, use_abstract=False):
+        """Returns a list of conditional expressions for a field of this union"""
+        CONTEXT = f'{target_variable}.{CONTEXT_SUFFIX}'
         VER = f"{CONTEXT}.version"
         conditionals = []
         ver1 = get_attr_with_backups(field, ["ver1", "since"])
@@ -81,37 +82,39 @@ class Union:
             conditionals.append(f"{VER} >= {ver1}")
         elif ver2:
             conditionals.append(f"{VER} <= {ver2}")
+        # version condition on context
         if vercond:
-            vercond = Expression(vercond, f'{expression_prefix}context.')
+            vercond = Expression(vercond, CONTEXT)
             conditionals.append(f"{vercond}")
         if valid_versions:
             conditionals.append(f"({' or '.join([f'versions.is_{version}({CONTEXT})' for version in valid_versions])})")
+        # local condition
         if cond:
-            cond = Expression(cond, f'{expression_prefix}')
+            cond = Expression(cond, target_variable)
             conditionals.append(f"{cond}")
         if onlyT:
             onlyT = self.indirect_class_access(onlyT)
-            conditionals.append(f"isinstance({expression_prefix[:-1]}, {onlyT})")
+            conditionals.append(f"isinstance({target_variable}, {onlyT})")
         if excludeT:
             excludeT = self.indirect_class_access(excludeT)
-            conditionals.append(f"not isinstance({expression_prefix[:-1]}, {excludeT})")
+            conditionals.append(f"not isinstance({target_variable}, {excludeT})")
         if use_abstract:
             if field.attrib.get("abstract", "False") == "True":
                 conditionals.append("include_abstract")
         return conditionals
 
-    def get_params(self, field, expression_prefix="self.", use_abstract=False):
+    def get_params(self, field, target_variable="self", use_abstract=False):
         # parse all attributes and return the python-evaluatable string
 
         field_name = field.attrib["name"]
         field_type = field.attrib["type"]
         if field_type == "template":
-            field_type = f'{expression_prefix}{field_type}'
+            field_type = f'{target_variable}.{field_type}'
         pad_mode = field.attrib.get("padding")
         template = field.attrib.get("template")
         optional = (field.attrib.get("optional", "False"), field.attrib.get("default"))
 
-        conditionals = self.get_conditions(field, expression_prefix, use_abstract)
+        conditionals = self.get_conditions(field, target_variable, use_abstract)
 
         arg = field.attrib.get("arg", "0")
         arr1 = get_attr_with_backups(field, ["arr1", "length"])
@@ -120,15 +123,15 @@ class Union:
             # template can be either a type or a reference to a local field
             template_class = convention.name_class(template)
             if template_class not in self.compounds.parser.path_dict:
-                template = Expression(template, expression_prefix)
+                template = Expression(template, target_variable)
             else:
                 template = self.indirect_class_access(template_class)
         if arg:
-            arg = Expression(arg, expression_prefix)
+            arg = Expression(arg, target_variable)
         if arr1:
-            arr1 = Expression(arr1, expression_prefix)
+            arr1 = Expression(arr1, target_variable)
         if arr2:
-            arr2 = Expression(arr2, expression_prefix)
+            arr2 = Expression(arr2, target_variable)
         return arg, template, arr1, arr2, conditionals, field_name, field_type, pad_mode, optional
 
     def default_to_value(self, default_string, field_type):
@@ -193,36 +196,6 @@ class Union:
                     # instantiate like a generic type: dtype(context, arg, template)
                     return f'{field_type}({context}, {arg}, {template})'
 
-    # def default_assigns(self, field, context, arg, template, arr1, arr2, field_name, field_type, base_indent):
-    #     field_default = self.get_default_string(field.attrib.get('default'), context, arg, template, arr1, arr2, field_name,
-    #                                             field_type)
-    #     default_children = field.findall("default")
-    #     if default_children:
-    #         defaults = [(f'{base_indent}else:', f'{base_indent}\tself.{field_name} = {field_default}')]
-    #         last_default = len(default_children) - 1
-    #         condition = ""
-    #         for i, default_element in enumerate(default_children):
-    #
-    #             # get the condition
-    #             conditionals = self.get_conditions(default_element)
-    #             indent, condition = condition_indent(base_indent, conditionals, condition)
-    #             if not condition:
-    #                 raise AttributeError(
-    #                     f"Default tag without or with overlapping conditionals on {field.attrib['name']} {condition} {default_element.get('value')}")
-    #             if i != last_default:
-    #                 condition = f'{base_indent}el{condition}'
-    #             else:
-    #                 condition = f'{base_indent}{condition}'
-    #
-    #             default = self.get_default_string(default_element.attrib.get("value"), context, arg, template, arr1, arr2,
-    #                                               field_name, field_type)
-    #             defaults.append((condition, f'{indent}self.{field_name} = {default}'))
-    #
-    #         defaults = defaults[::-1]
-    #     else:
-    #         defaults = [("", f'{base_indent}self.{field_name} = {field_default}')]
-    #     return defaults
-
     def write_init(self, f):
         base_indent = "\n\t\t"
         debug_strs = []
@@ -248,32 +221,9 @@ class Union:
                                                     field_type)
         f.write(f'{base_indent}self.{field_name} = {field_default}')
 
-    # def write_defaults(self, f, condition=""):
-    #     base_indent = "\n\t\t"
-    #     for field in self.members:
-    #         arg, template, arr1, arr2, conditionals, field_name, field_type, pad_mode, _ = self.get_params(field)
-    #
-    #         indent, new_condition = condition_indent(base_indent, conditionals, condition)
-    #
-    #         defaults = self.default_assigns(field, f'self.{CONTEXT_SUFFIX}', arg, template, arr1, arr2, field_name, field_type, indent)
-    #
-    #         if field_name == "dtype":
-    #             f.write(f"{base_indent}# leaving self.dtype alone")
-    #         else:
-    #             # if defaults:
-    #             if new_condition:
-    #                 f.write(f"{base_indent}{new_condition}")
-    #             if new_condition or indent == base_indent:
-    #                 condition = new_condition
-    #             for default_condition, default in defaults:
-    #                 if default_condition:
-    #                     f.write(default_condition)
-    #                 f.write(default)
-    #     return condition
-
     def write_attributes(self, f):
         for field in self.members:
-            arg, template, arr1, arr2, conditionals, field_name, field_type, pad_mode, (optional, default) = self.get_params(field, f'x.')
+            arg, template, arr1, arr2, conditionals, field_name, field_type, pad_mode, (optional, default) = self.get_params(field, 'x')
             # replace all non-static values with None for now
             try:
                 arg = int(str(arg), 0)
@@ -306,7 +256,7 @@ class Union:
     def write_filtered_attributes(self, f, condition, target_variable="self"):
         base_indent = "\n\t\t"
         for field in self.members:
-            arg, template, arr1, arr2, conditionals, field_name, field_type, pad_mode, (optional, default) = self.get_params(field, f'{target_variable}.', use_abstract=True)
+            arg, template, arr1, arr2, conditionals, field_name, field_type, pad_mode, (optional, default) = self.get_params(field, target_variable, use_abstract=True)
             default = self.default_to_value(default, field_type)
             if arr1 is None:
                 arguments = f"({arg}, {template})"
@@ -329,7 +279,7 @@ class Union:
                 for i, default_element in enumerate(default_children):
     
                     # get the condition
-                    conditionals = self.get_conditions(default_element, expression_prefix=f'{target_variable}.')
+                    conditionals = self.get_conditions(default_element, target_variable)
                     def_indent, def_condition = condition_indent(indent, conditionals, def_condition)
                     if not def_condition:
                         raise AttributeError(
@@ -351,11 +301,3 @@ class Union:
                     def_indent = indent
                 f.write(f"{def_indent}yield {repr(field_name)}, {field_type}, {arguments}, ({optional}, {default})")
         return condition
-
-    # def write_arg_update(self, f, method_type):
-    #     base_indent = "\n\t\t"
-    #     for field in self.members:
-    #         arg, template, arr1, arr2, conditionals, field_name, field_type, pad_mode, _ = self.get_params(field, f'instance.')
-    #         if method_type == 'read':
-    #             f.write(f"{base_indent}if not isinstance(instance.{field_name}, int):")
-    #             f.write(f"{base_indent}\tinstance.{field_name}.arg = {arg}")

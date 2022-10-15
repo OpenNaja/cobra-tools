@@ -4,6 +4,7 @@ import math
 
 import codegen.naming_conventions as naming_conventions
 
+
 class LiteralFloat(float):
 
     def __new__(cls, *args, **kwargs):
@@ -70,32 +71,32 @@ class Version(object):
 
 
 def interpret_literal(input_str, include_version=False):
-	# interpret numeric values as written in the xml and return the unambiguous python equivalent (back-printable to their literals)
-	try:
-		return int(input_str, 0)
-	except ValueError:
-		pass
-	try:
-		return LiteralFloat(input_str)
-	except:
-		pass
-	if include_version:
-		try:
-			return Version(input_str)
-		except:
-			pass
-	return None
+    """interpret numeric values as written in the xml and return the unambiguous python equivalent (back-printable to their literals)"""
+    try:
+        return int(input_str, 0)
+    except ValueError:
+        pass
+    try:
+        return LiteralFloat(input_str)
+    except:
+        pass
+    if include_version:
+        try:
+            return Version(input_str)
+        except:
+            pass
+    return None
 
 
 class Expression(object):
 
     operators = {'!', '*', '/', '%', '+', '-', '<<', '>>', '&', '|', '==', '!=', '>', '>=', '<', '<=', '&&', '||'}
 
-    def __init__(self, expr_str, attribute_prefix=""):
+    def __init__(self, expr_str, target_variable=""):
         try:
             left, self._op, right = self._partition(expr_str)
-            self._left = self._parse(left, attribute_prefix)
-            self._right = self._parse(right, attribute_prefix)
+            self._left = self._parse(left, target_variable)
+            self._right = self._parse(right, target_variable)
         except:
             print("error while parsing expression '%s'" % expr_str)
             raise
@@ -121,7 +122,7 @@ class Expression(object):
         return f"{left} {op} {right}".strip()
 
     @classmethod
-    def _parse(cls, expr_str, prefix=""):
+    def _parse(cls, expr_str, target_variable=""):
         """Returns an Expression, string, or int, depending on the
         contents of <expr_str>."""
         if not expr_str:
@@ -133,13 +134,14 @@ class Expression(object):
             return literal_object
         # brackets or operators => expression
         if ("(" in expr_str) or (")" in expr_str):
-            return Expression(expr_str, prefix)
+            return Expression(expr_str, target_variable)
         for op in cls.operators:
             if expr_str.find(op) != -1:
-                return Expression(expr_str, prefix)
+                return Expression(expr_str, target_variable)
         # at this point, expr_str is a single attribute
         # apply name filter on each component separately
         # (where a dot separates components)
+        prefix = f"{target_variable}." if target_variable else ""
         return prefix + naming_conventions.name_access(expr_str)
 
     @classmethod
