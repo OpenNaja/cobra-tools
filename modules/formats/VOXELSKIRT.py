@@ -25,7 +25,8 @@ class VoxelskirtLoader(MemStructLoader):
 		for data_slot in self.named_slots:
 			data_slot.offset = stream.tell()
 			Array.to_stream(data_slot.data, stream, self.header.context, (len(data_slot.data), ), data_slot.data.dtype, self.ovl.context, 0, None)
-			# need to handle this so that it is available for export, but not written to header
+			# todo - need to handle data so that it is available for export, but not written to header
+			# probably by having behavior similar to the Pointer classes
 			data_slot.data.clear()
 		# ...
 		buffer_bytes = stream.getvalue()
