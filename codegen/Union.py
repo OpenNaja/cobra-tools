@@ -43,7 +43,7 @@ class Union:
     def is_ovl_ptr(self):
         """Check if this union is used as an ovl memory pointer"""
         for field in self.members:
-            arg, template, arr1, arr2, conditionals, field_name, field_type, pad_mode, _ = self.get_params(field)
+            arg, template, arr1, arr2, conditionals, field_name, field_type, _ = self.get_params(field)
             if field_type in ("Pointer", "ArrayPointer", "ForEachPointer"):
                 return True
 
@@ -110,7 +110,6 @@ class Union:
         field_type = field.attrib["type"]
         if field_type == "template":
             field_type = f'{target_variable}.{field_type}'
-        pad_mode = field.attrib.get("padding")
         template = field.attrib.get("template")
         optional = (field.attrib.get("optional", "False"), field.attrib.get("default"))
 
@@ -132,7 +131,7 @@ class Union:
             arr1 = Expression(arr1, target_variable)
         if arr2:
             arr2 = Expression(arr2, target_variable)
-        return arg, template, arr1, arr2, conditionals, field_name, field_type, pad_mode, optional
+        return arg, template, arr1, arr2, conditionals, field_name, field_type, optional
 
     def default_to_value(self, default_string, field_type):
         if default_string:
@@ -160,7 +159,7 @@ class Union:
                         default_string = repr(default_string)
         return default_string
 
-    def get_default_string(self, default_string, context, arg, template, arr1, arr2, field_name, field_type):
+    def get_default_string(self, default_string, context, arg, template, arr1, field_type):
         # get the default (or the best guess of it)
         field_type_lower = field_type.lower()
         tag_of_field_type = self.compounds.parser.tag_dict.get(field_type_lower)
@@ -168,17 +167,8 @@ class Union:
         default_string = self.default_to_value(default_string, field_type)
 
         if arr1:
-            arr_str = self.compounds.parser.arrs_to_tuple(arr1, arr2)
-            if default_string:
-                if return_type[0] == 'numpy':
-                    return f'numpy.full({arr_str}, dtype={return_type[1]}, fill_value={default_string})'
-                else:
-                    return f'Array.from_value({arr_str}, {field_type}, {default_string})'
-            else:
-                if return_type[0] == 'numpy':
-                    return f'numpy.zeros({arr_str}, dtype={return_type[1]})'
-                else:
-                    return f'Array({context}, {arg}, {template}, {arr_str}, {field_type})'
+            # init with empty shape to work regardless of condition
+            return f'Array({context}, {arg}, {template}, (0,), {field_type})'
         else:
             if default_string:
                 if return_type in self.compounds.parser.builtin_literals or tag_of_field_type == "enum":
@@ -201,28 +191,21 @@ class Union:
         debug_strs = []
         for field in self.members:
             field_debug_str = convention.clean_comment_str(field.text, indent=base_indent)
-            arg, template, arr1, arr2, conditionals, field_name, field_type, pad_mode, _ = self.get_params(field)
+            arg, template, arr1, arr2, conditionals, field_name, field_type, _ = self.get_params(field)
             if field_debug_str.strip() and field_debug_str not in debug_strs:
                 debug_strs.append(field_debug_str)
 
         # add every (unique) debug string:
         for field_debug_str in debug_strs:
             f.write(field_debug_str)
-        # nice idea, but causes too much trouble
-        if arr1:
-            # init with empty shape to work regardless of condition
-            field_default = f'Array(self.{CONTEXT_SUFFIX}, {arg}, {template}, (0,), {field_type})'
-        else:
-            # we init each field with 0 to prevent overhead, but still allow the field to be used in conditionals
-            # field_default = 0
-            # we init each field with its basic default string so that the field exists regardless of any condition
-            field_default = self.get_default_string(field.attrib.get('default'), f'self.{CONTEXT_SUFFIX}', arg, template,
-                                                    arr1, arr2, field_name, field_type)
+        # we init each field with its basic default string so that the field exists regardless of any condition
+        field_default = self.get_default_string(field.attrib.get('default'), f'self.{CONTEXT_SUFFIX}', arg, template,
+                                                arr1, field_type)
         f.write(f'\n{base_indent}self.{field_name} = {field_default}')
 
     def write_attributes(self, f):
         for field in self.members:
-            arg, template, arr1, arr2, conditionals, field_name, field_type, pad_mode, (optional, default) = self.get_params(field, 'x')
+            arg, template, arr1, arr2, conditionals, field_name, field_type, (optional, default) = self.get_params(field, 'x')
             # replace all non-static values with None for now
             try:
                 arg = int(str(arg), 0)
@@ -255,7 +238,7 @@ class Union:
     def write_filtered_attributes(self, f, condition, target_variable="self"):
         base_indent = "\n\t\t"
         for field in self.members:
-            arg, template, arr1, arr2, conditionals, field_name, field_type, pad_mode, (optional, default) = self.get_params(field, target_variable, use_abstract=True)
+            arg, template, arr1, arr2, conditionals, field_name, field_type, (optional, default) = self.get_params(field, target_variable, use_abstract=True)
             default = self.default_to_value(default, field_type)
             if arr1 is None:
                 arguments = f"({arg}, {template})"
