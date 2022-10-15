@@ -31,7 +31,7 @@ class HeaderPointer(BaseStruct):
 		yield 'data_offset', Uint, (0, None), (False, None)
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
-		super().__init__(context, arg, template, set_default)
+		super().__init__(context, arg, template, set_default=False)
 		# The index of the MemPool this one relates to; OR, for entries referred to from AssetEntries: -1 (FF FF FF FF)
 		self.pool_index = 0
 
@@ -41,6 +41,8 @@ class HeaderPointer(BaseStruct):
 		# define this already
 		self.pool = None
 		self.data_size = 0
+		if set_default:
+			self.set_defaults()
 
 	@property
 	def data(self):

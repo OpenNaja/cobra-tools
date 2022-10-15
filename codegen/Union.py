@@ -126,7 +126,11 @@ class Union:
             else:
                 template = self.indirect_class_access(template_class)
         if arg:
-            arg = Expression(arg, target_variable)
+            # allow accessing the instance directly as an argument
+            if arg in ("self", "instance"):
+                arg = target_variable
+            else:
+                arg = Expression(arg, target_variable)
         if arr1:
             arr1 = Expression(arr1, target_variable)
         if arr2:

@@ -10,12 +10,7 @@ class HitcheckReader(BaseStruct):
 	# START_CLASS
 
 	def __init__(self, context, arg=None, template=None, set_default=True):
-		self.name = ''
-		self._context = context
-		self.arg = arg
-		self.template = template
-		self.io_size = 0
-		self.io_start = 0
+		super().__init__(context, arg, template, set_default=False)
 		if set_default:
 			self.set_defaults()
 
@@ -24,10 +19,11 @@ class HitcheckReader(BaseStruct):
 
 	@classmethod
 	def read_fields(cls, stream, instance):
-		for jointinfo in instance.arg:
+		joint_data = instance.arg
+		for jointinfo in joint_data.joint_infos:
 			jointinfo.hitchecks = []
 			for i in range(jointinfo.hitcheck_count):
-				hc = HitCheck.from_stream(stream, instance.context)
+				hc = HitCheck.from_stream(stream, instance.context, arg=joint_data.joint_names)
 				jointinfo.hitchecks.append(hc)
 
 	@classmethod

@@ -32,16 +32,11 @@ class ModelReader(BaseStruct):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 
 	def __init__(self, context, arg=None, template=None, set_default=True):
-		self.name = ''
-		self._context = context
-		self.arg = arg
-		self.template = template
-		self.io_size = 0
-		self.io_start = 0
+		super().__init__(context, arg, template, set_default=False)
 		self.bone_infos = []
+		self.bone_info_start = 0
 		if set_default:
 			self.set_defaults()
-		self.bone_info_start = 0
 
 	def set_defaults(self):
 		pass
