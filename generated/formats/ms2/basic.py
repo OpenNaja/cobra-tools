@@ -22,16 +22,19 @@ class MainVersion(Uint):
 
 
 class OffsetString(Int):
+	pass
 
 	@classmethod
 	def from_stream(cls, stream, context, arg=0, template=None):
 		offset = super().from_stream(stream, context, arg, template)
 		# arg must be ZStringBuffer
-		return arg.get_str_at(offset)
+		try:
+			return arg.get_str_at(offset)
+		except:
+			return None
 
 	@classmethod
 	def to_stream(cls, instance, stream, context, arg=0, template=None):
-		# todo update ZStringBuffer before writing
 		# arg = ZStringBuffer needs to be filled before writing
 		# now we just take the index prepared by the string table
 		offset = arg.offset_dic.get(instance, -1)

@@ -118,7 +118,7 @@ class JointData(BaseStruct):
 		self.joint_infos = Array(self.context, self.joint_names, None, (0,), JointInfo)
 
 		# old style - for each joint, read the hitchecks
-		self.hitcheck_reader = HitcheckReader(self.context, self.joint_infos, None)
+		self.hitcheck_reader = HitcheckReader(self.context, self, None)
 		if set_default:
 			self.set_defaults()
 
@@ -210,7 +210,7 @@ class JointData(BaseStruct):
 		if instance.context.version >= 47:
 			yield 'joint_infos', Array, (instance.joint_names, None, (instance.joint_count,), JointInfo), (False, None)
 		if instance.context.version <= 32:
-			yield 'hitcheck_reader', HitcheckReader, (instance.joint_infos, None), (False, None)
+			yield 'hitcheck_reader', HitcheckReader, (instance, None), (False, None)
 
 	def get_strings(self):
 		"""Get all strings in the structure."""
@@ -218,6 +218,24 @@ class JointData(BaseStruct):
 		for val in self.get_condition_values_recursive(self, condition_function):
 			if val:
 				yield val
+
+	def get_string_attribs(self):
+		"""Get all strings in the structure."""
+		condition_function = lambda x: issubclass(x[1], OffsetString)
+		for s_type, s_inst, (f_name, f_type, arguments, _) in self.get_condition_attributes_recursive(self, self, condition_function):
+			yield s_inst, f_name
+
+	# @classmethod
+	# def read_fields(cls, stream, instance):
+	# 	super().read_fields(stream, instance)
+	# 	# after reading, resolve the names to string
+	# 	for child_instance, attrib in instance.get_string_attribs():
+	# 		# get the offset
+	# 		offset = child_instance.get_field(child_instance, attrib)
+	# 		# get str from ZStringBuffer
+	# 		string = instance.joint_names.get_str_at(offset)
+	# 		# set the string
+	# 		cls.set_field(child_instance, attrib, string)
 
 	@classmethod
 	def write_fields(cls, stream, instance):

@@ -3,6 +3,7 @@ from generated.array import Array
 from generated.base_struct import BaseStruct
 from generated.formats.base.basic import Int
 from generated.formats.base.basic import Uint
+from generated.formats.ms2.basic import OffsetString
 
 
 class UACJointFF(BaseStruct):
@@ -19,7 +20,7 @@ class UACJointFF(BaseStruct):
 
 		# bunch of -1's, and constants
 		self.f_fs = Array(self.context, 0, None, (0,), Int)
-		self.name_offset = 0
+		self.name = 0
 		self.hitcheck_count = 0
 
 		# 12 bytes of zeros
@@ -30,7 +31,7 @@ class UACJointFF(BaseStruct):
 	_attribute_list = BaseStruct._attribute_list + [
 		('eleven', Uint, (0, None), (False, None), None),
 		('f_fs', Array, (0, None, (4,), Int), (False, None), None),
-		('name_offset', Uint, (0, None), (False, None), None),
+		('name', OffsetString, (None, None), (False, None), None),
 		('hitcheck_count', Uint, (0, None), (False, None), None),
 		('zeros', Array, (0, None, (3,), Uint), (False, None), None),
 		]
@@ -40,6 +41,6 @@ class UACJointFF(BaseStruct):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'eleven', Uint, (0, None), (False, None)
 		yield 'f_fs', Array, (0, None, (4,), Int), (False, None)
-		yield 'name_offset', Uint, (0, None), (False, None)
+		yield 'name', OffsetString, (instance.arg, None), (False, None)
 		yield 'hitcheck_count', Uint, (0, None), (False, None)
 		yield 'zeros', Array, (0, None, (3,), Uint), (False, None)
