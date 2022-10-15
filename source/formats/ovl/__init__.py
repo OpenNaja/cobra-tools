@@ -1324,11 +1324,17 @@ class OvlFile(Header, IoFile):
 
 	def dump_buffer_info(self):
 		"""for development; collect info about fragment types"""
-		log_path = os.path.join(self.dir, f"{self.name}_buffer_info.log")
+
+		def out_dir_func(n):
+			"""Helper function to generate temporary output file name"""
+			return os.path.normpath(os.path.join(self.dir, n))
+		log_path = out_dir_func(f"{self.name}_buffer_info.log")
 		logging.info(f"Dumping buffers info to {log_path}")
 		with open(log_path, "w") as f:
 			for loader in self.sorted_loaders:
 				loader.dump_buffer_infos(f)
+		for loader in self.sorted_loaders:
+			loader.dump_buffers(out_dir_func)
 
 	def save(self, filepath):
 		start_time = time.time()
