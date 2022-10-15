@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE niftoolsxml>
+<niftoolsxml version="0.7.1.0">
+
+	<xi:include href="../ovl_base/ovl_base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
+
+    <compound name="ParticleEffectRoot" inherit="MemStruct">
+        <add name="unk64_1" type="uint64" />
+        <add name="unk64_2" type="uint64" />
+        <add name="unk64_3" type="uint64" />
+        <add name="unk64_4" type="uint64" />
+        <add name="unk64_5" type="uint64" />
+        <add name="unk64_6" type="uint64" />
+
+        <add name="unk32_1" type="uint" />
+        <add name="unk32_2_neg" type="int" />
+        <add name="unk32_3" type="uint" />
+        <add name="unk32_4" type="uint" />
+
+        <add name="a_unk32_1" type="uint" />
+        <add name="a_unk32_2" type="uint" />
+        <add name="a_unk32_3_1" type="uint" />
+        <add name="a_unk32_4" type="uint" />
+
+        <add name="atlasinfo_count" type="uint64" />
+        <add name="name_foreach_textures" type="ArrayPointer" template="TextureData" arg="atlasinfo_count"/>
+
+        <add name="nextRow1" type="nextRow1"/>
+        <add name="nextRow2" type="nextRow2"/>
+        <add name="nextRow3" type="nextRow2"/>
+        <add name="nextRow4" type="nextRow2"/>
+        <add name="nextRow5" type="LastRow"/>
+    </compound>
+
+    <compound name="TextureInfo" inherit="MemStruct">
+    </compound>
+
+    <compound name="TextureData" inherit="MemStruct">
+        <add name="dependency_name" type="Pointer">only present if textured</add>
+    </compound>
+
+    <compound name="nextRow1" inherit="MemStruct">
+        <add name="unk" type="uint64" />
+        <add name="garbage" type="uint" />
+        <add name="value1" type="ushort" />
+        <add name="value2" type="ushort" />
+    </compound>
+
+    <compound name="nextRow2" inherit="MemStruct">
+        <add name="unk01"   type="ushort" />
+        <add name="unk02"   type="ushort" />
+        <add name="unk03"   type="ushort" />
+        <add name="unk04"   type="ushort" />
+        <add name="unk05"   type="ushort" />
+        <add name="unk06"   type="ushort" />
+        <add name="unk07"   type="ushort" />
+        <add name="unk08"   type="ushort" />
+        <add name="unk09"   type="ushort" />
+        <add name="unk10"   type="ushort" />
+        <add name="unk11"   type="ushort" />
+        <add name="unk12"   type="ushort" />
+        <add name="unk13"   type="ushort" />
+        <add name="unk14"   type="ushort" />
+        <add name="unk15"   type="ushort" />
+        <add name="unk16"   type="ushort" />
+    </compound>
+
+    <compound name="LastRow" inherit="MemStruct">
+        <add name="unk01"   type="ushort" />
+        <add name="unk02"   type="ushort" />
+        <add name="unk03"   type="ushort" />
+        <add name="unk04"   type="ushort" />
+        <add name="unk05"   type="ushort" />
+        <add name="unk06"   type="ushort" />
+        <add name="unk07"   type="ushort" />
+        <add name="unk08"   type="ushort" />
+        <add name="unk09"   type="ushort" />
+        <add name="unk10"   type="ushort" />
+        <add name="unk11"   type="ushort" />
+        <add name="unk12"   type="ushort" />
+    </compound>
+
+</niftoolsxml>
+
