@@ -77,3 +77,11 @@ class ZStringBuffer:
 	def write_fields(cls, stream, instance):
 		stream.write(instance.data)
 
+	@staticmethod
+	def validate_instance(instance, context, arguments):
+		super().validate_instance(instance, context, arguments)
+		assert len(instance.data) == instance.arg
+
+	@classmethod
+	def get_size(cls, context, instance, arguments):
+		return len(instance.data)

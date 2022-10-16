@@ -210,3 +210,12 @@ class ZString:
         lines = str(member).split("\n")
         lines_new = [lines[0], ] + ["\t" * indent + line for line in lines[1:]]
         return "\n".join(lines_new)
+
+    @classmethod
+    def validate_instance(instance, context=None, arguments=()):
+        assert(isinstance(instance, str))
+        assert(len(instance.encode(errors="surrogateescape")) <= MAX_LEN)
+
+    @staticmethod
+    def get_size(context, instance, arguments=()):
+        return len(instance.encode(errors="surrogateescape")) + 1

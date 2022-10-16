@@ -33,3 +33,11 @@ class FixedString(BaseStruct):
 	def write_fields(cls, stream, instance):
 		stream.write(instance.data)
 
+	@classmethod
+	def validate_instance(cls, instance, context, arguments):
+		super().validate_instance(instance, context, arguments)
+		assert len(instance.data) == arguments[0]
+
+	@staticmethod
+	def get_size(instance, context):
+		return len(instance.data)
