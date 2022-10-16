@@ -673,7 +673,7 @@ class OvlFile(Header, IoFile):
 		logging.info(f"Injecting {len(file_paths)} files")
 		error_files = []
 		for file_path in self.iter_progress(file_paths, "Injecting"):
-			name_ext, name, ext = split_path(file_path)
+			name_ext, basename, ext = split_path(file_path)
 
 			# ilo: ignore file extensions in the IGNORE list
 			if ext in IGNORE_TYPES:

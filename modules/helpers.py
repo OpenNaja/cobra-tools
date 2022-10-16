@@ -7,9 +7,9 @@ from generated.array import Array
 
 def split_path(fp):
 	in_dir, name_ext = os.path.split(fp)
-	name, ext = os.path.splitext(name_ext)
+	basename, ext = os.path.splitext(name_ext)
 	ext = ext.lower()
-	return name_ext, name, ext
+	return name_ext, basename, ext
 
 
 def as_bytes(inst):
