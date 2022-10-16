@@ -82,8 +82,8 @@ class BaseEnum(IntEnum, metaclass=DefaultEnumMeta):
 	_non_members_ = ["_storage"]
 
 	@classmethod
-	def get_size(cls, context, instance, arguments=()):
-		return cls._storage.get_size(context, instance)
+	def get_size(cls, instance, context, arg=0, template=None):
+		return cls._storage.get_size(instance, context)
 
 	@classmethod
 	def from_stream(cls, stream, context=None, arg=0, template=None):
@@ -122,15 +122,15 @@ class BaseEnum(IntEnum, metaclass=DefaultEnumMeta):
 		return "\n".join(lines_new)
 
 	@classmethod
-	def from_xml(cls, target, elem, prop, arguments=None):
+	def from_xml(cls, target, elem, prop, arg=0, template=None):
 		return cls.from_str(elem.attrib[prop])
 
 	@classmethod
-	def to_xml(cls, elem, prop, instance, arguments, debug):
+	def to_xml(cls, elem, prop, instance, arg, template, debug):
 		elem.attrib[prop] = str(instance)
 
 	@classmethod
-	def validate_instance(cls, instance, context, arguments):
+	def validate_instance(cls, instance, context, arg, template):
 		if not isinstance(instance, cls):
 			logging.warning(f"instance {instance} is not a member of the {cls} class")
 		cls._storage.validate_instance(int(instance))

@@ -34,10 +34,10 @@ class FixedString(BaseStruct):
 		stream.write(instance.data)
 
 	@classmethod
-	def validate_instance(cls, instance, context, arguments):
-		super().validate_instance(instance, context, arguments)
-		assert len(instance.data) == arguments[0]
+	def validate_instance(cls, instance, context, arg=0, template=None):
+		super().validate_instance(instance, context, arg, template)
+		assert len(instance.data) == arg
 
 	@staticmethod
-	def get_size(instance, context):
+	def get_size(instance, context, arg=0, template=None):
 		return len(instance.data)

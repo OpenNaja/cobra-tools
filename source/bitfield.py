@@ -60,8 +60,8 @@ class BasicBitfield(object, metaclass=BitfieldMetaClass):
         cls._storage.to_stream(int(instance), stream, context, arg, template)
 
     @classmethod
-    def get_size(cls, context, instance, argument=()):
-        return cls._storage.get_size(context, instance)
+    def get_size(cls, instance, context, arg=0, template=None):
+        return cls._storage.get_size(instance, context)
 
     @classmethod
     def from_value(cls, value):
@@ -70,11 +70,11 @@ class BasicBitfield(object, metaclass=BitfieldMetaClass):
         return instance
 
     @classmethod
-    def from_xml(cls, target, elem, prop, arguments=None):
+    def from_xml(cls, target, elem, prop, arg=0, template=None):
         return cls.from_value(int(elem.attib[prop], 0))
 
     @staticmethod
-    def to_xml(elem, prop, instance, arguments, debug):
+    def to_xml(elem, prop, instance, arg, template, debug):
         elem.attrib[prop] = str(instance._value)
 
     @staticmethod
@@ -84,7 +84,7 @@ class BasicBitfield(object, metaclass=BitfieldMetaClass):
         return "\n".join(lines_new)
 
     @classmethod
-    def validate_instance(cls, instance, context, arguments):
+    def validate_instance(cls, instance, context, arg, template):
         cls._storage.validate_instance(int(instance))
 
     def __repr__(self):

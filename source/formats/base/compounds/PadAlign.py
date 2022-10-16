@@ -46,7 +46,7 @@ class PadAlign(BaseStruct):
 		stream.write(instance.data)
 
 	@staticmethod
-	def get_size(context, instance, arguments=()):
+	def get_size(instance, context, arg=0, template=None):
 		# this is actually somewhat indeterminate as there is no stream to work off, so work off the last known stream
 		# position: instance.io_start
 		return get_padding_size(instance.io_start - instance.template.io_start, alignment=instance.arg)

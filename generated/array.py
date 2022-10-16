@@ -186,25 +186,25 @@ class Array(list):
                     yield (i, dtype, (arg, template), (False, None))
 
     @classmethod
-    def validate_instance(cls, instance, context, arguments):
-        if cls.is_ragged_shape(arguments[2]):
-            return RaggedArray.validate_instance(instance, context, arguments)
-        elif callable(getattr(arguments[3], "validate_array", None)):
-            return arguments[3].validate_array(instance, context, arguments[:3])
+    def validate_instance(cls, instance, context, arg, template, shape, dtype):
+        if cls.is_ragged_shape(shape):
+            return RaggedArray.validate_instance(instance, context, arg, template, shape, dtype)
+        elif callable(getattr(dtype, "validate_array", None)):
+            return dtype.validate_array(instance, context, arg, template, shape)
         try:
 	        assert instance.context == context, f"context {instance.context} doesn't match {context} on {cls}"
-	        assert instance.arg == arguments[0], f"argument {instance.argument} doesn't match {arguments[0]} on {cls}"
-	        assert instance.template == arguments[1], f"template {instance.template} doesn't match {arguments[1]} on {cls}"
-	        assert instance.shape == arguments[2], f"shape {instance.shape} doesn't match {arguments[2]} on {cls}"
-	        assert instance.dtype == arguments[3], f"dtype {instance.dtype} doesn't match {arguments[3]} on {cls}"
+	        assert instance.arg == arg, f"argument {instance.arg} doesn't match {arg} on {cls}"
+	        assert instance.template == template, f"template {instance.template} doesn't match {template} on {cls}"
+	        assert instance.shape == shape, f"shape {instance.shape} doesn't match {shape} on {cls}"
+	        assert instance.dtype == dtype, f"dtype {instance.dtype} doesn't match {dtype} on {cls}"
         except AssertionError:
-            logging.error(f"validation failed on {cls}[{arguments[3]}]")
+            logging.error(f"validation failed on {cls}[{dtype}]")
             raise
-        for f_name, f_type, f_arguments, _ in cls._get_filtered_attribute_list(instance, arguments[3]):
+        for f_name, f_type, f_arguments, _ in cls._get_filtered_attribute_list(instance, dtype):
             try:
-                f_type.validate_instance(cls.get_field(instance, f_name), context, f_arguments)
+                f_type.validate_instance(cls.get_field(instance, f_name), context, *f_arguments)
             except AssertionError:
-                logging.error(f"validation failed on field {f_name} on type {cls}[{arguments[3]}]")
+                logging.error(f"validation failed on field {f_name} on type {cls}[{dtype}]")
                 raise
 
     @staticmethod
@@ -220,10 +220,10 @@ class Array(list):
         instance[key] = value
 
     @classmethod
-    def get_size(cls, context, instance, arguments):
+    def get_size(cls, instance, context, arg, template, shape, dtype):
         size = 0
-        for field_name, field_type, arguments, _ in cls._get_filtered_attribute_list(instance, *arguments[3:4], include_abstract=False):
-            size += field_type.get_size(context, cls.get_field(instance, field_name), arguments)
+        for field_name, field_type, arguments, _ in cls._get_filtered_attribute_list(instance, dtype, include_abstract=False):
+            size += field_type.get_size(cls.get_field(instance, field_name), context, *arguments)
         return size
 
     @staticmethod
@@ -238,8 +238,7 @@ class Array(list):
         return _class_to_name(self.dtype).lower()
 
     @classmethod
-    def from_xml(cls, instance, elem, prop, arguments):
-        arg, template, shape, dtype = arguments
+    def from_xml(cls, instance, elem, prop, arg, template, shape, dtype):
         sub = elem.find(f'.//{prop}')
         if sub is None:
             logging.warning(f"Missing sub-element '{prop}' on XML element '{elem.tag}'")
@@ -257,8 +256,7 @@ class Array(list):
         return instance
 
     @classmethod
-    def to_xml(cls, elem, prop, instance, arguments, debug):
-        arg, template, shape, dtype = arguments
+    def to_xml(cls, elem, prop, instance, arg, template, shape, dtype, debug):
         sub = ET.SubElement(elem, prop)
         if callable(getattr(dtype, "_to_xml_array", None)):
             dtype._to_xml_array(instance, sub, debug)
@@ -270,7 +268,7 @@ class Array(list):
         dtype = instance.dtype
         dtype_name = dtype.__name__.lower()
         for member in instance:
-            dtype.to_xml(elem, dtype_name, member, (), debug)
+            dtype.to_xml(elem, dtype_name, member, instance.arg, instance.template, debug)
 
     def append(self, x):
         self.shape = (self.shape[0] + 1, *self.shape[1:])
@@ -359,23 +357,23 @@ class RaggedArray(Array):
                 yield (i, cls, (arg, template, instance.shape[1][i], dtype), (False, None))
 
     @classmethod
-    def validate_instance(cls, instance, context, arguments):
-        if callable(getattr(arguments[3], "validate_ragged_array", None)):
-            return arguments[3].validate_ragged_array(instance, context, arguments[:3])
+    def validate_instance(cls, instance, context, arg, template, shape, dtype):
+        if callable(getattr(dtype, "validate_ragged_array", None)):
+            return dtype.validate_ragged_array(instance, context, arg, template, shape)
         try:
 	        assert instance.context == context, f"context {instance.context} doesn't match {context} on {cls}"
-	        assert instance.arg == arguments[0], f"argument {instance.argument} doesn't match {arguments[0]} on {cls}"
-	        assert instance.template == arguments[1], f"template {instance.template} doesn't match {arguments[1]} on {cls}"
-	        assert instance.shape == arguments[2], f"shape {instance.shape} doesn't match {arguments[2]} on {cls}"
-	        assert instance.dtype == arguments[3], f"dtype {instance.dtype} doesn't match {arguments[3]} on {cls}"
+	        assert instance.arg == arg, f"argument {instance.arg} doesn't match {arg} on {cls}"
+	        assert instance.template == template, f"template {instance.template} doesn't match {template} on {cls}"
+	        assert instance.shape == shape, f"shape {instance.shape} doesn't match {shape} on {cls}"
+	        assert instance.dtype == dtype, f"dtype {instance.dtype} doesn't match {dtype} on {cls}"
         except AssertionError:
-            logging.error(f"validation failed on {cls}[{arguments[3]}]")
+            logging.error(f"validation failed on {cls}[{dtype}]")
             raise
-        for f_name, f_type, f_arguments, _ in cls._get_filtered_attribute_list(instance, arguments[3]):
+        for f_name, f_type, f_arguments, _ in cls._get_filtered_attribute_list(instance, dtype):
             try:
-                f_type.validate_instance(cls.get_field(instance, f_name), context, f_arguments)
+                f_type.validate_instance(cls.get_field(instance, f_name), context, *f_arguments)
             except AssertionError:
-                logging.error(f"validation failed on field {f_name} on type {cls}[{arguments[3]}]")
+                logging.error(f"validation failed on field {f_name} on type {cls}[{dtype}]")
                 raise
 
 

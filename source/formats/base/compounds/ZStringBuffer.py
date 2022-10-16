@@ -78,10 +78,10 @@ class ZStringBuffer:
 		stream.write(instance.data)
 
 	@staticmethod
-	def validate_instance(instance, context, arguments):
-		super().validate_instance(instance, context, arguments)
+	def validate_instance(instance, context, arg,  template):
+		super().validate_instance(instance, context, arg, template)
 		assert len(instance.data) == instance.arg
 
 	@classmethod
-	def get_size(cls, context, instance, arguments):
+	def get_size(cls, instance, context, arg=0, template=None):
 		return len(instance.data)
