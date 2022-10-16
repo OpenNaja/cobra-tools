@@ -216,8 +216,8 @@ class JointData(BaseStruct):
 		"""Get all strings in the structure."""
 		condition_function = lambda x: issubclass(x[1], OffsetString)
 		for val in self.get_condition_values_recursive(self, condition_function):
-			if val:
-				yield val
+			logging.info(val)
+			yield val
 
 	def get_string_attribs(self):
 		"""Get all strings in the structure."""
@@ -239,7 +239,9 @@ class JointData(BaseStruct):
 
 	@classmethod
 	def write_fields(cls, stream, instance):
-		instance.joint_names.update_strings(instance.get_strings())
+		strings = list(instance.get_strings())
+		logging.info(strings)
+		instance.joint_names.update_strings(strings)
 		instance.namespace_length = len(instance.joint_names.data)
 		super().write_fields(stream, instance)
 

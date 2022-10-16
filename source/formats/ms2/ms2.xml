@@ -696,7 +696,7 @@
 		<add name="name" type="OffsetString" arg="#ARG#"/>
 		<add name="hitcheck count" type="uint"/>
 		<add name="zero_2" type="uint64" >8 bytes of zeros</add>
-		<add name="zeros per hitcheck" type="uint64" arr1="hitcheck count">8 bytes of zeros per hitcheck</add>
+		<add name="hitcheck_pointers" type="uint64" arr1="hitcheck count">8 bytes of zeros per hitcheck</add>
 		<add name="hitchecks" type="HitCheck" arr1="hitcheck count" arg="#ARG#"/>
 	</compound>
 

@@ -209,7 +209,11 @@ class Array(list):
 
     @staticmethod
     def get_field(instance, key):
-        return instance[key]
+        try:
+            return instance[key]
+        except:
+            logging.exception(f"Array: Tried to get  key '{key}' on instance '{instance}'")
+            raise
 
     @staticmethod
     def set_field(instance, key, value):

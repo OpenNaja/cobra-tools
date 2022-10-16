@@ -300,8 +300,11 @@ class BaseStruct(metaclass=StructMetaClass):
 																								 arguments,
 																								 include_abstract,
 																								 enter_condition):
-			val = s_type.get_field(s_inst, f_name)
-			yield val
+			try:
+				val = s_type.get_field(s_inst, f_name)
+				yield val
+			except:
+				logging.exception(f"Struct: Could not get {f_name} of {s_inst} of type {s_type}")
 
 	@staticmethod
 	def get_field(instance, key):

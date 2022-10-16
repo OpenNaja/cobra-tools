@@ -32,7 +32,7 @@ class JointInfo(BaseStruct):
 		self.zero_2 = 0
 
 		# 8 bytes of zeros per hitcheck
-		self.zeros_per_hitcheck = Array(self.context, 0, None, (0,), Uint64)
+		self.hitcheck_pointers = Array(self.context, 0, None, (0,), Uint64)
 		self.hitchecks = Array(self.context, self.arg, None, (0,), HitCheck)
 		if set_default:
 			self.set_defaults()
@@ -45,7 +45,7 @@ class JointInfo(BaseStruct):
 		('name', OffsetString, (None, None), (False, None), None),
 		('hitcheck_count', Uint, (0, None), (False, None), None),
 		('zero_2', Uint64, (0, None), (False, None), None),
-		('zeros_per_hitcheck', Array, (0, None, (None,), Uint64), (False, None), None),
+		('hitcheck_pointers', Array, (0, None, (None,), Uint64), (False, None), None),
 		('hitchecks', Array, (None, None, (None,), HitCheck), (False, None), None),
 		]
 
@@ -59,5 +59,5 @@ class JointInfo(BaseStruct):
 		yield 'name', OffsetString, (instance.arg, None), (False, None)
 		yield 'hitcheck_count', Uint, (0, None), (False, None)
 		yield 'zero_2', Uint64, (0, None), (False, None)
-		yield 'zeros_per_hitcheck', Array, (0, None, (instance.hitcheck_count,), Uint64), (False, None)
+		yield 'hitcheck_pointers', Array, (0, None, (instance.hitcheck_count,), Uint64), (False, None)
 		yield 'hitchecks', Array, (instance.arg, None, (instance.hitcheck_count,), HitCheck), (False, None)

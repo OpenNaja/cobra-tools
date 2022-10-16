@@ -31,7 +31,7 @@ class OffsetString(Int):
 		try:
 			return arg.get_str_at(offset)
 		except:
-			return None
+			return ""
 
 	@classmethod
 	def to_stream(cls, instance, stream, context, arg=0, template=None):

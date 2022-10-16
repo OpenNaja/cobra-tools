@@ -4,6 +4,7 @@ import bpy
 import mathutils
 
 from generated.formats.ms2.compounds.Bone import Bone
+from generated.formats.ms2.compounds.HitCheck import HitCheck
 from generated.formats.ms2.compounds.Matrix44 import Matrix44
 from generated.formats.ms2.versions import is_ztuac, is_jwe, is_dla
 from plugin.modules_export.collision import export_hitcheck
@@ -174,8 +175,14 @@ def export_joints(armature_ob, bone_info, b_bone_names, corrector):
 	scene = bpy.context.scene
 	for bone_index, joint_info in zip(bone_info.joints.joint_indices, bone_info.joints.joint_infos):
 		# bone_name = b_bone_names[bone]
-		logging.debug(f"joint {joint_info.name}")
-		for hitcheck in joint_info.hitchecks:
-			b_obj = bpy.data.objects.get(f"{scene.name}_{hitcheck.name}", None)
-			if b_obj:
-				export_hitcheck(b_obj, hitcheck, corrector)
+		b_joint = bpy.data.objects.get(f"{scene.name}_{joint_info.name}", None)
+		logging.debug(f"joint {b_joint.name}")
+		joint_info.hitcheck_count = len(b_joint.children)
+		joint_info.reset_field("hitchecks")
+		joint_info.reset_field("hitcheck_pointers")
+		for hitcheck, b_hitcheck in zip(joint_info.hitchecks, b_joint.children):
+			name = b_hitcheck.name[len(scene.name)+1:]
+			hitcheck.collision_ignore = b_hitcheck["collision_ignore"]
+			hitcheck.collision_use = b_hitcheck["collision_use"]
+			hitcheck.name = name
+			export_hitcheck(b_hitcheck, hitcheck, corrector)
