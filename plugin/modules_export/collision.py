@@ -72,7 +72,7 @@ def export_hitcheck(b_obj, hitcheck, corrector):
 
 def get_collider_matrix(b_hitcheck):
 	"""Return the matrix relative to the armature for an object parented to a bone"""
-	# todo - this needs to reflect the parenting: bone > joint > hitchecks
+	# reflect the parenting: bone > joint > hitchecks
 	b_joint = b_hitcheck.parent
 	b_bone = b_joint.parent.data.bones[b_joint.parent_bone]
 	m = mathutils.Matrix(b_joint.matrix_local)
