@@ -166,17 +166,21 @@ class Pointer(BaseStruct):
 
 	@classmethod
 	def _from_xml(cls, instance, elem):
-		if instance.template is None:
-			if DEPENDENCY_TAG in elem.tag:
-				if elem.text and elem.text != "None":
-					logging.debug(f"Setting dependency {type(instance).__name__}.data = {elem.text}")
+		try:
+			if instance.template is None:
+				if DEPENDENCY_TAG in elem.tag:
+					if elem.text and elem.text != "None":
+						logging.debug(f"Setting dependency {type(instance).__name__}.data = {elem.text}")
+						instance.data = elem.text
+				return
+			elif instance.template in (ZString, ZStringObfuscated):
+				if elem.text:
 					instance.data = elem.text
-			return
-		elif instance.template in (ZString, ZStringObfuscated):
-			if elem.text:
-				instance.data = elem.text
-		else:
-			instance.data = instance.template(instance.context, instance.arg, None)
-			instance.template._from_xml(instance.data, elem)
-		return instance
+			else:
+				instance.data = instance.template(instance.context, instance.arg, None)
+				instance.template._from_xml(instance.data, elem)
+			return instance
+		except:
+			logging.exception(f"Error on ptr {elem} {elem.attrib}")
+			# raise
 

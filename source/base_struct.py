@@ -332,7 +332,11 @@ class BaseStruct(metaclass=StructMetaClass):
 
 	@classmethod
 	def to_stream(cls, instance, stream, context, arg=0, template=None):
-		instance.io_start = stream.tell()
-		cls.write_fields(stream, instance)
-		instance.io_size = stream.tell() - instance.io_start
-		return instance
+		try:
+			instance.io_start = stream.tell()
+			cls.write_fields(stream, instance)
+			instance.io_size = stream.tell() - instance.io_start
+			return instance
+		except:
+			logging.exception(f"to_stream failed for {cls}, {instance}")
+			raise
