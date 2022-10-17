@@ -59,13 +59,13 @@ class BaseClass:
                         # find the first keyword argument and put the inherit class before that
                         keyword_match = keyword_regex.search(existing_arguments)
                         if keyword_match:
-                            left = existing_arguments[:keyword_match.start]
-                            right = existing_arguments[keyword_match.start:]
+                            left = existing_arguments[:keyword_match.start()]
+                            right = existing_arguments[keyword_match.start():]
                         else:
                             # there are no keyword arguments in the class call, put it last
                             left = existing_arguments[:-1]
                             right = existing_arguments[-1:]
-                        total_arguments = f"{left}{', ' if left[1:].strip() else ''}{self.class_basename}{', ' if right[:-1].strip() else ''}{right}"
+                        total_arguments = f"{left}{self.class_basename}{', ' if right[:-1].strip() else ''}{right}"
                         class_call = f"class {self.class_name}{total_arguments}:"
 
         return class_call

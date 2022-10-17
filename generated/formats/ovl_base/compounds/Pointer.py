@@ -99,7 +99,7 @@ class Pointer(BaseStruct):
 		self.frag.struct_ptr.write_instance(self.template, self.data)
 
 	@classmethod
-	def to_xml(cls, elem, prop, instance, arguments, debug):
+	def to_xml(cls, elem, prop, instance, arg, template, debug):
 		"""Adds this struct to 'elem', recursively"""
 		sub = ET.SubElement(elem, prop)
 		cls.pool_type_to_xml(sub, instance, debug)
@@ -150,13 +150,13 @@ class Pointer(BaseStruct):
 			instance.pool_type = 2
 
 	@classmethod
-	def from_xml(cls, target, elem, prop, arguments):
+	def from_xml(cls, target, elem, prop, arg, template):
 		"""Creates object for parent object 'target', from parent element elem."""
 		sub = elem.find(f'.//{prop}')
 		if sub is None:
 			logging.warning(f"Missing sub-element '{prop}' on XML element '{elem.tag}'")
 			return
-		instance = cls(target.context, *arguments, set_default=False)
+		instance = cls(target.context, arg, template, set_default=False)
 
 		cls.pool_type_from_xml(elem, instance)
 		if prop == XML_STR:

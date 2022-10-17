@@ -17,3 +17,12 @@ class FixedString:
 	@classmethod
 	def write_fields(cls, stream, instance):
 		stream.write(instance.data)
+
+	@classmethod
+	def validate_instance(cls, instance, context, arg=0, template=None):
+		super().validate_instance(instance, context, arg, template)
+		assert len(instance.data) == arg
+
+	@staticmethod
+	def get_size(instance, context, arg=0, template=None):
+		return len(instance.data)

@@ -33,7 +33,7 @@ def class_from_struct(struct, from_value_func):
             stream.write(pack(instance))
 
         @staticmethod
-        def get_size(context, instance, arguments=()):
+        def get_size(instance, context, arg=0, template=None):
             return size
 
         @staticmethod
@@ -90,7 +90,7 @@ def class_from_struct(struct, from_value_func):
             return read_value, write_value, read_values, write_values
 
         @staticmethod
-        def from_xml(target, elem, prop, arguments=None):
+        def from_xml(target, elem, prop, arg=0, template=None):
             return literal_eval(elem.attrib[prop])
 
         @staticmethod
@@ -98,7 +98,7 @@ def class_from_struct(struct, from_value_func):
             return np.fromstring(elem.text, dtype=dtype, sep=" ")
 
         @staticmethod
-        def to_xml(elem, prop, instance, arguments, debug):
+        def to_xml(elem, prop, instance, arg, template, debug):
             elem.attrib[prop] = str(instance)
 
         @staticmethod
@@ -112,12 +112,12 @@ def class_from_struct(struct, from_value_func):
             return "\n".join(lines_new)
 
         @classmethod
-        def validate_instance(cls, instance, context=None, arguments=()):
+        def validate_instance(cls, instance, context=None, arg=0, template=None):
             assert(instance == cls.from_value(instance))
 
         @classmethod
-        def validate_array(cls, instance, context=None, arguments=()):
-            assert instance.shape == arguments[2]
+        def validate_array(cls, instance, context=None, arg=0, template=None, shape=()):
+            assert instance.shape == shape
             assert instance.dtype.char == dtype.char
 
     return ConstructedClass
@@ -198,11 +198,11 @@ class ZString:
         return read_zstring, write_zstring, read_zstrings, write_zstrings
 
     @staticmethod
-    def from_xml(target, elem, prop, arguments=None):
+    def from_xml(target, elem, prop, arg=0, template=None):
         return elem[prop]
 
     @staticmethod
-    def to_xml(elem, prop, instance, arguments, debug):
+    def to_xml(elem, prop, instance, arg, template, debug):
         elem.attrib[prop] = instance
 
     @staticmethod
@@ -210,3 +210,12 @@ class ZString:
         lines = str(member).split("\n")
         lines_new = [lines[0], ] + ["\t" * indent + line for line in lines[1:]]
         return "\n".join(lines_new)
+
+    @classmethod
+    def validate_instance(instance, context=None, arg=0, template=None):
+        assert(isinstance(instance, str))
+        assert(len(instance.encode(errors="surrogateescape")) <= MAX_LEN)
+
+    @staticmethod
+    def get_size(instance, context, arg=0, template=None):
+        return len(instance.encode(errors="surrogateescape")) + 1

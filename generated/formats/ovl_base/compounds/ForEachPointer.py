@@ -58,7 +58,7 @@ class ForEachPointer(Pointer):
 		return instance
 
 	@classmethod
-	def to_xml(cls, elem, prop, instance, arguments, debug):
+	def to_xml(cls, elem, prop, instance, arg, template, debug):
 		if instance.data is not None:
 			assert FOREACH_MARK in prop
 			src_prop = prop.split(FOREACH_MARK)[1]
@@ -67,7 +67,7 @@ class ForEachPointer(Pointer):
 				member._to_xml(member, subelem, debug)
 
 	@classmethod
-	def from_xml(cls, target, elem, prop, arguments):
+	def from_xml(cls, target, elem, prop, arg, template):
 		"""Creates object for parent object 'target', from parent element elem."""
 		assert FOREACH_MARK in prop
 		src_prop = prop.split(FOREACH_MARK)[1]
@@ -75,7 +75,7 @@ class ForEachPointer(Pointer):
 		if sub is None:
 			logging.warning(f"Missing sub-element '{prop}' on XML element '{elem.tag}'")
 			return
-		instance = cls(target.context, *arguments, set_default=False)
+		instance = cls(target.context, arg, template, set_default=False)
 		cls.pool_type_from_xml(elem, instance)
 		cls._from_xml(instance, sub)
 		return instance
