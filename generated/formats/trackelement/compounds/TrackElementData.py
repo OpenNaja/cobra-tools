@@ -9,7 +9,7 @@ from generated.formats.ovl_base.compounds.Pointer import Pointer
 class TrackElementData(MemStruct):
 
 	"""
-	PC: 80
+	PC: 80 PZ: 48
 	"""
 
 	__name__ = 'TrackElementData'
@@ -25,7 +25,9 @@ class TrackElementData(MemStruct):
 		self.unk_4 = 1024
 		self.unk_5 = 1
 		self.unk_6 = 1
-		self.unk_7 = 0
+
+		# 8 bytes when count is 1
+		self.pad = 0
 		self.loop_name = Pointer(self.context, 0, ZString)
 		self.ovl_name = Pointer(self.context, 0, ZString)
 		self.catwalk = Pointer(self.context, 0, TrackElementData._import_map["trackelement.compounds.TrackElementSub"])
@@ -36,16 +38,16 @@ class TrackElementData(MemStruct):
 	_attribute_list = MemStruct._attribute_list + [
 		('loop_name', Pointer, (0, ZString), (False, None), None),
 		('ovl_name', Pointer, (0, ZString), (False, None), None),
-		('catwalk', Pointer, (0, None), (False, None), None),
-		('unk_0', Uint64, (0, None), (False, None), None),
+		('catwalk', Pointer, (0, None), (False, None), True),
+		('unk_0', Uint64, (0, None), (False, None), True),
 		('optional_catwalk', Pointer, (0, ZString), (False, None), None),
 		('unk_1', Uint64, (0, None), (False, None), None),
-		('unk_2', Ushort, (0, None), (False, 0), None),
-		('unk_3', Ushort, (0, None), (False, 32), None),
-		('unk_4', Uint, (0, None), (False, 1024), None),
+		('unk_2', Ushort, (0, None), (False, 0), True),
+		('unk_3', Ushort, (0, None), (False, 32), True),
+		('unk_4', Uint, (0, None), (False, 1024), True),
 		('unk_5', Uint, (0, None), (False, 1), None),
 		('unk_6', Uint, (0, None), (False, 1), None),
-		('unk_7', Uint64, (0, None), (False, None), None),
+		('pad', Uint64, (0, None), (False, None), True),
 		]
 
 	@classmethod
@@ -53,13 +55,16 @@ class TrackElementData(MemStruct):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'loop_name', Pointer, (0, ZString), (False, None)
 		yield 'ovl_name', Pointer, (0, ZString), (False, None)
-		yield 'catwalk', Pointer, (0, TrackElementData._import_map["trackelement.compounds.TrackElementSub"]), (False, None)
-		yield 'unk_0', Uint64, (0, None), (False, None)
+		if instance.context.version <= 18:
+			yield 'catwalk', Pointer, (0, TrackElementData._import_map["trackelement.compounds.TrackElementSub"]), (False, None)
+			yield 'unk_0', Uint64, (0, None), (False, None)
 		yield 'optional_catwalk', Pointer, (0, ZString), (False, None)
 		yield 'unk_1', Uint64, (0, None), (False, None)
-		yield 'unk_2', Ushort, (0, None), (False, 0)
-		yield 'unk_3', Ushort, (0, None), (False, 32)
-		yield 'unk_4', Uint, (0, None), (False, 1024)
+		if instance.context.version <= 18:
+			yield 'unk_2', Ushort, (0, None), (False, 0)
+			yield 'unk_3', Ushort, (0, None), (False, 32)
+			yield 'unk_4', Uint, (0, None), (False, 1024)
 		yield 'unk_5', Uint, (0, None), (False, 1)
 		yield 'unk_6', Uint, (0, None), (False, 1)
-		yield 'unk_7', Uint64, (0, None), (False, None)
+		if instance.arg < 2:
+			yield 'pad', Uint64, (0, None), (False, None)

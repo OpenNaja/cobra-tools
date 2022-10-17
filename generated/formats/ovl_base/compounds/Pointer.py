@@ -134,7 +134,6 @@ class Pointer(BaseStruct):
 	def _to_xml(cls, instance, elem, debug):
 		"""Assigns data self to xml elem"""
 		# catch Zstr Pointers and dependencies (template=None)
-		# if instance.template in (ZString, ZStringObfuscated):
 		if isinstance(instance.data, str):
 			elem.text = instance.data
 		else:
