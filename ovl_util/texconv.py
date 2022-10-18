@@ -79,14 +79,25 @@ def wem_to_ogg(wem_file, out_file):
 		logging.warning(err)
 
 
-def dds_to_png(dds_file_path, height):
+def dds_to_png(dds_file_path):
 	"""Converts a DDS file given by a path to a PNG file"""
 	out_dir, in_name = os.path.split(dds_file_path)
 	name = os.path.splitext(in_name)[0]
 	run_smart([
-		BINARY, "-y", "-ft", "png", "-o", out_dir, "-f", "R8G8B8A8_UNORM", "-fl", "12.1", "-h", str(height), "-srgb",
+		BINARY, "-y", "-ft", "png", "-o", out_dir, "-f", "R8G8B8A8_UNORM", "-fl", "12.1", "-srgb",
 		"-dx10", dds_file_path])
 	return os.path.join(out_dir, name + '.png')
+
+
+def png_to_dds(png_file_path, out_dir, codec="BC7_UNORM", mips=0):
+	"""Converts a PNG file given by a path to a DDS file"""
+	png_file_path = os.path.normpath(png_file_path)
+	in_dir, in_name = os.path.split(png_file_path)
+	name = os.path.splitext(in_name)[0]
+	run_smart([
+		BINARY, "-l", "-y", "-ft", "dds", "-o", out_dir, "-f", codec, "-fl", "12.1", "-if", "FANT_DITHER_DIFFUSION",
+		"-dx10", "-m", str(mips), "-srgb", "-sepalpha", "-alpha", png_file_path])
+	return os.path.join(out_dir, name + '.dds')
 
 
 def png_to_uncompressed_dds(png_file_path, height, out_dir, codec="BC7_UNORM"):

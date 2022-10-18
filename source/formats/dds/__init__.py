@@ -53,8 +53,8 @@ class DdsFile(Header, IoFile):
             self.buffer = stream.read()
 
     def write(self, stream):
-            self.write_fields(stream, self)
-            stream.write(self.buffer)
+        self.write_fields(stream, self)
+        stream.write(self.buffer)
 
     def save(self, filepath):
         with open(filepath, "wb") as stream:
@@ -111,6 +111,7 @@ class DdsFile(Header, IoFile):
         logging.debug(f"block_len_pixels_1d: {self.block_len_pixels_1d}")
         logging.debug(f"block_byte_size: {self.block_byte_size}")
 
+    # @classmethod
     def mip_pack_generator(self, mip_infos):
         """Yields data size to be read from stream + amount of padding applied for packed representation)"""
         tiles_per_mips = zip(*self.calculate_mip_sizes())
@@ -122,7 +123,7 @@ class DdsFile(Header, IoFile):
                 bytes_per_line = tile_byte_size // num_lines
                 # logging.debug(f"tile {tile_i}, offset {mip_info.offset} {mip_offset}, height {height}, width {width}")
                 if bytes_per_line >= LINE_BYTES:
-                    yield tile_byte_size, 0
+                    yield mip_i, tile_i, tile_byte_size, 0
                     mip_offset += tile_byte_size
                     # logging.debug(f"Wrote mip {mip_i} for tile {tile_i}, {tile_byte_size} raw bytes")
                 else:
@@ -132,13 +133,13 @@ class DdsFile(Header, IoFile):
                     # write the bytes for this line from the mip bytes
                     for _ in range(num_lines):
                         # get the bytes that represent the blocks of this line and fill the line with padding blocks
-                        yield bytes_per_line, padding_per_line
+                        yield mip_i, tile_i, bytes_per_line, padding_per_line
                         mip_offset += bytes_per_line
                         mip_offset += padding_per_line
 
                     # add one fully blank line as padding for odd slice counts
                     if num_lines % 2:
-                        yield 0, LINE_BYTES
+                        yield mip_i, tile_i, 0, LINE_BYTES
                         mip_offset += LINE_BYTES
 
     def pack_mips(self, mip_infos):
@@ -146,21 +147,35 @@ class DdsFile(Header, IoFile):
         logging.info("Packing mip maps")
         dds = io.BytesIO(self.buffer)
         with io.BytesIO() as tex:
-            for data_size, padding_size in self.mip_pack_generator(mip_infos):
+            for mip_i, tile_i, data_size, padding_size in self.mip_pack_generator(mip_infos):
                 # logging.info(f"Writing {data_size}, padding {padding_size}")
                 tex.write(dds.read(data_size))
                 tex.write(b"\x00" * padding_size)
             return tex.getvalue()
 
-    def unpack_mips(self, mip_infos, tex_buffer_data):
+    def get_packed_mip(self, mip_infos, trg_mip_i):
+        """From a standard DDS stream, pack the lower mip levels into one image and pad with empty bytes"""
+        logging.info("Packing mip maps")
+        dds = io.BytesIO(self.buffer)
+        with io.BytesIO() as tex:
+            for mip_i, tile_i, data_size, padding_size in self.mip_pack_generator(mip_infos):
+                # logging.info(f"Writing {data_size}, padding {padding_size}")
+                data = dds.read(data_size)
+                if trg_mip_i == mip_i:
+                    tex.write(data)
+                    tex.write(b"\x00" * padding_size)
+            return tex.getvalue()
+
+    def unpack_mips(self, mip_infos, trg_tile_i, tex_buffer_data):
         """Restore standard DDS mip stream, unpack the lower mip levels by discarding the padding"""
         logging.info("Unpacking mip maps")
         tex = io.BytesIO(tex_buffer_data)
         with io.BytesIO() as dds:
-            for data_size, padding_size in self.mip_pack_generator(mip_infos):
+            for mip_i, tile_i, data_size, padding_size in self.mip_pack_generator(mip_infos):
                 # logging.info(f"Writing {data_size}, skipping {padding_size}")
                 data = tex.read(data_size)
-                dds.write(data)
+                if trg_tile_i == tile_i:
+                    dds.write(data)
                 padding = tex.read(padding_size)
                 if padding != b"\x00" * len(padding):
                     logging.warning(f"Tex padding is non-zero at {tex.tell()-padding_size}, padding_size {padding_size}")

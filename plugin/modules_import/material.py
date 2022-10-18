@@ -69,7 +69,7 @@ def create_material(in_dir, matname):
 		if diffuse_name in tex_dic:
 			diffuse = tex_dic[diffuse_name]
 			# get AO
-			for ao_name in ("paotexture", "pbasepackedtexture_[03]", "pbaseaotexture"):
+			for ao_name in ("paotexture", "pbasepackedtexture_A", "pbaseaotexture"):
 				if ao_name in tex_dic:
 					ao = tex_dic[ao_name]
 					ao.image.colorspace_settings.name = "Non-Color"
@@ -116,7 +116,7 @@ def create_material(in_dir, matname):
 			tree.links.new(diffuse.outputs[0], principled.inputs["Base Color"])
 			break
 
-	for normal_name in ("pnormaltexture", "pbasenormaltexture_[00]"):
+	for normal_name in ("pnormaltexture", "pbasenormaltexture_R"):
 		# get diffuse
 		if normal_name in tex_dic:
 			normal = tex_dic[normal_name]
@@ -127,21 +127,21 @@ def create_material(in_dir, matname):
 			tree.links.new(normal_map.outputs[0], principled.inputs["Normal"])
 
 	# PZ - specularity?
-	for spec_name in ("proughnesspackedtexture_[02]", "pspecularmaptexture_[00]",):
+	for spec_name in ("proughnesspackedtexture_B", "pspecularmaptexture_R",):
 		if spec_name in tex_dic:
 			specular = tex_dic[spec_name]
 			specular.image.colorspace_settings.name = "Non-Color"
 			tree.links.new(specular.outputs[0], principled.inputs["Specular"])
 
 	# PZ - roughness?
-	for roughness_name in ("proughnesspackedtexture_[01]", "pbasenormaltexture_[02]"): # "pspecularmaptexture_[01]" ?
+	for roughness_name in ("proughnesspackedtexture_G", "pbasenormaltexture_B"): # "pspecularmaptexture_G" ?
 		if roughness_name in tex_dic:
 			roughness = tex_dic[roughness_name]
 			roughness.image.colorspace_settings.name = "Non-Color"
 			tree.links.new(roughness.outputs[0], principled.inputs["Roughness"])
 
 	# JWE dinos - metalness
-	for metal_name in ("pbasepackedtexture_[02]",):
+	for metal_name in ("pbasepackedtexture_B",):
 		if metal_name in tex_dic:
 			metal = tex_dic[metal_name]
 			metal.image.colorspace_settings.name = "Non-Color"
@@ -160,11 +160,11 @@ def create_material(in_dir, matname):
 	elif "popacitytexture" in tex_dic:
 		alpha = tex_dic["popacitytexture"]
 		alpha_pass = alpha.outputs[0]
-	elif "JURASSIC" in fgm_data.game and "proughnesspackedtexture_[00]" in tex_dic and "Foliage_Clip" in fgm_data.shader_name:
-		alpha = tex_dic["proughnesspackedtexture_[00]"]
+	elif "JURASSIC" in fgm_data.game and "proughnesspackedtexture_R" in tex_dic and "Foliage_Clip" in fgm_data.shader_name:
+		alpha = tex_dic["proughnesspackedtexture_R"]
 		alpha_pass = alpha.outputs[0]
-	elif "proughnesspackedtexture_[03]" in tex_dic:
-		alpha = tex_dic["proughnesspackedtexture_[03]"]
+	elif "proughnesspackedtexture_A" in tex_dic:
+		alpha = tex_dic["proughnesspackedtexture_A"]
 		alpha_pass = alpha.outputs[0]
 	if alpha:
 		# transparency

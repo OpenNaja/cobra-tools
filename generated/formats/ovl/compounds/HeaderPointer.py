@@ -88,7 +88,7 @@ class HeaderPointer(BaseStruct):
 	def write_instance(self, cls, instance):
 		"""Write instance to end of stream and set offset"""
 		context = None
-		logging.info(f"write_instance {cls} {instance}")
+		# logging.info(f"write_instance {cls} {instance}")
 		if self.align_write(instance, overwrite=False):
 			if instance is None:
 				logging.info(f"Can't write None for clas {cls}")
