@@ -26,11 +26,7 @@ class Pointer(BaseStruct):
 # START_CLASS
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
-		self.name = ''
-		self._context = context
-		self.arg = arg
-		self.template = template
-		self.io_size = 0
+		super().__init__(context, arg, template, set_default=False)
 		# set to -1 here so that read_ptr doesn't get a wrong frag by chance if the entry has not been read -> get at 0
 		self.io_start = -1
 		self.offset = 0
@@ -140,13 +136,16 @@ class Pointer(BaseStruct):
 	@classmethod
 	def from_xml(cls, target, elem, prop, arg, template):
 		"""Creates object for parent object 'target', from parent element elem."""
+		# create Pointer instance
+		instance = cls(target.context, arg, template, set_default=False)
+		# check if the pointer holds data
 		sub = elem.find(f'.//{prop}')
 		if sub is None:
 			logging.warning(f"Missing sub-element '{prop}' on XML element '{elem.tag}'")
-			return
-		instance = cls(target.context, arg, template, set_default=False)
-
+			return instance
+		# store the pointer's pool type
 		cls.pool_type_from_xml(elem, instance)
+		# process the pointer's data
 		if prop == XML_STR:
 			instance.data = ET.tostring(sub[0], encoding="unicode").replace("\t", "").replace("\n", "")
 		else:
