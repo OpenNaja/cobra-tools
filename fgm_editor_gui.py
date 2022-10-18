@@ -478,12 +478,16 @@ class TextureVisual:
 		self.w_data = QtWidgets.QWidget()
 		self.create_fields_w_layout()
 
-		# get tooltip
+		# get tooltip from fgm dict
 		tooltip = self.container.gui.tooltips.get(self.entry.name, "Undocumented attribute.")
 		if container.title() == "Attributes":
-			most_common = [fr"{a[0]} ({a[1]})" if len(a[0]) > 1 else fr"{a[0][0]} ({a[1]})"
-							for a in self.container.gui.fgm_dict.attributes.get(self.entry.name, [("No data",), 0])[1]
-							if len(a) > 0]
+			try:
+				dtype, data_dist = self.container.gui.fgm_dict.attributes.get(self.entry.name, (0, [((0,), 0)]))
+				most_common = [fr"{a[0]} ({a[1]})" if len(a[0]) > 1 else fr"{a[0][0]} ({a[1]})"
+								for a in data_dist if len(a) > 0]
+			except:
+				logging.exception(f"Attribute tooltip for {self.entry.name} failed")
+				raise
 			tooltip += fr"<br><br>Most Common Values (Usage #)<br> {'<br>'.join(most_common)}"
 		self.w_data.setToolTip(tooltip)
 		self.w_label.setToolTip(tooltip)
