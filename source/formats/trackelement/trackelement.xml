@@ -22,12 +22,13 @@
         <add name="catwalk" type="Pointer" template="TrackElementSub" until="18"/>
         <add name="unk 0" type="uint64" until="18" />
         <add name="OptionalCatwalk" type="Pointer" template="ZString"/>
-        <add name="unk 1" type="uint64" />
-        <add name="unk 2" type="ushort" until="18" default="0" />
-        <add name="unk 3" type="ushort" until="18" default="32" />
-        <add name="unk 4" type="uint" until="18" default="1024"/>
-        <add name="unk 5" type="uint" default="1"/>
-        <add name="unk 6" type="uint" default="1" />
+        <add name="unk 1" type="uint" until="18"/>
+        <add name="unk 2" type="uint" />
+        <add name="unk 3" type="ushort" default="0" />
+        <add name="unk 4" type="ushort" default="32" />
+        <add name="unk 5" type="uint" until="18" default="1024"/>
+        <add name="unk 6" type="uint" default="1"/>
+        <add name="unk 7" type="uint" default="1" />
         <add name="pad" type="uint64" cond="#ARG# #LT# 2" >8 bytes when count is 1</add>
     </compound>
 
