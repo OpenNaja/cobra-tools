@@ -21,10 +21,11 @@ class TrackElementData(MemStruct):
 		self.unk_0 = 0
 		self.unk_1 = 0
 		self.unk_2 = 0
-		self.unk_3 = 32
-		self.unk_4 = 1024
-		self.unk_5 = 1
+		self.unk_3 = 0
+		self.unk_4 = 32
+		self.unk_5 = 1024
 		self.unk_6 = 1
+		self.unk_7 = 1
 
 		# 8 bytes when count is 1
 		self.pad = 0
@@ -41,12 +42,13 @@ class TrackElementData(MemStruct):
 		('catwalk', Pointer, (0, None), (False, None), True),
 		('unk_0', Uint64, (0, None), (False, None), True),
 		('optional_catwalk', Pointer, (0, ZString), (False, None), None),
-		('unk_1', Uint64, (0, None), (False, None), None),
-		('unk_2', Ushort, (0, None), (False, 0), True),
-		('unk_3', Ushort, (0, None), (False, 32), True),
-		('unk_4', Uint, (0, None), (False, 1024), True),
-		('unk_5', Uint, (0, None), (False, 1), None),
+		('unk_1', Uint, (0, None), (False, None), True),
+		('unk_2', Uint, (0, None), (False, None), None),
+		('unk_3', Ushort, (0, None), (False, 0), None),
+		('unk_4', Ushort, (0, None), (False, 32), None),
+		('unk_5', Uint, (0, None), (False, 1024), True),
 		('unk_6', Uint, (0, None), (False, 1), None),
+		('unk_7', Uint, (0, None), (False, 1), None),
 		('pad', Uint64, (0, None), (False, None), True),
 		]
 
@@ -59,12 +61,14 @@ class TrackElementData(MemStruct):
 			yield 'catwalk', Pointer, (0, TrackElementData._import_map["trackelement.compounds.TrackElementSub"]), (False, None)
 			yield 'unk_0', Uint64, (0, None), (False, None)
 		yield 'optional_catwalk', Pointer, (0, ZString), (False, None)
-		yield 'unk_1', Uint64, (0, None), (False, None)
 		if instance.context.version <= 18:
-			yield 'unk_2', Ushort, (0, None), (False, 0)
-			yield 'unk_3', Ushort, (0, None), (False, 32)
-			yield 'unk_4', Uint, (0, None), (False, 1024)
-		yield 'unk_5', Uint, (0, None), (False, 1)
+			yield 'unk_1', Uint, (0, None), (False, None)
+		yield 'unk_2', Uint, (0, None), (False, None)
+		yield 'unk_3', Ushort, (0, None), (False, 0)
+		yield 'unk_4', Ushort, (0, None), (False, 32)
+		if instance.context.version <= 18:
+			yield 'unk_5', Uint, (0, None), (False, 1024)
 		yield 'unk_6', Uint, (0, None), (False, 1)
+		yield 'unk_7', Uint, (0, None), (False, 1)
 		if instance.arg < 2:
 			yield 'pad', Uint64, (0, None), (False, None)
