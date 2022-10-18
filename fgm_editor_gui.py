@@ -439,6 +439,7 @@ class PropertyContainer(QtWidgets.QGroupBox):
 			grid.addWidget(w.w_label, line_i, 1)
 			grid.addWidget(w.w_dtype, line_i, 2)
 			grid.addWidget(w.w_data, line_i, 3)
+			# grid.addWidget(w.w_tile, line_i, 4)
 			if self.title() == "Attributes":
 				w.b_delete.setHidden(self.gui.lock_attrs.isChecked())
 				self.gui.lock_attrs.toggled.connect(w.b_delete.setHidden)
@@ -456,6 +457,7 @@ class TextureVisual:
 		self.entry = entry
 		self.data = data
 		self.w_label = QtWidgets.QLabel(entry.name)
+
 		dtypes = [e.name for e in FgmDtype]
 		dtypes_tex = [dtypes.pop(dtypes.index("RGBA")), dtypes.pop(dtypes.index("TEXTURE"))]
 
@@ -536,12 +538,17 @@ class TextureVisual:
 					v.r = v.g = v.b = 127
 					v.a = 255
 			self.create_fields_w_layout()
+			# self.w_tile.setVisible(self.entry.dtype == FgmDtype.TEXTURE)
 			self.update()
 		except:
 			logging.exception("Updating dtype errored")
 
 	def update_file(self, file):
 		self.data.dependency_name.data = file
+		self.container.gui.set_dirty()
+
+	def update_tile_i(self, tile_i):
+		self.entry.value[0].array_index = tile_i
 		self.container.gui.set_dirty()
 
 	def create_fields(self):
@@ -555,7 +562,13 @@ class TextureVisual:
 											dtype="TEX", poll=False, editable=True, check_exists=True, root=self.container.gui.fgm_path)
 			self.w_file.set_file_path(self.data.dependency_name.data)
 			self.w_file.entry.textChanged.connect(self.update_file)
-			return self.w_file,
+			self.w_tile = QtWidgets.QSpinBox()
+			self.w_tile.setRange(0, 2147483647)
+			# todo - why is array_index str?
+			self.w_tile.setValue(int(self.entry.value[0].array_index))
+			self.w_tile.valueChanged.connect(self.update_tile_i)
+			self.w_tile.setVisible(self.entry.dtype == FgmDtype.TEXTURE)
+			return self.w_file, self.w_tile
 		elif self.entry.dtype == FgmDtype.RGBA:
 			return [self.create_field(i, self.entry.value) for i in range(len(self.entry.value))]
 		elif self.entry.dtype == FgmDtype.FLOAT_3 and not self.container.gui.skip_color.isChecked() and self.entry.name.endswith(rgb_colors):
