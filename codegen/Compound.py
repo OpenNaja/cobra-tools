@@ -80,5 +80,5 @@ class Compound(BaseClass):
                 for union in self.field_unions:
                     condition = union.write_filtered_attributes(f, condition, target_variable="instance")
 
-            f.write(self.grab_src_snippet("# START_CLASS"))
+            self.write_src_body(f)
             self.write_line(f)

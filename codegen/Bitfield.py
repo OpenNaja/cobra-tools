@@ -76,5 +76,6 @@ class Bitfield(BaseClass):
             else:
                 f.write(f"\n\t\tpass")
 
-            f.write(f"\n")
+            self.write_src_body(f)
+            self.write_line(f)
 
