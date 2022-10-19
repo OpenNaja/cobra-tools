@@ -60,12 +60,12 @@ def channel_iter(channels):
 	for ch_name in ch_names:
 		ch_count = len(ch_name)
 		# define which channels to use from im
-		if ch_count > 1:
-			ch_slice = slice(ch_i, ch_i + ch_count)
-		else:
-			# need to use 1D or the png file will break
-			ch_slice = ch_i
-		logging.info(f"Channel {ch_slice}")
+		# if ch_count > 1:
+		ch_slice = slice(ch_i, ch_i + ch_count)
+		# else:
+		# 	# need to use 1D or the png file will break
+		# 	ch_slice = ch_i
+		# logging.info(f"Channel {ch_slice}")
 		yield ch_name, ch_slice
 		# increment indices
 		ch_i += ch_count
@@ -100,7 +100,8 @@ def split_png(png_file_path, ovl):
 					im_slice = function(im_slice)
 					# logging.debug(f"Image shape after function {im_slice.shape}")
 				file_path = f"{path_basename}_{ch_name}{ext}"
-				iio.imwrite(file_path, im_slice, compress_level=2)
+				# if the last dimension (channels) is 1, remove it for single channel PNG
+				iio.imwrite(file_path, np.squeeze(im_slice), compress_level=2)
 				out_files.append(file_path)
 			# remove the original PNG
 			os.remove(png_file_path)
