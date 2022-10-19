@@ -60,12 +60,7 @@ def channel_iter(channels):
 	for ch_name in ch_names:
 		ch_count = len(ch_name)
 		# define which channels to use from im
-		# if ch_count > 1:
 		ch_slice = slice(ch_i, ch_i + ch_count)
-		# else:
-		# 	# need to use 1D or the png file will break
-		# 	ch_slice = ch_i
-		# logging.info(f"Channel {ch_slice}")
 		yield ch_name, ch_slice
 		# increment indices
 		ch_i += ch_count
@@ -169,7 +164,7 @@ def join_png(path_basename, tmp_dir):
 		# print(ims[0].shape, ims[0].dtype)
 		for ch_name, ch_slice in channel_iter(channels):
 			tile_png_path = f"{path_basename}_{ch_name}{ext}"
-			# todo slice width is len(ch_name), make sure that is correct especially for expanded single channel images
+			# take a slice, starting at the first channel
 			im[:, :, ch_slice] = imread(tile_png_path)[:, :, 0:len(ch_name)]
 	else:
 		# non-tiled files that need fixes - normal maps without channel packing
@@ -184,13 +179,3 @@ def join_png(path_basename, tmp_dir):
 	logging.debug(f"Writing output to {tmp_png_file_path}")
 	iio.imwrite(tmp_png_file_path, im, compress_level=2)
 	return tmp_png_file_path
-
-
-def get_single_channel(im, name):
-	tile_shape = im.shape
-	if len(tile_shape) == 2:
-		return im
-	# with imread converting to RGBA, this is now the only case
-	elif len(tile_shape) == 3:
-		logging.debug(f"Tile {name} is not the expected single-channel format, using first channel.")
-		return im[:, :, 0]
