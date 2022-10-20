@@ -73,12 +73,12 @@ def set_jwe2(context):
 	context.user_version._value = 24724
 
 
-games = Enum('Games',[('DISNEYLAND_ADVENTURE', 'Disneyland Adventure'), ('JURASSIC_WORLD_EVOLUTION', 'Jurassic World Evolution'), ('JURASSIC_WORLD_EVOLUTION_2', 'Jurassic World Evolution 2'), ('PLANET_COASTER', 'Planet Coaster'), ('PLANET_ZOO', 'Planet Zoo'), ('PLANET_ZOO_PRE_1_6', 'Planet Zoo pre-1.6'), ('ZOO_TYCOON_ULTIMATE_ANIMAL_COLLECTION', 'Zoo Tycoon Ultimate Animal Collection'), ('UNKNOWN_GAME', 'Unknown Game')])
+games = Enum('Games',[('DISNEYLAND_ADVENTURES', 'Disneyland Adventures'), ('JURASSIC_WORLD_EVOLUTION', 'Jurassic World Evolution'), ('JURASSIC_WORLD_EVOLUTION_2', 'Jurassic World Evolution 2'), ('PLANET_COASTER', 'Planet Coaster'), ('PLANET_ZOO', 'Planet Zoo'), ('PLANET_ZOO_PRE_1_6', 'Planet Zoo pre-1.6'), ('ZOO_TYCOON_ULTIMATE_ANIMAL_COLLECTION', 'Zoo Tycoon Ultimate Animal Collection'), ('UNKNOWN_GAME', 'Unknown Game')])
 
 
 def get_game(context):
 	if is_dla(context):
-		return [games.DISNEYLAND_ADVENTURE]
+		return [games.DISNEYLAND_ADVENTURES]
 	if is_ztuac(context):
 		return [games.ZOO_TYCOON_ULTIMATE_ANIMAL_COLLECTION]
 	if is_pc(context):
@@ -97,7 +97,7 @@ def get_game(context):
 def set_game(context, game):
 	if isinstance(game, str):
 		game = games(game)
-	if game in {games.DISNEYLAND_ADVENTURE}:
+	if game in {games.DISNEYLAND_ADVENTURES}:
 		return set_dla(context)
 	if game in {games.ZOO_TYCOON_ULTIMATE_ANIMAL_COLLECTION}:
 		return set_ztuac(context)
@@ -125,7 +125,7 @@ class LogicalcontrolsVersion(VersionBase):
 		self.version_flag = self._force_tuple(version_flag)
 
 
-dla = LogicalcontrolsVersion(id='DLA', version=(15,), primary_games=[], all_games=[games.DISNEYLAND_ADVENTURE])
+dla = LogicalcontrolsVersion(id='DLA', version=(15,), primary_games=[], all_games=[games.DISNEYLAND_ADVENTURES])
 ztuac = LogicalcontrolsVersion(id='ZTUAC', version=(17,), primary_games=[], all_games=[games.ZOO_TYCOON_ULTIMATE_ANIMAL_COLLECTION])
 pc = LogicalcontrolsVersion(id='PC', version=(18,), user_version=(VersionInfo.from_value(8340), VersionInfo.from_value(8724), VersionInfo.from_value(8212),), version_flag=(8,), primary_games=[], all_games=[games.PLANET_COASTER])
 pz = LogicalcontrolsVersion(id='PZ', version=(19,), user_version=(VersionInfo.from_value(8340), VersionInfo.from_value(8724), VersionInfo.from_value(8212),), primary_games=[], all_games=[games.PLANET_ZOO_PRE_1_6])

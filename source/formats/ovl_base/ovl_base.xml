@@ -4,7 +4,7 @@
 
     <token name="verexpr" attrs="vercond">
         Commonly used version expressions.
-        <verexpr token="#DLA#" string="(#VER# #EQ# 15)">Disneyland Adventure</verexpr>
+        <verexpr token="#DLA#" string="(#VER# #EQ# 15)">Disneyland Adventures</verexpr>
         <verexpr token="#ZTUAC#" string="(#VER# #EQ# 17)">ZTUAC</verexpr>
 		<verexpr token="#PC#" string="(#VER# #EQ# 18)">PC</verexpr>
 		<verexpr token="#OLD#" string="(#VER# #LT# 19)">PC</verexpr>
@@ -28,7 +28,7 @@
 	<verattr name="user_version" access="#USER#" index="1" type="VersionInfo"/>
 	<verattr name="version_flag" access="#FLAG#" index="2" />
 
-    <version id="DLA" version="15">Disneyland Adventure</version>
+    <version id="DLA" version="15">Disneyland Adventures</version>
     <version id="ZTUAC" version="17">Zoo Tycoon Ultimate Animal Collection</version>
     <version id="PC" version="18" user_version="8340 8724 8212" version_flag="8">Planet Coaster</version>
     <version id="PZ" version="19" user_version="8340 8724 8212">Planet Zoo pre-1.6</version>
