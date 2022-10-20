@@ -40,8 +40,8 @@ class TexBuffer(MemStruct):
 		('size', Uint64, (0, None), (False, None), None),
 		('first_mip', Ubyte, (0, None), (False, None), None),
 		('mip_count', Ubyte, (0, None), (False, None), None),
-		('padding_0', Short, (0, None), (False, None), None),
-		('padding_1', Int, (0, None), (False, None), None),
+		('padding_0', Short, (0, None), (True, 0), None),
+		('padding_1', Int, (0, None), (True, 0), None),
 		]
 
 	@classmethod
@@ -51,5 +51,5 @@ class TexBuffer(MemStruct):
 		yield 'size', Uint64, (0, None), (False, None)
 		yield 'first_mip', Ubyte, (0, None), (False, None)
 		yield 'mip_count', Ubyte, (0, None), (False, None)
-		yield 'padding_0', Short, (0, None), (False, None)
-		yield 'padding_1', Int, (0, None), (False, None)
+		yield 'padding_0', Short, (0, None), (True, 0)
+		yield 'padding_1', Int, (0, None), (True, 0)

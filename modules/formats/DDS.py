@@ -208,7 +208,7 @@ class DdsLoader(MemStructLoader):
 		dds_file.width = size_info.width
 		dds_file.height = size_info.height
 		dds_file.mipmap_count = size_info.num_mips
-		dds_file.dx_10.array_size = 1
+		dds_file.dx_10.num_tiles = 1
 		if hasattr(size_info, "depth") and size_info.depth:
 			dds_file.depth = size_info.depth
 
@@ -230,9 +230,9 @@ class DdsLoader(MemStructLoader):
 		# export all tiles
 		for tile_i, tile_name in zip(tiles, self.get_tile_names(tiles, basename)):
 			# get the mip mapped data for just this tile from the packed tex buffer
-			dds_file.dx_10.array_size = size_info.array_size
+			dds_file.dx_10.num_tiles = size_info.num_tiles
 			tile_data = dds_file.unpack_mips(size_info.mip_maps, tile_i, buffer_data)
-			dds_file.dx_10.array_size = 1
+			dds_file.dx_10.num_tiles = 1
 			dds_file.buffer = tile_data
 			dds_file.linear_size = len(buffer_data)
 			dds_path = out_dir(f"{tile_name}.dds")
@@ -250,8 +250,8 @@ class DdsLoader(MemStructLoader):
 		return out_files
 
 	def get_tiles(self, size_info):
-		if hasattr(size_info, "array_size") and size_info.array_size:
-			tiles = list(range(size_info.array_size))
+		if hasattr(size_info, "num_tiles") and size_info.num_tiles:
+			tiles = list(range(size_info.num_tiles))
 		else:
 			tiles = (0,)
 		return tiles
@@ -265,12 +265,12 @@ class DdsLoader(MemStructLoader):
 			tex_d = size_info.depth
 		else:
 			tex_d = 1
-		tex_a = size_info.array_size
+		tex_a = size_info.num_tiles
 		tex_w = align_to(tex_w, self.header.compression_type.name)
 		if png_width * png_height != tex_h * tex_w:
 			raise AttributeError(
 				f"Dimensions do not match for {self.file_entry.name}!\n"
-				f"Dimensions: height x width x depth [array size]\n"
+				f"Dimensions: height x width x depth [num_tiles]\n"
 				f".tex file: {tex_h} x {tex_w} x {tex_d} [{tex_a}]\n"
 				f".png file: {png_height} x {png_width}\n\n"
 				f"Make the textures' dimensions match and try again!")

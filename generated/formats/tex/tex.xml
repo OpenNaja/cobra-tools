@@ -136,28 +136,28 @@
 		<add name="size" type="uint64">byte size of this tex buffer</add>
 		<add name="first_mip" type="ubyte">index of first mip used in this buffer</add>
 		<add name="mip_count" type="ubyte">amount of mip levels included in this buffer</add>
-		<add name="padding0" type="short" />
-		<add name="padding1" type="int" />
+		<add name="padding0" type="short" default="0" optional="True"/>
+		<add name="padding1" type="int" default="0" optional="True"/>
     </compound>
 
 	<compound name="TexBufferPc" inherit="MemStruct" >
 		The different tex buffers contain the smallest mip
 		<add name="width" type="ushort"/>
 		<add name="height" type="ushort"/>
-		<add name="array size" type="ushort" since="18">may be depth</add>
+		<add name="num_tiles" type="ushort" since="18">may be depth</add>
 		<add name="num mips" type="ushort">the first ie. biggest levels are clipped off</add>
     </compound>
 
 	<compound name="SizeInfoRaw" inherit="MemStruct" >
 		Data struct for headers of type 7
-		<add name="zero" type="uint64">zero</add>
+		<add name="zero" type="uint64" default="0" optional="True">zero</add>
 		<add name="data size" type="uint" >total dds buffer size</add>
 		<add name="width" type="uint">x size in pixels</add>
 		<add name="height" type="uint" >y size in pixels</add>
-		<add name="depth" type="uint" >may be depth</add>
-		<add name="array_size" type="uint">amount of repeats of the data for each lod</add>
+		<add name="depth" type="uint" default="1" optional="True" >may be depth</add>
+		<add name="num_tiles" type="uint" default="1" optional="True"/>
 		<add name="num mips" type="uint">amount of mip map levels</add>
-		<add name="unk_pz" type="uint64" since="20">only found in PZ and JWE2</add>
+		<add name="unk_pz" type="uint64" since="20" default="0" optional="True">only found in PZ and JWE2</add>
 		<add name="mip maps" type="Mipmap" arr1="num mips">info about mip levels</add>
     </compound>
 
@@ -180,9 +180,9 @@
 		DLA: 24 bytes, no pointers
         ZTUAC, PC: 24 bytes, with 1 pointer
         JWE, PZ, JWE2: 40 bytes, with 2 pointers
-		<add name="zero 0" type="uint" until="15"/>
-		<add name="zero 0" type="uint64" since="17"/>
-		<add name="zero 1" type="uint64" since="19"/>
+		<add name="zero 0" type="uint" until="15" default="0" optional="True"/>
+		<add name="zero 0" type="uint64" since="17" default="0" optional="True"/>
+		<add name="zero 1" type="uint64" since="19" default="0" optional="True"/>
 
 		<add name="buffer_infos" type="ArrayPointer" since="17" until="18" template="TexBufferPc" arg="stream_count"/>
 		<add name="buffer_infos" type="ArrayPointer" since="19" template="TexBuffer" arg="stream_count"/>
@@ -197,8 +197,8 @@
 		<add name="height" type="ushort" until="15"/>
 		<add name="stream_count" type="ubyte" since="17">amount of files combined in this texture, usually 1 or 2, 3 for JWE2 rex</add>
 		<add name="stream_count repeat" type="ubyte" since="17">usually as above</add>
-		<add name="pad" type="uint">0; 1 for PC</add>
-		<add name="pad dla" type="uint64" until="15"/>
+		<add name="pad" type="uint" default="0" optional="True">0; 1 for PC</add>
+		<add name="pad dla" type="uint64" until="15" default="0" optional="True"/>
     </compound>
 
 </fileformat>

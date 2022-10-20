@@ -39,7 +39,7 @@ class DdsFile(Header, IoFile):
 
         self.dx_10 = Dxt10Header(self.context, 0, None)
         self.dx_10.resource_dimension = D3D10ResourceDimension.D3D10_RESOURCE_DIMENSION_TEXTURE2D
-        self.dx_10.array_size = 1
+        self.dx_10.num_tiles = 1
 
         # caps 1
         self.caps_1.texture = 0
@@ -72,7 +72,7 @@ class DdsFile(Header, IoFile):
         logging.info("Calculating mip map sizes")
         self.get_pixel_fmt()
         tiles = []
-        for array_i in range(self.dx_10.array_size):
+        for array_i in range(self.dx_10.num_tiles):
             tile_mips = []
             h = self.height
             w = self.width

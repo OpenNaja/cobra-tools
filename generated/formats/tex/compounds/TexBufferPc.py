@@ -18,7 +18,7 @@ class TexBufferPc(MemStruct):
 		self.height = 0
 
 		# may be depth
-		self.array_size = 0
+		self.num_tiles = 0
 
 		# the first ie. biggest levels are clipped off
 		self.num_mips = 0
@@ -28,7 +28,7 @@ class TexBufferPc(MemStruct):
 	_attribute_list = MemStruct._attribute_list + [
 		('width', Ushort, (0, None), (False, None), None),
 		('height', Ushort, (0, None), (False, None), None),
-		('array_size', Ushort, (0, None), (False, None), True),
+		('num_tiles', Ushort, (0, None), (False, None), True),
 		('num_mips', Ushort, (0, None), (False, None), None),
 		]
 
@@ -38,5 +38,5 @@ class TexBufferPc(MemStruct):
 		yield 'width', Ushort, (0, None), (False, None)
 		yield 'height', Ushort, (0, None), (False, None)
 		if instance.context.version >= 18:
-			yield 'array_size', Ushort, (0, None), (False, None)
+			yield 'num_tiles', Ushort, (0, None), (False, None)
 		yield 'num_mips', Ushort, (0, None), (False, None)

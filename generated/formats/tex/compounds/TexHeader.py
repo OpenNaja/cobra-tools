@@ -48,9 +48,9 @@ class TexHeader(MemStruct):
 			self.set_defaults()
 
 	_attribute_list = MemStruct._attribute_list + [
-		('zero_0', Uint, (0, None), (False, None), True),
-		('zero_0', Uint64, (0, None), (False, None), True),
-		('zero_1', Uint64, (0, None), (False, None), True),
+		('zero_0', Uint, (0, None), (True, 0), True),
+		('zero_0', Uint64, (0, None), (True, 0), True),
+		('zero_1', Uint64, (0, None), (True, 0), True),
 		('buffer_infos', ArrayPointer, (None, None), (False, None), True),
 		('buffer_infos', ArrayPointer, (None, None), (False, None), True),
 		('size_info', Pointer, (0, None), (False, None), True),
@@ -62,19 +62,19 @@ class TexHeader(MemStruct):
 		('height', Ushort, (0, None), (False, None), True),
 		('stream_count', Ubyte, (0, None), (False, None), True),
 		('stream_count_repeat', Ubyte, (0, None), (False, None), True),
-		('pad', Uint, (0, None), (False, None), None),
-		('pad_dla', Uint64, (0, None), (False, None), True),
+		('pad', Uint, (0, None), (True, 0), None),
+		('pad_dla', Uint64, (0, None), (True, 0), True),
 		]
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		if instance.context.version <= 15:
-			yield 'zero_0', Uint, (0, None), (False, None)
+			yield 'zero_0', Uint, (0, None), (True, 0)
 		if instance.context.version >= 17:
-			yield 'zero_0', Uint64, (0, None), (False, None)
+			yield 'zero_0', Uint64, (0, None), (True, 0)
 		if instance.context.version >= 19:
-			yield 'zero_1', Uint64, (0, None), (False, None)
+			yield 'zero_1', Uint64, (0, None), (True, 0)
 		if 17 <= instance.context.version <= 18:
 			yield 'buffer_infos', ArrayPointer, (instance.stream_count, TexHeader._import_map["tex.compounds.TexBufferPc"]), (False, None)
 		if instance.context.version >= 19:
@@ -92,6 +92,6 @@ class TexHeader(MemStruct):
 		if instance.context.version >= 17:
 			yield 'stream_count', Ubyte, (0, None), (False, None)
 			yield 'stream_count_repeat', Ubyte, (0, None), (False, None)
-		yield 'pad', Uint, (0, None), (False, None)
+		yield 'pad', Uint, (0, None), (True, 0)
 		if instance.context.version <= 15:
-			yield 'pad_dla', Uint64, (0, None), (False, None)
+			yield 'pad_dla', Uint64, (0, None), (True, 0)

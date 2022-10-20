@@ -31,10 +31,8 @@ class SizeInfoRaw(MemStruct):
 		self.height = 0
 
 		# may be depth
-		self.depth = 0
-
-		# amount of repeats of the data for each lod
-		self.array_size = 0
+		self.depth = 1
+		self.num_tiles = 1
 
 		# amount of mip map levels
 		self.num_mips = 0
@@ -48,27 +46,27 @@ class SizeInfoRaw(MemStruct):
 			self.set_defaults()
 
 	_attribute_list = MemStruct._attribute_list + [
-		('zero', Uint64, (0, None), (False, None), None),
+		('zero', Uint64, (0, None), (True, 0), None),
 		('data_size', Uint, (0, None), (False, None), None),
 		('width', Uint, (0, None), (False, None), None),
 		('height', Uint, (0, None), (False, None), None),
-		('depth', Uint, (0, None), (False, None), None),
-		('array_size', Uint, (0, None), (False, None), None),
+		('depth', Uint, (0, None), (True, 1), None),
+		('num_tiles', Uint, (0, None), (True, 1), None),
 		('num_mips', Uint, (0, None), (False, None), None),
-		('unk_pz', Uint64, (0, None), (False, None), True),
+		('unk_pz', Uint64, (0, None), (True, 0), True),
 		('mip_maps', Array, (0, None, (None,), Mipmap), (False, None), None),
 		]
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'zero', Uint64, (0, None), (False, None)
+		yield 'zero', Uint64, (0, None), (True, 0)
 		yield 'data_size', Uint, (0, None), (False, None)
 		yield 'width', Uint, (0, None), (False, None)
 		yield 'height', Uint, (0, None), (False, None)
-		yield 'depth', Uint, (0, None), (False, None)
-		yield 'array_size', Uint, (0, None), (False, None)
+		yield 'depth', Uint, (0, None), (True, 1)
+		yield 'num_tiles', Uint, (0, None), (True, 1)
 		yield 'num_mips', Uint, (0, None), (False, None)
 		if instance.context.version >= 20:
-			yield 'unk_pz', Uint64, (0, None), (False, None)
+			yield 'unk_pz', Uint64, (0, None), (True, 0)
 		yield 'mip_maps', Array, (0, None, (instance.num_mips,), Mipmap), (False, None)
