@@ -169,7 +169,7 @@ class MainWindow(widgets.MainWindow):
 			(file_menu, "Save", self.file_widget.ask_save, "CTRL+S", "save"),
 			(file_menu, "Save As", self.file_widget.ask_save_as, "CTRL+SHIFT+S", "save"),
 			(file_menu, "Exit", self.close, "", "exit"),
-			(edit_menu, "Unpack", self.extract_all, "CTRL+U", "extract"),
+			(edit_menu, "Unpack All", self.extract_all, "CTRL+U", "extract"),
 			(edit_menu, "Inject", self.inject_ask, "CTRL+I", "inject"),
 			(edit_menu, "Rename", self.rename, "CTRL+R", ""),
 			(edit_menu, "Rename Contents", self.rename_contents, "CTRL+SHIFT+R", ""),
@@ -230,12 +230,28 @@ class MainWindow(widgets.MainWindow):
 			# get path to steam games folder
 			# C:\\Program Files (x86)\\Steam
 			steam_path = steam_query[0]
-			apps_path = os.path.join(steam_path, "steamapps\\common")
-			steam_games = os.listdir(apps_path)
-			# filter with supported fdev games
-			# generate the whole path for each game
-			# C:\Program Files (x86)\Steam\steamapps\common\Planet Zoo\win64\ovldata
-			fdev_games = {game: os.path.join(apps_path, game, "win64\\ovldata") for game in steam_games if game in games_list}
+			library_folders = {steam_path}
+			vdf_path = os.path.join(steam_path, "steamapps", "libraryfolders.vdf")
+			# check if there are other steam library folders (eg. on external drives)
+			try:
+				import vdf
+				v = vdf.load(open(vdf_path))
+				for folder in v["libraryfolders"].values():
+					library_folders.add(folder["path"])
+			except:
+				logging.warning(f"vdf not installed, can not detect steam games on external drives - run `pip install vdf`")
+
+			# map all installed fdev game names to their path
+			fdev_games = {}
+			# list all games for each library folder
+			for steam_path in library_folders:
+				apps_path = os.path.join(steam_path, "steamapps\\common")
+				# filter with supported fdev games
+				fdev_in_lib = [game for game in os.listdir(apps_path) if game in games_list]
+				# generate the whole path for each game, add to dict
+				# C:\Program Files (x86)\Steam\steamapps\common\Planet Zoo\win64\ovldata
+				fdev_games.update({game: os.path.join(apps_path, game, "win64\\ovldata") for game in fdev_in_lib})
+			logging.info(f"Found {len(fdev_games)} Cobra games from Steam")
 			return fdev_games
 		except:
 			logging.exception(f"Getting installed games from steam folder failed")
