@@ -47,7 +47,6 @@ class MainWindow(widgets.MainWindow):
 		self.cfg["games"].update(self.get_steam_games())
 
 		self.file_widget = widgets.FileWidget(self, self.cfg)
-		self.file_widget.setToolTip("The name of the OVL file that is currently open")
 
 		self.game_choice = widgets.LabelCombo("Game:", [g.value for g in games])
 		# only listen to user changes

@@ -999,6 +999,12 @@ class FileWidget(QtWidgets.QWidget):
 		self.qgrid.addWidget(self.entry, 0, 1)
 
 		self.setLayout(self.qgrid)
+		self.icon.setToolTip("Click to select a file")
+		self.entry.setToolTip(self._tooltip)
+
+	@property
+	def _tooltip(self):
+		return f"Currently open {self.dtype} file: {self.filepath}"
 
 	def abort_open_new_file(self, new_filepath):
 		# only return True if we should abort
@@ -1022,6 +1028,7 @@ class FileWidget(QtWidgets.QWidget):
 		self.dir, self.filename = os.path.split(filepath)
 		self.setText(self.filename)
 		self.check_file(self.filename)
+		self.entry.setToolTip(self._tooltip)
 
 	def check_file(self, name):
 		if self.check_exists:

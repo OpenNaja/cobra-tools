@@ -32,7 +32,6 @@ class MainWindow(widgets.MainWindow):
 		self.filter = "Supported files (*ms2)"
 
 		self.file_widget = widgets.FileWidget(self, self.cfg, dtype="MS2")
-		self.file_widget.setToolTip("The name of the MS2 file that is currently open")
 
 		header_names = ["Name", "File Type", "LODs", "Objects", "Meshes", "Materials"]
 

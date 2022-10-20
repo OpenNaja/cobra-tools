@@ -39,7 +39,6 @@ class MainWindow(widgets.MainWindow):
 		self.filter = "Supported files ({})".format(" ".join("*" + t for t in (".wav", ".wem",)))
 
 		self.file_widget = widgets.FileWidget(self, self.cfg, dtype="BNK")
-		self.file_widget.setToolTip("The name of the OVL file that is currently open")
 
 		header_names = ["Name", "File Type", "djb2"]
 
