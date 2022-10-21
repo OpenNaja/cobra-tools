@@ -15,7 +15,7 @@ class Dxt10Header(BaseStruct):
 		self.dxgi_format = DxgiFormat(self.context, 0, None)
 		self.resource_dimension = D3D10ResourceDimension(self.context, 0, None)
 		self.misc_flag = 0
-		self.array_size = 1
+		self.num_tiles = 1
 		self.misc_flag_2 = 0
 		if set_default:
 			self.set_defaults()
@@ -24,7 +24,7 @@ class Dxt10Header(BaseStruct):
 		('dxgi_format', DxgiFormat, (0, None), (False, None), None),
 		('resource_dimension', D3D10ResourceDimension, (0, None), (False, None), None),
 		('misc_flag', Uint, (0, None), (False, None), None),
-		('array_size', Uint, (0, None), (False, 1), None),
+		('num_tiles', Uint, (0, None), (False, 1), None),
 		('misc_flag_2', Uint, (0, None), (False, None), None),
 		]
 
@@ -34,5 +34,5 @@ class Dxt10Header(BaseStruct):
 		yield 'dxgi_format', DxgiFormat, (0, None), (False, None)
 		yield 'resource_dimension', D3D10ResourceDimension, (0, None), (False, None)
 		yield 'misc_flag', Uint, (0, None), (False, None)
-		yield 'array_size', Uint, (0, None), (False, 1)
+		yield 'num_tiles', Uint, (0, None), (False, 1)
 		yield 'misc_flag_2', Uint, (0, None), (False, None)

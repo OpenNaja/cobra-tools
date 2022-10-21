@@ -316,7 +316,7 @@
         <add name="DxgiFormat" type="DxgiFormat" />
         <add name="Resource Dimension" type="D3D10 RESOURCE DIMENSION" />
         <add name="Misc Flag" type="uint" />
-        <add name="Array Size" type="uint" default="1" />
+        <add name="num_tiles" type="uint" default="1" />
         <add name="Misc Flag 2" type="uint" />
     </struct>
 </fileformat>
