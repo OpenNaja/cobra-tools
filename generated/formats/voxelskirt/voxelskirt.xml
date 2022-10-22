@@ -4,17 +4,22 @@
 
 	<xi:include href="../ovl_base/ovl_base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
 
+    <enum name="VxlDtype" storage="uint64">
+        <option value="0" name="UBYTE"/>
+        <option value="2" name="FLOAT"/>
+    </enum>
+
     <compound name="VoxelskirtRoot" inherit="MemStruct">
         # size varies according to game
         JWE2 - 120 bytes
         <add name="zero" type="uint64" default="0" optional="True"/>
-        <add name="data size" type="uint64" >total size of buffer data</add>
+        <add name="_data_size" type="uint64" >total size of buffer data</add>
         <add name="x" type="uint64"/>
         <add name="y" type="uint64"/>
         <add name="scale" type="float" >multiply by x or y to get the actual dimension of skirt, eg 512px * 16.0 = 8192.0m</add>
-        <add name="padding" type="uint"/>
-        <add name="height_offset" type="uint64" vercond="#PC#">zero, for PC only</add>
-        <add name="weights_offset" type="uint64" vercond="#PC#" >x*y*4, for PC only</add>
+        <add name="padding" type="uint" default="0" optional="True"/>
+        <add name="_height_offset" type="uint64" vercond="#PC#">zero, for PC only</add>
+        <add name="_weights_offset" type="uint64" vercond="#PC#" >x*y*4, for PC only</add>
         <add name="layers" type="DataSlot" vercond="!#PC#" template="Layer"/>
         <add name="areas" type="DataSlot" vercond="!#PC#" template="Area"/>
         <add name="entity_groups" type="DataSlot" template="EntityGroup"/>
@@ -23,22 +28,22 @@
     </compound>
 
     <compound name="DataSlot">
-        <add name="offset" type="uint64" >offset into buffer to start of data - only given if some count is nonzero</add>
-        <add name="count" type="uint64" >count of data</add>
+        <add name="_offset" type="uint64" >offset into buffer to start of data - only given if some count is nonzero</add>
+        <add name="_count" type="uint64" >count of data</add>
         <add name="data" type="#T#" arr1="0"/>
     </compound>
 
     <compound name="Name">
-        <add name="offset" type="uint64" >address of ZString</add>
+        <add name="_offset" type="uint64" >address of ZString</add>
     </compound>
 
     <compound name="Layer">
         32 bytes
         PZ and JWE only, describes a data layer image
         <add name="_id" type="uint64" >index into name list</add>
-        <add name="dtype" type="uint64" >0 = ubyte, 2 = float</add>
-        <add name="offset" type="uint64" >address of this data layer</add>
-        <add name="dsize" type="uint64" >data size of this layer, in bytes</add>
+        <add name="dtype" type="VxlDtype"/>
+        <add name="_offset" type="uint64" >address of this data layer</add>
+        <add name="_data_size" type="uint64" >data size of this layer, in bytes</add>
     </compound>
 
     <compound name="Area">

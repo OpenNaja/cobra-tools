@@ -10,6 +10,7 @@ from generated.formats.base.basic import Ubyte, Float, ZString
 from generated.formats.ovl import is_pc
 from generated.formats.voxelskirt.compounds.VoxelskirtRoot import VoxelskirtRoot
 from modules.formats.BaseFormat import MemStructLoader
+from modules.formats.shared import get_padding
 
 
 class VoxelskirtLoader(MemStructLoader):
@@ -17,8 +18,13 @@ class VoxelskirtLoader(MemStructLoader):
 	target_class = VoxelskirtRoot
 
 	def load_slot(self, data_slot, stream):
-		stream.seek(data_slot.offset)
-		data_slot.data = Array.from_stream(stream, self.header.context, 0, None, (data_slot.count, ), data_slot.template)
+		stream.seek(data_slot._offset)
+		data_slot.data = Array.from_stream(stream, self.header.context, 0, None, (data_slot._count, ), data_slot.template)
+
+	def write_slot(self, data_slot, stream):
+		data_slot._offset = stream.tell()
+		data_slot._count = len(data_slot.data)
+		Array.to_stream(data_slot.data, stream, self.header.context, 0, None, (data_slot._count, ), data_slot.data.dtype)
 
 	def create(self):
 		self.create_root_entry()
@@ -26,29 +32,32 @@ class VoxelskirtLoader(MemStructLoader):
 		stream = io.BytesIO()
 		basepath = os.path.splitext(self.file_entry.path)[0]
 		names_lut = {name.name: i for i, name in enumerate(self.header.names.data)}
-		# print(self.header)
 		# write layers
 		for layer in self.header.layers.data:
-			layer.offset = stream.tell()
+			layer._offset = stream.tell()
 			# read layer from image file
 			layer.im = iio.imread(self.get_file_path(layer, basepath))
 			Array.to_stream(layer.im, stream, self.header.context, 0, None, (self.header.x, self.header.y), self.get_dtype(layer))
-			layer.dsize = stream.tell() - layer.offset
+			layer._data_size = stream.tell() - layer._offset
+		# write all named slots
 		for data_slot in self.named_slots:
-			data_slot.offset = stream.tell()
-			Array.to_stream(data_slot.data, stream, self.header.context, 0, None, (len(data_slot.data), ), data_slot.data.dtype)
-			# update name index
+			# update name index before writing to stream
 			for item in data_slot.data:
 				item._id = names_lut[item.name]
+			self.write_slot(data_slot, stream)
 		# write names
 		for name in self.header.names.data:
-			name.offset = stream.tell()
+			name._offset = stream.tell()
 			ZString.to_stream(name.name, stream, self.header.context)
+		# pad to at least 8 (maybe 16?)
+		stream.write(get_padding(stream.tell(), alignment=8))
+		# write name references
+		self.write_slot(self.header.names, stream)
 
 		# take the finished buffer and create a data entry
 		buffer_bytes = stream.getvalue()
 		self.create_data_entry((buffer_bytes,))
-		self.header.data_size = len(buffer_bytes)
+		self.header._data_size = len(buffer_bytes)
 		# clear the data slots before writing to pools
 		for data_slot in self.named_slots:
 			# todo - need to handle data so that it is available for export, but not written to header
@@ -66,7 +75,7 @@ class VoxelskirtLoader(MemStructLoader):
 
 		# get names
 		for name in self.header.names.data:
-			stream.seek(name.offset)
+			stream.seek(name._offset)
 			name.name = ZString.from_stream(stream, self.header.context)
 
 		# assign names
@@ -76,7 +85,7 @@ class VoxelskirtLoader(MemStructLoader):
 
 		# get layers
 		for layer in self.header.layers.data:
-			stream.seek(layer.offset)
+			stream.seek(layer._offset)
 			layer.im = Array.from_stream(stream, self.header.context, 0, None, (self.header.x, self.header.y), self.get_dtype(layer))
 
 		# get additional position slots
@@ -131,106 +140,3 @@ class VoxelskirtLoader(MemStructLoader):
 			return f"{basepath}_{layer.name}.tiff"
 		else:
 			raise NotImplementedError(f"Unknown data type {layer.dtype}")
-
-	# def inject(self, filepaths):
-	# 	"""Replaces images"""
-	# 	start_time = time.time()
-	# 	import imageio.v3 as iio
-	# 	for filepath in filepaths:
-	# 		im = iio.imread(filepath)
-	# 		bare_name = os.path.splitext(filepath)[0]
-	# 		suffix = bare_name.rsplit("_", 1)[1]
-	# 		if is_pc(self):
-	# 			if suffix == "height":
-	# 				self.heightmap = im
-	# 			elif "mask" in suffix:
-	# 				try:
-	# 					i = int(suffix.replace("mask", ""))
-	# 				except:
-	# 					raise AttributeError(f"Broken suffix {suffix} for PC style.")
-	# 				self.weights[:, :, i] = im
-	# 			else:
-	# 				raise AttributeError(f"Unsupported suffix {suffix} for this file.")
-	# 		else:
-	# 			for data in self.datas:
-	# 				if data.name == suffix:
-	# 					break
-	# 			else:
-	# 				raise AttributeError(f"Could not find layer {suffix} in this file.")
-	# 			data.im = im
-	# 	print(f"Injected {len(filepaths)} layers into {self.basename} in {time.time()-start_time:.2f} seconds")
-	#
-	# def update_names(self, list_of_arrays):
-	# 	self.names = []
-	# 	for s in list_of_arrays:
-	# 		for item in s:
-	# 			if item.name not in self.names:
-	# 				self.names.append(item.name)
-	# 			item.id = self.names.index(item.name)
-	#
-	# def save(self, filepath):
-	# 	start_time = time.time()
-	# 	self.basename = os.path.basename(self.filepath)
-	# 	print(f"Saving {self.basename}...")
-	#
-	# 	# update data
-	# 	self.update_names((self.datas, self.sizes, self.positions, self.materials))
-	# 	if is_pc(self):
-	# 		self.info.height_array_size_pc = self.info.x * self.info.y * 4
-	#
-	# 	# write the buffer data to a temporary stream
-	# 	with BytesIO() as stream:
-	# 		# write the images
-	# 		if is_pc(self):
-	# 			stream.write_floats(self.heightmap)
-	# 			stream.write_ubytes(self.weights)
-	# 		else:
-	# 			# PC and JWE store the images attached to data infos
-	# 			for data in self.datas:
-	# 				data.offset = stream.tell()
-	# 				if data.type == 0:
-	# 					stream.write_ubytes(data.im)
-	# 				elif data.type == 2:
-	# 					stream.write_floats(data.im)
-	#
-	# 		self.info.data_offset = stream.tell()
-	# 		self.info.data_count = len(self.datas)
-	# 		Array.to_stream(stream, self.datas, Data)
-	#
-	# 		self.info.size_offset = stream.tell()
-	# 		self.info.size_count = len(self.sizes)
-	# 		Array.to_stream(stream, self.sizes, Size)
-	#
-	# 		# write object positions
-	# 		for pos in self.positions:
-	# 			pos.offset = stream.tell()
-	# 			stream.write_floats(pos.locs)
-	# 		self.info.position_offset = stream.tell()
-	# 		self.info.position_count = len(self.positions)
-	# 		Array.to_stream(stream, self.positions, PosInfo)
-	#
-	# 		# write 'materials' / bbox / whatever
-	# 		for mat in self.materials:
-	# 			mat.offset = stream.tell()
-	# 			stream.write_floats(mat.locs)
-	# 		self.info.material_offset = stream.tell()
-	# 		self.info.material_count = len(self.materials)
-	# 		Array.to_stream(stream, self.materials, Material)
-	#
-	# 		# write names
-	# 		name_addresses = []
-	# 		name_start = stream.tell()
-	# 		for name in self.names:
-	# 			name_addresses.append(stream.tell())
-	# 			stream.write_zstring(name)
-	# 		# pad name section
-	# 		stream.write(get_padding(stream.tell() - name_start, alignment=8))
-	# 		stream.write_uint64s(name_addresses)
-	# 		# get the actual result buffer
-	# 		buffer_bytes = stream.getvalue()
-	#
-	# 	# write the actual file
-	# 	with open(filepath, "wb") as stream:
-	# 		self.write_fields(stream, self)
-	# 		stream.write(buffer_bytes)
-	# 	print(f"Saved {self.basename} in {time.time()-start_time:.2f} seconds")
