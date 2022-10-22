@@ -17,7 +17,7 @@ class Layer(BaseStruct):
 		super().__init__(context, arg, template, set_default=False)
 
 		# index into name list
-		self.id = 0
+		self._id = 0
 
 		# 0 = ubyte, 2 = float
 		self.dtype = 0
@@ -31,7 +31,7 @@ class Layer(BaseStruct):
 			self.set_defaults()
 
 	_attribute_list = BaseStruct._attribute_list + [
-		('id', Uint64, (0, None), (False, None), None),
+		('_id', Uint64, (0, None), (False, None), None),
 		('dtype', Uint64, (0, None), (False, None), None),
 		('offset', Uint64, (0, None), (False, None), None),
 		('dsize', Uint64, (0, None), (False, None), None),
@@ -40,7 +40,7 @@ class Layer(BaseStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'id', Uint64, (0, None), (False, None)
+		yield '_id', Uint64, (0, None), (False, None)
 		yield 'dtype', Uint64, (0, None), (False, None)
 		yield 'offset', Uint64, (0, None), (False, None)
 		yield 'dsize', Uint64, (0, None), (False, None)

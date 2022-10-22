@@ -16,7 +16,7 @@ class Area(BaseStruct):
 		super().__init__(context, arg, template, set_default=False)
 
 		# index into name list
-		self.id = 0
+		self._id = 0
 		self.width_1 = 0
 		self.height_1 = 0
 		self.width_2 = 0
@@ -25,7 +25,7 @@ class Area(BaseStruct):
 			self.set_defaults()
 
 	_attribute_list = BaseStruct._attribute_list + [
-		('id', Uint64, (0, None), (False, None), None),
+		('_id', Uint64, (0, None), (False, None), None),
 		('width_1', Uint64, (0, None), (False, None), None),
 		('height_1', Uint64, (0, None), (False, None), None),
 		('width_2', Uint64, (0, None), (False, None), None),
@@ -35,7 +35,7 @@ class Area(BaseStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'id', Uint64, (0, None), (False, None)
+		yield '_id', Uint64, (0, None), (False, None)
 		yield 'width_1', Uint64, (0, None), (False, None)
 		yield 'height_1', Uint64, (0, None), (False, None)
 		yield 'width_2', Uint64, (0, None), (False, None)

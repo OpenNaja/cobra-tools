@@ -18,17 +18,17 @@ class Material(BaseStruct):
 		self.entity_instances = DataSlot(self.context, 0, Material._import_map["voxelskirt.compounds.EntityInstance"])
 
 		# index into name list
-		self.id = 0
+		self._id = 0
 		if set_default:
 			self.set_defaults()
 
 	_attribute_list = BaseStruct._attribute_list + [
 		('entity_instances', DataSlot, (0, None), (False, None), None),
-		('id', Uint64, (0, None), (False, None), None),
+		('_id', Uint64, (0, None), (False, None), None),
 		]
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'entity_instances', DataSlot, (0, Material._import_map["voxelskirt.compounds.EntityInstance"]), (False, None)
-		yield 'id', Uint64, (0, None), (False, None)
+		yield '_id', Uint64, (0, None), (False, None)

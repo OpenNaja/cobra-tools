@@ -35,7 +35,7 @@
     <compound name="Layer">
         32 bytes
         PZ and JWE only, describes a data layer image
-        <add name="id" type="uint64" >index into name list</add>
+        <add name="_id" type="uint64" >index into name list</add>
         <add name="dtype" type="uint64" >0 = ubyte, 2 = float</add>
         <add name="offset" type="uint64" >address of this data layer</add>
         <add name="dsize" type="uint64" >data size of this layer, in bytes</add>
@@ -43,7 +43,7 @@
 
     <compound name="Area">
         40 bytes
-        <add name="id" type="uint64" >index into name list</add>
+        <add name="_id" type="uint64" >index into name list</add>
         <add name="width 1" type="uint64"/>
         <add name="height 1" type="uint64"/>
         <add name="width 2" type="uint64"/>
@@ -65,7 +65,7 @@
     <compound name="Material">
         24 bytes
         <add name="entity_instances" type="DataSlot" template="EntityInstance"/>
-        <add name="id" type="uint64" >index into name list</add>
+        <add name="_id" type="uint64" >index into name list</add>
     </compound>
 
     <compound name="EntityGroup" inherit="Material">

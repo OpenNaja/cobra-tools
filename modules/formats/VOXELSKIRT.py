@@ -1,6 +1,9 @@
 import io
 import logging
+import os
+
 import imageio.v3 as iio
+import numpy as np
 
 from generated.array import Array
 from generated.formats.base.basic import Ubyte, Float, ZString
@@ -15,23 +18,42 @@ class VoxelskirtLoader(MemStructLoader):
 
 	def load_slot(self, data_slot, stream):
 		stream.seek(data_slot.offset)
-		data_slot.data = Array.from_stream(stream, self.ovl.context, 0, None, (data_slot.count, ), data_slot.template)
+		data_slot.data = Array.from_stream(stream, self.header.context, 0, None, (data_slot.count, ), data_slot.template)
 
 	def create(self):
 		self.create_root_entry()
 		self.header = self.target_class.from_xml_file(self.file_entry.path, self.ovl.context)
 		stream = io.BytesIO()
+		basepath = os.path.splitext(self.file_entry.path)[0]
+		names_lut = {name.name: i for i, name in enumerate(self.header.names.data)}
 		# print(self.header)
+		# write layers
+		for layer in self.header.layers.data:
+			layer.offset = stream.tell()
+			# read layer from image file
+			layer.im = iio.imread(self.get_file_path(layer, basepath))
+			Array.to_stream(layer.im, stream, self.header.context, 0, None, (self.header.x, self.header.y), self.get_dtype(layer))
+			layer.dsize = stream.tell() - layer.offset
 		for data_slot in self.named_slots:
 			data_slot.offset = stream.tell()
-			Array.to_stream(data_slot.data, stream, self.header.context, (len(data_slot.data), ), data_slot.data.dtype, self.ovl.context, 0, None)
-			# todo - need to handle data so that it is available for export, but not written to header
-			# probably by having behavior similar to the Pointer classes
-			data_slot.data.clear()
-		# ...
+			Array.to_stream(data_slot.data, stream, self.header.context, 0, None, (len(data_slot.data), ), data_slot.data.dtype)
+			# update name index
+			for item in data_slot.data:
+				item._id = names_lut[item.name]
+		# write names
+		for name in self.header.names.data:
+			name.offset = stream.tell()
+			ZString.to_stream(name.name, stream, self.header.context)
+
+		# take the finished buffer and create a data entry
 		buffer_bytes = stream.getvalue()
 		self.create_data_entry((buffer_bytes,))
 		self.header.data_size = len(buffer_bytes)
+		# clear the data slots before writing to pools
+		for data_slot in self.named_slots:
+			# todo - need to handle data so that it is available for export, but not written to header
+			# probably by having behavior similar to the Pointer classes
+			data_slot.data.clear()
 		# need to update before writing ptrs
 		self.header.write_ptrs(self, self.root_ptr, self.file_entry.pool_type)
 
@@ -45,21 +67,17 @@ class VoxelskirtLoader(MemStructLoader):
 		# get names
 		for name in self.header.names.data:
 			stream.seek(name.offset)
-			name.name = ZString.from_stream(stream, self.ovl.context)
+			name.name = ZString.from_stream(stream, self.header.context)
 
 		# assign names
 		for data_slot in self.named_slots:
 			for item in data_slot.data:
-				item.name = self.header.names.data[item.id].name
-			# print(data_slot.data)
+				item.name = self.header.names.data[item._id].name
 
 		# get layers
 		for layer in self.header.layers.data:
 			stream.seek(layer.offset)
-			if layer.dtype == 0:
-				layer.im = Ubyte.read_array(stream, (self.header.x, self.header.y), self.ovl.context, 0, None)
-			elif layer.dtype == 2:
-				layer.im = Float.read_array(stream, (self.header.x, self.header.y), self.ovl.context, 0, None)
+			layer.im = Array.from_stream(stream, self.header.context, 0, None, (self.header.x, self.header.y), self.get_dtype(layer))
 
 		# get additional position slots
 		for data_slot in (self.header.entity_groups, self.header.materials):
@@ -70,9 +88,17 @@ class VoxelskirtLoader(MemStructLoader):
 		if is_pc(self.ovl):
 			stream.seek(0)
 			# same as the other games
-			self.heightmap = Float.read_array(stream, (self.header.x, self.header.y), self.ovl.context, 0, None)
+			self.heightmap = Array.from_stream(stream, self.header.context, 0, None, (self.header.x, self.header.y), Float)
 			# the same pixel of each layer is stored in 4 consecutive bytes
-			self.weights = Ubyte.read_array(stream, (self.header.x, self.header.y, 4), self.ovl.context, 0, None)
+			self.weights = Array.from_stream(stream, self.header.context, 0, None, (self.header.x, self.header.y, 4), Ubyte)
+
+	def get_dtype(self, layer):
+		if layer.dtype == 0:
+			return Ubyte
+		elif layer.dtype == 2:
+			return Float
+		else:
+			raise NotImplementedError(f"Unsupported dtype {layer.dtype}")
 
 	@property
 	def named_slots(self):
@@ -81,29 +107,30 @@ class VoxelskirtLoader(MemStructLoader):
 	def extract(self, out_dir):
 		out_files = list(super().extract(out_dir))
 		# out_files += self.dump_buffers(out_dir)
-		basename = out_dir(self.file_entry.basename)
+		basepath = out_dir(self.file_entry.basename)
 		# print(self.header)
 		if is_pc(self.ovl):
-			p = f"{basename}_height.tiff"
+			p = f"{basepath}_height.tiff"
 			out_files.append(p)
 			iio.imwrite(p, self.heightmap)
 			for i in range(4):
-				p = f"{basename}_mask{i}.png"
+				p = f"{basepath}_mask{i}.png"
 				out_files.append(p)
 				iio.imwrite(p, self.weights[:, :, i], compress_level=2)
 		else:
 			for layer in self.header.layers.data:
-				if layer.dtype == 0:
-					p = f"{basename}_{layer.name}.png"
-					iio.imwrite(p, layer.im, compress_level=2)
-				elif layer.dtype == 2:
-					p = f"{basename}_{layer.name}.tiff"
-					iio.imwrite(p, layer.im)
-				else:
-					logging.warning(f"Unknown data type {layer.type}")
-					continue
+				p = self.get_file_path(layer, basepath)
+				iio.imwrite(p, layer.im)  # , compress_level=2
 				out_files.append(p)
 		return out_files
+
+	def get_file_path(self, layer, basepath):
+		if layer.dtype == 0:
+			return f"{basepath}_{layer.name}.png"
+		elif layer.dtype == 2:
+			return f"{basepath}_{layer.name}.tiff"
+		else:
+			raise NotImplementedError(f"Unknown data type {layer.dtype}")
 
 	# def inject(self, filepaths):
 	# 	"""Replaces images"""
