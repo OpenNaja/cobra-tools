@@ -5,10 +5,6 @@ from generated.formats.base.basic import Uint64
 
 class DataSlot(BaseStruct):
 
-	"""
-	offset into buffer to start of sth; only given if some count is nonzero
-	"""
-
 	__name__ = 'DataSlot'
 
 	_import_key = 'voxelskirt.compounds.DataSlot'
@@ -16,10 +12,10 @@ class DataSlot(BaseStruct):
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 
-		# offset into buffer to start
+		# offset into buffer to start of data - only given if some count is nonzero
 		self.offset = 0
 
-		# also counts the stuff after names
+		# count of data
 		self.count = 0
 		self.data = Array(self.context, 0, None, (0,), self.template)
 		if set_default:

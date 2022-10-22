@@ -43,7 +43,7 @@ class VoxelskirtRoot(MemStruct):
 			self.set_defaults()
 
 	_attribute_list = MemStruct._attribute_list + [
-		('zero', Uint64, (0, None), (False, None), None),
+		('zero', Uint64, (0, None), (True, 0), None),
 		('data_size', Uint64, (0, None), (False, None), None),
 		('x', Uint64, (0, None), (False, None), None),
 		('y', Uint64, (0, None), (False, None), None),
@@ -61,7 +61,7 @@ class VoxelskirtRoot(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'zero', Uint64, (0, None), (False, None)
+		yield 'zero', Uint64, (0, None), (True, 0)
 		yield 'data_size', Uint64, (0, None), (False, None)
 		yield 'x', Uint64, (0, None), (False, None)
 		yield 'y', Uint64, (0, None), (False, None)
