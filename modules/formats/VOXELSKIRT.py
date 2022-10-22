@@ -45,11 +45,12 @@ class VoxelskirtLoader(MemStructLoader):
 		# write all named slots
 		for data_slot in self.named_slots:
 			# update name index before writing to stream
-			for item in data_slot.data:
-				item._id = names_lut[item.name]
-				if hasattr(item, "entity_instances"):
-					self.write_slot(item.entity_instances, stream)
-			self.write_slot(data_slot, stream)
+			if data_slot.data is not None:
+				for item in data_slot.data:
+					item._id = names_lut[item.name]
+					if hasattr(item, "entity_instances"):
+						self.write_slot(item.entity_instances, stream)
+				self.write_slot(data_slot, stream)
 		# write names
 		for name in self.header.names.data:
 			name._offset = stream.tell()
