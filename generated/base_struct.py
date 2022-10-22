@@ -216,7 +216,8 @@ class BaseStruct(metaclass=StructMetaClass):
 				continue
 			# keep clean XML
 			if prop.startswith(DO_NOT_SERIALIZE) or (optional and getattr(instance, prop) == default):
-				continue
+				if not debug:
+					continue
 			field_type.to_xml(elem, prop, getattr(instance, prop), *arguments, debug)
 
 	@classmethod

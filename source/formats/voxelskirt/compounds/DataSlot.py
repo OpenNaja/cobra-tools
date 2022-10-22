@@ -1,3 +1,4 @@
+# START_GLOBALS
 import struct
 import xml.etree.ElementTree as ET
 import logging
@@ -15,26 +16,12 @@ DTYPE = "dtype"
 XML_STR = "xml_string"
 DEPENDENCY_TAG = "dependency"
 
-from generated.base_struct import BaseStruct
-from generated.formats.base.basic import Uint64
+# END_GLOBALS
 
 
 class DataSlot(BaseStruct):
 
-	__name__ = 'DataSlot'
-
-	_import_key = 'voxelskirt.compounds.DataSlot'
-
-	_attribute_list = BaseStruct._attribute_list + [
-		('_offset', Uint64, (0, None), (False, None), None),
-		('_count', Uint64, (0, None), (False, None), None),
-		]
-
-	@classmethod
-	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
-		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield '_offset', Uint64, (0, None), (False, None)
-		yield '_count', Uint64, (0, None), (False, None)
+# START_CLASS
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
@@ -73,4 +60,3 @@ class DataSlot(BaseStruct):
 		arr = Array(instance.context, 0, None, (len(sub)), instance.template, set_default=False)
 		instance.data = Array._from_xml(arr, sub)
 		return instance
-

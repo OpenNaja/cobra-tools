@@ -30,7 +30,7 @@
     <compound name="DataSlot">
         <add name="_offset" type="uint64" >offset into buffer to start of data - only given if some count is nonzero</add>
         <add name="_count" type="uint64" >count of data</add>
-        <add name="data" type="#T#" arr1="0"/>
+<!--        <add name="data" type="#T#" arr1="0"/>-->
     </compound>
 
     <compound name="Name">

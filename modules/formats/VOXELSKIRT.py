@@ -47,6 +47,8 @@ class VoxelskirtLoader(MemStructLoader):
 			# update name index before writing to stream
 			for item in data_slot.data:
 				item._id = names_lut[item.name]
+				if hasattr(item, "entity_instances"):
+					self.write_slot(item.entity_instances, stream)
 			self.write_slot(data_slot, stream)
 		# write names
 		for name in self.header.names.data:
@@ -61,11 +63,6 @@ class VoxelskirtLoader(MemStructLoader):
 		buffer_bytes = stream.getvalue()
 		self.create_data_entry((buffer_bytes,))
 		self.header._data_size = len(buffer_bytes)
-		# clear the data slots before writing to pools
-		for data_slot in self.named_slots:
-			# todo - need to handle data so that it is available for export, but not written to header
-			# probably by having behavior similar to the Pointer classes
-			data_slot.data.clear()
 		# need to update before writing ptrs
 		self.header.write_ptrs(self, self.root_ptr, self.file_entry.pool_type)
 
@@ -86,6 +83,9 @@ class VoxelskirtLoader(MemStructLoader):
 		for data_slot in self.named_slots:
 			for item in data_slot.data:
 				item.name = self.header.names.data[item._id].name
+				# get additional position slots
+				if hasattr(item, "entity_instances"):
+					self.load_slot(item.entity_instances, stream)
 
 		# read PC style height map and masks
 		if is_pc(self.ovl):
@@ -100,11 +100,6 @@ class VoxelskirtLoader(MemStructLoader):
 			for layer in self.header.layers.data:
 				stream.seek(layer._offset)
 				layer.im = Array.from_stream(stream, self.header.context, 0, None, (self.header.x, self.header.y), self.get_dtype(layer))
-
-		# get additional position slots
-		for data_slot in (self.header.entity_groups, self.header.materials):
-			for entry in data_slot.data:
-				self.load_slot(entry.entity_instances, stream)
 
 	def extract(self, out_dir):
 		out_files = list(super().extract(out_dir))
@@ -149,6 +144,9 @@ class VoxelskirtLoader(MemStructLoader):
 		data_slot.data = Array.from_stream(stream, self.header.context, 0, None, (data_slot._count, ), data_slot.template)
 
 	def write_slot(self, data_slot, stream):
-		data_slot._offset = stream.tell()
 		data_slot._count = len(data_slot.data)
-		Array.to_stream(data_slot.data, stream, self.header.context, 0, None, (data_slot._count, ), data_slot.data.dtype)
+		if data_slot._count:
+			data_slot._offset = stream.tell()
+			Array.to_stream(data_slot.data, stream, self.header.context, 0, None, (data_slot._count, ), data_slot.data.dtype)
+		else:
+			data_slot._offset = 0
