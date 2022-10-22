@@ -128,7 +128,8 @@ class MemPool(BaseStruct):
 
 	def move_empty_pointers_to_end(self):
 		end_of_pool = self.get_size()
-		for offset, entries in self.offset_2_struct_entries.items():
+		# cast to tuple to avoid changing the dict during iteration
+		for offset, entries in tuple(self.offset_2_struct_entries.items()):
 			if offset != end_of_pool:
 				# find any null pointer that is not at the end of the pool
 				null_ptrs = [entry for entry in entries if entry.struct_ptr.data_size == 0]
