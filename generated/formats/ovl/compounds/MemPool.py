@@ -127,9 +127,21 @@ class MemPool(BaseStruct):
 		self.data.write(padding_bytes)
 
 	def move_empty_pointers_to_end(self):
+		end_of_pool = self.get_size()
 		for offset, entries in self.offset_2_struct_entries.items():
-			for entry in entries:
-				if entry.struct_ptr.data_size == 0:
-					if entry.struct_ptr.data_offset != self.get_size():
-						logging.warning(f"Empty pointer is not at end of pool, will work but mess with the stack log")
+			if offset != end_of_pool:
+				# find any null pointer that is not at the end of the pool
+				null_ptrs = [entry for entry in entries if entry.struct_ptr.data_size == 0]
+				if null_ptrs:
+					logging.debug(f"Moving {len(null_ptrs)} null pointers to end of pool at {end_of_pool}")
+					# only keep valid pointers at offset
+					self.offset_2_struct_entries[offset] = [entry for entry in entries if entry not in null_ptrs]
+					# move the null pointers to their new offset
+					if end_of_pool not in self.offset_2_struct_entries:
+						self.offset_2_struct_entries[end_of_pool] = []
+					self.offset_2_struct_entries[end_of_pool].extend(null_ptrs)
+					# set data_offset of null_ptrs
+					for entry in null_ptrs:
+						entry.struct_ptr.data_offset = end_of_pool
+
 
