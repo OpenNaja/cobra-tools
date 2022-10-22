@@ -233,7 +233,6 @@ class Ms2Loader(BaseFile):
 	
 	def extract(self, out_dir):
 		self.get_version()
-		# return self.dump_buffers(out_dir)
 		name = self.root_entry.name
 		logging.info(f"Writing {name}")
 		# print(self.header)
