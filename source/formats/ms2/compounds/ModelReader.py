@@ -33,7 +33,7 @@ class ModelReader(BaseStruct):
 	def read_fields(cls, stream, instance):
 		instance.io_start = stream.tell()
 		instance.bone_infos = []
-		logging.info(f"ModelReader starts at {instance.io_start}")
+		logging.debug(f"ModelReader starts at {instance.io_start}")
 		i = 0
 		if instance.context.version < 47:
 			# start = instance.io_start
@@ -77,7 +77,7 @@ class ModelReader(BaseStruct):
 
 	def assign_bone_info(self, i, model_info, stream):
 		if model_info.increment_flag:
-			logging.info(f"Reading bone info {i} at {stream.tell()}")
+			logging.debug(f"Reading bone info {i} at {stream.tell()}")
 			try:
 				model_info.bone_info = self.read_bone_info(stream, i)
 				# logging.debug(model_info.bone_info)

@@ -95,7 +95,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			# return
 			# logging.debug(f"end of header: {self.buffer_1_offset}")
 
-			logging.info(f"Vertex buffer starts at {self.buffer_2_offset}")
+			logging.debug(f"Vertex buffer starts at {self.buffer_2_offset}")
 			try:
 				for bone_info in self.models_reader.bone_infos:
 					self.assign_bone_names(bone_info)
@@ -140,7 +140,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 				buff_size = getattr(buffer_info, f"{buffer_name}_size")
 				# create a set to be able to guess the size of any entry
 				setattr(buffer_info, f"{buffer_name}_offsets", {buff_size})
-				logging.info(f"Loading {buffer_name} size {buff_size} at {in_stream.tell()}")
+				logging.debug(f"Loading {buffer_name} size {buff_size} at {in_stream.tell()}")
 				b = in_stream.read(buff_size)
 				# dump each for easy debugging
 				if dump:
@@ -354,7 +354,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			logging.debug(f"Mapping links for {name}")
 			model_info.name = name
 			for lod_index, lod in enumerate(model_info.model.lods):
-				logging.info(f"Mapping LOD{lod_index}")
+				logging.debug(f"Mapping LOD{lod_index}")
 				lod.objects = model_info.model.objects[lod.first_object_index:lod.last_object_index]
 				# todo - investigate how duplicate meshes are handled for the lod's vertex count0
 				lod.meshes = tuple(model_info.model.meshes[obj.mesh_index] for obj in lod.objects)
