@@ -40,7 +40,7 @@ def has_rg_b_a(png_file_path):
 def has_r_g_b_a(png_file_path):
 	return check_any((
 		"packedtexture", "playered_blendweights", "scartexture", "samplertexture",
-		"pspecularmaptexture", "pflexicolourmaskstexture", "pshellmap", "pfinalphatexture",), png_file_path)
+		"pspecularmaptexture", "pflexicolourmaskstexture", "pshellmap", "pfinalphatexture", "ppiebaldtexture"), png_file_path)
 
 
 def has_vectors(png_file_path):
