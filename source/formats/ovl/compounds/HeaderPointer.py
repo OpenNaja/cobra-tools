@@ -79,7 +79,7 @@ class HeaderPointer(BaseStruct):
 			else:
 				cls.to_stream(instance, self.pool.data, context)
 			self.data_size = self.pool.data.tell() - self.data_offset
-			# logging.debug(f"start at {self.data_offset}, size {self.data_size}")
+			logging.debug(f"start at {self.data_offset}, size {self.data_size}")
 		else:
 			logging.warning(f"Pool missing, can not write {cls}")
 
@@ -88,6 +88,7 @@ class HeaderPointer(BaseStruct):
 		if self.align_write(data, overwrite=overwrite):
 			self.data_size = len(data)
 			self.pool.data.write(data)
+		logging.debug(f"write_to_pool size {self.data_size}")
 
 	def assign_pool(self, pools):
 		"""Link this pointer to its pool"""

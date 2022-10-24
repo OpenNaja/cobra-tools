@@ -117,6 +117,7 @@ class BaseFile:
 	def ptr_relative(self, ptr, other_ptr, rel_offset=0):
 		ptr.pool_index = other_ptr.pool_index
 		ptr.data_offset = other_ptr.data_offset + rel_offset
+		ptr.data_size = other_ptr.data_size
 		ptr.pool = other_ptr.pool
 
 	def get_content(self, filepath):

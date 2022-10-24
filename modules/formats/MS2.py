@@ -35,7 +35,7 @@ class Model2streamLoader(BaseFile):
 
 	def create(self):
 		self.create_root_entry()
-        
+
 		if ovl_versions.is_jwe2(self.ovl):
 			lod_index = int(self.file_entry.basename[-1])
 			root_data = struct.pack("<QQ", 0, lod_index)
@@ -136,14 +136,14 @@ class Ms2Loader(BaseFile):
 		logging.info(f"context.biosyn {self.context.biosyn}")
 
 	def get_buffer_presence(self):
-		# some in JWE2 have a model2stream again
 		expected_frag = b""
-		# todo - this may not be correct, investigate for different amounts of streams
-		if self.header.vertex_buffer_count:
-			for stream in range(self.header.static_buffer_index):
-				expected_frag += struct.pack("<ii", 0, 0)
-			for stream in range(self.header.vertex_buffer_count - self.header.static_buffer_index):
+		for i in range(self.header.vertex_buffer_count):
+			# buffer i is a static buffer
+			if i == self.header.static_buffer_index:
 				expected_frag += struct.pack("<ii", -1, 0)
+			# can only be streamed
+			else:
+				expected_frag += struct.pack("<ii", 0, 0)
 		return expected_frag
 
 	def collect(self):
@@ -155,7 +155,7 @@ class Ms2Loader(BaseFile):
 		frag_data = self.header.buffers_presence.frag.struct_ptr.data
 		if frag_data != expected_frag:
 			logging.warning(
-				f"Unexpected frag 2 ptr data ({frag_data}) for {self.file_entry.name}, expected ({expected_frag})")
+				f"Unexpected buffer presence data ({frag_data}) for {self.file_entry.name}, expected ({expected_frag})")
 
 	def get_first_model_frag(self):
 		for model_info in self.header.model_infos.data:
@@ -219,6 +219,8 @@ class Ms2Loader(BaseFile):
 				offset = wrapper.mesh.stream_info.temp_index * self.header.buffer_infos.data[0].io_size
 				self.attach_frag_to_ptr(wrapper.mesh.stream_info, pool)
 				self.ptr_relative(wrapper.mesh.stream_info.frag.struct_ptr, self.header.buffer_infos.frag.struct_ptr, rel_offset=offset)
+		# for f in self.fragments:
+		# 	print(f, f.link_ptr.data_size, f.struct_ptr.data_size)
 
 	def update(self):
 		if ovl_versions.is_pz16(self.ovl):

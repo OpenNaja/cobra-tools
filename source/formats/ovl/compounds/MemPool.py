@@ -62,7 +62,7 @@ class MemPool:
 				# find any null pointer that is not at the end of the pool
 				null_ptrs = [entry for entry in entries if entry.struct_ptr.data_size == 0]
 				if null_ptrs:
-					logging.debug(f"Moving {len(null_ptrs)} null pointers to end of pool at {end_of_pool}")
+					logging.debug(f"Moving {len(null_ptrs)} null pointers out of {len(entries)} pointers from {offset} to end of pool at {end_of_pool}")
 					# only keep valid pointers at offset
 					self.offset_2_struct_entries[offset] = [entry for entry in entries if entry not in null_ptrs]
 					# move the null pointers to their new offset
