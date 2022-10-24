@@ -712,8 +712,8 @@
 		<add name="dtype" type="CollisionType"/>
 		<add name="flag_0" type="ushort" default="0">PZ, JWE2 always 0</add>
 		<add name="flag_1" type="ushort" default="0">JWE1: 16; PZ, JWE2 always 0</add>
-		<add name="collision_ignore" type="OffsetString" arg="#ARG#">offset into joint names</add>
-		<add name="collision_use" type="OffsetString" arg="#ARG#">offset into joint names</add>
+		<add name="collision_ignore" type="OffsetString" arg="#ARG#">offset into joint names, not for JWE1</add>
+		<add name="collision_use" type="OffsetString" arg="#ARG#">offset into joint names, not for JWE1</add>
 		<add name="zero_extra_pc" type="uint" until="32">?</add>
 		<add name="name" type="OffsetString" arg="#ARG#">offset into joint names</add>
 

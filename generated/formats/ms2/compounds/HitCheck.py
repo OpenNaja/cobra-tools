@@ -27,10 +27,10 @@ class HitCheck(BaseStruct):
 		# JWE1: 16; PZ, JWE2 always 0
 		self.flag_1 = 0
 
-		# offset into joint names
+		# offset into joint names, not for JWE1
 		self.collision_ignore = 0
 
-		# offset into joint names
+		# offset into joint names, not for JWE1
 		self.collision_use = 0
 
 		# ?
