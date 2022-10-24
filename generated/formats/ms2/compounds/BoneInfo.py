@@ -239,7 +239,7 @@ class BoneInfo(BaseStruct):
 			yield 'inventory_datas_2', Array, (0, None, (instance.inv_data_count, 2,), Int), (False, None)
 		if instance.context.version <= 32 and instance.zeros_count:
 			yield 'minus_padding', MinusPadding, (instance.zeros_count, None), (False, None)
-		if instance.context.version >= 48 and instance.zeros_count:
+		if instance.context.version >= 47 and instance.zeros_count:
 			yield 'zeros_padding', ZerosPadding, (instance.zeros_count, None), (False, None)
 		if instance.count_7:
 			yield 'struct_7', Struct7, (0, None), (False, None)

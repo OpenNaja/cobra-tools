@@ -538,8 +538,8 @@
 		<add name="inventory_datas_2" type="int" arr1="inv_data_count" arr2="2" vercond="#DLA#">zeros</add>
 
 		<add name="MinusPadding" type="MinusPadding" cond="zeros count" arg="zeros count" until="32">weird -1s</add>
-		# JWE1 may not have these
-		<add name="ZerosPadding" type="ZerosPadding" cond="zeros count" arg="zeros count" since="48">weird zeros</add>
+		# JWE1 may not have these, apparently they are present in final jwe1
+		<add name="ZerosPadding" type="ZerosPadding" cond="zeros count" arg="zeros count" since="47">weird zeros</add>
 
 <!--		<add name="unkPc" type="uint64" cond="unk_pc_count" vercond="#PC#">present in anubis bone info 6</add>-->
 		<add name="struct 7" type="Struct7" cond="count7" >ragdoll links?</add>
