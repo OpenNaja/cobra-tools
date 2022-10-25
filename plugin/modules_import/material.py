@@ -69,7 +69,7 @@ def create_material(in_dir, matname):
 		if diffuse_name in tex_dic:
 			diffuse = tex_dic[diffuse_name]
 			# get AO
-			for ao_name in ("paotexture", "pbasepackedtexture_A", "pbaseaotexture"):
+			for ao_name in ("paotexture", "pbasepackedtexture_a", "pbaseaotexture"):
 				if ao_name in tex_dic:
 					ao = tex_dic[ao_name]
 					ao.image.colorspace_settings.name = "Non-Color"
@@ -116,7 +116,7 @@ def create_material(in_dir, matname):
 			tree.links.new(diffuse.outputs[0], principled.inputs["Base Color"])
 			break
 
-	for normal_name in ("pnormaltexture", "pbasenormaltexture_R"):
+	for normal_name in ("pnormaltexture", "pbasenormaltexture_r"):
 		# get diffuse
 		if normal_name in tex_dic:
 			normal = tex_dic[normal_name]
@@ -126,26 +126,29 @@ def create_material(in_dir, matname):
 			# normal_map.inputs["Strength"].default_value = 1.0
 			tree.links.new(normal_map.outputs[0], principled.inputs["Normal"])
 
-	# PZ - specularity?
-	for spec_name in ("proughnesspackedtexture_B", "pspecularmaptexture_R",):
+	# PZ - F0 value for dielectrics, related to IOR / fake specularity
+	# https://forum.sketchfab.com/t/what-is-specular-fo/22752/7
+	for spec_name in ("proughnesspackedtexture_b", "pspecularmaptexture_r",):
 		if spec_name in tex_dic:
 			specular = tex_dic[spec_name]
 			specular.image.colorspace_settings.name = "Non-Color"
 			tree.links.new(specular.outputs[0], principled.inputs["Specular"])
 
+
 	# PZ - roughness?
-	for roughness_name in ("proughnesspackedtexture_G", "pbasenormaltexture_B"): # "pspecularmaptexture_G" ?
+	for roughness_name in ("proughnesspackedtexture_g", "pbasenormaltexture_b"): # "pspecularmaptexture_g" ?
 		if roughness_name in tex_dic:
 			roughness = tex_dic[roughness_name]
 			roughness.image.colorspace_settings.name = "Non-Color"
 			tree.links.new(roughness.outputs[0], principled.inputs["Roughness"])
 
-	# JWE dinos - metalness
-	for metal_name in ("pbasepackedtexture_B",):
-		if metal_name in tex_dic:
-			metal = tex_dic[metal_name]
-			metal.image.colorspace_settings.name = "Non-Color"
-			tree.links.new(metal.outputs[0], principled.inputs["Metallic"])
+	# JWE dinos, PZ - metallic
+	# note that JWE1 uses proughnesspackedtexture_r as alpha, only pbasepackedtexture_b as metal!
+	for metallic_name in ("proughnesspackedtexture_r", "pbasepackedtexture_b",):
+		if metallic_name in tex_dic:
+			metallic = tex_dic[metallic_name]
+			metallic.image.colorspace_settings.name = "Non-Color"
+			tree.links.new(metallic.outputs[0], principled.inputs["Metallic"])
 
 	# alpha
 	alpha = None
@@ -160,11 +163,11 @@ def create_material(in_dir, matname):
 	elif "popacitytexture" in tex_dic:
 		alpha = tex_dic["popacitytexture"]
 		alpha_pass = alpha.outputs[0]
-	elif "JURASSIC" in fgm_data.game and "proughnesspackedtexture_R" in tex_dic and "Foliage_Clip" in fgm_data.shader_name:
-		alpha = tex_dic["proughnesspackedtexture_R"]
+	elif "JURASSIC" in fgm_data.game and "proughnesspackedtexture_r" in tex_dic and "Foliage_Clip" in fgm_data.shader_name:
+		alpha = tex_dic["proughnesspackedtexture_r"]
 		alpha_pass = alpha.outputs[0]
-	elif "proughnesspackedtexture_A" in tex_dic:
-		alpha = tex_dic["proughnesspackedtexture_A"]
+	elif "proughnesspackedtexture_a" in tex_dic:
+		alpha = tex_dic["proughnesspackedtexture_a"]
 		alpha_pass = alpha.outputs[0]
 	if alpha:
 		# transparency
