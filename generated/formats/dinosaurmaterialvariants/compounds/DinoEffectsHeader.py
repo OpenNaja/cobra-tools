@@ -23,14 +23,20 @@ class DinoEffectsHeader(MemStruct):
 		self.vec_2 = Vector3F(self.context, 0, None)
 		self.vec_3 = Vector3F(self.context, 0, None)
 		self.vec_4 = Vector3F(self.context, 0, None)
+		self.vec_5 = Vector3F(self.context, 0, None)
 		self.c = 0
 		self.d = 0
-		self.e = 0.0
-		self.f = 0.0
+		self.floats_1 = Array(self.context, 0, None, (0,), Float)
+		self.e = 0
+		self.floats_2 = Array(self.context, 0, None, (0,), Float)
+		self.f = 0
+		self.floats_3 = Array(self.context, 0, None, (0,), Float)
 		self.g = 0
-		self.floats = Array(self.context, 0, None, (0,), Float)
-		self.d = 0
-		self.e = 0.0
+		self.floats_4 = Array(self.context, 0, None, (0,), Float)
+		self.h = 0
+		self.floats_5 = Array(self.context, 0, None, (0,), Float)
+		self.i = 0
+		self.float = 0.0
 		self.fgm_name = Pointer(self.context, 0, ZStringObfuscated)
 		if set_default:
 			self.set_defaults()
@@ -44,14 +50,20 @@ class DinoEffectsHeader(MemStruct):
 		('vec_2', Vector3F, (0, None), (False, None), None),
 		('vec_3', Vector3F, (0, None), (False, None), None),
 		('vec_4', Vector3F, (0, None), (False, None), None),
+		('vec_5', Vector3F, (0, None), (False, None), None),
 		('c', Uint, (0, None), (False, None), None),
 		('d', Uint, (0, None), (False, None), None),
-		('e', Float, (0, None), (False, None), None),
-		('f', Float, (0, None), (False, None), None),
+		('floats_1', Array, (0, None, (2,), Float), (False, None), None),
+		('e', Uint, (0, None), (False, None), None),
+		('floats_2', Array, (0, None, (2,), Float), (False, None), None),
+		('f', Uint, (0, None), (False, None), None),
+		('floats_3', Array, (0, None, (8,), Float), (False, None), None),
 		('g', Uint, (0, None), (False, None), None),
-		('floats', Array, (0, None, (39,), Float), (False, None), None),
-		('d', Uint, (0, None), (False, None), None),
-		('e', Float, (0, None), (False, None), None),
+		('floats_4', Array, (0, None, (6,), Float), (False, None), None),
+		('h', Uint, (0, None), (False, None), None),
+		('floats_5', Array, (0, None, (20,), Float), (False, None), None),
+		('i', Uint, (0, None), (False, None), None),
+		('float', Float, (0, None), (False, None), None),
 		]
 
 	@classmethod
@@ -65,11 +77,17 @@ class DinoEffectsHeader(MemStruct):
 		yield 'vec_2', Vector3F, (0, None), (False, None)
 		yield 'vec_3', Vector3F, (0, None), (False, None)
 		yield 'vec_4', Vector3F, (0, None), (False, None)
+		yield 'vec_5', Vector3F, (0, None), (False, None)
 		yield 'c', Uint, (0, None), (False, None)
 		yield 'd', Uint, (0, None), (False, None)
-		yield 'e', Float, (0, None), (False, None)
-		yield 'f', Float, (0, None), (False, None)
+		yield 'floats_1', Array, (0, None, (2,), Float), (False, None)
+		yield 'e', Uint, (0, None), (False, None)
+		yield 'floats_2', Array, (0, None, (2,), Float), (False, None)
+		yield 'f', Uint, (0, None), (False, None)
+		yield 'floats_3', Array, (0, None, (8,), Float), (False, None)
 		yield 'g', Uint, (0, None), (False, None)
-		yield 'floats', Array, (0, None, (39,), Float), (False, None)
-		yield 'd', Uint, (0, None), (False, None)
-		yield 'e', Float, (0, None), (False, None)
+		yield 'floats_4', Array, (0, None, (6,), Float), (False, None)
+		yield 'h', Uint, (0, None), (False, None)
+		yield 'floats_5', Array, (0, None, (20,), Float), (False, None)
+		yield 'i', Uint, (0, None), (False, None)
+		yield 'float', Float, (0, None), (False, None)
