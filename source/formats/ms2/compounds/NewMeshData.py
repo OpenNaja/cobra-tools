@@ -135,10 +135,9 @@ class NewMeshData:
 			unpack_int64_vector(shapes_combined, self.shapekeys, self.shape_residues)
 			scale_unpack_vectorized(self.shapekeys, self.pack_base)
 			unpack_swizzle_vectorized(self.shapekeys)
-		#
+
 		# for bit in range(0, 8):
 		# 	for vertex_index, res in enumerate((self.verts_data["winding"] >> bit) & 1):
-		# 		# self.add_to_weights(f"bit{bit}", vertex_index, res/128)
 		# 		self.add_to_weights(f"bit{bit}", vertex_index, res)
 		logging.info(f"Unpacked mesh in {time.time() - start_time:.2f} seconds")
 
