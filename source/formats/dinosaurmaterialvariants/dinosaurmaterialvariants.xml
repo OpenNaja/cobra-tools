@@ -77,14 +77,20 @@
         <add name="vec2" type="Vector3f"/>
         <add name="vec3" type="Vector3f"/>
         <add name="vec4" type="Vector3f"/>
+        <add name="vec5" type="Vector3f"/>
         <add name="c" type="uint"/>
         <add name="d" type="uint"/>
-        <add name="e" type="float"/>
-        <add name="f" type="float"/>
+        <add name="floats1" type="float" arr1="2"/>
+        <add name="e" type="uint"/>
+        <add name="floats2" type="float" arr1="2"/>
+        <add name="f" type="uint"/>
+        <add name="floats3" type="float" arr1="8"/>
         <add name="g" type="uint"/>
-        <add name="floats" type="float" arr1="39"/>
-        <add name="d" type="uint"/>
-        <add name="e" type="float"/>
-    </compound>
+        <add name="floats4" type="float" arr1="6"/>
+        <add name="h" type="uint"/>
+        <add name="floats5" type="float" arr1="20"/>
+        <add name="i" type="uint"/>
+        <add name="float" type="float"/>
+     </compound>
 
 </niftoolsxml>
