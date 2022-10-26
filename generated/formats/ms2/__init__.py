@@ -219,12 +219,15 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			if model_info.name in mdl2_names:
 				model_info_copy = copy(model_info)
 				# add as many suffixes as needed to make new_name unique
-				new_name = model_info_copy.name
-				while self.name_used(new_name):
-					new_name = f"{new_name}_copy"
-				model_info_copy.name = new_name
+				self.make_name_unique(model_info_copy)
 				self.model_infos.append(model_info_copy)
 		self.model_infos.sort(key=lambda model_info: model_info.name)
+
+	def make_name_unique(self, model_info_copy):
+		new_name = model_info_copy.name
+		while self.name_used(new_name):
+			new_name = f"{new_name}_copy"
+		model_info_copy.name = new_name
 
 	def rename(self, name_tups):
 		"""Renames strings in the main name buffer"""

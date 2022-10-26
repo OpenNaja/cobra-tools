@@ -127,7 +127,10 @@ class MainWindow(widgets.MainWindow):
 				try:
 					other_ms2_file = Ms2File()
 					other_ms2_file.load(append_path, read_editable=True)
-					self.ms2_file.model_infos.extend(other_ms2_file.model_infos)
+					# ensure that there are no name collisions
+					for model in other_ms2_file.model_infos:
+						self.ms2_file.make_name_unique(model)
+						self.ms2_file.model_infos.append(model)
 					self.file_widget.dirty = True
 				except:
 					self.handle_error("Appending failed, see log!")
