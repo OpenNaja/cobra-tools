@@ -112,25 +112,31 @@ class Ms2File(Ms2InfoHeader, IoFile):
 				stream.seek(self.buffer_1_offset)
 				self.buffer_1_bytes = stream.read(self.bone_info_size)
 				self.buffer_2_bytes = stream.read()
-			# attach the streams to each buffer_info
-			for buffer_info, modelstream_name in zip(self.buffer_infos, self.modelstream_names):
-				buffer_info.name = modelstream_name
-				buffer_info.path = os.path.join(self.dir, buffer_info.name)
-				logging.info(f"Loading {buffer_info.path}")
-				with open(buffer_info.path, "rb") as modelstream_reader:
-					self.attach_streams(buffer_info, modelstream_reader)
-			# attach the static stream to last buffer_info
-			# some older models do not have a static stream (eg. ZTUAC rhino)
-			if self.buffer_infos and len(self.buffer_infos) != len(self.modelstream_names):
-				static_buffer_info = self.buffer_infos[-1]
-				stream.seek(self.buffer_2_offset)
-				static_buffer_info.name = "STATIC"
-				static_buffer_info.path = filepath
-				self.attach_streams(static_buffer_info, stream)
+			self.load_buffers(filepath, stream)
 			if read_editable:
 				self.load_meshes()
 
 		logging.debug(f"Read {self.name} in {time.time() - start_time:.2f} seconds")
+
+	def load_buffers(self, filepath, stream):
+		for i, buffer_info in enumerate(self.buffer_infos):
+			buffer_info.name = None
+			buffer_info.index = i
+		# attach the static stream to the right buffer_info
+		if self.buffer_infos and self.info.static_buffer_index > -1:
+			static_buffer_info = self.buffer_infos[self.info.static_buffer_index]
+			stream.seek(self.buffer_2_offset)
+			static_buffer_info.name = "STATIC"
+			static_buffer_info.path = filepath
+			self.attach_streams(static_buffer_info, stream)
+		# attach the streams to all other buffer_infos
+		streams = [buffer_info for buffer_info in self.buffer_infos if buffer_info.name != "STATIC"]
+		for buffer_info, modelstream_name in zip(streams, self.modelstream_names):
+			buffer_info.name = modelstream_name
+			buffer_info.path = os.path.join(self.dir, buffer_info.name)
+			logging.info(f"Loading {buffer_info.path}")
+			with open(buffer_info.path, "rb") as modelstream_reader:
+				self.attach_streams(buffer_info, modelstream_reader)
 
 	def attach_streams(self, buffer_info, in_stream=None, dump=False):
 		"""Attaches streams to a buffer info for each section, and fills them if an input stream is provided"""
