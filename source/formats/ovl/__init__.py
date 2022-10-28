@@ -1218,9 +1218,9 @@ class OvlFile(Header, IoFile):
 				archive.num_root_entries = len(ovs.root_entries)
 				archive.num_buffer_groups = len(ovs.buffer_groups)
 
-				# remove archive if it has no pools and no roots and no datas
-				if not archive.num_pools and not archive.num_root_entries and not archive.num_datas:
-					logging.info(f"Removed archive {archive.name} as it was empty")
+				# remove stream archive if it has no pools and no roots and no datas
+				if archive.name != "STATIC" and not (archive.num_pools or archive.num_root_entries or archive.num_datas):
+					logging.info(f"Removed stream archive {archive.name} as it was empty")
 					self.archives.remove(archive)
 					continue
 
