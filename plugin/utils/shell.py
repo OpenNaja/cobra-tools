@@ -105,7 +105,9 @@ def gauge_uv_scale_wrapper():
 
 
 def get_collection(name):
-	for coll in bpy.data.collections:
+	scn = bpy.context.scene
+	col = scn.collection
+	for coll in bpy.types.Collection(col).children:
 		if name in coll.name:
 			return coll
 
