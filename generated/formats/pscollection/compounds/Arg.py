@@ -25,22 +25,22 @@ class Arg(MemStruct):
 			self.set_defaults()
 
 	_attribute_list = MemStruct._attribute_list + [
-		('u_0', Ubyte, (0, None), (False, None), None),
+		('u_0', Ubyte, (0, None), (True, 0), None),
 		('arg_type', Ubyte, (0, None), (False, None), None),
 		('arg_index', Ubyte, (0, None), (False, None), None),
-		('u_1', Ubyte, (0, None), (False, None), None),
-		('u_2', Uint, (0, None), (False, None), None),
-		('u_3', Uint64, (0, None), (False, None), None),
-		('u_4', Uint64, (0, None), (False, None), None),
+		('u_1', Ubyte, (0, None), (True, 0), None),
+		('u_2', Uint, (0, None), (True, 0), None),
+		('u_3', Uint64, (0, None), (True, 0), None),
+		('u_4', Uint64, (0, None), (True, 0), None),
 		]
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'u_0', Ubyte, (0, None), (False, None)
+		yield 'u_0', Ubyte, (0, None), (True, 0)
 		yield 'arg_type', Ubyte, (0, None), (False, None)
 		yield 'arg_index', Ubyte, (0, None), (False, None)
-		yield 'u_1', Ubyte, (0, None), (False, None)
-		yield 'u_2', Uint, (0, None), (False, None)
-		yield 'u_3', Uint64, (0, None), (False, None)
-		yield 'u_4', Uint64, (0, None), (False, None)
+		yield 'u_1', Ubyte, (0, None), (True, 0)
+		yield 'u_2', Uint, (0, None), (True, 0)
+		yield 'u_3', Uint64, (0, None), (True, 0)
+		yield 'u_4', Uint64, (0, None), (True, 0)
