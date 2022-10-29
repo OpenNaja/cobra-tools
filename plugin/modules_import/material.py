@@ -116,8 +116,7 @@ def create_material(in_dir, matname):
 			tree.links.new(diffuse.outputs[0], principled.inputs["Base Color"])
 			break
 
-	for normal_name in ("pnormaltexture", "pbasenormaltexture_r"):
-		# get diffuse
+	for normal_name in ("pnormaltexture", "pbasenormaltexture_rg"):
 		if normal_name in tex_dic:
 			normal = tex_dic[normal_name]
 			normal.image.colorspace_settings.name = "Non-Color"
@@ -128,15 +127,14 @@ def create_material(in_dir, matname):
 
 	# PZ - F0 value for dielectrics, related to IOR / fake specularity
 	# https://forum.sketchfab.com/t/what-is-specular-fo/22752/7
-	for spec_name in ("proughnesspackedtexture_b", "pspecularmaptexture_r",):
+	for spec_name in ("proughnesspackedtexture_b", "pspecularmaptexture_r", "pbasenormaltexture_b"):
 		if spec_name in tex_dic:
 			specular = tex_dic[spec_name]
 			specular.image.colorspace_settings.name = "Non-Color"
 			tree.links.new(specular.outputs[0], principled.inputs["Specular"])
 
-
-	# PZ - roughness?
-	for roughness_name in ("proughnesspackedtexture_g", "pbasenormaltexture_b"): # "pspecularmaptexture_g" ?
+	# roughness
+	for roughness_name in ("proughnesspackedtexture_g", "pbasenormaltexture_a"):  # "pspecularmaptexture_g" ?
 		if roughness_name in tex_dic:
 			roughness = tex_dic[roughness_name]
 			roughness.image.colorspace_settings.name = "Non-Color"
