@@ -38,7 +38,6 @@ class JointData(BaseStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		strings = list(instance.get_strings())
-		logging.info(strings)
 		instance.joint_names.update_strings(strings)
 		instance.namespace_length = len(instance.joint_names.data)
 		super().write_fields(stream, instance)
