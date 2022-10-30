@@ -12,6 +12,16 @@ from modules.formats.BaseFormat import MemStructLoader
 from modules.formats.shared import get_padding
 
 
+def read_layer_image(uri):
+	if uri.endswith(".tiff"):
+		# not sure if we need to do any resampling here, assume proper float32 data
+		return iio.imread(uri)
+	else:
+		# make sure the image editors didn't mess up,
+		# using pngs with palettes requires a conversion
+		return iio.imread(uri, mode="RGBA")[:, :, 0]
+
+
 class VoxelskirtLoader(MemStructLoader):
 	extension = ".voxelskirt"
 	target_class = VoxelskirtRoot
@@ -25,10 +35,10 @@ class VoxelskirtLoader(MemStructLoader):
 		# write layers
 		if is_pc(self.ovl):
 			# load images first
-			self.heightmap = iio.imread(f"{basepath}_height.tiff")
+			self.heightmap = read_layer_image(f"{basepath}_height.tiff")
 			self.weights = np.empty((self.header.x, self.header.y, 4), np.uint8)
 			for i in range(4):
-				self.weights[:, :, i] = iio.imread(f"{basepath}_mask{i}.png")
+				self.weights[:, :, i] = read_layer_image(f"{basepath}_mask{i}.png")
 			self.header._height_offset = stream.tell()
 			# height is same format as the other games
 			Array.to_stream(self.heightmap, stream, self.header.context, 0, None, (self.header.x, self.header.y), Float)
@@ -39,7 +49,7 @@ class VoxelskirtLoader(MemStructLoader):
 			for layer in self.header.layers.data:
 				layer._offset = stream.tell()
 				# read layer from image file
-				layer.im = iio.imread(self.get_file_path(layer, basepath))
+				layer.im = read_layer_image(self.get_file_path(layer, basepath))
 				Array.to_stream(layer.im, stream, self.header.context, 0, None, (self.header.x, self.header.y), self.get_dtype(layer))
 				layer._data_size = stream.tell() - layer._offset
 		# write all named slots
