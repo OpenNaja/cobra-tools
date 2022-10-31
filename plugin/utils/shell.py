@@ -523,6 +523,6 @@ def num_fur_as_weights(mat_name):
 	# JWE2 uses same suffixes for fur, while feathers act like normal geometry
 	if mat_name.endswith(FUR_FIN):
 		return 0
-	elif mat_name.endswith(FUR):
+	elif mat_name.endswith((FUR, FUR_SHELL)):
 		return 1
 	return 0
