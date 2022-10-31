@@ -304,6 +304,12 @@ class BioMeshData:
 			# we have the views, so set bounds for the chunk (after swizzling)
 			tri_chunk.bounds_min.set(np.min(vert_chunk.vertices, axis=0))
 			tri_chunk.bounds_max.set(np.max(vert_chunk.vertices, axis=0))
+			# for alpha blended shells
+			if self.flag == 13:
+				# set the loc value as center of gravity, or center of bounds?
+				tri_chunk.loc.set(np.mean(vert_chunk.vertices, axis=0))
+				# rot is probably related to the normals of the chunk
+
 			# pack the verts
 			if vert_chunk.weights_flag.mesh_format == MeshFormat.SEPARATE:
 				scale_pack_vectorized(vert_chunk.vertices, vert_chunk.pack_base)
