@@ -4,6 +4,8 @@ import time
 import logging
 from copy import copy
 
+import numpy as np
+
 from generated.formats.base.compounds.PadAlign import get_padding
 from generated.formats.ms2.compounds.Ms2InfoHeader import Ms2InfoHeader
 from generated.formats.ms2.versions import *
@@ -394,7 +396,16 @@ if __name__ == "__main__":
 		# print(mo.model.lods)
 		# print(mo.model.objects)
 		for i, me in enumerate(mo.model.meshes):
-			print(i, me.mesh.vert_chunks[0:3], me.mesh.tri_chunks[0:3])
+			# if i in (12, 13, 14):
+			if i in (12, ):
+				print(i)
+				for ch_i in range(10):
+					tri_ch = me.mesh.tri_chunks[ch_i]
+					vert_ch = me.mesh.vert_chunks[ch_i]
+					# print(tri_ch)
+					av = np.mean(vert_ch.normals, axis=0)
+					md = np.median(vert_ch.normals, axis=0)
+					print(tri_ch.rot, av / np.linalg.norm(av), md / np.linalg.norm(md))
 	# m.load("C:/Users/arnfi/Desktop/park_captainhook_.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/export/models.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/baryo/models.ms2", read_editable=True)

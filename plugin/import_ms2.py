@@ -6,6 +6,7 @@ import bpy
 # import bmesh
 from plugin.modules_import.armature import import_armature, append_armature_modifier, import_vertex_groups, \
 	get_bone_names
+from plugin.modules_import.collision import import_chunk_bounds
 from plugin.modules_import.hair import add_psys
 from plugin.modules_import.material import import_material
 from plugin.utils.shell import is_fin, num_fur_as_weights
