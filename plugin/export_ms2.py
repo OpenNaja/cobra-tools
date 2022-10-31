@@ -288,6 +288,12 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 
 	# update vert & tri array
 	mesh.pack_base = model_info.pack_base
+	# for JWE2 so we can store these on the tri chunks
+	if "shell_index" in b_me:
+		mesh.shell_index = b_me["shell_index"]
+		mesh.shell_count = b_me["shell_count"]
+	else:
+		mesh.shell_index = mesh.shell_count = 0
 	# transfer raw verts into mesh data packed array
 	mesh.tris = tris_chunks
 	try:

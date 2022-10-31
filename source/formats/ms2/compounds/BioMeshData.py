@@ -265,6 +265,8 @@ class BioMeshData:
 			# flatten array
 			tri_chunk.tri_indices = np.reshape(raw_tris, len(raw_tris) * 3)
 			tri_chunk.tris_count = len(b_tris)
+			tri_chunk.shell_index = self.shell_index
+			tri_chunk.shell_count = self.shell_count
 			# get the vertex count from the tri indices
 			vert_chunk.vertex_count = np.max(tri_chunk.tri_indices) + 1
 			vert_chunk.weights_flag.mesh_format = self.mesh_format

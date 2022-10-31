@@ -32,8 +32,8 @@ class TriChunk(BaseStruct):
 
 		# can be 1, 0, 0, 0; w always in range -1, +1
 		self.rot = QuatWFirst(self.context, 0, None)
-		self.u_2 = 0
-		self.u_3 = 0
+		self.shell_index = 0
+		self.shell_count = 0
 		if set_default:
 			self.set_defaults()
 
@@ -45,8 +45,8 @@ class TriChunk(BaseStruct):
 		('tris_offset', Uint, (0, None), (False, None), None),
 		('loc', Vector3, (0, None), (False, None), None),
 		('rot', QuatWFirst, (0, None), (False, None), None),
-		('u_2', Ushort, (0, None), (False, None), None),
-		('u_3', Ushort, (0, None), (False, None), None),
+		('shell_index', Ushort, (0, None), (False, None), None),
+		('shell_count', Ushort, (0, None), (False, None), None),
 		]
 
 	@classmethod
@@ -59,5 +59,5 @@ class TriChunk(BaseStruct):
 		yield 'tris_offset', Uint, (0, None), (False, None)
 		yield 'loc', Vector3, (0, None), (False, None)
 		yield 'rot', QuatWFirst, (0, None), (False, None)
-		yield 'u_2', Ushort, (0, None), (False, None)
-		yield 'u_3', Ushort, (0, None), (False, None)
+		yield 'shell_index', Ushort, (0, None), (False, None)
+		yield 'shell_count', Ushort, (0, None), (False, None)

@@ -75,6 +75,9 @@ def load(filepath="", use_custom_normals=False, mirror_mesh=False):
 				if hasattr(mesh, "vert_chunks"):
 					scene.cobra.pack_base = mesh.vert_chunks[0].pack_base
 					b_me.cobra.mesh_format = mesh.vert_chunks[0].weights_flag.mesh_format.name
+					tri_chunk = mesh.tri_chunks[0]
+					b_me["shell_index"] = tri_chunk.shell_index
+					b_me["shell_count"] = tri_chunk.shell_count
 				# link material to mesh
 				import_material(created_materials, in_dir, b_me, m_ob.material)
 

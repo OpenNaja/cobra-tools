@@ -388,11 +388,13 @@ class Ms2File(Ms2InfoHeader, IoFile):
 
 if __name__ == "__main__":
 	m = Ms2File()
-	m.load("C:/Users/arnfi/Desktop/tyrannosaurusm3.ms2", read_editable=True)
+	m.load("C:/Users/arnfi/Desktop/pyro/models.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/hazard_ceilingfan_.ms2", read_editable=True)
 	for mo in m.model_infos:
 		# print(mo.model.lods)
-		print(mo.bone_info)
+		# print(mo.model.objects)
+		for i, me in enumerate(mo.model.meshes):
+			print(i, me.mesh.vert_chunks[0:3], me.mesh.tri_chunks[0:3])
 	# m.load("C:/Users/arnfi/Desktop/park_captainhook_.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/export/models.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/baryo/models.ms2", read_editable=True)
