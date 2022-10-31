@@ -14,13 +14,12 @@ from generated.formats.ms2.compounds.Object import Object
 from generated.formats.ms2 import Ms2File
 from generated.formats.ms2.compounds.packing_utils import remap, USHORT_MAX
 from generated.formats.ms2.enums.MeshFormat import MeshFormat
-from plugin.import_ms2 import num_fur_as_weights
 from plugin.modules_export.armature import get_armature, handle_transforms, export_bones_custom
 from plugin.modules_export.collision import export_bounds
 from plugin.modules_import.armature import get_bone_names
 from plugin.utils.matrix_util import evaluate_mesh
 from plugin.utils.object import NedryError
-from plugin.utils.shell import get_collection, is_shell, is_fin
+from plugin.utils.shell import get_collection, is_shell, is_fin, num_fur_as_weights
 from root_path import root_dir
 
 mesh_mode = os.path.isdir(os.path.join(root_dir, ".git"))

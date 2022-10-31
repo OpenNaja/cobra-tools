@@ -1,16 +1,14 @@
 import logging
 import os
 import time
-import traceback
 
 import bpy
 # import bmesh
 from plugin.modules_import.armature import import_armature, append_armature_modifier, import_vertex_groups, \
 	get_bone_names
-from plugin.modules_import.collision import import_chunk_bounds
 from plugin.modules_import.hair import add_psys
 from plugin.modules_import.material import import_material
-from plugin.utils.shell import is_fin
+from plugin.utils.shell import is_fin, num_fur_as_weights
 from plugin.utils.object import create_ob, get_collection
 from generated.formats.ms2 import Ms2File, is_old
 from generated.formats.ms2.enums.MeshFormat import MeshFormat
@@ -118,16 +116,6 @@ def import_face_maps(b_ob, mesh):
 			b_face_map.add(face_indices)
 			# for ind in face_indices:
 			# 	b_face_map.add(ind)
-
-
-def num_fur_as_weights(mat_name):
-	mat_name = mat_name.lower()
-	# todo - include JWE2 feather name conventions
-	if "_fur_fin" in mat_name:
-		return 0
-	elif "_fur" in mat_name:
-		return 1
-	return 0
 
 
 def per_loop(b_me, per_vertex_input):

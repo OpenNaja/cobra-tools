@@ -13,6 +13,9 @@ from plugin.modules_import.hair import get_tangent_space_mat
 # changed to avoid clamping bug and squares on fins
 X_START = -15.9993
 Y_START = 0.999756
+FUR_FIN = "_fur_fin"
+FUR = "_fur"
+FUR_SHELL = "_fur_shell"
 
 
 def get_ob_count(lod_collections):
@@ -501,7 +504,7 @@ def is_fin(ob):
 	for b_mat in ob.data.materials:
 		if not b_mat:
 			raise AttributeError(f"{ob.name} has an empty material slot!")
-		if "_fur_fin" in b_mat.name.lower():
+		if b_mat.name.lower().endswith(FUR_FIN):
 			return True
 
 
@@ -511,5 +514,15 @@ def is_shell(ob):
 	for b_mat in ob.data.materials:
 		if not b_mat:
 			raise AttributeError(f"{ob.name} has an empty material slot!")
-		if "_fur_shell" in b_mat.name.lower():
+		if b_mat.name.lower().endswith(FUR_SHELL):
 			return True
+
+
+def num_fur_as_weights(mat_name):
+	mat_name = mat_name.lower()
+	# todo - include JWE2 feather name conventions
+	if mat_name.endswith(FUR_FIN):
+		return 0
+	elif mat_name.endswith(FUR):
+		return 1
+	return 0
