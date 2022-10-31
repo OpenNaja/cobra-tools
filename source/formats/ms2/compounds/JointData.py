@@ -14,7 +14,6 @@ class JointData(BaseStruct):
 		"""Get all strings in the structure."""
 		condition_function = lambda x: issubclass(x[1], OffsetString)
 		for val in self.get_condition_values_recursive(self, condition_function):
-			logging.info(val)
 			yield val
 
 	def get_string_attribs(self):
