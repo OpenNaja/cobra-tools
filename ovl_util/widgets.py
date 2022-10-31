@@ -1314,7 +1314,6 @@ class MainWindow(QtWidgets.QMainWindow):
 			self.t_action.setText(message)
 			self.t_action_current_message = message
 
-
 	def run_threaded(self, func, *args, **kwargs):
 		# Step 2: Create a QThread object
 		self.thread = QtCore.QThread()

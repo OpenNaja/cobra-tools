@@ -200,8 +200,6 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			joints.joint_indices[joint_i] = bone_i
 			joints.bone_indices[bone_i] = joint_i
 
-		# todo - update joint JointData.names buffer + JointInfo.name_offset
-
 	def name_used(self, new_name):
 		for model_info in self.model_infos:
 			if model_info.name == new_name:
