@@ -520,7 +520,7 @@ def is_shell(ob):
 
 def num_fur_as_weights(mat_name):
 	mat_name = mat_name.lower()
-	# todo - include JWE2 feather name conventions
+	# JWE2 uses same suffixes for fur, while feathers act like normal geometry
 	if mat_name.endswith(FUR_FIN):
 		return 0
 	elif mat_name.endswith(FUR):
