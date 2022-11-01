@@ -29,8 +29,8 @@ def create_tangents():
 
 		# tangents have to be pre-calculated
 		# this will also calculate loop normal
-		me_trg.calc_tangents()
-		me_src.calc_tangents()
+		me_trg.calc_tangents(uvmap="UV0")
+		me_src.calc_tangents(uvmap="UV0")
 		# calc_tangents(me)
 
 		kd = fill_kd_tree(me_src)

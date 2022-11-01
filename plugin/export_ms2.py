@@ -106,7 +106,7 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 	mesh.fur_length = hair_length
 
 	# tangents have to be pre-calculated; this will also calculate loop normal
-	eval_me.calc_tangents()
+	eval_me.calc_tangents(uvmap="UV0")
 
 	# these were stored on import per loop
 	if use_stock_normals_tangents:
@@ -144,7 +144,7 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 			shell_ob = shell_obs[0]
 			logging.debug(f"Copying data for {b_ob.name} from base mesh {shell_ob.name}...")
 			shell_eval_ob, shell_eval_me = evaluate_mesh(shell_ob)
-			shell_eval_me.calc_tangents()
+			shell_eval_me.calc_tangents(uvmap="UV0")
 			shell_kd = fill_kd_tree(shell_eval_me)
 			fin_uv_layer = eval_me.uv_layers[0].data
 

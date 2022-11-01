@@ -69,7 +69,7 @@ def comb_common(adjust_psys_count=False, warn=True):
 			return comb_common()
 	# tangents have to be pre-calculated
 	# this will also calculate loop normal
-	me.calc_tangents()
+	me.calc_tangents(uvmap="UV0")
 	return me, ob_eval, particle_modifier_eval, particle_system, particle_system_eval
 
 
