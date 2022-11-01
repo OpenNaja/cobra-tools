@@ -260,11 +260,7 @@ def create_material(matcol_path):
 
 	textures = []
 	for i, slot in enumerate(slots):
-		# # skip default materials that have no fgm assigned
-		# if not height_texture:
-		# 	continue
 		logging.info(f"Slot {i}")
-		# mask_path = os.path.join(mat_dir, f"{mat_basename}.playered_blendweights_[{i:02}].png")
 		# load the tiled height_texture
 		tex = load_tex_node(tree, slot.height_tile_png_path)
 		# load the blendweights layer mask
@@ -317,10 +313,10 @@ def create_material(matcol_path):
 		mask.update()
 
 	# JWE1 style
-	normal_path = os.path.join(mat_dir, mat_basename + ".pnormaltexture.png")
+	normal_path = os.path.join(mat_dir, f"{mat_basename}.pnormaltexture.png")
 	# JWE2 style
 	if not os.path.isfile(normal_path):
-		normal_path = os.path.join(mat_dir, mat_basename + ".pbasenormaltexture_[0].png")
+		normal_path = os.path.join(mat_dir, f"{mat_basename}.pbasenormaltexture_RG.png")
 	normal = load_tex_node(tree, normal_path)
 	normal.image.colorspace_settings.name = "Non-Color"
 	normal_map = tree.nodes.new('ShaderNodeNormalMap')
@@ -342,14 +338,14 @@ def create_material(matcol_path):
 
 	# tree.links.new(mixRGB.outputs[0], bump.inputs[2])
 
-	diffuse_path = os.path.join(mat_dir, mat_basename + ".pbasediffusetexture.png")
+	diffuse_path = os.path.join(mat_dir, f"{mat_basename}.pbasediffusetexture.png")
 	diffuse = load_tex_node(tree, diffuse_path)
 
-	roughness_path = os.path.join(mat_dir, mat_basename + ".pbasepackedtexture_01.png")
+	roughness_path = os.path.join(mat_dir, f"{mat_basename}.pbasepackedtexture_G.png")
 	roughness = load_tex_node(tree, roughness_path)
 	roughness.image.colorspace_settings.name = "Non-Color"
 
-	ao_path = os.path.join(mat_dir, mat_basename + ".pbasepackedtexture_03.png")
+	ao_path = os.path.join(mat_dir, f"{mat_basename}.pbasepackedtexture_A.png")
 	ao = load_tex_node(tree, ao_path)
 	ao.image.colorspace_settings.name = "Non-Color"
 

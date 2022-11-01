@@ -7,6 +7,9 @@ from generated.formats.fgm.compounds.FgmHeader import FgmHeader
 from generated.formats.ovl_base import OvlContext
 
 
+channels = ("R", "G", "B", "A")
+
+
 class LayeredMaterial:
 
 	def __init__(self):
@@ -22,8 +25,16 @@ class LayeredMaterial:
 		matname = basename.split("_layers")[0]
 		logging.info(f"Material: {matname}")
 		layers_root = DinoLayersHeader.from_xml_file(layers_path, self.context)
+		tile_i = 0
+		ch_i = 0
 		for mask_i, layer in enumerate(layers_root.layers.data):
-			mask_png_path = os.path.join(base_dir, f"{matname}.playered_blendweights_[{mask_i:02}].png")
+			mask_png_path = os.path.join(base_dir, f"{matname}.playered_blendweights_[{tile_i:02}]_{channels[ch_i]}.png")
+			# increment channel
+			ch_i += 1
+			# move to the next tile for the next loop
+			if ch_i == 3:
+				ch_i = 0
+				tile_i += 1
 			tex_fgm_path = get_fgm_path(base_dir, layer.texture_fgm_name)
 			trans_fgm_path = get_fgm_path(base_dir, layer.transform_fgm_name)
 			if not os.path.isfile(mask_png_path):
