@@ -47,12 +47,15 @@ def load(filepath="", use_custom_normals=False, mirror_mesh=False):
 				# print(mesh)
 				# lod_i = mesh.lod_index
 				# logging.debug(f"flag {mesh.flag}")
+				mesh_name = f"{mdl2_name}_model{m_ob.mesh_index}"
+				# import_chunk_bounds(mesh_name, mesh, lod_coll)
+				# continue
 				if m_ob.mesh_index in mesh_dict:
 					b_me = mesh_dict[m_ob.mesh_index]
 
 				# create object and mesh from data
 				else:
-					b_me = bpy.data.meshes.new(f"{mdl2_name}_model{m_ob.mesh_index}")
+					b_me = bpy.data.meshes.new(mesh_name)
 					# cast array to prevent truth check in from_pydata
 					b_me.from_pydata(mesh.vertices, [], tuple(mesh.tris))
 					# print(mesh.vertices, [], tuple(mesh.tris))
@@ -71,7 +74,7 @@ def load(filepath="", use_custom_normals=False, mirror_mesh=False):
 						import_mesh_layers(b_me, mesh, use_custom_normals, m_ob.material.name)
 					except:
 						logging.exception("import_mesh_layers failed")
-					# import_chunk_bounds(b_me, mesh, lod_coll)
+					import_chunk_bounds(b_me, mesh, lod_coll)
 				# JWE2 - possibly unique pack_base per vert_chunk
 				if hasattr(mesh, "vert_chunks"):
 					scene.cobra.pack_base = mesh.vert_chunks[0].pack_base

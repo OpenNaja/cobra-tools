@@ -137,8 +137,10 @@
 		<field name="w" type="float">zeroth coordinate.</field>
 	</compound>
 
-	<compound name="QuatWFirst" size="16">
-		<field name="w" type="float" default="1.0"/>
+	<compound name="AxisAngle" size="16">
+		<field name="a" type="float" default="1.0"/>
+		when a = 1.0, x,y,z = 0
+		otherwise x,y,z is a normalized vector
 		<field name="x" type="float" default="0.0"/>
 		<field name="y" type="float" default="0.0"/>
 		<field name="z" type="float" default="0.0"/>
@@ -430,7 +432,7 @@
 		<add name="bounds max" type="Vector3">the biggest coordinates across all axes, max of unpacked vert coords if loc is 0,0,0</add>
 		<add name="tris_offset" type="uint"/>bytes into tris buffer
 		<add name="loc" type="Vector3">can be 0,0,0, no obvious range, not always within range of bounds</add>
-		<add name="rot" type="QuatWFirst">can be 1, 0, 0, 0; w always in range -1, +1</add>
+		<add name="rot" type="AxisAngle">can be 1, 0, 0, 0; w always in range -1, +1</add>
 		<add name="shell_index" type="ushort"/> 0, 1, 2 - increments per shell layer
 		<add name="shell_count" type="ushort"/> 0 or 3 in theri
 	</compound>

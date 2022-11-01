@@ -4,8 +4,11 @@ import time
 import logging
 from copy import copy
 
+import numpy as np
+
 from generated.formats.base.compounds.PadAlign import get_padding
 from generated.formats.ms2.compounds.Ms2InfoHeader import Ms2InfoHeader
+from generated.formats.ms2.compounds.packing_utils import pack_swizzle
 from generated.formats.ms2.versions import *
 from generated.io import IoFile
 from modules.formats.shared import djb2
@@ -394,7 +397,18 @@ if __name__ == "__main__":
 		# print(mo.model.lods)
 		# print(mo.model.objects)
 		for i, me in enumerate(mo.model.meshes):
-			print(i, me.mesh.vert_chunks[0:3], me.mesh.tri_chunks[0:3])
+			# if i in (12, 13, 14):
+			if i in (12, ):
+				print(i)
+				for ch_i in range(10):
+					tri_ch = me.mesh.tri_chunks[ch_i]
+					vert_ch = me.mesh.vert_chunks[ch_i]
+					# print(tri_ch)
+					av = np.mean(vert_ch.normals, axis=0)
+					md = np.median(vert_ch.normals, axis=0)
+					# print(tri_ch.rot, pack_swizzle(av / np.linalg.norm(av)), pack_swizzle(md / np.linalg.norm(md)), vert_ch.normals[0])
+					print(tri_ch.rot, pack_swizzle(vert_ch.normals[0]), pack_swizzle(vert_ch.normals[-1]), )
+					print(np.linalg.norm((tri_ch.rot.x, tri_ch.rot.y, tri_ch.rot.z, )), )
 	# m.load("C:/Users/arnfi/Desktop/park_captainhook_.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/export/models.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/baryo/models.ms2", read_editable=True)

@@ -100,12 +100,14 @@ def import_collision_matrix(container, corrector):
 
 
 def import_collision_quat(q, corrector):
-	mat = mathutils.Quaternion((q.w, q.x, q.y, q.z)).to_matrix().to_4x4()
+	mat = mathutils.Matrix.Rotation(q.a, 4, get_vec(q))
+	# mat = mathutils.Matrix.Rotation(q.a, 4, (q.x, q.y, q.z))
+	# mat = mathutils.Quaternion((q.w, q.x, q.y, q.z)).to_matrix().to_4x4()
 	# mat = mathutils.Euler((q.x, q.y, q.z)).to_matrix().to_4x4()
 	# mat.transpose()
-	# return mat
+	return mat
 	# not sure if a correction is right here
-	return corrector.nif_bind_to_blender_bind(mat)
+	# return corrector.nif_bind_to_blender_bind(mat)
 
 
 def import_boxbv(box, hitcheck_name, corrector):
@@ -184,21 +186,36 @@ def parent_to(armature_ob, ob, bone_name=None):
 	ob.matrix_local = ob.matrix_local
 
 
-def import_chunk_bounds(b_full_me, mesh, lod_coll):
+def get_vec(v):
+	return mathutils.Vector(unpack_swizzle([v.x, v.y, v.z]))
+
+
+def import_chunk_bounds(mesh_name, mesh, lod_coll):
+	scene = bpy.context.scene
 	corrector = matrix_util.Corrector(False)
 	if hasattr(mesh, "tri_chunks"):
-		for i, pos in enumerate(mesh.tri_chunks):
-			name = f"{b_full_me.name}_bbox_{i:03}"
-			# v0 = unpack_swizzle([pos.bounds_min.x, pos.bounds_min.y, pos.bounds_min.z])
-			# v1 = unpack_swizzle([pos.bounds_max.x, pos.bounds_max.y, pos.bounds_max.z])
-			# # print(v0, v1)
-			# b_obj, b_me = box_from_extents(name, v1[0], v0[0], v1[1], v0[1], v0[2], v1[2], coll_name=None, coll=lod_coll)
-			# set_b_collider(b_obj, 1, bounds_type="CONVEX_HULL", display_type="MESH")
+		for i, (tri_chunk, vert_chunk) in enumerate(zip(mesh.tri_chunks, mesh.vert_chunks)):
+
+			chunk_name = f"{mesh_name}_{i:03}"
+			b_me = bpy.data.meshes.new(chunk_name)
+			b_me.from_pydata(vert_chunk.vertices, [], ())
+			b_ob = create_ob(scene, chunk_name, b_me, coll=lod_coll)
+
+			v0 = get_vec(tri_chunk.bounds_min)
+			v1 = get_vec(tri_chunk.bounds_max)
+			loc = get_vec(tri_chunk.loc)
+
+			bbox_name = f"{chunk_name}_bbox"
+			v0 -= loc
+			v1 -= loc
+			b_obj, b_me = box_from_extents(bbox_name, v1[0], v0[0], v1[1], v0[1], v0[2], v1[2], coll_name=None, coll=lod_coll)
+			set_b_collider(b_obj, 1, bounds_type="CONVEX_HULL", display_type="MESH")
 			# print(name, v1[0], v0[0], v1[1], v0[1], v0[2], v1[2], pos.loc, pos.rot)
-			empty = create_ob(bpy.context.scene, name+"_empty", None, coll=lod_coll)
-			empty.matrix_local = import_collision_quat(pos.rot, corrector)
-			empty.location = unpack_swizzle((pos.loc.x, pos.loc.y, pos.loc.z))
-			empty.empty_display_type = "ARROWS"
-			empty.empty_display_size = 0.05
-			if i == 20:
+			# empty = create_ob(bpy.context.scene, name+"_empty", None, coll=lod_coll)
+			b_obj.matrix_local = import_collision_quat(tri_chunk.rot, corrector)
+			# print(name, pos.rot)
+			b_obj.location = loc
+			# empty.empty_display_type = "ARROWS"
+			# empty.empty_display_size = 0.05
+			if i == 10:
 				break
