@@ -150,43 +150,58 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 
 	if mesh.context.biosyn:
 		t_map = {}
-		# check which bones are used per face
-		for face in eval_me.polygons:
-			r = list(set(weights_data[v_index][0] for v_index in face.vertices))
-			# are there weights at all?
-			if not bones_table:
-				face_vertex_bone_id = NO_BONES_ID
-			# do all verts of this face use the same bone id?
-			elif len(r) == 1:
-				face_vertex_bone_id = r[0]
-			else:
-				face_vertex_bone_id = DYNAMIC_ID
-			# append face for this bone id
-			if face_vertex_bone_id not in t_map:
-				t_map[face_vertex_bone_id] = list()
-			t_map[face_vertex_bone_id].append(face)
-		# deleting small static chunks only on dynamic meshes, static meshes will not have -1 in
-		if DYNAMIC_ID in t_map:
-			for face_vertex_bone_id, bone_tris in tuple(t_map.items()):
-				# delete small static chunk
-				if face_vertex_bone_id != DYNAMIC_ID and len(bone_tris) < DISCARD_STATIC_TRIS:
-					logging.info(f"Moving {len(bone_tris)} tris for bone {face_vertex_bone_id} to dynamic chunk")
-					v_list = t_map.pop(face_vertex_bone_id)
-					t_map[DYNAMIC_ID].extend(v_list)
-		# now try to sort the tris so that vertices are re-used as often as possible
-		sort_tri_map(t_map)
-		# for face_vertex_bone_id, bone_tris in tuple(t_map.items()):
-		# 	t_map[face_vertex_bone_id] = list(sorted(bone_tris, key=lambda x: tuple(x.vertices)))
+		# reuse existing chunks
+		if use_stock_normals_tangents:
+			# there is just 1 layer
+			for b_face_map_layer in eval_me.face_maps:
+				# one per face
+				for face_i, m_face_map in enumerate(b_face_map_layer.data):
+					if m_face_map.value not in t_map:
+						t_map[m_face_map.value] = []
+					t_map[m_face_map.value].append(eval_me.polygons[face_i])
+			# ignore static chunks, just make them all dynamic
+			t_list = [(-1, polys) for polys in t_map.values()]
+		else:
+			# check which bones are used per face
+			for face in eval_me.polygons:
+				r = list(set(weights_data[v_index][0] for v_index in face.vertices))
+				# are there weights at all?
+				if not bones_table:
+					face_vertex_bone_id = NO_BONES_ID
+				# do all verts of this face use the same bone id?
+				elif len(r) == 1:
+					face_vertex_bone_id = r[0]
+				else:
+					face_vertex_bone_id = DYNAMIC_ID
+				# append face for this bone id
+				if face_vertex_bone_id not in t_map:
+					t_map[face_vertex_bone_id] = list()
+				t_map[face_vertex_bone_id].append(face)
+			# deleting small static chunks only on dynamic meshes, static meshes will not have -1 in
+			if DYNAMIC_ID in t_map:
+				for face_vertex_bone_id, bone_tris in tuple(t_map.items()):
+					# delete small static chunk
+					if face_vertex_bone_id != DYNAMIC_ID and len(bone_tris) < DISCARD_STATIC_TRIS:
+						logging.info(f"Moving {len(bone_tris)} tris for bone {face_vertex_bone_id} to dynamic chunk")
+						v_list = t_map.pop(face_vertex_bone_id)
+						t_map[DYNAMIC_ID].extend(v_list)
+			# now try to sort the tris so that vertices are re-used as often as possible
+			sort_tri_map(t_map)
+			# alternative sorting
+			# for face_vertex_bone_id, bone_tris in tuple(t_map.items()):
+			# 	t_map[face_vertex_bone_id] = list(sorted(bone_tris, key=lambda x: tuple(x.vertices)))
+			t_list = list(t_map.items())
 	else:
 		# no chunking by weights, just take all faces
 		t_map = {-1: eval_me.polygons}
+		t_list = list(t_map.items())
 
 	# stores values retrieved from blender, will be packed into array later
 	verts = []
 	# list of tri lists to support chunks
 	# always add to last entry
 	tris_chunks = []
-	for b_chunk_bone_id, b_chunk_faces in t_map.items():
+	for b_chunk_bone_id, b_chunk_faces in t_list:
 		logging.info(f"Exporting {len(b_chunk_faces)} tris for bone index {b_chunk_bone_id}")
 		# create new chunk
 		tris_chunks.append((b_chunk_bone_id, []))
