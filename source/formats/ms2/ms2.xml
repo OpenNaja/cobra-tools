@@ -439,12 +439,12 @@
 	
 	<compound name="VertChunk" >
 		JWE2 Biosyn: 16 bytes
-		<add name="flags" type="ubyte" arr1="4" />
+		<add name="flags" type="ubyte" arr1="4" />always: 2 16 0 58
 		<add name="pack_base" type="float" >scale: pack_base / 512, also added as offset</add>
 		<add name="vertex_offset" type="uint" >byte offset from start of vert buffer in bytes</add>
 		<add name="vertex_count" type="ubyte"/>confirmed
 		<add name="weights_flag" type="WeightsFlag">determines if weights are used by this chunk</add>
-		<add name="zero" type="ubyte"/>
+		<add name="zero" type="ubyte"/>always
 	</compound>
 
 	<compound name="ModelInfo" inherit="MemStruct">

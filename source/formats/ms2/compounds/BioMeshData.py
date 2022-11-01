@@ -121,10 +121,9 @@ class BioMeshData:
 			# ##### temporary debugging stuff
 			# self.bones_sets.append((vert_chunk.vertex_count, bones_per_chunk))
 			# prep face maps
-			# fmt_str = str(vert_chunk.weights_flag.mesh_format).split(".")[1]
-			# _weights = f"_weights" if vert_chunk.weights_flag.has_weights else ""
-			# id_str = f"{fmt_str}_{i:03}{_weights}"
-			# self.face_maps[id_str] = list(range(tris_start // 3, tris_start // 3 + tri_chunk.tris_count))
+			_weights = f"_weights" if vert_chunk.weights_flag.has_weights else ""
+			id_str = f"{i:03}{_weights}"
+			self.face_maps[id_str] = list(range(tris_start // 3, tris_start // 3 + tri_chunk.tris_count))
 		assert len(mesh_formats) == 1
 		# logging.info(self.bones_sets)
 		max_verts = max(vert_chunk.vertex_count for vert_chunk in self.vert_chunks)
