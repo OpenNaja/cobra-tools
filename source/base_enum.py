@@ -104,6 +104,11 @@ class BaseEnum(IntEnum, metaclass=DefaultEnumMeta):
 			cls._storage.to_stream(int(instance), stream, context)
 		return instance
 
+	def __str__(self):
+		# maintain old behavior even for python 3.11
+		cls_name = self.__class__.__name__
+		return f'{cls_name}.{self.name}'
+
 	@classmethod
 	def from_str(cls, label):
 		"""Creates the enum from its str representation"""
@@ -117,9 +122,7 @@ class BaseEnum(IntEnum, metaclass=DefaultEnumMeta):
 
 	@staticmethod
 	def fmt_member(member, indent=0):
-		lines = str(member).split("\n")
-		lines_new = [lines[0], ] + ["\t" * indent + line for line in lines[1:]]
-		return "\n".join(lines_new)
+		return str(member)
 
 	@classmethod
 	def from_xml(cls, target, elem, prop, arg=0, template=None):
