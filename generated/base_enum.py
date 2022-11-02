@@ -117,9 +117,7 @@ class BaseEnum(IntEnum, metaclass=DefaultEnumMeta):
 
 	@staticmethod
 	def fmt_member(member, indent=0):
-		lines = str(member).split("\n")
-		lines_new = [lines[0], ] + ["\t" * indent + line for line in lines[1:]]
-		return "\n".join(lines_new)
+		return repr(member)
 
 	@classmethod
 	def from_xml(cls, target, elem, prop, arg=0, template=None):
@@ -127,7 +125,7 @@ class BaseEnum(IntEnum, metaclass=DefaultEnumMeta):
 
 	@classmethod
 	def to_xml(cls, elem, prop, instance, arg, template, debug):
-		elem.attrib[prop] = str(instance)
+		elem.attrib[prop] = repr(instance)
 
 	@classmethod
 	def validate_instance(cls, instance, context, arg, template):
