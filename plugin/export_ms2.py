@@ -26,8 +26,8 @@ mesh_mode = os.path.isdir(os.path.join(root_dir, ".git"))
 DISCARD_STATIC_TRIS = 16
 DYNAMIC_ID = -1
 NO_BONES_ID = -2
-SOFT_MAX_VERTS = 200
-SOFT_MAX_TRIS = 200
+SOFT_MAX_VERTS = 45
+SOFT_MAX_TRIS = 33
 
 
 def ensure_tri_modifier(ob):
