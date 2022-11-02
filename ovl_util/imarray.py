@@ -21,6 +21,7 @@ def flip_gb(im):
 	im = im.copy()
 	im[:, :, 1] = 255 - im[:, :, 1]
 	im[:, :, 2] = 255 - im[:, :, 2]
+	logging.debug(f"Flipped GB channels")
 	return im
 
 
@@ -30,7 +31,7 @@ def check_any(iterable, string):
 
 
 def has_rgb_a(png_file_path):
-	return check_any(("pmossbasecolourroughnesspackedtexture", "ppackedtexture", "palbedoandroughnessdetail"), png_file_path)
+	return check_any(("pmossbasecolourroughnesspackedtexture", "ppackedtexture", "palbedoandroughnessdetail", "pnormaltexture", "pbasecolourtexture"), png_file_path)
 
 
 def has_rg_b_a(png_file_path):
@@ -44,7 +45,7 @@ def has_r_g_b_a(png_file_path):
 
 
 def has_vectors(png_file_path):
-	return check_any(("normaltexture", "playered_warpoffset"), png_file_path)
+	return check_any(("normaltexture", "playered_warpoffset"), png_file_path) and "pnormaltexture" not in png_file_path
 
 
 # define additional functions for specific channel indices
