@@ -288,7 +288,7 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 			# add it to the latest chunk, cast to tuple to make it hashable
 			chunk_tris.append(tuple(tri))
 		logging.debug(f"Preliminary chunk: count_unique {count_unique}, count_reused {count_reused}")
-		# todo - do final chunk splitting here, as we now have the final split vertices
+		# do final chunk splitting here, as we now have the final split vertices
 		if mesh.context.biosyn:
 			# build table of neighbors
 			tris_per_v_index = get_tris_per_v_index(chunk_tris, len(chunk_verts))
@@ -302,6 +302,7 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 				# pick random vertex from chunk faces
 				v_index, tris = tris_per_v_index.popitem()
 				logging.debug(f"Randomly picked vert {v_index} with {len(tris)} tris")
+				# todo - investigate why some vertices are lost on export
 				# todo - what happens when a vertex is picked whose tris have all been added - can that happen?
 				# assuming all the surrounding tris have been taken
 				while True:
