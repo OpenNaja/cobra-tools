@@ -326,9 +326,17 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 						logging.debug(f"Found new {len(tris_for_next_round)} tris")
 						tris = tris_for_next_round
 					else:
-						logging.debug(f"Found no neighboring tris, gotta start a new chunk")
-						# nope gotta pick a new one, and start a new chunk
-						break
+						if b_chunk_bone_id == DYNAMIC_ID:
+							logging.debug(f"Found no neighboring tris, gotta start a new chunk")
+							# nope gotta pick a new one, and start a new chunk
+							break
+						else:
+							logging.debug(f"Allowing grouping of non-linked static verts into one chunk")
+							if tris_per_v_index:
+								v_index, tris = tris_per_v_index.popitem()
+								logging.debug(f"Randomly picked vert {v_index} with {len(tris)} tris")
+							else:
+								break
 				# all verts and tris for this new chunk have been collected
 				# pick local verts
 				used_verts = list(sorted(used_verts))
