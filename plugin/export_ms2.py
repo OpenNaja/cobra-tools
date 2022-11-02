@@ -162,6 +162,7 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 			# ignore static chunks, just make them all dynamic
 			t_list = [(-1, polys) for polys in t_map.values()]
 		else:
+			# preliminary chunking - by static weights
 			# check which bones are used per face
 			for face in eval_me.polygons:
 				r = list(set(weights_data[v_index][0] for v_index in face.vertices))
@@ -186,7 +187,7 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 						v_list = t_map.pop(face_vertex_bone_id)
 						t_map[DYNAMIC_ID].extend(v_list)
 			# now try to sort the tris so that vertices are re-used as often as possible
-			sort_tri_map(t_map)
+			# sort_tri_map(t_map)
 			# alternative sorting
 			# for face_vertex_bone_id, bone_tris in tuple(t_map.items()):
 			# 	t_map[face_vertex_bone_id] = list(sorted(bone_tris, key=lambda x: tuple(x.vertices)))
@@ -203,11 +204,11 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 	tris_chunks = []
 	for b_chunk_bone_id, b_chunk_faces in t_list:
 		logging.info(f"Exporting {len(b_chunk_faces)} tris for bone index {b_chunk_bone_id}")
-		# create new chunk
-		tris_chunks.append((b_chunk_bone_id, []))
 		# use a dict mapping dummy vertices to their index for fast lookup
 		# this is used to convert blender vertices (several UVs, normals per face corner) to ms2 vertices
 		dummy_vertices = {}
+		chunk_verts = []
+		chunk_tris = []
 		count_unique = 0
 		count_reused = 0
 		# loop faces and collect unique and repeated vertices
@@ -215,16 +216,6 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 			if len(face.loop_indices) != 3:
 				# this is a bug - we are applying the triangulation modifier above
 				raise AttributeError(f"Mesh {b_ob.name} is not triangulated!")
-
-			if mesh.context.biosyn:
-				# tris are apparently not allowed to exceed 64 in stock
-				# seen chunks with more than 100 verts
-				if len(dummy_vertices) >= SOFT_MAX_VERTS or len(tris_chunks[-1][1]) >= SOFT_MAX_TRIS:
-					logging.debug(f"Starting new chunk")
-					tris_chunks.append((b_chunk_bone_id, []))
-					dummy_vertices = {}
-					count_unique = 0
-					count_reused = 0
 
 			# build indices into vertex buffer for the current face and chunk
 			tri = []
@@ -291,14 +282,66 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 						# append to uv
 						uvs.append((fur_length, remap(fur_width, 0, 1, -16, 16)))
 					# store all raw blender data
-					verts.append((position, vertex_bone_id == DYNAMIC_ID, normal, negate_bitangent, tangent, uvs, vcols,
+					chunk_verts.append((position, vertex_bone_id == DYNAMIC_ID, normal, negate_bitangent, tangent, uvs, vcols,
 								  weights, shapekey))
 				tri.append(v_index)
-			# add it to the latest chunk
-			tris_chunks[-1][1].append(tri)
-
-		logging.debug(f"count_unique {count_unique}")
-		logging.debug(f"count_reused {count_reused}")
+			# add it to the latest chunk, cast to tuple to make it hashable
+			chunk_tris.append(tuple(tri))
+		logging.debug(f"Preliminary chunk: count_unique {count_unique}, count_reused {count_reused}")
+		# todo - do final chunk splitting here, as we now have the final split vertices
+		if mesh.context.biosyn:
+			# build table of neighbors
+			tris_per_v_index = get_tris_per_v_index(chunk_tris, len(chunk_verts))
+			logging.debug(f"Built neighbors table for {len(tris_per_v_index)} verts")
+			# track added tris across all local chunks
+			added_tris = set()
+			while tris_per_v_index:
+				# create a local chunk
+				new_tris = []
+				used_verts = set()
+				# pick random vertex from chunk faces
+				v_index, tris = tris_per_v_index.popitem()
+				logging.debug(f"Randomly picked vert {v_index} with {len(tris)} tris")
+				# todo - what happens when a vertex is picked whose tris have all been added - can that happen?
+				# assuming all the surrounding tris have been taken
+				while True:
+					if len(used_verts) >= SOFT_MAX_VERTS or len(new_tris) >= SOFT_MAX_TRIS:
+						logging.debug(f"Chunk is filled with {len(new_tris)} tris or {len(used_verts)} verts")
+						# chunk is full, so stop adding tris
+						break
+					# add more tris
+					tris_for_next_round = set()
+					# store verts and grab the last faces' neighbors
+					for tri in tris:
+						if tri not in added_tris:
+							added_tris.add(tri)
+							new_tris.append(tri)
+							for old_vert_i in tri:
+								used_verts.add(old_vert_i)
+								picked_tris = tris_per_v_index.pop(old_vert_i, ())
+								for t in picked_tris:
+									tris_for_next_round.add(t)
+					# are direct neighbors are available?
+					if tris_for_next_round:
+						logging.debug(f"Found new {len(tris_for_next_round)} tris")
+						tris = tris_for_next_round
+					else:
+						logging.debug(f"Found no neighboring tris, gotta start a new chunk")
+						# nope gotta pick a new one, and start a new chunk
+						break
+				# all verts and tris for this new chunk have been collected
+				# pick local verts
+				used_verts = list(sorted(used_verts))
+				new_verts = [chunk_verts[old_vert_i] for old_vert_i in used_verts]
+				# update tri indices into local chunk verts
+				v_map = {old_vert_i: new_vert_i for new_vert_i, old_vert_i in enumerate(used_verts)}
+				new_tris = [[v_map[old_vert_i] for old_vert_i in tri] for tri in new_tris]
+				# finally extend lists by local chunk data
+				tris_chunks.append((b_chunk_bone_id, new_tris))
+				verts.extend(new_verts)
+		else:
+			tris_chunks.append((b_chunk_bone_id, chunk_tris))
+			verts.extend(chunk_verts)
 	logging.debug(f"count_chunks {len(tris_chunks)}")
 
 	# update vert & tri array
@@ -316,6 +359,14 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 	except ValueError as err:
 		raise AttributeError(f"Could not export {b_ob.name}!")
 	return wrapper
+
+
+def get_tris_per_v_index(tris, num_verts):
+	tris_per_v_index = {v_index: set() for v_index in range(num_verts)}
+	for tri in tris:
+		for v_index in tri:
+			tris_per_v_index[v_index].add(tri)
+	return tris_per_v_index
 
 
 def sort_tri_map(t_map):
