@@ -306,10 +306,6 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 				# todo - what happens when a vertex is picked whose tris have all been added - can that happen?
 				# assuming all the surrounding tris have been taken
 				while True:
-					if len(used_verts) >= SOFT_MAX_VERTS or len(new_tris) >= SOFT_MAX_TRIS:
-						logging.debug(f"Chunk is filled with {len(new_tris)} tris or {len(used_verts)} verts")
-						# chunk is full, so stop adding tris
-						break
 					# add more tris
 					tris_for_next_round = set()
 					# store verts and grab the last faces' neighbors
@@ -322,6 +318,17 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 								picked_tris = tris_per_v_index.pop(old_vert_i, ())
 								for t in picked_tris:
 									tris_for_next_round.add(t)
+					if len(used_verts) >= SOFT_MAX_VERTS or len(new_tris) >= SOFT_MAX_TRIS:
+						logging.debug(f"Chunk is filled with {len(new_tris)} tris or {len(used_verts)} verts")
+						# chunk is full, so stop adding tris, but add the newly found ones to the next chunk
+						for tri in tris_for_next_round:
+							if tri not in added_tris:
+								added_tris.add(tri)
+								new_tris.append(tri)
+								for old_vert_i in tri:
+									used_verts.add(old_vert_i)
+									# but don't pop, since we need to add them later
+						break
 					# are direct neighbors are available?
 					if tris_for_next_round:
 						logging.debug(f"Found new {len(tris_for_next_round)} tris")
@@ -345,9 +352,10 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 				# update tri indices into local chunk verts
 				v_map = {old_vert_i: new_vert_i for new_vert_i, old_vert_i in enumerate(used_verts)}
 				new_tris = [[v_map[old_vert_i] for old_vert_i in tri] for tri in new_tris]
-				# finally extend lists by local chunk data
-				tris_chunks.append((b_chunk_bone_id, new_tris))
-				verts.extend(new_verts)
+				if new_tris:
+					# finally extend lists by local chunk data
+					tris_chunks.append((b_chunk_bone_id, new_tris))
+					verts.extend(new_verts)
 		else:
 			tris_chunks.append((b_chunk_bone_id, chunk_tris))
 			verts.extend(chunk_verts)
