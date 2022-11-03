@@ -12,7 +12,12 @@ def reconstruct_z(im):
 	assert d == 2
 	im_rec = np.empty((h, w, 3), dtype=im.dtype)
 	im_rec[:, :, :2] = im[:, :, :2]
-	im_rec[:, :, 2] = 255
+	# convert to range +-1
+	im_f = im.astype(np.float32) / 127 - 1.0
+	# take pythagoras
+	norm_xy = np.clip(np.linalg.norm(im_f[:, :, :2], axis=-1), 0.0, 1.0)
+	# resulting z is in in 0,1 range, scale back to uint8 range
+	im_rec[:, :, 2] = np.round(np.sqrt(1.0 - norm_xy) * 127 + 127)
 	return im_rec
 
 
