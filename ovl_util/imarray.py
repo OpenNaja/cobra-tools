@@ -30,15 +30,29 @@ def flip_gb(im):
 	return im
 
 
+def flip_g(im):
+	"""Flips green channel of image array"""
+	im = im.copy()
+	im[:, :, 1] = 255 - im[:, :, 1]
+	logging.debug(f"Flipped G channel")
+	return im
+
+
 def check_any(iterable, string):
 	"""Returns true if any of the entries of the iterable occur in string"""
 	return any([i in string for i in iterable])
 
 
-def has_vectors(png_file_path):
-	# pnormaltexture - JWE2 uses RGBA, with no need to flip channels
-	# PZ uses BC5, so just RG
-	return check_any(("normaltexture", "playered_warpoffset"), png_file_path) and "pnormaltexture" not in png_file_path
+def has_vectors(png_file_path, compression):
+	if "pnormaltexture" in png_file_path:
+		# PZ uses BC5, so just RG
+		if "BC5" in compression:
+			return "G"
+		# pnormaltexture - JWE2 uses RGBA, with no need to flip channels
+		else:
+			return False
+	if check_any(("normaltexture", "playered_warpoffset"), png_file_path):
+		return "GB"
 
 
 # define additional functions for specific channel indices
@@ -64,16 +78,18 @@ def channel_iter(channels):
 def split_png(png_file_path, ovl, compression=None):
 	"""Fixes normals and splits channels of one PNG file if needed"""
 	out_files = []
-	must_flip_gb = has_vectors(png_file_path)
+	flip = has_vectors(png_file_path, compression)
 	channels = get_split_mode(png_file_path, compression)
 	if is_ztuac(ovl):
-		must_flip_gb = False
-	logging.debug(f"{png_file_path} channels {channels}, must_flip_gb {must_flip_gb}")
-	if must_flip_gb or channels:
+		flip = False
+	logging.debug(f"{png_file_path} channels {channels}, flip {flip}")
+	if flip or channels:
 		logging.info(f"Splitting {png_file_path} into {channels} channels")
 		im = imread(png_file_path)
-		if must_flip_gb:
+		if flip == "GB":
 			im = flip_gb(im)
+		if flip == "G":
+			im = flip_g(im)
 		if not channels:
 			# don't split at all, overwrite
 			iio.imwrite(png_file_path, im, compress_level=2)
@@ -130,13 +146,13 @@ def join_png(path_basename, tmp_dir, compression=None):
 	png_file_path = os.path.join(in_dir, f"{basename}.png")
 	tmp_png_file_path = os.path.join(tmp_dir, f"{basename}.png")
 	channels = get_split_mode(path_basename, compression)
-	must_flip_gb = has_vectors(path_basename)
+	flip = has_vectors(path_basename, compression)
 	# check if processing needs to be done
-	if not must_flip_gb and not channels:
+	if not flip and not channels:
 		assert os.path.isfile(png_file_path)
 		logging.debug(f"Need not process {png_file_path}")
 		return png_file_path
-	logging.debug(f"{png_file_path} channels {channels}, must_flip_gb {must_flip_gb}")
+	logging.debug(f"{png_file_path} channels {channels}, flip {flip}")
 	# rebuild from channels
 	if channels:
 		im = None
@@ -154,9 +170,11 @@ def join_png(path_basename, tmp_dir, compression=None):
 		# just read the one input file
 		im = imread(png_file_path)
 
-	# flip the green and blue channels
-	if must_flip_gb:
+	# flip channels
+	if flip == "GB":
 		im = flip_gb(im)
+	if flip == "G":
+		im = flip_g(im)
 
 	# this is shared for all pngs that have to be read
 	logging.debug(f"Writing output to {tmp_png_file_path}")
