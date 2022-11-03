@@ -5,10 +5,18 @@ import bpy
 import os
 
 from generated.formats.fgm.compounds.FgmHeader import FgmHeader
-from generated.formats.ovl.versions import is_jwe, is_jwe2
 from generated.formats.ovl_base import OvlContext
 from plugin.utils.node_arrange import nodes_iterate
 from plugin.utils.node_util import get_tree, load_tex_node
+
+
+def get_tex(tex_dic, names):
+	for tex_name in names:
+		# get diffuse
+		if tex_name in tex_dic:
+			yield tex_dic[tex_name]
+			# stop after finding a suitable one
+			break
 
 
 def create_material(in_dir, matname):
@@ -63,102 +71,84 @@ def create_material(in_dir, matname):
 			k = png_name.lower().split(".")[1]
 			tex_dic[k] = b_tex
 
-	# get diffuse and AO
-	for diffuse_name in ("pdiffusetexture", "pbasediffusetexture", "pbasecolourtexture", "pbasecolourandmasktexture", "pdiffusealphatexture", "pdiffuse_alphatexture", "palbinobasecolourandmasktexture", "pdinosaurfeathers_basediffusetexture"):
-		# get diffuse
-		if diffuse_name in tex_dic:
-			diffuse = tex_dic[diffuse_name]
-			# get AO
-			for ao_name in ("paotexture", "pbasepackedtexture_a", "pbaseaotexture"):
-				if ao_name in tex_dic:
-					ao = tex_dic[ao_name]
-					ao.image.colorspace_settings.name = "Non-Color"
+	# get diffuse
+	for diffuse in get_tex(tex_dic, (
+			"pdiffusetexture", "pbasediffusetexture", "pbasecolourtexture", "pbasecolourtexture_rgb",
+			"pbasecolourandmasktexture", "pdiffusealphatexture", "pdiffuse_alphatexture",
+			"palbinobasecolourandmasktexture", "pdinosaurfeathers_basediffusetexture")):
+		# apply AO to diffuse
+		for ao in get_tex(tex_dic, ("paotexture", "pbasepackedtexture_a", "pbaseaotexture")):
+			ao.image.colorspace_settings.name = "Non-Color"
+			diffuse_premix = tree.nodes.new('ShaderNodeMixRGB')
+			diffuse_premix.blend_type = "MULTIPLY"
+			diffuse_premix.inputs["Fac"].default_value = 1.0
+			tree.links.new(diffuse.outputs[0], diffuse_premix.inputs["Color1"])
+			tree.links.new(ao.outputs[0], diffuse_premix.inputs["Color2"])
+			diffuse = diffuse_premix
+		# get marking
+		fur_names = [k for k in tex_dic.keys() if "marking" in k and "noise" not in k and "patchwork" not in k]
+		lut_names = [k for k in tex_dic.keys() if "pclut" in k]
+		if fur_names and lut_names:
+			marking = tex_dic[sorted(fur_names)[0]]
+			lut = tex_dic[sorted(lut_names)[0]]
+			marking.image.colorspace_settings.name = "Non-Color"
+			# PZ LUTs usually occupy half of the texture
+			scaler = tree.nodes.new('ShaderNodeMapping')
+			scaler.vector_type = "POINT"
+			tree.links.new(marking.outputs[0], scaler.inputs[0])
+			tree.links.new(scaler.outputs[0], lut.inputs[0])
+			# texture needs to use extend mode so that it doesn't interpolate with the repeated image
+			lut.extension = "EXTEND"
+			# also to prevent interpolation at the middle of the image, set to closest
+			lut.interpolation = "Closest"
+			# location - put it into the first line (variants may use other lines, not sure where the FGM defines that)
+			scaler.inputs[1].default_value = (0, 1, 0)
+			# so scale the incoming greyscale coordinates so that X 1 lands in the center of the LUT, flatten it on Y
+			scaler.inputs[3].default_value = (0.499, 0, 0)
+			diffuse_premix = tree.nodes.new('ShaderNodeMixRGB')
+			diffuse_premix.blend_type = "MIX"
 
-					# apply AO to diffuse
-					diffuse_premix = tree.nodes.new('ShaderNodeMixRGB')
-					diffuse_premix.blend_type = "MULTIPLY"
-					diffuse_premix.inputs["Fac"].default_value = .25
-					tree.links.new(diffuse.outputs[0], diffuse_premix.inputs["Color1"])
-					tree.links.new(ao.outputs[0], diffuse_premix.inputs["Color2"])
-					diffuse = diffuse_premix
-					break
-			# get marking
-			fur_names = [k for k in tex_dic.keys() if "marking" in k and "noise" not in k and "patchwork" not in k]
-			lut_names = [k for k in tex_dic.keys() if "pclut" in k]
-			if fur_names and lut_names:
-				marking = tex_dic[sorted(fur_names)[0]]
-				lut = tex_dic[sorted(lut_names)[0]]
-				marking.image.colorspace_settings.name = "Non-Color"
-				# PZ LUTs usually occupy half of the texture
-				scaler = tree.nodes.new('ShaderNodeMapping')
-				scaler.vector_type = "POINT"
-				tree.links.new(marking.outputs[0], scaler.inputs[0])
-				tree.links.new(scaler.outputs[0], lut.inputs[0])
-				# texture needs to use extend mode so that it doesn't interpolate with the repeated image
-				lut.extension = "EXTEND"
-				# also to prevent interpolation at the middle of the image, set to closest
-				lut.interpolation = "Closest"
-				# location - put it into the first line (variants may use other lines, not sure where the FGM defines that)
-				scaler.inputs[1].default_value = (0, 1, 0)
-				# so scale the incoming greyscale coordinates so that X 1 lands in the center of the LUT, flatten it on Y
-				scaler.inputs[3].default_value = (0.499, 0, 0)
-				# apply AO to diffuse
-				diffuse_premix = tree.nodes.new('ShaderNodeMixRGB')
-				diffuse_premix.blend_type = "MIX"
+			tree.links.new(diffuse.outputs[0], diffuse_premix.inputs["Color1"])
+			tree.links.new(lut.outputs[0], diffuse_premix.inputs["Color2"])
+			# now we use the alpha channel from the LUT
+			tree.links.new(lut.outputs[1], diffuse_premix.inputs["Fac"])
+			diffuse = diffuse_premix
+		#  link finished diffuse to shader
+		tree.links.new(diffuse.outputs[0], principled.inputs["Base Color"])
 
-				tree.links.new(diffuse.outputs[0], diffuse_premix.inputs["Color1"])
-				tree.links.new(lut.outputs[0], diffuse_premix.inputs["Color2"])
-				# now we use the alpha channel from the LUT
-				# tree.links.new(marking.outputs[0], diffuse_premix.inputs["Fac"])
-				tree.links.new(lut.outputs[1], diffuse_premix.inputs["Fac"])
-				diffuse = diffuse_premix
-			#  link finished diffuse to shader
-			tree.links.new(diffuse.outputs[0], principled.inputs["Base Color"])
-			break
-
-	for normal_name in ("pnormaltexture", "pbasenormaltexture_rg"):
-		if normal_name in tex_dic:
-			normal = tex_dic[normal_name]
-			normal.image.colorspace_settings.name = "Non-Color"
-			normal_map = tree.nodes.new('ShaderNodeNormalMap')
-			tree.links.new(normal.outputs[0], normal_map.inputs[1])
-			# normal_map.inputs["Strength"].default_value = 1.0
-			tree.links.new(normal_map.outputs[0], principled.inputs["Normal"])
+	for normal in get_tex(tex_dic, ("pnormaltexture", "pnormaltexture_rg", "pbasenormaltexture_rg")):
+		normal.image.colorspace_settings.name = "Non-Color"
+		normal_map = tree.nodes.new('ShaderNodeNormalMap')
+		tree.links.new(normal.outputs[0], normal_map.inputs[1])
+		tree.links.new(normal_map.outputs[0], principled.inputs["Normal"])
 
 	# PZ - F0 value for dielectrics, related to IOR / fake specularity
 	# https://forum.sketchfab.com/t/what-is-specular-fo/22752/7
-	for spec_name in ("proughnesspackedtexture_b", "pspecularmaptexture_r", "pbasenormaltexture_b"):
-		if spec_name in tex_dic:
-			specular = tex_dic[spec_name]
-			specular.image.colorspace_settings.name = "Non-Color"
-			tree.links.new(specular.outputs[0], principled.inputs["Specular"])
+	for specular in get_tex(tex_dic, ("proughnesspackedtexture_b", "pspecularmaptexture_r", "pbasenormaltexture_b")):
+		specular.image.colorspace_settings.name = "Non-Color"
+		tree.links.new(specular.outputs[0], principled.inputs["Specular"])
 
 	# roughness
-	for roughness_name in ("proughnesspackedtexture_g", "pbasenormaltexture_a"):  # "pspecularmaptexture_g" ?
-		if roughness_name in tex_dic:
-			roughness = tex_dic[roughness_name]
-			roughness.image.colorspace_settings.name = "Non-Color"
-			tree.links.new(roughness.outputs[0], principled.inputs["Roughness"])
+	for roughness in get_tex(tex_dic, ("proughnesspackedtexture_g", "pbasenormaltexture_a")):  # "pspecularmaptexture_g" ?
+		roughness.image.colorspace_settings.name = "Non-Color"
+		tree.links.new(roughness.outputs[0], principled.inputs["Roughness"])
 
 	# JWE dinos, PZ - metallic
 	# note that JWE1 uses proughnesspackedtexture_r as alpha, only pbasepackedtexture_b as metal!
-	for metallic_name in ("proughnesspackedtexture_r", "pbasepackedtexture_b",):
-		if metallic_name in tex_dic:
-			metallic = tex_dic[metallic_name]
-			metallic.image.colorspace_settings.name = "Non-Color"
-			tree.links.new(metallic.outputs[0], principled.inputs["Metallic"])
+	for metallic in get_tex(tex_dic, ("proughnesspackedtexture_r", "pbasepackedtexture_b")):
+		metallic.image.colorspace_settings.name = "Non-Color"
+		tree.links.new(metallic.outputs[0], principled.inputs["Metallic"])
+
+	for emissive in get_tex(tex_dic, ("pemissivetexture",)):
+		tree.links.new(emissive.outputs[0], principled.inputs["Emission"])
 
 	# alpha
 	alpha = None
 	# JWE billboard: Foliage_Billboard
-	if "pdiffusealphatexture" in tex_dic:
-		alpha = tex_dic["pdiffusealphatexture"]
-		alpha_pass = alpha.outputs[1]
-	elif "pdiffuse_alphatexture" in tex_dic:
-		alpha = tex_dic["pdiffuse_alphatexture"]
+	for alpha in get_tex(tex_dic, ("pdiffusealphatexture", "pdiffuse_alphatexture")):
 		alpha_pass = alpha.outputs[1]
 	# PZ penguin
-	elif "popacitytexture" in tex_dic:
+	if "popacitytexture" in tex_dic:
 		alpha = tex_dic["popacitytexture"]
 		alpha_pass = alpha.outputs[0]
 	elif "JURASSIC" in fgm_data.game and "proughnesspackedtexture_r" in tex_dic and "Foliage_Clip" in fgm_data.shader_name:
@@ -171,7 +161,6 @@ def create_material(in_dir, matname):
 		# transparency
 		b_mat.blend_method = "CLIP"
 		b_mat.shadow_method = "CLIP"
-		# attr_dict = {attrib.name.lower(): attrib for attrib in fgm_data.attributes.data}
 		for attr, attr_data in zip(fgm_data.attributes.data, fgm_data.value_foreach_attributes.data):
 			if "palphatestref" in attr.name.lower():
 				# blender appears to be stricter with the alpha clipping

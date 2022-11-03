@@ -108,7 +108,7 @@ class DdsLoader(MemStructLoader):
 		# load all DDS files we need
 		dds_files = []
 		for tile_i, tile_name in zip(tiles, self.get_tile_names(tiles, basename)):
-			png_path = imarray.join_png(os.path.join(in_dir, tile_name), tmp_dir)
+			png_path = imarray.join_png(os.path.join(in_dir, tile_name), tmp_dir, self.compression_name)
 			dds_path = os.path.join(in_dir, f"{tile_name}.dds")
 			# prioritize png files
 			if png_path:
@@ -212,16 +212,11 @@ class DdsLoader(MemStructLoader):
 		if hasattr(size_info, "depth") and size_info.depth:
 			dds_file.depth = size_info.depth
 
-		compression_name = self.header.compression_type.name
-		logging.info(self.header.compression_type)
-		# account for aliases
-		if compression_name.endswith(("_B", "_C")):
-			compression_name = compression_name[:-2]
-		compression_type = DxgiFormat[compression_name]
+		compression_type = DxgiFormat[self.compression_name]
 
 		# header attribs
 		if not is_ztuac(self.ovl):
-			dds_file.width = align_to(dds_file.width, compression_name)
+			dds_file.width = align_to(dds_file.width, self.compression_name)
 
 		# set compression
 		dds_file.dx_10.dxgi_format = compression_type
@@ -244,10 +239,18 @@ class DdsLoader(MemStructLoader):
 				png_path = texconv.dds_to_png(dds_path)
 				# postprocessing of the png
 				if os.path.isfile(png_path):
-					out_files.extend(imarray.split_png(png_path, self.ovl))
+					out_files.extend(imarray.split_png(png_path, self.ovl, self.compression_name))
 			except:
 				logging.exception(f"Postprocessing of {dds_path} failed!")
 		return out_files
+
+	@property
+	def compression_name(self):
+		name = self.header.compression_type.name
+		# account for aliases
+		if name.endswith(("_B", "_C")):
+			name = name[:-2]
+		return name
 
 	def get_tiles(self, size_info):
 		if hasattr(size_info, "num_tiles") and size_info.num_tiles:

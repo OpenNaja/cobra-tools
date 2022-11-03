@@ -30,27 +30,16 @@ def check_any(iterable, string):
 	return any([i in string for i in iterable])
 
 
-def has_rgb_a(png_file_path):
-	return check_any(("pmossbasecolourroughnesspackedtexture", "ppackedtexture", "palbedoandroughnessdetail", "pnormaltexture", "pbasecolourtexture"), png_file_path)
-
-
-def has_rg_b_a(png_file_path):
-	return check_any(("pbasenormaltexture",), png_file_path)
-
-
-def has_r_g_b_a(png_file_path):
-	return check_any((
-		"packedtexture", "playered_blendweights", "scartexture", "samplertexture",
-		"pspecularmaptexture", "pflexicolourmaskstexture", "pshellmap", "pfinalphatexture", "ppiebaldtexture"), png_file_path)
-
-
 def has_vectors(png_file_path):
+	# pnormaltexture - JWE2 uses RGBA, with no need to flip channels
+	# PZ uses BC5, so just RG
 	return check_any(("normaltexture", "playered_warpoffset"), png_file_path) and "pnormaltexture" not in png_file_path
 
 
 # define additional functions for specific channel indices
 channel_modes = {
-	("RG_B_A", "RG"): reconstruct_z
+	("RG_B_A", "RG"): reconstruct_z,
+	("RG", "RG"): reconstruct_z
 	}
 
 
@@ -67,11 +56,11 @@ def channel_iter(channels):
 		ch_i += ch_count
 
 
-def split_png(png_file_path, ovl):
+def split_png(png_file_path, ovl, compression=None):
 	"""Fixes normals and splits channels of one PNG file if needed"""
 	out_files = []
 	must_flip_gb = has_vectors(png_file_path)
-	channels = get_split_mode(png_file_path)
+	channels = get_split_mode(png_file_path, compression)
 	if is_ztuac(ovl):
 		must_flip_gb = False
 	logging.debug(f"{png_file_path} channels {channels}, must_flip_gb {must_flip_gb}")
@@ -106,25 +95,19 @@ def split_png(png_file_path, ovl):
 	return out_files
 
 
-def get_split_mode(png_file_path):
-	if has_rgb_a(png_file_path):
+def get_split_mode(png_file_path, compression):
+	# PZ normal maps
+	if check_any(("BC5",), compression):
+		return "RG"
+	if check_any(("pmossbasecolourroughnesspackedtexture", "ppackedtexture", "palbedoandroughnessdetail", "pnormaltexture", "pbasecolourtexture"), png_file_path):
 		return "RGB_A"
-	if has_rg_b_a(png_file_path):
+	# JWE2 only
+	if check_any(("pbasenormaltexture",), png_file_path):
 		return "RG_B_A"
-	if has_r_g_b_a(png_file_path):
+	if check_any((
+		"packedtexture", "playered_blendweights", "scartexture", "samplertexture",
+		"pspecularmaptexture", "pflexicolourmaskstexture", "pshellmap", "pfinalphatexture", "ppiebaldtexture"), png_file_path):
 		return "R_G_B_A"
-
-
-def is_corresponding_png(file_name, name_bare):
-	if file_name.startswith(name_bare) and file_name.lower().endswith(".png"):
-		return True
-
-
-def check_same_dimensions(shapes, files):
-	"""Make sure that all array tiles have the same size"""
-	if not all(x == shapes[0] for x in shapes):
-		t_str = "\n".join([f"{im} [{h} x {w}] {d}" for (h, w, d), im in zip(shapes, files)])
-		raise AttributeError(f"Array tiles have different dimensions:\n{t_str}")
 
 
 def imread(uri):
@@ -133,7 +116,7 @@ def imread(uri):
 	return iio.imread(uri, mode="RGBA")
 
 
-def join_png(path_basename, tmp_dir):
+def join_png(path_basename, tmp_dir, compression=None):
 	"""This finds and if required, creates, a png file that is ready for DDS conversion (arrays or flipped channels)"""
 	ext = ".png"
 	path_basename = path_basename.lower()
@@ -141,32 +124,26 @@ def join_png(path_basename, tmp_dir):
 	in_dir, basename = os.path.split(path_basename)
 	png_file_path = os.path.join(in_dir, f"{basename}.png")
 	tmp_png_file_path = os.path.join(tmp_dir, f"{basename}.png")
-	lower_files = [file.lower() for file in os.listdir(in_dir)]
-	corresponding_png_textures = [file for file in lower_files if is_corresponding_png(file, basename)]
-
-	channels = get_split_mode(path_basename)
+	channels = get_split_mode(path_basename, compression)
 	must_flip_gb = has_vectors(path_basename)
-	logging.debug(f"{png_file_path} channels {channels}, must_flip_gb {must_flip_gb}")
-	
 	# check if processing needs to be done
 	if not must_flip_gb and not channels:
 		assert os.path.isfile(png_file_path)
 		logging.debug(f"Need not process {png_file_path}")
 		return png_file_path
-
+	logging.debug(f"{png_file_path} channels {channels}, must_flip_gb {must_flip_gb}")
 	# rebuild from channels
 	if channels:
-		# read all images into arrays
-		ims = [imread(os.path.join(in_dir, file)) for file in corresponding_png_textures]
-		# check that all textures have the same shape
-		check_same_dimensions([im.shape for im in ims], corresponding_png_textures)
-		# todo - maybe build shape from tex?
-		im = np.zeros(ims[0].shape, dtype=np.uint8)
-		# print(ims[0].shape, ims[0].dtype)
+		im = None
 		for ch_name, ch_slice in channel_iter(channels):
 			tile_png_path = f"{path_basename}_{ch_name}{ext}"
-			# take a slice, starting at the first channel
-			im[:, :, ch_slice] = imread(tile_png_path)[:, :, 0:len(ch_name)]
+			tile = imread(tile_png_path)
+			if im is None:
+				im = np.zeros(tile.shape, dtype=np.uint8)
+			else:
+				assert im.shape == tile.shape, f"Tile shape of {tile_png_path} ({tile.shape}) does not match expected shape ({im.shape})"
+			# take a slice, starting at the first channel of the tile
+			im[:, :, ch_slice] = tile[:, :, 0:len(ch_name)]
 	else:
 		# non-tiled files that need fixes - normal maps without channel packing
 		# just read the one input file
