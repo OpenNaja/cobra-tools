@@ -41,7 +41,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			logging.debug(f"Joints not used")
 			return
 		if self.context.version >= 47:
-			for i, x in enumerate(bone_info.struct_7.unknown_list):
+			for i, x in enumerate(bone_info.ik_info.ik_list):
 				# print(i)
 				# print(self.bone_info.bones[x.child], x.child)
 				# print(self.bone_info.bones[x.parent], x.parent)
@@ -179,11 +179,16 @@ class Ms2File(Ms2InfoHeader, IoFile):
 
 	def update_joints(self, bone_info):
 		bone_lut = {bone.name: bone_index for bone_index, bone in enumerate(bone_info.bones)}
-
-		for entry in bone_info.struct_7.unknown_list:
+		for entry in bone_info.ik_info.ik_list:
 			# indices into bones
 			entry.parent = bone_lut[entry.parent_name]
 			entry.child = bone_lut[entry.child_name]
+		#if bone_info.ik_info.flag == 2:
+			#bone_info.ik_info.ik_blend.ik_blend_rearright =
+			#bone_info.ik_info.ik_blend.ik_end_rearright =
+			#bone_info.ik_info.ik_blend.ik_blend_rearleft =
+			#bone_info.ik_info.ik_blend.ik_end_rearleft =
+
 
 		# print(bone_info.joints)
 		joints = bone_info.joints

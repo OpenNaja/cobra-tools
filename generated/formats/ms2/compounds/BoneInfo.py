@@ -10,10 +10,10 @@ from generated.formats.base.basic import Uint64
 from generated.formats.base.basic import Ushort
 from generated.formats.base.compounds.PadAlign import PadAlign
 from generated.formats.ms2.compounds.Bone import Bone
+from generated.formats.ms2.compounds.IkInfo import IkInfo
 from generated.formats.ms2.compounds.JointData import JointData
 from generated.formats.ms2.compounds.Matrix44 import Matrix44
 from generated.formats.ms2.compounds.MinusPadding import MinusPadding
-from generated.formats.ms2.compounds.Struct7 import Struct7
 from generated.formats.ms2.compounds.ZerosPadding import ZerosPadding
 from generated.formats.ovl_base.compounds.Empty import Empty
 
@@ -71,11 +71,11 @@ class BoneInfo(BaseStruct):
 		# this counts the weird padding at the end, usually == bone count, 0 in PZ aardvark
 		self.zeros_count = 0
 
-		# matches the other count on dino entertainer, but count7 is not present
+		# matches the other count on dino entertainer, but ik_count is not present
 		self.unk_pc_count = 0
 
 		# index count 7
-		self.count_7 = 0
+		self.ik_count = 0
 
 		# joint count
 		self.joint_count = 0
@@ -127,8 +127,8 @@ class BoneInfo(BaseStruct):
 		# weird zeros
 		self.zeros_padding = ZerosPadding(self.context, self.zeros_count, None)
 
-		# ragdoll links?
-		self.struct_7 = Struct7(self.context, 0, None)
+		# IK Data
+		self.ik_info = IkInfo(self.context, 0, None)
 
 		# joints
 		self.joints = JointData(self.context, 0, None)
@@ -155,7 +155,7 @@ class BoneInfo(BaseStruct):
 		('one', Uint64, (0, None), (False, None), None),
 		('zeros_count', Uint64, (0, None), (False, None), None),
 		('unk_pc_count', Uint64, (0, None), (False, None), True),
-		('count_7', Uint64, (0, None), (False, None), None),
+		('ik_count', Uint64, (0, None), (False, None), None),
 		('joint_count', Uint64, (0, None), (False, None), None),
 		('unk_78_count', Uint64, (0, None), (False, None), None),
 		('unk_extra', Uint64, (0, None), (False, None), True),
@@ -177,7 +177,7 @@ class BoneInfo(BaseStruct):
 		('inventory_datas_2', Array, (0, None, (None, 2,), Int), (False, None), True),
 		('minus_padding', MinusPadding, (None, None), (False, None), True),
 		('zeros_padding', ZerosPadding, (None, None), (False, None), True),
-		('struct_7', Struct7, (0, None), (False, None), True),
+		('ik_info', IkInfo, (0, None), (False, None), True),
 		('joints', JointData, (0, None), (False, None), True),
 		]
 
@@ -206,7 +206,7 @@ class BoneInfo(BaseStruct):
 		yield 'zeros_count', Uint64, (0, None), (False, None)
 		if instance.context.version == 32:
 			yield 'unk_pc_count', Uint64, (0, None), (False, None)
-		yield 'count_7', Uint64, (0, None), (False, None)
+		yield 'ik_count', Uint64, (0, None), (False, None)
 		yield 'joint_count', Uint64, (0, None), (False, None)
 		yield 'unk_78_count', Uint64, (0, None), (False, None)
 		if instance.context.version <= 13:
@@ -241,7 +241,7 @@ class BoneInfo(BaseStruct):
 			yield 'minus_padding', MinusPadding, (instance.zeros_count, None), (False, None)
 		if instance.context.version >= 47 and instance.zeros_count:
 			yield 'zeros_padding', ZerosPadding, (instance.zeros_count, None), (False, None)
-		if instance.count_7:
-			yield 'struct_7', Struct7, (0, None), (False, None)
+		if instance.ik_count:
+			yield 'ik_info', IkInfo, (0, None), (False, None)
 		if instance.joint_count:
 			yield 'joints', JointData, (0, None), (False, None)

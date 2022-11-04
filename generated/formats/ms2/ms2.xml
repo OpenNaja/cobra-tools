@@ -509,8 +509,8 @@
 		<add name="unknown58" type="uint64" >usually zero</add>
 		<add name="one" type="uint64" >always 1</add>
 		<add name="zeros count" type="uint64" >this counts the weird padding at the end, usually == bone count, 0 in PZ aardvark</add>
-		<add name="unk_pc_count" type="uint64" vercond="#PC#">matches the other count on dino entertainer, but count7 is not present</add>
-		<add name="count7" type="uint64" >index count 7</add>
+		<add name="unk_pc_count" type="uint64" vercond="#PC#">matches the other count on dino entertainer, but ik_count is not present</add>
+		<add name="ik_count" type="uint64" >index count 7</add>
 		<add name="joint count" type="uint64" >joint count</add>
 		<add name="unk78count" type="uint64" >zero</add>
 		<add name="unk extra" type="uint64" until="13" >zero</add>
@@ -544,7 +544,7 @@
 		<add name="ZerosPadding" type="ZerosPadding" cond="zeros count" arg="zeros count" since="47">weird zeros</add>
 
 <!--		<add name="unkPc" type="uint64" cond="unk_pc_count" vercond="#PC#">present in anubis bone info 6</add>-->
-		<add name="struct 7" type="Struct7" cond="count7" >ragdoll links?</add>
+		<add name="ik info" type="IK_Info" cond="ik_count" >IK Data</add>
 <!--		<add name="NewPcStruct" type="NewPcStruct" cond="unk_pc_count" >ragdoll links?</add>-->
 <!--		<add name="joint debug" type="StreamDebugger" cond="joint count" >joints</add>-->
 		<add name="joints" type="JointData" cond="joint count" >joints</add>
@@ -566,19 +566,43 @@
 		<add name="padding" type="byte" arr1="(16 - ((#ARG# * 2) % 16)) % 16" >0</add>
 	</compound>
 
-	<compound name="Struct7">
+	<compound name="IK_Info">
 		<add name="weird padding" type="SmartPadding" until="13" >needed for ZTUAC</add>
 <!--		<add name="zeros start" type="ubyte" until="13" arr1="6">guess for ZTUAC rhino, wrong for afr ele child</add>-->
-		<add name="count7" type="uint64">repeat</add>
+		<add name="ik_count" type="uint64">repeat</add>
 		<add name="zero 0" type="uint64" >seen 0</add>
 		<add name="flag" type="uint64" since="48">seen 0, 2, 4</add>
 		<add name="zero 2" type="uint64" since="48"/>
-		<add name="UnknownList" type="UACJoint" arr1="count7" until="13">36 bytes per entry</add>
-		<add name="UnknownList" type="NasutoJointEntry" arr1="count7" since="32">60 bytes per entry</add>
-		<add name="padding" type="ubyte" arr1="(8 - ((count7 * 60) % 8)) % 8">align list to multiples of 8</add>
+		<add name="ik_list" type="UACJoint" arr1="ik_count" until="13">36 bytes per entry</add>
+		<add name="ik_list" type="IKEntry" arr1="ik_count" since="32">60 bytes per entry</add>
+		<add name="padding" type="ubyte" arr1="(8 - ((ik_count * 60) % 8)) % 8">align list to multiples of 8</add>
 <!--		<add name="joint debug" type="StreamDebugger" >joints</add>-->
-		<add name="alignment" type="uint64" cond="flag" since="50">latest PZ and jwe2 only - if flag is non-zero, 8 bytes, else 0</add>
+		<add name="ik_blend" type="IKBlendType" cond="flag" since="50">latest PZ and jwe2 only - if flag is non-zero, 8 bytes, else 0</add>
 	</compound>
+	
+	<compound name="IKBlendType">
+		8 bytes
+		<add name="ik_blend rearright" type="ubyte"></add>
+		<add name="ik_end rearright" type="ubyte">last IK bone in the right leg</add>
+		<add name="ik_blend rearleft" type="ubyte"></add>
+		<add name="ik_end rearleft" type="ubyte"></add>
+		<add name="ik_blend frontright" type="ubyte"></add>
+		<add name="ik_end frontright" type="ubyte">last IK bone in the right leg</add>
+		<add name="ik_blend frontleft" type="ubyte"></add>
+		<add name="ik_end frontleft" type="ubyte"></add>
+	</compound>
+ 
+							  
+		 
+													
+																			   
+												   
+												 
+													 
+																				
+													
+												  
+			
 
 	<compound name="UACJoint">
 		36 bytes
@@ -586,7 +610,7 @@
 		<add name="floats" type="float" arr1="6">some at least</add>
 	</compound>
 
-	<compound name="NasutoJointEntry">
+	<compound name="IKEntry">
 		60 bytes
 		<add name="child" type="ubyte" >index into bone list</add>
 		<add name="parent" type="ubyte" >index into bone list</add>
