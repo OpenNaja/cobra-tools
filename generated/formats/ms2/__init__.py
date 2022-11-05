@@ -334,7 +334,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 				
 			# store static buffer
 			if self.buffer_infos:
-				buffer_info = self.buffer_infos[-1]
+				buffer_info = self.buffer_infos[self.info.static_buffer_index]
 				self.buffer_2_bytes = b"".join((getattr(buffer_info, f"{b_name}_bytes") for b_name in BUFFER_NAMES))
 			else:
 				# Assing an empty buffer, maybe it is better to add an 'if attrib' in the saving?

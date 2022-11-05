@@ -190,7 +190,7 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 				for face_vertex_bone_id, bone_tris in tuple(t_map.items()):
 					# delete small static chunk
 					if face_vertex_bone_id != DYNAMIC_ID and len(bone_tris) < DISCARD_STATIC_TRIS:
-						logging.info(f"Moving {len(bone_tris)} tris for bone {face_vertex_bone_id} to dynamic chunk")
+						logging.debug(f"Moving {len(bone_tris)} tris for bone {face_vertex_bone_id} to dynamic chunk")
 						v_list = t_map.pop(face_vertex_bone_id)
 						t_map[DYNAMIC_ID].extend(v_list)
 			# now try to sort the tris so that vertices are re-used as often as possible
@@ -379,7 +379,7 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 	mesh.tris = tris_chunks
 	try:
 		mesh.set_verts(verts)
-	except ValueError as err:
+	except ValueError:
 		raise AttributeError(f"Could not export {b_ob.name}!")
 	return wrapper
 
