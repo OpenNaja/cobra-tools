@@ -63,9 +63,8 @@ class JointData(BaseStruct):
 
 		# 0s
 		self.extra_zeros_2 = Array(self.context, 0, None, (0,), Uint)
-
-		# 1, 1
-		self.ones = Array(self.context, 0, None, (0,), Uint64)
+		self.one_0 = 1
+		self.one_1 = 1
 
 		# matches bone count from bone info
 		self.bone_count = 0
@@ -137,7 +136,8 @@ class JointData(BaseStruct):
 		('pc_count', Uint, (0, None), (False, None), None),
 		('zeros_1', Array, (0, None, (7,), Uint), (False, None), None),
 		('extra_zeros_2', Array, (0, None, (4,), Uint), (False, None), True),
-		('ones', Array, (0, None, (2,), Uint64), (False, None), True),
+		('one_0', Uint64, (0, None), (False, 1), True),
+		('one_1', Uint64, (0, None), (False, 1), True),
 		('bone_count', Uint, (0, None), (False, None), None),
 		('joint_entry_count', Uint, (0, None), (False, None), None),
 		('zeros_2', Array, (0, None, (4,), Uint), (False, None), None),
@@ -183,7 +183,8 @@ class JointData(BaseStruct):
 		if 13 <= instance.context.version <= 32:
 			yield 'extra_zeros_2', Array, (0, None, (4,), Uint), (False, None)
 		if instance.context.version >= 13:
-			yield 'ones', Array, (0, None, (2,), Uint64), (False, None)
+			yield 'one_0', Uint64, (0, None), (False, 1)
+			yield 'one_1', Uint64, (0, None), (False, 1)
 		yield 'bone_count', Uint, (0, None), (False, None)
 		yield 'joint_entry_count', Uint, (0, None), (False, None)
 		yield 'zeros_2', Array, (0, None, (4,), Uint), (False, None)

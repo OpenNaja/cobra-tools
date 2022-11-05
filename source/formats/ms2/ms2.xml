@@ -627,7 +627,8 @@
 		<add name="pc count" type="uint" >0 or 1</add>
 		<add name="zeros 1" type="uint" arr1="7">0s</add>
 		<add name="extra zeros 2" type="uint" arr1="4" since="13"  until="32">0s</add>
-		<add name="ones" type="uint64" arr1="2" since="13" >1, 1</add>
+		<add name="one_0" type="uint64" since="13" default="1"/>
+		<add name="one_1" type="uint64" since="13" default="1"/>
 		<add name="bone count" type="uint" >matches bone count from bone info</add>
 		<add name="joint entry count" type="uint" >0</add>
 		<add name="zeros 2" type="uint" arr1="4">usually 0s</add>
