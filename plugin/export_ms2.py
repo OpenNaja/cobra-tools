@@ -305,12 +305,14 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 			logging.debug(f"Built neighbors table for {len(tris_per_v_index)} verts")
 			# track added tris across all local chunks
 			added_tris = set()
+			tris = ()
 			while tris_per_v_index:
 				# create a local chunk
 				new_tris = []
 				used_verts = set()
-				# pick random vertex from chunk faces
-				v_index, tris = tris_per_v_index.popitem()
+				# pick random vertex from chunk faces if needed
+				if not tris:
+					v_index, tris = tris_per_v_index.popitem()
 				# logging.debug(f"Randomly picked vert {v_index} with {len(tris)} tris")
 				# todo - what happens when a vertex is picked whose tris have all been added - can that happen?
 				# assuming all the surrounding tris have been taken
@@ -330,13 +332,7 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 					if len(used_verts) >= v_max or len(new_tris) >= t_max:
 						logging.debug(f"Chunk is filled with {len(new_tris)} tris or {len(used_verts)} verts")
 						# chunk is full, so stop adding tris, but add the newly found ones to the next chunk
-						for tri in tris_for_next_round:
-							if tri not in added_tris:
-								added_tris.add(tri)
-								new_tris.append(tri)
-								for old_vert_i in tri:
-									used_verts.add(old_vert_i)
-									# but don't pop, since we need to add them later
+						tris = tris_for_next_round
 						break
 					# are direct neighbors are available?
 					if tris_for_next_round:
@@ -346,6 +342,7 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 						if b_chunk_bone_id == DYNAMIC_ID:
 							# logging.debug(f"Found no neighboring tris, gotta start a new chunk")
 							# nope gotta pick a new one, and start a new chunk
+							tris = ()
 							break
 						else:
 							# logging.debug(f"Allowing grouping of non-linked static verts into one chunk")
@@ -353,6 +350,7 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 								v_index, tris = tris_per_v_index.popitem()
 								# logging.debug(f"Randomly picked vert {v_index} with {len(tris)} tris")
 							else:
+								tris = ()
 								break
 				# all verts and tris for this new chunk have been collected
 				# pick local verts
