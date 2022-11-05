@@ -144,6 +144,7 @@ def import_joints(scene, armature_ob, bone_info, b_bone_names, corrector):
 		logging.debug(f"joint {joint_info.name}")
 		# create an empty representing the joint
 		b_joint = create_ob(scene, f"{bpy.context.scene.name}_{joint_info.name}", None, coll_name="joints")
+		b_joint["long_name"] = joint_info.name
 		b_joint.empty_display_type = "ARROWS"
 		b_joint.empty_display_size = 0.03
 		b_joint.matrix_local = get_matrix(corrector, joint_transform)

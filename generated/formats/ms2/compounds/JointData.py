@@ -104,11 +104,7 @@ class JointData(BaseStruct):
 
 		# the inverse of the above; for each bone info bone, index of the corresponding joint or -1 if no joint
 		self.bone_indices = Array(self.context, 0, None, (0,), Int)
-
-		# zstring name buffer
 		self.joint_names = ZStringBuffer(self.context, self.namespace_length, None)
-
-		# align to 4
 
 		# ?
 		self.joint_names_padding = SmartPadding(self.context, 0, None)

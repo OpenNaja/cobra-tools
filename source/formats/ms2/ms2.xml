@@ -636,8 +636,8 @@
 		<add name="names_ref" type="Empty"/>
 		<add name="joint_transforms" type="JointEntry" arr1="joint_count" >corresponds to bone transforms</add>
 
-		<add name="RigidBody pointers" type="uint64" arr1="joint_count" since="47"/>
-		<add name="RigidBody list" type="RigidBody" arr1="joint_count" since="47"/>
+		<add name="rigid_body_pointers" type="uint64" arr1="joint_count" since="47"/>
+		<add name="rigid_body_list" type="RigidBody" arr1="joint_count" since="47"/>
 		<add name="first list" type="ListFirst" arr1="count_0" since="47">used by ptero, 16 bytes per entry</add>
 		<add name="short list" type="ListShort" arr1="count_1" since="47">?</add>
 		<add name="long list" type="ListLong" arr1="count_2" since="47">?</add>
@@ -648,8 +648,8 @@
 
 		<add name="joint_indices" type="int" arr1="joint_count" >index into bone info bones for each joint; bone that the joint is attached to</add>
 		<add name="bone_indices" type="int" arr1="bone count" >the inverse of the above; for each bone info bone, index of the corresponding joint or -1 if no joint</add>
-		<add name="joint_names" type="ZStringBuffer" arg="namespace length">zstring name buffer</add>
-		<add name="JointNamesPadding" type="PadAlign" template="names_ref" arg="8" since="47">align to 4</add>
+		<add name="joint_names" type="ZStringBuffer" arg="namespace length"/>
+		<add name="JointNamesPadding" type="PadAlign" template="names_ref" arg="8" since="47"/>
 		<add name="JointNamesPadding" type="SmartPadding" until="32">?</add>
 		the padding goes wrong on 144 because its first hitcheck has collision type 0
 		<add name="joint_infos" type="JointInfo" arr1="joint count" arg="joint_names" since="47">new style - includes name offset, some flags and the hitchecks</add>

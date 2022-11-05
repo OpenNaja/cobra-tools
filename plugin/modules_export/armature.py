@@ -4,12 +4,12 @@ import bpy
 import mathutils
 
 from generated.formats.ms2.compounds.Bone import Bone
-from generated.formats.ms2.compounds.HitCheck import HitCheck
 from generated.formats.ms2.compounds.Matrix44 import Matrix44
 from generated.formats.ms2.versions import is_ztuac, is_jwe, is_dla
 from plugin.modules_export.collision import export_hitcheck
 from plugin.utils import matrix_util
 from plugin.utils.matrix_util import bone_name_for_ovl
+from plugin.utils.shell import get_collection
 
 
 def get_level(bones, level=0):
@@ -167,22 +167,50 @@ def export_bones_custom(b_armature_ob, model_info):
 	for i in range(len(b_bone_names)):
 		bone_info.enumeration[i] = [4, i]
 
-	export_joints(b_armature_ob, bone_info, b_bone_names, corrector)
+	export_joints(bone_info, corrector)
 
 
-def export_joints(armature_ob, bone_info, b_bone_names, corrector):
+def get_joint_name(b_ob):
+	scene = bpy.context.scene
+	ob_name = b_ob.name[len(scene.name)+1:]
+	long_name = b_ob.get("long_name", None)
+	if not long_name:
+		# logging.warning(f"Custom property 'long_name' is not set for {b_ob.name}")
+		return ob_name
+	if len(long_name) > len(ob_name):
+		# assert long_name[:len(ob_name)] == ob_name, f"ob name does not match"
+		return long_name
+	assert long_name == ob_name
+	return long_name
+
+
+def export_joints(bone_info, corrector):
 	logging.info("Exporting joints")
 	scene = bpy.context.scene
-	for bone_index, joint_info in zip(bone_info.joints.joint_indices, bone_info.joints.joint_infos):
+	joint_coll = get_collection(f"{scene.name}_joints")
+	if not joint_coll:
+		return
+	joints = bone_info.joints
+	# bone_info.joint_count = joints.joint_count = len(joint_coll.objects)
+	# joints.reset_field("joint_transforms")
+	# joints.reset_field("rigid_body_pointers")
+	# joints.reset_field("rigid_body_list")
+	# joints.reset_field("joint_infos")
+	# # not sure if we do those here or in ms2
+	# joints.reset_field("joint_indices")
+	# joints.reset_field("bone_indices")
+	joint_map = {get_joint_name(b_ob): b_ob for b_ob in joint_coll.objects}
+	for bone_index, joint_info in zip(joints.joint_indices, joints.joint_infos):
 		# bone_name = b_bone_names[bone]
-		b_joint = bpy.data.objects.get(f"{scene.name}_{joint_info.name}", None)
+		b_joint = joint_map.get(joint_info.name)
+		if not b_joint:
+			raise AttributeError(f"Could not find '{joint_info.name}'. Make sure the joint object exists and has the custom property 'long_name' correctly set")
 		logging.debug(f"joint {b_joint.name}")
 		joint_info.hitcheck_count = len(b_joint.children)
 		joint_info.reset_field("hitchecks")
 		joint_info.reset_field("hitcheck_pointers")
 		for hitcheck, b_hitcheck in zip(joint_info.hitchecks, b_joint.children):
-			name = b_hitcheck.name[len(scene.name)+1:]
 			hitcheck.collision_ignore = b_hitcheck["collision_ignore"]
 			hitcheck.collision_use = b_hitcheck["collision_use"]
-			hitcheck.name = name
+			hitcheck.name = get_joint_name(b_hitcheck)
 			export_hitcheck(b_hitcheck, hitcheck, corrector)
