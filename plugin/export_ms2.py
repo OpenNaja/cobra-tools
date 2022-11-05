@@ -196,11 +196,6 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 						logging.debug(f"Moving {len(bone_tris)} tris for bone {face_vertex_bone_id} to dynamic chunk")
 						v_list = t_map.pop(face_vertex_bone_id)
 						t_map[DYNAMIC_ID].extend(v_list)
-			# now try to sort the tris so that vertices are re-used as often as possible
-			# sort_tri_map(t_map)
-			# alternative sorting
-			# for face_vertex_bone_id, bone_tris in tuple(t_map.items()):
-			# 	t_map[face_vertex_bone_id] = list(sorted(bone_tris, key=lambda x: tuple(x.vertices)))
 			t_list = list(t_map.items())
 	else:
 		# no chunking by weights, just take all faces
@@ -307,51 +302,8 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 			added_tris = set()
 			tris = ()
 			while tris_per_v_index:
-				# create a local chunk
-				new_tris = []
-				used_verts = set()
-				# pick random vertex from chunk faces if needed
-				if not tris:
-					v_index, tris = tris_per_v_index.popitem()
-				# logging.debug(f"Randomly picked vert {v_index} with {len(tris)} tris")
-				# todo - what happens when a vertex is picked whose tris have all been added - can that happen?
-				# assuming all the surrounding tris have been taken
-				while True:
-					# add more tris
-					tris_for_next_round = set()
-					# store verts and grab the last faces' neighbors
-					for tri in tris:
-						if tri not in added_tris:
-							added_tris.add(tri)
-							new_tris.append(tri)
-							for old_vert_i in tri:
-								used_verts.add(old_vert_i)
-								picked_tris = tris_per_v_index.pop(old_vert_i, ())
-								for t in picked_tris:
-									tris_for_next_round.add(t)
-					if len(used_verts) >= v_max or len(new_tris) >= t_max:
-						logging.debug(f"Chunk is filled with {len(new_tris)} tris or {len(used_verts)} verts")
-						# chunk is full, so stop adding tris, but add the newly found ones to the next chunk
-						tris = tris_for_next_round
-						break
-					# are direct neighbors are available?
-					if tris_for_next_round:
-						# logging.debug(f"Found new {len(tris_for_next_round)} tris")
-						tris = tris_for_next_round
-					else:
-						if b_chunk_bone_id == DYNAMIC_ID:
-							# logging.debug(f"Found no neighboring tris, gotta start a new chunk")
-							# nope gotta pick a new one, and start a new chunk
-							tris = ()
-							break
-						else:
-							# logging.debug(f"Allowing grouping of non-linked static verts into one chunk")
-							if tris_per_v_index:
-								v_index, tris = tris_per_v_index.popitem()
-								# logging.debug(f"Randomly picked vert {v_index} with {len(tris)} tris")
-							else:
-								tris = ()
-								break
+				used_verts, new_tris, tris = build_chunk(added_tris, b_chunk_bone_id, chunk_verts, t_max, tris,
+												  tris_per_v_index, v_max)
 				# all verts and tris for this new chunk have been collected
 				# pick local verts
 				used_verts = list(sorted(used_verts))
@@ -385,51 +337,60 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 	return wrapper
 
 
+def build_chunk(added_tris, b_chunk_bone_id, chunk_verts, t_max, tris, tris_per_v_index, v_max):
+	# create a local chunk
+	new_tris = []
+	used_verts = set()
+	# pick random vertex from chunk faces if needed
+	if not tris:
+		v_index, tris = tris_per_v_index.popitem()
+	# logging.debug(f"Randomly picked vert {v_index} with {len(tris)} tris")
+	# todo - what happens when a vertex is picked whose tris have all been added - can that happen?
+	# assuming all the surrounding tris have been taken
+	while True:
+		# add more tris
+		tris_for_next_round = set()
+		# store verts and grab the last faces' neighbors
+		for tri in tris:
+			if len(used_verts) >= v_max or len(new_tris) >= t_max:
+				logging.debug(f"Chunk is filled with {len(new_tris)} tris or {len(used_verts)} verts")
+				# chunk is full, so stop adding tris, but add the newly found ones to the next chunk
+				for t in tris:
+					if t not in added_tris:
+						tris_for_next_round.add(t)
+				return used_verts, new_tris, tris_for_next_round
+			if tri not in added_tris:
+				added_tris.add(tri)
+				new_tris.append(tri)
+				for old_vert_i in tri:
+					used_verts.add(old_vert_i)
+					picked_tris = tris_per_v_index.pop(old_vert_i, ())
+					for t in picked_tris:
+						tris_for_next_round.add(t)
+		# are direct neighbors are available?
+		if tris_for_next_round:
+			# logging.debug(f"Found new {len(tris_for_next_round)} tris")
+			tris = tris_for_next_round
+		else:
+			if b_chunk_bone_id == DYNAMIC_ID:
+				# logging.debug(f"Found no neighboring tris, gotta start a new chunk")
+				# nope gotta pick a new one, and start a new chunk
+				return used_verts, new_tris, ()
+			else:
+				# logging.debug(f"Allowing grouping of non-linked static verts into one chunk")
+				if tris_per_v_index:
+					v_index, tris = tris_per_v_index.popitem()
+				# logging.debug(f"Randomly picked vert {v_index} with {len(tris)} tris")
+				else:
+					return used_verts, new_tris, ()
+
+
 def get_tris_per_v_index(tris, num_verts):
 	tris_per_v_index = {v_index: set() for v_index in range(num_verts)}
 	for tri in tris:
 		for v_index in tri:
 			tris_per_v_index[v_index].add(tri)
 	return tris_per_v_index
-
-
-def sort_tri_map(t_map):
-	for face_vertex_bone_id, bone_tris in tuple(t_map.items()):
-		tris_per_v_index = {}
-		added_tris = set()
-		for f in bone_tris:
-			for v_index in f.vertices:
-				if v_index not in tris_per_v_index:
-					tris_per_v_index[v_index] = set()
-				if f not in added_tris:
-					added_tris.add(f)
-					tris_per_v_index[v_index].add(f)
-		current_tri = bone_tris[0]
-		sorted_tris = []
-		while current_tri:
-			all_neighbors = set()
-			for v_index in current_tri.vertices:
-				neighbor_tris = tris_per_v_index.pop(v_index, [])
-				all_neighbors.update(neighbor_tris)
-				if neighbor_tris:
-					for tri in neighbor_tris:
-						if tri not in sorted_tris:
-							sorted_tris.append(tri)
-							added_tris.remove(tri)
-				else:
-					# neighbors are used up, continue, with a new tri
-					if added_tris:
-						current_tri = next(iter(added_tris))
-					else:
-						current_tri = None
-			if all_neighbors:
-				for neighbor in all_neighbors:
-					for v_index in neighbor.vertices:
-						if v_index in tris_per_v_index:
-							current_tri = neighbor
-							break
-		assert len(sorted_tris) == len(bone_tris)
-		t_map[face_vertex_bone_id] = sorted_tris
 
 
 def validate_vertex_groups(b_ob, bones_table):

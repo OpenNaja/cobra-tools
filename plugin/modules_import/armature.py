@@ -204,6 +204,15 @@ def fix_bone_lengths(b_armature_data):
 		if b_edit_bone.parent:
 			# take the desired length from the mean of all children's heads
 			if b_edit_bone.children:
+				# trying to get closer to the actual, most relevant child
+				# lengths = [(b_edit_bone.head-b_child.head).length for b_child in b_edit_bone.children]
+				# dists = [(b_edit_bone.head + (b_edit_bone.tail - b_edit_bone.head) * l - b_child.head).length for l, b_child in zip(lengths, b_edit_bone.children)]
+				# # print(b_edit_bone.name, lengths, dists)
+				# nonzero_dists = [(val, idx) for (idx, val) in enumerate(dists) if val > 0.0]
+				# if nonzero_dists:
+				# 	val, idx = min(nonzero_dists)
+				# 	bone_length = lengths[idx]
+				# else:
 				child_heads = mathutils.Vector()
 				for b_child in b_edit_bone.children:
 					child_heads += b_child.head
