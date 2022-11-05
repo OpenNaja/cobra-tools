@@ -59,7 +59,7 @@ def export_material(ms2, b_mat):
 	ms2.model.materials.append(mat)
 
 
-def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_transforms, use_stock_normals_tangents):
+def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_transforms, use_stock_normals_tangents, m_lod):
 	logging.info(f"Exporting mesh {b_me.name}")
 	# we create a ms2 mesh
 	wrapper = MeshDataWrap(model_info.context)
@@ -129,7 +129,7 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 	validate_vertex_groups(b_ob, bones_table)
 	# calculate bone weights per vertex first to reuse data
 	# vertex_bone_id, weights, fur_length, fur_width
-	weights_data = [export_weights(b_ob, b_vert, bones_table, hair_length, unweighted_vertices) for b_vert in
+	weights_data = [export_weights(b_ob, b_vert, bones_table, hair_length, unweighted_vertices, m_lod) for b_vert in
 					eval_me.vertices]
 
 	# report unweighted vertices
@@ -444,13 +444,12 @@ def validate_vertex_groups(b_ob, bones_table):
 			logging.warning(f"Ignored extraneous vertex group {v_group.name} on mesh {b_ob.name}")
 
 
-def export_weights(b_ob, b_vert, bones_table, hair_length, unweighted_vertices):
+def export_weights(b_ob, b_vert, bones_table, hair_length, unweighted_vertices, m_lod):
 	# defaults that may or may not be set later on
 	# True if used, bone index if it isn't
 	vertex_bone_id = DYNAMIC_ID
 	fur_length = 0
 	fur_width = 0
-	bone_index_cutoff = get_property(b_ob, "bone")
 	# get the weights
 	w = []
 	for v_group in b_vert.groups:
@@ -463,10 +462,8 @@ def export_weights(b_ob, b_vert, bones_table, hair_length, unweighted_vertices):
 			elif v_group_name in bones_table:
 				# avoid dummy vertex groups without corresponding bones
 				bone_index = bones_table[v_group_name]
-				if bone_index > bone_index_cutoff:
-					logging.error(
-						f"Mesh {b_ob.name} has weights for bone {v_group_name} [{bone_index}] over the LOD's cutoff at {bone_index_cutoff}!"
-						f"\nThis will cause distortions ingame!")
+				# update lod's bone cutoff
+				m_lod.bone_index = max(m_lod.bone_index, bone_index)
 				if v_group.weight > 0.0:
 					w.append([bone_index, v_group.weight])
 		except:
@@ -561,12 +558,12 @@ def save(filepath='', apply_transforms=False, edit_bones=False, use_stock_normal
 			for b_ob in lod_coll.objects:
 				b_me = b_ob.data
 				# store & set bone index for lod
-				m_lod.bone_index = get_property(b_ob, "bone")
+				m_lod.bone_index = 0
 				m_lod.stream_index = get_property(b_me, "stream")
 				if b_me not in b_models:
 					b_models.append(b_me)
 					wrapper = export_model(model_info, lod_coll, b_ob, b_me, bones_table, bounds, apply_transforms,
-										   use_stock_normals_tangents)
+										   use_stock_normals_tangents, m_lod)
 					wrapper.mesh.lod_index = lod_i
 				for b_mat in b_me.materials:
 					if b_mat not in b_materials:
