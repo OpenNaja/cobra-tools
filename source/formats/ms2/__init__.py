@@ -41,14 +41,15 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			logging.debug(f"Joints not used")
 			return
 		if self.context.version >= 47:
-			for i, x in enumerate(bone_info.ik_info.ik_list):
-				# print(i)
-				# print(self.bone_info.bones[x.child], x.child)
-				# print(self.bone_info.bones[x.parent], x.parent)
+			for x in bone_info.ik_info.ik_list:
 				x.child_name = bone_info.bones[x.child].name
 				x.parent_name = bone_info.bones[x.parent].name
-				assert x.zero == 0
-				assert x.one == 1
+				# assert x.zero == 0
+				# assert x.one == 1
+			for x in bone_info.ik_info.ik_targets:
+				# indices into bones
+				x.ik_blend_name = bone_info.bones[x.ik_blend].name
+				x.ik_end_name = bone_info.bones[x.ik_end].name
 			assert bone_info.one == 1
 		assert bone_info.name_count == bone_info.bind_matrix_count == bone_info.bone_count == bone_info.parents_count == bone_info.enum_count
 		assert bone_info.zeros_count == 0 or bone_info.zeros_count == bone_info.name_count
@@ -183,12 +184,10 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			# indices into bones
 			entry.parent = bone_lut[entry.parent_name]
 			entry.child = bone_lut[entry.child_name]
-		#if bone_info.ik_info.flag == 2:
-			#bone_info.ik_info.ik_blend.ik_blend_rearright =
-			#bone_info.ik_info.ik_blend.ik_end_rearright =
-			#bone_info.ik_info.ik_blend.ik_blend_rearleft =
-			#bone_info.ik_info.ik_blend.ik_end_rearleft =
-
+		for entry in bone_info.ik_info.ik_targets:
+			# indices into bones
+			entry.ik_blend = bone_lut[entry.ik_blend_name]
+			entry.ik_end = bone_lut[entry.ik_end_name]
 
 		# print(bone_info.joints)
 		joints = bone_info.joints
@@ -396,24 +395,25 @@ class Ms2File(Ms2InfoHeader, IoFile):
 
 if __name__ == "__main__":
 	m = Ms2File()
-	# m.load("C:/Users/arnfi/Desktop/pyro/models.ms2", read_editable=True)
-	m.load("C:/Users/arnfi/Desktop/export/models.ms2", read_editable=True)
+	m.load("C:/Users/arnfi/Desktop/pyro/models.ms2", read_editable=True)
+	# m.load("C:/Users/arnfi/Desktop/export/models.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/hazard_ceilingfan_.ms2", read_editable=True)
-	flags = set()
-	for mo in m.model_infos:
-		# print(mo.model.lods)
-		# print(mo.model.objects)
-		for i, me in enumerate(mo.model.meshes):
-			# print(i, me)
-			# for t, v in zip(me.mesh.tri_chunks, me.mesh.vert_chunks):
-			# 	t.rot.a = 1.0
-			# 	t.rot.x = t.rot.y = t.rot.z = 0.0
-			# 	t.loc.x = t.loc.y = t.loc.z = 0.0
-			for t, v in zip(me.mesh.tri_chunks, me.mesh.vert_chunks):
-				pass
-				# print(i, t.loc)
-			flags.add(me.mesh.flag)
-	print(flags)
+	print(m.models_reader.bone_infos[0])
+	# flags = set()
+	# for mo in m.model_infos:
+	# 	# print(mo.model.lods)
+	# 	# print(mo.model.objects)
+	# 	for i, me in enumerate(mo.model.meshes):
+	# 		# print(i, me)
+	# 		# for t, v in zip(me.mesh.tri_chunks, me.mesh.vert_chunks):
+	# 		# 	t.rot.a = 1.0
+	# 		# 	t.rot.x = t.rot.y = t.rot.z = 0.0
+	# 		# 	t.loc.x = t.loc.y = t.loc.z = 0.0
+	# 		for t, v in zip(me.mesh.tri_chunks, me.mesh.vert_chunks):
+	# 			pass
+	# 			# print(i, t.loc)
+	# 		flags.add(me.mesh.flag)
+	# print(flags)
 			# if i in (12, 13, 14):
 			# if i in (12, ):
 			# 	print(i)

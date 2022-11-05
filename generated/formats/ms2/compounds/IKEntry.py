@@ -3,7 +3,7 @@ from generated.formats.base.basic import Ubyte
 from generated.formats.base.basic import Uint
 from generated.formats.base.basic import Ushort
 from generated.formats.ms2.compounds.Matrix33 import Matrix33
-from generated.formats.ms2.compounds.Vector4 import Vector4
+from generated.formats.ms2.compounds.RotationRange import RotationRange
 
 
 class IKEntry(BaseStruct):
@@ -24,28 +24,24 @@ class IKEntry(BaseStruct):
 
 		# index into bone list
 		self.parent = 0
+		self.unk_0 = 0
 
-		# 0
-		self.zero = 0
-
-		# no clue what space this is in
+		# no clue what space this is in, defines the orientation for the ranges
 		self.matrix = Matrix33(self.context, 0, None)
-
-		# seems to be degrees of freedom or something like that, possibly an ellipsoid
-		self.vector = Vector4(self.context, 0, None)
-
-		# 1
-		self.one = 0
+		self.yaw = RotationRange(self.context, 0, None)
+		self.pitch = RotationRange(self.context, 0, None)
+		self.unk_1 = 1
 		if set_default:
 			self.set_defaults()
 
 	_attribute_list = BaseStruct._attribute_list + [
 		('child', Ubyte, (0, None), (False, None), None),
 		('parent', Ubyte, (0, None), (False, None), None),
-		('zero', Ushort, (0, None), (False, None), None),
+		('unk_0', Ushort, (0, None), (False, 0), None),
 		('matrix', Matrix33, (0, None), (False, None), None),
-		('vector', Vector4, (0, None), (False, None), None),
-		('one', Uint, (0, None), (False, None), None),
+		('yaw', RotationRange, (0, None), (False, None), None),
+		('pitch', RotationRange, (0, None), (False, None), None),
+		('unk_1', Uint, (0, None), (False, 1), None),
 		]
 
 	@classmethod
@@ -53,7 +49,8 @@ class IKEntry(BaseStruct):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'child', Ubyte, (0, None), (False, None)
 		yield 'parent', Ubyte, (0, None), (False, None)
-		yield 'zero', Ushort, (0, None), (False, None)
+		yield 'unk_0', Ushort, (0, None), (False, 0)
 		yield 'matrix', Matrix33, (0, None), (False, None)
-		yield 'vector', Vector4, (0, None), (False, None)
-		yield 'one', Uint, (0, None), (False, None)
+		yield 'yaw', RotationRange, (0, None), (False, None)
+		yield 'pitch', RotationRange, (0, None), (False, None)
+		yield 'unk_1', Uint, (0, None), (False, 1)

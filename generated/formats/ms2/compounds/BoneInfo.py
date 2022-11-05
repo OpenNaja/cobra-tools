@@ -66,18 +66,14 @@ class BoneInfo(BaseStruct):
 		self.unknown_58 = 0
 
 		# always 1
-		self.one = 0
+		self.one = 1
 
 		# this counts the weird padding at the end, usually == bone count, 0 in PZ aardvark
 		self.zeros_count = 0
 
 		# matches the other count on dino entertainer, but ik_count is not present
 		self.unk_pc_count = 0
-
-		# index count 7
 		self.ik_count = 0
-
-		# joint count
 		self.joint_count = 0
 
 		# zero
@@ -152,7 +148,7 @@ class BoneInfo(BaseStruct):
 		('extra_zero', Uint64, (0, None), (False, None), True),
 		('enum_count', Uint64, (0, None), (False, None), None),
 		('unknown_58', Uint64, (0, None), (False, None), None),
-		('one', Uint64, (0, None), (False, None), None),
+		('one', Uint64, (0, None), (False, 1), None),
 		('zeros_count', Uint64, (0, None), (False, None), None),
 		('unk_pc_count', Uint64, (0, None), (False, None), True),
 		('ik_count', Uint64, (0, None), (False, None), None),
@@ -202,7 +198,7 @@ class BoneInfo(BaseStruct):
 			yield 'extra_zero', Uint64, (0, None), (False, None)
 		yield 'enum_count', Uint64, (0, None), (False, None)
 		yield 'unknown_58', Uint64, (0, None), (False, None)
-		yield 'one', Uint64, (0, None), (False, None)
+		yield 'one', Uint64, (0, None), (False, 1)
 		yield 'zeros_count', Uint64, (0, None), (False, None)
 		if instance.context.version == 32:
 			yield 'unk_pc_count', Uint64, (0, None), (False, None)

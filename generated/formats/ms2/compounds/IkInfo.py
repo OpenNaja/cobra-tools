@@ -1,11 +1,11 @@
-import numpy
 from generated.array import Array
 from generated.base_struct import BaseStruct
-from generated.formats.base.basic import Ubyte
 from generated.formats.base.basic import Uint64
-from generated.formats.ms2.compounds.IKBlendType import IKBlendType
+from generated.formats.base.compounds.PadAlign import PadAlign
 from generated.formats.ms2.compounds.IKEntry import IKEntry
+from generated.formats.ms2.compounds.IKTarget import IKTarget
 from generated.formats.ms2.compounds.UACJoint import UACJoint
+from generated.formats.ovl_base.compounds.Empty import Empty
 from generated.formats.ovl_base.compounds.SmartPadding import SmartPadding
 
 
@@ -23,37 +23,31 @@ class IkInfo(BaseStruct):
 
 		# repeat
 		self.ik_count = 0
-
-		# seen 0
-		self.zero_0 = 0
+		self.ik_ptr = 0
 
 		# seen 0, 2, 4
-		self.flag = 0
-		self.zero_2 = 0
-
-		# 36 bytes per entry
-
-		# 60 bytes per entry
+		self.ik_targets_count = 0
+		self.ik_targets_ptr = 0
+		self.ik_ref = Empty(self.context, 0, None)
 		self.ik_list = Array(self.context, 0, None, (0,), IKEntry)
-
-		# align list to multiples of 8
-		self.padding = Array(self.context, 0, None, (0,), Ubyte)
-
-		# latest PZ and jwe2 only - if flag is non-zero, 8 bytes, else 0
-		self.ik_blend = IKBlendType(self.context, 0, None)
+		self.padding_0 = PadAlign(self.context, 8, self.ik_ref)
+		self.ik_targets = Array(self.context, 0, None, (0,), IKTarget)
+		self.padding_1 = PadAlign(self.context, 8, self.ik_ref)
 		if set_default:
 			self.set_defaults()
 
 	_attribute_list = BaseStruct._attribute_list + [
 		('weird_padding', SmartPadding, (0, None), (False, None), True),
 		('ik_count', Uint64, (0, None), (False, None), None),
-		('zero_0', Uint64, (0, None), (False, None), None),
-		('flag', Uint64, (0, None), (False, None), True),
-		('zero_2', Uint64, (0, None), (False, None), True),
+		('ik_ptr', Uint64, (0, None), (False, None), None),
+		('ik_targets_count', Uint64, (0, None), (False, None), True),
+		('ik_targets_ptr', Uint64, (0, None), (False, None), True),
+		('ik_ref', Empty, (0, None), (False, None), None),
 		('ik_list', Array, (0, None, (None,), UACJoint), (False, None), True),
 		('ik_list', Array, (0, None, (None,), IKEntry), (False, None), True),
-		('padding', Array, (0, None, (None,), Ubyte), (False, None), None),
-		('ik_blend', IKBlendType, (0, None), (False, None), True),
+		('padding_0', PadAlign, (8, None), (False, None), None),
+		('ik_targets', Array, (0, None, (None,), IKTarget), (False, None), True),
+		('padding_1', PadAlign, (8, None), (False, None), True),
 		]
 
 	@classmethod
@@ -62,14 +56,16 @@ class IkInfo(BaseStruct):
 		if instance.context.version <= 13:
 			yield 'weird_padding', SmartPadding, (0, None), (False, None)
 		yield 'ik_count', Uint64, (0, None), (False, None)
-		yield 'zero_0', Uint64, (0, None), (False, None)
+		yield 'ik_ptr', Uint64, (0, None), (False, None)
 		if instance.context.version >= 48:
-			yield 'flag', Uint64, (0, None), (False, None)
-			yield 'zero_2', Uint64, (0, None), (False, None)
+			yield 'ik_targets_count', Uint64, (0, None), (False, None)
+			yield 'ik_targets_ptr', Uint64, (0, None), (False, None)
+		yield 'ik_ref', Empty, (0, None), (False, None)
 		if instance.context.version <= 13:
 			yield 'ik_list', Array, (0, None, (instance.ik_count,), UACJoint), (False, None)
 		if instance.context.version >= 32:
 			yield 'ik_list', Array, (0, None, (instance.ik_count,), IKEntry), (False, None)
-		yield 'padding', Array, (0, None, ((8 - ((instance.ik_count * 60) % 8)) % 8,), Ubyte), (False, None)
-		if instance.context.version >= 50 and instance.flag:
-			yield 'ik_blend', IKBlendType, (0, None), (False, None)
+		yield 'padding_0', PadAlign, (8, instance.ik_ref), (False, None)
+		if instance.context.version >= 50:
+			yield 'ik_targets', Array, (0, None, (instance.ik_targets_count,), IKTarget), (False, None)
+			yield 'padding_1', PadAlign, (8, instance.ik_ref), (False, None)

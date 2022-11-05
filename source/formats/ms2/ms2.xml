@@ -507,11 +507,11 @@
 		<add name="extra zero" type="uint64" vercond="#DLA# #OR# #ZTUAC# #OR# #PZ# #OR# #JWE2#">not PC, JWE1</add>
 		<add name="enum count" type="uint64"/>
 		<add name="unknown58" type="uint64" >usually zero</add>
-		<add name="one" type="uint64" >always 1</add>
+		<add name="one" type="uint64" default="1" >always 1</add>
 		<add name="zeros count" type="uint64" >this counts the weird padding at the end, usually == bone count, 0 in PZ aardvark</add>
 		<add name="unk_pc_count" type="uint64" vercond="#PC#">matches the other count on dino entertainer, but ik_count is not present</add>
-		<add name="ik_count" type="uint64" >index count 7</add>
-		<add name="joint count" type="uint64" >joint count</add>
+		<add name="ik_count" type="uint64"/>
+		<add name="joint count" type="uint64"/>
 		<add name="unk78count" type="uint64" >zero</add>
 		<add name="unk extra" type="uint64" until="13" >zero</add>
 		<add name="unk extra jwe" type="uint64" vercond="#JWE#" >zero</add>
@@ -570,39 +570,22 @@
 		<add name="weird padding" type="SmartPadding" until="13" >needed for ZTUAC</add>
 <!--		<add name="zeros start" type="ubyte" until="13" arr1="6">guess for ZTUAC rhino, wrong for afr ele child</add>-->
 		<add name="ik_count" type="uint64">repeat</add>
-		<add name="zero 0" type="uint64" >seen 0</add>
-		<add name="flag" type="uint64" since="48">seen 0, 2, 4</add>
-		<add name="zero 2" type="uint64" since="48"/>
-		<add name="ik_list" type="UACJoint" arr1="ik_count" until="13">36 bytes per entry</add>
-		<add name="ik_list" type="IKEntry" arr1="ik_count" since="32">60 bytes per entry</add>
-		<add name="padding" type="ubyte" arr1="(8 - ((ik_count * 60) % 8)) % 8">align list to multiples of 8</add>
-<!--		<add name="joint debug" type="StreamDebugger" >joints</add>-->
-		<add name="ik_blend" type="IKBlendType" cond="flag" since="50">latest PZ and jwe2 only - if flag is non-zero, 8 bytes, else 0</add>
+		<add name="ik_ptr" type="uint64"/>
+		<add name="ik_targets_count" type="uint64" since="48">seen 0, 2, 4</add>
+		<add name="ik_targets_ptr" type="uint64" since="48"/>
+		<add name="ik ref" type="Empty"/>
+		<add name="ik_list" type="UACJoint" arr1="ik_count" until="13"/>
+		<add name="ik_list" type="IKEntry" arr1="ik_count" since="32"/>
+		<add name="padding 0" type="PadAlign" template="ik ref" arg="8"/>
+		<add name="ik_targets" type="IKTarget" arr1="ik_targets_count" since="50"/>
+		<add name="padding 1" type="PadAlign" template="ik ref" arg="8" since="50"/>
 	</compound>
 	
-	<compound name="IKBlendType">
-		8 bytes
-		<add name="ik_blend rearright" type="ubyte"></add>
-		<add name="ik_end rearright" type="ubyte">last IK bone in the right leg</add>
-		<add name="ik_blend rearleft" type="ubyte"></add>
-		<add name="ik_end rearleft" type="ubyte"></add>
-		<add name="ik_blend frontright" type="ubyte"></add>
-		<add name="ik_end frontright" type="ubyte">last IK bone in the right leg</add>
-		<add name="ik_blend frontleft" type="ubyte"></add>
-		<add name="ik_end frontleft" type="ubyte"></add>
+	<compound name="IKTarget">
+		2 bytes, indices into bones list
+		<add name="ik_blend" type="ubyte"/>
+		<add name="ik_end" type="ubyte"/>
 	</compound>
- 
-							  
-		 
-													
-																			   
-												   
-												 
-													 
-																				
-													
-												  
-			
 
 	<compound name="UACJoint">
 		36 bytes
@@ -614,10 +597,17 @@
 		60 bytes
 		<add name="child" type="ubyte" >index into bone list</add>
 		<add name="parent" type="ubyte" >index into bone list</add>
-		<add name="zero" type="ushort" >0</add>
-		<add name="matrix" type="Matrix33" >no clue what space this is in</add>
-		<add name="vector" type="Vector4" >seems to be degrees of freedom or something like that, possibly an ellipsoid</add>
-		<add name="one" type="uint" >1</add>
+		<add name="unk0" type="ushort" default="0"/>
+		<add name="matrix" type="Matrix33" >no clue what space this is in, defines the orientation for the ranges</add>
+		<add name="yaw" type="RotationRange"/>
+		<add name="pitch" type="RotationRange"/>
+		<add name="unk1" type="uint" default="1"/>
+	</compound>
+
+	<compound name="RotationRange">
+		tentative interpretation
+		<add name="min" type="float"/>
+		<add name="max" type="float"/>
 	</compound>
 
 	<compound name="JointData">
