@@ -26,8 +26,11 @@ mesh_mode = os.path.isdir(os.path.join(root_dir, ".git"))
 DISCARD_STATIC_TRIS = 16
 DYNAMIC_ID = -1
 NO_BONES_ID = -2
-SOFT_MAX_VERTS = 8                     
-SOFT_MAX_TRIS = 8
+# the hard max is 255 vertices - stay far away from that to be safe with the current algorithm
+SOFT_MAX_VERTS_SHELLS = 8                     
+SOFT_MAX_TRIS_SHELLS = 8
+SOFT_MAX_VERTS = 200                     
+SOFT_MAX_TRIS = 200
 
 
 def ensure_tri_modifier(ob):
@@ -62,8 +65,6 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 	wrapper = MeshDataWrap(model_info.context)
 	mesh = wrapper.mesh
 	# set data
-	curr_vmax = SOFT_MAX_VERTS*24
-	curr_tmax = SOFT_MAX_TRIS*24
 	mesh.size_of_vertex = 48
 	mesh.flag._value = get_property(b_me, "flag")
 	mesh.unk_floats[:] = (get_property(b_me, "unk_f0"), get_property(b_me, "unk_f1"))
@@ -139,13 +140,15 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 		else:
 			raise AttributeError(f"{b_ob.name} has {len(unweighted_vertices)} unweighted vertices!")
 
-	# fin meshes have to grab tangents from shell
+	# for the current algorithm, shells need to use less tris per chunk than other meshes to avoid flickering
 	if is_shell(b_ob):
-		curr_vmax = SOFT_MAX_VERTS
-		curr_tmax = SOFT_MAX_TRIS
+		v_max = SOFT_MAX_VERTS_SHELLS
+		t_max = SOFT_MAX_TRIS_SHELLS
+	else:
+		v_max = SOFT_MAX_VERTS
+		t_max = SOFT_MAX_TRIS
+	# fin meshes have to grab tangents from shell
 	if is_fin(b_ob):
-		curr_vmax = SOFT_MAX_VERTS*24
-		curr_tmax = SOFT_MAX_TRIS*24
 		shell_obs = [ob for ob in b_lod_coll.objects if is_shell(ob) and ob is not b_ob]
 		if shell_obs:
 			shell_ob = shell_obs[0]
@@ -324,7 +327,7 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 								picked_tris = tris_per_v_index.pop(old_vert_i, ())
 								for t in picked_tris:
 									tris_for_next_round.add(t)
-					if len(used_verts) >= curr_vmax or len(new_tris) >= curr_tmax:
+					if len(used_verts) >= v_max or len(new_tris) >= t_max:
 						logging.debug(f"Chunk is filled with {len(new_tris)} tris or {len(used_verts)} verts")
 						# chunk is full, so stop adding tris, but add the newly found ones to the next chunk
 						for tri in tris_for_next_round:
