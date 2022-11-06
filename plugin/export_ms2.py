@@ -422,7 +422,7 @@ def export_weights(b_ob, b_vert, bones_table, hair_length, unweighted_vertices, 
 				# avoid dummy vertex groups without corresponding bones
 				bone_index = bones_table[v_group_name]
 				# update lod's bone cutoff
-				m_lod.bone_index = max(m_lod.bone_index, bone_index)
+				m_lod.bone_index = max(m_lod.bone_index, bone_index + 1)
 				if v_group.weight > 0.0:
 					w.append([bone_index, v_group.weight])
 		except:
