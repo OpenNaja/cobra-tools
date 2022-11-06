@@ -302,8 +302,7 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 			added_tris = set()
 			tris = ()
 			while tris_per_v_index:
-				used_verts, new_tris, tris = build_chunk(added_tris, b_chunk_bone_id, chunk_verts, t_max, tris,
-												  tris_per_v_index, v_max)
+				used_verts, new_tris, tris = build_chunk(added_tris, b_chunk_bone_id, t_max, tris, tris_per_v_index, v_max)
 				# all verts and tris for this new chunk have been collected
 				# pick local verts
 				used_verts = list(sorted(used_verts))
@@ -337,7 +336,7 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 	return wrapper
 
 
-def build_chunk(added_tris, b_chunk_bone_id, chunk_verts, t_max, tris, tris_per_v_index, v_max):
+def build_chunk(added_tris, b_chunk_bone_id, t_max, tris, tris_per_v_index, v_max):
 	# create a local chunk
 	new_tris = []
 	used_verts = set()
