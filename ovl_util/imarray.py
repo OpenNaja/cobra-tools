@@ -123,11 +123,12 @@ def get_split_mode(png_file_path, compression):
 	if check_any(("pmossbasecolourroughnesspackedtexture", "ppackedtexture", "palbedoandroughnessdetail", "pnormaltexture", "pbasecolourtexture"), png_file_path):
 		return "RGB_A"
 	# JWE2 only
-	if check_any(("pbasenormaltexture",), png_file_path):
+	if check_any(("pbasenormaltexture", "pgradheightarray"), png_file_path):
 		return "RG_B_A"
 	if check_any((
 		"packedtexture", "playered_blendweights", "scartexture", "samplertexture",
-		"pspecularmaptexture", "pflexicolourmaskstexture", "pshellmap", "pfinalphatexture", "ppiebaldtexture"), png_file_path):
+		"pspecularmaptexture", "pflexicolourmaskstexture", "pshellmap", "pfinalphatexture", "ppiebaldtexture",
+		"pcavityroughnessdielectricarray"), png_file_path):
 		return "R_G_B_A"
 
 
