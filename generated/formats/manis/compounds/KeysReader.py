@@ -60,6 +60,7 @@ class KeysReader(BaseStruct):
 			for mb in mani_info.keys.repeats:
 				stream.write(mb.data)
 				stream.write(get_padding(mb.byte_size))
+			UnkChunkList.to_stream(mani_info.subchunks, stream, mani_info.subchunks.context)
 		instance.io_size = stream.tell() - instance.io_start
 
 	@classmethod

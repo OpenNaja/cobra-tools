@@ -25,7 +25,7 @@ def as_bytes(inst):
 	if isinstance(inst, (bytes, bytearray)):
 		return inst
 	with BytesIO() as stream:
-		inst.write(stream)
+		inst.to_stream(inst, stream, inst.context)
 		return stream.getvalue()
 
 

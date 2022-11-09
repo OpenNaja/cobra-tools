@@ -34,11 +34,8 @@ class WeirdElementTwoReader(BaseStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		instance.io_start = stream.tell()
-		for mani_info in instance.arg:
-			ManiBlock.to_stream(mani_info.keys, stream, instance.context)
-			for mb in mani_info.keys.repeats:
-				stream.write(mb.data)
-				stream.write(get_padding(mb.byte_size))
+		for elem_one in instance.arg:
+			Array.to_stream(elem_one.keys, stream, instance.context, shape=(elem_one.countb,), dtype=WeirdElementTwo)
 		instance.io_size = stream.tell() - instance.io_start
 
 	@classmethod

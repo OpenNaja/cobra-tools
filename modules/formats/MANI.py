@@ -9,6 +9,7 @@ from modules.helpers import as_bytes
 
 
 class ManiLoader(BaseFile):
+	extension = ".mani"
 
 	def create(self):
 		self.create_root_entry()
