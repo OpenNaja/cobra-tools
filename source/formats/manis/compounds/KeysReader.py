@@ -5,7 +5,7 @@ import traceback
 from generated.base_struct import BaseStruct
 from generated.formats.base.compounds.PadAlign import get_padding_size, get_padding
 from generated.formats.manis.compounds.ManiBlock import ManiBlock
-
+from generated.formats.manis.compounds.UnkChunkList import UnkChunkList
 
 # END_GLOBALS
 
@@ -33,6 +33,8 @@ class KeysReader(BaseStruct):
 				pad_size = get_padding_size(mb.byte_size)
 				mb.padding = stream.read(pad_size)
 				# print("end", stream.tell())
+			mani_info.subchunks = UnkChunkList.from_stream(stream, instance.context, mani_info, None)
+			print(mani_info.subchunks)
 		instance.io_size = stream.tell() - instance.io_start
 
 	@classmethod
