@@ -34,8 +34,9 @@ class KeysReader(BaseStruct):
 				mb.padding = stream.read(pad_size)
 				assert mb.padding == b"\x00" * pad_size
 				# print("end", stream.tell())
-			mani_info.subchunks = UnkChunkList.from_stream(stream, instance.context, mani_info, None)
-			print(mani_info.subchunks)
+			if mani_info.keys.count > 0:
+				mani_info.subchunks = UnkChunkList.from_stream(stream, instance.context, mani_info, None)
+				#print(mani_info.subchunks)
 			# break
 		instance.io_size = stream.tell() - instance.io_start
 
@@ -47,7 +48,8 @@ class KeysReader(BaseStruct):
 			for mb in mani_info.keys.repeats:
 				stream.write(mb.data)
 				stream.write(get_padding(mb.byte_size))
-			UnkChunkList.to_stream(mani_info.subchunks, stream, mani_info.subchunks.context)
+			if mani_info.keys.count > 0:
+				UnkChunkList.to_stream(mani_info.subchunks, stream, mani_info.subchunks.context)
 		instance.io_size = stream.tell() - instance.io_start
 
 	@classmethod

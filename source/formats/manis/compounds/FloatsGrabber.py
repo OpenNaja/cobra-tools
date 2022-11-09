@@ -24,8 +24,8 @@ class FloatsGrabber(BaseStruct):
 		instance.data = b''
 		for i in range(MAX_LEN):
 			end = stream.tell()
-			f = stream.read(4)
-			if len(f) != 4:
+			f = stream.read(24)
+			if len(f) != 24:
 				raise ValueError('reached eof before finding 00 00 00 00')
 			# stop if 4 00 bytes are found (if stream reaches eof it may not be 4 bytes so take len)
 			if f == len(f) * ZERO:
@@ -39,4 +39,3 @@ class FloatsGrabber(BaseStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		stream.write(instance.data)
-
