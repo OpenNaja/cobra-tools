@@ -116,9 +116,10 @@ def create_material(in_dir, matname):
 		#  link finished diffuse to shader
 		tree.links.new(diffuse.outputs[0], principled.inputs["Base Color"])
 
-	for normal in get_tex(tex_dic, ("pnormaltexture", "pnormaltexture_rg", "pbasenormaltexture_rg")):
+	for normal in get_tex(tex_dic, ("pnormaltexture", "pnormaltexture_rg","pnormaltexture_rgb", "pbasenormaltexture_rg","pbasenormaltexture_rgb",)):
 		normal.image.colorspace_settings.name = "Non-Color"
 		normal_map = tree.nodes.new('ShaderNodeNormalMap')
+		normal_map.inputs[0].default_value = 0.5 # makes it more realistic in preview rendering
 		tree.links.new(normal.outputs[0], normal_map.inputs[1])
 		tree.links.new(normal_map.outputs[0], principled.inputs["Normal"])
 
@@ -129,7 +130,7 @@ def create_material(in_dir, matname):
 		tree.links.new(specular.outputs[0], principled.inputs["Specular"])
 
 	# roughness
-	for roughness in get_tex(tex_dic, ("proughnesspackedtexture_g", "pbasenormaltexture_a")):  # "pspecularmaptexture_g" ?
+	for roughness in get_tex(tex_dic, ("proughnesspackedtexture_g", "pnormaltexture_a", "pbasenormaltexture_a")):  # "pspecularmaptexture_g" ?
 		roughness.image.colorspace_settings.name = "Non-Color"
 		tree.links.new(roughness.outputs[0], principled.inputs["Roughness"])
 
