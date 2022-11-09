@@ -4,16 +4,17 @@ import traceback
 from generated.base_struct import BaseStruct
 from generated.formats.base.compounds.PadAlign import get_padding_size, get_padding
 from generated.formats.manis.compounds.ManiBlock import ManiBlock
-from generated.formats.manis.compounds.UnkChunkList import UnkChunkList
 
+
+from generated.formats.manis.compounds.SubChunk import SubChunk
 from generated.base_struct import BaseStruct
 
 
-class KeysReader(BaseStruct):
+class SubChunkReader(BaseStruct):
 
-	__name__ = 'KeysReader'
+	__name__ = 'SubChunkReader'
 
-	_import_key = 'manis.compounds.KeysReader'
+	_import_key = 'manis.compounds.SubChunkReader'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
@@ -30,24 +31,13 @@ class KeysReader(BaseStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		instance.io_start = stream.tell()
-		for mani_info in instance.arg:
-			print(mani_info)
-			print(stream.tell())
-			mani_info.keys = ManiBlock.from_stream(stream, instance.context, mani_info, None)
-			print(mani_info.keys)
-
-			sum_bytes = sum(mb.byte_size for mb in mani_info.keys.repeats)
-			print("sum_bytes", sum_bytes)
-			sum_bytes2 = sum(mb.byte_size + get_padding_size(mb.byte_size) for mb in mani_info.keys.repeats)
-			print("sum_bytes + padding", sum_bytes2)
-			for mb in mani_info.keys.repeats:
-				# print(bone_name, stream.tell())
-				mb.data = stream.read(mb.byte_size)
-				pad_size = get_padding_size(mb.byte_size)
-				mb.padding = stream.read(pad_size)
-				# print("end", stream.tell())
-			mani_info.subchunks = UnkChunkList.from_stream(stream, instance.context, mani_info, None)
-			print(mani_info.subchunks)
+		for chunk_sizes in instance.arg:
+			chunk_sizes.keys = ()
+		for chunk_sizes in instance.arg:
+			chunk_sizes.keys = SubChunk.from_stream(stream, instance.context, chunk_sizes, None)
+			# print(chunk_sizes)
+			# print(chunk_sizes.keys)
+			break
 			# break
 		instance.io_size = stream.tell() - instance.io_start
 
@@ -64,8 +54,8 @@ class KeysReader(BaseStruct):
 	@classmethod
 	def get_fields_str(cls, instance, indent=0):
 		s = ''
-		for mani_info in instance.arg:
-			s += str(mani_info.keys)
+		for chunk_sizes in instance.arg:
+			s += str(chunk_sizes.keys)
 		return s
 
 

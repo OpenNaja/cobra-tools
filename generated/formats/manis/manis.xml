@@ -149,7 +149,7 @@
 
 <!--		<add name="floats 2" type="float" arr1="3" arr2="6"  >these are likely a scale reference or factor</add>-->
 
-		<add name="unk" type="uint" cond="#ARG#\count_a #EQ# 255">present in feeder, not in dino</add>
+<!--		<add name="unk" type="uint64" cond="#ARG#\count_a #EQ# 255">present in feeder, not in dino</add> -->
 
 		<add name="extra pc zero" type="uint64" until="257" >this seems to be vaguely related, but not always there?</add>
 <!--		<add name="unk for FloatCount" type="uint64" cond="#ARG# \ FloatCount">this seems to be vaguely related, but not always there?</add>-->
@@ -162,6 +162,46 @@
 		<add name="zeros 0" type="uint64" arr1="7" > </add>
 		<add name="byte size" type="uint64" >to be read sequentially starting after this array </add>
 		<add name="zeros 1" type="uint64" arr1="2" > </add>
+    </compound>
+	
+    <compound name="UnkChunkList" >
+		<add name="zero 0" type="uint64" > </add>
+		<add name="subchunk_count" type="ushort" ></add>
+		<add name="flag" type="ushort" > </add>
+		<add name="zero 1" type="uint" > </add>
+		<add name="chunksize_list" type="ChunkSizes" arr1="subchunk_count" > </add>
+		<add name="subchunk list" type="SubChunkReader" arg="chunksize_list" > </add>
+    </compound>
+	
+    <compound name="ChunkSizes" >
+		<add name="zeros 0" type="uint64" > </add>
+		<add name="bone" type="uint" ></add>
+		<add name="counta" type="uint" > </add>
+    </compound>
+	
+    <compound name="SubChunkReader" >
+    </compound>
+	
+    <compound name="WeirdElementTwoReader" >
+    </compound>
+	
+    <compound name="SubChunk" >
+		arg is chunksizes
+		<add name="weird list one" type="WeirdElementOne" arr1="#ARG#\counta" >for subchunk_list[n] needs chunksize_list[n]'s counta for array length</add>
+		<add name="weird list two" type="WeirdElementTwoReader" arg="weird list one" >  needs sum of countb's from weird list one</add>
+    </compound>
+	
+    <compound name="WeirdElementOne" >
+		<add name="float 0" type="float"> </add>
+		<add name="zero 0" type="uint" ></add>
+		<add name="floats 0" type="float" arr1="2"> </add>
+		<add name="zeros 0" type="uint64" arr1="2"> </add>
+		<add name="floats 1" type="float" arr1="3"> </add>
+		<add name="countb" type="uint"> </add>
+    </compound>
+	
+    <compound name="WeirdElementTwo" >
+		<add name="many floats" type="float" arr1="7"> </add>
     </compound>
 
 </niftoolsxml>

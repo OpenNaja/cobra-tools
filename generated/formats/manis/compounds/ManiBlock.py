@@ -70,9 +70,6 @@ class ManiBlock(BaseStruct):
 		# these are likely a scale reference or factor
 		self.floats_third = Array(self.context, 0, None, (0,), Float)
 
-		# present in feeder, not in dino
-		self.unk = 0
-
 		# this seems to be vaguely related, but not always there?
 		self.extra_pc_zero = 0
 		self.repeats = Array(self.context, 0, None, (0,), Repeat)
@@ -115,7 +112,6 @@ class ManiBlock(BaseStruct):
 		('floatsb', Array, (0, None, (6,), Float), (False, None), None),
 		('floats_second', Array, (0, None, (None, 6,), Float), (False, None), None),
 		('floats_third', Array, (0, None, (6,), Float), (False, None), True),
-		('unk', Uint, (0, None), (False, None), True),
 		('extra_pc_zero', Uint64, (0, None), (False, None), True),
 		('repeats', Array, (0, None, (None,), Repeat), (False, None), None),
 		]
@@ -170,8 +166,6 @@ class ManiBlock(BaseStruct):
 		yield 'floats_second', Array, (0, None, (instance.flag_1, 6,), Float), (False, None)
 		if instance.flag_2 > 1:
 			yield 'floats_third', Array, (0, None, (6,), Float), (False, None)
-		if instance.arg.count_a == 255:
-			yield 'unk', Uint, (0, None), (False, None)
 		if instance.context.version <= 257:
 			yield 'extra_pc_zero', Uint64, (0, None), (False, None)
 		yield 'repeats', Array, (0, None, (instance.count,), Repeat), (False, None)

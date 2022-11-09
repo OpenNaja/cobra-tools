@@ -2,39 +2,32 @@
 import logging
 import traceback
 
+from generated.array import Array
 from generated.base_struct import BaseStruct
 from generated.formats.base.compounds.PadAlign import get_padding_size, get_padding
 from generated.formats.manis.compounds.ManiBlock import ManiBlock
-from generated.formats.manis.compounds.UnkChunkList import UnkChunkList
+from generated.formats.manis.compounds.WeirdElementTwo import WeirdElementTwo
+
 
 # END_GLOBALS
 
 
-class KeysReader(BaseStruct):
+class WeirdElementTwoReader(BaseStruct):
 
 	# START_CLASS
 
 	@classmethod
 	def read_fields(cls, stream, instance):
 		instance.io_start = stream.tell()
-		for mani_info in instance.arg:
-			print(mani_info)
-			print(stream.tell())
-			mani_info.keys = ManiBlock.from_stream(stream, instance.context, mani_info, None)
-			print(mani_info.keys)
-
-			sum_bytes = sum(mb.byte_size for mb in mani_info.keys.repeats)
-			print("sum_bytes", sum_bytes)
-			sum_bytes2 = sum(mb.byte_size + get_padding_size(mb.byte_size) for mb in mani_info.keys.repeats)
-			print("sum_bytes + padding", sum_bytes2)
-			for mb in mani_info.keys.repeats:
-				# print(bone_name, stream.tell())
-				mb.data = stream.read(mb.byte_size)
-				pad_size = get_padding_size(mb.byte_size)
-				mb.padding = stream.read(pad_size)
-				# print("end", stream.tell())
-			mani_info.subchunks = UnkChunkList.from_stream(stream, instance.context, mani_info, None)
-			print(mani_info.subchunks)
+		for chunk_sizes in instance.arg:
+			chunk_sizes.keys = ()
+		for elem_one in instance.arg:
+			# print(mani_info)
+			# print(stream.tell())
+			elem_one.keys = Array.from_stream(stream, elem_one.context, arg=0, template=None, shape=(elem_one.countb,), dtype=WeirdElementTwo)
+			# chunk_sizes.keys = WeirdElementTwo.from_stream(stream, instance.context, chunk_sizes, None)
+			# print(elem_one)
+			# print(elem_one.keys)
 			# break
 		instance.io_size = stream.tell() - instance.io_start
 
