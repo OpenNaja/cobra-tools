@@ -46,6 +46,7 @@ class ManisFile(InfoHeader, IoFile):
 if __name__ == "__main__":
 	mani = ManisFile()
 	mani.load("C:/Users/arnfi/Desktop/fallow manis/animationmotionextractedbehaviour.maniset9987317c.manis")
+	mani.dump_keys()
 	# mani.load("C:/Users/arnfi/Desktop/dilo/locomotion.maniset1c05e0f4.manis")
 	# mani.load("C:/Users/arnfi/Desktop/ostrich/ugcres.maniset8982114c.manis")
 	# mani.load("C:/Users/arnfi/Desktop/Coding/ovl/OVLs/anim test/rot_x_0_22_42.manis")
@@ -73,6 +74,6 @@ if __name__ == "__main__":
 	# mani.load("C:/Users/arnfi/Desktop/Coding/Frontier/anim/ceara/motionextracted.manisetf2b6c52d.manis")
 	# print(mani)
 
-	mani.load("C:/Users/arnfi/Desktop/manis/fee_feeder_ground.maniset2759dfaf.manis")
+	# mani.load("C:/Users/arnfi/Desktop/manis/fee_feeder_ground.maniset2759dfaf.manis")
 	# mani.load("C:/Users/arnfi/Desktop/manis/motionextracted.maniset167ed454.manis")
 	# hex_test()

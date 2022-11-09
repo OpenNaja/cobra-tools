@@ -170,7 +170,9 @@
 		<add name="flag" type="ushort" > </add>
 		<add name="zero 1" type="uint" > </add>
 		<add name="chunksize_list" type="ChunkSizes" arr1="subchunk_count" > </add>
+		<add name="ref" type="Empty" > </add>
 		<add name="subchunk list" type="SubChunkReader" arg="chunksize_list" > </add>
+        <add name="pad" type="PadAlign" template="ref" arg="16" >?</add>
     </compound>
 	
     <compound name="ChunkSizes" >

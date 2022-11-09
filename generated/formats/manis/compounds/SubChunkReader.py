@@ -34,10 +34,17 @@ class SubChunkReader(BaseStruct):
 		for chunk_sizes in instance.arg:
 			chunk_sizes.keys = ()
 		for chunk_sizes in instance.arg:
+			# start = stream.tell()
 			chunk_sizes.keys = SubChunk.from_stream(stream, instance.context, chunk_sizes, None)
 			# print(chunk_sizes)
 			# print(chunk_sizes.keys)
-			break
+			# subchunk_size =
+			print(f"subchunk io_size {chunk_sizes.keys.io_size}")
+			pad_size = get_padding_size(chunk_sizes.keys.io_size, alignment=8)
+			chunk_sizes.padding = stream.read(pad_size)
+			assert chunk_sizes.padding == b"\x00" * pad_size
+			print(f"{chunk_sizes.padding} padding ends at {stream.tell()}")
+			# break
 			# break
 		instance.io_size = stream.tell() - instance.io_start
 
