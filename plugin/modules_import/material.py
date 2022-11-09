@@ -119,7 +119,7 @@ def create_material(in_dir, matname):
 	for normal in get_tex(tex_dic, ("pnormaltexture", "pnormaltexture_rg","pnormaltexture_rgb", "pbasenormaltexture_rg","pbasenormaltexture_rgb",)):
 		normal.image.colorspace_settings.name = "Non-Color"
 		normal_map = tree.nodes.new('ShaderNodeNormalMap')
-		normal_map.inputs[0].default_value = 0.5 # makes it more realistic in preview rendering
+		#normal_map.inputs[0].default_value = 0.5 # nah, it really doesn't
 		tree.links.new(normal.outputs[0], normal_map.inputs[1])
 		tree.links.new(normal_map.outputs[0], principled.inputs["Normal"])
 
