@@ -119,7 +119,7 @@ def create_material(in_dir, matname):
 	for normal in get_tex(tex_dic, ("pnormaltexture", "pnormaltexture_rg","pnormaltexture_rgb", "pbasenormaltexture_rg","pbasenormaltexture_rgb",)):
 		normal.image.colorspace_settings.name = "Non-Color"
 		normal_map = tree.nodes.new('ShaderNodeNormalMap')
-		#normal_map.inputs[0].default_value = 0.5 # nah, it really doesn't
+		normal_map.inputs[0].default_value = 0.4 # nah, it really doesn't
 		tree.links.new(normal.outputs[0], normal_map.inputs[1])
 		tree.links.new(normal_map.outputs[0], principled.inputs["Normal"])
 
@@ -188,8 +188,25 @@ def create_material(in_dir, matname):
 def import_material(created_materials, in_dir, b_me, material):
 	material_name = material.name
 	try:
+		# find if material is in blender already. Imported FGMs
+		# will have the material name all in lowercase, we need
+		# to check both.
+		b_mat = bpy.data.materials.get(material_name)
+		if not b_mat:
+			b_mat = bpy.data.materials.get(material_name.lower())
+
+		# if the material is in blender first, just apply the 
+		# existing one.
+		if b_mat:
+			created_materials[material_name] = b_mat
+			b_mat["some_index"] = material.some_index
+			b_me.materials.append(b_mat)
+			return
+
 		# additionally keep track here so we create a node tree only once during import
-		# but make sure that we overwrite existing materials:
+		# but make sure that we overwrite existing materials.
+		# TODO: this might be redundant since we are checking now materials
+		# exist in the previous code block.
 		if material_name not in created_materials:
 			b_mat = create_material(in_dir, material_name)
 			created_materials[material_name] = b_mat
@@ -202,4 +219,3 @@ def import_material(created_materials, in_dir, b_me, material):
 	except:
 		logging.warning(f"Material {material_name} failed")
 		traceback.print_exc()
-
