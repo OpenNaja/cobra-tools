@@ -50,6 +50,10 @@ class Array(list):
         if set_default:
             self.set_defaults()
 
+    def __str__(self):
+        fields_str = ',\n'.join([f_type.fmt_member(self[f_name]) for f_name, f_type, _, _ in self._get_filtered_attribute_list(self, self.dtype)])
+        return f"[{fields_str}]"
+
     def set_defaults(self):
         self[:] = self.fill(lambda: self.dtype(self.context, self.arg, self.template))
 
@@ -123,7 +127,7 @@ class Array(list):
         elif callable(getattr(dtype, 'create_array', None)):
             return dtype.create_array(shape, default=value)
         else:
-            new_array = cls(shape, dtype, None, set_default=False)
+            new_array = cls(None, 0, None, shape, dtype, set_default=False)
             new_array.fill(lambda: dtype.from_value(value))
             return new_array
 
@@ -192,11 +196,13 @@ class Array(list):
         elif callable(getattr(dtype, "validate_array", None)):
             return dtype.validate_array(instance, context, arg, template, shape)
         try:
-	        assert instance.context == context, f"context {instance.context} doesn't match {context} on {cls}"
-	        assert instance.arg == arg, f"argument {instance.arg} doesn't match {arg} on {cls}"
-	        assert instance.template == template, f"template {instance.template} doesn't match {template} on {cls}"
-	        assert instance.shape == shape, f"shape {instance.shape} doesn't match {shape} on {cls}"
-	        assert instance.dtype == dtype, f"dtype {instance.dtype} doesn't match {dtype} on {cls}"
+            if not callable(getattr(dtype, 'from_value', None)):
+                # if the dtype has from_value, the context on that type doesn't matter
+                assert instance.context == context, f"context {instance.context} doesn't match {context} on {cls}"
+            assert instance.arg == arg, f"argument {instance.arg} doesn't match {arg} on {cls}"
+            assert instance.template == template, f"template {instance.template} doesn't match {template} on {cls}"
+            assert instance.shape == shape, f"shape {instance.shape} doesn't match {shape} on {cls}"
+            assert instance.dtype == dtype, f"dtype {instance.dtype} doesn't match {dtype} on {cls}"
         except AssertionError:
             logging.error(f"validation failed on {cls}[{dtype}]")
             raise
@@ -361,11 +367,13 @@ class RaggedArray(Array):
         if callable(getattr(dtype, "validate_ragged_array", None)):
             return dtype.validate_ragged_array(instance, context, arg, template, shape)
         try:
-	        assert instance.context == context, f"context {instance.context} doesn't match {context} on {cls}"
-	        assert instance.arg == arg, f"argument {instance.arg} doesn't match {arg} on {cls}"
-	        assert instance.template == template, f"template {instance.template} doesn't match {template} on {cls}"
-	        assert instance.shape == shape, f"shape {instance.shape} doesn't match {shape} on {cls}"
-	        assert instance.dtype == dtype, f"dtype {instance.dtype} doesn't match {dtype} on {cls}"
+            if not callable(getattr(dtype, 'from_value', None)):
+                # if the dtype has from_value, the context on that type doesn't matter
+                assert instance.context == context, f"context {instance.context} doesn't match {context} on {cls}"
+            assert instance.arg == arg, f"argument {instance.arg} doesn't match {arg} on {cls}"
+            assert instance.template == template, f"template {instance.template} doesn't match {template} on {cls}"
+            assert instance.shape == shape, f"shape {instance.shape} doesn't match {shape} on {cls}"
+            assert instance.dtype == dtype, f"dtype {instance.dtype} doesn't match {dtype} on {cls}"
         except AssertionError:
             logging.error(f"validation failed on {cls}[{dtype}]")
             raise
