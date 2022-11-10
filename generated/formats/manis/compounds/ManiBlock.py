@@ -7,6 +7,7 @@ from generated.formats.base.basic import Uint
 from generated.formats.base.basic import Uint64
 from generated.formats.base.basic import Ushort
 from generated.formats.base.compounds.PadAlign import PadAlign
+from generated.formats.manis.compounds.FloatsGrabber import FloatsGrabber
 from generated.formats.manis.compounds.Repeat import Repeat
 from generated.formats.ovl_base.compounds.Empty import Empty
 from generated.formats.ovl_base.compounds.SmartPadding import SmartPadding
@@ -62,16 +63,12 @@ class ManiBlock(BaseStruct):
 		self.anoth_pad = PadAlign(self.context, 4, self.ref_2)
 
 		# these are likely a scale reference or factor
-		self.floatsb = Array(self.context, 0, None, (0,), Float)
-
-		# these are likely a scale reference or factor
-		self.floats_second = Array(self.context, 0, None, (0,), Float)
-
-		# these are likely a scale reference or factor
-		self.floats_third = Array(self.context, 0, None, (0,), Float)
+		self.floatsb = FloatsGrabber(self.context, 0, None)
 
 		# this seems to be vaguely related, but not always there?
 		self.extra_pc_zero = 0
+		self.anoth_pad_2 = PadAlign(self.context, 16, self.ref)
+		self.ref_3 = Empty(self.context, 0, None)
 		self.repeats = Array(self.context, 0, None, (0,), Repeat)
 		if set_default:
 			self.set_defaults()
@@ -109,10 +106,10 @@ class ManiBlock(BaseStruct):
 		('flag_2', Ubyte, (0, None), (False, None), None),
 		('flag_3', Ubyte, (0, None), (False, None), None),
 		('anoth_pad', PadAlign, (4, None), (False, None), None),
-		('floatsb', Array, (0, None, (6,), Float), (False, None), None),
-		('floats_second', Array, (0, None, (None, 6,), Float), (False, None), None),
-		('floats_third', Array, (0, None, (6,), Float), (False, None), True),
+		('floatsb', FloatsGrabber, (0, None), (False, None), None),
 		('extra_pc_zero', Uint64, (0, None), (False, None), True),
+		('anoth_pad_2', PadAlign, (16, None), (False, None), None),
+		('ref_3', Empty, (0, None), (False, None), None),
 		('repeats', Array, (0, None, (None,), Repeat), (False, None), None),
 		]
 
@@ -162,10 +159,9 @@ class ManiBlock(BaseStruct):
 		yield 'flag_2', Ubyte, (0, None), (False, None)
 		yield 'flag_3', Ubyte, (0, None), (False, None)
 		yield 'anoth_pad', PadAlign, (4, instance.ref_2), (False, None)
-		yield 'floatsb', Array, (0, None, (6,), Float), (False, None)
-		yield 'floats_second', Array, (0, None, (instance.flag_1, 6,), Float), (False, None)
-		if instance.flag_2 > 1:
-			yield 'floats_third', Array, (0, None, (6,), Float), (False, None)
+		yield 'floatsb', FloatsGrabber, (0, None), (False, None)
 		if instance.context.version <= 257:
 			yield 'extra_pc_zero', Uint64, (0, None), (False, None)
+		yield 'anoth_pad_2', PadAlign, (16, instance.ref), (False, None)
+		yield 'ref_3', Empty, (0, None), (False, None)
 		yield 'repeats', Array, (0, None, (instance.count,), Repeat), (False, None)

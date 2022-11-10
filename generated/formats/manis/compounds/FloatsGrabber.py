@@ -1,16 +1,24 @@
-# START_GLOBALS
 from generated.base_struct import BaseStruct
 from generated.io import MAX_LEN
 
 ZERO = b"\x00"
 
 
-# END_GLOBALS
+from generated.base_struct import BaseStruct
+
 
 class FloatsGrabber(BaseStruct):
-	"""Holds a buffer of zero-terminated strings"""
 
-# START_CLASS
+	__name__ = 'FloatsGrabber'
+
+	_import_key = 'manis.compounds.FloatsGrabber'
+
+	_attribute_list = BaseStruct._attribute_list + [
+		]
+
+	@classmethod
+	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
+		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 
 	def __init__(self, context, arg=None, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
@@ -24,8 +32,8 @@ class FloatsGrabber(BaseStruct):
 		instance.data = b''
 		for i in range(MAX_LEN):
 			end = stream.tell()
-			f = stream.read(4)
-			if len(f) != 4:
+			f = stream.read(24)
+			if len(f) != 24:
 				raise ValueError('reached eof before finding 00 00 00 00')
 			# stop if 4 00 bytes are found (if stream reaches eof it may not be 4 bytes so take len)
 			if f == len(f) * ZERO:
@@ -39,4 +47,3 @@ class FloatsGrabber(BaseStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		stream.write(instance.data)
-

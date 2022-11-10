@@ -2,9 +2,15 @@
 <!DOCTYPE niftoolsxml>
 <niftoolsxml version="0.7.1.0">
 
-<!--    <token name="verexpr" attrs="vercond">-->
-<!--		<verexpr token="#PC#" string="(#VER# #EQ# 257)">PC</verexpr>-->
-<!--    </token>-->
+	<token name="verexpr" attrs="vercond">
+
+		<verexpr token="#DLA#" string="(#VER# #EQ# 257)">DLA</verexpr>
+		<verexpr token="#PC#" string="(#VER# #EQ# 257)">PC</verexpr>
+		<verexpr token="#JWE#" string="(#VER# #EQ# 258)">JWE1</verexpr>
+		<verexpr token="#PZ#" string="(#VER# #EQ# 260)">PZ all</verexpr>
+		<verexpr token="#JWE2#" string="(#VER# #EQ# 262)">JWE2</verexpr>
+		<verexpr token="#JWE2_DEV#" string="(#VER# #EQ# 261)">JWE2</verexpr>
+	</token>
 
 	<token name="global" attrs="vercond access">
         Global Tokens.
@@ -143,9 +149,11 @@
 <!--		<add name="anoth pad" type="SmartPadding" >?</add>-->
 <!--        <add name="pad to 8" type="ubyte" arr1="(8 - (count  % 8)) % 8" > </add>-->
 
-		<add name="floatsb" type="float" arr1="6" >these are likely a scale reference or factor</add>
-		<add name="floats second" type="float" arr1="flag 1" arr2="6"  >these are likely a scale reference or factor</add>
-		<add name="floats third" type="float" arr1="6" cond="flag 2 #GT# 1" >these are likely a scale reference or factor</add>
+		<add name="floatsb" type="FloatsGrabber" >these are likely a scale reference or factor</add>
+	<!-- <add name="floatsb" type="float" arr1="12" vercond="#JWE2#">these are likely a scale reference or factor</add> -->
+	<!-- <add name="floatsb" type="float" arr1="6" vercond="#PZ#">these are likely a scale reference or factor</add> -->
+		<!-- <add name="floats second" type="float" arr1="flag 1" arr2="6"  >these are likely a scale reference or factor</add> -->
+		<!-- <add name="floats third" type="float" arr1="6" vercond="#PZ#" cond="flag 2 #GT# 1" >these are likely a scale reference or factor</add> -->
 
 <!--		<add name="floats 2" type="float" arr1="3" arr2="6"  >these are likely a scale reference or factor</add>-->
 
@@ -154,6 +162,8 @@
 		<add name="extra pc zero" type="uint64" until="257" >this seems to be vaguely related, but not always there?</add>
 <!--		<add name="unk for FloatCount" type="uint64" cond="#ARG# \ FloatCount">this seems to be vaguely related, but not always there?</add>-->
 <!--		<add name="floats extra" type="float" arr1="#ARG#\FloatCount" >nope likely wrong</add>-->
+		<add name="anoth pad2" type="PadAlign" template="ref" arg="16" > </add>
+		<add name="ref3" type="Empty"/>
 		<add name="repeats" type="Repeat" arr1="count" > </add>
 
     </compound>
@@ -163,14 +173,18 @@
 		<add name="byte size" type="uint64" >to be read sequentially starting after this array </add>
 		<add name="zeros 1" type="uint64" arr1="2" > </add>
     </compound>
+
+    <compound name="FloatsGrabber" >
+    </compound>
+	
 	
     <compound name="UnkChunkList" >
-		<add name="zero 0" type="uint64" > </add>
+		<add name="ref" type="Empty" > </add>
+		<add name="zero 0" type="SmartPadding" > </add>
 		<add name="subchunk_count" type="ushort" ></add>
 		<add name="flag" type="ushort" > </add>
 		<add name="zero 1" type="uint" > </add>
 		<add name="chunksize_list" type="ChunkSizes" arr1="subchunk_count" > </add>
-		<add name="ref" type="Empty" > </add>
 		<add name="subchunk list" type="SubChunkReader" arg="chunksize_list" > </add>
         <add name="pad" type="PadAlign" template="ref" arg="16" >?</add>
     </compound>
