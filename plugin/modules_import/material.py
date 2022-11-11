@@ -64,12 +64,19 @@ def create_material(in_dir, matname):
 		if "blendweights" in png_base or "warpoffset" in png_base:
 			continue
 		textures = [file for file in all_textures if file.lower().startswith(png_base)]
+
+		# Until better option to organize the shader info, create texture group node
+		tex_frame = tree.nodes.new('NodeFrame')
+		tex_frame.label = dep_info.dependency_name.data.lower()
+
 		# print(textures)
 		for png_name in textures:
 			png_path = os.path.join(in_dir, png_name)
 			b_tex = load_tex_node(tree, png_path)
+			b_tex.parent = tex_frame # assign the texture frame to this png
 			k = png_name.lower().split(".")[1]
 			tex_dic[k] = b_tex
+
 
 	# get diffuse
 	for diffuse in get_tex(tex_dic, (
