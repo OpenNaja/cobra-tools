@@ -563,6 +563,8 @@ class TextureVisual:
 			self.w_file.set_file_path(self.data.dependency_name.data)
 			self.w_file.entry.textChanged.connect(self.update_file)
 			self.w_tile = QtWidgets.QSpinBox()
+			self.w_tile.setMaximumWidth(36)
+			self.w_tile.setToolTip("Array Tile Index")
 			self.w_tile.setRange(0, 2147483647)
 			# todo - why is array_index str?
 			self.w_tile.setValue(int(self.entry.value[0].array_index))
