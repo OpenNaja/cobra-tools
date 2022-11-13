@@ -23,4 +23,5 @@ class Enum(BaseClass):
                 if option.text:
                     f.write(clean_comment_str(option.text, indent="\t"))
                 f.write(f"\n\t{option.attrib['name']} = {option.attrib['value']}")
-            f.write(f"\n")
+            self.write_src_body(f)
+            self.write_line(f)

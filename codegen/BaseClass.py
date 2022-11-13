@@ -84,6 +84,9 @@ class BaseClass:
         self.write_line(stream)
         self.write_line(stream, 1, f"__name__ = '{self.struct.attrib.get('__name__')}'")
 
+    def write_src_body(self, stream):
+        stream.write(self.grab_src_snippet("# START_CLASS"))
+
     def write_line(self, stream, indent=0, line=""):
         stream.write("\n" + indent*"\t" + line)
 

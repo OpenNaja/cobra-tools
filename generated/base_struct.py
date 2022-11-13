@@ -250,20 +250,25 @@ class BaseStruct(metaclass=StructMetaClass):
 				else:
 					field_value = field_type.from_value(*arguments[2:4], default)
 				type(self).set_field(self, field_name, field_value)
+				return field_value
+		else:
+			logging.warning(f"Field {field_name} was not evaluated to be on type {type(self).__name__}")
 
 	@classmethod
 	def validate_instance(cls, instance, context, arg, template):
 		try:
-			assert instance.context == context, f"context {instance.context} doesn't match {context} on {cls}"
+			if not callable(getattr(cls, 'from_value', None)):
+				# if cls has from_value, the context on that type doesn't matter
+				assert instance.context == context, f"context {instance.context} doesn't match {context} on {cls}"
 			assert instance.arg == arg, f"argument {instance.argument} doesn't match {arg} on {cls}"
 			assert instance.template == template, f"template {instance.template} doesn't match {template} on {cls}"
-		except AssertionError:
+		except:
 			logging.error(f"validation failed on {cls}")
 			raise
 		for f_name, f_type, f_arguments, _ in cls._get_filtered_attribute_list(instance):
 			try:
 				f_type.validate_instance(cls.get_field(instance, f_name), context, *f_arguments)
-			except AssertionError:
+			except:
 				logging.error(f"validation failed on field {f_name} on type {cls}")
 				raise
 
@@ -304,8 +309,9 @@ class BaseStruct(metaclass=StructMetaClass):
 			try:
 				val = s_type.get_field(s_inst, f_name)
 				yield val
-			except:
-				logging.exception(f"Struct: Could not get {f_name} of {s_inst} of type {s_type}")
+			except (AttributeError, KeyError):
+				logging.exception(f"Struct: Could not get {f_name} of {s_inst} of type {s_type}{'[' + str(s_inst.dtype) + ']' if issubclass(s_type, list) else ''}")
+				raise
 
 	@staticmethod
 	def get_field(instance, key):
