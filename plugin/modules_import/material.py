@@ -73,10 +73,9 @@ def create_material(in_dir, matname):
 		for png_name in textures:
 			png_path = os.path.join(in_dir, png_name)
 			b_tex = load_tex_node(tree, png_path)
-			b_tex.parent = tex_frame # assign the texture frame to this png
+			b_tex.parent = tex_frame  # assign the texture frame to this png
 			k = png_name.lower().split(".")[1]
 			tex_dic[k] = b_tex
-
 
 	# get diffuse
 	for diffuse in get_tex(tex_dic, (
@@ -84,7 +83,7 @@ def create_material(in_dir, matname):
 			"pbasecolourandmasktexture", "pdiffusealphatexture", "pdiffuse_alphatexture",
 			"palbinobasecolourandmasktexture", "pdinosaurfeathers_basediffusetexture")):
 		# apply AO to diffuse
-		for ao in get_tex(tex_dic, ("paotexture", "pbasepackedtexture_a", "pbaseaotexture")):
+		for ao in get_tex(tex_dic, ("paotexture", "pbasepackedtexture_a", "pbaseaotexture_r", "pbaseaotexture")):
 			ao.image.colorspace_settings.name = "Non-Color"
 			diffuse_premix = tree.nodes.new('ShaderNodeMixRGB')
 			diffuse_premix.blend_type = "MULTIPLY"

@@ -59,7 +59,7 @@ def export_material(ms2, b_mat):
 	ms2.model.materials.append(mat)
 
 
-def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_transforms, use_stock_normals_tangents, m_lod):
+def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_transforms, use_stock_normals_tangents, m_lod, shell_index, shell_count):
 	logging.info(f"Exporting mesh {b_me.name}")
 	# we create a ms2 mesh
 	wrapper = MeshDataWrap(model_info.context)
@@ -322,11 +322,8 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 	# update vert & tri array
 	mesh.pack_base = model_info.pack_base
 	# for JWE2 so we can store these on the tri chunks
-	if "shell_index" in b_me:
-		mesh.shell_index = b_me["shell_index"]
-		mesh.shell_count = b_me["shell_count"]
-	else:
-		mesh.shell_index = mesh.shell_count = 0
+	mesh.shell_index = shell_index
+	mesh.shell_count = shell_count
 	# transfer raw verts into mesh data packed array
 	mesh.tris = tris_chunks
 	try:
@@ -442,11 +439,13 @@ def export_weights(b_ob, b_vert, bones_table, hair_length, unweighted_vertices, 
 	return vertex_bone_id, weights_sorted, fur_length, fur_width
 
 
-def get_property(ob, prop_name):
+def get_property(ob, prop_name, default=None):
 	"""Ensure that custom property is set or raise an intellegible error"""
 	if prop_name in ob:
 		return ob[prop_name]
 	else:
+		if default is not None:
+			return default
 		raise KeyError(f"Custom property '{prop_name}' missing from {ob.name} (data: {type(ob).__name__}). Add it!")
 
 
@@ -501,7 +500,6 @@ def save(filepath='', apply_transforms=False, edit_bones=False, use_stock_normal
 		b_models = []
 		b_materials = []
 		bounds = []
-		# mesh_objects = [ob for ob in bpy.data.objects if type(ob.data) == bpy.types.Mesh and not ob.rigid_body]
 		for lod_i in range(6):
 			lod_group_name = f"{scene.name}_LOD{lod_i}"
 			lod_coll = get_collection(lod_group_name)
@@ -515,33 +513,39 @@ def save(filepath='', apply_transforms=False, edit_bones=False, use_stock_normal
 			model_info.model.lods.append(m_lod)
 			for b_ob in lod_coll.objects:
 				b_me = b_ob.data
-				# store & set bone index for lod
-				m_lod.bone_index = 0
 				m_lod.stream_index = get_property(b_me, "stream")
-				if b_me not in b_models:
-					b_models.append(b_me)
-					wrapper = export_model(model_info, lod_coll, b_ob, b_me, bones_table, bounds, apply_transforms,
-										   use_stock_normals_tangents, m_lod)
-					wrapper.mesh.lod_index = lod_i
-				for b_mat in b_me.materials:
-					if b_mat not in b_materials:
-						b_materials.append(b_mat)
-						export_material(model_info, b_mat)
-						if "." in b_mat.name:
-							messages.add(f"Material {b_mat.name} seems to be an unwanted duplication!")
-					# create one unique mesh per material
-					m_ob = Object(ms2.context)
-					m_ob.mesh_index = b_models.index(b_me)
-					m_ob.material_index = b_materials.index(b_mat)
+				# JWE2 fur sets this as a mesh property
+				shell_count = get_property(b_me, "shell_count", default=0)
+				if shell_count > 0:
+					indices = range(shell_count)
+				else:
+					indices = (0, )
+				for shell_index in indices:
+					logging.debug(f"Exporting shell index {shell_index}")
+					if b_me not in b_models:
+						b_models.append((b_me, shell_index))
+						wrapper = export_model(model_info, lod_coll, b_ob, b_me, bones_table, bounds, apply_transforms,
+											   use_stock_normals_tangents, m_lod, shell_index, shell_count)
+						wrapper.mesh.lod_index = lod_i
+					for b_mat in b_me.materials:
+						if b_mat not in b_materials:
+							b_materials.append(b_mat)
+							export_material(model_info, b_mat)
+							if "." in b_mat.name:
+								messages.add(f"Material {b_mat.name} seems to be an unwanted duplication!")
+						# create one unique mesh per material
+						m_ob = Object(ms2.context)
+						m_ob.mesh_index = b_models.index((b_me, shell_index))
+						m_ob.material_index = b_materials.index(b_mat)
 
-					model_info.model.objects.append(m_ob)
-					wrapper = model_info.model.meshes[m_ob.mesh_index]
-					m_lod.meshes.append(wrapper)
-					if wrapper.context.biosyn:
-						logging.info(f"Setting chunk material indices")
-						for tri_chunk in wrapper.mesh.tri_chunks:
-							tri_chunk.material_index = m_ob.material_index
-					m_lod.objects.append(m_ob)
+						model_info.model.objects.append(m_ob)
+						wrapper = model_info.model.meshes[m_ob.mesh_index]
+						m_lod.meshes.append(wrapper)
+						if wrapper.context.biosyn:
+							logging.info(f"Setting chunk material indices")
+							for tri_chunk in wrapper.mesh.tri_chunks:
+								tri_chunk.material_index = m_ob.material_index
+						m_lod.objects.append(m_ob)
 			m_lod.last_object_index = len(model_info.model.objects)
 
 		export_bounds(bounds, model_info)

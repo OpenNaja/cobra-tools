@@ -40,7 +40,17 @@ def load(filepath="", use_custom_normals=False, mirror_mesh=False):
 		for lod_i, m_lod in enumerate(model_info.model.lods):
 			logging.info(f"Importing LOD{lod_i}")
 			lod_coll = get_collection(scene, f"LOD{lod_i}")
-			for ob_i, m_ob in enumerate(m_lod.objects):
+			# skip other shells for JWE2
+			obs = []
+			for m_ob in m_lod.objects:
+				mesh = m_ob.mesh
+				if hasattr(mesh, "vert_chunks"):
+					tri_chunk = mesh.tri_chunks[0]
+					if tri_chunk.shell_index:
+						logging.debug(f"Skipping import of shell duplicate {tri_chunk.shell_index}")
+						continue
+				obs.append(m_ob)
+			for ob_i, m_ob in enumerate(obs):
 				mesh = m_ob.mesh
 				# print(model_info)
 				# print(model_info.model)
@@ -79,7 +89,6 @@ def load(filepath="", use_custom_normals=False, mirror_mesh=False):
 					scene.cobra.pack_base = mesh.vert_chunks[0].pack_base
 					b_me.cobra.mesh_format = mesh.vert_chunks[0].weights_flag.mesh_format.name
 					tri_chunk = mesh.tri_chunks[0]
-					b_me["shell_index"] = tri_chunk.shell_index
 					b_me["shell_count"] = tri_chunk.shell_count
 				# link material to mesh
 				import_material(created_materials, in_dir, b_me, m_ob.material)
@@ -194,7 +203,7 @@ def ob_postpro(b_ob, use_mirror_mesh, use_custom_normals):
 	# shells are messed up by remove doubles, affected faces have their dupe faces removed
 	# since we are now stripping shells, shell meshes can use remove doubles but fins still can not
 	if not use_custom_normals and not is_fin(b_ob):
-		bpy.ops.mesh.remove_doubles(threshold=0.000001, use_unselected=False)
+		bpy.ops.mesh.remove_doubles(threshold=0.0, use_unselected=False)
 	bpy.ops.object.mode_set(mode='OBJECT')
 
 
@@ -202,7 +211,7 @@ def ob_postpro(b_ob, use_mirror_mesh, use_custom_normals):
 # 	# no operator, but bmesh
 # 	bm = bmesh.new()
 # 	bm.from_mesh(b_me)
-# 	bmesh.ops.remove_doubles(bm, verts=bm.verts, dist=0.001)
+# 	bmesh.ops.remove_doubles(bm, verts=bm.verts, dist=0.0)
 # 	bm.to_mesh(b_me)
 # 	b_me.update()
 # 	bm.clear()
