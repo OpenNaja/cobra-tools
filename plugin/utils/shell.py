@@ -52,6 +52,10 @@ def create_lods():
 	for lod_index, (lod_coll, ratio) in enumerate(zip(lod_collections, lod_ratios)):
 		if lod_index > 0:
 			for ob_index, ob in enumerate(lod_collections[0].objects):
+				# additional skip condition for JWE2, as shell is separate from base fur here
+				if ob.data.cobra.mesh_format != "NONE":
+					if is_shell(ob) and lod_index > 1:
+						continue
 				# check if we want to copy this one
 				if is_fin(ob) and lod_index > 1:
 					continue
@@ -63,7 +67,7 @@ def create_lods():
 				decimate = obj1.modifiers.new("Decimate", 'DECIMATE')
 				decimate.ratio = ratio
 
-				# Changing shells to skin
+				# remove additional shell material from LODs after LOD1
 				if is_shell(ob) and lod_index > 1:
 					# todo - actually toggle the flag on the bitfield to maintain the other bits
 					b_me["flag"] = 565
