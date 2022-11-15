@@ -144,6 +144,7 @@ def create_material(in_dir, matname):
 			tree.links.new(diffuse.outputs[0], diffuse_premix.inputs["Color1"])
 			tree.links.new(ao.outputs[0], diffuse_premix.inputs["Color2"])
 			diffuse = diffuse_premix
+
 		# get marking
 		fur_names = [k for k in tex_dic.keys() if "marking" in k and "noise" not in k and "patchwork" not in k]
 		lut_names = [k for k in tex_dic.keys() if "pclut" in k]
@@ -217,6 +218,29 @@ def create_material(in_dir, matname):
 	elif "proughnesspackedtexture_a" in tex_dic:
 		alpha = tex_dic["proughnesspackedtexture_a"]
 		alpha_pass = alpha.outputs[0]
+	#
+	# inaki: Ugly per-shader basecolour alpha, temporary
+	# in Metallic_Roughness_Clip_Weather_BC7 pbasecolour alpha is metallicness
+	elif 'Clip' in fgm_data.shader_name and "pbasecolourtexture_a" in tex_dic:
+		alpha = tex_dic["pbasecolourtexture_a"]
+		alpha_pass = alpha.outputs[0]
+	elif 'Metallic_Roughness_Opaque_BC7' in fgm_data.shader_name and "pbasecolourtexture_a" in tex_dic:
+		tree.links.new(tex_dic["pbasecolourtexture_a"].outputs[0], principled.inputs[6]) # metallicness
+
+	#
+	# inaki: Ugly per-shader basecolour alpha, temporary
+	# in Metallic_Roughness_Clip_Weather_BC7 pnormaltexture alpha is AO
+	if 'Clip' in fgm_data.shader_name and "pnormaltexture_a" in tex_dic:
+		ao = tex_dic["pnormaltexture_a"]
+		ao.image.colorspace_settings.name = "Non-Color"
+		diffuse_premix = tree.nodes.new('ShaderNodeMixRGB')
+		diffuse_premix.blend_type = "MULTIPLY"
+		diffuse_premix.inputs["Fac"].default_value = 1.0
+		tree.links.new(diffuse.outputs[0], diffuse_premix.inputs["Color1"])
+		tree.links.new(ao.outputs[0], diffuse_premix.inputs["Color2"])
+		diffuse = diffuse_premix
+
+
 	if alpha:
 		# transparency
 		b_mat.blend_method = "CLIP"
@@ -250,7 +274,7 @@ def import_material(created_materials, in_dir, b_me, material):
 
 		# try finding the material first in the user libraries, only use lowercase
 		load_material_from_libraries(created_materials, material_name.lower())
-		
+
 		# find if material is in blender already. Imported FGMs
 		# will have the material name all in lowercase, we need
 		# to check both.
