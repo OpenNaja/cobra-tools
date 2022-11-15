@@ -5,6 +5,7 @@ import bpy
 import os
 
 from generated.formats.fgm.compounds.FgmHeader import FgmHeader
+from generated.formats.fgm.enums.FgmDtype import FgmDtype
 from generated.formats.ovl_base import OvlContext
 from plugin.utils.node_arrange import nodes_iterate
 from plugin.utils.node_util import get_tree, load_tex_node
@@ -111,11 +112,34 @@ def create_material(in_dir, matname):
 	except:
 		logging.warning(f"{fgm_path} could not be loaded!")
 		return b_mat
+
 	# base_index = fgm_data.textures[0].layers[1]
 	# height_index = fgm_data.textures[1].layers[1]
 	tree = get_tree(b_mat)
 	output = tree.nodes.new('ShaderNodeOutputMaterial')
 	principled = tree.nodes.new('ShaderNodeBsdfPrincipled')
+
+	# deal with RGBA texture info first before going for the texture files.
+	for text_data in fgm_data.textures.data:
+		if text_data.dtype == FgmDtype.RGBA:
+			text_name = text_data.name.lower()
+			print(text_data)
+			if   'basecolour' in text_name:
+				principled.inputs["Base Color"].default_value = (
+					text_data.value[0].r/255, 
+					text_data.value[0].g/255, 
+					text_data.value[0].b/255, 
+					text_data.value[0].a/255
+					)
+			elif 'normal' in text_name:
+				# create color node
+				pass
+			elif 'roughnesspacked' in text_name:
+				# create color node
+				pass
+			elif 'flexicolourmasks' in text_name:
+				# create color and blending nodes?
+				pass
 
 	# color_ramp = fgm_data.get_color_ramp("colourKey", "RGB")
 	# opacity_ramp = fgm_data.get_color_ramp("opacityKey", "Value")
@@ -251,7 +275,7 @@ def create_material(in_dir, matname):
 	#
 	# inaki: Ugly per-shader basecolour alpha, temporary
 	# in Metallic_Roughness_Clip_Weather_BC7 pnormaltexture alpha is AO
-	if 'Clip' in fgm_data.shader_name and "pnormaltexture_a" in tex_dic:
+	if 'Metallic_Roughness_' in fgm_data.shader_name and "pnormaltexture_a" in tex_dic:
 		ao = tex_dic["pnormaltexture_a"]
 		ao.image.colorspace_settings.name = "Non-Color"
 		diffuse_premix = tree.nodes.new('ShaderNodeMixRGB')
