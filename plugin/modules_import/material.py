@@ -132,11 +132,23 @@ def create_material(in_dir, matname):
 					text_data.value[0].a/255
 					)
 			elif 'normal' in text_name:
-				# create color node
-				pass
+				normal = tree.nodes.new('ShaderNodeRGB')
+				normal.outputs[0].default_value = (
+					text_data.value[0].r/255, 
+					text_data.value[0].g/255, 
+					text_data.value[0].b/255, 
+					text_data.value[0].a/255
+					)
+				tree.links.new(normal.outputs[0], principled.inputs["Normal"])
 			elif 'roughnesspacked' in text_name:
-				# create color node
-				pass
+				roughness = tree.nodes.new('ShaderNodeRGB')
+				roughness.outputs[0].default_value = (
+					text_data.value[0].r/255, 
+					text_data.value[0].g/255, 
+					text_data.value[0].b/255, 
+					text_data.value[0].a/255
+					)
+				tree.links.new(roughness.outputs[0], principled.inputs["Roughness"])
 			elif 'flexicolourmasks' in text_name:
 				# create color and blending nodes?
 				pass
