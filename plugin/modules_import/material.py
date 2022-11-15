@@ -10,17 +10,40 @@ from plugin.utils.node_arrange import nodes_iterate
 from plugin.utils.node_util import get_tree, load_tex_node
 
 
-def get_tex(tex_dic, names):
-	for tex_name in names:
-		# get diffuse
-		if tex_name in tex_dic:
-			yield tex_dic[tex_name]
-			# stop after finding a suitable one
-			break
+class BaseShader:
+	"""Basic class for all derived shaders to inherit from"""
 
-# try to load the material from the list of asset libraries
+	diffuse_slots = (
+		"pdiffusetexture", "pbasediffusetexture", "pbasecolourtexture", "pbasecolourtexture_rgb",
+		"pbasecolourandmasktexture", "pdiffusealphatexture", "pdiffuse_alphatexture",
+		"palbinobasecolourandmasktexture", "pdinosaurfeathers_basediffusetexture")
+
+	ao_slots = ("paotexture", "pbasepackedtexture_a", "pbaseaotexture_r", "pbaseaotexture")
+
+	normal_slots = ("pnormaltexture", "pnormaltexture_rg", "pnormaltexture_rgb", "pbasenormaltexture_rg", "pbasenormaltexture_rgb",)
+
+	specular_slots = ("proughnesspackedtexture_b", "pspecularmaptexture_r", "pbasenormaltexture_b")
+
+	roughness_slots = ("proughnesspackedtexture_g", "pnormaltexture_a", "pbasenormaltexture_a")  # "pspecularmaptexture_g"
+
+	# note that JWE1 uses proughnesspackedtexture_r as alpha, only pbasepackedtexture_b as metal!
+	metallic_slots = ("proughnesspackedtexture_r", "pbasepackedtexture_b")
+
+	emissive_slots = ("pemissivetexture", )
+
+	alpha_slots = ("pdiffusealphatexture", "pdiffuse_alphatexture")
+
+	def get_tex(self, tex_dic, names):
+		for tex_name in names:
+			# get diffuse
+			if tex_name in tex_dic:
+				yield tex_dic[tex_name]
+				# stop after finding a suitable one
+				break
+
+
 def load_material_from_asset_library(created_materials, filepath, matname):
-
+	"""try to load the material from the list of asset libraries"""
 	library_path  =  os.path.abspath(filepath)  # blend file name
 	inner_path    = 'Material'   # type 
 	material_name = matname # name
@@ -47,6 +70,7 @@ def load_material_from_asset_library(created_materials, filepath, matname):
 
 	# we return nothing, this function will add the material to 
 	# blender if found, nothing will happen if not found.
+
 
 def load_material_from_libraries(created_materials, matname):
 
@@ -107,6 +131,7 @@ def create_material(in_dir, matname):
 	# 		e.color[:3] = color
 	# 		e.alpha = opacity[0]
 
+	shader = BaseShader()
 	all_textures = [file for file in os.listdir(in_dir) if file.lower().endswith(".png")]
 	# map texture names to node
 	tex_dic = {}
@@ -131,12 +156,9 @@ def create_material(in_dir, matname):
 			tex_dic[k] = b_tex
 
 	# get diffuse
-	for diffuse in get_tex(tex_dic, (
-			"pdiffusetexture", "pbasediffusetexture", "pbasecolourtexture", "pbasecolourtexture_rgb",
-			"pbasecolourandmasktexture", "pdiffusealphatexture", "pdiffuse_alphatexture",
-			"palbinobasecolourandmasktexture", "pdinosaurfeathers_basediffusetexture")):
+	for diffuse in shader.get_tex(tex_dic, shader.diffuse_slots):
 		# apply AO to diffuse
-		for ao in get_tex(tex_dic, ("paotexture", "pbasepackedtexture_a", "pbaseaotexture_r", "pbaseaotexture")):
+		for ao in shader.get_tex(tex_dic, shader.ao_slots):
 			ao.image.colorspace_settings.name = "Non-Color"
 			diffuse_premix = tree.nodes.new('ShaderNodeMixRGB')
 			diffuse_premix.blend_type = "MULTIPLY"
@@ -175,7 +197,7 @@ def create_material(in_dir, matname):
 		#  link finished diffuse to shader
 		tree.links.new(diffuse.outputs[0], principled.inputs["Base Color"])
 
-	for normal in get_tex(tex_dic, ("pnormaltexture", "pnormaltexture_rg","pnormaltexture_rgb", "pbasenormaltexture_rg","pbasenormaltexture_rgb",)):
+	for normal in shader.get_tex(tex_dic, shader.normal_slots):
 		normal.image.colorspace_settings.name = "Non-Color"
 		normal_map = tree.nodes.new('ShaderNodeNormalMap')
 		normal_map.inputs[0].default_value = 0.4 # nah, it really doesn't
@@ -184,28 +206,27 @@ def create_material(in_dir, matname):
 
 	# PZ - F0 value for dielectrics, related to IOR / fake specularity
 	# https://forum.sketchfab.com/t/what-is-specular-fo/22752/7
-	for specular in get_tex(tex_dic, ("proughnesspackedtexture_b", "pspecularmaptexture_r", "pbasenormaltexture_b")):
+	for specular in shader.get_tex(tex_dic, shader.specular_slots):
 		specular.image.colorspace_settings.name = "Non-Color"
 		tree.links.new(specular.outputs[0], principled.inputs["Specular"])
 
 	# roughness
-	for roughness in get_tex(tex_dic, ("proughnesspackedtexture_g", "pnormaltexture_a", "pbasenormaltexture_a")):  # "pspecularmaptexture_g" ?
+	for roughness in shader.get_tex(tex_dic, shader.roughness_slots):
 		roughness.image.colorspace_settings.name = "Non-Color"
 		tree.links.new(roughness.outputs[0], principled.inputs["Roughness"])
 
 	# JWE dinos, PZ - metallic
-	# note that JWE1 uses proughnesspackedtexture_r as alpha, only pbasepackedtexture_b as metal!
-	for metallic in get_tex(tex_dic, ("proughnesspackedtexture_r", "pbasepackedtexture_b")):
+	for metallic in shader.get_tex(tex_dic, shader.metallic_slots):
 		metallic.image.colorspace_settings.name = "Non-Color"
 		tree.links.new(metallic.outputs[0], principled.inputs["Metallic"])
 
-	for emissive in get_tex(tex_dic, ("pemissivetexture",)):
+	for emissive in shader.get_tex(tex_dic, shader.emissive_slots):
 		tree.links.new(emissive.outputs[0], principled.inputs["Emission"])
 
 	# alpha
 	alpha = None
 	# JWE billboard: Foliage_Billboard
-	for alpha in get_tex(tex_dic, ("pdiffusealphatexture", "pdiffuse_alphatexture")):
+	for alpha in shader.get_tex(tex_dic, shader.alpha_slots):
 		alpha_pass = alpha.outputs[1]
 	# PZ penguin
 	if "popacitytexture" in tex_dic:
