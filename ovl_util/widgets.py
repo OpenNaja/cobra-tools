@@ -1261,7 +1261,7 @@ class MainWindow(QtWidgets.QMainWindow):
 			self.load()
 
 	def report_bug(self):
-		webbrowser.open("https://github.com/OpenNaja/cobra-tools/issues/new", new=2)
+		webbrowser.open("https://github.com/OpenNaja/cobra-tools/issues/new?assignees=&labels=&template=bug_report.md&title=", new=2)
 
 	def online_support(self):
 		webbrowser.open("https://github.com/OpenNaja/cobra-tools/wiki", new=2)
