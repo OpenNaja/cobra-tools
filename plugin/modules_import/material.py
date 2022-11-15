@@ -18,6 +18,59 @@ def get_tex(tex_dic, names):
 			# stop after finding a suitable one
 			break
 
+# try to load the material from the list of asset libraries
+def load_material_from_asset_library(created_materials, filepath, matname):
+
+	library_path  =  os.path.abspath(filepath)  # blend file name
+	inner_path    = 'Material'   # type 
+	material_name = matname # name
+
+	# try current material case
+	bpy.ops.wm.append(
+		filepath=os.path.join(library_path, inner_path, material_name),
+		directory=os.path.join(library_path, inner_path),
+		filename=material_name
+		)
+	# also try all lowercase
+	#if material_name != material_name.lower():
+	#	# try lowercase
+	#	bpy.ops.wm.append(
+	#		filepath=os.path.join(library_path, inner_path, material_name),
+	#		directory=os.path.join(library_path, inner_path),
+	#		filename=material_name.lower()
+	#		)
+
+	# if we have loaded the material, mark it out
+	b_mat = bpy.data.materials.get(matname)
+	if b_mat:
+		created_materials[matname] = b_mat
+
+	# we return nothing, this function will add the material to 
+	# blender if found, nothing will happen if not found.
+
+def load_material_from_libraries(created_materials, matname):
+
+	# do not import twice
+	if matname in created_materials:
+		return
+
+	prefs = bpy.context.preferences
+	filepaths = prefs.filepaths
+	asset_libraries = filepaths.asset_libraries
+	logging.info(f"starting library search for {matname}")
+
+	# we are looping through all asset library files, alternatively we can limit this to
+	# a specific library name, or only the current open library file.
+	for asset_library in asset_libraries:
+		library_name  = asset_library.name
+		library_path  = asset_library.path
+		logging.info(f"Checking: {library_name}")
+		library_files = [os.path.join(dp, f) for dp, dn, filenames in os.walk(library_path) for f in filenames if os.path.splitext(f)[1] == '.blend']
+		for library in library_files:
+			# avoid reloading the same material in case it is present in several blend files
+			if matname not in created_materials:
+				load_material_from_asset_library(created_materials, library, matname)
+
 
 def create_material(in_dir, matname):
 
@@ -194,6 +247,10 @@ def create_material(in_dir, matname):
 def import_material(created_materials, in_dir, b_me, material):
 	material_name = material.name
 	try:
+
+		# try finding the material first in the user libraries, only use lowercase
+		load_material_from_libraries(created_materials, material_name.lower())
+		
 		# find if material is in blender already. Imported FGMs
 		# will have the material name all in lowercase, we need
 		# to check both.
