@@ -123,12 +123,12 @@ class PZFoliageClip(BaseShader):
 # Metallic_roughness_Clip_Weather_BC7
 # Metallic_roughness_Clip_Weather_DoubleSided_BC7
 class Metallic_Roughness_Clip(BaseShader):
-	alpha_slots = ("pbasecolourtexture_a", "proughnesspackedtexture_a", "popacitytexture", "pdiffusealphatexture_a", "pdiffuse_alphatexture_a" )
+	alpha_slots = ("pbasecolourtexture_a",)
 
 # Applies to:
 # Metallic_Roughness_Clip_Geometry_Decal
 class Metallic_Roughness_Clip_Geometry_Decal(BaseShader):
-	alpha_slots = ("proughnesspackedtexture_a", "pbasecolourtexture_a", "popacitytexture", "pdiffusealphatexture_a", "pdiffuse_alphatexture_a" )
+	alpha_slots = ("proughnesspackedtexture_a",)
 
 
 def pick_shader(fgm_data):
