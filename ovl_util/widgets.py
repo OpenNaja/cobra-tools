@@ -1224,6 +1224,23 @@ class DirWidget(QtWidgets.QWidget):
 		self.ask_open_dir()
 
 
+# text field to hold the log information.
+# https://stackoverflow.com/questions/28655198/best-way-to-display-logs-in-pyqt
+class QTextEditLogger(logging.Handler, QtCore.QObject):
+	appendPlainText = QtCore.pyqtSignal(str)
+
+	def __init__(self, parent):
+		super().__init__()
+		QtCore.QObject.__init__(self)
+		self.widget = QtWidgets.QPlainTextEdit()
+		self.widget.setReadOnly(True)
+		self.appendPlainText.connect(self.widget.appendPlainText)
+
+	def emit(self, record):
+		msg = self.format(record)
+		self.appendPlainText.emit(msg)
+
+
 class MainWindow(QtWidgets.QMainWindow):
 
 	def __init__(self, name, ):

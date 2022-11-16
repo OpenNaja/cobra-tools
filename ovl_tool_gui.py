@@ -155,6 +155,16 @@ class MainWindow(widgets.MainWindow):
 		self.qgrid.addWidget(self.p_action, 6, 0, 1, 5)
 		self.qgrid.addWidget(self.t_action, 7, 0, 1, 5)
 
+		# log to text box
+		self.logTextBox = widgets.QTextEditLogger(self)
+		self.logTextBox.setFormatter(
+			logging.Formatter(
+			'%(asctime)s %(levelname)s %(module)s %(funcName)s %(message)s'))
+		logging.getLogger().addHandler(self.logTextBox)
+		logging.getLogger().setLevel( self.cfg["logger_level"] if hasattr(self.cfg, 'logger_level') else logging.DEBUG )
+		self.qgrid.addWidget(self.logTextBox.widget, 8, 0, 3, 5)
+		self.logTextBox.widget.hide()
+
 		self.central_widget.setLayout(self.qgrid)
 
 		main_menu = self.menuBar()
@@ -190,9 +200,18 @@ class MainWindow(widgets.MainWindow):
 		self.t_walk_ovl.setToolTip("Extract from OVLS when doing bulk operations: fgm or ms2.")
 		self.t_walk_ovl.setCheckable(True)
 		self.t_walk_ovl.setChecked(False)
+
+		# add checkbox to extract from ovls for the diff walkers
+		self.t_logger = QtWidgets.QAction("Show log console")
+		self.t_logger.setToolTip("Show/hide the dev log console.")
+		self.t_logger.setCheckable(True)
+		self.t_logger.setChecked(self.cfg["logger_show"] if hasattr(self.cfg, 'logger_show') else False)
+		self.t_logger.triggered.connect(self.logger_show)
+
 		separator_action = self.actions['generate hash table']
 		# we are not adding this to the action list, shall we?
 		util_menu.insertAction( separator_action, self.t_walk_ovl )
+		util_menu.insertAction( separator_action, self.t_logger )
 		util_menu.insertSeparator( separator_action )
 
 		self.check_version()
@@ -205,6 +224,13 @@ class MainWindow(widgets.MainWindow):
 		self.ovl_data.progress_percentage.connect(self.p_action.setValue)
 		self.ovl_data.current_action.connect(self.t_action.setText)
 		self.run_threaded(self.ovl_data.load_hash_table)
+
+	def logger_show(self):
+		if self.t_logger.isChecked():
+			self.logTextBox.widget.show()
+		else:
+			self.logTextBox.widget.hide()
+
 
 	def enable_gui_options(self, enable=True):
 		self.t_in_folder.setEnabled(enable)
