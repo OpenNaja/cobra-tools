@@ -2,6 +2,7 @@ import json
 import logging
 import sys
 import os
+import platform
 
 from root_path import root_dir
 
@@ -55,6 +56,28 @@ def read_list(cfg_path):
 		print(f"{cfg_path} is missing or broken!")
 		return []
 
+class ColoredFormatter(logging.Formatter):
+
+	def __init__(self, *args, **kwargs):
+		super().__init__(*args, **kwargs)
+		# ANSI Coloring
+		grey = "\x1b[38;20m"
+		yellow = "\x1b[33;20m"
+		red = "\x1b[31;20m"
+		bold_red = "\x1b[31;1m"
+		_reset = "\x1b[0m"
+		self.FORMATS = {
+			logging.DEBUG: f"{grey}{self._fmt}{_reset}",
+			logging.INFO: f"{grey}{self._fmt}{_reset}",
+			logging.WARNING: f"{yellow}{self._fmt}{_reset}",
+			logging.ERROR: f"{red}{self._fmt}{_reset}",
+			logging.CRITICAL: f"{bold_red}{self._fmt}{_reset}"
+		}
+
+	def format(self, record):
+		log_fmt = self.FORMATS.get(record.levelno)
+		formatter = logging.Formatter(log_fmt)
+		return formatter.format(record)
 
 def logging_setup(log_name):
 	log_path = f'{os.path.join(root_dir, log_name)}.log'
@@ -62,9 +85,17 @@ def logging_setup(log_name):
 	logger.setLevel(logging.DEBUG)
 	# formatter = logging.Formatter('%(asctime)s | %(levelname)s | %(message)s')
 	formatter = logging.Formatter('%(levelname)s | %(message)s')
+	# Colored logging for all platforms but Windows 7/8
+	colored_formatter = formatter
+	is_windows = platform.system() == "Windows"
+	if not (is_windows and int(platform.release()) < 10):
+		if is_windows:
+			os.system("color")
+		colored_formatter = ColoredFormatter('%(levelname)s | %(message)s')
+
 	stdout_handler = logging.StreamHandler(sys.stdout)
 	stdout_handler.setLevel(logging.INFO)
-	stdout_handler.setFormatter(formatter)
+	stdout_handler.setFormatter(colored_formatter)
 	file_handler = logging.FileHandler(log_path, mode="w")
 	file_handler.setLevel(logging.DEBUG)
 	file_handler.setFormatter(formatter)
