@@ -1326,6 +1326,8 @@ class MainWindow(QtWidgets.QMainWindow):
 		self.worker.finished.connect(self.thread.quit)
 		self.worker.finished.connect(self.worker.deleteLater)
 		self.thread.finished.connect(self.thread.deleteLater)
+		# self.worker.error_msg.connect(self.t_action.setText)
+		self.worker.error_msg.connect(interaction.showdialog)
 		# Step 6: Start the thread
 		self.thread.start()
 
@@ -1380,6 +1382,7 @@ class OvlReporter(OvlFile, QtCore.QObject, metaclass=CombinedMeta):
 
 class Worker(QtCore.QObject):
 	finished = QtCore.pyqtSignal()
+	error_msg = QtCore.pyqtSignal(str)
 
 	def __init__(self, func, *args, **kwargs):
 		super().__init__()
@@ -1390,6 +1393,11 @@ class Worker(QtCore.QObject):
 	def run(self):
 		# mutex.lock()
 		# func = getattr(self.thread().ovl_data, self.function_name)
-		self.func(*self.args, **self.kwargs)
+		try:
+			self.func(*self.args, **self.kwargs)
+		except BaseException as err:
+			logging.exception(f"Threaded call errored!")
+			# self.error_msg.emit(f"ERROR - {err}")
+			self.error_msg.emit(str(err))
 		# mutex.unlock()
 		self.finished.emit()

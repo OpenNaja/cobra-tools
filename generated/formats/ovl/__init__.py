@@ -1274,11 +1274,13 @@ class OvlFile(Header, IoFile):
 		for archive_entry in self.archives:
 			# gotta update it here
 			self.get_ovs_path(archive_entry)
+			logging.debug(f"Loading {archive_entry.ovs_path}")
 			if archive_entry.ovs_path not in self.ovs_dict:
-				self.ovs_dict[archive_entry.ovs_path] = open(archive_entry.ovs_path, mode)
 				# make sure that the ovs exists
 				if mode == "rb" and not os.path.exists(archive_entry.ovs_path):
-					raise FileNotFoundError("OVS file not found. Make sure is is here: \n" + archive_entry.ovs_path)
+					raise FileNotFoundError(f"OVS file not found. Make sure it is here: {archive_entry.ovs_path}")
+				# open file in desired mode
+				self.ovs_dict[archive_entry.ovs_path] = open(archive_entry.ovs_path, mode)
 
 	def close_ovs_streams(self):
 		logging.info("Closing OVS streams")

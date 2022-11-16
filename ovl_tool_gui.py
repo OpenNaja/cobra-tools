@@ -421,14 +421,14 @@ class MainWindow(widgets.MainWindow):
 		if self.file_widget.filepath:
 			self.file_widget.dirty = False
 			logging.info(f"Loading threaded {threaded}")
-			try:
-				if threaded:
-					self.run_threaded(self.ovl_data.load, self.file_widget.filepath)
-				else:
+			if threaded:
+				self.run_threaded(self.ovl_data.load, self.file_widget.filepath)
+			else:
+				try:
 					self.ovl_data.load(self.file_widget.filepath)
-			except:
-				logging.info(self.ovl_data)
-				self.handle_error("OVL loading failed, see log!")
+				except:
+					logging.debug(self.ovl_data)
+					self.handle_error("OVL loading failed, see log!")
 
 	def choices_update(self):
 		game = get_game(self.ovl_data)[0]
