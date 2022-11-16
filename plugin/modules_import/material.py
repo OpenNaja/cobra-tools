@@ -1,4 +1,6 @@
+import inspect
 import logging
+import sys
 import traceback
 
 import bpy
@@ -19,6 +21,11 @@ def check_any(iterable, string):
 class BaseShader:
 	"""Basic class for all derived shaders to inherit from"""
 
+	# for validation
+	shaders = ()
+	games = ()
+
+	# for texture channel mapping
 	diffuse_slots = (
 		"pdiffusetexture", "pbasediffusetexture", "pbasecolourtexture", "pbasecolourtexture_rgb",
 		"pbasecolourandmasktexture", "pdiffusealphatexture", "pdiffuse_alphatexture",
@@ -102,8 +109,23 @@ class BaseShader:
 				k = png_name.lower().split(".")[1]
 				self.tex_dic[k] = b_tex
 
+	@classmethod
+	def validate(cls, fgm_data):
+		"""Returns true if this shader class is suitable to process fgm_data"""
+		# check for matching shaders
+		if cls.shaders:
+			shader_match = check_any(cls.shaders, fgm_data.shader_name)
+			if shader_match:
+				# check if a game has been specified
+				if cls.games:
+					return check_any(cls.games, fgm_data.game)
+				else:
+					return True
+
 
 class JWE2FoliageClip(BaseShader):
+	games = ("JURASSIC",)
+	shaders = ("Foliage_Clip",)
 
 	ao_slots = ("pnormaltexture_a",)
 
@@ -118,34 +140,28 @@ class PZFoliageClip(BaseShader):
 	pass
 
 
-# Applies to:
-# Metallic_Roughness_Clip_Weather
-# Metallic_roughness_Clip_Weather_BC7
-# Metallic_roughness_Clip_Weather_DoubleSided_BC7
 class Metallic_Roughness_Clip(BaseShader):
+	shaders = ("Metallic_Roughness_Clip_Weather", "Metallic_Roughness_Clip_Weather_BC7", "Metallic_Roughness_Clip_Weather_DoubleSided_BC7")
+
 	alpha_slots = ("pbasecolourtexture_a",)
 
-# Applies to:
-# Metallic_Roughness_Clip_Geometry_Decal
+
 class Metallic_Roughness_Clip_Geometry_Decal(BaseShader):
+	shaders = ("Metallic_Roughness_Clip_Geometry_Decal", )
+
 	alpha_slots = ("proughnesspackedtexture_a",)
 
 
 def pick_shader(fgm_data):
-
-	if "Foliage_Clip" in fgm_data.shader_name:
-		if "JURASSIC" in fgm_data.game:
-			return JWE2FoliageClip()
-		return PZFoliageClip()
-
-	if "Metallic_Roughness_Clip_Geometry_Decal" in fgm_data.shader_name:
-		return Metallic_Roughness_Clip_Geometry_Decal()
-
-	if "Metallic_Roughness_Clip" in fgm_data.shader_name:
-		return Metallic_Roughness_Clip()
-
+	for name, cls in inspect.getmembers(sys.modules[__name__], inspect.isclass):
+		if cls.__module__ is __name__:
+			if issubclass(cls, BaseShader):
+				# print(name)
+				if cls.validate(fgm_data):
+					logging.info(f"Picked shader {name} for {fgm_data.shader_name}")
+					return cls()
+	logging.info(f"Used BaseShader for {fgm_data.shader_name}")
 	return BaseShader()
-
 
 
 def load_material_from_asset_library(created_materials, filepath, matname):
