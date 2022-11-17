@@ -29,7 +29,7 @@ class Ms2InfoHeader(BaseStruct):
 		self.info = Ms2Root(self.context, 0, None)
 
 		# used since DLA
-		self.buffers_presence = Array(self.context, 0, None, (0,), BufferPresence)
+		self.buffer_pointers = Array(self.context, 0, None, (0,), BufferPresence)
 		self.mdl_2_names = Array(self.context, 0, None, (0,), ZString)
 		self.modelstream_names = Array(self.context, 0, None, (0,), ZString)
 		self.buffer_0 = Buffer0(self.context, self.info, None)
@@ -46,7 +46,7 @@ class Ms2InfoHeader(BaseStruct):
 		('bone_info_size', Uint, (0, None), (False, None), None),
 		('num_streams', Uint, (0, None), (False, None), None),
 		('info', Ms2Root, (0, None), (False, None), None),
-		('buffers_presence', Array, (0, None, (None,), BufferPresence), (False, None), True),
+		('buffer_pointers', Array, (0, None, (None,), BufferPresence), (False, None), True),
 		('mdl_2_names', Array, (0, None, (None,), ZString), (False, None), None),
 		('modelstream_names', Array, (0, None, (None,), ZString), (False, None), None),
 		('buffer_0', Buffer0, (None, None), (False, None), None),
@@ -63,7 +63,7 @@ class Ms2InfoHeader(BaseStruct):
 		yield 'num_streams', Uint, (0, None), (False, None)
 		yield 'info', Ms2Root, (0, None), (False, None)
 		if instance.context.version >= 7:
-			yield 'buffers_presence', Array, (0, None, (instance.info.vertex_buffer_count,), BufferPresence), (False, None)
+			yield 'buffer_pointers', Array, (0, None, (instance.info.vertex_buffer_count,), BufferPresence), (False, None)
 		yield 'mdl_2_names', Array, (0, None, (instance.info.mdl_2_count,), ZString), (False, None)
 		yield 'modelstream_names', Array, (0, None, (instance.num_streams,), ZString), (False, None)
 		yield 'buffer_0', Buffer0, (instance.info, None), (False, None)

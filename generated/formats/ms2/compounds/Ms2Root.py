@@ -42,8 +42,8 @@ class Ms2Root(MemStruct):
 		# one for each mdl2
 		self.model_infos = ArrayPointer(self.context, self.mdl_2_count, Ms2Root._import_map["ms2.compounds.ModelInfo"])
 
-		# data as in get_buffer_presence()
-		self.buffers_presence = ArrayPointer(self.context, self.vertex_buffer_count, Ms2Root._import_map["ms2.compounds.BufferPresence"])
+		# links buffers to ms2 dependencies if they are streamed
+		self.buffer_pointers = ArrayPointer(self.context, self.vertex_buffer_count, Ms2Root._import_map["ms2.compounds.BufferPresence"])
 		if set_default:
 			self.set_defaults()
 
@@ -56,7 +56,7 @@ class Ms2Root(MemStruct):
 		('zeros', Array, (0, None, (3,), Uint), (False, None), None),
 		('buffer_infos', ArrayPointer, (None, None), (False, None), None),
 		('model_infos', ArrayPointer, (None, None), (False, None), None),
-		('buffers_presence', ArrayPointer, (None, None), (False, None), None),
+		('buffer_pointers', ArrayPointer, (None, None), (False, None), None),
 		]
 
 	@classmethod
@@ -70,4 +70,4 @@ class Ms2Root(MemStruct):
 		yield 'zeros', Array, (0, None, (3,), Uint), (False, None)
 		yield 'buffer_infos', ArrayPointer, (instance.vertex_buffer_count, Ms2Root._import_map["ms2.compounds.BufferInfo"]), (False, None)
 		yield 'model_infos', ArrayPointer, (instance.mdl_2_count, Ms2Root._import_map["ms2.compounds.ModelInfo"]), (False, None)
-		yield 'buffers_presence', ArrayPointer, (instance.vertex_buffer_count, Ms2Root._import_map["ms2.compounds.BufferPresence"]), (False, None)
+		yield 'buffer_pointers', ArrayPointer, (instance.vertex_buffer_count, Ms2Root._import_map["ms2.compounds.BufferPresence"]), (False, None)

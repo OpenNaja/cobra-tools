@@ -14,7 +14,8 @@ XML_STR = "xml_string"
 DEPENDENCY_TAG = "dependency"
 
 from generated.base_struct import BaseStruct
-from generated.formats.base.basic import Uint64
+from generated.formats.base.basic import Int
+from generated.formats.base.basic import Uint
 
 
 class Pointer(BaseStruct):
@@ -28,13 +29,15 @@ class Pointer(BaseStruct):
 	_import_key = 'ovl_base.compounds.Pointer'
 
 	_attribute_list = BaseStruct._attribute_list + [
-		('offset', Uint64, (0, None), (False, None), None),
+		('offset', Int, (0, None), (False, None), None),
+		('rel_offset', Uint, (0, None), (False, None), None),
 		]
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'offset', Uint64, (0, None), (False, None)
+		yield 'offset', Int, (0, None), (False, None)
+		yield 'rel_offset', Uint, (0, None), (False, None)
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)

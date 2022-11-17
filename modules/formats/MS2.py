@@ -135,27 +135,15 @@ class Ms2Loader(BaseFile):
 		self.context.biosyn = self.detect_biosyn_format()
 		logging.info(f"context.biosyn {self.context.biosyn}")
 
-	def get_buffer_presence(self):
-		expected_frag = b""
-		for i in range(self.header.vertex_buffer_count):
-			# buffer i is a static buffer
-			if i == self.header.static_buffer_index:
-				expected_frag += struct.pack("<ii", -1, 0)
-			# can only be streamed
-			else:
-				expected_frag += struct.pack("<ii", 0, 0)
-		return expected_frag
-
 	def collect(self):
 		self.get_version()
 		self.header = Ms2Root.from_stream(self.root_ptr.stream, self.context)
 		self.header.read_ptrs(self.root_ptr.pool)
+		for i, buffer_presence in enumerate(self.header.buffer_pointers.data):
+			d = buffer_presence.dependency_name
+			if d.offset != -1 and not d.data:
+				logging.warning(f"Streamed mesh buffer {i} for {self.file_entry.name} has no dependency to a .model2stream file")
 		# print(self.header)
-		expected_frag = self.get_buffer_presence()
-		frag_data = self.header.buffers_presence.frag.struct_ptr.data
-		if frag_data != expected_frag:
-			logging.warning(
-				f"Unexpected buffer presence data ({frag_data}) for {self.file_entry.name}, expected ({expected_frag})")
 
 	def get_first_model_frag(self):
 		for model_info in self.header.model_infos.data:
@@ -173,7 +161,7 @@ class Ms2Loader(BaseFile):
 		# fix up the pointers
 		self.header.buffer_infos.data = ms2_file.buffer_infos
 		self.header.model_infos.data = ms2_file.model_infos
-		self.header.buffers_presence.data = ms2_file.buffers_presence
+		self.header.buffer_pointers.data = ms2_file.buffer_pointers
 		for model_info in ms2_file.model_infos:
 			model_info.materials.data = model_info.model.materials
 			model_info.lods.data = model_info.model.lods
@@ -199,6 +187,7 @@ class Ms2Loader(BaseFile):
 			modelstream_path = os.path.join(ms2_dir, modelstream_name)
 			modelstream_loader = self.ovl.create_file(modelstream_path, ovs_name=ovs_name)
 			self.streams.append(modelstream_loader)
+			# todo - store stream name in self.header.buffer_pointers so that a dependency is created
 
 		# create root_entries and mesh data fragments
 		for model_info, mdl2_name in zip(ms2_file.model_infos, ms2_file.mdl_2_names):
@@ -253,8 +242,8 @@ class Ms2Loader(BaseFile):
 			stream.write(ms2_header)
 			self.header.to_stream(self.header, stream, context)
 			# present since DLA
-			if self.header.buffers_presence.data is not None:
-				self.header.buffers_presence.data.to_stream(self.header.buffers_presence.data, stream, context)
+			if self.header.buffer_pointers.data is not None:
+				self.header.buffer_pointers.data.to_stream(self.header.buffer_pointers.data, stream, context)
 			for mdl2_loader in self.children:
 				mdl2_entry = mdl2_loader.file_entry
 				logging.debug(f"Writing {mdl2_entry.name}")

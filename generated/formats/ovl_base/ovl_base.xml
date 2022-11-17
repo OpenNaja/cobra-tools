@@ -70,8 +70,14 @@
 
     <compound name="Pointer" >
         a pointer in an ovl memory layout, can point to a struct or a dependency entry
-        <add name="offset" type="uint64"/>
+        <add name="offset" type="int"/>
+        <add name="rel_offset" type="uint"/>
     </compound>
+
+<!--    <compound name="Pointer" >-->
+<!--        <add name="pool_index" type="int" default="-1">The index of the MemPool this one relates to; OR, for entries referred to from AssetEntries: -1</add>-->
+<!--        <add name="rel_offset" type="uint" >the byte offset relative to the start of the MemPool's data</add>-->
+<!--    </compound>-->
 
     <compound name="ArrayPointer" inherit="Pointer" >
         a pointer to an array in an ovl memory layout

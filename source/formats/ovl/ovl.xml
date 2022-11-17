@@ -205,7 +205,7 @@
 
 	<compound name="HeaderPointer" >
 		Not standalone, used by RootEntry, Fragment and DependencyEntry
-        <add name="pool_index" type="int" >The index of the MemPool this one relates to; OR, for entries referred to from AssetEntries: -1</add>
+        <add name="pool_index" type="int" default="-1">The index of the MemPool this one relates to; OR, for entries referred to from AssetEntries: -1</add>
         <add name="data offset" type="uint" >the byte offset relative to the start of the MemPool's data</add>
     </compound>
 	
