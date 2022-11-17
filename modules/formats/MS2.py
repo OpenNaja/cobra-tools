@@ -181,13 +181,16 @@ class Ms2Loader(BaseFile):
 			indices = [1, ]
 		else:
 			indices = range(len(ms2_file.modelstream_names))
-		ovs_names = [f"Models_L{i}" for i in indices]
-		# create modelstreams
-		for modelstream_name, ovs_name in zip(ms2_file.modelstream_names, ovs_names):
-			modelstream_path = os.path.join(ms2_dir, modelstream_name)
-			modelstream_loader = self.ovl.create_file(modelstream_path, ovs_name=ovs_name)
-			self.streams.append(modelstream_loader)
-			# todo - store stream name in self.header.buffer_pointers so that a dependency is created
+		ovs_lut = {n: f"Models_L{i}" for n, i in zip(ms2_file.modelstream_names, indices)}
+		# create modelstreams for buffers that have them
+		for buffer_info, buffer_presence in zip(self.header.buffer_infos.data, self.header.buffer_pointers.data):
+			if buffer_info.name == "STATIC":
+				buffer_presence.dependency_name.offset = -1
+			else:
+				buffer_presence.dependency_name.offset = 0
+				buffer_presence.dependency_name.data = buffer_info.name
+				modelstream_loader = self.ovl.create_file(buffer_info.path, ovs_name=ovs_lut[buffer_info.name])
+				self.streams.append(modelstream_loader)
 
 		# create root_entries and mesh data fragments
 		for model_info, mdl2_name in zip(ms2_file.model_infos, ms2_file.mdl_2_names):
