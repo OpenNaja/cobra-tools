@@ -208,6 +208,9 @@ class BioMeshData(MeshData):
 		self.fur_length = 0.0
 		# just a sanity check
 		assert self.vertex_count == sum(o.vertex_count for o in self.vert_chunks)
+		# for debugging
+		# for vertex_index, res in enumerate(self.negate_bitangents):
+		# 	self.add_to_weights(f"negate_bitangents", vertex_index, res)
 
 	def init_vert_chunk_arrays(self, v_slice, vert_chunk):
 		vert_chunk.packed_verts = None
