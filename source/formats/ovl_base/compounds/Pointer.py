@@ -29,7 +29,8 @@ class Pointer(BaseStruct):
 		super().__init__(context, arg, template, set_default=False)
 		# set to -1 here so that read_ptr doesn't get a wrong frag by chance if the entry has not been read -> get at 0
 		self.io_start = -1
-		self.offset = 0
+		self.pool_index = 0
+		self.data_offset = 0
 		self.data = None
 		self.frag = None
 		self.pool_type = None
@@ -39,7 +40,8 @@ class Pointer(BaseStruct):
 	@classmethod
 	def get_fields_str(cls, instance, indent=0):
 		s = ''
-		s += f'\n	* offset = {instance.offset.__repr__()}'
+		s += f'\n	* pool_index = {instance.pool_index.__repr__()}'
+		s += f'\n	* data_offset = {instance.data_offset.__repr__()}'
 		s += f'\n	* data = {instance.data.__repr__()}'
 		return s
 

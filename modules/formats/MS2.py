@@ -141,7 +141,7 @@ class Ms2Loader(BaseFile):
 		self.header.read_ptrs(self.root_ptr.pool)
 		for i, buffer_presence in enumerate(self.header.buffer_pointers.data):
 			d = buffer_presence.dependency_name
-			if d.offset != -1 and not d.data:
+			if d.pool_index != -1 and not d.data:
 				logging.warning(f"Streamed mesh buffer {i} for {self.file_entry.name} has no dependency to a .model2stream file")
 		# print(self.header)
 
@@ -168,10 +168,10 @@ class Ms2Loader(BaseFile):
 			model_info.objects.data = model_info.model.objects
 			model_info.meshes.data = model_info.model.meshes
 			for wrapper in model_info.model.meshes:
-				# link the right buffer_info, then clear offset value
-				wrapper.mesh.stream_info.temp_index = wrapper.mesh.stream_info.offset
+				# link the right buffer_info, then clear pool_index value
+				wrapper.mesh.stream_info.temp_index = wrapper.mesh.stream_info.pool_index
 				# undo what we did on export
-				wrapper.mesh.stream_info.offset = 0
+				wrapper.mesh.stream_info.pool_index = 0
 		# print(self.header)
 		# determine ovs names. these differ by game version and there is no real way to predict them
 		# older JWE2 versions used "HighPolyModels" exclusively
@@ -185,9 +185,9 @@ class Ms2Loader(BaseFile):
 		# create modelstreams for buffers that have them
 		for buffer_info, buffer_presence in zip(self.header.buffer_infos.data, self.header.buffer_pointers.data):
 			if buffer_info.name == "STATIC":
-				buffer_presence.dependency_name.offset = -1
+				buffer_presence.dependency_name.pool_index = -1
 			else:
-				buffer_presence.dependency_name.offset = 0
+				buffer_presence.dependency_name.pool_index = 0
 				buffer_presence.dependency_name.data = buffer_info.name
 				modelstream_loader = self.ovl.create_file(buffer_info.path, ovs_name=ovs_lut[buffer_info.name])
 				self.streams.append(modelstream_loader)
@@ -263,11 +263,11 @@ class Ms2Loader(BaseFile):
 				ptrs = set(wrapper.mesh.stream_info.frag.struct_ptr for model_info in self.header.model_infos.data for wrapper in model_info.meshes.data)
 				# get the sorted binary representations
 				buffer_infos = [ptr.data for ptr in sorted(ptrs, key=lambda ptr: ptr.data_offset)]
-				# turn the offset value of the pointers into a valid index
+				# store buffer index in Pointer.pool_index
 				for model_info in self.header.model_infos.data:
 					for wrapper in model_info.meshes.data:
 						buffer_info_bytes = wrapper.mesh.stream_info.frag.struct_ptr.data
-						wrapper.mesh.stream_info.offset = buffer_infos.index(buffer_info_bytes)
+						wrapper.mesh.stream_info.pool_index = buffer_infos.index(buffer_info_bytes)
 				if self.header.buffer_infos.data is not None:
 					self.header.buffer_infos.data.to_stream(self.header.buffer_infos.data, stream, context)
 				self.header.model_infos.data.to_stream(self.header.model_infos.data, stream, context)

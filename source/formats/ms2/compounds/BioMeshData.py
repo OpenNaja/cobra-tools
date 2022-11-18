@@ -17,8 +17,8 @@ class BioMeshData:
 
 	# @property
 	def get_stream_index(self):
-		# logging.debug(f"Using stream {self.stream_info.offset}")
-		return self.stream_info.offset
+		# logging.debug(f"Using stream {self.stream_info.pool_index}")
+		return self.stream_info.pool_index
 
 	@property
 	def tris_address(self):

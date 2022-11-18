@@ -29,21 +29,22 @@ class Pointer(BaseStruct):
 	_import_key = 'ovl_base.compounds.Pointer'
 
 	_attribute_list = BaseStruct._attribute_list + [
-		('offset', Int, (0, None), (False, None), None),
-		('rel_offset', Uint, (0, None), (False, None), None),
+		('pool_index', Int, (0, None), (False, -1), None),
+		('data_offset', Uint, (0, None), (False, None), None),
 		]
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'offset', Int, (0, None), (False, None)
-		yield 'rel_offset', Uint, (0, None), (False, None)
+		yield 'pool_index', Int, (0, None), (False, -1)
+		yield 'data_offset', Uint, (0, None), (False, None)
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		# set to -1 here so that read_ptr doesn't get a wrong frag by chance if the entry has not been read -> get at 0
 		self.io_start = -1
-		self.offset = 0
+		self.pool_index = 0
+		self.data_offset = 0
 		self.data = None
 		self.frag = None
 		self.pool_type = None
@@ -53,7 +54,8 @@ class Pointer(BaseStruct):
 	@classmethod
 	def get_fields_str(cls, instance, indent=0):
 		s = ''
-		s += f'\n	* offset = {instance.offset.__repr__()}'
+		s += f'\n	* pool_index = {instance.pool_index.__repr__()}'
+		s += f'\n	* data_offset = {instance.data_offset.__repr__()}'
 		s += f'\n	* data = {instance.data.__repr__()}'
 		return s
 

@@ -13,8 +13,8 @@ class NewMeshData:
 
 	# @property
 	def get_stream_index(self):
-		# logging.debug(f"Using stream {self.stream_info.offset}")
-		return self.stream_info.offset
+		# logging.debug(f"Using stream {self.stream_info.pool_index}")
+		return self.stream_info.pool_index
 
 	def update_dtype(self):
 		"""Update MeshData.dt (numpy dtype) according to MeshData.flag"""
