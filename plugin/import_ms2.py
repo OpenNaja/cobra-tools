@@ -75,7 +75,7 @@ def load(filepath="", use_custom_normals=False, mirror_mesh=False):
 						if not is_old(ms2.info):
 							b_me["unk_f0"] = float(mesh.unk_floats[0])
 							b_me["unk_f1"] = float(mesh.unk_floats[1])
-							b_me["stream"] = mesh.stream_info.offset
+							b_me["stream"] = mesh.stream_info.pool_index
 					except:
 						logging.exception("setting unks failed")
 					try:

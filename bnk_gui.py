@@ -112,7 +112,7 @@ class MainWindow(widgets.MainWindow):
 				with open(aux_path, "rb") as f:
 					for i, stream_info in enumerate(self.bnk_file.bnk_header.stream_infos):
 						self.update_progress("Extracting stream", value=i, vmax=len(self.bnk_file.bnk_header.stream_infos))
-						f.seek(stream_info.offset)
+						f.seek(stream_info.pool_index)
 						d = f.read(stream_info.size)
 						out_file = write_riff_file(d, out_dir_func(f"{aux_file_name_bare}_{i}"))
 						if out_file:
