@@ -154,6 +154,9 @@ class Versions:
 				stream.write("\n\n\n")
 
 				if self.parent.verattrs:
+                    # generating version objects to store the extra attributes like ext, supported and games.
+
+                    # generate a base version class for this file format
 					version_class = f'{self.parent.format_name.capitalize()}Version'
 					stream.write(f"class {version_class}(VersionBase):\n\n")
 					stream.write(f"\t_file_format = {repr(self.parent.format_name.lower())}\n")
@@ -165,6 +168,7 @@ class Versions:
 						stream.write(f'\t\tself.{verattr} = self._force_tuple({verattr})\n')
 					stream.write("\n\n")
 
+                    # generate a specific object for every version ID
 					for version in self.versions:
 						default_games, all_games = self.get_default_games(version)
 						stream.write(f"{self.format_id(version.attrib['id'])} = {version_class}(")
@@ -185,7 +189,7 @@ class Versions:
 						if version.attrib.get("custom"):
 							stream.write(f", custom={version.attrib['custom']}")
 						if version.attrib.get("ext"):
-							stream.write(f", ext=({', '.join([repr(extension) for extension in version.attrib['ext'].split()],)})")
+							stream.write(f", ext=({', '.join([repr(extension) for extension in version.attrib['ext'].split()])},)")
 						default_games, all_games = self.get_default_games(version)
 						default_games = [f'games.{name_enum_key(game)}' for game in default_games]
 						all_games = [f'games.{name_enum_key(game)}' for game in all_games]
