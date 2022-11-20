@@ -124,7 +124,7 @@ class Versions:
 
 				# define game enum
 				full_name_key_map = {full_name: key for full_name, key in sorted(full_name_key_map.items(), key=lambda item: item[1])}
-				full_name_key_map["Unknown Game"] = "UNKNOWN_GAME"
+				full_name_key_map["Unknown Game"] = "UNKNOWN"
 				stream.write(f"games = Enum('Games',{repr([(key, full_name) for full_name, key in full_name_key_map.items()])})")
 				stream.write("\n\n\n")
 
@@ -133,7 +133,7 @@ class Versions:
 				for version in self.versions:
 					stream.write(f"\n\tif is_{self.format_id(version.attrib['id'])}(context):")
 					stream.write(f"\n\t\treturn [{', '.join([f'games.{key}' for key in version_game_map[version.attrib['id']]])}]")
-				stream.write("\n\treturn [games.UNKOWN_GAME]")
+				stream.write("\n\treturn [games.UNKNOWN]")
 				stream.write("\n\n\n")
 
 				# write game version setting function
