@@ -1,9 +1,6 @@
 import os
-import logging
 from importlib import import_module
 
-from .BaseClass import BaseClass
-from .Enum import Enum
 from .Imports import Imports
 
 
@@ -21,7 +18,6 @@ class Basics:
     def load_base_module(self, ):
         # get basic.py file
         if os.path.isfile(self.basics_file):
-            old_wd = os.getcwd()
             base_module = import_module(os.path.relpath(self.basics_file).replace(os.path.sep, ".")[:-3])
             self.base_module = base_module
 
