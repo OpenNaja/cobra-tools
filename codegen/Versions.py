@@ -104,47 +104,50 @@ class Versions:
 
 					# generate a base version class for this file format
 					version_class = f'{self.parent.format_name.capitalize()}Version'
-					stream.write(f"class {version_class}(VersionBase):\n\n")
-					stream.write(f"\t_file_format = {repr(self.parent.format_name.lower())}\n")
-					stream.write(f"\t_verattrs = ({', '.join(repr(attr) for attr in self.parent.verattrs)})\n\n")
-					verattr_arguments = ', '.join([f'{verattr}=()'for verattr in self.parent.verattrs])
-					stream.write(f"\tdef __init__(self, *args, {verattr_arguments}, **kwargs):\n")
-					stream.write(f'\t\tsuper().__init__(*args, **kwargs)\n')
-					for verattr in self.parent.verattrs:
-						stream.write(f'\t\tself.{verattr} = self._force_tuple({verattr})\n')
-					stream.write("\n\n")
+					self.write_version_class(stream, version_class)
 
 					# generate a specific object for every version ID
 					for version in self.versions:
-						default_games, all_games = self.get_default_games(version)
-						stream.write(f"{self.format_id(version.attrib['id'])} = {version_class}(")
-						stream.write(f"id={repr(version.attrib['id'])}")
-						for verattr, (access, attr_type) in self.parent.verattrs.items():
-							values = version.attrib.get(verattr)
-							if values:
-								values = values.split(', ')
-								str_values = []
-								for value in values:
-									if attr_type:
-										str_values.append(f'{attr_type}.from_value({value})')
-									else:
-										str_values.append(value)
-								stream.write(f", {verattr}=({', '.join(str_values)},)")
-						if version.attrib.get("supported"):
-							stream.write(f", supported={version.attrib['supported']}")
-						if version.attrib.get("custom"):
-							stream.write(f", custom={version.attrib['custom']}")
-						if version.attrib.get("ext"):
-							stream.write(f", ext=({', '.join([repr(extension) for extension in version.attrib['ext'].split()])},)")
-						default_games, all_games = self.get_default_games(version)
-						default_games = [f'games.{name_enum_key(game)}' for game in default_games]
-						all_games = [f'games.{name_enum_key(game)}' for game in all_games]
-						stream.write(f", primary_games=[{', '.join(default_games)}]")
-						stream.write(f", all_games=[{', '.join(all_games)}]")
-						stream.write(")\n")
+						self.write_version_obj(stream, version, version_class)
 
 					stream.write(f"\navailable_versions = [{', '.join([self.format_id(version.attrib['id']) for version in self.versions])}]")
 					stream.write("\n")
+
+	def write_version_class(self, stream, version_class):
+		stream.write(f"class {version_class}(VersionBase):\n\n")
+		stream.write(f"\t_file_format = {repr(self.parent.format_name.lower())}\n")
+		stream.write(f"\t_verattrs = ({', '.join(repr(attr) for attr in self.parent.verattrs)})\n\n")
+		verattr_arguments = ', '.join([f'{verattr}=()' for verattr in self.parent.verattrs])
+		stream.write(f"\tdef __init__(self, *args, {verattr_arguments}, **kwargs):\n")
+		stream.write(f'\t\tsuper().__init__(*args, **kwargs)\n')
+		for verattr in self.parent.verattrs:
+			stream.write(f'\t\tself.{verattr} = self._force_tuple({verattr})\n')
+		stream.write("\n\n")
+
+	def write_version_obj(self, stream, version, version_class):
+		stream.write(f"{self.format_id(version.attrib['id'])} = {version_class}(")
+		stream.write(f"id={repr(version.attrib['id'])}")
+		for verattr, (access, attr_type) in self.parent.verattrs.items():
+			values = version.attrib.get(verattr)
+			if values:
+				values = values.split(', ')
+				str_values = []
+				for value in values:
+					if attr_type:
+						str_values.append(f'{attr_type}.from_value({value})')
+					else:
+						str_values.append(value)
+				stream.write(f", {verattr}=({', '.join(str_values)},)")
+		if version.attrib.get("supported"):
+			stream.write(f", supported={version.attrib['supported']}")
+		if version.attrib.get("custom"):
+			stream.write(f", custom={version.attrib['custom']}")
+		if version.attrib.get("ext"):
+			stream.write(f", ext=({', '.join([repr(extension) for extension in version.attrib['ext'].split()])},)")
+		default_games, all_games = self.get_default_games(version)
+		stream.write(f", primary_games=[{', '.join([f'games.{name_enum_key(game)}' for game in default_games])}]")
+		stream.write(f", all_games=[{', '.join([f'games.{name_enum_key(game)}' for game in all_games])}]")
+		stream.write(")\n")
 
 	def write_games_enum(self, full_name_key_map, stream):
 		# define game enum
