@@ -17,8 +17,7 @@ from generated.formats.ms2.enums.MeshFormat import MeshFormat
 from plugin.modules_export.armature import get_armature, handle_transforms, export_bones_custom
 from plugin.modules_export.collision import export_bounds
 from plugin.modules_import.armature import get_bone_names
-from plugin.utils.matrix_util import evaluate_mesh
-from plugin.utils.object import NedryError
+from plugin.utils.matrix_util import evaluate_mesh, ensure_tri_modifier
 from plugin.utils.shell import get_collection, is_shell, is_fin, num_fur_as_weights
 from root_path import root_dir
 
@@ -31,15 +30,6 @@ SOFT_MAX_VERTS_SHELLS = 8
 SOFT_MAX_TRIS_SHELLS = 8
 SOFT_MAX_VERTS = 200                     
 SOFT_MAX_TRIS = 200
-
-
-def ensure_tri_modifier(ob):
-	"""Makes sure that ob has a triangulation modifier in its stack."""
-	for mod in ob.modifiers:
-		if mod.type in ('TRIANGULATE',):
-			break
-	else:
-		ob.modifiers.new('Triangulate', 'TRIANGULATE')
 
 
 def has_objects_in_scene(scene):

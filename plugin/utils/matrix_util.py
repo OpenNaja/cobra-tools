@@ -114,3 +114,12 @@ def evaluate_mesh(ob):
 	eval_obj = ob.evaluated_get(dg)
 	me = eval_obj.to_mesh(preserve_all_data_layers=True, depsgraph=dg)
 	return eval_obj, me
+
+
+def ensure_tri_modifier(ob):
+	"""Makes sure that ob has a triangulation modifier in its stack."""
+	for mod in ob.modifiers:
+		if mod.type in ('TRIANGULATE',):
+			break
+	else:
+		ob.modifiers.new('Triangulate', 'TRIANGULATE')

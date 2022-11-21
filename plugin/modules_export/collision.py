@@ -11,6 +11,7 @@ from generated.formats.ms2.compounds.MeshCollision import MeshCollision
 from generated.formats.ms2.compounds.Sphere import Sphere
 from generated.formats.ms2.compounds.packing_utils import pack_swizzle
 from generated.formats.ms2.enums.CollisionType import CollisionType
+from plugin.utils.matrix_util import evaluate_mesh, ensure_tri_modifier
 
 v = 9999
 
@@ -123,7 +124,8 @@ def export_cylinderbv(b_obj, hitcheck):
 
 
 def export_meshbv(b_obj, hitcheck, corrector):
-	me = b_obj.data
+	ensure_tri_modifier(b_obj)
+	eval_obj, eval_me = evaluate_mesh(b_obj)
 	matrix = get_collider_matrix(b_obj)
 
 	hitcheck.dtype = CollisionType.MESH_COLLISION
@@ -139,14 +141,14 @@ def export_meshbv(b_obj, hitcheck, corrector):
 	c = coll.offset
 	c.x, c.y, c.z = pack_swizzle(matrix.translation)
 	# export vertices
-	coll.vertex_count = len(me.vertices)
+	coll.vertex_count = len(eval_me.vertices)
 	coll.vertices.resize((coll.vertex_count, 3))
-	for vert_i, vert in enumerate(me.vertices):
+	for vert_i, vert in enumerate(eval_me.vertices):
 		coll.vertices[vert_i, :] = pack_swizzle(vert.co)
 	# export triangles
-	coll.tri_count = len(me.polygons)
+	coll.tri_count = len(eval_me.polygons)
 	coll.triangles.resize((coll.tri_count, 3))
-	for face_i, face in enumerate(me.polygons):
+	for face_i, face in enumerate(eval_me.polygons):
 		coll.triangles[face_i, :] = face.vertices
 		assert len(face.vertices) == 3
 
