@@ -123,3 +123,17 @@ def ensure_tri_modifier(ob):
 			break
 	else:
 		ob.modifiers.new('Triangulate', 'TRIANGULATE')
+
+
+def get_joint_name(b_ob):
+	scene = bpy.context.scene
+	ob_name = b_ob.name[len(scene.name)+1:]
+	long_name = b_ob.get("long_name", None)
+	if not long_name:
+		# logging.warning(f"Custom property 'long_name' is not set for {b_ob.name}")
+		return ob_name
+	if len(long_name) > len(ob_name):
+		# assert long_name[:len(ob_name)] == ob_name, f"ob name does not match"
+		return long_name
+	assert long_name == ob_name
+	return long_name

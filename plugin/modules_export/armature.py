@@ -5,10 +5,9 @@ import mathutils
 
 from generated.formats.ms2.compounds.Bone import Bone
 from generated.formats.ms2.compounds.Matrix44 import Matrix44
-from generated.formats.ms2.versions import is_ztuac, is_jwe, is_dla
+from generated.formats.ms2.versions import is_ztuac, is_dla
 from plugin.modules_export.collision import export_hitcheck
-from plugin.utils import matrix_util
-from plugin.utils.matrix_util import bone_name_for_ovl
+from plugin.utils.matrix_util import bone_name_for_ovl, get_joint_name, Corrector
 from plugin.utils.shell import get_collection
 
 
@@ -102,7 +101,7 @@ def handle_transforms(ob, me, apply=True):
 
 def export_bones_custom(b_armature_ob, model_info):
 	is_old_orientation = is_ztuac(model_info.context) or is_dla(model_info.context)
-	corrector = matrix_util.Corrector(is_old_orientation)
+	corrector = Corrector(is_old_orientation)
 	# both options below crash JWE2 instantly, might be due to bone count though
 	# b_bone_names = ovl_bones_jwe(b_armature_ob)
 	b_bone_names = [bone.name for bone in b_armature_ob.data.bones]
@@ -168,20 +167,6 @@ def export_bones_custom(b_armature_ob, model_info):
 		bone_info.enumeration[i] = [4, i]
 
 	export_joints(bone_info, corrector)
-
-
-def get_joint_name(b_ob):
-	scene = bpy.context.scene
-	ob_name = b_ob.name[len(scene.name)+1:]
-	long_name = b_ob.get("long_name", None)
-	if not long_name:
-		# logging.warning(f"Custom property 'long_name' is not set for {b_ob.name}")
-		return ob_name
-	if len(long_name) > len(ob_name):
-		# assert long_name[:len(ob_name)] == ob_name, f"ob name does not match"
-		return long_name
-	assert long_name == ob_name
-	return long_name
 
 
 def export_joints(bone_info, corrector):

@@ -11,7 +11,7 @@ from generated.formats.ms2.compounds.MeshCollision import MeshCollision
 from generated.formats.ms2.compounds.Sphere import Sphere
 from generated.formats.ms2.compounds.packing_utils import pack_swizzle
 from generated.formats.ms2.enums.CollisionType import CollisionType
-from plugin.utils.matrix_util import evaluate_mesh, ensure_tri_modifier
+from plugin.utils.matrix_util import evaluate_mesh, ensure_tri_modifier, get_joint_name
 
 v = 9999
 
@@ -49,7 +49,7 @@ def get_bounds(bounds):
 
 
 def export_hitcheck(b_obj, hitcheck, corrector):
-	hitcheck.name = b_obj.name
+	hitcheck.name = get_joint_name(b_obj)
 	b_rb = b_obj.rigid_body
 	if not b_rb:
 		raise AttributeError(f"No rigid body on {b_obj.name} - can't identify collision type.")
