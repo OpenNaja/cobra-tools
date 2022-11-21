@@ -152,7 +152,7 @@ class Versions:
 		enum_keys.sort()
 		enum_keys.append(("UNKNOWN", "Unknown Game"))
 		stream.write(
-			f"games = Enum('Games',{enum_keys})")
+			f"games = Enum('Games', {enum_keys})")
 		stream.write("\n\n\n")
 
 	def write_set_version(self, stream, version):
