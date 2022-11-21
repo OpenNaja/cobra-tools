@@ -76,38 +76,8 @@ class Versions:
 				stream.write(f"\n\n")
 
 				for version in self.versions:
-					stream.write(f"def is_{self.format_id(version.attrib['id'])}(context):")
-					conds_list = []
-					for k, v in version.attrib.items():
-						if k not in base_ver_attrs:
-							if k in self.parent.verattrs:
-								name = self.parent.verattrs[k][0]
-							else:
-								name = k.lower()
-							val = v.strip()
-							if ", " in val:
-								conds_list.append(f"context.{name} in ({val})")
-							else:
-								conds_list.append(f"context.{name} == {val}")
-					stream.write("\n\tif " + " and ".join(conds_list) + ":")
-					stream.write("\n\t\treturn True")
-					stream.write("\n\n\n")
-
-					stream.write(f"def set_{self.format_id(version.attrib['id'])}(context):")
-					for k, v in version.attrib.items():
-						if k not in base_ver_attrs:
-							suffix = ""
-							if k in self.parent.verattrs:
-								name, attr_type = self.parent.verattrs[k]
-								if attr_type and self.parent.tag_dict[attr_type.lower()] in self.parent.bitstruct_types:
-									suffix = "._value"
-							else:
-								name = k.lower()
-							val = v.strip()
-							if ", " in val:
-								val = val.split(", ")[0]
-							stream.write(f"\n\tcontext.{name}{suffix} = {val}")
-					stream.write("\n\n\n")
+					self.write_is_version(stream, version)
+					self.write_set_version(stream, version)
 
 				# go through all the games, record them and map defaults to versions
 				full_name_key_map = {}
@@ -123,36 +93,11 @@ class Versions:
 							full_name_key_map[game] = name_enum_key(game)
 					version_game_map[version.attrib['id']] = [full_name_key_map[game_name] for game_name in all_games]
 
-				# define game enum
-				full_name_key_map = {full_name: key for full_name, key in sorted(full_name_key_map.items(), key=lambda item: item[1])}
-				full_name_key_map["Unknown Game"] = "UNKNOWN"
-				stream.write(f"games = Enum('Games',{repr([(key, full_name) for full_name, key in full_name_key_map.items()])})")
-				stream.write("\n\n\n")
+				self.write_games_enum(full_name_key_map, stream)
 
-				# write game lookup function
-				stream.write(f"def get_game(context):")
-				for version in self.versions:
-					stream.write(f"\n\tif is_{self.format_id(version.attrib['id'])}(context):")
-					stream.write(f"\n\t\treturn [{', '.join([f'games.{key}' for key in version_game_map[version.attrib['id']]])}]")
-				stream.write("\n\treturn [games.UNKNOWN]")
-				stream.write("\n\n\n")
+				self.write_get_game(stream, version_game_map)
 
-				# write game version setting function
-				stream.write(f"def set_game(context, game):")
-				stream.write(f"\n\tif isinstance(game, str):")
-				stream.write(f"\n\t\tgame = games(game)")
-				# first check all the defaults
-				for version in self.versions:
-					if len(version_default_map[version.attrib['id']]) > 0:
-						stream.write(f"\n\tif game in {{{', '.join([f'games.{key}' for key in version_default_map[version.attrib['id']]])}}}:")
-						stream.write(f"\n\t\treturn set_{self.format_id(version.attrib['id'])}(context)")
-				# then the rest
-				for version in self.versions:
-					non_default_games = set(version_game_map[version.attrib['id']]) - version_default_map[version.attrib['id']]
-					if len(non_default_games) > 0:
-						stream.write(f"\n\tif game in {{{', '.join([f'games.{key}' for key in non_default_games])}}}:")
-						stream.write(f"\n\t\treturn set_{self.format_id(version.attrib['id'])}(context)")
-				stream.write("\n\n\n")
+				self.write_set_game(stream, version_default_map, version_game_map)
 
 				if self.parent.verattrs:
 					# generating version objects to store the extra attributes like ext, supported and games.
@@ -200,3 +145,76 @@ class Versions:
 
 					stream.write(f"\navailable_versions = [{', '.join([self.format_id(version.attrib['id']) for version in self.versions])}]")
 					stream.write("\n")
+
+	def write_games_enum(self, full_name_key_map, stream):
+		# define game enum
+		enum_keys = [(key, full_name) for full_name, key in full_name_key_map.items()]
+		enum_keys.sort()
+		enum_keys.append(("UNKNOWN", "Unknown Game"))
+		stream.write(
+			f"games = Enum('Games',{enum_keys})")
+		stream.write("\n\n\n")
+
+	def write_set_version(self, stream, version):
+		stream.write(f"def set_{self.format_id(version.attrib['id'])}(context):")
+		for k, v in version.attrib.items():
+			if k not in base_ver_attrs:
+				suffix = ""
+				if k in self.parent.verattrs:
+					name, attr_type = self.parent.verattrs[k]
+					if attr_type and self.parent.tag_dict[attr_type.lower()] in self.parent.bitstruct_types:
+						suffix = "._value"
+				else:
+					name = k.lower()
+				val = v.strip()
+				if ", " in val:
+					val = val.split(", ")[0]
+				stream.write(f"\n\tcontext.{name}{suffix} = {val}")
+		stream.write("\n\n\n")
+
+	def write_is_version(self, stream, version):
+		stream.write(f"def is_{self.format_id(version.attrib['id'])}(context):")
+		conds_list = []
+		for k, v in version.attrib.items():
+			if k not in base_ver_attrs:
+				if k in self.parent.verattrs:
+					name = self.parent.verattrs[k][0]
+				else:
+					name = k.lower()
+				val = v.strip()
+				if ", " in val:
+					conds_list.append(f"context.{name} in ({val})")
+				else:
+					conds_list.append(f"context.{name} == {val}")
+		stream.write("\n\tif " + " and ".join(conds_list) + ":")
+		stream.write("\n\t\treturn True")
+		stream.write("\n\n\n")
+
+	def write_get_game(self, stream, version_game_map):
+		# write game lookup function
+		stream.write(f"def get_game(context):")
+		for version in self.versions:
+			stream.write(f"\n\tif is_{self.format_id(version.attrib['id'])}(context):")
+			stream.write(
+				f"\n\t\treturn [{', '.join([f'games.{key}' for key in version_game_map[version.attrib['id']]])}]")
+		stream.write("\n\treturn [games.UNKNOWN]")
+		stream.write("\n\n\n")
+
+	def write_set_game(self, stream, version_default_map, version_game_map):
+		# write game version setting function
+		stream.write(f"def set_game(context, game):")
+		stream.write(f"\n\tif isinstance(game, str):")
+		stream.write(f"\n\t\tgame = games(game)")
+		# first check all the defaults
+		for version in self.versions:
+			if len(version_default_map[version.attrib['id']]) > 0:
+				stream.write(
+					f"\n\tif game in {{{', '.join([f'games.{key}' for key in version_default_map[version.attrib['id']]])}}}:")
+				stream.write(f"\n\t\treturn set_{self.format_id(version.attrib['id'])}(context)")
+		# then the rest
+		for version in self.versions:
+			non_default_games = set(version_game_map[version.attrib['id']]) - version_default_map[version.attrib['id']]
+			if len(non_default_games) > 0:
+				stream.write(f"\n\tif game in {{{', '.join([f'games.{key}' for key in non_default_games])}}}:")
+				stream.write(f"\n\t\treturn set_{self.format_id(version.attrib['id'])}(context)")
+		stream.write("\n\n\n")
