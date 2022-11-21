@@ -4,6 +4,7 @@ from codegen.naming_conventions import name_enum_key
 
 base_ver_attrs = ("id", "supported", "custom", "ext")
 
+
 def split_parenthesis_aware(input_string, delimiter):
 	split_string = []
 	par_level = 0
@@ -154,9 +155,9 @@ class Versions:
 				stream.write("\n\n\n")
 
 				if self.parent.verattrs:
-                    # generating version objects to store the extra attributes like ext, supported and games.
+					# generating version objects to store the extra attributes like ext, supported and games.
 
-                    # generate a base version class for this file format
+					# generate a base version class for this file format
 					version_class = f'{self.parent.format_name.capitalize()}Version'
 					stream.write(f"class {version_class}(VersionBase):\n\n")
 					stream.write(f"\t_file_format = {repr(self.parent.format_name.lower())}\n")
@@ -168,7 +169,7 @@ class Versions:
 						stream.write(f'\t\tself.{verattr} = self._force_tuple({verattr})\n')
 					stream.write("\n\n")
 
-                    # generate a specific object for every version ID
+					# generate a specific object for every version ID
 					for version in self.versions:
 						default_games, all_games = self.get_default_games(version)
 						stream.write(f"{self.format_id(version.attrib['id'])} = {version_class}(")
