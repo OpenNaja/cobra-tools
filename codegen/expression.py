@@ -1,6 +1,8 @@
 """Expression parser (for arr1, arr2, cond, and vercond xml attributes of
 <add> tag)."""
+import ast
 import math
+import operator
 
 import codegen.naming_conventions as naming_conventions
 
@@ -90,7 +92,28 @@ def interpret_literal(input_str, include_version=False):
 
 class Expression(object):
 
-    operators = {'!', '*', '/', '%', '+', '-', '<<', '>>', '&', '|', '==', '!=', '>', '>=', '<', '<=', '&&', '||'}
+    operators = {'!': lambda a, b: not b,
+                 '*': operator.mul,
+                 '/': lambda a, b: int(operator.truediv(a, b)),
+                 '%': operator.mod,
+                 '+': operator.add,
+                 '-': operator.sub,
+                 '<<': operator.lshift,
+                 '>>': operator.rshift,
+                 '&': operator.and_,
+                 '|': operator.or_,
+                 '==': operator.eq,
+                 '!=': operator.ne,
+                 '>': operator.gt,
+                 '>=': operator.ge,
+                 '<': operator.lt,
+                 '<=': operator.le,
+                 '&&': lambda a, b: a and b,
+                 '||': lambda a, b: a or b}
+
+    op_replacement = {'&&': 'and',
+                      '||': 'or',
+                      '!': 'not'}
 
     def __init__(self, expr_str, target_variable=""):
         try:
@@ -113,11 +136,9 @@ class Expression(object):
         if isinstance(self._right, Expression):
             right = f"({right})"
         op = self._op
-        for k, v in (("&&", "and"), ("||", "or"), ("!", "not")):
-            if op.strip() == k:
-                op = v
+        op = self.op_replacement.get(op.strip(), op)
         # since we need it for arrays, round to int
-        if op == "/":
+        if op.strip() == "/":
             return f"int({left} {op} {right})"
         return f"{left} {op} {right}".strip()
 
@@ -279,6 +300,23 @@ class Expression(object):
             if start_pos != -1 or end_pos != -1:
                 raise ValueError("expression syntax error (non-matching brackets?)")
         return start_pos, end_pos
+
+    @staticmethod
+    def eval_part(part, namespace):
+        if isinstance(part, Expression):
+            return part.eval(namespace)
+        elif isinstance(part, str):
+            return namespace[part.strip()]
+        else:
+            # use conversion to str to autoconvert Version to int
+            return ast.literal_eval(str(part))
+
+    def eval(self, namespace={}):
+        left = self.eval_part(self._left, namespace)
+        if not self._op:
+            return left
+        right = self.eval_part(self._right, namespace)
+        return self.operators[self._op.strip()](left, right)
 
 
 if __name__ == "__main__":
