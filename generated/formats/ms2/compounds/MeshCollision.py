@@ -10,6 +10,7 @@ from generated.formats.ms2.compounds.Matrix33 import Matrix33
 from generated.formats.ms2.compounds.MeshCollisionBit import MeshCollisionBit
 from generated.formats.ms2.compounds.Vector3 import Vector3
 from generated.formats.ovl_base.compounds.Empty import Empty
+from generated.formats.ovl_base.compounds.SmartPadding import SmartPadding
 
 
 class MeshCollision(BaseStruct):
@@ -46,6 +47,9 @@ class MeshCollision(BaseStruct):
 		# seemingly fixed
 		self.ff_or_zero = Array(self.context, 0, None, (0,), Int)
 
+		# sometimes 00 byte
+		self.weird_padding = SmartPadding(self.context, 4, None)
+
 		# verbatim
 		self.bounds_min_repeat = Vector3(self.context, 0, None)
 
@@ -64,8 +68,8 @@ class MeshCollision(BaseStruct):
 		# ?
 		self.collision_bits = Array(self.context, 0, None, (0,), MeshCollisionBit)
 
-		# always 25
-		self.zeros = Array(self.context, 0, None, (0,), Uint)
+		# usually zero, nonzero in JWE2 dev footplant, [1] used as salt for tri indices
+		self.tris_salt = Array(self.context, 0, None, (0,), Uint)
 
 		# might be padding!
 		self.vertices_addr = Empty(self.context, 0, None)
@@ -82,7 +86,7 @@ class MeshCollision(BaseStruct):
 		# ?
 		self.const = 0
 
-		# always 25
+		# in JWE1 redwood: always 37
 		self.triangle_flags = Array(self.context, 0, None, (0,), Uint)
 
 		# might be padding!
@@ -101,13 +105,14 @@ class MeshCollision(BaseStruct):
 		('ones_or_zeros', Array, (0, None, (7,), Uint64), (False, None), None),
 		('ff_or_zero', Array, (0, None, (10,), Int), (False, None), True),
 		('ff_or_zero', Array, (0, None, (8,), Int), (False, None), True),
-		('bounds_min_repeat', Vector3, (0, None), (False, None), True),
-		('bounds_max_repeat', Vector3, (0, None), (False, None), True),
-		('tri_flags_count', Uint, (0, None), (False, None), True),
-		('count_bits', Ushort, (0, None), (False, None), True),
-		('stuff', Array, (0, None, (9,), Ushort), (False, None), True),
-		('collision_bits', Array, (0, None, (None,), MeshCollisionBit), (False, None), True),
-		('zeros', Array, (0, None, (4,), Uint), (False, None), True),
+		('weird_padding', SmartPadding, (4, None), (False, None), None),
+		('bounds_min_repeat', Vector3, (0, None), (False, None), None),
+		('bounds_max_repeat', Vector3, (0, None), (False, None), None),
+		('tri_flags_count', Uint, (0, None), (False, None), None),
+		('count_bits', Ushort, (0, None), (False, None), None),
+		('stuff', Array, (0, None, (9,), Ushort), (False, None), None),
+		('collision_bits', Array, (0, None, (None,), MeshCollisionBit), (False, None), None),
+		('tris_salt', Array, (0, None, (4,), Uint), (False, None), None),
 		('vertices_addr', Empty, (0, None), (False, None), None),
 		('vertices', Array, (0, None, (None, 3,), Float), (False, None), None),
 		('triangles_addr', Empty, (0, None), (False, None), None),
@@ -132,14 +137,14 @@ class MeshCollision(BaseStruct):
 			yield 'ff_or_zero', Array, (0, None, (10,), Int), (False, None)
 		if instance.context.version >= 48:
 			yield 'ff_or_zero', Array, (0, None, (8,), Int), (False, None)
-		if instance.context.version <= 47:
-			yield 'bounds_min_repeat', Vector3, (0, None), (False, None)
-			yield 'bounds_max_repeat', Vector3, (0, None), (False, None)
-			yield 'tri_flags_count', Uint, (0, None), (False, None)
-			yield 'count_bits', Ushort, (0, None), (False, None)
-			yield 'stuff', Array, (0, None, (9,), Ushort), (False, None)
-			yield 'collision_bits', Array, (0, None, (instance.count_bits,), MeshCollisionBit), (False, None)
-			yield 'zeros', Array, (0, None, (4,), Uint), (False, None)
+		yield 'weird_padding', SmartPadding, (4, None), (False, None)
+		yield 'bounds_min_repeat', Vector3, (0, None), (False, None)
+		yield 'bounds_max_repeat', Vector3, (0, None), (False, None)
+		yield 'tri_flags_count', Uint, (0, None), (False, None)
+		yield 'count_bits', Ushort, (0, None), (False, None)
+		yield 'stuff', Array, (0, None, (9,), Ushort), (False, None)
+		yield 'collision_bits', Array, (0, None, (instance.count_bits,), MeshCollisionBit), (False, None)
+		yield 'tris_salt', Array, (0, None, (4,), Uint), (False, None)
 		yield 'vertices_addr', Empty, (0, None), (False, None)
 		yield 'vertices', Array, (0, None, (instance.vertex_count, 3,), Float), (False, None)
 		yield 'triangles_addr', Empty, (0, None), (False, None)

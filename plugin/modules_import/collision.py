@@ -161,10 +161,15 @@ def import_meshbv(coll, hitcheck_name, corrector):
 				print(f"{i} {tri} is bad")
 				break
 		else:
+			good_tris.append(tri)
 			continue
-		good_tris.append(tri)
-	b_obj, b_me = mesh_from_data(scene, hitcheck_name, [unpack_swizzle(v) for v in coll.vertices], list(coll.triangles), coll_name="hitchecks")
-	# b_obj, b_me = mesh_from_data(scene, hitcheck_name, [unpack_swizzle(v) for v in coll.vertices], good_tris, coll_name="hitchecks")
+		salt = coll.tris_salt[1]
+		unsalted = [t - salt for t in tri]
+		good_tris.append(unsalted)
+		print(f"unsalted {unsalted}")
+	print(len(good_tris), max([v for tri in good_tris for v in tri]))
+	# b_obj, b_me = mesh_from_data(scene, hitcheck_name, [unpack_swizzle(v) for v in coll.vertices], list(coll.triangles), coll_name="hitchecks")
+	b_obj, b_me = mesh_from_data(scene, hitcheck_name, [unpack_swizzle(v) for v in coll.vertices], good_tris, coll_name="hitchecks")
 	# b_obj, b_me = mesh_from_data(scene, hitcheck_name, [unpack_swizzle(v) for v in coll.vertices], [], coll_name="hitchecks")
 	mat = import_collision_matrix(coll.rotation, corrector)
 	mat.translation = unpack_swizzle((coll.offset.x, coll.offset.y, coll.offset.z))

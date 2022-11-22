@@ -25,14 +25,18 @@ class SmartPadding:
 	@classmethod
 	def read_fields(cls, stream, instance):
 		instance.data = b''
+		if instance.arg is None:
+			raster = 1
+		else:
+			raster = instance.arg
 		for i in range(MAX_LEN):
 			end = stream.tell()
-			char = stream.read(1)
+			chars = stream.read(raster)
 			# stop if a byte other than 00 is encountered
-			if char != ZERO:
+			if chars != ZERO * raster:
 				break
 			# it's 00 so add it to the padding
-			instance.data += char
+			instance.data += chars
 		else:
 			raise ValueError('padding too long')
 		stream.seek(end)
