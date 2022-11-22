@@ -7,7 +7,7 @@ from generated.formats.base.basic import Uint
 from generated.formats.base.basic import Uint64
 from generated.formats.base.basic import Ushort
 from generated.formats.ms2.compounds.Matrix33 import Matrix33
-from generated.formats.ms2.compounds.MeshCollisionBit import MeshCollisionBit
+from generated.formats.ms2.compounds.SubCollChunk import SubCollChunk
 from generated.formats.ms2.compounds.Vector3 import Vector3
 from generated.formats.ovl_base.compounds.Empty import Empty
 from generated.formats.ovl_base.compounds.SmartPadding import SmartPadding
@@ -40,9 +40,13 @@ class MeshCollision(BaseStruct):
 
 		# the biggest coordinates across all axes
 		self.bounds_max = Vector3(self.context, 0, None)
-
-		# seemingly fixed
-		self.ones_or_zeros = Array(self.context, 0, None, (0,), Uint64)
+		self.flag_0 = 0
+		self.flag_1 = 0
+		self.has_sub_coll_chunk = 0
+		self.flag_3 = 0
+		self.flag_4 = 0
+		self.flag_5 = 0
+		self.flag_6 = 0
 
 		# seemingly fixed
 		self.ff_or_zero = Array(self.context, 0, None, (0,), Int)
@@ -50,23 +54,8 @@ class MeshCollision(BaseStruct):
 		# sometimes 00 byte
 		self.weird_padding = SmartPadding(self.context, 4, None)
 
-		# verbatim
-		self.bounds_min_repeat = Vector3(self.context, 0, None)
-
-		# verbatim
-		self.bounds_max_repeat = Vector3(self.context, 0, None)
-
 		# seems to repeat tri_count
-		self.tri_flags_count = 0
-
-		# counts MeshCollisionBit
-		self.count_bits = 0
-
-		# ?
-		self.stuff = Array(self.context, 0, None, (0,), Ushort)
-
-		# ?
-		self.collision_bits = Array(self.context, 0, None, (0,), MeshCollisionBit)
+		self.sub_coll_chunk = SubCollChunk(self.context, 0, None)
 
 		# usually zero, nonzero in JWE2 dev footplant, [1] used as salt for tri indices
 		self.tris_salt = Array(self.context, 0, None, (0,), Uint)
@@ -102,17 +91,18 @@ class MeshCollision(BaseStruct):
 		('tri_count', Uint64, (0, None), (False, None), None),
 		('bounds_min', Vector3, (0, None), (False, None), None),
 		('bounds_max', Vector3, (0, None), (False, None), None),
-		('ones_or_zeros', Array, (0, None, (7,), Uint64), (False, None), None),
+		('flag_0', Uint64, (0, None), (False, None), None),
+		('flag_1', Uint64, (0, None), (False, None), None),
+		('has_sub_coll_chunk', Uint64, (0, None), (False, None), None),
+		('flag_3', Uint64, (0, None), (False, None), None),
+		('flag_4', Uint64, (0, None), (False, None), None),
+		('flag_5', Uint64, (0, None), (False, None), None),
+		('flag_6', Uint64, (0, None), (False, None), None),
 		('ff_or_zero', Array, (0, None, (10,), Int), (False, None), True),
 		('ff_or_zero', Array, (0, None, (8,), Int), (False, None), True),
 		('weird_padding', SmartPadding, (4, None), (False, None), None),
-		('bounds_min_repeat', Vector3, (0, None), (False, None), None),
-		('bounds_max_repeat', Vector3, (0, None), (False, None), None),
-		('tri_flags_count', Uint, (0, None), (False, None), None),
-		('count_bits', Ushort, (0, None), (False, None), None),
-		('stuff', Array, (0, None, (9,), Ushort), (False, None), None),
-		('collision_bits', Array, (0, None, (None,), MeshCollisionBit), (False, None), None),
-		('tris_salt', Array, (0, None, (4,), Uint), (False, None), None),
+		('sub_coll_chunk', SubCollChunk, (0, None), (False, None), True),
+		('tris_salt', Array, (0, None, (4,), Uint), (False, None), True),
 		('vertices_addr', Empty, (0, None), (False, None), None),
 		('vertices', Array, (0, None, (None, 3,), Float), (False, None), None),
 		('triangles_addr', Empty, (0, None), (False, None), None),
@@ -132,19 +122,21 @@ class MeshCollision(BaseStruct):
 		yield 'tri_count', Uint64, (0, None), (False, None)
 		yield 'bounds_min', Vector3, (0, None), (False, None)
 		yield 'bounds_max', Vector3, (0, None), (False, None)
-		yield 'ones_or_zeros', Array, (0, None, (7,), Uint64), (False, None)
+		yield 'flag_0', Uint64, (0, None), (False, None)
+		yield 'flag_1', Uint64, (0, None), (False, None)
+		yield 'has_sub_coll_chunk', Uint64, (0, None), (False, None)
+		yield 'flag_3', Uint64, (0, None), (False, None)
+		yield 'flag_4', Uint64, (0, None), (False, None)
+		yield 'flag_5', Uint64, (0, None), (False, None)
+		yield 'flag_6', Uint64, (0, None), (False, None)
 		if instance.context.version <= 47:
 			yield 'ff_or_zero', Array, (0, None, (10,), Int), (False, None)
 		if instance.context.version >= 48:
 			yield 'ff_or_zero', Array, (0, None, (8,), Int), (False, None)
 		yield 'weird_padding', SmartPadding, (4, None), (False, None)
-		yield 'bounds_min_repeat', Vector3, (0, None), (False, None)
-		yield 'bounds_max_repeat', Vector3, (0, None), (False, None)
-		yield 'tri_flags_count', Uint, (0, None), (False, None)
-		yield 'count_bits', Ushort, (0, None), (False, None)
-		yield 'stuff', Array, (0, None, (9,), Ushort), (False, None)
-		yield 'collision_bits', Array, (0, None, (instance.count_bits,), MeshCollisionBit), (False, None)
-		yield 'tris_salt', Array, (0, None, (4,), Uint), (False, None)
+		if instance.has_sub_coll_chunk:
+			yield 'sub_coll_chunk', SubCollChunk, (0, None), (False, None)
+			yield 'tris_salt', Array, (0, None, (4,), Uint), (False, None)
 		yield 'vertices_addr', Empty, (0, None), (False, None)
 		yield 'vertices', Array, (0, None, (instance.vertex_count, 3,), Float), (False, None)
 		yield 'triangles_addr', Empty, (0, None), (False, None)

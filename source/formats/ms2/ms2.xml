@@ -775,6 +775,15 @@
 		<add name="zeros" type="uint" arr1="2" since="48" >probably padding</add>
 	</compound>
 
+	<compound name="SubCollChunk">
+		<add name="bounds min repeat" type="Vector3" >verbatim</add>
+		<add name="bounds max repeat" type="Vector3" >verbatim</add>
+		<add name="tri flags count" type="uint" >seems to repeat tri_count</add>
+		<add name="count bits" type="ushort"  >counts MeshCollisionBit</add>
+		<add name="stuff" type="ushort" arr1="9" >?</add>
+		<add name="collision bits" type="MeshCollisionBit" arr1="count bits" >?</add>
+	</compound>
+
 	<compound name="MeshCollision">
 		<add name="rotation" type="Matrix33"/>
 		<add name="offset" type="Vector3" >offset of mesh</add>
@@ -783,25 +792,24 @@
 		<add name="tri count" type="uint64" >tris?, counts the 25s at the end</add>
 		<add name="bounds min" type="Vector3">the smallest coordinates across all axes</add>
 		<add name="bounds max" type="Vector3">the biggest coordinates across all axes</add>
-		<add name="ones or zeros" type="uint64" arr1="7" >seemingly fixed</add>
+		<add name="flag 0" type="uint64"/>seen 1
+		<add name="flag 1" type="uint64"/>seen 1
+		<add name="has_SubCollChunk" type="uint64"/>seen 1 eg PZ widgetball_test_, or 0 in JWE2 characterscale and PZ CM_Common_Roofs
+		<add name="flag 3" type="uint64"/>0
+		<add name="flag 4" type="uint64"/>0
+		<add name="flag 5" type="uint64"/>0
+		<add name="flag 6" type="uint64"/>0
 		not sure about the vercond here, used to be until 32, since 47
 		<add name="ff or zero" type="int" arr1="10" until="47" >seemingly fixed</add>
 		<add name="ff or zero" type="int" arr1="8" since="48" >seemingly fixed</add>
 		<add name="weird padding" type="SmartPadding" arg="4">sometimes 00 byte</add>
 		everything with previous until 47 is still present in jwe2 dev
-		<add name="bounds min repeat" type="Vector3" >verbatim</add>
-		<add name="bounds max repeat" type="Vector3" >verbatim</add>
-		<add name="tri flags count" type="uint" >seems to repeat tri_count</add>
-		<add name="count bits" type="ushort"  >counts MeshCollisionBit</add>
-		<add name="stuff" type="ushort" arr1="9" >?</add>
-		<add name="collision bits" type="MeshCollisionBit" arr1="count bits" >?</add>
-		<add name="tris_salt" type="uint" arr1="4" >usually zero, nonzero in JWE2 dev footplant, [1] used as salt for tri indices</add>
+		<add name="SubCollChunk" type="SubCollChunk" cond="has_SubCollChunk">seems to repeat tri_count</add>
+		<add name="tris_salt" type="uint" arr1="4" cond="has_SubCollChunk">usually zero, nonzero in JWE2 dev footplant, [1] used as salt for tri indices</add>
 
 		<add name="vertices addr" type="Empty" >might be padding!</add>
 		<add name="vertices" type="float" arr1="vertex count" arr2="3">array of vertices</add>
-<!--		<add name="vertices" type="float" arr1="3243" arr2="3">array of vertices</add>-->
 		<add name="triangles addr" type="Empty" >might be padding!</add>
-<!--		<add name="vertices_2" type="float" arr1="312" arr2="3">array of vertices</add>-->
 		<add name="triangles" type="ushort" arr1="tri count" arr2="3">triangle indices into vertex list</add>
 
 		<add name="const" type="uint" until="47">?</add>

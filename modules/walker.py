@@ -6,6 +6,7 @@ import numpy as np
 from collections import defaultdict, Counter
 
 from generated.formats.fgm.compounds.FgmHeader import FgmHeader
+from generated.formats.ms2.enums.CollisionType import CollisionType
 from generated.formats.ovl_base import OvlContext
 
 from generated.formats.ms2 import Ms2File
@@ -96,6 +97,7 @@ def bulk_test_models(gui, start_dir, walk_ovls=True, walk_models=True):
 		flag_0 = set()
 		flag_1 = set()
 		no_bones = set()
+		mesh_collision = set()
 		if walk_models:
 			start_time = time.time()
 			ms2_files = walk_type(export_dir, extension=".ms2")
@@ -121,8 +123,8 @@ def bulk_test_models(gui, start_dir, walk_ovls=True, walk_models=True):
 									for hit in j.hitchecks:
 										flag_0.add(hit.flag_0)
 										flag_1.add(hit.flag_1)
-							if model_info.bone_info.count_7:
-								flags.add(model_info.bone_info.struct_7.flag)
+										if hit.dtype == CollisionType.MESH_COLLISION:
+											mesh_collision.add(ms2_path)
 						else:
 							no_bones.add(ms2_path)
 				except Exception as ex:
@@ -144,6 +146,7 @@ def bulk_test_models(gui, start_dir, walk_ovls=True, walk_models=True):
 		print(f"flag_0: {flag_0}")
 		print(f"flag_1: {flag_1}")
 		print(f"no_bones: {no_bones}")
+		print(f"mesh_collision: {mesh_collision}")
 		msg = f"Loaded {mf_max} models {time.time() - start_time:.2f} seconds"
 		logging.info(msg)
 		gui.update_progress(msg, value=1, vmax=1)
