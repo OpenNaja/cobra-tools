@@ -234,7 +234,7 @@ class Ms2Loader(BaseFile):
 		self.get_version()
 		name = self.root_entry.name
 		logging.info(f"Writing {name}")
-		# print(self.header)
+		print(self.header)
 		name_buffer, bone_infos, verts = self.get_ms2_buffer_datas()
 		ms2_header = struct.pack("<III", self.context.biosyn, len(bone_infos), len(self.streams))
 		# write the ms2 file

@@ -9,6 +9,7 @@ from generated.formats.base.basic import Ushort
 from generated.formats.ms2.compounds.Matrix33 import Matrix33
 from generated.formats.ms2.compounds.MeshCollisionBit import MeshCollisionBit
 from generated.formats.ms2.compounds.Vector3 import Vector3
+from generated.formats.ovl_base.compounds.Empty import Empty
 
 
 class MeshCollision(BaseStruct):
@@ -66,8 +67,14 @@ class MeshCollision(BaseStruct):
 		# always 25
 		self.zeros = Array(self.context, 0, None, (0,), Uint)
 
+		# might be padding!
+		self.vertices_addr = Empty(self.context, 0, None)
+
 		# array of vertices
 		self.vertices = Array(self.context, 0, None, (0,), Float)
+
+		# might be padding!
+		self.triangles_addr = Empty(self.context, 0, None)
 
 		# triangle indices into vertex list
 		self.triangles = Array(self.context, 0, None, (0,), Ushort)
@@ -101,7 +108,9 @@ class MeshCollision(BaseStruct):
 		('stuff', Array, (0, None, (9,), Ushort), (False, None), True),
 		('collision_bits', Array, (0, None, (None,), MeshCollisionBit), (False, None), True),
 		('zeros', Array, (0, None, (4,), Uint), (False, None), True),
+		('vertices_addr', Empty, (0, None), (False, None), None),
 		('vertices', Array, (0, None, (None, 3,), Float), (False, None), None),
+		('triangles_addr', Empty, (0, None), (False, None), None),
 		('triangles', Array, (0, None, (None, 3,), Ushort), (False, None), None),
 		('const', Uint, (0, None), (False, None), True),
 		('triangle_flags', Array, (0, None, (None,), Uint), (False, None), True),
@@ -119,11 +128,11 @@ class MeshCollision(BaseStruct):
 		yield 'bounds_min', Vector3, (0, None), (False, None)
 		yield 'bounds_max', Vector3, (0, None), (False, None)
 		yield 'ones_or_zeros', Array, (0, None, (7,), Uint64), (False, None)
-		if instance.context.version <= 32:
+		if instance.context.version <= 47:
 			yield 'ff_or_zero', Array, (0, None, (10,), Int), (False, None)
-		if instance.context.version >= 47:
+		if instance.context.version >= 48:
 			yield 'ff_or_zero', Array, (0, None, (8,), Int), (False, None)
-		if instance.context.version <= 32:
+		if instance.context.version <= 47:
 			yield 'bounds_min_repeat', Vector3, (0, None), (False, None)
 			yield 'bounds_max_repeat', Vector3, (0, None), (False, None)
 			yield 'tri_flags_count', Uint, (0, None), (False, None)
@@ -131,10 +140,12 @@ class MeshCollision(BaseStruct):
 			yield 'stuff', Array, (0, None, (9,), Ushort), (False, None)
 			yield 'collision_bits', Array, (0, None, (instance.count_bits,), MeshCollisionBit), (False, None)
 			yield 'zeros', Array, (0, None, (4,), Uint), (False, None)
+		yield 'vertices_addr', Empty, (0, None), (False, None)
 		yield 'vertices', Array, (0, None, (instance.vertex_count, 3,), Float), (False, None)
+		yield 'triangles_addr', Empty, (0, None), (False, None)
 		yield 'triangles', Array, (0, None, (instance.tri_count, 3,), Ushort), (False, None)
-		if instance.context.version <= 32:
+		if instance.context.version <= 47:
 			yield 'const', Uint, (0, None), (False, None)
-		if instance.context.version <= 32 and instance.const:
+		if instance.context.version <= 47 and instance.const:
 			yield 'triangle_flags', Array, (0, None, (instance.tri_flags_count,), Uint), (False, None)
 		yield 'zero_end', Uint, (0, None), (False, None)

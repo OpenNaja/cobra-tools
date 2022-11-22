@@ -784,21 +784,26 @@
 		<add name="bounds min" type="Vector3">the smallest coordinates across all axes</add>
 		<add name="bounds max" type="Vector3">the biggest coordinates across all axes</add>
 		<add name="ones or zeros" type="uint64" arr1="7" >seemingly fixed</add>
-		<add name="ff or zero" type="int" arr1="10" until="32" >seemingly fixed</add>
-		<add name="ff or zero" type="int" arr1="8" since="47" >seemingly fixed</add>
-		<add name="bounds min repeat" type="Vector3" until="32">verbatim</add>
-		<add name="bounds max repeat" type="Vector3" until="32">verbatim</add>
-		<add name="tri flags count" type="uint" until="32" >seems to repeat tri_count</add>
-		<add name="count bits" type="ushort" until="32" >counts MeshCollisionBit</add>
-		<add name="stuff" type="ushort" arr1="9" until="32">?</add>
-		<add name="collision bits" type="MeshCollisionBit" arr1="count bits" until="32">?</add>
-		<add name="zeros" type="uint" arr1="4" until="32" >always 25</add>
+		not sure about the vercond here, used to be until 32, since 47
+		<add name="ff or zero" type="int" arr1="10" until="47" >seemingly fixed</add>
+		<add name="ff or zero" type="int" arr1="8" since="48" >seemingly fixed</add>
+		<add name="bounds min repeat" type="Vector3" until="47">verbatim</add>
+		<add name="bounds max repeat" type="Vector3" until="47">verbatim</add>
+		<add name="tri flags count" type="uint" until="47" >seems to repeat tri_count</add>
+		<add name="count bits" type="ushort" until="47" >counts MeshCollisionBit</add>
+		<add name="stuff" type="ushort" arr1="9" until="47">?</add>
+		<add name="collision bits" type="MeshCollisionBit" arr1="count bits" until="47">?</add>
+		<add name="zeros" type="uint" arr1="4" until="47" >always 25</add>
 
+		<add name="vertices addr" type="Empty" >might be padding!</add>
 		<add name="vertices" type="float" arr1="vertex count" arr2="3">array of vertices</add>
+<!--		<add name="vertices" type="float" arr1="3243" arr2="3">array of vertices</add>-->
+		<add name="triangles addr" type="Empty" >might be padding!</add>
+<!--		<add name="vertices_2" type="float" arr1="312" arr2="3">array of vertices</add>-->
 		<add name="triangles" type="ushort" arr1="tri count" arr2="3">triangle indices into vertex list</add>
 
-		<add name="const" type="uint" until="32">?</add>
-		<add name="triangle flags" type="uint" arr1="tri flags count" cond="const" until="32">always 25</add>
+		<add name="const" type="uint" until="47">?</add>
+		<add name="triangle flags" type="uint" arr1="tri flags count" cond="const" until="47">always 25</add>
 		<add name="zero end" type="uint" >might be padding!</add>
 	</compound>
 

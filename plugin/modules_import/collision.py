@@ -153,7 +153,19 @@ def import_cylinderbv(cylinder, hitcheck_name):
 def import_meshbv(coll, hitcheck_name, corrector):
 	# print(coll)
 	scene = bpy.context.scene
+	good_tris = []
+	for i, tri in enumerate(list(coll.triangles)):
+		# print(i, tri)
+		for v in tri:
+			if v >= len(coll.vertices):
+				print(f"{i} {tri} is bad")
+				break
+		else:
+			continue
+		good_tris.append(tri)
 	b_obj, b_me = mesh_from_data(scene, hitcheck_name, [unpack_swizzle(v) for v in coll.vertices], list(coll.triangles), coll_name="hitchecks")
+	# b_obj, b_me = mesh_from_data(scene, hitcheck_name, [unpack_swizzle(v) for v in coll.vertices], good_tris, coll_name="hitchecks")
+	# b_obj, b_me = mesh_from_data(scene, hitcheck_name, [unpack_swizzle(v) for v in coll.vertices], [], coll_name="hitchecks")
 	mat = import_collision_matrix(coll.rotation, corrector)
 	mat.translation = unpack_swizzle((coll.offset.x, coll.offset.y, coll.offset.z))
 	b_obj.matrix_local = mat
