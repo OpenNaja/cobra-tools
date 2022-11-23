@@ -14,6 +14,9 @@ from generated.formats.ovl import OvlFile
 from ovl_util import interaction
 from root_path import root_dir
 
+# get this huge dict from fgm walker, use in ms2 walker
+shader_map = {}
+
 
 def walk_type(start_dir, extension=".ovl"):
 	logging.info(f"Scanning {start_dir} for {extension} files")
@@ -91,6 +94,8 @@ def bulk_test_models(gui, start_dir, walk_ovls=True, walk_models=True):
 
 		# holds different types of flag - list of byte maps pairs
 		type_dic = {}
+		mats = set()
+		shaders = {}
 		# for last_count
 		last_counts = set()
 		flags = set()
@@ -109,6 +114,13 @@ def bulk_test_models(gui, start_dir, walk_ovls=True, walk_models=True):
 					# ms2_data.load(ms2_path, map_bytes=True, entry=True)
 					ms2_data.load(ms2_path)
 					for mdl2_name, model_info in zip(ms2_data.mdl_2_names, ms2_data.model_infos):
+						for i, mat in enumerate(model_info.model.materials):
+							mats.add(mat.some_index)
+							fgm = mat.name.lower()
+							shader = shader_map[fgm]
+							if mat.some_index not in shaders:
+								shaders[mat.some_index] = set()
+							shaders[mat.some_index].add(shader.lower())
 						for i, wrapper in enumerate(model_info.model.meshes):
 							mesh_id = f"{mdl2_name}[{i}] in {ms2_name}"
 							mesh = wrapper.mesh
@@ -147,6 +159,8 @@ def bulk_test_models(gui, start_dir, walk_ovls=True, walk_models=True):
 		print(f"flag_1: {flag_1}")
 		print(f"no_bones: {no_bones}")
 		print(f"mesh_collision: {mesh_collision}")
+		print(f"mats: {mats}")
+		print(f"shaders: {shaders}")
 		msg = f"Loaded {mf_max} models {time.time() - start_time:.2f} seconds"
 		logging.info(msg)
 		gui.update_progress(msg, value=1, vmax=1)
@@ -185,6 +199,7 @@ def get_fgm_values(gui, start_dir, walk_ovls=True, walk_fgms=True):
 		attributes = {}
 		textures = set()
 		shaders = set()
+		fgm_to_shader = {}
 		shader_textures = defaultdict(set)
 		shader_attribs = defaultdict(set)
 		shader_attrib_stats = defaultdict(Counter)
@@ -198,6 +213,7 @@ def get_fgm_values(gui, start_dir, walk_ovls=True, walk_fgms=True):
 				try:
 					header = FgmHeader.from_xml_file(fgm_path, context)
 					shaders.add(header.shader_name)
+					fgm_to_shader[os.path.splitext(fgm_name)[0].lower()] = header.shader_name
 					for i, attrib in enumerate(header.attributes.data):
 						val = tuple(header.value_foreach_attributes.data[i].value)
 						if attributes.get(attrib.name):
@@ -223,6 +239,10 @@ def get_fgm_values(gui, start_dir, walk_ovls=True, walk_fgms=True):
 			print("\nThe following errors occurred:")
 			for file_path, ex in errors:
 				print(file_path, str(ex))
+
+		out_path = os.path.join(export_dir, f"fgm_{os.path.basename(start_dir)}_shader_map.py")
+		with open(out_path, "w") as f:
+			f.write(f"shader_map = {fgm_to_shader}")
 
 		out_path = os.path.join(export_dir, f"fgm_{os.path.basename(start_dir)}.py")
 		with open(out_path, "w") as f:
