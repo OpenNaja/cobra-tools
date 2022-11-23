@@ -471,7 +471,6 @@
 		<add name="unks" type="ushort" arr1="7">?</add>
 		<add name="pad" type="ushort" arr1="3" > </add>
 
-		todo - versioning
 		<add name="materials" type="ArrayPointer" template="MaterialName" arg="num_materials"/>
 		<add name="lods" type="ArrayPointer" template="LodInfo" arg="num_lods"/>
 		<add name="objects" type="ArrayPointer" template="Object" arg="num_objects"/>
