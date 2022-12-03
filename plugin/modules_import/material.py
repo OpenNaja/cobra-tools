@@ -30,11 +30,15 @@ class BaseShader:
 	shaders = ()
 	games = ()
 
+	uv_map = {}
+
 	# for texture channel mapping
 	diffuse_slots = (
 		"pdiffusetexture", "pbasediffusetexture", "pbasecolourtexture", "pbasecolourtexture_rgb",
 		"pbasecolourandmasktexture_rgb", "pdiffusealphatexture", "pdiffuse_alphatexture",
-		"palbinobasecolourandmasktexture_rgb", "pdinosaurfeathers_basediffusetexture")
+		"palbinobasecolourandmasktexture_rgb",)
+
+	detail_slots = ()
 
 	ao_slots = (
 		"paotexture", "pbasepackedtexture_a", "pbaseaotexture_r", "pbaseaotexture",
@@ -94,40 +98,66 @@ class BaseShader:
 			diffuse = diffuse_premix
 		return diffuse
 
-	def build_tex_nodes_dict(self, fgm_data, in_dir, tree):
+	def build_tex_nodes_dict(self, fgm_data, in_dir, tree, principled):
 		"""Load all png files that match tex files referred to by the fgm"""
 		all_textures = [file for file in os.listdir(in_dir) if file.lower().endswith(".png")]
 		self.tex_dic = {}
+		self.uv_dic = {}
 		tex_check = set()
-		for dep_info in fgm_data.name_foreach_textures.data:
-			tex_name = dep_info.dependency_name.data
-			if not tex_name:
-				continue
-			png_base, ext = os.path.splitext(tex_name.lower())
-			# ignore texture types that we have no use for
-			if check_any(("blendweights", "warpoffset", "pshellmap", "piebald", "markingnoise", "pscarlut"), png_base):
-				continue
+		for text_data, dep_info in zip(fgm_data.textures.data, fgm_data.name_foreach_textures.data):
+			text_name = text_data.name.lower()
+			if text_data.dtype == FgmDtype.RGBA:
+				# todo - flexicolourmasks - create color and blending nodes?
+				for c_name, b_name in dest_map.items():
+					if c_name in text_name:
+						color = tree.nodes.new('ShaderNodeRGB')
+						color.label = text_name
+						color.outputs[0].default_value = (
+							text_data.value[0].r / 255,
+							text_data.value[0].g / 255,
+							text_data.value[0].b / 255,
+							text_data.value[0].a / 255
+						)
+						tree.links.new(color.outputs[0], principled.inputs[b_name])
+						break
+			else:
+				tex_name = dep_info.dependency_name.data
+				if not tex_name:
+					raise AttributeError(f"Texture name is not set for {text_name}")
+				png_base, ext = os.path.splitext(tex_name.lower())
+				# ignore texture types that we have no use for
+				if check_any(("blendweights", "warpoffset", "pshellmap", "piebald", "markingnoise", "pscarlut"), png_base):
+					continue
 
-			def check_dupe(file):
-				"""Make sure to catch only bare or channel-split png and avoid catching different tex files that happen
-				to start with the same id such as pdiffuse and pdiffusemelanistic"""
-				return file.lower().startswith(f"{png_base}.") or file.lower().startswith(f"{png_base}_")
+				def check_dupe(file):
+					"""Make sure to catch only bare or channel-split png and avoid catching different tex files that happen
+					to start with the same id such as pdiffuse and pdiffusemelanistic"""
+					return file.lower().startswith(f"{png_base}.") or file.lower().startswith(f"{png_base}_")
 
-			textures = [file for file in all_textures if check_dupe(file)]
+				textures = [file for file in all_textures if check_dupe(file)]
 
-			# some fgms, such as PZ red fox whiskers, reuse the same tex file in different slots, so don't add new nodes
-			if png_base not in tex_check:
-				tex_check.add(png_base)
-				# Until better option to organize the shader info, create texture group node
-				tex_frame = tree.nodes.new('NodeFrame')
-				tex_frame.label = png_base
+				# some fgms, such as PZ red fox whiskers, reuse the same tex file in different slots, so don't add new nodes
+				if png_base not in tex_check:
+					# assume layer 0 if nothing is specified
+					uv_i = self.uv_map.get(text_name, 0)
+					if uv_i not in self.uv_dic:
+						uv_node = tree.nodes.new('ShaderNodeUVMap')
+						uv_node.uv_map = f"UV{uv_i}"
+						self.uv_dic[uv_i] = uv_node
+					else:
+						uv_node = self.uv_dic[uv_i]
+					tex_check.add(png_base)
+					# Until better option to organize the shader info, create texture group node
+					tex_frame = tree.nodes.new('NodeFrame')
+					tex_frame.label = png_base
 
-				for png_name in textures:
-					png_path = os.path.join(in_dir, png_name)
-					b_tex = load_tex_node(tree, png_path)
-					b_tex.parent = tex_frame  # assign the texture frame to this png
-					k = png_name.lower().split(".")[1]
-					self.tex_dic[k] = b_tex
+					for png_name in textures:
+						png_path = os.path.join(in_dir, png_name)
+						b_tex = load_tex_node(tree, png_path)
+						b_tex.parent = tex_frame  # assign the texture frame to this png
+						k = png_name.lower().split(".")[1]
+						self.tex_dic[k] = b_tex
+						tree.links.new(uv_node.outputs[0], b_tex.inputs[0])
 
 	@classmethod
 	def validate(cls, fgm_data):
@@ -170,6 +200,32 @@ class Metallic_Roughness_Clip_Geometry_Decal(BaseShader):
 	shaders = ("Metallic_Roughness_Clip_Geometry_Decal",)
 
 	alpha_slots = ("proughnesspackedtexture_a",)
+
+
+class JWE2Feathers(BaseShader):
+	shaders = ("DinosaurFeathers_ClipDoubleSided",)
+
+	uv_map = {
+		"pfeathers_aoheightopacitytransmission_packedtexture": 1,
+		"pfeathers_basecolourtexture": 1,
+		"pfeathers_roughnesspackedtexture": 1,
+	}
+
+	diffuse_slots = ("pdinosaurfeathers_basediffusetexture",)
+
+	detail_slots = ("pfeathers_basecolourtexture",)
+
+	ao_slots = ("pfeathers_aoheightopacitytransmission_packedtexture_r",)
+
+	alpha_slots = ("pfeathers_aoheightopacitytransmission_packedtexture_b",)
+
+	normal_slots = ("pfeathers_normaltexture_rg",)
+
+	specular_slots = ("pfeathers_roughnesspackedtexture_b",)
+
+	roughness_slots = ("pfeathers_roughnesspackedtexture_g",)
+
+	metallic_slots = ("pfeathers_roughnesspackedtexture_r",)
 
 
 def pick_shader(fgm_data):
@@ -257,25 +313,6 @@ def create_material(in_dir, matname):
 	output = tree.nodes.new('ShaderNodeOutputMaterial')
 	principled = tree.nodes.new('ShaderNodeBsdfPrincipled')
 
-	# deal with RGBA texture info first before going for the texture files.
-	for text_data in fgm_data.textures.data:
-		if text_data.dtype == FgmDtype.RGBA:
-			text_name = text_data.name.lower()
-			# print(text_data)
-			# todo - flexicolourmasks - create color and blending nodes?
-			for c_name, b_name in dest_map.items():
-				if c_name in text_name:
-					color = tree.nodes.new('ShaderNodeRGB')
-					color.label = text_name
-					color.outputs[0].default_value = (
-						text_data.value[0].r / 255,
-						text_data.value[0].g / 255,
-						text_data.value[0].b / 255,
-						text_data.value[0].a / 255
-					)
-					tree.links.new(color.outputs[0], principled.inputs[b_name])
-					break
-
 	# color_ramp = fgm_data.get_color_ramp("colourKey", "RGB")
 	# opacity_ramp = fgm_data.get_color_ramp("opacityKey", "Value")
 	# if color_ramp and opacity_ramp:
@@ -291,7 +328,7 @@ def create_material(in_dir, matname):
 	# 		e.alpha = opacity[0]
 	b_mat["shader_name"] = fgm_data.shader_name
 	shader = pick_shader(fgm_data)
-	shader.build_tex_nodes_dict(fgm_data, in_dir, tree)
+	shader.build_tex_nodes_dict(fgm_data, in_dir, tree, principled)
 
 	# get diffuse
 	for diffuse in shader.get_tex(shader.diffuse_slots):
@@ -303,6 +340,15 @@ def create_material(in_dir, matname):
 			diffuse_premix.inputs["Fac"].default_value = 1.0
 			tree.links.new(diffuse.outputs[0], diffuse_premix.inputs["Color1"])
 			tree.links.new(ao.outputs[0], diffuse_premix.inputs["Color2"])
+			diffuse = diffuse_premix
+		# apply detail to diffuse
+		for detail in shader.get_tex(shader.detail_slots):
+			detail.image.colorspace_settings.name = "Non-Color"
+			diffuse_premix = tree.nodes.new('ShaderNodeMixRGB')
+			diffuse_premix.blend_type = "OVERLAY"
+			diffuse_premix.inputs["Fac"].default_value = 1.0
+			tree.links.new(diffuse.outputs[0], diffuse_premix.inputs["Color1"])
+			tree.links.new(detail.outputs[0], diffuse_premix.inputs["Color2"])
 			diffuse = diffuse_premix
 
 		diffuse = shader.add_marking_nodes(diffuse, tree)
