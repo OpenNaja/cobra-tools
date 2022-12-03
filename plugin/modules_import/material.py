@@ -27,8 +27,8 @@ class BaseShader:
 	# for texture channel mapping
 	diffuse_slots = (
 		"pdiffusetexture", "pbasediffusetexture", "pbasecolourtexture", "pbasecolourtexture_rgb",
-		"pbasecolourandmasktexture", "pdiffusealphatexture", "pdiffuse_alphatexture",
-		"palbinobasecolourandmasktexture", "pdinosaurfeathers_basediffusetexture")
+		"pbasecolourandmasktexture_rgb", "pdiffusealphatexture", "pdiffuse_alphatexture",
+		"palbinobasecolourandmasktexture_rgb", "pdinosaurfeathers_basediffusetexture")
 
 	ao_slots = ("paotexture", "pbasepackedtexture_a", "pbaseaotexture_r", "pbaseaotexture") # "pnormaltexture_a"
 
@@ -88,25 +88,35 @@ class BaseShader:
 		"""Load all png files that match tex files referred to by the fgm"""
 		all_textures = [file for file in os.listdir(in_dir) if file.lower().endswith(".png")]
 		self.tex_dic = {}
+		tex_check = set()
 		for dep_info in fgm_data.name_foreach_textures.data:
-			if not dep_info.dependency_name.data:
+			tex_name = dep_info.dependency_name.data
+			if not tex_name:
 				continue
-			png_base, ext = os.path.splitext(dep_info.dependency_name.data.lower())
+			png_base, ext = os.path.splitext(tex_name.lower())
 			# ignore texture types that we have no use for
-			if check_any(("blendweights", "warpoffset", "pshellmap"), png_base):
+			if check_any(("blendweights", "warpoffset", "pshellmap", "piebald", "markingnoise"), png_base):
 				continue
-			textures = [file for file in all_textures if file.lower().startswith(png_base)]
 
-			# Until better option to organize the shader info, create texture group node
-			tex_frame = tree.nodes.new('NodeFrame')
-			tex_frame.label = dep_info.dependency_name.data.lower()
+			def check_dupe(file):
+				"""Make sure to catch only bare or channel-split png and avoid catching different tex files that happen
+				to start with the same id such as pdiffuse and pdiffusemelanistic"""
+				return file.lower().startswith(f"{png_base}.") or file.lower().startswith(f"{png_base}_")
+			textures = [file for file in all_textures if check_dupe(file)]
 
-			for png_name in textures:
-				png_path = os.path.join(in_dir, png_name)
-				b_tex = load_tex_node(tree, png_path)
-				b_tex.parent = tex_frame  # assign the texture frame to this png
-				k = png_name.lower().split(".")[1]
-				self.tex_dic[k] = b_tex
+			# some fgms, such as PZ red fox whiskers, reuse the same tex file in different slots, so don't add new nodes
+			if png_base not in tex_check:
+				tex_check.add(png_base)
+				# Until better option to organize the shader info, create texture group node
+				tex_frame = tree.nodes.new('NodeFrame')
+				tex_frame.label = png_base
+
+				for png_name in textures:
+					png_path = os.path.join(in_dir, png_name)
+					b_tex = load_tex_node(tree, png_path)
+					b_tex.parent = tex_frame  # assign the texture frame to this png
+					k = png_name.lower().split(".")[1]
+					self.tex_dic[k] = b_tex
 
 	@classmethod
 	def validate(cls, fgm_data):

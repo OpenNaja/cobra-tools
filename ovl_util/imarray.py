@@ -124,7 +124,11 @@ def get_split_mode(png_file_path, compression):
 			return "R_G"
 		else:
 			return "RG"
-	if check_any(("pmossbasecolourroughnesspackedtexture", "ppackedtexture", "palbedoandroughnessdetail", "pnormaltexture", "pbasecolourtexture"), png_file_path):
+	if check_any(
+			(
+					"pmossbasecolourroughnesspackedtexture", "ppackedtexture", "palbedoandroughnessdetail", "pnormaltexture",
+					"pbasecolourtexture", "pbasecolourandmasktexture", "palbinobasecolourandmasktexture"
+			), png_file_path):
 		return "RGB_A"
 	# JWE2 only
 	if check_any(("pbasenormaltexture", "pgradheightarray"), png_file_path):
