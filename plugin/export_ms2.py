@@ -477,6 +477,7 @@ def save(filepath='', apply_transforms=False, edit_bones=False, use_stock_normal
 		if scene.name not in model_info_lut:
 			logging.warning(f"Scene '{scene.name}' was not found in the MS2 file, skipping")
 			continue
+		logging.debug(f"Exporting scene {scene.name}")
 
 		# make active scene
 		bpy.context.window.scene = scene
@@ -518,6 +519,7 @@ def save(filepath='', apply_transforms=False, edit_bones=False, use_stock_normal
 			m_lod.objects = []
 			model_info.model.lods.append(m_lod)
 			for b_ob in lod_coll.objects:
+				logging.debug(f"Exporting b_ob {b_ob.name}")
 				b_me = b_ob.data
 				m_lod.stream_index = get_property(b_me, "stream")
 				# JWE2 fur sets this as a mesh property
@@ -534,6 +536,7 @@ def save(filepath='', apply_transforms=False, edit_bones=False, use_stock_normal
 											   use_stock_normals_tangents, m_lod, shell_index, shell_count)
 						wrapper.mesh.lod_index = lod_i
 					for b_mat in b_me.materials:
+						logging.debug(f"Exporting material {b_mat.name}")
 						if b_mat not in b_materials:
 							b_materials.append(b_mat)
 							export_material(model_info, b_mat)
