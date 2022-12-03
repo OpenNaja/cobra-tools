@@ -502,24 +502,32 @@ def fill_kd_tree_co(iterable):
 	return kd
 
 
-def is_fin(ob):
+def _check_mats(ob, func):
 	if not ob.data.materials:
 		raise AttributeError(f"{ob.name} has no materials!")
 	for b_mat in ob.data.materials:
 		if not b_mat:
 			raise AttributeError(f"{ob.name} has an empty material slot!")
-		if b_mat.name.lower().endswith(FUR_FIN):
+		if func(b_mat):
 			return True
+
+
+def is_fin_mat(b_mat):
+	if b_mat.name.lower().endswith(FUR_FIN):
+		return True
+
+
+def is_shell_mat(b_mat):
+	if b_mat.name.lower().endswith(FUR_SHELL):
+		return True
+
+
+def is_fin(ob):
+	_check_mats(ob, is_fin_mat)
 
 
 def is_shell(ob):
-	if not ob.data.materials:
-		raise AttributeError(f"{ob.name} has no materials!")
-	for b_mat in ob.data.materials:
-		if not b_mat:
-			raise AttributeError(f"{ob.name} has an empty material slot!")
-		if b_mat.name.lower().endswith(FUR_SHELL):
-			return True
+	_check_mats(ob, is_shell_mat)
 
 
 def num_fur_as_weights(mat_name):

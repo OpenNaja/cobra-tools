@@ -11,14 +11,14 @@ from generated.formats.ms2.compounds.LodInfo import LodInfo
 from generated.formats.ms2.compounds.MaterialName import MaterialName
 from generated.formats.ms2.compounds.MeshDataWrap import MeshDataWrap
 from generated.formats.ms2.compounds.Object import Object
-from generated.formats.ms2 import Ms2File
+from generated.formats.ms2 import Ms2File, is_pz
 from generated.formats.ms2.compounds.packing_utils import remap, USHORT_MAX
 from generated.formats.ms2.enums.MeshFormat import MeshFormat
 from plugin.modules_export.armature import get_armature, handle_transforms, export_bones_custom
 from plugin.modules_export.collision import export_bounds
 from plugin.modules_import.armature import get_bone_names
 from plugin.utils.matrix_util import evaluate_mesh, ensure_tri_modifier
-from plugin.utils.shell import get_collection, is_shell, is_fin, num_fur_as_weights
+from plugin.utils.shell import get_collection, is_shell, is_fin, num_fur_as_weights, is_fin_mat, is_shell_mat
 from root_path import root_dir
 
 mesh_mode = os.path.isdir(os.path.join(root_dir, ".git"))
@@ -44,9 +44,25 @@ def has_objects_in_scene(scene):
 
 def export_material(ms2, b_mat):
 	mat = MaterialName(ms2.context)
-	mat.some_index = get_property(b_mat, "some_index")
+	try:
+		# use some_index from existing meshes
+		mat.blend_mode = get_property(b_mat, "some_index")
+	except KeyError:
+		mat.blend_mode = get_property(b_mat, "blend_mode", default=get_blend_mode(b_mat, ms2))
 	mat.name = b_mat.name
 	ms2.model.materials.append(mat)
+
+
+def get_blend_mode(b_mat, ms2):
+	logging.info(f"Determining blend mode for {b_mat.name}")
+	if is_fin_mat(b_mat):
+		return 7
+	elif is_shell_mat(b_mat):
+		if is_pz(ms2):
+			return 263
+		else:
+			return 6
+	return 0
 
 
 def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_transforms, use_stock_normals_tangents, m_lod, shell_index, shell_count):

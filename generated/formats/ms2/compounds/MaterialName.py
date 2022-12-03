@@ -15,26 +15,28 @@ class MaterialName(BaseStruct):
 		# index into ms2 names array
 		self.name_index = 0
 
-		# unknown, nonzero in PZ flamingo juvenile, might be junk (padding)
-		self.some_index = 0
+		# specifies the blend mode, highly consistent to shader type used
+		# PZ: 263: {'furshell', 'furpatchworkbaldnessshell', 'furpatchworkshell'}, 6: {'furpatchworkbaldnessfin', 'furfin', 'furpatchworkfin'}, 8: {'animal_whisker'}, 15: {'glass_textured_weather'}
+		# JWE2: 7: {'dinosaurfur_vanilla_shell'}, 6: {'dinosaurfur_vanilla_fin'}
+		self.blend_mode = 0
 		if set_default:
 			self.set_defaults()
 
 	_attribute_list = BaseStruct._attribute_list + [
-		('name_index', Uint, (0, None), (False, None), True),
 		('name_index', Ushort, (0, None), (False, None), True),
-		('some_index', Uint, (0, None), (False, None), True),
-		('some_index', Ushort, (0, None), (False, None), True),
+		('name_index', Uint, (0, None), (False, None), True),
+		('blend_mode', Ushort, (0, None), (False, None), True),
+		('blend_mode', Uint, (0, None), (False, None), True),
 		]
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		if instance.context.version >= 47:
-			yield 'name_index', Uint, (0, None), (False, None)
 		if instance.context.version <= 32:
 			yield 'name_index', Ushort, (0, None), (False, None)
 		if instance.context.version >= 47:
-			yield 'some_index', Uint, (0, None), (False, None)
+			yield 'name_index', Uint, (0, None), (False, None)
 		if instance.context.version <= 32:
-			yield 'some_index', Ushort, (0, None), (False, None)
+			yield 'blend_mode', Ushort, (0, None), (False, None)
+		if instance.context.version >= 47:
+			yield 'blend_mode', Uint, (0, None), (False, None)

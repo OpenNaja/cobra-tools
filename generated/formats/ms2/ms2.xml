@@ -197,10 +197,13 @@
 	</compound>
 
 	<compound name="MaterialName">
-		<add name="name index" type="uint" since="47">index into ms2 names array</add>
 		<add name="name index" type="ushort" until="32">index into ms2 names array</add>
-		<add name="some index" type="uint" since="47">unknown, nonzero in PZ flamingo juvenile, might be junk (padding)</add>
-		<add name="some index" type="ushort" until="32">unknown, nonzero in PZ flamingo juvenile, might be junk (padding)</add>
+		<add name="name index" type="uint" since="47">index into ms2 names array</add>
+		<add name="blend_mode" type="ushort" until="32"/>
+		<add name="blend_mode" type="uint" since="47">specifies the blend mode, highly consistent to shader type used
+		PZ: 263: {'furshell', 'furpatchworkbaldnessshell', 'furpatchworkshell'}, 6: {'furpatchworkbaldnessfin', 'furfin', 'furpatchworkfin'}, 8: {'animal_whisker'}, 15: {'glass_textured_weather'}
+		JWE2: 7: {'dinosaurfur_vanilla_shell'}, 6: {'dinosaurfur_vanilla_fin'}
+		</add>
 	</compound>
 
 	<compound name="LodInfo">

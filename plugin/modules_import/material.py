@@ -1,7 +1,6 @@
 import inspect
 import logging
 import sys
-import traceback
 
 import bpy
 import os
@@ -354,26 +353,6 @@ def create_material(in_dir, matname):
 		b_mat.blend_method = "OPAQUE"
 		tree.links.new(principled.outputs[0], output.inputs[0])
 
-	# # inaki: Ugly per-shader basecolour alpha, temporary
-	# # in Metallic_Roughness_Clip_Weather_BC7 pbasecolour alpha is metallicness
-	# elif 'Clip' in fgm_data.shader_name and "pbasecolourtexture_a" in shader.tex_dic:
-	# 	alpha = shader.tex_dic["pbasecolourtexture_a"]
-	# 	alpha_pass = alpha.outputs[0]
-	# elif 'Metallic_Roughness_Opaque_BC7' in fgm_data.shader_name and "pbasecolourtexture_a" in shader.tex_dic:
-	# 	tree.links.new(shader.tex_dic["pbasecolourtexture_a"].outputs[0], principled.inputs[6])  # metallicness
-	#
-	# # inaki: Ugly per-shader basecolour alpha, temporary
-	# # in Metallic_Roughness_Clip_Weather_BC7 pnormaltexture alpha is AO
-	# if 'Clip' in fgm_data.shader_name and "pnormaltexture_a" in shader.tex_dic:
-	# 	ao = shader.tex_dic["pnormaltexture_a"]
-	# 	ao.image.colorspace_settings.name = "Non-Color"
-	# 	diffuse_premix = tree.nodes.new('ShaderNodeMixRGB')
-	# 	diffuse_premix.blend_type = "MULTIPLY"
-	# 	diffuse_premix.inputs["Fac"].default_value = 1.0
-	# 	tree.links.new(diffuse.outputs[0], diffuse_premix.inputs["Color1"])
-	# 	tree.links.new(ao.outputs[0], diffuse_premix.inputs["Color2"])
-	# 	diffuse = diffuse_premix
-
 	nodes_iterate(tree, output)
 	return b_mat
 
@@ -381,7 +360,6 @@ def create_material(in_dir, matname):
 def import_material(created_materials, in_dir, b_me, material):
 	material_name = material.name
 	try:
-
 		# try finding the material first in the user libraries, only use lowercase
 		load_material_from_libraries(created_materials, material_name.lower())
 
@@ -394,25 +372,18 @@ def import_material(created_materials, in_dir, b_me, material):
 
 		# if the material is in blender first, just apply the 
 		# existing one.
-		if b_mat:
-			created_materials[material_name] = b_mat
-			b_mat["some_index"] = material.some_index
-			b_me.materials.append(b_mat)
-			return
-
-		# additionally keep track here so we create a node tree only once during import
-		# but make sure that we overwrite existing materials.
-		# TODO: this might be redundant since we are checking now materials
-		# exist in the previous code block.
-		if material_name not in created_materials:
-			b_mat = create_material(in_dir, material_name)
-			created_materials[material_name] = b_mat
-		else:
-			logging.info(f"Already imported material {material_name}")
-			b_mat = created_materials[material_name]
-		# store material unknowns
-		b_mat["some_index"] = material.some_index
+		if not b_mat:
+			# additionally keep track in created_materials so we create a node tree only once during import
+			# but make sure that we overwrite existing materials.
+			# TODO: this might be redundant since we are checking now materials exist in the previous code block.
+			if material_name not in created_materials:
+				b_mat = create_material(in_dir, material_name)
+				created_materials[material_name] = b_mat
+			else:
+				logging.info(f"Already imported material {material_name}")
+				b_mat = created_materials[material_name]
+		# store material data
+		b_mat["blend_mode"] = material.blend_mode
 		b_me.materials.append(b_mat)
 	except:
-		logging.warning(f"Material {material_name} failed")
-		traceback.print_exc()
+		logging.exception(f"Material {material_name} failed")
