@@ -380,9 +380,9 @@ class Ms2File(Ms2InfoHeader, IoFile):
 						obj.material = material
 						flag = int(obj.mesh.flag) if hasattr(obj.mesh, "flag") else None
 						logging.debug(
-							f"Mesh: {obj.mesh_index} Material: {material.name} Material Unk: {material.some_index} "
+							f"Mesh: {obj.mesh_index} Material: {material.name} Blend Mode: {material.blend_mode}"
 							f"Lod Index: {obj.mesh.poweroftwo} Flag: {flag}")
-					except Exception as err:
+					except:
 						logging.exception(f"Couldn't match material {obj.material_index} to mesh {obj.mesh_index}")
 
 	def clear(self):
