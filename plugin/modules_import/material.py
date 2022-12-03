@@ -30,7 +30,8 @@ class BaseShader:
 		"pbasecolourandmasktexture_rgb", "pdiffusealphatexture", "pdiffuse_alphatexture",
 		"palbinobasecolourandmasktexture_rgb", "pdinosaurfeathers_basediffusetexture")
 
-	ao_slots = ("paotexture", "pbasepackedtexture_a", "pbaseaotexture_r", "pbaseaotexture") # "pnormaltexture_a"
+	ao_slots = (
+		"paotexture", "pbasepackedtexture_a", "pbaseaotexture_r", "pbaseaotexture", "proughnessaopackedtexturedetailbase_r")
 
 	normal_slots = ("pnormaltexture", "pnormaltexture_rg", "pnormaltexture_rgb", "pbasenormaltexture_rg", "pbasenormaltexture_rgb",)
 

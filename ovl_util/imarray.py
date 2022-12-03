@@ -120,7 +120,7 @@ def get_split_mode(png_file_path, compression):
 	# PZ normal maps
 	if check_any(("BC5",), compression):
 		# JWE2 pyro
-		if check_any(("pbaseaotexture",), png_file_path):
+		if check_any(("pbaseaotexture", "proughnessaopackedtexturedetailbase"), png_file_path):
 			return "R_G"
 		else:
 			return "RG"
