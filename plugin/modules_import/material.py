@@ -95,7 +95,7 @@ class BaseShader:
 				continue
 			png_base, ext = os.path.splitext(tex_name.lower())
 			# ignore texture types that we have no use for
-			if check_any(("blendweights", "warpoffset", "pshellmap", "piebald", "markingnoise"), png_base):
+			if check_any(("blendweights", "warpoffset", "pshellmap", "piebald", "markingnoise", "pscarlut"), png_base):
 				continue
 
 			def check_dupe(file):
