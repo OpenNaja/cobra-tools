@@ -11,6 +11,12 @@ from generated.formats.ovl_base import OvlContext
 from plugin.utils.node_arrange import nodes_iterate
 from plugin.utils.node_util import get_tree, load_tex_node
 
+# maps cobra texture name to blender name
+dest_map = {
+	"basecolour": "Base Color",
+	"normal": "Normal",
+	"roughnesspacked": "Roughness"}
+
 
 def check_any(iterable, string):
 	"""Returns true if any of the entries of the iterable occur in string"""
@@ -31,18 +37,21 @@ class BaseShader:
 		"palbinobasecolourandmasktexture_rgb", "pdinosaurfeathers_basediffusetexture")
 
 	ao_slots = (
-		"paotexture", "pbasepackedtexture_a", "pbaseaotexture_r", "pbaseaotexture", "proughnessaopackedtexturedetailbase_r")
+		"paotexture", "pbasepackedtexture_a", "pbaseaotexture_r", "pbaseaotexture",
+		"proughnessaopackedtexturedetailbase_r")
 
-	normal_slots = ("pnormaltexture", "pnormaltexture_rg", "pnormaltexture_rgb", "pbasenormaltexture_rg", "pbasenormaltexture_rgb",)
+	normal_slots = (
+	"pnormaltexture", "pnormaltexture_rg", "pnormaltexture_rgb", "pbasenormaltexture_rg", "pbasenormaltexture_rgb",)
 
 	specular_slots = ("proughnesspackedtexture_b", "pspecularmaptexture_r", "pbasenormaltexture_b")
 
-	roughness_slots = ("proughnesspackedtexture_g", "pnormaltexture_a", "pbasenormaltexture_a")  # "pspecularmaptexture_g"
+	roughness_slots = (
+	"proughnesspackedtexture_g", "pnormaltexture_a", "pbasenormaltexture_a")  # "pspecularmaptexture_g"
 
 	# note that JWE1 uses proughnesspackedtexture_r as alpha, only pbasepackedtexture_b as metal!
 	metallic_slots = ("proughnesspackedtexture_r", "pbasepackedtexture_b")
 
-	emissive_slots = ("pemissivetexture", )
+	emissive_slots = ("pemissivetexture",)
 
 	alpha_slots = ("popacitytexture", "pdiffusealphatexture_a", "pdiffuse_alphatexture_a", "proughnesspackedtexture_a")
 
@@ -103,6 +112,7 @@ class BaseShader:
 				"""Make sure to catch only bare or channel-split png and avoid catching different tex files that happen
 				to start with the same id such as pdiffuse and pdiffusemelanistic"""
 				return file.lower().startswith(f"{png_base}.") or file.lower().startswith(f"{png_base}_")
+
 			textures = [file for file in all_textures if check_dupe(file)]
 
 			# some fgms, such as PZ red fox whiskers, reuse the same tex file in different slots, so don't add new nodes
@@ -145,49 +155,50 @@ class JWE2FoliageClip(BaseShader):
 
 
 class PZFoliageClip(BaseShader):
-
 	# I don't remember what's different here?!
 	pass
 
 
 class Metallic_Roughness_Clip(BaseShader):
-	shaders = ("Metallic_Roughness_Clip_Weather", "Metallic_Roughness_Clip_Weather_BC7", "Metallic_Roughness_Clip_Weather_DoubleSided_BC7")
+	shaders = ("Metallic_Roughness_Clip_Weather", "Metallic_Roughness_Clip_Weather_BC7",
+			   "Metallic_Roughness_Clip_Weather_DoubleSided_BC7")
 
 	alpha_slots = ("pbasecolourtexture_a",)
 
 
 class Metallic_Roughness_Clip_Geometry_Decal(BaseShader):
-	shaders = ("Metallic_Roughness_Clip_Geometry_Decal", )
+	shaders = ("Metallic_Roughness_Clip_Geometry_Decal",)
 
 	alpha_slots = ("proughnesspackedtexture_a",)
 
 
 def pick_shader(fgm_data):
+	"""Selects a suitable subclass of BaseShader to create a node tree"""
 	for name, cls in inspect.getmembers(sys.modules[__name__], inspect.isclass):
 		if cls.__module__ is __name__:
 			if issubclass(cls, BaseShader):
 				# print(name)
 				if cls.validate(fgm_data):
-					logging.info(f"Picked shader {name} for {fgm_data.shader_name}")
+					logging.debug(f"Picked shader {name} for {fgm_data.shader_name}")
 					return cls()
-	logging.info(f"Used BaseShader for {fgm_data.shader_name}")
+	logging.debug(f"Used BaseShader for {fgm_data.shader_name}")
 	return BaseShader()
 
 
 def load_material_from_asset_library(created_materials, filepath, matname):
 	"""try to load the material from the list of asset libraries"""
-	library_path  =  os.path.abspath(filepath)  # blend file name
-	inner_path    = 'Material'   # type 
-	material_name = matname # name
+	library_path = os.path.abspath(filepath)  # blend file name
+	inner_path = 'Material'  # type
+	material_name = matname  # name
 
 	# try current material case
 	bpy.ops.wm.append(
 		filepath=os.path.join(library_path, inner_path, material_name),
 		directory=os.path.join(library_path, inner_path),
 		filename=material_name
-		)
+	)
 	# also try all lowercase
-	#if material_name != material_name.lower():
+	# if material_name != material_name.lower():
 	#	# try lowercase
 	#	bpy.ops.wm.append(
 	#		filepath=os.path.join(library_path, inner_path, material_name),
@@ -200,12 +211,11 @@ def load_material_from_asset_library(created_materials, filepath, matname):
 	if b_mat:
 		created_materials[matname] = b_mat
 
-	# we return nothing, this function will add the material to 
+	# we return nothing, this function will add the material to
 	# blender if found, nothing will happen if not found.
 
 
 def load_material_from_libraries(created_materials, matname):
-
 	# do not import twice
 	if matname in created_materials:
 		return
@@ -218,10 +228,11 @@ def load_material_from_libraries(created_materials, matname):
 	# we are looping through all asset library files, alternatively we can limit this to
 	# a specific library name, or only the current open library file.
 	for asset_library in asset_libraries:
-		library_name  = asset_library.name
-		library_path  = asset_library.path
+		library_name = asset_library.name
+		library_path = asset_library.path
 		logging.info(f"Checking: {library_name}")
-		library_files = [os.path.join(dp, f) for dp, dn, filenames in os.walk(library_path) for f in filenames if os.path.splitext(f)[1] == '.blend']
+		library_files = [os.path.join(dp, f) for dp, dn, filenames in os.walk(library_path) for f in filenames if
+						 os.path.splitext(f)[1] == '.blend']
 		for library in library_files:
 			# avoid reloading the same material in case it is present in several blend files
 			if matname not in created_materials:
@@ -229,7 +240,6 @@ def load_material_from_libraries(created_materials, matname):
 
 
 def create_material(in_dir, matname):
-
 	logging.info(f"Importing material {matname}")
 	b_mat = bpy.data.materials.new(matname)
 
@@ -251,35 +261,20 @@ def create_material(in_dir, matname):
 	for text_data in fgm_data.textures.data:
 		if text_data.dtype == FgmDtype.RGBA:
 			text_name = text_data.name.lower()
-			print(text_data)
-			if   'basecolour' in text_name:
-				principled.inputs["Base Color"].default_value = (
-					text_data.value[0].r/255,
-					text_data.value[0].g/255,
-					text_data.value[0].b/255,
-					text_data.value[0].a/255
+			# print(text_data)
+			# todo - flexicolourmasks - create color and blending nodes?
+			for c_name, b_name in dest_map.items():
+				if c_name in text_name:
+					color = tree.nodes.new('ShaderNodeRGB')
+					color.label = text_name
+					color.outputs[0].default_value = (
+						text_data.value[0].r / 255,
+						text_data.value[0].g / 255,
+						text_data.value[0].b / 255,
+						text_data.value[0].a / 255
 					)
-			elif 'normal' in text_name:
-				normal = tree.nodes.new('ShaderNodeRGB')
-				normal.outputs[0].default_value = (
-					text_data.value[0].r/255, 
-					text_data.value[0].g/255, 
-					text_data.value[0].b/255, 
-					text_data.value[0].a/255
-					)
-				tree.links.new(normal.outputs[0], principled.inputs["Normal"])
-			elif 'roughnesspacked' in text_name:
-				roughness = tree.nodes.new('ShaderNodeRGB')
-				roughness.outputs[0].default_value = (
-					text_data.value[0].r/255, 
-					text_data.value[0].g/255, 
-					text_data.value[0].b/255, 
-					text_data.value[0].a/255
-					)
-				tree.links.new(roughness.outputs[0], principled.inputs["Roughness"])
-			elif 'flexicolourmasks' in text_name:
-				# create color and blending nodes?
-				pass
+					tree.links.new(color.outputs[0], principled.inputs[b_name])
+					break
 
 	# color_ramp = fgm_data.get_color_ramp("colourKey", "RGB")
 	# opacity_ramp = fgm_data.get_color_ramp("opacityKey", "Value")
@@ -317,7 +312,7 @@ def create_material(in_dir, matname):
 	for normal in shader.get_tex(shader.normal_slots):
 		normal.image.colorspace_settings.name = "Non-Color"
 		normal_map = tree.nodes.new('ShaderNodeNormalMap')
-		normal_map.inputs[0].default_value = 0.4 # nah, it really doesn't
+		normal_map.inputs[0].default_value = 0.4  # nah, it really doesn't
 		tree.links.new(normal.outputs[0], normal_map.inputs[1])
 		tree.links.new(normal_map.outputs[0], principled.inputs["Normal"])
 
