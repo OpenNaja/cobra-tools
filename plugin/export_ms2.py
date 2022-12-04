@@ -42,23 +42,23 @@ def has_objects_in_scene(scene):
 		return True
 
 
-def export_material(ms2, b_mat):
-	mat = MaterialName(ms2.context)
+def export_material(model_info, b_mat):
+	mat = MaterialName(model_info.context)
 	try:
 		# use some_index from existing meshes
 		mat.blend_mode = get_property(b_mat, "some_index")
 	except KeyError:
-		mat.blend_mode = get_property(b_mat, "blend_mode", default=get_blend_mode(b_mat, ms2))
+		mat.blend_mode = get_property(b_mat, "blend_mode", default=get_blend_mode(b_mat, model_info))
 	mat.name = b_mat.name
-	ms2.model.materials.append(mat)
+	model_info.model.materials.append(mat)
 
 
-def get_blend_mode(b_mat, ms2):
+def get_blend_mode(b_mat, model_info):
 	logging.info(f"Determining blend mode for {b_mat.name}")
 	if is_fin_mat(b_mat):
 		return 7
 	elif is_shell_mat(b_mat):
-		if is_pz(ms2):
+		if is_pz(model_info.context):
 			return 263
 		else:
 			return 6
