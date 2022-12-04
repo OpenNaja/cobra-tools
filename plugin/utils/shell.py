@@ -104,17 +104,18 @@ def ob_processor_wrapper(func):
 
 
 def create_fins_wrapper():
+	logging.info(f"Creating fins")
 	return ob_processor_wrapper(build_fins)
 
 
 def gauge_uv_scale_wrapper():
+	logging.info(f"Gauging UV scales")
 	return ob_processor_wrapper(gauge_uv_factors)
 
 
 def get_collection(name):
-	scn = bpy.context.scene
-	col = scn.collection
-	for coll in bpy.types.Collection(col).children:
+	# get collections in scene root collection
+	for coll in bpy.context.scene.collection.children:
 		if name in coll.name:
 			return coll
 
@@ -405,25 +406,23 @@ def hair_angle_for_verts(ref_vert, other_vert, hair_directions, loop_coord_kd):
 		return angle_a
 
 
-def gauge_uv_factors(src_ob, trg_ob):
-	logging.info(f"Gauging UV scale for {trg_ob.name} from {src_ob.name}")
-	vg = src_ob.vertex_groups["fur_length"]
-	psys = src_ob.particle_systems[0]
-	hair_length = psys.settings.hair_length
+def gauge_uv_factors(shell_ob, fin_ob):
+	logging.info(f"Gauging UV scale for {fin_ob.name} from {shell_ob.name}")
+	hair_length = shell_ob.particle_systems[0].settings.hair_length
 
-	# populate a KD tree with all verts from the base (shells) mesh
-	src_me = src_ob.data
-	kd = fill_kd_tree_co(src_me.vertices)
+	shell_me = shell_ob.data
+	fin_me = fin_ob.data
+	# populate a KD tree with all verts from the shell mesh
+	kd = fill_kd_tree_co(shell_me.vertices)
 
 	x_facs = []
 	y_facs = []
-	trg_me = trg_ob.data
-	for i, p in enumerate(trg_me.polygons):
+	for i, p in enumerate(fin_me.polygons):
 		# print(p)
 		base = []
 		top = []
 		for loop_index in p.loop_indices:
-			uvs = [(layer.data[loop_index].uv.x, 1 - layer.data[loop_index].uv.y) for layer in trg_me.uv_layers]
+			uvs = [(layer.data[loop_index].uv.x, 1 - layer.data[loop_index].uv.y) for layer in fin_me.uv_layers]
 			# print(uvs)
 			# reindeer is an edge case and starts slightly lower
 			if uvs[1][1] < 0.001:
@@ -433,11 +432,11 @@ def gauge_uv_factors(src_ob, trg_ob):
 
 		if len(base) == 2:
 			# print(base)
-			uv_verts = [trg_me.uv_layers[1].data[loop_index].uv.x for loop_index in base]
+			uv_verts = [fin_me.uv_layers[1].data[loop_index].uv.x for loop_index in base]
 			uv_len = abs(uv_verts[1] - uv_verts[0])
 			# print(uv_len)
-			loops = [trg_me.loops[loop_index] for loop_index in base]
-			me_verts = [trg_me.vertices[loop.vertex_index].co for loop in loops]
+			loops = [fin_me.loops[loop_index] for loop_index in base]
+			me_verts = [fin_me.vertices[loop.vertex_index].co for loop in loops]
 			v_len = (me_verts[1] - me_verts[0]).length
 			# print(v_len)
 			# print("Fac", uv_len/v_len)
@@ -445,30 +444,29 @@ def gauge_uv_factors(src_ob, trg_ob):
 				x_facs.append(uv_len / v_len)
 
 		if base and top:
-			uv_verts = [trg_me.uv_layers[1].data[loop_index].uv.y for loop_index in (base[0], top[0])]
+			uv_verts = [fin_me.uv_layers[1].data[loop_index].uv.y for loop_index in (base[0], top[0])]
 			uv_height = abs(uv_verts[1] - uv_verts[0])
 			# print(uv_height)
 
 			# find the closest vert on base shell mesh
-			loop = trg_me.loops[base[0]]
-			find_co = trg_me.vertices[loop.vertex_index].co
+			loop = fin_me.loops[base[0]]
+			find_co = fin_me.vertices[loop.vertex_index].co
 			co, index, dist = kd.find(find_co)
-			vert = src_me.vertices[index]
+			vert = shell_me.vertices[index]
 			for vertex_group in vert.groups:
-				vgroup_name = src_ob.vertex_groups[vertex_group.group].name
+				vgroup_name = shell_ob.vertex_groups[vertex_group.group].name
 				if vgroup_name == "fur_length":
 					base_fur_length = vertex_group.weight * hair_length
 					if base_fur_length:
 						y_facs.append(uv_height / base_fur_length)
 				# if vgroup_name == "fur_width":
 				# 	base_fur_width = vertex_group.weight
-		# print("Close to center:", co, index, dist, find_co)
-	#	 if i == 20:
-	#		  break
+		# if i == 20:
+		# 	break
 	uv_scale_x = np.mean(x_facs)
 	uv_scale_y = np.mean(y_facs)
-	src_ob["uv_scale_x"] = uv_scale_x
-	src_ob["uv_scale_y"] = uv_scale_y
+	shell_ob["uv_scale_x"] = uv_scale_x
+	shell_ob["uv_scale_y"] = uv_scale_y
 	# print(base_fur_width, uv_scale_x/base_fur_width)
 	return f"Found UV scale ({uv_scale_x}, {uv_scale_y})"
 
@@ -523,11 +521,11 @@ def is_shell_mat(b_mat):
 
 
 def is_fin(ob):
-	_check_mats(ob, is_fin_mat)
+	return _check_mats(ob, is_fin_mat)
 
 
 def is_shell(ob):
-	_check_mats(ob, is_shell_mat)
+	return _check_mats(ob, is_shell_mat)
 
 
 def num_fur_as_weights(mat_name):
