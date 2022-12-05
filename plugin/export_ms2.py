@@ -71,7 +71,6 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 	wrapper = MeshDataWrap(model_info.context)
 	mesh = wrapper.mesh
 	# set data
-	mesh.size_of_vertex = 48
 	mesh.flag._value = get_property(b_me, "flag")
 	mesh.unk_floats[:] = (get_property(b_me, "unk_f0"), get_property(b_me, "unk_f1"))
 	mesh.stream_info.pool_index = get_property(b_me, "stream")

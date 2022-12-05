@@ -36,9 +36,7 @@ class NewMeshData(MeshData):
 
 		# in bytes
 		self.vertex_offset = 0
-
-		# usually 48
-		self.size_of_vertex = 0
+		self.size_of_vertex = 48
 
 		# in bytes
 		self.tri_offset = 0
@@ -63,7 +61,7 @@ class NewMeshData(MeshData):
 		('zero_1', Uint, (0, None), (False, None), None),
 		('poweroftwo', Uint, (0, None), (False, None), None),
 		('vertex_offset', Uint, (0, None), (False, None), None),
-		('size_of_vertex', Uint, (0, None), (False, None), None),
+		('size_of_vertex', Uint, (0, None), (False, 48), None),
 		('tri_offset', Uint, (0, None), (False, None), None),
 		('zero_2', Uint, (0, None), (False, None), None),
 		('unk_floats', Array, (0, None, (2,), Float), (False, None), None),
@@ -79,7 +77,7 @@ class NewMeshData(MeshData):
 		yield 'zero_1', Uint, (0, None), (False, None)
 		yield 'poweroftwo', Uint, (0, None), (False, None)
 		yield 'vertex_offset', Uint, (0, None), (False, None)
-		yield 'size_of_vertex', Uint, (0, None), (False, None)
+		yield 'size_of_vertex', Uint, (0, None), (False, 48)
 		yield 'tri_offset', Uint, (0, None), (False, None)
 		yield 'zero_2', Uint, (0, None), (False, None)
 		yield 'unk_floats', Array, (0, None, (2,), Float), (False, None)

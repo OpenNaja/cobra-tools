@@ -264,7 +264,7 @@
 		<add name="zero1" type="uint">always zero</add>
 		<add name="poweroftwo" type="uint">power of 2 increasing with lod index</add>
 		<add name="vertex offset" type="uint" >in bytes</add>
-		<add name="size of vertex" type="uint" >usually 48</add>
+		<add name="size of vertex" type="uint" default="48"/>
 		<add name="tri offset" type="uint">in bytes</add>
 		<add name="zero2" type="uint">always zero</add>
 		<add name="unk_floats" type="float" arr1="2">some floats, purpose unknown</add>
