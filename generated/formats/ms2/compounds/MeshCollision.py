@@ -7,6 +7,7 @@ from generated.formats.base.basic import Uint
 from generated.formats.base.basic import Uint64
 from generated.formats.base.basic import Ushort
 from generated.formats.ms2.compounds.Matrix33 import Matrix33
+from generated.formats.ms2.compounds.SubA import SubA
 from generated.formats.ms2.compounds.SubCollChunk import SubCollChunk
 from generated.formats.ms2.compounds.Vector3 import Vector3
 from generated.formats.ovl_base.compounds.Empty import Empty
@@ -26,8 +27,8 @@ class MeshCollision(BaseStruct):
 		# offset of mesh
 		self.offset = Vector3(self.context, 0, None)
 
-		# not floats, maybe 6 ushorts, shared among (all?) redwoods
-		self.unk_1 = Array(self.context, 0, None, (0,), Ushort)
+		# shared among (all?) redwoods
+		self.unk_1 = Array(self.context, 0, None, (0,), SubA)
 
 		# vertices (3 float)
 		self.vertex_count = 0
@@ -40,18 +41,14 @@ class MeshCollision(BaseStruct):
 
 		# the biggest coordinates across all axes
 		self.bounds_max = Vector3(self.context, 0, None)
-		self.flag_0 = 0
-		self.flag_1 = 0
+		self.flag_0 = 1
+		self.flag_1 = 1
 		self.has_sub_coll_chunk = 0
-		self.flag_3 = 0
-		self.flag_4 = 0
-		self.flag_5 = 0
-		self.flag_6 = 0
+		self.zeros_1 = Array(self.context, 0, None, (0,), Uint64)
+		self.ff = -1
+		self.zeros_2 = Array(self.context, 0, None, (0,), Int)
 
-		# seemingly fixed
-		self.ff_or_zero = Array(self.context, 0, None, (0,), Int)
-
-		# sometimes 00 byte
+		# sometimes 8 bytes, apparently not part of SubCollChunk (JWE2 dev footplantingtest_ has that but not the padding)
 		self.weird_padding = SmartPadding(self.context, 4, None)
 
 		# seems to repeat tri_count
@@ -59,14 +56,10 @@ class MeshCollision(BaseStruct):
 
 		# usually zero, nonzero in JWE2 dev footplant, [1] used as salt for tri indices
 		self.tris_salt = Array(self.context, 0, None, (0,), Uint)
-
-		# might be padding!
 		self.vertices_addr = Empty(self.context, 0, None)
 
 		# array of vertices
 		self.vertices = Array(self.context, 0, None, (0,), Float)
-
-		# might be padding!
 		self.triangles_addr = Empty(self.context, 0, None)
 
 		# triangle indices into vertex list
@@ -86,20 +79,17 @@ class MeshCollision(BaseStruct):
 	_attribute_list = BaseStruct._attribute_list + [
 		('rotation', Matrix33, (0, None), (False, None), None),
 		('offset', Vector3, (0, None), (False, None), None),
-		('unk_1', Array, (0, None, (3, 2,), Ushort), (False, None), None),
+		('unk_1', Array, (0, None, (3,), SubA), (False, None), None),
 		('vertex_count', Uint64, (0, None), (False, None), None),
 		('tri_count', Uint64, (0, None), (False, None), None),
 		('bounds_min', Vector3, (0, None), (False, None), None),
 		('bounds_max', Vector3, (0, None), (False, None), None),
-		('flag_0', Uint64, (0, None), (False, None), None),
-		('flag_1', Uint64, (0, None), (False, None), None),
+		('flag_0', Uint64, (0, None), (False, 1), None),
+		('flag_1', Uint64, (0, None), (False, 1), None),
 		('has_sub_coll_chunk', Uint64, (0, None), (False, None), None),
-		('flag_3', Uint64, (0, None), (False, None), None),
-		('flag_4', Uint64, (0, None), (False, None), None),
-		('flag_5', Uint64, (0, None), (False, None), None),
-		('flag_6', Uint64, (0, None), (False, None), None),
-		('ff_or_zero', Array, (0, None, (10,), Int), (False, None), True),
-		('ff_or_zero', Array, (0, None, (8,), Int), (False, None), True),
+		('zeros_1', Array, (0, None, (4,), Uint64), (False, None), None),
+		('ff', Int, (0, None), (False, -1), None),
+		('zeros_2', Array, (0, None, (7,), Int), (False, None), None),
 		('weird_padding', SmartPadding, (4, None), (False, None), None),
 		('sub_coll_chunk', SubCollChunk, (0, None), (False, None), True),
 		('tris_salt', Array, (0, None, (4,), Uint), (False, None), True),
@@ -117,22 +107,17 @@ class MeshCollision(BaseStruct):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'rotation', Matrix33, (0, None), (False, None)
 		yield 'offset', Vector3, (0, None), (False, None)
-		yield 'unk_1', Array, (0, None, (3, 2,), Ushort), (False, None)
+		yield 'unk_1', Array, (0, None, (3,), SubA), (False, None)
 		yield 'vertex_count', Uint64, (0, None), (False, None)
 		yield 'tri_count', Uint64, (0, None), (False, None)
 		yield 'bounds_min', Vector3, (0, None), (False, None)
 		yield 'bounds_max', Vector3, (0, None), (False, None)
-		yield 'flag_0', Uint64, (0, None), (False, None)
-		yield 'flag_1', Uint64, (0, None), (False, None)
+		yield 'flag_0', Uint64, (0, None), (False, 1)
+		yield 'flag_1', Uint64, (0, None), (False, 1)
 		yield 'has_sub_coll_chunk', Uint64, (0, None), (False, None)
-		yield 'flag_3', Uint64, (0, None), (False, None)
-		yield 'flag_4', Uint64, (0, None), (False, None)
-		yield 'flag_5', Uint64, (0, None), (False, None)
-		yield 'flag_6', Uint64, (0, None), (False, None)
-		if instance.context.version <= 47:
-			yield 'ff_or_zero', Array, (0, None, (10,), Int), (False, None)
-		if instance.context.version >= 48:
-			yield 'ff_or_zero', Array, (0, None, (8,), Int), (False, None)
+		yield 'zeros_1', Array, (0, None, (4,), Uint64), (False, None)
+		yield 'ff', Int, (0, None), (False, -1)
+		yield 'zeros_2', Array, (0, None, (7,), Int), (False, None)
 		yield 'weird_padding', SmartPadding, (4, None), (False, None)
 		if instance.has_sub_coll_chunk:
 			yield 'sub_coll_chunk', SubCollChunk, (0, None), (False, None)

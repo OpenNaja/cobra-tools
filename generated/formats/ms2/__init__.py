@@ -9,6 +9,7 @@ import numpy as np
 from generated.formats.base.compounds.PadAlign import get_padding
 from generated.formats.ms2.compounds.Ms2InfoHeader import Ms2InfoHeader
 from generated.formats.ms2.compounds.packing_utils import pack_swizzle
+from generated.formats.ms2.enums.CollisionType import CollisionType
 from generated.formats.ms2.versions import *
 from generated.io import IoFile
 from modules.formats.shared import djb2
@@ -396,27 +397,40 @@ class Ms2File(Ms2InfoHeader, IoFile):
 if __name__ == "__main__":
 	m = Ms2File()
 	# m.load("C:/Users/arnfi/Desktop/jwe2/pyro/export/models.ms2", read_editable=True)
-	m.load("C:/Users/arnfi/Desktop/models.ms2", read_editable=True)
+	# m.load("C:/Users/arnfi/Desktop/models.ms2", read_editable=True)
+	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/MeshCollision/JWE2/CharacterScale/models.ms2", read_editable=True)
+	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/MeshCollision/PZ/widgetball_test_.ms2", read_editable=True)
+	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/MeshCollision/PZ/CM_Common_Roofs.ms2", read_editable=True)
+	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/MeshCollision/JWE2dev/groundplane_.ms2", read_editable=True)
+	m.load("C:/Users/arnfi/Desktop/Coding/Frontier/MeshCollision/JWE2dev/footplantingtest_.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/export/models.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/hazard_ceilingfan_.ms2", read_editable=True)
 	# print(m.models_reader.bone_infos[0])
 	mods = set()
-	for mo in m.model_infos:
+	for bone_info in m.models_reader.bone_infos:
+		# print(bone_info)
+		if bone_info.joint_count:
+			for ji in bone_info.joints.joint_infos:
+				for hc in ji.hitchecks:
+					if hc.dtype == CollisionType.MESH_COLLISION:
+						print(hc)
+	# for mo in m.model_infos:
+	# 	print(mo.bone_info)
 		# print(mo.model.lods)
 		# print(mo.model.objects)
-		for i, me in enumerate(mo.model.meshes):
+		# for i, me in enumerate(mo.model.meshes):
 			# print(i, me)
 			# for t, v in zip(me.mesh.tri_chunks, me.mesh.vert_chunks):
 			# 	t.rot.a = 1.0
 			# 	t.rot.x = t.rot.y = t.rot.z = 0.0
 			# 	t.loc.x = t.loc.y = t.loc.z = 0.0
-			for t, v in zip(me.mesh.tri_chunks, me.mesh.vert_chunks):
-				pass
-				# print(i, t.tris_offset)
-				# print(i, v.vertex_offset % 16)
-				mods.add(v.vertex_offset % 16)
+			# for t, v in zip(me.mesh.tri_chunks, me.mesh.vert_chunks):
+			# 	pass
+			# 	# print(i, t.tris_offset)
+			# 	# print(i, v.vertex_offset % 16)
+			# 	mods.add(v.vertex_offset % 16)
 	# 		flags.add(me.mesh.flag)
-	print(mods)
+	# print(mods)
 			# if i in (12, 13, 14):
 			# if i in (12, ):
 			# 	print(i)

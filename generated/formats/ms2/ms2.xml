@@ -107,7 +107,7 @@
 		<option value="3" name="Cylinder" />
 		<option value="7" name="ConvexHull" />
 		<option value="8" name="ConvexHullPC" />
-		<option value="10" name="MeshCollision" >widgetball_test.mdl2, Ball_Hitcheck not supported, seems to be another collision mesh used in JWE redwoods</option>
+		<option value="10" name="MeshCollision"/>
 		<option value="11" name="UnkRhino" >?</option>
 <!--		<option value="32" name="Unk2Rhino" >?</option>-->
 	</enum>
@@ -778,6 +778,7 @@
 	</compound>
 
 	<compound name="SubCollChunk">
+<!--		<add name="zero" type="uint64"/>-->
 		<add name="bounds min repeat" type="Vector3" >verbatim</add>
 		<add name="bounds max repeat" type="Vector3" >verbatim</add>
 		<add name="tri flags count" type="uint" >seems to repeat tri_count</add>
@@ -786,44 +787,44 @@
 		<add name="collision bits" type="MeshCollisionBit" arr1="count bits" >?</add>
 	</compound>
 
+	<compound name="SubA">
+		<add name="index" type="ubyte" >increases, starting at 1</add>
+		<add name="a" type="ubyte" default="240">?</add>
+		<add name="b" type="ubyte" default="237">?</add>
+		<add name="c" type="ubyte" default="254">?</add>
+	</compound>
+
 	<compound name="MeshCollision">
 		<add name="rotation" type="Matrix33"/>
 		<add name="offset" type="Vector3" >offset of mesh</add>
-		<add name="unk1" type="ushort" arr1="3" arr2="2">not floats, maybe 6 ushorts, shared among (all?) redwoods</add>
+		<add name="unk1" type="SubA" arr1="3" >shared among (all?) redwoods</add>
 		<add name="vertex count" type="uint64" >vertices (3 float)</add>
 		<add name="tri count" type="uint64" >tris?, counts the 25s at the end</add>
 		<add name="bounds min" type="Vector3">the smallest coordinates across all axes</add>
 		<add name="bounds max" type="Vector3">the biggest coordinates across all axes</add>
-		<add name="flag 0" type="uint64"/>seen 1
-		<add name="flag 1" type="uint64"/>seen 1
+		<add name="flag 0" type="uint64" default="1"/>
+		<add name="flag 1" type="uint64" default="1"/>
 		<add name="has_SubCollChunk" type="uint64"/>seen 1 eg PZ widgetball_test_, or 0 in JWE2 characterscale and PZ CM_Common_Roofs
-		<add name="flag 3" type="uint64"/>0
-		<add name="flag 4" type="uint64"/>0
-		<add name="flag 5" type="uint64"/>0
-		<add name="flag 6" type="uint64"/>0
-		not sure about the vercond here, used to be until 32, since 47
-		<add name="ff or zero" type="int" arr1="10" until="47" >seemingly fixed</add>
-		<add name="ff or zero" type="int" arr1="8" since="48" >seemingly fixed</add>
-		<add name="weird padding" type="SmartPadding" arg="4">sometimes 00 byte</add>
-		everything with previous until 47 is still present in jwe2 dev
+		<add name="zeros 1" type="uint64" arr1="4"/>
+		<add name="ff" type="int" default="-1"/>
+		<add name="zeros 2" type="int" arr1="7"/>
+		<add name="weird padding" type="SmartPadding" arg="4">sometimes 8 bytes, apparently not part of SubCollChunk (JWE2 dev footplantingtest_ has that but not the padding)</add>
 		<add name="SubCollChunk" type="SubCollChunk" cond="has_SubCollChunk">seems to repeat tri_count</add>
 		<add name="tris_salt" type="uint" arr1="4" cond="has_SubCollChunk">usually zero, nonzero in JWE2 dev footplant, [1] used as salt for tri indices</add>
 
-		<add name="vertices addr" type="Empty" >might be padding!</add>
+		<add name="vertices addr" type="Empty"/>
 		<add name="vertices" type="float" arr1="vertex count" arr2="3">array of vertices</add>
-		<add name="triangles addr" type="Empty" >might be padding!</add>
+		<add name="triangles addr" type="Empty"/>
 		<add name="triangles" type="ushort" arr1="tri count" arr2="3">triangle indices into vertex list</add>
 
 		<add name="const" type="uint" until="47">?</add>
 		<add name="triangle flags" type="uint" arr1="tri flags count" cond="const" until="47">in JWE1 redwood: always 37</add>
 		<add name="zero end" type="uint" >might be padding!</add>
 	</compound>
-
-
+	
 	<compound name="MeshCollisionBit">
 		<add name="countd" type="ushort" arr1="34">?</add>
 		<add name="consts" type="uint" arr1="3">always 2954754766?</add>
 	</compound>
-
 
 </niftoolsxml>
