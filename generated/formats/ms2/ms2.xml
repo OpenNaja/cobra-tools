@@ -821,9 +821,12 @@
 		<add name="triangle flags" type="uint" arr1="tri flags count" cond="const" until="47">in JWE1 redwood: always 37</add>
 		<add name="zero end" type="uint" >might be padding!</add>
 	</compound>
-	
+
 	<compound name="MeshCollisionBit">
-		<add name="countd" type="ushort" arr1="34">?</add>
+		<add name="a" type="ushort" arr1="24">?</add>
+		<add name="b" type="ushort" arr1="8">incrementing by 16 from 0, or if around 32769: incrementing by 1, mostly</add>
+		<add name="min_of_b" type="ushort" >usually, but not always the first value</add>
+		<add name="c" type="ushort" >?</add>
 		<add name="consts" type="uint" arr1="3">always 2954754766?</add>
 	</compound>
 
