@@ -20,7 +20,7 @@
         JWE2: 64 bytes
         <add name="abstract_name" type="Pointer" template="ZString"/>
         <add name="concrete_name" type="Pointer" template="ZString"/>
-        <add name="debug_name" type="Pointer" template="ZString"/>
+        <add name="prefab_name" type="Pointer" template="ZString"/>
         <add name="a" type="uint64" />
         <add name="b" type="uint64" />
         <add name="c" type="uint64" />

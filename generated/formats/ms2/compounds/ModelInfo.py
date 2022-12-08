@@ -131,14 +131,14 @@ class ModelInfo(MemStruct):
 		if instance.context.version <= 7:
 			yield 'unk_dla', Uint64, (0, None), (False, None)
 		yield 'bounds_min', Vector3, (0, None), (False, None)
-		if instance.context.version >= 47 and not ((instance.context.version == 51) and instance.context.biosyn):
+		if instance.context.version >= 47 and not (((instance.context.version == 51) or (instance.context.version == 52)) and instance.context.biosyn):
 			yield 'unk_float_a', Float, (0, None), (False, None)
 		yield 'bounds_max', Vector3, (0, None), (False, None)
-		if instance.context.version >= 47 and not ((instance.context.version == 51) and instance.context.biosyn):
+		if instance.context.version >= 47 and not (((instance.context.version == 51) or (instance.context.version == 52)) and instance.context.biosyn):
 			yield 'pack_base', Float, (0, None), (False, None)
 		yield 'center', Vector3, (0, None), (False, None)
 		yield 'radius', Float, (0, None), (False, None)
-		if instance.context.version >= 48 and not ((instance.context.version == 51) and instance.context.biosyn):
+		if instance.context.version >= 48 and not (((instance.context.version == 51) or (instance.context.version == 52)) and instance.context.biosyn):
 			yield 'num_lods_2', Uint64, (0, None), (False, None)
 			yield 'zero', Uint64, (0, None), (False, None)
 		if instance.context.version >= 32:
@@ -166,5 +166,5 @@ class ModelInfo(MemStruct):
 			yield 'zero_0', Uint64, (0, None), (False, None)
 		if not (instance.context.version == 32):
 			yield 'zero_1', Uint64, (0, None), (False, None)
-		if instance.context.version >= 47 and not ((instance.context.version == 51) and instance.context.biosyn):
+		if instance.context.version >= 47 and not (((instance.context.version == 51) or (instance.context.version == 52)) and instance.context.biosyn):
 			yield 'zero_2', Uint64, (0, None), (False, None)

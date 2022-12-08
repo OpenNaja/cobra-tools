@@ -70,7 +70,7 @@ class BufferInfo(BaseStruct):
 		if 32 <= instance.context.version <= 47:
 			yield 'u_0', Uint64, (0, None), (False, None)
 			yield 'u_1', Uint64, (0, None), (False, None)
-		if (instance.context.version == 51) and instance.context.biosyn:
+		if ((instance.context.version == 51) or (instance.context.version == 52)) and instance.context.biosyn:
 			yield 'tri_chunks_size', Uint64, (0, None), (False, None)
 			yield 'tri_chunks_ptr', Uint64, (0, None), (False, None)
 			yield 'vert_chunks_size', Uint64, (0, None), (False, None)

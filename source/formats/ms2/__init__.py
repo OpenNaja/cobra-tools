@@ -397,23 +397,24 @@ class Ms2File(Ms2InfoHeader, IoFile):
 if __name__ == "__main__":
 	m = Ms2File()
 	# m.load("C:/Users/arnfi/Desktop/jwe2/pyro/export/models.ms2", read_editable=True)
-	# m.load("C:/Users/arnfi/Desktop/models.ms2", read_editable=True)
+	m.load("C:/Users/arnfi/Desktop/models.ms2", read_editable=True)
+	print(m)
 	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/MeshCollision/JWE2/CharacterScale/models.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/MeshCollision/PZ/widgetball_test_.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/MeshCollision/PZ/CM_Common_Roofs.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/MeshCollision/JWE2dev/groundplane_.ms2", read_editable=True)
-	m.load("C:/Users/arnfi/Desktop/Coding/Frontier/MeshCollision/JWE2dev/footplantingtest_.ms2", read_editable=True)
+	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/MeshCollision/JWE2dev/footplantingtest_.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/export/models.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/hazard_ceilingfan_.ms2", read_editable=True)
 	# print(m.models_reader.bone_infos[0])
-	mods = set()
-	for bone_info in m.models_reader.bone_infos:
-		# print(bone_info)
-		if bone_info.joint_count:
-			for ji in bone_info.joints.joint_infos:
-				for hc in ji.hitchecks:
-					if hc.dtype == CollisionType.MESH_COLLISION:
-						print(hc)
+	# mods = set()
+	# for bone_info in m.models_reader.bone_infos:
+	# 	# print(bone_info)
+	# 	if bone_info.joint_count:
+	# 		for ji in bone_info.joints.joint_infos:
+	# 			for hc in ji.hitchecks:
+	# 				if hc.dtype == CollisionType.MESH_COLLISION:
+	# 					print(hc)
 	# for mo in m.model_infos:
 	# 	print(mo.bone_info)
 		# print(mo.model.lods)

@@ -47,7 +47,7 @@ class MeshData(MemStruct):
 			yield 'stream_index', Uint64, (0, None), (False, None)
 		if instance.context.version >= 47:
 			yield 'stream_info', Pointer, (0, MeshData._import_map["ms2.compounds.BufferInfo"]), (False, None)
-		if not ((instance.context.version == 51) and instance.context.biosyn):
+		if not (((instance.context.version == 51) or (instance.context.version == 52)) and instance.context.biosyn):
 			yield 'some_index', Uint64, (0, None), (False, None)
 
 	# @property

@@ -85,6 +85,6 @@ class LodInfo(BaseStruct):
 			yield 'first_object_index_1', Ushort, (0, None), (False, None)
 			yield 'first_object_index_2', Ushort, (0, None), (False, None)
 		yield 'last_object_index', Ushort, (0, None), (False, None)
-		if instance.context.version >= 32 and not ((instance.context.version == 51) and instance.context.biosyn):
+		if instance.context.version >= 32 and not (((instance.context.version == 51) or (instance.context.version == 52)) and instance.context.biosyn):
 			yield 'vertex_count', Uint, (0, None), (False, None)
 			yield 'tri_index_count', Uint, (0, None), (False, None)

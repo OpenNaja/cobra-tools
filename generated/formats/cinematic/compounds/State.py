@@ -22,7 +22,7 @@ class State(MemStruct):
 		self.d = 0
 		self.abstract_name = Pointer(self.context, 0, ZString)
 		self.concrete_name = Pointer(self.context, 0, ZString)
-		self.debug_name = Pointer(self.context, 0, ZString)
+		self.prefab_name = Pointer(self.context, 0, ZString)
 		self.events_list = Pointer(self.context, 0, State._import_map["cinematic.compounds.EventsList"])
 		if set_default:
 			self.set_defaults()
@@ -30,7 +30,7 @@ class State(MemStruct):
 	_attribute_list = MemStruct._attribute_list + [
 		('abstract_name', Pointer, (0, ZString), (False, None), None),
 		('concrete_name', Pointer, (0, ZString), (False, None), None),
-		('debug_name', Pointer, (0, ZString), (False, None), None),
+		('prefab_name', Pointer, (0, ZString), (False, None), None),
 		('a', Uint64, (0, None), (False, None), None),
 		('b', Uint64, (0, None), (False, None), None),
 		('c', Uint64, (0, None), (False, None), None),
@@ -43,7 +43,7 @@ class State(MemStruct):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'abstract_name', Pointer, (0, ZString), (False, None)
 		yield 'concrete_name', Pointer, (0, ZString), (False, None)
-		yield 'debug_name', Pointer, (0, ZString), (False, None)
+		yield 'prefab_name', Pointer, (0, ZString), (False, None)
 		yield 'a', Uint64, (0, None), (False, None)
 		yield 'b', Uint64, (0, None), (False, None)
 		yield 'c', Uint64, (0, None), (False, None)

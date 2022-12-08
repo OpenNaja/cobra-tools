@@ -137,7 +137,7 @@ def set_pz16(context):
 
 
 def is_jwe2(context):
-	if context.version == 51:
+	if context.version in (51, 52):
 		return True
 
 
@@ -244,6 +244,6 @@ pc = Ms2Version(id='PC', version=(32,), primary_games=[], all_games=[games.PC])
 jwe1 = Ms2Version(id='JWE1', version=(47, 39,), primary_games=[], all_games=[games.JWE_1])
 pz = Ms2Version(id='PZ', version=(48, 50,), primary_games=[], all_games=[games.PZ])
 pz16 = Ms2Version(id='PZ16', version=(50,), primary_games=[], all_games=[games.PZ_16])
-jwe2 = Ms2Version(id='JWE2', version=(51,), primary_games=[], all_games=[games.JWE_2])
+jwe2 = Ms2Version(id='JWE2', version=(51, 52,), primary_games=[], all_games=[games.JWE_2])
 
 available_versions = [dla, ztuac, pc, pz, pz16, jwe, jwe2, old, dla, ztuac, pc, jwe1, pz, pz16, jwe2]

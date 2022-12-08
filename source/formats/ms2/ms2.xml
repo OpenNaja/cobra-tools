@@ -11,7 +11,8 @@
 		<verexpr token="#PZ#" string="((#VER# #EQ# 48) #OR# (#VER# #EQ# 50))">PZ all</verexpr>
 		<verexpr token="#PZ16#" string="(#VER# #EQ# 50)">PZ 1.6+</verexpr>
 		<verexpr token="#JWE2#" string="(#VER# #EQ# 51)">JWE2</verexpr>
-		<verexpr token="#JWE2_BIO#" string="((#VER# #EQ# 51) #AND# (#BIOSYN#))">JWE2</verexpr>
+		<verexpr token="#JWE2_BIO#" string="(((#VER# #EQ# 51) #OR# (#VER# #EQ# 52)) #AND# (#BIOSYN#))">JWE2</verexpr>
+<!--		<verexpr token="#JWE2_MALTA#" string="((#VER# #EQ# 52) #AND# (#BIOSYN#))">JWE2</verexpr>-->
 	</token>
 
 	<token name="global" attrs="vercond access">
@@ -33,7 +34,7 @@
 	<version id="JWE1" version="47 39" >JWE1</version>
 	<version id="PZ" version="48 50" >PZ</version>
 	<version id="PZ16" version="50" >PZ16</version>
-	<version id="JWE2" version="51" >JWE2</version>
+	<version id="JWE2" version="51 52" >JWE2</version>
 
 	<basic name="BiosynVersion" integral="true" countable="true">
 		An unsigned 32-bit integer.
