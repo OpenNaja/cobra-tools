@@ -506,6 +506,7 @@
 		<add name="unknown40" type="uint64"/>
 		<add name="parents count" type="uint64"/>
 		<add name="extra zero" type="uint64" vercond="#DLA# #OR# #ZTUAC# #OR# #PZ# #OR# #JWE2#">not PC, JWE1</add>
+		<add name="new uint64" type="uint64" since="52"/>purpose unknown
 		<add name="enum count" type="uint64"/>
 		<add name="unknown58" type="uint64" >usually zero</add>
 		<add name="one" type="uint64" default="1" >always 1</add>

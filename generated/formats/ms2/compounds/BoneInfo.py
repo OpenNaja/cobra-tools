@@ -60,6 +60,7 @@ class BoneInfo(BaseStruct):
 
 		# not PC, JWE1
 		self.extra_zero = 0
+		self.new_uint_64 = 0
 		self.enum_count = 0
 
 		# usually zero
@@ -146,6 +147,7 @@ class BoneInfo(BaseStruct):
 		('unknown_40', Uint64, (0, None), (False, None), None),
 		('parents_count', Uint64, (0, None), (False, None), None),
 		('extra_zero', Uint64, (0, None), (False, None), True),
+		('new_uint_64', Uint64, (0, None), (False, None), True),
 		('enum_count', Uint64, (0, None), (False, None), None),
 		('unknown_58', Uint64, (0, None), (False, None), None),
 		('one', Uint64, (0, None), (False, 1), None),
@@ -196,6 +198,8 @@ class BoneInfo(BaseStruct):
 		yield 'parents_count', Uint64, (0, None), (False, None)
 		if (instance.context.version == 7) or ((instance.context.version == 13) or (((instance.context.version == 48) or (instance.context.version == 50)) or (instance.context.version == 51))):
 			yield 'extra_zero', Uint64, (0, None), (False, None)
+		if instance.context.version >= 52:
+			yield 'new_uint_64', Uint64, (0, None), (False, None)
 		yield 'enum_count', Uint64, (0, None), (False, None)
 		yield 'unknown_58', Uint64, (0, None), (False, None)
 		yield 'one', Uint64, (0, None), (False, 1)
