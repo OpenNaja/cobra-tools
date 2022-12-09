@@ -10,3 +10,4 @@ class MeshFormat(BaseEnum):
 	SEPARATE = 0
 	INTERLEAVED_32 = 1
 	INTERLEAVED_48 = 2
+	UNK_FMT = 3

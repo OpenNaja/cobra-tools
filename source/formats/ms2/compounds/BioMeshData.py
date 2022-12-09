@@ -74,6 +74,8 @@ class BioMeshData:
 		for i, (tri_chunk, vert_chunk) in enumerate(zip(self.tri_chunks, self.vert_chunks)):
 			# bones_per_chunk = set()
 			# logging.debug(f"{i}, {tri_chunk}, {vert_chunk}")
+			logging.debug(f"{i}, {vert_chunk.weights_flag}")
+
 			# these sometimes correspond but not always
 			# logging.info(f"chunk {i} tris at {tri_chunk.tris_offset}, weights_flag {vert_chunk.weights_flag}")
 
@@ -86,34 +88,37 @@ class BioMeshData:
 			tris_start = tri_chunk.tris_offset - first_tris_offs
 			tri_chunk.tri_indices = self.tri_indices[tris_start: tris_start+tri_chunk.tris_count * 3]
 			mesh_formats.add(vert_chunk.weights_flag.mesh_format)
-			if vert_chunk.weights_flag.mesh_format == MeshFormat.SEPARATE:
-				self.buffer_info.verts.readinto(vert_chunk.packed_verts)
-				# decode and store position
-				unpack_int64_vector(vert_chunk.packed_verts, vert_chunk.vertices, vert_chunk.negate_bitangents)
-				scale_unpack_vectorized(vert_chunk.vertices, vert_chunk.pack_base)
+			try:
+				if vert_chunk.weights_flag.mesh_format in (MeshFormat.SEPARATE, MeshFormat.UNK_FMT):
+					self.buffer_info.verts.readinto(vert_chunk.packed_verts)
+					# decode and store position
+					unpack_int64_vector(vert_chunk.packed_verts, vert_chunk.vertices, vert_chunk.negate_bitangents)
+					scale_unpack_vectorized(vert_chunk.vertices, vert_chunk.pack_base)
 
-				self.read_weights(vert_chunk, offs)
-				# read uv, normals etc
-				# logging.info(f"meta {i} start {self.buffer_info.verts.tell()}")
-				self.buffer_info.verts.readinto(vert_chunk.meta)
+					self.read_weights(vert_chunk, offs)
+					# read uv, normals etc
+					# logging.info(f"meta {i} start {self.buffer_info.verts.tell()}")
+					self.buffer_info.verts.readinto(vert_chunk.meta)
 
-			elif vert_chunk.weights_flag.mesh_format in (MeshFormat.INTERLEAVED_32, MeshFormat.INTERLEAVED_48):
-				# interleaved vertex array, meta includes all extra data
-				self.buffer_info.verts.readinto(vert_chunk.meta)
-				# store position
-				vert_chunk.vertices[:] = vert_chunk.meta["pos"]
-				self.read_weights(vert_chunk, offs)
-			else:
-				raise AttributeError(f"Unsupported weights_flag.mesh_format {vert_chunk.weights_flag.mesh_format}")
-			# store chunk's meta data in mesh's array
-			vert_chunk.uvs[:] = vert_chunk.meta["uvs"]
-			vert_chunk.colors[:] = vert_chunk.meta["colors"]
-			vert_chunk.normals[:, :2] = vert_chunk.meta["normal_oct"]
-			vert_chunk.tangents[:, :2] = vert_chunk.meta["tangent_oct"]
+				elif vert_chunk.weights_flag.mesh_format in (MeshFormat.INTERLEAVED_32, MeshFormat.INTERLEAVED_48):
+					# interleaved vertex array, meta includes all extra data
+					self.buffer_info.verts.readinto(vert_chunk.meta)
+					# store position
+					vert_chunk.vertices[:] = vert_chunk.meta["pos"]
+					self.read_weights(vert_chunk, offs)
+				else:
+					raise AttributeError(f"Unsupported weights_flag.mesh_format {vert_chunk.weights_flag.mesh_format}")
+				# store chunk's meta data in mesh's array
+				vert_chunk.uvs[:] = vert_chunk.meta["uvs"]
+				vert_chunk.colors[:] = vert_chunk.meta["colors"]
+				vert_chunk.normals[:, :2] = vert_chunk.meta["normal_oct"]
+				vert_chunk.tangents[:, :2] = vert_chunk.meta["tangent_oct"]
 
-			if vert_chunk.weights_flag.mesh_format in (MeshFormat.INTERLEAVED_32,):
-				vert_chunk.shapekeys[:] = vert_chunk.meta["shapekey"]
-				vert_chunk.floats[:] = vert_chunk.meta["floats"]
+				if vert_chunk.weights_flag.mesh_format in (MeshFormat.INTERLEAVED_32,):
+					vert_chunk.shapekeys[:] = vert_chunk.meta["shapekey"]
+					vert_chunk.floats[:] = vert_chunk.meta["floats"]
+			except:
+				logging.exception(f"Chunk {i} failed")
 			# create absolute vertex indices for the total mesh
 			tri_chunk.tri_indices += offs
 			offs += vert_chunk.vertex_count
@@ -124,7 +129,8 @@ class BioMeshData:
 			_weights = f"_weights" if vert_chunk.weights_flag.has_weights else ""
 			id_str = f"{i:03}{_weights}"
 			self.face_maps[id_str] = list(range(tris_start // 3, tris_start // 3 + tri_chunk.tris_count))
-		assert len(mesh_formats) == 1
+		# since malta dlc, one mesh can have several mesh formats
+		# assert len(mesh_formats) == 1
 		# logging.info(self.bones_sets)
 		max_verts = max(vert_chunk.vertex_count for vert_chunk in self.vert_chunks)
 		logging.info(f"max_verts {max_verts}")
@@ -164,14 +170,19 @@ class BioMeshData:
 		vert_chunk.normals = self.normals[v_slice]
 		vert_chunk.tangents = self.tangents[v_slice]
 		vert_chunk.floats = self.floats[v_slice]
-		if vert_chunk.weights_flag.mesh_format == MeshFormat.SEPARATE:
+		chunk_fmt = vert_chunk.weights_flag.mesh_format
+		if chunk_fmt in (MeshFormat.SEPARATE, MeshFormat.UNK_FMT):
 			# todo - once stable, change back to empty
 			vert_chunk.packed_verts = np.zeros(dtype=np.int64, shape=vert_chunk.vertex_count)
 			vert_chunk.weights = np.zeros(dtype=self.dt_weights, shape=vert_chunk.vertex_count)
-			vert_chunk.meta = np.zeros(dtype=self.dt, shape=vert_chunk.vertex_count)
-		elif vert_chunk.weights_flag.mesh_format in (MeshFormat.INTERLEAVED_32, MeshFormat.INTERLEAVED_48):
+			vert_chunk.meta = np.zeros(dtype=self.dts[chunk_fmt], shape=vert_chunk.vertex_count)
+		elif chunk_fmt in (MeshFormat.INTERLEAVED_32, MeshFormat.INTERLEAVED_48):
 			# interleaved vertex array, meta includes all extra data
-			vert_chunk.meta = np.zeros(dtype=self.dt, shape=vert_chunk.vertex_count)
+			vert_chunk.meta = np.zeros(dtype=self.dts[chunk_fmt], shape=vert_chunk.vertex_count)
+
+	@property
+	def dt(self):
+		return self.dts[self.mesh_format]
 
 	def read_weights(self, vert_chunk, offs):
 		# check if weights chunk is present
@@ -223,14 +234,11 @@ class BioMeshData:
 			("colors", np.ubyte, 4),  # zero, may be colors
 			("uvs", np.ushort, (8, 2)),
 		]
-		if self.mesh_format == MeshFormat.SEPARATE:
-			self.dt = np.dtype(dt_separate)
-		elif self.mesh_format == MeshFormat.INTERLEAVED_32:
-			self.dt = np.dtype(dt_interleaved32)
-		elif self.mesh_format == MeshFormat.INTERLEAVED_48:
-			self.dt = np.dtype(dt_interleaved48)
-		else:
-			raise AttributeError(f"Unsupported mesh_format {self.mesh_format}")
+		self.dts = {}
+		self.dts[MeshFormat.SEPARATE] = np.dtype(dt_separate)
+		self.dts[MeshFormat.UNK_FMT] = np.dtype(dt_separate)
+		self.dts[MeshFormat.INTERLEAVED_32] = np.dtype(dt_interleaved32)
+		self.dts[MeshFormat.INTERLEAVED_48] = np.dtype(dt_interleaved48)
 		self.dt_weights = np.dtype(dt_weights)
 
 	def read_chunk_infos(self):
@@ -313,7 +321,7 @@ class BioMeshData:
 				# rot is probably related to the normals of the chunk
 
 			# pack the verts
-			if vert_chunk.weights_flag.mesh_format == MeshFormat.SEPARATE:
+			if vert_chunk.weights_flag.mesh_format in (MeshFormat.SEPARATE, MeshFormat.UNK_FMT):
 				scale_pack_vectorized(vert_chunk.vertices, vert_chunk.pack_base)
 				pack_int64_vector(vert_chunk.packed_verts, vert_chunk.vertices.astype(np.int64), vert_chunk.negate_bitangents)
 				if vert_chunk.weights_flag.has_weights:
@@ -352,7 +360,7 @@ class BioMeshData:
 			vert_chunk.vertex_offset = self.buffer_info.verts.tell()
 			vert_chunk.vertex_count = len(vert_chunk.meta)
 			# write the arrays if they exist, in this order
-			if vert_chunk.weights_flag.mesh_format == MeshFormat.SEPARATE:
+			if vert_chunk.weights_flag.mesh_format in (MeshFormat.SEPARATE, MeshFormat.UNK_FMT):
 				self.buffer_info.verts.write(vert_chunk.packed_verts.tobytes())
 				if vert_chunk.weights_flag.has_weights:
 					self.buffer_info.verts.write(vert_chunk.weights.tobytes())

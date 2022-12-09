@@ -399,7 +399,7 @@ if __name__ == "__main__":
 	# m.load("C:/Users/arnfi/Desktop/jwe2/pyro/export/models.ms2", read_editable=True)
 	m.load("C:/Users/arnfi/Desktop/models.ms2", read_editable=True)
 	# print(m.models_reader.bone_infos[0])
-	print(m)
+	# print(m)
 	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/MeshCollision/JWE2/CharacterScale/models.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/MeshCollision/PZ/widgetball_test_.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/MeshCollision/PZ/CM_Common_Roofs.ms2", read_editable=True)
@@ -418,15 +418,16 @@ if __name__ == "__main__":
 	# 					print(hc)
 	# for mo in m.model_infos:
 	# 	print(mo.bone_info)
-		# print(mo.model.lods)
-		# print(mo.model.objects)
-		# for i, me in enumerate(mo.model.meshes):
-			# print(i, me)
-			# for t, v in zip(me.mesh.tri_chunks, me.mesh.vert_chunks):
-			# 	t.rot.a = 1.0
-			# 	t.rot.x = t.rot.y = t.rot.z = 0.0
-			# 	t.loc.x = t.loc.y = t.loc.z = 0.0
-			# for t, v in zip(me.mesh.tri_chunks, me.mesh.vert_chunks):
+	# 	print(mo.model.lods)
+	# 	print(mo.model.objects)
+	# 	for i, me in enumerate(mo.model.meshes):
+	# 		print(i, me)
+	# 		# for t, v in zip(me.mesh.tri_chunks, me.mesh.vert_chunks):
+	# 		# 	t.rot.a = 1.0
+	# 		# 	t.rot.x = t.rot.y = t.rot.z = 0.0
+	# 		# 	t.loc.x = t.loc.y = t.loc.z = 0.0
+	# 		for t, v in zip(me.mesh.tri_chunks, me.mesh.vert_chunks):
+	# 			print(t, v)
 			# 	pass
 			# 	# print(i, t.tris_offset)
 			# 	# print(i, v.vertex_offset % 16)

@@ -92,7 +92,7 @@ class ModelReader(BaseStruct):
 			logging.debug(f"Reading bone info {i} at {stream.tell()}")
 			try:
 				model_info.bone_info = self.read_bone_info(stream, i)
-				logging.info(model_info.bone_info)
+				# logging.info(model_info.bone_info)
 				# logging.debug(model_info.bone_info)
 				self.bone_infos.append(model_info.bone_info)
 				# return

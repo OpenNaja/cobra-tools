@@ -99,6 +99,7 @@
 		<option value="0" name="Separate" />
 		<option value="1" name="Interleaved32" />
 		<option value="2" name="Interleaved48" />
+		<option value="3" name="UnkFmt" />
 	</enum>
 
 	<enum name="CollisionType" storage="uint">
