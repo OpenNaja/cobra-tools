@@ -31,7 +31,6 @@
         <add name="manager_count" type="ubyte" />
         <add name="script_count" type="ubyte" />
         <add name="attribs" type="ArrayPointer" template="Spec" arg="attrib_count"/>
-<!--        <add name="attribs_names" type="Pointer" template="PtrList" arg="attrib_count"/>-->
         <add name="name_foreach_attribs" type="ForEachPointer" template="NamePtr" arg="attribs"/>
         <add name="data_foreach_attribs" type="ForEachPointer" template="DataPtr" arg="attribs"/>
 

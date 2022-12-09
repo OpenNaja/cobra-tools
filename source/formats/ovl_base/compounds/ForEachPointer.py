@@ -18,6 +18,11 @@ class ForEachPointer(Pointer):
 
 # START_CLASS
 
+	@property
+	def has_data(self):
+		"""Returns True if it has data"""
+		return len(self.data)
+
 	def read_template(self):
 		if self.template:
 			if isinstance(self.arg, ArrayPointer):
@@ -46,7 +51,7 @@ class ForEachPointer(Pointer):
 
 	@classmethod
 	def to_xml(cls, elem, prop, instance, arg, template, debug):
-		if instance.data is not None:
+		if instance.has_data:
 			assert FOREACH_MARK in prop
 			src_prop = prop.split(FOREACH_MARK)[1]
 			sub = elem.find(f'.//{src_prop}')

@@ -12,6 +12,11 @@ class ArrayPointer(Pointer):
 
 # START_CLASS
 
+	@property
+	def has_data(self):
+		"""Returns True if it has data"""
+		return len(self.data)
+
 	def read_template(self):
 		if self.template:
 			self.data = Array.from_stream(self.frag.struct_ptr.stream, self.context, 0, None, (self.arg,), self.template)

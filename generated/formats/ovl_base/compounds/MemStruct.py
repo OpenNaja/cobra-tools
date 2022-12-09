@@ -49,7 +49,7 @@ class MemStruct(BaseStruct):
 				self.handle_write(prop, member, struct_ptr, loader, pool_type, is_member=True)
 		elif isinstance(val, Pointer):
 			# usually we add a pointer for empty arrays
-			if val.data is not None:
+			if val.has_data:
 				if DEPENDENCY_TAG in prop:
 					# logging.debug(f"Created dependency for {prop} = {self.data}")
 					val.frag = loader.create_dependency(val.data)

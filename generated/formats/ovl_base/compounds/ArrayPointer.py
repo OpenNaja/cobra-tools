@@ -25,6 +25,11 @@ class ArrayPointer(Pointer):
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 
+	@property
+	def has_data(self):
+		"""Returns True if it has data"""
+		return len(self.data)
+
 	def read_template(self):
 		if self.template:
 			self.data = Array.from_stream(self.frag.struct_ptr.stream, self.context, 0, None, (self.arg,), self.template)

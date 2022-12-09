@@ -31,6 +31,11 @@ class ForEachPointer(Pointer):
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 
+	@property
+	def has_data(self):
+		"""Returns True if it has data"""
+		return len(self.data)
+
 	def read_template(self):
 		if self.template:
 			if isinstance(self.arg, ArrayPointer):
@@ -59,7 +64,7 @@ class ForEachPointer(Pointer):
 
 	@classmethod
 	def to_xml(cls, elem, prop, instance, arg, template, debug):
-		if instance.data is not None:
+		if instance.has_data:
 			assert FOREACH_MARK in prop
 			src_prop = prop.split(FOREACH_MARK)[1]
 			sub = elem.find(f'.//{src_prop}')

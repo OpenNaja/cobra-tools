@@ -51,6 +51,11 @@ class Pointer(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
+	@property
+	def has_data(self):
+		"""Returns True if it has data"""
+		return bool(self.data)
+
 	@classmethod
 	def get_fields_str(cls, instance, indent=0):
 		s = ''
@@ -81,7 +86,7 @@ class Pointer(BaseStruct):
 			self.data = self.template.from_stream(self.frag.struct_ptr.stream, self.context, self.arg)
 
 	def write_pointer(self):
-		assert (self.data is not None) and self.frag
+		assert self.has_data and self.frag
 		# if bytes have been set (usually manually), don't ask, just write
 		if isinstance(self.data, (bytes, bytearray)):
 			# seek to end, set data_offset, write
@@ -104,7 +109,7 @@ class Pointer(BaseStruct):
 		"""Adds this struct to 'elem', recursively"""
 		sub = ET.SubElement(elem, prop)
 		cls.pool_type_to_xml(sub, instance, debug)
-		if instance.data is not None:
+		if instance.has_data:
 			# xml string
 			if prop == XML_STR:
 				sub.append(ET.fromstring(instance.data))
@@ -138,7 +143,7 @@ class Pointer(BaseStruct):
 		if isinstance(instance.data, str):
 			elem.text = instance.data
 		else:
-			if instance.template is not None:
+			if instance.template is not None and instance.has_data:
 				instance.template._to_xml(instance.data, elem, debug)
 
 	@classmethod
@@ -158,7 +163,8 @@ class Pointer(BaseStruct):
 		sub = elem.find(f'.//{prop}')
 		if sub is None:
 			logging.warning(f"Missing sub-element '{prop}' on XML element '{elem.tag}'")
-			return instance
+			# todo - maybe? do not create pointer instance if no matching xml sub-element is found
+			return
 		# store the pointer's pool type
 		cls.pool_type_from_xml(elem, instance)
 		# process the pointer's data
