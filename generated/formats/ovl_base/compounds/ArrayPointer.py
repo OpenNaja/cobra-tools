@@ -28,7 +28,8 @@ class ArrayPointer(Pointer):
 	@property
 	def has_data(self):
 		"""Returns True if it has data"""
-		return len(self.data)
+		if self.data is not None:
+			return len(self.data)
 
 	def read_template(self):
 		if self.template:
