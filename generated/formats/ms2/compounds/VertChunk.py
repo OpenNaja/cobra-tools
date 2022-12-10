@@ -5,6 +5,7 @@ from generated.formats.base.basic import Float
 from generated.formats.base.basic import Ubyte
 from generated.formats.base.basic import Uint
 from generated.formats.ms2.bitfields.WeightsFlag import WeightsFlag
+from generated.formats.ms2.bitfields.WeightsFlagMalta import WeightsFlagMalta
 
 
 class VertChunk(BaseStruct):
@@ -29,7 +30,7 @@ class VertChunk(BaseStruct):
 		self.vertex_count = 0
 
 		# determines if weights are used by this chunk
-		self.weights_flag = WeightsFlag(self.context, 0, None)
+		self.weights_flag = WeightsFlagMalta(self.context, 0, None)
 		self.zero = 0
 		if set_default:
 			self.set_defaults()
@@ -39,7 +40,8 @@ class VertChunk(BaseStruct):
 		('pack_base', Float, (0, None), (False, None), None),
 		('vertex_offset', Uint, (0, None), (False, None), None),
 		('vertex_count', Ubyte, (0, None), (False, None), None),
-		('weights_flag', WeightsFlag, (0, None), (False, None), None),
+		('weights_flag', WeightsFlag, (0, None), (False, None), True),
+		('weights_flag', WeightsFlagMalta, (0, None), (False, None), True),
 		('zero', Ubyte, (0, None), (False, None), None),
 		]
 
@@ -50,5 +52,8 @@ class VertChunk(BaseStruct):
 		yield 'pack_base', Float, (0, None), (False, None)
 		yield 'vertex_offset', Uint, (0, None), (False, None)
 		yield 'vertex_count', Ubyte, (0, None), (False, None)
-		yield 'weights_flag', WeightsFlag, (0, None), (False, None)
+		if instance.context.version <= 51:
+			yield 'weights_flag', WeightsFlag, (0, None), (False, None)
+		if instance.context.version >= 52:
+			yield 'weights_flag', WeightsFlagMalta, (0, None), (False, None)
 		yield 'zero', Ubyte, (0, None), (False, None)

@@ -53,6 +53,12 @@
 		<member width="7" pos="9" name="mesh_format" type="MeshFormat"/>
 	</bitfield>
 
+	<bitfield name="WeightsFlagMalta" storage="ushort">
+		<member width="2" pos="0" name="mesh_format" type="MeshFormat"/>
+		<member width="1" pos="3" name="has_weights" type="bool"/>
+		<member width="8" pos="4" name="bone_index" type="int"/>
+	</bitfield>
+
 	<bitfield name="ModelFlag" storage="uint">
 		Determines the data held by a mesh.
 		<member width="1" pos="3" name="stripify" type="bool">if true, tris are stored as a tri strip</member>
@@ -446,7 +452,8 @@
 		<add name="pack_base" type="float" >scale: pack_base / 512, also added as offset</add>
 		<add name="vertex_offset" type="uint" >byte offset from start of vert buffer in bytes</add>
 		<add name="vertex_count" type="ubyte"/>confirmed
-		<add name="weights_flag" type="WeightsFlag">determines if weights are used by this chunk</add>
+		<add name="weights_flag" type="WeightsFlag" until="51">determines if weights are used by this chunk</add>
+		<add name="weights_flag" type="WeightsFlagMalta" since="52">determines if weights are used by this chunk</add>
 		<add name="zero" type="ubyte"/>always
 	</compound>
 

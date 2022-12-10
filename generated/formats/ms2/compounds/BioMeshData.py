@@ -250,11 +250,13 @@ class BioMeshData(MeshData):
 		if vert_chunk.weights_flag.has_weights:
 			# read for each vertex
 			self.buffer_info.verts.readinto(vert_chunk.weights)
+			# logging.info(vert_chunk.weights)
 			for vertex_index, (bone_indices, bone_weights) in enumerate(
 					zip(vert_chunk.weights["bone ids"], vert_chunk.weights["bone weights"] / 255)):
 				for bone_index, weight in zip(bone_indices, bone_weights):
 					if weight > 0.0:
 						self.add_to_weights(bone_index, vertex_index + offs, weight)
+
 		# 			bones_per_chunk.add(bone_index)
 		# logging.info(f"Length set {len(bones_per_chunk)}")
 		else:
@@ -268,8 +270,8 @@ class BioMeshData(MeshData):
 		_normal_tangent_oct = (("normal_oct", np.ubyte, (2,)), ("tangent_oct", np.ubyte, (2,)))
 		# per-vertex weights may or may not be used in a given chunk
 		dt_weights = [
-			("bone ids", np.ubyte, (4,)),
 			("bone weights", np.ubyte, (4,)),
+			("bone ids", np.ubyte, (4,)),
 		]
 		# 16 bytes of metadata that follows the vertices array
 		dt_separate = [
