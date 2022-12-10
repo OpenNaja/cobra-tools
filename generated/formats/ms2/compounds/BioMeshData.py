@@ -270,8 +270,8 @@ class BioMeshData(MeshData):
 		_normal_tangent_oct = (("normal_oct", np.ubyte, (2,)), ("tangent_oct", np.ubyte, (2,)))
 		# per-vertex weights may or may not be used in a given chunk
 		dt_weights = [
-			("bone weights", np.ubyte, (4,)),
 			("bone ids", np.ubyte, (4,)),
+			("bone weights", np.ubyte, (4,)),
 		]
 		# 16 bytes of metadata that follows the vertices array
 		dt_separate = [
