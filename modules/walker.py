@@ -34,6 +34,9 @@ def generate_hash_table(gui, start_dir):
 		# don't use internal data
 		ovl_data = OvlFile()
 		dic = {}
+		all_deps_exts = set()
+		# these are the input for which hashes should be stored
+		hash_exts = {'.enumnamer', '.lua', '.model2stream', '.particleatlas', '.prefab', '.specdef', '.tex'}
 		lists = {"mimes": ("name", "mime_hash", "mime_version", "triplet_count", "triplets"), "files": ("pool_type", "set_pool_type")}
 		for list_name, attr_names in lists.items():
 			dic[list_name] = {}
@@ -46,7 +49,8 @@ def generate_hash_table(gui, start_dir):
 			gui.update_progress("Hashing names: " + os.path.basename(ovl_path), value=of_index, vmax=of_max)
 			try:
 				# read ovl file
-				new_hashes = ovl_data.load(ovl_path, commands={"generate_hash_table": True})
+				new_hashes, new_exts = ovl_data.load(ovl_path, commands={"generate_hash_table": hash_exts})
+				all_deps_exts.update(new_exts)
 				for list_name, attr_names in lists.items():
 					for entry in getattr(ovl_data, list_name):
 						for attr_name in attr_names:
@@ -80,6 +84,7 @@ def generate_hash_table(gui, start_dir):
 
 		except BaseException as err:
 			print(err)
+		logging.info(f"Formats used in dependencies: {[s.replace(':', '.') for s in sorted(all_deps_exts)]}")
 		logging.info(f"Wrote {len(hash_dict)} items to {out_path}")
 
 

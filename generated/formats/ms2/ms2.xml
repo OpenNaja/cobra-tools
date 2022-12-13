@@ -42,9 +42,6 @@
 	<basic name="MainVersion" integral="true" countable="true">
 		An unsigned 32-bit integer.
 	</basic>
-    <basic name="OffsetString" integral="true" countable="true">
-        An unsigned 32-bit integer.
-    </basic>
 
 <!--Count from the end!!!-->
 	<bitfield name="WeightsFlag" storage="ushort">

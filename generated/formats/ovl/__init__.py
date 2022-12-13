@@ -860,26 +860,27 @@ class OvlFile(Header, IoFile):
 
 	def update_names(self):
 		"""Update the name buffers with names from list entries, and update the name offsets on those entries"""
-		# update ext dependencies with : prefix instead of .
-		for dependency in self.dependencies:
-			dependency.ext = dependency.ext.replace(".", ":")
+		def rename_dep(s):
+			"""update ext dependencies with : prefix instead of ."""
+			return s.replace(".", ":")
 		# regenerate the name buffer
 		self.names.update_with((
-			(self.dependencies, "ext"),
-			(self.included_ovls, "basename"),
-			(self.mimes, "name"),
-			(self.aux_entries, "name"),
-			(self.files, "basename")
+			(self.dependencies, "ext", rename_dep),
+			(self.included_ovls, "basename", None),
+			(self.mimes, "name", None),
+			(self.aux_entries, "name", None),
+			(self.files, "basename", None)
 		))
 		self.archive_names.update_with((
-			(self.archives, "name"),
+			(self.archives, "name", None),
 		))
 		self.len_names = len(self.names.data)
 		self.len_archive_names = len(self.archive_names.data)
 
 		# catching ovl files without entries, default len_type_names is 0
 		if self.files:
-			self.len_type_names = min(file.offset for file in self.files)
+			self.len_type_names = min(self.names.offset_dic.get(file.basename, -1) for file in self.files)
+			# self.len_type_names = min(file.offset for file in self.files)
 		else:
 			self.len_type_names = 0
 
@@ -916,36 +917,28 @@ class OvlFile(Header, IoFile):
 		self.loaders = {}
 		# maps djb2 hash to string
 		self.hash_table_local = {}
-		# print(self)
 		# add extensions to hash dict
 		for mime_entry in self.iter_progress(self.mimes, "Loading extensions"):
-			# get the whole mime type string
-			mime_entry.name = self.names.get_str_at(mime_entry.offset)
-			# only get the extension
+			# get the bare extension from the mime string
 			mime_entry.ext = f".{mime_entry.name.split(':')[-1]}"
-			# the stored mime hash is not used anywhere
-			# self.hash_table_local[mime_entry.mime_hash] = mime_type
-			# instead we must calculate the djb2 hash of the extension and store that
-			# because this is how we find the extension from inside the archive
+			# we must calculate the djb2 hash of the extension to find it from the ovs
 			self.hash_table_local[djb2(mime_entry.ext[1:].lower())] = mime_entry.ext
 			mime_entry.triplets = self.triplets[
 								  mime_entry.triplet_offset: mime_entry.triplet_offset + mime_entry.triplet_count]
 
 		# add file name to hash dict; ignoring the extension pointer
 		for file_entry in self.iter_progress(self.files, "Loading files"):
-			# get file name from name table
-			file_name = self.names.get_str_at(file_entry.offset)
 			file_entry.mime = self.mimes[file_entry.extension]
 			file_entry.ext = file_entry.mime.ext
 			# store this so we can use it
 			file_entry.ext_hash = djb2(file_entry.ext[1:])
-			file_entry.basename = file_name
-			file_entry.name = file_name + file_entry.ext
-			self.hash_table_local[file_entry.file_hash] = file_name
+			file_entry.name = file_entry.basename + file_entry.ext
+			self.hash_table_local[file_entry.file_hash] = file_entry.basename
+
 		if "generate_hash_table" in self.commands:
-			return self.hash_table_local
-		elif "get_file_names" in self.commands:
-			return [file_entry.name for file_entry in self.files]
+			deps_exts = self.commands["generate_hash_table"]
+			filtered_hash_table = {f.file_hash: f.basename for f in self.files if f.ext in deps_exts}
+			return filtered_hash_table, set(d.ext for d in self.dependencies)
 		else:
 			self.files_list.emit([[file.name, file.ext] for file in self.files])
 			# initialize the loaders right here
@@ -954,7 +947,6 @@ class OvlFile(Header, IoFile):
 
 		# get included ovls
 		for included_ovl in self.iter_progress(self.included_ovls, "Loading includes"):
-			included_ovl.basename = self.names.get_str_at(included_ovl.offset)
 			included_ovl.ext = ".ovl"
 			included_ovl.name = included_ovl.basename + included_ovl.ext
 		self.included_ovls_list.emit([included_ovl.name for included_ovl in self.included_ovls])
@@ -964,8 +956,6 @@ class OvlFile(Header, IoFile):
 			file_entry = self.files[dependency_entry.file_index]
 
 			self.loaders[file_entry.name].dependencies.append(dependency_entry)
-			# nb: these use : instead of . at the start, eg. :tex
-			dependency_entry.ext = self.names.get_str_at(dependency_entry.offset)
 			h = dependency_entry.file_hash
 			if h in self.hash_table_local:
 				dependency_entry.basename = self.hash_table_local[h]
@@ -980,12 +970,9 @@ class OvlFile(Header, IoFile):
 			dependency_entry.name = dependency_entry.basename + dependency_entry.ext.replace(":", ".")
 
 		for aux_entry in self.aux_entries:
-			aux_entry.name = self.names.get_str_at(aux_entry.offset)
 			file_entry = self.files[aux_entry.file_index]
 			self.loaders[file_entry.name].aux_entries.append(aux_entry)
 
-		for archive_entry in self.archives:
-			archive_entry.name = self.archive_names.get_str_at(archive_entry.offset)
 		self.load_archives()
 		# self.debug_unks()
 		logging.info(f"Loaded OVL in {time.time() - start_time:.2f} seconds")

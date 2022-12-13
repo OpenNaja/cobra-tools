@@ -115,6 +115,9 @@ class Array(list):
                     dtype.write_array(instance, stream)
                 # must be an instance of Array that has the write function on itself
                 else:
+                    # todo - maybe change the API for Array.write to include the arguments?
+                    instance.arg = arg
+                    # instance.context = context
                     instance.write(stream)
             except:
                 logging.exception(f"Array.to_stream failed for {instance} {dtype}")

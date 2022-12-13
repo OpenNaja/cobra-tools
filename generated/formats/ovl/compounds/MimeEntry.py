@@ -5,6 +5,7 @@ from hashes import constants_jwe, constants_pz, constants_jwe2, constants_pc, co
 
 from generated.base_struct import BaseStruct
 from generated.formats.base.basic import Uint
+from generated.formats.ovl_base.basic import OffsetString
 
 
 class MimeEntry(BaseStruct):
@@ -22,12 +23,12 @@ class MimeEntry(BaseStruct):
 		super().__init__(context, arg, template, set_default=False)
 
 		# offset in the header's Names block
-		self.offset = 0
+		self.name = 0
 
 		# usually zero
 		self.unknown = 0
 
-		# changes with game version; hash of this file extension; same across all files, but not used anywhere else in the archive
+		# hash of this mime, changes with mime version; not used anywhere else in the ovl
 		self.mime_hash = 0
 
 		# usually increments with game
@@ -48,7 +49,7 @@ class MimeEntry(BaseStruct):
 			self.set_defaults()
 
 	_attribute_list = BaseStruct._attribute_list + [
-		('offset', Uint, (0, None), (False, None), None),
+		('name', OffsetString, (None, None), (False, None), None),
 		('unknown', Uint, (0, None), (False, None), None),
 		('mime_hash', Uint, (0, None), (False, None), None),
 		('mime_version', Uint, (0, None), (False, None), None),
@@ -61,7 +62,7 @@ class MimeEntry(BaseStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'offset', Uint, (0, None), (False, None)
+		yield 'name', OffsetString, (instance.arg, None), (False, None)
 		yield 'unknown', Uint, (0, None), (False, None)
 		yield 'mime_hash', Uint, (0, None), (False, None)
 		yield 'mime_version', Uint, (0, None), (False, None)
