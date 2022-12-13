@@ -136,23 +136,6 @@ def pack_int64_vector(packed_vert, vertices, extra):
     packed_vert |= extra.astype(np.int64) << 63
 
 
-def get_valid_weights(vert):
-    return [(b, w / 255) for b, w in zip(vert["bone ids"], vert["bone weights"]) if w > 0]
-
-
-def unpack_weights(model, i):
-    # weight in range 0-1
-    weights = []
-    if hasattr(model, "weights_data"):
-        weights = get_valid_weights(model.weights_data[i])
-    elif "bone ids" in model.dt.fields:
-        weights = get_valid_weights(model.verts_data[i])
-    if not weights:
-        # fallback: skin partition
-        weights = [(model.verts_data[i]["bone index"], 1.0), ]
-    return weights
-
-
 def remap(v, old_min, old_max, new_min, new_max):
     return ((v - old_min) / (old_max - old_min)) * (new_max - new_min) + new_min
 
