@@ -110,6 +110,25 @@ def unpack_int64_vector(packed_vert, vertices, extra):
     extra[:] = packed_vert >> 63
 
 
+def get_bitmask(num_bits):
+    """Returns num_bits toggled on"""
+    return (1 << num_bits) - 1
+
+
+def unpack_int64_weights(packed_weights, weights):
+    # describe the amount of bits taken up by each logical field in the uint64
+    fields = ((10, 8), (10, 8), (10, 8), (10,))
+    # the indices into the unpacked weights per field
+    titles = ("bone ids", "bone weights")
+    offset = 0
+    for i, field in enumerate(fields):
+        for size, title in zip(field, titles):
+            weights[title][:, i] = (packed_weights >> offset) & get_bitmask(size)
+            offset += size
+    # reconstruct the last weight
+    weights["bone weights"][:, 3] = 255 - np.sum(weights["bone weights"][:, :3], axis=1)
+
+
 def pack_int64_vector(packed_vert, vertices, extra):
     packed_vert[:] = 0
     for i in range(3):

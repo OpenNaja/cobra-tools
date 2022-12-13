@@ -249,7 +249,15 @@ class BioMeshData(MeshData):
 		# check if weights chunk is present
 		if vert_chunk.weights_flag.has_weights:
 			# read for each vertex
-			self.buffer_info.verts.readinto(vert_chunk.weights)
+			if self.context.version >= 52:
+				# not sure if uint or int, but seems to work!
+				# vert_chunk.weights may have to be cast to uint16 because of the new 10 bit precision
+				vert_chunk.packed_weights = np.zeros(dtype=np.uint64, shape=vert_chunk.vertex_count)
+				self.buffer_info.verts.readinto(vert_chunk.packed_weights)
+				unpack_int64_weights(vert_chunk.packed_weights, vert_chunk.weights)
+				# logging.info(vert_chunk.weights)
+			else:
+				self.buffer_info.verts.readinto(vert_chunk.weights)
 			# logging.info(vert_chunk.weights)
 			for vertex_index, (bone_indices, bone_weights) in enumerate(
 					zip(vert_chunk.weights["bone ids"], vert_chunk.weights["bone weights"] / 255)):
