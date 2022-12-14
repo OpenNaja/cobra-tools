@@ -1118,7 +1118,7 @@ class OvlFile(Header, IoFile):
 		file_index_offset = 0
 		self.num_mimes = len(files_by_extension)
 		self.reset_field("mimes")
-		for (file_ext, files), mime_entry in zip(sorted(files_by_extension.items()), self.mimes):
+		for i, ((file_ext, files), mime_entry) in enumerate(zip(sorted(files_by_extension.items()), self.mimes)):
 			mime_entry.ext = file_ext
 			try:
 				mime_entry.update_constants(self)
@@ -1129,7 +1129,7 @@ class OvlFile(Header, IoFile):
 			file_index_offset += len(files)
 			for file_entry in files:
 				file_entry.update_constants(self)
-				file_entry.extension = len(self.mimes)
+				file_entry.extension = i
 		# update ovl counts
 		self.num_dependencies = len(self.dependencies)
 		self.num_aux_entries = len(self.aux_entries)
