@@ -733,6 +733,7 @@
 	</compound>
 
 	<compound name="HitCheck">
+		JWE2: 20 bytes excluding collider
 		<add name="dtype" type="CollisionType"/>
 		<add name="flag_0" type="ushort" default="0">PZ, JWE2 always 0</add>
 		<add name="flag_1" type="ushort" default="0">JWE1: 16; PZ, JWE2 always 0</add>
@@ -802,6 +803,7 @@
 	</compound>
 
 	<compound name="MeshCollision">
+		JWE2: 188 bytes
 		<add name="rotation" type="Matrix33"/>
 		<add name="offset" type="Vector3" >offset of mesh</add>
 		<add name="unk1" type="SubA" arr1="3" >shared among (all?) redwoods</add>
@@ -817,15 +819,18 @@
 		<add name="zeros 2" type="int" arr1="7"/>
 		<add name="weird padding" type="SmartPadding" arg="4">sometimes 8 bytes, apparently not part of SubCollChunk (JWE2 dev footplantingtest_ has that but not the padding)</add>
 		<add name="SubCollChunk" type="SubCollChunk" cond="has_SubCollChunk">seems to repeat tri_count</add>
-		<add name="tris_salt" type="uint" arr1="4" cond="has_SubCollChunk">usually zero, nonzero in JWE2 dev footplant, [1] used as salt for tri indices</add>
+	</compound>
+
+	<compound name="MeshCollisionData">
+		<add name="tris_salt" type="uint" arr1="4" cond="#ARG#\has_SubCollChunk">usually zero, nonzero in JWE2 dev footplant, [1] used as salt for tri indices</add>
 
 		<add name="vertices addr" type="Empty"/>
-		<add name="vertices" type="float" arr1="vertex count" arr2="3">array of vertices</add>
+		<add name="vertices" type="float" arr1="#ARG#\vertex count" arr2="3">array of vertices</add>
 		<add name="triangles addr" type="Empty"/>
-		<add name="triangles" type="ushort" arr1="tri count" arr2="3">triangle indices into vertex list</add>
+		<add name="triangles" type="ushort" arr1="#ARG#\tri count" arr2="3">triangle indices into vertex list</add>
 
 		<add name="const" type="uint" until="47">?</add>
-		<add name="triangle flags" type="uint" arr1="tri flags count" cond="const" until="47">in JWE1 redwood: always 37</add>
+		<add name="triangle flags" type="uint" arr1="#ARG#\tri flags count" cond="const" until="47">in JWE1 redwood: always 37</add>
 		<add name="zero end" type="uint" >might be padding!</add>
 	</compound>
 

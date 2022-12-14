@@ -5,6 +5,7 @@ import traceback
 from generated.array import Array
 from generated.formats.base.basic import Float
 from generated.formats.base.compounds.PadAlign import get_padding_size, get_padding
+from generated.formats.ms2.compounds.MeshCollisionData import MeshCollisionData
 from generated.formats.ms2.versions import is_old
 from generated.formats.ms2.compounds.Model import Model
 from generated.formats.ms2.compounds.BoneInfo import BoneInfo
@@ -147,23 +148,33 @@ class ModelReader(BaseStruct):
 		# 						self.dic[k] += 1
 		return bone_info
 
-	def get_padding(self, stream, alignment=16):
+	def get_padding(self, stream, alignment=16, rel=None):
+		if rel is None:
+			rel = self.bone_info_start
 		abs_offset = stream.tell()
-		relative_offset = abs_offset - self.bone_info_start
+		relative_offset = abs_offset - rel
 		# currently no other way to predict the padding, no correlation to joint count
 		padding_len = get_padding_size(relative_offset, alignment=alignment)
 		padding = stream.read(padding_len)
 		if padding != b'\x00' * padding_len:
-			logging.warning(f"Padding is nonzero {padding} at offset {abs_offset}")
+			# logging.warning(f"Padding is nonzero {padding} at offset {abs_offset}")
+			raise AttributeError(f"Padding is nonzero {padding} at offset {abs_offset}")
 		logging.debug(f"padding: {padding_len} aligned to {alignment}")
 
 	def read_hitcheck_verts(self, bone_info, stream):
 		try:
-			logging.debug(f"Reading additional hitcheck data")
+			start = stream.tell()
+			logging.debug(f"Reading additional hitcheck data at {start}")
 			for hitcheck in self.get_hitchecks(bone_info):
 				if hitcheck.dtype in (CollisionType.CONVEX_HULL_P_C, CollisionType.CONVEX_HULL):
-					logging.debug(f"Reading vertices for {hitcheck.dtype}")
+					# not aligned to 16!
+					# self.get_padding(stream, alignment=16, rel=start)
+					logging.debug(f"Reading vertices for {hitcheck.dtype.name} at {stream.tell()}")
 					hitcheck.collider.vertices = Array.from_stream(stream, self.context, 0, None, (hitcheck.collider.vertex_count, 3), Float)
+				if hitcheck.dtype in (CollisionType.MESH_COLLISION,):
+					self.get_padding(stream, alignment=16, rel=start)
+					logging.debug(f"Reading vertices for {hitcheck.dtype.name} at {stream.tell()}")
+					hitcheck.collider.data = MeshCollisionData.from_stream(stream, self.context, hitcheck.collider, None)
 		except:
 			logging.exception(f"Reading hitchecks failed")
 

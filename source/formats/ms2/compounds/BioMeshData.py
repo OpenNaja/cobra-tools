@@ -75,7 +75,7 @@ class BioMeshData:
 		for i, (tri_chunk, vert_chunk) in enumerate(zip(self.tri_chunks, self.vert_chunks)):
 			# bones_per_chunk = set()
 			# logging.debug(f"{i}, {tri_chunk}, {vert_chunk}")
-			logging.debug(f"{i}, {vert_chunk.weights_flag}")
+			# logging.debug(f"{i}, {vert_chunk.weights_flag}")
 
 			# these sometimes correspond but not always
 			# logging.info(f"chunk {i} tris at {tri_chunk.tris_offset}, weights_flag {vert_chunk.weights_flag}")

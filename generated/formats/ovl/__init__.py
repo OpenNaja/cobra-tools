@@ -79,7 +79,8 @@ class OvsFile(OvsHeader):
 		else:
 			logging.debug("No compression")
 			decompressed = compressed_bytes
-		logging.info(f"Decompressed in {time.time() - start_time:.2f} seconds")
+		# not relevant for user info since it is usually 0.00 sec
+		# logging.info(f"Decompressed in {time.time() - start_time:.2f} seconds")
 		with BytesIO(decompressed) as stream:
 			yield stream
 

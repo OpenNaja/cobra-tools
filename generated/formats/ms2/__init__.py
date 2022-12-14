@@ -68,8 +68,8 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			for bone_i, joint_info in zip(joints.joint_indices, joints.joint_infos):
 				# usually, this corresponds - does not do for speedtree but does not matter
 				joint_info.bone_name = bone_info.bones[bone_i].name
-				if not joint_info.bone_name == joint_info.name:
-					logging.warning(f"bone name [{joint_info.bone_name}] doesn't match joint name [{joint_info.name}]")
+				# if not joint_info.bone_name == joint_info.name:
+				# 	logging.warning(f"bone name [{joint_info.bone_name}] doesn't match joint name [{joint_info.name}]")
 				if joints.bone_count:
 					if joints.joint_infos[joints.bone_indices[bone_i]] != joint_info:
 						logging.warning(f"bone index [{bone_i}] doesn't point to expected joint info")
@@ -397,7 +397,8 @@ class Ms2File(Ms2InfoHeader, IoFile):
 if __name__ == "__main__":
 	m = Ms2File()
 	# m.load("C:/Users/arnfi/Desktop/jwe2/pyro/export/models.ms2", read_editable=True)
-	m.load("C:/Users/arnfi/Desktop/models.ms2", read_editable=True)
+	m.load("C:/Program Files (x86)/Steam/steamapps/common/Jurassic World Evolution 2/Win64/ovldata/walker_export/ContentPDLC5/Buildings/ModularStructures/LAG_NaturalWaterPool_Malta_Walls/LAG_NaturalWaterPool_Malta_Walls/models.ms2", read_editable=True)
+	# m.load("C:/Users/arnfi/Desktop/models.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/bush_berry_bear.ms2", read_editable=True)
 	# print(m.models_reader.bone_infos[0])
 	# print(m)
@@ -411,7 +412,7 @@ if __name__ == "__main__":
 	# print(m.models_reader.bone_infos[0])
 	# mods = set()
 	# for bone_info in m.models_reader.bone_infos:
-	# 	# print(bone_info)
+	# 	print(bone_info)
 	# 	if bone_info.joint_count:
 	# 		for ji in bone_info.joints.joint_infos:
 	# 			for hc in ji.hitchecks:
