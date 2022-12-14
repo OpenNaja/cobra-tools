@@ -60,7 +60,7 @@ class MimeEntry(BaseStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'name', OffsetString, (instance.arg.names, None), (False, None)
+		yield 'name', OffsetString, (instance.context.names, None), (False, None)
 		yield 'unknown', Uint, (0, None), (False, None)
 		yield 'mime_hash', Uint, (0, None), (False, None)
 		yield 'mime_version', Uint, (0, None), (False, None)

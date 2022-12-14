@@ -90,7 +90,7 @@ class ArchiveEntry(BaseStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'name', OffsetString, (instance.arg, None), (False, None)
+		yield 'name', OffsetString, (instance.context.archive_names, None), (False, None)
 		yield 'pools_offset', Uint, (0, None), (False, None)
 		yield 'stream_files_offset', Uint, (0, None), (False, None)
 		yield 'num_pools', Uint, (0, None), (False, None)

@@ -38,16 +38,15 @@
         <add name="Names" type="ZStringBuffer" arg="Len Names">Name buffer for assets and file mime types.</add>
 <!--        <add name="Names_pad" type="ubyte" arr1="(16 - ((Names \ io_start + Names \ io_size) #MOD# 16)) #MOD# 16" until="15">used in DLA</add>-->
         <add name="Names_pad" type="ubyte" arr1="(16 - (Len Names #MOD# 16)) #MOD# 16" until="15">used in DLA</add>
-        <add name="Mimes" type="MimeEntry" arr1="Num Mimes" arg="#SELF#"/>
+        <add name="Mimes" type="MimeEntry" arr1="Num Mimes"/>
         <add name="triplets" type="Triplet" arr1="num_triplets" since="20"/>
         <add name="triplets_pad" type="PadAlign" template="triplets" arg="4" since="20"/>
-        <add name="Files" type="FileEntry" arr1="Num Files" arg="#SELF#"/>
+        <add name="Files" type="FileEntry" arr1="Num Files"/>
         <add name="archive_names" type="ZStringBuffer" arg="Len Archive Names">usually STATIC followed by any external OVS names</add>
-<!--        <add name="Archives" type="ArchiveEntry" arr1="Num Archives" arg="#SELF#"/>-->
-        <add name="Archives" type="ArchiveEntry" arr1="Num Archives" arg="archive_names"/>
+        <add name="Archives" type="ArchiveEntry" arr1="Num Archives"/>
         <add name="included_ovls" type="IncludedOvl" arr1="num_included_ovls"/>
-        <add name="Dependencies" type="DependencyEntry" arr1="Num Dependencies" arg="#SELF#" since="19"/>
-        <add name="Aux Entries" type="AuxEntry" arr1="Num Aux Entries" arg="#SELF#"/>
+        <add name="Dependencies" type="DependencyEntry" arr1="Num Dependencies" since="19"/>
+        <add name="Aux Entries" type="AuxEntry" arr1="Num Aux Entries"/>
         <add name="Dependencies" type="DependencyEntry" arr1="Num Dependencies" until="18">after aux in ZTUAC and PC</add>
         <add name="stream_files" type="StreamEntry" arr1="num_stream_files"/>
         <add name="Zlibs" type="ZlibInfo" arr1="Num Archives"/>
@@ -56,7 +55,7 @@
     <compound name="MimeEntry" >
         Description of one mime type or file class.
 		Inside the archive not the stored mime hash is used but the extension hash, has to be generated, eg. djb2("bani") == 2090104799
-        <add name="name" type="OffsetString" arg="#ARG# \ names"/>
+        <add name="name" type="OffsetString" arg="context\names"/>
         <add name="unknown" type="uint">usually zero</add>
         <add name="Mime Hash" type="uint">hash of this mime, changes with mime version; not used anywhere else in the ovl</add>
         <add name="mime version" type="uint" >usually increments with game</add>
@@ -75,7 +74,7 @@
 
     <compound name="FileEntry" >
         Description of one file in the archive
-        <add name="basename" type="OffsetString" arg="#ARG# \ names"/>
+        <add name="basename" type="OffsetString" arg="context\names"/>
         <add name="file hash" type="uint">this hash is used to retrieve the file name from inside the archive</add>
         <add name="pool_type" type="byte" >pool type of this file's sizedstr pointer, if part of a set, it's usually the same as set pool type</add>
         <add name="set_pool_type" type="byte" >if this file is part of a set, the set's root entry's pool type, else 0</add>
@@ -84,8 +83,7 @@
 
     <compound name="ArchiveEntry" >
         Description of one archive
-<!--        <add name="name" type="OffsetString" arg="#ARG# \ archive_names"/>-->
-        <add name="name" type="OffsetString" arg="#ARG#"/>
+        <add name="name" type="OffsetString" arg="context\archive_names"/>
         <add name="pools_offset" type="uint">starting index in ovl list of pools, this archive's pools continue for num_pools</add>
         <add name="stream_files_offset" type="uint">starting index into ovl.stream_files</add>
         <add name="num_pools" type="uint" >Total amount of pools in this archive; sum of all PoolGroup.num_pools</add>
@@ -106,13 +104,13 @@
 
     <compound name="IncludedOvl" >
         Description of one included ovl file that is force-loaded by this ovl
-        <add name="basename" type="OffsetString" arg="#ARG# \ names">path is relative to this ovl's directory; usually points to ovl files</add>
+        <add name="basename" type="OffsetString" arg="context\names">path is relative to this ovl's directory; usually points to ovl files</add>
     </compound>
 
     <compound name="DependencyEntry" >
         Description of dependency; links it to an entry from this archive
         <add name="file hash" type="uint">Hash of this dependency, for lookup in hash dict. Can be either external or internal.</add>
-        <add name="ext" type="OffsetString" arg="#ARG# \ names">these use : instead of . at the start, eg. :tex</add>
+        <add name="ext" type="OffsetString" arg="context\names">these use : instead of . at the start, eg. :tex</add>
         <add name="file index" type="uint" >index into ovl file table, points to the file entry where this dependency is used</add>
         <add name="link_ptr" type="HeaderPointer" >pointer into flattened list of all archives' pools</add>
     </compound>
@@ -120,7 +118,7 @@
     <compound name="AuxEntry" >
         describes an external AUX resource
         <add name="file index" type="uint">index into files list</add>
-        <add name="name" type="OffsetString" arg="#ARG# \ names"/>
+        <add name="name" type="OffsetString" arg="context\names"/>
         <add name="size" type="uint">byte count of the complete external resource file</add>
     </compound>
 

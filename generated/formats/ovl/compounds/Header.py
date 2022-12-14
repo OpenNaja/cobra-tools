@@ -102,17 +102,17 @@ class Header(GenericHeader):
 
 		# used in DLA
 		self.names_pad = Array(self.context, 0, None, (0,), Ubyte)
-		self.mimes = Array(self.context, self, None, (0,), MimeEntry)
+		self.mimes = Array(self.context, 0, None, (0,), MimeEntry)
 		self.triplets = Array(self.context, 0, None, (0,), Triplet)
 		self.triplets_pad = PadAlign(self.context, 4, self.triplets)
-		self.files = Array(self.context, self, None, (0,), FileEntry)
+		self.files = Array(self.context, 0, None, (0,), FileEntry)
 
 		# usually STATIC followed by any external OVS names
 		self.archive_names = ZStringBuffer(self.context, self.len_archive_names, None)
-		self.archives = Array(self.context, self.archive_names, None, (0,), ArchiveEntry)
+		self.archives = Array(self.context, 0, None, (0,), ArchiveEntry)
 		self.included_ovls = Array(self.context, 0, None, (0,), IncludedOvl)
-		self.dependencies = Array(self.context, self, None, (0,), DependencyEntry)
-		self.aux_entries = Array(self.context, self, None, (0,), AuxEntry)
+		self.dependencies = Array(self.context, 0, None, (0,), DependencyEntry)
+		self.aux_entries = Array(self.context, 0, None, (0,), AuxEntry)
 
 		# after aux in ZTUAC and PC
 		self.dependencies = Array(self.context, 0, None, (0,), DependencyEntry)
@@ -147,15 +147,15 @@ class Header(GenericHeader):
 		('reserved', Array, (0, None, (12,), Uint), (False, None), None),
 		('names', ZStringBuffer, (None, None), (False, None), None),
 		('names_pad', Array, (0, None, (None,), Ubyte), (False, None), True),
-		('mimes', Array, (None, None, (None,), MimeEntry), (False, None), None),
+		('mimes', Array, (0, None, (None,), MimeEntry), (False, None), None),
 		('triplets', Array, (0, None, (None,), Triplet), (False, None), True),
 		('triplets_pad', PadAlign, (4, None), (False, None), True),
-		('files', Array, (None, None, (None,), FileEntry), (False, None), None),
+		('files', Array, (0, None, (None,), FileEntry), (False, None), None),
 		('archive_names', ZStringBuffer, (None, None), (False, None), None),
-		('archives', Array, (None, None, (None,), ArchiveEntry), (False, None), None),
+		('archives', Array, (0, None, (None,), ArchiveEntry), (False, None), None),
 		('included_ovls', Array, (0, None, (None,), IncludedOvl), (False, None), None),
-		('dependencies', Array, (None, None, (None,), DependencyEntry), (False, None), True),
-		('aux_entries', Array, (None, None, (None,), AuxEntry), (False, None), None),
+		('dependencies', Array, (0, None, (None,), DependencyEntry), (False, None), True),
+		('aux_entries', Array, (0, None, (None,), AuxEntry), (False, None), None),
 		('dependencies', Array, (0, None, (None,), DependencyEntry), (False, None), True),
 		('stream_files', Array, (0, None, (None,), StreamEntry), (False, None), None),
 		('zlibs', Array, (0, None, (None,), ZlibInfo), (False, None), None),
@@ -190,17 +190,17 @@ class Header(GenericHeader):
 		yield 'names', ZStringBuffer, (instance.len_names, None), (False, None)
 		if instance.context.version <= 15:
 			yield 'names_pad', Array, (0, None, ((16 - (instance.len_names % 16)) % 16,), Ubyte), (False, None)
-		yield 'mimes', Array, (instance, None, (instance.num_mimes,), MimeEntry), (False, None)
+		yield 'mimes', Array, (0, None, (instance.num_mimes,), MimeEntry), (False, None)
 		if instance.context.version >= 20:
 			yield 'triplets', Array, (0, None, (instance.num_triplets,), Triplet), (False, None)
 			yield 'triplets_pad', PadAlign, (4, instance.triplets), (False, None)
-		yield 'files', Array, (instance, None, (instance.num_files,), FileEntry), (False, None)
+		yield 'files', Array, (0, None, (instance.num_files,), FileEntry), (False, None)
 		yield 'archive_names', ZStringBuffer, (instance.len_archive_names, None), (False, None)
-		yield 'archives', Array, (instance.archive_names, None, (instance.num_archives,), ArchiveEntry), (False, None)
+		yield 'archives', Array, (0, None, (instance.num_archives,), ArchiveEntry), (False, None)
 		yield 'included_ovls', Array, (0, None, (instance.num_included_ovls,), IncludedOvl), (False, None)
 		if instance.context.version >= 19:
-			yield 'dependencies', Array, (instance, None, (instance.num_dependencies,), DependencyEntry), (False, None)
-		yield 'aux_entries', Array, (instance, None, (instance.num_aux_entries,), AuxEntry), (False, None)
+			yield 'dependencies', Array, (0, None, (instance.num_dependencies,), DependencyEntry), (False, None)
+		yield 'aux_entries', Array, (0, None, (instance.num_aux_entries,), AuxEntry), (False, None)
 		if instance.context.version <= 18:
 			yield 'dependencies', Array, (0, None, (instance.num_dependencies,), DependencyEntry), (False, None)
 		yield 'stream_files', Array, (0, None, (instance.num_stream_files,), StreamEntry), (False, None)

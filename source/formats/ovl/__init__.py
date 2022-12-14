@@ -19,7 +19,6 @@ from generated.formats.ovl.compounds.SetEntry import SetEntry
 from generated.formats.ovl.compounds.StreamEntry import StreamEntry
 from generated.formats.ovl.compounds.ZlibInfo import ZlibInfo
 from generated.formats.ovl.versions import *
-from generated.formats.ovl_base import OvlContext
 from generated.formats.ovl_base.enums.Compression import Compression
 from generated.io import IoFile
 from modules.formats.formats_dict import build_formats_dict
@@ -195,7 +194,7 @@ class OvsFile(OvsHeader):
 			pool.data = BytesIO(stream.read(pool.size))
 
 	def map_assets(self):
-		"""Store start and stop indices to asset entries, translate hierarchy to sizedstr entries"""
+		"""Store start and stop indices to asset entries, translate hierarchy to root entries"""
 		# store start and stop asset indices
 		for i, set_entry in enumerate(self.set_header.sets):
 			# for the last entry
@@ -206,8 +205,7 @@ class OvsFile(OvsHeader):
 				set_entry.end = self.set_header.sets[i + 1].start
 			# map assets to entry
 			assets = self.set_header.assets[set_entry.start: set_entry.end]
-			logging.debug(f"SET: {set_entry.name}")
-			logging.debug(f"ASSETS: {[a.name for a in assets]}")
+			logging.debug(f"Set {set_entry.name} with {len(assets)} assets")
 			# store the references on the corresponding loader
 			assert set_entry.entry
 			loader = self.ovl.loaders[set_entry.entry.name]
@@ -574,8 +572,8 @@ class OvlFile(Header, IoFile):
 	current_action = DummySignal()
 
 	def __init__(self):
-		# create a context
-		super().__init__(OvlContext())
+		# pass self as context
+		super().__init__(self)
 		self.magic.data = b'FRES'
 		self.hash_table_global = {}
 
@@ -584,6 +582,11 @@ class OvlFile(Header, IoFile):
 
 		self.formats_dict = build_formats_dict()
 		self.loaders = {}
+
+	@classmethod
+	def context_to_xml(cls, elem, prop, instance, arg, template, debug):
+		from generated.formats.ovl.versions import get_game
+		elem.attrib[prop] = str(get_game(instance)[0])
 
 	def clear(self):
 		self.archives.clear()
@@ -696,7 +699,7 @@ class OvlFile(Header, IoFile):
 		# capital letters in the name buffer crash JWE2, apparently
 		file_path = file_path.lower()
 		filename = os.path.basename(file_path)
-		file_entry = FileEntry(self.context, arg=self)
+		file_entry = FileEntry(self.context)
 		file_entry.path = file_path
 		file_entry.name = filename
 		# just init it here
@@ -813,7 +816,7 @@ class OvlFile(Header, IoFile):
 			ovl_name = ovl_name.strip()
 			if not ovl_name.lower().endswith(".ovl"):
 				ovl_name += ".ovl"
-			included_ovl = IncludedOvl(self.context, arg=self)
+			included_ovl = IncludedOvl(self.context)
 			included_ovl.name = ovl_name
 			included_ovl.basename, included_ovl.ext = os.path.splitext(included_ovl.name)
 			logging.debug(f"Including {included_ovl.name}")
@@ -839,7 +842,7 @@ class OvlFile(Header, IoFile):
 			return
 
 		# store file name
-		included_ovl = IncludedOvl(self.context, arg=self)
+		included_ovl = IncludedOvl(self.context)
 		included_ovl.name = included_ovl_name
 		included_ovl.basename = included_ovl_basename
 		included_ovl.ext = ext

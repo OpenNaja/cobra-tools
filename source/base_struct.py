@@ -198,8 +198,8 @@ class BaseStruct(metaclass=StructMetaClass):
 		"""Create an xml elem representing this MemStruct, recursively set its data, indent and save to 'file_path'"""
 		xml = ET.Element(cls.__name__)
 		cls._to_xml(instance, xml, debug)
-		if hasattr(instance.context, "to_xml"):
-			instance.context.to_xml(xml, "game", instance.context, 0, None, debug)
+		if hasattr(instance.context, "context_to_xml"):
+			instance.context.context_to_xml(xml, "game", instance.context, 0, None, debug)
 		indent(xml)
 		with open(file_path, 'wb') as outfile:
 			outfile.write(ET.tostring(xml))

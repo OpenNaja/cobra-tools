@@ -399,14 +399,11 @@ class MainWindow(widgets.MainWindow):
 
 	def game_changed(self):
 		game = self.game_choice.entry.currentText()
-		# we must set both the context, and the local variable
-		set_game(self.ovl_data.context, game)
 		set_game(self.ovl_data, game)
 
 	def compression_changed(self):
 		compression = self.compression_choice.entry.currentText()
 		compression_value = Compression[compression]
-		self.ovl_data.context.user_version.compression = compression_value
 		self.ovl_data.user_version.compression = compression_value
 
 	@property
