@@ -696,7 +696,7 @@ class OvlFile(Header, IoFile):
 		# capital letters in the name buffer crash JWE2, apparently
 		file_path = file_path.lower()
 		filename = os.path.basename(file_path)
-		file_entry = FileEntry(self.context)
+		file_entry = FileEntry(self.context, arg=self)
 		file_entry.path = file_path
 		file_entry.name = filename
 		# just init it here
