@@ -813,7 +813,7 @@ class OvlFile(Header, IoFile):
 			ovl_name = ovl_name.strip()
 			if not ovl_name.lower().endswith(".ovl"):
 				ovl_name += ".ovl"
-			included_ovl = IncludedOvl(self.context)
+			included_ovl = IncludedOvl(self.context, arg=self)
 			included_ovl.name = ovl_name
 			included_ovl.basename, included_ovl.ext = os.path.splitext(included_ovl.name)
 			logging.debug(f"Including {included_ovl.name}")
@@ -839,7 +839,7 @@ class OvlFile(Header, IoFile):
 			return
 
 		# store file name
-		included_ovl = IncludedOvl(self.context)
+		included_ovl = IncludedOvl(self.context, arg=self)
 		included_ovl.name = included_ovl_name
 		included_ovl.basename = included_ovl_basename
 		included_ovl.ext = ext
