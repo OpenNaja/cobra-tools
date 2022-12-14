@@ -36,7 +36,6 @@
 
 		<!-- end of fixed header structure -->
         <add name="Names" type="ZStringBuffer" arg="Len Names">Name buffer for assets and file mime types.</add>
-<!--        <add name="Names_pad" type="ubyte" arr1="(16 - ((Names \ io_start + Names \ io_size) #MOD# 16)) #MOD# 16" until="15">used in DLA</add>-->
         <add name="Names_pad" type="ubyte" arr1="(16 - (Len Names #MOD# 16)) #MOD# 16" until="15">used in DLA</add>
         <add name="Mimes" type="MimeEntry" arr1="Num Mimes"/>
         <add name="triplets" type="Triplet" arr1="num_triplets" since="20"/>
@@ -240,7 +239,7 @@
 	
 	<compound name="AssetEntry" >
 		refers to root entries so they can be grouped into set entries.
-		It seems to point exclusively to RootEntry's whose Ext Hash is FF FF FF FF aka max uint32
+		points to RootEntry with pool_index -1
         <add name="File Hash" type="uint"/>
         <add name="zero 0" type="uint"/>
         <add name="Ext Hash" type="uint" since="19"/>
