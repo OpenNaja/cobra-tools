@@ -21,8 +21,6 @@ class FileEntry(BaseStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-
-		# offset in the ovl's names block; start offset of zero terminated string
 		self.basename = 0
 
 		# this hash is used to retrieve the file name from inside the archive
@@ -50,7 +48,7 @@ class FileEntry(BaseStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'basename', OffsetString, (instance.arg, None), (False, None)
+		yield 'basename', OffsetString, (instance.arg.names, None), (False, None)
 		yield 'file_hash', Uint, (0, None), (False, None)
 		yield 'pool_type', Byte, (0, None), (False, None)
 		yield 'set_pool_type', Byte, (0, None), (False, None)

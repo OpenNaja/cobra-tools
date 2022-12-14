@@ -35,5 +35,5 @@ class AuxEntry(BaseStruct):
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'file_index', Uint, (0, None), (False, None)
-		yield 'name', OffsetString, (instance.arg, None), (False, None)
+		yield 'name', OffsetString, (instance.arg.names, None), (False, None)
 		yield 'size', Uint, (0, None), (False, None)

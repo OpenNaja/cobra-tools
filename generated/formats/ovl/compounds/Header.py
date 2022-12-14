@@ -47,8 +47,6 @@ class Header(GenericHeader):
 
 		# count of file mime types, aka. extensions with metadata
 		self.num_mimes = 0
-
-		# count of files
 		self.num_files = 0
 
 		# repeat count of files ??
@@ -60,16 +58,16 @@ class Header(GenericHeader):
 		# number of archives
 		self.num_archives = 0
 
-		# number of pool_groups across all archives
+		# across all archives
 		self.num_pool_groups = 0
 
-		# number of headers of all types across all archives
+		# across all archives
 		self.num_pools = 0
 
-		# number of DataEntries across all archives
+		# across all archives
 		self.num_datas = 0
 
-		# number of BufferEntries across all archives
+		# across all archives
 		self.num_buffers = 0
 
 		# number of files in external OVS archives
@@ -104,37 +102,21 @@ class Header(GenericHeader):
 
 		# used in DLA
 		self.names_pad = Array(self.context, 0, None, (0,), Ubyte)
-
-		# Array of MimeEntry objects that represent a mime type (file extension) each.
-		self.mimes = Array(self.context, self.names, None, (0,), MimeEntry)
-
-		# ?
+		self.mimes = Array(self.context, self, None, (0,), MimeEntry)
 		self.triplets = Array(self.context, 0, None, (0,), Triplet)
-
-		# ?
 		self.triplets_pad = PadAlign(self.context, 4, self.triplets)
+		self.files = Array(self.context, self, None, (0,), FileEntry)
 
-		# Array of FileEntry objects.
-		self.files = Array(self.context, self.names, None, (0,), FileEntry)
-
-		# Name buffer for archives, usually will be STATIC followed by any OVS names
+		# usually STATIC followed by any external OVS names
 		self.archive_names = ZStringBuffer(self.context, self.len_archive_names, None)
 		self.archives = Array(self.context, self.archive_names, None, (0,), ArchiveEntry)
 		self.included_ovls = Array(self.context, 0, None, (0,), IncludedOvl)
-
-		# aka InstancesArray of DependencyEntry objects.
-		self.dependencies = Array(self.context, self.names, None, (0,), DependencyEntry)
-
-		# Array of AuxEntry objects.
-		self.aux_entries = Array(self.context, self.names, None, (0,), AuxEntry)
+		self.dependencies = Array(self.context, self, None, (0,), DependencyEntry)
+		self.aux_entries = Array(self.context, self, None, (0,), AuxEntry)
 
 		# after aux in ZTUAC and PC
 		self.dependencies = Array(self.context, 0, None, (0,), DependencyEntry)
-
-		# Array of StreamEntry objects.
 		self.stream_files = Array(self.context, 0, None, (0,), StreamEntry)
-
-		# repeats by archive count
 		self.zlibs = Array(self.context, 0, None, (0,), ZlibInfo)
 		if set_default:
 			self.set_defaults()
@@ -208,17 +190,17 @@ class Header(GenericHeader):
 		yield 'names', ZStringBuffer, (instance.len_names, None), (False, None)
 		if instance.context.version <= 15:
 			yield 'names_pad', Array, (0, None, ((16 - (instance.len_names % 16)) % 16,), Ubyte), (False, None)
-		yield 'mimes', Array, (instance.names, None, (instance.num_mimes,), MimeEntry), (False, None)
+		yield 'mimes', Array, (instance, None, (instance.num_mimes,), MimeEntry), (False, None)
 		if instance.context.version >= 20:
 			yield 'triplets', Array, (0, None, (instance.num_triplets,), Triplet), (False, None)
 			yield 'triplets_pad', PadAlign, (4, instance.triplets), (False, None)
-		yield 'files', Array, (instance.names, None, (instance.num_files,), FileEntry), (False, None)
+		yield 'files', Array, (instance, None, (instance.num_files,), FileEntry), (False, None)
 		yield 'archive_names', ZStringBuffer, (instance.len_archive_names, None), (False, None)
 		yield 'archives', Array, (instance.archive_names, None, (instance.num_archives,), ArchiveEntry), (False, None)
 		yield 'included_ovls', Array, (0, None, (instance.num_included_ovls,), IncludedOvl), (False, None)
 		if instance.context.version >= 19:
-			yield 'dependencies', Array, (instance.names, None, (instance.num_dependencies,), DependencyEntry), (False, None)
-		yield 'aux_entries', Array, (instance.names, None, (instance.num_aux_entries,), AuxEntry), (False, None)
+			yield 'dependencies', Array, (instance, None, (instance.num_dependencies,), DependencyEntry), (False, None)
+		yield 'aux_entries', Array, (instance, None, (instance.num_aux_entries,), AuxEntry), (False, None)
 		if instance.context.version <= 18:
 			yield 'dependencies', Array, (0, None, (instance.num_dependencies,), DependencyEntry), (False, None)
 		yield 'stream_files', Array, (0, None, (instance.num_stream_files,), StreamEntry), (False, None)

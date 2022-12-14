@@ -21,8 +21,6 @@ class MimeEntry(BaseStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-
-		# offset in the header's Names block
 		self.name = 0
 
 		# usually zero
@@ -62,7 +60,7 @@ class MimeEntry(BaseStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'name', OffsetString, (instance.arg, None), (False, None)
+		yield 'name', OffsetString, (instance.arg.names, None), (False, None)
 		yield 'unknown', Uint, (0, None), (False, None)
 		yield 'mime_hash', Uint, (0, None), (False, None)
 		yield 'mime_version', Uint, (0, None), (False, None)

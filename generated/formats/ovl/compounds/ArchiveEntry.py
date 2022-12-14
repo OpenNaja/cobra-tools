@@ -33,8 +33,6 @@ class ArchiveEntry(BaseStruct):
 
 		# Amount of PoolGroup objects at start of this deflated archive.
 		self.num_pool_groups = 0
-
-		# used in pz 1.6
 		self.num_buffer_groups = 0
 
 		# Amount of buffers in the archive

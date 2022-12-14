@@ -42,6 +42,6 @@ class DependencyEntry(BaseStruct):
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'file_hash', Uint, (0, None), (False, None)
-		yield 'ext', OffsetString, (instance.arg, None), (False, None)
+		yield 'ext', OffsetString, (instance.arg.names, None), (False, None)
 		yield 'file_index', Uint, (0, None), (False, None)
 		yield 'link_ptr', HeaderPointer, (0, None), (False, None)

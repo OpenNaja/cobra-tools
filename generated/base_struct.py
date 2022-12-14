@@ -354,7 +354,7 @@ class BaseStruct(metaclass=StructMetaClass):
 		try:
 			instance.io_start = stream.tell()
 			# todo - remove hacky overwrite and unify the api for arg?
-			instance.arg = arg
+			# instance.arg = arg
 			cls.write_fields(stream, instance)
 			instance.io_size = stream.tell() - instance.io_start
 			return instance

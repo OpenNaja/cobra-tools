@@ -13,7 +13,6 @@ from generated.formats.ovl.compounds.FileEntry import FileEntry
 from generated.formats.ovl.compounds.Fragment import Fragment
 from generated.formats.ovl.compounds.Header import Header
 from generated.formats.ovl.compounds.IncludedOvl import IncludedOvl
-from generated.formats.ovl.compounds.MimeEntry import MimeEntry
 from generated.formats.ovl.compounds.OvsHeader import OvsHeader
 from generated.formats.ovl.compounds.PoolGroup import PoolGroup
 from generated.formats.ovl.compounds.SetEntry import SetEntry
@@ -1117,8 +1116,9 @@ class OvlFile(Header, IoFile):
 			files_by_extension[file.ext].append(file)
 		# create the mimes
 		file_index_offset = 0
-		for file_ext, files in sorted(files_by_extension.items()):
-			mime_entry = MimeEntry(self.context)
+		self.num_mimes = len(files_by_extension)
+		self.reset_field("mimes")
+		for (file_ext, files), mime_entry in zip(sorted(files_by_extension.items()), self.mimes):
 			mime_entry.ext = file_ext
 			try:
 				mime_entry.update_constants(self)
@@ -1130,12 +1130,10 @@ class OvlFile(Header, IoFile):
 			for file_entry in files:
 				file_entry.update_constants(self)
 				file_entry.extension = len(self.mimes)
-			self.mimes.append(mime_entry)
 		# update ovl counts
 		self.num_dependencies = len(self.dependencies)
 		self.num_aux_entries = len(self.aux_entries)
 		self.num_triplets = len(self.triplets)
-		self.num_mimes = len(self.mimes)
 		self.num_files = self.num_files_2 = self.num_files_3 = len(self.files)
 
 	# def rebuild_ovs_extras(self):

@@ -660,7 +660,7 @@
 		<add name="JointNamesPadding" type="SmartPadding" until="32">?</add>
 		the padding goes wrong on 144 because its first hitcheck has collision type 0
 		<add name="joint_infos" type="JointInfo" arr1="joint count" arg="joint_names" since="47">new style - includes name offset, some flags and the hitchecks</add>
-		<add name="hitcheck_reader" type="HitcheckReader" arg="instance" until="32">old style - for each joint, read the hitchecks</add>
+		<add name="hitcheck_reader" type="HitcheckReader" arg="#SELF#" until="32">old style - for each joint, read the hitchecks</add>
 	</compound>
 
 	<compound name="HitcheckReader">
