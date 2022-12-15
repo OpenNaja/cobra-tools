@@ -397,8 +397,8 @@ class Ms2File(Ms2InfoHeader, IoFile):
 if __name__ == "__main__":
 	m = Ms2File()
 	# m.load("C:/Users/arnfi/Desktop/jwe2/pyro/export/models.ms2", read_editable=True)
-	m.load("C:/Program Files (x86)/Steam/steamapps/common/Jurassic World Evolution 2/Win64/ovldata/walker_export/ContentPDLC5/Buildings/ModularStructures/LAG_NaturalWaterPool_Malta_Walls/LAG_NaturalWaterPool_Malta_Walls/models.ms2", read_editable=True)
-	# m.load("C:/Users/arnfi/Desktop/models.ms2", read_editable=True)
+	# m.load("C:/Program Files (x86)/Steam/steamapps/common/Jurassic World Evolution 2/Win64/ovldata/walker_export/ContentPDLC5/Buildings/ModularStructures/LAG_NaturalWaterPool_Malta_Walls/LAG_NaturalWaterPool_Malta_Walls/models.ms2", read_editable=True)
+	m.load("C:/Users/arnfi/Desktop/models.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/bush_berry_bear.ms2", read_editable=True)
 	# print(m.models_reader.bone_infos[0])
 	# print(m)

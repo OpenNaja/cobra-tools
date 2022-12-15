@@ -250,12 +250,12 @@ class BioMeshData(MeshData):
 		if vert_chunk.weights_flag.has_weights:
 			# read for each vertex
 			if self.context.version >= 52:
-				# not sure if uint or int, but seems to work!
 				# vert_chunk.weights may have to be cast to uint16 because of the new 10 bit precision
+				# however, there are no meshes that make use of the extra precision as of 2022-12
 				vert_chunk.packed_weights = np.zeros(dtype=np.uint64, shape=vert_chunk.vertex_count)
 				self.buffer_info.verts.readinto(vert_chunk.packed_weights)
+				# logging.info(vert_chunk.packed_weights)
 				unpack_int64_weights(vert_chunk.packed_weights, vert_chunk.weights)
-				# logging.info(vert_chunk.weights)
 			else:
 				self.buffer_info.verts.readinto(vert_chunk.weights)
 			# logging.info(vert_chunk.weights)
@@ -434,7 +434,12 @@ class BioMeshData(MeshData):
 			if vert_chunk.weights_flag.mesh_format in (MeshFormat.SEPARATE, MeshFormat.UNK_FMT):
 				self.buffer_info.verts.write(vert_chunk.packed_verts.tobytes())
 				if vert_chunk.weights_flag.has_weights:
-					self.buffer_info.verts.write(vert_chunk.weights.tobytes())
+					if self.context.version >= 52:
+						vert_chunk.packed_weights = np.zeros(dtype=np.uint64, shape=vert_chunk.vertex_count)
+						pack_int64_weights(vert_chunk.packed_weights, vert_chunk.weights)
+						self.buffer_info.verts.write(vert_chunk.packed_weights.tobytes())
+					else:
+						self.buffer_info.verts.write(vert_chunk.weights.tobytes())
 			self.buffer_info.verts.write(vert_chunk.meta.tobytes())
 
 			tri_chunk.tris_offset = self.buffer_info.tris.tell()
