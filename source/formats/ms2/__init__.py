@@ -68,8 +68,8 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			for bone_i, joint_info in zip(joints.joint_indices, joints.joint_infos):
 				# usually, this corresponds - does not do for speedtree but does not matter
 				joint_info.bone_name = bone_info.bones[bone_i].name
-				if not joint_info.bone_name == joint_info.name:
-					logging.warning(f"bone name [{joint_info.bone_name}] doesn't match joint name [{joint_info.name}]")
+				#if not joint_info.bone_name == joint_info.name:
+				#	logging.warning(f"bone name [{joint_info.bone_name}] doesn't match joint name [{joint_info.name}]")
 				if joints.bone_count:
 					if joints.joint_infos[joints.bone_indices[bone_i]] != joint_info:
 						logging.warning(f"bone index [{bone_i}] doesn't point to expected joint info")

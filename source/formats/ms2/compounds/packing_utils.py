@@ -12,7 +12,15 @@ PACKEDVEC_MAX = 2 ** 20 - 1  # 0x100000
 # PACKEDVEC_MAX = 2 ** 20  # 0x100000
 FUR_OVERHEAD = 2
 zero_uint64 = np.uint64(0)
+# describe the amount of bits taken up by each logical field in the uint64
+PACKED_WEIGHT_FIELDS = ((10, 8), (10, 8), (10, 8), (10,))
+# the indices into the unpacked weights per field
+PACKED_WEIGHT_TITLES = ("bone ids", "bone weights")
 
+
+def get_bitmask(num_bits):
+    """Returns num_bits toggled on"""
+    return (1 << num_bits) - 1
 
 # high level access - while more readable, these are noticeably slower for dino meshes than working on the whole array
 def decode_oct(decoded, encoded):
@@ -106,23 +114,14 @@ def scale_pack_vectorized(f, pack_base):
 def unpack_int64_vector(packed_vert, vertices, extra):
     for i in range(3):
         # grab the last 21 bits with bitand
-        vertices[:, i] = (packed_vert >> (i * 21)) & 0b111111111111111111111
+        vertices[:, i] = (packed_vert >> (i * 21)) & get_bitmask(21)
     extra[:] = packed_vert >> 63
 
 
-def get_bitmask(num_bits):
-    """Returns num_bits toggled on"""
-    return (1 << num_bits) - 1
-
-
 def unpack_int64_weights(packed_weights, weights):
-    # describe the amount of bits taken up by each logical field in the uint64
-    fields = ((10, 8), (10, 8), (10, 8), (10,))
-    # the indices into the unpacked weights per field
-    titles = ("bone ids", "bone weights")
     offset = 0
-    for i, field in enumerate(fields):
-        for size, title in zip(field, titles):
+    for i, field in enumerate(PACKED_WEIGHT_FIELDS):
+        for size, title in zip(field, PACKED_WEIGHT_TITLES):
             weights[title][:, i] = (packed_weights >> offset) & get_bitmask(size)
             offset += size
     # reconstruct the last weight
@@ -134,6 +133,21 @@ def pack_int64_vector(packed_vert, vertices, extra):
     for i in range(3):
         packed_vert |= vertices[:, i] << (21 * i)
     packed_vert |= extra.astype(np.int64) << 63
+
+
+def pack_int64_weights(packed_weights, weights):
+    offset = 0
+    # cast the weights to allow for bitshifting far enough
+    dt_weights = [
+        ("bone ids", np.uint64, (4,)),
+        ("bone weights", np.uint64, (4,)),
+    ]
+    weights = weights.astype(dt_weights)
+    packed_weights[:] = 0
+    for i, field in enumerate(PACKED_WEIGHT_FIELDS):
+        for size, title in zip(field, PACKED_WEIGHT_TITLES):
+            packed_weights |= weights[title][:, i] << offset
+            offset += size
 
 
 def remap(v, old_min, old_max, new_min, new_max):

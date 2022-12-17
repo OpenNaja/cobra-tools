@@ -1,20 +1,20 @@
 import numpy
 from generated.array import Array
 from generated.base_struct import BaseStruct
-from generated.formats.base.basic import Float
 from generated.formats.base.basic import Int
-from generated.formats.base.basic import Uint
 from generated.formats.base.basic import Uint64
-from generated.formats.base.basic import Ushort
 from generated.formats.ms2.compounds.Matrix33 import Matrix33
 from generated.formats.ms2.compounds.SubA import SubA
 from generated.formats.ms2.compounds.SubCollChunk import SubCollChunk
 from generated.formats.ms2.compounds.Vector3 import Vector3
-from generated.formats.ovl_base.compounds.Empty import Empty
 from generated.formats.ovl_base.compounds.SmartPadding import SmartPadding
 
 
 class MeshCollision(BaseStruct):
+
+	"""
+	JWE2: 188 bytes
+	"""
 
 	__name__ = 'MeshCollision'
 
@@ -53,26 +53,6 @@ class MeshCollision(BaseStruct):
 
 		# seems to repeat tri_count
 		self.sub_coll_chunk = SubCollChunk(self.context, 0, None)
-
-		# usually zero, nonzero in JWE2 dev footplant, [1] used as salt for tri indices
-		self.tris_salt = Array(self.context, 0, None, (0,), Uint)
-		self.vertices_addr = Empty(self.context, 0, None)
-
-		# array of vertices
-		self.vertices = Array(self.context, 0, None, (0,), Float)
-		self.triangles_addr = Empty(self.context, 0, None)
-
-		# triangle indices into vertex list
-		self.triangles = Array(self.context, 0, None, (0,), Ushort)
-
-		# ?
-		self.const = 0
-
-		# in JWE1 redwood: always 37
-		self.triangle_flags = Array(self.context, 0, None, (0,), Uint)
-
-		# might be padding!
-		self.zero_end = 0
 		if set_default:
 			self.set_defaults()
 
@@ -92,14 +72,6 @@ class MeshCollision(BaseStruct):
 		('zeros_2', Array, (0, None, (7,), Int), (False, None), None),
 		('weird_padding', SmartPadding, (4, None), (False, None), None),
 		('sub_coll_chunk', SubCollChunk, (0, None), (False, None), True),
-		('tris_salt', Array, (0, None, (4,), Uint), (False, None), True),
-		('vertices_addr', Empty, (0, None), (False, None), None),
-		('vertices', Array, (0, None, (None, 3,), Float), (False, None), None),
-		('triangles_addr', Empty, (0, None), (False, None), None),
-		('triangles', Array, (0, None, (None, 3,), Ushort), (False, None), None),
-		('const', Uint, (0, None), (False, None), True),
-		('triangle_flags', Array, (0, None, (None,), Uint), (False, None), True),
-		('zero_end', Uint, (0, None), (False, None), None),
 		]
 
 	@classmethod
@@ -121,13 +93,3 @@ class MeshCollision(BaseStruct):
 		yield 'weird_padding', SmartPadding, (4, None), (False, None)
 		if instance.has_sub_coll_chunk:
 			yield 'sub_coll_chunk', SubCollChunk, (0, None), (False, None)
-			yield 'tris_salt', Array, (0, None, (4,), Uint), (False, None)
-		yield 'vertices_addr', Empty, (0, None), (False, None)
-		yield 'vertices', Array, (0, None, (instance.vertex_count, 3,), Float), (False, None)
-		yield 'triangles_addr', Empty, (0, None), (False, None)
-		yield 'triangles', Array, (0, None, (instance.tri_count, 3,), Ushort), (False, None)
-		if instance.context.version <= 47:
-			yield 'const', Uint, (0, None), (False, None)
-		if instance.context.version <= 47 and instance.const:
-			yield 'triangle_flags', Array, (0, None, (instance.tri_flags_count,), Uint), (False, None)
-		yield 'zero_end', Uint, (0, None), (False, None)

@@ -13,6 +13,10 @@ from generated.formats.ms2.enums.CollisionType import CollisionType
 
 class HitCheck(BaseStruct):
 
+	"""
+	JWE2: 20 bytes excluding collider
+	"""
+
 	__name__ = 'HitCheck'
 
 	_import_key = 'ms2.compounds.HitCheck'
