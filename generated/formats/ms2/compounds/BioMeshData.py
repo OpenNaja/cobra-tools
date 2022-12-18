@@ -135,7 +135,7 @@ class BioMeshData(MeshData):
 		for i, (tri_chunk, vert_chunk) in enumerate(zip(self.tri_chunks, self.vert_chunks)):
 			# bones_per_chunk = set()
 			# logging.debug(f"{i}, {tri_chunk}, {vert_chunk}")
-			# logging.debug(f"{i}, {vert_chunk.weights_flag}")
+			#logging.debug(f"{i}, {vert_chunk.weights_flag}")
 
 			# these sometimes correspond but not always
 			# logging.info(f"chunk {i} tris at {tri_chunk.tris_offset}, weights_flag {vert_chunk.weights_flag}")
@@ -250,6 +250,7 @@ class BioMeshData(MeshData):
 		if vert_chunk.weights_flag.has_weights:
 			# read for each vertex
 			if self.context.version >= 52:
+				# not sure if uint or int, but seems to work!
 				# vert_chunk.weights may have to be cast to uint16 because of the new 10 bit precision
 				# however, there are no meshes that make use of the extra precision as of 2022-12
 				vert_chunk.packed_weights = np.zeros(dtype=np.uint64, shape=vert_chunk.vertex_count)

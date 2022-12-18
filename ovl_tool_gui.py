@@ -172,6 +172,7 @@ class MainWindow(widgets.MainWindow):
 			(edit_menu, "Inject", self.inject_ask, "CTRL+I", "inject"),
 			(edit_menu, "Rename", self.rename, "CTRL+R", ""),
 			(edit_menu, "Rename Contents", self.rename_contents, "CTRL+SHIFT+R", ""),
+			(edit_menu, "Rename Both", self.rename_both, "CTRL+ALT+R", ""),
 			(edit_menu, "Remove Selected", self.remove, "DEL", ""),
 			(util_menu, "Inspect Models", self.inspect_models, "", ""),
 			(util_menu, "Inspect FGMs", self.walker_fgm, "", ""),
@@ -555,6 +556,10 @@ class MainWindow(widgets.MainWindow):
 					self.ovl_data.rename_contents(names, only_files)
 					self.file_widget.dirty = True
 					self.update_gui_table()
+                    
+	def rename_both(self):
+		self.rename_contents()
+		self.rename()
 
 	# Save the OVL file list to disk
 	def save_file_list(self):

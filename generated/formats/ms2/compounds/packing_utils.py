@@ -22,7 +22,6 @@ def get_bitmask(num_bits):
     """Returns num_bits toggled on"""
     return (1 << num_bits) - 1
 
-
 # high level access - while more readable, these are noticeably slower for dino meshes than working on the whole array
 def decode_oct(decoded, encoded):
     decoded[:, :2] = encoded
