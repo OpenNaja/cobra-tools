@@ -82,7 +82,7 @@ class ForEachPointer(Pointer):
 			logging.warning(f"Missing sub-element '{prop}' on XML element '{elem.tag}'")
 			return
 		instance = cls(target.context, arg, template, set_default=False)
-		cls.pool_type_from_xml(elem, instance)
+		cls.pool_type_from_xml(sub, instance)
 		cls._from_xml(instance, sub)
 		return instance
 
