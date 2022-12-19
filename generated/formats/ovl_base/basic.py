@@ -85,7 +85,10 @@ class OffsetString(Int):
         # logging.info(f"arg {instance}, {arg}")
         # arg = ZStringBuffer needs to be filled before writing
         # now we just take the index prepared by the string table
-        offset = arg.offset_dic.get(instance, -1)
+        try:
+            offset = arg.offset_dic.get(instance)
+        except KeyError:
+            raise KeyError(f"String '{instance}' was missing from ZStringBuffer '{arg}'")
         # print(offset, instance, arg.offset_dic)
         super().to_stream(offset, stream, context, arg, template)
 

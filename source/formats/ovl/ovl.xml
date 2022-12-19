@@ -71,7 +71,11 @@
         <add name="c" type="ubyte">?</add>
     </compound>
 
-    <compound name="FileEntry" >
+    <compound name="NamedEntry" >
+        name is stored in basename and ext attributes
+    </compound>
+
+    <compound name="FileEntry" inherit="NamedEntry">
         Description of one file in the archive
         <add name="basename" type="OffsetString" arg="context\names"/>
         <add name="file hash" type="uint">this hash is used to retrieve the file name from inside the archive</add>
@@ -101,20 +105,20 @@
         <add name="ovs_offset" type="uint" >Seemingly unused, can be zeroed without effect ingame in JWE</add>
     </compound>
 
-    <compound name="IncludedOvl" >
+    <compound name="IncludedOvl" inherit="NamedEntry">
         Description of one included ovl file that is force-loaded by this ovl
         <add name="basename" type="OffsetString" arg="context\names">path is relative to this ovl's directory; usually points to ovl files</add>
     </compound>
 
-    <compound name="DependencyEntry" >
+    <compound name="DependencyEntry" inherit="NamedEntry">
         Description of dependency; links it to an entry from this archive
         <add name="file hash" type="uint">Hash of this dependency, for lookup in hash dict. Can be either external or internal.</add>
-        <add name="ext" type="OffsetString" arg="context\names">these use : instead of . at the start, eg. :tex</add>
+        <add name="ext_raw" type="OffsetString" arg="context\names">these use : instead of . at the start, eg. :tex</add>
         <add name="file index" type="uint" >index into ovl file table, points to the file entry where this dependency is used</add>
         <add name="link_ptr" type="HeaderPointer" >pointer into flattened list of all archives' pools</add>
     </compound>
 
-    <compound name="AuxEntry" >
+    <compound name="AuxEntry" inherit="NamedEntry">
         describes an external AUX resource
         <add name="file index" type="uint">index into files list</add>
         <add name="name" type="OffsetString" arg="context\names"/>

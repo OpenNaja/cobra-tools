@@ -205,7 +205,7 @@ class BaseFile:
 			# update name
 			for old, new in name_tuples:
 				entry.name = entry.name.replace(old, new)
-			entry.basename, entry.ext = os.path.splitext(entry.name)
+			# entry.basename, entry.ext = os.path.splitext(entry.name)
 		# also rename target_name
 		for old, new in name_tuples:
 			self.target_name = self.target_name.replace(old, new)

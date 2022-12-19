@@ -2,14 +2,14 @@ from generated.formats.ovl.versions import *
 from hashes import constants_jwe, constants_pz, constants_jwe2, constants_pc, constants_dla
 
 
-from generated.base_struct import BaseStruct
 from generated.formats.base.basic import Byte
 from generated.formats.base.basic import Uint
 from generated.formats.base.basic import Ushort
+from generated.formats.ovl.compounds.NamedEntry import NamedEntry
 from generated.formats.ovl_base.basic import OffsetString
 
 
-class FileEntry(BaseStruct):
+class FileEntry(NamedEntry):
 
 	"""
 	Description of one file in the archive
@@ -37,7 +37,7 @@ class FileEntry(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = BaseStruct._attribute_list + [
+	_attribute_list = NamedEntry._attribute_list + [
 		('basename', OffsetString, (None, None), (False, None), None),
 		('file_hash', Uint, (0, None), (False, None), None),
 		('pool_type', Byte, (0, None), (False, None), None),

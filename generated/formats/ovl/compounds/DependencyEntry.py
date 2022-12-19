@@ -1,10 +1,12 @@
-from generated.base_struct import BaseStruct
+import os
+
 from generated.formats.base.basic import Uint
 from generated.formats.ovl.compounds.HeaderPointer import HeaderPointer
+from generated.formats.ovl.compounds.NamedEntry import NamedEntry
 from generated.formats.ovl_base.basic import OffsetString
 
 
-class DependencyEntry(BaseStruct):
+class DependencyEntry(NamedEntry):
 
 	"""
 	Description of dependency; links it to an entry from this archive
@@ -21,7 +23,7 @@ class DependencyEntry(BaseStruct):
 		self.file_hash = 0
 
 		# these use : instead of . at the start, eg. :tex
-		self.ext = 0
+		self.ext_raw = 0
 
 		# index into ovl file table, points to the file entry where this dependency is used
 		self.file_index = 0
@@ -31,9 +33,9 @@ class DependencyEntry(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = BaseStruct._attribute_list + [
+	_attribute_list = NamedEntry._attribute_list + [
 		('file_hash', Uint, (0, None), (False, None), None),
-		('ext', OffsetString, (None, None), (False, None), None),
+		('ext_raw', OffsetString, (None, None), (False, None), None),
 		('file_index', Uint, (0, None), (False, None), None),
 		('link_ptr', HeaderPointer, (0, None), (False, None), None),
 		]
@@ -42,6 +44,15 @@ class DependencyEntry(BaseStruct):
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'file_hash', Uint, (0, None), (False, None)
-		yield 'ext', OffsetString, (instance.context.names, None), (False, None)
+		yield 'ext_raw', OffsetString, (instance.context.names, None), (False, None)
 		yield 'file_index', Uint, (0, None), (False, None)
 		yield 'link_ptr', HeaderPointer, (0, None), (False, None)
+
+	@property
+	def ext(self):
+		return self.ext_raw.replace(":", ".")
+
+	@ext.setter
+	def ext(self, e):
+		self.ext_raw = e.replace(".", ":")
+

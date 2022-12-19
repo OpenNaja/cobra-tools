@@ -865,10 +865,11 @@ class OvlFile(Header, IoFile):
 		"""Update the name buffers with names from list entries, and update the name offsets on those entries"""
 		def rename_dep(s):
 			"""update ext dependencies with : prefix instead of ."""
-			return s.replace(".", ":")
+			# return s.replace(".", ":")
+			return s
 		# regenerate the name buffer
 		self.names.update_with((
-			(self.dependencies, "ext", rename_dep),
+			(self.dependencies, "ext_raw", rename_dep),
 			(self.included_ovls, "basename", None),
 			(self.mimes, "name", None),
 			(self.aux_entries, "name", None),
@@ -935,7 +936,7 @@ class OvlFile(Header, IoFile):
 			file_entry.ext = file_entry.mime.ext
 			# store this so we can use it
 			file_entry.ext_hash = djb2(file_entry.ext[1:])
-			file_entry.name = file_entry.basename + file_entry.ext
+			# file_entry.name = file_entry.basename + file_entry.ext
 			self.hash_table_local[file_entry.file_hash] = file_entry.basename
 
 		if "generate_hash_table" in self.commands:
@@ -951,7 +952,7 @@ class OvlFile(Header, IoFile):
 		# get included ovls
 		for included_ovl in self.iter_progress(self.included_ovls, "Loading includes"):
 			included_ovl.ext = ".ovl"
-			included_ovl.name = included_ovl.basename + included_ovl.ext
+			# included_ovl.name = included_ovl.basename + included_ovl.ext
 		self.included_ovls_list.emit([included_ovl.name for included_ovl in self.included_ovls])
 
 		# get names of all dependencies
@@ -970,7 +971,7 @@ class OvlFile(Header, IoFile):
 				logging.warning(f"Unresolved dependency [{h}] for {file_entry.name}")
 				dependency_entry.basename = UNK_HASH
 
-			dependency_entry.name = dependency_entry.basename + dependency_entry.ext.replace(":", ".")
+			# dependency_entry.name = dependency_entry.basename + dependency_entry.ext.replace(":", ".")
 
 		for aux_entry in self.aux_entries:
 			file_entry = self.files[aux_entry.file_index]
