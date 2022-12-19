@@ -15,16 +15,16 @@ class TestDirEntries(unittest.TestCase):
 	def test_inject_dir(self):
 		self.assertEqual(len(self.ovlfile.included_ovls), 0, "Should have no included_ovls")
 
-		self.ovlfile.add_included_ovl('test1.ovl')
+		self.ovlfile.included_ovl_names = ('test1.ovl',)
 		self.assertEqual(len(self.ovlfile.included_ovls), 1, "Should have one included_ovl")
 		self.assertEqual(self.ovlfile.included_ovls[0].name, "test1.ovl", "should have included_ovl 1 name 'test1'")
 
-		self.ovlfile.add_included_ovl('test2.ovl')
+		self.ovlfile.included_ovl_names = ('test1.ovl', 'test2.ovl')
 		self.assertEqual(len(self.ovlfile.included_ovls), 2, "Should have two included_ovl")
 		self.assertEqual(self.ovlfile.included_ovls[1].name, "test2.ovl", "should have included_ovl 2 as 'test2'")
 
 		# try adding a existing included_ovl
-		self.ovlfile.add_included_ovl('test1.ovl')
+		self.ovlfile.included_ovl_names = ('test1.ovl', 'test2.ovl', 'test1.ovl')
 		self.assertEqual(len(self.ovlfile.included_ovls), 2, "Should have two included_ovl")
 
 	def test_remove_dir(self):
@@ -74,6 +74,7 @@ class TestDirEntries(unittest.TestCase):
 		with self.assertRaises(TypeError):
 			self.assertEqual(sum((1, 2, 2)), 6, "Should be 6")
 	"""
+
 
 if __name__ == '__main__':
 	unittest.main()

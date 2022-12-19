@@ -807,75 +807,42 @@ class OvlFile(Header, IoFile):
 	def included_ovl_names(self):
 		return [included_ovl.name for included_ovl in self.included_ovls]
 
-	# @included_ovl_names.setter
-	def set_included_ovl_names(self, ovl_names):
+	@included_ovl_names.setter
+	def included_ovl_names(self, ovl_names):
 		# remove duplicates
 		ovl_names = set(ovl_names)
 		logging.debug(f"Setting {len(ovl_names)} included OVLs")
-		self.included_ovls.clear()
-		for ovl_name in ovl_names:
+		self.num_included_ovls = len(ovl_names)
+		self.reset_field("included_ovls")
+		for incl, ovl_name in zip(self.included_ovls, ovl_names):
 			ovl_name = ovl_name.strip()
 			if not ovl_name.lower().endswith(".ovl"):
 				ovl_name += ".ovl"
-			included_ovl = IncludedOvl(self.context)
-			included_ovl.name = ovl_name
-			included_ovl.basename, included_ovl.ext = os.path.splitext(included_ovl.name)
-			logging.debug(f"Including {included_ovl.name}")
-			self.included_ovls.append(included_ovl)
+			incl.name = ovl_name
+			logging.debug(f"Including {incl.name}")
 
 	def load_included_ovls(self, path):
 		if os.path.isfile(path):
 			with open(path) as f:
-				self.set_included_ovl_names(f.readlines())
+				self.included_ovl_names = f.readlines()
 
 	def save_included_ovls(self, path):
 		with open(path, "w") as f:
 			for ovl_name in self.included_ovl_names:
 				f.write(f"{ovl_name}\n")
 
-	# def add_included_ovl(self, included_ovl_name):
-	# 	if not included_ovl_name.lower().endswith(".ovl"):
-	# 		included_ovl_name += ".ovl"
-	# 	included_ovl_basename, ext = os.path.splitext(included_ovl_name)
-	# 	# validate can't insert same included ovl twice
-	# 	if included_ovl_name in self.included_ovl_names:
-	# 		return
-	#
-	# 	# store file name
-	# 	included_ovl = IncludedOvl(self.context)
-	# 	included_ovl.name = included_ovl_name
-	# 	included_ovl.basename = included_ovl_basename
-	# 	included_ovl.ext = ext
-	# 	self.included_ovls.append(included_ovl)
-
-	# def remove_included_ovl(self, included_ovl_name):
-	# 	for included_ovl in self.included_ovls:
-	# 		if included_ovl.name == included_ovl_name:
-	# 			self.included_ovls.remove(included_ovl)
-
-	# def rename_included_ovl(self, included_ovl_name, included_ovl_name_new):
-	# 	# find an existing entry in the list
-	# 	for included_ovl in self.included_ovls:
-	# 		if included_ovl.name == included_ovl_name:
-	# 			included_ovl.name = included_ovl_name_new
-	# 			included_ovl.basename = included_ovl_name_new
-
 	def update_names(self):
 		"""Update the name buffers with names from list entries, and update the name offsets on those entries"""
-		def rename_dep(s):
-			"""update ext dependencies with : prefix instead of ."""
-			# return s.replace(".", ":")
-			return s
 		# regenerate the name buffer
 		self.names.update_with((
-			(self.dependencies, "ext_raw", rename_dep),
-			(self.included_ovls, "basename", None),
-			(self.mimes, "name", None),
-			(self.aux_entries, "basename", None),
-			(self.files, "basename", None)
+			(self.dependencies, "ext_raw"),
+			(self.included_ovls, "basename"),
+			(self.mimes, "name"),
+			(self.aux_entries, "basename"),
+			(self.files, "basename")
 		))
 		self.archive_names.update_with((
-			(self.archives, "name", None),
+			(self.archives, "name"),
 		))
 		self.len_names = len(self.names.data)
 		self.len_archive_names = len(self.archive_names.data)
@@ -950,7 +917,7 @@ class OvlFile(Header, IoFile):
 		# get included ovls
 		for included_ovl in self.iter_progress(self.included_ovls, "Loading includes"):
 			included_ovl.ext = ".ovl"
-		self.included_ovls_list.emit([included_ovl.name for included_ovl in self.included_ovls])
+		self.included_ovls_list.emit(self.included_ovl_names)
 
 		# get names of all dependencies
 		for dependency_entry in self.iter_progress(self.dependencies, "Loading Dependencies"):
@@ -1221,7 +1188,6 @@ class OvlFile(Header, IoFile):
 					f"Archive {archive.name} has {archive.num_pools} pools in {archive.num_pool_groups} pool_groups")
 
 			# update the ovl counts
-			self.num_included_ovls = len(self.included_ovls)
 			self.num_archives = len(self.archives)
 			# sum counts of individual archives
 			self.num_pool_groups = sum(a.num_pool_groups for a in self.archives)

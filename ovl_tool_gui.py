@@ -96,7 +96,7 @@ class MainWindow(widgets.MainWindow):
 
 		self.included_ovls_view = widgets.RelativePathCombo(self, self.file_widget)
 		self.included_ovls_view.setToolTip("These OVL files are loaded by the current OVL file, so their files are included")
-		self.included_ovls_view.entries_changed.connect(self.ovl_data.set_included_ovl_names)
+		self.included_ovls_view.entries_changed.connect(self.update_includes)
 
 		left_frame = QtWidgets.QWidget()
 		hbox = QtWidgets.QVBoxLayout()
@@ -455,6 +455,10 @@ class MainWindow(widgets.MainWindow):
 		f_list.sort(key=lambda t: (t[1], t[0]))
 		self.files_container.set_data(f_list)
 		logging.info(f"Loaded files into GUI in {time.time() - start_time:.2f} seconds")
+
+	def update_includes(self, includes):
+		# print(includes)
+		self.ovl_data.included_ovl_names = includes
 
 	def update_gui_table(self, ):
 		start_time = time.time()
