@@ -180,6 +180,7 @@ class BaseFile:
 		# todo - rename in buffers
 
 	def rename_fragments(self, name_tuples):
+		# todo - rewrite to collect all zstring pointers (incl. obfuscated)
 		logging.info(f"Renaming inside {self.file_entry.name}")
 		byte_name_tups = []
 		try:
