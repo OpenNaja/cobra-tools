@@ -1,5 +1,6 @@
 from generated.base_struct import BaseStruct
 from generated.formats.base.basic import Uint
+from generated.formats.ovl_base.basic import OffsetString
 
 
 class AuxEntry(BaseStruct):
@@ -17,9 +18,7 @@ class AuxEntry(BaseStruct):
 
 		# index into files list
 		self.file_index = 0
-
-		# offset for suffix into string name table
-		self.offset = 0
+		self.name = 0
 
 		# byte count of the complete external resource file
 		self.size = 0
@@ -28,7 +27,7 @@ class AuxEntry(BaseStruct):
 
 	_attribute_list = BaseStruct._attribute_list + [
 		('file_index', Uint, (0, None), (False, None), None),
-		('offset', Uint, (0, None), (False, None), None),
+		('name', OffsetString, (None, None), (False, None), None),
 		('size', Uint, (0, None), (False, None), None),
 		]
 
@@ -36,5 +35,5 @@ class AuxEntry(BaseStruct):
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'file_index', Uint, (0, None), (False, None)
-		yield 'offset', Uint, (0, None), (False, None)
+		yield 'name', OffsetString, (instance.context.names, None), (False, None)
 		yield 'size', Uint, (0, None), (False, None)

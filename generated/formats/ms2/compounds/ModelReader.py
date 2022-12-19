@@ -4,6 +4,7 @@ import traceback
 from generated.array import Array
 from generated.formats.base.basic import Float
 from generated.formats.base.compounds.PadAlign import get_padding_size, get_padding
+from generated.formats.ms2.compounds.MeshCollisionData import MeshCollisionData
 from generated.formats.ms2.versions import is_old
 from generated.formats.ms2.compounds.MeshCollisionData import MeshCollisionData
 from generated.formats.ms2.compounds.Model import Model

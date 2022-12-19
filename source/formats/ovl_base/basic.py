@@ -1,7 +1,8 @@
+import logging
 from struct import Struct
 
 from generated.array import Array
-from generated.formats.base.basic import class_from_struct, ZString, r_zstr, w_zstr
+from generated.formats.base.basic import class_from_struct, ZString, r_zstr, w_zstr, Int
 
 Bool = class_from_struct(Struct("<?"), bool)
 
@@ -66,3 +67,24 @@ class ZStringObfuscated(ZString):
         lines = str(member).split("\n")
         lines_new = [lines[0], ] + ["\t" * indent + line for line in lines[1:]]
         return "\n".join(lines_new)
+
+
+class OffsetString(Int):
+
+    @classmethod
+    def from_stream(cls, stream, context, arg=0, template=None):
+        offset = super().from_stream(stream, context, arg, template)
+        # arg must be ZStringBuffer
+        try:
+            return arg.get_str_at(offset)
+        except:
+            return ""
+
+    @classmethod
+    def to_stream(cls, instance, stream, context, arg=0, template=None):
+        # logging.info(f"arg {instance}, {arg}")
+        # arg = ZStringBuffer needs to be filled before writing
+        # now we just take the index prepared by the string table
+        offset = arg.offset_dic.get(instance, -1)
+        # print(offset, instance, arg.offset_dic)
+        super().to_stream(offset, stream, context, arg, template)

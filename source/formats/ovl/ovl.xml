@@ -15,15 +15,15 @@
         <add name="Num Aux Entries" type="uint" >count of external aux files, ie audio banks</add>
         <add name="num_included_ovls" type="ushort" >count of included ovl files that are available to this ovl</add>
         <add name="Num Mimes" type="ushort" >count of file mime types, aka. extensions with metadata</add>
-        <add name="Num Files" type="uint" >count of files</add>
+        <add name="Num Files" type="uint"/>
         <add name="Num Files 2" type="uint" >repeat count of files ??</add>
         <add name="Num Dependencies" type="uint" >count of parts</add>
         <add name="Num Archives" type="uint" >number of archives</add>
 
-        <add name="num_pool_groups" type="uint" >number of pool_groups across all archives</add>
-        <add name="num_pools" type="uint" >number of headers of all types across all archives</add>
-        <add name="Num Datas" type="uint" >number of DataEntries across all archives</add>
-        <add name="Num Buffers" type="uint" >number of BufferEntries across all archives</add>
+        <add name="num_pool_groups" type="uint" >across all archives</add>
+        <add name="num_pools" type="uint" >across all archives</add>
+        <add name="Num Datas" type="uint" >across all archives</add>
+        <add name="Num Buffers" type="uint" >across all archives</add>
         <add name="num_stream_files" type="uint" >number of files in external OVS archives</add>
         <add name="ztuac unk 0" type="uint" >used in ZTUAC elephants</add>
         <add name="ztuac unk 1" type="uint" >used in ZTUAC elephants</add>
@@ -36,29 +36,27 @@
 
 		<!-- end of fixed header structure -->
         <add name="Names" type="ZStringBuffer" arg="Len Names">Name buffer for assets and file mime types.</add>
-<!--        <add name="Names_pad" type="ubyte" arr1="(16 - ((Names \ io_start + Names \ io_size) #MOD# 16)) #MOD# 16" until="15">used in DLA</add>-->
         <add name="Names_pad" type="ubyte" arr1="(16 - (Len Names #MOD# 16)) #MOD# 16" until="15">used in DLA</add>
-        <add name="Mimes" type="MimeEntry" arr1="Num Mimes">Array of MimeEntry objects that represent a mime type (file extension) each. </add>
-        <add name="triplets" type="Triplet" arr1="num_triplets" since="20" >?</add>
-        <add name="triplets_pad" type="PadAlign" template="triplets" arg="4" since="20" >?</add>
-<!--        <add name="triplets pad" type="ubyte" arr1="(4 - ((num_triplets * 3) #MOD# 4)) #MOD# 4" since="20" >?</add>-->
-        <add name="Files" type="FileEntry" arr1="Num Files">Array of FileEntry objects.</add>
-        <add name="Archive Names" type="ZStringBuffer" arg="Len Archive Names">Name buffer for archives, usually will be STATIC followed by any OVS names</add>
-        <add name="Archives" type="ArchiveEntry" arr1="Num Archives">Array of ArchiveEntry objects.</add>
-        <add name="included_ovls" type="IncludedOvl" arr1="num_included_ovls">Array of IncludedOvl objects.</add>
-        <add name="Dependencies" type="DependencyEntry" arr1="Num Dependencies" since="19">aka InstancesArray of DependencyEntry objects.</add>
-        <add name="Aux Entries" type="AuxEntry" arr1="Num Aux Entries">Array of AuxEntry objects.</add>
+        <add name="Mimes" type="MimeEntry" arr1="Num Mimes"/>
+        <add name="triplets" type="Triplet" arr1="num_triplets" since="20"/>
+        <add name="triplets_pad" type="PadAlign" template="triplets" arg="4" since="20"/>
+        <add name="Files" type="FileEntry" arr1="Num Files"/>
+        <add name="archive_names" type="ZStringBuffer" arg="Len Archive Names">usually STATIC followed by any external OVS names</add>
+        <add name="Archives" type="ArchiveEntry" arr1="Num Archives"/>
+        <add name="included_ovls" type="IncludedOvl" arr1="num_included_ovls"/>
+        <add name="Dependencies" type="DependencyEntry" arr1="Num Dependencies" since="19"/>
+        <add name="Aux Entries" type="AuxEntry" arr1="Num Aux Entries"/>
         <add name="Dependencies" type="DependencyEntry" arr1="Num Dependencies" until="18">after aux in ZTUAC and PC</add>
-        <add name="stream_files" type="StreamEntry" arr1="num_stream_files">Array of StreamEntry objects.</add>
-		<add name="Zlibs" type="ZlibInfo" arr1="Num Archives">repeats by archive count</add>
+        <add name="stream_files" type="StreamEntry" arr1="num_stream_files"/>
+        <add name="Zlibs" type="ZlibInfo" arr1="Num Archives"/>
     </compound>
 
     <compound name="MimeEntry" >
         Description of one mime type or file class.
 		Inside the archive not the stored mime hash is used but the extension hash, has to be generated, eg. djb2("bani") == 2090104799
-        <add name="Offset" type="uint">offset in the header's Names block</add>
+        <add name="name" type="OffsetString" arg="context\names"/>
         <add name="unknown" type="uint">usually zero</add>
-        <add name="Mime Hash" type="uint">changes with game version; hash of this file extension; same across all files, but not used anywhere else in the archive</add>
+        <add name="Mime Hash" type="uint">hash of this mime, changes with mime version; not used anywhere else in the ovl</add>
         <add name="mime version" type="uint" >usually increments with game</add>
 		<add name="file index offset" type="uint">Id of this class type. Later in the file there is a reference to this Id; offset into FileEntry list in number of files</add>
         <add name="file count" type="uint">Number of entries of this class in the file.; from 'file index offset', this many files belong to this file extension</add>
@@ -67,7 +65,7 @@
     </compound>
 
     <compound name="Triplet" >
-        3 bytes - constant per mime (and probably version)
+        3 bytes - constant per mime and version
         <add name="a" type="ubyte">?</add>
         <add name="b" type="ubyte">?</add>
         <add name="c" type="ubyte">?</add>
@@ -75,7 +73,7 @@
 
     <compound name="FileEntry" >
         Description of one file in the archive
-        <add name="offset" type="uint">offset in the ovl's names block; start offset of zero terminated string</add>
+        <add name="basename" type="OffsetString" arg="context\names"/>
         <add name="file hash" type="uint">this hash is used to retrieve the file name from inside the archive</add>
         <add name="pool_type" type="byte" >pool type of this file's sizedstr pointer, if part of a set, it's usually the same as set pool type</add>
         <add name="set_pool_type" type="byte" >if this file is part of a set, the set's root entry's pool type, else 0</add>
@@ -84,13 +82,13 @@
 
     <compound name="ArchiveEntry" >
         Description of one archive
-        <add name="Offset" type="uint">offset in the ovl's Archive Names block</add>
+        <add name="name" type="OffsetString" arg="context\archive_names"/>
         <add name="pools_offset" type="uint">starting index in ovl list of pools, this archive's pools continue for num_pools</add>
         <add name="stream_files_offset" type="uint">starting index into ovl.stream_files</add>
         <add name="num_pools" type="uint" >Total amount of pools in this archive; sum of all PoolGroup.num_pools</add>
         <add name="Num Datas" type="ushort" >Amount of Data Entries</add>
         <add name="num_pool_groups" type="ushort" >Amount of PoolGroup objects at start of this deflated archive.</add>
-        <add name="num_buffer_groups" type="uint">used in pz 1.6</add>
+        <add name="num_buffer_groups" type="uint"/>
         <add name="Num Buffers" type="uint">Amount of buffers in the archive</add>
         <add name="Num Fragments" type="uint" >Amount of Fragments in the archive</add>
         <add name="num_root_entries" type="uint">Number of files in the archive</add>
@@ -100,18 +98,18 @@
         <add name="uncompressed_size" type="uint64" >size of the uncompressed data for this archive</add>
         <add name="pools_start" type="uint">byte offset, cumulative size of all pools preceding this archive</add>
         <add name="pools_end" type="uint" >byte offset, pools_start + sum of this archive's pools' sizes</add>
-        <add name="ovs offset" type="uint" >Seemingly unused, can be zeroed without effect ingame in JWE</add>
+        <add name="ovs_offset" type="uint" >Seemingly unused, can be zeroed without effect ingame in JWE</add>
     </compound>
 
     <compound name="IncludedOvl" >
         Description of one included ovl file that is force-loaded by this ovl
-        <add name="Offset" type="uint">offset in the header's names block. path is relative to this ovl's directory, without the .ovl suffix</add>
+        <add name="basename" type="OffsetString" arg="context\names">path is relative to this ovl's directory; usually points to ovl files</add>
     </compound>
 
     <compound name="DependencyEntry" >
         Description of dependency; links it to an entry from this archive
         <add name="file hash" type="uint">Hash of this dependency, for lookup in hash dict. Can be either external or internal.</add>
-        <add name="offset" type="uint" >offset for extension into string name table</add>
+        <add name="ext" type="OffsetString" arg="context\names">these use : instead of . at the start, eg. :tex</add>
         <add name="file index" type="uint" >index into ovl file table, points to the file entry where this dependency is used</add>
         <add name="link_ptr" type="HeaderPointer" >pointer into flattened list of all archives' pools</add>
     </compound>
@@ -119,7 +117,7 @@
     <compound name="AuxEntry" >
         describes an external AUX resource
         <add name="file index" type="uint">index into files list</add>
-        <add name="offset" type="uint">offset for suffix into string name table</add>
+        <add name="name" type="OffsetString" arg="context\names"/>
         <add name="size" type="uint">byte count of the complete external resource file</add>
     </compound>
 
@@ -241,7 +239,7 @@
 	
 	<compound name="AssetEntry" >
 		refers to root entries so they can be grouped into set entries.
-		It seems to point exclusively to RootEntry's whose Ext Hash is FF FF FF FF aka max uint32
+		points to RootEntry with pool_index -1
         <add name="File Hash" type="uint"/>
         <add name="zero 0" type="uint"/>
         <add name="Ext Hash" type="uint" since="19"/>

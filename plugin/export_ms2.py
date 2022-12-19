@@ -28,8 +28,8 @@ NO_BONES_ID = -2
 # the hard max is 255 vertices - stay far away from that to be safe with the current algorithm
 SOFT_MAX_VERTS_SHELLS = 8                     
 SOFT_MAX_TRIS_SHELLS = 8
-SOFT_MAX_VERTS = 56                     
-SOFT_MAX_TRIS = 56
+SOFT_MAX_VERTS = 60                     
+SOFT_MAX_TRIS = 60
 
 def has_objects_in_scene(scene):
 	if scene.objects:

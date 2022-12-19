@@ -268,7 +268,7 @@ class XmlParser:
                     # get rid of any remaining html escape characters
                     xml_struct.attrib[target_attrib] = unescape(expr_str)
         # additional tokens that are not specified by nif.xml
-        fixed_tokens = (("\\", "."), ("#ARG#", "arg"), ("#T#", "template"))
+        fixed_tokens = (("\\", "."), ("#ARG#", "arg"), ("#T#", "template"), ("#SELF#", "instance"))
         for attrib, expr_str in xml_struct.attrib.items():
             for op_token, op_str in fixed_tokens:
                 expr_str = expr_str.replace(op_token, op_str)
