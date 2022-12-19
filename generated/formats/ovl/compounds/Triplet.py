@@ -5,7 +5,7 @@ from generated.formats.base.basic import Ubyte
 class Triplet(BaseStruct):
 
 	"""
-	3 bytes - constant per mime (and probably version)
+	3 bytes - constant per mime and version
 	"""
 
 	__name__ = 'Triplet'

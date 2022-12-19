@@ -33,21 +33,15 @@ class ZStringBuffer:
 		self.strings = []
 		self.offset_dic = {}
 		with BytesIO() as stream:
-
 			for array, attrib in list_of_arrays:
-				for item in sorted(array, key=lambda i: getattr(i, attrib)):
-					name = getattr(item, attrib)
-					if name in self.offset_dic:
-						# known string, just get offset
-						address = self.offset_dic[name]
-					else:
+				new_strings = [getattr(i, attrib) for i in array]
+				# logging.info(new_strings)
+				for s in sorted(new_strings):
+					if s not in self.offset_dic:
 						# new string, store offset and write zstring
-						address = stream.tell()
-						self.strings.append(name)
-						self.offset_dic[name] = address
-						ZString.to_stream(name, stream, self.context)
-					# store offset on item
-					item.offset = address
+						self.strings.append(s)
+						self.offset_dic[s] = stream.tell()
+						ZString.to_stream(s, stream, self.context)
 			# get the actual result buffer
 			buffer_bytes = stream.getvalue()
 		self.data = buffer_bytes + get_padding(len(buffer_bytes), alignment=8)

@@ -188,21 +188,12 @@ class MainWindow(widgets.MainWindow):
 			except:
 				self.handle_error("Loading failed, see log!")
 				print(self.bnk_file)
-			# self.update_gui_table()
 
 	def is_open_bnk(self):
 		if not self.file_widget.filename:
 			interaction.showdialog("You must open a BNK file first!")
 		else:
 			return True
-
-	def update_gui_table(self, ):
-		start_time = time.time()
-		logging.info(f"Loading {len(self.bnk_file.files)} files into gui")
-		self.files_container.set_data([[f.name, f.ext, f.file_hash] for f in self.bnk_file.files])
-		self.included_ovls_view.set_data(self.bnk_file.included_ovl_names)
-		logging.info(f"Loaded GUI in {time.time() - start_time:.2f} seconds")
-		self.update_progress("Operation completed!", value=1, vmax=1)
 
 	def _save(self):
 		try:

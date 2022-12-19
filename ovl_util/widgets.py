@@ -556,9 +556,10 @@ class EditCombo(QtWidgets.QWidget):
 			self.entries_changed.emit(self.items)
 
 	def set_data(self, items):
-		items = set(items)
+		items = sorted(set(items))
 		self.entry.clear()
 		self.entry.addItems(items)
+
 
 class RelativePathCombo(EditCombo):
 

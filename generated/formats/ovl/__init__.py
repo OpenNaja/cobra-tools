@@ -12,15 +12,12 @@ from generated.formats.ovl.compounds.BufferGroup import BufferGroup
 from generated.formats.ovl.compounds.FileEntry import FileEntry
 from generated.formats.ovl.compounds.Fragment import Fragment
 from generated.formats.ovl.compounds.Header import Header
-from generated.formats.ovl.compounds.IncludedOvl import IncludedOvl
-from generated.formats.ovl.compounds.MimeEntry import MimeEntry
 from generated.formats.ovl.compounds.OvsHeader import OvsHeader
 from generated.formats.ovl.compounds.PoolGroup import PoolGroup
 from generated.formats.ovl.compounds.SetEntry import SetEntry
 from generated.formats.ovl.compounds.StreamEntry import StreamEntry
 from generated.formats.ovl.compounds.ZlibInfo import ZlibInfo
 from generated.formats.ovl.versions import *
-from generated.formats.ovl_base import OvlContext
 from generated.formats.ovl_base.enums.Compression import Compression
 from generated.io import IoFile
 from modules.formats.formats_dict import build_formats_dict
@@ -81,7 +78,8 @@ class OvsFile(OvsHeader):
 		else:
 			logging.debug("No compression")
 			decompressed = compressed_bytes
-		logging.info(f"Decompressed in {time.time() - start_time:.2f} seconds")
+		# not relevant for user info since it is usually 0.00 sec
+		# logging.info(f"Decompressed in {time.time() - start_time:.2f} seconds")
 		with BytesIO(decompressed) as stream:
 			yield stream
 
@@ -196,7 +194,7 @@ class OvsFile(OvsHeader):
 			pool.data = BytesIO(stream.read(pool.size))
 
 	def map_assets(self):
-		"""Store start and stop indices to asset entries, translate hierarchy to sizedstr entries"""
+		"""Store start and stop indices to asset entries, translate hierarchy to root entries"""
 		# store start and stop asset indices
 		for i, set_entry in enumerate(self.set_header.sets):
 			# for the last entry
@@ -207,8 +205,7 @@ class OvsFile(OvsHeader):
 				set_entry.end = self.set_header.sets[i + 1].start
 			# map assets to entry
 			assets = self.set_header.assets[set_entry.start: set_entry.end]
-			logging.debug(f"SET: {set_entry.name}")
-			logging.debug(f"ASSETS: {[a.name for a in assets]}")
+			logging.debug(f"Set {set_entry.name} with {len(assets)} assets")
 			# store the references on the corresponding loader
 			assert set_entry.entry
 			loader = self.ovl.loaders[set_entry.entry.name]
@@ -575,8 +572,8 @@ class OvlFile(Header, IoFile):
 	current_action = DummySignal()
 
 	def __init__(self):
-		# create a context
-		super().__init__(OvlContext())
+		# pass self as context
+		super().__init__(self)
 		self.magic.data = b'FRES'
 		self.hash_table_global = {}
 
@@ -585,6 +582,11 @@ class OvlFile(Header, IoFile):
 
 		self.formats_dict = build_formats_dict()
 		self.loaders = {}
+
+	@classmethod
+	def context_to_xml(cls, elem, prop, instance, arg, template, debug):
+		from generated.formats.ovl.versions import get_game
+		elem.attrib[prop] = str(get_game(instance)[0])
 
 	def clear(self):
 		self.archives.clear()
@@ -804,71 +806,38 @@ class OvlFile(Header, IoFile):
 	def included_ovl_names(self):
 		return [included_ovl.name for included_ovl in self.included_ovls]
 
-	# @included_ovl_names.setter
-	def set_included_ovl_names(self, ovl_names):
+	@included_ovl_names.setter
+	def included_ovl_names(self, ovl_names):
 		# remove duplicates
 		ovl_names = set(ovl_names)
 		logging.debug(f"Setting {len(ovl_names)} included OVLs")
-		self.included_ovls.clear()
-		for ovl_name in ovl_names:
+		self.num_included_ovls = len(ovl_names)
+		self.reset_field("included_ovls")
+		for incl, ovl_name in zip(self.included_ovls, ovl_names):
 			ovl_name = ovl_name.strip()
 			if not ovl_name.lower().endswith(".ovl"):
 				ovl_name += ".ovl"
-			included_ovl = IncludedOvl(self.context)
-			included_ovl.name = ovl_name
-			included_ovl.basename, included_ovl.ext = os.path.splitext(included_ovl.name)
-			logging.debug(f"Including {included_ovl.name}")
-			self.included_ovls.append(included_ovl)
+			incl.name = ovl_name
+			logging.debug(f"Including {incl.name}")
 
 	def load_included_ovls(self, path):
 		if os.path.isfile(path):
 			with open(path) as f:
-				self.set_included_ovl_names(f.readlines())
+				self.included_ovl_names = f.readlines()
 
 	def save_included_ovls(self, path):
 		with open(path, "w") as f:
-			# f.writelines(self.included_ovl_names)
 			for ovl_name in self.included_ovl_names:
 				f.write(f"{ovl_name}\n")
 
-	def add_included_ovl(self, included_ovl_name):
-		if not included_ovl_name.lower().endswith(".ovl"):
-			included_ovl_name += ".ovl"
-		included_ovl_basename, ext = os.path.splitext(included_ovl_name)
-		# validate can't insert same included ovl twice
-		if included_ovl_name in self.included_ovl_names:
-			return
-
-		# store file name
-		included_ovl = IncludedOvl(self.context)
-		included_ovl.name = included_ovl_name
-		included_ovl.basename = included_ovl_basename
-		included_ovl.ext = ext
-		self.included_ovls.append(included_ovl)
-
-	def remove_included_ovl(self, included_ovl_name):
-		for included_ovl in self.included_ovls:
-			if included_ovl.name == included_ovl_name:
-				self.included_ovls.remove(included_ovl)
-
-	def rename_included_ovl(self, included_ovl_name, included_ovl_name_new):
-		# find an existing entry in the list
-		for included_ovl in self.included_ovls:
-			if included_ovl.name == included_ovl_name:
-				included_ovl.name = included_ovl_name_new
-				included_ovl.basename = included_ovl_name_new
-
 	def update_names(self):
 		"""Update the name buffers with names from list entries, and update the name offsets on those entries"""
-		# update ext dependencies with : prefix instead of .
-		for dependency in self.dependencies:
-			dependency.ext = dependency.ext.replace(".", ":")
 		# regenerate the name buffer
 		self.names.update_with((
-			(self.dependencies, "ext"),
+			(self.dependencies, "ext_raw"),
 			(self.included_ovls, "basename"),
 			(self.mimes, "name"),
-			(self.aux_entries, "name"),
+			(self.aux_entries, "basename"),
 			(self.files, "basename")
 		))
 		self.archive_names.update_with((
@@ -879,7 +848,8 @@ class OvlFile(Header, IoFile):
 
 		# catching ovl files without entries, default len_type_names is 0
 		if self.files:
-			self.len_type_names = min(file.offset for file in self.files)
+			self.len_type_names = min(self.names.offset_dic.get(file.basename, -1) for file in self.files)
+			# self.len_type_names = min(file.offset for file in self.files)
 		else:
 			self.len_type_names = 0
 
@@ -916,36 +886,27 @@ class OvlFile(Header, IoFile):
 		self.loaders = {}
 		# maps djb2 hash to string
 		self.hash_table_local = {}
-		# print(self)
 		# add extensions to hash dict
 		for mime_entry in self.iter_progress(self.mimes, "Loading extensions"):
-			# get the whole mime type string
-			mime_entry.name = self.names.get_str_at(mime_entry.offset)
-			# only get the extension
+			# get the bare extension from the mime string
 			mime_entry.ext = f".{mime_entry.name.split(':')[-1]}"
-			# the stored mime hash is not used anywhere
-			# self.hash_table_local[mime_entry.mime_hash] = mime_type
-			# instead we must calculate the djb2 hash of the extension and store that
-			# because this is how we find the extension from inside the archive
+			# we must calculate the djb2 hash of the extension to find it from the ovs
 			self.hash_table_local[djb2(mime_entry.ext[1:].lower())] = mime_entry.ext
 			mime_entry.triplets = self.triplets[
 								  mime_entry.triplet_offset: mime_entry.triplet_offset + mime_entry.triplet_count]
 
 		# add file name to hash dict; ignoring the extension pointer
 		for file_entry in self.iter_progress(self.files, "Loading files"):
-			# get file name from name table
-			file_name = self.names.get_str_at(file_entry.offset)
 			file_entry.mime = self.mimes[file_entry.extension]
 			file_entry.ext = file_entry.mime.ext
 			# store this so we can use it
 			file_entry.ext_hash = djb2(file_entry.ext[1:])
-			file_entry.basename = file_name
-			file_entry.name = file_name + file_entry.ext
-			self.hash_table_local[file_entry.file_hash] = file_name
+			self.hash_table_local[file_entry.file_hash] = file_entry.basename
+
 		if "generate_hash_table" in self.commands:
-			return self.hash_table_local
-		elif "get_file_names" in self.commands:
-			return [file_entry.name for file_entry in self.files]
+			deps_exts = self.commands["generate_hash_table"]
+			filtered_hash_table = {f.file_hash: f.basename for f in self.files if f.ext in deps_exts}
+			return filtered_hash_table, set(d.ext for d in self.dependencies)
 		else:
 			self.files_list.emit([[file.name, file.ext] for file in self.files])
 			# initialize the loaders right here
@@ -954,18 +915,14 @@ class OvlFile(Header, IoFile):
 
 		# get included ovls
 		for included_ovl in self.iter_progress(self.included_ovls, "Loading includes"):
-			included_ovl.basename = self.names.get_str_at(included_ovl.offset)
 			included_ovl.ext = ".ovl"
-			included_ovl.name = included_ovl.basename + included_ovl.ext
-		self.included_ovls_list.emit([included_ovl.name for included_ovl in self.included_ovls])
+		self.included_ovls_list.emit(self.included_ovl_names)
 
 		# get names of all dependencies
 		for dependency_entry in self.iter_progress(self.dependencies, "Loading Dependencies"):
 			file_entry = self.files[dependency_entry.file_index]
 
 			self.loaders[file_entry.name].dependencies.append(dependency_entry)
-			# nb: these use : instead of . at the start, eg. :tex
-			dependency_entry.ext = self.names.get_str_at(dependency_entry.offset)
 			h = dependency_entry.file_hash
 			if h in self.hash_table_local:
 				dependency_entry.basename = self.hash_table_local[h]
@@ -977,15 +934,10 @@ class OvlFile(Header, IoFile):
 				logging.warning(f"Unresolved dependency [{h}] for {file_entry.name}")
 				dependency_entry.basename = UNK_HASH
 
-			dependency_entry.name = dependency_entry.basename + dependency_entry.ext.replace(":", ".")
-
 		for aux_entry in self.aux_entries:
-			aux_entry.name = self.names.get_str_at(aux_entry.offset)
 			file_entry = self.files[aux_entry.file_index]
 			self.loaders[file_entry.name].aux_entries.append(aux_entry)
 
-		for archive_entry in self.archives:
-			archive_entry.name = self.archive_names.get_str_at(archive_entry.offset)
 		self.load_archives()
 		# self.debug_unks()
 		logging.info(f"Loaded OVL in {time.time() - start_time:.2f} seconds")
@@ -1130,8 +1082,9 @@ class OvlFile(Header, IoFile):
 			files_by_extension[file.ext].append(file)
 		# create the mimes
 		file_index_offset = 0
-		for file_ext, files in sorted(files_by_extension.items()):
-			mime_entry = MimeEntry(self.context)
+		self.num_mimes = len(files_by_extension)
+		self.reset_field("mimes")
+		for i, ((file_ext, files), mime_entry) in enumerate(zip(sorted(files_by_extension.items()), self.mimes)):
 			mime_entry.ext = file_ext
 			try:
 				mime_entry.update_constants(self)
@@ -1142,13 +1095,11 @@ class OvlFile(Header, IoFile):
 			file_index_offset += len(files)
 			for file_entry in files:
 				file_entry.update_constants(self)
-				file_entry.extension = len(self.mimes)
-			self.mimes.append(mime_entry)
+				file_entry.extension = i
 		# update ovl counts
 		self.num_dependencies = len(self.dependencies)
 		self.num_aux_entries = len(self.aux_entries)
 		self.num_triplets = len(self.triplets)
-		self.num_mimes = len(self.mimes)
 		self.num_files = self.num_files_2 = self.num_files_3 = len(self.files)
 
 	# def rebuild_ovs_extras(self):
@@ -1236,7 +1187,6 @@ class OvlFile(Header, IoFile):
 					f"Archive {archive.name} has {archive.num_pools} pools in {archive.num_pool_groups} pool_groups")
 
 			# update the ovl counts
-			self.num_included_ovls = len(self.included_ovls)
 			self.num_archives = len(self.archives)
 			# sum counts of individual archives
 			self.num_pool_groups = sum(a.num_pool_groups for a in self.archives)

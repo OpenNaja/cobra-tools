@@ -152,7 +152,7 @@ class Pointer(BaseStruct):
 			# todo - maybe? do not create pointer instance if no matching xml sub-element is found
 			return
 		# store the pointer's pool type
-		cls.pool_type_from_xml(elem, instance)
+		cls.pool_type_from_xml(sub, instance)
 		# process the pointer's data
 		if prop == XML_STR:
 			instance.data = ET.tostring(sub[0], encoding="unicode").replace("\t", "").replace("\n", "")

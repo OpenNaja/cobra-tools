@@ -28,8 +28,9 @@ NO_BONES_ID = -2
 # the hard max is 255 vertices - stay far away from that to be safe with the current algorithm
 SOFT_MAX_VERTS_SHELLS = 8                     
 SOFT_MAX_TRIS_SHELLS = 8
-SOFT_MAX_VERTS = 56                     
-SOFT_MAX_TRIS = 56
+SOFT_MAX_VERTS = 60                     
+SOFT_MAX_TRIS = 60
+
 
 def has_objects_in_scene(scene):
 	if scene.objects:
@@ -479,11 +480,12 @@ def save(filepath='', apply_transforms=False, edit_bones=False, use_stock_normal
 
 		# make active scene
 		bpy.context.window.scene = scene
-		if not scene.cobra.pack_base:
-			raise AttributeError(f"Set the pack base value for scene '{scene.name}'!")
-
 		model_info = model_info_lut[scene.name]
-		model_info.pack_base = scene.cobra.pack_base
+		if scene.cobra.pack_base:
+			model_info.pack_base = scene.cobra.pack_base
+		else:
+			model_info.pack_base = 512.0
+			logging.warning(f"Set the pack base value for scene '{scene.name}'!")
 		model_info.render_flag._value = get_property(scene, "render_flag")
 		# ensure that we have objects in the scene
 		if not has_objects_in_scene(scene):

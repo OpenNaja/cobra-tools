@@ -6,7 +6,7 @@ class AssetEntry(BaseStruct):
 
 	"""
 	refers to root entries so they can be grouped into set entries.
-	It seems to point exclusively to RootEntry's whose Ext Hash is FF FF FF FF aka max uint32
+	points to RootEntry with pool_index -1
 	"""
 
 	__name__ = 'AssetEntry'

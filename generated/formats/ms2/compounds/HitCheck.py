@@ -1,7 +1,6 @@
 from generated.base_struct import BaseStruct
 from generated.formats.base.basic import Uint
 from generated.formats.base.basic import Ushort
-from generated.formats.ms2.basic import OffsetString
 from generated.formats.ms2.compounds.BoundingBox import BoundingBox
 from generated.formats.ms2.compounds.Capsule import Capsule
 from generated.formats.ms2.compounds.ConvexHull import ConvexHull
@@ -9,6 +8,7 @@ from generated.formats.ms2.compounds.Cylinder import Cylinder
 from generated.formats.ms2.compounds.MeshCollision import MeshCollision
 from generated.formats.ms2.compounds.Sphere import Sphere
 from generated.formats.ms2.enums.CollisionType import CollisionType
+from generated.formats.ovl_base.basic import OffsetString
 
 
 class HitCheck(BaseStruct):

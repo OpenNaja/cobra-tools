@@ -141,7 +141,7 @@ class BaseFile:
 		logging.debug(f"Dependency: {dependency.basename} | {dependency.ext} | {dependency.file_hash}")
 
 	def create_dependency(self, name):
-		dependency = DependencyEntry(self.ovl.context)
+		dependency = DependencyEntry(self.ovl.context, arg=self.ovl)
 		self.set_dependency_identity(dependency, name)
 		self.dependencies.append(dependency)
 		return dependency
@@ -205,7 +205,7 @@ class BaseFile:
 			# update name
 			for old, new in name_tuples:
 				entry.name = entry.name.replace(old, new)
-			entry.basename, entry.ext = os.path.splitext(entry.name)
+			# entry.basename, entry.ext = os.path.splitext(entry.name)
 		# also rename target_name
 		for old, new in name_tuples:
 			self.target_name = self.target_name.replace(old, new)

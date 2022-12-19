@@ -1,8 +1,8 @@
-from generated.base_struct import BaseStruct
-from generated.formats.base.basic import Uint
+from generated.formats.ovl.compounds.NamedEntry import NamedEntry
+from generated.formats.ovl_base.basic import OffsetString
 
 
-class IncludedOvl(BaseStruct):
+class IncludedOvl(NamedEntry):
 
 	"""
 	Description of one included ovl file that is force-loaded by this ovl
@@ -15,16 +15,16 @@ class IncludedOvl(BaseStruct):
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 
-		# offset in the header's names block. path is relative to this ovl's directory, without the .ovl suffix
-		self.offset = 0
+		# path is relative to this ovl's directory; usually points to ovl files
+		self.basename = 0
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = BaseStruct._attribute_list + [
-		('offset', Uint, (0, None), (False, None), None),
+	_attribute_list = NamedEntry._attribute_list + [
+		('basename', OffsetString, (None, None), (False, None), None),
 		]
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'offset', Uint, (0, None), (False, None)
+		yield 'basename', OffsetString, (instance.context.names, None), (False, None)
