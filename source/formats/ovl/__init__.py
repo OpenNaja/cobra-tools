@@ -12,7 +12,6 @@ from generated.formats.ovl.compounds.BufferGroup import BufferGroup
 from generated.formats.ovl.compounds.FileEntry import FileEntry
 from generated.formats.ovl.compounds.Fragment import Fragment
 from generated.formats.ovl.compounds.Header import Header
-from generated.formats.ovl.compounds.IncludedOvl import IncludedOvl
 from generated.formats.ovl.compounds.OvsHeader import OvsHeader
 from generated.formats.ovl.compounds.PoolGroup import PoolGroup
 from generated.formats.ovl.compounds.SetEntry import SetEntry
