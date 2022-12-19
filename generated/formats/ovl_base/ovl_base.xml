@@ -42,10 +42,6 @@
         An unsigned 8-bit integer.
     </basic>
 
-    <basic name="OffsetString" integral="true" countable="true">
-        An unsigned 32-bit integer.
-    </basic>
-
     <bitfield name="VersionInfo" storage="uint">
         Determines the format of the OVL file.
         n.b. pos counts from the end!

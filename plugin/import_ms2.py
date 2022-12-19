@@ -9,7 +9,7 @@ from plugin.modules_import.armature import import_armature, append_armature_modi
 from plugin.modules_import.collision import import_chunk_bounds
 from plugin.modules_import.hair import add_psys
 from plugin.modules_import.material import import_material
-from plugin.utils.shell import is_fin, num_fur_as_weights, is_shell
+from plugin.utils.shell import is_fin, num_fur_as_weights
 from plugin.utils.object import create_ob, get_collection
 from generated.formats.ms2 import Ms2File, is_old
 from generated.formats.ms2.enums.MeshFormat import MeshFormat
@@ -107,7 +107,7 @@ def load(filepath="", use_custom_normals=False, mirror_mesh=False):
 						if mirror_mesh:
 							append_bisect_modifier(b_ob)
 						ob_postpro(b_ob, mirror_mesh, use_custom_normals)
-						if not is_old(ms2.info) and is_shell(b_ob):
+						if not is_old(ms2.info) and mesh.flag.fur_shells:
 							add_psys(b_ob, mesh)
 					except:
 						logging.exception("some mesh data failed")

@@ -2,7 +2,6 @@ from generated.base_struct import BaseStruct
 from generated.formats.base.basic import Uint
 from generated.formats.base.basic import Uint64
 from generated.formats.base.basic import Ushort
-from generated.formats.ovl_base.basic import OffsetString
 
 
 class ArchiveEntry(BaseStruct):
@@ -17,7 +16,9 @@ class ArchiveEntry(BaseStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.name = 0
+
+		# offset in the ovl's Archive Names block
+		self.offset = 0
 
 		# starting index in ovl list of pools, this archive's pools continue for num_pools
 		self.pools_offset = 0
@@ -33,6 +34,8 @@ class ArchiveEntry(BaseStruct):
 
 		# Amount of PoolGroup objects at start of this deflated archive.
 		self.num_pool_groups = 0
+
+		# used in pz 1.6
 		self.num_buffer_groups = 0
 
 		# Amount of buffers in the archive
@@ -68,7 +71,7 @@ class ArchiveEntry(BaseStruct):
 			self.set_defaults()
 
 	_attribute_list = BaseStruct._attribute_list + [
-		('name', OffsetString, (None, None), (False, None), None),
+		('offset', Uint, (0, None), (False, None), None),
 		('pools_offset', Uint, (0, None), (False, None), None),
 		('stream_files_offset', Uint, (0, None), (False, None), None),
 		('num_pools', Uint, (0, None), (False, None), None),
@@ -90,7 +93,7 @@ class ArchiveEntry(BaseStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'name', OffsetString, (instance.context.archive_names, None), (False, None)
+		yield 'offset', Uint, (0, None), (False, None)
 		yield 'pools_offset', Uint, (0, None), (False, None)
 		yield 'stream_files_offset', Uint, (0, None), (False, None)
 		yield 'num_pools', Uint, (0, None), (False, None)

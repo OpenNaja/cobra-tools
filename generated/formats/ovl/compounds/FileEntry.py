@@ -6,7 +6,6 @@ from generated.base_struct import BaseStruct
 from generated.formats.base.basic import Byte
 from generated.formats.base.basic import Uint
 from generated.formats.base.basic import Ushort
-from generated.formats.ovl_base.basic import OffsetString
 
 
 class FileEntry(BaseStruct):
@@ -21,7 +20,9 @@ class FileEntry(BaseStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.basename = 0
+
+		# offset in the ovl's names block; start offset of zero terminated string
+		self.offset = 0
 
 		# this hash is used to retrieve the file name from inside the archive
 		self.file_hash = 0
@@ -38,7 +39,7 @@ class FileEntry(BaseStruct):
 			self.set_defaults()
 
 	_attribute_list = BaseStruct._attribute_list + [
-		('basename', OffsetString, (None, None), (False, None), None),
+		('offset', Uint, (0, None), (False, None), None),
 		('file_hash', Uint, (0, None), (False, None), None),
 		('pool_type', Byte, (0, None), (False, None), None),
 		('set_pool_type', Byte, (0, None), (False, None), None),
@@ -48,7 +49,7 @@ class FileEntry(BaseStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'basename', OffsetString, (instance.context.names, None), (False, None)
+		yield 'offset', Uint, (0, None), (False, None)
 		yield 'file_hash', Uint, (0, None), (False, None)
 		yield 'pool_type', Byte, (0, None), (False, None)
 		yield 'set_pool_type', Byte, (0, None), (False, None)

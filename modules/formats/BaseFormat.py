@@ -141,7 +141,7 @@ class BaseFile:
 		logging.debug(f"Dependency: {dependency.basename} | {dependency.ext} | {dependency.file_hash}")
 
 	def create_dependency(self, name):
-		dependency = DependencyEntry(self.ovl.context, arg=self.ovl)
+		dependency = DependencyEntry(self.ovl.context)
 		self.set_dependency_identity(dependency, name)
 		self.dependencies.append(dependency)
 		return dependency

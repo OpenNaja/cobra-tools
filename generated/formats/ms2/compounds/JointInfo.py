@@ -4,8 +4,8 @@ from generated.base_struct import BaseStruct
 from generated.formats.base.basic import Int
 from generated.formats.base.basic import Uint
 from generated.formats.base.basic import Uint64
+from generated.formats.ms2.basic import OffsetString
 from generated.formats.ms2.compounds.HitCheck import HitCheck
-from generated.formats.ovl_base.basic import OffsetString
 
 
 class JointInfo(BaseStruct):

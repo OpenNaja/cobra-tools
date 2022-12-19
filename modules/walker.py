@@ -34,9 +34,6 @@ def generate_hash_table(gui, start_dir):
 		# don't use internal data
 		ovl_data = OvlFile()
 		dic = {}
-		all_deps_exts = set()
-		# these are the input for which hashes should be stored
-		hash_exts = {'.enumnamer', '.lua', '.model2stream', '.particleatlas', '.prefab', '.specdef', '.tex'}
 		lists = {"mimes": ("name", "mime_hash", "mime_version", "triplet_count", "triplets"), "files": ("pool_type", "set_pool_type")}
 		for list_name, attr_names in lists.items():
 			dic[list_name] = {}
@@ -49,8 +46,7 @@ def generate_hash_table(gui, start_dir):
 			gui.update_progress("Hashing names: " + os.path.basename(ovl_path), value=of_index, vmax=of_max)
 			try:
 				# read ovl file
-				new_hashes, new_exts = ovl_data.load(ovl_path, commands={"generate_hash_table": hash_exts})
-				all_deps_exts.update(new_exts)
+				new_hashes = ovl_data.load(ovl_path, commands={"generate_hash_table": True})
 				for list_name, attr_names in lists.items():
 					for entry in getattr(ovl_data, list_name):
 						for attr_name in attr_names:
@@ -84,7 +80,6 @@ def generate_hash_table(gui, start_dir):
 
 		except BaseException as err:
 			print(err)
-		logging.info(f"Formats used in dependencies: {[s.replace(':', '.') for s in sorted(all_deps_exts)]}")
 		logging.info(f"Wrote {len(hash_dict)} items to {out_path}")
 
 
@@ -99,7 +94,7 @@ def bulk_test_models(gui, start_dir, walk_ovls=True, walk_models=True):
 
 		# holds different types of flag - list of byte maps pairs
 		type_dic = {}
-		blend_modes = set()
+		mats = set()
 		shaders = {}
 		# for last_count
 		last_counts = set()
@@ -108,8 +103,6 @@ def bulk_test_models(gui, start_dir, walk_ovls=True, walk_models=True):
 		flag_1 = set()
 		no_bones = set()
 		mesh_collision = set()
-		max_bones = -1
-		max_bones_ms2 = None
 		if walk_models:
 			start_time = time.time()
 			ms2_files = walk_type(export_dir, extension=".ms2")
@@ -118,16 +111,16 @@ def bulk_test_models(gui, start_dir, walk_ovls=True, walk_models=True):
 				ms2_name = os.path.basename(ms2_path)
 				gui.update_progress(f"Walking MS2 files: {ms2_name}", value=mf_index, vmax=mf_max)
 				try:
+					# ms2_data.load(ms2_path, map_bytes=True, entry=True)
 					ms2_data.load(ms2_path)
 					for mdl2_name, model_info in zip(ms2_data.mdl_2_names, ms2_data.model_infos):
 						for i, mat in enumerate(model_info.model.materials):
-							blend_modes.add(mat.blend_mode)
+							mats.add(mat.some_index)
 							fgm = mat.name.lower()
-							if shader_map:
-								shader = shader_map[fgm]
-								if mat.blend_mode not in shaders:
-									shaders[mat.blend_mode] = set()
-								shaders[mat.blend_mode].add(shader.lower())
+							shader = shader_map[fgm]
+							if mat.some_index not in shaders:
+								shaders[mat.some_index] = set()
+							shaders[mat.some_index].add(shader.lower())
 						for i, wrapper in enumerate(model_info.model.meshes):
 							mesh_id = f"{mdl2_name}[{i}] in {ms2_name}"
 							mesh = wrapper.mesh
@@ -137,9 +130,6 @@ def bulk_test_models(gui, start_dir, walk_ovls=True, walk_models=True):
 						# 	type_dic[model.flag][1].append((model.bytes_mean, model.bytes_max, model.bytes_min))
 						last_counts.add(model_info.last_count)
 						if model_info.bone_info:
-							if model_info.bone_info.bone_count > max_bones:
-								max_bones = model_info.bone_info.bone_count
-								max_bones_ms2 = ms2_path
 							if model_info.bone_info.joint_count:
 								for j in model_info.bone_info.joints.joint_infos:
 									for hit in j.hitchecks:
@@ -169,10 +159,8 @@ def bulk_test_models(gui, start_dir, walk_ovls=True, walk_models=True):
 		print(f"flag_1: {flag_1}")
 		print(f"no_bones: {no_bones}")
 		print(f"mesh_collision: {mesh_collision}")
-		print(f"Max bones: {max_bones} in {max_bones_ms2}")
-		# print(f"blend_modes: {blend_modes}")
-		if shader_map:
-			print(f"shaders: {shaders}")
+		print(f"mats: {mats}")
+		print(f"shaders: {shaders}")
 		msg = f"Loaded {mf_max} models {time.time() - start_time:.2f} seconds"
 		logging.info(msg)
 		gui.update_progress(msg, value=1, vmax=1)

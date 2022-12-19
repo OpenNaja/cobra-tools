@@ -47,6 +47,8 @@ class Header(GenericHeader):
 
 		# count of file mime types, aka. extensions with metadata
 		self.num_mimes = 0
+
+		# count of files
 		self.num_files = 0
 
 		# repeat count of files ??
@@ -58,16 +60,16 @@ class Header(GenericHeader):
 		# number of archives
 		self.num_archives = 0
 
-		# across all archives
+		# number of pool_groups across all archives
 		self.num_pool_groups = 0
 
-		# across all archives
+		# number of headers of all types across all archives
 		self.num_pools = 0
 
-		# across all archives
+		# number of DataEntries across all archives
 		self.num_datas = 0
 
-		# across all archives
+		# number of BufferEntries across all archives
 		self.num_buffers = 0
 
 		# number of files in external OVS archives
@@ -102,21 +104,41 @@ class Header(GenericHeader):
 
 		# used in DLA
 		self.names_pad = Array(self.context, 0, None, (0,), Ubyte)
+
+		# Array of MimeEntry objects that represent a mime type (file extension) each.
 		self.mimes = Array(self.context, 0, None, (0,), MimeEntry)
+
+		# ?
 		self.triplets = Array(self.context, 0, None, (0,), Triplet)
+
+		# ?
 		self.triplets_pad = PadAlign(self.context, 4, self.triplets)
+
+		# Array of FileEntry objects.
 		self.files = Array(self.context, 0, None, (0,), FileEntry)
 
-		# usually STATIC followed by any external OVS names
+		# Name buffer for archives, usually will be STATIC followed by any OVS names
 		self.archive_names = ZStringBuffer(self.context, self.len_archive_names, None)
+
+		# Array of ArchiveEntry objects.
 		self.archives = Array(self.context, 0, None, (0,), ArchiveEntry)
+
+		# Array of IncludedOvl objects.
 		self.included_ovls = Array(self.context, 0, None, (0,), IncludedOvl)
+
+		# aka InstancesArray of DependencyEntry objects.
 		self.dependencies = Array(self.context, 0, None, (0,), DependencyEntry)
+
+		# Array of AuxEntry objects.
 		self.aux_entries = Array(self.context, 0, None, (0,), AuxEntry)
 
 		# after aux in ZTUAC and PC
 		self.dependencies = Array(self.context, 0, None, (0,), DependencyEntry)
+
+		# Array of StreamEntry objects.
 		self.stream_files = Array(self.context, 0, None, (0,), StreamEntry)
+
+		# repeats by archive count
 		self.zlibs = Array(self.context, 0, None, (0,), ZlibInfo)
 		if set_default:
 			self.set_defaults()

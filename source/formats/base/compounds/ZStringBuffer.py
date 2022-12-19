@@ -34,12 +34,9 @@ class ZStringBuffer:
 		self.offset_dic = {}
 		with BytesIO() as stream:
 
-			for array, attrib, func in list_of_arrays:
+			for array, attrib in list_of_arrays:
 				for item in sorted(array, key=lambda i: getattr(i, attrib)):
 					name = getattr(item, attrib)
-					# do any processing of the string on the fly
-					if func is not None:
-						name = func(name)
 					if name in self.offset_dic:
 						# known string, just get offset
 						address = self.offset_dic[name]
