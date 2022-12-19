@@ -31,6 +31,7 @@ SOFT_MAX_TRIS_SHELLS = 8
 SOFT_MAX_VERTS = 60                     
 SOFT_MAX_TRIS = 60
 
+
 def has_objects_in_scene(scene):
 	if scene.objects:
 		# operator needs an active object, set one if missing (eg. user had deleted the active object)
@@ -479,11 +480,12 @@ def save(filepath='', apply_transforms=False, edit_bones=False, use_stock_normal
 
 		# make active scene
 		bpy.context.window.scene = scene
-		if not scene.cobra.pack_base:
-			raise AttributeError(f"Set the pack base value for scene '{scene.name}'!")
-
 		model_info = model_info_lut[scene.name]
-		model_info.pack_base = scene.cobra.pack_base
+		if scene.cobra.pack_base:
+			model_info.pack_base = scene.cobra.pack_base
+		else:
+			model_info.pack_base = 512.0
+			logging.warning(f"Set the pack base value for scene '{scene.name}'!")
 		model_info.render_flag._value = get_property(scene, "render_flag")
 		# ensure that we have objects in the scene
 		if not has_objects_in_scene(scene):
