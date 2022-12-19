@@ -121,7 +121,7 @@
     <compound name="AuxEntry" inherit="NamedEntry">
         describes an external AUX resource
         <add name="file index" type="uint">index into files list</add>
-        <add name="name" type="OffsetString" arg="context\names"/>
+        <add name="basename" type="OffsetString" arg="context\names"/>
         <add name="size" type="uint">byte count of the complete external resource file</add>
     </compound>
 

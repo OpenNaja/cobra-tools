@@ -830,36 +830,35 @@ class OvlFile(Header, IoFile):
 
 	def save_included_ovls(self, path):
 		with open(path, "w") as f:
-			# f.writelines(self.included_ovl_names)
 			for ovl_name in self.included_ovl_names:
 				f.write(f"{ovl_name}\n")
 
-	def add_included_ovl(self, included_ovl_name):
-		if not included_ovl_name.lower().endswith(".ovl"):
-			included_ovl_name += ".ovl"
-		included_ovl_basename, ext = os.path.splitext(included_ovl_name)
-		# validate can't insert same included ovl twice
-		if included_ovl_name in self.included_ovl_names:
-			return
+	# def add_included_ovl(self, included_ovl_name):
+	# 	if not included_ovl_name.lower().endswith(".ovl"):
+	# 		included_ovl_name += ".ovl"
+	# 	included_ovl_basename, ext = os.path.splitext(included_ovl_name)
+	# 	# validate can't insert same included ovl twice
+	# 	if included_ovl_name in self.included_ovl_names:
+	# 		return
+	#
+	# 	# store file name
+	# 	included_ovl = IncludedOvl(self.context)
+	# 	included_ovl.name = included_ovl_name
+	# 	included_ovl.basename = included_ovl_basename
+	# 	included_ovl.ext = ext
+	# 	self.included_ovls.append(included_ovl)
 
-		# store file name
-		included_ovl = IncludedOvl(self.context)
-		included_ovl.name = included_ovl_name
-		included_ovl.basename = included_ovl_basename
-		included_ovl.ext = ext
-		self.included_ovls.append(included_ovl)
+	# def remove_included_ovl(self, included_ovl_name):
+	# 	for included_ovl in self.included_ovls:
+	# 		if included_ovl.name == included_ovl_name:
+	# 			self.included_ovls.remove(included_ovl)
 
-	def remove_included_ovl(self, included_ovl_name):
-		for included_ovl in self.included_ovls:
-			if included_ovl.name == included_ovl_name:
-				self.included_ovls.remove(included_ovl)
-
-	def rename_included_ovl(self, included_ovl_name, included_ovl_name_new):
-		# find an existing entry in the list
-		for included_ovl in self.included_ovls:
-			if included_ovl.name == included_ovl_name:
-				included_ovl.name = included_ovl_name_new
-				included_ovl.basename = included_ovl_name_new
+	# def rename_included_ovl(self, included_ovl_name, included_ovl_name_new):
+	# 	# find an existing entry in the list
+	# 	for included_ovl in self.included_ovls:
+	# 		if included_ovl.name == included_ovl_name:
+	# 			included_ovl.name = included_ovl_name_new
+	# 			included_ovl.basename = included_ovl_name_new
 
 	def update_names(self):
 		"""Update the name buffers with names from list entries, and update the name offsets on those entries"""
@@ -872,7 +871,7 @@ class OvlFile(Header, IoFile):
 			(self.dependencies, "ext_raw", rename_dep),
 			(self.included_ovls, "basename", None),
 			(self.mimes, "name", None),
-			(self.aux_entries, "name", None),
+			(self.aux_entries, "basename", None),
 			(self.files, "basename", None)
 		))
 		self.archive_names.update_with((
@@ -936,7 +935,6 @@ class OvlFile(Header, IoFile):
 			file_entry.ext = file_entry.mime.ext
 			# store this so we can use it
 			file_entry.ext_hash = djb2(file_entry.ext[1:])
-			# file_entry.name = file_entry.basename + file_entry.ext
 			self.hash_table_local[file_entry.file_hash] = file_entry.basename
 
 		if "generate_hash_table" in self.commands:
@@ -952,7 +950,6 @@ class OvlFile(Header, IoFile):
 		# get included ovls
 		for included_ovl in self.iter_progress(self.included_ovls, "Loading includes"):
 			included_ovl.ext = ".ovl"
-			# included_ovl.name = included_ovl.basename + included_ovl.ext
 		self.included_ovls_list.emit([included_ovl.name for included_ovl in self.included_ovls])
 
 		# get names of all dependencies
@@ -970,8 +967,6 @@ class OvlFile(Header, IoFile):
 			else:
 				logging.warning(f"Unresolved dependency [{h}] for {file_entry.name}")
 				dependency_entry.basename = UNK_HASH
-
-			# dependency_entry.name = dependency_entry.basename + dependency_entry.ext.replace(":", ".")
 
 		for aux_entry in self.aux_entries:
 			file_entry = self.files[aux_entry.file_index]
