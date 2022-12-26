@@ -16,20 +16,14 @@ from generated.formats.ms2.compounds.packing_utils import remap, USHORT_MAX
 from generated.formats.ms2.enums.MeshFormat import MeshFormat
 from plugin.modules_export.armature import get_armature, handle_transforms, export_bones_custom
 from plugin.modules_export.collision import export_bounds
+from plugin.modules_export.mesh_chunks import build_chunk, get_tris_per_v_index, DISCARD_STATIC_TRIS, DYNAMIC_ID, \
+	NO_BONES_ID, SOFT_MAX_VERTS_SHELLS, SOFT_MAX_TRIS_SHELLS, SOFT_MAX_VERTS, SOFT_MAX_TRIS
 from plugin.modules_import.armature import get_bone_names
 from plugin.utils.matrix_util import evaluate_mesh, ensure_tri_modifier
 from plugin.utils.shell import get_collection, is_shell, is_fin, num_fur_as_weights, is_fin_mat, is_shell_mat
 from root_path import root_dir
 
 mesh_mode = os.path.isdir(os.path.join(root_dir, ".git"))
-DISCARD_STATIC_TRIS = 16
-DYNAMIC_ID = -1
-NO_BONES_ID = -2
-# the hard max is 255 vertices - stay far away from that to be safe with the current algorithm
-SOFT_MAX_VERTS_SHELLS = 8                     
-SOFT_MAX_TRIS_SHELLS = 8
-SOFT_MAX_VERTS = 60                     
-SOFT_MAX_TRIS = 60
 
 
 def has_objects_in_scene(scene):
@@ -293,11 +287,11 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 						uvs.append((fur_length, remap(fur_width, 0, 1, -16, 16)))
 					# store all raw blender data
 					chunk_verts.append((position, vertex_bone_id == DYNAMIC_ID, normal, negate_bitangent, tangent, uvs, vcols,
-								  weights, shapekey))
+										weights, shapekey))
 				tri.append(v_index)
 			# add it to the latest chunk, cast to tuple to make it hashable
 			chunk_tris.append(tuple(tri))
-		logging.debug(f"Preliminary chunk: count_unique {count_unique}, count_reused {count_reused}")
+		logging.debug(f"Preliminary chunk: unique {count_unique}, reused {count_reused} verts")
 		# do final chunk splitting here, as we now have the final split vertices
 		if mesh.context.biosyn:
 			# build table of neighbors
@@ -343,62 +337,6 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 	except ValueError:
 		raise AttributeError(f"Could not export {b_ob.name}!")
 	return wrapper
-
-
-def build_chunk(added_tris, b_chunk_bone_id, t_max, tris, tris_per_v_index, v_max):
-	# create a local chunk
-	new_tris = []
-	used_verts = set()
-	# pick random vertex from chunk faces if needed
-	if not tris:
-		v_index, tris = tris_per_v_index.popitem()
-	# logging.debug(f"Randomly picked vert {v_index} with {len(tris)} tris")
-	# todo - what happens when a vertex is picked whose tris have all been added - can that happen?
-	# assuming all the surrounding tris have been taken
-	while True:
-		# add more tris
-		tris_for_next_round = set()
-		# store verts and grab the last faces' neighbors
-		for tri in tris:
-			if len(used_verts) >= v_max or len(new_tris) >= t_max:
-				logging.debug(f"Chunk is filled with {len(new_tris)} tris or {len(used_verts)} verts")
-				# chunk is full, so stop adding tris, but add the newly found ones to the next chunk
-				for t in tris:
-					if t not in added_tris:
-						tris_for_next_round.add(t)
-				return used_verts, new_tris, tris_for_next_round
-			if tri not in added_tris:
-				added_tris.add(tri)
-				new_tris.append(tri)
-				for old_vert_i in tri:
-					used_verts.add(old_vert_i)
-					picked_tris = tris_per_v_index.pop(old_vert_i, ())
-					for t in picked_tris:
-						tris_for_next_round.add(t)
-		# are direct neighbors are available?
-		if tris_for_next_round:
-			# logging.debug(f"Found new {len(tris_for_next_round)} tris")
-			tris = tris_for_next_round
-		else:
-			if b_chunk_bone_id == DYNAMIC_ID:
-				# logging.debug(f"Found no neighboring tris, gotta start a new chunk")
-				# nope gotta pick a new one, and start a new chunk
-				return used_verts, new_tris, ()
-			else:
-				# logging.debug(f"Allowing grouping of non-linked static verts into one chunk")
-				if tris_per_v_index:
-					v_index, tris = tris_per_v_index.popitem()
-				# logging.debug(f"Randomly picked vert {v_index} with {len(tris)} tris")
-				else:
-					return used_verts, new_tris, ()
-
-
-def get_tris_per_v_index(tris, num_verts):
-	tris_per_v_index = {v_index: set() for v_index in range(num_verts)}
-	for tri in tris:
-		for v_index in tri:
-			tris_per_v_index[v_index].add(tri)
-	return tris_per_v_index
 
 
 def validate_vertex_groups(b_ob, bones_table):
