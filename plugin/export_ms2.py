@@ -324,6 +324,12 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 			verts.extend(chunk_verts)
 	logging.debug(f"count_chunks {len(tris_chunks)}")
 
+	len_b_tris = len(eval_me.polygons)
+	sum_of_pre_chunk_tris = sum(len(tris) for i, tris in t_list)
+	assert len_b_tris == sum_of_pre_chunk_tris, f"Lost {len_b_tris-sum_of_pre_chunk_tris} tris in 1st chunking"
+	sum_of_final_chunk_tris = sum(len(tris) for i, tris in tris_chunks)
+	assert len_b_tris == sum_of_final_chunk_tris, f"Lost {len_b_tris-sum_of_final_chunk_tris} tris in 2nd chunking"
+
 	# update vert & tri array
 	mesh.pack_base = model_info.pack_base
 	# for JWE2 so we can store these on the tri chunks
