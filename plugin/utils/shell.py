@@ -1,12 +1,12 @@
 import logging
 import math
+import numpy as np
 
 import bpy
 import bmesh
-import numpy as np
 import mathutils
-import plugin.utils.object
 
+import plugin.utils.object
 from plugin.modules_import.hair import get_tangent_space_mat
 
 
@@ -127,34 +127,35 @@ def get_ob_from_lod_and_flags(coll, flags=(565,)):
 				return ob
 
 
-def build_fins(src_ob, trg_ob):
+def build_fins(shell_ob, fin_ob):
 	try:
-		uv_scale_x = src_ob["uv_scale_x"]
-		uv_scale_y = src_ob["uv_scale_y"]
+		shell_me = shell_ob.data
+		uv_scale_x = shell_me["uv_scale_x"]
+		uv_scale_y = shell_me["uv_scale_y"]
 	except:
-		raise AttributeError(f"{src_ob.name} has no UV scale properties. Run 'Gauge UV Scale' first!")
+		raise AttributeError(f"{shell_ob.name} has no UV scale properties. Run 'Gauge UV Scales' first!")
 
-	lod_group_name = plugin.utils.object.get_lod(src_ob)
-	ob = copy_ob(src_ob, lod_group_name)
+	lod_group_name = plugin.utils.object.get_lod(shell_ob)
+	ob = copy_ob(shell_ob, lod_group_name)
 
 	me = ob.data
 	# data is per loop
-	hair_directions, loop_vertices = build_tangent_table(src_ob.data)
+	hair_directions, loop_vertices = build_tangent_table(shell_ob.data)
 	loop_coord_kd = fill_kd_tree_co(loop_vertices)
 
 	# transfer the material
 	me.materials.clear()
-	me.materials.append(trg_ob.data.materials[0])
+	me.materials.append(fin_ob.data.materials[0])
 	# rename new object
-	trg_name = trg_ob.name
-	trg_ob.name += "dummy"
+	trg_name = fin_ob.name
+	fin_ob.name += "dummy"
 	ob.name = trg_name
 	# delete old target
-	bpy.data.objects.remove(trg_ob, do_unlink=True)
+	bpy.data.objects.remove(fin_ob, do_unlink=True)
 
 	# set up copy of normals from src mesh
 	mod = ob.modifiers.new('DataTransfer', 'DATA_TRANSFER')
-	mod.object = src_ob
+	mod.object = shell_ob
 	mod.use_loop_data = True
 	mod.data_types_loops = {"CUSTOM_NORMAL", }
 
@@ -193,6 +194,7 @@ def build_fins(src_ob, trg_ob):
 		if vg_name in ob.vertex_groups:
 			vg = ob.vertex_groups[vg_name]
 			ob.vertex_groups.remove(vg)
+	# todo - only do this for PZ, but needs a version on the blender scene
 	me["flag"] = 565
 
 	# remove the particle system, since we no longer have a fur length vertex group
@@ -200,7 +202,7 @@ def build_fins(src_ob, trg_ob):
 		if mod.type == "PARTICLE_SYSTEM":
 			ob.modifiers.remove(mod)
 
-	return f'Generated fin geometry {trg_name} from {src_ob.name}'
+	return f'Generated fin geometry {trg_name} from {shell_ob.name}'
 
 
 def get_face_ring(face):
@@ -465,10 +467,11 @@ def gauge_uv_factors(shell_ob, fin_ob):
 		# 	break
 	uv_scale_x = np.mean(x_facs)
 	uv_scale_y = np.mean(y_facs)
-	shell_ob["uv_scale_x"] = uv_scale_x
-	shell_ob["uv_scale_y"] = uv_scale_y
+	# store on mesh for consistency
+	shell_me["uv_scale_x"] = uv_scale_x
+	shell_me["uv_scale_y"] = uv_scale_y
 	# print(base_fur_width, uv_scale_x/base_fur_width)
-	return f"Found UV scale ({uv_scale_x}, {uv_scale_y})"
+	return f"Found UV scale for {shell_ob.name} ({uv_scale_x:.2f}, {uv_scale_y:.2f})"
 
 
 def build_tangent_table(me):

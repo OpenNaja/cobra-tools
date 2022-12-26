@@ -236,7 +236,7 @@ class ExportSPL(bpy.types.Operator, ExportHelper):
 
 
 class CreateFins(bpy.types.Operator):
-    """Create fins for all objects with shells, and overwrite existing fin geometry"""
+    """Create fins for all objects with shells in this scene, and overwrite existing fin geometry"""
     bl_idname = "object.create_fins"
     bl_label = "Create Fins"
     bl_options = {'REGISTER', 'UNDO'}
@@ -256,9 +256,9 @@ class CreateLods(bpy.types.Operator):
 
 
 class GaugeUVScale(bpy.types.Operator):
-    """Measures the UV scale for fur fins"""
+    """Measures the UV scale for all fur fins in current scene"""
     bl_idname = "object.gauge_uv_scale"
-    bl_label = "Gauge UV Scale"
+    bl_label = "Gauge UV Scales"
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
