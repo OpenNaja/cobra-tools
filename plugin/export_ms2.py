@@ -171,31 +171,7 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 			# ignore static chunks, just make them all dynamic
 			t_list = [(-1, polys) for polys in t_map.values()]
 		else:
-			# preliminary chunking - by static weights
-			# check which bones are used per face
-			for face in eval_me.polygons:
-				r = list(set(weights_data[v_index][0] for v_index in face.vertices))
-				# are there weights at all?
-				if not bones_table:
-					face_vertex_bone_id = NO_BONES_ID
-				# do all verts of this face use the same bone id?
-				elif len(r) == 1:
-					face_vertex_bone_id = r[0]
-				else:
-					face_vertex_bone_id = DYNAMIC_ID
-				# append face for this bone id
-				if face_vertex_bone_id not in t_map:
-					t_map[face_vertex_bone_id] = list()
-				t_map[face_vertex_bone_id].append(face)
-			# deleting small static chunks only on dynamic meshes, static meshes will not have -1 in
-			if DYNAMIC_ID in t_map:
-				for face_vertex_bone_id, bone_tris in tuple(t_map.items()):
-					# delete small static chunk
-					if face_vertex_bone_id != DYNAMIC_ID and len(bone_tris) < DISCARD_STATIC_TRIS:
-						logging.debug(f"Moving {len(bone_tris)} tris for bone {face_vertex_bone_id} to dynamic chunk")
-						v_list = t_map.pop(face_vertex_bone_id)
-						t_map[DYNAMIC_ID].extend(v_list)
-			t_list = list(t_map.items())
+			t_list = pre_chunk(bones_table, eval_me, t_map, weights_data)
 	else:
 		# no chunking by weights, just take all faces
 		t_map = {-1: eval_me.polygons}
@@ -337,6 +313,35 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 	except ValueError:
 		raise AttributeError(f"Could not export {b_ob.name}!")
 	return wrapper
+
+
+def pre_chunk(bones_table, eval_me, t_map, weights_data):
+	# preliminary chunking - by static weights
+	# check which bones are used per face
+	for face in eval_me.polygons:
+		r = list(set(weights_data[v_index][0] for v_index in face.vertices))
+		# are there weights at all?
+		if not bones_table:
+			face_vertex_bone_id = NO_BONES_ID
+		# do all verts of this face use the same bone id?
+		elif len(r) == 1:
+			face_vertex_bone_id = r[0]
+		else:
+			face_vertex_bone_id = DYNAMIC_ID
+		# append face for this bone id
+		if face_vertex_bone_id not in t_map:
+			t_map[face_vertex_bone_id] = list()
+		t_map[face_vertex_bone_id].append(face)
+	# deleting small static chunks only on dynamic meshes, static meshes will not have -1 in
+	if DYNAMIC_ID in t_map:
+		for face_vertex_bone_id, bone_tris in tuple(t_map.items()):
+			# delete small static chunk
+			if face_vertex_bone_id != DYNAMIC_ID and len(bone_tris) < DISCARD_STATIC_TRIS:
+				logging.debug(f"Moving {len(bone_tris)} tris for bone {face_vertex_bone_id} to dynamic chunk")
+				v_list = t_map.pop(face_vertex_bone_id)
+				t_map[DYNAMIC_ID].extend(v_list)
+	t_list = list(t_map.items())
+	return t_list
 
 
 def validate_vertex_groups(b_ob, bones_table):
