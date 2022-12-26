@@ -309,16 +309,17 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 			while tris_per_v_index:
 				used_verts, new_tris, tris = build_chunk(added_tris, b_chunk_bone_id, t_max, tris, tris_per_v_index, v_max)
 				# all verts and tris for this new chunk have been collected
-				# pick local verts
-				used_verts = list(sorted(used_verts))
-				new_verts = [chunk_verts[old_vert_i] for old_vert_i in used_verts]
-				# update tri indices into local chunk verts
-				v_map = {old_vert_i: new_vert_i for new_vert_i, old_vert_i in enumerate(used_verts)}
-				new_tris = [[v_map[old_vert_i] for old_vert_i in tri] for tri in new_tris]
 				if new_tris:
+					# pick local verts
+					used_verts = list(sorted(used_verts))
+					new_verts = [chunk_verts[old_vert_i] for old_vert_i in used_verts]
+					# update tri indices into local chunk verts
+					v_map = {old_vert_i: new_vert_i for new_vert_i, old_vert_i in enumerate(used_verts)}
+					new_tris = [[v_map[old_vert_i] for old_vert_i in tri] for tri in new_tris]
 					# finally extend lists by local chunk data
 					tris_chunks.append((b_chunk_bone_id, new_tris))
 					verts.extend(new_verts)
+			assert len(b_chunk_faces) == len(added_tris), f"Lost {len(b_chunk_faces) - len(added_tris)} tris in chunking"
 		else:
 			tris_chunks.append((b_chunk_bone_id, chunk_tris))
 			verts.extend(chunk_verts)
