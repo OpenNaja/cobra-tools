@@ -14,7 +14,7 @@ class SmartPadding:
 	def __init__(self, context, arg=None, template=None, set_default=True):
 		self.name = ''
 		self._context = context
-		# arg is byte count
+		# arg is size of the bytes raster
 		self.arg = arg
 		self.template = template
 		self.data = b""
@@ -25,7 +25,8 @@ class SmartPadding:
 	@classmethod
 	def read_fields(cls, stream, instance):
 		instance.data = b''
-		if instance.arg is None:
+		# fall back if no arg has been set
+		if not instance.arg:
 			raster = 1
 		else:
 			raster = instance.arg
