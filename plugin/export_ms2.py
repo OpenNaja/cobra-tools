@@ -16,8 +16,7 @@ from generated.formats.ms2.compounds.packing_utils import remap, USHORT_MAX
 from generated.formats.ms2.enums.MeshFormat import MeshFormat
 from plugin.modules_export.armature import get_armature, handle_transforms, export_bones_custom
 from plugin.modules_export.collision import export_bounds
-from plugin.modules_export.mesh_chunks import build_chunk, get_tris_per_v_index, DISCARD_STATIC_TRIS, DYNAMIC_ID, \
-	NO_BONES_ID, SOFT_MAX_VERTS_SHELLS, SOFT_MAX_TRIS_SHELLS, SOFT_MAX_VERTS, SOFT_MAX_TRIS
+from plugin.modules_export.mesh_chunks import DISCARD_STATIC_TRIS, DYNAMIC_ID, NO_BONES_ID, ChunkedMesh
 from plugin.modules_import.armature import get_bone_names
 from plugin.utils.matrix_util import evaluate_mesh, ensure_tri_modifier
 from plugin.utils.shell import get_collection, is_shell, is_fin, num_fur_as_weights, is_fin_mat, is_shell_mat
@@ -139,13 +138,6 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 		else:
 			raise AttributeError(f"{b_ob.name} has {len(unweighted_vertices)} unweighted vertices!")
 
-	# for the current algorithm, shells need to use less tris per chunk than other meshes to avoid flickering
-	if is_shell(b_ob):
-		v_max = SOFT_MAX_VERTS_SHELLS
-		t_max = SOFT_MAX_TRIS_SHELLS
-	else:
-		v_max = SOFT_MAX_VERTS
-		t_max = SOFT_MAX_TRIS
 	# fin meshes have to grab tangents from shell
 	if is_fin(b_ob):
 		shell_obs = [ob for ob in b_lod_coll.objects if is_shell(ob) and ob is not b_ob]
@@ -271,25 +263,8 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 		# do final chunk splitting here, as we now have the final split vertices
 		if mesh.context.biosyn:
 			# build table of neighbors
-			tris_per_v_index = get_tris_per_v_index(chunk_tris, len(chunk_verts))
-			logging.debug(f"Built neighbors table for {len(tris_per_v_index)} verts")
-			# track added tris across all local chunks
-			added_tris = set()
-			tris = ()
-			while tris_per_v_index:
-				used_verts, new_tris, tris = build_chunk(added_tris, b_chunk_bone_id, t_max, tris, tris_per_v_index, v_max)
-				# all verts and tris for this new chunk have been collected
-				if new_tris:
-					# pick local verts
-					used_verts = list(sorted(used_verts))
-					new_verts = [chunk_verts[old_vert_i] for old_vert_i in used_verts]
-					# update tri indices into local chunk verts
-					v_map = {old_vert_i: new_vert_i for new_vert_i, old_vert_i in enumerate(used_verts)}
-					new_tris = [[v_map[old_vert_i] for old_vert_i in tri] for tri in new_tris]
-					# finally extend lists by local chunk data
-					tris_chunks.append((b_chunk_bone_id, new_tris))
-					verts.extend(new_verts)
-			assert len(b_chunk_faces) == len(added_tris), f"Lost {len(b_chunk_faces) - len(added_tris)} tris in chunking"
+			cm = ChunkedMesh(chunk_tris, chunk_verts, tris_chunks, verts, b_chunk_bone_id, is_shell(b_ob))
+			cm.partition()
 		else:
 			tris_chunks.append((b_chunk_bone_id, chunk_tris))
 			verts.extend(chunk_verts)
