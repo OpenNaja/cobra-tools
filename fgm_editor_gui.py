@@ -143,9 +143,9 @@ class MainWindow(widgets.MainWindow):
 		shader_name = self.shader_choice.entry.currentText()
 		if self.fgm_dict and shader_name:
 			self.texture_choice.entry.clear()
-			self.texture_choice.entry.addItems(sorted(self.fgm_dict.shader_textures[shader_name]))
+			self.texture_choice.entry.addItems(sorted(self.fgm_dict.shader_textures.get(shader_name, [])))
 			self.attribute_choice.entry.clear()
-			self.attribute_choice.entry.addItems(sorted(self.fgm_dict.shader_attribs[shader_name]))
+			self.attribute_choice.entry.addItems(sorted(self.fgm_dict.shader_attribs.get(shader_name, [])))
 
 	def update_shader(self, name):
 		self.shader_choice.entry.setText(name)
@@ -230,10 +230,10 @@ class MainWindow(widgets.MainWindow):
 			self.header.name_foreach_textures.data = Array(self.context, self.header.textures, None, (0,), self.header.name_foreach_textures.template)
 			self.header.value_foreach_attributes.data = Array(self.context, self.header.attributes, None, (0,), self.header.value_foreach_attributes.template)
 
-			for tex in self.fgm_dict.shader_textures[self.header.shader_name]:
+			for tex in self.fgm_dict.shader_textures.get(self.header.shader_name, []):
 				self.add_texture(tex)
 
-			for att in self.fgm_dict.shader_attribs[self.header.shader_name]:
+			for att in self.fgm_dict.shader_attribs.get(self.header.shader_name, []):
 				self.add_attribute(att)
 
 			# Preserve old values when possible
