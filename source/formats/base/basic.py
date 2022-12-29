@@ -134,7 +134,7 @@ Short = class_from_struct(Struct("<h"), lambda value: (int(value) + 32768) % 655
 Char = Byte
 Float = class_from_struct(Struct("<f"), float)
 Double = class_from_struct(Struct("<d"), float)
-HFloat = class_from_struct(Struct("<e"), float)
+Hfloat = class_from_struct(Struct("<e"), float)
 
 
 # @staticmethod

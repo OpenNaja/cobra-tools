@@ -93,4 +93,4 @@ class OffsetString(Int):
         super().to_stream(offset, stream, context, arg, template)
 
 
-from generated.formats.base.basic import Byte, Ubyte, Uint64, Int64, Uint, Ushort, Int, Short, Char, Float, Double, ZString
+from generated.formats.base.basic import Byte, Ubyte, Uint64, Int64, Uint, Ushort, Int, Short, Char, Float, Double, Hfloat, ZString
