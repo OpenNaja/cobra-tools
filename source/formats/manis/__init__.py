@@ -37,10 +37,11 @@ class ManisFile(InfoHeader, IoFile):
 
 	def dump_keys(self):
 		for mani_info in self.mani_infos:
-			for i, mb in enumerate(mani_info.keys.repeats):
-				# print(binascii.hexlify(data[:40]), padding, stream.tell())
-				with open(os.path.join(self.dir, f"{self.path_no_ext}_{mani_info.name}_{i}.maniskeys"), "wb") as f:
-					f.write(mb.data)
+			if hasattr(mani_info.keys, "repeats"):
+				for i, mb in enumerate(mani_info.keys.repeats):
+					# print(binascii.hexlify(data[:40]), padding, stream.tell())
+					with open(os.path.join(self.dir, f"{self.path_no_ext}_{mani_info.name}_{i}.maniskeys"), "wb") as f:
+						f.write(mb.data)
 
 
 if __name__ == "__main__":
