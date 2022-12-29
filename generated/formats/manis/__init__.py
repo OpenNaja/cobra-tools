@@ -37,15 +37,15 @@ class ManisFile(InfoHeader, IoFile):
 
 	def dump_keys(self):
 		for mani_info in self.mani_infos:
-			for mb, bone_name in zip(mani_info.keys.repeats, self.name_buffer.bone_names):
+			for i, mb in enumerate(mani_info.keys.repeats):
 				# print(binascii.hexlify(data[:40]), padding, stream.tell())
-				with open(os.path.join(self.dir, f"{self.path_no_ext}_{mani_info.name}_{bone_name}.maniskeys"), "wb") as f:
+				with open(os.path.join(self.dir, f"{self.path_no_ext}_{mani_info.name}_{i}.maniskeys"), "wb") as f:
 					f.write(mb.data)
 
 
 if __name__ == "__main__":
 	mani = ManisFile()
-	mani.load("C:/Users/arnfi/Desktop/fallow manis/animationmotionextractedbehaviour.maniset9987317c.manis")
+	mani.load("C:/Users/arnfi/Desktop/PZ19/camera@cinematicstest.mani327bd79d.manis")
 	mani.dump_keys()
 	# mani.load("C:/Users/arnfi/Desktop/dilo/locomotion.maniset1c05e0f4.manis")
 	# mani.load("C:/Users/arnfi/Desktop/ostrich/ugcres.maniset8982114c.manis")
