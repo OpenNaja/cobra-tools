@@ -125,7 +125,36 @@
 		<add name="SclBones delta" type="ubyte" arr1="(#ARG#\SclBoneMax - #ARG#\SclBoneMin) + 1" cond="#ARG#\SclBoneMin #GTE# 0"> </add>
 
         <add name="pad" type="PadAlign" template="ref" arg="4" >?</add>
-        <add name="floatsa" type="float" arr1="#ARG#\FrameCount" arr2="#ARG#\FloatCount" >these are likely a scale reference or factor</add>
+        <add name="KeyData" type="UncompressedManiData" arg="#ARG#" cond="#ARG#\b #EQ# 0" > </add>
+        <add name="KeyData" type="CompressedManiData" arg="#ARG#"  cond="#ARG#\b #GT# 0" > </add>
+    </compound>
+	
+	<compound name="Vector3" size="12">
+		A vector in 3D space (x,y,z).
+		<field name="x" type="float">First coordinate.</field>
+		<field name="y" type="float">Second coordinate.</field>
+		<field name="z" type="float">Third coordinate.</field>
+	</compound>
+	
+	<compound name="Vector4H" size="12">
+		A vector in 3D space (x,y,z).
+		<field name="x" type="hfloat">First coordinate.</field>
+		<field name="y" type="hfloat">Second coordinate.</field>
+		<field name="z" type="hfloat">Third coordinate.</field>
+		<field name="w" type="hfloat">Fourth coordinate.</field>
+	</compound>
+	
+
+	<compound name="UncompressedManiData" >
+		<add name="ref" type="Empty"/>
+		<add name="PosKeys" type="Vector3" arr1="#ARG#\PosBoneCount" arr2="#ARG#\FrameCount" cond="#ARG#\PosBoneCount #GT# 0"> </add>
+		<add name="unkArray1" type="Vector4H" arr1="#ARG#\OriBoneCount" arr2="#ARG#\FrameCount" cond="#ARG#\OriBoneCount #GT# 0"> </add>
+		<add name="unkArray2" type="float" arr1="#ARG#\FloatCount" arr2="#ARG#\FrameCount" cond="#ARG#\FloatCount #GT# 0"> </add>
+    </compound>
+	
+	<compound name="CompressedManiData" >
+		<add name="ref" type="Empty"/>
+		<add name="floatsa" type="float" arr1="#ARG#\FrameCount" arr2="#ARG#\FloatCount" >these are likely a scale reference or factor</add>
 
 <!--		two uint zeros, or padding-->
 		<add name="pad 2" type="SmartPadding" >?</add>
@@ -165,8 +194,12 @@
 		<add name="anoth pad2" type="PadAlign" template="ref" arg="16" > </add>
 		<add name="ref3" type="Empty"/>
 		<add name="repeats" type="Repeat" arr1="count" > </add>
-
-    </compound>
+	</compound>	
+	
+	
+	
+	
+	
 
     <compound name="Repeat" >
 		<add name="zeros 0" type="uint64" arr1="7" > </add>

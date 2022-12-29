@@ -33,25 +33,25 @@ class KeysReader(BaseStruct):
 		for mani_info in instance.arg:
 			print(mani_info)
 			print(stream.tell())
-			if (mani_info.b > 0) and (mani_info.b != 70) and (mani_info.count_a > 0) and (mani_info.count_b  > 0):
+			if (mani_info.b >= 0) and (mani_info.b != 70) and (mani_info.count_a > 0) and (mani_info.count_b  > 0):
 				mani_info.keys = ManiBlock.from_stream(stream, instance.context, mani_info, None)
 				print(mani_info.keys)
 
-				sum_bytes = sum(mb.byte_size for mb in mani_info.keys.repeats)
-				print("sum_bytes", sum_bytes)
-				sum_bytes2 = sum(mb.byte_size + get_padding_size(mb.byte_size) for mb in mani_info.keys.repeats)
-				print("sum_bytes + padding", sum_bytes2)
-				for mb in mani_info.keys.repeats:
-					# print(bone_name, stream.tell())
-					mb.data = stream.read(mb.byte_size)
-					pad_size = get_padding_size(mb.byte_size)
-					mb.padding = stream.read(pad_size)
-					assert mb.padding == b"\x00" * pad_size
-					# print("end", stream.tell())
-				if (mani_info.keys.count > 0) and (mani_info.b > 5):
-					mani_info.subchunks = UnkChunkList.from_stream(stream, instance.context, mani_info, None)
-					print(mani_info.subchunks)
-				# break
+				# sum_bytes = sum(mb.byte_size for mb in mani_info.keys.repeats)
+				# print("sum_bytes", sum_bytes)
+				# sum_bytes2 = sum(mb.byte_size + get_padding_size(mb.byte_size) for mb in mani_info.keys.repeats)
+				# print("sum_bytes + padding", sum_bytes2)
+				# for mb in mani_info.keys.repeats:
+					# # print(bone_name, stream.tell())
+					# mb.data = stream.read(mb.byte_size)
+					# pad_size = get_padding_size(mb.byte_size)
+					# mb.padding = stream.read(pad_size)
+					# assert mb.padding == b"\x00" * pad_size
+					# # print("end", stream.tell())
+				# if (mani_info.keys.count > 0) and (mani_info.b > 5):
+					# mani_info.subchunks = UnkChunkList.from_stream(stream, instance.context, mani_info, None)
+					# print(mani_info.subchunks)
+				# # break
 		instance.io_size = stream.tell() - instance.io_start
 
 	@classmethod
