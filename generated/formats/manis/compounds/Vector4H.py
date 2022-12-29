@@ -1,5 +1,5 @@
 from generated.base_struct import BaseStruct
-from generated.formats.base.basic import Hfloat
+from generated.formats.base.basic import Normshort
 
 
 class Vector4H(BaseStruct):
@@ -16,30 +16,30 @@ class Vector4H(BaseStruct):
 		super().__init__(context, arg, template, set_default=False)
 
 		# First coordinate.
-		self.x = 0.0
+		self.x = Normshort(self.context, 0, None)
 
 		# Second coordinate.
-		self.y = 0.0
+		self.y = Normshort(self.context, 0, None)
 
 		# Third coordinate.
-		self.z = 0.0
+		self.z = Normshort(self.context, 0, None)
 
 		# Fourth coordinate.
-		self.w = 0.0
+		self.w = Normshort(self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 
 	_attribute_list = BaseStruct._attribute_list + [
-		('x', Hfloat, (0, None), (False, None), None),
-		('y', Hfloat, (0, None), (False, None), None),
-		('z', Hfloat, (0, None), (False, None), None),
-		('w', Hfloat, (0, None), (False, None), None),
+		('x', Normshort, (0, None), (False, None), None),
+		('y', Normshort, (0, None), (False, None), None),
+		('z', Normshort, (0, None), (False, None), None),
+		('w', Normshort, (0, None), (False, None), None),
 		]
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'x', Hfloat, (0, None), (False, None)
-		yield 'y', Hfloat, (0, None), (False, None)
-		yield 'z', Hfloat, (0, None), (False, None)
-		yield 'w', Hfloat, (0, None), (False, None)
+		yield 'x', Normshort, (0, None), (False, None)
+		yield 'y', Normshort, (0, None), (False, None)
+		yield 'z', Normshort, (0, None), (False, None)
+		yield 'w', Normshort, (0, None), (False, None)

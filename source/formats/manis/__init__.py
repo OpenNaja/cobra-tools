@@ -45,7 +45,7 @@ class ManisFile(InfoHeader, IoFile):
 
 if __name__ == "__main__":
 	mani = ManisFile()
-	mani.load("C:/Users/arnfi/Desktop/PZ19/camera@cinematicstest.mani327bd79d.manis")
+	mani.load("C:/Users/arnfi/Desktop/JWE2/pyro/hatcheryexitcamera.maniset8c6441b9.manis")
 	mani.dump_keys()
 	# mani.load("C:/Users/arnfi/Desktop/dilo/locomotion.maniset1c05e0f4.manis")
 	# mani.load("C:/Users/arnfi/Desktop/ostrich/ugcres.maniset8982114c.manis")

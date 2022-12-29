@@ -59,6 +59,10 @@
         An 8-bit character.
     </basic>
 	
+    <basic name="normshort" integral="false">
+        Packed float in a short.
+    </basic>
+
     <basic name="float" integral="false">
         A standard 32-bit floating point number.
     </basic>

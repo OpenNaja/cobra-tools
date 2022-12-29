@@ -138,10 +138,10 @@
 	
 	<compound name="Vector4H" size="12">
 		A vector in 3D space (x,y,z).
-		<field name="x" type="hfloat">First coordinate.</field>
-		<field name="y" type="hfloat">Second coordinate.</field>
-		<field name="z" type="hfloat">Third coordinate.</field>
-		<field name="w" type="hfloat">Fourth coordinate.</field>
+		<field name="x" type="normshort">First coordinate.</field>
+		<field name="y" type="normshort">Second coordinate.</field>
+		<field name="z" type="normshort">Third coordinate.</field>
+		<field name="w" type="normshort">Fourth coordinate.</field>
 	</compound>
 	
 
