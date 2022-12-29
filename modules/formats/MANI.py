@@ -41,6 +41,12 @@ class ManisLoader(BaseFile):
 			outfile.write(self.root_ptr.data)
 			for buff in self.data_entry.buffers:
 				outfile.write(buff.data)
+			# JWE2 can now have a secondary data entry holding a buffer 2 in an ovs
+			for ovs_name, ext_data in self.data_entries.items():
+				if ovs_name != "STATIC":
+					logging.debug(f"Extracting from {ovs_name}")
+					for buff in ext_data.buffers:
+						outfile.write(buff.data)
 	
 		# for i, buff in enumerate(self.data_entry.buffers):
 		# 	with open(out_path+str(i), 'wb') as outfile:
