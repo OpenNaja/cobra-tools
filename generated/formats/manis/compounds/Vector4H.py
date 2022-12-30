@@ -16,16 +16,16 @@ class Vector4H(BaseStruct):
 		super().__init__(context, arg, template, set_default=False)
 
 		# First coordinate.
-		self.x = Normshort(self.context, 0, None)
+		self.x = 0
 
 		# Second coordinate.
-		self.y = Normshort(self.context, 0, None)
+		self.y = 0
 
 		# Third coordinate.
-		self.z = Normshort(self.context, 0, None)
+		self.z = 0
 
 		# Fourth coordinate.
-		self.w = Normshort(self.context, 0, None)
+		self.w = 0
 		if set_default:
 			self.set_defaults()
 

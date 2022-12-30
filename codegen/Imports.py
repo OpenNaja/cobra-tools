@@ -61,11 +61,11 @@ class Imports:
     def add_mapped_type(self, cls_to_import, array=False):
         if cls_to_import:
             has_stream_functions, import_type = self.parent.map_type(cls_to_import, array)
-            if has_stream_functions and not array and import_type in self.parent.builtin_literals:
-                # import not necessary (read/write on stream, and init can happen from literal)
-                return
-            else:
-                if not array:
+            if not array:
+                if has_stream_functions and import_type in self.parent.builtin_literals:
+                    # import not necessary (read/write on stream, and init can happen from literal)
+                    return
+                else:
                     import_type = (import_type, )
             [self.add(import_class) for import_class in import_type]
 

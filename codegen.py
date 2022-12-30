@@ -240,20 +240,20 @@ class XmlParser:
             l_type = in_type.lower()
             if self.tag_dict.get(l_type) == "basic":
                 basic_class = self.basics.basic_map[in_type]
-                if callable(getattr(basic_class, "functions_for_stream", None)):
-                    has_stream_functions = True
-                    if array:
-                        if callable(getattr(basic_class, "create_array", None)):
-                            test = basic_class.create_array(1)
-                            if isinstance(test, ndarray):
-                                out_type = ('numpy', f'numpy.{repr(test.dtype)}')
-                    else:
-                        if callable(getattr(basic_class, "from_value", None)):
-                            # check from_value to see which builtin it returns
-                            test = basic_class.from_value(0)
-                            test_type = type(test).__name__
-                            if test_type in self.builtin_literals:
-                                out_type = test_type
+                if array:
+                    if callable(getattr(basic_class, "create_array", None)):
+                        has_stream_functions = True
+                        test = basic_class.create_array(1)
+                        if isinstance(test, ndarray):
+                            out_type = ('numpy', f'numpy.{repr(test.dtype)}')
+                else:
+                    if callable(getattr(basic_class, "from_value", None)):
+                        has_stream_functions = True
+                        # check from_value to see which builtin it returns
+                        test = basic_class.from_value(0)
+                        test_type = type(test).__name__
+                        if test_type in self.builtin_literals:
+                            out_type = test_type
         return has_stream_functions, out_type
 
     def replace_tokens(self, xml_struct):
