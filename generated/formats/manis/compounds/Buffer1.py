@@ -16,8 +16,6 @@ class Buffer1(BaseStruct):
 		super().__init__(context, arg, template, set_default=False)
 		self.bone_hashes = Array(self.context, 0, None, (0,), Uint)
 		self.bone_names = Array(self.context, 0, None, (0,), ZString)
-
-		# ?
 		self.bone_pad = PadAlign(self.context, 4, self.bone_names)
 		if set_default:
 			self.set_defaults()

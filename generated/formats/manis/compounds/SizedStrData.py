@@ -8,7 +8,7 @@ class SizedStrData(BaseStruct):
 
 	"""
 	24 bytes for DLA, ZTUAC, PC, JWE1, old PZ
-	32 bytes for PZ1.6+, JWFloatCount
+	32 bytes for PZ1.6+, JWE2
 	"""
 
 	__name__ = 'SizedStrData'
@@ -45,5 +45,5 @@ class SizedStrData(BaseStruct):
 		yield 'zero_0', Uint, (0, None), (False, None)
 		yield 'zero_1', Uint64, (0, None), (False, None)
 		yield 'zero_2', Uint64, (0, None), (False, None)
-		if instance.context.version >= 20:
+		if instance.context.version >= 260:
 			yield 'zero_3', Uint64, (0, None), (False, None)

@@ -29,8 +29,6 @@ class ManiBlock(BaseStruct):
 		self.pos_bones_delta = Array(self.context, 0, None, (0,), Ubyte)
 		self.ori_bones_delta = Array(self.context, 0, None, (0,), Ubyte)
 		self.scl_bones_delta = Array(self.context, 0, None, (0,), Ubyte)
-
-		# ?
 		self.pad = PadAlign(self.context, 4, self.ref)
 		self.key_data = CompressedManiData(self.context, self.arg, None)
 		if set_default:

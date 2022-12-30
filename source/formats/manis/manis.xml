@@ -31,13 +31,13 @@
 
     <compound name="SizedStrData">
 		24 bytes for DLA, ZTUAC, PC, JWE1, old PZ
-		32 bytes for PZ1.6+, JWFloatCount
+		32 bytes for PZ1.6+, JWE2
 		<add name="names size" type="ushort">seemingly related to the names of mani files stripped from their prefix, but usually slightly smaller than what is actually needed</add>
         <add name="hash block size" type="ushort"/>
 		<add name="zero 0" type="uint"/>
         <add name="zero 1" type="uint64" />
         <add name="zero 2" type="uint64" />
-        <add name="zero 3" type="uint64" since="20" />
+        <add name="zero 3" type="uint64" since="260" />
     </compound>
 
     <compound name="InfoHeader">
@@ -52,9 +52,9 @@
     </compound>
 
     <compound name="Buffer1">
-		<add name="bone hashes" type="uint" arr1="#ARG#" ></add>
-		<add name="bone names" type="ZString" arr1="#ARG#" ></add>
-        <add name="bone pad" type="PadAlign" template="bone names" arg="4" >?</add>
+		<add name="bone hashes" type="uint" arr1="#ARG#"/>
+		<add name="bone names" type="ZString" arr1="#ARG#"/>
+		<add name="bone pad" type="PadAlign" template="bone names" arg="4"/>
     </compound>
 
     <compound name="KeysReader">
@@ -124,9 +124,9 @@
 		<add name="OriBones delta" type="ubyte" arr1="(#ARG#\OriBoneMax - #ARG#\OriBoneMin) + 1" cond="#ARG#\OriBoneMin #GTE# 0"> </add>
 		<add name="SclBones delta" type="ubyte" arr1="(#ARG#\SclBoneMax - #ARG#\SclBoneMin) + 1" cond="#ARG#\SclBoneMin #GTE# 0"> </add>
 
-        <add name="pad" type="PadAlign" template="ref" arg="4" >?</add>
-        <add name="KeyData" type="UncompressedManiData" arg="#ARG#" cond="#ARG#\b #EQ# 0" > </add>
-        <add name="KeyData" type="CompressedManiData" arg="#ARG#"  cond="#ARG#\b #GT# 0" > </add>
+		<add name="pad" type="PadAlign" template="ref" arg="4"/>
+		<add name="KeyData" type="UncompressedManiData" arg="#ARG#" cond="#ARG#\b #EQ# 0"/>
+		<add name="KeyData" type="CompressedManiData" arg="#ARG#" cond="#ARG#\b #GT# 0"/>
     </compound>
 	
 	<compound name="Vector3" size="12">
