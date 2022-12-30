@@ -29,6 +29,11 @@
     <version id="JWE2_DEV" version="261" >JWE2 Dev Build</version>
     <version id="JWE2" version="262" >JWE2</version>
 
+    <basic name="Channelname" integral="true" countable="true">
+		<!--    PC uses ushort-->
+		<!--    JWE uses uint-->
+    </basic>
+
     <compound name="SizedStrData">
 		24 bytes for DLA, ZTUAC, PC, JWE1, old PZ
 		32 bytes for PZ1.6+, JWE2
@@ -102,24 +107,16 @@
 
 	<compound name="ManiBlock" >
 		<add name="ref" type="Empty"/>
-<!--    PC uses ushort-->
-<!--    JWE uses uint-->
-		<add name="PosBones" type="ushort" arr1="#ARG#\PosBoneCount" until="257" > </add>
-		<add name="PosBones" type="uint" arr1="#ARG#\PosBoneCount" since="258" > </add>
+		define the channel names
+		<add name="PosBones" type="Channelname" arr1="#ARG#\PosBoneCount"/>
+		<add name="OriBones" type="Channelname" arr1="#ARG#\OriBoneCount"/>
+		<add name="SclBones" type="Channelname" arr1="#ARG#\SclBoneCount"/>
+		<add name="Floats" type="Channelname" arr1="#ARG#\FloatCount"/>
 
-		<add name="OriBones" type="ushort" arr1="#ARG#\OriBoneCount" until="257" > </add>
-		<add name="OriBones" type="uint" arr1="#ARG#\OriBoneCount" since="258" > </add>
-
-		<add name="SclBones" type="ushort" arr1="#ARG#\SclBoneCount" until="257" > </add>
-		<add name="SclBones" type="uint" arr1="#ARG#\SclBoneCount" since="258" > </add>
-
-		<add name="Floats" type="ushort" arr1="#ARG#\FloatCount" until="257" > </add>
-		<add name="Floats" type="uint" arr1="#ARG#\FloatCount" since="258" > </add>
-
-		<add name="PosBones P" type="ubyte" arr1="#ARG#\PosBoneCount" > </add>
-		<add name="OriBones P" type="ubyte" arr1="#ARG#\OriBoneCount" > </add>
-		<add name="SclBones P" type="ubyte" arr1="#ARG#\SclBoneCount" > </add>
-
+		the following are probably used to map bones in the skeleton
+		<add name="PosBones P" type="ubyte" arr1="#ARG#\PosBoneCount"/>
+		<add name="OriBones P" type="ubyte" arr1="#ARG#\OriBoneCount"/>
+		<add name="SclBones P" type="ubyte" arr1="#ARG#\SclBoneCount"/>
 		<add name="PosBones delta" type="ubyte" arr1="(#ARG#\PosBoneMax - #ARG#\PosBoneMin) + 1" cond="#ARG#\PosBoneMin #GTE# 0"> </add>
 		<add name="OriBones delta" type="ubyte" arr1="(#ARG#\OriBoneMax - #ARG#\OriBoneMin) + 1" cond="#ARG#\OriBoneMin #GTE# 0"> </add>
 		<add name="SclBones delta" type="ubyte" arr1="(#ARG#\SclBoneMax - #ARG#\SclBoneMin) + 1" cond="#ARG#\SclBoneMin #GTE# 0"> </add>
@@ -146,10 +143,9 @@
 	
 
 	<compound name="UncompressedManiData" >
-		<add name="ref" type="Empty"/>
-		<add name="PosKeys" type="Vector3" arr1="#ARG#\PosBoneCount" arr2="#ARG#\FrameCount" cond="#ARG#\PosBoneCount #GT# 0"> </add>
-		<add name="unkArray1" type="Vector4H" arr1="#ARG#\OriBoneCount" arr2="#ARG#\FrameCount" cond="#ARG#\OriBoneCount #GT# 0"> </add>
-		<add name="unkArray2" type="float" arr1="#ARG#\FloatCount" arr2="#ARG#\FrameCount" cond="#ARG#\FloatCount #GT# 0"> </add>
+		<add name="PosBones" type="Vector3" arr1="#ARG#\PosBoneCount" arr2="#ARG#\FrameCount" />
+		<add name="OriBones" type="Vector4H" arr1="#ARG#\OriBoneCount" arr2="#ARG#\FrameCount" />
+		<add name="Floats" type="float" arr1="#ARG#\FloatCount" arr2="#ARG#\FrameCount" />
     </compound>
 	
 	<compound name="CompressedManiData" >

@@ -15,7 +15,7 @@ def hex_test():
 class ManisFile(InfoHeader, IoFile):
 
 	def __init__(self):
-		super().__init__(OvlContext())
+		super().__init__(self)
 
 	def load(self, filepath):
 		# store file name for later

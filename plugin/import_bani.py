@@ -6,6 +6,7 @@ import mathutils
 
 from generated.formats.bani import BaniFile
 from plugin.modules_export.armature import get_armature
+from plugin.modules_import.anim import create_anim
 from plugin.utils.object import create_ob
 
 
@@ -17,14 +18,6 @@ def load_bani(file_path):
 	# open file for binary reading
 	data.load(file_path)
 	return data
-
-
-def create_anim(ob, anim_name):
-	action = bpy.data.actions.new(name=anim_name)
-	action.use_fake_user = True
-	ob.animation_data_create()
-	ob.animation_data.action = action
-	return action
 
 
 def load(files=[], filepath="", set_fps=False):

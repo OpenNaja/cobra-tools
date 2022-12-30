@@ -8,28 +8,12 @@ import mathutils
 from generated.formats.manis import ManisFile
 
 
-def load_manis(file_path):
-	"""Loads a manis from the given file path"""
-	print("Importing {0}".format(file_path))
-
-	data = ManisFile()
-	# open file for binary reading
-	data.load(file_path)
-	return data
-
-
-def create_anim(ob, anim_name):
-	action = bpy.data.actions.new(name=anim_name)
-	action.use_fake_user = True
-	ob.animation_data_create()
-	ob.animation_data.action = action
-	return action
-
-
 def load(files=[], filepath="", set_fps=False):
 	starttime = time.clock()
 	dirname, filename = os.path.split(filepath)
-	data = load_manis(filepath)
+	data = ManisFile()
+	# open file for binary reading
+	data.load(filepath)
 	# print(data)
 	# # data 0 has various scales and counts
 	# anim_length = data.data_0.animation_length
