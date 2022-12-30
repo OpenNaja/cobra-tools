@@ -4,6 +4,7 @@ import math
 
 import bpy
 import mathutils
+from bpy_extras.io_utils import axis_conversion
 
 from generated.formats.manis import ManisFile
 from plugin.modules_import.anim import Animation
@@ -13,10 +14,39 @@ from plugin.utils.object import create_ob
 interp_loc = None
 
 
+class ManisCorrector(Corrector):
+	def __init__(self, is_zt):
+		# axis_conversion(from_forward='Y', from_up='Z', to_forward='Y', to_up='Z')
+		self.correction_glob = axis_conversion("Z", "Y").to_4x4().to_4x4()
+		self.correction_glob_inv = self.correction_glob.inverted()
+		# if is_zt:
+		# 	self.correction = axis_conversion("X", "Y").to_4x4()
+		# else:
+		# 	self.correction = axis_conversion("-X", "Y").to_4x4()
+		self.correction = mathutils.Matrix()
+		self.correction_inv = self.correction.inverted()
+		# mirror about x axis too:
+		self.xflip = mathutils.Matrix().to_4x4()
+		self.xflip[0][0] = -1
+
+	# https://stackoverflow.com/questions/1263072/changing-a-matrix-from-right-handed-to-left-handed-coordinate-system
+	def nif_bind_to_blender_bind(self, nif_armature_space_matrix):
+		# post multiplication: local space
+		# position of xflip does not matter
+		return self.xflip @ self.correction_glob @ nif_armature_space_matrix @ self.correction_inv @ self.xflip
+
+	def blender_bind_to_nif_bind(self, blender_armature_space_matrix):
+		# xflip must be done before the conversions
+		bind = self.xflip @ blender_armature_space_matrix @ self.xflip
+		return self.correction_glob_inv @ bind @ self.correction
+
+
 def load(files=[], filepath="", set_fps=False):
 	# global_corr_euler = mathutils.Euler([math.radians(k) for k in (0, 0, 0)])
-	corrector = Corrector(False)
-	global_corr_mat = corrector.correction_glob
+	corrector = ManisCorrector(False)
+	# axis_conversion(from_forward='Y', from_up='Z', to_forward='Y', to_up='Z')
+	global_corr_mat = axis_conversion("Z", "Y").to_4x4()
+	# global_corr_mat = corrector.correction_glob
 	# n_bind = mathutils.Matrix(joint_transform.rot.data).inverted().to_4x4()
 	# n_bind.translation = (joint_transform.loc.x, joint_transform.loc.y, joint_transform.loc.z)
 	# b_bind = corrector.nif_bind_to_blender_bind(n_bind)
@@ -40,7 +70,8 @@ def load(files=[], filepath="", set_fps=False):
 			# print(pos_bone, keys)
 			for frame, val in enumerate(keys):
 				key = mathutils.Vector([val.x, val.y, val.z])
-				key = (global_corr_mat @ mathutils.Matrix.Translation(key)).to_translation()
+				key = corrector.nif_bind_to_blender_bind(mathutils.Matrix.Translation(key)).to_translation()
+				# key = (global_corr_mat @ mathutils.Matrix.Translation(key)).to_translation()
 				anim_sys.add_key(fcurves, frame, key, interp_loc)
 		for ori_bone, keys in zip(mb.ori_bones, mb.key_data.ori_bones):
 			b_cam_ob.rotation_mode = "QUATERNION"
@@ -48,7 +79,8 @@ def load(files=[], filepath="", set_fps=False):
 			# print(ori_bone, keys)
 			for frame, val in enumerate(keys):
 				key = mathutils.Quaternion([val.w, val.x, val.y, val.z])
-				key = (global_corr_mat @ key.to_matrix().to_4x4()).to_quaternion()
+				key = corrector.nif_bind_to_blender_bind(key.to_matrix().to_4x4()).to_quaternion()
+				# key = (global_corr_mat @ key.to_matrix().to_4x4()).to_quaternion()
 				# do a 180° flip, probably unique to camera as faces in the wrong direction even without any correction
 				key = (-key.w, key.x, key.y, -key.z)
 				anim_sys.add_key(fcurves, frame, key, interp_loc)
@@ -57,7 +89,7 @@ def load(files=[], filepath="", set_fps=False):
 			fcurves = anim_sys.create_fcurves(b_data_action, "lens", (0,))
 			# print(float_name, keys)
 			for frame, val in enumerate(keys):
-				anim_sys.add_key(fcurves, frame, (val*100,), interp_loc)
+				anim_sys.add_key(fcurves, frame, (10 / val,), interp_loc)
 
 	bpy.context.scene.frame_start = 0
 	bpy.context.scene.frame_end = mi.frame_count
