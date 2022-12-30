@@ -60,36 +60,6 @@ def class_from_struct(struct, from_value_func):
 			stream.write(instance.tobytes())
 
 		@staticmethod
-		def functions_for_stream(stream):
-			# declare these in the local scope for faster name resolutions
-			read = stream.read
-			write = stream.write
-			readinto = stream.readinto
-
-			def read_value():
-				return unpack(read(size))[0]
-
-			def write_value(instance):
-				write(pack(instance))
-
-			def read_values(shape):
-				array = empty(shape, dtype)
-				# noinspection PyTypeChecker
-				readinto(array)
-				return array
-
-			def write_values(instance):
-				# check that it is a numpy array
-				if not isinstance(instance, np.ndarray):
-					instance = np.array(instance, dtype)
-				# cast if wrong incoming dtype
-				elif instance.dtype != dtype:
-					instance = instance.astype(dtype)
-				write(instance.tobytes())
-
-			return read_value, write_value, read_values, write_values
-
-		@staticmethod
 		def from_xml(target, elem, prop, arg=0, template=None):
 			return literal_eval(elem.attrib[prop])
 
@@ -176,28 +146,6 @@ class ZString:
 	@staticmethod
 	def from_value(value, context=None, arg=0, template=None):
 		return str(value)
-
-	@classmethod
-	def functions_for_stream(cls, stream):
-		# declare these in the local scope for faster name resolutions
-		read = stream.read
-		write = stream.write
-
-		def read_zstring():
-			return r_zstr(read)
-
-		def write_zstring(instance):
-			w_zstr(write, instance)
-
-		def read_zstrings(shape):
-			# pass empty context
-			return Array.from_stream(stream, None, 0, None, shape, cls)
-
-		def write_zstrings(instance):
-			# pass empty context
-			return Array.to_stream(instance, stream, None, 0, None, dtype=cls)
-
-		return read_zstring, write_zstring, read_zstrings, write_zstrings
 
 	@staticmethod
 	def from_xml(target, elem, prop, arg=0, template=None):

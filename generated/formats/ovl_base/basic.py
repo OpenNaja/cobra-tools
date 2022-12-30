@@ -40,28 +40,6 @@ class ZStringObfuscated(ZString):
     def to_stream(instance, stream, context=None, arg=0, template=None):
         w_zstr_obfuscated(stream.write, instance)
 
-    @classmethod
-    def functions_for_stream(cls, stream):
-        # declare these in the local scope for faster name resolutions
-        read = stream.read
-        write = stream.write
-
-        def read_zstring():
-            return r_zstr_obfuscated(read)
-
-        def write_zstring(instance):
-            w_zstr_obfuscated(write, instance)
-
-        def read_zstrings(shape):
-            # pass empty context
-            return Array.from_stream(stream, None, 0, None, shape, cls)
-
-        def write_zstrings(instance):
-            # pass empty context
-            return Array.to_stream(instance, stream, None, 0, None, dtype=cls)
-
-        return read_zstring, write_zstring, read_zstrings, write_zstrings
-
     @staticmethod
     def fmt_member(member, indent=0):
         lines = str(member).split("\n")
