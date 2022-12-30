@@ -6,15 +6,19 @@ import bpy
 import mathutils
 
 from generated.formats.manis import ManisFile
+from plugin.utils.object import create_ob
 
 
 def load(files=[], filepath="", set_fps=False):
-	starttime = time.clock()
+	starttime = time.time()
 	dirname, filename = os.path.split(filepath)
 	data = ManisFile()
 	# open file for binary reading
 	data.load(filepath)
-	# print(data)
+	print(data)
+	scene = bpy.context.scene
+	cam_data = bpy.data.cameras.new("TestCamera")
+	cam = create_ob(scene, "Camera", cam_data)
 	# # data 0 has various scales and counts
 	# anim_length = data.data_0.animation_length
 	# num_frames = data.data_0.num_frames
@@ -54,11 +58,11 @@ def load(files=[], filepath="", set_fps=False):
 	# assert( len(bone_names) == len(data.bones_frames_eulers) == len(data.bones_frames_locs) )
 	# action = create_anim(ob, filename)
 	# go over list
-	for i, bone_name in enumerate(data.bone_names):
-		# print(i, bone_name)
-
-		# bone_keys = data.eulers_dict[bone_name]
-		# bone_name = bone_name.decode()
-		# get pose pbone
-		pass
+	# for i, bone_name in enumerate(data.bone_names):
+	# 	# print(i, bone_name)
+	#
+	# 	# bone_keys = data.eulers_dict[bone_name]
+	# 	# bone_name = bone_name.decode()
+	# 	# get pose pbone
+	# 	pass
 	return {'FINISHED'}
