@@ -125,22 +125,21 @@
 		<add name="KeyData" type="UncompressedManiData" arg="#ARG#" cond="#ARG#\b #EQ# 0"/>
 		<add name="KeyData" type="CompressedManiData" arg="#ARG#" cond="#ARG#\b #GT# 0"/>
     </compound>
-	
+
 	<compound name="Vector3" size="12">
 		A vector in 3D space (x,y,z).
 		<field name="x" type="float">First coordinate.</field>
 		<field name="y" type="float">Second coordinate.</field>
 		<field name="z" type="float">Third coordinate.</field>
 	</compound>
-	
-	<compound name="Vector4H" size="12">
-		A vector in 3D space (x,y,z).
-		<field name="x" type="normshort">First coordinate.</field>
-		<field name="y" type="normshort">Second coordinate.</field>
-		<field name="z" type="normshort">Third coordinate.</field>
-		<field name="w" type="normshort">Fourth coordinate.</field>
+
+	<compound name="Vector4H" size="8">
+		<field name="w" type="normshort"/>
+		<field name="x" type="normshort"/>
+		<field name="y" type="normshort"/>
+		<field name="z" type="normshort"/>
 	</compound>
-	
+
 
 	<compound name="UncompressedManiData" >
 		<add name="PosBones" type="Vector3" arr1="#ARG#\PosBoneCount" arr2="#ARG#\FrameCount" />
