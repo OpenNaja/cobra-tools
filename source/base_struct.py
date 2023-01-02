@@ -21,6 +21,13 @@ class StructMetaClass(type):
 			cls._import_map[dict['_import_key']] = cls
 		super().__init__(name, bases, dict, **kwds)
 
+		def free_function(function_name):
+			if function_name in dict:
+				return False
+			else:
+				# not defined in class body allows automatic filling, as long as any parents are also compatible
+				return callable(getattr(cls, function_name, lambda: True))
+
 		if getattr(cls, "_attribute_list", None) is not None:
 			attribute_list = cls._attribute_list
 			attr_names = [name for name, f_type, arguments, _, cond in attribute_list]
@@ -30,20 +37,20 @@ class StructMetaClass(type):
 				# all fields are static
 				if len(set(attr_types)) == 1:
 					# every field is the same type, iteration makes sense
-					if not callable(getattr(cls, "__len__", None)):
+					if free_function("__len__"):
 						cls.__len__ = lambda self: len(attribute_list)
-					if not callable(getattr(cls, "__iter__", None)):
+					if free_function("__iter__"):
 						def __iter__(self):
 							yield from (getattr(self, attr_name) for attr_name in attr_names)
 						cls.__iter__ = __iter__
-					if not callable(getattr(cls, "__getitem__", None)):
+					if free_function("__getitem__"):
 						def __getitem__(self, key):
 							if 0 <= key < len(attribute_list):
 								return getattr(self, attr_names[key])
 							else:
 								raise IndexError(f'Index {key} not in {type(self)}')
 						cls.__getitem__ = __getitem__
-					if not callable(getattr(cls, "__setitem__", None)):
+					if free_function("__setitem__"):
 						def __setitem__(self, key, value):
 							if 0 <= key < len(attribute_list):
 								return setattr(self, attr_names[key], value)
@@ -53,7 +60,7 @@ class StructMetaClass(type):
 				if all(callable(getattr(attr_type, "from_value", None)) for attr_type in attr_types):
 					# since all fields are static and have a from_value function defined, this struct can also have
 					# from_value defined
-					if not callable(getattr(cls, "from_value", None)):
+					if free_function("from_value"):
 						def from_value(value):
 							# from_value implies context-independence so pass None as context
 							instance = cls(None)
