@@ -212,8 +212,9 @@ class Ms2Loader(BaseFile):
 			# link first_model pointer
 			if not first_model_frag:
 				logging.error(f"MS2 {self.file_entry.name} has no pointers on any model")
-			self.attach_frag_to_ptr(model_info.first_model, pool)
-			self.ptr_relative(model_info.first_model.frag.struct_ptr, first_model_frag.struct_ptr)
+			else:
+				self.attach_frag_to_ptr(model_info.first_model, pool)
+				self.ptr_relative(model_info.first_model.frag.struct_ptr, first_model_frag.struct_ptr)
 			for wrapper in model_info.model.meshes:
 				# buffer_infos have been written, now make this mesh's buffer_info pointer point to the right entry
 				offset = wrapper.mesh.stream_info.temp_index * self.header.buffer_infos.data[0].io_size
