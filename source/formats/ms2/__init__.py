@@ -247,21 +247,31 @@ class Ms2File(Ms2InfoHeader, IoFile):
 
 		for model_info in self.model_infos:
 			for material in model_info.model.materials:
-				self._rename(material, name_tups)
+				material.name = self._rename(material.name, name_tups)
 			if model_info.bone_info:
-				for bone in model_info.bone_info.bones:
-					self._rename(bone, name_tups)
+				bi = model_info.bone_info
+				for bone in bi.bones:
+					bone.name = self._rename(bone.name, name_tups)
+				if bi.ik_info:
+					for entry in (bi.ik_info.ik_list + bi.ik_info.ik_targets):
+						entry.parent = self._rename(entry.parent, name_tups)
+						entry.child = self._rename(entry.child, name_tups)
+				ji = bi.joints
+				if ji:
+					for joint_info in ji.joint_infos:
+						joint_info.bone_name = self._rename(joint_info.bone_name, name_tups)
 
-	def _rename(self, element, name_tups):
+	def _rename(self, s, name_tups):
 		# first a cases sensitive pass
 		for old, new in name_tups:
-			if old in element.name:
-				logging.debug(f"Match for '{old}' in '{element.name}'")
-				element.name = element.name.replace(old, new)
+			if old in s:
+				logging.debug(f"Match for '{old}' in '{s}'")
+				s = s.replace(old, new)
 		for old, new in name_tups:
-			if old.lower() in element.name.lower():
-				logging.debug(f"Case-insensitive match '{old}' in '{element.name}'")
-				element.name = element.name.lower().replace(old, new)
+			if old.lower() in s.lower():
+				logging.debug(f"Case-insensitive match '{old}' in '{s}'")
+				s = s.lower().replace(old, new)
+		return s
 
 	def get_name_index(self, name):
 		if name not in self.buffer_0.names:
