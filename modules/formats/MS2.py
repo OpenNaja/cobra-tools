@@ -140,12 +140,13 @@ class Ms2Loader(BaseFile):
 		self.header = Ms2Root.from_stream(self.root_ptr.stream, self.context)
 		try:
 			self.header.read_ptrs(self.root_ptr.pool)
-			for i, buffer_presence in enumerate(self.header.buffer_pointers.data):
-				d = buffer_presence.dependency_name
-				if d.pool_index != -1 and not d.data:
-					logging.warning(f"Streamed mesh buffer {i} for {self.file_entry.name} has no dependency to a .model2stream file")
+			if self.header.buffer_pointers.data:
+				for i, buffer_presence in enumerate(self.header.buffer_pointers.data):
+					d = buffer_presence.dependency_name
+					if d.pool_index != -1 and not d.data:
+						logging.warning(f"Streamed mesh buffer {i} for {self.file_entry.name} has no dependency to a .model2stream file")
 		except:
-			logging.exception(f"MS2 failed")
+			logging.exception(f"MS2 collecting failed")
 		# print(self.header)
 
 	def get_first_model_frag(self):
