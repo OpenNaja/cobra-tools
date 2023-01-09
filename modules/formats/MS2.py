@@ -212,7 +212,7 @@ class Ms2Loader(BaseFile):
 		for model_info in self.header.model_infos.data:
 			# link first_model pointer
 			if not first_model_frag:
-				logging.error(f"MS2 {self.file_entry.name} has no pointers on any model")
+				logging.debug(f"MS2 {self.file_entry.name} has no pointers on any model")
 			else:
 				self.attach_frag_to_ptr(model_info.first_model, pool)
 				self.ptr_relative(model_info.first_model.frag.struct_ptr, first_model_frag.struct_ptr)
