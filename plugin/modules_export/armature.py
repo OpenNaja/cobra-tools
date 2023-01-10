@@ -166,7 +166,15 @@ def export_bones_custom(b_armature_ob, model_info):
 	for i in range(len(b_bone_names)):
 		bone_info.enumeration[i] = [4, i]
 
+	update_ik_pointers(bone_info)
 	export_joints(bone_info, corrector)
+
+
+def update_ik_pointers(bone_info):
+	logging.info("Updating IK pointers")
+	bones_map = {bone.name: bone for bone in bone_info.bones}
+	for ptr in bone_info.ik_info.get_pointers():
+		ptr.joint = bones_map.get(ptr.joint.name)
 
 
 def export_joints(bone_info, corrector):
