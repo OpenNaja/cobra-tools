@@ -140,7 +140,7 @@ def get_bone_names(model_info):
 def import_joints(scene, armature_ob, bone_info, b_bone_names, corrector):
 	logging.info("Importing joints")
 	j = bone_info.joints
-	for bone_index, joint_info, joint_transform in zip(j.joint_indices, j.joint_infos, j.joint_transforms):
+	for bone_index, joint_info, joint_transform in zip(j.joint_to_bone, j.joint_infos, j.joint_transforms):
 		logging.debug(f"joint {joint_info.name}")
 		# create an empty representing the joint
 		b_joint = create_ob(scene, f"{bpy.context.scene.name}_{joint_info.name}", None, coll_name="joints")

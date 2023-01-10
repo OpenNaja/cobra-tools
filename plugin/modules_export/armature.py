@@ -182,10 +182,10 @@ def export_joints(bone_info, corrector):
 	# joints.reset_field("rigid_body_list")
 	# joints.reset_field("joint_infos")
 	# # not sure if we do those here or in ms2
-	# joints.reset_field("joint_indices")
-	# joints.reset_field("bone_indices")
+	# joints.reset_field("joint_to_bone")
+	# joints.reset_field("bone_to_joint")
 	joint_map = {get_joint_name(b_ob): b_ob for b_ob in joint_coll.objects}
-	for bone_index, joint_info in zip(joints.joint_indices, joints.joint_infos):
+	for bone_index, joint_info in zip(joints.joint_to_bone, joints.joint_infos):
 		# bone_name = b_bone_names[bone]
 		b_joint = joint_map.get(joint_info.name)
 		if not b_joint:

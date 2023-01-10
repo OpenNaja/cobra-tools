@@ -1,5 +1,6 @@
 from generated.base_struct import BaseStruct
 from generated.formats.base.basic import Uint
+from generated.formats.base.basic import Uint64
 from generated.formats.base.basic import Ushort
 from generated.formats.ms2.compounds.BoundingBox import BoundingBox
 from generated.formats.ms2.compounds.Capsule import Capsule
@@ -31,16 +32,13 @@ class HitCheck(BaseStruct):
 		# JWE1: 16; PZ, JWE2 always 0
 		self.flag_1 = 0
 
-		# offset into joint names, not for JWE1
+		# probably a bitfield, not sure though, might be a list of ubytes too
+		self.collision_layers = 0
 		self.collision_ignore = 0
-
-		# offset into joint names, not for JWE1
 		self.collision_use = 0
 
 		# ?
 		self.zero_extra_pc = 0
-
-		# offset into joint names
 		self.name = 0
 		self.collider = MeshCollision(self.context, 0, None)
 
@@ -53,8 +51,9 @@ class HitCheck(BaseStruct):
 		('dtype', CollisionType, (0, None), (False, None), None),
 		('flag_0', Ushort, (0, None), (False, 0), None),
 		('flag_1', Ushort, (0, None), (False, 0), None),
-		('collision_ignore', OffsetString, (None, None), (False, None), None),
-		('collision_use', OffsetString, (None, None), (False, None), None),
+		('collision_layers', Uint64, (0, None), (False, None), True),
+		('collision_ignore', OffsetString, (None, None), (False, None), True),
+		('collision_use', OffsetString, (None, None), (False, None), True),
 		('zero_extra_pc', Uint, (0, None), (False, None), True),
 		('name', OffsetString, (None, None), (False, None), None),
 		('collider', Sphere, (0, None), (False, None), True),
@@ -73,8 +72,11 @@ class HitCheck(BaseStruct):
 		yield 'dtype', CollisionType, (0, None), (False, None)
 		yield 'flag_0', Ushort, (0, None), (False, 0)
 		yield 'flag_1', Ushort, (0, None), (False, 0)
-		yield 'collision_ignore', OffsetString, (instance.arg, None), (False, None)
-		yield 'collision_use', OffsetString, (instance.arg, None), (False, None)
+		if instance.context.version <= 47:
+			yield 'collision_layers', Uint64, (0, None), (False, None)
+		if instance.context.version >= 48:
+			yield 'collision_ignore', OffsetString, (instance.arg, None), (False, None)
+			yield 'collision_use', OffsetString, (instance.arg, None), (False, None)
 		if instance.context.version <= 32:
 			yield 'zero_extra_pc', Uint, (0, None), (False, None)
 		yield 'name', OffsetString, (instance.arg, None), (False, None)

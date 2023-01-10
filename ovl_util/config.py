@@ -56,6 +56,7 @@ def read_list(cfg_path):
 		print(f"{cfg_path} is missing or broken!")
 		return []
 
+
 class ColoredFormatter(logging.Formatter):
 
 	def __init__(self, *args, **kwargs):
@@ -78,6 +79,7 @@ class ColoredFormatter(logging.Formatter):
 		log_fmt = self.FORMATS.get(record.levelno)
 		formatter = logging.Formatter(log_fmt)
 		return formatter.format(record)
+
 
 def logging_setup(log_name):
 	log_path = f'{os.path.join(root_dir, log_name)}.log'

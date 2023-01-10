@@ -39,6 +39,7 @@
 	<basic name="BiosynVersion" integral="true" countable="true">
 		An unsigned 32-bit integer.
 	</basic>
+	
 	<basic name="MainVersion" integral="true" countable="true">
 		An unsigned 32-bit integer.
 	</basic>
@@ -358,7 +359,6 @@
 		<add name="buffer_infos" type="BufferInfo" arr1="info \ vertex_buffer_count" />
 		<add name="model_infos" type="ModelInfo" arr1="info \ mdl2_count"/>
 		models and bone infos follow, either separate (new) or interleaved for each modelinfo (old)
-<!--		<add name="models_reader" type="ModelReaderDummy" >handles interleaved (old) or separate (new) styles for models and bone infos</add>-->
 		<add name="models_reader" type="ModelReader" arg="model_infos" >handles interleaved (old) or separate (new) styles for models and bone infos</add>
 		many ZTUAC models have a big undecoded array of uints here
 		the vertex and face data buffers follow
@@ -367,11 +367,6 @@
 	<compound name="ModelReader">
 		This reads and assigns models to each model_info that is passed to it
 	</compound>
-
-<!--	<compound name="ModelReaderDummy">-->
-<!--		<add name="bone_info_start" type="uint" ></add>-->
-<!--		<add name="bone_infos" type="uint" arr1="0"></add>-->
-<!--	</compound>-->
 
 	<compound name="Buffer0" >
 		<add name="name hashes" type="uint" arr1="#ARG#\name count" >djb2 hashes</add>
@@ -551,7 +546,7 @@
 		<add name="ZerosPadding" type="ZerosPadding" cond="zeros count" arg="zeros count" since="47">weird zeros</add>
 
 <!--		<add name="unkPc" type="uint64" cond="unk_pc_count" vercond="#PC#">present in anubis bone info 6</add>-->
-		<add name="ik info" type="IK_Info" cond="ik_count" >IK Data</add>
+		<add name="ik info" type="IKInfo" cond="ik_count" arg="#SELF#">IK Data</add>
 <!--		<add name="NewPcStruct" type="NewPcStruct" cond="unk_pc_count" >ragdoll links?</add>-->
 <!--		<add name="joint debug" type="StreamDebugger" cond="joint count" >joints</add>-->
 		<add name="joints" type="JointData" cond="joint count" >joints</add>
@@ -573,7 +568,7 @@
 		<add name="padding" type="byte" arr1="(16 - ((#ARG# * 2) % 16)) % 16" >0</add>
 	</compound>
 
-	<compound name="IK_Info">
+	<compound name="IKInfo">
 		<add name="weird padding" type="SmartPadding" until="13" >needed for ZTUAC</add>
 <!--		<add name="zeros start" type="ubyte" until="13" arr1="6">guess for ZTUAC rhino, wrong for afr ele child</add>-->
 		<add name="ik_count" type="uint64">repeat</add>
@@ -589,9 +584,9 @@
 	</compound>
 	
 	<compound name="IKTarget">
-		2 bytes, indices into bones list
-		<add name="ik_blend" type="ubyte"/>
-		<add name="ik_end" type="ubyte"/>
+		2 bytes
+		<add name="ik_blend" type="BonePointer"/>
+		<add name="ik_end" type="BonePointer"/>
 	</compound>
 
 	<compound name="UACJoint">
@@ -602,8 +597,8 @@
 
 	<compound name="IKEntry">
 		60 bytes
-		<add name="child" type="ubyte" >index into bone list</add>
-		<add name="parent" type="ubyte" >index into bone list</add>
+		<add name="child" type="BonePointer"/>
+		<add name="parent" type="BonePointer"/>
 		<add name="unk0" type="ushort" default="0"/>
 		<add name="matrix" type="Matrix33" >no clue what space this is in, defines the orientation for the ranges</add>
 		<add name="yaw" type="RotationRange"/>
@@ -618,47 +613,44 @@
 	</compound>
 
 	<compound name="JointData">
-		appears in dinos and static meshes
-
 		<add name="start_pc" type="SmartPadding" vercond="#PC#">seemingly additional alignment, unsure about the rule</add>
 		<add name="before_dla_0" type="uint64" until="7"/>
 		<add name="before_dla_1" type="uint64" until="7"/>
 		<add name="joint_count" type="uint" >repeat</add>
-		<add name="count_0" type="uint"/>
-		<add name="count_1" type="uint"/>
-		<add name="count_2" type="uint"/>
+		<add name="num_push_constraints" type="uint"/>
+		<add name="num_stretch_constraints" type="uint"/>
+		<add name="num_ragdoll_constraints" type="uint"/>
 		<add name="zero 0" type="uint" until="32"/>
 		<add name="zero 1" type="uint" since="13" until="32"/>
 		<add name="namespace length" type="uint" >size of the name buffer below, including trailing zeros</add>
 		<add name="zeros 0" type="uint" arr1="5" >0s</add>
 		<add name="pc count" type="uint" >0 or 1</add>
 		<add name="zeros 1" type="uint" arr1="7">0s</add>
-		<add name="extra zeros 2" type="uint" arr1="4" since="13"  until="32">0s</add>
+		<add name="extra zeros 2" type="uint" arr1="4" since="13" until="32">0s</add>
 		<add name="one_0" type="uint64" since="13" default="1"/>
 		<add name="one_1" type="uint64" since="13" default="1"/>
 		<add name="bone count" type="uint" >matches bone count from bone info</add>
-		<add name="joint entry count" type="uint" >0</add>
+		<add name="joint entry count" type="uint"/>
 		<add name="zeros 2" type="uint" arr1="4">usually 0s</add>
 		<add name="zeros 3" type="uint" until="7" >usually 0s</add>
 		<add name="names_ref" type="Empty"/>
-		<add name="joint_transforms" type="JointEntry" arr1="joint_count" >corresponds to bone transforms</add>
+		<add name="joint_transforms" type="JointTransform" arr1="joint_count" >corresponds to bone transforms</add>
 
 		<add name="rigid_body_pointers" type="uint64" arr1="joint_count" since="47"/>
 		<add name="rigid_body_list" type="RigidBody" arr1="joint_count" since="47"/>
-		<add name="first list" type="ListFirst" arr1="count_0" since="47">used by ptero, 16 bytes per entry</add>
-		<add name="short list" type="ListShort" arr1="count_1" since="47">?</add>
-		<add name="long list" type="ListLong" arr1="count_2" since="47">?</add>
+		<add name="push_constraints" type="PushConstraint" arr1="num_push_constraints" since="47"/>
+		<add name="stretch_constraints" type="StretchConstraint" arr1="num_stretch_constraints" since="47"/>
+		<add name="ragdoll_constraints" type="RagdollConstraint" arr1="num_ragdoll_constraints" since="47"/>
 
 		todo arg="joint_names" for names reader fails here because joint_names is defined later
 		<add name="joint_infos" type="UACJointFF" arr1="joint count" until="32">old style - joint infos, without hitchecks, they are added later</add>
 		<add name="pc floats" type="float" arr1="pc count" arr2="10" until="32">sometimes an array of floats</add>
 
-		<add name="joint_indices" type="int" arr1="joint_count" >index into bone info bones for each joint; bone that the joint is attached to</add>
-		<add name="bone_indices" type="int" arr1="bone count" >the inverse of the above; for each bone info bone, index of the corresponding joint or -1 if no joint</add>
+		<add name="joint_to_bone" type="int" arr1="joint_count" >index into bone info bones for each joint; bone that the joint is attached to</add>
+		<add name="bone_to_joint" type="int" arr1="bone count" >the inverse of the above; for each bone info bone, index of the corresponding joint or -1 if no joint</add>
 		<add name="joint_names" type="ZStringBuffer" arg="namespace length"/>
 		<add name="JointNamesPadding" type="PadAlign" template="names_ref" arg="8" since="47"/>
-		<add name="JointNamesPadding" type="SmartPadding" until="32">?</add>
-		the padding goes wrong on 144 because its first hitcheck has collision type 0
+		<add name="JointNamesPadding" type="SmartPadding" until="32">the padding goes wrong on 144 because its first hitcheck has collision type 0</add>
 		<add name="joint_infos" type="JointInfo" arr1="joint count" arg="joint_names" since="47">new style - includes name offset, some flags and the hitchecks</add>
 		<add name="hitcheck_reader" type="HitcheckReader" arg="#SELF#" until="32">old style - for each joint, read the hitchecks</add>
 	</compound>
@@ -667,32 +659,48 @@
 		This reads and assigns hitchecks to each jointinfo that is passed to it
 	</compound>
 
-	<compound name="Descriptor">
-		<add name="parent" type="ushort" >index into joint_infos</add>
-		<add name="child" type="ushort" >index into joint_infos</add>
+	<compound name="AbstractPointer" abstract="true">
+		forward pointing, of varying size
 	</compound>
 
-	<compound name="ListFirst" inherit="Descriptor">
-		<add name="floats" type="float" arr1="3"></add>
+	<compound name="BonePointer" inherit="AbstractPointer">
+		<add name="index" type="ubyte" >index into bones</add>
 	</compound>
 
-	<compound name="ListShort" inherit="Descriptor">
-		used in JWE dinos
+	<compound name="JointPointer" inherit="AbstractPointer">
+		<add name="index" type="ushort" >index into joint_infos</add>
+	</compound>
+
+	<compound name="Constraint">
+		<add name="parent" type="JointPointer"/>
+		<add name="child" type="JointPointer"/>
+	</compound>
+
+	<compound name="PushConstraint" inherit="Constraint">
+		used in JWE1 Pteranodon
+		no longer used in PZ, JWE2
+		might be some sort of avoidance
+		<add name="floats" type="float" arr1="3"/>
+	</compound>
+
+	<compound name="StretchConstraint" inherit="Constraint">
+		used in JWE1 dinos
+		no longer used in PZ, JWE2
 		<add name="loc" type="Vector3" >location of the joint</add>
 		<add name="direction" type="Vector3" >normalized</add>
 		<add name="min" type="float">min, le 0</add>
 		<add name="max" type="float">max, ge 0</add>
 	</compound>
 
-	<compound name="ListLong" inherit="Descriptor">
+	<compound name="RagdollConstraint" inherit="Constraint">
 		probably ragdoll, lots of angles
 		<add name="loc" type="Vector3" >the location of the child joint</add>
-<!--		<add name="rot" type="Matrix33" >the rotation of the joint, inverted?? - first line == first line of child JointEntry</add>-->
+<!--		<add name="rot" type="Matrix33" >the rotation of the joint, inverted?? - first line == first line of child JointTransform</add>-->
 		<add name="floats" type="float" arr1="5" arr2="3" >each of the vec3 components is normalized, these might represent axes for the angles</add>
 		<add name="radians" type="float" arr1="8">radians</add>
 	</compound>
 
-	<compound name="JointEntry">
+	<compound name="JointTransform">
 		Describes a joint in armature space.
 		<add name="rot" type="Matrix33" >the rotation of the joint, inverted</add>
 		<add name="loc" type="Vector3" >the location of the joint</add>
@@ -737,10 +745,11 @@
 		<add name="dtype" type="CollisionType"/>
 		<add name="flag_0" type="ushort" default="0">PZ, JWE2 always 0</add>
 		<add name="flag_1" type="ushort" default="0">JWE1: 16; PZ, JWE2 always 0</add>
-		<add name="collision_ignore" type="OffsetString" arg="#ARG#">offset into joint names, not for JWE1</add>
-		<add name="collision_use" type="OffsetString" arg="#ARG#">offset into joint names, not for JWE1</add>
+		<add name="collision_layers" type="uint64" until="47">probably a bitfield, not sure though, might be a list of ubytes too</add>
+		<add name="collision_ignore" type="OffsetString" arg="#ARG#" since="48"/>
+		<add name="collision_use" type="OffsetString" arg="#ARG#" since="48"/>
 		<add name="zero_extra_pc" type="uint" until="32">?</add>
-		<add name="name" type="OffsetString" arg="#ARG#">offset into joint names</add>
+		<add name="name" type="OffsetString" arg="#ARG#"/>
 
 		<add name="collider" type="Sphere" cond="dtype == 0" />
 		<add name="collider" type="BoundingBox" cond="dtype == 1" />

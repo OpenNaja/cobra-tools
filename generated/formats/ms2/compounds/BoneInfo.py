@@ -10,7 +10,7 @@ from generated.formats.base.basic import Uint64
 from generated.formats.base.basic import Ushort
 from generated.formats.base.compounds.PadAlign import PadAlign
 from generated.formats.ms2.compounds.Bone import Bone
-from generated.formats.ms2.compounds.IkInfo import IkInfo
+from generated.formats.ms2.compounds.IKInfo import IKInfo
 from generated.formats.ms2.compounds.JointData import JointData
 from generated.formats.ms2.compounds.Matrix44 import Matrix44
 from generated.formats.ms2.compounds.MinusPadding import MinusPadding
@@ -125,7 +125,7 @@ class BoneInfo(BaseStruct):
 		self.zeros_padding = ZerosPadding(self.context, self.zeros_count, None)
 
 		# IK Data
-		self.ik_info = IkInfo(self.context, 0, None)
+		self.ik_info = IKInfo(self.context, self, None)
 
 		# joints
 		self.joints = JointData(self.context, 0, None)
@@ -175,7 +175,7 @@ class BoneInfo(BaseStruct):
 		('inventory_datas_2', Array, (0, None, (None, 2,), Int), (False, None), True),
 		('minus_padding', MinusPadding, (None, None), (False, None), True),
 		('zeros_padding', ZerosPadding, (None, None), (False, None), True),
-		('ik_info', IkInfo, (0, None), (False, None), True),
+		('ik_info', IKInfo, (None, None), (False, None), True),
 		('joints', JointData, (0, None), (False, None), True),
 		]
 
@@ -242,6 +242,6 @@ class BoneInfo(BaseStruct):
 		if instance.context.version >= 47 and instance.zeros_count:
 			yield 'zeros_padding', ZerosPadding, (instance.zeros_count, None), (False, None)
 		if instance.ik_count:
-			yield 'ik_info', IkInfo, (0, None), (False, None)
+			yield 'ik_info', IKInfo, (instance, None), (False, None)
 		if instance.joint_count:
 			yield 'joints', JointData, (0, None), (False, None)

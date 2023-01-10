@@ -34,44 +34,25 @@ class Ms2File(Ms2InfoHeader, IoFile):
 		super().__init__(Ms2Context())
 
 	def assign_joints(self, bone_info):
-		# logging.info(bone_info)
-		if not hasattr(bone_info, "joints"):
-			logging.warning(f"Joints deactivated for debugging")
-			return
-		if not bone_info.joints:
-			logging.debug(f"Joints not used")
-			return
 		if self.context.version >= 47:
-			for x in bone_info.ik_info.ik_list:
-				x.child_name = bone_info.bones[x.child].name
-				x.parent_name = bone_info.bones[x.parent].name
-				# assert x.zero == 0
-				# assert x.one == 1
-			for x in bone_info.ik_info.ik_targets:
-				# indices into bones
-				x.ik_blend_name = bone_info.bones[x.ik_blend].name
-				x.ik_end_name = bone_info.bones[x.ik_end].name
 			assert bone_info.one == 1
 		assert bone_info.name_count == bone_info.bind_matrix_count == bone_info.bone_count == bone_info.parents_count == bone_info.enum_count
 		assert bone_info.zeros_count == 0 or bone_info.zeros_count == bone_info.name_count
 		assert bone_info.unk_78_count == 0 and bone_info.unk_extra == 0
-		joints = bone_info.joints
-
-		# for ix, li in enumerate((joints.first_list, joints.short_list, joints.long_list)):
-		# 	print(f"List {ix}")
-		# 	for i, x in enumerate(li):
-		# 		print(i)
-		# 		print(joints.joint_infos[x.parent].name, x.parent)
-		# 		print(joints.joint_infos[x.child].name, x.child)
 
 		if bone_info.joint_count:
-			for bone_i, joint_info in zip(joints.joint_indices, joints.joint_infos):
+			if not hasattr(bone_info, "joints"):
+				logging.warning(f"Joints deactivated for debugging")
+				return
+			joints = bone_info.joints
+			if not joints:
+				logging.debug(f"Joints not used")
+				return
+			for bone_i, joint_info in zip(joints.joint_to_bone, joints.joint_infos):
 				# usually, this corresponds - does not do for speedtree but does not matter
 				joint_info.bone_name = bone_info.bones[bone_i].name
-				#if not joint_info.bone_name == joint_info.name:
-				#	logging.warning(f"bone name [{joint_info.bone_name}] doesn't match joint name [{joint_info.name}]")
 				if joints.bone_count:
-					if joints.joint_infos[joints.bone_indices[bone_i]] != joint_info:
+					if joints.joint_infos[joints.bone_to_joint[bone_i]] != joint_info:
 						logging.warning(f"bone index [{bone_i}] doesn't point to expected joint info")
 
 	def assign_bone_names(self, bone_info):
@@ -120,7 +101,6 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			self.load_buffers(filepath, stream)
 			if read_editable:
 				self.load_meshes()
-
 		logging.debug(f"Read {self.name} in {time.time() - start_time:.2f} seconds")
 
 	def load_buffers(self, filepath, stream):
@@ -139,13 +119,13 @@ class Ms2File(Ms2InfoHeader, IoFile):
 		for buffer_info, modelstream_name in zip(streams, self.modelstream_names):
 			buffer_info.name = modelstream_name
 			buffer_info.path = os.path.join(self.dir, buffer_info.name)
-			logging.info(f"Loading {buffer_info.path}")
+			logging.debug(f"Loading {buffer_info.path}")
 			with open(buffer_info.path, "rb") as modelstream_reader:
 				self.attach_streams(buffer_info, modelstream_reader)
 
 	def attach_streams(self, buffer_info, in_stream=None, dump=False):
 		"""Attaches streams to a buffer info for each section, and fills them if an input stream is provided"""
-		# logging.info(buffer_info)
+		logging.info(f"Attaching streams to {buffer_info.name}")
 		for buffer_name in BUFFER_NAMES:
 			if in_stream:
 				buff_size = getattr(buffer_info, f"{buffer_name}_size")
@@ -159,6 +139,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 						f.write(b)
 			else:
 				b = b""
+			# attach a reader with the bytes we have read to the buffer_info
 			setattr(buffer_info, buffer_name, BytesIO(b))
 
 	def load_meshes(self):
@@ -181,32 +162,17 @@ class Ms2File(Ms2InfoHeader, IoFile):
 
 	def update_joints(self, bone_info):
 		bone_lut = {bone.name: bone_index for bone_index, bone in enumerate(bone_info.bones)}
-		for entry in bone_info.ik_info.ik_list:
-			# indices into bones
-			entry.parent = bone_lut[entry.parent_name]
-			entry.child = bone_lut[entry.child_name]
-		for entry in bone_info.ik_info.ik_targets:
-			# indices into bones
-			entry.ik_blend = bone_lut[entry.ik_blend_name]
-			entry.ik_end = bone_lut[entry.ik_end_name]
-
-		# print(bone_info.joints)
 		joints = bone_info.joints
-		for l_list in (joints.first_list, joints.short_list, joints.long_list,):
-			for l_entry in l_list:
-				# these link into joints.joint_infos
-				# no need to update right now, but later
-				pass
 		# make sure these have the correct size
-		joints.joint_indices.resize(joints.joint_count)
-		joints.bone_indices.resize(joints.bone_count)
+		joints.reset_field("joint_to_bone")
+		joints.reset_field("bone_to_joint")
 		# reset bone -> joint mapping since we don't catch them all if we loop over existing joints
-		joints.bone_indices[:] = -1
+		joints.bone_to_joint[:] = -1
 		# link between bones and joints, in both directions
 		for joint_i, joint_info in enumerate(joints.joint_infos):
 			bone_i = bone_lut[joint_info.bone_name]
-			joints.joint_indices[joint_i] = bone_i
-			joints.bone_indices[bone_i] = joint_i
+			joints.joint_to_bone[joint_i] = bone_i
+			joints.bone_to_joint[bone_i] = joint_i
 
 	def name_used(self, new_name):
 		for model_info in self.model_infos:
@@ -252,10 +218,6 @@ class Ms2File(Ms2InfoHeader, IoFile):
 				bi = model_info.bone_info
 				for bone in bi.bones:
 					bone.name = self._rename(bone.name, name_tups)
-				if bi.ik_info:
-					for entry in (bi.ik_info.ik_list + bi.ik_info.ik_targets):
-						entry.parent = self._rename(entry.parent, name_tups)
-						entry.child = self._rename(entry.child, name_tups)
 				ji = bi.joints
 				if ji:
 					for joint_info in ji.joint_infos:
@@ -338,18 +300,25 @@ class Ms2File(Ms2InfoHeader, IoFile):
 				# get bytes from IO obj, pad, and update size in BufferInfo
 				for buffer_name in BUFFER_NAMES:
 					buff = getattr(buffer_info, buffer_name)
-					buff_bytes = buff.getvalue()
-					buff_bytes += get_padding(len(buff_bytes), alignment=16)
-					setattr(buffer_info, f"{buffer_name}_bytes", buff_bytes)
+					buff_bytes = self.get_bytes(buff)
 					setattr(buffer_info, f"{buffer_name}_size", len(buff_bytes))
 				
 			# store static buffer
 			if self.buffer_infos:
 				buffer_info = self.buffer_infos[self.info.static_buffer_index]
-				self.buffer_2_bytes = b"".join((getattr(buffer_info, f"{b_name}_bytes") for b_name in BUFFER_NAMES))
+				self.buffer_2_bytes = self.get_all_bytes(buffer_info)
 			else:
 				# Assing an empty buffer, maybe it is better to add an 'if attrib' in the saving?
 				self.buffer_2_bytes = b""
+
+	@staticmethod
+	def get_bytes(buffer_reader):
+		buff_bytes = buffer_reader.getvalue()
+		buff_bytes += get_padding(len(buff_bytes), alignment=16)
+		return buff_bytes
+
+	def get_all_bytes(self, buffer_info):
+		return b"".join(self.get_bytes(getattr(buffer_info, b_name)) for b_name in BUFFER_NAMES)
 
 	@property
 	def buffers(self):
@@ -370,9 +339,11 @@ class Ms2File(Ms2InfoHeader, IoFile):
 		# save multiple buffer_infos
 		for buffer_info in self.buffer_infos:
 			if buffer_info.name != "STATIC":
+				assert buffer_info.name.endswith(".model2stream")
+				# write external .model2stream files
 				buffer_info.path = os.path.join(self.dir, buffer_info.name)
 				with open(buffer_info.path, "wb") as f:
-					f.write(b"".join((getattr(buffer_info, f"{b_name}_bytes") for b_name in BUFFER_NAMES)))
+					f.write(self.get_all_bytes(buffer_info))
 
 	def lookup_material(self):
 		for name, model_info in zip(self.mdl_2_names, self.model_infos):
@@ -391,8 +362,8 @@ class Ms2File(Ms2InfoHeader, IoFile):
 						obj.material = material
 						flag = int(obj.mesh.flag) if hasattr(obj.mesh, "flag") else None
 						logging.debug(
-							f"Mesh: {obj.mesh_index} Material: {material.name} Blend Mode: {material.blend_mode}"
-							f"Lod Index: {obj.mesh.poweroftwo} Flag: {flag}")
+							f"Mesh: {obj.mesh_index} Material: {material.name} Blend Mode: {material.blend_mode} "
+							f"Lod: {obj.mesh.poweroftwo} Flag: {flag}")
 					except:
 						logging.exception(f"Couldn't match material {obj.material_index} to mesh {obj.mesh_index}")
 
@@ -407,9 +378,11 @@ class Ms2File(Ms2InfoHeader, IoFile):
 if __name__ == "__main__":
 	m = Ms2File()
 	# m.load("C:/Users/arnfi/Desktop/jwe2/pyro/export/models.ms2", read_editable=True)
-	m.load("C:/Users/arnfi/Desktop/models.ms2", read_editable=True)
+	# m.load("C:/Users/arnfi/Desktop/models.ms2", read_editable=True)
+	# m.load("C:/Users/arnfi/Desktop/ankylodocus.ms2", read_editable=True)
+	m.load("C:/Users/arnfi/Desktop/pteranodon_.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/bush_berry_bear.ms2", read_editable=True)
-	# print(m.models_reader.bone_infos[0])
+	print(m.models_reader.bone_infos[0])
 	# print(m)
 	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/MeshCollision/JWE2/CharacterScale/models.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/MeshCollision/PZ/widgetball_test_.ms2", read_editable=True)

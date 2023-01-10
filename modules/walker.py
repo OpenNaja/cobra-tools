@@ -106,6 +106,8 @@ def bulk_test_models(gui, start_dir, walk_ovls=True, walk_models=True):
 		flags = set()
 		flag_0 = set()
 		flag_1 = set()
+		constraints_0 = set()
+		constraints_1 = set()
 		no_bones = set()
 		mesh_collision = set()
 		max_bones = -1
@@ -141,6 +143,10 @@ def bulk_test_models(gui, start_dir, walk_ovls=True, walk_models=True):
 								max_bones = model_info.bone_info.bone_count
 								max_bones_ms2 = ms2_path
 							if model_info.bone_info.joint_count:
+								if model_info.bone_info.joints.count_0:
+									constraints_0.add(ms2_path)
+								if model_info.bone_info.joints.count_1:
+									constraints_1.add(ms2_path)
 								for j in model_info.bone_info.joints.joint_infos:
 									for hit in j.hitchecks:
 										flag_0.add(hit.flag_0)
@@ -167,6 +173,8 @@ def bulk_test_models(gui, start_dir, walk_ovls=True, walk_models=True):
 		print(f"flags: {flags}")
 		print(f"flag_0: {flag_0}")
 		print(f"flag_1: {flag_1}")
+		print(f"constraints_0: {constraints_0}")
+		print(f"constraints_1: {constraints_1}")
 		print(f"no_bones: {no_bones}")
 		print(f"mesh_collision: {mesh_collision}")
 		print(f"Max bones: {max_bones} in {max_bones_ms2}")
