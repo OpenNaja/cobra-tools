@@ -4,6 +4,10 @@ from generated.formats.base.basic import Uint64
 
 class ZerosPadding(BaseStruct):
 
+	"""
+	1 bit per bone, padded to 8 bytes, all 00
+	"""
+
 	__name__ = 'ZerosPadding'
 
 	_import_key = 'ms2.compounds.ZerosPadding'

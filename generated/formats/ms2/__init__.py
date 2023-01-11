@@ -160,20 +160,6 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			except:
 				logging.exception(f"Populating mesh failed")
 
-	def update_joints(self, bone_info):
-		bone_lut = {bone.name: bone_index for bone_index, bone in enumerate(bone_info.bones)}
-		joints = bone_info.joints
-		# make sure these have the correct size
-		joints.reset_field("joint_to_bone")
-		joints.reset_field("bone_to_joint")
-		# reset bone -> joint mapping since we don't catch them all if we loop over existing joints
-		joints.bone_to_joint[:] = -1
-		# link between bones and joints, in both directions
-		for joint_i, joint_info in enumerate(joints.joint_infos):
-			bone_i = bone_lut[joint_info.bone_name]
-			joints.joint_to_bone[joint_i] = bone_i
-			joints.bone_to_joint[bone_i] = joint_i
-
 	def name_used(self, new_name):
 		for model_info in self.model_infos:
 			if model_info.name == new_name:
@@ -251,7 +237,6 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			if model_info.bone_info:
 				for bone_index, bone in enumerate(model_info.bone_info.bones):
 					model_info.bone_info.name_indices[bone_index] = self.get_name_index(bone.name)
-				self.update_joints(model_info.bone_info)
 		# print(self.buffer_0.names)
 		logging.info("Updating MS2 name hashes")
 		# update hashes from new names

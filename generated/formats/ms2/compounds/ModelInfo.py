@@ -76,7 +76,7 @@ class ModelInfo(MemStruct):
 		self.pad = Array(self.context, 0, None, (0,), Ushort)
 		self.zeros = Array(self.context, 0, None, (0,), Uint64)
 
-		# unknown, probably used to increment skeleton
+		# used to increment skeleton index
 		self.increment_flag = 0
 		self.zero_0 = 0
 		self.zero_1 = 0

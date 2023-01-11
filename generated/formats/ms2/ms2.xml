@@ -484,7 +484,7 @@
 
 		<add name="zeros" type="uint64" arr1="4" vercond="#ZTUAC#"/>
 		<add name="zeros" type="uint64" arr1="2" vercond="#DLA#"/>
-		<add name="increment flag" type="uint64">unknown, probably used to increment skeleton</add>
+		<add name="increment flag" type="uint64">used to increment skeleton index</add>
 		<add name="zero 0" type="uint64" vercond="!#DLA#"/>
 		<add name="zero 1" type="uint64" vercond="!#PC#"/>
 		<add name="zero 2" type="uint64" since="47" vercond="!#JWE2_BIO#"/>
@@ -555,9 +555,8 @@
 	</compound>
 
 	<compound name="ZerosPadding">
-<!--        padding is related to bone count-->
-<!--        odd one out: JWE stairwell-->
-		<add name="hier2padding 0" type="uint64" ></add>
+		1 bit per bone, padded to 8 bytes, all 00
+		<add name="hier2padding 0" type="uint64"/>
 		<add name="hier2padding 1" type="uint64" cond="64 #LT# #ARG#">128 still has 16 bytes</add>
 		<add name="hier2padding 2" type="uint64" cond="128 #LT# #ARG#">129 is the first with 24 bytes</add>
 	</compound>
