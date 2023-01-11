@@ -28,8 +28,9 @@ class ArrayPointer(Pointer):
 	@property
 	def has_data(self):
 		"""Returns True if it has data"""
+		# fdev create pointers to empty arrays
 		if self.data is not None:
-			return len(self.data)
+			return True
 
 	def read_template(self):
 		if self.template:
