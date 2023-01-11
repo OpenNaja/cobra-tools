@@ -22,9 +22,7 @@ class MimeEntry(BaseStruct):
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		self.name = 0
-
-		# usually zero
-		self.unknown = 0
+		self.zero_0 = 0
 
 		# hash of this mime, changes with mime version; not used anywhere else in the ovl
 		self.mime_hash = 0
@@ -37,6 +35,7 @@ class MimeEntry(BaseStruct):
 
 		# Number of entries of this class in the file.; from 'file index offset', this many files belong to this file extension
 		self.file_count = 0
+		self.zero_1 = 0
 
 		# constant per mime, grab this many triplets
 		self.triplet_count = 0
@@ -48,11 +47,12 @@ class MimeEntry(BaseStruct):
 
 	_attribute_list = BaseStruct._attribute_list + [
 		('name', OffsetString, (None, None), (False, None), None),
-		('unknown', Uint, (0, None), (False, None), None),
-		('mime_hash', Uint, (0, None), (False, None), None),
+		('zero_0', Uint, (0, None), (False, 0), None),
+		('mime_hash', Uint, (0, None), (False, None), True),
 		('mime_version', Uint, (0, None), (False, None), None),
 		('file_index_offset', Uint, (0, None), (False, None), None),
 		('file_count', Uint, (0, None), (False, None), None),
+		('zero_1', Uint, (0, None), (False, None), True),
 		('triplet_count', Uint, (0, None), (False, None), True),
 		('triplet_offset', Uint, (0, None), (False, None), True),
 		]
@@ -61,11 +61,14 @@ class MimeEntry(BaseStruct):
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'name', OffsetString, (instance.context.names, None), (False, None)
-		yield 'unknown', Uint, (0, None), (False, None)
-		yield 'mime_hash', Uint, (0, None), (False, None)
+		yield 'zero_0', Uint, (0, None), (False, 0)
+		if instance.context.version >= 17:
+			yield 'mime_hash', Uint, (0, None), (False, None)
 		yield 'mime_version', Uint, (0, None), (False, None)
 		yield 'file_index_offset', Uint, (0, None), (False, None)
 		yield 'file_count', Uint, (0, None), (False, None)
+		if instance.context.version <= 15:
+			yield 'zero_1', Uint, (0, None), (False, None)
 		if instance.context.version >= 20:
 			yield 'triplet_count', Uint, (0, None), (False, None)
 			yield 'triplet_offset', Uint, (0, None), (False, None)

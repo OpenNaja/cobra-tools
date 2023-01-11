@@ -55,11 +55,12 @@
         Description of one mime type or file class.
 		Inside the archive not the stored mime hash is used but the extension hash, has to be generated, eg. djb2("bani") == 2090104799
         <add name="name" type="OffsetString" arg="context\names"/>
-        <add name="unknown" type="uint">usually zero</add>
-        <add name="Mime Hash" type="uint">hash of this mime, changes with mime version; not used anywhere else in the ovl</add>
+        <add name="zero_0" type="uint" default="0"/>
+        <add name="Mime Hash" type="uint" since="17">hash of this mime, changes with mime version; not used anywhere else in the ovl</add>
         <add name="mime version" type="uint" >usually increments with game</add>
 		<add name="file index offset" type="uint">Id of this class type. Later in the file there is a reference to this Id; offset into FileEntry list in number of files</add>
         <add name="file count" type="uint">Number of entries of this class in the file.; from 'file index offset', this many files belong to this file extension</add>
+        <add name="zero_1" type="uint" until="15"/>
         <add name="triplet count" type="uint" since="20" >constant per mime, grab this many triplets</add>
         <add name="triplet offset" type="uint" since="20" >index into triplets list</add>
     </compound>

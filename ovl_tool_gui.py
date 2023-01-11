@@ -457,7 +457,6 @@ class MainWindow(widgets.MainWindow):
 		logging.info(f"Loaded files into GUI in {time.time() - start_time:.2f} seconds")
 
 	def update_includes(self, includes):
-		# print(includes)
 		self.ovl_data.included_ovl_names = includes
 
 	def update_gui_table(self, ):
