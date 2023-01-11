@@ -114,15 +114,6 @@ def export_bones_custom(b_armature_ob, model_info):
 	bone_info.bones.clear()
 	bone_info.inverse_bind_matrices.clear()
 
-	# map joint objects by the bone they are attached to
-	bone_2_ob = {}
-	if "joints" in bpy.data.collections:
-		for ob in bpy.data.collections["joints"].objects:
-			assert ob.parent_type == "BONE"
-			if ob.parent_bone not in bone_2_ob:
-				bone_2_ob[ob.parent_bone] = []
-			bone_2_ob[ob.parent_bone].append(ob)
-
 	lut_dic = {b_bone_name: bone_index for bone_index, b_bone_name in enumerate(b_bone_names)}
 	bone_info.parents.resize(len(b_bone_names))
 	for bone_i, b_bone_name in enumerate(b_bone_names):
@@ -149,10 +140,6 @@ def export_bones_custom(b_armature_ob, model_info):
 		ms2_inv_bind = Matrix44(model_info.context)
 		ms2_inv_bind.set_rows(mat_local.inverted())
 		bone_info.inverse_bind_matrices.append(ms2_inv_bind)
-
-		# then it is considered a joint, so append data to the joints lists (joint_count)
-		if b_bone_name in bone_2_ob:
-			logging.debug(f"Bone {b_bone_name} has {len(bone_2_ob[b_bone_name])} hitchecks")
 
 	# update counts
 	bone_info.joints.bone_count = bone_info.bind_matrix_count = bone_info.bone_count = \
