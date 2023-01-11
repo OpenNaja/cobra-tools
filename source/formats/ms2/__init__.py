@@ -99,9 +99,15 @@ class Ms2File(Ms2InfoHeader, IoFile):
 				stream.seek(self.buffer_1_offset)
 				self.buffer_1_bytes = stream.read(self.bone_info_size)
 				self.buffer_2_bytes = stream.read()
-			self.load_buffers(filepath, stream)
+			try:
+				self.load_buffers(filepath, stream)
+			except:
+				logging.exception(f"Buffer lookup failed")
 			if read_editable:
-				self.load_meshes()
+				try:
+					self.load_meshes()
+				except:
+					logging.exception(f"Mesh lookup failed")
 		logging.debug(f"Read {self.name} in {time.time() - start_time:.2f} seconds")
 
 	def load_buffers(self, filepath, stream):
@@ -110,7 +116,11 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			buffer_info.index = i
 		# attach the static stream to the right buffer_info
 		if self.buffer_infos and self.info.static_buffer_index > -1:
-			static_buffer_info = self.buffer_infos[self.info.static_buffer_index]
+			i = self.info.static_buffer_index
+			# hack for DLA, static buffer index is different here
+			if self.context.version == 7:
+				i = 0
+			static_buffer_info = self.buffer_infos[i]
 			stream.seek(self.buffer_2_offset)
 			static_buffer_info.name = "STATIC"
 			static_buffer_info.path = filepath
@@ -366,10 +376,11 @@ if __name__ == "__main__":
 	# m.load("C:/Users/arnfi/Desktop/jwe2/pyro/export/models.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/models.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/ankylodocus.ms2", read_editable=True)
-	m.load("C:/Users/arnfi/Desktop/pteranodon_.ms2", read_editable=True)
+	# m.load("C:/Users/arnfi/Desktop/pteranodon_.ms2", read_editable=True)
+	m.load("C:/Users/arnfi/Desktop/rabbit_.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/bush_berry_bear.ms2", read_editable=True)
-	print(m.models_reader.bone_infos[0])
-	# print(m)
+	# print(m.models_reader.bone_infos[0])
+	print(m)
 	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/MeshCollision/JWE2/CharacterScale/models.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/MeshCollision/PZ/widgetball_test_.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/MeshCollision/PZ/CM_Common_Roofs.ms2", read_editable=True)
