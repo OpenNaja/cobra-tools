@@ -100,6 +100,8 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 	# make sure the mesh has a triangulation modifier
 	ensure_tri_modifier(b_ob)
 	eval_obj, eval_me = evaluate_mesh(b_ob)
+	# validate the mesh to get rid of degenerate geometry such as duplicate faces, which would trigger chunking asserts
+	eval_me.validate()
 	handle_transforms(eval_obj, eval_me, apply=apply_transforms)
 	bounds.append(eval_obj.bound_box)
 
