@@ -304,8 +304,7 @@ class BioMeshData:
 				vert_chunk.weights_flag.has_weights = False
 				vert_chunk.weights_flag.bone_index = b_bone_id
 			vert_chunk.pack_base = self.pack_base
-			vert_chunk.flags[:] = (2, 16, 0, 58)
-			# logging.info(f"vert_chunk.vertex_count {vert_chunk.vertex_count}")
+			vert_chunk.scale = vert_chunk.pack_base / 512.0 / 2048.0
 
 	def pack_verts(self):
 		"""Repack flat lists into verts_data"""

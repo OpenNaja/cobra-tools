@@ -375,9 +375,11 @@ if __name__ == "__main__":
 	m = Ms2File()
 	# m.load("C:/Users/arnfi/Desktop/jwe2/pyro/export/models.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/models.ms2", read_editable=True)
+	m.load("C:/Users/arnfi/Desktop/pyro/models.ms2", read_editable=True)
+	# m.load("C:/Users/arnfi/Desktop/moros/models.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/ankylodocus.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/pteranodon_.ms2", read_editable=True)
-	m.load("C:/Users/arnfi/Desktop/rabbit_.ms2", read_editable=True)
+	# m.load("C:/Users/arnfi/Desktop/rabbit_.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/bush_berry_bear.ms2", read_editable=True)
 	# print(m.models_reader.bone_infos[0])
 	print(m)
@@ -390,6 +392,7 @@ if __name__ == "__main__":
 	# m.load("C:/Users/arnfi/Desktop/hazard_ceilingfan_.ms2", read_editable=True)
 	# print(m.models_reader.bone_infos[0])
 	# mods = set()
+	flags = set()
 	# for bone_info in m.models_reader.bone_infos:
 	# 	# print(bone_info)
 	# 	if bone_info.joint_count:
@@ -397,18 +400,24 @@ if __name__ == "__main__":
 	# 			for hc in ji.hitchecks:
 	# 				if hc.dtype == CollisionType.MESH_COLLISION:
 	# 					print(hc)
-	# for mo in m.model_infos:
-	# 	print(mo.bone_info)
-	# 	print(mo.model.lods)
-	# 	print(mo.model.objects)
-	# 	for i, me in enumerate(mo.model.meshes):
-	# 		print(i, me)
+	for mo in m.model_infos:
+		# print(mo.bone_info)
+		# print(mo.model.lods)
+		# print(mo.model.objects)
+		for i, me in enumerate(mo.model.meshes):
+			# print(i, me)
 	# 		# for t, v in zip(me.mesh.tri_chunks, me.mesh.vert_chunks):
 	# 		# 	t.rot.a = 1.0
 	# 		# 	t.rot.x = t.rot.y = t.rot.z = 0.0
 	# 		# 	t.loc.x = t.loc.y = t.loc.z = 0.0
-	# 		for t, v in zip(me.mesh.tri_chunks, me.mesh.vert_chunks):
-	# 			print(t, v)
+			for t, v in zip(me.mesh.tri_chunks, me.mesh.vert_chunks):
+				# print(t, v)
+				print(v)
+				s = v.pack_base / v.scale
+				print(s)
+				break
+				# flags.add(tuple(v.flags))
+			print(flags)
 			# 	pass
 			# 	# print(i, t.tris_offset)
 			# 	# print(i, v.vertex_offset % 16)
