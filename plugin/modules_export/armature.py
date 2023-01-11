@@ -3,8 +3,6 @@ import logging
 import bpy
 import mathutils
 
-from generated.formats.ms2.compounds.Bone import Bone
-from generated.formats.ms2.compounds.Matrix44 import Matrix44
 from generated.formats.ms2.versions import is_ztuac, is_dla
 from plugin.modules_export.collision import export_hitcheck
 from plugin.utils.matrix_util import bone_name_for_ovl, get_joint_name, Corrector

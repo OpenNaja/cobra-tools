@@ -36,9 +36,10 @@ class Ms2File(Ms2InfoHeader, IoFile):
 	def assign_joints(self, bone_info):
 		if self.context.version >= 47:
 			assert bone_info.one == 1
+		assert bone_info.knownff == -1
 		assert bone_info.name_count == bone_info.bind_matrix_count == bone_info.bone_count == bone_info.parents_count == bone_info.enum_count
 		assert bone_info.zeros_count == 0 or bone_info.zeros_count == bone_info.name_count
-		assert bone_info.unk_78_count == 0 and bone_info.unk_extra == 0
+		assert bone_info.zero_0 == bone_info.zero_1 == bone_info.zero_2 == bone_info.zero_3 == 0
 
 		if bone_info.joint_count:
 			if not hasattr(bone_info, "joints"):

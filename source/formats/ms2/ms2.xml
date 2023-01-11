@@ -492,14 +492,14 @@
 
 	<compound name="BoneInfo">
 		# 858 in DLA c_cl_thread_.ms2
-		<add name="name count" type="uint" >counts the names</add>
+		<add name="name count" type="uint"/>
 		<add name="z0" type="ushort" >?</add>
-		<add name="inv_names_count" type="ushort" >?</add>
-		<add name="knownff" type="short" since="32" >this is always FFFF for now</add>
-		<add name="zero0" type="short" since="32" >this is always 0000 for now</add>
+		<add name="inv_names_count" type="ushort"/>
+		<add name="knownff" type="short" default="-1" since="32"/>
+		<add name="zero 0" type="short" default="0" since="32"/>
 		<add name="unknown0c" type="uint" since="32"/>
 		<add name="unk count" type="uint64" >almost always 4, 1 for male african lion</add>
-		<add name="bind matrix count" type="uint64" >seems to match bone count</add>
+		<add name="bind matrix count" type="uint64"/>
 		<add name="zeros" type="uint64" arr1="2"/>
 		<add name="inv_data_count" type="uint64" /> if inv_names_count = 1, also 1 for DLA
 		<add name="bone count" type="uint64"/>
@@ -514,9 +514,9 @@
 		<add name="unk_pc_count" type="uint64" vercond="#PC#">matches the other count on dino entertainer, but ik_count is not present</add>
 		<add name="ik_count" type="uint64"/>
 		<add name="joint count" type="uint64"/>
-		<add name="unk78count" type="uint64" >zero</add>
-		<add name="unk extra" type="uint64" until="13" >zero</add>
-		<add name="unk extra jwe" type="uint64" vercond="#JWE#" >zero</add>
+		<add name="zero 1" type="uint64" default="0"/>
+		<add name="zero 2" type="uint64" default="0" until="13"/>
+		<add name="zero 3" type="uint64" default="0" vercond="#JWE#"/>
 
 		<add name="names ref" type="Empty"/>
 		index into ms2 string table for bones used here

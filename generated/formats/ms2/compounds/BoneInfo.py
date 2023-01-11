@@ -30,27 +30,17 @@ class BoneInfo(BaseStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-
-		# counts the names
 		self.name_count = 0
 
 		# ?
 		self.z_0 = 0
-
-		# ?
 		self.inv_names_count = 0
-
-		# this is always FFFF for now
-		self.knownff = 0
-
-		# this is always 0000 for now
+		self.knownff = -1
 		self.zero_0 = 0
 		self.unknown_0_c = 0
 
 		# almost always 4, 1 for male african lion
 		self.unk_count = 0
-
-		# seems to match bone count
 		self.bind_matrix_count = 0
 		self.zeros = Array(self.context, 0, None, (0,), Uint64)
 		self.inv_data_count = 0
@@ -76,15 +66,9 @@ class BoneInfo(BaseStruct):
 		self.unk_pc_count = 0
 		self.ik_count = 0
 		self.joint_count = 0
-
-		# zero
-		self.unk_78_count = 0
-
-		# zero
-		self.unk_extra = 0
-
-		# zero
-		self.unk_extra_jwe = 0
+		self.zero_1 = 0
+		self.zero_2 = 0
+		self.zero_3 = 0
 		self.names_ref = Empty(self.context, 0, None)
 		self.name_indices = Array(self.context, 0, None, (0,), Uint)
 		self.inventory_name_indices = Array(self.context, 0, None, (0,), Ushort)
@@ -136,8 +120,8 @@ class BoneInfo(BaseStruct):
 		('name_count', Uint, (0, None), (False, None), None),
 		('z_0', Ushort, (0, None), (False, None), None),
 		('inv_names_count', Ushort, (0, None), (False, None), None),
-		('knownff', Short, (0, None), (False, None), True),
-		('zero_0', Short, (0, None), (False, None), True),
+		('knownff', Short, (0, None), (False, -1), True),
+		('zero_0', Short, (0, None), (False, 0), True),
 		('unknown_0_c', Uint, (0, None), (False, None), True),
 		('unk_count', Uint64, (0, None), (False, None), None),
 		('bind_matrix_count', Uint64, (0, None), (False, None), None),
@@ -155,9 +139,9 @@ class BoneInfo(BaseStruct):
 		('unk_pc_count', Uint64, (0, None), (False, None), True),
 		('ik_count', Uint64, (0, None), (False, None), None),
 		('joint_count', Uint64, (0, None), (False, None), None),
-		('unk_78_count', Uint64, (0, None), (False, None), None),
-		('unk_extra', Uint64, (0, None), (False, None), True),
-		('unk_extra_jwe', Uint64, (0, None), (False, None), True),
+		('zero_1', Uint64, (0, None), (False, 0), None),
+		('zero_2', Uint64, (0, None), (False, 0), True),
+		('zero_3', Uint64, (0, None), (False, 0), True),
 		('names_ref', Empty, (0, None), (False, None), None),
 		('name_indices', Array, (0, None, (None,), Ushort), (False, None), True),
 		('name_indices', Array, (0, None, (None,), Uint), (False, None), True),
@@ -186,8 +170,8 @@ class BoneInfo(BaseStruct):
 		yield 'z_0', Ushort, (0, None), (False, None)
 		yield 'inv_names_count', Ushort, (0, None), (False, None)
 		if instance.context.version >= 32:
-			yield 'knownff', Short, (0, None), (False, None)
-			yield 'zero_0', Short, (0, None), (False, None)
+			yield 'knownff', Short, (0, None), (False, -1)
+			yield 'zero_0', Short, (0, None), (False, 0)
 			yield 'unknown_0_c', Uint, (0, None), (False, None)
 		yield 'unk_count', Uint64, (0, None), (False, None)
 		yield 'bind_matrix_count', Uint64, (0, None), (False, None)
@@ -208,11 +192,11 @@ class BoneInfo(BaseStruct):
 			yield 'unk_pc_count', Uint64, (0, None), (False, None)
 		yield 'ik_count', Uint64, (0, None), (False, None)
 		yield 'joint_count', Uint64, (0, None), (False, None)
-		yield 'unk_78_count', Uint64, (0, None), (False, None)
+		yield 'zero_1', Uint64, (0, None), (False, 0)
 		if instance.context.version <= 13:
-			yield 'unk_extra', Uint64, (0, None), (False, None)
+			yield 'zero_2', Uint64, (0, None), (False, 0)
 		if (instance.context.version == 47) or (instance.context.version == 39):
-			yield 'unk_extra_jwe', Uint64, (0, None), (False, None)
+			yield 'zero_3', Uint64, (0, None), (False, 0)
 		yield 'names_ref', Empty, (0, None), (False, None)
 		if instance.context.version <= 32:
 			yield 'name_indices', Array, (0, None, (instance.name_count,), Ushort), (False, None)
