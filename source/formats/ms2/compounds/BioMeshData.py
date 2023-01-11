@@ -1,5 +1,7 @@
 # START_GLOBALS
 import logging
+import math
+
 from generated.array import Array
 from generated.formats.ms2.compounds.VertChunk import VertChunk
 from generated.formats.ms2.compounds.TriChunk import TriChunk
@@ -304,7 +306,16 @@ class BioMeshData:
 				vert_chunk.weights_flag.has_weights = False
 				vert_chunk.weights_flag.bone_index = b_bone_id
 			vert_chunk.pack_base = self.pack_base
-			vert_chunk.scale = vert_chunk.pack_base / 512.0 / 2048.0
+			# vert_chunk.scale = vert_chunk.pack_base / 512.0 / 2048.0
+			# it is not a linear mapping apparently
+			# JWE2 has these samples
+			# [(8.0, 7.629452738910913e-06), (512.0, 0.0004885197849944234), (1024.0, 0.0009775171056389809), (2048.0, 0.001956947147846222), (4096.0, 0.003921568859368563)]
+			# a quadratic regression got 1.0 determination
+			vert_chunk.scale = self.get_scale(vert_chunk.pack_base)
+
+	@staticmethod
+	def get_scale(p):
+		return 1.2285932501219967e-9 + 9.536674737032024e-7 * p + 9.14657200199282e-13 * math.pow(p, 2)
 
 	def pack_verts(self):
 		"""Repack flat lists into verts_data"""

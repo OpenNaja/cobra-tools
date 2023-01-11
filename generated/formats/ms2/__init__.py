@@ -372,17 +372,27 @@ class Ms2File(Ms2InfoHeader, IoFile):
 
 
 if __name__ == "__main__":
+	import math
+	a1 = [(8.0, 7.629452738910913e-06), (512.0, 0.0004885197849944234), (1024.0, 0.0009775171056389809),
+	 (2048.0, 0.001956947147846222), (4096.0, 0.003921568859368563)]
+	for pack_base, scale in a1:
+		quad = 1.2285932501219967e-9 + 9.536674737032024e-7 * pack_base + 9.14657200199282e-13 * math.pow(pack_base, 2)
+		# quad = 1.229e-9 + 9.537e-7 * pack_base + 9.147e-13 * math.pow(pack_base, 2)
+		lin = pack_base * 9.57536917458211E-07
+		print(f"pack_base {pack_base}, scale {scale}, quad {quad}, lin {lin}, (quad-scale) {quad-scale}, (lin-scale) {lin-scale}" )
+	# (scale + pack_base) / pack_base = 1.0
+
 	m = Ms2File()
 	# m.load("C:/Users/arnfi/Desktop/jwe2/pyro/export/models.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/models.ms2", read_editable=True)
-	m.load("C:/Users/arnfi/Desktop/pyro/models.ms2", read_editable=True)
+	# m.load("C:/Users/arnfi/Desktop/pyro/models.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/moros/models.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/ankylodocus.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/pteranodon_.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/rabbit_.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/bush_berry_bear.ms2", read_editable=True)
 	# print(m.models_reader.bone_infos[0])
-	print(m)
+	# print(m)
 	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/MeshCollision/JWE2/CharacterScale/models.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/MeshCollision/PZ/widgetball_test_.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/MeshCollision/PZ/CM_Common_Roofs.ms2", read_editable=True)

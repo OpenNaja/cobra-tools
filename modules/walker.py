@@ -106,6 +106,7 @@ def bulk_test_models(gui, start_dir, walk_ovls=True, walk_models=True):
 		flags = set()
 		flag_0 = set()
 		flag_1 = set()
+		scale_float = set()
 		constraints_0 = set()
 		constraints_1 = set()
 		no_bones = set()
@@ -120,7 +121,7 @@ def bulk_test_models(gui, start_dir, walk_ovls=True, walk_models=True):
 				ms2_name = os.path.basename(ms2_path)
 				gui.update_progress(f"Walking MS2 files: {ms2_name}", value=mf_index, vmax=mf_max)
 				try:
-					ms2_data.load(ms2_path)
+					ms2_data.load(ms2_path, read_editable=True)
 					for mdl2_name, model_info in zip(ms2_data.mdl_2_names, ms2_data.model_infos):
 						for i, mat in enumerate(model_info.model.materials):
 							blend_modes.add(mat.blend_mode)
@@ -133,6 +134,8 @@ def bulk_test_models(gui, start_dir, walk_ovls=True, walk_models=True):
 						for i, wrapper in enumerate(model_info.model.meshes):
 							mesh_id = f"{mdl2_name}[{i}] in {ms2_name}"
 							mesh = wrapper.mesh
+							for v in wrapper.mesh.vert_chunks:
+								scale_float.add((v.pack_base, v.scale))
 							if mesh.flag not in type_dic:
 								type_dic[mesh.flag] = ([], [])
 							type_dic[mesh.flag][0].append(mesh_id)
@@ -143,10 +146,10 @@ def bulk_test_models(gui, start_dir, walk_ovls=True, walk_models=True):
 								max_bones = model_info.bone_info.bone_count
 								max_bones_ms2 = ms2_path
 							if model_info.bone_info.joint_count:
-								if model_info.bone_info.joints.count_0:
-									constraints_0.add(ms2_path)
-								if model_info.bone_info.joints.count_1:
-									constraints_1.add(ms2_path)
+								# if model_info.bone_info.joints.count_0:
+								# 	constraints_0.add(ms2_path)
+								# if model_info.bone_info.joints.count_1:
+								# 	constraints_1.add(ms2_path)
 								for j in model_info.bone_info.joints.joint_infos:
 									for hit in j.hitchecks:
 										flag_0.add(hit.flag_0)
@@ -169,6 +172,7 @@ def bulk_test_models(gui, start_dir, walk_ovls=True, walk_models=True):
 		# 	names, maps_list = tup
 		# 	print("Some files:", list(sorted(set(names)))[:25])
 		# 	print("num meshes", len(names))
+		print(f"scale_float: {list(sorted(scale_float))}")
 		print(f"last_counts: {last_counts}")
 		print(f"flags: {flags}")
 		print(f"flag_0: {flag_0}")
