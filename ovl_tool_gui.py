@@ -20,9 +20,11 @@ try:
 
 	from ovl_util import widgets, interaction
 	from modules import walker
+	from modules.formats.formats_dict import build_formats_dict
 	from root_path import root_dir
 	from generated.formats.ovl import OvlFile, games, get_game, set_game, IGNORE_TYPES
 	from generated.formats.ovl_base.enums.Compression import Compression
+
 	games_list = [g.value for g in games]
 except:
 	logging.exception("Some modules could not be imported; make sure you install the required dependencies with pip!")
@@ -121,6 +123,10 @@ class MainWindow(widgets.MainWindow):
 		self.t_in_folder.setToolTip("Runs commands on all OVLs of current folder")
 		self.t_in_folder.setChecked(False)
 
+		self.extract_types_combo = widgets.CheckableComboBox()
+		comunes = build_formats_dict()
+		self.extract_types_combo.addItems(comunes)
+
 		self.t_mesh_ovl = QtWidgets.QCheckBox("Mesh OVL Mode")
 		self.t_mesh_ovl.setToolTip("Renames only MS2, MDL2 and MOTIONGRAPH files.")
 		self.t_mesh_ovl.setChecked(False)
@@ -146,10 +152,11 @@ class MainWindow(widgets.MainWindow):
 		self.qgrid.addWidget(self.e_name_new, 0, 1, 3, 1)
 
 		self.qgrid.addWidget(self.t_show_temp_files, 0, 3)
-		self.qgrid.addWidget(self.t_in_folder, 1, 3)
-		self.qgrid.addWidget(self.t_mesh_ovl, 2, 3)
+		self.qgrid.addWidget(self.t_in_folder, 2, 3)
+		self.qgrid.addWidget(self.t_mesh_ovl, 1, 3)
 		self.qgrid.addWidget(self.game_choice, 0, 4,)
 		self.qgrid.addWidget(self.compression_choice, 1, 4,)
+		self.qgrid.addWidget(self.extract_types_combo, 2, 4,)
 
 		self.qgrid.addWidget(self.splitter, 5, 0, 1, 5)
 		self.qgrid.addWidget(self.p_action, 6, 0, 1, 5)
@@ -482,6 +489,13 @@ class MainWindow(widgets.MainWindow):
 			self.cfg["dir_extract"] = out_dir
 			_out_dir = out_dir
 			all_error_files = []
+			only_types = ()
+
+			# check using a filter to extract mimes
+			thelist = self.extract_types_combo.currentData()
+			if len(thelist) > 0:
+				only_types = thelist
+
 			for ovl in self.handle_path(save_over=False):
 				if self.is_open_ovl():
 					# for bulk extraction, add the ovl basename to the path to avoid overwriting
@@ -490,7 +504,7 @@ class MainWindow(widgets.MainWindow):
 						rel_p = os.path.relpath(ovl.path_no_ext, start=selected_dir)
 						out_dir = os.path.join(_out_dir, rel_p)
 					try:
-						out_paths, error_files = ovl.extract(out_dir, show_temp_files=self.show_temp_files)
+						out_paths, error_files = ovl.extract(out_dir, show_temp_files=self.show_temp_files, only_types=only_types)
 						all_error_files += error_files
 					except:
 						self.handle_error("Extraction failed, see log!")
