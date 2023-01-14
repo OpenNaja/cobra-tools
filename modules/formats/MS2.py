@@ -18,6 +18,7 @@ from ovl_util import interaction
 
 class Mdl2Loader(BaseFile):
 	extension = ".mdl2"
+	can_extract = False
 
 	def create(self):
 		self.create_root_entry()

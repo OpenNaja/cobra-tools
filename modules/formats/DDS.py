@@ -31,6 +31,7 @@ def align_to(width, comp, alignment=64):
 
 class TexturestreamLoader(BaseFile):
 	extension = ".texturestream"
+	can_extract = False
 
 	def create(self):
 		self.create_root_entry()

@@ -371,17 +371,6 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			model_info.model.meshes.clear()
 
 
-def get_scale2(pack_base):
-	base_exp = math.log2(pack_base)
-	error = 4 ** (base_exp-10.0)
-	return (error + pack_base) / PACKEDVEC_MAX
-
-def get_scale_long(pack_base):
-	pack_base = np.longfloat(pack_base)
-	base_exp = np.log2(pack_base)
-	error = np.power(np.longfloat(4.0), np.longfloat(base_exp-10.0), dtype=np.longfloat)
-	return (error + pack_base) / np.longfloat(PACKEDVEC_MAX)
-
 if __name__ == "__main__":
 	import math
 	a1 = [(8.0, 7.629452738910913e-06), (512.0, 0.0004885197849944234), (1024.0, 0.0009775171056389809),
@@ -398,9 +387,9 @@ if __name__ == "__main__":
 		base_exp = math.log2(pack_base)
 		error = 4 ** (base_exp-10.0)
 		scale2 = (error + pack_base) / PACKEDVEC_MAX
-		scale_a = get_scale2(pack_base)
-		scale_b = get_scale_long(pack_base)
-		print(scale_a, scale_b, scale_b == scale_a)
+		# scale_a = get_scale2(pack_base)
+		# scale_b = get_scale_long(pack_base)
+		# print(scale_a, scale_b, scale_b == scale_a)
 		# print(i, pack_base, base_exp, error, scale)
 		# print(pack_base, PACKEDVEC_MAX * scale, PACKEDVEC_MAX * scale - pack_base, scale)
 		# print(pack_base, scale, scale2, scale2-scale, quad, quad-scale)

@@ -20,9 +20,8 @@ try:
 
 	from ovl_util import widgets, interaction
 	from modules import walker
-	from modules.formats.formats_dict import build_formats_dict
 	from root_path import root_dir
-	from generated.formats.ovl import OvlFile, games, get_game, set_game, IGNORE_TYPES
+	from generated.formats.ovl import OvlFile, games, get_game, set_game
 	from generated.formats.ovl_base.enums.Compression import Compression
 
 	games_list = [g.value for g in games]
@@ -40,7 +39,7 @@ class MainWindow(widgets.MainWindow):
 
 		self.ovl_data = widgets.OvlReporter()
 
-		supported_types = [ext for ext in self.ovl_data.formats_dict.keys()]
+		supported_types = [ext for ext in self.ovl_data.formats_dict.extractables]
 		self.filter = "Supported files ({})".format(" ".join("*" + t for t in supported_types))
 
 		# add games from steam to the dict
@@ -89,7 +88,7 @@ class MainWindow(widgets.MainWindow):
 		self.dirs_container.resize(640, 480)
 
 		# create the table
-		self.files_container = widgets.SortableTable(header_names, IGNORE_TYPES, ignore_drop_type="OVL", opt_hide=True)
+		self.files_container = widgets.SortableTable(header_names, self.ovl_data.formats_dict.ignore_types, ignore_drop_type="OVL", opt_hide=True)
 		# connect the interaction functions
 		self.files_container.table.model.member_renamed.connect(self.rename_handle)
 		self.files_container.table.files_dragged.connect(self.drag_files)
@@ -124,8 +123,7 @@ class MainWindow(widgets.MainWindow):
 		self.t_in_folder.setChecked(False)
 
 		self.extract_types_combo = widgets.CheckableComboBox()
-		comunes = build_formats_dict()
-		self.extract_types_combo.addItems(comunes)
+		self.extract_types_combo.addItems(self.ovl_data.formats_dict.extractables)
 
 		self.t_mesh_ovl = QtWidgets.QCheckBox("Mesh OVL Mode")
 		self.t_mesh_ovl.setToolTip("Renames only MS2, MDL2 and MOTIONGRAPH files.")

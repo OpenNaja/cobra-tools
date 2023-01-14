@@ -19,6 +19,7 @@ class BaseFile:
 	aliases = ()
 	# used to check output for any temporary files that should possibly be deleted
 	temp_extensions = ()
+	can_extract = True
 
 	def __init__(self, ovl, file_entry):
 		self.ovl = ovl

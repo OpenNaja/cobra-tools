@@ -20,7 +20,7 @@ from generated.formats.ovl.compounds.ZlibInfo import ZlibInfo
 from generated.formats.ovl.versions import *
 from generated.formats.ovl_base.enums.Compression import Compression
 from generated.io import IoFile
-from modules.formats.formats_dict import build_formats_dict
+from modules.formats.formats_dict import FormatDict
 from modules.formats.shared import djb2
 from modules.helpers import split_path
 from ovl_util.oodle.oodle import OodleDecompressEnum, oodle_compressor
@@ -29,9 +29,6 @@ from root_path import root_dir
 UNK_HASH = "Unknown Hash"
 OODLE_MAGIC = (b'\x8c', b'\xcc')
 TAB = '  '
-
-# types that have no loader themselves, but are handled by other classes
-IGNORE_TYPES = (".mani", ".mdl2", ".texturestream", ".datastreams", ".model2stream")
 
 
 class DummySignal:
@@ -580,7 +577,7 @@ class OvlFile(Header, IoFile):
 		self.is_biosyn = None
 		self.do_debug = False
 
-		self.formats_dict = build_formats_dict()
+		self.formats_dict = FormatDict()
 		self.loaders = {}
 
 	@classmethod
@@ -657,7 +654,7 @@ class OvlFile(Header, IoFile):
 			if _only_names and loader.file_entry.name not in _only_names:
 				continue
 			# ignore types in the count that we export from inside other type exporters
-			if loader.file_entry.ext in IGNORE_TYPES:
+			if loader.file_entry.ext in self.formats_dict.ignore_types:
 				continue
 			loaders_for_extract.append(loader)
 		for loader in self.iter_progress(loaders_for_extract, "Extracting"):
@@ -678,7 +675,7 @@ class OvlFile(Header, IoFile):
 			name_ext, basename, ext = split_path(file_path)
 
 			# ilo: ignore file extensions in the IGNORE list
-			if ext in IGNORE_TYPES:
+			if ext in self.formats_dict.ignore_types:
 				logging.info(f"Ignoring {file_path}")
 				continue
 
@@ -745,7 +742,7 @@ class OvlFile(Header, IoFile):
 			# ilo: ignore file extensions in the IGNORE list
 			# todo: should add this to remove too?
 			name, ext = os.path.splitext(file_path)
-			if ext in IGNORE_TYPES:
+			if ext in self.formats_dict.ignore_types:
 				logging.info(f"Ignoring {file_path}")
 				continue
 
