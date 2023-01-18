@@ -107,14 +107,17 @@ def load(filepath="", use_custom_normals=False, mirror_mesh=False):
 						if mirror_mesh:
 							append_bisect_modifier(b_ob)
 						ob_postpro(b_ob, mirror_mesh, use_custom_normals)
-						if not is_old(ms2.info) and is_shell(b_ob):
-							add_psys(b_ob, mesh)
 					except:
 						logging.exception("some mesh data failed")
 					ob_dict[m_ob.mesh_index] = b_ob
 					# from plugin.modules_import.tangents import visualize_tangents
 					# ob2, me2 = visualize_tangents(b_ob.name, mesh.vertices, mesh.normals, mesh.tangents)
-
+				else:
+					b_ob = ob_dict[m_ob.mesh_index]
+				# we can't assume that the first ob referencing this mesh has it already
+				if not is_old(ms2.info) and is_shell(b_ob):
+					logging.debug(f"{b_ob.name} has shells, adding psys")
+					add_psys(b_ob, mesh)
 			coll_name = f"{scene.name}_LOD{lod_i}"
 			# get view layer if it exists, show lod 0, hide the others
 			if coll_name in bpy.context.view_layer.layer_collection.children:

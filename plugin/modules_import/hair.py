@@ -21,17 +21,18 @@ def find_modifier_for_particle_system(b_ob, particle_system):
 
 
 def add_psys(ob, model):
-	name = "hair"
-	ps_mod = ob.modifiers.new(name, 'PARTICLE_SYSTEM')
-	psys = ob.particle_systems[ps_mod.name]
-	psys.settings.count = len(ob.data.vertices)
-	psys.settings.type = 'HAIR'
-	psys.settings.emit_from = 'VERT'
-	psys.settings.use_emit_random = False
-	psys.settings.hair_length = model.fur_length
-	psys.vertex_group_length = "fur_length"
-	psys.settings.hair_step = 1
-	psys.settings.display_step = 1
+	if not ob.particle_systems:
+		name = "hair"
+		ps_mod = ob.modifiers.new(name, 'PARTICLE_SYSTEM')
+		psys = ob.particle_systems[ps_mod.name]
+		psys.settings.count = len(ob.data.vertices)
+		psys.settings.type = 'HAIR'
+		psys.settings.emit_from = 'VERT'
+		psys.settings.use_emit_random = False
+		psys.settings.hair_length = model.fur_length
+		psys.vertex_group_length = "fur_length"
+		psys.settings.hair_step = 1
+		psys.settings.display_step = 1
 
 
 def comb_common(adjust_psys_count=False, warn=True):
