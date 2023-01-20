@@ -109,8 +109,10 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 	mesh.fur_length = hair_length
 
 	# tangents have to be pre-calculated; this will also calculate loop normal
-	eval_me.calc_tangents(uvmap="UV0")
-
+	try:
+		eval_me.calc_tangents(uvmap="UV0")
+	except RuntimeError:
+		raise RuntimeError(f"Tangent space calculation for model {b_ob.name} failed. Make sure it has UV0 and valid geometry")
 	# these were stored on import per loop
 	if use_stock_normals_tangents:
 		ct_tangents = eval_me.attributes["ct_tangents"]
