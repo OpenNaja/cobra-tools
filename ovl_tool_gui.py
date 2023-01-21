@@ -69,6 +69,7 @@ class MainWindow(widgets.MainWindow):
 		self.installed_games_view.add_button.clicked.connect(self.add_installed_game)
 
 		self.model = QtWidgets.QFileSystemModel()
+		self.model.setNameFilters(["*.ovl", ])
 		self.dirs_container = QtWidgets.QTreeView()
 		self.dirs_container.setModel(self.model)
 		self.dirs_container.setColumnHidden(1, True)
