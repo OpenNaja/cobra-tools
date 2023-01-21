@@ -31,6 +31,7 @@ class ArrayPointer(Pointer):
 		# fdev create pointers to empty arrays
 		if self.data is not None:
 			return True
+			# return len(self.data)
 
 	def read_template(self):
 		if self.template:

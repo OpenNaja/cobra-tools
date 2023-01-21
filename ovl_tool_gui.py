@@ -423,7 +423,7 @@ class MainWindow(widgets.MainWindow):
 	def load(self, threaded=True):
 		if self.file_widget.filepath:
 			self.file_widget.dirty = False
-			logging.info(f"Loading threaded {threaded}")
+			logging.debug(f"Loading threaded {threaded}")
 			if threaded:
 				self.run_threaded(self.ovl_data.load, self.file_widget.filepath)
 			else:

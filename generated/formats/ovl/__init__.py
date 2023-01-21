@@ -166,18 +166,10 @@ class OvsFile(OvsHeader):
 			if self.set_header.io_size != self.arg.set_data_size:
 				raise AttributeError(
 					f"Set data size incorrect (got {self.set_header.io_size}, expected {self.arg.set_data_size})!")
-
 			for set_entry in self.set_header.sets:
 				self.assign_name(set_entry)
-				set_entry.entry = self.find_entry(self.root_entries, set_entry)
-
 			for asset_entry in self.set_header.assets:
 				self.assign_name(asset_entry)
-				try:
-					asset_entry.entry = self.root_entries[asset_entry.file_index]
-				except IndexError:
-					raise IndexError(f"Could not find root entry for asset {asset_entry} in {len(self.root_entries)}")
-
 			self.map_assets()
 			# add IO object to every pool
 			self.read_pools(stream)
@@ -191,7 +183,7 @@ class OvsFile(OvsHeader):
 			pool.data = BytesIO(stream.read(pool.size))
 
 	def map_assets(self):
-		"""Store start and stop indices to asset entries, translate hierarchy to root entries"""
+		"""Parse set and asset entries, and store children on loaders"""
 		# store start and stop asset indices
 		for i, set_entry in enumerate(self.set_header.sets):
 			# for the last entry
@@ -204,8 +196,7 @@ class OvsFile(OvsHeader):
 			assets = self.set_header.assets[set_entry.start: set_entry.end]
 			logging.debug(f"Set {set_entry.name} with {len(assets)} assets")
 			# store the references on the corresponding loader
-			assert set_entry.entry
-			loader = self.ovl.loaders[set_entry.entry.name]
+			loader = self.ovl.loaders[set_entry.name]
 			loader.children = [self.ovl.loaders[self.root_entries[a.file_index].name] for a in assets]
 
 	@staticmethod
