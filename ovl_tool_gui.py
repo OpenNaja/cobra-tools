@@ -508,24 +508,21 @@ class MainWindow(widgets.MainWindow):
 			interaction.extract_error_warning(all_error_files)
 
 	def inject_ask(self):
-		if self.is_open_ovl():
-			files = QtWidgets.QFileDialog.getOpenFileNames(
-				self, 'Inject files', self.cfg.get("dir_inject", "C://"), self.filter)[0]
-			self.inject_files(files)
+		files = QtWidgets.QFileDialog.getOpenFileNames(
+			self, 'Inject files', self.cfg.get("dir_inject", "C://"), self.filter)[0]
+		self.inject_files(files)
 
 	def inject_files(self, files):
 		"""Tries to inject files into self.ovl_data"""
 		if files:
 			self.cfg["dir_inject"] = os.path.dirname(files[0])
 			try:
-
-				error_files = self.ovl_data.inject(files, self.show_temp_files)
-				# error_files = []
-				# self.run_threaded(self.ovl_data.inject, files, self.show_temp_files)
 				self.file_widget.dirty = True
-				# if error_files:
-				# 	interaction.showdialog(f"Injection caused errors on {len(error_files)} files, see console for details!")
-				# self.update_gui_table()
+				error_files = self.ovl_data.inject(files, self.show_temp_files)
+				# self.run_threaded(self.ovl_data.inject, files, self.show_temp_files)
+				if error_files:
+					interaction.showdialog(f"Injection caused errors on {len(error_files)} files, see console for details!")
+				self.update_gui_table()
 				self.update_progress("Injection completed", value=1, vmax=1)
 			except:
 				self.handle_error("Injection failed, see log!")
