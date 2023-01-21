@@ -63,7 +63,7 @@ class Ms2Loader(BaseFile):
 				return frag
 
 	def detect_biosyn_format(self):
-		logging.info("Detecting Biosyn format")
+		logging.debug("Detecting Biosyn format")
 		if ovl_versions.is_jwe2(self.ovl):
 			if self.ovl.is_biosyn is not None:
 				return self.ovl.is_biosyn
@@ -80,12 +80,12 @@ class Ms2Loader(BaseFile):
 			return False
 
 	def detect_biosyn_default(self):
-		logging.info("Assuming Biosyn format")
+		logging.debug("Assuming Biosyn format")
 		# todo - query a biosyn_default setting on ovl, set before from gui or config
 		return True
 
 	def detect_biosyn_format_from_manis(self):
-		logging.info("Detecting Biosyn format from .manis")
+		logging.debug("Detecting Biosyn format from .manis")
 		for mime in self.ovl.mimes:
 			if mime.ext == ".manis":
 				# JWE2 pre Biosyn
@@ -97,7 +97,7 @@ class Ms2Loader(BaseFile):
 		return None
 
 	def detect_biosyn_format_from_ptrs(self):
-		logging.info("Detecting Biosyn format from pointers")
+		logging.debug("Detecting Biosyn format from pointers")
 		is_biosyn = False
 		is_older = False
 		# BufferInfo
@@ -134,7 +134,7 @@ class Ms2Loader(BaseFile):
 		self.context = Ms2Context()
 		self.context.version = version
 		self.context.biosyn = self.detect_biosyn_format()
-		logging.info(f"context.biosyn {self.context.biosyn}")
+		# logging.debug(f"context.biosyn {self.context.biosyn}")
 
 	def collect(self):
 		self.get_version()

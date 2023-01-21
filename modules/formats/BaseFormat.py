@@ -40,6 +40,8 @@ class BaseFile:
 		self.children = []
 		self.fragments = set()
 
+		self.same = False
+
 	@property
 	def data_entry(self):
 		return self.data_entries.get(self.ovs_name, None)
@@ -97,9 +99,10 @@ class BaseFile:
 		assert pool_type_key is not None
 		# get one directly editable pool, if it exists
 		for pool in self.ovs.pools:
-			# todo - add reasonable size condition
 			if pool.type == pool_type_key and pool.new:
-				return pool
+				# seems like a reasonable size condition - seen stock with 17608 bytes
+				if pool.get_size() < 16000:
+					return pool
 		# nope, means we gotta create pool
 		pool = MemPool(self.ovl.context)
 		pool.data = BytesIO()
@@ -317,32 +320,23 @@ class BaseFile:
 			return [p for p in paths if p not in paths_to_remove]
 		return paths
 
+	def check(self, a, b, s):
+		if a != b:
+			logging.warning(f"{s} does not match - this: {a} vs other: {b}")
+			self.same = False
+
 	def __eq__(self, other):
 		logging.info(f"Comparing {self.file_entry.name}")
-		same = True
-		# mime version
-		if self.file_entry.mime.mime_version != other.file_entry.mime.mime_version:
-			logging.warning(f"Mime version does not match")
-			same = False
+		self.same = True
+		self.check(self.file_entry.mime.mime_version, other.file_entry.mime.mime_version, "Mime version")
+		self.check(len(self.data_entries), len(other.data_entries), "Amount of data entries")
 		# data
-		if len(self.data_entries) != len(other.data_entries):
-			logging.warning(f"Amount of data entries does not match")
-			same = False
 		for archive_name, data_entry in self.data_entries.items():
 			assert archive_name in other.data_entries
 			other_data = other.data_entries[archive_name]
-			if data_entry != other_data:
-				logging.warning(f"this: {data_entry}")
-				logging.warning(f"other: {other_data}")
-				same = False
-		# frags
-		if len(self.fragments) != len(other.fragments):
-			logging.warning(f"Amount of fragments does not match")
-			same = False
-		# children
-		if len(self.children) != len(other.children):
-			logging.warning(f"Amount of children does not match")
-			same = False
+			self.check(data_entry, other_data, "Data entry")
+		self.check(len(self.fragments), len(other.fragments), "Amount of fragments")
+		self.check(len(self.children), len(other.children), "Amount of children")
 		# root entry
 		this_root = self.root_entry.struct_ptr.data
 		other_root = other.root_entry.struct_ptr.data
@@ -354,20 +348,12 @@ class BaseFile:
 			if this_root == other_root:
 				logging.info(f"Root entry data does actually match, size difference is likely just padding")
 			else:
-				same = False
-		# ovs name
-		if self.ovs_name != other.ovs_name:
-			logging.warning(f"OVS name does not match")
-			same = False
-		# streams
-		if len(self.streams) != len(other.streams):
-			logging.warning(f"Amount of streams does not match self {len(self.streams)} vs other {len(other.streams)}")
-			same = False
+				self.same = False
+		self.check(self.ovs_name, other.ovs_name, "OVS name")
+		self.check(len(self.streams), len(other.streams), "Amount of streams")
 		for stream, other_stream in zip(self.streams, other.streams):
-			if stream != other_stream:
-				logging.warning(f"Stream files do not match")
-				same = False
-		return same
+			self.check(stream, other_stream, "Stream entry")
+		return self.same
 
 	def log_versions(self):
 		logging.info(f"{self.file_entry.ext} {self.file_entry.mime.mime_version}")
