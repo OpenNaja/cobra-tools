@@ -39,8 +39,8 @@ class MainWindow(widgets.MainWindow):
 
 		self.ovl_data = widgets.OvlReporter()
 
-		supported_types = [ext for ext in self.ovl_data.formats_dict.extractables]
-		self.filter = "Supported files ({})".format(" ".join("*" + t for t in supported_types))
+		exts = " ".join([f"*{ext}" for ext in self.ovl_data.formats_dict.extractables])
+		self.filter = f"Supported files ({exts})"
 
 		# add games from steam to the dict
 		if "games" not in self.cfg:
@@ -58,8 +58,6 @@ class MainWindow(widgets.MainWindow):
 		# only listen to user changes
 		self.compression_choice.entry.textActivated.connect(self.compression_changed)
 		self.compression_choice.entry.setEditable(False)
-
-		header_names = ["Name", "File Type"]
 
 		self.installed_games_view = widgets.GamesCombo(self)
 		self.installed_games_view.setToolTip("Select game for easy access below")
@@ -89,7 +87,7 @@ class MainWindow(widgets.MainWindow):
 		self.dirs_container.resize(640, 480)
 
 		# create the table
-		self.files_container = widgets.SortableTable(header_names, self.ovl_data.formats_dict.ignore_types, ignore_drop_type="OVL", opt_hide=True)
+		self.files_container = widgets.SortableTable(("Name", "File Type"), self.ovl_data.formats_dict.ignore_types, ignore_drop_type="OVL", opt_hide=True)
 		# connect the interaction functions
 		self.files_container.table.model.member_renamed.connect(self.rename_handle)
 		self.files_container.table.files_dragged.connect(self.drag_files)
