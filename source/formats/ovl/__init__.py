@@ -412,12 +412,10 @@ class OvsFile(OvsHeader):
 							io_order.append(data.buffers[i])
 			return io_order
 
-	def dump_pools(self):
+	def dump_pools(self, fp):
 		"""for debugging"""
-		logging.info(f"Dumping pools to {self.ovl.dir}")
 		for i, pool in enumerate(self.pools):
-			pool_path = os.path.join(self.ovl.dir, f"{self.ovl.name}_{self.arg.name}_pool[{i}].dmp")
-			with open(pool_path, "wb") as f:
+			with open(f"{fp}_pool[{i}].dmp", "wb") as f:
 				f.write(pool.data.getvalue())
 				# write a pointer marker at each offset
 				for offset, entry in pool.offset_2_link_entry.items():
@@ -427,10 +425,8 @@ class OvsFile(OvsHeader):
 					else:
 						f.write(b"@DEPENDS")
 
-	def dump_buffer_groups_log(self):
-		buff_log_path = os.path.join(self.ovl.dir, f"{self.ovl.name}_{self.arg.name}_buffers.log")
-		logging.info(f"Dumping buffer log to {buff_log_path}")
-		with open(buff_log_path, "w") as f:
+	def dump_buffer_groups_log(self, fp):
+		with open(f"{fp}_buffers.log", "w") as f:
 			f.write("\nBuffers IO order")
 			for x, buffer in enumerate(self.buffers_io_order):
 				f.write(f"\n{buffer.name} index: {buffer.index}| {buffer.size}")
@@ -460,12 +456,9 @@ class OvsFile(OvsHeader):
 			else:
 				f.write(f"\n{indent * TAB}DEP @ {rel_offset: <4} -> {entry.name}")
 
-	def dump_stack(self):
+	def dump_stack(self, fp):
 		"""for development; collect info about fragment types"""
-		frag_log_path = os.path.join(self.ovl.dir, f"{self.ovl.name}_{self.arg.name}.stack")
-		logging.info(f"Dumping stack to {frag_log_path}")
-		with open(frag_log_path, "w") as f:
-
+		with open(f"{fp}.stack", "w") as f:
 			for i, pool in enumerate(self.pools):
 				f.write(f"\nPool {i} (type: {pool.type})")
 
@@ -479,13 +472,6 @@ class OvsFile(OvsHeader):
 					except AttributeError:
 						logging.exception(f"Dumping {root_entry.name} failed")
 						f.write("\n!FAILED!")
-
-	@staticmethod
-	def find_entry(entries, src_entry):
-		""" returns entry from list l whose file hash matches hash, or none"""
-		for entry in entries:
-			if entry.name == src_entry.name:
-				return entry
 
 	def assign_name(self, entry):
 		"""Fetch a filename for an entry"""
@@ -1249,11 +1235,14 @@ class OvlFile(Header, IoFile):
 
 	def dump_debug_data(self):
 		"""Dumps various logs needed to reverse engineer and debug the ovl format"""
+		logging.info(f"Dumping debug data to {self.dir}")
+
 		for archive_entry in self.archives:
+			fp = os.path.join(self.dir, f"{self.name}_{archive_entry.name}")
 			try:
-				archive_entry.content.dump_stack()
-				archive_entry.content.dump_buffer_groups_log()
-				archive_entry.content.dump_pools()
+				archive_entry.content.dump_stack(fp)
+				archive_entry.content.dump_buffer_groups_log(fp)
+				archive_entry.content.dump_pools(fp)
 			except:
 				logging.exception("Dumping failed")
 		self.dump_buffer_info()
@@ -1264,12 +1253,10 @@ class OvlFile(Header, IoFile):
 
 	def dump_buffer_info(self):
 		"""for development; collect info about fragment types"""
-
 		def out_dir_func(n):
 			"""Helper function to generate temporary output file name"""
 			return os.path.normpath(os.path.join(self.dir, n))
 		log_path = out_dir_func(f"{self.name}_buffer_info.log")
-		logging.info(f"Dumping buffers info to {log_path}")
 		with open(log_path, "w") as f:
 			for loader in self.sorted_loaders:
 				loader.dump_buffer_infos(f)
