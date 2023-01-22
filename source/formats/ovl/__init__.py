@@ -1145,7 +1145,7 @@ class OvlFile(Header, IoFile):
 				# at least PZ & JWE require 4 additional bytes after each pool region
 				pools_byte_offset += 4
 				pools_offset += len(archive.content.pools)
-				logging.info(
+				logging.debug(
 					f"Archive {archive.name} has {archive.num_pools} pools in {archive.num_pool_groups} pool_groups")
 
 			# update the ovl counts
