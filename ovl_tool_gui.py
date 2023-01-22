@@ -21,7 +21,7 @@ try:
 	from ovl_util import widgets, interaction
 	from modules import walker
 	from root_path import root_dir
-	from generated.formats.ovl import OvlFile, games, get_game, set_game
+	from generated.formats.ovl import games, get_game, set_game
 	from generated.formats.ovl_base.enums.Compression import Compression
 
 	games_list = [g.value for g in games]
@@ -206,10 +206,14 @@ class MainWindow(widgets.MainWindow):
 		self.game_changed()
 		# do these at the end to make sure their requirements have been initialized
 		self.ovl_data.files_list.connect(self.update_files_ui)
+		self.ovl_data.warning_msg.connect(self.notify_user)
 		self.ovl_data.included_ovls_list.connect(self.included_ovls_view.set_data)
 		self.ovl_data.progress_percentage.connect(self.p_action.setValue)
 		self.ovl_data.current_action.connect(self.t_action.setText)
 		self.run_threaded(self.ovl_data.load_hash_table)
+
+	def notify_user(self, msg):
+		interaction.showdialog(msg)
 
 	def enable_gui_options(self, enable=True):
 		self.t_in_folder.setEnabled(enable)
@@ -516,16 +520,11 @@ class MainWindow(widgets.MainWindow):
 		"""Tries to inject files into self.ovl_data"""
 		if files:
 			self.cfg["dir_inject"] = os.path.dirname(files[0])
-			try:
-				self.file_widget.dirty = True
-				error_files = self.ovl_data.add_files(files)
-				# self.run_threaded(self.ovl_data.inject, files, self.show_temp_files)
-				if error_files:
-					interaction.showdialog(f"Injection caused errors on {len(error_files)} files, see console for details!")
-				# the gui is updated from the signal ovl.files_list emitted from add_files
-				self.update_progress("Injection completed", value=1, vmax=1)
-			except:
-				self.handle_error("Injection failed, see log!")
+			self.file_widget.dirty = True
+			# threaded injection seems to be fine now
+			# self.ovl_data.add_files(files)
+			self.run_threaded(self.ovl_data.add_files, files)
+			# the gui is updated from the signal ovl.files_list emitted from add_files
 
 	def get_replace_strings(self):
 		try:

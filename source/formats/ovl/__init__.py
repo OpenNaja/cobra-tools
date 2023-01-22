@@ -13,7 +13,6 @@ from generated.formats.ovl.compounds.FileEntry import FileEntry
 from generated.formats.ovl.compounds.Fragment import Fragment
 from generated.formats.ovl.compounds.Header import Header
 from generated.formats.ovl.compounds.OvsHeader import OvsHeader
-from generated.formats.ovl.compounds.PoolGroup import PoolGroup
 from generated.formats.ovl.compounds.SetEntry import SetEntry
 from generated.formats.ovl.compounds.StreamEntry import StreamEntry
 from generated.formats.ovl.compounds.ZlibInfo import ZlibInfo
@@ -22,7 +21,6 @@ from generated.formats.ovl_base.enums.Compression import Compression
 from generated.io import IoFile
 from modules.formats.formats_dict import FormatDict
 from modules.formats.shared import djb2
-from modules.helpers import split_path
 from ovl_util.oodle.oodle import OodleDecompressEnum, oodle_compressor
 from root_path import root_dir
 
@@ -542,6 +540,7 @@ class OvsFile(OvsHeader):
 
 class OvlFile(Header, IoFile):
 
+	warning_msg = DummySignal()
 	files_list = DummySignal()
 	included_ovls_list = DummySignal()
 	progress_percentage = DummySignal()
@@ -693,14 +692,20 @@ class OvlFile(Header, IoFile):
 	def add_files(self, file_paths):
 		logging.info(f"Adding {len(file_paths)} files to OVL")
 		logging.info(f"Game: {get_game(self)[0].name}")
+		error_files = []
 		for file_path in self.iter_progress(file_paths, "Adding files"):
 			# ilo: ignore file extensions in the IGNORE list
-			name, ext = os.path.splitext(file_path)
+			bare_path, ext = os.path.splitext(file_path)
 			if ext in self.formats_dict.ignore_types:
 				logging.info(f"Ignoring {file_path}")
 				continue
-			loader = self.create_file(file_path)
-			self.register_loader(loader)
+			try:
+				loader = self.create_file(file_path)
+				self.register_loader(loader)
+			except:
+				error_files.append(file_path)
+		if error_files:
+			self.warning_msg.emit(f"Adding the following files failed - please check the console log:\n"+"\n".join(error_files))
 		self.files_list.emit([[loader.file_entry.name, loader.file_entry.ext] for loader in self.loaders.values()])
 
 	def register_loader(self, loader):
