@@ -10,14 +10,14 @@
         Found at the beginning of every OVL file
         <add name="Lod Depth" type="uint" >Seems to match the number of LOD models for the file (has more than 1 file)</add>
         <add name="Len Names" type="uint" >length of the Names block below, including 00 bytes</add>
-        <add name="Zero 2" type="uint" >always = 0</add>
+        <add name="Zero 2" type="uint"/>
 
         <add name="Num Aux Entries" type="uint" >count of external aux files, ie audio banks</add>
         <add name="num_included_ovls" type="ushort" >count of included ovl files that are available to this ovl</add>
         <add name="Num Mimes" type="ushort" >count of file mime types, aka. extensions with metadata</add>
         <add name="Num Files" type="uint"/>
         <add name="Num Files 2" type="uint" >repeat count of files ??</add>
-        <add name="Num Dependencies" type="uint" >count of parts</add>
+        <add name="Num Dependencies" type="uint"/>
         <add name="Num Archives" type="uint" >number of archives</add>
 
         <add name="num_pool_groups" type="uint" >across all archives</add>
@@ -30,7 +30,7 @@
         <add name="ztuac unk 2" type="uint" >used in ZTUAC elephants</add>
         <add name="Len Archive Names" type="uint" >length of archive names</add>
         <add name="Num Files 3" type="uint" >another Num Files</add>
-        <add name="Len Type Names" type="uint" >length of the type names portion insideNames block (usually at the start), not counting 00 bytes</add>
+        <add name="Len Type Names" type="uint" >length of the type names portion inside Names block (usually at the start), not counting 00 bytes</add>
         <add name="num_triplets" type="uint" >used in PZ1.6 for the first time</add>
         <add name="Reserved" type="uint" arr1="12">zeros</add>
 
@@ -165,25 +165,25 @@
 
     <compound name="MemPool" >
         Description of one archive header entry
-		<add name="zero1" type="uint64" since="17">always 0</add>
+        <add name="zero1" type="uint64" since="17"/>
 		<add name="Size" type="uint">the number of bytes inside this mempool</add>
 		<add name="Offset" type="uint">byte offset from the start of the mempools region</add>
-		<add name="zero2" type="uint64" until="15">always 0</add>
+        <add name="zero2" type="uint64" until="15"/>
 		<add name="File Hash" type="uint">djb2 hash of the first file that points into this mempool</add>
-		<add name="disney zero" type="ushort" until="15">zero</add>
+        <add name="disney zero" type="ushort" until="15"/>
 		<add name="Num Files" type="ushort" until="15">unknown count (related to number of files or pointers)</add>
 		<add name="Num Files" type="uint" since="17">unknown count (related to number of files or pointers)</add>
 		<add name="Ext Hash" type="uint" since="19">JWE: djb2 hash for extension, 0 for PZ</add>
-		<add name="zero3" type="uint" since="19">always 0</add>
+        <add name="zero3" type="uint" since="19"/>
     </compound>
 	
 	<compound name="DataEntry" >
 		32 bytes
-		<add name="File Hash" type="uint"> djb2 hash</add>
+		<add name="File Hash" type="uint">djb2 hash</add>
 		<add name="Ext Hash" type="uint" since="19">djb2 hash for extension</add>
 		<add name="set index" type="ushort" >1-based indexing into set_header.sets; 0 if data is not part of a set</add>
 		<add name="buffer count" type="ushort">number of buffers that should be read from list for this entry</add>
-		<add name="zero" type="uint" since="19"> </add>
+        <add name="zero" type="uint" since="19"/>
 		<add name="Size 1" type="uint64">size of first buffer, in the case of the ms2 the size 1 is the size of the first two buffers together</add>
 		<add name="Size 2" type="uint64">size of last buffer; tex and texstream have all size here</add>
     </compound>
@@ -231,8 +231,8 @@
         <add name="asset count" type="uint"/>
 		<add name="sig a" type="uint" default="1065336831">must be 1065336831</add>
 		<add name="sig b" type="uint" default="16909320">must be 16909320</add>
-		<add name="sets" type="SetEntry" arr1="set count"> </add>
-		<add name="assets" type="AssetEntry" arr1="asset count"> </add>
+        <add name="sets" type="SetEntry" arr1="set count"/>
+        <add name="assets" type="AssetEntry" arr1="asset count"/>
     </compound>
 	
 	<compound name="SetEntry" >

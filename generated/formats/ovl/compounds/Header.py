@@ -35,8 +35,6 @@ class Header(GenericHeader):
 
 		# length of the Names block below, including 00 bytes
 		self.len_names = 0
-
-		# always = 0
 		self.zero_2 = 0
 
 		# count of external aux files, ie audio banks
@@ -51,8 +49,6 @@ class Header(GenericHeader):
 
 		# repeat count of files ??
 		self.num_files_2 = 0
-
-		# count of parts
 		self.num_dependencies = 0
 
 		# number of archives
@@ -88,7 +84,7 @@ class Header(GenericHeader):
 		# another Num Files
 		self.num_files_3 = 0
 
-		# length of the type names portion insideNames block (usually at the start), not counting 00 bytes
+		# length of the type names portion inside Names block (usually at the start), not counting 00 bytes
 		self.len_type_names = 0
 
 		# used in PZ1.6 for the first time

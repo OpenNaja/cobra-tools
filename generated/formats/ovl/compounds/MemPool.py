@@ -22,8 +22,6 @@ class MemPool(BaseStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-
-		# always 0
 		self.zero_1 = 0
 
 		# the number of bytes inside this mempool
@@ -31,14 +29,10 @@ class MemPool(BaseStruct):
 
 		# byte offset from the start of the mempools region
 		self.offset = 0
-
-		# always 0
 		self.zero_2 = 0
 
 		# djb2 hash of the first file that points into this mempool
 		self.file_hash = 0
-
-		# zero
 		self.disney_zero = 0
 
 		# unknown count (related to number of files or pointers)
@@ -46,8 +40,6 @@ class MemPool(BaseStruct):
 
 		# JWE: djb2 hash for extension, 0 for PZ
 		self.ext_hash = 0
-
-		# always 0
 		self.zero_3 = 0
 		if set_default:
 			self.set_defaults()
