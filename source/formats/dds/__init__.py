@@ -90,16 +90,25 @@ class DdsFile(Header, IoFile):
                 w = max(w, 1)
         return tiles
 
+    @property
+    def compression_format(self):
+        """Returns a string representing the compression format"""
+        if self.pixel_format.four_c_c == FourCC.DX10:
+            return self.dx_10.dxgi_format.name
+        return self.pixel_format.four_c_c.name
+
     def get_pixel_fmt(self):
         # get compression type
-        comp = self.dx_10.dxgi_format.name
+        comp = self.compression_format
         # get bpp from compression type
         if "R8G8B8A8" in comp:
             self.pixels_per_byte = 0.25
             self.block_len_pixels_1d = 1
-        elif "BC1" in comp or "BC4" in comp:
+        # 64 bits for 16 pixels
+        elif "BC1" in comp or "DXT1" in comp or "BC4" in comp:
             self.pixels_per_byte = 2
             self.block_len_pixels_1d = 4
+        # 128 bits for 16 pixels
         else:
             self.pixels_per_byte = 1
             self.block_len_pixels_1d = 4

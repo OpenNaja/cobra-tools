@@ -164,6 +164,7 @@ class DdsLoader(MemStructLoader):
 		# load dds
 		dds_file = DdsFile()
 		dds_file.load(dds_path)
+		print(dds_file)
 		return dds_file
 
 	def get_sorted_datas(self):
