@@ -350,7 +350,7 @@ class OvsFile(OvsHeader):
 				logging.debug(f"Pool[{pool_index}]: {pool.name} -> '{first_entry.name}' ({type_str})")
 				self.transfer_identity(pool, first_entry)
 			else:
-				logging.info(
+				logging.debug(
 					f"Pool[{pool_index}]: deleting '{pool.name}' from archive '{self.arg.name}' as it has no pointers")
 		self.pools.clear()
 		# rebuild pool groups
