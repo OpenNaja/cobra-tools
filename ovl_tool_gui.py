@@ -518,11 +518,11 @@ class MainWindow(widgets.MainWindow):
 			self.cfg["dir_inject"] = os.path.dirname(files[0])
 			try:
 				self.file_widget.dirty = True
-				error_files = self.ovl_data.inject(files, self.show_temp_files)
+				error_files = self.ovl_data.add_files(files)
 				# self.run_threaded(self.ovl_data.inject, files, self.show_temp_files)
 				if error_files:
 					interaction.showdialog(f"Injection caused errors on {len(error_files)} files, see console for details!")
-				self.update_gui_table()
+				# the gui is updated from the signal ovl.files_list emitted from add_files
 				self.update_progress("Injection completed", value=1, vmax=1)
 			except:
 				self.handle_error("Injection failed, see log!")

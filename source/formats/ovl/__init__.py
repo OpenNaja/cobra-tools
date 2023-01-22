@@ -646,30 +646,6 @@ class OvlFile(Header, IoFile):
 				error_files.append(loader.file_entry.name)
 		return out_paths, error_files
 
-	def inject(self, file_paths, show_temp_files=False):
-		"""Inject files into archive"""
-		logging.info(f"Injecting {len(file_paths)} files")
-		error_files = []
-		for file_path in self.iter_progress(file_paths, "Injecting"):
-			name_ext, basename, ext = split_path(file_path)
-
-			# ilo: ignore file extensions in the IGNORE list
-			if ext in self.formats_dict.ignore_types:
-				logging.info(f"Ignoring {file_path}")
-				continue
-
-			name_lower = name_ext.lower()
-			# todo - aliases will not be handled, but no problem for now
-			# if ext in aliases:
-			# 	name_lower = name_lower.replace(ext, aliases[ext])
-			# check if this file exists in this ovl, if so, delete old loader
-			if name_lower in self.loaders:
-				loader = self.loaders[name_lower]
-				loader.remove()
-		# now create them
-		self.add_files(file_paths)
-		return error_files
-
 	def create_file_entry(self, file_path):
 		"""Create a file entry from a file path"""
 		# capital letters in the name buffer crash JWE2, apparently
@@ -702,8 +678,9 @@ class OvlFile(Header, IoFile):
 			return loader
 		except NotImplementedError:
 			logging.warning(f"Creation not implemented for {loader.file_entry.ext}")
-		except BaseException as err:
+		except BaseException:
 			logging.exception(f"Could not create: {loader.file_entry.name}")
+			raise
 
 	def create(self, ovl_dir):
 		logging.info(f"Creating OVL from {ovl_dir}")
@@ -717,20 +694,22 @@ class OvlFile(Header, IoFile):
 		logging.info(f"Adding {len(file_paths)} files to OVL")
 		logging.info(f"Game: {get_game(self)[0].name}")
 		for file_path in self.iter_progress(file_paths, "Adding files"):
-
 			# ilo: ignore file extensions in the IGNORE list
-			# todo: should add this to remove too?
 			name, ext = os.path.splitext(file_path)
 			if ext in self.formats_dict.ignore_types:
 				logging.info(f"Ignoring {file_path}")
 				continue
-
 			loader = self.create_file(file_path)
 			self.register_loader(loader)
 		self.files_list.emit([[loader.file_entry.name, loader.file_entry.ext] for loader in self.loaders.values()])
 
 	def register_loader(self, loader):
+		"""register the loader, and delete any existing loader if needed"""
 		if loader:
+			# check if this file exists in this ovl, if so, first delete old loader
+			if loader.file_entry.name in self.loaders:
+				loader = self.loaders[loader.file_entry.name]
+				loader.remove()
 			# only store loader in self.loaders after successful create
 			self.loaders[loader.file_entry.name] = loader
 			# also store any streams created by loader

@@ -73,7 +73,7 @@ class DdsLoader(MemStructLoader):
 		# decide where to store the buffers
 		static_lods = 2
 		streamed_lods = len(buffers) - static_lods
-		logging.info(f"buffers: {len(buffers)} streamed lods: {streamed_lods}")
+		# logging.debug(f"buffers: {len(buffers)} streamed lods: {streamed_lods}")
 		buffer_i = 0
 		# generate ovs and lod names - highly idiosyncratic
 		# checked for PZ, JWE2, PC
@@ -99,7 +99,7 @@ class DdsLoader(MemStructLoader):
 		self.load_image(self.file_entry.path)
 
 	def load_image(self, tex_path):
-		logging.debug(f"Loading image {tex_path}")
+		# logging.debug(f"Loading image {tex_path}")
 		in_dir, name_ext = os.path.split(tex_path)
 		basename, tex_ext = os.path.splitext(name_ext)
 		# create tmp folder in which all conversions are stored
@@ -109,15 +109,15 @@ class DdsLoader(MemStructLoader):
 		# load all DDS files we need
 		dds_files = []
 		for tile_i, tile_name in zip(tiles, self.get_tile_names(tiles, basename)):
-			png_path = imarray.join_png(os.path.join(in_dir, tile_name), tmp_dir, self.compression_name)
-			dds_path = os.path.join(in_dir, f"{tile_name}.dds")
-			# prioritize png files
-			if png_path:
-				dds_file = self.load_png(png_path, tmp_dir)
-			elif os.path.isfile(dds_path):
+			bare_path = os.path.join(in_dir, tile_name)
+			dds_path = f"{bare_path}.dds"
+			# prioritize dds files if they exist
+			if os.path.isfile(dds_path):
 				dds_file = self.load_dds(dds_path)
 			else:
-				raise FileNotFoundError(f"Found no associated image files for {tex_path}")
+				# try to reassemble a flat PNG for this tile, and then convert it to DDS
+				png_path = imarray.join_png(bare_path, tmp_dir, self.compression_name)
+				dds_file = self.load_png(png_path, tmp_dir)
 			dds_files.append(dds_file)
 		# pack the different tiles into the tex buffer, pad the mips
 		# create list of bytes for each buffer
@@ -128,11 +128,12 @@ class DdsLoader(MemStructLoader):
 			# buffer_bytes = dds_file.pack_mips_pc(tex_buffers)
 		else:
 			logging.info("Packing mip maps")
-			# todo - optimize
+			dds_mips = [dds.get_packed_mips(size_info.mip_maps) for dds in dds_files]
 			with io.BytesIO() as tex:
-				for mip_i in range(size_info.num_mips):
-					for dds in dds_files:
-						tex.write(dds.get_packed_mip(size_info.mip_maps, mip_i))
+				# write the packed tex buffer: for each mip level, write all its tiles consecutively
+				for mip_level in zip(*dds_mips):
+					for tile in mip_level:
+						tex.write(tile)
 				packed = tex.getvalue()
 			# slice packed bytes according to tex header buffer specifications
 			buffer_bytes = [packed[b.offset: b.offset + b.size] for b in tex_buffers]

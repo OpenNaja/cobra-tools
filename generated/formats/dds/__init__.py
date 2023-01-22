@@ -69,7 +69,7 @@ class DdsFile(Header, IoFile):
         return num_blocks * self.block_len_pixels_1d
 
     def calculate_mip_sizes(self):
-        logging.info("Calculating mip map sizes")
+        logging.debug("Calculating mip map sizes")
         self.get_pixel_fmt()
         tiles = []
         for array_i in range(self.dx_10.num_tiles):
@@ -155,7 +155,7 @@ class DdsFile(Header, IoFile):
 
     def get_packed_mip(self, mip_infos, trg_mip_i):
         """From a standard DDS stream, pack the lower mip levels into one image and pad with empty bytes"""
-        logging.info("Packing mip maps")
+        logging.info(f"Packing mip map {trg_mip_i}")
         dds = io.BytesIO(self.buffer)
         with io.BytesIO() as tex:
             for mip_i, tile_i, data_size, padding_size in self.mip_pack_generator(mip_infos):
@@ -165,6 +165,17 @@ class DdsFile(Header, IoFile):
                     tex.write(data)
                     tex.write(b"\x00" * padding_size)
             return tex.getvalue()
+
+    def get_packed_mips(self, mip_infos):
+        """From a standard (non-array) DDS, return all mip levels as packed bytes with padding for TEX"""
+        # logging.info("Packing all mip maps")
+        dds = io.BytesIO(self.buffer)
+        out = [b"" for _ in mip_infos]
+        for mip_i, tile_i, data_size, padding_size in self.mip_pack_generator(mip_infos):
+            # logging.info(f"Writing {data_size}, padding {padding_size}")
+            data = dds.read(data_size)
+            out[mip_i] += data + b"\x00" * padding_size
+        return out
 
     def unpack_mips(self, mip_infos, trg_tile_i, tex_buffer_data):
         """Restore standard DDS mip stream, unpack the lower mip levels by discarding the padding"""
