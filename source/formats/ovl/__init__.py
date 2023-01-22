@@ -327,9 +327,13 @@ class OvsFile(OvsHeader):
 		logging.info("Updating pool names, deleting unused pools")
 		# map the pool types to pools
 		pools_by_type = {}
-		# make a copy to be able to delete pools
-		for pool_index, pool in enumerate(tuple(self.pools)):
+		for pool_index, pool in enumerate(self.pools):
 			if pool.offset_2_struct_entries:
+				# store pool in pool_groups map
+				if pool.type not in pools_by_type:
+					pools_by_type[pool.type] = []
+				pools_by_type[pool.type].append(pool)
+				# try to get a name for the pool
 				logging.debug(f"Pool[{pool_index}]: {len(pool.offset_2_struct_entries)} structs")
 				first_entry = pool.get_first_entry()
 				assert first_entry
@@ -345,20 +349,18 @@ class OvsFile(OvsHeader):
 						continue
 				logging.debug(f"Pool[{pool_index}]: {pool.name} -> '{first_entry.name}' ({type_str})")
 				self.transfer_identity(pool, first_entry)
-				# store pool in pool_groups map
-				if pool.type not in pools_by_type:
-					pools_by_type[pool.type] = []
-				pools_by_type[pool.type].append(pool)
 			else:
 				logging.info(
 					f"Pool[{pool_index}]: deleting '{pool.name}' from archive '{self.arg.name}' as it has no pointers")
-				self.pools.remove(pool)
+		self.pools.clear()
 		# rebuild pool groups
-		for pool_type, pools in pools_by_type.items():
-			pool_group = PoolGroup(self.context)
+		self.arg.num_pool_groups = len(pools_by_type)
+		self.reset_field("pool_groups")
+		for pool_group, (pool_type, pools) in zip(self.pool_groups, sorted(pools_by_type.items())):
 			pool_group.type = pool_type
 			pool_group.num_pools = len(pools)
-			self.pool_groups.append(pool_group)
+			self.pools.extend(pools)
+		self.arg.num_pools = len(self.pools)
 
 	def map_buffers(self):
 		"""Map buffers to data entries"""
@@ -1076,15 +1078,6 @@ class OvlFile(Header, IoFile):
 		self.num_triplets = len(self.triplets)
 		self.num_files = self.num_files_2 = self.num_files_3 = len(self.files)
 
-	# def rebuild_ovs_extras(self):
-	# 	"""Produces valid ovl.pools and ovs.pools and valid links for everything that points to them"""
-	# 	for archive in self.archives:
-	# 		ovs = archive.content
-	# 		# depends on correct hashes applied to buffers and datas
-	# 		ovs.rebuild_buffer_groups()
-	# 		# depends on sorted root_entries
-	# 		ovs.rebuild_assets()
-
 	def rebuild_ovs_arrays(self):
 		"""Produces valid ovl.pools and ovs.pools and valid links for everything that points to them"""
 		try:
@@ -1117,11 +1110,10 @@ class OvlFile(Header, IoFile):
 				logging.debug(f"Sorting pools for {archive.name}")
 				ovs = archive.content
 
+				ovs.rebuild_pools()
 				# needs to happen after loader.register_entries
 				# change the hashes / indices of all entries to be valid for the current game version
 				ovs.update_hashes(file_name_lut)
-				# sort pools by their type
-				ovs.pools.sort(key=lambda p: p.type)
 				# sort fragments by their first pointer just to keep saves consistent for easier debugging
 				ovs.fragments.sort(key=lambda f: (f.struct_ptr.pool_index, f.struct_ptr.data_offset))
 				ovs.root_entries.sort(key=lambda b: (b.ext, b.file_hash))
@@ -1132,11 +1124,7 @@ class OvlFile(Header, IoFile):
 				# depends on sorted root_entries
 				ovs.rebuild_assets()
 
-				ovs.rebuild_pools()
-
 				# update the ovs counts
-				archive.num_pool_groups = len(ovs.pool_groups)
-				archive.num_pools = len(ovs.pools)
 				archive.num_datas = len(ovs.data_entries)
 				archive.num_buffers = len(ovs.buffer_entries)
 				archive.num_fragments = len(ovs.fragments)
@@ -1270,10 +1258,6 @@ class OvlFile(Header, IoFile):
 		# do this last so we also catch the assets & sets
 		self.rebuild_ovl_arrays()
 		self.rebuild_ovs_arrays()
-		# self.rebuild_ovs_extras()
-		# todo - this needs attention rebuild_ovs_arrays relies on ids already, which are only assigned during rebuild_ovl_arrays
-		# sorting of buffers relies on hashes as well
-		# assets should only be updated after everything, and transfer their id from source entries
 		# these need to be done after the rest
 		self.update_pool_indices()
 		self.update_stream_files()
