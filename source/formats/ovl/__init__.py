@@ -713,8 +713,8 @@ class OvlFile(Header, IoFile):
 		if loader:
 			# check if this file exists in this ovl, if so, first delete old loader
 			if loader.file_entry.name in self.loaders:
-				loader = self.loaders[loader.file_entry.name]
-				loader.remove()
+				old_loader = self.loaders[loader.file_entry.name]
+				old_loader.remove()
 			# only store loader in self.loaders after successful create
 			self.loaders[loader.file_entry.name] = loader
 			# also store any streams created by loader
