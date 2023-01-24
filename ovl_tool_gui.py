@@ -489,13 +489,8 @@ class MainWindow(widgets.MainWindow):
 		if out_dir:
 			self.cfg["dir_extract"] = out_dir
 			_out_dir = out_dir
-			only_types = ()
-
 			# check using a filter to extract mimes
-			thelist = self.extract_types_combo.currentData()
-			if len(thelist) > 0:
-				only_types = thelist
-
+			only_types = self.extract_types_combo.currentData()
 			for ovl in self.handle_path(save_over=False):
 				if self.is_open_ovl():
 					# for bulk extraction, add the ovl basename to the path to avoid overwriting
