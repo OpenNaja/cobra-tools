@@ -212,8 +212,10 @@ class MainWindow(widgets.MainWindow):
 		self.ovl_data.current_action.connect(self.t_action.setText)
 		self.run_threaded(self.ovl_data.load_hash_table)
 
-	def notify_user(self, msg):
-		interaction.showdialog(msg)
+	def notify_user(self, msg_list):
+		msg = msg_list[0]
+		details = msg_list[1] if len(msg_list) > 1 else None
+		interaction.showdialog(msg, details=details)
 
 	def enable_gui_options(self, enable=True):
 		self.t_in_folder.setEnabled(enable)
@@ -222,8 +224,7 @@ class MainWindow(widgets.MainWindow):
 		self.t_walk_ovl.setEnabled(enable)
 		self.compression_choice.setEnabled(enable)
 		self.game_choice.setEnabled(enable)
-		# for action_name in ("open", "save", "save as"):
-		# just disable all
+		# just disable all actions
 		for action_name in self.actions.keys():
 			self.actions[action_name.lower()].setEnabled(enable)
 
@@ -387,13 +388,12 @@ class MainWindow(widgets.MainWindow):
 		data = QtCore.QMimeData()
 		temp_dir = tempfile.mkdtemp("-cobra")
 		try:
-			out_paths, errors = self.ovl_data.extract(
+			out_paths = self.ovl_data.extract(
 				temp_dir, only_names=file_names, show_temp_files=self.show_temp_files)
 			if out_paths:
 				data.setUrls([QtCore.QUrl.fromLocalFile(path) for path in out_paths])
 			drag.setMimeData(data)
 			drag.exec_()
-			logging.info(f"Tried to extract {len(file_names)} files, got {len(errors)} errors")
 		except:
 			self.handle_error("Dragging failed, see log!")
 		shutil.rmtree(temp_dir)
@@ -489,7 +489,6 @@ class MainWindow(widgets.MainWindow):
 		if out_dir:
 			self.cfg["dir_extract"] = out_dir
 			_out_dir = out_dir
-			all_error_files = []
 			only_types = ()
 
 			# check using a filter to extract mimes
@@ -505,11 +504,9 @@ class MainWindow(widgets.MainWindow):
 						rel_p = os.path.relpath(ovl.path_no_ext, start=selected_dir)
 						out_dir = os.path.join(_out_dir, rel_p)
 					try:
-						out_paths, error_files = ovl.extract(out_dir, show_temp_files=self.show_temp_files, only_types=only_types)
-						all_error_files += error_files
+						ovl.extract(out_dir, show_temp_files=self.show_temp_files, only_types=only_types)
 					except:
 						self.handle_error("Extraction failed, see log!")
-			interaction.extract_error_warning(all_error_files)
 
 	def inject_ask(self):
 		files = QtWidgets.QFileDialog.getOpenFileNames(

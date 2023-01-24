@@ -3,7 +3,7 @@ import logging
 from PyQt5 import QtWidgets
 
 
-def showdialog(info, ask=False):
+def showdialog(info, ask=False, details=None):
 	msg = QtWidgets.QMessageBox()
 	msg.setIcon(QtWidgets.QMessageBox.Information)
 	msg.setText(info)
@@ -13,6 +13,8 @@ def showdialog(info, ask=False):
 	else:
 		msg.setWindowTitle("Error")
 		msg.setStandardButtons(msg.Ok)
+		if details:
+			msg.setDetailedText(details)
 	return msg.exec_() == msg.Yes
 
 

@@ -643,7 +643,10 @@ class OvlFile(Header, IoFile):
 			except:
 				logging.exception(f"An exception occurred while extracting {loader.file_entry.name}")
 				error_files.append(loader.file_entry.name)
-		return out_paths, error_files
+		if error_files:
+			self.warning_msg.emit(
+				(f"Extracting {len(error_files)} files failed - please check 'Show Details' or the log.", "\n".join(error_files)))
+		return out_paths
 
 	def create_file_entry(self, file_path):
 		"""Create a file entry from a file path"""
@@ -705,7 +708,8 @@ class OvlFile(Header, IoFile):
 			except:
 				error_files.append(file_path)
 		if error_files:
-			self.warning_msg.emit(f"Adding the following files failed - please check the console log:\n"+"\n".join(error_files))
+			self.warning_msg.emit(
+				(f"Adding {len(error_files)} files failed - please check 'Show Details' or the log.", "\n".join(error_files)))
 		self.files_list.emit([[loader.file_entry.name, loader.file_entry.ext] for loader in self.loaders.values()])
 
 	def register_loader(self, loader):

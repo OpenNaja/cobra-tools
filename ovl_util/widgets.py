@@ -1368,7 +1368,7 @@ class CombinedMeta(type(QtCore.QObject), type(OvlFile)):
 
 class OvlReporter(OvlFile, QtCore.QObject, metaclass=CombinedMeta):
 	"""Adds PyQt signals to OvlFile to report of progress"""
-	warning_msg = QtCore.pyqtSignal(str)
+	warning_msg = QtCore.pyqtSignal(tuple)
 	files_list = QtCore.pyqtSignal(list)
 	included_ovls_list = QtCore.pyqtSignal(list)
 	progress_percentage = QtCore.pyqtSignal(int)
