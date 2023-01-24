@@ -387,11 +387,11 @@ class MainWindow(widgets.MainWindow):
 		drag = QtGui.QDrag(self)
 		data = QtCore.QMimeData()
 		temp_dir = tempfile.mkdtemp("-cobra")
+		out_paths = self.ovl_data.extract(
+			temp_dir, only_names=file_names, show_temp_files=self.show_temp_files)
+		if out_paths:
+			data.setUrls([QtCore.QUrl.fromLocalFile(path) for path in out_paths])
 		try:
-			out_paths = self.ovl_data.extract(
-				temp_dir, only_names=file_names, show_temp_files=self.show_temp_files)
-			if out_paths:
-				data.setUrls([QtCore.QUrl.fromLocalFile(path) for path in out_paths])
 			drag.setMimeData(data)
 			drag.exec_()
 		except:
@@ -498,10 +498,7 @@ class MainWindow(widgets.MainWindow):
 						selected_dir = self.get_selected_dir()
 						rel_p = os.path.relpath(ovl.path_no_ext, start=selected_dir)
 						out_dir = os.path.join(_out_dir, rel_p)
-					try:
-						ovl.extract(out_dir, show_temp_files=self.show_temp_files, only_types=only_types)
-					except:
-						self.handle_error("Extraction failed, see log!")
+					ovl.extract(out_dir, show_temp_files=self.show_temp_files, only_types=only_types)
 
 	def inject_ask(self):
 		files = QtWidgets.QFileDialog.getOpenFileNames(
