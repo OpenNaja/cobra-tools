@@ -290,13 +290,13 @@ class MainWindow(widgets.MainWindow):
 						logging.exception(f"Could not compare '{file_name}'")
 
 	def installed_game_chosen(self):
-		"""Choose a game from dropdown of installed games"""
+		"""Run after choosing a game from dropdown of installed games"""
 		current_game = self.installed_games_view.entry.currentText()
 		self.cfg["current_game"] = current_game
 		self.populate_game_widget()
 
 	def add_installed_game(self):
-		"""Choose a game from dropdown of installed games"""
+		"""Add a new game to the list of available games"""
 		dir_game = self.ask_game_dir()
 		if dir_game:
 			# todo - try to find the name of the game by stripping usual suffixes, eg. "win64\\ovldata"
