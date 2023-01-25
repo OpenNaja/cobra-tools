@@ -32,7 +32,7 @@ class LayeredMaterial:
 			# increment channel
 			ch_i += 1
 			# move to the next tile for the next loop
-			if ch_i == 3:
+			if ch_i == 4:
 				ch_i = 0
 				tile_i += 1
 			tex_fgm_path = get_fgm_path(base_dir, layer.texture_fgm_name)
@@ -47,7 +47,6 @@ class LayeredMaterial:
 				logging.info(f"Layer {mask_i} is tiled")
 				if os.path.isfile(tex_fgm_path) and os.path.isfile(trans_fgm_path):
 					logging.info(f"Found .fgm files for layer")
-					# self.layers.append(Layer(tex_fgm_path, trans_fgm_path))
 					tex_fgm = FgmHeader.from_xml_file(tex_fgm_path, self.context)
 					trans_fgm = FgmHeader.from_xml_file(trans_fgm_path, self.context)
 					# print(self.tex_fgm)
