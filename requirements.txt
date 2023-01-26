@@ -1,6 +1,5 @@
-imageio==2.19.3
-numpy==1.22.0
-PyQt5==5.15.6
-beautifulsoup4==4.10.0
-bitstring==3.1.9
-SLPP==1.2.3
+imageio~=2.21.0
+numpy~=1.21.0
+PyQt5~=5.15.4
+future~=0.18.2
+vdf~=3.4

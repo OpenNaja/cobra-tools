@@ -6,9 +6,10 @@ import logging
 import tempfile
 
 try:
-	import winreg
 	import numpy as np
 	import imageio
+	import winreg
+	import vdf
 	from PyQt5 import QtWidgets, QtGui, QtCore
 	from ovl_util.config import logging_setup, get_version_str, get_commit_str
 
@@ -243,7 +244,6 @@ class MainWindow(widgets.MainWindow):
 			vdf_path = os.path.join(steam_path, "steamapps", "libraryfolders.vdf")
 			# check if there are other steam library folders (eg. on external drives)
 			try:
-				import vdf
 				v = vdf.load(open(vdf_path))
 				for folder in v["libraryfolders"].values():
 					library_folders.add(folder["path"])
