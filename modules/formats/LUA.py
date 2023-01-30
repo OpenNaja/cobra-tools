@@ -3,7 +3,8 @@ from generated.formats.base.compounds.PadAlign import get_padding
 from generated.formats.lua.compounds.LuaRoot import LuaRoot
 from modules.formats.BaseFormat import MemStructLoader
 from ovl_util import texconv
-from ovl_util.interaction import showdialog
+
+error_flag = b"DECOMPILER ERROR"
 
 
 class LuaLoader(MemStructLoader):
@@ -60,11 +61,11 @@ class LuaLoader(MemStructLoader):
 	def _get_data(self, file_path):
 		"""Loads and returns the data for a LUA"""
 		buffer_0 = self.get_content(file_path)
-		if b"DECOMPILER ERROR" in buffer_0:
-			confirmed = showdialog(
-				f"{file_path} has not been successfully decompiled and may crash your game. Inject anyway?", ask=True)
-			if not confirmed:
-				raise UserWarning(f"Injection aborted for {file_path}")
+		if error_flag in buffer_0:
+			raise UserWarning(f"{file_path} has not been successfully decompiled and may crash your game. Remove {error_flag} from the file to inject anyway.")
+		# check for errors in plaintext lua
+		elif buffer_0[1:4] != b"Lua":
+			texconv.check_lua_syntax(file_path)
 		return buffer_0
 
 	def rename_content(self, name_tuples):

@@ -9,7 +9,7 @@ ww2ogg = os.path.normpath(os.path.join(util_dir, "ww2ogg/ww2ogg.exe"))
 pcb = os.path.normpath(os.path.join(util_dir, "ww2ogg/packed_codebooks_aoTuV_603.bin"))
 revorb = os.path.normpath(os.path.join(util_dir, "revorb/revorb.exe"))
 luadec = os.path.normpath(os.path.join(util_dir, "luadec/luadec.exe"))
-luac = os.path.normpath(os.path.join(util_dir, "luadec/luac.exe"))
+luacheck = os.path.normpath(os.path.join(util_dir, "luacheck/luacheck.exe"))
 
 
 def run_smart(args):
@@ -65,6 +65,17 @@ def bin_to_lua(bin_file):
 
 	except subprocess.CalledProcessError as err:
 		print(err)
+
+
+def check_lua_syntax(lua_file):
+	try:
+		function_string = f'"{luacheck}" "{lua_file}"'
+		# capture the console output
+		# output = subprocess.Popen(function_string, stdout=subprocess.PIPE).communicate()[0]
+		# or just write to console
+		subprocess.Popen(function_string)
+	except subprocess.CalledProcessError:
+		logging.exception(f"Something went wrong")
 
 
 def wem_to_ogg(wem_file, out_file):
