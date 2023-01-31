@@ -368,6 +368,10 @@ class BaseFile:
 class MemStructLoader(BaseFile):
 	target_class: None
 
+	def __init__(self, ovl, file_entry):
+		super().__init__(ovl, file_entry)
+		self.context = self.ovl.context
+
 	def extract(self, out_dir):
 		name = self.root_entry.name
 		if self.header:
@@ -380,12 +384,24 @@ class MemStructLoader(BaseFile):
 
 	def collect(self):
 		super().collect()
-		self.header = self.target_class.from_stream(self.root_ptr.stream, self.ovl.context)
+		self.header = self.target_class.from_stream(self.root_ptr.stream, self.context)
 		# print(self.header)
 		self.header.read_ptrs(self.root_ptr.pool)
 
 	def create(self):
 		self.create_root_entry()
-		self.header = self.target_class.from_xml_file(self.file_entry.path, self.ovl.context)
+		self.header = self.target_class.from_xml_file(self.file_entry.path, self.context)
 		# print(self.header)
 		self.header.write_ptrs(self, self.root_ptr, self.file_entry.pool_type)
+
+
+class MimeContext:
+	def __init__(self, v):
+		self.version = v
+
+
+class MimeVersionedLoader(MemStructLoader):
+
+	def __init__(self, ovl, file_entry):
+		super().__init__(ovl, file_entry)
+		self.context = MimeContext(self.file_entry.mime.mime_version)

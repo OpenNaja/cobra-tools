@@ -180,9 +180,10 @@ class DdsLoader(MemStructLoader):
 		return [b for data_entry in self.get_sorted_datas() for b in data_entry.buffers]
 
 	def get_tex_structs(self):
+		print( self.ovl.version, self.header, self.file_entry.mime)
 		if is_dla(self.ovl):
 			return self.header
-		if is_pc(self.ovl) or is_ztuac(self.ovl):
+		if self.ovl.version < 19:
 			# this corresponds to a stripped down size_info
 			return self.header.buffer_infos.data[0]
 		else:
