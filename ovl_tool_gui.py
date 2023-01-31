@@ -4,6 +4,49 @@ import sys
 import time
 import logging
 import tempfile
+import importlib    # used to check if a package exists
+import subprocess   # used to launch a pip install process
+
+
+"""
+    Deals with missing packages and tries to install them from the tool itself.
+"""
+# raw_input returns the empty string for "enter"
+def install_prompt(question):
+	print(question)
+	yes = {'yes','y', 'ye'}
+	choice = input().lower()
+	if choice in yes:
+		return True
+	else:
+		return False
+
+# use pip to install a package
+def pip_install(package):
+	print(f"Trying to install {package}")
+	subprocess.check_call([sys.executable, "-m", "pip", "install", package])
+
+# use pip to install --update a package
+def pip_upgrade(package):
+	print(f"Trying to upgrade {package}")
+	subprocess.check_call([sys.executable, "-m", "pip", "install", "--upgrade", package])
+
+missing = []
+deps    = ['numpy', 'PyQt5', 'imageio', 'vdf']
+for package in deps:
+    try:
+        importlib.import_module(package)
+    except ImportError:
+    	print(f"ERROR | Package {package} not found.")
+    	missing.append(package)
+
+if len(missing) and install_prompt("Should I install the missing dependencies? (y/N)") == True:
+	# upgrade pip then try installing the rest of packages
+	pip_upgrade('pip')
+	for package in missing:
+		pip_install(package)
+
+""" End of installing dependencies """
 
 try:
 	import numpy as np
@@ -29,6 +72,8 @@ try:
 except:
 	logging.exception("Some modules could not be imported; make sure you install the required dependencies with pip!")
 	time.sleep(15)
+
+
 
 
 class MainWindow(widgets.MainWindow):
