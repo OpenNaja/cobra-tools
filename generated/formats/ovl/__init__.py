@@ -6,6 +6,7 @@ import zlib
 from contextlib import contextmanager
 from io import BytesIO
 
+from constants import ConstantsProvider
 from generated.formats.ovl.compounds.ArchiveEntry import ArchiveEntry
 from generated.formats.ovl.compounds.AssetEntry import AssetEntry
 from generated.formats.ovl.compounds.BufferGroup import BufferGroup
@@ -834,8 +835,21 @@ class OvlFile(Header, IoFile):
 								self.hash_table_global[int(k)] = v
 		except:
 			pass
+		self.constants = ConstantsProvider()
 		logging.info(
 			f"Loaded {len(self.hash_table_global)} hash - name pairs in {time.time() - start_time:.2f} seconds")
+
+	def get_constant(self, ext, key):
+		game = get_game(self)[0].value
+		if game in self.constants:
+			game_lut = self.constants[game]
+			if ext in game_lut["mimes"]:
+				mime = game_lut["mimes"][ext]
+				return getattr(mime, key)
+			else:
+				raise ValueError(f"Unsupported extension {ext} in game {game}")
+		else:
+			raise ValueError(f"Unsupported game {game}")
 
 	def load(self, filepath, commands={}):
 		start_time = time.time()

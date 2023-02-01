@@ -7,7 +7,7 @@ from PyQt5.QtGui import QColor
 
 from generated.formats.fgm.enums.FgmDtype import FgmDtype
 from generated.formats.ovl_base import OvlContext
-from hashes import fgm_pz, fgm_jwe2, fgm_jwe1
+from hashes import fgm_pz, fgm_jwe2, fgm_jwe
 import ovl_util.interaction
 from generated.formats.fgm.compounds.FgmHeader import FgmHeader
 from generated.formats.fgm.compounds.TexIndex import TexIndex
@@ -129,7 +129,7 @@ class MainWindow(widgets.MainWindow):
 		elif is_pz16(self.header.context) or is_pz(self.header.context):
 			self.fgm_dict = fgm_pz
 		elif is_jwe(self.header.context):
-			self.fgm_dict = fgm_jwe1
+			self.fgm_dict = fgm_jwe
 		else:
 			self.fgm_dict = None
 		if self.fgm_dict:
