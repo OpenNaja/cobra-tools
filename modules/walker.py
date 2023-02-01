@@ -41,13 +41,17 @@ def generate_hash_table(gui, start_dir):
 		hash_exts = {'.enumnamer', '.lua', '.model2stream', '.particleatlas', '.prefab', '.specdef', '.tex'}
 		lists = {"mimes": ("name", "mime_hash", "mime_version", "triplets"), "files": ("pool_type", "set_pool_type")}
 
+		valid_packages = ("GameMain", "Content")
 		mimes = {}
 		error_files = []
 		ovl_files = walk_type(start_dir, extension=".ovl")
 		of_max = len(ovl_files)
 		for of_index, ovl_path in enumerate(ovl_files):
-			# todo - filter ovl files to only accept stock names, discard any usermade ovl that does not agree
-			gui.update_progress("Hashing names: " + os.path.basename(ovl_path), value=of_index, vmax=of_max)
+			# filter ovl files to only accept stock names, discard any usermade ovl that does not agree
+			if not any(p in ovl_path for p in valid_packages):
+				logging.warning(f"Ignoring usermade {ovl_path}")
+				continue
+			gui.update_progress(f"Hashing", value=of_index, vmax=of_max)
 			try:
 				# read ovl file
 				new_hashes, new_exts = ovl_data.load(ovl_path, commands={"generate_hash_table": hash_exts})
