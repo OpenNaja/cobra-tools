@@ -23,7 +23,6 @@ from generated.io import IoFile
 from modules.formats.formats_dict import FormatDict
 from modules.formats.shared import djb2
 from ovl_util.oodle.oodle import OodleDecompressEnum, oodle_compressor
-from root_path import root_dir
 
 UNK_HASH = "Unknown Hash"
 OODLE_MAGIC = (b'\x8c', b'\xcc')

@@ -12,6 +12,27 @@ game_lut = {'DLA': 'Disneyland Adventures', 'JWE': 'Jurassic World Evolution', '
 }
 
 
+def write_formatted_dict(f, d, key=None):
+	f.write("{\n")
+	f.write(",\n".join(f"\t'{k}': {v}" for k, v in sorted(d.items(), key=key)))
+	f.write("\n}\n")
+
+
+def write_hashes_dict(out_fp, hashes):
+	with open(out_fp, "w") as f:
+		f.write("hashes = {\n")
+		f.write(",\n".join(f"\t{k}: '{v}'" for k, v in sorted(hashes.items(), key=lambda item: item[1])))
+		f.write("\n}\n")
+
+
+def write_mimes_dict(out_fp, mimes):
+	with open(out_fp, "w") as f:
+		f.write(f"from ovl_util.mimes import Mime\n\n")
+		f.write("mimes = {\n")
+		f.write(",\n".join(f"\t'{k}': {v}" for k, v in sorted(mimes.items())))
+		f.write("\n}\n")
+
+
 class ConstantsConverter:
 
 	def __init__(self):
@@ -40,28 +61,24 @@ class ConstantsConverter:
 					# print(formats)
 					out_fp = os.path.join(out_dir, f"mimes.py")
 					# populate mimes classes and write file
-					with open(out_fp, "w") as f:
-						f.write(f"from ovl_util.mimes import Mime\n\n")
-						dic = {}
-						for format_name in formats:
-							mime = Mime("", 0, 0, [], 0, 0)
-							for var in strs:
-								val = dicts[var][format_name]
-								short_var = var.replace("mime_", "").replace("mimes_", "").replace("files_", "").replace("_type", "")
-								if short_var in ignores:
-									continue
-								setattr(mime, short_var, val)
-							# f.write(str(mime))
-							# f.write("\n")
-							dic[mime.ext] = mime
-						f.write(f"mimes = {dic}\n")
+					mimes = {}
+					for format_name in formats:
+						mime = Mime("", 0, 0, [], 0, 0)
+						for var in strs:
+							val = dicts[var][format_name]
+							short_var = var.replace("mime_", "").replace("mimes_", "").replace("files_", "").replace("_type", "")
+							if short_var in ignores:
+								continue
+							setattr(mime, short_var, val)
+						mimes[mime.ext] = mime
+						write_mimes_dict(out_fp, mimes)
 
 			except ModuleNotFoundError:
 				logging.exception(f"Could not load {module_name}")
 
 		hashes_dir = os.path.join(root_dir, "hashes")
 		for file in os.listdir(hashes_dir):
-			hash_table_global = {}
+			hashes = {}
 			fp = os.path.join(hashes_dir, file)
 			if fp.endswith(".txt"):
 				game = os.path.splitext(file)[0].split("-")[-1].upper()
@@ -74,13 +91,8 @@ class ConstantsConverter:
 						line = line.strip()
 						if line:
 							k, v = line.split(" = ")
-							hash_table_global[int(k)] = v
-
-				# with open(os.path.join(out_dir, "hashes.json"), "w") as json_writer:
-				# 	json.dump(hash_table_global, json_writer, indent="\t", sort_keys=True)
-
-				with open(os.path.join(out_dir, "hashes.py"), "w") as f:
-					f.write(f"hashes = {hash_table_global}\n")
+							hashes[int(k)] = v
+				write_hashes_dict(os.path.join(out_dir, "hashes.py"), hashes)
 
 
 if __name__ == '__main__':

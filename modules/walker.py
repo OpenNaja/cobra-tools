@@ -5,6 +5,7 @@ import logging
 import numpy as np
 from collections import defaultdict, Counter
 
+from experimentals.convert_constants import write_mimes_dict, write_hashes_dict
 from generated.formats.fgm.compounds.FgmHeader import FgmHeader
 from generated.formats.ms2.enums.CollisionType import CollisionType
 from generated.formats.ovl_base import OvlContext
@@ -12,6 +13,7 @@ from generated.formats.ovl_base import OvlContext
 from generated.formats.ms2 import Ms2File
 from generated.formats.ovl import OvlFile
 from ovl_util import interaction
+from ovl_util.mimes import Mime
 from root_path import root_dir
 
 # get this huge dict from fgm walker, use in ms2 walker
@@ -29,19 +31,16 @@ def walk_type(start_dir, extension=".ovl"):
 
 
 def generate_hash_table(gui, start_dir):
-	hash_dict = {}
+	hashes = {}
 	if start_dir:
 		# don't use internal data
 		ovl_data = OvlFile()
-		dic = {}
 		all_deps_exts = set()
 		# these are the input for which hashes should be stored
 		hash_exts = {'.enumnamer', '.lua', '.model2stream', '.particleatlas', '.prefab', '.specdef', '.tex'}
-		lists = {"mimes": ("name", "mime_hash", "mime_version", "triplet_count", "triplets"), "files": ("pool_type", "set_pool_type")}
-		for list_name, attr_names in lists.items():
-			dic[list_name] = {}
-			for attr_name in attr_names:
-				dic[list_name][attr_name] = {}
+		lists = {"mimes": ("name", "mime_hash", "mime_version", "triplets"), "files": ("pool_type", "set_pool_type")}
+
+		mimes = {}
 		error_files = []
 		ovl_files = walk_type(start_dir, extension=".ovl")
 		of_max = len(ovl_files)
@@ -57,35 +56,25 @@ def generate_hash_table(gui, start_dir):
 							v = getattr(entry, attr_name)
 							if attr_name == "triplets":
 								v = [(t.a, t.b, t.c) for t in v]
+							short_var = attr_name.replace("mime_", "").replace("mimes_", "").replace("files_", "").replace("_type", "")
 							# if the value already exists, make sure it is indeed constant (for this version)
-							if entry.ext in dic[list_name][attr_name]:
-								if v != dic[list_name][attr_name][entry.ext]:
-									logging.error(f"{list_name}.{attr_name} is not constant for {entry.ext}! ({v} vs. {dic[list_name][attr_name][entry.ext]})")
-							dic[list_name][attr_name][entry.ext] = v
-				hash_dict.update(new_hashes)
+							if entry.ext in mimes:
+								v_old = getattr(mimes[entry.ext], short_var)
+								if v != v_old and v_old:
+									logging.error(f"{list_name}.{attr_name} is not constant for {entry.ext}! ({v} vs. {v_old})")
+							else:
+								mimes[entry.ext] = Mime("", 0, 0, [], 0, 0)
+							setattr(mimes[entry.ext], short_var, v)
+				hashes.update(new_hashes)
 			except:
-				traceback.print_exc()
+				logging.exception(f"Reading {ovl_path} failed")
 				error_files.append(ovl_path)
-		# print(dic)
 		if error_files:
 			logging.error(f"{error_files} caused errors!")
-		try:
-			# write the hash text file to the hashes folder
-			export_dir = os.path.join(root_dir, "hashes")
-			out_path = os.path.join(export_dir, f"{os.path.basename(start_dir)}.txt")
-			with open(out_path, "w") as f:
-				for k, v in hash_dict.items():
-					f.write(f"{k} = {v}\n")
-			out_path = os.path.join(export_dir, f"constants_{os.path.basename(start_dir)}.py")
-			with open(out_path, "w") as f:
-				for list_name, attr_names in lists.items():
-					for attr_name in attr_names:
-						f.write(f"{list_name}_{attr_name} = {dic[list_name][attr_name]}\n\n")
-
-		except BaseException as err:
-			print(err)
+		out_dir = os.path.join(root_dir, "constants")
+		write_hashes_dict(os.path.join(out_dir, "hashes.py"), hashes)
+		write_mimes_dict(os.path.join(out_dir, "mimes.py"), mimes)
 		logging.info(f"Formats used in dependencies: {[s.replace(':', '.') for s in sorted(all_deps_exts)]}")
-		logging.info(f"Wrote {len(hash_dict)} items to {out_path}")
 
 
 def bulk_test_models(gui, start_dir, walk_ovls=True, walk_models=True):
