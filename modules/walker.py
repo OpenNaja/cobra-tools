@@ -46,6 +46,7 @@ def generate_hash_table(gui, start_dir):
 		ovl_files = walk_type(start_dir, extension=".ovl")
 		of_max = len(ovl_files)
 		for of_index, ovl_path in enumerate(ovl_files):
+			# todo - filter ovl files to only accept stock names, discard any usermade ovl that does not agree
 			gui.update_progress("Hashing names: " + os.path.basename(ovl_path), value=of_index, vmax=of_max)
 			try:
 				# read ovl file
