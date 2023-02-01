@@ -4,7 +4,7 @@ from pkgutil import iter_modules
 from importlib import import_module
 from root_path import root_dir
 
-dict_names = ("hashes", "mimes")
+dict_names = ("hashes", "mimes", "shaders")
 
 
 class ConstantsProvider(dict):

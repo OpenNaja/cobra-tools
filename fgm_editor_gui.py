@@ -5,6 +5,7 @@ import numpy as np
 from PyQt5 import QtWidgets, QtCore
 from PyQt5.QtGui import QColor
 
+from constants import ConstantsProvider
 from generated.formats.fgm.enums.FgmDtype import FgmDtype
 from generated.formats.ovl_base import OvlContext
 from hashes import fgm_pz, fgm_jwe2, fgm_jwe
@@ -34,10 +35,10 @@ class MainWindow(widgets.MainWindow):
 		self.setAcceptDrops(True)
 
 		self.context = OvlContext()
+		self.constants = ConstantsProvider()
 		self.header = FgmHeader(self.context)
 		self.tooltips = config.read_config("ovl_util/tooltips/fgm.txt")
 		self.games = [g.value for g in games]
-		self.fgm_dict = None
 		self.import_header = None
 
 		self.cleaner = QtCore.QObjectCleanupHandler()
@@ -115,37 +116,47 @@ class MainWindow(widgets.MainWindow):
 			self.attribute_choice.hide()
 			self.attribute_add.hide()
 
+	@property
+	def game(self):
+		return self.game_container.entry.currentText()
+
 	def game_changed(self,):
-		game = self.game_container.entry.currentText()
+		game = self.game
 		logging.info(f"Changed game to {game}")
 		try:
 			set_game(self.header.context, game)
 			# set_game(self.header, game)
-		except BaseException as err:
-			logging.error("Error setting game")
-
-		if is_jwe2(self.header.context):
-			self.fgm_dict = fgm_jwe2
-		elif is_pz16(self.header.context) or is_pz(self.header.context):
-			self.fgm_dict = fgm_pz
-		elif is_jwe(self.header.context):
-			self.fgm_dict = fgm_jwe
-		else:
-			self.fgm_dict = None
-		if self.fgm_dict:
+		except BaseException:
+			logging.exception("Error setting game")
+		try:
+			shaders = self.constants[game]["shaders"]
 			self.shader_choice.entry.clear()
-			self.shader_choice.entry.addItems(sorted(self.fgm_dict.shaders))
+			self.shader_choice.entry.addItems(sorted(shaders.keys()))
+		except:
+			logging.warning(f"No presets for game {game}")
 
 	def set_dirty(self):
 		self.file_widget.dirty = True
 
 	def update_choices(self):
 		shader_name = self.shader_choice.entry.currentText()
-		if self.fgm_dict and shader_name:
+		if shader_name:
 			self.texture_choice.entry.clear()
-			self.texture_choice.entry.addItems(sorted(self.fgm_dict.shader_textures.get(shader_name, [])))
 			self.attribute_choice.entry.clear()
-			self.attribute_choice.entry.addItems(sorted(self.fgm_dict.shader_attribs.get(shader_name, [])))
+			try:
+				textures, attrib_dic = self.current_shaders[shader_name]
+				self.texture_choice.entry.addItems(textures)
+				self.attribute_choice.entry.addItems(attrib_dic.keys())
+			except:
+				logging.warning(f"No data for shader {self.game}")
+
+	@property
+	def current_shaders(self):
+		try:
+			return self.constants[self.game]["shaders"]
+		except:
+			logging.warning(f"No presets for game {self.game}")
+			return {}
 
 	def update_shader(self, name):
 		self.shader_choice.entry.setText(name)
@@ -216,10 +227,11 @@ class MainWindow(widgets.MainWindow):
 		self.header.shader_name = self.shader_choice.entry.currentText()
 		self.update_choices()
 		try:
+			# todo - instead change saving behavior as in ovl tool
 			# Show New File dialog in a blank window when changing shader type
 			# Return if the dialog is cancelled
-			if not self.file_widget.filepath and not self.has_data() and not self.new_file():
-				return
+			# if not self.file_widget.filepath and not self.has_data() and not self.new_file():
+			# 	return
 
 			tex_data_old = (self.header.textures.data.copy(), self.header.name_foreach_textures.data.copy()) if self.has_data() else None
 			attrib_data_old = (self.header.attributes.data.copy(), self.header.value_foreach_attributes.data.copy()) if self.has_data() else None
@@ -230,11 +242,12 @@ class MainWindow(widgets.MainWindow):
 			self.header.name_foreach_textures.data = Array(self.context, self.header.textures, None, (0,), self.header.name_foreach_textures.template)
 			self.header.value_foreach_attributes.data = Array(self.context, self.header.attributes, None, (0,), self.header.value_foreach_attributes.template)
 
-			for tex in self.fgm_dict.shader_textures.get(self.header.shader_name, []):
-				self.add_texture(tex)
+			textures, attrib_dic = self.current_shaders[self.header.shader_name]
+			for tex_name in textures:
+				self.add_texture(tex_name)
 
-			for att in self.fgm_dict.shader_attribs.get(self.header.shader_name, []):
-				self.add_attribute(att)
+			for att_name in attrib_dic.keys():
+				self.add_attribute(att_name)
 
 			# Preserve old values when possible
 			self.merge_textures(tex_data_old, (self.header.textures.data, self.header.name_foreach_textures.data))
@@ -308,15 +321,16 @@ class MainWindow(widgets.MainWindow):
 				return
 
 		att = AttribInfo(self.context)
-		att.dtype = FgmDtype.from_value(self.fgm_dict.attributes[att_name][0])
+		_, attrib_dict = self.current_shaders[self.header.shader_name]
+		attr_data = attrib_dict[att_name]
+		att.dtype = FgmDtype.from_value(attr_data[0])
 		att.name = att_name
 		attributes.append(att)
 
 		data_lib = self.header.value_foreach_attributes.data
 		data = AttribData(self.context, arg=att)
 		# Assign default value from attributes dict
-		if self.fgm_dict.attributes.get(att.name):
-			data.value = np.array(self.fgm_dict.attributes[att.name][1][0][0], data.value.dtype)
+		data.value = np.array(attr_data[1][0][0], data.value.dtype)
 		data_lib.append(data)
 
 		self.header.attributes.data[:], self.header.value_foreach_attributes.data[:] = self.sort_attributes()
@@ -484,7 +498,9 @@ class TextureVisual:
 		tooltip = self.container.gui.tooltips.get(self.entry.name, "Undocumented attribute.")
 		if container.title() == "Attributes":
 			try:
-				dtype, data_dist = self.container.gui.fgm_dict.attributes.get(self.entry.name, (0, [((0,), 0)]))
+				gui = self.container.gui
+				tex, attr_dict = gui.current_shaders[gui.header.shader_name]
+				dtype, data_dist = attr_dict.get(self.entry.name, (0, [((0,), 0)]))
 				most_common = [fr"{a[0]} ({a[1]})" if len(a[0]) > 1 else fr"{a[0][0]} ({a[1]})"
 								for a in data_dist if len(a) > 0]
 			except:
