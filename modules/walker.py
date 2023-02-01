@@ -14,7 +14,7 @@ from generated.formats.ms2 import Ms2File
 from generated.formats.ovl import OvlFile
 from generated.formats.ovl_base.versions import games
 from ovl_util import interaction
-from ovl_util.mimes import Mime
+from ovl_util.mimes import Mime, Shader
 from root_path import root_dir
 
 # get this huge dict from fgm walker, use in ms2 walker
@@ -77,17 +77,22 @@ def generate_hash_table(gui, start_dir):
 				error_files.append(ovl_path)
 		if error_files:
 			logging.error(f"{error_files} caused errors!")
-		# try to find a matching game
-		for game in reversed(games):
-			if game.value in start_dir:
-				out_dir = os.path.join(root_dir, "constants", game.value)
-				break
-		else:
-			logging.warning(f"Could not find a matching game, storing results in /constants/")
-			out_dir = os.path.join(root_dir, "constants")
+		out_dir = get_output_dir(start_dir)
 		write_hashes_dict(os.path.join(out_dir, "hashes.py"), hashes)
 		write_mimes_dict(os.path.join(out_dir, "mimes.py"), mimes)
 		logging.info(f"Formats used in dependencies: {[s.replace(':', '.') for s in sorted(all_deps_exts)]}")
+
+
+def get_output_dir(start_dir):
+	# try to find a matching game
+	for game in reversed(games):
+		if game.value in start_dir:
+			out_dir = os.path.join(root_dir, "constants", game.value)
+			break
+	else:
+		logging.warning(f"Could not find a matching game, storing results in /constants/")
+		out_dir = os.path.join(root_dir, "constants")
+	return out_dir
 
 
 def bulk_test_models(gui, start_dir, walk_ovls=True, walk_models=True):
@@ -195,7 +200,6 @@ def bulk_test_models(gui, start_dir, walk_ovls=True, walk_models=True):
 def bulk_extract_ovls(errors, export_dir, gui, start_dir, only_types):
 	# don't use internal data
 	ovl_data = OvlFile()
-	error_files = []
 	ovl_files = walk_type(start_dir, extension=".ovl")
 	of_max = len(ovl_files)
 	for of_index, ovl_path in enumerate(ovl_files):
@@ -207,12 +211,10 @@ def bulk_extract_ovls(errors, export_dir, gui, start_dir, only_types):
 			rel_p = os.path.relpath(ovl_path, start=start_dir)
 			rel_d = os.path.splitext(rel_p)[0]
 			out_dir = os.path.join(export_dir, rel_d)
-			out_paths, error_files_new = ovl_data.extract(out_dir, only_types=only_types)
-			error_files += error_files_new
+			out_paths = ovl_data.extract(out_dir, only_types=only_types)
 		except Exception as ex:
 			traceback.print_exc()
 			errors.append((ovl_path, ex))
-	interaction.extract_error_warning(error_files)
 
 
 def get_fgm_values(gui, start_dir, walk_ovls=True, walk_fgms=True):
@@ -221,44 +223,41 @@ def get_fgm_values(gui, start_dir, walk_ovls=True, walk_fgms=True):
 		export_dir = os.path.join(start_dir, "walker_export")
 		if walk_ovls:
 			bulk_extract_ovls(errors, export_dir, gui, start_dir, (".fgm",))
-
-		attributes = {}
-		textures = set()
-		shaders = set()
+		shaders = {}
+		# used to debug the mapping of blend modes in ms2 material slots to predict them
 		fgm_to_shader = {}
-		shader_textures = defaultdict(set)
-		shader_attribs = defaultdict(set)
-		shader_attrib_stats = defaultdict(Counter)
 		if walk_fgms:
 			context = OvlContext()
 			fgm_files = walk_type(export_dir, extension=".fgm")
 			mf_max = len(fgm_files)
 			for mf_index, fgm_path in enumerate(fgm_files):
-				fgm_name = os.path.basename(fgm_path)
-				gui.update_progress(f"Walking FGM files: {fgm_name}", value=mf_index, vmax=mf_max)
+				gui.update_progress(f"Walking FGM files", value=mf_index, vmax=mf_max)
 				try:
 					header = FgmHeader.from_xml_file(fgm_path, context)
-					shaders.add(header.shader_name)
-					fgm_to_shader[os.path.splitext(fgm_name)[0].lower()] = header.shader_name
-					for i, attrib in enumerate(header.attributes.data):
-						val = tuple(header.value_foreach_attributes.data[i].value)
-						if attributes.get(attrib.name):
-							attributes[attrib.name][1].append(val)
-						else:
-							attributes[attrib.name] = (int(attrib.dtype), [val])
-					for texture in header.textures.data:
-						textures.add(texture.name)
 
-					shader_textures[header.shader_name] |= {a.name for a in header.textures.data}
-					shader_attribs[header.shader_name] |= {a.name for a in header.attributes.data}
-					#shader_attrib_stats[header.shader_name].update(frozenset([a.name for a in header.attributes.data]))
+					if header.shader_name not in shaders:
+						# shaders[header.shader_name] = ([], {})
+						shaders[header.shader_name] = Shader(set(), {})
+					shader = shaders[header.shader_name]
+					# for ms2 debugging
+					# fgm_name = os.path.basename(fgm_path)
+					# fgm_to_shader[os.path.splitext(fgm_name)[0].lower()] = header.shader_name
+					for attrib, attrib_data in zip(header.attributes.data, header.value_foreach_attributes.data):
+						val = tuple(attrib_data.value)
+						if attrib.name not in shader.attributes:
+							shader.attributes[attrib.name] = (int(attrib.dtype), [])
+						shader.attributes[attrib.name][1].append(val)
+					for texture in header.textures.data:
+						shader.textures.add(texture.name)
 
 				except Exception as ex:
 					traceback.print_exc()
 					errors.append((fgm_path, ex))
 
-		for att, val in attributes.items():
-			attributes[att] = (val[0], Counter(tuple(sorted(tup)) for tup in val[1]).most_common(5))
+		for shader_name, shader in shaders.items():
+			# only keep the five most common for this shader
+			for att, val in shader.attributes.items():
+				shader.attributes[att] = (val[0], Counter(tuple(sorted(tup)) for tup in val[1]).most_common(5))
 
 		# report
 		if errors:
@@ -266,37 +265,19 @@ def get_fgm_values(gui, start_dir, walk_ovls=True, walk_fgms=True):
 			for file_path, ex in errors:
 				print(file_path, str(ex))
 
-		out_path = os.path.join(export_dir, f"fgm_{os.path.basename(start_dir)}_shader_map.py")
-		with open(out_path, "w") as f:
-			f.write(f"shader_map = {fgm_to_shader}")
-
-		out_path = os.path.join(export_dir, f"fgm_{os.path.basename(start_dir)}.py")
-		with open(out_path, "w") as f:
-			f.write(f"# Attributes, their dtypes, and {len(list(attributes.values())[0][1])} most common values\n")
-			f.write("# To generate full usage values, you must run FGM Walker on all Content FGMs\n")
-			f.write("attributes = {\n")
-			for att in sorted(attributes.keys()):
-				f.write(f'    "{att}": {attributes[att]},\n')
-			f.write("}\n\n")
-			f.write("textures = {\n")
-			for tex in sorted(textures):
-				f.write(f'    "{tex}",\n')
-			f.write("}\n\n")
+		out_dir = get_output_dir(start_dir)
+		with open(os.path.join(out_dir, "shaders.py"), "w") as f:
 			f.write("shaders = {\n")
-			for shader in sorted(shaders):
-				f.write(f'    "{shader}",\n')
-			f.write("}\n\n")
-			f.write("shader_textures = {\n")
-			for tex in shader_textures.keys():
-				f.write(f'    "{tex}":\n         {sorted(shader_textures[tex])},\n\n')
-			f.write("}\n\n")
-			f.write("shader_attribs = {\n")
-			for shader in shader_attribs.keys():
-				f.write(f'    "{shader}":\n         {sorted(shader_attribs[shader])},\n\n')
-			f.write("}\n\n")
-			#f.write("shader_attrib_stats = {\n\n")
-			#for shader in shader_attrib_stats.keys():
-			#	f.write(f"    '{shader}':\n         {shader_attrib_stats[shader]},\n\n")
-			#f.write("}\n\n")
-		print(f"Written to {out_path}")
-		gui.update_progress("Operation completed!", value=1, vmax=1)
+			for shader_name, shader in sorted(shaders.items()):
+				f.write(f"\t'{shader_name}': (\n")
+
+				f.write("\t\t[\n")
+				for tex_name in sorted(shader.textures):
+					f.write(f"\t\t\t'{tex_name}',\n")
+				f.write("\t\t],\n")
+				f.write("\t\t{\n")
+				for attr_name, attr in sorted(shader.attributes.items()):
+					f.write(f"\t\t\t'{attr_name}': {attr},\n")
+				f.write("\t\t}\n")
+				f.write("\t),\n")
+			f.write("}\n")

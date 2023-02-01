@@ -19,3 +19,18 @@ class Mime:
 	def ext(self):
 		return f".{self.name.split(':')[2]}"
 
+
+@dataclass
+class Shader:
+	# name: str
+	textures: set
+	attributes: dict
+
+	# @property
+	# def class_name(self):
+	# 	return self.name.split(":")[1]
+	#
+	# @property
+	# def ext(self):
+	# 	return f".{self.name.split(':')[2]}"
+

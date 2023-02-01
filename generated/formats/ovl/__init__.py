@@ -555,6 +555,7 @@ class OvlFile(Header, IoFile):
 		self.do_debug = False
 
 		self.formats_dict = FormatDict()
+		self.constants = {}
 		self.loaders = {}
 
 	@classmethod
@@ -842,9 +843,9 @@ class OvlFile(Header, IoFile):
 				return game_lut["hashes"][h]
 			else:
 				logging.warning(f"Unresolved dependency [{h}]")
-				return UNK_HASH
 		else:
-			raise ValueError(f"Unsupported game {game}")
+			logging.warning(f"Unsupported game {game}")
+		return UNK_HASH
 
 	def load(self, filepath, commands={}):
 		start_time = time.time()
