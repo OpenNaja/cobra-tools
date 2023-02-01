@@ -551,7 +551,6 @@ class OvlFile(Header, IoFile):
 		# pass self as context
 		super().__init__(self)
 		self.magic.data = b'FRES'
-		self.hash_table_global = {}
 
 		self.is_biosyn = None
 		self.do_debug = False
@@ -821,25 +820,10 @@ class OvlFile(Header, IoFile):
 	def load_hash_table(self):
 		logging.info("Loading hash table...")
 		start_time = time.time()
-		self.hash_table_global = {}
-		hashes_dir = os.path.join(root_dir, "hashes")
-		try:
-			for file in os.listdir(hashes_dir):
-				fp = os.path.join(hashes_dir, file)
-				if fp.endswith(".txt"):
-					with open(fp, "r") as f:
-						for line in f:
-							line = line.strip()
-							if line:
-								k, v = line.split(" = ")
-								self.hash_table_global[int(k)] = v
-		except:
-			pass
 		self.constants = ConstantsProvider()
-		logging.info(
-			f"Loaded {len(self.hash_table_global)} hash - name pairs in {time.time() - start_time:.2f} seconds")
+		logging.info(f"Loaded constants in {time.time() - start_time:.2f} seconds")
 
-	def get_constant(self, ext, key):
+	def get_mime(self, ext, key):
 		game = get_game(self)[0].value
 		if game in self.constants:
 			game_lut = self.constants[game]
@@ -848,6 +832,18 @@ class OvlFile(Header, IoFile):
 				return getattr(mime, key)
 			else:
 				raise ValueError(f"Unsupported extension {ext} in game {game}")
+		else:
+			raise ValueError(f"Unsupported game {game}")
+
+	def get_hash(self, h):
+		game = get_game(self)[0].value
+		if game in self.constants:
+			game_lut = self.constants[game]
+			if h in game_lut["hashes"]:
+				return game_lut["hashes"][h]
+			else:
+				logging.warning(f"Unresolved dependency [{h}]")
+				return UNK_HASH
 		else:
 			raise ValueError(f"Unsupported game {game}")
 
@@ -904,13 +900,8 @@ class OvlFile(Header, IoFile):
 			h = dependency_entry.file_hash
 			if h in self.hash_table_local:
 				dependency_entry.basename = self.hash_table_local[h]
-			# logging.debug(f"LOCAL: {h} -> {dependency_entry.basename}")
-			elif h in self.hash_table_global:
-				dependency_entry.basename = self.hash_table_global[h]
-			# logging.debug(f"GLOBAL: {h} -> {dependency_entry.basename}")
 			else:
-				logging.warning(f"Unresolved dependency [{h}] for {file_entry.name}")
-				dependency_entry.basename = UNK_HASH
+				dependency_entry.basename = self.get_hash(h)
 
 		for aux_entry in self.aux_entries:
 			file_entry = self.files[aux_entry.file_index]
