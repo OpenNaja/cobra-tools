@@ -12,6 +12,7 @@ from generated.formats.ovl_base import OvlContext
 
 from generated.formats.ms2 import Ms2File
 from generated.formats.ovl import OvlFile
+from generated.formats.ovl_base.versions import games
 from ovl_util import interaction
 from ovl_util.mimes import Mime
 from root_path import root_dir
@@ -71,7 +72,14 @@ def generate_hash_table(gui, start_dir):
 				error_files.append(ovl_path)
 		if error_files:
 			logging.error(f"{error_files} caused errors!")
-		out_dir = os.path.join(root_dir, "constants")
+		# try to find a matching game
+		for game in reversed(games):
+			if game.value in start_dir:
+				out_dir = os.path.join(root_dir, "constants", game.value)
+				break
+		else:
+			logging.warning(f"Could not find a matching game, storing results in /constants/")
+			out_dir = os.path.join(root_dir, "constants")
 		write_hashes_dict(os.path.join(out_dir, "hashes.py"), hashes)
 		write_mimes_dict(os.path.join(out_dir, "mimes.py"), mimes)
 		logging.info(f"Formats used in dependencies: {[s.replace(':', '.') for s in sorted(all_deps_exts)]}")
