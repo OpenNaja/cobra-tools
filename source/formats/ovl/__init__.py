@@ -855,6 +855,7 @@ class OvlFile(Header, IoFile):
 		self.store_filepath(filepath)
 		logging.info(f"Loading {self.name}")
 		self.eof = super().load(filepath)
+		logging.info(f"Loaded {self.name} structs in {time.time()-start_time:.2f} seconds")
 		logging.info(f"Game: {get_game(self)[0].name}")
 
 		self.loaders = {}

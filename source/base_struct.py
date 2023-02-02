@@ -2,6 +2,9 @@ import importlib
 import logging
 import xml.etree.ElementTree as ET
 
+import numpy as np
+
+from generated.array import Array
 from generated.context import ContextReference
 
 # these attributes present on the MemStruct will not be stored on the XML
@@ -103,12 +106,14 @@ class ImportMap(dict):
 
 
 class BaseStruct(metaclass=StructMetaClass):
+# class BaseStruct(np.record, metaclass=StructMetaClass):
 
 	context = ContextReference()
 
 	_import_map = ImportMap()
 	_import_key = "base_struct"
 	_attribute_list = []
+	allow_np = False
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		self.name = ''
@@ -367,3 +372,23 @@ class BaseStruct(metaclass=StructMetaClass):
 		except:
 			logging.exception(f"to_stream failed for {cls}, {instance}")
 			raise
+
+	@classmethod
+	def _get_np_sig(cls, instance, include_abstract=True):
+		if not cls.allow_np:
+			raise AttributeError(f"Mustn't vectorize {cls.__name__}")
+		res = []
+		for field_name, field_type, arguments, _ in cls._get_filtered_attribute_list(instance, include_abstract=False):
+			if field_type == Array:
+				raise AttributeError(f"Can't cast structs containing arrays to numpy")
+			if field_type is not None:
+				if hasattr(field_type, "_get_np_sig"):
+					# instance is fake anyway so don't try to get a child struct
+					res.append((field_name, field_type._get_np_sig(instance, include_abstract)))
+				else:
+					res.append((field_name, field_type.np_dtype))
+
+		# dynamically subclass to get np.record behavior
+		# it does not work when dtype is not a subclass of np.record
+		record = type(f"{cls.__name__}Record", (cls, np.record), {})
+		return record, res

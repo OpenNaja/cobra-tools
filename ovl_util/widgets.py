@@ -1377,7 +1377,7 @@ class OvlReporter(OvlFile, QtCore.QObject, metaclass=CombinedMeta):
 	def __init__(self):
 		super().__init__()
 		super(QtCore.QObject, self).__init__()
-
+# OvlReporter = OvlFile
 
 # mutex = QtCore.QMutex()
 

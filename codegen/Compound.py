@@ -33,6 +33,9 @@ class Compound(BaseClass):
 
             self.write_line(f)
             self.write_line(f, 1, f"_import_key = '{Imports.import_map_key(self.parser.path_dict[self.class_name])}'")
+            # for now, only try to vectorize structs that explicitly allow it
+            if self.struct.get("allow_np", None) == "true":
+                self.write_line(f, 1, f"allow_np = True")
 
             # check all fields/members in this class and write them as fields
             # for union in self.field_unions.values():
