@@ -56,6 +56,8 @@ class XmlParser:
         # maps each type to its member tag type
         self.tag_dict = {}
 
+        self.processed_types = {"self.template"}
+
         self.basics = None
 
     def generate_module_paths(self, root, xml_path, parsed_xmls):
@@ -290,6 +292,7 @@ class XmlParser:
         self.copy_dict_info(self.path_dict, other_parser.path_dict)
         self.copy_dict_info(self.tag_dict, other_parser.tag_dict)
         self.basics.add_other_basics(other_parser.basics, other_parser.path_dict["basic_map"])
+        self.processed_types.update(other_parser.processed_types)
 
 
 def copy_src_to_generated(src_dir, trg_dir):

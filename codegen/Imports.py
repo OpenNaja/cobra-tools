@@ -22,13 +22,6 @@ class Imports:
         for field in xml_struct:
             if field.tag in ("add", "field", "member"):
                 field_type = field.attrib["type"]
-                template = field.attrib.get("template")
-                if template:
-                    # template can be either a type or a reference to a local field
-                    # only import if a type
-                    template_class = convention.name_class(template)
-                    if template_class in self.path_dict:
-                        self.add_indirect_import(template_class)
                 arr1 = field.attrib.get("arr1")
                 if arr1 is None:
                     arr1 = field.attrib.get("length")
@@ -41,12 +34,23 @@ class Imports:
                     self.add_mapped_type(field_type)
                     if xml_struct.tag in parser.struct_types:
                         self.add(field_type)
+
+                template = field.attrib.get("template")
+                if template:
+                    # template can be either a type or a reference to a local field
+                    # only import if a type
+                    template_class = convention.name_class(template)
+                    if template_class in self.path_dict:
+                        self.add_indirect_import(template_class)
+
                 onlyT = field.attrib.get("onlyT")
                 if onlyT:
                     self.add_indirect_import(onlyT)
+
                 excludeT = field.attrib.get("excludeT")
                 if excludeT:
                     self.add_indirect_import(excludeT)
+
                 for default in field:
                     if default.tag in ("default",):
                         if default.attrib.get("versions"):

@@ -205,7 +205,10 @@ class Union:
         # we init each field with its basic default string so that the field exists regardless of any condition
         field_default = self.get_default_string(field.attrib.get('default'), f'self.{CONTEXT_SUFFIX}', arg, template,
                                                 arr1, field_type)
-        f.write(f'\n{base_indent}self.{field_name} = {field_default}')
+
+        # do not init types used before their position in the xml - they are assumed to be circular
+        if field_type in self.compounds.parser.processed_types:
+            f.write(f'\n{base_indent}self.{field_name} = {field_default}')
 
     def write_attributes(self, f):
         for field in self.members:

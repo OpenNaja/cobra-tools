@@ -24,7 +24,11 @@ class Basics:
     def read(self, xml_struct):
         basic_name = xml_struct.attrib["name"]
         if hasattr(self.base_module, basic_name):
+
+            self.parser.processed_types.add(basic_name)
+
             self.basic_map[basic_name] = getattr(self.base_module, basic_name)
+
             if xml_struct.attrib.get("boolean", "False") == "True":
                 self.booleans.add(basic_name)
         else:
