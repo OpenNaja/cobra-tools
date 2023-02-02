@@ -5,6 +5,7 @@ import math
 import xml.etree.ElementTree as ET
 
 import numpy as np
+from numpy import ndarray
 
 from generated.context import ContextReference
 
@@ -14,6 +15,37 @@ class DummyInstance:
         self.context = context
         self.arg = arg
         self.template = template
+
+def mp__getattribute__(self, attr):
+    logging.info(f"Hello monkey")
+    # See if ndarray has this attr, and return it if so. (note that this
+    # means a field with the same name as an ndarray attr cannot be
+    # accessed by attribute).
+    try:
+        return object.__getattribute__(self, attr)
+    except AttributeError:  # attr must be a fieldname
+        pass
+
+    # look for a field with this name
+    fielddict = ndarray.__getattribute__(self, 'dtype').fields
+    try:
+        res = fielddict[attr][:2]
+    except (TypeError, KeyError) as e:
+        raise AttributeError("recarray has no attribute %s" % attr) from e
+    obj = self.getfield(*res)
+
+    # At this point obj will always be a recarray, since (see
+    # PyArray_GetField) the type of obj is inherited. Next, if obj.dtype is
+    # non-structured, convert it to an ndarray. Then if obj is structured
+    # with void type convert it to the same dtype.type (eg to preserve
+    # numpy.record type if present), since nested structured fields do not
+    # inherit type. Don't do this for non-void structures though.
+    if obj.dtype.names is not None:
+        if issubclass(obj.dtype.type, np.void):
+            return obj.view(dtype=(self.dtype.type, obj.dtype))
+        return obj
+    else:
+        return obj.view(ndarray)
 
 
 class Array(list):
@@ -114,11 +146,15 @@ class Array(list):
                 fake_inst = DummyInstance(context, arg, template)
                 start_time = time.time()
                 np_sig = dtype._get_np_sig(fake_inst)
+                logging.info(np_sig)
                 start = stream.tell()
 
                 test_dtype = np.dtype(np_sig)
+                # if using recarray instead of empty, the class is immediately lost
+                # new_array = np.recarray(shape, dtype=test_dtype)
                 new_array = np.empty(shape, dtype=test_dtype)
                 stream.readinto(new_array)
+                # new_array.__getattribute__ = mp__getattribute__
                 # if "RootEntry" in dtype.__name__:
                 #     e = new_array[0]
                 #     logging.info(e)

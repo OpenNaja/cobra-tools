@@ -18,6 +18,7 @@ class HeaderPointer(BaseStruct):
 	__name__ = 'HeaderPointer'
 
 	_import_key = 'ovl.compounds.HeaderPointer'
+	allow_np = True
 
 	_attribute_list = BaseStruct._attribute_list + [
 		('pool_index', Int, (0, None), (False, -1), None),
@@ -49,6 +50,14 @@ class HeaderPointer(BaseStruct):
 		"""Get data from pool writer"""
 		if self.pool:
 			return self.pool.get_at(self.data_offset, self.data_size)
+
+	@classmethod
+	def get_stream(cls, instance, pools):
+		"""Get stream from pool"""
+		pool = cls.get_pool(instance, pools)
+		if pool:
+			pool.data.seek(instance.data_offset)
+			return pool.data
 
 	@property
 	def stream(self):
@@ -108,14 +117,10 @@ class HeaderPointer(BaseStruct):
 			self.pool.data.write(data)
 		logging.debug(f"write_to_pool size {self.data_size}")
 
-	def assign_pool(self, pools):
-		"""Link this pointer to its pool"""
-		if self.pool_index != -1:
-			# get pool
-			try:
-				self.pool = pools[self.pool_index]
-			except IndexError:
-				raise IndexError(f"Pool index {self.pool_index} exceeds of {len(pools)} pools")
+	@classmethod
+	def get_pool(cls, instance, pools):
+		if instance.pool_index != -1:
+			return pools[instance.pool_index]
 
 	def update_pool_index(self, pools_lut):
 		"""Changes self.pool_index according to self.pool in pools_lut"""
@@ -137,19 +142,22 @@ class HeaderPointer(BaseStruct):
 						if offset in self.pool.offset_2_link_entry:
 							# logging.debug(f"Removed link at offset {offset} from pool")
 							self.pool.offset_2_link_entry.pop(offset)
-
-	def add_struct(self, entry):
+	@classmethod
+	def add_struct(cls, instance, entry, pools):
 		"""Adds an entry to the required tables of this pool"""
-		if self.pool:
-			if self.data_offset not in self.pool.offset_2_struct_entries:
-				self.pool.offset_2_struct_entries[self.data_offset] = []
-			self.pool.offset_2_struct_entries[self.data_offset].append(entry)
+		pool = cls.get_pool(instance, pools)
+		if pool:
+			if instance.data_offset not in pool.offset_2_struct_entries:
+				pool.offset_2_struct_entries[instance.data_offset] = []
+			pool.offset_2_struct_entries[instance.data_offset].append(entry)
 
-	def add_link(self, entry):
+	@classmethod
+	def add_link(cls, instance, entry, pools):
 		"""Adds an entry to the required tables of this pool"""
-		if self.pool:
-			self.pool.offset_2_link_entry[self.data_offset] = entry
-			self.data_size = 8
+		pool = cls.get_pool(instance, pools)
+		if pool:
+			pool.offset_2_link_entry[instance.data_offset] = entry
+			# self.data_size = 8
 
 	def del_struct(self):
 		"""Adds an entry to the required tables of this pool"""
