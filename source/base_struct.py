@@ -309,16 +309,21 @@ class BaseStruct(metaclass=StructMetaClass):
 	@classmethod
 	def get_condition_attributes_recursive(cls, struct_type, struct_instance, condition_function, arguments=(),
 										   include_abstract=True, enter_condition=lambda x: True):
-		for attribute in struct_type._get_filtered_attribute_list(struct_instance, *arguments[3:4], include_abstract):
-			field_name, field_type, field_arguments = attribute[0:3]
-			if condition_function(attribute):
-				yield struct_type, struct_instance, attribute
-			if callable(getattr(field_type, "_get_filtered_attribute_list", None)) and enter_condition(attribute):
-				yield from cls.get_condition_attributes_recursive(field_type,
-														  struct_type.get_field(struct_instance, field_name),
-														  condition_function,
-														  field_arguments,
-														  include_abstract)
+		# check if this has a filtered attribute list
+		if callable(getattr(struct_type, "_get_filtered_attribute_list", None)):
+			for attribute in struct_type._get_filtered_attribute_list(struct_instance, *arguments[3:4], include_abstract):
+				field_name, field_type, field_arguments = attribute[0:3]
+				try:
+					if condition_function(attribute):
+						yield struct_type, struct_instance, attribute
+				except:
+					logging.exception(f"condition check failed in {struct_type} for {field_name}, attrib {attribute}, condition {condition_function}")
+				if enter_condition(attribute):
+					yield from cls.get_condition_attributes_recursive(field_type,
+															  struct_type.get_field(struct_instance, field_name),
+															  condition_function,
+															  field_arguments,
+															  include_abstract)
 
 	@classmethod
 	def get_condition_values_recursive(cls, instance, condition_function, arguments=(), include_abstract=True,

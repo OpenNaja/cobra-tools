@@ -5,11 +5,10 @@ import logging
 
 from generated.formats.ovl_base import OvlContext
 from generated.formats.particleeffect.compounds.ParticleEffectRoot import ParticleEffectRoot
-from generated.io import IoFile
 
 logging.basicConfig(level=logging.DEBUG)
 
-class ParticleEffectFile(ParticleEffectRoot, IoFile):
+class ParticleEffectFile(ParticleEffectRoot):
 
 	def __init__(self, ):
 		pass

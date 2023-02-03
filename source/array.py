@@ -144,11 +144,8 @@ class Array(list):
             try:
                 # test for np array
                 fake_inst = DummyInstance(context, arg, template)
-                start_time = time.time()
+                # start_time = time.time()
                 np_sig = dtype._get_np_sig(fake_inst)
-                logging.info(np_sig)
-                start = stream.tell()
-
                 test_dtype = np.dtype(np_sig)
                 # if using recarray instead of empty, the class is immediately lost
                 # new_array = np.recarray(shape, dtype=test_dtype)
@@ -164,13 +161,13 @@ class Array(list):
                 # # e.name = "asdad"
                 # logging.info(e.basename)
                 # stream.seek(start)
-                logging.debug(f"{dtype.__name__} new took {time.time()-start_time}")
+                # logging.debug(f"{dtype.__name__} new took {time.time()-start_time}")
             except:
                 # logging.exception(f"NP sig failed for {dtype.__name__}")
-                start_time = time.time()
+                # start_time = time.time()
                 new_array = cls(context, arg, template, shape, dtype, set_default=False)
                 new_array.read(stream)
-                logging.debug(f"{dtype.__name__} old took {time.time()-start_time}")
+                # logging.debug(f"{dtype.__name__} old took {time.time()-start_time}")
             return new_array
 
     @classmethod
