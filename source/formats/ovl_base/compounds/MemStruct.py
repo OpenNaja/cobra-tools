@@ -74,52 +74,46 @@ class MemStruct:
 			f_inst = s_type.get_field(s_inst, f_name)
 			yield f_inst, f_name, arguments
 
+	@classmethod
+	def get_instances(cls, instance, dtype):
+		for attribute in cls.get_conditioned_attributes(instance, instance, lambda x: issubclass(x[1], dtype)):
+			f_name, f_type, f_arguments = attribute[0:3]
+			f_inst = instance.get_field(instance, f_name)
+			yield f_inst, f_name, f_arguments
+
 	def read_ptrs(self, pool):
-		"""Get all strings in the structure."""
+		"""Process all pointers in the structure and recursively load pointers in the sub-structs."""
+		# need to recurse here, because we may have substructs that are part of this MemStruct (not via ptrs)
 		for ptr, f_name, arguments in MemStruct.get_instances_recursive(self, Pointer):
 			# update the pointer's arg, as it is sometimes read after the pointer
 			ptr.arg, template = arguments
-			self.handle_pointer(f_name, ptr, pool)
+			if not ptr.template:
+				# try the lookup function to get a suitable template for this field
+				ptr.template = self.get_ptr_template(f_name)
+			# locates the read address, attaches the frag entry, and reads the template as ptr.data
+			ptr.read_ptr(pool)
+			self.handle_pointer(ptr)
 
 	def get_ptr_template(self, prop):
 		"""Returns the appropriate template for a pointer named 'prop', if exists.
 		Must be overwritten in subclass"""
 		return None
 
-	def handle_pointer(self, prop, pointer, pool):
-		"""Ensures a pointer has a valid template, load it, and continue processing the linked memstruct."""
-		# logging.debug(f"handle_pointer for {self.__class__.__name__}.{prop}")
-		if not pointer.template:
-			# try the lookup function
-			pointer.template = self.get_ptr_template(prop)
-		# reads the template and grabs the frag
-		pointer.read_ptr(pool)
-		if pointer.frag and hasattr(pointer.frag, "struct_ptr"):
-			# we are now in a new pool
-			pool = pointer.frag.struct_ptr.pool
-			pointer.pool_type = pool.type
-			# # logging.debug(f"Set pool type {pointer.pool_type} for pointer {prop}")
-			if isinstance(pointer.data, MemStruct):
-				# print("pointer to a memstruct")
-				pointer.data.read_ptrs(pool)
-			# ArrayPointer
-			elif isinstance(pointer.data, Array):
-				assert isinstance(pointer, (ArrayPointer, ForEachPointer))
-				# print("ArrayPointer")
-				for member in pointer.data:
+	def handle_pointer(self, ptr):
+		"""Continue processing the linked memstructs."""
+		if ptr.frag and hasattr(ptr.frag, "struct_ptr"):
+			# we are now (potentially) in a new pool
+			pool = ptr.frag.struct_ptr.pool
+			ptr.pool_type = pool.type
+			# keep reading pointers in the newly read ptr.data
+			if isinstance(ptr.data, MemStruct):
+				ptr.data.read_ptrs(pool)
+			elif isinstance(ptr.data, Array):
+				assert isinstance(ptr, (ArrayPointer, ForEachPointer))
+				for member in ptr.data:
 					if isinstance(member, MemStruct):
-						# print(f"member {member.__class__} of ArrayPointer is a MemStruct")
 						member.read_ptrs(pool)
-			else:
-				# points to a normal struct or basic type, which can't have any pointers
-				pass
-			# if isinstance(pointer.data, (MemStruct, Array)):
-			# if isinstance(pointer.data, (MemStruct,)):
-			# 	for memstruct, f_name, arguments in MemStruct.get_instances_recursive(pointer.data, MemStruct):
-			# 		memstruct.read_ptrs(pool)
-			# elif isinstance(pointer.data, Array):
-			# 	assert isinstance(pointer, (ArrayPointer, ForEachPointer))
-			# 	for member in pointer.data:
-			# 		for memstruct, f_name, arguments in MemStruct.get_instances_recursive(member, MemStruct):
-			# 			memstruct.read_ptrs(pool)
+			# # not sure why it doesn't work like this
+			# for memstruct, f_name, arguments in MemStruct.get_instances_recursive(ptr.data, MemStruct):
+			# 	memstruct.read_ptrs(pool)
 
