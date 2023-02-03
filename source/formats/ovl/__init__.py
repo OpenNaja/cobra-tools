@@ -1293,6 +1293,7 @@ class OvlFile(Header):
 
 if __name__ == "__main__":
 	ovl = OvlFile()
+	# ovl = Header()
 	# ovl.load("C:/Users/arnfi/Desktop/Coding/ovl/OVLs/Parrot.ovl")
-	ovl.load("C:/Users/arnfi/Desktop/Coding/Frontier/Disneyland/SpatialDatabaseTest.ovl")
-	print(ovl.mimes)
+	# ovl.load("C:/Users/arnfi/Desktop/Coding/Frontier/Disneyland/SpatialDatabaseTest.ovl")
+	# print(ovl.mimes)

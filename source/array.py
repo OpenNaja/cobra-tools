@@ -9,13 +9,6 @@ import numpy as np
 from generated.context import ContextReference
 
 
-class DummyInstance:
-    def __init__(self, context, arg=0, template=None):
-        self.context = context
-        self.arg = arg
-        self.template = template
-
-
 class Array(list):
     """Main class responsible for creating, reading and storing (nested) lists of the custom data types, functioning
     mostly like an array.
@@ -105,36 +98,12 @@ class Array(list):
     def from_stream(cls, stream, context, arg=0, template=None, shape=(), dtype=None):
         if cls.is_ragged_shape(shape):
             return RaggedArray.from_stream(stream, context, arg, template, shape, dtype)
-        # basic types have read_array method defined on their class
+        # basic types, and structs that allow for it, have the read_array method defined on their class
         elif callable(getattr(dtype, 'read_array', None)):
             return dtype.read_array(stream, shape, context, arg, template)
         else:
-            try:
-                # test for np array
-                fake_inst = DummyInstance(context, arg, template)
-                # start_time = time.time()
-                np_sig = dtype._get_np_sig(fake_inst)
-                # start = stream.tell()
-
-                test_dtype = np.dtype(np_sig)
-                new_array = np.empty(shape, dtype=test_dtype)
-                stream.readinto(new_array)
-                # if "RootEntry" in dtype.__name__:
-                #     e = new_array[0]
-                #     logging.info(e)
-                #     logging.info(e.struct_ptr)
-                #     logging.info(e.struct_ptr.pool_index)
-                # # can't assign a field that's not on the struct
-                # # e.name = "asdad"
-                # logging.info(e.basename)
-                # stream.seek(start)
-                # logging.debug(f"{dtype.__name__} new took {time.time()-start_time}")
-            except:
-                # logging.exception(f"NP sig failed for {dtype.__name__}")
-                # start_time = time.time()
-                new_array = cls(context, arg, template, shape, dtype, set_default=False)
-                new_array.read(stream)
-                # logging.debug(f"{dtype.__name__} old took {time.time()-start_time}")
+            new_array = cls(context, arg, template, shape, dtype, set_default=False)
+            new_array.read(stream)
             return new_array
 
     @classmethod

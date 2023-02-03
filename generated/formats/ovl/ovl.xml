@@ -137,7 +137,7 @@
         <add name="zero" type="uint"/>
     </compound>
 
-    <compound name="ZlibInfo" >
+    <compound name="ZlibInfo" allow_np="true">
         Description of one zlib archive
         <add name="Zlib thing1" type="uint">seemingly unused in JWE</add>
         <add name="Zlib thing2" type="uint">seemingly unused in JWE, subtracting this from ovs uncompressed_size to get length of the uncompressed ovs header</add>

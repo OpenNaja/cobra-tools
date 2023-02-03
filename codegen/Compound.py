@@ -33,9 +33,6 @@ class Compound(BaseClass):
 
             self.write_line(f)
             self.write_line(f, 1, f"_import_key = '{Imports.import_map_key(self.parser.path_dict[self.class_name])}'")
-            # for now, only try to vectorize structs that explicitly allow it
-            if self.struct.get("allow_np", None) == "true":
-                self.write_line(f, 1, f"allow_np = True")
 
             # check all fields/members in this class and write them as fields
             # for union in self.field_unions.values():
@@ -82,6 +79,16 @@ class Compound(BaseClass):
                     self.write_line(f, 2, "yield from super()._get_filtered_attribute_list(instance, include_abstract)")
                 for union in self.field_unions:
                     condition = union.write_filtered_attributes(f, condition, target_variable="instance")
+
+            # for now, only try to vectorize structs that explicitly allow it
+            # if we add this function, the Array class will use it
+            if self.struct.get("allow_np", None) == "true":
+
+                self.write_line(f)
+                self.write_line(f, 1, "@classmethod")
+                method_str = "def read_array(cls, stream, shape, context=None, arg=0, template=None):"
+                self.write_line(f, 1, method_str)
+                self.write_line(f, 2, "return cls._read_array(stream, shape, context, arg, template)")
 
             self.write_src_body(f)
             self.write_line(f)

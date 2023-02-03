@@ -4,41 +4,45 @@ import sys
 import time
 import logging
 import tempfile
-import importlib    # used to check if a package exists
-import subprocess   # used to launch a pip install process
-
+import importlib  # used to check if a package exists
+import subprocess  # used to launch a pip install process
 
 """
-    Deals with missing packages and tries to install them from the tool itself.
+	Deals with missing packages and tries to install them from the tool itself.
 """
+
+
 # raw_input returns the empty string for "enter"
 def install_prompt(question):
 	print(question)
-	yes = {'yes','y', 'ye'}
+	yes = {'yes', 'y', 'ye'}
 	choice = input().lower()
 	if choice in yes:
 		return True
 	else:
 		return False
 
+
 # use pip to install a package
 def pip_install(package):
 	print(f"Trying to install {package}")
 	subprocess.check_call([sys.executable, "-m", "pip", "install", package])
+
 
 # use pip to install --update a package
 def pip_upgrade(package):
 	print(f"Trying to upgrade {package}")
 	subprocess.check_call([sys.executable, "-m", "pip", "install", "--upgrade", package])
 
+
 missing = []
-deps    = ['numpy', 'PyQt5', 'imageio', 'vdf']
+deps = ['numpy', 'PyQt5', 'imageio', 'vdf']
 for package in deps:
-    try:
-        importlib.import_module(package)
-    except ImportError:
-    	print(f"ERROR | Package {package} not found.")
-    	missing.append(package)
+	try:
+		importlib.import_module(package)
+	except ImportError:
+		print(f"ERROR | Package {package} not found.")
+		missing.append(package)
 
 if len(missing) and install_prompt("Should I install the missing dependencies? (y/N)") == True:
 	# upgrade pip then try installing the rest of packages
@@ -74,8 +78,6 @@ except:
 	time.sleep(15)
 
 
-
-
 class MainWindow(widgets.MainWindow):
 
 	def __init__(self):
@@ -99,7 +101,7 @@ class MainWindow(widgets.MainWindow):
 		# only listen to user changes
 		self.game_choice.entry.textActivated.connect(self.game_changed)
 		self.game_choice.entry.setEditable(False)
-		
+
 		self.compression_choice = widgets.LabelCombo("Compression:", [c.name for c in Compression])
 		# only listen to user changes
 		self.compression_choice.entry.textActivated.connect(self.compression_changed)
@@ -123,7 +125,7 @@ class MainWindow(widgets.MainWindow):
 
 		self.dirs_container.header().setSortIndicator(0, QtCore.Qt.AscendingOrder)
 		self.dirs_container.model().sort(self.dirs_container.header().sortIndicatorSection(),
-						 self.dirs_container.header().sortIndicatorOrder())
+										 self.dirs_container.header().sortIndicatorOrder())
 
 		self.dirs_container.setAnimated(False)
 		self.dirs_container.setIndentation(20)
@@ -133,7 +135,8 @@ class MainWindow(widgets.MainWindow):
 		self.dirs_container.resize(640, 480)
 
 		# create the table
-		self.files_container = widgets.SortableTable(("Name", "File Type"), self.ovl_data.formats_dict.ignore_types, ignore_drop_type="OVL", opt_hide=True)
+		self.files_container = widgets.SortableTable(("Name", "File Type"), self.ovl_data.formats_dict.ignore_types,
+													 ignore_drop_type="OVL", opt_hide=True)
 		# connect the interaction functions
 		self.files_container.table.model.member_renamed.connect(self.rename_handle)
 		self.files_container.table.files_dragged.connect(self.drag_files)
@@ -141,7 +144,8 @@ class MainWindow(widgets.MainWindow):
 		# self.files_container.table.file_selected.connect(self.show_dependencies)
 
 		self.included_ovls_view = widgets.RelativePathCombo(self, self.file_widget)
-		self.included_ovls_view.setToolTip("These OVL files are loaded by the current OVL file, so their files are included")
+		self.included_ovls_view.setToolTip(
+			"These OVL files are loaded by the current OVL file, so their files are included")
 		self.included_ovls_view.entries_changed.connect(self.update_includes)
 
 		left_frame = QtWidgets.QWidget()
@@ -197,9 +201,9 @@ class MainWindow(widgets.MainWindow):
 		self.qgrid.addWidget(self.t_show_temp_files, 0, 3)
 		self.qgrid.addWidget(self.t_in_folder, 2, 3)
 		self.qgrid.addWidget(self.t_mesh_ovl, 1, 3)
-		self.qgrid.addWidget(self.game_choice, 0, 4,)
-		self.qgrid.addWidget(self.compression_choice, 1, 4,)
-		self.qgrid.addWidget(self.extract_types_combo, 2, 4,)
+		self.qgrid.addWidget(self.game_choice, 0, 4, )
+		self.qgrid.addWidget(self.compression_choice, 1, 4, )
+		self.qgrid.addWidget(self.extract_types_combo, 2, 4, )
 
 		self.qgrid.addWidget(self.splitter, 5, 0, 1, 5)
 		self.qgrid.addWidget(self.p_action, 6, 0, 1, 5)
@@ -243,8 +247,8 @@ class MainWindow(widgets.MainWindow):
 		self.t_walk_ovl.setChecked(False)
 		separator_action = self.actions['generate hash table']
 		# we are not adding this to the action list, shall we?
-		util_menu.insertAction( separator_action, self.t_walk_ovl )
-		util_menu.insertSeparator( separator_action )
+		util_menu.insertAction(separator_action, self.t_walk_ovl)
+		util_menu.insertSeparator(separator_action)
 
 		self.check_version()
 		# run once here to make sure we catch the default game
@@ -274,10 +278,10 @@ class MainWindow(widgets.MainWindow):
 		for action_name in self.actions.keys():
 			self.actions[action_name.lower()].setEnabled(enable)
 
-	def dump_debug_data(self,):
+	def dump_debug_data(self, ):
 		self.ovl_data.dump_debug_data()
 
-	def get_steam_games(self,):
+	def get_steam_games(self, ):
 		try:
 			# get steam folder from windows registry
 			hkey = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, "SOFTWARE\\WOW6432Node\\Valve\\Steam")
@@ -293,7 +297,8 @@ class MainWindow(widgets.MainWindow):
 				for folder in v["libraryfolders"].values():
 					library_folders.add(folder["path"])
 			except:
-				logging.warning(f"vdf not installed, can not detect steam games on external drives - run `pip install vdf`")
+				logging.warning(
+					f"vdf not installed, can not detect steam games on external drives - run `pip install vdf`")
 
 			# map all installed fdev game names to their path
 			fdev_games = {}
@@ -530,7 +535,8 @@ class MainWindow(widgets.MainWindow):
 			self.handle_error("Saving OVL failed, see log!")
 
 	def extract_all(self):
-		out_dir = QtWidgets.QFileDialog.getExistingDirectory(self, 'Output folder', self.cfg.get("dir_extract", "C://"), )
+		out_dir = QtWidgets.QFileDialog.getExistingDirectory(self, 'Output folder',
+															 self.cfg.get("dir_extract", "C://"), )
 		if out_dir:
 			self.cfg["dir_extract"] = out_dir
 			_out_dir = out_dir
@@ -558,7 +564,7 @@ class MainWindow(widgets.MainWindow):
 			# threaded injection seems to be fine now
 			# self.ovl_data.add_files(files)
 			self.run_threaded(self.ovl_data.add_files, files)
-			# the gui is updated from the signal ovl.files_list emitted from add_files
+		# the gui is updated from the signal ovl.files_list emitted from add_files
 
 	def get_replace_strings(self):
 		try:
@@ -600,7 +606,7 @@ class MainWindow(widgets.MainWindow):
 					self.ovl_data.rename_contents(names, only_files)
 					self.file_widget.dirty = True
 					self.update_gui_table()
-                    
+
 	def rename_both(self):
 		self.rename_contents()
 		self.rename()
@@ -609,7 +615,8 @@ class MainWindow(widgets.MainWindow):
 	def save_file_list(self):
 		if self.is_open_ovl():
 			filelist_src = QtWidgets.QFileDialog.getSaveFileName(
-				self, 'Save File List', os.path.join(self.cfg.get("dir_ovls_out", "C://"), self.file_widget.filename + ".files.txt" ),
+				self, 'Save File List',
+				os.path.join(self.cfg.get("dir_ovls_out", "C://"), self.file_widget.filename + ".files.txt"),
 				"Txt file (*.txt)", )[0]
 			if filelist_src:
 				try:
@@ -625,7 +632,7 @@ class MainWindow(widgets.MainWindow):
 	def save_included_ovls(self):
 		if self.is_open_ovl():
 			filelist_src = QtWidgets.QFileDialog.getSaveFileName(
-				self, 'ovls.include', os.path.join(self.cfg.get("dir_ovls_out", "C://"), "ovls.include" ),
+				self, 'ovls.include', os.path.join(self.cfg.get("dir_ovls_out", "C://"), "ovls.include"),
 				"Include file (*.include)", )[0]
 			if filelist_src:
 				try:
@@ -646,18 +653,21 @@ class MainWindow(widgets.MainWindow):
 					self.handle_error("Removing file from OVL failed, see log!")
 				self.update_gui_table()
 
-	def walker_hash(self,):
-		start_dir = QtWidgets.QFileDialog.getExistingDirectory(self, 'Game Root folder', self.cfg.get("dir_ovls_in", "C://"))
+	def walker_hash(self, ):
+		start_dir = QtWidgets.QFileDialog.getExistingDirectory(self, 'Game Root folder',
+															   self.cfg.get("dir_ovls_in", "C://"))
 		walker.generate_hash_table(self, start_dir)
 		self.update_progress("Hashed", value=1, vmax=1)
 
-	def walker_fgm(self,):
-		start_dir = QtWidgets.QFileDialog.getExistingDirectory(self, 'Game Root folder', self.cfg.get("dir_ovls_in", "C://"))
+	def walker_fgm(self, ):
+		start_dir = QtWidgets.QFileDialog.getExistingDirectory(self, 'Game Root folder',
+															   self.cfg.get("dir_ovls_in", "C://"))
 		walker.get_fgm_values(self, start_dir, walk_ovls=self.t_walk_ovl.isChecked())
 		self.update_progress("Walked FGMs", value=1, vmax=1)
 
 	def inspect_models(self):
-		start_dir = QtWidgets.QFileDialog.getExistingDirectory(self, 'Game Root folder', self.cfg.get("dir_ovls_in", "C://"))
+		start_dir = QtWidgets.QFileDialog.getExistingDirectory(self, 'Game Root folder',
+															   self.cfg.get("dir_ovls_in", "C://"))
 		walker.bulk_test_models(self, start_dir, walk_ovls=self.t_walk_ovl.isChecked())
 		self.update_progress("Inspected models", value=1, vmax=1)
 
