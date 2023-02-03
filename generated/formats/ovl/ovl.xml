@@ -206,7 +206,7 @@
 		<add name="data_count" type="uint">number of data entries to populate buffers into</add>
     </compound>
 
-	<compound name="HeaderPointer" allow_np="false">
+	<compound name="HeaderPointer" allow_np="true">
 		Not standalone, used by RootEntry, Fragment and DependencyEntry
         <add name="pool_index" type="int" default="-1">The index of the MemPool this one relates to; OR, for entries referred to from AssetEntries: -1</add>
         <add name="data offset" type="uint" >the byte offset relative to the start of the MemPool's data</add>
@@ -219,7 +219,7 @@
         <add name="struct_ptr" type="HeaderPointer" >points to the main struct of this file OR -1 pointer for assets</add>
     </compound>
 	
-    <compound name="Fragment" allow_np="false">
+    <compound name="Fragment" allow_np="true">
 		These are to be thought of as instructions for loading. Their order is irrelevant.
         <add name="link_ptr" type="HeaderPointer" >determines where to write a pointer address</add>
         <add name="struct_ptr" type="HeaderPointer" >the struct that is pointed to can be found here</add>

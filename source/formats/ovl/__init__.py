@@ -13,6 +13,7 @@ from generated.formats.ovl.compounds.BufferGroup import BufferGroup
 from generated.formats.ovl.compounds.FileEntry import FileEntry
 from generated.formats.ovl.compounds.Fragment import Fragment
 from generated.formats.ovl.compounds.Header import Header
+from generated.formats.ovl.compounds.HeaderPointer import HeaderPointer
 from generated.formats.ovl.compounds.OvsHeader import OvsHeader
 from generated.formats.ovl.compounds.SetEntry import SetEntry
 from generated.formats.ovl.compounds.StreamEntry import StreamEntry
@@ -958,26 +959,27 @@ class OvlFile(Header):
 		logging.debug("Linking pointers to pools")
 		for dep in self.dependencies:
 			# the index goes into the flattened list of ovl pools
-			dep.link_ptr.assign_pool(self.pools)
-			dep.link_ptr.add_link(dep)
+			HeaderPointer.add_link(dep.link_ptr, dep, self.pools)
 		for archive in self.archives:
 			ovs = archive.content
 			# attach all pointers to their pool
 			for root_entry in ovs.root_entries:
-				root_entry.struct_ptr.assign_pool(ovs.pools)
 				# may not have a pool
-				root_entry.struct_ptr.add_struct(root_entry)
+				HeaderPointer.add_struct(root_entry.struct_ptr, root_entry, ovs.pools)
+			logging.info(f"{ovs.fragments.dtype}, {ovs.fragments.shape}")
 			for i, frag in enumerate(ovs.fragments):
-				frag.link_ptr.assign_pool(ovs.pools)
-				frag.struct_ptr.assign_pool(ovs.pools)
-				try:
-					frag.struct_ptr.add_struct(frag)
-					frag.link_ptr.add_link(frag)
-				except:
-					logging.exception(f"linking frag {i} failed")
+				# logging.info(i)
+				# frag.foo()
+				# try:
+				# logging.info(f"{frag.dtype}, {frag.shape}")
+				# logging.info(f"{frag.struct_ptr.dtype}, {frag.struct_ptr.shape}")
+				HeaderPointer.add_struct(frag.struct_ptr, frag, ovs.pools)
+				HeaderPointer.add_link(frag.link_ptr, frag, ovs.pools)
+				# except:
+				# 	logging.exception(f"linking frag {i} failed")
 		logging.debug("Calculating pointer sizes")
-		for pool in self.pools:
-			pool.calc_struct_ptr_sizes()
+		# for pool in self.pools:
+		# 	pool.calc_struct_ptr_sizes()
 		logging.info(f"Prepared pointers in {time.time() - start_time:.2f} seconds")
 
 		logging.info("Loading file classes")

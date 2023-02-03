@@ -4,7 +4,7 @@ import struct
 import tempfile
 from io import BytesIO
 
-from generated.formats.ovl import UNK_HASH
+from generated.formats.ovl import UNK_HASH, HeaderPointer
 from generated.formats.ovl.compounds.DependencyEntry import DependencyEntry
 from generated.formats.ovl.compounds.Fragment import Fragment
 from generated.formats.ovl.compounds.BufferEntry import BufferEntry
@@ -384,8 +384,9 @@ class MemStructLoader(BaseFile):
 
 	def collect(self):
 		super().collect()
-		self.header = self.target_class.from_stream(self.root_ptr.stream, self.context)
-		# print(self.header)
+		stream = HeaderPointer.get_stream(self.root_ptr, self.ovs.pools)
+		self.header = self.target_class.from_stream(stream, self.context)
+		print(self.header)
 		self.header.read_ptrs(self.root_ptr.pool)
 
 	def create(self):

@@ -389,11 +389,13 @@ class BaseStruct(metaclass=StructMetaClass):
 			if field_type is not None:
 				if hasattr(field_type, "_get_np_sig"):
 					# instance is fake anyway so don't try to get a child struct
-					res.append((field_name, field_type._get_np_sig(instance, include_abstract)))
+					res.append((field_name, np.dtype(field_type._get_np_sig(instance, include_abstract))))
 				else:
 					res.append((field_name, field_type.np_dtype))
 
 		# dynamically subclass to get np.record behavior
 		# it does not work when dtype is not a subclass of np.record
-		record = type(f"{cls.__name__}Record", (cls, np.record), {})
+		record = type(f"{cls.__name__}Record", (np.record, cls), {})
+		logging.info(dir(record))
+		logging.info(record.to_stream)
 		return record, res
