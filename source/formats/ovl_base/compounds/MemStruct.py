@@ -1,4 +1,6 @@
 # START_GLOBALS
+import logging
+
 from generated.array import Array
 from generated.formats.ovl_base.compounds.ArrayPointer import ArrayPointer
 from generated.formats.ovl_base.compounds.ForEachPointer import ForEachPointer
@@ -18,9 +20,6 @@ class MemStruct:
 
 	def get_arrays(self):
 		return [(prop, val) for prop, val in vars(self).items() if isinstance(val, Array)]
-
-	def get_memstructs(self):
-		return [val for prop, val in vars(self).items() if isinstance(val, MemStruct)]
 
 	def handle_write(self, prop, val, struct_ptr, loader, pool_type, is_member=False):
 		# logging.debug(f"handle_write {prop} {type(self).__name__}, {len(loader.fragments)} frags")
@@ -69,28 +68,18 @@ class MemStruct:
 		for prop, array in self.get_arrays():
 			self.handle_write(prop, array, struct_ptr, loader, pool_type)
 
+	@classmethod
+	def get_instances_recursive(cls, instance, dtype):
+		for s_type, s_inst, (f_name, f_type, arguments, _) in cls.get_condition_attributes_recursive(instance, instance, lambda x: issubclass(x[1], dtype)):
+			f_inst = s_type.get_field(s_inst, f_name)
+			yield f_inst, f_name, arguments
+
 	def read_ptrs(self, pool):
-		# logging.debug(f"read_ptrs for {self.__class__.__name__}")
-		# get all pointers in this struct
-		for field_name, field_type, arguments, _ in self._get_filtered_attribute_list(self, include_abstract=False):
-			ptr = getattr(self, field_name)
-			if isinstance(ptr, Pointer):
-				ptr.arg, template = arguments
-				self.handle_pointer(field_name, ptr, pool)
-		# read arrays attached to this memstruct
-		arrays = self.get_arrays()
-		for prop, array in arrays:
-			# print(f"array, start at at {array.io_start}")
-			for member in array:
-				if isinstance(member, MemStruct):
-					# print("member is a memstruct")
-					member.read_ptrs(pool)
-				# these do not have arg, so no need to patch
-				elif isinstance(member, Pointer):
-					self.handle_pointer(None, member, pool)
-		# continue reading elem-memstructs directly attached to this memstruct
-		for memstr in self.get_memstructs():
-			memstr.read_ptrs(pool)
+		"""Get all strings in the structure."""
+		for ptr, f_name, arguments in MemStruct.get_instances_recursive(self, Pointer):
+			# update the pointer's arg, as it is sometimes read after the pointer
+			ptr.arg, template = arguments
+			self.handle_pointer(f_name, ptr, pool)
 
 	def get_ptr_template(self, prop):
 		"""Returns the appropriate template for a pointer named 'prop', if exists.
@@ -106,9 +95,10 @@ class MemStruct:
 		# reads the template and grabs the frag
 		pointer.read_ptr(pool)
 		if pointer.frag and hasattr(pointer.frag, "struct_ptr"):
+			# we are now in a new pool
 			pool = pointer.frag.struct_ptr.pool
 			pointer.pool_type = pool.type
-			# logging.debug(f"Set pool type {pointer.pool_type} for pointer {prop}")
+			# # logging.debug(f"Set pool type {pointer.pool_type} for pointer {prop}")
 			if isinstance(pointer.data, MemStruct):
 				# print("pointer to a memstruct")
 				pointer.data.read_ptrs(pool)
@@ -123,4 +113,13 @@ class MemStruct:
 			else:
 				# points to a normal struct or basic type, which can't have any pointers
 				pass
+			# if isinstance(pointer.data, (MemStruct, Array)):
+			# if isinstance(pointer.data, (MemStruct,)):
+			# 	for memstruct, f_name, arguments in MemStruct.get_instances_recursive(pointer.data, MemStruct):
+			# 		memstruct.read_ptrs(pool)
+			# elif isinstance(pointer.data, Array):
+			# 	assert isinstance(pointer, (ArrayPointer, ForEachPointer))
+			# 	for member in pointer.data:
+			# 		for memstruct, f_name, arguments in MemStruct.get_instances_recursive(member, MemStruct):
+			# 			memstruct.read_ptrs(pool)
 

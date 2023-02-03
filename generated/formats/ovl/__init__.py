@@ -19,7 +19,6 @@ from generated.formats.ovl.compounds.StreamEntry import StreamEntry
 from generated.formats.ovl.compounds.ZlibInfo import ZlibInfo
 from generated.formats.ovl.versions import *
 from generated.formats.ovl_base.enums.Compression import Compression
-from generated.io import IoFile
 from modules.formats.formats_dict import FormatDict
 from modules.formats.shared import djb2
 from ovl_util.oodle.oodle import OodleDecompressEnum, oodle_compressor
@@ -538,7 +537,7 @@ class OvsFile(OvsHeader):
 			return stream.getvalue()
 
 
-class OvlFile(Header, IoFile):
+class OvlFile(Header):
 
 	warning_msg = DummySignal()
 	files_list = DummySignal()
@@ -854,7 +853,9 @@ class OvlFile(Header, IoFile):
 		self.commands = commands
 		self.store_filepath(filepath)
 		logging.info(f"Loading {self.name}")
-		self.eof = super().load(filepath)
+		with open(filepath, "rb") as stream:
+			self.read_fields(stream, self)
+			self.eof = stream.tell()
 		logging.info(f"Loaded {self.name} structs in {time.time()-start_time:.2f} seconds")
 		logging.info(f"Game: {get_game(self)[0].name}")
 
