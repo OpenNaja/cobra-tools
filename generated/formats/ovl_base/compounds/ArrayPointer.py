@@ -33,9 +33,9 @@ class ArrayPointer(Pointer):
 			return True
 			# return len(self.data)
 
-	def read_template(self):
+	def read_template(self, stream):
 		if self.template:
-			self.data = Array.from_stream(self.frag.struct_ptr.stream, self.context, 0, None, (self.arg,), self.template)
+			self.data = Array.from_stream(stream, self.context, 0, None, (self.arg,), self.template)
 
 	@classmethod
 	def _to_xml(cls, instance, elem, debug):

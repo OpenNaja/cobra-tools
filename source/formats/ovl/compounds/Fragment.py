@@ -4,7 +4,7 @@ import os
 # END_GLOBALS
 
 
-class DependencyEntry:
+class Fragment:
 
 	# START_CLASS
 
@@ -17,6 +17,6 @@ class DependencyEntry:
 		self.ext_raw = e.replace(".", ":")
 
 	def register(self, pools):
-		# print(self.name)
-		# name is already set at this point
-		self.link_ptr.add_link(self.name, pools)
+		self.struct_ptr.add_struct(self, pools)
+		target_pool = pools[self.struct_ptr.pool_index]
+		self.link_ptr.add_link((target_pool, self.struct_ptr.data_offset), pools)

@@ -384,9 +384,11 @@ class MemStructLoader(BaseFile):
 
 	def collect(self):
 		super().collect()
-		self.header = self.target_class.from_stream(self.root_ptr.stream, self.context)
+		pool = self.root_ptr.get_pool(self.ovs.pools)
+		stream = pool.stream_at(self.root_ptr.data_offset)
+		self.header = self.target_class.from_stream(stream, self.context)
 		# print(self.header)
-		self.header.read_ptrs(self.root_ptr.pool)
+		self.header.read_ptrs(pool)
 
 	def create(self):
 		self.create_root_entry()

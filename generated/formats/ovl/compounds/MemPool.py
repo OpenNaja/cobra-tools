@@ -81,6 +81,7 @@ class MemPool(BaseStruct):
 		# lookup by offset
 		self.offset_2_struct_entries = {}  # multiple (fragments') struct_ptrs can point to the same data
 		self.offset_2_link_entry = {}  # link_ptrs are unique
+		self.size_map = {}
 
 	def get_first_entry(self):
 		# usually 0, but be safe
@@ -90,18 +91,22 @@ class MemPool(BaseStruct):
 			if first_entries:
 				return first_entries[0]
 
-	def calc_struct_ptr_sizes(self):
-		"""Assign an estimated size to every struct_ptr"""
+	def calc_size_map(self):
+		"""Store size of every struct_ptr in size_map"""
+		self.size_map = {}
 		# sort them
-		sorted_entries = sorted(self.offset_2_struct_entries.items())
+		sorted_offsets = sorted(self.offset_2_struct_entries.keys())
 		# add the end of the header data block
-		sorted_entries.append((self.size, None))
+		sorted_offsets.append(self.size)
 		# get the size of each pointer
-		for i, (offset, entries) in enumerate(sorted_entries[:-1]):
+		for i, offset in enumerate(sorted_offsets[:-1]):
 			# get the offset of the next pointer, substract this offset
-			data_size = sorted_entries[i + 1][0] - offset
-			for entry in entries:
-				entry.struct_ptr.data_size = data_size
+			data_size = sorted_offsets[i + 1] - offset
+			self.size_map[offset] = data_size
+
+	def stream_at(self, offset):
+		self.data.seek(offset)
+		return self.data
 
 	def get_at(self, offset, size=-1):
 		self.data.seek(offset)

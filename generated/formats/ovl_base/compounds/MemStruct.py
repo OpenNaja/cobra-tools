@@ -119,18 +119,17 @@ class MemStruct(BaseStruct):
 
 	def handle_pointer(self, ptr):
 		"""Continue processing the linked memstructs."""
-		if ptr.frag and hasattr(ptr.frag, "struct_ptr"):
+		if ptr.target_pool:
 			# we are now (potentially) in a new pool
-			pool = ptr.frag.struct_ptr.pool
-			ptr.pool_type = pool.type
+			ptr.pool_type = ptr.target_pool.type
 			# keep reading pointers in the newly read ptr.data
 			if isinstance(ptr.data, MemStruct):
-				ptr.data.read_ptrs(pool)
+				ptr.data.read_ptrs(ptr.target_pool)
 			elif isinstance(ptr.data, Array):
 				assert isinstance(ptr, (ArrayPointer, ForEachPointer))
 				for member in ptr.data:
 					if isinstance(member, MemStruct):
-						member.read_ptrs(pool)
+						member.read_ptrs(ptr.target_pool)
 			# # not sure why it doesn't work like this
 			# for memstruct, f_name, arguments in MemStruct.get_instances_recursive(ptr.data, MemStruct):
 			# 	memstruct.read_ptrs(pool)

@@ -33,6 +33,8 @@ class Pointer(BaseStruct):
 		self.data_offset = 0
 		self.data = None
 		self.frag = None
+		self.link = None
+		self.target_pool = None
 		self.pool_type = None
 		if set_default:
 			self.set_defaults()
@@ -54,22 +56,26 @@ class Pointer(BaseStruct):
 		"""Looks up the address of the pointer, checks if a frag points to pointer and reads the data at its address as
 		the specified template."""
 		# find the frag entry with matching link_ptr.data_offset
-		self.frag = pool.offset_2_link_entry.get(self.io_start, None)
+		link = pool.offset_2_link_entry.get(self.io_start, None)
 		# pointer may be a nullptr, so ignore
-		if not self.frag:
+		if not link:
 			# print("is a nullptr")
 			return
-		# it is a fragment, not a dependency
-		if hasattr(self.frag, "struct_ptr"):
-			# now read an instance of template class at the offset
-			self.read_template()
-		else:
+		# it is a dependency
+		if isinstance(link, str):
+			print(link)
 			# store dependency name
-			self.data = self.frag.name
+			self.data = link
+		else:
+			# now read an instance of template class at the offset
+			pool, offset = link
+			self.target_pool = pool
+			stream = pool.stream_at(offset)
+			self.read_template(stream)
 
-	def read_template(self):
+	def read_template(self, stream):
 		if self.template:
-			self.data = self.template.from_stream(self.frag.struct_ptr.stream, self.context, self.arg)
+			self.data = self.template.from_stream(stream, self.context, self.arg)
 
 	def write_pointer(self):
 		assert self.has_data and self.frag

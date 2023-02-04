@@ -26,6 +26,12 @@ class HeaderPointer(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
+	def get_data(self, pools):
+		"""Get data from pool writer"""
+		pool = self.get_pool(pools)
+		if pool:
+			return pool.get_at(self.data_offset, pool.size_map[self.data_offset])
+
 	@property
 	def data(self):
 		"""Get data from pool writer"""
@@ -90,6 +96,10 @@ class HeaderPointer(BaseStruct):
 			self.pool.data.write(data)
 		logging.debug(f"write_to_pool size {self.data_size}")
 
+	def get_pool(self, pools):
+		if self.pool_index != -1:
+			return pools[self.pool_index]
+
 	def assign_pool(self, pools):
 		"""Link this pointer to its pool"""
 		if self.pool_index != -1:
@@ -120,18 +130,21 @@ class HeaderPointer(BaseStruct):
 							# logging.debug(f"Removed link at offset {offset} from pool")
 							self.pool.offset_2_link_entry.pop(offset)
 
-	def add_struct(self, entry):
+	def add_struct(self, entry, pools):
 		"""Adds an entry to the required tables of this pool"""
-		if self.pool:
-			if self.data_offset not in self.pool.offset_2_struct_entries:
-				self.pool.offset_2_struct_entries[self.data_offset] = []
-			self.pool.offset_2_struct_entries[self.data_offset].append(entry)
+		pool = self.get_pool(pools)
+		if pool:
+			if self.data_offset not in pool.offset_2_struct_entries:
+				pool.offset_2_struct_entries[self.data_offset] = []
+			pool.offset_2_struct_entries[self.data_offset].append(entry)
 
-	def add_link(self, entry):
+	def add_link(self, target, pools):
 		"""Adds an entry to the required tables of this pool"""
-		if self.pool:
-			self.pool.offset_2_link_entry[self.data_offset] = entry
-			self.data_size = 8
+		pool = self.get_pool(pools)
+		if not isinstance(target, tuple):
+			print(target, type(target))
+		if pool:
+			pool.offset_2_link_entry[self.data_offset] = target
 
 	def del_struct(self):
 		"""Adds an entry to the required tables of this pool"""

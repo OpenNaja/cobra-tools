@@ -39,7 +39,7 @@ class ManisLoader(BaseFile):
 			outfile.write(manis_header)
 			for mani in self.children:
 				outfile.write(as_bytes(mani.file_entry.basename))
-			outfile.write(self.root_ptr.data)
+			outfile.write(self.root_ptr.get_data(self.ovs.pools))
 			for buff in self.data_entry.buffers:
 				outfile.write(buff.data)
 			# JWE2 can now have a secondary data entry holding a buffer 2 in an ovs

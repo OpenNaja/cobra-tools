@@ -957,26 +957,22 @@ class OvlFile(Header):
 		logging.debug("Linking pointers to pools")
 		for dep in self.dependencies:
 			# the index goes into the flattened list of ovl pools
-			dep.link_ptr.assign_pool(self.pools)
-			dep.link_ptr.add_link(dep)
+			# dep.link_ptr.add_link(dep, self.pools)
+			dep.register(self.pools)
+		# this loop is extremely costly in JWE2 c0 main.ovl, about 145 s
 		for archive in self.archives:
 			ovs = archive.content
 			# attach all pointers to their pool
 			for root_entry in ovs.root_entries:
-				root_entry.struct_ptr.assign_pool(ovs.pools)
 				# may not have a pool
-				root_entry.struct_ptr.add_struct(root_entry)
-			for i, frag in enumerate(ovs.fragments):
-				frag.link_ptr.assign_pool(ovs.pools)
-				frag.struct_ptr.assign_pool(ovs.pools)
-				try:
-					frag.struct_ptr.add_struct(frag)
-					frag.link_ptr.add_link(frag)
-				except:
-					logging.exception(f"linking frag {i} failed")
+				root_entry.struct_ptr.add_struct(root_entry, ovs.pools)
+			for frag in ovs.fragments:
+				frag.register(ovs.pools)
+				# frag.struct_ptr.add_struct(frag, ovs.pools)
+				# frag.link_ptr.add_link(frag, ovs.pools)
 		logging.debug("Calculating pointer sizes")
 		for pool in self.pools:
-			pool.calc_struct_ptr_sizes()
+			pool.calc_size_map()
 		logging.info(f"Prepared pointers in {time.time() - start_time:.2f} seconds")
 
 		logging.info("Loading file classes")
@@ -993,6 +989,7 @@ class OvlFile(Header):
 				loader.collect()
 			except:
 				logging.exception(f"Collecting {loader.file_entry.name} errored")
+				raise
 			loader.link_streams()
 		logging.info(f"Loaded file classes in {time.time() - start_time:.2f} seconds")
 
