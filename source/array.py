@@ -100,11 +100,13 @@ class Array(list):
             return RaggedArray.from_stream(stream, context, arg, template, shape, dtype)
         # basic types, and structs that allow for it, have the read_array method defined on their class
         elif callable(getattr(dtype, 'read_array', None)):
-            return dtype.read_array(stream, shape, context, arg, template)
-        else:
-            new_array = cls(context, arg, template, shape, dtype, set_default=False)
-            new_array.read(stream)
-            return new_array
+            try:
+                return dtype.read_array(stream, shape, context, arg, template)
+            except:
+                logging.warning(f"Vectorized {dtype.__name__}.read_array failed; falling back to normal Array.read")
+        new_array = cls(context, arg, template, shape, dtype, set_default=False)
+        new_array.read(stream)
+        return new_array
 
     @classmethod
     def to_stream(cls, instance, stream, context, arg=0, template=None, shape=(), dtype=None):
