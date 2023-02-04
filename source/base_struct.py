@@ -395,13 +395,11 @@ class BaseStruct(metaclass=StructMetaClass):
     def to_stream(cls, instance, stream, context, arg=0, template=None):
         try:
             instance.io_start = stream.tell()
-            # todo - remove hacky overwrite and unify the api for arg?
-            # instance.arg = arg
             cls.write_fields(stream, instance)
             instance.io_size = stream.tell() - instance.io_start
             return instance
         except:
-            logging.exception(f"to_stream failed for {cls}, {instance}")
+            logging.exception(f"{cls.__name__}.to_stream failed on {instance}")
             raise
 
     @classmethod
@@ -425,6 +423,7 @@ class BaseStruct(metaclass=StructMetaClass):
 
     @classmethod
     def get_np_dtype(cls, context, arg=0, template=None):
+        # fake an instance to be able to get version-dependent fields
         fake_inst = DummyInstance(context, arg, template)
         np_sig = cls.get_np_sig(fake_inst)
         return np.dtype(np_sig)
