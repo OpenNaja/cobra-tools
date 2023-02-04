@@ -7,7 +7,7 @@ class StreamEntry(BaseStruct):
 	"""
 	Description of one streamed file instance. One for every file stored in an ovs.
 	Links the main pointers of a streamed file to its user, eg. a texturestream to a tex file.
-	--These appear sorted in the order of sizedstr entries per ovs.-- only true for lod0, not lod1
+	--These appear sorted in the order of root entries per ovs.-- only true for lod0, not lod1
 	the order does not seem to be consistent
 	interestingly, the order of root_entry entries per ovs is consistent with decreasing pool offset
 	"""

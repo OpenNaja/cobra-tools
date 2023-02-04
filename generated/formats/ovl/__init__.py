@@ -16,7 +16,6 @@ from generated.formats.ovl.compounds.Header import Header
 from generated.formats.ovl.compounds.OvsHeader import OvsHeader
 from generated.formats.ovl.compounds.SetEntry import SetEntry
 from generated.formats.ovl.compounds.StreamEntry import StreamEntry
-from generated.formats.ovl.compounds.ZlibInfo import ZlibInfo
 from generated.formats.ovl.versions import *
 from generated.formats.ovl_base.enums.Compression import Compression
 from modules.formats.formats_dict import FormatDict
@@ -1260,9 +1259,9 @@ class OvlFile(Header):
 		self.update_names()
 		self.open_ovs_streams()
 		ovl_compressed = b""
-		self.zlibs.clear()
+		self.reset_field("archives_meta")
 		# compress data stream
-		for archive in self.iter_progress(self.archives, "Saving archives"):
+		for archive, meta in zip(self.iter_progress(self.archives, "Saving archives"), self.archives_meta):
 			# write archive into bytes IO stream
 			uncompressed = archive.content.write_archive()
 			archive.uncompressed_size, archive.compressed_size, compressed = archive.content.compress(
@@ -1276,13 +1275,11 @@ class OvlFile(Header):
 				ovs_stream = self.ovs_dict[archive.ovs_path]
 				archive.read_start = ovs_stream.tell()
 				ovs_stream.write(compressed)
-			new_zlib = ZlibInfo(self.context)
 			# size of the archive entry = 68
 			# this is true for jwe2 tylo, but not for jwe2 rex 93 and many others
-			new_zlib.zlib_thing_1 = 68 + archive.uncompressed_size
+			meta.unk_0 = 68 + archive.uncompressed_size
 			# this is fairly good, doesn't work for tylo static but all others, all of jwe2 rex 93, jwe1 parrot, pz fallow deer
-			new_zlib.zlib_thing_2 = sum([data.size_2 for data in archive.content.data_entries])
-			self.zlibs.append(new_zlib)
+			meta.unk_1 = sum([data.size_2 for data in archive.content.data_entries])
 
 		self.close_ovs_streams()
 		with open(filepath, "wb") as stream:

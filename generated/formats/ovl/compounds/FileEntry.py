@@ -22,7 +22,7 @@ class FileEntry(NamedEntry):
 		# this hash is used to retrieve the file name from inside the archive
 		self.file_hash = 0
 
-		# pool type of this file's sizedstr pointer, if part of a set, it's usually the same as set pool type
+		# pool type of this file's root pointer, if part of a set, it's usually the same as set pool type
 		self.pool_type = 0
 
 		# if this file is part of a set, the set's root entry's pool type, else 0

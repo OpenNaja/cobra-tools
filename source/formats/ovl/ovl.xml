@@ -48,7 +48,7 @@
         <add name="Aux Entries" type="AuxEntry" arr1="Num Aux Entries"/>
         <add name="Dependencies" type="DependencyEntry" arr1="Num Dependencies" until="18">after aux in ZTUAC and PC</add>
         <add name="stream_files" type="StreamEntry" arr1="num_stream_files"/>
-        <add name="Zlibs" type="ZlibInfo" arr1="Num Archives"/>
+        <add name="archives_meta" type="ArchiveMeta" arr1="Num Archives"/>
     </compound>
 
     <compound name="MimeEntry" >
@@ -80,7 +80,7 @@
         Description of one file in the archive
         <add name="basename" type="OffsetString" arg="context\names"/>
         <add name="file hash" type="uint">this hash is used to retrieve the file name from inside the archive</add>
-        <add name="pool_type" type="byte" >pool type of this file's sizedstr pointer, if part of a set, it's usually the same as set pool type</add>
+        <add name="pool_type" type="byte" >pool type of this file's root pointer, if part of a set, it's usually the same as set pool type</add>
         <add name="set_pool_type" type="byte" >if this file is part of a set, the set's root entry's pool type, else 0</add>
         <add name="extension" type="ushort" >index into 'Extensions' array</add>
     </compound>
@@ -129,7 +129,7 @@
     <compound name="StreamEntry" >
         Description of one streamed file instance. One for every file stored in an ovs.
         Links the main pointers of a streamed file to its user, eg. a texturestream to a tex file.
-        --These appear sorted in the order of sizedstr entries per ovs.-- only true for lod0, not lod1
+        --These appear sorted in the order of root entries per ovs.-- only true for lod0, not lod1
         the order does not seem to be consistent
         interestingly, the order of root_entry entries per ovs is consistent with decreasing pool offset
         <add name="stream_offset" type="uint">offset to the stream's root_entry pointer inside the flattened mempools</add>
@@ -137,10 +137,10 @@
         <add name="zero" type="uint"/>
     </compound>
 
-    <compound name="ZlibInfo" allow_np="true">
-        Description of one zlib archive
-        <add name="Zlib thing1" type="uint">seemingly unused in JWE</add>
-        <add name="Zlib thing2" type="uint">seemingly unused in JWE, subtracting this from ovs uncompressed_size to get length of the uncompressed ovs header</add>
+    <compound name="ArchiveMeta" allow_np="true">
+        Apparently sizes or offsets for each archive
+        <add name="unk_0" type="uint">seemingly unused in JWE</add>
+        <add name="unk_1" type="uint">seemingly unused in JWE, subtracting this from ovs uncompressed_size to get length of the uncompressed ovs header</add>
     </compound>
 
 	<!-- From here, structs are for the deflated stream -->

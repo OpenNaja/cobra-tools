@@ -6,6 +6,7 @@ from generated.formats.base.basic import Ushort
 from generated.formats.base.compounds.PadAlign import PadAlign
 from generated.formats.base.compounds.ZStringBuffer import ZStringBuffer
 from generated.formats.ovl.compounds.ArchiveEntry import ArchiveEntry
+from generated.formats.ovl.compounds.ArchiveMeta import ArchiveMeta
 from generated.formats.ovl.compounds.AuxEntry import AuxEntry
 from generated.formats.ovl.compounds.DependencyEntry import DependencyEntry
 from generated.formats.ovl.compounds.FileEntry import FileEntry
@@ -13,7 +14,6 @@ from generated.formats.ovl.compounds.IncludedOvl import IncludedOvl
 from generated.formats.ovl.compounds.MimeEntry import MimeEntry
 from generated.formats.ovl.compounds.StreamEntry import StreamEntry
 from generated.formats.ovl.compounds.Triplet import Triplet
-from generated.formats.ovl.compounds.ZlibInfo import ZlibInfo
 from generated.formats.ovl_base.compounds.GenericHeader import GenericHeader
 
 
@@ -113,7 +113,7 @@ class Header(GenericHeader):
 		# after aux in ZTUAC and PC
 		self.dependencies = Array(self.context, 0, None, (0,), DependencyEntry)
 		self.stream_files = Array(self.context, 0, None, (0,), StreamEntry)
-		self.zlibs = Array(self.context, 0, None, (0,), ZlibInfo)
+		self.archives_meta = Array(self.context, 0, None, (0,), ArchiveMeta)
 		if set_default:
 			self.set_defaults()
 
@@ -154,7 +154,7 @@ class Header(GenericHeader):
 		('aux_entries', Array, (0, None, (None,), AuxEntry), (False, None), None),
 		('dependencies', Array, (0, None, (None,), DependencyEntry), (False, None), True),
 		('stream_files', Array, (0, None, (None,), StreamEntry), (False, None), None),
-		('zlibs', Array, (0, None, (None,), ZlibInfo), (False, None), None),
+		('archives_meta', Array, (0, None, (None,), ArchiveMeta), (False, None), None),
 		]
 
 	@classmethod
@@ -200,4 +200,4 @@ class Header(GenericHeader):
 		if instance.context.version <= 18:
 			yield 'dependencies', Array, (0, None, (instance.num_dependencies,), DependencyEntry), (False, None)
 		yield 'stream_files', Array, (0, None, (instance.num_stream_files,), StreamEntry), (False, None)
-		yield 'zlibs', Array, (0, None, (instance.num_archives,), ZlibInfo), (False, None)
+		yield 'archives_meta', Array, (0, None, (instance.num_archives,), ArchiveMeta), (False, None)
