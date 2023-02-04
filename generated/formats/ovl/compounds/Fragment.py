@@ -33,3 +33,7 @@ class Fragment(BaseStruct):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'link_ptr', HeaderPointer, (0, None), (False, None)
 		yield 'struct_ptr', HeaderPointer, (0, None), (False, None)
+
+	@classmethod
+	def read_array(cls, stream, shape, context=None, arg=0, template=None):
+		return cls._read_array(stream, shape, context, arg, template)

@@ -20,22 +20,24 @@ class StructMetaClass(type):
         return super().__new__(metacls, name, bases, dict, **kwds)
 
     def __init__(cls, name, bases, dict, **kwds):
+        # store this struct cls in the import map, so that other structs can import it without cyclic imports
         if "_import_key" in dict:
             cls._import_map[dict['_import_key']] = cls
         super().__init__(name, bases, dict, **kwds)
 
         def free_function(function_name):
+            """Checks if the function is defined"""
             if function_name in dict:
                 return False
             else:
                 # not defined in class body allows automatic filling, as long as any parents are also compatible
                 return callable(getattr(cls, function_name, lambda: True))
 
-        if getattr(cls, "_attribute_list", None) is not None:
+        # check if the class has a non-empty _attribute_list
+        if getattr(cls, "_attribute_list", ()):
             attribute_list = cls._attribute_list
-            attr_names = [name for name, f_type, arguments, _, cond in attribute_list]
-            attr_types = [f_type for name, f_type, arguments, _, cond in attribute_list]
-            attr_conds = [cond for name, f_type, arguments, _, cond in attribute_list]
+            # for convenience, sort the attribute list into continuous lists
+            attr_names, attr_types, _, _, attr_conds = zip(*attribute_list)
             if all(cond is None for cond in attr_conds) and all(attr_type is not None for attr_type in attr_types):
                 # all fields are static
                 if len(set(attr_types)) == 1:
@@ -60,6 +62,7 @@ class StructMetaClass(type):
                             else:
                                 raise IndexError(f'Index {key} not in {type(self)}')
                         cls.__setitem__ = __setitem__
+                # check if all of the class's attributes have a from_value function
                 if all(callable(getattr(attr_type, "from_value", None)) for attr_type in attr_types):
                     # since all fields are static and have a from_value function defined, this struct can also have
                     # from_value defined

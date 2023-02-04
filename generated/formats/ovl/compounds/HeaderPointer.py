@@ -30,6 +30,10 @@ class HeaderPointer(BaseStruct):
 		yield 'pool_index', Int, (0, None), (False, -1)
 		yield 'data_offset', Uint, (0, None), (False, None)
 
+	@classmethod
+	def read_array(cls, stream, shape, context=None, arg=0, template=None):
+		return cls._read_array(stream, shape, context, arg, template)
+
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		# The index of the MemPool this one relates to; OR, for entries referred to from AssetEntries: -1 (FF FF FF FF)
