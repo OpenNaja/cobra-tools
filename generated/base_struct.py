@@ -108,7 +108,6 @@ class ImportMap(dict):
             return self[k]
 
 
-
 class DummyInstance:
     def __init__(self, context, arg=0, template=None):
         self.context = context

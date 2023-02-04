@@ -77,7 +77,6 @@ class Pointer(BaseStruct):
 			return
 		# it is a dependency
 		if isinstance(link, str):
-			print(link)
 			# store dependency name
 			self.data = link
 		else:

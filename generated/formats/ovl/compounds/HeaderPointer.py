@@ -164,8 +164,6 @@ class HeaderPointer(BaseStruct):
 	def add_link(self, target, pools):
 		"""Adds an entry to the required tables of this pool"""
 		pool = self.get_pool(pools)
-		if not isinstance(target, tuple):
-			print(target, type(target))
 		if pool:
 			pool.offset_2_link_entry[self.data_offset] = target
 
