@@ -411,11 +411,13 @@ class BaseStruct(metaclass=StructMetaClass):
             if field_type == Array:
                 raise AttributeError(f"Can't cast structs containing arrays to numpy")
             if field_type is not None:
-                if hasattr(field_type, "_get_np_sig"):
-                    # instance is fake anyway so don't try to get a child struct
-                    res.append((field_name, field_type._get_np_sig(instance)))
-                else:
+                # numeric basic types have np_dtype set on the class
+                if hasattr(field_type, "np_dtype"):
                     res.append((field_name, field_type.np_dtype))
+                # structs may be able to get a structured dtype
+                else:
+                    # instance is fake anyway so don't try to get a child struct
+                    res.append((field_name, field_type.get_np_sig(instance)))
         # dynamically subclass to get np.record behavior
         # it does not work when dtype is not a subclass of struct_record
         record = type(f"{cls.__name__}Record", (cls, struct_record), {})

@@ -219,7 +219,7 @@
         <add name="struct_ptr" type="HeaderPointer" >points to the main struct of this file OR -1 pointer for assets</add>
     </compound>
 	
-    <compound name="Fragment" allow_np="true">
+    <compound name="Fragment" allow_np="false">
 		These are to be thought of as instructions for loading. Their order is irrelevant.
         <add name="link_ptr" type="HeaderPointer" >determines where to write a pointer address</add>
         <add name="struct_ptr" type="HeaderPointer" >the struct that is pointed to can be found here</add>
