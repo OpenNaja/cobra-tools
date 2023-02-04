@@ -49,7 +49,7 @@ class Fragment(BaseStruct):
 		self.ext_raw = e.replace(".", ":")
 
 	def register(self, pools):
-		self.struct_ptr.add_struct(self, pools)
+		self.struct_ptr.add_struct(pools)
 		target_pool = pools[self.struct_ptr.pool_index]
 		self.link_ptr.add_link((target_pool, self.struct_ptr.data_offset), pools)
 

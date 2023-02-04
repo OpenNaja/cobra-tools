@@ -18,6 +18,7 @@ class MemPool:
 		self.offset_2_struct_entries = {}  # multiple (fragments') struct_ptrs can point to the same data
 		self.offset_2_link_entry = {}  # link_ptrs are unique
 		self.size_map = {}
+		self.offsets = set()
 
 	def get_first_entry(self):
 		# usually 0, but be safe
@@ -31,7 +32,7 @@ class MemPool:
 		"""Store size of every struct_ptr in size_map"""
 		self.size_map = {}
 		# sort them
-		sorted_offsets = sorted(self.offset_2_struct_entries.keys())
+		sorted_offsets = sorted(self.offsets)
 		# add the end of the header data block
 		sorted_offsets.append(self.size)
 		# get the size of each pointer

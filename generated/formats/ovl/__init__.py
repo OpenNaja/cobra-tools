@@ -957,7 +957,6 @@ class OvlFile(Header):
 		logging.debug("Linking pointers to pools")
 		for dep in self.dependencies:
 			# the index goes into the flattened list of ovl pools
-			# dep.link_ptr.add_link(dep, self.pools)
 			dep.register(self.pools)
 		# this loop is extremely costly in JWE2 c0 main.ovl, about 145 s
 		for archive in self.archives:
@@ -965,11 +964,9 @@ class OvlFile(Header):
 			# attach all pointers to their pool
 			for root_entry in ovs.root_entries:
 				# may not have a pool
-				root_entry.struct_ptr.add_struct(root_entry, ovs.pools)
+				root_entry.struct_ptr.add_struct(ovs.pools)
 			for frag in ovs.fragments:
 				frag.register(ovs.pools)
-				# frag.struct_ptr.add_struct(frag, ovs.pools)
-				# frag.link_ptr.add_link(frag, ovs.pools)
 		logging.debug("Calculating pointer sizes")
 		for pool in self.pools:
 			pool.calc_size_map()

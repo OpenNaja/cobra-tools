@@ -152,13 +152,14 @@ class HeaderPointer(BaseStruct):
 							# logging.debug(f"Removed link at offset {offset} from pool")
 							self.pool.offset_2_link_entry.pop(offset)
 
-	def add_struct(self, entry, pools):
+	def add_struct(self, pools):
 		"""Adds an entry to the required tables of this pool"""
 		pool = self.get_pool(pools)
 		if pool:
-			if self.data_offset not in pool.offset_2_struct_entries:
-				pool.offset_2_struct_entries[self.data_offset] = []
-			pool.offset_2_struct_entries[self.data_offset].append(entry)
+			pool.offsets.add(self.data_offset)
+			# if self.data_offset not in pool.offset_2_struct_entries:
+			# 	pool.offset_2_struct_entries[self.data_offset] = []
+			# pool.offset_2_struct_entries[self.data_offset].append(entry)
 
 	def add_link(self, target, pools):
 		"""Adds an entry to the required tables of this pool"""
