@@ -965,8 +965,13 @@ class OvlFile(Header):
 			for root_entry in ovs.root_entries:
 				# may not have a pool
 				root_entry.struct_ptr.add_struct(ovs.pools)
-			for frag in ovs.fragments:
-				frag.register(ovs.pools)
+			# vectorized like this, it takes virtually no time
+			for l_i, l_o, s_i, s_o, in zip(
+					ovs.fragments["link_ptr"]["pool_index"],
+					ovs.fragments["link_ptr"]["data_offset"],
+					ovs.fragments["struct_ptr"]["pool_index"],
+					ovs.fragments["struct_ptr"]["data_offset"]):
+				ovs.pools[l_i].offset_2_link_entry[l_o] = (ovs.pools[s_i], s_o)
 		logging.debug("Calculating pointer sizes")
 		for pool in self.pools:
 			pool.calc_size_map()

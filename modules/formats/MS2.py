@@ -70,7 +70,8 @@ class Ms2Loader(BaseFile):
 			else:
 				for func in (
 						self.detect_biosyn_format_from_manis,
-						self.detect_biosyn_format_from_ptrs,
+						# todo - pointers no longer have children...
+						# self.detect_biosyn_format_from_ptrs,
 						self.detect_biosyn_default,):
 					check = func()
 					if check is not None:
