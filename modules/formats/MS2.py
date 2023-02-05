@@ -29,7 +29,7 @@ class Model2streamLoader(BaseFile):
 	extension = ".model2stream"
 
 	def extract(self, out_dir):
-		stream_path = out_dir(self.file_entry.name)
+		stream_path = out_dir(self.name)
 		with open(stream_path, 'wb') as outfile:
 			outfile.write(self.data_entry.buffer_datas[0])
 		return stream_path,
@@ -150,7 +150,7 @@ class Ms2Loader(BaseFile):
 				for i, buffer_presence in enumerate(self.header.buffer_pointers.data):
 					d = buffer_presence.dependency_name
 					if d.pool_index != -1 and not d.data:
-						logging.warning(f"Streamed mesh buffer {i} for {self.file_entry.name} has no dependency to a .model2stream file")
+						logging.warning(f"Streamed mesh buffer {i} for {self.name} has no dependency to a .model2stream file")
 		except:
 			logging.exception(f"MS2 collecting failed")
 		# print(self.header)
@@ -218,7 +218,7 @@ class Ms2Loader(BaseFile):
 		for model_info in self.header.model_infos.data:
 			# link first_model pointer
 			if not first_model_frag:
-				logging.debug(f"MS2 {self.file_entry.name} has no pointers on any model")
+				logging.debug(f"MS2 {self.name} has no pointers on any model")
 			else:
 				self.attach_frag_to_ptr(model_info.first_model, pool)
 				self.ptr_relative(model_info.first_model.frag.struct_ptr, first_model_frag.struct_ptr)
@@ -262,22 +262,19 @@ class Ms2Loader(BaseFile):
 				logging.debug(f"Writing {mdl2_loader.name}")
 				stream.write(as_bytes(mdl2_loader.basename))
 			for loader in self.streams:
-				stream.write(as_bytes(loader.file_entry.name))
+				stream.write(as_bytes(loader.name))
 				out_paths.extend(loader.extract(out_dir))
 			stream.write(name_buffer)
 			# export each mdl2
 			if self.header.version > 39:
 				# this corresponds to pc buffer 1 already
-				# handle multiple buffer infos
 				# grab all unique ptrs to buffer infos
-				ptrs = set(wrapper.mesh.stream_info.frag.struct_ptr for model_info in self.header.model_infos.data for wrapper in model_info.meshes.data)
-				# get the sorted binary representations
-				buffer_infos = [ptr.data for ptr in sorted(ptrs, key=lambda ptr: ptr.data_offset)]
+				offsets = set(wrapper.mesh.stream_info.data.io_start for model_info in self.header.model_infos.data for wrapper in model_info.meshes.data)
+				lut = {offset: i for i, offset in enumerate(sorted(offsets))}
 				# store buffer index in Pointer.pool_index
 				for model_info in self.header.model_infos.data:
 					for wrapper in model_info.meshes.data:
-						buffer_info_bytes = wrapper.mesh.stream_info.frag.struct_ptr.data
-						wrapper.mesh.stream_info.pool_index = buffer_infos.index(buffer_info_bytes)
+						wrapper.mesh.stream_info.pool_index = lut[wrapper.mesh.stream_info.data.io_start]
 				if self.header.buffer_infos.data is not None:
 					self.header.buffer_infos.data.to_stream(self.header.buffer_infos.data, stream, context)
 				self.header.model_infos.data.to_stream(self.header.model_infos.data, stream, context)
@@ -317,7 +314,7 @@ class Ms2Loader(BaseFile):
 					missing_materials.add(fgm_name)
 		if missing_materials:
 			mats = '\n'.join(missing_materials)
-			msg = f"The following materials are used by {self.file_entry.name}, but are missing from the OVL:\n" \
+			msg = f"The following materials are used by {self.name}, but are missing from the OVL:\n" \
 				f"{mats}\n" \
 				f"This will crash unless you are importing the materials from another OVL. Inject anyway?"
 			if not interaction.showdialog(msg, ask=True):
