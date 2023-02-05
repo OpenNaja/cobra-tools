@@ -21,15 +21,19 @@ class BaseFile:
 	temp_extensions = ()
 	can_extract = True
 
-	def __init__(self, ovl, file_entry):
+	def __init__(self, ovl, file_name):
 		self.ovl = ovl
+		self.name = file_name
+		self.basename, self.ext = os.path.splitext(self.name)
+
 		# this needs to be figured out by the root_entry
 		self.ovs = None
 		self.header = None
 		self.target_name = ""
 
 		# defined in ovl
-		self.file_entry = file_entry
+		# todo
+		# self.file_entry = file_entry
 		self.dependencies = []
 		self.aux_entries = []
 		self.streams = []

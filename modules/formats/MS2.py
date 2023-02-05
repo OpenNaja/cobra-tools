@@ -38,7 +38,7 @@ class Model2streamLoader(BaseFile):
 		self.create_root_entry()
 
 		if ovl_versions.is_jwe2(self.ovl):
-			lod_index = int(self.file_entry.basename[-1])
+			lod_index = int(self.basename[-1])
 			root_data = struct.pack("<QQ", 0, lod_index)
 		else:
 			# JWE1, PZ, PC  all untested 
@@ -69,7 +69,8 @@ class Ms2Loader(BaseFile):
 				return self.ovl.is_biosyn
 			else:
 				for func in (
-						self.detect_biosyn_format_from_manis,
+						# todo - ext issues
+						# self.detect_biosyn_format_from_manis,
 						# todo - pointers no longer have children...
 						# self.detect_biosyn_format_from_ptrs,
 						self.detect_biosyn_default,):
@@ -127,7 +128,7 @@ class Ms2Loader(BaseFile):
 	def link_streams(self):
 		"""Collect other loaders"""
 		# if the ms2 name ends in a trailing underscore, remove it
-		bare_name = self.file_entry.basename.rstrip("_")
+		bare_name = self.basename.rstrip("_")
 		self._link_streams(f"{bare_name}{lod_i}.model2stream" for lod_i in range(4))
 
 	def get_version(self):
@@ -258,9 +259,8 @@ class Ms2Loader(BaseFile):
 			if self.header.buffer_pointers.data is not None:
 				self.header.buffer_pointers.data.to_stream(self.header.buffer_pointers.data, stream, context)
 			for mdl2_loader in self.children:
-				mdl2_entry = mdl2_loader.file_entry
-				logging.debug(f"Writing {mdl2_entry.name}")
-				stream.write(as_bytes(mdl2_entry.basename))
+				logging.debug(f"Writing {mdl2_loader.name}")
+				stream.write(as_bytes(mdl2_loader.basename))
 			for loader in self.streams:
 				stream.write(as_bytes(loader.file_entry.name))
 				out_paths.extend(loader.extract(out_dir))

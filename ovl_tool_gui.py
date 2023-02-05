@@ -437,13 +437,13 @@ class MainWindow(widgets.MainWindow):
 		drag = QtGui.QDrag(self)
 		data = QtCore.QMimeData()
 		temp_dir = tempfile.mkdtemp("-cobra")
-		out_paths = self.ovl_data.extract(
-			temp_dir, only_names=file_names, show_temp_files=self.show_temp_files)
-		if out_paths:
-			data.setUrls([QtCore.QUrl.fromLocalFile(path) for path in out_paths])
 		try:
-			drag.setMimeData(data)
-			drag.exec_()
+			out_paths = self.ovl_data.extract(
+				temp_dir, only_names=file_names, show_temp_files=self.show_temp_files)
+			if out_paths:
+				data.setUrls([QtCore.QUrl.fromLocalFile(path) for path in out_paths])
+				drag.setMimeData(data)
+				drag.exec_()
 		except:
 			self.handle_error("Dragging failed, see log!")
 		shutil.rmtree(temp_dir)

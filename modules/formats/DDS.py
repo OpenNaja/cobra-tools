@@ -36,7 +36,7 @@ class TexturestreamLoader(BaseFile):
 	def create(self):
 		self.create_root_entry()
 		if is_jwe2(self.ovl):
-			lod_index = int(self.file_entry.basename[-1])
+			lod_index = int(self.basename[-1])
 			root_data = struct.pack("<QQ", 0, lod_index)
 		else:
 			# JWE1, PZ, PC
@@ -53,7 +53,7 @@ class DdsLoader(MemStructLoader):
 
 	def link_streams(self):
 		"""Collect other loaders"""
-		self._link_streams(f"{self.file_entry.basename}_lod{lod_i}.texturestream" for lod_i in range(3))
+		self._link_streams(f"{self.basename}_lod{lod_i}.texturestream" for lod_i in range(3))
 
 	def increment_buffers(self, loader, buffer_i):
 		"""Linearly increments buffer indices for games that need it"""
@@ -164,12 +164,12 @@ class DdsLoader(MemStructLoader):
 		# load dds
 		dds_file = DdsFile()
 		dds_file.load(dds_path)
-		print(dds_file)
+		# print(dds_file)
 		return dds_file
 
 	def get_sorted_datas(self):
 		# lod0 | lod1 | static
-		return [loader.data_entry for loader in sorted(self.streams, key=lambda f: f.file_entry.name)] + [self.data_entry, ]
+		return [loader.data_entry for loader in sorted(self.streams, key=lambda l: l.name)] + [self.data_entry, ]
 
 	def get_sorted_streams(self):
 		# PZ assigns the buffer index for the complete struct 0 | 1 | 2, 3
@@ -180,7 +180,6 @@ class DdsLoader(MemStructLoader):
 		return [b for data_entry in self.get_sorted_datas() for b in data_entry.buffers]
 
 	def get_tex_structs(self):
-		print( self.ovl.version, self.header, self.file_entry.mime)
 		if is_dla(self.ovl):
 			return self.header
 		if self.ovl.version < 19:
@@ -276,7 +275,7 @@ class DdsLoader(MemStructLoader):
 		tex_w = align_to(tex_w, self.header.compression_type.name)
 		if png_width * png_height != tex_h * tex_w:
 			raise AttributeError(
-				f"Dimensions do not match for {self.file_entry.name}!\n"
+				f"Dimensions do not match for {self.name}!\n"
 				f"Dimensions: height x width x depth [num_tiles]\n"
 				f".tex file: {tex_h} x {tex_w} x {tex_d} [{tex_a}]\n"
 				f".png file: {png_height} x {png_width}\n\n"
