@@ -971,7 +971,9 @@ class OvlFile(Header):
 					ovs.fragments["link_ptr"]["data_offset"],
 					ovs.fragments["struct_ptr"]["pool_index"],
 					ovs.fragments["struct_ptr"]["data_offset"]):
-				ovs.pools[l_i].offset_2_link_entry[l_o] = (ovs.pools[s_i], s_o)
+				s_pool = ovs.pools[s_i]
+				s_pool.offsets.add(s_o)
+				ovs.pools[l_i].offset_2_link_entry[l_o] = (s_pool, s_o)
 		logging.debug("Calculating pointer sizes")
 		for pool in self.pools:
 			pool.calc_size_map()
@@ -986,6 +988,7 @@ class OvlFile(Header):
 			logging.info(f"Loading only {only_types}")
 			loaders = [loader for loader in loaders if loader.file_entry.ext in only_types]
 		for loader in self.iter_progress(loaders, "Mapping files"):
+			# todo - rewrite this
 			loader.track_ptrs()
 			try:
 				loader.collect()
