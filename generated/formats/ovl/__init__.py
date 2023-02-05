@@ -869,8 +869,11 @@ class OvlFile(Header):
 		# store mime extension hash so we can use it
 		self.hash_table_local = {djb2(ext[1:].lower()): ext for ext in self.mimes_ext}
 
-		self.mimes_triplets = [self.triplets[o: o+c] for o, c in zip(
-			self.mimes["triplet_offset"], self.mimes["triplet_count"])]
+		if "triplet_offset" in self.mimes.dtype.fields:
+			self.mimes_triplets = [self.triplets[o: o+c] for o, c in zip(
+				self.mimes["triplet_offset"], self.mimes["triplet_count"])]
+		else:
+			self.mimes_triplets = []
 		# add file name to hash dict; ignoring the extension pointer
 		self.files_basename = [self.names.get_str_at(i) for i in self.files["basename"]]
 		self.files_ext = [self.mimes_ext[i] for i in self.files["extension"]]

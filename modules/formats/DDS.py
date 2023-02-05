@@ -229,7 +229,11 @@ class DdsLoader(MemStructLoader):
 		for tile_i, tile_name in zip(tiles, self.get_tile_names(tiles, basename)):
 			# get the mip mapped data for just this tile from the packed tex buffer
 			dds_file.dx_10.num_tiles = size_info.num_tiles
-			tile_data = dds_file.unpack_mips(size_info.mip_maps, tile_i, buffer_data)
+			if is_pc(self.ovl):
+				# not sure how / if texture arrays are packed for PC - this works for flat textures
+				tile_data = buffer_data
+			else:
+				tile_data = dds_file.unpack_mips(size_info.mip_maps, tile_i, buffer_data)
 			dds_file.dx_10.num_tiles = 1
 			dds_file.buffer = tile_data
 			dds_file.linear_size = len(buffer_data)

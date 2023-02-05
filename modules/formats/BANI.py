@@ -32,9 +32,9 @@ class BaniLoader(MemStructLoader):
 		# link frag to banis
 		banis_loader = self.ovl.loaders.get(self.target_name, None)
 		if not banis_loader:
-			logging.warning(f"Could not find '{self.target_name}' for '{self.file_entry.name}'")
+			logging.warning(f"Could not find '{self.target_name}' for '{self.name}'")
 			return
-		logging.debug(f"Linked '{self.file_entry.name}' to '{self.target_name}'")
+		logging.debug(f"Linked '{self.name}' to '{self.target_name}'")
 		self.ptr_relative(self.header.banis.frag.struct_ptr, banis_loader.root_entry.struct_ptr)
 
 	def extract(self, out_dir):
@@ -53,6 +53,7 @@ class BaniLoader(MemStructLoader):
 		return out_path,
 
 	def find_banis_name(self):
+		# todo rewrite
 		for root_entry in self.ovs.root_entries:
 			if self.header.banis.frag.struct_ptr == root_entry.struct_ptr:
 				return root_entry.name
