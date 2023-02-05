@@ -486,9 +486,10 @@ class OvsFile(OvsHeader):
 		else:
 			# file_hash is an index into ovl files
 			try:
-				file = self.ovl.files[entry.file_hash]
-				n = file.basename
-				e = file.ext
+				file_name = self.ovl.files_name[entry.file_hash]
+				loader = self.ovl.loaders[file_name]
+				n = loader.basename
+				e = loader.ext
 			except IndexError:
 				logging.warning(
 					f"Entry ID {entry.file_hash} [{entry.__class__.__name__}] does not index into ovl file table of length {len(self.ovl.files)}")
