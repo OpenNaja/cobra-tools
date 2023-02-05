@@ -1,3 +1,4 @@
+import json
 import os
 import time
 import traceback
@@ -78,6 +79,8 @@ def generate_hash_table(gui, start_dir):
 		if error_files:
 			logging.error(f"{error_files} caused errors!")
 		out_dir = get_output_dir(start_dir)
+		# with open(os.path.join(out_dir, "hashes.json"), "w") as json_writer:
+		# 	json.dump(hashes, json_writer, indent="\t", sort_keys=True)
 		write_hashes_dict(os.path.join(out_dir, "hashes.py"), hashes)
 		write_mimes_dict(os.path.join(out_dir, "mimes.py"), mimes)
 		logging.info(f"Formats used in dependencies: {[s.replace(':', '.') for s in sorted(all_deps_exts)]}")
