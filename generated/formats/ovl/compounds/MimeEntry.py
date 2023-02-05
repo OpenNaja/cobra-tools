@@ -71,6 +71,10 @@ class MimeEntry(BaseStruct):
 			yield 'triplet_count', Uint, (0, None), (False, None)
 			yield 'triplet_offset', Uint, (0, None), (False, None)
 
+	@classmethod
+	def read_array(cls, stream, shape, context=None, arg=0, template=None):
+		return cls._read_array(stream, shape, context, arg, template)
+
 	def update_constants(self, ovl):
 		"""Update the constants"""
 		self.name = ovl.get_mime(self.ext, "name")

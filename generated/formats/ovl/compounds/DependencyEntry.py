@@ -1,12 +1,12 @@
 import os
 
+from generated.base_struct import BaseStruct
 from generated.formats.base.basic import Uint
 from generated.formats.ovl.compounds.HeaderPointer import HeaderPointer
-from generated.formats.ovl.compounds.NamedEntry import NamedEntry
 from generated.formats.ovl_base.basic import OffsetString
 
 
-class DependencyEntry(NamedEntry):
+class DependencyEntry(BaseStruct):
 
 	"""
 	Description of dependency; links it to an entry from this archive
@@ -33,7 +33,7 @@ class DependencyEntry(NamedEntry):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = NamedEntry._attribute_list + [
+	_attribute_list = BaseStruct._attribute_list + [
 		('file_hash', Uint, (0, None), (False, None), None),
 		('ext_raw', OffsetString, (None, None), (False, None), None),
 		('file_index', Uint, (0, None), (False, None), None),
@@ -47,6 +47,10 @@ class DependencyEntry(NamedEntry):
 		yield 'ext_raw', OffsetString, (instance.context.names, None), (False, None)
 		yield 'file_index', Uint, (0, None), (False, None)
 		yield 'link_ptr', HeaderPointer, (0, None), (False, None)
+
+	@classmethod
+	def read_array(cls, stream, shape, context=None, arg=0, template=None):
+		return cls._read_array(stream, shape, context, arg, template)
 
 	@property
 	def ext(self):

@@ -862,26 +862,34 @@ class OvlFile(Header):
 		# maps djb2 hash to string
 		self.hash_table_local = {}
 		# add extensions to hash dict
-		for mime_entry in self.iter_progress(self.mimes, "Loading extensions"):
-			# get the bare extension from the mime string
-			mime_entry.ext = f".{mime_entry.name.split(':')[-1]}"
-			# we must calculate the djb2 hash of the extension to find it from the ovs
-			self.hash_table_local[djb2(mime_entry.ext[1:].lower())] = mime_entry.ext
-			mime_entry.triplets = self.triplets[
-								  mime_entry.triplet_offset: mime_entry.triplet_offset + mime_entry.triplet_count]
-
+		self.mimes_name = [self.names.get_str_at(i) for i in self.mimes["name"]]
+		self.mimes_ext = [f".{name.split(':')[-1]}" for name in self.mimes_name]
+		self.hash_table_local = {djb2(ext[1:].lower()): ext for ext in self.mimes_ext}
+		# for mime_entry in self.iter_progress(self.mimes, "Loading extensions"):
+		# 	# get the bare extension from the mime string
+		# 	mime_entry.ext = f".{mime_entry.name.split(':')[-1]}"
+		# 	# we must calculate the djb2 hash of the extension to find it from the ovs
+		# 	self.hash_table_local[djb2(mime_entry.ext[1:].lower())] = mime_entry.ext
+		# 	mime_entry.triplets = self.triplets[
+		# 						  mime_entry.triplet_offset: mime_entry.triplet_offset + mime_entry.triplet_count]
+		self.mimes_triplets = [self.triplets[o: o+c] for o, c in zip(
+			self.mimes["triplet_offset"], self.mimes["triplet_count"])]
 		# add file name to hash dict; ignoring the extension pointer
-		for file_entry in self.iter_progress(self.files, "Loading files"):
-			file_entry.mime = self.mimes[file_entry.extension]
-			file_entry.ext = file_entry.mime.ext
-			# store this so we can use it
-			file_entry.ext_hash = djb2(file_entry.ext[1:])
-			self.hash_table_local[file_entry.file_hash] = file_entry.basename
+		self.files_basename = [self.names.get_str_at(i) for i in self.files["basename"]]
+		self.files_ext = [self.mimes_ext[i] for i in self.files["extension"]]
+		self.dependencies_ext = [self.names.get_str_at(i) for i in self.dependencies["ext_raw"]]
+		# for file_entry in self.iter_progress(self.files, "Loading files"):
+		# 	file_entry.mime = self.mimes[file_entry.extension]
+		# 	file_entry.ext = file_entry.mime.ext
+		# 	# store this so we can use it
+		# 	file_entry.ext_hash = djb2(file_entry.ext[1:])
+		# 	self.hash_table_local[file_entry.file_hash] = file_entry.basename
 
 		if "generate_hash_table" in self.commands:
 			deps_exts = self.commands["generate_hash_table"]
-			filtered_hash_table = {f.file_hash: f.basename for f in self.files if f.ext in deps_exts}
-			return filtered_hash_table, set(d.ext for d in self.dependencies)
+			filtered_hash_table = {h: basename for h, basename, ext in zip(
+				self.files["file_hash"], self.files_basename, self.files_ext) if ext in deps_exts}
+			return filtered_hash_table, set(self.dependencies_ext)
 		else:
 			self.files_list.emit([[file.name, file.ext] for file in self.files])
 			# initialize the loaders right here

@@ -38,8 +38,9 @@
         <add name="Names" type="ZStringBuffer" arg="Len Names">Name buffer for assets and file mime types.</add>
         <add name="Names_pad" type="ubyte" arr1="(16 - (Len Names #MOD# 16)) #MOD# 16" until="15">used in DLA</add>
         <add name="Mimes" type="MimeEntry" arr1="Num Mimes"/>
+        <add name="triplets_ref" type="Empty"/>
         <add name="triplets" type="Triplet" arr1="num_triplets" since="20"/>
-        <add name="triplets_pad" type="PadAlign" template="triplets" arg="4" since="20"/>
+        <add name="triplets_pad" type="PadAlign" template="triplets_ref" arg="4" since="20"/>
         <add name="Files" type="FileEntry" arr1="Num Files"/>
         <add name="archive_names" type="ZStringBuffer" arg="Len Archive Names">usually STATIC followed by any external OVS names</add>
         <add name="Archives" type="ArchiveEntry" arr1="Num Archives"/>
@@ -51,7 +52,7 @@
         <add name="archives_meta" type="ArchiveMeta" arr1="Num Archives"/>
     </compound>
 
-    <compound name="MimeEntry" >
+    <compound name="MimeEntry" allow_np="true" >
         Description of one mime type or file class.
 		Inside the archive not the stored mime hash is used but the extension hash, has to be generated, eg. djb2("bani") == 2090104799
         <add name="name" type="OffsetString" arg="context\names"/>
@@ -65,7 +66,7 @@
         <add name="triplet offset" type="uint" since="20" >index into triplets list</add>
     </compound>
 
-    <compound name="Triplet" >
+    <compound name="Triplet" allow_np="true">
         3 bytes - constant per mime and version
         <add name="a" type="ubyte">?</add>
         <add name="b" type="ubyte">?</add>
@@ -76,7 +77,8 @@
         name is stored in basename and ext attributes
     </compound>
 
-    <compound name="FileEntry" inherit="NamedEntry">
+<!--    <compound name="FileEntry" inherit="NamedEntry" >-->
+    <compound name="FileEntry" allow_np="true" >
         Description of one file in the archive
         <add name="basename" type="OffsetString" arg="context\names"/>
         <add name="file hash" type="uint">this hash is used to retrieve the file name from inside the archive</add>
@@ -111,7 +113,8 @@
         <add name="basename" type="OffsetString" arg="context\names">path is relative to this ovl's directory; usually points to ovl files</add>
     </compound>
 
-    <compound name="DependencyEntry" inherit="NamedEntry">
+<!--    <compound name="DependencyEntry" inherit="NamedEntry">-->
+    <compound name="DependencyEntry" allow_np="true">
         Description of dependency; links it to an entry from this archive
         <add name="file hash" type="uint">Hash of this dependency, for lookup in hash dict. Can be either external or internal.</add>
         <add name="ext_raw" type="OffsetString" arg="context\names">these use : instead of . at the start, eg. :tex</add>

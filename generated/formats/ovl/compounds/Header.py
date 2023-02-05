@@ -14,6 +14,7 @@ from generated.formats.ovl.compounds.IncludedOvl import IncludedOvl
 from generated.formats.ovl.compounds.MimeEntry import MimeEntry
 from generated.formats.ovl.compounds.StreamEntry import StreamEntry
 from generated.formats.ovl.compounds.Triplet import Triplet
+from generated.formats.ovl_base.compounds.Empty import Empty
 from generated.formats.ovl_base.compounds.GenericHeader import GenericHeader
 
 
@@ -99,8 +100,9 @@ class Header(GenericHeader):
 		# used in DLA
 		self.names_pad = Array(self.context, 0, None, (0,), Ubyte)
 		self.mimes = Array(self.context, 0, None, (0,), MimeEntry)
+		self.triplets_ref = Empty(self.context, 0, None)
 		self.triplets = Array(self.context, 0, None, (0,), Triplet)
-		self.triplets_pad = PadAlign(self.context, 4, self.triplets)
+		self.triplets_pad = PadAlign(self.context, 4, self.triplets_ref)
 		self.files = Array(self.context, 0, None, (0,), FileEntry)
 
 		# usually STATIC followed by any external OVS names
@@ -144,6 +146,7 @@ class Header(GenericHeader):
 		('names', ZStringBuffer, (None, None), (False, None), None),
 		('names_pad', Array, (0, None, (None,), Ubyte), (False, None), True),
 		('mimes', Array, (0, None, (None,), MimeEntry), (False, None), None),
+		('triplets_ref', Empty, (0, None), (False, None), None),
 		('triplets', Array, (0, None, (None,), Triplet), (False, None), True),
 		('triplets_pad', PadAlign, (4, None), (False, None), True),
 		('files', Array, (0, None, (None,), FileEntry), (False, None), None),
@@ -187,9 +190,10 @@ class Header(GenericHeader):
 		if instance.context.version <= 15:
 			yield 'names_pad', Array, (0, None, ((16 - (instance.len_names % 16)) % 16,), Ubyte), (False, None)
 		yield 'mimes', Array, (0, None, (instance.num_mimes,), MimeEntry), (False, None)
+		yield 'triplets_ref', Empty, (0, None), (False, None)
 		if instance.context.version >= 20:
 			yield 'triplets', Array, (0, None, (instance.num_triplets,), Triplet), (False, None)
-			yield 'triplets_pad', PadAlign, (4, instance.triplets), (False, None)
+			yield 'triplets_pad', PadAlign, (4, instance.triplets_ref), (False, None)
 		yield 'files', Array, (0, None, (instance.num_files,), FileEntry), (False, None)
 		yield 'archive_names', ZStringBuffer, (instance.len_archive_names, None), (False, None)
 		yield 'archives', Array, (0, None, (instance.num_archives,), ArchiveEntry), (False, None)
