@@ -26,7 +26,11 @@ class BaniLoader(MemStructLoader):
 
 	def collect(self):
 		super().collect()
+		self.target_name = None
+
+	def validate(self):
 		self.target_name = self.find_banis_name()
+		logging.debug(f"Found {self.target_name}")
 
 	def update(self):
 		# link frag to banis
@@ -53,10 +57,10 @@ class BaniLoader(MemStructLoader):
 		return out_path,
 
 	def find_banis_name(self):
-		# todo rewrite
-		for root_entry in self.ovs.root_entries:
-			if self.header.banis.frag.struct_ptr == root_entry.struct_ptr:
-				return root_entry.name
+		for loader in self.ovl.loaders.values():
+			if loader.ext == ".banis":
+				if loader.root_ptr == self.header.banis.link:
+					return loader.name
 		return "None"
 
 

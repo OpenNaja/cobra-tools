@@ -113,6 +113,10 @@ class MemPool(BaseStruct):
 		self.data.seek(offset)
 		return self.data.read(size)
 
+	def get_data_at(self, offset):
+		"""Get data from pool writer"""
+		return self.get_at(offset, self.size_map[offset])
+
 	def get_size(self):
 		# seek to end of stream
 		self.data.seek(0, 2)

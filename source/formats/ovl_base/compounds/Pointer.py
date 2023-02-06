@@ -68,6 +68,7 @@ class Pointer(BaseStruct):
 		else:
 			# now read an instance of template class at the offset
 			pool, offset = link
+			self.link = link
 			self.target_pool = pool
 			stream = pool.stream_at(offset)
 			self.read_template(stream)

@@ -132,7 +132,8 @@ class Ms2Loader(BaseFile):
 		self._link_streams(f"{bare_name}{lod_i}.model2stream" for lod_i in range(4))
 
 	def get_version(self):
-		data = self.root_ptr.get_data(self.ovs.pools)
+		pool, offset = self.root_ptr
+		data = pool.get_data_at(offset)
 		version = struct.unpack(f"I", data[:4])[0]
 		self.context = Ms2Context()
 		self.context.version = version
@@ -141,8 +142,8 @@ class Ms2Loader(BaseFile):
 
 	def collect(self):
 		self.get_version()
-		pool = self.root_ptr.get_pool(self.ovs.pools)
-		stream = pool.stream_at(self.root_ptr.data_offset)
+		pool, offset = self.root_ptr
+		stream = pool.stream_at(offset)
 		self.header = Ms2Root.from_stream(stream, self.context)
 		try:
 			self.header.read_ptrs(pool)

@@ -126,17 +126,19 @@ class OvsFile(OvsHeader):
 					entry.file_hash = file_index
 				entry.ext_hash = file.ext_hash
 
-	def unzip(self, archive_entry, start):
+	def load(self, archive_entry, start):
 		filepath = archive_entry.ovs_path
 		stream = self.ovl.ovs_dict[filepath]
 		stream.seek(start)
 		logging.info(
+			f"Loading archive {archive_entry.name}")
+		logging.debug(
 			f"Compressed stream {archive_entry.name} in {os.path.basename(filepath)} starts at {stream.tell()}")
 		compressed_bytes = stream.read(archive_entry.compressed_size)
 		with self.unzipper(compressed_bytes, archive_entry.uncompressed_size) as stream:
-			start_time = time.time()
+			# start_time = time.time()
 			super().read_fields(stream, self)
-			logging.info(f"Read decompressed stream in {time.time() - start_time:.2f} seconds")
+			# logging.info(f"Read decompressed stream in {time.time() - start_time:.2f} seconds")
 			# print(self)
 			pool_index = 0
 			for pool_type in self.pool_groups:
@@ -150,12 +152,15 @@ class OvsFile(OvsHeader):
 				self.assign_name(data_entry)
 				loader = self.ovl.loaders[data_entry.name]
 				loader.data_entries[archive_entry.name] = data_entry
-			for root_entry in self.root_entries:
-				self.assign_name(root_entry)
-				# store ovs and root_entry on loader
-				loader = self.ovl.loaders[root_entry.name]
-				loader.root_entry = root_entry
-				loader.ovs = self
+			# for root_entry in self.root_entries:
+			# 	self.assign_name(root_entry)
+			# 	# store ovs and root_entry on loader
+			# 	loader = self.ovl.loaders[root_entry.name]
+			# 	loader.root_entry = root_entry
+			# 	loader.ovs = self
+			self.root_entries_name = self.get_names_list(self.root_entries)
+			# for root_name in self.root_entries_name:
+
 
 			if not (self.set_header.sig_a == 1065336831 and self.set_header.sig_b == 16909320):
 				raise AttributeError("Set header signature check failed!")
@@ -190,10 +195,10 @@ class OvsFile(OvsHeader):
 				set_entry.end = self.set_header.sets[i + 1].start
 			# map assets to entry
 			assets = self.set_header.assets[set_entry.start: set_entry.end]
-			logging.debug(f"Set {set_entry.name} with {len(assets)} assets")
+			# logging.debug(f"Set {set_entry.name} with {len(assets)} assets")
 			# store the references on the corresponding loader
 			loader = self.ovl.loaders[set_entry.name]
-			loader.children = [self.ovl.loaders[self.root_entries[a.file_index].name] for a in assets]
+			loader.children = [self.ovl.loaders[self.root_entries_name[a.file_index]] for a in assets]
 
 	@staticmethod
 	def transfer_identity(source_entry, target_entry):
@@ -360,7 +365,7 @@ class OvsFile(OvsHeader):
 
 	def map_buffers(self):
 		"""Map buffers to data entries"""
-		logging.info("Mapping buffers")
+		logging.debug("Mapping buffers")
 		if self.ovl.version >= 20:
 			for data in self.data_entries:
 				data.buffers = []
@@ -501,6 +506,25 @@ class OvsFile(OvsHeader):
 		entry.ext = e
 		entry.basename = n
 		entry.name = f"{n}{e}"
+
+	def get_names_list(self, array):
+		"""Fetch a filename for an entry"""
+		# JWE style
+		if self.ovl.user_version.use_djb:
+			# look up the hashes
+			names = []
+			for n, e in zip(
+					[self.ovl.hash_table_local[h] for h in array["file_hash"]],
+					[self.ovl.hash_table_local[h] for h in array["ext_hash"]]):
+				# fix for island.island, force extension to start with .
+				if e[0] != ".":
+					e = f".{e}"
+				names.append(n+e)
+			return names
+		# PZ Style and PC Style
+		else:
+			# file_hash is an index into ovl files
+			return [self.ovl.files_name[i] for i in array["file_hash"]]
 
 	def write_pools(self):
 		logging.debug(f"Writing pools for {self.arg.name}")
@@ -857,8 +881,8 @@ class OvlFile(Header):
 		with open(filepath, "rb") as stream:
 			self.read_fields(stream, self)
 			self.eof = stream.tell()
-		logging.info(f"Loaded {self.name} structs in {time.time()-start_time:.2f} seconds")
-		logging.info(f"Game: {get_game(self)[0].name}")
+		logging.debug(f"Loaded {self.name} structs in {time.time()-start_time:.2f} seconds")
+		logging.info(f"Game: {get_game(self)[0].value}")
 
 		self.loaders = {}
 		# maps djb2 hash to string
@@ -927,12 +951,12 @@ class OvlFile(Header):
 				read_start = self.eof
 			else:
 				read_start = archive_entry.read_start
-			start_time = time.time()
+			# start_time = time.time()
 			archive_entry.content = OvsFile(self.context, self, archive_entry)
-			logging.info(f"Initialized OVS in {time.time() - start_time:.2f} seconds")
+			# logging.info(f"Initialized OVS in {time.time() - start_time:.2f} seconds")
 			try:
-				archive_entry.content.unzip(archive_entry, read_start)
-			except BaseException as err:
+				archive_entry.content.load(archive_entry, read_start)
+			except:
 				logging.exception(f"Decompressing {archive_entry.name} from {archive_entry.ovs_path} failed")
 				# print(archive_entry)
 				# print(archive_entry.content)
@@ -970,9 +994,17 @@ class OvlFile(Header):
 		for archive in self.archives:
 			ovs = archive.content
 			# attach all pointers to their pool
-			for root_entry in ovs.root_entries:
+			for n, s_i, s_o, in zip(
+					ovs.root_entries_name,
+					ovs.root_entries["struct_ptr"]["pool_index"],
+					ovs.root_entries["struct_ptr"]["data_offset"]):
 				# may not have a pool
-				root_entry.struct_ptr.add_struct(ovs.pools)
+				if s_i != -1:
+					s_pool = ovs.pools[s_i]
+					s_pool.offsets.add(s_o)
+					loader = self.loaders[n]
+					loader.root_ptr = (s_pool, s_o)
+					loader.ovs = ovs
 			# vectorized like this, it takes virtually no time
 			for l_i, l_o, s_i, s_o, in zip(
 					ovs.fragments["link_ptr"]["pool_index"],
@@ -1004,6 +1036,8 @@ class OvlFile(Header):
 				logging.exception(f"Collecting {loader.name} errored")
 				raise
 			loader.link_streams()
+		for loader in self.iter_progress(loaders, "Validating files"):
+			loader.validate()
 		logging.info(f"Loaded file classes in {time.time() - start_time:.2f} seconds")
 
 	def get_ovs_path(self, archive_entry):

@@ -215,7 +215,7 @@
         <add name="data offset" type="uint" >the byte offset relative to the start of the MemPool's data</add>
     </compound>
 	
-    <compound name="RootEntry" >
+    <compound name="RootEntry" allow_np="true">
         Main file entry in the ovs, one per FileEntry
         <add name="File Hash" type="uint">id (index or djb2) of the file</add>
         <add name="Ext Hash" type="uint" since="19">djb2 of extension</add>

@@ -30,7 +30,7 @@ class HeaderPointer(BaseStruct):
 		"""Get data from pool writer"""
 		pool = self.get_pool(pools)
 		if pool:
-			return pool.get_at(self.data_offset, pool.size_map[self.data_offset])
+			pool.get_data_at(self.data_offset)
 
 	@property
 	def data(self):

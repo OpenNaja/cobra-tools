@@ -179,6 +179,10 @@ class BaseFile:
 		"""Don't do anything by default, overwrite if needed"""
 		pass
 
+	def validate(self):
+		"""Don't do anything by default, overwrite if needed"""
+		pass
+
 	def rename_content(self, name_tuples):
 		"""This is the fallback that is used when the loader class itself does not implement custom methods"""
 		self.rename_fragments(name_tuples)
@@ -226,11 +230,6 @@ class BaseFile:
 			return os.path.normpath(os.path.join(temp_dir, n))
 
 		return temp_dir, out_dir_func
-
-	@property
-	def root_ptr(self):
-		"""Shorthand for the root entry's struct_ptr"""
-		return self.root_entry.struct_ptr
 
 	def register_entries(self):
 
@@ -388,8 +387,8 @@ class MemStructLoader(BaseFile):
 
 	def collect(self):
 		super().collect()
-		pool = self.root_ptr.get_pool(self.ovs.pools)
-		stream = pool.stream_at(self.root_ptr.data_offset)
+		pool, offset = self.root_ptr
+		stream = pool.stream_at(offset)
 		self.header = self.target_class.from_stream(stream, self.context)
 		# print(self.header)
 		self.header.read_ptrs(pool)
