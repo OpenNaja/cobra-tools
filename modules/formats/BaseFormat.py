@@ -376,13 +376,12 @@ class MemStructLoader(BaseFile):
 		self.context = self.ovl.context
 
 	def extract(self, out_dir):
-		name = self.root_entry.name
 		if self.header:
-			out_path = out_dir(name)
+			out_path = out_dir(self.name)
 			self.header.to_xml_file(self.header, out_path, debug=self.ovl.do_debug)
 			return out_path,
 		else:
-			logging.warning(f"File '{name}' has no header - has the OVL finished loading?")
+			logging.warning(f"File '{self.name}' has no header - has the OVL finished loading?")
 			return ()
 
 	def collect(self):

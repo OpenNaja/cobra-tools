@@ -233,7 +233,7 @@ class Ms2Loader(BaseFile):
 
 	def update(self):
 		if ovl_versions.is_pz16(self.ovl):
-			logging.debug(f"Updating MS2 name_buffer with padding for {self.root_entry.name}")
+			logging.debug(f"Updating MS2 name_buffer with padding for {self.name}")
 			name_buffer, bone_infos, verts = self.get_ms2_buffer_datas()
 			# fix ms2s that have additional 'padding'
 			# first remove trailing zeroes, add zstr terminator back in
@@ -244,13 +244,12 @@ class Ms2Loader(BaseFile):
 	
 	def extract(self, out_dir):
 		self.get_version()
-		name = self.root_entry.name
-		logging.info(f"Writing {name}")
+		logging.info(f"Writing {self.name}")
 		# print(self.header)
 		name_buffer, bone_infos, verts = self.get_ms2_buffer_datas()
 		ms2_header = struct.pack("<III", self.context.biosyn, len(bone_infos), len(self.streams))
 		# write the ms2 file
-		out_path = out_dir(name)
+		out_path = out_dir(self.name)
 		out_paths = [out_path, ]
 		context = self.header.context
 		with BytesIO() as stream:
