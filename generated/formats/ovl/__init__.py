@@ -24,7 +24,6 @@ from ovl_util.oodle.oodle import OodleDecompressEnum, oodle_compressor
 
 UNK_HASH = "Unknown Hash"
 OODLE_MAGIC = (b'\x8c', b'\xcc')
-TAB = '  '
 
 
 class DummySignal:
@@ -442,32 +441,6 @@ class OvsFile(OvsHeader):
 				f.write(
 					f"\n{buffer_group.ext} {buffer_group.buffer_offset} {buffer_group.buffer_count} {buffer_group.buffer_index} | {buffer_group.size} {buffer_group.data_offset} {buffer_group.data_count} ")
 
-	def _dump_ptr_stack(self, f, stack, parent_struct_ptr, rec_check, indent=1):
-		"""Recursively writes parent_struct_ptr.children to f"""
-		children = stack[parent_struct_ptr]
-		if isinstance(children, str):
-			pool, offset = parent_struct_ptr
-			f.write(f"\n{indent * TAB}DEP @ {offset: <4} -> {children}")
-			return
-		# print(f"children {children}")
-		# sort by offset
-		for rel_offset, target in sorted(children.items()):
-			# get the relative offset of this pointer to its struct
-			if isinstance(target, tuple):
-				# points to a child struct
-				s_pool, s_offset = target
-				data_size = s_pool.size_map[s_offset]
-				if target in rec_check:
-					# pointer refers to a known entry - stop here to avoid recursion
-					f.write(f"\n{indent * TAB}PTR @ {rel_offset: <4} -> REF {s_offset} ({data_size: 4})")
-				else:
-					rec_check.add(target)
-					f.write(f"\n{indent * TAB}PTR @ {rel_offset: <4} -> SUB {s_offset} ({data_size: 4})")
-					self._dump_ptr_stack(f, stack, target, rec_check, indent=indent + 1)
-			# dependency
-			else:
-				f.write(f"\n{indent * TAB}DEP @ {rel_offset: <4} -> {target}")
-
 	def dump_stack(self, fp):
 		"""for development; collect info about fragment types"""
 		with open(f"{fp}.stack", "w") as f:
@@ -482,7 +455,7 @@ class OvsFile(OvsHeader):
 						debug_str = f"\n\nFILE {offset} ({size: 4}) {loader.name}"
 						f.write(debug_str)
 						try:
-							self._dump_ptr_stack(f, loader.stack, loader.root_ptr, set())
+							loader.dump_ptr_stack(f, loader.root_ptr, set())
 						except AttributeError:
 							logging.exception(f"Dumping {loader.name} failed")
 							f.write("\n!FAILED!")
@@ -1270,28 +1243,31 @@ class OvlFile(Header):
 
 	def dump_debug_data(self):
 		"""Dumps various logs needed to reverse engineer and debug the ovl format"""
+		out_dir = os.path.join(self.dir, f"{self.basename}_dump")
 		logging.info(f"Dumping debug data to {self.dir}")
-		out_dir = os.path.join(self.dir, self.basename)
 		os.makedirs(out_dir, exist_ok=True)
 		for archive_entry in self.archives:
 			fp = os.path.join(out_dir, f"{self.name}_{archive_entry.name}")
 			try:
 				archive_entry.content.dump_stack(fp)
-				# archive_entry.content.dump_buffer_groups_log(fp)
-				# archive_entry.content.dump_pools(fp)
+				archive_entry.content.dump_buffer_groups_log(fp)
+				archive_entry.content.dump_pools(fp)
 			except:
 				logging.exception("Dumping failed")
-		# self.dump_buffer_info()
+		try:
+			self.dump_buffer_info(out_dir)
+		except:
+			logging.exception("Dumping failed")
 
 	@property
 	def sorted_loaders(self):
-		return sorted(self.loaders.values(), key=lambda l: l.file_entry.name)
+		return sorted(self.loaders.values(), key=lambda l: l.name)
 
-	def dump_buffer_info(self):
+	def dump_buffer_info(self, out_dir):
 		"""for development; collect info about fragment types"""
 		def out_dir_func(n):
 			"""Helper function to generate temporary output file name"""
-			return os.path.normpath(os.path.join(self.dir, n))
+			return os.path.normpath(os.path.join(out_dir, n))
 		log_path = out_dir_func(f"{self.name}_buffer_info.log")
 		with open(log_path, "w") as f:
 			for loader in self.sorted_loaders:

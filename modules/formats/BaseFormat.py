@@ -13,6 +13,8 @@ from generated.formats.ovl.compounds.RootEntry import RootEntry
 from generated.formats.ovl.compounds.DataEntry import DataEntry
 from modules.formats.shared import djb2
 
+TAB = '  '
+
 
 class BaseFile:
 	extension = None
@@ -53,7 +55,8 @@ class BaseFile:
 
 	@property
 	def ovs_name(self):
-		return self.ovs.arg.name
+		if self.ovs:
+			return self.ovs.arg.name
 
 	def set_ovs(self, ovs_name):
 		"""Assigns or creates suitable ovs"""
@@ -296,6 +299,28 @@ class BaseFile:
 					if entry not in self.fragments:
 						self.fragments.add(entry)
 						self.check_for_ptrs(s_pool, s_offset)
+
+	def dump_ptr_stack(self, f, parent_struct_ptr, rec_check, indent=1):
+		"""Recursively writes parent_struct_ptr.children to f"""
+		children = self.stack[parent_struct_ptr]
+		# sort by offset
+		for rel_offset, target in sorted(children.items()):
+			# get the relative offset of this pointer to its struct
+			if isinstance(target, tuple):
+				# points to a child struct
+				s_pool, s_offset = target
+				data_size = s_pool.size_map[s_offset]
+				# todo - write pool index again
+				if target in rec_check:
+					# pointer refers to a known entry - stop here to avoid recursion
+					f.write(f"\n{indent * TAB}PTR @ {rel_offset: <4} -> REF {s_offset} ({data_size: 4})")
+				else:
+					rec_check.add(target)
+					f.write(f"\n{indent * TAB}PTR @ {rel_offset: <4} -> SUB {s_offset} ({data_size: 4})")
+					self.dump_ptr_stack(f, target, rec_check, indent=indent + 1)
+			# dependency
+			else:
+				f.write(f"\n{indent * TAB}DEP @ {rel_offset: <4} -> {target}")
 
 	def dump_buffer_infos(self, f):
 		debug_str = f"\n\nFILE {self.name}"
