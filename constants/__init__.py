@@ -1,11 +1,16 @@
 import os
 import time
+import sys
 from pkgutil import iter_modules
 from importlib import import_module
 from root_path import root_dir
 
 dict_names = ("hashes", "mimes", "shaders")
 
+# 3.10 has and issue with large dict files, regression fixed in 3.11
+ver = sys.version_info
+if ver.major == 3 and ver.minor == 10:
+	raise Exception('Python 3.10 is not supported, please upgrade to 3.11 at least.')
 
 class ConstantsProvider(dict):
 
