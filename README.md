@@ -16,7 +16,7 @@ You need to have installed:
 - [Microsoft Visual C++ Redistributable 2017 x64](https://support.microsoft.com/en-us/help/2977003/the-latest-supported-visual-c-downloads) (needed for texture conversion - you will likely have this installed already)
 - [Microsoft Visual C++ Redistributable 2013 x86](https://support.microsoft.com/en-us/help/2977003/the-latest-supported-visual-c-downloads) (needed for lua decompile - x86 version for now)
 
-**Python 3.10 has a bug loading large files and will not be supported. If you are using Python 3.10 please uninstall that python version, or update to 3.11 (preferred) or downgrade to 3.7 **
+**Python 3.10 has a bug loading large files and will not be supported. If you are using Python 3.10 please uninstall that python version, or update to 3.11 (preferred) or downgrade to 3.7**
 
 #### Install python dependencies
 - open a command shell and execute the following lines: 
