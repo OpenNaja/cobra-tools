@@ -442,23 +442,31 @@ class OvsFile(OvsHeader):
 				f.write(
 					f"\n{buffer_group.ext} {buffer_group.buffer_offset} {buffer_group.buffer_count} {buffer_group.buffer_index} | {buffer_group.size} {buffer_group.data_offset} {buffer_group.data_count} ")
 
-	def _dump_ptr_stack(self, f, parent_struct_ptr, rec_check, indent=1):
+	def _dump_ptr_stack(self, f, stack, parent_struct_ptr, rec_check, indent=1):
 		"""Recursively writes parent_struct_ptr.children to f"""
-		for entry in sorted(parent_struct_ptr.children, key=lambda e: e.link_ptr.data_offset):
+		children = stack[parent_struct_ptr]
+		if isinstance(children, str):
+			pool, offset = parent_struct_ptr
+			f.write(f"\n{indent * TAB}DEP @ {offset: <4} -> {children}")
+			return
+		# print(f"children {children}")
+		# sort by offset
+		for rel_offset, target in sorted(children.items()):
 			# get the relative offset of this pointer to its struct
-			rel_offset = entry.link_ptr.data_offset - parent_struct_ptr.data_offset
-			if isinstance(entry, Fragment):
+			if isinstance(target, tuple):
 				# points to a child struct
-				struct_ptr = entry.struct_ptr
-				if entry in rec_check:
+				s_pool, s_offset = target
+				data_size = s_pool.size_map[s_offset]
+				if target in rec_check:
 					# pointer refers to a known entry - stop here to avoid recursion
-					f.write(f"\n{indent * TAB}PTR @ {rel_offset: <4} -> REF {struct_ptr} ({struct_ptr.data_size: 4})")
+					f.write(f"\n{indent * TAB}PTR @ {rel_offset: <4} -> REF {s_offset} ({data_size: 4})")
 				else:
-					rec_check.add(entry)
-					f.write(f"\n{indent * TAB}PTR @ {rel_offset: <4} -> SUB {struct_ptr} ({struct_ptr.data_size: 4})")
-					self._dump_ptr_stack(f, struct_ptr, rec_check, indent=indent + 1)
+					rec_check.add(target)
+					f.write(f"\n{indent * TAB}PTR @ {rel_offset: <4} -> SUB {s_offset} ({data_size: 4})")
+					self._dump_ptr_stack(f, stack, target, rec_check, indent=indent + 1)
+			# dependency
 			else:
-				f.write(f"\n{indent * TAB}DEP @ {rel_offset: <4} -> {entry.name}")
+				f.write(f"\n{indent * TAB}DEP @ {rel_offset: <4} -> {target}")
 
 	def dump_stack(self, fp):
 		"""for development; collect info about fragment types"""
@@ -466,16 +474,18 @@ class OvsFile(OvsHeader):
 			for i, pool in enumerate(self.pools):
 				f.write(f"\nPool {i} (type: {pool.type})")
 
-			for root_entry in self.root_entries:
-				ptr = root_entry.struct_ptr
-				if ptr.pool:
-					debug_str = f"\n\nFILE {ptr} ({ptr.data_size: 4}) {root_entry.name}"
-					f.write(debug_str)
-					try:
-						self._dump_ptr_stack(f, ptr, set())
-					except AttributeError:
-						logging.exception(f"Dumping {root_entry.name} failed")
-						f.write("\n!FAILED!")
+			for loader in self.ovl.loaders.values():
+				if loader.ovs == self:
+					pool, offset = loader.root_ptr
+					if pool:
+						size = pool.size_map[offset]
+						debug_str = f"\n\nFILE {offset} ({size: 4}) {loader.name}"
+						f.write(debug_str)
+						try:
+							self._dump_ptr_stack(f, loader.stack, loader.root_ptr, set())
+						except AttributeError:
+							logging.exception(f"Dumping {loader.name} failed")
+							f.write("\n!FAILED!")
 
 	def assign_name(self, entry):
 		"""Fetch a filename for an entry"""
@@ -1028,8 +1038,7 @@ class OvlFile(Header):
 			logging.info(f"Loading only {only_types}")
 			loaders = [loader for loader in loaders if loader.ext in only_types]
 		for loader in self.iter_progress(loaders, "Mapping files"):
-			# todo - rewrite this
-			# loader.track_ptrs()
+			loader.track_ptrs()
 			try:
 				loader.collect()
 			except:
@@ -1262,16 +1271,17 @@ class OvlFile(Header):
 	def dump_debug_data(self):
 		"""Dumps various logs needed to reverse engineer and debug the ovl format"""
 		logging.info(f"Dumping debug data to {self.dir}")
-
+		out_dir = os.path.join(self.dir, self.basename)
+		os.makedirs(out_dir, exist_ok=True)
 		for archive_entry in self.archives:
-			fp = os.path.join(self.dir, f"{self.name}_{archive_entry.name}")
+			fp = os.path.join(out_dir, f"{self.name}_{archive_entry.name}")
 			try:
 				archive_entry.content.dump_stack(fp)
-				archive_entry.content.dump_buffer_groups_log(fp)
-				archive_entry.content.dump_pools(fp)
+				# archive_entry.content.dump_buffer_groups_log(fp)
+				# archive_entry.content.dump_pools(fp)
 			except:
 				logging.exception("Dumping failed")
-		self.dump_buffer_info()
+		# self.dump_buffer_info()
 
 	@property
 	def sorted_loaders(self):

@@ -43,6 +43,7 @@ class BaseFile:
 		self.data_entries = {}
 		self.children = []
 		self.fragments = set()
+		self.root_ptr = (None, None)
 
 		self.same = False
 
@@ -193,7 +194,7 @@ class BaseFile:
 
 	def rename_fragments(self, name_tuples):
 		# todo - rewrite to collect all zstring pointers (incl. obfuscated)
-		logging.info(f"Renaming inside {self.file_entry.name}")
+		logging.info(f"Renaming inside {self.name}")
 		byte_name_tups = []
 		try:
 			# brute force fallback with same length of strings
@@ -203,7 +204,7 @@ class BaseFile:
 			for fragment in self.fragments:
 				fragment.struct_ptr.replace_bytes(byte_name_tups)
 		except:
-			logging.exception(f"Renaming frags failed for {self.file_entry.name}")
+			logging.exception(f"Renaming frags failed for {self.name}")
 
 	def rename(self, name_tuples):
 		"""Rename all entries controlled by this loader"""
@@ -242,12 +243,12 @@ class BaseFile:
 			ovs.buffer_entries.extend(data_entry.buffers)
 
 	def remove(self, remove_file=True):
-		logging.info(f"Removing {self.file_entry.name}")
+		logging.info(f"Removing {self.name}")
 		self.remove_pointers()
 
 		if remove_file:
 			# remove the loader from ovl so it is not saved
-			self.ovl.loaders.pop(self.file_entry.name)
+			self.ovl.loaders.pop(self.name)
 
 		# remove streamed and child files
 		for loader in self.streams + self.children:
@@ -270,29 +271,34 @@ class BaseFile:
 			dep.link_ptr.add_link(dep)
 
 	def track_ptrs(self):
-		logging.debug(f"Tracking {self.file_entry.name}")
-		# this is significantly slower if a list is used
+		logging.debug(f"Tracking {self.name}")
+		self.stack = {}
 		self.fragments = set()
-		if self.root_entry.struct_ptr.pool:
-			self.check_for_ptrs(self.root_entry.struct_ptr)
+		pool, offset = self.root_ptr
+		if pool:
+			self.check_for_ptrs(pool, offset)
 
-	def check_for_ptrs(self, parent_struct_ptr):
+	def check_for_ptrs(self, p_pool, p_offset):
 		"""Recursively assigns pointers to an entry"""
 		# tracking children for each struct adds no detectable overhead for animal ovls
-		parent_struct_ptr.children = set()
+		children = {}
+		self.stack[(p_pool, p_offset)] = children
+		p_size = p_pool.size_map[p_offset]
 		# see if any pointers are inside this struct
-		for offset, entry in parent_struct_ptr.pool.offset_2_link_entry.items():
-			if parent_struct_ptr.data_offset <= offset < parent_struct_ptr.data_offset + parent_struct_ptr.data_size:
-				parent_struct_ptr.children.add(entry)
-				if isinstance(entry, Fragment):
+		for l_offset, entry in p_pool.offset_2_link_entry.items():
+			if p_offset <= l_offset < p_offset+p_size:
+				rel_offset = l_offset - p_offset
+				# store frag and deps
+				children[rel_offset] = entry
+				if isinstance(entry, tuple):
+					s_pool, s_offset = entry
 					# points to a child struct
-					struct_ptr = entry.struct_ptr
 					if entry not in self.fragments:
 						self.fragments.add(entry)
-						self.check_for_ptrs(struct_ptr)
+						self.check_for_ptrs(s_pool, s_offset)
 
 	def dump_buffer_infos(self, f):
-		debug_str = f"\n\nFILE {self.file_entry.name}"
+		debug_str = f"\n\nFILE {self.name}"
 		f.write(debug_str)
 
 		for ovs_name, data_entry in self.data_entries.items():
@@ -300,14 +306,14 @@ class BaseFile:
 			for buffer in data_entry.buffers:
 				f.write(f"\nBuffer {buffer.index}, size {buffer.size}")
 		# for loader in self.streams:
-		# 	f.write(f"\nSTREAM {loader.file_entry.name}")
+		# 	f.write(f"\nSTREAM {loader.name}")
 		# 	loader.dump_buffer_infos(f)
 
 	def dump_buffers(self, out_dir):
 		paths = []
 		if self.data_entry:
 			for i, b in enumerate(self.data_entry.buffer_datas):
-				name = f"{self.file_entry.name}_{i}.dmp"
+				name = f"{self.name}_{i}.dmp"
 				out_path = out_dir(name)
 				paths.append(out_path)
 				with open(out_path, 'wb') as outfile:
@@ -329,7 +335,7 @@ class BaseFile:
 			self.same = False
 
 	def __eq__(self, other):
-		logging.info(f"Comparing {self.file_entry.name}")
+		logging.info(f"Comparing {self.name}")
 		self.same = True
 		self.check(self.file_entry.mime.mime_version, other.file_entry.mime.mime_version, "Mime version")
 		self.check(len(self.data_entries), len(other.data_entries), "Amount of data entries")
@@ -359,7 +365,7 @@ class BaseFile:
 		return self.same
 
 	def log_versions(self):
-		logging.info(f"{self.file_entry.ext} {self.file_entry.mime.mime_version}")
+		logging.info(f"{self.ext} {self.file_entry.mime.mime_version}")
 		for loader in self.children:
 			entry = loader.file_entry
 			logging.info(f"{entry.ext} {entry.mime.mime_version}")
