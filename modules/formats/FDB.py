@@ -24,7 +24,7 @@ class FdbLoader(BaseFile):
 		self.create_data_entry((buffer_0, buffer_1))
 
 	def extract(self, out_dir):
-		name = self.root_entry.name
+		name = self.name
 		buff = self.data_entry.buffer_datas[1]
 		out_path = out_dir(name)
 		with open(out_path, 'wb') as outfile:

@@ -42,13 +42,13 @@ class BaniLoader(MemStructLoader):
 		self.ptr_relative(self.header.banis.frag.struct_ptr, banis_loader.root_entry.struct_ptr)
 
 	def extract(self, out_dir):
-		logging.info(f"Writing {self.root_entry.name}")
+		logging.info(f"Writing {self.name}")
 
 		# find banis name
 		banis_name = self.find_banis_name()
 
 		# write bani file
-		out_path = out_dir(self.root_entry.name)
+		out_path = out_dir(self.name)
 		with open(out_path, 'wb') as stream:
 			stream.write(b"BANI")
 			stream.write(as_bytes(banis_name))
@@ -69,7 +69,7 @@ class BanisLoader(MemStructLoader):
 	target_class = BanisRoot
 
 	def extract(self, out_dir):
-		name = self.root_entry.name
+		name = self.name
 		if not self.data_entry:
 			raise AttributeError(f"No data entry for {name}")
 		buffers = self.data_entry.buffer_datas

@@ -21,7 +21,7 @@ class TxtLoader(BaseFile):
 		else:
 			size = struct.unpack("<I", b[:4])[0]
 			data = b[4:4+size]
-		out_path = out_dir(self.root_entry.name)
+		out_path = out_dir(self.name)
 		with open(out_path, "wb") as f:
 			f.write(data)
 		return out_path,

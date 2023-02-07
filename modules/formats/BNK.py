@@ -45,9 +45,9 @@ class BnkLoader(BaseFile):
 		pass
 
 	def extract(self, out_dir):
-		bnk_name = os.path.splitext(self.root_entry.name)[0]
+		bnk_name = os.path.splitext(self.name)[0]
 		# print(self.root_entry.struct_ptr.data)
-		out_path = out_dir(self.root_entry.name)
+		out_path = out_dir(self.name)
 		out_files = [out_path, ]
 		buffer_datas = self.data_entry.buffer_datas
 		with open(out_path, "wb") as f:

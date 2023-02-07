@@ -25,7 +25,7 @@ class LuaLoader(MemStructLoader):
 		self.header.write_ptrs(self, self.root_entry.struct_ptr, self.file_entry.pool_type)
 
 	def extract(self, out_dir):
-		name = self.root_entry.name
+		name = self.name
 		logging.info(f"Writing {name}")
 		buffer_data = self.data_entry.buffer_datas[0]
 		logging.debug(f"buffer size: {len(buffer_data)}")

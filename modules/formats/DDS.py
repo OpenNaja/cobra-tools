@@ -199,7 +199,7 @@ class DdsLoader(MemStructLoader):
 
 	def extract(self, out_dir):
 		out_files = list(super().extract(out_dir))
-		tex_name = self.root_entry.name
+		tex_name = self.name
 		basename = os.path.splitext(tex_name)[0]
 		logging.info(f"Writing {tex_name}")
 
