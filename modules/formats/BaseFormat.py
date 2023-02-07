@@ -4,6 +4,8 @@ import struct
 import tempfile
 from io import BytesIO
 
+import numpy as np
+
 from generated.formats.ovl import UNK_HASH
 from generated.formats.ovl.compounds.DependencyEntry import DependencyEntry
 from generated.formats.ovl.compounds.Fragment import Fragment
@@ -284,22 +286,23 @@ class BaseFile:
 	def check_for_ptrs(self, p_pool, p_offset):
 		"""Recursively assigns pointers to an entry"""
 		# tracking children for each struct adds no detectable overhead for animal ovls
-		# however, extreme slowdown in JWE2 Content0 main.ovl
+		# slight slowdown in JWE2 Content0 main.ovl with vectorized search for linked child pointers
 		children = {}
 		self.stack[(p_pool, p_offset)] = children
 		p_size = p_pool.size_map[p_offset]
-		# see if any pointers are inside this struct
-		for l_offset, entry in p_pool.offset_2_link_entry.items():
-			if p_offset <= l_offset < p_offset+p_size:
-				rel_offset = l_offset - p_offset
-				# store frag and deps
-				children[rel_offset] = entry
-				if isinstance(entry, tuple):
-					s_pool, s_offset = entry
-					# points to a child struct
-					if entry not in self.fragments:
-						self.fragments.add(entry)
-						self.check_for_ptrs(s_pool, s_offset)
+		k = p_pool.link_offsets
+		# find all link offsets that are within the parent struct using a boolean mask
+		for l_offset in k[(p_offset <= k) * (k < p_offset+p_size)]:
+			entry = p_pool.offset_2_link_entry[l_offset]
+			rel_offset = l_offset - p_offset
+			# store frag and deps
+			children[rel_offset] = entry
+			if isinstance(entry, tuple):
+				s_pool, s_offset = entry
+				# points to a child struct
+				if entry not in self.fragments:
+					self.fragments.add(entry)
+					self.check_for_ptrs(s_pool, s_offset)
 
 	def dump_ptr_stack(self, f, parent_struct_ptr, rec_check, pools_lut, indent=1):
 		"""Recursively writes parent_struct_ptr.children to f"""

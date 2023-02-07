@@ -1,6 +1,8 @@
 import logging
 import io
 
+import numpy as np
+
 from generated.formats.base.compounds.PadAlign import get_padding
 
 
@@ -83,6 +85,7 @@ class MemPool(BaseStruct):
 		self.offset_2_link_entry = {}  # link_ptrs are unique
 		self.size_map = {}
 		self.offsets = set()
+		self.link_offsets = None
 
 	def get_first_entry(self):
 		# usually 0, but be safe
@@ -104,6 +107,8 @@ class MemPool(BaseStruct):
 			# get the offset of the next pointer, substract this offset
 			data_size = sorted_offsets[i + 1] - offset
 			self.size_map[offset] = data_size
+		# store array of link offsets for check_for_ptrs
+		self.link_offsets = np.array(list(self.offset_2_link_entry.keys()))
 
 	def stream_at(self, offset):
 		self.data.seek(offset)
