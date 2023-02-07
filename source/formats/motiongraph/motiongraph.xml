@@ -211,6 +211,36 @@
         <add name="OutputPropThroughVariable" type="Pointer" template="ZString"/>
     </compound>
 
+    <compound name="ForwardActivityData" inherit="MemStruct">
+        ? bytes
+        <add name="StraightForwardAnimation" type="Pointer" template="ZString"/>
+        <add name="LeftForwardAnimation" type="Pointer" template="ZString"/>
+        <add name="RightForwardAnimation" type="Pointer" template="ZString"/>
+        <add name="StraightSpotAnimation" type="Pointer" template="ZString"/>
+        <add name="OutputPropThroughVariable" type="Pointer" template="ZString"/>
+        <add name="CycledVariable" type="Pointer" template="ZString"/>
+        <add name="StraightForwardDataStreams" type="DataStreamResourceDataList"/>
+        <add name="LeftForwardDataStreams" type="DataStreamResourceDataList"/>
+        <add name="RightForwardDataStreams" type="DataStreamResourceDataList"/>
+        <add name="StraightSpotDataStreams" type="DataStreamResourceDataList"/>
+        <add name="ForwardFlags" type="ubyte"/>
+        <add name="SuppressResourceDataStreams" type="ubyte"/>
+        <add name="Priorities" type="ushort"/>
+        <add name="TurnRadius" type="float"/>
+        <add name="TurnRadiusValueType" type="UseValueType" />
+        <add name="_pad0" type="ushort"/>
+        <add name="StrideLength" type="float"/>
+        <add name="StrideLengthValueType" type="UseValueType" />
+        <add name="_pad1" type="ushort"/>
+        <add name="LeadOutTime" type="float"/>
+        <add name="AnticipationDistance" type="float"/>
+        <add name="UnfusedCycles" type="uint"/>
+        <add name="CycleCount" type="uint"/>
+        <add name="RepeatCount" type="uint"/>
+        <add name="MinCycles" type="uint"/>
+        <add name="PlaybackRate" type="float"/>
+    </compound>
+
     <compound name="RagdollPhysicsActivityData" inherit="MemStruct">
         ? bytes
         <add name="flag" type="RagdollPhysicsActivityFlags" />
@@ -251,6 +281,25 @@
         <add name="OrientationVariable" type="Pointer" template="ZString"/>
         <add name="DataStreams_count" type="uint64"/>
         <add name="DataStreams" type="ArrayPointer" template="DataStreamResourceDataList" arg="DataStreams_count"/>
+    </compound>
+
+    <compound name="VariableBlendedAnimationData" inherit="MemStruct">
+        ? bytes
+        <add name="Animation" type="Pointer" template="ZString"/>
+        <add name="Value" type="float" default="0.0"/>
+        <add name="_pad" type="uint" />
+        <add name="AdditionalDataStreams" type="DataStreamResourceDataList"/>
+    </compound>
+
+    <compound name="VariableBlendedAnimationActivityData" inherit="MemStruct">
+        ? bytes
+        <add name="Priorities" type="uint"/>
+        <add name="_pad" type="uint"/>
+        <add name="Weight" type="FloatInputData"/>
+        <add name="animations" type="ArrayPointer" template="VariableBlendedAnimationData" arg="animation_count"/>
+        <add name="animation_count" type="uint64"/>
+        <add name="Variable" type="Pointer" template="ZString"/>
+        <add name="VariableBlendedAnimationFlags" type="uint"/>Flags
     </compound>
 
     <compound name="Locomotion2AnimationInfo" inherit="MemStruct">
@@ -301,6 +350,12 @@
 		<option value="3" name="Exponential" />
 		<option value="4" name="SCurve" />
 		<option value="5" name="Bezier" />
+    </enum>
+
+    <enum name="UseValueType" numbytes="2" storage="ushort" default="0">
+		<option value="0" name="Property" />
+		<option value="1" name="Override" />
+		<option value="2" name="Detect" />
     </enum>
 
     <enum name="SelectActivityActivityMode" numbytes="4" storage="uint" default="0">
