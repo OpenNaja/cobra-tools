@@ -300,7 +300,7 @@ class BaseFile:
 						self.fragments.add(entry)
 						self.check_for_ptrs(s_pool, s_offset)
 
-	def dump_ptr_stack(self, f, parent_struct_ptr, rec_check, indent=1):
+	def dump_ptr_stack(self, f, parent_struct_ptr, rec_check, pools_lut, indent=1):
 		"""Recursively writes parent_struct_ptr.children to f"""
 		children = self.stack[parent_struct_ptr]
 		# sort by offset
@@ -309,15 +309,15 @@ class BaseFile:
 			if isinstance(target, tuple):
 				# points to a child struct
 				s_pool, s_offset = target
+				s_pool_i = pools_lut[s_pool]
 				data_size = s_pool.size_map[s_offset]
-				# todo - write pool index again
 				if target in rec_check:
 					# pointer refers to a known entry - stop here to avoid recursion
-					f.write(f"\n{indent * TAB}PTR @ {rel_offset: <4} -> REF {s_offset} ({data_size: 4})")
+					f.write(f"\n{indent * TAB}PTR @ {rel_offset: <4} -> REF {s_pool_i} | {s_offset} ({data_size: 4})")
 				else:
 					rec_check.add(target)
-					f.write(f"\n{indent * TAB}PTR @ {rel_offset: <4} -> SUB {s_offset} ({data_size: 4})")
-					self.dump_ptr_stack(f, target, rec_check, indent=indent + 1)
+					f.write(f"\n{indent * TAB}PTR @ {rel_offset: <4} -> SUB {s_pool_i} | {s_offset} ({data_size: 4})")
+					self.dump_ptr_stack(f, target, rec_check, pools_lut, indent=indent + 1)
 			# dependency
 			else:
 				f.write(f"\n{indent * TAB}DEP @ {rel_offset: <4} -> {target}")

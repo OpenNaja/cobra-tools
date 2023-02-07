@@ -446,16 +446,17 @@ class OvsFile(OvsHeader):
 		with open(f"{fp}.stack", "w") as f:
 			for i, pool in enumerate(self.pools):
 				f.write(f"\nPool {i} (type: {pool.type})")
-
+			pools_lut = {pool: i for i, pool in enumerate(self.pools)}
 			for loader in self.ovl.loaders.values():
 				if loader.ovs == self:
 					pool, offset = loader.root_ptr
+					s_pool_i = pools_lut[pool]
 					if pool:
 						size = pool.size_map[offset]
-						debug_str = f"\n\nFILE {offset} ({size: 4}) {loader.name}"
+						debug_str = f"\n\nFILE {s_pool_i} | {offset} ({size: 4}) {loader.name}"
 						f.write(debug_str)
 						try:
-							loader.dump_ptr_stack(f, loader.root_ptr, set())
+							loader.dump_ptr_stack(f, loader.root_ptr, set(), pools_lut)
 						except AttributeError:
 							logging.exception(f"Dumping {loader.name} failed")
 							f.write("\n!FAILED!")
