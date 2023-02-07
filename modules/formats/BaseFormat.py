@@ -284,6 +284,7 @@ class BaseFile:
 	def check_for_ptrs(self, p_pool, p_offset):
 		"""Recursively assigns pointers to an entry"""
 		# tracking children for each struct adds no detectable overhead for animal ovls
+		# however, extreme slowdown in JWE2 Content0 main.ovl
 		children = {}
 		self.stack[(p_pool, p_offset)] = children
 		p_size = p_pool.size_map[p_offset]

@@ -151,15 +151,8 @@ class OvsFile(OvsHeader):
 				self.assign_name(data_entry)
 				loader = self.ovl.loaders[data_entry.name]
 				loader.data_entries[archive_entry.name] = data_entry
-			# for root_entry in self.root_entries:
-			# 	self.assign_name(root_entry)
-			# 	# store ovs and root_entry on loader
-			# 	loader = self.ovl.loaders[root_entry.name]
-			# 	loader.root_entry = root_entry
-			# 	loader.ovs = self
-			self.root_entries_name = self.get_names_list(self.root_entries)
-			# for root_name in self.root_entries_name:
 
+			self.root_entries_name = self.get_names_list(self.root_entries)
 
 			if not (self.set_header.sig_a == 1065336831 and self.set_header.sig_b == 16909320):
 				raise AttributeError("Set header signature check failed!")
