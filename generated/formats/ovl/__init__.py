@@ -423,7 +423,7 @@ class OvsFile(OvsHeader):
 				# write a pointer marker at each offset
 				for offset, entry in pool.offset_2_link_entry.items():
 					f.seek(offset)
-					if isinstance(entry, Fragment):
+					if isinstance(entry, tuple):
 						f.write(b"@POINTER")
 					else:
 						f.write(b"@DEPENDS")
