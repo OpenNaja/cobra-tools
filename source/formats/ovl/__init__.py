@@ -930,12 +930,9 @@ class OvlFile(Header):
 				# print(archive_entry.content)
 				continue
 		self.close_ovs_streams()
-		self.postprocessing()
-		logging.info(f"Loaded archives in {time.time() - start_time:.2f} seconds")
-
-	def postprocessing(self):
 		self.load_flattened_pools()
 		self.load_pointers()
+		logging.info(f"Loaded archives in {time.time() - start_time:.2f} seconds")
 
 	def load_flattened_pools(self):
 		"""Create flattened list of ovl.pools from all ovs.pools"""
