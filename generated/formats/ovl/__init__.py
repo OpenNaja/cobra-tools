@@ -883,6 +883,7 @@ class OvlFile(Header):
 			# initialize the loaders right here
 			for filename, ext in zip(self.files_name, self.files_ext):
 				self.loaders[filename] = self.init_loader(filename, ext)
+				self.loaders[filename].get_constants_entry()
 
 		# get included ovls
 		for included_ovl in self.iter_progress(self.included_ovls, "Loading includes"):
@@ -1017,68 +1018,91 @@ class OvlFile(Header):
 
 	def rebuild_ovl_arrays(self):
 		"""Call this if any file names have changed and hashes or indices have to be recomputed"""
-		# clear ovl lists
-		self.dependencies.clear()
-		self.aux_entries.clear()
-		self.files.clear()
-		self.mimes.clear()
-		self.triplets.clear()
 
 		# update file hashes and extend entries per loader
+		# self.files.sort(key=lambda x: (x.ext, x.file_hash))
+		# sorted_loaders = sorted(self.loaders, key=lambda x: (x.ext, x.file_hash))
+		# map all files by their extension
+		loaders_by_extension = {}
 		for loader in self.loaders.values():
-			# ensure lowercase, at the risk of being redundant
-			loader.file_entry.file_hash = djb2(loader.basename.lower())
-			loader.ext_hash = djb2(loader.ext[1:].lower())
-			# logging.debug(f"File: {file.name} {file.file_hash} {file.ext_hash}")
-			# update dependency hashes
-			for dependency in loader.dependencies:
-				if UNK_HASH in dependency.basename:
-					logging.warning(f"{UNK_HASH} on dependency entry - won't update hash")
-				else:
-					dependency.file_hash = djb2(dependency.basename.lower())
-			self.files.append(loader.file_entry)
-			self.dependencies.extend(loader.dependencies)
-			self.aux_entries.extend(loader.aux_entries)
+			if loader.ext not in loaders_by_extension:
+				loaders_by_extension[loader.ext] = []
+			loaders_by_extension[loader.ext].append(loader)
+		mimes_ext = sorted(loaders_by_extension)
+		mimes_triplets = [self.get_mime(ext, "triplets") for ext in mimes_ext]
+		mimes_name = [self.get_mime(ext, "name") for ext in mimes_ext]
+		mimes_version = [self.get_mime(ext, "version") for ext in mimes_ext]
+		mimes_hash = [self.get_mime(ext, "hash") for ext in mimes_ext]
+		# todo do those later
+		# self.aux_entries.clear()
+		# clear ovl lists
+		self.num_dependencies = sum(len(loader.dependencies) for loader in self.loaders.values())
+		self.num_files = self.num_files_2 = self.num_files_3 = len(self.loaders.values())
+		self.num_mimes = len(loaders_by_extension)
+		self.num_triplets = sum(len(trip) for trip in mimes_triplets)
+		self.reset_field("mimes")
+		self.reset_field("dependencies")
+		self.reset_field("files")
+		self.reset_field("triplets")
+		names_list = [*mimes_name, *sorted(loader.basename for loader in self.loaders.values())]
+		self.names.update_strings(names_list)
+		# create the mimes
+		file_offset = 0
+		triplet_offset = 0
+		for i, (mime, name, ext, triplets, version, mime_hash) in enumerate(
+				zip(self.mimes, mimes_name, mimes_ext, mimes_triplets, mimes_version, mimes_hash)):
+			mime.name = self.names.offset_dic[name]
+			mime.ext = ext
+			mime.mime_version = version
+			mime.mime_hash = mime_hash
+			mime.triplet_offset = triplet_offset
+			mime.triplet_count = len(triplets)
+			triplets_grab = self.triplets[triplet_offset: triplet_offset+len(triplets)]
+			for t_ovl, t_new in zip(triplets_grab, triplets):
+				t_ovl.a, t_ovl.b, t_ovl.c = t_new
+			# get the loaders using this ext
+			loaders = loaders_by_extension[ext]
+			mime.file_index_offset = file_offset
+			mime.file_count = len(loaders)
+			# take all files for this mime
+			files = self.files[file_offset: file_offset+len(loaders)]
+			# sort this mime's loaders by hash
+			loaders.sort(key=lambda x: x.file_hash)
+			for loader, file in zip(loaders, files):
+				file.file_hash = loader.file_hash
+				file.pool_type = loader.pool_type
+				file.set_pool_type = loader.set_pool_type
+				file.basename = self.names.offset_dic[loader.basename]
+				file.extension = i
+			file_offset += len(loaders)
+			triplet_offset += len(triplets)
+		print(self.mimes)
+		print(self.files)
+
+		# for file, loader in zip(self.files, sorted_loaders):
+		# 	# update dependency hashes
+		# 	for dependency in loader.dependencies:
+		# 		if UNK_HASH in dependency.basename:
+		# 			logging.warning(f"{UNK_HASH} on dependency entry - won't update hash")
+		# 		else:
+		# 			dependency.file_hash = djb2(dependency.basename.lower())
+		# 	# self.files.append(loader.file_entry)
+		# 	self.dependencies.extend(loader.dependencies)
+		# 	self.aux_entries.extend(loader.aux_entries)
 
 		# sort the different lists according to the criteria specified
-		self.files.sort(key=lambda x: (x.ext, x.file_hash))
 		self.dependencies.sort(key=lambda x: x.file_hash)
 
 		# build a lookup table mapping file name to its index
 		file_name_lut = {file.name: file_i for file_i, file in enumerate(self.files)}
 		# update indices into ovl.files
-		for loader in self.loaders.values():
+		for loader in sorted_loaders:
 			for entry in loader.dependencies + loader.aux_entries:
 				entry.file_index = file_name_lut[loader.name]
 		self.aux_entries.sort(key=lambda x: x.file_index)
 
-		# map all files by their extension
-		files_by_extension = {}
-		for file in self.files:
-			if file.ext not in files_by_extension:
-				files_by_extension[file.ext] = []
-			files_by_extension[file.ext].append(file)
-		# create the mimes
-		file_index_offset = 0
-		self.num_mimes = len(files_by_extension)
-		self.reset_field("mimes")
-		for i, ((file_ext, files), mime_entry) in enumerate(zip(sorted(files_by_extension.items()), self.mimes)):
-			mime_entry.ext = file_ext
-			try:
-				mime_entry.update_constants(self)
-			except KeyError:
-				raise KeyError(f"Extension {file_ext} missing from hash constants, regenerate hash table!")
-			mime_entry.file_index_offset = file_index_offset
-			mime_entry.file_count = len(files)
-			file_index_offset += len(files)
-			for file_entry in files:
-				file_entry.update_constants(self)
-				file_entry.extension = i
 		# update ovl counts
-		self.num_dependencies = len(self.dependencies)
 		self.num_aux_entries = len(self.aux_entries)
-		self.num_triplets = len(self.triplets)
-		self.num_files = self.num_files_2 = self.num_files_3 = len(self.files)
 
 	def rebuild_ovs_arrays(self):
 		"""Produces valid ovl.pools and ovs.pools and valid links for everything that points to them"""

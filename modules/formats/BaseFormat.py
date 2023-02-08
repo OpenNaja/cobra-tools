@@ -28,7 +28,6 @@ class BaseFile:
 	def __init__(self, ovl, file_name):
 		self.ovl = ovl
 		self.name = file_name
-		self.basename, self.ext = os.path.splitext(self.name)
 		# this needs to be figured out by the root_entry
 		self.ovs = None
 		self.header = None
@@ -49,6 +48,17 @@ class BaseFile:
 		self.root_ptr = (None, None)
 
 		self.same = False
+
+	@property
+	def name(self):
+		return self._name
+
+	@name.setter
+	def name(self, n):
+		self._name = n.lower()
+		self.basename, self.ext = os.path.splitext(self._name)
+		self.file_hash = djb2(self.basename)
+		self.ext_hash = djb2(self.ext[1:])
 
 	@property
 	def data_entry(self):
