@@ -315,9 +315,10 @@ class BaseFile:
 			children[rel_offset] = entry
 			if isinstance(entry, tuple):
 				s_pool, s_offset = entry
+				frag = ((p_pool, l_offset), (s_pool, s_offset))
 				# points to a child struct
-				if entry not in self.fragments:
-					self.fragments.add(entry)
+				if frag not in self.fragments:
+					self.fragments.add(frag)
 					self.check_for_ptrs(s_pool, s_offset)
 
 	def dump_ptr_stack(self, f, parent_struct_ptr, rec_check, pools_lut, indent=1):
@@ -445,8 +446,9 @@ class MemStructLoader(BaseFile):
 
 	def create(self, file_path):
 		self.create_root_entry()
+		pool, offset = self.root_ptr
 		self.header = self.target_class.from_xml_file(file_path, self.context)
-		# print(self.header)
+		print(self.header)
 		self.header.write_ptrs(self, self.root_ptr, self.pool_type)
 
 
