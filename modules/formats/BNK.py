@@ -9,7 +9,7 @@ from modules.formats.BaseFormat import BaseFile
 class BnkLoader(BaseFile):
 	extension = ".bnk"
 
-	def create(self):
+	def create(self, file_path):
 		# todo - fixme
 		# # first uint of the buffer is the size of the data that should be read from the aux file
 		# media_buffers = self.data_entry.buffer_datas

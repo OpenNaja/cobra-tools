@@ -12,8 +12,8 @@ class LuaLoader(MemStructLoader):
 	target_class = LuaRoot
 	temp_extensions = ".bin"
 	
-	def create(self):
-		buffer_0 = self._get_data(self.file_entry.path)
+	def create(self, file_path):
+		buffer_0 = self._get_data(file_path)
 		self.create_root_entry()
 		self.create_data_entry((buffer_0,))
 
@@ -22,7 +22,7 @@ class LuaLoader(MemStructLoader):
 		self.header.source_path.data = self.file_entry.basename
 		# even if the lua + zstr terminator was padded to 4, keep at least 1 byte for this ptr
 		self.header.likely_alignment.data = b"\x00" + get_padding(len(self.file_entry.basename)+2, alignment=4)
-		self.header.write_ptrs(self, self.root_entry.struct_ptr, self.file_entry.pool_type)
+		self.header.write_ptrs(self, self.root_entry.struct_ptr, self.pool_type)
 
 	def extract(self, out_dir):
 		name = self.name

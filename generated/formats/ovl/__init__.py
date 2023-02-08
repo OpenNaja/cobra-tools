@@ -563,9 +563,8 @@ class OvlFile(Header):
 	def init_loader(self, filename, ext):
 		# fall back to BaseFile loader
 		from modules.formats.BaseFormat import BaseFile
-		cls = self.formats_dict.get(ext, BaseFile)
-		loader = cls(self, filename)
-		return loader
+		loader_cls = self.formats_dict.get(ext, BaseFile)
+		return loader_cls(self, filename)
 
 	def remove(self, filenames):
 		"""
@@ -658,19 +657,20 @@ class OvlFile(Header):
 			return
 
 	def create_file(self, file_path, ovs_name="STATIC"):
-		"""Register a file entry from a file path, add a loader"""
-		file_entry = self.create_file_entry(file_path)
-		if not file_entry:
-			return
-		logging.info(f"Creating {file_entry.name} in {ovs_name}")
-		loader = self.init_loader(file_entry)
+		"""Create a loader from a file path"""
+		filename = os.path.basename(file_path)
+		_, ext = os.path.splitext(filename)
+		logging.info(f"Creating {filename} in {ovs_name}")
 		try:
+			loader = self.init_loader(filename, ext)
+			loader.get_constants_entry()
 			loader.set_ovs(ovs_name)
-			loader.create()
+			loader.create(file_path)
 			loader.register_ptrs()
 			return loader
 		except NotImplementedError:
 			logging.warning(f"Creation not implemented for {loader.ext}")
+			raise
 		except BaseException:
 			logging.exception(f"Could not create: {loader.name}")
 			raise
@@ -822,9 +822,9 @@ class OvlFile(Header):
 				mime = game_lut["mimes"][ext]
 				return getattr(mime, key)
 			else:
-				raise ValueError(f"Unsupported extension {ext} in game {game}")
+				raise KeyError(f"Unsupported extension {ext} in game {game}")
 		else:
-			raise ValueError(f"Unsupported game {game}")
+			raise KeyError(f"Unsupported game {game}")
 
 	def get_hash(self, h):
 		game = get_game(self)[0].value

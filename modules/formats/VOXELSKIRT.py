@@ -26,11 +26,11 @@ class VoxelskirtLoader(MemStructLoader):
 	extension = ".voxelskirt"
 	target_class = VoxelskirtRoot
 
-	def create(self):
+	def create(self, file_path):
 		self.create_root_entry()
-		self.header = self.target_class.from_xml_file(self.file_entry.path, self.ovl.context)
+		self.header = self.target_class.from_xml_file(file_path, self.ovl.context)
 		stream = io.BytesIO()
-		basepath = os.path.splitext(self.file_entry.path)[0]
+		basepath = os.path.splitext(file_path)[0]
 		names_lut = {name.name: i for i, name in enumerate(self.header.names.data)}
 		# write layers
 		if is_pc(self.ovl):
@@ -75,7 +75,7 @@ class VoxelskirtLoader(MemStructLoader):
 		self.create_data_entry((buffer_bytes,))
 		self.header._data_size = len(buffer_bytes)
 		# need to update before writing ptrs
-		self.header.write_ptrs(self, self.root_ptr, self.file_entry.pool_type)
+		self.header.write_ptrs(self, self.root_ptr, self.pool_type)
 
 	def collect(self):
 		super().collect()

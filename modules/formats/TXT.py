@@ -7,9 +7,9 @@ from modules.formats.BaseFormat import BaseFile
 class TxtLoader(BaseFile):
 	extension = ".txt"
 
-	def create(self):
+	def create(self, file_path):
 		self.create_root_entry()
-		self.write_data_to_pool(self.root_entry.struct_ptr, 2, self._get_data(self.file_entry.path))
+		self.write_data_to_pool(self.root_entry.struct_ptr, 2, self._get_data(file_path))
 		self.root_entry.struct_ptr.pool.num_files += 1
 
 	def extract(self, out_dir):

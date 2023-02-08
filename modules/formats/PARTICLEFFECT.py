@@ -6,9 +6,9 @@ class ParticleEffetLoader(MemStructLoader):
 	target_class = ParticleEffectRoot
 	extension = ".particleeffect"
 
-	def create(self):
-		super().create()
-		fp = f"{self.file_entry.path}buffer"
+	def create(self, file_path):
+		super().create(file_path)
+		fp = f"{file_path}buffer"
 		with open(fp, "rb") as f:
 			self.create_data_entry((f.read(),))
 

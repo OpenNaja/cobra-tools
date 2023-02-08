@@ -20,7 +20,7 @@ class Mdl2Loader(BaseFile):
 	extension = ".mdl2"
 	can_extract = False
 
-	def create(self):
+	def create(self, file_path):
 		self.create_root_entry()
 		self.root_entry.struct_ptr.pool_index = -1
 
@@ -34,7 +34,7 @@ class Model2streamLoader(BaseFile):
 			outfile.write(self.data_entry.buffer_datas[0])
 		return stream_path,
 
-	def create(self):
+	def create(self, file_path):
 		self.create_root_entry()
 
 		if ovl_versions.is_jwe2(self.ovl):
@@ -43,8 +43,8 @@ class Model2streamLoader(BaseFile):
 		else:
 			# JWE1, PZ, PC  all untested 
 			root_data = struct.pack("<Q", 0)  
-		self.write_data_to_pool(self.root_entry.struct_ptr, self.file_entry.pool_type, root_data)
-		self.create_data_entry((self.get_content(self.file_entry.path),))
+		self.write_data_to_pool(self.root_entry.struct_ptr, self.pool_type, root_data)
+		self.create_data_entry((self.get_content(file_path),))
 		for buffer in self.data_entry.buffers:
 			buffer.index = 2
 		temp1 = self.data_entry.size_1
@@ -162,10 +162,10 @@ class Ms2Loader(BaseFile):
 				if ptr.frag:
 					return ptr.frag
 
-	def create(self):
+	def create(self, file_path):
 		ms2_file = Ms2File()
-		ms2_file.load(self.file_entry.path, read_bytes=True)
-		ms2_dir = os.path.dirname(self.file_entry.path)
+		ms2_file.load(file_path, read_bytes=True)
+		ms2_dir = os.path.dirname(file_path)
 
 		self.create_root_entry()
 		self.header = ms2_file.info
@@ -212,7 +212,7 @@ class Ms2Loader(BaseFile):
 		# create ms2 data
 		self.create_data_entry(ms2_file.buffers)
 		# write the final memstruct
-		self.header.write_ptrs(self, self.root_ptr, self.file_entry.pool_type)
+		self.header.write_ptrs(self, self.root_ptr, self.pool_type)
 		# link some more pointers
 		pool = self.header.model_infos.frag.struct_ptr.pool
 		first_model_frag = self.get_first_model_frag()

@@ -11,12 +11,12 @@ class BaniLoader(MemStructLoader):
 	extension = ".bani"
 	target_class = BaniRoot
 
-	def create(self):
+	def create(self, file_path):
 		bani = BaniFile()
-		bani.load(self.file_entry.path)
+		bani.load(file_path)
 		self.header = bani.data
 		self.create_root_entry()
-		self.header.write_ptrs(self, self.root_ptr, self.file_entry.pool_type)
+		self.header.write_ptrs(self, self.root_ptr, self.pool_type)
 		# create banis fragment, link it during update
 		self.attach_frag_to_ptr(self.header.banis, self.root_ptr.pool)
 		# temporarily set frag so that register_ptrs works
@@ -84,11 +84,11 @@ class BanisLoader(MemStructLoader):
 
 		return out_paths
 
-	def create(self):
+	def create(self, file_path):
 		# create banis data
-		root_data, buffer_0 = self._get_data(self.file_entry.path)
+		root_data, buffer_0 = self._get_data(file_path)
 		self.create_root_entry()
-		self.write_data_to_pool(self.root_entry.struct_ptr, self.file_entry.pool_type, root_data)
+		self.write_data_to_pool(self.root_entry.struct_ptr, self.pool_type, root_data)
 		self.create_data_entry((buffer_0,))
 
 	@staticmethod

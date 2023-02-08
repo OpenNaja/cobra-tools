@@ -12,11 +12,11 @@ class MechanicresearchsettingsLoader(MemStructLoader):
 			if not research.next_research_count:
 				research.next_research.data = None
 
-	def create(self):
+	def create(self, file_path):
 		self.create_root_entry()
-		self.header = self.target_class.from_xml_file(self.file_entry.path, self.ovl.context)
+		self.header = self.target_class.from_xml_file(file_path, self.ovl.context)
 		# print(self.header)
 		self.prep()
-		self.header.write_ptrs(self, self.root_ptr, self.file_entry.pool_type)
+		self.header.write_ptrs(self, self.root_ptr, self.pool_type)
 
 

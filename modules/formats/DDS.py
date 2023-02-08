@@ -33,7 +33,7 @@ class TexturestreamLoader(BaseFile):
 	extension = ".texturestream"
 	can_extract = False
 
-	def create(self):
+	def create(self, file_path):
 		self.create_root_entry()
 		if is_jwe2(self.ovl):
 			lod_index = int(self.basename[-1])
@@ -64,9 +64,9 @@ class DdsLoader(MemStructLoader):
 				buffer_i += 1
 		return buffer_i
 
-	def create(self):
-		name_ext, basename, ext = split_path(self.file_entry.path)
-		super().create()
+	def create(self, file_path):
+		name_ext, basename, ext = split_path(file_path)
+		super().create(file_path)
 		logging.debug(f"Creating image {name_ext}")
 		# there's one empty buffer at the end!
 		buffers = [b"" for _ in range(self.header.stream_count + 1)]
@@ -96,7 +96,7 @@ class DdsLoader(MemStructLoader):
 		self.create_data_entry(buffers[streamed_lods:])
 		self.increment_buffers(self, buffer_i)
 		# ready, now inject
-		self.load_image(self.file_entry.path)
+		self.load_image(file_path)
 
 	def load_image(self, tex_path):
 		# logging.debug(f"Loading image {tex_path}")

@@ -29,7 +29,6 @@ class BaseFile:
 		self.ovl = ovl
 		self.name = file_name
 		self.basename, self.ext = os.path.splitext(self.name)
-
 		# this needs to be figured out by the root_entry
 		self.ovs = None
 		self.header = None
@@ -54,6 +53,23 @@ class BaseFile:
 	@property
 	def data_entry(self):
 		return self.data_entries.get(self.ovs_name, None)
+
+	def get_constants_entry(self):
+		logging.info(f"Getting contants for {self.name}")
+		self.pool_type = self.ovl.get_mime(self.ext, "pool")
+		self.set_pool_type = self.ovl.get_mime(self.ext, "set_pool")
+		self.mime_version = self.ovl.get_mime(self.ext, "version")
+
+		# we're not really interested in those here
+		# self.name = ovl.get_mime(self.ext, "name")
+		# self.mime_hash = ovl.get_mime(self.ext, "hash")
+		# triplet_grab = ovl.get_mime(self.ext, "triplets")
+		# self.triplet_offset = len(ovl.triplets)
+		# self.triplet_count = len(triplet_grab)
+		# for triplet in triplet_grab:
+		# 	trip = Triplet(self.context)
+		# 	trip.a, trip.b, trip.c = triplet
+		# 	ovl.triplets.append(trip)
 
 	@property
 	def ovs_name(self):
@@ -88,7 +104,7 @@ class BaseFile:
 			if loader:
 				self.streams.append(loader)
 
-	def create(self):
+	def create(self, file_path):
 		raise NotImplementedError
 
 	def collect(self):
@@ -144,7 +160,7 @@ class BaseFile:
 		self.children = []
 		self.data_entries = {}
 		self.fragments = set()
-		self.ovs.transfer_identity(self.root_entry, self.file_entry)
+		# self.ovs.transfer_identity(self.root_entry, self.file_entry)
 
 	def set_dependency_identity(self, dependency, file_name):
 		"""Use a standard file name with extension"""
@@ -406,8 +422,8 @@ class BaseFile:
 class MemStructLoader(BaseFile):
 	target_class: None
 
-	def __init__(self, ovl, file_entry):
-		super().__init__(ovl, file_entry)
+	def __init__(self, ovl, file_name):
+		super().__init__(ovl, file_name)
 		self.context = self.ovl.context
 
 	def extract(self, out_dir):
@@ -427,20 +443,20 @@ class MemStructLoader(BaseFile):
 		# print(self.header)
 		self.header.read_ptrs(pool)
 
-	def create(self):
+	def create(self, file_path):
 		self.create_root_entry()
-		self.header = self.target_class.from_xml_file(self.file_entry.path, self.context)
+		self.header = self.target_class.from_xml_file(file_path, self.context)
 		# print(self.header)
-		self.header.write_ptrs(self, self.root_ptr, self.file_entry.pool_type)
+		self.header.write_ptrs(self, self.root_ptr, self.pool_type)
 
 
-class MimeContext:
-	def __init__(self, v):
-		self.version = v
-
-
-class MimeVersionedLoader(MemStructLoader):
-
-	def __init__(self, ovl, file_entry):
-		super().__init__(ovl, file_entry)
-		self.context = MimeContext(self.file_entry.mime.mime_version)
+# class MimeContext:
+# 	def __init__(self, v):
+# 		self.version = v
+#
+#
+# class MimeVersionedLoader(MemStructLoader):
+#
+# 	def __init__(self, ovl, file_name):
+# 		super().__init__(ovl, file_name)
+# 		self.context = MimeContext(self.file_entry.mime.mime_version)

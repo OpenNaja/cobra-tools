@@ -40,10 +40,10 @@ class FctLoader(MemStructLoader):
 			offset += font.data_size
 		return paths
 
-	def create(self):
+	def create(self, file_path):
 		self.create_root_entry()
-		self.header = self.target_class.from_xml_file(self.file_entry.path, self.ovl.context)
-		file_dir = os.path.dirname(self.file_entry.path)
+		self.header = self.target_class.from_xml_file(file_path, self.ovl.context)
+		file_dir = os.path.dirname(file_path)
 		with io.BytesIO() as buff_stream:
 			# restore the stuff at the start of the stream
 			file_name = self.get_font_name("buffer", ".dmp")
@@ -72,5 +72,5 @@ class FctLoader(MemStructLoader):
 					font.data_size = 0
 			# write data
 			self.create_data_entry((buff_stream.getvalue(),))
-			self.header.write_ptrs(self, self.root_ptr, self.file_entry.pool_type)
+			self.header.write_ptrs(self, self.root_ptr, self.pool_type)
 

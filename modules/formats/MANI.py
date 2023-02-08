@@ -12,7 +12,7 @@ class ManiLoader(BaseFile):
 	extension = ".mani"
 	can_extract = False
 
-	def create(self):
+	def create(self, file_path):
 		self.create_root_entry()
 		self.root_entry.struct_ptr.pool_index = -1
 
@@ -55,9 +55,9 @@ class ManisLoader(BaseFile):
 	
 		return out_path,
 
-	def create(self):
-		manis_file, root_data, b0, b1, b2 = self._get_data(self.file_entry.path)
-		ms2_dir = os.path.dirname(self.file_entry.path)
+	def create(self, file_path):
+		manis_file, root_data, b0, b1, b2 = self._get_data(file_path)
+		ms2_dir = os.path.dirname(file_path)
 
 		self.create_root_entry()
 
@@ -67,7 +67,7 @@ class ManisLoader(BaseFile):
 			mani_loader = self.ovl.create_file(mani_path)
 			self.children.append(mani_loader)
 
-		self.write_data_to_pool(self.root_entry.struct_ptr, self.file_entry.pool_type, root_data)
+		self.write_data_to_pool(self.root_entry.struct_ptr, self.pool_type, root_data)
 		self.create_data_entry((b0, b1, b2))
 
 	def _get_data(self, file_path):
