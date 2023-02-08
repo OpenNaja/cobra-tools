@@ -363,8 +363,7 @@ class OvsFile(OvsHeader):
 				data.buffers = []
 			logging.debug("Assigning buffer indices")
 			for b_group in self.buffer_groups:
-				# b_group.ext = self.ovl.mimes[b_group.ext_index].ext
-				b_group.ext = self.ovl.mimes_ext[b_group.ext_index]
+				b_group.ext = f".{self.ovl.mimes_ext[b_group.ext_index]}"
 				# note that datas can be bigger than buffers
 				buffers = self.buffer_entries[b_group.buffer_offset: b_group.buffer_offset + b_group.buffer_count]
 				datas = self.data_entries[b_group.data_offset: b_group.data_offset + b_group.data_count]
@@ -460,7 +459,7 @@ class OvsFile(OvsHeader):
 		if self.ovl.user_version.use_djb:
 			try:
 				n = self.ovl.hash_table_local[entry.file_hash]
-				e = self.ovl.hash_table_local[entry.ext_hash]
+				e = f".{self.ovl.hash_table_local[entry.ext_hash]}"
 			except KeyError:
 				raise KeyError(
 					f"No match for entry {entry.file_hash} [{entry.__class__.__name__}] from archive {self.arg.name}")
@@ -477,9 +476,6 @@ class OvsFile(OvsHeader):
 					f"Entry ID {entry.file_hash} [{entry.__class__.__name__}] does not index into ovl file table of length {len(self.ovl.files)}")
 				n = "none"
 				e = ".ext"
-		# fix for island.island, force extension to start with .
-		if e[0] != ".":
-			e = f".{e}"
 		entry.ext = e
 		entry.basename = n
 		entry.name = f"{n}{e}"
@@ -489,15 +485,9 @@ class OvsFile(OvsHeader):
 		# JWE style
 		if self.ovl.user_version.use_djb:
 			# look up the hashes
-			names = []
-			for n, e in zip(
+			return [f"{n}.{e}" for n, e in zip(
 					[self.ovl.hash_table_local[h] for h in array["file_hash"]],
-					[self.ovl.hash_table_local[h] for h in array["ext_hash"]]):
-				# fix for island.island, force extension to start with .
-				if e[0] != ".":
-					e = f".{e}"
-				names.append(n+e)
-			return names
+					[self.ovl.hash_table_local[h] for h in array["ext_hash"]])]
 		# PZ Style and PC Style
 		else:
 			# file_hash is an index into ovl files
@@ -866,9 +856,10 @@ class OvlFile(Header):
 		self.hash_table_local = {}
 		# add extensions to hash dict
 		self.mimes_name = [self.names.get_str_at(i) for i in self.mimes["name"]]
-		self.mimes_ext = [f".{name.split(':')[-1]}" for name in self.mimes_name]
+		# without leading . to avoid collisions on cases like JWE island.island
+		self.mimes_ext = [name.split(':')[-1] for name in self.mimes_name]
 		# store mime extension hash so we can use it
-		self.hash_table_local = {djb2(ext[1:].lower()): ext for ext in self.mimes_ext}
+		self.hash_table_local = {djb2(ext): ext for ext in self.mimes_ext}
 
 		if "triplet_offset" in self.mimes.dtype.fields:
 			self.mimes_triplets = [self.triplets[o: o+c] for o, c in zip(
@@ -877,8 +868,8 @@ class OvlFile(Header):
 			self.mimes_triplets = []
 		# add file name to hash dict; ignoring the extension pointer
 		self.files_basename = [self.names.get_str_at(i) for i in self.files["basename"]]
-		self.files_ext = [self.mimes_ext[i] for i in self.files["extension"]]
-		self.files_name = [b+e for b, e in zip(self.files_basename, self.files_ext)]
+		self.files_ext = [f".{self.mimes_ext[i]}" for i in self.files["extension"]]
+		self.files_name = [f"{b}{e}" for b, e in zip(self.files_basename, self.files_ext)]
 		self.dependencies_ext = [self.names.get_str_at(i).replace(":", ".") for i in self.dependencies["ext_raw"]]
 		self.hash_table_local.update({h: b for b, h in zip(self.files_basename, self.files["file_hash"])})
 
