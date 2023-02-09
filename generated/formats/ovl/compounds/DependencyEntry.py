@@ -15,6 +15,7 @@ class DependencyEntry(BaseStruct):
 	__name__ = 'DependencyEntry'
 
 	_import_key = 'ovl.compounds.DependencyEntry'
+	allow_np = True
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
@@ -47,10 +48,6 @@ class DependencyEntry(BaseStruct):
 		yield 'ext_raw', OffsetString, (instance.context.names, None), (False, None)
 		yield 'file_index', Uint, (0, None), (False, None)
 		yield 'link_ptr', HeaderPointer, (0, None), (False, None)
-
-	@classmethod
-	def read_array(cls, stream, shape, context=None, arg=0, template=None):
-		return cls._read_array(stream, shape, context, arg, template)
 
 	@property
 	def ext(self):

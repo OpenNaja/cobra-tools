@@ -14,6 +14,7 @@ class FileEntry(BaseStruct):
 	__name__ = 'FileEntry'
 
 	_import_key = 'ovl.compounds.FileEntry'
+	allow_np = True
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
@@ -49,10 +50,6 @@ class FileEntry(BaseStruct):
 		yield 'pool_type', Byte, (0, None), (False, None)
 		yield 'set_pool_type', Byte, (0, None), (False, None)
 		yield 'extension', Ushort, (0, None), (False, None)
-
-	@classmethod
-	def read_array(cls, stream, shape, context=None, arg=0, template=None):
-		return cls._read_array(stream, shape, context, arg, template)
 
 	def update_constants(self, ovl):
 		"""Update the constants"""

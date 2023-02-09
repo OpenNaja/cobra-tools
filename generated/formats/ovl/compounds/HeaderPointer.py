@@ -18,6 +18,7 @@ class HeaderPointer(BaseStruct):
 	__name__ = 'HeaderPointer'
 
 	_import_key = 'ovl.compounds.HeaderPointer'
+	allow_np = True
 
 	_attribute_list = BaseStruct._attribute_list + [
 		('pool_index', Int, (0, None), (False, -1), None),
@@ -29,10 +30,6 @@ class HeaderPointer(BaseStruct):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'pool_index', Int, (0, None), (False, -1)
 		yield 'data_offset', Uint, (0, None), (False, None)
-
-	@classmethod
-	def read_array(cls, stream, shape, context=None, arg=0, template=None):
-		return cls._read_array(stream, shape, context, arg, template)
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)

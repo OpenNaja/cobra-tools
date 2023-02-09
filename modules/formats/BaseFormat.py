@@ -65,7 +65,7 @@ class BaseFile:
 		return self.data_entries.get(self.ovs_name, None)
 
 	def get_constants_entry(self):
-		logging.info(f"Getting contants for {self.name}")
+		# logging.info(f"Getting contants for {self.name}")
 		self.pool_type = self.ovl.get_mime(self.ext, "pool")
 		self.set_pool_type = self.ovl.get_mime(self.ext, "set_pool")
 		self.mime_version = self.ovl.get_mime(self.ext, "version")

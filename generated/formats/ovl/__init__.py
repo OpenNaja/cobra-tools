@@ -1044,6 +1044,12 @@ class OvlFile(Header):
 		self.reset_field("dependencies")
 		self.reset_field("files")
 		self.reset_field("triplets")
+
+		# (self.dependencies, "ext_raw"),
+		# (self.included_ovls, "basename"),
+		# (self.mimes, "name"),
+		# (self.aux_entries, "basename"),
+		# (self.files, "basename")
 		names_list = [*mimes_name, *sorted(loader.basename for loader in self.loaders.values())]
 		self.names.update_strings(names_list)
 		# create the mimes
@@ -1091,18 +1097,18 @@ class OvlFile(Header):
 		# 	self.aux_entries.extend(loader.aux_entries)
 
 		# sort the different lists according to the criteria specified
-		self.dependencies.sort(key=lambda x: x.file_hash)
-
-		# build a lookup table mapping file name to its index
-		file_name_lut = {file.name: file_i for file_i, file in enumerate(self.files)}
-		# update indices into ovl.files
-		for loader in sorted_loaders:
-			for entry in loader.dependencies + loader.aux_entries:
-				entry.file_index = file_name_lut[loader.name]
-		self.aux_entries.sort(key=lambda x: x.file_index)
-
-		# update ovl counts
-		self.num_aux_entries = len(self.aux_entries)
+		# self.dependencies.sort(key=lambda x: x.file_hash)
+		#
+		# # build a lookup table mapping file name to its index
+		# file_name_lut = {file.name: file_i for file_i, file in enumerate(self.files)}
+		# # update indices into ovl.files
+		# for loader in sorted_loaders:
+		# 	for entry in loader.dependencies + loader.aux_entries:
+		# 		entry.file_index = file_name_lut[loader.name]
+		# self.aux_entries.sort(key=lambda x: x.file_index)
+		#
+		# # update ovl counts
+		# self.num_aux_entries = len(self.aux_entries)
 
 	def rebuild_ovs_arrays(self):
 		"""Produces valid ovl.pools and ovs.pools and valid links for everything that points to them"""

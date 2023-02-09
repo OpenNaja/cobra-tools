@@ -11,6 +11,7 @@ class Triplet(BaseStruct):
 	__name__ = 'Triplet'
 
 	_import_key = 'ovl.compounds.Triplet'
+	allow_np = True
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
@@ -38,10 +39,6 @@ class Triplet(BaseStruct):
 		yield 'a', Ubyte, (0, None), (False, None)
 		yield 'b', Ubyte, (0, None), (False, None)
 		yield 'c', Ubyte, (0, None), (False, None)
-
-	@classmethod
-	def read_array(cls, stream, shape, context=None, arg=0, template=None):
-		return cls._read_array(stream, shape, context, arg, template)
 
 	def __eq__(self, other):
 		if isinstance(other, Triplet):

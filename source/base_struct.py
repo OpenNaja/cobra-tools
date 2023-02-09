@@ -74,6 +74,32 @@ class StructMetaClass(type):
                                 setattr(instance, f_name, f_type.from_value(value_element))
                             return instance
                         cls.from_value = from_value
+            # check if all of the class's attributes have a from_value function
+            if getattr(cls, "allow_np", False) and all(
+                    # check for a struct with get_np_dtype and flag set to True
+                    callable(getattr(attr_type, "get_np_dtype", None)) or
+                    # or a basic numeric type
+                    getattr(attr_type, "np_dtype", None)
+                    for attr_type in attr_types):
+                if free_function("create_array"):
+                    def create_array(shape, default=None, context=None, arg=0, template=None):
+                        np_dtype = cls.get_np_dtype(context, arg, template)
+                        return np.zeros(shape, dtype=np_dtype)
+                    cls.create_array = create_array
+                if free_function("read_array"):
+                    def read_array(stream, shape, context=None, arg=0, template=None):
+                        np_dtype = cls.get_np_dtype(context, arg, template)
+                        array = np.empty(shape, dtype=np_dtype)
+                        stream.readinto(array)
+                        return array
+                    cls.read_array = read_array
+                if free_function("write_array"):
+                    def write_array(instance, stream):
+                        # todo - do type conversion, cf. basic.py
+                        assert isinstance(instance, np.ndarray)
+                        # np_dtype = cls.get_np_dtype(context, arg, template)
+                        stream.write(instance.tobytes())
+                    cls.write_array = write_array
 
 
 def indent(e, level=0):
@@ -426,11 +452,4 @@ class BaseStruct(metaclass=StructMetaClass):
         fake_inst = DummyInstance(context, arg, template)
         np_sig = cls.get_np_sig(fake_inst)
         return np.dtype(np_sig)
-
-    @classmethod
-    def _read_array(cls, stream, shape, context=None, arg=0, template=None):
-        np_dtype = cls.get_np_dtype(context, arg, template)
-        array = np.empty(shape, dtype=np_dtype)
-        stream.readinto(array)
-        return array
 
