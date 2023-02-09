@@ -1031,8 +1031,6 @@ class OvlFile(Header):
 		mimes_ext = sorted(loaders_by_extension)
 		mimes_triplets = [self.get_mime(ext, "triplets") for ext in mimes_ext]
 		mimes_name = [self.get_mime(ext, "name") for ext in mimes_ext]
-		mimes_version = [self.get_mime(ext, "version") for ext in mimes_ext]
-		mimes_hash = [self.get_mime(ext, "hash") for ext in mimes_ext]
 		# todo do those later
 		# self.aux_entries.clear()
 		# clear ovl lists
@@ -1055,17 +1053,15 @@ class OvlFile(Header):
 		# create the mimes
 		file_offset = 0
 		triplet_offset = 0
-		for i, (mime, name, ext, triplets, version, mime_hash) in enumerate(
-				zip(self.mimes, mimes_name, mimes_ext, mimes_triplets, mimes_version, mimes_hash)):
+		self.mimes["name"] = [self.names.offset_dic[name] for name in mimes_name]
+		self.mimes["mime_version"] = [self.get_mime(ext, "version") for ext in mimes_ext]
+		self.mimes["mime_hash"] = [self.get_mime(ext, "hash") for ext in mimes_ext]
+		for i, (mime, name, ext, triplets,) in enumerate(
+				zip(self.mimes, mimes_name, mimes_ext, mimes_triplets)):
 			mime.name = self.names.offset_dic[name]
-			mime.ext = ext
-			mime.mime_version = version
-			mime.mime_hash = mime_hash
 			mime.triplet_offset = triplet_offset
 			mime.triplet_count = len(triplets)
-			triplets_grab = self.triplets[triplet_offset: triplet_offset+len(triplets)]
-			for t_ovl, t_new in zip(triplets_grab, triplets):
-				t_ovl.a, t_ovl.b, t_ovl.c = t_new
+			self.triplets[triplet_offset: triplet_offset+len(triplets)] = triplets
 			# get the loaders using this ext
 			loaders = loaders_by_extension[ext]
 			mime.file_index_offset = file_offset
@@ -1074,16 +1070,17 @@ class OvlFile(Header):
 			files = self.files[file_offset: file_offset+len(loaders)]
 			# sort this mime's loaders by hash
 			loaders.sort(key=lambda x: x.file_hash)
+			files["extension"] = i
 			for loader, file in zip(loaders, files):
 				file.file_hash = loader.file_hash
 				file.pool_type = loader.pool_type
 				file.set_pool_type = loader.set_pool_type
 				file.basename = self.names.offset_dic[loader.basename]
-				file.extension = i
 			file_offset += len(loaders)
 			triplet_offset += len(triplets)
 		print(self.mimes)
 		print(self.files)
+		print(self.triplets)
 
 		# for file, loader in zip(self.files, sorted_loaders):
 		# 	# update dependency hashes
@@ -1293,12 +1290,12 @@ class OvlFile(Header):
 		logging.info(f"Writing {self.name}")
 		# do this last so we also catch the assets & sets
 		self.rebuild_ovl_arrays()
-		self.rebuild_ovs_arrays()
+		# self.rebuild_ovs_arrays()
 		# these need to be done after the rest
-		self.update_pool_indices()
-		self.update_stream_files()
+		# self.update_pool_indices()
+		# self.update_stream_files()
 		# update the name buffer and offsets
-		self.update_names()
+		# self.update_names()
 		self.open_ovs_streams()
 		ovl_compressed = b""
 		self.reset_field("archives_meta")
