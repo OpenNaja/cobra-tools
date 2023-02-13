@@ -238,22 +238,19 @@
         <add name="assets" type="AssetEntry" arr1="asset count"/>
     </compound>
 	
-	<compound name="SetEntry" >
+	<compound name="SetEntry" allow_np="true">
 		the asset indices of two consecutive SetEntries define a set of AssetEntries
         <add name="File Hash" type="uint"/>
         <add name="Ext Hash" type="uint" since="19"/>
-		<add name="start" type="uint" >add from last set's entry up to this index to this set</add>
+		<add name="start" type="uint" >add assets from last set's start up to this index to this set</add>
     </compound>
-	
-	<compound name="AssetEntry" >
+
+	<compound name="AssetEntry" allow_np="true">
 		refers to root entries so they can be grouped into set entries.
 		points to RootEntry with pool_index -1
-        <add name="File Hash" type="uint"/>
-        <add name="zero 0" type="uint"/>
-        <add name="Ext Hash" type="uint" since="19"/>
-        <add name="zero 1" type="uint" since="19"/>
-		<add name="file index" type="uint" >index into root entries array; hash of targeted file matches this assetentry's hash.</add>
-        <add name="zero 2" type="uint"/>
+        <add name="File Hash" type="uint64"/>
+        <add name="Ext Hash" type="uint64" since="19"/>
+		<add name="root index" type="uint64" >index into root entries array</add>
     </compound>
 
 </niftoolsxml>

@@ -45,7 +45,7 @@ class BaseFile:
 		self.data_entries = {}
 		self.children = []
 		self.fragments = set()
-		self.root_ptr = (None, None)
+		self.root_ptr = (None, 0)
 
 		self.same = False
 

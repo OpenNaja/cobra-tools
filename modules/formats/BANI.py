@@ -39,7 +39,8 @@ class BaniLoader(MemStructLoader):
 			logging.warning(f"Could not find '{self.target_name}' for '{self.name}'")
 			return
 		logging.debug(f"Linked '{self.name}' to '{self.target_name}'")
-		self.ptr_relative(self.header.banis.frag.struct_ptr, banis_loader.root_entry.struct_ptr)
+		# todo - update api
+		# self.ptr_relative(self.header.banis.frag.struct_ptr, banis_loader.root_entry.struct_ptr)
 
 	def extract(self, out_dir):
 		logging.info(f"Writing {self.name}")

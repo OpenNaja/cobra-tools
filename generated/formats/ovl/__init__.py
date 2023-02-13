@@ -1,3 +1,4 @@
+import itertools
 import logging
 import os
 import struct
@@ -24,6 +25,13 @@ from ovl_util.oodle.oodle import OodleDecompressEnum, oodle_compressor
 
 UNK_HASH = "Unknown Hash"
 OODLE_MAGIC = (b'\x8c', b'\xcc')
+
+
+def pairwise(iterable):
+	# pairwise('ABCDEFG') --> AB BC CD DE EF FG
+	a, b = itertools.tee(iterable)
+	next(b, None)
+	return zip(a, b)
 
 
 class DummySignal:
@@ -94,11 +102,11 @@ class OvsFile(OvsHeader):
 			return 0, len(uncompressed_bytes), uncompressed_bytes
 		return len(uncompressed_bytes), len(compressed), compressed
 
-	def update_hashes(self, file_name_lut):
+	def update_hashes(self, loader_name_lut):
 		logging.info(f"Updating hashes for {self.arg.name}")
 		entry_lists = (
 			self.pools,
-			self.root_entries,
+			# self.root_entries,
 			self.data_entries,
 			# self.set_header.sets,
 			# self.set_header.assets,
@@ -110,20 +118,12 @@ class OvsFile(OvsHeader):
 				if not entry.name:
 					logging.warning(f"{entry} has no name assigned to it, cannot assign proper ID")
 					continue
-				if entry.name in file_name_lut:
-					file_index = file_name_lut[entry.name]
-				else:
-					logging.debug(file_name_lut)
-					# raise KeyError
-					logging.warning(
-						f"Can't find '{entry.name}' [{entry.__class__.__name__}] in name LUT, cannot update hash")
-					continue
-				file = self.ovl.files[file_index]
+				loader = loader_name_lut[entry.name]
 				if self.ovl.user_version.use_djb:
-					entry.file_hash = file.file_hash
+					entry.file_hash = loader.file_hash
 				else:
-					entry.file_hash = file_index
-				entry.ext_hash = file.ext_hash
+					entry.file_hash = loader.file_index
+				entry.ext_hash = loader.ext_hash
 
 	def load(self, archive_entry, start):
 		filepath = archive_entry.ovs_path
@@ -159,10 +159,10 @@ class OvsFile(OvsHeader):
 			if self.set_header.io_size != self.arg.set_data_size:
 				raise AttributeError(
 					f"Set data size incorrect (got {self.set_header.io_size}, expected {self.arg.set_data_size})!")
-			for set_entry in self.set_header.sets:
-				self.assign_name(set_entry)
-			for asset_entry in self.set_header.assets:
-				self.assign_name(asset_entry)
+			# for set_entry in self.set_header.sets:
+			# 	self.assign_name(set_entry)
+			# for asset_entry in self.set_header.assets:
+			# 	self.assign_name(asset_entry)
 			self.map_assets()
 			# add IO object to every pool
 			self.read_pools(stream)
@@ -178,19 +178,18 @@ class OvsFile(OvsHeader):
 	def map_assets(self):
 		"""Parse set and asset entries, and store children on loaders"""
 		# store start and stop asset indices
-		for i, set_entry in enumerate(self.set_header.sets):
-			# for the last entry
-			if i == self.set_header.set_count - 1:
-				set_entry.end = self.set_header.asset_count
-			# store start of the next one as this one's end
-			else:
-				set_entry.end = self.set_header.sets[i + 1].start
+		set_entries_name = self.get_names_list(self.set_header.sets)
+		set_entries_offsets = list(self.set_header.sets["start"])
+		# add end value
+		set_entries_offsets.append(self.set_header.asset_count)
+		# use itertools.pairwise from 3.10
+		for name, (start, end) in zip(set_entries_name, pairwise(set_entries_offsets)):
 			# map assets to entry
-			assets = self.set_header.assets[set_entry.start: set_entry.end]
-			# logging.debug(f"Set {set_entry.name} with {len(assets)} assets")
+			assets = self.set_header.assets[start: end]
+			assets_root_index = assets["root_index"]
 			# store the references on the corresponding loader
-			loader = self.ovl.loaders[set_entry.name]
-			loader.children = [self.ovl.loaders[self.root_entries_name[a.file_index]] for a in assets]
+			loader = self.ovl.loaders[name]
+			loader.children = [self.ovl.loaders[self.root_entries_name[i]] for i in assets_root_index]
 
 	@staticmethod
 	def transfer_identity(source_entry, target_entry):
@@ -481,7 +480,7 @@ class OvsFile(OvsHeader):
 		entry.name = f"{n}{e}"
 
 	def get_names_list(self, array):
-		"""Fetch a filename for an entry"""
+		"""Fetch list of file names for an array"""
 		# JWE style
 		if self.ovl.user_version.use_djb:
 			# look up the hashes
@@ -492,6 +491,17 @@ class OvsFile(OvsHeader):
 		else:
 			# file_hash is an index into ovl files
 			return [self.ovl.files_name[i] for i in array["file_hash"]]
+
+	def assign_ids(self, array, loaders):
+		"""Assign ids to an array"""
+		# JWE style
+		if self.ovl.user_version.use_djb:
+			# look up the hashes
+			array["file_hash"], array["ext_hash"] = zip(*[(loader.file_hash, loader.ext_hash) for loader in loaders])
+		# PZ Style and PC Style
+		else:
+			# file_hash is an index into ovl files
+			array["file_hash"] = [l.file_index for l in loaders]
 
 	def write_pools(self):
 		logging.debug(f"Writing pools for {self.arg.name}")
@@ -788,13 +798,13 @@ class OvlFile(Header):
 	def update_names(self):
 		"""Update the name buffers with names from list entries, and update the name offsets on those entries"""
 		# regenerate the name buffer
-		self.names.update_with((
-			(self.dependencies, "ext_raw"),
-			(self.included_ovls, "basename"),
-			(self.mimes, "name"),
-			(self.aux_entries, "basename"),
-			(self.files, "basename")
-		))
+		# self.names.update_with((
+		# 	(self.dependencies, "ext_raw"),
+		# 	(self.included_ovls, "basename"),
+		# 	(self.mimes, "name"),
+		# 	(self.aux_entries, "basename"),
+		# 	(self.files, "basename")
+		# ))
 		self.archive_names.update_with((
 			(self.archives, "name"),
 		))
@@ -802,8 +812,8 @@ class OvlFile(Header):
 		self.len_archive_names = len(self.archive_names.data)
 
 		# catching ovl files without entries, default len_type_names is 0
-		if self.files:
-			self.len_type_names = min(self.names.offset_dic.get(file.basename, -1) for file in self.files)
+		if self.loaders:
+			self.len_type_names = min(self.names.offset_dic.get(loader.basename, -1) for loader in self.loaders.values())
 			# self.len_type_names = min(file.offset for file in self.files)
 		else:
 			self.len_type_names = 0
@@ -964,13 +974,13 @@ class OvlFile(Header):
 					ovs.root_entries_name,
 					ovs.root_entries["struct_ptr"]["pool_index"],
 					ovs.root_entries["struct_ptr"]["data_offset"]):
+				loader = self.loaders[n]
+				loader.ovs = ovs
 				# may not have a pool
 				if s_i != -1:
 					s_pool = ovs.pools[s_i]
 					s_pool.offsets.add(s_o)
-					loader = self.loaders[n]
 					loader.root_ptr = (s_pool, s_o)
-					loader.ovs = ovs
 			# vectorized like this, it takes virtually no time
 			for l_i, l_o, s_i, s_o, in zip(
 					ovs.fragments["link_ptr"]["pool_index"],
@@ -1081,6 +1091,15 @@ class OvlFile(Header):
 		print(self.mimes)
 		print(self.files)
 		print(self.triplets)
+		# flat_loaders = [* for ext in mimes_ext]
+
+		flat_sorted_loaders = []
+		for ext in mimes_ext:
+			flat_sorted_loaders.extend(loaders_by_extension[ext])
+		for i, loader in enumerate(flat_sorted_loaders):
+			loader.file_index = i
+		ext_lut = {ext: i for i, ext in enumerate(mimes_ext)}
+		self.rebuild_ovs_arrays(flat_sorted_loaders, ext_lut)
 
 		# for file, loader in zip(self.files, sorted_loaders):
 		# 	# update dependency hashes
@@ -1107,30 +1126,77 @@ class OvlFile(Header):
 		# # update ovl counts
 		# self.num_aux_entries = len(self.aux_entries)
 
-	def rebuild_ovs_arrays(self):
+	def rebuild_ovs_arrays(self, flat_sorted_loaders, ext_lut):
 		"""Produces valid ovl.pools and ovs.pools and valid links for everything that points to them"""
 		try:
 			logging.debug(f"Sorting pools by type and updating pool groups")
 			self.archives.sort(key=lambda a: a.name)
 
-			# generate a mime lut for the index of the mimes
-			mime_lut = {mime.ext: i for i, mime in enumerate(self.mimes)}
-
+			archive_name_to_loaders = {archive.name: [] for archive in self.archives}
+			for loader in flat_sorted_loaders:
+				try:
+					archive_name_to_loaders[loader.ovs_name].append(loader)
+				except:
+					logging.exception(f"Couldn't map loader {loader.name} to ovs {loader.ovs_name}")
+					raise
 			# remove all entries to rebuild them from the loaders
 			for archive in self.archives:
-				archive.content.clear_ovs_arrays()
+				ovs = archive.content
+				# archive.content.clear_ovs_arrays()
+				loaders = archive_name_to_loaders[archive.name]
+				archive.num_root_entries = len(loaders)
+				all_frags = set()
+				for i, loader in enumerate(loaders):
+					all_frags.update(loader.fragments)
+					loader.root_index = i
+				archive.num_fragments = len(all_frags)
+				ovs.reset_field("root_entries")
+				ovs.reset_field("fragments")
+				# todo compile and sort pools first
+				# create lut for pool indices
+				pool_lut = {pool: i for i, pool in enumerate(ovs.pools)}
+				if all_frags:
+					ovs.fragments["link_ptr"]["pool_index"], \
+					ovs.fragments["link_ptr"]["data_offset"], \
+					ovs.fragments["struct_ptr"]["pool_index"], \
+					ovs.fragments["struct_ptr"]["data_offset"] = zip(*[(pool_lut[p_pool], l_o, pool_lut[s_pool], s_o) for (p_pool, l_o), (s_pool, s_o) in all_frags])
+					# not really needed but nice to have
+					ovs.fragments.sort(axis=-1, kind=None, order=None)
+				# get root entries
+				root_ptrs = [loader.root_ptr for loader in loaders]
+				ovs.root_entries["struct_ptr"]["pool_index"], \
+				ovs.root_entries["struct_ptr"]["data_offset"] = zip(*[(pool_lut.get(s_pool, -1), s_o) for s_pool, s_o in root_ptrs])
+				ovs.assign_ids(ovs.root_entries, loaders)
+				print(ovs.fragments, ovs.root_entries)
 
+				logging.info(f"Updating assets for {archive.name}")
+				loaders_with_children = [loader for loader in loaders if loader.children]
+				child_loaders = list(itertools.chain.from_iterable([loader.children for loader in loaders_with_children]))
+				ovs.set_header.set_count = len(loaders_with_children)
+				ovs.set_header.asset_count = len(child_loaders)
+				ovs.set_header.reset_field("sets")
+				ovs.set_header.reset_field("assets")
+				ovs.assign_ids(ovs.set_header.sets, loaders_with_children)
+				ovs.assign_ids(ovs.set_header.assets, child_loaders)
+				ovs.set_header.assets["root_index"] = [loader.root_index for loader in child_loaders]
+				start = 0
+				for i, (set_entry, loader) in enumerate(zip(ovs.set_header.sets, loaders_with_children)):
+					set_entry.start = start
+					start += len(loader.children)
+					# set_index is 1-based, so the first set = 1
+					loader.data_entry.set_index = i + 1
+				print(ovs.set_header)
 			# add entries to correct ovs
 			for loader in self.loaders.values():
 				# attach the entries used by this loader to the ovs lists
-				loader.register_entries()
+				# loader.register_entries()
 				# force an update on the loader's data for older versions' data
 				# and link entries like bani to banis
 				loader.update()
 
 			# todo - maybe reuse the lut?
 			# build a lookup table mapping file name to its index
-			file_name_lut = {file.name: file_i for file_i, file in enumerate(self.files)}
+			loader_name_lut = {loader.name: loader for loader in flat_sorted_loaders}
 			pools_byte_offset = 0
 			pools_offset = 0
 			# make a temporary copy so we can delete archive if needed
@@ -1142,22 +1208,20 @@ class OvlFile(Header):
 				ovs.rebuild_pools()
 				# needs to happen after loader.register_entries
 				# change the hashes / indices of all entries to be valid for the current game version
-				ovs.update_hashes(file_name_lut)
+				ovs.update_hashes(loader_name_lut)
 				# sort fragments by their first pointer just to keep saves consistent for easier debugging
-				ovs.fragments.sort(key=lambda f: (f.struct_ptr.pool_index, f.struct_ptr.data_offset))
-				ovs.root_entries.sort(key=lambda b: (b.ext, b.file_hash))
+				# ovs.fragments.sort(key=lambda f: (f.struct_ptr.pool_index, f.struct_ptr.data_offset))
+				# ovs.root_entries.sort(key=lambda b: (b.ext, b.file_hash))
 				ovs.data_entries.sort(key=lambda b: (b.ext, b.file_hash))
 
 				# depends on correct hashes applied to buffers and datas
-				ovs.rebuild_buffer_groups(mime_lut)
+				ovs.rebuild_buffer_groups(ext_lut)
 				# depends on sorted root_entries
-				ovs.rebuild_assets()
+				# ovs.rebuild_assets()
 
 				# update the ovs counts
 				archive.num_datas = len(ovs.data_entries)
 				archive.num_buffers = len(ovs.buffer_entries)
-				archive.num_fragments = len(ovs.fragments)
-				archive.num_root_entries = len(ovs.root_entries)
 				archive.num_buffer_groups = len(ovs.buffer_groups)
 
 				# remove stream archive if it has no pools and no roots and no datas
@@ -1290,12 +1354,11 @@ class OvlFile(Header):
 		logging.info(f"Writing {self.name}")
 		# do this last so we also catch the assets & sets
 		self.rebuild_ovl_arrays()
-		# self.rebuild_ovs_arrays()
 		# these need to be done after the rest
 		# self.update_pool_indices()
 		# self.update_stream_files()
 		# update the name buffer and offsets
-		# self.update_names()
+		self.update_names()
 		self.open_ovs_streams()
 		ovl_compressed = b""
 		self.reset_field("archives_meta")

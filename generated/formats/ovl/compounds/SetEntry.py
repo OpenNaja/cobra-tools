@@ -11,13 +11,14 @@ class SetEntry(BaseStruct):
 	__name__ = 'SetEntry'
 
 	_import_key = 'ovl.compounds.SetEntry'
+	allow_np = True
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		self.file_hash = 0
 		self.ext_hash = 0
 
-		# add from last set's entry up to this index to this set
+		# add assets from last set's start up to this index to this set
 		self.start = 0
 		if set_default:
 			self.set_defaults()
