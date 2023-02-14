@@ -102,7 +102,7 @@ class OvsFile(OvsHeader):
 			return 0, len(uncompressed_bytes), uncompressed_bytes
 		return len(uncompressed_bytes), len(compressed), compressed
 
-	def update_hashes(self, loader_name_lut):
+	def update_hashes(self):
 		logging.info(f"Updating hashes for {self.arg.name}")
 		entry_lists = (
 			self.pools,
@@ -115,7 +115,7 @@ class OvsFile(OvsHeader):
 				if not entry.name:
 					logging.warning(f"{entry} has no name assigned to it, cannot assign proper ID")
 					continue
-				loader = loader_name_lut[entry.name]
+				loader = self.ovl.loaders[entry.name]
 				if self.ovl.user_version.use_djb:
 					entry.file_hash = loader.file_hash
 				else:
@@ -878,10 +878,6 @@ class OvlFile(Header):
 
 		self.dependencies_basename = [self.get_dep_name(h) for h in self.dependencies["file_hash"]]
 		self.dependencies_name = [b+e for b, e in zip(self.dependencies_basename, self.dependencies_ext)]
-		for i, d in zip(self.dependencies["file_index"], self.dependencies):
-			file_name = self.files_name[i]
-			# todo - think about what to store
-			self.loaders[file_name].dependencies.append(d)
 
 		for aux_entry in self.aux_entries:
 			file_entry = self.files[aux_entry.file_index]
@@ -936,12 +932,16 @@ class OvlFile(Header):
 		for pool in self.pools:
 			pool.clear_data()
 		logging.debug("Linking pointers to pools")
-		for n, l_i, l_o in zip(
+		for n, f_i, l_i, l_o in zip(
 					self.dependencies_name,
+					self.dependencies["file_index"],
 					self.dependencies["link_ptr"]["pool_index"],
 					self.dependencies["link_ptr"]["data_offset"]):
+			file_name = self.files_name[f_i]
+			pool = self.pools[l_i]
+			self.loaders[file_name].dependencies[n] = (pool, l_o)
 			# the index goes into the flattened list of ovl pools
-			self.pools[l_i].offset_2_link_entry[l_o] = n
+			pool.offset_2_link_entry[l_o] = n
 		# this loop is extremely costly in JWE2 c0 main.ovl, about 145 s
 		for archive in self.archives:
 			ovs = archive.content
@@ -1020,7 +1020,9 @@ class OvlFile(Header):
 		# todo do those later
 		# self.aux_entries.clear()
 		# clear ovl lists
-		self.num_dependencies = sum(len(loader.dependencies) for loader in self.loaders.values())
+		loaders_with_deps = [loader for loader in self.loaders.values() if loader.dependencies]
+		loaders_and_deps = [(dep, loader) for loader in loaders_with_deps for dep in loader.dependencies]
+		self.num_dependencies = len(loaders_and_deps)
 		self.num_files = self.num_files_2 = self.num_files_3 = len(self.loaders.values())
 		self.num_mimes = len(loaders_by_extension)
 		self.num_triplets = sum(len(trip) for trip in mimes_triplets)
@@ -1029,12 +1031,15 @@ class OvlFile(Header):
 		self.reset_field("files")
 		self.reset_field("triplets")
 
-		# (self.dependencies, "ext_raw"),
-		# (self.included_ovls, "basename"),
-		# (self.mimes, "name"),
-		# (self.aux_entries, "basename"),
-		# (self.files, "basename")
-		names_list = [*mimes_name, *sorted(loader.basename for loader in self.loaders.values())]
+		deps_ext = [os.path.splitext(dep)[1].replace(".", ":") for dep, loader in loaders_and_deps]
+		included_ovls = []
+		aux_entries = []
+		names_list = [
+			*sorted(set(deps_ext)),
+			*included_ovls,
+			*mimes_name,
+			*aux_entries,
+			*sorted(loader.basename for loader in self.loaders.values())]
 		self.names.update_strings(names_list)
 		# create the mimes
 		file_offset = 0
@@ -1081,6 +1086,14 @@ class OvlFile(Header):
 		for i, loader in enumerate(flat_sorted_loaders):
 			loader.file_index = i
 		ext_lut = {ext: i for i, ext in enumerate(mimes_ext)}
+
+		# dependencies
+		self.dependencies["ext_raw"] = [self.names.offset_dic[name] for name in deps_ext]
+		self.dependencies["file_index"] = [loader.file_index for dep, loader in loaders_and_deps]
+		ptrs = [loader.dependencies[dep] for dep, loader in loaders_and_deps]
+		# todo pools lut
+		self.dependencies["link_ptr"] = [(self.pools.index(pool), offset) for pool, offset in ptrs]
+
 		self.rebuild_ovs_arrays(flat_sorted_loaders, ext_lut)
 
 		# for file, loader in zip(self.files, sorted_loaders):
@@ -1090,7 +1103,6 @@ class OvlFile(Header):
 		# 			logging.warning(f"{UNK_HASH} on dependency entry - won't update hash")
 		# 		else:
 		# 			dependency.file_hash = djb2(dependency.basename.lower())
-		# 	# self.files.append(loader.file_entry)
 		# 	self.dependencies.extend(loader.dependencies)
 		# 	self.aux_entries.extend(loader.aux_entries)
 
@@ -1177,9 +1189,6 @@ class OvlFile(Header):
 				# and link entries like bani to banis
 				loader.update()
 
-			# todo - maybe reuse the lut?
-			# build a lookup table mapping file name to its index
-			loader_name_lut = {loader.name: loader for loader in flat_sorted_loaders}
 			pools_byte_offset = 0
 			pools_offset = 0
 			# make a temporary copy so we can delete archive if needed
@@ -1191,7 +1200,7 @@ class OvlFile(Header):
 				ovs.rebuild_pools()
 				# needs to happen after loader.register_entries
 				# change the hashes / indices of all entries to be valid for the current game version
-				ovs.update_hashes(loader_name_lut)
+				ovs.update_hashes()
 				ovs.data_entries.sort(key=lambda b: (b.ext, b.file_hash))
 
 				# depends on correct hashes applied to buffers and datas
@@ -1236,25 +1245,6 @@ class OvlFile(Header):
 			self.load_flattened_pools()
 		except:
 			logging.exception("Rebuilding ovl arrays failed")
-
-	def update_pool_indices(self):
-		"""Updates pool_index for all entries"""
-		logging.info(f"Updating pool indices")
-		# nb. this relies on dependencies being updated already
-		for archive in self.archives:
-			# we have the final list of pools now
-			ovs = archive.content
-			pools_lut = {pool: pool_i for pool_i, pool in enumerate(ovs.pools)}
-			for loader in self.loaders.values():
-				if loader.ovs == ovs:
-					loader.root_entry.struct_ptr.update_pool_index(pools_lut)
-					for frag in loader.fragments:
-						frag.link_ptr.update_pool_index(pools_lut)
-						frag.struct_ptr.update_pool_index(pools_lut)
-		# dependencies index goes into the flattened list of pools
-		pools_lut = {pool: pool_i for pool_i, pool in enumerate(self.pools)}
-		for dep in self.dependencies:
-			dep.link_ptr.update_pool_index(pools_lut)
 
 	def open_ovs_streams(self, mode="wb"):
 		logging.info("Opening OVS streams")
@@ -1338,7 +1328,6 @@ class OvlFile(Header):
 		# do this last so we also catch the assets & sets
 		self.rebuild_ovl_arrays()
 		# these need to be done after the rest
-		# self.update_pool_indices()
 		# self.update_stream_files()
 		self.open_ovs_streams()
 		ovl_compressed = b""

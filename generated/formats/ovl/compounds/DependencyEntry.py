@@ -20,13 +20,13 @@ class DependencyEntry(BaseStruct):
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 
-		# Hash of this dependency, for lookup in hash dict. Can be either external or internal.
+		# basename for dependency, for lookup in hash dict. Can be either external or internal.
 		self.file_hash = 0
 
-		# these use : instead of . at the start, eg. :tex
+		# ext for dependency, use : instead of . at the start, eg. :tex
 		self.ext_raw = 0
 
-		# index into ovl file table, points to the file entry where this dependency is used
+		# index into ovl files, points to the file entry using this dependency
 		self.file_index = 0
 
 		# pointer into flattened list of all archives' pools

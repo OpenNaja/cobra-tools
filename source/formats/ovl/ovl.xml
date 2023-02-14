@@ -112,12 +112,11 @@
         <add name="basename" type="OffsetString" arg="context\names">path is relative to this ovl's directory; usually points to ovl files</add>
     </compound>
 
-<!--    <compound name="DependencyEntry" inherit="NamedEntry">-->
     <compound name="DependencyEntry" allow_np="true">
         Description of dependency; links it to an entry from this archive
-        <add name="file hash" type="uint">Hash of this dependency, for lookup in hash dict. Can be either external or internal.</add>
-        <add name="ext_raw" type="OffsetString" arg="context\names">these use : instead of . at the start, eg. :tex</add>
-        <add name="file index" type="uint" >index into ovl file table, points to the file entry where this dependency is used</add>
+        <add name="file hash" type="uint">basename for dependency, for lookup in hash dict. Can be either external or internal.</add>
+        <add name="ext_raw" type="OffsetString" arg="context\names">ext for dependency, use : instead of . at the start, eg. :tex</add>
+        <add name="file index" type="uint" >index into ovl files, points to the file entry using this dependency</add>
         <add name="link_ptr" type="HeaderPointer" >pointer into flattened list of all archives' pools</add>
     </compound>
 

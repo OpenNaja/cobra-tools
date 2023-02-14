@@ -35,8 +35,7 @@ class BaseFile:
 
 		# defined in ovl
 		# todo
-		# self.file_entry = file_entry
-		self.dependencies = []
+		self.dependencies = {}
 		self.aux_entries = []
 		self.streams = []
 
