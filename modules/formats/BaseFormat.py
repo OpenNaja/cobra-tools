@@ -264,10 +264,6 @@ class BaseFile:
 		return temp_dir, out_dir_func
 
 	def register_entries(self):
-
-		self.ovs.fragments.extend(self.fragments)
-		self.ovs.root_entries.append(self.root_entry)
-
 		for ovs_name, data_entry in self.data_entries.items():
 			ovs = self.ovl.create_archive(ovs_name)
 			ovs.data_entries.append(data_entry)

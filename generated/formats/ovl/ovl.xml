@@ -77,7 +77,6 @@
         name is stored in basename and ext attributes
     </compound>
 
-<!--    <compound name="FileEntry" inherit="NamedEntry" >-->
     <compound name="FileEntry" allow_np="true" >
         Description of one file in the archive
         <add name="basename" type="OffsetString" arg="context\names"/>
