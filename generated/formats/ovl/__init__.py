@@ -882,7 +882,7 @@ class OvlFile(Header):
 		for aux_entry in self.aux_entries:
 			file_entry = self.files[aux_entry.file_index]
 			self.loaders[file_entry.name].aux_entries.append(aux_entry)
-
+		print(self)
 		self.load_archives()
 		logging.info(f"Loaded OVL in {time.time() - start_time:.2f} seconds")
 
@@ -1021,7 +1021,9 @@ class OvlFile(Header):
 		# self.aux_entries.clear()
 		# clear ovl lists
 		loaders_with_deps = [loader for loader in self.loaders.values() if loader.dependencies]
+		# flat list of all dependencies
 		loaders_and_deps = [(dep, loader) for loader in loaders_with_deps for dep in loader.dependencies]
+		print(loaders_and_deps)
 		self.num_dependencies = len(loaders_and_deps)
 		self.num_files = self.num_files_2 = self.num_files_3 = len(self.loaders.values())
 		self.num_mimes = len(loaders_by_extension)
@@ -1031,6 +1033,7 @@ class OvlFile(Header):
 		self.reset_field("files")
 		self.reset_field("triplets")
 
+		deps_basename = [djb2(os.path.splitext(dep)[0]) for dep, loader in loaders_and_deps]
 		deps_ext = [os.path.splitext(dep)[1].replace(".", ":") for dep, loader in loaders_and_deps]
 		included_ovls = []
 		aux_entries = []
@@ -1088,11 +1091,12 @@ class OvlFile(Header):
 		ext_lut = {ext: i for i, ext in enumerate(mimes_ext)}
 
 		# dependencies
+		self.dependencies["file_hash"] = deps_basename
 		self.dependencies["ext_raw"] = [self.names.offset_dic[name] for name in deps_ext]
 		self.dependencies["file_index"] = [loader.file_index for dep, loader in loaders_and_deps]
 		ptrs = [loader.dependencies[dep] for dep, loader in loaders_and_deps]
-		# todo pools lut
-		self.dependencies["link_ptr"] = [(self.pools.index(pool), offset) for pool, offset in ptrs]
+		pools_lut = {pool: i for i, pool in enumerate(self.pools)}
+		self.dependencies["link_ptr"] = [(pools_lut[pool], offset) for pool, offset in ptrs]
 
 		self.rebuild_ovs_arrays(flat_sorted_loaders, ext_lut)
 
