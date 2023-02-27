@@ -87,13 +87,11 @@ class MemPool(BaseStruct):
 		self.offsets = set()
 		self.link_offsets = None
 
-	def get_first_entry(self):
+	def get_first_offset(self):
 		# usually 0, but be safe
-		if self.offset_2_struct_entries:
-			first_offset = sorted(self.offset_2_struct_entries.keys())[0]
-			first_entries = self.offset_2_struct_entries[first_offset]
-			if first_entries:
-				return first_entries[0]
+		if self.offsets:
+			first_offset = sorted(self.offsets)[0]
+			return first_offset
 
 	def calc_size_map(self):
 		"""Store size of every struct_ptr in size_map"""

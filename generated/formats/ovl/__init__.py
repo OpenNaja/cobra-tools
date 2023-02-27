@@ -195,34 +195,6 @@ class OvsFile(OvsHeader):
 		source_entry.file_hash = target_entry.file_hash
 		source_entry.ext_hash = target_entry.ext_hash
 
-	def rebuild_assets(self):
-		"""Update archive asset grouping from children list on root_entries"""
-		logging.info(f"Updating assets for {self.arg.name}")
-		self.set_header.sets.clear()
-		self.set_header.assets.clear()
-		self.set_header.set_count = 0
-		self.set_header.asset_count = 0
-		start = 0
-		root_entry_lut = {file.name: i for i, file in enumerate(self.root_entries)}
-		for loader in self.ovl.loaders.values():
-			if loader.ovs == self:
-				if loader.children:
-					set_entry = SetEntry(self.context)
-					set_entry.start = start
-					set_entry.end = start + len(loader.children)
-					self.transfer_identity(set_entry, loader.root_entry)
-					self.set_header.sets.append(set_entry)
-					for child_loader in loader.children:
-						asset_entry = AssetEntry(self.context)
-						asset_entry.file_index = root_entry_lut[child_loader.root_entry.name]
-						self.transfer_identity(asset_entry, child_loader.root_entry)
-						self.set_header.assets.append(asset_entry)
-					start += len(loader.children)
-					self.set_header.set_count += 1
-					self.set_header.asset_count += len(loader.children)
-					# set_index is 1-based, so the first set = 1, so we do it after the increment
-					loader.data_entry.set_index = self.set_header.set_count
-
 	def rebuild_buffer_groups(self, mime_lut):
 		logging.info(f"Updating buffer groups for {self.arg.name}")
 		if self.data_entries:
@@ -324,21 +296,16 @@ class OvsFile(OvsHeader):
 				pools_by_type[pool.type].append(pool)
 				# try to get a name for the pool
 				logging.debug(f"Pool[{pool_index}]: {len(pool.offsets)} structs")
-				# todo fixme
-				# first_entry = pool.get_first_entry()
-				# assert first_entry
-				# type_str = first_entry.__class__.__name__
-				# # map fragment to containing root entry
-				# if isinstance(first_entry, Fragment):
-				# 	for loader in self.ovl.loaders.values():
-				# 		if first_entry in loader.fragments:
-				# 			first_entry = loader.root_entry
-				# 			break
-				# 	else:
-				# 		logging.warning(f"Could not find root entry to get name for {first_entry}")
-				# 		continue
-				# logging.debug(f"Pool[{pool_index}]: {pool.name} -> '{first_entry.name}' ({type_str})")
-				# self.transfer_identity(pool, first_entry)
+				first_offset = pool.get_first_offset()
+				ptr = (pool, first_offset)
+				for loader in self.ovl.loaders.values():
+					if ptr in loader.stack:
+						break
+				else:
+					logging.warning(f"Could not find loader to get name for {pool}")
+					continue
+				logging.debug(f"Pool[{pool_index}]: {pool.name} -> '{loader.name}'")
+				self.transfer_identity(pool, loader)
 			else:
 				logging.debug(
 					f"Pool[{pool_index}]: deleting '{pool.name}' from archive '{self.arg.name}' as it has no pointers")
@@ -1146,7 +1113,7 @@ class OvlFile(Header):
 				ovs.root_entries["struct_ptr"]["pool_index"], \
 				ovs.root_entries["struct_ptr"]["data_offset"] = zip(*[(pool_lut.get(s_pool, -1), s_o) for s_pool, s_o in root_ptrs])
 				ovs.assign_ids(ovs.root_entries, loaders)
-				print(ovs.fragments, ovs.root_entries)
+				# print(ovs.fragments, ovs.root_entries)
 
 				logging.info(f"Updating assets for {archive.name}")
 				loaders_with_children = [loader for loader in loaders if loader.children]
@@ -1164,7 +1131,6 @@ class OvlFile(Header):
 					start += len(loader.children)
 					# set_index is 1-based, so the first set = 1
 					loader.data_entry.set_index = i + 1
-				print(ovs.set_header)
 			# add entries to correct ovs
 			for loader in self.loaders.values():
 				# attach the entries used by this loader to the ovs lists
