@@ -107,7 +107,7 @@
         <add name="ovs_offset" type="uint" >Seemingly unused, can be zeroed without effect ingame in JWE</add>
     </compound>
 
-    <compound name="IncludedOvl" inherit="NamedEntry">
+    <compound name="IncludedOvl" allow_np="true">
         Description of one included ovl file that is force-loaded by this ovl
         <add name="basename" type="OffsetString" arg="context\names">path is relative to this ovl's directory; usually points to ovl files</add>
     </compound>
@@ -120,7 +120,7 @@
         <add name="link_ptr" type="HeaderPointer" >pointer into flattened list of all archives' pools</add>
     </compound>
 
-    <compound name="AuxEntry" inherit="NamedEntry">
+    <compound name="AuxEntry" allow_np="true">
         describes an external AUX resource
         <add name="file index" type="uint">index into files list</add>
         <add name="basename" type="OffsetString" arg="context\names"/>

@@ -35,14 +35,15 @@ class BnkLoader(BaseFile):
 		# 		events_ss.data_entry.update_data(events_buffers)
 		# 	else:
 		# 		logging.warning(f"Could not find {events_bnk}.bnk in OVL")
-		# for aux in self.aux_entries:
-		# 	bnkpath = f"{self.ovl.path_no_ext}_{self.file_entry.basename}_bnk_{aux.name.lower()}.aux"
-		# 	# grab and update size
-		# 	if os.path.isfile(bnkpath):
-		# 		aux.size = os.path.getsize(bnkpath)
-		# 	else:
-		# 		logging.warning(f"Could find {bnkpath} to update .aux file size")
 		pass
+
+	def get_aux_size(self, aux_basename):
+		bnkpath = f"{self.ovl.path_no_ext}_{self.basename}_bnk_{aux_basename.lower()}.aux"
+		if os.path.isfile(bnkpath):
+			return os.path.getsize(bnkpath)
+		else:
+			logging.warning(f"Could not find {bnkpath} to update .aux file size")
+			return 0
 
 	def extract(self, out_dir):
 		bnk_name = os.path.splitext(self.name)[0]

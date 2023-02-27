@@ -23,7 +23,7 @@ from modules.formats.formats_dict import FormatDict
 from modules.formats.shared import djb2
 from ovl_util.oodle.oodle import OodleDecompressEnum, oodle_compressor
 
-UNK_HASH = "Unknown Hash"
+UNK_HASH = "UnknownHash"
 OODLE_MAGIC = (b'\x8c', b'\xcc')
 
 
@@ -766,24 +766,6 @@ class OvlFile(Header):
 		self.basename, self.ext = os.path.splitext(self.name)
 		self.path_no_ext = os.path.splitext(self.filepath)[0]
 
-	@property
-	def included_ovl_names(self):
-		return [included_ovl.name for included_ovl in self.included_ovls]
-
-	@included_ovl_names.setter
-	def included_ovl_names(self, ovl_names):
-		# remove duplicates
-		ovl_names = set(ovl_names)
-		logging.debug(f"Setting {len(ovl_names)} included OVLs")
-		self.num_included_ovls = len(ovl_names)
-		self.reset_field("included_ovls")
-		for incl, ovl_name in zip(self.included_ovls, ovl_names):
-			ovl_name = ovl_name.strip()
-			if not ovl_name.lower().endswith(".ovl"):
-				ovl_name += ".ovl"
-			incl.name = ovl_name
-			logging.debug(f"Including {incl.name}")
-
 	def load_included_ovls(self, path):
 		if os.path.isfile(path):
 			with open(path) as f:
@@ -822,7 +804,7 @@ class OvlFile(Header):
 				logging.warning(f"Unresolved dependency [{h}]")
 		else:
 			logging.warning(f"Unsupported game {game}")
-		return UNK_HASH
+		return f"{UNK_HASH}_{h}"
 
 	def load(self, filepath, commands={}):
 		start_time = time.time()
@@ -872,17 +854,16 @@ class OvlFile(Header):
 				self.loaders[filename].get_constants_entry()
 
 		# get included ovls
-		for included_ovl in self.iter_progress(self.included_ovls, "Loading includes"):
-			included_ovl.ext = ".ovl"
+		self.included_ovl_names = [self.names.get_str_at(i) for i in self.included_ovls["basename"]]
 		self.included_ovls_list.emit(self.included_ovl_names)
 
 		self.dependencies_basename = [self.get_dep_name(h) for h in self.dependencies["file_hash"]]
 		self.dependencies_name = [b+e for b, e in zip(self.dependencies_basename, self.dependencies_ext)]
 
-		for aux_entry in self.aux_entries:
-			file_entry = self.files[aux_entry.file_index]
-			self.loaders[file_entry.name].aux_entries.append(aux_entry)
-		print(self)
+		self.aux_entries_names = [self.names.get_str_at(i) for i in self.aux_entries["basename"]]
+		for f_i, aux_name in zip(self.aux_entries["file_index"], self.aux_entries_names):
+			file_name = self.files_name[f_i]
+			self.loaders[file_name].aux_entries.append(aux_name)
 		self.load_archives()
 		logging.info(f"Loaded OVL in {time.time() - start_time:.2f} seconds")
 
@@ -1002,6 +983,13 @@ class OvlFile(Header):
 			else:
 				archive_entry.ovs_path = f"{self.path_no_ext}.ovs"
 
+	@staticmethod
+	def get_dep_hash(name):
+		if UNK_HASH in name:
+			logging.warning(f"Won't update hash {name}")
+			return int(name.replace(f"{UNK_HASH}_", ""))
+		return djb2(name)
+
 	def rebuild_ovl_arrays(self):
 		"""Call this if any file names have changed and hashes or indices have to be recomputed"""
 
@@ -1017,31 +1005,40 @@ class OvlFile(Header):
 		mimes_ext = sorted(loaders_by_extension)
 		mimes_triplets = [self.get_mime(ext, "triplets") for ext in mimes_ext]
 		mimes_name = [self.get_mime(ext, "name") for ext in mimes_ext]
-		# todo do those later
-		# self.aux_entries.clear()
 		# clear ovl lists
 		loaders_with_deps = [loader for loader in self.loaders.values() if loader.dependencies]
+		loaders_with_aux = [loader for loader in self.loaders.values() if loader.aux_entries]
 		# flat list of all dependencies
 		loaders_and_deps = [(dep, loader) for loader in loaders_with_deps for dep in loader.dependencies]
-		print(loaders_and_deps)
+		loaders_and_aux = [(dep, loader) for loader in loaders_with_aux for dep in loader.aux_entries]
+		# print(loaders_and_deps)
+		ovl_includes = sorted(set(self.included_ovl_names))
+		ovl_includes = [ovl_path.rstrip(".ovl") for ovl_path in ovl_includes]
+
 		self.num_dependencies = len(loaders_and_deps)
 		self.num_files = self.num_files_2 = self.num_files_3 = len(self.loaders.values())
 		self.num_mimes = len(loaders_by_extension)
 		self.num_triplets = sum(len(trip) for trip in mimes_triplets)
+		self.num_included_ovls = len(ovl_includes)
+		self.num_aux_entries = len(loaders_and_aux)
 		self.reset_field("mimes")
 		self.reset_field("dependencies")
 		self.reset_field("files")
 		self.reset_field("triplets")
+		self.reset_field("included_ovls")
+		self.reset_field("aux_entries")
 
-		deps_basename = [djb2(os.path.splitext(dep)[0]) for dep, loader in loaders_and_deps]
-		deps_ext = [os.path.splitext(dep)[1].replace(".", ":") for dep, loader in loaders_and_deps]
-		included_ovls = []
-		aux_entries = []
+		if loaders_and_deps:
+			deps_basename, deps_ext = zip(*[os.path.splitext(dep) for dep, loader in loaders_and_deps])
+		else:
+			deps_basename = deps_ext = ()
+		deps_ext = [ext.replace(".", ":") for ext in deps_ext]
+		aux_names = [aux for aux, loader in loaders_and_aux]
 		names_list = [
 			*sorted(set(deps_ext)),
-			*included_ovls,
+			*ovl_includes,
 			*mimes_name,
-			*aux_entries,
+			*aux_names,
 			*sorted(loader.basename for loader in self.loaders.values())]
 		self.names.update_strings(names_list)
 		# create the mimes
@@ -1073,9 +1070,9 @@ class OvlFile(Header):
 			files["set_pool_type"] = loaders[0].set_pool_type
 			file_offset += len(loaders)
 			triplet_offset += len(triplets)
-		print(self.mimes)
-		print(self.files)
-		print(self.triplets)
+		# print(self.mimes)
+		# print(self.files)
+		# print(self.triplets)
 		self.len_names = len(self.names.data)
 		# catching ovl files without entries, default len_type_names is 0
 		if self.loaders:
@@ -1090,39 +1087,22 @@ class OvlFile(Header):
 			loader.file_index = i
 		ext_lut = {ext: i for i, ext in enumerate(mimes_ext)}
 
-		# dependencies
-		self.dependencies["file_hash"] = deps_basename
+		# self.dependencies.sort(key=lambda x: x.file_hash)
+		self.dependencies["file_hash"] = [self.get_dep_hash(name) for name in deps_basename]
 		self.dependencies["ext_raw"] = [self.names.offset_dic[name] for name in deps_ext]
 		self.dependencies["file_index"] = [loader.file_index for dep, loader in loaders_and_deps]
 		ptrs = [loader.dependencies[dep] for dep, loader in loaders_and_deps]
 		pools_lut = {pool: i for i, pool in enumerate(self.pools)}
 		self.dependencies["link_ptr"] = [(pools_lut[pool], offset) for pool, offset in ptrs]
 
-		self.rebuild_ovs_arrays(flat_sorted_loaders, ext_lut)
+		self.included_ovls["basename"] = [self.names.offset_dic[name] for name in ovl_includes]
 
-		# for file, loader in zip(self.files, sorted_loaders):
-		# 	# update dependency hashes
-		# 	for dependency in loader.dependencies:
-		# 		if UNK_HASH in dependency.basename:
-		# 			logging.warning(f"{UNK_HASH} on dependency entry - won't update hash")
-		# 		else:
-		# 			dependency.file_hash = djb2(dependency.basename.lower())
-		# 	self.dependencies.extend(loader.dependencies)
-		# 	self.aux_entries.extend(loader.aux_entries)
-
-		# sort the different lists according to the criteria specified
-		# self.dependencies.sort(key=lambda x: x.file_hash)
-		#
-		# # build a lookup table mapping file name to its index
-		# file_name_lut = {file.name: file_i for file_i, file in enumerate(self.files)}
-		# # update indices into ovl.files
-		# for loader in sorted_loaders:
-		# 	for entry in loader.dependencies + loader.aux_entries:
-		# 		entry.file_index = file_name_lut[loader.name]
 		# self.aux_entries.sort(key=lambda x: x.file_index)
-		#
-		# # update ovl counts
-		# self.num_aux_entries = len(self.aux_entries)
+		self.aux_entries["file_index"] = [loader.file_index for aux, loader in loaders_and_aux]
+		self.aux_entries["basename"] = [self.names.offset_dic[name] for name in aux_names]
+		self.aux_entries["size"] = [loader.get_aux_size(aux) for aux, loader in loaders_and_aux]
+
+		self.rebuild_ovs_arrays(flat_sorted_loaders, ext_lut)
 
 	def rebuild_ovs_arrays(self, flat_sorted_loaders, ext_lut):
 		"""Produces valid ovl.pools and ovs.pools and valid links for everything that points to them"""
@@ -1327,12 +1307,12 @@ class OvlFile(Header):
 
 	def save(self, filepath):
 		start_time = time.time()
-		self.store_filepath(filepath)
 		logging.info(f"Writing {self.name}")
 		# do this last so we also catch the assets & sets
 		self.rebuild_ovl_arrays()
 		# these need to be done after the rest
 		# self.update_stream_files()
+		self.store_filepath(filepath)
 		self.open_ovs_streams()
 		ovl_compressed = b""
 		self.reset_field("archives_meta")
