@@ -2,6 +2,10 @@
 import struct
 import xml.etree.ElementTree as ET
 import logging
+
+import numpy as np
+
+from generated.array import Array
 from generated.base_struct import BaseStruct
 from generated.formats.base.basic import ZString
 from generated.formats.ovl_base.basic import ZStringObfuscated
@@ -29,6 +33,7 @@ class Pointer(BaseStruct):
 		super().__init__(context, arg, template, set_default=False)
 		# set to -1 here so that read_ptr doesn't get a wrong frag by chance if the entry has not been read -> get at 0
 		self.io_start = -1
+		self.target_offset = -1
 		self.pool_index = 0
 		self.data_offset = 0
 		self.data = None
@@ -80,36 +85,26 @@ class Pointer(BaseStruct):
 			self.data = self.template.from_stream(stream, self.context, self.arg)
 
 	def write_ptr(self):
-
-		# if DEPENDENCY_TAG not in prop:
-		# 	# when generated from XML, the pool type is stored as metadata
-		# 	# it's not stored in binary, so for those, keep the root pool type
-		# 	if val.pool_type is not None:
-		# 		pool_type = val.pool_type
-		# 	val.frag.struct_ptr.pool = loader.get_pool(pool_type)
-		# 	# this writes pointer.data to the pool
-		# 	val.write_ptr()
-		# 	# now repeat with pointer.data
-		# 	self.handle_write(prop, val.data, val.frag.struct_ptr, loader, pool_type, is_member=True)
-
 		# usually we add a pointer for empty arrays
 		assert self.has_data
+		# seek to end, set data_offset, write
+		stream, self.target_offset = self.target_pool.align_write(self.data)
 		# if bytes have been set (usually manually), don't ask, just write
 		if isinstance(self.data, (bytes, bytearray)):
-			# seek to end, set data_offset, write
-			self.frag.struct_ptr.write_to_pool(self.data)
+			stream.write(self.data)
 		else:
-			# process the generated data
 			try:
-				self.write_template()
+				assert self.template is not None
+				if self.data is None:
+					logging.info(f"Can't write None for class {self.template}")
+				elif isinstance(self.data, (Array, np.ndarray)):
+					Array.to_stream(self.data, stream, self.context, dtype=self.template)
+				else:
+					self.template.to_stream(self.data, stream, self.context)
 			except TypeError:
 				raise TypeError(f"Failed to write pointer data {self.data} type: {type(self.data)} as {self.template}")
 			except struct.error:
 				raise TypeError(f"Failed to write pointer data {self.data} type: {type(self.data)} as {self.template}")
-
-	def write_template(self):
-		assert self.template is not None
-		self.frag.struct_ptr.write_instance(self.template, self.data)
 
 	@classmethod
 	def to_xml(cls, elem, prop, instance, arg, template, debug):

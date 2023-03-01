@@ -4,6 +4,7 @@ import io
 
 import numpy as np
 
+from generated.array import Array
 from generated.formats.base.compounds.PadAlign import get_padding
 
 
@@ -112,3 +113,4 @@ class MemPool:
 					f"Aligned pointer from {offset} to {self.data.tell()} with {padding} bytes, alignment = {alignment}")
 		return self.data, self.data.tell()
 		# return True
+

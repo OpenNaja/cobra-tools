@@ -56,9 +56,8 @@ class MemStruct(BaseStruct):
 				else:
 					pool_type = pool.type
 				ptr.target_pool = loader.get_pool(pool_type)
-				# todo - use api on pool instead of header pointer
 				ptr.write_ptr()
-				loader.fragments.add(((pool, offset), (ptr.target_pool, ptr.data.io_start)))
+				loader.fragments.add(((pool, offset), (ptr.target_pool, ptr.target_offset)))
 
 	@classmethod
 	def get_instances_recursive(cls, instance, dtype):

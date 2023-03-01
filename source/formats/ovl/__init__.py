@@ -525,6 +525,7 @@ class OvlFile(Header):
 		self.formats_dict = FormatDict()
 		self.constants = {}
 		self.loaders = {}
+		self.included_ovl_names = []
 
 	@classmethod
 	def context_to_xml(cls, elem, prop, instance, arg, template, debug):

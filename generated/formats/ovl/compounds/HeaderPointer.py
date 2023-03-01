@@ -98,7 +98,7 @@ class HeaderPointer(BaseStruct):
 		# logging.info(f"write_instance {cls} {instance}")
 		if self.align_write(instance, overwrite=False):
 			if instance is None:
-				logging.info(f"Can't write None for clas {cls}")
+				logging.info(f"Can't write None for class {cls}")
 			elif isinstance(instance, (Array, np.ndarray)):
 				Array.to_stream(instance, self.pool.data, context, dtype=cls)
 			else:
