@@ -86,17 +86,11 @@ class BanisLoader(MemStructLoader):
 		return out_paths
 
 	def create(self, file_path):
-		# create banis data
-		root_data, buffer_0 = self._get_data(file_path)
-		self.create_root_entry()
-		self.write_data_to_pool(self.root_entry.struct_ptr, self.pool_type, root_data)
-		self.create_data_entry((buffer_0,))
-
-	@staticmethod
-	def _get_data(file_path):
 		with open(file_path, 'rb') as stream:
-			header = stream.read(40)
+			self.header = self.target_class.from_stream(stream, self.context)
 			data = stream.read()
-		return header, data
+		# self.create_root_entry()
+		self.write_memory_data()
+		self.create_data_entry((data,))
 
 

@@ -166,10 +166,6 @@ class BaseFile:
 
 	def create_root_entry(self):
 		self.root_entry = RootEntry(self.ovl.context)
-		self.children = []
-		self.data_entries = {}
-		self.fragments = set()
-		# self.ovs.transfer_identity(self.root_entry, self.file_entry)
 
 	def set_dependency_identity(self, dependency, file_name):
 		"""Use a standard file name with extension"""
@@ -201,8 +197,8 @@ class BaseFile:
 			buffer = BufferEntry(self.ovl.context)
 			buffer.index = i
 			data.buffers.append(buffer)
-			self.ovs.transfer_identity(buffer, self.root_entry)
-		self.ovs.transfer_identity(data, self.root_entry)
+			self.ovs.transfer_identity(buffer, self)
+		self.ovs.transfer_identity(data, self)
 		data.update_data(buffers_bytes)
 		return data
 
@@ -281,6 +277,7 @@ class BaseFile:
 			loader.remove()
 
 	def remove_pointers(self):
+		# todo
 		self.root_entry.struct_ptr.del_struct()
 		for frag in self.fragments:
 			frag.link_ptr.del_link()
@@ -289,12 +286,14 @@ class BaseFile:
 			dep.link_ptr.del_link()
 
 	def register_ptrs(self):
-		self.root_entry.struct_ptr.add_struct(self.root_entry)
-		for frag in self.fragments:
-			frag.link_ptr.add_link(frag)
-			frag.struct_ptr.add_struct(frag)
-		for dep in self.dependencies:
-			dep.link_ptr.add_link(dep)
+		# todo
+		pass
+		# self.root_entry.struct_ptr.add_struct(self.root_entry)
+		# for frag in self.fragments:
+		# 	frag.link_ptr.add_link(frag)
+		# 	frag.struct_ptr.add_struct(frag)
+		# for dep in self.dependencies:
+		# 	dep.link_ptr.add_link(dep)
 
 	def track_ptrs(self):
 		logging.debug(f"Tracking {self.name}")
@@ -449,13 +448,20 @@ class MemStructLoader(BaseFile):
 		# print(self.header)
 		self.header.read_ptrs(pool)
 
-	def create(self, file_path):
-		self.create_root_entry()
-		pool, offset = self.root_ptr
-		self.header = self.target_class.from_xml_file(file_path, self.context)
-		print(self.header)
-		self.header.write_ptrs(self, self.root_ptr, self.pool_type)
+	def write_memory_data(self):
+		pool = self.get_pool(self.root_ptr)
+		stream, offset = pool.align_write(self)
+		self.root_ptr = (pool, offset)
+		self.target_class.to_stream(self.header, stream, self.context)
+		self.header.write_ptrs(self, pool)
 
+	def create(self, file_path):
+		# self.create_root_entry()
+		# pool, offset = self.root_ptr
+		self.header = self.target_class.from_xml_file(file_path, self.context)
+		# print(self.header)
+		# self.header.write_ptrs(self, self.root_ptr, self.pool_type)
+		self.write_memory_data()
 
 # class MimeContext:
 # 	def __init__(self, v):

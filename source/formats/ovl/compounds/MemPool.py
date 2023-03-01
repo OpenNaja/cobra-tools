@@ -86,3 +86,29 @@ class MemPool:
 					for entry in null_ptrs:
 						entry.struct_ptr.data_offset = end_of_pool
 
+	def align_write(self, data, overwrite=False):
+		"""Prepares self.pool.data for writing, handling alignment according to type of data"""
+		# if overwrite:
+		# 	# write at old data_offset, but then check for size match
+		# 	if isinstance(data, (bytes, bytearray, str)) and self.data_size != len(data):
+		# 		logging.warning(f"Data size for overwritten pointer has changed from {self.data_size} to {len(data)}!")
+		# 	self.data.seek(self.data_offset)
+		# else:
+		# seek to end of pool
+		self.data.seek(0, 2)
+		# check for alignment
+		if isinstance(data, str):
+			alignment = 1
+		else:
+			alignment = 16
+		# logging.info(f"{type(data)} {data} alignment {alignment}")
+		# write alignment to pool
+		if alignment > 1:
+			offset = self.data.tell()
+			padding = (alignment - (offset % alignment)) % alignment
+			if padding:
+				self.data.write(b"\x00" * padding)
+				logging.debug(
+					f"Aligned pointer from {offset} to {self.data.tell()} with {padding} bytes, alignment = {alignment}")
+		return self.data, self.data.tell()
+		# return True

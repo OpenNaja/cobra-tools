@@ -979,7 +979,6 @@ class OvlFile(Header):
 		# flat list of all dependencies
 		loaders_and_deps = [(dep, loader) for loader in loaders_with_deps for dep in loader.dependencies]
 		loaders_and_aux = [(dep, loader) for loader in loaders_with_aux for dep in loader.aux_entries]
-		# print(loaders_and_deps)
 		ovl_includes = sorted(set(self.included_ovl_names))
 		ovl_includes = [ovl_path.rstrip(".ovl") for ovl_path in ovl_includes]
 
@@ -1038,9 +1037,6 @@ class OvlFile(Header):
 			files["set_pool_type"] = loaders[0].set_pool_type
 			file_offset += len(loaders)
 			triplet_offset += len(triplets)
-		# print(self.mimes)
-		# print(self.files)
-		# print(self.triplets)
 		self.len_names = len(self.names.data)
 		# catching ovl files without entries, default len_type_names is 0
 		if self.loaders:
@@ -1218,21 +1214,18 @@ class OvlFile(Header):
 	def update_stream_files(self):
 		logging.info("Updating stream file memory links")
 		stream_loaders = [(loader, stream_loader) for loader in self.loaders.values() for stream_loader in loader.streams]
+		stream_loaders.sort(key=lambda x: (x[1].ovs.arg.name, x[0].abs_mem_offset))
 		self.num_stream_files = len(stream_loaders)
 		self.reset_field("stream_files")
-		for stream_entry, (loader, stream_loader) in zip(self.stream_files, stream_loaders):
-			stream_entry.file_offset = loader.abs_mem_offset
-			stream_entry.stream_offset = stream_loader.abs_mem_offset
-			stream_entry.archive_name = stream_loader.ovs.arg.name
-		# sort stream files by archive and then the file offset in the pool
-		self.stream_files.sort(key=lambda s: (s.archive_name, s.file_offset))
+		self.stream_files["file_offset"], self.stream_files["stream_offset"] = zip(*[
+			(loader.abs_mem_offset, stream_loader.abs_mem_offset) for loader, stream_loader in stream_loaders])
 		# update the archive entries to point to the stream files
 		stream_files_offset = 0
 		for archive in self.archives:
 			archive.stream_files_offset = stream_files_offset
-			stream_files = [f for f in self.stream_files if f.archive_name == archive.name]
+			archive_streams = [stream_loader for (loader, stream_loader) in stream_loaders if stream_loader.ovs.arg == archive]
 			# some JWE2 dino archives have no stream_files, just extra data_entries
-			stream_files_offset += len(stream_files)
+			stream_files_offset += len(archive_streams)
 
 	def dump_debug_data(self):
 		"""Dumps various logs needed to reverse engineer and debug the ovl format"""
@@ -1279,7 +1272,7 @@ class OvlFile(Header):
 		self.open_ovs_streams()
 		ovl_compressed = b""
 		self.reset_field("archives_meta")
-		print(self)
+		# print(self)
 		# compress data stream
 		for archive, meta in zip(self.iter_progress(self.archives, "Saving archives"), self.archives_meta):
 			# write archive into bytes IO stream

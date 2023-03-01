@@ -70,6 +70,8 @@ class Pointer(BaseStruct):
 			pool, offset = link
 			self.link = link
 			self.target_pool = pool
+			# we are now (potentially) in a new pool
+			self.pool_type = pool.type
 			stream = pool.stream_at(offset)
 			self.read_template(stream)
 
@@ -77,8 +79,21 @@ class Pointer(BaseStruct):
 		if self.template:
 			self.data = self.template.from_stream(stream, self.context, self.arg)
 
-	def write_pointer(self):
-		assert self.has_data and self.frag
+	def write_ptr(self):
+
+		# if DEPENDENCY_TAG not in prop:
+		# 	# when generated from XML, the pool type is stored as metadata
+		# 	# it's not stored in binary, so for those, keep the root pool type
+		# 	if val.pool_type is not None:
+		# 		pool_type = val.pool_type
+		# 	val.frag.struct_ptr.pool = loader.get_pool(pool_type)
+		# 	# this writes pointer.data to the pool
+		# 	val.write_ptr()
+		# 	# now repeat with pointer.data
+		# 	self.handle_write(prop, val.data, val.frag.struct_ptr, loader, pool_type, is_member=True)
+
+		# usually we add a pointer for empty arrays
+		assert self.has_data
 		# if bytes have been set (usually manually), don't ask, just write
 		if isinstance(self.data, (bytes, bytearray)):
 			# seek to end, set data_offset, write

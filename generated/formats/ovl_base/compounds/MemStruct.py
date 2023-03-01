@@ -39,65 +39,32 @@ class MemStruct(BaseStruct):
 	def get_arrays(self):
 		return [(prop, val) for prop, val in vars(self).items() if isinstance(val, Array)]
 
-	def handle_write(self, prop, val, struct_ptr, loader, pool_type, is_member=False):
-		# logging.debug(f"handle_write {prop} {type(self).__name__}, {len(loader.fragments)} frags")
-		if isinstance(val, MemStruct):
-			val.write_ptrs(loader, struct_ptr, pool_type, is_member=is_member)
-		elif isinstance(val, Array):
-			for member in val:
-				self.handle_write(prop, member, struct_ptr, loader, pool_type, is_member=True)
-		elif isinstance(val, Pointer):
-			# usually we add a pointer for empty arrays
-			if val.has_data:
-				if DEPENDENCY_TAG in prop:
-					# logging.debug(f"Created dependency for {prop} = {self.data}")
-					val.frag = loader.create_dependency(val.data)
+	def write_ptrs(self, loader, pool):
+		"""Process all pointers in the structure and recursively load pointers in the sub-structs."""
+		# todo - not sure how recursive fares here, since we theoretically have the whole structure set up already?
+		# could work if the order is good
+		for ptr, f_name, arguments in MemStruct.get_instances_recursive(self, Pointer):
+			# locates the read address, attaches the frag entry, and reads the template as ptr.data
+			offset = ptr.io_start
+			if DEPENDENCY_TAG in f_name:
+				loader.dependencies[ptr.data] = (pool, offset)
+			elif ptr.has_data:
+				# when generated from XML, the pool type is stored as metadata
+				# it's not stored in binary, so for those, keep the root pool type
+				if ptr.pool_type is not None:
+					pool_type = ptr.pool_type
 				else:
-					val.frag = loader.create_fragment()
-
-				if DEPENDENCY_TAG not in prop:
-					# when generated from XML, the pool type is stored as metadata
-					# it's not stored in binary, so for those, keep the root pool type
-					if val.pool_type is not None:
-						pool_type = val.pool_type
-					val.frag.struct_ptr.pool = loader.get_pool(pool_type)
-					# this writes pointer.data to the pool
-					val.write_pointer()
-					# now repeat with pointer.data
-					self.handle_write(prop, val.data, val.frag.struct_ptr, loader, pool_type, is_member=True)
-				# set link_ptr
-				p = val.frag.link_ptr
-				p.data_offset = val.io_start
-				p.pool = struct_ptr.pool
-
-	def write_ptrs(self, loader, struct_ptr, pool_type, is_member=False):
-		# logging.debug(f"write_ptrs, member={is_member}")
-		# don't write array members again, they have already been written!
-		if not is_member:
-			# write this struct's data
-			struct_ptr.pool = loader.get_pool(pool_type)
-			struct_ptr.write_instance(type(self), self)
-			# logging.debug(f"memstruct's struct_ptr after {struct_ptr}")
-
-		# write their data and update frags
-		for prop, pointer in self.get_props_and_ptrs():
-			self.handle_write(prop, pointer, struct_ptr, loader, pool_type)
-		# get all arrays of this MemStruct
-		for prop, array in self.get_arrays():
-			self.handle_write(prop, array, struct_ptr, loader, pool_type)
+					pool_type = pool.type
+				ptr.target_pool = loader.get_pool(pool_type)
+				# todo - use api on pool instead of header pointer
+				ptr.write_ptr()
+				loader.fragments.add(((pool, offset), (ptr.target_pool, ptr.data.io_start)))
 
 	@classmethod
 	def get_instances_recursive(cls, instance, dtype):
 		for s_type, s_inst, (f_name, f_type, arguments, _) in cls.get_condition_attributes_recursive(instance, instance, lambda x: issubclass(x[1], dtype)):
 			f_inst = s_type.get_field(s_inst, f_name)
 			yield f_inst, f_name, arguments
-
-	@classmethod
-	def get_instances(cls, instance, dtype):
-		for attribute in cls.get_conditioned_attributes(instance, instance, lambda x: issubclass(x[1], dtype)):
-			f_name, f_type, f_arguments = attribute[0:3]
-			f_inst = instance.get_field(instance, f_name)
-			yield f_inst, f_name, f_arguments
 
 	def read_ptrs(self, pool):
 		"""Process all pointers in the structure and recursively load pointers in the sub-structs."""
@@ -110,28 +77,25 @@ class MemStruct(BaseStruct):
 				ptr.template = self.get_ptr_template(f_name)
 			# locates the read address, attaches the frag entry, and reads the template as ptr.data
 			ptr.read_ptr(pool)
-			self.handle_pointer(ptr)
+			if ptr.target_pool:
+				# keep reading pointers in the newly read ptr.data
+				for memstruct in self.structs_from_ptr(ptr):
+					memstruct.read_ptrs(ptr.target_pool)
+
+	@staticmethod
+	def structs_from_ptr(ptr):
+		"""Get all direct memstruct children of this ptr"""
+		if isinstance(ptr.data, MemStruct):
+			yield ptr.data
+		elif isinstance(ptr.data, Array):
+			assert isinstance(ptr, (ArrayPointer, ForEachPointer))
+			for member in ptr.data:
+				if isinstance(member, MemStruct):
+					yield member
 
 	def get_ptr_template(self, prop):
 		"""Returns the appropriate template for a pointer named 'prop', if exists.
 		Must be overwritten in subclass"""
 		return None
-
-	def handle_pointer(self, ptr):
-		"""Continue processing the linked memstructs."""
-		if ptr.target_pool:
-			# we are now (potentially) in a new pool
-			ptr.pool_type = ptr.target_pool.type
-			# keep reading pointers in the newly read ptr.data
-			if isinstance(ptr.data, MemStruct):
-				ptr.data.read_ptrs(ptr.target_pool)
-			elif isinstance(ptr.data, Array):
-				assert isinstance(ptr, (ArrayPointer, ForEachPointer))
-				for member in ptr.data:
-					if isinstance(member, MemStruct):
-						member.read_ptrs(ptr.target_pool)
-			# # not sure why it doesn't work like this
-			# for memstruct, f_name, arguments in MemStruct.get_instances_recursive(ptr.data, MemStruct):
-			# 	memstruct.read_ptrs(pool)
 
 
