@@ -15,8 +15,7 @@ class MechanicresearchsettingsLoader(MemStructLoader):
 	def create(self, file_path):
 		self.create_root_entry()
 		self.header = self.target_class.from_xml_file(file_path, self.ovl.context)
-		# print(self.header)
 		self.prep()
-		self.header.write_ptrs(self, self.root_ptr, self.pool_type)
+		self.write_memory_data()
 
 

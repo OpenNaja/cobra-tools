@@ -72,5 +72,5 @@ class FctLoader(MemStructLoader):
 					font.data_size = 0
 			# write data
 			self.create_data_entry((buff_stream.getvalue(),))
-			self.header.write_ptrs(self, self.root_ptr, self.pool_type)
+		self.write_memory_data()
 

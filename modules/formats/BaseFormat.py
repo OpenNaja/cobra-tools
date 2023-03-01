@@ -24,6 +24,7 @@ class BaseFile:
 	# used to check output for any temporary files that should possibly be deleted
 	temp_extensions = ()
 	can_extract = True
+	target_class: None
 
 	def __init__(self, ovl, file_name):
 		self.ovl = ovl
@@ -44,6 +45,7 @@ class BaseFile:
 		self.data_entries = {}
 		self.children = []
 		self.fragments = set()
+		self.stack = {}
 		self.root_ptr = (None, 0)
 
 		self.same = False
@@ -423,9 +425,15 @@ class BaseFile:
 			entry = loader.file_entry
 			logging.info(f"{entry.ext} {entry.mime.mime_version}")
 
+	def write_memory_data(self):
+		pool = self.get_pool(self.pool_type)
+		stream, offset = pool.align_write(self)
+		self.root_ptr = (pool, offset)
+		self.target_class.to_stream(self.header, stream, self.context)
+		self.header.write_ptrs(self, pool)
+
 
 class MemStructLoader(BaseFile):
-	target_class: None
 
 	def __init__(self, ovl, file_name):
 		super().__init__(ovl, file_name)
@@ -448,19 +456,8 @@ class MemStructLoader(BaseFile):
 		# print(self.header)
 		self.header.read_ptrs(pool)
 
-	def write_memory_data(self):
-		pool = self.get_pool(self.root_ptr)
-		stream, offset = pool.align_write(self)
-		self.root_ptr = (pool, offset)
-		self.target_class.to_stream(self.header, stream, self.context)
-		self.header.write_ptrs(self, pool)
-
 	def create(self, file_path):
-		# self.create_root_entry()
-		# pool, offset = self.root_ptr
 		self.header = self.target_class.from_xml_file(file_path, self.context)
-		# print(self.header)
-		# self.header.write_ptrs(self, self.root_ptr, self.pool_type)
 		self.write_memory_data()
 
 # class MimeContext:

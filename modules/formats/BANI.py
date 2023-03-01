@@ -16,7 +16,7 @@ class BaniLoader(MemStructLoader):
 		bani.load(file_path)
 		self.header = bani.data
 		self.create_root_entry()
-		self.header.write_ptrs(self, self.root_ptr, self.pool_type)
+		self.write_memory_data()
 		# create banis fragment, link it during update
 		self.attach_frag_to_ptr(self.header.banis, self.root_ptr.pool)
 		# temporarily set frag so that register_ptrs works

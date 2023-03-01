@@ -307,10 +307,13 @@ class OvsFile(OvsHeader):
 			else:
 				logging.debug(
 					f"Pool[{pool_index}]: deleting '{pool.name}' from archive '{self.arg.name}' as it has no pointers")
+				logging.debug(
+					f"Pool[{pool_index}]: data '{pool.data.getvalue()}'")
 		self.pools.clear()
 		# rebuild pool groups
 		self.arg.num_pool_groups = len(pools_by_type)
 		self.reset_field("pool_groups")
+		print(pools_by_type)
 		for pool_group, (pool_type, pools) in zip(self.pool_groups, sorted(pools_by_type.items())):
 			pool_group.type = pool_type
 			pool_group.num_pools = len(pools)
@@ -1057,6 +1060,15 @@ class OvlFile(Header):
 		self.dependencies["ext_raw"] = [self.names.offset_dic[name] for name in deps_ext]
 		self.dependencies["file_index"] = [loader.file_index for dep, loader in loaders_and_deps]
 		ptrs = [loader.dependencies[dep] for dep, loader in loaders_and_deps]
+
+		# update all pools before indexing anything that points into pools
+		for archive in self.archives:
+			ovs = archive.content
+			ovs.clear_ovs_arrays()
+			ovs.rebuild_pools()
+		# apply the new pools to the ovl
+		self.load_flattened_pools()
+
 		pools_lut = {pool: i for i, pool in enumerate(self.pools)}
 		self.dependencies["link_ptr"] = [(pools_lut[pool], offset) for pool, offset in ptrs]
 
@@ -1085,8 +1097,6 @@ class OvlFile(Header):
 			# remove all entries to rebuild them from the loaders
 			for archive in self.archives:
 				ovs = archive.content
-				ovs.clear_ovs_arrays()
-				ovs.rebuild_pools()
 				loaders = archive_name_to_loaders[archive.name]
 				archive.num_root_entries = len(loaders)
 				all_frags = set()
@@ -1186,9 +1196,6 @@ class OvlFile(Header):
 			self.num_pools = sum(a.num_pools for a in self.archives)
 			self.num_datas = sum(a.num_datas for a in self.archives)
 			self.num_buffers = sum(a.num_buffers for a in self.archives)
-
-			# apply the new pools to the ovl
-			self.load_flattened_pools()
 		except:
 			logging.exception("Rebuilding ovl arrays failed")
 
@@ -1218,8 +1225,9 @@ class OvlFile(Header):
 		stream_loaders.sort(key=lambda x: (x[1].ovs.arg.name, x[0].abs_mem_offset))
 		self.num_stream_files = len(stream_loaders)
 		self.reset_field("stream_files")
-		self.stream_files["file_offset"], self.stream_files["stream_offset"] = zip(*[
-			(loader.abs_mem_offset, stream_loader.abs_mem_offset) for loader, stream_loader in stream_loaders])
+		if stream_loaders:
+			self.stream_files["file_offset"], self.stream_files["stream_offset"] = zip(*[
+				(loader.abs_mem_offset, stream_loader.abs_mem_offset) for loader, stream_loader in stream_loaders])
 		# update the archive entries to point to the stream files
 		stream_files_offset = 0
 		for archive in self.archives:

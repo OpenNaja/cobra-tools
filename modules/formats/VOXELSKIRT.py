@@ -75,7 +75,7 @@ class VoxelskirtLoader(MemStructLoader):
 		self.create_data_entry((buffer_bytes,))
 		self.header._data_size = len(buffer_bytes)
 		# need to update before writing ptrs
-		self.header.write_ptrs(self, self.root_ptr, self.pool_type)
+		self.write_memory_data()
 
 	def collect(self):
 		super().collect()

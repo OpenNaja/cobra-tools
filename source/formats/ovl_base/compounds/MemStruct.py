@@ -23,8 +23,10 @@ class MemStruct:
 
 	def write_ptrs(self, loader, pool):
 		"""Process all pointers in the structure and recursively load pointers in the sub-structs."""
-		# todo - not sure how recursive fares here, since we theoretically have the whole structure set up already?
+		# recursive doesnt get the whole structure - why?
 		# could work if the order is good
+		pool.offsets.add(self.io_start)
+		stack = loader.stack[(pool, self.io_start)] = {}
 		for ptr, f_name, arguments in MemStruct.get_instances_recursive(self, Pointer):
 			# locates the read address, attaches the frag entry, and reads the template as ptr.data
 			offset = ptr.io_start
@@ -40,6 +42,11 @@ class MemStruct:
 				ptr.target_pool = loader.get_pool(pool_type)
 				ptr.write_ptr()
 				loader.fragments.add(((pool, offset), (ptr.target_pool, ptr.target_offset)))
+				ptr.target_pool.offsets.add(ptr.target_offset)
+				stack[(pool, offset)] = (ptr.target_pool, ptr.target_offset)
+				# keep reading pointers in the newly read ptr.data
+				for memstruct in self.structs_from_ptr(ptr):
+					memstruct.write_ptrs(loader, ptr.target_pool)
 
 	@classmethod
 	def get_instances_recursive(cls, instance, dtype):

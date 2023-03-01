@@ -26,8 +26,7 @@ class PathMaterialLoader(MemStructLoader):
 		self.create_root_entry()
 		self.header = self.target_class.from_xml_file(file_path, self.ovl.context)
 		self.prep()
-		# print(self.header)
-		self.header.write_ptrs(self, self.root_ptr, self.pool_type)
+		self.write_memory_data()
 
 
 class PathResourceLoader(MemStructLoader):
@@ -53,8 +52,7 @@ class PathJoinPartResourceLoader(MemStructLoader):
 		self.create_root_entry()
 		self.header = self.target_class.from_xml_file(file_path, self.ovl.context)
 		self.prep()
-		# print(self.header)
-		self.header.write_ptrs(self, self.root_ptr, self.pool_type)
+		self.write_memory_data()
 
 
 class PathSupportLoader(MemStructLoader):
@@ -82,5 +80,4 @@ class SupportSetLoader(MemStructLoader):
 		self.create_root_entry()
 		self.header = self.target_class.from_xml_file(file_path, self.ovl.context)
 		self.prep()
-		# print(self.header)
-		self.header.write_ptrs(self, self.root_ptr, self.pool_type)
+		self.write_memory_data()

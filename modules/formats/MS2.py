@@ -212,7 +212,7 @@ class Ms2Loader(BaseFile):
 		# create ms2 data
 		self.create_data_entry(ms2_file.buffers)
 		# write the final memstruct
-		self.header.write_ptrs(self, self.root_ptr, self.pool_type)
+		self.write_memory_data()
 		# link some more pointers
 		pool = self.header.model_infos.frag.struct_ptr.pool
 		first_model_frag = self.get_first_model_frag()
