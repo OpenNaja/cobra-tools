@@ -55,8 +55,6 @@ class OvsFile(OvsHeader):
 
 	def clear_ovs_arrays(self):
 		self.pool_groups.clear()
-		# self.fragments.clear()
-		# self.root_entries.clear()
 		self.data_entries.clear()
 		self.buffer_entries.clear()
 		self.buffer_groups.clear()
@@ -135,7 +133,7 @@ class OvsFile(OvsHeader):
 			# start_time = time.time()
 			super().read_fields(stream, self)
 			# logging.info(f"Read decompressed stream in {time.time() - start_time:.2f} seconds")
-			# print(self)
+			print(self)
 			pool_index = 0
 			for pool_type in self.pool_groups:
 				for i in range(pool_type.num_pools):
@@ -457,17 +455,20 @@ class OvsFile(OvsHeader):
 			# file_hash is an index into ovl files
 			return [self.ovl.files_name[i] for i in array["file_hash"]]
 
-	def assign_ids(self, array, loaders):
+	def assign_ids(self, array, loaders, with_ext_hash=True):
 		"""Assign ids to an array"""
 		if loaders:
 			# JWE style
 			if self.ovl.user_version.use_djb:
 				# look up the hashes
-				array["file_hash"], array["ext_hash"] = zip(*[(loader.file_hash, loader.ext_hash) for loader in loaders])
+				array["file_hash"] = [loader.file_hash for loader in loaders]
 			# PZ Style and PC Style
 			else:
 				# file_hash is an index into ovl files
-				array["file_hash"] = [l.file_index for l in loaders]
+				array["file_hash"] = [loader.file_index for loader in loaders]
+			if with_ext_hash:
+				# PZ does not consistently store ext_hash, eg. it is no longer used on pools
+				array["ext_hash"] = [loader.ext_hash for loader in loaders]
 
 	def write_pools(self):
 		logging.debug(f"Writing pools for {self.arg.name}")
@@ -1087,7 +1088,8 @@ class OvlFile(Header):
 			# remove all entries to rebuild them from the loaders
 			for archive in self.archives:
 				ovs = archive.content
-				archive.content.clear_ovs_arrays()
+				ovs.clear_ovs_arrays()
+				ovs.rebuild_pools()
 				loaders = archive_name_to_loaders[archive.name]
 				archive.num_root_entries = len(loaders)
 				all_frags = set()
@@ -1097,7 +1099,6 @@ class OvlFile(Header):
 				archive.num_fragments = len(all_frags)
 				ovs.reset_field("root_entries")
 				ovs.reset_field("fragments")
-				# todo compile and sort pools first
 				# create lut for pool indices
 				pool_lut = {pool: i for i, pool in enumerate(ovs.pools)}
 				if all_frags:
@@ -1105,9 +1106,8 @@ class OvlFile(Header):
 					ovs.fragments["link_ptr"]["data_offset"], \
 					ovs.fragments["struct_ptr"]["pool_index"], \
 					ovs.fragments["struct_ptr"]["data_offset"] = zip(*[(pool_lut[p_pool], l_o, pool_lut[s_pool], s_o) for (p_pool, l_o), (s_pool, s_o) in all_frags])
-					# not really needed but nice to have
-					# sort fragments by their first pointer just to keep saves consistent for easier debugging
-					ovs.fragments.sort(axis=-1, kind=None, order=None)
+					# not needed but nice to have to keep saves consistent for easier debugging
+					ovs.fragments.sort()
 				# get root entries
 				root_ptrs = [loader.root_ptr for loader in loaders]
 				ovs.root_entries["struct_ptr"]["pool_index"], \
@@ -1147,7 +1147,6 @@ class OvlFile(Header):
 				logging.debug(f"Sorting pools for {archive.name}")
 				ovs = archive.content
 
-				ovs.rebuild_pools()
 				# needs to happen after loader.register_entries
 				# change the hashes / indices of all entries to be valid for the current game version
 				ovs.update_hashes()
@@ -1218,17 +1217,15 @@ class OvlFile(Header):
 
 	def update_stream_files(self):
 		logging.info("Updating stream file memory links")
-		self.stream_files.clear()
-		for loader in self.loaders.values():
-			for stream_loader in loader.streams:
-				stream_entry = StreamEntry(self.context)
-				stream_entry.file_offset = loader.abs_mem_offset
-				stream_entry.stream_offset = stream_loader.abs_mem_offset
-				stream_entry.archive_name = stream_loader.ovs.arg.name
-				self.stream_files.append(stream_entry)
+		stream_loaders = [(loader, stream_loader) for loader in self.loaders.values() for stream_loader in loader.streams]
+		self.num_stream_files = len(stream_loaders)
+		self.reset_field("stream_files")
+		for stream_entry, (loader, stream_loader) in zip(self.stream_files, stream_loaders):
+			stream_entry.file_offset = loader.abs_mem_offset
+			stream_entry.stream_offset = stream_loader.abs_mem_offset
+			stream_entry.archive_name = stream_loader.ovs.arg.name
 		# sort stream files by archive and then the file offset in the pool
 		self.stream_files.sort(key=lambda s: (s.archive_name, s.file_offset))
-		self.num_stream_files = len(self.stream_files)
 		# update the archive entries to point to the stream files
 		stream_files_offset = 0
 		for archive in self.archives:
@@ -1277,7 +1274,7 @@ class OvlFile(Header):
 		# do this last so we also catch the assets & sets
 		self.rebuild_ovl_arrays()
 		# these need to be done after the rest
-		# self.update_stream_files()
+		self.update_stream_files()
 		self.store_filepath(filepath)
 		self.open_ovs_streams()
 		ovl_compressed = b""

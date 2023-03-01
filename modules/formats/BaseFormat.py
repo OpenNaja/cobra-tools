@@ -93,8 +93,8 @@ class BaseFile:
 	def abs_mem_offset(self):
 		"""Returns the memory offset of this loader's root_entry"""
 		# this is inverted compared to get_pool_offset
-		# return self.ovs.get_pool_offset(self.root_ptr.pool.offset + self.root_ptr.data_offset)
-		offset = self.root_ptr.pool.offset + self.root_ptr.data_offset
+		pool, data_offset = self.root_ptr
+		offset = pool.offset + data_offset
 		# JWE, JWE2: relative offset for each pool
 		if self.ovl.user_version.use_djb:
 			return self.ovs.arg.pools_start + offset
