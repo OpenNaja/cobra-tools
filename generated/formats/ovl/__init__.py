@@ -616,24 +616,6 @@ class OvlFile(Header):
 				(f"Extracting {len(error_files)} files failed - please check 'Show Details' or the log.", "\n".join(error_files)))
 		return out_paths
 
-	def create_file_entry(self, file_path):
-		"""Create a file entry from a file path"""
-		# capital letters in the name buffer crash JWE2, apparently
-		file_path = file_path.lower()
-		filename = os.path.basename(file_path)
-		file_entry = FileEntry(self.context)
-		file_entry.path = file_path
-		file_entry.name = filename
-		# just init it here
-		file_entry.ext_hash = 0
-		file_entry.basename, file_entry.ext = os.path.splitext(filename)
-		try:
-			file_entry.update_constants(self)
-			return file_entry
-		except KeyError:
-			logging.warning(f"Unsupported file type {file_entry.ext} for game {get_game(self.context)[0].value}")
-			return
-
 	def create_file(self, file_path, ovs_name="STATIC"):
 		"""Create a loader from a file path"""
 		filename = os.path.basename(file_path)
@@ -646,10 +628,10 @@ class OvlFile(Header):
 			loader.create(file_path)
 			return loader
 		except NotImplementedError:
-			logging.warning(f"Creation not implemented for {loader.ext}")
+			logging.warning(f"Creation not implemented for {filename}")
 			raise
 		except BaseException:
-			logging.exception(f"Could not create: {loader.name}")
+			logging.exception(f"Could not create: {filename}")
 			raise
 
 	def create(self, ovl_dir):
@@ -693,7 +675,7 @@ class OvlFile(Header):
 			# also store any streams created by loader
 			for stream in loader.streams + loader.children:
 				if stream:
-					self.loaders[stream.file_entry.name] = stream
+					self.loaders[stream.name] = stream
 
 	def create_archive(self, name="STATIC"):
 		# see if it exists
@@ -995,7 +977,7 @@ class OvlFile(Header):
 		self.reset_field("triplets")
 		self.reset_field("included_ovls")
 		self.reset_field("aux_entries")
-
+		print(loaders_and_deps)
 		if loaders_and_deps:
 			deps_basename, deps_ext = zip(*[os.path.splitext(dep) for dep, loader in loaders_and_deps])
 		else:

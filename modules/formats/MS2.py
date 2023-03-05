@@ -11,7 +11,7 @@ import generated.formats.ovl.versions as ovl_versions
 from io import BytesIO
 
 from generated.formats.base.compounds.PadAlign import get_padding
-from modules.formats.BaseFormat import BaseFile
+from modules.formats.BaseFormat import BaseFile, MemStructLoader
 from modules.helpers import as_bytes
 from ovl_util import interaction
 
@@ -50,8 +50,9 @@ class Model2streamLoader(BaseFile):
 		self.data_entry.size_2 = temp1
 
 
-class Ms2Loader(BaseFile):
+class Ms2Loader(MemStructLoader):
 	extension = ".ms2"
+	target_class = Ms2Root
 
 	@staticmethod
 	def _rel_at(parent_ptr, offset):
@@ -153,11 +154,12 @@ class Ms2Loader(BaseFile):
 			logging.exception(f"MS2 collecting failed")
 		# print(self.header)
 
-	def get_first_model_frag(self):
+	def get_first_model_offset(self):
 		for model_info in self.header.model_infos.data:
 			for ptr in (model_info.materials, model_info.lods, model_info.objects, model_info.meshes):
-				if ptr.frag:
-					return ptr.frag
+				if ptr.target_offset is not None:
+					return ptr.target_pool, ptr.target_offset
+		return None, None
 
 	def create(self, file_path):
 		ms2_file = Ms2File()
@@ -210,22 +212,19 @@ class Ms2Loader(BaseFile):
 		# write the final memstruct
 		self.write_memory_data()
 		# link some more pointers
-		pool = self.header.model_infos.frag.struct_ptr.pool
-		first_model_frag = self.get_first_model_frag()
+		buffer_infos = self.header.buffer_infos
+		pool = self.header.model_infos.target_pool
+		first_model_pool, first_model_offset = self.get_first_model_offset()
 		for model_info in self.header.model_infos.data:
 			# link first_model pointer
-			if not first_model_frag:
+			if first_model_offset is None:
 				logging.debug(f"MS2 {self.name} has no pointers on any model")
 			else:
-				self.attach_frag_to_ptr(model_info.first_model, pool)
-				self.ptr_relative(model_info.first_model.frag.struct_ptr, first_model_frag.struct_ptr)
+				self.attach_frag_to_ptr(pool, model_info.first_model.io_start, first_model_pool, first_model_offset)
 			for wrapper in model_info.model.meshes:
 				# buffer_infos have been written, now make this mesh's buffer_info pointer point to the right entry
-				offset = wrapper.mesh.stream_info.temp_index * self.header.buffer_infos.data[0].io_size
-				self.attach_frag_to_ptr(wrapper.mesh.stream_info, pool)
-				self.ptr_relative(wrapper.mesh.stream_info.frag.struct_ptr, self.header.buffer_infos.frag.struct_ptr, rel_offset=offset)
-		# for f in self.fragments:
-		# 	print(f, f.link_ptr.data_size, f.struct_ptr.data_size)
+				offset = wrapper.mesh.stream_info.temp_index * buffer_infos.data[0].io_size
+				self.attach_frag_to_ptr(pool, wrapper.mesh.stream_info.io_start, buffer_infos.target_pool, buffer_infos.target_offset+offset)
 
 	def update(self):
 		if ovl_versions.is_pz16(self.ovl):

@@ -123,11 +123,12 @@ class BaseFile:
 		return struct.pack(
 			"<4s4BI", fmt_name, ovl.version_flag, ovl.version, ovl.bitswap, ovl.seventh_byte, int(ovl.user_version))
 
-	def attach_frag_to_ptr(self, pointer, pool):
+	def attach_frag_to_ptr(self, l_pool, l_offset, s_pool, s_offset):
 		"""Creates a frag on a MemStruct Pointer; needs to have been written so that io_start is set"""
-		pointer.frag = self.create_fragment()
-		pointer.frag.link_ptr.data_offset = pointer.io_start
-		pointer.frag.link_ptr.pool = pool
+		# todo - doesn't add struct to list of children of an extisting struct in stack
+		l_pool.offset_2_link[l_offset] = (s_pool, s_offset)
+		self.stack[(s_pool, s_offset)] = {}
+		self.fragments.add(((l_pool, l_offset), (s_pool, s_offset)))
 
 	def get_pool(self, pool_type_key):
 		assert pool_type_key is not None

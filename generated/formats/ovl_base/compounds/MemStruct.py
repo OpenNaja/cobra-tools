@@ -50,8 +50,9 @@ class MemStruct(BaseStruct):
 			# locates the read address, attaches the frag entry, and reads the template as ptr.data
 			offset = ptr.io_start
 			if DEPENDENCY_TAG in f_name:
-				loader.dependencies[ptr.data] = (pool, offset)
-				pool.offset_2_link[offset] = ptr.data
+				if ptr.data:
+					loader.dependencies[ptr.data] = (pool, offset)
+					pool.offset_2_link[offset] = ptr.data
 			elif ptr.has_data:
 				# when generated from XML, the pool type is stored as metadata
 				# it's not stored in binary, so for those, keep the root pool type
