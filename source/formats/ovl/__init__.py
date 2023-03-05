@@ -300,7 +300,7 @@ class OvsFile(OvsHeader):
 					if ptr in loader.stack:
 						break
 				else:
-					logging.warning(f"Could not find loader to get name for {pool}")
+					logging.warning(f"Could not find loader to get name for {pool_index}, type {pool.type} at offset {first_offset}")
 					continue
 				logging.debug(f"Pool[{pool_index}]: {pool.name} -> '{loader.name}'")
 				self.transfer_identity(pool, loader)
@@ -378,7 +378,7 @@ class OvsFile(OvsHeader):
 			with open(f"{fp}_pool[{i}].dmp", "wb") as f:
 				f.write(pool.data.getvalue())
 				# write a pointer marker at each offset
-				for offset, entry in pool.offset_2_link_entry.items():
+				for offset, entry in pool.offset_2_link.items():
 					f.seek(offset)
 					if isinstance(entry, tuple):
 						f.write(b"@POINTER")
@@ -891,7 +891,7 @@ class OvlFile(Header):
 			pool = self.pools[l_i]
 			self.loaders[file_name].dependencies[n] = (pool, l_o)
 			# the index goes into the flattened list of ovl pools
-			pool.offset_2_link_entry[l_o] = n
+			pool.offset_2_link[l_o] = n
 		# this loop is extremely costly in JWE2 c0 main.ovl, about 145 s
 		for archive in self.archives:
 			ovs = archive.content
@@ -915,7 +915,7 @@ class OvlFile(Header):
 					ovs.fragments["struct_ptr"]["data_offset"]):
 				s_pool = ovs.pools[s_i]
 				s_pool.offsets.add(s_o)
-				ovs.pools[l_i].offset_2_link_entry[l_o] = (s_pool, s_o)
+				ovs.pools[l_i].offset_2_link[l_o] = (s_pool, s_o)
 		logging.debug("Calculating pointer sizes")
 		for pool in self.pools:
 			pool.calc_size_map()

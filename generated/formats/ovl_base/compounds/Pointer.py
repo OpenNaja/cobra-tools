@@ -75,7 +75,7 @@ class Pointer(BaseStruct):
 		"""Looks up the address of the pointer, checks if a frag points to pointer and reads the data at its address as
 		the specified template."""
 		# find the frag entry with matching link_ptr.data_offset
-		link = pool.offset_2_link_entry.get(self.io_start, None)
+		link = pool.offset_2_link.get(self.io_start, None)
 		# pointer may be a nullptr, so ignore
 		if not link:
 			# print("is a nullptr")

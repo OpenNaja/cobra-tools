@@ -188,13 +188,19 @@ class BaseFile:
 
 	def rename_content(self, name_tuples):
 		"""This is the fallback that is used when the loader class itself does not implement custom methods"""
-		self.rename_fragments(name_tuples)
-		# not all loaders have a header
-		if self.header is not None:
-			self.header.read_ptrs(self.root_ptr.pool)
+		try:
+			self.rename_stack(name_tuples)
+			# not all loaders have a header
+			if self.header is not None:
+				pool, offset = self.root_ptr
+				stream = pool.stream_at(offset)
+				self.header = self.target_class.from_stream(stream, self.context)
+				self.header.read_ptrs(pool)
+		except:
+			logging.exception(f"Renaming contents failed for {self.name}")
 		# todo - rename in buffers
 
-	def rename_fragments(self, name_tuples):
+	def rename_stack(self, name_tuples):
 		# todo - rewrite to collect all zstring pointers (incl. obfuscated)
 		logging.info(f"Renaming inside {self.name}")
 		byte_name_tups = []
@@ -203,8 +209,8 @@ class BaseFile:
 			for old, new in name_tuples:
 				assert len(old) == len(new)
 				byte_name_tups.append((old.encode(), new.encode()))
-			for fragment in self.fragments:
-				fragment.struct_ptr.replace_bytes(byte_name_tups)
+			for (p_pool, p_offset) in self.stack:
+				p_pool.replace_bytes_at(p_offset, byte_name_tups)
 		except:
 			logging.exception(f"Renaming frags failed for {self.name}")
 
@@ -277,7 +283,7 @@ class BaseFile:
 		k = p_pool.link_offsets
 		# find all link offsets that are within the parent struct using a boolean mask
 		for l_offset in k[(p_offset <= k) * (k < p_offset+p_size)]:
-			entry = p_pool.offset_2_link_entry[l_offset]
+			entry = p_pool.offset_2_link[l_offset]
 			rel_offset = l_offset - p_offset
 			# store frag and deps
 			children[rel_offset] = entry

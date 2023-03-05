@@ -519,7 +519,7 @@ class MainWindow(widgets.MainWindow):
 
 	def update_gui_table(self, ):
 		start_time = time.time()
-		f_list = [[loader.file_entry.name, loader.file_entry.ext] for loader in self.ovl_data.loaders.values()]
+		f_list = [[loader.name, loader.ext] for loader in self.ovl_data.loaders.values()]
 		self.update_files_ui(f_list)
 		self.included_ovls_view.set_data(self.ovl_data.included_ovl_names)
 		logging.info(f"Loaded GUI in {time.time() - start_time:.2f} seconds")
@@ -605,7 +605,8 @@ class MainWindow(widgets.MainWindow):
 				if self.is_open_ovl():
 					self.ovl_data.rename_contents(names, only_files)
 					self.file_widget.dirty = True
-					self.update_gui_table()
+					# file names don't change, so no need to update gui
+					# self.update_gui_table()
 
 	def rename_both(self):
 		self.rename_contents()

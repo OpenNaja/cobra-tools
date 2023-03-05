@@ -15,7 +15,7 @@ class MemPool:
 	def clear_data(self):
 		self.new = False
 		# lookup by offset
-		self.offset_2_link_entry = {}  # link_ptrs are unique
+		self.offset_2_link = {}  # link_ptrs are unique
 		self.size_map = {}
 		self.offsets = set()
 		self.link_offsets = None
@@ -39,7 +39,15 @@ class MemPool:
 			data_size = sorted_offsets[i + 1] - offset
 			self.size_map[offset] = data_size
 		# store array of link offsets for check_for_ptrs
-		self.link_offsets = np.array(list(self.offset_2_link_entry.keys()))
+		self.link_offsets = np.array(list(self.offset_2_link.keys()))
+
+	def replace_bytes_at(self, offset, byte_name_tups):
+		"""Replaces the bytes tuples in byte_name_tups"""
+		data = self.get_data_at(offset)
+		for old, new in byte_name_tups:
+			data = data.replace(old, new)
+		stream = self.stream_at(offset)
+		stream.write(data)
 
 	def stream_at(self, offset):
 		self.data.seek(offset)
