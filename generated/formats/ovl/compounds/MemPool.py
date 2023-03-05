@@ -1,9 +1,6 @@
 import logging
-import io
-
 import numpy as np
 
-from generated.array import Array
 from generated.formats.base.compounds.PadAlign import get_padding
 
 
@@ -82,7 +79,6 @@ class MemPool(BaseStruct):
 	def clear_data(self):
 		self.new = False
 		# lookup by offset
-		self.offset_2_struct_entries = {}  # multiple (fragments') struct_ptrs can point to the same data
 		self.offset_2_link_entry = {}  # link_ptrs are unique
 		self.size_map = {}
 		self.offsets = set()
@@ -131,25 +127,6 @@ class MemPool(BaseStruct):
 		padding_bytes = get_padding(size, alignment)
 		logging.debug(f"Padded pool of ({size} bytes) with {len(padding_bytes)}, alignment = {alignment}")
 		self.data.write(padding_bytes)
-
-	def move_empty_pointers_to_end(self):
-		end_of_pool = self.get_size()
-		# cast to tuple to avoid changing the dict during iteration
-		for offset, entries in tuple(self.offset_2_struct_entries.items()):
-			if offset != end_of_pool:
-				# find any null pointer that is not at the end of the pool
-				null_ptrs = [entry for entry in entries if entry.struct_ptr.data_size == 0]
-				if null_ptrs:
-					logging.debug(f"Moving {len(null_ptrs)} null pointers out of {len(entries)} pointers from {offset} to end of pool at {end_of_pool}")
-					# only keep valid pointers at offset
-					self.offset_2_struct_entries[offset] = [entry for entry in entries if entry not in null_ptrs]
-					# move the null pointers to their new offset
-					if end_of_pool not in self.offset_2_struct_entries:
-						self.offset_2_struct_entries[end_of_pool] = []
-					self.offset_2_struct_entries[end_of_pool].extend(null_ptrs)
-					# set data_offset of null_ptrs
-					for entry in null_ptrs:
-						entry.struct_ptr.data_offset = end_of_pool
 
 	def align_write(self, data, overwrite=False):
 		"""Prepares self.pool.data for writing, handling alignment according to type of data"""

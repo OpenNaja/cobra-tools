@@ -313,7 +313,7 @@ class OvsFile(OvsHeader):
 		# rebuild pool groups
 		self.arg.num_pool_groups = len(pools_by_type)
 		self.reset_field("pool_groups")
-		print(pools_by_type)
+		# print(pools_by_type)
 		for pool_group, (pool_type, pools) in zip(self.pool_groups, sorted(pools_by_type.items())):
 			pool_group.type = pool_type
 			pool_group.num_pools = len(pools)
@@ -480,7 +480,6 @@ class OvsFile(OvsHeader):
 		for pool in self.pools:
 			# make sure that all pools are padded before writing
 			pool.pad()
-			pool.move_empty_pointers_to_end()
 			pool_bytes = pool.data.getvalue()
 			pool.offset = self.get_pool_offset(pools_data_writer.tell())
 			logging.debug(f"pool.offset {pool.offset}, pools_start {self.arg.pools_start}")
@@ -554,10 +553,8 @@ class OvlFile(Header):
 		:return:
 		"""
 		logging.info(f"Removing files for {filenames}")
-		# prevent RuntimeError: dictionary changed size during iteration
-		for loader in tuple(self.loaders.values()):
-			if loader.name in filenames:
-				loader.remove()
+		for filename in tuple(self.loaders.values()):
+			self.loaders[filename].remove()
 
 	def rename(self, name_tups, mesh_mode=False):
 		logging.info(f"Renaming for {name_tups}, mesh mode = {mesh_mode}")
@@ -647,7 +644,6 @@ class OvlFile(Header):
 			loader.get_constants_entry()
 			loader.set_ovs(ovs_name)
 			loader.create(file_path)
-			loader.register_ptrs()
 			return loader
 		except NotImplementedError:
 			logging.warning(f"Creation not implemented for {loader.ext}")
@@ -678,6 +674,7 @@ class OvlFile(Header):
 				loader = self.create_file(file_path)
 				self.register_loader(loader)
 			except:
+				logging.exception(f"Adding '{file_path}' failed")
 				error_files.append(file_path)
 		if error_files:
 			self.warning_msg.emit(

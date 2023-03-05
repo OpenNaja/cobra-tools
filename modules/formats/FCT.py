@@ -41,7 +41,6 @@ class FctLoader(MemStructLoader):
 		return paths
 
 	def create(self, file_path):
-		self.create_root_entry()
 		self.header = self.target_class.from_xml_file(file_path, self.ovl.context)
 		file_dir = os.path.dirname(file_path)
 		with io.BytesIO() as buff_stream:

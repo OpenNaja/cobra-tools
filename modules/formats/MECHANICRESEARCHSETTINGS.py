@@ -13,7 +13,6 @@ class MechanicresearchsettingsLoader(MemStructLoader):
 				research.next_research.data = None
 
 	def create(self, file_path):
-		self.create_root_entry()
 		self.header = self.target_class.from_xml_file(file_path, self.ovl.context)
 		self.prep()
 		self.write_memory_data()

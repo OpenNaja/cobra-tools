@@ -23,7 +23,6 @@ class FgmLoader(MemStructLoader):
 	# 	return super().extract(out_dir)
 
 	def create(self, file_path):
-		self.create_root_entry()
 		self.header = self.target_class.from_xml_file(file_path, self.ovl.context)
 		self.create_data_entry((self.update_names_buffer(),))
 		# need to update before writing ptrs

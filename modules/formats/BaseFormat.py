@@ -4,8 +4,6 @@ import struct
 import tempfile
 from io import BytesIO
 
-import numpy as np
-
 from generated.formats.ovl import UNK_HASH
 from generated.formats.ovl.compounds.DependencyEntry import DependencyEntry
 from generated.formats.ovl.compounds.Fragment import Fragment
@@ -35,7 +33,6 @@ class BaseFile:
 		self.target_name = ""
 
 		# defined in ovl
-		# todo
 		self.dependencies = {}
 		self.aux_entries = []
 		self.streams = []
@@ -144,7 +141,6 @@ class BaseFile:
 		pool = MemPool(self.ovl.context)
 		pool.data = BytesIO()
 		pool.type = pool_type_key
-		# we write to the pool IO directly, so do not reconstruct its data from the pointers' data
 		pool.clear_data()
 		pool.new = True
 		self.ovs.pools.append(pool)
@@ -165,28 +161,6 @@ class BaseFile:
 		with open(filepath, 'rb') as f:
 			content = f.read()
 		return content
-
-	def create_root_entry(self):
-		self.root_entry = RootEntry(self.ovl.context)
-
-	def set_dependency_identity(self, dependency, file_name):
-		"""Use a standard file name with extension"""
-		dependency.name = file_name
-		dependency.basename, dependency.ext = os.path.splitext(file_name.lower())
-		dependency.ext = dependency.ext.replace(".", ":")
-		dependency.file_hash = djb2(dependency.basename)
-		logging.debug(f"Dependency: {dependency.basename} | {dependency.ext} | {dependency.file_hash}")
-
-	def create_dependency(self, name):
-		dependency = DependencyEntry(self.ovl.context, arg=self.ovl)
-		self.set_dependency_identity(dependency, name)
-		self.dependencies.append(dependency)
-		return dependency
-
-	def create_fragment(self):
-		new_frag = Fragment(self.ovl.context)
-		self.fragments.add(new_frag)
-		return new_frag
 
 	def create_data_entry(self, buffers_bytes):
 		data = DataEntry(self.ovl.context)
@@ -266,36 +240,24 @@ class BaseFile:
 			ovs.data_entries.append(data_entry)
 			ovs.buffer_entries.extend(data_entry.buffers)
 
-	def remove(self, remove_file=True):
+	def remove(self):
 		logging.info(f"Removing {self.name}")
 		self.remove_pointers()
-
-		if remove_file:
-			# remove the loader from ovl so it is not saved
-			self.ovl.loaders.pop(self.name)
-
+		# remove the loader from ovl so it is not saved
+		self.ovl.loaders.pop(self.name)
 		# remove streamed and child files
 		for loader in self.streams + self.children:
 			loader.remove()
 
 	def remove_pointers(self):
 		# todo
-		self.root_entry.struct_ptr.del_struct()
-		for frag in self.fragments:
-			frag.link_ptr.del_link()
-			frag.struct_ptr.del_struct()
-		for dep in self.dependencies:
-			dep.link_ptr.del_link()
-
-	def register_ptrs(self):
-		# todo
 		pass
-		# self.root_entry.struct_ptr.add_struct(self.root_entry)
+		# self.root_entry.struct_ptr.del_struct()
 		# for frag in self.fragments:
-		# 	frag.link_ptr.add_link(frag)
-		# 	frag.struct_ptr.add_struct(frag)
+		# 	frag.link_ptr.del_link()
+		# 	frag.struct_ptr.del_struct()
 		# for dep in self.dependencies:
-		# 	dep.link_ptr.add_link(dep)
+		# 	dep.link_ptr.del_link()
 
 	def track_ptrs(self):
 		logging.debug(f"Tracking {self.name}")
@@ -389,7 +351,8 @@ class BaseFile:
 	def __eq__(self, other):
 		logging.info(f"Comparing {self.name}")
 		self.same = True
-		self.check(self.file_entry.mime.mime_version, other.file_entry.mime.mime_version, "Mime version")
+		# this is now pointless as the version comes from the constants storage
+		# self.check(self.mime_version, other.mime_version, "Mime version")
 		self.check(len(self.data_entries), len(other.data_entries), "Amount of data entries")
 		# data
 		for archive_name, data_entry in self.data_entries.items():
@@ -417,13 +380,11 @@ class BaseFile:
 		return self.same
 
 	def log_versions(self):
-		logging.info(f"{self.ext} {self.file_entry.mime.mime_version}")
+		logging.info(f"{self.ext} {self.mime_version}")
 		for loader in self.children:
-			entry = loader.file_entry
-			logging.info(f"{entry.ext} {entry.mime.mime_version}")
+			logging.info(f"{loader.ext} {loader.mime_version}")
 		for loader in self.streams:
-			entry = loader.file_entry
-			logging.info(f"{entry.ext} {entry.mime.mime_version}")
+			logging.info(f"{loader.ext} {loader.mime_version}")
 
 	def write_memory_data(self):
 		pool = self.get_pool(self.pool_type)
@@ -469,4 +430,4 @@ class MemStructLoader(BaseFile):
 #
 # 	def __init__(self, ovl, file_name):
 # 		super().__init__(ovl, file_name)
-# 		self.context = MimeContext(self.file_entry.mime.mime_version)
+# 		self.context = MimeContext(self.mime_version)

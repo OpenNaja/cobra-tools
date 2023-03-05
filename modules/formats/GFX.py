@@ -9,7 +9,6 @@ class GfxLoader(BaseFile):
 
     def create(self, file_path):
         root_data, buffer_0 = self._get_data(file_path)
-        self.create_root_entry()
         self.write_data_to_pool(self.root_entry.struct_ptr, 4, root_data)
         self.create_data_entry((buffer_0,))
 

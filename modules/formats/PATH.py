@@ -23,7 +23,6 @@ class PathMaterialLoader(MemStructLoader):
 			self.header.mat_data.data = None
 
 	def create(self, file_path):
-		self.create_root_entry()
 		self.header = self.target_class.from_xml_file(file_path, self.ovl.context)
 		self.prep()
 		self.write_memory_data()
@@ -49,7 +48,6 @@ class PathJoinPartResourceLoader(MemStructLoader):
 				res.unk_points_3.data = None
 
 	def create(self, file_path):
-		self.create_root_entry()
 		self.header = self.target_class.from_xml_file(file_path, self.ovl.context)
 		self.prep()
 		self.write_memory_data()
@@ -77,7 +75,6 @@ class SupportSetLoader(MemStructLoader):
 			self.header.connector_2.data = None
 
 	def create(self, file_path):
-		self.create_root_entry()
 		self.header = self.target_class.from_xml_file(file_path, self.ovl.context)
 		self.prep()
 		self.write_memory_data()

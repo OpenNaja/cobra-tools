@@ -27,7 +27,6 @@ class VoxelskirtLoader(MemStructLoader):
 	target_class = VoxelskirtRoot
 
 	def create(self, file_path):
-		self.create_root_entry()
 		self.header = self.target_class.from_xml_file(file_path, self.ovl.context)
 		stream = io.BytesIO()
 		basepath = os.path.splitext(file_path)[0]

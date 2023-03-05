@@ -21,8 +21,7 @@ class Mdl2Loader(BaseFile):
 	can_extract = False
 
 	def create(self, file_path):
-		self.create_root_entry()
-		self.root_entry.struct_ptr.pool_index = -1
+		self.root_ptr = (None, 0)
 
 
 class Model2streamLoader(BaseFile):
@@ -35,8 +34,6 @@ class Model2streamLoader(BaseFile):
 		return stream_path,
 
 	def create(self, file_path):
-		self.create_root_entry()
-
 		if ovl_versions.is_jwe2(self.ovl):
 			lod_index = int(self.basename[-1])
 			root_data = struct.pack("<QQ", 0, lod_index)
@@ -167,7 +164,6 @@ class Ms2Loader(BaseFile):
 		ms2_file.load(file_path, read_bytes=True)
 		ms2_dir = os.path.dirname(file_path)
 
-		self.create_root_entry()
 		self.header = ms2_file.info
 		# fix up the pointers
 		self.header.buffer_infos.data = ms2_file.buffer_infos

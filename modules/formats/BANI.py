@@ -15,11 +15,10 @@ class BaniLoader(MemStructLoader):
 		bani = BaniFile()
 		bani.load(file_path)
 		self.header = bani.data
-		self.create_root_entry()
 		self.write_memory_data()
 		# create banis fragment, link it during update
 		self.attach_frag_to_ptr(self.header.banis, self.root_ptr.pool)
-		# temporarily set frag so that register_ptrs works
+		# todo?
 		self.ptr_relative(self.header.banis.frag.struct_ptr, self.root_entry.struct_ptr)
 		# store banis name for linking
 		self.target_name = bani.banis_name
@@ -89,7 +88,6 @@ class BanisLoader(MemStructLoader):
 		with open(file_path, 'rb') as stream:
 			self.header = self.target_class.from_stream(stream, self.context)
 			data = stream.read()
-		# self.create_root_entry()
 		self.write_memory_data()
 		self.create_data_entry((data,))
 

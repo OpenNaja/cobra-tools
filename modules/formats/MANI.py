@@ -13,8 +13,7 @@ class ManiLoader(BaseFile):
 	can_extract = False
 
 	def create(self, file_path):
-		self.create_root_entry()
-		self.root_entry.struct_ptr.pool_index = -1
+		self.root_ptr = (None, 0)
 
 
 class ManisLoader(BaseFile):
@@ -58,8 +57,6 @@ class ManisLoader(BaseFile):
 	def create(self, file_path):
 		manis_file, root_data, b0, b1, b2 = self._get_data(file_path)
 		ms2_dir = os.path.dirname(file_path)
-
-		self.create_root_entry()
 
 		# create mani files
 		for mani_name in manis_file.names:

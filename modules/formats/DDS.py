@@ -34,7 +34,6 @@ class TexturestreamLoader(BaseFile):
 	can_extract = False
 
 	def create(self, file_path):
-		self.create_root_entry()
 		if is_jwe2(self.ovl):
 			lod_index = int(self.basename[-1])
 			root_data = struct.pack("<QQ", 0, lod_index)
