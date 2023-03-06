@@ -7,10 +7,6 @@ class AnimalresearchunlockssettingsLoader(MemStructLoader):
 	target_class = ResearchRoot
 	extension = ".animalresearchunlockssettings"
 
-	def collect(self):
-		super().collect()
-		# print(self.header)
-
 	def prep(self):
 		# avoid generating pointers for these
 		for level in self.header.levels.data:

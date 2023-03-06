@@ -133,7 +133,7 @@ class OvsFile(OvsHeader):
 			# start_time = time.time()
 			super().read_fields(stream, self)
 			# logging.info(f"Read decompressed stream in {time.time() - start_time:.2f} seconds")
-			print(self)
+			# print(self)
 			pool_index = 0
 			for pool_type in self.pool_groups:
 				for i in range(pool_type.num_pools):
@@ -979,7 +979,7 @@ class OvlFile(Header):
 		self.reset_field("triplets")
 		self.reset_field("included_ovls")
 		self.reset_field("aux_entries")
-		print(loaders_and_deps)
+		# print(loaders_and_deps)
 		if loaders_and_deps:
 			deps_basename, deps_ext = zip(*[os.path.splitext(dep) for dep, loader in loaders_and_deps])
 		else:

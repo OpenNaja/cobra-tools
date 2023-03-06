@@ -75,8 +75,8 @@ class Layer:
 		for attrib, attrib_data in zip(self.trans_fgm.attributes.data, self.trans_fgm.value_foreach_attributes.data):
 			# skip first letter p
 			self.lut[attrib.name.lower()[1:]] = attrib_data.value
-		print(self.trans_fgm)
-		print(self.lut)
+		# print(self.trans_fgm)
+		# print(self.lut)
 
 
 def get_fgm_path(base_dir, fgm_name_ptr):
