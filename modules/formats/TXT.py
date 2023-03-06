@@ -9,7 +9,8 @@ class TxtLoader(BaseFile):
 
 	def create(self, file_path):
 		self.write_root_bytes(self._get_data(file_path))
-		self.root_entry.struct_ptr.pool.num_files += 1
+		pool, offset = self.root_ptr
+		pool.num_files += 1
 
 	def extract(self, out_dir):
 		b = self.root_entry.struct_ptr.data

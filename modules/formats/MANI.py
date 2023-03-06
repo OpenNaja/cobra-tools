@@ -34,11 +34,12 @@ class ManisLoader(BaseFile):
 		# buffer 2 - actual keys
 		out_path = out_dir(name)
 		with open(out_path, 'wb') as outfile:
-			outfile.write(struct.pack("<I", self.file_entry.mime.mime_version))
+			outfile.write(struct.pack("<I", self.mime_version))
 			outfile.write(manis_header)
 			for mani in self.children:
 				outfile.write(as_bytes(mani.file_entry.basename))
-			outfile.write(self.root_ptr.get_data(self.ovs.pools))
+			pool, offset = self.root_ptr
+			outfile.write(pool.get_data_at(offset))
 			for buff in self.data_entry.buffers:
 				outfile.write(buff.data)
 			# JWE2 can now have a secondary data entry holding a buffer 2 in an ovs

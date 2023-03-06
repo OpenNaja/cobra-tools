@@ -553,7 +553,7 @@ class OvlFile(Header):
 		:return:
 		"""
 		logging.info(f"Removing files for {filenames}")
-		for filename in tuple(self.loaders.values()):
+		for filename in filenames:
 			self.loaders[filename].remove()
 
 	def rename(self, name_tups, mesh_mode=False):

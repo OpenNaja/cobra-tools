@@ -39,7 +39,6 @@ class BaseFile:
 		self.streams = []
 
 		# defined in ovs
-		self.root_entry = None
 		self.data_entries = {}
 		self.children = []
 		self.fragments = set()
@@ -213,20 +212,23 @@ class BaseFile:
 
 	def rename(self, name_tuples):
 		"""Rename all entries controlled by this loader"""
-		entries = [self.file_entry, *self.dependencies, *self.aux_entries, self.root_entry, ]
+		def _rename(s):
+			for old, new in name_tuples:
+				s = s.replace(old, new)
+			return s
+		entries = []
 		for data_entry in self.data_entries.values():
 			entries.extend((data_entry, *data_entry.buffers))
 		for entry in entries:
 			if UNK_HASH in entry.name:
 				logging.warning(f"Skipping {entry.file_hash} because its hash could not be resolved to a name")
 				return
-			# update name
-			for old, new in name_tuples:
-				entry.name = entry.name.replace(old, new)
-			# entry.basename, entry.ext = os.path.splitext(entry.name)
-		# also rename target_name
-		for old, new in name_tuples:
-			self.target_name = self.target_name.replace(old, new)
+			entry.name = _rename(entry.name)
+
+		self.target_name = _rename(self.target_name)
+		self._name = _rename(self.name)
+		self.aux_entries = [_rename(aux) for aux in self.aux_entries]
+		self.dependencies = {_rename(dep): ptr for dep, ptr in self.dependencies.items()}
 
 	def get_tmp_dir(self):
 		temp_dir = tempfile.mkdtemp("-cobra")
@@ -365,8 +367,10 @@ class BaseFile:
 		self.check(len(self.fragments), len(other.fragments), "Amount of fragments")
 		self.check(len(self.children), len(other.children), "Amount of children")
 		# root entry
-		this_root = self.root_entry.struct_ptr.data
-		other_root = other.root_entry.struct_ptr.data
+		t_p, t_o = self.root_ptr
+		o_p, o_o = self.root_ptr
+		this_root = t_p.get_data_at(t_o)
+		other_root = o_p.get_data_at(o_o)
 		if this_root != other_root:
 			logging.warning(f"Root entry data does not match - this {len(this_root)} vs other {len(other_root)}")
 			min_len = min((len(this_root), len(other_root)))
