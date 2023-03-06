@@ -11,7 +11,7 @@ class FctLoader(MemStructLoader):
 	target_class = FctRoot
 
 	def get_font_name(self, i, ext):
-		return f"{self.file_entry.basename}_font_{i}{ext}"
+		return f"{self.basename}_font_{i}{ext}"
 
 	def extract(self, out_dir):
 		out_files = super().extract(out_dir)

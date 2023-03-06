@@ -26,6 +26,7 @@ class BaseFile:
 
 	def __init__(self, ovl, file_name):
 		self.ovl = ovl
+		self.context = ovl.context
 		self.name = file_name
 		# this needs to be figured out by the root_entry
 		self.ovs = None
@@ -67,17 +68,6 @@ class BaseFile:
 		self.pool_type = self.ovl.get_mime(self.ext, "pool")
 		self.set_pool_type = self.ovl.get_mime(self.ext, "set_pool")
 		self.mime_version = self.ovl.get_mime(self.ext, "version")
-
-		# we're not really interested in those here
-		# self.name = ovl.get_mime(self.ext, "name")
-		# self.mime_hash = ovl.get_mime(self.ext, "hash")
-		# triplet_grab = ovl.get_mime(self.ext, "triplets")
-		# self.triplet_offset = len(ovl.triplets)
-		# self.triplet_count = len(triplet_grab)
-		# for triplet in triplet_grab:
-		# 	trip = Triplet(self.context)
-		# 	trip.a, trip.b, trip.c = triplet
-		# 	ovl.triplets.append(trip)
 
 	@property
 	def ovs_name(self):
@@ -123,6 +113,16 @@ class BaseFile:
 		return struct.pack(
 			"<4s4BI", fmt_name, ovl.version_flag, ovl.version, ovl.bitswap, ovl.seventh_byte, int(ovl.user_version))
 
+	def delete_frag(self, l_pool, l_offset, s_pool, s_offset):
+		if l_offset in l_pool.offset_2_link:
+			l_pool.offset_2_link.pop(l_offset)
+		if (s_pool, s_offset) in self.stack:
+			self.stack.pop((s_pool, s_offset))
+		for f in tuple(self.fragments):
+			if f[0] == (l_pool, l_offset):
+				self.fragments.remove(f)
+				logging.info(f"Deleted frag {f}")
+
 	def attach_frag_to_ptr(self, l_pool, l_offset, s_pool, s_offset):
 		"""Creates a frag on a MemStruct Pointer; needs to have been written so that io_start is set"""
 		# todo - doesn't add struct to list of children of an extisting struct in stack
@@ -147,16 +147,12 @@ class BaseFile:
 		self.ovs.pools.append(pool)
 		return pool
 
-	def write_data_to_pool(self, struct_ptr, pool_type_key, data):
+	def write_root_bytes(self, data):
 		"""Finds or creates a suitable pool in the right ovs and writes data"""
-		struct_ptr.pool = self.get_pool(pool_type_key)
-		struct_ptr.write_to_pool(data)
-
-	def ptr_relative(self, ptr, other_ptr, rel_offset=0):
-		ptr.pool_index = other_ptr.pool_index
-		ptr.data_offset = other_ptr.data_offset + rel_offset
-		ptr.data_size = other_ptr.data_size
-		ptr.pool = other_ptr.pool
+		pool = self.get_pool(self.pool_type)
+		stream, offset = pool.align_write(data)
+		stream.write(data)
+		self.root_ptr = (pool, offset)
 
 	def get_content(self, filepath):
 		with open(filepath, 'rb') as f:

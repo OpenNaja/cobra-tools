@@ -541,7 +541,7 @@ class OvlFile(Header):
 		self.loaders = {}
 
 	def init_loader(self, filename, ext):
-		# fall back to BaseFile loader
+		# fall back to BaseFile loader, but only for collecting, not creating
 		from modules.formats.BaseFormat import BaseFile
 		loader_cls = self.formats_dict.get(ext, BaseFile)
 		return loader_cls(self, filename)
@@ -622,7 +622,7 @@ class OvlFile(Header):
 		_, ext = os.path.splitext(filename)
 		logging.info(f"Creating {filename} in {ovs_name}")
 		try:
-			loader = self.init_loader(filename, ext)
+			loader = self.init_loader(filename, ext, )
 			loader.get_constants_entry()
 			loader.set_ovs(ovs_name)
 			loader.create(file_path)
@@ -658,6 +658,8 @@ class OvlFile(Header):
 			except:
 				logging.exception(f"Adding '{file_path}' failed")
 				error_files.append(file_path)
+		for loader in self.iter_progress(self.loaders.values(), "Validating files"):
+			loader.validate()
 		if error_files:
 			self.warning_msg.emit(
 				(f"Adding {len(error_files)} files failed - please check 'Show Details' or the log.", "\n".join(error_files)))
@@ -741,9 +743,9 @@ class OvlFile(Header):
 				mime = game_lut["mimes"][ext]
 				return getattr(mime, key)
 			else:
-				raise KeyError(f"Unsupported extension {ext} in game {game}")
+				raise NotImplementedError(f"Unsupported extension {ext} in game {game}")
 		else:
-			raise KeyError(f"Unsupported game {game}")
+			raise NotImplementedError(f"Unsupported game {game}")
 
 	def get_hash(self, h):
 		game = get_game(self)[0].value

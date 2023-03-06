@@ -11,6 +11,7 @@ import generated.formats.ovl.versions as ovl_versions
 from io import BytesIO
 
 from generated.formats.base.compounds.PadAlign import get_padding
+from generated.formats.tex.compounds.TexturestreamHeader import TexturestreamHeader
 from modules.formats.BaseFormat import BaseFile, MemStructLoader
 from modules.helpers import as_bytes
 from ovl_util import interaction
@@ -26,6 +27,8 @@ class Mdl2Loader(BaseFile):
 
 class Model2streamLoader(BaseFile):
 	extension = ".model2stream"
+	# we can recycle this for now
+	target_class = TexturestreamHeader
 
 	def extract(self, out_dir):
 		stream_path = out_dir(self.name)
@@ -34,13 +37,10 @@ class Model2streamLoader(BaseFile):
 		return stream_path,
 
 	def create(self, file_path):
+		self.header = self.target_class(self.context)
 		if ovl_versions.is_jwe2(self.ovl):
-			lod_index = int(self.basename[-1])
-			root_data = struct.pack("<QQ", 0, lod_index)
-		else:
-			# JWE1, PZ, PC  all untested 
-			root_data = struct.pack("<Q", 0)  
-		self.write_data_to_pool(self.root_entry.struct_ptr, self.pool_type, root_data)
+			self.header.lod_index = int(self.basename[-1])
+		self.write_memory_data()
 		self.create_data_entry((self.get_content(file_path),))
 		for buffer in self.data_entry.buffers:
 			buffer.index = 2

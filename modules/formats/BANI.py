@@ -16,11 +16,8 @@ class BaniLoader(MemStructLoader):
 		bani.load(file_path)
 		self.header = bani.data
 		self.write_memory_data()
-		# create banis fragment, link it during update
-		self.attach_frag_to_ptr(self.header.banis, self.root_ptr.pool)
-		# todo?
-		self.ptr_relative(self.header.banis.frag.struct_ptr, self.root_entry.struct_ptr)
-		# store banis name for linking
+		# at this point, the banis can't be guaranteed to be present
+		# store banis name for linking in update
 		self.target_name = bani.banis_name
 
 	def collect(self):
@@ -28,6 +25,7 @@ class BaniLoader(MemStructLoader):
 		self.target_name = None
 
 	def validate(self):
+		logging.debug(f"Validating {self.target_name}")
 		self.target_name = self.find_banis_name()
 		logging.debug(f"Found {self.target_name}")
 
@@ -38,8 +36,10 @@ class BaniLoader(MemStructLoader):
 			logging.warning(f"Could not find '{self.target_name}' for '{self.name}'")
 			return
 		logging.debug(f"Linked '{self.name}' to '{self.target_name}'")
-		# todo - update api
-		# self.ptr_relative(self.header.banis.frag.struct_ptr, banis_loader.root_entry.struct_ptr)
+		pool, _ = self.root_ptr
+		# delete old link if it exists
+		self.delete_frag(pool, self.header.banis.io_start, *banis_loader.root_ptr)
+		self.attach_frag_to_ptr(pool, self.header.banis.io_start, *banis_loader.root_ptr)
 
 	def extract(self, out_dir):
 		logging.info(f"Writing {self.name}")
@@ -61,7 +61,7 @@ class BaniLoader(MemStructLoader):
 			if loader.ext == ".banis":
 				if loader.root_ptr == self.header.banis.link:
 					return loader.name
-		return "None"
+		return self.target_name
 
 
 class BanisLoader(MemStructLoader):

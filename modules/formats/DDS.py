@@ -11,6 +11,7 @@ from generated.formats.dds import DdsFile
 from generated.formats.dds.enums.DxgiFormat import DxgiFormat
 from generated.formats.ovl.versions import *
 from generated.formats.tex.compounds.TexHeader import TexHeader
+from generated.formats.tex.compounds.TexturestreamHeader import TexturestreamHeader
 from modules.formats.BaseFormat import MemStructLoader, BaseFile
 from modules.helpers import split_path
 
@@ -29,18 +30,16 @@ def align_to(width, comp, alignment=64):
 	return width
 
 
-class TexturestreamLoader(BaseFile):
+class TexturestreamLoader(MemStructLoader):
 	extension = ".texturestream"
 	can_extract = False
+	target_class = TexturestreamHeader
 
 	def create(self, file_path):
+		self.header = self.target_class(self.context)
 		if is_jwe2(self.ovl):
-			lod_index = int(self.basename[-1])
-			root_data = struct.pack("<QQ", 0, lod_index)
-		else:
-			# JWE1, PZ, PC
-			root_data = struct.pack("<Q", 0)
-		self.write_data_to_pool(self.root_entry.struct_ptr, 3, root_data)
+			self.header.lod_index = int(self.basename[-1])
+		self.write_memory_data()
 		# data entry, assign buffer
 		self.create_data_entry((b"", ))
 

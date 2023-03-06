@@ -64,7 +64,7 @@ class ManisLoader(BaseFile):
 			mani_loader = self.ovl.create_file(mani_path)
 			self.children.append(mani_loader)
 
-		self.write_data_to_pool(self.root_entry.struct_ptr, self.pool_type, root_data)
+		self.write_root_bytes(root_data)
 		self.create_data_entry((b0, b1, b2))
 
 	def _get_data(self, file_path):

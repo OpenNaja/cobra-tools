@@ -201,5 +201,11 @@
 		<add name="pad dla" type="uint64" until="15" default="0" optional="True"/>
     </compound>
 
+    <compound name="TexturestreamHeader" inherit="MemStruct">
+		JWE1, PZ, PC: 8 bytes
+        JWE2: 16 bytes
+		<add name="zero" type="uint64" default="0" optional="True"/>
+		<add name="lod_index" type="uint64" vercond="#JWE2#"/>
+    </compound>
 </fileformat>
 
