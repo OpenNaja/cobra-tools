@@ -1109,7 +1109,7 @@ class OvlFile(Header):
 				# change the hashes / indices of all entries to be valid for the current game version
 				ovs.update_hashes(file_name_lut)
 				# sort fragments by their first pointer just to keep saves consistent for easier debugging
-				ovs.fragments.sort(key=lambda f: (f.struct_ptr.pool_index, f.struct_ptr.data_offset))
+				ovs.fragments.sort(key=lambda f: (f.link_ptr.pool_index, f.link_ptr.data_offset, f.struct_ptr.pool_index, f.struct_ptr.data_offset))
 				ovs.root_entries.sort(key=lambda b: (b.ext, b.file_hash))
 				ovs.data_entries.sort(key=lambda b: (b.ext, b.file_hash))
 

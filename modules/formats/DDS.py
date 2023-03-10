@@ -164,7 +164,7 @@ class DdsLoader(MemStructLoader):
 		# load dds
 		dds_file = DdsFile()
 		dds_file.load(dds_path)
-		print(dds_file)
+		# print(dds_file)
 		return dds_file
 
 	def get_sorted_datas(self):
@@ -180,7 +180,7 @@ class DdsLoader(MemStructLoader):
 		return [b for data_entry in self.get_sorted_datas() for b in data_entry.buffers]
 
 	def get_tex_structs(self):
-		print( self.ovl.version, self.header, self.file_entry.mime)
+		# print( self.ovl.version, self.header, self.file_entry.mime)
 		if is_dla(self.ovl):
 			return self.header
 		if self.ovl.version < 19:
