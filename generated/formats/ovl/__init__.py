@@ -1096,11 +1096,12 @@ class OvlFile(Header):
 					ovs.fragments["struct_ptr"]["data_offset"] = zip(*[(pool_lut[p_pool], l_o, pool_lut[s_pool], s_o) for (p_pool, l_o), (s_pool, s_o) in all_frags])
 					# not needed but nice to have to keep saves consistent for easier debugging
 					ovs.fragments.sort()
-				# get root entries
-				root_ptrs = [loader.root_ptr for loader in loaders]
-				ovs.root_entries["struct_ptr"]["pool_index"], \
-				ovs.root_entries["struct_ptr"]["data_offset"] = zip(*[(pool_lut.get(s_pool, -1), s_o) for s_pool, s_o in root_ptrs])
-				ovs.assign_ids(ovs.root_entries, loaders)
+				# get root entries; not all ovs have root entries - some JWE2 ovs just have data
+				if loaders:
+					root_ptrs = [loader.root_ptr for loader in loaders]
+					ovs.root_entries["struct_ptr"]["pool_index"], \
+					ovs.root_entries["struct_ptr"]["data_offset"] = zip(*[(pool_lut.get(s_pool, -1), s_o) for s_pool, s_o in root_ptrs])
+					ovs.assign_ids(ovs.root_entries, loaders)
 				# print(ovs.fragments, ovs.root_entries)
 
 				logging.info(f"Updating assets for {archive.name}")
