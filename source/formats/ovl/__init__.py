@@ -740,7 +740,6 @@ class OvlFile(Header):
 		game = get_game(self)[0].value
 		if game in self.constants:
 			game_lut = self.constants[game]
-			logging.info(f"{type(game)}|{type(ext)}")
 			if ext in game_lut["mimes"]:
 				mime = game_lut["mimes"][ext]
 				return getattr(mime, key)
@@ -1004,7 +1003,6 @@ class OvlFile(Header):
 		self.mimes["mime_hash"] = [self.get_mime(ext, "hash") for ext in mimes_ext]
 		for i, (mime, name, ext, triplets,) in enumerate(
 				zip(self.mimes, mimes_name, mimes_ext, mimes_triplets)):
-			logging.info(f"Using mime: {mime}/{type(mime)}")
 			mime.name = self.names.offset_dic[name]
 			try:
 				mime.triplet_offset = triplet_offset
