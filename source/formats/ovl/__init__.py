@@ -54,14 +54,13 @@ class OvsFile(OvsHeader):
 		self.arg = archive_entry
 
 	def clear_ovs_arrays(self):
-		self.pool_groups.clear()
-		self.data_entries.clear()
-		self.buffer_entries.clear()
-		self.buffer_groups.clear()
+		self.arg.num_datas = self.arg.num_buffers = self.arg.num_buffer_groups = 0
+		self.reset_field("data_entries")
+		self.reset_field("buffer_entries")
+		self.reset_field("buffer_groups")
 
 	@contextmanager
 	def unzipper(self, compressed_bytes, uncompressed_size):
-		start_time = time.time()
 		self.compression_header = compressed_bytes[:2]
 		logging.debug(f"Compression magic bytes: {self.compression_header}")
 		if self.ovl.user_version.compression == Compression.OODLE:
@@ -535,9 +534,8 @@ class OvlFile(Header):
 		elem.attrib[prop] = str(get_game(instance)[0])
 
 	def clear(self):
-		self.archives.clear()
-		self.files.clear()
-		self.mimes.clear()
+		self.num_archives = 0
+		self.reset_field("archives")
 		self.loaders = {}
 
 	def init_loader(self, filename, ext):
@@ -842,10 +840,11 @@ class OvlFile(Header):
 			try:
 				archive_entry.content.load(archive_entry, read_start)
 			except:
-				logging.exception(f"Decompressing {archive_entry.name} from {archive_entry.ovs_path} failed")
-				# print(archive_entry)
-				# print(archive_entry.content)
+				logging.exception(f"Loading {archive_entry.name} from {archive_entry.ovs_path} failed: {archive_entry}")
+				logging.warning(archive_entry.content)
 				continue
+			logging.info(f"Loading {archive_entry.name} from {archive_entry.ovs_path} worked: {archive_entry}\n{archive_entry.content}")
+		# logging.info(self.archives_meta)
 		self.close_ovs_streams()
 		self.load_flattened_pools()
 		self.load_pointers()
@@ -932,7 +931,7 @@ class OvlFile(Header):
 			# JWE style
 			if is_jwe(self) or is_jwe2(self):
 				archive_entry.ovs_path = f"{self.path_no_ext}.ovs.{archive_entry.name.lower()}"
-			# PZ, PC, ZTUAC Style
+			# DLA, PZ, PC, ZTUAC Style
 			else:
 				archive_entry.ovs_path = f"{self.path_no_ext}.ovs"
 

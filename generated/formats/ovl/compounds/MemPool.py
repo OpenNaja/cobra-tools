@@ -33,10 +33,12 @@ class MemPool(BaseStruct):
 
 		# djb2 hash of the first file that points into this mempool
 		self.file_hash = 0
-		self.disney_zero = 0
 
 		# unknown count (related to number of files or pointers)
 		self.num_files = 0
+
+		# amount of data entries referring to this pool?, may just be an artifact of apparently compressed ovs though
+		self.num_datas = 0
 
 		# JWE: djb2 hash for extension, 0 for PZ
 		self.ext_hash = 0
@@ -50,9 +52,8 @@ class MemPool(BaseStruct):
 		('offset', Uint, (0, None), (False, None), None),
 		('zero_2', Uint64, (0, None), (False, None), True),
 		('file_hash', Uint, (0, None), (False, None), None),
-		('disney_zero', Ushort, (0, None), (False, None), True),
 		('num_files', Ushort, (0, None), (False, None), True),
-		('num_files', Uint, (0, None), (False, None), True),
+		('num_datas', Ushort, (0, None), (False, None), True),
 		('ext_hash', Uint, (0, None), (False, None), True),
 		('zero_3', Uint, (0, None), (False, None), True),
 		]
@@ -67,11 +68,9 @@ class MemPool(BaseStruct):
 		if instance.context.version <= 15:
 			yield 'zero_2', Uint64, (0, None), (False, None)
 		yield 'file_hash', Uint, (0, None), (False, None)
-		if instance.context.version <= 15:
-			yield 'disney_zero', Ushort, (0, None), (False, None)
+		if instance.context.version >= 15:
 			yield 'num_files', Ushort, (0, None), (False, None)
-		if instance.context.version >= 17:
-			yield 'num_files', Uint, (0, None), (False, None)
+			yield 'num_datas', Ushort, (0, None), (False, None)
 		if instance.context.version >= 19:
 			yield 'ext_hash', Uint, (0, None), (False, None)
 			yield 'zero_3', Uint, (0, None), (False, None)
