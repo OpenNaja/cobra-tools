@@ -122,8 +122,8 @@ class DdsLoader(MemStructLoader):
 		tex_buffers = self.header.buffer_infos.data
 		if is_pc(self.ovl):
 			# todo trimmed pc mips
-			raise NotImplementedError("PC mip packing needs to be re-implemented for API change")
-			# buffer_bytes = dds_file.pack_mips_pc(tex_buffers)
+			#raise NotImplementedError("PC mip packing needs to be re-implemented for API change")
+			buffer_bytes = dds_file.pack_mips_pc(tex_buffers)
 		else:
 			logging.info("Packing mip maps")
 			dds_mips = [dds.get_packed_mips(size_info.mip_maps) for dds in dds_files]
@@ -266,7 +266,11 @@ class DdsLoader(MemStructLoader):
 
 	def ensure_size_match(self, png_file_path, size_info):
 		"""Check that DDS files have the same basic size"""
-		png_width, png_height = iio.immeta(png_file_path)["shape"]
+		try:
+			png_width, png_height = iio.immeta(png_file_path)["shape"]
+		except:
+			logging.exception(f"Could not get dimensions of {png_file_path}")
+			raise
 		tex_h = size_info.height
 		tex_w = size_info.width
 		if hasattr(size_info, "tex_d"):
