@@ -470,7 +470,10 @@ class OvsFile(OvsHeader):
 				array["file_hash"] = [loader.file_index for loader in loaders]
 			if with_ext_hash:
 				# PZ does not consistently store ext_hash, eg. it is no longer used on pools
-				array["ext_hash"] = [loader.ext_hash for loader in loaders]
+				try:
+					array["ext_hash"] = [loader.ext_hash for loader in loaders]
+				except:
+					pass
 
 	def write_pools(self):
 		logging.debug(f"Writing pools for {self.arg.name}")
@@ -737,6 +740,7 @@ class OvlFile(Header):
 		game = get_game(self)[0].value
 		if game in self.constants:
 			game_lut = self.constants[game]
+			logging.info(f"{type(game)}|{type(ext)}")
 			if ext in game_lut["mimes"]:
 				mime = game_lut["mimes"][ext]
 				return getattr(mime, key)
@@ -1000,9 +1004,13 @@ class OvlFile(Header):
 		self.mimes["mime_hash"] = [self.get_mime(ext, "hash") for ext in mimes_ext]
 		for i, (mime, name, ext, triplets,) in enumerate(
 				zip(self.mimes, mimes_name, mimes_ext, mimes_triplets)):
+			logging.info(f"Using mime: {mime}/{type(mime)}")
 			mime.name = self.names.offset_dic[name]
-			mime.triplet_offset = triplet_offset
-			mime.triplet_count = len(triplets)
+			try:
+				mime.triplet_offset = triplet_offset
+				mime.triplet_count = len(triplets)
+			except:
+				pass
 			self.triplets[triplet_offset: triplet_offset+len(triplets)] = triplets
 			# get the loaders using this ext
 			loaders = loaders_by_extension[ext]
