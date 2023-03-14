@@ -18,9 +18,9 @@ class LuaLoader(MemStructLoader):
 
 		self.header = LuaRoot(self.ovl.context)
 		self.header.lua_size = len(buffer_0)
-		self.header.source_path.data = self.file_entry.basename
+		self.header.source_path.data = self.basename
 		# even if the lua + zstr terminator was padded to 4, keep at least 1 byte for this ptr
-		self.header.likely_alignment.data = b"\x00" + get_padding(len(self.file_entry.basename)+2, alignment=4)
+		self.header.likely_alignment.data = b"\x00" + get_padding(len(self.basename)+2, alignment=4)
 		self.write_memory_data()
 
 	def extract(self, out_dir):
@@ -68,7 +68,7 @@ class LuaLoader(MemStructLoader):
 		return buffer_0
 
 	def rename_content(self, name_tuples):
-		logging.info(f"Renaming in {self.file_entry.name}")
+		logging.info(f"Renaming in {self.name}")
 		buffer_data = self.data_entry.buffer_datas[0]
 		for old, new in name_tuples:
 			buffer_data = buffer_data.replace(old.encode(), new.encode())
