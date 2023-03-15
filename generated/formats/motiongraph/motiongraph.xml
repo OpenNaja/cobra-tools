@@ -211,6 +211,27 @@
         <add name="OutputPropThroughVariable" type="Pointer" template="ZString"/>
     </compound>
 
+    <compound name="TurnActivityData" inherit="MemStruct">
+        ? bytes
+        <add name="SpotAnimation" type="Pointer" template="ZString"/>
+        <add name="HalfAnimation" type="Pointer" template="ZString"/>
+        <add name="FullAnimation" type="Pointer" template="ZString"/>
+        <add name="OutputPropThroughVariable" type="Pointer" template="ZString"/>
+        <add name="SpotDataStreams" type="DataStreamResourceDataList"/>
+        <add name="HalfDataStreams" type="DataStreamResourceDataList"/>
+        <add name="FullDataStreams" type="DataStreamResourceDataList"/>
+        <add name="SuppressResourceDataStreams" type="ubyte"/>
+        <add name="_pad_0" type="ubyte"/>
+        <add name="Priorities" type="ushort"/>
+        <add name="LeadOutTime" type="float"/>
+        <add name="flags" type="TurnFlags" />
+        <add name="_pad_1" type="ubyte"/>
+        <add name="_pad_2" type="ushort"/>
+        <add name="MaxAngle" type="float"/>
+        <add name="MinCycles" type="uint" />
+        <add name="PlaybackRate" type="float"/>
+    </compound>
+
     <compound name="ForwardActivityData" inherit="MemStruct">
         ? bytes
         <add name="StraightForwardAnimation" type="Pointer" template="ZString"/>
@@ -363,6 +384,12 @@
 		<option value="1" name="RestartChildrenOnSelection" />
 		<option value="2" name="ChooseOnceAtStart" />
     </enum>
+
+    <bitstruct name="TurnFlags" numbytes="1" storage="ubyte">
+        <bits name="Looping" numbits="1" />
+        <bits name="Clockwise" numbits="1" />
+        <bits name="UseMidpoint" numbits="1" />
+    </bitstruct>
 
     <bitstruct name="AnimationFlags" numbytes="4" storage="uint">
         <bits name="Looping" numbits="1" />
