@@ -356,8 +356,7 @@ class BaseFile:
 	def __eq__(self, other):
 		logging.info(f"Comparing {self.name}")
 		self.same = True
-		# this is now pointless as the version comes from the constants storage
-		# self.check(self.mime_version, other.mime_version, "Mime version")
+		self.check(self.mime_version, other.mime_version, "Mime version")
 		self.check(len(self.data_entries), len(other.data_entries), "Amount of data entries")
 		# data
 		for archive_name, data_entry in self.data_entries.items():
