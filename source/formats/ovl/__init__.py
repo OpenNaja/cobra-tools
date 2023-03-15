@@ -805,10 +805,13 @@ class OvlFile(Header):
 			return filtered_hash_table, set(self.dependencies_ext)
 		else:
 			self.files_list.emit([[f, e] for f, e in zip(self.files_name, self.files_ext)])
+			mimes_version = self.mimes["mime_version"]
+			files_version = [mimes_version[i] for i in self.files["extension"]]
 			# initialize the loaders right here
-			for filename, ext in zip(self.files_name, self.files_ext):
-				self.loaders[filename] = self.init_loader(filename, ext)
-				self.loaders[filename].get_constants_entry()
+			for filename, ext, version in zip(self.files_name, self.files_ext, files_version):
+				loader = self.init_loader(filename, ext)
+				loader.mime_version = version
+				self.loaders[filename] = loader
 
 		# get included ovls
 		self.included_ovl_names = [self.names.get_str_at(i) for i in self.included_ovls["basename"]]
