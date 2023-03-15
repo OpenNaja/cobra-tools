@@ -37,7 +37,7 @@ class ManisLoader(BaseFile):
 			outfile.write(struct.pack("<I", self.mime_version))
 			outfile.write(manis_header)
 			for mani in self.children:
-				outfile.write(as_bytes(mani.file_entry.basename))
+				outfile.write(as_bytes(mani.basename))
 			pool, offset = self.root_ptr
 			outfile.write(pool.get_data_at(offset))
 			for buff in self.data_entry.buffers:
