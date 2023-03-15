@@ -1,3 +1,4 @@
+import contextlib
 import itertools
 import logging
 import os
@@ -589,7 +590,6 @@ class OvlFile(Header):
 			return os.path.normpath(os.path.join(out_dir, n))
 
 		self.do_debug = show_temp_files
-		error_files = []
 		out_paths = []
 		loaders_for_extract = []
 		_only_types = [s.lower() for s in only_types]
@@ -604,18 +604,24 @@ class OvlFile(Header):
 			if loader.ext in self.formats_dict.ignore_types:
 				continue
 			loaders_for_extract.append(loader)
-		for loader in self.iter_progress(loaders_for_extract, "Extracting"):
-			try:
-				ret_paths = loader.extract(out_dir_func)
-				ret_paths = loader.handle_paths(ret_paths, show_temp_files)
-				out_paths.extend(ret_paths)
-			except:
-				logging.exception(f"An exception occurred while extracting {loader.name}")
-				error_files.append(loader.name)
+		with self.report_error_files("Extracting") as error_files:
+			for loader in self.iter_progress(loaders_for_extract, "Extracting"):
+				try:
+					ret_paths = loader.extract(out_dir_func)
+					ret_paths = loader.handle_paths(ret_paths, show_temp_files)
+					out_paths.extend(ret_paths)
+				except:
+					logging.exception(f"An exception occurred while extracting {loader.name}")
+					error_files.append(loader.name)
+		return out_paths
+
+	@contextlib.contextmanager
+	def report_error_files(self, operation):
+		error_files = []
+		yield error_files
 		if error_files:
 			self.warning_msg.emit(
-				(f"Extracting {len(error_files)} files failed - please check 'Show Details' or the log.", "\n".join(error_files)))
-		return out_paths
+				(f"{operation} {len(error_files)} files failed - please check 'Show Details' or the log.", "\n".join(error_files)))
 
 	def create_file(self, file_path, ovs_name="STATIC"):
 		"""Create a loader from a file path"""
@@ -646,24 +652,21 @@ class OvlFile(Header):
 	def add_files(self, file_paths):
 		logging.info(f"Adding {len(file_paths)} files to OVL")
 		logging.info(f"Game: {get_game(self)[0].name}")
-		error_files = []
-		for file_path in self.iter_progress(file_paths, "Adding files"):
-			# ilo: ignore file extensions in the IGNORE list
-			bare_path, ext = os.path.splitext(file_path)
-			if ext in self.formats_dict.ignore_types:
-				logging.info(f"Ignoring {file_path}")
-				continue
-			try:
-				loader = self.create_file(file_path)
-				self.register_loader(loader)
-			except:
-				logging.exception(f"Adding '{file_path}' failed")
-				error_files.append(file_path)
-		for loader in self.iter_progress(self.loaders.values(), "Validating files"):
-			loader.validate()
-		if error_files:
-			self.warning_msg.emit(
-				(f"Adding {len(error_files)} files failed - please check 'Show Details' or the log.", "\n".join(error_files)))
+		with self.report_error_files("Adding") as error_files:
+			for file_path in self.iter_progress(file_paths, "Adding files"):
+				# ilo: ignore file extensions in the IGNORE list
+				bare_path, ext = os.path.splitext(file_path)
+				if ext in self.formats_dict.ignore_types:
+					logging.info(f"Ignoring {file_path}")
+					continue
+				try:
+					loader = self.create_file(file_path)
+					self.register_loader(loader)
+				except:
+					logging.exception(f"Adding '{file_path}' failed")
+					error_files.append(file_path)
+			for loader in self.iter_progress(self.loaders.values(), "Validating files"):
+				loader.validate()
 		self.files_list.emit([[loader.name, loader.ext] for loader in self.loaders.values()])
 
 	def register_loader(self, loader):
@@ -915,21 +918,18 @@ class OvlFile(Header):
 			only_types = self.commands['only_types']
 			logging.info(f"Loading only {only_types}")
 			loaders = [loader for loader in loaders if loader.ext in only_types]
-		error_files = []
-		for loader in self.iter_progress(loaders, "Mapping files"):
-			loader.track_ptrs()
-			try:
-				loader.collect()
-			except:
-				logging.exception(f"Collecting {loader.name} errored")
-				error_files.append(loader.name)
-				# we can keep collecting
-			loader.link_streams()
-		for loader in self.iter_progress(loaders, "Validating files"):
-			loader.validate()
-		if error_files:
-			self.warning_msg.emit(
-				(f"Collecting {len(error_files)} files failed - please check 'Show Details' or the log.", "\n".join(error_files)))
+		with self.report_error_files("Collecting") as error_files:
+			for loader in self.iter_progress(loaders, "Mapping files"):
+				loader.track_ptrs()
+				try:
+					loader.collect()
+				except:
+					logging.exception(f"Collecting {loader.name} errored")
+					error_files.append(loader.name)
+					# we can keep collecting
+				loader.link_streams()
+			for loader in self.iter_progress(loaders, "Validating files"):
+				loader.validate()
 		logging.info(f"Loaded file classes in {time.time() - start_time:.2f} seconds")
 
 	def get_ovs_path(self, archive_entry):
