@@ -846,7 +846,7 @@ class OvlFile(Header):
 				logging.exception(f"Loading {archive_entry.name} from {archive_entry.ovs_path} failed: {archive_entry}")
 				logging.warning(archive_entry.content)
 				continue
-			logging.info(f"Loading {archive_entry.name} from {archive_entry.ovs_path} worked: {archive_entry}\n{archive_entry.content}")
+			# logging.info(f"Loading {archive_entry.name} from {archive_entry.ovs_path} worked: {archive_entry}\n{archive_entry.content}")
 		# logging.info(self.archives_meta)
 		self.close_ovs_streams()
 		self.load_flattened_pools()
@@ -915,16 +915,21 @@ class OvlFile(Header):
 			only_types = self.commands['only_types']
 			logging.info(f"Loading only {only_types}")
 			loaders = [loader for loader in loaders if loader.ext in only_types]
+		error_files = []
 		for loader in self.iter_progress(loaders, "Mapping files"):
 			loader.track_ptrs()
 			try:
 				loader.collect()
 			except:
 				logging.exception(f"Collecting {loader.name} errored")
-				raise
+				error_files.append(loader.name)
+				# we can keep collecting
 			loader.link_streams()
 		for loader in self.iter_progress(loaders, "Validating files"):
 			loader.validate()
+		if error_files:
+			self.warning_msg.emit(
+				(f"Collecting {len(error_files)} files failed - please check 'Show Details' or the log.", "\n".join(error_files)))
 		logging.info(f"Loaded file classes in {time.time() - start_time:.2f} seconds")
 
 	def get_ovs_path(self, archive_entry):

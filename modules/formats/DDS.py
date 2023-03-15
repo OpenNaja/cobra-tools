@@ -225,8 +225,12 @@ class DdsLoader(MemStructLoader):
 		# export all tiles
 		for tile_i, tile_name in zip(tiles, self.get_tile_names(tiles, basename)):
 			# get the mip mapped data for just this tile from the packed tex buffer
-			dds_file.dx_10.num_tiles = size_info.num_tiles
-			if is_pc(self.ovl):
+			if hasattr(size_info, "num_tiles"):
+				dds_file.dx_10.num_tiles = size_info.num_tiles
+			else:
+				# DLA has no num_tiles
+				dds_file.dx_10.num_tiles = 1
+			if is_dla(self.ovl) or is_ztuac(self.ovl) or is_pc(self.ovl):
 				# not sure how / if texture arrays are packed for PC - this works for flat textures
 				tile_data = buffer_data
 			else:
