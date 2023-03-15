@@ -2,7 +2,7 @@ import logging
 import os
 import struct
 
-from generated.formats.manis.compounds.SizedStrData import SizedStrData
+from generated.formats.manis.compounds.ManisRoot import ManisRoot
 from generated.formats.manis import ManisFile
 from modules.formats.BaseFormat import BaseFile
 from modules.helpers import as_bytes
@@ -24,18 +24,14 @@ class ManisLoader(BaseFile):
 		logging.info(f"Writing {name}")
 		if not self.data_entry:
 			raise AttributeError(f"No data entry for {name}")
-		# buffers = self.data_entry.buffer_datas
-		# print(len(buffers))
-		manis_header = struct.pack("<I", len(self.children))
 
-		# sized str data gives general info
+		# root gives general info
 		# buffer 0 - all mani infos
 		# buffer 1 - list of hashes and zstrs for each bone name
 		# buffer 2 - actual keys
 		out_path = out_dir(name)
 		with open(out_path, 'wb') as outfile:
-			outfile.write(struct.pack("<I", self.mime_version))
-			outfile.write(manis_header)
+			outfile.write(struct.pack("<II", self.mime_version, len(self.children)))
 			for mani in self.children:
 				outfile.write(as_bytes(mani.basename))
 			pool, offset = self.root_ptr

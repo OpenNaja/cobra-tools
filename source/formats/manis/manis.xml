@@ -34,7 +34,7 @@
 		<!--    JWE uses uint-->
     </basic>
 
-    <compound name="SizedStrData">
+    <compound name="ManisRoot">
 		24 bytes for DLA, ZTUAC, PC, JWE1, old PZ
 		32 bytes for PZ1.6+, JWE2
 		<add name="names size" type="ushort">seemingly related to the names of mani files stripped from their prefix, but usually slightly smaller than what is actually needed</add>
@@ -50,7 +50,7 @@
         <add name="version" type="uint"/>
         <add name="mani count" type="uint"/>
         <add name="names" type="ZString" arr1="mani count"/>
-        <add name="header" type="SizedStrData"/>
+        <add name="header" type="ManisRoot"/>
         <add name="mani infos" type="ManiInfo" arr1="mani count"/>
         <add name="name buffer" type="Buffer1" arg="header\hash block size / 4"/>
         <add name="keys buffer" type="KeysReader" arg="mani infos"/>

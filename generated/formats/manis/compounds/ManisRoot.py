@@ -4,16 +4,16 @@ from generated.formats.base.basic import Uint64
 from generated.formats.base.basic import Ushort
 
 
-class SizedStrData(BaseStruct):
+class ManisRoot(BaseStruct):
 
 	"""
 	24 bytes for DLA, ZTUAC, PC, JWE1, old PZ
 	32 bytes for PZ1.6+, JWE2
 	"""
 
-	__name__ = 'SizedStrData'
+	__name__ = 'ManisRoot'
 
-	_import_key = 'manis.compounds.SizedStrData'
+	_import_key = 'manis.compounds.ManisRoot'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
