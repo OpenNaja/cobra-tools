@@ -13,9 +13,11 @@ class TxtLoader(BaseFile):
 		pool.num_files += 1
 
 	def extract(self, out_dir):
-		b = self.root_entry.struct_ptr.data
+		pool, offset = self.root_ptr
+		b = pool.get_data_at(offset)
+		# sized strings
 		if is_dla(self.ovl):
-			# not sure, not standard sized strings
+			# unk = 128, usually
 			size, unk = struct.unpack("<2B", b[:2])
 			data = b[2:2+size*2]
 		else:
