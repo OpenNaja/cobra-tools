@@ -162,19 +162,6 @@ class DdsFile(Header, IoFile):
                 tex.write(b"\x00" * padding_size)
             return tex.getvalue()
 
-    def get_packed_mip(self, mip_infos, trg_mip_i):
-        """From a standard DDS stream, pack the lower mip levels into one image and pad with empty bytes"""
-        logging.info(f"Packing mip map {trg_mip_i}")
-        dds = io.BytesIO(self.buffer)
-        with io.BytesIO() as tex:
-            for mip_i, tile_i, data_size, padding_size in self.mip_pack_generator(mip_infos):
-                # logging.info(f"Writing {data_size}, padding {padding_size}")
-                data = dds.read(data_size)
-                if trg_mip_i == mip_i:
-                    tex.write(data)
-                    tex.write(b"\x00" * padding_size)
-            return tex.getvalue()
-
     def get_packed_mips(self, mip_infos):
         """From a standard (non-array) DDS, return all mip levels as packed bytes with padding for TEX"""
         # logging.info("Packing all mip maps")
@@ -205,7 +192,6 @@ class DdsFile(Header, IoFile):
         """Grab the lower mip levels according to the count"""
         tiles_per_mips = list(zip(*self.calculate_mip_sizes()))
         mip_cuts = [self.mipmap_count - b.num_mips for b in buffer_infos]
-        # print(mip_cuts)
         buffers = []
         for mip_0 in mip_cuts:
             # get the size for all tiles of the valid mip levels

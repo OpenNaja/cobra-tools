@@ -121,9 +121,8 @@ class DdsLoader(MemStructLoader):
 		# create list of bytes for each buffer
 		tex_buffers = self.header.buffer_infos.data
 		if is_pc(self.ovl):
-			# todo trimmed pc mips
-			#raise NotImplementedError("PC mip packing needs to be re-implemented for API change")
-			buffer_bytes = dds_file.pack_mips_pc(tex_buffers)
+			# todo PC array textures
+			buffer_bytes = dds_files[0].pack_mips_pc(tex_buffers)
 		else:
 			logging.info("Packing mip maps")
 			dds_mips = [dds.get_packed_mips(size_info.mip_maps) for dds in dds_files]
