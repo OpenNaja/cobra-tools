@@ -172,17 +172,21 @@ class ZtMeshData(MeshData):
 		self.update_shell_count()
 
 	def read_verts(self):
-		# get dtype according to which the vertices are packed
 		self.update_dtype()
-		# create arrays for the unpacked ms2_file
 		self.init_arrays()
-		self.buffer_info.verts.seek(self.tri_info_offset)
-		tri_info = ZtTriBlockInfo.from_stream(self.buffer_info.verts, self.context, 0, None)
-		self.buffer_info.verts.seek(self.vert_info_offset)
-		vert_info = ZtVertBlockInfo.from_stream(self.buffer_info.verts, self.context, 0, None)
-		# logging.info(self)
-		# logging.info(tri_info)
-		# logging.info(vert_info)
+		logging.info(self)
+		try:
+			self.buffer_info.verts.seek(self.tri_info_offset)
+			tri_info = ZtTriBlockInfo.from_stream(self.buffer_info.verts, self.context, 0, None)
+			logging.info(tri_info)
+		except:
+			logging.exception(f"tri_info failed @ {self.tri_info_offset} in {self.buffer_info.path}")
+		try:
+			self.buffer_info.verts.seek(self.vert_info_offset)
+			vert_info = ZtVertBlockInfo.from_stream(self.buffer_info.verts, self.context, 0, None)
+			logging.info(vert_info)
+		except:
+			logging.exception(f"vert_info failed @ {self.vert_info_offset} in {self.buffer_info.path}")
 		# read vertices of this mesh
 		self.verts_data = np.empty(dtype=self.dt, shape=self.vertex_count)
 		self.colors_data = np.empty(dtype=self.dt_colors, shape=self.vertex_count)
@@ -218,7 +222,6 @@ class ZtMeshData(MeshData):
 		unpack_swizzle_vectorized(self.vertices)
 		unpack_swizzle_vectorized_b(self.normals)
 		unpack_swizzle_vectorized(self.tangents)
-
 		# self.get_static_weights(self.verts_data["bone index"], self.use_blended_weights)
 
 

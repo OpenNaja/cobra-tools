@@ -242,6 +242,9 @@ class Ms2Loader(MemStructLoader):
 		logging.info(f"Writing {self.name}")
 		# print(self.header)
 		name_buffer, bone_infos, verts = self.get_ms2_buffer_datas()
+		# print(name_buffer, bone_infos, verts)
+		print(self.data_entry)
+		print(self.data_entry.buffers)
 		ms2_header = struct.pack("<III", self.context.biosyn, len(bone_infos), len(self.streams))
 		# write the ms2 file
 		out_path = out_dir(self.name)
