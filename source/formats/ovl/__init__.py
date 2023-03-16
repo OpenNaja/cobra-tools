@@ -407,7 +407,7 @@ class OvsFile(OvsHeader):
 			for loader in self.ovl.loaders.values():
 				if loader.ovs == self:
 					pool, offset = loader.root_ptr
-					s_pool_i = pools_lut[pool]
+					s_pool_i = pools_lut.get(pool, None)
 					if pool:
 						size = pool.size_map[offset]
 						debug_str = f"\n\nFILE {s_pool_i} | {offset} ({size: 4}) {loader.name}"
