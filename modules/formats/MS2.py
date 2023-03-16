@@ -54,12 +54,6 @@ class Ms2Loader(MemStructLoader):
 	extension = ".ms2"
 	target_class = Ms2Root
 
-	@staticmethod
-	def _rel_at(parent_ptr, offset):
-		for frag in parent_ptr.children:
-			if frag.link_ptr.data_offset == parent_ptr.data_offset + offset:
-				return frag
-
 	def detect_biosyn_format(self):
 		logging.debug("Detecting Biosyn format")
 		if ovl_versions.is_jwe2(self.ovl):
@@ -67,10 +61,8 @@ class Ms2Loader(MemStructLoader):
 				return self.ovl.is_biosyn
 			else:
 				for func in (
-						# todo - ext issues
-						# self.detect_biosyn_format_from_manis,
-						# todo - pointers no longer have children...
-						# self.detect_biosyn_format_from_ptrs,
+						self.detect_biosyn_format_from_manis,
+						self.detect_biosyn_format_from_ptrs,
 						self.detect_biosyn_default,):
 					check = func()
 					if check is not None:
@@ -86,13 +78,13 @@ class Ms2Loader(MemStructLoader):
 
 	def detect_biosyn_format_from_manis(self):
 		logging.debug("Detecting Biosyn format from .manis")
-		for mime in self.ovl.mimes:
-			if mime.ext == ".manis":
+		for ext, mime_version in zip(self.ovl.mimes_ext, self.ovl.mimes_version):
+			if ext == "manis":
 				# JWE2 pre Biosyn
-				if mime.mime_version == 261:
+				if mime_version == 261:
 					return False
 				# JWE2 post Biosyn
-				elif mime.mime_version == 262:
+				elif mime_version == 262:
 					return True
 		return None
 
@@ -113,9 +105,10 @@ class Ms2Loader(MemStructLoader):
 		return None
 
 	def _biosyn_check_ptr(self, is_biosyn, is_older, offset, older_size, biosyn_size):
-		frag = self._rel_at(self.root_ptr, offset)
-		if frag:
-			size = frag.struct_ptr.data_size
+		children = self.stack[self.root_ptr]
+		s_pool, s_offset = children.get(offset, (None, -1))
+		if s_pool:
+			size = s_pool.size_map[s_offset]
 			if size:
 				if not size % biosyn_size:
 					is_biosyn = True
