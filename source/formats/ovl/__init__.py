@@ -808,9 +808,11 @@ class OvlFile(Header):
 			self.mimes_version = self.mimes["mime_version"]
 			files_version = [self.mimes_version[i] for i in self.files["extension"]]
 			# initialize the loaders right here
-			for filename, ext, version in zip(self.files_name, self.files_ext, files_version):
+			for filename, ext, version, pt, set_pt in zip(self.files_name, self.files_ext, files_version, self.files["pool_type"], self.files["set_pool_type"]):
 				loader = self.init_loader(filename, ext)
 				loader.mime_version = version
+				loader.pool_type = pt
+				loader.set_pool_type = set_pt
 				self.loaders[filename] = loader
 
 		# get included ovls
