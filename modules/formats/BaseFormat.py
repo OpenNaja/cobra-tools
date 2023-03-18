@@ -265,7 +265,7 @@ class BaseFile:
 		# 	dep.link_ptr.del_link()
 
 	def track_ptrs(self):
-		logging.debug(f"Tracking {self.name}")
+		# logging.debug(f"Tracking {self.name}")
 		self.stack = {}
 		self.fragments = set()
 		pool, offset = self.root_ptr
