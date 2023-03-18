@@ -365,25 +365,54 @@ class BaseFile:
 			self.check(data_entry, other_data, "Data entry")
 		self.check(len(self.fragments), len(other.fragments), "Amount of fragments")
 		self.check(len(self.children), len(other.children), "Amount of children")
-		# root entry
-		t_p, t_o = self.root_ptr
-		o_p, o_o = self.root_ptr
-		this_root = t_p.get_data_at(t_o)
-		other_root = o_p.get_data_at(o_o)
-		if this_root != other_root:
-			logging.warning(f"Root entry data does not match - this {len(this_root)} vs other {len(other_root)}")
-			min_len = min((len(this_root), len(other_root)))
-			this_root = this_root[:min_len]
-			other_root = other_root[:min_len]
-			if this_root == other_root:
-				logging.info(f"Root entry data does actually match, size difference is likely just padding")
-			else:
-				self.same = False
+		# recursive check of pointers
+		self.compare_pointer(other, *self.root_ptr, *other.root_ptr)
 		self.check(self.ovs_name, other.ovs_name, "OVS name")
 		self.check(len(self.streams), len(other.streams), "Amount of streams")
 		for stream, other_stream in zip(self.streams, other.streams):
 			self.check(stream, other_stream, "Stream entry")
 		return self.same
+
+	def compare_pointer(self, other, t_p, t_o, o_p, o_o):
+		# logging.debug(f"compare_pointer {t_o} vs {o_o}")
+		this_struct = t_p.get_data_at(t_o)
+		other_struct = o_p.get_data_at(o_o)
+		if this_struct != other_struct:
+			logging.warning(f"Struct does not match - this {len(this_struct)} vs other {len(other_struct)}")
+			min_len = min((len(this_struct), len(other_struct)))
+			this_struct = this_struct[:min_len]
+			other_struct = other_struct[:min_len]
+			if this_struct == other_struct:
+				logging.info(f"...but it's likely just padding")
+			else:
+				self.same = False
+		this_children = self.stack[(t_p, t_o)]
+		other_children = other.stack[(o_p, o_o)]
+		all_offsets = set(this_children.keys())
+		all_offsets.update(other_children.keys())
+		# sort by offset
+		for rel_offset in sorted(all_offsets):
+			# logging.debug(f"rel_offset {rel_offset}")
+			if rel_offset in this_children:
+				this_target_ptr = this_children[rel_offset]
+			else:
+				logging.warning(f"Pointer at {rel_offset} missing in this struct")
+				self.same = False
+				continue
+			if rel_offset in other_children:
+				other_target_ptr = other_children[rel_offset]
+			else:
+				logging.warning(f"Pointer at {rel_offset} missing in other struct")
+				self.same = False
+				continue
+			# dependency?
+			if isinstance(this_target_ptr, str):
+				if this_target_ptr != other_target_ptr:
+					logging.warning(f"Dependency at {rel_offset} does not match {this_target_ptr} vs {other_target_ptr}")
+					self.same = False
+			else:
+				# traverse down the tree of pointers
+				self.compare_pointer(other, *this_target_ptr, *other_target_ptr)
 
 	def log_versions(self):
 		logging.info(f"{self.ext} {self.mime_version}")
