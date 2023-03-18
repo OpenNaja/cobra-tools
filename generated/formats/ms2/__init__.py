@@ -63,7 +63,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 		except:
 			logging.error("Names failed...")
 
-	def load(self, filepath, read_bytes=False, read_editable=False):
+	def load(self, filepath, read_bytes=False, read_editable=False, dump=False):
 		start_time = time.time()
 		self.filepath = filepath
 		self.dir, self.name = os.path.split(os.path.normpath(filepath))
@@ -100,7 +100,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 				self.buffer_1_bytes = stream.read(self.bone_info_size)
 				self.buffer_2_bytes = stream.read()
 			try:
-				self.load_buffers(filepath, stream)
+				self.load_buffers(filepath, stream, dump)
 			except:
 				logging.exception(f"Buffer lookup failed")
 			if read_editable:
@@ -110,7 +110,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 					logging.exception(f"Mesh lookup failed")
 		logging.debug(f"Read {self.name} in {time.time() - start_time:.2f} seconds")
 
-	def load_buffers(self, filepath, stream):
+	def load_buffers(self, filepath, stream, dump):
 		for i, buffer_info in enumerate(self.buffer_infos):
 			buffer_info.name = None
 			buffer_info.index = i
@@ -120,11 +120,16 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			# hack for DLA, static buffer index is different here
 			if self.context.version == 7:
 				i = 0
-			static_buffer_info = self.buffer_infos[i]
-			stream.seek(self.buffer_2_offset)
-			static_buffer_info.name = "STATIC"
-			static_buffer_info.path = filepath
-			self.attach_streams(static_buffer_info, stream)
+			# ZTUAC does not use static_buffer_index eg.
+			# * vertex_buffer_count = 4
+			# * static_buffer_index = 3
+			# all four buffer_infos use modelstream files, and ms2 just has names and bones buffers
+			if self.context.version != 13:
+				static_buffer_info = self.buffer_infos[i]
+				stream.seek(self.buffer_2_offset)
+				static_buffer_info.name = "STATIC"
+				static_buffer_info.path = filepath
+				self.attach_streams(static_buffer_info, stream, dump=dump)
 		# attach the streams to all other buffer_infos
 		streams = [buffer_info for buffer_info in self.buffer_infos if buffer_info.name != "STATIC"]
 		for buffer_info, modelstream_name in zip(streams, self.modelstream_names):
@@ -132,7 +137,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			buffer_info.path = os.path.join(self.dir, buffer_info.name)
 			logging.debug(f"Loading {buffer_info.path}")
 			with open(buffer_info.path, "rb") as modelstream_reader:
-				self.attach_streams(buffer_info, modelstream_reader)
+				self.attach_streams(buffer_info, modelstream_reader, dump=dump)
 
 	def attach_streams(self, buffer_info, in_stream=None, dump=False):
 		"""Attaches streams to a buffer info for each section, and fills them if an input stream is provided"""
@@ -372,43 +377,45 @@ class Ms2File(Ms2InfoHeader, IoFile):
 
 
 if __name__ == "__main__":
-	import math
-	a1 = [(8.0, 7.629452738910913e-06), (512.0, 0.0004885197849944234), (1024.0, 0.0009775171056389809),
-	 (2048.0, 0.001956947147846222), (4096.0, 0.003921568859368563)]
-	for pack_base, scale in a1:
-		quad = 1.2285932501219967e-9 + 9.536674737032024e-7 * pack_base + 9.14657200199282e-13 * math.pow(pack_base, 2)
-		# quad = 1.229e-9 + 9.537e-7 * pack_base + 9.147e-13 * math.pow(pack_base, 2)
-		lin = pack_base * 9.57536917458211E-07
-		d = (1 + pack_base) * pack_base / PACKEDVEC_MAX - pack_base
-		d = 1 / np.round((0 + pack_base) / pack_base * PACKEDVEC_MAX - pack_base)
-		# print(f"pack_base {pack_base}, scale {scale}, quad {quad}, lin {lin}, (quad-scale) {quad-scale}, (lin-scale) {lin-scale}" )
-		# print(f"pack_base {pack_base}, scale {scale}, quad {quad}, lin {lin}, d {d}" )
-
-		base_exp = math.log2(pack_base)
-		error = 4 ** (base_exp-10.0)
-		scale2 = (error + pack_base) / PACKEDVEC_MAX
-		# scale_a = get_scale2(pack_base)
-		# scale_b = get_scale_long(pack_base)
-		# print(scale_a, scale_b, scale_b == scale_a)
-		# print(i, pack_base, base_exp, error, scale)
-		# print(pack_base, PACKEDVEC_MAX * scale, PACKEDVEC_MAX * scale - pack_base, scale)
-		# print(pack_base, scale, scale2, scale2-scale, quad, quad-scale)
-		# print(f"pack_base {pack_base}, scale {scale}, scale2 {scale2}, quad {quad}, (scale2-scale) {scale2-scale}, (quad-scale) {quad-scale}" )
-		# error = PACKEDVEC_MAX * scale - pack_base
-		# error + pack_base = PACKEDVEC_MAX * scale
-		# (error + pack_base) / PACKEDVEC_MAX = scale
-	# (scale + pack_base) / pack_base = 1.0
-	for i in range(0, 16):
-		pack_base = 2**i
-		base_exp = math.log2(pack_base)
-		error = 4 ** (base_exp-10.0)
-		scale = (error + pack_base) / PACKEDVEC_MAX
-		print(i, pack_base, base_exp, error, scale)
-	for i in range(-2, 3):
-		print(i, 4**i)
-		# 1024 = 2**10 == 1 = 4 ** 0
+	# import math
+	# a1 = [(8.0, 7.629452738910913e-06), (512.0, 0.0004885197849944234), (1024.0, 0.0009775171056389809),
+	#  (2048.0, 0.001956947147846222), (4096.0, 0.003921568859368563)]
+	# for pack_base, scale in a1:
+	# 	quad = 1.2285932501219967e-9 + 9.536674737032024e-7 * pack_base + 9.14657200199282e-13 * math.pow(pack_base, 2)
+	# 	# quad = 1.229e-9 + 9.537e-7 * pack_base + 9.147e-13 * math.pow(pack_base, 2)
+	# 	lin = pack_base * 9.57536917458211E-07
+	# 	d = (1 + pack_base) * pack_base / PACKEDVEC_MAX - pack_base
+	# 	d = 1 / np.round((0 + pack_base) / pack_base * PACKEDVEC_MAX - pack_base)
+	# 	# print(f"pack_base {pack_base}, scale {scale}, quad {quad}, lin {lin}, (quad-scale) {quad-scale}, (lin-scale) {lin-scale}" )
+	# 	# print(f"pack_base {pack_base}, scale {scale}, quad {quad}, lin {lin}, d {d}" )
+	#
+	# 	base_exp = math.log2(pack_base)
+	# 	error = 4 ** (base_exp-10.0)
+	# 	scale2 = (error + pack_base) / PACKEDVEC_MAX
+	# 	# scale_a = get_scale2(pack_base)
+	# 	# scale_b = get_scale_long(pack_base)
+	# 	# print(scale_a, scale_b, scale_b == scale_a)
+	# 	# print(i, pack_base, base_exp, error, scale)
+	# 	# print(pack_base, PACKEDVEC_MAX * scale, PACKEDVEC_MAX * scale - pack_base, scale)
+	# 	# print(pack_base, scale, scale2, scale2-scale, quad, quad-scale)
+	# 	# print(f"pack_base {pack_base}, scale {scale}, scale2 {scale2}, quad {quad}, (scale2-scale) {scale2-scale}, (quad-scale) {quad-scale}" )
+	# 	# error = PACKEDVEC_MAX * scale - pack_base
+	# 	# error + pack_base = PACKEDVEC_MAX * scale
+	# 	# (error + pack_base) / PACKEDVEC_MAX = scale
+	# # (scale + pack_base) / pack_base = 1.0
+	# for i in range(0, 16):
+	# 	pack_base = 2**i
+	# 	base_exp = math.log2(pack_base)
+	# 	error = 4 ** (base_exp-10.0)
+	# 	scale = (error + pack_base) / PACKEDVEC_MAX
+	# 	print(i, pack_base, base_exp, error, scale)
+	# for i in range(-2, 3):
+	# 	print(i, 4**i)
+	# 	# 1024 = 2**10 == 1 = 4 ** 0
 
 	m = Ms2File()
+	m.load("C:/Users/arnfi/Desktop/tapir/bairds_tapir_.ms2", read_editable=True, dump=True)
+	print(m)
 	# m.load("C:/Users/arnfi/Desktop/jwe2/pyro/export/models.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/models.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/pyro/models.ms2", read_editable=True)
@@ -428,7 +435,7 @@ if __name__ == "__main__":
 	# m.load("C:/Users/arnfi/Desktop/hazard_ceilingfan_.ms2", read_editable=True)
 	# print(m.models_reader.bone_infos[0])
 	# mods = set()
-	flags = set()
+	# flags = set()
 	# for bone_info in m.models_reader.bone_infos:
 	# 	# print(bone_info)
 	# 	if bone_info.joint_count:
@@ -436,24 +443,24 @@ if __name__ == "__main__":
 	# 			for hc in ji.hitchecks:
 	# 				if hc.dtype == CollisionType.MESH_COLLISION:
 	# 					print(hc)
-	for mo in m.model_infos:
-		# print(mo.bone_info)
-		# print(mo.model.lods)
-		# print(mo.model.objects)
-		for i, me in enumerate(mo.model.meshes):
-			# print(i, me)
-	# 		# for t, v in zip(me.mesh.tri_chunks, me.mesh.vert_chunks):
-	# 		# 	t.rot.a = 1.0
-	# 		# 	t.rot.x = t.rot.y = t.rot.z = 0.0
-	# 		# 	t.loc.x = t.loc.y = t.loc.z = 0.0
-			for t, v in zip(me.mesh.tri_chunks, me.mesh.vert_chunks):
-				# print(t, v)
-				print(v)
-				s = v.pack_base / v.scale
-				print(s)
-				break
-				# flags.add(tuple(v.flags))
-			print(flags)
+	# for mo in m.model_infos:
+	# 	# print(mo.bone_info)
+	# 	# print(mo.model.lods)
+	# 	# print(mo.model.objects)
+	# 	for i, me in enumerate(mo.model.meshes):
+	# 		# print(i, me)
+	# # 		# for t, v in zip(me.mesh.tri_chunks, me.mesh.vert_chunks):
+	# # 		# 	t.rot.a = 1.0
+	# # 		# 	t.rot.x = t.rot.y = t.rot.z = 0.0
+	# # 		# 	t.loc.x = t.loc.y = t.loc.z = 0.0
+	# 		for t, v in zip(me.mesh.tri_chunks, me.mesh.vert_chunks):
+	# 			# print(t, v)
+	# 			print(v)
+	# 			s = v.pack_base / v.scale
+	# 			print(s)
+	# 			break
+	# 			# flags.add(tuple(v.flags))
+	# 		print(flags)
 			# 	pass
 			# 	# print(i, t.tris_offset)
 			# 	# print(i, v.vertex_offset % 16)

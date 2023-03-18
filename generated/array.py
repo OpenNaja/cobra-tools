@@ -103,7 +103,7 @@ class Array(list):
             try:
                 return dtype.read_array(stream, shape, context, arg, template)
             except:
-                logging.warning(f"Vectorized {dtype.__name__}.read_array failed; falling back to normal Array.read")
+                logging.exception(f"Vectorized {dtype.__name__}.read_array failed; falling back to normal Array.read")
         new_array = cls(context, arg, template, shape, dtype, set_default=False)
         new_array.read(stream)
         return new_array

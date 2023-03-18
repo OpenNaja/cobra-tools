@@ -1,8 +1,8 @@
-from generated.formats.ovl.compounds.NamedEntry import NamedEntry
+from generated.base_struct import BaseStruct
 from generated.formats.ovl_base.basic import OffsetString
 
 
-class IncludedOvl(NamedEntry):
+class IncludedOvl(BaseStruct):
 
 	"""
 	Description of one included ovl file that is force-loaded by this ovl
@@ -11,6 +11,7 @@ class IncludedOvl(NamedEntry):
 	__name__ = 'IncludedOvl'
 
 	_import_key = 'ovl.compounds.IncludedOvl'
+	allow_np = True
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
@@ -20,7 +21,7 @@ class IncludedOvl(NamedEntry):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = NamedEntry._attribute_list + [
+	_attribute_list = BaseStruct._attribute_list + [
 		('basename', OffsetString, (None, None), (False, None), None),
 		]
 

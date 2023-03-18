@@ -38,8 +38,9 @@
         <add name="Names" type="ZStringBuffer" arg="Len Names">Name buffer for assets and file mime types.</add>
         <add name="Names_pad" type="ubyte" arr1="(16 - (Len Names #MOD# 16)) #MOD# 16" until="15">used in DLA</add>
         <add name="Mimes" type="MimeEntry" arr1="Num Mimes"/>
+        <add name="triplets_ref" type="Empty"/>
         <add name="triplets" type="Triplet" arr1="num_triplets" since="20"/>
-        <add name="triplets_pad" type="PadAlign" template="triplets" arg="4" since="20"/>
+        <add name="triplets_pad" type="PadAlign" template="triplets_ref" arg="4" since="20"/>
         <add name="Files" type="FileEntry" arr1="Num Files"/>
         <add name="archive_names" type="ZStringBuffer" arg="Len Archive Names">usually STATIC followed by any external OVS names</add>
         <add name="Archives" type="ArchiveEntry" arr1="Num Archives"/>
@@ -51,7 +52,7 @@
         <add name="archives_meta" type="ArchiveMeta" arr1="Num Archives"/>
     </compound>
 
-    <compound name="MimeEntry" >
+    <compound name="MimeEntry" allow_np="true" >
         Description of one mime type or file class.
 		Inside the archive not the stored mime hash is used but the extension hash, has to be generated, eg. djb2("bani") == 2090104799
         <add name="name" type="OffsetString" arg="context\names"/>
@@ -65,7 +66,7 @@
         <add name="triplet offset" type="uint" since="20" >index into triplets list</add>
     </compound>
 
-    <compound name="Triplet" >
+    <compound name="Triplet" allow_np="true">
         3 bytes - constant per mime and version
         <add name="a" type="ubyte">?</add>
         <add name="b" type="ubyte">?</add>
@@ -76,7 +77,7 @@
         name is stored in basename and ext attributes
     </compound>
 
-    <compound name="FileEntry" inherit="NamedEntry">
+    <compound name="FileEntry" allow_np="true" >
         Description of one file in the archive
         <add name="basename" type="OffsetString" arg="context\names"/>
         <add name="file hash" type="uint">this hash is used to retrieve the file name from inside the archive</add>
@@ -106,27 +107,27 @@
         <add name="ovs_offset" type="uint" >Seemingly unused, can be zeroed without effect ingame in JWE</add>
     </compound>
 
-    <compound name="IncludedOvl" inherit="NamedEntry">
+    <compound name="IncludedOvl" allow_np="true">
         Description of one included ovl file that is force-loaded by this ovl
         <add name="basename" type="OffsetString" arg="context\names">path is relative to this ovl's directory; usually points to ovl files</add>
     </compound>
 
-    <compound name="DependencyEntry" inherit="NamedEntry">
+    <compound name="DependencyEntry" allow_np="true">
         Description of dependency; links it to an entry from this archive
-        <add name="file hash" type="uint">Hash of this dependency, for lookup in hash dict. Can be either external or internal.</add>
-        <add name="ext_raw" type="OffsetString" arg="context\names">these use : instead of . at the start, eg. :tex</add>
-        <add name="file index" type="uint" >index into ovl file table, points to the file entry where this dependency is used</add>
+        <add name="file hash" type="uint">basename for dependency, for lookup in hash dict. Can be either external or internal.</add>
+        <add name="ext_raw" type="OffsetString" arg="context\names">ext for dependency, use : instead of . at the start, eg. :tex</add>
+        <add name="file index" type="uint" >index into ovl files, points to the file entry using this dependency</add>
         <add name="link_ptr" type="HeaderPointer" >pointer into flattened list of all archives' pools</add>
     </compound>
 
-    <compound name="AuxEntry" inherit="NamedEntry">
+    <compound name="AuxEntry" allow_np="true">
         describes an external AUX resource
         <add name="file index" type="uint">index into files list</add>
         <add name="basename" type="OffsetString" arg="context\names"/>
         <add name="size" type="uint">byte count of the complete external resource file</add>
     </compound>
 
-    <compound name="StreamEntry" >
+    <compound name="StreamEntry" allow_np="true">
         Description of one streamed file instance. One for every file stored in an ovs.
         Links the main pointers of a streamed file to its user, eg. a texturestream to a tex file.
         --These appear sorted in the order of root entries per ovs.-- only true for lod0, not lod1
@@ -170,9 +171,8 @@
 		<add name="Offset" type="uint">byte offset from the start of the mempools region</add>
         <add name="zero2" type="uint64" until="15"/>
 		<add name="File Hash" type="uint">djb2 hash of the first file that points into this mempool</add>
-        <add name="disney zero" type="ushort" until="15"/>
-		<add name="Num Files" type="ushort" until="15">unknown count (related to number of files or pointers)</add>
-		<add name="Num Files" type="uint" since="17">unknown count (related to number of files or pointers)</add>
+		<add name="Num Files" type="ushort" since="15">unknown count (related to number of files or pointers)</add>
+		<add name="Num datas" type="ushort" since="15">amount of data entries referring to this pool?, may just be an artifact of apparently compressed ovs though</add>
 		<add name="Ext Hash" type="uint" since="19">JWE: djb2 hash for extension, 0 for PZ</add>
         <add name="zero3" type="uint" since="19"/>
     </compound>
@@ -206,20 +206,20 @@
 		<add name="data_count" type="uint">number of data entries to populate buffers into</add>
     </compound>
 
-	<compound name="HeaderPointer" allow_np="false">
+	<compound name="HeaderPointer" allow_np="true">
 		Not standalone, used by RootEntry, Fragment and DependencyEntry
         <add name="pool_index" type="int" default="-1">The index of the MemPool this one relates to; OR, for entries referred to from AssetEntries: -1</add>
         <add name="data offset" type="uint" >the byte offset relative to the start of the MemPool's data</add>
     </compound>
 	
-    <compound name="RootEntry" >
+    <compound name="RootEntry" allow_np="true">
         Main file entry in the ovs, one per FileEntry
         <add name="File Hash" type="uint">id (index or djb2) of the file</add>
         <add name="Ext Hash" type="uint" since="19">djb2 of extension</add>
         <add name="struct_ptr" type="HeaderPointer" >points to the main struct of this file OR -1 pointer for assets</add>
     </compound>
 	
-    <compound name="Fragment" allow_np="false">
+    <compound name="Fragment" allow_np="true">
 		These are to be thought of as instructions for loading. Their order is irrelevant.
         <add name="link_ptr" type="HeaderPointer" >determines where to write a pointer address</add>
         <add name="struct_ptr" type="HeaderPointer" >the struct that is pointed to can be found here</add>
@@ -235,22 +235,19 @@
         <add name="assets" type="AssetEntry" arr1="asset count"/>
     </compound>
 	
-	<compound name="SetEntry" >
+	<compound name="SetEntry" allow_np="true">
 		the asset indices of two consecutive SetEntries define a set of AssetEntries
         <add name="File Hash" type="uint"/>
         <add name="Ext Hash" type="uint" since="19"/>
-		<add name="start" type="uint" >add from last set's entry up to this index to this set</add>
+		<add name="start" type="uint" >add assets from last set's start up to this index to this set</add>
     </compound>
-	
-	<compound name="AssetEntry" >
+
+	<compound name="AssetEntry" allow_np="true">
 		refers to root entries so they can be grouped into set entries.
 		points to RootEntry with pool_index -1
-        <add name="File Hash" type="uint"/>
-        <add name="zero 0" type="uint"/>
-        <add name="Ext Hash" type="uint" since="19"/>
-        <add name="zero 1" type="uint" since="19"/>
-		<add name="file index" type="uint" >index into root entries array; hash of targeted file matches this assetentry's hash.</add>
-        <add name="zero 2" type="uint"/>
+        <add name="File Hash" type="uint64"/>
+        <add name="Ext Hash" type="uint64" since="19"/>
+		<add name="root index" type="uint64" >index into root entries array</add>
     </compound>
 
 </niftoolsxml>

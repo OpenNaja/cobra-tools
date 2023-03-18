@@ -5,7 +5,7 @@ from generated.formats.base.basic import ZString
 from generated.formats.manis.compounds.Buffer1 import Buffer1
 from generated.formats.manis.compounds.KeysReader import KeysReader
 from generated.formats.manis.compounds.ManiInfo import ManiInfo
-from generated.formats.manis.compounds.SizedStrData import SizedStrData
+from generated.formats.manis.compounds.ManisRoot import ManisRoot
 
 
 class InfoHeader(BaseStruct):
@@ -23,7 +23,7 @@ class InfoHeader(BaseStruct):
 		self.version = 0
 		self.mani_count = 0
 		self.names = Array(self.context, 0, None, (0,), ZString)
-		self.header = SizedStrData(self.context, 0, None)
+		self.header = ManisRoot(self.context, 0, None)
 		self.mani_infos = Array(self.context, 0, None, (0,), ManiInfo)
 		self.name_buffer = Buffer1(self.context, int(self.header.hash_block_size / 4), None)
 		self.keys_buffer = KeysReader(self.context, self.mani_infos, None)
@@ -34,7 +34,7 @@ class InfoHeader(BaseStruct):
 		('version', Uint, (0, None), (False, None), None),
 		('mani_count', Uint, (0, None), (False, None), None),
 		('names', Array, (0, None, (None,), ZString), (False, None), None),
-		('header', SizedStrData, (0, None), (False, None), None),
+		('header', ManisRoot, (0, None), (False, None), None),
 		('mani_infos', Array, (0, None, (None,), ManiInfo), (False, None), None),
 		('name_buffer', Buffer1, (None, None), (False, None), None),
 		('keys_buffer', KeysReader, (None, None), (False, None), None),
@@ -46,7 +46,7 @@ class InfoHeader(BaseStruct):
 		yield 'version', Uint, (0, None), (False, None)
 		yield 'mani_count', Uint, (0, None), (False, None)
 		yield 'names', Array, (0, None, (instance.mani_count,), ZString), (False, None)
-		yield 'header', SizedStrData, (0, None), (False, None)
+		yield 'header', ManisRoot, (0, None), (False, None)
 		yield 'mani_infos', Array, (0, None, (instance.mani_count,), ManiInfo), (False, None)
 		yield 'name_buffer', Buffer1, (int(instance.header.hash_block_size / 4), None), (False, None)
 		yield 'keys_buffer', KeysReader, (instance.mani_infos, None), (False, None)

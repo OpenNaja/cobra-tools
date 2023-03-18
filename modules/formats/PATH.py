@@ -12,6 +12,7 @@ class PathExtrusionLoader(MemStructLoader):
 	target_class = PathExtrusion
 	extension = ".pathextrusion"
 
+
 class PathMaterialLoader(MemStructLoader):
 	target_class = PathMaterial
 	extension = ".pathmaterial"
@@ -21,16 +22,16 @@ class PathMaterialLoader(MemStructLoader):
 		if not self.header.num_data:
 			self.header.mat_data.data = None
 
-	def create(self):
-		self.create_root_entry()
-		self.header = self.target_class.from_xml_file(self.file_entry.path, self.ovl.context)
+	def create(self, file_path):
+		self.header = self.target_class.from_xml_file(file_path, self.ovl.context)
 		self.prep()
-		# print(self.header)
-		self.header.write_ptrs(self, self.root_ptr, self.file_entry.pool_type)
+		self.write_memory_data()
+
 
 class PathResourceLoader(MemStructLoader):
 	target_class = PathResource
 	extension = ".pathresource"
+
 
 class PathJoinPartResourceLoader(MemStructLoader):
 	target_class = PathJoinPartResourceRoot
@@ -46,20 +47,21 @@ class PathJoinPartResourceLoader(MemStructLoader):
 			if not res.num_points_3:
 				res.unk_points_3.data = None
 
-	def create(self):
-		self.create_root_entry()
-		self.header = self.target_class.from_xml_file(self.file_entry.path, self.ovl.context)
+	def create(self, file_path):
+		self.header = self.target_class.from_xml_file(file_path, self.ovl.context)
 		self.prep()
-		# print(self.header)
-		self.header.write_ptrs(self, self.root_ptr, self.file_entry.pool_type)
+		self.write_memory_data()
+
 
 class PathSupportLoader(MemStructLoader):
 	target_class = PathSupport
 	extension = ".pathsupport"
 
+
 class PathTypeLoader(MemStructLoader):
 	target_class = PathType
 	extension = ".pathtype"
+
 
 class SupportSetLoader(MemStructLoader):
 	target_class = SupportSetRoot
@@ -72,9 +74,7 @@ class SupportSetLoader(MemStructLoader):
 		if not self.header.num_connector_2:
 			self.header.connector_2.data = None
 
-	def create(self):
-		self.create_root_entry()
-		self.header = self.target_class.from_xml_file(self.file_entry.path, self.ovl.context)
+	def create(self, file_path):
+		self.header = self.target_class.from_xml_file(file_path, self.ovl.context)
 		self.prep()
-		# print(self.header)
-		self.header.write_ptrs(self, self.root_ptr, self.file_entry.pool_type)
+		self.write_memory_data()

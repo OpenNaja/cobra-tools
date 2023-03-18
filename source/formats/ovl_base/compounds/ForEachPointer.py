@@ -24,14 +24,13 @@ class ForEachPointer(Pointer):
 		if self.data is not None:
 			return len(self.data)
 
-	def read_template(self):
+	def read_template(self, stream):
 		if self.template:
 			if isinstance(self.arg, ArrayPointer):
 				args = self.arg.data
 			else:
 				raise AttributeError(f"Unsupported arg {type(self.arg)} for ForEachPointer")
 			self.data = Array(self.context, 0, None, (len(args)), self.template, set_default=False)
-			stream = self.frag.struct_ptr.stream
 			# for i, arg in enumerate(args):
 			# 	logging.debug(f"Argument {i} = {arg}, template {self.template}")
 			self.data[:] = [self.template.from_stream(stream, self.context, arg) for arg in args]

@@ -2,6 +2,10 @@
 import struct
 import xml.etree.ElementTree as ET
 import logging
+
+import numpy as np
+
+from generated.array import Array
 from generated.base_struct import BaseStruct
 from generated.formats.base.basic import ZString
 from generated.formats.ovl_base.basic import ZStringObfuscated
@@ -29,10 +33,13 @@ class Pointer(BaseStruct):
 		super().__init__(context, arg, template, set_default=False)
 		# set to -1 here so that read_ptr doesn't get a wrong frag by chance if the entry has not been read -> get at 0
 		self.io_start = -1
+		self.target_offset = -1
 		self.pool_index = 0
 		self.data_offset = 0
 		self.data = None
 		self.frag = None
+		self.link = None
+		self.target_pool = None
 		self.pool_type = None
 		if set_default:
 			self.set_defaults()
@@ -54,41 +61,50 @@ class Pointer(BaseStruct):
 		"""Looks up the address of the pointer, checks if a frag points to pointer and reads the data at its address as
 		the specified template."""
 		# find the frag entry with matching link_ptr.data_offset
-		self.frag = pool.offset_2_link_entry.get(self.io_start, None)
+		link = pool.offset_2_link.get(self.io_start, None)
 		# pointer may be a nullptr, so ignore
-		if not self.frag:
+		if not link:
 			# print("is a nullptr")
 			return
-		# it is a fragment, not a dependency
-		if hasattr(self.frag, "struct_ptr"):
-			# now read an instance of template class at the offset
-			self.read_template()
-		else:
+		# it is a dependency
+		if isinstance(link, str):
 			# store dependency name
-			self.data = self.frag.name
+			self.data = link
+		else:
+			# now read an instance of template class at the offset
+			pool, offset = link
+			self.link = link
+			self.target_pool = pool
+			# we are now (potentially) in a new pool
+			self.pool_type = pool.type
+			stream = pool.stream_at(offset)
+			self.read_template(stream)
 
-	def read_template(self):
+	def read_template(self, stream):
 		if self.template:
-			self.data = self.template.from_stream(self.frag.struct_ptr.stream, self.context, self.arg)
+			self.data = self.template.from_stream(stream, self.context, self.arg)
 
-	def write_pointer(self):
-		assert self.has_data and self.frag
+	def write_ptr(self):
+		# usually we add a pointer for empty arrays
+		assert self.has_data
+		# seek to end, set data_offset, write
+		stream, self.target_offset = self.target_pool.align_write(self.data)
 		# if bytes have been set (usually manually), don't ask, just write
 		if isinstance(self.data, (bytes, bytearray)):
-			# seek to end, set data_offset, write
-			self.frag.struct_ptr.write_to_pool(self.data)
+			stream.write(self.data)
 		else:
-			# process the generated data
 			try:
-				self.write_template()
+				assert self.template is not None
+				if self.data is None:
+					logging.info(f"Can't write None for class {self.template}")
+				elif isinstance(self.data, (Array, np.ndarray)):
+					Array.to_stream(self.data, stream, self.context, dtype=self.template)
+				else:
+					self.template.to_stream(self.data, stream, self.context)
 			except TypeError:
 				raise TypeError(f"Failed to write pointer data {self.data} type: {type(self.data)} as {self.template}")
 			except struct.error:
 				raise TypeError(f"Failed to write pointer data {self.data} type: {type(self.data)} as {self.template}")
-
-	def write_template(self):
-		assert self.template is not None
-		self.frag.struct_ptr.write_instance(self.template, self.data)
 
 	@classmethod
 	def to_xml(cls, elem, prop, instance, arg, template, debug):

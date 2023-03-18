@@ -1,4 +1,4 @@
-imageio~=2.21.0
+imageio~=2.26.0
 numpy~=1.21.0
 PyQt5~=5.15.4
 future~=0.18.2

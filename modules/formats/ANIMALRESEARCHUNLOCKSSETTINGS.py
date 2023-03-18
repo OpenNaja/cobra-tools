@@ -7,10 +7,6 @@ class AnimalresearchunlockssettingsLoader(MemStructLoader):
 	target_class = ResearchRoot
 	extension = ".animalresearchunlockssettings"
 
-	def collect(self):
-		super().collect()
-		# print(self.header)
-
 	def prep(self):
 		# avoid generating pointers for these
 		for level in self.header.levels.data:
@@ -19,12 +15,10 @@ class AnimalresearchunlockssettingsLoader(MemStructLoader):
 			if not level.children_count:
 				level.children.data = None
 
-	def create(self):
-		self.create_root_entry()
-		self.header = self.target_class.from_xml_file(self.file_entry.path, self.ovl.context)
-		# print(self.header)
+	def create(self, file_path):
+		self.header = self.target_class.from_xml_file(file_path, self.ovl.context)
 		self.prep()
-		self.header.write_ptrs(self, self.root_ptr, self.file_entry.pool_type)
+		self.write_memory_data()
 
 
 class AnimalresearchstartunlockedssettingsLoader(MemStructLoader):

@@ -11,6 +11,7 @@ from generated.formats.dds import DdsFile
 from generated.formats.dds.enums.DxgiFormat import DxgiFormat
 from generated.formats.ovl.versions import *
 from generated.formats.tex.compounds.TexHeader import TexHeader
+from generated.formats.tex.compounds.TexturestreamHeader import TexturestreamHeader
 from modules.formats.BaseFormat import MemStructLoader, BaseFile
 from modules.helpers import split_path
 
@@ -29,19 +30,16 @@ def align_to(width, comp, alignment=64):
 	return width
 
 
-class TexturestreamLoader(BaseFile):
+class TexturestreamLoader(MemStructLoader):
 	extension = ".texturestream"
 	can_extract = False
+	target_class = TexturestreamHeader
 
-	def create(self):
-		self.create_root_entry()
+	def create(self, file_path):
+		self.header = self.target_class(self.context)
 		if is_jwe2(self.ovl):
-			lod_index = int(self.file_entry.basename[-1])
-			root_data = struct.pack("<QQ", 0, lod_index)
-		else:
-			# JWE1, PZ, PC
-			root_data = struct.pack("<Q", 0)
-		self.write_data_to_pool(self.root_entry.struct_ptr, 3, root_data)
+			self.header.lod_index = int(self.basename[-1])
+		self.write_memory_data()
 		# data entry, assign buffer
 		self.create_data_entry((b"", ))
 
@@ -53,7 +51,7 @@ class DdsLoader(MemStructLoader):
 
 	def link_streams(self):
 		"""Collect other loaders"""
-		self._link_streams(f"{self.file_entry.basename}_lod{lod_i}.texturestream" for lod_i in range(3))
+		self._link_streams(f"{self.basename}_lod{lod_i}.texturestream" for lod_i in range(3))
 
 	def increment_buffers(self, loader, buffer_i):
 		"""Linearly increments buffer indices for games that need it"""
@@ -64,9 +62,9 @@ class DdsLoader(MemStructLoader):
 				buffer_i += 1
 		return buffer_i
 
-	def create(self):
-		name_ext, basename, ext = split_path(self.file_entry.path)
-		super().create()
+	def create(self, file_path):
+		name_ext, basename, ext = split_path(file_path)
+		super().create(file_path)
 		logging.debug(f"Creating image {name_ext}")
 		# there's one empty buffer at the end!
 		buffers = [b"" for _ in range(self.header.stream_count + 1)]
@@ -96,7 +94,7 @@ class DdsLoader(MemStructLoader):
 		self.create_data_entry(buffers[streamed_lods:])
 		self.increment_buffers(self, buffer_i)
 		# ready, now inject
-		self.load_image(self.file_entry.path)
+		self.load_image(file_path)
 
 	def load_image(self, tex_path):
 		# logging.debug(f"Loading image {tex_path}")
@@ -123,9 +121,8 @@ class DdsLoader(MemStructLoader):
 		# create list of bytes for each buffer
 		tex_buffers = self.header.buffer_infos.data
 		if is_pc(self.ovl):
-			# todo trimmed pc mips
-			raise NotImplementedError("PC mip packing needs to be re-implemented for API change")
-			# buffer_bytes = dds_file.pack_mips_pc(tex_buffers)
+			# todo PC array textures
+			buffer_bytes = dds_files[0].pack_mips_pc(tex_buffers)
 		else:
 			logging.info("Packing mip maps")
 			dds_mips = [dds.get_packed_mips(size_info.mip_maps) for dds in dds_files]
@@ -169,7 +166,7 @@ class DdsLoader(MemStructLoader):
 
 	def get_sorted_datas(self):
 		# lod0 | lod1 | static
-		return [loader.data_entry for loader in sorted(self.streams, key=lambda f: f.file_entry.name)] + [self.data_entry, ]
+		return [loader.data_entry for loader in sorted(self.streams, key=lambda l: l.name)] + [self.data_entry, ]
 
 	def get_sorted_streams(self):
 		# PZ assigns the buffer index for the complete struct 0 | 1 | 2, 3
@@ -180,7 +177,6 @@ class DdsLoader(MemStructLoader):
 		return [b for data_entry in self.get_sorted_datas() for b in data_entry.buffers]
 
 	def get_tex_structs(self):
-		# print( self.ovl.version, self.header, self.file_entry.mime)
 		if is_dla(self.ovl):
 			return self.header
 		if self.ovl.version < 19:
@@ -200,7 +196,7 @@ class DdsLoader(MemStructLoader):
 
 	def extract(self, out_dir):
 		out_files = list(super().extract(out_dir))
-		tex_name = self.root_entry.name
+		tex_name = self.name
 		basename = os.path.splitext(tex_name)[0]
 		logging.info(f"Writing {tex_name}")
 
@@ -229,8 +225,16 @@ class DdsLoader(MemStructLoader):
 		# export all tiles
 		for tile_i, tile_name in zip(tiles, self.get_tile_names(tiles, basename)):
 			# get the mip mapped data for just this tile from the packed tex buffer
-			dds_file.dx_10.num_tiles = size_info.num_tiles
-			tile_data = dds_file.unpack_mips(size_info.mip_maps, tile_i, buffer_data)
+			if hasattr(size_info, "num_tiles"):
+				dds_file.dx_10.num_tiles = size_info.num_tiles
+			else:
+				# DLA has no num_tiles
+				dds_file.dx_10.num_tiles = 1
+			if is_dla(self.ovl) or is_ztuac(self.ovl) or is_pc(self.ovl):
+				# not sure how / if texture arrays are packed for PC - this works for flat textures
+				tile_data = buffer_data
+			else:
+				tile_data = dds_file.unpack_mips(size_info.mip_maps, tile_i, buffer_data)
 			dds_file.dx_10.num_tiles = 1
 			dds_file.buffer = tile_data
 			dds_file.linear_size = len(buffer_data)
@@ -265,7 +269,11 @@ class DdsLoader(MemStructLoader):
 
 	def ensure_size_match(self, png_file_path, size_info):
 		"""Check that DDS files have the same basic size"""
-		png_width, png_height = iio.immeta(png_file_path)["shape"]
+		try:
+			png_width, png_height = iio.immeta(png_file_path)["shape"]
+		except:
+			logging.exception(f"Could not get dimensions of {png_file_path}")
+			raise
 		tex_h = size_info.height
 		tex_w = size_info.width
 		if hasattr(size_info, "tex_d"):
@@ -276,7 +284,7 @@ class DdsLoader(MemStructLoader):
 		tex_w = align_to(tex_w, self.header.compression_type.name)
 		if png_width * png_height != tex_h * tex_w:
 			raise AttributeError(
-				f"Dimensions do not match for {self.file_entry.name}!\n"
+				f"Dimensions do not match for {self.name}!\n"
 				f"Dimensions: height x width x depth [num_tiles]\n"
 				f".tex file: {tex_h} x {tex_w} x {tex_d} [{tex_a}]\n"
 				f".png file: {png_height} x {png_width}\n\n"

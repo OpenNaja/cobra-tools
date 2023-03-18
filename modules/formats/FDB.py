@@ -17,14 +17,13 @@ from root_path import root_dir
 class FdbLoader(BaseFile):
 	extension = ".fdb"
 
-	def create(self):
-		root_data, buffer_0, buffer_1 = self._get_data(self.file_entry.path)
-		self.create_root_entry()
-		self.write_data_to_pool(self.root_entry.struct_ptr, 2, root_data)
+	def create(self, file_path):
+		root_data, buffer_0, buffer_1 = self._get_data(file_path)
+		self.write_root_bytes(root_data)
 		self.create_data_entry((buffer_0, buffer_1))
 
 	def extract(self, out_dir):
-		name = self.root_entry.name
+		name = self.name
 		buff = self.data_entry.buffer_datas[1]
 		out_path = out_dir(name)
 		with open(out_path, 'wb') as outfile:
@@ -33,7 +32,7 @@ class FdbLoader(BaseFile):
 
 	def _get_data(self, file_path):
 		"""Loads and returns the data for an FDB"""
-		buffer_0 = self.file_entry.basename.encode(encoding='utf8')
+		buffer_0 = self.basename.encode(encoding='utf8')
 		buffer_1 = self.get_content(file_path)
 		root_entry = struct.pack("I28s", len(buffer_1), b'')
 		return root_entry, buffer_0, buffer_1
@@ -51,9 +50,9 @@ class FdbLoader(BaseFile):
 			return False
 		# Require at least N tuples from the GUI, strings over context.num_strings are ignored
 		if len(name_tuples) < context.num_strings:
-			logging.warning(f"Required replacement strings missing for {self.file_entry.name}")
+			logging.warning(f"Required replacement strings missing for {self.name}")
 			logging.info(
-				f"Skipping {self.file_entry.name}. Script strings in need of replacement: {context.find_strings}")
+				f"Skipping {self.name}. Script strings in need of replacement: {context.find_strings}")
 			logging.info(
 				f"Rename Contents on this FDB needs {context.num_strings} strings in both Find/Replace separated by new lines.")
 			return False
@@ -67,7 +66,7 @@ class FdbLoader(BaseFile):
 				if find.encode() in file.read():
 					return True
 				not_found.append(find)
-		logging.error(f'SQL error: {not_found} not found in {self.file_entry.name}. Aborting SQL commands.')
+		logging.error(f'SQL error: {not_found} not found in {self.name}. Aborting SQL commands.')
 		return False
 
 	def get_script_context(self):
@@ -80,7 +79,7 @@ class FdbLoader(BaseFile):
 		}
 		if is_pz(self.ovl) or is_pz16(self.ovl):
 			for s in script_strings.keys():
-				if s in self.file_entry.name:
+				if s in self.name:
 					# The SQL strings for the current context
 					find_strings = list(script_strings.get(s, [()]))
 					return self.ScriptContext(s, self.open_command(f"pz_{s}"), len(find_strings), find_strings)
@@ -101,7 +100,7 @@ class FdbLoader(BaseFile):
 		context = self.get_script_context()
 
 		if self.context_is_valid(context, name_tuples):
-			logging.info(f"Executing command '{context.name}' on {self.file_entry.name}")
+			logging.info(f"Executing command '{context.name}' on {self.name}")
 			try:
 				temp_dir, out_dir_func = self.get_tmp_dir()
 				fdb_path = self.extract(out_dir_func)[0]
@@ -122,9 +121,8 @@ class FdbLoader(BaseFile):
 					try:
 						command_replaced = context.command
 						for i, find in enumerate(context.find_strings):
-							command_replaced = command_replaced.replace(find[0], name_tuples[i][0]).replace(find[1],
-																											name_tuples[
-																												i][1])
+							command_replaced = command_replaced.replace(
+								find[0], name_tuples[i][0]).replace(find[1], name_tuples[i][1])
 
 						# Calculate new research hash
 						# CALCULATED_HASH gets added to the original ResearchID in the SQL script
@@ -158,9 +156,9 @@ class FdbLoader(BaseFile):
 				loader = self.ovl.create_file(fdb_path)
 				self.ovl.register_loader(loader)
 				shutil.rmtree(temp_dir)
-			except BaseException as err:
-				traceback.print_exc()
+			except:
+				logging.exception(f"FDB command failed")
 		elif context:
-			logging.error(f"SQL Script context '{context.name}' invalid on {self.file_entry.name}")
+			logging.error(f"SQL Script context '{context.name}' invalid on {self.name}")
 
 

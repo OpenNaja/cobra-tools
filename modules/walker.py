@@ -1,3 +1,4 @@
+import json
 import os
 import time
 import traceback
@@ -34,12 +35,14 @@ def walk_type(start_dir, extension=".ovl"):
 def generate_hash_table(gui, start_dir):
 	hashes = {}
 	if start_dir:
+		start_time = time.time()
 		# don't use internal data
 		ovl_data = OvlFile()
 		all_deps_exts = set()
 		# these are the input for which hashes should be stored
 		hash_exts = {'.enumnamer', '.lua', '.model2stream', '.particleatlas', '.prefab', '.specdef', '.tex'}
-		lists = {"mimes": ("name", "mime_hash", "mime_version", "triplets"), "files": ("pool_type", "set_pool_type")}
+		# plain arrays without fields, np vectorized arrays with tuple of field names
+		lists = {"mimes_name": (), "mimes_triplets": (), "mimes": ("mime_hash", "mime_version"), "files": ("pool_type", "set_pool_type")}
 
 		valid_packages = ("GameMain", "Content")
 		mimes = {}
@@ -56,21 +59,27 @@ def generate_hash_table(gui, start_dir):
 				# read ovl file
 				new_hashes, new_exts = ovl_data.load(ovl_path, commands={"generate_hash_table": hash_exts})
 				all_deps_exts.update(new_exts)
-				for list_name, attr_names in lists.items():
-					for entry in getattr(ovl_data, list_name):
-						for attr_name in attr_names:
-							v = getattr(entry, attr_name)
-							if attr_name == "triplets":
+				for list_id, attribs in lists.items():
+					array = getattr(ovl_data, list_id)
+					if attribs:
+						arrays = {att: array[att] for att in attribs}
+					else:
+						arrays = {list_id: array}
+					exts = ovl_data.mimes_ext if "mimes" in list_id else ovl_data.files_ext
+					for list_name, subarray in arrays.items():
+						for ext, v in zip(exts, subarray):
+
+							short_var = list_name.replace("mime_", "").replace("mimes_", "").replace("files_", "").replace("_type", "")
+							if short_var == "triplets":
 								v = [(t.a, t.b, t.c) for t in v]
-							short_var = attr_name.replace("mime_", "").replace("mimes_", "").replace("files_", "").replace("_type", "")
 							# if the value already exists, make sure it is indeed constant (for this version)
-							if entry.ext in mimes:
-								v_old = getattr(mimes[entry.ext], short_var)
+							if ext in mimes:
+								v_old = getattr(mimes[ext], short_var)
 								if v != v_old and v_old:
-									logging.error(f"{list_name}.{attr_name} is not constant for {entry.ext}! ({v} vs. {v_old})")
+									logging.error(f"{list_name}.{short_var} is not constant for {ext}! ({v} vs. {v_old})")
 							else:
-								mimes[entry.ext] = Mime("", 0, 0, [], 0, 0)
-							setattr(mimes[entry.ext], short_var, v)
+								mimes[ext] = Mime("", 0, 0, [], 0, 0)
+							setattr(mimes[ext], short_var, v)
 				hashes.update(new_hashes)
 			except:
 				logging.exception(f"Reading {ovl_path} failed")
@@ -78,8 +87,11 @@ def generate_hash_table(gui, start_dir):
 		if error_files:
 			logging.error(f"{error_files} caused errors!")
 		out_dir = get_output_dir(start_dir)
+		# with open(os.path.join(out_dir, "hashes.json"), "w") as json_writer:
+		# 	json.dump(hashes, json_writer, indent="\t", sort_keys=True)
 		write_hashes_dict(os.path.join(out_dir, "hashes.py"), hashes)
 		write_mimes_dict(os.path.join(out_dir, "mimes.py"), mimes)
+		logging.info(f"Read {len(hashes)} hashes in {time.time() - start_time:.2f} seconds")
 		logging.info(f"Formats used in dependencies: {[s.replace(':', '.') for s in sorted(all_deps_exts)]}")
 
 

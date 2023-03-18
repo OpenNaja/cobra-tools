@@ -9,7 +9,7 @@ from modules.formats.BaseFormat import BaseFile
 class BnkLoader(BaseFile):
 	extension = ".bnk"
 
-	def create(self):
+	def create(self, file_path):
 		# todo - fixme
 		# # first uint of the buffer is the size of the data that should be read from the aux file
 		# media_buffers = self.data_entry.buffer_datas
@@ -35,19 +35,19 @@ class BnkLoader(BaseFile):
 		# 		events_ss.data_entry.update_data(events_buffers)
 		# 	else:
 		# 		logging.warning(f"Could not find {events_bnk}.bnk in OVL")
-		# for aux in self.aux_entries:
-		# 	bnkpath = f"{self.ovl.path_no_ext}_{self.file_entry.basename}_bnk_{aux.name.lower()}.aux"
-		# 	# grab and update size
-		# 	if os.path.isfile(bnkpath):
-		# 		aux.size = os.path.getsize(bnkpath)
-		# 	else:
-		# 		logging.warning(f"Could find {bnkpath} to update .aux file size")
 		pass
 
+	def get_aux_size(self, aux_basename):
+		bnkpath = f"{self.ovl.path_no_ext}_{self.basename}_bnk_{aux_basename.lower()}.aux"
+		if os.path.isfile(bnkpath):
+			return os.path.getsize(bnkpath)
+		else:
+			logging.warning(f"Could not find {bnkpath} to update .aux file size")
+			return 0
+
 	def extract(self, out_dir):
-		bnk_name = os.path.splitext(self.root_entry.name)[0]
-		# print(self.root_entry.struct_ptr.data)
-		out_path = out_dir(self.root_entry.name)
+		bnk_name = os.path.splitext(self.name)[0]
+		out_path = out_dir(self.name)
 		out_files = [out_path, ]
 		buffer_datas = self.data_entry.buffer_datas
 		with open(out_path, "wb") as f:

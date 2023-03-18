@@ -1,9 +1,9 @@
+from generated.base_struct import BaseStruct
 from generated.formats.base.basic import Uint
-from generated.formats.ovl.compounds.NamedEntry import NamedEntry
 from generated.formats.ovl_base.basic import OffsetString
 
 
-class AuxEntry(NamedEntry):
+class AuxEntry(BaseStruct):
 
 	"""
 	describes an external AUX resource
@@ -12,6 +12,7 @@ class AuxEntry(NamedEntry):
 	__name__ = 'AuxEntry'
 
 	_import_key = 'ovl.compounds.AuxEntry'
+	allow_np = True
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
@@ -25,7 +26,7 @@ class AuxEntry(NamedEntry):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = NamedEntry._attribute_list + [
+	_attribute_list = BaseStruct._attribute_list + [
 		('file_index', Uint, (0, None), (False, None), None),
 		('basename', OffsetString, (None, None), (False, None), None),
 		('size', Uint, (0, None), (False, None), None),

@@ -57,7 +57,8 @@ class ZStringBuffer:
 				self.offset_dic[name] = stream.tell()
 				ZString.to_stream(name, stream, self.context)
 			# get the actual result buffer
-			self.data = stream.getvalue()
+			buffer_bytes = stream.getvalue()
+		self.data = buffer_bytes + get_padding(len(buffer_bytes), alignment=8)
 
 	def __repr__(self):
 		return str(self.strings)

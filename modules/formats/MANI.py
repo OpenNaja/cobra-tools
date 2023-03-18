@@ -2,7 +2,7 @@ import logging
 import os
 import struct
 
-from generated.formats.manis.compounds.SizedStrData import SizedStrData
+from generated.formats.manis.compounds.ManisRoot import ManisRoot
 from generated.formats.manis import ManisFile
 from modules.formats.BaseFormat import BaseFile
 from modules.helpers import as_bytes
@@ -12,34 +12,30 @@ class ManiLoader(BaseFile):
 	extension = ".mani"
 	can_extract = False
 
-	def create(self):
-		self.create_root_entry()
-		self.root_entry.struct_ptr.pool_index = -1
+	def create(self, file_path):
+		self.root_ptr = (None, 0)
 
 
 class ManisLoader(BaseFile):
 	extension = ".manis"
 				
 	def extract(self, out_dir):
-		name = self.root_entry.name
+		name = self.name
 		logging.info(f"Writing {name}")
 		if not self.data_entry:
 			raise AttributeError(f"No data entry for {name}")
-		# buffers = self.data_entry.buffer_datas
-		# print(len(buffers))
-		manis_header = struct.pack("<I", len(self.children))
 
-		# sized str data gives general info
+		# root gives general info
 		# buffer 0 - all mani infos
 		# buffer 1 - list of hashes and zstrs for each bone name
 		# buffer 2 - actual keys
 		out_path = out_dir(name)
 		with open(out_path, 'wb') as outfile:
-			outfile.write(struct.pack("<I", self.file_entry.mime.mime_version))
-			outfile.write(manis_header)
+			outfile.write(struct.pack("<II", self.mime_version, len(self.children)))
 			for mani in self.children:
-				outfile.write(as_bytes(mani.file_entry.basename))
-			outfile.write(self.root_ptr.data)
+				outfile.write(as_bytes(mani.basename))
+			pool, offset = self.root_ptr
+			outfile.write(pool.get_data_at(offset))
 			for buff in self.data_entry.buffers:
 				outfile.write(buff.data)
 			# JWE2 can now have a secondary data entry holding a buffer 2 in an ovs
@@ -55,11 +51,9 @@ class ManisLoader(BaseFile):
 	
 		return out_path,
 
-	def create(self):
-		manis_file, root_data, b0, b1, b2 = self._get_data(self.file_entry.path)
-		ms2_dir = os.path.dirname(self.file_entry.path)
-
-		self.create_root_entry()
+	def create(self, file_path):
+		manis_file, root_data, b0, b1, b2 = self._get_data(file_path)
+		ms2_dir = os.path.dirname(file_path)
 
 		# create mani files
 		for mani_name in manis_file.names:
@@ -67,7 +61,7 @@ class ManisLoader(BaseFile):
 			mani_loader = self.ovl.create_file(mani_path)
 			self.children.append(mani_loader)
 
-		self.write_data_to_pool(self.root_entry.struct_ptr, self.file_entry.pool_type, root_data)
+		self.write_root_bytes(root_data)
 		self.create_data_entry((b0, b1, b2))
 
 	def _get_data(self, file_path):

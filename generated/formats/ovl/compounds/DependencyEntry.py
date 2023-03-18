@@ -1,12 +1,12 @@
 import os
 
+from generated.base_struct import BaseStruct
 from generated.formats.base.basic import Uint
 from generated.formats.ovl.compounds.HeaderPointer import HeaderPointer
-from generated.formats.ovl.compounds.NamedEntry import NamedEntry
 from generated.formats.ovl_base.basic import OffsetString
 
 
-class DependencyEntry(NamedEntry):
+class DependencyEntry(BaseStruct):
 
 	"""
 	Description of dependency; links it to an entry from this archive
@@ -15,17 +15,18 @@ class DependencyEntry(NamedEntry):
 	__name__ = 'DependencyEntry'
 
 	_import_key = 'ovl.compounds.DependencyEntry'
+	allow_np = True
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 
-		# Hash of this dependency, for lookup in hash dict. Can be either external or internal.
+		# basename for dependency, for lookup in hash dict. Can be either external or internal.
 		self.file_hash = 0
 
-		# these use : instead of . at the start, eg. :tex
+		# ext for dependency, use : instead of . at the start, eg. :tex
 		self.ext_raw = 0
 
-		# index into ovl file table, points to the file entry where this dependency is used
+		# index into ovl files, points to the file entry using this dependency
 		self.file_index = 0
 
 		# pointer into flattened list of all archives' pools
@@ -33,7 +34,7 @@ class DependencyEntry(NamedEntry):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = NamedEntry._attribute_list + [
+	_attribute_list = BaseStruct._attribute_list + [
 		('file_hash', Uint, (0, None), (False, None), None),
 		('ext_raw', OffsetString, (None, None), (False, None), None),
 		('file_index', Uint, (0, None), (False, None), None),
@@ -55,4 +56,8 @@ class DependencyEntry(NamedEntry):
 	@ext.setter
 	def ext(self, e):
 		self.ext_raw = e.replace(".", ":")
+
+	def register(self, pools):
+		# name is already set at this point
+		self.link_ptr.add_link(self.name, pools)
 

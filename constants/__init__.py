@@ -1,3 +1,4 @@
+import json
 import os
 import time
 import sys
@@ -47,8 +48,20 @@ class ConstantsProvider(dict):
 
 
 if __name__ == '__main__':
+	# start = time.time()
+	# cp = ConstantsProvider()
+	# dur = time.time()-start
+	# print(dur)
+
 	start = time.time()
-	cp = ConstantsProvider()
-	dur = time.time()-start
+	module = import_module(f"constants.Jurassic World Evolution 2.hashes")
+	dur = time.time() - start
+	print(dur)
+
+	start = time.time()
+	with open(os.path.join(root_dir, "constants", "Jurassic World Evolution 2", "hashes.json"), "r") as json_reader:
+		a = json.load(json_reader)
+		print(a["10236475"])
+	dur = time.time() - start
 	print(dur)
 	# print(cp)

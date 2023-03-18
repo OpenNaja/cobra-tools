@@ -1,11 +1,11 @@
+from generated.base_struct import BaseStruct
 from generated.formats.base.basic import Byte
 from generated.formats.base.basic import Uint
 from generated.formats.base.basic import Ushort
-from generated.formats.ovl.compounds.NamedEntry import NamedEntry
 from generated.formats.ovl_base.basic import OffsetString
 
 
-class FileEntry(NamedEntry):
+class FileEntry(BaseStruct):
 
 	"""
 	Description of one file in the archive
@@ -14,6 +14,7 @@ class FileEntry(NamedEntry):
 	__name__ = 'FileEntry'
 
 	_import_key = 'ovl.compounds.FileEntry'
+	allow_np = True
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
@@ -33,7 +34,7 @@ class FileEntry(NamedEntry):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = NamedEntry._attribute_list + [
+	_attribute_list = BaseStruct._attribute_list + [
 		('basename', OffsetString, (None, None), (False, None), None),
 		('file_hash', Uint, (0, None), (False, None), None),
 		('pool_type', Byte, (0, None), (False, None), None),

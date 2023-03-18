@@ -1,6 +1,6 @@
 # START_GLOBALS
 import logging
-import io
+import numpy as np
 
 from generated.formats.base.compounds.PadAlign import get_padding
 
@@ -15,33 +15,51 @@ class MemPool:
 	def clear_data(self):
 		self.new = False
 		# lookup by offset
-		self.offset_2_struct_entries = {}  # multiple (fragments') struct_ptrs can point to the same data
-		self.offset_2_link_entry = {}  # link_ptrs are unique
+		self.offset_2_link = {}  # link_ptrs are unique
+		self.size_map = {}
+		self.offsets = set()
+		self.link_offsets = None
 
-	def get_first_entry(self):
+	def get_first_offset(self):
 		# usually 0, but be safe
-		if self.offset_2_struct_entries:
-			first_offset = sorted(self.offset_2_struct_entries.keys())[0]
-			first_entries = self.offset_2_struct_entries[first_offset]
-			if first_entries:
-				return first_entries[0]
+		if self.offsets:
+			first_offset = sorted(self.offsets)[0]
+			return first_offset
 
-	def calc_struct_ptr_sizes(self):
-		"""Assign an estimated size to every struct_ptr"""
+	def calc_size_map(self):
+		"""Store size of every struct_ptr in size_map"""
+		self.size_map = {}
 		# sort them
-		sorted_entries = sorted(self.offset_2_struct_entries.items())
+		sorted_offsets = sorted(self.offsets)
 		# add the end of the header data block
-		sorted_entries.append((self.size, None))
+		sorted_offsets.append(self.size)
 		# get the size of each pointer
-		for i, (offset, entries) in enumerate(sorted_entries[:-1]):
+		for i, offset in enumerate(sorted_offsets[:-1]):
 			# get the offset of the next pointer, substract this offset
-			data_size = sorted_entries[i + 1][0] - offset
-			for entry in entries:
-				entry.struct_ptr.data_size = data_size
+			data_size = sorted_offsets[i + 1] - offset
+			self.size_map[offset] = data_size
+		# store array of link offsets for check_for_ptrs
+		self.link_offsets = np.array(list(self.offset_2_link.keys()))
+
+	def replace_bytes_at(self, offset, byte_name_tups):
+		"""Replaces the bytes tuples in byte_name_tups"""
+		data = self.get_data_at(offset)
+		for old, new in byte_name_tups:
+			data = data.replace(old, new)
+		stream = self.stream_at(offset)
+		stream.write(data)
+
+	def stream_at(self, offset):
+		self.data.seek(offset)
+		return self.data
 
 	def get_at(self, offset, size=-1):
 		self.data.seek(offset)
 		return self.data.read(size)
+
+	def get_data_at(self, offset):
+		"""Get data from pool writer"""
+		return self.get_at(offset, self.size_map[offset])
 
 	def get_size(self):
 		# seek to end of stream
@@ -54,22 +72,30 @@ class MemPool:
 		logging.debug(f"Padded pool of ({size} bytes) with {len(padding_bytes)}, alignment = {alignment}")
 		self.data.write(padding_bytes)
 
-	def move_empty_pointers_to_end(self):
-		end_of_pool = self.get_size()
-		# cast to tuple to avoid changing the dict during iteration
-		for offset, entries in tuple(self.offset_2_struct_entries.items()):
-			if offset != end_of_pool:
-				# find any null pointer that is not at the end of the pool
-				null_ptrs = [entry for entry in entries if entry.struct_ptr.data_size == 0]
-				if null_ptrs:
-					logging.debug(f"Moving {len(null_ptrs)} null pointers out of {len(entries)} pointers from {offset} to end of pool at {end_of_pool}")
-					# only keep valid pointers at offset
-					self.offset_2_struct_entries[offset] = [entry for entry in entries if entry not in null_ptrs]
-					# move the null pointers to their new offset
-					if end_of_pool not in self.offset_2_struct_entries:
-						self.offset_2_struct_entries[end_of_pool] = []
-					self.offset_2_struct_entries[end_of_pool].extend(null_ptrs)
-					# set data_offset of null_ptrs
-					for entry in null_ptrs:
-						entry.struct_ptr.data_offset = end_of_pool
+	def align_write(self, data, overwrite=False):
+		"""Prepares self.pool.data for writing, handling alignment according to type of data"""
+		# if overwrite:
+		# 	# write at old data_offset, but then check for size match
+		# 	if isinstance(data, (bytes, bytearray, str)) and self.data_size != len(data):
+		# 		logging.warning(f"Data size for overwritten pointer has changed from {self.data_size} to {len(data)}!")
+		# 	self.data.seek(self.data_offset)
+		# else:
+		# seek to end of pool
+		self.data.seek(0, 2)
+		# check for alignment
+		if isinstance(data, str):
+			alignment = 1
+		else:
+			alignment = 16
+		# logging.info(f"{type(data)} {data} alignment {alignment}")
+		# write alignment to pool
+		if alignment > 1:
+			offset = self.data.tell()
+			padding = (alignment - (offset % alignment)) % alignment
+			if padding:
+				self.data.write(b"\x00" * padding)
+				logging.debug(
+					f"Aligned pointer from {offset} to {self.data.tell()} with {padding} bytes, alignment = {alignment}")
+		return self.data, self.data.tell()
+		# return True
 
