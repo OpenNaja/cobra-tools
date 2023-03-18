@@ -33,6 +33,10 @@ class StructMetaClass(type):
                 # not defined in class body allows automatic filling, as long as any parents are also compatible
                 return callable(getattr(cls, function_name, lambda: True))
 
+        # if attribute list is not defined and we have the function to generate it, create it
+        if "_attribute_list" not in dict and not free_function("_get_attribute_list"):
+            cls._attribute_list = tuple(cls._get_attribute_list())
+
         # check if the class has a non-empty _attribute_list
         if getattr(cls, "_attribute_list", ()):
             attribute_list = cls._attribute_list
@@ -162,7 +166,7 @@ class BaseStruct(metaclass=StructMetaClass):
 
     _import_map = ImportMap()
     _import_key = "base_struct"
-    _attribute_list = []
+    _attribute_list = ()
     allow_np = False
 
     def __init__(self, context, arg=0, template=None, set_default=True):
@@ -345,6 +349,10 @@ class BaseStruct(metaclass=StructMetaClass):
             except:
                 logging.error(f"validation failed on field {f_name} on type {cls}")
                 raise
+
+    @classmethod
+    def _get_attribute_list(cls):
+        yield from ()
 
     @classmethod
     def _get_filtered_attribute_list(cls, instance, include_abstract=True):

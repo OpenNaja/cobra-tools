@@ -167,7 +167,7 @@ class Union:
         # get the default (or the best guess of it)
         field_type_lower = field_type.lower()
         tag_of_field_type = self.compounds.parser.tag_dict.get(field_type_lower)
-        _, return_type = self.compounds.parser.map_type(field_type, arr1)
+        return_type = self.compounds.parser.map_type(field_type, arr1)
         default_string = self.default_to_value(default_string, field_type)
 
         if arr1:
@@ -207,8 +207,9 @@ class Union:
                                                 arr1, field_type)
 
         # do not init types used before their position in the xml - they are assumed to be circular
-        if field_type in self.compounds.parser.processed_types:
-            f.write(f'\n{base_indent}self.{field_name} = {field_default}')
+        # other option: use it with conditions
+        # if field_type in self.compounds.parser.processed_types:
+        f.write(f'\n{base_indent}self.{field_name} = {field_default}')
 
     def write_attributes(self, f):
         for field in self.members:
