@@ -226,7 +226,7 @@ class BaseFile:
 			entry.name = _rename(entry.name)
 
 		self.target_name = _rename(self.target_name)
-		self._name = _rename(self.name)
+		self.name = _rename(self.name)
 		self.aux_entries = [_rename(aux) for aux in self.aux_entries]
 		self.dependencies = {_rename(dep): ptr for dep, ptr in self.dependencies.items()}
 
