@@ -10,18 +10,13 @@ from io import BytesIO
 
 from constants import ConstantsProvider
 from generated.formats.ovl.compounds.ArchiveEntry import ArchiveEntry
-from generated.formats.ovl.compounds.AssetEntry import AssetEntry
 from generated.formats.ovl.compounds.BufferGroup import BufferGroup
-from generated.formats.ovl.compounds.FileEntry import FileEntry
-from generated.formats.ovl.compounds.Fragment import Fragment
 from generated.formats.ovl.compounds.Header import Header
 from generated.formats.ovl.compounds.OvsHeader import OvsHeader
-from generated.formats.ovl.compounds.SetEntry import SetEntry
-from generated.formats.ovl.compounds.StreamEntry import StreamEntry
 from generated.formats.ovl.versions import *
 from generated.formats.ovl_base.enums.Compression import Compression
 from modules.formats.formats_dict import FormatDict
-from modules.formats.shared import djb2
+from modules.formats.shared import djb2, DummySignal
 from ovl_util.oodle.oodle import OodleDecompressEnum, oodle_compressor
 
 UNK_HASH = "UnknownHash"
@@ -33,15 +28,6 @@ def pairwise(iterable):
 	a, b = itertools.tee(iterable)
 	next(b, None)
 	return zip(a, b)
-
-
-class DummySignal:
-
-	def emit(self, val):
-		logging.debug(f"Emitted {val}")
-
-	def connect(self, func):
-		pass
 
 
 class OvsFile(OvsHeader):

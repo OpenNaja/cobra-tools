@@ -8,6 +8,7 @@ from generated.formats.bnk.compounds.DIDXSection import DIDXSection
 from generated.formats.bnk.compounds.HIRCSection import HIRCSection
 from generated.base_struct import BaseStruct
 from generated.formats.base.compounds.PadAlign import get_padding
+from modules.formats.shared import fmt_hash
 from ovl_util.texconv import write_riff_file
 
 
@@ -60,29 +61,12 @@ class AuxFileContainer(BaseStruct):
 		if instance.hirc:
 			for pointer in instance.hirc.hirc_pointers:
 				if pointer.id == 2:
-					pointer.hash = instance.fmt_hash(pointer.data.didx_id)
+					pointer.hash = fmt_hash(pointer.data.didx_id)
 		if instance.didx:
 			for pointer in instance.didx.data_pointers:
 				pointer.data = bytes(instance.data.wem_datas[pointer.data_section_offset: pointer.data_section_offset + pointer.wem_filesize])
-				pointer.hash = instance.fmt_hash(pointer.wem_id)
+				pointer.hash = fmt_hash(pointer.wem_id)
 				pointer.pad = b""
-
-	@staticmethod
-	def fmt_hash(id_hash):
-		return "".join([f"{b:02X}" for b in struct.pack("<I", id_hash)])
-
-	def extract_audio(self, out_dir_func, basename, progress_callback=None):
-		"""Extracts all wem files from the container into a folder"""
-		logging.info("Extracting audio")
-		paths = []
-		if self.didx:
-			for i, pointer in enumerate(self.didx.data_pointers):
-				if progress_callback:
-					progress_callback("Extracting pointer", value=i, vmax=len(self.didx.data_pointers))
-				out_file = write_riff_file(pointer.data, out_dir_func(f"{basename}_{pointer.hash}"))
-				if out_file:
-					paths.append(out_file)
-		return paths
 
 	def inject_audio(self, wem_path, wem_id):
 		"""Loads wem audio into the container"""

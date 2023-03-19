@@ -1,3 +1,7 @@
+import logging
+import struct
+
+
 def get_padding_size(size, alignment=16):
 	mod = size % alignment
 	if mod:
@@ -20,3 +24,15 @@ def djb2(s):
 		n = ((n << 5) + n) + ord(x)
 	return n & 0xFFFFFFFF
 
+
+def fmt_hash(id_hash):
+	return "".join([f"{b:02X}" for b in struct.pack("<I", id_hash)])
+
+
+class DummySignal:
+
+	def emit(self, val):
+		logging.debug(f"Emitted {val}")
+
+	def connect(self, func):
+		pass

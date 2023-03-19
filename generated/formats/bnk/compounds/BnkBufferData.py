@@ -24,13 +24,13 @@ class BnkBufferData(BaseStruct):
 		self.size_b = 0
 
 		# 1, guess
-		self.buffer_count = 0
+		self.external_aux_b_count = 0
 
 		# 1 for PC, 2 for PZ, JWE1, 6 for ZTUAC
-		self.count_2 = 0
+		self.total_aux_count = 0
 
 		# variable
-		self.stream_info_count = 0
+		self.streams_count = 0
 
 		# 0
 		self.zeros = Array(self.context, 0, None, (0,), Uint)
@@ -39,7 +39,7 @@ class BnkBufferData(BaseStruct):
 		self.zeros_per_buffer = Array(self.context, 0, None, (0,), Uint64)
 
 		# data
-		self.stream_infos = Array(self.context, 0, None, (0,), StreamInfo)
+		self.streams = Array(self.context, 0, None, (0,), StreamInfo)
 
 		# data
 		self.name = ''
@@ -54,12 +54,12 @@ class BnkBufferData(BaseStruct):
 
 	_attribute_list = BaseStruct._attribute_list + [
 		('size_b', Uint64, (0, None), (False, None), None),
-		('buffer_count', Uint, (0, None), (False, None), None),
-		('count_2', Uint, (0, None), (False, None), None),
-		('stream_info_count', Uint, (0, None), (False, None), None),
+		('external_aux_b_count', Uint, (0, None), (False, None), None),
+		('total_aux_count', Uint, (0, None), (False, None), None),
+		('streams_count', Uint, (0, None), (False, None), None),
 		('zeros', Array, (0, None, (7,), Uint), (False, None), None),
 		('zeros_per_buffer', Array, (0, None, (None, 2,), Uint64), (False, None), None),
-		('stream_infos', Array, (0, None, (None,), StreamInfo), (False, None), None),
+		('streams', Array, (0, None, (None,), StreamInfo), (False, None), None),
 		('name', ZString, (0, None), (False, None), None),
 		('external_b_suffix', ZString, (0, None), (False, None), True),
 		('external_s_suffix', ZString, (0, None), (False, None), True),
@@ -69,14 +69,14 @@ class BnkBufferData(BaseStruct):
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'size_b', Uint64, (0, None), (False, None)
-		yield 'buffer_count', Uint, (0, None), (False, None)
-		yield 'count_2', Uint, (0, None), (False, None)
-		yield 'stream_info_count', Uint, (0, None), (False, None)
+		yield 'external_aux_b_count', Uint, (0, None), (False, None)
+		yield 'total_aux_count', Uint, (0, None), (False, None)
+		yield 'streams_count', Uint, (0, None), (False, None)
 		yield 'zeros', Array, (0, None, (7,), Uint), (False, None)
-		yield 'zeros_per_buffer', Array, (0, None, (instance.buffer_count, 2,), Uint64), (False, None)
-		yield 'stream_infos', Array, (0, None, (instance.stream_info_count,), StreamInfo), (False, None)
+		yield 'zeros_per_buffer', Array, (0, None, (instance.external_aux_b_count, 2,), Uint64), (False, None)
+		yield 'streams', Array, (0, None, (instance.streams_count,), StreamInfo), (False, None)
 		yield 'name', ZString, (0, None), (False, None)
-		if instance.buffer_count:
+		if instance.external_aux_b_count:
 			yield 'external_b_suffix', ZString, (0, None), (False, None)
-		if instance.stream_info_count:
+		if instance.streams_count:
 			yield 'external_s_suffix', ZString, (0, None), (False, None)

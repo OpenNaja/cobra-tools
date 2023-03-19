@@ -6,6 +6,7 @@ import traceback
 import logging
 import tempfile
 
+from modules.formats.shared import fmt_hash
 
 try:
 	import numpy as np
@@ -40,7 +41,7 @@ class MainWindow(widgets.MainWindow):
 
 		self.file_widget = widgets.FileWidget(self, self.cfg, dtype="BNK")
 
-		header_names = ["Name", "File Type", "djb2"]
+		header_names = ["Name", "File Type", "File Size"]
 
 		# create the table
 		self.files_container = widgets.SortableTable(header_names, ())
@@ -55,15 +56,9 @@ class MainWindow(widgets.MainWindow):
 		hbox.addWidget(self.files_container)
 		right_frame.setLayout(hbox)
 
-		self.splitter = QtWidgets.QSplitter(QtCore.Qt.Horizontal)
-		# self.splitter.addWidget(self.dirs_container)
-		self.splitter.addWidget(right_frame)
-		self.splitter.setSizes([200, 400])
-		self.splitter.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
-
 		self.qgrid = QtWidgets.QGridLayout()
 
-		self.qgrid.addWidget(self.splitter, 5, 0, 1, 5)
+		self.qgrid.addWidget(right_frame, 5, 0, 1, 5)
 		self.qgrid.addWidget(self.p_action, 6, 0, 1, 5)
 		self.qgrid.addWidget(self.t_action, 7, 0, 1, 5)
 
@@ -82,45 +77,19 @@ class MainWindow(widgets.MainWindow):
 		)
 		self.add_to_menu(button_data)
 
-	def extract_audio(self, out_dir):
+	def extract_audio(self, out_dir, hashes=()):
 		out_files = []
 
 		def out_dir_func(n):
 			"""Helper function to generate temporary output file name"""
 			return os.path.normpath(os.path.join(out_dir, n))
-		# alternatively, bnk_name from bnk header
-		bnk_dir, bnk_name = os.path.split(self.file_widget.filepath)
-		bnk_name_bare = os.path.splitext(bnk_name)[0]
-		for suffix in ("s", "b"):
-			# no way of knowing the ovl prefix here
-			ovl_basename = ""
-			end_str = f"{ovl_basename}_{bnk_name_bare}_bnk_{suffix}.aux"
-			logging.info(f"Looking for {end_str} in {bnk_dir}")
-			aux_file_names = [f for f in os.listdir(bnk_dir) if f.lower().endswith(end_str)]
-			print(os.listdir(bnk_dir))
-			print(aux_file_names)
-			# aux_path = os.path.join(bnk_dir, f"{ovl_basename}_{bnk_name}_bnk_{suffix}.aux")
-			if not aux_file_names:
-				logging.warning(f"AUX file expected in {bnk_dir}!")
-				continue
-			if len(aux_file_names) > 1:
-				logging.warning(f"Multiple aux files qualified!")
-			aux_file_name = aux_file_names[0]
-			aux_file_name_bare = os.path.splitext(aux_file_name)[0]
-			aux_path = os.path.join(bnk_dir, aux_file_name)
-			if suffix == "s":
-				with open(aux_path, "rb") as f:
-					for i, stream_info in enumerate(self.bnk_file.bnk_header.stream_infos):
-						self.update_progress("Extracting stream", value=i, vmax=len(self.bnk_file.bnk_header.stream_infos))
-						f.seek(stream_info.offset)
-						d = f.read(stream_info.size)
-						out_file = write_riff_file(d, out_dir_func(f"{aux_file_name_bare}_{i}"))
-						if out_file:
-							out_files.append(out_file)
-			if suffix == "b":
-				aux = AuxFile()
-				aux.load(aux_path)
-				out_files.extend(aux.extract_audio(out_dir_func, aux_file_name_bare, self.update_progress))
+		if not hashes:
+			hashes = self.bnk_file.data_map.keys()
+		for id_hash in hashes:
+			data = self.bnk_file.data_map[id_hash]
+			out_file = write_riff_file(data, out_dir_func(f"{self.bnk_file.aux_s_name_bare}_{id_hash}"))
+			if out_file:
+				out_files.append(out_file)
 		return out_files
 
 	def inject_wem(self, wem_file_paths):
@@ -168,13 +137,13 @@ class MainWindow(widgets.MainWindow):
 		drag = QtGui.QDrag(self)
 		temp_dir = tempfile.mkdtemp("-cobra")
 		try:
-			out_paths, errors = self.bnk_file.extract(temp_dir, only_names=file_names, show_temp_files=self.show_temp_files)
+			out_paths = self.extract_audio(temp_dir, file_names)
 
 			data = QtCore.QMimeData()
 			data.setUrls([QtCore.QUrl.fromLocalFile(path) for path in out_paths])
 			drag.setMimeData(data)
 			drag.exec_()
-			logging.info(f"Tried to extract {len(file_names)} files, got {len(errors)} errors")
+			logging.info(f"Tried to extract {len(file_names)} files")
 		except:
 			self.handle_error("Extraction failed, see log!")
 		shutil.rmtree(temp_dir)
@@ -185,6 +154,11 @@ class MainWindow(widgets.MainWindow):
 			try:
 				self.bnk_file.load(self.file_widget.filepath)
 				print(self.bnk_file)
+				f_list = [(fmt_hash(stream_info.event_id), "s", stream_info.size) for stream_info in self.bnk_file.bnk_header.streams]
+				if self.bnk_file.aux_b and self.bnk_file.aux_b.didx:
+					f_list.extend([(pointer.hash, "b", pointer.wem_filesize) for pointer in self.bnk_file.aux_b.didx.data_pointers])
+				f_list.sort(key=lambda t: (t[1], t[0]))
+				self.files_container.set_data(f_list)
 			except:
 				self.handle_error("Loading failed, see log!")
 				print(self.bnk_file)

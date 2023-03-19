@@ -1,8 +1,10 @@
 import logging
 import os
 import shutil
+from io import BytesIO
 
 from generated.formats.bnk import BnkFile
+from generated.formats.bnk.compounds.BnkBufferData import BnkBufferData
 from modules.formats.BaseFormat import BaseFile
 
 
@@ -50,27 +52,25 @@ class BnkLoader(BaseFile):
 		out_path = out_dir(self.name)
 		out_files = [out_path, ]
 		buffer_datas = self.data_entry.buffer_datas
+		main_buffer = buffer_datas[0]
 		with open(out_path, "wb") as f:
 			f.write(self.pack_header(b"BNK"))
-			f.write(buffer_datas[0])
-		# logging.debug(f"Num buffers {len(buffer_datas)}")
-		# for i, buffer_data in enumerate(buffer_datas):
-		# 	logging.debug(f"buffer {i}, size {len(buffer_data)}")
+			f.write(main_buffer)
 
-		# first read the bnk file which informs of any streams
-		bnk = BnkFile()
-		bnk.load(out_path)
-		# print(bnk)
+		# only needed to assert validity of aux stream mapping
+		# with BytesIO(main_buffer) as stream:
+		# 	bnk_header = BnkBufferData.from_stream(stream, self.context)
+
 		# ensure that aux files are where they should be
 		for aux_suffix in self.aux_entries:
 			aux_suffix = aux_suffix.lower()
-			if aux_suffix == "b":
-				assert bnk.bnk_header.external_b_suffix.lower() == "b"
-			elif aux_suffix == "s":
-				assert bnk.bnk_header.external_s_suffix.lower() == "s"
-			else:
-				logging.warning(f"Unknown .aux suffix '{aux_suffix}'")
-				continue
+			# if aux_suffix == "b":
+			# 	assert bnk_header.external_b_suffix.lower() == "b"
+			# elif aux_suffix == "s":
+			# 	assert bnk_header.external_s_suffix.lower() == "s"
+			# else:
+			# 	logging.warning(f"Unknown .aux suffix '{aux_suffix}'")
+			# 	continue
 			aux_name = f"{self.ovl.basename}_{bnk_name}_bnk_{aux_suffix}.aux"
 			aux_path = os.path.join(self.ovl.dir, aux_name)
 			if not os.path.isfile(aux_path):
@@ -80,13 +80,12 @@ class BnkLoader(BaseFile):
 			shutil.copy(aux_path, copy_aux_path)
 			out_files.append(copy_aux_path)
 
-		# check if an aux 'file' is stored as second buffer
+		# check if an aux 'file' is stored as second buffer in ovl
 		if len(buffer_datas) > 1:
 			# always type b
 			aux_name = f"{self.ovl.basename}_{bnk_name}_bnk_b.aux"
 			# extract to tmp path
 			aux_path = out_dir(aux_name)
-			# only internal aux will be in extracted output
 			logging.debug(f"Extracted internal .aux to {aux_path}")
 			out_files.append(aux_path)
 			with open(aux_path, "wb") as f:
