@@ -62,19 +62,19 @@ class BnkLoader(BaseFile):
 		bnk.load(out_path)
 		# print(bnk)
 		# ensure that aux files are where they should be
-		for aux_file in self.aux_entries:
-			aux_suffix = aux_file.name.lower()
+		for aux_suffix in self.aux_entries:
+			aux_suffix = aux_suffix.lower()
 			if aux_suffix == "b":
 				assert bnk.bnk_header.external_b_suffix.lower() == "b"
 			elif aux_suffix == "s":
 				assert bnk.bnk_header.external_s_suffix.lower() == "s"
 			else:
-				logging.warning(f"Unknown .aux suffix '{aux_file.name}'")
+				logging.warning(f"Unknown .aux suffix '{aux_suffix}'")
 				continue
 			aux_name = f"{self.ovl.basename}_{bnk_name}_bnk_{aux_suffix}.aux"
 			aux_path = os.path.join(self.ovl.dir, aux_name)
 			if not os.path.isfile(aux_path):
-				logging.error(f"External .aux file '{aux_file.name}' was not found at {aux_path}")
+				logging.error(f"External .aux file '{aux_suffix}' was not found at {aux_path}")
 			# copy to tmp path so we leave the original file intact
 			copy_aux_path = out_dir(aux_name)
 			shutil.copy(aux_path, copy_aux_path)
