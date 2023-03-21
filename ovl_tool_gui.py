@@ -178,6 +178,7 @@ class MainWindow(widgets.MainWindow):
 
 		self.extract_types_combo = widgets.CheckableComboBox()
 		self.extract_types_combo.addItems(self.ovl_data.formats_dict.extractables)
+		self.extract_types_combo.setToolTip("Select file formats processed by batch tasks")
 
 		self.t_mesh_ovl = QtWidgets.QCheckBox("Mesh OVL Mode")
 		self.t_mesh_ovl.setToolTip("Renames only MS2, MDL2 and MOTIONGRAPH files.")
@@ -200,8 +201,8 @@ class MainWindow(widgets.MainWindow):
 		self.splitter.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
 
 		self.qgrid = QtWidgets.QGridLayout()
-		self.qgrid.addWidget(self.e_name_old, 0, 0, 3, 1)
-		self.qgrid.addWidget(self.e_name_new, 0, 1, 3, 1)
+		self.qgrid.addWidget(self.e_name_old, 0, 0, 4, 1)
+		self.qgrid.addWidget(self.e_name_new, 0, 1, 4, 1)
 
 		self.qgrid.addWidget(self.t_mesh_ovl, 0, 3)
 		self.qgrid.addWidget(self.t_in_folder, 1, 3)
