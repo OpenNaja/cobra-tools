@@ -219,6 +219,16 @@ class MainWindow(widgets.MainWindow):
 		self.qgrid.addWidget(self.p_action, 6, 0, 1, 5)
 		self.qgrid.addWidget(self.t_action, 7, 0, 1, 5)
 
+		# log to text box
+		self.logTextBox = widgets.QTextEditLogger(self)
+		self.logTextBox.setFormatter(
+			logging.Formatter(
+			'%(asctime)s %(levelname)s %(module)s %(funcName)s %(message)s'))
+		logging.getLogger().addHandler(self.logTextBox)
+		logging.getLogger().setLevel(self.cfg["logger_level"] if hasattr(self.cfg, 'logger_level') else logging.DEBUG)
+		self.qgrid.addWidget(self.logTextBox.widget, 8, 0, 3, 5)
+		self.logTextBox.widget.hide()
+
 		self.central_widget.setLayout(self.qgrid)
 
 		main_menu = self.menuBar()
@@ -256,9 +266,20 @@ class MainWindow(widgets.MainWindow):
 		self.t_walk_ovl.setCheckable(True)
 		self.t_walk_ovl.setChecked(False)
 		self.t_walk_ovl.setVisible(self.dev_mode)
+
+		# add checkbox to extract from ovls for the diff walkers
+		self.t_logger = QtWidgets.QAction("Show log console")
+		self.t_logger.setToolTip("Show/hide the dev log console.")
+		self.t_logger.setCheckable(True)
+		logger_show = self.cfg.get("logger_show", None)
+		self.t_logger.setChecked(logger_show)
+		self.t_logger.triggered.connect(self.logger_show)
+		self.logger_show()
+
 		separator_action = self.actions['generate hash table']
 		# we are not adding this to the action list, shall we?
 		util_menu.insertAction(separator_action, self.t_walk_ovl)
+		util_menu.insertAction(separator_action, self.t_logger)
 		util_menu.insertSeparator(separator_action)
 
 		self.check_version()
@@ -266,7 +287,7 @@ class MainWindow(widgets.MainWindow):
 		self.populate_game_widget()
 		self.game_changed()
 
-		log_level = self.cfg.get("log_level", None)
+		log_level = self.cfg.get("logger_level", None)
 		if log_level:
 			self.log_level_choice.entry.setText(log_level)
 			self.log_level_changed(log_level)
@@ -282,6 +303,14 @@ class MainWindow(widgets.MainWindow):
 		msg = msg_list[0]
 		details = msg_list[1] if len(msg_list) > 1 else None
 		interaction.showdialog(msg, details=details)
+
+	def logger_show(self):
+		show = self.t_logger.isChecked()
+		self.cfg["logger_show"] = show
+		if show:
+			self.logTextBox.widget.show()
+		else:
+			self.logTextBox.widget.hide()
 
 	def enable_gui_options(self, enable=True):
 		self.t_in_folder.setEnabled(enable)
@@ -483,7 +512,7 @@ class MainWindow(widgets.MainWindow):
 
 	def log_level_changed(self, level):
 		cmd_logger.setLevel(level)
-		self.cfg["log_level"] = level
+		self.cfg["logger_level"] = level
 
 	@property
 	def show_temp_files(self, ):
