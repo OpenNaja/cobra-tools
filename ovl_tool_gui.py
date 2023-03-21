@@ -198,9 +198,12 @@ class MainWindow(widgets.MainWindow):
 		self.qgrid.addWidget(self.e_name_old, 0, 0, 3, 1)
 		self.qgrid.addWidget(self.e_name_new, 0, 1, 3, 1)
 
-		self.qgrid.addWidget(self.t_show_temp_files, 0, 3)
-		self.qgrid.addWidget(self.t_in_folder, 2, 3)
-		self.qgrid.addWidget(self.t_mesh_ovl, 1, 3)
+		self.qgrid.addWidget(self.t_mesh_ovl, 0, 3)
+		self.qgrid.addWidget(self.t_in_folder, 1, 3)
+		if self.dev_mode:
+			self.qgrid.addWidget(self.t_show_temp_files, 2, 3)
+		self.t_show_temp_files.setVisible(self.dev_mode)
+
 		self.qgrid.addWidget(self.game_choice, 0, 4, )
 		self.qgrid.addWidget(self.compression_choice, 1, 4, )
 		self.qgrid.addWidget(self.extract_types_combo, 2, 4, )
@@ -228,10 +231,10 @@ class MainWindow(widgets.MainWindow):
 			(edit_menu, "Rename Contents", self.rename_contents, "CTRL+SHIFT+R", ""),
 			(edit_menu, "Rename Both", self.rename_both, "CTRL+ALT+R", ""),
 			(edit_menu, "Remove Selected", self.remove, "DEL", ""),
-			(util_menu, "Inspect Models", self.inspect_models, "", ""),
-			(util_menu, "Inspect FGMs", self.walker_fgm, "", ""),
+			(util_menu, "Inspect Models", self.inspect_models, "", "", True),
+			(util_menu, "Inspect FGMs", self.walker_fgm, "", "", True),
 			(util_menu, "Generate Hash Table", self.walker_hash, "", ""),
-			(util_menu, "Dump Debug Data", self.dump_debug_data, "", "dump_debug"),
+			(util_menu, "Dump Debug Data", self.dump_debug_data, "", "dump_debug", True),
 			(util_menu, "Open Tools Dir", self.open_tools_dir, "", "home"),
 			(util_menu, "Export File List", self.save_file_list, "", ""),
 			(util_menu, "Export included ovl list", self.save_included_ovls, "", ""),
@@ -245,6 +248,7 @@ class MainWindow(widgets.MainWindow):
 		self.t_walk_ovl.setToolTip("Extract from OVLS when doing bulk operations: fgm or ms2.")
 		self.t_walk_ovl.setCheckable(True)
 		self.t_walk_ovl.setChecked(False)
+		self.t_walk_ovl.setVisible(self.dev_mode)
 		separator_action = self.actions['generate hash table']
 		# we are not adding this to the action list, shall we?
 		util_menu.insertAction(separator_action, self.t_walk_ovl)

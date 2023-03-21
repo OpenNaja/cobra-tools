@@ -1270,16 +1270,21 @@ class MainWindow(QtWidgets.QMainWindow):
 		webbrowser.open("https://github.com/OpenNaja/cobra-tools/wiki", new=2)
 
 	def add_to_menu(self, button_data):
-		for submenu, action_name, func, shortcut, icon_name in button_data:
-			action = QtWidgets.QAction(action_name, self)
-			if icon_name:
-				icon = get_icon(icon_name)
-				action.setIcon(icon)
-			action.triggered.connect(func)
-			if shortcut:
-				action.setShortcut(shortcut)
-			self.actions[action_name.lower()] = action
-			submenu.addAction(action)
+		for btn in button_data:
+			self._add_to_menu(*btn)
+
+	def _add_to_menu(self, submenu, action_name, func, shortcut, icon_name, only_dev_mode=False):
+		if only_dev_mode and not self.dev_mode:
+			return
+		action = QtWidgets.QAction(action_name, self)
+		if icon_name:
+			icon = get_icon(icon_name)
+			action.setIcon(icon)
+		action.triggered.connect(func)
+		if shortcut:
+			action.setShortcut(shortcut)
+		self.actions[action_name.lower()] = action
+		submenu.addAction(action)
 
 	def handle_error(self, msg):
 		"""Warn user with popup msg and write msg + exception traceback to log"""
