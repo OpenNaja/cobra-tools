@@ -631,6 +631,7 @@ class RelativePathCombo(EditCombo):
 		if urls:
 			self.decide_add(str(urls[0].path())[1:])
 
+
 class LabelCombo(QtWidgets.QWidget):
 	def __init__(self, name, options, link_inst=None, link_attr=None):
 		QtWidgets.QWidget.__init__(self, )

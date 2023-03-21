@@ -103,6 +103,7 @@ def logging_setup(log_name):
 	file_handler.setFormatter(formatter)
 	logger.addHandler(file_handler)
 	logger.addHandler(stdout_handler)
+	return stdout_handler
 
 
 def get_version():

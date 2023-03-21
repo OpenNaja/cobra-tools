@@ -60,7 +60,7 @@ try:
 	from PyQt5 import QtWidgets, QtGui, QtCore
 	from ovl_util.config import logging_setup, get_version_str, get_commit_str
 
-	logging_setup("ovl_tool_gui")
+	cmd_logger = logging_setup("ovl_tool_gui")
 
 	logging.info(f"Running python {sys.version}")
 	logging.info(f"Running imageio {imageio.__version__}")
@@ -106,6 +106,11 @@ class MainWindow(widgets.MainWindow):
 		# only listen to user changes
 		self.compression_choice.entry.textActivated.connect(self.compression_changed)
 		self.compression_choice.entry.setEditable(False)
+
+		self.log_level_choice = widgets.LabelCombo("Log Level:", ("DEBUG", "INFO", "WARNING", "ERROR"))
+		self.log_level_choice.entry.textActivated.connect(self.log_level_changed)
+		self.log_level_choice.entry.setEditable(False)
+		self.log_level_choice.setToolTip("Defines how much information is shown in the console window")
 
 		self.installed_games_view = widgets.GamesCombo(self)
 		self.installed_games_view.setToolTip("Select game for easy access below")
@@ -204,9 +209,10 @@ class MainWindow(widgets.MainWindow):
 			self.qgrid.addWidget(self.t_show_temp_files, 2, 3)
 		self.t_show_temp_files.setVisible(self.dev_mode)
 
-		self.qgrid.addWidget(self.game_choice, 0, 4, )
-		self.qgrid.addWidget(self.compression_choice, 1, 4, )
-		self.qgrid.addWidget(self.extract_types_combo, 2, 4, )
+		self.qgrid.addWidget(self.game_choice, 0, 4)
+		self.qgrid.addWidget(self.compression_choice, 1, 4)
+		self.qgrid.addWidget(self.log_level_choice, 2, 4)
+		self.qgrid.addWidget(self.extract_types_combo, 3, 4)
 
 		self.qgrid.addWidget(self.splitter, 5, 0, 1, 5)
 		self.qgrid.addWidget(self.p_action, 6, 0, 1, 5)
@@ -258,6 +264,11 @@ class MainWindow(widgets.MainWindow):
 		# run once here to make sure we catch the default game
 		self.populate_game_widget()
 		self.game_changed()
+
+		log_level = self.cfg.get("log_level", None)
+		if log_level:
+			self.log_level_choice.entry.setText(log_level)
+			self.log_level_changed(log_level)
 		# do these at the end to make sure their requirements have been initialized
 		self.ovl_data.files_list.connect(self.update_files_ui)
 		self.ovl_data.warning_msg.connect(self.notify_user)
@@ -468,6 +479,10 @@ class MainWindow(widgets.MainWindow):
 		compression = self.compression_choice.entry.currentText()
 		compression_value = Compression[compression]
 		self.ovl_data.user_version.compression = compression_value
+
+	def log_level_changed(self, level):
+		cmd_logger.setLevel(level)
+		self.cfg["log_level"] = level
 
 	@property
 	def show_temp_files(self, ):
