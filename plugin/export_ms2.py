@@ -22,8 +22,6 @@ from plugin.utils.matrix_util import evaluate_mesh, ensure_tri_modifier
 from plugin.utils.shell import get_collection, is_shell, is_fin, num_fur_as_weights, is_fin_mat, is_shell_mat
 from root_path import root_dir
 
-mesh_mode = os.path.isdir(os.path.join(root_dir, ".git"))
-
 
 def has_objects_in_scene(scene):
 	if scene.objects:
@@ -71,9 +69,6 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 	# register this format for all vert chunks that will be created later
 	if mesh.context.biosyn:
 		mesh.mesh_format = MeshFormat[b_me.cobra.mesh_format]
-		# if not mesh_mode:
-		# 	if mesh.mesh_format == MeshFormat.SEPARATE:
-		# 		raise NedryError()
 	mesh.update_dtype()
 	num_uvs = mesh.get_uv_count()
 	num_vcols = mesh.get_vcol_count()

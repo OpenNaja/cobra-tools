@@ -1249,8 +1249,10 @@ class MainWindow(QtWidgets.QMainWindow):
 		self.t_action_current_message = "No operation in progress"
 		self.t_action = QtWidgets.QLabel(self, text=self.t_action_current_message)
 
+		self.dev_mode = os.path.isdir(os.path.join(root_dir, ".git"))
+		dev_str = " DEVELOPER MODE" if self.dev_mode else ""
 		self.statusBar = QtWidgets.QStatusBar()
-		label = QtWidgets.QLabel(f"Cobra Tools Version {get_commit_str()}")
+		label = QtWidgets.QLabel(f"Cobra Tools Version {get_commit_str()}{dev_str}")
 		self.statusBar.addWidget(label)
 		self.statusBar.setContentsMargins(5, 0, 0, 0)
 		self.setStatusBar(self.statusBar)
