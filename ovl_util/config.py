@@ -98,12 +98,13 @@ def logging_setup(log_name):
 	stdout_handler = logging.StreamHandler(sys.stdout)
 	stdout_handler.setLevel(logging.INFO)
 	stdout_handler.setFormatter(colored_formatter)
+	# always write all levels to debug log
 	file_handler = logging.FileHandler(log_path, mode="w")
 	file_handler.setLevel(logging.DEBUG)
 	file_handler.setFormatter(formatter)
 	logger.addHandler(file_handler)
 	logger.addHandler(stdout_handler)
-	return logger
+	return stdout_handler
 
 
 def get_version():

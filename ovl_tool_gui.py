@@ -60,7 +60,7 @@ try:
 	from PyQt5 import QtWidgets, QtGui, QtCore
 	from ovl_util.config import logging_setup, get_version_str, get_commit_str
 
-	cmd_logger = logging_setup("ovl_tool_gui")
+	stdout_handler = logging_setup("ovl_tool_gui")
 
 	logging.info(f"Running python {sys.version}")
 	logging.info(f"Running imageio {imageio.__version__}")
@@ -220,14 +220,12 @@ class MainWindow(widgets.MainWindow):
 		self.qgrid.addWidget(self.t_action, 7, 0, 1, 5)
 
 		# log to text box
-		self.logTextBox = widgets.QTextEditLogger(self)
-		self.logTextBox.setFormatter(
-			logging.Formatter(
-			'%(asctime)s %(levelname)s %(module)s %(funcName)s %(message)s'))
-		logging.getLogger().addHandler(self.logTextBox)
-		logging.getLogger().setLevel(self.cfg["logger_level"] if hasattr(self.cfg, 'logger_level') else logging.DEBUG)
-		self.qgrid.addWidget(self.logTextBox.widget, 8, 0, 3, 5)
-		self.logTextBox.widget.hide()
+		self.gui_log_handler = widgets.QTextEditLogger(self)
+		self.gui_log_handler.setFormatter(logging.Formatter('%(asctime)s %(levelname)s %(module)s %(funcName)s %(message)s'))
+		root_logger = logging.getLogger()
+		root_logger.addHandler(self.gui_log_handler)
+		self.qgrid.addWidget(self.gui_log_handler.widget, 8, 0, 3, 5)
+		self.gui_log_handler.widget.hide()
 
 		self.central_widget.setLayout(self.qgrid)
 
@@ -308,9 +306,9 @@ class MainWindow(widgets.MainWindow):
 		show = self.t_logger.isChecked()
 		self.cfg["logger_show"] = show
 		if show:
-			self.logTextBox.widget.show()
+			self.gui_log_handler.widget.show()
 		else:
-			self.logTextBox.widget.hide()
+			self.gui_log_handler.widget.hide()
 
 	def enable_gui_options(self, enable=True):
 		self.t_in_folder.setEnabled(enable)
@@ -511,7 +509,8 @@ class MainWindow(widgets.MainWindow):
 		self.ovl_data.user_version.compression = compression_value
 
 	def log_level_changed(self, level):
-		cmd_logger.setLevel(level)
+		self.gui_log_handler.setLevel(level)
+		stdout_handler.setLevel(level)
 		self.cfg["logger_level"] = level
 
 	@property
