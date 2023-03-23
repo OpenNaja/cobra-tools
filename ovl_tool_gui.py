@@ -269,10 +269,10 @@ class MainWindow(widgets.MainWindow):
 		self.t_logger = QtWidgets.QAction("Show log console")
 		self.t_logger.setToolTip("Show/hide the dev log console.")
 		self.t_logger.setCheckable(True)
-		logger_show = self.cfg.get("logger_show", None)
+		logger_show = self.cfg.get("logger_show", False)
 		self.t_logger.setChecked(logger_show)
-		self.t_logger.triggered.connect(self.logger_show)
-		self.logger_show()
+		self.t_logger.triggered.connect(self.logger_show_triggered)
+		self.logger_show_triggered()
 
 		separator_action = self.actions['generate hash table']
 		# we are not adding this to the action list, shall we?
@@ -302,7 +302,7 @@ class MainWindow(widgets.MainWindow):
 		details = msg_list[1] if len(msg_list) > 1 else None
 		interaction.showdialog(msg, details=details)
 
-	def logger_show(self):
+	def logger_show_triggered(self):
 		show = self.t_logger.isChecked()
 		self.cfg["logger_show"] = show
 		if show:
