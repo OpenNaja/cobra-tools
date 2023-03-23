@@ -92,7 +92,7 @@ class MeshData(MemStruct):
 		self.shapekeys = None
 		self.read_verts()
 		self.read_tris()
-		# self.validate_tris()
+		self.validate_tris()
 
 	def init_arrays(self):
 		# create arrays for this mesh
@@ -183,10 +183,15 @@ class MeshData(MemStruct):
 		if hasattr(self.flag, "stripify") and self.flag.stripify:
 			return np.flip(triangulate((self.tri_indices,)), axis=-1)
 		else:
-			# create non-overlapping tris from flattened tri indices
-			tris_raw = np.reshape(self.tri_indices, (len(self.tri_indices)//3, 3))
-			# reverse each tri to account for the flipped normals from mirroring in blender
-			return np.flip(tris_raw, axis=-1)
+			try:
+				# create non-overlapping tris from flattened tri indices
+				tris_raw = np.reshape(self.tri_indices, (len(self.tri_indices)//3, 3))
+				# reverse each tri to account for the flipped normals from mirroring in blender
+				return np.flip(tris_raw, axis=-1)
+			except ValueError:
+				logging.exception(f"Reshaping tris failed for {self}, {self.tri_indices}")
+				# raise
+				return ()
 
 	@tris.setter
 	def tris(self, list_of_b_tris):

@@ -61,7 +61,7 @@ class ModelReader(BaseStruct):
 							model_info.model = Model.from_stream(stream, instance.context, model_info)
 						except:
 							logging.exception(f"Failed reading model for model_info {model_info}")
-				logging.debug(f"Model {i} {model_info.model}")
+				# logging.debug(f"Model {i} {model_info.model}")
 				# alignment, not sure if really correct
 				if model_info.increment_flag:
 					model_info.model_padding = stream.read(get_padding_size(stream.tell() - start, alignment=16))
@@ -91,7 +91,7 @@ class ModelReader(BaseStruct):
 			try:
 				model_info.bone_info = self.read_bone_info(stream, i)
 				# logging.info(model_info.bone_info)
-				logging.debug(f"Bone info {i} worked {model_info.bone_info}")
+				# logging.debug(f"Bone info {i} worked {model_info.bone_info}")
 				self.bone_infos.append(model_info.bone_info)
 				# return
 			except:
