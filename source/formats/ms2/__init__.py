@@ -414,7 +414,7 @@ if __name__ == "__main__":
 	# 	# 1024 = 2**10 == 1 = 4 ** 0
 
 	m = Ms2File()
-	m.load("C:/Users/arnfi/Desktop/tapir/bairds_tapir_.ms2", read_editable=True, dump=True)
+	m.load("C:/Users/arnfi/Desktop/models.ms2", read_editable=True, dump=True)
 	print(m)
 	# m.load("C:/Users/arnfi/Desktop/jwe2/pyro/export/models.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/models.ms2", read_editable=True)

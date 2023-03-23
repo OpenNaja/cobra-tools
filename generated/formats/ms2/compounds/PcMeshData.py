@@ -161,7 +161,7 @@ class PcMeshData(MeshData):
 		self.normals[:] = self.verts_data["normal"]
 		self.tangents[:] = self.verts_data["tangent"]
 		unpack_int64_vector(self.verts_data["pos"], self.vertices, self.use_blended_weights)
-		scale_unpack_vectorized(self.vertices, self.base)
+		scale_unpack_vectorized(self.vertices, self.pack_base)
 		unpack_ubyte_vector(self.normals)
 		unpack_ubyte_vector(self.tangents)
 		unpack_swizzle_vectorized(self.vertices)

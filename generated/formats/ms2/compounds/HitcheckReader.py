@@ -44,9 +44,12 @@ class HitcheckReader(BaseStruct):
 
 	@classmethod
 	def get_fields_str(cls, instance, indent=0):
-		s = ''
-		for jointinfo in instance.arg:
-			s += str(jointinfo.hitchecks)
-		return s
+		try:
+			s = ''
+			for jointinfo in instance.arg:
+				s += str(jointinfo.hitchecks)
+			return s
+		except:
+			return "Bad arg?"
 
 

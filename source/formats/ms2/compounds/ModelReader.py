@@ -43,18 +43,29 @@ class ModelReader(BaseStruct):
 			# meh, add it here even though it's really interleaved
 			instance.bone_info_start = stream.tell()
 			for model_info in instance.arg:
-				# logging.debug(model_info)
+				logging.debug(model_info)
 				# instance.get_padding(stream, alignment=8) # 21346
 				# instance.get_padding(stream)
 				# pc alignment
 				# if instance.context.version == 32:
 				# 	model_info.padding = instance.get_padding(stream, alignment=8)
+				s = stream.tell()
 				try:
 					model_info.model = Model.from_stream(stream, instance.context, model_info)
 				except:
 					logging.exception(f"Failed reading model for model_info {model_info}")
 					# logging.warning(model_info.model)
-				# logging.debug(model_info.model)
+				# this little patch solves reading all of PC anubis models
+				if model_info.model.lods:
+					if model_info.model.lods[0].distance != 900.0:
+						logging.warning(f"Distance is wrong")
+						stream.seek(s+8)
+						try:
+							model_info.model = Model.from_stream(stream, instance.context, model_info)
+						except:
+							logging.exception(f"Failed reading model for model_info {model_info}")
+				logging.debug(f"Model {i} {model_info.model}")
+				# PC anubis is still 1 when it bugs
 				# alignment, not sure if really correct
 				if model_info.increment_flag:
 					model_info.model_padding = stream.read(get_padding_size(stream.tell() - start, alignment=16))
@@ -67,7 +78,7 @@ class ModelReader(BaseStruct):
 			for model_info in instance.arg:
 				# logging.debug(model_info)
 				model_info.model = Model.from_stream(stream, instance.context, model_info)
-				# logging.debug(model_info.model)
+				# logging.debug(f"Model {i} {model_info.model}")
 			instance.bone_info_start = stream.tell()
 			for model_info in instance.arg:
 				try:
@@ -83,7 +94,7 @@ class ModelReader(BaseStruct):
 			try:
 				model_info.bone_info = self.read_bone_info(stream, i)
 				# logging.info(model_info.bone_info)
-				# logging.debug(model_info.bone_info)
+				logging.debug(f"Bone info {i} worked {model_info.bone_info}")
 				self.bone_infos.append(model_info.bone_info)
 				# return
 			except:
