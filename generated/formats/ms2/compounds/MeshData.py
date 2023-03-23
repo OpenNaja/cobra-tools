@@ -5,6 +5,7 @@ import numpy as np
 from generated.formats.ms2.compounds.packing_utils import FUR_OVERHEAD, remap
 from plugin.utils.tristrip import triangulate
 
+from generated.formats.base.basic import Uint
 from generated.formats.base.basic import Uint64
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
 from generated.formats.ovl_base.compounds.Pointer import Pointer
@@ -29,6 +30,9 @@ class MeshData(MemStruct):
 		# increments somewhat in ZTUAC platypus, apparently unused from JWE1 onward
 		self.some_index = 0
 
+		# sometimes used in PC track 205
+		self.tri_offset_repeat = 0
+
 		# PZ and JWE use a ptr instead
 		self.stream_info = Pointer(self.context, 0, MeshData._import_map["ms2.compounds.BufferInfo"])
 		if set_default:
@@ -37,7 +41,8 @@ class MeshData(MemStruct):
 	_attribute_list = MemStruct._attribute_list + [
 		('stream_index', Uint64, (0, None), (False, None), True),
 		('stream_info', Pointer, (0, None), (False, None), True),
-		('some_index', Uint64, (0, None), (False, None), True),
+		('some_index', Uint, (0, None), (False, None), True),
+		('tri_offset_repeat', Uint, (0, None), (False, None), True),
 		]
 
 	@classmethod
@@ -48,7 +53,8 @@ class MeshData(MemStruct):
 		if instance.context.version >= 47:
 			yield 'stream_info', Pointer, (0, MeshData._import_map["ms2.compounds.BufferInfo"]), (False, None)
 		if not (((instance.context.version == 51) or (instance.context.version == 52)) and instance.context.biosyn):
-			yield 'some_index', Uint64, (0, None), (False, None)
+			yield 'some_index', Uint, (0, None), (False, None)
+			yield 'tri_offset_repeat', Uint, (0, None), (False, None)
 
 	# @property
 	def get_stream_index(self):

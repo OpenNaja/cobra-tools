@@ -3,6 +3,8 @@ import logging
 import numpy as np
 from generated.formats.ms2.compounds.packing_utils import *
 from plugin.utils.tristrip import triangulate
+import numpy
+from generated.array import Array
 from generated.formats.base.basic import Float
 from generated.formats.base.basic import Uint
 from generated.formats.ms2.bitfields.ModelFlag import ModelFlag
@@ -18,7 +20,7 @@ class PcMeshData(MeshData):
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 
-		# repeat
+		# repeat, unless tri_offset_repeat is nonzero - alternate face set? extra data per face?
 		self.tri_index_count_a = 0
 		self.vertex_count = 0
 
@@ -49,11 +51,8 @@ class PcMeshData(MeshData):
 		# power of 2 increasing with lod index
 		self.poweroftwo = 0
 
-		# always zero
-		self.zero = 0
-
-		# some floats
-		self.unknown_07 = 0.0
+		# some floats, purpose unknown
+		self.unk_floats = Array(self.context, 0, None, (0,), Float)
 
 		# bitfield
 		self.flag = ModelFlag(self.context, 0, None)
@@ -72,8 +71,7 @@ class PcMeshData(MeshData):
 		('vertex_color_offset', Uint, (0, None), (False, None), None),
 		('vertex_offset_within_lod', Uint, (0, None), (False, None), None),
 		('poweroftwo', Uint, (0, None), (False, None), None),
-		('zero', Uint, (0, None), (False, None), None),
-		('unknown_07', Float, (0, None), (False, None), None),
+		('unk_floats', Array, (0, None, (2,), Float), (False, None), None),
 		('flag', ModelFlag, (0, None), (False, None), None),
 		]
 
@@ -91,8 +89,7 @@ class PcMeshData(MeshData):
 		yield 'vertex_color_offset', Uint, (0, None), (False, None)
 		yield 'vertex_offset_within_lod', Uint, (0, None), (False, None)
 		yield 'poweroftwo', Uint, (0, None), (False, None)
-		yield 'zero', Uint, (0, None), (False, None)
-		yield 'unknown_07', Float, (0, None), (False, None)
+		yield 'unk_floats', Array, (0, None, (2,), Float), (False, None)
 		yield 'flag', ModelFlag, (0, None), (False, None)
 
 	def init_arrays(self):

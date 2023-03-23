@@ -37,18 +37,14 @@ class ModelReader(BaseStruct):
 		instance.bone_infos = []
 		logging.debug(f"ModelReader starts at {instance.io_start}")
 		i = 0
+		specials = []
 		if instance.context.version < 47:
 			# start = instance.io_start
 			start = instance.arg.io_start
 			# meh, add it here even though it's really interleaved
 			instance.bone_info_start = stream.tell()
 			for model_info in instance.arg:
-				logging.debug(model_info)
-				# instance.get_padding(stream, alignment=8) # 21346
-				# instance.get_padding(stream)
-				# pc alignment
-				# if instance.context.version == 32:
-				# 	model_info.padding = instance.get_padding(stream, alignment=8)
+				# logging.debug(model_info)
 				s = stream.tell()
 				try:
 					model_info.model = Model.from_stream(stream, instance.context, model_info)
@@ -60,12 +56,12 @@ class ModelReader(BaseStruct):
 					if model_info.model.lods[0].distance != 900.0:
 						logging.warning(f"Distance is wrong")
 						stream.seek(s+8)
+						specials.append(i)
 						try:
 							model_info.model = Model.from_stream(stream, instance.context, model_info)
 						except:
 							logging.exception(f"Failed reading model for model_info {model_info}")
 				logging.debug(f"Model {i} {model_info.model}")
-				# PC anubis is still 1 when it bugs
 				# alignment, not sure if really correct
 				if model_info.increment_flag:
 					model_info.model_padding = stream.read(get_padding_size(stream.tell() - start, alignment=16))
@@ -86,6 +82,7 @@ class ModelReader(BaseStruct):
 				except:
 					traceback.print_exc()
 					raise AttributeError(f"Bone info {i} failed")
+		logging.info(f"Specials {specials}")
 		instance.io_size = stream.tell() - instance.io_start
 
 	def assign_bone_info(self, i, model_info, stream):

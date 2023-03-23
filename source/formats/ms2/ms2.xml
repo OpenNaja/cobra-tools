@@ -248,7 +248,8 @@
 		used for shared functions
 		<add name="stream_index" type="uint64" until="32">index into streamed buffers</add>
 		<add name="stream_info" type="Pointer" template="BufferInfo" since="47">PZ and JWE use a ptr instead</add>
-		<add name="some_index" type="uint64" vercond="!#JWE2_BIO#">increments somewhat in ZTUAC platypus, apparently unused from JWE1 onward</add>
+		<add name="some_index" type="uint" vercond="!#JWE2_BIO#">increments somewhat in ZTUAC platypus, apparently unused from JWE1 onward</add>
+		<add name="tri_offset_repeat" type="uint" vercond="!#JWE2_BIO#">sometimes used in PC track 205</add>
 	</compound>
 
 	<compound name="BioMeshData" inherit="MeshData">
@@ -279,7 +280,7 @@
 	</compound>
 
 	<compound name="PcMeshData" inherit="MeshData">
-		<add name="tri_index_count a" type="uint" >repeat</add>
+		<add name="tri_index_count a" type="uint" >repeat, unless tri_offset_repeat is nonzero - alternate face set? extra data per face?</add>
 		<add name="vertex_count" type="uint" />
 		<add name="tri offset" type="uint">x*16 = offset</add>
 		<add name="tri_index_count" type="uint" >number of index entries in the triangle index list; (not: number of triangles, byte count of tri buffer)</add>
@@ -290,8 +291,7 @@
 		<add name="vertex color offset" type="uint">x*16 = offset</add>
 		<add name="vertex offset within lod" type="uint" >?</add>
 		<add name="poweroftwo" type="uint">power of 2 increasing with lod index</add>
-		<add name="zero" type="uint">always zero</add>
-		<add name="unknown07" type="float">some floats</add>
+		<add name="unk_floats" type="float" arr1="2">some floats, purpose unknown</add>
 		<add name="flag" type="ModelFlag">bitfield</add>
 	</compound>
 

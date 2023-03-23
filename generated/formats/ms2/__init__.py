@@ -415,7 +415,7 @@ if __name__ == "__main__":
 
 	m = Ms2File()
 	m.load("C:/Users/arnfi/Desktop/models.ms2", read_editable=True, dump=True)
-	print(m)
+	# print(m)
 	# m.load("C:/Users/arnfi/Desktop/jwe2/pyro/export/models.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/models.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/pyro/models.ms2", read_editable=True)
