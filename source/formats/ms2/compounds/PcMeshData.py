@@ -13,7 +13,7 @@ class PcMeshData:
 
 	def init_arrays(self):
 		self.vertices = np.empty((self.vertex_count, 3), np.float32)
-		self.use_blended_weights = np.empty(self.vertex_count, np.bool)
+		self.use_blended_weights = np.empty(self.vertex_count, np.uint8)
 		self.normals = np.empty((self.vertex_count, 3), np.float32)
 		self.tangents = np.empty((self.vertex_count, 3), np.float32)
 		try:

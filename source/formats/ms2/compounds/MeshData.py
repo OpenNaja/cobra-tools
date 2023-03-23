@@ -56,8 +56,8 @@ class MeshData:
 		self.vertices = np.empty((self.vertex_count, 3), np.float32)
 		self.normals = np.empty((self.vertex_count, 3), np.float32)
 		self.tangents = np.empty((self.vertex_count, 3), np.float32)
-		self.use_blended_weights = np.empty(self.vertex_count, np.bool)
-		self.shape_residues = np.empty(self.vertex_count, np.bool)
+		self.use_blended_weights = np.empty(self.vertex_count, np.uint8)
+		self.shape_residues = np.empty(self.vertex_count, np.uint8)
 		self.negate_bitangents = np.empty(self.vertex_count, np.uint8)
 		uv_shape = self.dt["uvs"].shape
 		self.uvs = np.empty((self.vertex_count, *uv_shape), np.float32)
@@ -111,9 +111,6 @@ class MeshData:
 		logging.debug(f"Reading {index_count} indices at {self.buffer_info.tris.tell()}")
 		self.tri_indices = np.empty(dtype=np.uint16, shape=index_count)
 		self.buffer_info.tris.readinto(self.tri_indices)
-		# check if there's no empty value left in the array
-		# if len(self.tri_indices) != index_count:
-		# 	raise BufferError(f"{len(self.tri_indices)} were read into tri index buffer, should have {index_count}")
 
 	@property
 	def lod_index(self, ):
