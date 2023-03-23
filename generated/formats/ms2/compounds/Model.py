@@ -8,6 +8,7 @@ from generated.formats.ms2.compounds.MaterialName import MaterialName
 from generated.formats.ms2.compounds.MeshDataWrap import MeshDataWrap
 from generated.formats.ms2.compounds.Object import Object
 from generated.formats.ms2.compounds.ZTPreBones import ZTPreBones
+from generated.formats.ovl_base.compounds.Empty import Empty
 
 
 class Model(BaseStruct):
@@ -18,6 +19,7 @@ class Model(BaseStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
+		self.start_ref = Empty(self.context, 0, None)
 
 		# name pointers for each material
 		self.materials = Array(self.context, 0, None, (0,), MaterialName)
@@ -29,6 +31,7 @@ class Model(BaseStruct):
 		self.objects = Array(self.context, 0, None, (0,), Object)
 
 		# pad to 8 bytes alignment
+		# 
 		# rhino: start of model - end of objects: 124 - 4 bytes padding
 		# ele: start of model - end of objects: 120 - 0 bytes padding
 		self.objects_padding = 0
@@ -45,6 +48,7 @@ class Model(BaseStruct):
 			self.set_defaults()
 
 	_attribute_list = BaseStruct._attribute_list + [
+		('start_ref', Empty, (0, None), (False, None), None),
 		('materials', Array, (0, None, (None,), MaterialName), (False, None), None),
 		('lods', Array, (0, None, (None,), LodInfo), (False, None), None),
 		('objects', Array, (0, None, (None,), Object), (False, None), None),
@@ -58,6 +62,7 @@ class Model(BaseStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
+		yield 'start_ref', Empty, (0, None), (False, None)
 		yield 'materials', Array, (0, None, (instance.arg.num_materials,), MaterialName), (False, None)
 		yield 'lods', Array, (0, None, (instance.arg.num_lods,), LodInfo), (False, None)
 		yield 'objects', Array, (0, None, (instance.arg.num_objects,), Object), (False, None)

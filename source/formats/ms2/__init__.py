@@ -174,7 +174,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 					logging.info(f"Populating mesh {i}")
 					wrapper.mesh.populate(pack_base)
 			except:
-				logging.exception(f"Populating mesh failed")
+				logging.exception(f"Populating mesh failed for model {model_info}, {model_info.model}")
 
 	def name_used(self, new_name):
 		for model_info in self.model_infos:
@@ -415,6 +415,7 @@ if __name__ == "__main__":
 
 	m = Ms2File()
 	m.load("C:/Users/arnfi/Desktop/models.ms2", read_editable=True, dump=True)
+	# m.load("C:/Users/arnfi/Desktop/anubis.ms2", read_editable=True, dump=True)
 	# print(m)
 	# m.load("C:/Users/arnfi/Desktop/jwe2/pyro/export/models.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/models.ms2", read_editable=True)

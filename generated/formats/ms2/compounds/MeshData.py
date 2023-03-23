@@ -209,7 +209,7 @@ class MeshData(MemStruct):
 		# if max_ind >= len(self.verts_data):
 		for max_ind in self.tri_indices:
 			if max_ind >= len(self.verts_data):
-				raise IndexError(f"Tri index {max_ind} does not point into {len(self.verts_data)} vertices")
+				raise IndexError(f"Tri index {max_ind} does not point into {len(self.verts_data)} vertices for {self}")
 		logging.debug("All tri indices are valid")
 
 	def import_fur_as_weights(self, fur):

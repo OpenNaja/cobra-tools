@@ -189,10 +189,12 @@
 	</compound>
 
 	<compound name="Model">
+		<add name="start ref" type="Empty"/>
 		<add name="materials" type="MaterialName" arr1="#ARG#\num_materials" >name pointers for each material</add>
 		<add name="lods" type="LodInfo" arr1="#ARG#\num_lods" >lod info for each level, only present if models are present (despite the count sometimes saying otherwise!)</add>
 		<add name="objects" type="Object" arr1="#ARG#\num_objects" >instantiate the meshes with materials</add>
 		<add name="objects padding" type="uint" cond="(#ARG#\num_materials + #ARG#\num_objects) % 2" until="13" >pad to 8 bytes alignment
+<!--		<add name="mesh padding" type="PadAlign" template="start ref" arg="8" until="32"/>-->
 		rhino: start of model - end of objects: 124 - 4 bytes padding
 		ele: start of model - end of objects: 120 - 0 bytes padding</add>
 		<add name="meshes" type="MeshDataWrap" arr1="#ARG#\num_meshes" >mesh data blocks for this model</add>
