@@ -194,9 +194,9 @@
 		<add name="lods" type="LodInfo" arr1="#ARG#\num_lods" >lod info for each level, only present if models are present (despite the count sometimes saying otherwise!)</add>
 		<add name="objects" type="Object" arr1="#ARG#\num_objects" >instantiate the meshes with materials</add>
 		<add name="objects padding" type="uint" cond="(#ARG#\num_materials + #ARG#\num_objects) % 2" until="13" >pad to 8 bytes alignment
-<!--		<add name="mesh padding" type="PadAlign" template="start ref" arg="8" until="32"/>-->
 		rhino: start of model - end of objects: 124 - 4 bytes padding
 		ele: start of model - end of objects: 120 - 0 bytes padding</add>
+		<add name="mesh aligner" type="PadAlign" template="start ref" arg="8" until="32"/>not sure if this works for ZTUAC, but is good for PC
 		<add name="meshes" type="MeshDataWrap" arr1="#ARG#\num_meshes" >mesh data blocks for this model</add>
 		<add name="pre bones" type="ZTPreBones" vercond="#ZTUAC#" cond="#ARG# \ last_count">?</add>
 		<add name="pre bones" type="DLAPreBones" vercond="#DLA#" cond="#ARG# \ last_count">?</add>
@@ -251,7 +251,7 @@
 		<add name="stream_index" type="uint64" until="32">index into streamed buffers</add>
 		<add name="stream_info" type="Pointer" template="BufferInfo" since="47">PZ and JWE use a ptr instead</add>
 		<add name="some_index" type="uint" vercond="!#JWE2_BIO#">increments somewhat in ZTUAC platypus, apparently unused from JWE1 onward</add>
-		<add name="tri_offset_repeat" type="uint" vercond="!#JWE2_BIO#">sometimes used in PC track 205</add>
+		<add name="some_index_2" type="uint" vercond="!(#JWE2_BIO# #OR# #PC#)">?</add>
 	</compound>
 
 	<compound name="BioMeshData" inherit="MeshData">
@@ -295,6 +295,7 @@
 		<add name="poweroftwo" type="uint">power of 2 increasing with lod index</add>
 		<add name="unk_floats" type="float" arr1="2">some floats, purpose unknown</add>
 		<add name="flag" type="ModelFlag">bitfield</add>
+		<add name="rest" type="uint" >?</add>
 	</compound>
 
 	<compound name="ZtMeshData" inherit="MeshData">

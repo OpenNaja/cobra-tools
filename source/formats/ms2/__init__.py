@@ -173,6 +173,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 				for i, wrapper in enumerate(model_info.model.meshes):
 					logging.info(f"Populating mesh {i}")
 					wrapper.mesh.populate(pack_base)
+				logging.info(f"Populating mesh worked {model_info}, {model_info.model}")
 			except:
 				logging.exception(f"Populating mesh failed for model {model_info}, {model_info.model}")
 

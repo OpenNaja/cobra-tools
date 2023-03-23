@@ -56,6 +56,9 @@ class PcMeshData(MeshData):
 
 		# bitfield
 		self.flag = ModelFlag(self.context, 0, None)
+
+		# ?
+		self.rest = 0
 		if set_default:
 			self.set_defaults()
 
@@ -73,6 +76,7 @@ class PcMeshData(MeshData):
 		('poweroftwo', Uint, (0, None), (False, None), None),
 		('unk_floats', Array, (0, None, (2,), Float), (False, None), None),
 		('flag', ModelFlag, (0, None), (False, None), None),
+		('rest', Uint, (0, None), (False, None), None),
 		]
 
 	@classmethod
@@ -91,6 +95,7 @@ class PcMeshData(MeshData):
 		yield 'poweroftwo', Uint, (0, None), (False, None)
 		yield 'unk_floats', Array, (0, None, (2,), Float), (False, None)
 		yield 'flag', ModelFlag, (0, None), (False, None)
+		yield 'rest', Uint, (0, None), (False, None)
 
 	def init_arrays(self):
 		self.vertices = np.empty((self.vertex_count, 3), np.float32)

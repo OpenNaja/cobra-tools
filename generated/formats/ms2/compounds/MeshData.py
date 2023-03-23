@@ -30,8 +30,8 @@ class MeshData(MemStruct):
 		# increments somewhat in ZTUAC platypus, apparently unused from JWE1 onward
 		self.some_index = 0
 
-		# sometimes used in PC track 205
-		self.tri_offset_repeat = 0
+		# ?
+		self.some_index_2 = 0
 
 		# PZ and JWE use a ptr instead
 		self.stream_info = Pointer(self.context, 0, MeshData._import_map["ms2.compounds.BufferInfo"])
@@ -42,7 +42,7 @@ class MeshData(MemStruct):
 		('stream_index', Uint64, (0, None), (False, None), True),
 		('stream_info', Pointer, (0, None), (False, None), True),
 		('some_index', Uint, (0, None), (False, None), True),
-		('tri_offset_repeat', Uint, (0, None), (False, None), True),
+		('some_index_2', Uint, (0, None), (False, None), True),
 		]
 
 	@classmethod
@@ -54,7 +54,8 @@ class MeshData(MemStruct):
 			yield 'stream_info', Pointer, (0, MeshData._import_map["ms2.compounds.BufferInfo"]), (False, None)
 		if not (((instance.context.version == 51) or (instance.context.version == 52)) and instance.context.biosyn):
 			yield 'some_index', Uint, (0, None), (False, None)
-			yield 'tri_offset_repeat', Uint, (0, None), (False, None)
+		if not ((((instance.context.version == 51) or (instance.context.version == 52)) and instance.context.biosyn) or (instance.context.version == 32)):
+			yield 'some_index_2', Uint, (0, None), (False, None)
 
 	# @property
 	def get_stream_index(self):
