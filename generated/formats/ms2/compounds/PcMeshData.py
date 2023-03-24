@@ -18,7 +18,7 @@ class PcMeshData(MeshData):
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 
-		# repeat, unless tri_offset_repeat is nonzero - alternate face set? extra data per face?
+		# repeat
 		self.tri_index_count_a = 0
 		self.vertex_count = 0
 

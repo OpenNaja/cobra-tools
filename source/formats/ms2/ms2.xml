@@ -279,7 +279,7 @@
 	</compound>
 
 	<compound name="PcMeshData" inherit="MeshData">
-		<add name="tri_index_count a" type="uint" >repeat, unless tri_offset_repeat is nonzero - alternate face set? extra data per face?</add>
+		<add name="tri_index_count a" type="uint" >repeat</add>
 		<add name="vertex_count" type="uint" />
 		<add name="tri offset" type="uint">x*16 = offset</add>
 		<add name="tri_index_count" type="uint" >number of index entries in the triangle index list; (not: number of triangles, byte count of tri buffer)</add>
