@@ -193,10 +193,7 @@
 		<add name="materials" type="MaterialName" arr1="#ARG#\num_materials" >name pointers for each material</add>
 		<add name="lods" type="LodInfo" arr1="#ARG#\num_lods" >lod info for each level, only present if models are present (despite the count sometimes saying otherwise!)</add>
 		<add name="objects" type="Object" arr1="#ARG#\num_objects" >instantiate the meshes with materials</add>
-		<add name="objects padding" type="uint" cond="(#ARG#\num_materials + #ARG#\num_objects) % 2" until="13" >pad to 8 bytes alignment
-		rhino: start of model - end of objects: 124 - 4 bytes padding
-		ele: start of model - end of objects: 120 - 0 bytes padding</add>
-		<add name="mesh aligner" type="PadAlign" template="start ref" arg="8" until="32"/>not sure if this works for ZTUAC, but is good for PC
+		<add name="mesh aligner" type="PadAlign" template="start ref" arg="8" until="32"/>
 		<add name="meshes" type="MeshDataWrap" arr1="#ARG#\num_meshes" >mesh data blocks for this model</add>
 		<add name="pre bones" type="ZTPreBones" vercond="#ZTUAC#" cond="#ARG# \ last_count">?</add>
 		<add name="pre bones" type="DLAPreBones" vercond="#DLA#" cond="#ARG# \ last_count">?</add>
@@ -289,13 +286,14 @@
 		<add name="vertex offset" type="uint" >x*16 = offset</add>
 		<add name="weights offset" type="uint">x*16 = offset</add>
 		<add name="uv offset" type="uint" >x*16 = offset</add>
-		<add name="zero b" type="uint">always zero</add>
+		<add name="zero a" type="uint" default="0"/>
 		<add name="vertex color offset" type="uint">x*16 = offset</add>
 		<add name="vertex offset within lod" type="uint" >?</add>
 		<add name="poweroftwo" type="uint">power of 2 increasing with lod index</add>
-		<add name="unk_floats" type="float" arr1="2">some floats, purpose unknown</add>
+		<add name="zero b" type="uint" default="0"/>
+		<add name="unk_float" type="float"/>
 		<add name="flag" type="ModelFlag">bitfield</add>
-		<add name="rest" type="uint" >?</add>
+		<add name="zero c" type="uint" default="0"/>this may be padding that might not be on the end of an array?
 	</compound>
 
 	<compound name="ZtMeshData" inherit="MeshData">

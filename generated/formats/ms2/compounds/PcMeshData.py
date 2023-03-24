@@ -3,8 +3,6 @@ import logging
 import numpy as np
 from generated.formats.ms2.compounds.packing_utils import *
 from plugin.utils.tristrip import triangulate
-import numpy
-from generated.array import Array
 from generated.formats.base.basic import Float
 from generated.formats.base.basic import Uint
 from generated.formats.ms2.bitfields.ModelFlag import ModelFlag
@@ -38,9 +36,7 @@ class PcMeshData(MeshData):
 
 		# x*16 = offset
 		self.uv_offset = 0
-
-		# always zero
-		self.zero_b = 0
+		self.zero_a = 0
 
 		# x*16 = offset
 		self.vertex_color_offset = 0
@@ -50,15 +46,12 @@ class PcMeshData(MeshData):
 
 		# power of 2 increasing with lod index
 		self.poweroftwo = 0
-
-		# some floats, purpose unknown
-		self.unk_floats = Array(self.context, 0, None, (0,), Float)
+		self.zero_b = 0
+		self.unk_float = 0.0
 
 		# bitfield
 		self.flag = ModelFlag(self.context, 0, None)
-
-		# ?
-		self.rest = 0
+		self.zero_c = 0
 		if set_default:
 			self.set_defaults()
 
@@ -70,13 +63,14 @@ class PcMeshData(MeshData):
 		('vertex_offset', Uint, (0, None), (False, None), None),
 		('weights_offset', Uint, (0, None), (False, None), None),
 		('uv_offset', Uint, (0, None), (False, None), None),
-		('zero_b', Uint, (0, None), (False, None), None),
+		('zero_a', Uint, (0, None), (False, 0), None),
 		('vertex_color_offset', Uint, (0, None), (False, None), None),
 		('vertex_offset_within_lod', Uint, (0, None), (False, None), None),
 		('poweroftwo', Uint, (0, None), (False, None), None),
-		('unk_floats', Array, (0, None, (2,), Float), (False, None), None),
+		('zero_b', Uint, (0, None), (False, 0), None),
+		('unk_float', Float, (0, None), (False, None), None),
 		('flag', ModelFlag, (0, None), (False, None), None),
-		('rest', Uint, (0, None), (False, None), None),
+		('zero_c', Uint, (0, None), (False, 0), None),
 		]
 
 	@classmethod
@@ -89,13 +83,14 @@ class PcMeshData(MeshData):
 		yield 'vertex_offset', Uint, (0, None), (False, None)
 		yield 'weights_offset', Uint, (0, None), (False, None)
 		yield 'uv_offset', Uint, (0, None), (False, None)
-		yield 'zero_b', Uint, (0, None), (False, None)
+		yield 'zero_a', Uint, (0, None), (False, 0)
 		yield 'vertex_color_offset', Uint, (0, None), (False, None)
 		yield 'vertex_offset_within_lod', Uint, (0, None), (False, None)
 		yield 'poweroftwo', Uint, (0, None), (False, None)
-		yield 'unk_floats', Array, (0, None, (2,), Float), (False, None)
+		yield 'zero_b', Uint, (0, None), (False, 0)
+		yield 'unk_float', Float, (0, None), (False, None)
 		yield 'flag', ModelFlag, (0, None), (False, None)
-		yield 'rest', Uint, (0, None), (False, None)
+		yield 'zero_c', Uint, (0, None), (False, 0)
 
 	def init_arrays(self):
 		self.vertices = np.empty((self.vertex_count, 3), np.float32)

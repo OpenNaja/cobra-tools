@@ -1,6 +1,5 @@
 from generated.array import Array
 from generated.base_struct import BaseStruct
-from generated.formats.base.basic import Uint
 from generated.formats.base.compounds.PadAlign import PadAlign
 from generated.formats.ms2.compounds.DLAPreBones import DLAPreBones
 from generated.formats.ms2.compounds.FloatsY import FloatsY
@@ -30,11 +29,6 @@ class Model(BaseStruct):
 
 		# instantiate the meshes with materials
 		self.objects = Array(self.context, 0, None, (0,), Object)
-
-		# pad to 8 bytes alignment
-		# rhino: start of model - end of objects: 124 - 4 bytes padding
-		# ele: start of model - end of objects: 120 - 0 bytes padding
-		self.objects_padding = 0
 		self.mesh_aligner = PadAlign(self.context, 8, self.start_ref)
 
 		# mesh data blocks for this model
@@ -53,7 +47,6 @@ class Model(BaseStruct):
 		('materials', Array, (0, None, (None,), MaterialName), (False, None), None),
 		('lods', Array, (0, None, (None,), LodInfo), (False, None), None),
 		('objects', Array, (0, None, (None,), Object), (False, None), None),
-		('objects_padding', Uint, (0, None), (False, None), True),
 		('mesh_aligner', PadAlign, (8, None), (False, None), True),
 		('meshes', Array, (0, None, (None,), MeshDataWrap), (False, None), None),
 		('pre_bones', ZTPreBones, (0, None), (False, None), True),
@@ -68,8 +61,6 @@ class Model(BaseStruct):
 		yield 'materials', Array, (0, None, (instance.arg.num_materials,), MaterialName), (False, None)
 		yield 'lods', Array, (0, None, (instance.arg.num_lods,), LodInfo), (False, None)
 		yield 'objects', Array, (0, None, (instance.arg.num_objects,), Object), (False, None)
-		if instance.context.version <= 13 and (instance.arg.num_materials + instance.arg.num_objects) % 2:
-			yield 'objects_padding', Uint, (0, None), (False, None)
 		if instance.context.version <= 32:
 			yield 'mesh_aligner', PadAlign, (8, instance.start_ref), (False, None)
 		yield 'meshes', Array, (0, None, (instance.arg.num_meshes,), MeshDataWrap), (False, None)
