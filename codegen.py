@@ -56,7 +56,7 @@ class XmlParser:
         # maps each type to its member tag type
         self.tag_dict = {}
 
-        self.processed_types = {"self.template"}
+        self.processed_types = {"template"}
 
         self.basics = None
 
@@ -216,7 +216,7 @@ class XmlParser:
                 for field in struct:
                     self.apply_convention(field, convention.name_attribute, ("name",))
                     self.apply_convention(field, convention.name_class, ("type", "onlyT", "excludeT"))
-                    self.apply_convention(field, convention.force_bool, ("optional", "abstract"))
+                    self.apply_convention(field, convention.force_bool, ("optional", "abstract", "recursive"))
                     # template can refer to a type of an attribute
                     self.apply_convention(field, convention.format_potential_tuple, ("default",))
                     for default in field:

@@ -166,7 +166,7 @@ class BaseStruct(metaclass=StructMetaClass):
 
     _import_map = ImportMap()
     _import_key = "base_struct"
-    _attribute_list = ()
+    _attribute_list = []
     allow_np = False
 
     def __init__(self, context, arg=0, template=None, set_default=True):

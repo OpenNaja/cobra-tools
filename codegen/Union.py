@@ -43,7 +43,7 @@ class Union:
     def is_ovl_ptr(self):
         """Check if this union is used as an ovl memory pointer"""
         for field in self.members:
-            arg, template, arr1, arr2, conditionals, field_name, field_type, _ = self.get_params(field)
+            arg, template, arr1, arr2, conditionals, field_name, (field_type, field_type_access), _ = self.get_params(field)
             if field_type in ("Pointer", "ArrayPointer", "ForEachPointer"):
                 return True
 
@@ -109,7 +109,11 @@ class Union:
         field_name = field.attrib["name"]
         field_type = field.attrib["type"]
         if field_type == "template":
-            field_type = f'{target_variable}.{field_type}'
+            field_type_access = f'{target_variable}.{field_type}'
+        elif self.compounds.imports.is_recursive_field(field):
+            field_type_access = self.indirect_class_access(field_type)
+        else:
+            field_type_access = field_type
         template = field.attrib.get("template")
         optional = (field.attrib.get("optional", "False"), field.attrib.get("default"))
 
@@ -135,13 +139,13 @@ class Union:
             arr1 = Expression(arr1, target_variable)
         if arr2:
             arr2 = Expression(arr2, target_variable)
-        return arg, template, arr1, arr2, conditionals, field_name, field_type, optional
+        return arg, template, arr1, arr2, conditionals, field_name, (field_type, field_type_access), optional
 
-    def default_to_value(self, default_string, field_type):
+    def default_to_value(self, default_string, field_type, field_type_access):
         if default_string:
             if field_type in self.compounds.parser.path_dict and self.compounds.parser.tag_dict[field_type.lower()] == "enum":
                 default_string = convention.name_enum_key_if_necessary(default_string)
-                return f'{field_type}.{default_string}'
+                return f'{field_type_access}.{default_string}'
             else:
                 if ", " in default_string:
                     # already formatted by format_potential_tuple
@@ -163,16 +167,16 @@ class Union:
                         default_string = repr(default_string)
         return default_string
 
-    def get_default_string(self, default_string, context, arg, template, arr1, field_type):
+    def get_default_string(self, default_string, context, arg, template, arr1, field_type, field_type_access):
         # get the default (or the best guess of it)
         field_type_lower = field_type.lower()
         tag_of_field_type = self.compounds.parser.tag_dict.get(field_type_lower)
         return_type = self.compounds.parser.map_type(field_type, arr1)
-        default_string = self.default_to_value(default_string, field_type)
+        default_string = self.default_to_value(default_string, field_type, field_type_access)
 
         if arr1:
             # init with empty shape to work regardless of condition
-            return f'Array({context}, {arg}, {template}, (0,), {field_type})'
+            return f'Array({context}, {arg}, {template}, (0,), {field_type_access})'
         else:
             if default_string:
                 if return_type in self.compounds.parser.builtin_literals or tag_of_field_type == "enum":
@@ -180,7 +184,7 @@ class Union:
                     return default_string
                 else:
                     # the default sring needs to be converted to an object of the proper type
-                    return f'{field_type}.from_value({default_string})'
+                    return f'{field_type_access}.from_value({default_string})'
             else:
                 # we don't have a specified default, guess one
                 if return_type in self.compounds.parser.builtin_literals:
@@ -188,32 +192,35 @@ class Union:
                     return repr(self.compounds.parser.builtin_literals[return_type])
                 else:
                     # instantiate like a generic type: dtype(context, arg, template)
-                    return f'{field_type}({context}, {arg}, {template})'
+                    return f'{field_type_access}({context}, {arg}, {template})'
 
     def write_init(self, f):
         base_indent = "\t\t"
         debug_strs = []
-        for field in self.members:
+        field_default = None
+        for field in reversed(self.members):
             field_debug_str = convention.clean_comment_str(field.text, indent=base_indent)
-            arg, template, arr1, arr2, conditionals, field_name, field_type, _ = self.get_params(field)
+            arg, template, arr1, arr2, conditionals, field_name, (field_type, field_type_access), _ = self.get_params(field)
+
             if field_debug_str.strip() and field_debug_str not in debug_strs:
                 debug_strs.append(field_debug_str)
 
-        # add every (unique) debug string:
-        for field_debug_str in debug_strs:
-            f.write(field_debug_str)
-        # we init each field with its basic default string so that the field exists regardless of any condition
-        field_default = self.get_default_string(field.attrib.get('default'), f'self.{CONTEXT_SUFFIX}', arg, template,
-                                                arr1, field_type)
+            # we init each field with its basic default string so that the field exists regardless of any condition
+            # by iterating in reverse, we use the last non-recursive field
+            if field_default is None and not self.compounds.imports.is_recursive_field(field):
+                field_default = self.get_default_string(field.attrib.get('default'), f'self.{CONTEXT_SUFFIX}', arg, template,
+                                                        arr1, field_type, field_type_access)
 
-        # do not init types used before their position in the xml - they are assumed to be circular
-        # other option: use it with conditions
-        # if field_type in self.compounds.parser.processed_types:
-        f.write(f'\n{base_indent}self.{field_name} = {field_default}')
+        # add every (unique) debug string:
+        for field_debug_str in reversed(debug_strs):
+            f.write(field_debug_str)
+
+        if field_default is not None:
+            f.write(f'\n{base_indent}self.{field_name} = {field_default}')
 
     def write_attributes(self, f):
         for field in self.members:
-            arg, template, arr1, arr2, conditionals, field_name, field_type, (optional, default) = self.get_params(field, 'x')
+            arg, template, arr1, arr2, conditionals, field_name, (field_type, field_type_access), (optional, default) = self.get_params(field, 'x')
             # replace all non-static values with None for now
             try:
                 arg = int(str(arg), 0)
@@ -223,7 +230,8 @@ class Union:
                 template = None
             if field_type not in self.compounds.parser.path_dict:
                 field_type = None
-            default = self.default_to_value(default, field_type)
+                field_type_access = None
+            default = self.default_to_value(default, field_type, field_type_access)
             if arr1 is None:
                 arguments = f"({arg}, {template})"
             else:
@@ -239,20 +247,20 @@ class Union:
                             dim = None
                         resolved_shape_parts.append(str(dim))
                 shape = f"({', '.join(resolved_shape_parts)},)"
-                arguments = f"({arg}, {template}, {shape}, {field_type})"
-                field_type = "Array"
-            f.write(f"({repr(field_name)}, {field_type}, {arguments}, ({optional}, {default}), {True if conditionals else None}),\n\t\t")
+                arguments = f"({arg}, {template}, {shape}, {field_type_access})"
+                field_type_access = "Array"
+            f.write(f"({repr(field_name)}, {field_type_access}, {arguments}, ({optional}, {default}), {True if conditionals else None}),\n\t\t")
 
     def write_filtered_attributes(self, f, condition, target_variable="self"):
         base_indent = "\n\t\t"
         for field in self.members:
-            arg, template, arr1, arr2, conditionals, field_name, field_type, (optional, default) = self.get_params(field, target_variable, use_abstract=True)
-            default = self.default_to_value(default, field_type)
+            arg, template, arr1, arr2, conditionals, field_name, (field_type, field_type_access), (optional, default) = self.get_params(field, target_variable, use_abstract=True)
+            default = self.default_to_value(default, field_type, field_type_access)
             if arr1 is None:
                 arguments = f"({arg}, {template})"
             else:
-                arguments = f"({arg}, {template}, {self.compounds.parser.arrs_to_tuple(arr1, arr2)}, {field_type})"
-                field_type = "Array"
+                arguments = f"({arg}, {template}, {self.compounds.parser.arrs_to_tuple(arr1, arr2)}, {field_type_access})"
+                field_type_access = "Array"
 
             indent, new_condition = condition_indent(base_indent, conditionals, condition)
             if new_condition:
@@ -278,7 +286,7 @@ class Union:
                         def_condition = f'{indent}el{def_condition}'
                     else:
                         def_condition = f'{indent}{def_condition}'
-                    condition_defaults.append((def_condition, self.default_to_value(default_element.attrib.get("value"), field_type)))
+                    condition_defaults.append((def_condition, self.default_to_value(default_element.attrib.get("value"), field_type, field_type_access)))
                 condition_defaults = condition_defaults[::-1]
             else:
                 condition_defaults = [("", default)]
@@ -289,5 +297,5 @@ class Union:
                     def_indent = f'{indent}\t'
                 else:
                     def_indent = indent
-                f.write(f"{def_indent}yield {repr(field_name)}, {field_type}, {arguments}, ({optional}, {default})")
+                f.write(f"{def_indent}yield {repr(field_name)}, {field_type_access}, {arguments}, ({optional}, {default})")
         return condition
