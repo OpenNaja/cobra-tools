@@ -635,19 +635,20 @@ class RelativePathCombo(EditCombo):
 class LabelCombo(QtWidgets.QWidget):
     def __init__(self, name, options, link_inst=None, link_attr=None):
         QtWidgets.QWidget.__init__(self, )
-        # sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
-        # sizePolicy.setHorizontalStretch(0)
-        # sizePolicy.setVerticalStretch(0)
-        # sizePolicy.setHeightForWidth(self.entry.sizePolicy().hasHeightForWidth())
-        # self.entry.setSizePolicy(sizePolicy)
-        # self.entry.setMaxVisibleItems(10)
         self.label = QtWidgets.QLabel(name)
         self.entry = CleverCombo(options=options, link_inst=link_inst, link_attr=link_attr)
         self.entry.setEditable(True)
-        vbox = QtWidgets.QHBoxLayout(self)
-        vbox.addWidget(self.label)
-        vbox.addWidget(self.entry)
-        vbox.setContentsMargins(0, 0, 0, 0)
+        box = QtWidgets.QHBoxLayout(self)
+        box.addWidget(self.label)
+        box.addWidget(self.entry)
+        box.setContentsMargins(0, 0, 0, 0)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        # # sizePolicy.setHeightForWidth(self.entry.sizePolicy().hasHeightForWidth())
+        self.entry.setSizePolicy(sizePolicy)
+        self.setSizePolicy(sizePolicy)
+        # # self.entry.setMaxVisibleItems(10)
 
 
 class MySwitch(QtWidgets.QPushButton):

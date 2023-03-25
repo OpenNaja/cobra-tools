@@ -168,9 +168,9 @@ class MainWindow(widgets.MainWindow):
 
 		# toggles
 		self.t_show_temp_files = QtWidgets.QCheckBox("Save Temp Files")
-		self.t_show_temp_files.setToolTip(
-			"By default, temporary files are converted to usable ones and back on the fly")
+		self.t_show_temp_files.setToolTip("By default, temporary files are converted to usable ones and back on the fly")
 		self.t_show_temp_files.setChecked(False)
+		self.t_show_temp_files.setVisible(self.dev_mode)
 
 		self.t_in_folder = QtWidgets.QCheckBox("Process Folder")
 		self.t_in_folder.setToolTip("Runs commands on all OVLs of current folder")
@@ -200,34 +200,31 @@ class MainWindow(widgets.MainWindow):
 		self.splitter.setSizes([200, 400])
 		self.splitter.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
 
-		self.qgrid = QtWidgets.QGridLayout()
-		self.qgrid.addWidget(self.e_name_old, 0, 0, 4, 1)
-		self.qgrid.addWidget(self.e_name_new, 0, 1, 4, 1)
+		grid = QtWidgets.QGridLayout()
+		grid.addWidget(self.e_name_old, 0, 0, 4, 1)
+		grid.addWidget(self.e_name_new, 0, 1, 4, 1)
 
-		self.qgrid.addWidget(self.t_mesh_ovl, 0, 3)
-		self.qgrid.addWidget(self.t_in_folder, 1, 3)
-		if self.dev_mode:
-			self.qgrid.addWidget(self.t_show_temp_files, 2, 3)
-		self.t_show_temp_files.setVisible(self.dev_mode)
+		grid.addWidget(self.t_mesh_ovl, 0, 3)
+		grid.addWidget(self.t_in_folder, 1, 3)
+		grid.addWidget(self.t_show_temp_files, 2, 3)
 
-		self.qgrid.addWidget(self.game_choice, 0, 4)
-		self.qgrid.addWidget(self.compression_choice, 1, 4)
-		self.qgrid.addWidget(self.log_level_choice, 2, 4)
-		self.qgrid.addWidget(self.extract_types_combo, 3, 4)
-
-		self.qgrid.addWidget(self.splitter, 5, 0, 1, 5)
-		self.qgrid.addWidget(self.p_action, 6, 0, 1, 5)
-		self.qgrid.addWidget(self.t_action, 7, 0, 1, 5)
+		grid.addWidget(self.game_choice, 0, 4)
+		grid.addWidget(self.compression_choice, 1, 4)
+		grid.addWidget(self.log_level_choice, 2, 4)
+		grid.addWidget(self.extract_types_combo, 3, 3, 1, 2)
 
 		# log to text box
 		self.gui_log_handler = widgets.QTextEditLogger(self)
 		self.gui_log_handler.setFormatter(logging.Formatter('%(asctime)s %(levelname)s %(module)s %(funcName)s %(message)s'))
-		root_logger = logging.getLogger()
-		root_logger.addHandler(self.gui_log_handler)
-		self.qgrid.addWidget(self.gui_log_handler.widget, 8, 0, 3, 5)
-		self.gui_log_handler.widget.hide()
+		logging.getLogger().addHandler(self.gui_log_handler)
 
-		self.central_widget.setLayout(self.qgrid)
+		box = QtWidgets.QVBoxLayout(self)
+		box.addLayout(grid)
+		box.addWidget(self.splitter, 3)
+		box.addWidget(self.gui_log_handler.widget, 1)
+		box.addWidget(self.p_action)
+		box.addWidget(self.t_action)
+		self.central_widget.setLayout(box)
 
 		main_menu = self.menuBar()
 		file_menu = main_menu.addMenu('File')
