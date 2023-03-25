@@ -107,7 +107,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 				try:
 					self.load_meshes()
 				except:
-					logging.exception(f"Mesh lookup failed")
+					logging.exception(f"Mesh lookup failed {self}")
 		logging.debug(f"Read {self.name} in {time.time() - start_time:.2f} seconds")
 
 	def load_buffers(self, filepath, stream, dump):
@@ -173,7 +173,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 				for i, wrapper in enumerate(model_info.model.meshes):
 					logging.info(f"Populating mesh {i}")
 					wrapper.mesh.populate(pack_base)
-				logging.info(f"Populating mesh worked {model_info}, {model_info.model}")
+				# logging.info(f"Populating mesh worked {model_info}, {model_info.model}")
 			except:
 				logging.exception(f"Populating mesh failed for model {model_info}, {model_info.model}")
 
@@ -415,8 +415,8 @@ if __name__ == "__main__":
 	# 	# 1024 = 2**10 == 1 = 4 ** 0
 
 	m = Ms2File()
-	m.load("C:/Users/arnfi/Desktop/models.ms2", read_editable=True, dump=True)
-	# m.load("C:/Users/arnfi/Desktop/anubis.ms2", read_editable=True, dump=True)
+	# m.load("C:/Users/arnfi/Desktop/models.ms2", read_editable=True)
+	m.load("C:/Users/arnfi/Desktop/janitormale_.ms2", read_editable=True)
 	# print(m)
 	# m.load("C:/Users/arnfi/Desktop/jwe2/pyro/export/models.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/models.ms2", read_editable=True)

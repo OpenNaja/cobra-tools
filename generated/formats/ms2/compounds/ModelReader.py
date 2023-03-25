@@ -64,8 +64,9 @@ class ModelReader(BaseStruct):
 					logging.exception(f"Failed reading model for model_info {model_info}")
 					# logging.warning(model_info.model)
 				# this little patch solves reading all of PC anubis models
-				if model_info.model.lods:
-					if model_info.model.lods[0].distance != 900.0:
+				if instance.context.version == 32 and model_info.model.lods:
+					# janitor 4.0
+					if model_info.model.lods[0].distance not in (900.0, 4.0):
 						logging.warning(f"Distance is wrong")
 						stream.seek(s+8)
 						specials.append(i)
@@ -75,6 +76,7 @@ class ModelReader(BaseStruct):
 							logging.exception(f"Failed reading model for model_info {model_info}")
 				# logging.debug(f"Model {i} {model_info.model}")
 				# alignment, not sure if really correct
+				model_info.model_padding = stream.read(get_padding_size(stream.tell() - start, alignment=16))
 				if model_info.increment_flag:
 					model_info.model_padding = stream.read(get_padding_size(stream.tell() - start, alignment=16))
 				else:
