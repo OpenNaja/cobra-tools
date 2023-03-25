@@ -50,8 +50,6 @@ class ZtMeshData(MeshData):
 
 		# ?
 		self.one_1 = 0
-
-		# ?
 		self.poweroftwo = 0
 
 		# bitfield

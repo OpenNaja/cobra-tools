@@ -11,6 +11,10 @@ from generated.formats.ms2.compounds.MeshData import MeshData
 
 class PcMeshData(MeshData):
 
+	"""
+	72 bytes total
+	"""
+
 	__name__ = 'PcMeshData'
 
 	_import_key = 'ms2.compounds.PcMeshData'
@@ -41,7 +45,7 @@ class PcMeshData(MeshData):
 		# x*16 = offset
 		self.vertex_color_offset = 0
 
-		# ?
+		# cumulative count of vertices in mesh's lod before this mesh
 		self.vertex_offset_within_lod = 0
 
 		# power of 2 increasing with lod index

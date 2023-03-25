@@ -279,6 +279,7 @@
 	</compound>
 
 	<compound name="PcMeshData" inherit="MeshData">
+		72 bytes total
 		<add name="tri_index_count a" type="uint" >repeat</add>
 		<add name="vertex_count" type="uint" />
 		<add name="tri offset" type="uint">x*16 = offset</add>
@@ -288,7 +289,7 @@
 		<add name="uv offset" type="uint" >x*16 = offset</add>
 		<add name="zero a" type="uint" default="0"/>
 		<add name="vertex color offset" type="uint">x*16 = offset</add>
-		<add name="vertex offset within lod" type="uint" >?</add>
+		<add name="vertex offset within lod" type="uint" >cumulative count of vertices in mesh's lod before this mesh</add>
 		<add name="poweroftwo" type="uint">power of 2 increasing with lod index</add>
 		<add name="zero b" type="uint" default="0"/>
 		<add name="unk_float" type="float"/>
@@ -309,7 +310,7 @@
 		<add name="unk_index" type="short"/>often -1, but not always
 		<add name="one 0" type="ushort"/>
 		<add name="one 1" type="ushort" >?</add>
-		<add name="poweroftwo" type="ushort" >?</add>
+		<add name="poweroftwo" type="ushort"/>
 		<add name="flag" type="ModelFlagDLA" until="7">bitfield</add>
 		<add name="flag" type="ModelFlagZT" since="13">bitfield</add>
 		<add name="zero uac" type="uint" >always zero</add>
