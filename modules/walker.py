@@ -153,8 +153,9 @@ def bulk_test_models(gui, start_dir, walk_ovls=True, walk_models=True):
 						for i, wrapper in enumerate(model_info.model.meshes):
 							mesh_id = f"{mdl2_name}[{i}] in {ms2_name}"
 							mesh = wrapper.mesh
-							for v in wrapper.mesh.vert_chunks:
-								scale_float.add((v.pack_base, v.scale))
+							if hasattr(wrapper.mesh, "vert_chunks"):
+								for v in wrapper.mesh.vert_chunks:
+									scale_float.add((v.pack_base, v.scale))
 							if mesh.flag not in type_dic:
 								type_dic[mesh.flag] = ([], [])
 							type_dic[mesh.flag][0].append(mesh_id)
