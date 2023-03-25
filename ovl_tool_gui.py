@@ -166,6 +166,12 @@ class MainWindow(widgets.MainWindow):
 		hbox.addWidget(self.included_ovls_view)
 		right_frame.setLayout(hbox)
 
+		splitter = QtWidgets.QSplitter(QtCore.Qt.Horizontal)
+		splitter.addWidget(left_frame)
+		splitter.addWidget(right_frame)
+		splitter.setSizes([200, 400])
+		splitter.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+
 		# toggles
 		self.t_show_temp_files = QtWidgets.QCheckBox("Save Temp Files")
 		self.t_show_temp_files.setToolTip("By default, temporary files are converted to usable ones and back on the fly")
@@ -194,12 +200,6 @@ class MainWindow(widgets.MainWindow):
 		self.e_name_old.setTabChangesFocus(True)
 		self.e_name_new.setTabChangesFocus(True)
 
-		self.splitter = QtWidgets.QSplitter(QtCore.Qt.Horizontal)
-		self.splitter.addWidget(left_frame)
-		self.splitter.addWidget(right_frame)
-		self.splitter.setSizes([200, 400])
-		self.splitter.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
-
 		grid = QtWidgets.QGridLayout()
 		grid.addWidget(self.e_name_old, 0, 0, 4, 1)
 		grid.addWidget(self.e_name_new, 0, 1, 4, 1)
@@ -220,7 +220,7 @@ class MainWindow(widgets.MainWindow):
 
 		box = QtWidgets.QVBoxLayout(self)
 		box.addLayout(grid)
-		box.addWidget(self.splitter, 3)
+		box.addWidget(splitter, 3)
 		box.addWidget(self.gui_log_handler.widget, 1)
 		box.addWidget(self.p_action)
 		box.addWidget(self.t_action)
