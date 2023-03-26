@@ -50,6 +50,9 @@ class MemPool:
 		stream.write(data)
 
 	def stream_at(self, offset):
+		# emulate empty pointers to 'read' the end of a pool
+		if offset is None:
+			offset = self.get_size()
 		self.data.seek(offset)
 		return self.data
 
@@ -59,7 +62,8 @@ class MemPool:
 
 	def get_data_at(self, offset):
 		"""Get data from pool writer"""
-		return self.get_at(offset, self.size_map[offset])
+		if offset is not None:
+			return self.get_at(offset, self.size_map[offset])
 
 	def get_size(self):
 		# seek to end of stream
@@ -71,6 +75,7 @@ class MemPool:
 		padding_bytes = get_padding(size, alignment)
 		logging.debug(f"Padded pool of ({size} bytes) with {len(padding_bytes)}, alignment = {alignment}")
 		self.data.write(padding_bytes)
+		self.size = self.get_size()
 
 	def align_write(self, data, overwrite=False):
 		"""Prepares self.pool.data for writing, handling alignment according to type of data"""

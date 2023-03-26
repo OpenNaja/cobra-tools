@@ -290,6 +290,8 @@ class OvsFile(OvsHeader):
 					continue
 				logging.debug(f"Pool[{pool_index}]: {pool.name} -> '{loader.name}'")
 				self.transfer_identity(pool, loader)
+				# make sure that all pools are padded already before writing
+				pool.pad()
 			else:
 				logging.debug(
 					f"Pool[{pool_index}]: deleting '{pool.name}' from archive '{self.arg.name}' as it has no pointers")
@@ -467,12 +469,9 @@ class OvsFile(OvsHeader):
 		# do this first so pools can be updated
 		pools_data_writer = BytesIO()
 		for pool in self.pools:
-			# make sure that all pools are padded before writing
-			pool.pad()
 			pool_bytes = pool.data.getvalue()
 			pool.offset = self.get_pool_offset(pools_data_writer.tell())
 			logging.debug(f"pool.offset {pool.offset}, pools_start {self.arg.pools_start}")
-			pool.size = len(pool_bytes)
 			pools_data_writer.write(pool_bytes)
 		self.pools_data = pools_data_writer.getvalue()
 
@@ -894,7 +893,11 @@ class OvlFile(Header):
 					ovs.fragments["struct_ptr"]["pool_index"],
 					ovs.fragments["struct_ptr"]["data_offset"]):
 				s_pool = ovs.pools[s_i]
-				s_pool.offsets.add(s_o)
+				# replace offsets pointing to end of pool with None
+				if s_pool.size != s_o:
+					s_pool.offsets.add(s_o)
+				else:
+					s_o = None
 				ovs.pools[l_i].offset_2_link[l_o] = (s_pool, s_o)
 		logging.debug("Calculating pointer sizes")
 		for pool in self.pools:
@@ -1089,19 +1092,29 @@ class OvlFile(Header):
 				ovs.reset_field("root_entries")
 				ovs.reset_field("fragments")
 				# create lut for pool indices
-				pool_lut = {pool: i for i, pool in enumerate(ovs.pools)}
+				pools_lut = {pool: i for i, pool in enumerate(ovs.pools)}
+
+				def resolve(pool, offset):
+					# pools are already padded, and pool.size is set
+					# pool is either None or part of pools_lut
+					# offset is either None or an int
+					if offset is None:
+						assert pool
+						offset = pool.size
+					return pools_lut.get(pool, -1), offset
+
 				if all_frags:
 					ovs.fragments["link_ptr"]["pool_index"], \
 					ovs.fragments["link_ptr"]["data_offset"], \
 					ovs.fragments["struct_ptr"]["pool_index"], \
-					ovs.fragments["struct_ptr"]["data_offset"] = zip(*[(pool_lut[p_pool], l_o, pool_lut[s_pool], s_o) for (p_pool, l_o), (s_pool, s_o) in all_frags])
+					ovs.fragments["struct_ptr"]["data_offset"] = zip(*[(*resolve(p_pool, l_o), *resolve(s_pool, s_o)) for (p_pool, l_o), (s_pool, s_o) in all_frags])
 					# not needed but nice to have to keep saves consistent for easier debugging
 					ovs.fragments.sort()
 				# get root entries; not all ovs have root entries - some JWE2 ovs just have data
 				if loaders:
 					root_ptrs = [loader.root_ptr for loader in loaders]
 					ovs.root_entries["struct_ptr"]["pool_index"], \
-					ovs.root_entries["struct_ptr"]["data_offset"] = zip(*[(pool_lut.get(s_pool, -1), s_o) for s_pool, s_o in root_ptrs])
+					ovs.root_entries["struct_ptr"]["data_offset"] = zip(*[resolve(s_pool, s_o) for s_pool, s_o in root_ptrs])
 					ovs.assign_ids(ovs.root_entries, loaders)
 				# print(ovs.fragments, ovs.root_entries)
 

@@ -115,6 +115,9 @@ class Pointer(BaseStruct):
 					Array.to_stream(self.data, stream, self.context, dtype=self.template)
 				else:
 					self.template.to_stream(self.data, stream, self.context)
+				# nothing has been written, so set to None to move link to end of pool on saving
+				if self.target_offset == stream.tell():
+					self.target_offset = None
 			except TypeError:
 				raise TypeError(f"Failed to write pointer data {self.data} type: {type(self.data)} as {self.template}")
 			except struct.error:

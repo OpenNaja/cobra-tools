@@ -62,13 +62,15 @@ class MemStruct(BaseStruct):
 					pool_type = pool.type
 				ptr.target_pool = loader.get_pool(pool_type)
 				ptr.write_ptr()
-				ptr.target_pool.offsets.add(ptr.target_offset)
-				# store size in size_map
-				ptr.target_pool.size_map[ptr.target_offset] = ptr.target_pool.data.tell() - ptr.target_offset
 				loader.fragments.add(((pool, offset), (ptr.target_pool, ptr.target_offset)))
 				pool.offset_2_link[offset] = (ptr.target_pool, ptr.target_offset)
 				# store relative offset from this memstruct
-				children[ptr.target_offset - self.io_start] = (ptr.target_pool, ptr.target_offset)
+				children[offset - self.io_start] = (ptr.target_pool, ptr.target_offset)
+				# only store these if the pointer had valid data
+				if ptr.target_offset is not None:
+					ptr.target_pool.offsets.add(ptr.target_offset)
+					# store size in size_map
+					ptr.target_pool.size_map[ptr.target_offset] = ptr.target_pool.data.tell() - ptr.target_offset
 				# make sure to also add non-memstructs like strings in the stack
 				loader.stack[(ptr.target_pool, ptr.target_offset)] = {}
 				# keep reading pointers in the newly read ptr.data

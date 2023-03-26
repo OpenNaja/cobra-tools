@@ -292,7 +292,9 @@ class BaseFile:
 				# points to a child struct
 				if frag not in self.fragments:
 					self.fragments.add(frag)
-					self.check_for_ptrs(s_pool, s_offset)
+					# don't track empty pointers to the end of a pool
+					if s_offset is not None:
+						self.check_for_ptrs(s_pool, s_offset)
 
 	def dump_ptr_stack(self, f, parent_struct_ptr, rec_check, pools_lut, indent=1):
 		"""Recursively writes parent_struct_ptr.children to f"""
@@ -386,8 +388,8 @@ class BaseFile:
 				logging.info(f"...but it's likely just padding")
 			else:
 				self.same = False
-		this_children = self.stack[(t_p, t_o)]
-		other_children = other.stack[(o_p, o_o)]
+		this_children = self.stack.get((t_p, t_o), {})
+		other_children = other.stack.get((o_p, o_o), {})
 		all_offsets = set(this_children.keys())
 		all_offsets.update(other_children.keys())
 		# sort by offset
@@ -396,13 +398,13 @@ class BaseFile:
 			if rel_offset in this_children:
 				this_target_ptr = this_children[rel_offset]
 			else:
-				logging.warning(f"Pointer at {rel_offset} missing in this struct")
+				logging.warning(f"Pointer at relative offset {rel_offset} missing in this struct: {t_p}, {t_o}")
 				self.same = False
 				continue
 			if rel_offset in other_children:
 				other_target_ptr = other_children[rel_offset]
 			else:
-				logging.warning(f"Pointer at {rel_offset} missing in other struct")
+				logging.warning(f"Pointer at relative offset {rel_offset} missing in other struct: {o_p}, {o_o}")
 				self.same = False
 				continue
 			# dependency?
