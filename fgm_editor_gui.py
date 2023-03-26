@@ -41,8 +41,6 @@ class MainWindow(widgets.MainWindow):
 		self.games = [g.value for g in games]
 		self.import_header = None
 
-		self.cleaner = QtCore.QObjectCleanupHandler()
-
 		self.scrollarea = QtWidgets.QScrollArea(self)
 		self.scrollarea.setWidgetResizable(True)
 		self.setCentralWidget(self.scrollarea)
