@@ -1,5 +1,4 @@
 import logging
-import os
 from PyQt5 import QtWidgets
 
 from generated.formats.matcol.compounds.MatcolRoot import MatcolRoot
@@ -28,9 +27,8 @@ class MainWindow(widgets.MainWindow):
 			(file_menu, "Save", self.file_widget.ask_save, "CTRL+S", "save"),
 			(file_menu, "Save As", self.file_widget.ask_save_as, "CTRL+SHIFT+S", "save"),
 			(file_menu, "Exit", self.close, "", "exit"),
-			(help_menu, "Report Bug", self.report_bug, "", ""),
-			(help_menu, "Documentation", self.online_support, "", ""),
-			)
+			(help_menu, "Report Bug", self.report_bug, "", "report"),
+			(help_menu, "Documentation", self.online_support, "", "manual"))
 		self.add_to_menu(button_data)
 
 		self.scrollarea = QtWidgets.QScrollArea(self)
