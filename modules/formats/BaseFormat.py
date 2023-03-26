@@ -298,7 +298,7 @@ class BaseFile:
 
 	def dump_ptr_stack(self, f, parent_struct_ptr, rec_check, pools_lut, indent=1):
 		"""Recursively writes parent_struct_ptr.children to f"""
-		children = self.stack[parent_struct_ptr]
+		children = self.stack.get(parent_struct_ptr, {})
 		# sort by offset
 		for rel_offset, target in sorted(children.items()):
 			# get the relative offset of this pointer to its struct
@@ -306,7 +306,7 @@ class BaseFile:
 				# points to a child struct
 				s_pool, s_offset = target
 				s_pool_i = pools_lut[s_pool]
-				data_size = s_pool.size_map[s_offset]
+				data_size = s_pool.size_map.get(s_offset, -1)
 				if target in rec_check:
 					# pointer refers to a known entry - stop here to avoid recursion
 					f.write(f"\n{indent * TAB}PTR @ {rel_offset: <4} -> REF {s_pool_i} | {s_offset} ({data_size: 4})")
@@ -398,13 +398,13 @@ class BaseFile:
 			if rel_offset in this_children:
 				this_target_ptr = this_children[rel_offset]
 			else:
-				logging.warning(f"Pointer at relative offset {rel_offset} missing in this struct: {t_p}, {t_o}")
+				logging.warning(f"Pointer at relative offset {rel_offset} missing in this: {t_p.i} | {t_o} vs {o_p.i} | {o_o}")
 				self.same = False
 				continue
 			if rel_offset in other_children:
 				other_target_ptr = other_children[rel_offset]
 			else:
-				logging.warning(f"Pointer at relative offset {rel_offset} missing in other struct: {o_p}, {o_o}")
+				logging.warning(f"Pointer at relative offset {rel_offset} missing in other: {t_p.i} | {t_o} vs {o_p.i} | {o_o}")
 				self.same = False
 				continue
 			# dependency?

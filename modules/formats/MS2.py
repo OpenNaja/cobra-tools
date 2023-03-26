@@ -151,7 +151,7 @@ class Ms2Loader(MemStructLoader):
 			for ptr in (model_info.materials, model_info.lods, model_info.objects, model_info.meshes):
 				if ptr.target_offset is not None:
 					return ptr.target_pool, ptr.target_offset
-		return None, None
+		return self.header.model_infos.target_pool, None
 
 	def create(self, file_path):
 		ms2_file = Ms2File()
@@ -200,7 +200,7 @@ class Ms2Loader(MemStructLoader):
 			self.children.append(mdl2_loader)
 
 		# create ms2 data
-		self.create_data_entry(ms2_file.buffers)
+		self.create_data_entry(tuple(ms2_file.buffers))
 		# write the final memstruct
 		self.write_memory_data()
 		# link some more pointers
@@ -209,10 +209,7 @@ class Ms2Loader(MemStructLoader):
 		first_model_pool, first_model_offset = self.get_first_model_offset()
 		for model_info in self.header.model_infos.data:
 			# link first_model pointer
-			if first_model_offset is None:
-				logging.debug(f"MS2 {self.name} has no pointers on any model")
-			else:
-				self.attach_frag_to_ptr(pool, model_info.first_model.io_start, first_model_pool, first_model_offset)
+			self.attach_frag_to_ptr(pool, model_info.first_model.io_start, first_model_pool, first_model_offset)
 			for wrapper in model_info.model.meshes:
 				# buffer_infos have been written, now make this mesh's buffer_info pointer point to the right entry
 				offset = wrapper.mesh.stream_info.temp_index * buffer_infos.data[0].io_size

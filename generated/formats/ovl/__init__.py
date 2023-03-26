@@ -858,8 +858,9 @@ class OvlFile(Header):
 		logging.info("Loading pointers")
 		start_time = time.time()
 		# reset pointer map for each pool
-		for pool in self.pools:
+		for i, pool in enumerate(self.pools):
 			pool.clear_data()
+			pool.i = i
 		logging.debug("Linking pointers to pools")
 		for n, f_i, l_i, l_o in zip(
 					self.dependencies_name,

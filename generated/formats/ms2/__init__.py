@@ -324,7 +324,10 @@ class Ms2File(Ms2InfoHeader, IoFile):
 
 	@property
 	def buffers(self):
-		return self.buffer_0_bytes, self.buffer_1_bytes, self.buffer_2_bytes
+		yield self.buffer_0_bytes
+		yield self.buffer_1_bytes
+		if self.buffer_2_bytes:
+			yield self.buffer_2_bytes
 
 	def save(self, filepath):
 		self.dir, self.name = os.path.split(os.path.normpath(filepath))
