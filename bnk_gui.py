@@ -2,7 +2,6 @@ import os
 import shutil
 import sys
 import time
-import traceback
 import logging
 import tempfile
 
@@ -24,8 +23,8 @@ try:
 	from generated.formats.bnk import BnkFile, AuxFile
 	from ovl_util.texconv import write_riff_file
 	# from root_path import root_dir
-except Exception as err:
-	traceback.print_exc()
+except:
+	logging.exception(f"Some modules could not be imported")
 	time.sleep(15)
 
 

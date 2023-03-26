@@ -1,11 +1,6 @@
 # START_GLOBALS
-import logging
-import traceback
-
 from generated.array import Array
 from generated.base_struct import BaseStruct
-from generated.formats.base.compounds.PadAlign import get_padding_size, get_padding
-from generated.formats.manis.compounds.ManiBlock import ManiBlock
 from generated.formats.manis.compounds.WeirdElementTwo import WeirdElementTwo
 
 

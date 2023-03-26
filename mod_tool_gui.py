@@ -11,7 +11,6 @@ import sys
 import os
 import shutil
 import pathlib
-import traceback
 import logging
 
 from PyQt5 import QtCore
@@ -277,8 +276,8 @@ class ModToolGUI(MainWindow):
 			self.ovl_data.create(ovl_dir)
 			self.ovl_data.save(dst_file)
 			return True
-		except Exception as ex:
-			traceback.print_exc()
+		except:
+			logging.exception(f"Could not create OVL from {ovl_dir}")
 			return False
 
 	# relative path

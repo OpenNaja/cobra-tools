@@ -8,11 +8,9 @@ import sys
 import os
 import shutil
 import pathlib
-import traceback
 import logging
 
-from ovl_util import widgets
-from ovl_util.config import logging_setup, get_version_str, get_commit_str, read_config, write_config
+from ovl_util.config import logging_setup, get_version_str, get_commit_str
 
 logging_setup("mod_tool_cmd")
 logging.info(f"Running python {sys.version}")
@@ -80,8 +78,8 @@ def create_ovl(gamestr, ovl_dir, dst_file):
 		ovl_data.create(ovl_dir)
 		ovl_data.save(dst_file)
 		return True
-	except Exception as ex:
-		traceback.print_exc()
+	except:
+		logging.exception(f"Could not create OVL from {ovl_dir}")
 		return False
 
 

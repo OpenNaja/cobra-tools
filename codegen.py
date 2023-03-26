@@ -3,9 +3,9 @@ import logging
 import xml.etree.ElementTree as ET
 import os
 import distutils.dir_util as dir_util
-from html import unescape
 import shutil
-import traceback
+
+from html import unescape
 from numpy import ndarray
 
 from codegen import naming_conventions as convention
@@ -134,9 +134,8 @@ class XmlParser:
                     self.versions.read(child)
                 elif child.tag == "verattr":
                     self.read_verattr(child)
-            except Exception as err:
-                logging.error(err)
-                traceback.print_exc()
+            except:
+                logging.exception(f"Parsing child {child} failed")
         out_file = BaseClass.get_out_path(os.path.join(self.base_segments, "versions"))
         self.versions.write(out_file)
         # self.basics.write_basic_map()

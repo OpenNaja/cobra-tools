@@ -1,7 +1,5 @@
-import os
 import sys
 import time
-import traceback
 import logging
 
 
@@ -15,8 +13,8 @@ try:
 	from PyQt5 import QtWidgets, QtGui, QtCore
 	from ovl_util import widgets, interaction
 	from generated.formats.ms2 import Ms2File
-except Exception as err:
-	traceback.print_exc()
+except:
+	logging.exception(f"Some modules could not be imported")
 	time.sleep(15)
 
 

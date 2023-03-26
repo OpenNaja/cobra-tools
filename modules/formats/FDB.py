@@ -4,7 +4,6 @@ import os
 import shutil
 import sqlite3
 import struct
-import traceback
 import re
 from collections import namedtuple
 

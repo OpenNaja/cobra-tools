@@ -1,10 +1,7 @@
-import json
 import os
 import time
-import traceback
 import logging
-import numpy as np
-from collections import defaultdict, Counter
+from collections import Counter
 
 from experimentals.convert_constants import write_mimes_dict, write_hashes_dict
 from generated.formats.fgm.compounds.FgmHeader import FgmHeader
@@ -14,7 +11,6 @@ from generated.formats.ovl_base import OvlContext
 from generated.formats.ms2 import Ms2File
 from generated.formats.ovl import OvlFile
 from generated.formats.ovl_base.versions import games
-from ovl_util import interaction
 from ovl_util.mimes import Mime, Shader
 from root_path import root_dir
 
@@ -226,7 +222,7 @@ def bulk_extract_ovls(errors, export_dir, gui, start_dir, only_types):
 			out_dir = os.path.join(export_dir, rel_d)
 			out_paths = ovl_data.extract(out_dir, only_types=only_types)
 		except Exception as ex:
-			traceback.print_exc()
+			logging.exception(f"OVL failed: {ovl_path}")
 			errors.append((ovl_path, ex))
 
 
@@ -264,7 +260,7 @@ def get_fgm_values(gui, start_dir, walk_ovls=True, walk_fgms=True):
 						shader.textures.add(texture.name)
 
 				except Exception as ex:
-					traceback.print_exc()
+					logging.exception(f"FGM failed: {fgm_path}")
 					errors.append((fgm_path, ex))
 
 		for shader_name, shader in shaders.items():

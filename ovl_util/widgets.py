@@ -446,17 +446,11 @@ class LabelEdit(QtWidgets.QWidget):
 
 
 class CleverCombo(QtWidgets.QComboBox):
-    """"A combo box that supports setting content (existing or new), and a callback"""
+    """"A combo box that supports setting content (existing or new)"""
 
-    def __init__(self, options=[], link_inst=None, link_attr=None, *args, **kwargs):
+    def __init__(self, options=(), *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.addItems(options)
-        self.link_inst = link_inst
-        self.link_attr = link_attr
-        if link_inst and link_attr:
-            name = str(getattr(link_inst, link_attr))
-            self.setText(name)
-            self.currentIndexChanged.connect(self.update_name)
 
     def setText(self, txt):
         flag = QtCore.Qt.MatchFixedString
@@ -466,10 +460,6 @@ class CleverCombo(QtWidgets.QComboBox):
             self.addItem(txt)
             indx = self.findText(txt, flags=flag)
         self.setCurrentIndex(indx)
-
-    def update_name(self, ind):
-        """Change data on pyffi struct if gui changes"""
-        setattr(self.link_inst, self.link_attr, self.currentText())
 
 
 class GamesCombo(QtWidgets.QWidget):
@@ -633,10 +623,10 @@ class RelativePathCombo(EditCombo):
 
 
 class LabelCombo(QtWidgets.QWidget):
-    def __init__(self, name, options, link_inst=None, link_attr=None):
+    def __init__(self, name, options):
         QtWidgets.QWidget.__init__(self, )
         self.label = QtWidgets.QLabel(name)
-        self.entry = CleverCombo(options=options, link_inst=link_inst, link_attr=link_attr)
+        self.entry = CleverCombo(options=options)
         self.entry.setEditable(True)
         box = QtWidgets.QHBoxLayout(self)
         box.addWidget(self.label)
@@ -773,7 +763,8 @@ class MatcolInfo:
     def __init__(self, attrib, tooltips={}):
         """attrib must be pyffi matcol InfoWrapper object"""
         self.attrib = attrib
-        self.label = QtWidgets.QLabel(str(attrib.name))
+        name = attrib.info_name.data
+        self.label = QtWidgets.QLabel(name)
 
         self.data = QtWidgets.QWidget()
         layout = QtWidgets.QHBoxLayout()
@@ -784,7 +775,7 @@ class MatcolInfo:
             layout.addWidget(button)
         self.data.setLayout(layout)
         # get tooltip
-        tooltip = tooltips.get(self.attrib.name, "Undocumented attribute.")
+        tooltip = tooltips.get(name, "Undocumented attribute.")
         self.data.setToolTip(tooltip)
         self.label.setToolTip(tooltip)
 
@@ -876,80 +867,6 @@ class QColorButton(QtWidgets.QPushButton):
     def getValue(self, ):
         if self._color:
             print(self._color.getRgb())
-
-
-class VectorEntry:
-    def __init__(self, attrib, tooltips={}):
-        """attrib must be pyffi attrib object"""
-        # QtWidgets.QWidget.__init__(self,)
-        self.attrib = attrib
-        self.entry = QtWidgets.QLineEdit(attrib.name)
-        self.entry.textEdited.connect(self.update_name)
-        self.delete = QtWidgets.QPushButton("x")
-        self.delete.setMaximumWidth(15)
-        self.data = QtWidgets.QWidget()
-        layout = QtWidgets.QHBoxLayout()
-        buttons = [self.create_field(i) for i in range(len(attrib.value))]
-        for button in buttons:
-            layout.addWidget(button)
-        self.data.setLayout(layout)
-
-        # get tooltip
-        tooltip = tooltips.get(self.attrib.name, "Undocumented attribute.")
-        self.data.setToolTip(tooltip)
-        self.entry.setToolTip(tooltip)
-
-    def update_name(self, name):
-        self.attrib.name = name
-
-    def create_field(self, ind):
-        default = self.attrib.value[ind]
-
-        def update_ind(v):
-            # use a closure to remember index
-            # print(self.attrib, ind, v)
-            self.attrib.value[ind] = v
-
-        def update_ind_int(v):
-            # use a closure to remember index
-            # print(self.attrib, ind, v)
-            self.attrib.value[ind] = int(v)
-
-        def update_ind_color(c):
-            # use a closure to remember index
-            # print(self.attrib, ind, v)
-            color = self.attrib.value[ind]
-            c_new = c.getRgb()
-            color.r = c_new[0]
-            color.g = c_new[1]
-            color.b = c_new[2]
-            color.a = c_new[3]
-
-        t = str(type(default))
-        # print(t)
-        if "float" in t:
-            field = QtWidgets.QDoubleSpinBox()
-            field.setDecimals(3)
-            field.setRange(-10000, 10000)
-            field.setSingleStep(.05)
-            field.valueChanged.connect(update_ind)
-        elif "bool" in t:
-            # field = QtWidgets.QSpinBox()
-            field = MySwitch()
-            field.clicked.connect(update_ind)
-        elif "int" in t:
-            default = int(default)
-            # field = QtWidgets.QSpinBox()
-            field = QtWidgets.QDoubleSpinBox()
-            field.setDecimals(0)
-            field.setRange(-MAX_UINT, MAX_UINT)
-            field.valueChanged.connect(update_ind_int)
-        elif "Color" in t:
-            field = QColorButton()
-            field.colorChanged.connect(update_ind_color)
-        field.setValue(default)
-        field.setMinimumWidth(50)
-        return field
 
 
 class FileWidget(QtWidgets.QWidget):

@@ -2,7 +2,6 @@ import os
 import shutil
 import struct
 import logging
-import traceback
 
 from generated.formats.ms2 import Ms2File, Ms2Context
 from generated.formats.ms2.compounds.Ms2Root import Ms2Root
@@ -325,8 +324,7 @@ class Ms2Loader(MemStructLoader):
 			self.remove()
 			loader = self.ovl.create_file(ms2_path)
 			self.ovl.register_loader(loader)
-		except BaseException as err:
-			traceback.print_exc()
-			logging.warning(err)
+		except:
+			logging.exception(f"Renaming inside {self.name} failed")
 		# delete temp dir again
 		shutil.rmtree(temp_dir)

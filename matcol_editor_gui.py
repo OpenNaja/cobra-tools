@@ -1,8 +1,7 @@
+import logging
 import os
-import traceback
 from PyQt5 import QtWidgets, QtCore
 
-import ovl_util.interaction
 from generated.formats.matcol.compounds.MatcolRoot import MatcolRoot
 from generated.formats.ovl_base import OvlContext
 from ovl_util import widgets, config
@@ -77,7 +76,7 @@ class MainWindow(widgets.MainWindow):
 
 	def open_materialcollection(self):
 		"""Just a wrapper so we can also reload via code"""
-		self.file_src = QtWidgets.QFileDialog.getOpenFileName(self, 'Load Matcol', self.cfg.get("dir_materialcollections_in", "C://"), "Matcol files (*.matcol)")[0]
+		self.file_src = QtWidgets.QFileDialog.getOpenFileName(self, 'Load Matcol', self.cfg.get("dir_materialcollections_in", "C://"), "matcol files (*.materialcollection)")[0]
 		self.load_materialcollection()
 
 	def create_grid(self,):
@@ -104,7 +103,6 @@ class MainWindow(widgets.MainWindow):
 			self.cfg["dir_materialcollections_in"], materialcollection_name = os.path.split(self.file_src)
 			try:
 				self.matcol_data = self.matcol_data.from_xml_file(self.file_src, self.context)
-				print(self.matcol_data)
 				# game = get_game(self.matcol_data)[0]
 				# print("from game", game)
 				# self.game_container.entry.setText(game.value)
@@ -120,12 +118,10 @@ class MainWindow(widgets.MainWindow):
 
 				self.tex_container.setLayout(self.tex_grid)
 				self.attrib_container.setLayout(self.attrib_grid)
+				main = self.matcol_data.main.data
 				line_i = 0
-				for i, tex in enumerate(self.matcol_data.main.data.textures.data):
-					# w = widgets.VectorEntry(tex, self.tooltips)
-					# form.addRow(w.label, w.data)
+				for i, tex in enumerate(main.textures.data):
 					box = widgets.CollapsibleBox(f"Slot {i}")
-					# box = QtWidgets.QGroupBox(f"Slot {i}")
 					self.tex_grid.addWidget(box, line_i, 0)
 					line_i += 1
 					lay = self.create_grid()
@@ -133,8 +129,8 @@ class MainWindow(widgets.MainWindow):
 					b = QtWidgets.QLabel("texture suffix")
 					x = QtWidgets.QLineEdit(tex.texture_type.data)
 					y = QtWidgets.QLineEdit(tex.texture_suffix.data)
-
-					combo = widgets.LabelCombo("First FGM:", self.default_fgms, tex, "fgm_name")
+					combo = widgets.LabelCombo("First FGM:", self.default_fgms)
+					combo.entry.setText(tex.fgm_name.data)
 					lay.addWidget(a, 0, 0)
 					lay.addWidget(b, 1, 0)
 					lay.addWidget(x, 0, 1)
@@ -142,45 +138,35 @@ class MainWindow(widgets.MainWindow):
 					lay.addWidget(combo.label, 2, 0)
 					lay.addWidget(combo.entry, 2, 1)
 					box.setLayout(lay)
-				#
-				# line_i = 0
-				# for i, attrib in enumerate(self.matcol_data.layers):
-				# 	box = widgets.CollapsibleBox(f"Slot {i}")
-				# 	self.attrib_grid.addWidget(box, line_i, 0)
-				# 	line_i += 1
-				# 	lay = self.create_grid()
-				# 	combo = widgets.LabelCombo("FGM:", self.default_fgms, attrib, "name")
-				# 	lay.addWidget(combo.label, 0, 0)
-				# 	lay.addWidget(combo.entry, 0, 1)
-				# 	l = 1
-				# 	for infow in attrib.infos:
-				# 		w = widgets.MatcolInfo(infow, self.tooltips)
-				# 		lay.addWidget(w.label, l, 0)
-				# 		lay.addWidget(w.data, l, 1)
-				# 		l+=1
-				# 	box.setLayout(lay)
-				
+
 				line_i = 0
-				# for zstr in self.matcol_data.layers:
-				#
-				# 	a = QtWidgets.QLabel("variant fgm")
-				# 	b = QtWidgets.QLineEdit(zstr)
-				# 	self.attrib_grid.addWidget(a, line_i, 0)
-				# 	self.attrib_grid.addWidget(b, line_i, 1)
-				# 	line_i += 1
-				
-			except Exception as ex:
-				ovl_util.interaction.showdialog(str(ex))
-				print(traceback.print_exc())
-			print("Done!")
+				for i, attrib in enumerate(main.materials.data):
+					box = widgets.CollapsibleBox(f"Slot {i}")
+					self.attrib_grid.addWidget(box, line_i, 0)
+					line_i += 1
+					lay = self.create_grid()
+					combo = widgets.LabelCombo("FGM:", self.default_fgms)
+					combo.entry.setText(attrib.layer_name.data)
+					lay.addWidget(combo.label, 0, 0)
+					lay.addWidget(combo.entry, 0, 1)
+					sub_line_i = 1
+					for infow in attrib.infos.data:
+						w = widgets.MatcolInfo(infow, self.tooltips)
+						lay.addWidget(w.label, sub_line_i, 0)
+						lay.addWidget(w.data, sub_line_i, 1)
+						sub_line_i += 1
+					box.setLayout(lay)
+			except:
+				logging.exception(f"Something went wrong")
+			logging.info("Done!")
 		
 	def save_materialcollection(self):
 		if self.file_src:
-			file_out = QtWidgets.QFileDialog.getSaveFileName(self, 'Save materialcollection', os.path.join(self.cfg.get("dir_materialcollections_out", "C://"), self.materialcollection_name), "materialcollection files (*.matcol)",)[0]
+			file_out = QtWidgets.QFileDialog.getSaveFileName(self, 'Save materialcollection', os.path.join(self.cfg.get("dir_materialcollections_out", "C://"), self.materialcollection_name), "matcol files (*.materialcollection)",)[0]
 			if file_out:
 				self.cfg["dir_materialcollections_out"], materialcollection_name = os.path.split(file_out)
 				self.matcol_data.save(file_out)
-				print("Done!")
+				logging.info("Done!")
 			
 	
 if __name__ == '__main__':
