@@ -54,7 +54,7 @@ class Ms2Loader(MemStructLoader):
 	target_class = Ms2Root
 
 	def detect_biosyn_format(self):
-		logging.debug("Detecting Biosyn format")
+		# logging.debug("Detecting Biosyn format")
 		if ovl_versions.is_jwe2(self.ovl):
 			if self.ovl.is_biosyn is not None:
 				return self.ovl.is_biosyn

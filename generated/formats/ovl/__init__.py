@@ -1056,6 +1056,7 @@ class OvlFile(Header):
 			archive.pools_offset = pools_offset
 			pools_offset += archive.num_pools
 		self.num_pools = sum(a.num_pools for a in self.archives)
+		self.num_pool_groups = sum(a.num_pool_groups for a in self.archives)
 		# apply the new pools to the ovl
 		self.load_flattened_pools()
 
@@ -1190,8 +1191,6 @@ class OvlFile(Header):
 			# update the ovl counts
 			self.num_archives = len(self.archives)
 			# sum counts of individual archives
-			self.num_pool_groups = sum(a.num_pool_groups for a in self.archives)
-			self.num_pools = sum(a.num_pools for a in self.archives)
 			self.num_datas = sum(a.num_datas for a in self.archives)
 			self.num_buffers = sum(a.num_buffers for a in self.archives)
 		except:
