@@ -1048,10 +1048,14 @@ class OvlFile(Header):
 		ptrs = [loader.dependencies[dep] for dep, loader in loaders_and_deps]
 
 		# update all pools before indexing anything that points into pools
+		pools_offset = 0
 		for archive in self.archives:
 			ovs = archive.content
 			ovs.clear_ovs_arrays()
 			ovs.rebuild_pools()
+			archive.pools_offset = pools_offset
+			pools_offset += archive.num_pools
+		self.num_pools = sum(a.num_pools for a in self.archives)
 		# apply the new pools to the ovl
 		self.load_flattened_pools()
 
@@ -1144,7 +1148,6 @@ class OvlFile(Header):
 				loader.update()
 
 			pools_byte_offset = 0
-			pools_offset = 0
 			# make a temporary copy so we can delete archive if needed
 			for archive in tuple(self.archives):
 
@@ -1170,14 +1173,12 @@ class OvlFile(Header):
 					self.archives.remove(archive)
 					continue
 
-				archive.pools_offset = pools_offset
 				archive.pools_start = pools_byte_offset
 				archive.content.write_pools()
 				pools_byte_offset += len(archive.content.pools_data)
 				archive.pools_end = pools_byte_offset
 				# at least PZ & JWE require 4 additional bytes after each pool region
 				pools_byte_offset += 4
-				pools_offset += len(archive.content.pools)
 				logging.debug(
 					f"Archive {archive.name} has {archive.num_pools} pools in {archive.num_pool_groups} pool_groups")
 
