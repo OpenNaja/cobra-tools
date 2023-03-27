@@ -18,11 +18,12 @@ class Connector(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MemStruct._attribute_list + [
-		('model_name', Pointer, (0, ZString), (False, None), None),
-		('joint_name', Pointer, (0, ZString), (False, None), None),
-		('unk_vector', Vector2, (0, None), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('model_name', Pointer, (0, ZString), (False, None), None)
+		yield ('joint_name', Pointer, (0, ZString), (False, None), None)
+		yield ('unk_vector', Vector2, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -30,3 +31,6 @@ class Connector(MemStruct):
 		yield 'model_name', Pointer, (0, ZString), (False, None)
 		yield 'joint_name', Pointer, (0, ZString), (False, None)
 		yield 'unk_vector', Vector2, (0, None), (False, None)
+
+
+Connector.init_attributes()

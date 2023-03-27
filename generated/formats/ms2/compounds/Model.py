@@ -42,17 +42,18 @@ class Model(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = BaseStruct._attribute_list + [
-		('start_ref', Empty, (0, None), (False, None), None),
-		('materials', Array, (0, None, (None,), MaterialName), (False, None), None),
-		('lods', Array, (0, None, (None,), LodInfo), (False, None), None),
-		('objects', Array, (0, None, (None,), Object), (False, None), None),
-		('mesh_aligner', PadAlign, (8, None), (False, None), True),
-		('meshes', Array, (0, None, (None,), MeshDataWrap), (False, None), None),
-		('pre_bones', ZTPreBones, (0, None), (False, None), True),
-		('pre_bones', DLAPreBones, (0, None), (False, None), True),
-		('floatsy', Array, (0, None, (None,), FloatsY), (False, None), True),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('start_ref', Empty, (0, None), (False, None), None)
+		yield ('materials', Array, (0, None, (None,), MaterialName), (False, None), None)
+		yield ('lods', Array, (0, None, (None,), LodInfo), (False, None), None)
+		yield ('objects', Array, (0, None, (None,), Object), (False, None), None)
+		yield ('mesh_aligner', PadAlign, (8, None), (False, None), True)
+		yield ('meshes', Array, (0, None, (None,), MeshDataWrap), (False, None), None)
+		yield ('pre_bones', ZTPreBones, (0, None), (False, None), True)
+		yield ('pre_bones', DLAPreBones, (0, None), (False, None), True)
+		yield ('floatsy', Array, (0, None, (None,), FloatsY), (False, None), True)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -70,3 +71,6 @@ class Model(BaseStruct):
 			yield 'pre_bones', DLAPreBones, (0, None), (False, None)
 		if instance.context.version <= 32:
 			yield 'floatsy', Array, (0, None, (instance.arg.render_flag,), FloatsY), (False, None)
+
+
+Model.init_attributes()

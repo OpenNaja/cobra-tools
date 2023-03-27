@@ -27,13 +27,14 @@ class TextureInfo(GenericInfo):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = GenericInfo._attribute_list + [
-		('value', Array, (0, None, (1,), TexIndex), (False, None), True),
-		('value', Array, (0, None, (2,), Color), (False, None), True),
-		('value', Array, (0, None, (1,), Color), (False, None), True),
-		('some_index_0', Uint, (0, None), (True, 0), True),
-		('some_index_1', Uint, (0, None), (True, 0), True),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('value', Array, (0, None, (1,), TexIndex), (False, None), True)
+		yield ('value', Array, (0, None, (2,), Color), (False, None), True)
+		yield ('value', Array, (0, None, (1,), Color), (False, None), True)
+		yield ('some_index_0', Uint, (0, None), (True, 0), True)
+		yield ('some_index_1', Uint, (0, None), (True, 0), True)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -47,3 +48,6 @@ class TextureInfo(GenericInfo):
 		if instance.context.version >= 18:
 			yield 'some_index_0', Uint, (0, None), (True, 0)
 			yield 'some_index_1', Uint, (0, None), (True, 0)
+
+
+TextureInfo.init_attributes()

@@ -35,19 +35,20 @@ class AnimationActivityData(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MemStruct._attribute_list + [
-		('mani', Pointer, (0, ZString), (False, None), None),
-		('animation_flags', AnimationFlags, (0, None), (False, None), None),
-		('priorities', Uint, (0, None), (False, None), None),
-		('weight', FloatInputData, (0, None), (False, None), None),
-		('speed', FloatInputData, (0, None), (False, None), None),
-		('starting_prop_through', Float, (0, None), (False, None), None),
-		('lead_out_time', Float, (0, None), (False, None), None),
-		('sync_prop_through_variable', Pointer, (0, ZString), (False, None), None),
-		('count_6', Uint64, (0, None), (False, None), None),
-		('output_prop_through_variable', Pointer, (0, ZString), (False, None), None),
-		('additional_data_streams', DataStreamResourceDataList, (0, None), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('mani', Pointer, (0, ZString), (False, None), None)
+		yield ('animation_flags', AnimationFlags, (0, None), (False, None), None)
+		yield ('priorities', Uint, (0, None), (False, None), None)
+		yield ('weight', FloatInputData, (0, None), (False, None), None)
+		yield ('speed', FloatInputData, (0, None), (False, None), None)
+		yield ('starting_prop_through', Float, (0, None), (False, None), None)
+		yield ('lead_out_time', Float, (0, None), (False, None), None)
+		yield ('sync_prop_through_variable', Pointer, (0, ZString), (False, None), None)
+		yield ('count_6', Uint64, (0, None), (False, None), None)
+		yield ('output_prop_through_variable', Pointer, (0, ZString), (False, None), None)
+		yield ('additional_data_streams', DataStreamResourceDataList, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -63,3 +64,6 @@ class AnimationActivityData(MemStruct):
 		yield 'count_6', Uint64, (0, None), (False, None)
 		yield 'output_prop_through_variable', Pointer, (0, ZString), (False, None)
 		yield 'additional_data_streams', DataStreamResourceDataList, (0, None), (False, None)
+
+
+AnimationActivityData.init_attributes()

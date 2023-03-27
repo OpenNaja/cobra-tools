@@ -22,11 +22,12 @@ class Layer(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MemStruct._attribute_list + [
-		('has_ptr', Uint64, (0, None), (False, None), None),
-		('texture_fgm_name', Pointer, (0, ZString), (False, None), None),
-		('transform_fgm_name', Pointer, (0, ZString), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('has_ptr', Uint64, (0, None), (False, None), None)
+		yield ('texture_fgm_name', Pointer, (0, ZString), (False, None), None)
+		yield ('transform_fgm_name', Pointer, (0, ZString), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -34,3 +35,6 @@ class Layer(MemStruct):
 		yield 'has_ptr', Uint64, (0, None), (False, None)
 		yield 'texture_fgm_name', Pointer, (0, ZString), (False, None)
 		yield 'transform_fgm_name', Pointer, (0, ZString), (False, None)
+
+
+Layer.init_attributes()

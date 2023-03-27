@@ -24,13 +24,17 @@ class ArchiveMeta(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = BaseStruct._attribute_list + [
-		('unk_0', Uint, (0, None), (False, None), None),
-		('unk_1', Uint, (0, None), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('unk_0', Uint, (0, None), (False, None), None)
+		yield ('unk_1', Uint, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'unk_0', Uint, (0, None), (False, None)
 		yield 'unk_1', Uint, (0, None), (False, None)
+
+
+ArchiveMeta.init_attributes()

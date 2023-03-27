@@ -57,49 +57,50 @@ class WeatherEventData(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MemStruct._attribute_list + [
-		('event_name', Pointer, (0, ZString), (False, None), None),
-		('float_1', Float, (0, None), (False, None), None),
-		('float_2', Float, (0, None), (False, None), None),
-		('float_3', Float, (0, None), (False, None), None),
-		('float_4', Float, (0, None), (False, None), None),
-		('float_5', Float, (0, None), (False, None), None),
-		('float_6', Float, (0, None), (False, None), None),
-		('float_7', Float, (0, None), (False, None), None),
-		('float_8', Float, (0, None), (False, None), None),
-		('float_9', Float, (0, None), (False, None), None),
-		('float_10', Float, (0, None), (False, None), None),
-		('event_curve_name_from_base', Pointer, (0, ZString), (False, None), None),
-		('unk_1_as_1', Uint, (0, None), (False, None), None),
-		('float_11', Float, (0, None), (False, None), None),
-		('float_12', Float, (0, None), (False, None), None),
-		('float_13', Float, (0, None), (False, None), None),
-		('float_14', Float, (0, None), (False, None), None),
-		('float_15', Float, (0, None), (False, None), None),
-		('event_curve_clouds', Pointer, (0, ZString), (False, None), None),
-		('block_1_unk_as_1', Uint, (0, None), (False, None), None),
-		('block_1_float_1', Float, (0, None), (False, None), None),
-		('block_1_float_2', Float, (0, None), (False, None), None),
-		('block_1_float_3', Float, (0, None), (False, None), None),
-		('block_1_float_4', Float, (0, None), (False, None), None),
-		('block_1_float_5', Float, (0, None), (False, None), None),
-		('block_1_float_6', Float, (0, None), (False, None), None),
-		('block_1_float_7', Float, (0, None), (False, None), None),
-		('block_2_unk_as_1', Uint, (0, None), (False, None), None),
-		('block_2_float_1', Float, (0, None), (False, None), None),
-		('block_2_float_2', Float, (0, None), (False, None), None),
-		('block_2_float_3', Float, (0, None), (False, None), None),
-		('block_2_float_4', Float, (0, None), (False, None), None),
-		('block_2_float_5', Float, (0, None), (False, None), None),
-		('block_2_float_6', Float, (0, None), (False, None), None),
-		('block_2_float_7', Float, (0, None), (False, None), None),
-		('block_3_unk_as_1', Uint, (0, None), (False, None), None),
-		('block_3_float_1', Float, (0, None), (False, None), None),
-		('block_3_float_2', Float, (0, None), (False, None), None),
-		('block_3_float_3', Float, (0, None), (False, None), None),
-		('block_3_float_4', Float, (0, None), (False, None), None),
-		('block_3_float_5', Float, (0, None), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('event_name', Pointer, (0, ZString), (False, None), None)
+		yield ('float_1', Float, (0, None), (False, None), None)
+		yield ('float_2', Float, (0, None), (False, None), None)
+		yield ('float_3', Float, (0, None), (False, None), None)
+		yield ('float_4', Float, (0, None), (False, None), None)
+		yield ('float_5', Float, (0, None), (False, None), None)
+		yield ('float_6', Float, (0, None), (False, None), None)
+		yield ('float_7', Float, (0, None), (False, None), None)
+		yield ('float_8', Float, (0, None), (False, None), None)
+		yield ('float_9', Float, (0, None), (False, None), None)
+		yield ('float_10', Float, (0, None), (False, None), None)
+		yield ('event_curve_name_from_base', Pointer, (0, ZString), (False, None), None)
+		yield ('unk_1_as_1', Uint, (0, None), (False, None), None)
+		yield ('float_11', Float, (0, None), (False, None), None)
+		yield ('float_12', Float, (0, None), (False, None), None)
+		yield ('float_13', Float, (0, None), (False, None), None)
+		yield ('float_14', Float, (0, None), (False, None), None)
+		yield ('float_15', Float, (0, None), (False, None), None)
+		yield ('event_curve_clouds', Pointer, (0, ZString), (False, None), None)
+		yield ('block_1_unk_as_1', Uint, (0, None), (False, None), None)
+		yield ('block_1_float_1', Float, (0, None), (False, None), None)
+		yield ('block_1_float_2', Float, (0, None), (False, None), None)
+		yield ('block_1_float_3', Float, (0, None), (False, None), None)
+		yield ('block_1_float_4', Float, (0, None), (False, None), None)
+		yield ('block_1_float_5', Float, (0, None), (False, None), None)
+		yield ('block_1_float_6', Float, (0, None), (False, None), None)
+		yield ('block_1_float_7', Float, (0, None), (False, None), None)
+		yield ('block_2_unk_as_1', Uint, (0, None), (False, None), None)
+		yield ('block_2_float_1', Float, (0, None), (False, None), None)
+		yield ('block_2_float_2', Float, (0, None), (False, None), None)
+		yield ('block_2_float_3', Float, (0, None), (False, None), None)
+		yield ('block_2_float_4', Float, (0, None), (False, None), None)
+		yield ('block_2_float_5', Float, (0, None), (False, None), None)
+		yield ('block_2_float_6', Float, (0, None), (False, None), None)
+		yield ('block_2_float_7', Float, (0, None), (False, None), None)
+		yield ('block_3_unk_as_1', Uint, (0, None), (False, None), None)
+		yield ('block_3_float_1', Float, (0, None), (False, None), None)
+		yield ('block_3_float_2', Float, (0, None), (False, None), None)
+		yield ('block_3_float_3', Float, (0, None), (False, None), None)
+		yield ('block_3_float_4', Float, (0, None), (False, None), None)
+		yield ('block_3_float_5', Float, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -145,3 +146,6 @@ class WeatherEventData(MemStruct):
 		yield 'block_3_float_3', Float, (0, None), (False, None)
 		yield 'block_3_float_4', Float, (0, None), (False, None)
 		yield 'block_3_float_5', Float, (0, None), (False, None)
+
+
+WeatherEventData.init_attributes()

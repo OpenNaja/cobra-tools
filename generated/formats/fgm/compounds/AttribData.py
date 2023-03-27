@@ -17,14 +17,15 @@ class AttribData(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MemStruct._attribute_list + [
-		('value', Array, (0, None, (1,), Float), (False, None), True),
-		('value', Array, (0, None, (2,), Float), (False, None), True),
-		('value', Array, (0, None, (3,), Float), (False, None), True),
-		('value', Array, (0, None, (4,), Float), (False, None), True),
-		('value', Array, (0, None, (1,), Int), (False, None), True),
-		('value', Array, (0, None, (1,), Int), (False, None), True),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('value', Array, (0, None, (1,), Float), (False, None), True)
+		yield ('value', Array, (0, None, (2,), Float), (False, None), True)
+		yield ('value', Array, (0, None, (3,), Float), (False, None), True)
+		yield ('value', Array, (0, None, (4,), Float), (False, None), True)
+		yield ('value', Array, (0, None, (1,), Int), (False, None), True)
+		yield ('value', Array, (0, None, (1,), Int), (False, None), True)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -41,3 +42,6 @@ class AttribData(MemStruct):
 			yield 'value', Array, (0, None, (1,), Int), (False, None)
 		if instance.arg.dtype == 6:
 			yield 'value', Array, (0, None, (1,), Int), (False, None)
+
+
+AttribData.init_attributes()

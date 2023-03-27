@@ -33,22 +33,23 @@ class ManiBlock(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = BaseStruct._attribute_list + [
-		('ref', Empty, (0, None), (False, None), None),
-		('pos_bones', Array, (0, None, (None,), Channelname), (False, None), None),
-		('ori_bones', Array, (0, None, (None,), Channelname), (False, None), None),
-		('scl_bones', Array, (0, None, (None,), Channelname), (False, None), None),
-		('floats', Array, (0, None, (None,), Channelname), (False, None), None),
-		('pos_bones_p', Array, (0, None, (None,), Ubyte), (False, None), None),
-		('ori_bones_p', Array, (0, None, (None,), Ubyte), (False, None), None),
-		('scl_bones_p', Array, (0, None, (None,), Ubyte), (False, None), None),
-		('pos_bones_delta', Array, (0, None, (None,), Ubyte), (False, None), True),
-		('ori_bones_delta', Array, (0, None, (None,), Ubyte), (False, None), True),
-		('scl_bones_delta', Array, (0, None, (None,), Ubyte), (False, None), True),
-		('pad', PadAlign, (4, None), (False, None), None),
-		('key_data', UncompressedManiData, (None, None), (False, None), True),
-		('key_data', CompressedManiData, (None, None), (False, None), True),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('ref', Empty, (0, None), (False, None), None)
+		yield ('pos_bones', Array, (0, None, (None,), Channelname), (False, None), None)
+		yield ('ori_bones', Array, (0, None, (None,), Channelname), (False, None), None)
+		yield ('scl_bones', Array, (0, None, (None,), Channelname), (False, None), None)
+		yield ('floats', Array, (0, None, (None,), Channelname), (False, None), None)
+		yield ('pos_bones_p', Array, (0, None, (None,), Ubyte), (False, None), None)
+		yield ('ori_bones_p', Array, (0, None, (None,), Ubyte), (False, None), None)
+		yield ('scl_bones_p', Array, (0, None, (None,), Ubyte), (False, None), None)
+		yield ('pos_bones_delta', Array, (0, None, (None,), Ubyte), (False, None), True)
+		yield ('ori_bones_delta', Array, (0, None, (None,), Ubyte), (False, None), True)
+		yield ('scl_bones_delta', Array, (0, None, (None,), Ubyte), (False, None), True)
+		yield ('pad', PadAlign, (4, None), (False, None), None)
+		yield ('key_data', UncompressedManiData, (None, None), (False, None), True)
+		yield ('key_data', CompressedManiData, (None, None), (False, None), True)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -72,3 +73,6 @@ class ManiBlock(BaseStruct):
 			yield 'key_data', UncompressedManiData, (instance.arg, None), (False, None)
 		if instance.arg.b > 0:
 			yield 'key_data', CompressedManiData, (instance.arg, None), (False, None)
+
+
+ManiBlock.init_attributes()

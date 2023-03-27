@@ -26,13 +26,17 @@ class UACJoint(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = BaseStruct._attribute_list + [
-		('unk', Array, (0, None, (6,), Ushort), (False, None), None),
-		('floats', Array, (0, None, (6,), Float), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('unk', Array, (0, None, (6,), Ushort), (False, None), None)
+		yield ('floats', Array, (0, None, (6,), Float), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'unk', Array, (0, None, (6,), Ushort), (False, None)
 		yield 'floats', Array, (0, None, (6,), Float), (False, None)
+
+
+UACJoint.init_attributes()

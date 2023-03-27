@@ -16,13 +16,17 @@ class PoseDriverDefRoot(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MemStruct._attribute_list + [
-		('drivers', ArrayPointer, (None, None), (False, None), None),
-		('count', Uint64, (0, None), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('drivers', ArrayPointer, (None, None), (False, None), None)
+		yield ('count', Uint64, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'drivers', ArrayPointer, (instance.count, PoseDriverDefRoot._import_map["posedriverdef.compounds.Driver"]), (False, None)
 		yield 'count', Uint64, (0, None), (False, None)
+
+
+PoseDriverDefRoot.init_attributes()

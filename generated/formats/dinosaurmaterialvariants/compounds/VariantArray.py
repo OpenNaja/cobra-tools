@@ -15,11 +15,15 @@ class VariantArray(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MemStruct._attribute_list + [
-		('variants', Array, (0, None, (None,), Variant), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('variants', Array, (0, None, (None,), Variant), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'variants', Array, (0, None, (instance.arg,), Variant), (False, None)
+
+
+VariantArray.init_attributes()

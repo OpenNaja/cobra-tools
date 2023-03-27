@@ -25,12 +25,13 @@ class VariableBlendedAnimationData(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MemStruct._attribute_list + [
-		('animation', Pointer, (0, ZString), (False, None), None),
-		('value', Float, (0, None), (False, 0.0), None),
-		('_pad', Uint, (0, None), (False, None), None),
-		('additional_data_streams', DataStreamResourceDataList, (0, None), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('animation', Pointer, (0, ZString), (False, None), None)
+		yield ('value', Float, (0, None), (False, 0.0), None)
+		yield ('_pad', Uint, (0, None), (False, None), None)
+		yield ('additional_data_streams', DataStreamResourceDataList, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -39,3 +40,6 @@ class VariableBlendedAnimationData(MemStruct):
 		yield 'value', Float, (0, None), (False, 0.0)
 		yield '_pad', Uint, (0, None), (False, None)
 		yield 'additional_data_streams', DataStreamResourceDataList, (0, None), (False, None)
+
+
+VariableBlendedAnimationData.init_attributes()

@@ -26,11 +26,12 @@ class ByteVector3(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MemStruct._attribute_list + [
-		('x', Byte, (0, None), (False, None), None),
-		('y', Byte, (0, None), (False, None), None),
-		('z', Byte, (0, None), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('x', Byte, (0, None), (False, None), None)
+		yield ('y', Byte, (0, None), (False, None), None)
+		yield ('z', Byte, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -38,3 +39,6 @@ class ByteVector3(MemStruct):
 		yield 'x', Byte, (0, None), (False, None)
 		yield 'y', Byte, (0, None), (False, None)
 		yield 'z', Byte, (0, None), (False, None)
+
+
+ByteVector3.init_attributes()

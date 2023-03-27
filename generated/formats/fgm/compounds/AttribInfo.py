@@ -20,11 +20,15 @@ class AttribInfo(GenericInfo):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = GenericInfo._attribute_list + [
-		('_value_offset', Uint64, (0, None), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('_value_offset', Uint64, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield '_value_offset', Uint64, (0, None), (False, None)
+
+
+AttribInfo.init_attributes()

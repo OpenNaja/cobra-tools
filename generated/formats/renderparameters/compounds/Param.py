@@ -23,11 +23,12 @@ class Param(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MemStruct._attribute_list + [
-		('attribute_name', Pointer, (0, ZString), (False, None), None),
-		('dtype', RenderParameterType, (0, None), (False, None), None),
-		('data', ParamData, (None, None), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('attribute_name', Pointer, (0, ZString), (False, None), None)
+		yield ('dtype', RenderParameterType, (0, None), (False, None), None)
+		yield ('data', ParamData, (None, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -35,3 +36,6 @@ class Param(MemStruct):
 		yield 'attribute_name', Pointer, (0, ZString), (False, None)
 		yield 'dtype', RenderParameterType, (0, None), (False, None)
 		yield 'data', ParamData, (instance.dtype, None), (False, None)
+
+
+Param.init_attributes()

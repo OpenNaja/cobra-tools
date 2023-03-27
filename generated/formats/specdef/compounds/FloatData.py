@@ -22,12 +22,13 @@ class FloatData(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MemStruct._attribute_list + [
-		('imin', Float, (0, None), (False, None), None),
-		('imax', Float, (0, None), (False, None), None),
-		('ivalue', Float, (0, None), (False, None), None),
-		('ioptional', Uint, (0, None), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('imin', Float, (0, None), (False, None), None)
+		yield ('imax', Float, (0, None), (False, None), None)
+		yield ('ivalue', Float, (0, None), (False, None), None)
+		yield ('ioptional', Uint, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -36,3 +37,6 @@ class FloatData(MemStruct):
 		yield 'imax', Float, (0, None), (False, None)
 		yield 'ivalue', Float, (0, None), (False, None)
 		yield 'ioptional', Uint, (0, None), (False, None)
+
+
+FloatData.init_attributes()

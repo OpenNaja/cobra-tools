@@ -26,11 +26,12 @@ class AuxEntry(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = BaseStruct._attribute_list + [
-		('file_index', Uint, (0, None), (False, None), None),
-		('basename', OffsetString, (None, None), (False, None), None),
-		('size', Uint, (0, None), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('file_index', Uint, (0, None), (False, None), None)
+		yield ('basename', OffsetString, (None, None), (False, None), None)
+		yield ('size', Uint, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -38,3 +39,6 @@ class AuxEntry(BaseStruct):
 		yield 'file_index', Uint, (0, None), (False, None)
 		yield 'basename', OffsetString, (instance.context.names, None), (False, None)
 		yield 'size', Uint, (0, None), (False, None)
+
+
+AuxEntry.init_attributes()

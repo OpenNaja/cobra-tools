@@ -47,24 +47,25 @@ class TexHeader(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MemStruct._attribute_list + [
-		('zero_0', Uint, (0, None), (True, 0), True),
-		('zero_0', Uint64, (0, None), (True, 0), True),
-		('zero_1', Uint64, (0, None), (True, 0), True),
-		('buffer_infos', ArrayPointer, (None, None), (False, None), True),
-		('buffer_infos', ArrayPointer, (None, None), (False, None), True),
-		('size_info', Pointer, (0, None), (False, None), True),
-		('compression_type', DdsTypeCoaster, (0, None), (False, None), True),
-		('compression_type', DdsType, (0, None), (False, None), True),
-		('one_0', Ubyte, (0, None), (False, None), None),
-		('num_mips', Ushort, (0, None), (False, None), True),
-		('width', Ushort, (0, None), (False, None), True),
-		('height', Ushort, (0, None), (False, None), True),
-		('stream_count', Ubyte, (0, None), (False, None), True),
-		('stream_count_repeat', Ubyte, (0, None), (False, None), True),
-		('pad', Uint, (0, None), (True, 0), None),
-		('pad_dla', Uint64, (0, None), (True, 0), True),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('zero_0', Uint, (0, None), (True, 0), True)
+		yield ('zero_0', Uint64, (0, None), (True, 0), True)
+		yield ('zero_1', Uint64, (0, None), (True, 0), True)
+		yield ('buffer_infos', ArrayPointer, (None, None), (False, None), True)
+		yield ('buffer_infos', ArrayPointer, (None, None), (False, None), True)
+		yield ('size_info', Pointer, (0, None), (False, None), True)
+		yield ('compression_type', DdsTypeCoaster, (0, None), (False, None), True)
+		yield ('compression_type', DdsType, (0, None), (False, None), True)
+		yield ('one_0', Ubyte, (0, None), (False, None), None)
+		yield ('num_mips', Ushort, (0, None), (False, None), True)
+		yield ('width', Ushort, (0, None), (False, None), True)
+		yield ('height', Ushort, (0, None), (False, None), True)
+		yield ('stream_count', Ubyte, (0, None), (False, None), True)
+		yield ('stream_count_repeat', Ubyte, (0, None), (False, None), True)
+		yield ('pad', Uint, (0, None), (True, 0), None)
+		yield ('pad_dla', Uint64, (0, None), (True, 0), True)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -95,3 +96,6 @@ class TexHeader(MemStruct):
 		yield 'pad', Uint, (0, None), (True, 0)
 		if instance.context.version <= 15:
 			yield 'pad_dla', Uint64, (0, None), (True, 0)
+
+
+TexHeader.init_attributes()

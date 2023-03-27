@@ -54,20 +54,21 @@ class LodInfo(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = BaseStruct._attribute_list + [
-		('full', Short, (0, None), (False, None), True),
-		('half', Short, (0, None), (False, None), True),
-		('lod_index', Ushort, (0, None), (False, None), True),
-		('distance', Float, (0, None), (False, None), True),
-		('stream_index', Ushort, (0, None), (False, None), True),
-		('bone_index', Ushort, (0, None), (False, None), None),
-		('first_object_index', Ushort, (0, None), (False, None), None),
-		('first_object_index_1', Ushort, (0, None), (False, None), True),
-		('first_object_index_2', Ushort, (0, None), (False, None), True),
-		('last_object_index', Ushort, (0, None), (False, None), None),
-		('vertex_count', Uint, (0, None), (False, None), True),
-		('tri_index_count', Uint, (0, None), (False, None), True),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('full', Short, (0, None), (False, None), True)
+		yield ('half', Short, (0, None), (False, None), True)
+		yield ('lod_index', Ushort, (0, None), (False, None), True)
+		yield ('distance', Float, (0, None), (False, None), True)
+		yield ('stream_index', Ushort, (0, None), (False, None), True)
+		yield ('bone_index', Ushort, (0, None), (False, None), None)
+		yield ('first_object_index', Ushort, (0, None), (False, None), None)
+		yield ('first_object_index_1', Ushort, (0, None), (False, None), True)
+		yield ('first_object_index_2', Ushort, (0, None), (False, None), True)
+		yield ('last_object_index', Ushort, (0, None), (False, None), None)
+		yield ('vertex_count', Uint, (0, None), (False, None), True)
+		yield ('tri_index_count', Uint, (0, None), (False, None), True)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -88,3 +89,6 @@ class LodInfo(BaseStruct):
 		if instance.context.version >= 32 and not (((instance.context.version == 51) or (instance.context.version == 52)) and instance.context.biosyn):
 			yield 'vertex_count', Uint, (0, None), (False, None)
 			yield 'tri_index_count', Uint, (0, None), (False, None)
+
+
+LodInfo.init_attributes()

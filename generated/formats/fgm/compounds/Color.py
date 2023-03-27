@@ -21,12 +21,13 @@ class Color(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MemStruct._attribute_list + [
-		('r', Ubyte, (0, None), (False, None), None),
-		('g', Ubyte, (0, None), (False, None), None),
-		('b', Ubyte, (0, None), (False, None), None),
-		('a', Ubyte, (0, None), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('r', Ubyte, (0, None), (False, None), None)
+		yield ('g', Ubyte, (0, None), (False, None), None)
+		yield ('b', Ubyte, (0, None), (False, None), None)
+		yield ('a', Ubyte, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -35,3 +36,6 @@ class Color(MemStruct):
 		yield 'g', Ubyte, (0, None), (False, None)
 		yield 'b', Ubyte, (0, None), (False, None)
 		yield 'a', Ubyte, (0, None), (False, None)
+
+
+Color.init_attributes()

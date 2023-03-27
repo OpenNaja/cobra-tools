@@ -20,12 +20,13 @@ class DinoLayersHeader(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MemStruct._attribute_list + [
-		('fgm_name', Pointer, (0, ZStringObfuscated), (False, None), None),
-		('layers', ArrayPointer, (None, None), (False, None), None),
-		('layer_count', Uint64, (0, None), (False, None), None),
-		('zero', Uint64, (0, None), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('fgm_name', Pointer, (0, ZStringObfuscated), (False, None), None)
+		yield ('layers', ArrayPointer, (None, None), (False, None), None)
+		yield ('layer_count', Uint64, (0, None), (False, None), None)
+		yield ('zero', Uint64, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -34,3 +35,6 @@ class DinoLayersHeader(MemStruct):
 		yield 'layers', ArrayPointer, (instance.layer_count, DinoLayersHeader._import_map["dinosaurmaterialvariants.compounds.Layer"]), (False, None)
 		yield 'layer_count', Uint64, (0, None), (False, None)
 		yield 'zero', Uint64, (0, None), (False, None)
+
+
+DinoLayersHeader.init_attributes()

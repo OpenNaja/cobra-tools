@@ -26,8 +26,9 @@ class MemStruct(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = BaseStruct._attribute_list + [
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -116,3 +117,6 @@ class MemStruct(BaseStruct):
 		return None
 
 
+
+
+MemStruct.init_attributes()

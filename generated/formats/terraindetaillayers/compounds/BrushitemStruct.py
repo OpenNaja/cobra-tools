@@ -17,13 +17,17 @@ class BrushitemStruct(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MemStruct._attribute_list + [
-		('brush_name', Pointer, (0, ZString), (False, None), None),
-		('brush_type', Uint64, (0, None), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('brush_name', Pointer, (0, ZString), (False, None), None)
+		yield ('brush_type', Uint64, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'brush_name', Pointer, (0, ZString), (False, None)
 		yield 'brush_type', Uint64, (0, None), (False, None)
+
+
+BrushitemStruct.init_attributes()

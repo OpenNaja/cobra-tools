@@ -22,11 +22,12 @@ class FloatInputData(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MemStruct._attribute_list + [
-		('float', Float, (0, None), (False, None), None),
-		('optional_var_and_curve_count', Uint, (0, None), (False, None), None),
-		('optional_var_and_curve', Uint64, (0, None), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('float', Float, (0, None), (False, None), None)
+		yield ('optional_var_and_curve_count', Uint, (0, None), (False, None), None)
+		yield ('optional_var_and_curve', Uint64, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -34,3 +35,6 @@ class FloatInputData(MemStruct):
 		yield 'float', Float, (0, None), (False, None)
 		yield 'optional_var_and_curve_count', Uint, (0, None), (False, None)
 		yield 'optional_var_and_curve', Uint64, (0, None), (False, None)
+
+
+FloatInputData.init_attributes()

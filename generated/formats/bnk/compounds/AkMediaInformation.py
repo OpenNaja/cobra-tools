@@ -17,11 +17,12 @@ class AkMediaInformation(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = BaseStruct._attribute_list + [
-		('source_i_d', Uint, (0, None), (False, None), None),
-		('u_in_memory_media_size', Uint, (0, None), (False, None), None),
-		('u_source_bits', Ubyte, (0, None), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('source_i_d', Uint, (0, None), (False, None), None)
+		yield ('u_in_memory_media_size', Uint, (0, None), (False, None), None)
+		yield ('u_source_bits', Ubyte, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -29,3 +30,6 @@ class AkMediaInformation(BaseStruct):
 		yield 'source_i_d', Uint, (0, None), (False, None)
 		yield 'u_in_memory_media_size', Uint, (0, None), (False, None)
 		yield 'u_source_bits', Ubyte, (0, None), (False, None)
+
+
+AkMediaInformation.init_attributes()

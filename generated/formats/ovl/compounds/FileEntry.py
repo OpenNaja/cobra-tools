@@ -34,13 +34,14 @@ class FileEntry(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = BaseStruct._attribute_list + [
-		('basename', OffsetString, (None, None), (False, None), None),
-		('file_hash', Uint, (0, None), (False, None), None),
-		('pool_type', Byte, (0, None), (False, None), None),
-		('set_pool_type', Byte, (0, None), (False, None), None),
-		('extension', Ushort, (0, None), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('basename', OffsetString, (None, None), (False, None), None)
+		yield ('file_hash', Uint, (0, None), (False, None), None)
+		yield ('pool_type', Byte, (0, None), (False, None), None)
+		yield ('set_pool_type', Byte, (0, None), (False, None), None)
+		yield ('extension', Ushort, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -56,3 +57,6 @@ class FileEntry(BaseStruct):
 		self.pool_type = ovl.get_mime(self.ext, "pool")
 		self.set_pool_type = ovl.get_mime(self.ext, "set_pool")
 
+
+
+FileEntry.init_attributes()

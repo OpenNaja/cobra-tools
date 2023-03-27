@@ -55,19 +55,20 @@ class NewMeshData(MeshData):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MeshData._attribute_list + [
-		('vertex_count', Uint, (0, None), (False, None), None),
-		('tri_index_count', Uint, (0, None), (False, None), None),
-		('zero_1', Uint, (0, None), (False, None), None),
-		('poweroftwo', Uint, (0, None), (False, None), None),
-		('vertex_offset', Uint, (0, None), (False, None), None),
-		('size_of_vertex', Uint, (0, None), (False, 48), None),
-		('tri_offset', Uint, (0, None), (False, None), None),
-		('zero_2', Uint, (0, None), (False, None), None),
-		('unk_floats', Array, (0, None, (2,), Float), (False, None), None),
-		('zero_3', Uint, (0, None), (False, None), None),
-		('flag', ModelFlag, (0, None), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('vertex_count', Uint, (0, None), (False, None), None)
+		yield ('tri_index_count', Uint, (0, None), (False, None), None)
+		yield ('zero_1', Uint, (0, None), (False, None), None)
+		yield ('poweroftwo', Uint, (0, None), (False, None), None)
+		yield ('vertex_offset', Uint, (0, None), (False, None), None)
+		yield ('size_of_vertex', Uint, (0, None), (False, 48), None)
+		yield ('tri_offset', Uint, (0, None), (False, None), None)
+		yield ('zero_2', Uint, (0, None), (False, None), None)
+		yield ('unk_floats', Array, (0, None, (2,), Float), (False, None), None)
+		yield ('zero_3', Uint, (0, None), (False, None), None)
+		yield ('flag', ModelFlag, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -263,3 +264,6 @@ class NewMeshData(MeshData):
 			if "bone ids" in self.dt.fields:
 				vert["bone ids"], vert["bone weights"] = self.unpack_weights_list(weight)
 
+
+
+NewMeshData.init_attributes()

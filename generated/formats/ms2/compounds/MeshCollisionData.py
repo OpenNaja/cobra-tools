@@ -38,16 +38,17 @@ class MeshCollisionData(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = BaseStruct._attribute_list + [
-		('tris_salt', Array, (0, None, (4,), Uint), (False, None), True),
-		('vertices_addr', Empty, (0, None), (False, None), None),
-		('vertices', Array, (0, None, (None, 3,), Float), (False, None), None),
-		('triangles_addr', Empty, (0, None), (False, None), None),
-		('triangles', Array, (0, None, (None, 3,), Ushort), (False, None), None),
-		('const', Uint, (0, None), (False, None), True),
-		('triangle_flags', Array, (0, None, (None,), Uint), (False, None), True),
-		('zero_end', Uint, (0, None), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('tris_salt', Array, (0, None, (4,), Uint), (False, None), True)
+		yield ('vertices_addr', Empty, (0, None), (False, None), None)
+		yield ('vertices', Array, (0, None, (None, 3,), Float), (False, None), None)
+		yield ('triangles_addr', Empty, (0, None), (False, None), None)
+		yield ('triangles', Array, (0, None, (None, 3,), Ushort), (False, None), None)
+		yield ('const', Uint, (0, None), (False, None), True)
+		yield ('triangle_flags', Array, (0, None, (None,), Uint), (False, None), True)
+		yield ('zero_end', Uint, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -63,3 +64,6 @@ class MeshCollisionData(BaseStruct):
 		if instance.context.version <= 47 and instance.const:
 			yield 'triangle_flags', Array, (0, None, (instance.arg.tri_flags_count,), Uint), (False, None)
 		yield 'zero_end', Uint, (0, None), (False, None)
+
+
+MeshCollisionData.init_attributes()

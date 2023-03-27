@@ -11,8 +11,9 @@ class AbstractPointer(BaseStruct):
 
 	_import_key = 'ms2.compounds.AbstractPointer'
 
-	_attribute_list = BaseStruct._attribute_list + [
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -28,3 +29,6 @@ class AbstractPointer(BaseStruct):
 		n = self.joint.name if self.joint else None
 		return f"{self.index} -> {n}"
 
+
+
+AbstractPointer.init_attributes()

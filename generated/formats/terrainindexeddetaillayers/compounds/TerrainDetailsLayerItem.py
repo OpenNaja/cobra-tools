@@ -19,11 +19,12 @@ class TerrainDetailsLayerItem(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MemStruct._attribute_list + [
-		('layer_name', Pointer, (0, ZString), (False, None), None),
-		('info_list', ArrayPointer, (None, None), (False, None), None),
-		('info_count', Uint64, (0, None), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('layer_name', Pointer, (0, ZString), (False, None), None)
+		yield ('info_list', ArrayPointer, (None, None), (False, None), None)
+		yield ('info_count', Uint64, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -31,3 +32,6 @@ class TerrainDetailsLayerItem(MemStruct):
 		yield 'layer_name', Pointer, (0, ZString), (False, None)
 		yield 'info_list', ArrayPointer, (instance.info_count, TerrainDetailsLayerItem._import_map["terrainindexeddetaillayers.compounds.BrushitemStruct"]), (False, None)
 		yield 'info_count', Uint64, (0, None), (False, None)
+
+
+TerrainDetailsLayerItem.init_attributes()

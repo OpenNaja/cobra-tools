@@ -20,11 +20,12 @@ class Repeat(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = BaseStruct._attribute_list + [
-		('zeros_0', Array, (0, None, (7,), Uint64), (False, None), None),
-		('byte_size', Uint64, (0, None), (False, None), None),
-		('zeros_1', Array, (0, None, (2,), Uint64), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('zeros_0', Array, (0, None, (7,), Uint64), (False, None), None)
+		yield ('byte_size', Uint64, (0, None), (False, None), None)
+		yield ('zeros_1', Array, (0, None, (2,), Uint64), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -32,3 +33,6 @@ class Repeat(BaseStruct):
 		yield 'zeros_0', Array, (0, None, (7,), Uint64), (False, None)
 		yield 'byte_size', Uint64, (0, None), (False, None)
 		yield 'zeros_1', Array, (0, None, (2,), Uint64), (False, None)
+
+
+Repeat.init_attributes()

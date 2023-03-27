@@ -23,11 +23,12 @@ class Wsm(GenericHeader):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = GenericHeader._attribute_list + [
-		('header', WsmHeader, (0, None), (False, None), None),
-		('locs', Array, (0, None, (None, 3,), Float), (False, None), None),
-		('quats', Array, (0, None, (None, 4,), Float), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('header', WsmHeader, (0, None), (False, None), None)
+		yield ('locs', Array, (0, None, (None, 3,), Float), (False, None), None)
+		yield ('quats', Array, (0, None, (None, 4,), Float), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -35,3 +36,6 @@ class Wsm(GenericHeader):
 		yield 'header', WsmHeader, (0, None), (False, None)
 		yield 'locs', Array, (0, None, (instance.header.frame_count, 3,), Float), (False, None)
 		yield 'quats', Array, (0, None, (instance.header.frame_count, 4,), Float), (False, None)
+
+
+Wsm.init_attributes()

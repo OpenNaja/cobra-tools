@@ -22,14 +22,15 @@ class DinoPatternsHeader(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MemStruct._attribute_list + [
-		('fgm_name', Pointer, (0, ZStringObfuscated), (False, None), None),
-		('set_count', Uint64, (0, None), (False, None), None),
-		('set_name', Pointer, (0, ZString), (False, None), None),
-		('patterns', Pointer, (None, None), (False, None), None),
-		('pattern_count', Uint64, (0, None), (False, None), None),
-		('zero', Uint64, (0, None), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('fgm_name', Pointer, (0, ZStringObfuscated), (False, None), None)
+		yield ('set_count', Uint64, (0, None), (False, None), None)
+		yield ('set_name', Pointer, (0, ZString), (False, None), None)
+		yield ('patterns', Pointer, (None, None), (False, None), None)
+		yield ('pattern_count', Uint64, (0, None), (False, None), None)
+		yield ('zero', Uint64, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -40,3 +41,6 @@ class DinoPatternsHeader(MemStruct):
 		yield 'patterns', Pointer, (instance.pattern_count, DinoPatternsHeader._import_map["dinosaurmaterialvariants.compounds.PatternArray"]), (False, None)
 		yield 'pattern_count', Uint64, (0, None), (False, None)
 		yield 'zero', Uint64, (0, None), (False, None)
+
+
+DinoPatternsHeader.init_attributes()

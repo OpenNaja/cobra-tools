@@ -106,44 +106,45 @@ class JointData(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = BaseStruct._attribute_list + [
-		('start_pc', SmartPadding, (0, None), (False, None), True),
-		('before_dla_0', Uint64, (0, None), (False, None), True),
-		('before_dla_1', Uint64, (0, None), (False, None), True),
-		('joint_count', Uint, (0, None), (False, None), None),
-		('num_push_constraints', Uint, (0, None), (False, None), None),
-		('num_stretch_constraints', Uint, (0, None), (False, None), None),
-		('num_ragdoll_constraints', Uint, (0, None), (False, None), None),
-		('zero_0', Uint, (0, None), (False, None), True),
-		('zero_1', Uint, (0, None), (False, None), True),
-		('namespace_length', Uint, (0, None), (False, None), None),
-		('zeros_0', Array, (0, None, (5,), Uint), (False, None), None),
-		('pc_count', Uint, (0, None), (False, None), None),
-		('zeros_1', Array, (0, None, (7,), Uint), (False, None), None),
-		('extra_zeros_2', Array, (0, None, (4,), Uint), (False, None), True),
-		('one_0', Uint64, (0, None), (False, 1), True),
-		('one_1', Uint64, (0, None), (False, 1), True),
-		('bone_count', Uint, (0, None), (False, None), None),
-		('joint_entry_count', Uint, (0, None), (False, None), None),
-		('zeros_2', Array, (0, None, (4,), Uint), (False, None), None),
-		('zeros_3', Uint, (0, None), (False, None), True),
-		('names_ref', Empty, (0, None), (False, None), None),
-		('joint_transforms', Array, (0, None, (None,), JointTransform), (False, None), None),
-		('rigid_body_pointers', Array, (0, None, (None,), Uint64), (False, None), True),
-		('rigid_body_list', Array, (0, None, (None,), RigidBody), (False, None), True),
-		('push_constraints', Array, (0, None, (None,), PushConstraint), (False, None), True),
-		('stretch_constraints', Array, (0, None, (None,), StretchConstraint), (False, None), True),
-		('ragdoll_constraints', Array, (0, None, (None,), RagdollConstraint), (False, None), True),
-		('joint_infos', Array, (0, None, (None,), UACJointFF), (False, None), True),
-		('pc_floats', Array, (0, None, (None, 10,), Float), (False, None), True),
-		('joint_to_bone', Array, (0, None, (None,), Int), (False, None), None),
-		('bone_to_joint', Array, (0, None, (None,), Int), (False, None), None),
-		('joint_names', ZStringBuffer, (None, None), (False, None), None),
-		('joint_names_padding', PadAlign, (8, None), (False, None), True),
-		('joint_names_padding', SmartPadding, (0, None), (False, None), True),
-		('joint_infos', Array, (None, None, (None,), JointInfo), (False, None), True),
-		('hitcheck_reader', HitcheckReader, (None, None), (False, None), True),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('start_pc', SmartPadding, (0, None), (False, None), True)
+		yield ('before_dla_0', Uint64, (0, None), (False, None), True)
+		yield ('before_dla_1', Uint64, (0, None), (False, None), True)
+		yield ('joint_count', Uint, (0, None), (False, None), None)
+		yield ('num_push_constraints', Uint, (0, None), (False, None), None)
+		yield ('num_stretch_constraints', Uint, (0, None), (False, None), None)
+		yield ('num_ragdoll_constraints', Uint, (0, None), (False, None), None)
+		yield ('zero_0', Uint, (0, None), (False, None), True)
+		yield ('zero_1', Uint, (0, None), (False, None), True)
+		yield ('namespace_length', Uint, (0, None), (False, None), None)
+		yield ('zeros_0', Array, (0, None, (5,), Uint), (False, None), None)
+		yield ('pc_count', Uint, (0, None), (False, None), None)
+		yield ('zeros_1', Array, (0, None, (7,), Uint), (False, None), None)
+		yield ('extra_zeros_2', Array, (0, None, (4,), Uint), (False, None), True)
+		yield ('one_0', Uint64, (0, None), (False, 1), True)
+		yield ('one_1', Uint64, (0, None), (False, 1), True)
+		yield ('bone_count', Uint, (0, None), (False, None), None)
+		yield ('joint_entry_count', Uint, (0, None), (False, None), None)
+		yield ('zeros_2', Array, (0, None, (4,), Uint), (False, None), None)
+		yield ('zeros_3', Uint, (0, None), (False, None), True)
+		yield ('names_ref', Empty, (0, None), (False, None), None)
+		yield ('joint_transforms', Array, (0, None, (None,), JointTransform), (False, None), None)
+		yield ('rigid_body_pointers', Array, (0, None, (None,), Uint64), (False, None), True)
+		yield ('rigid_body_list', Array, (0, None, (None,), RigidBody), (False, None), True)
+		yield ('push_constraints', Array, (0, None, (None,), PushConstraint), (False, None), True)
+		yield ('stretch_constraints', Array, (0, None, (None,), StretchConstraint), (False, None), True)
+		yield ('ragdoll_constraints', Array, (0, None, (None,), RagdollConstraint), (False, None), True)
+		yield ('joint_infos', Array, (0, None, (None,), UACJointFF), (False, None), True)
+		yield ('pc_floats', Array, (0, None, (None, 10,), Float), (False, None), True)
+		yield ('joint_to_bone', Array, (0, None, (None,), Int), (False, None), None)
+		yield ('bone_to_joint', Array, (0, None, (None,), Int), (False, None), None)
+		yield ('joint_names', ZStringBuffer, (None, None), (False, None), None)
+		yield ('joint_names_padding', PadAlign, (8, None), (False, None), True)
+		yield ('joint_names_padding', SmartPadding, (0, None), (False, None), True)
+		yield ('joint_infos', Array, (None, None, (None,), JointInfo), (False, None), True)
+		yield ('hitcheck_reader', HitcheckReader, (None, None), (False, None), True)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -242,3 +243,6 @@ class JointData(BaseStruct):
 			ptr.index = joints_map.get(ptr.joint)
 		super().write_fields(stream, instance)
 
+
+
+JointData.init_attributes()

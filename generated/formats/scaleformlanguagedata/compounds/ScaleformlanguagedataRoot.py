@@ -25,14 +25,15 @@ class ScaleformlanguagedataRoot(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MemStruct._attribute_list + [
-		('zero_0', Uint64, (0, None), (False, None), None),
-		('zero_1', Uint64, (0, None), (False, None), None),
-		('fonts', ArrayPointer, (None, None), (False, None), None),
-		('count', Uint64, (0, None), (False, None), None),
-		('zero_2', Uint64, (0, None), (False, None), None),
-		('zero_3', Uint64, (0, None), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('zero_0', Uint64, (0, None), (False, None), None)
+		yield ('zero_1', Uint64, (0, None), (False, None), None)
+		yield ('fonts', ArrayPointer, (None, None), (False, None), None)
+		yield ('count', Uint64, (0, None), (False, None), None)
+		yield ('zero_2', Uint64, (0, None), (False, None), None)
+		yield ('zero_3', Uint64, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -43,3 +44,6 @@ class ScaleformlanguagedataRoot(MemStruct):
 		yield 'count', Uint64, (0, None), (False, None)
 		yield 'zero_2', Uint64, (0, None), (False, None)
 		yield 'zero_3', Uint64, (0, None), (False, None)
+
+
+ScaleformlanguagedataRoot.init_attributes()

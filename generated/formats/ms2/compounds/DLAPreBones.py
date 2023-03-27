@@ -16,11 +16,15 @@ class DLAPreBones(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = BaseStruct._attribute_list + [
-		('unk', Array, (0, None, (120,), Ubyte), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('unk', Array, (0, None, (120,), Ubyte), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'unk', Array, (0, None, (120,), Ubyte), (False, None)
+
+
+DLAPreBones.init_attributes()

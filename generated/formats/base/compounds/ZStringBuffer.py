@@ -20,8 +20,9 @@ class ZStringBuffer(BaseStruct):
 
 	_import_key = 'base.compounds.ZStringBuffer'
 
-	_attribute_list = BaseStruct._attribute_list + [
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -93,3 +94,6 @@ class ZStringBuffer(BaseStruct):
 	def get_size(cls, instance, context, arg=0, template=None):
 		return len(instance.data)
 
+
+
+ZStringBuffer.init_attributes()

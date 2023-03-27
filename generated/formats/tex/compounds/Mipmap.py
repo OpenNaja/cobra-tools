@@ -32,13 +32,14 @@ class Mipmap(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MemStruct._attribute_list + [
-		('offset', Uint, (0, None), (False, None), None),
-		('size', Uint, (0, None), (False, None), None),
-		('size_array', Uint, (0, None), (False, None), None),
-		('size_scan', Uint, (0, None), (False, None), None),
-		('size_data', Uint, (0, None), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('offset', Uint, (0, None), (False, None), None)
+		yield ('size', Uint, (0, None), (False, None), None)
+		yield ('size_array', Uint, (0, None), (False, None), None)
+		yield ('size_scan', Uint, (0, None), (False, None), None)
+		yield ('size_data', Uint, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -48,3 +49,6 @@ class Mipmap(MemStruct):
 		yield 'size_array', Uint, (0, None), (False, None)
 		yield 'size_scan', Uint, (0, None), (False, None)
 		yield 'size_data', Uint, (0, None), (False, None)
+
+
+Mipmap.init_attributes()

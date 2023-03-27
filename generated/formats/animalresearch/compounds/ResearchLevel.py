@@ -20,13 +20,14 @@ class ResearchLevel(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MemStruct._attribute_list + [
-		('level_name', Pointer, (0, ZString), (False, None), None),
-		('next_levels', Pointer, (None, None), (False, None), None),
-		('next_level_count', Uint64, (0, None), (False, None), None),
-		('children', Pointer, (None, None), (False, None), None),
-		('children_count', Uint64, (0, None), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('level_name', Pointer, (0, ZString), (False, None), None)
+		yield ('next_levels', Pointer, (None, None), (False, None), None)
+		yield ('next_level_count', Uint64, (0, None), (False, None), None)
+		yield ('children', Pointer, (None, None), (False, None), None)
+		yield ('children_count', Uint64, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -36,3 +37,6 @@ class ResearchLevel(MemStruct):
 		yield 'next_level_count', Uint64, (0, None), (False, None)
 		yield 'children', Pointer, (instance.children_count, ResearchLevel._import_map["animalresearch.compounds.PtrList"]), (False, None)
 		yield 'children_count', Uint64, (0, None), (False, None)
+
+
+ResearchLevel.init_attributes()

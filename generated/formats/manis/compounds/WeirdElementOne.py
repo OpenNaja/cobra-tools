@@ -23,14 +23,15 @@ class WeirdElementOne(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = BaseStruct._attribute_list + [
-		('float_0', Float, (0, None), (False, None), None),
-		('zero_0', Uint, (0, None), (False, None), None),
-		('floats_0', Array, (0, None, (2,), Float), (False, None), None),
-		('zeros_0', Array, (0, None, (2,), Uint64), (False, None), None),
-		('floats_1', Array, (0, None, (3,), Float), (False, None), None),
-		('countb', Uint, (0, None), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('float_0', Float, (0, None), (False, None), None)
+		yield ('zero_0', Uint, (0, None), (False, None), None)
+		yield ('floats_0', Array, (0, None, (2,), Float), (False, None), None)
+		yield ('zeros_0', Array, (0, None, (2,), Uint64), (False, None), None)
+		yield ('floats_1', Array, (0, None, (3,), Float), (False, None), None)
+		yield ('countb', Uint, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -41,3 +42,6 @@ class WeirdElementOne(BaseStruct):
 		yield 'zeros_0', Array, (0, None, (2,), Uint64), (False, None)
 		yield 'floats_1', Array, (0, None, (3,), Float), (False, None)
 		yield 'countb', Uint, (0, None), (False, None)
+
+
+WeirdElementOne.init_attributes()

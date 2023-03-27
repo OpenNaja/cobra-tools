@@ -16,11 +16,12 @@ class Vector3F(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MemStruct._attribute_list + [
-		('x', Float, (0, None), (False, None), None),
-		('y', Float, (0, None), (False, None), None),
-		('z', Float, (0, None), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('x', Float, (0, None), (False, None), None)
+		yield ('y', Float, (0, None), (False, None), None)
+		yield ('z', Float, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -28,3 +29,6 @@ class Vector3F(MemStruct):
 		yield 'x', Float, (0, None), (False, None)
 		yield 'y', Float, (0, None), (False, None)
 		yield 'z', Float, (0, None), (False, None)
+
+
+Vector3F.init_attributes()

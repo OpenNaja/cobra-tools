@@ -21,11 +21,12 @@ class AxisButton(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MemStruct._attribute_list + [
-		('button_name', Pointer, (0, ZString), (False, None), None),
-		('axis_name_x', Pointer, (0, ZString), (False, None), None),
-		('axis_name_y', Pointer, (0, ZString), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('button_name', Pointer, (0, ZString), (False, None), None)
+		yield ('axis_name_x', Pointer, (0, ZString), (False, None), None)
+		yield ('axis_name_y', Pointer, (0, ZString), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -33,3 +34,6 @@ class AxisButton(MemStruct):
 		yield 'button_name', Pointer, (0, ZString), (False, None)
 		yield 'axis_name_x', Pointer, (0, ZString), (False, None)
 		yield 'axis_name_y', Pointer, (0, ZString), (False, None)
+
+
+AxisButton.init_attributes()

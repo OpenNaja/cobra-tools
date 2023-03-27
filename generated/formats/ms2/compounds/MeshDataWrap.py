@@ -17,13 +17,14 @@ class MeshDataWrap(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MemStruct._attribute_list + [
-		('mesh', BioMeshData, (0, None), (False, None), True),
-		('mesh', NewMeshData, (0, None), (False, None), True),
-		('mesh', PcMeshData, (0, None), (False, None), True),
-		('mesh', ZtMeshData, (0, None), (False, None), True),
-		('mesh', ZtMeshData, (0, None), (False, None), True),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('mesh', BioMeshData, (0, None), (False, None), True)
+		yield ('mesh', NewMeshData, (0, None), (False, None), True)
+		yield ('mesh', PcMeshData, (0, None), (False, None), True)
+		yield ('mesh', ZtMeshData, (0, None), (False, None), True)
+		yield ('mesh', ZtMeshData, (0, None), (False, None), True)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -38,3 +39,6 @@ class MeshDataWrap(MemStruct):
 			yield 'mesh', ZtMeshData, (0, None), (False, None)
 		if instance.context.version == 7:
 			yield 'mesh', ZtMeshData, (0, None), (False, None)
+
+
+MeshDataWrap.init_attributes()

@@ -38,27 +38,28 @@ class SupportSetRoot(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MemStruct._attribute_list + [
-		('connector_1', ArrayPointer, (None, None), (False, None), None),
-		('connector_2', ArrayPointer, (None, None), (False, None), None),
-		('pillar', ArrayPointer, (None, None), (False, None), None),
-		('footer', ArrayPointer, (None, None), (False, None), None),
-		('sub_braces', ArrayPointer, (None, None), (False, None), None),
-		('unk_vector_1', Vector3, (0, None), (False, None), None),
-		('unk_vector_2', Vector2, (0, None), (False, None), None),
-		('unk_vector_3', Vector3, (0, None), (False, None), None),
-		('unk_int_1', Uint, (0, None), (False, None), None),
-		('num_connector_1', Uint, (0, None), (False, None), None),
-		('num_connector_2', Uint, (0, None), (False, None), None),
-		('num_pillar', Uint, (0, None), (False, None), None),
-		('num_subbrace', Uint, (0, None), (False, None), None),
-		('num_broken_support', Uint, (0, None), (False, None), None),
-		('unk_floats', Array, (0, None, (4,), Float), (False, None), None),
-		('broken_supports', ArrayPointer, (None, None), (False, None), None),
-		('data', ArrayPointer, (None, None), (False, None), None),
-		('num_data', Uint, (0, None), (False, None), None),
-		('zeros', Array, (0, None, (3,), Uint), (False, 0), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('connector_1', ArrayPointer, (None, None), (False, None), None)
+		yield ('connector_2', ArrayPointer, (None, None), (False, None), None)
+		yield ('pillar', ArrayPointer, (None, None), (False, None), None)
+		yield ('footer', ArrayPointer, (None, None), (False, None), None)
+		yield ('sub_braces', ArrayPointer, (None, None), (False, None), None)
+		yield ('unk_vector_1', Vector3, (0, None), (False, None), None)
+		yield ('unk_vector_2', Vector2, (0, None), (False, None), None)
+		yield ('unk_vector_3', Vector3, (0, None), (False, None), None)
+		yield ('unk_int_1', Uint, (0, None), (False, None), None)
+		yield ('num_connector_1', Uint, (0, None), (False, None), None)
+		yield ('num_connector_2', Uint, (0, None), (False, None), None)
+		yield ('num_pillar', Uint, (0, None), (False, None), None)
+		yield ('num_subbrace', Uint, (0, None), (False, None), None)
+		yield ('num_broken_support', Uint, (0, None), (False, None), None)
+		yield ('unk_floats', Array, (0, None, (4,), Float), (False, None), None)
+		yield ('broken_supports', ArrayPointer, (None, None), (False, None), None)
+		yield ('data', ArrayPointer, (None, None), (False, None), None)
+		yield ('num_data', Uint, (0, None), (False, None), None)
+		yield ('zeros', Array, (0, None, (3,), Uint), (False, 0), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -82,3 +83,6 @@ class SupportSetRoot(MemStruct):
 		yield 'data', ArrayPointer, (instance.num_data, SupportSetRoot._import_map["path.compounds.SupportSetData"]), (False, None)
 		yield 'num_data', Uint, (0, None), (False, None)
 		yield 'zeros', Array, (0, None, (3,), Uint), (False, 0)
+
+
+SupportSetRoot.init_attributes()

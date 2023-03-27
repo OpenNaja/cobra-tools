@@ -24,11 +24,12 @@ class DataPointer(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = BaseStruct._attribute_list + [
-		('wem_id', Uint, (0, None), (False, None), None),
-		('data_section_offset', Uint, (0, None), (False, None), None),
-		('wem_filesize', Uint, (0, None), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('wem_id', Uint, (0, None), (False, None), None)
+		yield ('data_section_offset', Uint, (0, None), (False, None), None)
+		yield ('wem_filesize', Uint, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -36,3 +37,6 @@ class DataPointer(BaseStruct):
 		yield 'wem_id', Uint, (0, None), (False, None)
 		yield 'data_section_offset', Uint, (0, None), (False, None)
 		yield 'wem_filesize', Uint, (0, None), (False, None)
+
+
+DataPointer.init_attributes()

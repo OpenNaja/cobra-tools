@@ -26,14 +26,15 @@ class Uint8Data(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MemStruct._attribute_list + [
-		('imin', Ubyte, (0, None), (False, None), None),
-		('imax', Ubyte, (0, None), (False, None), None),
-		('ivalue', Ubyte, (0, None), (False, None), None),
-		('ioptional', Ubyte, (0, None), (False, None), None),
-		('unused', Array, (0, None, (4,), Ubyte), (False, None), None),
-		('enum', Pointer, (0, None), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('imin', Ubyte, (0, None), (False, None), None)
+		yield ('imax', Ubyte, (0, None), (False, None), None)
+		yield ('ivalue', Ubyte, (0, None), (False, None), None)
+		yield ('ioptional', Ubyte, (0, None), (False, None), None)
+		yield ('unused', Array, (0, None, (4,), Ubyte), (False, None), None)
+		yield ('enum', Pointer, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -44,3 +45,6 @@ class Uint8Data(MemStruct):
 		yield 'ioptional', Ubyte, (0, None), (False, None)
 		yield 'unused', Array, (0, None, (4,), Ubyte), (False, None)
 		yield 'enum', Pointer, (0, None), (False, None)
+
+
+Uint8Data.init_attributes()

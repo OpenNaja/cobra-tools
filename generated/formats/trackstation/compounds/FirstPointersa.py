@@ -22,12 +22,13 @@ class FirstPointersa(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MemStruct._attribute_list + [
-		('pointer_stuff_1', CommonChunk, (0, None), (False, None), None),
-		('pointer_stuff_2', CommonChunk, (0, None), (False, None), None),
-		('pointer_stuff_3', CommonChunk, (0, None), (False, None), None),
-		('zero', Uint64, (0, None), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('pointer_stuff_1', CommonChunk, (0, None), (False, None), None)
+		yield ('pointer_stuff_2', CommonChunk, (0, None), (False, None), None)
+		yield ('pointer_stuff_3', CommonChunk, (0, None), (False, None), None)
+		yield ('zero', Uint64, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -36,3 +37,6 @@ class FirstPointersa(MemStruct):
 		yield 'pointer_stuff_2', CommonChunk, (0, None), (False, None)
 		yield 'pointer_stuff_3', CommonChunk, (0, None), (False, None)
 		yield 'zero', Uint64, (0, None), (False, None)
+
+
+FirstPointersa.init_attributes()

@@ -22,12 +22,13 @@ class MaterialName(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = BaseStruct._attribute_list + [
-		('name_index', Ushort, (0, None), (False, None), True),
-		('name_index', Uint, (0, None), (False, None), True),
-		('blend_mode', Ushort, (0, None), (False, None), True),
-		('blend_mode', Uint, (0, None), (False, None), True),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('name_index', Ushort, (0, None), (False, None), True)
+		yield ('name_index', Uint, (0, None), (False, None), True)
+		yield ('blend_mode', Ushort, (0, None), (False, None), True)
+		yield ('blend_mode', Uint, (0, None), (False, None), True)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -40,3 +41,6 @@ class MaterialName(BaseStruct):
 			yield 'blend_mode', Ushort, (0, None), (False, None)
 		if instance.context.version >= 47:
 			yield 'blend_mode', Uint, (0, None), (False, None)
+
+
+MaterialName.init_attributes()

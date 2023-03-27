@@ -67,25 +67,26 @@ class ArchiveEntry(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = BaseStruct._attribute_list + [
-		('name', OffsetString, (None, None), (False, None), None),
-		('pools_offset', Uint, (0, None), (False, None), None),
-		('stream_files_offset', Uint, (0, None), (False, None), None),
-		('num_pools', Uint, (0, None), (False, None), None),
-		('num_datas', Ushort, (0, None), (False, None), None),
-		('num_pool_groups', Ushort, (0, None), (False, None), None),
-		('num_buffer_groups', Uint, (0, None), (False, None), None),
-		('num_buffers', Uint, (0, None), (False, None), None),
-		('num_fragments', Uint, (0, None), (False, None), None),
-		('num_root_entries', Uint, (0, None), (False, None), None),
-		('read_start', Uint, (0, None), (False, None), None),
-		('set_data_size', Uint, (0, None), (False, None), None),
-		('compressed_size', Uint, (0, None), (False, None), None),
-		('uncompressed_size', Uint64, (0, None), (False, None), None),
-		('pools_start', Uint, (0, None), (False, None), None),
-		('pools_end', Uint, (0, None), (False, None), None),
-		('ovs_offset', Uint, (0, None), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('name', OffsetString, (None, None), (False, None), None)
+		yield ('pools_offset', Uint, (0, None), (False, None), None)
+		yield ('stream_files_offset', Uint, (0, None), (False, None), None)
+		yield ('num_pools', Uint, (0, None), (False, None), None)
+		yield ('num_datas', Ushort, (0, None), (False, None), None)
+		yield ('num_pool_groups', Ushort, (0, None), (False, None), None)
+		yield ('num_buffer_groups', Uint, (0, None), (False, None), None)
+		yield ('num_buffers', Uint, (0, None), (False, None), None)
+		yield ('num_fragments', Uint, (0, None), (False, None), None)
+		yield ('num_root_entries', Uint, (0, None), (False, None), None)
+		yield ('read_start', Uint, (0, None), (False, None), None)
+		yield ('set_data_size', Uint, (0, None), (False, None), None)
+		yield ('compressed_size', Uint, (0, None), (False, None), None)
+		yield ('uncompressed_size', Uint64, (0, None), (False, None), None)
+		yield ('pools_start', Uint, (0, None), (False, None), None)
+		yield ('pools_end', Uint, (0, None), (False, None), None)
+		yield ('ovs_offset', Uint, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -107,3 +108,6 @@ class ArchiveEntry(BaseStruct):
 		yield 'pools_start', Uint, (0, None), (False, None)
 		yield 'pools_end', Uint, (0, None), (False, None)
 		yield 'ovs_offset', Uint, (0, None), (False, None)
+
+
+ArchiveEntry.init_attributes()

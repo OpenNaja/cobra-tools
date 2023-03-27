@@ -29,12 +29,13 @@ class Vector4(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = BaseStruct._attribute_list + [
-		('w', Float, (0, None), (False, None), None),
-		('x', Float, (0, None), (False, None), None),
-		('y', Float, (0, None), (False, None), None),
-		('z', Float, (0, None), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('w', Float, (0, None), (False, None), None)
+		yield ('x', Float, (0, None), (False, None), None)
+		yield ('y', Float, (0, None), (False, None), None)
+		yield ('z', Float, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -43,3 +44,6 @@ class Vector4(BaseStruct):
 		yield 'x', Float, (0, None), (False, None)
 		yield 'y', Float, (0, None), (False, None)
 		yield 'z', Float, (0, None), (False, None)
+
+
+Vector4.init_attributes()

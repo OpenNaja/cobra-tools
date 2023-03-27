@@ -25,20 +25,21 @@ class LastRow(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MemStruct._attribute_list + [
-		('unk_01', Ushort, (0, None), (False, None), None),
-		('unk_02', Ushort, (0, None), (False, None), None),
-		('unk_03', Ushort, (0, None), (False, None), None),
-		('unk_04', Ushort, (0, None), (False, None), None),
-		('unk_05', Ushort, (0, None), (False, None), None),
-		('unk_06', Ushort, (0, None), (False, None), None),
-		('unk_07', Ushort, (0, None), (False, None), None),
-		('unk_08', Ushort, (0, None), (False, None), None),
-		('unk_09', Ushort, (0, None), (False, None), None),
-		('unk_10', Ushort, (0, None), (False, None), None),
-		('unk_11', Ushort, (0, None), (False, None), None),
-		('unk_12', Ushort, (0, None), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('unk_01', Ushort, (0, None), (False, None), None)
+		yield ('unk_02', Ushort, (0, None), (False, None), None)
+		yield ('unk_03', Ushort, (0, None), (False, None), None)
+		yield ('unk_04', Ushort, (0, None), (False, None), None)
+		yield ('unk_05', Ushort, (0, None), (False, None), None)
+		yield ('unk_06', Ushort, (0, None), (False, None), None)
+		yield ('unk_07', Ushort, (0, None), (False, None), None)
+		yield ('unk_08', Ushort, (0, None), (False, None), None)
+		yield ('unk_09', Ushort, (0, None), (False, None), None)
+		yield ('unk_10', Ushort, (0, None), (False, None), None)
+		yield ('unk_11', Ushort, (0, None), (False, None), None)
+		yield ('unk_12', Ushort, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -55,3 +56,6 @@ class LastRow(MemStruct):
 		yield 'unk_10', Ushort, (0, None), (False, None)
 		yield 'unk_11', Ushort, (0, None), (False, None)
 		yield 'unk_12', Ushort, (0, None), (False, None)
+
+
+LastRow.init_attributes()

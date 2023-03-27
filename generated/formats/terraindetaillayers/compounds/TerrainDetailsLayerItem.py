@@ -52,39 +52,40 @@ class TerrainDetailsLayerItem(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MemStruct._attribute_list + [
-		('layer_name', Pointer, (0, ZString), (False, None), None),
-		('info_list', ArrayPointer, (None, None), (False, None), None),
-		('info_count', Uint, (0, None), (False, None), None),
-		('float_1', Float, (0, None), (False, None), None),
-		('float_2', Float, (0, None), (False, None), None),
-		('float_3', Float, (0, None), (False, None), None),
-		('float_4', Float, (0, None), (False, None), None),
-		('float_5', Float, (0, None), (False, None), None),
-		('float_6', Float, (0, None), (False, None), None),
-		('unk_2', Uint, (0, None), (False, None), None),
-		('detail_list', ArrayPointer, (None, None), (False, None), None),
-		('detail_count', Uint, (0, None), (False, None), None),
-		('floata_1', Float, (0, None), (False, None), None),
-		('floata_2', Float, (0, None), (False, None), None),
-		('floata_3', Float, (0, None), (False, None), None),
-		('floata_4', Float, (0, None), (False, None), None),
-		('floata_5', Float, (0, None), (False, None), None),
-		('floata_6', Float, (0, None), (False, None), None),
-		('floata_7', Float, (0, None), (False, None), None),
-		('floata_8', Float, (0, None), (False, None), None),
-		('unk_3_flags', Uint, (0, None), (False, None), None),
-		('unk_4_found_as_1', Uint, (0, None), (False, None), None),
-		('unk_5_as_0', Uint, (0, None), (False, None), None),
-		('unk_6_as_0', Uint, (0, None), (False, None), None),
-		('unk_7_as_0', Uint, (0, None), (False, None), None),
-		('unk_8_as_0', Uint, (0, None), (False, None), None),
-		('unk_9_as_0', Uint, (0, None), (False, None), None),
-		('unk_a_as_0', Uint, (0, None), (False, None), None),
-		('unk_b_as_0', Uint, (0, None), (False, None), None),
-		('floatb_1', Float, (0, None), (False, None), None),
-		('floatb_2', Float, (0, None), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('layer_name', Pointer, (0, ZString), (False, None), None)
+		yield ('info_list', ArrayPointer, (None, None), (False, None), None)
+		yield ('info_count', Uint, (0, None), (False, None), None)
+		yield ('float_1', Float, (0, None), (False, None), None)
+		yield ('float_2', Float, (0, None), (False, None), None)
+		yield ('float_3', Float, (0, None), (False, None), None)
+		yield ('float_4', Float, (0, None), (False, None), None)
+		yield ('float_5', Float, (0, None), (False, None), None)
+		yield ('float_6', Float, (0, None), (False, None), None)
+		yield ('unk_2', Uint, (0, None), (False, None), None)
+		yield ('detail_list', ArrayPointer, (None, None), (False, None), None)
+		yield ('detail_count', Uint, (0, None), (False, None), None)
+		yield ('floata_1', Float, (0, None), (False, None), None)
+		yield ('floata_2', Float, (0, None), (False, None), None)
+		yield ('floata_3', Float, (0, None), (False, None), None)
+		yield ('floata_4', Float, (0, None), (False, None), None)
+		yield ('floata_5', Float, (0, None), (False, None), None)
+		yield ('floata_6', Float, (0, None), (False, None), None)
+		yield ('floata_7', Float, (0, None), (False, None), None)
+		yield ('floata_8', Float, (0, None), (False, None), None)
+		yield ('unk_3_flags', Uint, (0, None), (False, None), None)
+		yield ('unk_4_found_as_1', Uint, (0, None), (False, None), None)
+		yield ('unk_5_as_0', Uint, (0, None), (False, None), None)
+		yield ('unk_6_as_0', Uint, (0, None), (False, None), None)
+		yield ('unk_7_as_0', Uint, (0, None), (False, None), None)
+		yield ('unk_8_as_0', Uint, (0, None), (False, None), None)
+		yield ('unk_9_as_0', Uint, (0, None), (False, None), None)
+		yield ('unk_a_as_0', Uint, (0, None), (False, None), None)
+		yield ('unk_b_as_0', Uint, (0, None), (False, None), None)
+		yield ('floatb_1', Float, (0, None), (False, None), None)
+		yield ('floatb_2', Float, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -120,3 +121,6 @@ class TerrainDetailsLayerItem(MemStruct):
 		yield 'unk_b_as_0', Uint, (0, None), (False, None)
 		yield 'floatb_1', Float, (0, None), (False, None)
 		yield 'floatb_2', Float, (0, None), (False, None)
+
+
+TerrainDetailsLayerItem.init_attributes()

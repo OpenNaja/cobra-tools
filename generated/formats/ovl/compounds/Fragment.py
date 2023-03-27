@@ -26,10 +26,11 @@ class Fragment(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = BaseStruct._attribute_list + [
-		('link_ptr', HeaderPointer, (0, None), (False, None), None),
-		('struct_ptr', HeaderPointer, (0, None), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('link_ptr', HeaderPointer, (0, None), (False, None), None)
+		yield ('struct_ptr', HeaderPointer, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -50,3 +51,6 @@ class Fragment(BaseStruct):
 		target_pool = pools[self.struct_ptr.pool_index]
 		self.link_ptr.add_link((target_pool, self.struct_ptr.data_offset), pools)
 
+
+
+Fragment.init_attributes()

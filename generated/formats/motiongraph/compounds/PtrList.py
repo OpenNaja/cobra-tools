@@ -19,11 +19,15 @@ class PtrList(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MemStruct._attribute_list + [
-		('ptrs', Array, (0, None, (None,), SinglePtr), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('ptrs', Array, (0, None, (None,), SinglePtr), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'ptrs', Array, (0, instance.template, (instance.arg,), SinglePtr), (False, None)
+
+
+PtrList.init_attributes()

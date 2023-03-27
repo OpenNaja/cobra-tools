@@ -21,11 +21,12 @@ class HbOffsets(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MemStruct._attribute_list + [
-		('physics', HbPhysicsOffsets, (0, None), (False, None), None),
-		('post_height_offset', Float, (0, None), (False, None), None),
-		('wall_height', Float, (0, None), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('physics', HbPhysicsOffsets, (0, None), (False, None), None)
+		yield ('post_height_offset', Float, (0, None), (False, None), None)
+		yield ('wall_height', Float, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -33,3 +34,6 @@ class HbOffsets(MemStruct):
 		yield 'physics', HbPhysicsOffsets, (0, None), (False, None)
 		yield 'post_height_offset', Float, (0, None), (False, None)
 		yield 'wall_height', Float, (0, None), (False, None)
+
+
+HbOffsets.init_attributes()

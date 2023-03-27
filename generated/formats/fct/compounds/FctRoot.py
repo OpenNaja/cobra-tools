@@ -33,19 +33,20 @@ class FctRoot(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MemStruct._attribute_list + [
-		('u_0', Short, (0, None), (False, None), None),
-		('u_1', Short, (0, None), (False, None), None),
-		('a', Float, (0, None), (False, None), None),
-		('b', Float, (0, None), (False, None), None),
-		('c', Float, (0, None), (False, None), None),
-		('minus_1', Short, (0, None), (False, None), None),
-		('z_0', Short, (0, None), (False, None), None),
-		('z_1', Int, (0, None), (False, None), None),
-		('z_2', Uint64, (0, None), (False, None), None),
-		('offset', Uint64, (0, None), (False, None), None),
-		('fonts', Array, (0, None, (4,), Font), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('u_0', Short, (0, None), (False, None), None)
+		yield ('u_1', Short, (0, None), (False, None), None)
+		yield ('a', Float, (0, None), (False, None), None)
+		yield ('b', Float, (0, None), (False, None), None)
+		yield ('c', Float, (0, None), (False, None), None)
+		yield ('minus_1', Short, (0, None), (False, None), None)
+		yield ('z_0', Short, (0, None), (False, None), None)
+		yield ('z_1', Int, (0, None), (False, None), None)
+		yield ('z_2', Uint64, (0, None), (False, None), None)
+		yield ('offset', Uint64, (0, None), (False, None), None)
+		yield ('fonts', Array, (0, None, (4,), Font), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -61,3 +62,6 @@ class FctRoot(MemStruct):
 		yield 'z_2', Uint64, (0, None), (False, None)
 		yield 'offset', Uint64, (0, None), (False, None)
 		yield 'fonts', Array, (0, None, (4,), Font), (False, None)
+
+
+FctRoot.init_attributes()

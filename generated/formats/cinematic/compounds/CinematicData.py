@@ -19,11 +19,12 @@ class CinematicData(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MemStruct._attribute_list + [
-		('default_name', Pointer, (0, ZString), (False, None), None),
-		('next_levels', ArrayPointer, (None, None), (False, None), None),
-		('next_level_count', Uint64, (0, None), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('default_name', Pointer, (0, ZString), (False, None), None)
+		yield ('next_levels', ArrayPointer, (None, None), (False, None), None)
+		yield ('next_level_count', Uint64, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -31,3 +32,6 @@ class CinematicData(MemStruct):
 		yield 'default_name', Pointer, (0, ZString), (False, None)
 		yield 'next_levels', ArrayPointer, (instance.next_level_count, CinematicData._import_map["cinematic.compounds.State"]), (False, None)
 		yield 'next_level_count', Uint64, (0, None), (False, None)
+
+
+CinematicData.init_attributes()

@@ -32,19 +32,20 @@ class TrackMeshRoot(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MemStruct._attribute_list + [
-		('a', Uint64, (0, None), (False, None), None),
-		('offset_data', ArrayPointer, (None, None), (False, None), None),
-		('track_data', ArrayPointer, (None, None), (False, None), None),
-		('last', ArrayPointer, (None, None), (False, None), None),
-		('count_0', Uint, (0, None), (False, None), None),
-		('next_count', Uint, (0, None), (False, None), None),
-		('last_count', Uint64, (0, None), (False, None), None),
-		('lods', ArrayPointer, (None, None), (False, None), None),
-		('lod_count', Uint64, (0, None), (False, None), None),
-		('heatmap_name', Pointer, (0, ZString), (False, None), None),
-		('g', Uint64, (0, None), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('a', Uint64, (0, None), (False, None), None)
+		yield ('offset_data', ArrayPointer, (None, None), (False, None), None)
+		yield ('track_data', ArrayPointer, (None, None), (False, None), None)
+		yield ('last', ArrayPointer, (None, None), (False, None), None)
+		yield ('count_0', Uint, (0, None), (False, None), None)
+		yield ('next_count', Uint, (0, None), (False, None), None)
+		yield ('last_count', Uint64, (0, None), (False, None), None)
+		yield ('lods', ArrayPointer, (None, None), (False, None), None)
+		yield ('lod_count', Uint64, (0, None), (False, None), None)
+		yield ('heatmap_name', Pointer, (0, ZString), (False, None), None)
+		yield ('g', Uint64, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -60,3 +61,6 @@ class TrackMeshRoot(MemStruct):
 		yield 'lod_count', Uint64, (0, None), (False, None)
 		yield 'heatmap_name', Pointer, (0, ZString), (False, None)
 		yield 'g', Uint64, (0, None), (False, None)
+
+
+TrackMeshRoot.init_attributes()

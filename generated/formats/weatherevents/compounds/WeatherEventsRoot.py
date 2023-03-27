@@ -25,15 +25,16 @@ class WeatherEventsRoot(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MemStruct._attribute_list + [
-		('resource_name', Pointer, (0, ZStringObfuscated), (False, None), None),
-		('default_event_name', Pointer, (0, ZString), (False, None), None),
-		('transition_time', Float, (0, None), (False, None), None),
-		('unknown_1', Float, (0, None), (False, None), None),
-		('event_list', ArrayPointer, (None, None), (False, None), None),
-		('event_count', Uint64, (0, None), (False, None), None),
-		('unknown_2', Uint64, (0, None), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('resource_name', Pointer, (0, ZStringObfuscated), (False, None), None)
+		yield ('default_event_name', Pointer, (0, ZString), (False, None), None)
+		yield ('transition_time', Float, (0, None), (False, None), None)
+		yield ('unknown_1', Float, (0, None), (False, None), None)
+		yield ('event_list', ArrayPointer, (None, None), (False, None), None)
+		yield ('event_count', Uint64, (0, None), (False, None), None)
+		yield ('unknown_2', Uint64, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -45,3 +46,6 @@ class WeatherEventsRoot(MemStruct):
 		yield 'event_list', ArrayPointer, (instance.event_count, WeatherEventsRoot._import_map["weatherevents.compounds.WeatherEventData"]), (False, None)
 		yield 'event_count', Uint64, (0, None), (False, None)
 		yield 'unknown_2', Uint64, (0, None), (False, None)
+
+
+WeatherEventsRoot.init_attributes()

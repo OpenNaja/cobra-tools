@@ -31,14 +31,15 @@ class HbPropPhysics(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MemStruct._attribute_list + [
-		('pad_top', Float, (0, None), (False, None), None),
-		('z_pos', Float, (0, None), (False, None), None),
-		('half_width', Float, (0, None), (False, None), None),
-		('pad_bottom', Float, (0, None), (False, None), None),
-		('half_depth', Float, (0, None), (False, None), None),
-		('u_6', Float, (0, None), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('pad_top', Float, (0, None), (False, None), None)
+		yield ('z_pos', Float, (0, None), (False, None), None)
+		yield ('half_width', Float, (0, None), (False, None), None)
+		yield ('pad_bottom', Float, (0, None), (False, None), None)
+		yield ('half_depth', Float, (0, None), (False, None), None)
+		yield ('u_6', Float, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -49,3 +50,6 @@ class HbPropPhysics(MemStruct):
 		yield 'pad_bottom', Float, (0, None), (False, None)
 		yield 'half_depth', Float, (0, None), (False, None)
 		yield 'u_6', Float, (0, None), (False, None)
+
+
+HbPropPhysics.init_attributes()

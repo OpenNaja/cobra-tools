@@ -19,11 +19,12 @@ class RenderFeatureItem(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MemStruct._attribute_list + [
-		('item_name', Pointer, (0, ZString), (False, None), None),
-		('item_data', ArrayPointer, (None, None), (False, None), None),
-		('item_data_count', Uint64, (0, None), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('item_name', Pointer, (0, ZString), (False, None), None)
+		yield ('item_data', ArrayPointer, (None, None), (False, None), None)
+		yield ('item_data_count', Uint64, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -31,3 +32,6 @@ class RenderFeatureItem(MemStruct):
 		yield 'item_name', Pointer, (0, ZString), (False, None)
 		yield 'item_data', ArrayPointer, (instance.item_data_count, RenderFeatureItem._import_map["renderfeaturecollection.compounds.RenderFeatureSubItem"]), (False, None)
 		yield 'item_data_count', Uint64, (0, None), (False, None)
+
+
+RenderFeatureItem.init_attributes()

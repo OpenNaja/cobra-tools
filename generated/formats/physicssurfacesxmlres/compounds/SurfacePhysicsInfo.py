@@ -29,17 +29,18 @@ class SurfacePhysicsInfo(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MemStruct._attribute_list + [
-		('surface_name', Pointer, (0, ZString), (False, None), None),
-		('float_1', Float, (0, None), (False, None), None),
-		('float_2', Float, (0, None), (False, None), None),
-		('float_3', Float, (0, None), (False, None), None),
-		('float_4', Float, (0, None), (False, None), None),
-		('unk_64_1', Uint64, (0, None), (False, None), None),
-		('name_1', Pointer, (0, ZString), (False, None), None),
-		('name_2', Pointer, (0, ZString), (False, None), None),
-		('ptr_1', Pointer, (0, None), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('surface_name', Pointer, (0, ZString), (False, None), None)
+		yield ('float_1', Float, (0, None), (False, None), None)
+		yield ('float_2', Float, (0, None), (False, None), None)
+		yield ('float_3', Float, (0, None), (False, None), None)
+		yield ('float_4', Float, (0, None), (False, None), None)
+		yield ('unk_64_1', Uint64, (0, None), (False, None), None)
+		yield ('name_1', Pointer, (0, ZString), (False, None), None)
+		yield ('name_2', Pointer, (0, ZString), (False, None), None)
+		yield ('ptr_1', Pointer, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -53,3 +54,6 @@ class SurfacePhysicsInfo(MemStruct):
 		yield 'name_1', Pointer, (0, ZString), (False, None)
 		yield 'name_2', Pointer, (0, ZString), (False, None)
 		yield 'ptr_1', Pointer, (0, SurfacePhysicsInfo._import_map["physicssurfacesxmlres.compounds.EmptyStruct"]), (False, None)
+
+
+SurfacePhysicsInfo.init_attributes()

@@ -59,23 +59,24 @@ class PcMeshData(MeshData):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MeshData._attribute_list + [
-		('tri_index_count_a', Uint, (0, None), (False, None), None),
-		('vertex_count', Uint, (0, None), (False, None), None),
-		('tri_offset', Uint, (0, None), (False, None), None),
-		('tri_index_count', Uint, (0, None), (False, None), None),
-		('vertex_offset', Uint, (0, None), (False, None), None),
-		('weights_offset', Uint, (0, None), (False, None), None),
-		('uv_offset', Uint, (0, None), (False, None), None),
-		('zero_a', Uint, (0, None), (False, 0), None),
-		('vertex_color_offset', Uint, (0, None), (False, None), None),
-		('vertex_offset_within_lod', Uint, (0, None), (False, None), None),
-		('poweroftwo', Uint, (0, None), (False, None), None),
-		('zero_b', Uint, (0, None), (False, 0), None),
-		('unk_float', Float, (0, None), (False, None), None),
-		('flag', ModelFlag, (0, None), (False, None), None),
-		('zero_c', Uint, (0, None), (False, 0), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('tri_index_count_a', Uint, (0, None), (False, None), None)
+		yield ('vertex_count', Uint, (0, None), (False, None), None)
+		yield ('tri_offset', Uint, (0, None), (False, None), None)
+		yield ('tri_index_count', Uint, (0, None), (False, None), None)
+		yield ('vertex_offset', Uint, (0, None), (False, None), None)
+		yield ('weights_offset', Uint, (0, None), (False, None), None)
+		yield ('uv_offset', Uint, (0, None), (False, None), None)
+		yield ('zero_a', Uint, (0, None), (False, 0), None)
+		yield ('vertex_color_offset', Uint, (0, None), (False, None), None)
+		yield ('vertex_offset_within_lod', Uint, (0, None), (False, None), None)
+		yield ('poweroftwo', Uint, (0, None), (False, None), None)
+		yield ('zero_b', Uint, (0, None), (False, 0), None)
+		yield ('unk_float', Float, (0, None), (False, None), None)
+		yield ('flag', ModelFlag, (0, None), (False, None), None)
+		yield ('zero_c', Uint, (0, None), (False, 0), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -183,3 +184,6 @@ class PcMeshData(MeshData):
 		index_count = self.tri_index_count // self.shell_count
 		self.tri_indices = self.read_pc_array(np.uint16, self.tri_offset, index_count)
 
+
+
+PcMeshData.init_attributes()

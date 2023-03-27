@@ -16,11 +16,15 @@ class NodeBaseParams(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = BaseStruct._attribute_list + [
-		('raw', Array, (0, None, (30,), Byte), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('raw', Array, (0, None, (30,), Byte), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'raw', Array, (0, None, (30,), Byte), (False, None)
+
+
+NodeBaseParams.init_attributes()

@@ -37,23 +37,24 @@ class TrackStationRoot(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MemStruct._attribute_list + [
-		('unk_floats', Array, (0, None, (2,), Float), (False, None), None),
-		('unk_ints', Array, (0, None, (2,), Uint), (False, None), None),
-		('some_dataa', Pointer, (0, None), (False, None), None),
-		('some_datab', Pointer, (0, None), (False, None), None),
-		('stationpiece_name_0', Pointer, (0, ZString), (False, None), None),
-		('stationpiece_name_1', Pointer, (0, ZString), (False, None), None),
-		('stationpiece_name_2', Pointer, (0, ZString), (False, None), None),
-		('stationpiece_name_3', Pointer, (0, ZString), (False, None), None),
-		('stationpiece_name_4', Pointer, (0, ZString), (False, None), None),
-		('unk_ints_2', Array, (0, None, (2,), Uint), (False, None), None),
-		('stationpiece_name_5', Pointer, (0, ZString), (False, None), None),
-		('stationpiece_name_6', Pointer, (0, ZString), (False, None), None),
-		('stationpiece_name_7', Pointer, (0, ZString), (False, None), None),
-		('unk_floats_2', Array, (0, None, (4,), Float), (False, None), None),
-		('unk_ints_3', Array, (0, None, (2,), Uint), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('unk_floats', Array, (0, None, (2,), Float), (False, None), None)
+		yield ('unk_ints', Array, (0, None, (2,), Uint), (False, None), None)
+		yield ('some_dataa', Pointer, (0, None), (False, None), None)
+		yield ('some_datab', Pointer, (0, None), (False, None), None)
+		yield ('stationpiece_name_0', Pointer, (0, ZString), (False, None), None)
+		yield ('stationpiece_name_1', Pointer, (0, ZString), (False, None), None)
+		yield ('stationpiece_name_2', Pointer, (0, ZString), (False, None), None)
+		yield ('stationpiece_name_3', Pointer, (0, ZString), (False, None), None)
+		yield ('stationpiece_name_4', Pointer, (0, ZString), (False, None), None)
+		yield ('unk_ints_2', Array, (0, None, (2,), Uint), (False, None), None)
+		yield ('stationpiece_name_5', Pointer, (0, ZString), (False, None), None)
+		yield ('stationpiece_name_6', Pointer, (0, ZString), (False, None), None)
+		yield ('stationpiece_name_7', Pointer, (0, ZString), (False, None), None)
+		yield ('unk_floats_2', Array, (0, None, (4,), Float), (False, None), None)
+		yield ('unk_ints_3', Array, (0, None, (2,), Uint), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -73,3 +74,6 @@ class TrackStationRoot(MemStruct):
 		yield 'stationpiece_name_7', Pointer, (0, ZString), (False, None)
 		yield 'unk_floats_2', Array, (0, None, (4,), Float), (False, None)
 		yield 'unk_ints_3', Array, (0, None, (2,), Uint), (False, None)
+
+
+TrackStationRoot.init_attributes()

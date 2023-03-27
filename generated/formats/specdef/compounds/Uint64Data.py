@@ -23,13 +23,14 @@ class Uint64Data(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MemStruct._attribute_list + [
-		('imin', Uint64, (0, None), (False, None), None),
-		('imax', Uint64, (0, None), (False, None), None),
-		('ivalue', Uint64, (0, None), (False, None), None),
-		('ioptional', Uint64, (0, None), (False, None), None),
-		('enum', Pointer, (0, None), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('imin', Uint64, (0, None), (False, None), None)
+		yield ('imax', Uint64, (0, None), (False, None), None)
+		yield ('ivalue', Uint64, (0, None), (False, None), None)
+		yield ('ioptional', Uint64, (0, None), (False, None), None)
+		yield ('enum', Pointer, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -39,3 +40,6 @@ class Uint64Data(MemStruct):
 		yield 'ivalue', Uint64, (0, None), (False, None)
 		yield 'ioptional', Uint64, (0, None), (False, None)
 		yield 'enum', Pointer, (0, None), (False, None)
+
+
+Uint64Data.init_attributes()

@@ -13,8 +13,9 @@ class FloatsGrabber(BaseStruct):
 
 	_import_key = 'manis.compounds.FloatsGrabber'
 
-	_attribute_list = BaseStruct._attribute_list + [
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -47,3 +48,6 @@ class FloatsGrabber(BaseStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		stream.write(instance.data)
+
+
+FloatsGrabber.init_attributes()

@@ -29,21 +29,22 @@ class Perk(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MemStruct._attribute_list + [
-		('unk_0', Uint64, (0, None), (False, None), None),
-		('building_cost', Uint64, (0, None), (False, None), None),
-		('running_cost_base', Uint64, (0, None), (False, None), None),
-		('running_cost_per_extension', Uint64, (0, None), (False, None), None),
-		('unk_4', Float, (0, None), (False, None), None),
-		('unk_5', Float, (0, None), (False, None), None),
-		('label', Pointer, (0, ZString), (False, None), None),
-		('desc', Pointer, (0, ZString), (False, None), None),
-		('icon', Pointer, (0, ZString), (False, None), None),
-		('unk_6', Float, (0, None), (False, None), None),
-		('appeal_adults', Float, (0, None), (False, None), None),
-		('appeal_families', Float, (0, None), (False, None), None),
-		('appeal_teenagers', Float, (0, None), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('unk_0', Uint64, (0, None), (False, None), None)
+		yield ('building_cost', Uint64, (0, None), (False, None), None)
+		yield ('running_cost_base', Uint64, (0, None), (False, None), None)
+		yield ('running_cost_per_extension', Uint64, (0, None), (False, None), None)
+		yield ('unk_4', Float, (0, None), (False, None), None)
+		yield ('unk_5', Float, (0, None), (False, None), None)
+		yield ('label', Pointer, (0, ZString), (False, None), None)
+		yield ('desc', Pointer, (0, ZString), (False, None), None)
+		yield ('icon', Pointer, (0, ZString), (False, None), None)
+		yield ('unk_6', Float, (0, None), (False, None), None)
+		yield ('appeal_adults', Float, (0, None), (False, None), None)
+		yield ('appeal_families', Float, (0, None), (False, None), None)
+		yield ('appeal_teenagers', Float, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -61,3 +62,6 @@ class Perk(MemStruct):
 		yield 'appeal_adults', Float, (0, None), (False, None)
 		yield 'appeal_families', Float, (0, None), (False, None)
 		yield 'appeal_teenagers', Float, (0, None), (False, None)
+
+
+Perk.init_attributes()

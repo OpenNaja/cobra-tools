@@ -15,11 +15,15 @@ class ActivitiesLinks(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MemStruct._attribute_list + [
-		('activities', Array, (0, None, (None,), ActivitiesLink), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('activities', Array, (0, None, (None,), ActivitiesLink), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'activities', Array, (0, None, (instance.arg,), ActivitiesLink), (False, None)
+
+
+ActivitiesLinks.init_attributes()

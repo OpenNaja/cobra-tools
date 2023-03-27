@@ -31,12 +31,13 @@ class StretchConstraint(Constraint):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = Constraint._attribute_list + [
-		('loc', Vector3, (0, None), (False, None), None),
-		('direction', Vector3, (0, None), (False, None), None),
-		('min', Float, (0, None), (False, None), None),
-		('max', Float, (0, None), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('loc', Vector3, (0, None), (False, None), None)
+		yield ('direction', Vector3, (0, None), (False, None), None)
+		yield ('min', Float, (0, None), (False, None), None)
+		yield ('max', Float, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -45,3 +46,6 @@ class StretchConstraint(Constraint):
 		yield 'direction', Vector3, (0, None), (False, None)
 		yield 'min', Float, (0, None), (False, None)
 		yield 'max', Float, (0, None), (False, None)
+
+
+StretchConstraint.init_attributes()

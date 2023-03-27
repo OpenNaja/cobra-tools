@@ -22,11 +22,12 @@ class FontInfo(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MemStruct._attribute_list + [
-		('style_name', Pointer, (0, ZString), (False, None), None),
-		('font_file', Pointer, (0, ZString), (False, None), None),
-		('flag_or_count', Uint64, (0, None), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('style_name', Pointer, (0, ZString), (False, None), None)
+		yield ('font_file', Pointer, (0, ZString), (False, None), None)
+		yield ('flag_or_count', Uint64, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -34,3 +35,6 @@ class FontInfo(MemStruct):
 		yield 'style_name', Pointer, (0, ZString), (False, None)
 		yield 'font_file', Pointer, (0, ZString), (False, None)
 		yield 'flag_or_count', Uint64, (0, None), (False, None)
+
+
+FontInfo.init_attributes()

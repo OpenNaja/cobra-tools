@@ -42,17 +42,18 @@ class RigidBody(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = BaseStruct._attribute_list + [
-		('flag', Uint, (0, None), (False, None), None),
-		('loc', Vector3, (0, None), (False, None), None),
-		('mass', Float, (0, None), (False, None), None),
-		('static_friction', Float, (0, None), (False, None), None),
-		('unk_1', Float, (0, None), (False, None), None),
-		('unk_2', Float, (0, None), (False, None), None),
-		('unknown_friction', Float, (0, None), (False, None), None),
-		('unk_4', Float, (0, None), (False, None), None),
-		('dynamic_friction', Float, (0, None), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('flag', Uint, (0, None), (False, None), None)
+		yield ('loc', Vector3, (0, None), (False, None), None)
+		yield ('mass', Float, (0, None), (False, None), None)
+		yield ('static_friction', Float, (0, None), (False, None), None)
+		yield ('unk_1', Float, (0, None), (False, None), None)
+		yield ('unk_2', Float, (0, None), (False, None), None)
+		yield ('unknown_friction', Float, (0, None), (False, None), None)
+		yield ('unk_4', Float, (0, None), (False, None), None)
+		yield ('dynamic_friction', Float, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -66,3 +67,6 @@ class RigidBody(BaseStruct):
 		yield 'unknown_friction', Float, (0, None), (False, None)
 		yield 'unk_4', Float, (0, None), (False, None)
 		yield 'dynamic_friction', Float, (0, None), (False, None)
+
+
+RigidBody.init_attributes()

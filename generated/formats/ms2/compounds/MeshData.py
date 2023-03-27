@@ -38,12 +38,13 @@ class MeshData(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MemStruct._attribute_list + [
-		('stream_index', Uint64, (0, None), (False, None), True),
-		('stream_info', Pointer, (0, None), (False, None), True),
-		('some_index', Uint, (0, None), (False, None), True),
-		('some_index_2', Uint, (0, None), (False, None), True),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('stream_index', Uint64, (0, None), (False, None), True)
+		yield ('stream_info', Pointer, (0, None), (False, None), True)
+		yield ('some_index', Uint, (0, None), (False, None), True)
+		yield ('some_index_2', Uint, (0, None), (False, None), True)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -274,3 +275,6 @@ class MeshData(MemStruct):
 			return (0, 0, 0, 0), (0, 0, 0, 0)
 
 
+
+
+MeshData.init_attributes()

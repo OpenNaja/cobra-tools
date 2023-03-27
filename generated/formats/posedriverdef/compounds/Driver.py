@@ -31,17 +31,18 @@ class Driver(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MemStruct._attribute_list + [
-		('joint_name', Pointer, (0, ZString), (False, None), None),
-		('a', Ubyte, (0, None), (False, None), None),
-		('b', Ubyte, (0, None), (False, None), None),
-		('c', Ushort, (0, None), (False, None), None),
-		('d', Uint, (0, None), (False, None), None),
-		('driven_joint_name', Pointer, (0, ZString), (False, None), None),
-		('unk_1', Uint64, (0, None), (False, None), None),
-		('data', Pointer, (0, None), (False, None), None),
-		('unk_2', Uint64, (0, None), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('joint_name', Pointer, (0, ZString), (False, None), None)
+		yield ('a', Ubyte, (0, None), (False, None), None)
+		yield ('b', Ubyte, (0, None), (False, None), None)
+		yield ('c', Ushort, (0, None), (False, None), None)
+		yield ('d', Uint, (0, None), (False, None), None)
+		yield ('driven_joint_name', Pointer, (0, ZString), (False, None), None)
+		yield ('unk_1', Uint64, (0, None), (False, None), None)
+		yield ('data', Pointer, (0, None), (False, None), None)
+		yield ('unk_2', Uint64, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -55,3 +56,6 @@ class Driver(MemStruct):
 		yield 'unk_1', Uint64, (0, None), (False, None)
 		yield 'data', Pointer, (0, Driver._import_map["posedriverdef.compounds.Data"]), (False, None)
 		yield 'unk_2', Uint64, (0, None), (False, None)
+
+
+Driver.init_attributes()

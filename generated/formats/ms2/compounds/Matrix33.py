@@ -22,11 +22,15 @@ class Matrix33(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = BaseStruct._attribute_list + [
-		('data', Array, (0, None, (3, 3,), Float), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('data', Array, (0, None, (3, 3,), Float), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'data', Array, (0, None, (3, 3,), Float), (False, None)
+
+
+Matrix33.init_attributes()

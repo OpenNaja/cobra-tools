@@ -20,13 +20,14 @@ class InfoStruct(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MemStruct._attribute_list + [
-		('brush_list', ArrayPointer, (None, None), (False, None), None),
-		('brush_count', Uint, (0, None), (False, None), None),
-		('brush_flags', Uint, (0, None), (False, None), None),
-		('scale', Float, (0, None), (False, None), None),
-		('unk_1', Float, (0, None), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('brush_list', ArrayPointer, (None, None), (False, None), None)
+		yield ('brush_count', Uint, (0, None), (False, None), None)
+		yield ('brush_flags', Uint, (0, None), (False, None), None)
+		yield ('scale', Float, (0, None), (False, None), None)
+		yield ('unk_1', Float, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -36,3 +37,6 @@ class InfoStruct(MemStruct):
 		yield 'brush_flags', Uint, (0, None), (False, None)
 		yield 'scale', Float, (0, None), (False, None)
 		yield 'unk_1', Float, (0, None), (False, None)
+
+
+InfoStruct.init_attributes()

@@ -47,17 +47,18 @@ class Ms2Root(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MemStruct._attribute_list + [
-		('version', MainVersion, (0, None), (False, None), None),
-		('vertex_buffer_count', Ushort, (0, None), (False, None), None),
-		('mdl_2_count', Ushort, (0, None), (False, None), None),
-		('name_count', Ushort, (0, None), (False, None), None),
-		('static_buffer_index', Short, (0, None), (False, None), None),
-		('zeros', Array, (0, None, (3,), Uint), (False, None), None),
-		('buffer_infos', ArrayPointer, (None, None), (False, None), None),
-		('model_infos', ArrayPointer, (None, None), (False, None), None),
-		('buffer_pointers', ArrayPointer, (None, None), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('version', MainVersion, (0, None), (False, None), None)
+		yield ('vertex_buffer_count', Ushort, (0, None), (False, None), None)
+		yield ('mdl_2_count', Ushort, (0, None), (False, None), None)
+		yield ('name_count', Ushort, (0, None), (False, None), None)
+		yield ('static_buffer_index', Short, (0, None), (False, None), None)
+		yield ('zeros', Array, (0, None, (3,), Uint), (False, None), None)
+		yield ('buffer_infos', ArrayPointer, (None, None), (False, None), None)
+		yield ('model_infos', ArrayPointer, (None, None), (False, None), None)
+		yield ('buffer_pointers', ArrayPointer, (None, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -71,3 +72,6 @@ class Ms2Root(MemStruct):
 		yield 'buffer_infos', ArrayPointer, (instance.vertex_buffer_count, Ms2Root._import_map["ms2.compounds.BufferInfo"]), (False, None)
 		yield 'model_infos', ArrayPointer, (instance.mdl_2_count, Ms2Root._import_map["ms2.compounds.ModelInfo"]), (False, None)
 		yield 'buffer_pointers', ArrayPointer, (instance.vertex_buffer_count, Ms2Root._import_map["ms2.compounds.BufferPresence"]), (False, None)
+
+
+Ms2Root.init_attributes()

@@ -41,30 +41,31 @@ class DinoEffectsHeader(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MemStruct._attribute_list + [
-		('fgm_name', Pointer, (0, ZStringObfuscated), (False, None), None),
-		('vec_0', Vector3F, (0, None), (False, None), None),
-		('vec_1', Vector3F, (0, None), (False, None), None),
-		('a', Uint, (0, None), (False, None), None),
-		('b', Uint, (0, None), (False, None), None),
-		('vec_2', Vector3F, (0, None), (False, None), None),
-		('vec_3', Vector3F, (0, None), (False, None), None),
-		('vec_4', Vector3F, (0, None), (False, None), None),
-		('vec_5', Vector3F, (0, None), (False, None), None),
-		('c', Uint, (0, None), (False, None), None),
-		('d', Uint, (0, None), (False, None), None),
-		('floats_1', Array, (0, None, (2,), Float), (False, None), None),
-		('e', Uint, (0, None), (False, None), None),
-		('floats_2', Array, (0, None, (2,), Float), (False, None), None),
-		('f', Uint, (0, None), (False, None), None),
-		('floats_3', Array, (0, None, (8,), Float), (False, None), None),
-		('g', Uint, (0, None), (False, None), None),
-		('floats_4', Array, (0, None, (6,), Float), (False, None), None),
-		('h', Uint, (0, None), (False, None), None),
-		('floats_5', Array, (0, None, (20,), Float), (False, None), None),
-		('i', Uint, (0, None), (False, None), None),
-		('float', Float, (0, None), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('fgm_name', Pointer, (0, ZStringObfuscated), (False, None), None)
+		yield ('vec_0', Vector3F, (0, None), (False, None), None)
+		yield ('vec_1', Vector3F, (0, None), (False, None), None)
+		yield ('a', Uint, (0, None), (False, None), None)
+		yield ('b', Uint, (0, None), (False, None), None)
+		yield ('vec_2', Vector3F, (0, None), (False, None), None)
+		yield ('vec_3', Vector3F, (0, None), (False, None), None)
+		yield ('vec_4', Vector3F, (0, None), (False, None), None)
+		yield ('vec_5', Vector3F, (0, None), (False, None), None)
+		yield ('c', Uint, (0, None), (False, None), None)
+		yield ('d', Uint, (0, None), (False, None), None)
+		yield ('floats_1', Array, (0, None, (2,), Float), (False, None), None)
+		yield ('e', Uint, (0, None), (False, None), None)
+		yield ('floats_2', Array, (0, None, (2,), Float), (False, None), None)
+		yield ('f', Uint, (0, None), (False, None), None)
+		yield ('floats_3', Array, (0, None, (8,), Float), (False, None), None)
+		yield ('g', Uint, (0, None), (False, None), None)
+		yield ('floats_4', Array, (0, None, (6,), Float), (False, None), None)
+		yield ('h', Uint, (0, None), (False, None), None)
+		yield ('floats_5', Array, (0, None, (20,), Float), (False, None), None)
+		yield ('i', Uint, (0, None), (False, None), None)
+		yield ('float', Float, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -91,3 +92,6 @@ class DinoEffectsHeader(MemStruct):
 		yield 'floats_5', Array, (0, None, (20,), Float), (False, None)
 		yield 'i', Uint, (0, None), (False, None)
 		yield 'float', Float, (0, None), (False, None)
+
+
+DinoEffectsHeader.init_attributes()

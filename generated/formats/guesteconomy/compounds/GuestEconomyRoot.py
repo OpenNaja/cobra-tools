@@ -81,40 +81,41 @@ class GuestEconomyRoot(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MemStruct._attribute_list + [
-		('target_profit', Uint, (0, None), (False, None), None),
-		('u_00', Float, (0, None), (False, None), None),
-		('target_dinosaur_prestige', Uint, (0, None), (False, None), None),
-		('dinosaur_prestige_power', Float, (0, None), (False, None), None),
-		('u_01', Uint, (0, None), (False, None), None),
-		('u_02', Float, (0, None), (False, None), None),
-		('u_03', Float, (0, None), (False, None), None),
-		('u_04', Float, (0, None), (False, None), None),
-		('visitor_arrival_rate', Float, (0, None), (False, None), None),
-		('visitor_departure_rate', Float, (0, None), (False, None), None),
-		('u_05', Float, (0, None), (False, None), None),
-		('u_06', Float, (0, None), (False, None), None),
-		('u_07', Float, (0, None), (False, None), None),
-		('u_08', Float, (0, None), (False, None), None),
-		('u_09', Float, (0, None), (False, None), None),
-		('u_10', Float, (0, None), (False, None), None),
-		('u_11', Float, (0, None), (False, None), None),
-		('ticket_price_visitor_proportion_power', Float, (0, None), (False, None), None),
-		('ticket_price_full_visitor_proportion', Float, (0, None), (False, None), None),
-		('ticket_price_minimum_price_fraction', Float, (0, None), (False, None), None),
-		('visitor_deaths_decay_rate', Float, (0, None), (False, None), None),
-		('visitor_deaths_limit', Float, (0, None), (False, None), None),
-		('danger_exposure_safe_decay_rate', Float, (0, None), (False, None), None),
-		('danger_exposure_unnecessary_shelter_punishment', Float, (0, None), (False, None), None),
-		('danger_exposure_storm_exposure_punishment', Float, (0, None), (False, None), None),
-		('danger_exposure_dinosaur_exposure_punishment', Float, (0, None), (False, None), None),
-		('danger_exposure_dinosaur_danger_radius', Float, (0, None), (False, None), None),
-		('danger_exposure_limit', Float, (0, None), (False, None), None),
-		('transport_rating_disabled', Uint, (0, None), (False, None), None),
-		('u_12', Uint, (0, None), (False, None), None),
-		('u_13', Uint, (0, None), (False, None), None),
-		('u_14', Uint, (0, None), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('target_profit', Uint, (0, None), (False, None), None)
+		yield ('u_00', Float, (0, None), (False, None), None)
+		yield ('target_dinosaur_prestige', Uint, (0, None), (False, None), None)
+		yield ('dinosaur_prestige_power', Float, (0, None), (False, None), None)
+		yield ('u_01', Uint, (0, None), (False, None), None)
+		yield ('u_02', Float, (0, None), (False, None), None)
+		yield ('u_03', Float, (0, None), (False, None), None)
+		yield ('u_04', Float, (0, None), (False, None), None)
+		yield ('visitor_arrival_rate', Float, (0, None), (False, None), None)
+		yield ('visitor_departure_rate', Float, (0, None), (False, None), None)
+		yield ('u_05', Float, (0, None), (False, None), None)
+		yield ('u_06', Float, (0, None), (False, None), None)
+		yield ('u_07', Float, (0, None), (False, None), None)
+		yield ('u_08', Float, (0, None), (False, None), None)
+		yield ('u_09', Float, (0, None), (False, None), None)
+		yield ('u_10', Float, (0, None), (False, None), None)
+		yield ('u_11', Float, (0, None), (False, None), None)
+		yield ('ticket_price_visitor_proportion_power', Float, (0, None), (False, None), None)
+		yield ('ticket_price_full_visitor_proportion', Float, (0, None), (False, None), None)
+		yield ('ticket_price_minimum_price_fraction', Float, (0, None), (False, None), None)
+		yield ('visitor_deaths_decay_rate', Float, (0, None), (False, None), None)
+		yield ('visitor_deaths_limit', Float, (0, None), (False, None), None)
+		yield ('danger_exposure_safe_decay_rate', Float, (0, None), (False, None), None)
+		yield ('danger_exposure_unnecessary_shelter_punishment', Float, (0, None), (False, None), None)
+		yield ('danger_exposure_storm_exposure_punishment', Float, (0, None), (False, None), None)
+		yield ('danger_exposure_dinosaur_exposure_punishment', Float, (0, None), (False, None), None)
+		yield ('danger_exposure_dinosaur_danger_radius', Float, (0, None), (False, None), None)
+		yield ('danger_exposure_limit', Float, (0, None), (False, None), None)
+		yield ('transport_rating_disabled', Uint, (0, None), (False, None), None)
+		yield ('u_12', Uint, (0, None), (False, None), None)
+		yield ('u_13', Uint, (0, None), (False, None), None)
+		yield ('u_14', Uint, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -151,3 +152,6 @@ class GuestEconomyRoot(MemStruct):
 		yield 'u_12', Uint, (0, None), (False, None)
 		yield 'u_13', Uint, (0, None), (False, None)
 		yield 'u_14', Uint, (0, None), (False, None)
+
+
+GuestEconomyRoot.init_attributes()

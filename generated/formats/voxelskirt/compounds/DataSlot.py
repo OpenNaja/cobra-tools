@@ -25,10 +25,11 @@ class DataSlot(BaseStruct):
 
 	_import_key = 'voxelskirt.compounds.DataSlot'
 
-	_attribute_list = BaseStruct._attribute_list + [
-		('_offset', Uint64, (0, None), (False, None), None),
-		('_count', Uint64, (0, None), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('_offset', Uint64, (0, None), (False, None), None)
+		yield ('_count', Uint64, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -74,3 +75,6 @@ class DataSlot(BaseStruct):
 		instance.data = Array._from_xml(arr, sub)
 		return instance
 
+
+
+DataSlot.init_attributes()

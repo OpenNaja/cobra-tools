@@ -29,18 +29,19 @@ class WorldHeader(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MemStruct._attribute_list + [
-		('world_type', Uint64, (0, None), (False, None), None),
-		('asset_pkgs', Pointer, (None, None), (False, None), None),
-		('asset_pkg_count', Uint64, (0, None), (False, None), None),
-		('lua_name', Pointer, (0, ZString), (False, None), None),
-		('ptr_0', Pointer, (0, None), (False, None), None),
-		('ptr_1', Pointer, (0, None), (False, None), None),
-		('prefabs', Pointer, (None, None), (False, None), None),
-		('ptr_2', Pointer, (0, None), (False, None), None),
-		('prefab_count', Uint64, (0, None), (False, None), None),
-		('ptr_3', Pointer, (0, None), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('world_type', Uint64, (0, None), (False, None), None)
+		yield ('asset_pkgs', Pointer, (None, None), (False, None), None)
+		yield ('asset_pkg_count', Uint64, (0, None), (False, None), None)
+		yield ('lua_name', Pointer, (0, ZString), (False, None), None)
+		yield ('ptr_0', Pointer, (0, None), (False, None), None)
+		yield ('ptr_1', Pointer, (0, None), (False, None), None)
+		yield ('prefabs', Pointer, (None, None), (False, None), None)
+		yield ('ptr_2', Pointer, (0, None), (False, None), None)
+		yield ('prefab_count', Uint64, (0, None), (False, None), None)
+		yield ('ptr_3', Pointer, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -55,3 +56,6 @@ class WorldHeader(MemStruct):
 		yield 'ptr_2', Pointer, (0, None), (False, None)
 		yield 'prefab_count', Uint64, (0, None), (False, None)
 		yield 'ptr_3', Pointer, (0, None), (False, None)
+
+
+WorldHeader.init_attributes()

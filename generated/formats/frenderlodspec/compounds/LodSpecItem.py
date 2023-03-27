@@ -31,22 +31,23 @@ class LodSpecItem(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MemStruct._attribute_list + [
-		('group_name', Pointer, (0, ZString), (False, None), None),
-		('unknown_1', Uint, (0, None), (False, None), None),
-		('max_model_bounding_sphere_radius', Float, (0, None), (False, None), None),
-		('flags_1', Ushort, (0, None), (False, None), None),
-		('flags_2', Ushort, (0, None), (False, None), None),
-		('lod_point_0', Float, (0, None), (False, None), None),
-		('lod_point_1', Float, (0, None), (False, None), None),
-		('lod_point_2', Float, (0, None), (False, None), None),
-		('lod_point_3', Float, (0, None), (False, None), None),
-		('lod_point_4', Float, (0, None), (False, None), None),
-		('pixel_size_off', Float, (0, None), (False, None), None),
-		('unknown_2', Uint, (0, None), (False, None), None),
-		('unknown_3', Uint, (0, None), (False, None), None),
-		('unknown_4', Uint, (0, None), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('group_name', Pointer, (0, ZString), (False, None), None)
+		yield ('unknown_1', Uint, (0, None), (False, None), None)
+		yield ('max_model_bounding_sphere_radius', Float, (0, None), (False, None), None)
+		yield ('flags_1', Ushort, (0, None), (False, None), None)
+		yield ('flags_2', Ushort, (0, None), (False, None), None)
+		yield ('lod_point_0', Float, (0, None), (False, None), None)
+		yield ('lod_point_1', Float, (0, None), (False, None), None)
+		yield ('lod_point_2', Float, (0, None), (False, None), None)
+		yield ('lod_point_3', Float, (0, None), (False, None), None)
+		yield ('lod_point_4', Float, (0, None), (False, None), None)
+		yield ('pixel_size_off', Float, (0, None), (False, None), None)
+		yield ('unknown_2', Uint, (0, None), (False, None), None)
+		yield ('unknown_3', Uint, (0, None), (False, None), None)
+		yield ('unknown_4', Uint, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -65,3 +66,6 @@ class LodSpecItem(MemStruct):
 		yield 'unknown_2', Uint, (0, None), (False, None)
 		yield 'unknown_3', Uint, (0, None), (False, None)
 		yield 'unknown_4', Uint, (0, None), (False, None)
+
+
+LodSpecItem.init_attributes()

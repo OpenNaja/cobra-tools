@@ -23,13 +23,14 @@ class Int16Data(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MemStruct._attribute_list + [
-		('imin', Short, (0, None), (False, None), None),
-		('imax', Short, (0, None), (False, None), None),
-		('ivalue', Short, (0, None), (False, None), None),
-		('ioptional', Short, (0, None), (False, None), None),
-		('enum', Pointer, (0, None), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('imin', Short, (0, None), (False, None), None)
+		yield ('imax', Short, (0, None), (False, None), None)
+		yield ('ivalue', Short, (0, None), (False, None), None)
+		yield ('ioptional', Short, (0, None), (False, None), None)
+		yield ('enum', Pointer, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -39,3 +40,6 @@ class Int16Data(MemStruct):
 		yield 'ivalue', Short, (0, None), (False, None)
 		yield 'ioptional', Short, (0, None), (False, None)
 		yield 'enum', Pointer, (0, None), (False, None)
+
+
+Int16Data.init_attributes()

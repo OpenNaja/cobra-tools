@@ -26,14 +26,15 @@ class DataStreamResourceData(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MemStruct._attribute_list + [
-		('curve_type', Uint64, (0, None), (False, None), None),
-		('ds_name', Pointer, (0, ZString), (False, None), None),
-		('type', Pointer, (0, ZString), (False, None), None),
-		('bone_i_d', Pointer, (0, ZString), (False, None), None),
-		('location', Pointer, (0, ZString), (False, None), None),
-		('curve', CurveData, (0, None), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('curve_type', Uint64, (0, None), (False, None), None)
+		yield ('ds_name', Pointer, (0, ZString), (False, None), None)
+		yield ('type', Pointer, (0, ZString), (False, None), None)
+		yield ('bone_i_d', Pointer, (0, ZString), (False, None), None)
+		yield ('location', Pointer, (0, ZString), (False, None), None)
+		yield ('curve', CurveData, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -44,3 +45,6 @@ class DataStreamResourceData(MemStruct):
 		yield 'bone_i_d', Pointer, (0, ZString), (False, None)
 		yield 'location', Pointer, (0, ZString), (False, None)
 		yield 'curve', CurveData, (0, None), (False, None)
+
+
+DataStreamResourceData.init_attributes()

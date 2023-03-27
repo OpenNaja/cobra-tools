@@ -34,12 +34,13 @@ class DependencyEntry(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = BaseStruct._attribute_list + [
-		('file_hash', Uint, (0, None), (False, None), None),
-		('ext_raw', OffsetString, (None, None), (False, None), None),
-		('file_index', Uint, (0, None), (False, None), None),
-		('link_ptr', HeaderPointer, (0, None), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('file_hash', Uint, (0, None), (False, None), None)
+		yield ('ext_raw', OffsetString, (None, None), (False, None), None)
+		yield ('file_index', Uint, (0, None), (False, None), None)
+		yield ('link_ptr', HeaderPointer, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -61,3 +62,6 @@ class DependencyEntry(BaseStruct):
 		# name is already set at this point
 		self.link_ptr.add_link(self.name, pools)
 
+
+
+DependencyEntry.init_attributes()

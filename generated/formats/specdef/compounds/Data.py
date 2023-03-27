@@ -34,24 +34,25 @@ class Data(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MemStruct._attribute_list + [
-		('dtype', BooleanData, (0, None), (False, None), True),
-		('dtype', Int8Data, (0, None), (False, None), True),
-		('dtype', Int16Data, (0, None), (False, None), True),
-		('dtype', Int32Data, (0, None), (False, None), True),
-		('dtype', Int64Data, (0, None), (False, None), True),
-		('dtype', Uint8Data, (0, None), (False, None), True),
-		('dtype', Uint16Data, (0, None), (False, None), True),
-		('dtype', Uint32Data, (0, None), (False, None), True),
-		('dtype', Uint64Data, (0, None), (False, None), True),
-		('dtype', FloatData, (0, None), (False, None), True),
-		('dtype', StringData, (0, None), (False, None), True),
-		('dtype', Vector2, (0, None), (False, None), True),
-		('dtype', Vector3, (0, None), (False, None), True),
-		('dtype', ArrayData, (0, None), (False, None), True),
-		('dtype', ChildSpecData, (0, None), (False, None), True),
-		('dtype', ReferenceToObjectData, (0, None), (False, None), True),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('dtype', BooleanData, (0, None), (False, None), True)
+		yield ('dtype', Int8Data, (0, None), (False, None), True)
+		yield ('dtype', Int16Data, (0, None), (False, None), True)
+		yield ('dtype', Int32Data, (0, None), (False, None), True)
+		yield ('dtype', Int64Data, (0, None), (False, None), True)
+		yield ('dtype', Uint8Data, (0, None), (False, None), True)
+		yield ('dtype', Uint16Data, (0, None), (False, None), True)
+		yield ('dtype', Uint32Data, (0, None), (False, None), True)
+		yield ('dtype', Uint64Data, (0, None), (False, None), True)
+		yield ('dtype', FloatData, (0, None), (False, None), True)
+		yield ('dtype', StringData, (0, None), (False, None), True)
+		yield ('dtype', Vector2, (0, None), (False, None), True)
+		yield ('dtype', Vector3, (0, None), (False, None), True)
+		yield ('dtype', ArrayData, (0, None), (False, None), True)
+		yield ('dtype', ChildSpecData, (0, None), (False, None), True)
+		yield ('dtype', ReferenceToObjectData, (0, None), (False, None), True)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -88,3 +89,6 @@ class Data(MemStruct):
 			yield 'dtype', ChildSpecData, (0, None), (False, None)
 		if instance.arg == 15:
 			yield 'dtype', ReferenceToObjectData, (0, None), (False, None)
+
+
+Data.init_attributes()

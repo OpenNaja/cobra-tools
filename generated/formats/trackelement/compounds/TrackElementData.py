@@ -36,21 +36,22 @@ class TrackElementData(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MemStruct._attribute_list + [
-		('loop_name', Pointer, (0, ZString), (False, None), None),
-		('ovl_name', Pointer, (0, ZString), (False, None), None),
-		('catwalk', Pointer, (0, None), (False, None), True),
-		('unk_0', Uint64, (0, None), (False, None), True),
-		('optional_catwalk', Pointer, (0, ZString), (False, None), None),
-		('unk_1', Uint, (0, None), (False, None), True),
-		('unk_2', Uint, (0, None), (False, None), None),
-		('unk_3', Ushort, (0, None), (False, 0), None),
-		('unk_4', Ushort, (0, None), (False, 32), None),
-		('unk_5', Uint, (0, None), (False, 1024), True),
-		('unk_6', Uint, (0, None), (False, 1), None),
-		('unk_7', Uint, (0, None), (False, 1), None),
-		('pad', Uint64, (0, None), (False, None), True),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('loop_name', Pointer, (0, ZString), (False, None), None)
+		yield ('ovl_name', Pointer, (0, ZString), (False, None), None)
+		yield ('catwalk', Pointer, (0, None), (False, None), True)
+		yield ('unk_0', Uint64, (0, None), (False, None), True)
+		yield ('optional_catwalk', Pointer, (0, ZString), (False, None), None)
+		yield ('unk_1', Uint, (0, None), (False, None), True)
+		yield ('unk_2', Uint, (0, None), (False, None), None)
+		yield ('unk_3', Ushort, (0, None), (False, 0), None)
+		yield ('unk_4', Ushort, (0, None), (False, 32), None)
+		yield ('unk_5', Uint, (0, None), (False, 1024), True)
+		yield ('unk_6', Uint, (0, None), (False, 1), None)
+		yield ('unk_7', Uint, (0, None), (False, 1), None)
+		yield ('pad', Uint64, (0, None), (False, None), True)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -72,3 +73,6 @@ class TrackElementData(MemStruct):
 		yield 'unk_7', Uint, (0, None), (False, 1)
 		if instance.arg < 2:
 			yield 'pad', Uint64, (0, None), (False, None)
+
+
+TrackElementData.init_attributes()

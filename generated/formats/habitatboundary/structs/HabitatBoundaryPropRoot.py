@@ -40,22 +40,23 @@ class HabitatBoundaryPropRoot(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MemStruct._attribute_list + [
-		('type', Uint64, (0, None), (False, None), None),
-		('prefab', Pointer, (0, ZString), (False, None), None),
-		('u_1', Uint64, (0, None), (False, None), None),
-		('post', Pointer, (0, ZString), (False, None), None),
-		('wall', Pointer, (0, ZString), (False, None), None),
-		('is_guest', Uint, (0, None), (False, None), None),
-		('post_position', HbPostPos, (0, None), (False, None), None),
-		('u_2', Float, (0, None), (False, None), None),
-		('door_physics', HbPropPhysics, (0, None), (False, None), None),
-		('path_physics', HbPropPhysics, (0, None), (False, None), None),
-		('path_join_part', Pointer, (0, ZString), (False, None), None),
-		('door_cutout', HbDoorCutout, (0, None), (False, None), None),
-		('small', Uint, (0, None), (False, None), None),
-		('height', Float, (0, None), (False, 2.0), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('type', Uint64, (0, None), (False, None), None)
+		yield ('prefab', Pointer, (0, ZString), (False, None), None)
+		yield ('u_1', Uint64, (0, None), (False, None), None)
+		yield ('post', Pointer, (0, ZString), (False, None), None)
+		yield ('wall', Pointer, (0, ZString), (False, None), None)
+		yield ('is_guest', Uint, (0, None), (False, None), None)
+		yield ('post_position', HbPostPos, (0, None), (False, None), None)
+		yield ('u_2', Float, (0, None), (False, None), None)
+		yield ('door_physics', HbPropPhysics, (0, None), (False, None), None)
+		yield ('path_physics', HbPropPhysics, (0, None), (False, None), None)
+		yield ('path_join_part', Pointer, (0, ZString), (False, None), None)
+		yield ('door_cutout', HbDoorCutout, (0, None), (False, None), None)
+		yield ('small', Uint, (0, None), (False, None), None)
+		yield ('height', Float, (0, None), (False, 2.0), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -74,3 +75,6 @@ class HabitatBoundaryPropRoot(MemStruct):
 		yield 'door_cutout', HbDoorCutout, (0, None), (False, None)
 		yield 'small', Uint, (0, None), (False, None)
 		yield 'height', Float, (0, None), (False, 2.0)
+
+
+HabitatBoundaryPropRoot.init_attributes()

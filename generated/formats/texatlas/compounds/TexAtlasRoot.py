@@ -18,12 +18,13 @@ class TexAtlasRoot(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MemStruct._attribute_list + [
-		('texture_list', ArrayPointer, (None, None), (False, None), None),
-		('texture_count', Uint64, (0, None), (False, None), None),
-		('atlas_list', ArrayPointer, (None, None), (False, None), None),
-		('atlas_count', Uint64, (0, None), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('texture_list', ArrayPointer, (None, None), (False, None), None)
+		yield ('texture_count', Uint64, (0, None), (False, None), None)
+		yield ('atlas_list', ArrayPointer, (None, None), (False, None), None)
+		yield ('atlas_count', Uint64, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -32,3 +33,6 @@ class TexAtlasRoot(MemStruct):
 		yield 'texture_count', Uint64, (0, None), (False, None)
 		yield 'atlas_list', ArrayPointer, (instance.atlas_count, TexAtlasRoot._import_map["texatlas.compounds.AtlasItem"]), (False, None)
 		yield 'atlas_count', Uint64, (0, None), (False, None)
+
+
+TexAtlasRoot.init_attributes()

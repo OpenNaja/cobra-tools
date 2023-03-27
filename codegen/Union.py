@@ -249,7 +249,7 @@ class Union:
                 shape = f"({', '.join(resolved_shape_parts)},)"
                 arguments = f"({arg}, {template}, {shape}, {field_type_access})"
                 field_type_access = "Array"
-            f.write(f"({repr(field_name)}, {field_type_access}, {arguments}, ({optional}, {default}), {True if conditionals else None}),\n\t\t")
+            f.write(f"\n\t\tyield ({repr(field_name)}, {field_type_access}, {arguments}, ({optional}, {default}), {True if conditionals else None})")
 
     def write_filtered_attributes(self, f, condition, target_variable="self"):
         base_indent = "\n\t\t"

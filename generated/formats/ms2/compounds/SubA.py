@@ -25,12 +25,13 @@ class SubA(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = BaseStruct._attribute_list + [
-		('index', Ubyte, (0, None), (False, None), None),
-		('a', Ubyte, (0, None), (False, 240), None),
-		('b', Ubyte, (0, None), (False, 237), None),
-		('c', Ubyte, (0, None), (False, 254), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('index', Ubyte, (0, None), (False, None), None)
+		yield ('a', Ubyte, (0, None), (False, 240), None)
+		yield ('b', Ubyte, (0, None), (False, 237), None)
+		yield ('c', Ubyte, (0, None), (False, 254), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -39,3 +40,6 @@ class SubA(BaseStruct):
 		yield 'a', Ubyte, (0, None), (False, 240)
 		yield 'b', Ubyte, (0, None), (False, 237)
 		yield 'c', Ubyte, (0, None), (False, 254)
+
+
+SubA.init_attributes()

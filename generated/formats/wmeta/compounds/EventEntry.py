@@ -38,23 +38,24 @@ class EventEntry(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MemStruct._attribute_list + [
-		('hash', Uint, (0, None), (False, None), None),
-		('zero', Uint, (0, None), (False, None), None),
-		('block_name', Pointer, (0, ZString), (False, None), True),
-		('zero_2', Ushort, (0, None), (False, None), True),
-		('size', Ushort, (0, None), (False, None), True),
-		('flag_0', Uint, (0, None), (False, None), None),
-		('flag_1', Uint, (0, None), (False, None), None),
-		('flag_2', Uint, (0, None), (False, None), None),
-		('zero_3', Uint64, (0, None), (False, None), True),
-		('flag_3', Uint, (0, None), (False, None), True),
-		('hash_b', Uint, (0, None), (False, None), None),
-		('hash_c', Uint, (0, None), (False, None), None),
-		('zero_4', Uint, (0, None), (False, None), None),
-		('u_2', Uint, (0, None), (False, None), True),
-		('u_1', Uint, (0, None), (False, None), True),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('hash', Uint, (0, None), (False, None), None)
+		yield ('zero', Uint, (0, None), (False, None), None)
+		yield ('block_name', Pointer, (0, ZString), (False, None), True)
+		yield ('zero_2', Ushort, (0, None), (False, None), True)
+		yield ('size', Ushort, (0, None), (False, None), True)
+		yield ('flag_0', Uint, (0, None), (False, None), None)
+		yield ('flag_1', Uint, (0, None), (False, None), None)
+		yield ('flag_2', Uint, (0, None), (False, None), None)
+		yield ('zero_3', Uint64, (0, None), (False, None), True)
+		yield ('flag_3', Uint, (0, None), (False, None), True)
+		yield ('hash_b', Uint, (0, None), (False, None), None)
+		yield ('hash_c', Uint, (0, None), (False, None), None)
+		yield ('zero_4', Uint, (0, None), (False, None), None)
+		yield ('u_2', Uint, (0, None), (False, None), True)
+		yield ('u_1', Uint, (0, None), (False, None), True)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -77,3 +78,6 @@ class EventEntry(MemStruct):
 		if instance.context.version >= 19:
 			yield 'u_2', Uint, (0, None), (False, None)
 			yield 'u_1', Uint, (0, None), (False, None)
+
+
+EventEntry.init_attributes()

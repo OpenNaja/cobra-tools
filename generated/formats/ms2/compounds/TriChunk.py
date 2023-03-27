@@ -37,17 +37,18 @@ class TriChunk(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = BaseStruct._attribute_list + [
-		('bounds_min', Vector3, (0, None), (False, None), None),
-		('material_index', Ushort, (0, None), (False, None), None),
-		('tris_count', Ushort, (0, None), (False, None), None),
-		('bounds_max', Vector3, (0, None), (False, None), None),
-		('tris_offset', Uint, (0, None), (False, None), None),
-		('loc', Vector3, (0, None), (False, None), None),
-		('rot', AxisAngle, (0, None), (False, None), None),
-		('shell_index', Ushort, (0, None), (False, None), None),
-		('shell_count', Ushort, (0, None), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('bounds_min', Vector3, (0, None), (False, None), None)
+		yield ('material_index', Ushort, (0, None), (False, None), None)
+		yield ('tris_count', Ushort, (0, None), (False, None), None)
+		yield ('bounds_max', Vector3, (0, None), (False, None), None)
+		yield ('tris_offset', Uint, (0, None), (False, None), None)
+		yield ('loc', Vector3, (0, None), (False, None), None)
+		yield ('rot', AxisAngle, (0, None), (False, None), None)
+		yield ('shell_index', Ushort, (0, None), (False, None), None)
+		yield ('shell_count', Ushort, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -61,3 +62,6 @@ class TriChunk(BaseStruct):
 		yield 'rot', AxisAngle, (0, None), (False, None)
 		yield 'shell_index', Ushort, (0, None), (False, None)
 		yield 'shell_count', Ushort, (0, None), (False, None)
+
+
+TriChunk.init_attributes()

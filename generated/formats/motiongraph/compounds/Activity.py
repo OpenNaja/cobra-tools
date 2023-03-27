@@ -38,14 +38,15 @@ class Activity(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MemStruct._attribute_list + [
-		('data_type', Pointer, (0, ZString), (False, None), None),
-		('ptr', Pointer, (0, None), (False, None), None),
-		('count_2', Uint64, (0, None), (False, None), None),
-		('count_3', Uint64, (0, None), (False, None), None),
-		('minus_one', Int64, (0, None), (False, None), None),
-		('name_b', Pointer, (0, ZString), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('data_type', Pointer, (0, ZString), (False, None), None)
+		yield ('ptr', Pointer, (0, None), (False, None), None)
+		yield ('count_2', Uint64, (0, None), (False, None), None)
+		yield ('count_3', Uint64, (0, None), (False, None), None)
+		yield ('minus_one', Int64, (0, None), (False, None), None)
+		yield ('name_b', Pointer, (0, ZString), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -68,3 +69,6 @@ class Activity(MemStruct):
 			except:
 				logging.warning(f"Unsupported activity '{activity}'")
 
+
+
+Activity.init_attributes()

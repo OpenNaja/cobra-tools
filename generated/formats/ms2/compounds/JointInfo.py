@@ -37,17 +37,18 @@ class JointInfo(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = BaseStruct._attribute_list + [
-		('eleven', Uint, (0, None), (False, 11), None),
-		('zero_0', Int, (0, None), (False, 0), None),
-		('zero_1', Int, (0, None), (False, 0), None),
-		('minus_1', Int, (0, None), (False, -1), None),
-		('name', OffsetString, (None, None), (False, None), None),
-		('hitcheck_count', Uint, (0, None), (False, None), None),
-		('zero_2', Uint64, (0, None), (False, None), None),
-		('hitcheck_pointers', Array, (0, None, (None,), Uint64), (False, None), None),
-		('hitchecks', Array, (None, None, (None,), HitCheck), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('eleven', Uint, (0, None), (False, 11), None)
+		yield ('zero_0', Int, (0, None), (False, 0), None)
+		yield ('zero_1', Int, (0, None), (False, 0), None)
+		yield ('minus_1', Int, (0, None), (False, -1), None)
+		yield ('name', OffsetString, (None, None), (False, None), None)
+		yield ('hitcheck_count', Uint, (0, None), (False, None), None)
+		yield ('zero_2', Uint64, (0, None), (False, None), None)
+		yield ('hitcheck_pointers', Array, (0, None, (None,), Uint64), (False, None), None)
+		yield ('hitchecks', Array, (None, None, (None,), HitCheck), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -61,3 +62,6 @@ class JointInfo(BaseStruct):
 		yield 'zero_2', Uint64, (0, None), (False, None)
 		yield 'hitcheck_pointers', Array, (0, None, (instance.hitcheck_count,), Uint64), (False, None)
 		yield 'hitchecks', Array, (instance.arg, None, (instance.hitcheck_count,), HitCheck), (False, None)
+
+
+JointInfo.init_attributes()

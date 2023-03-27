@@ -20,11 +20,12 @@ class FootPlantActivityData(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MemStruct._attribute_list + [
-		('weight', FloatInputData, (0, None), (False, None), None),
-		('rotation_no_i_k_weight', FloatInputData, (0, None), (False, None), None),
-		('sticky_feet_weight', FloatInputData, (0, None), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('weight', FloatInputData, (0, None), (False, None), None)
+		yield ('rotation_no_i_k_weight', FloatInputData, (0, None), (False, None), None)
+		yield ('sticky_feet_weight', FloatInputData, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -32,3 +33,6 @@ class FootPlantActivityData(MemStruct):
 		yield 'weight', FloatInputData, (0, None), (False, None)
 		yield 'rotation_no_i_k_weight', FloatInputData, (0, None), (False, None)
 		yield 'sticky_feet_weight', FloatInputData, (0, None), (False, None)
+
+
+FootPlantActivityData.init_attributes()

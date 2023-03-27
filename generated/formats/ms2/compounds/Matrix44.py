@@ -22,9 +22,10 @@ class Matrix44(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = BaseStruct._attribute_list + [
-		('data', Array, (0, None, (4, 4,), Float), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('data', Array, (0, None, (4, 4,), Float), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -35,3 +36,6 @@ class Matrix44(BaseStruct):
 		"""Set matrix from rows."""
 		self.data[:] = mat.transposed()
 
+
+
+Matrix44.init_attributes()

@@ -24,16 +24,17 @@ class Research(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MemStruct._attribute_list + [
-		('item_name', Pointer, (0, ZString), (False, None), None),
-		('unk_0', Uint, (0, None), (False, None), None),
-		('is_entry_level', Uint, (0, None), (False, None), None),
-		('unk_2', Uint64, (0, None), (False, None), None),
-		('next_research', Pointer, (None, None), (False, None), None),
-		('next_research_count', Uint64, (0, None), (False, None), None),
-		('unk_3', Uint64, (0, None), (False, None), None),
-		('unk_4', Uint64, (0, None), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('item_name', Pointer, (0, ZString), (False, None), None)
+		yield ('unk_0', Uint, (0, None), (False, None), None)
+		yield ('is_entry_level', Uint, (0, None), (False, None), None)
+		yield ('unk_2', Uint64, (0, None), (False, None), None)
+		yield ('next_research', Pointer, (None, None), (False, None), None)
+		yield ('next_research_count', Uint64, (0, None), (False, None), None)
+		yield ('unk_3', Uint64, (0, None), (False, None), None)
+		yield ('unk_4', Uint64, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -46,3 +47,6 @@ class Research(MemStruct):
 		yield 'next_research_count', Uint64, (0, None), (False, None)
 		yield 'unk_3', Uint64, (0, None), (False, None)
 		yield 'unk_4', Uint64, (0, None), (False, None)
+
+
+Research.init_attributes()

@@ -32,16 +32,17 @@ class BKHDSection(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = BaseStruct._attribute_list + [
-		('length', Uint, (0, None), (False, None), None),
-		('version', Uint, (0, None), (False, None), None),
-		('id_a', Uint, (0, None), (False, None), None),
-		('id_b', Uint, (0, None), (False, None), None),
-		('constant_a', Uint, (0, None), (False, None), None),
-		('constant_b', Uint, (0, None), (False, None), None),
-		('unk', Uint, (0, None), (False, None), None),
-		('zeroes', Array, (0, None, (None,), Ubyte), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('length', Uint, (0, None), (False, None), None)
+		yield ('version', Uint, (0, None), (False, None), None)
+		yield ('id_a', Uint, (0, None), (False, None), None)
+		yield ('id_b', Uint, (0, None), (False, None), None)
+		yield ('constant_a', Uint, (0, None), (False, None), None)
+		yield ('constant_b', Uint, (0, None), (False, None), None)
+		yield ('unk', Uint, (0, None), (False, None), None)
+		yield ('zeroes', Array, (0, None, (None,), Ubyte), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -54,3 +55,6 @@ class BKHDSection(BaseStruct):
 		yield 'constant_b', Uint, (0, None), (False, None)
 		yield 'unk', Uint, (0, None), (False, None)
 		yield 'zeroes', Array, (0, None, (instance.length - 24,), Ubyte), (False, None)
+
+
+BKHDSection.init_attributes()
