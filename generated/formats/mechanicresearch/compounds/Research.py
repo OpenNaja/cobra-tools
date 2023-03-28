@@ -31,7 +31,7 @@ class Research(MemStruct):
 		yield ('unk_0', Uint, (0, None), (False, None), None)
 		yield ('is_entry_level', Uint, (0, None), (False, None), None)
 		yield ('unk_2', Uint64, (0, None), (False, None), None)
-		yield ('next_research', Pointer, (None, None), (False, None), None)
+		yield ('next_research', Pointer, (None, Research._import_map["mechanicresearch.compounds.NextResearch"]), (False, None), None)
 		yield ('next_research_count', Uint64, (0, None), (False, None), None)
 		yield ('unk_3', Uint64, (0, None), (False, None), None)
 		yield ('unk_4', Uint64, (0, None), (False, None), None)

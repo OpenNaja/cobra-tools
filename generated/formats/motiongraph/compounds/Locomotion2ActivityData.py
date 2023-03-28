@@ -41,7 +41,7 @@ class Locomotion2ActivityData(MemStruct):
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
 		yield ('animation_count', Uint64, (0, None), (False, None), None)
-		yield ('animations', ArrayPointer, (None, None), (False, None), None)
+		yield ('animations', ArrayPointer, (None, Locomotion2ActivityData._import_map["motiongraph.compounds.Locomotion2AnimationInfo"]), (False, None), None)
 		yield ('flags', Uint, (0, None), (False, None), None)
 		yield ('stopping_distance', Float, (0, None), (False, 0.0), None)
 		yield ('strafe_turn_blend', Float, (0, None), (False, 0.2), None)
@@ -53,7 +53,7 @@ class Locomotion2ActivityData(MemStruct):
 		yield ('speed_variable', Pointer, (0, ZString), (False, None), None)
 		yield ('orientation_variable', Pointer, (0, ZString), (False, None), None)
 		yield ('data_streams_count', Uint64, (0, None), (False, None), None)
-		yield ('data_streams', ArrayPointer, (None, None), (False, None), None)
+		yield ('data_streams', ArrayPointer, (None, Locomotion2ActivityData._import_map["motiongraph.compounds.DataStreamResourceDataList"]), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

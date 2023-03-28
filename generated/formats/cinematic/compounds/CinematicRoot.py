@@ -22,7 +22,7 @@ class CinematicRoot(MemStruct):
 		yield from super()._get_attribute_list()
 		yield ('u_0', Uint64, (0, None), (False, None), None)
 		yield ('u_1', Uint64, (0, None), (False, None), None)
-		yield ('data', Pointer, (0, None), (False, None), None)
+		yield ('data', Pointer, (0, CinematicRoot._import_map["cinematic.compounds.CinematicData"]), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

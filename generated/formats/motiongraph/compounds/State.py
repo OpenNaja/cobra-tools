@@ -32,9 +32,9 @@ class State(MemStruct):
 		yield from super()._get_attribute_list()
 		yield ('unk', Uint, (0, None), (False, None), None)
 		yield ('activities_count', Uint, (0, None), (False, None), None)
-		yield ('activities', Pointer, (None, None), (False, None), None)
+		yield ('activities', Pointer, (None, State._import_map["motiongraph.compounds.PtrList"]), (False, None), None)
 		yield ('count_2', Uint64, (0, None), (False, None), None)
-		yield ('array_2', Pointer, (None, None), (False, None), None)
+		yield ('array_2', Pointer, (None, State._import_map["motiongraph.compounds.TransStructStopList"]), (False, None), None)
 		yield ('id', Pointer, (0, ZString), (False, None), None)
 
 	@classmethod

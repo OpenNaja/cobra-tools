@@ -23,7 +23,7 @@ class InfoStruct(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('brush_list', ArrayPointer, (None, None), (False, None), None)
+		yield ('brush_list', ArrayPointer, (None, InfoStruct._import_map["terraindetaillayers.compounds.BrushitemStruct"]), (False, None), None)
 		yield ('brush_count', Uint, (0, None), (False, None), None)
 		yield ('brush_flags', Uint, (0, None), (False, None), None)
 		yield ('scale', Float, (0, None), (False, None), None)

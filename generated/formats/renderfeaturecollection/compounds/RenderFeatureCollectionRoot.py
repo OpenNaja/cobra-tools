@@ -19,7 +19,7 @@ class RenderFeatureCollectionRoot(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('item_list', ArrayPointer, (None, None), (False, None), None)
+		yield ('item_list', ArrayPointer, (None, RenderFeatureCollectionRoot._import_map["renderfeaturecollection.compounds.RenderFeatureItem"]), (False, None), None)
 		yield ('item_count', Uint64, (0, None), (False, None), None)
 
 	@classmethod

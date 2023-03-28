@@ -41,7 +41,7 @@ class RestaurantSettingsRoot(MemStruct):
 		yield ('running_cost_per_extension', Uint64, (0, None), (False, None), None)
 		yield ('unk_8', Uint, (0, None), (False, None), None)
 		yield ('unk_9', Float, (0, None), (False, None), None)
-		yield ('perks', ArrayPointer, (None, None), (False, None), None)
+		yield ('perks', ArrayPointer, (None, RestaurantSettingsRoot._import_map["restaurantsettings.compounds.Perk"]), (False, None), None)
 		yield ('count', Uint64, (0, None), (False, None), None)
 
 	@classmethod

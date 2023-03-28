@@ -21,9 +21,9 @@ class TexAtlasRoot(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('texture_list', ArrayPointer, (None, None), (False, None), None)
+		yield ('texture_list', ArrayPointer, (None, TexAtlasRoot._import_map["texatlas.compounds.TextureData"]), (False, None), None)
 		yield ('texture_count', Uint64, (0, None), (False, None), None)
-		yield ('atlas_list', ArrayPointer, (None, None), (False, None), None)
+		yield ('atlas_list', ArrayPointer, (None, TexAtlasRoot._import_map["texatlas.compounds.AtlasItem"]), (False, None), None)
 		yield ('atlas_count', Uint64, (0, None), (False, None), None)
 
 	@classmethod

@@ -56,7 +56,7 @@ class TerrainDetailsLayerItem(MemStruct):
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
 		yield ('layer_name', Pointer, (0, ZString), (False, None), None)
-		yield ('info_list', ArrayPointer, (None, None), (False, None), None)
+		yield ('info_list', ArrayPointer, (None, TerrainDetailsLayerItem._import_map["terraindetaillayers.compounds.InfoStruct"]), (False, None), None)
 		yield ('info_count', Uint, (0, None), (False, None), None)
 		yield ('float_1', Float, (0, None), (False, None), None)
 		yield ('float_2', Float, (0, None), (False, None), None)
@@ -65,7 +65,7 @@ class TerrainDetailsLayerItem(MemStruct):
 		yield ('float_5', Float, (0, None), (False, None), None)
 		yield ('float_6', Float, (0, None), (False, None), None)
 		yield ('unk_2', Uint, (0, None), (False, None), None)
-		yield ('detail_list', ArrayPointer, (None, None), (False, None), None)
+		yield ('detail_list', ArrayPointer, (None, TerrainDetailsLayerItem._import_map["terraindetaillayers.compounds.DetailStruct"]), (False, None), None)
 		yield ('detail_count', Uint, (0, None), (False, None), None)
 		yield ('floata_1', Float, (0, None), (False, None), None)
 		yield ('floata_2', Float, (0, None), (False, None), None)

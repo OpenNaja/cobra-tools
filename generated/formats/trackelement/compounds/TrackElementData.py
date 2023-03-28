@@ -41,7 +41,7 @@ class TrackElementData(MemStruct):
 		yield from super()._get_attribute_list()
 		yield ('loop_name', Pointer, (0, ZString), (False, None), None)
 		yield ('ovl_name', Pointer, (0, ZString), (False, None), None)
-		yield ('catwalk', Pointer, (0, None), (False, None), True)
+		yield ('catwalk', Pointer, (0, TrackElementData._import_map["trackelement.compounds.TrackElementSub"]), (False, None), True)
 		yield ('unk_0', Uint64, (0, None), (False, None), True)
 		yield ('optional_catwalk', Pointer, (0, ZString), (False, None), None)
 		yield ('unk_1', Uint, (0, None), (False, None), True)

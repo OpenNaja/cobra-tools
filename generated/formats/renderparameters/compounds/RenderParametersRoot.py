@@ -27,7 +27,7 @@ class RenderParametersRoot(MemStruct):
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
 		yield ('param_name', Pointer, (0, ZStringObfuscated), (False, None), None)
-		yield ('params', Pointer, (None, None), (False, None), None)
+		yield ('params', Pointer, (None, RenderParametersRoot._import_map["renderparameters.compounds.ParamList"]), (False, None), None)
 		yield ('count', Uint64, (0, None), (False, None), None)
 		yield ('unk', Uint64, (0, None), (False, None), None)
 

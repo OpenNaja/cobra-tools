@@ -19,7 +19,7 @@ class ResearchRoot(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('levels', ArrayPointer, (None, None), (False, None), None)
+		yield ('levels', ArrayPointer, (None, ResearchRoot._import_map["mechanicresearch.compounds.Research"]), (False, None), None)
 		yield ('count', Uint64, (0, None), (False, None), None)
 
 	@classmethod

@@ -24,7 +24,7 @@ class StateArray(MemStruct):
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
 		yield ('count', Uint64, (0, None), (False, None), None)
-		yield ('ptr', Pointer, (None, None), (False, None), None)
+		yield ('ptr', Pointer, (None, StateArray._import_map["motiongraph.compounds.StateList"]), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

@@ -27,7 +27,7 @@ class TrackElementRoot(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('track_data', ArrayPointer, (None, None), (False, None), None)
+		yield ('track_data', ArrayPointer, (None, TrackElementRoot._import_map["trackelement.compounds.TrackElementData"]), (False, None), None)
 		yield ('count', Uint64, (0, None), (False, None), None)
 		yield ('unk_string_1', Pointer, (0, ZString), (False, None), None)
 		yield ('unk_string_2', Pointer, (0, ZString), (False, None), None)

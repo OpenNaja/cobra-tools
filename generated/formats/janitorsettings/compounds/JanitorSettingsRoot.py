@@ -91,12 +91,12 @@ class JanitorSettingsRoot(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('array_0', ArrayPointer, (None, None), (False, None), None)
-		yield ('array_1', ArrayPointer, (None, None), (False, None), None)
-		yield ('array_2', ArrayPointer, (None, None), (False, None), None)
-		yield ('array_3', ArrayPointer, (None, None), (False, None), None)
-		yield ('array_4', ArrayPointer, (None, None), (False, None), None)
-		yield ('array_5', ArrayPointer, (None, None), (False, None), None)
+		yield ('array_0', ArrayPointer, (None, JanitorSettingsRoot._import_map["janitorsettings.compounds.UIntPair"]), (False, None), None)
+		yield ('array_1', ArrayPointer, (None, JanitorSettingsRoot._import_map["janitorsettings.compounds.UIntPair"]), (False, None), None)
+		yield ('array_2', ArrayPointer, (None, JanitorSettingsRoot._import_map["janitorsettings.compounds.UIntPair"]), (False, None), None)
+		yield ('array_3', ArrayPointer, (None, JanitorSettingsRoot._import_map["janitorsettings.compounds.UIntPair"]), (False, None), None)
+		yield ('array_4', ArrayPointer, (None, JanitorSettingsRoot._import_map["janitorsettings.compounds.UIntPair"]), (False, None), None)
+		yield ('array_5', ArrayPointer, (None, JanitorSettingsRoot._import_map["janitorsettings.compounds.UIntPair"]), (False, None), None)
 		yield ('array_6', ArrayPointer, (None, Uint), (False, None), None)
 		yield ('array_7', ArrayPointer, (None, Uint), (False, None), None)
 		yield ('array_8', ArrayPointer, (None, Uint), (False, None), None)

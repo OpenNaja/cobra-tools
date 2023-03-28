@@ -29,9 +29,9 @@ class RootFrag(MemStruct):
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
 		yield ('mat_type', Uint64, (0, None), (False, None), None)
-		yield ('textures', ArrayPointer, (None, None), (False, None), None)
+		yield ('textures', ArrayPointer, (None, RootFrag._import_map["matcol.compounds.Texture"]), (False, None), None)
 		yield ('tex_count', Uint64, (0, None), (False, None), None)
-		yield ('materials', ArrayPointer, (None, None), (False, None), None)
+		yield ('materials', ArrayPointer, (None, RootFrag._import_map["matcol.compounds.LayerFrag"]), (False, None), None)
 		yield ('mat_count', Uint64, (0, None), (False, None), None)
 		yield ('unk', Uint64, (0, None), (False, None), None)
 

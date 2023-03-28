@@ -41,7 +41,7 @@ class Driver(MemStruct):
 		yield ('d', Uint, (0, None), (False, None), None)
 		yield ('driven_joint_name', Pointer, (0, ZString), (False, None), None)
 		yield ('unk_1', Uint64, (0, None), (False, None), None)
-		yield ('data', Pointer, (0, None), (False, None), None)
+		yield ('data', Pointer, (0, Driver._import_map["posedriverdef.compounds.Data"]), (False, None), None)
 		yield ('unk_2', Uint64, (0, None), (False, None), None)
 
 	@classmethod

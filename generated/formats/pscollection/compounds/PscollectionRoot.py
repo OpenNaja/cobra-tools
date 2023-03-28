@@ -19,7 +19,7 @@ class PscollectionRoot(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('prepared_statements', ArrayPointer, (None, None), (False, None), None)
+		yield ('prepared_statements', ArrayPointer, (None, PscollectionRoot._import_map["pscollection.compounds.PreparedStatement"]), (False, None), None)
 		yield ('count', Uint64, (0, None), (False, None), None)
 
 	@classmethod

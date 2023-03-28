@@ -19,7 +19,7 @@ class WmetasbRoot(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('levels', ArrayPointer, (None, None), (False, None), None)
+		yield ('levels', ArrayPointer, (None, WmetasbRoot._import_map["wmeta.compounds.WmetasbMain"]), (False, None), None)
 		yield ('count', Uint64, (0, None), (False, None), None)
 
 	@classmethod

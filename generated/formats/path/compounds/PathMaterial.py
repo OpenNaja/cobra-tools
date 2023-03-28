@@ -43,7 +43,7 @@ class PathMaterial(MemStruct):
 		yield ('stairs_mat_1', Pointer, (0, ZString), (False, None), None)
 		yield ('stairs_mat_2', Pointer, (0, ZString), (False, None), None)
 		yield ('path_sub_type', Uint64, (0, None), (False, None), None)
-		yield ('mat_data', ArrayPointer, (None, None), (False, None), None)
+		yield ('mat_data', ArrayPointer, (None, PathMaterial._import_map["path.compounds.PathMaterialData"]), (False, None), None)
 		yield ('num_data', Uint64, (0, None), (False, None), None)
 
 	@classmethod

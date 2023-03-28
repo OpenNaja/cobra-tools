@@ -32,7 +32,7 @@ class WeatherEventsRoot(MemStruct):
 		yield ('default_event_name', Pointer, (0, ZString), (False, None), None)
 		yield ('transition_time', Float, (0, None), (False, None), None)
 		yield ('unknown_1', Float, (0, None), (False, None), None)
-		yield ('event_list', ArrayPointer, (None, None), (False, None), None)
+		yield ('event_list', ArrayPointer, (None, WeatherEventsRoot._import_map["weatherevents.compounds.WeatherEventData"]), (False, None), None)
 		yield ('event_count', Uint64, (0, None), (False, None), None)
 		yield ('unknown_2', Uint64, (0, None), (False, None), None)
 

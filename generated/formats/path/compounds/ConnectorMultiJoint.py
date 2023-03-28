@@ -30,7 +30,7 @@ class ConnectorMultiJoint(MemStruct):
 		yield from super()._get_attribute_list()
 		yield ('model_name', Pointer, (0, ZString), (False, None), None)
 		yield ('padding', Uint64, (0, None), (False, 0), None)
-		yield ('joints', ArrayPointer, (None, None), (False, None), None)
+		yield ('joints', ArrayPointer, (None, ConnectorMultiJoint._import_map["path.compounds.Joint"]), (False, None), None)
 		yield ('num_joints', Uint, (0, None), (False, None), None)
 		yield ('unk_float_1', Float, (0, None), (False, None), None)
 		yield ('unk_float_2', Float, (0, None), (False, None), None)

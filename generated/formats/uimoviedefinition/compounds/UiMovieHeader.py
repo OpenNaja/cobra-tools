@@ -75,14 +75,14 @@ class UiMovieHeader(MemStruct):
 		yield ('u_4', Ubyte, (0, None), (False, None), None)
 		yield ('u_5', Ubyte, (0, None), (False, None), None)
 		yield ('ptr_0', Pointer, (0, None), (False, None), None)
-		yield ('ui_triggers', Pointer, (None, None), (False, None), None)
+		yield ('ui_triggers', Pointer, (None, UiMovieHeader._import_map["uimoviedefinition.compounds.PtrList"]), (False, None), None)
 		yield ('ptr_1', Pointer, (0, None), (False, None), None)
-		yield ('ui_names', Pointer, (None, None), (False, None), None)
-		yield ('assetpkgs', Pointer, (None, None), (False, None), None)
+		yield ('ui_names', Pointer, (None, UiMovieHeader._import_map["uimoviedefinition.compounds.PtrList"]), (False, None), None)
+		yield ('assetpkgs', Pointer, (None, UiMovieHeader._import_map["uimoviedefinition.compounds.PtrList"]), (False, None), None)
 		yield ('ptr_2', Pointer, (0, None), (False, None), None)
 		yield ('list_1', ArrayPointer, (None, Uint), (False, None), None)
 		yield ('list_2', ArrayPointer, (None, Uint), (False, None), None)
-		yield ('ui_interfaces', Pointer, (None, None), (False, None), None)
+		yield ('ui_interfaces', Pointer, (None, UiMovieHeader._import_map["uimoviedefinition.compounds.PtrList"]), (False, None), None)
 		yield ('ptr_3', Pointer, (0, None), (False, None), None)
 
 	@classmethod

@@ -23,7 +23,7 @@ class CinematicData(MemStruct):
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
 		yield ('default_name', Pointer, (0, ZString), (False, None), None)
-		yield ('next_levels', ArrayPointer, (None, None), (False, None), None)
+		yield ('next_levels', ArrayPointer, (None, CinematicData._import_map["cinematic.compounds.State"]), (False, None), None)
 		yield ('next_level_count', Uint64, (0, None), (False, None), None)
 
 	@classmethod

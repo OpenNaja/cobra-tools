@@ -40,7 +40,7 @@ class SurfacePhysicsInfo(MemStruct):
 		yield ('unk_64_1', Uint64, (0, None), (False, None), None)
 		yield ('name_1', Pointer, (0, ZString), (False, None), None)
 		yield ('name_2', Pointer, (0, ZString), (False, None), None)
-		yield ('ptr_1', Pointer, (0, None), (False, None), None)
+		yield ('ptr_1', Pointer, (0, SurfacePhysicsInfo._import_map["physicssurfacesxmlres.compounds.EmptyStruct"]), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

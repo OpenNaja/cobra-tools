@@ -24,7 +24,7 @@ class DecalSettingsRoot(MemStruct):
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
 		yield ('atlas_name', Pointer, (0, ZString), (False, None), None)
-		yield ('layer_list', ArrayPointer, (None, None), (False, None), None)
+		yield ('layer_list', ArrayPointer, (None, DecalSettingsRoot._import_map["decalsettings.compounds.DecalSettingItem"]), (False, None), None)
 		yield ('layer_count', Uint64, (0, None), (False, None), None)
 		yield ('unknown', Uint64, (0, None), (False, None), None)
 

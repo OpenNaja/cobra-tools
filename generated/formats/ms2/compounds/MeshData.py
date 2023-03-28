@@ -42,7 +42,7 @@ class MeshData(MemStruct):
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
 		yield ('stream_index', Uint64, (0, None), (False, None), True)
-		yield ('stream_info', Pointer, (0, None), (False, None), True)
+		yield ('stream_info', Pointer, (0, MeshData._import_map["ms2.compounds.BufferInfo"]), (False, None), True)
 		yield ('some_index', Uint, (0, None), (False, None), True)
 		yield ('some_index_2', Uint, (0, None), (False, None), True)
 

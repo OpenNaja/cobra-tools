@@ -32,9 +32,9 @@ class Transition(MemStruct):
 		yield from super()._get_attribute_list()
 		yield ('count_0', Uint, (0, None), (False, None), None)
 		yield ('count_1', Uint, (0, None), (False, None), None)
-		yield ('ptr_0', Pointer, (None, None), (False, None), None)
+		yield ('ptr_0', Pointer, (None, Transition._import_map["motiongraph.compounds.PtrList"]), (False, None), None)
 		yield ('count_2', Uint64, (0, None), (False, None), None)
-		yield ('ptr_1', Pointer, (None, None), (False, None), None)
+		yield ('ptr_1', Pointer, (None, Transition._import_map["motiongraph.compounds.TransStructArray"]), (False, None), None)
 		yield ('id', Pointer, (0, ZString), (False, None), None)
 
 	@classmethod

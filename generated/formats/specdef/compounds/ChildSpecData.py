@@ -23,7 +23,7 @@ class ChildSpecData(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('specdef', Pointer, (0, None), (False, None), None)
+		yield ('specdef', Pointer, (0, ChildSpecData._import_map["specdef.compounds.SpecdefRoot"]), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

@@ -30,7 +30,7 @@ class CurveParam(MemStruct):
 		yield ('attribute_name', Pointer, (0, ZString), (False, None), None)
 		yield ('dtype', Int, (0, None), (False, None), None)
 		yield ('do_interpolation', Uint, (0, None), (False, None), None)
-		yield ('curve_entries', Pointer, (None, None), (False, None), None)
+		yield ('curve_entries', Pointer, (None, CurveParam._import_map["renderparameters.compounds.CurveList"]), (False, None), None)
 		yield ('count', Uint64, (0, None), (False, None), None)
 
 	@classmethod

@@ -37,11 +37,11 @@ class PathJoinPartResource(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('unk_points_1', Pointer, (None, None), (False, None), None)
-		yield ('unk_points_2', Pointer, (None, None), (False, None), None)
-		yield ('unk_vector', ArrayPointer, (1, None), (False, None), None)
+		yield ('unk_points_1', Pointer, (None, PathJoinPartResource._import_map["path.compounds.PointsList"]), (False, None), None)
+		yield ('unk_points_2', Pointer, (None, PathJoinPartResource._import_map["path.compounds.PointsList"]), (False, None), None)
+		yield ('unk_vector', ArrayPointer, (1, PathJoinPartResource._import_map["path.compounds.Vector4"]), (False, None), None)
 		yield ('unk_shorts', ArrayPointer, (8, Ushort), (False, None), None)
-		yield ('unk_points_3', Pointer, (None, None), (False, None), None)
+		yield ('unk_points_3', Pointer, (None, PathJoinPartResource._import_map["path.compounds.PointsList"]), (False, None), None)
 		yield ('padding_1', Uint64, (0, None), (True, 0), None)
 		yield ('pathresource', Pointer, (0, ZString), (False, None), None)
 		yield ('unk_byte_1', Byte, (0, None), (False, None), None)

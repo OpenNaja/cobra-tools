@@ -24,7 +24,7 @@ class Button(MemStruct):
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
 		yield ('button_name', Pointer, (0, ZString), (False, None), None)
-		yield ('datas', ArrayPointer, (None, None), (False, None), None)
+		yield ('datas', ArrayPointer, (None, Button._import_map["logicalcontrols.compounds.ButtonData"]), (False, None), None)
 		yield ('datas_count', Uint, (0, None), (False, None), None)
 		yield ('flags', Uint, (0, None), (False, None), None)
 

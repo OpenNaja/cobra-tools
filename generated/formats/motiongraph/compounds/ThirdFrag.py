@@ -34,10 +34,10 @@ class ThirdFrag(MemStruct):
 		yield ('lua_method', Pointer, (0, ZString), (False, None), None)
 		yield ('count_0', Uint64, (0, None), (False, None), None)
 		yield ('count_1', Uint64, (0, None), (False, None), None)
-		yield ('ptr_1', Pointer, (0, None), (False, None), None)
+		yield ('ptr_1', Pointer, (0, ThirdFrag._import_map["motiongraph.compounds.TwoPtrFirst"]), (False, None), None)
 		yield ('count_2', Uint64, (0, None), (False, None), None)
 		yield ('count_3', Uint64, (0, None), (False, None), None)
-		yield ('ptr_2', Pointer, (0, None), (False, None), None)
+		yield ('ptr_2', Pointer, (0, ThirdFrag._import_map["motiongraph.compounds.Sixtyfour"]), (False, None), None)
 		yield ('count_4', Uint64, (0, None), (False, None), None)
 		yield ('member', Pointer, (0, ZString), (False, None), None)
 

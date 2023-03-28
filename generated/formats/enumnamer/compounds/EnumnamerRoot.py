@@ -20,7 +20,7 @@ class EnumnamerRoot(MemStruct):
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
 		yield ('count', Uint64, (0, None), (False, None), None)
-		yield ('strings', Pointer, (None, None), (False, None), None)
+		yield ('strings', Pointer, (None, EnumnamerRoot._import_map["enumnamer.compounds.PtrList"]), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

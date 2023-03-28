@@ -34,7 +34,7 @@ class TrackedRideCarRoot(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('sub', ArrayPointer, (None, None), (False, None), None)
+		yield ('sub', ArrayPointer, (None, TrackedRideCarRoot._import_map["trackedridecar.compounds.TrackedRideCarSub"]), (False, None), None)
 		yield ('sub_count', Uint, (0, None), (False, None), None)
 		yield ('total_vecs_count', Uint, (0, None), (False, None), None)
 		yield ('vec', Array, (0, None, (3,), Float), (False, None), None)

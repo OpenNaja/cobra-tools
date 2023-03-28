@@ -19,7 +19,7 @@ class EventsList(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('events', ArrayPointer, (None, None), (False, None), None)
+		yield ('events', ArrayPointer, (None, EventsList._import_map["cinematic.compounds.Event"]), (False, None), None)
 		yield ('count', Uint64, (0, None), (False, None), None)
 
 	@classmethod

@@ -23,7 +23,7 @@ class RenderFeatureItem(MemStruct):
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
 		yield ('item_name', Pointer, (0, ZString), (False, None), None)
-		yield ('item_data', ArrayPointer, (None, None), (False, None), None)
+		yield ('item_data', ArrayPointer, (None, RenderFeatureItem._import_map["renderfeaturecollection.compounds.RenderFeatureSubItem"]), (False, None), None)
 		yield ('item_data_count', Uint64, (0, None), (False, None), None)
 
 	@classmethod

@@ -24,7 +24,7 @@ class CurveData(MemStruct):
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
 		yield ('count', Uint64, (0, None), (False, None), None)
-		yield ('points', Pointer, (None, None), (False, None), None)
+		yield ('points', Pointer, (None, CurveData._import_map["motiongraph.compounds.CurveDataPoints"]), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

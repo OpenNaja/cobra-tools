@@ -30,7 +30,7 @@ class TrackedRideCarSub(MemStruct):
 		yield from super()._get_attribute_list()
 		yield ('float', Float, (0, None), (False, None), None)
 		yield ('u_0', Uint, (0, None), (False, None), None)
-		yield ('vectors', ArrayPointer, (None, None), (False, None), None)
+		yield ('vectors', ArrayPointer, (None, TrackedRideCarSub._import_map["trackedridecar.compounds.Vector3"]), (False, None), None)
 		yield ('vecs_count', Uint64, (0, None), (False, None), None)
 		yield ('zero_1', Uint64, (0, None), (False, None), None)
 

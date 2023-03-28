@@ -30,7 +30,7 @@ class ScaleformlanguagedataRoot(MemStruct):
 		yield from super()._get_attribute_list()
 		yield ('zero_0', Uint64, (0, None), (False, None), None)
 		yield ('zero_1', Uint64, (0, None), (False, None), None)
-		yield ('fonts', ArrayPointer, (None, None), (False, None), None)
+		yield ('fonts', ArrayPointer, (None, ScaleformlanguagedataRoot._import_map["scaleformlanguagedata.compounds.FontInfo"]), (False, None), None)
 		yield ('count', Uint64, (0, None), (False, None), None)
 		yield ('zero_2', Uint64, (0, None), (False, None), None)
 		yield ('zero_3', Uint64, (0, None), (False, None), None)

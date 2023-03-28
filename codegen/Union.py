@@ -57,6 +57,14 @@ class Union:
             class_access = field_type
         return class_access
 
+    def is_type(self, potential_type):
+        if isinstance(potential_type, str):
+            if potential_type in self.compounds.parser.path_dict:
+                return True
+            if potential_type.startswith(f'{self.compounds.class_name}._import_map'):
+                return True
+        return False
+
     def get_conditions(self, field, target_variable, use_abstract=False):
         """Returns a list of conditional expressions for a field of this union"""
         CONTEXT = f'{target_variable}.{CONTEXT_SUFFIX}'
@@ -226,7 +234,7 @@ class Union:
                 arg = int(str(arg), 0)
             except ValueError:
                 arg = None
-            if template not in self.compounds.parser.path_dict:
+            if not self.is_type(template):
                 template = None
             if field_type not in self.compounds.parser.path_dict:
                 field_type = None

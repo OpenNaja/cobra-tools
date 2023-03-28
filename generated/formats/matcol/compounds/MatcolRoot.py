@@ -25,7 +25,7 @@ class MatcolRoot(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('main', Pointer, (0, None), (False, None), None)
+		yield ('main', Pointer, (0, MatcolRoot._import_map["matcol.compounds.RootFrag"]), (False, None), None)
 		yield ('one', Uint64, (0, None), (False, None), None)
 
 	@classmethod

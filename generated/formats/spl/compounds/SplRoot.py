@@ -30,7 +30,7 @@ class SplRoot(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('spline_data', Pointer, (None, None), (False, None), None)
+		yield ('spline_data', Pointer, (None, SplRoot._import_map["spl.compounds.SplData"]), (False, None), None)
 		yield ('count', Ushort, (0, None), (False, None), None)
 		yield ('sixteen', Ubyte, (0, None), (False, 16), None)
 		yield ('one', Ubyte, (0, None), (False, 1), None)

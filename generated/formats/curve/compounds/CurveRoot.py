@@ -19,7 +19,7 @@ class CurveRoot(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('keys', ArrayPointer, (None, None), (False, None), None)
+		yield ('keys', ArrayPointer, (None, CurveRoot._import_map["curve.compounds.Key"]), (False, None), None)
 		yield ('count', Uint64, (0, None), (False, None), None)
 
 	@classmethod

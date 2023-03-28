@@ -53,11 +53,11 @@ class VoxelskirtRoot(MemStruct):
 		yield ('padding', Uint, (0, None), (True, 0), None)
 		yield ('_height_offset', Uint64, (0, None), (False, None), True)
 		yield ('_weights_offset', Uint64, (0, None), (False, None), True)
-		yield ('layers', DataSlot, (0, None), (False, None), True)
-		yield ('areas', DataSlot, (0, None), (False, None), True)
-		yield ('entity_groups', DataSlot, (0, None), (False, None), None)
-		yield ('materials', DataSlot, (0, None), (False, None), None)
-		yield ('names', DataSlot, (0, None), (False, None), None)
+		yield ('layers', DataSlot, (0, VoxelskirtRoot._import_map["voxelskirt.compounds.Layer"]), (False, None), True)
+		yield ('areas', DataSlot, (0, VoxelskirtRoot._import_map["voxelskirt.compounds.Area"]), (False, None), True)
+		yield ('entity_groups', DataSlot, (0, VoxelskirtRoot._import_map["voxelskirt.compounds.EntityGroup"]), (False, None), None)
+		yield ('materials', DataSlot, (0, VoxelskirtRoot._import_map["voxelskirt.compounds.Material"]), (False, None), None)
+		yield ('names', DataSlot, (0, VoxelskirtRoot._import_map["voxelskirt.compounds.Name"]), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

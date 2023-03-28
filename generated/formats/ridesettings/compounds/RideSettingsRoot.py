@@ -27,7 +27,7 @@ class RideSettingsRoot(MemStruct):
 		yield from super()._get_attribute_list()
 		yield ('unk_0', Float, (0, None), (False, None), None)
 		yield ('unk_1', Uint, (0, None), (False, None), None)
-		yield ('array_1', ArrayPointer, (None, None), (False, None), None)
+		yield ('array_1', ArrayPointer, (None, RideSettingsRoot._import_map["ridesettings.compounds.Pair"]), (False, None), None)
 		yield ('count', Uint, (0, None), (False, None), None)
 		yield ('pad_0', Uint, (0, None), (False, None), None)
 		yield ('pad_1', Uint, (0, None), (False, None), None)
