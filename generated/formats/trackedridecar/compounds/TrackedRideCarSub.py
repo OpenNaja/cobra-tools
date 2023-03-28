@@ -28,11 +28,11 @@ class TrackedRideCarSub(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('float', Float, (0, None), (False, None), None)
-		yield ('u_0', Uint, (0, None), (False, None), None)
-		yield ('vectors', ArrayPointer, (None, TrackedRideCarSub._import_map["trackedridecar.compounds.Vector3"]), (False, None), None)
-		yield ('vecs_count', Uint64, (0, None), (False, None), None)
-		yield ('zero_1', Uint64, (0, None), (False, None), None)
+		yield ('float', Float, (0, None), (False, None), (None, None))
+		yield ('u_0', Uint, (0, None), (False, None), (None, None))
+		yield ('vectors', ArrayPointer, (None, TrackedRideCarSub._import_map["trackedridecar.compounds.Vector3"]), (False, None), (None, None))
+		yield ('vecs_count', Uint64, (0, None), (False, None), (None, None))
+		yield ('zero_1', Uint64, (0, None), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

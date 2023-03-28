@@ -20,9 +20,9 @@ class ChunkSizes(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('zeros_0', Uint64, (0, None), (False, None), None)
-		yield ('bone', Uint, (0, None), (False, None), None)
-		yield ('counta', Uint, (0, None), (False, None), None)
+		yield ('zeros_0', Uint64, (0, None), (False, None), (None, None))
+		yield ('bone', Uint, (0, None), (False, None), (None, None))
+		yield ('counta', Uint, (0, None), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

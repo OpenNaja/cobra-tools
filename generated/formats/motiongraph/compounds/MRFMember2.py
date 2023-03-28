@@ -32,15 +32,15 @@ class MRFMember2(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('transition', Pointer, (0, MRFMember2._import_map["motiongraph.compounds.Transition"]), (False, None), None)
-		yield ('count_0', Uint64, (0, None), (False, None), None)
-		yield ('count_1', Uint64, (0, None), (False, None), None)
-		yield ('count_2', Uint64, (0, None), (False, None), None)
-		yield ('count_3', Uint64, (0, None), (False, None), None)
-		yield ('count_4', Uint64, (0, None), (False, None), None)
-		yield ('count_5', Uint64, (0, None), (False, None), None)
-		yield ('count_6', Uint64, (0, None), (False, None), None)
-		yield ('id', Pointer, (0, ZString), (False, None), None)
+		yield ('transition', Pointer, (0, MRFMember2._import_map["motiongraph.compounds.Transition"]), (False, None), (None, None))
+		yield ('count_0', Uint64, (0, None), (False, None), (None, None))
+		yield ('count_1', Uint64, (0, None), (False, None), (None, None))
+		yield ('count_2', Uint64, (0, None), (False, None), (None, None))
+		yield ('count_3', Uint64, (0, None), (False, None), (None, None))
+		yield ('count_4', Uint64, (0, None), (False, None), (None, None))
+		yield ('count_5', Uint64, (0, None), (False, None), (None, None))
+		yield ('count_6', Uint64, (0, None), (False, None), (None, None))
+		yield ('id', Pointer, (0, ZString), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

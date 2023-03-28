@@ -32,19 +32,19 @@ class PathMaterial(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('elevated_mat', Pointer, (0, ZString), (False, None), None)
-		yield ('elevated_mat_valid', Pointer, (0, ZString), (False, None), None)
-		yield ('elevated_mat_invalid', Pointer, (0, ZString), (False, None), None)
-		yield ('terrain_mat', Pointer, (0, ZString), (False, None), None)
-		yield ('terrain_mat_valid', Pointer, (0, ZString), (False, None), None)
-		yield ('terrain_mat_invalid', Pointer, (0, ZString), (False, None), None)
-		yield ('underside_mat_1', Pointer, (0, ZString), (False, None), None)
-		yield ('underside_mat_2', Pointer, (0, ZString), (False, None), None)
-		yield ('stairs_mat_1', Pointer, (0, ZString), (False, None), None)
-		yield ('stairs_mat_2', Pointer, (0, ZString), (False, None), None)
-		yield ('path_sub_type', Uint64, (0, None), (False, None), None)
-		yield ('mat_data', ArrayPointer, (None, PathMaterial._import_map["path.compounds.PathMaterialData"]), (False, None), None)
-		yield ('num_data', Uint64, (0, None), (False, None), None)
+		yield ('elevated_mat', Pointer, (0, ZString), (False, None), (None, None))
+		yield ('elevated_mat_valid', Pointer, (0, ZString), (False, None), (None, None))
+		yield ('elevated_mat_invalid', Pointer, (0, ZString), (False, None), (None, None))
+		yield ('terrain_mat', Pointer, (0, ZString), (False, None), (None, None))
+		yield ('terrain_mat_valid', Pointer, (0, ZString), (False, None), (None, None))
+		yield ('terrain_mat_invalid', Pointer, (0, ZString), (False, None), (None, None))
+		yield ('underside_mat_1', Pointer, (0, ZString), (False, None), (None, None))
+		yield ('underside_mat_2', Pointer, (0, ZString), (False, None), (None, None))
+		yield ('stairs_mat_1', Pointer, (0, ZString), (False, None), (None, None))
+		yield ('stairs_mat_2', Pointer, (0, ZString), (False, None), (None, None))
+		yield ('path_sub_type', Uint64, (0, None), (False, None), (None, None))
+		yield ('mat_data', ArrayPointer, (None, PathMaterial._import_map["path.compounds.PathMaterialData"]), (False, None), (None, None))
+		yield ('num_data', Uint64, (0, None), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

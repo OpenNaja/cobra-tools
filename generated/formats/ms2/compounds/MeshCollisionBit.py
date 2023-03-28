@@ -34,11 +34,11 @@ class MeshCollisionBit(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('a', Array, (0, None, (24,), Ushort), (False, None), None)
-		yield ('b', Array, (0, None, (8,), Ushort), (False, None), None)
-		yield ('min_of_b', Ushort, (0, None), (False, None), None)
-		yield ('c', Ushort, (0, None), (False, None), None)
-		yield ('consts', Array, (0, None, (3,), Uint), (False, None), None)
+		yield ('a', Array, (0, None, (24,), Ushort), (False, None), (None, None))
+		yield ('b', Array, (0, None, (8,), Ushort), (False, None), (None, None))
+		yield ('min_of_b', Ushort, (0, None), (False, None), (None, None))
+		yield ('c', Ushort, (0, None), (False, None), (None, None))
+		yield ('consts', Array, (0, None, (3,), Uint), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

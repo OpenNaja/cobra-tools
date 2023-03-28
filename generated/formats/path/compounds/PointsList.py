@@ -18,7 +18,7 @@ class PointsList(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('points', Array, (0, None, (None,), Vector3), (False, None), None)
+		yield ('points', Array, (0, None, (None,), Vector3), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

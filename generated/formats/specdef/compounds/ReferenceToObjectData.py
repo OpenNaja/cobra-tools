@@ -24,8 +24,8 @@ class ReferenceToObjectData(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('obj_name', Pointer, (0, ZString), (False, None), None)
-		yield ('ioptional', Uint, (0, None), (False, None), None)
+		yield ('obj_name', Pointer, (0, ZString), (False, None), (None, None))
+		yield ('ioptional', Uint, (0, None), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

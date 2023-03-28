@@ -23,12 +23,12 @@ class FRenderContextSetRoot(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('ptr_1_list', ArrayPointer, (None, FRenderContextSetRoot._import_map["frendercontextset.compounds.ContextSet1Item"]), (False, None), None)
-		yield ('ptr_1_count', Uint64, (0, None), (False, None), None)
-		yield ('ptr_2_list', ArrayPointer, (None, FRenderContextSetRoot._import_map["frendercontextset.compounds.ContextSet2Item"]), (False, None), None)
-		yield ('ptr_2_count', Uint64, (0, None), (False, None), None)
-		yield ('ptr_3_list', ArrayPointer, (None, FRenderContextSetRoot._import_map["frendercontextset.compounds.ContextSet3Item"]), (False, None), None)
-		yield ('ptr_3_count', Uint64, (0, None), (False, None), None)
+		yield ('ptr_1_list', ArrayPointer, (None, FRenderContextSetRoot._import_map["frendercontextset.compounds.ContextSet1Item"]), (False, None), (None, None))
+		yield ('ptr_1_count', Uint64, (0, None), (False, None), (None, None))
+		yield ('ptr_2_list', ArrayPointer, (None, FRenderContextSetRoot._import_map["frendercontextset.compounds.ContextSet2Item"]), (False, None), (None, None))
+		yield ('ptr_2_count', Uint64, (0, None), (False, None), (None, None))
+		yield ('ptr_3_list', ArrayPointer, (None, FRenderContextSetRoot._import_map["frendercontextset.compounds.ContextSet3Item"]), (False, None), (None, None))
+		yield ('ptr_3_count', Uint64, (0, None), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

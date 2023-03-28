@@ -24,8 +24,8 @@ class TexIndex(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('_tex_index', Uint, (0, None), (False, None), None)
-		yield ('array_index', Uint, (0, None), (False, None), True)
+		yield ('_tex_index', Uint, (0, None), (False, None), (None, None))
+		yield ('array_index', Uint, (0, None), (False, None), (lambda context: context.version >= 18, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

@@ -24,9 +24,9 @@ class LuaModules(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('motion_graph', Pointer, (0, ZString), (False, None), None)
-		yield ('motion_graph_event_handling', Pointer, (0, ZString), (False, None), None)
-		yield ('motion_graph_actions', Pointer, (0, ZString), (False, None), None)
+		yield ('motion_graph', Pointer, (0, ZString), (False, None), (None, None))
+		yield ('motion_graph_event_handling', Pointer, (0, ZString), (False, None), (None, None))
+		yield ('motion_graph_actions', Pointer, (0, ZString), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

@@ -24,9 +24,9 @@ class ZtTriBlockInfo(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('tri_index_count', Uint, (0, None), (False, None), None)
-		yield ('a', Short, (0, None), (False, None), None)
-		yield ('unk_index', Short, (0, None), (False, None), None)
+		yield ('tri_index_count', Uint, (0, None), (False, None), (None, None))
+		yield ('a', Short, (0, None), (False, None), (None, None))
+		yield ('unk_index', Short, (0, None), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

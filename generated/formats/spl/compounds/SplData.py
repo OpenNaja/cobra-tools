@@ -26,9 +26,9 @@ class SplData(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('offset', Vector3, (0, None), (False, None), None)
-		yield ('scale', Float, (0, None), (False, None), None)
-		yield ('keys', Array, (0, None, (None,), Key), (False, None), None)
+		yield ('offset', Vector3, (0, None), (False, None), (None, None))
+		yield ('scale', Float, (0, None), (False, None), (None, None))
+		yield ('keys', Array, (0, None, (None,), Key), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

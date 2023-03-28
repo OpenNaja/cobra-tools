@@ -23,11 +23,11 @@ class BrokeStruct(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('support', Pointer, (0, ZString), (False, None), None)
-		yield ('fallen_support', Pointer, (0, ZString), (False, None), None)
-		yield ('head', Pointer, (0, ZString), (False, None), None)
-		yield ('unk_vector_1', Vector3, (0, None), (False, None), None)
-		yield ('unk_vector_2', Vector3, (0, None), (False, None), None)
+		yield ('support', Pointer, (0, ZString), (False, None), (None, None))
+		yield ('fallen_support', Pointer, (0, ZString), (False, None), (None, None))
+		yield ('head', Pointer, (0, ZString), (False, None), (None, None))
+		yield ('unk_vector_1', Vector3, (0, None), (False, None), (None, None))
+		yield ('unk_vector_2', Vector3, (0, None), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

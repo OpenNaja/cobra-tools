@@ -25,10 +25,10 @@ class Lod(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('a', Uint, (0, None), (False, None), None)
-		yield ('b', Uint, (0, None), (False, None), None)
-		yield ('c', Uint, (0, None), (False, None), None)
-		yield ('distance', Float, (0, None), (False, None), None)
+		yield ('a', Uint, (0, None), (False, None), (None, None))
+		yield ('b', Uint, (0, None), (False, None), (None, None))
+		yield ('c', Uint, (0, None), (False, None), (None, None))
+		yield ('distance', Float, (0, None), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

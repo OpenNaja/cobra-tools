@@ -28,12 +28,12 @@ class Event(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('start_time', Float, (0, None), (False, None), None)
-		yield ('b', Float, (0, None), (False, None), None)
-		yield ('module_name', Pointer, (0, ZString), (False, None), None)
-		yield ('attributes', Pointer, (0, Event._import_map["cinematic.compounds.EventAttributes"]), (False, None), None)
-		yield ('duration', Float, (0, None), (False, None), None)
-		yield ('d', Float, (0, None), (False, None), None)
+		yield ('start_time', Float, (0, None), (False, None), (None, None))
+		yield ('b', Float, (0, None), (False, None), (None, None))
+		yield ('module_name', Pointer, (0, ZString), (False, None), (None, None))
+		yield ('attributes', Pointer, (0, Event._import_map["cinematic.compounds.EventAttributes"]), (False, None), (None, None))
+		yield ('duration', Float, (0, None), (False, None), (None, None))
+		yield ('d', Float, (0, None), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

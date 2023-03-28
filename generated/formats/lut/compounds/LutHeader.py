@@ -28,12 +28,12 @@ class LutHeader(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('colors', ArrayPointer, (None, LutHeader._import_map["lut.compounds.Vector3"]), (False, None), None)
-		yield ('colors_count', Ushort, (0, None), (False, None), None)
-		yield ('unk_0', Ushort, (0, None), (False, None), None)
-		yield ('unk_1', Uint, (0, None), (False, None), None)
-		yield ('colors_in_column_count', Uint, (0, None), (False, None), None)
-		yield ('unk_2', Uint, (0, None), (False, None), None)
+		yield ('colors', ArrayPointer, (None, LutHeader._import_map["lut.compounds.Vector3"]), (False, None), (None, None))
+		yield ('colors_count', Ushort, (0, None), (False, None), (None, None))
+		yield ('unk_0', Ushort, (0, None), (False, None), (None, None))
+		yield ('unk_1', Uint, (0, None), (False, None), (None, None))
+		yield ('colors_in_column_count', Uint, (0, None), (False, None), (None, None))
+		yield ('unk_2', Uint, (0, None), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

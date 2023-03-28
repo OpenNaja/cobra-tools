@@ -32,13 +32,13 @@ class ClimbproofDataRoot(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('climb_proof', Pointer, (0, ZString), (False, None), None)
-		yield ('climb_proof_cap_start', Pointer, (0, ZString), (False, None), None)
-		yield ('climb_proof_cap_end', Pointer, (0, ZString), (False, None), None)
-		yield ('climb_proof_bracket', Pointer, (0, ZString), (False, None), None)
-		yield ('post_gap', Float, (0, None), (False, None), None)
-		yield ('u_1', Float, (0, None), (False, 2.0), None)
-		yield ('zero', Uint64, (0, None), (True, 0), None)
+		yield ('climb_proof', Pointer, (0, ZString), (False, None), (None, None))
+		yield ('climb_proof_cap_start', Pointer, (0, ZString), (False, None), (None, None))
+		yield ('climb_proof_cap_end', Pointer, (0, ZString), (False, None), (None, None))
+		yield ('climb_proof_bracket', Pointer, (0, ZString), (False, None), (None, None))
+		yield ('post_gap', Float, (0, None), (False, None), (None, None))
+		yield ('u_1', Float, (0, None), (False, 2.0), (None, None))
+		yield ('zero', Uint64, (0, None), (True, 0), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

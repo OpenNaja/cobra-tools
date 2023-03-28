@@ -33,19 +33,19 @@ class SpecdefRoot(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('attrib_count', Ushort, (0, None), (False, None), None)
-		yield ('flags', Ushort, (0, None), (False, None), None)
-		yield ('name_count', Ubyte, (0, None), (False, None), None)
-		yield ('childspec_count', Ubyte, (0, None), (False, None), None)
-		yield ('manager_count', Ubyte, (0, None), (False, None), None)
-		yield ('script_count', Ubyte, (0, None), (False, None), None)
-		yield ('attribs', ArrayPointer, (None, SpecdefRoot._import_map["specdef.compounds.Spec"]), (False, None), None)
-		yield ('name_foreach_attribs', ForEachPointer, (None, SpecdefRoot._import_map["specdef.compounds.NamePtr"]), (False, None), None)
-		yield ('data_foreach_attribs', ForEachPointer, (None, SpecdefRoot._import_map["specdef.compounds.DataPtr"]), (False, None), None)
-		yield ('names', Pointer, (None, SpecdefRoot._import_map["specdef.compounds.PtrList"]), (False, None), None)
-		yield ('childspecs', Pointer, (None, SpecdefRoot._import_map["specdef.compounds.PtrList"]), (False, None), None)
-		yield ('managers', Pointer, (None, SpecdefRoot._import_map["specdef.compounds.PtrList"]), (False, None), None)
-		yield ('scripts', Pointer, (None, SpecdefRoot._import_map["specdef.compounds.PtrList"]), (False, None), None)
+		yield ('attrib_count', Ushort, (0, None), (False, None), (None, None))
+		yield ('flags', Ushort, (0, None), (False, None), (None, None))
+		yield ('name_count', Ubyte, (0, None), (False, None), (None, None))
+		yield ('childspec_count', Ubyte, (0, None), (False, None), (None, None))
+		yield ('manager_count', Ubyte, (0, None), (False, None), (None, None))
+		yield ('script_count', Ubyte, (0, None), (False, None), (None, None))
+		yield ('attribs', ArrayPointer, (None, SpecdefRoot._import_map["specdef.compounds.Spec"]), (False, None), (None, None))
+		yield ('name_foreach_attribs', ForEachPointer, (None, SpecdefRoot._import_map["specdef.compounds.NamePtr"]), (False, None), (None, None))
+		yield ('data_foreach_attribs', ForEachPointer, (None, SpecdefRoot._import_map["specdef.compounds.DataPtr"]), (False, None), (None, None))
+		yield ('names', Pointer, (None, SpecdefRoot._import_map["specdef.compounds.PtrList"]), (False, None), (None, None))
+		yield ('childspecs', Pointer, (None, SpecdefRoot._import_map["specdef.compounds.PtrList"]), (False, None), (None, None))
+		yield ('managers', Pointer, (None, SpecdefRoot._import_map["specdef.compounds.PtrList"]), (False, None), (None, None))
+		yield ('scripts', Pointer, (None, SpecdefRoot._import_map["specdef.compounds.PtrList"]), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

@@ -48,15 +48,15 @@ class SizeInfoRaw(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('zero', Uint64, (0, None), (True, 0), None)
-		yield ('data_size', Uint, (0, None), (False, None), None)
-		yield ('width', Uint, (0, None), (False, None), None)
-		yield ('height', Uint, (0, None), (False, None), None)
-		yield ('depth', Uint, (0, None), (True, 1), None)
-		yield ('num_tiles', Uint, (0, None), (True, 1), None)
-		yield ('num_mips', Uint, (0, None), (False, None), None)
-		yield ('unk_pz', Uint64, (0, None), (True, 0), True)
-		yield ('mip_maps', Array, (0, None, (None,), Mipmap), (False, None), None)
+		yield ('zero', Uint64, (0, None), (True, 0), (None, None))
+		yield ('data_size', Uint, (0, None), (False, None), (None, None))
+		yield ('width', Uint, (0, None), (False, None), (None, None))
+		yield ('height', Uint, (0, None), (False, None), (None, None))
+		yield ('depth', Uint, (0, None), (True, 1), (None, None))
+		yield ('num_tiles', Uint, (0, None), (True, 1), (None, None))
+		yield ('num_mips', Uint, (0, None), (False, None), (None, None))
+		yield ('unk_pz', Uint64, (0, None), (True, 0), (lambda context: context.version >= 20, None))
+		yield ('mip_maps', Array, (0, None, (None,), Mipmap), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

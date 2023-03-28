@@ -30,13 +30,13 @@ class TrackData(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('place_id', Pointer, (0, ZString), (False, None), None)
-		yield ('file', Pointer, (0, ZString), (False, None), None)
-		yield ('a', Uint, (0, None), (False, None), None)
-		yield ('b', Uint, (0, None), (False, None), None)
-		yield ('c', Uint64, (0, None), (False, None), None)
-		yield ('offset_id', Pointer, (0, ZString), (False, None), None)
-		yield ('d', Uint64, (0, None), (False, None), None)
+		yield ('place_id', Pointer, (0, ZString), (False, None), (None, None))
+		yield ('file', Pointer, (0, ZString), (False, None), (None, None))
+		yield ('a', Uint, (0, None), (False, None), (None, None))
+		yield ('b', Uint, (0, None), (False, None), (None, None))
+		yield ('c', Uint64, (0, None), (False, None), (None, None))
+		yield ('offset_id', Pointer, (0, ZString), (False, None), (None, None))
+		yield ('d', Uint64, (0, None), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

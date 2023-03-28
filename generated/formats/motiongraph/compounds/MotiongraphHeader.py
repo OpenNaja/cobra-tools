@@ -32,16 +32,16 @@ class MotiongraphHeader(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('ptr_0', Pointer, (0, MotiongraphHeader._import_map["motiongraph.compounds.MotiongraphRootFrag"]), (False, None), None)
-		yield ('state_output_entries', Pointer, (0, MotiongraphHeader._import_map["motiongraph.compounds.StateArray"]), (False, None), None)
-		yield ('ptr_2', Pointer, (0, MotiongraphHeader._import_map["motiongraph.compounds.MGTwo"]), (False, None), None)
-		yield ('ptr_3', Pointer, (0, MotiongraphHeader._import_map["motiongraph.compounds.MRFMember1"]), (False, None), None)
-		yield ('count_0', Uint, (0, None), (False, None), None)
-		yield ('count_1', Uint, (0, None), (False, None), None)
-		yield ('lua_modules', Pointer, (0, MotiongraphHeader._import_map["motiongraph.compounds.LuaModules"]), (False, None), None)
-		yield ('lua_results', Pointer, (0, ZString), (False, None), None)
-		yield ('first_non_transition_state', Pointer, (0, MotiongraphHeader._import_map["motiongraph.compounds.MRFMember2"]), (False, None), None)
-		yield ('empty_str', Pointer, (0, ZString), (False, None), None)
+		yield ('ptr_0', Pointer, (0, MotiongraphHeader._import_map["motiongraph.compounds.MotiongraphRootFrag"]), (False, None), (None, None))
+		yield ('state_output_entries', Pointer, (0, MotiongraphHeader._import_map["motiongraph.compounds.StateArray"]), (False, None), (None, None))
+		yield ('ptr_2', Pointer, (0, MotiongraphHeader._import_map["motiongraph.compounds.MGTwo"]), (False, None), (None, None))
+		yield ('ptr_3', Pointer, (0, MotiongraphHeader._import_map["motiongraph.compounds.MRFMember1"]), (False, None), (None, None))
+		yield ('count_0', Uint, (0, None), (False, None), (None, None))
+		yield ('count_1', Uint, (0, None), (False, None), (None, None))
+		yield ('lua_modules', Pointer, (0, MotiongraphHeader._import_map["motiongraph.compounds.LuaModules"]), (False, None), (None, None))
+		yield ('lua_results', Pointer, (0, ZString), (False, None), (None, None))
+		yield ('first_non_transition_state', Pointer, (0, MotiongraphHeader._import_map["motiongraph.compounds.MRFMember2"]), (False, None), (None, None))
+		yield ('empty_str', Pointer, (0, ZString), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

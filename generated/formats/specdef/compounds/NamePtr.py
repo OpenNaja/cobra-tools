@@ -18,7 +18,7 @@ class NamePtr(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('name_ptr', Pointer, (0, ZString), (False, None), None)
+		yield ('name_ptr', Pointer, (0, ZString), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

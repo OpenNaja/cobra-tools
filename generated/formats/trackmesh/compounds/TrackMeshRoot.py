@@ -35,17 +35,17 @@ class TrackMeshRoot(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('a', Uint64, (0, None), (False, None), None)
-		yield ('offset_data', ArrayPointer, (None, TrackMeshRoot._import_map["trackmesh.compounds.OffsetData"]), (False, None), None)
-		yield ('track_data', ArrayPointer, (None, TrackMeshRoot._import_map["trackmesh.compounds.TrackData"]), (False, None), None)
-		yield ('last', ArrayPointer, (None, TrackMeshRoot._import_map["trackmesh.compounds.LastData"]), (False, None), None)
-		yield ('count_0', Uint, (0, None), (False, None), None)
-		yield ('next_count', Uint, (0, None), (False, None), None)
-		yield ('last_count', Uint64, (0, None), (False, None), None)
-		yield ('lods', ArrayPointer, (None, TrackMeshRoot._import_map["trackmesh.compounds.Lod"]), (False, None), None)
-		yield ('lod_count', Uint64, (0, None), (False, None), None)
-		yield ('heatmap_name', Pointer, (0, ZString), (False, None), None)
-		yield ('g', Uint64, (0, None), (False, None), None)
+		yield ('a', Uint64, (0, None), (False, None), (None, None))
+		yield ('offset_data', ArrayPointer, (None, TrackMeshRoot._import_map["trackmesh.compounds.OffsetData"]), (False, None), (None, None))
+		yield ('track_data', ArrayPointer, (None, TrackMeshRoot._import_map["trackmesh.compounds.TrackData"]), (False, None), (None, None))
+		yield ('last', ArrayPointer, (None, TrackMeshRoot._import_map["trackmesh.compounds.LastData"]), (False, None), (None, None))
+		yield ('count_0', Uint, (0, None), (False, None), (None, None))
+		yield ('next_count', Uint, (0, None), (False, None), (None, None))
+		yield ('last_count', Uint64, (0, None), (False, None), (None, None))
+		yield ('lods', ArrayPointer, (None, TrackMeshRoot._import_map["trackmesh.compounds.Lod"]), (False, None), (None, None))
+		yield ('lod_count', Uint64, (0, None), (False, None), (None, None))
+		yield ('heatmap_name', Pointer, (0, ZString), (False, None), (None, None))
+		yield ('g', Uint64, (0, None), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

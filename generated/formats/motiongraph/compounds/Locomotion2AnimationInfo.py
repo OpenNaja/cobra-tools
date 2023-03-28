@@ -29,11 +29,11 @@ class Locomotion2AnimationInfo(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('anim_name', Pointer, (0, ZString), (False, None), None)
-		yield ('phase_entry_window', Float, (0, None), (False, 1.5), None)
-		yield ('priority', Ushort, (0, None), (False, None), None)
-		yield ('anim_type', Ubyte, (0, None), (False, None), None)
-		yield ('_pad', Ubyte, (0, None), (False, None), None)
+		yield ('anim_name', Pointer, (0, ZString), (False, None), (None, None))
+		yield ('phase_entry_window', Float, (0, None), (False, 1.5), (None, None))
+		yield ('priority', Ushort, (0, None), (False, None), (None, None))
+		yield ('anim_type', Ubyte, (0, None), (False, None), (None, None))
+		yield ('_pad', Ubyte, (0, None), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

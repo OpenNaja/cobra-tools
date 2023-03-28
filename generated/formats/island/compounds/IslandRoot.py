@@ -28,11 +28,11 @@ class IslandRoot(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('path_name', Pointer, (0, ZString), (False, None), None)
-		yield ('a', Float, (0, None), (False, None), None)
-		yield ('b', Float, (0, None), (False, None), None)
-		yield ('count', Uint64, (0, None), (False, None), None)
-		yield ('zero', Uint64, (0, None), (False, None), None)
+		yield ('path_name', Pointer, (0, ZString), (False, None), (None, None))
+		yield ('a', Float, (0, None), (False, None), (None, None))
+		yield ('b', Float, (0, None), (False, None), (None, None))
+		yield ('count', Uint64, (0, None), (False, None), (None, None))
+		yield ('zero', Uint64, (0, None), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

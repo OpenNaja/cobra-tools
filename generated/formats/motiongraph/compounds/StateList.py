@@ -22,7 +22,7 @@ class StateList(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('ptrs', Array, (0, StateList._import_map["motiongraph.compounds.State"], (None,), SinglePtr), (False, None), None)
+		yield ('ptrs', Array, (0, StateList._import_map["motiongraph.compounds.State"], (None,), SinglePtr), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

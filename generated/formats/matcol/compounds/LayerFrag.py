@@ -28,15 +28,15 @@ class LayerFrag(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('layer_name', Pointer, (0, ZString), (False, None), None)
-		yield ('u_0', Uint64, (0, None), (False, None), None)
-		yield ('u_1', Uint64, (0, None), (False, None), None)
-		yield ('infos', ArrayPointer, (None, LayerFrag._import_map["matcol.compounds.Info"]), (False, None), None)
-		yield ('info_count', Uint64, (0, None), (False, None), None)
-		yield ('u_2', Uint64, (0, None), (False, None), None)
-		yield ('u_3', Uint64, (0, None), (False, None), None)
-		yield ('attribs', ArrayPointer, (None, LayerFrag._import_map["matcol.compounds.Attrib"]), (False, None), None)
-		yield ('attrib_count', Uint64, (0, None), (False, None), None)
+		yield ('layer_name', Pointer, (0, ZString), (False, None), (None, None))
+		yield ('u_0', Uint64, (0, None), (False, None), (None, None))
+		yield ('u_1', Uint64, (0, None), (False, None), (None, None))
+		yield ('infos', ArrayPointer, (None, LayerFrag._import_map["matcol.compounds.Info"]), (False, None), (None, None))
+		yield ('info_count', Uint64, (0, None), (False, None), (None, None))
+		yield ('u_2', Uint64, (0, None), (False, None), (None, None))
+		yield ('u_3', Uint64, (0, None), (False, None), (None, None))
+		yield ('attribs', ArrayPointer, (None, LayerFrag._import_map["matcol.compounds.Attrib"]), (False, None), (None, None))
+		yield ('attrib_count', Uint64, (0, None), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

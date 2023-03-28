@@ -21,8 +21,8 @@ class FloatsY(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('floats', Array, (0, None, (8,), Float), (False, None), None)
-		yield ('index', Uint, (0, None), (False, None), None)
+		yield ('floats', Array, (0, None, (8,), Float), (False, None), (None, None))
+		yield ('index', Uint, (0, None), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

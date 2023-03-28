@@ -24,8 +24,8 @@ class TransStructStop(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('another_mrfentry_2', Pointer, (0, None), (False, None), None)
-		yield ('other_states', MGTwo, (0, None), (False, None), None)
+		yield ('another_mrfentry_2', Pointer, (0, None), (False, None), (None, None))
+		yield ('other_states', MGTwo, (0, None), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

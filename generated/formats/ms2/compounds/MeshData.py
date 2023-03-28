@@ -41,10 +41,10 @@ class MeshData(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('stream_index', Uint64, (0, None), (False, None), True)
-		yield ('stream_info', Pointer, (0, MeshData._import_map["ms2.compounds.BufferInfo"]), (False, None), True)
-		yield ('some_index', Uint, (0, None), (False, None), True)
-		yield ('some_index_2', Uint, (0, None), (False, None), True)
+		yield ('stream_index', Uint64, (0, None), (False, None), (lambda context: context.version <= 32, None))
+		yield ('stream_info', Pointer, (0, MeshData._import_map["ms2.compounds.BufferInfo"]), (False, None), (lambda context: context.version >= 47, None))
+		yield ('some_index', Uint, (0, None), (False, None), (lambda context: not (((context.version == 51) or (context.version == 52)) and context.biosyn), None))
+		yield ('some_index_2', Uint, (0, None), (False, None), (lambda context: not ((((context.version == 51) or (context.version == 52)) and context.biosyn) or (context.version == 32)), None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

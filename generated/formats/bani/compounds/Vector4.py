@@ -32,10 +32,10 @@ class Vector4(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('w', Float, (0, None), (False, None), None)
-		yield ('x', Float, (0, None), (False, None), None)
-		yield ('y', Float, (0, None), (False, None), None)
-		yield ('z', Float, (0, None), (False, None), None)
+		yield ('w', Float, (0, None), (False, None), (None, None))
+		yield ('x', Float, (0, None), (False, None), (None, None))
+		yield ('y', Float, (0, None), (False, None), (None, None))
+		yield ('z', Float, (0, None), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

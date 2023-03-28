@@ -241,7 +241,7 @@ class Union:
 
     def write_attributes(self, f):
         for field in self.members:
-            arg, template, arr1, arr2, conditionals, field_name, (field_type, field_type_access), (optional, default) = self.get_params(field, 'x')
+            arg, template, arr1, arr2, conditionals, field_name, (field_type, field_type_access), (optional, default) = self.get_params(field, '')
             # replace all non-static values with None for now
             try:
                 arg = int(str(arg), 0)
@@ -270,7 +270,9 @@ class Union:
                 shape = f"({', '.join(resolved_shape_parts)},)"
                 arguments = f"({arg}, {template}, {shape}, {field_type_access})"
                 field_type_access = "Array"
-            f.write(f"\n\t\tyield ({repr(field_name)}, {field_type_access}, {arguments}, ({optional}, {default}), {True if any(conditionals) else None})")
+            global_conditions = f"lambda {CONTEXT_SUFFIX}: {' and '.join(conditionals[0])}" if conditionals[0] else None
+            local_conditions = True if conditionals[1] else None
+            f.write(f"\n\t\tyield ({repr(field_name)}, {field_type_access}, {arguments}, ({optional}, {default}), ({global_conditions}, {local_conditions}))")
 
     def write_filtered_attributes(self, f, condition, target_variable="self"):
         base_indent = "\n\t\t"
