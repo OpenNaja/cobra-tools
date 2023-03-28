@@ -30,13 +30,14 @@ class Capsule(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = BaseStruct._attribute_list + [
-		('offset', Vector3, (0, None), (False, None), None),
-		('direction', Vector3, (0, None), (False, None), None),
-		('radius', Float, (0, None), (False, None), None),
-		('extent', Float, (0, None), (False, None), None),
-		('zero', Uint, (0, None), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('offset', Vector3, (0, None), (False, None), None)
+		yield ('direction', Vector3, (0, None), (False, None), None)
+		yield ('radius', Float, (0, None), (False, None), None)
+		yield ('extent', Float, (0, None), (False, None), None)
+		yield ('zero', Uint, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -46,3 +47,6 @@ class Capsule(BaseStruct):
 		yield 'radius', Float, (0, None), (False, None)
 		yield 'extent', Float, (0, None), (False, None)
 		yield 'zero', Uint, (0, None), (False, None)
+
+
+Capsule.init_attributes()

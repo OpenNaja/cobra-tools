@@ -25,14 +25,15 @@ class RootFrag(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MemStruct._attribute_list + [
-		('mat_type', Uint64, (0, None), (False, None), None),
-		('textures', ArrayPointer, (None, None), (False, None), None),
-		('tex_count', Uint64, (0, None), (False, None), None),
-		('materials', ArrayPointer, (None, None), (False, None), None),
-		('mat_count', Uint64, (0, None), (False, None), None),
-		('unk', Uint64, (0, None), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('mat_type', Uint64, (0, None), (False, None), None)
+		yield ('textures', ArrayPointer, (None, None), (False, None), None)
+		yield ('tex_count', Uint64, (0, None), (False, None), None)
+		yield ('materials', ArrayPointer, (None, None), (False, None), None)
+		yield ('mat_count', Uint64, (0, None), (False, None), None)
+		yield ('unk', Uint64, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -43,3 +44,6 @@ class RootFrag(MemStruct):
 		yield 'materials', ArrayPointer, (instance.mat_count, RootFrag._import_map["matcol.compounds.LayerFrag"]), (False, None)
 		yield 'mat_count', Uint64, (0, None), (False, None)
 		yield 'unk', Uint64, (0, None), (False, None)
+
+
+RootFrag.init_attributes()

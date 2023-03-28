@@ -26,11 +26,12 @@ class HbDoorCutout(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MemStruct._attribute_list + [
-		('height', Float, (0, None), (False, None), None),
-		('right', Float, (0, None), (False, None), None),
-		('left', Float, (0, None), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('height', Float, (0, None), (False, None), None)
+		yield ('right', Float, (0, None), (False, None), None)
+		yield ('left', Float, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -38,3 +39,6 @@ class HbDoorCutout(MemStruct):
 		yield 'height', Float, (0, None), (False, None)
 		yield 'right', Float, (0, None), (False, None)
 		yield 'left', Float, (0, None), (False, None)
+
+
+HbDoorCutout.init_attributes()

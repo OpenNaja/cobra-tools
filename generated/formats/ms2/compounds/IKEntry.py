@@ -30,15 +30,16 @@ class IKEntry(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = BaseStruct._attribute_list + [
-		('child', BonePointer, (0, None), (False, None), None),
-		('parent', BonePointer, (0, None), (False, None), None),
-		('unk_0', Ushort, (0, None), (False, 0), None),
-		('matrix', Matrix33, (0, None), (False, None), None),
-		('yaw', RotationRange, (0, None), (False, None), None),
-		('pitch', RotationRange, (0, None), (False, None), None),
-		('unk_1', Uint, (0, None), (False, 1), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('child', BonePointer, (0, None), (False, None), None)
+		yield ('parent', BonePointer, (0, None), (False, None), None)
+		yield ('unk_0', Ushort, (0, None), (False, 0), None)
+		yield ('matrix', Matrix33, (0, None), (False, None), None)
+		yield ('yaw', RotationRange, (0, None), (False, None), None)
+		yield ('pitch', RotationRange, (0, None), (False, None), None)
+		yield ('unk_1', Uint, (0, None), (False, 1), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -50,3 +51,6 @@ class IKEntry(BaseStruct):
 		yield 'yaw', RotationRange, (0, None), (False, None)
 		yield 'pitch', RotationRange, (0, None), (False, None)
 		yield 'unk_1', Uint, (0, None), (False, 1)
+
+
+IKEntry.init_attributes()

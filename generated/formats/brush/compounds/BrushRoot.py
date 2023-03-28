@@ -22,12 +22,13 @@ class BrushRoot(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MemStruct._attribute_list + [
-		('_zero', Uint64, (0, None), (False, None), None),
-		('num_pixels', Uint64, (0, None), (False, None), None),
-		('x', Uint, (0, None), (False, None), None),
-		('y', Uint, (0, None), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('_zero', Uint64, (0, None), (False, None), None)
+		yield ('num_pixels', Uint64, (0, None), (False, None), None)
+		yield ('x', Uint, (0, None), (False, None), None)
+		yield ('y', Uint, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -36,3 +37,6 @@ class BrushRoot(MemStruct):
 		yield 'num_pixels', Uint64, (0, None), (False, None)
 		yield 'x', Uint, (0, None), (False, None)
 		yield 'y', Uint, (0, None), (False, None)
+
+
+BrushRoot.init_attributes()

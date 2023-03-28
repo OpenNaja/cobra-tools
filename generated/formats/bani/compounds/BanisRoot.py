@@ -40,15 +40,16 @@ class BanisRoot(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MemStruct._attribute_list + [
-		('zeros', Array, (0, None, (2,), Uint64), (False, None), None),
-		('bytes_per_frame', Uint, (0, None), (False, None), None),
-		('bytes_per_bone', Uint, (0, None), (False, None), None),
-		('num_frames', Uint, (0, None), (False, None), None),
-		('num_bones', Uint, (0, None), (False, None), None),
-		('loc_scale', Float, (0, None), (False, None), None),
-		('loc_offset', Float, (0, None), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('zeros', Array, (0, None, (2,), Uint64), (False, None), None)
+		yield ('bytes_per_frame', Uint, (0, None), (False, None), None)
+		yield ('bytes_per_bone', Uint, (0, None), (False, None), None)
+		yield ('num_frames', Uint, (0, None), (False, None), None)
+		yield ('num_bones', Uint, (0, None), (False, None), None)
+		yield ('loc_scale', Float, (0, None), (False, None), None)
+		yield ('loc_offset', Float, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -60,3 +61,6 @@ class BanisRoot(MemStruct):
 		yield 'num_bones', Uint, (0, None), (False, None)
 		yield 'loc_scale', Float, (0, None), (False, None)
 		yield 'loc_offset', Float, (0, None), (False, None)
+
+
+BanisRoot.init_attributes()

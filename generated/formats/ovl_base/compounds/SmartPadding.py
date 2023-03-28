@@ -16,8 +16,9 @@ class SmartPadding(BaseStruct):
 
 	_import_key = 'ovl_base.compounds.SmartPadding'
 
-	_attribute_list = BaseStruct._attribute_list + [
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -59,3 +60,6 @@ class SmartPadding(BaseStruct):
 		stream.write(instance.data)
 
 
+
+
+SmartPadding.init_attributes()

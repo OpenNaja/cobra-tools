@@ -26,16 +26,17 @@ class Sixtyfour(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MemStruct._attribute_list + [
-		('count_0', Uint64, (0, None), (False, None), None),
-		('ptr_0', Pointer, (0, None), (False, None), None),
-		('ptr_1', Pointer, (0, None), (False, None), None),
-		('count_1', Uint64, (0, None), (False, None), None),
-		('count_2', Uint64, (0, None), (False, None), None),
-		('ptr_2', Pointer, (0, None), (False, None), None),
-		('ptr_3', Pointer, (0, None), (False, None), None),
-		('count_3', Uint64, (0, None), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('count_0', Uint64, (0, None), (False, None), None)
+		yield ('ptr_0', Pointer, (0, None), (False, None), None)
+		yield ('ptr_1', Pointer, (0, None), (False, None), None)
+		yield ('count_1', Uint64, (0, None), (False, None), None)
+		yield ('count_2', Uint64, (0, None), (False, None), None)
+		yield ('ptr_2', Pointer, (0, None), (False, None), None)
+		yield ('ptr_3', Pointer, (0, None), (False, None), None)
+		yield ('count_3', Uint64, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -48,3 +49,6 @@ class Sixtyfour(MemStruct):
 		yield 'ptr_2', Pointer, (0, None), (False, None)
 		yield 'ptr_3', Pointer, (0, None), (False, None)
 		yield 'count_3', Uint64, (0, None), (False, None)
+
+
+Sixtyfour.init_attributes()

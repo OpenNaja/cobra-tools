@@ -25,13 +25,14 @@ class TrackedRideCarSub(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MemStruct._attribute_list + [
-		('float', Float, (0, None), (False, None), None),
-		('u_0', Uint, (0, None), (False, None), None),
-		('vectors', ArrayPointer, (None, None), (False, None), None),
-		('vecs_count', Uint64, (0, None), (False, None), None),
-		('zero_1', Uint64, (0, None), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('float', Float, (0, None), (False, None), None)
+		yield ('u_0', Uint, (0, None), (False, None), None)
+		yield ('vectors', ArrayPointer, (None, None), (False, None), None)
+		yield ('vecs_count', Uint64, (0, None), (False, None), None)
+		yield ('zero_1', Uint64, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -41,3 +42,6 @@ class TrackedRideCarSub(MemStruct):
 		yield 'vectors', ArrayPointer, (instance.vecs_count, TrackedRideCarSub._import_map["trackedridecar.compounds.Vector3"]), (False, None)
 		yield 'vecs_count', Uint64, (0, None), (False, None)
 		yield 'zero_1', Uint64, (0, None), (False, None)
+
+
+TrackedRideCarSub.init_attributes()

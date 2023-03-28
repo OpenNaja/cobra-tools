@@ -116,52 +116,53 @@ class BoneInfo(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = BaseStruct._attribute_list + [
-		('name_count', Uint, (0, None), (False, None), None),
-		('z_0', Ushort, (0, None), (False, None), None),
-		('inv_names_count', Ushort, (0, None), (False, None), None),
-		('knownff', Short, (0, None), (False, -1), True),
-		('zero_0', Short, (0, None), (False, 0), True),
-		('unknown_0_c', Uint, (0, None), (False, None), True),
-		('unk_count', Uint64, (0, None), (False, None), None),
-		('bind_matrix_count', Uint64, (0, None), (False, None), None),
-		('zeros', Array, (0, None, (2,), Uint64), (False, None), None),
-		('inv_data_count', Uint64, (0, None), (False, None), None),
-		('bone_count', Uint64, (0, None), (False, None), None),
-		('unknown_40', Uint64, (0, None), (False, None), None),
-		('parents_count', Uint64, (0, None), (False, None), None),
-		('extra_zero', Uint64, (0, None), (False, None), True),
-		('new_uint_64', Uint64, (0, None), (False, None), True),
-		('enum_count', Uint64, (0, None), (False, None), None),
-		('unknown_58', Uint64, (0, None), (False, None), None),
-		('one', Uint64, (0, None), (False, 1), None),
-		('zeros_count', Uint64, (0, None), (False, None), None),
-		('unk_pc_count', Uint64, (0, None), (False, None), True),
-		('ik_count', Uint64, (0, None), (False, None), None),
-		('joint_count', Uint64, (0, None), (False, None), None),
-		('zero_1', Uint64, (0, None), (False, 0), None),
-		('zero_2', Uint64, (0, None), (False, 0), True),
-		('zero_3', Uint64, (0, None), (False, 0), True),
-		('names_ref', Empty, (0, None), (False, None), None),
-		('name_indices', Array, (0, None, (None,), Ushort), (False, None), True),
-		('name_indices', Array, (0, None, (None,), Uint), (False, None), True),
-		('inventory_name_indices', Array, (0, None, (None,), Ushort), (False, None), True),
-		('name_padding', PadAlign, (16, None), (False, None), None),
-		('inverse_bind_matrices', Array, (0, None, (None,), Matrix44), (False, None), None),
-		('bones', Array, (0, None, (None,), Bone), (False, None), None),
-		('parents', Array, (0, None, (None,), Ubyte), (False, None), None),
-		('parents_padding', PadAlign, (8, None), (False, None), True),
-		('enumeration', Array, (0, None, (None, 2,), Uint), (False, None), True),
-		('enumeration', Array, (0, None, (None,), Ubyte), (False, None), True),
-		('inventory_datas', Array, (0, None, (None, 6,), Byte), (False, None), True),
-		('weirdness', Array, (0, None, (8,), Short), (False, None), True),
-		('weirdness', Array, (0, None, (10,), Short), (False, None), True),
-		('inventory_datas_2', Array, (0, None, (None, 2,), Int), (False, None), True),
-		('minus_padding', MinusPadding, (None, None), (False, None), True),
-		('zeros_padding', ZerosPadding, (None, None), (False, None), True),
-		('ik_info', IKInfo, (None, None), (False, None), True),
-		('joints', JointData, (0, None), (False, None), True),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('name_count', Uint, (0, None), (False, None), None)
+		yield ('z_0', Ushort, (0, None), (False, None), None)
+		yield ('inv_names_count', Ushort, (0, None), (False, None), None)
+		yield ('knownff', Short, (0, None), (False, -1), True)
+		yield ('zero_0', Short, (0, None), (False, 0), True)
+		yield ('unknown_0_c', Uint, (0, None), (False, None), True)
+		yield ('unk_count', Uint64, (0, None), (False, None), None)
+		yield ('bind_matrix_count', Uint64, (0, None), (False, None), None)
+		yield ('zeros', Array, (0, None, (2,), Uint64), (False, None), None)
+		yield ('inv_data_count', Uint64, (0, None), (False, None), None)
+		yield ('bone_count', Uint64, (0, None), (False, None), None)
+		yield ('unknown_40', Uint64, (0, None), (False, None), None)
+		yield ('parents_count', Uint64, (0, None), (False, None), None)
+		yield ('extra_zero', Uint64, (0, None), (False, None), True)
+		yield ('new_uint_64', Uint64, (0, None), (False, None), True)
+		yield ('enum_count', Uint64, (0, None), (False, None), None)
+		yield ('unknown_58', Uint64, (0, None), (False, None), None)
+		yield ('one', Uint64, (0, None), (False, 1), None)
+		yield ('zeros_count', Uint64, (0, None), (False, None), None)
+		yield ('unk_pc_count', Uint64, (0, None), (False, None), True)
+		yield ('ik_count', Uint64, (0, None), (False, None), None)
+		yield ('joint_count', Uint64, (0, None), (False, None), None)
+		yield ('zero_1', Uint64, (0, None), (False, 0), None)
+		yield ('zero_2', Uint64, (0, None), (False, 0), True)
+		yield ('zero_3', Uint64, (0, None), (False, 0), True)
+		yield ('names_ref', Empty, (0, None), (False, None), None)
+		yield ('name_indices', Array, (0, None, (None,), Ushort), (False, None), True)
+		yield ('name_indices', Array, (0, None, (None,), Uint), (False, None), True)
+		yield ('inventory_name_indices', Array, (0, None, (None,), Ushort), (False, None), True)
+		yield ('name_padding', PadAlign, (16, None), (False, None), None)
+		yield ('inverse_bind_matrices', Array, (0, None, (None,), Matrix44), (False, None), None)
+		yield ('bones', Array, (0, None, (None,), Bone), (False, None), None)
+		yield ('parents', Array, (0, None, (None,), Ubyte), (False, None), None)
+		yield ('parents_padding', PadAlign, (8, None), (False, None), True)
+		yield ('enumeration', Array, (0, None, (None, 2,), Uint), (False, None), True)
+		yield ('enumeration', Array, (0, None, (None,), Ubyte), (False, None), True)
+		yield ('inventory_datas', Array, (0, None, (None, 6,), Byte), (False, None), True)
+		yield ('weirdness', Array, (0, None, (8,), Short), (False, None), True)
+		yield ('weirdness', Array, (0, None, (10,), Short), (False, None), True)
+		yield ('inventory_datas_2', Array, (0, None, (None, 2,), Int), (False, None), True)
+		yield ('minus_padding', MinusPadding, (None, None), (False, None), True)
+		yield ('zeros_padding', ZerosPadding, (None, None), (False, None), True)
+		yield ('ik_info', IKInfo, (None, None), (False, None), True)
+		yield ('joints', JointData, (0, None), (False, None), True)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -229,3 +230,6 @@ class BoneInfo(BaseStruct):
 			yield 'ik_info', IKInfo, (instance, None), (False, None)
 		if instance.joint_count:
 			yield 'joints', JointData, (0, None), (False, None)
+
+
+BoneInfo.init_attributes()

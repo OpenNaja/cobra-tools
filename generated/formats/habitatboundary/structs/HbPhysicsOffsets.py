@@ -28,12 +28,13 @@ class HbPhysicsOffsets(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MemStruct._attribute_list + [
-		('thickness', Float, (0, None), (False, None), None),
-		('post_size', HbPostSize, (0, None), (False, None), None),
-		('wall_pad_top', Float, (0, None), (False, None), None),
-		('wall_post_gap', Float, (0, None), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('thickness', Float, (0, None), (False, None), None)
+		yield ('post_size', HbPostSize, (0, None), (False, None), None)
+		yield ('wall_pad_top', Float, (0, None), (False, None), None)
+		yield ('wall_post_gap', Float, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -42,3 +43,6 @@ class HbPhysicsOffsets(MemStruct):
 		yield 'post_size', HbPostSize, (0, None), (False, None)
 		yield 'wall_pad_top', Float, (0, None), (False, None)
 		yield 'wall_post_gap', Float, (0, None), (False, None)
+
+
+HbPhysicsOffsets.init_attributes()

@@ -60,30 +60,31 @@ class CompressedManiData(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = BaseStruct._attribute_list + [
-		('ref', Empty, (0, None), (False, None), None),
-		('floatsa', Array, (0, None, (None, None,), Float), (False, None), None),
-		('pad_2', SmartPadding, (0, None), (False, None), None),
-		('frame_count', Uint, (0, None), (False, None), None),
-		('ori_bone_count', Uint, (0, None), (False, None), None),
-		('pos_bone_count', Uint, (0, None), (False, None), None),
-		('scl_bone_count', Uint, (0, None), (False, None), None),
-		('zeros_18', Array, (0, None, (18,), Uint), (False, None), None),
-		('count', Ushort, (0, None), (False, None), None),
-		('quantisation_level', Ushort, (0, None), (False, None), None),
-		('ref_2', Empty, (0, None), (False, None), None),
-		('some_indices', Array, (0, None, (None,), Ubyte), (False, None), None),
-		('flag_0', Ubyte, (0, None), (False, None), None),
-		('flag_1', Ubyte, (0, None), (False, None), None),
-		('flag_2', Ubyte, (0, None), (False, None), None),
-		('flag_3', Ubyte, (0, None), (False, None), None),
-		('anoth_pad', PadAlign, (4, None), (False, None), None),
-		('floatsb', FloatsGrabber, (0, None), (False, None), None),
-		('extra_pc_zero', Uint64, (0, None), (False, None), True),
-		('anoth_pad_2', PadAlign, (16, None), (False, None), None),
-		('ref_3', Empty, (0, None), (False, None), None),
-		('repeats', Array, (0, None, (None,), Repeat), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('ref', Empty, (0, None), (False, None), None)
+		yield ('floatsa', Array, (0, None, (None, None,), Float), (False, None), None)
+		yield ('pad_2', SmartPadding, (0, None), (False, None), None)
+		yield ('frame_count', Uint, (0, None), (False, None), None)
+		yield ('ori_bone_count', Uint, (0, None), (False, None), None)
+		yield ('pos_bone_count', Uint, (0, None), (False, None), None)
+		yield ('scl_bone_count', Uint, (0, None), (False, None), None)
+		yield ('zeros_18', Array, (0, None, (18,), Uint), (False, None), None)
+		yield ('count', Ushort, (0, None), (False, None), None)
+		yield ('quantisation_level', Ushort, (0, None), (False, None), None)
+		yield ('ref_2', Empty, (0, None), (False, None), None)
+		yield ('some_indices', Array, (0, None, (None,), Ubyte), (False, None), None)
+		yield ('flag_0', Ubyte, (0, None), (False, None), None)
+		yield ('flag_1', Ubyte, (0, None), (False, None), None)
+		yield ('flag_2', Ubyte, (0, None), (False, None), None)
+		yield ('flag_3', Ubyte, (0, None), (False, None), None)
+		yield ('anoth_pad', PadAlign, (4, None), (False, None), None)
+		yield ('floatsb', FloatsGrabber, (0, None), (False, None), None)
+		yield ('extra_pc_zero', Uint64, (0, None), (False, None), True)
+		yield ('anoth_pad_2', PadAlign, (16, None), (False, None), None)
+		yield ('ref_3', Empty, (0, None), (False, None), None)
+		yield ('repeats', Array, (0, None, (None,), Repeat), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -111,3 +112,6 @@ class CompressedManiData(BaseStruct):
 		yield 'anoth_pad_2', PadAlign, (16, instance.ref), (False, None)
 		yield 'ref_3', Empty, (0, None), (False, None)
 		yield 'repeats', Array, (0, None, (instance.count,), Repeat), (False, None)
+
+
+CompressedManiData.init_attributes()

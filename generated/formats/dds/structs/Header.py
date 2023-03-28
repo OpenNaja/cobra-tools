@@ -45,24 +45,25 @@ class Header(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = BaseStruct._attribute_list + [
-		('header_string', FixedString, (4, None), (False, None), None),
-		('size', Uint, (0, None), (False, 124), None),
-		('flags', HeaderFlags, (0, None), (False, None), None),
-		('height', Uint, (0, None), (False, None), None),
-		('width', Uint, (0, None), (False, None), None),
-		('linear_size', Uint, (0, None), (False, None), None),
-		('depth', Uint, (0, None), (False, 1), None),
-		('mipmap_count', Uint, (0, None), (False, None), None),
-		('reserved_1', Array, (0, None, (11,), Uint), (False, None), None),
-		('pixel_format', PixelFormat, (0, None), (False, None), None),
-		('caps_1', Caps1, (0, None), (False, None), None),
-		('caps_2', Caps2, (0, None), (False, None), None),
-		('caps_3', Uint, (0, None), (False, None), None),
-		('caps_4', Uint, (0, None), (False, None), None),
-		('unused', Uint, (0, None), (False, None), None),
-		('dx_10', Dxt10Header, (0, None), (False, None), True),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('header_string', FixedString, (4, None), (False, None), None)
+		yield ('size', Uint, (0, None), (False, 124), None)
+		yield ('flags', HeaderFlags, (0, None), (False, None), None)
+		yield ('height', Uint, (0, None), (False, None), None)
+		yield ('width', Uint, (0, None), (False, None), None)
+		yield ('linear_size', Uint, (0, None), (False, None), None)
+		yield ('depth', Uint, (0, None), (False, 1), None)
+		yield ('mipmap_count', Uint, (0, None), (False, None), None)
+		yield ('reserved_1', Array, (0, None, (11,), Uint), (False, None), None)
+		yield ('pixel_format', PixelFormat, (0, None), (False, None), None)
+		yield ('caps_1', Caps1, (0, None), (False, None), None)
+		yield ('caps_2', Caps2, (0, None), (False, None), None)
+		yield ('caps_3', Uint, (0, None), (False, None), None)
+		yield ('caps_4', Uint, (0, None), (False, None), None)
+		yield ('unused', Uint, (0, None), (False, None), None)
+		yield ('dx_10', Dxt10Header, (0, None), (False, None), True)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -84,3 +85,6 @@ class Header(BaseStruct):
 		yield 'unused', Uint, (0, None), (False, None)
 		if instance.pixel_format.four_c_c == 808540228:
 			yield 'dx_10', Dxt10Header, (0, None), (False, None)
+
+
+Header.init_attributes()

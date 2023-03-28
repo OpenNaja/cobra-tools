@@ -44,17 +44,18 @@ class MimeEntry(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = BaseStruct._attribute_list + [
-		('name', OffsetString, (None, None), (False, None), None),
-		('zero_0', Uint, (0, None), (False, 0), None),
-		('mime_hash', Uint, (0, None), (False, None), True),
-		('mime_version', Uint, (0, None), (False, None), None),
-		('file_index_offset', Uint, (0, None), (False, None), None),
-		('file_count', Uint, (0, None), (False, None), None),
-		('zero_1', Uint, (0, None), (False, None), True),
-		('triplet_count', Uint, (0, None), (False, None), True),
-		('triplet_offset', Uint, (0, None), (False, None), True),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('name', OffsetString, (None, None), (False, None), None)
+		yield ('zero_0', Uint, (0, None), (False, 0), None)
+		yield ('mime_hash', Uint, (0, None), (False, None), True)
+		yield ('mime_version', Uint, (0, None), (False, None), None)
+		yield ('file_index_offset', Uint, (0, None), (False, None), None)
+		yield ('file_count', Uint, (0, None), (False, None), None)
+		yield ('zero_1', Uint, (0, None), (False, None), True)
+		yield ('triplet_count', Uint, (0, None), (False, None), True)
+		yield ('triplet_offset', Uint, (0, None), (False, None), True)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -85,3 +86,6 @@ class MimeEntry(BaseStruct):
 			trip.a, trip.b, trip.c = triplet
 			ovl.triplets.append(trip)
 
+
+
+MimeEntry.init_attributes()

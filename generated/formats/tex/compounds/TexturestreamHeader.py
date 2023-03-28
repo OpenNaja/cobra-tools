@@ -20,10 +20,11 @@ class TexturestreamHeader(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MemStruct._attribute_list + [
-		('zero', Uint64, (0, None), (True, 0), None),
-		('lod_index', Uint64, (0, None), (False, None), True),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('zero', Uint64, (0, None), (True, 0), None)
+		yield ('lod_index', Uint64, (0, None), (False, None), True)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -31,3 +32,6 @@ class TexturestreamHeader(MemStruct):
 		yield 'zero', Uint64, (0, None), (True, 0)
 		if instance.context.user_version.use_djb and (instance.context.version == 20):
 			yield 'lod_index', Uint64, (0, None), (False, None)
+
+
+TexturestreamHeader.init_attributes()

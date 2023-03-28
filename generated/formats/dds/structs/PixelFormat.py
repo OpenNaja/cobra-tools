@@ -42,16 +42,17 @@ class PixelFormat(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = BaseStruct._attribute_list + [
-		('size', Uint, (0, None), (False, 32), None),
-		('flags', PixelFormatFlags, (0, None), (False, None), None),
-		('four_c_c', FourCC, (0, None), (False, None), None),
-		('bit_count', Uint, (0, None), (False, None), None),
-		('r_mask', Uint, (0, None), (False, None), None),
-		('g_mask', Uint, (0, None), (False, None), None),
-		('b_mask', Uint, (0, None), (False, None), None),
-		('a_mask', Uint, (0, None), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('size', Uint, (0, None), (False, 32), None)
+		yield ('flags', PixelFormatFlags, (0, None), (False, None), None)
+		yield ('four_c_c', FourCC, (0, None), (False, None), None)
+		yield ('bit_count', Uint, (0, None), (False, None), None)
+		yield ('r_mask', Uint, (0, None), (False, None), None)
+		yield ('g_mask', Uint, (0, None), (False, None), None)
+		yield ('b_mask', Uint, (0, None), (False, None), None)
+		yield ('a_mask', Uint, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -64,3 +65,6 @@ class PixelFormat(BaseStruct):
 		yield 'g_mask', Uint, (0, None), (False, None)
 		yield 'b_mask', Uint, (0, None), (False, None)
 		yield 'a_mask', Uint, (0, None), (False, None)
+
+
+PixelFormat.init_attributes()

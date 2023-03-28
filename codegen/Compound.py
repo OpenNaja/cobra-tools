@@ -60,15 +60,15 @@ class Compound(BaseClass):
                 self.write_line(f, 3, "self.set_defaults()")
 
             # write attribute list
-            method_str = "_attribute_list = "
-            if "_attribute_list = " not in self.src_code:
+            method_str = "def _get_attribute_list(cls):"
+            if method_str not in self.src_code:
                 self.write_line(f)
+                self.write_line(f, 1, "@classmethod")
                 self.write_line(f, 1, method_str)
                 if self.class_basename:
-                    f.write(f"{self.class_basename}._attribute_list + [\n\t\t")
+                    self.write_line(f, 2, "yield from super()._get_attribute_list()")
                 for union in self.field_unions:
                     union.write_attributes(f)
-                f.write("]")
 
             # write the _get_filtered_attribute_list method
             method_str = "def _get_filtered_attribute_list(cls, instance, include_abstract=True):"
@@ -83,4 +83,7 @@ class Compound(BaseClass):
                     condition = union.write_filtered_attributes(f, condition, target_variable="instance")
 
             self.write_src_body(f)
+            self.write_line(f)
+            self.write_line(f)
+            self.write_line(f, 0, f"{self.class_name}.init_attributes()")
             self.write_line(f)

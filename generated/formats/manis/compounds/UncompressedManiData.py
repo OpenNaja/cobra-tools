@@ -20,11 +20,12 @@ class UncompressedManiData(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = BaseStruct._attribute_list + [
-		('pos_bones', Array, (0, None, (None, None,), Vector3), (False, None), None),
-		('ori_bones', Array, (0, None, (None, None,), Vector4H), (False, None), None),
-		('floats', Array, (0, None, (None, None,), Float), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('pos_bones', Array, (0, None, (None, None,), Vector3), (False, None), None)
+		yield ('ori_bones', Array, (0, None, (None, None,), Vector4H), (False, None), None)
+		yield ('floats', Array, (0, None, (None, None,), Float), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -32,3 +33,6 @@ class UncompressedManiData(BaseStruct):
 		yield 'pos_bones', Array, (0, None, (instance.arg.pos_bone_count, instance.arg.frame_count,), Vector3), (False, None)
 		yield 'ori_bones', Array, (0, None, (instance.arg.ori_bone_count, instance.arg.frame_count,), Vector4H), (False, None)
 		yield 'floats', Array, (0, None, (instance.arg.float_count, instance.arg.frame_count,), Float), (False, None)
+
+
+UncompressedManiData.init_attributes()

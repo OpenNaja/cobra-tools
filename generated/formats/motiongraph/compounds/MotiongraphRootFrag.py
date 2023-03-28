@@ -26,16 +26,17 @@ class MotiongraphRootFrag(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MemStruct._attribute_list + [
-		('num_activities', Uint64, (0, None), (False, None), None),
-		('activities', Pointer, (None, None), (False, None), None),
-		('count_1', Uint64, (0, None), (False, None), None),
-		('ptr_1', Pointer, (None, None), (False, None), None),
-		('count_2', Uint64, (0, None), (False, None), None),
-		('ptr_2', Pointer, (None, None), (False, None), None),
-		('num_xmls', Uint64, (0, None), (False, None), None),
-		('ptr_xmls', Pointer, (None, None), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('num_activities', Uint64, (0, None), (False, None), None)
+		yield ('activities', Pointer, (None, None), (False, None), None)
+		yield ('count_1', Uint64, (0, None), (False, None), None)
+		yield ('ptr_1', Pointer, (None, None), (False, None), None)
+		yield ('count_2', Uint64, (0, None), (False, None), None)
+		yield ('ptr_2', Pointer, (None, None), (False, None), None)
+		yield ('num_xmls', Uint64, (0, None), (False, None), None)
+		yield ('ptr_xmls', Pointer, (None, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -48,3 +49,6 @@ class MotiongraphRootFrag(MemStruct):
 		yield 'ptr_2', Pointer, (instance.count_2, MotiongraphRootFrag._import_map["motiongraph.compounds.MRFArray2"]), (False, None)
 		yield 'num_xmls', Uint64, (0, None), (False, None)
 		yield 'ptr_xmls', Pointer, (instance.num_xmls, MotiongraphRootFrag._import_map["motiongraph.compounds.XMLArray"]), (False, None)
+
+
+MotiongraphRootFrag.init_attributes()

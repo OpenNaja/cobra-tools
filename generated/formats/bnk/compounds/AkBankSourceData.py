@@ -18,11 +18,12 @@ class AkBankSourceData(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = BaseStruct._attribute_list + [
-		('ul_plugin_i_d', Uint, (0, None), (False, None), None),
-		('stream_type', Ubyte, (0, None), (False, None), None),
-		('ak_media_information', AkMediaInformation, (0, None), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('ul_plugin_i_d', Uint, (0, None), (False, None), None)
+		yield ('stream_type', Ubyte, (0, None), (False, None), None)
+		yield ('ak_media_information', AkMediaInformation, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -30,3 +31,6 @@ class AkBankSourceData(BaseStruct):
 		yield 'ul_plugin_i_d', Uint, (0, None), (False, None)
 		yield 'stream_type', Ubyte, (0, None), (False, None)
 		yield 'ak_media_information', AkMediaInformation, (0, None), (False, None)
+
+
+AkBankSourceData.init_attributes()

@@ -45,17 +45,18 @@ class SizeInfoRaw(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MemStruct._attribute_list + [
-		('zero', Uint64, (0, None), (True, 0), None),
-		('data_size', Uint, (0, None), (False, None), None),
-		('width', Uint, (0, None), (False, None), None),
-		('height', Uint, (0, None), (False, None), None),
-		('depth', Uint, (0, None), (True, 1), None),
-		('num_tiles', Uint, (0, None), (True, 1), None),
-		('num_mips', Uint, (0, None), (False, None), None),
-		('unk_pz', Uint64, (0, None), (True, 0), True),
-		('mip_maps', Array, (0, None, (None,), Mipmap), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('zero', Uint64, (0, None), (True, 0), None)
+		yield ('data_size', Uint, (0, None), (False, None), None)
+		yield ('width', Uint, (0, None), (False, None), None)
+		yield ('height', Uint, (0, None), (False, None), None)
+		yield ('depth', Uint, (0, None), (True, 1), None)
+		yield ('num_tiles', Uint, (0, None), (True, 1), None)
+		yield ('num_mips', Uint, (0, None), (False, None), None)
+		yield ('unk_pz', Uint64, (0, None), (True, 0), True)
+		yield ('mip_maps', Array, (0, None, (None,), Mipmap), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -70,3 +71,6 @@ class SizeInfoRaw(MemStruct):
 		if instance.context.version >= 20:
 			yield 'unk_pz', Uint64, (0, None), (True, 0)
 		yield 'mip_maps', Array, (0, None, (instance.num_mips,), Mipmap), (False, None)
+
+
+SizeInfoRaw.init_attributes()

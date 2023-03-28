@@ -26,13 +26,17 @@ class MinusPadding(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = BaseStruct._attribute_list + [
-		('indices', Array, (0, None, (None,), Short), (False, None), None),
-		('padding', Array, (0, None, (None,), Byte), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('indices', Array, (0, None, (None,), Short), (False, None), None)
+		yield ('padding', Array, (0, None, (None,), Byte), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'indices', Array, (0, None, (instance.arg,), Short), (False, None)
 		yield 'padding', Array, (0, None, ((16 - ((instance.arg * 2) % 16)) % 16,), Byte), (False, None)
+
+
+MinusPadding.init_attributes()

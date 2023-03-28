@@ -19,11 +19,12 @@ class MusicTrack(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = BaseStruct._attribute_list + [
-		('length', Uint, (0, None), (False, None), None),
-		('id', Uint, (0, None), (False, None), None),
-		('data', MusicTrackInitialValues, (0, None), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('length', Uint, (0, None), (False, None), None)
+		yield ('id', Uint, (0, None), (False, None), None)
+		yield ('data', MusicTrackInitialValues, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -31,3 +32,6 @@ class MusicTrack(BaseStruct):
 		yield 'length', Uint, (0, None), (False, None)
 		yield 'id', Uint, (0, None), (False, None)
 		yield 'data', MusicTrackInitialValues, (0, None), (False, None)
+
+
+MusicTrack.init_attributes()

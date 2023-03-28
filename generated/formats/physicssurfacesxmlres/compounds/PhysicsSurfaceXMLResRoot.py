@@ -43,28 +43,29 @@ class PhysicsSurfaceXMLResRoot(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MemStruct._attribute_list + [
-		('default_surface_name', Pointer, (0, ZString), (False, None), None),
-		('float_1', Float, (0, None), (False, None), None),
-		('float_2', Float, (0, None), (False, None), None),
-		('float_3', Float, (0, None), (False, None), None),
-		('float_4', Float, (0, None), (False, None), None),
-		('unk_64_1', Uint64, (0, None), (False, None), None),
-		('name_1', Pointer, (0, ZString), (False, None), None),
-		('name_2', Pointer, (0, ZString), (False, None), None),
-		('ptr_1', Pointer, (0, None), (False, None), None),
-		('ptr_2', ArrayPointer, (None, None), (False, None), None),
-		('count', Ushort, (0, None), (False, None), None),
-		('short_2', Ushort, (0, None), (False, None), None),
-		('unk_32_1', Uint, (0, None), (False, None), None),
-		('unk_64_4', Uint64, (0, None), (False, None), None),
-		('unk_64_5', Uint64, (0, None), (False, None), None),
-		('unk_64_6', Uint64, (0, None), (False, None), None),
-		('unk_64_7', Uint64, (0, None), (False, None), None),
-		('unk_64_8', Uint64, (0, None), (False, None), None),
-		('unk_64_9', Uint64, (0, None), (False, None), None),
-		('unk_64_10', Uint64, (0, None), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('default_surface_name', Pointer, (0, ZString), (False, None), None)
+		yield ('float_1', Float, (0, None), (False, None), None)
+		yield ('float_2', Float, (0, None), (False, None), None)
+		yield ('float_3', Float, (0, None), (False, None), None)
+		yield ('float_4', Float, (0, None), (False, None), None)
+		yield ('unk_64_1', Uint64, (0, None), (False, None), None)
+		yield ('name_1', Pointer, (0, ZString), (False, None), None)
+		yield ('name_2', Pointer, (0, ZString), (False, None), None)
+		yield ('ptr_1', Pointer, (0, None), (False, None), None)
+		yield ('ptr_2', ArrayPointer, (None, None), (False, None), None)
+		yield ('count', Ushort, (0, None), (False, None), None)
+		yield ('short_2', Ushort, (0, None), (False, None), None)
+		yield ('unk_32_1', Uint, (0, None), (False, None), None)
+		yield ('unk_64_4', Uint64, (0, None), (False, None), None)
+		yield ('unk_64_5', Uint64, (0, None), (False, None), None)
+		yield ('unk_64_6', Uint64, (0, None), (False, None), None)
+		yield ('unk_64_7', Uint64, (0, None), (False, None), None)
+		yield ('unk_64_8', Uint64, (0, None), (False, None), None)
+		yield ('unk_64_9', Uint64, (0, None), (False, None), None)
+		yield ('unk_64_10', Uint64, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -89,3 +90,6 @@ class PhysicsSurfaceXMLResRoot(MemStruct):
 		yield 'unk_64_8', Uint64, (0, None), (False, None)
 		yield 'unk_64_9', Uint64, (0, None), (False, None)
 		yield 'unk_64_10', Uint64, (0, None), (False, None)
+
+
+PhysicsSurfaceXMLResRoot.init_attributes()

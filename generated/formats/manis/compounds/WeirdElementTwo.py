@@ -16,11 +16,15 @@ class WeirdElementTwo(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = BaseStruct._attribute_list + [
-		('many_floats', Array, (0, None, (7,), Float), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('many_floats', Array, (0, None, (7,), Float), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'many_floats', Array, (0, None, (7,), Float), (False, None)
+
+
+WeirdElementTwo.init_attributes()

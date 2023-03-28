@@ -37,14 +37,15 @@ class GenericHeader(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = BaseStruct._attribute_list + [
-		('magic', FixedString, (4, None), (False, None), None),
-		('version_flag', Byte, (0, None), (False, None), None),
-		('version', Byte, (0, None), (False, None), None),
-		('bitswap', Byte, (0, None), (False, None), None),
-		('seventh_byte', Byte, (0, None), (False, 1), None),
-		('user_version', VersionInfo, (0, None), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('magic', FixedString, (4, None), (False, None), None)
+		yield ('version_flag', Byte, (0, None), (False, None), None)
+		yield ('version', Byte, (0, None), (False, None), None)
+		yield ('bitswap', Byte, (0, None), (False, None), None)
+		yield ('seventh_byte', Byte, (0, None), (False, 1), None)
+		yield ('user_version', VersionInfo, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -55,3 +56,6 @@ class GenericHeader(BaseStruct):
 		yield 'bitswap', Byte, (0, None), (False, None)
 		yield 'seventh_byte', Byte, (0, None), (False, 1)
 		yield 'user_version', VersionInfo, (0, None), (False, None)
+
+
+GenericHeader.init_attributes()

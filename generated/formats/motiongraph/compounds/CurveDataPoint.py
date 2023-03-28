@@ -24,13 +24,14 @@ class CurveDataPoint(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MemStruct._attribute_list + [
-		('x', Float, (0, None), (False, None), None),
-		('y', Short, (0, None), (False, None), None),
-		('sub_curve_type', SubCurveType, (0, None), (False, None), None),
-		('subsequent_curve_param', Short, (0, None), (False, None), None),
-		('subsequent_curve_param_b', Short, (0, None), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('x', Float, (0, None), (False, None), None)
+		yield ('y', Short, (0, None), (False, None), None)
+		yield ('sub_curve_type', SubCurveType, (0, None), (False, None), None)
+		yield ('subsequent_curve_param', Short, (0, None), (False, None), None)
+		yield ('subsequent_curve_param_b', Short, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -40,3 +41,6 @@ class CurveDataPoint(MemStruct):
 		yield 'sub_curve_type', SubCurveType, (0, None), (False, None)
 		yield 'subsequent_curve_param', Short, (0, None), (False, None)
 		yield 'subsequent_curve_param_b', Short, (0, None), (False, None)
+
+
+CurveDataPoint.init_attributes()

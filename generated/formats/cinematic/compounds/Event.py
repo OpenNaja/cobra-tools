@@ -25,14 +25,15 @@ class Event(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MemStruct._attribute_list + [
-		('start_time', Float, (0, None), (False, None), None),
-		('b', Float, (0, None), (False, None), None),
-		('module_name', Pointer, (0, ZString), (False, None), None),
-		('attributes', Pointer, (0, None), (False, None), None),
-		('duration', Float, (0, None), (False, None), None),
-		('d', Float, (0, None), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('start_time', Float, (0, None), (False, None), None)
+		yield ('b', Float, (0, None), (False, None), None)
+		yield ('module_name', Pointer, (0, ZString), (False, None), None)
+		yield ('attributes', Pointer, (0, None), (False, None), None)
+		yield ('duration', Float, (0, None), (False, None), None)
+		yield ('d', Float, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -43,3 +44,6 @@ class Event(MemStruct):
 		yield 'attributes', Pointer, (0, Event._import_map["cinematic.compounds.EventAttributes"]), (False, None)
 		yield 'duration', Float, (0, None), (False, None)
 		yield 'd', Float, (0, None), (False, None)
+
+
+Event.init_attributes()

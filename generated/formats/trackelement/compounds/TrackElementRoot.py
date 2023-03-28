@@ -24,12 +24,13 @@ class TrackElementRoot(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MemStruct._attribute_list + [
-		('track_data', ArrayPointer, (None, None), (False, None), None),
-		('count', Uint64, (0, None), (False, None), None),
-		('unk_string_1', Pointer, (0, ZString), (False, None), None),
-		('unk_string_2', Pointer, (0, ZString), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('track_data', ArrayPointer, (None, None), (False, None), None)
+		yield ('count', Uint64, (0, None), (False, None), None)
+		yield ('unk_string_1', Pointer, (0, ZString), (False, None), None)
+		yield ('unk_string_2', Pointer, (0, ZString), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -38,3 +39,6 @@ class TrackElementRoot(MemStruct):
 		yield 'count', Uint64, (0, None), (False, None)
 		yield 'unk_string_1', Pointer, (0, ZString), (False, None)
 		yield 'unk_string_2', Pointer, (0, ZString), (False, None)
+
+
+TrackElementRoot.init_attributes()

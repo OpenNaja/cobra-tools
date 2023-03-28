@@ -56,23 +56,24 @@ class MeshCollision(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = BaseStruct._attribute_list + [
-		('rotation', Matrix33, (0, None), (False, None), None),
-		('offset', Vector3, (0, None), (False, None), None),
-		('unk_1', Array, (0, None, (3,), SubA), (False, None), None),
-		('vertex_count', Uint64, (0, None), (False, None), None),
-		('tri_count', Uint64, (0, None), (False, None), None),
-		('bounds_min', Vector3, (0, None), (False, None), None),
-		('bounds_max', Vector3, (0, None), (False, None), None),
-		('flag_0', Uint64, (0, None), (False, 1), None),
-		('flag_1', Uint64, (0, None), (False, 1), None),
-		('has_sub_coll_chunk', Uint64, (0, None), (False, None), None),
-		('zeros_1', Array, (0, None, (4,), Uint64), (False, None), None),
-		('ff', Int, (0, None), (False, -1), None),
-		('zeros_2', Array, (0, None, (7,), Int), (False, None), None),
-		('weird_padding', SmartPadding, (4, None), (False, None), None),
-		('sub_coll_chunk', SubCollChunk, (0, None), (False, None), True),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('rotation', Matrix33, (0, None), (False, None), None)
+		yield ('offset', Vector3, (0, None), (False, None), None)
+		yield ('unk_1', Array, (0, None, (3,), SubA), (False, None), None)
+		yield ('vertex_count', Uint64, (0, None), (False, None), None)
+		yield ('tri_count', Uint64, (0, None), (False, None), None)
+		yield ('bounds_min', Vector3, (0, None), (False, None), None)
+		yield ('bounds_max', Vector3, (0, None), (False, None), None)
+		yield ('flag_0', Uint64, (0, None), (False, 1), None)
+		yield ('flag_1', Uint64, (0, None), (False, 1), None)
+		yield ('has_sub_coll_chunk', Uint64, (0, None), (False, None), None)
+		yield ('zeros_1', Array, (0, None, (4,), Uint64), (False, None), None)
+		yield ('ff', Int, (0, None), (False, -1), None)
+		yield ('zeros_2', Array, (0, None, (7,), Int), (False, None), None)
+		yield ('weird_padding', SmartPadding, (4, None), (False, None), None)
+		yield ('sub_coll_chunk', SubCollChunk, (0, None), (False, None), True)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -93,3 +94,6 @@ class MeshCollision(BaseStruct):
 		yield 'weird_padding', SmartPadding, (4, None), (False, None)
 		if instance.has_sub_coll_chunk:
 			yield 'sub_coll_chunk', SubCollChunk, (0, None), (False, None)
+
+
+MeshCollision.init_attributes()

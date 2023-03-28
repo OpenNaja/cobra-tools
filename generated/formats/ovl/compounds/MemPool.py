@@ -46,17 +46,18 @@ class MemPool(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = BaseStruct._attribute_list + [
-		('zero_1', Uint64, (0, None), (False, None), True),
-		('size', Uint, (0, None), (False, None), None),
-		('offset', Uint, (0, None), (False, None), None),
-		('zero_2', Uint64, (0, None), (False, None), True),
-		('file_hash', Uint, (0, None), (False, None), None),
-		('num_files', Ushort, (0, None), (False, None), True),
-		('num_datas', Ushort, (0, None), (False, None), True),
-		('ext_hash', Uint, (0, None), (False, None), True),
-		('zero_3', Uint, (0, None), (False, None), True),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('zero_1', Uint64, (0, None), (False, None), True)
+		yield ('size', Uint, (0, None), (False, None), None)
+		yield ('offset', Uint, (0, None), (False, None), None)
+		yield ('zero_2', Uint64, (0, None), (False, None), True)
+		yield ('file_hash', Uint, (0, None), (False, None), None)
+		yield ('num_files', Ushort, (0, None), (False, None), True)
+		yield ('num_datas', Ushort, (0, None), (False, None), True)
+		yield ('ext_hash', Uint, (0, None), (False, None), True)
+		yield ('zero_3', Uint, (0, None), (False, None), True)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -168,3 +169,6 @@ class MemPool(BaseStruct):
 		# return True
 
 
+
+
+MemPool.init_attributes()

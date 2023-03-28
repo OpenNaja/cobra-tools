@@ -25,14 +25,15 @@ class Bone(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = BaseStruct._attribute_list + [
-		('loc', Vector3, (0, None), (False, None), True),
-		('scale', Float, (0, None), (False, None), True),
-		('rot', Vector4, (0, None), (False, None), True),
-		('rot', Vector4, (0, None), (False, None), True),
-		('loc', Vector3, (0, None), (False, None), True),
-		('scale', Float, (0, None), (False, None), True),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('loc', Vector3, (0, None), (False, None), True)
+		yield ('scale', Float, (0, None), (False, None), True)
+		yield ('rot', Vector4, (0, None), (False, None), True)
+		yield ('rot', Vector4, (0, None), (False, None), True)
+		yield ('loc', Vector3, (0, None), (False, None), True)
+		yield ('scale', Float, (0, None), (False, None), True)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -52,3 +53,6 @@ class Bone(BaseStruct):
 		self.rot.x, self.rot.y, self.rot.z, self.rot.w = quat.x, quat.y, quat.z, quat.w
 		self.scale = sca.x
 
+
+
+Bone.init_attributes()

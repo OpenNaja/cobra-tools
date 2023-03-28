@@ -27,20 +27,21 @@ class ContextSet1Item(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MemStruct._attribute_list + [
-		('stuff_1_name', Pointer, (0, ZString), (False, None), None),
-		('stuff_11_sub', ArrayPointer, (None, None), (False, None), None),
-		('stuff_11_sub_count', Uint64, (0, None), (False, None), None),
-		('stuff_12_sub', ArrayPointer, (None, None), (False, None), None),
-		('stuff_12_sub_count', Uint64, (0, None), (False, None), None),
-		('stuff_13_sub', ArrayPointer, (None, None), (False, None), None),
-		('stuff_13_sub_count', Uint64, (0, None), (False, None), None),
-		('stuff_14_sub_name', Pointer, (0, ZString), (False, None), None),
-		('stuff_14_sub_name', Pointer, (0, ZString), (False, None), None),
-		('stuff_15_sub_name', Pointer, (0, ZString), (False, None), None),
-		('stuff_1_unknown_1', Uint64, (0, None), (False, None), None),
-		('stuff_1_unknown_2', Uint64, (0, None), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('stuff_1_name', Pointer, (0, ZString), (False, None), None)
+		yield ('stuff_11_sub', ArrayPointer, (None, None), (False, None), None)
+		yield ('stuff_11_sub_count', Uint64, (0, None), (False, None), None)
+		yield ('stuff_12_sub', ArrayPointer, (None, None), (False, None), None)
+		yield ('stuff_12_sub_count', Uint64, (0, None), (False, None), None)
+		yield ('stuff_13_sub', ArrayPointer, (None, None), (False, None), None)
+		yield ('stuff_13_sub_count', Uint64, (0, None), (False, None), None)
+		yield ('stuff_14_sub_name', Pointer, (0, ZString), (False, None), None)
+		yield ('stuff_14_sub_name', Pointer, (0, ZString), (False, None), None)
+		yield ('stuff_15_sub_name', Pointer, (0, ZString), (False, None), None)
+		yield ('stuff_1_unknown_1', Uint64, (0, None), (False, None), None)
+		yield ('stuff_1_unknown_2', Uint64, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -57,3 +58,6 @@ class ContextSet1Item(MemStruct):
 		yield 'stuff_15_sub_name', Pointer, (0, ZString), (False, None)
 		yield 'stuff_1_unknown_1', Uint64, (0, None), (False, None)
 		yield 'stuff_1_unknown_2', Uint64, (0, None), (False, None)
+
+
+ContextSet1Item.init_attributes()

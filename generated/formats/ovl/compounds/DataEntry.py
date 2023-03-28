@@ -41,15 +41,16 @@ class DataEntry(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = BaseStruct._attribute_list + [
-		('file_hash', Uint, (0, None), (False, None), None),
-		('ext_hash', Uint, (0, None), (False, None), True),
-		('set_index', Ushort, (0, None), (False, None), None),
-		('buffer_count', Ushort, (0, None), (False, None), None),
-		('zero', Uint, (0, None), (False, None), True),
-		('size_1', Uint64, (0, None), (False, None), None),
-		('size_2', Uint64, (0, None), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('file_hash', Uint, (0, None), (False, None), None)
+		yield ('ext_hash', Uint, (0, None), (False, None), True)
+		yield ('set_index', Ushort, (0, None), (False, None), None)
+		yield ('buffer_count', Ushort, (0, None), (False, None), None)
+		yield ('zero', Uint, (0, None), (False, None), True)
+		yield ('size_1', Uint64, (0, None), (False, None), None)
+		yield ('size_2', Uint64, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -106,3 +107,6 @@ class DataEntry(BaseStruct):
 				same = False
 		return same
 
+
+
+DataEntry.init_attributes()

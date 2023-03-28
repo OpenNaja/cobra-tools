@@ -23,15 +23,16 @@ class PathExtrusion(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MemStruct._attribute_list + [
-		('model', Pointer, (0, ZString), (False, None), None),
-		('post_model', Pointer, (0, ZString), (False, None), None),
-		('endcap_model', Pointer, (0, ZString), (False, None), None),
-		('unk_float_1', Float, (0, None), (False, None), None),
-		('unk_float_2', Float, (0, None), (False, None), None),
-		('is_kerb', Bool, (0, None), (False, None), None),
-		('is_not_ground', Bool, (0, None), (False, True), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('model', Pointer, (0, ZString), (False, None), None)
+		yield ('post_model', Pointer, (0, ZString), (False, None), None)
+		yield ('endcap_model', Pointer, (0, ZString), (False, None), None)
+		yield ('unk_float_1', Float, (0, None), (False, None), None)
+		yield ('unk_float_2', Float, (0, None), (False, None), None)
+		yield ('is_kerb', Bool, (0, None), (False, None), None)
+		yield ('is_not_ground', Bool, (0, None), (False, True), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -43,3 +44,6 @@ class PathExtrusion(MemStruct):
 		yield 'unk_float_2', Float, (0, None), (False, None)
 		yield 'is_kerb', Bool, (0, None), (False, None)
 		yield 'is_not_ground', Bool, (0, None), (False, True)
+
+
+PathExtrusion.init_attributes()

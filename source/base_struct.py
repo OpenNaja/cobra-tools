@@ -25,82 +25,6 @@ class StructMetaClass(type):
             cls._import_map[dict['_import_key']] = cls
         super().__init__(name, bases, dict, **kwds)
 
-        def free_function(function_name):
-            """Checks if the function is defined"""
-            if function_name in dict:
-                return False
-            else:
-                # not defined in class body allows automatic filling, as long as any parents are also compatible
-                return callable(getattr(cls, function_name, lambda: True))
-
-        # check if the class has a non-empty _attribute_list
-        if getattr(cls, "_attribute_list", ()):
-            attribute_list = cls._attribute_list
-            # for convenience, sort the attribute list into continuous lists
-            attr_names, attr_types, _, _, attr_conds = zip(*attribute_list)
-            if all(cond is None for cond in attr_conds) and all(attr_type is not None for attr_type in attr_types):
-                # all fields are static
-                if len(set(attr_types)) == 1:
-                    # every field is the same type, iteration makes sense
-                    if free_function("__len__"):
-                        cls.__len__ = lambda self: len(attribute_list)
-                    if free_function("__iter__"):
-                        def __iter__(self):
-                            yield from (getattr(self, attr_name) for attr_name in attr_names)
-                        cls.__iter__ = __iter__
-                    if free_function("__getitem__"):
-                        def __getitem__(self, key):
-                            if 0 <= key < len(attribute_list):
-                                return getattr(self, attr_names[key])
-                            else:
-                                raise IndexError(f'Index {key} not in {type(self)}')
-                        cls.__getitem__ = __getitem__
-                    if free_function("__setitem__"):
-                        def __setitem__(self, key, value):
-                            if 0 <= key < len(attribute_list):
-                                return setattr(self, attr_names[key], value)
-                            else:
-                                raise IndexError(f'Index {key} not in {type(self)}')
-                        cls.__setitem__ = __setitem__
-                # check if all of the class's attributes have a from_value function
-                if all(callable(getattr(attr_type, "from_value", None)) for attr_type in attr_types):
-                    # since all fields are static and have a from_value function defined, this struct can also have
-                    # from_value defined
-                    if free_function("from_value"):
-                        def from_value(value):
-                            # from_value implies context-independence so pass None as context
-                            instance = cls(None)
-                            for f_name, f_type, value_element in zip(attr_names, attr_types, value):
-                                setattr(instance, f_name, f_type.from_value(value_element))
-                            return instance
-                        cls.from_value = from_value
-            # check if all of the class's attributes have a from_value function
-            if getattr(cls, "allow_np", False) and all(
-                    # check for a struct with get_np_dtype and flag set to True
-                    callable(getattr(attr_type, "get_np_dtype", None)) or
-                    # or a basic numeric type
-                    getattr(attr_type, "np_dtype", None)
-                    for attr_type in attr_types):
-                if free_function("create_array"):
-                    def create_array(shape, default=None, context=None, arg=0, template=None):
-                        np_dtype = cls.get_np_dtype(context, arg, template)
-                        return np.zeros(shape, dtype=np_dtype)
-                    cls.create_array = create_array
-                if free_function("read_array"):
-                    def read_array(stream, shape, context=None, arg=0, template=None):
-                        np_dtype = cls.get_np_dtype(context, arg, template)
-                        array = np.empty(shape, dtype=np_dtype)
-                        stream.readinto(array)
-                        return array
-                    cls.read_array = read_array
-                if free_function("write_array"):
-                    def write_array(instance, stream):
-                        # todo - do type conversion, cf. basic.py
-                        assert isinstance(instance, np.ndarray)
-                        # np_dtype = cls.get_np_dtype(context, arg, template)
-                        stream.write(instance.tobytes())
-                    cls.write_array = write_array
-
 
 def indent(e, level=0):
     i = "\n" + level * "	"
@@ -345,6 +269,93 @@ class BaseStruct(metaclass=StructMetaClass):
             except:
                 logging.error(f"validation failed on field {f_name} on type {cls}")
                 raise
+
+    @classmethod
+    def init_attributes(cls):
+
+        def free_function(function_name):
+            """Checks if the function is defined"""
+            if function_name in cls.__dict__:
+                return False
+            else:
+                # not defined in class body allows automatic filling, as long as any parents are also compatible
+                return callable(getattr(cls, function_name, lambda: True))
+
+        # if attribute list is not defined and we have the function to generate it, create it
+        if "_attribute_list" not in cls.__dict__ and not free_function("_get_attribute_list"):
+            cls._attribute_list = tuple(cls._get_attribute_list())
+
+        # check if the class has a non-empty _attribute_list
+        if getattr(cls, "_attribute_list", ()):
+            attribute_list = cls._attribute_list
+            # for convenience, sort the attribute list into continuous lists
+            attr_names, attr_types, _, _, attr_conds = zip(*attribute_list)
+            if all(cond is None for cond in attr_conds) and all(attr_type is not None for attr_type in attr_types):
+                # all fields are static
+                if len(set(attr_types)) == 1:
+                    # every field is the same type, iteration makes sense
+                    if free_function("__len__"):
+                        cls.__len__ = lambda self: len(attribute_list)
+                    if free_function("__iter__"):
+                        def __iter__(self):
+                            yield from (getattr(self, attr_name) for attr_name in attr_names)
+                        cls.__iter__ = __iter__
+                    if free_function("__getitem__"):
+                        def __getitem__(self, key):
+                            if 0 <= key < len(attribute_list):
+                                return getattr(self, attr_names[key])
+                            else:
+                                raise IndexError(f'Index {key} not in {type(self)}')
+                        cls.__getitem__ = __getitem__
+                    if free_function("__setitem__"):
+                        def __setitem__(self, key, value):
+                            if 0 <= key < len(attribute_list):
+                                return setattr(self, attr_names[key], value)
+                            else:
+                                raise IndexError(f'Index {key} not in {type(self)}')
+                        cls.__setitem__ = __setitem__
+                # check if all of the class's attributes have a from_value function
+                if all(callable(getattr(attr_type, "from_value", None)) for attr_type in attr_types):
+                    # since all fields are static and have a from_value function defined, this struct can also have
+                    # from_value defined
+                    if free_function("from_value"):
+                        def from_value(value):
+                            # from_value implies context-independence so pass None as context
+                            instance = cls(None)
+                            for f_name, f_type, value_element in zip(attr_names, attr_types, value):
+                                setattr(instance, f_name, f_type.from_value(value_element))
+                            return instance
+                        cls.from_value = from_value
+            # check if all of the class's attributes have a from_value function
+            if getattr(cls, "allow_np", False) and all(
+                    # check for a struct with get_np_dtype and flag set to True
+                    callable(getattr(attr_type, "get_np_dtype", None)) or
+                    # or a basic numeric type
+                    getattr(attr_type, "np_dtype", None)
+                    for attr_type in attr_types):
+                if free_function("create_array"):
+                    def create_array(shape, default=None, context=None, arg=0, template=None):
+                        np_dtype = cls.get_np_dtype(context, arg, template)
+                        return np.zeros(shape, dtype=np_dtype)
+                    cls.create_array = create_array
+                if free_function("read_array"):
+                    def read_array(stream, shape, context=None, arg=0, template=None):
+                        np_dtype = cls.get_np_dtype(context, arg, template)
+                        array = np.empty(shape, dtype=np_dtype)
+                        stream.readinto(array)
+                        return array
+                    cls.read_array = read_array
+                if free_function("write_array"):
+                    def write_array(instance, stream):
+                        # todo - do type conversion, cf. basic.py
+                        assert isinstance(instance, np.ndarray)
+                        # np_dtype = cls.get_np_dtype(context, arg, template)
+                        stream.write(instance.tobytes())
+                    cls.write_array = write_array
+
+    @classmethod
+    def _get_attribute_list(cls):
+        yield from ()
 
     @classmethod
     def _get_filtered_attribute_list(cls, instance, include_abstract=True):

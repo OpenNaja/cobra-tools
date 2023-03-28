@@ -17,13 +17,17 @@ class SubBraceStruct(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MemStruct._attribute_list + [
-		('sub_brace_name', Pointer, (0, ZString), (False, None), None),
-		('padding', Uint64, (0, None), (False, 0), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('sub_brace_name', Pointer, (0, ZString), (False, None), None)
+		yield ('padding', Uint64, (0, None), (False, 0), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'sub_brace_name', Pointer, (0, ZString), (False, None)
 		yield 'padding', Uint64, (0, None), (False, 0)
+
+
+SubBraceStruct.init_attributes()

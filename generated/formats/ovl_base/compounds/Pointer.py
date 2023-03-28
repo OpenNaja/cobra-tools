@@ -32,10 +32,11 @@ class Pointer(BaseStruct):
 
 	_import_key = 'ovl_base.compounds.Pointer'
 
-	_attribute_list = BaseStruct._attribute_list + [
-		('pool_index', Int, (0, None), (False, -1), None),
-		('data_offset', Uint, (0, None), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('pool_index', Int, (0, None), (False, -1), None)
+		yield ('data_offset', Uint, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -213,3 +214,6 @@ class Pointer(BaseStruct):
 			logging.exception(f"Error on ptr {elem} {elem.attrib}")
 			# raise
 
+
+
+Pointer.init_attributes()

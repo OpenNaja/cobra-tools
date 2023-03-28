@@ -19,12 +19,13 @@ class BuildingSetRoot(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MemStruct._attribute_list + [
-		('set_id_name', Pointer, (0, ZStringObfuscated), (False, None), None),
-		('set_count_or_type', Uint64, (0, None), (False, None), None),
-		('unk_1_found_as_0', Uint64, (0, None), (False, None), None),
-		('unk_2_found_as_0', Uint64, (0, None), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('set_id_name', Pointer, (0, ZStringObfuscated), (False, None), None)
+		yield ('set_count_or_type', Uint64, (0, None), (False, None), None)
+		yield ('unk_1_found_as_0', Uint64, (0, None), (False, None), None)
+		yield ('unk_2_found_as_0', Uint64, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -33,3 +34,6 @@ class BuildingSetRoot(MemStruct):
 		yield 'set_count_or_type', Uint64, (0, None), (False, None)
 		yield 'unk_1_found_as_0', Uint64, (0, None), (False, None)
 		yield 'unk_2_found_as_0', Uint64, (0, None), (False, None)
+
+
+BuildingSetRoot.init_attributes()

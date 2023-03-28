@@ -23,11 +23,12 @@ class SetEntry(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = BaseStruct._attribute_list + [
-		('file_hash', Uint, (0, None), (False, None), None),
-		('ext_hash', Uint, (0, None), (False, None), True),
-		('start', Uint, (0, None), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('file_hash', Uint, (0, None), (False, None), None)
+		yield ('ext_hash', Uint, (0, None), (False, None), True)
+		yield ('start', Uint, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -36,3 +37,6 @@ class SetEntry(BaseStruct):
 		if instance.context.version >= 19:
 			yield 'ext_hash', Uint, (0, None), (False, None)
 		yield 'start', Uint, (0, None), (False, None)
+
+
+SetEntry.init_attributes()

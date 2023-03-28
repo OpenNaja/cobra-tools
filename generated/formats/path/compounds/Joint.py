@@ -24,15 +24,16 @@ class Joint(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MemStruct._attribute_list + [
-		('joint_1', Pointer, (0, ZString), (False, None), None),
-		('joint_2', Pointer, (0, ZString), (False, None), None),
-		('joint_3', Pointer, (0, ZString), (False, None), None),
-		('joint_4', Pointer, (0, ZString), (False, None), None),
-		('unk_float', Float, (0, None), (False, None), None),
-		('unk_int', Uint, (0, None), (False, None), None),
-		('unk_int_2', Uint64, (0, None), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('joint_1', Pointer, (0, ZString), (False, None), None)
+		yield ('joint_2', Pointer, (0, ZString), (False, None), None)
+		yield ('joint_3', Pointer, (0, ZString), (False, None), None)
+		yield ('joint_4', Pointer, (0, ZString), (False, None), None)
+		yield ('unk_float', Float, (0, None), (False, None), None)
+		yield ('unk_int', Uint, (0, None), (False, None), None)
+		yield ('unk_int_2', Uint64, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -44,3 +45,6 @@ class Joint(MemStruct):
 		yield 'unk_float', Float, (0, None), (False, None)
 		yield 'unk_int', Uint, (0, None), (False, None)
 		yield 'unk_int_2', Uint64, (0, None), (False, None)
+
+
+Joint.init_attributes()

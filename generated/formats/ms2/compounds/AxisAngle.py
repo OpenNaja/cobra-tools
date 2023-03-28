@@ -17,12 +17,13 @@ class AxisAngle(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = BaseStruct._attribute_list + [
-		('a', Float, (0, None), (False, 1.0), None),
-		('x', Float, (0, None), (False, 0.0), None),
-		('y', Float, (0, None), (False, 0.0), None),
-		('z', Float, (0, None), (False, 0.0), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('a', Float, (0, None), (False, 1.0), None)
+		yield ('x', Float, (0, None), (False, 0.0), None)
+		yield ('y', Float, (0, None), (False, 0.0), None)
+		yield ('z', Float, (0, None), (False, 0.0), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -31,3 +32,6 @@ class AxisAngle(BaseStruct):
 		yield 'x', Float, (0, None), (False, 0.0)
 		yield 'y', Float, (0, None), (False, 0.0)
 		yield 'z', Float, (0, None), (False, 0.0)
+
+
+AxisAngle.init_attributes()

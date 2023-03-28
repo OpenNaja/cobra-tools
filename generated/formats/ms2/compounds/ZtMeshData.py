@@ -60,23 +60,24 @@ class ZtMeshData(MeshData):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MeshData._attribute_list + [
-		('tri_index_count', Uint, (0, None), (False, None), None),
-		('vertex_count', Uint, (0, None), (False, None), None),
-		('tri_info_offset', Uint, (0, None), (False, None), None),
-		('vert_info_offset', Uint, (0, None), (False, None), None),
-		('known_ff_0', Int, (0, None), (False, None), None),
-		('tri_offset', Uint, (0, None), (False, None), None),
-		('uv_offset', Uint, (0, None), (False, None), None),
-		('vertex_offset', Uint, (0, None), (False, None), None),
-		('unk_index', Short, (0, None), (False, None), None),
-		('one_0', Ushort, (0, None), (False, None), None),
-		('one_1', Ushort, (0, None), (False, None), None),
-		('poweroftwo', Ushort, (0, None), (False, None), None),
-		('flag', ModelFlagDLA, (0, None), (False, None), True),
-		('flag', ModelFlagZT, (0, None), (False, None), True),
-		('zero_uac', Uint, (0, None), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('tri_index_count', Uint, (0, None), (False, None), None)
+		yield ('vertex_count', Uint, (0, None), (False, None), None)
+		yield ('tri_info_offset', Uint, (0, None), (False, None), None)
+		yield ('vert_info_offset', Uint, (0, None), (False, None), None)
+		yield ('known_ff_0', Int, (0, None), (False, None), None)
+		yield ('tri_offset', Uint, (0, None), (False, None), None)
+		yield ('uv_offset', Uint, (0, None), (False, None), None)
+		yield ('vertex_offset', Uint, (0, None), (False, None), None)
+		yield ('unk_index', Short, (0, None), (False, None), None)
+		yield ('one_0', Ushort, (0, None), (False, None), None)
+		yield ('one_1', Ushort, (0, None), (False, None), None)
+		yield ('poweroftwo', Ushort, (0, None), (False, None), None)
+		yield ('flag', ModelFlagDLA, (0, None), (False, None), True)
+		yield ('flag', ModelFlagZT, (0, None), (False, None), True)
+		yield ('zero_uac', Uint, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -223,3 +224,6 @@ class ZtMeshData(MeshData):
 		# self.get_static_weights(self.verts_data["bone index"], self.use_blended_weights)
 
 
+
+
+ZtMeshData.init_attributes()

@@ -23,11 +23,12 @@ class Some(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MemStruct._attribute_list + [
-		('some_name', Pointer, (0, ZString), (False, None), None),
-		('some_data', ArrayPointer, (None, None), (False, None), None),
-		('some_count', Uint64, (0, None), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('some_name', Pointer, (0, ZString), (False, None), None)
+		yield ('some_data', ArrayPointer, (None, None), (False, None), None)
+		yield ('some_count', Uint64, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -35,3 +36,6 @@ class Some(MemStruct):
 		yield 'some_name', Pointer, (0, ZString), (False, None)
 		yield 'some_data', ArrayPointer, (instance.some_count, Some._import_map["logicalcontrols.compounds.SomeData"]), (False, None)
 		yield 'some_count', Uint64, (0, None), (False, None)
+
+
+Some.init_attributes()

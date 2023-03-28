@@ -28,13 +28,14 @@ class UACJointFF(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = BaseStruct._attribute_list + [
-		('eleven', Uint, (0, None), (False, None), None),
-		('f_fs', Array, (0, None, (4,), Int), (False, None), None),
-		('name', OffsetString, (None, None), (False, None), None),
-		('hitcheck_count', Uint, (0, None), (False, None), None),
-		('zeros', Array, (0, None, (3,), Uint), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('eleven', Uint, (0, None), (False, None), None)
+		yield ('f_fs', Array, (0, None, (4,), Int), (False, None), None)
+		yield ('name', OffsetString, (None, None), (False, None), None)
+		yield ('hitcheck_count', Uint, (0, None), (False, None), None)
+		yield ('zeros', Array, (0, None, (3,), Uint), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -44,3 +45,6 @@ class UACJointFF(BaseStruct):
 		yield 'name', OffsetString, (instance.arg, None), (False, None)
 		yield 'hitcheck_count', Uint, (0, None), (False, None)
 		yield 'zeros', Array, (0, None, (3,), Uint), (False, None)
+
+
+UACJointFF.init_attributes()

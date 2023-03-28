@@ -17,11 +17,12 @@ class FRenderLodSpecRoot(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MemStruct._attribute_list + [
-		('spec_list', ArrayPointer, (None, None), (False, None), None),
-		('spec_count', Uint64, (0, None), (False, None), None),
-		('unknown', Uint64, (0, None), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('spec_list', ArrayPointer, (None, None), (False, None), None)
+		yield ('spec_count', Uint64, (0, None), (False, None), None)
+		yield ('unknown', Uint64, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -29,3 +30,6 @@ class FRenderLodSpecRoot(MemStruct):
 		yield 'spec_list', ArrayPointer, (instance.spec_count, FRenderLodSpecRoot._import_map["frenderlodspec.compounds.LodSpecItem"]), (False, None)
 		yield 'spec_count', Uint64, (0, None), (False, None)
 		yield 'unknown', Uint64, (0, None), (False, None)
+
+
+FRenderLodSpecRoot.init_attributes()

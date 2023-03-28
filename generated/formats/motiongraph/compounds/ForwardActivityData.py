@@ -50,34 +50,35 @@ class ForwardActivityData(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MemStruct._attribute_list + [
-		('straight_forward_animation', Pointer, (0, ZString), (False, None), None),
-		('left_forward_animation', Pointer, (0, ZString), (False, None), None),
-		('right_forward_animation', Pointer, (0, ZString), (False, None), None),
-		('straight_spot_animation', Pointer, (0, ZString), (False, None), None),
-		('output_prop_through_variable', Pointer, (0, ZString), (False, None), None),
-		('cycled_variable', Pointer, (0, ZString), (False, None), None),
-		('straight_forward_data_streams', DataStreamResourceDataList, (0, None), (False, None), None),
-		('left_forward_data_streams', DataStreamResourceDataList, (0, None), (False, None), None),
-		('right_forward_data_streams', DataStreamResourceDataList, (0, None), (False, None), None),
-		('straight_spot_data_streams', DataStreamResourceDataList, (0, None), (False, None), None),
-		('forward_flags', Ubyte, (0, None), (False, None), None),
-		('suppress_resource_data_streams', Ubyte, (0, None), (False, None), None),
-		('priorities', Ushort, (0, None), (False, None), None),
-		('turn_radius', Float, (0, None), (False, None), None),
-		('turn_radius_value_type', UseValueType, (0, None), (False, None), None),
-		('_pad_0', Ushort, (0, None), (False, None), None),
-		('stride_length', Float, (0, None), (False, None), None),
-		('stride_length_value_type', UseValueType, (0, None), (False, None), None),
-		('_pad_1', Ushort, (0, None), (False, None), None),
-		('lead_out_time', Float, (0, None), (False, None), None),
-		('anticipation_distance', Float, (0, None), (False, None), None),
-		('unfused_cycles', Uint, (0, None), (False, None), None),
-		('cycle_count', Uint, (0, None), (False, None), None),
-		('repeat_count', Uint, (0, None), (False, None), None),
-		('min_cycles', Uint, (0, None), (False, None), None),
-		('playback_rate', Float, (0, None), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('straight_forward_animation', Pointer, (0, ZString), (False, None), None)
+		yield ('left_forward_animation', Pointer, (0, ZString), (False, None), None)
+		yield ('right_forward_animation', Pointer, (0, ZString), (False, None), None)
+		yield ('straight_spot_animation', Pointer, (0, ZString), (False, None), None)
+		yield ('output_prop_through_variable', Pointer, (0, ZString), (False, None), None)
+		yield ('cycled_variable', Pointer, (0, ZString), (False, None), None)
+		yield ('straight_forward_data_streams', DataStreamResourceDataList, (0, None), (False, None), None)
+		yield ('left_forward_data_streams', DataStreamResourceDataList, (0, None), (False, None), None)
+		yield ('right_forward_data_streams', DataStreamResourceDataList, (0, None), (False, None), None)
+		yield ('straight_spot_data_streams', DataStreamResourceDataList, (0, None), (False, None), None)
+		yield ('forward_flags', Ubyte, (0, None), (False, None), None)
+		yield ('suppress_resource_data_streams', Ubyte, (0, None), (False, None), None)
+		yield ('priorities', Ushort, (0, None), (False, None), None)
+		yield ('turn_radius', Float, (0, None), (False, None), None)
+		yield ('turn_radius_value_type', UseValueType, (0, None), (False, None), None)
+		yield ('_pad_0', Ushort, (0, None), (False, None), None)
+		yield ('stride_length', Float, (0, None), (False, None), None)
+		yield ('stride_length_value_type', UseValueType, (0, None), (False, None), None)
+		yield ('_pad_1', Ushort, (0, None), (False, None), None)
+		yield ('lead_out_time', Float, (0, None), (False, None), None)
+		yield ('anticipation_distance', Float, (0, None), (False, None), None)
+		yield ('unfused_cycles', Uint, (0, None), (False, None), None)
+		yield ('cycle_count', Uint, (0, None), (False, None), None)
+		yield ('repeat_count', Uint, (0, None), (False, None), None)
+		yield ('min_cycles', Uint, (0, None), (False, None), None)
+		yield ('playback_rate', Float, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -108,3 +109,6 @@ class ForwardActivityData(MemStruct):
 		yield 'repeat_count', Uint, (0, None), (False, None)
 		yield 'min_cycles', Uint, (0, None), (False, None)
 		yield 'playback_rate', Float, (0, None), (False, None)
+
+
+ForwardActivityData.init_attributes()

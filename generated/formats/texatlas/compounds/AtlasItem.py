@@ -25,16 +25,17 @@ class AtlasItem(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MemStruct._attribute_list + [
-		('atlas_name', Pointer, (0, ZString), (False, None), None),
-		('startx', Float, (0, None), (False, None), None),
-		('starty', Float, (0, None), (False, None), None),
-		('endx', Float, (0, None), (False, None), None),
-		('endy', Float, (0, None), (False, None), None),
-		('layer', Uint, (0, None), (False, None), None),
-		('flags_1', Ushort, (0, None), (False, None), None),
-		('flags_2', Ushort, (0, None), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('atlas_name', Pointer, (0, ZString), (False, None), None)
+		yield ('startx', Float, (0, None), (False, None), None)
+		yield ('starty', Float, (0, None), (False, None), None)
+		yield ('endx', Float, (0, None), (False, None), None)
+		yield ('endy', Float, (0, None), (False, None), None)
+		yield ('layer', Uint, (0, None), (False, None), None)
+		yield ('flags_1', Ushort, (0, None), (False, None), None)
+		yield ('flags_2', Ushort, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -47,3 +48,6 @@ class AtlasItem(MemStruct):
 		yield 'layer', Uint, (0, None), (False, None)
 		yield 'flags_1', Ushort, (0, None), (False, None)
 		yield 'flags_2', Ushort, (0, None), (False, None)
+
+
+AtlasItem.init_attributes()

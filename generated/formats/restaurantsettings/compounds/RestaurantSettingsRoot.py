@@ -28,20 +28,21 @@ class RestaurantSettingsRoot(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MemStruct._attribute_list + [
-		('running_cost_base', Uint64, (0, None), (False, None), None),
-		('unk_1', Uint, (0, None), (False, None), None),
-		('unk_2', Float, (0, None), (False, None), None),
-		('unk_3', Float, (0, None), (False, None), None),
-		('unk_4', Float, (0, None), (False, None), None),
-		('unk_5', Float, (0, None), (False, None), None),
-		('unk_6', Float, (0, None), (False, None), None),
-		('running_cost_per_extension', Uint64, (0, None), (False, None), None),
-		('unk_8', Uint, (0, None), (False, None), None),
-		('unk_9', Float, (0, None), (False, None), None),
-		('perks', ArrayPointer, (None, None), (False, None), None),
-		('count', Uint64, (0, None), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('running_cost_base', Uint64, (0, None), (False, None), None)
+		yield ('unk_1', Uint, (0, None), (False, None), None)
+		yield ('unk_2', Float, (0, None), (False, None), None)
+		yield ('unk_3', Float, (0, None), (False, None), None)
+		yield ('unk_4', Float, (0, None), (False, None), None)
+		yield ('unk_5', Float, (0, None), (False, None), None)
+		yield ('unk_6', Float, (0, None), (False, None), None)
+		yield ('running_cost_per_extension', Uint64, (0, None), (False, None), None)
+		yield ('unk_8', Uint, (0, None), (False, None), None)
+		yield ('unk_9', Float, (0, None), (False, None), None)
+		yield ('perks', ArrayPointer, (None, None), (False, None), None)
+		yield ('count', Uint64, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -58,3 +59,6 @@ class RestaurantSettingsRoot(MemStruct):
 		yield 'unk_9', Float, (0, None), (False, None)
 		yield 'perks', ArrayPointer, (instance.count, RestaurantSettingsRoot._import_map["restaurantsettings.compounds.Perk"]), (False, None)
 		yield 'count', Uint64, (0, None), (False, None)
+
+
+RestaurantSettingsRoot.init_attributes()

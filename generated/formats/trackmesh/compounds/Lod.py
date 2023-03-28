@@ -22,12 +22,13 @@ class Lod(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MemStruct._attribute_list + [
-		('a', Uint, (0, None), (False, None), None),
-		('b', Uint, (0, None), (False, None), None),
-		('c', Uint, (0, None), (False, None), None),
-		('distance', Float, (0, None), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('a', Uint, (0, None), (False, None), None)
+		yield ('b', Uint, (0, None), (False, None), None)
+		yield ('c', Uint, (0, None), (False, None), None)
+		yield ('distance', Float, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -36,3 +37,6 @@ class Lod(MemStruct):
 		yield 'b', Uint, (0, None), (False, None)
 		yield 'c', Uint, (0, None), (False, None)
 		yield 'distance', Float, (0, None), (False, None)
+
+
+Lod.init_attributes()

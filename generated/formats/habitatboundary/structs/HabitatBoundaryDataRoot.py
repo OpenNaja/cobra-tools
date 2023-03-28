@@ -63,39 +63,40 @@ class HabitatBoundaryDataRoot(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MemStruct._attribute_list + [
-		('prefab', Pointer, (0, ZString), (False, None), None),
-		('walls_extrusion', Pointer, (0, ZString), (False, None), None),
-		('walls_extrusion_end', Pointer, (0, ZString), (False, None), None),
-		('walls_extrusion_top', Pointer, (0, ZString), (False, None), None),
-		('walls_extrusion_cap_top', Pointer, (0, ZString), (False, None), None),
-		('walls_extrusion_bottom', Pointer, (0, ZString), (False, None), None),
-		('walls_unk_2', Pointer, (0, ZString), (False, None), None),
-		('walls_unk_3', Pointer, (0, ZString), (False, None), None),
-		('walls_unk_4', Pointer, (0, ZString), (False, None), None),
-		('walls_extrusion_door_cap_side', Pointer, (0, ZString), (False, None), None),
-		('walls_extrusion_door_cap_end', Pointer, (0, ZString), (False, None), None),
-		('walls_extrusion_door_cap_underside', Pointer, (0, ZString), (False, None), None),
-		('climb_proof_data', Pointer, (0, ZString), (False, None), None),
-		('broken_post', Pointer, (0, ZString), (False, None), None),
-		('broken_extrusion', Pointer, (0, ZString), (False, None), None),
-		('broken_extrusion_pile', Pointer, (0, ZString), (False, None), None),
-		('broken_ground', Pointer, (0, ZString), (False, None), None),
-		('broken_1_m', Pointer, (0, ZString), (False, None), None),
-		('broken_10_m', Pointer, (0, ZString), (False, None), None),
-		('post', Pointer, (0, ZString), (False, None), None),
-		('post_cap', Pointer, (0, ZString), (False, None), None),
-		('u_1', Uint, (0, None), (False, 3), None),
-		('u_2', Float, (0, None), (False, None), None),
-		('u_3', Ushort, (0, None), (False, 0), None),
-		('ui_options', HbUiOptions, (0, None), (False, None), None),
-		('u_4', Float, (0, None), (False, 1.5), None),
-		('u_5', Float, (0, None), (False, 2.5), None),
-		('offsets', HbOffsets, (0, None), (False, None), None),
-		('wall_replace_level', Byte, (0, None), (False, None), None),
-		('type', Byte, (0, None), (False, None), None),
-		('padding', Ushort, (0, None), (True, 0), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('prefab', Pointer, (0, ZString), (False, None), None)
+		yield ('walls_extrusion', Pointer, (0, ZString), (False, None), None)
+		yield ('walls_extrusion_end', Pointer, (0, ZString), (False, None), None)
+		yield ('walls_extrusion_top', Pointer, (0, ZString), (False, None), None)
+		yield ('walls_extrusion_cap_top', Pointer, (0, ZString), (False, None), None)
+		yield ('walls_extrusion_bottom', Pointer, (0, ZString), (False, None), None)
+		yield ('walls_unk_2', Pointer, (0, ZString), (False, None), None)
+		yield ('walls_unk_3', Pointer, (0, ZString), (False, None), None)
+		yield ('walls_unk_4', Pointer, (0, ZString), (False, None), None)
+		yield ('walls_extrusion_door_cap_side', Pointer, (0, ZString), (False, None), None)
+		yield ('walls_extrusion_door_cap_end', Pointer, (0, ZString), (False, None), None)
+		yield ('walls_extrusion_door_cap_underside', Pointer, (0, ZString), (False, None), None)
+		yield ('climb_proof_data', Pointer, (0, ZString), (False, None), None)
+		yield ('broken_post', Pointer, (0, ZString), (False, None), None)
+		yield ('broken_extrusion', Pointer, (0, ZString), (False, None), None)
+		yield ('broken_extrusion_pile', Pointer, (0, ZString), (False, None), None)
+		yield ('broken_ground', Pointer, (0, ZString), (False, None), None)
+		yield ('broken_1_m', Pointer, (0, ZString), (False, None), None)
+		yield ('broken_10_m', Pointer, (0, ZString), (False, None), None)
+		yield ('post', Pointer, (0, ZString), (False, None), None)
+		yield ('post_cap', Pointer, (0, ZString), (False, None), None)
+		yield ('u_1', Uint, (0, None), (False, 3), None)
+		yield ('u_2', Float, (0, None), (False, None), None)
+		yield ('u_3', Ushort, (0, None), (False, 0), None)
+		yield ('ui_options', HbUiOptions, (0, None), (False, None), None)
+		yield ('u_4', Float, (0, None), (False, 1.5), None)
+		yield ('u_5', Float, (0, None), (False, 2.5), None)
+		yield ('offsets', HbOffsets, (0, None), (False, None), None)
+		yield ('wall_replace_level', Byte, (0, None), (False, None), None)
+		yield ('type', Byte, (0, None), (False, None), None)
+		yield ('padding', Ushort, (0, None), (True, 0), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -131,3 +132,6 @@ class HabitatBoundaryDataRoot(MemStruct):
 		yield 'wall_replace_level', Byte, (0, None), (False, None)
 		yield 'type', Byte, (0, None), (False, None)
 		yield 'padding', Ushort, (0, None), (True, 0)
+
+
+HabitatBoundaryDataRoot.init_attributes()

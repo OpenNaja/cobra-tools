@@ -42,28 +42,29 @@ class RagdollPhysicsActivityData(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MemStruct._attribute_list + [
-		('flag', RagdollPhysicsActivityFlags, (0, None), (False, None), None),
-		('_flag_pad', Uint, (0, None), (False, None), None),
-		('root_bone_name', Pointer, (0, ZString), (False, None), None),
-		('collision_exclude_mask', Uint64, (0, None), (False, None), None),
-		('collision_exclude_0', Pointer, (0, ZString), (False, None), None),
-		('collision_exclude_1', Pointer, (0, ZString), (False, None), None),
-		('collision_exclude_2', Pointer, (0, ZString), (False, None), None),
-		('collision_exclude_3', Pointer, (0, ZString), (False, None), None),
-		('collision_exclude_4', Pointer, (0, ZString), (False, None), None),
-		('collision_exclude_5', Pointer, (0, ZString), (False, None), None),
-		('collision_exclude_6', Pointer, (0, ZString), (False, None), None),
-		('collision_exclude_7', Pointer, (0, ZString), (False, None), None),
-		('min_motor_driving_force', Float, (0, None), (False, None), None),
-		('max_motor_driving_force', Float, (0, None), (False, None), None),
-		('motor_weight_variable', Pointer, (0, ZString), (False, None), None),
-		('pose_match_lin_threshold', Float, (0, None), (False, None), None),
-		('pose_match_ang_threshold', Float, (0, None), (False, None), None),
-		('bone_chain_priority', Uint64, (0, None), (False, None), None),
-		('data_stream_name', Pointer, (0, ZString), (False, None), None),
-		('data_stream_type', Pointer, (0, ZString), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('flag', RagdollPhysicsActivityFlags, (0, None), (False, None), None)
+		yield ('_flag_pad', Uint, (0, None), (False, None), None)
+		yield ('root_bone_name', Pointer, (0, ZString), (False, None), None)
+		yield ('collision_exclude_mask', Uint64, (0, None), (False, None), None)
+		yield ('collision_exclude_0', Pointer, (0, ZString), (False, None), None)
+		yield ('collision_exclude_1', Pointer, (0, ZString), (False, None), None)
+		yield ('collision_exclude_2', Pointer, (0, ZString), (False, None), None)
+		yield ('collision_exclude_3', Pointer, (0, ZString), (False, None), None)
+		yield ('collision_exclude_4', Pointer, (0, ZString), (False, None), None)
+		yield ('collision_exclude_5', Pointer, (0, ZString), (False, None), None)
+		yield ('collision_exclude_6', Pointer, (0, ZString), (False, None), None)
+		yield ('collision_exclude_7', Pointer, (0, ZString), (False, None), None)
+		yield ('min_motor_driving_force', Float, (0, None), (False, None), None)
+		yield ('max_motor_driving_force', Float, (0, None), (False, None), None)
+		yield ('motor_weight_variable', Pointer, (0, ZString), (False, None), None)
+		yield ('pose_match_lin_threshold', Float, (0, None), (False, None), None)
+		yield ('pose_match_ang_threshold', Float, (0, None), (False, None), None)
+		yield ('bone_chain_priority', Uint64, (0, None), (False, None), None)
+		yield ('data_stream_name', Pointer, (0, ZString), (False, None), None)
+		yield ('data_stream_type', Pointer, (0, ZString), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -88,3 +89,6 @@ class RagdollPhysicsActivityData(MemStruct):
 		yield 'bone_chain_priority', Uint64, (0, None), (False, None)
 		yield 'data_stream_name', Pointer, (0, ZString), (False, None)
 		yield 'data_stream_type', Pointer, (0, ZString), (False, None)
+
+
+RagdollPhysicsActivityData.init_attributes()

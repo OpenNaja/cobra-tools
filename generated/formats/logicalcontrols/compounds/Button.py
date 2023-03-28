@@ -20,12 +20,13 @@ class Button(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MemStruct._attribute_list + [
-		('button_name', Pointer, (0, ZString), (False, None), None),
-		('datas', ArrayPointer, (None, None), (False, None), None),
-		('datas_count', Uint, (0, None), (False, None), None),
-		('flags', Uint, (0, None), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('button_name', Pointer, (0, ZString), (False, None), None)
+		yield ('datas', ArrayPointer, (None, None), (False, None), None)
+		yield ('datas_count', Uint, (0, None), (False, None), None)
+		yield ('flags', Uint, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -34,3 +35,6 @@ class Button(MemStruct):
 		yield 'datas', ArrayPointer, (instance.datas_count, Button._import_map["logicalcontrols.compounds.ButtonData"]), (False, None)
 		yield 'datas_count', Uint, (0, None), (False, None)
 		yield 'flags', Uint, (0, None), (False, None)
+
+
+Button.init_attributes()

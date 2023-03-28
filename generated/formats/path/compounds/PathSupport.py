@@ -19,11 +19,12 @@ class PathSupport(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MemStruct._attribute_list + [
-		('support', Pointer, (0, ZString), (False, None), None),
-		('distance', Float, (0, None), (False, 10.0), None),
-		('_unk_int_1', Uint, (0, None), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('support', Pointer, (0, ZString), (False, None), None)
+		yield ('distance', Float, (0, None), (False, 10.0), None)
+		yield ('_unk_int_1', Uint, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -31,3 +32,6 @@ class PathSupport(MemStruct):
 		yield 'support', Pointer, (0, ZString), (False, None)
 		yield 'distance', Float, (0, None), (False, 10.0)
 		yield '_unk_int_1', Uint, (0, None), (False, None)
+
+
+PathSupport.init_attributes()

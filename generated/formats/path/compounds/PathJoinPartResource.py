@@ -34,24 +34,25 @@ class PathJoinPartResource(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MemStruct._attribute_list + [
-		('unk_points_1', Pointer, (None, None), (False, None), None),
-		('unk_points_2', Pointer, (None, None), (False, None), None),
-		('unk_vector', ArrayPointer, (1, None), (False, None), None),
-		('unk_shorts', ArrayPointer, (8, Ushort), (False, None), None),
-		('unk_points_3', Pointer, (None, None), (False, None), None),
-		('padding_1', Uint64, (0, None), (True, 0), None),
-		('pathresource', Pointer, (0, ZString), (False, None), None),
-		('unk_byte_1', Byte, (0, None), (False, None), None),
-		('unk_byte_2', Byte, (0, None), (False, None), None),
-		('unk_byte_3', Byte, (0, None), (False, None), None),
-		('num_points_1', Byte, (0, None), (False, None), None),
-		('num_points_1_copy', Byte, (0, None), (False, None), None),
-		('num_points_2', Byte, (0, None), (False, None), None),
-		('num_points_2_copy', Byte, (0, None), (False, None), None),
-		('num_points_3', Byte, (0, None), (False, None), None),
-		('padding_2', Uint64, (0, None), (True, 0), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('unk_points_1', Pointer, (None, None), (False, None), None)
+		yield ('unk_points_2', Pointer, (None, None), (False, None), None)
+		yield ('unk_vector', ArrayPointer, (1, None), (False, None), None)
+		yield ('unk_shorts', ArrayPointer, (8, Ushort), (False, None), None)
+		yield ('unk_points_3', Pointer, (None, None), (False, None), None)
+		yield ('padding_1', Uint64, (0, None), (True, 0), None)
+		yield ('pathresource', Pointer, (0, ZString), (False, None), None)
+		yield ('unk_byte_1', Byte, (0, None), (False, None), None)
+		yield ('unk_byte_2', Byte, (0, None), (False, None), None)
+		yield ('unk_byte_3', Byte, (0, None), (False, None), None)
+		yield ('num_points_1', Byte, (0, None), (False, None), None)
+		yield ('num_points_1_copy', Byte, (0, None), (False, None), None)
+		yield ('num_points_2', Byte, (0, None), (False, None), None)
+		yield ('num_points_2_copy', Byte, (0, None), (False, None), None)
+		yield ('num_points_3', Byte, (0, None), (False, None), None)
+		yield ('padding_2', Uint64, (0, None), (True, 0), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -72,3 +73,6 @@ class PathJoinPartResource(MemStruct):
 		yield 'num_points_2_copy', Byte, (0, None), (False, None)
 		yield 'num_points_3', Byte, (0, None), (False, None)
 		yield 'padding_2', Uint64, (0, None), (True, 0)
+
+
+PathJoinPartResource.init_attributes()

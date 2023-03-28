@@ -37,15 +37,16 @@ class SoundSfxVoice(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = BaseStruct._attribute_list + [
-		('length', Uint, (0, None), (False, None), None),
-		('id', Uint, (0, None), (False, None), None),
-		('const_a', Uint, (0, None), (False, None), None),
-		('const_b', Byte, (0, None), (False, None), None),
-		('didx_id', Uint, (0, None), (False, None), None),
-		('wem_length', Uint, (0, None), (False, None), None),
-		('extra', Array, (0, None, (None,), Byte), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('length', Uint, (0, None), (False, None), None)
+		yield ('id', Uint, (0, None), (False, None), None)
+		yield ('const_a', Uint, (0, None), (False, None), None)
+		yield ('const_b', Byte, (0, None), (False, None), None)
+		yield ('didx_id', Uint, (0, None), (False, None), None)
+		yield ('wem_length', Uint, (0, None), (False, None), None)
+		yield ('extra', Array, (0, None, (None,), Byte), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -57,3 +58,6 @@ class SoundSfxVoice(BaseStruct):
 		yield 'didx_id', Uint, (0, None), (False, None)
 		yield 'wem_length', Uint, (0, None), (False, None)
 		yield 'extra', Array, (0, None, (instance.length - 17,), Byte), (False, None)
+
+
+SoundSfxVoice.init_attributes()

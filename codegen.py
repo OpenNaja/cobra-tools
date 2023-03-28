@@ -56,6 +56,8 @@ class XmlParser:
         # maps each type to its member tag type
         self.tag_dict = {}
 
+        self.processed_types = {"template"}
+
         self.basics = None
 
     def generate_module_paths(self, root, xml_path, parsed_xmls):
@@ -214,7 +216,7 @@ class XmlParser:
                 for field in struct:
                     self.apply_convention(field, convention.name_attribute, ("name",))
                     self.apply_convention(field, convention.name_class, ("type", "onlyT", "excludeT"))
-                    self.apply_convention(field, convention.force_bool, ("optional", "abstract"))
+                    self.apply_convention(field, convention.force_bool, ("optional", "abstract", "recursive"))
                     # template can refer to a type of an attribute
                     self.apply_convention(field, convention.format_potential_tuple, ("default",))
                     for default in field:
@@ -230,7 +232,6 @@ class XmlParser:
         return arr_str
 
     def map_type(self, in_type, array=False):
-        has_stream_functions = False
         if array:
             out_type = ('Array', in_type)
         else:
@@ -241,19 +242,17 @@ class XmlParser:
                 basic_class = self.basics.basic_map[in_type]
                 if array:
                     if callable(getattr(basic_class, "create_array", None)):
-                        has_stream_functions = True
                         test = basic_class.create_array(1)
                         if isinstance(test, ndarray):
                             out_type = ('numpy', f'numpy.{repr(test.dtype)}')
                 else:
                     if callable(getattr(basic_class, "from_value", None)):
-                        has_stream_functions = True
                         # check from_value to see which builtin it returns
                         test = basic_class.from_value(0)
                         test_type = type(test).__name__
                         if test_type in self.builtin_literals:
                             out_type = test_type
-        return has_stream_functions, out_type
+        return out_type
 
     def replace_tokens(self, xml_struct):
         """Update xml_struct's (and all of its children's) attrib dict with content of tokens+versions list."""
@@ -290,6 +289,7 @@ class XmlParser:
         self.copy_dict_info(self.path_dict, other_parser.path_dict)
         self.copy_dict_info(self.tag_dict, other_parser.tag_dict)
         self.basics.add_other_basics(other_parser.basics, other_parser.path_dict["basic_map"])
+        self.processed_types.update(other_parser.processed_types)
 
 
 def copy_src_to_generated(src_dir, trg_dir):

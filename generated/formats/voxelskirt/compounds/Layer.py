@@ -29,12 +29,13 @@ class Layer(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = BaseStruct._attribute_list + [
-		('_id', Uint64, (0, None), (False, None), None),
-		('dtype', VxlDtype, (0, None), (False, None), None),
-		('_offset', Uint64, (0, None), (False, None), None),
-		('_data_size', Uint64, (0, None), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('_id', Uint64, (0, None), (False, None), None)
+		yield ('dtype', VxlDtype, (0, None), (False, None), None)
+		yield ('_offset', Uint64, (0, None), (False, None), None)
+		yield ('_data_size', Uint64, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -43,3 +44,6 @@ class Layer(BaseStruct):
 		yield 'dtype', VxlDtype, (0, None), (False, None)
 		yield '_offset', Uint64, (0, None), (False, None)
 		yield '_data_size', Uint64, (0, None), (False, None)
+
+
+Layer.init_attributes()

@@ -18,12 +18,13 @@ class PathType(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MemStruct._attribute_list + [
-		('enum_value', Uint, (0, None), (False, None), None),
-		('min_width', Float, (0, None), (False, 4.0), None),
-		('max_width', Float, (0, None), (False, 10.0), None),
-		('_unk_int_2', Uint, (0, None), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('enum_value', Uint, (0, None), (False, None), None)
+		yield ('min_width', Float, (0, None), (False, 4.0), None)
+		yield ('max_width', Float, (0, None), (False, 10.0), None)
+		yield ('_unk_int_2', Uint, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -32,3 +33,6 @@ class PathType(MemStruct):
 		yield 'min_width', Float, (0, None), (False, 4.0)
 		yield 'max_width', Float, (0, None), (False, 10.0)
 		yield '_unk_int_2', Uint, (0, None), (False, None)
+
+
+PathType.init_attributes()

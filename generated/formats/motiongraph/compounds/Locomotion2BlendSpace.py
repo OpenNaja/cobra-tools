@@ -23,12 +23,13 @@ class Locomotion2BlendSpace(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MemStruct._attribute_list + [
-		('y_axis', BlendSpaceAxis, (0, None), (False, None), None),
-		('x_axis', BlendSpaceAxis, (0, None), (False, None), None),
-		('nodes_count', Uint64, (0, None), (False, None), None),
-		('nodes', ArrayPointer, (None, None), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('y_axis', BlendSpaceAxis, (0, None), (False, None), None)
+		yield ('x_axis', BlendSpaceAxis, (0, None), (False, None), None)
+		yield ('nodes_count', Uint64, (0, None), (False, None), None)
+		yield ('nodes', ArrayPointer, (None, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -37,3 +38,6 @@ class Locomotion2BlendSpace(MemStruct):
 		yield 'x_axis', BlendSpaceAxis, (0, None), (False, None)
 		yield 'nodes_count', Uint64, (0, None), (False, None)
 		yield 'nodes', ArrayPointer, (instance.nodes_count, Locomotion2BlendSpace._import_map["motiongraph.compounds.Locomotion2BlendSpaceNode"]), (False, None)
+
+
+Locomotion2BlendSpace.init_attributes()

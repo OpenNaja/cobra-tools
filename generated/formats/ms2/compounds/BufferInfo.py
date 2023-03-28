@@ -44,25 +44,26 @@ class BufferInfo(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = BaseStruct._attribute_list + [
-		('u_0', Uint64, (0, None), (False, None), True),
-		('u_1', Uint64, (0, None), (False, None), True),
-		('tri_chunks_size', Uint64, (0, None), (False, None), True),
-		('tri_chunks_ptr', Uint64, (0, None), (False, None), True),
-		('vert_chunks_size', Uint64, (0, None), (False, None), True),
-		('vert_chunks_ptr', Uint64, (0, None), (False, None), True),
-		('verts_size', Uint64, (0, None), (False, None), None),
-		('verts_ptr', Uint64, (0, None), (False, None), None),
-		('u_3', Uint64, (0, None), (False, None), True),
-		('tris_size', Uint64, (0, None), (False, None), True),
-		('tris_ptr', Uint64, (0, None), (False, None), True),
-		('u_5', Uint64, (0, None), (False, None), True),
-		('u_6', Uint64, (0, None), (False, None), True),
-		('u_5', Uint64, (0, None), (False, None), True),
-		('uvs_size', Uint64, (0, None), (False, None), True),
-		('u_6', Uint64, (0, None), (False, None), True),
-		('u_7', Uint64, (0, None), (False, None), True),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('u_0', Uint64, (0, None), (False, None), True)
+		yield ('u_1', Uint64, (0, None), (False, None), True)
+		yield ('tri_chunks_size', Uint64, (0, None), (False, None), True)
+		yield ('tri_chunks_ptr', Uint64, (0, None), (False, None), True)
+		yield ('vert_chunks_size', Uint64, (0, None), (False, None), True)
+		yield ('vert_chunks_ptr', Uint64, (0, None), (False, None), True)
+		yield ('verts_size', Uint64, (0, None), (False, None), None)
+		yield ('verts_ptr', Uint64, (0, None), (False, None), None)
+		yield ('u_3', Uint64, (0, None), (False, None), True)
+		yield ('tris_size', Uint64, (0, None), (False, None), True)
+		yield ('tris_ptr', Uint64, (0, None), (False, None), True)
+		yield ('u_5', Uint64, (0, None), (False, None), True)
+		yield ('u_6', Uint64, (0, None), (False, None), True)
+		yield ('u_5', Uint64, (0, None), (False, None), True)
+		yield ('uvs_size', Uint64, (0, None), (False, None), True)
+		yield ('u_6', Uint64, (0, None), (False, None), True)
+		yield ('u_7', Uint64, (0, None), (False, None), True)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -90,3 +91,6 @@ class BufferInfo(BaseStruct):
 			yield 'uvs_size', Uint64, (0, None), (False, None)
 			yield 'u_6', Uint64, (0, None), (False, None)
 			yield 'u_7', Uint64, (0, None), (False, None)
+
+
+BufferInfo.init_attributes()

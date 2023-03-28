@@ -35,14 +35,15 @@ class TexBuffer(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MemStruct._attribute_list + [
-		('offset', Uint64, (0, None), (False, None), None),
-		('size', Uint64, (0, None), (False, None), None),
-		('first_mip', Ubyte, (0, None), (False, None), None),
-		('mip_count', Ubyte, (0, None), (False, None), None),
-		('padding_0', Short, (0, None), (True, 0), None),
-		('padding_1', Int, (0, None), (True, 0), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('offset', Uint64, (0, None), (False, None), None)
+		yield ('size', Uint64, (0, None), (False, None), None)
+		yield ('first_mip', Ubyte, (0, None), (False, None), None)
+		yield ('mip_count', Ubyte, (0, None), (False, None), None)
+		yield ('padding_0', Short, (0, None), (True, 0), None)
+		yield ('padding_1', Int, (0, None), (True, 0), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -53,3 +54,6 @@ class TexBuffer(MemStruct):
 		yield 'mip_count', Ubyte, (0, None), (False, None)
 		yield 'padding_0', Short, (0, None), (True, 0)
 		yield 'padding_1', Int, (0, None), (True, 0)
+
+
+TexBuffer.init_attributes()

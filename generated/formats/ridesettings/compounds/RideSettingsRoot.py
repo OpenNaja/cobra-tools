@@ -22,15 +22,16 @@ class RideSettingsRoot(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MemStruct._attribute_list + [
-		('unk_0', Float, (0, None), (False, None), None),
-		('unk_1', Uint, (0, None), (False, None), None),
-		('array_1', ArrayPointer, (None, None), (False, None), None),
-		('count', Uint, (0, None), (False, None), None),
-		('pad_0', Uint, (0, None), (False, None), None),
-		('pad_1', Uint, (0, None), (False, None), None),
-		('pad_2', Uint, (0, None), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('unk_0', Float, (0, None), (False, None), None)
+		yield ('unk_1', Uint, (0, None), (False, None), None)
+		yield ('array_1', ArrayPointer, (None, None), (False, None), None)
+		yield ('count', Uint, (0, None), (False, None), None)
+		yield ('pad_0', Uint, (0, None), (False, None), None)
+		yield ('pad_1', Uint, (0, None), (False, None), None)
+		yield ('pad_2', Uint, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -42,3 +43,6 @@ class RideSettingsRoot(MemStruct):
 		yield 'pad_0', Uint, (0, None), (False, None)
 		yield 'pad_1', Uint, (0, None), (False, None)
 		yield 'pad_2', Uint, (0, None), (False, None)
+
+
+RideSettingsRoot.init_attributes()

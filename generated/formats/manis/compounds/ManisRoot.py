@@ -28,14 +28,15 @@ class ManisRoot(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = BaseStruct._attribute_list + [
-		('names_size', Ushort, (0, None), (False, None), None),
-		('hash_block_size', Ushort, (0, None), (False, None), None),
-		('zero_0', Uint, (0, None), (False, None), None),
-		('zero_1', Uint64, (0, None), (False, None), None),
-		('zero_2', Uint64, (0, None), (False, None), None),
-		('zero_3', Uint64, (0, None), (False, None), True),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('names_size', Ushort, (0, None), (False, None), None)
+		yield ('hash_block_size', Ushort, (0, None), (False, None), None)
+		yield ('zero_0', Uint, (0, None), (False, None), None)
+		yield ('zero_1', Uint64, (0, None), (False, None), None)
+		yield ('zero_2', Uint64, (0, None), (False, None), None)
+		yield ('zero_3', Uint64, (0, None), (False, None), True)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -47,3 +48,6 @@ class ManisRoot(BaseStruct):
 		yield 'zero_2', Uint64, (0, None), (False, None)
 		if instance.context.version >= 260:
 			yield 'zero_3', Uint64, (0, None), (False, None)
+
+
+ManisRoot.init_attributes()

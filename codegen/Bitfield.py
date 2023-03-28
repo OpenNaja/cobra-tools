@@ -52,7 +52,7 @@ class Bitfield(BaseClass):
             self.get_mask()
             for field in self.struct:
                 field_name = field.attrib["name"]
-                _, field_type = self.parser.map_type(field.attrib.get("type", "int"))
+                field_type = self.parser.map_type(field.attrib.get("type", "int"))
                 # print(field_name, field_type)
                 if field_type not in self.parser.builtin_literals:
                     field_type = f'{field_type}.from_value'

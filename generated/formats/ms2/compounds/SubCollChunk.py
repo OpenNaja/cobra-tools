@@ -36,14 +36,15 @@ class SubCollChunk(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = BaseStruct._attribute_list + [
-		('bounds_min_repeat', Vector3, (0, None), (False, None), None),
-		('bounds_max_repeat', Vector3, (0, None), (False, None), None),
-		('tri_flags_count', Uint, (0, None), (False, None), None),
-		('count_bits', Ushort, (0, None), (False, None), None),
-		('stuff', Array, (0, None, (9,), Ushort), (False, None), None),
-		('collision_bits', Array, (0, None, (None,), MeshCollisionBit), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('bounds_min_repeat', Vector3, (0, None), (False, None), None)
+		yield ('bounds_max_repeat', Vector3, (0, None), (False, None), None)
+		yield ('tri_flags_count', Uint, (0, None), (False, None), None)
+		yield ('count_bits', Ushort, (0, None), (False, None), None)
+		yield ('stuff', Array, (0, None, (9,), Ushort), (False, None), None)
+		yield ('collision_bits', Array, (0, None, (None,), MeshCollisionBit), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -54,3 +55,6 @@ class SubCollChunk(BaseStruct):
 		yield 'count_bits', Ushort, (0, None), (False, None)
 		yield 'stuff', Array, (0, None, (9,), Ushort), (False, None)
 		yield 'collision_bits', Array, (0, None, (instance.count_bits,), MeshCollisionBit), (False, None)
+
+
+SubCollChunk.init_attributes()

@@ -41,25 +41,26 @@ class TurnActivityData(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MemStruct._attribute_list + [
-		('spot_animation', Pointer, (0, ZString), (False, None), None),
-		('half_animation', Pointer, (0, ZString), (False, None), None),
-		('full_animation', Pointer, (0, ZString), (False, None), None),
-		('output_prop_through_variable', Pointer, (0, ZString), (False, None), None),
-		('spot_data_streams', DataStreamResourceDataList, (0, None), (False, None), None),
-		('half_data_streams', DataStreamResourceDataList, (0, None), (False, None), None),
-		('full_data_streams', DataStreamResourceDataList, (0, None), (False, None), None),
-		('suppress_resource_data_streams', Ubyte, (0, None), (False, None), None),
-		('_pad_0', Ubyte, (0, None), (False, None), None),
-		('priorities', Ushort, (0, None), (False, None), None),
-		('lead_out_time', Float, (0, None), (False, None), None),
-		('flags', TurnFlags, (0, None), (False, None), None),
-		('_pad_1', Ubyte, (0, None), (False, None), None),
-		('_pad_2', Ushort, (0, None), (False, None), None),
-		('max_angle', Float, (0, None), (False, None), None),
-		('min_cycles', Uint, (0, None), (False, None), None),
-		('playback_rate', Float, (0, None), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('spot_animation', Pointer, (0, ZString), (False, None), None)
+		yield ('half_animation', Pointer, (0, ZString), (False, None), None)
+		yield ('full_animation', Pointer, (0, ZString), (False, None), None)
+		yield ('output_prop_through_variable', Pointer, (0, ZString), (False, None), None)
+		yield ('spot_data_streams', DataStreamResourceDataList, (0, None), (False, None), None)
+		yield ('half_data_streams', DataStreamResourceDataList, (0, None), (False, None), None)
+		yield ('full_data_streams', DataStreamResourceDataList, (0, None), (False, None), None)
+		yield ('suppress_resource_data_streams', Ubyte, (0, None), (False, None), None)
+		yield ('_pad_0', Ubyte, (0, None), (False, None), None)
+		yield ('priorities', Ushort, (0, None), (False, None), None)
+		yield ('lead_out_time', Float, (0, None), (False, None), None)
+		yield ('flags', TurnFlags, (0, None), (False, None), None)
+		yield ('_pad_1', Ubyte, (0, None), (False, None), None)
+		yield ('_pad_2', Ushort, (0, None), (False, None), None)
+		yield ('max_angle', Float, (0, None), (False, None), None)
+		yield ('min_cycles', Uint, (0, None), (False, None), None)
+		yield ('playback_rate', Float, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -81,3 +82,6 @@ class TurnActivityData(MemStruct):
 		yield 'max_angle', Float, (0, None), (False, None)
 		yield 'min_cycles', Uint, (0, None), (False, None)
 		yield 'playback_rate', Float, (0, None), (False, None)
+
+
+TurnActivityData.init_attributes()

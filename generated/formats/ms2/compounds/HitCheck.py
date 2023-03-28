@@ -47,24 +47,25 @@ class HitCheck(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = BaseStruct._attribute_list + [
-		('dtype', CollisionType, (0, None), (False, None), None),
-		('flag_0', Ushort, (0, None), (False, 0), None),
-		('flag_1', Ushort, (0, None), (False, 0), None),
-		('collision_layers', Uint64, (0, None), (False, None), True),
-		('collision_ignore', OffsetString, (None, None), (False, None), True),
-		('collision_use', OffsetString, (None, None), (False, None), True),
-		('zero_extra_pc', Uint, (0, None), (False, None), True),
-		('name', OffsetString, (None, None), (False, None), None),
-		('collider', Sphere, (0, None), (False, None), True),
-		('collider', BoundingBox, (0, None), (False, None), True),
-		('collider', Capsule, (0, None), (False, None), True),
-		('collider', Cylinder, (0, None), (False, None), True),
-		('collider', ConvexHull, (0, None), (False, None), True),
-		('collider', ConvexHull, (0, None), (False, None), True),
-		('collider', MeshCollision, (0, None), (False, None), True),
-		('zero_extra_zt', Uint, (0, None), (False, None), True),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('dtype', CollisionType, (0, None), (False, None), None)
+		yield ('flag_0', Ushort, (0, None), (False, 0), None)
+		yield ('flag_1', Ushort, (0, None), (False, 0), None)
+		yield ('collision_layers', Uint64, (0, None), (False, None), True)
+		yield ('collision_ignore', OffsetString, (None, None), (False, None), True)
+		yield ('collision_use', OffsetString, (None, None), (False, None), True)
+		yield ('zero_extra_pc', Uint, (0, None), (False, None), True)
+		yield ('name', OffsetString, (None, None), (False, None), None)
+		yield ('collider', Sphere, (0, None), (False, None), True)
+		yield ('collider', BoundingBox, (0, None), (False, None), True)
+		yield ('collider', Capsule, (0, None), (False, None), True)
+		yield ('collider', Cylinder, (0, None), (False, None), True)
+		yield ('collider', ConvexHull, (0, None), (False, None), True)
+		yield ('collider', ConvexHull, (0, None), (False, None), True)
+		yield ('collider', MeshCollision, (0, None), (False, None), True)
+		yield ('zero_extra_zt', Uint, (0, None), (False, None), True)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -96,3 +97,6 @@ class HitCheck(BaseStruct):
 			yield 'collider', MeshCollision, (0, None), (False, None)
 		if instance.context.version == 13:
 			yield 'zero_extra_zt', Uint, (0, None), (False, None)
+
+
+HitCheck.init_attributes()

@@ -26,11 +26,12 @@ class Vector3(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = BaseStruct._attribute_list + [
-		('x', Float, (0, None), (False, None), None),
-		('y', Float, (0, None), (False, None), None),
-		('z', Float, (0, None), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('x', Float, (0, None), (False, None), None)
+		yield ('y', Float, (0, None), (False, None), None)
+		yield ('z', Float, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -50,3 +51,6 @@ class Vector3(BaseStruct):
 	def __repr__(self):
 		return f"[ {self.x:6.3f} {self.y:6.3f} {self.z:6.3f} ]"
 
+
+
+Vector3.init_attributes()

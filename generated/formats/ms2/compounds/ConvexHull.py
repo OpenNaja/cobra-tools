@@ -27,13 +27,14 @@ class ConvexHull(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = BaseStruct._attribute_list + [
-		('vertex_count', Uint, (0, None), (False, None), None),
-		('rotation', Matrix33, (0, None), (False, None), None),
-		('offset', Vector3, (0, None), (False, None), None),
-		('zeros', Array, (0, None, (5,), Uint), (False, None), True),
-		('zeros', Array, (0, None, (2,), Uint), (False, None), True),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('vertex_count', Uint, (0, None), (False, None), None)
+		yield ('rotation', Matrix33, (0, None), (False, None), None)
+		yield ('offset', Vector3, (0, None), (False, None), None)
+		yield ('zeros', Array, (0, None, (5,), Uint), (False, None), True)
+		yield ('zeros', Array, (0, None, (2,), Uint), (False, None), True)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -45,3 +46,6 @@ class ConvexHull(BaseStruct):
 			yield 'zeros', Array, (0, None, (5,), Uint), (False, None)
 		if instance.context.version >= 48:
 			yield 'zeros', Array, (0, None, (2,), Uint), (False, None)
+
+
+ConvexHull.init_attributes()

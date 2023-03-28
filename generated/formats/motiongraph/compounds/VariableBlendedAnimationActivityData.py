@@ -29,15 +29,16 @@ class VariableBlendedAnimationActivityData(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MemStruct._attribute_list + [
-		('priorities', Uint, (0, None), (False, None), None),
-		('_pad', Uint, (0, None), (False, None), None),
-		('weight', FloatInputData, (0, None), (False, None), None),
-		('animations', ArrayPointer, (None, None), (False, None), None),
-		('animation_count', Uint64, (0, None), (False, None), None),
-		('variable', Pointer, (0, ZString), (False, None), None),
-		('variable_blended_animation_flags', Uint, (0, None), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('priorities', Uint, (0, None), (False, None), None)
+		yield ('_pad', Uint, (0, None), (False, None), None)
+		yield ('weight', FloatInputData, (0, None), (False, None), None)
+		yield ('animations', ArrayPointer, (None, None), (False, None), None)
+		yield ('animation_count', Uint64, (0, None), (False, None), None)
+		yield ('variable', Pointer, (0, ZString), (False, None), None)
+		yield ('variable_blended_animation_flags', Uint, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -49,3 +50,6 @@ class VariableBlendedAnimationActivityData(MemStruct):
 		yield 'animation_count', Uint64, (0, None), (False, None)
 		yield 'variable', Pointer, (0, ZString), (False, None)
 		yield 'variable_blended_animation_flags', Uint, (0, None), (False, None)
+
+
+VariableBlendedAnimationActivityData.init_attributes()

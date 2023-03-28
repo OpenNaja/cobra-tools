@@ -31,15 +31,16 @@ class TrackedRideCarRoot(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MemStruct._attribute_list + [
-		('sub', ArrayPointer, (None, None), (False, None), None),
-		('sub_count', Uint, (0, None), (False, None), None),
-		('total_vecs_count', Uint, (0, None), (False, None), None),
-		('vec', Array, (0, None, (3,), Float), (False, None), None),
-		('zero_0', Uint, (0, None), (False, None), None),
-		('some_name', Pointer, (0, ZString), (False, None), None),
-		('zero_1', Uint64, (0, None), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('sub', ArrayPointer, (None, None), (False, None), None)
+		yield ('sub_count', Uint, (0, None), (False, None), None)
+		yield ('total_vecs_count', Uint, (0, None), (False, None), None)
+		yield ('vec', Array, (0, None, (3,), Float), (False, None), None)
+		yield ('zero_0', Uint, (0, None), (False, None), None)
+		yield ('some_name', Pointer, (0, ZString), (False, None), None)
+		yield ('zero_1', Uint64, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -51,3 +52,6 @@ class TrackedRideCarRoot(MemStruct):
 		yield 'zero_0', Uint, (0, None), (False, None)
 		yield 'some_name', Pointer, (0, ZString), (False, None)
 		yield 'zero_1', Uint64, (0, None), (False, None)
+
+
+TrackedRideCarRoot.init_attributes()

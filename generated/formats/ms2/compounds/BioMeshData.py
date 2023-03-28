@@ -55,16 +55,17 @@ class BioMeshData(MeshData):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MeshData._attribute_list + [
-		('chunks_offset', Uint, (0, None), (False, None), None),
-		('chunks_count', Uint, (0, None), (False, None), None),
-		('tris_count', Uint, (0, None), (False, None), None),
-		('vertex_count', Uint, (0, None), (False, None), None),
-		('zero_1', Uint64, (0, None), (False, None), None),
-		('poweroftwo', Uint, (0, None), (False, None), None),
-		('unk_floats', Array, (0, None, (2,), Float), (False, None), None),
-		('flag', BioModelFlag, (0, None), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('chunks_offset', Uint, (0, None), (False, None), None)
+		yield ('chunks_count', Uint, (0, None), (False, None), None)
+		yield ('tris_count', Uint, (0, None), (False, None), None)
+		yield ('vertex_count', Uint, (0, None), (False, None), None)
+		yield ('zero_1', Uint64, (0, None), (False, None), None)
+		yield ('poweroftwo', Uint, (0, None), (False, None), None)
+		yield ('unk_floats', Array, (0, None, (2,), Float), (False, None), None)
+		yield ('flag', BioModelFlag, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -476,3 +477,6 @@ class BioMeshData(MeshData):
 		Array.to_stream(self.tri_chunks, self.buffer_info.tri_chunks, self.context, dtype=TriChunk)
 		Array.to_stream(self.vert_chunks, self.buffer_info.vert_chunks, self.context, dtype=VertChunk)
 
+
+
+BioMeshData.init_attributes()

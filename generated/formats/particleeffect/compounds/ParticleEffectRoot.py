@@ -40,29 +40,30 @@ class ParticleEffectRoot(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MemStruct._attribute_list + [
-		('unk_64_1', Uint64, (0, None), (False, None), None),
-		('unk_64_2', Uint64, (0, None), (False, None), None),
-		('unk_64_3', Uint64, (0, None), (False, None), None),
-		('unk_64_4', Uint64, (0, None), (False, None), None),
-		('unk_64_5', Uint64, (0, None), (False, None), None),
-		('unk_64_6', Uint64, (0, None), (False, None), None),
-		('unk_32_1', Uint, (0, None), (False, None), None),
-		('unk_32_2_neg', Int, (0, None), (False, None), None),
-		('unk_32_3', Uint, (0, None), (False, None), None),
-		('unk_32_4', Uint, (0, None), (False, None), None),
-		('a_unk_32_1', Uint, (0, None), (False, None), None),
-		('a_unk_32_2', Uint, (0, None), (False, None), None),
-		('a_unk_32_3_1', Uint, (0, None), (False, None), None),
-		('a_unk_32_4', Uint, (0, None), (False, None), None),
-		('atlasinfo_count', Uint64, (0, None), (False, None), None),
-		('name_foreach_textures', ArrayPointer, (None, None), (False, None), None),
-		('next_row_1', NextRow1, (0, None), (False, None), None),
-		('next_row_2', NextRow2, (0, None), (False, None), None),
-		('next_row_3', NextRow2, (0, None), (False, None), None),
-		('next_row_4', NextRow2, (0, None), (False, None), None),
-		('next_row_5', LastRow, (0, None), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('unk_64_1', Uint64, (0, None), (False, None), None)
+		yield ('unk_64_2', Uint64, (0, None), (False, None), None)
+		yield ('unk_64_3', Uint64, (0, None), (False, None), None)
+		yield ('unk_64_4', Uint64, (0, None), (False, None), None)
+		yield ('unk_64_5', Uint64, (0, None), (False, None), None)
+		yield ('unk_64_6', Uint64, (0, None), (False, None), None)
+		yield ('unk_32_1', Uint, (0, None), (False, None), None)
+		yield ('unk_32_2_neg', Int, (0, None), (False, None), None)
+		yield ('unk_32_3', Uint, (0, None), (False, None), None)
+		yield ('unk_32_4', Uint, (0, None), (False, None), None)
+		yield ('a_unk_32_1', Uint, (0, None), (False, None), None)
+		yield ('a_unk_32_2', Uint, (0, None), (False, None), None)
+		yield ('a_unk_32_3_1', Uint, (0, None), (False, None), None)
+		yield ('a_unk_32_4', Uint, (0, None), (False, None), None)
+		yield ('atlasinfo_count', Uint64, (0, None), (False, None), None)
+		yield ('name_foreach_textures', ArrayPointer, (None, None), (False, None), None)
+		yield ('next_row_1', NextRow1, (0, None), (False, None), None)
+		yield ('next_row_2', NextRow2, (0, None), (False, None), None)
+		yield ('next_row_3', NextRow2, (0, None), (False, None), None)
+		yield ('next_row_4', NextRow2, (0, None), (False, None), None)
+		yield ('next_row_5', LastRow, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -88,3 +89,6 @@ class ParticleEffectRoot(MemStruct):
 		yield 'next_row_3', NextRow2, (0, None), (False, None)
 		yield 'next_row_4', NextRow2, (0, None), (False, None)
 		yield 'next_row_5', LastRow, (0, None), (False, None)
+
+
+ParticleEffectRoot.init_attributes()

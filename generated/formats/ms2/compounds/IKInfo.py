@@ -40,19 +40,20 @@ class IKInfo(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = BaseStruct._attribute_list + [
-		('weird_padding', SmartPadding, (0, None), (False, None), True),
-		('ik_count', Uint64, (0, None), (False, None), None),
-		('ik_ptr', Uint64, (0, None), (False, None), None),
-		('ik_targets_count', Uint64, (0, None), (False, None), True),
-		('ik_targets_ptr', Uint64, (0, None), (False, None), True),
-		('ik_ref', Empty, (0, None), (False, None), None),
-		('ik_list', Array, (0, None, (None,), UACJoint), (False, None), True),
-		('ik_list', Array, (0, None, (None,), IKEntry), (False, None), True),
-		('padding_0', PadAlign, (8, None), (False, None), None),
-		('ik_targets', Array, (0, None, (None,), IKTarget), (False, None), True),
-		('padding_1', PadAlign, (8, None), (False, None), True),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('weird_padding', SmartPadding, (0, None), (False, None), True)
+		yield ('ik_count', Uint64, (0, None), (False, None), None)
+		yield ('ik_ptr', Uint64, (0, None), (False, None), None)
+		yield ('ik_targets_count', Uint64, (0, None), (False, None), True)
+		yield ('ik_targets_ptr', Uint64, (0, None), (False, None), True)
+		yield ('ik_ref', Empty, (0, None), (False, None), None)
+		yield ('ik_list', Array, (0, None, (None,), UACJoint), (False, None), True)
+		yield ('ik_list', Array, (0, None, (None,), IKEntry), (False, None), True)
+		yield ('padding_0', PadAlign, (8, None), (False, None), None)
+		yield ('ik_targets', Array, (0, None, (None,), IKTarget), (False, None), True)
+		yield ('padding_1', PadAlign, (8, None), (False, None), True)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -95,3 +96,6 @@ class IKInfo(BaseStruct):
 			ptr.index = bones_map.get(ptr.joint)
 		super().write_fields(stream, instance)
 
+
+
+IKInfo.init_attributes()

@@ -22,11 +22,12 @@ class BooleanData(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MemStruct._attribute_list + [
-		('value', Ubyte, (0, None), (False, None), None),
-		('default', Ubyte, (0, None), (False, None), None),
-		('unused', Array, (0, None, (6,), Ubyte), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('value', Ubyte, (0, None), (False, None), None)
+		yield ('default', Ubyte, (0, None), (False, None), None)
+		yield ('unused', Array, (0, None, (6,), Ubyte), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -34,3 +35,6 @@ class BooleanData(MemStruct):
 		yield 'value', Ubyte, (0, None), (False, None)
 		yield 'default', Ubyte, (0, None), (False, None)
 		yield 'unused', Array, (0, None, (6,), Ubyte), (False, None)
+
+
+BooleanData.init_attributes()

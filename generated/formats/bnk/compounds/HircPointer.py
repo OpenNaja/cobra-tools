@@ -18,12 +18,13 @@ class HircPointer(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = BaseStruct._attribute_list + [
-		('id', HircType, (0, None), (False, None), None),
-		('data', SoundSfxVoice, (0, None), (False, None), True),
-		('data', MusicTrack, (0, None), (False, None), True),
-		('data', TypeOther, (0, None), (False, None), True),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('id', HircType, (0, None), (False, None), None)
+		yield ('data', SoundSfxVoice, (0, None), (False, None), True)
+		yield ('data', MusicTrack, (0, None), (False, None), True)
+		yield ('data', TypeOther, (0, None), (False, None), True)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -35,3 +36,6 @@ class HircPointer(BaseStruct):
 			yield 'data', MusicTrack, (0, None), (False, None)
 		if (instance.id != 2) and (instance.id != 11):
 			yield 'data', TypeOther, (0, None), (False, None)
+
+
+HircPointer.init_attributes()

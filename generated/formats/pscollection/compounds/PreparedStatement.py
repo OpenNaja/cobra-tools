@@ -20,12 +20,13 @@ class PreparedStatement(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MemStruct._attribute_list + [
-		('args', ArrayPointer, (None, None), (False, None), None),
-		('arg_count', Uint64, (0, None), (True, 0), None),
-		('statement_name', Pointer, (0, ZString), (False, None), None),
-		('sql_query', Pointer, (0, ZString), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('args', ArrayPointer, (None, None), (False, None), None)
+		yield ('arg_count', Uint64, (0, None), (True, 0), None)
+		yield ('statement_name', Pointer, (0, ZString), (False, None), None)
+		yield ('sql_query', Pointer, (0, ZString), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -34,3 +35,6 @@ class PreparedStatement(MemStruct):
 		yield 'arg_count', Uint64, (0, None), (True, 0)
 		yield 'statement_name', Pointer, (0, ZString), (False, None)
 		yield 'sql_query', Pointer, (0, ZString), (False, None)
+
+
+PreparedStatement.init_attributes()

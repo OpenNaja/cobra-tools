@@ -22,11 +22,12 @@ class Locomotion2BlendSpaceNode(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MemStruct._attribute_list + [
-		('anim_name', Pointer, (0, ZString), (False, None), None),
-		('speed', Float, (0, None), (False, None), None),
-		('orientation', Float, (0, None), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('anim_name', Pointer, (0, ZString), (False, None), None)
+		yield ('speed', Float, (0, None), (False, None), None)
+		yield ('orientation', Float, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -34,3 +35,6 @@ class Locomotion2BlendSpaceNode(MemStruct):
 		yield 'anim_name', Pointer, (0, ZString), (False, None)
 		yield 'speed', Float, (0, None), (False, None)
 		yield 'orientation', Float, (0, None), (False, None)
+
+
+Locomotion2BlendSpaceNode.init_attributes()

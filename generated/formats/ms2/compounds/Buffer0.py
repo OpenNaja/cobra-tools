@@ -28,12 +28,13 @@ class Buffer0(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = BaseStruct._attribute_list + [
-		('name_hashes', Array, (0, None, (None,), Uint), (False, None), None),
-		('names', Array, (0, None, (None,), ZString), (False, None), None),
-		('names_padding', PadAlign, (4, None), (False, None), True),
-		('zt_streams_header', StreamsZTHeader, (None, None), (False, None), True),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('name_hashes', Array, (0, None, (None,), Uint), (False, None), None)
+		yield ('names', Array, (0, None, (None,), ZString), (False, None), None)
+		yield ('names_padding', PadAlign, (4, None), (False, None), True)
+		yield ('zt_streams_header', StreamsZTHeader, (None, None), (False, None), True)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -44,3 +45,6 @@ class Buffer0(BaseStruct):
 			yield 'names_padding', PadAlign, (4, instance.names), (False, None)
 		if instance.context.version <= 13:
 			yield 'zt_streams_header', StreamsZTHeader, (instance.arg, None), (False, None)
+
+
+Buffer0.init_attributes()

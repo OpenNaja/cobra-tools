@@ -41,19 +41,20 @@ class Ms2InfoHeader(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = BaseStruct._attribute_list + [
-		('biosyn', BiosynVersion, (0, None), (False, None), None),
-		('bone_info_size', Uint, (0, None), (False, None), None),
-		('num_streams', Uint, (0, None), (False, None), None),
-		('info', Ms2Root, (0, None), (False, None), None),
-		('buffer_pointers', Array, (0, None, (None,), BufferPresence), (False, None), True),
-		('mdl_2_names', Array, (0, None, (None,), ZString), (False, None), None),
-		('modelstream_names', Array, (0, None, (None,), ZString), (False, None), None),
-		('buffer_0', Buffer0, (None, None), (False, None), None),
-		('buffer_infos', Array, (0, None, (None,), BufferInfo), (False, None), None),
-		('model_infos', Array, (0, None, (None,), ModelInfo), (False, None), None),
-		('models_reader', ModelReader, (None, None), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('biosyn', BiosynVersion, (0, None), (False, None), None)
+		yield ('bone_info_size', Uint, (0, None), (False, None), None)
+		yield ('num_streams', Uint, (0, None), (False, None), None)
+		yield ('info', Ms2Root, (0, None), (False, None), None)
+		yield ('buffer_pointers', Array, (0, None, (None,), BufferPresence), (False, None), True)
+		yield ('mdl_2_names', Array, (0, None, (None,), ZString), (False, None), None)
+		yield ('modelstream_names', Array, (0, None, (None,), ZString), (False, None), None)
+		yield ('buffer_0', Buffer0, (None, None), (False, None), None)
+		yield ('buffer_infos', Array, (0, None, (None,), BufferInfo), (False, None), None)
+		yield ('model_infos', Array, (0, None, (None,), ModelInfo), (False, None), None)
+		yield ('models_reader', ModelReader, (None, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -70,3 +71,6 @@ class Ms2InfoHeader(BaseStruct):
 		yield 'buffer_infos', Array, (0, None, (instance.info.vertex_buffer_count,), BufferInfo), (False, None)
 		yield 'model_infos', Array, (0, None, (instance.info.mdl_2_count,), ModelInfo), (False, None)
 		yield 'models_reader', ModelReader, (instance.model_infos, None), (False, None)
+
+
+Ms2InfoHeader.init_attributes()

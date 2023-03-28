@@ -27,15 +27,16 @@ class MergedetailsRoot(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MemStruct._attribute_list + [
-		('merge_names', Pointer, (None, None), (False, None), None),
-		('zero_0', Uint64, (0, None), (False, None), None),
-		('zero_1', Uint64, (0, None), (False, None), None),
-		('queries', Pointer, (None, None), (False, None), None),
-		('field_name', Pointer, (0, ZString), (False, None), None),
-		('count', Uint, (0, None), (False, None), None),
-		('flag', Uint, (0, None), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('merge_names', Pointer, (None, None), (False, None), None)
+		yield ('zero_0', Uint64, (0, None), (False, None), None)
+		yield ('zero_1', Uint64, (0, None), (False, None), None)
+		yield ('queries', Pointer, (None, None), (False, None), None)
+		yield ('field_name', Pointer, (0, ZString), (False, None), None)
+		yield ('count', Uint, (0, None), (False, None), None)
+		yield ('flag', Uint, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -47,3 +48,6 @@ class MergedetailsRoot(MemStruct):
 		yield 'field_name', Pointer, (0, ZString), (False, None)
 		yield 'count', Uint, (0, None), (False, None)
 		yield 'flag', Uint, (0, None), (False, None)
+
+
+MergedetailsRoot.init_attributes()

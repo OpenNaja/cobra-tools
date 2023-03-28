@@ -24,13 +24,14 @@ class ParticleAtlasRoot(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MemStruct._attribute_list + [
-		('tex_name', Pointer, (0, ZString), (False, None), None),
-		('gfr_name', Pointer, (0, ZString), (False, None), None),
-		('id', Uint, (0, None), (False, None), None),
-		('zero', Uint, (0, None), (False, None), None),
-		('dependency_name', Pointer, (0, None), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('tex_name', Pointer, (0, ZString), (False, None), None)
+		yield ('gfr_name', Pointer, (0, ZString), (False, None), None)
+		yield ('id', Uint, (0, None), (False, None), None)
+		yield ('zero', Uint, (0, None), (False, None), None)
+		yield ('dependency_name', Pointer, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -40,3 +41,6 @@ class ParticleAtlasRoot(MemStruct):
 		yield 'id', Uint, (0, None), (False, None)
 		yield 'zero', Uint, (0, None), (False, None)
 		yield 'dependency_name', Pointer, (0, None), (False, None)
+
+
+ParticleAtlasRoot.init_attributes()

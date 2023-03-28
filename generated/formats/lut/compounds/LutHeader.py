@@ -25,14 +25,15 @@ class LutHeader(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MemStruct._attribute_list + [
-		('colors', ArrayPointer, (None, None), (False, None), None),
-		('colors_count', Ushort, (0, None), (False, None), None),
-		('unk_0', Ushort, (0, None), (False, None), None),
-		('unk_1', Uint, (0, None), (False, None), None),
-		('colors_in_column_count', Uint, (0, None), (False, None), None),
-		('unk_2', Uint, (0, None), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('colors', ArrayPointer, (None, None), (False, None), None)
+		yield ('colors_count', Ushort, (0, None), (False, None), None)
+		yield ('unk_0', Ushort, (0, None), (False, None), None)
+		yield ('unk_1', Uint, (0, None), (False, None), None)
+		yield ('colors_in_column_count', Uint, (0, None), (False, None), None)
+		yield ('unk_2', Uint, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -43,3 +44,6 @@ class LutHeader(MemStruct):
 		yield 'unk_1', Uint, (0, None), (False, None)
 		yield 'colors_in_column_count', Uint, (0, None), (False, None)
 		yield 'unk_2', Uint, (0, None), (False, None)
+
+
+LutHeader.init_attributes()

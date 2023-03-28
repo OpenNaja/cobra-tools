@@ -37,22 +37,23 @@ class Locomotion2ActivityData(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MemStruct._attribute_list + [
-		('animation_count', Uint64, (0, None), (False, None), None),
-		('animations', ArrayPointer, (None, None), (False, None), None),
-		('flags', Uint, (0, None), (False, None), None),
-		('stopping_distance', Float, (0, None), (False, 0.0), None),
-		('strafe_turn_blend', Float, (0, None), (False, 0.2), None),
-		('turn_blend_limit', Float, (0, None), (False, 1.0), None),
-		('turn_speed_multiplier', Float, (0, None), (False, 1.0), None),
-		('flex_speed_multiplier', Float, (0, None), (False, 1.0), None),
-		('blend_space', Locomotion2BlendSpace, (0, None), (False, None), None),
-		('output_prop_through_variable', Pointer, (0, ZString), (False, None), None),
-		('speed_variable', Pointer, (0, ZString), (False, None), None),
-		('orientation_variable', Pointer, (0, ZString), (False, None), None),
-		('data_streams_count', Uint64, (0, None), (False, None), None),
-		('data_streams', ArrayPointer, (None, None), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('animation_count', Uint64, (0, None), (False, None), None)
+		yield ('animations', ArrayPointer, (None, None), (False, None), None)
+		yield ('flags', Uint, (0, None), (False, None), None)
+		yield ('stopping_distance', Float, (0, None), (False, 0.0), None)
+		yield ('strafe_turn_blend', Float, (0, None), (False, 0.2), None)
+		yield ('turn_blend_limit', Float, (0, None), (False, 1.0), None)
+		yield ('turn_speed_multiplier', Float, (0, None), (False, 1.0), None)
+		yield ('flex_speed_multiplier', Float, (0, None), (False, 1.0), None)
+		yield ('blend_space', Locomotion2BlendSpace, (0, None), (False, None), None)
+		yield ('output_prop_through_variable', Pointer, (0, ZString), (False, None), None)
+		yield ('speed_variable', Pointer, (0, ZString), (False, None), None)
+		yield ('orientation_variable', Pointer, (0, ZString), (False, None), None)
+		yield ('data_streams_count', Uint64, (0, None), (False, None), None)
+		yield ('data_streams', ArrayPointer, (None, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -71,3 +72,6 @@ class Locomotion2ActivityData(MemStruct):
 		yield 'orientation_variable', Pointer, (0, ZString), (False, None)
 		yield 'data_streams_count', Uint64, (0, None), (False, None)
 		yield 'data_streams', ArrayPointer, (instance.data_streams_count, Locomotion2ActivityData._import_map["motiongraph.compounds.DataStreamResourceDataList"]), (False, None)
+
+
+Locomotion2ActivityData.init_attributes()

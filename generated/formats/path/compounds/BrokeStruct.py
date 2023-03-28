@@ -20,13 +20,14 @@ class BrokeStruct(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MemStruct._attribute_list + [
-		('support', Pointer, (0, ZString), (False, None), None),
-		('fallen_support', Pointer, (0, ZString), (False, None), None),
-		('head', Pointer, (0, ZString), (False, None), None),
-		('unk_vector_1', Vector3, (0, None), (False, None), None),
-		('unk_vector_2', Vector3, (0, None), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('support', Pointer, (0, ZString), (False, None), None)
+		yield ('fallen_support', Pointer, (0, ZString), (False, None), None)
+		yield ('head', Pointer, (0, ZString), (False, None), None)
+		yield ('unk_vector_1', Vector3, (0, None), (False, None), None)
+		yield ('unk_vector_2', Vector3, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -36,3 +37,6 @@ class BrokeStruct(MemStruct):
 		yield 'head', Pointer, (0, ZString), (False, None)
 		yield 'unk_vector_1', Vector3, (0, None), (False, None)
 		yield 'unk_vector_2', Vector3, (0, None), (False, None)
+
+
+BrokeStruct.init_attributes()

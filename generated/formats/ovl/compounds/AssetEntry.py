@@ -24,11 +24,12 @@ class AssetEntry(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = BaseStruct._attribute_list + [
-		('file_hash', Uint64, (0, None), (False, None), None),
-		('ext_hash', Uint64, (0, None), (False, None), True),
-		('root_index', Uint64, (0, None), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('file_hash', Uint64, (0, None), (False, None), None)
+		yield ('ext_hash', Uint64, (0, None), (False, None), True)
+		yield ('root_index', Uint64, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -37,3 +38,6 @@ class AssetEntry(BaseStruct):
 		if instance.context.version >= 19:
 			yield 'ext_hash', Uint64, (0, None), (False, None)
 		yield 'root_index', Uint64, (0, None), (False, None)
+
+
+AssetEntry.init_attributes()

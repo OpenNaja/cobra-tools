@@ -32,18 +32,19 @@ class CoordinatedAnimationActivityData(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MemStruct._attribute_list + [
-		('coord_group', Pointer, (0, ZString), (False, None), None),
-		('waiting_anim', Pointer, (0, ZString), (False, None), None),
-		('waiting_anim_data_streams', DataStreamResourceDataList, (0, None), (False, None), None),
-		('coordinated_anim', Pointer, (0, ZString), (False, None), None),
-		('coordinated_anim_data_streams', DataStreamResourceDataList, (0, None), (False, None), None),
-		('priorities', Ubyte, (0, None), (False, None), None),
-		('looping', Ubyte, (0, None), (False, None), None),
-		('_pad', Ushort, (0, None), (False, None), None),
-		('blend_time', Float, (0, None), (False, None), None),
-		('output_prop_through_variable', Pointer, (0, ZString), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('coord_group', Pointer, (0, ZString), (False, None), None)
+		yield ('waiting_anim', Pointer, (0, ZString), (False, None), None)
+		yield ('waiting_anim_data_streams', DataStreamResourceDataList, (0, None), (False, None), None)
+		yield ('coordinated_anim', Pointer, (0, ZString), (False, None), None)
+		yield ('coordinated_anim_data_streams', DataStreamResourceDataList, (0, None), (False, None), None)
+		yield ('priorities', Ubyte, (0, None), (False, None), None)
+		yield ('looping', Ubyte, (0, None), (False, None), None)
+		yield ('_pad', Ushort, (0, None), (False, None), None)
+		yield ('blend_time', Float, (0, None), (False, None), None)
+		yield ('output_prop_through_variable', Pointer, (0, ZString), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -58,3 +59,6 @@ class CoordinatedAnimationActivityData(MemStruct):
 		yield '_pad', Ushort, (0, None), (False, None)
 		yield 'blend_time', Float, (0, None), (False, None)
 		yield 'output_prop_through_variable', Pointer, (0, ZString), (False, None)
+
+
+CoordinatedAnimationActivityData.init_attributes()

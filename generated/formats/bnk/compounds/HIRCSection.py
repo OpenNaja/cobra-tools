@@ -24,11 +24,12 @@ class HIRCSection(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = BaseStruct._attribute_list + [
-		('length', Uint, (0, None), (False, None), None),
-		('count', Uint, (0, None), (False, None), None),
-		('hirc_pointers', Array, (0, None, (None,), HircPointer), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('length', Uint, (0, None), (False, None), None)
+		yield ('count', Uint, (0, None), (False, None), None)
+		yield ('hirc_pointers', Array, (0, None, (None,), HircPointer), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -36,3 +37,6 @@ class HIRCSection(BaseStruct):
 		yield 'length', Uint, (0, None), (False, None)
 		yield 'count', Uint, (0, None), (False, None)
 		yield 'hirc_pointers', Array, (0, None, (instance.count,), HircPointer), (False, None)
+
+
+HIRCSection.init_attributes()

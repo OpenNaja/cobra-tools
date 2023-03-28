@@ -23,12 +23,13 @@ class RenderParametersRoot(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MemStruct._attribute_list + [
-		('param_name', Pointer, (0, ZStringObfuscated), (False, None), None),
-		('params', Pointer, (None, None), (False, None), None),
-		('count', Uint64, (0, None), (False, None), None),
-		('unk', Uint64, (0, None), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('param_name', Pointer, (0, ZStringObfuscated), (False, None), None)
+		yield ('params', Pointer, (None, None), (False, None), None)
+		yield ('count', Uint64, (0, None), (False, None), None)
+		yield ('unk', Uint64, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -37,3 +38,6 @@ class RenderParametersRoot(MemStruct):
 		yield 'params', Pointer, (instance.count, RenderParametersRoot._import_map["renderparameters.compounds.ParamList"]), (False, None)
 		yield 'count', Uint64, (0, None), (False, None)
 		yield 'unk', Uint64, (0, None), (False, None)
+
+
+RenderParametersRoot.init_attributes()

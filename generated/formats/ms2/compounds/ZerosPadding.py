@@ -24,11 +24,12 @@ class ZerosPadding(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = BaseStruct._attribute_list + [
-		('hier_2_padding_0', Uint64, (0, None), (False, None), None),
-		('hier_2_padding_1', Uint64, (0, None), (False, None), True),
-		('hier_2_padding_2', Uint64, (0, None), (False, None), True),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('hier_2_padding_0', Uint64, (0, None), (False, None), None)
+		yield ('hier_2_padding_1', Uint64, (0, None), (False, None), True)
+		yield ('hier_2_padding_2', Uint64, (0, None), (False, None), True)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -38,3 +39,6 @@ class ZerosPadding(BaseStruct):
 			yield 'hier_2_padding_1', Uint64, (0, None), (False, None)
 		if 128 < instance.arg:
 			yield 'hier_2_padding_2', Uint64, (0, None), (False, None)
+
+
+ZerosPadding.init_attributes()

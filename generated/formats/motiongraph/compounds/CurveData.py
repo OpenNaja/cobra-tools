@@ -20,13 +20,17 @@ class CurveData(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MemStruct._attribute_list + [
-		('count', Uint64, (0, None), (False, None), None),
-		('points', Pointer, (None, None), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('count', Uint64, (0, None), (False, None), None)
+		yield ('points', Pointer, (None, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'count', Uint64, (0, None), (False, None)
 		yield 'points', Pointer, (instance.count, CurveData._import_map["motiongraph.compounds.CurveDataPoints"]), (False, None)
+
+
+CurveData.init_attributes()

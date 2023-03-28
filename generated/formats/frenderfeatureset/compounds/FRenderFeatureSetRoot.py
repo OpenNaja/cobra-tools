@@ -17,11 +17,12 @@ class FRenderFeatureSetRoot(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MemStruct._attribute_list + [
-		('featureset_list', ArrayPointer, (None, None), (False, None), None),
-		('featureset_count', Uint, (0, None), (False, None), None),
-		('unknown_always_1', Uint, (0, None), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('featureset_list', ArrayPointer, (None, None), (False, None), None)
+		yield ('featureset_count', Uint, (0, None), (False, None), None)
+		yield ('unknown_always_1', Uint, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -29,3 +30,6 @@ class FRenderFeatureSetRoot(MemStruct):
 		yield 'featureset_list', ArrayPointer, (instance.featureset_count, FRenderFeatureSetRoot._import_map["frenderfeatureset.compounds.FeatureSetItem"]), (False, None)
 		yield 'featureset_count', Uint, (0, None), (False, None)
 		yield 'unknown_always_1', Uint, (0, None), (False, None)
+
+
+FRenderFeatureSetRoot.init_attributes()

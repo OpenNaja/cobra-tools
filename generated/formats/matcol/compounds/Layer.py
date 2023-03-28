@@ -23,14 +23,15 @@ class Layer(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = BaseStruct._attribute_list + [
-		('info', LayerFrag, (0, None), (False, None), None),
-		('name', ZString, (0, None), (False, None), None),
-		('infos', Array, (0, None, (None,), Info), (False, None), None),
-		('info_names', Array, (0, None, (None,), ZString), (False, None), None),
-		('attribs', Array, (0, None, (None,), Attrib), (False, None), None),
-		('attrib_names', Array, (0, None, (None,), ZString), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('info', LayerFrag, (0, None), (False, None), None)
+		yield ('name', ZString, (0, None), (False, None), None)
+		yield ('infos', Array, (0, None, (None,), Info), (False, None), None)
+		yield ('info_names', Array, (0, None, (None,), ZString), (False, None), None)
+		yield ('attribs', Array, (0, None, (None,), Attrib), (False, None), None)
+		yield ('attrib_names', Array, (0, None, (None,), ZString), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -41,3 +42,6 @@ class Layer(BaseStruct):
 		yield 'info_names', Array, (0, None, (instance.info.info_count,), ZString), (False, None)
 		yield 'attribs', Array, (0, None, (instance.info.attrib_count,), Attrib), (False, None)
 		yield 'attrib_names', Array, (0, None, (instance.info.attrib_count,), ZString), (False, None)
+
+
+Layer.init_attributes()

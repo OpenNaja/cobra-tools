@@ -22,6 +22,21 @@ class Imports:
         for field in xml_struct:
             if field.tag in ("add", "field", "member"):
                 field_type = field.attrib["type"]
+                is_recursive = self.is_recursive_field(field)
+                arr1 = field.attrib.get("arr1")
+                if arr1 is None:
+                    arr1 = field.attrib.get("length")
+                if arr1:
+                    self.add_mapped_type(field_type, array=True, exclude_cls=is_recursive)
+                    if xml_struct.tag in parser.struct_types:
+                        if not is_recursive:
+                            self.add(field_type)
+                        self.add("Array")
+                else:
+                    self.add_mapped_type(field_type, exclude_cls=is_recursive)
+                    if xml_struct.tag in parser.struct_types and not is_recursive:
+                        self.add(field_type)
+
                 template = field.attrib.get("template")
                 if template:
                     # template can be either a type or a reference to a local field
@@ -29,24 +44,15 @@ class Imports:
                     template_class = convention.name_class(template)
                     if template_class in self.path_dict:
                         self.add_indirect_import(template_class)
-                arr1 = field.attrib.get("arr1")
-                if arr1 is None:
-                    arr1 = field.attrib.get("length")
-                if arr1:
-                    self.add_mapped_type(field_type, array=True)
-                    if xml_struct.tag in parser.struct_types:
-                        self.add(field_type)
-                        self.add("Array")
-                else:
-                    self.add_mapped_type(field_type)
-                    if xml_struct.tag in parser.struct_types:
-                        self.add(field_type)
+
                 onlyT = field.attrib.get("onlyT")
                 if onlyT:
                     self.add_indirect_import(onlyT)
+
                 excludeT = field.attrib.get("excludeT")
                 if excludeT:
                     self.add_indirect_import(excludeT)
+
                 for default in field:
                     if default.tag in ("default",):
                         if default.attrib.get("versions"):
@@ -58,20 +64,25 @@ class Imports:
                         if excludeT:
                             self.add_indirect_import(excludeT)
 
-    def add_mapped_type(self, cls_to_import, array=False):
+    def add_mapped_type(self, cls_to_import, array=False, exclude_cls=False):
         if cls_to_import:
-            has_stream_functions, import_type = self.parent.map_type(cls_to_import, array)
+            import_type = self.parent.map_type(cls_to_import, array)
             if not array:
-                if has_stream_functions and import_type in self.parent.builtin_literals:
+                if import_type in self.parent.builtin_literals:
                     # import not necessary (read/write on stream, and init can happen from literal)
                     return
                 else:
                     import_type = (import_type, )
+            if exclude_cls:
+                import_type = (cls for cls in import_type if cls != cls_to_import)
             [self.add(import_class) for import_class in import_type]
 
     def add(self, cls_to_import):
         if cls_to_import and cls_to_import != self.xml_struct.attrib["name"]:
             self.imports.append(cls_to_import.split('.')[0])
+
+    def is_recursive_field(self, field):
+        return field.attrib.get('recursive', 'False') == 'True'
 
     def add_indirect_import(self, cls_to_import):
         # import the class directly, but only if it's not a struct (because those could lead to circular imports)

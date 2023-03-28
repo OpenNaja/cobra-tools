@@ -29,11 +29,12 @@ class BufferEntry(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = BaseStruct._attribute_list + [
-		('index', Uint, (0, None), (False, None), True),
-		('size', Uint, (0, None), (False, None), None),
-		('file_hash', Uint, (0, None), (False, None), True),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('index', Uint, (0, None), (False, None), True)
+		yield ('size', Uint, (0, None), (False, None), None)
+		yield ('file_hash', Uint, (0, None), (False, None), True)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -64,3 +65,6 @@ class BufferEntry(BaseStruct):
 				same = False
 		return same
 
+
+
+BufferEntry.init_attributes()

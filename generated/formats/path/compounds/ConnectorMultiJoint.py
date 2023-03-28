@@ -25,15 +25,16 @@ class ConnectorMultiJoint(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MemStruct._attribute_list + [
-		('model_name', Pointer, (0, ZString), (False, None), None),
-		('padding', Uint64, (0, None), (False, 0), None),
-		('joints', ArrayPointer, (None, None), (False, None), None),
-		('num_joints', Uint, (0, None), (False, None), None),
-		('unk_float_1', Float, (0, None), (False, None), None),
-		('unk_float_2', Float, (0, None), (False, None), None),
-		('unk_int_1', Uint, (0, None), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('model_name', Pointer, (0, ZString), (False, None), None)
+		yield ('padding', Uint64, (0, None), (False, 0), None)
+		yield ('joints', ArrayPointer, (None, None), (False, None), None)
+		yield ('num_joints', Uint, (0, None), (False, None), None)
+		yield ('unk_float_1', Float, (0, None), (False, None), None)
+		yield ('unk_float_2', Float, (0, None), (False, None), None)
+		yield ('unk_int_1', Uint, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -45,3 +46,6 @@ class ConnectorMultiJoint(MemStruct):
 		yield 'unk_float_1', Float, (0, None), (False, None)
 		yield 'unk_float_2', Float, (0, None), (False, None)
 		yield 'unk_int_1', Uint, (0, None), (False, None)
+
+
+ConnectorMultiJoint.init_attributes()

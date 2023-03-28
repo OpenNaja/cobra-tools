@@ -26,11 +26,12 @@ class Vector3Ushort(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = BaseStruct._attribute_list + [
-		('x', Ushort, (0, None), (False, None), None),
-		('y', Ushort, (0, None), (False, None), None),
-		('z', Ushort, (0, None), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('x', Ushort, (0, None), (False, None), None)
+		yield ('y', Ushort, (0, None), (False, None), None)
+		yield ('z', Ushort, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -38,3 +39,6 @@ class Vector3Ushort(BaseStruct):
 		yield 'x', Ushort, (0, None), (False, None)
 		yield 'y', Ushort, (0, None), (False, None)
 		yield 'z', Ushort, (0, None), (False, None)
+
+
+Vector3Ushort.init_attributes()

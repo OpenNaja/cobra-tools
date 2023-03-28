@@ -28,17 +28,18 @@ class MRFMember1(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MemStruct._attribute_list + [
-		('lua_method', Pointer, (0, ZString), (False, None), None),
-		('count_0', Uint64, (0, None), (False, None), None),
-		('count_1', Uint64, (0, None), (False, None), None),
-		('ptr_1', Pointer, (0, None), (False, None), None),
-		('count_2', Uint64, (0, None), (False, None), None),
-		('count_3', Uint64, (0, None), (False, None), None),
-		('ptr_2', Pointer, (0, None), (False, None), None),
-		('count_4', Uint64, (0, None), (False, None), None),
-		('id', Pointer, (0, ZString), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('lua_method', Pointer, (0, ZString), (False, None), None)
+		yield ('count_0', Uint64, (0, None), (False, None), None)
+		yield ('count_1', Uint64, (0, None), (False, None), None)
+		yield ('ptr_1', Pointer, (0, None), (False, None), None)
+		yield ('count_2', Uint64, (0, None), (False, None), None)
+		yield ('count_3', Uint64, (0, None), (False, None), None)
+		yield ('ptr_2', Pointer, (0, None), (False, None), None)
+		yield ('count_4', Uint64, (0, None), (False, None), None)
+		yield ('id', Pointer, (0, ZString), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -52,3 +53,6 @@ class MRFMember1(MemStruct):
 		yield 'ptr_2', Pointer, (0, None), (False, None)
 		yield 'count_4', Uint64, (0, None), (False, None)
 		yield 'id', Pointer, (0, ZString), (False, None)
+
+
+MRFMember1.init_attributes()

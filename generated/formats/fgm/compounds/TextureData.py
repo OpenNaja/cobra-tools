@@ -16,12 +16,16 @@ class TextureData(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MemStruct._attribute_list + [
-		('dependency_name', Pointer, (0, None), (False, None), True),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('dependency_name', Pointer, (0, None), (False, None), True)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		if instance.arg.dtype == 8:
 			yield 'dependency_name', Pointer, (0, None), (False, None)
+
+
+TextureData.init_attributes()

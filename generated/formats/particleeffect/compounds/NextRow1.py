@@ -19,12 +19,13 @@ class NextRow1(MemStruct):
 		if set_default:
 			self.set_defaults()
 
-	_attribute_list = MemStruct._attribute_list + [
-		('unk', Uint64, (0, None), (False, None), None),
-		('garbage', Uint, (0, None), (False, None), None),
-		('value_1', Ushort, (0, None), (False, None), None),
-		('value_2', Ushort, (0, None), (False, None), None),
-		]
+	@classmethod
+	def _get_attribute_list(cls):
+		yield from super()._get_attribute_list()
+		yield ('unk', Uint64, (0, None), (False, None), None)
+		yield ('garbage', Uint, (0, None), (False, None), None)
+		yield ('value_1', Ushort, (0, None), (False, None), None)
+		yield ('value_2', Ushort, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -33,3 +34,6 @@ class NextRow1(MemStruct):
 		yield 'garbage', Uint, (0, None), (False, None)
 		yield 'value_1', Ushort, (0, None), (False, None)
 		yield 'value_2', Ushort, (0, None), (False, None)
+
+
+NextRow1.init_attributes()
