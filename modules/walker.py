@@ -61,7 +61,7 @@ def generate_hash_table(gui, start_dir):
 						arrays = {att: array[att] for att in attribs}
 					else:
 						arrays = {list_id: array}
-					exts = ovl_data.mimes_ext if "mimes" in list_id else ovl_data.files_ext
+					exts = [f".{ext}" for ext in ovl_data.mimes_ext] if "mimes" in list_id else ovl_data.files_ext
 					for list_name, subarray in arrays.items():
 						for ext, v in zip(exts, subarray):
 
