@@ -28,8 +28,8 @@ class DataSlot(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('_offset', Uint64, (0, None), (False, None), (None, None))
-		yield ('_count', Uint64, (0, None), (False, None), (None, None))
+		yield ('_offset', Uint64, (0, None), (False, None), None)
+		yield ('_count', Uint64, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

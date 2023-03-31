@@ -20,11 +20,11 @@ class MeshDataWrap(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('mesh', BioMeshData, (0, None), (False, None), (lambda context: context.version >= 47 and ((context.version == 51) or (context.version == 52)) and context.biosyn, None))
-		yield ('mesh', NewMeshData, (0, None), (False, None), (lambda context: context.version >= 47 and not (((context.version == 51) or (context.version == 52)) and context.biosyn), None))
-		yield ('mesh', PcMeshData, (0, None), (False, None), (lambda context: context.version == 32, None))
-		yield ('mesh', ZtMeshData, (0, None), (False, None), (lambda context: context.version == 13, None))
-		yield ('mesh', ZtMeshData, (0, None), (False, None), (lambda context: context.version == 7, None))
+		yield ('mesh', BioMeshData, (0, None), (False, None), True)
+		yield ('mesh', NewMeshData, (0, None), (False, None), True)
+		yield ('mesh', PcMeshData, (0, None), (False, None), True)
+		yield ('mesh', ZtMeshData, (0, None), (False, None), True)
+		yield ('mesh', ZtMeshData, (0, None), (False, None), True)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

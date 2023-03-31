@@ -33,14 +33,14 @@ class UnkChunkList(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('ref', Empty, (0, None), (False, None), (None, None))
-		yield ('zero_0', SmartPadding, (0, None), (False, None), (None, None))
-		yield ('subchunk_count', Ushort, (0, None), (False, None), (None, None))
-		yield ('flag', Ushort, (0, None), (False, None), (None, None))
-		yield ('zero_1', Uint, (0, None), (False, None), (None, None))
-		yield ('chunksize_list', Array, (0, None, (None,), ChunkSizes), (False, None), (None, None))
-		yield ('subchunk_list', SubChunkReader, (None, None), (False, None), (None, None))
-		yield ('pad', PadAlign, (16, None), (False, None), (None, None))
+		yield ('ref', Empty, (0, None), (False, None), None)
+		yield ('zero_0', SmartPadding, (0, None), (False, None), None)
+		yield ('subchunk_count', Ushort, (0, None), (False, None), None)
+		yield ('flag', Ushort, (0, None), (False, None), None)
+		yield ('zero_1', Uint, (0, None), (False, None), None)
+		yield ('chunksize_list', Array, (0, None, (None,), ChunkSizes), (False, None), None)
+		yield ('subchunk_list', SubChunkReader, (None, None), (False, None), None)
+		yield ('pad', PadAlign, (16, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

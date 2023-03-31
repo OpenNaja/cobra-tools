@@ -30,14 +30,14 @@ class State(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('abstract_name', Pointer, (0, ZString), (False, None), (None, None))
-		yield ('concrete_name', Pointer, (0, ZString), (False, None), (None, None))
-		yield ('prefab_name', Pointer, (0, ZString), (False, None), (None, None))
-		yield ('a', Uint64, (0, None), (False, None), (None, None))
-		yield ('b', Uint64, (0, None), (False, None), (None, None))
-		yield ('c', Uint64, (0, None), (False, None), (None, None))
-		yield ('events_list', Pointer, (0, State._import_map["cinematic.compounds.EventsList"]), (False, None), (None, None))
-		yield ('d', Uint64, (0, None), (False, None), (None, None))
+		yield ('abstract_name', Pointer, (0, ZString), (False, None), None)
+		yield ('concrete_name', Pointer, (0, ZString), (False, None), None)
+		yield ('prefab_name', Pointer, (0, ZString), (False, None), None)
+		yield ('a', Uint64, (0, None), (False, None), None)
+		yield ('b', Uint64, (0, None), (False, None), None)
+		yield ('c', Uint64, (0, None), (False, None), None)
+		yield ('events_list', Pointer, (0, None), (False, None), None)
+		yield ('d', Uint64, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

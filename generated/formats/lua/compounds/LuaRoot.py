@@ -33,14 +33,14 @@ class LuaRoot(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('lua_size', Uint, (0, None), (False, None), (None, None))
-		yield ('sixteenk', Uint, (0, None), (False, None), (None, None))
-		yield ('hash', Uint, (0, None), (False, None), (None, None))
-		yield ('zero_0', Uint, (0, None), (False, None), (None, None))
-		yield ('source_path', Pointer, (0, ZString), (False, None), (lambda context: context.version >= 18, None))
-		yield ('likely_alignment', Pointer, (0, ZString), (False, None), (lambda context: context.version >= 18, None))
-		yield ('zero_1', Uint64, (0, None), (False, None), (None, None))
-		yield ('zero_2', Uint64, (0, None), (False, None), (None, None))
+		yield ('lua_size', Uint, (0, None), (False, None), None)
+		yield ('sixteenk', Uint, (0, None), (False, None), None)
+		yield ('hash', Uint, (0, None), (False, None), None)
+		yield ('zero_0', Uint, (0, None), (False, None), None)
+		yield ('source_path', Pointer, (0, ZString), (False, None), True)
+		yield ('likely_alignment', Pointer, (0, ZString), (False, None), True)
+		yield ('zero_1', Uint64, (0, None), (False, None), None)
+		yield ('zero_2', Uint64, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

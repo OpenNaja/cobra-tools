@@ -20,8 +20,8 @@ class BrushitemStruct(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('brush_name', Pointer, (0, ZString), (False, None), (None, None))
-		yield ('brush_type', Uint64, (0, None), (False, None), (None, None))
+		yield ('brush_name', Pointer, (0, ZString), (False, None), None)
+		yield ('brush_type', Uint64, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

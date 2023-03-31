@@ -44,13 +44,13 @@ class DataEntry(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('file_hash', Uint, (0, None), (False, None), (None, None))
-		yield ('ext_hash', Uint, (0, None), (False, None), (lambda context: context.version >= 19, None))
-		yield ('set_index', Ushort, (0, None), (False, None), (None, None))
-		yield ('buffer_count', Ushort, (0, None), (False, None), (None, None))
-		yield ('zero', Uint, (0, None), (False, None), (lambda context: context.version >= 19, None))
-		yield ('size_1', Uint64, (0, None), (False, None), (None, None))
-		yield ('size_2', Uint64, (0, None), (False, None), (None, None))
+		yield ('file_hash', Uint, (0, None), (False, None), None)
+		yield ('ext_hash', Uint, (0, None), (False, None), True)
+		yield ('set_index', Ushort, (0, None), (False, None), None)
+		yield ('buffer_count', Ushort, (0, None), (False, None), None)
+		yield ('zero', Uint, (0, None), (False, None), True)
+		yield ('size_1', Uint64, (0, None), (False, None), None)
+		yield ('size_2', Uint64, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

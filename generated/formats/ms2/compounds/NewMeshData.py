@@ -58,17 +58,17 @@ class NewMeshData(MeshData):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('vertex_count', Uint, (0, None), (False, None), (None, None))
-		yield ('tri_index_count', Uint, (0, None), (False, None), (None, None))
-		yield ('zero_1', Uint, (0, None), (False, None), (None, None))
-		yield ('poweroftwo', Uint, (0, None), (False, None), (None, None))
-		yield ('vertex_offset', Uint, (0, None), (False, None), (None, None))
-		yield ('size_of_vertex', Uint, (0, None), (False, 48), (None, None))
-		yield ('tri_offset', Uint, (0, None), (False, None), (None, None))
-		yield ('zero_2', Uint, (0, None), (False, None), (None, None))
-		yield ('unk_floats', Array, (0, None, (2,), Float), (False, None), (None, None))
-		yield ('zero_3', Uint, (0, None), (False, None), (None, None))
-		yield ('flag', ModelFlag, (0, None), (False, None), (None, None))
+		yield ('vertex_count', Uint, (0, None), (False, None), None)
+		yield ('tri_index_count', Uint, (0, None), (False, None), None)
+		yield ('zero_1', Uint, (0, None), (False, None), None)
+		yield ('poweroftwo', Uint, (0, None), (False, None), None)
+		yield ('vertex_offset', Uint, (0, None), (False, None), None)
+		yield ('size_of_vertex', Uint, (0, None), (False, 48), None)
+		yield ('tri_offset', Uint, (0, None), (False, None), None)
+		yield ('zero_2', Uint, (0, None), (False, None), None)
+		yield ('unk_floats', Array, (0, None, (2,), Float), (False, None), None)
+		yield ('zero_3', Uint, (0, None), (False, None), None)
+		yield ('flag', ModelFlag, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

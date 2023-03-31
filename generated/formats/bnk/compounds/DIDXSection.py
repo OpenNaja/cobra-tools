@@ -26,8 +26,8 @@ class DIDXSection(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('length', Uint, (0, None), (False, None), (None, None))
-		yield ('data_pointers', Array, (0, None, (None,), DataPointer), (False, None), (None, None))
+		yield ('length', Uint, (0, None), (False, None), None)
+		yield ('data_pointers', Array, (0, None, (None,), DataPointer), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

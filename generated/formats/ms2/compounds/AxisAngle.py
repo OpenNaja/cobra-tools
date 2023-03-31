@@ -20,10 +20,10 @@ class AxisAngle(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('a', Float, (0, None), (False, 1.0), (None, None))
-		yield ('x', Float, (0, None), (False, 0.0), (None, None))
-		yield ('y', Float, (0, None), (False, 0.0), (None, None))
-		yield ('z', Float, (0, None), (False, 0.0), (None, None))
+		yield ('a', Float, (0, None), (False, 1.0), None)
+		yield ('x', Float, (0, None), (False, 0.0), None)
+		yield ('y', Float, (0, None), (False, 0.0), None)
+		yield ('z', Float, (0, None), (False, 0.0), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

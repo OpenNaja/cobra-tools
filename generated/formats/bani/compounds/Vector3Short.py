@@ -29,9 +29,9 @@ class Vector3Short(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('x', Short, (0, None), (False, None), (None, None))
-		yield ('y', Short, (0, None), (False, None), (None, None))
-		yield ('z', Short, (0, None), (False, None), (None, None))
+		yield ('x', Short, (0, None), (False, None), None)
+		yield ('y', Short, (0, None), (False, None), None)
+		yield ('z', Short, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

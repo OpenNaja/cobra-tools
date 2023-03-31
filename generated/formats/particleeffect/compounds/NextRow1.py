@@ -22,10 +22,10 @@ class NextRow1(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('unk', Uint64, (0, None), (False, None), (None, None))
-		yield ('garbage', Uint, (0, None), (False, None), (None, None))
-		yield ('value_1', Ushort, (0, None), (False, None), (None, None))
-		yield ('value_2', Ushort, (0, None), (False, None), (None, None))
+		yield ('unk', Uint64, (0, None), (False, None), None)
+		yield ('garbage', Uint, (0, None), (False, None), None)
+		yield ('value_1', Ushort, (0, None), (False, None), None)
+		yield ('value_2', Ushort, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

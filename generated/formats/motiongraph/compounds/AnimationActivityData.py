@@ -38,17 +38,17 @@ class AnimationActivityData(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('mani', Pointer, (0, ZString), (False, None), (None, None))
-		yield ('animation_flags', AnimationFlags, (0, None), (False, None), (None, None))
-		yield ('priorities', Uint, (0, None), (False, None), (None, None))
-		yield ('weight', FloatInputData, (0, None), (False, None), (None, None))
-		yield ('speed', FloatInputData, (0, None), (False, None), (None, None))
-		yield ('starting_prop_through', Float, (0, None), (False, None), (None, None))
-		yield ('lead_out_time', Float, (0, None), (False, None), (None, None))
-		yield ('sync_prop_through_variable', Pointer, (0, ZString), (False, None), (None, None))
-		yield ('count_6', Uint64, (0, None), (False, None), (None, None))
-		yield ('output_prop_through_variable', Pointer, (0, ZString), (False, None), (None, None))
-		yield ('additional_data_streams', DataStreamResourceDataList, (0, None), (False, None), (None, None))
+		yield ('mani', Pointer, (0, ZString), (False, None), None)
+		yield ('animation_flags', AnimationFlags, (0, None), (False, None), None)
+		yield ('priorities', Uint, (0, None), (False, None), None)
+		yield ('weight', FloatInputData, (0, None), (False, None), None)
+		yield ('speed', FloatInputData, (0, None), (False, None), None)
+		yield ('starting_prop_through', Float, (0, None), (False, None), None)
+		yield ('lead_out_time', Float, (0, None), (False, None), None)
+		yield ('sync_prop_through_variable', Pointer, (0, ZString), (False, None), None)
+		yield ('count_6', Uint64, (0, None), (False, None), None)
+		yield ('output_prop_through_variable', Pointer, (0, ZString), (False, None), None)
+		yield ('additional_data_streams', DataStreamResourceDataList, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

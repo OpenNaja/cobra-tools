@@ -26,11 +26,11 @@ class Pillar(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('support', Pointer, (0, ZString), (False, None), (None, None))
-		yield ('cap', Pointer, (0, ZString), (False, None), (None, None))
-		yield ('unk_int', Uint64, (0, None), (False, None), (None, None))
-		yield ('unk_floats', Array, (0, None, (2,), Float), (False, None), (None, None))
-		yield ('unk_int_2', Uint64, (0, None), (False, None), (None, None))
+		yield ('support', Pointer, (0, ZString), (False, None), None)
+		yield ('cap', Pointer, (0, ZString), (False, None), None)
+		yield ('unk_int', Uint64, (0, None), (False, None), None)
+		yield ('unk_floats', Array, (0, None, (2,), Float), (False, None), None)
+		yield ('unk_int_2', Uint64, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

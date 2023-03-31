@@ -28,16 +28,16 @@ class ParamData(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('data', Array, (0, None, (1,), Bool), (False, None), (None, True))
-		yield ('data', Array, (0, None, (1,), Float), (False, None), (None, True))
-		yield ('data', Array, (0, None, (1,), Int), (False, None), (None, True))
-		yield ('data', Array, (0, None, (1,), Uint), (False, None), (None, True))
-		yield ('data', Array, (0, None, (2,), Float), (False, None), (None, True))
-		yield ('data', Array, (0, None, (3,), Float), (False, None), (None, True))
-		yield ('data', Array, (0, None, (4,), Float), (False, None), (None, True))
-		yield ('data', Array, (0, None, (4,), Ubyte), (False, None), (None, True))
-		yield ('data', Array, (0, None, (4,), Float), (False, None), (None, True))
-		yield ('data', Array, (0, None, (1,), ZStrPtr), (False, None), (None, True))
+		yield ('data', Array, (0, None, (1,), Bool), (False, None), True)
+		yield ('data', Array, (0, None, (1,), Float), (False, None), True)
+		yield ('data', Array, (0, None, (1,), Int), (False, None), True)
+		yield ('data', Array, (0, None, (1,), Uint), (False, None), True)
+		yield ('data', Array, (0, None, (2,), Float), (False, None), True)
+		yield ('data', Array, (0, None, (3,), Float), (False, None), True)
+		yield ('data', Array, (0, None, (4,), Float), (False, None), True)
+		yield ('data', Array, (0, None, (4,), Ubyte), (False, None), True)
+		yield ('data', Array, (0, None, (4,), Float), (False, None), True)
+		yield ('data', Array, (0, None, (1,), ZStrPtr), (False, None), True)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

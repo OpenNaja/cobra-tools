@@ -55,16 +55,16 @@ class BnkBufferData(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('size_b', Uint64, (0, None), (False, None), (None, None))
-		yield ('external_aux_b_count', Uint, (0, None), (False, None), (None, None))
-		yield ('total_aux_count', Uint, (0, None), (False, None), (None, None))
-		yield ('streams_count', Uint, (0, None), (False, None), (None, None))
-		yield ('zeros', Array, (0, None, (7,), Uint), (False, None), (None, None))
-		yield ('zeros_per_buffer', Array, (0, None, (None, 2,), Uint64), (False, None), (None, None))
-		yield ('streams', Array, (0, None, (None,), StreamInfo), (False, None), (None, None))
-		yield ('name', ZString, (0, None), (False, None), (None, None))
-		yield ('external_b_suffix', ZString, (0, None), (False, None), (None, True))
-		yield ('external_s_suffix', ZString, (0, None), (False, None), (None, True))
+		yield ('size_b', Uint64, (0, None), (False, None), None)
+		yield ('external_aux_b_count', Uint, (0, None), (False, None), None)
+		yield ('total_aux_count', Uint, (0, None), (False, None), None)
+		yield ('streams_count', Uint, (0, None), (False, None), None)
+		yield ('zeros', Array, (0, None, (7,), Uint), (False, None), None)
+		yield ('zeros_per_buffer', Array, (0, None, (None, 2,), Uint64), (False, None), None)
+		yield ('streams', Array, (0, None, (None,), StreamInfo), (False, None), None)
+		yield ('name', ZString, (0, None), (False, None), None)
+		yield ('external_b_suffix', ZString, (0, None), (False, None), True)
+		yield ('external_s_suffix', ZString, (0, None), (False, None), True)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

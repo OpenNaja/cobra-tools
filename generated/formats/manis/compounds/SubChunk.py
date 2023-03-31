@@ -28,8 +28,8 @@ class SubChunk(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('weird_list_one', Array, (0, None, (None,), WeirdElementOne), (False, None), (None, None))
-		yield ('weird_list_two', WeirdElementTwoReader, (None, None), (False, None), (None, None))
+		yield ('weird_list_one', Array, (0, None, (None,), WeirdElementOne), (False, None), None)
+		yield ('weird_list_two', WeirdElementTwoReader, (None, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

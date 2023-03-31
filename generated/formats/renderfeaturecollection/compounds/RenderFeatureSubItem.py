@@ -20,8 +20,8 @@ class RenderFeatureSubItem(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('sub_item_name', Pointer, (0, ZString), (False, None), (None, None))
-		yield ('sub_item_value_or_flags', Uint64, (0, None), (False, None), (None, None))
+		yield ('sub_item_name', Pointer, (0, ZString), (False, None), None)
+		yield ('sub_item_value_or_flags', Uint64, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

@@ -20,8 +20,8 @@ class Pattern(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('has_ptr', Uint64, (0, None), (False, None), (None, None))
-		yield ('pattern_name', Pointer, (0, ZString), (False, None), (None, None))
+		yield ('has_ptr', Uint64, (0, None), (False, None), None)
+		yield ('pattern_name', Pointer, (0, ZString), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

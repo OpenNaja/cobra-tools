@@ -58,14 +58,14 @@ class BioMeshData(MeshData):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('chunks_offset', Uint, (0, None), (False, None), (None, None))
-		yield ('chunks_count', Uint, (0, None), (False, None), (None, None))
-		yield ('tris_count', Uint, (0, None), (False, None), (None, None))
-		yield ('vertex_count', Uint, (0, None), (False, None), (None, None))
-		yield ('zero_1', Uint64, (0, None), (False, None), (None, None))
-		yield ('poweroftwo', Uint, (0, None), (False, None), (None, None))
-		yield ('unk_floats', Array, (0, None, (2,), Float), (False, None), (None, None))
-		yield ('flag', BioModelFlag, (0, None), (False, None), (None, None))
+		yield ('chunks_offset', Uint, (0, None), (False, None), None)
+		yield ('chunks_count', Uint, (0, None), (False, None), None)
+		yield ('tris_count', Uint, (0, None), (False, None), None)
+		yield ('vertex_count', Uint, (0, None), (False, None), None)
+		yield ('zero_1', Uint64, (0, None), (False, None), None)
+		yield ('poweroftwo', Uint, (0, None), (False, None), None)
+		yield ('unk_floats', Array, (0, None, (2,), Float), (False, None), None)
+		yield ('flag', BioModelFlag, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
