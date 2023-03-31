@@ -25,10 +25,10 @@ class FloatData(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('imin', Float, (0, None), (False, None), (None, None))
-		yield ('imax', Float, (0, None), (False, None), (None, None))
-		yield ('ivalue', Float, (0, None), (False, None), (None, None))
-		yield ('ioptional', Uint, (0, None), (False, None), (None, None))
+		yield ('imin', Float, (0, None), (False, None), None)
+		yield ('imax', Float, (0, None), (False, None), None)
+		yield ('ivalue', Float, (0, None), (False, None), None)
+		yield ('ioptional', Uint, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

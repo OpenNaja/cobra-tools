@@ -31,10 +31,10 @@ class HbPhysicsOffsets(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('thickness', Float, (0, None), (False, None), (None, None))
-		yield ('post_size', HbPostSize, (0, None), (False, None), (None, None))
-		yield ('wall_pad_top', Float, (0, None), (False, None), (None, None))
-		yield ('wall_post_gap', Float, (0, None), (False, None), (None, None))
+		yield ('thickness', Float, (0, None), (False, None), None)
+		yield ('post_size', HbPostSize, (0, None), (False, None), None)
+		yield ('wall_pad_top', Float, (0, None), (False, None), None)
+		yield ('wall_post_gap', Float, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

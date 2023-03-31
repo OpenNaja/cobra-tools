@@ -22,8 +22,8 @@ class RotationRange(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('min', Float, (0, None), (False, None), (None, None))
-		yield ('max', Float, (0, None), (False, None), (None, None))
+		yield ('min', Float, (0, None), (False, None), None)
+		yield ('max', Float, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

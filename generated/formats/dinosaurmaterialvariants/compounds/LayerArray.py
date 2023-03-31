@@ -18,7 +18,7 @@ class LayerArray(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('layers', Array, (0, None, (None,), Layer), (False, None), (None, None))
+		yield ('layers', Array, (0, None, (None,), Layer), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

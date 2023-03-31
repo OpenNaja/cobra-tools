@@ -32,10 +32,10 @@ class Layer(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('_id', Uint64, (0, None), (False, None), (None, None))
-		yield ('dtype', VxlDtype, (0, None), (False, None), (None, None))
-		yield ('_offset', Uint64, (0, None), (False, None), (None, None))
-		yield ('_data_size', Uint64, (0, None), (False, None), (None, None))
+		yield ('_id', Uint64, (0, None), (False, None), None)
+		yield ('dtype', VxlDtype, (0, None), (False, None), None)
+		yield ('_offset', Uint64, (0, None), (False, None), None)
+		yield ('_data_size', Uint64, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

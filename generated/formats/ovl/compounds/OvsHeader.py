@@ -36,14 +36,14 @@ class OvsHeader(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('pool_groups', Array, (0, None, (None,), PoolGroup), (False, None), (None, None))
-		yield ('pools', Array, (0, None, (None,), MemPool), (False, None), (None, None))
-		yield ('data_entries', Array, (0, None, (None,), DataEntry), (False, None), (None, None))
-		yield ('buffer_entries', Array, (0, None, (None,), BufferEntry), (False, None), (None, None))
-		yield ('buffer_groups', Array, (0, None, (None,), BufferGroup), (False, None), (None, None))
-		yield ('root_entries', Array, (0, None, (None,), RootEntry), (False, None), (None, None))
-		yield ('fragments', Array, (0, None, (None,), Fragment), (False, None), (None, None))
-		yield ('set_header', SetHeader, (0, None), (False, None), (None, None))
+		yield ('pool_groups', Array, (0, None, (None,), PoolGroup), (False, None), None)
+		yield ('pools', Array, (0, None, (None,), MemPool), (False, None), None)
+		yield ('data_entries', Array, (0, None, (None,), DataEntry), (False, None), None)
+		yield ('buffer_entries', Array, (0, None, (None,), BufferEntry), (False, None), None)
+		yield ('buffer_groups', Array, (0, None, (None,), BufferGroup), (False, None), None)
+		yield ('root_entries', Array, (0, None, (None,), RootEntry), (False, None), None)
+		yield ('fragments', Array, (0, None, (None,), Fragment), (False, None), None)
+		yield ('set_header', SetHeader, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

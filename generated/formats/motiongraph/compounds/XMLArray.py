@@ -18,7 +18,7 @@ class XMLArray(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('xmls', Array, (0, None, (None,), XMLEntry), (False, None), (None, None))
+		yield ('xmls', Array, (0, None, (None,), XMLEntry), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

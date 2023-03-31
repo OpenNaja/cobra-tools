@@ -26,8 +26,8 @@ class PoolGroup(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('type', Ushort, (0, None), (False, None), (None, None))
-		yield ('num_pools', Ushort, (0, None), (False, None), (None, None))
+		yield ('type', Ushort, (0, None), (False, None), None)
+		yield ('num_pools', Ushort, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

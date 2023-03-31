@@ -25,7 +25,7 @@ class Matrix44(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('data', Array, (0, None, (4, 4,), Float), (False, None), (None, None))
+		yield ('data', Array, (0, None, (4, 4,), Float), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

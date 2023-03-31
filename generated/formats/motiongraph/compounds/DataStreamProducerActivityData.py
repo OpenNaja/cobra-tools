@@ -34,15 +34,15 @@ class DataStreamProducerActivityData(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('curve_type', Uint64, (0, None), (False, None), (None, None))
-		yield ('ds_name', Pointer, (0, ZString), (False, None), (None, None))
-		yield ('type', Pointer, (0, ZString), (False, None), (None, None))
-		yield ('bone_i_d', Pointer, (0, ZString), (False, None), (None, None))
-		yield ('location', Pointer, (0, ZString), (False, None), (None, None))
-		yield ('curve', CurveData, (0, None), (False, None), (None, None))
-		yield ('time_limit_mode', TimeLimitMode, (0, None), (False, None), (None, None))
-		yield ('data_stream_producer_flags', Uint, (0, None), (False, None), (None, None))
-		yield ('prop_through_variable', Pointer, (0, ZString), (False, None), (None, None))
+		yield ('curve_type', Uint64, (0, None), (False, None), None)
+		yield ('ds_name', Pointer, (0, ZString), (False, None), None)
+		yield ('type', Pointer, (0, ZString), (False, None), None)
+		yield ('bone_i_d', Pointer, (0, ZString), (False, None), None)
+		yield ('location', Pointer, (0, ZString), (False, None), None)
+		yield ('curve', CurveData, (0, None), (False, None), None)
+		yield ('time_limit_mode', TimeLimitMode, (0, None), (False, None), None)
+		yield ('data_stream_producer_flags', Uint, (0, None), (False, None), None)
+		yield ('prop_through_variable', Pointer, (0, ZString), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

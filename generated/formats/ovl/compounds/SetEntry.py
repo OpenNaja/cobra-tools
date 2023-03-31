@@ -26,9 +26,9 @@ class SetEntry(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('file_hash', Uint, (0, None), (False, None), (None, None))
-		yield ('ext_hash', Uint, (0, None), (False, None), (lambda context: context.version >= 19, None))
-		yield ('start', Uint, (0, None), (False, None), (None, None))
+		yield ('file_hash', Uint, (0, None), (False, None), None)
+		yield ('ext_hash', Uint, (0, None), (False, None), True)
+		yield ('start', Uint, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

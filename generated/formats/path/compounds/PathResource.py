@@ -27,15 +27,15 @@ class PathResource(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('pathmaterial', Pointer, (0, ZString), (False, None), (None, None))
-		yield ('pathextrusion_kerb', Pointer, (0, ZString), (False, None), (None, None))
-		yield ('pathextrusion_railing', Pointer, (0, ZString), (False, None), (None, None))
-		yield ('pathextrusion_ground', Pointer, (0, ZString), (False, None), (None, None))
-		yield ('pathsupport', Pointer, (0, ZString), (False, None), (None, None))
-		yield ('path_type', Byte, (0, None), (False, None), (None, None))
-		yield ('path_sub_type', Byte, (0, None), (False, None), (None, None))
-		yield ('unk_byte_1', Byte, (0, None), (False, 1), (None, None))
-		yield ('unk_byte_2', Byte, (0, None), (False, None), (None, None))
+		yield ('pathmaterial', Pointer, (0, ZString), (False, None), None)
+		yield ('pathextrusion_kerb', Pointer, (0, ZString), (False, None), None)
+		yield ('pathextrusion_railing', Pointer, (0, ZString), (False, None), None)
+		yield ('pathextrusion_ground', Pointer, (0, ZString), (False, None), None)
+		yield ('pathsupport', Pointer, (0, ZString), (False, None), None)
+		yield ('path_type', Byte, (0, None), (False, None), None)
+		yield ('path_sub_type', Byte, (0, None), (False, None), None)
+		yield ('unk_byte_1', Byte, (0, None), (False, 1), None)
+		yield ('unk_byte_2', Byte, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

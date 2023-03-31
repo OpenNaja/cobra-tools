@@ -41,12 +41,12 @@ class Activity(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('data_type', Pointer, (0, ZString), (False, None), (None, None))
-		yield ('ptr', Pointer, (0, None), (False, None), (None, None))
-		yield ('count_2', Uint64, (0, None), (False, None), (None, None))
-		yield ('count_3', Uint64, (0, None), (False, None), (None, None))
-		yield ('minus_one', Int64, (0, None), (False, None), (None, None))
-		yield ('name_b', Pointer, (0, ZString), (False, None), (None, None))
+		yield ('data_type', Pointer, (0, ZString), (False, None), None)
+		yield ('ptr', Pointer, (0, None), (False, None), None)
+		yield ('count_2', Uint64, (0, None), (False, None), None)
+		yield ('count_3', Uint64, (0, None), (False, None), None)
+		yield ('minus_one', Int64, (0, None), (False, None), None)
+		yield ('name_b', Pointer, (0, ZString), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

@@ -25,13 +25,13 @@ class RideSettingsRoot(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('unk_0', Float, (0, None), (False, None), (None, None))
-		yield ('unk_1', Uint, (0, None), (False, None), (None, None))
-		yield ('array_1', ArrayPointer, (None, RideSettingsRoot._import_map["ridesettings.compounds.Pair"]), (False, None), (None, None))
-		yield ('count', Uint, (0, None), (False, None), (None, None))
-		yield ('pad_0', Uint, (0, None), (False, None), (None, None))
-		yield ('pad_1', Uint, (0, None), (False, None), (None, None))
-		yield ('pad_2', Uint, (0, None), (False, None), (None, None))
+		yield ('unk_0', Float, (0, None), (False, None), None)
+		yield ('unk_1', Uint, (0, None), (False, None), None)
+		yield ('array_1', ArrayPointer, (None, None), (False, None), None)
+		yield ('count', Uint, (0, None), (False, None), None)
+		yield ('pad_0', Uint, (0, None), (False, None), None)
+		yield ('pad_1', Uint, (0, None), (False, None), None)
+		yield ('pad_2', Uint, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

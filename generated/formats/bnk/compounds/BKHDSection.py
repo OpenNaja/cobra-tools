@@ -35,14 +35,14 @@ class BKHDSection(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('length', Uint, (0, None), (False, None), (None, None))
-		yield ('version', Uint, (0, None), (False, None), (None, None))
-		yield ('id_a', Uint, (0, None), (False, None), (None, None))
-		yield ('id_b', Uint, (0, None), (False, None), (None, None))
-		yield ('constant_a', Uint, (0, None), (False, None), (None, None))
-		yield ('constant_b', Uint, (0, None), (False, None), (None, None))
-		yield ('unk', Uint, (0, None), (False, None), (None, None))
-		yield ('zeroes', Array, (0, None, (None,), Ubyte), (False, None), (None, None))
+		yield ('length', Uint, (0, None), (False, None), None)
+		yield ('version', Uint, (0, None), (False, None), None)
+		yield ('id_a', Uint, (0, None), (False, None), None)
+		yield ('id_b', Uint, (0, None), (False, None), None)
+		yield ('constant_a', Uint, (0, None), (False, None), None)
+		yield ('constant_b', Uint, (0, None), (False, None), None)
+		yield ('unk', Uint, (0, None), (False, None), None)
+		yield ('zeroes', Array, (0, None, (None,), Ubyte), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

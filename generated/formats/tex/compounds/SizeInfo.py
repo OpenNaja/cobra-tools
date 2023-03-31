@@ -21,9 +21,9 @@ class SizeInfo(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('data', SizeInfoRaw, (0, None), (False, None), (None, None))
-		yield ('padding', Array, (0, None, (None,), Ubyte), (False, None), (lambda context: ((not context.user_version.use_djb) and (context.version == 20)) or (((not context.user_version.use_djb) and (context.version >= 19)) or (context.user_version.use_djb and (context.version == 20))), None))
-		yield ('padding', Array, (0, None, (None,), Ubyte), (False, None), (lambda context: context.user_version.use_djb and (context.version == 19), None))
+		yield ('data', SizeInfoRaw, (0, None), (False, None), None)
+		yield ('padding', Array, (0, None, (None,), Ubyte), (False, None), True)
+		yield ('padding', Array, (0, None, (None,), Ubyte), (False, None), True)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

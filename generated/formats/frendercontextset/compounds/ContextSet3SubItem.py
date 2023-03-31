@@ -22,10 +22,10 @@ class ContextSet3SubItem(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('stuff_31_name_1', Pointer, (0, ZString), (False, None), (None, None))
-		yield ('stuff_31_name_2', Pointer, (0, ZString), (False, None), (None, None))
-		yield ('stuff_31_name_3', Pointer, (0, ZString), (False, None), (None, None))
-		yield ('stuff_31_id_allways_0', Uint64, (0, None), (False, None), (None, None))
+		yield ('stuff_31_name_1', Pointer, (0, ZString), (False, None), None)
+		yield ('stuff_31_name_2', Pointer, (0, ZString), (False, None), None)
+		yield ('stuff_31_name_3', Pointer, (0, ZString), (False, None), None)
+		yield ('stuff_31_id_allways_0', Uint64, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

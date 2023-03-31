@@ -49,15 +49,15 @@ class MemPool(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('zero_1', Uint64, (0, None), (False, None), (lambda context: context.version >= 17, None))
-		yield ('size', Uint, (0, None), (False, None), (None, None))
-		yield ('offset', Uint, (0, None), (False, None), (None, None))
-		yield ('zero_2', Uint64, (0, None), (False, None), (lambda context: context.version <= 15, None))
-		yield ('file_hash', Uint, (0, None), (False, None), (None, None))
-		yield ('num_files', Ushort, (0, None), (False, None), (lambda context: context.version >= 15, None))
-		yield ('num_datas', Ushort, (0, None), (False, None), (lambda context: context.version >= 15, None))
-		yield ('ext_hash', Uint, (0, None), (False, None), (lambda context: context.version >= 19, None))
-		yield ('zero_3', Uint, (0, None), (False, None), (lambda context: context.version >= 19, None))
+		yield ('zero_1', Uint64, (0, None), (False, None), True)
+		yield ('size', Uint, (0, None), (False, None), None)
+		yield ('offset', Uint, (0, None), (False, None), None)
+		yield ('zero_2', Uint64, (0, None), (False, None), True)
+		yield ('file_hash', Uint, (0, None), (False, None), None)
+		yield ('num_files', Ushort, (0, None), (False, None), True)
+		yield ('num_datas', Ushort, (0, None), (False, None), True)
+		yield ('ext_hash', Uint, (0, None), (False, None), True)
+		yield ('zero_3', Uint, (0, None), (False, None), True)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

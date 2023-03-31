@@ -33,13 +33,13 @@ class IKEntry(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('child', BonePointer, (0, None), (False, None), (None, None))
-		yield ('parent', BonePointer, (0, None), (False, None), (None, None))
-		yield ('unk_0', Ushort, (0, None), (False, 0), (None, None))
-		yield ('matrix', Matrix33, (0, None), (False, None), (None, None))
-		yield ('yaw', RotationRange, (0, None), (False, None), (None, None))
-		yield ('pitch', RotationRange, (0, None), (False, None), (None, None))
-		yield ('unk_1', Uint, (0, None), (False, 1), (None, None))
+		yield ('child', BonePointer, (0, None), (False, None), None)
+		yield ('parent', BonePointer, (0, None), (False, None), None)
+		yield ('unk_0', Ushort, (0, None), (False, 0), None)
+		yield ('matrix', Matrix33, (0, None), (False, None), None)
+		yield ('yaw', RotationRange, (0, None), (False, None), None)
+		yield ('pitch', RotationRange, (0, None), (False, None), None)
+		yield ('unk_1', Uint, (0, None), (False, 1), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

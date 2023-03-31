@@ -44,17 +44,17 @@ class Ms2InfoHeader(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('biosyn', BiosynVersion, (0, None), (False, None), (None, None))
-		yield ('bone_info_size', Uint, (0, None), (False, None), (None, None))
-		yield ('num_streams', Uint, (0, None), (False, None), (None, None))
-		yield ('info', Ms2Root, (0, None), (False, None), (None, None))
-		yield ('buffer_pointers', Array, (0, None, (None,), BufferPresence), (False, None), (lambda context: context.version >= 7, None))
-		yield ('mdl_2_names', Array, (0, None, (None,), ZString), (False, None), (None, None))
-		yield ('modelstream_names', Array, (0, None, (None,), ZString), (False, None), (None, None))
-		yield ('buffer_0', Buffer0, (None, None), (False, None), (None, None))
-		yield ('buffer_infos', Array, (0, None, (None,), BufferInfo), (False, None), (None, None))
-		yield ('model_infos', Array, (0, None, (None,), ModelInfo), (False, None), (None, None))
-		yield ('models_reader', ModelReader, (None, None), (False, None), (None, None))
+		yield ('biosyn', BiosynVersion, (0, None), (False, None), None)
+		yield ('bone_info_size', Uint, (0, None), (False, None), None)
+		yield ('num_streams', Uint, (0, None), (False, None), None)
+		yield ('info', Ms2Root, (0, None), (False, None), None)
+		yield ('buffer_pointers', Array, (0, None, (None,), BufferPresence), (False, None), True)
+		yield ('mdl_2_names', Array, (0, None, (None,), ZString), (False, None), None)
+		yield ('modelstream_names', Array, (0, None, (None,), ZString), (False, None), None)
+		yield ('buffer_0', Buffer0, (None, None), (False, None), None)
+		yield ('buffer_infos', Array, (0, None, (None,), BufferInfo), (False, None), None)
+		yield ('model_infos', Array, (0, None, (None,), ModelInfo), (False, None), None)
+		yield ('models_reader', ModelReader, (None, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

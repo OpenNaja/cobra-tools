@@ -35,16 +35,16 @@ class CoordinatedAnimationActivityData(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('coord_group', Pointer, (0, ZString), (False, None), (None, None))
-		yield ('waiting_anim', Pointer, (0, ZString), (False, None), (None, None))
-		yield ('waiting_anim_data_streams', DataStreamResourceDataList, (0, None), (False, None), (None, None))
-		yield ('coordinated_anim', Pointer, (0, ZString), (False, None), (None, None))
-		yield ('coordinated_anim_data_streams', DataStreamResourceDataList, (0, None), (False, None), (None, None))
-		yield ('priorities', Ubyte, (0, None), (False, None), (None, None))
-		yield ('looping', Ubyte, (0, None), (False, None), (None, None))
-		yield ('_pad', Ushort, (0, None), (False, None), (None, None))
-		yield ('blend_time', Float, (0, None), (False, None), (None, None))
-		yield ('output_prop_through_variable', Pointer, (0, ZString), (False, None), (None, None))
+		yield ('coord_group', Pointer, (0, ZString), (False, None), None)
+		yield ('waiting_anim', Pointer, (0, ZString), (False, None), None)
+		yield ('waiting_anim_data_streams', DataStreamResourceDataList, (0, None), (False, None), None)
+		yield ('coordinated_anim', Pointer, (0, ZString), (False, None), None)
+		yield ('coordinated_anim_data_streams', DataStreamResourceDataList, (0, None), (False, None), None)
+		yield ('priorities', Ubyte, (0, None), (False, None), None)
+		yield ('looping', Ubyte, (0, None), (False, None), None)
+		yield ('_pad', Ushort, (0, None), (False, None), None)
+		yield ('blend_time', Float, (0, None), (False, None), None)
+		yield ('output_prop_through_variable', Pointer, (0, ZString), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

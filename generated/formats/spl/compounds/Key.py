@@ -26,10 +26,10 @@ class Key(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('pos', ShortVector3, (0, None), (False, None), (None, None))
-		yield ('handle_left', ByteVector3, (0, None), (False, None), (None, None))
-		yield ('handle_right', ByteVector3, (0, None), (False, None), (None, None))
-		yield ('handle_scale', Float, (0, None), (False, None), (None, None))
+		yield ('pos', ShortVector3, (0, None), (False, None), None)
+		yield ('handle_left', ByteVector3, (0, None), (False, None), None)
+		yield ('handle_right', ByteVector3, (0, None), (False, None), None)
+		yield ('handle_scale', Float, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

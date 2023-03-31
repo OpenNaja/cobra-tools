@@ -43,17 +43,17 @@ class IKInfo(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('weird_padding', SmartPadding, (0, None), (False, None), (lambda context: context.version <= 13, None))
-		yield ('ik_count', Uint64, (0, None), (False, None), (None, None))
-		yield ('ik_ptr', Uint64, (0, None), (False, None), (None, None))
-		yield ('ik_targets_count', Uint64, (0, None), (False, None), (lambda context: context.version >= 48, None))
-		yield ('ik_targets_ptr', Uint64, (0, None), (False, None), (lambda context: context.version >= 48, None))
-		yield ('ik_ref', Empty, (0, None), (False, None), (None, None))
-		yield ('ik_list', Array, (0, None, (None,), UACJoint), (False, None), (lambda context: context.version <= 13, None))
-		yield ('ik_list', Array, (0, None, (None,), IKEntry), (False, None), (lambda context: context.version >= 32, None))
-		yield ('padding_0', PadAlign, (8, None), (False, None), (None, None))
-		yield ('ik_targets', Array, (0, None, (None,), IKTarget), (False, None), (lambda context: context.version >= 50, None))
-		yield ('padding_1', PadAlign, (8, None), (False, None), (lambda context: context.version >= 50, None))
+		yield ('weird_padding', SmartPadding, (0, None), (False, None), True)
+		yield ('ik_count', Uint64, (0, None), (False, None), None)
+		yield ('ik_ptr', Uint64, (0, None), (False, None), None)
+		yield ('ik_targets_count', Uint64, (0, None), (False, None), True)
+		yield ('ik_targets_ptr', Uint64, (0, None), (False, None), True)
+		yield ('ik_ref', Empty, (0, None), (False, None), None)
+		yield ('ik_list', Array, (0, None, (None,), UACJoint), (False, None), True)
+		yield ('ik_list', Array, (0, None, (None,), IKEntry), (False, None), True)
+		yield ('padding_0', PadAlign, (8, None), (False, None), None)
+		yield ('ik_targets', Array, (0, None, (None,), IKTarget), (False, None), True)
+		yield ('padding_1', PadAlign, (8, None), (False, None), True)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

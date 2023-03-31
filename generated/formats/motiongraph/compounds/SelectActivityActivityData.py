@@ -29,11 +29,11 @@ class SelectActivityActivityData(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('enum_variable', Pointer, (0, ZString), (False, None), (None, None))
-		yield ('activities', Pointer, (None, SelectActivityActivityData._import_map["motiongraph.compounds.ActivitiesLinks"]), (False, None), (None, None))
-		yield ('num_activities', Uint64, (0, None), (False, None), (None, None))
-		yield ('blend_time', Float, (0, None), (False, None), (None, None))
-		yield ('mode', SelectActivityActivityMode, (0, None), (False, None), (None, None))
+		yield ('enum_variable', Pointer, (0, ZString), (False, None), None)
+		yield ('activities', Pointer, (None, None), (False, None), None)
+		yield ('num_activities', Uint64, (0, None), (False, None), None)
+		yield ('blend_time', Float, (0, None), (False, None), None)
+		yield ('mode', SelectActivityActivityMode, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

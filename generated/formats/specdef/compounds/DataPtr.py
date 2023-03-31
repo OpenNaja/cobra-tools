@@ -21,7 +21,7 @@ class DataPtr(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('data_ptr', Pointer, (None, DataPtr._import_map["specdef.compounds.Data"]), (False, None), (None, None))
+		yield ('data_ptr', Pointer, (None, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

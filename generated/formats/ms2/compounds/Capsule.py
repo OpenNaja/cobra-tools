@@ -33,11 +33,11 @@ class Capsule(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('offset', Vector3, (0, None), (False, None), (None, None))
-		yield ('direction', Vector3, (0, None), (False, None), (None, None))
-		yield ('radius', Float, (0, None), (False, None), (None, None))
-		yield ('extent', Float, (0, None), (False, None), (None, None))
-		yield ('zero', Uint, (0, None), (False, None), (None, None))
+		yield ('offset', Vector3, (0, None), (False, None), None)
+		yield ('direction', Vector3, (0, None), (False, None), None)
+		yield ('radius', Float, (0, None), (False, None), None)
+		yield ('extent', Float, (0, None), (False, None), None)
+		yield ('zero', Uint, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

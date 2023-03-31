@@ -20,8 +20,8 @@ class SubBraceStruct(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('sub_brace_name', Pointer, (0, ZString), (False, None), (None, None))
-		yield ('padding', Uint64, (0, None), (False, 0), (None, None))
+		yield ('sub_brace_name', Pointer, (0, ZString), (False, None), None)
+		yield ('padding', Uint64, (0, None), (False, 0), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

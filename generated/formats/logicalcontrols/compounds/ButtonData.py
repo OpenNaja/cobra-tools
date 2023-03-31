@@ -28,11 +28,11 @@ class ButtonData(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('k_1_a', Ushort, (0, None), (False, None), (None, None))
-		yield ('k_1_b', Ushort, (0, None), (False, None), (None, None))
-		yield ('k_2', Uint, (0, None), (False, None), (None, None))
-		yield ('k_3', Uint, (0, None), (False, None), (None, None))
-		yield ('k_4', Uint, (0, None), (False, None), (None, None))
+		yield ('k_1_a', Ushort, (0, None), (False, None), None)
+		yield ('k_1_b', Ushort, (0, None), (False, None), None)
+		yield ('k_2', Uint, (0, None), (False, None), None)
+		yield ('k_3', Uint, (0, None), (False, None), None)
+		yield ('k_4', Uint, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

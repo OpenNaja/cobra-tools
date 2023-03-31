@@ -23,7 +23,7 @@ class Vector3(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('floats', Array, (0, None, (3,), Float), (False, None), (None, None))
+		yield ('floats', Array, (0, None, (3,), Float), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

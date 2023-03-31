@@ -25,10 +25,10 @@ class Footer(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('footer_piece', Pointer, (0, ZString), (False, None), (None, None))
-		yield ('unk_int', Uint64, (0, None), (False, None), (None, None))
-		yield ('joint', Pointer, (0, ZString), (False, None), (None, None))
-		yield ('unk_floats', Array, (0, None, (2,), Float), (False, None), (None, None))
+		yield ('footer_piece', Pointer, (0, ZString), (False, None), None)
+		yield ('unk_int', Uint64, (0, None), (False, None), None)
+		yield ('joint', Pointer, (0, ZString), (False, None), None)
+		yield ('unk_floats', Array, (0, None, (2,), Float), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

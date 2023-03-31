@@ -26,10 +26,10 @@ class TrackElementSub(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('catwalk_right_lsm', Pointer, (0, ZString), (False, None), (None, None))
-		yield ('catwalk_left_lsm', Pointer, (0, ZString), (False, None), (None, None))
-		yield ('catwalk_both_lsm', Pointer, (0, ZString), (False, None), (None, None))
-		yield ('unk_0', Uint64, (0, None), (False, None), (None, None))
+		yield ('catwalk_right_lsm', Pointer, (0, ZString), (False, None), None)
+		yield ('catwalk_left_lsm', Pointer, (0, ZString), (False, None), None)
+		yield ('catwalk_both_lsm', Pointer, (0, ZString), (False, None), None)
+		yield ('unk_0', Uint64, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

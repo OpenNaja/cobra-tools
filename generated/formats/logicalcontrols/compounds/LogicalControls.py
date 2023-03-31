@@ -30,16 +30,16 @@ class LogicalControls(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('buttons', ArrayPointer, (None, LogicalControls._import_map["logicalcontrols.compounds.Button"]), (False, None), (None, None))
-		yield ('axes', ArrayPointer, (None, LogicalControls._import_map["logicalcontrols.compounds.AxisValue"]), (False, None), (None, None))
-		yield ('axis_buttons', ArrayPointer, (None, LogicalControls._import_map["logicalcontrols.compounds.AxisButton"]), (False, None), (None, None))
-		yield ('d', ArrayPointer, (None, LogicalControls._import_map["logicalcontrols.compounds.Some"]), (False, None), (None, None))
-		yield ('button_count', Ubyte, (0, None), (False, None), (None, None))
-		yield ('axis_count', Ubyte, (0, None), (False, None), (None, None))
-		yield ('count_3', Ubyte, (0, None), (False, None), (None, None))
-		yield ('count_4', Ubyte, (0, None), (False, None), (None, None))
-		yield ('flags', Uint, (0, None), (False, None), (None, None))
-		yield ('unsure', Pointer, (0, ZString), (False, None), (None, None))
+		yield ('buttons', ArrayPointer, (None, None), (False, None), None)
+		yield ('axes', ArrayPointer, (None, None), (False, None), None)
+		yield ('axis_buttons', ArrayPointer, (None, None), (False, None), None)
+		yield ('d', ArrayPointer, (None, None), (False, None), None)
+		yield ('button_count', Ubyte, (0, None), (False, None), None)
+		yield ('axis_count', Ubyte, (0, None), (False, None), None)
+		yield ('count_3', Ubyte, (0, None), (False, None), None)
+		yield ('count_4', Ubyte, (0, None), (False, None), None)
+		yield ('flags', Uint, (0, None), (False, None), None)
+		yield ('unsure', Pointer, (0, ZString), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

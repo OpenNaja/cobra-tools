@@ -29,8 +29,8 @@ class TypeOther(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('length', Uint, (0, None), (False, None), (None, None))
-		yield ('raw', Array, (0, None, (None,), Byte), (False, None), (None, None))
+		yield ('length', Uint, (0, None), (False, None), None)
+		yield ('raw', Array, (0, None, (None,), Byte), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

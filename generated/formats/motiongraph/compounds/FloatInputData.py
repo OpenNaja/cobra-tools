@@ -25,9 +25,9 @@ class FloatInputData(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('float', Float, (0, None), (False, None), (None, None))
-		yield ('optional_var_and_curve_count', Uint, (0, None), (False, None), (None, None))
-		yield ('optional_var_and_curve', Uint64, (0, None), (False, None), (None, None))
+		yield ('float', Float, (0, None), (False, None), None)
+		yield ('optional_var_and_curve_count', Uint, (0, None), (False, None), None)
+		yield ('optional_var_and_curve', Uint64, (0, None), (False, None), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
