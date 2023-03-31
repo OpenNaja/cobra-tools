@@ -94,7 +94,7 @@ class MeshData(MemStruct):
 		self.shapekeys = None
 		self.read_verts()
 		self.read_tris()
-		self.validate_tris()
+		# self.validate_tris()
 
 	def init_arrays(self):
 		# create arrays for this mesh
@@ -208,10 +208,10 @@ class MeshData(MemStruct):
 		"""See if all tri indices point into the vertex buffer, raise an error if they don't"""
 		# this is fairly costly (10 % of total loading time), so don't do it by default
 		# max_ind = np.max(self.tri_indices)
-		# if max_ind >= len(self.verts_data):
+		# if max_ind >= self.vertex_count:
 		for max_ind in self.tri_indices:
-			if max_ind >= len(self.verts_data):
-				raise IndexError(f"Tri index {max_ind} does not point into {len(self.verts_data)} vertices for {self}")
+			if max_ind >= self.vertex_count:
+				raise IndexError(f"Tri index {max_ind} does not point into {self.vertex_count} vertices for {self}")
 		logging.debug("All tri indices are valid")
 
 	def import_fur_as_weights(self, fur):
