@@ -250,22 +250,19 @@ class BaseFile:
 
 	def remove(self):
 		logging.info(f"Removing {self.name}")
-		self.remove_pointers()
+		self.remove_pointers(*self.root_ptr)
 		# remove the loader from ovl so it is not saved
 		self.ovl.loaders.pop(self.name)
 		# remove streamed and child files
 		for loader in self.streams + self.children:
 			loader.remove()
 
-	def remove_pointers(self):
-		# todo
-		pass
-		# self.root_entry.struct_ptr.del_struct()
-		# for frag in self.fragments:
-		# 	frag.link_ptr.del_link()
-		# 	frag.struct_ptr.del_struct()
-		# for dep in self.dependencies:
-		# 	dep.link_ptr.del_link()
+	def remove_pointers(self, pool, offset):
+		pool.offsets.remove(offset)
+		for entry in self.stack[(pool, offset)].values():
+			if isinstance(entry, tuple):
+				self.remove_pointers(*entry)
+		# offset_2_link isn't updated but that should be ok
 
 	def track_ptrs(self):
 		# logging.debug(f"Tracking {self.name}")

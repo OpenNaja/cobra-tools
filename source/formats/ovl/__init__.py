@@ -204,7 +204,7 @@ class OvsFile(OvsHeader):
 				buffer_offset = 0
 				data_offset = 0
 				for i, buffer in enumerate(self.buffer_entries):
-					logging.debug(f"Buffer {i}, last: {last_ext} this: {buffer.ext}")
+					# logging.debug(f"Buffer {i}, last: {last_ext} this: {buffer.ext}")
 					# we have to create a new group
 					if buffer.ext != last_ext or buffer.index != last_index:
 						# if we already have a buffer_group declared, update offsets for the next one
@@ -286,7 +286,7 @@ class OvsFile(OvsHeader):
 					if ptr in loader.stack:
 						break
 				else:
-					logging.warning(f"Could not find loader to get name for {pool_index}, type {pool.type} at offset {first_offset}")
+					logging.warning(f"Could not find loader to get name for Pool[{pool_index}] type {pool.type} at offset {first_offset}")
 					continue
 				logging.debug(f"Pool[{pool_index}]: {pool.name} -> '{loader.name}'")
 				self.transfer_identity(pool, loader)
