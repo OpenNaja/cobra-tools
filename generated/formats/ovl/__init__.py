@@ -295,8 +295,8 @@ class OvsFile(OvsHeader):
 			else:
 				logging.debug(
 					f"Pool[{pool_index}]: deleting '{pool.name}' from archive '{self.arg.name}' as it has no pointers")
-				logging.debug(
-					f"Pool[{pool_index}]: data '{pool.data.getvalue()}'")
+				# logging.debug(
+				# 	f"Pool[{pool_index}]: data '{pool.data.getvalue()}'")
 		self.pools.clear()
 		# rebuild pool groups
 		self.arg.num_pool_groups = len(pools_by_type)

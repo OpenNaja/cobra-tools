@@ -152,6 +152,9 @@ class BaseFile:
 		stream, offset = pool.align_write(data)
 		stream.write(data)
 		self.root_ptr = (pool, offset)
+		pool.offsets.add(offset)
+		pool.size_map[offset] = len(data)
+		self.stack[(pool, offset)] = {}
 
 	def get_content(self, filepath):
 		with open(filepath, 'rb') as f:
