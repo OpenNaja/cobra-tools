@@ -47,15 +47,15 @@ class MimeEntry(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('name', OffsetString, (None, None), (False, None), None)
-		yield ('zero_0', Uint, (0, None), (False, 0), None)
-		yield ('mime_hash', Uint, (0, None), (False, None), True)
-		yield ('mime_version', Uint, (0, None), (False, None), None)
-		yield ('file_index_offset', Uint, (0, None), (False, None), None)
-		yield ('file_count', Uint, (0, None), (False, None), None)
-		yield ('zero_1', Uint, (0, None), (False, None), True)
-		yield ('triplet_count', Uint, (0, None), (False, None), True)
-		yield ('triplet_offset', Uint, (0, None), (False, None), True)
+		yield ('name', OffsetString, (None, None), (False, None), (None, None))
+		yield ('zero_0', Uint, (0, None), (False, 0), (None, None))
+		yield ('mime_hash', Uint, (0, None), (False, None), (lambda context: context.version >= 17, None))
+		yield ('mime_version', Uint, (0, None), (False, None), (None, None))
+		yield ('file_index_offset', Uint, (0, None), (False, None), (None, None))
+		yield ('file_count', Uint, (0, None), (False, None), (None, None))
+		yield ('zero_1', Uint, (0, None), (False, None), (lambda context: context.version <= 15, None))
+		yield ('triplet_count', Uint, (0, None), (False, None), (lambda context: context.version >= 20, None))
+		yield ('triplet_offset', Uint, (0, None), (False, None), (lambda context: context.version >= 20, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

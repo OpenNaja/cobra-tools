@@ -32,13 +32,13 @@ class VariableBlendedAnimationActivityData(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('priorities', Uint, (0, None), (False, None), None)
-		yield ('_pad', Uint, (0, None), (False, None), None)
-		yield ('weight', FloatInputData, (0, None), (False, None), None)
-		yield ('animations', ArrayPointer, (None, None), (False, None), None)
-		yield ('animation_count', Uint64, (0, None), (False, None), None)
-		yield ('variable', Pointer, (0, ZString), (False, None), None)
-		yield ('variable_blended_animation_flags', Uint, (0, None), (False, None), None)
+		yield ('priorities', Uint, (0, None), (False, None), (None, None))
+		yield ('_pad', Uint, (0, None), (False, None), (None, None))
+		yield ('weight', FloatInputData, (0, None), (False, None), (None, None))
+		yield ('animations', ArrayPointer, (None, VariableBlendedAnimationActivityData._import_map["motiongraph.compounds.VariableBlendedAnimationData"]), (False, None), (None, None))
+		yield ('animation_count', Uint64, (0, None), (False, None), (None, None))
+		yield ('variable', Pointer, (0, ZString), (False, None), (None, None))
+		yield ('variable_blended_animation_flags', Uint, (0, None), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

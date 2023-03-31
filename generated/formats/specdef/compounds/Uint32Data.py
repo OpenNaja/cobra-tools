@@ -26,11 +26,11 @@ class Uint32Data(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('imin', Uint, (0, None), (False, None), None)
-		yield ('imax', Uint, (0, None), (False, None), None)
-		yield ('ivalue', Uint, (0, None), (False, None), None)
-		yield ('ioptional', Uint, (0, None), (False, None), None)
-		yield ('enum', Pointer, (0, None), (False, None), None)
+		yield ('imin', Uint, (0, None), (False, None), (None, None))
+		yield ('imax', Uint, (0, None), (False, None), (None, None))
+		yield ('ivalue', Uint, (0, None), (False, None), (None, None))
+		yield ('ioptional', Uint, (0, None), (False, None), (None, None))
+		yield ('enum', Pointer, (0, None), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

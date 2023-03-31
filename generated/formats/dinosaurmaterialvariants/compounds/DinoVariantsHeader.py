@@ -30,12 +30,12 @@ class DinoVariantsHeader(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('fgm_name', Pointer, (0, ZStringObfuscated), (False, None), None)
-		yield ('has_sets', Uint64, (0, None), (False, None), None)
-		yield ('set_name', Pointer, (0, ZString), (False, None), None)
-		yield ('variants', Pointer, (None, None), (False, None), None)
-		yield ('variant_count', Uint64, (0, None), (False, None), None)
-		yield ('zero', Uint64, (0, None), (False, None), None)
+		yield ('fgm_name', Pointer, (0, ZStringObfuscated), (False, None), (None, None))
+		yield ('has_sets', Uint64, (0, None), (False, None), (None, None))
+		yield ('set_name', Pointer, (0, ZString), (False, None), (None, None))
+		yield ('variants', Pointer, (None, DinoVariantsHeader._import_map["dinosaurmaterialvariants.compounds.VariantArray"]), (False, None), (None, None))
+		yield ('variant_count', Uint64, (0, None), (False, None), (None, None))
+		yield ('zero', Uint64, (0, None), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

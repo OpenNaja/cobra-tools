@@ -39,12 +39,12 @@ class SubCollChunk(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('bounds_min_repeat', Vector3, (0, None), (False, None), None)
-		yield ('bounds_max_repeat', Vector3, (0, None), (False, None), None)
-		yield ('tri_flags_count', Uint, (0, None), (False, None), None)
-		yield ('count_bits', Ushort, (0, None), (False, None), None)
-		yield ('stuff', Array, (0, None, (9,), Ushort), (False, None), None)
-		yield ('collision_bits', Array, (0, None, (None,), MeshCollisionBit), (False, None), None)
+		yield ('bounds_min_repeat', Vector3, (0, None), (False, None), (None, None))
+		yield ('bounds_max_repeat', Vector3, (0, None), (False, None), (None, None))
+		yield ('tri_flags_count', Uint, (0, None), (False, None), (None, None))
+		yield ('count_bits', Ushort, (0, None), (False, None), (None, None))
+		yield ('stuff', Array, (0, None, (9,), Ushort), (False, None), (None, None))
+		yield ('collision_bits', Array, (0, None, (None,), MeshCollisionBit), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

@@ -25,9 +25,9 @@ class ArrayData(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('item', Pointer, (None, None), (False, None), None)
-		yield ('dtype', SpecdefDtype, (0, None), (False, None), None)
-		yield ('unused', Uint, (0, None), (False, None), None)
+		yield ('item', Pointer, (None, ArrayData._import_map["specdef.compounds.Data"]), (False, None), (None, None))
+		yield ('dtype', SpecdefDtype, (0, None), (False, None), (None, None))
+		yield ('unused', Uint, (0, None), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

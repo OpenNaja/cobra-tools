@@ -24,13 +24,13 @@ class AkTrackSrcInfo(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('track_i_d', Uint, (0, None), (False, None), None)
-		yield ('source_i_d', Uint, (0, None), (False, None), None)
-		yield ('event_i_d', Uint, (0, None), (False, None), None)
-		yield ('f_play_at', Double, (0, None), (False, None), None)
-		yield ('f_begin_trim_offset', Double, (0, None), (False, None), None)
-		yield ('f_end_trim_offset', Double, (0, None), (False, None), None)
-		yield ('f_src_duration', Double, (0, None), (False, None), None)
+		yield ('track_i_d', Uint, (0, None), (False, None), (None, None))
+		yield ('source_i_d', Uint, (0, None), (False, None), (None, None))
+		yield ('event_i_d', Uint, (0, None), (False, None), (None, None))
+		yield ('f_play_at', Double, (0, None), (False, None), (None, None))
+		yield ('f_begin_trim_offset', Double, (0, None), (False, None), (None, None))
+		yield ('f_end_trim_offset', Double, (0, None), (False, None), (None, None))
+		yield ('f_src_duration', Double, (0, None), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

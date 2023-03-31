@@ -26,13 +26,13 @@ class PathExtrusion(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('model', Pointer, (0, ZString), (False, None), None)
-		yield ('post_model', Pointer, (0, ZString), (False, None), None)
-		yield ('endcap_model', Pointer, (0, ZString), (False, None), None)
-		yield ('unk_float_1', Float, (0, None), (False, None), None)
-		yield ('unk_float_2', Float, (0, None), (False, None), None)
-		yield ('is_kerb', Bool, (0, None), (False, None), None)
-		yield ('is_not_ground', Bool, (0, None), (False, True), None)
+		yield ('model', Pointer, (0, ZString), (False, None), (None, None))
+		yield ('post_model', Pointer, (0, ZString), (False, None), (None, None))
+		yield ('endcap_model', Pointer, (0, ZString), (False, None), (None, None))
+		yield ('unk_float_1', Float, (0, None), (False, None), (None, None))
+		yield ('unk_float_2', Float, (0, None), (False, None), (None, None))
+		yield ('is_kerb', Bool, (0, None), (False, None), (None, None))
+		yield ('is_not_ground', Bool, (0, None), (False, True), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

@@ -28,12 +28,12 @@ class Bone(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('loc', Vector3, (0, None), (False, None), True)
-		yield ('scale', Float, (0, None), (False, None), True)
-		yield ('rot', Vector4, (0, None), (False, None), True)
-		yield ('rot', Vector4, (0, None), (False, None), True)
-		yield ('loc', Vector3, (0, None), (False, None), True)
-		yield ('scale', Float, (0, None), (False, None), True)
+		yield ('loc', Vector3, (0, None), (False, None), (lambda context: context.version <= 47, None))
+		yield ('scale', Float, (0, None), (False, None), (lambda context: context.version <= 47, None))
+		yield ('rot', Vector4, (0, None), (False, None), (lambda context: context.version <= 47, None))
+		yield ('rot', Vector4, (0, None), (False, None), (lambda context: context.version >= 48, None))
+		yield ('loc', Vector3, (0, None), (False, None), (lambda context: context.version >= 48, None))
+		yield ('scale', Float, (0, None), (False, None), (lambda context: context.version >= 48, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

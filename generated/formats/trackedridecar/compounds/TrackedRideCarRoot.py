@@ -34,13 +34,13 @@ class TrackedRideCarRoot(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('sub', ArrayPointer, (None, None), (False, None), None)
-		yield ('sub_count', Uint, (0, None), (False, None), None)
-		yield ('total_vecs_count', Uint, (0, None), (False, None), None)
-		yield ('vec', Array, (0, None, (3,), Float), (False, None), None)
-		yield ('zero_0', Uint, (0, None), (False, None), None)
-		yield ('some_name', Pointer, (0, ZString), (False, None), None)
-		yield ('zero_1', Uint64, (0, None), (False, None), None)
+		yield ('sub', ArrayPointer, (None, TrackedRideCarRoot._import_map["trackedridecar.compounds.TrackedRideCarSub"]), (False, None), (None, None))
+		yield ('sub_count', Uint, (0, None), (False, None), (None, None))
+		yield ('total_vecs_count', Uint, (0, None), (False, None), (None, None))
+		yield ('vec', Array, (0, None, (3,), Float), (False, None), (None, None))
+		yield ('zero_0', Uint, (0, None), (False, None), (None, None))
+		yield ('some_name', Pointer, (0, ZString), (False, None), (None, None))
+		yield ('zero_1', Uint64, (0, None), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

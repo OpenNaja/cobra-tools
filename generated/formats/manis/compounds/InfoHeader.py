@@ -33,13 +33,13 @@ class InfoHeader(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('version', Uint, (0, None), (False, None), None)
-		yield ('mani_count', Uint, (0, None), (False, None), None)
-		yield ('names', Array, (0, None, (None,), ZString), (False, None), None)
-		yield ('header', ManisRoot, (0, None), (False, None), None)
-		yield ('mani_infos', Array, (0, None, (None,), ManiInfo), (False, None), None)
-		yield ('name_buffer', Buffer1, (None, None), (False, None), None)
-		yield ('keys_buffer', KeysReader, (None, None), (False, None), None)
+		yield ('version', Uint, (0, None), (False, None), (None, None))
+		yield ('mani_count', Uint, (0, None), (False, None), (None, None))
+		yield ('names', Array, (0, None, (None,), ZString), (False, None), (None, None))
+		yield ('header', ManisRoot, (0, None), (False, None), (None, None))
+		yield ('mani_infos', Array, (0, None, (None,), ManiInfo), (False, None), (None, None))
+		yield ('name_buffer', Buffer1, (None, None), (False, None), (None, None))
+		yield ('keys_buffer', KeysReader, (None, None), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

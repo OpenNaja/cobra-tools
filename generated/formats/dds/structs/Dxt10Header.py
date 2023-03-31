@@ -23,11 +23,11 @@ class Dxt10Header(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('dxgi_format', DxgiFormat, (0, None), (False, None), None)
-		yield ('resource_dimension', D3D10ResourceDimension, (0, None), (False, None), None)
-		yield ('misc_flag', Uint, (0, None), (False, None), None)
-		yield ('num_tiles', Uint, (0, None), (False, 1), None)
-		yield ('misc_flag_2', Uint, (0, None), (False, None), None)
+		yield ('dxgi_format', DxgiFormat, (0, None), (False, None), (None, None))
+		yield ('resource_dimension', D3D10ResourceDimension, (0, None), (False, None), (None, None))
+		yield ('misc_flag', Uint, (0, None), (False, None), (None, None))
+		yield ('num_tiles', Uint, (0, None), (False, 1), (None, None))
+		yield ('misc_flag_2', Uint, (0, None), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

@@ -23,9 +23,9 @@ class Repeat(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('zeros_0', Array, (0, None, (7,), Uint64), (False, None), None)
-		yield ('byte_size', Uint64, (0, None), (False, None), None)
-		yield ('zeros_1', Array, (0, None, (2,), Uint64), (False, None), None)
+		yield ('zeros_0', Array, (0, None, (7,), Uint64), (False, None), (None, None))
+		yield ('byte_size', Uint64, (0, None), (False, None), (None, None))
+		yield ('zeros_1', Array, (0, None, (2,), Uint64), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

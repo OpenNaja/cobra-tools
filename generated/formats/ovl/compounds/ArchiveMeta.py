@@ -27,8 +27,8 @@ class ArchiveMeta(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('unk_0', Uint, (0, None), (False, None), None)
-		yield ('unk_1', Uint, (0, None), (False, None), None)
+		yield ('unk_0', Uint, (0, None), (False, None), (None, None))
+		yield ('unk_1', Uint, (0, None), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

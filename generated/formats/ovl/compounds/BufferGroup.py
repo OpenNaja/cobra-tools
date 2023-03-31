@@ -42,13 +42,13 @@ class BufferGroup(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('buffer_offset', Uint, (0, None), (False, None), None)
-		yield ('buffer_count', Uint, (0, None), (False, None), None)
-		yield ('ext_index', Uint, (0, None), (False, None), None)
-		yield ('buffer_index', Uint, (0, None), (False, None), None)
-		yield ('size', Uint64, (0, None), (False, None), None)
-		yield ('data_offset', Uint, (0, None), (False, None), None)
-		yield ('data_count', Uint, (0, None), (False, None), None)
+		yield ('buffer_offset', Uint, (0, None), (False, None), (None, None))
+		yield ('buffer_count', Uint, (0, None), (False, None), (None, None))
+		yield ('ext_index', Uint, (0, None), (False, None), (None, None))
+		yield ('buffer_index', Uint, (0, None), (False, None), (None, None))
+		yield ('size', Uint64, (0, None), (False, None), (None, None))
+		yield ('data_offset', Uint, (0, None), (False, None), (None, None))
+		yield ('data_count', Uint, (0, None), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

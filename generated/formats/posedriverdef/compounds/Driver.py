@@ -34,15 +34,15 @@ class Driver(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('joint_name', Pointer, (0, ZString), (False, None), None)
-		yield ('a', Ubyte, (0, None), (False, None), None)
-		yield ('b', Ubyte, (0, None), (False, None), None)
-		yield ('c', Ushort, (0, None), (False, None), None)
-		yield ('d', Uint, (0, None), (False, None), None)
-		yield ('driven_joint_name', Pointer, (0, ZString), (False, None), None)
-		yield ('unk_1', Uint64, (0, None), (False, None), None)
-		yield ('data', Pointer, (0, None), (False, None), None)
-		yield ('unk_2', Uint64, (0, None), (False, None), None)
+		yield ('joint_name', Pointer, (0, ZString), (False, None), (None, None))
+		yield ('a', Ubyte, (0, None), (False, None), (None, None))
+		yield ('b', Ubyte, (0, None), (False, None), (None, None))
+		yield ('c', Ushort, (0, None), (False, None), (None, None))
+		yield ('d', Uint, (0, None), (False, None), (None, None))
+		yield ('driven_joint_name', Pointer, (0, ZString), (False, None), (None, None))
+		yield ('unk_1', Uint64, (0, None), (False, None), (None, None))
+		yield ('data', Pointer, (0, Driver._import_map["posedriverdef.compounds.Data"]), (False, None), (None, None))
+		yield ('unk_2', Uint64, (0, None), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

@@ -40,13 +40,13 @@ class SoundSfxVoice(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('length', Uint, (0, None), (False, None), None)
-		yield ('id', Uint, (0, None), (False, None), None)
-		yield ('const_a', Uint, (0, None), (False, None), None)
-		yield ('const_b', Byte, (0, None), (False, None), None)
-		yield ('didx_id', Uint, (0, None), (False, None), None)
-		yield ('wem_length', Uint, (0, None), (False, None), None)
-		yield ('extra', Array, (0, None, (None,), Byte), (False, None), None)
+		yield ('length', Uint, (0, None), (False, None), (None, None))
+		yield ('id', Uint, (0, None), (False, None), (None, None))
+		yield ('const_a', Uint, (0, None), (False, None), (None, None))
+		yield ('const_b', Byte, (0, None), (False, None), (None, None))
+		yield ('didx_id', Uint, (0, None), (False, None), (None, None))
+		yield ('wem_length', Uint, (0, None), (False, None), (None, None))
+		yield ('extra', Array, (0, None, (None,), Byte), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

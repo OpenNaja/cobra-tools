@@ -35,18 +35,18 @@ class FgmHeader(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('_texture_count', Uint, (0, None), (False, None), True)
-		yield ('_texture_count', Uint64, (0, None), (False, None), True)
-		yield ('_attribute_count', Uint, (0, None), (False, None), True)
-		yield ('_attribute_count', Uint64, (0, None), (False, None), True)
-		yield ('textures', ArrayPointer, (None, None), (False, None), None)
-		yield ('attributes', ArrayPointer, (None, None), (False, None), None)
-		yield ('name_foreach_textures', ForEachPointer, (None, None), (False, None), None)
-		yield ('value_foreach_attributes', ForEachPointer, (None, None), (False, None), None)
-		yield ('_unk_0', Uint64, (0, None), (False, None), None)
-		yield ('_unk_1', Uint64, (0, None), (False, None), None)
-		yield ('_unk_2', Uint64, (0, None), (False, None), True)
-		yield ('_unk_3', Uint64, (0, None), (False, None), True)
+		yield ('_texture_count', Uint, (0, None), (False, None), (lambda context: context.version <= 15, None))
+		yield ('_texture_count', Uint64, (0, None), (False, None), (lambda context: context.version >= 17, None))
+		yield ('_attribute_count', Uint, (0, None), (False, None), (lambda context: context.version <= 15, None))
+		yield ('_attribute_count', Uint64, (0, None), (False, None), (lambda context: context.version >= 17, None))
+		yield ('textures', ArrayPointer, (None, FgmHeader._import_map["fgm.compounds.TextureInfo"]), (False, None), (None, None))
+		yield ('attributes', ArrayPointer, (None, FgmHeader._import_map["fgm.compounds.AttribInfo"]), (False, None), (None, None))
+		yield ('name_foreach_textures', ForEachPointer, (None, FgmHeader._import_map["fgm.compounds.TextureData"]), (False, None), (None, None))
+		yield ('value_foreach_attributes', ForEachPointer, (None, FgmHeader._import_map["fgm.compounds.AttribData"]), (False, None), (None, None))
+		yield ('_unk_0', Uint64, (0, None), (False, None), (None, None))
+		yield ('_unk_1', Uint64, (0, None), (False, None), (None, None))
+		yield ('_unk_2', Uint64, (0, None), (False, None), (lambda context: context.user_version.use_djb and (context.version == 20), None))
+		yield ('_unk_3', Uint64, (0, None), (False, None), (lambda context: context.user_version.use_djb and (context.version == 20), None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

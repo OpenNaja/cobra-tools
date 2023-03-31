@@ -45,19 +45,19 @@ class VoxelskirtRoot(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('zero', Uint64, (0, None), (True, 0), None)
-		yield ('_data_size', Uint64, (0, None), (False, None), None)
-		yield ('x', Uint64, (0, None), (False, None), None)
-		yield ('y', Uint64, (0, None), (False, None), None)
-		yield ('scale', Float, (0, None), (False, None), None)
-		yield ('padding', Uint, (0, None), (True, 0), None)
-		yield ('_height_offset', Uint64, (0, None), (False, None), True)
-		yield ('_weights_offset', Uint64, (0, None), (False, None), True)
-		yield ('layers', DataSlot, (0, None), (False, None), True)
-		yield ('areas', DataSlot, (0, None), (False, None), True)
-		yield ('entity_groups', DataSlot, (0, None), (False, None), None)
-		yield ('materials', DataSlot, (0, None), (False, None), None)
-		yield ('names', DataSlot, (0, None), (False, None), None)
+		yield ('zero', Uint64, (0, None), (True, 0), (None, None))
+		yield ('_data_size', Uint64, (0, None), (False, None), (None, None))
+		yield ('x', Uint64, (0, None), (False, None), (None, None))
+		yield ('y', Uint64, (0, None), (False, None), (None, None))
+		yield ('scale', Float, (0, None), (False, None), (None, None))
+		yield ('padding', Uint, (0, None), (True, 0), (None, None))
+		yield ('_height_offset', Uint64, (0, None), (False, None), (lambda context: context.version == 18, None))
+		yield ('_weights_offset', Uint64, (0, None), (False, None), (lambda context: context.version == 18, None))
+		yield ('layers', DataSlot, (0, VoxelskirtRoot._import_map["voxelskirt.compounds.Layer"]), (False, None), (lambda context: not (context.version == 18), None))
+		yield ('areas', DataSlot, (0, VoxelskirtRoot._import_map["voxelskirt.compounds.Area"]), (False, None), (lambda context: not (context.version == 18), None))
+		yield ('entity_groups', DataSlot, (0, VoxelskirtRoot._import_map["voxelskirt.compounds.EntityGroup"]), (False, None), (None, None))
+		yield ('materials', DataSlot, (0, VoxelskirtRoot._import_map["voxelskirt.compounds.Material"]), (False, None), (None, None))
+		yield ('names', DataSlot, (0, VoxelskirtRoot._import_map["voxelskirt.compounds.Name"]), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

@@ -34,17 +34,17 @@ class MusicTrackInitialValues(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('u_flags', Ubyte, (0, None), (False, None), None)
-		yield ('num_sources', Uint, (0, None), (False, None), None)
-		yield ('p_source', Array, (0, None, (None,), AkBankSourceData), (False, None), None)
-		yield ('num_playlist_item', Uint, (0, None), (False, None), None)
-		yield ('p_playlist', Array, (0, None, (None,), AkTrackSrcInfo), (False, None), None)
-		yield ('num_sub_track', Uint, (0, None), (False, None), None)
-		yield ('num_clip_automation_item', Uint, (0, None), (False, None), None)
-		yield ('p_items', Array, (0, None, (None,), Uint), (False, None), None)
-		yield ('node_base_params', NodeBaseParams, (0, None), (False, None), None)
-		yield ('e_track_type', Ubyte, (0, None), (False, None), None)
-		yield ('i_look_ahead_time', Int, (0, None), (False, None), None)
+		yield ('u_flags', Ubyte, (0, None), (False, None), (None, None))
+		yield ('num_sources', Uint, (0, None), (False, None), (None, None))
+		yield ('p_source', Array, (0, None, (None,), AkBankSourceData), (False, None), (None, None))
+		yield ('num_playlist_item', Uint, (0, None), (False, None), (None, None))
+		yield ('p_playlist', Array, (0, None, (None,), AkTrackSrcInfo), (False, None), (None, None))
+		yield ('num_sub_track', Uint, (0, None), (False, None), (None, None))
+		yield ('num_clip_automation_item', Uint, (0, None), (False, None), (None, None))
+		yield ('p_items', Array, (0, None, (None,), Uint), (False, None), (None, None))
+		yield ('node_base_params', NodeBaseParams, (0, None), (False, None), (None, None))
+		yield ('e_track_type', Ubyte, (0, None), (False, None), (None, None))
+		yield ('i_look_ahead_time', Int, (0, None), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

@@ -33,12 +33,12 @@ class SetHeader(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('set_count', Uint, (0, None), (False, None), None)
-		yield ('asset_count', Uint, (0, None), (False, None), None)
-		yield ('sig_a', Uint, (0, None), (False, 1065336831), None)
-		yield ('sig_b', Uint, (0, None), (False, 16909320), None)
-		yield ('sets', Array, (0, None, (None,), SetEntry), (False, None), None)
-		yield ('assets', Array, (0, None, (None,), AssetEntry), (False, None), None)
+		yield ('set_count', Uint, (0, None), (False, None), (None, None))
+		yield ('asset_count', Uint, (0, None), (False, None), (None, None))
+		yield ('sig_a', Uint, (0, None), (False, 1065336831), (None, None))
+		yield ('sig_b', Uint, (0, None), (False, 16909320), (None, None))
+		yield ('sets', Array, (0, None, (None,), SetEntry), (False, None), (None, None))
+		yield ('assets', Array, (0, None, (None,), AssetEntry), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

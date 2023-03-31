@@ -22,8 +22,8 @@ class Object(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('material_index', Ushort, (0, None), (False, None), None)
-		yield ('mesh_index', Ushort, (0, None), (False, None), None)
+		yield ('material_index', Ushort, (0, None), (False, None), (None, None))
+		yield ('mesh_index', Ushort, (0, None), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

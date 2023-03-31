@@ -31,12 +31,12 @@ class ManisRoot(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('names_size', Ushort, (0, None), (False, None), None)
-		yield ('hash_block_size', Ushort, (0, None), (False, None), None)
-		yield ('zero_0', Uint, (0, None), (False, None), None)
-		yield ('zero_1', Uint64, (0, None), (False, None), None)
-		yield ('zero_2', Uint64, (0, None), (False, None), None)
-		yield ('zero_3', Uint64, (0, None), (False, None), True)
+		yield ('names_size', Ushort, (0, None), (False, None), (None, None))
+		yield ('hash_block_size', Ushort, (0, None), (False, None), (None, None))
+		yield ('zero_0', Uint, (0, None), (False, None), (None, None))
+		yield ('zero_1', Uint64, (0, None), (False, None), (None, None))
+		yield ('zero_2', Uint64, (0, None), (False, None), (None, None))
+		yield ('zero_3', Uint64, (0, None), (False, None), (lambda context: context.version >= 260, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

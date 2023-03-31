@@ -27,13 +27,13 @@ class Joint(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('joint_1', Pointer, (0, ZString), (False, None), None)
-		yield ('joint_2', Pointer, (0, ZString), (False, None), None)
-		yield ('joint_3', Pointer, (0, ZString), (False, None), None)
-		yield ('joint_4', Pointer, (0, ZString), (False, None), None)
-		yield ('unk_float', Float, (0, None), (False, None), None)
-		yield ('unk_int', Uint, (0, None), (False, None), None)
-		yield ('unk_int_2', Uint64, (0, None), (False, None), None)
+		yield ('joint_1', Pointer, (0, ZString), (False, None), (None, None))
+		yield ('joint_2', Pointer, (0, ZString), (False, None), (None, None))
+		yield ('joint_3', Pointer, (0, ZString), (False, None), (None, None))
+		yield ('joint_4', Pointer, (0, ZString), (False, None), (None, None))
+		yield ('unk_float', Float, (0, None), (False, None), (None, None))
+		yield ('unk_int', Uint, (0, None), (False, None), (None, None))
+		yield ('unk_int_2', Uint64, (0, None), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

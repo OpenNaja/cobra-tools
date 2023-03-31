@@ -21,7 +21,7 @@ class ActivityEntry(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('value', Pointer, (0, None), (False, None), None)
+		yield ('value', Pointer, (0, ActivityEntry._import_map["motiongraph.compounds.Activity"]), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

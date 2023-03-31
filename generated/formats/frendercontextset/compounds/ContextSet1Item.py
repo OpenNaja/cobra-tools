@@ -30,18 +30,18 @@ class ContextSet1Item(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('stuff_1_name', Pointer, (0, ZString), (False, None), None)
-		yield ('stuff_11_sub', ArrayPointer, (None, None), (False, None), None)
-		yield ('stuff_11_sub_count', Uint64, (0, None), (False, None), None)
-		yield ('stuff_12_sub', ArrayPointer, (None, None), (False, None), None)
-		yield ('stuff_12_sub_count', Uint64, (0, None), (False, None), None)
-		yield ('stuff_13_sub', ArrayPointer, (None, None), (False, None), None)
-		yield ('stuff_13_sub_count', Uint64, (0, None), (False, None), None)
-		yield ('stuff_14_sub_name', Pointer, (0, ZString), (False, None), None)
-		yield ('stuff_14_sub_name', Pointer, (0, ZString), (False, None), None)
-		yield ('stuff_15_sub_name', Pointer, (0, ZString), (False, None), None)
-		yield ('stuff_1_unknown_1', Uint64, (0, None), (False, None), None)
-		yield ('stuff_1_unknown_2', Uint64, (0, None), (False, None), None)
+		yield ('stuff_1_name', Pointer, (0, ZString), (False, None), (None, None))
+		yield ('stuff_11_sub', ArrayPointer, (None, ContextSet1Item._import_map["frendercontextset.compounds.ContextSet1SubItem"]), (False, None), (None, None))
+		yield ('stuff_11_sub_count', Uint64, (0, None), (False, None), (None, None))
+		yield ('stuff_12_sub', ArrayPointer, (None, ContextSet1Item._import_map["frendercontextset.compounds.ContextSet1SubItem"]), (False, None), (None, None))
+		yield ('stuff_12_sub_count', Uint64, (0, None), (False, None), (None, None))
+		yield ('stuff_13_sub', ArrayPointer, (None, ContextSet1Item._import_map["frendercontextset.compounds.ContextSet1SubItem"]), (False, None), (None, None))
+		yield ('stuff_13_sub_count', Uint64, (0, None), (False, None), (None, None))
+		yield ('stuff_14_sub_name', Pointer, (0, ZString), (False, None), (None, None))
+		yield ('stuff_14_sub_name', Pointer, (0, ZString), (False, None), (None, None))
+		yield ('stuff_15_sub_name', Pointer, (0, ZString), (False, None), (None, None))
+		yield ('stuff_1_unknown_1', Uint64, (0, None), (False, None), (None, None))
+		yield ('stuff_1_unknown_2', Uint64, (0, None), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

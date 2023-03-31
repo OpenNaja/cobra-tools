@@ -39,19 +39,19 @@ class TrackElementData(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('loop_name', Pointer, (0, ZString), (False, None), None)
-		yield ('ovl_name', Pointer, (0, ZString), (False, None), None)
-		yield ('catwalk', Pointer, (0, None), (False, None), True)
-		yield ('unk_0', Uint64, (0, None), (False, None), True)
-		yield ('optional_catwalk', Pointer, (0, ZString), (False, None), None)
-		yield ('unk_1', Uint, (0, None), (False, None), True)
-		yield ('unk_2', Uint, (0, None), (False, None), None)
-		yield ('unk_3', Ushort, (0, None), (False, 0), None)
-		yield ('unk_4', Ushort, (0, None), (False, 32), None)
-		yield ('unk_5', Uint, (0, None), (False, 1024), True)
-		yield ('unk_6', Uint, (0, None), (False, 1), None)
-		yield ('unk_7', Uint, (0, None), (False, 1), None)
-		yield ('pad', Uint64, (0, None), (False, None), True)
+		yield ('loop_name', Pointer, (0, ZString), (False, None), (None, None))
+		yield ('ovl_name', Pointer, (0, ZString), (False, None), (None, None))
+		yield ('catwalk', Pointer, (0, TrackElementData._import_map["trackelement.compounds.TrackElementSub"]), (False, None), (lambda context: context.version <= 18, None))
+		yield ('unk_0', Uint64, (0, None), (False, None), (lambda context: context.version <= 18, None))
+		yield ('optional_catwalk', Pointer, (0, ZString), (False, None), (None, None))
+		yield ('unk_1', Uint, (0, None), (False, None), (lambda context: context.version <= 18, None))
+		yield ('unk_2', Uint, (0, None), (False, None), (None, None))
+		yield ('unk_3', Ushort, (0, None), (False, 0), (None, None))
+		yield ('unk_4', Ushort, (0, None), (False, 32), (None, None))
+		yield ('unk_5', Uint, (0, None), (False, 1024), (lambda context: context.version <= 18, None))
+		yield ('unk_6', Uint, (0, None), (False, 1), (None, None))
+		yield ('unk_7', Uint, (0, None), (False, 1), (None, None))
+		yield ('pad', Uint64, (0, None), (False, None), (None, True))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

@@ -36,17 +36,17 @@ class OffsetData(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('offset_id', Pointer, (0, ZString), (False, None), None)
-		yield ('z_0', Uint64, (0, None), (False, None), None)
-		yield ('z_1', Uint64, (0, None), (False, None), None)
-		yield ('relative_offset', Vector3, (0, None), (False, None), None)
-		yield ('spacing', Float, (0, None), (False, None), None)
-		yield ('one', Uint, (0, None), (False, None), None)
-		yield ('z_2', Uint, (0, None), (False, None), None)
-		yield ('z_3', Uint, (0, None), (False, None), None)
-		yield ('count', Uint, (0, None), (False, None), None)
-		yield ('z_4', Uint, (0, None), (False, None), None)
-		yield ('z_5', Uint, (0, None), (False, None), None)
+		yield ('offset_id', Pointer, (0, ZString), (False, None), (None, None))
+		yield ('z_0', Uint64, (0, None), (False, None), (None, None))
+		yield ('z_1', Uint64, (0, None), (False, None), (None, None))
+		yield ('relative_offset', Vector3, (0, None), (False, None), (None, None))
+		yield ('spacing', Float, (0, None), (False, None), (None, None))
+		yield ('one', Uint, (0, None), (False, None), (None, None))
+		yield ('z_2', Uint, (0, None), (False, None), (None, None))
+		yield ('z_3', Uint, (0, None), (False, None), (None, None))
+		yield ('count', Uint, (0, None), (False, None), (None, None))
+		yield ('z_4', Uint, (0, None), (False, None), (None, None))
+		yield ('z_5', Uint, (0, None), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

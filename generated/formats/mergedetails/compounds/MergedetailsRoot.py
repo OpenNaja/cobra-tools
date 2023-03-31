@@ -30,13 +30,13 @@ class MergedetailsRoot(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('merge_names', Pointer, (None, None), (False, None), None)
-		yield ('zero_0', Uint64, (0, None), (False, None), None)
-		yield ('zero_1', Uint64, (0, None), (False, None), None)
-		yield ('queries', Pointer, (None, None), (False, None), None)
-		yield ('field_name', Pointer, (0, ZString), (False, None), None)
-		yield ('count', Uint, (0, None), (False, None), None)
-		yield ('flag', Uint, (0, None), (False, None), None)
+		yield ('merge_names', Pointer, (None, MergedetailsRoot._import_map["mergedetails.compounds.PtrList"]), (False, None), (None, None))
+		yield ('zero_0', Uint64, (0, None), (False, None), (None, None))
+		yield ('zero_1', Uint64, (0, None), (False, None), (None, None))
+		yield ('queries', Pointer, (None, MergedetailsRoot._import_map["mergedetails.compounds.PtrList"]), (False, None), (None, None))
+		yield ('field_name', Pointer, (0, ZString), (False, None), (None, None))
+		yield ('count', Uint, (0, None), (False, None), (None, None))
+		yield ('flag', Uint, (0, None), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

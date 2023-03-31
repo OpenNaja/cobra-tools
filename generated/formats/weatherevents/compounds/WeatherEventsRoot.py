@@ -28,13 +28,13 @@ class WeatherEventsRoot(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('resource_name', Pointer, (0, ZStringObfuscated), (False, None), None)
-		yield ('default_event_name', Pointer, (0, ZString), (False, None), None)
-		yield ('transition_time', Float, (0, None), (False, None), None)
-		yield ('unknown_1', Float, (0, None), (False, None), None)
-		yield ('event_list', ArrayPointer, (None, None), (False, None), None)
-		yield ('event_count', Uint64, (0, None), (False, None), None)
-		yield ('unknown_2', Uint64, (0, None), (False, None), None)
+		yield ('resource_name', Pointer, (0, ZStringObfuscated), (False, None), (None, None))
+		yield ('default_event_name', Pointer, (0, ZString), (False, None), (None, None))
+		yield ('transition_time', Float, (0, None), (False, None), (None, None))
+		yield ('unknown_1', Float, (0, None), (False, None), (None, None))
+		yield ('event_list', ArrayPointer, (None, WeatherEventsRoot._import_map["weatherevents.compounds.WeatherEventData"]), (False, None), (None, None))
+		yield ('event_count', Uint64, (0, None), (False, None), (None, None))
+		yield ('unknown_2', Uint64, (0, None), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

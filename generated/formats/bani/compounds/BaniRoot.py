@@ -37,11 +37,11 @@ class BaniRoot(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('banis', Pointer, (0, None), (False, None), None)
-		yield ('read_start_frame', Uint, (0, None), (False, None), None)
-		yield ('num_frames', Uint, (0, None), (False, None), None)
-		yield ('animation_length', Float, (0, None), (False, None), None)
-		yield ('loop_flag', Uint, (0, None), (False, None), None)
+		yield ('banis', Pointer, (0, None), (False, None), (None, None))
+		yield ('read_start_frame', Uint, (0, None), (False, None), (None, None))
+		yield ('num_frames', Uint, (0, None), (False, None), (None, None))
+		yield ('animation_length', Float, (0, None), (False, None), (None, None))
+		yield ('loop_flag', Uint, (0, None), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
