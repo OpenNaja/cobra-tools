@@ -75,7 +75,7 @@ class MainWindow(widgets.MainWindow):
 
 	def rename_handle(self, old_name, new_name):
 		"""this manages the renaming of a single entry"""
-			# force new name to be lowercase
+		# force new name to be lowercase
 		new_name = new_name.lower()
 		try:
 			if self.ms2_file.name_used(new_name):

@@ -306,7 +306,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 					setattr(buffer_info, f"{buffer_name}_size", len(buff_bytes))
 				
 			# store static buffer
-			if self.buffer_infos:
+			if self.buffer_infos and self.info.static_buffer_index > -1:
 				buffer_info = self.buffer_infos[self.info.static_buffer_index]
 				self.buffer_2_bytes = self.get_all_bytes(buffer_info)
 			else:
@@ -331,24 +331,29 @@ class Ms2File(Ms2InfoHeader, IoFile):
 
 	def save(self, filepath):
 		self.dir, self.name = os.path.split(os.path.normpath(filepath))
+		# for modelstreams, trailing _ is ignored
+		self.basename = os.path.splitext(self.name)[0].rstrip("_")
 		logging.info("Pre-writing buffers")
 		self.info.mdl_2_count = len(self.model_infos)
 		self.update_names()
 		self.update_buffer_0_bytes()
 		self.update_buffer_1_bytes()
 		self.update_buffer_2_bytes()
+		# save multiple buffer_infos
+		streams = [buffer_info for buffer_info in self.buffer_infos if buffer_info.name != "STATIC"]
+		for i, buffer_info in enumerate(streams):
+			assert buffer_info.name.endswith(".model2stream")
+			# update the modelstram name incase
+			buffer_info.name = f"{self.basename}{i}.model2stream"
+			# write external .model2stream files
+			buffer_info.path = os.path.join(self.dir, buffer_info.name)
+			with open(buffer_info.path, "wb") as f:
+				f.write(self.get_all_bytes(buffer_info))
+		self.modelstream_names[:] = [buffer_info.name for buffer_info in streams]
 		logging.info(f"Writing to {filepath}")
 		with open(filepath, "wb") as stream:
 			self.write_fields(stream, self)
 			stream.write(self.buffer_2_bytes)
-		# save multiple buffer_infos
-		for buffer_info in self.buffer_infos:
-			if buffer_info.name != "STATIC":
-				assert buffer_info.name.endswith(".model2stream")
-				# write external .model2stream files
-				buffer_info.path = os.path.join(self.dir, buffer_info.name)
-				with open(buffer_info.path, "wb") as f:
-					f.write(self.get_all_bytes(buffer_info))
 
 	def lookup_material(self):
 		for name, model_info in zip(self.mdl_2_names, self.model_infos):
@@ -418,9 +423,11 @@ if __name__ == "__main__":
 	# 	# 1024 = 2**10 == 1 = 4 ** 0
 
 	m = Ms2File()
-	m.load("C:/Users/arnfi/Desktop/anubis.ms2", read_editable=True)
+	# m.load("C:/Users/arnfi/Desktop/camerabone_.ms2", read_editable=True)
+	m.load("C:/Users/arnfi/Desktop/camerabone_.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/janitormale_.ms2", read_editable=True)
 	print(m)
+	# m.save("C:/Users/arnfi/Desktop/test.ms2")
 	# m.load("C:/Users/arnfi/Desktop/jwe2/pyro/export/models.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/models.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/pyro/models.ms2", read_editable=True)
