@@ -7,11 +7,8 @@ from io import BytesIO
 import shutil
 
 from generated.formats.ovl import UNK_HASH
-from generated.formats.ovl.compounds.DependencyEntry import DependencyEntry
-from generated.formats.ovl.compounds.Fragment import Fragment
 from generated.formats.ovl.compounds.BufferEntry import BufferEntry
 from generated.formats.ovl.compounds.MemPool import MemPool
-from generated.formats.ovl.compounds.RootEntry import RootEntry
 from generated.formats.ovl.compounds.DataEntry import DataEntry
 from modules.formats.shared import djb2
 
@@ -415,13 +412,6 @@ class BaseFile:
 			else:
 				# traverse down the tree of pointers
 				self.compare_pointer(other, *this_target_ptr, *other_target_ptr)
-
-	def log_versions(self):
-		logging.info(f"{self.ext} {self.mime_version}")
-		for loader in self.children:
-			logging.info(f"{loader.ext} {loader.mime_version}")
-		for loader in self.streams:
-			logging.info(f"{loader.ext} {loader.mime_version}")
 
 	def write_memory_data(self):
 		pool = self.get_pool(self.pool_type)
