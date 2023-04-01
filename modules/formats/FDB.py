@@ -101,60 +101,59 @@ class FdbLoader(BaseFile):
 		if self.context_is_valid(context, name_tuples):
 			logging.info(f"Executing command '{context.name}' on {self.name}")
 			try:
-				temp_dir, out_dir_func = self.get_tmp_dir()
-				fdb_path = self.extract(out_dir_func)[0]
+				with self.get_tmp_dir() as out_dir_func:
+					fdb_path = self.extract(out_dir_func)[0]
 
-				# Clean up with VACUUM first
-				try:
-					con = sqlite3.connect(fdb_path)
-					con.execute("VACUUM")
-				except sqlite3.Error as e:
-					logging.error(f"SQL error: {str(e)}")
-				finally:
-					con.close()
-
-				# Before running SQL commands, verify the strings exist or you will get empty FDBs
-				if self.are_strs_in_fdb(fdb_path, context, name_tuples):
-					con = sqlite3.connect(fdb_path)
-					cur = con.cursor()
+					# Clean up with VACUUM first
 					try:
-						command_replaced = context.command
-						for i, find in enumerate(context.find_strings):
-							command_replaced = command_replaced.replace(
-								find[0], name_tuples[i][0]).replace(find[1], name_tuples[i][1])
-
-						# Calculate new research hash
-						# CALCULATED_HASH gets added to the original ResearchID in the SQL script
-						# Uses both Find and Replace strings for reduced chance of collisions
-						if context.name == "research":
-							command_replaced = command_replaced.replace("CALCULATED_HASH", str(djb2(
-								name_tuples[0][0] + name_tuples[0][1])))
-
-						cur.executescript(command_replaced)
-
-						# Fix AnimalDefinitions
-						if context.name == "animals":
-							new_species = name_tuples[0][1]
-							re_game = re.compile(r"((_Male|_Female|_Juvenile)?_Game)", re.IGNORECASE)
-							re_visual = re.compile(r"(_(Male|Female|Juvenile)_Visuals)", re.IGNORECASE)
-							self.fix_animal_definition(cur, re_game, new_species, "AdultMaleGamePrefab", "_Game")
-							self.fix_animal_definition(cur, re_visual, new_species, "AdultMaleVisualPrefab", "_Male_Visuals")
-							self.fix_animal_definition(cur, re_game, new_species, "AdultFemaleGamePrefab", "_Game")
-							self.fix_animal_definition(cur, re_visual, new_species, "AdultFemaleVisualPrefab", "_Female_Visuals")
-							self.fix_animal_definition(cur, re_game, new_species, "JuvenileGamePrefab", "_Game")
-							self.fix_animal_definition(cur, re_visual, new_species, "JuvenileVisualPrefab", "_Juvenile_Visuals")
-
-						# Save (commit) the changes
-						con.commit()
-					except sqlite3.Error as e:
-						logging.error(f"SQL error: {str(e)}")
+						con = sqlite3.connect(fdb_path)
+						con.execute("VACUUM")
+					except sqlite3.Error:
+						logging.exception(f"SQL error query failed")
 					finally:
 						con.close()
 
-				self.remove()
-				loader = self.ovl.create_file(fdb_path)
-				self.ovl.register_loader(loader)
-				shutil.rmtree(temp_dir)
+					# Before running SQL commands, verify the strings exist or you will get empty FDBs
+					if self.are_strs_in_fdb(fdb_path, context, name_tuples):
+						con = sqlite3.connect(fdb_path)
+						cur = con.cursor()
+						try:
+							command_replaced = context.command
+							for i, find in enumerate(context.find_strings):
+								command_replaced = command_replaced.replace(
+									find[0], name_tuples[i][0]).replace(find[1], name_tuples[i][1])
+
+							# Calculate new research hash
+							# CALCULATED_HASH gets added to the original ResearchID in the SQL script
+							# Uses both Find and Replace strings for reduced chance of collisions
+							if context.name == "research":
+								command_replaced = command_replaced.replace("CALCULATED_HASH", str(djb2(
+									name_tuples[0][0] + name_tuples[0][1])))
+
+							cur.executescript(command_replaced)
+
+							# Fix AnimalDefinitions
+							if context.name == "animals":
+								new_species = name_tuples[0][1]
+								re_game = re.compile(r"((_Male|_Female|_Juvenile)?_Game)", re.IGNORECASE)
+								re_visual = re.compile(r"(_(Male|Female|Juvenile)_Visuals)", re.IGNORECASE)
+								self.fix_animal_definition(cur, re_game, new_species, "AdultMaleGamePrefab", "_Game")
+								self.fix_animal_definition(cur, re_visual, new_species, "AdultMaleVisualPrefab", "_Male_Visuals")
+								self.fix_animal_definition(cur, re_game, new_species, "AdultFemaleGamePrefab", "_Game")
+								self.fix_animal_definition(cur, re_visual, new_species, "AdultFemaleVisualPrefab", "_Female_Visuals")
+								self.fix_animal_definition(cur, re_game, new_species, "JuvenileGamePrefab", "_Game")
+								self.fix_animal_definition(cur, re_visual, new_species, "JuvenileVisualPrefab", "_Juvenile_Visuals")
+
+							# Save (commit) the changes
+							con.commit()
+						except sqlite3.Error as e:
+							logging.error(f"SQL error: {str(e)}")
+						finally:
+							con.close()
+
+					self.remove()
+					loader = self.ovl.create_file(fdb_path)
+					self.ovl.register_loader(loader)
 			except:
 				logging.exception(f"FDB command failed")
 		elif context:

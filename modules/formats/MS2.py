@@ -1,5 +1,4 @@
 import os
-import shutil
 import struct
 import logging
 
@@ -302,21 +301,19 @@ class Ms2Loader(MemStructLoader):
 
 	def rename_content(self, name_tuples):
 		logging.info("Renaming inside .ms2")
-		temp_dir, out_dir_func = self.get_tmp_dir()
-		try:
-			ms2_path = self.extract(out_dir_func)[0]
-			# open the ms2 file
-			ms2_file = Ms2File()
-			ms2_file.load(ms2_path, read_bytes=True)
-			# rename the materials
-			ms2_file.rename(name_tuples)
-			# update the hashes & save
-			ms2_file.save(ms2_path)
-			# inject again
-			self.remove()
-			loader = self.ovl.create_file(ms2_path)
-			self.ovl.register_loader(loader)
-		except:
-			logging.exception(f"Renaming inside {self.name} failed")
-		# delete temp dir again
-		shutil.rmtree(temp_dir)
+		with self.get_tmp_dir() as out_dir_func:
+			try:
+				ms2_path = self.extract(out_dir_func)[0]
+				# open the ms2 file
+				ms2_file = Ms2File()
+				ms2_file.load(ms2_path, read_bytes=True)
+				# rename the materials
+				ms2_file.rename(name_tuples)
+				# update the hashes & save
+				ms2_file.save(ms2_path)
+				# inject again
+				self.remove()
+				loader = self.ovl.create_file(ms2_path)
+				self.ovl.register_loader(loader)
+			except:
+				logging.exception(f"Renaming inside {self.name} failed")

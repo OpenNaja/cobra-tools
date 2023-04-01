@@ -1,8 +1,10 @@
+import contextlib
 import logging
 import os
 import struct
 import tempfile
 from io import BytesIO
+import shutil
 
 from generated.formats.ovl import UNK_HASH
 from generated.formats.ovl.compounds.DependencyEntry import DependencyEntry
@@ -233,6 +235,7 @@ class BaseFile:
 		self.aux_entries = [_rename(aux) for aux in self.aux_entries]
 		self.dependencies = {_rename(dep): ptr for dep, ptr in self.dependencies.items()}
 
+	@contextlib.contextmanager
 	def get_tmp_dir(self):
 		temp_dir = tempfile.mkdtemp("-cobra")
 
@@ -240,7 +243,9 @@ class BaseFile:
 			"""Helper function to generate temporary output file name"""
 			return os.path.normpath(os.path.join(temp_dir, n))
 
-		return temp_dir, out_dir_func
+		yield out_dir_func
+		# delete temp dir again
+		shutil.rmtree(temp_dir)
 
 	def register_entries(self):
 		for ovs_name, data_entry in self.data_entries.items():
