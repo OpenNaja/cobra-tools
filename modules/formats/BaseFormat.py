@@ -250,24 +250,27 @@ class BaseFile:
 
 	def remove(self):
 		logging.info(f"Removing {self.name}")
-		self.remove_pointers(*self.root_ptr)
+		# self.remove_pointers(*self.root_ptr)
+		for pool, offset in self.stack.keys():
+			if pool is not None:
+				pool.offsets.remove(offset)
 		# remove the loader from ovl so it is not saved
 		self.ovl.loaders.pop(self.name)
 		# remove streamed and child files
 		for loader in self.streams + self.children:
 			loader.remove()
 
-	def remove_pointers(self, pool, offset):
-		# children have no pointers, so pool is None, so nothing to delete
-		if pool is None:
-			return
-		# the same struct may be referenced multiple times in a stack
-		if offset in pool.offsets:
-			pool.offsets.remove(offset)
-		for entry in self.stack[(pool, offset)].values():
-			if isinstance(entry, tuple):
-				self.remove_pointers(*entry)
-		# offset_2_link isn't updated but that should be ok
+	# def remove_pointers(self, pool, offset):
+	# 	# children have no pointers, so pool is None, so nothing to delete
+	# 	if pool is None:
+	# 		return
+	# 	# the same struct may be referenced multiple times in a stack
+	# 	if offset in pool.offsets:
+	# 		pool.offsets.remove(offset)
+	# 	for entry in self.stack[(pool, offset)].values():
+	# 		if isinstance(entry, tuple):
+	# 			self.remove_pointers(*entry)
+	# 	# offset_2_link isn't updated but that should be ok
 
 	def track_ptrs(self):
 		# logging.debug(f"Tracking {self.name}")
