@@ -163,16 +163,14 @@ class Ms2Loader(MemStructLoader):
 		self.header.buffer_infos.data = ms2_file.buffer_infos
 		self.header.model_infos.data = ms2_file.model_infos
 		self.header.buffer_pointers.data = ms2_file.buffer_pointers
+		buffer_infos = self.header.buffer_infos
 		for model_info in ms2_file.model_infos:
 			model_info.materials.data = model_info.model.materials
 			model_info.lods.data = model_info.model.lods
 			model_info.objects.data = model_info.model.objects
 			model_info.meshes.data = model_info.model.meshes
 			for wrapper in model_info.model.meshes:
-				# link the right buffer_info, then clear pool_index value
-				wrapper.mesh.stream_info.temp_index = wrapper.mesh.stream_info.pool_index
-				# undo what we did on export
-				wrapper.mesh.stream_info.pool_index = 0
+				wrapper.mesh.stream_info.update_data(buffer_infos.data)
 		# print(self.header)
 		# determine ovs names. these differ by game version and there is no real way to predict them
 		# older JWE2 versions used "HighPolyModels" exclusively
@@ -204,7 +202,6 @@ class Ms2Loader(MemStructLoader):
 		# write the final memstruct
 		self.write_memory_data()
 		# link some more pointers
-		buffer_infos = self.header.buffer_infos
 		pool = self.header.model_infos.target_pool
 		first_model_pool, first_model_offset = self.get_first_model_offset()
 		for model_info in self.header.model_infos.data:
@@ -212,8 +209,9 @@ class Ms2Loader(MemStructLoader):
 			self.attach_frag_to_ptr(pool, model_info.first_model.io_start, first_model_pool, first_model_offset)
 			for wrapper in model_info.model.meshes:
 				# buffer_infos have been written, now make this mesh's buffer_info pointer point to the right entry
-				offset = wrapper.mesh.stream_info.temp_index * buffer_infos.data[0].io_size
-				self.attach_frag_to_ptr(pool, wrapper.mesh.stream_info.io_start, buffer_infos.target_pool, buffer_infos.target_offset+offset)
+				stream_info = wrapper.mesh.stream_info
+				offset = stream_info.data.io_start
+				self.attach_frag_to_ptr(pool, stream_info.io_start, buffer_infos.target_pool, offset)
 
 	def update(self):
 		if ovl_versions.is_pz16(self.ovl):
@@ -253,13 +251,10 @@ class Ms2Loader(MemStructLoader):
 			# export each mdl2
 			if self.header.version > 39:
 				# this corresponds to pc buffer 1 already
-				# grab all unique ptrs to buffer infos
-				offsets = set(wrapper.mesh.stream_info.data.io_start for model_info in self.header.model_infos.data for wrapper in model_info.meshes.data)
-				lut = {offset: i for i, offset in enumerate(sorted(offsets))}
 				# store buffer index in Pointer.pool_index
 				for model_info in self.header.model_infos.data:
 					for wrapper in model_info.meshes.data:
-						wrapper.mesh.stream_info.pool_index = lut[wrapper.mesh.stream_info.data.io_start]
+						wrapper.mesh.stream_info.update_index(self.header.buffer_infos.data)
 				if self.header.buffer_infos.data is not None:
 					self.header.buffer_infos.data.to_stream(self.header.buffer_infos.data, stream, context)
 				self.header.model_infos.data.to_stream(self.header.model_infos.data, stream, context)

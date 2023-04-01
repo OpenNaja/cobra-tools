@@ -246,7 +246,7 @@
 	<compound name="MeshData" inherit="MemStruct">
 		used for shared functions
 		<add name="stream_index" type="uint64" until="32">index into streamed buffers</add>
-		<add name="stream_info" type="Pointer" template="BufferInfo" since="47">PZ and JWE use a ptr instead</add>
+		<add name="stream_info" type="LookupPointer" template="BufferInfo" since="47">PZ and JWE use a ptr instead</add>
 		<add name="some_index" type="uint" vercond="!#JWE2_BIO#">increments somewhat in ZTUAC platypus, apparently unused from JWE1 onward</add>
 		<add name="some_index_2" type="uint" vercond="!(#JWE2_BIO# #OR# #PC#)">?</add>
 	</compound>

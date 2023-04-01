@@ -7,8 +7,8 @@ from plugin.utils.tristrip import triangulate
 
 from generated.formats.base.basic import Uint
 from generated.formats.base.basic import Uint64
+from generated.formats.ovl_base.compounds.LookupPointer import LookupPointer
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
-from generated.formats.ovl_base.compounds.Pointer import Pointer
 
 
 class MeshData(MemStruct):
@@ -27,14 +27,14 @@ class MeshData(MemStruct):
 		# index into streamed buffers
 		self.stream_index = 0
 
+		# PZ and JWE use a ptr instead
+		self.stream_info = LookupPointer(self.context, 0, MeshData._import_map["ms2.compounds.BufferInfo"])
+
 		# increments somewhat in ZTUAC platypus, apparently unused from JWE1 onward
 		self.some_index = 0
 
 		# ?
 		self.some_index_2 = 0
-
-		# PZ and JWE use a ptr instead
-		self.stream_info = Pointer(self.context, 0, MeshData._import_map["ms2.compounds.BufferInfo"])
 		if set_default:
 			self.set_defaults()
 
@@ -42,7 +42,7 @@ class MeshData(MemStruct):
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
 		yield ('stream_index', Uint64, (0, None), (False, None), True)
-		yield ('stream_info', Pointer, (0, None), (False, None), True)
+		yield ('stream_info', LookupPointer, (0, None), (False, None), True)
 		yield ('some_index', Uint, (0, None), (False, None), True)
 		yield ('some_index_2', Uint, (0, None), (False, None), True)
 
@@ -52,7 +52,7 @@ class MeshData(MemStruct):
 		if instance.context.version <= 32:
 			yield 'stream_index', Uint64, (0, None), (False, None)
 		if instance.context.version >= 47:
-			yield 'stream_info', Pointer, (0, MeshData._import_map["ms2.compounds.BufferInfo"]), (False, None)
+			yield 'stream_info', LookupPointer, (0, MeshData._import_map["ms2.compounds.BufferInfo"]), (False, None)
 		if not (((instance.context.version == 51) or (instance.context.version == 52)) and instance.context.biosyn):
 			yield 'some_index', Uint, (0, None), (False, None)
 		if not ((((instance.context.version == 51) or (instance.context.version == 52)) and instance.context.biosyn) or (instance.context.version == 32)):
