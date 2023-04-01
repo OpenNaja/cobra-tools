@@ -113,7 +113,7 @@ class VoxelskirtLoader(MemStructLoader):
 
 	def extract(self, out_dir):
 		out_files = list(super().extract(out_dir))
-		basepath = out_dir(self.file_entry.basename)
+		basepath = out_dir(self.basename)
 		if is_pc(self.ovl):
 			p = f"{basepath}_height.tiff"
 			out_files.append(p)
