@@ -258,7 +258,12 @@ class BaseFile:
 			loader.remove()
 
 	def remove_pointers(self, pool, offset):
-		pool.offsets.remove(offset)
+		# children have no pointers, so pool is None, so nothing to delete
+		if pool is None:
+			return
+		# the same struct may be referenced multiple times in a stack
+		if offset in pool.offsets:
+			pool.offsets.remove(offset)
 		for entry in self.stack[(pool, offset)].values():
 			if isinstance(entry, tuple):
 				self.remove_pointers(*entry)
