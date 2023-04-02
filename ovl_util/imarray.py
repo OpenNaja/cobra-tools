@@ -117,17 +117,18 @@ def split_png(png_file_path, ovl, compression=None):
 
 
 def get_split_mode(png_file_path, compression):
-	# PZ normal maps
+	# stores only two channels
 	if check_any(("BC5",), compression):
 		# JWE2 pyro
 		if check_any(("pbaseaotexture", "proughnessaopackedtexturedetailbase"), png_file_path):
 			return "R_G"
+		# PZ normal maps
 		else:
 			return "RG"
 	if check_any(
 			(
-					"pmossbasecolourroughnesspackedtexture", "ppackedtexture", "palbedoandroughnessdetail", "pnormaltexture",
-					"pbasecolourtexture", "pbasecolourandmasktexture", "palbinobasecolourandmasktexture"
+				"pmossbasecolourroughnesspackedtexture", "ppackedtexture", "palbedoandroughnessdetail", "pnormaltexture",
+				"pbasecolourtexture", "pbasecolourandmasktexture", "palbinobasecolourandmasktexture", "pdiffusetexture"
 			), png_file_path):
 		return "RGB_A"
 	# JWE2 only
