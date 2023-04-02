@@ -967,7 +967,7 @@ class OvlFile(Header):
 		loaders_and_deps = [(dep, loader) for loader in loaders_with_deps for dep in loader.dependencies]
 		loaders_and_aux = [(dep, loader) for loader in loaders_with_aux for dep in loader.aux_entries]
 		ovl_includes = sorted(set(self.included_ovl_names))
-		ovl_includes = [ovl_path.rstrip(".ovl") for ovl_path in ovl_includes]
+		ovl_includes = [ovl_path.replace(".ovl", "") for ovl_path in ovl_includes]
 
 		self.num_dependencies = len(loaders_and_deps)
 		self.num_files = self.num_files_2 = self.num_files_3 = len(self.loaders.values())
