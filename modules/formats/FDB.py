@@ -20,6 +20,9 @@ class FdbLoader(BaseFile):
 		root_data, buffer_0, buffer_1 = self._get_data(file_path)
 		self.write_root_bytes(root_data)
 		self.create_data_entry((buffer_0, buffer_1))
+		# patch these
+		self.data_entry.size_1 = self.data_entry.size_2
+		self.data_entry.size_2 = 0
 
 	def extract(self, out_dir):
 		name = self.name
