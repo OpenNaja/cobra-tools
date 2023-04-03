@@ -824,22 +824,24 @@ class OvlFile(Header):
 		logging.info("Loading archives")
 		start_time = time.time()
 		self.open_ovs_streams(mode="rb")
-		for archive_entry in self.iter_progress(self.archives, "Reading archives"):
-			# those point to external ovs archives
-			if archive_entry.name == "STATIC":
-				read_start = self.eof
-			else:
-				read_start = archive_entry.read_start
-			# start_time = time.time()
-			archive_entry.content = OvsFile(self.context, self, archive_entry)
-			# logging.info(f"Initialized OVS in {time.time() - start_time:.2f} seconds")
-			try:
-				archive_entry.content.load(archive_entry, read_start)
-			except:
-				logging.exception(f"Loading {archive_entry.name} from {archive_entry.ovs_path} failed: {archive_entry}")
-				logging.warning(archive_entry.content)
-				continue
-			# logging.info(f"Loading {archive_entry.name} from {archive_entry.ovs_path} worked: {archive_entry}\n{archive_entry.content}")
+		with self.report_error_files("Reading") as error_files:
+			for archive_entry in self.iter_progress(self.archives, "Reading archives"):
+				# those point to external ovs archives
+				if archive_entry.name == "STATIC":
+					read_start = self.eof
+				else:
+					read_start = archive_entry.read_start
+				# start_time = time.time()
+				archive_entry.content = OvsFile(self.context, self, archive_entry)
+				# logging.info(f"Initialized OVS in {time.time() - start_time:.2f} seconds")
+				try:
+					archive_entry.content.load(archive_entry, read_start)
+				except:
+					error_files.append(archive_entry.name)
+					logging.exception(f"Loading {archive_entry.name} from {archive_entry.ovs_path} failed: {archive_entry}")
+					logging.warning(archive_entry.content)
+					continue
+				# logging.info(f"Loading {archive_entry.name} from {archive_entry.ovs_path} worked: {archive_entry}\n{archive_entry.content}")
 		# logging.info(self.archives_meta)
 		self.close_ovs_streams()
 		self.load_flattened_pools()
@@ -874,32 +876,35 @@ class OvlFile(Header):
 			pool.offset_2_link[l_o] = n
 		# this loop is extremely costly in JWE2 c0 main.ovl, about 145 s
 		for archive in self.archives:
-			ovs = archive.content
-			# attach all pointers to their pool
-			for n, s_i, s_o, in zip(
-					ovs.root_entries_name,
-					ovs.root_entries["struct_ptr"]["pool_index"],
-					ovs.root_entries["struct_ptr"]["data_offset"]):
-				loader = self.loaders[n]
-				loader.ovs = ovs
-				# may not have a pool
-				if s_i != -1:
+			try:
+				ovs = archive.content
+				# attach all pointers to their pool
+				for n, s_i, s_o, in zip(
+						ovs.root_entries_name,
+						ovs.root_entries["struct_ptr"]["pool_index"],
+						ovs.root_entries["struct_ptr"]["data_offset"]):
+					loader = self.loaders[n]
+					loader.ovs = ovs
+					# may not have a pool
+					if s_i != -1:
+						s_pool = ovs.pools[s_i]
+						s_pool.offsets.add(s_o)
+						loader.root_ptr = (s_pool, s_o)
+				# vectorized like this, it takes virtually no time
+				for l_i, l_o, s_i, s_o, in zip(
+						ovs.fragments["link_ptr"]["pool_index"],
+						ovs.fragments["link_ptr"]["data_offset"],
+						ovs.fragments["struct_ptr"]["pool_index"],
+						ovs.fragments["struct_ptr"]["data_offset"]):
 					s_pool = ovs.pools[s_i]
-					s_pool.offsets.add(s_o)
-					loader.root_ptr = (s_pool, s_o)
-			# vectorized like this, it takes virtually no time
-			for l_i, l_o, s_i, s_o, in zip(
-					ovs.fragments["link_ptr"]["pool_index"],
-					ovs.fragments["link_ptr"]["data_offset"],
-					ovs.fragments["struct_ptr"]["pool_index"],
-					ovs.fragments["struct_ptr"]["data_offset"]):
-				s_pool = ovs.pools[s_i]
-				# replace offsets pointing to end of pool with None
-				if s_pool.size != s_o:
-					s_pool.offsets.add(s_o)
-				else:
-					s_o = None
-				ovs.pools[l_i].offset_2_link[l_o] = (s_pool, s_o)
+					# replace offsets pointing to end of pool with None
+					if s_pool.size != s_o:
+						s_pool.offsets.add(s_o)
+					else:
+						s_o = None
+					ovs.pools[l_i].offset_2_link[l_o] = (s_pool, s_o)
+			except:
+				logging.exception(f"Could not load pointers for {archive.name} - something went wrong before")
 		logging.debug("Calculating pointer sizes")
 		for pool in self.pools:
 			pool.calc_size_map()
