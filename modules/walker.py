@@ -37,6 +37,9 @@ def generate_hash_table(gui, start_dir):
 		all_deps_exts = set()
 		# these are the input for which hashes should be stored
 		hash_exts = {'.enumnamer', '.lua', '.model2stream', '.particleatlas', '.prefab', '.specdef', '.tex'}
+		# when specdef and prefab are left out of the hash table, jwe2 hashtable shrinks from 25 MB down to 0.8MB
+		# but that would need to make sure the respective files don't raise warnings on opening
+		# hash_exts = {'.enumnamer', '.lua', '.model2stream', '.particleatlas', '.tex'}
 		# plain arrays without fields, np vectorized arrays with tuple of field names
 		lists = {"mimes_name": (), "mimes_triplets": (), "mimes": ("mime_hash", "mime_version"), "files": ("pool_type", "set_pool_type")}
 
