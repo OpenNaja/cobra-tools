@@ -74,10 +74,10 @@ class ColoredFormatter(logging.Formatter):
 			logging.ERROR: f"{red}{self._fmt}{_reset}",
 			logging.CRITICAL: f"{bold_red}{self._fmt}{_reset}"
 		}
+		self.FORMATTERS = {key: logging.Formatter(fmt) for key, fmt in self.FORMATS.items()}
 
 	def format(self, record):
-		log_fmt = self.FORMATS.get(record.levelno)
-		formatter = logging.Formatter(log_fmt)
+		formatter = self.FORMATTERS.get(record.levelno)
 		return formatter.format(record)
 
 
