@@ -90,6 +90,7 @@ mimes = {
 	'.rideprestigedeclinespecs': Mime(name='Game:RidePrestigeDeclineSpecs:rideprestigedeclinespecs', hash=323217680, version=1, triplets=[(1, 2, 3)], pool=4, set_pool=0),
 	'.ridesettings': Mime(name='Game:RideSettings:ridesettings', hash=3422854792, version=1, triplets=[(1, 2, 3)], pool=4, set_pool=0),
 	'.scaleformlanguagedata': Mime(name='Casino:ScaleformLanguageData:scaleformlanguagedata', hash=1485717975, version=3, triplets=[(1, 2, 3)], pool=4, set_pool=0),
+	'.scenariomechanicresearchsettings': Mime(name='Game:ScenarioMechanicResearchSettings:scenariomechanicresearchsettings', hash=2490698194, version=1, triplets=[(1, 2, 3)], pool=4, set_pool=0),
 	'.sceneryloadtransforms': Mime(name='Game:SceneryLoadTransforms:sceneryloadtransforms', hash=2594715855, version=2, triplets=[(1, 2, 3)], pool=4, set_pool=0),
 	'.scenerytypeconverter': Mime(name='Game:SceneryTypeConverter:scenerytypeconverter', hash=4206134916, version=1, triplets=[(1, 2, 3)], pool=4, set_pool=0),
 	'.securitysettings': Mime(name='Staff:SecuritySettings:securitysettings', hash=988669002, version=1, triplets=[(1, 2, 3)], pool=4, set_pool=0),
