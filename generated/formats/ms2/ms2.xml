@@ -222,6 +222,14 @@
 		<add name="mesh index" type="ushort" >index into mesh array</add>
 	</compound>
 
+	<compound name="MeshData" inherit="MemStruct">
+		used for shared functions
+		<add name="stream_index" type="uint64" until="32">index into streamed buffers</add>
+		<add name="stream_info" type="Pointer" template="BufferInfo" since="47">PZ and JWE use a ptr instead</add>
+		<add name="some_index" type="uint" vercond="!#JWE2_BIO#">increments somewhat in ZTUAC platypus, apparently unused from JWE1 onward</add>
+		<add name="some_index_2" type="uint" vercond="!(#JWE2_BIO# #OR# #PC#)">?</add>
+	</compound>
+
 	<compound name="BioMeshData" inherit="MeshData">
 		JWE2 after Biosyn update - 48 bytes incl. inheritance
 		<add name="chunks_offset" type="uint" >start index into list of verts / tris chunks</add>
@@ -323,14 +331,6 @@
 		<add name="pre bones" type="DLAPreBones" vercond="#DLA#" cond="#ARG# \ last_count">?</add>
 		<add name="floatsy" type="FloatsY" arr1="#ARG#\render flag" until="32">see if it is a flag for ztuac too, so might be totally wrong here</add>
 		alignment here is handled by py code, seems to depend on whether a bone info follows
-	</compound>
-
-	<compound name="MeshData" inherit="MemStruct">
-		used for shared functions
-		<add name="stream_index" type="uint64" until="32">index into streamed buffers</add>
-		<add name="stream_info" type="Pointer" template="BufferInfo" since="47">PZ and JWE use a ptr instead</add>
-		<add name="some_index" type="uint" vercond="!#JWE2_BIO#">increments somewhat in ZTUAC platypus, apparently unused from JWE1 onward</add>
-		<add name="some_index_2" type="uint" vercond="!(#JWE2_BIO# #OR# #PC#)">?</add>
 	</compound>
 
 	<compound name="ZtTriBlockInfo" >
@@ -511,6 +511,10 @@
 		<add name="floats" type="float" arr1="6">some at least</add>
 	</compound>
 
+	<compound name="AbstractPointer" abstract="true">
+		forward pointing, of varying size
+	</compound>
+
 	<compound name="BonePointer" inherit="AbstractPointer">
 		<add name="index" type="ubyte" >index into bones</add>
 	</compound>
@@ -569,6 +573,15 @@
 		<add name="unknown friction" type="float">NOT air resistance</add>
 		<add name="unk 4" type="float">?</add>
 		<add name="dynamic friction" type="float">coefficient of dynamic friction</add>
+	</compound>
+
+	<compound name="JointPointer" inherit="AbstractPointer">
+		<add name="index" type="ushort" >index into joint_infos</add>
+	</compound>
+
+	<compound name="Constraint">
+		<add name="parent" type="JointPointer"/>
+		<add name="child" type="JointPointer"/>
 	</compound>
 
 	<compound name="PushConstraint" inherit="Constraint">
@@ -824,19 +837,6 @@
 		<add name="joints" type="JointData" cond="joint count" >joints</add>
 <!--		<add name="extra zero pad no joints" type="uint64" cond="! joint count" vercond="#PC#">?</add>-->
 
-	</compound>
-
-	<compound name="AbstractPointer" abstract="true">
-		forward pointing, of varying size
-	</compound>
-
-	<compound name="JointPointer" inherit="AbstractPointer">
-		<add name="index" type="ushort" >index into joint_infos</add>
-	</compound>
-
-	<compound name="Constraint">
-		<add name="parent" type="JointPointer"/>
-		<add name="child" type="JointPointer"/>
 	</compound>
 
 	<compound name="MeshCollisionData">
