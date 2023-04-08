@@ -45,26 +45,6 @@
         <add name="zero 3" type="uint64" since="260" />
     </compound>
 
-    <compound name="InfoHeader">
-        Custom header struct
-        <add name="version" type="uint"/>
-        <add name="mani count" type="uint"/>
-        <add name="names" type="ZString" arr1="mani count"/>
-        <add name="header" type="ManisRoot"/>
-        <add name="mani infos" type="ManiInfo" arr1="mani count"/>
-        <add name="name buffer" type="Buffer1" arg="header\hash block size / 4"/>
-        <add name="keys buffer" type="KeysReader" arg="mani infos"/>
-    </compound>
-
-    <compound name="Buffer1">
-		<add name="bone hashes" type="uint" arr1="#ARG#"/>
-		<add name="bone names" type="ZString" arr1="#ARG#"/>
-		<add name="bone pad" type="PadAlign" template="bone names" arg="4"/>
-    </compound>
-
-    <compound name="KeysReader">
-    </compound>
-
 	<compound name="ManiInfo" >
         288 bytes for JWE / PZ
         304 bytes for PC
@@ -105,25 +85,24 @@
 		<add name="zero 2 end" type="ushort"> </add>
     </compound>
 
-	<compound name="ManiBlock" >
-		<add name="ref" type="Empty"/>
-		define the channel names
-		<add name="PosBones" type="Channelname" arr1="#ARG#\PosBoneCount"/>
-		<add name="OriBones" type="Channelname" arr1="#ARG#\OriBoneCount"/>
-		<add name="SclBones" type="Channelname" arr1="#ARG#\SclBoneCount"/>
-		<add name="Floats" type="Channelname" arr1="#ARG#\FloatCount"/>
+    <compound name="Buffer1">
+		<add name="bone hashes" type="uint" arr1="#ARG#"/>
+		<add name="bone names" type="ZString" arr1="#ARG#"/>
+		<add name="bone pad" type="PadAlign" template="bone names" arg="4"/>
+    </compound>
 
-		the following are probably used to map bones in the skeleton
-		<add name="PosBones P" type="ubyte" arr1="#ARG#\PosBoneCount"/>
-		<add name="OriBones P" type="ubyte" arr1="#ARG#\OriBoneCount"/>
-		<add name="SclBones P" type="ubyte" arr1="#ARG#\SclBoneCount"/>
-		<add name="PosBones delta" type="ubyte" arr1="(#ARG#\PosBoneMax - #ARG#\PosBoneMin) + 1" cond="#ARG#\PosBoneMin #GTE# 0"> </add>
-		<add name="OriBones delta" type="ubyte" arr1="(#ARG#\OriBoneMax - #ARG#\OriBoneMin) + 1" cond="#ARG#\OriBoneMin #GTE# 0"> </add>
-		<add name="SclBones delta" type="ubyte" arr1="(#ARG#\SclBoneMax - #ARG#\SclBoneMin) + 1" cond="#ARG#\SclBoneMin #GTE# 0"> </add>
+    <compound name="KeysReader">
+    </compound>
 
-		<add name="pad" type="PadAlign" template="ref" arg="4"/>
-		<add name="KeyData" type="UncompressedManiData" arg="#ARG#" cond="#ARG#\b #EQ# 0"/>
-		<add name="KeyData" type="CompressedManiData" arg="#ARG#" cond="#ARG#\b #GT# 0"/>
+    <compound name="InfoHeader">
+        Custom header struct
+        <add name="version" type="uint"/>
+        <add name="mani count" type="uint"/>
+        <add name="names" type="ZString" arr1="mani count"/>
+        <add name="header" type="ManisRoot"/>
+        <add name="mani infos" type="ManiInfo" arr1="mani count"/>
+        <add name="name buffer" type="Buffer1" arg="header\hash block size / 4"/>
+        <add name="keys buffer" type="KeysReader" arg="mani infos"/>
     </compound>
 
 	<compound name="Vector3" size="12">
@@ -140,11 +119,19 @@
 		<field name="z" type="normshort"/>
 	</compound>
 
-
 	<compound name="UncompressedManiData" >
 		<add name="PosBones" type="Vector3" arr1="#ARG#\PosBoneCount" arr2="#ARG#\FrameCount" />
 		<add name="OriBones" type="Vector4H" arr1="#ARG#\OriBoneCount" arr2="#ARG#\FrameCount" />
 		<add name="Floats" type="float" arr1="#ARG#\FloatCount" arr2="#ARG#\FrameCount" />
+    </compound>
+
+    <compound name="FloatsGrabber" >
+    </compound>
+
+    <compound name="Repeat" >
+		<add name="zeros 0" type="uint64" arr1="7" > </add>
+		<add name="byte size" type="uint64" >to be read sequentially starting after this array </add>
+		<add name="zeros 1" type="uint64" arr1="2" > </add>
     </compound>
 	
 	<compound name="CompressedManiData" >
@@ -189,22 +176,39 @@
 		<add name="anoth pad2" type="PadAlign" template="ref" arg="16" > </add>
 		<add name="ref3" type="Empty"/>
 		<add name="repeats" type="Repeat" arr1="count" > </add>
-	</compound>	
-	
-	
-	
-	
-	
+	</compound>
 
-    <compound name="Repeat" >
-		<add name="zeros 0" type="uint64" arr1="7" > </add>
-		<add name="byte size" type="uint64" >to be read sequentially starting after this array </add>
-		<add name="zeros 1" type="uint64" arr1="2" > </add>
+	<compound name="ManiBlock" >
+		<add name="ref" type="Empty"/>
+		define the channel names
+		<add name="PosBones" type="Channelname" arr1="#ARG#\PosBoneCount"/>
+		<add name="OriBones" type="Channelname" arr1="#ARG#\OriBoneCount"/>
+		<add name="SclBones" type="Channelname" arr1="#ARG#\SclBoneCount"/>
+		<add name="Floats" type="Channelname" arr1="#ARG#\FloatCount"/>
+
+		the following are probably used to map bones in the skeleton
+		<add name="PosBones P" type="ubyte" arr1="#ARG#\PosBoneCount"/>
+		<add name="OriBones P" type="ubyte" arr1="#ARG#\OriBoneCount"/>
+		<add name="SclBones P" type="ubyte" arr1="#ARG#\SclBoneCount"/>
+		<add name="PosBones delta" type="ubyte" arr1="(#ARG#\PosBoneMax - #ARG#\PosBoneMin) + 1" cond="#ARG#\PosBoneMin #GTE# 0"> </add>
+		<add name="OriBones delta" type="ubyte" arr1="(#ARG#\OriBoneMax - #ARG#\OriBoneMin) + 1" cond="#ARG#\OriBoneMin #GTE# 0"> </add>
+		<add name="SclBones delta" type="ubyte" arr1="(#ARG#\SclBoneMax - #ARG#\SclBoneMin) + 1" cond="#ARG#\SclBoneMin #GTE# 0"> </add>
+
+		<add name="pad" type="PadAlign" template="ref" arg="4"/>
+		<add name="KeyData" type="UncompressedManiData" arg="#ARG#" cond="#ARG#\b #EQ# 0"/>
+		<add name="KeyData" type="CompressedManiData" arg="#ARG#" cond="#ARG#\b #GT# 0"/>
     </compound>
 
-    <compound name="FloatsGrabber" >
+
+
+    <compound name="ChunkSizes" >
+		<add name="zeros 0" type="uint64" > </add>
+		<add name="bone" type="uint" ></add>
+		<add name="counta" type="uint" > </add>
     </compound>
-	
+
+    <compound name="SubChunkReader" >
+    </compound>
 	
     <compound name="UnkChunkList" >
 		<add name="ref" type="Empty" > </add>
@@ -217,13 +221,13 @@
         <add name="pad" type="PadAlign" template="ref" arg="16" >?</add>
     </compound>
 	
-    <compound name="ChunkSizes" >
-		<add name="zeros 0" type="uint64" > </add>
-		<add name="bone" type="uint" ></add>
-		<add name="counta" type="uint" > </add>
-    </compound>
-	
-    <compound name="SubChunkReader" >
+    <compound name="WeirdElementOne" >
+		<add name="float 0" type="float"> </add>
+		<add name="zero 0" type="uint" ></add>
+		<add name="floats 0" type="float" arr1="2"> </add>
+		<add name="zeros 0" type="uint64" arr1="2"> </add>
+		<add name="floats 1" type="float" arr1="3"> </add>
+		<add name="countb" type="uint"> </add>
     </compound>
 	
     <compound name="WeirdElementTwoReader" >
@@ -233,15 +237,6 @@
 		arg is chunksizes
 		<add name="weird list one" type="WeirdElementOne" arr1="#ARG#\counta" >for subchunk_list[n] needs chunksize_list[n]'s counta for array length</add>
 		<add name="weird list two" type="WeirdElementTwoReader" arg="weird list one" >  needs sum of countb's from weird list one</add>
-    </compound>
-	
-    <compound name="WeirdElementOne" >
-		<add name="float 0" type="float"> </add>
-		<add name="zero 0" type="uint" ></add>
-		<add name="floats 0" type="float" arr1="2"> </add>
-		<add name="zeros 0" type="uint64" arr1="2"> </add>
-		<add name="floats 1" type="float" arr1="3"> </add>
-		<add name="countb" type="uint"> </add>
     </compound>
 	
     <compound name="WeirdElementTwo" >

@@ -80,11 +80,6 @@
         <add name="num_res" type="uint64" />
     </compound>
 
-    <compound name="PathJoinPartResourceList" inherit="MemStruct">
-        <!-- Size 72 * #ARG# + 16-byte alignment padding -->
-        <add name="resources" type="PathJoinPartResource" arr1="#ARG#" />
-    </compound>
-
     <compound name="PathJoinPartResource" inherit="MemStruct">
         <!-- Size 72 -->
         <add name="unkPoints1" type="Pointer" template="PointsList" arg="num_points_1" />
@@ -103,6 +98,11 @@
         <add name="num_points_2_copy" type="byte" />
         <add name="num_points_3" type="byte" />
         <add name="padding_2" type="uint64" default="0" optional="True" />
+    </compound>
+
+    <compound name="PathJoinPartResourceList" inherit="MemStruct">
+        <!-- Size 72 * #ARG# + 16-byte alignment padding -->
+        <add name="resources" type="PathJoinPartResource" arr1="#ARG#" />
     </compound>
 
     <compound name="PointsList" inherit="MemStruct">

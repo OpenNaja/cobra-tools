@@ -58,6 +58,12 @@
         <add name="dtype" type="FgmDtype"/>
     </compound>
 
+	<compound name="TexIndex" inherit="MemStruct">
+        stores index into shader and array index of texture
+        <add name="_tex_index" type="uint" />
+        <add name="array_index" type="uint" since="18">index of tile if an array texture is used eg JWE swatches</add>
+    </compound>
+
 	<compound name="TextureInfo" inherit="GenericInfo">
 		part of fgm fragment, per texture involved
         <add name="value" type="TexIndex" arr1="1" cond="dtype == 8" />
@@ -66,12 +72,6 @@
         used in JWE swatches, purpose unknown
         <add name="some_index_0" type="uint" since="18" default="0" optional="True" />
         <add name="some_index_1" type="uint" since="18" default="0" optional="True" />
-    </compound>
-
-	<compound name="TexIndex" inherit="MemStruct">
-        stores index into shader and array index of texture
-        <add name="_tex_index" type="uint" />
-        <add name="array_index" type="uint" since="18">index of tile if an array texture is used eg JWE swatches</add>
     </compound>
 
 	<compound name="AttribInfo" inherit="GenericInfo">

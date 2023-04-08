@@ -4,6 +4,12 @@
 
 	<xi:include href="../ovl_base/ovl_base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
 
+    <compound name="Font" inherit="MemStruct">
+        JWE1: 16 bytes
+        <add name="data_size" type="uint64" />
+        <add name="zero" type="uint64" />
+    </compound>
+
     <compound name="FctRoot" inherit="MemStruct">
         JWE1: 104 bytes
         <add name="u0" type="short" />
@@ -17,12 +23,6 @@
         <add name="z2" type="uint64" />
         <add name="offset" type="uint64" />usually 1088 into buffer data
         <add name="fonts" type="Font" arr1="4"/>
-    </compound>
-
-    <compound name="Font" inherit="MemStruct">
-        JWE1: 16 bytes
-        <add name="data_size" type="uint64" />
-        <add name="zero" type="uint64" />
     </compound>
 
 </fileformat>

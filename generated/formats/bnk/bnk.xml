@@ -35,13 +35,6 @@
         <add name="wem datas" type="byte" arr1="length"/>
     </compound>
 
-    <compound name="HIRCSection">
-        The HIRC section contains all the Wwise objects, including the events, the containers to group sounds, and the references to the sound files.
-        <add name="length" type="uint" >length of following data</add>
-        <add name="count" type="uint"/>
-        <add name="hirc pointers" type="HircPointer" arr1="count"/>
-    </compound>
-
     <enum name="HircType" numbytes="1" storage="ubyte" default="0">
 		<option value="0" name="NONE" />
 		<option value="1" name="Settings" />
@@ -68,16 +61,6 @@
 		<option value="22" name="UnkType22" />
     </enum>
 
-
-    <compound name="HircPointer">
-        <add name="id" type="HircType"/>
-<!--        <add name="data" type="TypeOther" />-->
-        <add name="data" type="SoundSfxVoice" cond="id == 2"/>
-<!--        <add name="data" type="TypeOther" cond="id != 2"/>-->
-        <add name="data" type="MusicTrack" cond="id == 11"/>
-        <add name="data" type="TypeOther" cond="(id != 2) #AND# (id != 11)"/>
-    </compound>
-
     <compound name="SoundSfxVoice">
         <add name="length" type="uint">length of this section</add>
         <add name="id" type="uint" >id of this Sound SFX object</add>
@@ -88,10 +71,30 @@
         <add name="extra" type="byte" arr1="length - 17" >?</add>
     </compound>
 
-    <compound name="MusicTrack">
-        <add name="length" type="uint">seen 114</add>
-        <add name="id" type="uint"/>
-        <add name="data" type="MusicTrackInitialValues"/>
+    <compound name="AkMediaInformation">
+        <add name="sourceID" type="uint"/>
+        <add name="uInMemoryMediaSize" type="uint"/>
+        <add name="uSourceBits" type="ubyte"/>
+    </compound>
+
+    <compound name="AkBankSourceData">
+        <add name="ulPluginID" type="uint"/>
+        <add name="StreamType" type="ubyte"/>
+        <add name="AkMediaInformation" type="AkMediaInformation"/>
+    </compound>
+
+    <compound name="AkTrackSrcInfo">
+        <add name="trackID" type="uint"/>
+        <add name="sourceID" type="uint"/>
+        <add name="eventID" type="uint"/>
+        <add name="fPlayAt" type="double"/>
+        <add name="fBeginTrimOffset" type="double"/>
+        <add name="fEndTrimOffset" type="double"/>
+        <add name="fSrcDuration" type="double"/>
+    </compound>
+
+    <compound name="NodeBaseParams">
+        <add name="raw" type="byte" arr1="30"/>
     </compound>
 
     <compound name="MusicTrackInitialValues">
@@ -109,30 +112,10 @@
         <add name="iLookAheadTime" type="int"/>
     </compound>
 
-    <compound name="AkBankSourceData">
-        <add name="ulPluginID" type="uint"/>
-        <add name="StreamType" type="ubyte"/>
-        <add name="AkMediaInformation" type="AkMediaInformation"/>
-    </compound>
-
-    <compound name="AkMediaInformation">
-        <add name="sourceID" type="uint"/>
-        <add name="uInMemoryMediaSize" type="uint"/>
-        <add name="uSourceBits" type="ubyte"/>
-    </compound>
-
-    <compound name="AkTrackSrcInfo">
-        <add name="trackID" type="uint"/>
-        <add name="sourceID" type="uint"/>
-        <add name="eventID" type="uint"/>
-        <add name="fPlayAt" type="double"/>
-        <add name="fBeginTrimOffset" type="double"/>
-        <add name="fEndTrimOffset" type="double"/>
-        <add name="fSrcDuration" type="double"/>
-    </compound>
-
-    <compound name="NodeBaseParams">
-        <add name="raw" type="byte" arr1="30"/>
+    <compound name="MusicTrack">
+        <add name="length" type="uint">seen 114</add>
+        <add name="id" type="uint"/>
+        <add name="data" type="MusicTrackInitialValues"/>
     </compound>
 
     <compound name="TypeOther">
@@ -141,9 +124,20 @@
         <add name="raw" type="byte" arr1="length">id of this Sound SFX object</add>
     </compound>
 
-    <compound name="BnkFileContainer" inherit="GenericHeader">
-        custom struct
-        <add name="bnk_header" type="BnkBufferData"/>
+    <compound name="HircPointer">
+        <add name="id" type="HircType"/>
+<!--        <add name="data" type="TypeOther" />-->
+        <add name="data" type="SoundSfxVoice" cond="id == 2"/>
+<!--        <add name="data" type="TypeOther" cond="id != 2"/>-->
+        <add name="data" type="MusicTrack" cond="id == 11"/>
+        <add name="data" type="TypeOther" cond="(id != 2) #AND# (id != 11)"/>
+    </compound>
+
+    <compound name="HIRCSection">
+        The HIRC section contains all the Wwise objects, including the events, the containers to group sounds, and the references to the sound files.
+        <add name="length" type="uint" >length of following data</add>
+        <add name="count" type="uint"/>
+        <add name="hirc pointers" type="HircPointer" arr1="count"/>
     </compound>
     
     <compound name="StreamInfo" >
@@ -166,6 +160,11 @@
         <add name="name" type="ZString" >data</add>
         <add name="external_b_suffix" type="ZString" cond="external_aux_b_count">ext format subtypes</add>
         <add name="external_s_suffix" type="ZString" cond="streams_count">ext format subtypes</add>
+    </compound>
+
+    <compound name="BnkFileContainer" inherit="GenericHeader">
+        custom struct
+        <add name="bnk_header" type="BnkBufferData"/>
     </compound>
 
 </niftoolsxml>

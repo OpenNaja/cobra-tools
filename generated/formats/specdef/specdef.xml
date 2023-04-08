@@ -57,27 +57,6 @@
         <add name="data_ptr" type="Pointer" template="Data" arg="#ARG# \ dtype"/>
     </compound>
 
-    <compound name="Data" inherit="MemStruct">
-        #ARG# is dtype
-        todo - enum, grab, implement, fetch
-        <add name="dtype" type="BooleanData" cond="#ARG# #EQ# 0"/>
-        <add name="dtype" type="Int8Data" cond="#ARG# #EQ# 1"/>
-        <add name="dtype" type="Int16Data" cond="#ARG# #EQ# 2"/>
-        <add name="dtype" type="Int32Data" cond="#ARG# #EQ# 3"/>
-        <add name="dtype" type="Int64Data" cond="#ARG# #EQ# 4"/>
-        <add name="dtype" type="Uint8Data" cond="#ARG# #EQ# 5"/>
-        <add name="dtype" type="Uint16Data" cond="#ARG# #EQ# 6"/>
-        <add name="dtype" type="Uint32Data" cond="#ARG# #EQ# 7"/>
-        <add name="dtype" type="Uint64Data" cond="#ARG# #EQ# 8"/>
-        <add name="dtype" type="FloatData" cond="#ARG# #EQ# 9"/>
-        <add name="dtype" type="StringData" cond="#ARG# #EQ# 10"/>
-        <add name="dtype" type="Vector2" cond="#ARG# #EQ# 11"/>
-        <add name="dtype" type="Vector3" cond="#ARG# #EQ# 12"/>
-        <add name="dtype" type="ArrayData" cond="#ARG# #EQ# 13"/>
-        <add name="dtype" type="ChildSpecData" cond="#ARG# #EQ# 14"/>
-        <add name="dtype" type="ReferenceToObjectData" cond="#ARG# #EQ# 15"/>
-    </compound>
-
     <compound name="BooleanData" inherit="MemStruct">
         8 bytes in log
         <add name="value" type="ubyte"/>
@@ -173,9 +152,19 @@
         <add name="ioptional" type="uint"/>
     </compound>
 
-    <compound name="ReferenceToObjectData" inherit="MemStruct">
+    <compound name="Vector2" inherit="MemStruct">
+        16 bytes
+        <add name="x" type="float"/>
+        <add name="y" type="float"/>
+        <add name="ioptional" type="uint"/>
+        <add name="unused" type="uint"/>
+    </compound>
+
+    <compound name="Vector3" inherit="MemStruct">
         16 bytes in log
-        <add name="obj_name" type="Pointer" template="ZString" />
+        <add name="x" type="float"/>
+        <add name="y" type="float"/>
+        <add name="z" type="float"/>
         <add name="ioptional" type="uint"/>
     </compound>
 
@@ -193,20 +182,31 @@
         <add name="specdef" type="Pointer" template="SpecdefRoot"/>
     </compound>
 
-    <compound name="Vector2" inherit="MemStruct">
-        16 bytes
-        <add name="x" type="float"/>
-        <add name="y" type="float"/>
+    <compound name="ReferenceToObjectData" inherit="MemStruct">
+        16 bytes in log
+        <add name="obj_name" type="Pointer" template="ZString" />
         <add name="ioptional" type="uint"/>
-        <add name="unused" type="uint"/>
     </compound>
 
-    <compound name="Vector3" inherit="MemStruct">
-        16 bytes in log
-        <add name="x" type="float"/>
-        <add name="y" type="float"/>
-        <add name="z" type="float"/>
-        <add name="ioptional" type="uint"/>
+    <compound name="Data" inherit="MemStruct">
+        #ARG# is dtype
+        todo - enum, grab, implement, fetch
+        <add name="dtype" type="BooleanData" cond="#ARG# #EQ# 0"/>
+        <add name="dtype" type="Int8Data" cond="#ARG# #EQ# 1"/>
+        <add name="dtype" type="Int16Data" cond="#ARG# #EQ# 2"/>
+        <add name="dtype" type="Int32Data" cond="#ARG# #EQ# 3"/>
+        <add name="dtype" type="Int64Data" cond="#ARG# #EQ# 4"/>
+        <add name="dtype" type="Uint8Data" cond="#ARG# #EQ# 5"/>
+        <add name="dtype" type="Uint16Data" cond="#ARG# #EQ# 6"/>
+        <add name="dtype" type="Uint32Data" cond="#ARG# #EQ# 7"/>
+        <add name="dtype" type="Uint64Data" cond="#ARG# #EQ# 8"/>
+        <add name="dtype" type="FloatData" cond="#ARG# #EQ# 9"/>
+        <add name="dtype" type="StringData" cond="#ARG# #EQ# 10"/>
+        <add name="dtype" type="Vector2" cond="#ARG# #EQ# 11"/>
+        <add name="dtype" type="Vector3" cond="#ARG# #EQ# 12"/>
+        <add name="dtype" type="ArrayData" cond="#ARG# #EQ# 13"/>
+        <add name="dtype" type="ChildSpecData" cond="#ARG# #EQ# 14"/>
+        <add name="dtype" type="ReferenceToObjectData" cond="#ARG# #EQ# 15"/>
     </compound>
 
 </niftoolsxml>

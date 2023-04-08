@@ -1,4 +1,5 @@
 import os.path as path
+import logging
 
 import codegen.naming_conventions as convention
 
@@ -82,7 +83,14 @@ class Imports:
             self.imports.append(cls_to_import.split('.')[0])
 
     def is_recursive_field(self, field):
-        return field.attrib.get('recursive', 'False') == 'True'
+        if field.attrib['type'] not in self.parent.processed_types:
+            if field.attrib.get('recursive', 'False') != 'True':
+                logging.warn(f"Field {field.attrib['name']} with type {field.attrib['type']} in format " \
+                             f"{self.parent.format_name} is not a reference to a preceding type, but is not " \
+                             f"marked as recursive")
+            return True
+        else:
+            return field.attrib.get('recursive', 'False') == 'True'
 
     def add_indirect_import(self, cls_to_import):
         # import the class directly, but only if it's not a struct (because those could lead to circular imports)
