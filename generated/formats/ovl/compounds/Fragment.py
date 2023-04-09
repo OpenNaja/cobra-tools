@@ -51,6 +51,3 @@ class Fragment(BaseStruct):
 		target_pool = pools[self.struct_ptr.pool_index]
 		self.link_ptr.add_link((target_pool, self.struct_ptr.data_offset), pools)
 
-
-
-Fragment.init_attributes()

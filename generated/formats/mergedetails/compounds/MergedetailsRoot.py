@@ -48,6 +48,3 @@ class MergedetailsRoot(MemStruct):
 		yield 'field_name', Pointer, (0, ZString), (False, None)
 		yield 'count', Uint, (0, None), (False, None)
 		yield 'flag', Uint, (0, None), (False, None)
-
-
-MergedetailsRoot.init_attributes()

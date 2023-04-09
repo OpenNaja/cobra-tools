@@ -83,6 +83,3 @@ class SupportSetRoot(MemStruct):
 		yield 'data', ArrayPointer, (instance.num_data, SupportSetRoot._import_map["path.compounds.SupportSetData"]), (False, None)
 		yield 'num_data', Uint, (0, None), (False, None)
 		yield 'zeros', Array, (0, None, (3,), Uint), (False, 0)
-
-
-SupportSetRoot.init_attributes()

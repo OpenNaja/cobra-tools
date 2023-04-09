@@ -48,6 +48,3 @@ class FloatsGrabber(BaseStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		stream.write(instance.data)
-
-
-FloatsGrabber.init_attributes()

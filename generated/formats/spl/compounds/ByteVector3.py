@@ -39,6 +39,3 @@ class ByteVector3(MemStruct):
 		yield 'x', Byte, (0, None), (False, None)
 		yield 'y', Byte, (0, None), (False, None)
 		yield 'z', Byte, (0, None), (False, None)
-
-
-ByteVector3.init_attributes()

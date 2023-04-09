@@ -89,6 +89,3 @@ class RagdollPhysicsActivityData(MemStruct):
 		yield 'bone_chain_priority', Uint64, (0, None), (False, None)
 		yield 'data_stream_name', Pointer, (0, ZString), (False, None)
 		yield 'data_stream_type', Pointer, (0, ZString), (False, None)
-
-
-RagdollPhysicsActivityData.init_attributes()

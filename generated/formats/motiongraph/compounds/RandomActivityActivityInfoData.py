@@ -43,6 +43,3 @@ class RandomActivityActivityInfoData(MemStruct):
 		yield 'activities_count', Uint64, (0, None), (False, None)
 		yield 'blend_time', Float, (0, None), (False, None)
 		yield 'mode', SelectActivityActivityMode, (0, None), (False, None)
-
-
-RandomActivityActivityInfoData.init_attributes()

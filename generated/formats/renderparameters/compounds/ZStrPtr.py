@@ -28,6 +28,3 @@ class ZStrPtr(MemStruct):
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'string', Pointer, (0, ZString), (False, None)
-
-
-ZStrPtr.init_attributes()

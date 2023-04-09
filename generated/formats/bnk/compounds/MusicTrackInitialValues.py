@@ -60,6 +60,3 @@ class MusicTrackInitialValues(BaseStruct):
 		yield 'node_base_params', NodeBaseParams, (0, None), (False, None)
 		yield 'e_track_type', Ubyte, (0, None), (False, None)
 		yield 'i_look_ahead_time', Int, (0, None), (False, None)
-
-
-MusicTrackInitialValues.init_attributes()

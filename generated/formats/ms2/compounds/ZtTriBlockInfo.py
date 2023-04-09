@@ -34,6 +34,3 @@ class ZtTriBlockInfo(BaseStruct):
 		yield 'tri_index_count', Uint, (0, None), (False, None)
 		yield 'a', Short, (0, None), (False, None)
 		yield 'unk_index', Short, (0, None), (False, None)
-
-
-ZtTriBlockInfo.init_attributes()

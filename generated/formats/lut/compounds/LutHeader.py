@@ -44,6 +44,3 @@ class LutHeader(MemStruct):
 		yield 'unk_1', Uint, (0, None), (False, None)
 		yield 'colors_in_column_count', Uint, (0, None), (False, None)
 		yield 'unk_2', Uint, (0, None), (False, None)
-
-
-LutHeader.init_attributes()

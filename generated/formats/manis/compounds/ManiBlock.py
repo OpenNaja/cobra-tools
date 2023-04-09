@@ -73,6 +73,3 @@ class ManiBlock(BaseStruct):
 			yield 'key_data', UncompressedManiData, (instance.arg, None), (False, None)
 		if instance.arg.b > 0:
 			yield 'key_data', CompressedManiData, (instance.arg, None), (False, None)
-
-
-ManiBlock.init_attributes()

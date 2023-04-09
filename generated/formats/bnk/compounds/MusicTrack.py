@@ -32,6 +32,3 @@ class MusicTrack(BaseStruct):
 		yield 'length', Uint, (0, None), (False, None)
 		yield 'id', Uint, (0, None), (False, None)
 		yield 'data', MusicTrackInitialValues, (0, None), (False, None)
-
-
-MusicTrack.init_attributes()

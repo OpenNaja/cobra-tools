@@ -28,6 +28,3 @@ class Variant(MemStruct):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'has_ptr', Uint64, (0, None), (False, None)
 		yield 'variant_name', Pointer, (0, ZString), (False, None)
-
-
-Variant.init_attributes()

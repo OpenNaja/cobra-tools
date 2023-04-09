@@ -62,6 +62,3 @@ class OffsetData(MemStruct):
 		yield 'count', Uint, (0, None), (False, None)
 		yield 'z_4', Uint, (0, None), (False, None)
 		yield 'z_5', Uint, (0, None), (False, None)
-
-
-OffsetData.init_attributes()

@@ -45,6 +45,3 @@ class Joint(MemStruct):
 		yield 'unk_float', Float, (0, None), (False, None)
 		yield 'unk_int', Uint, (0, None), (False, None)
 		yield 'unk_int_2', Uint64, (0, None), (False, None)
-
-
-Joint.init_attributes()

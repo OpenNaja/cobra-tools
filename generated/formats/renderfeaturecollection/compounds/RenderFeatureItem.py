@@ -32,6 +32,3 @@ class RenderFeatureItem(MemStruct):
 		yield 'item_name', Pointer, (0, ZString), (False, None)
 		yield 'item_data', ArrayPointer, (instance.item_data_count, RenderFeatureItem._import_map["renderfeaturecollection.compounds.RenderFeatureSubItem"]), (False, None)
 		yield 'item_data_count', Uint64, (0, None), (False, None)
-
-
-RenderFeatureItem.init_attributes()

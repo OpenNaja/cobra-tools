@@ -55,6 +55,3 @@ class WeirdElementTwoReader(BaseStruct):
 		return s
 
 
-
-
-WeirdElementTwoReader.init_attributes()

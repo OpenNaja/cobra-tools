@@ -42,6 +42,3 @@ class AttribData(MemStruct):
 			yield 'value', Array, (0, None, (1,), Int), (False, None)
 		if instance.arg.dtype == 6:
 			yield 'value', Array, (0, None, (1,), Int), (False, None)
-
-
-AttribData.init_attributes()

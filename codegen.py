@@ -14,6 +14,7 @@ from codegen.Basics import Basics
 from codegen.Compound import Compound
 from codegen.Enum import Enum
 from codegen.Bitfield import Bitfield
+from codegen.Imports import Imports
 from codegen.Versions import Versions
 from codegen.Module import Module
 from codegen.naming_conventions import clean_comment_str
@@ -56,7 +57,7 @@ class XmlParser:
         # maps each type to its member tag type
         self.tag_dict = {}
 
-        self.processed_types = {"template"}
+        self.processed_types = {}
 
         self.basics = None
 
@@ -138,9 +139,10 @@ class XmlParser:
                     self.read_verattr(child)
             except:
                 logging.exception(f"Parsing child {child} failed")
-        out_file = BaseClass.get_out_path(os.path.join(self.base_segments, "versions"))
-        self.versions.write(out_file)
-        # self.basics.write_basic_map()
+        versions_file = BaseClass.get_out_path(os.path.join(self.base_segments, "versions"))
+        self.versions.write(versions_file)
+        imports_file = BaseClass.get_out_path(os.path.join(self.base_segments, "imports"))
+        Imports.write_import_map(self, imports_file)
         parsed_xmls[xml_path] = self
 
     # the following constructs do not create classes
@@ -289,7 +291,7 @@ class XmlParser:
         self.copy_dict_info(self.path_dict, other_parser.path_dict)
         self.copy_dict_info(self.tag_dict, other_parser.tag_dict)
         self.basics.add_other_basics(other_parser.basics, other_parser.path_dict["basic_map"])
-        self.processed_types.update(other_parser.processed_types)
+        self.copy_dict_info(self.processed_types, other_parser.processed_types)
 
 
 def copy_src_to_generated(src_dir, trg_dir):

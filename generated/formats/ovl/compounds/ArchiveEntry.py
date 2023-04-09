@@ -108,6 +108,3 @@ class ArchiveEntry(BaseStruct):
 		yield 'pools_start', Uint, (0, None), (False, None)
 		yield 'pools_end', Uint, (0, None), (False, None)
 		yield 'ovs_offset', Uint, (0, None), (False, None)
-
-
-ArchiveEntry.init_attributes()

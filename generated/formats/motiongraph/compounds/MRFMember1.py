@@ -53,6 +53,3 @@ class MRFMember1(MemStruct):
 		yield 'ptr_2', Pointer, (0, None), (False, None)
 		yield 'count_4', Uint64, (0, None), (False, None)
 		yield 'id', Pointer, (0, ZString), (False, None)
-
-
-MRFMember1.init_attributes()

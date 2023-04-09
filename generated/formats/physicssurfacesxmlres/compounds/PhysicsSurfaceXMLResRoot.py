@@ -90,6 +90,3 @@ class PhysicsSurfaceXMLResRoot(MemStruct):
 		yield 'unk_64_8', Uint64, (0, None), (False, None)
 		yield 'unk_64_9', Uint64, (0, None), (False, None)
 		yield 'unk_64_10', Uint64, (0, None), (False, None)
-
-
-PhysicsSurfaceXMLResRoot.init_attributes()

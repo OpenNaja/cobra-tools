@@ -31,6 +31,3 @@ class AkBankSourceData(BaseStruct):
 		yield 'ul_plugin_i_d', Uint, (0, None), (False, None)
 		yield 'stream_type', Ubyte, (0, None), (False, None)
 		yield 'ak_media_information', AkMediaInformation, (0, None), (False, None)
-
-
-AkBankSourceData.init_attributes()

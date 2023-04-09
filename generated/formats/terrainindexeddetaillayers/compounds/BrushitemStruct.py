@@ -27,6 +27,3 @@ class BrushitemStruct(MemStruct):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'layer_name', Pointer, (0, ZString), (False, None)
 		yield 'brush_name', Pointer, (0, ZString), (False, None)
-
-
-BrushitemStruct.init_attributes()

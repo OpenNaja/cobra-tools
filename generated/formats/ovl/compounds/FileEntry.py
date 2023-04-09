@@ -57,6 +57,3 @@ class FileEntry(BaseStruct):
 		self.pool_type = ovl.get_mime(self.ext, "pool")
 		self.set_pool_type = ovl.get_mime(self.ext, "set_pool")
 
-
-
-FileEntry.init_attributes()

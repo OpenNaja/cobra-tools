@@ -152,6 +152,3 @@ class GuestEconomyRoot(MemStruct):
 		yield 'u_12', Uint, (0, None), (False, None)
 		yield 'u_13', Uint, (0, None), (False, None)
 		yield 'u_14', Uint, (0, None), (False, None)
-
-
-GuestEconomyRoot.init_attributes()

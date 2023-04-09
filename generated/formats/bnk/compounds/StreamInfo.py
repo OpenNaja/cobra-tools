@@ -39,6 +39,3 @@ class StreamInfo(BaseStruct):
 		yield 'size', Uint64, (0, None), (False, None)
 		yield 'event_id', Uint, (0, None), (False, None)
 		yield 'zero', Uint, (0, None), (False, None)
-
-
-StreamInfo.init_attributes()

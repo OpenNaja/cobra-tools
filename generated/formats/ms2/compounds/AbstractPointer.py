@@ -29,6 +29,3 @@ class AbstractPointer(BaseStruct):
 		n = self.joint.name if self.joint else None
 		return f"{self.index} -> {n}"
 
-
-
-AbstractPointer.init_attributes()

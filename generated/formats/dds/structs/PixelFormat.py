@@ -65,6 +65,3 @@ class PixelFormat(BaseStruct):
 		yield 'g_mask', Uint, (0, None), (False, None)
 		yield 'b_mask', Uint, (0, None), (False, None)
 		yield 'a_mask', Uint, (0, None), (False, None)
-
-
-PixelFormat.init_attributes()

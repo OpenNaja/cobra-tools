@@ -38,6 +38,3 @@ class Locomotion2BlendSpace(MemStruct):
 		yield 'x_axis', BlendSpaceAxis, (0, None), (False, None)
 		yield 'nodes_count', Uint64, (0, None), (False, None)
 		yield 'nodes', ArrayPointer, (instance.nodes_count, Locomotion2BlendSpace._import_map["motiongraph.compounds.Locomotion2BlendSpaceNode"]), (False, None)
-
-
-Locomotion2BlendSpace.init_attributes()

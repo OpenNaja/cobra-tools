@@ -34,6 +34,3 @@ class Attrib(MemStruct):
 		yield 'attrib_name', Pointer, (0, ZString), (False, None)
 		yield 'attrib', Array, (0, None, (4,), Byte), (False, None)
 		yield 'padding', Uint, (0, None), (False, None)
-
-
-Attrib.init_attributes()

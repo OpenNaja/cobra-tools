@@ -29,6 +29,3 @@ class TextureData(MemStruct):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'atlas_name', Pointer, (0, ZString), (False, None)
 		yield 'dependency_name', Pointer, (0, None), (False, None)
-
-
-TextureData.init_attributes()

@@ -43,6 +43,3 @@ class AxisValue(MemStruct):
 		yield 'value_name', Pointer, (0, ZString), (False, None)
 		yield 'u_3', Uint64, (0, None), (False, None)
 		yield 'u_4', Uint64, (0, None), (False, None)
-
-
-AxisValue.init_attributes()

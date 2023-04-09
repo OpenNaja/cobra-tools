@@ -71,6 +71,3 @@ class SizeInfoRaw(MemStruct):
 		if instance.context.version >= 20:
 			yield 'unk_pz', Uint64, (0, None), (True, 0)
 		yield 'mip_maps', Array, (0, None, (instance.num_mips,), Mipmap), (False, None)
-
-
-SizeInfoRaw.init_attributes()

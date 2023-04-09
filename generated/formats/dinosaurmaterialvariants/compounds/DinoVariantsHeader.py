@@ -46,6 +46,3 @@ class DinoVariantsHeader(MemStruct):
 		yield 'variants', Pointer, (instance.variant_count, DinoVariantsHeader._import_map["dinosaurmaterialvariants.compounds.VariantArray"]), (False, None)
 		yield 'variant_count', Uint64, (0, None), (False, None)
 		yield 'zero', Uint64, (0, None), (False, None)
-
-
-DinoVariantsHeader.init_attributes()

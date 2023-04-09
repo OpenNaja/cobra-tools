@@ -77,6 +77,3 @@ class VoxelskirtRoot(MemStruct):
 		yield 'entity_groups', DataSlot, (0, VoxelskirtRoot._import_map["voxelskirt.compounds.EntityGroup"]), (False, None)
 		yield 'materials', DataSlot, (0, VoxelskirtRoot._import_map["voxelskirt.compounds.Material"]), (False, None)
 		yield 'names', DataSlot, (0, VoxelskirtRoot._import_map["voxelskirt.compounds.Name"]), (False, None)
-
-
-VoxelskirtRoot.init_attributes()

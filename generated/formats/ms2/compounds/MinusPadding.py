@@ -37,6 +37,3 @@ class MinusPadding(BaseStruct):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'indices', Array, (0, None, (instance.arg,), Short), (False, None)
 		yield 'padding', Array, (0, None, ((16 - ((instance.arg * 2) % 16)) % 16,), Byte), (False, None)
-
-
-MinusPadding.init_attributes()

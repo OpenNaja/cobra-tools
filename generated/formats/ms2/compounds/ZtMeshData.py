@@ -224,6 +224,3 @@ class ZtMeshData(MeshData):
 		# self.get_static_weights(self.verts_data["bone index"], self.use_blended_weights)
 
 
-
-
-ZtMeshData.init_attributes()

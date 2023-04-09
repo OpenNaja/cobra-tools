@@ -44,6 +44,3 @@ class Vector4(MemStruct):
 		yield 'y', Float, (0, None), (False, None)
 		yield 'z', Float, (0, None), (False, None)
 		yield 'w', Float, (0, None), (False, None)
-
-
-Vector4.init_attributes()

@@ -32,7 +32,7 @@ class BaseClass:
         # handle imports
         self.imports = Imports(self.parser, self.struct)
 
-        self.parser.processed_types.add(self.class_name)
+        self.parser.processed_types[self.class_name] = None
 
     def get_class_call(self):
         # set backup

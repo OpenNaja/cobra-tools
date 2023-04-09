@@ -33,6 +33,3 @@ class UncompressedManiData(BaseStruct):
 		yield 'pos_bones', Array, (0, None, (instance.arg.pos_bone_count, instance.arg.frame_count,), Vector3), (False, None)
 		yield 'ori_bones', Array, (0, None, (instance.arg.ori_bone_count, instance.arg.frame_count,), Vector4H), (False, None)
 		yield 'floats', Array, (0, None, (instance.arg.float_count, instance.arg.frame_count,), Float), (False, None)
-
-
-UncompressedManiData.init_attributes()

@@ -27,6 +27,3 @@ class PoseDriverDefRoot(MemStruct):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'drivers', ArrayPointer, (instance.count, PoseDriverDefRoot._import_map["posedriverdef.compounds.Driver"]), (False, None)
 		yield 'count', Uint64, (0, None), (False, None)
-
-
-PoseDriverDefRoot.init_attributes()

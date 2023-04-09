@@ -37,6 +37,3 @@ class Dxt10Header(BaseStruct):
 		yield 'misc_flag', Uint, (0, None), (False, None)
 		yield 'num_tiles', Uint, (0, None), (False, 1)
 		yield 'misc_flag_2', Uint, (0, None), (False, None)
-
-
-Dxt10Header.init_attributes()

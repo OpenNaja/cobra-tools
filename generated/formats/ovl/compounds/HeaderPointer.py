@@ -36,6 +36,3 @@ class HeaderPointer(BaseStruct):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'pool_index', Int, (0, None), (False, -1)
 		yield 'data_offset', Uint, (0, None), (False, None)
-
-
-HeaderPointer.init_attributes()

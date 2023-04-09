@@ -35,6 +35,3 @@ class BooleanData(MemStruct):
 		yield 'value', Ubyte, (0, None), (False, None)
 		yield 'default', Ubyte, (0, None), (False, None)
 		yield 'unused', Array, (0, None, (6,), Ubyte), (False, None)
-
-
-BooleanData.init_attributes()

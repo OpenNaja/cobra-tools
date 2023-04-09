@@ -32,6 +32,3 @@ class PathSupport(MemStruct):
 		yield 'support', Pointer, (0, ZString), (False, None)
 		yield 'distance', Float, (0, None), (False, 10.0)
 		yield '_unk_int_1', Uint, (0, None), (False, None)
-
-
-PathSupport.init_attributes()

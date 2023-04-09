@@ -96,6 +96,3 @@ class TexHeader(MemStruct):
 		yield 'pad', Uint, (0, None), (True, 0)
 		if instance.context.version <= 15:
 			yield 'pad_dla', Uint64, (0, None), (True, 0)
-
-
-TexHeader.init_attributes()

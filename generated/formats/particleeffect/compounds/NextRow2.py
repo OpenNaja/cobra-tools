@@ -68,6 +68,3 @@ class NextRow2(MemStruct):
 		yield 'unk_14', Ushort, (0, None), (False, None)
 		yield 'unk_15', Ushort, (0, None), (False, None)
 		yield 'unk_16', Ushort, (0, None), (False, None)
-
-
-NextRow2.init_attributes()

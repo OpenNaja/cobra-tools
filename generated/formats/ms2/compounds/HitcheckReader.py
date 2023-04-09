@@ -54,6 +54,3 @@ class HitcheckReader(BaseStruct):
 			return "Bad arg?"
 
 
-
-
-HitcheckReader.init_attributes()

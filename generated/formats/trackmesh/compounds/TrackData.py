@@ -48,6 +48,3 @@ class TrackData(MemStruct):
 		yield 'c', Uint64, (0, None), (False, None)
 		yield 'offset_id', Pointer, (0, ZString), (False, None)
 		yield 'd', Uint64, (0, None), (False, None)
-
-
-TrackData.init_attributes()

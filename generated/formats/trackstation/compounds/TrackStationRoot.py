@@ -74,6 +74,3 @@ class TrackStationRoot(MemStruct):
 		yield 'stationpiece_name_7', Pointer, (0, ZString), (False, None)
 		yield 'unk_floats_2', Array, (0, None, (4,), Float), (False, None)
 		yield 'unk_ints_3', Array, (0, None, (2,), Uint), (False, None)
-
-
-TrackStationRoot.init_attributes()

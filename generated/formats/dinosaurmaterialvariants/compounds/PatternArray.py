@@ -24,6 +24,3 @@ class PatternArray(MemStruct):
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'patterns', Array, (0, None, (instance.arg,), Pattern), (False, None)
-
-
-PatternArray.init_attributes()

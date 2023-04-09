@@ -36,6 +36,3 @@ class Some(MemStruct):
 		yield 'some_name', Pointer, (0, ZString), (False, None)
 		yield 'some_data', ArrayPointer, (instance.some_count, Some._import_map["logicalcontrols.compounds.SomeData"]), (False, None)
 		yield 'some_count', Uint64, (0, None), (False, None)
-
-
-Some.init_attributes()

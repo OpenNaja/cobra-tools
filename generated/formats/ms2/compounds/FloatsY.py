@@ -29,6 +29,3 @@ class FloatsY(BaseStruct):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'floats', Array, (0, None, (8,), Float), (False, None)
 		yield 'index', Uint, (0, None), (False, None)
-
-
-FloatsY.init_attributes()

@@ -28,6 +28,3 @@ class RenderFeatureSubItem(MemStruct):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'sub_item_name', Pointer, (0, ZString), (False, None)
 		yield 'sub_item_value_or_flags', Uint64, (0, None), (False, None)
-
-
-RenderFeatureSubItem.init_attributes()

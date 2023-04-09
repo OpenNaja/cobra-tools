@@ -62,6 +62,3 @@ class DependencyEntry(BaseStruct):
 		# name is already set at this point
 		self.link_ptr.add_link(self.name, pools)
 
-
-
-DependencyEntry.init_attributes()

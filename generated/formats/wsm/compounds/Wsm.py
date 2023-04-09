@@ -36,6 +36,3 @@ class Wsm(GenericHeader):
 		yield 'header', WsmHeader, (0, None), (False, None)
 		yield 'locs', Array, (0, None, (instance.header.frame_count, 3,), Float), (False, None)
 		yield 'quats', Array, (0, None, (instance.header.frame_count, 4,), Float), (False, None)
-
-
-Wsm.init_attributes()

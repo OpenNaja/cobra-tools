@@ -43,6 +43,3 @@ class BoundingBox(BaseStruct):
 		yield 'extent', Vector3, (0, None), (False, None)
 		if instance.context.version == 32:
 			yield 'zeros', Array, (0, None, (3,), Uint), (False, None)
-
-
-BoundingBox.init_attributes()

@@ -30,6 +30,3 @@ class HbUiOptions(MemStruct):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'straight_curve', Bool, (0, None), (False, None)
 		yield 'windows', Bool, (0, None), (False, None)
-
-
-HbUiOptions.init_attributes()

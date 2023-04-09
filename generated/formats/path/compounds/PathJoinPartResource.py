@@ -73,6 +73,3 @@ class PathJoinPartResource(MemStruct):
 		yield 'num_points_2_copy', Byte, (0, None), (False, None)
 		yield 'num_points_3', Byte, (0, None), (False, None)
 		yield 'padding_2', Uint64, (0, None), (True, 0)
-
-
-PathJoinPartResource.init_attributes()

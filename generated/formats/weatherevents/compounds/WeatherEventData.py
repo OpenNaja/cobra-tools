@@ -146,6 +146,3 @@ class WeatherEventData(MemStruct):
 		yield 'block_3_float_3', Float, (0, None), (False, None)
 		yield 'block_3_float_4', Float, (0, None), (False, None)
 		yield 'block_3_float_5', Float, (0, None), (False, None)
-
-
-WeatherEventData.init_attributes()

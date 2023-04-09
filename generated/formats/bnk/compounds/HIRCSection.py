@@ -37,6 +37,3 @@ class HIRCSection(BaseStruct):
 		yield 'length', Uint, (0, None), (False, None)
 		yield 'count', Uint, (0, None), (False, None)
 		yield 'hirc_pointers', Array, (0, None, (instance.count,), HircPointer), (False, None)
-
-
-HIRCSection.init_attributes()

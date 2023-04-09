@@ -275,6 +275,3 @@ class MeshData(MemStruct):
 			return (0, 0, 0, 0), (0, 0, 0, 0)
 
 
-
-
-MeshData.init_attributes()

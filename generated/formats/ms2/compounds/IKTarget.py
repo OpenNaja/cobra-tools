@@ -30,6 +30,3 @@ class IKTarget(BaseStruct):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'ik_blend', BonePointer, (0, None), (False, None)
 		yield 'ik_end', BonePointer, (0, None), (False, None)
-
-
-IKTarget.init_attributes()

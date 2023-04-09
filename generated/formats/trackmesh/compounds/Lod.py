@@ -37,6 +37,3 @@ class Lod(MemStruct):
 		yield 'b', Uint, (0, None), (False, None)
 		yield 'c', Uint, (0, None), (False, None)
 		yield 'distance', Float, (0, None), (False, None)
-
-
-Lod.init_attributes()

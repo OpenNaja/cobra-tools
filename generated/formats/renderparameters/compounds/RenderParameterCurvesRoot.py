@@ -38,6 +38,3 @@ class RenderParameterCurvesRoot(MemStruct):
 		yield 'params', Pointer, (instance.count, RenderParameterCurvesRoot._import_map["renderparameters.compounds.CurveParamList"]), (False, None)
 		yield 'count', Uint64, (0, None), (False, None)
 		yield 'unk', Uint64, (0, None), (False, None)
-
-
-RenderParameterCurvesRoot.init_attributes()

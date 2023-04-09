@@ -27,6 +27,3 @@ class UnlockState(MemStruct):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'entity_name', Pointer, (0, ZString), (False, None)
 		yield 'level_name', Pointer, (0, ZString), (False, None)
-
-
-UnlockState.init_attributes()

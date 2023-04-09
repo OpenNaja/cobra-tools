@@ -243,6 +243,3 @@ class JointData(BaseStruct):
 			ptr.index = joints_map.get(ptr.joint)
 		super().write_fields(stream, instance)
 
-
-
-JointData.init_attributes()

@@ -35,6 +35,3 @@ class DinoLayersHeader(MemStruct):
 		yield 'layers', ArrayPointer, (instance.layer_count, DinoLayersHeader._import_map["dinosaurmaterialvariants.compounds.Layer"]), (False, None)
 		yield 'layer_count', Uint64, (0, None), (False, None)
 		yield 'zero', Uint64, (0, None), (False, None)
-
-
-DinoLayersHeader.init_attributes()

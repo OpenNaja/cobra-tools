@@ -71,6 +71,3 @@ class Model(BaseStruct):
 			yield 'pre_bones', DLAPreBones, (0, None), (False, None)
 		if instance.context.version <= 32:
 			yield 'floatsy', Array, (0, None, (instance.arg.render_flag,), FloatsY), (False, None)
-
-
-Model.init_attributes()

@@ -37,6 +37,3 @@ class BrokeStruct(MemStruct):
 		yield 'head', Pointer, (0, ZString), (False, None)
 		yield 'unk_vector_1', Vector3, (0, None), (False, None)
 		yield 'unk_vector_2', Vector3, (0, None), (False, None)
-
-
-BrokeStruct.init_attributes()

@@ -31,6 +31,3 @@ class Matrix33(BaseStruct):
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'data', Array, (0, None, (3, 3,), Float), (False, None)
-
-
-Matrix33.init_attributes()

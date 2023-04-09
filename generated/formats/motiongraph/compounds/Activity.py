@@ -69,6 +69,3 @@ class Activity(MemStruct):
 			except:
 				logging.warning(f"Unsupported activity '{activity}'")
 
-
-
-Activity.init_attributes()

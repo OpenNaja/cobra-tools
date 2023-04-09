@@ -27,6 +27,3 @@ class SemanticFlexiColoursRoot(MemStruct):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'name_list', ArrayPointer, (instance.name_count, SemanticFlexiColoursRoot._import_map["semanticflexicolours.compounds.Colourname"]), (False, None)
 		yield 'name_count', Uint64, (0, None), (False, None)
-
-
-SemanticFlexiColoursRoot.init_attributes()

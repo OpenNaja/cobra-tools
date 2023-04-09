@@ -32,6 +32,3 @@ class AxisAngle(BaseStruct):
 		yield 'x', Float, (0, None), (False, 0.0)
 		yield 'y', Float, (0, None), (False, 0.0)
 		yield 'z', Float, (0, None), (False, 0.0)
-
-
-AxisAngle.init_attributes()

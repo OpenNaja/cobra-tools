@@ -89,6 +89,3 @@ class ParticleEffectRoot(MemStruct):
 		yield 'next_row_3', NextRow2, (0, None), (False, None)
 		yield 'next_row_4', NextRow2, (0, None), (False, None)
 		yield 'next_row_5', LastRow, (0, None), (False, None)
-
-
-ParticleEffectRoot.init_attributes()

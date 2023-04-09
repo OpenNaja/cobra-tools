@@ -27,6 +27,3 @@ class RenderFeatureCollectionRoot(MemStruct):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'item_list', ArrayPointer, (instance.item_count, RenderFeatureCollectionRoot._import_map["renderfeaturecollection.compounds.RenderFeatureItem"]), (False, None)
 		yield 'item_count', Uint64, (0, None), (False, None)
-
-
-RenderFeatureCollectionRoot.init_attributes()

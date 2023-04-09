@@ -47,6 +47,3 @@ class WsmHeader(MemStruct):
 		yield 'unknowns', Array, (0, None, (8,), Float), (False, None)
 		yield 'locs', ArrayPointer, (instance.frame_count, WsmHeader._import_map["wsm.compounds.Vector3"]), (False, None)
 		yield 'quats', ArrayPointer, (instance.frame_count, WsmHeader._import_map["wsm.compounds.Vector4"]), (False, None)
-
-
-WsmHeader.init_attributes()

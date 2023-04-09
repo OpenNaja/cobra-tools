@@ -31,6 +31,3 @@ class EntityInstance(BaseStruct):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'loc', Vector3F, (0, None), (False, None)
 		yield 'z_rot', Float, (0, None), (False, None)
-
-
-EntityInstance.init_attributes()

@@ -92,6 +92,3 @@ class DinoEffectsHeader(MemStruct):
 		yield 'floats_5', Array, (0, None, (20,), Float), (False, None)
 		yield 'i', Uint, (0, None), (False, None)
 		yield 'float', Float, (0, None), (False, None)
-
-
-DinoEffectsHeader.init_attributes()

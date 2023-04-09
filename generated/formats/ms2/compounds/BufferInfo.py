@@ -91,6 +91,3 @@ class BufferInfo(BaseStruct):
 			yield 'uvs_size', Uint64, (0, None), (False, None)
 			yield 'u_6', Uint64, (0, None), (False, None)
 			yield 'u_7', Uint64, (0, None), (False, None)
-
-
-BufferInfo.init_attributes()

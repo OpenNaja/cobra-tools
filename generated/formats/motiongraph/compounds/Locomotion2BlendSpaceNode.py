@@ -35,6 +35,3 @@ class Locomotion2BlendSpaceNode(MemStruct):
 		yield 'anim_name', Pointer, (0, ZString), (False, None)
 		yield 'speed', Float, (0, None), (False, None)
 		yield 'orientation', Float, (0, None), (False, None)
-
-
-Locomotion2BlendSpaceNode.init_attributes()

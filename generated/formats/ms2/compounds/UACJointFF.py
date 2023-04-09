@@ -45,6 +45,3 @@ class UACJointFF(BaseStruct):
 		yield 'name', OffsetString, (instance.arg, None), (False, None)
 		yield 'hitcheck_count', Uint, (0, None), (False, None)
 		yield 'zeros', Array, (0, None, (3,), Uint), (False, None)
-
-
-UACJointFF.init_attributes()

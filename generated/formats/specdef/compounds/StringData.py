@@ -32,6 +32,3 @@ class StringData(MemStruct):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'str_name', Pointer, (0, ZString), (False, None)
 		yield 'ioptional', Uint, (0, None), (False, None)
-
-
-StringData.init_attributes()

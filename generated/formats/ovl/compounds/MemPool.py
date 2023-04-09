@@ -169,6 +169,3 @@ class MemPool(BaseStruct):
 		# return True
 
 
-
-
-MemPool.init_attributes()

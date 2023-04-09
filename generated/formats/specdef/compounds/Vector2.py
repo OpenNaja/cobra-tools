@@ -37,6 +37,3 @@ class Vector2(MemStruct):
 		yield 'y', Float, (0, None), (False, None)
 		yield 'ioptional', Uint, (0, None), (False, None)
 		yield 'unused', Uint, (0, None), (False, None)
-
-
-Vector2.init_attributes()

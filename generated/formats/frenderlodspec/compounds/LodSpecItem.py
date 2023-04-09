@@ -66,6 +66,3 @@ class LodSpecItem(MemStruct):
 		yield 'unknown_2', Uint, (0, None), (False, None)
 		yield 'unknown_3', Uint, (0, None), (False, None)
 		yield 'unknown_4', Uint, (0, None), (False, None)
-
-
-LodSpecItem.init_attributes()

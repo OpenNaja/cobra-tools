@@ -32,6 +32,3 @@ class TransStructStop(MemStruct):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'another_mrfentry_2', Pointer, (0, None), (False, None)
 		yield 'other_states', MGTwo, (0, None), (False, None)
-
-
-TransStructStop.init_attributes()

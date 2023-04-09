@@ -35,6 +35,3 @@ class FloatInputData(MemStruct):
 		yield 'float', Float, (0, None), (False, None)
 		yield 'optional_var_and_curve_count', Uint, (0, None), (False, None)
 		yield 'optional_var_and_curve', Uint64, (0, None), (False, None)
-
-
-FloatInputData.init_attributes()

@@ -65,6 +65,3 @@ class BufferEntry(BaseStruct):
 				same = False
 		return same
 
-
-
-BufferEntry.init_attributes()

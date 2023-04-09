@@ -43,6 +43,3 @@ class Locomotion2AnimationInfo(MemStruct):
 		yield 'priority', Ushort, (0, None), (False, None)
 		yield 'anim_type', Ubyte, (0, None), (False, None)
 		yield '_pad', Ubyte, (0, None), (False, None)
-
-
-Locomotion2AnimationInfo.init_attributes()

@@ -166,6 +166,3 @@ class ManiInfo(BaseStruct):
 			yield 'scl_bone_count_repeat', Byte, (0, None), (False, None)
 			yield 'zeros_end', Ushort, (0, None), (False, None)
 		yield 'zero_2_end', Ushort, (0, None), (False, None)
-
-
-ManiInfo.init_attributes()

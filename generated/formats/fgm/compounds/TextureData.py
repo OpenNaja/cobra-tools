@@ -26,6 +26,3 @@ class TextureData(MemStruct):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		if instance.arg.dtype == 8:
 			yield 'dependency_name', Pointer, (0, None), (False, None)
-
-
-TextureData.init_attributes()

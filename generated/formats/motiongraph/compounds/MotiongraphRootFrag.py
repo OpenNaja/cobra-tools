@@ -49,6 +49,3 @@ class MotiongraphRootFrag(MemStruct):
 		yield 'ptr_2', Pointer, (instance.count_2, MotiongraphRootFrag._import_map["motiongraph.compounds.MRFArray2"]), (False, None)
 		yield 'num_xmls', Uint64, (0, None), (False, None)
 		yield 'ptr_xmls', Pointer, (instance.num_xmls, MotiongraphRootFrag._import_map["motiongraph.compounds.XMLArray"]), (False, None)
-
-
-MotiongraphRootFrag.init_attributes()

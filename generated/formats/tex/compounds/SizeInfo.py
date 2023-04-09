@@ -33,6 +33,3 @@ class SizeInfo(MemStruct):
 			yield 'padding', Array, (0, None, (320 - instance.data.io_size,), Ubyte), (False, None)
 		if instance.context.user_version.use_djb and (instance.context.version == 19):
 			yield 'padding', Array, (0, None, (384 - instance.data.io_size,), Ubyte), (False, None)
-
-
-SizeInfo.init_attributes()

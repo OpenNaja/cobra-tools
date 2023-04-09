@@ -27,6 +27,3 @@ class Pair(MemStruct):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'value_0', Uint, (0, None), (False, None)
 		yield 'value_1', Float, (0, None), (False, None)
-
-
-Pair.init_attributes()

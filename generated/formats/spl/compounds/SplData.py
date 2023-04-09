@@ -36,6 +36,3 @@ class SplData(MemStruct):
 		yield 'offset', Vector3, (0, None), (False, None)
 		yield 'scale', Float, (0, None), (False, None)
 		yield 'keys', Array, (0, None, (instance.arg,), Key), (False, None)
-
-
-SplData.init_attributes()

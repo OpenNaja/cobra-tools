@@ -36,6 +36,3 @@ class HircPointer(BaseStruct):
 			yield 'data', MusicTrack, (0, None), (False, None)
 		if (instance.id != 2) and (instance.id != 11):
 			yield 'data', TypeOther, (0, None), (False, None)
-
-
-HircPointer.init_attributes()

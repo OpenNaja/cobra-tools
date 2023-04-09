@@ -34,6 +34,3 @@ class NextRow1(MemStruct):
 		yield 'garbage', Uint, (0, None), (False, None)
 		yield 'value_1', Ushort, (0, None), (False, None)
 		yield 'value_2', Ushort, (0, None), (False, None)
-
-
-NextRow1.init_attributes()

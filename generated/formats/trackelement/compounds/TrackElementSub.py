@@ -38,6 +38,3 @@ class TrackElementSub(MemStruct):
 		yield 'catwalk_left_lsm', Pointer, (0, ZString), (False, None)
 		yield 'catwalk_both_lsm', Pointer, (0, ZString), (False, None)
 		yield 'unk_0', Uint64, (0, None), (False, None)
-
-
-TrackElementSub.init_attributes()

@@ -77,6 +77,3 @@ class WmetasbMain(MemStruct):
 			yield 'unused_3', Pointer, (0, None), (False, None)
 			yield 'unused_4', Pointer, (0, None), (False, None)
 			yield 'unused_5', Pointer, (0, None), (False, None)
-
-
-WmetasbMain.init_attributes()

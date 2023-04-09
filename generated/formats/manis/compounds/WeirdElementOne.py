@@ -42,6 +42,3 @@ class WeirdElementOne(BaseStruct):
 		yield 'zeros_0', Array, (0, None, (2,), Uint64), (False, None)
 		yield 'floats_1', Array, (0, None, (3,), Float), (False, None)
 		yield 'countb', Uint, (0, None), (False, None)
-
-
-WeirdElementOne.init_attributes()

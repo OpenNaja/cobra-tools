@@ -169,6 +169,3 @@ class ModelInfo(MemStruct):
 			yield 'zero_1', Uint64, (0, None), (False, None)
 		if instance.context.version >= 47 and not (((instance.context.version == 51) or (instance.context.version == 52)) and instance.context.biosyn):
 			yield 'zero_2', Uint64, (0, None), (False, None)
-
-
-ModelInfo.init_attributes()

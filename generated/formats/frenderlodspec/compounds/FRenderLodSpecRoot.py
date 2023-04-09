@@ -30,6 +30,3 @@ class FRenderLodSpecRoot(MemStruct):
 		yield 'spec_list', ArrayPointer, (instance.spec_count, FRenderLodSpecRoot._import_map["frenderlodspec.compounds.LodSpecItem"]), (False, None)
 		yield 'spec_count', Uint64, (0, None), (False, None)
 		yield 'unknown', Uint64, (0, None), (False, None)
-
-
-FRenderLodSpecRoot.init_attributes()

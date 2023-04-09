@@ -46,6 +46,3 @@ class State(MemStruct):
 		yield 'count_2', Uint64, (0, None), (False, None)
 		yield 'array_2', Pointer, (instance.count_2, State._import_map["motiongraph.compounds.TransStructStopList"]), (False, None)
 		yield 'id', Pointer, (0, ZString), (False, None)
-
-
-State.init_attributes()

@@ -82,6 +82,3 @@ class TurnActivityData(MemStruct):
 		yield 'max_angle', Float, (0, None), (False, None)
 		yield 'min_cycles', Uint, (0, None), (False, None)
 		yield 'playback_rate', Float, (0, None), (False, None)
-
-
-TurnActivityData.init_attributes()

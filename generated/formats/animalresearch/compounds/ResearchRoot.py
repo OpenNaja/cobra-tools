@@ -27,6 +27,3 @@ class ResearchRoot(MemStruct):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'levels', ArrayPointer, (instance.count, ResearchRoot._import_map["animalresearch.compounds.ResearchLevel"]), (False, None)
 		yield 'count', Uint64, (0, None), (False, None)
-
-
-ResearchRoot.init_attributes()

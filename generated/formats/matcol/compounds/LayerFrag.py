@@ -50,6 +50,3 @@ class LayerFrag(MemStruct):
 		yield 'u_3', Uint64, (0, None), (False, None)
 		yield 'attribs', ArrayPointer, (instance.attrib_count, LayerFrag._import_map["matcol.compounds.Attrib"]), (False, None)
 		yield 'attrib_count', Uint64, (0, None), (False, None)
-
-
-LayerFrag.init_attributes()

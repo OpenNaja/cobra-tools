@@ -35,6 +35,3 @@ class PreparedStatement(MemStruct):
 		yield 'arg_count', Uint64, (0, None), (True, 0)
 		yield 'statement_name', Pointer, (0, ZString), (False, None)
 		yield 'sql_query', Pointer, (0, ZString), (False, None)
-
-
-PreparedStatement.init_attributes()

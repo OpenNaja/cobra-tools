@@ -206,6 +206,3 @@ class Header(GenericHeader):
 			yield 'dependencies', Array, (0, None, (instance.num_dependencies,), DependencyEntry), (False, None)
 		yield 'stream_files', Array, (0, None, (instance.num_stream_files,), StreamEntry), (False, None)
 		yield 'archives_meta', Array, (0, None, (instance.num_archives,), ArchiveMeta), (False, None)
-
-
-Header.init_attributes()

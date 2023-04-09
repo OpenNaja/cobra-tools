@@ -54,6 +54,3 @@ class LogicalControls(MemStruct):
 		yield 'count_4', Ubyte, (0, None), (False, None)
 		yield 'flags', Uint, (0, None), (False, None)
 		yield 'unsure', Pointer, (0, ZString), (False, None)
-
-
-LogicalControls.init_attributes()

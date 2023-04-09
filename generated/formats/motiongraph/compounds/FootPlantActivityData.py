@@ -33,6 +33,3 @@ class FootPlantActivityData(MemStruct):
 		yield 'weight', FloatInputData, (0, None), (False, None)
 		yield 'rotation_no_i_k_weight', FloatInputData, (0, None), (False, None)
 		yield 'sticky_feet_weight', FloatInputData, (0, None), (False, None)
-
-
-FootPlantActivityData.init_attributes()

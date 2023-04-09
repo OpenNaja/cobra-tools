@@ -35,6 +35,3 @@ class ArrayData(MemStruct):
 		yield 'item', Pointer, (instance.dtype, ArrayData._import_map["specdef.compounds.Data"]), (False, None)
 		yield 'dtype', SpecdefDtype, (0, None), (False, None)
 		yield 'unused', Uint, (0, None), (False, None)
-
-
-ArrayData.init_attributes()

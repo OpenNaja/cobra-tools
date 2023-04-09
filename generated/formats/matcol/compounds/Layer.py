@@ -42,6 +42,3 @@ class Layer(BaseStruct):
 		yield 'info_names', Array, (0, None, (instance.info.info_count,), ZString), (False, None)
 		yield 'attribs', Array, (0, None, (instance.info.attrib_count,), Attrib), (False, None)
 		yield 'attrib_names', Array, (0, None, (instance.info.attrib_count,), ZString), (False, None)
-
-
-Layer.init_attributes()

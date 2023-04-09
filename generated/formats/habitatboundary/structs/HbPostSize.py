@@ -35,6 +35,3 @@ class HbPostSize(MemStruct):
 		yield 'front_back', Float, (0, None), (False, None)
 		yield 'left_right', Float, (0, None), (False, None)
 		yield 'top', Float, (0, None), (False, None)
-
-
-HbPostSize.init_attributes()

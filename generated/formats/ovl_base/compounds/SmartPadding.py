@@ -60,6 +60,3 @@ class SmartPadding(BaseStruct):
 		stream.write(instance.data)
 
 
-
-
-SmartPadding.init_attributes()

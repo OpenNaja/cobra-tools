@@ -62,6 +62,3 @@ class Perk(MemStruct):
 		yield 'appeal_adults', Float, (0, None), (False, None)
 		yield 'appeal_families', Float, (0, None), (False, None)
 		yield 'appeal_teenagers', Float, (0, None), (False, None)
-
-
-Perk.init_attributes()

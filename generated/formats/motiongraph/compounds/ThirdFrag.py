@@ -53,6 +53,3 @@ class ThirdFrag(MemStruct):
 		yield 'ptr_2', Pointer, (0, ThirdFrag._import_map["motiongraph.compounds.Sixtyfour"]), (False, None)
 		yield 'count_4', Uint64, (0, None), (False, None)
 		yield 'member', Pointer, (0, ZString), (False, None)
-
-
-ThirdFrag.init_attributes()

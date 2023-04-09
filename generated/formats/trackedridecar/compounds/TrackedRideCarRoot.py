@@ -52,6 +52,3 @@ class TrackedRideCarRoot(MemStruct):
 		yield 'zero_0', Uint, (0, None), (False, None)
 		yield 'some_name', Pointer, (0, ZString), (False, None)
 		yield 'zero_1', Uint64, (0, None), (False, None)
-
-
-TrackedRideCarRoot.init_attributes()

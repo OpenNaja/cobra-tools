@@ -59,6 +59,3 @@ class RestaurantSettingsRoot(MemStruct):
 		yield 'unk_9', Float, (0, None), (False, None)
 		yield 'perks', ArrayPointer, (instance.count, RestaurantSettingsRoot._import_map["restaurantsettings.compounds.Perk"]), (False, None)
 		yield 'count', Uint64, (0, None), (False, None)
-
-
-RestaurantSettingsRoot.init_attributes()

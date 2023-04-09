@@ -89,6 +89,3 @@ class LodInfo(BaseStruct):
 		if instance.context.version >= 32 and not (((instance.context.version == 51) or (instance.context.version == 52)) and instance.context.biosyn):
 			yield 'vertex_count', Uint, (0, None), (False, None)
 			yield 'tri_index_count', Uint, (0, None), (False, None)
-
-
-LodInfo.init_attributes()

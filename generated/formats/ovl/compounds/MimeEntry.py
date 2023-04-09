@@ -86,6 +86,3 @@ class MimeEntry(BaseStruct):
 			trip.a, trip.b, trip.c = triplet
 			ovl.triplets.append(trip)
 
-
-
-MimeEntry.init_attributes()

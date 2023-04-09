@@ -44,6 +44,3 @@ class SplRoot(MemStruct):
 		yield 'sixteen', Ubyte, (0, None), (False, 16)
 		yield 'one', Ubyte, (0, None), (False, 1)
 		yield 'length', Float, (0, None), (False, None)
-
-
-SplRoot.init_attributes()

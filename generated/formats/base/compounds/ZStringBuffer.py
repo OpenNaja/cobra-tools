@@ -94,6 +94,3 @@ class ZStringBuffer(BaseStruct):
 	def get_size(cls, instance, context, arg=0, template=None):
 		return len(instance.data)
 
-
-
-ZStringBuffer.init_attributes()

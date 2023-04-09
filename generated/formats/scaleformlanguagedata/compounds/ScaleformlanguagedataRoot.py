@@ -44,6 +44,3 @@ class ScaleformlanguagedataRoot(MemStruct):
 		yield 'count', Uint64, (0, None), (False, None)
 		yield 'zero_2', Uint64, (0, None), (False, None)
 		yield 'zero_3', Uint64, (0, None), (False, None)
-
-
-ScaleformlanguagedataRoot.init_attributes()

@@ -112,6 +112,3 @@ class CompressedManiData(BaseStruct):
 		yield 'anoth_pad_2', PadAlign, (16, instance.ref), (False, None)
 		yield 'ref_3', Empty, (0, None), (False, None)
 		yield 'repeats', Array, (0, None, (instance.count,), Repeat), (False, None)
-
-
-CompressedManiData.init_attributes()

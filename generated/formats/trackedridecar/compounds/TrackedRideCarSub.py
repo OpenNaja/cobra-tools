@@ -42,6 +42,3 @@ class TrackedRideCarSub(MemStruct):
 		yield 'vectors', ArrayPointer, (instance.vecs_count, TrackedRideCarSub._import_map["trackedridecar.compounds.Vector3"]), (False, None)
 		yield 'vecs_count', Uint64, (0, None), (False, None)
 		yield 'zero_1', Uint64, (0, None), (False, None)
-
-
-TrackedRideCarSub.init_attributes()

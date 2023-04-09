@@ -25,7 +25,7 @@ class Basics:
         basic_name = xml_struct.attrib["name"]
         if hasattr(self.base_module, basic_name):
 
-            self.parser.processed_types.add(basic_name)
+            self.parser.processed_types[basic_name] = None
 
             self.basic_map[basic_name] = getattr(self.base_module, basic_name)
 

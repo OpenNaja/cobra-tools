@@ -44,6 +44,3 @@ class Event(MemStruct):
 		yield 'attributes', Pointer, (0, Event._import_map["cinematic.compounds.EventAttributes"]), (False, None)
 		yield 'duration', Float, (0, None), (False, None)
 		yield 'd', Float, (0, None), (False, None)
-
-
-Event.init_attributes()

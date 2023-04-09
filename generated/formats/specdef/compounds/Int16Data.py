@@ -40,6 +40,3 @@ class Int16Data(MemStruct):
 		yield 'ivalue', Short, (0, None), (False, None)
 		yield 'ioptional', Short, (0, None), (False, None)
 		yield 'enum', Pointer, (0, None), (False, None)
-
-
-Int16Data.init_attributes()

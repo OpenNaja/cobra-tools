@@ -55,6 +55,3 @@ class ArrayPointer(Pointer):
 		instance.data = Array._from_xml(arr, elem)
 		return instance
 
-
-
-ArrayPointer.init_attributes()

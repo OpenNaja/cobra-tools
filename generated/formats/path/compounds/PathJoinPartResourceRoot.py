@@ -27,6 +27,3 @@ class PathJoinPartResourceRoot(MemStruct):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'resources_list', Pointer, (instance.num_res, PathJoinPartResourceRoot._import_map["path.compounds.PathJoinPartResourceList"]), (False, None)
 		yield 'num_res', Uint64, (0, None), (False, None)
-
-
-PathJoinPartResourceRoot.init_attributes()

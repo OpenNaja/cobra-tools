@@ -248,6 +248,3 @@ class ModelReader(BaseStruct):
 			s += str(model_info.bone_info)
 		return s
 
-
-
-ModelReader.init_attributes()

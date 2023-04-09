@@ -37,6 +37,3 @@ class FirstPointersa(MemStruct):
 		yield 'pointer_stuff_2', CommonChunk, (0, None), (False, None)
 		yield 'pointer_stuff_3', CommonChunk, (0, None), (False, None)
 		yield 'zero', Uint64, (0, None), (False, None)
-
-
-FirstPointersa.init_attributes()

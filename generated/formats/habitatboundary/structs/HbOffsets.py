@@ -34,6 +34,3 @@ class HbOffsets(MemStruct):
 		yield 'physics', HbPhysicsOffsets, (0, None), (False, None)
 		yield 'post_height_offset', Float, (0, None), (False, None)
 		yield 'wall_height', Float, (0, None), (False, None)
-
-
-HbOffsets.init_attributes()

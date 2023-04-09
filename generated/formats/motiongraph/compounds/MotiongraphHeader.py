@@ -56,6 +56,3 @@ class MotiongraphHeader(MemStruct):
 		yield 'lua_results', Pointer, (0, ZString), (False, None)
 		yield 'first_non_transition_state', Pointer, (0, MotiongraphHeader._import_map["motiongraph.compounds.MRFMember2"]), (False, None)
 		yield 'empty_str', Pointer, (0, ZString), (False, None)
-
-
-MotiongraphHeader.init_attributes()

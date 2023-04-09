@@ -39,6 +39,3 @@ class Vector3(MemStruct):
 		yield 'x', Float, (0, None), (False, None)
 		yield 'y', Float, (0, None), (False, None)
 		yield 'z', Float, (0, None), (False, None)
-
-
-Vector3.init_attributes()

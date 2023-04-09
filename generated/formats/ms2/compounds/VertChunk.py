@@ -58,6 +58,3 @@ class VertChunk(BaseStruct):
 		if instance.context.version >= 52:
 			yield 'weights_flag', WeightsFlagMalta, (0, None), (False, None)
 		yield 'zero', Ubyte, (0, None), (False, None)
-
-
-VertChunk.init_attributes()

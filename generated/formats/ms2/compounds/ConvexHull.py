@@ -46,6 +46,3 @@ class ConvexHull(BaseStruct):
 			yield 'zeros', Array, (0, None, (5,), Uint), (False, None)
 		if instance.context.version >= 48:
 			yield 'zeros', Array, (0, None, (2,), Uint), (False, None)
-
-
-ConvexHull.init_attributes()

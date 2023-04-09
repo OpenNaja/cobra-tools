@@ -25,6 +25,3 @@ class PtrList(MemStruct):
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'ptrs', Array, (0, ZString, (instance.arg,), Pointer), (False, None)
-
-
-PtrList.init_attributes()

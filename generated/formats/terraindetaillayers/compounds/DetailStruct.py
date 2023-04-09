@@ -33,6 +33,3 @@ class DetailStruct(MemStruct):
 		yield 'x', Float, (0, None), (False, None)
 		yield 'y', Float, (0, None), (False, None)
 		yield 'z', Float, (0, None), (False, None)
-
-
-DetailStruct.init_attributes()

@@ -38,6 +38,3 @@ class AssetEntry(BaseStruct):
 		if instance.context.version >= 19:
 			yield 'ext_hash', Uint64, (0, None), (False, None)
 		yield 'root_index', Uint64, (0, None), (False, None)
-
-
-AssetEntry.init_attributes()

@@ -75,6 +75,3 @@ class HabitatBoundaryPropRoot(MemStruct):
 		yield 'door_cutout', HbDoorCutout, (0, None), (False, None)
 		yield 'small', Uint, (0, None), (False, None)
 		yield 'height', Float, (0, None), (False, 2.0)
-
-
-HabitatBoundaryPropRoot.init_attributes()

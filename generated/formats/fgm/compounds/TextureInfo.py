@@ -48,6 +48,3 @@ class TextureInfo(GenericInfo):
 		if instance.context.version >= 18:
 			yield 'some_index_0', Uint, (0, None), (True, 0)
 			yield 'some_index_1', Uint, (0, None), (True, 0)
-
-
-TextureInfo.init_attributes()

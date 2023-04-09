@@ -72,6 +72,3 @@ class Ms2Root(MemStruct):
 		yield 'buffer_infos', ArrayPointer, (instance.vertex_buffer_count, Ms2Root._import_map["ms2.compounds.BufferInfo"]), (False, None)
 		yield 'model_infos', ArrayPointer, (instance.mdl_2_count, Ms2Root._import_map["ms2.compounds.ModelInfo"]), (False, None)
 		yield 'buffer_pointers', ArrayPointer, (instance.vertex_buffer_count, Ms2Root._import_map["ms2.compounds.BufferPresence"]), (False, None)
-
-
-Ms2Root.init_attributes()

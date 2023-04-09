@@ -37,6 +37,3 @@ class SomeData(MemStruct):
 		yield 'extra', Uint, (0, None), (False, None)
 		yield 'a', Float, (0, None), (False, None)
 		yield 'b', Float, (0, None), (False, None)
-
-
-SomeData.init_attributes()

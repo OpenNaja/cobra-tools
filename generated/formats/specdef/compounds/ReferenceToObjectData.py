@@ -32,6 +32,3 @@ class ReferenceToObjectData(MemStruct):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'obj_name', Pointer, (0, ZString), (False, None)
 		yield 'ioptional', Uint, (0, None), (False, None)
-
-
-ReferenceToObjectData.init_attributes()

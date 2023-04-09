@@ -56,6 +56,3 @@ class Driver(MemStruct):
 		yield 'unk_1', Uint64, (0, None), (False, None)
 		yield 'data', Pointer, (0, Driver._import_map["posedriverdef.compounds.Data"]), (False, None)
 		yield 'unk_2', Uint64, (0, None), (False, None)
-
-
-Driver.init_attributes()

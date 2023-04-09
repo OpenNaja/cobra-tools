@@ -36,6 +36,3 @@ class Matrix44(BaseStruct):
 		"""Set matrix from rows."""
 		self.data[:] = mat.transposed()
 
-
-
-Matrix44.init_attributes()

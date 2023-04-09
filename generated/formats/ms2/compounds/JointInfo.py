@@ -62,6 +62,3 @@ class JointInfo(BaseStruct):
 		yield 'zero_2', Uint64, (0, None), (False, None)
 		yield 'hitcheck_pointers', Array, (0, None, (instance.hitcheck_count,), Uint64), (False, None)
 		yield 'hitchecks', Array, (instance.arg, None, (instance.hitcheck_count,), HitCheck), (False, None)
-
-
-JointInfo.init_attributes()

@@ -31,6 +31,3 @@ class Connector(MemStruct):
 		yield 'model_name', Pointer, (0, ZString), (False, None)
 		yield 'joint_name', Pointer, (0, ZString), (False, None)
 		yield 'unk_vector', Vector2, (0, None), (False, None)
-
-
-Connector.init_attributes()

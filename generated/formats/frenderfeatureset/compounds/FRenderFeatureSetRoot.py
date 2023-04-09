@@ -30,6 +30,3 @@ class FRenderFeatureSetRoot(MemStruct):
 		yield 'featureset_list', ArrayPointer, (instance.featureset_count, FRenderFeatureSetRoot._import_map["frenderfeatureset.compounds.FeatureSetItem"]), (False, None)
 		yield 'featureset_count', Uint, (0, None), (False, None)
 		yield 'unknown_always_1', Uint, (0, None), (False, None)
-
-
-FRenderFeatureSetRoot.init_attributes()

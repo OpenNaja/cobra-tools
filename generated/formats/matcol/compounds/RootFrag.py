@@ -44,6 +44,3 @@ class RootFrag(MemStruct):
 		yield 'materials', ArrayPointer, (instance.mat_count, RootFrag._import_map["matcol.compounds.LayerFrag"]), (False, None)
 		yield 'mat_count', Uint64, (0, None), (False, None)
 		yield 'unk', Uint64, (0, None), (False, None)
-
-
-RootFrag.init_attributes()

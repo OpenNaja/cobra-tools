@@ -55,6 +55,3 @@ class SubCollChunk(BaseStruct):
 		yield 'count_bits', Ushort, (0, None), (False, None)
 		yield 'stuff', Array, (0, None, (9,), Ushort), (False, None)
 		yield 'collision_bits', Array, (0, None, (instance.count_bits,), MeshCollisionBit), (False, None)
-
-
-SubCollChunk.init_attributes()

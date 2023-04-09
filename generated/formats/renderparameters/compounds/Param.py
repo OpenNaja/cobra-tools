@@ -36,6 +36,3 @@ class Param(MemStruct):
 		yield 'attribute_name', Pointer, (0, ZString), (False, None)
 		yield 'dtype', RenderParameterType, (0, None), (False, None)
 		yield 'data', ParamData, (instance.dtype, None), (False, None)
-
-
-Param.init_attributes()

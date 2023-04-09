@@ -132,6 +132,3 @@ class HabitatBoundaryDataRoot(MemStruct):
 		yield 'wall_replace_level', Byte, (0, None), (False, None)
 		yield 'type', Byte, (0, None), (False, None)
 		yield 'padding', Ushort, (0, None), (True, 0)
-
-
-HabitatBoundaryDataRoot.init_attributes()

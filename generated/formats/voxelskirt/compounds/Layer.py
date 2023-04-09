@@ -44,6 +44,3 @@ class Layer(BaseStruct):
 		yield 'dtype', VxlDtype, (0, None), (False, None)
 		yield '_offset', Uint64, (0, None), (False, None)
 		yield '_data_size', Uint64, (0, None), (False, None)
-
-
-Layer.init_attributes()

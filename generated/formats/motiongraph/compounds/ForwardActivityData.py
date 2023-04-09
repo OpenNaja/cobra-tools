@@ -109,6 +109,3 @@ class ForwardActivityData(MemStruct):
 		yield 'repeat_count', Uint, (0, None), (False, None)
 		yield 'min_cycles', Uint, (0, None), (False, None)
 		yield 'playback_rate', Float, (0, None), (False, None)
-
-
-ForwardActivityData.init_attributes()

@@ -35,6 +35,3 @@ class FontInfo(MemStruct):
 		yield 'style_name', Pointer, (0, ZString), (False, None)
 		yield 'font_file', Pointer, (0, ZString), (False, None)
 		yield 'flag_or_count', Uint64, (0, None), (False, None)
-
-
-FontInfo.init_attributes()

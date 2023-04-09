@@ -50,6 +50,3 @@ class State(MemStruct):
 		yield 'c', Uint64, (0, None), (False, None)
 		yield 'events_list', Pointer, (0, State._import_map["cinematic.compounds.EventsList"]), (False, None)
 		yield 'd', Uint64, (0, None), (False, None)
-
-
-State.init_attributes()

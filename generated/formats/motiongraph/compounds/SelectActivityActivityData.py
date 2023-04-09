@@ -43,6 +43,3 @@ class SelectActivityActivityData(MemStruct):
 		yield 'num_activities', Uint64, (0, None), (False, None)
 		yield 'blend_time', Float, (0, None), (False, None)
 		yield 'mode', SelectActivityActivityMode, (0, None), (False, None)
-
-
-SelectActivityActivityData.init_attributes()

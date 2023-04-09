@@ -230,6 +230,3 @@ class BoneInfo(BaseStruct):
 			yield 'ik_info', IKInfo, (instance, None), (False, None)
 		if instance.joint_count:
 			yield 'joints', JointData, (0, None), (False, None)
-
-
-BoneInfo.init_attributes()

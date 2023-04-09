@@ -36,6 +36,3 @@ class Color(MemStruct):
 		yield 'g', Ubyte, (0, None), (False, None)
 		yield 'b', Ubyte, (0, None), (False, None)
 		yield 'a', Ubyte, (0, None), (False, None)
-
-
-Color.init_attributes()

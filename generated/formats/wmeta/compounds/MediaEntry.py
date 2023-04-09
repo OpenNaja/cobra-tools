@@ -41,6 +41,3 @@ class MediaEntry(MemStruct):
 		yield 'block_name', Pointer, (0, ZString), (False, None)
 		yield 'wav_name', Pointer, (0, ZString), (False, None)
 		yield 'wem_name', Pointer, (0, ZString), (False, None)
-
-
-MediaEntry.init_attributes()

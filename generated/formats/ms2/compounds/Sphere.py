@@ -37,6 +37,3 @@ class Sphere(BaseStruct):
 		yield 'center', Vector3, (0, None), (False, None)
 		yield 'radius', Float, (0, None), (False, None)
 		yield 'zero', Uint, (0, None), (False, None)
-
-
-Sphere.init_attributes()

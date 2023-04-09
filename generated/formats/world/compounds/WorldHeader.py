@@ -56,6 +56,3 @@ class WorldHeader(MemStruct):
 		yield 'ptr_2', Pointer, (0, None), (False, None)
 		yield 'prefab_count', Uint64, (0, None), (False, None)
 		yield 'ptr_3', Pointer, (0, None), (False, None)
-
-
-WorldHeader.init_attributes()

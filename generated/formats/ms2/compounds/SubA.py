@@ -40,6 +40,3 @@ class SubA(BaseStruct):
 		yield 'a', Ubyte, (0, None), (False, 240)
 		yield 'b', Ubyte, (0, None), (False, 237)
 		yield 'c', Ubyte, (0, None), (False, 254)
-
-
-SubA.init_attributes()

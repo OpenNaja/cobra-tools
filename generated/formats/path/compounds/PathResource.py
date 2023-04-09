@@ -49,6 +49,3 @@ class PathResource(MemStruct):
 		yield 'path_sub_type', Byte, (0, None), (False, None)
 		yield 'unk_byte_1', Byte, (0, None), (False, 1)
 		yield 'unk_byte_2', Byte, (0, None), (False, None)
-
-
-PathResource.init_attributes()

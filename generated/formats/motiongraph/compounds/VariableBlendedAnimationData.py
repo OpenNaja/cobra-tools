@@ -40,6 +40,3 @@ class VariableBlendedAnimationData(MemStruct):
 		yield 'value', Float, (0, None), (False, 0.0)
 		yield '_pad', Uint, (0, None), (False, None)
 		yield 'additional_data_streams', DataStreamResourceDataList, (0, None), (False, None)
-
-
-VariableBlendedAnimationData.init_attributes()

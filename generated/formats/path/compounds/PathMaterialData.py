@@ -33,6 +33,3 @@ class PathMaterialData(MemStruct):
 		yield 'unk_float_1', Float, (0, None), (False, None)
 		yield 'unk_int_2', Uint, (0, None), (False, None)
 		yield 'unk_int_3', Uint, (0, None), (False, None)
-
-
-PathMaterialData.init_attributes()

@@ -94,6 +94,3 @@ class MeshCollision(BaseStruct):
 		yield 'weird_padding', SmartPadding, (4, None), (False, None)
 		if instance.has_sub_coll_chunk:
 			yield 'sub_coll_chunk', SubCollChunk, (0, None), (False, None)
-
-
-MeshCollision.init_attributes()

@@ -45,6 +45,3 @@ class Buffer0(BaseStruct):
 			yield 'names_padding', PadAlign, (4, instance.names), (False, None)
 		if instance.context.version <= 13:
 			yield 'zt_streams_header', StreamsZTHeader, (instance.arg, None), (False, None)
-
-
-Buffer0.init_attributes()

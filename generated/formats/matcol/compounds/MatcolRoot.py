@@ -33,6 +33,3 @@ class MatcolRoot(MemStruct):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'main', Pointer, (0, MatcolRoot._import_map["matcol.compounds.RootFrag"]), (False, None)
 		yield 'one', Uint64, (0, None), (False, None)
-
-
-MatcolRoot.init_attributes()

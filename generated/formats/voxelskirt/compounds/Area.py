@@ -41,6 +41,3 @@ class Area(BaseStruct):
 		yield 'height_1', Uint64, (0, None), (False, None)
 		yield 'width_2', Uint64, (0, None), (False, None)
 		yield 'height_2', Uint64, (0, None), (False, None)
-
-
-Area.init_attributes()

@@ -67,6 +67,3 @@ class RigidBody(BaseStruct):
 		yield 'unknown_friction', Float, (0, None), (False, None)
 		yield 'unk_4', Float, (0, None), (False, None)
 		yield 'dynamic_friction', Float, (0, None), (False, None)
-
-
-RigidBody.init_attributes()

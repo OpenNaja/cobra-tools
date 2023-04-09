@@ -42,6 +42,3 @@ class RootEntry(BaseStruct):
 		if instance.context.version >= 19:
 			yield 'ext_hash', Uint, (0, None), (False, None)
 		yield 'struct_ptr', HeaderPointer, (0, None), (False, None)
-
-
-RootEntry.init_attributes()

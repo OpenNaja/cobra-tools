@@ -231,6 +231,3 @@ class JanitorSettingsRoot(MemStruct):
 		yield 'unk_30', Float, (0, None), (False, None)
 		yield 'unk_31', Float, (0, None), (False, None)
 		yield 'unk_32', Float, (0, None), (False, None)
-
-
-JanitorSettingsRoot.init_attributes()

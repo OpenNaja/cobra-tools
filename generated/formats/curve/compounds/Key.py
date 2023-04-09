@@ -26,6 +26,3 @@ class Key(MemStruct):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'time', Float, (0, None), (False, None)
 		yield 'value', Float, (0, None), (False, None)
-
-
-Key.init_attributes()

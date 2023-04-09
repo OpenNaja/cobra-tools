@@ -43,6 +43,3 @@ class RideSettingsRoot(MemStruct):
 		yield 'pad_0', Uint, (0, None), (False, None)
 		yield 'pad_1', Uint, (0, None), (False, None)
 		yield 'pad_2', Uint, (0, None), (False, None)
-
-
-RideSettingsRoot.init_attributes()

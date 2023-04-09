@@ -28,6 +28,3 @@ class ContextSet1SubItem(MemStruct):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'stuff_1_sub_name', Pointer, (0, ZString), (False, None)
 		yield 'stuff_1_sub_order_or_flags', Uint64, (0, None), (False, None)
-
-
-ContextSet1SubItem.init_attributes()

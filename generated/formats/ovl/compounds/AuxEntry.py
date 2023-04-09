@@ -39,6 +39,3 @@ class AuxEntry(BaseStruct):
 		yield 'file_index', Uint, (0, None), (False, None)
 		yield 'basename', OffsetString, (instance.context.names, None), (False, None)
 		yield 'size', Uint, (0, None), (False, None)
-
-
-AuxEntry.init_attributes()

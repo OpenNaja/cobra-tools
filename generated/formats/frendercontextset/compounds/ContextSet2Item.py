@@ -28,6 +28,3 @@ class ContextSet2Item(MemStruct):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'stuff_2_name', Pointer, (0, ZString), (False, None)
 		yield 'stuff_2_id', Uint64, (0, None), (False, None)
-
-
-ContextSet2Item.init_attributes()

@@ -27,6 +27,3 @@ class EnumnamerRoot(MemStruct):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'count', Uint64, (0, None), (False, None)
 		yield 'strings', Pointer, (instance.count, EnumnamerRoot._import_map["enumnamer.compounds.PtrList"]), (False, None)
-
-
-EnumnamerRoot.init_attributes()

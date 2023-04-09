@@ -28,6 +28,3 @@ class ParamList(MemStruct):
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'ptrs', Array, (0, ParamList._import_map["renderparameters.compounds.Param"], (instance.arg,), Pointer), (False, None)
-
-
-ParamList.init_attributes()

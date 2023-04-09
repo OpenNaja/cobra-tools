@@ -36,6 +36,3 @@ class SubChunk(BaseStruct):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'weird_list_one', Array, (0, None, (instance.arg.counta,), WeirdElementOne), (False, None)
 		yield 'weird_list_two', WeirdElementTwoReader, (instance.weird_list_one, None), (False, None)
-
-
-SubChunk.init_attributes()

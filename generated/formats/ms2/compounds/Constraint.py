@@ -26,6 +26,3 @@ class Constraint(BaseStruct):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'parent', JointPointer, (0, None), (False, None)
 		yield 'child', JointPointer, (0, None), (False, None)
-
-
-Constraint.init_attributes()

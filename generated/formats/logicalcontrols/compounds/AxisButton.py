@@ -34,6 +34,3 @@ class AxisButton(MemStruct):
 		yield 'button_name', Pointer, (0, ZString), (False, None)
 		yield 'axis_name_x', Pointer, (0, ZString), (False, None)
 		yield 'axis_name_y', Pointer, (0, ZString), (False, None)
-
-
-AxisButton.init_attributes()

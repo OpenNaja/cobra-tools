@@ -117,6 +117,3 @@ class MemStruct(BaseStruct):
 		return None
 
 
-
-
-MemStruct.init_attributes()

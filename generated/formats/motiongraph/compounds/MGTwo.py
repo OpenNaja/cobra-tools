@@ -31,6 +31,3 @@ class MGTwo(MemStruct):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'count', Uint64, (0, None), (False, None)
 		yield 'ptr', Pointer, (instance.count, MGTwo._import_map["motiongraph.compounds.PtrList"]), (False, None)
-
-
-MGTwo.init_attributes()

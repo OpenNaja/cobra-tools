@@ -46,6 +46,3 @@ class StretchConstraint(Constraint):
 		yield 'direction', Vector3, (0, None), (False, None)
 		yield 'min', Float, (0, None), (False, None)
 		yield 'max', Float, (0, None), (False, None)
-
-
-StretchConstraint.init_attributes()

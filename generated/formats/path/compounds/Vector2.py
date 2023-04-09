@@ -34,6 +34,3 @@ class Vector2(MemStruct):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'x', Float, (0, None), (False, None)
 		yield 'y', Float, (0, None), (False, None)
-
-
-Vector2.init_attributes()

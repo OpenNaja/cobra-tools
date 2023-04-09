@@ -35,6 +35,3 @@ class Button(MemStruct):
 		yield 'datas', ArrayPointer, (instance.datas_count, Button._import_map["logicalcontrols.compounds.ButtonData"]), (False, None)
 		yield 'datas_count', Uint, (0, None), (False, None)
 		yield 'flags', Uint, (0, None), (False, None)
-
-
-Button.init_attributes()

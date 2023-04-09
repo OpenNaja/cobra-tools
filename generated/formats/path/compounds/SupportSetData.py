@@ -33,6 +33,3 @@ class SupportSetData(MemStruct):
 		yield 'unk_int_1', Uint, (0, None), (False, None)
 		yield 'unk_int_2', Uint, (0, None), (False, None)
 		yield 'unk_float_1', Float, (0, None), (False, None)
-
-
-SupportSetData.init_attributes()

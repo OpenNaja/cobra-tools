@@ -37,6 +37,3 @@ class InfoStruct(MemStruct):
 		yield 'brush_flags', Uint, (0, None), (False, None)
 		yield 'scale', Float, (0, None), (False, None)
 		yield 'unk_1', Float, (0, None), (False, None)
-
-
-InfoStruct.init_attributes()

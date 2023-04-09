@@ -37,6 +37,3 @@ class UACJoint(BaseStruct):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'unk', Array, (0, None, (6,), Ushort), (False, None)
 		yield 'floats', Array, (0, None, (6,), Float), (False, None)
-
-
-UACJoint.init_attributes()

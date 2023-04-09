@@ -107,6 +107,3 @@ class DataEntry(BaseStruct):
 				same = False
 		return same
 
-
-
-DataEntry.init_attributes()

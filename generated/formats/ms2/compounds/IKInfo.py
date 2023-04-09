@@ -96,6 +96,3 @@ class IKInfo(BaseStruct):
 			ptr.index = bones_map.get(ptr.joint)
 		super().write_fields(stream, instance)
 
-
-
-IKInfo.init_attributes()

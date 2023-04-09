@@ -54,6 +54,3 @@ class SurfacePhysicsInfo(MemStruct):
 		yield 'name_1', Pointer, (0, ZString), (False, None)
 		yield 'name_2', Pointer, (0, ZString), (False, None)
 		yield 'ptr_1', Pointer, (0, SurfacePhysicsInfo._import_map["physicssurfacesxmlres.compounds.EmptyStruct"]), (False, None)
-
-
-SurfacePhysicsInfo.init_attributes()

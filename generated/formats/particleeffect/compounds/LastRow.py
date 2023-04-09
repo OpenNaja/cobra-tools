@@ -56,6 +56,3 @@ class LastRow(MemStruct):
 		yield 'unk_10', Ushort, (0, None), (False, None)
 		yield 'unk_11', Ushort, (0, None), (False, None)
 		yield 'unk_12', Ushort, (0, None), (False, None)
-
-
-LastRow.init_attributes()

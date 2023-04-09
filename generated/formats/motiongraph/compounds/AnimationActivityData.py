@@ -64,6 +64,3 @@ class AnimationActivityData(MemStruct):
 		yield 'count_6', Uint64, (0, None), (False, None)
 		yield 'output_prop_through_variable', Pointer, (0, ZString), (False, None)
 		yield 'additional_data_streams', DataStreamResourceDataList, (0, None), (False, None)
-
-
-AnimationActivityData.init_attributes()

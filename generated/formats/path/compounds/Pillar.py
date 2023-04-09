@@ -40,6 +40,3 @@ class Pillar(MemStruct):
 		yield 'unk_int', Uint64, (0, None), (False, None)
 		yield 'unk_floats', Array, (0, None, (2,), Float), (False, None)
 		yield 'unk_int_2', Uint64, (0, None), (False, None)
-
-
-Pillar.init_attributes()

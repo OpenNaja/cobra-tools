@@ -41,6 +41,3 @@ class CurveDataPoint(MemStruct):
 		yield 'sub_curve_type', SubCurveType, (0, None), (False, None)
 		yield 'subsequent_curve_param', Short, (0, None), (False, None)
 		yield 'subsequent_curve_param_b', Short, (0, None), (False, None)
-
-
-CurveDataPoint.init_attributes()

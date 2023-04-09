@@ -61,6 +61,3 @@ class BanisRoot(MemStruct):
 		yield 'num_bones', Uint, (0, None), (False, None)
 		yield 'loc_scale', Float, (0, None), (False, None)
 		yield 'loc_offset', Float, (0, None), (False, None)
-
-
-BanisRoot.init_attributes()

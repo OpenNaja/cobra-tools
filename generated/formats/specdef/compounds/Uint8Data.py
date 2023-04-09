@@ -45,6 +45,3 @@ class Uint8Data(MemStruct):
 		yield 'ioptional', Ubyte, (0, None), (False, None)
 		yield 'unused', Array, (0, None, (4,), Ubyte), (False, None)
 		yield 'enum', Pointer, (0, None), (False, None)
-
-
-Uint8Data.init_attributes()

@@ -46,6 +46,3 @@ class Transition(MemStruct):
 		yield 'count_2', Uint64, (0, None), (False, None)
 		yield 'ptr_1', Pointer, (instance.count_2, Transition._import_map["motiongraph.compounds.TransStructArray"]), (False, None)
 		yield 'id', Pointer, (0, ZString), (False, None)
-
-
-Transition.init_attributes()

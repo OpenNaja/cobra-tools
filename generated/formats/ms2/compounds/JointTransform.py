@@ -35,6 +35,3 @@ class JointTransform(BaseStruct):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'rot', Matrix33, (0, None), (False, None)
 		yield 'loc', Vector3, (0, None), (False, None)
-
-
-JointTransform.init_attributes()

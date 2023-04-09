@@ -37,6 +37,3 @@ class DataPointer(BaseStruct):
 		yield 'wem_id', Uint, (0, None), (False, None)
 		yield 'data_section_offset', Uint, (0, None), (False, None)
 		yield 'wem_filesize', Uint, (0, None), (False, None)
-
-
-DataPointer.init_attributes()

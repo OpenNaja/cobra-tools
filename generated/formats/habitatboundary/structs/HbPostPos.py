@@ -30,6 +30,3 @@ class HbPostPos(MemStruct):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'right', Float, (0, None), (False, None)
 		yield 'left', Float, (0, None), (False, None)
-
-
-HbPostPos.init_attributes()

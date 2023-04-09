@@ -62,6 +62,3 @@ class FctRoot(MemStruct):
 		yield 'z_2', Uint64, (0, None), (False, None)
 		yield 'offset', Uint64, (0, None), (False, None)
 		yield 'fonts', Array, (0, None, (4,), Font), (False, None)
-
-
-FctRoot.init_attributes()

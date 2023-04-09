@@ -35,6 +35,3 @@ class DecalSettingsRoot(MemStruct):
 		yield 'layer_list', ArrayPointer, (instance.layer_count, DecalSettingsRoot._import_map["decalsettings.compounds.DecalSettingItem"]), (False, None)
 		yield 'layer_count', Uint64, (0, None), (False, None)
 		yield 'unknown', Uint64, (0, None), (False, None)
-
-
-DecalSettingsRoot.init_attributes()

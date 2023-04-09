@@ -37,6 +37,3 @@ class SetEntry(BaseStruct):
 		if instance.context.version >= 19:
 			yield 'ext_hash', Uint, (0, None), (False, None)
 		yield 'start', Uint, (0, None), (False, None)
-
-
-SetEntry.init_attributes()

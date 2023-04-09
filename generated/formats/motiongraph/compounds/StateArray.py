@@ -31,6 +31,3 @@ class StateArray(MemStruct):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'count', Uint64, (0, None), (False, None)
 		yield 'ptr', Pointer, (instance.count, StateArray._import_map["motiongraph.compounds.StateList"]), (False, None)
-
-
-StateArray.init_attributes()

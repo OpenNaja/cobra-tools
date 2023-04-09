@@ -59,6 +59,3 @@ class CoordinatedAnimationActivityData(MemStruct):
 		yield '_pad', Ushort, (0, None), (False, None)
 		yield 'blend_time', Float, (0, None), (False, None)
 		yield 'output_prop_through_variable', Pointer, (0, ZString), (False, None)
-
-
-CoordinatedAnimationActivityData.init_attributes()

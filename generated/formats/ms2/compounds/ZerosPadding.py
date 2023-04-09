@@ -39,6 +39,3 @@ class ZerosPadding(BaseStruct):
 			yield 'hier_2_padding_1', Uint64, (0, None), (False, None)
 		if 128 < instance.arg:
 			yield 'hier_2_padding_2', Uint64, (0, None), (False, None)
-
-
-ZerosPadding.init_attributes()

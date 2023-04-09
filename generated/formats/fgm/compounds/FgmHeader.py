@@ -68,6 +68,3 @@ class FgmHeader(MemStruct):
 		if instance.context.user_version.use_djb and (instance.context.version == 20):
 			yield '_unk_2', Uint64, (0, None), (False, None)
 			yield '_unk_3', Uint64, (0, None), (False, None)
-
-
-FgmHeader.init_attributes()

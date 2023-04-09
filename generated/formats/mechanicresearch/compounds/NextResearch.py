@@ -29,6 +29,3 @@ class NextResearch(MemStruct):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'item_name', Array, (0, ZString, (instance.arg,), Pointer), (False, None)
 		yield 'unk_1', Uint64, (0, None), (False, None)
-
-
-NextResearch.init_attributes()

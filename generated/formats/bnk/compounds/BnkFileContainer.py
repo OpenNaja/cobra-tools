@@ -27,6 +27,3 @@ class BnkFileContainer(GenericHeader):
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'bnk_header', BnkBufferData, (0, None), (False, None)
-
-
-BnkFileContainer.init_attributes()

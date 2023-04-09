@@ -28,6 +28,3 @@ class AssetpkgRoot(MemStruct):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'asset_path', Pointer, (0, ZString), (False, None)
 		yield '_zero', Uint64, (0, None), (False, None)
-
-
-AssetpkgRoot.init_attributes()

@@ -48,6 +48,3 @@ class MeshCollisionBit(BaseStruct):
 		yield 'min_of_b', Ushort, (0, None), (False, None)
 		yield 'c', Ushort, (0, None), (False, None)
 		yield 'consts', Array, (0, None, (3,), Uint), (False, None)
-
-
-MeshCollisionBit.init_attributes()

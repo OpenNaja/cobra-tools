@@ -34,6 +34,3 @@ class NamedEntry(BaseStruct):
 	def name(self, n):
 		self.basename, self.ext = os.path.splitext(n)
 
-
-
-NamedEntry.init_attributes()

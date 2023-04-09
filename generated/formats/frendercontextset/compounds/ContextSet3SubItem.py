@@ -34,6 +34,3 @@ class ContextSet3SubItem(MemStruct):
 		yield 'stuff_31_name_2', Pointer, (0, ZString), (False, None)
 		yield 'stuff_31_name_3', Pointer, (0, ZString), (False, None)
 		yield 'stuff_31_id_allways_0', Uint64, (0, None), (False, None)
-
-
-ContextSet3SubItem.init_attributes()

@@ -30,6 +30,3 @@ class CinematicRoot(MemStruct):
 		yield 'u_0', Uint64, (0, None), (False, None)
 		yield 'u_1', Uint64, (0, None), (False, None)
 		yield 'data', Pointer, (0, CinematicRoot._import_map["cinematic.compounds.CinematicData"]), (False, None)
-
-
-CinematicRoot.init_attributes()

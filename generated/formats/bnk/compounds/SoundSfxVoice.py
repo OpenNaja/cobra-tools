@@ -58,6 +58,3 @@ class SoundSfxVoice(BaseStruct):
 		yield 'didx_id', Uint, (0, None), (False, None)
 		yield 'wem_length', Uint, (0, None), (False, None)
 		yield 'extra', Array, (0, None, (instance.length - 17,), Byte), (False, None)
-
-
-SoundSfxVoice.init_attributes()

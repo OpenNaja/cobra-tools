@@ -28,6 +28,3 @@ class SubBraceStruct(MemStruct):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'sub_brace_name', Pointer, (0, ZString), (False, None)
 		yield 'padding', Uint64, (0, None), (False, 0)
-
-
-SubBraceStruct.init_attributes()

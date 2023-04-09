@@ -118,6 +118,3 @@ class UiMovieHeader(MemStruct):
 		yield 'list_2', ArrayPointer, (instance.num_list_2, Uint), (False, None)
 		yield 'ui_interfaces', Pointer, (instance.num_ui_interfaces, UiMovieHeader._import_map["uimoviedefinition.compounds.PtrList"]), (False, None)
 		yield 'ptr_3', Pointer, (0, None), (False, None)
-
-
-UiMovieHeader.init_attributes()

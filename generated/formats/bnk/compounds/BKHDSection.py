@@ -55,6 +55,3 @@ class BKHDSection(BaseStruct):
 		yield 'constant_b', Uint, (0, None), (False, None)
 		yield 'unk', Uint, (0, None), (False, None)
 		yield 'zeroes', Array, (0, None, (instance.length - 24,), Ubyte), (False, None)
-
-
-BKHDSection.init_attributes()

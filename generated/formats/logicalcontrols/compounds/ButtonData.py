@@ -42,6 +42,3 @@ class ButtonData(MemStruct):
 		yield 'k_2', Uint, (0, None), (False, None)
 		yield 'k_3', Uint, (0, None), (False, None)
 		yield 'k_4', Uint, (0, None), (False, None)
-
-
-ButtonData.init_attributes()

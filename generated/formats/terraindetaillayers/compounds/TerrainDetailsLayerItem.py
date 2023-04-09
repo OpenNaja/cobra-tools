@@ -121,6 +121,3 @@ class TerrainDetailsLayerItem(MemStruct):
 		yield 'unk_b_as_0', Uint, (0, None), (False, None)
 		yield 'floatb_1', Float, (0, None), (False, None)
 		yield 'floatb_2', Float, (0, None), (False, None)
-
-
-TerrainDetailsLayerItem.init_attributes()

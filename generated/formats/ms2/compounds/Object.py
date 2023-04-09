@@ -30,6 +30,3 @@ class Object(BaseStruct):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'material_index', Ushort, (0, None), (False, None)
 		yield 'mesh_index', Ushort, (0, None), (False, None)
-
-
-Object.init_attributes()

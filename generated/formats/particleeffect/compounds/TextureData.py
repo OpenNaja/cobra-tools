@@ -25,6 +25,3 @@ class TextureData(MemStruct):
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'dependency_name', Pointer, (0, None), (False, None)
-
-
-TextureData.init_attributes()

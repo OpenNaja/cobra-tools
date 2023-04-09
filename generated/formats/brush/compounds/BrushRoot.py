@@ -37,6 +37,3 @@ class BrushRoot(MemStruct):
 		yield 'num_pixels', Uint64, (0, None), (False, None)
 		yield 'x', Uint, (0, None), (False, None)
 		yield 'y', Uint, (0, None), (False, None)
-
-
-BrushRoot.init_attributes()

@@ -34,6 +34,3 @@ class PoolGroup(BaseStruct):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'type', Ushort, (0, None), (False, None)
 		yield 'num_pools', Ushort, (0, None), (False, None)
-
-
-PoolGroup.init_attributes()

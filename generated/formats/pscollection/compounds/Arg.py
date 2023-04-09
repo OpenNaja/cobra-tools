@@ -45,6 +45,3 @@ class Arg(MemStruct):
 		yield 'u_2', Uint, (0, None), (True, 0)
 		yield 'u_3', Uint64, (0, None), (True, 0)
 		yield 'u_4', Uint64, (0, None), (True, 0)
-
-
-Arg.init_attributes()

@@ -184,6 +184,3 @@ class PcMeshData(MeshData):
 		index_count = self.tri_index_count // self.shell_count
 		self.tri_indices = self.read_pc_array(np.uint16, self.tri_offset, index_count)
 
-
-
-PcMeshData.init_attributes()

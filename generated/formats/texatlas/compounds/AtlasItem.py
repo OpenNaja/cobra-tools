@@ -48,6 +48,3 @@ class AtlasItem(MemStruct):
 		yield 'layer', Uint, (0, None), (False, None)
 		yield 'flags_1', Ushort, (0, None), (False, None)
 		yield 'flags_2', Ushort, (0, None), (False, None)
-
-
-AtlasItem.init_attributes()

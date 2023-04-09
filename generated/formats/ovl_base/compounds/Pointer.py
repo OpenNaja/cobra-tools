@@ -214,6 +214,3 @@ class Pointer(BaseStruct):
 			logging.exception(f"Error on ptr {elem} {elem.attrib}")
 			# raise
 
-
-
-Pointer.init_attributes()

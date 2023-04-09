@@ -51,6 +51,3 @@ class IKEntry(BaseStruct):
 		yield 'yaw', RotationRange, (0, None), (False, None)
 		yield 'pitch', RotationRange, (0, None), (False, None)
 		yield 'unk_1', Uint, (0, None), (False, 1)
-
-
-IKEntry.init_attributes()

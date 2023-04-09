@@ -97,6 +97,3 @@ class HitCheck(BaseStruct):
 			yield 'collider', MeshCollision, (0, None), (False, None)
 		if instance.context.version == 13:
 			yield 'zero_extra_zt', Uint, (0, None), (False, None)
-
-
-HitCheck.init_attributes()

@@ -89,6 +89,3 @@ class Data(MemStruct):
 			yield 'dtype', ChildSpecData, (0, None), (False, None)
 		if instance.arg == 15:
 			yield 'dtype', ReferenceToObjectData, (0, None), (False, None)
-
-
-Data.init_attributes()

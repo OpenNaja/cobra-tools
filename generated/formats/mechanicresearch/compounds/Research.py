@@ -47,6 +47,3 @@ class Research(MemStruct):
 		yield 'next_research_count', Uint64, (0, None), (False, None)
 		yield 'unk_3', Uint64, (0, None), (False, None)
 		yield 'unk_4', Uint64, (0, None), (False, None)
-
-
-Research.init_attributes()

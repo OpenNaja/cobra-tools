@@ -39,6 +39,3 @@ class FRenderContextSetRoot(MemStruct):
 		yield 'ptr_2_count', Uint64, (0, None), (False, None)
 		yield 'ptr_3_list', ArrayPointer, (instance.ptr_3_count, FRenderContextSetRoot._import_map["frendercontextset.compounds.ContextSet3Item"]), (False, None)
 		yield 'ptr_3_count', Uint64, (0, None), (False, None)
-
-
-FRenderContextSetRoot.init_attributes()

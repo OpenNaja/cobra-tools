@@ -55,6 +55,3 @@ class SubChunkReader(BaseStruct):
 		return s
 
 
-
-
-SubChunkReader.init_attributes()

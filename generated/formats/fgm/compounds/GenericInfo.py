@@ -29,6 +29,3 @@ class GenericInfo(MemStruct):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield '_name_offset', Uint, (0, None), (False, None)
 		yield 'dtype', FgmDtype, (0, None), (False, None)
-
-
-GenericInfo.init_attributes()

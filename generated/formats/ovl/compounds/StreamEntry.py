@@ -42,6 +42,3 @@ class StreamEntry(BaseStruct):
 		yield 'stream_offset', Uint, (0, None), (False, None)
 		yield 'file_offset', Uint, (0, None), (False, None)
 		yield 'zero', Uint, (0, None), (False, None)
-
-
-StreamEntry.init_attributes()

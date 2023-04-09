@@ -31,6 +31,3 @@ class ContextSet3Item(MemStruct):
 		yield 'stuff_3_name_1', Pointer, (0, ZString), (False, None)
 		yield 'stuff_3_sub', Pointer, (0, ContextSet3Item._import_map["frendercontextset.compounds.ContextSet3SubItem"]), (False, None)
 		yield 'stuff_3_id_allways_1', Uint64, (0, None), (False, None)
-
-
-ContextSet3Item.init_attributes()

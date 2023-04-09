@@ -84,6 +84,3 @@ class Compound(BaseClass):
 
             self.write_src_body(f)
             self.write_line(f)
-            self.write_line(f)
-            self.write_line(f, 0, f"{self.class_name}.init_attributes()")
-            self.write_line(f)

@@ -39,6 +39,3 @@ class Vector3Ushort(BaseStruct):
 		yield 'x', Ushort, (0, None), (False, None)
 		yield 'y', Ushort, (0, None), (False, None)
 		yield 'z', Ushort, (0, None), (False, None)
-
-
-Vector3Ushort.init_attributes()

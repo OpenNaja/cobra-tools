@@ -24,6 +24,3 @@ class Activities(MemStruct):
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'states', Array, (0, None, (instance.arg,), ActivityEntry), (False, None)
-
-
-Activities.init_attributes()

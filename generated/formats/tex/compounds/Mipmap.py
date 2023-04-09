@@ -49,6 +49,3 @@ class Mipmap(MemStruct):
 		yield 'size_array', Uint, (0, None), (False, None)
 		yield 'size_scan', Uint, (0, None), (False, None)
 		yield 'size_data', Uint, (0, None), (False, None)
-
-
-Mipmap.init_attributes()

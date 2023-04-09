@@ -50,6 +50,3 @@ class VariableBlendedAnimationActivityData(MemStruct):
 		yield 'animation_count', Uint64, (0, None), (False, None)
 		yield 'variable', Pointer, (0, ZString), (False, None)
 		yield 'variable_blended_animation_flags', Uint, (0, None), (False, None)
-
-
-VariableBlendedAnimationActivityData.init_attributes()

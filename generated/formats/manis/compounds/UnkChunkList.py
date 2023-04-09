@@ -53,6 +53,3 @@ class UnkChunkList(BaseStruct):
 		yield 'chunksize_list', Array, (0, None, (instance.subchunk_count,), ChunkSizes), (False, None)
 		yield 'subchunk_list', SubChunkReader, (instance.chunksize_list, None), (False, None)
 		yield 'pad', PadAlign, (16, instance.ref), (False, None)
-
-
-UnkChunkList.init_attributes()

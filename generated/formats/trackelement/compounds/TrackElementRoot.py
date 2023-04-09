@@ -39,6 +39,3 @@ class TrackElementRoot(MemStruct):
 		yield 'count', Uint64, (0, None), (False, None)
 		yield 'unk_string_1', Pointer, (0, ZString), (False, None)
 		yield 'unk_string_2', Pointer, (0, ZString), (False, None)
-
-
-TrackElementRoot.init_attributes()

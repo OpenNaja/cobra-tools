@@ -53,6 +53,3 @@ class Bone(BaseStruct):
 		self.rot.x, self.rot.y, self.rot.z, self.rot.w = quat.x, quat.y, quat.z, quat.w
 		self.scale = sca.x
 
-
-
-Bone.init_attributes()

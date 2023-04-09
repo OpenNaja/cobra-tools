@@ -264,6 +264,3 @@ class NewMeshData(MeshData):
 			if "bone ids" in self.dt.fields:
 				vert["bone ids"], vert["bone weights"] = self.unpack_weights_list(weight)
 
-
-
-NewMeshData.init_attributes()

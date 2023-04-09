@@ -41,6 +41,3 @@ class TexBufferPc(MemStruct):
 		if instance.context.version >= 18:
 			yield 'num_tiles', Ushort, (0, None), (False, None)
 		yield 'num_mips', Ushort, (0, None), (False, None)
-
-
-TexBufferPc.init_attributes()

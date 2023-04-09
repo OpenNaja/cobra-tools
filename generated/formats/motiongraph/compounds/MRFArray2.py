@@ -24,6 +24,3 @@ class MRFArray2(MemStruct):
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'states', Array, (0, None, (instance.arg,), MRFEntry2), (False, None)
-
-
-MRFArray2.init_attributes()

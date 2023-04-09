@@ -46,6 +46,3 @@ class ConnectorMultiJoint(MemStruct):
 		yield 'unk_float_1', Float, (0, None), (False, None)
 		yield 'unk_float_2', Float, (0, None), (False, None)
 		yield 'unk_int_1', Uint, (0, None), (False, None)
-
-
-ConnectorMultiJoint.init_attributes()

@@ -33,6 +33,3 @@ class Material(BaseStruct):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'entity_instances', DataSlot, (0, Material._import_map["voxelskirt.compounds.EntityInstance"]), (False, None)
 		yield '_id', Uint64, (0, None), (False, None)
-
-
-Material.init_attributes()

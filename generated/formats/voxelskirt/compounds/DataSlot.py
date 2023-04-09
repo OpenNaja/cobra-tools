@@ -75,6 +75,3 @@ class DataSlot(BaseStruct):
 		instance.data = Array._from_xml(arr, sub)
 		return instance
 
-
-
-DataSlot.init_attributes()

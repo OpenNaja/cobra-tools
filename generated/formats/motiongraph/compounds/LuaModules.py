@@ -34,6 +34,3 @@ class LuaModules(MemStruct):
 		yield 'motion_graph', Pointer, (0, ZString), (False, None)
 		yield 'motion_graph_event_handling', Pointer, (0, ZString), (False, None)
 		yield 'motion_graph_actions', Pointer, (0, ZString), (False, None)
-
-
-LuaModules.init_attributes()

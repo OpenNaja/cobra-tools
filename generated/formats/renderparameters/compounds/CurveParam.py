@@ -41,6 +41,3 @@ class CurveParam(MemStruct):
 		yield 'do_interpolation', Uint, (0, None), (False, None)
 		yield 'curve_entries', Pointer, (instance.count, CurveParam._import_map["renderparameters.compounds.CurveList"]), (False, None)
 		yield 'count', Uint64, (0, None), (False, None)
-
-
-CurveParam.init_attributes()

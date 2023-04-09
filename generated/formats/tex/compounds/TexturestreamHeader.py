@@ -32,6 +32,3 @@ class TexturestreamHeader(MemStruct):
 		yield 'zero', Uint64, (0, None), (True, 0)
 		if instance.context.user_version.use_djb and (instance.context.version == 20):
 			yield 'lod_index', Uint64, (0, None), (False, None)
-
-
-TexturestreamHeader.init_attributes()

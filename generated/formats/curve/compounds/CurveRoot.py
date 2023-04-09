@@ -27,6 +27,3 @@ class CurveRoot(MemStruct):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'keys', ArrayPointer, (instance.count, CurveRoot._import_map["curve.compounds.Key"]), (False, None)
 		yield 'count', Uint64, (0, None), (False, None)
-
-
-CurveRoot.init_attributes()

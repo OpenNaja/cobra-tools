@@ -32,6 +32,3 @@ class Texture(MemStruct):
 		yield 'fgm_name', Pointer, (0, ZString), (False, None)
 		yield 'texture_suffix', Pointer, (0, ZString), (False, None)
 		yield 'texture_type', Pointer, (0, ZString), (False, None)
-
-
-Texture.init_attributes()

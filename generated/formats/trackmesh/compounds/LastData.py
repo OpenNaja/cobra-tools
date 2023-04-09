@@ -71,6 +71,3 @@ class LastData(MemStruct):
 		yield 'p_4_count', Uint64, (0, None), (False, None)
 		yield 'p_5', Pointer, (0, None), (False, None)
 		yield 'p_5_count', Uint64, (0, None), (False, None)
-
-
-LastData.init_attributes()

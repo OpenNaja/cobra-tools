@@ -50,6 +50,3 @@ class HbPropPhysics(MemStruct):
 		yield 'pad_bottom', Float, (0, None), (False, None)
 		yield 'half_depth', Float, (0, None), (False, None)
 		yield 'u_6', Float, (0, None), (False, None)
-
-
-HbPropPhysics.init_attributes()

@@ -87,6 +87,3 @@ class ForEachPointer(Pointer):
 		return instance
 
 
-
-
-ForEachPointer.init_attributes()

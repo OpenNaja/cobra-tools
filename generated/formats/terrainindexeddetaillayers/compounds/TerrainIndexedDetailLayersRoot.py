@@ -31,6 +31,3 @@ class TerrainIndexedDetailLayersRoot(MemStruct):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'layer_list', ArrayPointer, (instance.layer_count, TerrainIndexedDetailLayersRoot._import_map["terrainindexeddetaillayers.compounds.TerrainDetailsLayerItem"]), (False, None)
 		yield 'layer_count', Uint64, (0, None), (False, None)
-
-
-TerrainIndexedDetailLayersRoot.init_attributes()

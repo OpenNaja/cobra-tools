@@ -64,6 +64,3 @@ class MeshCollisionData(BaseStruct):
 		if instance.context.version <= 47 and instance.const:
 			yield 'triangle_flags', Array, (0, None, (instance.arg.tri_flags_count,), Uint), (False, None)
 		yield 'zero_end', Uint, (0, None), (False, None)
-
-
-MeshCollisionData.init_attributes()

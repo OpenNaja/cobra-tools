@@ -30,6 +30,3 @@ class ChunkSizes(BaseStruct):
 		yield 'zeros_0', Uint64, (0, None), (False, None)
 		yield 'bone', Uint, (0, None), (False, None)
 		yield 'counta', Uint, (0, None), (False, None)
-
-
-ChunkSizes.init_attributes()

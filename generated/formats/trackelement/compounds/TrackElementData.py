@@ -73,6 +73,3 @@ class TrackElementData(MemStruct):
 		yield 'unk_7', Uint, (0, None), (False, 1)
 		if instance.arg < 2:
 			yield 'pad', Uint64, (0, None), (False, None)
-
-
-TrackElementData.init_attributes()

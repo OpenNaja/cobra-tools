@@ -477,6 +477,3 @@ class BioMeshData(MeshData):
 		Array.to_stream(self.tri_chunks, self.buffer_info.tri_chunks, self.context, dtype=TriChunk)
 		Array.to_stream(self.vert_chunks, self.buffer_info.vert_chunks, self.context, dtype=VertChunk)
 
-
-
-BioMeshData.init_attributes()

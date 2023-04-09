@@ -27,6 +27,3 @@ class EventsList(MemStruct):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'events', ArrayPointer, (instance.count, EventsList._import_map["cinematic.compounds.Event"]), (False, None)
 		yield 'count', Uint64, (0, None), (False, None)
-
-
-EventsList.init_attributes()

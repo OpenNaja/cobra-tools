@@ -72,6 +72,3 @@ class Locomotion2ActivityData(MemStruct):
 		yield 'orientation_variable', Pointer, (0, ZString), (False, None)
 		yield 'data_streams_count', Uint64, (0, None), (False, None)
 		yield 'data_streams', ArrayPointer, (instance.data_streams_count, Locomotion2ActivityData._import_map["motiongraph.compounds.DataStreamResourceDataList"]), (False, None)
-
-
-Locomotion2ActivityData.init_attributes()

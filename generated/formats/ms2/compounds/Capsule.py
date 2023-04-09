@@ -47,6 +47,3 @@ class Capsule(BaseStruct):
 		yield 'radius', Float, (0, None), (False, None)
 		yield 'extent', Float, (0, None), (False, None)
 		yield 'zero', Uint, (0, None), (False, None)
-
-
-Capsule.init_attributes()

@@ -23,6 +23,3 @@ class Spec(MemStruct):
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'dtype', SpecdefDtype, (0, None), (False, None)
-
-
-Spec.init_attributes()

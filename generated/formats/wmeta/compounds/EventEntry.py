@@ -78,6 +78,3 @@ class EventEntry(MemStruct):
 		if instance.context.version >= 19:
 			yield 'u_2', Uint, (0, None), (False, None)
 			yield 'u_1', Uint, (0, None), (False, None)
-
-
-EventEntry.init_attributes()

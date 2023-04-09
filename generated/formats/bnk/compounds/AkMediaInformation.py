@@ -30,6 +30,3 @@ class AkMediaInformation(BaseStruct):
 		yield 'source_i_d', Uint, (0, None), (False, None)
 		yield 'u_in_memory_media_size', Uint, (0, None), (False, None)
 		yield 'u_source_bits', Ubyte, (0, None), (False, None)
-
-
-AkMediaInformation.init_attributes()

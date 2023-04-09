@@ -37,6 +37,3 @@ class Footer(MemStruct):
 		yield 'unk_int', Uint64, (0, None), (False, None)
 		yield 'joint', Pointer, (0, ZString), (False, None)
 		yield 'unk_floats', Array, (0, None, (2,), Float), (False, None)
-
-
-Footer.init_attributes()

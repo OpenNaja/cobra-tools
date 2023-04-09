@@ -62,6 +62,3 @@ class PathMaterial(MemStruct):
 		yield 'path_sub_type', Uint64, (0, None), (False, None)
 		yield 'mat_data', ArrayPointer, (instance.num_data, PathMaterial._import_map["path.compounds.PathMaterialData"]), (False, None)
 		yield 'num_data', Uint64, (0, None), (False, None)
-
-
-PathMaterial.init_attributes()

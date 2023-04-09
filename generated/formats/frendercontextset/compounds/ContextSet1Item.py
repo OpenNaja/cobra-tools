@@ -58,6 +58,3 @@ class ContextSet1Item(MemStruct):
 		yield 'stuff_15_sub_name', Pointer, (0, ZString), (False, None)
 		yield 'stuff_1_unknown_1', Uint64, (0, None), (False, None)
 		yield 'stuff_1_unknown_2', Uint64, (0, None), (False, None)
-
-
-ContextSet1Item.init_attributes()

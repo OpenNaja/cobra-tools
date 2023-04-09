@@ -45,6 +45,3 @@ class DataStreamResourceData(MemStruct):
 		yield 'bone_i_d', Pointer, (0, ZString), (False, None)
 		yield 'location', Pointer, (0, ZString), (False, None)
 		yield 'curve', CurveData, (0, None), (False, None)
-
-
-DataStreamResourceData.init_attributes()

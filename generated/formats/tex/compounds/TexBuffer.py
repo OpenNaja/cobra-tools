@@ -54,6 +54,3 @@ class TexBuffer(MemStruct):
 		yield 'mip_count', Ubyte, (0, None), (False, None)
 		yield 'padding_0', Short, (0, None), (True, 0)
 		yield 'padding_1', Int, (0, None), (True, 0)
-
-
-TexBuffer.init_attributes()

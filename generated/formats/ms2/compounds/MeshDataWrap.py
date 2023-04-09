@@ -39,6 +39,3 @@ class MeshDataWrap(MemStruct):
 			yield 'mesh', ZtMeshData, (0, None), (False, None)
 		if instance.context.version == 7:
 			yield 'mesh', ZtMeshData, (0, None), (False, None)
-
-
-MeshDataWrap.init_attributes()

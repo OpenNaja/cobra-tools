@@ -25,6 +25,3 @@ class BufferPresence(MemStruct):
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'dependency_name', Pointer, (0, None), (False, None)
-
-
-BufferPresence.init_attributes()

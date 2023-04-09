@@ -37,6 +37,3 @@ class ResearchLevel(MemStruct):
 		yield 'next_level_count', Uint64, (0, None), (False, None)
 		yield 'children', Pointer, (instance.children_count, ResearchLevel._import_map["animalresearch.compounds.PtrList"]), (False, None)
 		yield 'children_count', Uint64, (0, None), (False, None)
-
-
-ResearchLevel.init_attributes()

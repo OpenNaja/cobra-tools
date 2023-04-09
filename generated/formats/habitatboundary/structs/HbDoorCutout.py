@@ -39,6 +39,3 @@ class HbDoorCutout(MemStruct):
 		yield 'height', Float, (0, None), (False, None)
 		yield 'right', Float, (0, None), (False, None)
 		yield 'left', Float, (0, None), (False, None)
-
-
-HbDoorCutout.init_attributes()

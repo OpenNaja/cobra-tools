@@ -68,6 +68,3 @@ class CommonChunk(MemStruct):
 		yield 'piece_name_7', Pointer, (0, ZString), (False, None)
 		yield 'piece_name_8', Pointer, (0, ZString), (False, None)
 		yield 'zero', Uint64, (0, None), (False, None)
-
-
-CommonChunk.init_attributes()

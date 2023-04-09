@@ -35,6 +35,3 @@ class Layer(MemStruct):
 		yield 'has_ptr', Uint64, (0, None), (False, None)
 		yield 'texture_fgm_name', Pointer, (0, ZString), (False, None)
 		yield 'transform_fgm_name', Pointer, (0, ZString), (False, None)
-
-
-Layer.init_attributes()

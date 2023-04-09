@@ -33,6 +33,3 @@ class TexIndex(MemStruct):
 		yield '_tex_index', Uint, (0, None), (False, None)
 		if instance.context.version >= 18:
 			yield 'array_index', Uint, (0, None), (False, None)
-
-
-TexIndex.init_attributes()

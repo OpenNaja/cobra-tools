@@ -63,6 +63,3 @@ class SpecdefRoot(MemStruct):
 		yield 'childspecs', Pointer, (instance.childspec_count, SpecdefRoot._import_map["specdef.compounds.PtrList"]), (False, None)
 		yield 'managers', Pointer, (instance.manager_count, SpecdefRoot._import_map["specdef.compounds.PtrList"]), (False, None)
 		yield 'scripts', Pointer, (instance.script_count, SpecdefRoot._import_map["specdef.compounds.PtrList"]), (False, None)
-
-
-SpecdefRoot.init_attributes()

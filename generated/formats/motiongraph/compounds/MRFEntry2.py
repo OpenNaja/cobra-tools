@@ -27,6 +27,3 @@ class MRFEntry2(MemStruct):
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'value', Pointer, (0, MRFEntry2._import_map["motiongraph.compounds.MRFMember2"]), (False, None)
-
-
-MRFEntry2.init_attributes()

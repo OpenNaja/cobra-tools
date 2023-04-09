@@ -29,6 +29,3 @@ class AttribInfo(GenericInfo):
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield '_value_offset', Uint64, (0, None), (False, None)
-
-
-AttribInfo.init_attributes()

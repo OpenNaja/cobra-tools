@@ -43,6 +43,3 @@ class HbPhysicsOffsets(MemStruct):
 		yield 'post_size', HbPostSize, (0, None), (False, None)
 		yield 'wall_pad_top', Float, (0, None), (False, None)
 		yield 'wall_post_gap', Float, (0, None), (False, None)
-
-
-HbPhysicsOffsets.init_attributes()

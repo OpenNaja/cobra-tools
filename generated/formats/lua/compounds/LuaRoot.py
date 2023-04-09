@@ -54,6 +54,3 @@ class LuaRoot(MemStruct):
 			yield 'likely_alignment', Pointer, (0, ZString), (False, None)
 		yield 'zero_1', Uint64, (0, None), (False, None)
 		yield 'zero_2', Uint64, (0, None), (False, None)
-
-
-LuaRoot.init_attributes()

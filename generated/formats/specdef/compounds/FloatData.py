@@ -37,6 +37,3 @@ class FloatData(MemStruct):
 		yield 'imax', Float, (0, None), (False, None)
 		yield 'ivalue', Float, (0, None), (False, None)
 		yield 'ioptional', Uint, (0, None), (False, None)
-
-
-FloatData.init_attributes()

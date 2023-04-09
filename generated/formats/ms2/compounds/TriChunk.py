@@ -62,6 +62,3 @@ class TriChunk(BaseStruct):
 		yield 'rot', AxisAngle, (0, None), (False, None)
 		yield 'shell_index', Ushort, (0, None), (False, None)
 		yield 'shell_count', Ushort, (0, None), (False, None)
-
-
-TriChunk.init_attributes()

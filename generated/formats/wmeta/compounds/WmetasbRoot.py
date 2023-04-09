@@ -27,6 +27,3 @@ class WmetasbRoot(MemStruct):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'levels', ArrayPointer, (instance.count, WmetasbRoot._import_map["wmeta.compounds.WmetasbMain"]), (False, None)
 		yield 'count', Uint64, (0, None), (False, None)
-
-
-WmetasbRoot.init_attributes()

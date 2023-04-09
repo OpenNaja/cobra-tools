@@ -31,6 +31,3 @@ class FirstPointersb(MemStruct):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'pointer_stuff', CommonChunk, (0, None), (False, None)
 		yield 'zero', Uint64, (0, None), (False, None)
-
-
-FirstPointersb.init_attributes()

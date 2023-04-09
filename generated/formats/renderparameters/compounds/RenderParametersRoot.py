@@ -38,6 +38,3 @@ class RenderParametersRoot(MemStruct):
 		yield 'params', Pointer, (instance.count, RenderParametersRoot._import_map["renderparameters.compounds.ParamList"]), (False, None)
 		yield 'count', Uint64, (0, None), (False, None)
 		yield 'unk', Uint64, (0, None), (False, None)
-
-
-RenderParametersRoot.init_attributes()

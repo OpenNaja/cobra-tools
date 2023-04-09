@@ -33,6 +33,3 @@ class Buffer1(BaseStruct):
 		yield 'bone_hashes', Array, (0, None, (instance.arg,), Uint), (False, None)
 		yield 'bone_names', Array, (0, None, (instance.arg,), ZString), (False, None)
 		yield 'bone_pad', PadAlign, (4, instance.bone_names), (False, None)
-
-
-Buffer1.init_attributes()

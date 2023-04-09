@@ -48,6 +48,3 @@ class ManisRoot(BaseStruct):
 		yield 'zero_2', Uint64, (0, None), (False, None)
 		if instance.context.version >= 260:
 			yield 'zero_3', Uint64, (0, None), (False, None)
-
-
-ManisRoot.init_attributes()

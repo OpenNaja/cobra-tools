@@ -38,6 +38,3 @@ class Info(MemStruct):
 		yield 'flags', Array, (0, None, (4,), Byte), (False, None)
 		yield 'value', Array, (0, None, (4,), Float), (False, None)
 		yield 'padding', Uint, (0, None), (False, None)
-
-
-Info.init_attributes()

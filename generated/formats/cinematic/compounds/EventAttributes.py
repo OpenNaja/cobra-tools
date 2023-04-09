@@ -34,6 +34,3 @@ class EventAttributes(MemStruct):
 		yield 'anim_name', Pointer, (0, ZString), (False, None)
 		yield 'event_name', Pointer, (0, ZString), (False, None)
 		yield 'empty_string', Pointer, (0, ZString), (False, None)
-
-
-EventAttributes.init_attributes()

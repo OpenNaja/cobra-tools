@@ -42,6 +42,3 @@ class RagdollConstraint(Constraint):
 		yield 'loc', Vector3, (0, None), (False, None)
 		yield 'floats', Array, (0, None, (5, 3,), Float), (False, None)
 		yield 'radians', Array, (0, None, (8,), Float), (False, None)
-
-
-RagdollConstraint.init_attributes()

@@ -40,6 +40,3 @@ class Int32Data(MemStruct):
 		yield 'ivalue', Int, (0, None), (False, None)
 		yield 'ioptional', Int, (0, None), (False, None)
 		yield 'enum', Pointer, (0, None), (False, None)
-
-
-Int32Data.init_attributes()

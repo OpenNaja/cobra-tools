@@ -46,6 +46,3 @@ class WeatherEventsRoot(MemStruct):
 		yield 'event_list', ArrayPointer, (instance.event_count, WeatherEventsRoot._import_map["weatherevents.compounds.WeatherEventData"]), (False, None)
 		yield 'event_count', Uint64, (0, None), (False, None)
 		yield 'unknown_2', Uint64, (0, None), (False, None)
-
-
-WeatherEventsRoot.init_attributes()

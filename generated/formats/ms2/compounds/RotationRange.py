@@ -30,6 +30,3 @@ class RotationRange(BaseStruct):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'min', Float, (0, None), (False, None)
 		yield 'max', Float, (0, None), (False, None)
-
-
-RotationRange.init_attributes()

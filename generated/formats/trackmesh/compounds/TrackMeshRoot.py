@@ -61,6 +61,3 @@ class TrackMeshRoot(MemStruct):
 		yield 'lod_count', Uint64, (0, None), (False, None)
 		yield 'heatmap_name', Pointer, (0, ZString), (False, None)
 		yield 'g', Uint64, (0, None), (False, None)
-
-
-TrackMeshRoot.init_attributes()

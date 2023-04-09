@@ -41,6 +41,3 @@ class MaterialName(BaseStruct):
 			yield 'blend_mode', Ushort, (0, None), (False, None)
 		if instance.context.version >= 47:
 			yield 'blend_mode', Uint, (0, None), (False, None)
-
-
-MaterialName.init_attributes()

@@ -56,6 +56,3 @@ class OvsHeader(BaseStruct):
 		yield 'root_entries', Array, (0, None, (instance.arg.num_root_entries,), RootEntry), (False, None)
 		yield 'fragments', Array, (0, None, (instance.arg.num_fragments,), Fragment), (False, None)
 		yield 'set_header', SetHeader, (0, None), (False, None)
-
-
-OvsHeader.init_attributes()

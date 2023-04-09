@@ -25,6 +25,3 @@ class JointPointer(AbstractPointer):
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'index', Ushort, (0, None), (False, None)
-
-
-JointPointer.init_attributes()

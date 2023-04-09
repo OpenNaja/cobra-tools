@@ -85,6 +85,3 @@ class Header(BaseStruct):
 		yield 'unused', Uint, (0, None), (False, None)
 		if instance.pixel_format.four_c_c == 808540228:
 			yield 'dx_10', Dxt10Header, (0, None), (False, None)
-
-
-Header.init_attributes()

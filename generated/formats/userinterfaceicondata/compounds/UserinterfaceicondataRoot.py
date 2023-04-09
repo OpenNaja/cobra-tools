@@ -27,6 +27,3 @@ class UserinterfaceicondataRoot(MemStruct):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'tex_name', Pointer, (0, ZString), (False, None)
 		yield 'ovl_name', Pointer, (0, ZString), (False, None)
-
-
-UserinterfaceicondataRoot.init_attributes()

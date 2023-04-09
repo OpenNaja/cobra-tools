@@ -33,6 +33,3 @@ class TexAtlasRoot(MemStruct):
 		yield 'texture_count', Uint64, (0, None), (False, None)
 		yield 'atlas_list', ArrayPointer, (instance.atlas_count, TexAtlasRoot._import_map["texatlas.compounds.AtlasItem"]), (False, None)
 		yield 'atlas_count', Uint64, (0, None), (False, None)
-
-
-TexAtlasRoot.init_attributes()

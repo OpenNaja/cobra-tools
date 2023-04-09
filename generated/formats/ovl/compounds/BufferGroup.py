@@ -60,6 +60,3 @@ class BufferGroup(BaseStruct):
 		yield 'size', Uint64, (0, None), (False, None)
 		yield 'data_offset', Uint, (0, None), (False, None)
 		yield 'data_count', Uint, (0, None), (False, None)
-
-
-BufferGroup.init_attributes()

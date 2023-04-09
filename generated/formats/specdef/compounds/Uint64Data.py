@@ -40,6 +40,3 @@ class Uint64Data(MemStruct):
 		yield 'ivalue', Uint64, (0, None), (False, None)
 		yield 'ioptional', Uint64, (0, None), (False, None)
 		yield 'enum', Pointer, (0, None), (False, None)
-
-
-Uint64Data.init_attributes()

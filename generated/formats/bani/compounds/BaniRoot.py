@@ -51,6 +51,3 @@ class BaniRoot(MemStruct):
 		yield 'num_frames', Uint, (0, None), (False, None)
 		yield 'animation_length', Float, (0, None), (False, None)
 		yield 'loop_flag', Uint, (0, None), (False, None)
-
-
-BaniRoot.init_attributes()

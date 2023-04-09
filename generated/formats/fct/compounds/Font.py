@@ -30,6 +30,3 @@ class Font(MemStruct):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'data_size', Uint64, (0, None), (False, None)
 		yield 'zero', Uint64, (0, None), (False, None)
-
-
-Font.init_attributes()

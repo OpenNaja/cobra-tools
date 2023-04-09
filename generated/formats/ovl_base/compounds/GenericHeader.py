@@ -56,6 +56,3 @@ class GenericHeader(BaseStruct):
 		yield 'bitswap', Byte, (0, None), (False, None)
 		yield 'seventh_byte', Byte, (0, None), (False, 1)
 		yield 'user_version', VersionInfo, (0, None), (False, None)
-
-
-GenericHeader.init_attributes()

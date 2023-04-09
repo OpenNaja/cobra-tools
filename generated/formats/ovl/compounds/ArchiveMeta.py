@@ -35,6 +35,3 @@ class ArchiveMeta(BaseStruct):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'unk_0', Uint, (0, None), (False, None)
 		yield 'unk_1', Uint, (0, None), (False, None)
-
-
-ArchiveMeta.init_attributes()

@@ -38,6 +38,3 @@ class Key(MemStruct):
 		yield 'handle_left', ByteVector3, (0, None), (False, None)
 		yield 'handle_right', ByteVector3, (0, None), (False, None)
 		yield 'handle_scale', Float, (0, None), (False, None)
-
-
-Key.init_attributes()

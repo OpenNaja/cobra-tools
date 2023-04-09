@@ -56,6 +56,3 @@ class DataStreamProducerActivityData(MemStruct):
 		yield 'time_limit_mode', TimeLimitMode, (0, None), (False, None)
 		yield 'data_stream_producer_flags', Uint, (0, None), (False, None)
 		yield 'prop_through_variable', Pointer, (0, ZString), (False, None)
-
-
-DataStreamProducerActivityData.init_attributes()

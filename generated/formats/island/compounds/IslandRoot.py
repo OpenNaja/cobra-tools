@@ -42,6 +42,3 @@ class IslandRoot(MemStruct):
 		yield 'b', Float, (0, None), (False, None)
 		yield 'count', Uint64, (0, None), (False, None)
 		yield 'zero', Uint64, (0, None), (False, None)
-
-
-IslandRoot.init_attributes()

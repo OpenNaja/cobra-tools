@@ -73,6 +73,3 @@ class KeysReader(BaseStruct):
 		return s
 
 
-
-
-KeysReader.init_attributes()

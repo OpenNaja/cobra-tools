@@ -32,6 +32,3 @@ class Vector4H(BaseStruct):
 		yield 'x', Normshort, (0, None), (False, None)
 		yield 'y', Normshort, (0, None), (False, None)
 		yield 'z', Normshort, (0, None), (False, None)
-
-
-Vector4H.init_attributes()

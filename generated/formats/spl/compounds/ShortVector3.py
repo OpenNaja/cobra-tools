@@ -39,6 +39,3 @@ class ShortVector3(MemStruct):
 		yield 'x', Short, (0, None), (False, None)
 		yield 'y', Short, (0, None), (False, None)
 		yield 'z', Short, (0, None), (False, None)
-
-
-ShortVector3.init_attributes()

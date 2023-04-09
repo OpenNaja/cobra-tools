@@ -34,6 +34,3 @@ class BuildingSetRoot(MemStruct):
 		yield 'set_count_or_type', Uint64, (0, None), (False, None)
 		yield 'unk_1_found_as_0', Uint64, (0, None), (False, None)
 		yield 'unk_2_found_as_0', Uint64, (0, None), (False, None)
-
-
-BuildingSetRoot.init_attributes()

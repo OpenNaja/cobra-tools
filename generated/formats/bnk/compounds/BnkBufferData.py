@@ -81,6 +81,3 @@ class BnkBufferData(BaseStruct):
 			yield 'external_b_suffix', ZString, (0, None), (False, None)
 		if instance.streams_count:
 			yield 'external_s_suffix', ZString, (0, None), (False, None)
-
-
-BnkBufferData.init_attributes()
