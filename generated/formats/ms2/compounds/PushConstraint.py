@@ -1,4 +1,3 @@
-import numpy
 from generated.array import Array
 from generated.formats.ms2.compounds.Constraint import Constraint
 from generated.formats.ms2.imports import name_type_map

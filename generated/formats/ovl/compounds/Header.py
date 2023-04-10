@@ -1,4 +1,3 @@
-import numpy
 from generated.array import Array
 from generated.formats.ovl.imports import name_type_map
 from generated.formats.ovl_base.compounds.GenericHeader import GenericHeader

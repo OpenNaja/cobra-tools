@@ -1,7 +1,9 @@
 from generated.bitfield import BasicBitfield
 from generated.bitfield import BitfieldMember
+from generated.formats.base.basic import Int
 from generated.formats.base.basic import Ushort
 from generated.formats.ms2.enums.MeshFormat import MeshFormat
+from generated.formats.ovl_base.basic import Bool
 
 
 class WeightsFlagMalta(BasicBitfield):

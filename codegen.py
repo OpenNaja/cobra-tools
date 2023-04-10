@@ -239,22 +239,6 @@ class XmlParser:
             out_type = ('Array', in_type)
         else:
             out_type = in_type
-        if in_type in self.path_dict:
-            l_type = in_type.lower()
-            if self.tag_dict.get(l_type) == "basic":
-                basic_class = self.basics.basic_map[in_type]
-                if array:
-                    if callable(getattr(basic_class, "create_array", None)):
-                        test = basic_class.create_array(1)
-                        if isinstance(test, ndarray):
-                            out_type = ('numpy', f'numpy.{repr(test.dtype)}')
-                else:
-                    if callable(getattr(basic_class, "from_value", None)):
-                        # check from_value to see which builtin it returns
-                        test = basic_class.from_value(0)
-                        test_type = type(test).__name__
-                        if test_type in self.builtin_literals:
-                            out_type = test_type
         return out_type
 
     def replace_tokens(self, xml_struct):

@@ -1,4 +1,3 @@
-import numpy
 from generated.array import Array
 from generated.formats.dinosaurmaterialvariants.imports import name_type_map
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct

@@ -3,7 +3,6 @@ import time
 from generated.formats.ms2.compounds.packing_utils import *
 
 
-import numpy
 from generated.array import Array
 from generated.formats.ms2.compounds.MeshData import MeshData
 from generated.formats.ms2.imports import name_type_map

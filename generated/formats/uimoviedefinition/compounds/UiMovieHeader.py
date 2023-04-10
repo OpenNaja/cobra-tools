@@ -1,4 +1,3 @@
-import numpy
 from generated.array import Array
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
 from generated.formats.uimoviedefinition.imports import name_type_map

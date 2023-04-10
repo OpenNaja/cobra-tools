@@ -9,7 +9,6 @@ from generated.formats.ms2.enums.MeshFormat import MeshFormat
 from plugin.utils.tristrip import triangulate
 
 
-import numpy
 from generated.array import Array
 from generated.formats.ms2.compounds.MeshData import MeshData
 from generated.formats.ms2.imports import name_type_map

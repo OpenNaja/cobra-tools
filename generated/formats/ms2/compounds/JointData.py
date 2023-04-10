@@ -3,7 +3,6 @@ from generated.formats.ms2.basic import OffsetString
 from generated.formats.ms2.compounds.JointPointer import JointPointer
 import logging
 
-import numpy
 from generated.array import Array
 from generated.base_struct import BaseStruct
 from generated.formats.ms2.imports import name_type_map

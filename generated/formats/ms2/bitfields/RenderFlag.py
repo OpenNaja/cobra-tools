@@ -1,6 +1,7 @@
 from generated.bitfield import BasicBitfield
 from generated.bitfield import BitfieldMember
 from generated.formats.base.basic import Ushort
+from generated.formats.ovl_base.basic import Bool
 
 
 class RenderFlag(BasicBitfield):
