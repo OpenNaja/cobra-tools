@@ -36,10 +36,9 @@ class Imports:
                         arr1 = field.attrib.get("length")
                     if arr1:
                         self.add_mapped_type(field_type, array=True, exclude_cls=is_recursive)
-                        if xml_struct.tag in parser.struct_types:
-                            if not is_recursive:
-                                self.add(field_type)
-                            self.add("Array")
+                        self.add("Array")
+                        if not is_recursive:
+                            self.add(field_type)
                     else:
                         self.add_mapped_type(field_type, exclude_cls=is_recursive)
                         if xml_struct.tag in parser.struct_types and not is_recursive:
