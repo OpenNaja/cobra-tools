@@ -234,13 +234,6 @@ class XmlParser:
         arr_str = f'({", ".join(valid_arrs)},)'
         return arr_str
 
-    def map_type(self, in_type, array=False):
-        if array:
-            out_type = ('Array', in_type)
-        else:
-            out_type = in_type
-        return out_type
-
     def replace_tokens(self, xml_struct):
         """Update xml_struct's (and all of its children's) attrib dict with content of tokens+versions list."""
         # replace versions after tokens because tokens include versions

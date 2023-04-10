@@ -23,30 +23,27 @@ class Imports:
         if xml_struct.tag in self.parent.bitstruct_types:
             for field in xml_struct:
                 if field.tag == "member":
-                    self.add_mapped_type(field.attrib["type"])
+                    self.add(field.attrib["type"])
         elif xml_struct.tag == 'enum':
             pass
         elif xml_struct.tag in self.parent.struct_types:
             for field in xml_struct:
                 if field.tag in ("add", "field", "member"):
                     field_type = field.attrib["type"]
-                    if field_type != "template":
+                    if not self.is_template(field_type):
                         self.add_indirect_import(field_type)
                     arr1 = field.attrib.get("arr1")
                     if arr1 is None:
                         arr1 = field.attrib.get("length")
                     if arr1:
-                        self.add_mapped_type(field_type, array=True, exclude_cls=True)
                         self.add("Array")
-                    else:
-                        self.add_mapped_type(field_type, exclude_cls=True)
     
                     template = field.attrib.get("template")
                     if template:
-                        # template can be either a type or a reference to a local field
+                        # template can be either a type or a template
                         # only import if a type
                         template_class = convention.name_class(template)
-                        if template_class in self.path_dict:
+                        if not self.is_template(template_class):
                             self.add_indirect_import(template_class)
     
                     onlyT = field.attrib.get("onlyT")
@@ -70,18 +67,8 @@ class Imports:
         else:
             raise NotImplementedError(f'Unknown tag type {xml_struct.tag}')
 
-    def add_mapped_type(self, cls_to_import, array=False, exclude_cls=False):
-        if cls_to_import:
-            import_type = self.parent.map_type(cls_to_import, array)
-            if not array:
-                if import_type in self.parent.builtin_literals:
-                    # import not necessary (read/write on stream, and init can happen from literal)
-                    return
-                else:
-                    import_type = (import_type, )
-            if exclude_cls:
-                import_type = (cls for cls in import_type if cls != cls_to_import)
-            [self.add(import_class) for import_class in import_type]
+    def is_template(self, string_to_check):
+        return string_to_check == "template"
 
     def add(self, cls_to_import):
         if cls_to_import and cls_to_import != self.xml_struct.attrib["name"]:
