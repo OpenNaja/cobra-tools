@@ -17,7 +17,7 @@ class Material(BaseStruct):
 		self.entity_instances = name_type_map['DataSlot'](self.context, 0, name_type_map['EntityInstance'])
 
 		# index into name list
-		self._id = 0
+		self._id = name_type_map['Uint64'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 

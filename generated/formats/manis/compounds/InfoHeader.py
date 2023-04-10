@@ -15,8 +15,8 @@ class InfoHeader(BaseStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.version = 0
-		self.mani_count = 0
+		self.version = name_type_map['Uint'](self.context, 0, None)
+		self.mani_count = name_type_map['Uint'](self.context, 0, None)
 		self.names = Array(self.context, 0, None, (0,), name_type_map['ZString'])
 		self.header = name_type_map['ManisRoot'](self.context, 0, None)
 		self.mani_infos = Array(self.context, 0, None, (0,), name_type_map['ManiInfo'])

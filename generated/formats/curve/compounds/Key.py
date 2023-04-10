@@ -10,8 +10,8 @@ class Key(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.time = 0.0
-		self.value = 0.0
+		self.time = name_type_map['Float'](self.context, 0, None)
+		self.value = name_type_map['Float'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 

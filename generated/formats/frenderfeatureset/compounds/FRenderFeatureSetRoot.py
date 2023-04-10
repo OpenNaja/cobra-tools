@@ -10,8 +10,8 @@ class FRenderFeatureSetRoot(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.featureset_count = 0
-		self.unknown_always_1 = 0
+		self.featureset_count = name_type_map['Uint'](self.context, 0, None)
+		self.unknown_always_1 = name_type_map['Uint'](self.context, 0, None)
 		self.featureset_list = name_type_map['ArrayPointer'](self.context, self.featureset_count, name_type_map['FeatureSetItem'])
 		if set_default:
 			self.set_defaults()

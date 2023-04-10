@@ -15,7 +15,7 @@ class FirstPointersb(MemStruct):
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		self.pointer_stuff = name_type_map['CommonChunk'](self.context, 0, None)
-		self.zero = 0
+		self.zero = name_type_map['Uint64'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 

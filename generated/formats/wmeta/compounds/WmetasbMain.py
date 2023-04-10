@@ -16,11 +16,11 @@ class WmetasbMain(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.hash = 0
-		self.unk = 0
-		self.events_count = 0
-		self.hashes_count = 0
-		self.media_count = 0
+		self.hash = name_type_map['Uint'](self.context, 0, None)
+		self.unk = name_type_map['Uint'](self.context, 0, None)
+		self.events_count = name_type_map['Uint64'](self.context, 0, None)
+		self.hashes_count = name_type_map['Uint64'](self.context, 0, None)
+		self.media_count = name_type_map['Uint64'](self.context, 0, None)
 		self.block_name = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
 		self.media_name = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
 		self.bnk_name = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])

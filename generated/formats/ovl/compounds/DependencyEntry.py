@@ -19,13 +19,13 @@ class DependencyEntry(BaseStruct):
 		super().__init__(context, arg, template, set_default=False)
 
 		# basename for dependency, for lookup in hash dict. Can be either external or internal.
-		self.file_hash = 0
+		self.file_hash = name_type_map['Uint'](self.context, 0, None)
 
 		# ext for dependency, use : instead of . at the start, eg. :tex
-		self.ext_raw = 0
+		self.ext_raw = name_type_map['OffsetString'](self.context, self.context.names, None)
 
 		# index into ovl files, points to the file entry using this dependency
-		self.file_index = 0
+		self.file_index = name_type_map['Uint'](self.context, 0, None)
 
 		# pointer into flattened list of all archives' pools
 		self.link_ptr = name_type_map['HeaderPointer'](self.context, 0, None)

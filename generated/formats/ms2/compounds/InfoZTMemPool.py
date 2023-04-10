@@ -14,7 +14,7 @@ class InfoZTMemPool(BaseStruct):
 		super().__init__(context, arg, template, set_default=False)
 
 		# ?
-		self.unk_count = 0
+		self.unk_count = name_type_map['Ushort'](self.context, 0, None)
 
 		# ?
 		self.unks = Array(self.context, 0, None, (0,), name_type_map['Ushort'])

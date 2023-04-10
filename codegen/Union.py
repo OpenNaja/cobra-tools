@@ -186,7 +186,6 @@ class Union:
         # get the default (or the best guess of it)
         field_type_lower = field_type.lower()
         tag_of_field_type = self.compounds.parser.tag_dict.get(field_type_lower)
-        return_type = self.compounds.parser.map_type(field_type, arr1)
         default_string = self.default_to_value(default_string, field_type, field_type_access)
 
         if arr1:
@@ -194,20 +193,15 @@ class Union:
             return f'Array({context}, {arg}, {template}, (0,), {field_type_access})'
         else:
             if default_string:
-                if return_type in self.compounds.parser.builtin_literals or tag_of_field_type == "enum":
+                if tag_of_field_type == "enum":
                     # the default string, when evaluated, gives the correct type
                     return default_string
                 else:
                     # the default sring needs to be converted to an object of the proper type
                     return f'{field_type_access}.from_value({default_string})'
             else:
-                # we don't have a specified default, guess one
-                if return_type in self.compounds.parser.builtin_literals:
-                    # this type can be returned from a literal
-                    return repr(self.compounds.parser.builtin_literals[return_type])
-                else:
-                    # instantiate like a generic type: dtype(context, arg, template)
-                    return f'{field_type_access}({context}, {arg}, {template})'
+                # instantiate like a generic type: dtype(context, arg, template)
+                return f'{field_type_access}({context}, {arg}, {template})'
 
     def write_init(self, f):
         base_indent = "\t\t"

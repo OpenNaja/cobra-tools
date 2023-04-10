@@ -12,10 +12,10 @@ class HbPostPos(MemStruct):
 		super().__init__(context, arg, template, set_default=False)
 
 		# Right post offset from door.
-		self.right = 0.0
+		self.right = name_type_map['Float'](self.context, 0, None)
 
 		# Left Post offset from door.
-		self.left = 0.0
+		self.left = name_type_map['Float'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 

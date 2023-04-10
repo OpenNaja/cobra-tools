@@ -21,32 +21,32 @@ class NewMeshData(MeshData):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.vertex_count = 0
+		self.vertex_count = name_type_map['Uint'](self.context, 0, None)
 
 		# number of index entries in the triangle index list; (not: number of triangles, byte count of tri buffer)
-		self.tri_index_count = 0
+		self.tri_index_count = name_type_map['Uint'](self.context, 0, None)
 
 		# always zero
-		self.zero_1 = 0
+		self.zero_1 = name_type_map['Uint'](self.context, 0, None)
 
 		# power of 2 increasing with lod index
-		self.poweroftwo = 0
+		self.poweroftwo = name_type_map['Uint'](self.context, 0, None)
 
 		# in bytes
-		self.vertex_offset = 0
-		self.size_of_vertex = 48
+		self.vertex_offset = name_type_map['Uint'](self.context, 0, None)
+		self.size_of_vertex = name_type_map['Uint'].from_value(48)
 
 		# in bytes
-		self.tri_offset = 0
+		self.tri_offset = name_type_map['Uint'](self.context, 0, None)
 
 		# always zero
-		self.zero_2 = 0
+		self.zero_2 = name_type_map['Uint'](self.context, 0, None)
 
 		# some floats, purpose unknown
 		self.unk_floats = Array(self.context, 0, None, (0,), name_type_map['Float'])
 
 		# always zero
-		self.zero_3 = 0
+		self.zero_3 = name_type_map['Uint'](self.context, 0, None)
 
 		# bitfield, determines vertex format
 		self.flag = name_type_map['ModelFlag'](self.context, 0, None)

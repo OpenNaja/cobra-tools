@@ -19,13 +19,13 @@ class BufferEntry(BaseStruct):
 		super().__init__(context, arg, template, set_default=False)
 
 		# index of buffer in file; id from sorting of data entries
-		self.index = 0
+		self.index = name_type_map['Uint'](self.context, 0, None)
 
 		# in bytes
-		self.size = 0
+		self.size = name_type_map['Uint'](self.context, 0, None)
 
 		# id; index is taken from buffer group
-		self.file_hash = 0
+		self.file_hash = name_type_map['Uint'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 

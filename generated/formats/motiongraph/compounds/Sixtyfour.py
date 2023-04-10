@@ -14,10 +14,10 @@ class Sixtyfour(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.count_0 = 0
-		self.count_1 = 0
-		self.count_2 = 0
-		self.count_3 = 0
+		self.count_0 = name_type_map['Uint64'](self.context, 0, None)
+		self.count_1 = name_type_map['Uint64'](self.context, 0, None)
+		self.count_2 = name_type_map['Uint64'](self.context, 0, None)
+		self.count_3 = name_type_map['Uint64'](self.context, 0, None)
 		self.ptr_0 = name_type_map['Pointer'](self.context, 0, None)
 		self.ptr_1 = name_type_map['Pointer'](self.context, 0, None)
 		self.ptr_2 = name_type_map['Pointer'](self.context, 0, None)

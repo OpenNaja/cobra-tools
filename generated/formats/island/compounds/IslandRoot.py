@@ -14,10 +14,10 @@ class IslandRoot(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.a = 0.0
-		self.b = 0.0
-		self.count = 0
-		self.zero = 0
+		self.a = name_type_map['Float'](self.context, 0, None)
+		self.b = name_type_map['Float'](self.context, 0, None)
+		self.count = name_type_map['Uint64'](self.context, 0, None)
+		self.zero = name_type_map['Uint64'](self.context, 0, None)
 		self.path_name = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
 		if set_default:
 			self.set_defaults()

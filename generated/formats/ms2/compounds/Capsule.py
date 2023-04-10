@@ -18,13 +18,13 @@ class Capsule(BaseStruct):
 		self.direction = name_type_map['Vector3'](self.context, 0, None)
 
 		# radius of the caps
-		self.radius = 0.0
+		self.radius = name_type_map['Float'](self.context, 0, None)
 
 		# distance between the center points of the capsule caps, total extent is 2 * radius + extent
-		self.extent = 0.0
+		self.extent = name_type_map['Float'](self.context, 0, None)
 
 		# apparently unused
-		self.zero = 0
+		self.zero = name_type_map['Uint'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 

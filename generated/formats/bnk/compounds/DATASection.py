@@ -18,7 +18,7 @@ class DATASection(BaseStruct):
 		super().__init__(context, arg, template, set_default=False)
 
 		# length of following data
-		self.length = 0
+		self.length = name_type_map['Uint'](self.context, 0, None)
 		self.wem_datas = Array(self.context, 0, None, (0,), name_type_map['Byte'])
 		if set_default:
 			self.set_defaults()

@@ -10,16 +10,16 @@ class Perk(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.unk_0 = 0
-		self.building_cost = 0
-		self.running_cost_base = 0
-		self.running_cost_per_extension = 0
-		self.unk_4 = 0.0
-		self.unk_5 = 0.0
-		self.unk_6 = 0.0
-		self.appeal_adults = 0.0
-		self.appeal_families = 0.0
-		self.appeal_teenagers = 0.0
+		self.unk_0 = name_type_map['Uint64'](self.context, 0, None)
+		self.building_cost = name_type_map['Uint64'](self.context, 0, None)
+		self.running_cost_base = name_type_map['Uint64'](self.context, 0, None)
+		self.running_cost_per_extension = name_type_map['Uint64'](self.context, 0, None)
+		self.unk_4 = name_type_map['Float'](self.context, 0, None)
+		self.unk_5 = name_type_map['Float'](self.context, 0, None)
+		self.unk_6 = name_type_map['Float'](self.context, 0, None)
+		self.appeal_adults = name_type_map['Float'](self.context, 0, None)
+		self.appeal_families = name_type_map['Float'](self.context, 0, None)
+		self.appeal_teenagers = name_type_map['Float'](self.context, 0, None)
 		self.label = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
 		self.desc = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
 		self.icon = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])

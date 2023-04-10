@@ -17,14 +17,14 @@ class Layer(BaseStruct):
 		super().__init__(context, arg, template, set_default=False)
 
 		# index into name list
-		self._id = 0
+		self._id = name_type_map['Uint64'](self.context, 0, None)
 		self.dtype = name_type_map['VxlDtype'](self.context, 0, None)
 
 		# address of this data layer
-		self._offset = 0
+		self._offset = name_type_map['Uint64'](self.context, 0, None)
 
 		# data size of this layer, in bytes
-		self._data_size = 0
+		self._data_size = name_type_map['Uint64'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 

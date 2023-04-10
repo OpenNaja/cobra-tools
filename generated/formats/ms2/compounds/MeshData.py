@@ -23,13 +23,13 @@ class MeshData(MemStruct):
 		super().__init__(context, arg, template, set_default=False)
 
 		# index into streamed buffers
-		self.stream_index = 0
+		self.stream_index = name_type_map['Uint64'](self.context, 0, None)
 
 		# increments somewhat in ZTUAC platypus, apparently unused from JWE1 onward
-		self.some_index = 0
+		self.some_index = name_type_map['Uint'](self.context, 0, None)
 
 		# ?
-		self.some_index_2 = 0
+		self.some_index_2 = name_type_map['Uint'](self.context, 0, None)
 
 		# PZ and JWE use a ptr instead
 		self.stream_info = name_type_map['Pointer'](self.context, 0, name_type_map['BufferInfo'])

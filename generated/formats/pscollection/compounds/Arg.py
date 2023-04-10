@@ -10,15 +10,15 @@ class Arg(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.u_0 = 0
-		self.arg_type = 0
+		self.u_0 = name_type_map['Ubyte'].from_value(0)
+		self.arg_type = name_type_map['Ubyte'](self.context, 0, None)
 
 		# one-based index
-		self.arg_index = 0
-		self.u_1 = 0
-		self.u_2 = 0
-		self.u_3 = 0
-		self.u_4 = 0
+		self.arg_index = name_type_map['Ubyte'](self.context, 0, None)
+		self.u_1 = name_type_map['Ubyte'].from_value(0)
+		self.u_2 = name_type_map['Uint'].from_value(0)
+		self.u_3 = name_type_map['Uint64'].from_value(0)
+		self.u_4 = name_type_map['Uint64'].from_value(0)
 		if set_default:
 			self.set_defaults()
 

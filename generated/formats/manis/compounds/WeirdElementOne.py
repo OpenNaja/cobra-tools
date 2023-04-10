@@ -12,12 +12,12 @@ class WeirdElementOne(BaseStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.float_0 = 0.0
-		self.zero_0 = 0
+		self.float_0 = name_type_map['Float'](self.context, 0, None)
+		self.zero_0 = name_type_map['Uint'](self.context, 0, None)
 		self.floats_0 = Array(self.context, 0, None, (0,), name_type_map['Float'])
 		self.zeros_0 = Array(self.context, 0, None, (0,), name_type_map['Uint64'])
 		self.floats_1 = Array(self.context, 0, None, (0,), name_type_map['Float'])
-		self.countb = 0
+		self.countb = name_type_map['Uint'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 

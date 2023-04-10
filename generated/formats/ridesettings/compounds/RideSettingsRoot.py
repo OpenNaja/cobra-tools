@@ -10,12 +10,12 @@ class RideSettingsRoot(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.unk_0 = 0.0
-		self.unk_1 = 0
-		self.count = 0
-		self.pad_0 = 0
-		self.pad_1 = 0
-		self.pad_2 = 0
+		self.unk_0 = name_type_map['Float'](self.context, 0, None)
+		self.unk_1 = name_type_map['Uint'](self.context, 0, None)
+		self.count = name_type_map['Uint'](self.context, 0, None)
+		self.pad_0 = name_type_map['Uint'](self.context, 0, None)
+		self.pad_1 = name_type_map['Uint'](self.context, 0, None)
+		self.pad_2 = name_type_map['Uint'](self.context, 0, None)
 		self.array_1 = name_type_map['ArrayPointer'](self.context, self.count, name_type_map['Pair'])
 		if set_default:
 			self.set_defaults()

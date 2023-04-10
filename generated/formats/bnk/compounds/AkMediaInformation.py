@@ -10,9 +10,9 @@ class AkMediaInformation(BaseStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.source_i_d = 0
-		self.u_in_memory_media_size = 0
-		self.u_source_bits = 0
+		self.source_i_d = name_type_map['Uint'](self.context, 0, None)
+		self.u_in_memory_media_size = name_type_map['Uint'](self.context, 0, None)
+		self.u_source_bits = name_type_map['Ubyte'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 

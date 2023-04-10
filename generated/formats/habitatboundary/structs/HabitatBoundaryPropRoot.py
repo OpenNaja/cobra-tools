@@ -16,16 +16,16 @@ class HabitatBoundaryPropRoot(MemStruct):
 		super().__init__(context, arg, template, set_default=False)
 
 		# 0 = Habitat, 1 = Ride, 2 = Guest
-		self.type = 0
-		self.u_1 = 0
-		self.is_guest = 0
+		self.type = name_type_map['Uint64'](self.context, 0, None)
+		self.u_1 = name_type_map['Uint64'](self.context, 0, None)
+		self.is_guest = name_type_map['Uint'](self.context, 0, None)
 		self.post_position = name_type_map['HbPostPos'](self.context, 0, None)
-		self.u_2 = 0.0
+		self.u_2 = name_type_map['Float'](self.context, 0, None)
 		self.door_physics = name_type_map['HbPropPhysics'](self.context, 0, None)
 		self.path_physics = name_type_map['HbPropPhysics'](self.context, 0, None)
 		self.door_cutout = name_type_map['HbDoorCutout'](self.context, 0, None)
-		self.small = 0
-		self.height = 2.0
+		self.small = name_type_map['Uint'](self.context, 0, None)
+		self.height = name_type_map['Float'].from_value(2.0)
 		self.prefab = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
 		self.post = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
 		self.wall = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])

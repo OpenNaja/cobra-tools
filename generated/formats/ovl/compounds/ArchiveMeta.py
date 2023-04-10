@@ -17,10 +17,10 @@ class ArchiveMeta(BaseStruct):
 		super().__init__(context, arg, template, set_default=False)
 
 		# seemingly unused in JWE
-		self.unk_0 = 0
+		self.unk_0 = name_type_map['Uint'](self.context, 0, None)
 
 		# seemingly unused in JWE, subtracting this from ovs uncompressed_size to get length of the uncompressed ovs header
-		self.unk_1 = 0
+		self.unk_1 = name_type_map['Uint'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 

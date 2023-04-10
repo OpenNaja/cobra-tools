@@ -16,9 +16,9 @@ class ClimbproofDataRoot(MemStruct):
 		super().__init__(context, arg, template, set_default=False)
 
 		# Distance between post center and start of bracket.
-		self.post_gap = 0.0
-		self.u_1 = 2.0
-		self.zero = 0
+		self.post_gap = name_type_map['Float'](self.context, 0, None)
+		self.u_1 = name_type_map['Float'].from_value(2.0)
+		self.zero = name_type_map['Uint64'].from_value(0)
 		self.climb_proof = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
 		self.climb_proof_cap_start = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
 		self.climb_proof_cap_end = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])

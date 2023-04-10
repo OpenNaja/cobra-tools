@@ -17,8 +17,8 @@ class HIRCSection(BaseStruct):
 		super().__init__(context, arg, template, set_default=False)
 
 		# length of following data
-		self.length = 0
-		self.count = 0
+		self.length = name_type_map['Uint'](self.context, 0, None)
+		self.count = name_type_map['Uint'](self.context, 0, None)
 		self.hirc_pointers = Array(self.context, 0, None, (0,), name_type_map['HircPointer'])
 		if set_default:
 			self.set_defaults()

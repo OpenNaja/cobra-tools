@@ -14,8 +14,8 @@ class Locomotion2BlendSpaceNode(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.speed = 0.0
-		self.orientation = 0.0
+		self.speed = name_type_map['Float'](self.context, 0, None)
+		self.orientation = name_type_map['Float'](self.context, 0, None)
 		self.anim_name = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
 		if set_default:
 			self.set_defaults()

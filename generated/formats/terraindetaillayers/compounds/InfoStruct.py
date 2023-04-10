@@ -10,10 +10,10 @@ class InfoStruct(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.brush_count = 0
-		self.brush_flags = 0
-		self.scale = 0.0
-		self.unk_1 = 0.0
+		self.brush_count = name_type_map['Uint'](self.context, 0, None)
+		self.brush_flags = name_type_map['Uint'](self.context, 0, None)
+		self.scale = name_type_map['Float'](self.context, 0, None)
+		self.unk_1 = name_type_map['Float'](self.context, 0, None)
 		self.brush_list = name_type_map['ArrayPointer'](self.context, self.brush_count, name_type_map['BrushitemStruct'])
 		if set_default:
 			self.set_defaults()

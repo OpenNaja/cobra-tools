@@ -16,45 +16,45 @@ class BoneInfo(BaseStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.name_count = 0
+		self.name_count = name_type_map['Uint'](self.context, 0, None)
 
 		# ?
-		self.z_0 = 0
-		self.inv_names_count = 0
-		self.knownff = -1
-		self.zero_0 = 0
-		self.unknown_0_c = 0
+		self.z_0 = name_type_map['Ushort'](self.context, 0, None)
+		self.inv_names_count = name_type_map['Ushort'](self.context, 0, None)
+		self.knownff = name_type_map['Short'].from_value(-1)
+		self.zero_0 = name_type_map['Short'].from_value(0)
+		self.unknown_0_c = name_type_map['Uint'](self.context, 0, None)
 
 		# almost always 4, 1 for male african lion
-		self.unk_count = 0
-		self.bind_matrix_count = 0
+		self.unk_count = name_type_map['Uint64'](self.context, 0, None)
+		self.bind_matrix_count = name_type_map['Uint64'](self.context, 0, None)
 		self.zeros = Array(self.context, 0, None, (0,), name_type_map['Uint64'])
-		self.inv_data_count = 0
-		self.bone_count = 0
-		self.unknown_40 = 0
-		self.parents_count = 0
+		self.inv_data_count = name_type_map['Uint64'](self.context, 0, None)
+		self.bone_count = name_type_map['Uint64'](self.context, 0, None)
+		self.unknown_40 = name_type_map['Uint64'](self.context, 0, None)
+		self.parents_count = name_type_map['Uint64'](self.context, 0, None)
 
 		# not PC, JWE1
-		self.extra_zero = 0
-		self.new_uint_64 = 0
-		self.enum_count = 0
+		self.extra_zero = name_type_map['Uint64'](self.context, 0, None)
+		self.new_uint_64 = name_type_map['Uint64'](self.context, 0, None)
+		self.enum_count = name_type_map['Uint64'](self.context, 0, None)
 
 		# usually zero
-		self.unknown_58 = 0
+		self.unknown_58 = name_type_map['Uint64'](self.context, 0, None)
 
 		# always 1
-		self.one = 1
+		self.one = name_type_map['Uint64'].from_value(1)
 
 		# this counts the weird padding at the end, usually == bone count, 0 in PZ aardvark
-		self.zeros_count = 0
+		self.zeros_count = name_type_map['Uint64'](self.context, 0, None)
 
 		# matches the other count on dino entertainer, but ik_count is not present
-		self.unk_pc_count = 0
-		self.ik_count = 0
-		self.joint_count = 0
-		self.zero_1 = 0
-		self.zero_2 = 0
-		self.zero_3 = 0
+		self.unk_pc_count = name_type_map['Uint64'](self.context, 0, None)
+		self.ik_count = name_type_map['Uint64'](self.context, 0, None)
+		self.joint_count = name_type_map['Uint64'](self.context, 0, None)
+		self.zero_1 = name_type_map['Uint64'].from_value(0)
+		self.zero_2 = name_type_map['Uint64'].from_value(0)
+		self.zero_3 = name_type_map['Uint64'].from_value(0)
 		self.names_ref = name_type_map['Empty'](self.context, 0, None)
 		self.name_indices = Array(self.context, 0, None, (0,), name_type_map['Uint'])
 		self.inventory_name_indices = Array(self.context, 0, None, (0,), name_type_map['Ushort'])

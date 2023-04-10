@@ -10,10 +10,10 @@ class PathType(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.enum_value = 0
-		self.min_width = 4.0
-		self.max_width = 10.0
-		self._unk_int_2 = 0
+		self.enum_value = name_type_map['Uint'](self.context, 0, None)
+		self.min_width = name_type_map['Float'].from_value(4.0)
+		self.max_width = name_type_map['Float'].from_value(10.0)
+		self._unk_int_2 = name_type_map['Uint'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 

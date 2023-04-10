@@ -14,8 +14,8 @@ class MediaEntry(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.hash = 0
-		self.zero = 0
+		self.hash = name_type_map['Uint'](self.context, 0, None)
+		self.zero = name_type_map['Uint'](self.context, 0, None)
 		self.block_name = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
 		self.wav_name = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
 		self.wem_name = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])

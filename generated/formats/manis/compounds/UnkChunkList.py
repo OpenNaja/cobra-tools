@@ -13,9 +13,9 @@ class UnkChunkList(BaseStruct):
 		super().__init__(context, arg, template, set_default=False)
 		self.ref = name_type_map['Empty'](self.context, 0, None)
 		self.zero_0 = name_type_map['SmartPadding'](self.context, 0, None)
-		self.subchunk_count = 0
-		self.flag = 0
-		self.zero_1 = 0
+		self.subchunk_count = name_type_map['Ushort'](self.context, 0, None)
+		self.flag = name_type_map['Ushort'](self.context, 0, None)
+		self.zero_1 = name_type_map['Uint'](self.context, 0, None)
 		self.chunksize_list = Array(self.context, 0, None, (0,), name_type_map['ChunkSizes'])
 		self.subchunk_list = name_type_map['SubChunkReader'](self.context, self.chunksize_list, None)
 

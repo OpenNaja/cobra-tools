@@ -17,10 +17,10 @@ class RootEntry(BaseStruct):
 		super().__init__(context, arg, template, set_default=False)
 
 		# id (index or djb2) of the file
-		self.file_hash = 0
+		self.file_hash = name_type_map['Uint'](self.context, 0, None)
 
 		# djb2 of extension
-		self.ext_hash = 0
+		self.ext_hash = name_type_map['Uint'](self.context, 0, None)
 
 		# points to the main struct of this file OR -1 pointer for assets
 		self.struct_ptr = name_type_map['HeaderPointer'](self.context, 0, None)

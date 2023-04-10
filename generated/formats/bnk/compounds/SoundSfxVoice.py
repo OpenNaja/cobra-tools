@@ -14,22 +14,22 @@ class SoundSfxVoice(BaseStruct):
 		super().__init__(context, arg, template, set_default=False)
 
 		# length of this section
-		self.length = 0
+		self.length = name_type_map['Uint'](self.context, 0, None)
 
 		# id of this Sound SFX object
-		self.id = 0
+		self.id = name_type_map['Uint'](self.context, 0, None)
 
 		# ?
-		self.const_a = 0
+		self.const_a = name_type_map['Uint'](self.context, 0, None)
 
 		# ?
-		self.const_b = 0
+		self.const_b = name_type_map['Byte'](self.context, 0, None)
 
 		# ?
-		self.didx_id = 0
+		self.didx_id = name_type_map['Uint'](self.context, 0, None)
 
 		# ?
-		self.wem_length = 0
+		self.wem_length = name_type_map['Uint'](self.context, 0, None)
 
 		# ?
 		self.extra = Array(self.context, 0, None, (0,), name_type_map['Byte'])

@@ -12,22 +12,22 @@ class UiMovieHeader(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.flag_1 = 0
-		self.flag_2 = 0
-		self.flag_3 = 0
+		self.flag_1 = name_type_map['Uint'](self.context, 0, None)
+		self.flag_2 = name_type_map['Ushort'](self.context, 0, None)
+		self.flag_3 = name_type_map['Ushort'](self.context, 0, None)
 		self.floats = Array(self.context, 0, None, (0,), name_type_map['Float'])
-		self.u_0 = 0
-		self.num_ui_triggers = 0
-		self.u_1 = 0
-		self.num_ui_names = 0
-		self.num_assetpkgs = 0
-		self.u_2 = 0
-		self.num_list_1 = 0
-		self.num_list_2 = 0
-		self.num_ui_interfaces = 0
-		self.u_3 = 0
-		self.u_4 = 0
-		self.u_5 = 0
+		self.u_0 = name_type_map['Ubyte'](self.context, 0, None)
+		self.num_ui_triggers = name_type_map['Ubyte'](self.context, 0, None)
+		self.u_1 = name_type_map['Ubyte'](self.context, 0, None)
+		self.num_ui_names = name_type_map['Ubyte'](self.context, 0, None)
+		self.num_assetpkgs = name_type_map['Ubyte'](self.context, 0, None)
+		self.u_2 = name_type_map['Ubyte'](self.context, 0, None)
+		self.num_list_1 = name_type_map['Ubyte'](self.context, 0, None)
+		self.num_list_2 = name_type_map['Ubyte'](self.context, 0, None)
+		self.num_ui_interfaces = name_type_map['Ubyte'](self.context, 0, None)
+		self.u_3 = name_type_map['Ubyte'](self.context, 0, None)
+		self.u_4 = name_type_map['Ubyte'](self.context, 0, None)
+		self.u_5 = name_type_map['Ubyte'](self.context, 0, None)
 		self.movie_name = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
 		self.pkg_name = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
 		self.category_name = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])

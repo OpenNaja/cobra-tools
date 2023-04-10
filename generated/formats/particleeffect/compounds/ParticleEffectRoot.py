@@ -10,21 +10,21 @@ class ParticleEffectRoot(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.unk_64_1 = 0
-		self.unk_64_2 = 0
-		self.unk_64_3 = 0
-		self.unk_64_4 = 0
-		self.unk_64_5 = 0
-		self.unk_64_6 = 0
-		self.unk_32_1 = 0
-		self.unk_32_2_neg = 0
-		self.unk_32_3 = 0
-		self.unk_32_4 = 0
-		self.a_unk_32_1 = 0
-		self.a_unk_32_2 = 0
-		self.a_unk_32_3_1 = 0
-		self.a_unk_32_4 = 0
-		self.atlasinfo_count = 0
+		self.unk_64_1 = name_type_map['Uint64'](self.context, 0, None)
+		self.unk_64_2 = name_type_map['Uint64'](self.context, 0, None)
+		self.unk_64_3 = name_type_map['Uint64'](self.context, 0, None)
+		self.unk_64_4 = name_type_map['Uint64'](self.context, 0, None)
+		self.unk_64_5 = name_type_map['Uint64'](self.context, 0, None)
+		self.unk_64_6 = name_type_map['Uint64'](self.context, 0, None)
+		self.unk_32_1 = name_type_map['Uint'](self.context, 0, None)
+		self.unk_32_2_neg = name_type_map['Int'](self.context, 0, None)
+		self.unk_32_3 = name_type_map['Uint'](self.context, 0, None)
+		self.unk_32_4 = name_type_map['Uint'](self.context, 0, None)
+		self.a_unk_32_1 = name_type_map['Uint'](self.context, 0, None)
+		self.a_unk_32_2 = name_type_map['Uint'](self.context, 0, None)
+		self.a_unk_32_3_1 = name_type_map['Uint'](self.context, 0, None)
+		self.a_unk_32_4 = name_type_map['Uint'](self.context, 0, None)
+		self.atlasinfo_count = name_type_map['Uint64'](self.context, 0, None)
 		self.next_row_1 = name_type_map['NextRow1'](self.context, 0, None)
 		self.next_row_2 = name_type_map['NextRow2'](self.context, 0, None)
 		self.next_row_3 = name_type_map['NextRow2'](self.context, 0, None)

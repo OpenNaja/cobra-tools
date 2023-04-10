@@ -17,10 +17,10 @@ class EntityGroup(Material):
 		super().__init__(context, arg, template, set_default=False)
 
 		# -1
-		self.ff = 0
+		self.ff = name_type_map['Int'](self.context, 0, None)
 
 		# -1, 0 for PC
-		self.ff_or_zero = 0
+		self.ff_or_zero = name_type_map['Int'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 

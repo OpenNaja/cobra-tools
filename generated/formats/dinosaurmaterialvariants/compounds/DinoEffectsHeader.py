@@ -14,25 +14,25 @@ class DinoEffectsHeader(MemStruct):
 		super().__init__(context, arg, template, set_default=False)
 		self.vec_0 = name_type_map['Vector3F'](self.context, 0, None)
 		self.vec_1 = name_type_map['Vector3F'](self.context, 0, None)
-		self.a = 0
-		self.b = 0
+		self.a = name_type_map['Uint'](self.context, 0, None)
+		self.b = name_type_map['Uint'](self.context, 0, None)
 		self.vec_2 = name_type_map['Vector3F'](self.context, 0, None)
 		self.vec_3 = name_type_map['Vector3F'](self.context, 0, None)
 		self.vec_4 = name_type_map['Vector3F'](self.context, 0, None)
 		self.vec_5 = name_type_map['Vector3F'](self.context, 0, None)
-		self.c = 0
-		self.d = 0
+		self.c = name_type_map['Uint'](self.context, 0, None)
+		self.d = name_type_map['Uint'](self.context, 0, None)
 		self.floats_1 = Array(self.context, 0, None, (0,), name_type_map['Float'])
-		self.e = 0
+		self.e = name_type_map['Uint'](self.context, 0, None)
 		self.floats_2 = Array(self.context, 0, None, (0,), name_type_map['Float'])
-		self.f = 0
+		self.f = name_type_map['Uint'](self.context, 0, None)
 		self.floats_3 = Array(self.context, 0, None, (0,), name_type_map['Float'])
-		self.g = 0
+		self.g = name_type_map['Uint'](self.context, 0, None)
 		self.floats_4 = Array(self.context, 0, None, (0,), name_type_map['Float'])
-		self.h = 0
+		self.h = name_type_map['Uint'](self.context, 0, None)
 		self.floats_5 = Array(self.context, 0, None, (0,), name_type_map['Float'])
-		self.i = 0
-		self.float = 0.0
+		self.i = name_type_map['Uint'](self.context, 0, None)
+		self.float = name_type_map['Float'](self.context, 0, None)
 		self.fgm_name = name_type_map['Pointer'](self.context, 0, name_type_map['ZStringObfuscated'])
 		if set_default:
 			self.set_defaults()

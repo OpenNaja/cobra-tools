@@ -10,11 +10,11 @@ class CurveParam(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.dtype = 0
+		self.dtype = name_type_map['Int'](self.context, 0, None)
 
 		# set to 1 if count > 1
-		self.do_interpolation = 0
-		self.count = 0
+		self.do_interpolation = name_type_map['Uint'](self.context, 0, None)
+		self.count = name_type_map['Uint64'](self.context, 0, None)
 		self.attribute_name = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
 		self.curve_entries = name_type_map['Pointer'](self.context, self.count, name_type_map['CurveList'])
 		if set_default:

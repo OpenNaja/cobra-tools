@@ -14,15 +14,15 @@ class LastData(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.p_1_count = 0
-		self.b = 0
-		self.c = 0
-		self.p_2_count = 0
-		self.p_3_count = 0
-		self.f = 0
-		self.g = 0
-		self.p_4_count = 0
-		self.p_5_count = 0
+		self.p_1_count = name_type_map['Uint64'](self.context, 0, None)
+		self.b = name_type_map['Uint64'](self.context, 0, None)
+		self.c = name_type_map['Uint64'](self.context, 0, None)
+		self.p_2_count = name_type_map['Uint64'](self.context, 0, None)
+		self.p_3_count = name_type_map['Uint64'](self.context, 0, None)
+		self.f = name_type_map['Uint64'](self.context, 0, None)
+		self.g = name_type_map['Uint64'](self.context, 0, None)
+		self.p_4_count = name_type_map['Uint64'](self.context, 0, None)
+		self.p_5_count = name_type_map['Uint64'](self.context, 0, None)
 		self.some_name = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
 		self.p_1 = name_type_map['Pointer'](self.context, 0, None)
 		self.p_2 = name_type_map['Pointer'](self.context, 0, None)

@@ -15,8 +15,8 @@ class TexturestreamHeader(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.zero = 0
-		self.lod_index = 0
+		self.zero = name_type_map['Uint64'].from_value(0)
+		self.lod_index = name_type_map['Uint64'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 

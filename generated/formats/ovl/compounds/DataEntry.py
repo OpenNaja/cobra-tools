@@ -19,23 +19,23 @@ class DataEntry(BaseStruct):
 		super().__init__(context, arg, template, set_default=False)
 
 		# djb2 hash
-		self.file_hash = 0
+		self.file_hash = name_type_map['Uint'](self.context, 0, None)
 
 		# djb2 hash for extension
-		self.ext_hash = 0
+		self.ext_hash = name_type_map['Uint'](self.context, 0, None)
 
 		# 1-based indexing into set_header.sets; 0 if data is not part of a set
-		self.set_index = 0
+		self.set_index = name_type_map['Ushort'](self.context, 0, None)
 
 		# number of buffers that should be read from list for this entry
-		self.buffer_count = 0
-		self.zero = 0
+		self.buffer_count = name_type_map['Ushort'](self.context, 0, None)
+		self.zero = name_type_map['Uint'](self.context, 0, None)
 
 		# size of first buffer, in the case of the ms2 the size 1 is the size of the first two buffers together
-		self.size_1 = 0
+		self.size_1 = name_type_map['Uint64'](self.context, 0, None)
 
 		# size of last buffer; tex and texstream have all size here
-		self.size_2 = 0
+		self.size_2 = name_type_map['Uint64'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 

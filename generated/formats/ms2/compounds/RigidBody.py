@@ -12,31 +12,31 @@ class RigidBody(BaseStruct):
 		super().__init__(context, arg, template, set_default=False)
 
 		# 2 kinematic, 0 1 static
-		self.flag = 0
+		self.flag = name_type_map['Uint'](self.context, 0, None)
 
 		# center of mass - from the head of the bone the collider is attached to
 		self.loc = name_type_map['Vector3'](self.context, 0, None)
 
 		# mass of joint or object
-		self.mass = 0.0
+		self.mass = name_type_map['Float'](self.context, 0, None)
 
 		# coefficient of static friction(small wants to roll, larger wants to slide)
-		self.static_friction = 0.0
+		self.static_friction = name_type_map['Float'](self.context, 0, None)
 
 		# 2.0 in unk1 makes the object not to stop ever, it is breakdancing
-		self.unk_1 = 0.0
+		self.unk_1 = name_type_map['Float'](self.context, 0, None)
 
 		# Related to Bounciness
-		self.unk_2 = 0.0
+		self.unk_2 = name_type_map['Float'](self.context, 0, None)
 
 		# NOT air resistance
-		self.unknown_friction = 0.0
+		self.unknown_friction = name_type_map['Float'](self.context, 0, None)
 
 		# ?
-		self.unk_4 = 0.0
+		self.unk_4 = name_type_map['Float'](self.context, 0, None)
 
 		# coefficient of dynamic friction
-		self.dynamic_friction = 0.0
+		self.dynamic_friction = name_type_map['Float'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 

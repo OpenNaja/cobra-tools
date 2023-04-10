@@ -12,7 +12,7 @@ class GenericInfo(MemStruct):
 		super().__init__(context, arg, template, set_default=False)
 
 		# byte offset to name in fgm buffer
-		self._name_offset = 0
+		self._name_offset = name_type_map['Uint'](self.context, 0, None)
 		self.dtype = name_type_map['FgmDtype'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()

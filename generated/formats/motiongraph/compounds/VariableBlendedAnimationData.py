@@ -14,8 +14,8 @@ class VariableBlendedAnimationData(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.value = 0.0
-		self._pad = 0
+		self.value = name_type_map['Float'].from_value(0.0)
+		self._pad = name_type_map['Uint'](self.context, 0, None)
 		self.additional_data_streams = name_type_map['DataStreamResourceDataList'](self.context, 0, None)
 		self.animation = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
 		if set_default:

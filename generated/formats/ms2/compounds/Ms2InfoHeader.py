@@ -15,9 +15,9 @@ class Ms2InfoHeader(BaseStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.biosyn = 0
-		self.bone_info_size = 0
-		self.num_streams = 0
+		self.biosyn = name_type_map['BiosynVersion'](self.context, 0, None)
+		self.bone_info_size = name_type_map['Uint'](self.context, 0, None)
+		self.num_streams = name_type_map['Uint'](self.context, 0, None)
 		self.info = name_type_map['Ms2Root'](self.context, 0, None)
 
 		# used since DLA

@@ -10,8 +10,8 @@ class FRenderLodSpecRoot(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.spec_count = 0
-		self.unknown = 0
+		self.spec_count = name_type_map['Uint64'](self.context, 0, None)
+		self.unknown = name_type_map['Uint64'](self.context, 0, None)
 		self.spec_list = name_type_map['ArrayPointer'](self.context, self.spec_count, name_type_map['LodSpecItem'])
 		if set_default:
 			self.set_defaults()

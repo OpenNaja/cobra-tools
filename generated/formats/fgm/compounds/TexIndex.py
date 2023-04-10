@@ -14,10 +14,10 @@ class TexIndex(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self._tex_index = 0
+		self._tex_index = name_type_map['Uint'](self.context, 0, None)
 
 		# index of tile if an array texture is used eg JWE swatches
-		self.array_index = 0
+		self.array_index = name_type_map['Uint'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 

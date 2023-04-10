@@ -14,10 +14,10 @@ class MotiongraphRootFrag(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.num_activities = 0
-		self.count_1 = 0
-		self.count_2 = 0
-		self.num_xmls = 0
+		self.num_activities = name_type_map['Uint64'](self.context, 0, None)
+		self.count_1 = name_type_map['Uint64'](self.context, 0, None)
+		self.count_2 = name_type_map['Uint64'](self.context, 0, None)
+		self.num_xmls = name_type_map['Uint64'](self.context, 0, None)
 		self.activities = name_type_map['Pointer'](self.context, self.num_activities, name_type_map['Activities'])
 		self.ptr_1 = name_type_map['Pointer'](self.context, self.count_1, name_type_map['MRFArray1'])
 		self.ptr_2 = name_type_map['Pointer'](self.context, self.count_2, name_type_map['MRFArray2'])

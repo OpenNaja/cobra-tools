@@ -12,13 +12,13 @@ class HbPostSize(MemStruct):
 		super().__init__(context, arg, template, set_default=False)
 
 		# Post size front and back. Affects navcut and selection.
-		self.front_back = 0.0
+		self.front_back = name_type_map['Float'](self.context, 0, None)
 
 		# Post size left and right. Affects navcut and selection.
-		self.left_right = 0.0
+		self.left_right = name_type_map['Float'](self.context, 0, None)
 
 		# Post size above wall. Affects navcut and selection.
-		self.top = 0.0
+		self.top = name_type_map['Float'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 

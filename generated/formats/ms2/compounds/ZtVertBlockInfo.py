@@ -16,9 +16,9 @@ class ZtVertBlockInfo(BaseStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.vertex_count = 0
+		self.vertex_count = name_type_map['Uint'](self.context, 0, None)
 		self.flags = Array(self.context, 0, None, (0,), name_type_map['Ubyte'])
-		self.zero = 0
+		self.zero = name_type_map['Uint'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 

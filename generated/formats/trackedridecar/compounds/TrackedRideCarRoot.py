@@ -16,11 +16,11 @@ class TrackedRideCarRoot(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.sub_count = 0
-		self.total_vecs_count = 0
+		self.sub_count = name_type_map['Uint'](self.context, 0, None)
+		self.total_vecs_count = name_type_map['Uint'](self.context, 0, None)
 		self.vec = Array(self.context, 0, None, (0,), name_type_map['Float'])
-		self.zero_0 = 0
-		self.zero_1 = 0
+		self.zero_0 = name_type_map['Uint'](self.context, 0, None)
+		self.zero_1 = name_type_map['Uint64'](self.context, 0, None)
 		self.sub = name_type_map['ArrayPointer'](self.context, self.sub_count, name_type_map['TrackedRideCarSub'])
 		self.some_name = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
 		if set_default:

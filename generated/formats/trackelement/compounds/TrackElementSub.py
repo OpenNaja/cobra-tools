@@ -14,7 +14,7 @@ class TrackElementSub(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.unk_0 = 0
+		self.unk_0 = name_type_map['Uint64'](self.context, 0, None)
 		self.catwalk_right_lsm = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
 		self.catwalk_left_lsm = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
 		self.catwalk_both_lsm = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])

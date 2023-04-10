@@ -14,17 +14,17 @@ class TrackElementData(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.unk_0 = 0
-		self.unk_1 = 0
-		self.unk_2 = 0
-		self.unk_3 = 0
-		self.unk_4 = 32
-		self.unk_5 = 1024
-		self.unk_6 = 1
-		self.unk_7 = 1
+		self.unk_0 = name_type_map['Uint64'](self.context, 0, None)
+		self.unk_1 = name_type_map['Uint'](self.context, 0, None)
+		self.unk_2 = name_type_map['Uint'](self.context, 0, None)
+		self.unk_3 = name_type_map['Ushort'].from_value(0)
+		self.unk_4 = name_type_map['Ushort'].from_value(32)
+		self.unk_5 = name_type_map['Uint'].from_value(1024)
+		self.unk_6 = name_type_map['Uint'].from_value(1)
+		self.unk_7 = name_type_map['Uint'].from_value(1)
 
 		# 8 bytes when count is 1
-		self.pad = 0
+		self.pad = name_type_map['Uint64'](self.context, 0, None)
 		self.loop_name = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
 		self.ovl_name = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
 		self.catwalk = name_type_map['Pointer'](self.context, 0, name_type_map['TrackElementSub'])

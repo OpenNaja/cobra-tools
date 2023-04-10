@@ -15,13 +15,13 @@ class MRFMember2(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.count_0 = 0
-		self.count_1 = 0
-		self.count_2 = 0
-		self.count_3 = 0
-		self.count_4 = 0
-		self.count_5 = 0
-		self.count_6 = 0
+		self.count_0 = name_type_map['Uint64'](self.context, 0, None)
+		self.count_1 = name_type_map['Uint64'](self.context, 0, None)
+		self.count_2 = name_type_map['Uint64'](self.context, 0, None)
+		self.count_3 = name_type_map['Uint64'](self.context, 0, None)
+		self.count_4 = name_type_map['Uint64'](self.context, 0, None)
+		self.count_5 = name_type_map['Uint64'](self.context, 0, None)
+		self.count_6 = name_type_map['Uint64'](self.context, 0, None)
 		self.transition = name_type_map['Pointer'](self.context, 0, name_type_map['Transition'])
 		self.id = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
 		if set_default:

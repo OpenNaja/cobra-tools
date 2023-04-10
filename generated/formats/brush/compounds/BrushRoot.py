@@ -14,10 +14,10 @@ class BrushRoot(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self._zero = 0
-		self.num_pixels = 0
-		self.x = 0
-		self.y = 0
+		self._zero = name_type_map['Uint64'](self.context, 0, None)
+		self.num_pixels = name_type_map['Uint64'](self.context, 0, None)
+		self.x = name_type_map['Uint'](self.context, 0, None)
+		self.y = name_type_map['Uint'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 

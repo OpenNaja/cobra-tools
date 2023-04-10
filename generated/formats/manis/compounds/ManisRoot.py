@@ -17,12 +17,12 @@ class ManisRoot(BaseStruct):
 		super().__init__(context, arg, template, set_default=False)
 
 		# seemingly related to the names of mani files stripped from their prefix, but usually slightly smaller than what is actually needed
-		self.names_size = 0
-		self.hash_block_size = 0
-		self.zero_0 = 0
-		self.zero_1 = 0
-		self.zero_2 = 0
-		self.zero_3 = 0
+		self.names_size = name_type_map['Ushort'](self.context, 0, None)
+		self.hash_block_size = name_type_map['Ushort'](self.context, 0, None)
+		self.zero_0 = name_type_map['Uint'](self.context, 0, None)
+		self.zero_1 = name_type_map['Uint64'](self.context, 0, None)
+		self.zero_2 = name_type_map['Uint64'](self.context, 0, None)
+		self.zero_3 = name_type_map['Uint64'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 

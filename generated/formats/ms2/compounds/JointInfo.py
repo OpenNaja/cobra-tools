@@ -17,15 +17,15 @@ class JointInfo(BaseStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.eleven = 11
-		self.zero_0 = 0
-		self.zero_1 = 0
-		self.minus_1 = -1
-		self.name = 0
-		self.hitcheck_count = 0
+		self.eleven = name_type_map['Uint'].from_value(11)
+		self.zero_0 = name_type_map['Int'].from_value(0)
+		self.zero_1 = name_type_map['Int'].from_value(0)
+		self.minus_1 = name_type_map['Int'].from_value(-1)
+		self.name = name_type_map['OffsetString'](self.context, self.arg, None)
+		self.hitcheck_count = name_type_map['Uint'](self.context, 0, None)
 
 		# 8 bytes of zeros
-		self.zero_2 = 0
+		self.zero_2 = name_type_map['Uint64'](self.context, 0, None)
 
 		# 8 bytes of zeros per hitcheck
 		self.hitcheck_pointers = Array(self.context, 0, None, (0,), name_type_map['Uint64'])

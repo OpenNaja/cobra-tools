@@ -12,12 +12,12 @@ class MaterialName(BaseStruct):
 		super().__init__(context, arg, template, set_default=False)
 
 		# index into ms2 names array
-		self.name_index = 0
+		self.name_index = name_type_map['Uint'](self.context, 0, None)
 
 		# specifies the blend mode, highly consistent to shader type used
 		# PZ: 263: {'furshell', 'furpatchworkbaldnessshell', 'furpatchworkshell'}, 6: {'furpatchworkbaldnessfin', 'furfin', 'furpatchworkfin'}, 8: {'animal_whisker'}, 15: {'glass_textured_weather'}
 		# JWE2: 7: {'dinosaurfur_vanilla_shell'}, 6: {'dinosaurfur_vanilla_fin'}
-		self.blend_mode = 0
+		self.blend_mode = name_type_map['Uint'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 

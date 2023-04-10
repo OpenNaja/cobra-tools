@@ -12,16 +12,16 @@ class SubA(BaseStruct):
 		super().__init__(context, arg, template, set_default=False)
 
 		# increases, starting at 1
-		self.index = 0
+		self.index = name_type_map['Ubyte'](self.context, 0, None)
 
 		# ?
-		self.a = 240
+		self.a = name_type_map['Ubyte'].from_value(240)
 
 		# ?
-		self.b = 237
+		self.b = name_type_map['Ubyte'].from_value(237)
 
 		# ?
-		self.c = 254
+		self.c = name_type_map['Ubyte'].from_value(254)
 		if set_default:
 			self.set_defaults()
 

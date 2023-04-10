@@ -16,10 +16,10 @@ class Vector2(MemStruct):
 		super().__init__(context, arg, template, set_default=False)
 
 		# First coordinate.
-		self.x = 0.0
+		self.x = name_type_map['Float'](self.context, 0, None)
 
 		# Second coordinate.
-		self.y = 0.0
+		self.y = name_type_map['Float'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 

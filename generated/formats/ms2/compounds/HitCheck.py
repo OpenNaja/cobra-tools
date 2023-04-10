@@ -17,23 +17,23 @@ class HitCheck(BaseStruct):
 		self.dtype = name_type_map['CollisionType'](self.context, 0, None)
 
 		# PZ, JWE2 always 0
-		self.flag_0 = 0
+		self.flag_0 = name_type_map['Ushort'].from_value(0)
 
 		# JWE1: 16; PZ, JWE2 always 0
-		self.flag_1 = 0
+		self.flag_1 = name_type_map['Ushort'].from_value(0)
 
 		# probably a bitfield, not sure though, might be a list of ubytes too
-		self.collision_layers = 0
-		self.collision_ignore = 0
-		self.collision_use = 0
+		self.collision_layers = name_type_map['Uint64'](self.context, 0, None)
+		self.collision_ignore = name_type_map['OffsetString'](self.context, self.arg, None)
+		self.collision_use = name_type_map['OffsetString'](self.context, self.arg, None)
 
 		# ?
-		self.zero_extra_pc = 0
-		self.name = 0
+		self.zero_extra_pc = name_type_map['Uint'](self.context, 0, None)
+		self.name = name_type_map['OffsetString'](self.context, self.arg, None)
 		self.collider = name_type_map['MeshCollision'](self.context, 0, None)
 
 		# ?
-		self.zero_extra_zt = 0
+		self.zero_extra_zt = name_type_map['Uint'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 

@@ -16,7 +16,7 @@ class Locomotion2BlendSpace(MemStruct):
 		super().__init__(context, arg, template, set_default=False)
 		self.y_axis = name_type_map['BlendSpaceAxis'](self.context, 0, None)
 		self.x_axis = name_type_map['BlendSpaceAxis'](self.context, 0, None)
-		self.nodes_count = 0
+		self.nodes_count = name_type_map['Uint64'](self.context, 0, None)
 		self.nodes = name_type_map['ArrayPointer'](self.context, self.nodes_count, name_type_map['Locomotion2BlendSpaceNode'])
 		if set_default:
 			self.set_defaults()

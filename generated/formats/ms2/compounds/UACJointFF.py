@@ -14,12 +14,12 @@ class UACJointFF(BaseStruct):
 		super().__init__(context, arg, template, set_default=False)
 
 		# must be 11
-		self.eleven = 0
+		self.eleven = name_type_map['Uint'](self.context, 0, None)
 
 		# bunch of -1's, and constants
 		self.f_fs = Array(self.context, 0, None, (0,), name_type_map['Int'])
-		self.name = 0
-		self.hitcheck_count = 0
+		self.name = name_type_map['OffsetString'](self.context, self.arg, None)
+		self.hitcheck_count = name_type_map['Uint'](self.context, 0, None)
 
 		# 12 bytes of zeros
 		self.zeros = Array(self.context, 0, None, (0,), name_type_map['Uint'])

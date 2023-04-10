@@ -15,13 +15,13 @@ class RagdollPhysicsActivityData(MemStruct):
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		self.flag = name_type_map['RagdollPhysicsActivityFlags'](self.context, 0, None)
-		self._flag_pad = 0
-		self.collision_exclude_mask = 0
-		self.min_motor_driving_force = 0.0
-		self.max_motor_driving_force = 0.0
-		self.pose_match_lin_threshold = 0.0
-		self.pose_match_ang_threshold = 0.0
-		self.bone_chain_priority = 0
+		self._flag_pad = name_type_map['Uint'](self.context, 0, None)
+		self.collision_exclude_mask = name_type_map['Uint64'](self.context, 0, None)
+		self.min_motor_driving_force = name_type_map['Float'](self.context, 0, None)
+		self.max_motor_driving_force = name_type_map['Float'](self.context, 0, None)
+		self.pose_match_lin_threshold = name_type_map['Float'](self.context, 0, None)
+		self.pose_match_ang_threshold = name_type_map['Float'](self.context, 0, None)
+		self.bone_chain_priority = name_type_map['Uint64'](self.context, 0, None)
 		self.root_bone_name = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
 		self.collision_exclude_0 = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
 		self.collision_exclude_1 = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])

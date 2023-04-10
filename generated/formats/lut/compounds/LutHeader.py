@@ -14,11 +14,11 @@ class LutHeader(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.colors_count = 0
-		self.unk_0 = 0
-		self.unk_1 = 0
-		self.colors_in_column_count = 0
-		self.unk_2 = 0
+		self.colors_count = name_type_map['Ushort'](self.context, 0, None)
+		self.unk_0 = name_type_map['Ushort'](self.context, 0, None)
+		self.unk_1 = name_type_map['Uint'](self.context, 0, None)
+		self.colors_in_column_count = name_type_map['Uint'](self.context, 0, None)
+		self.unk_2 = name_type_map['Uint'](self.context, 0, None)
 		self.colors = name_type_map['ArrayPointer'](self.context, self.colors_count, name_type_map['Vector3'])
 		if set_default:
 			self.set_defaults()

@@ -18,16 +18,16 @@ class BnkBufferData(BaseStruct):
 		super().__init__(context, arg, template, set_default=False)
 
 		# data size of aux file of type b
-		self.size_b = 0
+		self.size_b = name_type_map['Uint64'](self.context, 0, None)
 
 		# 1, guess
-		self.external_aux_b_count = 0
+		self.external_aux_b_count = name_type_map['Uint'](self.context, 0, None)
 
 		# 1 for PC, 2 for PZ, JWE1, 6 for ZTUAC
-		self.total_aux_count = 0
+		self.total_aux_count = name_type_map['Uint'](self.context, 0, None)
 
 		# variable
-		self.streams_count = 0
+		self.streams_count = name_type_map['Uint'](self.context, 0, None)
 
 		# 0
 		self.zeros = Array(self.context, 0, None, (0,), name_type_map['Uint'])
@@ -39,13 +39,13 @@ class BnkBufferData(BaseStruct):
 		self.streams = Array(self.context, 0, None, (0,), name_type_map['StreamInfo'])
 
 		# data
-		self.name = ''
+		self.name = name_type_map['ZString'](self.context, 0, None)
 
 		# ext format subtypes
-		self.external_b_suffix = ''
+		self.external_b_suffix = name_type_map['ZString'](self.context, 0, None)
 
 		# ext format subtypes
-		self.external_s_suffix = ''
+		self.external_s_suffix = name_type_map['ZString'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 

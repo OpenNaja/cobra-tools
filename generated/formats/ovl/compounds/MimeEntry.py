@@ -19,27 +19,27 @@ class MimeEntry(BaseStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.name = 0
-		self.zero_0 = 0
+		self.name = name_type_map['OffsetString'](self.context, self.context.names, None)
+		self.zero_0 = name_type_map['Uint'].from_value(0)
 
 		# hash of this mime, changes with mime version; not used anywhere else in the ovl
-		self.mime_hash = 0
+		self.mime_hash = name_type_map['Uint'](self.context, 0, None)
 
 		# usually increments with game
-		self.mime_version = 0
+		self.mime_version = name_type_map['Uint'](self.context, 0, None)
 
 		# Id of this class type. Later in the file there is a reference to this Id; offset into FileEntry list in number of files
-		self.file_index_offset = 0
+		self.file_index_offset = name_type_map['Uint'](self.context, 0, None)
 
 		# Number of entries of this class in the file.; from 'file index offset', this many files belong to this file extension
-		self.file_count = 0
-		self.zero_1 = 0
+		self.file_count = name_type_map['Uint'](self.context, 0, None)
+		self.zero_1 = name_type_map['Uint'](self.context, 0, None)
 
 		# constant per mime, grab this many triplets
-		self.triplet_count = 0
+		self.triplet_count = name_type_map['Uint'](self.context, 0, None)
 
 		# index into triplets list
-		self.triplet_offset = 0
+		self.triplet_offset = name_type_map['Uint'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 

@@ -12,9 +12,9 @@ class Pillar(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.unk_int = 0
+		self.unk_int = name_type_map['Uint64'](self.context, 0, None)
 		self.unk_floats = Array(self.context, 0, None, (0,), name_type_map['Float'])
-		self.unk_int_2 = 0
+		self.unk_int_2 = name_type_map['Uint64'](self.context, 0, None)
 		self.support = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
 		self.cap = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
 		if set_default:

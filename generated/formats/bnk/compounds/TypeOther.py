@@ -18,7 +18,7 @@ class TypeOther(BaseStruct):
 		super().__init__(context, arg, template, set_default=False)
 
 		# length of this section
-		self.length = 0
+		self.length = name_type_map['Uint'](self.context, 0, None)
 
 		# id of this Sound SFX object
 		self.raw = Array(self.context, 0, None, (0,), name_type_map['Byte'])

@@ -17,7 +17,7 @@ class FirstPointersa(MemStruct):
 		self.pointer_stuff_1 = name_type_map['CommonChunk'](self.context, 0, None)
 		self.pointer_stuff_2 = name_type_map['CommonChunk'](self.context, 0, None)
 		self.pointer_stuff_3 = name_type_map['CommonChunk'](self.context, 0, None)
-		self.zero = 0
+		self.zero = name_type_map['Uint64'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 

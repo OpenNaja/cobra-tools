@@ -12,7 +12,7 @@ class BonePointer(AbstractPointer):
 		super().__init__(context, arg, template, set_default=False)
 
 		# index into bones
-		self.index = 0
+		self.index = name_type_map['Ubyte'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 

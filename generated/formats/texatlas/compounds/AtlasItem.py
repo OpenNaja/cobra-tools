@@ -10,13 +10,13 @@ class AtlasItem(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.startx = 0.0
-		self.starty = 0.0
-		self.endx = 0.0
-		self.endy = 0.0
-		self.layer = 0
-		self.flags_1 = 0
-		self.flags_2 = 0
+		self.startx = name_type_map['Float'](self.context, 0, None)
+		self.starty = name_type_map['Float'](self.context, 0, None)
+		self.endx = name_type_map['Float'](self.context, 0, None)
+		self.endy = name_type_map['Float'](self.context, 0, None)
+		self.layer = name_type_map['Uint'](self.context, 0, None)
+		self.flags_1 = name_type_map['Ushort'](self.context, 0, None)
+		self.flags_2 = name_type_map['Ushort'](self.context, 0, None)
 		self.atlas_name = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
 		if set_default:
 			self.set_defaults()

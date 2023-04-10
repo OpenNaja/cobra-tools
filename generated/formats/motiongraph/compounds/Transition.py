@@ -15,9 +15,9 @@ class Transition(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.count_0 = 0
-		self.count_1 = 0
-		self.count_2 = 0
+		self.count_0 = name_type_map['Uint'](self.context, 0, None)
+		self.count_1 = name_type_map['Uint'](self.context, 0, None)
+		self.count_2 = name_type_map['Uint64'](self.context, 0, None)
 		self.ptr_0 = name_type_map['Pointer'](self.context, self.count_1, name_type_map['PtrList'])
 		self.ptr_1 = name_type_map['Pointer'](self.context, self.count_2, name_type_map['TransStructArray'])
 		self.id = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])

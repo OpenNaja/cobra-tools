@@ -19,32 +19,32 @@ class CompressedManiData(BaseStruct):
 
 		# ?
 		self.pad_2 = name_type_map['SmartPadding'](self.context, 0, None)
-		self.frame_count = 0
-		self.ori_bone_count = 0
-		self.pos_bone_count = 0
+		self.frame_count = name_type_map['Uint'](self.context, 0, None)
+		self.ori_bone_count = name_type_map['Uint'](self.context, 0, None)
+		self.pos_bone_count = name_type_map['Uint'](self.context, 0, None)
 
 		# maybe
-		self.scl_bone_count = 0
+		self.scl_bone_count = name_type_map['Uint'](self.context, 0, None)
 
 		# fixed
 		self.zeros_18 = Array(self.context, 0, None, (0,), name_type_map['Uint'])
-		self.count = 0
+		self.count = name_type_map['Ushort'](self.context, 0, None)
 
 		# usually 420, or 0
-		self.quantisation_level = 0
+		self.quantisation_level = name_type_map['Ushort'](self.context, 0, None)
 		self.ref_2 = name_type_map['Empty'](self.context, 0, None)
 		self.some_indices = Array(self.context, 0, None, (0,), name_type_map['Ubyte'])
-		self.flag_0 = 0
-		self.flag_1 = 0
-		self.flag_2 = 0
-		self.flag_3 = 0
+		self.flag_0 = name_type_map['Ubyte'](self.context, 0, None)
+		self.flag_1 = name_type_map['Ubyte'](self.context, 0, None)
+		self.flag_2 = name_type_map['Ubyte'](self.context, 0, None)
+		self.flag_3 = name_type_map['Ubyte'](self.context, 0, None)
 		self.anoth_pad = name_type_map['PadAlign'](self.context, 4, self.ref_2)
 
 		# these are likely a scale reference or factor
 		self.floatsb = name_type_map['FloatsGrabber'](self.context, 0, None)
 
 		# this seems to be vaguely related, but not always there?
-		self.extra_pc_zero = 0
+		self.extra_pc_zero = name_type_map['Uint64'](self.context, 0, None)
 		self.anoth_pad_2 = name_type_map['PadAlign'](self.context, 16, self.ref)
 		self.ref_3 = name_type_map['Empty'](self.context, 0, None)
 		self.repeats = Array(self.context, 0, None, (0,), name_type_map['Repeat'])

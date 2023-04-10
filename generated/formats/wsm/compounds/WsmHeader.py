@@ -16,10 +16,10 @@ class WsmHeader(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.duration = 0.0
+		self.duration = name_type_map['Float'](self.context, 0, None)
 
 		# likely
-		self.frame_count = 0
+		self.frame_count = name_type_map['Uint'](self.context, 0, None)
 
 		# unk
 		self.unknowns = Array(self.context, 0, None, (0,), name_type_map['Float'])

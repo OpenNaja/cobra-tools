@@ -16,19 +16,19 @@ class Mipmap(MemStruct):
 		super().__init__(context, arg, template, set_default=False)
 
 		# starting offset into the texture buffer for this mip level
-		self.offset = 0
+		self.offset = name_type_map['Uint'](self.context, 0, None)
 
 		# bytes for one array entry
-		self.size = 0
+		self.size = name_type_map['Uint'](self.context, 0, None)
 
 		# bytes for all array entries
-		self.size_array = 0
+		self.size_array = name_type_map['Uint'](self.context, 0, None)
 
 		# size of a scan line of blocks, including padding that is added to the end of the line
-		self.size_scan = 0
+		self.size_scan = name_type_map['Uint'](self.context, 0, None)
 
 		# size of the non-empty scanline blocks, ie. the last lods add empty scanlines as this is smaller than size
-		self.size_data = 0
+		self.size_data = name_type_map['Uint'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 

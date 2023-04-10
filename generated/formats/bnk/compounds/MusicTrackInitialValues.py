@@ -12,17 +12,17 @@ class MusicTrackInitialValues(BaseStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.u_flags = 0
-		self.num_sources = 0
+		self.u_flags = name_type_map['Ubyte'](self.context, 0, None)
+		self.num_sources = name_type_map['Uint'](self.context, 0, None)
 		self.p_source = Array(self.context, 0, None, (0,), name_type_map['AkBankSourceData'])
-		self.num_playlist_item = 0
+		self.num_playlist_item = name_type_map['Uint'](self.context, 0, None)
 		self.p_playlist = Array(self.context, 0, None, (0,), name_type_map['AkTrackSrcInfo'])
-		self.num_sub_track = 0
-		self.num_clip_automation_item = 0
+		self.num_sub_track = name_type_map['Uint'](self.context, 0, None)
+		self.num_clip_automation_item = name_type_map['Uint'](self.context, 0, None)
 		self.p_items = Array(self.context, 0, None, (0,), name_type_map['Uint'])
 		self.node_base_params = name_type_map['NodeBaseParams'](self.context, 0, None)
-		self.e_track_type = 0
-		self.i_look_ahead_time = 0
+		self.e_track_type = name_type_map['Ubyte'](self.context, 0, None)
+		self.i_look_ahead_time = name_type_map['Int'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 

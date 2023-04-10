@@ -14,7 +14,7 @@ class Info(MemStruct):
 		super().__init__(context, arg, template, set_default=False)
 		self.flags = Array(self.context, 0, None, (0,), name_type_map['Byte'])
 		self.value = Array(self.context, 0, None, (0,), name_type_map['Float'])
-		self.padding = 0
+		self.padding = name_type_map['Uint'](self.context, 0, None)
 		self.info_name = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
 		if set_default:
 			self.set_defaults()

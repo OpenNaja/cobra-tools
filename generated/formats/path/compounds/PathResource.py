@@ -10,10 +10,10 @@ class PathResource(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.path_type = 0
-		self.path_sub_type = 0
-		self.unk_byte_1 = 1
-		self.unk_byte_2 = 0
+		self.path_type = name_type_map['Byte'](self.context, 0, None)
+		self.path_sub_type = name_type_map['Byte'](self.context, 0, None)
+		self.unk_byte_1 = name_type_map['Byte'].from_value(1)
+		self.unk_byte_2 = name_type_map['Byte'](self.context, 0, None)
 		self.pathmaterial = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
 		self.pathextrusion_kerb = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
 		self.pathextrusion_railing = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])

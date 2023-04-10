@@ -17,13 +17,13 @@ class Triplet(BaseStruct):
 		super().__init__(context, arg, template, set_default=False)
 
 		# ?
-		self.a = 0
+		self.a = name_type_map['Ubyte'](self.context, 0, None)
 
 		# ?
-		self.b = 0
+		self.b = name_type_map['Ubyte'](self.context, 0, None)
 
 		# ?
-		self.c = 0
+		self.c = name_type_map['Ubyte'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 

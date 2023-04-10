@@ -16,12 +16,12 @@ class LuaRoot(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.lua_size = 0
-		self.sixteenk = 0
-		self.hash = 0
-		self.zero_0 = 0
-		self.zero_1 = 0
-		self.zero_2 = 0
+		self.lua_size = name_type_map['Uint'](self.context, 0, None)
+		self.sixteenk = name_type_map['Uint'](self.context, 0, None)
+		self.hash = name_type_map['Uint'](self.context, 0, None)
+		self.zero_0 = name_type_map['Uint'](self.context, 0, None)
+		self.zero_1 = name_type_map['Uint64'](self.context, 0, None)
+		self.zero_2 = name_type_map['Uint64'](self.context, 0, None)
 		self.source_path = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
 		self.likely_alignment = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
 		if set_default:

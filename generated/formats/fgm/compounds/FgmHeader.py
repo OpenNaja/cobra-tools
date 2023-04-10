@@ -16,12 +16,12 @@ class FgmHeader(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self._texture_count = 0
-		self._attribute_count = 0
-		self._unk_0 = 0
-		self._unk_1 = 0
-		self._unk_2 = 0
-		self._unk_3 = 0
+		self._texture_count = name_type_map['Uint64'](self.context, 0, None)
+		self._attribute_count = name_type_map['Uint64'](self.context, 0, None)
+		self._unk_0 = name_type_map['Uint64'](self.context, 0, None)
+		self._unk_1 = name_type_map['Uint64'](self.context, 0, None)
+		self._unk_2 = name_type_map['Uint64'](self.context, 0, None)
+		self._unk_3 = name_type_map['Uint64'](self.context, 0, None)
 		self.textures = name_type_map['ArrayPointer'](self.context, self._texture_count, name_type_map['TextureInfo'])
 		self.attributes = name_type_map['ArrayPointer'](self.context, self._attribute_count, name_type_map['AttribInfo'])
 		self.name_foreach_textures = name_type_map['ForEachPointer'](self.context, self.textures, name_type_map['TextureData'])

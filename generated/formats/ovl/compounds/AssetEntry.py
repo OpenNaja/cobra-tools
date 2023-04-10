@@ -16,11 +16,11 @@ class AssetEntry(BaseStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.file_hash = 0
-		self.ext_hash = 0
+		self.file_hash = name_type_map['Uint64'](self.context, 0, None)
+		self.ext_hash = name_type_map['Uint64'](self.context, 0, None)
 
 		# index into root entries array
-		self.root_index = 0
+		self.root_index = name_type_map['Uint64'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 

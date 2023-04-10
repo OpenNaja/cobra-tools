@@ -15,19 +15,19 @@ class FileEntry(BaseStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.basename = 0
+		self.basename = name_type_map['OffsetString'](self.context, self.context.names, None)
 
 		# this hash is used to retrieve the file name from inside the archive
-		self.file_hash = 0
+		self.file_hash = name_type_map['Uint'](self.context, 0, None)
 
 		# pool type of this file's root pointer, if part of a set, it's usually the same as set pool type
-		self.pool_type = 0
+		self.pool_type = name_type_map['Byte'](self.context, 0, None)
 
 		# if this file is part of a set, the set's root entry's pool type, else 0
-		self.set_pool_type = 0
+		self.set_pool_type = name_type_map['Byte'](self.context, 0, None)
 
 		# index into 'Extensions' array
-		self.extension = 0
+		self.extension = name_type_map['Ushort'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 

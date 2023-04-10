@@ -14,10 +14,10 @@ class MergedetailsRoot(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.zero_0 = 0
-		self.zero_1 = 0
-		self.count = 0
-		self.flag = 0
+		self.zero_0 = name_type_map['Uint64'](self.context, 0, None)
+		self.zero_1 = name_type_map['Uint64'](self.context, 0, None)
+		self.count = name_type_map['Uint'](self.context, 0, None)
+		self.flag = name_type_map['Uint'](self.context, 0, None)
 		self.merge_names = name_type_map['Pointer'](self.context, self.count, name_type_map['PtrList'])
 		self.queries = name_type_map['Pointer'](self.context, self.count, name_type_map['PtrList'])
 		self.field_name = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])

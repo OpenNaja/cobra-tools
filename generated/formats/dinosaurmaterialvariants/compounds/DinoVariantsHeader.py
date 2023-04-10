@@ -15,9 +15,9 @@ class DinoVariantsHeader(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.has_sets = 0
-		self.variant_count = 0
-		self.zero = 0
+		self.has_sets = name_type_map['Uint64'](self.context, 0, None)
+		self.variant_count = name_type_map['Uint64'](self.context, 0, None)
+		self.zero = name_type_map['Uint64'](self.context, 0, None)
 		self.fgm_name = name_type_map['Pointer'](self.context, 0, name_type_map['ZStringObfuscated'])
 		self.set_name = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
 		self.variants = name_type_map['Pointer'](self.context, self.variant_count, name_type_map['VariantArray'])

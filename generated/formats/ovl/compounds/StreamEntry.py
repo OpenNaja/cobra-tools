@@ -21,11 +21,11 @@ class StreamEntry(BaseStruct):
 		super().__init__(context, arg, template, set_default=False)
 
 		# offset to the stream's root_entry pointer inside the flattened mempools
-		self.stream_offset = 0
+		self.stream_offset = name_type_map['Uint'](self.context, 0, None)
 
 		# offset to the user file's root_entry pointer (in STATIC) inside the flattened mempools
-		self.file_offset = 0
-		self.zero = 0
+		self.file_offset = name_type_map['Uint'](self.context, 0, None)
+		self.zero = name_type_map['Uint'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 

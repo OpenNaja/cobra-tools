@@ -17,18 +17,18 @@ class TexBuffer(MemStruct):
 		super().__init__(context, arg, template, set_default=False)
 
 		# byte offset in the combined buffer
-		self.offset = 0
+		self.offset = name_type_map['Uint64'](self.context, 0, None)
 
 		# byte size of this tex buffer
-		self.size = 0
+		self.size = name_type_map['Uint64'](self.context, 0, None)
 
 		# index of first mip used in this buffer
-		self.first_mip = 0
+		self.first_mip = name_type_map['Ubyte'](self.context, 0, None)
 
 		# amount of mip levels included in this buffer
-		self.mip_count = 0
-		self.padding_0 = 0
-		self.padding_1 = 0
+		self.mip_count = name_type_map['Ubyte'](self.context, 0, None)
+		self.padding_0 = name_type_map['Short'].from_value(0)
+		self.padding_1 = name_type_map['Int'].from_value(0)
 		if set_default:
 			self.set_defaults()
 

@@ -20,43 +20,43 @@ class JointData(BaseStruct):
 
 		# seemingly additional alignment, unsure about the rule
 		self.start_pc = name_type_map['SmartPadding'](self.context, 0, None)
-		self.before_dla_0 = 0
-		self.before_dla_1 = 0
+		self.before_dla_0 = name_type_map['Uint64'](self.context, 0, None)
+		self.before_dla_1 = name_type_map['Uint64'](self.context, 0, None)
 
 		# repeat
-		self.joint_count = 0
-		self.num_push_constraints = 0
-		self.num_stretch_constraints = 0
-		self.num_ragdoll_constraints = 0
-		self.zero_0 = 0
-		self.zero_1 = 0
+		self.joint_count = name_type_map['Uint'](self.context, 0, None)
+		self.num_push_constraints = name_type_map['Uint'](self.context, 0, None)
+		self.num_stretch_constraints = name_type_map['Uint'](self.context, 0, None)
+		self.num_ragdoll_constraints = name_type_map['Uint'](self.context, 0, None)
+		self.zero_0 = name_type_map['Uint'](self.context, 0, None)
+		self.zero_1 = name_type_map['Uint'](self.context, 0, None)
 
 		# size of the name buffer below, including trailing zeros
-		self.namespace_length = 0
+		self.namespace_length = name_type_map['Uint'](self.context, 0, None)
 
 		# 0s
 		self.zeros_0 = Array(self.context, 0, None, (0,), name_type_map['Uint'])
 
 		# 0 or 1
-		self.pc_count = 0
+		self.pc_count = name_type_map['Uint'](self.context, 0, None)
 
 		# 0s
 		self.zeros_1 = Array(self.context, 0, None, (0,), name_type_map['Uint'])
 
 		# 0s
 		self.extra_zeros_2 = Array(self.context, 0, None, (0,), name_type_map['Uint'])
-		self.one_0 = 1
-		self.one_1 = 1
+		self.one_0 = name_type_map['Uint64'].from_value(1)
+		self.one_1 = name_type_map['Uint64'].from_value(1)
 
 		# matches bone count from bone info
-		self.bone_count = 0
-		self.joint_entry_count = 0
+		self.bone_count = name_type_map['Uint'](self.context, 0, None)
+		self.joint_entry_count = name_type_map['Uint'](self.context, 0, None)
 
 		# usually 0s
 		self.zeros_2 = Array(self.context, 0, None, (0,), name_type_map['Uint'])
 
 		# usually 0s
-		self.zeros_3 = 0
+		self.zeros_3 = name_type_map['Uint'](self.context, 0, None)
 		self.names_ref = name_type_map['Empty'](self.context, 0, None)
 
 		# corresponds to bone transforms

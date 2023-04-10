@@ -10,9 +10,9 @@ class ChunkSizes(BaseStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.zeros_0 = 0
-		self.bone = 0
-		self.counta = 0
+		self.zeros_0 = name_type_map['Uint64'](self.context, 0, None)
+		self.bone = name_type_map['Uint'](self.context, 0, None)
+		self.counta = name_type_map['Uint'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 

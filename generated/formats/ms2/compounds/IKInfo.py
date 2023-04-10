@@ -20,12 +20,12 @@ class IKInfo(BaseStruct):
 		self.weird_padding = name_type_map['SmartPadding'](self.context, 0, None)
 
 		# repeat
-		self.ik_count = 0
-		self.ik_ptr = 0
+		self.ik_count = name_type_map['Uint64'](self.context, 0, None)
+		self.ik_ptr = name_type_map['Uint64'](self.context, 0, None)
 
 		# seen 0, 2, 4
-		self.ik_targets_count = 0
-		self.ik_targets_ptr = 0
+		self.ik_targets_count = name_type_map['Uint64'](self.context, 0, None)
+		self.ik_targets_ptr = name_type_map['Uint64'](self.context, 0, None)
 		self.ik_ref = name_type_map['Empty'](self.context, 0, None)
 		self.ik_list = Array(self.context, 0, None, (0,), name_type_map['IKEntry'])
 		self.padding_0 = name_type_map['PadAlign'](self.context, 8, self.ik_ref)

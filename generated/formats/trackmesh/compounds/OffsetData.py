@@ -14,16 +14,16 @@ class OffsetData(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.z_0 = 0
-		self.z_1 = 0
+		self.z_0 = name_type_map['Uint64'](self.context, 0, None)
+		self.z_1 = name_type_map['Uint64'](self.context, 0, None)
 		self.relative_offset = name_type_map['Vector3'](self.context, 0, None)
-		self.spacing = 0.0
-		self.one = 0
-		self.z_2 = 0
-		self.z_3 = 0
-		self.count = 0
-		self.z_4 = 0
-		self.z_5 = 0
+		self.spacing = name_type_map['Float'](self.context, 0, None)
+		self.one = name_type_map['Uint'](self.context, 0, None)
+		self.z_2 = name_type_map['Uint'](self.context, 0, None)
+		self.z_3 = name_type_map['Uint'](self.context, 0, None)
+		self.count = name_type_map['Uint'](self.context, 0, None)
+		self.z_4 = name_type_map['Uint'](self.context, 0, None)
+		self.z_5 = name_type_map['Uint'](self.context, 0, None)
 		self.offset_id = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
 		if set_default:
 			self.set_defaults()

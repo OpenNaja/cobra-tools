@@ -12,8 +12,8 @@ class MusicTrack(BaseStruct):
 		super().__init__(context, arg, template, set_default=False)
 
 		# seen 114
-		self.length = 0
-		self.id = 0
+		self.length = name_type_map['Uint'](self.context, 0, None)
+		self.id = name_type_map['Uint'](self.context, 0, None)
 		self.data = name_type_map['MusicTrackInitialValues'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()

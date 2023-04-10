@@ -12,11 +12,11 @@ class CommonChunk(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.float_1 = 0.0
-		self.float_2 = 0.0
+		self.float_1 = name_type_map['Float'](self.context, 0, None)
+		self.float_2 = name_type_map['Float'](self.context, 0, None)
 		self.unk_flags_0 = Array(self.context, 0, None, (0,), name_type_map['Ubyte'])
 		self.unk_flags_1 = Array(self.context, 0, None, (0,), name_type_map['Ubyte'])
-		self.zero = 0
+		self.zero = name_type_map['Uint64'](self.context, 0, None)
 		self.piece_name_0 = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
 		self.piece_name_1 = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
 		self.piece_name_2 = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])

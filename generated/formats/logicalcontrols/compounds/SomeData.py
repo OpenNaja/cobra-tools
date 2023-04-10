@@ -14,10 +14,10 @@ class SomeData(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.key = 0
-		self.extra = 0
-		self.a = 0.0
-		self.b = 0.0
+		self.key = name_type_map['Uint'](self.context, 0, None)
+		self.extra = name_type_map['Uint'](self.context, 0, None)
+		self.a = name_type_map['Float'](self.context, 0, None)
+		self.b = name_type_map['Float'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 

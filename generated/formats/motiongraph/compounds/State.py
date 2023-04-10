@@ -15,9 +15,9 @@ class State(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.unk = 0
-		self.activities_count = 0
-		self.count_2 = 0
+		self.unk = name_type_map['Uint'](self.context, 0, None)
+		self.activities_count = name_type_map['Uint'](self.context, 0, None)
+		self.count_2 = name_type_map['Uint64'](self.context, 0, None)
 		self.activities = name_type_map['Pointer'](self.context, self.activities_count, name_type_map['PtrList'])
 		self.array_2 = name_type_map['Pointer'](self.context, self.count_2, name_type_map['TransStructStopList'])
 		self.id = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])

@@ -14,13 +14,13 @@ class ZerosPadding(BaseStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.hier_2_padding_0 = 0
+		self.hier_2_padding_0 = name_type_map['Uint64'](self.context, 0, None)
 
 		# 128 still has 16 bytes
-		self.hier_2_padding_1 = 0
+		self.hier_2_padding_1 = name_type_map['Uint64'](self.context, 0, None)
 
 		# 129 is the first with 24 bytes
-		self.hier_2_padding_2 = 0
+		self.hier_2_padding_2 = name_type_map['Uint64'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 

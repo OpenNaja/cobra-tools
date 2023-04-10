@@ -17,20 +17,20 @@ class TriChunk(BaseStruct):
 
 		# the smallest coordinates across all axes, min of unpacked vert coords if loc is 0,0,0
 		self.bounds_min = name_type_map['Vector3'](self.context, 0, None)
-		self.material_index = 0
-		self.tris_count = 0
+		self.material_index = name_type_map['Ushort'](self.context, 0, None)
+		self.tris_count = name_type_map['Ushort'](self.context, 0, None)
 
 		# the biggest coordinates across all axes, max of unpacked vert coords if loc is 0,0,0
 		self.bounds_max = name_type_map['Vector3'](self.context, 0, None)
-		self.tris_offset = 0
+		self.tris_offset = name_type_map['Uint'](self.context, 0, None)
 
 		# can be 0,0,0, no obvious range, not always within range of bounds
 		self.loc = name_type_map['Vector3'](self.context, 0, None)
 
 		# can be 1, 0, 0, 0; w always in range -1, +1
 		self.rot = name_type_map['AxisAngle'](self.context, 0, None)
-		self.shell_index = 0
-		self.shell_count = 0
+		self.shell_index = name_type_map['Ushort'](self.context, 0, None)
+		self.shell_count = name_type_map['Ushort'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 

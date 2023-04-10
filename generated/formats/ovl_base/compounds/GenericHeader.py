@@ -19,16 +19,16 @@ class GenericHeader(BaseStruct):
 		self.magic = name_type_map['FixedString'](self.context, 4, None)
 
 		# if 0x08 then 64bit, 0x01 for JWE, PZ, 0x08 for PC, 0x48 for JWE Switch, may be platform
-		self.version_flag = 0
+		self.version_flag = name_type_map['Byte'](self.context, 0, None)
 
 		# 0x12 = PC, 0x13 = JWE, PZ
-		self.version = 0
+		self.version = name_type_map['Byte'](self.context, 0, None)
 
 		# endianness?, usually zero
-		self.bitswap = 0
+		self.bitswap = name_type_map['Byte'](self.context, 0, None)
 
 		# always = 1
-		self.seventh_byte = 1
+		self.seventh_byte = name_type_map['Byte'].from_value(1)
 
 		# determines compression format (none, zlib or oodle) and apparently type of data (additional fields)
 		self.user_version = name_type_map['VersionInfo'](self.context, 0, None)

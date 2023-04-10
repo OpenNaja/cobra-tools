@@ -16,20 +16,20 @@ class EventEntry(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.hash = 0
-		self.zero = 0
-		self.zero_2 = 0
-		self.size = 0
-		self.flag_0 = 0
-		self.flag_1 = 0
-		self.flag_2 = 0
-		self.zero_3 = 0
-		self.flag_3 = 0
-		self.hash_b = 0
-		self.hash_c = 0
-		self.zero_4 = 0
-		self.u_2 = 0
-		self.u_1 = 0
+		self.hash = name_type_map['Uint'](self.context, 0, None)
+		self.zero = name_type_map['Uint'](self.context, 0, None)
+		self.zero_2 = name_type_map['Ushort'](self.context, 0, None)
+		self.size = name_type_map['Ushort'](self.context, 0, None)
+		self.flag_0 = name_type_map['Uint'](self.context, 0, None)
+		self.flag_1 = name_type_map['Uint'](self.context, 0, None)
+		self.flag_2 = name_type_map['Uint'](self.context, 0, None)
+		self.zero_3 = name_type_map['Uint64'](self.context, 0, None)
+		self.flag_3 = name_type_map['Uint'](self.context, 0, None)
+		self.hash_b = name_type_map['Uint'](self.context, 0, None)
+		self.hash_c = name_type_map['Uint'](self.context, 0, None)
+		self.zero_4 = name_type_map['Uint'](self.context, 0, None)
+		self.u_2 = name_type_map['Uint'](self.context, 0, None)
+		self.u_1 = name_type_map['Uint'](self.context, 0, None)
 		self.block_name = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
 		if set_default:
 			self.set_defaults()

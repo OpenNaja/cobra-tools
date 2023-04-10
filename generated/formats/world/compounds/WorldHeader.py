@@ -14,9 +14,9 @@ class WorldHeader(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.world_type = 0
-		self.asset_pkg_count = 0
-		self.prefab_count = 0
+		self.world_type = name_type_map['Uint64'](self.context, 0, None)
+		self.asset_pkg_count = name_type_map['Uint64'](self.context, 0, None)
+		self.prefab_count = name_type_map['Uint64'](self.context, 0, None)
 		self.asset_pkgs = name_type_map['Pointer'](self.context, self.asset_pkg_count, name_type_map['PtrList'])
 		self.lua_name = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
 		self.ptr_0 = name_type_map['Pointer'](self.context, 0, None)

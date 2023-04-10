@@ -14,15 +14,15 @@ class Locomotion2ActivityData(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.animation_count = 0
-		self.flags = 0
-		self.stopping_distance = 0.0
-		self.strafe_turn_blend = 0.2
-		self.turn_blend_limit = 1.0
-		self.turn_speed_multiplier = 1.0
-		self.flex_speed_multiplier = 1.0
+		self.animation_count = name_type_map['Uint64'](self.context, 0, None)
+		self.flags = name_type_map['Uint'](self.context, 0, None)
+		self.stopping_distance = name_type_map['Float'].from_value(0.0)
+		self.strafe_turn_blend = name_type_map['Float'].from_value(0.2)
+		self.turn_blend_limit = name_type_map['Float'].from_value(1.0)
+		self.turn_speed_multiplier = name_type_map['Float'].from_value(1.0)
+		self.flex_speed_multiplier = name_type_map['Float'].from_value(1.0)
 		self.blend_space = name_type_map['Locomotion2BlendSpace'](self.context, 0, None)
-		self.data_streams_count = 0
+		self.data_streams_count = name_type_map['Uint64'](self.context, 0, None)
 		self.animations = name_type_map['ArrayPointer'](self.context, self.animation_count, name_type_map['Locomotion2AnimationInfo'])
 		self.output_prop_through_variable = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
 		self.speed_variable = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])

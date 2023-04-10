@@ -17,10 +17,10 @@ class HeaderPointer(BaseStruct):
 		super().__init__(context, arg, template, set_default=False)
 
 		# The index of the MemPool this one relates to; OR, for entries referred to from AssetEntries: -1
-		self.pool_index = -1
+		self.pool_index = name_type_map['Int'].from_value(-1)
 
 		# the byte offset relative to the start of the MemPool's data
-		self.data_offset = 0
+		self.data_offset = name_type_map['Uint'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 

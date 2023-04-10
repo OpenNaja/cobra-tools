@@ -29,20 +29,20 @@ class BioMeshData(MeshData):
 		super().__init__(context, arg, template, set_default=False)
 
 		# start index into list of verts / tris chunks
-		self.chunks_offset = 0
+		self.chunks_offset = name_type_map['Uint'](self.context, 0, None)
 
 		# count of verts / tris chunks
-		self.chunks_count = 0
-		self.tris_count = 0
+		self.chunks_count = name_type_map['Uint'](self.context, 0, None)
+		self.tris_count = name_type_map['Uint'](self.context, 0, None)
 
 		# num verts in mesh
-		self.vertex_count = 0
+		self.vertex_count = name_type_map['Uint'](self.context, 0, None)
 
 		# unk, may be used in other models
-		self.zero_1 = 0
+		self.zero_1 = name_type_map['Uint64'](self.context, 0, None)
 
 		# power of 2 increasing with lod index
-		self.poweroftwo = 0
+		self.poweroftwo = name_type_map['Uint'](self.context, 0, None)
 
 		# some floats, purpose unknown
 		self.unk_floats = Array(self.context, 0, None, (0,), name_type_map['Float'])

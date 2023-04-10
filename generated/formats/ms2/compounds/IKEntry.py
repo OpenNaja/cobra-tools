@@ -16,13 +16,13 @@ class IKEntry(BaseStruct):
 		super().__init__(context, arg, template, set_default=False)
 		self.child = name_type_map['BonePointer'](self.context, 0, None)
 		self.parent = name_type_map['BonePointer'](self.context, 0, None)
-		self.unk_0 = 0
+		self.unk_0 = name_type_map['Ushort'].from_value(0)
 
 		# no clue what space this is in, defines the orientation for the ranges
 		self.matrix = name_type_map['Matrix33'](self.context, 0, None)
 		self.yaw = name_type_map['RotationRange'](self.context, 0, None)
 		self.pitch = name_type_map['RotationRange'](self.context, 0, None)
-		self.unk_1 = 1
+		self.unk_1 = name_type_map['Uint'].from_value(1)
 		if set_default:
 			self.set_defaults()
 

@@ -10,8 +10,8 @@ class AkBankSourceData(BaseStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.ul_plugin_i_d = 0
-		self.stream_type = 0
+		self.ul_plugin_i_d = name_type_map['Uint'](self.context, 0, None)
+		self.stream_type = name_type_map['Ubyte'](self.context, 0, None)
 		self.ak_media_information = name_type_map['AkMediaInformation'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()

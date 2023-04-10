@@ -12,10 +12,10 @@ class Object(BaseStruct):
 		super().__init__(context, arg, template, set_default=False)
 
 		# index into material name array
-		self.material_index = 0
+		self.material_index = name_type_map['Ushort'](self.context, 0, None)
 
 		# index into mesh array
-		self.mesh_index = 0
+		self.mesh_index = name_type_map['Ushort'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 

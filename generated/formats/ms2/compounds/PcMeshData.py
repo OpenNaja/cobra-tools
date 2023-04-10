@@ -21,39 +21,39 @@ class PcMeshData(MeshData):
 		super().__init__(context, arg, template, set_default=False)
 
 		# repeat
-		self.tri_index_count_a = 0
-		self.vertex_count = 0
+		self.tri_index_count_a = name_type_map['Uint'](self.context, 0, None)
+		self.vertex_count = name_type_map['Uint'](self.context, 0, None)
 
 		# x*16 = offset
-		self.tri_offset = 0
+		self.tri_offset = name_type_map['Uint'](self.context, 0, None)
 
 		# number of index entries in the triangle index list; (not: number of triangles, byte count of tri buffer)
-		self.tri_index_count = 0
+		self.tri_index_count = name_type_map['Uint'](self.context, 0, None)
 
 		# x*16 = offset
-		self.vertex_offset = 0
+		self.vertex_offset = name_type_map['Uint'](self.context, 0, None)
 
 		# x*16 = offset
-		self.weights_offset = 0
+		self.weights_offset = name_type_map['Uint'](self.context, 0, None)
 
 		# x*16 = offset
-		self.uv_offset = 0
-		self.zero_a = 0
+		self.uv_offset = name_type_map['Uint'](self.context, 0, None)
+		self.zero_a = name_type_map['Uint'].from_value(0)
 
 		# x*16 = offset
-		self.vertex_color_offset = 0
+		self.vertex_color_offset = name_type_map['Uint'](self.context, 0, None)
 
 		# cumulative count of vertices in mesh's lod before this mesh
-		self.vertex_offset_within_lod = 0
+		self.vertex_offset_within_lod = name_type_map['Uint'](self.context, 0, None)
 
 		# power of 2 increasing with lod index
-		self.poweroftwo = 0
-		self.zero_b = 0
-		self.unk_float = 0.0
+		self.poweroftwo = name_type_map['Uint'](self.context, 0, None)
+		self.zero_b = name_type_map['Uint'].from_value(0)
+		self.unk_float = name_type_map['Float'](self.context, 0, None)
 
 		# bitfield
 		self.flag = name_type_map['ModelFlag'](self.context, 0, None)
-		self.zero_c = 0
+		self.zero_c = name_type_map['Uint'].from_value(0)
 		if set_default:
 			self.set_defaults()
 

@@ -15,7 +15,7 @@ class Repeat(BaseStruct):
 		self.zeros_0 = Array(self.context, 0, None, (0,), name_type_map['Uint64'])
 
 		# to be read sequentially starting after this array
-		self.byte_size = 0
+		self.byte_size = name_type_map['Uint64'](self.context, 0, None)
 		self.zeros_1 = Array(self.context, 0, None, (0,), name_type_map['Uint64'])
 		if set_default:
 			self.set_defaults()

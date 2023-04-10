@@ -14,53 +14,53 @@ class ArchiveEntry(BaseStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.name = 0
+		self.name = name_type_map['OffsetString'](self.context, self.context.archive_names, None)
 
 		# starting index in ovl list of pools, this archive's pools continue for num_pools
-		self.pools_offset = 0
+		self.pools_offset = name_type_map['Uint'](self.context, 0, None)
 
 		# starting index into ovl.stream_files
-		self.stream_files_offset = 0
+		self.stream_files_offset = name_type_map['Uint'](self.context, 0, None)
 
 		# Total amount of pools in this archive; sum of all PoolGroup.num_pools
-		self.num_pools = 0
+		self.num_pools = name_type_map['Uint'](self.context, 0, None)
 
 		# Amount of Data Entries
-		self.num_datas = 0
+		self.num_datas = name_type_map['Ushort'](self.context, 0, None)
 
 		# Amount of PoolGroup objects at start of this deflated archive.
-		self.num_pool_groups = 0
-		self.num_buffer_groups = 0
+		self.num_pool_groups = name_type_map['Ushort'](self.context, 0, None)
+		self.num_buffer_groups = name_type_map['Uint'](self.context, 0, None)
 
 		# Amount of buffers in the archive
-		self.num_buffers = 0
+		self.num_buffers = name_type_map['Uint'](self.context, 0, None)
 
 		# Amount of Fragments in the archive
-		self.num_fragments = 0
+		self.num_fragments = name_type_map['Uint'](self.context, 0, None)
 
 		# Number of files in the archive
-		self.num_root_entries = 0
+		self.num_root_entries = name_type_map['Uint'](self.context, 0, None)
 
 		# Seek to pos to get zlib header for this archive
-		self.read_start = 0
+		self.read_start = name_type_map['Uint'](self.context, 0, None)
 
 		# size of the set and asset entry data
-		self.set_data_size = 0
+		self.set_data_size = name_type_map['Uint'](self.context, 0, None)
 
 		# size of the compressed data for this archive
-		self.compressed_size = 0
+		self.compressed_size = name_type_map['Uint'](self.context, 0, None)
 
 		# size of the uncompressed data for this archive
-		self.uncompressed_size = 0
+		self.uncompressed_size = name_type_map['Uint64'](self.context, 0, None)
 
 		# byte offset, cumulative size of all pools preceding this archive
-		self.pools_start = 0
+		self.pools_start = name_type_map['Uint'](self.context, 0, None)
 
 		# byte offset, pools_start + sum of this archive's pools' sizes
-		self.pools_end = 0
+		self.pools_end = name_type_map['Uint'](self.context, 0, None)
 
 		# Seemingly unused, can be zeroed without effect ingame in JWE
-		self.ovs_offset = 0
+		self.ovs_offset = name_type_map['Uint'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 

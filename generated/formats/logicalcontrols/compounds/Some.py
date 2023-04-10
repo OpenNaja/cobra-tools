@@ -14,7 +14,7 @@ class Some(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.some_count = 0
+		self.some_count = name_type_map['Uint64'](self.context, 0, None)
 		self.some_name = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
 		self.some_data = name_type_map['ArrayPointer'](self.context, self.some_count, name_type_map['SomeData'])
 		if set_default:

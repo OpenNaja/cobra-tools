@@ -14,10 +14,10 @@ class State(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.a = 0
-		self.b = 0
-		self.c = 0
-		self.d = 0
+		self.a = name_type_map['Uint64'](self.context, 0, None)
+		self.b = name_type_map['Uint64'](self.context, 0, None)
+		self.c = name_type_map['Uint64'](self.context, 0, None)
+		self.d = name_type_map['Uint64'](self.context, 0, None)
 		self.abstract_name = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
 		self.concrete_name = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
 		self.prefab_name = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])

@@ -16,16 +16,16 @@ class BaniRoot(MemStruct):
 		super().__init__(context, arg, template, set_default=False)
 
 		# The frame in the banis where this bani starts reading
-		self.read_start_frame = 0
+		self.read_start_frame = name_type_map['Uint'](self.context, 0, None)
 
 		# Number of frames in this bani file
-		self.num_frames = 0
+		self.num_frames = name_type_map['Uint'](self.context, 0, None)
 
 		# length of the animation, can easily get keyframe spacing now
-		self.animation_length = 0.0
+		self.animation_length = name_type_map['Float'](self.context, 0, None)
 
 		# if 1381323599 then looped
-		self.loop_flag = 0
+		self.loop_flag = name_type_map['Uint'](self.context, 0, None)
 
 		# points to the banis file used
 		self.banis = name_type_map['Pointer'](self.context, 0, None)

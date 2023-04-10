@@ -10,16 +10,16 @@ class PathJoinPartResource(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.padding_1 = 0
-		self.unk_byte_1 = 0
-		self.unk_byte_2 = 0
-		self.unk_byte_3 = 0
-		self.num_points_1 = 0
-		self.num_points_1_copy = 0
-		self.num_points_2 = 0
-		self.num_points_2_copy = 0
-		self.num_points_3 = 0
-		self.padding_2 = 0
+		self.padding_1 = name_type_map['Uint64'].from_value(0)
+		self.unk_byte_1 = name_type_map['Byte'](self.context, 0, None)
+		self.unk_byte_2 = name_type_map['Byte'](self.context, 0, None)
+		self.unk_byte_3 = name_type_map['Byte'](self.context, 0, None)
+		self.num_points_1 = name_type_map['Byte'](self.context, 0, None)
+		self.num_points_1_copy = name_type_map['Byte'](self.context, 0, None)
+		self.num_points_2 = name_type_map['Byte'](self.context, 0, None)
+		self.num_points_2_copy = name_type_map['Byte'](self.context, 0, None)
+		self.num_points_3 = name_type_map['Byte'](self.context, 0, None)
+		self.padding_2 = name_type_map['Uint64'].from_value(0)
 		self.unk_points_1 = name_type_map['Pointer'](self.context, self.num_points_1, name_type_map['PointsList'])
 		self.unk_points_2 = name_type_map['Pointer'](self.context, self.num_points_2, name_type_map['PointsList'])
 		self.unk_vector = name_type_map['ArrayPointer'](self.context, 1, name_type_map['Vector4'])

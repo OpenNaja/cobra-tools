@@ -17,65 +17,65 @@ class ManiInfo(BaseStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.duration = 0.0
-		self.frame_count = 0
+		self.duration = name_type_map['Float'](self.context, 0, None)
+		self.frame_count = name_type_map['Uint'](self.context, 0, None)
 
 		# ?
-		self.b = 0
+		self.b = name_type_map['Uint'](self.context, 0, None)
 		self.zeros_0 = Array(self.context, 0, None, (0,), name_type_map['Ushort'])
-		self.extra_pc_1 = 0
-		self.pos_bone_count = 0
-		self.ori_bone_count = 0
+		self.extra_pc_1 = name_type_map['Ushort'](self.context, 0, None)
+		self.pos_bone_count = name_type_map['Ushort'](self.context, 0, None)
+		self.ori_bone_count = name_type_map['Ushort'](self.context, 0, None)
 
 		# likely
-		self.scl_bone_count = 0
+		self.scl_bone_count = name_type_map['Ushort'](self.context, 0, None)
 
 		# zero
-		self.extra_pc = 0
-		self.pos_bone_count_repeat = 0
-		self.ori_bone_count_repeat = 0
-		self.scl_bone_count_repeat = 0
-		self.zeros_1 = 0
-		self.zeros_1_new = 0
-		self.float_count = 0
+		self.extra_pc = name_type_map['Uint64'](self.context, 0, None)
+		self.pos_bone_count_repeat = name_type_map['Ushort'](self.context, 0, None)
+		self.ori_bone_count_repeat = name_type_map['Ushort'](self.context, 0, None)
+		self.scl_bone_count_repeat = name_type_map['Ushort'](self.context, 0, None)
+		self.zeros_1 = name_type_map['Ushort'](self.context, 0, None)
+		self.zeros_1_new = name_type_map['Uint'](self.context, 0, None)
+		self.float_count = name_type_map['Ushort'](self.context, 0, None)
 
 		# FF if unused
-		self.count_a = 0
+		self.count_a = name_type_map['Ubyte'](self.context, 0, None)
 
 		# FF if unused
-		self.count_b = 0
+		self.count_b = name_type_map['Ubyte'](self.context, 0, None)
 
 		# usually matches ms2 bone count, at least for JWE2 dinos. Doesn't match for PZ water wheel 5 vs ms2 2
-		self.target_bone_count = 0
+		self.target_bone_count = name_type_map['Ushort'](self.context, 0, None)
 
 		# zero
-		self.g = 0
+		self.g = name_type_map['Ushort'](self.context, 0, None)
 
 		# rest 228 bytes
 		self.zeros_2 = Array(self.context, 0, None, (0,), name_type_map['Uint'])
 
 		# rest 14 bytes
 		self.extra_zeros_pc = Array(self.context, 0, None, (0,), name_type_map['Ushort'])
-		self.pos_bone_min = 0
-		self.pos_bone_max = 0
-		self.ori_bone_min = 0
-		self.ori_bone_max = 0
+		self.pos_bone_min = name_type_map['Ubyte'](self.context, 0, None)
+		self.pos_bone_max = name_type_map['Ubyte'](self.context, 0, None)
+		self.ori_bone_min = name_type_map['Ubyte'](self.context, 0, None)
+		self.ori_bone_max = name_type_map['Ubyte'](self.context, 0, None)
 
 		# always FF
-		self.scl_bone_min = 0
+		self.scl_bone_min = name_type_map['Byte'](self.context, 0, None)
 
 		# always 00
-		self.scl_bone_max = 0
-		self.pos_bone_count_related = 0
-		self.pos_bone_count_repeat = 0
-		self.ori_bone_count_related = 0
-		self.ori_bone_count_repeat = 0
+		self.scl_bone_max = name_type_map['Byte'](self.context, 0, None)
+		self.pos_bone_count_related = name_type_map['Ubyte'](self.context, 0, None)
+		self.pos_bone_count_repeat = name_type_map['Ubyte'](self.context, 0, None)
+		self.ori_bone_count_related = name_type_map['Ubyte'](self.context, 0, None)
+		self.ori_bone_count_repeat = name_type_map['Ubyte'](self.context, 0, None)
 
 		# maybe, not observed yet
-		self.scl_bone_count_related = 0
-		self.scl_bone_count_repeat = 0
-		self.zeros_end = 0
-		self.zero_2_end = 0
+		self.scl_bone_count_related = name_type_map['Byte'](self.context, 0, None)
+		self.scl_bone_count_repeat = name_type_map['Byte'](self.context, 0, None)
+		self.zeros_end = name_type_map['Ushort'](self.context, 0, None)
+		self.zero_2_end = name_type_map['Ushort'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 

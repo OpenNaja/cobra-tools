@@ -15,11 +15,11 @@ class SetEntry(BaseStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.file_hash = 0
-		self.ext_hash = 0
+		self.file_hash = name_type_map['Uint'](self.context, 0, None)
+		self.ext_hash = name_type_map['Uint'](self.context, 0, None)
 
 		# add assets from last set's start up to this index to this set
-		self.start = 0
+		self.start = name_type_map['Uint'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 

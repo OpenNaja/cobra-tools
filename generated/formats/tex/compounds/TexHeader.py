@@ -16,25 +16,25 @@ class TexHeader(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.zero_0 = 0
-		self.zero_1 = 0
+		self.zero_0 = name_type_map['Uint64'].from_value(0)
+		self.zero_1 = name_type_map['Uint64'].from_value(0)
 		self.compression_type = name_type_map['DdsType'](self.context, 0, None)
 
 		# 0 or 1
-		self.one_0 = 0
-		self.num_mips = 0
-		self.width = 0
-		self.height = 0
+		self.one_0 = name_type_map['Ubyte'](self.context, 0, None)
+		self.num_mips = name_type_map['Ushort'](self.context, 0, None)
+		self.width = name_type_map['Ushort'](self.context, 0, None)
+		self.height = name_type_map['Ushort'](self.context, 0, None)
 
 		# amount of files combined in this texture, usually 1 or 2, 3 for JWE2 rex
-		self.stream_count = 0
+		self.stream_count = name_type_map['Ubyte'](self.context, 0, None)
 
 		# usually as above
-		self.stream_count_repeat = 0
+		self.stream_count_repeat = name_type_map['Ubyte'](self.context, 0, None)
 
 		# 0; 1 for PC
-		self.pad = 0
-		self.pad_dla = 0
+		self.pad = name_type_map['Uint'].from_value(0)
+		self.pad_dla = name_type_map['Uint64'].from_value(0)
 		self.buffer_infos = name_type_map['ArrayPointer'](self.context, self.stream_count, name_type_map['TexBuffer'])
 		self.size_info = name_type_map['Pointer'](self.context, 0, name_type_map['SizeInfo'])
 		if set_default:

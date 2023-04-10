@@ -12,9 +12,9 @@ class Dxt10Header(BaseStruct):
 		super().__init__(context, arg, template, set_default=False)
 		self.dxgi_format = name_type_map['DxgiFormat'](self.context, 0, None)
 		self.resource_dimension = name_type_map['D3D10ResourceDimension'](self.context, 0, None)
-		self.misc_flag = 0
-		self.num_tiles = 1
-		self.misc_flag_2 = 0
+		self.misc_flag = name_type_map['Uint'](self.context, 0, None)
+		self.num_tiles = name_type_map['Uint'].from_value(1)
+		self.misc_flag_2 = name_type_map['Uint'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 

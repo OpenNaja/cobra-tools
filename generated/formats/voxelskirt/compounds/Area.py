@@ -16,11 +16,11 @@ class Area(BaseStruct):
 		super().__init__(context, arg, template, set_default=False)
 
 		# index into name list
-		self._id = 0
-		self.width_1 = 0
-		self.height_1 = 0
-		self.width_2 = 0
-		self.height_2 = 0
+		self._id = name_type_map['Uint64'](self.context, 0, None)
+		self.width_1 = name_type_map['Uint64'](self.context, 0, None)
+		self.height_1 = name_type_map['Uint64'](self.context, 0, None)
+		self.width_2 = name_type_map['Uint64'](self.context, 0, None)
+		self.height_2 = name_type_map['Uint64'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 

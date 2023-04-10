@@ -14,8 +14,8 @@ class MotiongraphHeader(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.count_0 = 0
-		self.count_1 = 0
+		self.count_0 = name_type_map['Uint'](self.context, 0, None)
+		self.count_1 = name_type_map['Uint'](self.context, 0, None)
 		self.ptr_0 = name_type_map['Pointer'](self.context, 0, name_type_map['MotiongraphRootFrag'])
 		self.state_output_entries = name_type_map['Pointer'](self.context, 0, name_type_map['StateArray'])
 		self.ptr_2 = name_type_map['Pointer'](self.context, 0, name_type_map['MGTwo'])

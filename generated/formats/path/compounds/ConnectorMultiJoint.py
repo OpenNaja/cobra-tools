@@ -10,11 +10,11 @@ class ConnectorMultiJoint(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.padding = 0
-		self.num_joints = 0
-		self.unk_float_1 = 0.0
-		self.unk_float_2 = 0.0
-		self.unk_int_1 = 0
+		self.padding = name_type_map['Uint64'].from_value(0)
+		self.num_joints = name_type_map['Uint'](self.context, 0, None)
+		self.unk_float_1 = name_type_map['Float'](self.context, 0, None)
+		self.unk_float_2 = name_type_map['Float'](self.context, 0, None)
+		self.unk_int_1 = name_type_map['Uint'](self.context, 0, None)
 		self.model_name = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
 		self.joints = name_type_map['ArrayPointer'](self.context, self.num_joints, name_type_map['Joint'])
 		if set_default:

@@ -16,10 +16,10 @@ class CoordinatedAnimationActivityData(MemStruct):
 		super().__init__(context, arg, template, set_default=False)
 		self.waiting_anim_data_streams = name_type_map['DataStreamResourceDataList'](self.context, 0, None)
 		self.coordinated_anim_data_streams = name_type_map['DataStreamResourceDataList'](self.context, 0, None)
-		self.priorities = 0
-		self.looping = 0
-		self._pad = 0
-		self.blend_time = 0.0
+		self.priorities = name_type_map['Ubyte'](self.context, 0, None)
+		self.looping = name_type_map['Ubyte'](self.context, 0, None)
+		self._pad = name_type_map['Ushort'](self.context, 0, None)
+		self.blend_time = name_type_map['Float'](self.context, 0, None)
 		self.coord_group = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
 		self.waiting_anim = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
 		self.coordinated_anim = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])

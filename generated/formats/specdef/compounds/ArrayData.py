@@ -15,7 +15,7 @@ class ArrayData(MemStruct):
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		self.dtype = name_type_map['SpecdefDtype'](self.context, 0, None)
-		self.unused = 0
+		self.unused = name_type_map['Uint'](self.context, 0, None)
 		self.item = name_type_map['Pointer'](self.context, self.dtype, name_type_map['Data'])
 		if set_default:
 			self.set_defaults()

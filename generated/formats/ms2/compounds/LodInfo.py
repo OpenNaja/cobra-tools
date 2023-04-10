@@ -18,36 +18,36 @@ class LodInfo(BaseStruct):
 		super().__init__(context, arg, template, set_default=False)
 
 		# FFFF
-		self.full = 0
+		self.full = name_type_map['Short'](self.context, 0, None)
 
 		# 7F7F
-		self.half = 0
+		self.half = name_type_map['Short'](self.context, 0, None)
 
 		# increasing
-		self.lod_index = 0
+		self.lod_index = name_type_map['Ushort'](self.context, 0, None)
 
 		# usually first lod is 900
-		self.distance = 0.0
+		self.distance = name_type_map['Float'](self.context, 0, None)
 
 		# matches the buffer index used by this LOD's meshes
-		self.stream_index = 0
+		self.stream_index = name_type_map['Ushort'](self.context, 0, None)
 
 		# Last bone that is used by this lod's models; usually decreases with increasing lod index to decimate bones. However: JWE detailobjects - nat_groundcover_searocket_patchy_02 due to dedicated lod nodes
-		self.bone_index = 0
+		self.bone_index = name_type_map['Ushort'](self.context, 0, None)
 
 		# first object for this lod in objects list
-		self.first_object_index = 0
-		self.first_object_index_1 = 0
-		self.first_object_index_2 = 0
+		self.first_object_index = name_type_map['Ushort'](self.context, 0, None)
+		self.first_object_index_1 = name_type_map['Ushort'](self.context, 0, None)
+		self.first_object_index_2 = name_type_map['Ushort'](self.context, 0, None)
 
 		# not included in interval (python style indexing)
-		self.last_object_index = 0
+		self.last_object_index = name_type_map['Ushort'](self.context, 0, None)
 
 		# vertex count of lod, sum of all vertex counts that are attached to this lod; rendered count, including duped models
-		self.vertex_count = 0
+		self.vertex_count = name_type_map['Uint'](self.context, 0, None)
 
 		# number of index entries in the triangle index list; (not: number of triangles, byte count of tri buffer); rendered count, including duped models
-		self.tri_index_count = 0
+		self.tri_index_count = name_type_map['Uint'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 

@@ -10,8 +10,8 @@ class TexAtlasRoot(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.texture_count = 0
-		self.atlas_count = 0
+		self.texture_count = name_type_map['Uint64'](self.context, 0, None)
+		self.atlas_count = name_type_map['Uint64'](self.context, 0, None)
 		self.texture_list = name_type_map['ArrayPointer'](self.context, self.texture_count, name_type_map['TextureData'])
 		self.atlas_list = name_type_map['ArrayPointer'](self.context, self.atlas_count, name_type_map['AtlasItem'])
 		if set_default:

@@ -10,8 +10,8 @@ class PathMaterial(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.path_sub_type = 0
-		self.num_data = 0
+		self.path_sub_type = name_type_map['Uint64'](self.context, 0, None)
+		self.num_data = name_type_map['Uint64'](self.context, 0, None)
 		self.elevated_mat = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
 		self.elevated_mat_valid = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
 		self.elevated_mat_invalid = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])

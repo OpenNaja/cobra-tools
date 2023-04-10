@@ -14,8 +14,8 @@ class SelectActivityActivityData(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.num_activities = 0
-		self.blend_time = 0.0
+		self.num_activities = name_type_map['Uint64'](self.context, 0, None)
+		self.blend_time = name_type_map['Float'](self.context, 0, None)
 		self.mode = name_type_map['SelectActivityActivityMode'](self.context, 0, None)
 		self.enum_variable = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
 		self.activities = name_type_map['Pointer'](self.context, self.num_activities, name_type_map['ActivitiesLinks'])

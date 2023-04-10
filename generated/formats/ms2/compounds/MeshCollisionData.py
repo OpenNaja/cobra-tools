@@ -25,13 +25,13 @@ class MeshCollisionData(BaseStruct):
 		self.triangles = Array(self.context, 0, None, (0,), name_type_map['Ushort'])
 
 		# ?
-		self.const = 0
+		self.const = name_type_map['Uint'](self.context, 0, None)
 
 		# in JWE1 redwood: always 37
 		self.triangle_flags = Array(self.context, 0, None, (0,), name_type_map['Uint'])
 
 		# might be padding!
-		self.zero_end = 0
+		self.zero_end = name_type_map['Uint'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 

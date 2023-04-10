@@ -23,10 +23,10 @@ class StretchConstraint(Constraint):
 		self.direction = name_type_map['Vector3'](self.context, 0, None)
 
 		# min, le 0
-		self.min = 0.0
+		self.min = name_type_map['Float'](self.context, 0, None)
 
 		# max, ge 0
-		self.max = 0.0
+		self.max = name_type_map['Float'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 

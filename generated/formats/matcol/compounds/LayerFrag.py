@@ -10,12 +10,12 @@ class LayerFrag(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.u_0 = 0
-		self.u_1 = 0
-		self.info_count = 0
-		self.u_2 = 0
-		self.u_3 = 0
-		self.attrib_count = 0
+		self.u_0 = name_type_map['Uint64'](self.context, 0, None)
+		self.u_1 = name_type_map['Uint64'](self.context, 0, None)
+		self.info_count = name_type_map['Uint64'](self.context, 0, None)
+		self.u_2 = name_type_map['Uint64'](self.context, 0, None)
+		self.u_3 = name_type_map['Uint64'](self.context, 0, None)
+		self.attrib_count = name_type_map['Uint64'](self.context, 0, None)
 		self.layer_name = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
 		self.infos = name_type_map['ArrayPointer'](self.context, self.info_count, name_type_map['Info'])
 		self.attribs = name_type_map['ArrayPointer'](self.context, self.attrib_count, name_type_map['Attrib'])

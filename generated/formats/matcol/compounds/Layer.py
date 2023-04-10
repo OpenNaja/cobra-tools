@@ -12,7 +12,7 @@ class Layer(BaseStruct):
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		self.info = name_type_map['LayerFrag'](self.context, 0, None)
-		self.name = ''
+		self.name = name_type_map['ZString'](self.context, 0, None)
 		self.infos = Array(self.context, 0, None, (0,), name_type_map['Info'])
 		self.info_names = Array(self.context, 0, None, (0,), name_type_map['ZString'])
 		self.attribs = Array(self.context, 0, None, (0,), name_type_map['Attrib'])

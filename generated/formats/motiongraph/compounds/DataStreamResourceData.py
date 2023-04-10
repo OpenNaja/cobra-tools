@@ -14,7 +14,7 @@ class DataStreamResourceData(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.curve_type = 0
+		self.curve_type = name_type_map['Uint64'](self.context, 0, None)
 		self.curve = name_type_map['CurveData'](self.context, 0, None)
 		self.ds_name = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
 		self.type = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])

@@ -14,10 +14,10 @@ class Uint16Data(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.imin = 0
-		self.imax = 0
-		self.ivalue = 0
-		self.ioptional = 0
+		self.imin = name_type_map['Ushort'](self.context, 0, None)
+		self.imax = name_type_map['Ushort'](self.context, 0, None)
+		self.ivalue = name_type_map['Ushort'](self.context, 0, None)
+		self.ioptional = name_type_map['Ushort'](self.context, 0, None)
 		self.enum = name_type_map['Pointer'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()

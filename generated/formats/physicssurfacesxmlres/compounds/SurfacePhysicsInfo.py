@@ -14,11 +14,11 @@ class SurfacePhysicsInfo(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.float_1 = 0.0
-		self.float_2 = 0.0
-		self.float_3 = 0.0
-		self.float_4 = 0.0
-		self.unk_64_1 = 0
+		self.float_1 = name_type_map['Float'](self.context, 0, None)
+		self.float_2 = name_type_map['Float'](self.context, 0, None)
+		self.float_3 = name_type_map['Float'](self.context, 0, None)
+		self.float_4 = name_type_map['Float'](self.context, 0, None)
+		self.unk_64_1 = name_type_map['Uint64'](self.context, 0, None)
 		self.surface_name = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
 		self.name_1 = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
 		self.name_2 = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])

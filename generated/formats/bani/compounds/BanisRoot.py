@@ -19,22 +19,22 @@ class BanisRoot(MemStruct):
 		self.zeros = Array(self.context, 0, None, (0,), name_type_map['Uint64'])
 
 		# bytes per bone * num bones
-		self.bytes_per_frame = 0
+		self.bytes_per_frame = name_type_map['Uint'](self.context, 0, None)
 
 		# how many bytes for each bone per frame
-		self.bytes_per_bone = 0
+		self.bytes_per_bone = name_type_map['Uint'](self.context, 0, None)
 
 		# Number of frames for all bani files in banis buffer
-		self.num_frames = 0
+		self.num_frames = name_type_map['Uint'](self.context, 0, None)
 
 		# matches number of bones parrot has
-		self.num_bones = 0
+		self.num_bones = name_type_map['Uint'](self.context, 0, None)
 
 		# translation range
-		self.loc_scale = 0.0
+		self.loc_scale = name_type_map['Float'](self.context, 0, None)
 
 		# translation range
-		self.loc_offset = 0.0
+		self.loc_offset = name_type_map['Float'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 

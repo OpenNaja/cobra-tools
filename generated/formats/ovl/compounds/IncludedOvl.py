@@ -17,7 +17,7 @@ class IncludedOvl(BaseStruct):
 		super().__init__(context, arg, template, set_default=False)
 
 		# path is relative to this ovl's directory; usually points to ovl files
-		self.basename = 0
+		self.basename = name_type_map['OffsetString'](self.context, self.context.names, None)
 		if set_default:
 			self.set_defaults()
 

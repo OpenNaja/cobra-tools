@@ -17,26 +17,26 @@ class SizeInfoRaw(MemStruct):
 		super().__init__(context, arg, template, set_default=False)
 
 		# zero
-		self.zero = 0
+		self.zero = name_type_map['Uint64'].from_value(0)
 
 		# total dds buffer size
-		self.data_size = 0
+		self.data_size = name_type_map['Uint'](self.context, 0, None)
 
 		# x size in pixels
-		self.width = 0
+		self.width = name_type_map['Uint'](self.context, 0, None)
 
 		# y size in pixels
-		self.height = 0
+		self.height = name_type_map['Uint'](self.context, 0, None)
 
 		# may be depth
-		self.depth = 1
-		self.num_tiles = 1
+		self.depth = name_type_map['Uint'].from_value(1)
+		self.num_tiles = name_type_map['Uint'].from_value(1)
 
 		# amount of mip map levels
-		self.num_mips = 0
+		self.num_mips = name_type_map['Uint'](self.context, 0, None)
 
 		# only found in PZ and JWE2
-		self.unk_pz = 0
+		self.unk_pz = name_type_map['Uint64'].from_value(0)
 
 		# info about mip levels
 		self.mip_maps = Array(self.context, 0, None, (0,), name_type_map['Mipmap'])

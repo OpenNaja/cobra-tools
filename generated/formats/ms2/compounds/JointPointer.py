@@ -12,7 +12,7 @@ class JointPointer(AbstractPointer):
 		super().__init__(context, arg, template, set_default=False)
 
 		# index into joint_infos
-		self.index = 0
+		self.index = name_type_map['Ushort'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 

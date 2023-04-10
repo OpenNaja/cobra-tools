@@ -16,7 +16,7 @@ class SplData(MemStruct):
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		self.offset = name_type_map['Vector3'](self.context, 0, None)
-		self.scale = 0.0
+		self.scale = name_type_map['Float'](self.context, 0, None)
 		self.keys = Array(self.context, 0, None, (0,), name_type_map['Key'])
 		if set_default:
 			self.set_defaults()

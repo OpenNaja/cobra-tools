@@ -20,10 +20,10 @@ class MeshCollisionBit(BaseStruct):
 		self.b = Array(self.context, 0, None, (0,), name_type_map['Ushort'])
 
 		# usually, but not always the first value
-		self.min_of_b = 0
+		self.min_of_b = name_type_map['Ushort'](self.context, 0, None)
 
 		# ?
-		self.c = 0
+		self.c = name_type_map['Ushort'](self.context, 0, None)
 
 		# always 2954754766?
 		self.consts = Array(self.context, 0, None, (0,), name_type_map['Uint'])

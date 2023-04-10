@@ -10,13 +10,13 @@ class AkTrackSrcInfo(BaseStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.track_i_d = 0
-		self.source_i_d = 0
-		self.event_i_d = 0
-		self.f_play_at = 0.0
-		self.f_begin_trim_offset = 0.0
-		self.f_end_trim_offset = 0.0
-		self.f_src_duration = 0.0
+		self.track_i_d = name_type_map['Uint'](self.context, 0, None)
+		self.source_i_d = name_type_map['Uint'](self.context, 0, None)
+		self.event_i_d = name_type_map['Uint'](self.context, 0, None)
+		self.f_play_at = name_type_map['Double'](self.context, 0, None)
+		self.f_begin_trim_offset = name_type_map['Double'](self.context, 0, None)
+		self.f_end_trim_offset = name_type_map['Double'](self.context, 0, None)
+		self.f_src_duration = name_type_map['Double'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 

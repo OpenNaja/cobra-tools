@@ -20,8 +20,8 @@ class TextureInfo(GenericInfo):
 
 		# Stores rgba color
 		self.value = Array(self.context, 0, None, (0,), name_type_map['Color'])
-		self.some_index_0 = 0
-		self.some_index_1 = 0
+		self.some_index_0 = name_type_map['Uint'].from_value(0)
+		self.some_index_1 = name_type_map['Uint'].from_value(0)
 		if set_default:
 			self.set_defaults()
 

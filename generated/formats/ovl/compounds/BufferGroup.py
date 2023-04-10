@@ -16,25 +16,25 @@ class BufferGroup(BaseStruct):
 		super().__init__(context, arg, template, set_default=False)
 
 		# first buffer index
-		self.buffer_offset = 0
+		self.buffer_offset = name_type_map['Uint'](self.context, 0, None)
 
 		# number of buffers to grab
-		self.buffer_count = 0
+		self.buffer_count = name_type_map['Uint'](self.context, 0, None)
 
 		# type of extension this entry is for
-		self.ext_index = 0
+		self.ext_index = name_type_map['Uint'](self.context, 0, None)
 
 		# which buffer index to populate
-		self.buffer_index = 0
+		self.buffer_index = name_type_map['Uint'](self.context, 0, None)
 
 		# cumulative size of all buffers to grab
-		self.size = 0
+		self.size = name_type_map['Uint64'](self.context, 0, None)
 
 		# first data entry
-		self.data_offset = 0
+		self.data_offset = name_type_map['Uint'](self.context, 0, None)
 
 		# number of data entries to populate buffers into
-		self.data_count = 0
+		self.data_count = name_type_map['Uint'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 

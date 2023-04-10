@@ -10,12 +10,12 @@ class SpecdefRoot(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.attrib_count = 0
-		self.flags = 0
-		self.name_count = 0
-		self.childspec_count = 0
-		self.manager_count = 0
-		self.script_count = 0
+		self.attrib_count = name_type_map['Ushort'](self.context, 0, None)
+		self.flags = name_type_map['Ushort'](self.context, 0, None)
+		self.name_count = name_type_map['Ubyte'](self.context, 0, None)
+		self.childspec_count = name_type_map['Ubyte'](self.context, 0, None)
+		self.manager_count = name_type_map['Ubyte'](self.context, 0, None)
+		self.script_count = name_type_map['Ubyte'](self.context, 0, None)
 		self.attribs = name_type_map['ArrayPointer'](self.context, self.attrib_count, name_type_map['Spec'])
 		self.name_foreach_attribs = name_type_map['ForEachPointer'](self.context, self.attribs, name_type_map['NamePtr'])
 		self.data_foreach_attribs = name_type_map['ForEachPointer'](self.context, self.attribs, name_type_map['DataPtr'])

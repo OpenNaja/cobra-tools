@@ -14,10 +14,10 @@ class Locomotion2AnimationInfo(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.phase_entry_window = 1.5
-		self.priority = 0
-		self.anim_type = 0
-		self._pad = 0
+		self.phase_entry_window = name_type_map['Float'].from_value(1.5)
+		self.priority = name_type_map['Ushort'](self.context, 0, None)
+		self.anim_type = name_type_map['Ubyte'](self.context, 0, None)
+		self._pad = name_type_map['Ubyte'](self.context, 0, None)
 		self.anim_name = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
 		if set_default:
 			self.set_defaults()

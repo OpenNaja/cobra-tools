@@ -18,13 +18,13 @@ class BKHDSection(BaseStruct):
 		super().__init__(context, arg, template, set_default=False)
 
 		# length of following data
-		self.length = 0
-		self.version = 0
-		self.id_a = 0
-		self.id_b = 0
-		self.constant_a = 0
-		self.constant_b = 0
-		self.unk = 0
+		self.length = name_type_map['Uint'](self.context, 0, None)
+		self.version = name_type_map['Uint'](self.context, 0, None)
+		self.id_a = name_type_map['Uint'](self.context, 0, None)
+		self.id_b = name_type_map['Uint'](self.context, 0, None)
+		self.constant_a = name_type_map['Uint'](self.context, 0, None)
+		self.constant_b = name_type_map['Uint'](self.context, 0, None)
+		self.unk = name_type_map['Uint'](self.context, 0, None)
 
 		# sometimes present
 		self.zeroes = Array(self.context, 0, None, (0,), name_type_map['Ubyte'])

@@ -14,7 +14,7 @@ class TerrainDetailLayersRoot(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.layer_count = 0
+		self.layer_count = name_type_map['Uint64'](self.context, 0, None)
 		self.layer_list = name_type_map['ArrayPointer'](self.context, self.layer_count, name_type_map['TerrainDetailsLayerItem'])
 		if set_default:
 			self.set_defaults()

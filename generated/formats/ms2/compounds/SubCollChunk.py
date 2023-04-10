@@ -20,10 +20,10 @@ class SubCollChunk(BaseStruct):
 		self.bounds_max_repeat = name_type_map['Vector3'](self.context, 0, None)
 
 		# seems to repeat tri_count
-		self.tri_flags_count = 0
+		self.tri_flags_count = name_type_map['Uint'](self.context, 0, None)
 
 		# counts MeshCollisionBit
-		self.count_bits = 0
+		self.count_bits = name_type_map['Ushort'](self.context, 0, None)
 
 		# ?
 		self.stuff = Array(self.context, 0, None, (0,), name_type_map['Ushort'])

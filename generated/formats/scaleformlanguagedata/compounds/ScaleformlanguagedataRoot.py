@@ -15,11 +15,11 @@ class ScaleformlanguagedataRoot(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.zero_0 = 0
-		self.zero_1 = 0
-		self.count = 0
-		self.zero_2 = 0
-		self.zero_3 = 0
+		self.zero_0 = name_type_map['Uint64'](self.context, 0, None)
+		self.zero_1 = name_type_map['Uint64'](self.context, 0, None)
+		self.count = name_type_map['Uint64'](self.context, 0, None)
+		self.zero_2 = name_type_map['Uint64'](self.context, 0, None)
+		self.zero_3 = name_type_map['Uint64'](self.context, 0, None)
 		self.fonts = name_type_map['ArrayPointer'](self.context, self.count, name_type_map['FontInfo'])
 		if set_default:
 			self.set_defaults()

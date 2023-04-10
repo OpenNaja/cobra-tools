@@ -14,10 +14,10 @@ class Event(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.start_time = 0.0
-		self.b = 0.0
-		self.duration = 0.0
-		self.d = 0.0
+		self.start_time = name_type_map['Float'](self.context, 0, None)
+		self.b = name_type_map['Float'](self.context, 0, None)
+		self.duration = name_type_map['Float'](self.context, 0, None)
+		self.d = name_type_map['Float'](self.context, 0, None)
 		self.module_name = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
 		self.attributes = name_type_map['Pointer'](self.context, 0, name_type_map['EventAttributes'])
 		if set_default:

@@ -15,10 +15,10 @@ class RootFrag(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.mat_type = 0
-		self.tex_count = 0
-		self.mat_count = 0
-		self.unk = 0
+		self.mat_type = name_type_map['Uint64'](self.context, 0, None)
+		self.tex_count = name_type_map['Uint64'](self.context, 0, None)
+		self.mat_count = name_type_map['Uint64'](self.context, 0, None)
+		self.unk = name_type_map['Uint64'](self.context, 0, None)
 		self.textures = name_type_map['ArrayPointer'](self.context, self.tex_count, name_type_map['Texture'])
 		self.materials = name_type_map['ArrayPointer'](self.context, self.mat_count, name_type_map['LayerFrag'])
 		if set_default:

@@ -10,7 +10,7 @@ class CinematicData(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.next_level_count = 0
+		self.next_level_count = name_type_map['Uint64'](self.context, 0, None)
 		self.default_name = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
 		self.next_levels = name_type_map['ArrayPointer'](self.context, self.next_level_count, name_type_map['State'])
 		if set_default:

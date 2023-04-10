@@ -17,11 +17,11 @@ class AuxEntry(BaseStruct):
 		super().__init__(context, arg, template, set_default=False)
 
 		# index into files list
-		self.file_index = 0
-		self.basename = 0
+		self.file_index = name_type_map['Uint'](self.context, 0, None)
+		self.basename = name_type_map['OffsetString'](self.context, self.context.names, None)
 
 		# byte count of the complete external resource file
-		self.size = 0
+		self.size = name_type_map['Uint'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 

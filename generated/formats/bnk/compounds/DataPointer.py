@@ -14,13 +14,13 @@ class DataPointer(BaseStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.wem_id = 0
+		self.wem_id = name_type_map['Uint'](self.context, 0, None)
 
 		# offset into data section
-		self.data_section_offset = 0
+		self.data_section_offset = name_type_map['Uint'](self.context, 0, None)
 
 		# length of the wem file
-		self.wem_filesize = 0
+		self.wem_filesize = name_type_map['Uint'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 

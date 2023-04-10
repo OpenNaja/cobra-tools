@@ -12,7 +12,7 @@ class Footer(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.unk_int = 0
+		self.unk_int = name_type_map['Uint64'](self.context, 0, None)
 		self.unk_floats = Array(self.context, 0, None, (0,), name_type_map['Float'])
 		self.footer_piece = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
 		self.joint = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])

@@ -14,10 +14,10 @@ class TrackedRideCarSub(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.float = 0.0
-		self.u_0 = 0
-		self.vecs_count = 0
-		self.zero_1 = 0
+		self.float = name_type_map['Float'](self.context, 0, None)
+		self.u_0 = name_type_map['Uint'](self.context, 0, None)
+		self.vecs_count = name_type_map['Uint64'](self.context, 0, None)
+		self.zero_1 = name_type_map['Uint64'](self.context, 0, None)
 		self.vectors = name_type_map['ArrayPointer'](self.context, self.vecs_count, name_type_map['Vector3'])
 		if set_default:
 			self.set_defaults()

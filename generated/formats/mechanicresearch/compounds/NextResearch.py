@@ -11,7 +11,7 @@ class NextResearch(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.unk_1 = 0
+		self.unk_1 = name_type_map['Uint64'](self.context, 0, None)
 		self.item_name = Array(self.context, 0, name_type_map['ZString'], (0,), name_type_map['Pointer'])
 		if set_default:
 			self.set_defaults()

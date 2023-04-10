@@ -22,7 +22,7 @@ class BaniInfoHeader(BaseStruct):
 		self.magic = Array(self.context, 0, None, (0,), name_type_map['Byte'])
 
 		# name of the banis file buffer
-		self.banis_name = ''
+		self.banis_name = name_type_map['ZString'](self.context, 0, None)
 		self.data = name_type_map['BaniRoot'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()

@@ -16,18 +16,18 @@ class VertChunk(BaseStruct):
 		super().__init__(context, arg, template, set_default=False)
 
 		# apparently also used for scaling the mesh: pack_base / 512 / 2048 = scale
-		self.scale = 0.0
+		self.scale = name_type_map['Float'](self.context, 0, None)
 
 		# the usual mesh scale: pack_base / 512, also added as offset during vertex packing
-		self.pack_base = 0.0
+		self.pack_base = name_type_map['Float'](self.context, 0, None)
 
 		# byte offset from start of vert buffer in bytes
-		self.vertex_offset = 0
-		self.vertex_count = 0
+		self.vertex_offset = name_type_map['Uint'](self.context, 0, None)
+		self.vertex_count = name_type_map['Ubyte'](self.context, 0, None)
 
 		# determines if weights are used by this chunk
 		self.weights_flag = name_type_map['WeightsFlagMalta'](self.context, 0, None)
-		self.zero = 0
+		self.zero = name_type_map['Ubyte'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 

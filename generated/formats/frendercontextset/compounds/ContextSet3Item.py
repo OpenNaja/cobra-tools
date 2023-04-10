@@ -10,7 +10,7 @@ class ContextSet3Item(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.stuff_3_id_allways_1 = 0
+		self.stuff_3_id_allways_1 = name_type_map['Uint64'](self.context, 0, None)
 		self.stuff_3_name_1 = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
 		self.stuff_3_sub = name_type_map['Pointer'](self.context, 0, name_type_map['ContextSet3SubItem'])
 		if set_default:

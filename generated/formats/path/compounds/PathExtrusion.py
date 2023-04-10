@@ -10,10 +10,10 @@ class PathExtrusion(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.unk_float_1 = 0.0
-		self.unk_float_2 = 0.0
-		self.is_kerb = False
-		self.is_not_ground = True
+		self.unk_float_1 = name_type_map['Float'](self.context, 0, None)
+		self.unk_float_2 = name_type_map['Float'](self.context, 0, None)
+		self.is_kerb = name_type_map['Bool'](self.context, 0, None)
+		self.is_not_ground = name_type_map['Bool'].from_value(True)
 		self.model = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
 		self.post_model = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
 		self.endcap_model = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])

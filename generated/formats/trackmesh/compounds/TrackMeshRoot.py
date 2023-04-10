@@ -14,12 +14,12 @@ class TrackMeshRoot(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.a = 0
-		self.count_0 = 0
-		self.next_count = 0
-		self.last_count = 0
-		self.lod_count = 0
-		self.g = 0
+		self.a = name_type_map['Uint64'](self.context, 0, None)
+		self.count_0 = name_type_map['Uint'](self.context, 0, None)
+		self.next_count = name_type_map['Uint'](self.context, 0, None)
+		self.last_count = name_type_map['Uint64'](self.context, 0, None)
+		self.lod_count = name_type_map['Uint64'](self.context, 0, None)
+		self.g = name_type_map['Uint64'](self.context, 0, None)
 		self.offset_data = name_type_map['ArrayPointer'](self.context, self.count_0, name_type_map['OffsetData'])
 		self.track_data = name_type_map['ArrayPointer'](self.context, self.next_count, name_type_map['TrackData'])
 		self.last = name_type_map['ArrayPointer'](self.context, self.last_count, name_type_map['LastData'])

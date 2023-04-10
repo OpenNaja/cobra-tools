@@ -10,10 +10,10 @@ class SupportSetData(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.unk_index = 0
-		self.unk_int_1 = 0
-		self.unk_int_2 = 0
-		self.unk_float_1 = 0.0
+		self.unk_index = name_type_map['Uint'](self.context, 0, None)
+		self.unk_int_1 = name_type_map['Uint'](self.context, 0, None)
+		self.unk_int_2 = name_type_map['Uint'](self.context, 0, None)
+		self.unk_float_1 = name_type_map['Float'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 

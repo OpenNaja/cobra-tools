@@ -14,12 +14,12 @@ class StreamInfo(BaseStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.offset = 0
-		self.size = 0
+		self.offset = name_type_map['Uint64'](self.context, 0, None)
+		self.size = name_type_map['Uint64'](self.context, 0, None)
 
 		# referred to by the events aux file
-		self.event_id = 0
-		self.zero = 0
+		self.event_id = name_type_map['Uint'](self.context, 0, None)
+		self.zero = name_type_map['Uint'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 

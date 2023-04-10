@@ -19,17 +19,17 @@ class Ms2Root(MemStruct):
 		super().__init__(context, arg, template, set_default=False)
 
 		# see version tag
-		self.version = 0
+		self.version = name_type_map['MainVersion'](self.context, 0, None)
 
 		# total count of vertex buffers, including streamed buffers
-		self.vertex_buffer_count = 0
-		self.mdl_2_count = 0
+		self.vertex_buffer_count = name_type_map['Ushort'](self.context, 0, None)
+		self.mdl_2_count = name_type_map['Ushort'](self.context, 0, None)
 
 		# count of names in ms2 buffer0
-		self.name_count = 0
+		self.name_count = name_type_map['Ushort'](self.context, 0, None)
 
 		# -1 if there is no vertex buffer at all; else index of static buffers in total buffers
-		self.static_buffer_index = 0
+		self.static_buffer_index = name_type_map['Short'](self.context, 0, None)
 		self.zeros = Array(self.context, 0, None, (0,), name_type_map['Uint'])
 
 		# ms2's static buffer_info or empty (if no buffers)

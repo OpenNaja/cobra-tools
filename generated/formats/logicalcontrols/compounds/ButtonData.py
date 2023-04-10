@@ -16,11 +16,11 @@ class ButtonData(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.k_1_a = 0
-		self.k_1_b = 0
-		self.k_2 = 0
-		self.k_3 = 0
-		self.k_4 = 0
+		self.k_1_a = name_type_map['Ushort'](self.context, 0, None)
+		self.k_1_b = name_type_map['Ushort'](self.context, 0, None)
+		self.k_2 = name_type_map['Uint'](self.context, 0, None)
+		self.k_3 = name_type_map['Uint'](self.context, 0, None)
+		self.k_4 = name_type_map['Uint'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 

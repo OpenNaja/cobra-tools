@@ -14,9 +14,9 @@ class ZtTriBlockInfo(BaseStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.tri_index_count = 0
-		self.a = 0
-		self.unk_index = 0
+		self.tri_index_count = name_type_map['Uint'](self.context, 0, None)
+		self.a = name_type_map['Short'](self.context, 0, None)
+		self.unk_index = name_type_map['Short'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 

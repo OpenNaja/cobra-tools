@@ -10,18 +10,18 @@ class LastRow(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.unk_01 = 0
-		self.unk_02 = 0
-		self.unk_03 = 0
-		self.unk_04 = 0
-		self.unk_05 = 0
-		self.unk_06 = 0
-		self.unk_07 = 0
-		self.unk_08 = 0
-		self.unk_09 = 0
-		self.unk_10 = 0
-		self.unk_11 = 0
-		self.unk_12 = 0
+		self.unk_01 = name_type_map['Ushort'](self.context, 0, None)
+		self.unk_02 = name_type_map['Ushort'](self.context, 0, None)
+		self.unk_03 = name_type_map['Ushort'](self.context, 0, None)
+		self.unk_04 = name_type_map['Ushort'](self.context, 0, None)
+		self.unk_05 = name_type_map['Ushort'](self.context, 0, None)
+		self.unk_06 = name_type_map['Ushort'](self.context, 0, None)
+		self.unk_07 = name_type_map['Ushort'](self.context, 0, None)
+		self.unk_08 = name_type_map['Ushort'](self.context, 0, None)
+		self.unk_09 = name_type_map['Ushort'](self.context, 0, None)
+		self.unk_10 = name_type_map['Ushort'](self.context, 0, None)
+		self.unk_11 = name_type_map['Ushort'](self.context, 0, None)
+		self.unk_12 = name_type_map['Ushort'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 

@@ -16,10 +16,10 @@ class PoolGroup(BaseStruct):
 		super().__init__(context, arg, template, set_default=False)
 
 		# Type of the pools that follow
-		self.type = 0
+		self.type = name_type_map['Ushort'](self.context, 0, None)
 
 		# Amount of pools of that type that follow the pool types block
-		self.num_pools = 0
+		self.num_pools = name_type_map['Ushort'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 

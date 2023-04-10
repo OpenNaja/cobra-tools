@@ -16,7 +16,7 @@ class MatcolRoot(MemStruct):
 		super().__init__(context, arg, template, set_default=False)
 
 		# always 1
-		self.one = 0
+		self.one = name_type_map['Uint64'](self.context, 0, None)
 		self.main = name_type_map['Pointer'](self.context, 0, name_type_map['RootFrag'])
 		if set_default:
 			self.set_defaults()

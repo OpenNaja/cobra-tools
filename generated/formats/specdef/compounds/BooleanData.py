@@ -16,8 +16,8 @@ class BooleanData(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.value = 0
-		self.default = 0
+		self.value = name_type_map['Ubyte'](self.context, 0, None)
+		self.default = name_type_map['Ubyte'](self.context, 0, None)
 		self.unused = Array(self.context, 0, None, (0,), name_type_map['Ubyte'])
 		if set_default:
 			self.set_defaults()

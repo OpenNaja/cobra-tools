@@ -10,19 +10,19 @@ class LodSpecItem(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.unknown_1 = 0
-		self.max_model_bounding_sphere_radius = 0.0
-		self.flags_1 = 0
-		self.flags_2 = 0
-		self.lod_point_0 = 0.0
-		self.lod_point_1 = 0.0
-		self.lod_point_2 = 0.0
-		self.lod_point_3 = 0.0
-		self.lod_point_4 = 0.0
-		self.pixel_size_off = 0.0
-		self.unknown_2 = 0
-		self.unknown_3 = 0
-		self.unknown_4 = 0
+		self.unknown_1 = name_type_map['Uint'](self.context, 0, None)
+		self.max_model_bounding_sphere_radius = name_type_map['Float'](self.context, 0, None)
+		self.flags_1 = name_type_map['Ushort'](self.context, 0, None)
+		self.flags_2 = name_type_map['Ushort'](self.context, 0, None)
+		self.lod_point_0 = name_type_map['Float'](self.context, 0, None)
+		self.lod_point_1 = name_type_map['Float'](self.context, 0, None)
+		self.lod_point_2 = name_type_map['Float'](self.context, 0, None)
+		self.lod_point_3 = name_type_map['Float'](self.context, 0, None)
+		self.lod_point_4 = name_type_map['Float'](self.context, 0, None)
+		self.pixel_size_off = name_type_map['Float'](self.context, 0, None)
+		self.unknown_2 = name_type_map['Uint'](self.context, 0, None)
+		self.unknown_3 = name_type_map['Uint'](self.context, 0, None)
+		self.unknown_4 = name_type_map['Uint'](self.context, 0, None)
 		self.group_name = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
 		if set_default:
 			self.set_defaults()

@@ -10,9 +10,9 @@ class FRenderContextSetRoot(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.ptr_1_count = 0
-		self.ptr_2_count = 0
-		self.ptr_3_count = 0
+		self.ptr_1_count = name_type_map['Uint64'](self.context, 0, None)
+		self.ptr_2_count = name_type_map['Uint64'](self.context, 0, None)
+		self.ptr_3_count = name_type_map['Uint64'](self.context, 0, None)
 		self.ptr_1_list = name_type_map['ArrayPointer'](self.context, self.ptr_1_count, name_type_map['ContextSet1Item'])
 		self.ptr_2_list = name_type_map['ArrayPointer'](self.context, self.ptr_2_count, name_type_map['ContextSet2Item'])
 		self.ptr_3_list = name_type_map['ArrayPointer'](self.context, self.ptr_3_count, name_type_map['ContextSet3Item'])

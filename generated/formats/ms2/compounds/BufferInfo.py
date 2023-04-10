@@ -22,25 +22,25 @@ class BufferInfo(BaseStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.u_0 = 0
-		self.u_1 = 0
-		self.tri_chunks_size = 0
-		self.tri_chunks_ptr = 0
-		self.vert_chunks_size = 0
-		self.vert_chunks_ptr = 0
-		self.verts_size = 0
-		self.verts_ptr = 0
-		self.u_3 = 0
-		self.tris_size = 0
-		self.tris_ptr = 0
-		self.u_5 = 0
-		self.u_6 = 0
-		self.u_5 = 0
+		self.u_0 = name_type_map['Uint64'](self.context, 0, None)
+		self.u_1 = name_type_map['Uint64'](self.context, 0, None)
+		self.tri_chunks_size = name_type_map['Uint64'](self.context, 0, None)
+		self.tri_chunks_ptr = name_type_map['Uint64'](self.context, 0, None)
+		self.vert_chunks_size = name_type_map['Uint64'](self.context, 0, None)
+		self.vert_chunks_ptr = name_type_map['Uint64'](self.context, 0, None)
+		self.verts_size = name_type_map['Uint64'](self.context, 0, None)
+		self.verts_ptr = name_type_map['Uint64'](self.context, 0, None)
+		self.u_3 = name_type_map['Uint64'](self.context, 0, None)
+		self.tris_size = name_type_map['Uint64'](self.context, 0, None)
+		self.tris_ptr = name_type_map['Uint64'](self.context, 0, None)
+		self.u_5 = name_type_map['Uint64'](self.context, 0, None)
+		self.u_6 = name_type_map['Uint64'](self.context, 0, None)
+		self.u_5 = name_type_map['Uint64'](self.context, 0, None)
 
 		# from start of tris buffer
-		self.uvs_size = 0
-		self.u_6 = 0
-		self.u_7 = 0
+		self.uvs_size = name_type_map['Uint64'](self.context, 0, None)
+		self.u_6 = name_type_map['Uint64'](self.context, 0, None)
+		self.u_7 = name_type_map['Uint64'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 

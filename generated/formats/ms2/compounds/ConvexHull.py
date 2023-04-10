@@ -14,7 +14,7 @@ class ConvexHull(BaseStruct):
 		super().__init__(context, arg, template, set_default=False)
 
 		# 16 for anubis: 4 hulls * 16 * 12 (size of vert)
-		self.vertex_count = 0
+		self.vertex_count = name_type_map['Uint'](self.context, 0, None)
 		self.rotation = name_type_map['Matrix33'](self.context, 0, None)
 
 		# center of the box

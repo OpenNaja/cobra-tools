@@ -14,14 +14,14 @@ class TexBufferPc(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.width = 0
-		self.height = 0
+		self.width = name_type_map['Ushort'](self.context, 0, None)
+		self.height = name_type_map['Ushort'](self.context, 0, None)
 
 		# may be depth
-		self.num_tiles = 0
+		self.num_tiles = name_type_map['Ushort'](self.context, 0, None)
 
 		# the first ie. biggest levels are clipped off
-		self.num_mips = 0
+		self.num_mips = name_type_map['Ushort'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 

@@ -15,12 +15,12 @@ class AnimationActivityData(MemStruct):
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		self.animation_flags = name_type_map['AnimationFlags'](self.context, 0, None)
-		self.priorities = 0
+		self.priorities = name_type_map['Uint'](self.context, 0, None)
 		self.weight = name_type_map['FloatInputData'](self.context, 0, None)
 		self.speed = name_type_map['FloatInputData'](self.context, 0, None)
-		self.starting_prop_through = 0.0
-		self.lead_out_time = 0.0
-		self.count_6 = 0
+		self.starting_prop_through = name_type_map['Float'](self.context, 0, None)
+		self.lead_out_time = name_type_map['Float'](self.context, 0, None)
+		self.count_6 = name_type_map['Uint64'](self.context, 0, None)
 		self.additional_data_streams = name_type_map['DataStreamResourceDataList'](self.context, 0, None)
 		self.mani = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
 		self.sync_prop_through_variable = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])

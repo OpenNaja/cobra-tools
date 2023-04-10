@@ -24,9 +24,9 @@ class Activity(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.count_2 = 0
-		self.count_3 = 0
-		self.minus_one = 0
+		self.count_2 = name_type_map['Uint64'](self.context, 0, None)
+		self.count_3 = name_type_map['Uint64'](self.context, 0, None)
+		self.minus_one = name_type_map['Int64'](self.context, 0, None)
 		self.data_type = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
 
 		# template has to be defined according to data type ie 'AnimationActivity' + 'Data'

@@ -10,11 +10,11 @@ class LogicalControls(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.button_count = 0
-		self.axis_count = 0
-		self.count_3 = 0
-		self.count_4 = 0
-		self.flags = 0
+		self.button_count = name_type_map['Ubyte'](self.context, 0, None)
+		self.axis_count = name_type_map['Ubyte'](self.context, 0, None)
+		self.count_3 = name_type_map['Ubyte'](self.context, 0, None)
+		self.count_4 = name_type_map['Ubyte'](self.context, 0, None)
+		self.flags = name_type_map['Uint'](self.context, 0, None)
 		self.buttons = name_type_map['ArrayPointer'](self.context, self.button_count, name_type_map['Button'])
 		self.axes = name_type_map['ArrayPointer'](self.context, self.axis_count, name_type_map['AxisValue'])
 		self.axis_buttons = name_type_map['ArrayPointer'](self.context, self.count_3, name_type_map['AxisButton'])

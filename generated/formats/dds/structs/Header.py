@@ -17,24 +17,24 @@ class Header(BaseStruct):
 		self.header_string = name_type_map['FixedString'](self.context, 4, None)
 
 		# Always 124 + 4 bytes for headerstring, header ends at 128.
-		self.size = 124
+		self.size = name_type_map['Uint'].from_value(124)
 		self.flags = name_type_map['HeaderFlags'](self.context, 0, None)
 
 		# The texture height.
-		self.height = 0
+		self.height = name_type_map['Uint'](self.context, 0, None)
 
 		# The texture width.
-		self.width = 0
-		self.linear_size = 0
-		self.depth = 1
-		self.mipmap_count = 0
+		self.width = name_type_map['Uint'](self.context, 0, None)
+		self.linear_size = name_type_map['Uint'](self.context, 0, None)
+		self.depth = name_type_map['Uint'].from_value(1)
+		self.mipmap_count = name_type_map['Uint'](self.context, 0, None)
 		self.reserved_1 = Array(self.context, 0, None, (0,), name_type_map['Uint'])
 		self.pixel_format = name_type_map['PixelFormat'](self.context, 0, None)
 		self.caps_1 = name_type_map['Caps1'](self.context, 0, None)
 		self.caps_2 = name_type_map['Caps2'](self.context, 0, None)
-		self.caps_3 = 0
-		self.caps_4 = 0
-		self.unused = 0
+		self.caps_3 = name_type_map['Uint'](self.context, 0, None)
+		self.caps_4 = name_type_map['Uint'](self.context, 0, None)
+		self.unused = name_type_map['Uint'](self.context, 0, None)
 		self.dx_10 = name_type_map['Dxt10Header'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()

@@ -10,10 +10,10 @@ class AxisAngle(BaseStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.a = 1.0
-		self.x = 0.0
-		self.y = 0.0
-		self.z = 0.0
+		self.a = name_type_map['Float'].from_value(1.0)
+		self.x = name_type_map['Float'].from_value(0.0)
+		self.y = name_type_map['Float'].from_value(0.0)
+		self.z = name_type_map['Float'].from_value(0.0)
 		if set_default:
 			self.set_defaults()
 

@@ -16,7 +16,7 @@ class AttribInfo(GenericInfo):
 		super().__init__(context, arg, template, set_default=False)
 
 		# byte offset to first value in the data_lib pointer, usually or always sorted in stock
-		self._value_offset = 0
+		self._value_offset = name_type_map['Uint64'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 

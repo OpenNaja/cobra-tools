@@ -13,10 +13,10 @@ class HbOffsets(MemStruct):
 		self.physics = name_type_map['HbPhysicsOffsets'](self.context, 0, None)
 
 		# Vertical offset of visible post above wall. Post height = wall_height + post_height_offset.
-		self.post_height_offset = 0.0
+		self.post_height_offset = name_type_map['Float'](self.context, 0, None)
 
 		# The starting height of the barrier wall.
-		self.wall_height = 0.0
+		self.wall_height = name_type_map['Float'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 

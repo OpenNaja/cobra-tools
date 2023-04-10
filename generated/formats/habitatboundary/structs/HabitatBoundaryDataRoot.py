@@ -16,22 +16,22 @@ class HabitatBoundaryDataRoot(MemStruct):
 		super().__init__(context, arg, template, set_default=False)
 
 		# 3 for everything but null barrier which is 0
-		self.u_1 = 3
-		self.u_2 = 0.0
+		self.u_1 = name_type_map['Uint'].from_value(3)
+		self.u_2 = name_type_map['Float'](self.context, 0, None)
 
 		# 0 for everything but wood logs barrier which is 1
-		self.u_3 = 0
+		self.u_3 = name_type_map['Ushort'].from_value(0)
 		self.ui_options = name_type_map['HbUiOptions'](self.context, 0, None)
-		self.u_4 = 1.5
-		self.u_5 = 2.5
+		self.u_4 = name_type_map['Float'].from_value(1.5)
+		self.u_5 = name_type_map['Float'].from_value(2.5)
 		self.offsets = name_type_map['HbOffsets'](self.context, 0, None)
 
 		# Posts of N Level can only use Walls of less than N Level
-		self.wall_replace_level = 0
+		self.wall_replace_level = name_type_map['Byte'](self.context, 0, None)
 
 		# 0 = Glass, 1 = Null, 3 = Solid Opaques (Brick, Concrete), 4 = 1-Way Glass, 5 = Wire Fences, 7 = Electrified Wire Fence
-		self.type = 0
-		self.padding = 0
+		self.type = name_type_map['Byte'](self.context, 0, None)
+		self.padding = name_type_map['Ushort'].from_value(0)
 		self.prefab = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
 		self.walls_extrusion = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
 		self.walls_extrusion_end = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])

@@ -18,64 +18,64 @@ class Header(GenericHeader):
 		super().__init__(context, arg, template, set_default=False)
 
 		# Seems to match the number of LOD models for the file (has more than 1 file)
-		self.lod_depth = 0
+		self.lod_depth = name_type_map['Uint'](self.context, 0, None)
 
 		# length of the Names block below, including 00 bytes
-		self.len_names = 0
-		self.zero_2 = 0
+		self.len_names = name_type_map['Uint'](self.context, 0, None)
+		self.zero_2 = name_type_map['Uint'](self.context, 0, None)
 
 		# count of external aux files, ie audio banks
-		self.num_aux_entries = 0
+		self.num_aux_entries = name_type_map['Uint'](self.context, 0, None)
 
 		# count of included ovl files that are available to this ovl
-		self.num_included_ovls = 0
+		self.num_included_ovls = name_type_map['Ushort'](self.context, 0, None)
 
 		# count of file mime types, aka. extensions with metadata
-		self.num_mimes = 0
-		self.num_files = 0
+		self.num_mimes = name_type_map['Ushort'](self.context, 0, None)
+		self.num_files = name_type_map['Uint'](self.context, 0, None)
 
 		# repeat count of files ??
-		self.num_files_2 = 0
-		self.num_dependencies = 0
+		self.num_files_2 = name_type_map['Uint'](self.context, 0, None)
+		self.num_dependencies = name_type_map['Uint'](self.context, 0, None)
 
 		# number of archives
-		self.num_archives = 0
+		self.num_archives = name_type_map['Uint'](self.context, 0, None)
 
 		# across all archives
-		self.num_pool_groups = 0
+		self.num_pool_groups = name_type_map['Uint'](self.context, 0, None)
 
 		# across all archives
-		self.num_pools = 0
+		self.num_pools = name_type_map['Uint'](self.context, 0, None)
 
 		# across all archives
-		self.num_datas = 0
+		self.num_datas = name_type_map['Uint'](self.context, 0, None)
 
 		# across all archives
-		self.num_buffers = 0
+		self.num_buffers = name_type_map['Uint'](self.context, 0, None)
 
 		# number of files in external OVS archives
-		self.num_stream_files = 0
+		self.num_stream_files = name_type_map['Uint'](self.context, 0, None)
 
 		# used in ZTUAC elephants
-		self.ztuac_unk_0 = 0
+		self.ztuac_unk_0 = name_type_map['Uint'](self.context, 0, None)
 
 		# used in ZTUAC elephants
-		self.ztuac_unk_1 = 0
+		self.ztuac_unk_1 = name_type_map['Uint'](self.context, 0, None)
 
 		# used in ZTUAC elephants
-		self.ztuac_unk_2 = 0
+		self.ztuac_unk_2 = name_type_map['Uint'](self.context, 0, None)
 
 		# length of archive names
-		self.len_archive_names = 0
+		self.len_archive_names = name_type_map['Uint'](self.context, 0, None)
 
 		# another Num Files
-		self.num_files_3 = 0
+		self.num_files_3 = name_type_map['Uint'](self.context, 0, None)
 
 		# length of the type names portion inside Names block (usually at the start), not counting 00 bytes
-		self.len_type_names = 0
+		self.len_type_names = name_type_map['Uint'](self.context, 0, None)
 
 		# used in PZ1.6 for the first time
-		self.num_triplets = 0
+		self.num_triplets = name_type_map['Uint'](self.context, 0, None)
 
 		# zeros
 		self.reserved = Array(self.context, 0, None, (0,), name_type_map['Uint'])

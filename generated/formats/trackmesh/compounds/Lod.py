@@ -14,10 +14,10 @@ class Lod(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.a = 0
-		self.b = 0
-		self.c = 0
-		self.distance = 0.0
+		self.a = name_type_map['Uint'](self.context, 0, None)
+		self.b = name_type_map['Uint'](self.context, 0, None)
+		self.c = name_type_map['Uint'](self.context, 0, None)
+		self.distance = name_type_map['Float'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 

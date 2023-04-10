@@ -15,22 +15,22 @@ class VoxelskirtRoot(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.zero = 0
+		self.zero = name_type_map['Uint64'].from_value(0)
 
 		# total size of buffer data
-		self._data_size = 0
-		self.x = 0
-		self.y = 0
+		self._data_size = name_type_map['Uint64'](self.context, 0, None)
+		self.x = name_type_map['Uint64'](self.context, 0, None)
+		self.y = name_type_map['Uint64'](self.context, 0, None)
 
 		# multiply by x or y to get the actual dimension of skirt, eg 512px * 16.0 = 8192.0m
-		self.scale = 0.0
-		self.padding = 0
+		self.scale = name_type_map['Float'](self.context, 0, None)
+		self.padding = name_type_map['Uint'].from_value(0)
 
 		# zero, for PC only
-		self._height_offset = 0
+		self._height_offset = name_type_map['Uint64'](self.context, 0, None)
 
 		# x*y*4, for PC only
-		self._weights_offset = 0
+		self._weights_offset = name_type_map['Uint64'](self.context, 0, None)
 		self.layers = name_type_map['DataSlot'](self.context, 0, name_type_map['Layer'])
 		self.areas = name_type_map['DataSlot'](self.context, 0, name_type_map['Area'])
 		self.entity_groups = name_type_map['DataSlot'](self.context, 0, name_type_map['EntityGroup'])

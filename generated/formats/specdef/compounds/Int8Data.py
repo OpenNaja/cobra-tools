@@ -16,10 +16,10 @@ class Int8Data(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.imin = 0
-		self.imax = 0
-		self.ivalue = 0
-		self.ioptional = 0
+		self.imin = name_type_map['Byte'](self.context, 0, None)
+		self.imax = name_type_map['Byte'](self.context, 0, None)
+		self.ivalue = name_type_map['Byte'](self.context, 0, None)
+		self.ioptional = name_type_map['Byte'](self.context, 0, None)
 		self.unused = Array(self.context, 0, None, (0,), name_type_map['Ubyte'])
 		self.enum = name_type_map['Pointer'](self.context, 0, None)
 		if set_default:

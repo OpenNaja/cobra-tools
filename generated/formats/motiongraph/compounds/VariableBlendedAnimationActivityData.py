@@ -14,11 +14,11 @@ class VariableBlendedAnimationActivityData(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.priorities = 0
-		self._pad = 0
+		self.priorities = name_type_map['Uint'](self.context, 0, None)
+		self._pad = name_type_map['Uint'](self.context, 0, None)
 		self.weight = name_type_map['FloatInputData'](self.context, 0, None)
-		self.animation_count = 0
-		self.variable_blended_animation_flags = 0
+		self.animation_count = name_type_map['Uint64'](self.context, 0, None)
+		self.variable_blended_animation_flags = name_type_map['Uint'](self.context, 0, None)
 		self.animations = name_type_map['ArrayPointer'](self.context, self.animation_count, name_type_map['VariableBlendedAnimationData'])
 		self.variable = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
 		if set_default:

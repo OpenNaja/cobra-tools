@@ -10,10 +10,10 @@ class WeatherEventsRoot(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.transition_time = 0.0
-		self.unknown_1 = 0.0
-		self.event_count = 0
-		self.unknown_2 = 0
+		self.transition_time = name_type_map['Float'](self.context, 0, None)
+		self.unknown_1 = name_type_map['Float'](self.context, 0, None)
+		self.event_count = name_type_map['Uint64'](self.context, 0, None)
+		self.unknown_2 = name_type_map['Uint64'](self.context, 0, None)
 		self.resource_name = name_type_map['Pointer'](self.context, 0, name_type_map['ZStringObfuscated'])
 		self.default_event_name = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
 		self.event_list = name_type_map['ArrayPointer'](self.context, self.event_count, name_type_map['WeatherEventData'])

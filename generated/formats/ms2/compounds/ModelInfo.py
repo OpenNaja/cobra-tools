@@ -21,46 +21,46 @@ class ModelInfo(MemStruct):
 		super().__init__(context, arg, template, set_default=False)
 
 		# ??
-		self.unk_dla = 0
+		self.unk_dla = name_type_map['Uint64'](self.context, 0, None)
 
 		# the smallest coordinates across all axes
 		self.bounds_min = name_type_map['Vector3'](self.context, 0, None)
 
 		# not sure, for PZ often 40 00 00 37 for animals
-		self.unk_float_a = 0.0
+		self.unk_float_a = name_type_map['Float'](self.context, 0, None)
 
 		# the biggest coordinates across all axes
 		self.bounds_max = name_type_map['Vector3'](self.context, 0, None)
 
 		# scale: pack_base / 512, also added as offset
-		self.pack_base = 0.0
+		self.pack_base = name_type_map['Float'](self.context, 0, None)
 
 		# cog? medium of bounds?
 		self.center = name_type_map['Vector3'](self.context, 0, None)
 
 		# probably from center to max
-		self.radius = 0.0
+		self.radius = name_type_map['Float'](self.context, 0, None)
 
 		# seen 6 or 1, matches lod count
-		self.num_lods_2 = 0
+		self.num_lods_2 = name_type_map['Uint64'](self.context, 0, None)
 
 		# zero
-		self.zero = 0
+		self.zero = name_type_map['Uint64'](self.context, 0, None)
 
 		# verbatim repeat
 		self.bounds_min_repeat = name_type_map['Vector3'](self.context, 0, None)
 
 		# verbatim repeat
 		self.bounds_max_repeat = name_type_map['Vector3'](self.context, 0, None)
-		self.num_materials = 0
-		self.num_lods = 0
-		self.num_objects = 0
+		self.num_materials = name_type_map['Ushort'](self.context, 0, None)
+		self.num_lods = name_type_map['Ushort'](self.context, 0, None)
+		self.num_objects = name_type_map['Ushort'](self.context, 0, None)
 
 		# count of MeshData fragments for the mdl2 this struct refers to
-		self.num_meshes = 0
+		self.num_meshes = name_type_map['Ushort'](self.context, 0, None)
 
 		# ?
-		self.last_count = 0
+		self.last_count = name_type_map['Ushort'](self.context, 0, None)
 
 		# this has influence on whether newly added shells draw correctly; for PZ usually 4, except for furry animals; ZT african ele female
 		self.render_flag = name_type_map['RenderFlag'](self.context, 0, None)
@@ -71,10 +71,10 @@ class ModelInfo(MemStruct):
 		self.zeros = Array(self.context, 0, None, (0,), name_type_map['Uint64'])
 
 		# used to increment skeleton index
-		self.increment_flag = 0
-		self.zero_0 = 0
-		self.zero_1 = 0
-		self.zero_2 = 0
+		self.increment_flag = name_type_map['Uint64'](self.context, 0, None)
+		self.zero_0 = name_type_map['Uint64'](self.context, 0, None)
+		self.zero_1 = name_type_map['Uint64'](self.context, 0, None)
+		self.zero_2 = name_type_map['Uint64'](self.context, 0, None)
 		self.materials = name_type_map['ArrayPointer'](self.context, self.num_materials, name_type_map['MaterialName'])
 		self.lods = name_type_map['ArrayPointer'](self.context, self.num_lods, name_type_map['LodInfo'])
 		self.objects = name_type_map['ArrayPointer'](self.context, self.num_objects, name_type_map['Object'])

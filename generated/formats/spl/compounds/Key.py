@@ -17,7 +17,7 @@ class Key(MemStruct):
 		self.pos = name_type_map['ShortVector3'](self.context, 0, None)
 		self.handle_left = name_type_map['ByteVector3'](self.context, 0, None)
 		self.handle_right = name_type_map['ByteVector3'](self.context, 0, None)
-		self.handle_scale = 0.0
+		self.handle_scale = name_type_map['Float'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 

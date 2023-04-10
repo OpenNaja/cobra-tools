@@ -25,21 +25,21 @@ class MeshCollision(BaseStruct):
 		self.unk_1 = Array(self.context, 0, None, (0,), name_type_map['SubA'])
 
 		# vertices (3 float)
-		self.vertex_count = 0
+		self.vertex_count = name_type_map['Uint64'](self.context, 0, None)
 
 		# tris?, counts the 25s at the end
-		self.tri_count = 0
+		self.tri_count = name_type_map['Uint64'](self.context, 0, None)
 
 		# the smallest coordinates across all axes
 		self.bounds_min = name_type_map['Vector3'](self.context, 0, None)
 
 		# the biggest coordinates across all axes
 		self.bounds_max = name_type_map['Vector3'](self.context, 0, None)
-		self.flag_0 = 1
-		self.flag_1 = 1
-		self.has_sub_coll_chunk = 0
+		self.flag_0 = name_type_map['Uint64'].from_value(1)
+		self.flag_1 = name_type_map['Uint64'].from_value(1)
+		self.has_sub_coll_chunk = name_type_map['Uint64'](self.context, 0, None)
 		self.zeros_1 = Array(self.context, 0, None, (0,), name_type_map['Uint64'])
-		self.ff = -1
+		self.ff = name_type_map['Int'].from_value(-1)
 		self.zeros_2 = Array(self.context, 0, None, (0,), name_type_map['Int'])
 
 		# sometimes 8 bytes, apparently not part of SubCollChunk (JWE2 dev footplantingtest_ has that but not the padding)
