@@ -143,6 +143,6 @@ class Imports:
             f.write("\nname_type_map = {}\n")
             f.write("for type_name, module in type_module_name_map.items():\n")
             f.write("\tname_type_map[type_name] = getattr(import_module(module), type_name)\n")
-            f.write("for class_object in type_module_name_map.values():\n")
+            f.write("for class_object in name_type_map.values():\n")
             f.write("\tif callable(getattr(class_object, 'init_attributes', None)):\n")
             f.write("\t\tclass_object.init_attributes()")

@@ -58,6 +58,6 @@ type_module_name_map = {
 name_type_map = {}
 for type_name, module in type_module_name_map.items():
 	name_type_map[type_name] = getattr(import_module(module), type_name)
-for class_object in type_module_name_map.values():
+for class_object in name_type_map.values():
 	if callable(getattr(class_object, 'init_attributes', None)):
 		class_object.init_attributes()
