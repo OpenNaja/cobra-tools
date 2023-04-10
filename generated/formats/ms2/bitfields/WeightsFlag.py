@@ -8,8 +8,8 @@ class WeightsFlag(BasicBitfield):
 
 	__name__ = 'WeightsFlag'
 	_storage = Ushort
-	has_weights = BitfieldMember(pos=0, mask=0x1, return_type=bool)
-	bone_index = BitfieldMember(pos=1, mask=0x1fe, return_type=int)
+	has_weights = BitfieldMember(pos=0, mask=0x1, return_type=Bool.from_value)
+	bone_index = BitfieldMember(pos=1, mask=0x1fe, return_type=Int.from_value)
 	mesh_format = BitfieldMember(pos=9, mask=0xfe00, return_type=MeshFormat.from_value)
 
 	def set_defaults(self):

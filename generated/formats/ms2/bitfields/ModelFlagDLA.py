@@ -11,8 +11,8 @@ class ModelFlagDLA(BasicBitfield):
 
 	__name__ = 'ModelFlagDLA'
 	_storage = Uint
-	vertex_offset = BitfieldMember(pos=1, mask=0x2, return_type=bool)
-	stripify = BitfieldMember(pos=5, mask=0x20, return_type=bool)
+	vertex_offset = BitfieldMember(pos=1, mask=0x2, return_type=Bool.from_value)
+	stripify = BitfieldMember(pos=5, mask=0x20, return_type=Bool.from_value)
 
 	def set_defaults(self):
 		pass
