@@ -1,3 +1,4 @@
+from generated.formats.ovl.imports import name_type_map
 import contextlib
 import itertools
 import logging

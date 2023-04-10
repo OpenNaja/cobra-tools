@@ -1,3 +1,4 @@
+from generated.formats.dds.imports import name_type_map
 import io
 import logging
 import math

@@ -142,8 +142,21 @@ class XmlParser:
                 logging.exception(f"Parsing child {child} failed")
         versions_file = BaseClass.get_out_path(os.path.join(self.base_segments, "versions"))
         self.versions.write(versions_file)
-        imports_file = BaseClass.get_out_path(os.path.join(self.base_segments, "imports"))
+        imports_module = os.path.join(self.base_segments, "imports")
+        imports_file = BaseClass.get_out_path(imports_module)
         Imports.write_import_map(self, imports_file)
+        init_file = BaseClass.get_out_path(os.path.join(self.base_segments, "__init__"))
+        import_string = f'from {Imports.import_from_module_path(imports_module)} import name_type_map\n'
+        if not os.path.exists(init_file):
+            with open(init_file, "w", encoding=self.encoding) as f:
+                f.write(import_string)
+        else:
+            with open(init_file, "r+", encoding=self.encoding) as f:
+                init_content = f.read()
+                f.seek(0, 0)
+                f.write(import_string)
+                f.write(init_content)
+
         parsed_xmls[xml_path] = self
 
     # the following constructs do not create classes
@@ -293,36 +306,6 @@ def create_inits(base_dir):
         dirs[:] = [dirname for dirname in dirs if dirname[:2] != '__']
 
 
-def stash_inits(target_dir):
-    """Move all __init__.py files over to a temporary directory to prevent execution when loading submodules
-    and replace them with empty init files"""
-    init_file = "__init__.py"
-    i = 0
-    temp_base = os.path.join(os.getcwd(), ".temp")
-    temp_dir = f'{temp_base}{i}'
-    no_overwrite = False
-    if no_overwrite:
-        while os.path.exists(temp_dir):
-            i += 1
-            temp_dir = f'{temp_base}{i}'
-    else:
-        if os.path.exists(temp_dir):
-            dir_util.remove_tree(temp_dir)
-    os.makedirs(temp_dir)
-    for dirpath, dirnames, filenames in os.walk(target_dir):
-        if init_file in filenames:
-            rel_path = os.path.relpath(dirpath, target_dir)
-            os.renames(os.path.join(dirpath, init_file), os.path.join(temp_dir, rel_path, init_file))
-    create_inits(target_dir)
-    return temp_dir
-
-
-def apply_stash(stashed_dir, target_dir):
-    """Move the files in a stashed directory to the target directory, removing the temporary directory"""
-    dir_util.copy_tree(stashed_dir, target_dir)
-    dir_util.remove_tree(stashed_dir)
-
-
 def apply_autopep8(target_dir):
     """Run autopep8 --in-place on the target directory, if that package is installed"""
     if importlib.util.find_spec("autopep8"):
@@ -340,7 +323,6 @@ def generate_classes():
     target_dir = os.path.join(cwd, "generated")
     root_dir = os.path.join(source_dir, "formats")
     copy_src_to_generated(source_dir, target_dir)
-    stashed_dir = stash_inits(target_dir)
     parsed_xmls = {}
     for format_name in os.listdir(root_dir):
         dir_path = os.path.join(root_dir, format_name)
@@ -353,7 +335,6 @@ def generate_classes():
                     logging.info(f"Reading {format_name} format")
                     xmlp = XmlParser(format_name)
                     xmlp.load_xml(xml_path, parsed_xmls)
-    apply_stash(stashed_dir, target_dir)
     create_inits(target_dir)
 
 

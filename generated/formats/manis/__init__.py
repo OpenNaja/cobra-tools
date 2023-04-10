@@ -1,3 +1,4 @@
+from generated.formats.manis.imports import name_type_map
 from generated.formats.manis.compounds.InfoHeader import InfoHeader
 from generated.io import IoFile
 import os
