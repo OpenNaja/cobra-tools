@@ -1,5 +1,4 @@
-from generated.formats.base.basic import Uint
-from generated.formats.base.basic import Uint64
+from generated.formats.brush.imports import name_type_map
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
 
 
@@ -25,15 +24,15 @@ class BrushRoot(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('_zero', Uint64, (0, None), (False, None), (None, None))
-		yield ('num_pixels', Uint64, (0, None), (False, None), (None, None))
-		yield ('x', Uint, (0, None), (False, None), (None, None))
-		yield ('y', Uint, (0, None), (False, None), (None, None))
+		yield ('_zero', name_type_map['Uint64'], (0, None), (False, None), (None, None))
+		yield ('num_pixels', name_type_map['Uint64'], (0, None), (False, None), (None, None))
+		yield ('x', name_type_map['Uint'], (0, None), (False, None), (None, None))
+		yield ('y', name_type_map['Uint'], (0, None), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield '_zero', Uint64, (0, None), (False, None)
-		yield 'num_pixels', Uint64, (0, None), (False, None)
-		yield 'x', Uint, (0, None), (False, None)
-		yield 'y', Uint, (0, None), (False, None)
+		yield '_zero', name_type_map['Uint64'], (0, None), (False, None)
+		yield 'num_pixels', name_type_map['Uint64'], (0, None), (False, None)
+		yield 'x', name_type_map['Uint'], (0, None), (False, None)
+		yield 'y', name_type_map['Uint'], (0, None), (False, None)

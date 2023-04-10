@@ -1,5 +1,5 @@
-from generated.formats.base.basic import Float
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
+from generated.formats.renderparameters.imports import name_type_map
 
 
 class KeyPoint(MemStruct):
@@ -20,15 +20,15 @@ class KeyPoint(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('time', Float, (0, None), (False, None), (None, None))
-		yield ('value', Float, (0, None), (False, None), (None, None))
-		yield ('tangent_before', Float, (0, None), (False, None), (None, None))
-		yield ('tangent_after', Float, (0, None), (False, None), (None, None))
+		yield ('time', name_type_map['Float'], (0, None), (False, None), (None, None))
+		yield ('value', name_type_map['Float'], (0, None), (False, None), (None, None))
+		yield ('tangent_before', name_type_map['Float'], (0, None), (False, None), (None, None))
+		yield ('tangent_after', name_type_map['Float'], (0, None), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'time', Float, (0, None), (False, None)
-		yield 'value', Float, (0, None), (False, None)
-		yield 'tangent_before', Float, (0, None), (False, None)
-		yield 'tangent_after', Float, (0, None), (False, None)
+		yield 'time', name_type_map['Float'], (0, None), (False, None)
+		yield 'value', name_type_map['Float'], (0, None), (False, None)
+		yield 'tangent_before', name_type_map['Float'], (0, None), (False, None)
+		yield 'tangent_after', name_type_map['Float'], (0, None), (False, None)

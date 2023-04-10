@@ -1,12 +1,7 @@
 import numpy
 from generated.array import Array
 from generated.base_struct import BaseStruct
-from generated.formats.base.basic import Byte
-from generated.formats.base.basic import Float
-from generated.formats.base.basic import Ubyte
-from generated.formats.base.basic import Uint
-from generated.formats.base.basic import Uint64
-from generated.formats.base.basic import Ushort
+from generated.formats.manis.imports import name_type_map
 
 
 class ManiInfo(BaseStruct):
@@ -27,7 +22,7 @@ class ManiInfo(BaseStruct):
 
 		# ?
 		self.b = 0
-		self.zeros_0 = Array(self.context, 0, None, (0,), Ushort)
+		self.zeros_0 = Array(self.context, 0, None, (0,), name_type_map['Ushort'])
 		self.extra_pc_1 = 0
 		self.pos_bone_count = 0
 		self.ori_bone_count = 0
@@ -57,10 +52,10 @@ class ManiInfo(BaseStruct):
 		self.g = 0
 
 		# rest 228 bytes
-		self.zeros_2 = Array(self.context, 0, None, (0,), Uint)
+		self.zeros_2 = Array(self.context, 0, None, (0,), name_type_map['Uint'])
 
 		# rest 14 bytes
-		self.extra_zeros_pc = Array(self.context, 0, None, (0,), Ushort)
+		self.extra_zeros_pc = Array(self.context, 0, None, (0,), name_type_map['Ushort'])
 		self.pos_bone_min = 0
 		self.pos_bone_max = 0
 		self.ori_bone_min = 0
@@ -87,82 +82,82 @@ class ManiInfo(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('duration', Float, (0, None), (False, None), (None, None))
-		yield ('frame_count', Uint, (0, None), (False, None), (None, None))
-		yield ('b', Uint, (0, None), (False, None), (None, None))
-		yield ('zeros_0', Array, (0, None, (6,), Ushort), (False, None), (None, None))
-		yield ('extra_pc_1', Ushort, (0, None), (False, None), (lambda context: context.version <= 257, None))
-		yield ('pos_bone_count', Ushort, (0, None), (False, None), (None, None))
-		yield ('ori_bone_count', Ushort, (0, None), (False, None), (None, None))
-		yield ('scl_bone_count', Ushort, (0, None), (False, None), (None, None))
-		yield ('extra_pc', Uint64, (0, None), (False, None), (lambda context: context.version <= 257, None))
-		yield ('pos_bone_count_repeat', Ushort, (0, None), (False, None), (lambda context: context.version <= 257, None))
-		yield ('ori_bone_count_repeat', Ushort, (0, None), (False, None), (lambda context: context.version <= 257, None))
-		yield ('scl_bone_count_repeat', Ushort, (0, None), (False, None), (lambda context: context.version <= 257, None))
-		yield ('zeros_1', Ushort, (0, None), (False, None), (None, None))
-		yield ('zeros_1_new', Uint, (0, None), (False, None), (lambda context: context.version >= 258, None))
-		yield ('float_count', Ushort, (0, None), (False, None), (None, None))
-		yield ('count_a', Ubyte, (0, None), (False, None), (None, None))
-		yield ('count_b', Ubyte, (0, None), (False, None), (None, None))
-		yield ('target_bone_count', Ushort, (0, None), (False, None), (None, None))
-		yield ('g', Ushort, (0, None), (False, None), (None, None))
-		yield ('zeros_2', Array, (0, None, (57,), Uint), (False, None), (None, None))
-		yield ('extra_zeros_pc', Array, (0, None, (6,), Ushort), (False, None), (lambda context: context.version <= 257, None))
-		yield ('pos_bone_min', Ubyte, (0, None), (False, None), (None, None))
-		yield ('pos_bone_max', Ubyte, (0, None), (False, None), (None, None))
-		yield ('ori_bone_min', Ubyte, (0, None), (False, None), (None, None))
-		yield ('ori_bone_max', Ubyte, (0, None), (False, None), (None, None))
-		yield ('scl_bone_min', Byte, (0, None), (False, None), (None, None))
-		yield ('scl_bone_max', Byte, (0, None), (False, None), (None, None))
-		yield ('pos_bone_count_related', Ubyte, (0, None), (False, None), (lambda context: context.version >= 258, None))
-		yield ('pos_bone_count_repeat', Ubyte, (0, None), (False, None), (lambda context: context.version >= 258, None))
-		yield ('ori_bone_count_related', Ubyte, (0, None), (False, None), (lambda context: context.version >= 258, None))
-		yield ('ori_bone_count_repeat', Ubyte, (0, None), (False, None), (lambda context: context.version >= 258, None))
-		yield ('scl_bone_count_related', Byte, (0, None), (False, None), (lambda context: context.version >= 258, None))
-		yield ('scl_bone_count_repeat', Byte, (0, None), (False, None), (lambda context: context.version >= 258, None))
-		yield ('zeros_end', Ushort, (0, None), (False, None), (lambda context: context.version >= 258, None))
-		yield ('zero_2_end', Ushort, (0, None), (False, None), (None, None))
+		yield ('duration', name_type_map['Float'], (0, None), (False, None), (None, None))
+		yield ('frame_count', name_type_map['Uint'], (0, None), (False, None), (None, None))
+		yield ('b', name_type_map['Uint'], (0, None), (False, None), (None, None))
+		yield ('zeros_0', Array, (0, None, (6,), name_type_map['Ushort']), (False, None), (None, None))
+		yield ('extra_pc_1', name_type_map['Ushort'], (0, None), (False, None), (lambda context: context.version <= 257, None))
+		yield ('pos_bone_count', name_type_map['Ushort'], (0, None), (False, None), (None, None))
+		yield ('ori_bone_count', name_type_map['Ushort'], (0, None), (False, None), (None, None))
+		yield ('scl_bone_count', name_type_map['Ushort'], (0, None), (False, None), (None, None))
+		yield ('extra_pc', name_type_map['Uint64'], (0, None), (False, None), (lambda context: context.version <= 257, None))
+		yield ('pos_bone_count_repeat', name_type_map['Ushort'], (0, None), (False, None), (lambda context: context.version <= 257, None))
+		yield ('ori_bone_count_repeat', name_type_map['Ushort'], (0, None), (False, None), (lambda context: context.version <= 257, None))
+		yield ('scl_bone_count_repeat', name_type_map['Ushort'], (0, None), (False, None), (lambda context: context.version <= 257, None))
+		yield ('zeros_1', name_type_map['Ushort'], (0, None), (False, None), (None, None))
+		yield ('zeros_1_new', name_type_map['Uint'], (0, None), (False, None), (lambda context: context.version >= 258, None))
+		yield ('float_count', name_type_map['Ushort'], (0, None), (False, None), (None, None))
+		yield ('count_a', name_type_map['Ubyte'], (0, None), (False, None), (None, None))
+		yield ('count_b', name_type_map['Ubyte'], (0, None), (False, None), (None, None))
+		yield ('target_bone_count', name_type_map['Ushort'], (0, None), (False, None), (None, None))
+		yield ('g', name_type_map['Ushort'], (0, None), (False, None), (None, None))
+		yield ('zeros_2', Array, (0, None, (57,), name_type_map['Uint']), (False, None), (None, None))
+		yield ('extra_zeros_pc', Array, (0, None, (6,), name_type_map['Ushort']), (False, None), (lambda context: context.version <= 257, None))
+		yield ('pos_bone_min', name_type_map['Ubyte'], (0, None), (False, None), (None, None))
+		yield ('pos_bone_max', name_type_map['Ubyte'], (0, None), (False, None), (None, None))
+		yield ('ori_bone_min', name_type_map['Ubyte'], (0, None), (False, None), (None, None))
+		yield ('ori_bone_max', name_type_map['Ubyte'], (0, None), (False, None), (None, None))
+		yield ('scl_bone_min', name_type_map['Byte'], (0, None), (False, None), (None, None))
+		yield ('scl_bone_max', name_type_map['Byte'], (0, None), (False, None), (None, None))
+		yield ('pos_bone_count_related', name_type_map['Ubyte'], (0, None), (False, None), (lambda context: context.version >= 258, None))
+		yield ('pos_bone_count_repeat', name_type_map['Ubyte'], (0, None), (False, None), (lambda context: context.version >= 258, None))
+		yield ('ori_bone_count_related', name_type_map['Ubyte'], (0, None), (False, None), (lambda context: context.version >= 258, None))
+		yield ('ori_bone_count_repeat', name_type_map['Ubyte'], (0, None), (False, None), (lambda context: context.version >= 258, None))
+		yield ('scl_bone_count_related', name_type_map['Byte'], (0, None), (False, None), (lambda context: context.version >= 258, None))
+		yield ('scl_bone_count_repeat', name_type_map['Byte'], (0, None), (False, None), (lambda context: context.version >= 258, None))
+		yield ('zeros_end', name_type_map['Ushort'], (0, None), (False, None), (lambda context: context.version >= 258, None))
+		yield ('zero_2_end', name_type_map['Ushort'], (0, None), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'duration', Float, (0, None), (False, None)
-		yield 'frame_count', Uint, (0, None), (False, None)
-		yield 'b', Uint, (0, None), (False, None)
-		yield 'zeros_0', Array, (0, None, (6,), Ushort), (False, None)
+		yield 'duration', name_type_map['Float'], (0, None), (False, None)
+		yield 'frame_count', name_type_map['Uint'], (0, None), (False, None)
+		yield 'b', name_type_map['Uint'], (0, None), (False, None)
+		yield 'zeros_0', Array, (0, None, (6,), name_type_map['Ushort']), (False, None)
 		if instance.context.version <= 257:
-			yield 'extra_pc_1', Ushort, (0, None), (False, None)
-		yield 'pos_bone_count', Ushort, (0, None), (False, None)
-		yield 'ori_bone_count', Ushort, (0, None), (False, None)
-		yield 'scl_bone_count', Ushort, (0, None), (False, None)
+			yield 'extra_pc_1', name_type_map['Ushort'], (0, None), (False, None)
+		yield 'pos_bone_count', name_type_map['Ushort'], (0, None), (False, None)
+		yield 'ori_bone_count', name_type_map['Ushort'], (0, None), (False, None)
+		yield 'scl_bone_count', name_type_map['Ushort'], (0, None), (False, None)
 		if instance.context.version <= 257:
-			yield 'extra_pc', Uint64, (0, None), (False, None)
-			yield 'pos_bone_count_repeat', Ushort, (0, None), (False, None)
-			yield 'ori_bone_count_repeat', Ushort, (0, None), (False, None)
-			yield 'scl_bone_count_repeat', Ushort, (0, None), (False, None)
-		yield 'zeros_1', Ushort, (0, None), (False, None)
+			yield 'extra_pc', name_type_map['Uint64'], (0, None), (False, None)
+			yield 'pos_bone_count_repeat', name_type_map['Ushort'], (0, None), (False, None)
+			yield 'ori_bone_count_repeat', name_type_map['Ushort'], (0, None), (False, None)
+			yield 'scl_bone_count_repeat', name_type_map['Ushort'], (0, None), (False, None)
+		yield 'zeros_1', name_type_map['Ushort'], (0, None), (False, None)
 		if instance.context.version >= 258:
-			yield 'zeros_1_new', Uint, (0, None), (False, None)
-		yield 'float_count', Ushort, (0, None), (False, None)
-		yield 'count_a', Ubyte, (0, None), (False, None)
-		yield 'count_b', Ubyte, (0, None), (False, None)
-		yield 'target_bone_count', Ushort, (0, None), (False, None)
-		yield 'g', Ushort, (0, None), (False, None)
-		yield 'zeros_2', Array, (0, None, (57,), Uint), (False, None)
+			yield 'zeros_1_new', name_type_map['Uint'], (0, None), (False, None)
+		yield 'float_count', name_type_map['Ushort'], (0, None), (False, None)
+		yield 'count_a', name_type_map['Ubyte'], (0, None), (False, None)
+		yield 'count_b', name_type_map['Ubyte'], (0, None), (False, None)
+		yield 'target_bone_count', name_type_map['Ushort'], (0, None), (False, None)
+		yield 'g', name_type_map['Ushort'], (0, None), (False, None)
+		yield 'zeros_2', Array, (0, None, (57,), name_type_map['Uint']), (False, None)
 		if instance.context.version <= 257:
-			yield 'extra_zeros_pc', Array, (0, None, (6,), Ushort), (False, None)
-		yield 'pos_bone_min', Ubyte, (0, None), (False, None)
-		yield 'pos_bone_max', Ubyte, (0, None), (False, None)
-		yield 'ori_bone_min', Ubyte, (0, None), (False, None)
-		yield 'ori_bone_max', Ubyte, (0, None), (False, None)
-		yield 'scl_bone_min', Byte, (0, None), (False, None)
-		yield 'scl_bone_max', Byte, (0, None), (False, None)
+			yield 'extra_zeros_pc', Array, (0, None, (6,), name_type_map['Ushort']), (False, None)
+		yield 'pos_bone_min', name_type_map['Ubyte'], (0, None), (False, None)
+		yield 'pos_bone_max', name_type_map['Ubyte'], (0, None), (False, None)
+		yield 'ori_bone_min', name_type_map['Ubyte'], (0, None), (False, None)
+		yield 'ori_bone_max', name_type_map['Ubyte'], (0, None), (False, None)
+		yield 'scl_bone_min', name_type_map['Byte'], (0, None), (False, None)
+		yield 'scl_bone_max', name_type_map['Byte'], (0, None), (False, None)
 		if instance.context.version >= 258:
-			yield 'pos_bone_count_related', Ubyte, (0, None), (False, None)
-			yield 'pos_bone_count_repeat', Ubyte, (0, None), (False, None)
-			yield 'ori_bone_count_related', Ubyte, (0, None), (False, None)
-			yield 'ori_bone_count_repeat', Ubyte, (0, None), (False, None)
-			yield 'scl_bone_count_related', Byte, (0, None), (False, None)
-			yield 'scl_bone_count_repeat', Byte, (0, None), (False, None)
-			yield 'zeros_end', Ushort, (0, None), (False, None)
-		yield 'zero_2_end', Ushort, (0, None), (False, None)
+			yield 'pos_bone_count_related', name_type_map['Ubyte'], (0, None), (False, None)
+			yield 'pos_bone_count_repeat', name_type_map['Ubyte'], (0, None), (False, None)
+			yield 'ori_bone_count_related', name_type_map['Ubyte'], (0, None), (False, None)
+			yield 'ori_bone_count_repeat', name_type_map['Ubyte'], (0, None), (False, None)
+			yield 'scl_bone_count_related', name_type_map['Byte'], (0, None), (False, None)
+			yield 'scl_bone_count_repeat', name_type_map['Byte'], (0, None), (False, None)
+			yield 'zeros_end', name_type_map['Ushort'], (0, None), (False, None)
+		yield 'zero_2_end', name_type_map['Ushort'], (0, None), (False, None)

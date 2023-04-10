@@ -1,13 +1,7 @@
 import numpy
 from generated.array import Array
-from generated.formats.base.basic import Float
-from generated.formats.base.basic import Uint64
-from generated.formats.base.basic import Ushort
-from generated.formats.ms2.bitfields.RenderFlag import RenderFlag
-from generated.formats.ms2.compounds.Vector3 import Vector3
-from generated.formats.ovl_base.compounds.ArrayPointer import ArrayPointer
+from generated.formats.ms2.imports import name_type_map
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
-from generated.formats.ovl_base.compounds.Pointer import Pointer
 
 
 class ModelInfo(MemStruct):
@@ -30,19 +24,19 @@ class ModelInfo(MemStruct):
 		self.unk_dla = 0
 
 		# the smallest coordinates across all axes
-		self.bounds_min = Vector3(self.context, 0, None)
+		self.bounds_min = name_type_map['Vector3'](self.context, 0, None)
 
 		# not sure, for PZ often 40 00 00 37 for animals
 		self.unk_float_a = 0.0
 
 		# the biggest coordinates across all axes
-		self.bounds_max = Vector3(self.context, 0, None)
+		self.bounds_max = name_type_map['Vector3'](self.context, 0, None)
 
 		# scale: pack_base / 512, also added as offset
 		self.pack_base = 0.0
 
 		# cog? medium of bounds?
-		self.center = Vector3(self.context, 0, None)
+		self.center = name_type_map['Vector3'](self.context, 0, None)
 
 		# probably from center to max
 		self.radius = 0.0
@@ -54,10 +48,10 @@ class ModelInfo(MemStruct):
 		self.zero = 0
 
 		# verbatim repeat
-		self.bounds_min_repeat = Vector3(self.context, 0, None)
+		self.bounds_min_repeat = name_type_map['Vector3'](self.context, 0, None)
 
 		# verbatim repeat
-		self.bounds_max_repeat = Vector3(self.context, 0, None)
+		self.bounds_max_repeat = name_type_map['Vector3'](self.context, 0, None)
 		self.num_materials = 0
 		self.num_lods = 0
 		self.num_objects = 0
@@ -69,103 +63,103 @@ class ModelInfo(MemStruct):
 		self.last_count = 0
 
 		# this has influence on whether newly added shells draw correctly; for PZ usually 4, except for furry animals; ZT african ele female
-		self.render_flag = RenderFlag(self.context, 0, None)
+		self.render_flag = name_type_map['RenderFlag'](self.context, 0, None)
 
 		# ?
-		self.unks = Array(self.context, 0, None, (0,), Ushort)
-		self.pad = Array(self.context, 0, None, (0,), Ushort)
-		self.zeros = Array(self.context, 0, None, (0,), Uint64)
+		self.unks = Array(self.context, 0, None, (0,), name_type_map['Ushort'])
+		self.pad = Array(self.context, 0, None, (0,), name_type_map['Ushort'])
+		self.zeros = Array(self.context, 0, None, (0,), name_type_map['Uint64'])
 
 		# used to increment skeleton index
 		self.increment_flag = 0
 		self.zero_0 = 0
 		self.zero_1 = 0
 		self.zero_2 = 0
-		self.materials = ArrayPointer(self.context, self.num_materials, ModelInfo._import_map["ms2.compounds.MaterialName"])
-		self.lods = ArrayPointer(self.context, self.num_lods, ModelInfo._import_map["ms2.compounds.LodInfo"])
-		self.objects = ArrayPointer(self.context, self.num_objects, ModelInfo._import_map["ms2.compounds.Object"])
-		self.meshes = ArrayPointer(self.context, self.num_meshes, ModelInfo._import_map["ms2.compounds.MeshDataWrap"])
+		self.materials = name_type_map['ArrayPointer'](self.context, self.num_materials, name_type_map['MaterialName'])
+		self.lods = name_type_map['ArrayPointer'](self.context, self.num_lods, name_type_map['LodInfo'])
+		self.objects = name_type_map['ArrayPointer'](self.context, self.num_objects, name_type_map['Object'])
+		self.meshes = name_type_map['ArrayPointer'](self.context, self.num_meshes, name_type_map['MeshDataWrap'])
 
 		# points to the start of this ModelInfo's model, usually starts at materials
 		# stays the same for successive mdl2s in the same model; or points to nil if no models are present
-		self.first_model = Pointer(self.context, 0, None)
+		self.first_model = name_type_map['Pointer'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('unk_dla', Uint64, (0, None), (False, None), (lambda context: context.version <= 7, None))
-		yield ('bounds_min', Vector3, (0, None), (False, None), (None, None))
-		yield ('unk_float_a', Float, (0, None), (False, None), (lambda context: context.version >= 47 and not (((context.version == 51) or (context.version == 52)) and context.biosyn), None))
-		yield ('bounds_max', Vector3, (0, None), (False, None), (None, None))
-		yield ('pack_base', Float, (0, None), (False, None), (lambda context: context.version >= 47 and not (((context.version == 51) or (context.version == 52)) and context.biosyn), None))
-		yield ('center', Vector3, (0, None), (False, None), (None, None))
-		yield ('radius', Float, (0, None), (False, None), (None, None))
-		yield ('num_lods_2', Uint64, (0, None), (False, None), (lambda context: context.version >= 48 and not (((context.version == 51) or (context.version == 52)) and context.biosyn), None))
-		yield ('zero', Uint64, (0, None), (False, None), (lambda context: context.version >= 48 and not (((context.version == 51) or (context.version == 52)) and context.biosyn), None))
-		yield ('bounds_min_repeat', Vector3, (0, None), (False, None), (lambda context: context.version >= 32, None))
-		yield ('bounds_max_repeat', Vector3, (0, None), (False, None), (lambda context: context.version >= 32, None))
-		yield ('num_materials', Ushort, (0, None), (False, None), (None, None))
-		yield ('num_lods', Ushort, (0, None), (False, None), (None, None))
-		yield ('num_objects', Ushort, (0, None), (False, None), (None, None))
-		yield ('num_meshes', Ushort, (0, None), (False, None), (None, None))
-		yield ('last_count', Ushort, (0, None), (False, None), (None, None))
-		yield ('render_flag', RenderFlag, (0, None), (False, None), (None, None))
-		yield ('unks', Array, (0, None, (7,), Ushort), (False, None), (None, None))
-		yield ('pad', Array, (0, None, (3,), Ushort), (False, None), (None, None))
-		yield ('materials', ArrayPointer, (None, ModelInfo._import_map["ms2.compounds.MaterialName"]), (False, None), (None, None))
-		yield ('lods', ArrayPointer, (None, ModelInfo._import_map["ms2.compounds.LodInfo"]), (False, None), (None, None))
-		yield ('objects', ArrayPointer, (None, ModelInfo._import_map["ms2.compounds.Object"]), (False, None), (None, None))
-		yield ('meshes', ArrayPointer, (None, ModelInfo._import_map["ms2.compounds.MeshDataWrap"]), (False, None), (None, None))
-		yield ('first_model', Pointer, (0, None), (False, None), (None, None))
-		yield ('zeros', Array, (0, None, (4,), Uint64), (False, None), (lambda context: context.version == 13, None))
-		yield ('zeros', Array, (0, None, (2,), Uint64), (False, None), (lambda context: context.version == 7, None))
-		yield ('increment_flag', Uint64, (0, None), (False, None), (None, None))
-		yield ('zero_0', Uint64, (0, None), (False, None), (lambda context: not (context.version == 7), None))
-		yield ('zero_1', Uint64, (0, None), (False, None), (lambda context: not (context.version == 32), None))
-		yield ('zero_2', Uint64, (0, None), (False, None), (lambda context: context.version >= 47 and not (((context.version == 51) or (context.version == 52)) and context.biosyn), None))
+		yield ('unk_dla', name_type_map['Uint64'], (0, None), (False, None), (lambda context: context.version <= 7, None))
+		yield ('bounds_min', name_type_map['Vector3'], (0, None), (False, None), (None, None))
+		yield ('unk_float_a', name_type_map['Float'], (0, None), (False, None), (lambda context: context.version >= 47 and not (((context.version == 51) or (context.version == 52)) and context.biosyn), None))
+		yield ('bounds_max', name_type_map['Vector3'], (0, None), (False, None), (None, None))
+		yield ('pack_base', name_type_map['Float'], (0, None), (False, None), (lambda context: context.version >= 47 and not (((context.version == 51) or (context.version == 52)) and context.biosyn), None))
+		yield ('center', name_type_map['Vector3'], (0, None), (False, None), (None, None))
+		yield ('radius', name_type_map['Float'], (0, None), (False, None), (None, None))
+		yield ('num_lods_2', name_type_map['Uint64'], (0, None), (False, None), (lambda context: context.version >= 48 and not (((context.version == 51) or (context.version == 52)) and context.biosyn), None))
+		yield ('zero', name_type_map['Uint64'], (0, None), (False, None), (lambda context: context.version >= 48 and not (((context.version == 51) or (context.version == 52)) and context.biosyn), None))
+		yield ('bounds_min_repeat', name_type_map['Vector3'], (0, None), (False, None), (lambda context: context.version >= 32, None))
+		yield ('bounds_max_repeat', name_type_map['Vector3'], (0, None), (False, None), (lambda context: context.version >= 32, None))
+		yield ('num_materials', name_type_map['Ushort'], (0, None), (False, None), (None, None))
+		yield ('num_lods', name_type_map['Ushort'], (0, None), (False, None), (None, None))
+		yield ('num_objects', name_type_map['Ushort'], (0, None), (False, None), (None, None))
+		yield ('num_meshes', name_type_map['Ushort'], (0, None), (False, None), (None, None))
+		yield ('last_count', name_type_map['Ushort'], (0, None), (False, None), (None, None))
+		yield ('render_flag', name_type_map['RenderFlag'], (0, None), (False, None), (None, None))
+		yield ('unks', Array, (0, None, (7,), name_type_map['Ushort']), (False, None), (None, None))
+		yield ('pad', Array, (0, None, (3,), name_type_map['Ushort']), (False, None), (None, None))
+		yield ('materials', name_type_map['ArrayPointer'], (None, None), (False, None), (None, None))
+		yield ('lods', name_type_map['ArrayPointer'], (None, None), (False, None), (None, None))
+		yield ('objects', name_type_map['ArrayPointer'], (None, None), (False, None), (None, None))
+		yield ('meshes', name_type_map['ArrayPointer'], (None, None), (False, None), (None, None))
+		yield ('first_model', name_type_map['Pointer'], (0, None), (False, None), (None, None))
+		yield ('zeros', Array, (0, None, (4,), name_type_map['Uint64']), (False, None), (lambda context: context.version == 13, None))
+		yield ('zeros', Array, (0, None, (2,), name_type_map['Uint64']), (False, None), (lambda context: context.version == 7, None))
+		yield ('increment_flag', name_type_map['Uint64'], (0, None), (False, None), (None, None))
+		yield ('zero_0', name_type_map['Uint64'], (0, None), (False, None), (lambda context: not (context.version == 7), None))
+		yield ('zero_1', name_type_map['Uint64'], (0, None), (False, None), (lambda context: not (context.version == 32), None))
+		yield ('zero_2', name_type_map['Uint64'], (0, None), (False, None), (lambda context: context.version >= 47 and not (((context.version == 51) or (context.version == 52)) and context.biosyn), None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		if instance.context.version <= 7:
-			yield 'unk_dla', Uint64, (0, None), (False, None)
-		yield 'bounds_min', Vector3, (0, None), (False, None)
+			yield 'unk_dla', name_type_map['Uint64'], (0, None), (False, None)
+		yield 'bounds_min', name_type_map['Vector3'], (0, None), (False, None)
 		if instance.context.version >= 47 and not (((instance.context.version == 51) or (instance.context.version == 52)) and instance.context.biosyn):
-			yield 'unk_float_a', Float, (0, None), (False, None)
-		yield 'bounds_max', Vector3, (0, None), (False, None)
+			yield 'unk_float_a', name_type_map['Float'], (0, None), (False, None)
+		yield 'bounds_max', name_type_map['Vector3'], (0, None), (False, None)
 		if instance.context.version >= 47 and not (((instance.context.version == 51) or (instance.context.version == 52)) and instance.context.biosyn):
-			yield 'pack_base', Float, (0, None), (False, None)
-		yield 'center', Vector3, (0, None), (False, None)
-		yield 'radius', Float, (0, None), (False, None)
+			yield 'pack_base', name_type_map['Float'], (0, None), (False, None)
+		yield 'center', name_type_map['Vector3'], (0, None), (False, None)
+		yield 'radius', name_type_map['Float'], (0, None), (False, None)
 		if instance.context.version >= 48 and not (((instance.context.version == 51) or (instance.context.version == 52)) and instance.context.biosyn):
-			yield 'num_lods_2', Uint64, (0, None), (False, None)
-			yield 'zero', Uint64, (0, None), (False, None)
+			yield 'num_lods_2', name_type_map['Uint64'], (0, None), (False, None)
+			yield 'zero', name_type_map['Uint64'], (0, None), (False, None)
 		if instance.context.version >= 32:
-			yield 'bounds_min_repeat', Vector3, (0, None), (False, None)
-			yield 'bounds_max_repeat', Vector3, (0, None), (False, None)
-		yield 'num_materials', Ushort, (0, None), (False, None)
-		yield 'num_lods', Ushort, (0, None), (False, None)
-		yield 'num_objects', Ushort, (0, None), (False, None)
-		yield 'num_meshes', Ushort, (0, None), (False, None)
-		yield 'last_count', Ushort, (0, None), (False, None)
-		yield 'render_flag', RenderFlag, (0, None), (False, None)
-		yield 'unks', Array, (0, None, (7,), Ushort), (False, None)
-		yield 'pad', Array, (0, None, (3,), Ushort), (False, None)
-		yield 'materials', ArrayPointer, (instance.num_materials, ModelInfo._import_map["ms2.compounds.MaterialName"]), (False, None)
-		yield 'lods', ArrayPointer, (instance.num_lods, ModelInfo._import_map["ms2.compounds.LodInfo"]), (False, None)
-		yield 'objects', ArrayPointer, (instance.num_objects, ModelInfo._import_map["ms2.compounds.Object"]), (False, None)
-		yield 'meshes', ArrayPointer, (instance.num_meshes, ModelInfo._import_map["ms2.compounds.MeshDataWrap"]), (False, None)
-		yield 'first_model', Pointer, (0, None), (False, None)
+			yield 'bounds_min_repeat', name_type_map['Vector3'], (0, None), (False, None)
+			yield 'bounds_max_repeat', name_type_map['Vector3'], (0, None), (False, None)
+		yield 'num_materials', name_type_map['Ushort'], (0, None), (False, None)
+		yield 'num_lods', name_type_map['Ushort'], (0, None), (False, None)
+		yield 'num_objects', name_type_map['Ushort'], (0, None), (False, None)
+		yield 'num_meshes', name_type_map['Ushort'], (0, None), (False, None)
+		yield 'last_count', name_type_map['Ushort'], (0, None), (False, None)
+		yield 'render_flag', name_type_map['RenderFlag'], (0, None), (False, None)
+		yield 'unks', Array, (0, None, (7,), name_type_map['Ushort']), (False, None)
+		yield 'pad', Array, (0, None, (3,), name_type_map['Ushort']), (False, None)
+		yield 'materials', name_type_map['ArrayPointer'], (instance.num_materials, name_type_map['MaterialName']), (False, None)
+		yield 'lods', name_type_map['ArrayPointer'], (instance.num_lods, name_type_map['LodInfo']), (False, None)
+		yield 'objects', name_type_map['ArrayPointer'], (instance.num_objects, name_type_map['Object']), (False, None)
+		yield 'meshes', name_type_map['ArrayPointer'], (instance.num_meshes, name_type_map['MeshDataWrap']), (False, None)
+		yield 'first_model', name_type_map['Pointer'], (0, None), (False, None)
 		if instance.context.version == 13:
-			yield 'zeros', Array, (0, None, (4,), Uint64), (False, None)
+			yield 'zeros', Array, (0, None, (4,), name_type_map['Uint64']), (False, None)
 		if instance.context.version == 7:
-			yield 'zeros', Array, (0, None, (2,), Uint64), (False, None)
-		yield 'increment_flag', Uint64, (0, None), (False, None)
+			yield 'zeros', Array, (0, None, (2,), name_type_map['Uint64']), (False, None)
+		yield 'increment_flag', name_type_map['Uint64'], (0, None), (False, None)
 		if not (instance.context.version == 7):
-			yield 'zero_0', Uint64, (0, None), (False, None)
+			yield 'zero_0', name_type_map['Uint64'], (0, None), (False, None)
 		if not (instance.context.version == 32):
-			yield 'zero_1', Uint64, (0, None), (False, None)
+			yield 'zero_1', name_type_map['Uint64'], (0, None), (False, None)
 		if instance.context.version >= 47 and not (((instance.context.version == 51) or (instance.context.version == 52)) and instance.context.biosyn):
-			yield 'zero_2', Uint64, (0, None), (False, None)
+			yield 'zero_2', name_type_map['Uint64'], (0, None), (False, None)

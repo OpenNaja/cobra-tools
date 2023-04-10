@@ -18,8 +18,7 @@ XML_STR = "xml_string"
 DEPENDENCY_TAG = "dependency"
 
 from generated.base_struct import BaseStruct
-from generated.formats.base.basic import Int
-from generated.formats.base.basic import Uint
+from generated.formats.ovl_base.imports import name_type_map
 
 
 class Pointer(BaseStruct):
@@ -35,14 +34,14 @@ class Pointer(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('pool_index', Int, (0, None), (False, -1), (None, None))
-		yield ('data_offset', Uint, (0, None), (False, None), (None, None))
+		yield ('pool_index', name_type_map['Int'], (0, None), (False, -1), (None, None))
+		yield ('data_offset', name_type_map['Uint'], (0, None), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'pool_index', Int, (0, None), (False, -1)
-		yield 'data_offset', Uint, (0, None), (False, None)
+		yield 'pool_index', name_type_map['Int'], (0, None), (False, -1)
+		yield 'data_offset', name_type_map['Uint'], (0, None), (False, None)
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)

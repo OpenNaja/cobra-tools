@@ -1,5 +1,4 @@
-from generated.formats.base.basic import Float
-from generated.formats.base.basic import Uint
+from generated.formats.logicalcontrols.imports import name_type_map
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
 
 
@@ -25,15 +24,15 @@ class SomeData(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('key', Uint, (0, None), (False, None), (None, None))
-		yield ('extra', Uint, (0, None), (False, None), (None, None))
-		yield ('a', Float, (0, None), (False, None), (None, None))
-		yield ('b', Float, (0, None), (False, None), (None, None))
+		yield ('key', name_type_map['Uint'], (0, None), (False, None), (None, None))
+		yield ('extra', name_type_map['Uint'], (0, None), (False, None), (None, None))
+		yield ('a', name_type_map['Float'], (0, None), (False, None), (None, None))
+		yield ('b', name_type_map['Float'], (0, None), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'key', Uint, (0, None), (False, None)
-		yield 'extra', Uint, (0, None), (False, None)
-		yield 'a', Float, (0, None), (False, None)
-		yield 'b', Float, (0, None), (False, None)
+		yield 'key', name_type_map['Uint'], (0, None), (False, None)
+		yield 'extra', name_type_map['Uint'], (0, None), (False, None)
+		yield 'a', name_type_map['Float'], (0, None), (False, None)
+		yield 'b', name_type_map['Float'], (0, None), (False, None)

@@ -1,7 +1,5 @@
 from generated.base_struct import BaseStruct
-from generated.formats.base.basic import Float
-from generated.formats.base.basic import Uint
-from generated.formats.ms2.compounds.Vector3 import Vector3
+from generated.formats.ms2.imports import name_type_map
 
 
 class Capsule(BaseStruct):
@@ -14,10 +12,10 @@ class Capsule(BaseStruct):
 		super().__init__(context, arg, template, set_default=False)
 
 		# relative to the armature, ie. not in bone space
-		self.offset = Vector3(self.context, 0, None)
+		self.offset = name_type_map['Vector3'](self.context, 0, None)
 
 		# normalized
-		self.direction = Vector3(self.context, 0, None)
+		self.direction = name_type_map['Vector3'](self.context, 0, None)
 
 		# radius of the caps
 		self.radius = 0.0
@@ -33,17 +31,17 @@ class Capsule(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('offset', Vector3, (0, None), (False, None), (None, None))
-		yield ('direction', Vector3, (0, None), (False, None), (None, None))
-		yield ('radius', Float, (0, None), (False, None), (None, None))
-		yield ('extent', Float, (0, None), (False, None), (None, None))
-		yield ('zero', Uint, (0, None), (False, None), (None, None))
+		yield ('offset', name_type_map['Vector3'], (0, None), (False, None), (None, None))
+		yield ('direction', name_type_map['Vector3'], (0, None), (False, None), (None, None))
+		yield ('radius', name_type_map['Float'], (0, None), (False, None), (None, None))
+		yield ('extent', name_type_map['Float'], (0, None), (False, None), (None, None))
+		yield ('zero', name_type_map['Uint'], (0, None), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'offset', Vector3, (0, None), (False, None)
-		yield 'direction', Vector3, (0, None), (False, None)
-		yield 'radius', Float, (0, None), (False, None)
-		yield 'extent', Float, (0, None), (False, None)
-		yield 'zero', Uint, (0, None), (False, None)
+		yield 'offset', name_type_map['Vector3'], (0, None), (False, None)
+		yield 'direction', name_type_map['Vector3'], (0, None), (False, None)
+		yield 'radius', name_type_map['Float'], (0, None), (False, None)
+		yield 'extent', name_type_map['Float'], (0, None), (False, None)
+		yield 'zero', name_type_map['Uint'], (0, None), (False, None)

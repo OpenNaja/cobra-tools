@@ -2,9 +2,7 @@
 import logging
 
 from generated.base_struct import BaseStruct
-from generated.formats.base.basic import Uint
-from generated.formats.base.basic import Uint64
-from generated.formats.base.basic import Ushort
+from generated.formats.ovl.imports import name_type_map
 
 
 class DataEntry(BaseStruct):
@@ -44,26 +42,26 @@ class DataEntry(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('file_hash', Uint, (0, None), (False, None), (None, None))
-		yield ('ext_hash', Uint, (0, None), (False, None), (lambda context: context.version >= 19, None))
-		yield ('set_index', Ushort, (0, None), (False, None), (None, None))
-		yield ('buffer_count', Ushort, (0, None), (False, None), (None, None))
-		yield ('zero', Uint, (0, None), (False, None), (lambda context: context.version >= 19, None))
-		yield ('size_1', Uint64, (0, None), (False, None), (None, None))
-		yield ('size_2', Uint64, (0, None), (False, None), (None, None))
+		yield ('file_hash', name_type_map['Uint'], (0, None), (False, None), (None, None))
+		yield ('ext_hash', name_type_map['Uint'], (0, None), (False, None), (lambda context: context.version >= 19, None))
+		yield ('set_index', name_type_map['Ushort'], (0, None), (False, None), (None, None))
+		yield ('buffer_count', name_type_map['Ushort'], (0, None), (False, None), (None, None))
+		yield ('zero', name_type_map['Uint'], (0, None), (False, None), (lambda context: context.version >= 19, None))
+		yield ('size_1', name_type_map['Uint64'], (0, None), (False, None), (None, None))
+		yield ('size_2', name_type_map['Uint64'], (0, None), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'file_hash', Uint, (0, None), (False, None)
+		yield 'file_hash', name_type_map['Uint'], (0, None), (False, None)
 		if instance.context.version >= 19:
-			yield 'ext_hash', Uint, (0, None), (False, None)
-		yield 'set_index', Ushort, (0, None), (False, None)
-		yield 'buffer_count', Ushort, (0, None), (False, None)
+			yield 'ext_hash', name_type_map['Uint'], (0, None), (False, None)
+		yield 'set_index', name_type_map['Ushort'], (0, None), (False, None)
+		yield 'buffer_count', name_type_map['Ushort'], (0, None), (False, None)
 		if instance.context.version >= 19:
-			yield 'zero', Uint, (0, None), (False, None)
-		yield 'size_1', Uint64, (0, None), (False, None)
-		yield 'size_2', Uint64, (0, None), (False, None)
+			yield 'zero', name_type_map['Uint'], (0, None), (False, None)
+		yield 'size_1', name_type_map['Uint64'], (0, None), (False, None)
+		yield 'size_2', name_type_map['Uint64'], (0, None), (False, None)
 
 	def update_data(self, datas):
 		"""Load datas into this DataEntry's buffers, and update its size values according to an assumed pattern

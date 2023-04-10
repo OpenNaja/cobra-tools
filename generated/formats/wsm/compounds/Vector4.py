@@ -1,5 +1,5 @@
-from generated.formats.base.basic import Float
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
+from generated.formats.wsm.imports import name_type_map
 
 
 class Vector4(MemStruct):
@@ -32,15 +32,15 @@ class Vector4(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('x', Float, (0, None), (False, None), (None, None))
-		yield ('y', Float, (0, None), (False, None), (None, None))
-		yield ('z', Float, (0, None), (False, None), (None, None))
-		yield ('w', Float, (0, None), (False, None), (None, None))
+		yield ('x', name_type_map['Float'], (0, None), (False, None), (None, None))
+		yield ('y', name_type_map['Float'], (0, None), (False, None), (None, None))
+		yield ('z', name_type_map['Float'], (0, None), (False, None), (None, None))
+		yield ('w', name_type_map['Float'], (0, None), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'x', Float, (0, None), (False, None)
-		yield 'y', Float, (0, None), (False, None)
-		yield 'z', Float, (0, None), (False, None)
-		yield 'w', Float, (0, None), (False, None)
+		yield 'x', name_type_map['Float'], (0, None), (False, None)
+		yield 'y', name_type_map['Float'], (0, None), (False, None)
+		yield 'z', name_type_map['Float'], (0, None), (False, None)
+		yield 'w', name_type_map['Float'], (0, None), (False, None)

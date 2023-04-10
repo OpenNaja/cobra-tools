@@ -1,5 +1,4 @@
-from generated.formats.base.basic import Uint
-from generated.formats.ovl_base.compounds.ArrayPointer import ArrayPointer
+from generated.formats.frenderfeatureset.imports import name_type_map
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
 
 
@@ -13,20 +12,20 @@ class FRenderFeatureSetRoot(MemStruct):
 		super().__init__(context, arg, template, set_default=False)
 		self.featureset_count = 0
 		self.unknown_always_1 = 0
-		self.featureset_list = ArrayPointer(self.context, self.featureset_count, FRenderFeatureSetRoot._import_map["frenderfeatureset.compounds.FeatureSetItem"])
+		self.featureset_list = name_type_map['ArrayPointer'](self.context, self.featureset_count, name_type_map['FeatureSetItem'])
 		if set_default:
 			self.set_defaults()
 
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('featureset_list', ArrayPointer, (None, FRenderFeatureSetRoot._import_map["frenderfeatureset.compounds.FeatureSetItem"]), (False, None), (None, None))
-		yield ('featureset_count', Uint, (0, None), (False, None), (None, None))
-		yield ('unknown_always_1', Uint, (0, None), (False, None), (None, None))
+		yield ('featureset_list', name_type_map['ArrayPointer'], (None, None), (False, None), (None, None))
+		yield ('featureset_count', name_type_map['Uint'], (0, None), (False, None), (None, None))
+		yield ('unknown_always_1', name_type_map['Uint'], (0, None), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'featureset_list', ArrayPointer, (instance.featureset_count, FRenderFeatureSetRoot._import_map["frenderfeatureset.compounds.FeatureSetItem"]), (False, None)
-		yield 'featureset_count', Uint, (0, None), (False, None)
-		yield 'unknown_always_1', Uint, (0, None), (False, None)
+		yield 'featureset_list', name_type_map['ArrayPointer'], (instance.featureset_count, name_type_map['FeatureSetItem']), (False, None)
+		yield 'featureset_count', name_type_map['Uint'], (0, None), (False, None)
+		yield 'unknown_always_1', name_type_map['Uint'], (0, None), (False, None)

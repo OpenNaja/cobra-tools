@@ -1,5 +1,4 @@
-from generated.formats.base.basic import Uint
-from generated.formats.base.basic import Ushort
+from generated.formats.logicalcontrols.imports import name_type_map
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
 
 
@@ -28,17 +27,17 @@ class ButtonData(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('k_1_a', Ushort, (0, None), (False, None), (None, None))
-		yield ('k_1_b', Ushort, (0, None), (False, None), (None, None))
-		yield ('k_2', Uint, (0, None), (False, None), (None, None))
-		yield ('k_3', Uint, (0, None), (False, None), (None, None))
-		yield ('k_4', Uint, (0, None), (False, None), (None, None))
+		yield ('k_1_a', name_type_map['Ushort'], (0, None), (False, None), (None, None))
+		yield ('k_1_b', name_type_map['Ushort'], (0, None), (False, None), (None, None))
+		yield ('k_2', name_type_map['Uint'], (0, None), (False, None), (None, None))
+		yield ('k_3', name_type_map['Uint'], (0, None), (False, None), (None, None))
+		yield ('k_4', name_type_map['Uint'], (0, None), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'k_1_a', Ushort, (0, None), (False, None)
-		yield 'k_1_b', Ushort, (0, None), (False, None)
-		yield 'k_2', Uint, (0, None), (False, None)
-		yield 'k_3', Uint, (0, None), (False, None)
-		yield 'k_4', Uint, (0, None), (False, None)
+		yield 'k_1_a', name_type_map['Ushort'], (0, None), (False, None)
+		yield 'k_1_b', name_type_map['Ushort'], (0, None), (False, None)
+		yield 'k_2', name_type_map['Uint'], (0, None), (False, None)
+		yield 'k_3', name_type_map['Uint'], (0, None), (False, None)
+		yield 'k_4', name_type_map['Uint'], (0, None), (False, None)

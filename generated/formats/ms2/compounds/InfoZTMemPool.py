@@ -1,7 +1,7 @@
 import numpy
 from generated.array import Array
 from generated.base_struct import BaseStruct
-from generated.formats.base.basic import Ushort
+from generated.formats.ms2.imports import name_type_map
 
 
 class InfoZTMemPool(BaseStruct):
@@ -17,18 +17,18 @@ class InfoZTMemPool(BaseStruct):
 		self.unk_count = 0
 
 		# ?
-		self.unks = Array(self.context, 0, None, (0,), Ushort)
+		self.unks = Array(self.context, 0, None, (0,), name_type_map['Ushort'])
 		if set_default:
 			self.set_defaults()
 
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('unk_count', Ushort, (0, None), (False, None), (None, None))
-		yield ('unks', Array, (0, None, (None, 2,), Ushort), (False, None), (None, None))
+		yield ('unk_count', name_type_map['Ushort'], (0, None), (False, None), (None, None))
+		yield ('unks', Array, (0, None, (None, 2,), name_type_map['Ushort']), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'unk_count', Ushort, (0, None), (False, None)
-		yield 'unks', Array, (0, None, (instance.unk_count, 2,), Ushort), (False, None)
+		yield 'unk_count', name_type_map['Ushort'], (0, None), (False, None)
+		yield 'unks', Array, (0, None, (instance.unk_count, 2,), name_type_map['Ushort']), (False, None)

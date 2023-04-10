@@ -1,5 +1,5 @@
 from generated.base_struct import BaseStruct
-from generated.formats.base.basic import Ushort
+from generated.formats.ovl.imports import name_type_map
 
 
 class PoolGroup(BaseStruct):
@@ -26,11 +26,11 @@ class PoolGroup(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('type', Ushort, (0, None), (False, None), (None, None))
-		yield ('num_pools', Ushort, (0, None), (False, None), (None, None))
+		yield ('type', name_type_map['Ushort'], (0, None), (False, None), (None, None))
+		yield ('num_pools', name_type_map['Ushort'], (0, None), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'type', Ushort, (0, None), (False, None)
-		yield 'num_pools', Ushort, (0, None), (False, None)
+		yield 'type', name_type_map['Ushort'], (0, None), (False, None)
+		yield 'num_pools', name_type_map['Ushort'], (0, None), (False, None)

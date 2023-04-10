@@ -5,10 +5,8 @@ import numpy as np
 from generated.formats.ms2.compounds.packing_utils import FUR_OVERHEAD, remap
 from plugin.utils.tristrip import triangulate
 
-from generated.formats.base.basic import Uint
-from generated.formats.base.basic import Uint64
+from generated.formats.ms2.imports import name_type_map
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
-from generated.formats.ovl_base.compounds.Pointer import Pointer
 
 
 class MeshData(MemStruct):
@@ -34,29 +32,29 @@ class MeshData(MemStruct):
 		self.some_index_2 = 0
 
 		# PZ and JWE use a ptr instead
-		self.stream_info = Pointer(self.context, 0, MeshData._import_map["ms2.compounds.BufferInfo"])
+		self.stream_info = name_type_map['Pointer'](self.context, 0, name_type_map['BufferInfo'])
 		if set_default:
 			self.set_defaults()
 
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('stream_index', Uint64, (0, None), (False, None), (lambda context: context.version <= 32, None))
-		yield ('stream_info', Pointer, (0, MeshData._import_map["ms2.compounds.BufferInfo"]), (False, None), (lambda context: context.version >= 47, None))
-		yield ('some_index', Uint, (0, None), (False, None), (lambda context: not (((context.version == 51) or (context.version == 52)) and context.biosyn), None))
-		yield ('some_index_2', Uint, (0, None), (False, None), (lambda context: not ((((context.version == 51) or (context.version == 52)) and context.biosyn) or (context.version == 32)), None))
+		yield ('stream_index', name_type_map['Uint64'], (0, None), (False, None), (lambda context: context.version <= 32, None))
+		yield ('stream_info', name_type_map['Pointer'], (0, None), (False, None), (lambda context: context.version >= 47, None))
+		yield ('some_index', name_type_map['Uint'], (0, None), (False, None), (lambda context: not (((context.version == 51) or (context.version == 52)) and context.biosyn), None))
+		yield ('some_index_2', name_type_map['Uint'], (0, None), (False, None), (lambda context: not ((((context.version == 51) or (context.version == 52)) and context.biosyn) or (context.version == 32)), None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		if instance.context.version <= 32:
-			yield 'stream_index', Uint64, (0, None), (False, None)
+			yield 'stream_index', name_type_map['Uint64'], (0, None), (False, None)
 		if instance.context.version >= 47:
-			yield 'stream_info', Pointer, (0, MeshData._import_map["ms2.compounds.BufferInfo"]), (False, None)
+			yield 'stream_info', name_type_map['Pointer'], (0, name_type_map['BufferInfo']), (False, None)
 		if not (((instance.context.version == 51) or (instance.context.version == 52)) and instance.context.biosyn):
-			yield 'some_index', Uint, (0, None), (False, None)
+			yield 'some_index', name_type_map['Uint'], (0, None), (False, None)
 		if not ((((instance.context.version == 51) or (instance.context.version == 52)) and instance.context.biosyn) or (instance.context.version == 32)):
-			yield 'some_index_2', Uint, (0, None), (False, None)
+			yield 'some_index_2', name_type_map['Uint'], (0, None), (False, None)
 
 	# @property
 	def get_stream_index(self):

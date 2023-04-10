@@ -2,7 +2,7 @@
 import logging
 
 from generated.base_struct import BaseStruct
-from generated.formats.base.basic import Uint
+from generated.formats.ovl.imports import name_type_map
 
 
 class BufferEntry(BaseStruct):
@@ -32,18 +32,18 @@ class BufferEntry(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('index', Uint, (0, None), (False, None), (lambda context: context.version <= 19, None))
-		yield ('size', Uint, (0, None), (False, None), (None, None))
-		yield ('file_hash', Uint, (0, None), (False, None), (lambda context: context.version >= 20, None))
+		yield ('index', name_type_map['Uint'], (0, None), (False, None), (lambda context: context.version <= 19, None))
+		yield ('size', name_type_map['Uint'], (0, None), (False, None), (None, None))
+		yield ('file_hash', name_type_map['Uint'], (0, None), (False, None), (lambda context: context.version >= 20, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		if instance.context.version <= 19:
-			yield 'index', Uint, (0, None), (False, None)
-		yield 'size', Uint, (0, None), (False, None)
+			yield 'index', name_type_map['Uint'], (0, None), (False, None)
+		yield 'size', name_type_map['Uint'], (0, None), (False, None)
 		if instance.context.version >= 20:
-			yield 'file_hash', Uint, (0, None), (False, None)
+			yield 'file_hash', name_type_map['Uint'], (0, None), (False, None)
 
 	def read_data(self, stream):
 		"""Load data from archive stream into self for modification and io"""

@@ -1,5 +1,5 @@
-from generated.formats.base.basic import Uint64
 from generated.formats.fgm.compounds.GenericInfo import GenericInfo
+from generated.formats.fgm.imports import name_type_map
 
 
 class AttribInfo(GenericInfo):
@@ -23,9 +23,9 @@ class AttribInfo(GenericInfo):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('_value_offset', Uint64, (0, None), (False, None), (None, None))
+		yield ('_value_offset', name_type_map['Uint64'], (0, None), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield '_value_offset', Uint64, (0, None), (False, None)
+		yield '_value_offset', name_type_map['Uint64'], (0, None), (False, None)

@@ -54,11 +54,7 @@ class Union:
         self.members.append(member)
 
     def indirect_class_access(self, field_type):
-        if self.compounds.parser.tag_dict[field_type.lower()] in self.compounds.parser.struct_types:
-            class_access = f'{self.compounds.class_name}._import_map["{Imports.import_map_key(self.compounds.parser.path_dict[field_type])}"]'
-        else:
-            class_access = field_type
-        return class_access
+        return f"name_type_map['{field_type}']"
 
     def is_type(self, potential_type):
         if isinstance(potential_type, str):
@@ -131,10 +127,8 @@ class Union:
         field_type = field.attrib["type"]
         if field_type == "template":
             field_type_access = f'{target_variable}.{field_type}'
-        elif self.compounds.imports.is_recursive_field(field):
-            field_type_access = self.indirect_class_access(field_type)
         else:
-            field_type_access = field_type
+            field_type_access = self.indirect_class_access(field_type)
         template = field.attrib.get("template")
         optional = (field.attrib.get("optional", "False"), field.attrib.get("default"))
 

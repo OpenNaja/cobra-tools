@@ -1,6 +1,5 @@
 from generated.base_struct import BaseStruct
-from generated.formats.base.basic import Ubyte
-from generated.formats.base.basic import Uint
+from generated.formats.bnk.imports import name_type_map
 
 
 class AkMediaInformation(BaseStruct):
@@ -20,13 +19,13 @@ class AkMediaInformation(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('source_i_d', Uint, (0, None), (False, None), (None, None))
-		yield ('u_in_memory_media_size', Uint, (0, None), (False, None), (None, None))
-		yield ('u_source_bits', Ubyte, (0, None), (False, None), (None, None))
+		yield ('source_i_d', name_type_map['Uint'], (0, None), (False, None), (None, None))
+		yield ('u_in_memory_media_size', name_type_map['Uint'], (0, None), (False, None), (None, None))
+		yield ('u_source_bits', name_type_map['Ubyte'], (0, None), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'source_i_d', Uint, (0, None), (False, None)
-		yield 'u_in_memory_media_size', Uint, (0, None), (False, None)
-		yield 'u_source_bits', Ubyte, (0, None), (False, None)
+		yield 'source_i_d', name_type_map['Uint'], (0, None), (False, None)
+		yield 'u_in_memory_media_size', name_type_map['Uint'], (0, None), (False, None)
+		yield 'u_source_bits', name_type_map['Ubyte'], (0, None), (False, None)

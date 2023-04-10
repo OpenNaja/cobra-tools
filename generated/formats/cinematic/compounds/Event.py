@@ -1,7 +1,5 @@
-from generated.formats.base.basic import Float
-from generated.formats.base.basic import ZString
+from generated.formats.cinematic.imports import name_type_map
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
-from generated.formats.ovl_base.compounds.Pointer import Pointer
 
 
 class Event(MemStruct):
@@ -20,27 +18,27 @@ class Event(MemStruct):
 		self.b = 0.0
 		self.duration = 0.0
 		self.d = 0.0
-		self.module_name = Pointer(self.context, 0, ZString)
-		self.attributes = Pointer(self.context, 0, Event._import_map["cinematic.compounds.EventAttributes"])
+		self.module_name = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
+		self.attributes = name_type_map['Pointer'](self.context, 0, name_type_map['EventAttributes'])
 		if set_default:
 			self.set_defaults()
 
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('start_time', Float, (0, None), (False, None), (None, None))
-		yield ('b', Float, (0, None), (False, None), (None, None))
-		yield ('module_name', Pointer, (0, ZString), (False, None), (None, None))
-		yield ('attributes', Pointer, (0, Event._import_map["cinematic.compounds.EventAttributes"]), (False, None), (None, None))
-		yield ('duration', Float, (0, None), (False, None), (None, None))
-		yield ('d', Float, (0, None), (False, None), (None, None))
+		yield ('start_time', name_type_map['Float'], (0, None), (False, None), (None, None))
+		yield ('b', name_type_map['Float'], (0, None), (False, None), (None, None))
+		yield ('module_name', name_type_map['Pointer'], (0, None), (False, None), (None, None))
+		yield ('attributes', name_type_map['Pointer'], (0, None), (False, None), (None, None))
+		yield ('duration', name_type_map['Float'], (0, None), (False, None), (None, None))
+		yield ('d', name_type_map['Float'], (0, None), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'start_time', Float, (0, None), (False, None)
-		yield 'b', Float, (0, None), (False, None)
-		yield 'module_name', Pointer, (0, ZString), (False, None)
-		yield 'attributes', Pointer, (0, Event._import_map["cinematic.compounds.EventAttributes"]), (False, None)
-		yield 'duration', Float, (0, None), (False, None)
-		yield 'd', Float, (0, None), (False, None)
+		yield 'start_time', name_type_map['Float'], (0, None), (False, None)
+		yield 'b', name_type_map['Float'], (0, None), (False, None)
+		yield 'module_name', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None)
+		yield 'attributes', name_type_map['Pointer'], (0, name_type_map['EventAttributes']), (False, None)
+		yield 'duration', name_type_map['Float'], (0, None), (False, None)
+		yield 'd', name_type_map['Float'], (0, None), (False, None)

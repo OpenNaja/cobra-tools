@@ -1,7 +1,5 @@
 from generated.base_struct import BaseStruct
-from generated.formats.base.basic import Float
-from generated.formats.base.basic import Uint
-from generated.formats.ms2.compounds.Vector3 import Vector3
+from generated.formats.ms2.imports import name_type_map
 
 
 class RigidBody(BaseStruct):
@@ -17,7 +15,7 @@ class RigidBody(BaseStruct):
 		self.flag = 0
 
 		# center of mass - from the head of the bone the collider is attached to
-		self.loc = Vector3(self.context, 0, None)
+		self.loc = name_type_map['Vector3'](self.context, 0, None)
 
 		# mass of joint or object
 		self.mass = 0.0
@@ -45,25 +43,25 @@ class RigidBody(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('flag', Uint, (0, None), (False, None), (None, None))
-		yield ('loc', Vector3, (0, None), (False, None), (None, None))
-		yield ('mass', Float, (0, None), (False, None), (None, None))
-		yield ('static_friction', Float, (0, None), (False, None), (None, None))
-		yield ('unk_1', Float, (0, None), (False, None), (None, None))
-		yield ('unk_2', Float, (0, None), (False, None), (None, None))
-		yield ('unknown_friction', Float, (0, None), (False, None), (None, None))
-		yield ('unk_4', Float, (0, None), (False, None), (None, None))
-		yield ('dynamic_friction', Float, (0, None), (False, None), (None, None))
+		yield ('flag', name_type_map['Uint'], (0, None), (False, None), (None, None))
+		yield ('loc', name_type_map['Vector3'], (0, None), (False, None), (None, None))
+		yield ('mass', name_type_map['Float'], (0, None), (False, None), (None, None))
+		yield ('static_friction', name_type_map['Float'], (0, None), (False, None), (None, None))
+		yield ('unk_1', name_type_map['Float'], (0, None), (False, None), (None, None))
+		yield ('unk_2', name_type_map['Float'], (0, None), (False, None), (None, None))
+		yield ('unknown_friction', name_type_map['Float'], (0, None), (False, None), (None, None))
+		yield ('unk_4', name_type_map['Float'], (0, None), (False, None), (None, None))
+		yield ('dynamic_friction', name_type_map['Float'], (0, None), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'flag', Uint, (0, None), (False, None)
-		yield 'loc', Vector3, (0, None), (False, None)
-		yield 'mass', Float, (0, None), (False, None)
-		yield 'static_friction', Float, (0, None), (False, None)
-		yield 'unk_1', Float, (0, None), (False, None)
-		yield 'unk_2', Float, (0, None), (False, None)
-		yield 'unknown_friction', Float, (0, None), (False, None)
-		yield 'unk_4', Float, (0, None), (False, None)
-		yield 'dynamic_friction', Float, (0, None), (False, None)
+		yield 'flag', name_type_map['Uint'], (0, None), (False, None)
+		yield 'loc', name_type_map['Vector3'], (0, None), (False, None)
+		yield 'mass', name_type_map['Float'], (0, None), (False, None)
+		yield 'static_friction', name_type_map['Float'], (0, None), (False, None)
+		yield 'unk_1', name_type_map['Float'], (0, None), (False, None)
+		yield 'unk_2', name_type_map['Float'], (0, None), (False, None)
+		yield 'unknown_friction', name_type_map['Float'], (0, None), (False, None)
+		yield 'unk_4', name_type_map['Float'], (0, None), (False, None)
+		yield 'dynamic_friction', name_type_map['Float'], (0, None), (False, None)

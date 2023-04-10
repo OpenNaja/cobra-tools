@@ -1,6 +1,5 @@
 from generated.base_struct import BaseStruct
-from generated.formats.base.basic import Uint
-from generated.formats.base.basic import Uint64
+from generated.formats.bnk.imports import name_type_map
 
 
 class StreamInfo(BaseStruct):
@@ -27,15 +26,15 @@ class StreamInfo(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('offset', Uint64, (0, None), (False, None), (None, None))
-		yield ('size', Uint64, (0, None), (False, None), (None, None))
-		yield ('event_id', Uint, (0, None), (False, None), (None, None))
-		yield ('zero', Uint, (0, None), (False, None), (None, None))
+		yield ('offset', name_type_map['Uint64'], (0, None), (False, None), (None, None))
+		yield ('size', name_type_map['Uint64'], (0, None), (False, None), (None, None))
+		yield ('event_id', name_type_map['Uint'], (0, None), (False, None), (None, None))
+		yield ('zero', name_type_map['Uint'], (0, None), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'offset', Uint64, (0, None), (False, None)
-		yield 'size', Uint64, (0, None), (False, None)
-		yield 'event_id', Uint, (0, None), (False, None)
-		yield 'zero', Uint, (0, None), (False, None)
+		yield 'offset', name_type_map['Uint64'], (0, None), (False, None)
+		yield 'size', name_type_map['Uint64'], (0, None), (False, None)
+		yield 'event_id', name_type_map['Uint'], (0, None), (False, None)
+		yield 'zero', name_type_map['Uint'], (0, None), (False, None)

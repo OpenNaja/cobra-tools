@@ -1,8 +1,5 @@
-from generated.formats.base.basic import Float
-from generated.formats.base.basic import ZString
-from generated.formats.ovl_base.basic import Bool
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
-from generated.formats.ovl_base.compounds.Pointer import Pointer
+from generated.formats.path.imports import name_type_map
 
 
 class PathExtrusion(MemStruct):
@@ -17,30 +14,30 @@ class PathExtrusion(MemStruct):
 		self.unk_float_2 = 0.0
 		self.is_kerb = False
 		self.is_not_ground = True
-		self.model = Pointer(self.context, 0, ZString)
-		self.post_model = Pointer(self.context, 0, ZString)
-		self.endcap_model = Pointer(self.context, 0, ZString)
+		self.model = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
+		self.post_model = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
+		self.endcap_model = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
 		if set_default:
 			self.set_defaults()
 
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('model', Pointer, (0, ZString), (False, None), (None, None))
-		yield ('post_model', Pointer, (0, ZString), (False, None), (None, None))
-		yield ('endcap_model', Pointer, (0, ZString), (False, None), (None, None))
-		yield ('unk_float_1', Float, (0, None), (False, None), (None, None))
-		yield ('unk_float_2', Float, (0, None), (False, None), (None, None))
-		yield ('is_kerb', Bool, (0, None), (False, None), (None, None))
-		yield ('is_not_ground', Bool, (0, None), (False, True), (None, None))
+		yield ('model', name_type_map['Pointer'], (0, None), (False, None), (None, None))
+		yield ('post_model', name_type_map['Pointer'], (0, None), (False, None), (None, None))
+		yield ('endcap_model', name_type_map['Pointer'], (0, None), (False, None), (None, None))
+		yield ('unk_float_1', name_type_map['Float'], (0, None), (False, None), (None, None))
+		yield ('unk_float_2', name_type_map['Float'], (0, None), (False, None), (None, None))
+		yield ('is_kerb', name_type_map['Bool'], (0, None), (False, None), (None, None))
+		yield ('is_not_ground', name_type_map['Bool'], (0, None), (False, True), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'model', Pointer, (0, ZString), (False, None)
-		yield 'post_model', Pointer, (0, ZString), (False, None)
-		yield 'endcap_model', Pointer, (0, ZString), (False, None)
-		yield 'unk_float_1', Float, (0, None), (False, None)
-		yield 'unk_float_2', Float, (0, None), (False, None)
-		yield 'is_kerb', Bool, (0, None), (False, None)
-		yield 'is_not_ground', Bool, (0, None), (False, True)
+		yield 'model', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None)
+		yield 'post_model', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None)
+		yield 'endcap_model', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None)
+		yield 'unk_float_1', name_type_map['Float'], (0, None), (False, None)
+		yield 'unk_float_2', name_type_map['Float'], (0, None), (False, None)
+		yield 'is_kerb', name_type_map['Bool'], (0, None), (False, None)
+		yield 'is_not_ground', name_type_map['Bool'], (0, None), (False, True)

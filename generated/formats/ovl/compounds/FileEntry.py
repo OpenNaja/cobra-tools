@@ -1,8 +1,5 @@
 from generated.base_struct import BaseStruct
-from generated.formats.base.basic import Byte
-from generated.formats.base.basic import Uint
-from generated.formats.base.basic import Ushort
-from generated.formats.ovl_base.basic import OffsetString
+from generated.formats.ovl.imports import name_type_map
 
 
 class FileEntry(BaseStruct):
@@ -37,20 +34,20 @@ class FileEntry(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('basename', OffsetString, (None, None), (False, None), (None, None))
-		yield ('file_hash', Uint, (0, None), (False, None), (None, None))
-		yield ('pool_type', Byte, (0, None), (False, None), (None, None))
-		yield ('set_pool_type', Byte, (0, None), (False, None), (None, None))
-		yield ('extension', Ushort, (0, None), (False, None), (None, None))
+		yield ('basename', name_type_map['OffsetString'], (None, None), (False, None), (None, None))
+		yield ('file_hash', name_type_map['Uint'], (0, None), (False, None), (None, None))
+		yield ('pool_type', name_type_map['Byte'], (0, None), (False, None), (None, None))
+		yield ('set_pool_type', name_type_map['Byte'], (0, None), (False, None), (None, None))
+		yield ('extension', name_type_map['Ushort'], (0, None), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'basename', OffsetString, (instance.context.names, None), (False, None)
-		yield 'file_hash', Uint, (0, None), (False, None)
-		yield 'pool_type', Byte, (0, None), (False, None)
-		yield 'set_pool_type', Byte, (0, None), (False, None)
-		yield 'extension', Ushort, (0, None), (False, None)
+		yield 'basename', name_type_map['OffsetString'], (instance.context.names, None), (False, None)
+		yield 'file_hash', name_type_map['Uint'], (0, None), (False, None)
+		yield 'pool_type', name_type_map['Byte'], (0, None), (False, None)
+		yield 'set_pool_type', name_type_map['Byte'], (0, None), (False, None)
+		yield 'extension', name_type_map['Ushort'], (0, None), (False, None)
 
 	def update_constants(self, ovl):
 		"""Update the constants"""

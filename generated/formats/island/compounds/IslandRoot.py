@@ -1,8 +1,5 @@
-from generated.formats.base.basic import Float
-from generated.formats.base.basic import Uint64
-from generated.formats.base.basic import ZString
+from generated.formats.island.imports import name_type_map
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
-from generated.formats.ovl_base.compounds.Pointer import Pointer
 
 
 class IslandRoot(MemStruct):
@@ -21,24 +18,24 @@ class IslandRoot(MemStruct):
 		self.b = 0.0
 		self.count = 0
 		self.zero = 0
-		self.path_name = Pointer(self.context, 0, ZString)
+		self.path_name = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
 		if set_default:
 			self.set_defaults()
 
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('path_name', Pointer, (0, ZString), (False, None), (None, None))
-		yield ('a', Float, (0, None), (False, None), (None, None))
-		yield ('b', Float, (0, None), (False, None), (None, None))
-		yield ('count', Uint64, (0, None), (False, None), (None, None))
-		yield ('zero', Uint64, (0, None), (False, None), (None, None))
+		yield ('path_name', name_type_map['Pointer'], (0, None), (False, None), (None, None))
+		yield ('a', name_type_map['Float'], (0, None), (False, None), (None, None))
+		yield ('b', name_type_map['Float'], (0, None), (False, None), (None, None))
+		yield ('count', name_type_map['Uint64'], (0, None), (False, None), (None, None))
+		yield ('zero', name_type_map['Uint64'], (0, None), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'path_name', Pointer, (0, ZString), (False, None)
-		yield 'a', Float, (0, None), (False, None)
-		yield 'b', Float, (0, None), (False, None)
-		yield 'count', Uint64, (0, None), (False, None)
-		yield 'zero', Uint64, (0, None), (False, None)
+		yield 'path_name', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None)
+		yield 'a', name_type_map['Float'], (0, None), (False, None)
+		yield 'b', name_type_map['Float'], (0, None), (False, None)
+		yield 'count', name_type_map['Uint64'], (0, None), (False, None)
+		yield 'zero', name_type_map['Uint64'], (0, None), (False, None)

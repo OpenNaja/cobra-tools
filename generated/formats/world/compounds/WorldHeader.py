@@ -1,7 +1,5 @@
-from generated.formats.base.basic import Uint64
-from generated.formats.base.basic import ZString
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
-from generated.formats.ovl_base.compounds.Pointer import Pointer
+from generated.formats.world.imports import name_type_map
 
 
 class WorldHeader(MemStruct):
@@ -19,40 +17,40 @@ class WorldHeader(MemStruct):
 		self.world_type = 0
 		self.asset_pkg_count = 0
 		self.prefab_count = 0
-		self.asset_pkgs = Pointer(self.context, self.asset_pkg_count, WorldHeader._import_map["world.compounds.PtrList"])
-		self.lua_name = Pointer(self.context, 0, ZString)
-		self.ptr_0 = Pointer(self.context, 0, None)
-		self.ptr_1 = Pointer(self.context, 0, None)
-		self.prefabs = Pointer(self.context, self.prefab_count, WorldHeader._import_map["world.compounds.PtrList"])
-		self.ptr_2 = Pointer(self.context, 0, None)
-		self.ptr_3 = Pointer(self.context, 0, None)
+		self.asset_pkgs = name_type_map['Pointer'](self.context, self.asset_pkg_count, name_type_map['PtrList'])
+		self.lua_name = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
+		self.ptr_0 = name_type_map['Pointer'](self.context, 0, None)
+		self.ptr_1 = name_type_map['Pointer'](self.context, 0, None)
+		self.prefabs = name_type_map['Pointer'](self.context, self.prefab_count, name_type_map['PtrList'])
+		self.ptr_2 = name_type_map['Pointer'](self.context, 0, None)
+		self.ptr_3 = name_type_map['Pointer'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('world_type', Uint64, (0, None), (False, None), (None, None))
-		yield ('asset_pkgs', Pointer, (None, WorldHeader._import_map["world.compounds.PtrList"]), (False, None), (None, None))
-		yield ('asset_pkg_count', Uint64, (0, None), (False, None), (None, None))
-		yield ('lua_name', Pointer, (0, ZString), (False, None), (None, None))
-		yield ('ptr_0', Pointer, (0, None), (False, None), (None, None))
-		yield ('ptr_1', Pointer, (0, None), (False, None), (None, None))
-		yield ('prefabs', Pointer, (None, WorldHeader._import_map["world.compounds.PtrList"]), (False, None), (None, None))
-		yield ('ptr_2', Pointer, (0, None), (False, None), (None, None))
-		yield ('prefab_count', Uint64, (0, None), (False, None), (None, None))
-		yield ('ptr_3', Pointer, (0, None), (False, None), (None, None))
+		yield ('world_type', name_type_map['Uint64'], (0, None), (False, None), (None, None))
+		yield ('asset_pkgs', name_type_map['Pointer'], (None, None), (False, None), (None, None))
+		yield ('asset_pkg_count', name_type_map['Uint64'], (0, None), (False, None), (None, None))
+		yield ('lua_name', name_type_map['Pointer'], (0, None), (False, None), (None, None))
+		yield ('ptr_0', name_type_map['Pointer'], (0, None), (False, None), (None, None))
+		yield ('ptr_1', name_type_map['Pointer'], (0, None), (False, None), (None, None))
+		yield ('prefabs', name_type_map['Pointer'], (None, None), (False, None), (None, None))
+		yield ('ptr_2', name_type_map['Pointer'], (0, None), (False, None), (None, None))
+		yield ('prefab_count', name_type_map['Uint64'], (0, None), (False, None), (None, None))
+		yield ('ptr_3', name_type_map['Pointer'], (0, None), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'world_type', Uint64, (0, None), (False, None)
-		yield 'asset_pkgs', Pointer, (instance.asset_pkg_count, WorldHeader._import_map["world.compounds.PtrList"]), (False, None)
-		yield 'asset_pkg_count', Uint64, (0, None), (False, None)
-		yield 'lua_name', Pointer, (0, ZString), (False, None)
-		yield 'ptr_0', Pointer, (0, None), (False, None)
-		yield 'ptr_1', Pointer, (0, None), (False, None)
-		yield 'prefabs', Pointer, (instance.prefab_count, WorldHeader._import_map["world.compounds.PtrList"]), (False, None)
-		yield 'ptr_2', Pointer, (0, None), (False, None)
-		yield 'prefab_count', Uint64, (0, None), (False, None)
-		yield 'ptr_3', Pointer, (0, None), (False, None)
+		yield 'world_type', name_type_map['Uint64'], (0, None), (False, None)
+		yield 'asset_pkgs', name_type_map['Pointer'], (instance.asset_pkg_count, name_type_map['PtrList']), (False, None)
+		yield 'asset_pkg_count', name_type_map['Uint64'], (0, None), (False, None)
+		yield 'lua_name', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None)
+		yield 'ptr_0', name_type_map['Pointer'], (0, None), (False, None)
+		yield 'ptr_1', name_type_map['Pointer'], (0, None), (False, None)
+		yield 'prefabs', name_type_map['Pointer'], (instance.prefab_count, name_type_map['PtrList']), (False, None)
+		yield 'ptr_2', name_type_map['Pointer'], (0, None), (False, None)
+		yield 'prefab_count', name_type_map['Uint64'], (0, None), (False, None)
+		yield 'ptr_3', name_type_map['Pointer'], (0, None), (False, None)

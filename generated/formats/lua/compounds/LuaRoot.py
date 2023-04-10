@@ -1,8 +1,5 @@
-from generated.formats.base.basic import Uint
-from generated.formats.base.basic import Uint64
-from generated.formats.base.basic import ZString
+from generated.formats.lua.imports import name_type_map
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
-from generated.formats.ovl_base.compounds.Pointer import Pointer
 
 
 class LuaRoot(MemStruct):
@@ -25,32 +22,32 @@ class LuaRoot(MemStruct):
 		self.zero_0 = 0
 		self.zero_1 = 0
 		self.zero_2 = 0
-		self.source_path = Pointer(self.context, 0, ZString)
-		self.likely_alignment = Pointer(self.context, 0, ZString)
+		self.source_path = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
+		self.likely_alignment = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
 		if set_default:
 			self.set_defaults()
 
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('lua_size', Uint, (0, None), (False, None), (None, None))
-		yield ('sixteenk', Uint, (0, None), (False, None), (None, None))
-		yield ('hash', Uint, (0, None), (False, None), (None, None))
-		yield ('zero_0', Uint, (0, None), (False, None), (None, None))
-		yield ('source_path', Pointer, (0, ZString), (False, None), (lambda context: context.version >= 18, None))
-		yield ('likely_alignment', Pointer, (0, ZString), (False, None), (lambda context: context.version >= 18, None))
-		yield ('zero_1', Uint64, (0, None), (False, None), (None, None))
-		yield ('zero_2', Uint64, (0, None), (False, None), (None, None))
+		yield ('lua_size', name_type_map['Uint'], (0, None), (False, None), (None, None))
+		yield ('sixteenk', name_type_map['Uint'], (0, None), (False, None), (None, None))
+		yield ('hash', name_type_map['Uint'], (0, None), (False, None), (None, None))
+		yield ('zero_0', name_type_map['Uint'], (0, None), (False, None), (None, None))
+		yield ('source_path', name_type_map['Pointer'], (0, None), (False, None), (lambda context: context.version >= 18, None))
+		yield ('likely_alignment', name_type_map['Pointer'], (0, None), (False, None), (lambda context: context.version >= 18, None))
+		yield ('zero_1', name_type_map['Uint64'], (0, None), (False, None), (None, None))
+		yield ('zero_2', name_type_map['Uint64'], (0, None), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'lua_size', Uint, (0, None), (False, None)
-		yield 'sixteenk', Uint, (0, None), (False, None)
-		yield 'hash', Uint, (0, None), (False, None)
-		yield 'zero_0', Uint, (0, None), (False, None)
+		yield 'lua_size', name_type_map['Uint'], (0, None), (False, None)
+		yield 'sixteenk', name_type_map['Uint'], (0, None), (False, None)
+		yield 'hash', name_type_map['Uint'], (0, None), (False, None)
+		yield 'zero_0', name_type_map['Uint'], (0, None), (False, None)
 		if instance.context.version >= 18:
-			yield 'source_path', Pointer, (0, ZString), (False, None)
-			yield 'likely_alignment', Pointer, (0, ZString), (False, None)
-		yield 'zero_1', Uint64, (0, None), (False, None)
-		yield 'zero_2', Uint64, (0, None), (False, None)
+			yield 'source_path', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None)
+			yield 'likely_alignment', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None)
+		yield 'zero_1', name_type_map['Uint64'], (0, None), (False, None)
+		yield 'zero_2', name_type_map['Uint64'], (0, None), (False, None)

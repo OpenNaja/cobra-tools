@@ -1,8 +1,7 @@
 import numpy
 from generated.array import Array
 from generated.base_struct import BaseStruct
-from generated.formats.base.basic import Ubyte
-from generated.formats.base.basic import Uint
+from generated.formats.ms2.imports import name_type_map
 
 
 class ZtVertBlockInfo(BaseStruct):
@@ -18,7 +17,7 @@ class ZtVertBlockInfo(BaseStruct):
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		self.vertex_count = 0
-		self.flags = Array(self.context, 0, None, (0,), Ubyte)
+		self.flags = Array(self.context, 0, None, (0,), name_type_map['Ubyte'])
 		self.zero = 0
 		if set_default:
 			self.set_defaults()
@@ -26,13 +25,13 @@ class ZtVertBlockInfo(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('vertex_count', Uint, (0, None), (False, None), (None, None))
-		yield ('flags', Array, (0, None, (8,), Ubyte), (False, None), (None, None))
-		yield ('zero', Uint, (0, None), (False, None), (None, None))
+		yield ('vertex_count', name_type_map['Uint'], (0, None), (False, None), (None, None))
+		yield ('flags', Array, (0, None, (8,), name_type_map['Ubyte']), (False, None), (None, None))
+		yield ('zero', name_type_map['Uint'], (0, None), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'vertex_count', Uint, (0, None), (False, None)
-		yield 'flags', Array, (0, None, (8,), Ubyte), (False, None)
-		yield 'zero', Uint, (0, None), (False, None)
+		yield 'vertex_count', name_type_map['Uint'], (0, None), (False, None)
+		yield 'flags', Array, (0, None, (8,), name_type_map['Ubyte']), (False, None)
+		yield 'zero', name_type_map['Uint'], (0, None), (False, None)

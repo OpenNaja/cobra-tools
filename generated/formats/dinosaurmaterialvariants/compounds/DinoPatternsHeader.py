@@ -1,8 +1,5 @@
-from generated.formats.base.basic import Uint64
-from generated.formats.base.basic import ZString
-from generated.formats.ovl_base.basic import ZStringObfuscated
+from generated.formats.dinosaurmaterialvariants.imports import name_type_map
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
-from generated.formats.ovl_base.compounds.Pointer import Pointer
 
 
 class DinoPatternsHeader(MemStruct):
@@ -16,28 +13,28 @@ class DinoPatternsHeader(MemStruct):
 		self.set_count = 0
 		self.pattern_count = 0
 		self.zero = 0
-		self.fgm_name = Pointer(self.context, 0, ZStringObfuscated)
-		self.set_name = Pointer(self.context, 0, ZString)
-		self.patterns = Pointer(self.context, self.pattern_count, DinoPatternsHeader._import_map["dinosaurmaterialvariants.compounds.PatternArray"])
+		self.fgm_name = name_type_map['Pointer'](self.context, 0, name_type_map['ZStringObfuscated'])
+		self.set_name = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
+		self.patterns = name_type_map['Pointer'](self.context, self.pattern_count, name_type_map['PatternArray'])
 		if set_default:
 			self.set_defaults()
 
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('fgm_name', Pointer, (0, ZStringObfuscated), (False, None), (None, None))
-		yield ('set_count', Uint64, (0, None), (False, None), (None, None))
-		yield ('set_name', Pointer, (0, ZString), (False, None), (None, None))
-		yield ('patterns', Pointer, (None, DinoPatternsHeader._import_map["dinosaurmaterialvariants.compounds.PatternArray"]), (False, None), (None, None))
-		yield ('pattern_count', Uint64, (0, None), (False, None), (None, None))
-		yield ('zero', Uint64, (0, None), (False, None), (None, None))
+		yield ('fgm_name', name_type_map['Pointer'], (0, None), (False, None), (None, None))
+		yield ('set_count', name_type_map['Uint64'], (0, None), (False, None), (None, None))
+		yield ('set_name', name_type_map['Pointer'], (0, None), (False, None), (None, None))
+		yield ('patterns', name_type_map['Pointer'], (None, None), (False, None), (None, None))
+		yield ('pattern_count', name_type_map['Uint64'], (0, None), (False, None), (None, None))
+		yield ('zero', name_type_map['Uint64'], (0, None), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'fgm_name', Pointer, (0, ZStringObfuscated), (False, None)
-		yield 'set_count', Uint64, (0, None), (False, None)
-		yield 'set_name', Pointer, (0, ZString), (False, None)
-		yield 'patterns', Pointer, (instance.pattern_count, DinoPatternsHeader._import_map["dinosaurmaterialvariants.compounds.PatternArray"]), (False, None)
-		yield 'pattern_count', Uint64, (0, None), (False, None)
-		yield 'zero', Uint64, (0, None), (False, None)
+		yield 'fgm_name', name_type_map['Pointer'], (0, name_type_map['ZStringObfuscated']), (False, None)
+		yield 'set_count', name_type_map['Uint64'], (0, None), (False, None)
+		yield 'set_name', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None)
+		yield 'patterns', name_type_map['Pointer'], (instance.pattern_count, name_type_map['PatternArray']), (False, None)
+		yield 'pattern_count', name_type_map['Uint64'], (0, None), (False, None)
+		yield 'zero', name_type_map['Uint64'], (0, None), (False, None)

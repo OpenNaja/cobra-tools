@@ -1,7 +1,5 @@
-from generated.formats.base.basic import Uint64
-from generated.formats.base.basic import ZString
+from generated.formats.logicalcontrols.imports import name_type_map
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
-from generated.formats.ovl_base.compounds.Pointer import Pointer
 
 
 class AxisValue(MemStruct):
@@ -17,29 +15,29 @@ class AxisValue(MemStruct):
 		self.u_2 = 0
 		self.u_3 = 0
 		self.u_4 = 0
-		self.axis_name = Pointer(self.context, 0, ZString)
-		self.value_name = Pointer(self.context, 0, ZString)
+		self.axis_name = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
+		self.value_name = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
 		if set_default:
 			self.set_defaults()
 
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('axis_name', Pointer, (0, ZString), (False, None), (None, None))
-		yield ('u_0', Uint64, (0, None), (False, None), (None, None))
-		yield ('u_1', Uint64, (0, None), (False, None), (None, None))
-		yield ('u_2', Uint64, (0, None), (False, None), (None, None))
-		yield ('value_name', Pointer, (0, ZString), (False, None), (None, None))
-		yield ('u_3', Uint64, (0, None), (False, None), (None, None))
-		yield ('u_4', Uint64, (0, None), (False, None), (None, None))
+		yield ('axis_name', name_type_map['Pointer'], (0, None), (False, None), (None, None))
+		yield ('u_0', name_type_map['Uint64'], (0, None), (False, None), (None, None))
+		yield ('u_1', name_type_map['Uint64'], (0, None), (False, None), (None, None))
+		yield ('u_2', name_type_map['Uint64'], (0, None), (False, None), (None, None))
+		yield ('value_name', name_type_map['Pointer'], (0, None), (False, None), (None, None))
+		yield ('u_3', name_type_map['Uint64'], (0, None), (False, None), (None, None))
+		yield ('u_4', name_type_map['Uint64'], (0, None), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'axis_name', Pointer, (0, ZString), (False, None)
-		yield 'u_0', Uint64, (0, None), (False, None)
-		yield 'u_1', Uint64, (0, None), (False, None)
-		yield 'u_2', Uint64, (0, None), (False, None)
-		yield 'value_name', Pointer, (0, ZString), (False, None)
-		yield 'u_3', Uint64, (0, None), (False, None)
-		yield 'u_4', Uint64, (0, None), (False, None)
+		yield 'axis_name', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None)
+		yield 'u_0', name_type_map['Uint64'], (0, None), (False, None)
+		yield 'u_1', name_type_map['Uint64'], (0, None), (False, None)
+		yield 'u_2', name_type_map['Uint64'], (0, None), (False, None)
+		yield 'value_name', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None)
+		yield 'u_3', name_type_map['Uint64'], (0, None), (False, None)
+		yield 'u_4', name_type_map['Uint64'], (0, None), (False, None)

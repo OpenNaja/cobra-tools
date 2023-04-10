@@ -30,19 +30,16 @@ class Imports:
             for field in xml_struct:
                 if field.tag in ("add", "field", "member"):
                     field_type = field.attrib["type"]
-                    is_recursive = self.is_recursive_field(field)
+                    if field_type != "template":
+                        self.add_indirect_import(field_type)
                     arr1 = field.attrib.get("arr1")
                     if arr1 is None:
                         arr1 = field.attrib.get("length")
                     if arr1:
-                        self.add_mapped_type(field_type, array=True, exclude_cls=is_recursive)
+                        self.add_mapped_type(field_type, array=True, exclude_cls=True)
                         self.add("Array")
-                        if not is_recursive:
-                            self.add(field_type)
                     else:
-                        self.add_mapped_type(field_type, exclude_cls=is_recursive)
-                        if xml_struct.tag in parser.struct_types and not is_recursive:
-                            self.add(field_type)
+                        self.add_mapped_type(field_type, exclude_cls=True)
     
                     template = field.attrib.get("template")
                     if template:
@@ -70,6 +67,8 @@ class Imports:
                             excludeT = default.attrib.get("excludeT")
                             if excludeT:
                                 self.add_indirect_import(excludeT)
+        else:
+            raise NotImplementedError(f'Unknown tag type {xml_struct.tag}')
 
     def add_mapped_type(self, cls_to_import, array=False, exclude_cls=False):
         if cls_to_import:
@@ -100,9 +99,7 @@ class Imports:
             return field.attrib.get('recursive', 'False') == 'True'
 
     def add_indirect_import(self, cls_to_import):
-        # import the class directly, but only if it's not a struct (because those could lead to circular imports)
-        if cls_to_import and self.parent.tag_dict[cls_to_import.lower()] not in self.parent.struct_types:
-            self.add(cls_to_import)
+        self.add("name_type_map")
 
     def write(self, stream):
         module_imports = []

@@ -1,8 +1,7 @@
 import numpy
 from generated.array import Array
 from generated.base_struct import BaseStruct
-from generated.formats.base.basic import Byte
-from generated.formats.base.basic import Uint
+from generated.formats.bnk.imports import name_type_map
 
 
 class SoundSfxVoice(BaseStruct):
@@ -33,28 +32,28 @@ class SoundSfxVoice(BaseStruct):
 		self.wem_length = 0
 
 		# ?
-		self.extra = Array(self.context, 0, None, (0,), Byte)
+		self.extra = Array(self.context, 0, None, (0,), name_type_map['Byte'])
 		if set_default:
 			self.set_defaults()
 
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('length', Uint, (0, None), (False, None), (None, None))
-		yield ('id', Uint, (0, None), (False, None), (None, None))
-		yield ('const_a', Uint, (0, None), (False, None), (None, None))
-		yield ('const_b', Byte, (0, None), (False, None), (None, None))
-		yield ('didx_id', Uint, (0, None), (False, None), (None, None))
-		yield ('wem_length', Uint, (0, None), (False, None), (None, None))
-		yield ('extra', Array, (0, None, (None,), Byte), (False, None), (None, None))
+		yield ('length', name_type_map['Uint'], (0, None), (False, None), (None, None))
+		yield ('id', name_type_map['Uint'], (0, None), (False, None), (None, None))
+		yield ('const_a', name_type_map['Uint'], (0, None), (False, None), (None, None))
+		yield ('const_b', name_type_map['Byte'], (0, None), (False, None), (None, None))
+		yield ('didx_id', name_type_map['Uint'], (0, None), (False, None), (None, None))
+		yield ('wem_length', name_type_map['Uint'], (0, None), (False, None), (None, None))
+		yield ('extra', Array, (0, None, (None,), name_type_map['Byte']), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'length', Uint, (0, None), (False, None)
-		yield 'id', Uint, (0, None), (False, None)
-		yield 'const_a', Uint, (0, None), (False, None)
-		yield 'const_b', Byte, (0, None), (False, None)
-		yield 'didx_id', Uint, (0, None), (False, None)
-		yield 'wem_length', Uint, (0, None), (False, None)
-		yield 'extra', Array, (0, None, (instance.length - 17,), Byte), (False, None)
+		yield 'length', name_type_map['Uint'], (0, None), (False, None)
+		yield 'id', name_type_map['Uint'], (0, None), (False, None)
+		yield 'const_a', name_type_map['Uint'], (0, None), (False, None)
+		yield 'const_b', name_type_map['Byte'], (0, None), (False, None)
+		yield 'didx_id', name_type_map['Uint'], (0, None), (False, None)
+		yield 'wem_length', name_type_map['Uint'], (0, None), (False, None)
+		yield 'extra', Array, (0, None, (instance.length - 17,), name_type_map['Byte']), (False, None)

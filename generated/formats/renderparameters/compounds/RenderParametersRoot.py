@@ -1,7 +1,5 @@
-from generated.formats.base.basic import Uint64
-from generated.formats.ovl_base.basic import ZStringObfuscated
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
-from generated.formats.ovl_base.compounds.Pointer import Pointer
+from generated.formats.renderparameters.imports import name_type_map
 
 
 class RenderParametersRoot(MemStruct):
@@ -18,23 +16,23 @@ class RenderParametersRoot(MemStruct):
 		super().__init__(context, arg, template, set_default=False)
 		self.count = 0
 		self.unk = 0
-		self.param_name = Pointer(self.context, 0, ZStringObfuscated)
-		self.params = Pointer(self.context, self.count, RenderParametersRoot._import_map["renderparameters.compounds.ParamList"])
+		self.param_name = name_type_map['Pointer'](self.context, 0, name_type_map['ZStringObfuscated'])
+		self.params = name_type_map['Pointer'](self.context, self.count, name_type_map['ParamList'])
 		if set_default:
 			self.set_defaults()
 
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('param_name', Pointer, (0, ZStringObfuscated), (False, None), (None, None))
-		yield ('params', Pointer, (None, RenderParametersRoot._import_map["renderparameters.compounds.ParamList"]), (False, None), (None, None))
-		yield ('count', Uint64, (0, None), (False, None), (None, None))
-		yield ('unk', Uint64, (0, None), (False, None), (None, None))
+		yield ('param_name', name_type_map['Pointer'], (0, None), (False, None), (None, None))
+		yield ('params', name_type_map['Pointer'], (None, None), (False, None), (None, None))
+		yield ('count', name_type_map['Uint64'], (0, None), (False, None), (None, None))
+		yield ('unk', name_type_map['Uint64'], (0, None), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'param_name', Pointer, (0, ZStringObfuscated), (False, None)
-		yield 'params', Pointer, (instance.count, RenderParametersRoot._import_map["renderparameters.compounds.ParamList"]), (False, None)
-		yield 'count', Uint64, (0, None), (False, None)
-		yield 'unk', Uint64, (0, None), (False, None)
+		yield 'param_name', name_type_map['Pointer'], (0, name_type_map['ZStringObfuscated']), (False, None)
+		yield 'params', name_type_map['Pointer'], (instance.count, name_type_map['ParamList']), (False, None)
+		yield 'count', name_type_map['Uint64'], (0, None), (False, None)
+		yield 'unk', name_type_map['Uint64'], (0, None), (False, None)

@@ -1,5 +1,5 @@
 from generated.base_struct import BaseStruct
-from generated.formats.base.basic import Ubyte
+from generated.formats.ovl.imports import name_type_map
 
 
 class Triplet(BaseStruct):
@@ -30,16 +30,16 @@ class Triplet(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('a', Ubyte, (0, None), (False, None), (None, None))
-		yield ('b', Ubyte, (0, None), (False, None), (None, None))
-		yield ('c', Ubyte, (0, None), (False, None), (None, None))
+		yield ('a', name_type_map['Ubyte'], (0, None), (False, None), (None, None))
+		yield ('b', name_type_map['Ubyte'], (0, None), (False, None), (None, None))
+		yield ('c', name_type_map['Ubyte'], (0, None), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'a', Ubyte, (0, None), (False, None)
-		yield 'b', Ubyte, (0, None), (False, None)
-		yield 'c', Ubyte, (0, None), (False, None)
+		yield 'a', name_type_map['Ubyte'], (0, None), (False, None)
+		yield 'b', name_type_map['Ubyte'], (0, None), (False, None)
+		yield 'c', name_type_map['Ubyte'], (0, None), (False, None)
 
 	def __eq__(self, other):
 		if isinstance(other, Triplet):

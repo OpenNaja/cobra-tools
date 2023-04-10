@@ -1,6 +1,5 @@
-from generated.formats.base.basic import Float
-from generated.formats.base.basic import Uint
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
+from generated.formats.path.imports import name_type_map
 
 
 class PathType(MemStruct):
@@ -21,15 +20,15 @@ class PathType(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('enum_value', Uint, (0, None), (False, None), (None, None))
-		yield ('min_width', Float, (0, None), (False, 4.0), (None, None))
-		yield ('max_width', Float, (0, None), (False, 10.0), (None, None))
-		yield ('_unk_int_2', Uint, (0, None), (False, None), (None, None))
+		yield ('enum_value', name_type_map['Uint'], (0, None), (False, None), (None, None))
+		yield ('min_width', name_type_map['Float'], (0, None), (False, 4.0), (None, None))
+		yield ('max_width', name_type_map['Float'], (0, None), (False, 10.0), (None, None))
+		yield ('_unk_int_2', name_type_map['Uint'], (0, None), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'enum_value', Uint, (0, None), (False, None)
-		yield 'min_width', Float, (0, None), (False, 4.0)
-		yield 'max_width', Float, (0, None), (False, 10.0)
-		yield '_unk_int_2', Uint, (0, None), (False, None)
+		yield 'enum_value', name_type_map['Uint'], (0, None), (False, None)
+		yield 'min_width', name_type_map['Float'], (0, None), (False, 4.0)
+		yield 'max_width', name_type_map['Float'], (0, None), (False, 10.0)
+		yield '_unk_int_2', name_type_map['Uint'], (0, None), (False, None)

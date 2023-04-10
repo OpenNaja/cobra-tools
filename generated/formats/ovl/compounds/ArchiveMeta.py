@@ -1,5 +1,5 @@
 from generated.base_struct import BaseStruct
-from generated.formats.base.basic import Uint
+from generated.formats.ovl.imports import name_type_map
 
 
 class ArchiveMeta(BaseStruct):
@@ -27,11 +27,11 @@ class ArchiveMeta(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('unk_0', Uint, (0, None), (False, None), (None, None))
-		yield ('unk_1', Uint, (0, None), (False, None), (None, None))
+		yield ('unk_0', name_type_map['Uint'], (0, None), (False, None), (None, None))
+		yield ('unk_1', name_type_map['Uint'], (0, None), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'unk_0', Uint, (0, None), (False, None)
-		yield 'unk_1', Uint, (0, None), (False, None)
+		yield 'unk_0', name_type_map['Uint'], (0, None), (False, None)
+		yield 'unk_1', name_type_map['Uint'], (0, None), (False, None)

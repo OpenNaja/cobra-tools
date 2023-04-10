@@ -53,6 +53,7 @@ class XmlParser:
             "ContextReference": "context",
             "BaseEnum": "base_enum",
             "BaseStruct": "base_struct",
+            "name_type_map": os.path.join(self.base_segments, "imports")
             }
         # maps each type to its member tag type
         self.tag_dict = {}

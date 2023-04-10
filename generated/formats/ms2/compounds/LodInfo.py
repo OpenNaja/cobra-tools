@@ -1,8 +1,5 @@
 from generated.base_struct import BaseStruct
-from generated.formats.base.basic import Float
-from generated.formats.base.basic import Short
-from generated.formats.base.basic import Uint
-from generated.formats.base.basic import Ushort
+from generated.formats.ms2.imports import name_type_map
 
 
 class LodInfo(BaseStruct):
@@ -57,35 +54,35 @@ class LodInfo(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('full', Short, (0, None), (False, None), (lambda context: context.version <= 13, None))
-		yield ('half', Short, (0, None), (False, None), (lambda context: context.version <= 13, None))
-		yield ('lod_index', Ushort, (0, None), (False, None), (lambda context: context.version <= 13, None))
-		yield ('distance', Float, (0, None), (False, None), (lambda context: context.version >= 32, None))
-		yield ('stream_index', Ushort, (0, None), (False, None), (lambda context: context.version >= 32, None))
-		yield ('bone_index', Ushort, (0, None), (False, None), (None, None))
-		yield ('first_object_index', Ushort, (0, None), (False, None), (None, None))
-		yield ('first_object_index_1', Ushort, (0, None), (False, None), (lambda context: context.version <= 13, None))
-		yield ('first_object_index_2', Ushort, (0, None), (False, None), (lambda context: context.version <= 13, None))
-		yield ('last_object_index', Ushort, (0, None), (False, None), (None, None))
-		yield ('vertex_count', Uint, (0, None), (False, None), (lambda context: context.version >= 32 and not (((context.version == 51) or (context.version == 52)) and context.biosyn), None))
-		yield ('tri_index_count', Uint, (0, None), (False, None), (lambda context: context.version >= 32 and not (((context.version == 51) or (context.version == 52)) and context.biosyn), None))
+		yield ('full', name_type_map['Short'], (0, None), (False, None), (lambda context: context.version <= 13, None))
+		yield ('half', name_type_map['Short'], (0, None), (False, None), (lambda context: context.version <= 13, None))
+		yield ('lod_index', name_type_map['Ushort'], (0, None), (False, None), (lambda context: context.version <= 13, None))
+		yield ('distance', name_type_map['Float'], (0, None), (False, None), (lambda context: context.version >= 32, None))
+		yield ('stream_index', name_type_map['Ushort'], (0, None), (False, None), (lambda context: context.version >= 32, None))
+		yield ('bone_index', name_type_map['Ushort'], (0, None), (False, None), (None, None))
+		yield ('first_object_index', name_type_map['Ushort'], (0, None), (False, None), (None, None))
+		yield ('first_object_index_1', name_type_map['Ushort'], (0, None), (False, None), (lambda context: context.version <= 13, None))
+		yield ('first_object_index_2', name_type_map['Ushort'], (0, None), (False, None), (lambda context: context.version <= 13, None))
+		yield ('last_object_index', name_type_map['Ushort'], (0, None), (False, None), (None, None))
+		yield ('vertex_count', name_type_map['Uint'], (0, None), (False, None), (lambda context: context.version >= 32 and not (((context.version == 51) or (context.version == 52)) and context.biosyn), None))
+		yield ('tri_index_count', name_type_map['Uint'], (0, None), (False, None), (lambda context: context.version >= 32 and not (((context.version == 51) or (context.version == 52)) and context.biosyn), None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		if instance.context.version <= 13:
-			yield 'full', Short, (0, None), (False, None)
-			yield 'half', Short, (0, None), (False, None)
-			yield 'lod_index', Ushort, (0, None), (False, None)
+			yield 'full', name_type_map['Short'], (0, None), (False, None)
+			yield 'half', name_type_map['Short'], (0, None), (False, None)
+			yield 'lod_index', name_type_map['Ushort'], (0, None), (False, None)
 		if instance.context.version >= 32:
-			yield 'distance', Float, (0, None), (False, None)
-			yield 'stream_index', Ushort, (0, None), (False, None)
-		yield 'bone_index', Ushort, (0, None), (False, None)
-		yield 'first_object_index', Ushort, (0, None), (False, None)
+			yield 'distance', name_type_map['Float'], (0, None), (False, None)
+			yield 'stream_index', name_type_map['Ushort'], (0, None), (False, None)
+		yield 'bone_index', name_type_map['Ushort'], (0, None), (False, None)
+		yield 'first_object_index', name_type_map['Ushort'], (0, None), (False, None)
 		if instance.context.version <= 13:
-			yield 'first_object_index_1', Ushort, (0, None), (False, None)
-			yield 'first_object_index_2', Ushort, (0, None), (False, None)
-		yield 'last_object_index', Ushort, (0, None), (False, None)
+			yield 'first_object_index_1', name_type_map['Ushort'], (0, None), (False, None)
+			yield 'first_object_index_2', name_type_map['Ushort'], (0, None), (False, None)
+		yield 'last_object_index', name_type_map['Ushort'], (0, None), (False, None)
 		if instance.context.version >= 32 and not (((instance.context.version == 51) or (instance.context.version == 52)) and instance.context.biosyn):
-			yield 'vertex_count', Uint, (0, None), (False, None)
-			yield 'tri_index_count', Uint, (0, None), (False, None)
+			yield 'vertex_count', name_type_map['Uint'], (0, None), (False, None)
+			yield 'tri_index_count', name_type_map['Uint'], (0, None), (False, None)

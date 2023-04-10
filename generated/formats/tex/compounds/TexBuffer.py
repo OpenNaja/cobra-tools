@@ -1,8 +1,5 @@
-from generated.formats.base.basic import Int
-from generated.formats.base.basic import Short
-from generated.formats.base.basic import Ubyte
-from generated.formats.base.basic import Uint64
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
+from generated.formats.tex.imports import name_type_map
 
 
 class TexBuffer(MemStruct):
@@ -38,19 +35,19 @@ class TexBuffer(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('offset', Uint64, (0, None), (False, None), (None, None))
-		yield ('size', Uint64, (0, None), (False, None), (None, None))
-		yield ('first_mip', Ubyte, (0, None), (False, None), (None, None))
-		yield ('mip_count', Ubyte, (0, None), (False, None), (None, None))
-		yield ('padding_0', Short, (0, None), (True, 0), (None, None))
-		yield ('padding_1', Int, (0, None), (True, 0), (None, None))
+		yield ('offset', name_type_map['Uint64'], (0, None), (False, None), (None, None))
+		yield ('size', name_type_map['Uint64'], (0, None), (False, None), (None, None))
+		yield ('first_mip', name_type_map['Ubyte'], (0, None), (False, None), (None, None))
+		yield ('mip_count', name_type_map['Ubyte'], (0, None), (False, None), (None, None))
+		yield ('padding_0', name_type_map['Short'], (0, None), (True, 0), (None, None))
+		yield ('padding_1', name_type_map['Int'], (0, None), (True, 0), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'offset', Uint64, (0, None), (False, None)
-		yield 'size', Uint64, (0, None), (False, None)
-		yield 'first_mip', Ubyte, (0, None), (False, None)
-		yield 'mip_count', Ubyte, (0, None), (False, None)
-		yield 'padding_0', Short, (0, None), (True, 0)
-		yield 'padding_1', Int, (0, None), (True, 0)
+		yield 'offset', name_type_map['Uint64'], (0, None), (False, None)
+		yield 'size', name_type_map['Uint64'], (0, None), (False, None)
+		yield 'first_mip', name_type_map['Ubyte'], (0, None), (False, None)
+		yield 'mip_count', name_type_map['Ubyte'], (0, None), (False, None)
+		yield 'padding_0', name_type_map['Short'], (0, None), (True, 0)
+		yield 'padding_1', name_type_map['Int'], (0, None), (True, 0)

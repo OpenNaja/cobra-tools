@@ -1,7 +1,5 @@
-from generated.formats.base.basic import Float
-from generated.formats.base.basic import Uint
+from generated.formats.bani.imports import name_type_map
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
-from generated.formats.ovl_base.compounds.Pointer import Pointer
 
 
 class BaniRoot(MemStruct):
@@ -30,24 +28,24 @@ class BaniRoot(MemStruct):
 		self.loop_flag = 0
 
 		# points to the banis file used
-		self.banis = Pointer(self.context, 0, None)
+		self.banis = name_type_map['Pointer'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('banis', Pointer, (0, None), (False, None), (None, None))
-		yield ('read_start_frame', Uint, (0, None), (False, None), (None, None))
-		yield ('num_frames', Uint, (0, None), (False, None), (None, None))
-		yield ('animation_length', Float, (0, None), (False, None), (None, None))
-		yield ('loop_flag', Uint, (0, None), (False, None), (None, None))
+		yield ('banis', name_type_map['Pointer'], (0, None), (False, None), (None, None))
+		yield ('read_start_frame', name_type_map['Uint'], (0, None), (False, None), (None, None))
+		yield ('num_frames', name_type_map['Uint'], (0, None), (False, None), (None, None))
+		yield ('animation_length', name_type_map['Float'], (0, None), (False, None), (None, None))
+		yield ('loop_flag', name_type_map['Uint'], (0, None), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'banis', Pointer, (0, None), (False, None)
-		yield 'read_start_frame', Uint, (0, None), (False, None)
-		yield 'num_frames', Uint, (0, None), (False, None)
-		yield 'animation_length', Float, (0, None), (False, None)
-		yield 'loop_flag', Uint, (0, None), (False, None)
+		yield 'banis', name_type_map['Pointer'], (0, None), (False, None)
+		yield 'read_start_frame', name_type_map['Uint'], (0, None), (False, None)
+		yield 'num_frames', name_type_map['Uint'], (0, None), (False, None)
+		yield 'animation_length', name_type_map['Float'], (0, None), (False, None)
+		yield 'loop_flag', name_type_map['Uint'], (0, None), (False, None)

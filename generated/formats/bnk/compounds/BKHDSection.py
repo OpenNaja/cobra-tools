@@ -1,8 +1,7 @@
 import numpy
 from generated.array import Array
 from generated.base_struct import BaseStruct
-from generated.formats.base.basic import Ubyte
-from generated.formats.base.basic import Uint
+from generated.formats.bnk.imports import name_type_map
 
 
 class BKHDSection(BaseStruct):
@@ -28,30 +27,30 @@ class BKHDSection(BaseStruct):
 		self.unk = 0
 
 		# sometimes present
-		self.zeroes = Array(self.context, 0, None, (0,), Ubyte)
+		self.zeroes = Array(self.context, 0, None, (0,), name_type_map['Ubyte'])
 		if set_default:
 			self.set_defaults()
 
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('length', Uint, (0, None), (False, None), (None, None))
-		yield ('version', Uint, (0, None), (False, None), (None, None))
-		yield ('id_a', Uint, (0, None), (False, None), (None, None))
-		yield ('id_b', Uint, (0, None), (False, None), (None, None))
-		yield ('constant_a', Uint, (0, None), (False, None), (None, None))
-		yield ('constant_b', Uint, (0, None), (False, None), (None, None))
-		yield ('unk', Uint, (0, None), (False, None), (None, None))
-		yield ('zeroes', Array, (0, None, (None,), Ubyte), (False, None), (None, None))
+		yield ('length', name_type_map['Uint'], (0, None), (False, None), (None, None))
+		yield ('version', name_type_map['Uint'], (0, None), (False, None), (None, None))
+		yield ('id_a', name_type_map['Uint'], (0, None), (False, None), (None, None))
+		yield ('id_b', name_type_map['Uint'], (0, None), (False, None), (None, None))
+		yield ('constant_a', name_type_map['Uint'], (0, None), (False, None), (None, None))
+		yield ('constant_b', name_type_map['Uint'], (0, None), (False, None), (None, None))
+		yield ('unk', name_type_map['Uint'], (0, None), (False, None), (None, None))
+		yield ('zeroes', Array, (0, None, (None,), name_type_map['Ubyte']), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'length', Uint, (0, None), (False, None)
-		yield 'version', Uint, (0, None), (False, None)
-		yield 'id_a', Uint, (0, None), (False, None)
-		yield 'id_b', Uint, (0, None), (False, None)
-		yield 'constant_a', Uint, (0, None), (False, None)
-		yield 'constant_b', Uint, (0, None), (False, None)
-		yield 'unk', Uint, (0, None), (False, None)
-		yield 'zeroes', Array, (0, None, (instance.length - 24,), Ubyte), (False, None)
+		yield 'length', name_type_map['Uint'], (0, None), (False, None)
+		yield 'version', name_type_map['Uint'], (0, None), (False, None)
+		yield 'id_a', name_type_map['Uint'], (0, None), (False, None)
+		yield 'id_b', name_type_map['Uint'], (0, None), (False, None)
+		yield 'constant_a', name_type_map['Uint'], (0, None), (False, None)
+		yield 'constant_b', name_type_map['Uint'], (0, None), (False, None)
+		yield 'unk', name_type_map['Uint'], (0, None), (False, None)
+		yield 'zeroes', Array, (0, None, (instance.length - 24,), name_type_map['Ubyte']), (False, None)

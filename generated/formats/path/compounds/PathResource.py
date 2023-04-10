@@ -1,7 +1,5 @@
-from generated.formats.base.basic import Byte
-from generated.formats.base.basic import ZString
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
-from generated.formats.ovl_base.compounds.Pointer import Pointer
+from generated.formats.path.imports import name_type_map
 
 
 class PathResource(MemStruct):
@@ -16,36 +14,36 @@ class PathResource(MemStruct):
 		self.path_sub_type = 0
 		self.unk_byte_1 = 1
 		self.unk_byte_2 = 0
-		self.pathmaterial = Pointer(self.context, 0, ZString)
-		self.pathextrusion_kerb = Pointer(self.context, 0, ZString)
-		self.pathextrusion_railing = Pointer(self.context, 0, ZString)
-		self.pathextrusion_ground = Pointer(self.context, 0, ZString)
-		self.pathsupport = Pointer(self.context, 0, ZString)
+		self.pathmaterial = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
+		self.pathextrusion_kerb = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
+		self.pathextrusion_railing = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
+		self.pathextrusion_ground = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
+		self.pathsupport = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
 		if set_default:
 			self.set_defaults()
 
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('pathmaterial', Pointer, (0, ZString), (False, None), (None, None))
-		yield ('pathextrusion_kerb', Pointer, (0, ZString), (False, None), (None, None))
-		yield ('pathextrusion_railing', Pointer, (0, ZString), (False, None), (None, None))
-		yield ('pathextrusion_ground', Pointer, (0, ZString), (False, None), (None, None))
-		yield ('pathsupport', Pointer, (0, ZString), (False, None), (None, None))
-		yield ('path_type', Byte, (0, None), (False, None), (None, None))
-		yield ('path_sub_type', Byte, (0, None), (False, None), (None, None))
-		yield ('unk_byte_1', Byte, (0, None), (False, 1), (None, None))
-		yield ('unk_byte_2', Byte, (0, None), (False, None), (None, None))
+		yield ('pathmaterial', name_type_map['Pointer'], (0, None), (False, None), (None, None))
+		yield ('pathextrusion_kerb', name_type_map['Pointer'], (0, None), (False, None), (None, None))
+		yield ('pathextrusion_railing', name_type_map['Pointer'], (0, None), (False, None), (None, None))
+		yield ('pathextrusion_ground', name_type_map['Pointer'], (0, None), (False, None), (None, None))
+		yield ('pathsupport', name_type_map['Pointer'], (0, None), (False, None), (None, None))
+		yield ('path_type', name_type_map['Byte'], (0, None), (False, None), (None, None))
+		yield ('path_sub_type', name_type_map['Byte'], (0, None), (False, None), (None, None))
+		yield ('unk_byte_1', name_type_map['Byte'], (0, None), (False, 1), (None, None))
+		yield ('unk_byte_2', name_type_map['Byte'], (0, None), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'pathmaterial', Pointer, (0, ZString), (False, None)
-		yield 'pathextrusion_kerb', Pointer, (0, ZString), (False, None)
-		yield 'pathextrusion_railing', Pointer, (0, ZString), (False, None)
-		yield 'pathextrusion_ground', Pointer, (0, ZString), (False, None)
-		yield 'pathsupport', Pointer, (0, ZString), (False, None)
-		yield 'path_type', Byte, (0, None), (False, None)
-		yield 'path_sub_type', Byte, (0, None), (False, None)
-		yield 'unk_byte_1', Byte, (0, None), (False, 1)
-		yield 'unk_byte_2', Byte, (0, None), (False, None)
+		yield 'pathmaterial', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None)
+		yield 'pathextrusion_kerb', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None)
+		yield 'pathextrusion_railing', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None)
+		yield 'pathextrusion_ground', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None)
+		yield 'pathsupport', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None)
+		yield 'path_type', name_type_map['Byte'], (0, None), (False, None)
+		yield 'path_sub_type', name_type_map['Byte'], (0, None), (False, None)
+		yield 'unk_byte_1', name_type_map['Byte'], (0, None), (False, 1)
+		yield 'unk_byte_2', name_type_map['Byte'], (0, None), (False, None)

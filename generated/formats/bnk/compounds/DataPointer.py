@@ -1,5 +1,5 @@
 from generated.base_struct import BaseStruct
-from generated.formats.base.basic import Uint
+from generated.formats.bnk.imports import name_type_map
 
 
 class DataPointer(BaseStruct):
@@ -27,13 +27,13 @@ class DataPointer(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('wem_id', Uint, (0, None), (False, None), (None, None))
-		yield ('data_section_offset', Uint, (0, None), (False, None), (None, None))
-		yield ('wem_filesize', Uint, (0, None), (False, None), (None, None))
+		yield ('wem_id', name_type_map['Uint'], (0, None), (False, None), (None, None))
+		yield ('data_section_offset', name_type_map['Uint'], (0, None), (False, None), (None, None))
+		yield ('wem_filesize', name_type_map['Uint'], (0, None), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'wem_id', Uint, (0, None), (False, None)
-		yield 'data_section_offset', Uint, (0, None), (False, None)
-		yield 'wem_filesize', Uint, (0, None), (False, None)
+		yield 'wem_id', name_type_map['Uint'], (0, None), (False, None)
+		yield 'data_section_offset', name_type_map['Uint'], (0, None), (False, None)
+		yield 'wem_filesize', name_type_map['Uint'], (0, None), (False, None)

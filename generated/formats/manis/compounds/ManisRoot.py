@@ -1,7 +1,5 @@
 from generated.base_struct import BaseStruct
-from generated.formats.base.basic import Uint
-from generated.formats.base.basic import Uint64
-from generated.formats.base.basic import Ushort
+from generated.formats.manis.imports import name_type_map
 
 
 class ManisRoot(BaseStruct):
@@ -31,20 +29,20 @@ class ManisRoot(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('names_size', Ushort, (0, None), (False, None), (None, None))
-		yield ('hash_block_size', Ushort, (0, None), (False, None), (None, None))
-		yield ('zero_0', Uint, (0, None), (False, None), (None, None))
-		yield ('zero_1', Uint64, (0, None), (False, None), (None, None))
-		yield ('zero_2', Uint64, (0, None), (False, None), (None, None))
-		yield ('zero_3', Uint64, (0, None), (False, None), (lambda context: context.version >= 260, None))
+		yield ('names_size', name_type_map['Ushort'], (0, None), (False, None), (None, None))
+		yield ('hash_block_size', name_type_map['Ushort'], (0, None), (False, None), (None, None))
+		yield ('zero_0', name_type_map['Uint'], (0, None), (False, None), (None, None))
+		yield ('zero_1', name_type_map['Uint64'], (0, None), (False, None), (None, None))
+		yield ('zero_2', name_type_map['Uint64'], (0, None), (False, None), (None, None))
+		yield ('zero_3', name_type_map['Uint64'], (0, None), (False, None), (lambda context: context.version >= 260, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'names_size', Ushort, (0, None), (False, None)
-		yield 'hash_block_size', Ushort, (0, None), (False, None)
-		yield 'zero_0', Uint, (0, None), (False, None)
-		yield 'zero_1', Uint64, (0, None), (False, None)
-		yield 'zero_2', Uint64, (0, None), (False, None)
+		yield 'names_size', name_type_map['Ushort'], (0, None), (False, None)
+		yield 'hash_block_size', name_type_map['Ushort'], (0, None), (False, None)
+		yield 'zero_0', name_type_map['Uint'], (0, None), (False, None)
+		yield 'zero_1', name_type_map['Uint64'], (0, None), (False, None)
+		yield 'zero_2', name_type_map['Uint64'], (0, None), (False, None)
 		if instance.context.version >= 260:
-			yield 'zero_3', Uint64, (0, None), (False, None)
+			yield 'zero_3', name_type_map['Uint64'], (0, None), (False, None)

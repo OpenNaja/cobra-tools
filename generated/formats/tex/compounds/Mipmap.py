@@ -1,5 +1,5 @@
-from generated.formats.base.basic import Uint
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
+from generated.formats.tex.imports import name_type_map
 
 
 class Mipmap(MemStruct):
@@ -35,17 +35,17 @@ class Mipmap(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('offset', Uint, (0, None), (False, None), (None, None))
-		yield ('size', Uint, (0, None), (False, None), (None, None))
-		yield ('size_array', Uint, (0, None), (False, None), (None, None))
-		yield ('size_scan', Uint, (0, None), (False, None), (None, None))
-		yield ('size_data', Uint, (0, None), (False, None), (None, None))
+		yield ('offset', name_type_map['Uint'], (0, None), (False, None), (None, None))
+		yield ('size', name_type_map['Uint'], (0, None), (False, None), (None, None))
+		yield ('size_array', name_type_map['Uint'], (0, None), (False, None), (None, None))
+		yield ('size_scan', name_type_map['Uint'], (0, None), (False, None), (None, None))
+		yield ('size_data', name_type_map['Uint'], (0, None), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'offset', Uint, (0, None), (False, None)
-		yield 'size', Uint, (0, None), (False, None)
-		yield 'size_array', Uint, (0, None), (False, None)
-		yield 'size_scan', Uint, (0, None), (False, None)
-		yield 'size_data', Uint, (0, None), (False, None)
+		yield 'offset', name_type_map['Uint'], (0, None), (False, None)
+		yield 'size', name_type_map['Uint'], (0, None), (False, None)
+		yield 'size_array', name_type_map['Uint'], (0, None), (False, None)
+		yield 'size_scan', name_type_map['Uint'], (0, None), (False, None)
+		yield 'size_data', name_type_map['Uint'], (0, None), (False, None)

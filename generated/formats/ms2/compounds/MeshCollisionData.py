@@ -1,10 +1,7 @@
 import numpy
 from generated.array import Array
 from generated.base_struct import BaseStruct
-from generated.formats.base.basic import Float
-from generated.formats.base.basic import Uint
-from generated.formats.base.basic import Ushort
-from generated.formats.ovl_base.compounds.Empty import Empty
+from generated.formats.ms2.imports import name_type_map
 
 
 class MeshCollisionData(BaseStruct):
@@ -17,21 +14,21 @@ class MeshCollisionData(BaseStruct):
 		super().__init__(context, arg, template, set_default=False)
 
 		# usually zero, nonzero in JWE2 dev footplant, [1] used as salt for tri indices
-		self.tris_salt = Array(self.context, 0, None, (0,), Uint)
-		self.vertices_addr = Empty(self.context, 0, None)
+		self.tris_salt = Array(self.context, 0, None, (0,), name_type_map['Uint'])
+		self.vertices_addr = name_type_map['Empty'](self.context, 0, None)
 
 		# array of vertices
-		self.vertices = Array(self.context, 0, None, (0,), Float)
-		self.triangles_addr = Empty(self.context, 0, None)
+		self.vertices = Array(self.context, 0, None, (0,), name_type_map['Float'])
+		self.triangles_addr = name_type_map['Empty'](self.context, 0, None)
 
 		# triangle indices into vertex list
-		self.triangles = Array(self.context, 0, None, (0,), Ushort)
+		self.triangles = Array(self.context, 0, None, (0,), name_type_map['Ushort'])
 
 		# ?
 		self.const = 0
 
 		# in JWE1 redwood: always 37
-		self.triangle_flags = Array(self.context, 0, None, (0,), Uint)
+		self.triangle_flags = Array(self.context, 0, None, (0,), name_type_map['Uint'])
 
 		# might be padding!
 		self.zero_end = 0
@@ -41,26 +38,26 @@ class MeshCollisionData(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('tris_salt', Array, (0, None, (4,), Uint), (False, None), (None, True))
-		yield ('vertices_addr', Empty, (0, None), (False, None), (None, None))
-		yield ('vertices', Array, (0, None, (None, 3,), Float), (False, None), (None, None))
-		yield ('triangles_addr', Empty, (0, None), (False, None), (None, None))
-		yield ('triangles', Array, (0, None, (None, 3,), Ushort), (False, None), (None, None))
-		yield ('const', Uint, (0, None), (False, None), (lambda context: context.version <= 47, None))
-		yield ('triangle_flags', Array, (0, None, (None,), Uint), (False, None), (lambda context: context.version <= 47, True))
-		yield ('zero_end', Uint, (0, None), (False, None), (None, None))
+		yield ('tris_salt', Array, (0, None, (4,), name_type_map['Uint']), (False, None), (None, True))
+		yield ('vertices_addr', name_type_map['Empty'], (0, None), (False, None), (None, None))
+		yield ('vertices', Array, (0, None, (None, 3,), name_type_map['Float']), (False, None), (None, None))
+		yield ('triangles_addr', name_type_map['Empty'], (0, None), (False, None), (None, None))
+		yield ('triangles', Array, (0, None, (None, 3,), name_type_map['Ushort']), (False, None), (None, None))
+		yield ('const', name_type_map['Uint'], (0, None), (False, None), (lambda context: context.version <= 47, None))
+		yield ('triangle_flags', Array, (0, None, (None,), name_type_map['Uint']), (False, None), (lambda context: context.version <= 47, True))
+		yield ('zero_end', name_type_map['Uint'], (0, None), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		if instance.arg.has_sub_coll_chunk:
-			yield 'tris_salt', Array, (0, None, (4,), Uint), (False, None)
-		yield 'vertices_addr', Empty, (0, None), (False, None)
-		yield 'vertices', Array, (0, None, (instance.arg.vertex_count, 3,), Float), (False, None)
-		yield 'triangles_addr', Empty, (0, None), (False, None)
-		yield 'triangles', Array, (0, None, (instance.arg.tri_count, 3,), Ushort), (False, None)
+			yield 'tris_salt', Array, (0, None, (4,), name_type_map['Uint']), (False, None)
+		yield 'vertices_addr', name_type_map['Empty'], (0, None), (False, None)
+		yield 'vertices', Array, (0, None, (instance.arg.vertex_count, 3,), name_type_map['Float']), (False, None)
+		yield 'triangles_addr', name_type_map['Empty'], (0, None), (False, None)
+		yield 'triangles', Array, (0, None, (instance.arg.tri_count, 3,), name_type_map['Ushort']), (False, None)
 		if instance.context.version <= 47:
-			yield 'const', Uint, (0, None), (False, None)
+			yield 'const', name_type_map['Uint'], (0, None), (False, None)
 		if instance.context.version <= 47 and instance.const:
-			yield 'triangle_flags', Array, (0, None, (instance.arg.tri_flags_count,), Uint), (False, None)
-		yield 'zero_end', Uint, (0, None), (False, None)
+			yield 'triangle_flags', Array, (0, None, (instance.arg.tri_flags_count,), name_type_map['Uint']), (False, None)
+		yield 'zero_end', name_type_map['Uint'], (0, None), (False, None)

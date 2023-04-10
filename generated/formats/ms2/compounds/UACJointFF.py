@@ -1,9 +1,7 @@
 import numpy
 from generated.array import Array
 from generated.base_struct import BaseStruct
-from generated.formats.base.basic import Int
-from generated.formats.base.basic import Uint
-from generated.formats.ovl_base.basic import OffsetString
+from generated.formats.ms2.imports import name_type_map
 
 
 class UACJointFF(BaseStruct):
@@ -19,29 +17,29 @@ class UACJointFF(BaseStruct):
 		self.eleven = 0
 
 		# bunch of -1's, and constants
-		self.f_fs = Array(self.context, 0, None, (0,), Int)
+		self.f_fs = Array(self.context, 0, None, (0,), name_type_map['Int'])
 		self.name = 0
 		self.hitcheck_count = 0
 
 		# 12 bytes of zeros
-		self.zeros = Array(self.context, 0, None, (0,), Uint)
+		self.zeros = Array(self.context, 0, None, (0,), name_type_map['Uint'])
 		if set_default:
 			self.set_defaults()
 
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('eleven', Uint, (0, None), (False, None), (None, None))
-		yield ('f_fs', Array, (0, None, (4,), Int), (False, None), (None, None))
-		yield ('name', OffsetString, (None, None), (False, None), (None, None))
-		yield ('hitcheck_count', Uint, (0, None), (False, None), (None, None))
-		yield ('zeros', Array, (0, None, (3,), Uint), (False, None), (None, None))
+		yield ('eleven', name_type_map['Uint'], (0, None), (False, None), (None, None))
+		yield ('f_fs', Array, (0, None, (4,), name_type_map['Int']), (False, None), (None, None))
+		yield ('name', name_type_map['OffsetString'], (None, None), (False, None), (None, None))
+		yield ('hitcheck_count', name_type_map['Uint'], (0, None), (False, None), (None, None))
+		yield ('zeros', Array, (0, None, (3,), name_type_map['Uint']), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'eleven', Uint, (0, None), (False, None)
-		yield 'f_fs', Array, (0, None, (4,), Int), (False, None)
-		yield 'name', OffsetString, (instance.arg, None), (False, None)
-		yield 'hitcheck_count', Uint, (0, None), (False, None)
-		yield 'zeros', Array, (0, None, (3,), Uint), (False, None)
+		yield 'eleven', name_type_map['Uint'], (0, None), (False, None)
+		yield 'f_fs', Array, (0, None, (4,), name_type_map['Int']), (False, None)
+		yield 'name', name_type_map['OffsetString'], (instance.arg, None), (False, None)
+		yield 'hitcheck_count', name_type_map['Uint'], (0, None), (False, None)
+		yield 'zeros', Array, (0, None, (3,), name_type_map['Uint']), (False, None)

@@ -1,8 +1,7 @@
 import numpy
 from generated.array import Array
 from generated.base_struct import BaseStruct
-from generated.formats.base.basic import Byte
-from generated.formats.base.basic import Uint
+from generated.formats.bnk.imports import name_type_map
 
 
 class DATASection(BaseStruct):
@@ -20,18 +19,18 @@ class DATASection(BaseStruct):
 
 		# length of following data
 		self.length = 0
-		self.wem_datas = Array(self.context, 0, None, (0,), Byte)
+		self.wem_datas = Array(self.context, 0, None, (0,), name_type_map['Byte'])
 		if set_default:
 			self.set_defaults()
 
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('length', Uint, (0, None), (False, None), (None, None))
-		yield ('wem_datas', Array, (0, None, (None,), Byte), (False, None), (None, None))
+		yield ('length', name_type_map['Uint'], (0, None), (False, None), (None, None))
+		yield ('wem_datas', Array, (0, None, (None,), name_type_map['Byte']), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'length', Uint, (0, None), (False, None)
-		yield 'wem_datas', Array, (0, None, (instance.length,), Byte), (False, None)
+		yield 'length', name_type_map['Uint'], (0, None), (False, None)
+		yield 'wem_datas', Array, (0, None, (instance.length,), name_type_map['Byte']), (False, None)

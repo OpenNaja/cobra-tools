@@ -1,6 +1,5 @@
 from generated.base_struct import BaseStruct
-from generated.formats.base.basic import Uint
-from generated.formats.base.basic import Uint64
+from generated.formats.manis.imports import name_type_map
 
 
 class ChunkSizes(BaseStruct):
@@ -20,13 +19,13 @@ class ChunkSizes(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('zeros_0', Uint64, (0, None), (False, None), (None, None))
-		yield ('bone', Uint, (0, None), (False, None), (None, None))
-		yield ('counta', Uint, (0, None), (False, None), (None, None))
+		yield ('zeros_0', name_type_map['Uint64'], (0, None), (False, None), (None, None))
+		yield ('bone', name_type_map['Uint'], (0, None), (False, None), (None, None))
+		yield ('counta', name_type_map['Uint'], (0, None), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'zeros_0', Uint64, (0, None), (False, None)
-		yield 'bone', Uint, (0, None), (False, None)
-		yield 'counta', Uint, (0, None), (False, None)
+		yield 'zeros_0', name_type_map['Uint64'], (0, None), (False, None)
+		yield 'bone', name_type_map['Uint'], (0, None), (False, None)
+		yield 'counta', name_type_map['Uint'], (0, None), (False, None)

@@ -1,4 +1,4 @@
-from generated.formats.base.basic import Uint64
+from generated.formats.fct.imports import name_type_map
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
 
 
@@ -22,11 +22,11 @@ class Font(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('data_size', Uint64, (0, None), (False, None), (None, None))
-		yield ('zero', Uint64, (0, None), (False, None), (None, None))
+		yield ('data_size', name_type_map['Uint64'], (0, None), (False, None), (None, None))
+		yield ('zero', name_type_map['Uint64'], (0, None), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'data_size', Uint64, (0, None), (False, None)
-		yield 'zero', Uint64, (0, None), (False, None)
+		yield 'data_size', name_type_map['Uint64'], (0, None), (False, None)
+		yield 'zero', name_type_map['Uint64'], (0, None), (False, None)

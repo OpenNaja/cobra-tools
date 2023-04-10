@@ -1,6 +1,5 @@
-from generated.formats.base.basic import Uint64
+from generated.formats.motiongraph.imports import name_type_map
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
-from generated.formats.ovl_base.compounds.Pointer import Pointer
 
 
 class MotiongraphRootFrag(MemStruct):
@@ -19,33 +18,33 @@ class MotiongraphRootFrag(MemStruct):
 		self.count_1 = 0
 		self.count_2 = 0
 		self.num_xmls = 0
-		self.activities = Pointer(self.context, self.num_activities, MotiongraphRootFrag._import_map["motiongraph.compounds.Activities"])
-		self.ptr_1 = Pointer(self.context, self.count_1, MotiongraphRootFrag._import_map["motiongraph.compounds.MRFArray1"])
-		self.ptr_2 = Pointer(self.context, self.count_2, MotiongraphRootFrag._import_map["motiongraph.compounds.MRFArray2"])
-		self.ptr_xmls = Pointer(self.context, self.num_xmls, MotiongraphRootFrag._import_map["motiongraph.compounds.XMLArray"])
+		self.activities = name_type_map['Pointer'](self.context, self.num_activities, name_type_map['Activities'])
+		self.ptr_1 = name_type_map['Pointer'](self.context, self.count_1, name_type_map['MRFArray1'])
+		self.ptr_2 = name_type_map['Pointer'](self.context, self.count_2, name_type_map['MRFArray2'])
+		self.ptr_xmls = name_type_map['Pointer'](self.context, self.num_xmls, name_type_map['XMLArray'])
 		if set_default:
 			self.set_defaults()
 
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('num_activities', Uint64, (0, None), (False, None), (None, None))
-		yield ('activities', Pointer, (None, MotiongraphRootFrag._import_map["motiongraph.compounds.Activities"]), (False, None), (None, None))
-		yield ('count_1', Uint64, (0, None), (False, None), (None, None))
-		yield ('ptr_1', Pointer, (None, MotiongraphRootFrag._import_map["motiongraph.compounds.MRFArray1"]), (False, None), (None, None))
-		yield ('count_2', Uint64, (0, None), (False, None), (None, None))
-		yield ('ptr_2', Pointer, (None, MotiongraphRootFrag._import_map["motiongraph.compounds.MRFArray2"]), (False, None), (None, None))
-		yield ('num_xmls', Uint64, (0, None), (False, None), (None, None))
-		yield ('ptr_xmls', Pointer, (None, MotiongraphRootFrag._import_map["motiongraph.compounds.XMLArray"]), (False, None), (None, None))
+		yield ('num_activities', name_type_map['Uint64'], (0, None), (False, None), (None, None))
+		yield ('activities', name_type_map['Pointer'], (None, None), (False, None), (None, None))
+		yield ('count_1', name_type_map['Uint64'], (0, None), (False, None), (None, None))
+		yield ('ptr_1', name_type_map['Pointer'], (None, None), (False, None), (None, None))
+		yield ('count_2', name_type_map['Uint64'], (0, None), (False, None), (None, None))
+		yield ('ptr_2', name_type_map['Pointer'], (None, None), (False, None), (None, None))
+		yield ('num_xmls', name_type_map['Uint64'], (0, None), (False, None), (None, None))
+		yield ('ptr_xmls', name_type_map['Pointer'], (None, None), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'num_activities', Uint64, (0, None), (False, None)
-		yield 'activities', Pointer, (instance.num_activities, MotiongraphRootFrag._import_map["motiongraph.compounds.Activities"]), (False, None)
-		yield 'count_1', Uint64, (0, None), (False, None)
-		yield 'ptr_1', Pointer, (instance.count_1, MotiongraphRootFrag._import_map["motiongraph.compounds.MRFArray1"]), (False, None)
-		yield 'count_2', Uint64, (0, None), (False, None)
-		yield 'ptr_2', Pointer, (instance.count_2, MotiongraphRootFrag._import_map["motiongraph.compounds.MRFArray2"]), (False, None)
-		yield 'num_xmls', Uint64, (0, None), (False, None)
-		yield 'ptr_xmls', Pointer, (instance.num_xmls, MotiongraphRootFrag._import_map["motiongraph.compounds.XMLArray"]), (False, None)
+		yield 'num_activities', name_type_map['Uint64'], (0, None), (False, None)
+		yield 'activities', name_type_map['Pointer'], (instance.num_activities, name_type_map['Activities']), (False, None)
+		yield 'count_1', name_type_map['Uint64'], (0, None), (False, None)
+		yield 'ptr_1', name_type_map['Pointer'], (instance.count_1, name_type_map['MRFArray1']), (False, None)
+		yield 'count_2', name_type_map['Uint64'], (0, None), (False, None)
+		yield 'ptr_2', name_type_map['Pointer'], (instance.count_2, name_type_map['MRFArray2']), (False, None)
+		yield 'num_xmls', name_type_map['Uint64'], (0, None), (False, None)
+		yield 'ptr_xmls', name_type_map['Pointer'], (instance.num_xmls, name_type_map['XMLArray']), (False, None)

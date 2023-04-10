@@ -1,6 +1,5 @@
-from generated.formats.base.basic import Float
-from generated.formats.base.basic import Uint
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
+from generated.formats.terraindetaillayers.imports import name_type_map
 
 
 class DetailStruct(MemStruct):
@@ -21,15 +20,15 @@ class DetailStruct(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('index', Uint, (0, None), (False, None), (None, None))
-		yield ('x', Float, (0, None), (False, None), (None, None))
-		yield ('y', Float, (0, None), (False, None), (None, None))
-		yield ('z', Float, (0, None), (False, None), (None, None))
+		yield ('index', name_type_map['Uint'], (0, None), (False, None), (None, None))
+		yield ('x', name_type_map['Float'], (0, None), (False, None), (None, None))
+		yield ('y', name_type_map['Float'], (0, None), (False, None), (None, None))
+		yield ('z', name_type_map['Float'], (0, None), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'index', Uint, (0, None), (False, None)
-		yield 'x', Float, (0, None), (False, None)
-		yield 'y', Float, (0, None), (False, None)
-		yield 'z', Float, (0, None), (False, None)
+		yield 'index', name_type_map['Uint'], (0, None), (False, None)
+		yield 'x', name_type_map['Float'], (0, None), (False, None)
+		yield 'y', name_type_map['Float'], (0, None), (False, None)
+		yield 'z', name_type_map['Float'], (0, None), (False, None)

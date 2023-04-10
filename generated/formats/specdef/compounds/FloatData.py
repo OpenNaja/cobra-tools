@@ -1,6 +1,5 @@
-from generated.formats.base.basic import Float
-from generated.formats.base.basic import Uint
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
+from generated.formats.specdef.imports import name_type_map
 
 
 class FloatData(MemStruct):
@@ -25,15 +24,15 @@ class FloatData(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('imin', Float, (0, None), (False, None), (None, None))
-		yield ('imax', Float, (0, None), (False, None), (None, None))
-		yield ('ivalue', Float, (0, None), (False, None), (None, None))
-		yield ('ioptional', Uint, (0, None), (False, None), (None, None))
+		yield ('imin', name_type_map['Float'], (0, None), (False, None), (None, None))
+		yield ('imax', name_type_map['Float'], (0, None), (False, None), (None, None))
+		yield ('ivalue', name_type_map['Float'], (0, None), (False, None), (None, None))
+		yield ('ioptional', name_type_map['Uint'], (0, None), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'imin', Float, (0, None), (False, None)
-		yield 'imax', Float, (0, None), (False, None)
-		yield 'ivalue', Float, (0, None), (False, None)
-		yield 'ioptional', Uint, (0, None), (False, None)
+		yield 'imin', name_type_map['Float'], (0, None), (False, None)
+		yield 'imax', name_type_map['Float'], (0, None), (False, None)
+		yield 'ivalue', name_type_map['Float'], (0, None), (False, None)
+		yield 'ioptional', name_type_map['Uint'], (0, None), (False, None)

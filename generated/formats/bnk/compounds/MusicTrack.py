@@ -1,6 +1,5 @@
 from generated.base_struct import BaseStruct
-from generated.formats.base.basic import Uint
-from generated.formats.bnk.compounds.MusicTrackInitialValues import MusicTrackInitialValues
+from generated.formats.bnk.imports import name_type_map
 
 
 class MusicTrack(BaseStruct):
@@ -15,20 +14,20 @@ class MusicTrack(BaseStruct):
 		# seen 114
 		self.length = 0
 		self.id = 0
-		self.data = MusicTrackInitialValues(self.context, 0, None)
+		self.data = name_type_map['MusicTrackInitialValues'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('length', Uint, (0, None), (False, None), (None, None))
-		yield ('id', Uint, (0, None), (False, None), (None, None))
-		yield ('data', MusicTrackInitialValues, (0, None), (False, None), (None, None))
+		yield ('length', name_type_map['Uint'], (0, None), (False, None), (None, None))
+		yield ('id', name_type_map['Uint'], (0, None), (False, None), (None, None))
+		yield ('data', name_type_map['MusicTrackInitialValues'], (0, None), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'length', Uint, (0, None), (False, None)
-		yield 'id', Uint, (0, None), (False, None)
-		yield 'data', MusicTrackInitialValues, (0, None), (False, None)
+		yield 'length', name_type_map['Uint'], (0, None), (False, None)
+		yield 'id', name_type_map['Uint'], (0, None), (False, None)
+		yield 'data', name_type_map['MusicTrackInitialValues'], (0, None), (False, None)

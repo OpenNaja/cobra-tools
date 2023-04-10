@@ -1,9 +1,5 @@
-from generated.formats.base.basic import Uint
-from generated.formats.base.basic import Uint64
-from generated.formats.base.basic import ZString
-from generated.formats.ovl_base.compounds.ArrayPointer import ArrayPointer
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
-from generated.formats.ovl_base.compounds.Pointer import Pointer
+from generated.formats.wmeta.imports import name_type_map
 
 
 class WmetasbMain(MemStruct):
@@ -25,55 +21,55 @@ class WmetasbMain(MemStruct):
 		self.events_count = 0
 		self.hashes_count = 0
 		self.media_count = 0
-		self.block_name = Pointer(self.context, 0, ZString)
-		self.media_name = Pointer(self.context, 0, ZString)
-		self.bnk_name = Pointer(self.context, 0, ZString)
-		self.events = ArrayPointer(self.context, self.events_count, WmetasbMain._import_map["wmeta.compounds.EventEntry"])
-		self.hashes = ArrayPointer(self.context, self.hashes_count, Uint)
-		self.media = ArrayPointer(self.context, self.media_count, WmetasbMain._import_map["wmeta.compounds.MediaEntry"])
-		self.unused_2 = Pointer(self.context, 0, None)
-		self.unused_3 = Pointer(self.context, 0, None)
-		self.unused_4 = Pointer(self.context, 0, None)
-		self.unused_5 = Pointer(self.context, 0, None)
+		self.block_name = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
+		self.media_name = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
+		self.bnk_name = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
+		self.events = name_type_map['ArrayPointer'](self.context, self.events_count, name_type_map['EventEntry'])
+		self.hashes = name_type_map['ArrayPointer'](self.context, self.hashes_count, name_type_map['Uint'])
+		self.media = name_type_map['ArrayPointer'](self.context, self.media_count, name_type_map['MediaEntry'])
+		self.unused_2 = name_type_map['Pointer'](self.context, 0, None)
+		self.unused_3 = name_type_map['Pointer'](self.context, 0, None)
+		self.unused_4 = name_type_map['Pointer'](self.context, 0, None)
+		self.unused_5 = name_type_map['Pointer'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('hash', Uint, (0, None), (False, None), (None, None))
-		yield ('unk', Uint, (0, None), (False, None), (None, None))
-		yield ('block_name', Pointer, (0, ZString), (False, None), (None, None))
-		yield ('media_name', Pointer, (0, ZString), (False, None), (lambda context: context.version <= 18, None))
-		yield ('bnk_name', Pointer, (0, ZString), (False, None), (lambda context: context.version <= 18, None))
-		yield ('events', ArrayPointer, (None, WmetasbMain._import_map["wmeta.compounds.EventEntry"]), (False, None), (None, None))
-		yield ('events_count', Uint64, (0, None), (False, None), (None, None))
-		yield ('hashes', ArrayPointer, (None, Uint), (False, None), (lambda context: context.version <= 18, None))
-		yield ('hashes_count', Uint64, (0, None), (False, None), (lambda context: context.version <= 18, None))
-		yield ('media', ArrayPointer, (None, WmetasbMain._import_map["wmeta.compounds.MediaEntry"]), (False, None), (lambda context: context.version <= 18, None))
-		yield ('media_count', Uint64, (0, None), (False, None), (lambda context: context.version <= 18, None))
-		yield ('unused_2', Pointer, (0, None), (False, None), (lambda context: context.version <= 18, None))
-		yield ('unused_3', Pointer, (0, None), (False, None), (lambda context: context.version <= 18, None))
-		yield ('unused_4', Pointer, (0, None), (False, None), (lambda context: context.version <= 18, None))
-		yield ('unused_5', Pointer, (0, None), (False, None), (lambda context: context.version <= 18, None))
+		yield ('hash', name_type_map['Uint'], (0, None), (False, None), (None, None))
+		yield ('unk', name_type_map['Uint'], (0, None), (False, None), (None, None))
+		yield ('block_name', name_type_map['Pointer'], (0, None), (False, None), (None, None))
+		yield ('media_name', name_type_map['Pointer'], (0, None), (False, None), (lambda context: context.version <= 18, None))
+		yield ('bnk_name', name_type_map['Pointer'], (0, None), (False, None), (lambda context: context.version <= 18, None))
+		yield ('events', name_type_map['ArrayPointer'], (None, None), (False, None), (None, None))
+		yield ('events_count', name_type_map['Uint64'], (0, None), (False, None), (None, None))
+		yield ('hashes', name_type_map['ArrayPointer'], (None, None), (False, None), (lambda context: context.version <= 18, None))
+		yield ('hashes_count', name_type_map['Uint64'], (0, None), (False, None), (lambda context: context.version <= 18, None))
+		yield ('media', name_type_map['ArrayPointer'], (None, None), (False, None), (lambda context: context.version <= 18, None))
+		yield ('media_count', name_type_map['Uint64'], (0, None), (False, None), (lambda context: context.version <= 18, None))
+		yield ('unused_2', name_type_map['Pointer'], (0, None), (False, None), (lambda context: context.version <= 18, None))
+		yield ('unused_3', name_type_map['Pointer'], (0, None), (False, None), (lambda context: context.version <= 18, None))
+		yield ('unused_4', name_type_map['Pointer'], (0, None), (False, None), (lambda context: context.version <= 18, None))
+		yield ('unused_5', name_type_map['Pointer'], (0, None), (False, None), (lambda context: context.version <= 18, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'hash', Uint, (0, None), (False, None)
-		yield 'unk', Uint, (0, None), (False, None)
-		yield 'block_name', Pointer, (0, ZString), (False, None)
+		yield 'hash', name_type_map['Uint'], (0, None), (False, None)
+		yield 'unk', name_type_map['Uint'], (0, None), (False, None)
+		yield 'block_name', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None)
 		if instance.context.version <= 18:
-			yield 'media_name', Pointer, (0, ZString), (False, None)
-			yield 'bnk_name', Pointer, (0, ZString), (False, None)
-		yield 'events', ArrayPointer, (instance.events_count, WmetasbMain._import_map["wmeta.compounds.EventEntry"]), (False, None)
-		yield 'events_count', Uint64, (0, None), (False, None)
+			yield 'media_name', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None)
+			yield 'bnk_name', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None)
+		yield 'events', name_type_map['ArrayPointer'], (instance.events_count, name_type_map['EventEntry']), (False, None)
+		yield 'events_count', name_type_map['Uint64'], (0, None), (False, None)
 		if instance.context.version <= 18:
-			yield 'hashes', ArrayPointer, (instance.hashes_count, Uint), (False, None)
-			yield 'hashes_count', Uint64, (0, None), (False, None)
-			yield 'media', ArrayPointer, (instance.media_count, WmetasbMain._import_map["wmeta.compounds.MediaEntry"]), (False, None)
-			yield 'media_count', Uint64, (0, None), (False, None)
-			yield 'unused_2', Pointer, (0, None), (False, None)
-			yield 'unused_3', Pointer, (0, None), (False, None)
-			yield 'unused_4', Pointer, (0, None), (False, None)
-			yield 'unused_5', Pointer, (0, None), (False, None)
+			yield 'hashes', name_type_map['ArrayPointer'], (instance.hashes_count, name_type_map['Uint']), (False, None)
+			yield 'hashes_count', name_type_map['Uint64'], (0, None), (False, None)
+			yield 'media', name_type_map['ArrayPointer'], (instance.media_count, name_type_map['MediaEntry']), (False, None)
+			yield 'media_count', name_type_map['Uint64'], (0, None), (False, None)
+			yield 'unused_2', name_type_map['Pointer'], (0, None), (False, None)
+			yield 'unused_3', name_type_map['Pointer'], (0, None), (False, None)
+			yield 'unused_4', name_type_map['Pointer'], (0, None), (False, None)
+			yield 'unused_5', name_type_map['Pointer'], (0, None), (False, None)

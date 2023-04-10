@@ -1,6 +1,5 @@
-from generated.formats.base.basic import Uint64
-from generated.formats.ovl_base.compounds.ArrayPointer import ArrayPointer
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
+from generated.formats.scaleformlanguagedata.imports import name_type_map
 
 
 class ScaleformlanguagedataRoot(MemStruct):
@@ -21,26 +20,26 @@ class ScaleformlanguagedataRoot(MemStruct):
 		self.count = 0
 		self.zero_2 = 0
 		self.zero_3 = 0
-		self.fonts = ArrayPointer(self.context, self.count, ScaleformlanguagedataRoot._import_map["scaleformlanguagedata.compounds.FontInfo"])
+		self.fonts = name_type_map['ArrayPointer'](self.context, self.count, name_type_map['FontInfo'])
 		if set_default:
 			self.set_defaults()
 
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('zero_0', Uint64, (0, None), (False, None), (None, None))
-		yield ('zero_1', Uint64, (0, None), (False, None), (None, None))
-		yield ('fonts', ArrayPointer, (None, ScaleformlanguagedataRoot._import_map["scaleformlanguagedata.compounds.FontInfo"]), (False, None), (None, None))
-		yield ('count', Uint64, (0, None), (False, None), (None, None))
-		yield ('zero_2', Uint64, (0, None), (False, None), (None, None))
-		yield ('zero_3', Uint64, (0, None), (False, None), (None, None))
+		yield ('zero_0', name_type_map['Uint64'], (0, None), (False, None), (None, None))
+		yield ('zero_1', name_type_map['Uint64'], (0, None), (False, None), (None, None))
+		yield ('fonts', name_type_map['ArrayPointer'], (None, None), (False, None), (None, None))
+		yield ('count', name_type_map['Uint64'], (0, None), (False, None), (None, None))
+		yield ('zero_2', name_type_map['Uint64'], (0, None), (False, None), (None, None))
+		yield ('zero_3', name_type_map['Uint64'], (0, None), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'zero_0', Uint64, (0, None), (False, None)
-		yield 'zero_1', Uint64, (0, None), (False, None)
-		yield 'fonts', ArrayPointer, (instance.count, ScaleformlanguagedataRoot._import_map["scaleformlanguagedata.compounds.FontInfo"]), (False, None)
-		yield 'count', Uint64, (0, None), (False, None)
-		yield 'zero_2', Uint64, (0, None), (False, None)
-		yield 'zero_3', Uint64, (0, None), (False, None)
+		yield 'zero_0', name_type_map['Uint64'], (0, None), (False, None)
+		yield 'zero_1', name_type_map['Uint64'], (0, None), (False, None)
+		yield 'fonts', name_type_map['ArrayPointer'], (instance.count, name_type_map['FontInfo']), (False, None)
+		yield 'count', name_type_map['Uint64'], (0, None), (False, None)
+		yield 'zero_2', name_type_map['Uint64'], (0, None), (False, None)
+		yield 'zero_3', name_type_map['Uint64'], (0, None), (False, None)

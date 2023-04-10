@@ -1,5 +1,5 @@
 from generated.base_struct import BaseStruct
-from generated.formats.base.basic import Float
+from generated.formats.ms2.imports import name_type_map
 
 
 class AxisAngle(BaseStruct):
@@ -20,15 +20,15 @@ class AxisAngle(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('a', Float, (0, None), (False, 1.0), (None, None))
-		yield ('x', Float, (0, None), (False, 0.0), (None, None))
-		yield ('y', Float, (0, None), (False, 0.0), (None, None))
-		yield ('z', Float, (0, None), (False, 0.0), (None, None))
+		yield ('a', name_type_map['Float'], (0, None), (False, 1.0), (None, None))
+		yield ('x', name_type_map['Float'], (0, None), (False, 0.0), (None, None))
+		yield ('y', name_type_map['Float'], (0, None), (False, 0.0), (None, None))
+		yield ('z', name_type_map['Float'], (0, None), (False, 0.0), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'a', Float, (0, None), (False, 1.0)
-		yield 'x', Float, (0, None), (False, 0.0)
-		yield 'y', Float, (0, None), (False, 0.0)
-		yield 'z', Float, (0, None), (False, 0.0)
+		yield 'a', name_type_map['Float'], (0, None), (False, 1.0)
+		yield 'x', name_type_map['Float'], (0, None), (False, 0.0)
+		yield 'y', name_type_map['Float'], (0, None), (False, 0.0)
+		yield 'z', name_type_map['Float'], (0, None), (False, 0.0)

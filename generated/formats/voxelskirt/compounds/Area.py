@@ -1,5 +1,5 @@
 from generated.base_struct import BaseStruct
-from generated.formats.base.basic import Uint64
+from generated.formats.voxelskirt.imports import name_type_map
 
 
 class Area(BaseStruct):
@@ -27,17 +27,17 @@ class Area(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('_id', Uint64, (0, None), (False, None), (None, None))
-		yield ('width_1', Uint64, (0, None), (False, None), (None, None))
-		yield ('height_1', Uint64, (0, None), (False, None), (None, None))
-		yield ('width_2', Uint64, (0, None), (False, None), (None, None))
-		yield ('height_2', Uint64, (0, None), (False, None), (None, None))
+		yield ('_id', name_type_map['Uint64'], (0, None), (False, None), (None, None))
+		yield ('width_1', name_type_map['Uint64'], (0, None), (False, None), (None, None))
+		yield ('height_1', name_type_map['Uint64'], (0, None), (False, None), (None, None))
+		yield ('width_2', name_type_map['Uint64'], (0, None), (False, None), (None, None))
+		yield ('height_2', name_type_map['Uint64'], (0, None), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield '_id', Uint64, (0, None), (False, None)
-		yield 'width_1', Uint64, (0, None), (False, None)
-		yield 'height_1', Uint64, (0, None), (False, None)
-		yield 'width_2', Uint64, (0, None), (False, None)
-		yield 'height_2', Uint64, (0, None), (False, None)
+		yield '_id', name_type_map['Uint64'], (0, None), (False, None)
+		yield 'width_1', name_type_map['Uint64'], (0, None), (False, None)
+		yield 'height_1', name_type_map['Uint64'], (0, None), (False, None)
+		yield 'width_2', name_type_map['Uint64'], (0, None), (False, None)
+		yield 'height_2', name_type_map['Uint64'], (0, None), (False, None)

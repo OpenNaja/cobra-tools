@@ -1,5 +1,5 @@
-from generated.formats.base.basic import Uint64
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
+from generated.formats.tex.imports import name_type_map
 
 
 class TexturestreamHeader(MemStruct):
@@ -23,12 +23,12 @@ class TexturestreamHeader(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('zero', Uint64, (0, None), (True, 0), (None, None))
-		yield ('lod_index', Uint64, (0, None), (False, None), (lambda context: context.user_version.use_djb and (context.version == 20), None))
+		yield ('zero', name_type_map['Uint64'], (0, None), (True, 0), (None, None))
+		yield ('lod_index', name_type_map['Uint64'], (0, None), (False, None), (lambda context: context.user_version.use_djb and (context.version == 20), None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'zero', Uint64, (0, None), (True, 0)
+		yield 'zero', name_type_map['Uint64'], (0, None), (True, 0)
 		if instance.context.user_version.use_djb and (instance.context.version == 20):
-			yield 'lod_index', Uint64, (0, None), (False, None)
+			yield 'lod_index', name_type_map['Uint64'], (0, None), (False, None)

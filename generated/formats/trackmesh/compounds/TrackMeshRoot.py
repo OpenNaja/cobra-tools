@@ -1,9 +1,5 @@
-from generated.formats.base.basic import Uint
-from generated.formats.base.basic import Uint64
-from generated.formats.base.basic import ZString
-from generated.formats.ovl_base.compounds.ArrayPointer import ArrayPointer
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
-from generated.formats.ovl_base.compounds.Pointer import Pointer
+from generated.formats.trackmesh.imports import name_type_map
 
 
 class TrackMeshRoot(MemStruct):
@@ -24,40 +20,40 @@ class TrackMeshRoot(MemStruct):
 		self.last_count = 0
 		self.lod_count = 0
 		self.g = 0
-		self.offset_data = ArrayPointer(self.context, self.count_0, TrackMeshRoot._import_map["trackmesh.compounds.OffsetData"])
-		self.track_data = ArrayPointer(self.context, self.next_count, TrackMeshRoot._import_map["trackmesh.compounds.TrackData"])
-		self.last = ArrayPointer(self.context, self.last_count, TrackMeshRoot._import_map["trackmesh.compounds.LastData"])
-		self.lods = ArrayPointer(self.context, self.lod_count, TrackMeshRoot._import_map["trackmesh.compounds.Lod"])
-		self.heatmap_name = Pointer(self.context, 0, ZString)
+		self.offset_data = name_type_map['ArrayPointer'](self.context, self.count_0, name_type_map['OffsetData'])
+		self.track_data = name_type_map['ArrayPointer'](self.context, self.next_count, name_type_map['TrackData'])
+		self.last = name_type_map['ArrayPointer'](self.context, self.last_count, name_type_map['LastData'])
+		self.lods = name_type_map['ArrayPointer'](self.context, self.lod_count, name_type_map['Lod'])
+		self.heatmap_name = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
 		if set_default:
 			self.set_defaults()
 
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('a', Uint64, (0, None), (False, None), (None, None))
-		yield ('offset_data', ArrayPointer, (None, TrackMeshRoot._import_map["trackmesh.compounds.OffsetData"]), (False, None), (None, None))
-		yield ('track_data', ArrayPointer, (None, TrackMeshRoot._import_map["trackmesh.compounds.TrackData"]), (False, None), (None, None))
-		yield ('last', ArrayPointer, (None, TrackMeshRoot._import_map["trackmesh.compounds.LastData"]), (False, None), (None, None))
-		yield ('count_0', Uint, (0, None), (False, None), (None, None))
-		yield ('next_count', Uint, (0, None), (False, None), (None, None))
-		yield ('last_count', Uint64, (0, None), (False, None), (None, None))
-		yield ('lods', ArrayPointer, (None, TrackMeshRoot._import_map["trackmesh.compounds.Lod"]), (False, None), (None, None))
-		yield ('lod_count', Uint64, (0, None), (False, None), (None, None))
-		yield ('heatmap_name', Pointer, (0, ZString), (False, None), (None, None))
-		yield ('g', Uint64, (0, None), (False, None), (None, None))
+		yield ('a', name_type_map['Uint64'], (0, None), (False, None), (None, None))
+		yield ('offset_data', name_type_map['ArrayPointer'], (None, None), (False, None), (None, None))
+		yield ('track_data', name_type_map['ArrayPointer'], (None, None), (False, None), (None, None))
+		yield ('last', name_type_map['ArrayPointer'], (None, None), (False, None), (None, None))
+		yield ('count_0', name_type_map['Uint'], (0, None), (False, None), (None, None))
+		yield ('next_count', name_type_map['Uint'], (0, None), (False, None), (None, None))
+		yield ('last_count', name_type_map['Uint64'], (0, None), (False, None), (None, None))
+		yield ('lods', name_type_map['ArrayPointer'], (None, None), (False, None), (None, None))
+		yield ('lod_count', name_type_map['Uint64'], (0, None), (False, None), (None, None))
+		yield ('heatmap_name', name_type_map['Pointer'], (0, None), (False, None), (None, None))
+		yield ('g', name_type_map['Uint64'], (0, None), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'a', Uint64, (0, None), (False, None)
-		yield 'offset_data', ArrayPointer, (instance.count_0, TrackMeshRoot._import_map["trackmesh.compounds.OffsetData"]), (False, None)
-		yield 'track_data', ArrayPointer, (instance.next_count, TrackMeshRoot._import_map["trackmesh.compounds.TrackData"]), (False, None)
-		yield 'last', ArrayPointer, (instance.last_count, TrackMeshRoot._import_map["trackmesh.compounds.LastData"]), (False, None)
-		yield 'count_0', Uint, (0, None), (False, None)
-		yield 'next_count', Uint, (0, None), (False, None)
-		yield 'last_count', Uint64, (0, None), (False, None)
-		yield 'lods', ArrayPointer, (instance.lod_count, TrackMeshRoot._import_map["trackmesh.compounds.Lod"]), (False, None)
-		yield 'lod_count', Uint64, (0, None), (False, None)
-		yield 'heatmap_name', Pointer, (0, ZString), (False, None)
-		yield 'g', Uint64, (0, None), (False, None)
+		yield 'a', name_type_map['Uint64'], (0, None), (False, None)
+		yield 'offset_data', name_type_map['ArrayPointer'], (instance.count_0, name_type_map['OffsetData']), (False, None)
+		yield 'track_data', name_type_map['ArrayPointer'], (instance.next_count, name_type_map['TrackData']), (False, None)
+		yield 'last', name_type_map['ArrayPointer'], (instance.last_count, name_type_map['LastData']), (False, None)
+		yield 'count_0', name_type_map['Uint'], (0, None), (False, None)
+		yield 'next_count', name_type_map['Uint'], (0, None), (False, None)
+		yield 'last_count', name_type_map['Uint64'], (0, None), (False, None)
+		yield 'lods', name_type_map['ArrayPointer'], (instance.lod_count, name_type_map['Lod']), (False, None)
+		yield 'lod_count', name_type_map['Uint64'], (0, None), (False, None)
+		yield 'heatmap_name', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None)
+		yield 'g', name_type_map['Uint64'], (0, None), (False, None)

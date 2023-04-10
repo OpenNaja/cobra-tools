@@ -1,5 +1,4 @@
-from generated.formats.base.basic import Uint64
-from generated.formats.ovl_base.compounds.ArrayPointer import ArrayPointer
+from generated.formats.mechanicresearch.imports import name_type_map
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
 
 
@@ -12,18 +11,18 @@ class ResearchRoot(MemStruct):
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		self.count = 0
-		self.levels = ArrayPointer(self.context, self.count, ResearchRoot._import_map["mechanicresearch.compounds.Research"])
+		self.levels = name_type_map['ArrayPointer'](self.context, self.count, name_type_map['Research'])
 		if set_default:
 			self.set_defaults()
 
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('levels', ArrayPointer, (None, ResearchRoot._import_map["mechanicresearch.compounds.Research"]), (False, None), (None, None))
-		yield ('count', Uint64, (0, None), (False, None), (None, None))
+		yield ('levels', name_type_map['ArrayPointer'], (None, None), (False, None), (None, None))
+		yield ('count', name_type_map['Uint64'], (0, None), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'levels', ArrayPointer, (instance.count, ResearchRoot._import_map["mechanicresearch.compounds.Research"]), (False, None)
-		yield 'count', Uint64, (0, None), (False, None)
+		yield 'levels', name_type_map['ArrayPointer'], (instance.count, name_type_map['Research']), (False, None)
+		yield 'count', name_type_map['Uint64'], (0, None), (False, None)

@@ -1,7 +1,6 @@
 from generated.array import Array
 from generated.base_struct import BaseStruct
-from generated.formats.base.basic import Uint
-from generated.formats.bnk.compounds.DataPointer import DataPointer
+from generated.formats.bnk.imports import name_type_map
 
 
 class DIDXSection(BaseStruct):
@@ -19,18 +18,18 @@ class DIDXSection(BaseStruct):
 
 		# length of following data
 		self.length = 0
-		self.data_pointers = Array(self.context, 0, None, (0,), DataPointer)
+		self.data_pointers = Array(self.context, 0, None, (0,), name_type_map['DataPointer'])
 		if set_default:
 			self.set_defaults()
 
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('length', Uint, (0, None), (False, None), (None, None))
-		yield ('data_pointers', Array, (0, None, (None,), DataPointer), (False, None), (None, None))
+		yield ('length', name_type_map['Uint'], (0, None), (False, None), (None, None))
+		yield ('data_pointers', Array, (0, None, (None,), name_type_map['DataPointer']), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'length', Uint, (0, None), (False, None)
-		yield 'data_pointers', Array, (0, None, (int(instance.length / 12),), DataPointer), (False, None)
+		yield 'length', name_type_map['Uint'], (0, None), (False, None)
+		yield 'data_pointers', Array, (0, None, (int(instance.length / 12),), name_type_map['DataPointer']), (False, None)

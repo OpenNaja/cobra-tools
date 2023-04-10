@@ -1,8 +1,5 @@
-from generated.formats.base.basic import Uint64
-from generated.formats.ovl_base.basic import ZStringObfuscated
-from generated.formats.ovl_base.compounds.ArrayPointer import ArrayPointer
+from generated.formats.dinosaurmaterialvariants.imports import name_type_map
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
-from generated.formats.ovl_base.compounds.Pointer import Pointer
 
 
 class DinoLayersHeader(MemStruct):
@@ -15,23 +12,23 @@ class DinoLayersHeader(MemStruct):
 		super().__init__(context, arg, template, set_default=False)
 		self.layer_count = 0
 		self.zero = 0
-		self.fgm_name = Pointer(self.context, 0, ZStringObfuscated)
-		self.layers = ArrayPointer(self.context, self.layer_count, DinoLayersHeader._import_map["dinosaurmaterialvariants.compounds.Layer"])
+		self.fgm_name = name_type_map['Pointer'](self.context, 0, name_type_map['ZStringObfuscated'])
+		self.layers = name_type_map['ArrayPointer'](self.context, self.layer_count, name_type_map['Layer'])
 		if set_default:
 			self.set_defaults()
 
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('fgm_name', Pointer, (0, ZStringObfuscated), (False, None), (None, None))
-		yield ('layers', ArrayPointer, (None, DinoLayersHeader._import_map["dinosaurmaterialvariants.compounds.Layer"]), (False, None), (None, None))
-		yield ('layer_count', Uint64, (0, None), (False, None), (None, None))
-		yield ('zero', Uint64, (0, None), (False, None), (None, None))
+		yield ('fgm_name', name_type_map['Pointer'], (0, None), (False, None), (None, None))
+		yield ('layers', name_type_map['ArrayPointer'], (None, None), (False, None), (None, None))
+		yield ('layer_count', name_type_map['Uint64'], (0, None), (False, None), (None, None))
+		yield ('zero', name_type_map['Uint64'], (0, None), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'fgm_name', Pointer, (0, ZStringObfuscated), (False, None)
-		yield 'layers', ArrayPointer, (instance.layer_count, DinoLayersHeader._import_map["dinosaurmaterialvariants.compounds.Layer"]), (False, None)
-		yield 'layer_count', Uint64, (0, None), (False, None)
-		yield 'zero', Uint64, (0, None), (False, None)
+		yield 'fgm_name', name_type_map['Pointer'], (0, name_type_map['ZStringObfuscated']), (False, None)
+		yield 'layers', name_type_map['ArrayPointer'], (instance.layer_count, name_type_map['Layer']), (False, None)
+		yield 'layer_count', name_type_map['Uint64'], (0, None), (False, None)
+		yield 'zero', name_type_map['Uint64'], (0, None), (False, None)

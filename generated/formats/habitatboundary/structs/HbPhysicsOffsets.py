@@ -1,5 +1,4 @@
-from generated.formats.base.basic import Float
-from generated.formats.habitatboundary.structs.HbPostSize import HbPostSize
+from generated.formats.habitatboundary.imports import name_type_map
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
 
 
@@ -18,7 +17,7 @@ class HbPhysicsOffsets(MemStruct):
 
 		# Wall thickness. Affects navcut, selection, and climb nav width. Must be under a certain value or it crashes.
 		self.thickness = 0.0
-		self.post_size = HbPostSize(self.context, 0, None)
+		self.post_size = name_type_map['HbPostSize'](self.context, 0, None)
 
 		# Wall size above wall_height. Affects navcut, selection, and climb nav height.
 		self.wall_pad_top = 0.0
@@ -31,15 +30,15 @@ class HbPhysicsOffsets(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('thickness', Float, (0, None), (False, None), (None, None))
-		yield ('post_size', HbPostSize, (0, None), (False, None), (None, None))
-		yield ('wall_pad_top', Float, (0, None), (False, None), (None, None))
-		yield ('wall_post_gap', Float, (0, None), (False, None), (None, None))
+		yield ('thickness', name_type_map['Float'], (0, None), (False, None), (None, None))
+		yield ('post_size', name_type_map['HbPostSize'], (0, None), (False, None), (None, None))
+		yield ('wall_pad_top', name_type_map['Float'], (0, None), (False, None), (None, None))
+		yield ('wall_post_gap', name_type_map['Float'], (0, None), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'thickness', Float, (0, None), (False, None)
-		yield 'post_size', HbPostSize, (0, None), (False, None)
-		yield 'wall_pad_top', Float, (0, None), (False, None)
-		yield 'wall_post_gap', Float, (0, None), (False, None)
+		yield 'thickness', name_type_map['Float'], (0, None), (False, None)
+		yield 'post_size', name_type_map['HbPostSize'], (0, None), (False, None)
+		yield 'wall_pad_top', name_type_map['Float'], (0, None), (False, None)
+		yield 'wall_post_gap', name_type_map['Float'], (0, None), (False, None)

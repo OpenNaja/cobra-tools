@@ -1,5 +1,5 @@
 from generated.base_struct import BaseStruct
-from generated.formats.base.basic import Ubyte
+from generated.formats.ms2.imports import name_type_map
 
 
 class SubA(BaseStruct):
@@ -28,15 +28,15 @@ class SubA(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('index', Ubyte, (0, None), (False, None), (None, None))
-		yield ('a', Ubyte, (0, None), (False, 240), (None, None))
-		yield ('b', Ubyte, (0, None), (False, 237), (None, None))
-		yield ('c', Ubyte, (0, None), (False, 254), (None, None))
+		yield ('index', name_type_map['Ubyte'], (0, None), (False, None), (None, None))
+		yield ('a', name_type_map['Ubyte'], (0, None), (False, 240), (None, None))
+		yield ('b', name_type_map['Ubyte'], (0, None), (False, 237), (None, None))
+		yield ('c', name_type_map['Ubyte'], (0, None), (False, 254), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'index', Ubyte, (0, None), (False, None)
-		yield 'a', Ubyte, (0, None), (False, 240)
-		yield 'b', Ubyte, (0, None), (False, 237)
-		yield 'c', Ubyte, (0, None), (False, 254)
+		yield 'index', name_type_map['Ubyte'], (0, None), (False, None)
+		yield 'a', name_type_map['Ubyte'], (0, None), (False, 240)
+		yield 'b', name_type_map['Ubyte'], (0, None), (False, 237)
+		yield 'c', name_type_map['Ubyte'], (0, None), (False, 254)

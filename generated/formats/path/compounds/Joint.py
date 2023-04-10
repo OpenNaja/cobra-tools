@@ -1,9 +1,5 @@
-from generated.formats.base.basic import Float
-from generated.formats.base.basic import Uint
-from generated.formats.base.basic import Uint64
-from generated.formats.base.basic import ZString
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
-from generated.formats.ovl_base.compounds.Pointer import Pointer
+from generated.formats.path.imports import name_type_map
 
 
 class Joint(MemStruct):
@@ -17,31 +13,31 @@ class Joint(MemStruct):
 		self.unk_float = 0.0
 		self.unk_int = 0
 		self.unk_int_2 = 0
-		self.joint_1 = Pointer(self.context, 0, ZString)
-		self.joint_2 = Pointer(self.context, 0, ZString)
-		self.joint_3 = Pointer(self.context, 0, ZString)
-		self.joint_4 = Pointer(self.context, 0, ZString)
+		self.joint_1 = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
+		self.joint_2 = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
+		self.joint_3 = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
+		self.joint_4 = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
 		if set_default:
 			self.set_defaults()
 
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('joint_1', Pointer, (0, ZString), (False, None), (None, None))
-		yield ('joint_2', Pointer, (0, ZString), (False, None), (None, None))
-		yield ('joint_3', Pointer, (0, ZString), (False, None), (None, None))
-		yield ('joint_4', Pointer, (0, ZString), (False, None), (None, None))
-		yield ('unk_float', Float, (0, None), (False, None), (None, None))
-		yield ('unk_int', Uint, (0, None), (False, None), (None, None))
-		yield ('unk_int_2', Uint64, (0, None), (False, None), (None, None))
+		yield ('joint_1', name_type_map['Pointer'], (0, None), (False, None), (None, None))
+		yield ('joint_2', name_type_map['Pointer'], (0, None), (False, None), (None, None))
+		yield ('joint_3', name_type_map['Pointer'], (0, None), (False, None), (None, None))
+		yield ('joint_4', name_type_map['Pointer'], (0, None), (False, None), (None, None))
+		yield ('unk_float', name_type_map['Float'], (0, None), (False, None), (None, None))
+		yield ('unk_int', name_type_map['Uint'], (0, None), (False, None), (None, None))
+		yield ('unk_int_2', name_type_map['Uint64'], (0, None), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'joint_1', Pointer, (0, ZString), (False, None)
-		yield 'joint_2', Pointer, (0, ZString), (False, None)
-		yield 'joint_3', Pointer, (0, ZString), (False, None)
-		yield 'joint_4', Pointer, (0, ZString), (False, None)
-		yield 'unk_float', Float, (0, None), (False, None)
-		yield 'unk_int', Uint, (0, None), (False, None)
-		yield 'unk_int_2', Uint64, (0, None), (False, None)
+		yield 'joint_1', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None)
+		yield 'joint_2', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None)
+		yield 'joint_3', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None)
+		yield 'joint_4', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None)
+		yield 'unk_float', name_type_map['Float'], (0, None), (False, None)
+		yield 'unk_int', name_type_map['Uint'], (0, None), (False, None)
+		yield 'unk_int_2', name_type_map['Uint64'], (0, None), (False, None)

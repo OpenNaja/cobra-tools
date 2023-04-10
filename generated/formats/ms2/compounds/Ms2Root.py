@@ -1,10 +1,6 @@
 import numpy
 from generated.array import Array
-from generated.formats.base.basic import Short
-from generated.formats.base.basic import Uint
-from generated.formats.base.basic import Ushort
-from generated.formats.ms2.basic import MainVersion
-from generated.formats.ovl_base.compounds.ArrayPointer import ArrayPointer
+from generated.formats.ms2.imports import name_type_map
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
 
 
@@ -34,41 +30,41 @@ class Ms2Root(MemStruct):
 
 		# -1 if there is no vertex buffer at all; else index of static buffers in total buffers
 		self.static_buffer_index = 0
-		self.zeros = Array(self.context, 0, None, (0,), Uint)
+		self.zeros = Array(self.context, 0, None, (0,), name_type_map['Uint'])
 
 		# ms2's static buffer_info or empty (if no buffers)
-		self.buffer_infos = ArrayPointer(self.context, self.vertex_buffer_count, Ms2Root._import_map["ms2.compounds.BufferInfo"])
+		self.buffer_infos = name_type_map['ArrayPointer'](self.context, self.vertex_buffer_count, name_type_map['BufferInfo'])
 
 		# one for each mdl2
-		self.model_infos = ArrayPointer(self.context, self.mdl_2_count, Ms2Root._import_map["ms2.compounds.ModelInfo"])
+		self.model_infos = name_type_map['ArrayPointer'](self.context, self.mdl_2_count, name_type_map['ModelInfo'])
 
 		# links buffers to ms2 dependencies if they are streamed
-		self.buffer_pointers = ArrayPointer(self.context, self.vertex_buffer_count, Ms2Root._import_map["ms2.compounds.BufferPresence"])
+		self.buffer_pointers = name_type_map['ArrayPointer'](self.context, self.vertex_buffer_count, name_type_map['BufferPresence'])
 		if set_default:
 			self.set_defaults()
 
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('version', MainVersion, (0, None), (False, None), (None, None))
-		yield ('vertex_buffer_count', Ushort, (0, None), (False, None), (None, None))
-		yield ('mdl_2_count', Ushort, (0, None), (False, None), (None, None))
-		yield ('name_count', Ushort, (0, None), (False, None), (None, None))
-		yield ('static_buffer_index', Short, (0, None), (False, None), (None, None))
-		yield ('zeros', Array, (0, None, (3,), Uint), (False, None), (None, None))
-		yield ('buffer_infos', ArrayPointer, (None, Ms2Root._import_map["ms2.compounds.BufferInfo"]), (False, None), (None, None))
-		yield ('model_infos', ArrayPointer, (None, Ms2Root._import_map["ms2.compounds.ModelInfo"]), (False, None), (None, None))
-		yield ('buffer_pointers', ArrayPointer, (None, Ms2Root._import_map["ms2.compounds.BufferPresence"]), (False, None), (None, None))
+		yield ('version', name_type_map['MainVersion'], (0, None), (False, None), (None, None))
+		yield ('vertex_buffer_count', name_type_map['Ushort'], (0, None), (False, None), (None, None))
+		yield ('mdl_2_count', name_type_map['Ushort'], (0, None), (False, None), (None, None))
+		yield ('name_count', name_type_map['Ushort'], (0, None), (False, None), (None, None))
+		yield ('static_buffer_index', name_type_map['Short'], (0, None), (False, None), (None, None))
+		yield ('zeros', Array, (0, None, (3,), name_type_map['Uint']), (False, None), (None, None))
+		yield ('buffer_infos', name_type_map['ArrayPointer'], (None, None), (False, None), (None, None))
+		yield ('model_infos', name_type_map['ArrayPointer'], (None, None), (False, None), (None, None))
+		yield ('buffer_pointers', name_type_map['ArrayPointer'], (None, None), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'version', MainVersion, (0, None), (False, None)
-		yield 'vertex_buffer_count', Ushort, (0, None), (False, None)
-		yield 'mdl_2_count', Ushort, (0, None), (False, None)
-		yield 'name_count', Ushort, (0, None), (False, None)
-		yield 'static_buffer_index', Short, (0, None), (False, None)
-		yield 'zeros', Array, (0, None, (3,), Uint), (False, None)
-		yield 'buffer_infos', ArrayPointer, (instance.vertex_buffer_count, Ms2Root._import_map["ms2.compounds.BufferInfo"]), (False, None)
-		yield 'model_infos', ArrayPointer, (instance.mdl_2_count, Ms2Root._import_map["ms2.compounds.ModelInfo"]), (False, None)
-		yield 'buffer_pointers', ArrayPointer, (instance.vertex_buffer_count, Ms2Root._import_map["ms2.compounds.BufferPresence"]), (False, None)
+		yield 'version', name_type_map['MainVersion'], (0, None), (False, None)
+		yield 'vertex_buffer_count', name_type_map['Ushort'], (0, None), (False, None)
+		yield 'mdl_2_count', name_type_map['Ushort'], (0, None), (False, None)
+		yield 'name_count', name_type_map['Ushort'], (0, None), (False, None)
+		yield 'static_buffer_index', name_type_map['Short'], (0, None), (False, None)
+		yield 'zeros', Array, (0, None, (3,), name_type_map['Uint']), (False, None)
+		yield 'buffer_infos', name_type_map['ArrayPointer'], (instance.vertex_buffer_count, name_type_map['BufferInfo']), (False, None)
+		yield 'model_infos', name_type_map['ArrayPointer'], (instance.mdl_2_count, name_type_map['ModelInfo']), (False, None)
+		yield 'buffer_pointers', name_type_map['ArrayPointer'], (instance.vertex_buffer_count, name_type_map['BufferPresence']), (False, None)

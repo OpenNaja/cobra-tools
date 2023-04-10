@@ -1,6 +1,5 @@
 from generated.base_struct import BaseStruct
-from generated.formats.base.basic import Uint
-from generated.formats.base.basic import Ushort
+from generated.formats.ms2.imports import name_type_map
 
 
 class MaterialName(BaseStruct):
@@ -25,19 +24,19 @@ class MaterialName(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('name_index', Ushort, (0, None), (False, None), (lambda context: context.version <= 32, None))
-		yield ('name_index', Uint, (0, None), (False, None), (lambda context: context.version >= 47, None))
-		yield ('blend_mode', Ushort, (0, None), (False, None), (lambda context: context.version <= 32, None))
-		yield ('blend_mode', Uint, (0, None), (False, None), (lambda context: context.version >= 47, None))
+		yield ('name_index', name_type_map['Ushort'], (0, None), (False, None), (lambda context: context.version <= 32, None))
+		yield ('name_index', name_type_map['Uint'], (0, None), (False, None), (lambda context: context.version >= 47, None))
+		yield ('blend_mode', name_type_map['Ushort'], (0, None), (False, None), (lambda context: context.version <= 32, None))
+		yield ('blend_mode', name_type_map['Uint'], (0, None), (False, None), (lambda context: context.version >= 47, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		if instance.context.version <= 32:
-			yield 'name_index', Ushort, (0, None), (False, None)
+			yield 'name_index', name_type_map['Ushort'], (0, None), (False, None)
 		if instance.context.version >= 47:
-			yield 'name_index', Uint, (0, None), (False, None)
+			yield 'name_index', name_type_map['Uint'], (0, None), (False, None)
 		if instance.context.version <= 32:
-			yield 'blend_mode', Ushort, (0, None), (False, None)
+			yield 'blend_mode', name_type_map['Ushort'], (0, None), (False, None)
 		if instance.context.version >= 47:
-			yield 'blend_mode', Uint, (0, None), (False, None)
+			yield 'blend_mode', name_type_map['Uint'], (0, None), (False, None)

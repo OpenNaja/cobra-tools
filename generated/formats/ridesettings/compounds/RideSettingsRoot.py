@@ -1,7 +1,5 @@
-from generated.formats.base.basic import Float
-from generated.formats.base.basic import Uint
-from generated.formats.ovl_base.compounds.ArrayPointer import ArrayPointer
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
+from generated.formats.ridesettings.imports import name_type_map
 
 
 class RideSettingsRoot(MemStruct):
@@ -18,28 +16,28 @@ class RideSettingsRoot(MemStruct):
 		self.pad_0 = 0
 		self.pad_1 = 0
 		self.pad_2 = 0
-		self.array_1 = ArrayPointer(self.context, self.count, RideSettingsRoot._import_map["ridesettings.compounds.Pair"])
+		self.array_1 = name_type_map['ArrayPointer'](self.context, self.count, name_type_map['Pair'])
 		if set_default:
 			self.set_defaults()
 
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('unk_0', Float, (0, None), (False, None), (None, None))
-		yield ('unk_1', Uint, (0, None), (False, None), (None, None))
-		yield ('array_1', ArrayPointer, (None, RideSettingsRoot._import_map["ridesettings.compounds.Pair"]), (False, None), (None, None))
-		yield ('count', Uint, (0, None), (False, None), (None, None))
-		yield ('pad_0', Uint, (0, None), (False, None), (None, None))
-		yield ('pad_1', Uint, (0, None), (False, None), (None, None))
-		yield ('pad_2', Uint, (0, None), (False, None), (None, None))
+		yield ('unk_0', name_type_map['Float'], (0, None), (False, None), (None, None))
+		yield ('unk_1', name_type_map['Uint'], (0, None), (False, None), (None, None))
+		yield ('array_1', name_type_map['ArrayPointer'], (None, None), (False, None), (None, None))
+		yield ('count', name_type_map['Uint'], (0, None), (False, None), (None, None))
+		yield ('pad_0', name_type_map['Uint'], (0, None), (False, None), (None, None))
+		yield ('pad_1', name_type_map['Uint'], (0, None), (False, None), (None, None))
+		yield ('pad_2', name_type_map['Uint'], (0, None), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'unk_0', Float, (0, None), (False, None)
-		yield 'unk_1', Uint, (0, None), (False, None)
-		yield 'array_1', ArrayPointer, (instance.count, RideSettingsRoot._import_map["ridesettings.compounds.Pair"]), (False, None)
-		yield 'count', Uint, (0, None), (False, None)
-		yield 'pad_0', Uint, (0, None), (False, None)
-		yield 'pad_1', Uint, (0, None), (False, None)
-		yield 'pad_2', Uint, (0, None), (False, None)
+		yield 'unk_0', name_type_map['Float'], (0, None), (False, None)
+		yield 'unk_1', name_type_map['Uint'], (0, None), (False, None)
+		yield 'array_1', name_type_map['ArrayPointer'], (instance.count, name_type_map['Pair']), (False, None)
+		yield 'count', name_type_map['Uint'], (0, None), (False, None)
+		yield 'pad_0', name_type_map['Uint'], (0, None), (False, None)
+		yield 'pad_1', name_type_map['Uint'], (0, None), (False, None)
+		yield 'pad_2', name_type_map['Uint'], (0, None), (False, None)

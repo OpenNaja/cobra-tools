@@ -1,5 +1,5 @@
 from generated.base_struct import BaseStruct
-from generated.formats.base.basic import Uint64
+from generated.formats.ovl.imports import name_type_map
 
 
 class AssetEntry(BaseStruct):
@@ -27,14 +27,14 @@ class AssetEntry(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('file_hash', Uint64, (0, None), (False, None), (None, None))
-		yield ('ext_hash', Uint64, (0, None), (False, None), (lambda context: context.version >= 19, None))
-		yield ('root_index', Uint64, (0, None), (False, None), (None, None))
+		yield ('file_hash', name_type_map['Uint64'], (0, None), (False, None), (None, None))
+		yield ('ext_hash', name_type_map['Uint64'], (0, None), (False, None), (lambda context: context.version >= 19, None))
+		yield ('root_index', name_type_map['Uint64'], (0, None), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'file_hash', Uint64, (0, None), (False, None)
+		yield 'file_hash', name_type_map['Uint64'], (0, None), (False, None)
 		if instance.context.version >= 19:
-			yield 'ext_hash', Uint64, (0, None), (False, None)
-		yield 'root_index', Uint64, (0, None), (False, None)
+			yield 'ext_hash', name_type_map['Uint64'], (0, None), (False, None)
+		yield 'root_index', name_type_map['Uint64'], (0, None), (False, None)

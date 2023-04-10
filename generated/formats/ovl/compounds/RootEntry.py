@@ -1,6 +1,5 @@
 from generated.base_struct import BaseStruct
-from generated.formats.base.basic import Uint
-from generated.formats.ovl.compounds.HeaderPointer import HeaderPointer
+from generated.formats.ovl.imports import name_type_map
 
 
 class RootEntry(BaseStruct):
@@ -24,21 +23,21 @@ class RootEntry(BaseStruct):
 		self.ext_hash = 0
 
 		# points to the main struct of this file OR -1 pointer for assets
-		self.struct_ptr = HeaderPointer(self.context, 0, None)
+		self.struct_ptr = name_type_map['HeaderPointer'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('file_hash', Uint, (0, None), (False, None), (None, None))
-		yield ('ext_hash', Uint, (0, None), (False, None), (lambda context: context.version >= 19, None))
-		yield ('struct_ptr', HeaderPointer, (0, None), (False, None), (None, None))
+		yield ('file_hash', name_type_map['Uint'], (0, None), (False, None), (None, None))
+		yield ('ext_hash', name_type_map['Uint'], (0, None), (False, None), (lambda context: context.version >= 19, None))
+		yield ('struct_ptr', name_type_map['HeaderPointer'], (0, None), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'file_hash', Uint, (0, None), (False, None)
+		yield 'file_hash', name_type_map['Uint'], (0, None), (False, None)
 		if instance.context.version >= 19:
-			yield 'ext_hash', Uint, (0, None), (False, None)
-		yield 'struct_ptr', HeaderPointer, (0, None), (False, None)
+			yield 'ext_hash', name_type_map['Uint'], (0, None), (False, None)
+		yield 'struct_ptr', name_type_map['HeaderPointer'], (0, None), (False, None)

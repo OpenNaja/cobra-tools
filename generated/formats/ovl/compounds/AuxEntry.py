@@ -1,6 +1,5 @@
 from generated.base_struct import BaseStruct
-from generated.formats.base.basic import Uint
-from generated.formats.ovl_base.basic import OffsetString
+from generated.formats.ovl.imports import name_type_map
 
 
 class AuxEntry(BaseStruct):
@@ -29,13 +28,13 @@ class AuxEntry(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('file_index', Uint, (0, None), (False, None), (None, None))
-		yield ('basename', OffsetString, (None, None), (False, None), (None, None))
-		yield ('size', Uint, (0, None), (False, None), (None, None))
+		yield ('file_index', name_type_map['Uint'], (0, None), (False, None), (None, None))
+		yield ('basename', name_type_map['OffsetString'], (None, None), (False, None), (None, None))
+		yield ('size', name_type_map['Uint'], (0, None), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'file_index', Uint, (0, None), (False, None)
-		yield 'basename', OffsetString, (instance.context.names, None), (False, None)
-		yield 'size', Uint, (0, None), (False, None)
+		yield 'file_index', name_type_map['Uint'], (0, None), (False, None)
+		yield 'basename', name_type_map['OffsetString'], (instance.context.names, None), (False, None)
+		yield 'size', name_type_map['Uint'], (0, None), (False, None)

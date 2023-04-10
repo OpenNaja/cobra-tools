@@ -1,9 +1,5 @@
-from generated.formats.base.basic import Float
-from generated.formats.base.basic import Uint64
-from generated.formats.base.basic import ZString
-from generated.formats.motiongraph.enums.SelectActivityActivityMode import SelectActivityActivityMode
+from generated.formats.motiongraph.imports import name_type_map
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
-from generated.formats.ovl_base.compounds.Pointer import Pointer
 
 
 class RandomActivityActivityInfoData(MemStruct):
@@ -20,26 +16,26 @@ class RandomActivityActivityInfoData(MemStruct):
 		super().__init__(context, arg, template, set_default=False)
 		self.activities_count = 0
 		self.blend_time = 0.0
-		self.mode = SelectActivityActivityMode(self.context, 0, None)
-		self.enum_variable = Pointer(self.context, 0, ZString)
-		self.activities = Pointer(self.context, 0, None)
+		self.mode = name_type_map['SelectActivityActivityMode'](self.context, 0, None)
+		self.enum_variable = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
+		self.activities = name_type_map['Pointer'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('enum_variable', Pointer, (0, ZString), (False, None), (None, None))
-		yield ('activities', Pointer, (0, None), (False, None), (None, None))
-		yield ('activities_count', Uint64, (0, None), (False, None), (None, None))
-		yield ('blend_time', Float, (0, None), (False, None), (None, None))
-		yield ('mode', SelectActivityActivityMode, (0, None), (False, None), (None, None))
+		yield ('enum_variable', name_type_map['Pointer'], (0, None), (False, None), (None, None))
+		yield ('activities', name_type_map['Pointer'], (0, None), (False, None), (None, None))
+		yield ('activities_count', name_type_map['Uint64'], (0, None), (False, None), (None, None))
+		yield ('blend_time', name_type_map['Float'], (0, None), (False, None), (None, None))
+		yield ('mode', name_type_map['SelectActivityActivityMode'], (0, None), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'enum_variable', Pointer, (0, ZString), (False, None)
-		yield 'activities', Pointer, (0, None), (False, None)
-		yield 'activities_count', Uint64, (0, None), (False, None)
-		yield 'blend_time', Float, (0, None), (False, None)
-		yield 'mode', SelectActivityActivityMode, (0, None), (False, None)
+		yield 'enum_variable', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None)
+		yield 'activities', name_type_map['Pointer'], (0, None), (False, None)
+		yield 'activities_count', name_type_map['Uint64'], (0, None), (False, None)
+		yield 'blend_time', name_type_map['Float'], (0, None), (False, None)
+		yield 'mode', name_type_map['SelectActivityActivityMode'], (0, None), (False, None)

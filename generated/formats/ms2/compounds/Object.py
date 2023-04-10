@@ -1,5 +1,5 @@
 from generated.base_struct import BaseStruct
-from generated.formats.base.basic import Ushort
+from generated.formats.ms2.imports import name_type_map
 
 
 class Object(BaseStruct):
@@ -22,11 +22,11 @@ class Object(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('material_index', Ushort, (0, None), (False, None), (None, None))
-		yield ('mesh_index', Ushort, (0, None), (False, None), (None, None))
+		yield ('material_index', name_type_map['Ushort'], (0, None), (False, None), (None, None))
+		yield ('mesh_index', name_type_map['Ushort'], (0, None), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'material_index', Ushort, (0, None), (False, None)
-		yield 'mesh_index', Ushort, (0, None), (False, None)
+		yield 'material_index', name_type_map['Ushort'], (0, None), (False, None)
+		yield 'mesh_index', name_type_map['Ushort'], (0, None), (False, None)

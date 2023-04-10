@@ -1,4 +1,4 @@
-from generated.formats.base.basic import Ubyte
+from generated.formats.fgm.imports import name_type_map
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
 
 
@@ -24,15 +24,15 @@ class Color(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('r', Ubyte, (0, None), (False, None), (None, None))
-		yield ('g', Ubyte, (0, None), (False, None), (None, None))
-		yield ('b', Ubyte, (0, None), (False, None), (None, None))
-		yield ('a', Ubyte, (0, None), (False, None), (None, None))
+		yield ('r', name_type_map['Ubyte'], (0, None), (False, None), (None, None))
+		yield ('g', name_type_map['Ubyte'], (0, None), (False, None), (None, None))
+		yield ('b', name_type_map['Ubyte'], (0, None), (False, None), (None, None))
+		yield ('a', name_type_map['Ubyte'], (0, None), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'r', Ubyte, (0, None), (False, None)
-		yield 'g', Ubyte, (0, None), (False, None)
-		yield 'b', Ubyte, (0, None), (False, None)
-		yield 'a', Ubyte, (0, None), (False, None)
+		yield 'r', name_type_map['Ubyte'], (0, None), (False, None)
+		yield 'g', name_type_map['Ubyte'], (0, None), (False, None)
+		yield 'b', name_type_map['Ubyte'], (0, None), (False, None)
+		yield 'a', name_type_map['Ubyte'], (0, None), (False, None)

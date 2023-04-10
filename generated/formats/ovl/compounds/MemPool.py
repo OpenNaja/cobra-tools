@@ -5,9 +5,7 @@ from generated.formats.base.compounds.PadAlign import get_padding
 
 
 from generated.base_struct import BaseStruct
-from generated.formats.base.basic import Uint
-from generated.formats.base.basic import Uint64
-from generated.formats.base.basic import Ushort
+from generated.formats.ovl.imports import name_type_map
 
 
 class MemPool(BaseStruct):
@@ -49,32 +47,32 @@ class MemPool(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('zero_1', Uint64, (0, None), (False, None), (lambda context: context.version >= 17, None))
-		yield ('size', Uint, (0, None), (False, None), (None, None))
-		yield ('offset', Uint, (0, None), (False, None), (None, None))
-		yield ('zero_2', Uint64, (0, None), (False, None), (lambda context: context.version <= 15, None))
-		yield ('file_hash', Uint, (0, None), (False, None), (None, None))
-		yield ('num_files', Ushort, (0, None), (False, None), (lambda context: context.version >= 15, None))
-		yield ('num_datas', Ushort, (0, None), (False, None), (lambda context: context.version >= 15, None))
-		yield ('ext_hash', Uint, (0, None), (False, None), (lambda context: context.version >= 19, None))
-		yield ('zero_3', Uint, (0, None), (False, None), (lambda context: context.version >= 19, None))
+		yield ('zero_1', name_type_map['Uint64'], (0, None), (False, None), (lambda context: context.version >= 17, None))
+		yield ('size', name_type_map['Uint'], (0, None), (False, None), (None, None))
+		yield ('offset', name_type_map['Uint'], (0, None), (False, None), (None, None))
+		yield ('zero_2', name_type_map['Uint64'], (0, None), (False, None), (lambda context: context.version <= 15, None))
+		yield ('file_hash', name_type_map['Uint'], (0, None), (False, None), (None, None))
+		yield ('num_files', name_type_map['Ushort'], (0, None), (False, None), (lambda context: context.version >= 15, None))
+		yield ('num_datas', name_type_map['Ushort'], (0, None), (False, None), (lambda context: context.version >= 15, None))
+		yield ('ext_hash', name_type_map['Uint'], (0, None), (False, None), (lambda context: context.version >= 19, None))
+		yield ('zero_3', name_type_map['Uint'], (0, None), (False, None), (lambda context: context.version >= 19, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		if instance.context.version >= 17:
-			yield 'zero_1', Uint64, (0, None), (False, None)
-		yield 'size', Uint, (0, None), (False, None)
-		yield 'offset', Uint, (0, None), (False, None)
+			yield 'zero_1', name_type_map['Uint64'], (0, None), (False, None)
+		yield 'size', name_type_map['Uint'], (0, None), (False, None)
+		yield 'offset', name_type_map['Uint'], (0, None), (False, None)
 		if instance.context.version <= 15:
-			yield 'zero_2', Uint64, (0, None), (False, None)
-		yield 'file_hash', Uint, (0, None), (False, None)
+			yield 'zero_2', name_type_map['Uint64'], (0, None), (False, None)
+		yield 'file_hash', name_type_map['Uint'], (0, None), (False, None)
 		if instance.context.version >= 15:
-			yield 'num_files', Ushort, (0, None), (False, None)
-			yield 'num_datas', Ushort, (0, None), (False, None)
+			yield 'num_files', name_type_map['Ushort'], (0, None), (False, None)
+			yield 'num_datas', name_type_map['Ushort'], (0, None), (False, None)
 		if instance.context.version >= 19:
-			yield 'ext_hash', Uint, (0, None), (False, None)
-			yield 'zero_3', Uint, (0, None), (False, None)
+			yield 'ext_hash', name_type_map['Uint'], (0, None), (False, None)
+			yield 'zero_3', name_type_map['Uint'], (0, None), (False, None)
 
 	def clear_data(self):
 		self.new = False

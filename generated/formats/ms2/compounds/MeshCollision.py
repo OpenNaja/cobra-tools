@@ -1,13 +1,7 @@
 import numpy
 from generated.array import Array
 from generated.base_struct import BaseStruct
-from generated.formats.base.basic import Int
-from generated.formats.base.basic import Uint64
-from generated.formats.ms2.compounds.Matrix33 import Matrix33
-from generated.formats.ms2.compounds.SubA import SubA
-from generated.formats.ms2.compounds.SubCollChunk import SubCollChunk
-from generated.formats.ms2.compounds.Vector3 import Vector3
-from generated.formats.ovl_base.compounds.SmartPadding import SmartPadding
+from generated.formats.ms2.imports import name_type_map
 
 
 class MeshCollision(BaseStruct):
@@ -22,13 +16,13 @@ class MeshCollision(BaseStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.rotation = Matrix33(self.context, 0, None)
+		self.rotation = name_type_map['Matrix33'](self.context, 0, None)
 
 		# offset of mesh
-		self.offset = Vector3(self.context, 0, None)
+		self.offset = name_type_map['Vector3'](self.context, 0, None)
 
 		# shared among (all?) redwoods
-		self.unk_1 = Array(self.context, 0, None, (0,), SubA)
+		self.unk_1 = Array(self.context, 0, None, (0,), name_type_map['SubA'])
 
 		# vertices (3 float)
 		self.vertex_count = 0
@@ -37,60 +31,60 @@ class MeshCollision(BaseStruct):
 		self.tri_count = 0
 
 		# the smallest coordinates across all axes
-		self.bounds_min = Vector3(self.context, 0, None)
+		self.bounds_min = name_type_map['Vector3'](self.context, 0, None)
 
 		# the biggest coordinates across all axes
-		self.bounds_max = Vector3(self.context, 0, None)
+		self.bounds_max = name_type_map['Vector3'](self.context, 0, None)
 		self.flag_0 = 1
 		self.flag_1 = 1
 		self.has_sub_coll_chunk = 0
-		self.zeros_1 = Array(self.context, 0, None, (0,), Uint64)
+		self.zeros_1 = Array(self.context, 0, None, (0,), name_type_map['Uint64'])
 		self.ff = -1
-		self.zeros_2 = Array(self.context, 0, None, (0,), Int)
+		self.zeros_2 = Array(self.context, 0, None, (0,), name_type_map['Int'])
 
 		# sometimes 8 bytes, apparently not part of SubCollChunk (JWE2 dev footplantingtest_ has that but not the padding)
-		self.weird_padding = SmartPadding(self.context, 4, None)
+		self.weird_padding = name_type_map['SmartPadding'](self.context, 4, None)
 
 		# seems to repeat tri_count
-		self.sub_coll_chunk = SubCollChunk(self.context, 0, None)
+		self.sub_coll_chunk = name_type_map['SubCollChunk'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('rotation', Matrix33, (0, None), (False, None), (None, None))
-		yield ('offset', Vector3, (0, None), (False, None), (None, None))
-		yield ('unk_1', Array, (0, None, (3,), SubA), (False, None), (None, None))
-		yield ('vertex_count', Uint64, (0, None), (False, None), (None, None))
-		yield ('tri_count', Uint64, (0, None), (False, None), (None, None))
-		yield ('bounds_min', Vector3, (0, None), (False, None), (None, None))
-		yield ('bounds_max', Vector3, (0, None), (False, None), (None, None))
-		yield ('flag_0', Uint64, (0, None), (False, 1), (None, None))
-		yield ('flag_1', Uint64, (0, None), (False, 1), (None, None))
-		yield ('has_sub_coll_chunk', Uint64, (0, None), (False, None), (None, None))
-		yield ('zeros_1', Array, (0, None, (4,), Uint64), (False, None), (None, None))
-		yield ('ff', Int, (0, None), (False, -1), (None, None))
-		yield ('zeros_2', Array, (0, None, (7,), Int), (False, None), (None, None))
-		yield ('weird_padding', SmartPadding, (4, None), (False, None), (None, None))
-		yield ('sub_coll_chunk', SubCollChunk, (0, None), (False, None), (None, True))
+		yield ('rotation', name_type_map['Matrix33'], (0, None), (False, None), (None, None))
+		yield ('offset', name_type_map['Vector3'], (0, None), (False, None), (None, None))
+		yield ('unk_1', Array, (0, None, (3,), name_type_map['SubA']), (False, None), (None, None))
+		yield ('vertex_count', name_type_map['Uint64'], (0, None), (False, None), (None, None))
+		yield ('tri_count', name_type_map['Uint64'], (0, None), (False, None), (None, None))
+		yield ('bounds_min', name_type_map['Vector3'], (0, None), (False, None), (None, None))
+		yield ('bounds_max', name_type_map['Vector3'], (0, None), (False, None), (None, None))
+		yield ('flag_0', name_type_map['Uint64'], (0, None), (False, 1), (None, None))
+		yield ('flag_1', name_type_map['Uint64'], (0, None), (False, 1), (None, None))
+		yield ('has_sub_coll_chunk', name_type_map['Uint64'], (0, None), (False, None), (None, None))
+		yield ('zeros_1', Array, (0, None, (4,), name_type_map['Uint64']), (False, None), (None, None))
+		yield ('ff', name_type_map['Int'], (0, None), (False, -1), (None, None))
+		yield ('zeros_2', Array, (0, None, (7,), name_type_map['Int']), (False, None), (None, None))
+		yield ('weird_padding', name_type_map['SmartPadding'], (4, None), (False, None), (None, None))
+		yield ('sub_coll_chunk', name_type_map['SubCollChunk'], (0, None), (False, None), (None, True))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'rotation', Matrix33, (0, None), (False, None)
-		yield 'offset', Vector3, (0, None), (False, None)
-		yield 'unk_1', Array, (0, None, (3,), SubA), (False, None)
-		yield 'vertex_count', Uint64, (0, None), (False, None)
-		yield 'tri_count', Uint64, (0, None), (False, None)
-		yield 'bounds_min', Vector3, (0, None), (False, None)
-		yield 'bounds_max', Vector3, (0, None), (False, None)
-		yield 'flag_0', Uint64, (0, None), (False, 1)
-		yield 'flag_1', Uint64, (0, None), (False, 1)
-		yield 'has_sub_coll_chunk', Uint64, (0, None), (False, None)
-		yield 'zeros_1', Array, (0, None, (4,), Uint64), (False, None)
-		yield 'ff', Int, (0, None), (False, -1)
-		yield 'zeros_2', Array, (0, None, (7,), Int), (False, None)
-		yield 'weird_padding', SmartPadding, (4, None), (False, None)
+		yield 'rotation', name_type_map['Matrix33'], (0, None), (False, None)
+		yield 'offset', name_type_map['Vector3'], (0, None), (False, None)
+		yield 'unk_1', Array, (0, None, (3,), name_type_map['SubA']), (False, None)
+		yield 'vertex_count', name_type_map['Uint64'], (0, None), (False, None)
+		yield 'tri_count', name_type_map['Uint64'], (0, None), (False, None)
+		yield 'bounds_min', name_type_map['Vector3'], (0, None), (False, None)
+		yield 'bounds_max', name_type_map['Vector3'], (0, None), (False, None)
+		yield 'flag_0', name_type_map['Uint64'], (0, None), (False, 1)
+		yield 'flag_1', name_type_map['Uint64'], (0, None), (False, 1)
+		yield 'has_sub_coll_chunk', name_type_map['Uint64'], (0, None), (False, None)
+		yield 'zeros_1', Array, (0, None, (4,), name_type_map['Uint64']), (False, None)
+		yield 'ff', name_type_map['Int'], (0, None), (False, -1)
+		yield 'zeros_2', Array, (0, None, (7,), name_type_map['Int']), (False, None)
+		yield 'weird_padding', name_type_map['SmartPadding'], (4, None), (False, None)
 		if instance.has_sub_coll_chunk:
-			yield 'sub_coll_chunk', SubCollChunk, (0, None), (False, None)
+			yield 'sub_coll_chunk', name_type_map['SubCollChunk'], (0, None), (False, None)

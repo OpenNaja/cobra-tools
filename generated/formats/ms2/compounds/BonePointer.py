@@ -1,5 +1,5 @@
-from generated.formats.base.basic import Ubyte
 from generated.formats.ms2.compounds.AbstractPointer import AbstractPointer
+from generated.formats.ms2.imports import name_type_map
 
 
 class BonePointer(AbstractPointer):
@@ -19,9 +19,9 @@ class BonePointer(AbstractPointer):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('index', Ubyte, (0, None), (False, None), (None, None))
+		yield ('index', name_type_map['Ubyte'], (0, None), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'index', Ubyte, (0, None), (False, None)
+		yield 'index', name_type_map['Ubyte'], (0, None), (False, None)

@@ -1,5 +1,5 @@
 from generated.base_struct import BaseStruct
-from generated.formats.base.basic import Float
+from generated.formats.ms2.imports import name_type_map
 
 
 class RotationRange(BaseStruct):
@@ -22,11 +22,11 @@ class RotationRange(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('min', Float, (0, None), (False, None), (None, None))
-		yield ('max', Float, (0, None), (False, None), (None, None))
+		yield ('min', name_type_map['Float'], (0, None), (False, None), (None, None))
+		yield ('max', name_type_map['Float'], (0, None), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'min', Float, (0, None), (False, None)
-		yield 'max', Float, (0, None), (False, None)
+		yield 'min', name_type_map['Float'], (0, None), (False, None)
+		yield 'max', name_type_map['Float'], (0, None), (False, None)

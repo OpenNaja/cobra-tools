@@ -1,8 +1,5 @@
-from generated.formats.base.basic import Float
-from generated.formats.base.basic import Uint
-from generated.formats.base.basic import Uint64
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
-from generated.formats.voxelskirt.compounds.DataSlot import DataSlot
+from generated.formats.voxelskirt.imports import name_type_map
 
 
 class VoxelskirtRoot(MemStruct):
@@ -34,46 +31,46 @@ class VoxelskirtRoot(MemStruct):
 
 		# x*y*4, for PC only
 		self._weights_offset = 0
-		self.layers = DataSlot(self.context, 0, VoxelskirtRoot._import_map["voxelskirt.compounds.Layer"])
-		self.areas = DataSlot(self.context, 0, VoxelskirtRoot._import_map["voxelskirt.compounds.Area"])
-		self.entity_groups = DataSlot(self.context, 0, VoxelskirtRoot._import_map["voxelskirt.compounds.EntityGroup"])
-		self.materials = DataSlot(self.context, 0, VoxelskirtRoot._import_map["voxelskirt.compounds.Material"])
-		self.names = DataSlot(self.context, 0, VoxelskirtRoot._import_map["voxelskirt.compounds.Name"])
+		self.layers = name_type_map['DataSlot'](self.context, 0, name_type_map['Layer'])
+		self.areas = name_type_map['DataSlot'](self.context, 0, name_type_map['Area'])
+		self.entity_groups = name_type_map['DataSlot'](self.context, 0, name_type_map['EntityGroup'])
+		self.materials = name_type_map['DataSlot'](self.context, 0, name_type_map['Material'])
+		self.names = name_type_map['DataSlot'](self.context, 0, name_type_map['Name'])
 		if set_default:
 			self.set_defaults()
 
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('zero', Uint64, (0, None), (True, 0), (None, None))
-		yield ('_data_size', Uint64, (0, None), (False, None), (None, None))
-		yield ('x', Uint64, (0, None), (False, None), (None, None))
-		yield ('y', Uint64, (0, None), (False, None), (None, None))
-		yield ('scale', Float, (0, None), (False, None), (None, None))
-		yield ('padding', Uint, (0, None), (True, 0), (None, None))
-		yield ('_height_offset', Uint64, (0, None), (False, None), (lambda context: context.version == 18, None))
-		yield ('_weights_offset', Uint64, (0, None), (False, None), (lambda context: context.version == 18, None))
-		yield ('layers', DataSlot, (0, VoxelskirtRoot._import_map["voxelskirt.compounds.Layer"]), (False, None), (lambda context: not (context.version == 18), None))
-		yield ('areas', DataSlot, (0, VoxelskirtRoot._import_map["voxelskirt.compounds.Area"]), (False, None), (lambda context: not (context.version == 18), None))
-		yield ('entity_groups', DataSlot, (0, VoxelskirtRoot._import_map["voxelskirt.compounds.EntityGroup"]), (False, None), (None, None))
-		yield ('materials', DataSlot, (0, VoxelskirtRoot._import_map["voxelskirt.compounds.Material"]), (False, None), (None, None))
-		yield ('names', DataSlot, (0, VoxelskirtRoot._import_map["voxelskirt.compounds.Name"]), (False, None), (None, None))
+		yield ('zero', name_type_map['Uint64'], (0, None), (True, 0), (None, None))
+		yield ('_data_size', name_type_map['Uint64'], (0, None), (False, None), (None, None))
+		yield ('x', name_type_map['Uint64'], (0, None), (False, None), (None, None))
+		yield ('y', name_type_map['Uint64'], (0, None), (False, None), (None, None))
+		yield ('scale', name_type_map['Float'], (0, None), (False, None), (None, None))
+		yield ('padding', name_type_map['Uint'], (0, None), (True, 0), (None, None))
+		yield ('_height_offset', name_type_map['Uint64'], (0, None), (False, None), (lambda context: context.version == 18, None))
+		yield ('_weights_offset', name_type_map['Uint64'], (0, None), (False, None), (lambda context: context.version == 18, None))
+		yield ('layers', name_type_map['DataSlot'], (0, None), (False, None), (lambda context: not (context.version == 18), None))
+		yield ('areas', name_type_map['DataSlot'], (0, None), (False, None), (lambda context: not (context.version == 18), None))
+		yield ('entity_groups', name_type_map['DataSlot'], (0, None), (False, None), (None, None))
+		yield ('materials', name_type_map['DataSlot'], (0, None), (False, None), (None, None))
+		yield ('names', name_type_map['DataSlot'], (0, None), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'zero', Uint64, (0, None), (True, 0)
-		yield '_data_size', Uint64, (0, None), (False, None)
-		yield 'x', Uint64, (0, None), (False, None)
-		yield 'y', Uint64, (0, None), (False, None)
-		yield 'scale', Float, (0, None), (False, None)
-		yield 'padding', Uint, (0, None), (True, 0)
+		yield 'zero', name_type_map['Uint64'], (0, None), (True, 0)
+		yield '_data_size', name_type_map['Uint64'], (0, None), (False, None)
+		yield 'x', name_type_map['Uint64'], (0, None), (False, None)
+		yield 'y', name_type_map['Uint64'], (0, None), (False, None)
+		yield 'scale', name_type_map['Float'], (0, None), (False, None)
+		yield 'padding', name_type_map['Uint'], (0, None), (True, 0)
 		if instance.context.version == 18:
-			yield '_height_offset', Uint64, (0, None), (False, None)
-			yield '_weights_offset', Uint64, (0, None), (False, None)
+			yield '_height_offset', name_type_map['Uint64'], (0, None), (False, None)
+			yield '_weights_offset', name_type_map['Uint64'], (0, None), (False, None)
 		if not (instance.context.version == 18):
-			yield 'layers', DataSlot, (0, VoxelskirtRoot._import_map["voxelskirt.compounds.Layer"]), (False, None)
-			yield 'areas', DataSlot, (0, VoxelskirtRoot._import_map["voxelskirt.compounds.Area"]), (False, None)
-		yield 'entity_groups', DataSlot, (0, VoxelskirtRoot._import_map["voxelskirt.compounds.EntityGroup"]), (False, None)
-		yield 'materials', DataSlot, (0, VoxelskirtRoot._import_map["voxelskirt.compounds.Material"]), (False, None)
-		yield 'names', DataSlot, (0, VoxelskirtRoot._import_map["voxelskirt.compounds.Name"]), (False, None)
+			yield 'layers', name_type_map['DataSlot'], (0, name_type_map['Layer']), (False, None)
+			yield 'areas', name_type_map['DataSlot'], (0, name_type_map['Area']), (False, None)
+		yield 'entity_groups', name_type_map['DataSlot'], (0, name_type_map['EntityGroup']), (False, None)
+		yield 'materials', name_type_map['DataSlot'], (0, name_type_map['Material']), (False, None)
+		yield 'names', name_type_map['DataSlot'], (0, name_type_map['Name']), (False, None)

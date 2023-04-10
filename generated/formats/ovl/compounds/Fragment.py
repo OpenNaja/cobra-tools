@@ -1,7 +1,7 @@
 import os
 
 from generated.base_struct import BaseStruct
-from generated.formats.ovl.compounds.HeaderPointer import HeaderPointer
+from generated.formats.ovl.imports import name_type_map
 
 
 class Fragment(BaseStruct):
@@ -19,24 +19,24 @@ class Fragment(BaseStruct):
 		super().__init__(context, arg, template, set_default=False)
 
 		# determines where to write a pointer address
-		self.link_ptr = HeaderPointer(self.context, 0, None)
+		self.link_ptr = name_type_map['HeaderPointer'](self.context, 0, None)
 
 		# the struct that is pointed to can be found here
-		self.struct_ptr = HeaderPointer(self.context, 0, None)
+		self.struct_ptr = name_type_map['HeaderPointer'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('link_ptr', HeaderPointer, (0, None), (False, None), (None, None))
-		yield ('struct_ptr', HeaderPointer, (0, None), (False, None), (None, None))
+		yield ('link_ptr', name_type_map['HeaderPointer'], (0, None), (False, None), (None, None))
+		yield ('struct_ptr', name_type_map['HeaderPointer'], (0, None), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'link_ptr', HeaderPointer, (0, None), (False, None)
-		yield 'struct_ptr', HeaderPointer, (0, None), (False, None)
+		yield 'link_ptr', name_type_map['HeaderPointer'], (0, None), (False, None)
+		yield 'struct_ptr', name_type_map['HeaderPointer'], (0, None), (False, None)
 
 	@property
 	def ext(self):

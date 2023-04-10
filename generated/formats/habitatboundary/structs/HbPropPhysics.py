@@ -1,4 +1,4 @@
-from generated.formats.base.basic import Float
+from generated.formats.habitatboundary.imports import name_type_map
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
 
 
@@ -34,19 +34,19 @@ class HbPropPhysics(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('pad_top', Float, (0, None), (False, None), (None, None))
-		yield ('z_pos', Float, (0, None), (False, None), (None, None))
-		yield ('half_width', Float, (0, None), (False, None), (None, None))
-		yield ('pad_bottom', Float, (0, None), (False, None), (None, None))
-		yield ('half_depth', Float, (0, None), (False, None), (None, None))
-		yield ('u_6', Float, (0, None), (False, None), (None, None))
+		yield ('pad_top', name_type_map['Float'], (0, None), (False, None), (None, None))
+		yield ('z_pos', name_type_map['Float'], (0, None), (False, None), (None, None))
+		yield ('half_width', name_type_map['Float'], (0, None), (False, None), (None, None))
+		yield ('pad_bottom', name_type_map['Float'], (0, None), (False, None), (None, None))
+		yield ('half_depth', name_type_map['Float'], (0, None), (False, None), (None, None))
+		yield ('u_6', name_type_map['Float'], (0, None), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'pad_top', Float, (0, None), (False, None)
-		yield 'z_pos', Float, (0, None), (False, None)
-		yield 'half_width', Float, (0, None), (False, None)
-		yield 'pad_bottom', Float, (0, None), (False, None)
-		yield 'half_depth', Float, (0, None), (False, None)
-		yield 'u_6', Float, (0, None), (False, None)
+		yield 'pad_top', name_type_map['Float'], (0, None), (False, None)
+		yield 'z_pos', name_type_map['Float'], (0, None), (False, None)
+		yield 'half_width', name_type_map['Float'], (0, None), (False, None)
+		yield 'pad_bottom', name_type_map['Float'], (0, None), (False, None)
+		yield 'half_depth', name_type_map['Float'], (0, None), (False, None)
+		yield 'u_6', name_type_map['Float'], (0, None), (False, None)

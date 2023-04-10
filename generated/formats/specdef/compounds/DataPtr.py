@@ -1,5 +1,5 @@
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
-from generated.formats.ovl_base.compounds.Pointer import Pointer
+from generated.formats.specdef.imports import name_type_map
 
 
 class DataPtr(MemStruct):
@@ -14,16 +14,16 @@ class DataPtr(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.data_ptr = Pointer(self.context, self.arg.dtype, DataPtr._import_map["specdef.compounds.Data"])
+		self.data_ptr = name_type_map['Pointer'](self.context, self.arg.dtype, name_type_map['Data'])
 		if set_default:
 			self.set_defaults()
 
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('data_ptr', Pointer, (None, DataPtr._import_map["specdef.compounds.Data"]), (False, None), (None, None))
+		yield ('data_ptr', name_type_map['Pointer'], (None, None), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'data_ptr', Pointer, (instance.arg.dtype, DataPtr._import_map["specdef.compounds.Data"]), (False, None)
+		yield 'data_ptr', name_type_map['Pointer'], (instance.arg.dtype, name_type_map['Data']), (False, None)

@@ -1,6 +1,5 @@
-from generated.formats.base.basic import Float
 from generated.formats.ms2.compounds.Constraint import Constraint
-from generated.formats.ms2.compounds.Vector3 import Vector3
+from generated.formats.ms2.imports import name_type_map
 
 
 class StretchConstraint(Constraint):
@@ -18,10 +17,10 @@ class StretchConstraint(Constraint):
 		super().__init__(context, arg, template, set_default=False)
 
 		# location of the joint
-		self.loc = Vector3(self.context, 0, None)
+		self.loc = name_type_map['Vector3'](self.context, 0, None)
 
 		# normalized
-		self.direction = Vector3(self.context, 0, None)
+		self.direction = name_type_map['Vector3'](self.context, 0, None)
 
 		# min, le 0
 		self.min = 0.0
@@ -34,15 +33,15 @@ class StretchConstraint(Constraint):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('loc', Vector3, (0, None), (False, None), (None, None))
-		yield ('direction', Vector3, (0, None), (False, None), (None, None))
-		yield ('min', Float, (0, None), (False, None), (None, None))
-		yield ('max', Float, (0, None), (False, None), (None, None))
+		yield ('loc', name_type_map['Vector3'], (0, None), (False, None), (None, None))
+		yield ('direction', name_type_map['Vector3'], (0, None), (False, None), (None, None))
+		yield ('min', name_type_map['Float'], (0, None), (False, None), (None, None))
+		yield ('max', name_type_map['Float'], (0, None), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'loc', Vector3, (0, None), (False, None)
-		yield 'direction', Vector3, (0, None), (False, None)
-		yield 'min', Float, (0, None), (False, None)
-		yield 'max', Float, (0, None), (False, None)
+		yield 'loc', name_type_map['Vector3'], (0, None), (False, None)
+		yield 'direction', name_type_map['Vector3'], (0, None), (False, None)
+		yield 'min', name_type_map['Float'], (0, None), (False, None)
+		yield 'max', name_type_map['Float'], (0, None), (False, None)

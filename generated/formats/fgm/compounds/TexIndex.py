@@ -1,4 +1,4 @@
-from generated.formats.base.basic import Uint
+from generated.formats.fgm.imports import name_type_map
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
 
 
@@ -24,12 +24,12 @@ class TexIndex(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('_tex_index', Uint, (0, None), (False, None), (None, None))
-		yield ('array_index', Uint, (0, None), (False, None), (lambda context: context.version >= 18, None))
+		yield ('_tex_index', name_type_map['Uint'], (0, None), (False, None), (None, None))
+		yield ('array_index', name_type_map['Uint'], (0, None), (False, None), (lambda context: context.version >= 18, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield '_tex_index', Uint, (0, None), (False, None)
+		yield '_tex_index', name_type_map['Uint'], (0, None), (False, None)
 		if instance.context.version >= 18:
-			yield 'array_index', Uint, (0, None), (False, None)
+			yield 'array_index', name_type_map['Uint'], (0, None), (False, None)

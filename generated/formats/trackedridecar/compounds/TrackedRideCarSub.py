@@ -1,8 +1,5 @@
-from generated.formats.base.basic import Float
-from generated.formats.base.basic import Uint
-from generated.formats.base.basic import Uint64
-from generated.formats.ovl_base.compounds.ArrayPointer import ArrayPointer
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
+from generated.formats.trackedridecar.imports import name_type_map
 
 
 class TrackedRideCarSub(MemStruct):
@@ -21,24 +18,24 @@ class TrackedRideCarSub(MemStruct):
 		self.u_0 = 0
 		self.vecs_count = 0
 		self.zero_1 = 0
-		self.vectors = ArrayPointer(self.context, self.vecs_count, TrackedRideCarSub._import_map["trackedridecar.compounds.Vector3"])
+		self.vectors = name_type_map['ArrayPointer'](self.context, self.vecs_count, name_type_map['Vector3'])
 		if set_default:
 			self.set_defaults()
 
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('float', Float, (0, None), (False, None), (None, None))
-		yield ('u_0', Uint, (0, None), (False, None), (None, None))
-		yield ('vectors', ArrayPointer, (None, TrackedRideCarSub._import_map["trackedridecar.compounds.Vector3"]), (False, None), (None, None))
-		yield ('vecs_count', Uint64, (0, None), (False, None), (None, None))
-		yield ('zero_1', Uint64, (0, None), (False, None), (None, None))
+		yield ('float', name_type_map['Float'], (0, None), (False, None), (None, None))
+		yield ('u_0', name_type_map['Uint'], (0, None), (False, None), (None, None))
+		yield ('vectors', name_type_map['ArrayPointer'], (None, None), (False, None), (None, None))
+		yield ('vecs_count', name_type_map['Uint64'], (0, None), (False, None), (None, None))
+		yield ('zero_1', name_type_map['Uint64'], (0, None), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'float', Float, (0, None), (False, None)
-		yield 'u_0', Uint, (0, None), (False, None)
-		yield 'vectors', ArrayPointer, (instance.vecs_count, TrackedRideCarSub._import_map["trackedridecar.compounds.Vector3"]), (False, None)
-		yield 'vecs_count', Uint64, (0, None), (False, None)
-		yield 'zero_1', Uint64, (0, None), (False, None)
+		yield 'float', name_type_map['Float'], (0, None), (False, None)
+		yield 'u_0', name_type_map['Uint'], (0, None), (False, None)
+		yield 'vectors', name_type_map['ArrayPointer'], (instance.vecs_count, name_type_map['Vector3']), (False, None)
+		yield 'vecs_count', name_type_map['Uint64'], (0, None), (False, None)
+		yield 'zero_1', name_type_map['Uint64'], (0, None), (False, None)

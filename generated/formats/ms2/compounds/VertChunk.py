@@ -1,9 +1,5 @@
 from generated.base_struct import BaseStruct
-from generated.formats.base.basic import Float
-from generated.formats.base.basic import Ubyte
-from generated.formats.base.basic import Uint
-from generated.formats.ms2.bitfields.WeightsFlag import WeightsFlag
-from generated.formats.ms2.bitfields.WeightsFlagMalta import WeightsFlagMalta
+from generated.formats.ms2.imports import name_type_map
 
 
 class VertChunk(BaseStruct):
@@ -30,7 +26,7 @@ class VertChunk(BaseStruct):
 		self.vertex_count = 0
 
 		# determines if weights are used by this chunk
-		self.weights_flag = WeightsFlagMalta(self.context, 0, None)
+		self.weights_flag = name_type_map['WeightsFlagMalta'](self.context, 0, None)
 		self.zero = 0
 		if set_default:
 			self.set_defaults()
@@ -38,23 +34,23 @@ class VertChunk(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('scale', Float, (0, None), (False, None), (None, None))
-		yield ('pack_base', Float, (0, None), (False, None), (None, None))
-		yield ('vertex_offset', Uint, (0, None), (False, None), (None, None))
-		yield ('vertex_count', Ubyte, (0, None), (False, None), (None, None))
-		yield ('weights_flag', WeightsFlag, (0, None), (False, None), (lambda context: context.version <= 51, None))
-		yield ('weights_flag', WeightsFlagMalta, (0, None), (False, None), (lambda context: context.version >= 52, None))
-		yield ('zero', Ubyte, (0, None), (False, None), (None, None))
+		yield ('scale', name_type_map['Float'], (0, None), (False, None), (None, None))
+		yield ('pack_base', name_type_map['Float'], (0, None), (False, None), (None, None))
+		yield ('vertex_offset', name_type_map['Uint'], (0, None), (False, None), (None, None))
+		yield ('vertex_count', name_type_map['Ubyte'], (0, None), (False, None), (None, None))
+		yield ('weights_flag', name_type_map['WeightsFlag'], (0, None), (False, None), (lambda context: context.version <= 51, None))
+		yield ('weights_flag', name_type_map['WeightsFlagMalta'], (0, None), (False, None), (lambda context: context.version >= 52, None))
+		yield ('zero', name_type_map['Ubyte'], (0, None), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'scale', Float, (0, None), (False, None)
-		yield 'pack_base', Float, (0, None), (False, None)
-		yield 'vertex_offset', Uint, (0, None), (False, None)
-		yield 'vertex_count', Ubyte, (0, None), (False, None)
+		yield 'scale', name_type_map['Float'], (0, None), (False, None)
+		yield 'pack_base', name_type_map['Float'], (0, None), (False, None)
+		yield 'vertex_offset', name_type_map['Uint'], (0, None), (False, None)
+		yield 'vertex_count', name_type_map['Ubyte'], (0, None), (False, None)
 		if instance.context.version <= 51:
-			yield 'weights_flag', WeightsFlag, (0, None), (False, None)
+			yield 'weights_flag', name_type_map['WeightsFlag'], (0, None), (False, None)
 		if instance.context.version >= 52:
-			yield 'weights_flag', WeightsFlagMalta, (0, None), (False, None)
-		yield 'zero', Ubyte, (0, None), (False, None)
+			yield 'weights_flag', name_type_map['WeightsFlagMalta'], (0, None), (False, None)
+		yield 'zero', name_type_map['Ubyte'], (0, None), (False, None)

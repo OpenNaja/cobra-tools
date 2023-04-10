@@ -1,7 +1,5 @@
 from generated.base_struct import BaseStruct
-from generated.formats.dds.basic import Uint
-from generated.formats.dds.bitstructs.PixelFormatFlags import PixelFormatFlags
-from generated.formats.dds.enums.FourCC import FourCC
+from generated.formats.dds.imports import name_type_map
 
 
 class PixelFormat(BaseStruct):
@@ -17,10 +15,10 @@ class PixelFormat(BaseStruct):
 		self.size = 32
 
 		# Non-zero for DX9, zero for DX10.
-		self.flags = PixelFormatFlags(self.context, 0, None)
+		self.flags = name_type_map['PixelFormatFlags'](self.context, 0, None)
 
 		# Determines compression type. Zero means no compression.
-		self.four_c_c = FourCC(self.context, 0, None)
+		self.four_c_c = name_type_map['FourCC'](self.context, 0, None)
 
 		# For non-compressed types, this is either 24 or 32 depending on whether there is an alpha channel. For compressed types, this describes the number of bits per block, which can be either 256 or 512.
 		self.bit_count = 0
@@ -45,23 +43,23 @@ class PixelFormat(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('size', Uint, (0, None), (False, 32), (None, None))
-		yield ('flags', PixelFormatFlags, (0, None), (False, None), (None, None))
-		yield ('four_c_c', FourCC, (0, None), (False, None), (None, None))
-		yield ('bit_count', Uint, (0, None), (False, None), (None, None))
-		yield ('r_mask', Uint, (0, None), (False, None), (None, None))
-		yield ('g_mask', Uint, (0, None), (False, None), (None, None))
-		yield ('b_mask', Uint, (0, None), (False, None), (None, None))
-		yield ('a_mask', Uint, (0, None), (False, None), (None, None))
+		yield ('size', name_type_map['Uint'], (0, None), (False, 32), (None, None))
+		yield ('flags', name_type_map['PixelFormatFlags'], (0, None), (False, None), (None, None))
+		yield ('four_c_c', name_type_map['FourCC'], (0, None), (False, None), (None, None))
+		yield ('bit_count', name_type_map['Uint'], (0, None), (False, None), (None, None))
+		yield ('r_mask', name_type_map['Uint'], (0, None), (False, None), (None, None))
+		yield ('g_mask', name_type_map['Uint'], (0, None), (False, None), (None, None))
+		yield ('b_mask', name_type_map['Uint'], (0, None), (False, None), (None, None))
+		yield ('a_mask', name_type_map['Uint'], (0, None), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'size', Uint, (0, None), (False, 32)
-		yield 'flags', PixelFormatFlags, (0, None), (False, None)
-		yield 'four_c_c', FourCC, (0, None), (False, None)
-		yield 'bit_count', Uint, (0, None), (False, None)
-		yield 'r_mask', Uint, (0, None), (False, None)
-		yield 'g_mask', Uint, (0, None), (False, None)
-		yield 'b_mask', Uint, (0, None), (False, None)
-		yield 'a_mask', Uint, (0, None), (False, None)
+		yield 'size', name_type_map['Uint'], (0, None), (False, 32)
+		yield 'flags', name_type_map['PixelFormatFlags'], (0, None), (False, None)
+		yield 'four_c_c', name_type_map['FourCC'], (0, None), (False, None)
+		yield 'bit_count', name_type_map['Uint'], (0, None), (False, None)
+		yield 'r_mask', name_type_map['Uint'], (0, None), (False, None)
+		yield 'g_mask', name_type_map['Uint'], (0, None), (False, None)
+		yield 'b_mask', name_type_map['Uint'], (0, None), (False, None)
+		yield 'a_mask', name_type_map['Uint'], (0, None), (False, None)

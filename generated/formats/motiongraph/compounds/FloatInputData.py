@@ -1,6 +1,4 @@
-from generated.formats.base.basic import Float
-from generated.formats.base.basic import Uint
-from generated.formats.base.basic import Uint64
+from generated.formats.motiongraph.imports import name_type_map
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
 
 
@@ -25,13 +23,13 @@ class FloatInputData(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('float', Float, (0, None), (False, None), (None, None))
-		yield ('optional_var_and_curve_count', Uint, (0, None), (False, None), (None, None))
-		yield ('optional_var_and_curve', Uint64, (0, None), (False, None), (None, None))
+		yield ('float', name_type_map['Float'], (0, None), (False, None), (None, None))
+		yield ('optional_var_and_curve_count', name_type_map['Uint'], (0, None), (False, None), (None, None))
+		yield ('optional_var_and_curve', name_type_map['Uint64'], (0, None), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'float', Float, (0, None), (False, None)
-		yield 'optional_var_and_curve_count', Uint, (0, None), (False, None)
-		yield 'optional_var_and_curve', Uint64, (0, None), (False, None)
+		yield 'float', name_type_map['Float'], (0, None), (False, None)
+		yield 'optional_var_and_curve_count', name_type_map['Uint'], (0, None), (False, None)
+		yield 'optional_var_and_curve', name_type_map['Uint64'], (0, None), (False, None)

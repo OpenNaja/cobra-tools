@@ -1,8 +1,5 @@
-from generated.formats.base.basic import Float
-from generated.formats.base.basic import Uint64
-from generated.formats.base.basic import ZString
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
-from generated.formats.ovl_base.compounds.Pointer import Pointer
+from generated.formats.restaurantsettings.imports import name_type_map
 
 
 class Perk(MemStruct):
@@ -23,42 +20,42 @@ class Perk(MemStruct):
 		self.appeal_adults = 0.0
 		self.appeal_families = 0.0
 		self.appeal_teenagers = 0.0
-		self.label = Pointer(self.context, 0, ZString)
-		self.desc = Pointer(self.context, 0, ZString)
-		self.icon = Pointer(self.context, 0, ZString)
+		self.label = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
+		self.desc = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
+		self.icon = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
 		if set_default:
 			self.set_defaults()
 
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('unk_0', Uint64, (0, None), (False, None), (None, None))
-		yield ('building_cost', Uint64, (0, None), (False, None), (None, None))
-		yield ('running_cost_base', Uint64, (0, None), (False, None), (None, None))
-		yield ('running_cost_per_extension', Uint64, (0, None), (False, None), (None, None))
-		yield ('unk_4', Float, (0, None), (False, None), (None, None))
-		yield ('unk_5', Float, (0, None), (False, None), (None, None))
-		yield ('label', Pointer, (0, ZString), (False, None), (None, None))
-		yield ('desc', Pointer, (0, ZString), (False, None), (None, None))
-		yield ('icon', Pointer, (0, ZString), (False, None), (None, None))
-		yield ('unk_6', Float, (0, None), (False, None), (None, None))
-		yield ('appeal_adults', Float, (0, None), (False, None), (None, None))
-		yield ('appeal_families', Float, (0, None), (False, None), (None, None))
-		yield ('appeal_teenagers', Float, (0, None), (False, None), (None, None))
+		yield ('unk_0', name_type_map['Uint64'], (0, None), (False, None), (None, None))
+		yield ('building_cost', name_type_map['Uint64'], (0, None), (False, None), (None, None))
+		yield ('running_cost_base', name_type_map['Uint64'], (0, None), (False, None), (None, None))
+		yield ('running_cost_per_extension', name_type_map['Uint64'], (0, None), (False, None), (None, None))
+		yield ('unk_4', name_type_map['Float'], (0, None), (False, None), (None, None))
+		yield ('unk_5', name_type_map['Float'], (0, None), (False, None), (None, None))
+		yield ('label', name_type_map['Pointer'], (0, None), (False, None), (None, None))
+		yield ('desc', name_type_map['Pointer'], (0, None), (False, None), (None, None))
+		yield ('icon', name_type_map['Pointer'], (0, None), (False, None), (None, None))
+		yield ('unk_6', name_type_map['Float'], (0, None), (False, None), (None, None))
+		yield ('appeal_adults', name_type_map['Float'], (0, None), (False, None), (None, None))
+		yield ('appeal_families', name_type_map['Float'], (0, None), (False, None), (None, None))
+		yield ('appeal_teenagers', name_type_map['Float'], (0, None), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'unk_0', Uint64, (0, None), (False, None)
-		yield 'building_cost', Uint64, (0, None), (False, None)
-		yield 'running_cost_base', Uint64, (0, None), (False, None)
-		yield 'running_cost_per_extension', Uint64, (0, None), (False, None)
-		yield 'unk_4', Float, (0, None), (False, None)
-		yield 'unk_5', Float, (0, None), (False, None)
-		yield 'label', Pointer, (0, ZString), (False, None)
-		yield 'desc', Pointer, (0, ZString), (False, None)
-		yield 'icon', Pointer, (0, ZString), (False, None)
-		yield 'unk_6', Float, (0, None), (False, None)
-		yield 'appeal_adults', Float, (0, None), (False, None)
-		yield 'appeal_families', Float, (0, None), (False, None)
-		yield 'appeal_teenagers', Float, (0, None), (False, None)
+		yield 'unk_0', name_type_map['Uint64'], (0, None), (False, None)
+		yield 'building_cost', name_type_map['Uint64'], (0, None), (False, None)
+		yield 'running_cost_base', name_type_map['Uint64'], (0, None), (False, None)
+		yield 'running_cost_per_extension', name_type_map['Uint64'], (0, None), (False, None)
+		yield 'unk_4', name_type_map['Float'], (0, None), (False, None)
+		yield 'unk_5', name_type_map['Float'], (0, None), (False, None)
+		yield 'label', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None)
+		yield 'desc', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None)
+		yield 'icon', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None)
+		yield 'unk_6', name_type_map['Float'], (0, None), (False, None)
+		yield 'appeal_adults', name_type_map['Float'], (0, None), (False, None)
+		yield 'appeal_families', name_type_map['Float'], (0, None), (False, None)
+		yield 'appeal_teenagers', name_type_map['Float'], (0, None), (False, None)

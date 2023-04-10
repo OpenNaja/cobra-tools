@@ -1,7 +1,5 @@
-from generated.formats.base.basic import Ubyte
-from generated.formats.base.basic import Uint
-from generated.formats.base.basic import Uint64
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
+from generated.formats.pscollection.imports import name_type_map
 
 
 class Arg(MemStruct):
@@ -27,21 +25,21 @@ class Arg(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('u_0', Ubyte, (0, None), (True, 0), (None, None))
-		yield ('arg_type', Ubyte, (0, None), (False, None), (None, None))
-		yield ('arg_index', Ubyte, (0, None), (False, None), (None, None))
-		yield ('u_1', Ubyte, (0, None), (True, 0), (None, None))
-		yield ('u_2', Uint, (0, None), (True, 0), (None, None))
-		yield ('u_3', Uint64, (0, None), (True, 0), (None, None))
-		yield ('u_4', Uint64, (0, None), (True, 0), (None, None))
+		yield ('u_0', name_type_map['Ubyte'], (0, None), (True, 0), (None, None))
+		yield ('arg_type', name_type_map['Ubyte'], (0, None), (False, None), (None, None))
+		yield ('arg_index', name_type_map['Ubyte'], (0, None), (False, None), (None, None))
+		yield ('u_1', name_type_map['Ubyte'], (0, None), (True, 0), (None, None))
+		yield ('u_2', name_type_map['Uint'], (0, None), (True, 0), (None, None))
+		yield ('u_3', name_type_map['Uint64'], (0, None), (True, 0), (None, None))
+		yield ('u_4', name_type_map['Uint64'], (0, None), (True, 0), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'u_0', Ubyte, (0, None), (True, 0)
-		yield 'arg_type', Ubyte, (0, None), (False, None)
-		yield 'arg_index', Ubyte, (0, None), (False, None)
-		yield 'u_1', Ubyte, (0, None), (True, 0)
-		yield 'u_2', Uint, (0, None), (True, 0)
-		yield 'u_3', Uint64, (0, None), (True, 0)
-		yield 'u_4', Uint64, (0, None), (True, 0)
+		yield 'u_0', name_type_map['Ubyte'], (0, None), (True, 0)
+		yield 'arg_type', name_type_map['Ubyte'], (0, None), (False, None)
+		yield 'arg_index', name_type_map['Ubyte'], (0, None), (False, None)
+		yield 'u_1', name_type_map['Ubyte'], (0, None), (True, 0)
+		yield 'u_2', name_type_map['Uint'], (0, None), (True, 0)
+		yield 'u_3', name_type_map['Uint64'], (0, None), (True, 0)
+		yield 'u_4', name_type_map['Uint64'], (0, None), (True, 0)

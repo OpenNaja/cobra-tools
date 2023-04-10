@@ -1,6 +1,5 @@
 from generated.base_struct import BaseStruct
-from generated.formats.base.basic import Uint
-from generated.formats.base.basic import Uint64
+from generated.formats.ovl.imports import name_type_map
 
 
 class BufferGroup(BaseStruct):
@@ -42,21 +41,21 @@ class BufferGroup(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('buffer_offset', Uint, (0, None), (False, None), (None, None))
-		yield ('buffer_count', Uint, (0, None), (False, None), (None, None))
-		yield ('ext_index', Uint, (0, None), (False, None), (None, None))
-		yield ('buffer_index', Uint, (0, None), (False, None), (None, None))
-		yield ('size', Uint64, (0, None), (False, None), (None, None))
-		yield ('data_offset', Uint, (0, None), (False, None), (None, None))
-		yield ('data_count', Uint, (0, None), (False, None), (None, None))
+		yield ('buffer_offset', name_type_map['Uint'], (0, None), (False, None), (None, None))
+		yield ('buffer_count', name_type_map['Uint'], (0, None), (False, None), (None, None))
+		yield ('ext_index', name_type_map['Uint'], (0, None), (False, None), (None, None))
+		yield ('buffer_index', name_type_map['Uint'], (0, None), (False, None), (None, None))
+		yield ('size', name_type_map['Uint64'], (0, None), (False, None), (None, None))
+		yield ('data_offset', name_type_map['Uint'], (0, None), (False, None), (None, None))
+		yield ('data_count', name_type_map['Uint'], (0, None), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'buffer_offset', Uint, (0, None), (False, None)
-		yield 'buffer_count', Uint, (0, None), (False, None)
-		yield 'ext_index', Uint, (0, None), (False, None)
-		yield 'buffer_index', Uint, (0, None), (False, None)
-		yield 'size', Uint64, (0, None), (False, None)
-		yield 'data_offset', Uint, (0, None), (False, None)
-		yield 'data_count', Uint, (0, None), (False, None)
+		yield 'buffer_offset', name_type_map['Uint'], (0, None), (False, None)
+		yield 'buffer_count', name_type_map['Uint'], (0, None), (False, None)
+		yield 'ext_index', name_type_map['Uint'], (0, None), (False, None)
+		yield 'buffer_index', name_type_map['Uint'], (0, None), (False, None)
+		yield 'size', name_type_map['Uint64'], (0, None), (False, None)
+		yield 'data_offset', name_type_map['Uint'], (0, None), (False, None)
+		yield 'data_count', name_type_map['Uint'], (0, None), (False, None)

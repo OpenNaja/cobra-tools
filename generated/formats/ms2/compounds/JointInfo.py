@@ -1,11 +1,7 @@
 import numpy
 from generated.array import Array
 from generated.base_struct import BaseStruct
-from generated.formats.base.basic import Int
-from generated.formats.base.basic import Uint
-from generated.formats.base.basic import Uint64
-from generated.formats.ms2.compounds.HitCheck import HitCheck
-from generated.formats.ovl_base.basic import OffsetString
+from generated.formats.ms2.imports import name_type_map
 
 
 class JointInfo(BaseStruct):
@@ -32,33 +28,33 @@ class JointInfo(BaseStruct):
 		self.zero_2 = 0
 
 		# 8 bytes of zeros per hitcheck
-		self.hitcheck_pointers = Array(self.context, 0, None, (0,), Uint64)
-		self.hitchecks = Array(self.context, self.arg, None, (0,), HitCheck)
+		self.hitcheck_pointers = Array(self.context, 0, None, (0,), name_type_map['Uint64'])
+		self.hitchecks = Array(self.context, self.arg, None, (0,), name_type_map['HitCheck'])
 		if set_default:
 			self.set_defaults()
 
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('eleven', Uint, (0, None), (False, 11), (None, None))
-		yield ('zero_0', Int, (0, None), (False, 0), (None, None))
-		yield ('zero_1', Int, (0, None), (False, 0), (None, None))
-		yield ('minus_1', Int, (0, None), (False, -1), (None, None))
-		yield ('name', OffsetString, (None, None), (False, None), (None, None))
-		yield ('hitcheck_count', Uint, (0, None), (False, None), (None, None))
-		yield ('zero_2', Uint64, (0, None), (False, None), (None, None))
-		yield ('hitcheck_pointers', Array, (0, None, (None,), Uint64), (False, None), (None, None))
-		yield ('hitchecks', Array, (None, None, (None,), HitCheck), (False, None), (None, None))
+		yield ('eleven', name_type_map['Uint'], (0, None), (False, 11), (None, None))
+		yield ('zero_0', name_type_map['Int'], (0, None), (False, 0), (None, None))
+		yield ('zero_1', name_type_map['Int'], (0, None), (False, 0), (None, None))
+		yield ('minus_1', name_type_map['Int'], (0, None), (False, -1), (None, None))
+		yield ('name', name_type_map['OffsetString'], (None, None), (False, None), (None, None))
+		yield ('hitcheck_count', name_type_map['Uint'], (0, None), (False, None), (None, None))
+		yield ('zero_2', name_type_map['Uint64'], (0, None), (False, None), (None, None))
+		yield ('hitcheck_pointers', Array, (0, None, (None,), name_type_map['Uint64']), (False, None), (None, None))
+		yield ('hitchecks', Array, (None, None, (None,), name_type_map['HitCheck']), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'eleven', Uint, (0, None), (False, 11)
-		yield 'zero_0', Int, (0, None), (False, 0)
-		yield 'zero_1', Int, (0, None), (False, 0)
-		yield 'minus_1', Int, (0, None), (False, -1)
-		yield 'name', OffsetString, (instance.arg, None), (False, None)
-		yield 'hitcheck_count', Uint, (0, None), (False, None)
-		yield 'zero_2', Uint64, (0, None), (False, None)
-		yield 'hitcheck_pointers', Array, (0, None, (instance.hitcheck_count,), Uint64), (False, None)
-		yield 'hitchecks', Array, (instance.arg, None, (instance.hitcheck_count,), HitCheck), (False, None)
+		yield 'eleven', name_type_map['Uint'], (0, None), (False, 11)
+		yield 'zero_0', name_type_map['Int'], (0, None), (False, 0)
+		yield 'zero_1', name_type_map['Int'], (0, None), (False, 0)
+		yield 'minus_1', name_type_map['Int'], (0, None), (False, -1)
+		yield 'name', name_type_map['OffsetString'], (instance.arg, None), (False, None)
+		yield 'hitcheck_count', name_type_map['Uint'], (0, None), (False, None)
+		yield 'zero_2', name_type_map['Uint64'], (0, None), (False, None)
+		yield 'hitcheck_pointers', Array, (0, None, (instance.hitcheck_count,), name_type_map['Uint64']), (False, None)
+		yield 'hitchecks', Array, (instance.arg, None, (instance.hitcheck_count,), name_type_map['HitCheck']), (False, None)
