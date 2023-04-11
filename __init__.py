@@ -2,7 +2,7 @@ bl_info = {
     "name": "Frontier's Cobra Engine Formats (JWE, Planet Zoo)",
     "author": "Harlequinz Ego, HENDRIX et al.",
     "blender": (3, 2, 0),
-    "version": (2, 4, 0),
+    "version": (2, 5, 0),
     "location": "File > Import-Export",
     "description": "Import-Export models, skeletons and animations.",
     "warning": "",
@@ -167,7 +167,7 @@ class ImportMS2(bpy.types.Operator, ImportHelper):
     bl_options = {'UNDO'}
     filename_ext = ".ms2"
     filter_glob: StringProperty(default="*.ms2", options={'HIDDEN'})
-    use_custom_normals: BoolProperty(name="Use MS2 Normals", description="Preserves the original shading of a MS2.",
+    use_custom_normals: BoolProperty(name="Use MS2 Normals", description="Applies MS2 normals as custom normals to preserve the original shading. May crash on some meshes due to a blender bug.",
                                      default=False)
     mirror_mesh: BoolProperty(name="Mirror Meshes", description="Mirrors models. Careful, sometimes bones don't match!",
                               default=False)
@@ -214,8 +214,8 @@ class ExportMS2(bpy.types.Operator, ExportHelper):
     edit_bones: BoolProperty(name="Edit Bones", description="Overwrite bone transforms - tends to break skeletons!",
                              default=False)
     use_stock_normals_tangents: BoolProperty(
-        name="Use Stock Normals & Tangents",
-        description="Use to preserve normals and tangents from stock, if fur depends on custom normals",
+        name="Use Original Normals & Tangents",
+        description="Ignores the actual geometry and uses original normals and tangents stored as mesh attributes on import. Use case: if fur depends on custom normals",
         default=False)
 
     def execute(self, context):
