@@ -24,14 +24,14 @@ class MeshData(MemStruct):
 		# index into streamed buffers
 		self.stream_index = name_type_map['Uint64'](self.context, 0, None)
 
+		# PZ and JWE use a ptr instead
+		self.stream_info = name_type_map['LookupPointer'](self.context, 0, name_type_map['BufferInfo'])
+
 		# increments somewhat in ZTUAC platypus, apparently unused from JWE1 onward
 		self.some_index = name_type_map['Uint'](self.context, 0, None)
 
 		# ?
 		self.some_index_2 = name_type_map['Uint'](self.context, 0, None)
-
-		# PZ and JWE use a ptr instead
-		self.stream_info = name_type_map['Pointer'](self.context, 0, name_type_map['BufferInfo'])
 		if set_default:
 			self.set_defaults()
 
@@ -39,7 +39,7 @@ class MeshData(MemStruct):
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
 		yield ('stream_index', name_type_map['Uint64'], (0, None), (False, None), (lambda context: context.version <= 32, None))
-		yield ('stream_info', name_type_map['Pointer'], (0, name_type_map['BufferInfo']), (False, None), (lambda context: context.version >= 47, None))
+		yield ('stream_info', name_type_map['LookupPointer'], (0, name_type_map['BufferInfo']), (False, None), (lambda context: context.version >= 47, None))
 		yield ('some_index', name_type_map['Uint'], (0, None), (False, None), (lambda context: not (((context.version == 51) or (context.version == 52)) and context.biosyn), None))
 		yield ('some_index_2', name_type_map['Uint'], (0, None), (False, None), (lambda context: not ((((context.version == 51) or (context.version == 52)) and context.biosyn) or (context.version == 32)), None))
 
@@ -49,7 +49,7 @@ class MeshData(MemStruct):
 		if instance.context.version <= 32:
 			yield 'stream_index', name_type_map['Uint64'], (0, None), (False, None)
 		if instance.context.version >= 47:
-			yield 'stream_info', name_type_map['Pointer'], (0, name_type_map['BufferInfo']), (False, None)
+			yield 'stream_info', name_type_map['LookupPointer'], (0, name_type_map['BufferInfo']), (False, None)
 		if not (((instance.context.version == 51) or (instance.context.version == 52)) and instance.context.biosyn):
 			yield 'some_index', name_type_map['Uint'], (0, None), (False, None)
 		if not ((((instance.context.version == 51) or (instance.context.version == 52)) and instance.context.biosyn) or (instance.context.version == 32)):
@@ -91,7 +91,7 @@ class MeshData(MemStruct):
 		self.shapekeys = None
 		self.read_verts()
 		self.read_tris()
-		self.validate_tris()
+		# self.validate_tris()
 
 	def init_arrays(self):
 		# create arrays for this mesh
@@ -205,10 +205,10 @@ class MeshData(MemStruct):
 		"""See if all tri indices point into the vertex buffer, raise an error if they don't"""
 		# this is fairly costly (10 % of total loading time), so don't do it by default
 		# max_ind = np.max(self.tri_indices)
-		# if max_ind >= len(self.verts_data):
+		# if max_ind >= self.vertex_count:
 		for max_ind in self.tri_indices:
-			if max_ind >= len(self.verts_data):
-				raise IndexError(f"Tri index {max_ind} does not point into {len(self.verts_data)} vertices for {self}")
+			if max_ind >= self.vertex_count:
+				raise IndexError(f"Tri index {max_ind} does not point into {self.vertex_count} vertices for {self}")
 		logging.debug("All tri indices are valid")
 
 	def import_fur_as_weights(self, fur):
