@@ -645,6 +645,13 @@ class OvlFile(Header):
 				if ext in self.formats_dict.ignore_types:
 					logging.info(f"Ignoring {file_path}")
 					continue
+				elif ext == ".png":
+					if f"{bare_path}.tex" in file_paths:
+						logging.info(f"Ignoring {file_path} as matching .tex file is also selected")
+					else:
+						logging.error(f"Inject the corresponding .tex file for {file_path}")
+						error_files.append(file_path)
+					continue
 				try:
 					loader = self.create_file(file_path)
 					self.register_loader(loader)
