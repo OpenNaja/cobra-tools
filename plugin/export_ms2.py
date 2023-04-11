@@ -120,8 +120,19 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 	unweighted_vertices = []
 
 	shell_ob = None
-	shapekey = (0, 0, 0)
 	vcols = (0, 0, 0, 0)
+	# shape key morphing
+
+	def get_shapekey(vert_index):
+		return 0, 0, 0
+	b_key = eval_me.shape_keys
+	if b_key and len(b_key.key_blocks) > 1:
+		lod_key = b_key.key_blocks[1]
+		# yes, there is a key object attached
+		if lod_key.name.startswith("LOD"):
+			# yes, we have a shapekey, so define how to get it
+			def get_shapekey(vert_index):
+				return lod_key.data[vert_index].co
 
 	validate_vertex_groups(b_ob, bones_table)
 	# calculate bone weights per vertex first to reuse data
@@ -216,14 +227,7 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 					normal = ct_normals.data[loop_index].vector
 					tangent = ct_tangents.data[loop_index].vector
 
-				# shape key morphing
-				b_key = b_me.shape_keys
-				if b_key and len(b_key.key_blocks) > 1:
-					lod_key = b_key.key_blocks[1]
-					# yes, there is a key object attached
-					if lod_key.name.startswith("LOD"):
-						shapekey = lod_key.data[b_loop.vertex_index].co
-
+				shapekey = get_shapekey(b_loop.vertex_index)
 				uvs = [(layer.data[loop_index].uv.x, 1 - layer.data[loop_index].uv.y) for layer in eval_me.uv_layers]
 				# create a dummy bytes str for indexing
 				float_items = [c for uv in uvs[:2] for c in uv] + [*normal]

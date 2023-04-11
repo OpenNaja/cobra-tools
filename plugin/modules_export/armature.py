@@ -88,7 +88,7 @@ def handle_transforms(ob, me, apply=True):
 	if ob.matrix_local != identity:
 		if apply:
 			# we only transform the evaluated mesh and leave the actual scene alone
-			me.transform(ob.matrix_local)
+			me.transform(ob.matrix_local, shape_keys=True)
 			logging.warning(f"{ob.name} has had its object transforms applied on the fly to avoid ingame distortion!")
 		else:
 			# we simply ignore the transforms and export the mesh as is, but warn the user
