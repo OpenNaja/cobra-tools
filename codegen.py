@@ -48,7 +48,6 @@ class XmlParser:
             "Array": "array",
             "BasicBitfield": "bitfield",
             "BitfieldMember": "bitfield",
-            "basic_map": os.path.join(self.base_segments, "basic"),
             "versions": self.base_segments,
             "ContextReference": "context",
             "BaseEnum": "base_enum",
@@ -118,7 +117,7 @@ class XmlParser:
         root = tree.getroot()
 
         self.versions = Versions(self)
-        self.basics = Basics(self, BaseClass.get_out_path(self.path_dict["basic_map"]))
+        self.basics = Basics(self)
 
         self.generate_module_paths(root, xml_path, parsed_xmls)
 

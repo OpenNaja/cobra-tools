@@ -1,10 +1,9 @@
 class Basics:
 
-    def __init__(self, parser, basics_file, ):
+    def __init__(self, parser):
         self.parser = parser
         self.basic_map = {}
         self.booleans = set()
-        self.basics_file = basics_file
         self.imports = []
 
     def read(self, xml_struct):
