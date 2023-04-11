@@ -243,13 +243,14 @@ class MainWindow(widgets.MainWindow):
 			(edit_menu, "Rename Contents", self.rename_contents, "CTRL+SHIFT+R", ""),
 			(edit_menu, "Rename Both", self.rename_both, "CTRL+ALT+R", ""),
 			(edit_menu, "Remove Selected", self.remove, "DEL", ""),
+			(edit_menu, "Load included ovl list", self.load_included_ovls, "", ""),
+			(edit_menu, "Export included ovl list", self.save_included_ovls, "", ""),
 			(util_menu, "Inspect Models", self.inspect_models, "", "", True),
 			(util_menu, "Inspect FGMs", self.walker_fgm, "", "", True),
 			(util_menu, "Generate Hash Table", self.walker_hash, "", ""),
 			(util_menu, "Dump Debug Data", self.dump_debug_data, "", "dump_debug", True),
 			(util_menu, "Open Tools Dir", self.open_tools_dir, "", "home"),
 			(util_menu, "Export File List", self.save_file_list, "", ""),
-			(util_menu, "Export included ovl list", self.save_included_ovls, "", ""),
 			(util_menu, "Compare with other OVL", self.compare_ovls, "", ""),
 			(help_menu, "Report Bug", self.report_bug, "", "report"),
 			(help_menu, "Documentation", self.online_support, "", "manual"))
@@ -660,8 +661,8 @@ class MainWindow(widgets.MainWindow):
 		self.rename_contents()
 		self.rename()
 
-	# Save the OVL file list to disk
 	def save_file_list(self):
+		"""Save the OVL file list to disk"""
 		if self.is_open_ovl():
 			filelist_src = QtWidgets.QFileDialog.getSaveFileName(
 				self, 'Save File List',
@@ -677,18 +678,30 @@ class MainWindow(widgets.MainWindow):
 				except:
 					self.handle_error("Writing file list failed, see log!")
 
-	# Save the OVL include list to disk
 	def save_included_ovls(self):
+		"""Save the OVL include list to disk"""
 		if self.is_open_ovl():
-			filelist_src = QtWidgets.QFileDialog.getSaveFileName(
-				self, 'ovls.include', os.path.join(self.cfg.get("dir_ovls_out", "C://"), "ovls.include"),
+			filepath = QtWidgets.QFileDialog.getSaveFileName(
+				self, 'Save ovls.include', os.path.join(self.cfg.get("dir_ovls_out", "C://"), "ovls.include"),
 				"Include file (*.include)", )[0]
-			if filelist_src:
+			if filepath:
 				try:
-					self.ovl_data.save_included_ovls(filelist_src)
+					self.ovl_data.save_included_ovls(filepath)
 					self.update_progress("Saved included OVLs", value=1, vmax=1)
 				except:
 					self.handle_error("Writing included OVLs failed, see log!")
+
+	def load_included_ovls(self):
+		filepath = QtWidgets.QFileDialog.getOpenFileName(
+			self, "Open ovls.include", os.path.join(self.cfg.get("dir_ovls_out", "C://"), "ovls.include"),
+				"Include file (*.include)", )[0]
+		if filepath:
+			try:
+				self.ovl_data.load_included_ovls(filepath)
+				self.file_widget.dirty = True
+				self.update_progress("Loaded included OVLs", value=1, vmax=1)
+			except:
+				self.handle_error("Opening included OVLs failed, see log!")
 
 	def remove(self):
 		if self.is_open_ovl():
