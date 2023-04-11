@@ -1,5 +1,5 @@
 from generated.base_struct import BaseStruct
-from generated.formats.ms2.basic import OffsetString
+from generated.formats.ovl_base.basic import OffsetString
 from generated.formats.ms2.compounds.JointPointer import JointPointer
 import logging
 

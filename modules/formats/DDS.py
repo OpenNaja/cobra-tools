@@ -2,7 +2,6 @@ import io
 import logging
 import os
 import shutil
-import struct
 import tempfile
 
 import imageio.v3 as iio
@@ -12,7 +11,7 @@ from generated.formats.dds.enums.DxgiFormat import DxgiFormat
 from generated.formats.ovl.versions import *
 from generated.formats.tex.compounds.TexHeader import TexHeader
 from generated.formats.tex.compounds.TexturestreamHeader import TexturestreamHeader
-from modules.formats.BaseFormat import MemStructLoader, BaseFile
+from modules.formats.BaseFormat import MemStructLoader
 from modules.helpers import split_path
 
 from ovl_util import texconv, imarray
