@@ -133,9 +133,11 @@ class BaseFile:
 		# get one directly editable pool, if it exists
 		for pool in self.ovs.pools:
 			if pool.type == pool_type_key and pool.new:
+				# while a condition on size would be nice to replicate stock, it would have to check after writing a whole struct
+				# only checking here could break in the middle of an array, so disable for now
 				# seems like a reasonable size condition - seen stock with 17608 bytes
-				if pool.get_size() < 16000:
-					return pool
+				# if pool.get_size() < 16000:
+				return pool
 		# nope, means we gotta create pool
 		pool = MemPool(self.ovl.context)
 		pool.data = BytesIO()
