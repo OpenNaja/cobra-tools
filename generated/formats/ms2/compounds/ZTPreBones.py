@@ -21,11 +21,11 @@ class ZTPreBones(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('zeros', Array, (0, None, (2,), name_type_map['Uint64']), (False, None), (None, None))
-		yield ('unks', Array, (0, None, (8,), name_type_map['Uint']), (False, None), (None, None))
-		yield ('unks_2', Array, (0, None, (10,), name_type_map['Uint']), (False, None), (None, None))
-		yield ('floats', Array, (0, None, (4,), name_type_map['Float']), (False, None), (None, None))
-		yield ('unks_3', Array, (0, None, (2,), name_type_map['Uint']), (False, None), (None, None))
+		yield 'zeros', Array, (0, None, (2,), name_type_map['Uint64']), (False, None), (None, None)
+		yield 'unks', Array, (0, None, (8,), name_type_map['Uint']), (False, None), (None, None)
+		yield 'unks_2', Array, (0, None, (10,), name_type_map['Uint']), (False, None), (None, None)
+		yield 'floats', Array, (0, None, (4,), name_type_map['Float']), (False, None), (None, None)
+		yield 'unks_3', Array, (0, None, (2,), name_type_map['Uint']), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

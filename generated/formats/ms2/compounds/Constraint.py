@@ -17,8 +17,8 @@ class Constraint(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('parent', name_type_map['JointPointer'], (0, None), (False, None), (None, None))
-		yield ('child', name_type_map['JointPointer'], (0, None), (False, None), (None, None))
+		yield 'parent', name_type_map['JointPointer'], (0, None), (False, None), (None, None)
+		yield 'child', name_type_map['JointPointer'], (0, None), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

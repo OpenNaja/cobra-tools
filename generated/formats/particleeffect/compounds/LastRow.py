@@ -27,18 +27,18 @@ class LastRow(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('unk_01', name_type_map['Ushort'], (0, None), (False, None), (None, None))
-		yield ('unk_02', name_type_map['Ushort'], (0, None), (False, None), (None, None))
-		yield ('unk_03', name_type_map['Ushort'], (0, None), (False, None), (None, None))
-		yield ('unk_04', name_type_map['Ushort'], (0, None), (False, None), (None, None))
-		yield ('unk_05', name_type_map['Ushort'], (0, None), (False, None), (None, None))
-		yield ('unk_06', name_type_map['Ushort'], (0, None), (False, None), (None, None))
-		yield ('unk_07', name_type_map['Ushort'], (0, None), (False, None), (None, None))
-		yield ('unk_08', name_type_map['Ushort'], (0, None), (False, None), (None, None))
-		yield ('unk_09', name_type_map['Ushort'], (0, None), (False, None), (None, None))
-		yield ('unk_10', name_type_map['Ushort'], (0, None), (False, None), (None, None))
-		yield ('unk_11', name_type_map['Ushort'], (0, None), (False, None), (None, None))
-		yield ('unk_12', name_type_map['Ushort'], (0, None), (False, None), (None, None))
+		yield 'unk_01', name_type_map['Ushort'], (0, None), (False, None), (None, None)
+		yield 'unk_02', name_type_map['Ushort'], (0, None), (False, None), (None, None)
+		yield 'unk_03', name_type_map['Ushort'], (0, None), (False, None), (None, None)
+		yield 'unk_04', name_type_map['Ushort'], (0, None), (False, None), (None, None)
+		yield 'unk_05', name_type_map['Ushort'], (0, None), (False, None), (None, None)
+		yield 'unk_06', name_type_map['Ushort'], (0, None), (False, None), (None, None)
+		yield 'unk_07', name_type_map['Ushort'], (0, None), (False, None), (None, None)
+		yield 'unk_08', name_type_map['Ushort'], (0, None), (False, None), (None, None)
+		yield 'unk_09', name_type_map['Ushort'], (0, None), (False, None), (None, None)
+		yield 'unk_10', name_type_map['Ushort'], (0, None), (False, None), (None, None)
+		yield 'unk_11', name_type_map['Ushort'], (0, None), (False, None), (None, None)
+		yield 'unk_12', name_type_map['Ushort'], (0, None), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

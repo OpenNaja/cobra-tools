@@ -36,14 +36,14 @@ class MeshCollisionData(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('tris_salt', Array, (0, None, (4,), name_type_map['Uint']), (False, None), (None, True))
-		yield ('vertices_addr', name_type_map['Empty'], (0, None), (False, None), (None, None))
-		yield ('vertices', Array, (0, None, (None, 3,), name_type_map['Float']), (False, None), (None, None))
-		yield ('triangles_addr', name_type_map['Empty'], (0, None), (False, None), (None, None))
-		yield ('triangles', Array, (0, None, (None, 3,), name_type_map['Ushort']), (False, None), (None, None))
-		yield ('const', name_type_map['Uint'], (0, None), (False, None), (lambda context: context.version <= 47, None))
-		yield ('triangle_flags', Array, (0, None, (None,), name_type_map['Uint']), (False, None), (lambda context: context.version <= 47, True))
-		yield ('zero_end', name_type_map['Uint'], (0, None), (False, None), (None, None))
+		yield 'tris_salt', Array, (0, None, (4,), name_type_map['Uint']), (False, None), (None, True)
+		yield 'vertices_addr', name_type_map['Empty'], (0, None), (False, None), (None, None)
+		yield 'vertices', Array, (0, None, (None, 3,), name_type_map['Float']), (False, None), (None, None)
+		yield 'triangles_addr', name_type_map['Empty'], (0, None), (False, None), (None, None)
+		yield 'triangles', Array, (0, None, (None, 3,), name_type_map['Ushort']), (False, None), (None, None)
+		yield 'const', name_type_map['Uint'], (0, None), (False, None), (lambda context: context.version <= 47, None)
+		yield 'triangle_flags', Array, (0, None, (None,), name_type_map['Uint']), (False, None), (lambda context: context.version <= 47, True)
+		yield 'zero_end', name_type_map['Uint'], (0, None), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

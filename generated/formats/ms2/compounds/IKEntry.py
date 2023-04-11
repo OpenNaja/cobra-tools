@@ -28,13 +28,13 @@ class IKEntry(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('child', name_type_map['BonePointer'], (0, None), (False, None), (None, None))
-		yield ('parent', name_type_map['BonePointer'], (0, None), (False, None), (None, None))
-		yield ('unk_0', name_type_map['Ushort'], (0, None), (False, 0), (None, None))
-		yield ('matrix', name_type_map['Matrix33'], (0, None), (False, None), (None, None))
-		yield ('yaw', name_type_map['RotationRange'], (0, None), (False, None), (None, None))
-		yield ('pitch', name_type_map['RotationRange'], (0, None), (False, None), (None, None))
-		yield ('unk_1', name_type_map['Uint'], (0, None), (False, 1), (None, None))
+		yield 'child', name_type_map['BonePointer'], (0, None), (False, None), (None, None)
+		yield 'parent', name_type_map['BonePointer'], (0, None), (False, None), (None, None)
+		yield 'unk_0', name_type_map['Ushort'], (0, None), (False, 0), (None, None)
+		yield 'matrix', name_type_map['Matrix33'], (0, None), (False, None), (None, None)
+		yield 'yaw', name_type_map['RotationRange'], (0, None), (False, None), (None, None)
+		yield 'pitch', name_type_map['RotationRange'], (0, None), (False, None), (None, None)
+		yield 'unk_1', name_type_map['Uint'], (0, None), (False, 1), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

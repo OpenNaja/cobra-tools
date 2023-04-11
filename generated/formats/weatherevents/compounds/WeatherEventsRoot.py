@@ -22,13 +22,13 @@ class WeatherEventsRoot(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('resource_name', name_type_map['Pointer'], (0, name_type_map['ZStringObfuscated']), (False, None), (None, None))
-		yield ('default_event_name', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None))
-		yield ('transition_time', name_type_map['Float'], (0, None), (False, None), (None, None))
-		yield ('unknown_1', name_type_map['Float'], (0, None), (False, None), (None, None))
-		yield ('event_list', name_type_map['ArrayPointer'], (None, name_type_map['WeatherEventData']), (False, None), (None, None))
-		yield ('event_count', name_type_map['Uint64'], (0, None), (False, None), (None, None))
-		yield ('unknown_2', name_type_map['Uint64'], (0, None), (False, None), (None, None))
+		yield 'resource_name', name_type_map['Pointer'], (0, name_type_map['ZStringObfuscated']), (False, None), (None, None)
+		yield 'default_event_name', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None)
+		yield 'transition_time', name_type_map['Float'], (0, None), (False, None), (None, None)
+		yield 'unknown_1', name_type_map['Float'], (0, None), (False, None), (None, None)
+		yield 'event_list', name_type_map['ArrayPointer'], (None, name_type_map['WeatherEventData']), (False, None), (None, None)
+		yield 'event_count', name_type_map['Uint64'], (0, None), (False, None), (None, None)
+		yield 'unknown_2', name_type_map['Uint64'], (0, None), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

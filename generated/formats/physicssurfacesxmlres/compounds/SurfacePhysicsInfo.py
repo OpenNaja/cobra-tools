@@ -28,15 +28,15 @@ class SurfacePhysicsInfo(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('surface_name', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None))
-		yield ('float_1', name_type_map['Float'], (0, None), (False, None), (None, None))
-		yield ('float_2', name_type_map['Float'], (0, None), (False, None), (None, None))
-		yield ('float_3', name_type_map['Float'], (0, None), (False, None), (None, None))
-		yield ('float_4', name_type_map['Float'], (0, None), (False, None), (None, None))
-		yield ('unk_64_1', name_type_map['Uint64'], (0, None), (False, None), (None, None))
-		yield ('name_1', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None))
-		yield ('name_2', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None))
-		yield ('ptr_1', name_type_map['Pointer'], (0, name_type_map['EmptyStruct']), (False, None), (None, None))
+		yield 'surface_name', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None)
+		yield 'float_1', name_type_map['Float'], (0, None), (False, None), (None, None)
+		yield 'float_2', name_type_map['Float'], (0, None), (False, None), (None, None)
+		yield 'float_3', name_type_map['Float'], (0, None), (False, None), (None, None)
+		yield 'float_4', name_type_map['Float'], (0, None), (False, None), (None, None)
+		yield 'unk_64_1', name_type_map['Uint64'], (0, None), (False, None), (None, None)
+		yield 'name_1', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None)
+		yield 'name_2', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None)
+		yield 'ptr_1', name_type_map['Pointer'], (0, name_type_map['EmptyStruct']), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

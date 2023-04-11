@@ -23,9 +23,9 @@ class ZtVertBlockInfo(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('vertex_count', name_type_map['Uint'], (0, None), (False, None), (None, None))
-		yield ('flags', Array, (0, None, (8,), name_type_map['Ubyte']), (False, None), (None, None))
-		yield ('zero', name_type_map['Uint'], (0, None), (False, None), (None, None))
+		yield 'vertex_count', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'flags', Array, (0, None, (8,), name_type_map['Ubyte']), (False, None), (None, None)
+		yield 'zero', name_type_map['Uint'], (0, None), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

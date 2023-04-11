@@ -23,9 +23,9 @@ class BooleanData(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('value', name_type_map['Ubyte'], (0, None), (False, None), (None, None))
-		yield ('default', name_type_map['Ubyte'], (0, None), (False, None), (None, None))
-		yield ('unused', Array, (0, None, (6,), name_type_map['Ubyte']), (False, None), (None, None))
+		yield 'value', name_type_map['Ubyte'], (0, None), (False, None), (None, None)
+		yield 'default', name_type_map['Ubyte'], (0, None), (False, None), (None, None)
+		yield 'unused', Array, (0, None, (6,), name_type_map['Ubyte']), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

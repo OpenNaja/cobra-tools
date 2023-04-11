@@ -27,14 +27,14 @@ class Sixtyfour(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('count_0', name_type_map['Uint64'], (0, None), (False, None), (None, None))
-		yield ('ptr_0', name_type_map['Pointer'], (0, None), (False, None), (None, None))
-		yield ('ptr_1', name_type_map['Pointer'], (0, None), (False, None), (None, None))
-		yield ('count_1', name_type_map['Uint64'], (0, None), (False, None), (None, None))
-		yield ('count_2', name_type_map['Uint64'], (0, None), (False, None), (None, None))
-		yield ('ptr_2', name_type_map['Pointer'], (0, None), (False, None), (None, None))
-		yield ('ptr_3', name_type_map['Pointer'], (0, None), (False, None), (None, None))
-		yield ('count_3', name_type_map['Uint64'], (0, None), (False, None), (None, None))
+		yield 'count_0', name_type_map['Uint64'], (0, None), (False, None), (None, None)
+		yield 'ptr_0', name_type_map['Pointer'], (0, None), (False, None), (None, None)
+		yield 'ptr_1', name_type_map['Pointer'], (0, None), (False, None), (None, None)
+		yield 'count_1', name_type_map['Uint64'], (0, None), (False, None), (None, None)
+		yield 'count_2', name_type_map['Uint64'], (0, None), (False, None), (None, None)
+		yield 'ptr_2', name_type_map['Pointer'], (0, None), (False, None), (None, None)
+		yield 'ptr_3', name_type_map['Pointer'], (0, None), (False, None), (None, None)
+		yield 'count_3', name_type_map['Uint64'], (0, None), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

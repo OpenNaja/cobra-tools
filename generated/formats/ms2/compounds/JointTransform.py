@@ -25,8 +25,8 @@ class JointTransform(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('rot', name_type_map['Matrix33'], (0, None), (False, None), (None, None))
-		yield ('loc', name_type_map['Vector3'], (0, None), (False, None), (None, None))
+		yield 'rot', name_type_map['Matrix33'], (0, None), (False, None), (None, None)
+		yield 'loc', name_type_map['Vector3'], (0, None), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

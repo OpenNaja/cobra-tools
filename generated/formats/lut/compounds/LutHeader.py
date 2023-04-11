@@ -25,12 +25,12 @@ class LutHeader(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('colors', name_type_map['ArrayPointer'], (None, name_type_map['Vector3']), (False, None), (None, None))
-		yield ('colors_count', name_type_map['Ushort'], (0, None), (False, None), (None, None))
-		yield ('unk_0', name_type_map['Ushort'], (0, None), (False, None), (None, None))
-		yield ('unk_1', name_type_map['Uint'], (0, None), (False, None), (None, None))
-		yield ('colors_in_column_count', name_type_map['Uint'], (0, None), (False, None), (None, None))
-		yield ('unk_2', name_type_map['Uint'], (0, None), (False, None), (None, None))
+		yield 'colors', name_type_map['ArrayPointer'], (None, name_type_map['Vector3']), (False, None), (None, None)
+		yield 'colors_count', name_type_map['Ushort'], (0, None), (False, None), (None, None)
+		yield 'unk_0', name_type_map['Ushort'], (0, None), (False, None), (None, None)
+		yield 'unk_1', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'colors_in_column_count', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'unk_2', name_type_map['Uint'], (0, None), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

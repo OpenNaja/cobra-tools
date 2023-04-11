@@ -50,16 +50,16 @@ class BnkBufferData(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('size_b', name_type_map['Uint64'], (0, None), (False, None), (None, None))
-		yield ('external_aux_b_count', name_type_map['Uint'], (0, None), (False, None), (None, None))
-		yield ('total_aux_count', name_type_map['Uint'], (0, None), (False, None), (None, None))
-		yield ('streams_count', name_type_map['Uint'], (0, None), (False, None), (None, None))
-		yield ('zeros', Array, (0, None, (7,), name_type_map['Uint']), (False, None), (None, None))
-		yield ('zeros_per_buffer', Array, (0, None, (None, 2,), name_type_map['Uint64']), (False, None), (None, None))
-		yield ('streams', Array, (0, None, (None,), name_type_map['StreamInfo']), (False, None), (None, None))
-		yield ('name', name_type_map['ZString'], (0, None), (False, None), (None, None))
-		yield ('external_b_suffix', name_type_map['ZString'], (0, None), (False, None), (None, True))
-		yield ('external_s_suffix', name_type_map['ZString'], (0, None), (False, None), (None, True))
+		yield 'size_b', name_type_map['Uint64'], (0, None), (False, None), (None, None)
+		yield 'external_aux_b_count', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'total_aux_count', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'streams_count', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'zeros', Array, (0, None, (7,), name_type_map['Uint']), (False, None), (None, None)
+		yield 'zeros_per_buffer', Array, (0, None, (None, 2,), name_type_map['Uint64']), (False, None), (None, None)
+		yield 'streams', Array, (0, None, (None,), name_type_map['StreamInfo']), (False, None), (None, None)
+		yield 'name', name_type_map['ZString'], (0, None), (False, None), (None, None)
+		yield 'external_b_suffix', name_type_map['ZString'], (0, None), (False, None), (None, True)
+		yield 'external_s_suffix', name_type_map['ZString'], (0, None), (False, None), (None, True)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

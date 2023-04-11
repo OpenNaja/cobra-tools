@@ -26,11 +26,11 @@ class ConvexHull(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('vertex_count', name_type_map['Uint'], (0, None), (False, None), (None, None))
-		yield ('rotation', name_type_map['Matrix33'], (0, None), (False, None), (None, None))
-		yield ('offset', name_type_map['Vector3'], (0, None), (False, None), (None, None))
-		yield ('zeros', Array, (0, None, (5,), name_type_map['Uint']), (False, None), (lambda context: context.version == 32, None))
-		yield ('zeros', Array, (0, None, (2,), name_type_map['Uint']), (False, None), (lambda context: context.version >= 48, None))
+		yield 'vertex_count', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'rotation', name_type_map['Matrix33'], (0, None), (False, None), (None, None)
+		yield 'offset', name_type_map['Vector3'], (0, None), (False, None), (None, None)
+		yield 'zeros', Array, (0, None, (5,), name_type_map['Uint']), (False, None), (lambda context: context.version == 32, None)
+		yield 'zeros', Array, (0, None, (2,), name_type_map['Uint']), (False, None), (lambda context: context.version >= 48, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

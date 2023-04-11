@@ -25,12 +25,12 @@ class Bone(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('loc', name_type_map['Vector3'], (0, None), (False, None), (lambda context: context.version <= 47, None))
-		yield ('scale', name_type_map['Float'], (0, None), (False, None), (lambda context: context.version <= 47, None))
-		yield ('rot', name_type_map['Vector4'], (0, None), (False, None), (lambda context: context.version <= 47, None))
-		yield ('rot', name_type_map['Vector4'], (0, None), (False, None), (lambda context: context.version >= 48, None))
-		yield ('loc', name_type_map['Vector3'], (0, None), (False, None), (lambda context: context.version >= 48, None))
-		yield ('scale', name_type_map['Float'], (0, None), (False, None), (lambda context: context.version >= 48, None))
+		yield 'loc', name_type_map['Vector3'], (0, None), (False, None), (lambda context: context.version <= 47, None)
+		yield 'scale', name_type_map['Float'], (0, None), (False, None), (lambda context: context.version <= 47, None)
+		yield 'rot', name_type_map['Vector4'], (0, None), (False, None), (lambda context: context.version <= 47, None)
+		yield 'rot', name_type_map['Vector4'], (0, None), (False, None), (lambda context: context.version >= 48, None)
+		yield 'loc', name_type_map['Vector3'], (0, None), (False, None), (lambda context: context.version >= 48, None)
+		yield 'scale', name_type_map['Float'], (0, None), (False, None), (lambda context: context.version >= 48, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

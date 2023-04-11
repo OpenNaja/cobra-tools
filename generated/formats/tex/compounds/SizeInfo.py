@@ -18,9 +18,9 @@ class SizeInfo(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('data', name_type_map['SizeInfoRaw'], (0, None), (False, None), (None, None))
-		yield ('padding', Array, (0, None, (None,), name_type_map['Ubyte']), (False, None), (lambda context: ((not context.user_version.use_djb) and (context.version == 20)) or (((not context.user_version.use_djb) and (context.version >= 19)) or (context.user_version.use_djb and (context.version == 20))), None))
-		yield ('padding', Array, (0, None, (None,), name_type_map['Ubyte']), (False, None), (lambda context: context.user_version.use_djb and (context.version == 19), None))
+		yield 'data', name_type_map['SizeInfoRaw'], (0, None), (False, None), (None, None)
+		yield 'padding', Array, (0, None, (None,), name_type_map['Ubyte']), (False, None), (lambda context: ((not context.user_version.use_djb) and (context.version == 20)) or (((not context.user_version.use_djb) and (context.version >= 19)) or (context.user_version.use_djb and (context.version == 20))), None)
+		yield 'padding', Array, (0, None, (None,), name_type_map['Ubyte']), (False, None), (lambda context: context.user_version.use_djb and (context.version == 19), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

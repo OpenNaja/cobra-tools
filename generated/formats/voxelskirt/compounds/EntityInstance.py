@@ -21,8 +21,8 @@ class EntityInstance(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('loc', name_type_map['Vector3F'], (0, None), (False, None), (None, None))
-		yield ('z_rot', name_type_map['Float'], (0, None), (False, None), (None, None))
+		yield 'loc', name_type_map['Vector3F'], (0, None), (False, None), (None, None)
+		yield 'z_rot', name_type_map['Float'], (0, None), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

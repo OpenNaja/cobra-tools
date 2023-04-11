@@ -29,9 +29,9 @@ class RagdollConstraint(Constraint):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('loc', name_type_map['Vector3'], (0, None), (False, None), (None, None))
-		yield ('floats', Array, (0, None, (5, 3,), name_type_map['Float']), (False, None), (None, None))
-		yield ('radians', Array, (0, None, (8,), name_type_map['Float']), (False, None), (None, None))
+		yield 'loc', name_type_map['Vector3'], (0, None), (False, None), (None, None)
+		yield 'floats', Array, (0, None, (5, 3,), name_type_map['Float']), (False, None), (None, None)
+		yield 'radians', Array, (0, None, (8,), name_type_map['Float']), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

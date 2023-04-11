@@ -26,11 +26,11 @@ class Area(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('_id', name_type_map['Uint64'], (0, None), (False, None), (None, None))
-		yield ('width_1', name_type_map['Uint64'], (0, None), (False, None), (None, None))
-		yield ('height_1', name_type_map['Uint64'], (0, None), (False, None), (None, None))
-		yield ('width_2', name_type_map['Uint64'], (0, None), (False, None), (None, None))
-		yield ('height_2', name_type_map['Uint64'], (0, None), (False, None), (None, None))
+		yield '_id', name_type_map['Uint64'], (0, None), (False, None), (None, None)
+		yield 'width_1', name_type_map['Uint64'], (0, None), (False, None), (None, None)
+		yield 'height_1', name_type_map['Uint64'], (0, None), (False, None), (None, None)
+		yield 'width_2', name_type_map['Uint64'], (0, None), (False, None), (None, None)
+		yield 'height_2', name_type_map['Uint64'], (0, None), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

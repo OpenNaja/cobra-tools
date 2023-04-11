@@ -45,15 +45,15 @@ class MimeEntry(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('name', name_type_map['OffsetString'], (None, None), (False, None), (None, None))
-		yield ('zero_0', name_type_map['Uint'], (0, None), (False, 0), (None, None))
-		yield ('mime_hash', name_type_map['Uint'], (0, None), (False, None), (lambda context: context.version >= 17, None))
-		yield ('mime_version', name_type_map['Uint'], (0, None), (False, None), (None, None))
-		yield ('file_index_offset', name_type_map['Uint'], (0, None), (False, None), (None, None))
-		yield ('file_count', name_type_map['Uint'], (0, None), (False, None), (None, None))
-		yield ('zero_1', name_type_map['Uint'], (0, None), (False, None), (lambda context: context.version <= 15, None))
-		yield ('triplet_count', name_type_map['Uint'], (0, None), (False, None), (lambda context: context.version >= 20, None))
-		yield ('triplet_offset', name_type_map['Uint'], (0, None), (False, None), (lambda context: context.version >= 20, None))
+		yield 'name', name_type_map['OffsetString'], (None, None), (False, None), (None, None)
+		yield 'zero_0', name_type_map['Uint'], (0, None), (False, 0), (None, None)
+		yield 'mime_hash', name_type_map['Uint'], (0, None), (False, None), (lambda context: context.version >= 17, None)
+		yield 'mime_version', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'file_index_offset', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'file_count', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'zero_1', name_type_map['Uint'], (0, None), (False, None), (lambda context: context.version <= 15, None)
+		yield 'triplet_count', name_type_map['Uint'], (0, None), (False, None), (lambda context: context.version >= 20, None)
+		yield 'triplet_offset', name_type_map['Uint'], (0, None), (False, None), (lambda context: context.version >= 20, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

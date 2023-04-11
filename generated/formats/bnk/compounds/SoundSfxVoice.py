@@ -37,13 +37,13 @@ class SoundSfxVoice(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('length', name_type_map['Uint'], (0, None), (False, None), (None, None))
-		yield ('id', name_type_map['Uint'], (0, None), (False, None), (None, None))
-		yield ('const_a', name_type_map['Uint'], (0, None), (False, None), (None, None))
-		yield ('const_b', name_type_map['Byte'], (0, None), (False, None), (None, None))
-		yield ('didx_id', name_type_map['Uint'], (0, None), (False, None), (None, None))
-		yield ('wem_length', name_type_map['Uint'], (0, None), (False, None), (None, None))
-		yield ('extra', Array, (0, None, (None,), name_type_map['Byte']), (False, None), (None, None))
+		yield 'length', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'id', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'const_a', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'const_b', name_type_map['Byte'], (0, None), (False, None), (None, None)
+		yield 'didx_id', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'wem_length', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'extra', Array, (0, None, (None,), name_type_map['Byte']), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

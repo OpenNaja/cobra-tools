@@ -36,15 +36,15 @@ class TriChunk(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('bounds_min', name_type_map['Vector3'], (0, None), (False, None), (None, None))
-		yield ('material_index', name_type_map['Ushort'], (0, None), (False, None), (None, None))
-		yield ('tris_count', name_type_map['Ushort'], (0, None), (False, None), (None, None))
-		yield ('bounds_max', name_type_map['Vector3'], (0, None), (False, None), (None, None))
-		yield ('tris_offset', name_type_map['Uint'], (0, None), (False, None), (None, None))
-		yield ('loc', name_type_map['Vector3'], (0, None), (False, None), (None, None))
-		yield ('rot', name_type_map['AxisAngle'], (0, None), (False, None), (None, None))
-		yield ('shell_index', name_type_map['Ushort'], (0, None), (False, None), (None, None))
-		yield ('shell_count', name_type_map['Ushort'], (0, None), (False, None), (None, None))
+		yield 'bounds_min', name_type_map['Vector3'], (0, None), (False, None), (None, None)
+		yield 'material_index', name_type_map['Ushort'], (0, None), (False, None), (None, None)
+		yield 'tris_count', name_type_map['Ushort'], (0, None), (False, None), (None, None)
+		yield 'bounds_max', name_type_map['Vector3'], (0, None), (False, None), (None, None)
+		yield 'tris_offset', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'loc', name_type_map['Vector3'], (0, None), (False, None), (None, None)
+		yield 'rot', name_type_map['AxisAngle'], (0, None), (False, None), (None, None)
+		yield 'shell_index', name_type_map['Ushort'], (0, None), (False, None), (None, None)
+		yield 'shell_count', name_type_map['Ushort'], (0, None), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

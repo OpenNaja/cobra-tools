@@ -27,11 +27,11 @@ class TextureInfo(GenericInfo):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('value', Array, (0, None, (1,), name_type_map['TexIndex']), (False, None), (None, True))
-		yield ('value', Array, (0, None, (2,), name_type_map['Color']), (False, None), (lambda context: context.version >= 18, True))
-		yield ('value', Array, (0, None, (1,), name_type_map['Color']), (False, None), (lambda context: context.version <= 17, True))
-		yield ('some_index_0', name_type_map['Uint'], (0, None), (True, 0), (lambda context: context.version >= 18, None))
-		yield ('some_index_1', name_type_map['Uint'], (0, None), (True, 0), (lambda context: context.version >= 18, None))
+		yield 'value', Array, (0, None, (1,), name_type_map['TexIndex']), (False, None), (None, True)
+		yield 'value', Array, (0, None, (2,), name_type_map['Color']), (False, None), (lambda context: context.version >= 18, True)
+		yield 'value', Array, (0, None, (1,), name_type_map['Color']), (False, None), (lambda context: context.version <= 17, True)
+		yield 'some_index_0', name_type_map['Uint'], (0, None), (True, 0), (lambda context: context.version >= 18, None)
+		yield 'some_index_1', name_type_map['Uint'], (0, None), (True, 0), (lambda context: context.version >= 18, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

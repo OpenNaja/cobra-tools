@@ -27,11 +27,11 @@ class UACJointFF(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('eleven', name_type_map['Uint'], (0, None), (False, None), (None, None))
-		yield ('f_fs', Array, (0, None, (4,), name_type_map['Int']), (False, None), (None, None))
-		yield ('name', name_type_map['OffsetString'], (None, None), (False, None), (None, None))
-		yield ('hitcheck_count', name_type_map['Uint'], (0, None), (False, None), (None, None))
-		yield ('zeros', Array, (0, None, (3,), name_type_map['Uint']), (False, None), (None, None))
+		yield 'eleven', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'f_fs', Array, (0, None, (4,), name_type_map['Int']), (False, None), (None, None)
+		yield 'name', name_type_map['OffsetString'], (None, None), (False, None), (None, None)
+		yield 'hitcheck_count', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'zeros', Array, (0, None, (3,), name_type_map['Uint']), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

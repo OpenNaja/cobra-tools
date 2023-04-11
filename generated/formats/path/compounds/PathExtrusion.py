@@ -22,13 +22,13 @@ class PathExtrusion(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('model', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None))
-		yield ('post_model', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None))
-		yield ('endcap_model', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None))
-		yield ('unk_float_1', name_type_map['Float'], (0, None), (False, None), (None, None))
-		yield ('unk_float_2', name_type_map['Float'], (0, None), (False, None), (None, None))
-		yield ('is_kerb', name_type_map['Bool'], (0, None), (False, None), (None, None))
-		yield ('is_not_ground', name_type_map['Bool'], (0, None), (False, True), (None, None))
+		yield 'model', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None)
+		yield 'post_model', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None)
+		yield 'endcap_model', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None)
+		yield 'unk_float_1', name_type_map['Float'], (0, None), (False, None), (None, None)
+		yield 'unk_float_2', name_type_map['Float'], (0, None), (False, None), (None, None)
+		yield 'is_kerb', name_type_map['Bool'], (0, None), (False, None), (None, None)
+		yield 'is_not_ground', name_type_map['Bool'], (0, None), (False, True), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

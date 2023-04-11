@@ -21,8 +21,8 @@ class HbUiOptions(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('straight_curve', name_type_map['Bool'], (0, None), (False, None), (None, None))
-		yield ('windows', name_type_map['Bool'], (0, None), (False, None), (None, None))
+		yield 'straight_curve', name_type_map['Bool'], (0, None), (False, None), (None, None)
+		yield 'windows', name_type_map['Bool'], (0, None), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

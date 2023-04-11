@@ -27,10 +27,10 @@ class TexBufferPc(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('width', name_type_map['Ushort'], (0, None), (False, None), (None, None))
-		yield ('height', name_type_map['Ushort'], (0, None), (False, None), (None, None))
-		yield ('num_tiles', name_type_map['Ushort'], (0, None), (False, None), (lambda context: context.version >= 18, None))
-		yield ('num_mips', name_type_map['Ushort'], (0, None), (False, None), (None, None))
+		yield 'width', name_type_map['Ushort'], (0, None), (False, None), (None, None)
+		yield 'height', name_type_map['Ushort'], (0, None), (False, None), (None, None)
+		yield 'num_tiles', name_type_map['Ushort'], (0, None), (False, None), (lambda context: context.version >= 18, None)
+		yield 'num_mips', name_type_map['Ushort'], (0, None), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

@@ -18,9 +18,9 @@ class ContextSet3Item(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('stuff_3_name_1', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None))
-		yield ('stuff_3_sub', name_type_map['Pointer'], (0, name_type_map['ContextSet3SubItem']), (False, None), (None, None))
-		yield ('stuff_3_id_allways_1', name_type_map['Uint64'], (0, None), (False, None), (None, None))
+		yield 'stuff_3_name_1', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None)
+		yield 'stuff_3_sub', name_type_map['Pointer'], (0, name_type_map['ContextSet3SubItem']), (False, None), (None, None)
+		yield 'stuff_3_id_allways_1', name_type_map['Uint64'], (0, None), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

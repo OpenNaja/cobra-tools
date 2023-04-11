@@ -33,13 +33,13 @@ class VertChunk(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('scale', name_type_map['Float'], (0, None), (False, None), (None, None))
-		yield ('pack_base', name_type_map['Float'], (0, None), (False, None), (None, None))
-		yield ('vertex_offset', name_type_map['Uint'], (0, None), (False, None), (None, None))
-		yield ('vertex_count', name_type_map['Ubyte'], (0, None), (False, None), (None, None))
-		yield ('weights_flag', name_type_map['WeightsFlag'], (0, None), (False, None), (lambda context: context.version <= 51, None))
-		yield ('weights_flag', name_type_map['WeightsFlagMalta'], (0, None), (False, None), (lambda context: context.version >= 52, None))
-		yield ('zero', name_type_map['Ubyte'], (0, None), (False, None), (None, None))
+		yield 'scale', name_type_map['Float'], (0, None), (False, None), (None, None)
+		yield 'pack_base', name_type_map['Float'], (0, None), (False, None), (None, None)
+		yield 'vertex_offset', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'vertex_count', name_type_map['Ubyte'], (0, None), (False, None), (None, None)
+		yield 'weights_flag', name_type_map['WeightsFlag'], (0, None), (False, None), (lambda context: context.version <= 51, None)
+		yield 'weights_flag', name_type_map['WeightsFlagMalta'], (0, None), (False, None), (lambda context: context.version >= 52, None)
+		yield 'zero', name_type_map['Ubyte'], (0, None), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

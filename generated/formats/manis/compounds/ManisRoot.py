@@ -28,12 +28,12 @@ class ManisRoot(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('names_size', name_type_map['Ushort'], (0, None), (False, None), (None, None))
-		yield ('hash_block_size', name_type_map['Ushort'], (0, None), (False, None), (None, None))
-		yield ('zero_0', name_type_map['Uint'], (0, None), (False, None), (None, None))
-		yield ('zero_1', name_type_map['Uint64'], (0, None), (False, None), (None, None))
-		yield ('zero_2', name_type_map['Uint64'], (0, None), (False, None), (None, None))
-		yield ('zero_3', name_type_map['Uint64'], (0, None), (False, None), (lambda context: context.version >= 260, None))
+		yield 'names_size', name_type_map['Ushort'], (0, None), (False, None), (None, None)
+		yield 'hash_block_size', name_type_map['Ushort'], (0, None), (False, None), (None, None)
+		yield 'zero_0', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'zero_1', name_type_map['Uint64'], (0, None), (False, None), (None, None)
+		yield 'zero_2', name_type_map['Uint64'], (0, None), (False, None), (None, None)
+		yield 'zero_3', name_type_map['Uint64'], (0, None), (False, None), (lambda context: context.version >= 260, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

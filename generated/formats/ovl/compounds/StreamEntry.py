@@ -31,9 +31,9 @@ class StreamEntry(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('stream_offset', name_type_map['Uint'], (0, None), (False, None), (None, None))
-		yield ('file_offset', name_type_map['Uint'], (0, None), (False, None), (None, None))
-		yield ('zero', name_type_map['Uint'], (0, None), (False, None), (None, None))
+		yield 'stream_offset', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'file_offset', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'zero', name_type_map['Uint'], (0, None), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

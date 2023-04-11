@@ -26,12 +26,12 @@ class State(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('unk', name_type_map['Uint'], (0, None), (False, None), (None, None))
-		yield ('activities_count', name_type_map['Uint'], (0, None), (False, None), (None, None))
-		yield ('activities', name_type_map['Pointer'], (None, name_type_map['PtrList']), (False, None), (None, None))
-		yield ('count_2', name_type_map['Uint64'], (0, None), (False, None), (None, None))
-		yield ('array_2', name_type_map['Pointer'], (None, name_type_map['TransStructStopList']), (False, None), (None, None))
-		yield ('id', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None))
+		yield 'unk', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'activities_count', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'activities', name_type_map['Pointer'], (None, name_type_map['PtrList']), (False, None), (None, None)
+		yield 'count_2', name_type_map['Uint64'], (0, None), (False, None), (None, None)
+		yield 'array_2', name_type_map['Pointer'], (None, name_type_map['TransStructStopList']), (False, None), (None, None)
+		yield 'id', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

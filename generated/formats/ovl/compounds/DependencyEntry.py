@@ -34,10 +34,10 @@ class DependencyEntry(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('file_hash', name_type_map['Uint'], (0, None), (False, None), (None, None))
-		yield ('ext_raw', name_type_map['OffsetString'], (None, None), (False, None), (None, None))
-		yield ('file_index', name_type_map['Uint'], (0, None), (False, None), (None, None))
-		yield ('link_ptr', name_type_map['HeaderPointer'], (0, None), (False, None), (None, None))
+		yield 'file_hash', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'ext_raw', name_type_map['OffsetString'], (None, None), (False, None), (None, None)
+		yield 'file_index', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'link_ptr', name_type_map['HeaderPointer'], (0, None), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

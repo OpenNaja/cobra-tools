@@ -53,14 +53,14 @@ class BioMeshData(MeshData):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('chunks_offset', name_type_map['Uint'], (0, None), (False, None), (None, None))
-		yield ('chunks_count', name_type_map['Uint'], (0, None), (False, None), (None, None))
-		yield ('tris_count', name_type_map['Uint'], (0, None), (False, None), (None, None))
-		yield ('vertex_count', name_type_map['Uint'], (0, None), (False, None), (None, None))
-		yield ('zero_1', name_type_map['Uint64'], (0, None), (False, None), (None, None))
-		yield ('poweroftwo', name_type_map['Uint'], (0, None), (False, None), (None, None))
-		yield ('unk_floats', Array, (0, None, (2,), name_type_map['Float']), (False, None), (None, None))
-		yield ('flag', name_type_map['BioModelFlag'], (0, None), (False, None), (None, None))
+		yield 'chunks_offset', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'chunks_count', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'tris_count', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'vertex_count', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'zero_1', name_type_map['Uint64'], (0, None), (False, None), (None, None)
+		yield 'poweroftwo', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'unk_floats', Array, (0, None, (2,), name_type_map['Float']), (False, None), (None, None)
+		yield 'flag', name_type_map['BioModelFlag'], (0, None), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

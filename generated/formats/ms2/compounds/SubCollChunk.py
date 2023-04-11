@@ -34,12 +34,12 @@ class SubCollChunk(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('bounds_min_repeat', name_type_map['Vector3'], (0, None), (False, None), (None, None))
-		yield ('bounds_max_repeat', name_type_map['Vector3'], (0, None), (False, None), (None, None))
-		yield ('tri_flags_count', name_type_map['Uint'], (0, None), (False, None), (None, None))
-		yield ('count_bits', name_type_map['Ushort'], (0, None), (False, None), (None, None))
-		yield ('stuff', Array, (0, None, (9,), name_type_map['Ushort']), (False, None), (None, None))
-		yield ('collision_bits', Array, (0, None, (None,), name_type_map['MeshCollisionBit']), (False, None), (None, None))
+		yield 'bounds_min_repeat', name_type_map['Vector3'], (0, None), (False, None), (None, None)
+		yield 'bounds_max_repeat', name_type_map['Vector3'], (0, None), (False, None), (None, None)
+		yield 'tri_flags_count', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'count_bits', name_type_map['Ushort'], (0, None), (False, None), (None, None)
+		yield 'stuff', Array, (0, None, (9,), name_type_map['Ushort']), (False, None), (None, None)
+		yield 'collision_bits', Array, (0, None, (None,), name_type_map['MeshCollisionBit']), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

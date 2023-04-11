@@ -26,12 +26,12 @@ class DinoVariantsHeader(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('fgm_name', name_type_map['Pointer'], (0, name_type_map['ZStringObfuscated']), (False, None), (None, None))
-		yield ('has_sets', name_type_map['Uint64'], (0, None), (False, None), (None, None))
-		yield ('set_name', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None))
-		yield ('variants', name_type_map['Pointer'], (None, name_type_map['VariantArray']), (False, None), (None, None))
-		yield ('variant_count', name_type_map['Uint64'], (0, None), (False, None), (None, None))
-		yield ('zero', name_type_map['Uint64'], (0, None), (False, None), (None, None))
+		yield 'fgm_name', name_type_map['Pointer'], (0, name_type_map['ZStringObfuscated']), (False, None), (None, None)
+		yield 'has_sets', name_type_map['Uint64'], (0, None), (False, None), (None, None)
+		yield 'set_name', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None)
+		yield 'variants', name_type_map['Pointer'], (None, name_type_map['VariantArray']), (False, None), (None, None)
+		yield 'variant_count', name_type_map['Uint64'], (0, None), (False, None), (None, None)
+		yield 'zero', name_type_map['Uint64'], (0, None), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

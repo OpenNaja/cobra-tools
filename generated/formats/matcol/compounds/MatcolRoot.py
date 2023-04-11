@@ -23,8 +23,8 @@ class MatcolRoot(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('main', name_type_map['Pointer'], (0, name_type_map['RootFrag']), (False, None), (None, None))
-		yield ('one', name_type_map['Uint64'], (0, None), (False, None), (None, None))
+		yield 'main', name_type_map['Pointer'], (0, name_type_map['RootFrag']), (False, None), (None, None)
+		yield 'one', name_type_map['Uint64'], (0, None), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

@@ -30,17 +30,17 @@ class TrackMeshRoot(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('a', name_type_map['Uint64'], (0, None), (False, None), (None, None))
-		yield ('offset_data', name_type_map['ArrayPointer'], (None, name_type_map['OffsetData']), (False, None), (None, None))
-		yield ('track_data', name_type_map['ArrayPointer'], (None, name_type_map['TrackData']), (False, None), (None, None))
-		yield ('last', name_type_map['ArrayPointer'], (None, name_type_map['LastData']), (False, None), (None, None))
-		yield ('count_0', name_type_map['Uint'], (0, None), (False, None), (None, None))
-		yield ('next_count', name_type_map['Uint'], (0, None), (False, None), (None, None))
-		yield ('last_count', name_type_map['Uint64'], (0, None), (False, None), (None, None))
-		yield ('lods', name_type_map['ArrayPointer'], (None, name_type_map['Lod']), (False, None), (None, None))
-		yield ('lod_count', name_type_map['Uint64'], (0, None), (False, None), (None, None))
-		yield ('heatmap_name', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None))
-		yield ('g', name_type_map['Uint64'], (0, None), (False, None), (None, None))
+		yield 'a', name_type_map['Uint64'], (0, None), (False, None), (None, None)
+		yield 'offset_data', name_type_map['ArrayPointer'], (None, name_type_map['OffsetData']), (False, None), (None, None)
+		yield 'track_data', name_type_map['ArrayPointer'], (None, name_type_map['TrackData']), (False, None), (None, None)
+		yield 'last', name_type_map['ArrayPointer'], (None, name_type_map['LastData']), (False, None), (None, None)
+		yield 'count_0', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'next_count', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'last_count', name_type_map['Uint64'], (0, None), (False, None), (None, None)
+		yield 'lods', name_type_map['ArrayPointer'], (None, name_type_map['Lod']), (False, None), (None, None)
+		yield 'lod_count', name_type_map['Uint64'], (0, None), (False, None), (None, None)
+		yield 'heatmap_name', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None)
+		yield 'g', name_type_map['Uint64'], (0, None), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

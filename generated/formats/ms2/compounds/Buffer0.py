@@ -26,10 +26,10 @@ class Buffer0(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('name_hashes', Array, (0, None, (None,), name_type_map['Uint']), (False, None), (None, None))
-		yield ('names', Array, (0, None, (None,), name_type_map['ZString']), (False, None), (None, None))
-		yield ('names_padding', name_type_map['PadAlign'], (4, None), (False, None), (lambda context: context.version >= 50, None))
-		yield ('zt_streams_header', name_type_map['StreamsZTHeader'], (None, None), (False, None), (lambda context: context.version <= 13, None))
+		yield 'name_hashes', Array, (0, None, (None,), name_type_map['Uint']), (False, None), (None, None)
+		yield 'names', Array, (0, None, (None,), name_type_map['ZString']), (False, None), (None, None)
+		yield 'names_padding', name_type_map['PadAlign'], (4, None), (False, None), (lambda context: context.version >= 50, None)
+		yield 'zt_streams_header', name_type_map['StreamsZTHeader'], (None, None), (False, None), (lambda context: context.version <= 13, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

@@ -20,10 +20,10 @@ class Info(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('info_name', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None))
-		yield ('flags', Array, (0, None, (4,), name_type_map['Byte']), (False, None), (None, None))
-		yield ('value', Array, (0, None, (4,), name_type_map['Float']), (False, None), (None, None))
-		yield ('padding', name_type_map['Uint'], (0, None), (False, None), (None, None))
+		yield 'info_name', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None)
+		yield 'flags', Array, (0, None, (4,), name_type_map['Byte']), (False, None), (None, None)
+		yield 'value', Array, (0, None, (4,), name_type_map['Float']), (False, None), (None, None)
+		yield 'padding', name_type_map['Uint'], (0, None), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

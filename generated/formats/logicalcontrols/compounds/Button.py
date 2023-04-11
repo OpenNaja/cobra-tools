@@ -19,10 +19,10 @@ class Button(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('button_name', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None))
-		yield ('datas', name_type_map['ArrayPointer'], (None, name_type_map['ButtonData']), (False, None), (None, None))
-		yield ('datas_count', name_type_map['Uint'], (0, None), (False, None), (None, None))
-		yield ('flags', name_type_map['Uint'], (0, None), (False, None), (None, None))
+		yield 'button_name', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None)
+		yield 'datas', name_type_map['ArrayPointer'], (None, name_type_map['ButtonData']), (False, None), (None, None)
+		yield 'datas_count', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'flags', name_type_map['Uint'], (0, None), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

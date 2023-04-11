@@ -35,17 +35,17 @@ class Ms2InfoHeader(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('biosyn', name_type_map['BiosynVersion'], (0, None), (False, None), (None, None))
-		yield ('bone_info_size', name_type_map['Uint'], (0, None), (False, None), (None, None))
-		yield ('num_streams', name_type_map['Uint'], (0, None), (False, None), (None, None))
-		yield ('info', name_type_map['Ms2Root'], (0, None), (False, None), (None, None))
-		yield ('buffer_pointers', Array, (0, None, (None,), name_type_map['BufferPresence']), (False, None), (lambda context: context.version >= 7, None))
-		yield ('mdl_2_names', Array, (0, None, (None,), name_type_map['ZString']), (False, None), (None, None))
-		yield ('modelstream_names', Array, (0, None, (None,), name_type_map['ZString']), (False, None), (None, None))
-		yield ('buffer_0', name_type_map['Buffer0'], (None, None), (False, None), (None, None))
-		yield ('buffer_infos', Array, (0, None, (None,), name_type_map['BufferInfo']), (False, None), (None, None))
-		yield ('model_infos', Array, (0, None, (None,), name_type_map['ModelInfo']), (False, None), (None, None))
-		yield ('models_reader', name_type_map['ModelReader'], (None, None), (False, None), (None, None))
+		yield 'biosyn', name_type_map['BiosynVersion'], (0, None), (False, None), (None, None)
+		yield 'bone_info_size', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'num_streams', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'info', name_type_map['Ms2Root'], (0, None), (False, None), (None, None)
+		yield 'buffer_pointers', Array, (0, None, (None,), name_type_map['BufferPresence']), (False, None), (lambda context: context.version >= 7, None)
+		yield 'mdl_2_names', Array, (0, None, (None,), name_type_map['ZString']), (False, None), (None, None)
+		yield 'modelstream_names', Array, (0, None, (None,), name_type_map['ZString']), (False, None), (None, None)
+		yield 'buffer_0', name_type_map['Buffer0'], (None, None), (False, None), (None, None)
+		yield 'buffer_infos', Array, (0, None, (None,), name_type_map['BufferInfo']), (False, None), (None, None)
+		yield 'model_infos', Array, (0, None, (None,), name_type_map['ModelInfo']), (False, None), (None, None)
+		yield 'models_reader', name_type_map['ModelReader'], (None, None), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

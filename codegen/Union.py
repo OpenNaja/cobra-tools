@@ -116,8 +116,7 @@ class Union:
         if use_abstract:
             if field.attrib.get("abstract", "False") == "True":
                 local_conditionals.append("include_abstract")
-        conditionals = (global_conditionals, local_conditionals)
-        return conditionals
+        return global_conditionals, local_conditionals
 
     def get_params(self, field, target_variable="self", use_abstract=False):
         # parse all attributes and return the python-evaluatable string
@@ -226,9 +225,15 @@ class Union:
         if field_default is not None:
             f.write(f'\n{base_indent}self.{field_name} = {field_default}')
 
+    @staticmethod
+    def arrs_to_tuple(*args):
+        valid_arrs = tuple(str(arr) for arr in args if arr)
+        arr_str = f'({", ".join(valid_arrs)},)'
+        return arr_str
+
     def write_attributes(self, f):
         for field in self.members:
-            arg, template, arr1, arr2, conditionals, field_name, (field_type, field_type_access), (optional, default) = self.get_params(field, '')
+            arg, template, arr1, arr2, (global_conditionals, local_conditionals), field_name, (field_type, field_type_access), (optional, default) = self.get_params(field, '')
             # replace all non-static values with None for now
             try:
                 arg = int(str(arg), 0)
@@ -243,7 +248,7 @@ class Union:
             if arr1 is None:
                 arguments = f"({arg}, {template})"
             else:
-                shape = self.compounds.parser.arrs_to_tuple(arr1, arr2)
+                shape = self.arrs_to_tuple(arr1, arr2)
                 shape_parts = shape[1:-1].split(",")
                 resolved_shape_parts = []
                 for dim in shape_parts:
@@ -257,9 +262,9 @@ class Union:
                 shape = f"({', '.join(resolved_shape_parts)},)"
                 arguments = f"({arg}, {template}, {shape}, {field_type_access})"
                 field_type_access = "Array"
-            global_conditions = f"lambda {CONTEXT_SUFFIX}: {' and '.join(conditionals[0])}" if conditionals[0] else None
-            local_conditions = True if conditionals[1] else None
-            f.write(f"\n\t\tyield ({repr(field_name)}, {field_type_access}, {arguments}, ({optional}, {default}), ({global_conditions}, {local_conditions}))")
+            global_conditions = f"lambda {CONTEXT_SUFFIX}: {' and '.join(global_conditionals)}" if global_conditionals else None
+            local_conditions = True if local_conditionals else None
+            f.write(f"\n\t\tyield {repr(field_name)}, {field_type_access}, {arguments}, ({optional}, {default}), ({global_conditions}, {local_conditions})")
 
     def write_filtered_attributes(self, f, condition, target_variable="self"):
         base_indent = "\n\t\t"
@@ -269,7 +274,7 @@ class Union:
             if arr1 is None:
                 arguments = f"({arg}, {template})"
             else:
-                arguments = f"({arg}, {template}, {self.compounds.parser.arrs_to_tuple(arr1, arr2)}, {field_type_access})"
+                arguments = f"({arg}, {template}, {self.arrs_to_tuple(arr1, arr2)}, {field_type_access})"
                 field_type_access = "Array"
 
             indent, new_condition = condition_indent(base_indent, conditionals, condition)

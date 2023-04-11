@@ -34,19 +34,19 @@ class TrackElementData(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('loop_name', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None))
-		yield ('ovl_name', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None))
-		yield ('catwalk', name_type_map['Pointer'], (0, name_type_map['TrackElementSub']), (False, None), (lambda context: context.version <= 18, None))
-		yield ('unk_0', name_type_map['Uint64'], (0, None), (False, None), (lambda context: context.version <= 18, None))
-		yield ('optional_catwalk', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None))
-		yield ('unk_1', name_type_map['Uint'], (0, None), (False, None), (lambda context: context.version <= 18, None))
-		yield ('unk_2', name_type_map['Uint'], (0, None), (False, None), (None, None))
-		yield ('unk_3', name_type_map['Ushort'], (0, None), (False, 0), (None, None))
-		yield ('unk_4', name_type_map['Ushort'], (0, None), (False, 32), (None, None))
-		yield ('unk_5', name_type_map['Uint'], (0, None), (False, 1024), (lambda context: context.version <= 18, None))
-		yield ('unk_6', name_type_map['Uint'], (0, None), (False, 1), (None, None))
-		yield ('unk_7', name_type_map['Uint'], (0, None), (False, 1), (None, None))
-		yield ('pad', name_type_map['Uint64'], (0, None), (False, None), (None, True))
+		yield 'loop_name', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None)
+		yield 'ovl_name', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None)
+		yield 'catwalk', name_type_map['Pointer'], (0, name_type_map['TrackElementSub']), (False, None), (lambda context: context.version <= 18, None)
+		yield 'unk_0', name_type_map['Uint64'], (0, None), (False, None), (lambda context: context.version <= 18, None)
+		yield 'optional_catwalk', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None)
+		yield 'unk_1', name_type_map['Uint'], (0, None), (False, None), (lambda context: context.version <= 18, None)
+		yield 'unk_2', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'unk_3', name_type_map['Ushort'], (0, None), (False, 0), (None, None)
+		yield 'unk_4', name_type_map['Ushort'], (0, None), (False, 32), (None, None)
+		yield 'unk_5', name_type_map['Uint'], (0, None), (False, 1024), (lambda context: context.version <= 18, None)
+		yield 'unk_6', name_type_map['Uint'], (0, None), (False, 1), (None, None)
+		yield 'unk_7', name_type_map['Uint'], (0, None), (False, 1), (None, None)
+		yield 'pad', name_type_map['Uint64'], (0, None), (False, None), (None, True)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

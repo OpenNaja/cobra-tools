@@ -18,8 +18,8 @@ class FloatsY(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('floats', Array, (0, None, (8,), name_type_map['Float']), (False, None), (None, None))
-		yield ('index', name_type_map['Uint'], (0, None), (False, None), (None, None))
+		yield 'floats', Array, (0, None, (8,), name_type_map['Float']), (False, None), (None, None)
+		yield 'index', name_type_map['Uint'], (0, None), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

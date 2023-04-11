@@ -17,7 +17,7 @@ class DLAPreBones(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('unk', Array, (0, None, (120,), name_type_map['Ubyte']), (False, None), (None, None))
+		yield 'unk', Array, (0, None, (120,), name_type_map['Ubyte']), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

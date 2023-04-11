@@ -18,9 +18,9 @@ class FRenderFeatureSetRoot(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('featureset_list', name_type_map['ArrayPointer'], (None, name_type_map['FeatureSetItem']), (False, None), (None, None))
-		yield ('featureset_count', name_type_map['Uint'], (0, None), (False, None), (None, None))
-		yield ('unknown_always_1', name_type_map['Uint'], (0, None), (False, None), (None, None))
+		yield 'featureset_list', name_type_map['ArrayPointer'], (None, name_type_map['FeatureSetItem']), (False, None), (None, None)
+		yield 'featureset_count', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'unknown_always_1', name_type_map['Uint'], (0, None), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

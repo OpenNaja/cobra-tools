@@ -22,11 +22,11 @@ class CurveParam(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('attribute_name', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None))
-		yield ('dtype', name_type_map['Int'], (0, None), (False, None), (None, None))
-		yield ('do_interpolation', name_type_map['Uint'], (0, None), (False, None), (None, None))
-		yield ('curve_entries', name_type_map['Pointer'], (None, name_type_map['CurveList']), (False, None), (None, None))
-		yield ('count', name_type_map['Uint64'], (0, None), (False, None), (None, None))
+		yield 'attribute_name', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None)
+		yield 'dtype', name_type_map['Int'], (0, None), (False, None), (None, None)
+		yield 'do_interpolation', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'curve_entries', name_type_map['Pointer'], (None, name_type_map['CurveList']), (False, None), (None, None)
+		yield 'count', name_type_map['Uint64'], (0, None), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

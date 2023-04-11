@@ -33,11 +33,11 @@ class FileEntry(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('basename', name_type_map['OffsetString'], (None, None), (False, None), (None, None))
-		yield ('file_hash', name_type_map['Uint'], (0, None), (False, None), (None, None))
-		yield ('pool_type', name_type_map['Byte'], (0, None), (False, None), (None, None))
-		yield ('set_pool_type', name_type_map['Byte'], (0, None), (False, None), (None, None))
-		yield ('extension', name_type_map['Ushort'], (0, None), (False, None), (None, None))
+		yield 'basename', name_type_map['OffsetString'], (None, None), (False, None), (None, None)
+		yield 'file_hash', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'pool_type', name_type_map['Byte'], (0, None), (False, None), (None, None)
+		yield 'set_pool_type', name_type_map['Byte'], (0, None), (False, None), (None, None)
+		yield 'extension', name_type_map['Ushort'], (0, None), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

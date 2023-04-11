@@ -26,11 +26,11 @@ class SplRoot(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('spline_data', name_type_map['Pointer'], (None, name_type_map['SplData']), (False, None), (None, None))
-		yield ('count', name_type_map['Ushort'], (0, None), (False, None), (None, None))
-		yield ('sixteen', name_type_map['Ubyte'], (0, None), (False, 16), (None, None))
-		yield ('one', name_type_map['Ubyte'], (0, None), (False, 1), (None, None))
-		yield ('length', name_type_map['Float'], (0, None), (False, None), (None, None))
+		yield 'spline_data', name_type_map['Pointer'], (None, name_type_map['SplData']), (False, None), (None, None)
+		yield 'count', name_type_map['Ushort'], (0, None), (False, None), (None, None)
+		yield 'sixteen', name_type_map['Ubyte'], (0, None), (False, 16), (None, None)
+		yield 'one', name_type_map['Ubyte'], (0, None), (False, 1), (None, None)
+		yield 'length', name_type_map['Float'], (0, None), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

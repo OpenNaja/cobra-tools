@@ -22,9 +22,9 @@ class Layer(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('has_ptr', name_type_map['Uint64'], (0, None), (False, None), (None, None))
-		yield ('texture_fgm_name', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None))
-		yield ('transform_fgm_name', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None))
+		yield 'has_ptr', name_type_map['Uint64'], (0, None), (False, None), (None, None)
+		yield 'texture_fgm_name', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None)
+		yield 'transform_fgm_name', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

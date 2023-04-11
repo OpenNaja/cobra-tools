@@ -24,11 +24,11 @@ class Int32Data(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('imin', name_type_map['Int'], (0, None), (False, None), (None, None))
-		yield ('imax', name_type_map['Int'], (0, None), (False, None), (None, None))
-		yield ('ivalue', name_type_map['Int'], (0, None), (False, None), (None, None))
-		yield ('ioptional', name_type_map['Int'], (0, None), (False, None), (None, None))
-		yield ('enum', name_type_map['Pointer'], (0, None), (False, None), (None, None))
+		yield 'imin', name_type_map['Int'], (0, None), (False, None), (None, None)
+		yield 'imax', name_type_map['Int'], (0, None), (False, None), (None, None)
+		yield 'ivalue', name_type_map['Int'], (0, None), (False, None), (None, None)
+		yield 'ioptional', name_type_map['Int'], (0, None), (False, None), (None, None)
+		yield 'enum', name_type_map['Pointer'], (0, None), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

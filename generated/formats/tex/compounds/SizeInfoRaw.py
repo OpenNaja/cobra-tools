@@ -45,15 +45,15 @@ class SizeInfoRaw(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('zero', name_type_map['Uint64'], (0, None), (True, 0), (None, None))
-		yield ('data_size', name_type_map['Uint'], (0, None), (False, None), (None, None))
-		yield ('width', name_type_map['Uint'], (0, None), (False, None), (None, None))
-		yield ('height', name_type_map['Uint'], (0, None), (False, None), (None, None))
-		yield ('depth', name_type_map['Uint'], (0, None), (True, 1), (None, None))
-		yield ('num_tiles', name_type_map['Uint'], (0, None), (True, 1), (None, None))
-		yield ('num_mips', name_type_map['Uint'], (0, None), (False, None), (None, None))
-		yield ('unk_pz', name_type_map['Uint64'], (0, None), (True, 0), (lambda context: context.version >= 20, None))
-		yield ('mip_maps', Array, (0, None, (None,), name_type_map['Mipmap']), (False, None), (None, None))
+		yield 'zero', name_type_map['Uint64'], (0, None), (True, 0), (None, None)
+		yield 'data_size', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'width', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'height', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'depth', name_type_map['Uint'], (0, None), (True, 1), (None, None)
+		yield 'num_tiles', name_type_map['Uint'], (0, None), (True, 1), (None, None)
+		yield 'num_mips', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'unk_pz', name_type_map['Uint64'], (0, None), (True, 0), (lambda context: context.version >= 20, None)
+		yield 'mip_maps', Array, (0, None, (None,), name_type_map['Mipmap']), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

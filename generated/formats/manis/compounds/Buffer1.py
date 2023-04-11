@@ -19,9 +19,9 @@ class Buffer1(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('bone_hashes', Array, (0, None, (None,), name_type_map['Uint']), (False, None), (None, None))
-		yield ('bone_names', Array, (0, None, (None,), name_type_map['ZString']), (False, None), (None, None))
-		yield ('bone_pad', name_type_map['PadAlign'], (4, None), (False, None), (None, None))
+		yield 'bone_hashes', Array, (0, None, (None,), name_type_map['Uint']), (False, None), (None, None)
+		yield 'bone_names', Array, (0, None, (None,), name_type_map['ZString']), (False, None), (None, None)
+		yield 'bone_pad', name_type_map['PadAlign'], (4, None), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

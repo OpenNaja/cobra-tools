@@ -21,8 +21,8 @@ class MGTwo(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('count', name_type_map['Uint64'], (0, None), (False, None), (None, None))
-		yield ('ptr', name_type_map['Pointer'], (None, name_type_map['PtrList']), (False, None), (None, None))
+		yield 'count', name_type_map['Uint64'], (0, None), (False, None), (None, None)
+		yield 'ptr', name_type_map['Pointer'], (None, name_type_map['PtrList']), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

@@ -27,13 +27,13 @@ class TrackedRideCarRoot(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('sub', name_type_map['ArrayPointer'], (None, name_type_map['TrackedRideCarSub']), (False, None), (None, None))
-		yield ('sub_count', name_type_map['Uint'], (0, None), (False, None), (None, None))
-		yield ('total_vecs_count', name_type_map['Uint'], (0, None), (False, None), (None, None))
-		yield ('vec', Array, (0, None, (3,), name_type_map['Float']), (False, None), (None, None))
-		yield ('zero_0', name_type_map['Uint'], (0, None), (False, None), (None, None))
-		yield ('some_name', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None))
-		yield ('zero_1', name_type_map['Uint64'], (0, None), (False, None), (None, None))
+		yield 'sub', name_type_map['ArrayPointer'], (None, name_type_map['TrackedRideCarSub']), (False, None), (None, None)
+		yield 'sub_count', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'total_vecs_count', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'vec', Array, (0, None, (3,), name_type_map['Float']), (False, None), (None, None)
+		yield 'zero_0', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'some_name', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None)
+		yield 'zero_1', name_type_map['Uint64'], (0, None), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

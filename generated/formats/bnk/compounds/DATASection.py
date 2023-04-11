@@ -24,8 +24,8 @@ class DATASection(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('length', name_type_map['Uint'], (0, None), (False, None), (None, None))
-		yield ('wem_datas', Array, (0, None, (None,), name_type_map['Byte']), (False, None), (None, None))
+		yield 'length', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'wem_datas', Array, (0, None, (None,), name_type_map['Byte']), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

@@ -23,10 +23,10 @@ class MaterialName(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('name_index', name_type_map['Ushort'], (0, None), (False, None), (lambda context: context.version <= 32, None))
-		yield ('name_index', name_type_map['Uint'], (0, None), (False, None), (lambda context: context.version >= 47, None))
-		yield ('blend_mode', name_type_map['Ushort'], (0, None), (False, None), (lambda context: context.version <= 32, None))
-		yield ('blend_mode', name_type_map['Uint'], (0, None), (False, None), (lambda context: context.version >= 47, None))
+		yield 'name_index', name_type_map['Ushort'], (0, None), (False, None), (lambda context: context.version <= 32, None)
+		yield 'name_index', name_type_map['Uint'], (0, None), (False, None), (lambda context: context.version >= 47, None)
+		yield 'blend_mode', name_type_map['Ushort'], (0, None), (False, None), (lambda context: context.version <= 32, None)
+		yield 'blend_mode', name_type_map['Uint'], (0, None), (False, None), (lambda context: context.version >= 47, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

@@ -27,13 +27,13 @@ class InfoHeader(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('version', name_type_map['Uint'], (0, None), (False, None), (None, None))
-		yield ('mani_count', name_type_map['Uint'], (0, None), (False, None), (None, None))
-		yield ('names', Array, (0, None, (None,), name_type_map['ZString']), (False, None), (None, None))
-		yield ('header', name_type_map['ManisRoot'], (0, None), (False, None), (None, None))
-		yield ('mani_infos', Array, (0, None, (None,), name_type_map['ManiInfo']), (False, None), (None, None))
-		yield ('name_buffer', name_type_map['Buffer1'], (None, None), (False, None), (None, None))
-		yield ('keys_buffer', name_type_map['KeysReader'], (None, None), (False, None), (None, None))
+		yield 'version', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'mani_count', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'names', Array, (0, None, (None,), name_type_map['ZString']), (False, None), (None, None)
+		yield 'header', name_type_map['ManisRoot'], (0, None), (False, None), (None, None)
+		yield 'mani_infos', Array, (0, None, (None,), name_type_map['ManiInfo']), (False, None), (None, None)
+		yield 'name_buffer', name_type_map['Buffer1'], (None, None), (False, None), (None, None)
+		yield 'keys_buffer', name_type_map['KeysReader'], (None, None), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

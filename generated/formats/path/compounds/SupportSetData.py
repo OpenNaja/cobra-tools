@@ -19,10 +19,10 @@ class SupportSetData(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('unk_index', name_type_map['Uint'], (0, None), (False, None), (None, None))
-		yield ('unk_int_1', name_type_map['Uint'], (0, None), (False, None), (None, None))
-		yield ('unk_int_2', name_type_map['Uint'], (0, None), (False, None), (None, None))
-		yield ('unk_float_1', name_type_map['Float'], (0, None), (False, None), (None, None))
+		yield 'unk_index', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'unk_int_1', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'unk_int_2', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'unk_float_1', name_type_map['Float'], (0, None), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

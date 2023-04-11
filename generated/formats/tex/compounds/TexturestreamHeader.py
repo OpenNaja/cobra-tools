@@ -22,8 +22,8 @@ class TexturestreamHeader(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('zero', name_type_map['Uint64'], (0, None), (True, 0), (None, None))
-		yield ('lod_index', name_type_map['Uint64'], (0, None), (False, None), (lambda context: context.user_version.use_djb and (context.version == 20), None))
+		yield 'zero', name_type_map['Uint64'], (0, None), (True, 0), (None, None)
+		yield 'lod_index', name_type_map['Uint64'], (0, None), (False, None), (lambda context: context.user_version.use_djb and (context.version == 20), None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

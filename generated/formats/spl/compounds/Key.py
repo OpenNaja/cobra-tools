@@ -23,10 +23,10 @@ class Key(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('pos', name_type_map['ShortVector3'], (0, None), (False, None), (None, None))
-		yield ('handle_left', name_type_map['ByteVector3'], (0, None), (False, None), (None, None))
-		yield ('handle_right', name_type_map['ByteVector3'], (0, None), (False, None), (None, None))
-		yield ('handle_scale', name_type_map['Float'], (0, None), (False, None), (None, None))
+		yield 'pos', name_type_map['ShortVector3'], (0, None), (False, None), (None, None)
+		yield 'handle_left', name_type_map['ByteVector3'], (0, None), (False, None), (None, None)
+		yield 'handle_right', name_type_map['ByteVector3'], (0, None), (False, None), (None, None)
+		yield 'handle_scale', name_type_map['Float'], (0, None), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

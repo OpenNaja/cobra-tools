@@ -24,11 +24,11 @@ class CurveDataPoint(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('x', name_type_map['Float'], (0, None), (False, None), (None, None))
-		yield ('y', name_type_map['Short'], (0, None), (False, None), (None, None))
-		yield ('sub_curve_type', name_type_map['SubCurveType'], (0, None), (False, None), (None, None))
-		yield ('subsequent_curve_param', name_type_map['Short'], (0, None), (False, None), (None, None))
-		yield ('subsequent_curve_param_b', name_type_map['Short'], (0, None), (False, None), (None, None))
+		yield 'x', name_type_map['Float'], (0, None), (False, None), (None, None)
+		yield 'y', name_type_map['Short'], (0, None), (False, None), (None, None)
+		yield 'sub_curve_type', name_type_map['SubCurveType'], (0, None), (False, None), (None, None)
+		yield 'subsequent_curve_param', name_type_map['Short'], (0, None), (False, None), (None, None)
+		yield 'subsequent_curve_param_b', name_type_map['Short'], (0, None), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

@@ -44,15 +44,15 @@ class Ms2Root(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('version', name_type_map['MainVersion'], (0, None), (False, None), (None, None))
-		yield ('vertex_buffer_count', name_type_map['Ushort'], (0, None), (False, None), (None, None))
-		yield ('mdl_2_count', name_type_map['Ushort'], (0, None), (False, None), (None, None))
-		yield ('name_count', name_type_map['Ushort'], (0, None), (False, None), (None, None))
-		yield ('static_buffer_index', name_type_map['Short'], (0, None), (False, None), (None, None))
-		yield ('zeros', Array, (0, None, (3,), name_type_map['Uint']), (False, None), (None, None))
-		yield ('buffer_infos', name_type_map['ArrayPointer'], (None, name_type_map['BufferInfo']), (False, None), (None, None))
-		yield ('model_infos', name_type_map['ArrayPointer'], (None, name_type_map['ModelInfo']), (False, None), (None, None))
-		yield ('buffer_pointers', name_type_map['ArrayPointer'], (None, name_type_map['BufferPresence']), (False, None), (None, None))
+		yield 'version', name_type_map['MainVersion'], (0, None), (False, None), (None, None)
+		yield 'vertex_buffer_count', name_type_map['Ushort'], (0, None), (False, None), (None, None)
+		yield 'mdl_2_count', name_type_map['Ushort'], (0, None), (False, None), (None, None)
+		yield 'name_count', name_type_map['Ushort'], (0, None), (False, None), (None, None)
+		yield 'static_buffer_index', name_type_map['Short'], (0, None), (False, None), (None, None)
+		yield 'zeros', Array, (0, None, (3,), name_type_map['Uint']), (False, None), (None, None)
+		yield 'buffer_infos', name_type_map['ArrayPointer'], (None, name_type_map['BufferInfo']), (False, None), (None, None)
+		yield 'model_infos', name_type_map['ArrayPointer'], (None, name_type_map['ModelInfo']), (False, None), (None, None)
+		yield 'buffer_pointers', name_type_map['ArrayPointer'], (None, name_type_map['BufferPresence']), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

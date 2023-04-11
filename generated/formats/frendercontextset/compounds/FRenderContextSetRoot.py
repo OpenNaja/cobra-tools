@@ -21,12 +21,12 @@ class FRenderContextSetRoot(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('ptr_1_list', name_type_map['ArrayPointer'], (None, name_type_map['ContextSet1Item']), (False, None), (None, None))
-		yield ('ptr_1_count', name_type_map['Uint64'], (0, None), (False, None), (None, None))
-		yield ('ptr_2_list', name_type_map['ArrayPointer'], (None, name_type_map['ContextSet2Item']), (False, None), (None, None))
-		yield ('ptr_2_count', name_type_map['Uint64'], (0, None), (False, None), (None, None))
-		yield ('ptr_3_list', name_type_map['ArrayPointer'], (None, name_type_map['ContextSet3Item']), (False, None), (None, None))
-		yield ('ptr_3_count', name_type_map['Uint64'], (0, None), (False, None), (None, None))
+		yield 'ptr_1_list', name_type_map['ArrayPointer'], (None, name_type_map['ContextSet1Item']), (False, None), (None, None)
+		yield 'ptr_1_count', name_type_map['Uint64'], (0, None), (False, None), (None, None)
+		yield 'ptr_2_list', name_type_map['ArrayPointer'], (None, name_type_map['ContextSet2Item']), (False, None), (None, None)
+		yield 'ptr_2_count', name_type_map['Uint64'], (0, None), (False, None), (None, None)
+		yield 'ptr_3_list', name_type_map['ArrayPointer'], (None, name_type_map['ContextSet3Item']), (False, None), (None, None)
+		yield 'ptr_3_count', name_type_map['Uint64'], (0, None), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

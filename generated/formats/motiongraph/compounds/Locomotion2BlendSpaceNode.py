@@ -22,9 +22,9 @@ class Locomotion2BlendSpaceNode(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('anim_name', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None))
-		yield ('speed', name_type_map['Float'], (0, None), (False, None), (None, None))
-		yield ('orientation', name_type_map['Float'], (0, None), (False, None), (None, None))
+		yield 'anim_name', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None)
+		yield 'speed', name_type_map['Float'], (0, None), (False, None), (None, None)
+		yield 'orientation', name_type_map['Float'], (0, None), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

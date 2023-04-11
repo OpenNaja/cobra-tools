@@ -22,8 +22,8 @@ class InfoZTMemPool(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('unk_count', name_type_map['Ushort'], (0, None), (False, None), (None, None))
-		yield ('unks', Array, (0, None, (None, 2,), name_type_map['Ushort']), (False, None), (None, None))
+		yield 'unk_count', name_type_map['Ushort'], (0, None), (False, None), (None, None)
+		yield 'unks', Array, (0, None, (None, 2,), name_type_map['Ushort']), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

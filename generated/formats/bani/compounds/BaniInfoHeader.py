@@ -28,9 +28,9 @@ class BaniInfoHeader(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('magic', Array, (0, None, (4,), name_type_map['Byte']), (False, None), (None, None))
-		yield ('banis_name', name_type_map['ZString'], (0, None), (False, None), (None, None))
-		yield ('data', name_type_map['BaniRoot'], (0, None), (False, None), (None, None))
+		yield 'magic', Array, (0, None, (4,), name_type_map['Byte']), (False, None), (None, None)
+		yield 'banis_name', name_type_map['ZString'], (0, None), (False, None), (None, None)
+		yield 'data', name_type_map['BaniRoot'], (0, None), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

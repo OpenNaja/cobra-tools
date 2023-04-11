@@ -34,12 +34,12 @@ class TexBuffer(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('offset', name_type_map['Uint64'], (0, None), (False, None), (None, None))
-		yield ('size', name_type_map['Uint64'], (0, None), (False, None), (None, None))
-		yield ('first_mip', name_type_map['Ubyte'], (0, None), (False, None), (None, None))
-		yield ('mip_count', name_type_map['Ubyte'], (0, None), (False, None), (None, None))
-		yield ('padding_0', name_type_map['Short'], (0, None), (True, 0), (None, None))
-		yield ('padding_1', name_type_map['Int'], (0, None), (True, 0), (None, None))
+		yield 'offset', name_type_map['Uint64'], (0, None), (False, None), (None, None)
+		yield 'size', name_type_map['Uint64'], (0, None), (False, None), (None, None)
+		yield 'first_mip', name_type_map['Ubyte'], (0, None), (False, None), (None, None)
+		yield 'mip_count', name_type_map['Ubyte'], (0, None), (False, None), (None, None)
+		yield 'padding_0', name_type_map['Short'], (0, None), (True, 0), (None, None)
+		yield 'padding_1', name_type_map['Int'], (0, None), (True, 0), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

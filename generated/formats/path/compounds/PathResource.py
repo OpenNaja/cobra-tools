@@ -24,15 +24,15 @@ class PathResource(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('pathmaterial', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None))
-		yield ('pathextrusion_kerb', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None))
-		yield ('pathextrusion_railing', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None))
-		yield ('pathextrusion_ground', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None))
-		yield ('pathsupport', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None))
-		yield ('path_type', name_type_map['Byte'], (0, None), (False, None), (None, None))
-		yield ('path_sub_type', name_type_map['Byte'], (0, None), (False, None), (None, None))
-		yield ('unk_byte_1', name_type_map['Byte'], (0, None), (False, 1), (None, None))
-		yield ('unk_byte_2', name_type_map['Byte'], (0, None), (False, None), (None, None))
+		yield 'pathmaterial', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None)
+		yield 'pathextrusion_kerb', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None)
+		yield 'pathextrusion_railing', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None)
+		yield 'pathextrusion_ground', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None)
+		yield 'pathsupport', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None)
+		yield 'path_type', name_type_map['Byte'], (0, None), (False, None), (None, None)
+		yield 'path_sub_type', name_type_map['Byte'], (0, None), (False, None), (None, None)
+		yield 'unk_byte_1', name_type_map['Byte'], (0, None), (False, 1), (None, None)
+		yield 'unk_byte_2', name_type_map['Byte'], (0, None), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

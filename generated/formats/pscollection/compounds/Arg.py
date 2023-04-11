@@ -24,13 +24,13 @@ class Arg(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('u_0', name_type_map['Ubyte'], (0, None), (True, 0), (None, None))
-		yield ('arg_type', name_type_map['Ubyte'], (0, None), (False, None), (None, None))
-		yield ('arg_index', name_type_map['Ubyte'], (0, None), (False, None), (None, None))
-		yield ('u_1', name_type_map['Ubyte'], (0, None), (True, 0), (None, None))
-		yield ('u_2', name_type_map['Uint'], (0, None), (True, 0), (None, None))
-		yield ('u_3', name_type_map['Uint64'], (0, None), (True, 0), (None, None))
-		yield ('u_4', name_type_map['Uint64'], (0, None), (True, 0), (None, None))
+		yield 'u_0', name_type_map['Ubyte'], (0, None), (True, 0), (None, None)
+		yield 'arg_type', name_type_map['Ubyte'], (0, None), (False, None), (None, None)
+		yield 'arg_index', name_type_map['Ubyte'], (0, None), (False, None), (None, None)
+		yield 'u_1', name_type_map['Ubyte'], (0, None), (True, 0), (None, None)
+		yield 'u_2', name_type_map['Uint'], (0, None), (True, 0), (None, None)
+		yield 'u_3', name_type_map['Uint64'], (0, None), (True, 0), (None, None)
+		yield 'u_4', name_type_map['Uint64'], (0, None), (True, 0), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

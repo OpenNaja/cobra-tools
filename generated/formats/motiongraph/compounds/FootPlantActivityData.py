@@ -22,9 +22,9 @@ class FootPlantActivityData(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('weight', name_type_map['FloatInputData'], (0, None), (False, None), (None, None))
-		yield ('rotation_no_i_k_weight', name_type_map['FloatInputData'], (0, None), (False, None), (None, None))
-		yield ('sticky_feet_weight', name_type_map['FloatInputData'], (0, None), (False, None), (None, None))
+		yield 'weight', name_type_map['FloatInputData'], (0, None), (False, None), (None, None)
+		yield 'rotation_no_i_k_weight', name_type_map['FloatInputData'], (0, None), (False, None), (None, None)
+		yield 'sticky_feet_weight', name_type_map['FloatInputData'], (0, None), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

@@ -17,7 +17,7 @@ class PatternArray(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('patterns', Array, (0, None, (None,), name_type_map['Pattern']), (False, None), (None, None))
+		yield 'patterns', Array, (0, None, (None,), name_type_map['Pattern']), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

@@ -25,16 +25,16 @@ class LogicalControls(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('buttons', name_type_map['ArrayPointer'], (None, name_type_map['Button']), (False, None), (None, None))
-		yield ('axes', name_type_map['ArrayPointer'], (None, name_type_map['AxisValue']), (False, None), (None, None))
-		yield ('axis_buttons', name_type_map['ArrayPointer'], (None, name_type_map['AxisButton']), (False, None), (None, None))
-		yield ('d', name_type_map['ArrayPointer'], (None, name_type_map['Some']), (False, None), (None, None))
-		yield ('button_count', name_type_map['Ubyte'], (0, None), (False, None), (None, None))
-		yield ('axis_count', name_type_map['Ubyte'], (0, None), (False, None), (None, None))
-		yield ('count_3', name_type_map['Ubyte'], (0, None), (False, None), (None, None))
-		yield ('count_4', name_type_map['Ubyte'], (0, None), (False, None), (None, None))
-		yield ('flags', name_type_map['Uint'], (0, None), (False, None), (None, None))
-		yield ('unsure', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None))
+		yield 'buttons', name_type_map['ArrayPointer'], (None, name_type_map['Button']), (False, None), (None, None)
+		yield 'axes', name_type_map['ArrayPointer'], (None, name_type_map['AxisValue']), (False, None), (None, None)
+		yield 'axis_buttons', name_type_map['ArrayPointer'], (None, name_type_map['AxisButton']), (False, None), (None, None)
+		yield 'd', name_type_map['ArrayPointer'], (None, name_type_map['Some']), (False, None), (None, None)
+		yield 'button_count', name_type_map['Ubyte'], (0, None), (False, None), (None, None)
+		yield 'axis_count', name_type_map['Ubyte'], (0, None), (False, None), (None, None)
+		yield 'count_3', name_type_map['Ubyte'], (0, None), (False, None), (None, None)
+		yield 'count_4', name_type_map['Ubyte'], (0, None), (False, None), (None, None)
+		yield 'flags', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'unsure', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

@@ -26,12 +26,12 @@ class RootFrag(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('mat_type', name_type_map['Uint64'], (0, None), (False, None), (None, None))
-		yield ('textures', name_type_map['ArrayPointer'], (None, name_type_map['Texture']), (False, None), (None, None))
-		yield ('tex_count', name_type_map['Uint64'], (0, None), (False, None), (None, None))
-		yield ('materials', name_type_map['ArrayPointer'], (None, name_type_map['LayerFrag']), (False, None), (None, None))
-		yield ('mat_count', name_type_map['Uint64'], (0, None), (False, None), (None, None))
-		yield ('unk', name_type_map['Uint64'], (0, None), (False, None), (None, None))
+		yield 'mat_type', name_type_map['Uint64'], (0, None), (False, None), (None, None)
+		yield 'textures', name_type_map['ArrayPointer'], (None, name_type_map['Texture']), (False, None), (None, None)
+		yield 'tex_count', name_type_map['Uint64'], (0, None), (False, None), (None, None)
+		yield 'materials', name_type_map['ArrayPointer'], (None, name_type_map['LayerFrag']), (False, None), (None, None)
+		yield 'mat_count', name_type_map['Uint64'], (0, None), (False, None), (None, None)
+		yield 'unk', name_type_map['Uint64'], (0, None), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

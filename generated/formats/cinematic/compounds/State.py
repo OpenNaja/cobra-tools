@@ -27,14 +27,14 @@ class State(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('abstract_name', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None))
-		yield ('concrete_name', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None))
-		yield ('prefab_name', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None))
-		yield ('a', name_type_map['Uint64'], (0, None), (False, None), (None, None))
-		yield ('b', name_type_map['Uint64'], (0, None), (False, None), (None, None))
-		yield ('c', name_type_map['Uint64'], (0, None), (False, None), (None, None))
-		yield ('events_list', name_type_map['Pointer'], (0, name_type_map['EventsList']), (False, None), (None, None))
-		yield ('d', name_type_map['Uint64'], (0, None), (False, None), (None, None))
+		yield 'abstract_name', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None)
+		yield 'concrete_name', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None)
+		yield 'prefab_name', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None)
+		yield 'a', name_type_map['Uint64'], (0, None), (False, None), (None, None)
+		yield 'b', name_type_map['Uint64'], (0, None), (False, None), (None, None)
+		yield 'c', name_type_map['Uint64'], (0, None), (False, None), (None, None)
+		yield 'events_list', name_type_map['Pointer'], (0, name_type_map['EventsList']), (False, None), (None, None)
+		yield 'd', name_type_map['Uint64'], (0, None), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

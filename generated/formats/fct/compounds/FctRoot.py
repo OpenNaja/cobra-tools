@@ -31,17 +31,17 @@ class FctRoot(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('u_0', name_type_map['Short'], (0, None), (False, None), (None, None))
-		yield ('u_1', name_type_map['Short'], (0, None), (False, None), (None, None))
-		yield ('a', name_type_map['Float'], (0, None), (False, None), (None, None))
-		yield ('b', name_type_map['Float'], (0, None), (False, None), (None, None))
-		yield ('c', name_type_map['Float'], (0, None), (False, None), (None, None))
-		yield ('minus_1', name_type_map['Short'], (0, None), (False, None), (None, None))
-		yield ('z_0', name_type_map['Short'], (0, None), (False, None), (None, None))
-		yield ('z_1', name_type_map['Int'], (0, None), (False, None), (None, None))
-		yield ('z_2', name_type_map['Uint64'], (0, None), (False, None), (None, None))
-		yield ('offset', name_type_map['Uint64'], (0, None), (False, None), (None, None))
-		yield ('fonts', Array, (0, None, (4,), name_type_map['Font']), (False, None), (None, None))
+		yield 'u_0', name_type_map['Short'], (0, None), (False, None), (None, None)
+		yield 'u_1', name_type_map['Short'], (0, None), (False, None), (None, None)
+		yield 'a', name_type_map['Float'], (0, None), (False, None), (None, None)
+		yield 'b', name_type_map['Float'], (0, None), (False, None), (None, None)
+		yield 'c', name_type_map['Float'], (0, None), (False, None), (None, None)
+		yield 'minus_1', name_type_map['Short'], (0, None), (False, None), (None, None)
+		yield 'z_0', name_type_map['Short'], (0, None), (False, None), (None, None)
+		yield 'z_1', name_type_map['Int'], (0, None), (False, None), (None, None)
+		yield 'z_2', name_type_map['Uint64'], (0, None), (False, None), (None, None)
+		yield 'offset', name_type_map['Uint64'], (0, None), (False, None), (None, None)
+		yield 'fonts', Array, (0, None, (4,), name_type_map['Font']), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

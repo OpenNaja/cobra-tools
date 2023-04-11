@@ -28,8 +28,8 @@ class Fragment(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('link_ptr', name_type_map['HeaderPointer'], (0, None), (False, None), (None, None))
-		yield ('struct_ptr', name_type_map['HeaderPointer'], (0, None), (False, None), (None, None))
+		yield 'link_ptr', name_type_map['HeaderPointer'], (0, None), (False, None), (None, None)
+		yield 'struct_ptr', name_type_map['HeaderPointer'], (0, None), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

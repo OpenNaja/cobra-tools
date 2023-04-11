@@ -26,13 +26,13 @@ class TrackData(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('place_id', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None))
-		yield ('file', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None))
-		yield ('a', name_type_map['Uint'], (0, None), (False, None), (None, None))
-		yield ('b', name_type_map['Uint'], (0, None), (False, None), (None, None))
-		yield ('c', name_type_map['Uint64'], (0, None), (False, None), (None, None))
-		yield ('offset_id', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None))
-		yield ('d', name_type_map['Uint64'], (0, None), (False, None), (None, None))
+		yield 'place_id', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None)
+		yield 'file', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None)
+		yield 'a', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'b', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'c', name_type_map['Uint64'], (0, None), (False, None), (None, None)
+		yield 'offset_id', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None)
+		yield 'd', name_type_map['Uint64'], (0, None), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

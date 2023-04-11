@@ -19,10 +19,10 @@ class PathType(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('enum_value', name_type_map['Uint'], (0, None), (False, None), (None, None))
-		yield ('min_width', name_type_map['Float'], (0, None), (False, 4.0), (None, None))
-		yield ('max_width', name_type_map['Float'], (0, None), (False, 10.0), (None, None))
-		yield ('_unk_int_2', name_type_map['Uint'], (0, None), (False, None), (None, None))
+		yield 'enum_value', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'min_width', name_type_map['Float'], (0, None), (False, 4.0), (None, None)
+		yield 'max_width', name_type_map['Float'], (0, None), (False, 10.0), (None, None)
+		yield '_unk_int_2', name_type_map['Uint'], (0, None), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

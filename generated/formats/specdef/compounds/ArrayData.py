@@ -22,9 +22,9 @@ class ArrayData(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('item', name_type_map['Pointer'], (None, name_type_map['Data']), (False, None), (None, None))
-		yield ('dtype', name_type_map['SpecdefDtype'], (0, None), (False, None), (None, None))
-		yield ('unused', name_type_map['Uint'], (0, None), (False, None), (None, None))
+		yield 'item', name_type_map['Pointer'], (None, name_type_map['Data']), (False, None), (None, None)
+		yield 'dtype', name_type_map['SpecdefDtype'], (0, None), (False, None), (None, None)
+		yield 'unused', name_type_map['Uint'], (0, None), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

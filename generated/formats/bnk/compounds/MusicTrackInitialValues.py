@@ -27,17 +27,17 @@ class MusicTrackInitialValues(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('u_flags', name_type_map['Ubyte'], (0, None), (False, None), (None, None))
-		yield ('num_sources', name_type_map['Uint'], (0, None), (False, None), (None, None))
-		yield ('p_source', Array, (0, None, (None,), name_type_map['AkBankSourceData']), (False, None), (None, None))
-		yield ('num_playlist_item', name_type_map['Uint'], (0, None), (False, None), (None, None))
-		yield ('p_playlist', Array, (0, None, (None,), name_type_map['AkTrackSrcInfo']), (False, None), (None, None))
-		yield ('num_sub_track', name_type_map['Uint'], (0, None), (False, None), (None, None))
-		yield ('num_clip_automation_item', name_type_map['Uint'], (0, None), (False, None), (None, None))
-		yield ('p_items', Array, (0, None, (None,), name_type_map['Uint']), (False, None), (None, None))
-		yield ('node_base_params', name_type_map['NodeBaseParams'], (0, None), (False, None), (None, None))
-		yield ('e_track_type', name_type_map['Ubyte'], (0, None), (False, None), (None, None))
-		yield ('i_look_ahead_time', name_type_map['Int'], (0, None), (False, None), (None, None))
+		yield 'u_flags', name_type_map['Ubyte'], (0, None), (False, None), (None, None)
+		yield 'num_sources', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'p_source', Array, (0, None, (None,), name_type_map['AkBankSourceData']), (False, None), (None, None)
+		yield 'num_playlist_item', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'p_playlist', Array, (0, None, (None,), name_type_map['AkTrackSrcInfo']), (False, None), (None, None)
+		yield 'num_sub_track', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'num_clip_automation_item', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'p_items', Array, (0, None, (None,), name_type_map['Uint']), (False, None), (None, None)
+		yield 'node_base_params', name_type_map['NodeBaseParams'], (0, None), (False, None), (None, None)
+		yield 'e_track_type', name_type_map['Ubyte'], (0, None), (False, None), (None, None)
+		yield 'i_look_ahead_time', name_type_map['Int'], (0, None), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

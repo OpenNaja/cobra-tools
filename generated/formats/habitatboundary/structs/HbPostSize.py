@@ -24,9 +24,9 @@ class HbPostSize(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('front_back', name_type_map['Float'], (0, None), (False, None), (None, None))
-		yield ('left_right', name_type_map['Float'], (0, None), (False, None), (None, None))
-		yield ('top', name_type_map['Float'], (0, None), (False, None), (None, None))
+		yield 'front_back', name_type_map['Float'], (0, None), (False, None), (None, None)
+		yield 'left_right', name_type_map['Float'], (0, None), (False, None), (None, None)
+		yield 'top', name_type_map['Float'], (0, None), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

@@ -251,12 +251,6 @@ class XmlParser:
             # filter comment str
             struct.text = clean_comment_str(struct.text, indent="\t", class_comment='"""')
 
-    @staticmethod
-    def arrs_to_tuple(*args):
-        valid_arrs = tuple(str(arr) for arr in args if arr)
-        arr_str = f'({", ".join(valid_arrs)},)'
-        return arr_str
-
     def replace_tokens(self, xml_struct):
         """Update xml_struct's (and all of its children's) attrib dict with content of tokens+versions list."""
         # replace versions after tokens because tokens include versions

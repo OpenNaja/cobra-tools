@@ -34,15 +34,15 @@ class JointInfo(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('eleven', name_type_map['Uint'], (0, None), (False, 11), (None, None))
-		yield ('zero_0', name_type_map['Int'], (0, None), (False, 0), (None, None))
-		yield ('zero_1', name_type_map['Int'], (0, None), (False, 0), (None, None))
-		yield ('minus_1', name_type_map['Int'], (0, None), (False, -1), (None, None))
-		yield ('name', name_type_map['OffsetString'], (None, None), (False, None), (None, None))
-		yield ('hitcheck_count', name_type_map['Uint'], (0, None), (False, None), (None, None))
-		yield ('zero_2', name_type_map['Uint64'], (0, None), (False, None), (None, None))
-		yield ('hitcheck_pointers', Array, (0, None, (None,), name_type_map['Uint64']), (False, None), (None, None))
-		yield ('hitchecks', Array, (None, None, (None,), name_type_map['HitCheck']), (False, None), (None, None))
+		yield 'eleven', name_type_map['Uint'], (0, None), (False, 11), (None, None)
+		yield 'zero_0', name_type_map['Int'], (0, None), (False, 0), (None, None)
+		yield 'zero_1', name_type_map['Int'], (0, None), (False, 0), (None, None)
+		yield 'minus_1', name_type_map['Int'], (0, None), (False, -1), (None, None)
+		yield 'name', name_type_map['OffsetString'], (None, None), (False, None), (None, None)
+		yield 'hitcheck_count', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'zero_2', name_type_map['Uint64'], (0, None), (False, None), (None, None)
+		yield 'hitcheck_pointers', Array, (0, None, (None,), name_type_map['Uint64']), (False, None), (None, None)
+		yield 'hitchecks', Array, (None, None, (None,), name_type_map['HitCheck']), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

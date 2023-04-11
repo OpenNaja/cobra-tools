@@ -37,12 +37,12 @@ class GenericHeader(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('magic', name_type_map['FixedString'], (4, None), (False, None), (None, None))
-		yield ('version_flag', name_type_map['Byte'], (0, None), (False, None), (None, None))
-		yield ('version', name_type_map['Byte'], (0, None), (False, None), (None, None))
-		yield ('bitswap', name_type_map['Byte'], (0, None), (False, None), (None, None))
-		yield ('seventh_byte', name_type_map['Byte'], (0, None), (False, 1), (None, None))
-		yield ('user_version', name_type_map['VersionInfo'], (0, None), (False, None), (None, None))
+		yield 'magic', name_type_map['FixedString'], (4, None), (False, None), (None, None)
+		yield 'version_flag', name_type_map['Byte'], (0, None), (False, None), (None, None)
+		yield 'version', name_type_map['Byte'], (0, None), (False, None), (None, None)
+		yield 'bitswap', name_type_map['Byte'], (0, None), (False, None), (None, None)
+		yield 'seventh_byte', name_type_map['Byte'], (0, None), (False, 1), (None, None)
+		yield 'user_version', name_type_map['VersionInfo'], (0, None), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

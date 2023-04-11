@@ -26,13 +26,13 @@ class VariableBlendedAnimationActivityData(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('priorities', name_type_map['Uint'], (0, None), (False, None), (None, None))
-		yield ('_pad', name_type_map['Uint'], (0, None), (False, None), (None, None))
-		yield ('weight', name_type_map['FloatInputData'], (0, None), (False, None), (None, None))
-		yield ('animations', name_type_map['ArrayPointer'], (None, name_type_map['VariableBlendedAnimationData']), (False, None), (None, None))
-		yield ('animation_count', name_type_map['Uint64'], (0, None), (False, None), (None, None))
-		yield ('variable', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None))
-		yield ('variable_blended_animation_flags', name_type_map['Uint'], (0, None), (False, None), (None, None))
+		yield 'priorities', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield '_pad', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'weight', name_type_map['FloatInputData'], (0, None), (False, None), (None, None)
+		yield 'animations', name_type_map['ArrayPointer'], (None, name_type_map['VariableBlendedAnimationData']), (False, None), (None, None)
+		yield 'animation_count', name_type_map['Uint64'], (0, None), (False, None), (None, None)
+		yield 'variable', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None)
+		yield 'variable_blended_animation_flags', name_type_map['Uint'], (0, None), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

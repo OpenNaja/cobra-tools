@@ -26,10 +26,10 @@ class BoundingBox(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('rotation', name_type_map['Matrix33'], (0, None), (False, None), (None, None))
-		yield ('center', name_type_map['Vector3'], (0, None), (False, None), (None, None))
-		yield ('extent', name_type_map['Vector3'], (0, None), (False, None), (None, None))
-		yield ('zeros', Array, (0, None, (3,), name_type_map['Uint']), (False, None), (lambda context: context.version == 32, None))
+		yield 'rotation', name_type_map['Matrix33'], (0, None), (False, None), (None, None)
+		yield 'center', name_type_map['Vector3'], (0, None), (False, None), (None, None)
+		yield 'extent', name_type_map['Vector3'], (0, None), (False, None), (None, None)
+		yield 'zeros', Array, (0, None, (3,), name_type_map['Uint']), (False, None), (lambda context: context.version == 32, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

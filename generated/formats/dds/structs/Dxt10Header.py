@@ -20,11 +20,11 @@ class Dxt10Header(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('dxgi_format', name_type_map['DxgiFormat'], (0, None), (False, None), (None, None))
-		yield ('resource_dimension', name_type_map['D3D10ResourceDimension'], (0, None), (False, None), (None, None))
-		yield ('misc_flag', name_type_map['Uint'], (0, None), (False, None), (None, None))
-		yield ('num_tiles', name_type_map['Uint'], (0, None), (False, 1), (None, None))
-		yield ('misc_flag_2', name_type_map['Uint'], (0, None), (False, None), (None, None))
+		yield 'dxgi_format', name_type_map['DxgiFormat'], (0, None), (False, None), (None, None)
+		yield 'resource_dimension', name_type_map['D3D10ResourceDimension'], (0, None), (False, None), (None, None)
+		yield 'misc_flag', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'num_tiles', name_type_map['Uint'], (0, None), (False, 1), (None, None)
+		yield 'misc_flag_2', name_type_map['Uint'], (0, None), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

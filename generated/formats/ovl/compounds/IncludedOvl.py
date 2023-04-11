@@ -23,7 +23,7 @@ class IncludedOvl(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('basename', name_type_map['OffsetString'], (None, None), (False, None), (None, None))
+		yield 'basename', name_type_map['OffsetString'], (None, None), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

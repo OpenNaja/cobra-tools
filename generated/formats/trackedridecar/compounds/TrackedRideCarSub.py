@@ -24,11 +24,11 @@ class TrackedRideCarSub(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('float', name_type_map['Float'], (0, None), (False, None), (None, None))
-		yield ('u_0', name_type_map['Uint'], (0, None), (False, None), (None, None))
-		yield ('vectors', name_type_map['ArrayPointer'], (None, name_type_map['Vector3']), (False, None), (None, None))
-		yield ('vecs_count', name_type_map['Uint64'], (0, None), (False, None), (None, None))
-		yield ('zero_1', name_type_map['Uint64'], (0, None), (False, None), (None, None))
+		yield 'float', name_type_map['Float'], (0, None), (False, None), (None, None)
+		yield 'u_0', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'vectors', name_type_map['ArrayPointer'], (None, name_type_map['Vector3']), (False, None), (None, None)
+		yield 'vecs_count', name_type_map['Uint64'], (0, None), (False, None), (None, None)
+		yield 'zero_1', name_type_map['Uint64'], (0, None), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

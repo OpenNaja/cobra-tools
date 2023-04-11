@@ -29,16 +29,16 @@ class WorldHeader(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('world_type', name_type_map['Uint64'], (0, None), (False, None), (None, None))
-		yield ('asset_pkgs', name_type_map['Pointer'], (None, name_type_map['PtrList']), (False, None), (None, None))
-		yield ('asset_pkg_count', name_type_map['Uint64'], (0, None), (False, None), (None, None))
-		yield ('lua_name', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None))
-		yield ('ptr_0', name_type_map['Pointer'], (0, None), (False, None), (None, None))
-		yield ('ptr_1', name_type_map['Pointer'], (0, None), (False, None), (None, None))
-		yield ('prefabs', name_type_map['Pointer'], (None, name_type_map['PtrList']), (False, None), (None, None))
-		yield ('ptr_2', name_type_map['Pointer'], (0, None), (False, None), (None, None))
-		yield ('prefab_count', name_type_map['Uint64'], (0, None), (False, None), (None, None))
-		yield ('ptr_3', name_type_map['Pointer'], (0, None), (False, None), (None, None))
+		yield 'world_type', name_type_map['Uint64'], (0, None), (False, None), (None, None)
+		yield 'asset_pkgs', name_type_map['Pointer'], (None, name_type_map['PtrList']), (False, None), (None, None)
+		yield 'asset_pkg_count', name_type_map['Uint64'], (0, None), (False, None), (None, None)
+		yield 'lua_name', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None)
+		yield 'ptr_0', name_type_map['Pointer'], (0, None), (False, None), (None, None)
+		yield 'ptr_1', name_type_map['Pointer'], (0, None), (False, None), (None, None)
+		yield 'prefabs', name_type_map['Pointer'], (None, name_type_map['PtrList']), (False, None), (None, None)
+		yield 'ptr_2', name_type_map['Pointer'], (0, None), (False, None), (None, None)
+		yield 'prefab_count', name_type_map['Uint64'], (0, None), (False, None), (None, None)
+		yield 'ptr_3', name_type_map['Pointer'], (0, None), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

@@ -17,7 +17,7 @@ class NodeBaseParams(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('raw', Array, (0, None, (30,), name_type_map['Byte']), (False, None), (None, None))
+		yield 'raw', Array, (0, None, (30,), name_type_map['Byte']), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

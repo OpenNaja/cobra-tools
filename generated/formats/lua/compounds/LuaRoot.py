@@ -29,14 +29,14 @@ class LuaRoot(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('lua_size', name_type_map['Uint'], (0, None), (False, None), (None, None))
-		yield ('sixteenk', name_type_map['Uint'], (0, None), (False, None), (None, None))
-		yield ('hash', name_type_map['Uint'], (0, None), (False, None), (None, None))
-		yield ('zero_0', name_type_map['Uint'], (0, None), (False, None), (None, None))
-		yield ('source_path', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (lambda context: context.version >= 18, None))
-		yield ('likely_alignment', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (lambda context: context.version >= 18, None))
-		yield ('zero_1', name_type_map['Uint64'], (0, None), (False, None), (None, None))
-		yield ('zero_2', name_type_map['Uint64'], (0, None), (False, None), (None, None))
+		yield 'lua_size', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'sixteenk', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'hash', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'zero_0', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'source_path', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (lambda context: context.version >= 18, None)
+		yield 'likely_alignment', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (lambda context: context.version >= 18, None)
+		yield 'zero_1', name_type_map['Uint64'], (0, None), (False, None), (None, None)
+		yield 'zero_2', name_type_map['Uint64'], (0, None), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

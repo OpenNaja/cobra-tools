@@ -33,12 +33,12 @@ class HbPropPhysics(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('pad_top', name_type_map['Float'], (0, None), (False, None), (None, None))
-		yield ('z_pos', name_type_map['Float'], (0, None), (False, None), (None, None))
-		yield ('half_width', name_type_map['Float'], (0, None), (False, None), (None, None))
-		yield ('pad_bottom', name_type_map['Float'], (0, None), (False, None), (None, None))
-		yield ('half_depth', name_type_map['Float'], (0, None), (False, None), (None, None))
-		yield ('u_6', name_type_map['Float'], (0, None), (False, None), (None, None))
+		yield 'pad_top', name_type_map['Float'], (0, None), (False, None), (None, None)
+		yield 'z_pos', name_type_map['Float'], (0, None), (False, None), (None, None)
+		yield 'half_width', name_type_map['Float'], (0, None), (False, None), (None, None)
+		yield 'pad_bottom', name_type_map['Float'], (0, None), (False, None), (None, None)
+		yield 'half_depth', name_type_map['Float'], (0, None), (False, None), (None, None)
+		yield 'u_6', name_type_map['Float'], (0, None), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

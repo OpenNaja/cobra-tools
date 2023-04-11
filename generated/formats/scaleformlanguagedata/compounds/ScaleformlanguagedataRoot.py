@@ -26,12 +26,12 @@ class ScaleformlanguagedataRoot(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('zero_0', name_type_map['Uint64'], (0, None), (False, None), (None, None))
-		yield ('zero_1', name_type_map['Uint64'], (0, None), (False, None), (None, None))
-		yield ('fonts', name_type_map['ArrayPointer'], (None, name_type_map['FontInfo']), (False, None), (None, None))
-		yield ('count', name_type_map['Uint64'], (0, None), (False, None), (None, None))
-		yield ('zero_2', name_type_map['Uint64'], (0, None), (False, None), (None, None))
-		yield ('zero_3', name_type_map['Uint64'], (0, None), (False, None), (None, None))
+		yield 'zero_0', name_type_map['Uint64'], (0, None), (False, None), (None, None)
+		yield 'zero_1', name_type_map['Uint64'], (0, None), (False, None), (None, None)
+		yield 'fonts', name_type_map['ArrayPointer'], (None, name_type_map['FontInfo']), (False, None), (None, None)
+		yield 'count', name_type_map['Uint64'], (0, None), (False, None), (None, None)
+		yield 'zero_2', name_type_map['Uint64'], (0, None), (False, None), (None, None)
+		yield 'zero_3', name_type_map['Uint64'], (0, None), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

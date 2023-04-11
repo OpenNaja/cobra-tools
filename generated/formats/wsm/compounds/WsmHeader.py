@@ -29,11 +29,11 @@ class WsmHeader(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('duration', name_type_map['Float'], (0, None), (False, None), (None, None))
-		yield ('frame_count', name_type_map['Uint'], (0, None), (False, None), (None, None))
-		yield ('unknowns', Array, (0, None, (8,), name_type_map['Float']), (False, None), (None, None))
-		yield ('locs', name_type_map['ArrayPointer'], (None, name_type_map['Vector3']), (False, None), (None, None))
-		yield ('quats', name_type_map['ArrayPointer'], (None, name_type_map['Vector4']), (False, None), (None, None))
+		yield 'duration', name_type_map['Float'], (0, None), (False, None), (None, None)
+		yield 'frame_count', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'unknowns', Array, (0, None, (8,), name_type_map['Float']), (False, None), (None, None)
+		yield 'locs', name_type_map['ArrayPointer'], (None, name_type_map['Vector3']), (False, None), (None, None)
+		yield 'quats', name_type_map['ArrayPointer'], (None, name_type_map['Vector4']), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

@@ -17,10 +17,10 @@ class HircPointer(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('id', name_type_map['HircType'], (0, None), (False, None), (None, None))
-		yield ('data', name_type_map['SoundSfxVoice'], (0, None), (False, None), (None, True))
-		yield ('data', name_type_map['MusicTrack'], (0, None), (False, None), (None, True))
-		yield ('data', name_type_map['TypeOther'], (0, None), (False, None), (None, True))
+		yield 'id', name_type_map['HircType'], (0, None), (False, None), (None, None)
+		yield 'data', name_type_map['SoundSfxVoice'], (0, None), (False, None), (None, True)
+		yield 'data', name_type_map['MusicTrack'], (0, None), (False, None), (None, True)
+		yield 'data', name_type_map['TypeOther'], (0, None), (False, None), (None, True)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

@@ -17,7 +17,7 @@ class VariantArray(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('variants', Array, (0, None, (None,), name_type_map['Variant']), (False, None), (None, None))
+		yield 'variants', Array, (0, None, (None,), name_type_map['Variant']), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

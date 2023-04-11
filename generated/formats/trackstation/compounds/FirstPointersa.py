@@ -23,10 +23,10 @@ class FirstPointersa(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('pointer_stuff_1', name_type_map['CommonChunk'], (0, None), (False, None), (None, None))
-		yield ('pointer_stuff_2', name_type_map['CommonChunk'], (0, None), (False, None), (None, None))
-		yield ('pointer_stuff_3', name_type_map['CommonChunk'], (0, None), (False, None), (None, None))
-		yield ('zero', name_type_map['Uint64'], (0, None), (False, None), (None, None))
+		yield 'pointer_stuff_1', name_type_map['CommonChunk'], (0, None), (False, None), (None, None)
+		yield 'pointer_stuff_2', name_type_map['CommonChunk'], (0, None), (False, None), (None, None)
+		yield 'pointer_stuff_3', name_type_map['CommonChunk'], (0, None), (False, None), (None, None)
+		yield 'zero', name_type_map['Uint64'], (0, None), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

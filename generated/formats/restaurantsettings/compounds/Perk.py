@@ -28,19 +28,19 @@ class Perk(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('unk_0', name_type_map['Uint64'], (0, None), (False, None), (None, None))
-		yield ('building_cost', name_type_map['Uint64'], (0, None), (False, None), (None, None))
-		yield ('running_cost_base', name_type_map['Uint64'], (0, None), (False, None), (None, None))
-		yield ('running_cost_per_extension', name_type_map['Uint64'], (0, None), (False, None), (None, None))
-		yield ('unk_4', name_type_map['Float'], (0, None), (False, None), (None, None))
-		yield ('unk_5', name_type_map['Float'], (0, None), (False, None), (None, None))
-		yield ('label', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None))
-		yield ('desc', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None))
-		yield ('icon', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None))
-		yield ('unk_6', name_type_map['Float'], (0, None), (False, None), (None, None))
-		yield ('appeal_adults', name_type_map['Float'], (0, None), (False, None), (None, None))
-		yield ('appeal_families', name_type_map['Float'], (0, None), (False, None), (None, None))
-		yield ('appeal_teenagers', name_type_map['Float'], (0, None), (False, None), (None, None))
+		yield 'unk_0', name_type_map['Uint64'], (0, None), (False, None), (None, None)
+		yield 'building_cost', name_type_map['Uint64'], (0, None), (False, None), (None, None)
+		yield 'running_cost_base', name_type_map['Uint64'], (0, None), (False, None), (None, None)
+		yield 'running_cost_per_extension', name_type_map['Uint64'], (0, None), (False, None), (None, None)
+		yield 'unk_4', name_type_map['Float'], (0, None), (False, None), (None, None)
+		yield 'unk_5', name_type_map['Float'], (0, None), (False, None), (None, None)
+		yield 'label', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None)
+		yield 'desc', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None)
+		yield 'icon', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None)
+		yield 'unk_6', name_type_map['Float'], (0, None), (False, None), (None, None)
+		yield 'appeal_adults', name_type_map['Float'], (0, None), (False, None), (None, None)
+		yield 'appeal_families', name_type_map['Float'], (0, None), (False, None), (None, None)
+		yield 'appeal_teenagers', name_type_map['Float'], (0, None), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

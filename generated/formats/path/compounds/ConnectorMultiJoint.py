@@ -22,13 +22,13 @@ class ConnectorMultiJoint(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('model_name', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None))
-		yield ('padding', name_type_map['Uint64'], (0, None), (False, 0), (None, None))
-		yield ('joints', name_type_map['ArrayPointer'], (None, name_type_map['Joint']), (False, None), (None, None))
-		yield ('num_joints', name_type_map['Uint'], (0, None), (False, None), (None, None))
-		yield ('unk_float_1', name_type_map['Float'], (0, None), (False, None), (None, None))
-		yield ('unk_float_2', name_type_map['Float'], (0, None), (False, None), (None, None))
-		yield ('unk_int_1', name_type_map['Uint'], (0, None), (False, None), (None, None))
+		yield 'model_name', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None)
+		yield 'padding', name_type_map['Uint64'], (0, None), (False, 0), (None, None)
+		yield 'joints', name_type_map['ArrayPointer'], (None, name_type_map['Joint']), (False, None), (None, None)
+		yield 'num_joints', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'unk_float_1', name_type_map['Float'], (0, None), (False, None), (None, None)
+		yield 'unk_float_2', name_type_map['Float'], (0, None), (False, None), (None, None)
+		yield 'unk_int_1', name_type_map['Uint'], (0, None), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

@@ -26,14 +26,14 @@ class UnkChunkList(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('ref', name_type_map['Empty'], (0, None), (False, None), (None, None))
-		yield ('zero_0', name_type_map['SmartPadding'], (0, None), (False, None), (None, None))
-		yield ('subchunk_count', name_type_map['Ushort'], (0, None), (False, None), (None, None))
-		yield ('flag', name_type_map['Ushort'], (0, None), (False, None), (None, None))
-		yield ('zero_1', name_type_map['Uint'], (0, None), (False, None), (None, None))
-		yield ('chunksize_list', Array, (0, None, (None,), name_type_map['ChunkSizes']), (False, None), (None, None))
-		yield ('subchunk_list', name_type_map['SubChunkReader'], (None, None), (False, None), (None, None))
-		yield ('pad', name_type_map['PadAlign'], (16, None), (False, None), (None, None))
+		yield 'ref', name_type_map['Empty'], (0, None), (False, None), (None, None)
+		yield 'zero_0', name_type_map['SmartPadding'], (0, None), (False, None), (None, None)
+		yield 'subchunk_count', name_type_map['Ushort'], (0, None), (False, None), (None, None)
+		yield 'flag', name_type_map['Ushort'], (0, None), (False, None), (None, None)
+		yield 'zero_1', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'chunksize_list', Array, (0, None, (None,), name_type_map['ChunkSizes']), (False, None), (None, None)
+		yield 'subchunk_list', name_type_map['SubChunkReader'], (None, None), (False, None), (None, None)
+		yield 'pad', name_type_map['PadAlign'], (16, None), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

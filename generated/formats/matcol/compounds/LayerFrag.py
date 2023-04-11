@@ -24,15 +24,15 @@ class LayerFrag(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('layer_name', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None))
-		yield ('u_0', name_type_map['Uint64'], (0, None), (False, None), (None, None))
-		yield ('u_1', name_type_map['Uint64'], (0, None), (False, None), (None, None))
-		yield ('infos', name_type_map['ArrayPointer'], (None, name_type_map['Info']), (False, None), (None, None))
-		yield ('info_count', name_type_map['Uint64'], (0, None), (False, None), (None, None))
-		yield ('u_2', name_type_map['Uint64'], (0, None), (False, None), (None, None))
-		yield ('u_3', name_type_map['Uint64'], (0, None), (False, None), (None, None))
-		yield ('attribs', name_type_map['ArrayPointer'], (None, name_type_map['Attrib']), (False, None), (None, None))
-		yield ('attrib_count', name_type_map['Uint64'], (0, None), (False, None), (None, None))
+		yield 'layer_name', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None)
+		yield 'u_0', name_type_map['Uint64'], (0, None), (False, None), (None, None)
+		yield 'u_1', name_type_map['Uint64'], (0, None), (False, None), (None, None)
+		yield 'infos', name_type_map['ArrayPointer'], (None, name_type_map['Info']), (False, None), (None, None)
+		yield 'info_count', name_type_map['Uint64'], (0, None), (False, None), (None, None)
+		yield 'u_2', name_type_map['Uint64'], (0, None), (False, None), (None, None)
+		yield 'u_3', name_type_map['Uint64'], (0, None), (False, None), (None, None)
+		yield 'attribs', name_type_map['ArrayPointer'], (None, name_type_map['Attrib']), (False, None), (None, None)
+		yield 'attrib_count', name_type_map['Uint64'], (0, None), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

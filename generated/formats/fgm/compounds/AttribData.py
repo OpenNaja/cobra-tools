@@ -17,12 +17,12 @@ class AttribData(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('value', Array, (0, None, (1,), name_type_map['Float']), (False, None), (None, True))
-		yield ('value', Array, (0, None, (2,), name_type_map['Float']), (False, None), (None, True))
-		yield ('value', Array, (0, None, (3,), name_type_map['Float']), (False, None), (None, True))
-		yield ('value', Array, (0, None, (4,), name_type_map['Float']), (False, None), (None, True))
-		yield ('value', Array, (0, None, (1,), name_type_map['Int']), (False, None), (None, True))
-		yield ('value', Array, (0, None, (1,), name_type_map['Int']), (False, None), (None, True))
+		yield 'value', Array, (0, None, (1,), name_type_map['Float']), (False, None), (None, True)
+		yield 'value', Array, (0, None, (2,), name_type_map['Float']), (False, None), (None, True)
+		yield 'value', Array, (0, None, (3,), name_type_map['Float']), (False, None), (None, True)
+		yield 'value', Array, (0, None, (4,), name_type_map['Float']), (False, None), (None, True)
+		yield 'value', Array, (0, None, (1,), name_type_map['Int']), (False, None), (None, True)
+		yield 'value', Array, (0, None, (1,), name_type_map['Int']), (False, None), (None, True)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

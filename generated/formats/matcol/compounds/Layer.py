@@ -22,12 +22,12 @@ class Layer(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('info', name_type_map['LayerFrag'], (0, None), (False, None), (None, None))
-		yield ('name', name_type_map['ZString'], (0, None), (False, None), (None, None))
-		yield ('infos', Array, (0, None, (None,), name_type_map['Info']), (False, None), (None, None))
-		yield ('info_names', Array, (0, None, (None,), name_type_map['ZString']), (False, None), (None, None))
-		yield ('attribs', Array, (0, None, (None,), name_type_map['Attrib']), (False, None), (None, None))
-		yield ('attrib_names', Array, (0, None, (None,), name_type_map['ZString']), (False, None), (None, None))
+		yield 'info', name_type_map['LayerFrag'], (0, None), (False, None), (None, None)
+		yield 'name', name_type_map['ZString'], (0, None), (False, None), (None, None)
+		yield 'infos', Array, (0, None, (None,), name_type_map['Info']), (False, None), (None, None)
+		yield 'info_names', Array, (0, None, (None,), name_type_map['ZString']), (False, None), (None, None)
+		yield 'attribs', Array, (0, None, (None,), name_type_map['Attrib']), (False, None), (None, None)
+		yield 'attrib_names', Array, (0, None, (None,), name_type_map['ZString']), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

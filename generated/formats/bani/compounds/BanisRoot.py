@@ -39,13 +39,13 @@ class BanisRoot(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('zeros', Array, (0, None, (2,), name_type_map['Uint64']), (False, None), (None, None))
-		yield ('bytes_per_frame', name_type_map['Uint'], (0, None), (False, None), (None, None))
-		yield ('bytes_per_bone', name_type_map['Uint'], (0, None), (False, None), (None, None))
-		yield ('num_frames', name_type_map['Uint'], (0, None), (False, None), (None, None))
-		yield ('num_bones', name_type_map['Uint'], (0, None), (False, None), (None, None))
-		yield ('loc_scale', name_type_map['Float'], (0, None), (False, None), (None, None))
-		yield ('loc_offset', name_type_map['Float'], (0, None), (False, None), (None, None))
+		yield 'zeros', Array, (0, None, (2,), name_type_map['Uint64']), (False, None), (None, None)
+		yield 'bytes_per_frame', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'bytes_per_bone', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'num_frames', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'num_bones', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'loc_scale', name_type_map['Float'], (0, None), (False, None), (None, None)
+		yield 'loc_offset', name_type_map['Float'], (0, None), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
