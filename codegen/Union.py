@@ -1,5 +1,6 @@
+from itertools import chain
+
 from codegen.expression import Expression, Version, interpret_literal
-from codegen.Imports import Imports
 from codegen.Versions import Versions
 import codegen.naming_conventions as convention
 
@@ -20,6 +21,7 @@ def get_attr_with_backups(field, attribute_keys):
 def condition_indent(base_indent, conditionals, condition=""):
     # determine the python condition and indentation level based on whether the
     # last used condition was the same.
+    conditionals = tuple(chain.from_iterable(conditionals))
     if conditionals:
         new_condition = f"if {' and '.join(conditionals)}:"
         # condition is there but has not changed, so we can keep it in the same if clause
@@ -51,17 +53,24 @@ class Union:
         self.members.append(member)
 
     def indirect_class_access(self, field_type):
-        if self.compounds.parser.tag_dict[field_type.lower()] in self.compounds.parser.struct_types:
-            class_access = f'{self.compounds.class_name}._import_map["{Imports.import_map_key(self.compounds.parser.path_dict[field_type])}"]'
-        else:
-            class_access = field_type
-        return class_access
+        return f"name_type_map['{field_type}']"
+
+    def is_type(self, potential_type):
+        if isinstance(potential_type, str):
+            if potential_type in self.compounds.parser.path_dict:
+                return True
+            if potential_type.startswith('name_type_map'):
+                return True
+        return False
 
     def get_conditions(self, field, target_variable, use_abstract=False):
         """Returns a list of conditional expressions for a field of this union"""
-        CONTEXT = f'{target_variable}.{CONTEXT_SUFFIX}'
+        CONTEXT = CONTEXT_SUFFIX if target_variable == '' else f'{target_variable}.{CONTEXT_SUFFIX}'
         VER = f"{CONTEXT}.version"
-        conditionals = []
+        global_conditionals = []
+        local_conditionals = []
+
+        # extract (formatted) field values
         ver1 = get_attr_with_backups(field, ["ver1", "since"])
         if ver1:
             ver1 = Version(ver1)
@@ -76,31 +85,38 @@ class Union:
         cond = field.attrib.get("cond")
         onlyT = field.attrib.get("onlyT")
         excludeT = field.attrib.get("excludeT")
+
+        # resolve the field values to python conditional expressions
+        # global conditions
         if ver1 and ver2:
-            conditionals.append(f"{ver1} <= {VER} <= {ver2}")
+            global_conditionals.append(f"{ver1} <= {VER} <= {ver2}")
         elif ver1:
-            conditionals.append(f"{VER} >= {ver1}")
+            global_conditionals.append(f"{VER} >= {ver1}")
         elif ver2:
-            conditionals.append(f"{VER} <= {ver2}")
+            global_conditionals.append(f"{VER} <= {ver2}")
         # version condition on context
         if vercond:
             vercond = Expression(vercond, CONTEXT)
-            conditionals.append(f"{vercond}")
+            global_conditionals.append(f"{vercond}")
         if valid_versions:
-            conditionals.append(f"({' or '.join([f'versions.is_{version}({CONTEXT})' for version in valid_versions])})")
-        # local condition
+            global_conditionals.append(f"({' or '.join([f'versions.is_{version}({CONTEXT})' for version in valid_versions])})")
+
+        # local conditions
         if cond:
             cond = Expression(cond, target_variable)
-            conditionals.append(f"{cond}")
+            local_conditionals.append(f"{cond}")
         if onlyT:
             onlyT = self.indirect_class_access(onlyT)
-            conditionals.append(f"isinstance({target_variable}, {onlyT})")
+            local_conditionals.append(f"isinstance({target_variable}, {onlyT})")
         if excludeT:
             excludeT = self.indirect_class_access(excludeT)
-            conditionals.append(f"not isinstance({target_variable}, {excludeT})")
+            local_conditionals.append(f"not isinstance({target_variable}, {excludeT})")
+
+        # technically neither, with local conditions for now
         if use_abstract:
             if field.attrib.get("abstract", "False") == "True":
-                conditionals.append("include_abstract")
+                local_conditionals.append("include_abstract")
+        conditionals = (global_conditionals, local_conditionals)
         return conditionals
 
     def get_params(self, field, target_variable="self", use_abstract=False):
@@ -110,10 +126,8 @@ class Union:
         field_type = field.attrib["type"]
         if field_type == "template":
             field_type_access = f'{target_variable}.{field_type}'
-        elif self.compounds.imports.is_recursive_field(field):
-            field_type_access = self.indirect_class_access(field_type)
         else:
-            field_type_access = field_type
+            field_type_access = self.indirect_class_access(field_type)
         template = field.attrib.get("template")
         optional = (field.attrib.get("optional", "False"), field.attrib.get("default"))
 
@@ -171,7 +185,6 @@ class Union:
         # get the default (or the best guess of it)
         field_type_lower = field_type.lower()
         tag_of_field_type = self.compounds.parser.tag_dict.get(field_type_lower)
-        return_type = self.compounds.parser.map_type(field_type, arr1)
         default_string = self.default_to_value(default_string, field_type, field_type_access)
 
         if arr1:
@@ -179,20 +192,15 @@ class Union:
             return f'Array({context}, {arg}, {template}, (0,), {field_type_access})'
         else:
             if default_string:
-                if return_type in self.compounds.parser.builtin_literals or tag_of_field_type == "enum":
+                if tag_of_field_type == "enum":
                     # the default string, when evaluated, gives the correct type
                     return default_string
                 else:
                     # the default sring needs to be converted to an object of the proper type
                     return f'{field_type_access}.from_value({default_string})'
             else:
-                # we don't have a specified default, guess one
-                if return_type in self.compounds.parser.builtin_literals:
-                    # this type can be returned from a literal
-                    return repr(self.compounds.parser.builtin_literals[return_type])
-                else:
-                    # instantiate like a generic type: dtype(context, arg, template)
-                    return f'{field_type_access}({context}, {arg}, {template})'
+                # instantiate like a generic type: dtype(context, arg, template)
+                return f'{field_type_access}({context}, {arg}, {template})'
 
     def write_init(self, f):
         base_indent = "\t\t"
@@ -220,13 +228,13 @@ class Union:
 
     def write_attributes(self, f):
         for field in self.members:
-            arg, template, arr1, arr2, conditionals, field_name, (field_type, field_type_access), (optional, default) = self.get_params(field, 'x')
+            arg, template, arr1, arr2, conditionals, field_name, (field_type, field_type_access), (optional, default) = self.get_params(field, '')
             # replace all non-static values with None for now
             try:
                 arg = int(str(arg), 0)
             except ValueError:
                 arg = None
-            if template not in self.compounds.parser.path_dict:
+            if not self.is_type(template):
                 template = None
             if field_type not in self.compounds.parser.path_dict:
                 field_type = None
@@ -249,7 +257,9 @@ class Union:
                 shape = f"({', '.join(resolved_shape_parts)},)"
                 arguments = f"({arg}, {template}, {shape}, {field_type_access})"
                 field_type_access = "Array"
-            f.write(f"\n\t\tyield ({repr(field_name)}, {field_type_access}, {arguments}, ({optional}, {default}), {True if conditionals else None})")
+            global_conditions = f"lambda {CONTEXT_SUFFIX}: {' and '.join(conditionals[0])}" if conditionals[0] else None
+            local_conditions = True if conditionals[1] else None
+            f.write(f"\n\t\tyield ({repr(field_name)}, {field_type_access}, {arguments}, ({optional}, {default}), ({global_conditions}, {local_conditions}))")
 
     def write_filtered_attributes(self, f, condition, target_variable="self"):
         base_indent = "\n\t\t"

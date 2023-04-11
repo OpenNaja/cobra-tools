@@ -3,12 +3,9 @@ import time
 from generated.formats.ms2.compounds.packing_utils import *
 
 
-import numpy
 from generated.array import Array
-from generated.formats.base.basic import Float
-from generated.formats.base.basic import Uint
-from generated.formats.ms2.bitfields.ModelFlag import ModelFlag
 from generated.formats.ms2.compounds.MeshData import MeshData
+from generated.formats.ms2.imports import name_type_map
 
 
 class NewMeshData(MeshData):
@@ -19,71 +16,70 @@ class NewMeshData(MeshData):
 
 	__name__ = 'NewMeshData'
 
-	_import_key = 'ms2.compounds.NewMeshData'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.vertex_count = 0
+		self.vertex_count = name_type_map['Uint'](self.context, 0, None)
 
 		# number of index entries in the triangle index list; (not: number of triangles, byte count of tri buffer)
-		self.tri_index_count = 0
+		self.tri_index_count = name_type_map['Uint'](self.context, 0, None)
 
 		# always zero
-		self.zero_1 = 0
+		self.zero_1 = name_type_map['Uint'](self.context, 0, None)
 
 		# power of 2 increasing with lod index
-		self.poweroftwo = 0
+		self.poweroftwo = name_type_map['Uint'](self.context, 0, None)
 
 		# in bytes
-		self.vertex_offset = 0
-		self.size_of_vertex = 48
+		self.vertex_offset = name_type_map['Uint'](self.context, 0, None)
+		self.size_of_vertex = name_type_map['Uint'].from_value(48)
 
 		# in bytes
-		self.tri_offset = 0
+		self.tri_offset = name_type_map['Uint'](self.context, 0, None)
 
 		# always zero
-		self.zero_2 = 0
+		self.zero_2 = name_type_map['Uint'](self.context, 0, None)
 
 		# some floats, purpose unknown
-		self.unk_floats = Array(self.context, 0, None, (0,), Float)
+		self.unk_floats = Array(self.context, 0, None, (0,), name_type_map['Float'])
 
 		# always zero
-		self.zero_3 = 0
+		self.zero_3 = name_type_map['Uint'](self.context, 0, None)
 
 		# bitfield, determines vertex format
-		self.flag = ModelFlag(self.context, 0, None)
+		self.flag = name_type_map['ModelFlag'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('vertex_count', Uint, (0, None), (False, None), None)
-		yield ('tri_index_count', Uint, (0, None), (False, None), None)
-		yield ('zero_1', Uint, (0, None), (False, None), None)
-		yield ('poweroftwo', Uint, (0, None), (False, None), None)
-		yield ('vertex_offset', Uint, (0, None), (False, None), None)
-		yield ('size_of_vertex', Uint, (0, None), (False, 48), None)
-		yield ('tri_offset', Uint, (0, None), (False, None), None)
-		yield ('zero_2', Uint, (0, None), (False, None), None)
-		yield ('unk_floats', Array, (0, None, (2,), Float), (False, None), None)
-		yield ('zero_3', Uint, (0, None), (False, None), None)
-		yield ('flag', ModelFlag, (0, None), (False, None), None)
+		yield ('vertex_count', name_type_map['Uint'], (0, None), (False, None), (None, None))
+		yield ('tri_index_count', name_type_map['Uint'], (0, None), (False, None), (None, None))
+		yield ('zero_1', name_type_map['Uint'], (0, None), (False, None), (None, None))
+		yield ('poweroftwo', name_type_map['Uint'], (0, None), (False, None), (None, None))
+		yield ('vertex_offset', name_type_map['Uint'], (0, None), (False, None), (None, None))
+		yield ('size_of_vertex', name_type_map['Uint'], (0, None), (False, 48), (None, None))
+		yield ('tri_offset', name_type_map['Uint'], (0, None), (False, None), (None, None))
+		yield ('zero_2', name_type_map['Uint'], (0, None), (False, None), (None, None))
+		yield ('unk_floats', Array, (0, None, (2,), name_type_map['Float']), (False, None), (None, None))
+		yield ('zero_3', name_type_map['Uint'], (0, None), (False, None), (None, None))
+		yield ('flag', name_type_map['ModelFlag'], (0, None), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'vertex_count', Uint, (0, None), (False, None)
-		yield 'tri_index_count', Uint, (0, None), (False, None)
-		yield 'zero_1', Uint, (0, None), (False, None)
-		yield 'poweroftwo', Uint, (0, None), (False, None)
-		yield 'vertex_offset', Uint, (0, None), (False, None)
-		yield 'size_of_vertex', Uint, (0, None), (False, 48)
-		yield 'tri_offset', Uint, (0, None), (False, None)
-		yield 'zero_2', Uint, (0, None), (False, None)
-		yield 'unk_floats', Array, (0, None, (2,), Float), (False, None)
-		yield 'zero_3', Uint, (0, None), (False, None)
-		yield 'flag', ModelFlag, (0, None), (False, None)
+		yield 'vertex_count', name_type_map['Uint'], (0, None), (False, None)
+		yield 'tri_index_count', name_type_map['Uint'], (0, None), (False, None)
+		yield 'zero_1', name_type_map['Uint'], (0, None), (False, None)
+		yield 'poweroftwo', name_type_map['Uint'], (0, None), (False, None)
+		yield 'vertex_offset', name_type_map['Uint'], (0, None), (False, None)
+		yield 'size_of_vertex', name_type_map['Uint'], (0, None), (False, 48)
+		yield 'tri_offset', name_type_map['Uint'], (0, None), (False, None)
+		yield 'zero_2', name_type_map['Uint'], (0, None), (False, None)
+		yield 'unk_floats', Array, (0, None, (2,), name_type_map['Float']), (False, None)
+		yield 'zero_3', name_type_map['Uint'], (0, None), (False, None)
+		yield 'flag', name_type_map['ModelFlag'], (0, None), (False, None)
 
 	# @property
 	def get_stream_index(self):
@@ -264,6 +260,3 @@ class NewMeshData(MeshData):
 			if "bone ids" in self.dt.fields:
 				vert["bone ids"], vert["bone weights"] = self.unpack_weights_list(weight)
 
-
-
-NewMeshData.init_attributes()

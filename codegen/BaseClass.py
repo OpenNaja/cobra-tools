@@ -1,4 +1,5 @@
 import ast
+import logging
 import os
 import re
 import sys
@@ -22,13 +23,16 @@ class BaseClass:
         # grab the source code, if it exists
         self.src_code = self.get_code_from_src()
         self.class_basename = self.struct.attrib.get("inherit")
+        if self.class_basename is not None and self.class_basename not in self.parser.processed_types:
+            logging.error(f"Class {self.class_name} in format {self.parser.format_name} inherits from "\
+                         f"{self.class_basename}, but this is not declared in the xml before it!")
         self.class_debug_str = self.struct.text
         self.out_file = self.get_out_path(self.parser.path_dict[self.class_name])
 
         # handle imports
         self.imports = Imports(self.parser, self.struct)
 
-        self.parser.processed_types.add(self.class_name)
+        self.parser.processed_types[self.class_name] = None
 
     def get_class_call(self):
         # set backup

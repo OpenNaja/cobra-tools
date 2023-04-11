@@ -9,7 +9,6 @@ class AbstractPointer(BaseStruct):
 
 	__name__ = 'AbstractPointer'
 
-	_import_key = 'ms2.compounds.AbstractPointer'
 
 	@classmethod
 	def _get_attribute_list(cls):
@@ -29,6 +28,3 @@ class AbstractPointer(BaseStruct):
 		n = self.joint.name if self.joint else None
 		return f"{self.index} -> {n}"
 
-
-
-AbstractPointer.init_attributes()

@@ -8,11 +8,8 @@ import generated.formats.motiongraph.compounds.SelectActivityActivityData
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
 from generated.formats.ovl_base.compounds.Pointer import Pointer
 
-from generated.formats.base.basic import Int64
-from generated.formats.base.basic import Uint64
-from generated.formats.base.basic import ZString
+from generated.formats.motiongraph.imports import name_type_map
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
-from generated.formats.ovl_base.compounds.Pointer import Pointer
 
 
 class Activity(MemStruct):
@@ -23,40 +20,39 @@ class Activity(MemStruct):
 
 	__name__ = 'Activity'
 
-	_import_key = 'motiongraph.compounds.Activity'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.count_2 = 0
-		self.count_3 = 0
-		self.minus_one = 0
-		self.data_type = Pointer(self.context, 0, ZString)
+		self.count_2 = name_type_map['Uint64'](self.context, 0, None)
+		self.count_3 = name_type_map['Uint64'](self.context, 0, None)
+		self.minus_one = name_type_map['Int64'](self.context, 0, None)
+		self.data_type = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
 
 		# template has to be defined according to data type ie 'AnimationActivity' + 'Data'
-		self.ptr = Pointer(self.context, 0, None)
-		self.name_b = Pointer(self.context, 0, ZString)
+		self.ptr = name_type_map['Pointer'](self.context, 0, None)
+		self.name_b = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
 		if set_default:
 			self.set_defaults()
 
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('data_type', Pointer, (0, ZString), (False, None), None)
-		yield ('ptr', Pointer, (0, None), (False, None), None)
-		yield ('count_2', Uint64, (0, None), (False, None), None)
-		yield ('count_3', Uint64, (0, None), (False, None), None)
-		yield ('minus_one', Int64, (0, None), (False, None), None)
-		yield ('name_b', Pointer, (0, ZString), (False, None), None)
+		yield ('data_type', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None))
+		yield ('ptr', name_type_map['Pointer'], (0, None), (False, None), (None, None))
+		yield ('count_2', name_type_map['Uint64'], (0, None), (False, None), (None, None))
+		yield ('count_3', name_type_map['Uint64'], (0, None), (False, None), (None, None))
+		yield ('minus_one', name_type_map['Int64'], (0, None), (False, None), (None, None))
+		yield ('name_b', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'data_type', Pointer, (0, ZString), (False, None)
-		yield 'ptr', Pointer, (0, None), (False, None)
-		yield 'count_2', Uint64, (0, None), (False, None)
-		yield 'count_3', Uint64, (0, None), (False, None)
-		yield 'minus_one', Int64, (0, None), (False, None)
-		yield 'name_b', Pointer, (0, ZString), (False, None)
+		yield 'data_type', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None)
+		yield 'ptr', name_type_map['Pointer'], (0, None), (False, None)
+		yield 'count_2', name_type_map['Uint64'], (0, None), (False, None)
+		yield 'count_3', name_type_map['Uint64'], (0, None), (False, None)
+		yield 'minus_one', name_type_map['Int64'], (0, None), (False, None)
+		yield 'name_b', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None)
 
 	def get_ptr_template(self, prop):
 		"""Returns the appropriate template for a pointer named 'prop', if exists.
@@ -65,10 +61,7 @@ class Activity(MemStruct):
 			activity = self.data_type.data
 			key = f"motiongraph.compounds.{activity}Data"
 			try:
-				return Activity._import_map[key]
-			except:
+				return name_type_map[key]
+			except KeyError:
 				logging.warning(f"Unsupported activity '{activity}'")
 
-
-
-Activity.init_attributes()

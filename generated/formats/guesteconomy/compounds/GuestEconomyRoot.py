@@ -1,5 +1,4 @@
-from generated.formats.base.basic import Float
-from generated.formats.base.basic import Uint
+from generated.formats.guesteconomy.imports import name_type_map
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
 
 
@@ -42,116 +41,112 @@ class GuestEconomyRoot(MemStruct):
 
 	__name__ = 'GuestEconomyRoot'
 
-	_import_key = 'guesteconomy.compounds.GuestEconomyRoot'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.target_profit = 0
-		self.u_00 = 0.0
-		self.target_dinosaur_prestige = 0
-		self.dinosaur_prestige_power = 0.0
-		self.u_01 = 0
-		self.u_02 = 0.0
-		self.u_03 = 0.0
-		self.u_04 = 0.0
-		self.visitor_arrival_rate = 0.0
-		self.visitor_departure_rate = 0.0
-		self.u_05 = 0.0
-		self.u_06 = 0.0
-		self.u_07 = 0.0
-		self.u_08 = 0.0
-		self.u_09 = 0.0
-		self.u_10 = 0.0
-		self.u_11 = 0.0
-		self.ticket_price_visitor_proportion_power = 0.0
-		self.ticket_price_full_visitor_proportion = 0.0
-		self.ticket_price_minimum_price_fraction = 0.0
-		self.visitor_deaths_decay_rate = 0.0
-		self.visitor_deaths_limit = 0.0
-		self.danger_exposure_safe_decay_rate = 0.0
-		self.danger_exposure_unnecessary_shelter_punishment = 0.0
-		self.danger_exposure_storm_exposure_punishment = 0.0
-		self.danger_exposure_dinosaur_exposure_punishment = 0.0
-		self.danger_exposure_dinosaur_danger_radius = 0.0
-		self.danger_exposure_limit = 0.0
-		self.transport_rating_disabled = 0
-		self.u_12 = 0
-		self.u_13 = 0
-		self.u_14 = 0
+		self.target_profit = name_type_map['Uint'](self.context, 0, None)
+		self.u_00 = name_type_map['Float'](self.context, 0, None)
+		self.target_dinosaur_prestige = name_type_map['Uint'](self.context, 0, None)
+		self.dinosaur_prestige_power = name_type_map['Float'](self.context, 0, None)
+		self.u_01 = name_type_map['Uint'](self.context, 0, None)
+		self.u_02 = name_type_map['Float'](self.context, 0, None)
+		self.u_03 = name_type_map['Float'](self.context, 0, None)
+		self.u_04 = name_type_map['Float'](self.context, 0, None)
+		self.visitor_arrival_rate = name_type_map['Float'](self.context, 0, None)
+		self.visitor_departure_rate = name_type_map['Float'](self.context, 0, None)
+		self.u_05 = name_type_map['Float'](self.context, 0, None)
+		self.u_06 = name_type_map['Float'](self.context, 0, None)
+		self.u_07 = name_type_map['Float'](self.context, 0, None)
+		self.u_08 = name_type_map['Float'](self.context, 0, None)
+		self.u_09 = name_type_map['Float'](self.context, 0, None)
+		self.u_10 = name_type_map['Float'](self.context, 0, None)
+		self.u_11 = name_type_map['Float'](self.context, 0, None)
+		self.ticket_price_visitor_proportion_power = name_type_map['Float'](self.context, 0, None)
+		self.ticket_price_full_visitor_proportion = name_type_map['Float'](self.context, 0, None)
+		self.ticket_price_minimum_price_fraction = name_type_map['Float'](self.context, 0, None)
+		self.visitor_deaths_decay_rate = name_type_map['Float'](self.context, 0, None)
+		self.visitor_deaths_limit = name_type_map['Float'](self.context, 0, None)
+		self.danger_exposure_safe_decay_rate = name_type_map['Float'](self.context, 0, None)
+		self.danger_exposure_unnecessary_shelter_punishment = name_type_map['Float'](self.context, 0, None)
+		self.danger_exposure_storm_exposure_punishment = name_type_map['Float'](self.context, 0, None)
+		self.danger_exposure_dinosaur_exposure_punishment = name_type_map['Float'](self.context, 0, None)
+		self.danger_exposure_dinosaur_danger_radius = name_type_map['Float'](self.context, 0, None)
+		self.danger_exposure_limit = name_type_map['Float'](self.context, 0, None)
+		self.transport_rating_disabled = name_type_map['Uint'](self.context, 0, None)
+		self.u_12 = name_type_map['Uint'](self.context, 0, None)
+		self.u_13 = name_type_map['Uint'](self.context, 0, None)
+		self.u_14 = name_type_map['Uint'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('target_profit', Uint, (0, None), (False, None), None)
-		yield ('u_00', Float, (0, None), (False, None), None)
-		yield ('target_dinosaur_prestige', Uint, (0, None), (False, None), None)
-		yield ('dinosaur_prestige_power', Float, (0, None), (False, None), None)
-		yield ('u_01', Uint, (0, None), (False, None), None)
-		yield ('u_02', Float, (0, None), (False, None), None)
-		yield ('u_03', Float, (0, None), (False, None), None)
-		yield ('u_04', Float, (0, None), (False, None), None)
-		yield ('visitor_arrival_rate', Float, (0, None), (False, None), None)
-		yield ('visitor_departure_rate', Float, (0, None), (False, None), None)
-		yield ('u_05', Float, (0, None), (False, None), None)
-		yield ('u_06', Float, (0, None), (False, None), None)
-		yield ('u_07', Float, (0, None), (False, None), None)
-		yield ('u_08', Float, (0, None), (False, None), None)
-		yield ('u_09', Float, (0, None), (False, None), None)
-		yield ('u_10', Float, (0, None), (False, None), None)
-		yield ('u_11', Float, (0, None), (False, None), None)
-		yield ('ticket_price_visitor_proportion_power', Float, (0, None), (False, None), None)
-		yield ('ticket_price_full_visitor_proportion', Float, (0, None), (False, None), None)
-		yield ('ticket_price_minimum_price_fraction', Float, (0, None), (False, None), None)
-		yield ('visitor_deaths_decay_rate', Float, (0, None), (False, None), None)
-		yield ('visitor_deaths_limit', Float, (0, None), (False, None), None)
-		yield ('danger_exposure_safe_decay_rate', Float, (0, None), (False, None), None)
-		yield ('danger_exposure_unnecessary_shelter_punishment', Float, (0, None), (False, None), None)
-		yield ('danger_exposure_storm_exposure_punishment', Float, (0, None), (False, None), None)
-		yield ('danger_exposure_dinosaur_exposure_punishment', Float, (0, None), (False, None), None)
-		yield ('danger_exposure_dinosaur_danger_radius', Float, (0, None), (False, None), None)
-		yield ('danger_exposure_limit', Float, (0, None), (False, None), None)
-		yield ('transport_rating_disabled', Uint, (0, None), (False, None), None)
-		yield ('u_12', Uint, (0, None), (False, None), None)
-		yield ('u_13', Uint, (0, None), (False, None), None)
-		yield ('u_14', Uint, (0, None), (False, None), None)
+		yield ('target_profit', name_type_map['Uint'], (0, None), (False, None), (None, None))
+		yield ('u_00', name_type_map['Float'], (0, None), (False, None), (None, None))
+		yield ('target_dinosaur_prestige', name_type_map['Uint'], (0, None), (False, None), (None, None))
+		yield ('dinosaur_prestige_power', name_type_map['Float'], (0, None), (False, None), (None, None))
+		yield ('u_01', name_type_map['Uint'], (0, None), (False, None), (None, None))
+		yield ('u_02', name_type_map['Float'], (0, None), (False, None), (None, None))
+		yield ('u_03', name_type_map['Float'], (0, None), (False, None), (None, None))
+		yield ('u_04', name_type_map['Float'], (0, None), (False, None), (None, None))
+		yield ('visitor_arrival_rate', name_type_map['Float'], (0, None), (False, None), (None, None))
+		yield ('visitor_departure_rate', name_type_map['Float'], (0, None), (False, None), (None, None))
+		yield ('u_05', name_type_map['Float'], (0, None), (False, None), (None, None))
+		yield ('u_06', name_type_map['Float'], (0, None), (False, None), (None, None))
+		yield ('u_07', name_type_map['Float'], (0, None), (False, None), (None, None))
+		yield ('u_08', name_type_map['Float'], (0, None), (False, None), (None, None))
+		yield ('u_09', name_type_map['Float'], (0, None), (False, None), (None, None))
+		yield ('u_10', name_type_map['Float'], (0, None), (False, None), (None, None))
+		yield ('u_11', name_type_map['Float'], (0, None), (False, None), (None, None))
+		yield ('ticket_price_visitor_proportion_power', name_type_map['Float'], (0, None), (False, None), (None, None))
+		yield ('ticket_price_full_visitor_proportion', name_type_map['Float'], (0, None), (False, None), (None, None))
+		yield ('ticket_price_minimum_price_fraction', name_type_map['Float'], (0, None), (False, None), (None, None))
+		yield ('visitor_deaths_decay_rate', name_type_map['Float'], (0, None), (False, None), (None, None))
+		yield ('visitor_deaths_limit', name_type_map['Float'], (0, None), (False, None), (None, None))
+		yield ('danger_exposure_safe_decay_rate', name_type_map['Float'], (0, None), (False, None), (None, None))
+		yield ('danger_exposure_unnecessary_shelter_punishment', name_type_map['Float'], (0, None), (False, None), (None, None))
+		yield ('danger_exposure_storm_exposure_punishment', name_type_map['Float'], (0, None), (False, None), (None, None))
+		yield ('danger_exposure_dinosaur_exposure_punishment', name_type_map['Float'], (0, None), (False, None), (None, None))
+		yield ('danger_exposure_dinosaur_danger_radius', name_type_map['Float'], (0, None), (False, None), (None, None))
+		yield ('danger_exposure_limit', name_type_map['Float'], (0, None), (False, None), (None, None))
+		yield ('transport_rating_disabled', name_type_map['Uint'], (0, None), (False, None), (None, None))
+		yield ('u_12', name_type_map['Uint'], (0, None), (False, None), (None, None))
+		yield ('u_13', name_type_map['Uint'], (0, None), (False, None), (None, None))
+		yield ('u_14', name_type_map['Uint'], (0, None), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'target_profit', Uint, (0, None), (False, None)
-		yield 'u_00', Float, (0, None), (False, None)
-		yield 'target_dinosaur_prestige', Uint, (0, None), (False, None)
-		yield 'dinosaur_prestige_power', Float, (0, None), (False, None)
-		yield 'u_01', Uint, (0, None), (False, None)
-		yield 'u_02', Float, (0, None), (False, None)
-		yield 'u_03', Float, (0, None), (False, None)
-		yield 'u_04', Float, (0, None), (False, None)
-		yield 'visitor_arrival_rate', Float, (0, None), (False, None)
-		yield 'visitor_departure_rate', Float, (0, None), (False, None)
-		yield 'u_05', Float, (0, None), (False, None)
-		yield 'u_06', Float, (0, None), (False, None)
-		yield 'u_07', Float, (0, None), (False, None)
-		yield 'u_08', Float, (0, None), (False, None)
-		yield 'u_09', Float, (0, None), (False, None)
-		yield 'u_10', Float, (0, None), (False, None)
-		yield 'u_11', Float, (0, None), (False, None)
-		yield 'ticket_price_visitor_proportion_power', Float, (0, None), (False, None)
-		yield 'ticket_price_full_visitor_proportion', Float, (0, None), (False, None)
-		yield 'ticket_price_minimum_price_fraction', Float, (0, None), (False, None)
-		yield 'visitor_deaths_decay_rate', Float, (0, None), (False, None)
-		yield 'visitor_deaths_limit', Float, (0, None), (False, None)
-		yield 'danger_exposure_safe_decay_rate', Float, (0, None), (False, None)
-		yield 'danger_exposure_unnecessary_shelter_punishment', Float, (0, None), (False, None)
-		yield 'danger_exposure_storm_exposure_punishment', Float, (0, None), (False, None)
-		yield 'danger_exposure_dinosaur_exposure_punishment', Float, (0, None), (False, None)
-		yield 'danger_exposure_dinosaur_danger_radius', Float, (0, None), (False, None)
-		yield 'danger_exposure_limit', Float, (0, None), (False, None)
-		yield 'transport_rating_disabled', Uint, (0, None), (False, None)
-		yield 'u_12', Uint, (0, None), (False, None)
-		yield 'u_13', Uint, (0, None), (False, None)
-		yield 'u_14', Uint, (0, None), (False, None)
-
-
-GuestEconomyRoot.init_attributes()
+		yield 'target_profit', name_type_map['Uint'], (0, None), (False, None)
+		yield 'u_00', name_type_map['Float'], (0, None), (False, None)
+		yield 'target_dinosaur_prestige', name_type_map['Uint'], (0, None), (False, None)
+		yield 'dinosaur_prestige_power', name_type_map['Float'], (0, None), (False, None)
+		yield 'u_01', name_type_map['Uint'], (0, None), (False, None)
+		yield 'u_02', name_type_map['Float'], (0, None), (False, None)
+		yield 'u_03', name_type_map['Float'], (0, None), (False, None)
+		yield 'u_04', name_type_map['Float'], (0, None), (False, None)
+		yield 'visitor_arrival_rate', name_type_map['Float'], (0, None), (False, None)
+		yield 'visitor_departure_rate', name_type_map['Float'], (0, None), (False, None)
+		yield 'u_05', name_type_map['Float'], (0, None), (False, None)
+		yield 'u_06', name_type_map['Float'], (0, None), (False, None)
+		yield 'u_07', name_type_map['Float'], (0, None), (False, None)
+		yield 'u_08', name_type_map['Float'], (0, None), (False, None)
+		yield 'u_09', name_type_map['Float'], (0, None), (False, None)
+		yield 'u_10', name_type_map['Float'], (0, None), (False, None)
+		yield 'u_11', name_type_map['Float'], (0, None), (False, None)
+		yield 'ticket_price_visitor_proportion_power', name_type_map['Float'], (0, None), (False, None)
+		yield 'ticket_price_full_visitor_proportion', name_type_map['Float'], (0, None), (False, None)
+		yield 'ticket_price_minimum_price_fraction', name_type_map['Float'], (0, None), (False, None)
+		yield 'visitor_deaths_decay_rate', name_type_map['Float'], (0, None), (False, None)
+		yield 'visitor_deaths_limit', name_type_map['Float'], (0, None), (False, None)
+		yield 'danger_exposure_safe_decay_rate', name_type_map['Float'], (0, None), (False, None)
+		yield 'danger_exposure_unnecessary_shelter_punishment', name_type_map['Float'], (0, None), (False, None)
+		yield 'danger_exposure_storm_exposure_punishment', name_type_map['Float'], (0, None), (False, None)
+		yield 'danger_exposure_dinosaur_exposure_punishment', name_type_map['Float'], (0, None), (False, None)
+		yield 'danger_exposure_dinosaur_danger_radius', name_type_map['Float'], (0, None), (False, None)
+		yield 'danger_exposure_limit', name_type_map['Float'], (0, None), (False, None)
+		yield 'transport_rating_disabled', name_type_map['Uint'], (0, None), (False, None)
+		yield 'u_12', name_type_map['Uint'], (0, None), (False, None)
+		yield 'u_13', name_type_map['Uint'], (0, None), (False, None)
+		yield 'u_14', name_type_map['Uint'], (0, None), (False, None)

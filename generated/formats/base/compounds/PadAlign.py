@@ -27,7 +27,6 @@ class PadAlign(BaseStruct):
 
 	__name__ = 'PadAlign'
 
-	_import_key = 'base.compounds.PadAlign'
 
 	@classmethod
 	def _get_attribute_list(cls):
@@ -63,6 +62,3 @@ class PadAlign(BaseStruct):
 		# position: instance.io_start
 		return get_padding_size(instance.io_start - instance.template.io_start, alignment=instance.arg)
 
-
-
-PadAlign.init_attributes()

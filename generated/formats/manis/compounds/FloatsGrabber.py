@@ -11,7 +11,6 @@ class FloatsGrabber(BaseStruct):
 
 	__name__ = 'FloatsGrabber'
 
-	_import_key = 'manis.compounds.FloatsGrabber'
 
 	@classmethod
 	def _get_attribute_list(cls):
@@ -48,6 +47,3 @@ class FloatsGrabber(BaseStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		stream.write(instance.data)
-
-
-FloatsGrabber.init_attributes()

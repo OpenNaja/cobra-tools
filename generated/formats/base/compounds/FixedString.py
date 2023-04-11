@@ -9,7 +9,6 @@ class FixedString(BaseStruct):
 
 	__name__ = 'FixedString'
 
-	_import_key = 'base.compounds.FixedString'
 
 	@classmethod
 	def _get_attribute_list(cls):
@@ -42,6 +41,3 @@ class FixedString(BaseStruct):
 	@staticmethod
 	def get_size(instance, context, arg=0, template=None):
 		return len(instance.data)
-
-
-FixedString.init_attributes()

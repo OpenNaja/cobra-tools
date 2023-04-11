@@ -34,19 +34,19 @@
         <add name="length" type="float" >total length of the interpolated curve, cf blender Spline.calc_length()</add>
     </compound>
 
-    <compound name="SplData" inherit="MemStruct">
-        JWE2: 16 + n*16 bytes
-        <add name="offset" type="Vector3" />sometimes blank
-        <add name="scale" type="float" />multiply this with short vector to get coord
-        <add name="keys" type="Key" arr1="#ARG#" />
-    </compound>
-
     <compound name="Key" inherit="MemStruct">
         JWE2: 16 bytes
         <add name="pos" type="ShortVector3" />
         <add name="handle_left" type="ByteVector3" />relative to pos
         <add name="handle_right" type="ByteVector3" />relative to pos
         <add name="handle_scale" type="float" />multiply this with byte vector to get handles
+    </compound>
+
+    <compound name="SplData" inherit="MemStruct">
+        JWE2: 16 + n*16 bytes
+        <add name="offset" type="Vector3" />sometimes blank
+        <add name="scale" type="float" />multiply this with short vector to get coord
+        <add name="keys" type="Key" arr1="#ARG#" />
     </compound>
 
 </niftoolsxml>

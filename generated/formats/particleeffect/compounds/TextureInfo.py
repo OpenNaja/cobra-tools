@@ -5,7 +5,6 @@ class TextureInfo(MemStruct):
 
 	__name__ = 'TextureInfo'
 
-	_import_key = 'particleeffect.compounds.TextureInfo'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
@@ -19,6 +18,3 @@ class TextureInfo(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-
-
-TextureInfo.init_attributes()

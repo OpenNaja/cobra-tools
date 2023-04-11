@@ -1,10 +1,5 @@
-from generated.formats.base.basic import Float
-from generated.formats.base.basic import Ubyte
-from generated.formats.base.basic import Ushort
-from generated.formats.base.basic import ZString
-from generated.formats.motiongraph.compounds.DataStreamResourceDataList import DataStreamResourceDataList
+from generated.formats.motiongraph.imports import name_type_map
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
-from generated.formats.ovl_base.compounds.Pointer import Pointer
 
 
 class CoordinatedAnimationActivityData(MemStruct):
@@ -15,50 +10,46 @@ class CoordinatedAnimationActivityData(MemStruct):
 
 	__name__ = 'CoordinatedAnimationActivityData'
 
-	_import_key = 'motiongraph.compounds.CoordinatedAnimationActivityData'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.waiting_anim_data_streams = DataStreamResourceDataList(self.context, 0, None)
-		self.coordinated_anim_data_streams = DataStreamResourceDataList(self.context, 0, None)
-		self.priorities = 0
-		self.looping = 0
-		self._pad = 0
-		self.blend_time = 0.0
-		self.coord_group = Pointer(self.context, 0, ZString)
-		self.waiting_anim = Pointer(self.context, 0, ZString)
-		self.coordinated_anim = Pointer(self.context, 0, ZString)
-		self.output_prop_through_variable = Pointer(self.context, 0, ZString)
+		self.waiting_anim_data_streams = name_type_map['DataStreamResourceDataList'](self.context, 0, None)
+		self.coordinated_anim_data_streams = name_type_map['DataStreamResourceDataList'](self.context, 0, None)
+		self.priorities = name_type_map['Ubyte'](self.context, 0, None)
+		self.looping = name_type_map['Ubyte'](self.context, 0, None)
+		self._pad = name_type_map['Ushort'](self.context, 0, None)
+		self.blend_time = name_type_map['Float'](self.context, 0, None)
+		self.coord_group = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
+		self.waiting_anim = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
+		self.coordinated_anim = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
+		self.output_prop_through_variable = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
 		if set_default:
 			self.set_defaults()
 
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('coord_group', Pointer, (0, ZString), (False, None), None)
-		yield ('waiting_anim', Pointer, (0, ZString), (False, None), None)
-		yield ('waiting_anim_data_streams', DataStreamResourceDataList, (0, None), (False, None), None)
-		yield ('coordinated_anim', Pointer, (0, ZString), (False, None), None)
-		yield ('coordinated_anim_data_streams', DataStreamResourceDataList, (0, None), (False, None), None)
-		yield ('priorities', Ubyte, (0, None), (False, None), None)
-		yield ('looping', Ubyte, (0, None), (False, None), None)
-		yield ('_pad', Ushort, (0, None), (False, None), None)
-		yield ('blend_time', Float, (0, None), (False, None), None)
-		yield ('output_prop_through_variable', Pointer, (0, ZString), (False, None), None)
+		yield ('coord_group', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None))
+		yield ('waiting_anim', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None))
+		yield ('waiting_anim_data_streams', name_type_map['DataStreamResourceDataList'], (0, None), (False, None), (None, None))
+		yield ('coordinated_anim', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None))
+		yield ('coordinated_anim_data_streams', name_type_map['DataStreamResourceDataList'], (0, None), (False, None), (None, None))
+		yield ('priorities', name_type_map['Ubyte'], (0, None), (False, None), (None, None))
+		yield ('looping', name_type_map['Ubyte'], (0, None), (False, None), (None, None))
+		yield ('_pad', name_type_map['Ushort'], (0, None), (False, None), (None, None))
+		yield ('blend_time', name_type_map['Float'], (0, None), (False, None), (None, None))
+		yield ('output_prop_through_variable', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'coord_group', Pointer, (0, ZString), (False, None)
-		yield 'waiting_anim', Pointer, (0, ZString), (False, None)
-		yield 'waiting_anim_data_streams', DataStreamResourceDataList, (0, None), (False, None)
-		yield 'coordinated_anim', Pointer, (0, ZString), (False, None)
-		yield 'coordinated_anim_data_streams', DataStreamResourceDataList, (0, None), (False, None)
-		yield 'priorities', Ubyte, (0, None), (False, None)
-		yield 'looping', Ubyte, (0, None), (False, None)
-		yield '_pad', Ushort, (0, None), (False, None)
-		yield 'blend_time', Float, (0, None), (False, None)
-		yield 'output_prop_through_variable', Pointer, (0, ZString), (False, None)
-
-
-CoordinatedAnimationActivityData.init_attributes()
+		yield 'coord_group', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None)
+		yield 'waiting_anim', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None)
+		yield 'waiting_anim_data_streams', name_type_map['DataStreamResourceDataList'], (0, None), (False, None)
+		yield 'coordinated_anim', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None)
+		yield 'coordinated_anim_data_streams', name_type_map['DataStreamResourceDataList'], (0, None), (False, None)
+		yield 'priorities', name_type_map['Ubyte'], (0, None), (False, None)
+		yield 'looping', name_type_map['Ubyte'], (0, None), (False, None)
+		yield '_pad', name_type_map['Ushort'], (0, None), (False, None)
+		yield 'blend_time', name_type_map['Float'], (0, None), (False, None)
+		yield 'output_prop_through_variable', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None)

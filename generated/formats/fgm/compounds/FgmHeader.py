@@ -1,7 +1,4 @@
-from generated.formats.base.basic import Uint
-from generated.formats.base.basic import Uint64
-from generated.formats.ovl_base.compounds.ArrayPointer import ArrayPointer
-from generated.formats.ovl_base.compounds.ForEachPointer import ForEachPointer
+from generated.formats.fgm.imports import name_type_map
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
 
 
@@ -15,59 +12,55 @@ class FgmHeader(MemStruct):
 
 	__name__ = 'FgmHeader'
 
-	_import_key = 'fgm.compounds.FgmHeader'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self._texture_count = 0
-		self._attribute_count = 0
-		self._unk_0 = 0
-		self._unk_1 = 0
-		self._unk_2 = 0
-		self._unk_3 = 0
-		self.textures = ArrayPointer(self.context, self._texture_count, FgmHeader._import_map["fgm.compounds.TextureInfo"])
-		self.attributes = ArrayPointer(self.context, self._attribute_count, FgmHeader._import_map["fgm.compounds.AttribInfo"])
-		self.name_foreach_textures = ForEachPointer(self.context, self.textures, FgmHeader._import_map["fgm.compounds.TextureData"])
-		self.value_foreach_attributes = ForEachPointer(self.context, self.attributes, FgmHeader._import_map["fgm.compounds.AttribData"])
+		self._texture_count = name_type_map['Uint64'](self.context, 0, None)
+		self._attribute_count = name_type_map['Uint64'](self.context, 0, None)
+		self._unk_0 = name_type_map['Uint64'](self.context, 0, None)
+		self._unk_1 = name_type_map['Uint64'](self.context, 0, None)
+		self._unk_2 = name_type_map['Uint64'](self.context, 0, None)
+		self._unk_3 = name_type_map['Uint64'](self.context, 0, None)
+		self.textures = name_type_map['ArrayPointer'](self.context, self._texture_count, name_type_map['TextureInfo'])
+		self.attributes = name_type_map['ArrayPointer'](self.context, self._attribute_count, name_type_map['AttribInfo'])
+		self.name_foreach_textures = name_type_map['ForEachPointer'](self.context, self.textures, name_type_map['TextureData'])
+		self.value_foreach_attributes = name_type_map['ForEachPointer'](self.context, self.attributes, name_type_map['AttribData'])
 		if set_default:
 			self.set_defaults()
 
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('_texture_count', Uint, (0, None), (False, None), True)
-		yield ('_texture_count', Uint64, (0, None), (False, None), True)
-		yield ('_attribute_count', Uint, (0, None), (False, None), True)
-		yield ('_attribute_count', Uint64, (0, None), (False, None), True)
-		yield ('textures', ArrayPointer, (None, None), (False, None), None)
-		yield ('attributes', ArrayPointer, (None, None), (False, None), None)
-		yield ('name_foreach_textures', ForEachPointer, (None, None), (False, None), None)
-		yield ('value_foreach_attributes', ForEachPointer, (None, None), (False, None), None)
-		yield ('_unk_0', Uint64, (0, None), (False, None), None)
-		yield ('_unk_1', Uint64, (0, None), (False, None), None)
-		yield ('_unk_2', Uint64, (0, None), (False, None), True)
-		yield ('_unk_3', Uint64, (0, None), (False, None), True)
+		yield ('_texture_count', name_type_map['Uint'], (0, None), (False, None), (lambda context: context.version <= 15, None))
+		yield ('_texture_count', name_type_map['Uint64'], (0, None), (False, None), (lambda context: context.version >= 17, None))
+		yield ('_attribute_count', name_type_map['Uint'], (0, None), (False, None), (lambda context: context.version <= 15, None))
+		yield ('_attribute_count', name_type_map['Uint64'], (0, None), (False, None), (lambda context: context.version >= 17, None))
+		yield ('textures', name_type_map['ArrayPointer'], (None, name_type_map['TextureInfo']), (False, None), (None, None))
+		yield ('attributes', name_type_map['ArrayPointer'], (None, name_type_map['AttribInfo']), (False, None), (None, None))
+		yield ('name_foreach_textures', name_type_map['ForEachPointer'], (None, name_type_map['TextureData']), (False, None), (None, None))
+		yield ('value_foreach_attributes', name_type_map['ForEachPointer'], (None, name_type_map['AttribData']), (False, None), (None, None))
+		yield ('_unk_0', name_type_map['Uint64'], (0, None), (False, None), (None, None))
+		yield ('_unk_1', name_type_map['Uint64'], (0, None), (False, None), (None, None))
+		yield ('_unk_2', name_type_map['Uint64'], (0, None), (False, None), (lambda context: context.user_version.use_djb and (context.version == 20), None))
+		yield ('_unk_3', name_type_map['Uint64'], (0, None), (False, None), (lambda context: context.user_version.use_djb and (context.version == 20), None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		if instance.context.version <= 15:
-			yield '_texture_count', Uint, (0, None), (False, None)
+			yield '_texture_count', name_type_map['Uint'], (0, None), (False, None)
 		if instance.context.version >= 17:
-			yield '_texture_count', Uint64, (0, None), (False, None)
+			yield '_texture_count', name_type_map['Uint64'], (0, None), (False, None)
 		if instance.context.version <= 15:
-			yield '_attribute_count', Uint, (0, None), (False, None)
+			yield '_attribute_count', name_type_map['Uint'], (0, None), (False, None)
 		if instance.context.version >= 17:
-			yield '_attribute_count', Uint64, (0, None), (False, None)
-		yield 'textures', ArrayPointer, (instance._texture_count, FgmHeader._import_map["fgm.compounds.TextureInfo"]), (False, None)
-		yield 'attributes', ArrayPointer, (instance._attribute_count, FgmHeader._import_map["fgm.compounds.AttribInfo"]), (False, None)
-		yield 'name_foreach_textures', ForEachPointer, (instance.textures, FgmHeader._import_map["fgm.compounds.TextureData"]), (False, None)
-		yield 'value_foreach_attributes', ForEachPointer, (instance.attributes, FgmHeader._import_map["fgm.compounds.AttribData"]), (False, None)
-		yield '_unk_0', Uint64, (0, None), (False, None)
-		yield '_unk_1', Uint64, (0, None), (False, None)
+			yield '_attribute_count', name_type_map['Uint64'], (0, None), (False, None)
+		yield 'textures', name_type_map['ArrayPointer'], (instance._texture_count, name_type_map['TextureInfo']), (False, None)
+		yield 'attributes', name_type_map['ArrayPointer'], (instance._attribute_count, name_type_map['AttribInfo']), (False, None)
+		yield 'name_foreach_textures', name_type_map['ForEachPointer'], (instance.textures, name_type_map['TextureData']), (False, None)
+		yield 'value_foreach_attributes', name_type_map['ForEachPointer'], (instance.attributes, name_type_map['AttribData']), (False, None)
+		yield '_unk_0', name_type_map['Uint64'], (0, None), (False, None)
+		yield '_unk_1', name_type_map['Uint64'], (0, None), (False, None)
 		if instance.context.user_version.use_djb and (instance.context.version == 20):
-			yield '_unk_2', Uint64, (0, None), (False, None)
-			yield '_unk_3', Uint64, (0, None), (False, None)
-
-
-FgmHeader.init_attributes()
+			yield '_unk_2', name_type_map['Uint64'], (0, None), (False, None)
+			yield '_unk_3', name_type_map['Uint64'], (0, None), (False, None)

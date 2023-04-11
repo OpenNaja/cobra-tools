@@ -2,8 +2,7 @@ from generated.formats.ovl.compounds.Triplet import Triplet
 
 
 from generated.base_struct import BaseStruct
-from generated.formats.base.basic import Uint
-from generated.formats.ovl_base.basic import OffsetString
+from generated.formats.ovl.imports import name_type_map
 
 
 class MimeEntry(BaseStruct):
@@ -15,63 +14,62 @@ class MimeEntry(BaseStruct):
 
 	__name__ = 'MimeEntry'
 
-	_import_key = 'ovl.compounds.MimeEntry'
 	allow_np = True
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.name = 0
-		self.zero_0 = 0
+		self.name = name_type_map['OffsetString'](self.context, self.context.names, None)
+		self.zero_0 = name_type_map['Uint'].from_value(0)
 
 		# hash of this mime, changes with mime version; not used anywhere else in the ovl
-		self.mime_hash = 0
+		self.mime_hash = name_type_map['Uint'](self.context, 0, None)
 
 		# usually increments with game
-		self.mime_version = 0
+		self.mime_version = name_type_map['Uint'](self.context, 0, None)
 
 		# Id of this class type. Later in the file there is a reference to this Id; offset into FileEntry list in number of files
-		self.file_index_offset = 0
+		self.file_index_offset = name_type_map['Uint'](self.context, 0, None)
 
 		# Number of entries of this class in the file.; from 'file index offset', this many files belong to this file extension
-		self.file_count = 0
-		self.zero_1 = 0
+		self.file_count = name_type_map['Uint'](self.context, 0, None)
+		self.zero_1 = name_type_map['Uint'](self.context, 0, None)
 
 		# constant per mime, grab this many triplets
-		self.triplet_count = 0
+		self.triplet_count = name_type_map['Uint'](self.context, 0, None)
 
 		# index into triplets list
-		self.triplet_offset = 0
+		self.triplet_offset = name_type_map['Uint'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('name', OffsetString, (None, None), (False, None), None)
-		yield ('zero_0', Uint, (0, None), (False, 0), None)
-		yield ('mime_hash', Uint, (0, None), (False, None), True)
-		yield ('mime_version', Uint, (0, None), (False, None), None)
-		yield ('file_index_offset', Uint, (0, None), (False, None), None)
-		yield ('file_count', Uint, (0, None), (False, None), None)
-		yield ('zero_1', Uint, (0, None), (False, None), True)
-		yield ('triplet_count', Uint, (0, None), (False, None), True)
-		yield ('triplet_offset', Uint, (0, None), (False, None), True)
+		yield ('name', name_type_map['OffsetString'], (None, None), (False, None), (None, None))
+		yield ('zero_0', name_type_map['Uint'], (0, None), (False, 0), (None, None))
+		yield ('mime_hash', name_type_map['Uint'], (0, None), (False, None), (lambda context: context.version >= 17, None))
+		yield ('mime_version', name_type_map['Uint'], (0, None), (False, None), (None, None))
+		yield ('file_index_offset', name_type_map['Uint'], (0, None), (False, None), (None, None))
+		yield ('file_count', name_type_map['Uint'], (0, None), (False, None), (None, None))
+		yield ('zero_1', name_type_map['Uint'], (0, None), (False, None), (lambda context: context.version <= 15, None))
+		yield ('triplet_count', name_type_map['Uint'], (0, None), (False, None), (lambda context: context.version >= 20, None))
+		yield ('triplet_offset', name_type_map['Uint'], (0, None), (False, None), (lambda context: context.version >= 20, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'name', OffsetString, (instance.context.names, None), (False, None)
-		yield 'zero_0', Uint, (0, None), (False, 0)
+		yield 'name', name_type_map['OffsetString'], (instance.context.names, None), (False, None)
+		yield 'zero_0', name_type_map['Uint'], (0, None), (False, 0)
 		if instance.context.version >= 17:
-			yield 'mime_hash', Uint, (0, None), (False, None)
-		yield 'mime_version', Uint, (0, None), (False, None)
-		yield 'file_index_offset', Uint, (0, None), (False, None)
-		yield 'file_count', Uint, (0, None), (False, None)
+			yield 'mime_hash', name_type_map['Uint'], (0, None), (False, None)
+		yield 'mime_version', name_type_map['Uint'], (0, None), (False, None)
+		yield 'file_index_offset', name_type_map['Uint'], (0, None), (False, None)
+		yield 'file_count', name_type_map['Uint'], (0, None), (False, None)
 		if instance.context.version <= 15:
-			yield 'zero_1', Uint, (0, None), (False, None)
+			yield 'zero_1', name_type_map['Uint'], (0, None), (False, None)
 		if instance.context.version >= 20:
-			yield 'triplet_count', Uint, (0, None), (False, None)
-			yield 'triplet_offset', Uint, (0, None), (False, None)
+			yield 'triplet_count', name_type_map['Uint'], (0, None), (False, None)
+			yield 'triplet_offset', name_type_map['Uint'], (0, None), (False, None)
 
 	def update_constants(self, ovl):
 		"""Update the constants"""
@@ -86,6 +84,3 @@ class MimeEntry(BaseStruct):
 			trip.a, trip.b, trip.c = triplet
 			ovl.triplets.append(trip)
 
-
-
-MimeEntry.init_attributes()

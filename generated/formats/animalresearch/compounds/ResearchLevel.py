@@ -1,42 +1,36 @@
-from generated.formats.base.basic import Uint64
-from generated.formats.base.basic import ZString
+from generated.formats.animalresearch.imports import name_type_map
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
-from generated.formats.ovl_base.compounds.Pointer import Pointer
 
 
 class ResearchLevel(MemStruct):
 
 	__name__ = 'ResearchLevel'
 
-	_import_key = 'animalresearch.compounds.ResearchLevel'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.next_level_count = 0
-		self.children_count = 0
-		self.level_name = Pointer(self.context, 0, ZString)
-		self.next_levels = Pointer(self.context, self.next_level_count, ResearchLevel._import_map["animalresearch.compounds.PtrList"])
-		self.children = Pointer(self.context, self.children_count, ResearchLevel._import_map["animalresearch.compounds.PtrList"])
+		self.next_level_count = name_type_map['Uint64'](self.context, 0, None)
+		self.children_count = name_type_map['Uint64'](self.context, 0, None)
+		self.level_name = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
+		self.next_levels = name_type_map['Pointer'](self.context, self.next_level_count, name_type_map['PtrList'])
+		self.children = name_type_map['Pointer'](self.context, self.children_count, name_type_map['PtrList'])
 		if set_default:
 			self.set_defaults()
 
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('level_name', Pointer, (0, ZString), (False, None), None)
-		yield ('next_levels', Pointer, (None, None), (False, None), None)
-		yield ('next_level_count', Uint64, (0, None), (False, None), None)
-		yield ('children', Pointer, (None, None), (False, None), None)
-		yield ('children_count', Uint64, (0, None), (False, None), None)
+		yield ('level_name', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None))
+		yield ('next_levels', name_type_map['Pointer'], (None, name_type_map['PtrList']), (False, None), (None, None))
+		yield ('next_level_count', name_type_map['Uint64'], (0, None), (False, None), (None, None))
+		yield ('children', name_type_map['Pointer'], (None, name_type_map['PtrList']), (False, None), (None, None))
+		yield ('children_count', name_type_map['Uint64'], (0, None), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'level_name', Pointer, (0, ZString), (False, None)
-		yield 'next_levels', Pointer, (instance.next_level_count, ResearchLevel._import_map["animalresearch.compounds.PtrList"]), (False, None)
-		yield 'next_level_count', Uint64, (0, None), (False, None)
-		yield 'children', Pointer, (instance.children_count, ResearchLevel._import_map["animalresearch.compounds.PtrList"]), (False, None)
-		yield 'children_count', Uint64, (0, None), (False, None)
-
-
-ResearchLevel.init_attributes()
+		yield 'level_name', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None)
+		yield 'next_levels', name_type_map['Pointer'], (instance.next_level_count, name_type_map['PtrList']), (False, None)
+		yield 'next_level_count', name_type_map['Uint64'], (0, None), (False, None)
+		yield 'children', name_type_map['Pointer'], (instance.children_count, name_type_map['PtrList']), (False, None)
+		yield 'children_count', name_type_map['Uint64'], (0, None), (False, None)

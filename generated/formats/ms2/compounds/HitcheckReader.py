@@ -12,7 +12,6 @@ class HitcheckReader(BaseStruct):
 
 	__name__ = 'HitcheckReader'
 
-	_import_key = 'ms2.compounds.HitcheckReader'
 
 	@classmethod
 	def _get_attribute_list(cls):
@@ -54,6 +53,3 @@ class HitcheckReader(BaseStruct):
 			return "Bad arg?"
 
 
-
-
-HitcheckReader.init_attributes()

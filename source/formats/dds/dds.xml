@@ -291,6 +291,14 @@
  the alpha mask. Usually 0x00000000 if there is no alpha channel and 0xFF000000 if there is an alpha channel. Is zero for compressed textures.</add>
     </struct>
 
+    <struct name="DXT10Header" numbytes="20">
+        <add name="DxgiFormat" type="DxgiFormat" />
+        <add name="Resource Dimension" type="D3D10 RESOURCE DIMENSION" />
+        <add name="Misc Flag" type="uint" />
+        <add name="num_tiles" type="uint" default="1" />
+        <add name="Misc Flag 2" type="uint" />
+    </struct>
+
     <struct name="Header">
         <add name="Header String" type="FixedString" arg="4">DDS </add>
         <add name="Size" type="uint" default="124">Always 124 + 4 bytes for headerstring, header ends at 128.</add>
@@ -312,12 +320,5 @@
         <add name="DX10" type="DXT10Header" cond="Pixel Format\FourCC == 808540228" />
     </struct>
 
-    <struct name="DXT10Header" numbytes="20">
-        <add name="DxgiFormat" type="DxgiFormat" />
-        <add name="Resource Dimension" type="D3D10 RESOURCE DIMENSION" />
-        <add name="Misc Flag" type="uint" />
-        <add name="num_tiles" type="uint" default="1" />
-        <add name="Misc Flag 2" type="uint" />
-    </struct>
 </fileformat>
 

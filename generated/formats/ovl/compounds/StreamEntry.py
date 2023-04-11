@@ -1,5 +1,5 @@
 from generated.base_struct import BaseStruct
-from generated.formats.base.basic import Uint
+from generated.formats.ovl.imports import name_type_map
 
 
 class StreamEntry(BaseStruct):
@@ -14,34 +14,30 @@ class StreamEntry(BaseStruct):
 
 	__name__ = 'StreamEntry'
 
-	_import_key = 'ovl.compounds.StreamEntry'
 	allow_np = True
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 
 		# offset to the stream's root_entry pointer inside the flattened mempools
-		self.stream_offset = 0
+		self.stream_offset = name_type_map['Uint'](self.context, 0, None)
 
 		# offset to the user file's root_entry pointer (in STATIC) inside the flattened mempools
-		self.file_offset = 0
-		self.zero = 0
+		self.file_offset = name_type_map['Uint'](self.context, 0, None)
+		self.zero = name_type_map['Uint'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('stream_offset', Uint, (0, None), (False, None), None)
-		yield ('file_offset', Uint, (0, None), (False, None), None)
-		yield ('zero', Uint, (0, None), (False, None), None)
+		yield ('stream_offset', name_type_map['Uint'], (0, None), (False, None), (None, None))
+		yield ('file_offset', name_type_map['Uint'], (0, None), (False, None), (None, None))
+		yield ('zero', name_type_map['Uint'], (0, None), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'stream_offset', Uint, (0, None), (False, None)
-		yield 'file_offset', Uint, (0, None), (False, None)
-		yield 'zero', Uint, (0, None), (False, None)
-
-
-StreamEntry.init_attributes()
+		yield 'stream_offset', name_type_map['Uint'], (0, None), (False, None)
+		yield 'file_offset', name_type_map['Uint'], (0, None), (False, None)
+		yield 'zero', name_type_map['Uint'], (0, None), (False, None)

@@ -1,5 +1,5 @@
-from generated.formats.base.basic import Byte
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
+from generated.formats.spl.imports import name_type_map
 
 
 class ByteVector3(MemStruct):
@@ -10,35 +10,31 @@ class ByteVector3(MemStruct):
 
 	__name__ = 'ByteVector3'
 
-	_import_key = 'spl.compounds.ByteVector3'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 
 		# First coordinate.
-		self.x = 0
+		self.x = name_type_map['Byte'](self.context, 0, None)
 
 		# Second coordinate.
-		self.y = 0
+		self.y = name_type_map['Byte'](self.context, 0, None)
 
 		# Third coordinate.
-		self.z = 0
+		self.z = name_type_map['Byte'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('x', Byte, (0, None), (False, None), None)
-		yield ('y', Byte, (0, None), (False, None), None)
-		yield ('z', Byte, (0, None), (False, None), None)
+		yield ('x', name_type_map['Byte'], (0, None), (False, None), (None, None))
+		yield ('y', name_type_map['Byte'], (0, None), (False, None), (None, None))
+		yield ('z', name_type_map['Byte'], (0, None), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'x', Byte, (0, None), (False, None)
-		yield 'y', Byte, (0, None), (False, None)
-		yield 'z', Byte, (0, None), (False, None)
-
-
-ByteVector3.init_attributes()
+		yield 'x', name_type_map['Byte'], (0, None), (False, None)
+		yield 'y', name_type_map['Byte'], (0, None), (False, None)
+		yield 'z', name_type_map['Byte'], (0, None), (False, None)

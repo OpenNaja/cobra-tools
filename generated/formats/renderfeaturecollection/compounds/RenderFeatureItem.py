@@ -1,37 +1,30 @@
-from generated.formats.base.basic import Uint64
-from generated.formats.base.basic import ZString
-from generated.formats.ovl_base.compounds.ArrayPointer import ArrayPointer
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
-from generated.formats.ovl_base.compounds.Pointer import Pointer
+from generated.formats.renderfeaturecollection.imports import name_type_map
 
 
 class RenderFeatureItem(MemStruct):
 
 	__name__ = 'RenderFeatureItem'
 
-	_import_key = 'renderfeaturecollection.compounds.RenderFeatureItem'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.item_data_count = 0
-		self.item_name = Pointer(self.context, 0, ZString)
-		self.item_data = ArrayPointer(self.context, self.item_data_count, RenderFeatureItem._import_map["renderfeaturecollection.compounds.RenderFeatureSubItem"])
+		self.item_data_count = name_type_map['Uint64'](self.context, 0, None)
+		self.item_name = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
+		self.item_data = name_type_map['ArrayPointer'](self.context, self.item_data_count, name_type_map['RenderFeatureSubItem'])
 		if set_default:
 			self.set_defaults()
 
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('item_name', Pointer, (0, ZString), (False, None), None)
-		yield ('item_data', ArrayPointer, (None, None), (False, None), None)
-		yield ('item_data_count', Uint64, (0, None), (False, None), None)
+		yield ('item_name', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None))
+		yield ('item_data', name_type_map['ArrayPointer'], (None, name_type_map['RenderFeatureSubItem']), (False, None), (None, None))
+		yield ('item_data_count', name_type_map['Uint64'], (0, None), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'item_name', Pointer, (0, ZString), (False, None)
-		yield 'item_data', ArrayPointer, (instance.item_data_count, RenderFeatureItem._import_map["renderfeaturecollection.compounds.RenderFeatureSubItem"]), (False, None)
-		yield 'item_data_count', Uint64, (0, None), (False, None)
-
-
-RenderFeatureItem.init_attributes()
+		yield 'item_name', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None)
+		yield 'item_data', name_type_map['ArrayPointer'], (instance.item_data_count, name_type_map['RenderFeatureSubItem']), (False, None)
+		yield 'item_data_count', name_type_map['Uint64'], (0, None), (False, None)

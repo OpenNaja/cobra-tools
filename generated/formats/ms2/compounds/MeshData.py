@@ -5,9 +5,7 @@ import numpy as np
 from generated.formats.ms2.compounds.packing_utils import FUR_OVERHEAD, remap
 from plugin.utils.tristrip import triangulate
 
-from generated.formats.base.basic import Uint
-from generated.formats.base.basic import Uint64
-from generated.formats.ovl_base.compounds.LookupPointer import LookupPointer
+from generated.formats.ms2.imports import name_type_map
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
 
 
@@ -19,44 +17,43 @@ class MeshData(MemStruct):
 
 	__name__ = 'MeshData'
 
-	_import_key = 'ms2.compounds.MeshData'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 
 		# index into streamed buffers
-		self.stream_index = 0
-
-		# PZ and JWE use a ptr instead
-		self.stream_info = LookupPointer(self.context, 0, MeshData._import_map["ms2.compounds.BufferInfo"])
+		self.stream_index = name_type_map['Uint64'](self.context, 0, None)
 
 		# increments somewhat in ZTUAC platypus, apparently unused from JWE1 onward
-		self.some_index = 0
+		self.some_index = name_type_map['Uint'](self.context, 0, None)
 
 		# ?
-		self.some_index_2 = 0
+		self.some_index_2 = name_type_map['Uint'](self.context, 0, None)
+
+		# PZ and JWE use a ptr instead
+		self.stream_info = name_type_map['Pointer'](self.context, 0, name_type_map['BufferInfo'])
 		if set_default:
 			self.set_defaults()
 
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('stream_index', Uint64, (0, None), (False, None), True)
-		yield ('stream_info', LookupPointer, (0, None), (False, None), True)
-		yield ('some_index', Uint, (0, None), (False, None), True)
-		yield ('some_index_2', Uint, (0, None), (False, None), True)
+		yield ('stream_index', name_type_map['Uint64'], (0, None), (False, None), (lambda context: context.version <= 32, None))
+		yield ('stream_info', name_type_map['Pointer'], (0, name_type_map['BufferInfo']), (False, None), (lambda context: context.version >= 47, None))
+		yield ('some_index', name_type_map['Uint'], (0, None), (False, None), (lambda context: not (((context.version == 51) or (context.version == 52)) and context.biosyn), None))
+		yield ('some_index_2', name_type_map['Uint'], (0, None), (False, None), (lambda context: not ((((context.version == 51) or (context.version == 52)) and context.biosyn) or (context.version == 32)), None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		if instance.context.version <= 32:
-			yield 'stream_index', Uint64, (0, None), (False, None)
+			yield 'stream_index', name_type_map['Uint64'], (0, None), (False, None)
 		if instance.context.version >= 47:
-			yield 'stream_info', LookupPointer, (0, MeshData._import_map["ms2.compounds.BufferInfo"]), (False, None)
+			yield 'stream_info', name_type_map['Pointer'], (0, name_type_map['BufferInfo']), (False, None)
 		if not (((instance.context.version == 51) or (instance.context.version == 52)) and instance.context.biosyn):
-			yield 'some_index', Uint, (0, None), (False, None)
+			yield 'some_index', name_type_map['Uint'], (0, None), (False, None)
 		if not ((((instance.context.version == 51) or (instance.context.version == 52)) and instance.context.biosyn) or (instance.context.version == 32)):
-			yield 'some_index_2', Uint, (0, None), (False, None)
+			yield 'some_index_2', name_type_map['Uint'], (0, None), (False, None)
 
 	# @property
 	def get_stream_index(self):
@@ -94,7 +91,7 @@ class MeshData(MemStruct):
 		self.shapekeys = None
 		self.read_verts()
 		self.read_tris()
-		# self.validate_tris()
+		self.validate_tris()
 
 	def init_arrays(self):
 		# create arrays for this mesh
@@ -208,10 +205,10 @@ class MeshData(MemStruct):
 		"""See if all tri indices point into the vertex buffer, raise an error if they don't"""
 		# this is fairly costly (10 % of total loading time), so don't do it by default
 		# max_ind = np.max(self.tri_indices)
-		# if max_ind >= self.vertex_count:
+		# if max_ind >= len(self.verts_data):
 		for max_ind in self.tri_indices:
-			if max_ind >= self.vertex_count:
-				raise IndexError(f"Tri index {max_ind} does not point into {self.vertex_count} vertices for {self}")
+			if max_ind >= len(self.verts_data):
+				raise IndexError(f"Tri index {max_ind} does not point into {len(self.verts_data)} vertices for {self}")
 		logging.debug("All tri indices are valid")
 
 	def import_fur_as_weights(self, fur):
@@ -275,6 +272,3 @@ class MeshData(MemStruct):
 			return (0, 0, 0, 0), (0, 0, 0, 0)
 
 
-
-
-MeshData.init_attributes()

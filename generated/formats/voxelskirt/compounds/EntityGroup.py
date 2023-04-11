@@ -1,5 +1,5 @@
-from generated.formats.base.basic import Int
 from generated.formats.voxelskirt.compounds.Material import Material
+from generated.formats.voxelskirt.imports import name_type_map
 
 
 class EntityGroup(Material):
@@ -11,30 +11,26 @@ class EntityGroup(Material):
 
 	__name__ = 'EntityGroup'
 
-	_import_key = 'voxelskirt.compounds.EntityGroup'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 
 		# -1
-		self.ff = 0
+		self.ff = name_type_map['Int'](self.context, 0, None)
 
 		# -1, 0 for PC
-		self.ff_or_zero = 0
+		self.ff_or_zero = name_type_map['Int'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('ff', Int, (0, None), (False, None), None)
-		yield ('ff_or_zero', Int, (0, None), (False, None), None)
+		yield ('ff', name_type_map['Int'], (0, None), (False, None), (None, None))
+		yield ('ff_or_zero', name_type_map['Int'], (0, None), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'ff', Int, (0, None), (False, None)
-		yield 'ff_or_zero', Int, (0, None), (False, None)
-
-
-EntityGroup.init_attributes()
+		yield 'ff', name_type_map['Int'], (0, None), (False, None)
+		yield 'ff_or_zero', name_type_map['Int'], (0, None), (False, None)

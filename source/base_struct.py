@@ -19,12 +19,6 @@ class StructMetaClass(type):
         name = dict.get("__name__", name)
         return super().__new__(metacls, name, bases, dict, **kwds)
 
-    def __init__(cls, name, bases, dict, **kwds):
-        # store this struct cls in the import map, so that other structs can import it without cyclic imports
-        if "_import_key" in dict:
-            cls._import_map[dict['_import_key']] = cls
-        super().__init__(name, bases, dict, **kwds)
-
 
 def indent(e, level=0):
     i = "\n" + level * "	"
@@ -84,9 +78,7 @@ class BaseStruct(metaclass=StructMetaClass):
 
     context = ContextReference()
 
-    _import_map = ImportMap()
-    _import_key = "base_struct"
-    _attribute_list = []
+    _attribute_list = ()
     allow_np = False
 
     def __init__(self, context, arg=0, template=None, set_default=True):
@@ -375,11 +367,8 @@ class BaseStruct(metaclass=StructMetaClass):
         if callable(getattr(struct_type, "_get_filtered_attribute_list", None)):
             for attribute in struct_type._get_filtered_attribute_list(struct_instance, *arguments[3:4], include_abstract):
                 field_name, field_type, field_arguments = attribute[0:3]
-                try:
-                    if condition_function(attribute):
-                        yield struct_type, struct_instance, attribute
-                except:
-                    logging.exception(f"condition check failed in {struct_type} for {field_name}, attrib {attribute}, condition {condition_function}")
+                if condition_function(attribute):
+                    yield struct_type, struct_instance, attribute
                 if enter_condition(attribute):
                     yield from cls.get_condition_attributes_recursive(field_type,
                                                               struct_type.get_field(struct_instance, field_name),

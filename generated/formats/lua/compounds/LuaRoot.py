@@ -1,8 +1,5 @@
-from generated.formats.base.basic import Uint
-from generated.formats.base.basic import Uint64
-from generated.formats.base.basic import ZString
+from generated.formats.lua.imports import name_type_map
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
-from generated.formats.ovl_base.compounds.Pointer import Pointer
 
 
 class LuaRoot(MemStruct):
@@ -15,45 +12,41 @@ class LuaRoot(MemStruct):
 
 	__name__ = 'LuaRoot'
 
-	_import_key = 'lua.compounds.LuaRoot'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.lua_size = 0
-		self.sixteenk = 0
-		self.hash = 0
-		self.zero_0 = 0
-		self.zero_1 = 0
-		self.zero_2 = 0
-		self.source_path = Pointer(self.context, 0, ZString)
-		self.likely_alignment = Pointer(self.context, 0, ZString)
+		self.lua_size = name_type_map['Uint'](self.context, 0, None)
+		self.sixteenk = name_type_map['Uint'](self.context, 0, None)
+		self.hash = name_type_map['Uint'](self.context, 0, None)
+		self.zero_0 = name_type_map['Uint'](self.context, 0, None)
+		self.zero_1 = name_type_map['Uint64'](self.context, 0, None)
+		self.zero_2 = name_type_map['Uint64'](self.context, 0, None)
+		self.source_path = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
+		self.likely_alignment = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
 		if set_default:
 			self.set_defaults()
 
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('lua_size', Uint, (0, None), (False, None), None)
-		yield ('sixteenk', Uint, (0, None), (False, None), None)
-		yield ('hash', Uint, (0, None), (False, None), None)
-		yield ('zero_0', Uint, (0, None), (False, None), None)
-		yield ('source_path', Pointer, (0, ZString), (False, None), True)
-		yield ('likely_alignment', Pointer, (0, ZString), (False, None), True)
-		yield ('zero_1', Uint64, (0, None), (False, None), None)
-		yield ('zero_2', Uint64, (0, None), (False, None), None)
+		yield ('lua_size', name_type_map['Uint'], (0, None), (False, None), (None, None))
+		yield ('sixteenk', name_type_map['Uint'], (0, None), (False, None), (None, None))
+		yield ('hash', name_type_map['Uint'], (0, None), (False, None), (None, None))
+		yield ('zero_0', name_type_map['Uint'], (0, None), (False, None), (None, None))
+		yield ('source_path', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (lambda context: context.version >= 18, None))
+		yield ('likely_alignment', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (lambda context: context.version >= 18, None))
+		yield ('zero_1', name_type_map['Uint64'], (0, None), (False, None), (None, None))
+		yield ('zero_2', name_type_map['Uint64'], (0, None), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'lua_size', Uint, (0, None), (False, None)
-		yield 'sixteenk', Uint, (0, None), (False, None)
-		yield 'hash', Uint, (0, None), (False, None)
-		yield 'zero_0', Uint, (0, None), (False, None)
+		yield 'lua_size', name_type_map['Uint'], (0, None), (False, None)
+		yield 'sixteenk', name_type_map['Uint'], (0, None), (False, None)
+		yield 'hash', name_type_map['Uint'], (0, None), (False, None)
+		yield 'zero_0', name_type_map['Uint'], (0, None), (False, None)
 		if instance.context.version >= 18:
-			yield 'source_path', Pointer, (0, ZString), (False, None)
-			yield 'likely_alignment', Pointer, (0, ZString), (False, None)
-		yield 'zero_1', Uint64, (0, None), (False, None)
-		yield 'zero_2', Uint64, (0, None), (False, None)
-
-
-LuaRoot.init_attributes()
+			yield 'source_path', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None)
+			yield 'likely_alignment', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None)
+		yield 'zero_1', name_type_map['Uint64'], (0, None), (False, None)
+		yield 'zero_2', name_type_map['Uint64'], (0, None), (False, None)

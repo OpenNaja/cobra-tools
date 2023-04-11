@@ -10,7 +10,6 @@ class KeysReader(BaseStruct):
 
 	__name__ = 'KeysReader'
 
-	_import_key = 'manis.compounds.KeysReader'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
@@ -73,6 +72,3 @@ class KeysReader(BaseStruct):
 		return s
 
 
-
-
-KeysReader.init_attributes()
