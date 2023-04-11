@@ -402,7 +402,8 @@ class MainWindow(widgets.MainWindow):
 
 	def _save(self):
 		try:
-			self.header.to_xml_file(self.header, self.file_widget.filepath)
+			with self.header.to_xml_file(self.header, self.file_widget.filepath) as xml_root:
+				pass
 			self.file_widget.dirty = False
 		except BaseException as err:
 			interaction.showdialog(str(err))

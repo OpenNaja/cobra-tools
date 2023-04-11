@@ -126,7 +126,8 @@ class MainWindow(widgets.MainWindow):
 			logging.info("Done!")
 
 	def _save(self, ):
-		self.matcol_data.to_xml_file(self.matcol_data, self.file_widget.filepath)
+		with self.matcol_data.to_xml_file(self.matcol_data, self.file_widget.filepath) as xml_root:
+			pass
 			
 	
 if __name__ == '__main__':

@@ -432,7 +432,11 @@ class MemStructLoader(BaseFile):
 	def extract(self, out_dir):
 		if self.header:
 			out_path = out_dir(self.name)
-			self.header.to_xml_file(self.header, out_path, debug=self.ovl.do_debug)
+			with self.header.to_xml_file(self.header, out_path, debug=self.ovl.do_debug) as xml_root:
+				if self.ovl.do_debug:
+					pool, offset = self.root_ptr
+					xml_root.set("_address", f"{pool.i} | {offset}")
+					xml_root.set("_size", f"{pool.size_map.get(offset, -1)}")
 			return out_path,
 		else:
 			logging.warning(f"File '{self.name}' has no header - has the OVL finished loading?")

@@ -1,3 +1,4 @@
+import contextlib
 import importlib
 import logging
 import xml.etree.ElementTree as ET
@@ -156,12 +157,14 @@ class BaseStruct(metaclass=StructMetaClass):
         return instance
 
     @classmethod
+    @contextlib.contextmanager
     def to_xml_file(cls, instance, file_path, debug=False):
         """Create an xml elem representing this MemStruct, recursively set its data, indent and save to 'file_path'"""
         xml = ET.Element(cls.__name__)
         cls._to_xml(instance, xml, debug)
         if hasattr(instance.context, "context_to_xml"):
             instance.context.context_to_xml(xml, "game", instance.context, 0, None, debug)
+        yield xml
         indent(xml)
         with open(file_path, 'wb') as outfile:
             outfile.write(ET.tostring(xml))

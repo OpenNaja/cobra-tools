@@ -47,5 +47,6 @@ def save(filepath=""):
 		pack_int(key.handle_left, left_rel, key.handle_scale)
 		pack_int(key.handle_right, right_rel, key.handle_scale)
 
-	SplRoot.to_xml_file(spl_root, filepath)
+	with SplRoot.to_xml_file(spl_root, filepath) as xml_root:
+		pass
 	return f"Finished SPL export",
