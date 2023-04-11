@@ -641,8 +641,18 @@ class OvlFile(Header):
 			for file_path in self.iter_progress(file_paths, "Adding files"):
 				# ilo: ignore file extensions in the IGNORE list
 				bare_path, ext = os.path.splitext(file_path)
+				# ignore dirs, links etc.
+				if not os.path.isfile(file_path):
+					continue
 				if ext in self.formats_dict.ignore_types:
 					logging.info(f"Ignoring {file_path}")
+					continue
+				elif ext == ".png":
+					if f"{bare_path}.tex" in file_paths:
+						logging.info(f"Ignoring {file_path} as matching .tex file is also selected")
+					else:
+						logging.error(f"Inject the corresponding .tex file for {file_path}")
+						error_files.append(file_path)
 					continue
 				try:
 					loader = self.create_file(file_path)
@@ -709,9 +719,11 @@ class OvlFile(Header):
 		self.path_no_ext = os.path.splitext(self.filepath)[0]
 
 	def load_included_ovls(self, path):
+		self.included_ovl_names.clear()
 		if os.path.isfile(path):
 			with open(path) as f:
-				self.included_ovl_names = f.readlines()
+				self.included_ovl_names = [line.strip() for line in f.readlines() if line.strip()]
+		self.included_ovls_list.emit(self.included_ovl_names)
 
 	def save_included_ovls(self, path):
 		with open(path, "w") as f:
