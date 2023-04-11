@@ -281,7 +281,7 @@ class XmlParser:
         self.copy_dict_info(self.verattrs, other_parser.verattrs)
         self.copy_dict_info(self.path_dict, other_parser.path_dict)
         self.copy_dict_info(self.tag_dict, other_parser.tag_dict)
-        self.basics.add_other_basics(other_parser.basics, other_parser.path_dict["basic_map"])
+        self.basics.add_other_basics(other_parser.basics)
         self.copy_dict_info(self.processed_types, other_parser.processed_types)
 
 
