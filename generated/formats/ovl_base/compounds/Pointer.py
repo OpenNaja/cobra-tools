@@ -124,9 +124,9 @@ class Pointer(BaseStruct):
 	@classmethod
 	def to_xml(cls, elem, prop, instance, arg, template, debug):
 		"""Adds this struct to 'elem', recursively"""
-		sub = ET.SubElement(elem, prop)
-		cls.pool_type_to_xml(sub, instance, debug)
 		if instance.has_data:
+			sub = ET.SubElement(elem, prop)
+			cls.pool_type_to_xml(sub, instance, debug)
 			# xml string
 			if prop == XML_STR:
 				sub.append(ET.fromstring(instance.data))
@@ -181,7 +181,8 @@ class Pointer(BaseStruct):
 		if sub is None:
 			logging.warning(f"Missing sub-element '{prop}' on XML element '{elem.tag}'")
 			# todo - maybe? do not create pointer instance if no matching xml sub-element is found
-			return
+			instance.data = None
+			return instance
 		# store the pointer's pool type
 		cls.pool_type_from_xml(sub, instance)
 		# process the pointer's data
