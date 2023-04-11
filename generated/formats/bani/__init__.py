@@ -1,3 +1,4 @@
+from generated.formats.bani.imports import name_type_map
 from generated.formats.bani.compounds.BaniInfoHeader import BaniInfoHeader
 from generated.formats.bani.compounds.BanisRoot import BanisRoot
 from generated.io import IoFile

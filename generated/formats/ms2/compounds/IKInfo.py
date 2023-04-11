@@ -4,76 +4,69 @@ import logging
 
 from generated.array import Array
 from generated.base_struct import BaseStruct
-from generated.formats.base.basic import Uint64
-from generated.formats.base.compounds.PadAlign import PadAlign
-from generated.formats.ms2.compounds.IKEntry import IKEntry
-from generated.formats.ms2.compounds.IKTarget import IKTarget
-from generated.formats.ms2.compounds.UACJoint import UACJoint
-from generated.formats.ovl_base.compounds.Empty import Empty
-from generated.formats.ovl_base.compounds.SmartPadding import SmartPadding
+from generated.formats.ms2.imports import name_type_map
 
 
 class IKInfo(BaseStruct):
 
 	__name__ = 'IKInfo'
 
-	_import_key = 'ms2.compounds.IKInfo'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 
 		# needed for ZTUAC
-		self.weird_padding = SmartPadding(self.context, 0, None)
+		self.weird_padding = name_type_map['SmartPadding'](self.context, 0, None)
 
 		# repeat
-		self.ik_count = 0
-		self.ik_ptr = 0
+		self.ik_count = name_type_map['Uint64'](self.context, 0, None)
+		self.ik_ptr = name_type_map['Uint64'](self.context, 0, None)
 
 		# seen 0, 2, 4
-		self.ik_targets_count = 0
-		self.ik_targets_ptr = 0
-		self.ik_ref = Empty(self.context, 0, None)
-		self.ik_list = Array(self.context, 0, None, (0,), IKEntry)
-		self.padding_0 = PadAlign(self.context, 8, self.ik_ref)
-		self.ik_targets = Array(self.context, 0, None, (0,), IKTarget)
-		self.padding_1 = PadAlign(self.context, 8, self.ik_ref)
+		self.ik_targets_count = name_type_map['Uint64'](self.context, 0, None)
+		self.ik_targets_ptr = name_type_map['Uint64'](self.context, 0, None)
+		self.ik_ref = name_type_map['Empty'](self.context, 0, None)
+		self.ik_list = Array(self.context, 0, None, (0,), name_type_map['IKEntry'])
+		self.padding_0 = name_type_map['PadAlign'](self.context, 8, self.ik_ref)
+		self.ik_targets = Array(self.context, 0, None, (0,), name_type_map['IKTarget'])
+		self.padding_1 = name_type_map['PadAlign'](self.context, 8, self.ik_ref)
 		if set_default:
 			self.set_defaults()
 
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('weird_padding', SmartPadding, (0, None), (False, None), True)
-		yield ('ik_count', Uint64, (0, None), (False, None), None)
-		yield ('ik_ptr', Uint64, (0, None), (False, None), None)
-		yield ('ik_targets_count', Uint64, (0, None), (False, None), True)
-		yield ('ik_targets_ptr', Uint64, (0, None), (False, None), True)
-		yield ('ik_ref', Empty, (0, None), (False, None), None)
-		yield ('ik_list', Array, (0, None, (None,), UACJoint), (False, None), True)
-		yield ('ik_list', Array, (0, None, (None,), IKEntry), (False, None), True)
-		yield ('padding_0', PadAlign, (8, None), (False, None), None)
-		yield ('ik_targets', Array, (0, None, (None,), IKTarget), (False, None), True)
-		yield ('padding_1', PadAlign, (8, None), (False, None), True)
+		yield 'weird_padding', name_type_map['SmartPadding'], (0, None), (False, None), (lambda context: context.version <= 13, None)
+		yield 'ik_count', name_type_map['Uint64'], (0, None), (False, None), (None, None)
+		yield 'ik_ptr', name_type_map['Uint64'], (0, None), (False, None), (None, None)
+		yield 'ik_targets_count', name_type_map['Uint64'], (0, None), (False, None), (lambda context: context.version >= 48, None)
+		yield 'ik_targets_ptr', name_type_map['Uint64'], (0, None), (False, None), (lambda context: context.version >= 48, None)
+		yield 'ik_ref', name_type_map['Empty'], (0, None), (False, None), (None, None)
+		yield 'ik_list', Array, (0, None, (None,), name_type_map['UACJoint']), (False, None), (lambda context: context.version <= 13, None)
+		yield 'ik_list', Array, (0, None, (None,), name_type_map['IKEntry']), (False, None), (lambda context: context.version >= 32, None)
+		yield 'padding_0', name_type_map['PadAlign'], (8, None), (False, None), (None, None)
+		yield 'ik_targets', Array, (0, None, (None,), name_type_map['IKTarget']), (False, None), (lambda context: context.version >= 50, None)
+		yield 'padding_1', name_type_map['PadAlign'], (8, None), (False, None), (lambda context: context.version >= 50, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		if instance.context.version <= 13:
-			yield 'weird_padding', SmartPadding, (0, None), (False, None)
-		yield 'ik_count', Uint64, (0, None), (False, None)
-		yield 'ik_ptr', Uint64, (0, None), (False, None)
+			yield 'weird_padding', name_type_map['SmartPadding'], (0, None), (False, None)
+		yield 'ik_count', name_type_map['Uint64'], (0, None), (False, None)
+		yield 'ik_ptr', name_type_map['Uint64'], (0, None), (False, None)
 		if instance.context.version >= 48:
-			yield 'ik_targets_count', Uint64, (0, None), (False, None)
-			yield 'ik_targets_ptr', Uint64, (0, None), (False, None)
-		yield 'ik_ref', Empty, (0, None), (False, None)
+			yield 'ik_targets_count', name_type_map['Uint64'], (0, None), (False, None)
+			yield 'ik_targets_ptr', name_type_map['Uint64'], (0, None), (False, None)
+		yield 'ik_ref', name_type_map['Empty'], (0, None), (False, None)
 		if instance.context.version <= 13:
-			yield 'ik_list', Array, (0, None, (instance.ik_count,), UACJoint), (False, None)
+			yield 'ik_list', Array, (0, None, (instance.ik_count,), name_type_map['UACJoint']), (False, None)
 		if instance.context.version >= 32:
-			yield 'ik_list', Array, (0, None, (instance.ik_count,), IKEntry), (False, None)
-		yield 'padding_0', PadAlign, (8, instance.ik_ref), (False, None)
+			yield 'ik_list', Array, (0, None, (instance.ik_count,), name_type_map['IKEntry']), (False, None)
+		yield 'padding_0', name_type_map['PadAlign'], (8, instance.ik_ref), (False, None)
 		if instance.context.version >= 50:
-			yield 'ik_targets', Array, (0, None, (instance.ik_targets_count,), IKTarget), (False, None)
-			yield 'padding_1', PadAlign, (8, instance.ik_ref), (False, None)
+			yield 'ik_targets', Array, (0, None, (instance.ik_targets_count,), name_type_map['IKTarget']), (False, None)
+			yield 'padding_1', name_type_map['PadAlign'], (8, instance.ik_ref), (False, None)
 
 	def get_pointers(self):
 		"""Get all strings in the structure."""
@@ -96,6 +89,3 @@ class IKInfo(BaseStruct):
 			ptr.index = bones_map.get(ptr.joint)
 		super().write_fields(stream, instance)
 
-
-
-IKInfo.init_attributes()

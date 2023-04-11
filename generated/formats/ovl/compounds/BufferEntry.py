@@ -2,7 +2,7 @@
 import logging
 
 from generated.base_struct import BaseStruct
-from generated.formats.base.basic import Uint
+from generated.formats.ovl.imports import name_type_map
 
 
 class BufferEntry(BaseStruct):
@@ -13,37 +13,36 @@ class BufferEntry(BaseStruct):
 
 	__name__ = 'BufferEntry'
 
-	_import_key = 'ovl.compounds.BufferEntry'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 
 		# index of buffer in file; id from sorting of data entries
-		self.index = 0
+		self.index = name_type_map['Uint'](self.context, 0, None)
 
 		# in bytes
-		self.size = 0
+		self.size = name_type_map['Uint'](self.context, 0, None)
 
 		# id; index is taken from buffer group
-		self.file_hash = 0
+		self.file_hash = name_type_map['Uint'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('index', Uint, (0, None), (False, None), True)
-		yield ('size', Uint, (0, None), (False, None), None)
-		yield ('file_hash', Uint, (0, None), (False, None), True)
+		yield 'index', name_type_map['Uint'], (0, None), (False, None), (lambda context: context.version <= 19, None)
+		yield 'size', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'file_hash', name_type_map['Uint'], (0, None), (False, None), (lambda context: context.version >= 20, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		if instance.context.version <= 19:
-			yield 'index', Uint, (0, None), (False, None)
-		yield 'size', Uint, (0, None), (False, None)
+			yield 'index', name_type_map['Uint'], (0, None), (False, None)
+		yield 'size', name_type_map['Uint'], (0, None), (False, None)
 		if instance.context.version >= 20:
-			yield 'file_hash', Uint, (0, None), (False, None)
+			yield 'file_hash', name_type_map['Uint'], (0, None), (False, None)
 
 	def read_data(self, stream):
 		"""Load data from archive stream into self for modification and io"""
@@ -65,6 +64,3 @@ class BufferEntry(BaseStruct):
 				same = False
 		return same
 
-
-
-BufferEntry.init_attributes()

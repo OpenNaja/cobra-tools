@@ -35,13 +35,6 @@
         <add name="ptrs" type="Pointer" template="CurveParam" arr1="#ARG#"/>
     </compound>
 
-    <compound name="Param" inherit="MemStruct">
-        32 bytes
-        <add name="attribute_name" type="Pointer" template="ZString"/>
-        <add name="dtype" type="RenderParameterType" />
-        <add name="data" type="ParamData" arg="dtype" />
-    </compound>
-
     <compound name="ZStrPtr" inherit="MemStruct">
         need to wrap this to avoid setting arg on the np arrarys
         <add name="string" type="Pointer" template="ZString" />
@@ -60,6 +53,13 @@
         <add name="data" type="float" arr1="4" cond="#ARG# #EQ# 8" />
         <add name="data" type="ZStrPtr" arr1="1" cond="#ARG# #EQ# 9" />
         todo - padding!
+    </compound>
+
+    <compound name="Param" inherit="MemStruct">
+        32 bytes
+        <add name="attribute_name" type="Pointer" template="ZString"/>
+        <add name="dtype" type="RenderParameterType" />
+        <add name="data" type="ParamData" arg="dtype" />
     </compound>
 
     <compound name="RenderParameterCurvesRoot" inherit="MemStruct">

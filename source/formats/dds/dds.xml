@@ -5,52 +5,6 @@
 <!--    <version num="DX10" />-->
 
 	<xi:include href="../base/base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
-
-    <!--
-    *******************
-    *** basic types ***
-    *******************
-    -->
-
-    <basic name="ubyte" integral="true" countable="true">
-        An unsigned 8-bit integer.
-    </basic>
-
-    <basic name="byte" integral="true" countable="false">
-        A signed 8-bit integer.
-    </basic>
-
-    <basic name="ushort" integral="true" countable="true">
-        An unsigned 16-bit integer.
-    </basic>
-
-    <basic name="short" integral="true" countable="false">
-        A signed 16-bit integer.
-    </basic>
-
-    <basic name="uint" integral="true" countable="true">
-        An unsigned 32-bit integer.
-    </basic>
-
-    <basic name="int" integral="true" countable="false">
-        A signed 32-bit integer.
-    </basic>
-
-    <basic name="char" integral="true" countable="false">
-        An 8-bit character.
-    </basic>
-
-    <basic name="float" integral="false">
-        A standard 32-bit floating point number.
-    </basic>
-
-    <!--
-    *******************
-    *** alias types ***
-    *******************
-    -->
-
-    <alias name="bool" type="ubyte" />
     
     <!--
     ******************
@@ -291,6 +245,14 @@
  the alpha mask. Usually 0x00000000 if there is no alpha channel and 0xFF000000 if there is an alpha channel. Is zero for compressed textures.</add>
     </struct>
 
+    <struct name="DXT10Header" numbytes="20">
+        <add name="DxgiFormat" type="DxgiFormat" />
+        <add name="Resource Dimension" type="D3D10 RESOURCE DIMENSION" />
+        <add name="Misc Flag" type="uint" />
+        <add name="num_tiles" type="uint" default="1" />
+        <add name="Misc Flag 2" type="uint" />
+    </struct>
+
     <struct name="Header">
         <add name="Header String" type="FixedString" arg="4">DDS </add>
         <add name="Size" type="uint" default="124">Always 124 + 4 bytes for headerstring, header ends at 128.</add>
@@ -312,12 +274,5 @@
         <add name="DX10" type="DXT10Header" cond="Pixel Format\FourCC == 808540228" />
     </struct>
 
-    <struct name="DXT10Header" numbytes="20">
-        <add name="DxgiFormat" type="DxgiFormat" />
-        <add name="Resource Dimension" type="D3D10 RESOURCE DIMENSION" />
-        <add name="Misc Flag" type="uint" />
-        <add name="num_tiles" type="uint" default="1" />
-        <add name="Misc Flag 2" type="uint" />
-    </struct>
 </fileformat>
 

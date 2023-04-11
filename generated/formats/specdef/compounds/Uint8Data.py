@@ -1,8 +1,6 @@
-import numpy
 from generated.array import Array
-from generated.formats.base.basic import Ubyte
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
-from generated.formats.ovl_base.compounds.Pointer import Pointer
+from generated.formats.specdef.imports import name_type_map
 
 
 class Uint8Data(MemStruct):
@@ -13,38 +11,34 @@ class Uint8Data(MemStruct):
 
 	__name__ = 'Uint8Data'
 
-	_import_key = 'specdef.compounds.Uint8Data'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.imin = 0
-		self.imax = 0
-		self.ivalue = 0
-		self.ioptional = 0
-		self.unused = Array(self.context, 0, None, (0,), Ubyte)
-		self.enum = Pointer(self.context, 0, None)
+		self.imin = name_type_map['Ubyte'](self.context, 0, None)
+		self.imax = name_type_map['Ubyte'](self.context, 0, None)
+		self.ivalue = name_type_map['Ubyte'](self.context, 0, None)
+		self.ioptional = name_type_map['Ubyte'](self.context, 0, None)
+		self.unused = Array(self.context, 0, None, (0,), name_type_map['Ubyte'])
+		self.enum = name_type_map['Pointer'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('imin', Ubyte, (0, None), (False, None), None)
-		yield ('imax', Ubyte, (0, None), (False, None), None)
-		yield ('ivalue', Ubyte, (0, None), (False, None), None)
-		yield ('ioptional', Ubyte, (0, None), (False, None), None)
-		yield ('unused', Array, (0, None, (4,), Ubyte), (False, None), None)
-		yield ('enum', Pointer, (0, None), (False, None), None)
+		yield 'imin', name_type_map['Ubyte'], (0, None), (False, None), (None, None)
+		yield 'imax', name_type_map['Ubyte'], (0, None), (False, None), (None, None)
+		yield 'ivalue', name_type_map['Ubyte'], (0, None), (False, None), (None, None)
+		yield 'ioptional', name_type_map['Ubyte'], (0, None), (False, None), (None, None)
+		yield 'unused', Array, (0, None, (4,), name_type_map['Ubyte']), (False, None), (None, None)
+		yield 'enum', name_type_map['Pointer'], (0, None), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'imin', Ubyte, (0, None), (False, None)
-		yield 'imax', Ubyte, (0, None), (False, None)
-		yield 'ivalue', Ubyte, (0, None), (False, None)
-		yield 'ioptional', Ubyte, (0, None), (False, None)
-		yield 'unused', Array, (0, None, (4,), Ubyte), (False, None)
-		yield 'enum', Pointer, (0, None), (False, None)
-
-
-Uint8Data.init_attributes()
+		yield 'imin', name_type_map['Ubyte'], (0, None), (False, None)
+		yield 'imax', name_type_map['Ubyte'], (0, None), (False, None)
+		yield 'ivalue', name_type_map['Ubyte'], (0, None), (False, None)
+		yield 'ioptional', name_type_map['Ubyte'], (0, None), (False, None)
+		yield 'unused', Array, (0, None, (4,), name_type_map['Ubyte']), (False, None)
+		yield 'enum', name_type_map['Pointer'], (0, None), (False, None)

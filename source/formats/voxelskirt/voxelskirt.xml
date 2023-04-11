@@ -9,6 +9,12 @@
         <option value="2" name="FLOAT"/>
     </enum>
 
+    <compound name="DataSlot">
+        <add name="_offset" type="uint64" >offset into buffer to start of data - only given if some count is nonzero</add>
+        <add name="_count" type="uint64" >count of data</add>
+<!--        <add name="data" type="#T#" arr1="0"/>-->
+    </compound>
+
     <compound name="VoxelskirtRoot" inherit="MemStruct">
         # size varies according to game
         JWE2 - 120 bytes
@@ -25,12 +31,6 @@
         <add name="entity_groups" type="DataSlot" template="EntityGroup"/>
         <add name="materials" type="DataSlot" template="Material"/>
         <add name="names" type="DataSlot" template="Name"/>
-    </compound>
-
-    <compound name="DataSlot">
-        <add name="_offset" type="uint64" >offset into buffer to start of data - only given if some count is nonzero</add>
-        <add name="_count" type="uint64" >count of data</add>
-<!--        <add name="data" type="#T#" arr1="0"/>-->
     </compound>
 
     <compound name="Name">

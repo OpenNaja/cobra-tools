@@ -1,33 +1,27 @@
-from generated.formats.base.basic import Uint64
-from generated.formats.base.basic import ZString
+from generated.formats.assetpkg.imports import name_type_map
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
-from generated.formats.ovl_base.compounds.Pointer import Pointer
 
 
 class AssetpkgRoot(MemStruct):
 
 	__name__ = 'AssetpkgRoot'
 
-	_import_key = 'assetpkg.compounds.AssetpkgRoot'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self._zero = 0
-		self.asset_path = Pointer(self.context, 0, ZString)
+		self._zero = name_type_map['Uint64'](self.context, 0, None)
+		self.asset_path = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
 		if set_default:
 			self.set_defaults()
 
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('asset_path', Pointer, (0, ZString), (False, None), None)
-		yield ('_zero', Uint64, (0, None), (False, None), None)
+		yield 'asset_path', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None)
+		yield '_zero', name_type_map['Uint64'], (0, None), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'asset_path', Pointer, (0, ZString), (False, None)
-		yield '_zero', Uint64, (0, None), (False, None)
-
-
-AssetpkgRoot.init_attributes()
+		yield 'asset_path', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None)
+		yield '_zero', name_type_map['Uint64'], (0, None), (False, None)

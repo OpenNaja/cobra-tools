@@ -1,3 +1,4 @@
+from generated.formats.ms2.imports import name_type_map
 from io import BytesIO
 import os
 import time

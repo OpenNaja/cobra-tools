@@ -1,9 +1,5 @@
 from generated.array import Array
-from generated.formats.base.basic import Float
-from generated.formats.base.basic import Int
-from generated.formats.base.basic import Short
-from generated.formats.base.basic import Uint64
-from generated.formats.fct.compounds.Font import Font
+from generated.formats.fct.imports import name_type_map
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
 
 
@@ -15,53 +11,49 @@ class FctRoot(MemStruct):
 
 	__name__ = 'FctRoot'
 
-	_import_key = 'fct.compounds.FctRoot'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.u_0 = 0
-		self.u_1 = 0
-		self.a = 0.0
-		self.b = 0.0
-		self.c = 0.0
-		self.minus_1 = 0
-		self.z_0 = 0
-		self.z_1 = 0
-		self.z_2 = 0
-		self.offset = 0
-		self.fonts = Array(self.context, 0, None, (0,), Font)
+		self.u_0 = name_type_map['Short'](self.context, 0, None)
+		self.u_1 = name_type_map['Short'](self.context, 0, None)
+		self.a = name_type_map['Float'](self.context, 0, None)
+		self.b = name_type_map['Float'](self.context, 0, None)
+		self.c = name_type_map['Float'](self.context, 0, None)
+		self.minus_1 = name_type_map['Short'](self.context, 0, None)
+		self.z_0 = name_type_map['Short'](self.context, 0, None)
+		self.z_1 = name_type_map['Int'](self.context, 0, None)
+		self.z_2 = name_type_map['Uint64'](self.context, 0, None)
+		self.offset = name_type_map['Uint64'](self.context, 0, None)
+		self.fonts = Array(self.context, 0, None, (0,), name_type_map['Font'])
 		if set_default:
 			self.set_defaults()
 
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('u_0', Short, (0, None), (False, None), None)
-		yield ('u_1', Short, (0, None), (False, None), None)
-		yield ('a', Float, (0, None), (False, None), None)
-		yield ('b', Float, (0, None), (False, None), None)
-		yield ('c', Float, (0, None), (False, None), None)
-		yield ('minus_1', Short, (0, None), (False, None), None)
-		yield ('z_0', Short, (0, None), (False, None), None)
-		yield ('z_1', Int, (0, None), (False, None), None)
-		yield ('z_2', Uint64, (0, None), (False, None), None)
-		yield ('offset', Uint64, (0, None), (False, None), None)
-		yield ('fonts', Array, (0, None, (4,), Font), (False, None), None)
+		yield 'u_0', name_type_map['Short'], (0, None), (False, None), (None, None)
+		yield 'u_1', name_type_map['Short'], (0, None), (False, None), (None, None)
+		yield 'a', name_type_map['Float'], (0, None), (False, None), (None, None)
+		yield 'b', name_type_map['Float'], (0, None), (False, None), (None, None)
+		yield 'c', name_type_map['Float'], (0, None), (False, None), (None, None)
+		yield 'minus_1', name_type_map['Short'], (0, None), (False, None), (None, None)
+		yield 'z_0', name_type_map['Short'], (0, None), (False, None), (None, None)
+		yield 'z_1', name_type_map['Int'], (0, None), (False, None), (None, None)
+		yield 'z_2', name_type_map['Uint64'], (0, None), (False, None), (None, None)
+		yield 'offset', name_type_map['Uint64'], (0, None), (False, None), (None, None)
+		yield 'fonts', Array, (0, None, (4,), name_type_map['Font']), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'u_0', Short, (0, None), (False, None)
-		yield 'u_1', Short, (0, None), (False, None)
-		yield 'a', Float, (0, None), (False, None)
-		yield 'b', Float, (0, None), (False, None)
-		yield 'c', Float, (0, None), (False, None)
-		yield 'minus_1', Short, (0, None), (False, None)
-		yield 'z_0', Short, (0, None), (False, None)
-		yield 'z_1', Int, (0, None), (False, None)
-		yield 'z_2', Uint64, (0, None), (False, None)
-		yield 'offset', Uint64, (0, None), (False, None)
-		yield 'fonts', Array, (0, None, (4,), Font), (False, None)
-
-
-FctRoot.init_attributes()
+		yield 'u_0', name_type_map['Short'], (0, None), (False, None)
+		yield 'u_1', name_type_map['Short'], (0, None), (False, None)
+		yield 'a', name_type_map['Float'], (0, None), (False, None)
+		yield 'b', name_type_map['Float'], (0, None), (False, None)
+		yield 'c', name_type_map['Float'], (0, None), (False, None)
+		yield 'minus_1', name_type_map['Short'], (0, None), (False, None)
+		yield 'z_0', name_type_map['Short'], (0, None), (False, None)
+		yield 'z_1', name_type_map['Int'], (0, None), (False, None)
+		yield 'z_2', name_type_map['Uint64'], (0, None), (False, None)
+		yield 'offset', name_type_map['Uint64'], (0, None), (False, None)
+		yield 'fonts', Array, (0, None, (4,), name_type_map['Font']), (False, None)

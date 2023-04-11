@@ -1,6 +1,7 @@
 from generated.bitfield import BasicBitfield
 from generated.bitfield import BitfieldMember
 from generated.formats.base.basic import Uint
+from generated.formats.ovl_base.basic import Bool
 from generated.formats.ovl_base.enums.Compression import Compression
 
 
@@ -21,11 +22,11 @@ class VersionInfo(BasicBitfield):
 
 	__name__ = 'VersionInfo'
 	_storage = Uint
-	unk_1 = BitfieldMember(pos=2, mask=0x4, return_type=bool)
-	unk_2 = BitfieldMember(pos=4, mask=0x10, return_type=bool)
+	unk_1 = BitfieldMember(pos=2, mask=0x4, return_type=Bool.from_value)
+	unk_2 = BitfieldMember(pos=4, mask=0x10, return_type=Bool.from_value)
 	compression = BitfieldMember(pos=7, mask=0x380, return_type=Compression.from_value)
-	unk_3 = BitfieldMember(pos=13, mask=0x2000, return_type=bool)
-	use_djb = BitfieldMember(pos=14, mask=0x4000, return_type=bool)
+	unk_3 = BitfieldMember(pos=13, mask=0x2000, return_type=Bool.from_value)
+	use_djb = BitfieldMember(pos=14, mask=0x4000, return_type=Bool.from_value)
 
 	def set_defaults(self):
 		pass

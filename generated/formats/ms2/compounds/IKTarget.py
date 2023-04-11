@@ -1,5 +1,5 @@
 from generated.base_struct import BaseStruct
-from generated.formats.ms2.compounds.BonePointer import BonePointer
+from generated.formats.ms2.imports import name_type_map
 
 
 class IKTarget(BaseStruct):
@@ -10,26 +10,22 @@ class IKTarget(BaseStruct):
 
 	__name__ = 'IKTarget'
 
-	_import_key = 'ms2.compounds.IKTarget'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.ik_blend = BonePointer(self.context, 0, None)
-		self.ik_end = BonePointer(self.context, 0, None)
+		self.ik_blend = name_type_map['BonePointer'](self.context, 0, None)
+		self.ik_end = name_type_map['BonePointer'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('ik_blend', BonePointer, (0, None), (False, None), None)
-		yield ('ik_end', BonePointer, (0, None), (False, None), None)
+		yield 'ik_blend', name_type_map['BonePointer'], (0, None), (False, None), (None, None)
+		yield 'ik_end', name_type_map['BonePointer'], (0, None), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'ik_blend', BonePointer, (0, None), (False, None)
-		yield 'ik_end', BonePointer, (0, None), (False, None)
-
-
-IKTarget.init_attributes()
+		yield 'ik_blend', name_type_map['BonePointer'], (0, None), (False, None)
+		yield 'ik_end', name_type_map['BonePointer'], (0, None), (False, None)

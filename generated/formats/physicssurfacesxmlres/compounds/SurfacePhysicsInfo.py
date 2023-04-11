@@ -1,8 +1,5 @@
-from generated.formats.base.basic import Float
-from generated.formats.base.basic import Uint64
-from generated.formats.base.basic import ZString
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
-from generated.formats.ovl_base.compounds.Pointer import Pointer
+from generated.formats.physicssurfacesxmlres.imports import name_type_map
 
 
 class SurfacePhysicsInfo(MemStruct):
@@ -13,47 +10,43 @@ class SurfacePhysicsInfo(MemStruct):
 
 	__name__ = 'SurfacePhysicsInfo'
 
-	_import_key = 'physicssurfacesxmlres.compounds.SurfacePhysicsInfo'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.float_1 = 0.0
-		self.float_2 = 0.0
-		self.float_3 = 0.0
-		self.float_4 = 0.0
-		self.unk_64_1 = 0
-		self.surface_name = Pointer(self.context, 0, ZString)
-		self.name_1 = Pointer(self.context, 0, ZString)
-		self.name_2 = Pointer(self.context, 0, ZString)
-		self.ptr_1 = Pointer(self.context, 0, SurfacePhysicsInfo._import_map["physicssurfacesxmlres.compounds.EmptyStruct"])
+		self.float_1 = name_type_map['Float'](self.context, 0, None)
+		self.float_2 = name_type_map['Float'](self.context, 0, None)
+		self.float_3 = name_type_map['Float'](self.context, 0, None)
+		self.float_4 = name_type_map['Float'](self.context, 0, None)
+		self.unk_64_1 = name_type_map['Uint64'](self.context, 0, None)
+		self.surface_name = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
+		self.name_1 = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
+		self.name_2 = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
+		self.ptr_1 = name_type_map['Pointer'](self.context, 0, name_type_map['EmptyStruct'])
 		if set_default:
 			self.set_defaults()
 
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('surface_name', Pointer, (0, ZString), (False, None), None)
-		yield ('float_1', Float, (0, None), (False, None), None)
-		yield ('float_2', Float, (0, None), (False, None), None)
-		yield ('float_3', Float, (0, None), (False, None), None)
-		yield ('float_4', Float, (0, None), (False, None), None)
-		yield ('unk_64_1', Uint64, (0, None), (False, None), None)
-		yield ('name_1', Pointer, (0, ZString), (False, None), None)
-		yield ('name_2', Pointer, (0, ZString), (False, None), None)
-		yield ('ptr_1', Pointer, (0, None), (False, None), None)
+		yield 'surface_name', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None)
+		yield 'float_1', name_type_map['Float'], (0, None), (False, None), (None, None)
+		yield 'float_2', name_type_map['Float'], (0, None), (False, None), (None, None)
+		yield 'float_3', name_type_map['Float'], (0, None), (False, None), (None, None)
+		yield 'float_4', name_type_map['Float'], (0, None), (False, None), (None, None)
+		yield 'unk_64_1', name_type_map['Uint64'], (0, None), (False, None), (None, None)
+		yield 'name_1', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None)
+		yield 'name_2', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None)
+		yield 'ptr_1', name_type_map['Pointer'], (0, name_type_map['EmptyStruct']), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'surface_name', Pointer, (0, ZString), (False, None)
-		yield 'float_1', Float, (0, None), (False, None)
-		yield 'float_2', Float, (0, None), (False, None)
-		yield 'float_3', Float, (0, None), (False, None)
-		yield 'float_4', Float, (0, None), (False, None)
-		yield 'unk_64_1', Uint64, (0, None), (False, None)
-		yield 'name_1', Pointer, (0, ZString), (False, None)
-		yield 'name_2', Pointer, (0, ZString), (False, None)
-		yield 'ptr_1', Pointer, (0, SurfacePhysicsInfo._import_map["physicssurfacesxmlres.compounds.EmptyStruct"]), (False, None)
-
-
-SurfacePhysicsInfo.init_attributes()
+		yield 'surface_name', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None)
+		yield 'float_1', name_type_map['Float'], (0, None), (False, None)
+		yield 'float_2', name_type_map['Float'], (0, None), (False, None)
+		yield 'float_3', name_type_map['Float'], (0, None), (False, None)
+		yield 'float_4', name_type_map['Float'], (0, None), (False, None)
+		yield 'unk_64_1', name_type_map['Uint64'], (0, None), (False, None)
+		yield 'name_1', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None)
+		yield 'name_2', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None)
+		yield 'ptr_1', name_type_map['Pointer'], (0, name_type_map['EmptyStruct']), (False, None)

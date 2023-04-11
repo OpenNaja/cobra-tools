@@ -4,6 +4,31 @@
 
 	<xi:include href="../ovl_base/ovl_base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
 
+	<compound name="LayerFrag" inherit="MemStruct">
+        <add name="layer_name" type="Pointer" template="ZString"/>
+        <add name="u0" type="uint64"/>
+        <add name="u1" type="uint64"/>
+        <add name="infos" type="ArrayPointer" template="Info" arg="info_count"/>
+        <add name="info_count" type="uint64"/>
+        <add name="u2" type="uint64"/>
+        <add name="u3" type="uint64"/>
+        <add name="attribs" type="ArrayPointer" template="Attrib" arg="attrib_count"/>
+        <add name="attrib_count" type="uint64"/>
+    </compound>
+
+    <compound name="Info" inherit="MemStruct">
+        <add name="info_name" type="Pointer" template="ZString"/>
+        <add name="flags" type="byte" arr1="4"/>
+        <add name="value" type="float" arr1="4"/>
+        <add name="padding" type="uint"/>
+    </compound>
+
+    <compound name="Attrib" inherit="MemStruct">
+        <add name="attrib_name" type="Pointer" template="ZString"/>
+        <add name="attrib" type="byte" arr1="4"/>
+        <add name="padding" type="uint"/>
+    </compound>
+
 	<compound name="Layer" >
         <add name="info" type="LayerFrag"/>
         <add name="name" type="ZString"/>
@@ -13,19 +38,6 @@
 
         <add name="attribs" type="Attrib" arr1="info\attrib_count"/>
         <add name="attrib_names" type="ZString" arr1="info\attrib_count"/>
-    </compound>
-
-    <compound name="Attrib" inherit="MemStruct">
-        <add name="attrib_name" type="Pointer" template="ZString"/>
-        <add name="attrib" type="byte" arr1="4"/>
-        <add name="padding" type="uint"/>
-    </compound>
-
-    <compound name="Info" inherit="MemStruct">
-        <add name="info_name" type="Pointer" template="ZString"/>
-        <add name="flags" type="byte" arr1="4"/>
-        <add name="value" type="float" arr1="4"/>
-        <add name="padding" type="uint"/>
     </compound>
 
 	<compound name="Texture" inherit="MemStruct">
@@ -49,18 +61,6 @@
         <add name="materials" type="ArrayPointer" template="LayerFrag" arg="mat_count"/>
         <add name="mat_count" type="uint64"/>
         <add name="unk" type="uint64"/> maybe ptr?
-    </compound>
-
-	<compound name="LayerFrag" inherit="MemStruct">
-        <add name="layer_name" type="Pointer" template="ZString"/>
-        <add name="u0" type="uint64"/>
-        <add name="u1" type="uint64"/>
-        <add name="infos" type="ArrayPointer" template="Info" arg="info_count"/>
-        <add name="info_count" type="uint64"/>
-        <add name="u2" type="uint64"/>
-        <add name="u3" type="uint64"/>
-        <add name="attribs" type="ArrayPointer" template="Attrib" arg="attrib_count"/>
-        <add name="attrib_count" type="uint64"/>
     </compound>
 
 </niftoolsxml>

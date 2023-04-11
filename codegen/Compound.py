@@ -32,7 +32,6 @@ class Compound(BaseClass):
             super().write(f)
 
             self.write_line(f)
-            self.write_line(f, 1, f"_import_key = '{Imports.import_map_key(self.parser.path_dict[self.class_name])}'")
             if self.struct.get("allow_np", None) == "true":
                 self.write_line(f, 1, f"allow_np = True")
 
@@ -83,7 +82,4 @@ class Compound(BaseClass):
                     condition = union.write_filtered_attributes(f, condition, target_variable="instance")
 
             self.write_src_body(f)
-            self.write_line(f)
-            self.write_line(f)
-            self.write_line(f, 0, f"{self.class_name}.init_attributes()")
             self.write_line(f)

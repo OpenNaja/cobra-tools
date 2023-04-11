@@ -2,11 +2,9 @@ import importlib
 import logging
 import xml.etree.ElementTree as ET
 import os
-import distutils.dir_util as dir_util
 import shutil
 
 from html import unescape
-from numpy import ndarray
 
 from codegen import naming_conventions as convention
 from codegen.BaseClass import BaseClass
@@ -14,6 +12,7 @@ from codegen.Basics import Basics
 from codegen.Compound import Compound
 from codegen.Enum import Enum
 from codegen.Bitfield import Bitfield
+from codegen.Imports import Imports
 from codegen.Versions import Versions
 from codegen.Module import Module
 from codegen.naming_conventions import clean_comment_str
@@ -47,16 +46,16 @@ class XmlParser:
             "Array": "array",
             "BasicBitfield": "bitfield",
             "BitfieldMember": "bitfield",
-            "basic_map": os.path.join(self.base_segments, "basic"),
             "versions": self.base_segments,
             "ContextReference": "context",
             "BaseEnum": "base_enum",
             "BaseStruct": "base_struct",
+            "name_type_map": os.path.join(self.base_segments, "imports")
             }
         # maps each type to its member tag type
         self.tag_dict = {}
-
-        self.processed_types = {"template"}
+        # order is relevant to ensure that structs are later imported in the correct order in generated code
+        self.processed_types = {}
 
         self.basics = None
 
@@ -116,7 +115,7 @@ class XmlParser:
         root = tree.getroot()
 
         self.versions = Versions(self)
-        self.basics = Basics(self, BaseClass.get_out_path(self.path_dict["basic_map"]))
+        self.basics = Basics(self)
 
         self.generate_module_paths(root, xml_path, parsed_xmls)
 
@@ -138,10 +137,37 @@ class XmlParser:
                     self.read_verattr(child)
             except:
                 logging.exception(f"Parsing child {child} failed")
-        out_file = BaseClass.get_out_path(os.path.join(self.base_segments, "versions"))
-        self.versions.write(out_file)
-        # self.basics.write_basic_map()
+        versions_file = BaseClass.get_out_path(os.path.join(self.base_segments, "versions"))
+        self.versions.write(versions_file)
+        imports_module = os.path.join(self.base_segments, "imports")
+        self.write_import_map(BaseClass.get_out_path(imports_module))
+        init_file = BaseClass.get_out_path(os.path.join(self.base_segments, "__init__"))
+        import_string = f'from {Imports.import_from_module_path(imports_module)} import name_type_map\n'
+        if not os.path.exists(init_file):
+            with open(init_file, "w", encoding=self.encoding) as f:
+                f.write(import_string)
+        else:
+            with open(init_file, "r+", encoding=self.encoding) as f:
+                init_content = f.read()
+                f.seek(0, 0)
+                f.write(import_string)
+                f.write(init_content)
+
         parsed_xmls[xml_path] = self
+
+    def write_import_map(self, file):
+        with open(file, "w", encoding=self.encoding) as f:
+            f.write("from importlib import import_module\n")
+            f.write("\n\ntype_module_name_map = {\n")
+            for type_name in self.processed_types:
+                f.write(f"\t'{type_name}': '{Imports.import_from_module_path(self.path_dict[type_name])}',\n")
+            f.write('}\n')
+            f.write("\nname_type_map = {}\n")
+            f.write("for type_name, module in type_module_name_map.items():\n")
+            f.write("\tname_type_map[type_name] = getattr(import_module(module), type_name)\n")
+            f.write("for class_object in name_type_map.values():\n")
+            f.write("\tif callable(getattr(class_object, 'init_attributes', None)):\n")
+            f.write("\t\tclass_object.init_attributes()\n")
 
     # the following constructs do not create classes
     def read_token(self, token):
@@ -225,35 +251,6 @@ class XmlParser:
             # filter comment str
             struct.text = clean_comment_str(struct.text, indent="\t", class_comment='"""')
 
-    @staticmethod
-    def arrs_to_tuple(*args):
-        valid_arrs = tuple(str(arr) for arr in args if arr)
-        arr_str = f'({", ".join(valid_arrs)},)'
-        return arr_str
-
-    def map_type(self, in_type, array=False):
-        if array:
-            out_type = ('Array', in_type)
-        else:
-            out_type = in_type
-        if in_type in self.path_dict:
-            l_type = in_type.lower()
-            if self.tag_dict.get(l_type) == "basic":
-                basic_class = self.basics.basic_map[in_type]
-                if array:
-                    if callable(getattr(basic_class, "create_array", None)):
-                        test = basic_class.create_array(1)
-                        if isinstance(test, ndarray):
-                            out_type = ('numpy', f'numpy.{repr(test.dtype)}')
-                else:
-                    if callable(getattr(basic_class, "from_value", None)):
-                        # check from_value to see which builtin it returns
-                        test = basic_class.from_value(0)
-                        test_type = type(test).__name__
-                        if test_type in self.builtin_literals:
-                            out_type = test_type
-        return out_type
-
     def replace_tokens(self, xml_struct):
         """Update xml_struct's (and all of its children's) attrib dict with content of tokens+versions list."""
         # replace versions after tokens because tokens include versions
@@ -288,8 +285,8 @@ class XmlParser:
         self.copy_dict_info(self.verattrs, other_parser.verattrs)
         self.copy_dict_info(self.path_dict, other_parser.path_dict)
         self.copy_dict_info(self.tag_dict, other_parser.tag_dict)
-        self.basics.add_other_basics(other_parser.basics, other_parser.path_dict["basic_map"])
-        self.processed_types.update(other_parser.processed_types)
+        self.basics.add_other_basics(other_parser.basics)
+        self.copy_dict_info(self.processed_types, other_parser.processed_types)
 
 
 def copy_src_to_generated(src_dir, trg_dir):
@@ -313,36 +310,6 @@ def create_inits(base_dir):
         dirs[:] = [dirname for dirname in dirs if dirname[:2] != '__']
 
 
-def stash_inits(target_dir):
-    """Move all __init__.py files over to a temporary directory to prevent execution when loading submodules
-    and replace them with empty init files"""
-    init_file = "__init__.py"
-    i = 0
-    temp_base = os.path.join(os.getcwd(), ".temp")
-    temp_dir = f'{temp_base}{i}'
-    no_overwrite = False
-    if no_overwrite:
-        while os.path.exists(temp_dir):
-            i += 1
-            temp_dir = f'{temp_base}{i}'
-    else:
-        if os.path.exists(temp_dir):
-            dir_util.remove_tree(temp_dir)
-    os.makedirs(temp_dir)
-    for dirpath, dirnames, filenames in os.walk(target_dir):
-        if init_file in filenames:
-            rel_path = os.path.relpath(dirpath, target_dir)
-            os.renames(os.path.join(dirpath, init_file), os.path.join(temp_dir, rel_path, init_file))
-    create_inits(target_dir)
-    return temp_dir
-
-
-def apply_stash(stashed_dir, target_dir):
-    """Move the files in a stashed directory to the target directory, removing the temporary directory"""
-    dir_util.copy_tree(stashed_dir, target_dir)
-    dir_util.remove_tree(stashed_dir)
-
-
 def apply_autopep8(target_dir):
     """Run autopep8 --in-place on the target directory, if that package is installed"""
     if importlib.util.find_spec("autopep8"):
@@ -360,7 +327,6 @@ def generate_classes():
     target_dir = os.path.join(cwd, "generated")
     root_dir = os.path.join(source_dir, "formats")
     copy_src_to_generated(source_dir, target_dir)
-    stashed_dir = stash_inits(target_dir)
     parsed_xmls = {}
     for format_name in os.listdir(root_dir):
         dir_path = os.path.join(root_dir, format_name)
@@ -373,7 +339,6 @@ def generate_classes():
                     logging.info(f"Reading {format_name} format")
                     xmlp = XmlParser(format_name)
                     xmlp.load_xml(xml_path, parsed_xmls)
-    apply_stash(stashed_dir, target_dir)
     create_inits(target_dir)
 
 

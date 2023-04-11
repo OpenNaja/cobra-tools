@@ -1,5 +1,4 @@
-from generated.formats.base.basic import Uint64
-from generated.formats.ovl_base.compounds.ArrayPointer import ArrayPointer
+from generated.formats.curve.imports import name_type_map
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
 
 
@@ -7,26 +6,22 @@ class CurveRoot(MemStruct):
 
 	__name__ = 'CurveRoot'
 
-	_import_key = 'curve.compounds.CurveRoot'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.count = 0
-		self.keys = ArrayPointer(self.context, self.count, CurveRoot._import_map["curve.compounds.Key"])
+		self.count = name_type_map['Uint64'](self.context, 0, None)
+		self.keys = name_type_map['ArrayPointer'](self.context, self.count, name_type_map['Key'])
 		if set_default:
 			self.set_defaults()
 
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('keys', ArrayPointer, (None, None), (False, None), None)
-		yield ('count', Uint64, (0, None), (False, None), None)
+		yield 'keys', name_type_map['ArrayPointer'], (None, name_type_map['Key']), (False, None), (None, None)
+		yield 'count', name_type_map['Uint64'], (0, None), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'keys', ArrayPointer, (instance.count, CurveRoot._import_map["curve.compounds.Key"]), (False, None)
-		yield 'count', Uint64, (0, None), (False, None)
-
-
-CurveRoot.init_attributes()
+		yield 'keys', name_type_map['ArrayPointer'], (instance.count, name_type_map['Key']), (False, None)
+		yield 'count', name_type_map['Uint64'], (0, None), (False, None)

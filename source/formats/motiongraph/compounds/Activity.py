@@ -10,6 +10,7 @@ from generated.formats.ovl_base.compounds.MemStruct import MemStruct
 from generated.formats.ovl_base.compounds.Pointer import Pointer
 
 # END_GLOBALS
+from generated.formats.motiongraph.imports import name_type_map
 
 
 class Activity(MemStruct):
@@ -27,6 +28,6 @@ class Activity(MemStruct):
 			activity = self.data_type.data
 			key = f"motiongraph.compounds.{activity}Data"
 			try:
-				return Activity._import_map[key]
-			except:
+				return name_type_map[key]
+			except KeyError:
 				logging.warning(f"Unsupported activity '{activity}'")

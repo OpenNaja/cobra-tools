@@ -1,55 +1,48 @@
-from generated.formats.base.basic import Uint64
-from generated.formats.base.basic import ZString
-from generated.formats.ovl_base.compounds.ArrayPointer import ArrayPointer
+from generated.formats.matcol.imports import name_type_map
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
-from generated.formats.ovl_base.compounds.Pointer import Pointer
 
 
 class LayerFrag(MemStruct):
 
 	__name__ = 'LayerFrag'
 
-	_import_key = 'matcol.compounds.LayerFrag'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.u_0 = 0
-		self.u_1 = 0
-		self.info_count = 0
-		self.u_2 = 0
-		self.u_3 = 0
-		self.attrib_count = 0
-		self.layer_name = Pointer(self.context, 0, ZString)
-		self.infos = ArrayPointer(self.context, self.info_count, LayerFrag._import_map["matcol.compounds.Info"])
-		self.attribs = ArrayPointer(self.context, self.attrib_count, LayerFrag._import_map["matcol.compounds.Attrib"])
+		self.u_0 = name_type_map['Uint64'](self.context, 0, None)
+		self.u_1 = name_type_map['Uint64'](self.context, 0, None)
+		self.info_count = name_type_map['Uint64'](self.context, 0, None)
+		self.u_2 = name_type_map['Uint64'](self.context, 0, None)
+		self.u_3 = name_type_map['Uint64'](self.context, 0, None)
+		self.attrib_count = name_type_map['Uint64'](self.context, 0, None)
+		self.layer_name = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
+		self.infos = name_type_map['ArrayPointer'](self.context, self.info_count, name_type_map['Info'])
+		self.attribs = name_type_map['ArrayPointer'](self.context, self.attrib_count, name_type_map['Attrib'])
 		if set_default:
 			self.set_defaults()
 
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('layer_name', Pointer, (0, ZString), (False, None), None)
-		yield ('u_0', Uint64, (0, None), (False, None), None)
-		yield ('u_1', Uint64, (0, None), (False, None), None)
-		yield ('infos', ArrayPointer, (None, None), (False, None), None)
-		yield ('info_count', Uint64, (0, None), (False, None), None)
-		yield ('u_2', Uint64, (0, None), (False, None), None)
-		yield ('u_3', Uint64, (0, None), (False, None), None)
-		yield ('attribs', ArrayPointer, (None, None), (False, None), None)
-		yield ('attrib_count', Uint64, (0, None), (False, None), None)
+		yield 'layer_name', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None)
+		yield 'u_0', name_type_map['Uint64'], (0, None), (False, None), (None, None)
+		yield 'u_1', name_type_map['Uint64'], (0, None), (False, None), (None, None)
+		yield 'infos', name_type_map['ArrayPointer'], (None, name_type_map['Info']), (False, None), (None, None)
+		yield 'info_count', name_type_map['Uint64'], (0, None), (False, None), (None, None)
+		yield 'u_2', name_type_map['Uint64'], (0, None), (False, None), (None, None)
+		yield 'u_3', name_type_map['Uint64'], (0, None), (False, None), (None, None)
+		yield 'attribs', name_type_map['ArrayPointer'], (None, name_type_map['Attrib']), (False, None), (None, None)
+		yield 'attrib_count', name_type_map['Uint64'], (0, None), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'layer_name', Pointer, (0, ZString), (False, None)
-		yield 'u_0', Uint64, (0, None), (False, None)
-		yield 'u_1', Uint64, (0, None), (False, None)
-		yield 'infos', ArrayPointer, (instance.info_count, LayerFrag._import_map["matcol.compounds.Info"]), (False, None)
-		yield 'info_count', Uint64, (0, None), (False, None)
-		yield 'u_2', Uint64, (0, None), (False, None)
-		yield 'u_3', Uint64, (0, None), (False, None)
-		yield 'attribs', ArrayPointer, (instance.attrib_count, LayerFrag._import_map["matcol.compounds.Attrib"]), (False, None)
-		yield 'attrib_count', Uint64, (0, None), (False, None)
-
-
-LayerFrag.init_attributes()
+		yield 'layer_name', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None)
+		yield 'u_0', name_type_map['Uint64'], (0, None), (False, None)
+		yield 'u_1', name_type_map['Uint64'], (0, None), (False, None)
+		yield 'infos', name_type_map['ArrayPointer'], (instance.info_count, name_type_map['Info']), (False, None)
+		yield 'info_count', name_type_map['Uint64'], (0, None), (False, None)
+		yield 'u_2', name_type_map['Uint64'], (0, None), (False, None)
+		yield 'u_3', name_type_map['Uint64'], (0, None), (False, None)
+		yield 'attribs', name_type_map['ArrayPointer'], (instance.attrib_count, name_type_map['Attrib']), (False, None)
+		yield 'attrib_count', name_type_map['Uint64'], (0, None), (False, None)

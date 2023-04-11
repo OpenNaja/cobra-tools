@@ -10,7 +10,6 @@ class WeirdElementTwoReader(BaseStruct):
 
 	__name__ = 'WeirdElementTwoReader'
 
-	_import_key = 'manis.compounds.WeirdElementTwoReader'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
@@ -55,6 +54,3 @@ class WeirdElementTwoReader(BaseStruct):
 		return s
 
 
-
-
-WeirdElementTwoReader.init_attributes()

@@ -22,7 +22,6 @@ class ModelReader(BaseStruct):
 
 	__name__ = 'ModelReader'
 
-	_import_key = 'ms2.compounds.ModelReader'
 
 	@classmethod
 	def _get_attribute_list(cls):
@@ -248,6 +247,3 @@ class ModelReader(BaseStruct):
 			s += str(model_info.bone_info)
 		return s
 
-
-
-ModelReader.init_attributes()

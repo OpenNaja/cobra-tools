@@ -1,3 +1,4 @@
+from generated.formats.ovl_base.imports import name_type_map
 from generated.formats.ovl_base.bitfields.VersionInfo import VersionInfo
 
 

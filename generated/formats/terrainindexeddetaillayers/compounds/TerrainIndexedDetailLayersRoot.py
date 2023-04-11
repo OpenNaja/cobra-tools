@@ -1,6 +1,5 @@
-from generated.formats.base.basic import Uint64
-from generated.formats.ovl_base.compounds.ArrayPointer import ArrayPointer
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
+from generated.formats.terrainindexeddetaillayers.imports import name_type_map
 
 
 class TerrainIndexedDetailLayersRoot(MemStruct):
@@ -11,26 +10,22 @@ class TerrainIndexedDetailLayersRoot(MemStruct):
 
 	__name__ = 'TerrainIndexedDetailLayersRoot'
 
-	_import_key = 'terrainindexeddetaillayers.compounds.TerrainIndexedDetailLayersRoot'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.layer_count = 0
-		self.layer_list = ArrayPointer(self.context, self.layer_count, TerrainIndexedDetailLayersRoot._import_map["terrainindexeddetaillayers.compounds.TerrainDetailsLayerItem"])
+		self.layer_count = name_type_map['Uint64'](self.context, 0, None)
+		self.layer_list = name_type_map['ArrayPointer'](self.context, self.layer_count, name_type_map['TerrainDetailsLayerItem'])
 		if set_default:
 			self.set_defaults()
 
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('layer_list', ArrayPointer, (None, None), (False, None), None)
-		yield ('layer_count', Uint64, (0, None), (False, None), None)
+		yield 'layer_list', name_type_map['ArrayPointer'], (None, name_type_map['TerrainDetailsLayerItem']), (False, None), (None, None)
+		yield 'layer_count', name_type_map['Uint64'], (0, None), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'layer_list', ArrayPointer, (instance.layer_count, TerrainIndexedDetailLayersRoot._import_map["terrainindexeddetaillayers.compounds.TerrainDetailsLayerItem"]), (False, None)
-		yield 'layer_count', Uint64, (0, None), (False, None)
-
-
-TerrainIndexedDetailLayersRoot.init_attributes()
+		yield 'layer_list', name_type_map['ArrayPointer'], (instance.layer_count, name_type_map['TerrainDetailsLayerItem']), (False, None)
+		yield 'layer_count', name_type_map['Uint64'], (0, None), (False, None)

@@ -11,7 +11,6 @@ class NamedEntry(BaseStruct):
 
 	__name__ = 'NamedEntry'
 
-	_import_key = 'ovl.compounds.NamedEntry'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
@@ -34,6 +33,3 @@ class NamedEntry(BaseStruct):
 	def name(self, n):
 		self.basename, self.ext = os.path.splitext(n)
 
-
-
-NamedEntry.init_attributes()

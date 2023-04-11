@@ -3,10 +3,8 @@ import logging
 import numpy as np
 from generated.formats.ms2.compounds.packing_utils import *
 from plugin.utils.tristrip import triangulate
-from generated.formats.base.basic import Float
-from generated.formats.base.basic import Uint
-from generated.formats.ms2.bitfields.ModelFlag import ModelFlag
 from generated.formats.ms2.compounds.MeshData import MeshData
+from generated.formats.ms2.imports import name_type_map
 
 
 class PcMeshData(MeshData):
@@ -17,85 +15,84 @@ class PcMeshData(MeshData):
 
 	__name__ = 'PcMeshData'
 
-	_import_key = 'ms2.compounds.PcMeshData'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 
 		# repeat
-		self.tri_index_count_a = 0
-		self.vertex_count = 0
+		self.tri_index_count_a = name_type_map['Uint'](self.context, 0, None)
+		self.vertex_count = name_type_map['Uint'](self.context, 0, None)
 
 		# x*16 = offset
-		self.tri_offset = 0
+		self.tri_offset = name_type_map['Uint'](self.context, 0, None)
 
 		# number of index entries in the triangle index list; (not: number of triangles, byte count of tri buffer)
-		self.tri_index_count = 0
+		self.tri_index_count = name_type_map['Uint'](self.context, 0, None)
 
 		# x*16 = offset
-		self.vertex_offset = 0
+		self.vertex_offset = name_type_map['Uint'](self.context, 0, None)
 
 		# x*16 = offset
-		self.weights_offset = 0
+		self.weights_offset = name_type_map['Uint'](self.context, 0, None)
 
 		# x*16 = offset
-		self.uv_offset = 0
-		self.zero_a = 0
+		self.uv_offset = name_type_map['Uint'](self.context, 0, None)
+		self.zero_a = name_type_map['Uint'].from_value(0)
 
 		# x*16 = offset
-		self.vertex_color_offset = 0
+		self.vertex_color_offset = name_type_map['Uint'](self.context, 0, None)
 
 		# cumulative count of vertices in mesh's lod before this mesh
-		self.vertex_offset_within_lod = 0
+		self.vertex_offset_within_lod = name_type_map['Uint'](self.context, 0, None)
 
 		# power of 2 increasing with lod index
-		self.poweroftwo = 0
-		self.zero_b = 0
-		self.unk_float = 0.0
+		self.poweroftwo = name_type_map['Uint'](self.context, 0, None)
+		self.zero_b = name_type_map['Uint'].from_value(0)
+		self.unk_float = name_type_map['Float'](self.context, 0, None)
 
 		# bitfield
-		self.flag = ModelFlag(self.context, 0, None)
-		self.zero_c = 0
+		self.flag = name_type_map['ModelFlag'](self.context, 0, None)
+		self.zero_c = name_type_map['Uint'].from_value(0)
 		if set_default:
 			self.set_defaults()
 
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('tri_index_count_a', Uint, (0, None), (False, None), None)
-		yield ('vertex_count', Uint, (0, None), (False, None), None)
-		yield ('tri_offset', Uint, (0, None), (False, None), None)
-		yield ('tri_index_count', Uint, (0, None), (False, None), None)
-		yield ('vertex_offset', Uint, (0, None), (False, None), None)
-		yield ('weights_offset', Uint, (0, None), (False, None), None)
-		yield ('uv_offset', Uint, (0, None), (False, None), None)
-		yield ('zero_a', Uint, (0, None), (False, 0), None)
-		yield ('vertex_color_offset', Uint, (0, None), (False, None), None)
-		yield ('vertex_offset_within_lod', Uint, (0, None), (False, None), None)
-		yield ('poweroftwo', Uint, (0, None), (False, None), None)
-		yield ('zero_b', Uint, (0, None), (False, 0), None)
-		yield ('unk_float', Float, (0, None), (False, None), None)
-		yield ('flag', ModelFlag, (0, None), (False, None), None)
-		yield ('zero_c', Uint, (0, None), (False, 0), None)
+		yield 'tri_index_count_a', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'vertex_count', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'tri_offset', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'tri_index_count', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'vertex_offset', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'weights_offset', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'uv_offset', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'zero_a', name_type_map['Uint'], (0, None), (False, 0), (None, None)
+		yield 'vertex_color_offset', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'vertex_offset_within_lod', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'poweroftwo', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'zero_b', name_type_map['Uint'], (0, None), (False, 0), (None, None)
+		yield 'unk_float', name_type_map['Float'], (0, None), (False, None), (None, None)
+		yield 'flag', name_type_map['ModelFlag'], (0, None), (False, None), (None, None)
+		yield 'zero_c', name_type_map['Uint'], (0, None), (False, 0), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'tri_index_count_a', Uint, (0, None), (False, None)
-		yield 'vertex_count', Uint, (0, None), (False, None)
-		yield 'tri_offset', Uint, (0, None), (False, None)
-		yield 'tri_index_count', Uint, (0, None), (False, None)
-		yield 'vertex_offset', Uint, (0, None), (False, None)
-		yield 'weights_offset', Uint, (0, None), (False, None)
-		yield 'uv_offset', Uint, (0, None), (False, None)
-		yield 'zero_a', Uint, (0, None), (False, 0)
-		yield 'vertex_color_offset', Uint, (0, None), (False, None)
-		yield 'vertex_offset_within_lod', Uint, (0, None), (False, None)
-		yield 'poweroftwo', Uint, (0, None), (False, None)
-		yield 'zero_b', Uint, (0, None), (False, 0)
-		yield 'unk_float', Float, (0, None), (False, None)
-		yield 'flag', ModelFlag, (0, None), (False, None)
-		yield 'zero_c', Uint, (0, None), (False, 0)
+		yield 'tri_index_count_a', name_type_map['Uint'], (0, None), (False, None)
+		yield 'vertex_count', name_type_map['Uint'], (0, None), (False, None)
+		yield 'tri_offset', name_type_map['Uint'], (0, None), (False, None)
+		yield 'tri_index_count', name_type_map['Uint'], (0, None), (False, None)
+		yield 'vertex_offset', name_type_map['Uint'], (0, None), (False, None)
+		yield 'weights_offset', name_type_map['Uint'], (0, None), (False, None)
+		yield 'uv_offset', name_type_map['Uint'], (0, None), (False, None)
+		yield 'zero_a', name_type_map['Uint'], (0, None), (False, 0)
+		yield 'vertex_color_offset', name_type_map['Uint'], (0, None), (False, None)
+		yield 'vertex_offset_within_lod', name_type_map['Uint'], (0, None), (False, None)
+		yield 'poweroftwo', name_type_map['Uint'], (0, None), (False, None)
+		yield 'zero_b', name_type_map['Uint'], (0, None), (False, 0)
+		yield 'unk_float', name_type_map['Float'], (0, None), (False, None)
+		yield 'flag', name_type_map['ModelFlag'], (0, None), (False, None)
+		yield 'zero_c', name_type_map['Uint'], (0, None), (False, 0)
 
 	def init_arrays(self):
 		self.vertices = np.empty((self.vertex_count, 3), np.float32)
@@ -184,6 +181,3 @@ class PcMeshData(MeshData):
 		index_count = self.tri_index_count // self.shell_count
 		self.tri_indices = self.read_pc_array(np.uint16, self.tri_offset, index_count)
 
-
-
-PcMeshData.init_attributes()

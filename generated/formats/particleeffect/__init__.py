@@ -1,3 +1,4 @@
+from generated.formats.particleeffect.imports import name_type_map
 from io import BytesIO
 import os
 import time

@@ -1,6 +1,4 @@
-from generated.formats.base.basic import Float
-from generated.formats.base.basic import Uint
-from generated.formats.base.basic import Uint64
+from generated.formats.motiongraph.imports import name_type_map
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
 
 
@@ -12,29 +10,25 @@ class FloatInputData(MemStruct):
 
 	__name__ = 'FloatInputData'
 
-	_import_key = 'motiongraph.compounds.FloatInputData'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.float = 0.0
-		self.optional_var_and_curve_count = 0
-		self.optional_var_and_curve = 0
+		self.float = name_type_map['Float'](self.context, 0, None)
+		self.optional_var_and_curve_count = name_type_map['Uint'](self.context, 0, None)
+		self.optional_var_and_curve = name_type_map['Uint64'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('float', Float, (0, None), (False, None), None)
-		yield ('optional_var_and_curve_count', Uint, (0, None), (False, None), None)
-		yield ('optional_var_and_curve', Uint64, (0, None), (False, None), None)
+		yield 'float', name_type_map['Float'], (0, None), (False, None), (None, None)
+		yield 'optional_var_and_curve_count', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'optional_var_and_curve', name_type_map['Uint64'], (0, None), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'float', Float, (0, None), (False, None)
-		yield 'optional_var_and_curve_count', Uint, (0, None), (False, None)
-		yield 'optional_var_and_curve', Uint64, (0, None), (False, None)
-
-
-FloatInputData.init_attributes()
+		yield 'float', name_type_map['Float'], (0, None), (False, None)
+		yield 'optional_var_and_curve_count', name_type_map['Uint'], (0, None), (False, None)
+		yield 'optional_var_and_curve', name_type_map['Uint64'], (0, None), (False, None)

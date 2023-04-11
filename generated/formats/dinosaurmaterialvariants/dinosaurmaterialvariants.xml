@@ -4,13 +4,13 @@
 
 	<xi:include href="../ovl_base/ovl_base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
 
-    <compound name="VariantArray" inherit="MemStruct" >
-        <add name="variants" type="Variant" arr1="#ARG#"/>
-    </compound>
-
     <compound name="Variant" inherit="MemStruct" >
         <add name="has_ptr" type="uint64"/>
         <add name="variant_name" type="Pointer" template="ZString"/>
+    </compound>
+
+    <compound name="VariantArray" inherit="MemStruct" >
+        <add name="variants" type="Variant" arr1="#ARG#"/>
     </compound>
 
     <compound name="DinoVariantsHeader" inherit="MemStruct" >
@@ -25,14 +25,14 @@
     </compound>
 
 
-    <compound name="LayerArray" inherit="MemStruct" >
-        <add name="layers" type="Layer" arr1="#ARG#"/>
-    </compound>
-
     <compound name="Layer" inherit="MemStruct" >
         <add name="has_ptr" type="uint64"/>
         <add name="texture_fgm_name" type="Pointer" template="ZString">defines the tiled texture material to be used</add>
         <add name="transform_fgm_name" type="Pointer" template="ZString">defines how to transform the texture</add>
+    </compound>
+
+    <compound name="LayerArray" inherit="MemStruct" >
+        <add name="layers" type="Layer" arr1="#ARG#"/>
     </compound>
 
     <compound name="DinoLayersHeader" inherit="MemStruct" >
@@ -43,13 +43,13 @@
     </compound>
 
 
-    <compound name="PatternArray" inherit="MemStruct" >
-        <add name="patterns" type="Pattern" arr1="#ARG#"/>
-    </compound>
-
     <compound name="Pattern" inherit="MemStruct" >
         <add name="has_ptr" type="uint64"/>
         <add name="pattern_name" type="Pointer" template="ZString"/>
+    </compound>
+
+    <compound name="PatternArray" inherit="MemStruct" >
+        <add name="patterns" type="Pattern" arr1="#ARG#"/>
     </compound>
 
     <compound name="DinoPatternsHeader" inherit="MemStruct" >

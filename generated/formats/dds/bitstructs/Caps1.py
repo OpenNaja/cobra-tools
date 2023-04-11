@@ -1,6 +1,6 @@
 from generated.bitfield import BasicBitfield
 from generated.bitfield import BitfieldMember
-from generated.formats.dds.basic import Uint
+from generated.formats.base.basic import Uint
 
 
 class Caps1(BasicBitfield):

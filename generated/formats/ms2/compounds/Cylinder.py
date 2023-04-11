@@ -9,7 +9,6 @@ class Cylinder(Capsule):
 
 	__name__ = 'Cylinder'
 
-	_import_key = 'ms2.compounds.Cylinder'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
@@ -23,6 +22,3 @@ class Cylinder(Capsule):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-
-
-Cylinder.init_attributes()

@@ -9,13 +9,9 @@ from generated.formats.ms2.enums.MeshFormat import MeshFormat
 from plugin.utils.tristrip import triangulate
 
 
-import numpy
 from generated.array import Array
-from generated.formats.base.basic import Float
-from generated.formats.base.basic import Uint
-from generated.formats.base.basic import Uint64
-from generated.formats.ms2.bitfields.BioModelFlag import BioModelFlag
 from generated.formats.ms2.compounds.MeshData import MeshData
+from generated.formats.ms2.imports import name_type_map
 
 
 class BioMeshData(MeshData):
@@ -26,58 +22,57 @@ class BioMeshData(MeshData):
 
 	__name__ = 'BioMeshData'
 
-	_import_key = 'ms2.compounds.BioMeshData'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 
 		# start index into list of verts / tris chunks
-		self.chunks_offset = 0
+		self.chunks_offset = name_type_map['Uint'](self.context, 0, None)
 
 		# count of verts / tris chunks
-		self.chunks_count = 0
-		self.tris_count = 0
+		self.chunks_count = name_type_map['Uint'](self.context, 0, None)
+		self.tris_count = name_type_map['Uint'](self.context, 0, None)
 
 		# num verts in mesh
-		self.vertex_count = 0
+		self.vertex_count = name_type_map['Uint'](self.context, 0, None)
 
 		# unk, may be used in other models
-		self.zero_1 = 0
+		self.zero_1 = name_type_map['Uint64'](self.context, 0, None)
 
 		# power of 2 increasing with lod index
-		self.poweroftwo = 0
+		self.poweroftwo = name_type_map['Uint'](self.context, 0, None)
 
 		# some floats, purpose unknown
-		self.unk_floats = Array(self.context, 0, None, (0,), Float)
+		self.unk_floats = Array(self.context, 0, None, (0,), name_type_map['Float'])
 
 		# seen 1 or 13
-		self.flag = BioModelFlag(self.context, 0, None)
+		self.flag = name_type_map['BioModelFlag'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('chunks_offset', Uint, (0, None), (False, None), None)
-		yield ('chunks_count', Uint, (0, None), (False, None), None)
-		yield ('tris_count', Uint, (0, None), (False, None), None)
-		yield ('vertex_count', Uint, (0, None), (False, None), None)
-		yield ('zero_1', Uint64, (0, None), (False, None), None)
-		yield ('poweroftwo', Uint, (0, None), (False, None), None)
-		yield ('unk_floats', Array, (0, None, (2,), Float), (False, None), None)
-		yield ('flag', BioModelFlag, (0, None), (False, None), None)
+		yield 'chunks_offset', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'chunks_count', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'tris_count', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'vertex_count', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'zero_1', name_type_map['Uint64'], (0, None), (False, None), (None, None)
+		yield 'poweroftwo', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'unk_floats', Array, (0, None, (2,), name_type_map['Float']), (False, None), (None, None)
+		yield 'flag', name_type_map['BioModelFlag'], (0, None), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'chunks_offset', Uint, (0, None), (False, None)
-		yield 'chunks_count', Uint, (0, None), (False, None)
-		yield 'tris_count', Uint, (0, None), (False, None)
-		yield 'vertex_count', Uint, (0, None), (False, None)
-		yield 'zero_1', Uint64, (0, None), (False, None)
-		yield 'poweroftwo', Uint, (0, None), (False, None)
-		yield 'unk_floats', Array, (0, None, (2,), Float), (False, None)
-		yield 'flag', BioModelFlag, (0, None), (False, None)
+		yield 'chunks_offset', name_type_map['Uint'], (0, None), (False, None)
+		yield 'chunks_count', name_type_map['Uint'], (0, None), (False, None)
+		yield 'tris_count', name_type_map['Uint'], (0, None), (False, None)
+		yield 'vertex_count', name_type_map['Uint'], (0, None), (False, None)
+		yield 'zero_1', name_type_map['Uint64'], (0, None), (False, None)
+		yield 'poweroftwo', name_type_map['Uint'], (0, None), (False, None)
+		yield 'unk_floats', Array, (0, None, (2,), name_type_map['Float']), (False, None)
+		yield 'flag', name_type_map['BioModelFlag'], (0, None), (False, None)
 
 	# @property
 	def get_stream_index(self):
@@ -477,6 +472,3 @@ class BioMeshData(MeshData):
 		Array.to_stream(self.tri_chunks, self.buffer_info.tri_chunks, self.context, dtype=TriChunk)
 		Array.to_stream(self.vert_chunks, self.buffer_info.vert_chunks, self.context, dtype=VertChunk)
 
-
-
-BioMeshData.init_attributes()

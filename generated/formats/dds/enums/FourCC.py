@@ -1,5 +1,5 @@
 from generated.base_enum import BaseEnum
-from generated.formats.dds.basic import Uint
+from generated.formats.base.basic import Uint
 
 
 class FourCC(BaseEnum):

@@ -1,68 +1,60 @@
-from generated.formats.base.basic import Ubyte
-from generated.formats.base.basic import Ushort
-from generated.formats.ovl_base.compounds.ArrayPointer import ArrayPointer
-from generated.formats.ovl_base.compounds.ForEachPointer import ForEachPointer
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
-from generated.formats.ovl_base.compounds.Pointer import Pointer
+from generated.formats.specdef.imports import name_type_map
 
 
 class SpecdefRoot(MemStruct):
 
 	__name__ = 'SpecdefRoot'
 
-	_import_key = 'specdef.compounds.SpecdefRoot'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.attrib_count = 0
-		self.flags = 0
-		self.name_count = 0
-		self.childspec_count = 0
-		self.manager_count = 0
-		self.script_count = 0
-		self.attribs = ArrayPointer(self.context, self.attrib_count, SpecdefRoot._import_map["specdef.compounds.Spec"])
-		self.name_foreach_attribs = ForEachPointer(self.context, self.attribs, SpecdefRoot._import_map["specdef.compounds.NamePtr"])
-		self.data_foreach_attribs = ForEachPointer(self.context, self.attribs, SpecdefRoot._import_map["specdef.compounds.DataPtr"])
-		self.names = Pointer(self.context, self.name_count, SpecdefRoot._import_map["specdef.compounds.PtrList"])
-		self.childspecs = Pointer(self.context, self.childspec_count, SpecdefRoot._import_map["specdef.compounds.PtrList"])
-		self.managers = Pointer(self.context, self.manager_count, SpecdefRoot._import_map["specdef.compounds.PtrList"])
-		self.scripts = Pointer(self.context, self.script_count, SpecdefRoot._import_map["specdef.compounds.PtrList"])
+		self.attrib_count = name_type_map['Ushort'](self.context, 0, None)
+		self.flags = name_type_map['Ushort'](self.context, 0, None)
+		self.name_count = name_type_map['Ubyte'](self.context, 0, None)
+		self.childspec_count = name_type_map['Ubyte'](self.context, 0, None)
+		self.manager_count = name_type_map['Ubyte'](self.context, 0, None)
+		self.script_count = name_type_map['Ubyte'](self.context, 0, None)
+		self.attribs = name_type_map['ArrayPointer'](self.context, self.attrib_count, name_type_map['Spec'])
+		self.name_foreach_attribs = name_type_map['ForEachPointer'](self.context, self.attribs, name_type_map['NamePtr'])
+		self.data_foreach_attribs = name_type_map['ForEachPointer'](self.context, self.attribs, name_type_map['DataPtr'])
+		self.names = name_type_map['Pointer'](self.context, self.name_count, name_type_map['PtrList'])
+		self.childspecs = name_type_map['Pointer'](self.context, self.childspec_count, name_type_map['PtrList'])
+		self.managers = name_type_map['Pointer'](self.context, self.manager_count, name_type_map['PtrList'])
+		self.scripts = name_type_map['Pointer'](self.context, self.script_count, name_type_map['PtrList'])
 		if set_default:
 			self.set_defaults()
 
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('attrib_count', Ushort, (0, None), (False, None), None)
-		yield ('flags', Ushort, (0, None), (False, None), None)
-		yield ('name_count', Ubyte, (0, None), (False, None), None)
-		yield ('childspec_count', Ubyte, (0, None), (False, None), None)
-		yield ('manager_count', Ubyte, (0, None), (False, None), None)
-		yield ('script_count', Ubyte, (0, None), (False, None), None)
-		yield ('attribs', ArrayPointer, (None, None), (False, None), None)
-		yield ('name_foreach_attribs', ForEachPointer, (None, None), (False, None), None)
-		yield ('data_foreach_attribs', ForEachPointer, (None, None), (False, None), None)
-		yield ('names', Pointer, (None, None), (False, None), None)
-		yield ('childspecs', Pointer, (None, None), (False, None), None)
-		yield ('managers', Pointer, (None, None), (False, None), None)
-		yield ('scripts', Pointer, (None, None), (False, None), None)
+		yield 'attrib_count', name_type_map['Ushort'], (0, None), (False, None), (None, None)
+		yield 'flags', name_type_map['Ushort'], (0, None), (False, None), (None, None)
+		yield 'name_count', name_type_map['Ubyte'], (0, None), (False, None), (None, None)
+		yield 'childspec_count', name_type_map['Ubyte'], (0, None), (False, None), (None, None)
+		yield 'manager_count', name_type_map['Ubyte'], (0, None), (False, None), (None, None)
+		yield 'script_count', name_type_map['Ubyte'], (0, None), (False, None), (None, None)
+		yield 'attribs', name_type_map['ArrayPointer'], (None, name_type_map['Spec']), (False, None), (None, None)
+		yield 'name_foreach_attribs', name_type_map['ForEachPointer'], (None, name_type_map['NamePtr']), (False, None), (None, None)
+		yield 'data_foreach_attribs', name_type_map['ForEachPointer'], (None, name_type_map['DataPtr']), (False, None), (None, None)
+		yield 'names', name_type_map['Pointer'], (None, name_type_map['PtrList']), (False, None), (None, None)
+		yield 'childspecs', name_type_map['Pointer'], (None, name_type_map['PtrList']), (False, None), (None, None)
+		yield 'managers', name_type_map['Pointer'], (None, name_type_map['PtrList']), (False, None), (None, None)
+		yield 'scripts', name_type_map['Pointer'], (None, name_type_map['PtrList']), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'attrib_count', Ushort, (0, None), (False, None)
-		yield 'flags', Ushort, (0, None), (False, None)
-		yield 'name_count', Ubyte, (0, None), (False, None)
-		yield 'childspec_count', Ubyte, (0, None), (False, None)
-		yield 'manager_count', Ubyte, (0, None), (False, None)
-		yield 'script_count', Ubyte, (0, None), (False, None)
-		yield 'attribs', ArrayPointer, (instance.attrib_count, SpecdefRoot._import_map["specdef.compounds.Spec"]), (False, None)
-		yield 'name_foreach_attribs', ForEachPointer, (instance.attribs, SpecdefRoot._import_map["specdef.compounds.NamePtr"]), (False, None)
-		yield 'data_foreach_attribs', ForEachPointer, (instance.attribs, SpecdefRoot._import_map["specdef.compounds.DataPtr"]), (False, None)
-		yield 'names', Pointer, (instance.name_count, SpecdefRoot._import_map["specdef.compounds.PtrList"]), (False, None)
-		yield 'childspecs', Pointer, (instance.childspec_count, SpecdefRoot._import_map["specdef.compounds.PtrList"]), (False, None)
-		yield 'managers', Pointer, (instance.manager_count, SpecdefRoot._import_map["specdef.compounds.PtrList"]), (False, None)
-		yield 'scripts', Pointer, (instance.script_count, SpecdefRoot._import_map["specdef.compounds.PtrList"]), (False, None)
-
-
-SpecdefRoot.init_attributes()
+		yield 'attrib_count', name_type_map['Ushort'], (0, None), (False, None)
+		yield 'flags', name_type_map['Ushort'], (0, None), (False, None)
+		yield 'name_count', name_type_map['Ubyte'], (0, None), (False, None)
+		yield 'childspec_count', name_type_map['Ubyte'], (0, None), (False, None)
+		yield 'manager_count', name_type_map['Ubyte'], (0, None), (False, None)
+		yield 'script_count', name_type_map['Ubyte'], (0, None), (False, None)
+		yield 'attribs', name_type_map['ArrayPointer'], (instance.attrib_count, name_type_map['Spec']), (False, None)
+		yield 'name_foreach_attribs', name_type_map['ForEachPointer'], (instance.attribs, name_type_map['NamePtr']), (False, None)
+		yield 'data_foreach_attribs', name_type_map['ForEachPointer'], (instance.attribs, name_type_map['DataPtr']), (False, None)
+		yield 'names', name_type_map['Pointer'], (instance.name_count, name_type_map['PtrList']), (False, None)
+		yield 'childspecs', name_type_map['Pointer'], (instance.childspec_count, name_type_map['PtrList']), (False, None)
+		yield 'managers', name_type_map['Pointer'], (instance.manager_count, name_type_map['PtrList']), (False, None)
+		yield 'scripts', name_type_map['Pointer'], (instance.script_count, name_type_map['PtrList']), (False, None)

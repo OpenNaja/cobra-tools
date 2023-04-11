@@ -1,10 +1,5 @@
-from generated.formats.base.basic import Ubyte
-from generated.formats.base.basic import Uint
-from generated.formats.base.basic import Uint64
-from generated.formats.base.basic import Ushort
-from generated.formats.base.basic import ZString
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
-from generated.formats.ovl_base.compounds.Pointer import Pointer
+from generated.formats.posedriverdef.imports import name_type_map
 
 
 class Driver(MemStruct):
@@ -15,47 +10,43 @@ class Driver(MemStruct):
 
 	__name__ = 'Driver'
 
-	_import_key = 'posedriverdef.compounds.Driver'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.a = 0
-		self.b = 0
-		self.c = 0
-		self.d = 0
-		self.unk_1 = 0
-		self.unk_2 = 0
-		self.joint_name = Pointer(self.context, 0, ZString)
-		self.driven_joint_name = Pointer(self.context, 0, ZString)
-		self.data = Pointer(self.context, 0, Driver._import_map["posedriverdef.compounds.Data"])
+		self.a = name_type_map['Ubyte'](self.context, 0, None)
+		self.b = name_type_map['Ubyte'](self.context, 0, None)
+		self.c = name_type_map['Ushort'](self.context, 0, None)
+		self.d = name_type_map['Uint'](self.context, 0, None)
+		self.unk_1 = name_type_map['Uint64'](self.context, 0, None)
+		self.unk_2 = name_type_map['Uint64'](self.context, 0, None)
+		self.joint_name = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
+		self.driven_joint_name = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
+		self.data = name_type_map['Pointer'](self.context, 0, name_type_map['Data'])
 		if set_default:
 			self.set_defaults()
 
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('joint_name', Pointer, (0, ZString), (False, None), None)
-		yield ('a', Ubyte, (0, None), (False, None), None)
-		yield ('b', Ubyte, (0, None), (False, None), None)
-		yield ('c', Ushort, (0, None), (False, None), None)
-		yield ('d', Uint, (0, None), (False, None), None)
-		yield ('driven_joint_name', Pointer, (0, ZString), (False, None), None)
-		yield ('unk_1', Uint64, (0, None), (False, None), None)
-		yield ('data', Pointer, (0, None), (False, None), None)
-		yield ('unk_2', Uint64, (0, None), (False, None), None)
+		yield 'joint_name', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None)
+		yield 'a', name_type_map['Ubyte'], (0, None), (False, None), (None, None)
+		yield 'b', name_type_map['Ubyte'], (0, None), (False, None), (None, None)
+		yield 'c', name_type_map['Ushort'], (0, None), (False, None), (None, None)
+		yield 'd', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'driven_joint_name', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None)
+		yield 'unk_1', name_type_map['Uint64'], (0, None), (False, None), (None, None)
+		yield 'data', name_type_map['Pointer'], (0, name_type_map['Data']), (False, None), (None, None)
+		yield 'unk_2', name_type_map['Uint64'], (0, None), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'joint_name', Pointer, (0, ZString), (False, None)
-		yield 'a', Ubyte, (0, None), (False, None)
-		yield 'b', Ubyte, (0, None), (False, None)
-		yield 'c', Ushort, (0, None), (False, None)
-		yield 'd', Uint, (0, None), (False, None)
-		yield 'driven_joint_name', Pointer, (0, ZString), (False, None)
-		yield 'unk_1', Uint64, (0, None), (False, None)
-		yield 'data', Pointer, (0, Driver._import_map["posedriverdef.compounds.Data"]), (False, None)
-		yield 'unk_2', Uint64, (0, None), (False, None)
-
-
-Driver.init_attributes()
+		yield 'joint_name', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None)
+		yield 'a', name_type_map['Ubyte'], (0, None), (False, None)
+		yield 'b', name_type_map['Ubyte'], (0, None), (False, None)
+		yield 'c', name_type_map['Ushort'], (0, None), (False, None)
+		yield 'd', name_type_map['Uint'], (0, None), (False, None)
+		yield 'driven_joint_name', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None)
+		yield 'unk_1', name_type_map['Uint64'], (0, None), (False, None)
+		yield 'data', name_type_map['Pointer'], (0, name_type_map['Data']), (False, None)
+		yield 'unk_2', name_type_map['Uint64'], (0, None), (False, None)

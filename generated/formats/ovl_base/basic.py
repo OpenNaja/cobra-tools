@@ -69,6 +69,3 @@ class OffsetString(Int):
             raise KeyError(f"String '{instance}' was missing from ZStringBuffer '{arg}'")
         # print(offset, instance, arg.offset_dic)
         super().to_stream(offset, stream, context, arg, template)
-
-
-from generated.formats.base.basic import Byte, Ubyte, Uint64, Int64, Uint, Ushort, Int, Short, Char, Normshort, Float, Double, Hfloat, ZString

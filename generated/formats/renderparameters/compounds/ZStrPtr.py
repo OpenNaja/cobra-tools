@@ -1,6 +1,5 @@
-from generated.formats.base.basic import ZString
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
-from generated.formats.ovl_base.compounds.Pointer import Pointer
+from generated.formats.renderparameters.imports import name_type_map
 
 
 class ZStrPtr(MemStruct):
@@ -11,23 +10,19 @@ class ZStrPtr(MemStruct):
 
 	__name__ = 'ZStrPtr'
 
-	_import_key = 'renderparameters.compounds.ZStrPtr'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.string = Pointer(self.context, 0, ZString)
+		self.string = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
 		if set_default:
 			self.set_defaults()
 
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('string', Pointer, (0, ZString), (False, None), None)
+		yield 'string', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'string', Pointer, (0, ZString), (False, None)
-
-
-ZStrPtr.init_attributes()
+		yield 'string', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None)

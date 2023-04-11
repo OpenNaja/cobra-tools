@@ -1,4 +1,4 @@
-from generated.formats.ovl_base.basic import Bool
+from generated.formats.habitatboundary.imports import name_type_map
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
 
 
@@ -6,30 +6,26 @@ class HbUiOptions(MemStruct):
 
 	__name__ = 'HB_UI_Options'
 
-	_import_key = 'habitatboundary.structs.HbUiOptions'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 
 		# Controls the Straight-Curved option for barriers
-		self.straight_curve = False
+		self.straight_curve = name_type_map['Bool'](self.context, 0, None)
 
 		# Controls the Windows option for barriers
-		self.windows = False
+		self.windows = name_type_map['Bool'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('straight_curve', Bool, (0, None), (False, None), None)
-		yield ('windows', Bool, (0, None), (False, None), None)
+		yield 'straight_curve', name_type_map['Bool'], (0, None), (False, None), (None, None)
+		yield 'windows', name_type_map['Bool'], (0, None), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'straight_curve', Bool, (0, None), (False, None)
-		yield 'windows', Bool, (0, None), (False, None)
-
-
-HbUiOptions.init_attributes()
+		yield 'straight_curve', name_type_map['Bool'], (0, None), (False, None)
+		yield 'windows', name_type_map['Bool'], (0, None), (False, None)

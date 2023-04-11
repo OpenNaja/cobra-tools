@@ -19,12 +19,6 @@ class StructMetaClass(type):
         name = dict.get("__name__", name)
         return super().__new__(metacls, name, bases, dict, **kwds)
 
-    def __init__(cls, name, bases, dict, **kwds):
-        # store this struct cls in the import map, so that other structs can import it without cyclic imports
-        if "_import_key" in dict:
-            cls._import_map[dict['_import_key']] = cls
-        super().__init__(name, bases, dict, **kwds)
-
 
 def indent(e, level=0):
     i = "\n" + level * "	"
@@ -40,22 +34,6 @@ def indent(e, level=0):
     else:
         if level and (not e.tail or not e.tail.strip()):
             e.tail = i
-
-
-class ImportMap(dict):
-
-    def __getitem__(self, k):
-        # The keys only get added to the import map when the file the class is in is run
-        # so unless you run every single struct class file beforehand you might have issues
-        try:
-            return dict.__getitem__(self, k)
-        except KeyError:
-            # assume the last part of the module is the same as the name of the class
-            # restore full path from import key
-            class_module = importlib.import_module(f"generated.formats.{k}")
-            found_class = getattr(class_module, k.split(".")[-1])
-            self[k] = found_class
-            return self[k]
 
 
 class DummyInstance:
@@ -84,9 +62,7 @@ class BaseStruct(metaclass=StructMetaClass):
 
     context = ContextReference()
 
-    _import_map = ImportMap()
-    _import_key = "base_struct"
-    _attribute_list = []
+    _attribute_list = ()
     allow_np = False
 
     def __init__(self, context, arg=0, template=None, set_default=True):
@@ -375,11 +351,8 @@ class BaseStruct(metaclass=StructMetaClass):
         if callable(getattr(struct_type, "_get_filtered_attribute_list", None)):
             for attribute in struct_type._get_filtered_attribute_list(struct_instance, *arguments[3:4], include_abstract):
                 field_name, field_type, field_arguments = attribute[0:3]
-                try:
-                    if condition_function(attribute):
-                        yield struct_type, struct_instance, attribute
-                except:
-                    logging.exception(f"condition check failed in {struct_type} for {field_name}, attrib {attribute}, condition {condition_function}")
+                if condition_function(attribute):
+                    yield struct_type, struct_instance, attribute
                 if enter_condition(attribute):
                     yield from cls.get_condition_attributes_recursive(field_type,
                                                               struct_type.get_field(struct_instance, field_name),
