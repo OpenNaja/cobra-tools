@@ -140,8 +140,7 @@ class XmlParser:
         versions_file = BaseClass.get_out_path(os.path.join(self.base_segments, "versions"))
         self.versions.write(versions_file)
         imports_module = os.path.join(self.base_segments, "imports")
-        imports_file = BaseClass.get_out_path(imports_module)
-        Imports.write_import_map(self, imports_file)
+        self.write_import_map(BaseClass.get_out_path(imports_module))
         init_file = BaseClass.get_out_path(os.path.join(self.base_segments, "__init__"))
         import_string = f'from {Imports.import_from_module_path(imports_module)} import name_type_map\n'
         if not os.path.exists(init_file):
@@ -155,6 +154,20 @@ class XmlParser:
                 f.write(init_content)
 
         parsed_xmls[xml_path] = self
+
+    def write_import_map(self, file):
+        with open(file, "w", encoding=self.encoding) as f:
+            f.write("from importlib import import_module\n")
+            f.write("\n\ntype_module_name_map = {\n")
+            for type_name in self.processed_types:
+                f.write(f"\t'{type_name}': '{Imports.import_from_module_path(self.path_dict[type_name])}',\n")
+            f.write('}\n')
+            f.write("\nname_type_map = {}\n")
+            f.write("for type_name, module in type_module_name_map.items():\n")
+            f.write("\tname_type_map[type_name] = getattr(import_module(module), type_name)\n")
+            f.write("for class_object in name_type_map.values():\n")
+            f.write("\tif callable(getattr(class_object, 'init_attributes', None)):\n")
+            f.write("\t\tclass_object.init_attributes()\n")
 
     # the following constructs do not create classes
     def read_token(self, token):

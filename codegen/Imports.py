@@ -13,8 +13,7 @@ class Imports:
     def __init__(self, parser, xml_struct):
         self.parent = parser
         self.xml_struct = xml_struct
-        self.path_dict = parser.path_dict
-        self.imports = []
+        self.imports = set()
         # import parent class
         self.add(xml_struct.attrib.get("inherit"))
 
@@ -66,7 +65,7 @@ class Imports:
 
     def add(self, cls_to_import):
         if cls_to_import and cls_to_import != self.xml_struct.attrib["name"]:
-            self.imports.append(cls_to_import.split('.')[0])
+            self.imports.add(cls_to_import.split('.')[0])
 
     def is_recursive_field(self, field):
         field_type = field.attrib['type']
@@ -85,13 +84,13 @@ class Imports:
     def write(self, stream):
         module_imports = []
         local_imports = []
-        for class_import in set(self.imports):
+        for class_import in self.imports:
             # don't write classes that are purely virtual
             if class_import in NO_CLASSES:
                 continue
-            if class_import in self.path_dict:
-                import_path = self.import_from_module_path(self.path_dict[class_import])
-                local_imports.append(f"from {import_path} import {class_import}\n")
+            import_path = self.parent.path_dict.get(class_import, None)
+            if import_path:
+                local_imports.append(f"from {self.import_from_module_path(import_path)} import {class_import}\n")
             else:
                 module_imports.append(f"import {class_import}\n")
         module_imports.sort()
@@ -104,22 +103,3 @@ class Imports:
     @staticmethod
     def import_from_module_path(module_path):
         return f"generated.{module_path.replace(path.sep, '.')}"
-
-    @staticmethod
-    def import_map_key(module_path):
-        return Imports.import_from_module_path(module_path).replace("generated.formats.", "")
-
-    @classmethod
-    def write_import_map(cls, parser, file):
-        with open(file, "w", encoding=parser.encoding) as f:
-            f.write("from importlib import import_module\n")
-            f.write("\n\ntype_module_name_map = {\n")
-            for type_name in parser.processed_types:
-                f.write(f"\t'{type_name}': '{cls.import_from_module_path(parser.path_dict[type_name])}',\n")
-            f.write('}\n')
-            f.write("\nname_type_map = {}\n")
-            f.write("for type_name, module in type_module_name_map.items():\n")
-            f.write("\tname_type_map[type_name] = getattr(import_module(module), type_name)\n")
-            f.write("for class_object in name_type_map.values():\n")
-            f.write("\tif callable(getattr(class_object, 'init_attributes', None)):\n")
-            f.write("\t\tclass_object.init_attributes()\n")
