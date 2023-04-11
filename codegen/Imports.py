@@ -17,7 +17,6 @@ class Imports:
         self.imports = []
         # import parent class
         self.add(xml_struct.attrib.get("inherit"))
-        # self.add("basic")
 
         # import classes used in the fields
         if xml_struct.tag in self.parent.bitstruct_types:
@@ -31,7 +30,7 @@ class Imports:
                 if field.tag in ("add", "field", "member"):
                     field_type = field.attrib["type"]
                     if not self.is_template(field_type):
-                        self.add_indirect_import(field_type)
+                        self.add_indirect_import()
                     arr1 = field.attrib.get("arr1")
                     if arr1 is None:
                         arr1 = field.attrib.get("length")
@@ -44,26 +43,21 @@ class Imports:
                         # only import if a type
                         template_class = convention.name_class(template)
                         if not self.is_template(template_class):
-                            self.add_indirect_import(template_class)
+                            self.add_indirect_import()
     
                     onlyT = field.attrib.get("onlyT")
-                    if onlyT:
-                        self.add_indirect_import(onlyT)
-    
                     excludeT = field.attrib.get("excludeT")
-                    if excludeT:
-                        self.add_indirect_import(excludeT)
+                    if onlyT or excludeT:
+                        self.add_indirect_import()
     
                     for default in field:
                         if default.tag in ("default",):
                             if default.attrib.get("versions"):
                                 self.add("versions")
                             onlyT = default.attrib.get("onlyT")
-                            if onlyT:
-                                self.add_indirect_import(onlyT)
                             excludeT = default.attrib.get("excludeT")
-                            if excludeT:
-                                self.add_indirect_import(excludeT)
+                            if onlyT or excludeT:
+                                self.add_indirect_import()
         else:
             raise NotImplementedError(f'Unknown tag type {xml_struct.tag}')
 
@@ -85,7 +79,7 @@ class Imports:
         else:
             return field.attrib.get('recursive', 'False') == 'True'
 
-    def add_indirect_import(self, cls_to_import):
+    def add_indirect_import(self):
         self.add("name_type_map")
 
     def write(self, stream):
@@ -128,4 +122,4 @@ class Imports:
             f.write("\tname_type_map[type_name] = getattr(import_module(module), type_name)\n")
             f.write("for class_object in name_type_map.values():\n")
             f.write("\tif callable(getattr(class_object, 'init_attributes', None)):\n")
-            f.write("\t\tclass_object.init_attributes()")
+            f.write("\t\tclass_object.init_attributes()\n")
