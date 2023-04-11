@@ -56,7 +56,7 @@ class XmlParser:
             }
         # maps each type to its member tag type
         self.tag_dict = {}
-
+        # order is relevant to ensure that structs are later imported in the correct order in generated code
         self.processed_types = {}
 
         self.basics = None
