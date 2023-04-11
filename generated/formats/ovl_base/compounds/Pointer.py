@@ -85,12 +85,11 @@ class Pointer(BaseStruct):
 			self.data = link
 		else:
 			# now read an instance of template class at the offset
-			pool, offset = link
+			self.target_pool, self.target_offset = link
 			self.link = link
-			self.target_pool = pool
 			# we are now (potentially) in a new pool
-			self.pool_type = pool.type
-			stream = pool.stream_at(offset)
+			self.pool_type = self.target_pool.type
+			stream = self.target_pool.stream_at(self.target_offset)
 			self.read_template(stream)
 
 	def read_template(self, stream):
@@ -137,12 +136,12 @@ class Pointer(BaseStruct):
 	@classmethod
 	def pool_type_to_xml(cls, elem, instance, debug):
 		"""Sets the pool type of instance to elem's attrib"""
-		if instance.frag and hasattr(instance.frag, "struct_ptr"):
-			f_ptr = instance.frag.struct_ptr
+		if instance.link and isinstance(instance.link, tuple):
+			pool = instance.target_pool
 			if debug:
-				elem.set("_address", f"{f_ptr.pool_index} | {f_ptr.data_offset}")
-				elem.set("_size", f"{f_ptr.data_size}")
-			cls._set_pool_type(elem, f_ptr.pool.type, instance.template)
+				elem.set("_address", f"{pool.i} | {instance.target_offset}")
+				elem.set("_size", f"{pool.size_map.get(instance.target_offset, -1)}")
+			cls._set_pool_type(elem, pool.type, instance.template)
 		elif hasattr(instance, POOL_TYPE):
 			if instance.pool_type is not None:
 				cls._set_pool_type(elem, instance.pool_type, instance.template)
