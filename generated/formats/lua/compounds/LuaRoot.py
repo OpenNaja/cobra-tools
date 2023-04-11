@@ -34,8 +34,8 @@ class LuaRoot(MemStruct):
 		yield ('sixteenk', name_type_map['Uint'], (0, None), (False, None), (None, None))
 		yield ('hash', name_type_map['Uint'], (0, None), (False, None), (None, None))
 		yield ('zero_0', name_type_map['Uint'], (0, None), (False, None), (None, None))
-		yield ('source_path', name_type_map['Pointer'], (0, None), (False, None), (lambda context: context.version >= 18, None))
-		yield ('likely_alignment', name_type_map['Pointer'], (0, None), (False, None), (lambda context: context.version >= 18, None))
+		yield ('source_path', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (lambda context: context.version >= 18, None))
+		yield ('likely_alignment', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (lambda context: context.version >= 18, None))
 		yield ('zero_1', name_type_map['Uint64'], (0, None), (False, None), (None, None))
 		yield ('zero_2', name_type_map['Uint64'], (0, None), (False, None), (None, None))
 

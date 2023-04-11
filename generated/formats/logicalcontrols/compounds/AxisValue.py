@@ -23,11 +23,11 @@ class AxisValue(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('axis_name', name_type_map['Pointer'], (0, None), (False, None), (None, None))
+		yield ('axis_name', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None))
 		yield ('u_0', name_type_map['Uint64'], (0, None), (False, None), (None, None))
 		yield ('u_1', name_type_map['Uint64'], (0, None), (False, None), (None, None))
 		yield ('u_2', name_type_map['Uint64'], (0, None), (False, None), (None, None))
-		yield ('value_name', name_type_map['Pointer'], (0, None), (False, None), (None, None))
+		yield ('value_name', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None))
 		yield ('u_3', name_type_map['Uint64'], (0, None), (False, None), (None, None))
 		yield ('u_4', name_type_map['Uint64'], (0, None), (False, None), (None, None))
 

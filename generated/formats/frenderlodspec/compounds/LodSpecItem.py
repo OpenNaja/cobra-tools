@@ -30,7 +30,7 @@ class LodSpecItem(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('group_name', name_type_map['Pointer'], (0, None), (False, None), (None, None))
+		yield ('group_name', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None))
 		yield ('unknown_1', name_type_map['Uint'], (0, None), (False, None), (None, None))
 		yield ('max_model_bounding_sphere_radius', name_type_map['Float'], (0, None), (False, None), (None, None))
 		yield ('flags_1', name_type_map['Ushort'], (0, None), (False, None), (None, None))

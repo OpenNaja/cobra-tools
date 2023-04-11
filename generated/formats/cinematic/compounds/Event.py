@@ -28,8 +28,8 @@ class Event(MemStruct):
 		yield from super()._get_attribute_list()
 		yield ('start_time', name_type_map['Float'], (0, None), (False, None), (None, None))
 		yield ('b', name_type_map['Float'], (0, None), (False, None), (None, None))
-		yield ('module_name', name_type_map['Pointer'], (0, None), (False, None), (None, None))
-		yield ('attributes', name_type_map['Pointer'], (0, None), (False, None), (None, None))
+		yield ('module_name', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None))
+		yield ('attributes', name_type_map['Pointer'], (0, name_type_map['EventAttributes']), (False, None), (None, None))
 		yield ('duration', name_type_map['Float'], (0, None), (False, None), (None, None))
 		yield ('d', name_type_map['Float'], (0, None), (False, None), (None, None))
 

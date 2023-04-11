@@ -18,7 +18,7 @@ class ResearchStartRoot(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('states', name_type_map['ArrayPointer'], (None, None), (False, None), (None, None))
+		yield ('states', name_type_map['ArrayPointer'], (None, name_type_map['UnlockState']), (False, None), (None, None))
 		yield ('count', name_type_map['Uint64'], (0, None), (False, None), (None, None))
 
 	@classmethod

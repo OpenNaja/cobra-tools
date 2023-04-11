@@ -20,8 +20,8 @@ class DinoLayersHeader(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('fgm_name', name_type_map['Pointer'], (0, None), (False, None), (None, None))
-		yield ('layers', name_type_map['ArrayPointer'], (None, None), (False, None), (None, None))
+		yield ('fgm_name', name_type_map['Pointer'], (0, name_type_map['ZStringObfuscated']), (False, None), (None, None))
+		yield ('layers', name_type_map['ArrayPointer'], (None, name_type_map['Layer']), (False, None), (None, None))
 		yield ('layer_count', name_type_map['Uint64'], (0, None), (False, None), (None, None))
 		yield ('zero', name_type_map['Uint64'], (0, None), (False, None), (None, None))
 

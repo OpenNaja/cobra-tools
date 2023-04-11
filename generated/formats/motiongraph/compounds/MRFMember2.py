@@ -30,7 +30,7 @@ class MRFMember2(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('transition', name_type_map['Pointer'], (0, None), (False, None), (None, None))
+		yield ('transition', name_type_map['Pointer'], (0, name_type_map['Transition']), (False, None), (None, None))
 		yield ('count_0', name_type_map['Uint64'], (0, None), (False, None), (None, None))
 		yield ('count_1', name_type_map['Uint64'], (0, None), (False, None), (None, None))
 		yield ('count_2', name_type_map['Uint64'], (0, None), (False, None), (None, None))
@@ -38,7 +38,7 @@ class MRFMember2(MemStruct):
 		yield ('count_4', name_type_map['Uint64'], (0, None), (False, None), (None, None))
 		yield ('count_5', name_type_map['Uint64'], (0, None), (False, None), (None, None))
 		yield ('count_6', name_type_map['Uint64'], (0, None), (False, None), (None, None))
-		yield ('id', name_type_map['Pointer'], (0, None), (False, None), (None, None))
+		yield ('id', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

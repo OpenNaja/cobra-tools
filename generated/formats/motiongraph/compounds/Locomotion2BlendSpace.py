@@ -27,7 +27,7 @@ class Locomotion2BlendSpace(MemStruct):
 		yield ('y_axis', name_type_map['BlendSpaceAxis'], (0, None), (False, None), (None, None))
 		yield ('x_axis', name_type_map['BlendSpaceAxis'], (0, None), (False, None), (None, None))
 		yield ('nodes_count', name_type_map['Uint64'], (0, None), (False, None), (None, None))
-		yield ('nodes', name_type_map['ArrayPointer'], (None, None), (False, None), (None, None))
+		yield ('nodes', name_type_map['ArrayPointer'], (None, name_type_map['Locomotion2BlendSpaceNode']), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

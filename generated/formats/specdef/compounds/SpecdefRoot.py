@@ -35,13 +35,13 @@ class SpecdefRoot(MemStruct):
 		yield ('childspec_count', name_type_map['Ubyte'], (0, None), (False, None), (None, None))
 		yield ('manager_count', name_type_map['Ubyte'], (0, None), (False, None), (None, None))
 		yield ('script_count', name_type_map['Ubyte'], (0, None), (False, None), (None, None))
-		yield ('attribs', name_type_map['ArrayPointer'], (None, None), (False, None), (None, None))
-		yield ('name_foreach_attribs', name_type_map['ForEachPointer'], (None, None), (False, None), (None, None))
-		yield ('data_foreach_attribs', name_type_map['ForEachPointer'], (None, None), (False, None), (None, None))
-		yield ('names', name_type_map['Pointer'], (None, None), (False, None), (None, None))
-		yield ('childspecs', name_type_map['Pointer'], (None, None), (False, None), (None, None))
-		yield ('managers', name_type_map['Pointer'], (None, None), (False, None), (None, None))
-		yield ('scripts', name_type_map['Pointer'], (None, None), (False, None), (None, None))
+		yield ('attribs', name_type_map['ArrayPointer'], (None, name_type_map['Spec']), (False, None), (None, None))
+		yield ('name_foreach_attribs', name_type_map['ForEachPointer'], (None, name_type_map['NamePtr']), (False, None), (None, None))
+		yield ('data_foreach_attribs', name_type_map['ForEachPointer'], (None, name_type_map['DataPtr']), (False, None), (None, None))
+		yield ('names', name_type_map['Pointer'], (None, name_type_map['PtrList']), (False, None), (None, None))
+		yield ('childspecs', name_type_map['Pointer'], (None, name_type_map['PtrList']), (False, None), (None, None))
+		yield ('managers', name_type_map['Pointer'], (None, name_type_map['PtrList']), (False, None), (None, None))
+		yield ('scripts', name_type_map['Pointer'], (None, name_type_map['PtrList']), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

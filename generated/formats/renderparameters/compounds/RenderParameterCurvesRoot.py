@@ -24,8 +24,8 @@ class RenderParameterCurvesRoot(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('param_name', name_type_map['Pointer'], (0, None), (False, None), (None, None))
-		yield ('params', name_type_map['Pointer'], (None, None), (False, None), (None, None))
+		yield ('param_name', name_type_map['Pointer'], (0, name_type_map['ZStringObfuscated']), (False, None), (None, None))
+		yield ('params', name_type_map['Pointer'], (None, name_type_map['CurveParamList']), (False, None), (None, None))
 		yield ('count', name_type_map['Uint64'], (0, None), (False, None), (None, None))
 		yield ('unk', name_type_map['Uint64'], (0, None), (False, None), (None, None))
 

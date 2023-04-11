@@ -37,10 +37,10 @@ class TurnActivityData(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('spot_animation', name_type_map['Pointer'], (0, None), (False, None), (None, None))
-		yield ('half_animation', name_type_map['Pointer'], (0, None), (False, None), (None, None))
-		yield ('full_animation', name_type_map['Pointer'], (0, None), (False, None), (None, None))
-		yield ('output_prop_through_variable', name_type_map['Pointer'], (0, None), (False, None), (None, None))
+		yield ('spot_animation', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None))
+		yield ('half_animation', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None))
+		yield ('full_animation', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None))
+		yield ('output_prop_through_variable', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None))
 		yield ('spot_data_streams', name_type_map['DataStreamResourceDataList'], (0, None), (False, None), (None, None))
 		yield ('half_data_streams', name_type_map['DataStreamResourceDataList'], (0, None), (False, None), (None, None))
 		yield ('full_data_streams', name_type_map['DataStreamResourceDataList'], (0, None), (False, None), (None, None))

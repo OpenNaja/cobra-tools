@@ -25,7 +25,7 @@ class RideSettingsRoot(MemStruct):
 		yield from super()._get_attribute_list()
 		yield ('unk_0', name_type_map['Float'], (0, None), (False, None), (None, None))
 		yield ('unk_1', name_type_map['Uint'], (0, None), (False, None), (None, None))
-		yield ('array_1', name_type_map['ArrayPointer'], (None, None), (False, None), (None, None))
+		yield ('array_1', name_type_map['ArrayPointer'], (None, name_type_map['Pair']), (False, None), (None, None))
 		yield ('count', name_type_map['Uint'], (0, None), (False, None), (None, None))
 		yield ('pad_0', name_type_map['Uint'], (0, None), (False, None), (None, None))
 		yield ('pad_1', name_type_map['Uint'], (0, None), (False, None), (None, None))

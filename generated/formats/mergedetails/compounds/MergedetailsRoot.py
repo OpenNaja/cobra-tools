@@ -27,11 +27,11 @@ class MergedetailsRoot(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('merge_names', name_type_map['Pointer'], (None, None), (False, None), (None, None))
+		yield ('merge_names', name_type_map['Pointer'], (None, name_type_map['PtrList']), (False, None), (None, None))
 		yield ('zero_0', name_type_map['Uint64'], (0, None), (False, None), (None, None))
 		yield ('zero_1', name_type_map['Uint64'], (0, None), (False, None), (None, None))
-		yield ('queries', name_type_map['Pointer'], (None, None), (False, None), (None, None))
-		yield ('field_name', name_type_map['Pointer'], (0, None), (False, None), (None, None))
+		yield ('queries', name_type_map['Pointer'], (None, name_type_map['PtrList']), (False, None), (None, None))
+		yield ('field_name', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None))
 		yield ('count', name_type_map['Uint'], (0, None), (False, None), (None, None))
 		yield ('flag', name_type_map['Uint'], (0, None), (False, None), (None, None))
 

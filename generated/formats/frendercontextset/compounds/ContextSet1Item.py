@@ -27,16 +27,16 @@ class ContextSet1Item(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('stuff_1_name', name_type_map['Pointer'], (0, None), (False, None), (None, None))
-		yield ('stuff_11_sub', name_type_map['ArrayPointer'], (None, None), (False, None), (None, None))
+		yield ('stuff_1_name', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None))
+		yield ('stuff_11_sub', name_type_map['ArrayPointer'], (None, name_type_map['ContextSet1SubItem']), (False, None), (None, None))
 		yield ('stuff_11_sub_count', name_type_map['Uint64'], (0, None), (False, None), (None, None))
-		yield ('stuff_12_sub', name_type_map['ArrayPointer'], (None, None), (False, None), (None, None))
+		yield ('stuff_12_sub', name_type_map['ArrayPointer'], (None, name_type_map['ContextSet1SubItem']), (False, None), (None, None))
 		yield ('stuff_12_sub_count', name_type_map['Uint64'], (0, None), (False, None), (None, None))
-		yield ('stuff_13_sub', name_type_map['ArrayPointer'], (None, None), (False, None), (None, None))
+		yield ('stuff_13_sub', name_type_map['ArrayPointer'], (None, name_type_map['ContextSet1SubItem']), (False, None), (None, None))
 		yield ('stuff_13_sub_count', name_type_map['Uint64'], (0, None), (False, None), (None, None))
-		yield ('stuff_14_sub_name', name_type_map['Pointer'], (0, None), (False, None), (None, None))
-		yield ('stuff_14_sub_name', name_type_map['Pointer'], (0, None), (False, None), (None, None))
-		yield ('stuff_15_sub_name', name_type_map['Pointer'], (0, None), (False, None), (None, None))
+		yield ('stuff_14_sub_name', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None))
+		yield ('stuff_14_sub_name', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None))
+		yield ('stuff_15_sub_name', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None))
 		yield ('stuff_1_unknown_1', name_type_map['Uint64'], (0, None), (False, None), (None, None))
 		yield ('stuff_1_unknown_2', name_type_map['Uint64'], (0, None), (False, None), (None, None))
 

@@ -40,7 +40,7 @@ class MeshData(MemStruct):
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
 		yield ('stream_index', name_type_map['Uint64'], (0, None), (False, None), (lambda context: context.version <= 32, None))
-		yield ('stream_info', name_type_map['Pointer'], (0, None), (False, None), (lambda context: context.version >= 47, None))
+		yield ('stream_info', name_type_map['Pointer'], (0, name_type_map['BufferInfo']), (False, None), (lambda context: context.version >= 47, None))
 		yield ('some_index', name_type_map['Uint'], (0, None), (False, None), (lambda context: not (((context.version == 51) or (context.version == 52)) and context.biosyn), None))
 		yield ('some_index_2', name_type_map['Uint'], (0, None), (False, None), (lambda context: not ((((context.version == 51) or (context.version == 52)) and context.biosyn) or (context.version == 32)), None))
 

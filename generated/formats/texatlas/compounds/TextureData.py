@@ -20,7 +20,7 @@ class TextureData(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('atlas_name', name_type_map['Pointer'], (0, None), (False, None), (None, None))
+		yield ('atlas_name', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None))
 		yield ('dependency_name', name_type_map['Pointer'], (0, None), (False, None), (None, None))
 
 	@classmethod

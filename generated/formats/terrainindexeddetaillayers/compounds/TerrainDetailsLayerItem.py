@@ -19,8 +19,8 @@ class TerrainDetailsLayerItem(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('layer_name', name_type_map['Pointer'], (0, None), (False, None), (None, None))
-		yield ('info_list', name_type_map['ArrayPointer'], (None, None), (False, None), (None, None))
+		yield ('layer_name', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None))
+		yield ('info_list', name_type_map['ArrayPointer'], (None, name_type_map['BrushitemStruct']), (False, None), (None, None))
 		yield ('info_count', name_type_map['Uint64'], (0, None), (False, None), (None, None))
 
 	@classmethod

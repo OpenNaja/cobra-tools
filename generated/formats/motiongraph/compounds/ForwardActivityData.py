@@ -46,12 +46,12 @@ class ForwardActivityData(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('straight_forward_animation', name_type_map['Pointer'], (0, None), (False, None), (None, None))
-		yield ('left_forward_animation', name_type_map['Pointer'], (0, None), (False, None), (None, None))
-		yield ('right_forward_animation', name_type_map['Pointer'], (0, None), (False, None), (None, None))
-		yield ('straight_spot_animation', name_type_map['Pointer'], (0, None), (False, None), (None, None))
-		yield ('output_prop_through_variable', name_type_map['Pointer'], (0, None), (False, None), (None, None))
-		yield ('cycled_variable', name_type_map['Pointer'], (0, None), (False, None), (None, None))
+		yield ('straight_forward_animation', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None))
+		yield ('left_forward_animation', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None))
+		yield ('right_forward_animation', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None))
+		yield ('straight_spot_animation', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None))
+		yield ('output_prop_through_variable', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None))
+		yield ('cycled_variable', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None))
 		yield ('straight_forward_data_streams', name_type_map['DataStreamResourceDataList'], (0, None), (False, None), (None, None))
 		yield ('left_forward_data_streams', name_type_map['DataStreamResourceDataList'], (0, None), (False, None), (None, None))
 		yield ('right_forward_data_streams', name_type_map['DataStreamResourceDataList'], (0, None), (False, None), (None, None))

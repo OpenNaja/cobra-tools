@@ -50,11 +50,11 @@ class VoxelskirtRoot(MemStruct):
 		yield ('padding', name_type_map['Uint'], (0, None), (True, 0), (None, None))
 		yield ('_height_offset', name_type_map['Uint64'], (0, None), (False, None), (lambda context: context.version == 18, None))
 		yield ('_weights_offset', name_type_map['Uint64'], (0, None), (False, None), (lambda context: context.version == 18, None))
-		yield ('layers', name_type_map['DataSlot'], (0, None), (False, None), (lambda context: not (context.version == 18), None))
-		yield ('areas', name_type_map['DataSlot'], (0, None), (False, None), (lambda context: not (context.version == 18), None))
-		yield ('entity_groups', name_type_map['DataSlot'], (0, None), (False, None), (None, None))
-		yield ('materials', name_type_map['DataSlot'], (0, None), (False, None), (None, None))
-		yield ('names', name_type_map['DataSlot'], (0, None), (False, None), (None, None))
+		yield ('layers', name_type_map['DataSlot'], (0, name_type_map['Layer']), (False, None), (lambda context: not (context.version == 18), None))
+		yield ('areas', name_type_map['DataSlot'], (0, name_type_map['Area']), (False, None), (lambda context: not (context.version == 18), None))
+		yield ('entity_groups', name_type_map['DataSlot'], (0, name_type_map['EntityGroup']), (False, None), (None, None))
+		yield ('materials', name_type_map['DataSlot'], (0, name_type_map['Material']), (False, None), (None, None))
+		yield ('names', name_type_map['DataSlot'], (0, name_type_map['Name']), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

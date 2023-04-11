@@ -51,8 +51,8 @@ class TerrainDetailsLayerItem(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('layer_name', name_type_map['Pointer'], (0, None), (False, None), (None, None))
-		yield ('info_list', name_type_map['ArrayPointer'], (None, None), (False, None), (None, None))
+		yield ('layer_name', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None))
+		yield ('info_list', name_type_map['ArrayPointer'], (None, name_type_map['InfoStruct']), (False, None), (None, None))
 		yield ('info_count', name_type_map['Uint'], (0, None), (False, None), (None, None))
 		yield ('float_1', name_type_map['Float'], (0, None), (False, None), (None, None))
 		yield ('float_2', name_type_map['Float'], (0, None), (False, None), (None, None))
@@ -61,7 +61,7 @@ class TerrainDetailsLayerItem(MemStruct):
 		yield ('float_5', name_type_map['Float'], (0, None), (False, None), (None, None))
 		yield ('float_6', name_type_map['Float'], (0, None), (False, None), (None, None))
 		yield ('unk_2', name_type_map['Uint'], (0, None), (False, None), (None, None))
-		yield ('detail_list', name_type_map['ArrayPointer'], (None, None), (False, None), (None, None))
+		yield ('detail_list', name_type_map['ArrayPointer'], (None, name_type_map['DetailStruct']), (False, None), (None, None))
 		yield ('detail_count', name_type_map['Uint'], (0, None), (False, None), (None, None))
 		yield ('floata_1', name_type_map['Float'], (0, None), (False, None), (None, None))
 		yield ('floata_2', name_type_map['Float'], (0, None), (False, None), (None, None))

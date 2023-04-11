@@ -23,7 +23,7 @@ class Param(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('attribute_name', name_type_map['Pointer'], (0, None), (False, None), (None, None))
+		yield ('attribute_name', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None))
 		yield ('dtype', name_type_map['RenderParameterType'], (0, None), (False, None), (None, None))
 		yield ('data', name_type_map['ParamData'], (None, None), (False, None), (None, None))
 

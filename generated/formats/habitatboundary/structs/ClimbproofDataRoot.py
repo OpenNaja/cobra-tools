@@ -29,10 +29,10 @@ class ClimbproofDataRoot(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('climb_proof', name_type_map['Pointer'], (0, None), (False, None), (None, None))
-		yield ('climb_proof_cap_start', name_type_map['Pointer'], (0, None), (False, None), (None, None))
-		yield ('climb_proof_cap_end', name_type_map['Pointer'], (0, None), (False, None), (None, None))
-		yield ('climb_proof_bracket', name_type_map['Pointer'], (0, None), (False, None), (None, None))
+		yield ('climb_proof', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None))
+		yield ('climb_proof_cap_start', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None))
+		yield ('climb_proof_cap_end', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None))
+		yield ('climb_proof_bracket', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None))
 		yield ('post_gap', name_type_map['Float'], (0, None), (False, None), (None, None))
 		yield ('u_1', name_type_map['Float'], (0, None), (False, 2.0), (None, None))
 		yield ('zero', name_type_map['Uint64'], (0, None), (True, 0), (None, None))

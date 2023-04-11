@@ -19,7 +19,7 @@ class FRenderLodSpecRoot(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('spec_list', name_type_map['ArrayPointer'], (None, None), (False, None), (None, None))
+		yield ('spec_list', name_type_map['ArrayPointer'], (None, name_type_map['LodSpecItem']), (False, None), (None, None))
 		yield ('spec_count', name_type_map['Uint64'], (0, None), (False, None), (None, None))
 		yield ('unknown', name_type_map['Uint64'], (0, None), (False, None), (None, None))
 

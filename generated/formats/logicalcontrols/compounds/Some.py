@@ -23,8 +23,8 @@ class Some(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('some_name', name_type_map['Pointer'], (0, None), (False, None), (None, None))
-		yield ('some_data', name_type_map['ArrayPointer'], (None, None), (False, None), (None, None))
+		yield ('some_name', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None))
+		yield ('some_data', name_type_map['ArrayPointer'], (None, name_type_map['SomeData']), (False, None), (None, None))
 		yield ('some_count', name_type_map['Uint64'], (0, None), (False, None), (None, None))
 
 	@classmethod

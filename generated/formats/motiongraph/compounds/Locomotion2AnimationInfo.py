@@ -25,7 +25,7 @@ class Locomotion2AnimationInfo(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('anim_name', name_type_map['Pointer'], (0, None), (False, None), (None, None))
+		yield ('anim_name', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None))
 		yield ('phase_entry_window', name_type_map['Float'], (0, None), (False, 1.5), (None, None))
 		yield ('priority', name_type_map['Ushort'], (0, None), (False, None), (None, None))
 		yield ('anim_type', name_type_map['Ubyte'], (0, None), (False, None), (None, None))

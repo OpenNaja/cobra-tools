@@ -23,7 +23,7 @@ class DataStreamResourceDataList(MemStruct):
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
 		yield ('count', name_type_map['Uint64'], (0, None), (False, None), (None, None))
-		yield ('data_stream_resource_data', name_type_map['Pointer'], (None, None), (False, None), (None, None))
+		yield ('data_stream_resource_data', name_type_map['Pointer'], (None, name_type_map['DataStreamResourceDataPoints']), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

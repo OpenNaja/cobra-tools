@@ -52,7 +52,7 @@ class ParticleEffectRoot(MemStruct):
 		yield ('a_unk_32_3_1', name_type_map['Uint'], (0, None), (False, None), (None, None))
 		yield ('a_unk_32_4', name_type_map['Uint'], (0, None), (False, None), (None, None))
 		yield ('atlasinfo_count', name_type_map['Uint64'], (0, None), (False, None), (None, None))
-		yield ('name_foreach_textures', name_type_map['ArrayPointer'], (None, None), (False, None), (None, None))
+		yield ('name_foreach_textures', name_type_map['ArrayPointer'], (None, name_type_map['TextureData']), (False, None), (None, None))
 		yield ('next_row_1', name_type_map['NextRow1'], (0, None), (False, None), (None, None))
 		yield ('next_row_2', name_type_map['NextRow2'], (0, None), (False, None), (None, None))
 		yield ('next_row_3', name_type_map['NextRow2'], (0, None), (False, None), (None, None))

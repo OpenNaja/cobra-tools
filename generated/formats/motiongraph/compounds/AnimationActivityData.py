@@ -31,16 +31,16 @@ class AnimationActivityData(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('mani', name_type_map['Pointer'], (0, None), (False, None), (None, None))
+		yield ('mani', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None))
 		yield ('animation_flags', name_type_map['AnimationFlags'], (0, None), (False, None), (None, None))
 		yield ('priorities', name_type_map['Uint'], (0, None), (False, None), (None, None))
 		yield ('weight', name_type_map['FloatInputData'], (0, None), (False, None), (None, None))
 		yield ('speed', name_type_map['FloatInputData'], (0, None), (False, None), (None, None))
 		yield ('starting_prop_through', name_type_map['Float'], (0, None), (False, None), (None, None))
 		yield ('lead_out_time', name_type_map['Float'], (0, None), (False, None), (None, None))
-		yield ('sync_prop_through_variable', name_type_map['Pointer'], (0, None), (False, None), (None, None))
+		yield ('sync_prop_through_variable', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None))
 		yield ('count_6', name_type_map['Uint64'], (0, None), (False, None), (None, None))
-		yield ('output_prop_through_variable', name_type_map['Pointer'], (0, None), (False, None), (None, None))
+		yield ('output_prop_through_variable', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None))
 		yield ('additional_data_streams', name_type_map['DataStreamResourceDataList'], (0, None), (False, None), (None, None))
 
 	@classmethod

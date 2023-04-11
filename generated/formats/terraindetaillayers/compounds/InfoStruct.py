@@ -21,7 +21,7 @@ class InfoStruct(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('brush_list', name_type_map['ArrayPointer'], (None, None), (False, None), (None, None))
+		yield ('brush_list', name_type_map['ArrayPointer'], (None, name_type_map['BrushitemStruct']), (False, None), (None, None))
 		yield ('brush_count', name_type_map['Uint'], (0, None), (False, None), (None, None))
 		yield ('brush_flags', name_type_map['Uint'], (0, None), (False, None), (None, None))
 		yield ('scale', name_type_map['Float'], (0, None), (False, None), (None, None))

@@ -24,11 +24,11 @@ class Research(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('item_name', name_type_map['Pointer'], (0, None), (False, None), (None, None))
+		yield ('item_name', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None))
 		yield ('unk_0', name_type_map['Uint'], (0, None), (False, None), (None, None))
 		yield ('is_entry_level', name_type_map['Uint'], (0, None), (False, None), (None, None))
 		yield ('unk_2', name_type_map['Uint64'], (0, None), (False, None), (None, None))
-		yield ('next_research', name_type_map['Pointer'], (None, None), (False, None), (None, None))
+		yield ('next_research', name_type_map['Pointer'], (None, name_type_map['NextResearch']), (False, None), (None, None))
 		yield ('next_research_count', name_type_map['Uint64'], (0, None), (False, None), (None, None))
 		yield ('unk_3', name_type_map['Uint64'], (0, None), (False, None), (None, None))
 		yield ('unk_4', name_type_map['Uint64'], (0, None), (False, None), (None, None))

@@ -30,16 +30,16 @@ class MotiongraphHeader(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('ptr_0', name_type_map['Pointer'], (0, None), (False, None), (None, None))
-		yield ('state_output_entries', name_type_map['Pointer'], (0, None), (False, None), (None, None))
-		yield ('ptr_2', name_type_map['Pointer'], (0, None), (False, None), (None, None))
-		yield ('ptr_3', name_type_map['Pointer'], (0, None), (False, None), (None, None))
+		yield ('ptr_0', name_type_map['Pointer'], (0, name_type_map['MotiongraphRootFrag']), (False, None), (None, None))
+		yield ('state_output_entries', name_type_map['Pointer'], (0, name_type_map['StateArray']), (False, None), (None, None))
+		yield ('ptr_2', name_type_map['Pointer'], (0, name_type_map['MGTwo']), (False, None), (None, None))
+		yield ('ptr_3', name_type_map['Pointer'], (0, name_type_map['MRFMember1']), (False, None), (None, None))
 		yield ('count_0', name_type_map['Uint'], (0, None), (False, None), (None, None))
 		yield ('count_1', name_type_map['Uint'], (0, None), (False, None), (None, None))
-		yield ('lua_modules', name_type_map['Pointer'], (0, None), (False, None), (None, None))
-		yield ('lua_results', name_type_map['Pointer'], (0, None), (False, None), (None, None))
-		yield ('first_non_transition_state', name_type_map['Pointer'], (0, None), (False, None), (None, None))
-		yield ('empty_str', name_type_map['Pointer'], (0, None), (False, None), (None, None))
+		yield ('lua_modules', name_type_map['Pointer'], (0, name_type_map['LuaModules']), (False, None), (None, None))
+		yield ('lua_results', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None))
+		yield ('first_non_transition_state', name_type_map['Pointer'], (0, name_type_map['MRFMember2']), (False, None), (None, None))
+		yield ('empty_str', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

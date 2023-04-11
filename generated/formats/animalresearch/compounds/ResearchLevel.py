@@ -21,10 +21,10 @@ class ResearchLevel(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('level_name', name_type_map['Pointer'], (0, None), (False, None), (None, None))
-		yield ('next_levels', name_type_map['Pointer'], (None, None), (False, None), (None, None))
+		yield ('level_name', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None))
+		yield ('next_levels', name_type_map['Pointer'], (None, name_type_map['PtrList']), (False, None), (None, None))
 		yield ('next_level_count', name_type_map['Uint64'], (0, None), (False, None), (None, None))
-		yield ('children', name_type_map['Pointer'], (None, None), (False, None), (None, None))
+		yield ('children', name_type_map['Pointer'], (None, name_type_map['PtrList']), (False, None), (None, None))
 		yield ('children_count', name_type_map['Uint64'], (0, None), (False, None), (None, None))
 
 	@classmethod

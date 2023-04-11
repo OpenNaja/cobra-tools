@@ -21,7 +21,7 @@ class CinematicRoot(MemStruct):
 		yield from super()._get_attribute_list()
 		yield ('u_0', name_type_map['Uint64'], (0, None), (False, None), (None, None))
 		yield ('u_1', name_type_map['Uint64'], (0, None), (False, None), (None, None))
-		yield ('data', name_type_map['Pointer'], (0, None), (False, None), (None, None))
+		yield ('data', name_type_map['Pointer'], (0, name_type_map['CinematicData']), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

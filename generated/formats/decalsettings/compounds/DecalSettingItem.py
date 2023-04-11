@@ -17,7 +17,7 @@ class DecalSettingItem(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('layer_name', name_type_map['Pointer'], (0, None), (False, None), (None, None))
+		yield ('layer_name', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

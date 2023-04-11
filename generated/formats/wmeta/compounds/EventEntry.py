@@ -39,7 +39,7 @@ class EventEntry(MemStruct):
 		yield from super()._get_attribute_list()
 		yield ('hash', name_type_map['Uint'], (0, None), (False, None), (None, None))
 		yield ('zero', name_type_map['Uint'], (0, None), (False, None), (None, None))
-		yield ('block_name', name_type_map['Pointer'], (0, None), (False, None), (lambda context: context.version <= 18, None))
+		yield ('block_name', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (lambda context: context.version <= 18, None))
 		yield ('zero_2', name_type_map['Ushort'], (0, None), (False, None), (lambda context: context.version <= 18, None))
 		yield ('size', name_type_map['Ushort'], (0, None), (False, None), (lambda context: context.version <= 18, None))
 		yield ('flag_0', name_type_map['Uint'], (0, None), (False, None), (None, None))

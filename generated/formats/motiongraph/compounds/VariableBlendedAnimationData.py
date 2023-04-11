@@ -24,7 +24,7 @@ class VariableBlendedAnimationData(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('animation', name_type_map['Pointer'], (0, None), (False, None), (None, None))
+		yield ('animation', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None))
 		yield ('value', name_type_map['Float'], (0, None), (False, 0.0), (None, None))
 		yield ('_pad', name_type_map['Uint'], (0, None), (False, None), (None, None))
 		yield ('additional_data_streams', name_type_map['DataStreamResourceDataList'], (0, None), (False, None), (None, None))

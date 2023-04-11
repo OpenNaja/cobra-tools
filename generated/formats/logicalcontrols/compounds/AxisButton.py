@@ -23,9 +23,9 @@ class AxisButton(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('button_name', name_type_map['Pointer'], (0, None), (False, None), (None, None))
-		yield ('axis_name_x', name_type_map['Pointer'], (0, None), (False, None), (None, None))
-		yield ('axis_name_y', name_type_map['Pointer'], (0, None), (False, None), (None, None))
+		yield ('button_name', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None))
+		yield ('axis_name_x', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None))
+		yield ('axis_name_y', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

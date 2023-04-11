@@ -27,10 +27,10 @@ class DataStreamResourceData(MemStruct):
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
 		yield ('curve_type', name_type_map['Uint64'], (0, None), (False, None), (None, None))
-		yield ('ds_name', name_type_map['Pointer'], (0, None), (False, None), (None, None))
-		yield ('type', name_type_map['Pointer'], (0, None), (False, None), (None, None))
-		yield ('bone_i_d', name_type_map['Pointer'], (0, None), (False, None), (None, None))
-		yield ('location', name_type_map['Pointer'], (0, None), (False, None), (None, None))
+		yield ('ds_name', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None))
+		yield ('type', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None))
+		yield ('bone_i_d', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None))
+		yield ('location', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None))
 		yield ('curve', name_type_map['CurveData'], (0, None), (False, None), (None, None))
 
 	@classmethod

@@ -1,7 +1,6 @@
 from itertools import chain
 
 from codegen.expression import Expression, Version, interpret_literal
-from codegen.Imports import Imports
 from codegen.Versions import Versions
 import codegen.naming_conventions as convention
 
@@ -60,7 +59,7 @@ class Union:
         if isinstance(potential_type, str):
             if potential_type in self.compounds.parser.path_dict:
                 return True
-            if potential_type.startswith(f'{self.compounds.class_name}._import_map'):
+            if potential_type.startswith('name_type_map'):
                 return True
         return False
 

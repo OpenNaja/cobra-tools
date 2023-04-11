@@ -35,7 +35,7 @@ class Locomotion2ActivityData(MemStruct):
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
 		yield ('animation_count', name_type_map['Uint64'], (0, None), (False, None), (None, None))
-		yield ('animations', name_type_map['ArrayPointer'], (None, None), (False, None), (None, None))
+		yield ('animations', name_type_map['ArrayPointer'], (None, name_type_map['Locomotion2AnimationInfo']), (False, None), (None, None))
 		yield ('flags', name_type_map['Uint'], (0, None), (False, None), (None, None))
 		yield ('stopping_distance', name_type_map['Float'], (0, None), (False, 0.0), (None, None))
 		yield ('strafe_turn_blend', name_type_map['Float'], (0, None), (False, 0.2), (None, None))
@@ -43,11 +43,11 @@ class Locomotion2ActivityData(MemStruct):
 		yield ('turn_speed_multiplier', name_type_map['Float'], (0, None), (False, 1.0), (None, None))
 		yield ('flex_speed_multiplier', name_type_map['Float'], (0, None), (False, 1.0), (None, None))
 		yield ('blend_space', name_type_map['Locomotion2BlendSpace'], (0, None), (False, None), (None, None))
-		yield ('output_prop_through_variable', name_type_map['Pointer'], (0, None), (False, None), (None, None))
-		yield ('speed_variable', name_type_map['Pointer'], (0, None), (False, None), (None, None))
-		yield ('orientation_variable', name_type_map['Pointer'], (0, None), (False, None), (None, None))
+		yield ('output_prop_through_variable', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None))
+		yield ('speed_variable', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None))
+		yield ('orientation_variable', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None))
 		yield ('data_streams_count', name_type_map['Uint64'], (0, None), (False, None), (None, None))
-		yield ('data_streams', name_type_map['ArrayPointer'], (None, None), (False, None), (None, None))
+		yield ('data_streams', name_type_map['ArrayPointer'], (None, name_type_map['DataStreamResourceDataList']), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

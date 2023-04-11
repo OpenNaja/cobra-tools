@@ -31,7 +31,7 @@ class OffsetData(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('offset_id', name_type_map['Pointer'], (0, None), (False, None), (None, None))
+		yield ('offset_id', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None))
 		yield ('z_0', name_type_map['Uint64'], (0, None), (False, None), (None, None))
 		yield ('z_1', name_type_map['Uint64'], (0, None), (False, None), (None, None))
 		yield ('relative_offset', name_type_map['Vector3'], (0, None), (False, None), (None, None))

@@ -24,10 +24,10 @@ class TrackElementRoot(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('track_data', name_type_map['ArrayPointer'], (None, None), (False, None), (None, None))
+		yield ('track_data', name_type_map['ArrayPointer'], (None, name_type_map['TrackElementData']), (False, None), (None, None))
 		yield ('count', name_type_map['Uint64'], (0, None), (False, None), (None, None))
-		yield ('unk_string_1', name_type_map['Pointer'], (0, None), (False, None), (None, None))
-		yield ('unk_string_2', name_type_map['Pointer'], (0, None), (False, None), (None, None))
+		yield ('unk_string_1', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None))
+		yield ('unk_string_2', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None))
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):

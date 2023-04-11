@@ -25,8 +25,8 @@ class SelectActivityActivityData(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield ('enum_variable', name_type_map['Pointer'], (0, None), (False, None), (None, None))
-		yield ('activities', name_type_map['Pointer'], (None, None), (False, None), (None, None))
+		yield ('enum_variable', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None))
+		yield ('activities', name_type_map['Pointer'], (None, name_type_map['ActivitiesLinks']), (False, None), (None, None))
 		yield ('num_activities', name_type_map['Uint64'], (0, None), (False, None), (None, None))
 		yield ('blend_time', name_type_map['Float'], (0, None), (False, None), (None, None))
 		yield ('mode', name_type_map['SelectActivityActivityMode'], (0, None), (False, None), (None, None))
