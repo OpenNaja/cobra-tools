@@ -12,7 +12,6 @@ class WmetasbMain(MemStruct):
 
 	__name__ = 'WmetasbMain'
 
-	_import_key = 'wmeta.compounds.WmetasbMain'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)

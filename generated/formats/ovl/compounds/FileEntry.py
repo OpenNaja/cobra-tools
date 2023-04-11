@@ -10,7 +10,6 @@ class FileEntry(BaseStruct):
 
 	__name__ = 'FileEntry'
 
-	_import_key = 'ovl.compounds.FileEntry'
 	allow_np = True
 
 	def __init__(self, context, arg=0, template=None, set_default=True):

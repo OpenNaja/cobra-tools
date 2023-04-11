@@ -10,7 +10,6 @@ class Uint64Data(MemStruct):
 
 	__name__ = 'Uint64Data'
 
-	_import_key = 'specdef.compounds.Uint64Data'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)

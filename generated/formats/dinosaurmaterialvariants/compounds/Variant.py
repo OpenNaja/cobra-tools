@@ -6,7 +6,6 @@ class Variant(MemStruct):
 
 	__name__ = 'Variant'
 
-	_import_key = 'dinosaurmaterialvariants.compounds.Variant'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)

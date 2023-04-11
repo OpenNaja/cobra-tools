@@ -23,7 +23,6 @@ class DataSlot(BaseStruct):
 
 	__name__ = 'DataSlot'
 
-	_import_key = 'voxelskirt.compounds.DataSlot'
 
 	@classmethod
 	def _get_attribute_list(cls):

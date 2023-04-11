@@ -10,7 +10,6 @@ class AuxEntry(BaseStruct):
 
 	__name__ = 'AuxEntry'
 
-	_import_key = 'ovl.compounds.AuxEntry'
 	allow_np = True
 
 	def __init__(self, context, arg=0, template=None, set_default=True):

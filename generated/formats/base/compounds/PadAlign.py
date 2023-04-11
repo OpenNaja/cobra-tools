@@ -27,7 +27,6 @@ class PadAlign(BaseStruct):
 
 	__name__ = 'PadAlign'
 
-	_import_key = 'base.compounds.PadAlign'
 
 	@classmethod
 	def _get_attribute_list(cls):

@@ -10,7 +10,6 @@ class SubChunkReader(BaseStruct):
 
 	__name__ = 'SubChunkReader'
 
-	_import_key = 'manis.compounds.SubChunkReader'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)

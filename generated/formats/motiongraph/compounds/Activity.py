@@ -20,7 +20,6 @@ class Activity(MemStruct):
 
 	__name__ = 'Activity'
 
-	_import_key = 'motiongraph.compounds.Activity'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
@@ -62,7 +61,7 @@ class Activity(MemStruct):
 			activity = self.data_type.data
 			key = f"motiongraph.compounds.{activity}Data"
 			try:
-				return Activity._import_map[key]
-			except:
+				return name_type_map[key]
+			except KeyError:
 				logging.warning(f"Unsupported activity '{activity}'")
 

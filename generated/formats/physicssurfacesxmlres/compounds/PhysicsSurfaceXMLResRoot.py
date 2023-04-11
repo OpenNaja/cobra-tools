@@ -10,7 +10,6 @@ class PhysicsSurfaceXMLResRoot(MemStruct):
 
 	__name__ = 'PhysicsSurfaceXMLResRoot'
 
-	_import_key = 'physicssurfacesxmlres.compounds.PhysicsSurfaceXMLResRoot'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)

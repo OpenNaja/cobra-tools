@@ -12,7 +12,6 @@ class TexHeader(MemStruct):
 
 	__name__ = 'TexHeader'
 
-	_import_key = 'tex.compounds.TexHeader'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)

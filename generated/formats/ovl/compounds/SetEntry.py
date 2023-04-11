@@ -10,7 +10,6 @@ class SetEntry(BaseStruct):
 
 	__name__ = 'SetEntry'
 
-	_import_key = 'ovl.compounds.SetEntry'
 	allow_np = True
 
 	def __init__(self, context, arg=0, template=None, set_default=True):

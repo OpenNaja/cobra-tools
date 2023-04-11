@@ -18,7 +18,6 @@ class ZStringBuffer(BaseStruct):
 
 	__name__ = 'ZStringBuffer'
 
-	_import_key = 'base.compounds.ZStringBuffer'
 
 	@classmethod
 	def _get_attribute_list(cls):

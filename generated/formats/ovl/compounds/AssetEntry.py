@@ -11,7 +11,6 @@ class AssetEntry(BaseStruct):
 
 	__name__ = 'AssetEntry'
 
-	_import_key = 'ovl.compounds.AssetEntry'
 	allow_np = True
 
 	def __init__(self, context, arg=0, template=None, set_default=True):

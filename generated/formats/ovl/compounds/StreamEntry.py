@@ -14,7 +14,6 @@ class StreamEntry(BaseStruct):
 
 	__name__ = 'StreamEntry'
 
-	_import_key = 'ovl.compounds.StreamEntry'
 	allow_np = True
 
 	def __init__(self, context, arg=0, template=None, set_default=True):

@@ -6,7 +6,6 @@ class BuildingSetRoot(MemStruct):
 
 	__name__ = 'BuildingSetRoot'
 
-	_import_key = 'buildingset.compounds.BuildingSetRoot'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)

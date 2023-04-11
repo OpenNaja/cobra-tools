@@ -6,7 +6,6 @@ class ContextSet1SubItem(MemStruct):
 
 	__name__ = 'ContextSet1SubItem'
 
-	_import_key = 'frendercontextset.compounds.ContextSet1SubItem'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)

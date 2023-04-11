@@ -6,7 +6,6 @@ class CurveParam(MemStruct):
 
 	__name__ = 'CurveParam'
 
-	_import_key = 'renderparameters.compounds.CurveParam'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)

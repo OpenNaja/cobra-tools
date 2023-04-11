@@ -12,7 +12,6 @@ class DependencyEntry(BaseStruct):
 
 	__name__ = 'DependencyEntry'
 
-	_import_key = 'ovl.compounds.DependencyEntry'
 	allow_np = True
 
 	def __init__(self, context, arg=0, template=None, set_default=True):

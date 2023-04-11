@@ -5,7 +5,6 @@ class TextureInfo(MemStruct):
 
 	__name__ = 'TextureInfo'
 
-	_import_key = 'particleeffect.compounds.TextureInfo'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)

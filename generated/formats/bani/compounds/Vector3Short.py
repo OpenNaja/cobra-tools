@@ -10,7 +10,6 @@ class Vector3Short(BaseStruct):
 
 	__name__ = 'Vector3Short'
 
-	_import_key = 'bani.compounds.Vector3Short'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)

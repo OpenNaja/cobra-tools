@@ -6,7 +6,6 @@ class PathJoinPartResourceRoot(MemStruct):
 
 	__name__ = 'PathJoinPartResourceRoot'
 
-	_import_key = 'path.compounds.PathJoinPartResourceRoot'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)

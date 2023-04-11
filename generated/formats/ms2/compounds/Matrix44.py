@@ -11,7 +11,6 @@ class Matrix44(BaseStruct):
 
 	__name__ = 'Matrix44'
 
-	_import_key = 'ms2.compounds.Matrix44'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)

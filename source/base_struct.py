@@ -19,12 +19,6 @@ class StructMetaClass(type):
         name = dict.get("__name__", name)
         return super().__new__(metacls, name, bases, dict, **kwds)
 
-    def __init__(cls, name, bases, dict, **kwds):
-        # store this struct cls in the import map, so that other structs can import it without cyclic imports
-        if "_import_key" in dict:
-            cls._import_map[dict['_import_key']] = cls
-        super().__init__(name, bases, dict, **kwds)
-
 
 def indent(e, level=0):
     i = "\n" + level * "	"
@@ -84,9 +78,7 @@ class BaseStruct(metaclass=StructMetaClass):
 
     context = ContextReference()
 
-    _import_map = ImportMap()
-    _import_key = "base_struct"
-    _attribute_list = []
+    _attribute_list = ()
     allow_np = False
 
     def __init__(self, context, arg=0, template=None, set_default=True):

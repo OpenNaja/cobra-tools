@@ -10,7 +10,6 @@ class ArchiveMeta(BaseStruct):
 
 	__name__ = 'ArchiveMeta'
 
-	_import_key = 'ovl.compounds.ArchiveMeta'
 	allow_np = True
 
 	def __init__(self, context, arg=0, template=None, set_default=True):

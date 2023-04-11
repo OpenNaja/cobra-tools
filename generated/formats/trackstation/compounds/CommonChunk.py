@@ -7,7 +7,6 @@ class CommonChunk(MemStruct):
 
 	__name__ = 'CommonChunk'
 
-	_import_key = 'trackstation.compounds.CommonChunk'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)

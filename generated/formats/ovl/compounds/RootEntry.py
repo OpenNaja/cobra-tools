@@ -10,7 +10,6 @@ class RootEntry(BaseStruct):
 
 	__name__ = 'RootEntry'
 
-	_import_key = 'ovl.compounds.RootEntry'
 	allow_np = True
 
 	def __init__(self, context, arg=0, template=None, set_default=True):

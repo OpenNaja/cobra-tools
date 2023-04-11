@@ -10,7 +10,6 @@ class IncludedOvl(BaseStruct):
 
 	__name__ = 'IncludedOvl'
 
-	_import_key = 'ovl.compounds.IncludedOvl'
 	allow_np = True
 
 	def __init__(self, context, arg=0, template=None, set_default=True):

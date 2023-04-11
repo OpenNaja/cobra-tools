@@ -11,7 +11,6 @@ class SetHeader(BaseStruct):
 
 	__name__ = 'SetHeader'
 
-	_import_key = 'ovl.compounds.SetHeader'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)

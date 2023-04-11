@@ -6,7 +6,6 @@ class HbOffsets(MemStruct):
 
 	__name__ = 'HB_Offsets'
 
-	_import_key = 'habitatboundary.structs.HbOffsets'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)

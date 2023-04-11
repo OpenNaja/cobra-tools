@@ -7,7 +7,6 @@ class SoundSfxVoice(BaseStruct):
 
 	__name__ = 'SoundSfxVoice'
 
-	_import_key = 'bnk.compounds.SoundSfxVoice'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)

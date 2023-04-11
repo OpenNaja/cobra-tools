@@ -12,7 +12,6 @@ class Fragment(BaseStruct):
 
 	__name__ = 'Fragment'
 
-	_import_key = 'ovl.compounds.Fragment'
 	allow_np = True
 
 	def __init__(self, context, arg=0, template=None, set_default=True):

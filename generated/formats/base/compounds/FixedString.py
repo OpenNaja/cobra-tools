@@ -9,7 +9,6 @@ class FixedString(BaseStruct):
 
 	__name__ = 'FixedString'
 
-	_import_key = 'base.compounds.FixedString'
 
 	@classmethod
 	def _get_attribute_list(cls):

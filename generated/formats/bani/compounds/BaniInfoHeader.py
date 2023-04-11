@@ -12,7 +12,6 @@ class BaniInfoHeader(BaseStruct):
 
 	__name__ = 'BaniInfoHeader'
 
-	_import_key = 'bani.compounds.BaniInfoHeader'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)

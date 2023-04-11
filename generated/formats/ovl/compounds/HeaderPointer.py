@@ -10,7 +10,6 @@ class HeaderPointer(BaseStruct):
 
 	__name__ = 'HeaderPointer'
 
-	_import_key = 'ovl.compounds.HeaderPointer'
 	allow_np = True
 
 	def __init__(self, context, arg=0, template=None, set_default=True):

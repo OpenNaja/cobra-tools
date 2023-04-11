@@ -10,7 +10,6 @@ class Locomotion2ActivityData(MemStruct):
 
 	__name__ = 'Locomotion2ActivityData'
 
-	_import_key = 'motiongraph.compounds.Locomotion2ActivityData'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)

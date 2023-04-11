@@ -11,7 +11,6 @@ class EntityGroup(Material):
 
 	__name__ = 'EntityGroup'
 
-	_import_key = 'voxelskirt.compounds.EntityGroup'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)

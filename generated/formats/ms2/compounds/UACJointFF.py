@@ -7,7 +7,6 @@ class UACJointFF(BaseStruct):
 
 	__name__ = 'UACJointFF'
 
-	_import_key = 'ms2.compounds.UACJointFF'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)

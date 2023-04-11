@@ -14,7 +14,6 @@ class MimeEntry(BaseStruct):
 
 	__name__ = 'MimeEntry'
 
-	_import_key = 'ovl.compounds.MimeEntry'
 	allow_np = True
 
 	def __init__(self, context, arg=0, template=None, set_default=True):

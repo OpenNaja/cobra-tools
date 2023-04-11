@@ -10,7 +10,6 @@ class BlendSpaceAxis(MemStruct):
 
 	__name__ = 'BlendSpaceAxis'
 
-	_import_key = 'motiongraph.compounds.BlendSpaceAxis'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)

@@ -10,7 +10,6 @@ class Font(MemStruct):
 
 	__name__ = 'Font'
 
-	_import_key = 'fct.compounds.Font'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)

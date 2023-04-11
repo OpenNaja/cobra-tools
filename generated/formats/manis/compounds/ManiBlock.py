@@ -7,7 +7,6 @@ class ManiBlock(BaseStruct):
 
 	__name__ = 'ManiBlock'
 
-	_import_key = 'manis.compounds.ManiBlock'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)

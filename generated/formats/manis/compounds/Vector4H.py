@@ -6,7 +6,6 @@ class Vector4H(BaseStruct):
 
 	__name__ = 'Vector4H'
 
-	_import_key = 'manis.compounds.Vector4H'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)

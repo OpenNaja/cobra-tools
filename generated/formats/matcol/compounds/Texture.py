@@ -6,7 +6,6 @@ class Texture(MemStruct):
 
 	__name__ = 'Texture'
 
-	_import_key = 'matcol.compounds.Texture'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)

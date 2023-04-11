@@ -10,7 +10,6 @@ class TrackedRideCarSub(MemStruct):
 
 	__name__ = 'TrackedRideCarSub'
 
-	_import_key = 'trackedridecar.compounds.TrackedRideCarSub'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)

@@ -6,7 +6,6 @@ class MeshDataWrap(MemStruct):
 
 	__name__ = 'MeshDataWrap'
 
-	_import_key = 'ms2.compounds.MeshDataWrap'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)

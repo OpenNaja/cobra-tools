@@ -11,7 +11,6 @@ class DIDXSection(BaseStruct):
 
 	__name__ = 'DIDXSection'
 
-	_import_key = 'bnk.compounds.DIDXSection'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)

@@ -11,7 +11,6 @@ class StateList(MemStruct):
 
 	__name__ = 'StateList'
 
-	_import_key = 'motiongraph.compounds.StateList'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)

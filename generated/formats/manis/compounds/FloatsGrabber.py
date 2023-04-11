@@ -11,7 +11,6 @@ class FloatsGrabber(BaseStruct):
 
 	__name__ = 'FloatsGrabber'
 
-	_import_key = 'manis.compounds.FloatsGrabber'
 
 	@classmethod
 	def _get_attribute_list(cls):

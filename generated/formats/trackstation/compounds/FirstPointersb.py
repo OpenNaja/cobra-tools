@@ -10,7 +10,6 @@ class FirstPointersb(MemStruct):
 
 	__name__ = 'FirstPointersb'
 
-	_import_key = 'trackstation.compounds.FirstPointersb'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)

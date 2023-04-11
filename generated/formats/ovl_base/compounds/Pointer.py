@@ -29,7 +29,6 @@ class Pointer(BaseStruct):
 
 	__name__ = 'Pointer'
 
-	_import_key = 'ovl_base.compounds.Pointer'
 
 	@classmethod
 	def _get_attribute_list(cls):

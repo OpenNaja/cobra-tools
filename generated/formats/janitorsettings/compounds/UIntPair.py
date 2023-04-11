@@ -6,7 +6,6 @@ class UIntPair(MemStruct):
 
 	__name__ = 'UIntPair'
 
-	_import_key = 'janitorsettings.compounds.UIntPair'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)

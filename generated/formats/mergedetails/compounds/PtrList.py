@@ -7,7 +7,6 @@ class PtrList(MemStruct):
 
 	__name__ = 'PtrList'
 
-	_import_key = 'mergedetails.compounds.PtrList'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)

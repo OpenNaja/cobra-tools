@@ -10,7 +10,6 @@ class IslandRoot(MemStruct):
 
 	__name__ = 'IslandRoot'
 
-	_import_key = 'island.compounds.IslandRoot'
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
