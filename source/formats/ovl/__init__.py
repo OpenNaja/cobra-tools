@@ -718,7 +718,7 @@ class OvlFile(Header):
 	def load_included_ovls(self, path):
 		if os.path.isfile(path):
 			with open(path) as f:
-				self.included_ovl_names = f.readlines()
+				self.included_ovl_names = [line.strip() for line in f.readlines() if line.strip()]
 
 	def save_included_ovls(self, path):
 		with open(path, "w") as f:
