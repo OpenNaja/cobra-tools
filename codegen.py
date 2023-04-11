@@ -2,11 +2,9 @@ import importlib
 import logging
 import xml.etree.ElementTree as ET
 import os
-import distutils.dir_util as dir_util
 import shutil
 
 from html import unescape
-from numpy import ndarray
 
 from codegen import naming_conventions as convention
 from codegen.BaseClass import BaseClass
