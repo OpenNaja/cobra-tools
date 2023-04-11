@@ -41,7 +41,7 @@ class FormatDict(dict):
 
 	@property
 	def extractables(self):
-		return [ext for ext, loader in self.items() if loader.can_extract]
+		return sorted([ext for ext, loader in self.items() if loader.can_extract])
 
 	@property
 	def ignore_types(self):
