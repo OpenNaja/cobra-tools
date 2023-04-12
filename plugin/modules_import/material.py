@@ -326,86 +326,89 @@ def create_material(in_dir, matname):
 	# 		e = ramp.color_ramp.elements.new(pos_relative)
 	# 		e.color[:3] = color
 	# 		e.alpha = opacity[0]
-	b_mat["shader_name"] = fgm_data.shader_name
-	shader = pick_shader(fgm_data)
-	shader.build_tex_nodes_dict(fgm_data, in_dir, tree, principled)
+	try:
+		b_mat["shader_name"] = fgm_data.shader_name
+		shader = pick_shader(fgm_data)
+		shader.build_tex_nodes_dict(fgm_data, in_dir, tree, principled)
 
-	# get diffuse
-	for diffuse in shader.get_tex(shader.diffuse_slots):
-		# apply AO to diffuse
-		for ao in shader.get_tex(shader.ao_slots):
-			ao.image.colorspace_settings.name = "Non-Color"
-			diffuse_premix = tree.nodes.new('ShaderNodeMixRGB')
-			diffuse_premix.blend_type = "MULTIPLY"
-			diffuse_premix.inputs["Fac"].default_value = 1.0
-			tree.links.new(diffuse.outputs[0], diffuse_premix.inputs["Color1"])
-			tree.links.new(ao.outputs[0], diffuse_premix.inputs["Color2"])
-			diffuse = diffuse_premix
-		# apply detail to diffuse
-		for detail in shader.get_tex(shader.detail_slots):
-			detail.image.colorspace_settings.name = "Non-Color"
-			diffuse_premix = tree.nodes.new('ShaderNodeMixRGB')
-			diffuse_premix.blend_type = "OVERLAY"
-			diffuse_premix.inputs["Fac"].default_value = 1.0
-			tree.links.new(diffuse.outputs[0], diffuse_premix.inputs["Color1"])
-			tree.links.new(detail.outputs[0], diffuse_premix.inputs["Color2"])
-			diffuse = diffuse_premix
+		# get diffuse
+		for diffuse in shader.get_tex(shader.diffuse_slots):
+			# apply AO to diffuse
+			for ao in shader.get_tex(shader.ao_slots):
+				ao.image.colorspace_settings.name = "Non-Color"
+				diffuse_premix = tree.nodes.new('ShaderNodeMixRGB')
+				diffuse_premix.blend_type = "MULTIPLY"
+				diffuse_premix.inputs["Fac"].default_value = 1.0
+				tree.links.new(diffuse.outputs[0], diffuse_premix.inputs["Color1"])
+				tree.links.new(ao.outputs[0], diffuse_premix.inputs["Color2"])
+				diffuse = diffuse_premix
+			# apply detail to diffuse
+			for detail in shader.get_tex(shader.detail_slots):
+				detail.image.colorspace_settings.name = "Non-Color"
+				diffuse_premix = tree.nodes.new('ShaderNodeMixRGB')
+				diffuse_premix.blend_type = "OVERLAY"
+				diffuse_premix.inputs["Fac"].default_value = 1.0
+				tree.links.new(diffuse.outputs[0], diffuse_premix.inputs["Color1"])
+				tree.links.new(detail.outputs[0], diffuse_premix.inputs["Color2"])
+				diffuse = diffuse_premix
 
-		diffuse = shader.add_marking_nodes(diffuse, tree)
-		#  link finished diffuse to shader
-		tree.links.new(diffuse.outputs[0], principled.inputs["Base Color"])
+			diffuse = shader.add_marking_nodes(diffuse, tree)
+			#  link finished diffuse to shader
+			tree.links.new(diffuse.outputs[0], principled.inputs["Base Color"])
 
-	for normal in shader.get_tex(shader.normal_slots):
-		normal.image.colorspace_settings.name = "Non-Color"
-		normal_map = tree.nodes.new('ShaderNodeNormalMap')
-		normal_map.inputs[0].default_value = 0.4  # nah, it really doesn't
-		tree.links.new(normal.outputs[0], normal_map.inputs[1])
-		tree.links.new(normal_map.outputs[0], principled.inputs["Normal"])
+		for normal in shader.get_tex(shader.normal_slots):
+			normal.image.colorspace_settings.name = "Non-Color"
+			normal_map = tree.nodes.new('ShaderNodeNormalMap')
+			normal_map.inputs[0].default_value = 0.4  # nah, it really doesn't
+			tree.links.new(normal.outputs[0], normal_map.inputs[1])
+			tree.links.new(normal_map.outputs[0], principled.inputs["Normal"])
 
-	# PZ - F0 value for dielectrics, related to IOR / fake specularity
-	# https://forum.sketchfab.com/t/what-is-specular-fo/22752/7
-	for specular in shader.get_tex(shader.specular_slots):
-		specular.image.colorspace_settings.name = "Non-Color"
-		tree.links.new(specular.outputs[0], principled.inputs["Specular"])
+		# PZ - F0 value for dielectrics, related to IOR / fake specularity
+		# https://forum.sketchfab.com/t/what-is-specular-fo/22752/7
+		for specular in shader.get_tex(shader.specular_slots):
+			specular.image.colorspace_settings.name = "Non-Color"
+			tree.links.new(specular.outputs[0], principled.inputs["Specular"])
 
-	# roughness
-	for roughness in shader.get_tex(shader.roughness_slots):
-		roughness.image.colorspace_settings.name = "Non-Color"
-		tree.links.new(roughness.outputs[0], principled.inputs["Roughness"])
+		# roughness
+		for roughness in shader.get_tex(shader.roughness_slots):
+			roughness.image.colorspace_settings.name = "Non-Color"
+			tree.links.new(roughness.outputs[0], principled.inputs["Roughness"])
 
-	# JWE dinos, PZ - metallic
-	for metallic in shader.get_tex(shader.metallic_slots):
-		metallic.image.colorspace_settings.name = "Non-Color"
-		tree.links.new(metallic.outputs[0], principled.inputs["Metallic"])
+		# JWE dinos, PZ - metallic
+		for metallic in shader.get_tex(shader.metallic_slots):
+			metallic.image.colorspace_settings.name = "Non-Color"
+			tree.links.new(metallic.outputs[0], principled.inputs["Metallic"])
 
-	for emissive in shader.get_tex(shader.emissive_slots):
-		tree.links.new(emissive.outputs[0], principled.inputs["Emission"])
+		for emissive in shader.get_tex(shader.emissive_slots):
+			tree.links.new(emissive.outputs[0], principled.inputs["Emission"])
 
-	for alpha in shader.get_tex(shader.alpha_slots):
-		alpha_pass = alpha.outputs[0]
-		b_mat.blend_method = "CLIP"
-		b_mat.shadow_method = "CLIP"
-		for attr, attr_data in zip(fgm_data.attributes.data, fgm_data.value_foreach_attributes.data):
-			if "palphatestref" in attr.name.lower():
-				# blender appears to be stricter with the alpha clipping
-				# PZ ele has it set to 1.0 in fgm, which makes it invisible in blender
-				b_mat.alpha_threshold = attr_data.value[0] * 0.5
-				break
-		transp = tree.nodes.new('ShaderNodeBsdfTransparent')
-		alpha_mixer = tree.nodes.new('ShaderNodeMixShader')
-		tree.links.new(alpha_pass, alpha_mixer.inputs[0])
+		for alpha in shader.get_tex(shader.alpha_slots):
+			alpha_pass = alpha.outputs[0]
+			b_mat.blend_method = "CLIP"
+			b_mat.shadow_method = "CLIP"
+			for attr, attr_data in zip(fgm_data.attributes.data, fgm_data.value_foreach_attributes.data):
+				if "palphatestref" in attr.name.lower():
+					# blender appears to be stricter with the alpha clipping
+					# PZ ele has it set to 1.0 in fgm, which makes it invisible in blender
+					b_mat.alpha_threshold = attr_data.value[0] * 0.5
+					break
+			transp = tree.nodes.new('ShaderNodeBsdfTransparent')
+			alpha_mixer = tree.nodes.new('ShaderNodeMixShader')
+			tree.links.new(alpha_pass, alpha_mixer.inputs[0])
 
-		tree.links.new(transp.outputs[0], alpha_mixer.inputs[1])
-		tree.links.new(principled.outputs[0], alpha_mixer.inputs[2])
-		tree.links.new(alpha_mixer.outputs[0], output.inputs[0])
-		alpha_mixer.update()
-		break
-	# no alpha
-	else:
-		b_mat.blend_method = "OPAQUE"
-		tree.links.new(principled.outputs[0], output.inputs[0])
+			tree.links.new(transp.outputs[0], alpha_mixer.inputs[1])
+			tree.links.new(principled.outputs[0], alpha_mixer.inputs[2])
+			tree.links.new(alpha_mixer.outputs[0], output.inputs[0])
+			alpha_mixer.update()
+			break
+		# no alpha
+		else:
+			b_mat.blend_method = "OPAQUE"
+			tree.links.new(principled.outputs[0], output.inputs[0])
 
-	nodes_iterate(tree, output)
+		nodes_iterate(tree, output)
+	except:
+		logging.exception(f"Importing material {matname} failed")
 	return b_mat
 
 
