@@ -90,6 +90,10 @@
         a pointer to an array in an ovl memory layout
     </compound>
 
+    <compound name="CondPointer" inherit="Pointer" >
+        a pointer to a data struct that may sometimes be null without a bool
+    </compound>
+
     <compound name="ForEachPointer" inherit="Pointer" >
         a pointer to an array in an ovl memory layout
     </compound>

@@ -126,9 +126,12 @@
         <add name="_unkInt2" type="uint" />
     </compound>
 
-    <compound name="SubBrace" inherit="MemStruct">
+    <compound name="SubBraceStruct" inherit="MemStruct">
         <!-- Size 24 -->
-        <add name="brace_model" type="Pointer" template="ZString"/>
+        <add name="brace_model_0" type="Pointer" template="ZString"/>
+		<add name="brace_model_1" type="Pointer" template="ZString"/>
+		<add name="brace_model_2" type="Pointer" template="ZString"/>
+		<add name="brace_model_3" type="Pointer" template="ZString"/>
     </compound>
 
     <compound name="BrokeStruct" inherit="MemStruct">
@@ -201,7 +204,7 @@
         <add name="connector_2" type="ArrayPointer" template="ConnectorMultiJoint" arg="num_connector_2" /> <!-- 16 -->
         <add name="pillar" type="ArrayPointer" template="Pillar" arg="num_pillar"/> <!-- 24 -->
         <add name="footer" type="ArrayPointer" template="Footer" arg="num_footer"/> <!-- 32 -->
-        <add name="sub_braces" type="ArrayPointer" template="SubBrace" arg="4" /> <!-- 40 -->
+        <add name="sub_braces" type="ArrayPointer" template="SubBraceStruct" arg="num_sub_brace" /> <!-- 40 -->
         <add name="unkVector1" type="Vector3" /> <!-- 52 -->
         <add name="unkVector2" type="Vector2" /> <!-- 60 -->
         <add name="unkVector3" type="Vector3" /> <!-- 72 -->
@@ -210,9 +213,9 @@
         <add name="num_connector_2" type="uint" /> <!-- 84 -->
         <add name="num_pillar" type="uint" /> <!-- 88 -->
         <add name="num_footer" type="uint" /> <!-- 92 -->
-        <add name="has_sub_brace" type="uint" /> <!-- 96 -->
+        <add name="num_sub_brace" type="uint" /> <!-- 96 -->
         <add name="unkFloats" type="float" arr1="4"/> <!-- 112 -->
-        <add name="broken_supports" type="Pointer" template="BrokeStruct" /> <!-- 120 -->
+        <add name="broken_supports" type="CondPointer" template="BrokeStruct" /> <!-- 120 -->
         <add name="data" type="ArrayPointer" template="SupportSetData" arg="num_data" /> <!-- 128 -->
         <add name="num_data" type="uint" /> <!-- 132 -->
         <add name="zeros" type="uint" default="0" arr1="3"/> <!-- 144 -->

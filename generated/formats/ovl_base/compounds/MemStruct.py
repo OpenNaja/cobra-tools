@@ -3,6 +3,7 @@ import logging
 from generated.array import Array
 from generated.formats.ovl_base.compounds.ArrayPointer import ArrayPointer
 from generated.formats.ovl_base.compounds.ForEachPointer import ForEachPointer
+from generated.formats.ovl_base.compounds.CondPointer import CondPointer
 from generated.formats.ovl_base.compounds.Pointer import Pointer
 
 DEPENDENCY_TAG = "dependency"
@@ -107,7 +108,7 @@ class MemStruct(BaseStruct):
 		if isinstance(ptr.data, MemStruct):
 			yield ptr.data
 		elif isinstance(ptr.data, Array):
-			assert isinstance(ptr, (ArrayPointer, ForEachPointer))
+			assert isinstance(ptr, (ArrayPointer, ForEachPointer, CondPointer))
 			for member in ptr.data:
 				if isinstance(member, MemStruct):
 					yield member

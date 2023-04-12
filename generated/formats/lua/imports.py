@@ -26,6 +26,7 @@ type_module_name_map = {
 	'Pointer': 'generated.formats.ovl_base.compounds.Pointer',
 	'LookupPointer': 'generated.formats.ovl_base.compounds.LookupPointer',
 	'ArrayPointer': 'generated.formats.ovl_base.compounds.ArrayPointer',
+	'CondPointer': 'generated.formats.ovl_base.compounds.CondPointer',
 	'ForEachPointer': 'generated.formats.ovl_base.compounds.ForEachPointer',
 	'MemStruct': 'generated.formats.ovl_base.compounds.MemStruct',
 	'SmartPadding': 'generated.formats.ovl_base.compounds.SmartPadding',
