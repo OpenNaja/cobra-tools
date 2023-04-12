@@ -1,6 +1,9 @@
 # START_GLOBALS
+import xml.etree.ElementTree as ET
 from generated.array import Array
 from generated.formats.ovl_base.compounds.Pointer import Pointer
+
+XML_STR = "xml_string"
 # END_GLOBALS
 
 
@@ -12,32 +15,14 @@ class CondPointer(Pointer):
 
 # START_CLASS
 
-	@property
-	def has_data(self):
-		"""Returns True if it has data"""
-		# fdev create pointers to empty arrays
-		if self.data is not None:
-			return True
-			# return len(self.data)
-          
-
-	def read_template(self, stream):
-		if self.template:
-			self.data = Array.from_stream(stream, self.context, 0, None, (1,), self.template)
-
 	@classmethod
-	def _to_xml(cls, instance, elem, debug):
-		"""Assigns data self to xml elem"""
-		if callable(getattr(instance.template, "_to_xml_array", None)):
-			instance.template._to_xml_array(instance.data, elem, debug)
-			return
-		Array._to_xml(instance.data, elem, debug)
-
-	@classmethod
-	def _from_xml(cls, instance, elem):
-		if callable(getattr(instance.template, "_from_xml_array", None)):
-			instance.data = instance.template._from_xml_array(None, elem)
-			return
-		arr = Array(instance.context, 0, None, (len(elem)), instance.template, set_default=False)
-		instance.data = Array._from_xml(arr, elem)
-		return instance
+	def to_xml(cls, elem, prop, instance, arg, template, debug):
+		"""Adds this struct to 'elem', recursively"""
+		if instance.has_data:
+			sub = ET.SubElement(elem, prop)
+			cls.pool_type_to_xml(sub, instance, debug)
+			# xml string
+			if prop == XML_STR:
+				sub.append(ET.fromstring(instance.data))
+			else:
+				cls._to_xml(instance, sub, debug)
