@@ -67,7 +67,7 @@ class ForEachPointer(Pointer):
 		if instance.has_data:
 			assert FOREACH_MARK in prop
 			src_prop = prop.split(FOREACH_MARK)[1]
-			sub = elem.find(f'.//{src_prop}')
+			sub = elem.find(f'./{src_prop}')
 			for subelem, member in zip(sub, instance.data):
 				member._to_xml(member, subelem, debug)
 
@@ -76,7 +76,7 @@ class ForEachPointer(Pointer):
 		"""Creates object for parent object 'target', from parent element elem."""
 		assert FOREACH_MARK in prop
 		src_prop = prop.split(FOREACH_MARK)[1]
-		sub = elem.find(f'.//{src_prop}')
+		sub = elem.find(f'./{src_prop}')
 		if sub is None:
 			logging.warning(f"Missing sub-element '{prop}' on XML element '{elem.tag}'")
 			return

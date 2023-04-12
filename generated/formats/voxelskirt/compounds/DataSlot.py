@@ -64,7 +64,7 @@ class DataSlot(BaseStruct):
 	@classmethod
 	def from_xml(cls, target, elem, prop, arg, template):
 		"""Creates object for parent object 'target', from parent element elem."""
-		sub = elem.find(f'.//{prop}')
+		sub = elem.find(f'./{prop}')
 		if sub is None:
 			logging.warning(f"Missing sub-element '{prop}' on XML element '{elem.tag}'")
 			return

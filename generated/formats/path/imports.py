@@ -45,15 +45,15 @@ type_module_name_map = {
 	'PointsList': 'generated.formats.path.compounds.PointsList',
 	'PathSupport': 'generated.formats.path.compounds.PathSupport',
 	'PathType': 'generated.formats.path.compounds.PathType',
-	'SupportSetRoot': 'generated.formats.path.compounds.SupportSetRoot',
-	'SubBraceStruct': 'generated.formats.path.compounds.SubBraceStruct',
+	'SubBrace': 'generated.formats.path.compounds.SubBrace',
 	'BrokeStruct': 'generated.formats.path.compounds.BrokeStruct',
 	'Connector': 'generated.formats.path.compounds.Connector',
-	'ConnectorMultiJoint': 'generated.formats.path.compounds.ConnectorMultiJoint',
 	'Joint': 'generated.formats.path.compounds.Joint',
+	'ConnectorMultiJoint': 'generated.formats.path.compounds.ConnectorMultiJoint',
 	'Pillar': 'generated.formats.path.compounds.Pillar',
 	'Footer': 'generated.formats.path.compounds.Footer',
 	'SupportSetData': 'generated.formats.path.compounds.SupportSetData',
+	'SupportSetRoot': 'generated.formats.path.compounds.SupportSetRoot',
 }
 
 name_type_map = {}

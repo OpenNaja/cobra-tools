@@ -13,16 +13,16 @@ class Pillar(MemStruct):
 		self.unk_int = name_type_map['Uint64'](self.context, 0, None)
 		self.unk_floats = Array(self.context, 0, None, (0,), name_type_map['Float'])
 		self.unk_int_2 = name_type_map['Uint64'](self.context, 0, None)
-		self.support = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
-		self.cap = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
+		self.pillar_model = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
+		self.cap_model = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
 		if set_default:
 			self.set_defaults()
 
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield 'support', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None)
-		yield 'cap', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None)
+		yield 'pillar_model', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None)
+		yield 'cap_model', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None)
 		yield 'unk_int', name_type_map['Uint64'], (0, None), (False, None), (None, None)
 		yield 'unk_floats', Array, (0, None, (2,), name_type_map['Float']), (False, None), (None, None)
 		yield 'unk_int_2', name_type_map['Uint64'], (0, None), (False, None), (None, None)
@@ -30,8 +30,8 @@ class Pillar(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'support', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None)
-		yield 'cap', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None)
+		yield 'pillar_model', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None)
+		yield 'cap_model', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None)
 		yield 'unk_int', name_type_map['Uint64'], (0, None), (False, None)
 		yield 'unk_floats', Array, (0, None, (2,), name_type_map['Float']), (False, None)
 		yield 'unk_int_2', name_type_map['Uint64'], (0, None), (False, None)

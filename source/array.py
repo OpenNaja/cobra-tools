@@ -253,7 +253,7 @@ class Array(list):
 
     @classmethod
     def from_xml(cls, instance, elem, prop, arg, template, shape, dtype):
-        sub = elem.find(f'.//{prop}')
+        sub = elem.find(f'./{prop}')
         if sub is None:
             logging.warning(f"Missing sub-element '{prop}' on XML element '{elem.tag}'")
             return

@@ -31,6 +31,8 @@ class MemStruct:
 		for ptr, f_name, arguments in MemStruct.get_instances_recursive(self, Pointer):
 			# locates the read address, attaches the frag entry, and reads the template as ptr.data
 			offset = ptr.io_start
+			rel_offset = offset - self.io_start
+			logging.debug(f"Pointer {f_name}, has_data {ptr.has_data} at {ptr.io_start}, relative {rel_offset}")
 			if DEPENDENCY_TAG in f_name:
 				if ptr.data:
 					loader.dependencies[ptr.data] = (pool, offset)
@@ -47,7 +49,7 @@ class MemStruct:
 				loader.fragments.add(((pool, offset), (ptr.target_pool, ptr.target_offset)))
 				pool.offset_2_link[offset] = (ptr.target_pool, ptr.target_offset)
 				# store relative offset from this memstruct
-				children[offset - self.io_start] = (ptr.target_pool, ptr.target_offset)
+				children[rel_offset] = (ptr.target_pool, ptr.target_offset)
 				# only store these if the pointer had valid data
 				if ptr.target_offset is not None:
 					ptr.target_pool.offsets.add(ptr.target_offset)
