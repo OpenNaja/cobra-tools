@@ -190,12 +190,7 @@ class BaseFile:
 		"""This is the fallback that is used when the loader class itself does not implement custom methods"""
 		try:
 			self.rename_stack(name_tuples)
-			# not all loaders have a header
-			if self.header is not None:
-				pool, offset = self.root_ptr
-				stream = pool.stream_at(offset)
-				self.header = self.target_class.from_stream(stream, self.context)
-				self.header.read_ptrs(pool)
+			self.collect()
 		except:
 			logging.exception(f"Renaming contents failed for {self.name}")
 		# todo - rename in buffers
@@ -228,11 +223,19 @@ class BaseFile:
 				logging.warning(f"Skipping {entry.file_hash} because its hash could not be resolved to a name")
 				return
 			entry.name = _rename(entry.name)
-
 		self.target_name = _rename(self.target_name)
 		self.name = _rename(self.name)
 		self.aux_entries = [_rename(aux) for aux in self.aux_entries]
 		self.dependencies = {_rename(dep): ptr for dep, ptr in self.dependencies.items()}
+		# dependencies in stack & pools' link tables
+		for (p_pool, p_offset), children in self.stack.items():
+			for rel_offset, entry in children.items():
+				if isinstance(entry, str):
+					children[rel_offset] = _rename(entry)
+					p_pool.offset_2_link[p_offset+rel_offset] = _rename(entry)
+		# force an update to get the memstruct up to date
+		if self.dependencies:
+			self.collect()
 
 	@contextlib.contextmanager
 	def get_tmp_dir(self):
