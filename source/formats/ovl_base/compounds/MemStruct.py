@@ -33,7 +33,7 @@ class MemStruct:
 			# locates the read address, attaches the frag entry, and reads the template as ptr.data
 			offset = ptr.io_start
 			rel_offset = offset - self.io_start
-			logging.debug(f"Pointer {f_name}, has_data {ptr.has_data} at {ptr.io_start}, relative {rel_offset}")
+			# logging.debug(f"Pointer {f_name}, has_data {ptr.has_data} at {ptr.io_start}, relative {rel_offset}")
 			if DEPENDENCY_TAG in f_name:
 				if ptr.data:
 					loader.dependencies[ptr.data] = (pool, offset)
