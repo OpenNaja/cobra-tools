@@ -79,7 +79,7 @@ class MainWindow(widgets.MainWindow):
 		new_name = new_name.lower()
 		try:
 			if self.ms2_file.name_used(new_name):
-				interaction.showdialog(f"Model {new_name} already exists in ms2!")
+				interaction.showwarning(f"Model {new_name} already exists in ms2!")
 			# new name is new
 			else:
 				self.ms2_file.rename_file(old_name, new_name)

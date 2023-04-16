@@ -298,7 +298,7 @@ class MainWindow(widgets.MainWindow):
 	def notify_user(self, msg_list):
 		msg = msg_list[0]
 		details = msg_list[1] if len(msg_list) > 1 else None
-		interaction.showdialog(msg, details=details)
+		interaction.showwarning(msg, details=details)
 
 	def logger_show_triggered(self):
 		show = self.t_logger.isChecked()
@@ -363,7 +363,7 @@ class MainWindow(widgets.MainWindow):
 	def compare_ovls(self):
 		selected_file_names = self.files_container.table.get_selected_files()
 		if not selected_file_names:
-			interaction.showdialog("Please select files to compare first")
+			interaction.showwarning("Please select files to compare first")
 			return
 		if self.is_open_ovl():
 			filepath = QtWidgets.QFileDialog.getOpenFileName(
@@ -454,7 +454,7 @@ class MainWindow(widgets.MainWindow):
 					if save_over:
 						self._save()
 			else:
-				interaction.showdialog("Select a root directory!")
+				interaction.showwarning("Select a root directory!")
 		# just the one that's currently open
 		else:
 			yield self.ovl_data
@@ -554,7 +554,7 @@ class MainWindow(widgets.MainWindow):
 		if self.file_widget.filename or self.file_widget.dirty:
 			return True
 		else:
-			interaction.showdialog("You must open an OVL file first!")
+			interaction.showwarning("You must open an OVL file first!")
 
 	def update_files_ui(self, f_list):
 		start_time = time.time()
@@ -623,7 +623,7 @@ class MainWindow(widgets.MainWindow):
 			old = old.split(newline)
 			new = new.split(newline)
 			if len(old) != len(new):
-				interaction.showdialog(f"Old {len(old)} and new {len(new)} must have the same amount of lines!")
+				interaction.showwarning(f"Old {len(old)} and new {len(new)} must have the same amount of lines!")
 			return list(zip(old, new))
 		except:
 			self.handle_error("Getting replace strings failed, see log!")
@@ -738,21 +738,21 @@ class MainWindow(widgets.MainWindow):
 		# Ask and return true if error is found and process should be stopped
 		for old, new in name_tups:
 			if len(old) != len(new):
-				if interaction.showdialog(
+				if not interaction.showconfirmation(
 						f"WARNING: length of '{old}' [{len(old)}] and '{new}' [{len(new)}] don't match!\n"
-						f"Stop renaming?", ask=True):
+						f"Continue renaming anyway?"):
 					return True
 
 	@staticmethod
 	def check_version():
 		is_64bits = sys.maxsize > 2 ** 32
 		if not is_64bits:
-			interaction.showdialog(
+			interaction.showerror(
 				"Either your operating system or your python installation is not 64 bits.\n"
 				"Large OVLs will crash unexpectedly!")
 		if sys.version_info[0] != 3 or sys.version_info[1] < 7 or (
 				sys.version_info[1] == 7 and sys.version_info[2] < 6):
-			interaction.showdialog("Python 3.7.6+ x64 bit is expected!")
+			interaction.showerror("Python 3.7.6+ x64 bit is expected!")
 
 
 if __name__ == '__main__':

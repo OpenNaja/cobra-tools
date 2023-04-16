@@ -385,7 +385,7 @@ class MainWindow(widgets.MainWindow):
 				self.attrib_container.update_gui(self.header.attributes.data, self.header.value_foreach_attributes.data)
 
 			except Exception as ex:
-				ovl_util.interaction.showdialog(str(ex))
+				ovl_util.interaction.showerror(str(ex))
 				logging.exception("Loading fgm errored")
 			logging.info("Done!")
 
@@ -397,7 +397,7 @@ class MainWindow(widgets.MainWindow):
 				self.import_header = FgmHeader.from_xml_file(file_in, self.context)
 				logging.info(f"Importing {file_in}")
 			except Exception as ex:
-				ovl_util.interaction.showdialog(str(ex))
+				ovl_util.interaction.showerror(str(ex))
 				logging.exception("Importing fgm errored")
 
 	def _save(self):
@@ -406,14 +406,14 @@ class MainWindow(widgets.MainWindow):
 				pass
 			self.file_widget.dirty = False
 		except BaseException as err:
-			interaction.showdialog(str(err))
+			interaction.showerror(str(err))
 			logging.exception("Saving fgm errored")
 		logging.info("Done!")
 
 	def close_file(self):
 		if self.file_widget.dirty:
 			quit_msg = f"Quit? You will lose unsaved work on {os.path.basename(self.file_widget.filepath)}!"
-			if not interaction.showdialog(quit_msg, ask=True):
+			if not interaction.showconfirmation(quit_msg, title="Quit"):
 				return True
 		return False
 
