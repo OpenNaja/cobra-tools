@@ -327,8 +327,10 @@ class Ms2File(Ms2InfoHeader, IoFile):
 	def buffers(self):
 		yield self.buffer_0_bytes
 		yield self.buffer_1_bytes
-		if self.buffer_2_bytes:
-			yield self.buffer_2_bytes
+		# PZ uses only two buffers in this case, JWE2 keeps an empty third buffer
+		if not self.buffer_2_bytes and is_pz(self.info):
+			return
+		yield self.buffer_2_bytes
 
 	def save(self, filepath):
 		self.dir, self.name = os.path.split(os.path.normpath(filepath))

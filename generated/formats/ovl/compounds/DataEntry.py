@@ -76,8 +76,8 @@ class DataEntry(BaseStruct):
 			self.size_1 = 0
 			self.size_2 = sum(len(d) for d in datas)
 		elif len(datas) > 2:
-			self.size_1 = sum(len(d) for d in datas[:-1])
-			self.size_2 = len(datas[-1])
+			self.size_1 = sum(len(d) for d in datas[:2])
+			self.size_2 = sum(len(d) for d in datas[2:])
 
 	@property
 	def sorted_buffers(self):
