@@ -296,7 +296,7 @@ class Ms2Loader(MemStructLoader):
 			msg = f"The following materials are used by {self.name}, but are missing from the OVL:\n" \
 				f"{mats}\n" \
 				f"This will crash unless you are importing the materials from another OVL. Inject anyway?"
-			if not interaction.showdialog(msg, ask=True):
+			if not interaction.showquestion(msg):
 				raise UserWarning("Injection was canceled by the user")
 
 	def rename_content(self, name_tuples):

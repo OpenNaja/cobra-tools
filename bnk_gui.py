@@ -164,7 +164,7 @@ class MainWindow(widgets.MainWindow):
 
 	def is_open_bnk(self):
 		if not self.file_widget.filename:
-			interaction.showdialog("You must open a BNK file first!")
+			interaction.showwarning("You must open a BNK file first!")
 		else:
 			return True
 
@@ -202,7 +202,7 @@ class MainWindow(widgets.MainWindow):
 				error_files = self.inject_wem(files)
 				self.file_widget.dirty = True
 				# if error_files:
-				# 	interaction.showdialog(f"Injection caused errors on {len(error_files)} files, see console for details!")
+				# 	interaction.showerror(f"Injection caused errors on {len(error_files)} files, see console for details!")
 				self.update_progress("Injection completed", value=1, vmax=1)
 			except:
 				self.handle_error("Injecting failed, see log!")

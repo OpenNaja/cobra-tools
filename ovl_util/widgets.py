@@ -7,7 +7,6 @@ from PyQt5 import QtGui, QtCore, QtWidgets
 
 from generated.formats.ovl import OvlFile
 from ovl_util.config import get_commit_str
-from ovl_util.interaction import showdialog
 from ovl_util import config, qt_theme, interaction
 from root_path import root_dir
 
@@ -28,17 +27,6 @@ def startup(cls):
         app_qt.setStyleSheet("QToolTip { color: #ffffff; background-color: #353535; border: 1px solid white; }")
     app_qt.exec_()
     config.save_config(win.cfg)
-
-
-def abort_open_new_file(parent, newfile, oldfile):
-    # only return True if we should abort
-    if newfile == oldfile:
-        return True
-    if oldfile:
-        qm = QtWidgets.QMessageBox
-        return qm.No == qm.question(parent.parent, '', "Do you really want to load " + os.path.basename(
-            newfile) + "? You will lose unsaved work on " + os.path.basename(oldfile) + "!", qm.Yes | qm.No)
-
 
 def vbox(parent, grid):
     """Adds a grid layout"""
@@ -931,10 +919,10 @@ class FileWidget(QtWidgets.QWidget):
         if not self.ask_user:
             return False
         if self.filepath and self.dirty:
-            qm = QtWidgets.QMessageBox
-            return qm.No == qm.question(self, '', "Do you really want to load " + os.path.basename(
-                new_filepath) + "? You will lose unsaved work on " + os.path.basename(self.filepath) + "!",
-                                        qm.Yes | qm.No)
+            msg = "Do you really want to load " + os.path.basename(
+                new_filepath) + "? You will lose unsaved work on " + os.path.basename(self.filepath) + "!"
+            return not interaction.showdialog(msg, title="Unsaved Changes", 
+                                  buttons=(QtWidgets.QMessageBox.Discard | QtWidgets.QMessageBox.Cancel))
 
     def set_file_path(self, filepath):
         if not self.abort_open_new_file(filepath):
@@ -961,7 +949,7 @@ class FileWidget(QtWidgets.QWidget):
             if os.path.splitext(filepath)[1].lower() in (f".{self.dtype_l}",):
                 return self.set_file_path(filepath)
             else:
-                showdialog("Unsupported File Format")
+                interaction.showwarning("Unsupported File Format")
 
     def accept_dir(self, dirpath):
         if os.path.isdir(dirpath):
@@ -1048,7 +1036,7 @@ class FileWidget(QtWidgets.QWidget):
         if self.filename or self.dirty:
             return True
         else:
-            interaction.showdialog("You must open a file first!")
+            interaction.showwarning("You must open a file first!")
 
 
 # Creates a dir widget, same as file but for directories
@@ -1207,13 +1195,13 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def handle_error(self, msg):
         """Warn user with popup msg and write msg + exception traceback to log"""
-        interaction.showdialog(msg)
+        interaction.showerror(msg)
         logging.exception(msg)
 
     def closeEvent(self, event):
         if self.file_widget and self.file_widget.dirty:
             quit_msg = f"Quit? You will lose unsaved work on {os.path.basename(self.file_widget.filepath)}!"
-            if not interaction.showdialog(quit_msg, ask=True):
+            if not interaction.showconfirmation(quit_msg, title="Quit"):
                 event.ignore()
                 return
         event.accept()
