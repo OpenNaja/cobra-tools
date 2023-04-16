@@ -105,8 +105,8 @@ class Ms2Loader(MemStructLoader):
 	def _biosyn_check_ptr(self, is_biosyn, is_older, offset, older_size, biosyn_size):
 		children = self.stack[self.root_ptr]
 		s_pool, s_offset = children.get(offset, (None, -1))
-		if s_pool:
-			size = s_pool.size_map[s_offset]
+		if s_pool and s_offset is not None:
+			size = s_pool.size_map.get(s_offset, None)
 			if size:
 				if not size % biosyn_size:
 					is_biosyn = True
