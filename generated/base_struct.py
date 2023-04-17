@@ -269,7 +269,8 @@ class BaseStruct(metaclass=StructMetaClass):
             attribute_list = cls._attribute_list
             # for convenience, sort the attribute list into continuous lists
             attr_names, attr_types, _, _, attr_conds = zip(*attribute_list)
-            if all(cond is None for cond in attr_conds) and all(attr_type is not None for attr_type in attr_types):
+            if all(all(cond is None for cond in cond_tuple) for cond_tuple in attr_conds) \
+               and all(attr_type is not None for attr_type in attr_types):
                 # all fields are static
                 if len(set(attr_types)) == 1:
                     # every field is the same type, iteration makes sense
