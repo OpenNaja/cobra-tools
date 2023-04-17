@@ -39,12 +39,12 @@ class Model2streamLoader(BaseFile):
 		if ovl_versions.is_jwe2(self.ovl):
 			self.header.lod_index = int(self.basename[-1])
 		self.write_memory_data()
-		buffer = self.get_content(file_path)
-		self.create_data_entry((buffer,))
+		buffer_data = self.get_content(file_path)
+		self.create_data_entry((buffer_data,))
 		for buffer in self.data_entry.buffers:
 			buffer.index = 2
 		self.data_entry.size_1 = 0
-		self.data_entry.size_2 = len(buffer)
+		self.data_entry.size_2 = len(buffer_data)
 
 
 class Ms2Loader(MemStructLoader):
