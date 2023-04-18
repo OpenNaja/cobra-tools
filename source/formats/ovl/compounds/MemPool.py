@@ -99,8 +99,8 @@ class MemPool:
 			padding = (alignment - (offset % alignment)) % alignment
 			if padding:
 				self.data.write(b"\x00" * padding)
-				logging.debug(
-					f"Aligned pointer from {offset} to {self.data.tell()} with {padding} bytes, alignment = {alignment}")
+				# logging.debug(
+				# 	f"Aligned pointer from {offset} to {self.data.tell()} with {padding} bytes, alignment = {alignment}")
 		return self.data, self.data.tell()
 		# return True
 

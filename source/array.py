@@ -183,6 +183,8 @@ class Array(list):
 
     @classmethod
     def _get_filtered_attribute_list(cls, instance, dtype, include_abstract=True):
+        if instance is None:
+            return
         if cls.is_ragged_shape(getattr(instance, "shape", ())):
             return RaggedArray._get_filtered_attribute_list(instance, dtype, include_abstract)
         elif callable(getattr(dtype, "_get_filtered_attribute_list_array", None)):

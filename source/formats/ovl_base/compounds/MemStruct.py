@@ -33,7 +33,7 @@ class MemStruct:
 			# locates the read address, attaches the frag entry, and reads the template as ptr.data
 			offset = ptr.io_start
 			rel_offset = offset - self.io_start
-			# logging.debug(f"Pointer {f_name}, has_data {ptr.has_data} at {ptr.io_start}, relative {rel_offset}")
+			logging.debug(f"Pointer {f_name}, has_data {ptr.has_data} at {ptr.io_start}, relative {rel_offset}")
 			if DEPENDENCY_TAG in f_name:
 				if ptr.data:
 					loader.dependencies[ptr.data] = (pool, offset)
@@ -61,6 +61,12 @@ class MemStruct:
 				# keep reading pointers in the newly read ptr.data
 				for memstruct in self.structs_from_ptr(ptr):
 					memstruct.write_ptrs(loader, ptr.target_pool)
+
+	@classmethod
+	def get_all_recursive(cls, instance, dtype):
+		for s_type, s_inst, (f_name, f_type, arguments, _) in cls.get_condition_attributes_recursive(instance, instance, lambda x: issubclass(x[1], dtype)):
+			f_inst = s_type.get_field(s_inst, f_name)
+			yield f_inst, f_name, arguments
 
 	@classmethod
 	def get_instances_recursive(cls, instance, dtype):
