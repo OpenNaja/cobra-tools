@@ -128,4 +128,13 @@
         <add name="ptrs" type="Pointer" template="ZString" arr1="#ARG#"/>
     </compound>
 
+    <compound name="ZStringList" inherit="MemStruct">
+        <add name="ptrs" type="Pointer" template="ZString" arr1="#ARG#"/>
+    </compound>
+
+<!--    <compound name="ZStringPointer" inherit="MemStruct">-->
+<!--        currently not beneficial, perhaps it is better to instead use ZStringArrayPointer-->
+<!--        <add name="string" type="Pointer" template="ZString"/>-->
+<!--    </compound>-->
+
 </niftoolsxml>
