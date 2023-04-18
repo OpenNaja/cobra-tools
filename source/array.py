@@ -194,10 +194,10 @@ class Array(list):
             template = getattr(instance, "template", None)
             if len(instance.shape) > 1:
                 for i in range(instance.shape[0]):
-                    yield (i, cls, (arg, template, instance.shape[1:], dtype), (False, None))
+                    yield i, cls, (arg, template, instance.shape[1:], dtype), (False, None)
             else:
                 for i in range(instance.shape[0]):
-                    yield (i, dtype, (arg, template), (False, None))
+                    yield i, dtype, (arg, template), (False, None)
 
     @classmethod
     def validate_instance(cls, instance, context, arg, template, shape, dtype):
@@ -269,6 +269,7 @@ class Array(list):
     def _from_xml(cls, instance, elem):
         # init each member from corresponding sub-elem
         instance[:] = [instance.dtype._from_xml(instance.dtype(instance._context, 0, instance.template), sub) for sub in elem]
+        instance.shape = len(elem)
         return instance
 
     @classmethod
