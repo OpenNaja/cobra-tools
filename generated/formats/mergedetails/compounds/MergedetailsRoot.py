@@ -17,8 +17,8 @@ class MergedetailsRoot(MemStruct):
 		self.zero_1 = name_type_map['Uint64'](self.context, 0, None)
 		self.count = name_type_map['Uint'](self.context, 0, None)
 		self.flag = name_type_map['Uint'](self.context, 0, None)
-		self.merge_names = name_type_map['Pointer'](self.context, self.count, name_type_map['PtrList'])
-		self.queries = name_type_map['Pointer'](self.context, self.count, name_type_map['PtrList'])
+		self.merge_names = name_type_map['Pointer'](self.context, self.count, name_type_map['ZStringList'])
+		self.queries = name_type_map['Pointer'](self.context, self.count, name_type_map['ZStringList'])
 		self.field_name = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
 		if set_default:
 			self.set_defaults()
@@ -26,10 +26,10 @@ class MergedetailsRoot(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield 'merge_names', name_type_map['Pointer'], (None, name_type_map['PtrList']), (False, None), (None, None)
+		yield 'merge_names', name_type_map['Pointer'], (None, name_type_map['ZStringList']), (False, None), (None, None)
 		yield 'zero_0', name_type_map['Uint64'], (0, None), (False, None), (None, None)
 		yield 'zero_1', name_type_map['Uint64'], (0, None), (False, None), (None, None)
-		yield 'queries', name_type_map['Pointer'], (None, name_type_map['PtrList']), (False, None), (None, None)
+		yield 'queries', name_type_map['Pointer'], (None, name_type_map['ZStringList']), (False, None), (None, None)
 		yield 'field_name', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None)
 		yield 'count', name_type_map['Uint'], (0, None), (False, None), (None, None)
 		yield 'flag', name_type_map['Uint'], (0, None), (False, None), (None, None)
@@ -37,10 +37,10 @@ class MergedetailsRoot(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'merge_names', name_type_map['Pointer'], (instance.count, name_type_map['PtrList']), (False, None)
+		yield 'merge_names', name_type_map['Pointer'], (instance.count, name_type_map['ZStringList']), (False, None)
 		yield 'zero_0', name_type_map['Uint64'], (0, None), (False, None)
 		yield 'zero_1', name_type_map['Uint64'], (0, None), (False, None)
-		yield 'queries', name_type_map['Pointer'], (instance.count, name_type_map['PtrList']), (False, None)
+		yield 'queries', name_type_map['Pointer'], (instance.count, name_type_map['ZStringList']), (False, None)
 		yield 'field_name', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None)
 		yield 'count', name_type_map['Uint'], (0, None), (False, None)
 		yield 'flag', name_type_map['Uint'], (0, None), (False, None)

@@ -28,19 +28,15 @@
         <add name="u5" type="ubyte"/>
 
         <add name="ptr_0" type="Pointer"/>
-        <add name="ui_triggers" type="Pointer" template="PtrList" arg="num_ui_triggers"/>
+        <add name="ui_triggers" type="Pointer" template="ZStringList" arg="num_ui_triggers"/>
         <add name="ptr_1" type="Pointer"/>
-        <add name="ui_names" type="Pointer" template="PtrList" arg="num_ui_names"/>
-        <add name="assetpkgs" type="Pointer" template="PtrList" arg="num_assetpkgs"/>
+        <add name="ui_names" type="Pointer" template="ZStringList" arg="num_ui_names"/>
+        <add name="assetpkgs" type="Pointer" template="ZStringList" arg="num_assetpkgs"/>
         <add name="ptr_2" type="Pointer"/>
         <add name="list_1" type="ArrayPointer" template="uint" arg="num_list_1"/>
         <add name="list_2" type="ArrayPointer" template="uint" arg="num_list_2"/>
-        <add name="ui_interfaces" type="Pointer" template="PtrList" arg="num_ui_interfaces"/>
+        <add name="ui_interfaces" type="Pointer" template="ZStringList" arg="num_ui_interfaces"/>
         <add name="ptr_3" type="Pointer"/>
-    </compound>
-
-    <compound name="PtrList" inherit="MemStruct">
-        <add name="ptrs" type="Pointer" template="ZString" arr1="#ARG#"/>
     </compound>
 
 </niftoolsxml>

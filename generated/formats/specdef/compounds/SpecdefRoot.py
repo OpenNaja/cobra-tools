@@ -18,10 +18,10 @@ class SpecdefRoot(MemStruct):
 		self.attribs = name_type_map['ArrayPointer'](self.context, self.attrib_count, name_type_map['Spec'])
 		self.name_foreach_attribs = name_type_map['ForEachPointer'](self.context, self.attribs, name_type_map['NamePtr'])
 		self.data_foreach_attribs = name_type_map['ForEachPointer'](self.context, self.attribs, name_type_map['DataPtr'])
-		self.names = name_type_map['Pointer'](self.context, self.name_count, name_type_map['PtrList'])
-		self.childspecs = name_type_map['Pointer'](self.context, self.childspec_count, name_type_map['PtrList'])
-		self.managers = name_type_map['Pointer'](self.context, self.manager_count, name_type_map['PtrList'])
-		self.scripts = name_type_map['Pointer'](self.context, self.script_count, name_type_map['PtrList'])
+		self.names = name_type_map['Pointer'](self.context, self.name_count, name_type_map['ZStringList'])
+		self.childspecs = name_type_map['Pointer'](self.context, self.childspec_count, name_type_map['ZStringList'])
+		self.managers = name_type_map['Pointer'](self.context, self.manager_count, name_type_map['ZStringList'])
+		self.scripts = name_type_map['Pointer'](self.context, self.script_count, name_type_map['ZStringList'])
 		if set_default:
 			self.set_defaults()
 
@@ -37,10 +37,10 @@ class SpecdefRoot(MemStruct):
 		yield 'attribs', name_type_map['ArrayPointer'], (None, name_type_map['Spec']), (False, None), (None, None)
 		yield 'name_foreach_attribs', name_type_map['ForEachPointer'], (None, name_type_map['NamePtr']), (False, None), (None, None)
 		yield 'data_foreach_attribs', name_type_map['ForEachPointer'], (None, name_type_map['DataPtr']), (False, None), (None, None)
-		yield 'names', name_type_map['Pointer'], (None, name_type_map['PtrList']), (False, None), (None, None)
-		yield 'childspecs', name_type_map['Pointer'], (None, name_type_map['PtrList']), (False, None), (None, None)
-		yield 'managers', name_type_map['Pointer'], (None, name_type_map['PtrList']), (False, None), (None, None)
-		yield 'scripts', name_type_map['Pointer'], (None, name_type_map['PtrList']), (False, None), (None, None)
+		yield 'names', name_type_map['Pointer'], (None, name_type_map['ZStringList']), (False, None), (None, None)
+		yield 'childspecs', name_type_map['Pointer'], (None, name_type_map['ZStringList']), (False, None), (None, None)
+		yield 'managers', name_type_map['Pointer'], (None, name_type_map['ZStringList']), (False, None), (None, None)
+		yield 'scripts', name_type_map['Pointer'], (None, name_type_map['ZStringList']), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -54,7 +54,7 @@ class SpecdefRoot(MemStruct):
 		yield 'attribs', name_type_map['ArrayPointer'], (instance.attrib_count, name_type_map['Spec']), (False, None)
 		yield 'name_foreach_attribs', name_type_map['ForEachPointer'], (instance.attribs, name_type_map['NamePtr']), (False, None)
 		yield 'data_foreach_attribs', name_type_map['ForEachPointer'], (instance.attribs, name_type_map['DataPtr']), (False, None)
-		yield 'names', name_type_map['Pointer'], (instance.name_count, name_type_map['PtrList']), (False, None)
-		yield 'childspecs', name_type_map['Pointer'], (instance.childspec_count, name_type_map['PtrList']), (False, None)
-		yield 'managers', name_type_map['Pointer'], (instance.manager_count, name_type_map['PtrList']), (False, None)
-		yield 'scripts', name_type_map['Pointer'], (instance.script_count, name_type_map['PtrList']), (False, None)
+		yield 'names', name_type_map['Pointer'], (instance.name_count, name_type_map['ZStringList']), (False, None)
+		yield 'childspecs', name_type_map['Pointer'], (instance.childspec_count, name_type_map['ZStringList']), (False, None)
+		yield 'managers', name_type_map['Pointer'], (instance.manager_count, name_type_map['ZStringList']), (False, None)
+		yield 'scripts', name_type_map['Pointer'], (instance.script_count, name_type_map['ZStringList']), (False, None)

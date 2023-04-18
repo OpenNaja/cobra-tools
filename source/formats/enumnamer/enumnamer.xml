@@ -6,11 +6,7 @@
 
     <compound name="EnumnamerRoot" inherit="MemStruct">
         <add name="count" type="uint64" />
-        <add name="strings" type="Pointer" template="PtrList" arg="count"/>
-    </compound>
-
-    <compound name="PtrList" inherit="MemStruct">
-        <add name="ptrs" type="Pointer" template="ZString" arr1="#ARG#"/>
+        <add name="strings" type="Pointer" template="ZStringList" arg="count"/>
     </compound>
 
 </niftoolsxml>

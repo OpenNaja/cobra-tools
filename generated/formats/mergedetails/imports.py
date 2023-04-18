@@ -33,8 +33,8 @@ type_module_name_map = {
 	'ZStringObfuscated': 'generated.formats.ovl_base.basic',
 	'GenericHeader': 'generated.formats.ovl_base.compounds.GenericHeader',
 	'Empty': 'generated.formats.ovl_base.compounds.Empty',
+	'ZStringList': 'generated.formats.ovl_base.compounds.ZStringList',
 	'MergedetailsRoot': 'generated.formats.mergedetails.compounds.MergedetailsRoot',
-	'PtrList': 'generated.formats.mergedetails.compounds.PtrList',
 }
 
 name_type_map = {}

@@ -33,6 +33,7 @@ type_module_name_map = {
 	'ZStringObfuscated': 'generated.formats.ovl_base.basic',
 	'GenericHeader': 'generated.formats.ovl_base.compounds.GenericHeader',
 	'Empty': 'generated.formats.ovl_base.compounds.Empty',
+	'ZStringList': 'generated.formats.ovl_base.compounds.ZStringList',
 	'Vector2': 'generated.formats.path.compounds.Vector2',
 	'Vector3': 'generated.formats.path.compounds.Vector3',
 	'Vector4': 'generated.formats.path.compounds.Vector4',

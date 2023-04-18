@@ -33,6 +33,7 @@ type_module_name_map = {
 	'ZStringObfuscated': 'generated.formats.ovl_base.basic',
 	'GenericHeader': 'generated.formats.ovl_base.compounds.GenericHeader',
 	'Empty': 'generated.formats.ovl_base.compounds.Empty',
+	'ZStringList': 'generated.formats.ovl_base.compounds.ZStringList',
 	'LogicalControls': 'generated.formats.logicalcontrols.compounds.LogicalControls',
 	'ButtonData': 'generated.formats.logicalcontrols.compounds.ButtonData',
 	'Button': 'generated.formats.logicalcontrols.compounds.Button',
@@ -40,7 +41,6 @@ type_module_name_map = {
 	'AxisButton': 'generated.formats.logicalcontrols.compounds.AxisButton',
 	'Some': 'generated.formats.logicalcontrols.compounds.Some',
 	'SomeData': 'generated.formats.logicalcontrols.compounds.SomeData',
-	'PtrList': 'generated.formats.logicalcontrols.compounds.PtrList',
 }
 
 name_type_map = {}

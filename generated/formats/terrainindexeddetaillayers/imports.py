@@ -33,6 +33,7 @@ type_module_name_map = {
 	'ZStringObfuscated': 'generated.formats.ovl_base.basic',
 	'GenericHeader': 'generated.formats.ovl_base.compounds.GenericHeader',
 	'Empty': 'generated.formats.ovl_base.compounds.Empty',
+	'ZStringList': 'generated.formats.ovl_base.compounds.ZStringList',
 	'TerrainIndexedDetailLayersRoot': 'generated.formats.terrainindexeddetaillayers.compounds.TerrainIndexedDetailLayersRoot',
 	'TerrainDetailsLayerItem': 'generated.formats.terrainindexeddetaillayers.compounds.TerrainDetailsLayerItem',
 	'BrushitemStruct': 'generated.formats.terrainindexeddetaillayers.compounds.BrushitemStruct',

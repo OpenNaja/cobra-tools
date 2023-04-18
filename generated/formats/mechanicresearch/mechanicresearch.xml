@@ -25,8 +25,4 @@
         <add name="unk1" type="uint64" />
     </compound>
 
-    <compound name="PtrList" inherit="MemStruct">
-        <add name="ptrs" type="Pointer" template="ZString" arr1="#ARG#"/>
-    </compound>
-
 </niftoolsxml>

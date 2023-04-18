@@ -70,8 +70,4 @@
         <add name="b" type="float"/>
     </compound>
 
-    <compound name="PtrList" inherit="MemStruct">
-        <add name="ptrs" type="Pointer" template="ZString" arr1="#ARG#"/>
-    </compound>
-
 </niftoolsxml>

@@ -1,11 +1,11 @@
 from generated.array import Array
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
-from generated.formats.uimoviedefinition.imports import name_type_map
+from generated.formats.ovl_base.imports import name_type_map
 
 
-class PtrList(MemStruct):
+class ZStringList(MemStruct):
 
-	__name__ = 'PtrList'
+	__name__ = 'ZStringList'
 
 
 	def __init__(self, context, arg=0, template=None, set_default=True):

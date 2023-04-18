@@ -33,6 +33,7 @@ type_module_name_map = {
 	'ZStringObfuscated': 'generated.formats.ovl_base.basic',
 	'GenericHeader': 'generated.formats.ovl_base.compounds.GenericHeader',
 	'Empty': 'generated.formats.ovl_base.compounds.Empty',
+	'ZStringList': 'generated.formats.ovl_base.compounds.ZStringList',
 	'Vector3': 'generated.formats.trackstation.compounds.Vector3',
 	'TrackStationRoot': 'generated.formats.trackstation.compounds.TrackStationRoot',
 	'CommonChunk': 'generated.formats.trackstation.compounds.CommonChunk',

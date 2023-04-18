@@ -33,6 +33,7 @@ type_module_name_map = {
 	'ZStringObfuscated': 'generated.formats.ovl_base.basic',
 	'GenericHeader': 'generated.formats.ovl_base.compounds.GenericHeader',
 	'Empty': 'generated.formats.ovl_base.compounds.Empty',
+	'ZStringList': 'generated.formats.ovl_base.compounds.ZStringList',
 	'RenderFeatureCollectionRoot': 'generated.formats.renderfeaturecollection.compounds.RenderFeatureCollectionRoot',
 	'RenderFeatureItem': 'generated.formats.renderfeaturecollection.compounds.RenderFeatureItem',
 	'RenderFeatureSubItem': 'generated.formats.renderfeaturecollection.compounds.RenderFeatureSubItem',

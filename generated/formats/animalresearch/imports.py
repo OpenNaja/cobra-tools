@@ -33,11 +33,11 @@ type_module_name_map = {
 	'ZStringObfuscated': 'generated.formats.ovl_base.basic',
 	'GenericHeader': 'generated.formats.ovl_base.compounds.GenericHeader',
 	'Empty': 'generated.formats.ovl_base.compounds.Empty',
+	'ZStringList': 'generated.formats.ovl_base.compounds.ZStringList',
 	'ResearchRoot': 'generated.formats.animalresearch.compounds.ResearchRoot',
 	'ResearchLevel': 'generated.formats.animalresearch.compounds.ResearchLevel',
 	'UnlockState': 'generated.formats.animalresearch.compounds.UnlockState',
 	'ResearchStartRoot': 'generated.formats.animalresearch.compounds.ResearchStartRoot',
-	'PtrList': 'generated.formats.animalresearch.compounds.PtrList',
 }
 
 name_type_map = {}

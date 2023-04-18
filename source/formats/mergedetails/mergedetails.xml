@@ -6,19 +6,15 @@
 
     <compound name="MergedetailsRoot" inherit="MemStruct">
         48 bytes
-        <add name="merge_names" type="Pointer" template="PtrList" arg="count"/>
+        <add name="merge_names" type="Pointer" template="ZStringList" arg="count"/>
         <add name="zero0" type="uint64" />
         <add name="zero1" type="uint64" />
-        <add name="queries" type="Pointer" template="PtrList" arg="count"/>
+        <add name="queries" type="Pointer" template="ZStringList" arg="count"/>
         <add name="field_name" type="Pointer" template="ZString"/>
         there is a count for a pointer list, but all mergedetails have only 1 in the count so it is hard to tell
         which one of the pointer in the struct is affected by it.
         <add name="count" type="uint" />
         <add name="flag" type="uint" />
-    </compound>
-
-    <compound name="PtrList" inherit="MemStruct">
-        <add name="ptrs" type="Pointer" template="ZString" arr1="#ARG#"/>
     </compound>
 
 </niftoolsxml>
