@@ -4,7 +4,7 @@ bl_info = {
     "blender": (3, 2, 0),
     "version": (2, 5, 0),
     "location": "File > Import-Export",
-    "description": "Import-Export models, skeletons and animations.",
+    "description": "Import-Export models, skeletons and animations",
     "warning": "",
     "wiki_url": "https://github.com/OpenNaja/cobra-tools",
     "support": 'COMMUNITY',
@@ -167,9 +167,9 @@ class ImportMS2(bpy.types.Operator, ImportHelper):
     bl_options = {'UNDO'}
     filename_ext = ".ms2"
     filter_glob: StringProperty(default="*.ms2", options={'HIDDEN'})
-    use_custom_normals: BoolProperty(name="Use MS2 Normals", description="Applies MS2 normals as custom normals to preserve the original shading. May crash on some meshes due to a blender bug.",
+    use_custom_normals: BoolProperty(name="Use MS2 Normals", description="Applies MS2 normals as custom normals to preserve the original shading. May crash on some meshes due to a blender bug",
                                      default=False)
-    mirror_mesh: BoolProperty(name="Mirror Meshes", description="Mirrors models. Careful, sometimes bones don't match!",
+    mirror_mesh: BoolProperty(name="Mirror Meshes", description="Mirrors models. Careful, sometimes bones don't match",
                               default=False)
 
     def execute(self, context):
@@ -210,8 +210,8 @@ class ExportMS2(bpy.types.Operator, ExportHelper):
     filename_ext = ".ms2"
     filter_glob: StringProperty(default="*.ms2", options={'HIDDEN'})
     apply_transforms: BoolProperty(name="Apply Transforms",
-                                   description="Automatically applies object transforms to meshes.", default=False)
-    update_rig: BoolProperty(name="Update Rigs", description="Updates rigs (bones, physics joints, hitchecks) from blender - may break skeletons!",
+                                   description="Automatically applies object transforms to meshes", default=False)
+    update_rig: BoolProperty(name="Update Rigs", description="Updates rigs (bones, physics joints, hitchecks) from blender - may break skeletons",
                              default=False)
     use_stock_normals_tangents: BoolProperty(
         name="Use Original Normals & Tangents",
@@ -367,7 +367,7 @@ def update_pack_base(self, context):
 class CobraSceneSettings(PropertyGroup):
     pack_base: FloatProperty(
         name="Pack Base",
-        description="Base value used to pack vertices, also min and max value that a coordinate can assume.",
+        description="Base value used to pack vertices, also min and max value that a coordinate can assume",
         default=256.0,
         subtype="DISTANCE",
         update=update_pack_base
@@ -375,7 +375,7 @@ class CobraSceneSettings(PropertyGroup):
 
     resolution: FloatProperty(
         name="Resolution",
-        description="Minimum distance between two vertices on export - closer snaps together.",
+        description="Minimum distance between two vertices on export - closer snaps together",
         default=0,
         subtype="DISTANCE"
     )
