@@ -382,7 +382,7 @@ def get_property(ob, prop_name, default=None):
 		raise KeyError(f"Custom property '{prop_name}' missing from {ob.name} (data: {type(ob).__name__}). Add it!")
 
 
-def save(filepath='', apply_transforms=False, edit_bones=False, use_stock_normals_tangents=False):
+def save(filepath='', apply_transforms=False, update_rig=False, use_stock_normals_tangents=False):
 	messages = set()
 	start_time = time.time()
 
@@ -426,7 +426,7 @@ def save(filepath='', apply_transforms=False, edit_bones=False, use_stock_normal
 			# clear pose
 			for pbone in b_armature_ob.pose.bones:
 				pbone.matrix_basis = mathutils.Matrix()
-			if edit_bones:
+			if update_rig:
 				export_bones_custom(b_armature_ob, model_info)
 
 		# used to get index from bone name for faster weights

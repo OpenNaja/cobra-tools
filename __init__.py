@@ -211,7 +211,7 @@ class ExportMS2(bpy.types.Operator, ExportHelper):
     filter_glob: StringProperty(default="*.ms2", options={'HIDDEN'})
     apply_transforms: BoolProperty(name="Apply Transforms",
                                    description="Automatically applies object transforms to meshes.", default=False)
-    edit_bones: BoolProperty(name="Edit Bones", description="Overwrite bone transforms - tends to break skeletons!",
+    update_rig: BoolProperty(name="Update Rigs", description="Updates rigs (bones, physics joints, hitchecks) from blender - may break skeletons!",
                              default=False)
     use_stock_normals_tangents: BoolProperty(
         name="Use Original Normals & Tangents",
