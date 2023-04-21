@@ -142,6 +142,9 @@ class Expression(object):
             return f"int({left} {op} {right})"
         return f"{left} {op} {right}".strip()
 
+    def __repr__(self):
+        return str(self)
+
     @classmethod
     def _parse(cls, expr_str, target_variable=""):
         """Returns an Expression, string, or int, depending on the

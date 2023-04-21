@@ -1,5 +1,6 @@
 import importlib
 import logging
+import re
 import xml.etree.ElementTree as ET
 import os
 import shutil
@@ -19,6 +20,8 @@ from codegen.naming_conventions import clean_comment_str
 
 logging.basicConfig(level=logging.DEBUG)
 
+arg_regex = re.compile(r"(#ARG)([0-9]*)(#)")
+template_regex = re.compile(r"(#T)([0-9]*)(#)")
 
 class XmlParser:
     struct_types = ("compound", "niobject", "struct")
@@ -251,6 +254,16 @@ class XmlParser:
             # filter comment str
             struct.text = clean_comment_str(struct.text, indent="\t", class_comment='"""')
 
+    @staticmethod
+    def match_replace_function(base_string):
+        def match_replace(match_object):
+            if match_object.group(2):
+                indexing = f'_{match_object.group(2)}'
+            else:
+                indexing = ''
+            return f'{base_string}{indexing}'
+        return match_replace
+
     def replace_tokens(self, xml_struct):
         """Update xml_struct's (and all of its children's) attrib dict with content of tokens+versions list."""
         # replace versions after tokens because tokens include versions
@@ -263,10 +276,13 @@ class XmlParser:
                     # get rid of any remaining html escape characters
                     xml_struct.attrib[target_attrib] = unescape(expr_str)
         # additional tokens that are not specified by nif.xml
-        fixed_tokens = (("\\", "."), ("#ARG#", "arg"), ("#T#", "template"), ("#SELF#", "instance"))
+        fixed_tokens = (("\\", "."), ("#SELF#", "instance"))
+        fixed_array_parts = ((arg_regex, "arg"), (template_regex, "template"))
         for attrib, expr_str in xml_struct.attrib.items():
             for op_token, op_str in fixed_tokens:
                 expr_str = expr_str.replace(op_token, op_str)
+            for part_regex, base_string in fixed_array_parts:
+                expr_str = re.sub(part_regex, self.match_replace_function(base_string), expr_str)
             xml_struct.attrib[attrib] = expr_str
         for xml_child in xml_struct:
             self.replace_tokens(xml_child)
@@ -287,6 +303,35 @@ class XmlParser:
         self.copy_dict_info(self.tag_dict, other_parser.tag_dict)
         self.basics.add_other_basics(other_parser.basics)
         self.copy_dict_info(self.processed_types, other_parser.processed_types)
+
+    @staticmethod
+    def get_attr_with_backups(field, attribute_keys):
+        # return the value of the first attribute in the list that is not empty or missing
+        for key in attribute_keys:
+            attr_value = field.attrib.get(key)
+            if attr_value:
+                return attr_value
+        else:
+            return None
+
+    @staticmethod
+    def get_attr_with_array_alt(field, attribute_name):
+        # return either a string of the matching attribute, or a list of all continuous <attribute><nr> attributes,
+        # starting from 1
+        value = field.attrib.get(attribute_name, None)
+        if value is None:
+            array_value = []
+            i = 1
+            current_entry = field.attrib.get(f"{attribute_name}{i}", None)
+            while current_entry is not None:
+                array_value.append(current_entry)
+                i += 1
+                current_entry = field.attrib.get(f"{attribute_name}{i}", None)
+
+            if array_value:
+                value = array_value
+
+        return value
 
 
 def copy_src_to_generated(src_dir, trg_dir):

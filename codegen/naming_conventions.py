@@ -19,6 +19,7 @@ _RE_NAME_LC = re.compile('[a-z]')
 _RE_NAME_UC = re.compile('[A-Z]')
 """Matches an upper case character."""
 
+template_re = re.compile(r"template(_[0-9][0-9]*)?")
 
 def name_parts(name):
     """Intelligently split a name into parts:
@@ -105,7 +106,7 @@ def name_class(name):
     >>> name_class('this IS a sillyNAME')
     'ThisIsASillyNAME'
     """
-    if name == "template":
+    if template_re.fullmatch(name):
         return name
     return ''.join(part.capitalize() for part in name_parts(name))
 
