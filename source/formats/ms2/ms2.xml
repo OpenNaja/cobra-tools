@@ -679,6 +679,7 @@
 		<add name="rotation" type="Matrix33"/>
 		<add name="offset" type="Vector3" >offset of mesh</add>
 		<add name="unk1" type="SubA" arr1="3" >shared among (all?) redwoods</add>
+		<add name="unk2" type="uint" arr1="3" vercond="#PC#">found in PC FR_GrandCarousel</add>
 		<add name="vertex count" type="uint64" >vertices (3 float)</add>
 		<add name="tri count" type="uint64" >tris?, counts the 25s at the end</add>
 		<add name="bounds min" type="Vector3">the smallest coordinates across all axes</add>
@@ -848,7 +849,7 @@
 		<add name="triangles" type="ushort" arr1="#ARG#\tri count" arr2="3">triangle indices into vertex list</add>
 
 		<add name="const" type="uint" until="47">?</add>
-		<add name="triangle flags" type="uint" arr1="#ARG#\tri flags count" cond="const" until="47">in JWE1 redwood: always 37</add>
+		<add name="triangle flags" type="uint" arr1="#ARG#\sub_coll_chunk\tri flags count" cond="const" until="47">in JWE1 redwood: always 37</add>
 		<add name="zero end" type="uint" >might be padding!</add>
 	</compound>
 

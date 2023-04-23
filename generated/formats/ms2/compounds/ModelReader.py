@@ -9,6 +9,7 @@ from generated.formats.ms2.compounds.Model import Model
 from generated.formats.ms2.compounds.BoneInfo import BoneInfo
 from generated.formats.ms2.enums.CollisionType import CollisionType
 from generated.base_struct import BaseStruct
+from generated.formats.ovl_base.compounds.SmartPadding import SmartPadding
 
 
 from generated.base_struct import BaseStruct
@@ -60,6 +61,9 @@ class ModelReader(BaseStruct):
 					model_info.model = Model.from_stream(stream, instance.context, model_info)
 				except:
 					logging.exception(f"Failed reading model for model_info {model_info}")
+				# test for FR_GrandCarousel.ovl
+				if model_info.model.io_size == 0:
+					model_info.model.padding = SmartPadding.from_stream(stream, instance.context)
 					# logging.warning(model_info.model)
 				# this little patch solves reading all of PC anubis models
 				if instance.context.version == 32 and model_info.model.lods:
@@ -195,7 +199,10 @@ class ModelReader(BaseStruct):
 				if hitcheck.dtype in (CollisionType.MESH_COLLISION,):
 					self.get_padding(stream, alignment=16, rel=start)
 					logging.debug(f"Reading vertices for {hitcheck.dtype.name} at {stream.tell()}")
+					# logging.debug(f"Hitcheck {hitcheck.collider}")
+					# logging.debug(f"Hitcheck {hitcheck}")
 					hitcheck.collider.data = MeshCollisionData.from_stream(stream, self.context, hitcheck.collider, None)
+					# logging.debug(f"End of vertices at {stream.tell()}")
 		except:
 			logging.exception(f"Reading hitchecks failed")
 

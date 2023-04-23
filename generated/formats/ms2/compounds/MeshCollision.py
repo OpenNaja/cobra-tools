@@ -22,6 +22,9 @@ class MeshCollision(BaseStruct):
 		# shared among (all?) redwoods
 		self.unk_1 = Array(self.context, 0, None, (0,), name_type_map['SubA'])
 
+		# found in PC FR_GrandCarousel
+		self.unk_2 = Array(self.context, 0, None, (0,), name_type_map['Uint'])
+
 		# vertices (3 float)
 		self.vertex_count = name_type_map['Uint64'](self.context, 0, None)
 
@@ -54,6 +57,7 @@ class MeshCollision(BaseStruct):
 		yield 'rotation', name_type_map['Matrix33'], (0, None), (False, None), (None, None)
 		yield 'offset', name_type_map['Vector3'], (0, None), (False, None), (None, None)
 		yield 'unk_1', Array, (0, None, (3,), name_type_map['SubA']), (False, None), (None, None)
+		yield 'unk_2', Array, (0, None, (3,), name_type_map['Uint']), (False, None), (lambda context: context.version == 32, None)
 		yield 'vertex_count', name_type_map['Uint64'], (0, None), (False, None), (None, None)
 		yield 'tri_count', name_type_map['Uint64'], (0, None), (False, None), (None, None)
 		yield 'bounds_min', name_type_map['Vector3'], (0, None), (False, None), (None, None)
@@ -73,6 +77,8 @@ class MeshCollision(BaseStruct):
 		yield 'rotation', name_type_map['Matrix33'], (0, None), (False, None)
 		yield 'offset', name_type_map['Vector3'], (0, None), (False, None)
 		yield 'unk_1', Array, (0, None, (3,), name_type_map['SubA']), (False, None)
+		if instance.context.version == 32:
+			yield 'unk_2', Array, (0, None, (3,), name_type_map['Uint']), (False, None)
 		yield 'vertex_count', name_type_map['Uint64'], (0, None), (False, None)
 		yield 'tri_count', name_type_map['Uint64'], (0, None), (False, None)
 		yield 'bounds_min', name_type_map['Vector3'], (0, None), (False, None)

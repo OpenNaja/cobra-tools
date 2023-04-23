@@ -426,7 +426,7 @@ if __name__ == "__main__":
 
 	m = Ms2File()
 	# m.load("C:/Users/arnfi/Desktop/camerabone_.ms2", read_editable=True)
-	m.load("C:/Users/arnfi/Desktop/camerabone_.ms2", read_editable=True)
+	m.load("C:/Users/arnfi/Desktop/models.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/janitormale_.ms2", read_editable=True)
 	print(m)
 	# m.save("C:/Users/arnfi/Desktop/test.ms2")
