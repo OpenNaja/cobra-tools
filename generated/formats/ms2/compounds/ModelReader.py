@@ -68,7 +68,8 @@ class ModelReader(BaseStruct):
 				# this little patch solves reading all of PC anubis models
 				if instance.context.version == 32 and model_info.model.lods:
 					# janitor 4.0
-					for shift in (8, -8):
+					# for shift in (8, -8):
+					for shift in (8, ):
 						if model_info.model.lods[0].distance not in (900.0, 4.0):
 							logging.warning(f"Distance is wrong")
 							# logging.debug(f"Model with original distance {model_info.model.lods[0]}")
@@ -83,7 +84,7 @@ class ModelReader(BaseStruct):
 							break
 				# logging.debug(f"Model {i} {model_info.model}")
 				# alignment, not sure if really correct
-				model_info.model_padding = stream.read(get_padding_size(stream.tell() - start, alignment=16))
+				# model_info.model_padding = stream.read(get_padding_size(stream.tell() - start, alignment=16))
 				if model_info.increment_flag:
 					model_info.model_padding = stream.read(get_padding_size(stream.tell() - start, alignment=16))
 				else:
