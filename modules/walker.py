@@ -134,6 +134,7 @@ def bulk_test_models(gui, start_dir, walk_ovls=True, walk_models=True):
 		joint_names_padding = {}
 		joint_names_total = {}
 		joint_names_2 = {}
+		hc_starts = {}
 		if walk_models:
 			start_time = time.time()
 			ms2_files = walk_type(export_dir, extension=".ms2")
@@ -171,13 +172,14 @@ def bulk_test_models(gui, start_dir, walk_ovls=True, walk_models=True):
 								joints = model_info.bone_info.joints
 								joint_names_padding[(joints.joint_names.io_size, joints.joint_names_padding.io_size, )] = ms2_name
 								joint_names_total[joints.joint_names.io_size+joints.joint_names_padding.io_size] = ms2_name
-								joint_names_2[joints.joint_names.io_start - joints.names_ref.io_start + joints.joint_names.io_size+joints.joint_names_padding.io_size] = ms2_name
+								joint_names_2[joints.joint_names.io_start - joints.names_ref_pc.io_start + joints.joint_names.io_size+joints.joint_names_padding.io_size] = ms2_name
 								# if model_info.bone_info.joints.count_0:
 								# 	constraints_0.add(ms2_path)
 								# if model_info.bone_info.joints.count_1:
 								# 	constraints_1.add(ms2_path)
 								for j in joints.joint_infos:
 									for hit in j.hitchecks:
+										hc_starts[hit.io_start-ms2_data.models_reader.io_start] = ms2_name
 										flag_0.add(hit.flag_0)
 										flag_1.add(hit.flag_1)
 										if hit.dtype == CollisionType.MESH_COLLISION:
@@ -219,7 +221,10 @@ def bulk_test_models(gui, start_dir, walk_ovls=True, walk_models=True):
 			logging.info(f"{t} mod = {t % 32}")
 		totals = sorted(k for k in joint_names_2.keys())
 		for t in totals:
-			logging.info(f"{t} mod = {t % 24}")
+			logging.info(f"{t} mod = {t % 32}")
+		# totals = sorted(k for k in hc_starts.keys())
+		# for t in totals:
+		# 	logging.info(f"{t} mod = {t % 16}, {t % 64}")
 		msg = f"Loaded {mf_max} models {time.time() - start_time:.2f} seconds"
 		logging.info(msg)
 		gui.update_progress(msg, value=1, vmax=1)
