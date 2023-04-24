@@ -60,6 +60,7 @@ class ModelReader(BaseStruct):
 					for shift in (8, ):
 						if model_info.model.lods[0].distance not in (900.0, 4.0):
 							logging.warning(f"Distance is wrong")
+							# logging.warning(f"last bone info {instance.bone_infos[-1]}")
 							# logging.debug(f"Model with original distance {model_info.model.lods[0]}")
 							stream.seek(s+shift)
 							specials.append(i)

@@ -131,6 +131,9 @@ def bulk_test_models(gui, start_dir, walk_ovls=True, walk_models=True):
 		mesh_collision = set()
 		max_bones = -1
 		max_bones_ms2 = None
+		joint_names_padding = {}
+		joint_names_total = {}
+		joint_names_2 = {}
 		if walk_models:
 			start_time = time.time()
 			ms2_files = walk_type(export_dir, extension=".ms2")
@@ -165,11 +168,15 @@ def bulk_test_models(gui, start_dir, walk_ovls=True, walk_models=True):
 								max_bones = model_info.bone_info.bone_count
 								max_bones_ms2 = ms2_path
 							if model_info.bone_info.joint_count:
+								joints = model_info.bone_info.joints
+								joint_names_padding[(joints.joint_names.io_size, joints.joint_names_padding.io_size, )] = ms2_name
+								joint_names_total[joints.joint_names.io_size+joints.joint_names_padding.io_size] = ms2_name
+								joint_names_2[joints.joint_names.io_start - joints.names_ref.io_start + joints.joint_names.io_size+joints.joint_names_padding.io_size] = ms2_name
 								# if model_info.bone_info.joints.count_0:
 								# 	constraints_0.add(ms2_path)
 								# if model_info.bone_info.joints.count_1:
 								# 	constraints_1.add(ms2_path)
-								for j in model_info.bone_info.joints.joint_infos:
+								for j in joints.joint_infos:
 									for hit in j.hitchecks:
 										flag_0.add(hit.flag_0)
 										flag_1.add(hit.flag_1)
@@ -204,6 +211,15 @@ def bulk_test_models(gui, start_dir, walk_ovls=True, walk_models=True):
 		# print(f"blend_modes: {blend_modes}")
 		if shader_map:
 			print(f"shaders: {shaders}")
+		logging.info(sorted(k for k in joint_names_padding.keys()))
+		logging.info(Counter(joint_names_padding.keys()))
+		logging.info(Counter(joint_names_total.keys()))
+		totals = sorted(k for k in joint_names_total.keys())
+		for t in totals:
+			logging.info(f"{t} mod = {t % 32}")
+		totals = sorted(k for k in joint_names_2.keys())
+		for t in totals:
+			logging.info(f"{t} mod = {t % 24}")
 		msg = f"Loaded {mf_max} models {time.time() - start_time:.2f} seconds"
 		logging.info(msg)
 		gui.update_progress(msg, value=1, vmax=1)

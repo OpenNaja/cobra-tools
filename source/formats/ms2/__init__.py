@@ -426,8 +426,9 @@ if __name__ == "__main__":
 
 	m = Ms2File()
 	# m.load("C:/Users/arnfi/Desktop/camerabone_.ms2", read_editable=True)
-	m.load("C:/Users/arnfi/Desktop/FR_GrandCarousel.ms2", read_editable=True)
+	# m.load("C:/Users/arnfi/Desktop/FR_GrandCarousel.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/SP_Grave_Stones.ms2", read_editable=True)
+	m.load("C:/Users/arnfi/Desktop/SP_Scarecrow.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/janitormale_.ms2", read_editable=True)
 	print(m)
 	# m.save("C:/Users/arnfi/Desktop/test.ms2")
