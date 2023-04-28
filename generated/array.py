@@ -326,7 +326,7 @@ class RaggedArray(Array):
     @shape.setter
     def shape(self, shape_input):
         # conversion to int happens using the 'index' operator
-        shape = (index(shape_input[0]), shape_input[1], *(index(i) for i in shape_input[2:]))
+        shape = (index(shape_input[0]), tuple(index(i) for i in shape_input[1]), *(index(i) for i in shape_input[2:]))
         self._shape = shape
 
     @property
@@ -368,7 +368,7 @@ class RaggedArray(Array):
             arg = getattr(instance, "arg", 0)
             template = getattr(instance, "template", None)
             for i in range(instance.shape[0]):
-                yield (i, cls, (arg, template, instance.shape[1][i], dtype), (False, None))
+                yield (i, Array, (arg, template, (instance.shape[1][i],), dtype), (False, None))
 
     @classmethod
     def validate_instance(cls, instance, context, arg, template, shape, dtype):
@@ -391,6 +391,14 @@ class RaggedArray(Array):
             except AssertionError:
                 logging.error(f"validation failed on field {f_name} on type {cls}[{dtype}]")
                 raise
+
+    def append(self, x):
+        self.shape = (self.shape[0] + 1, (*self.shape[1], len(x)), *self.shape[2:])
+        super(list, self).append(x)
+
+    def extend(self, x):
+        self.shape = (self.shape[0] + len(x), (*self.shape[1], *(len(entry) for entry in x)) ,*self.shape[2:])
+        super(list, self).extend(x)
 
 
 def _class_to_name(cls):
