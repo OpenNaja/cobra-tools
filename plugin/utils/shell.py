@@ -45,6 +45,8 @@ def create_lods():
 	# Deleting old LODs
 	for lod_coll in lod_collections[1:]:
 		for ob in lod_coll.objects:
+			if ob.data.shape_keys:
+				raise AttributeError(f"Can't create automatic LODs for models that have shape keys")
 			# delete old target
 			bpy.data.objects.remove(ob, do_unlink=True)
 
