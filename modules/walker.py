@@ -171,9 +171,12 @@ def bulk_test_models(gui, start_dir, walk_ovls=True, walk_models=True):
 								max_bones_ms2 = ms2_path_rel
 							if model_info.bone_info.joint_count:
 								joints = model_info.bone_info.joints
-								joint_names_padding[(joints.joint_names.io_size, joints.joint_names_padding.io_size, )] = ms2_path_rel
-								joint_names_total[joints.joint_names.io_size+joints.joint_names_padding.io_size] = ms2_path_rel
-								joint_names_2[joints.joint_names.io_start - joints.names_ref_pc.io_start + joints.joint_names.io_size+joints.joint_names_padding.io_size] = ms2_path_rel
+								joint_names_padding[(joints.joint_names.io_size, joints.joint_names_padding.io_size+joints.after_names.io_size, )] = ms2_path_rel
+								hcs = sum(len(j.hitchecks) for j in joints.joint_infos)
+								joint_names_2[(joints.after_names.io_size, hcs, )] = ms2_path_rel
+								# print(joints)
+								# joint_names_total[joints.joint_names.io_size+joints.joint_names_padding.io_size] = ms2_path_rel
+								# joint_names_2[joints.joint_names.io_start - joints.names_ref_pc.io_start + joints.joint_names.io_size+joints.joint_names_padding.io_size] = ms2_path_rel
 								# if model_info.bone_info.joints.count_0:
 								# 	constraints_0.add(ms2_path)
 								# if model_info.bone_info.joints.count_1:
@@ -231,6 +234,8 @@ def bulk_test_models(gui, start_dir, walk_ovls=True, walk_models=True):
 		# totals = sorted(k for k in hc_starts.keys())
 		# for t in totals:
 		# 	logging.info(f"{t} mod = {t % 16}, {t % 64}")
+		for (size, count), fp in joint_names_2.items():
+			logging.info(f"size {size} / count {count} = {size/count} in {fp}")
 		msg = f"Loaded {mf_max} models {time.time() - start_time:.2f} seconds"
 		logging.info(msg)
 		gui.update_progress(msg, value=1, vmax=1)

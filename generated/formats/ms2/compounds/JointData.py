@@ -78,9 +78,11 @@ class JointData(BaseStruct):
 		# the inverse of the above; for each bone info bone, index of the corresponding joint or -1 if no joint
 		self.bone_to_joint = Array(self.context, 0, None, (0,), name_type_map['Int'])
 		self.joint_names = name_type_map['ZStringBuffer'](self.context, self.namespace_length, None)
+		self.joint_names_padding = name_type_map['PadAlign'](self.context, 8, self.names_ref)
 
-		# the padding goes wrong on 144 because its first hitcheck has collision type 0
-		self.joint_names_padding = name_type_map['SmartPadding'](self.context, 0, None)
+		# fails on PC SP_Scarecrow, because its first hitcheck has collision type 0
+		# old, not sure what ms2: the padding goes wrong on 144
+		self.after_names = name_type_map['SmartPadding'](self.context, 0, None)
 
 		# new style - includes name offset, some flags and the hitchecks
 		self.joint_infos = Array(self.context, self.joint_names, None, (0,), name_type_map['JointInfo'])
@@ -126,8 +128,8 @@ class JointData(BaseStruct):
 		yield 'joint_to_bone', Array, (0, None, (None,), name_type_map['Int']), (False, None), (None, None)
 		yield 'bone_to_joint', Array, (0, None, (None,), name_type_map['Int']), (False, None), (None, None)
 		yield 'joint_names', name_type_map['ZStringBuffer'], (None, None), (False, None), (None, None)
-		yield 'joint_names_padding', name_type_map['PadAlign'], (8, None), (False, None), (lambda context: context.version >= 47, None)
-		yield 'joint_names_padding', name_type_map['SmartPadding'], (0, None), (False, None), (lambda context: context.version <= 32, None)
+		yield 'joint_names_padding', name_type_map['PadAlign'], (8, None), (False, None), (None, None)
+		yield 'after_names', name_type_map['SmartPadding'], (0, None), (False, None), (lambda context: context.version <= 32, None)
 		yield 'joint_infos', Array, (None, None, (None,), name_type_map['JointInfo']), (False, None), (lambda context: context.version >= 47, None)
 		yield 'hitcheck_reader', name_type_map['HitcheckReader'], (None, None), (False, None), (lambda context: context.version <= 32, None)
 
@@ -176,10 +178,9 @@ class JointData(BaseStruct):
 		yield 'joint_to_bone', Array, (0, None, (instance.joint_count,), name_type_map['Int']), (False, None)
 		yield 'bone_to_joint', Array, (0, None, (instance.bone_count,), name_type_map['Int']), (False, None)
 		yield 'joint_names', name_type_map['ZStringBuffer'], (instance.namespace_length, None), (False, None)
-		if instance.context.version >= 47:
-			yield 'joint_names_padding', name_type_map['PadAlign'], (8, instance.names_ref), (False, None)
+		yield 'joint_names_padding', name_type_map['PadAlign'], (8, instance.names_ref), (False, None)
 		if instance.context.version <= 32:
-			yield 'joint_names_padding', name_type_map['SmartPadding'], (0, None), (False, None)
+			yield 'after_names', name_type_map['SmartPadding'], (0, None), (False, None)
 		if instance.context.version >= 47:
 			yield 'joint_infos', Array, (instance.joint_names, None, (instance.joint_count,), name_type_map['JointInfo']), (False, None)
 		if instance.context.version <= 32:
