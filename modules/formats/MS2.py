@@ -61,10 +61,13 @@ class Ms2Loader(MemStructLoader):
 						self.detect_biosyn_format_from_manis,
 						self.detect_biosyn_format_from_ptrs,
 						self.detect_biosyn_default,):
-					check = func()
-					if check is not None:
-						self.ovl.is_biosyn = check
-						return check
+					try:
+						check = func()
+						if check is not None:
+							self.ovl.is_biosyn = check
+							return check
+					except:
+						pass
 		else:
 			return False
 
@@ -126,7 +129,6 @@ class Ms2Loader(MemStructLoader):
 		self.context = Ms2Context()
 		self.context.version = version
 		self.context.biosyn = self.detect_biosyn_format()
-		# logging.debug(f"context.biosyn {self.context.biosyn}")
 
 	def collect(self):
 		self.get_version()
@@ -168,7 +170,7 @@ class Ms2Loader(MemStructLoader):
 			model_info.objects.data = model_info.model.objects
 			model_info.meshes.data = model_info.model.meshes
 			for wrapper in model_info.model.meshes:
-				wrapper.mesh.stream_info.update_data(buffer_infos.data)
+				wrapper.mesh.stream_info.update_target(buffer_infos.data)
 		# print(self.header)
 		# determine ovs names. these differ by game version and there is no real way to predict them
 		# older JWE2 versions used "HighPolyModels" exclusively
@@ -212,7 +214,7 @@ class Ms2Loader(MemStructLoader):
 			for wrapper in model_info.model.meshes:
 				# buffer_infos have been written, now make this mesh's buffer_info pointer point to the right entry
 				stream_info = wrapper.mesh.stream_info
-				offset = stream_info._data.io_start
+				offset = stream_info.get_target_offset()
 				self.attach_frag_to_ptr(pool, stream_info.io_start, buffer_infos.target_pool, offset)
 
 	def update(self):
