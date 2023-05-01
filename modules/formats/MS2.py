@@ -212,7 +212,7 @@ class Ms2Loader(MemStructLoader):
 			for wrapper in model_info.model.meshes:
 				# buffer_infos have been written, now make this mesh's buffer_info pointer point to the right entry
 				stream_info = wrapper.mesh.stream_info
-				offset = stream_info.data.io_start
+				offset = stream_info._data.io_start
 				self.attach_frag_to_ptr(pool, stream_info.io_start, buffer_infos.target_pool, offset)
 
 	def update(self):
