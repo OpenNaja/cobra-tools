@@ -157,6 +157,7 @@ class Ms2Loader(MemStructLoader):
 		ms2_file = Ms2File()
 		ms2_file.load(file_path, read_bytes=True)
 		ms2_dir = os.path.dirname(file_path)
+		self.ovl.is_biosyn = ms2_file.biosyn
 
 		self.header = ms2_file.info
 		# fix up the pointers
@@ -170,7 +171,7 @@ class Ms2Loader(MemStructLoader):
 			model_info.objects.data = model_info.model.objects
 			model_info.meshes.data = model_info.model.meshes
 			for wrapper in model_info.model.meshes:
-				wrapper.mesh.stream_info.update_target(buffer_infos.data)
+				wrapper.mesh.stream_info.update_target(buffer_infos)
 		# print(self.header)
 		# determine ovs names. these differ by game version and there is no real way to predict them
 		# older JWE2 versions used "HighPolyModels" exclusively
@@ -211,11 +212,6 @@ class Ms2Loader(MemStructLoader):
 		for model_info in self.header.model_infos.data:
 			# link first_model pointer
 			self.attach_frag_to_ptr(pool, model_info.first_model.io_start, first_model_pool, first_model_offset)
-			for wrapper in model_info.model.meshes:
-				# buffer_infos have been written, now make this mesh's buffer_info pointer point to the right entry
-				stream_info = wrapper.mesh.stream_info
-				offset = stream_info.get_target_offset()
-				self.attach_frag_to_ptr(pool, stream_info.io_start, buffer_infos.target_pool, offset)
 
 	def update(self):
 		if ovl_versions.is_pz16(self.ovl):

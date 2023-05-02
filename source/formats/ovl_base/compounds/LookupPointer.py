@@ -14,14 +14,12 @@ class LookupPointer(Pointer):
 			if self.data.io_start == member.io_start:
 				self.pool_index = i
 
-	def update_target(self, array):
+	def update_target(self, array_ptr):
 		# set own data, then clear pool index
-		self.data = array[self.pool_index]
+		self.data = array_ptr.data[self.pool_index]
+		self.array_ptr = array_ptr
 		self.pool_index = 0
 
-	def get_target_offset(self,):
-		return self.data.io_start
-
-	def write_ptr(self):
+	def write_ptr(self, loader, src_pool):
 		"""Lookup pointer data should never be written, as it indexes into an array already written by another pointer"""
-		pass
+		loader.attach_frag_to_ptr(src_pool, self.io_start, self.array_ptr.target_pool, self.data.io_start)

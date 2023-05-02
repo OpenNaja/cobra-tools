@@ -123,7 +123,7 @@ class BaseFile:
 
 	def attach_frag_to_ptr(self, l_pool, l_offset, s_pool, s_offset):
 		"""Creates a frag on a MemStruct Pointer; needs to have been written so that io_start is set"""
-		# todo - doesn't add struct to list of children of an extisting struct in stack
+		# todo - doesn't add struct to list of children of an existing struct in stack
 		l_pool.offset_2_link[l_offset] = (s_pool, s_offset)
 		self.stack[(s_pool, s_offset)] = {}
 		self.fragments.add(((l_pool, l_offset), (s_pool, s_offset)))

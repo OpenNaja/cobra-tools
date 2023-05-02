@@ -46,32 +46,16 @@ class MemStruct(BaseStruct):
 			# locates the read address, attaches the frag entry, and reads the template as ptr.data
 			offset = ptr.io_start
 			rel_offset = offset - self.io_start
-			logging.debug(f"Pointer {f_name}, has_data {ptr.has_data} at {ptr.io_start}, relative {rel_offset}")
+			# logging.debug(f"Pointer {f_name}, has_data {ptr.has_data} at {ptr.io_start}, relative {rel_offset}")
 			# when it's a pointer in an array, f_name is the array index
 			if isinstance(f_name, str) and DEPENDENCY_TAG in f_name:
 				if ptr.data:
 					loader.dependencies[ptr.data] = (pool, offset)
 					pool.offset_2_link[offset] = ptr.data
 			elif ptr.has_data:
-				# when generated from XML, the pool type is stored as metadata
-				# it's not stored in binary, so for those, keep the root pool type
-				if ptr.pool_type is not None:
-					pool_type = ptr.pool_type
-				else:
-					pool_type = pool.type
-				ptr.target_pool = loader.get_pool(pool_type)
-				ptr.write_ptr()
-				loader.fragments.add(((pool, offset), (ptr.target_pool, ptr.target_offset)))
-				pool.offset_2_link[offset] = (ptr.target_pool, ptr.target_offset)
+				ptr.write_ptr(loader, pool)
 				# store relative offset from this memstruct
 				children[rel_offset] = (ptr.target_pool, ptr.target_offset)
-				# only store these if the pointer had valid data
-				if ptr.target_offset is not None:
-					ptr.target_pool.offsets.add(ptr.target_offset)
-					# store size in size_map
-					ptr.target_pool.size_map[ptr.target_offset] = ptr.target_pool.data.tell() - ptr.target_offset
-				# make sure to also add non-memstructs like strings in the stack
-				loader.stack[(ptr.target_pool, ptr.target_offset)] = {}
 				# keep reading pointers in the newly read ptr.data
 				for memstruct in self.structs_from_ptr(ptr):
 					memstruct.write_ptrs(loader, ptr.target_pool)
