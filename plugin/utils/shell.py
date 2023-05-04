@@ -419,8 +419,10 @@ def gauge_uv_factors(shell_ob, fin_ob):
 	# populate a KD tree with all verts from the shell mesh
 	kd = fill_kd_tree_co(shell_me.vertices)
 
-	x_facs = []
-	y_facs = []
+	uv_lens = []
+	v_lens = []
+	uv_heights = []
+	base_fur_lengths = []
 	for i, p in enumerate(fin_me.polygons):
 		# print(p)
 		base = []
@@ -444,8 +446,8 @@ def gauge_uv_factors(shell_ob, fin_ob):
 			v_len = (me_verts[1] - me_verts[0]).length
 			# print(v_len)
 			# print("Fac", uv_len/v_len)
-			if v_len:
-				x_facs.append(uv_len / v_len)
+			uv_lens.append(uv_len)
+			v_lens.append(v_len)
 
 		if base and top:
 			uv_verts = [fin_me.uv_layers[1].data[loop_index].uv.y for loop_index in (base[0], top[0])]
@@ -461,14 +463,14 @@ def gauge_uv_factors(shell_ob, fin_ob):
 				vgroup_name = shell_ob.vertex_groups[vertex_group.group].name
 				if vgroup_name == "fur_length":
 					base_fur_length = vertex_group.weight * hair_length
-					if base_fur_length:
-						y_facs.append(uv_height / base_fur_length)
+					uv_heights.append(uv_height)
+					base_fur_lengths.append(base_fur_length)
 				# if vgroup_name == "fur_width":
 				# 	base_fur_width = vertex_group.weight
 		# if i == 20:
 		# 	break
-	uv_scale_x = np.mean(x_facs)
-	uv_scale_y = np.mean(y_facs)
+	uv_scale_x = np.mean(uv_lens) / np.mean(v_lens)
+	uv_scale_y = np.mean(uv_heights) / np.mean(base_fur_lengths)
 	# store on mesh for consistency
 	shell_me["uv_scale_x"] = uv_scale_x
 	shell_me["uv_scale_y"] = uv_scale_y
