@@ -1,7 +1,6 @@
 import logging
 import time
 from operator import index
-import math
 import xml.etree.ElementTree as ET
 
 import numpy as np
@@ -139,6 +138,14 @@ class Array(list):
             new_array.fill(lambda: dtype.from_value(value))
             return new_array
 
+    @staticmethod
+    def prod(iterator, *, start=1):
+        """Simple implementation of math.prod, because it does not exist in python 3.7."""
+        count = start
+        for i in iterator:
+            count *= i
+        return count
+
     @property
     def shape(self):
         return self._shape
@@ -164,7 +171,7 @@ class Array(list):
 
     @property
     def size(self):
-        return math.prod(self.shape)
+        return Array.prod(self.shape)
 
     @classmethod
     def perform_nested_func(cls, nested_iterable, efunc, ndim):
@@ -331,7 +338,7 @@ class RaggedArray(Array):
 
     @property
     def size(self):
-        return self.shape[0] * sum(self.shape[1]) * math.prod(self.shape[2:])
+        return self.shape[0] * sum(self.shape[1]) * Array.prod(self.shape[2:])
 
     @classmethod
     def from_stream(cls, stream, context, arg=0, template=None, shape=(), dtype=None):
