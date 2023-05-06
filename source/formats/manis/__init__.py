@@ -34,8 +34,8 @@ class ManisFile(InfoHeader, IoFile):
 
 	def dump_keys(self):
 		for mani_info in self.mani_infos:
-			if hasattr(mani_info.keys, "repeats"):
-				for i, mb in enumerate(mani_info.keys.repeats):
+			if hasattr(mani_info.keys.key_data, "repeats"):
+				for i, mb in enumerate(mani_info.keys.key_data.repeats):
 					# print(binascii.hexlify(data[:40]), padding, stream.tell())
 					with open(os.path.join(self.dir, f"{self.path_no_ext}_{mani_info.name}_{i}.maniskeys"), "wb") as f:
 						f.write(mb.data)
@@ -43,7 +43,10 @@ class ManisFile(InfoHeader, IoFile):
 
 if __name__ == "__main__":
 	mani = ManisFile()
-	mani.load("C:/Users/arnfi/Desktop/JWE2/pyro/hatcheryexitcamera.maniset8c6441b9.manis")
+	# mani.load("C:/Users/arnfi/Desktop/Wheel/animation.maniset9637aeb4.manis")
+	mani.load("C:/Users/arnfi/Desktop/donationbox/animation.maniseteaf333c5.manis")
+	# print(mani)
+	# mani.load("C:/Users/arnfi/Desktop/JWE2/pyro/hatcheryexitcamera.maniset8c6441b9.manis")
 	mani.dump_keys()
 	# mani.load("C:/Users/arnfi/Desktop/dilo/locomotion.maniset1c05e0f4.manis")
 	# mani.load("C:/Users/arnfi/Desktop/ostrich/ugcres.maniset8982114c.manis")

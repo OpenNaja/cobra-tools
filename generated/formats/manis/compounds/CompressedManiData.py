@@ -43,7 +43,9 @@ class CompressedManiData(BaseStruct):
 
 		# this seems to be vaguely related, but not always there?
 		self.extra_pc_zero = name_type_map['Uint64'](self.context, 0, None)
-		self.anoth_pad_2 = name_type_map['PadAlign'](self.context, 16, self.ref)
+
+		# 2023-05-06 was 16, PZ donation box demands 20
+		self.anoth_pad_2 = name_type_map['PadAlign'](self.context, 20, self.ref)
 		self.ref_3 = name_type_map['Empty'](self.context, 0, None)
 		self.repeats = Array(self.context, 0, None, (0,), name_type_map['Repeat'])
 		if set_default:
@@ -71,7 +73,7 @@ class CompressedManiData(BaseStruct):
 		yield 'anoth_pad', name_type_map['PadAlign'], (4, None), (False, None), (None, None)
 		yield 'floatsb', name_type_map['FloatsGrabber'], (0, None), (False, None), (None, None)
 		yield 'extra_pc_zero', name_type_map['Uint64'], (0, None), (False, None), (lambda context: context.version <= 257, None)
-		yield 'anoth_pad_2', name_type_map['PadAlign'], (16, None), (False, None), (None, None)
+		yield 'anoth_pad_2', name_type_map['PadAlign'], (20, None), (False, None), (None, None)
 		yield 'ref_3', name_type_map['Empty'], (0, None), (False, None), (None, None)
 		yield 'repeats', Array, (0, None, (None,), name_type_map['Repeat']), (False, None), (None, None)
 
@@ -98,6 +100,6 @@ class CompressedManiData(BaseStruct):
 		yield 'floatsb', name_type_map['FloatsGrabber'], (0, None), (False, None)
 		if instance.context.version <= 257:
 			yield 'extra_pc_zero', name_type_map['Uint64'], (0, None), (False, None)
-		yield 'anoth_pad_2', name_type_map['PadAlign'], (16, instance.ref), (False, None)
+		yield 'anoth_pad_2', name_type_map['PadAlign'], (20, instance.ref), (False, None)
 		yield 'ref_3', name_type_map['Empty'], (0, None), (False, None)
 		yield 'repeats', Array, (0, None, (instance.count,), name_type_map['Repeat']), (False, None)

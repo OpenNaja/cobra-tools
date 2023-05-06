@@ -173,7 +173,10 @@
 		<add name="extra pc zero" type="uint64" until="257" >this seems to be vaguely related, but not always there?</add>
 <!--		<add name="unk for FloatCount" type="uint64" cond="#ARG# \ FloatCount">this seems to be vaguely related, but not always there?</add>-->
 <!--		<add name="floats extra" type="float" arr1="#ARG#\FloatCount" >nope likely wrong</add>-->
-		<add name="anoth pad2" type="PadAlign" template="ref" arg="16" > </add>
+		<add name="anoth pad2" type="PadAlign" template="ref" arg="20" >
+			2023-05-06 was 16, PZ donation box demands 20
+		</add>
+
 		<add name="ref3" type="Empty"/>
 		<add name="repeats" type="Repeat" arr1="count" > </add>
 	</compound>
@@ -190,6 +193,7 @@
 		<add name="PosBones P" type="ubyte" arr1="#ARG#\PosBoneCount"/>
 		<add name="OriBones P" type="ubyte" arr1="#ARG#\OriBoneCount"/>
 		<add name="SclBones P" type="ubyte" arr1="#ARG#\SclBoneCount"/>
+		these are probably indices into the following data?
 		<add name="PosBones delta" type="ubyte" arr1="(#ARG#\PosBoneMax - #ARG#\PosBoneMin) + 1" cond="#ARG#\PosBoneMin #GTE# 0"> </add>
 		<add name="OriBones delta" type="ubyte" arr1="(#ARG#\OriBoneMax - #ARG#\OriBoneMin) + 1" cond="#ARG#\OriBoneMin #GTE# 0"> </add>
 		<add name="SclBones delta" type="ubyte" arr1="(#ARG#\SclBoneMax - #ARG#\SclBoneMin) + 1" cond="#ARG#\SclBoneMin #GTE# 0"> </add>

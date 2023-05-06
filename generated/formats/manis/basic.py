@@ -46,7 +46,7 @@ class Channelname:
         # bones list needs to be filled before writing
         # now we just take the index prepared by the string table
         try:
-            ind = context.name_buffer.bone_names.index[instance]
+            ind = context.name_buffer.bone_names.index(instance)
         except IndexError:
             raise IndexError(f"String '{instance}' was missing from names list '{context.name_buffer.bone_names}'")
         # print(offset, instance, arg.offset_dic)
