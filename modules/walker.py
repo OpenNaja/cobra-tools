@@ -173,7 +173,7 @@ def bulk_test_models(gui, start_dir, walk_ovls=True, walk_models=True):
 								joints = model_info.bone_info.joints
 								joint_names_padding[(joints.joint_names.io_size, joints.joint_names_padding.io_size+joints.after_names.io_size, )] = ms2_path_rel
 								hcs = sum(len(j.hitchecks) for j in joints.joint_infos)
-								joint_names_2[(joints.after_names.io_size, hcs, )] = joints
+								joint_names_2[(joints.after_names.io_size, hcs, )] = ms2_path_rel
 								# print(joints)
 								# joint_names_total[joints.joint_names.io_size+joints.joint_names_padding.io_size] = ms2_path_rel
 								# joint_names_2[joints.joint_names.io_start - joints.names_ref_pc.io_start + joints.joint_names.io_size+joints.joint_names_padding.io_size] = ms2_path_rel

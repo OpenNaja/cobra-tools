@@ -1,0 +1,46 @@
+# START_GLOBALS
+from generated.io import MAX_LEN
+
+ZERO = b"\x00"
+
+
+# END_GLOBALS
+
+class AfterJointsPadding:
+# START_CLASS
+
+	def __init__(self, context, arg=None, template=None, set_default=True):
+		self.name = ''
+		self._context = context
+		# arg is size of the bytes raster
+		self.arg = arg
+		self.template = template
+		self.data = b""
+
+	def __repr__(self):
+		return f"{self.data} Size: {len(self.data)}"
+
+	@classmethod
+	def read_fields(cls, stream, instance):
+		instance.data = b''
+		# fall back if no arg has been set
+		if not instance.arg:
+			raster = 1
+		else:
+			raster = instance.arg
+		for i in range(MAX_LEN):
+			end = stream.tell()
+			chars = stream.read(raster)
+			# stop if a byte other than 00 is encountered
+			if chars != ZERO * raster:
+				break
+			# it's 00 so add it to the padding
+			instance.data += chars
+		else:
+			raise ValueError('padding too long')
+		stream.seek(end)
+
+	@classmethod
+	def write_fields(cls, stream, instance):
+		stream.write(instance.data)
+

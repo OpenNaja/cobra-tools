@@ -118,6 +118,9 @@
 <!--		<option value="32" name="Unk2Rhino" >?</option>-->
 	</enum>
 	
+	<compound name="AfterJointsPadding">
+	</compound>
+
 	<compound name="Matrix44" size="64">
 		A 4x4 transformation matrix.
 		<field name="data" type="float" arr1="4" arr2="4">Stored in OpenGL column-major format.</field>
@@ -772,7 +775,8 @@
 		<add name="bone_to_joint" type="int" arr1="bone count" >the inverse of the above; for each bone info bone, index of the corresponding joint or -1 if no joint</add>
 		<add name="joint_names" type="ZStringBuffer" arg="namespace length"/>
 		<add name="JointNamesPadding" type="PadAlign" template="names_ref" arg="8"/>known to be valid for JWE1, may be present before already
-		<add name="after_names" type="SmartPadding" until="32">
+		<add name="after_names" type="AfterJointsPadding" until="32" arg="8">
+			this seems to be always multiples of 8 bytes
 			fails on PC SP_Scarecrow, because its first hitcheck has collision type 0
 			old, not sure what ms2: the padding goes wrong on 144</add>
 		<add name="joint_infos" type="JointInfo" arr1="joint count" arg="joint_names" since="47">new style - includes name offset, some flags and the hitchecks</add>
