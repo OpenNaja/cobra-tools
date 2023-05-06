@@ -1,3 +1,5 @@
+import logging
+
 from generated.formats.ms2.compounds.HitCheck import HitCheck
 from generated.base_struct import BaseStruct
 
@@ -46,7 +48,8 @@ class HitcheckReader(BaseStruct):
 	def get_fields_str(cls, instance, indent=0):
 		try:
 			s = ''
-			for jointinfo in instance.arg:
+			joint_data = instance.arg
+			for jointinfo in joint_data.joint_infos:
 				s += str(jointinfo.hitchecks)
 			return s
 		except:
