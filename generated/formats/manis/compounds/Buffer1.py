@@ -5,6 +5,11 @@ from generated.formats.manis.imports import name_type_map
 
 class Buffer1(BaseStruct):
 
+	"""
+	the game verifies that hash and bone name match
+	if they don't, the target won't be animated
+	"""
+
 	__name__ = 'Buffer1'
 
 

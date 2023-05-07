@@ -7,6 +7,9 @@ from generated.formats.base.basic import class_from_struct, ZString, r_zstr, w_z
 
 class Channelname:
 
+    def __new__(cls, context=None, arg=0, template=None):
+        return ""
+
     # ushort_struct = Struct("<H")
     # uint_struct = Struct("<I")
     #
@@ -38,6 +41,7 @@ class Channelname:
 
     @classmethod
     def from_stream(cls, stream, context, arg=0, template=None):
+        logging.info("from_stream")
         ind = cls.cls_from_context(context).from_stream(stream, context, arg, template)
         return context.name_buffer.bone_names[ind]
 
@@ -47,7 +51,7 @@ class Channelname:
         # now we just take the index prepared by the string table
         try:
             ind = context.name_buffer.bone_names.index(instance)
-        except IndexError:
+        except (IndexError, ValueError):
             raise IndexError(f"String '{instance}' was missing from names list '{context.name_buffer.bone_names}'")
         # print(offset, instance, arg.offset_dic)
         cls.cls_from_context(context).to_stream(ind, stream, context, arg, template)

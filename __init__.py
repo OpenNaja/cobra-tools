@@ -33,7 +33,7 @@ from bpy_extras.io_utils import ImportHelper, ExportHelper
 from . import addon_updater_ops
 
 from plugin import import_bani, import_manis, import_matcol, import_ms2, export_ms2, import_voxelskirt, import_fgm, \
-    import_spl, export_spl
+    import_spl, export_spl, export_manis
 from plugin.modules_import.hair import vcol_to_comb, comb_to_vcol, transfer_hair_combing
 from plugin.utils import shell
 from generated.formats.ms2.compounds.packing_utils import PACKEDVEC_MAX
@@ -235,6 +235,18 @@ class ExportSPL(bpy.types.Operator, ExportHelper):
         return handle_errors(self, export_spl.save, keywords)
 
 
+class ExportManis(bpy.types.Operator, ExportHelper):
+    """Export to Cobra animations file format (.manis)"""
+    bl_idname = "export_scene.cobra_manis"
+    bl_label = 'Export Manis'
+    filename_ext = ".manis"
+    filter_glob: StringProperty(default="*.manis", options={'HIDDEN'})
+
+    def execute(self, context):
+        keywords = self.as_keywords(ignore=("axis_forward", "axis_up", "filter_glob", "check_existing"))
+        return handle_errors(self, export_manis.save, keywords)
+
+
 class CreateFins(bpy.types.Operator):
     """Create fins for all objects with shells in this scene, and overwrite existing fin geometry"""
     bl_idname = "object.create_fins"
@@ -402,6 +414,7 @@ def menu_func_export(self, context):
     icon = preview_collection["frontier.png"].icon_id
     self.layout.operator(ExportMS2.bl_idname, text="Cobra Model (.ms2)", icon_value=icon)
     self.layout.operator(ExportSPL.bl_idname, text="Cobra Spline (.spl)", icon_value=icon)
+    self.layout.operator(ExportManis.bl_idname, text="Cobra Anim (.manis)", icon_value=icon)
 
 
 def menu_func_import(self, context):
@@ -425,6 +438,7 @@ classes = (
     ImportSPL,
     ExportMS2,
     ExportSPL,
+    ExportManis,
     ImportVoxelskirt,
     CreateFins,
     CreateLods,

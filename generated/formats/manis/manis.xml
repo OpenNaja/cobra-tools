@@ -86,6 +86,8 @@
     </compound>
 
     <compound name="Buffer1">
+		the game verifies that hash and bone name match
+		if they don't, the target won't be animated
 		<add name="bone hashes" type="uint" arr1="#ARG#"/>
 		<add name="bone names" type="ZString" arr1="#ARG#"/>
 		<add name="bone pad" type="PadAlign" template="bone names" arg="4"/>
