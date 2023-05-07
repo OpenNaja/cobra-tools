@@ -2,12 +2,14 @@ import logging
 import random
 
 import bpy
+import mathutils
 
 from generated.formats.manis import ManisFile
 from generated.formats.manis.compounds.ManiBlock import ManiBlock
 from generated.formats.ms2.compounds.packing_utils import pack_swizzle
 from modules.formats.shared import djb2
 from plugin.modules_export.armature import get_armature
+from plugin.utils.transforms import ManisCorrector
 
 
 def pack(c_v, b_v, s):
@@ -71,6 +73,8 @@ def save(filepath=""):
 	# 	for pbone in b_armature_ob.pose.bones:
 	# 		pbone.matrix_basis = mathutils.Matrix()
 
+	# corrector = Corrector(False)
+	corrector = ManisCorrector(False)
 	mani = ManisFile()
 	# hardcode for PZ for now
 	mani.version = 260
@@ -99,13 +103,15 @@ def save(filepath=""):
 		update_key_indices(k, "ori", ori_groups, ori_indices, target_names)
 		update_key_indices(k, "scl", scl_groups, scl_indices, target_names)
 		for bone_keys, group in zip(k.key_data.pos_bones, pos_groups):
+			fcurves = get_fcurves_by_type(group, "location")
 			for frame_i, key in enumerate(bone_keys):
-				key.x = random.uniform(-1.0, 1.0)
-				key.y = random.uniform(-1.0, 1.0)
-				key.z = random.uniform(-1.0, 1.0)
-		for bone_keys in k.key_data.ori_bones:
+				v = mathutils.Matrix.Translation(mathutils.Vector([fcu.evaluate(frame_i) for fcu in fcurves]))
+				key.x, key.y, key.z = corrector.blender_bind_to_nif_bind(v).to_translation()
+		for bone_keys, group in zip(k.key_data.ori_bones, ori_groups):
+			fcurves = get_fcurves_by_type(group, "quaternion")
 			for frame_i, key in enumerate(bone_keys):
-				key.w = 1.0
+				q = mathutils.Quaternion([fcu.evaluate(frame_i) for fcu in fcurves]).to_matrix().to_4x4()
+				key.w, key.x, key.y, key.z = corrector.blender_bind_to_nif_bind(q).to_quaternion()
 	# hard-code for now
 	mani.header.names_size = 16
 	mani.header.hash_block_size = len(target_names) * 4

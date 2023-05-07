@@ -258,4 +258,4 @@ class Normshort(NormClass):
 
 	@staticmethod
 	def to_function(instance):
-		return np.round(instance) * Normshort.scale
+		return np.round(instance * Normshort.scale)
