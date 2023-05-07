@@ -33,9 +33,9 @@ class ManisCorrector(Corrector):
 class ManisCorrector2(Corrector):
 	def __init__(self, is_zt):
 		# axis_conversion(from_forward='Y', from_up='Z', to_forward='Y', to_up='Z')
-		# self.correction_glob = axis_conversion("Z", "Y").to_4x4().to_4x4()
-		# self.correction_glob = axis_conversion("-Y", "Z").to_4x4().to_4x4()
-		self.correction_glob = axis_conversion("-X", "Y").to_4x4().to_4x4()
+		# self.correction_glob = axis_conversion("Z", "Y").to_4x4()
+		# self.correction_glob = axis_conversion("-Y", "Z").to_4x4()
+		self.correction_glob = axis_conversion("-X", "Y").to_4x4()
 		# self.correction_glob = mathutils.Matrix()
 		self.correction_glob_inv = self.correction_glob.inverted()
 		# if is_zt:
@@ -45,7 +45,7 @@ class ManisCorrector2(Corrector):
 		self.correction = axis_conversion("-Z", "-X").to_4x4()
 		# self.correction = mathutils.Matrix()
 		# this and no glob is pretty good, but fails the relative transforms
-		# self.correction = axis_conversion("X", "Z").to_4x4().to_4x4()
+		# self.correction = axis_conversion("X", "Z").to_4x4()
 		self.correction_inv = self.correction.inverted()
 		# mirror about x axis too:
 		self.xflip = mathutils.Matrix().to_4x4()
