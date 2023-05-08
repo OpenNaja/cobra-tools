@@ -57,6 +57,7 @@ class ManisCorrector2(Corrector):
 		# position of xflip does not matter
 		return self.xflip @ self.correction_glob @ nif_armature_space_matrix @ self.correction_inv @ self.xflip
 
+	# https://github.com/niftools/blender_niftools_addon/blob/e8ede4488e2bb63c07deba06f5aac1a2a68e92e8/io_scene_niftools/utils/math.py#L83
 	def blender_bind_to_nif_bind(self, blender_armature_space_matrix):
 		# xflip must be done before the conversions
 		bind = self.xflip @ blender_armature_space_matrix @ self.xflip

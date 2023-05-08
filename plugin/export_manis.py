@@ -77,14 +77,6 @@ def get_local_bone(bone):
 	return bone.matrix_local
 
 
-def decompose_srt(mat):
-	# mat.transpose()
-	b_scale = 1.0
-	b_rot = mat.to_quaternion().to_matrix()
-	b_trans = mat.translation
-	return b_scale, b_rot, b_trans
-
-
 def save(filepath=""):
 	scene = bpy.context.scene
 	b_armature_ob = get_armature(scene)
@@ -95,9 +87,9 @@ def save(filepath=""):
 	for bone in b_armature_ob.data.bones:
 		# bonerestmat = get_bfb_matrix(bone)
 		bonerestmat = get_local_bone(bone)
-		rest_scale, rest_rot, rest_trans = decompose_srt(bonerestmat)
-		print(rest_scale, rest_rot, rest_trans)
-		bones_data[bone.name] = (rest_scale, rest_rot.to_4x4(), rest_trans)
+		rest_trans, rest_rot, rest_scale = bonerestmat.decompose()
+		print(rest_rot, rest_trans, bone.name)
+		bones_data[bone.name] = (rest_scale, rest_rot.to_matrix().to_4x4(), rest_trans)
 	# else:
 	# 	# clear pose
 	# 	for pbone in b_armature_ob.pose.bones:
