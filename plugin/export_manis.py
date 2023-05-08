@@ -89,7 +89,7 @@ def save(filepath=""):
 		bonerestmat = get_local_bone(bone)
 		rest_trans, rest_rot, rest_scale = bonerestmat.decompose()
 		print(rest_rot, rest_trans, bone.name)
-		bones_data[bone.name] = (rest_scale, rest_rot.to_matrix().to_4x4(), rest_trans)
+		bones_data[bone.name] = rest_trans, rest_rot.to_matrix().to_4x4(), rest_scale
 	# else:
 	# 	# clear pose
 	# 	for pbone in b_armature_ob.pose.bones:
@@ -125,9 +125,11 @@ def save(filepath=""):
 		update_key_indices(k, "ori", ori_groups, ori_indices, target_names)
 		update_key_indices(k, "scl", scl_groups, scl_indices, target_names)
 		for bone_keys, group in zip(k.key_data.pos_bones, pos_groups):
+			rest_trans, rest_rot, rest_scale = bones_data[group.name]
 			fcurves = get_fcurves_by_type(group, "location")
 			for frame_i, key in enumerate(bone_keys):
-				v = mathutils.Matrix.Translation(mathutils.Vector([fcu.evaluate(frame_i) for fcu in fcurves]))
+				v = mathutils.Matrix.Translation(mathutils.Vector([fcu.evaluate(frame_i) for fcu in fcurves]) + rest_trans)
+				# v = v @ bone.matrix_local
 				key.x, key.y, key.z = corrector.blender_bind_to_nif_bind(v).to_translation()
 		for bone_keys, group in zip(k.key_data.ori_bones, ori_groups):
 			fcurves = get_fcurves_by_type(group, "quaternion")

@@ -49,7 +49,7 @@ class ManisCorrector2(Corrector):
 		self.correction_inv = self.correction.inverted()
 		# mirror about x axis too:
 		self.xflip = mathutils.Matrix().to_4x4()
-		# self.xflip[0][0] = -1
+		self.xflip[0][0] = -1
 
 	# https://stackoverflow.com/questions/1263072/changing-a-matrix-from-right-handed-to-left-handed-coordinate-system
 	def nif_bind_to_blender_bind(self, nif_armature_space_matrix):
