@@ -132,9 +132,12 @@ def save(filepath=""):
 				# v = v @ bone.matrix_local
 				key.x, key.y, key.z = corrector.blender_bind_to_nif_bind(v).to_translation()
 		for bone_keys, group in zip(k.key_data.ori_bones, ori_groups):
+			rest_trans, rest_rot, rest_scale = bones_data[group.name]
 			fcurves = get_fcurves_by_type(group, "quaternion")
 			for frame_i, key in enumerate(bone_keys):
 				q = mathutils.Quaternion([fcu.evaluate(frame_i) for fcu in fcurves]).to_matrix().to_4x4()
+				# add local rest transform
+				q = rest_rot @ q
 				key.w, key.x, key.y, key.z = corrector.blender_bind_to_nif_bind(q).to_quaternion()
 	# hard-code for now
 	mani.header.names_size = 16
