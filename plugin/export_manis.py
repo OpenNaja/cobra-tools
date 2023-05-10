@@ -9,6 +9,7 @@ from generated.formats.manis.compounds.ManiBlock import ManiBlock
 from generated.formats.ms2.compounds.packing_utils import pack_swizzle
 from modules.formats.shared import djb2
 from plugin.modules_export.armature import get_armature
+from plugin.utils.matrix_util import bone_name_for_ovl
 from plugin.utils.transforms import ManisCorrector2, ManisCorrector3
 
 
@@ -56,7 +57,7 @@ def set_mani_info_counts(mani_info, b_action, bones_lut, m_dtype, b_dtype):
 
 
 def update_key_indices(k, m_dtype, groups, indices, target_names, bone_names):
-	names = [group.name for group in groups]
+	names = [bone_name_for_ovl(group.name) for group in groups]
 	target_names.update(names)
 	getattr(k, f"{m_dtype}_bones")[:] = names
 	getattr(k, f"{m_dtype}_bones_p")[:] = indices
