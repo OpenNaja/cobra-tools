@@ -42,7 +42,7 @@ def get_groups_for_type(b_action, dtype):
 def index_min_max(indices):
 	if indices:
 		return min(indices), max(indices)
-	return -1, 0
+	return 255, 0
 
 
 def set_mani_info_counts(mani_info, b_action, bones_lut, m_dtype, b_dtype):
@@ -67,7 +67,7 @@ def update_key_indices(k, m_dtype, groups, indices, target_names, bone_names):
 		bone_0 = min(indices)
 		bone_1 = max(indices) + 1
 		key_lut = {name: i for i, name in enumerate(names)}
-		getattr(k, f"{m_dtype}_bones_delta")[:] = [key_lut.get(name, -1) for name in bone_names[bone_0:bone_1]]
+		getattr(k, f"{m_dtype}_bones_delta")[:] = [key_lut.get(name, 255) for name in bone_names[bone_0:bone_1]]
 
 
 # def get_bfb_matrix(bone):
@@ -128,12 +128,14 @@ def save(filepath=""):
 		ori_groups, ori_indices = set_mani_info_counts(mani_info, b_action, bones_lut, "ori", "quaternion")
 		scl_groups, scl_indices = set_mani_info_counts(mani_info, b_action, bones_lut, "scl", "scale")
 		floats = []
+		print(mani_info)
 		mani_info.keys = ManiBlock(mani_info.context, mani_info)
 		k = mani_info.keys
 		update_key_indices(k, "pos", pos_groups, pos_indices, target_names, bone_names)
 		update_key_indices(k, "ori", ori_groups, ori_indices, target_names, bone_names)
 		update_key_indices(k, "scl", scl_groups, scl_indices, target_names, bone_names)
 		for bone_i, group in enumerate(pos_groups):
+			logging.info(f"Exporting loc '{group.name}'")
 			rest_trans, rest_rot, rest_scale = bones_data[group.name]
 			fcurves = get_fcurves_by_type(group, "location")
 			for frame_i, frame in enumerate(k.key_data.pos_bones):
@@ -144,6 +146,7 @@ def save(filepath=""):
 		# q_corr = mathutils.Matrix(((-0.0000,  0.0000, -1.0000), (-1.0000, -0.0000,  0.0000), ( 0.0000,  1.0000, -0.0000))).to_4x4().inverted()
 		# q_corr2 = mathutils.Matrix(((0, 0, 1), (0, 1, 0), (1, 0, 0))).to_4x4().inverted()
 		for bone_i, group in enumerate(ori_groups):
+			logging.info(f"Exporting rot '{group.name}'")
 			rest_trans, rest_rot, rest_scale = bones_data[group.name]
 			fcurves = get_fcurves_by_type(group, "quaternion")
 			for frame_i, frame in enumerate(k.key_data.ori_bones):
@@ -156,7 +159,9 @@ def save(filepath=""):
 				# q = mathutils.Quaternion((q.w, q.z, q.y, q.x))
 				q = mathutils.Quaternion((q.w, q.x, -q.z, -q.y))
 				q_m = q.to_matrix().to_4x4()
-				final_m = (rest_rot @ q_m) @ rot_corr.correction
+
+				# final_m = (rest_rot @ q_m) @ rot_corr.correction
+				final_m = q_m @ rot_corr.correction
 				# final_m = rot_corr.blender_bind_to_nif_bind(q)
 				key.w, key.x, key.y, key.z = final_m.to_quaternion()
 	# hard-code for now
@@ -165,7 +170,7 @@ def save(filepath=""):
 	mani.reset_field("name_buffer")
 	mani.name_buffer.bone_names[:] = sorted(target_names)
 	mani.name_buffer.bone_hashes[:] = [djb2(name.lower()) for name in mani.name_buffer.bone_names]
-	print(mani)
+	# print(mani)
 	mani.save(filepath)
 	# # get selected curve b_ob
 	# b_ob = bpy.context.object
