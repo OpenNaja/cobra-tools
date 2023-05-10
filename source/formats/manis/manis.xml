@@ -73,8 +73,8 @@
 		<add name="PosBoneMax" type="ubyte"/>
 		<add name="OriBoneMin" type="ubyte"/>
 		<add name="OriBoneMax" type="ubyte"/>
-		<add name="SclBoneMin" type="byte" >always FF</add>
-		<add name="SclBoneMax" type="byte" >always 00</add>
+		<add name="SclBoneMin" type="ubyte" >always FF</add>
+		<add name="SclBoneMax" type="ubyte" >always 00</add>
 		<add name="PosBoneCount Related" type="ubyte" since="258" > </add>
 		<add name="PosBoneCount Repeat" type="ubyte" since="258"/>
 		<add name="OriBoneCount Related" type="ubyte" since="258" > </add>

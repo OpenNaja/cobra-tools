@@ -60,10 +60,10 @@ class ManiInfo(BaseStruct):
 		self.ori_bone_max = name_type_map['Ubyte'](self.context, 0, None)
 
 		# always FF
-		self.scl_bone_min = name_type_map['Byte'](self.context, 0, None)
+		self.scl_bone_min = name_type_map['Ubyte'](self.context, 0, None)
 
 		# always 00
-		self.scl_bone_max = name_type_map['Byte'](self.context, 0, None)
+		self.scl_bone_max = name_type_map['Ubyte'](self.context, 0, None)
 		self.pos_bone_count_related = name_type_map['Ubyte'](self.context, 0, None)
 		self.pos_bone_count_repeat = name_type_map['Ubyte'](self.context, 0, None)
 		self.ori_bone_count_related = name_type_map['Ubyte'](self.context, 0, None)
@@ -105,8 +105,8 @@ class ManiInfo(BaseStruct):
 		yield 'pos_bone_max', name_type_map['Ubyte'], (0, None), (False, None), (None, None)
 		yield 'ori_bone_min', name_type_map['Ubyte'], (0, None), (False, None), (None, None)
 		yield 'ori_bone_max', name_type_map['Ubyte'], (0, None), (False, None), (None, None)
-		yield 'scl_bone_min', name_type_map['Byte'], (0, None), (False, None), (None, None)
-		yield 'scl_bone_max', name_type_map['Byte'], (0, None), (False, None), (None, None)
+		yield 'scl_bone_min', name_type_map['Ubyte'], (0, None), (False, None), (None, None)
+		yield 'scl_bone_max', name_type_map['Ubyte'], (0, None), (False, None), (None, None)
 		yield 'pos_bone_count_related', name_type_map['Ubyte'], (0, None), (False, None), (lambda context: context.version >= 258, None)
 		yield 'pos_bone_count_repeat', name_type_map['Ubyte'], (0, None), (False, None), (lambda context: context.version >= 258, None)
 		yield 'ori_bone_count_related', name_type_map['Ubyte'], (0, None), (False, None), (lambda context: context.version >= 258, None)
@@ -148,8 +148,8 @@ class ManiInfo(BaseStruct):
 		yield 'pos_bone_max', name_type_map['Ubyte'], (0, None), (False, None)
 		yield 'ori_bone_min', name_type_map['Ubyte'], (0, None), (False, None)
 		yield 'ori_bone_max', name_type_map['Ubyte'], (0, None), (False, None)
-		yield 'scl_bone_min', name_type_map['Byte'], (0, None), (False, None)
-		yield 'scl_bone_max', name_type_map['Byte'], (0, None), (False, None)
+		yield 'scl_bone_min', name_type_map['Ubyte'], (0, None), (False, None)
+		yield 'scl_bone_max', name_type_map['Ubyte'], (0, None), (False, None)
 		if instance.context.version >= 258:
 			yield 'pos_bone_count_related', name_type_map['Ubyte'], (0, None), (False, None)
 			yield 'pos_bone_count_repeat', name_type_map['Ubyte'], (0, None), (False, None)
