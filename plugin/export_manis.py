@@ -9,7 +9,7 @@ from generated.formats.manis.compounds.ManiBlock import ManiBlock
 from generated.formats.ms2.compounds.packing_utils import pack_swizzle
 from modules.formats.shared import djb2
 from plugin.modules_export.armature import get_armature
-from plugin.utils.transforms import ManisCorrector2
+from plugin.utils.transforms import ManisCorrector2, ManisCorrector3
 
 
 def pack(c_v, b_v, s):
@@ -97,6 +97,7 @@ def save(filepath=""):
 
 	# corrector = Corrector(False)
 	corrector = ManisCorrector2(False)
+	rot_corr = ManisCorrector3(False)
 	mani = ManisFile()
 	# hardcode for PZ for now
 	mani.version = 260
@@ -131,14 +132,23 @@ def save(filepath=""):
 				v = mathutils.Matrix.Translation(mathutils.Vector([fcu.evaluate(frame_i) for fcu in fcurves]) + rest_trans)
 				# v = v @ bone.matrix_local
 				key.x, key.y, key.z = corrector.blender_bind_to_nif_bind(v).to_translation()
+		q_corr = mathutils.Matrix(((-0.0000,  0.0000, -1.0000), (-1.0000, -0.0000,  0.0000), ( 0.0000,  1.0000, -0.0000))).to_4x4().inverted()
+		q_corr2 = mathutils.Matrix(((0, 0, 1), (0, 1, 0), (1, 0, 0))).to_4x4().inverted()
 		for bone_keys, group in zip(k.key_data.ori_bones, ori_groups):
 			rest_trans, rest_rot, rest_scale = bones_data[group.name]
 			fcurves = get_fcurves_by_type(group, "quaternion")
 			for frame_i, key in enumerate(bone_keys):
-				q = mathutils.Quaternion([fcu.evaluate(frame_i) for fcu in fcurves]).to_matrix().to_4x4()
+				q = mathutils.Quaternion([fcu.evaluate(frame_i) for fcu in fcurves])
 				# add local rest transform
-				q = rest_rot @ q
-				key.w, key.x, key.y, key.z = corrector.blender_bind_to_nif_bind(q).to_quaternion()
+				# q = rest_rot @ q
+				# q = (rest_rot @ rot_corr.correction) @ q
+				# final_m = (rest_rot @ rot_corr.correction) @ q
+				# q = mathutils.Quaternion((q.w, q.z, q.y, q.x))
+				q = mathutils.Quaternion((q.w, q.x, -q.z, -q.y))
+				q_m = q.to_matrix().to_4x4()
+				final_m = (rest_rot @ q_m) @ rot_corr.correction
+				# final_m = rot_corr.blender_bind_to_nif_bind(q)
+				key.w, key.x, key.y, key.z = final_m.to_quaternion()
 	# hard-code for now
 	mani.header.names_size = 16
 	mani.header.hash_block_size = len(target_names) * 4
