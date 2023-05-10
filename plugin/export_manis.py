@@ -140,6 +140,9 @@ def save(filepath=""):
 			fcurves = get_fcurves_by_type(group, "location")
 			for frame_i, frame in enumerate(k.key_data.pos_bones):
 				key = frame[bone_i]
+				# ok, translation seems to be stored relative to the parent
+				# you can easily tell that from how the first neck bone slides orthogonal to the spine bone ingame
+				# whereas blender stores translation relative to the bone itself, not the parent
 				v = mathutils.Matrix.Translation(mathutils.Vector([fcu.evaluate(frame_i) for fcu in fcurves]) + rest_trans)
 				# v = v @ bone.matrix_local
 				key.x, key.y, key.z = corrector.blender_bind_to_nif_bind(v).to_translation()
