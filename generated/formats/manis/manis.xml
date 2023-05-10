@@ -122,9 +122,9 @@
 	</compound>
 
 	<compound name="UncompressedManiData" >
-		<add name="PosBones" type="Vector3" arr1="#ARG#\PosBoneCount" arr2="#ARG#\FrameCount" />
-		<add name="OriBones" type="Vector4H" arr1="#ARG#\OriBoneCount" arr2="#ARG#\FrameCount" />
-		<add name="Floats" type="float" arr1="#ARG#\FloatCount" arr2="#ARG#\FrameCount" />
+		<add name="PosBones" type="Vector3" arr1="#ARG#\FrameCount" arr2="#ARG#\PosBoneCount" />
+		<add name="OriBones" type="Vector4H" arr1="#ARG#\FrameCount" arr2="#ARG#\OriBoneCount"  />
+		<add name="Floats" type="float" arr1="#ARG#\FrameCount" arr2="#ARG#\FloatCount" />
     </compound>
 
     <compound name="FloatsGrabber" >

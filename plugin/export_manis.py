@@ -55,12 +55,18 @@ def set_mani_info_counts(mani_info, b_action, bones_lut, m_dtype, b_dtype):
 	return groups, indices
 
 
-def update_key_indices(k, m_dtype, groups, indices, target_names):
+def update_key_indices(k, m_dtype, groups, indices, target_names, bone_names):
 	names = [group.name for group in groups]
 	target_names.update(names)
 	getattr(k, f"{m_dtype}_bones")[:] = names
 	getattr(k, f"{m_dtype}_bones_p")[:] = indices
-	getattr(k, f"{m_dtype}_bones_delta")[:] = [i for i, name in enumerate(names)]
+	# not at all sure how this works
+	# getattr(k, f"{m_dtype}_bones_delta")[:] = list(reversed([i for i, name in enumerate(names)]))
+	if indices:
+		bone_0 = min(indices)
+		bone_1 = max(indices) + 1
+		key_lut = {name: i for i, name in enumerate(names)}
+		getattr(k, f"{m_dtype}_bones_delta")[:] = [key_lut.get(name, -1) for name in bone_names[bone_0:bone_1]]
 
 
 # def get_bfb_matrix(bone):
@@ -104,6 +110,7 @@ def save(filepath=""):
 	action_names = []
 	target_names = set()
 	bones_lut = {pose_bone.name: pose_bone["index"] for pose_bone in b_armature_ob.pose.bones}
+	bone_names = [pose_bone.name for pose_bone in sorted(b_armature_ob.pose.bones, key=lambda pb: pb["index"])]
 	for b_action in bpy.data.actions:
 		logging.info(f"Exporting {b_action.name}")
 		action_names.append(b_action.name)
@@ -122,22 +129,24 @@ def save(filepath=""):
 		floats = []
 		mani_info.keys = ManiBlock(mani_info.context, mani_info)
 		k = mani_info.keys
-		update_key_indices(k, "pos", pos_groups, pos_indices, target_names)
-		update_key_indices(k, "ori", ori_groups, ori_indices, target_names)
-		update_key_indices(k, "scl", scl_groups, scl_indices, target_names)
-		for bone_keys, group in zip(k.key_data.pos_bones, pos_groups):
+		update_key_indices(k, "pos", pos_groups, pos_indices, target_names, bone_names)
+		update_key_indices(k, "ori", ori_groups, ori_indices, target_names, bone_names)
+		update_key_indices(k, "scl", scl_groups, scl_indices, target_names, bone_names)
+		for bone_i, group in enumerate(pos_groups):
 			rest_trans, rest_rot, rest_scale = bones_data[group.name]
 			fcurves = get_fcurves_by_type(group, "location")
-			for frame_i, key in enumerate(bone_keys):
+			for frame_i, frame in enumerate(k.key_data.pos_bones):
+				key = frame[bone_i]
 				v = mathutils.Matrix.Translation(mathutils.Vector([fcu.evaluate(frame_i) for fcu in fcurves]) + rest_trans)
 				# v = v @ bone.matrix_local
 				key.x, key.y, key.z = corrector.blender_bind_to_nif_bind(v).to_translation()
-		q_corr = mathutils.Matrix(((-0.0000,  0.0000, -1.0000), (-1.0000, -0.0000,  0.0000), ( 0.0000,  1.0000, -0.0000))).to_4x4().inverted()
-		q_corr2 = mathutils.Matrix(((0, 0, 1), (0, 1, 0), (1, 0, 0))).to_4x4().inverted()
-		for bone_keys, group in zip(k.key_data.ori_bones, ori_groups):
+		# q_corr = mathutils.Matrix(((-0.0000,  0.0000, -1.0000), (-1.0000, -0.0000,  0.0000), ( 0.0000,  1.0000, -0.0000))).to_4x4().inverted()
+		# q_corr2 = mathutils.Matrix(((0, 0, 1), (0, 1, 0), (1, 0, 0))).to_4x4().inverted()
+		for bone_i, group in enumerate(ori_groups):
 			rest_trans, rest_rot, rest_scale = bones_data[group.name]
 			fcurves = get_fcurves_by_type(group, "quaternion")
-			for frame_i, key in enumerate(bone_keys):
+			for frame_i, frame in enumerate(k.key_data.ori_bones):
+				key = frame[bone_i]
 				q = mathutils.Quaternion([fcu.evaluate(frame_i) for fcu in fcurves])
 				# add local rest transform
 				# q = rest_rot @ q
@@ -154,7 +163,7 @@ def save(filepath=""):
 	mani.header.hash_block_size = len(target_names) * 4
 	mani.reset_field("name_buffer")
 	mani.name_buffer.bone_names[:] = sorted(target_names)
-	mani.name_buffer.bone_hashes[:] = [djb2(name) for name in mani.name_buffer.bone_names]
+	mani.name_buffer.bone_hashes[:] = [djb2(name.lower()) for name in mani.name_buffer.bone_names]
 	print(mani)
 	mani.save(filepath)
 	# # get selected curve b_ob

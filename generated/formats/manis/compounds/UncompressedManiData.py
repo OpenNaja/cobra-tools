@@ -26,6 +26,6 @@ class UncompressedManiData(BaseStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'pos_bones', Array, (0, None, (instance.arg.pos_bone_count, instance.arg.frame_count,), name_type_map['Vector3']), (False, None)
-		yield 'ori_bones', Array, (0, None, (instance.arg.ori_bone_count, instance.arg.frame_count,), name_type_map['Vector4H']), (False, None)
-		yield 'floats', Array, (0, None, (instance.arg.float_count, instance.arg.frame_count,), name_type_map['Float']), (False, None)
+		yield 'pos_bones', Array, (0, None, (instance.arg.frame_count, instance.arg.pos_bone_count,), name_type_map['Vector3']), (False, None)
+		yield 'ori_bones', Array, (0, None, (instance.arg.frame_count, instance.arg.ori_bone_count,), name_type_map['Vector4H']), (False, None)
+		yield 'floats', Array, (0, None, (instance.arg.frame_count, instance.arg.float_count,), name_type_map['Float']), (False, None)
