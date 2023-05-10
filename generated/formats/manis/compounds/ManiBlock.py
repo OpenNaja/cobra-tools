@@ -55,11 +55,11 @@ class ManiBlock(BaseStruct):
 		yield 'pos_bones_p', Array, (0, None, (instance.arg.pos_bone_count,), name_type_map['Ubyte']), (False, None)
 		yield 'ori_bones_p', Array, (0, None, (instance.arg.ori_bone_count,), name_type_map['Ubyte']), (False, None)
 		yield 'scl_bones_p', Array, (0, None, (instance.arg.scl_bone_count,), name_type_map['Ubyte']), (False, None)
-		if instance.arg.pos_bone_min >= 0:
+		if instance.arg.pos_bone_min < 255:
 			yield 'pos_bones_delta', Array, (0, None, ((instance.arg.pos_bone_max - instance.arg.pos_bone_min) + 1,), name_type_map['Ubyte']), (False, None)
-		if instance.arg.ori_bone_min >= 0:
+		if instance.arg.ori_bone_min < 255:
 			yield 'ori_bones_delta', Array, (0, None, ((instance.arg.ori_bone_max - instance.arg.ori_bone_min) + 1,), name_type_map['Ubyte']), (False, None)
-		if instance.arg.scl_bone_min >= 0:
+		if instance.arg.scl_bone_min < 255:
 			yield 'scl_bones_delta', Array, (0, None, ((instance.arg.scl_bone_max - instance.arg.scl_bone_min) + 1,), name_type_map['Ubyte']), (False, None)
 		yield 'pad', name_type_map['PadAlign'], (4, instance.ref), (False, None)
 		if instance.arg.b == 0:
