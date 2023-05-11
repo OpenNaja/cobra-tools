@@ -1,5 +1,5 @@
 from generated.base_struct import BaseStruct
-from generated.formats.bani.imports import name_type_map
+from generated.formats.base.imports import name_type_map
 
 
 class Vector3(BaseStruct):
@@ -38,3 +38,15 @@ class Vector3(BaseStruct):
 		yield 'x', name_type_map['Float'], (0, None), (False, None)
 		yield 'y', name_type_map['Float'], (0, None), (False, None)
 		yield 'z', name_type_map['Float'], (0, None), (False, None)
+
+	def set(self, vec):
+		if hasattr(vec, "x"):
+			self.x = vec.x
+			self.y = vec.y
+			self.z = vec.z
+		else:
+			self.x, self.y, self.z = vec
+
+	def __repr__(self):
+		return f"[ {self.x:6.3f} {self.y:6.3f} {self.z:6.3f} ]"
+

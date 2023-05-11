@@ -19,6 +19,7 @@ type_module_name_map = {
 	'ZStringBuffer': 'generated.formats.base.compounds.ZStringBuffer',
 	'PadAlign': 'generated.formats.base.compounds.PadAlign',
 	'FixedString': 'generated.formats.base.compounds.FixedString',
+	'Vector3': 'generated.formats.base.compounds.Vector3',
 	'Bool': 'generated.formats.ovl_base.basic',
 	'OffsetString': 'generated.formats.ovl_base.basic',
 	'Compression': 'generated.formats.ovl_base.enums.Compression',

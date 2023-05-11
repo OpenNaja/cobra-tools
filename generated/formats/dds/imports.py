@@ -19,6 +19,7 @@ type_module_name_map = {
 	'ZStringBuffer': 'generated.formats.base.compounds.ZStringBuffer',
 	'PadAlign': 'generated.formats.base.compounds.PadAlign',
 	'FixedString': 'generated.formats.base.compounds.FixedString',
+	'Vector3': 'generated.formats.base.compounds.Vector3',
 	'FourCC': 'generated.formats.dds.enums.FourCC',
 	'DxgiFormat': 'generated.formats.dds.enums.DxgiFormat',
 	'D3D10ResourceDimension': 'generated.formats.dds.enums.D3D10ResourceDimension',

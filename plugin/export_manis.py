@@ -57,16 +57,17 @@ def set_mani_info_counts(mani_info, b_action, bones_lut, m_dtype, b_dtype):
 
 
 def update_key_indices(k, m_dtype, groups, indices, target_names, bone_names):
-	names = [bone_name_for_ovl(group.name) for group in groups]
-	target_names.update(names)
-	getattr(k, f"{m_dtype}_bones")[:] = names
+	b_names = [group.name for group in groups]
+	m_names = [bone_name_for_ovl(name) for name in b_names]
+	target_names.update(m_names)
+	getattr(k, f"{m_dtype}_bones")[:] = m_names
+	# map key data index to bone
 	getattr(k, f"{m_dtype}_bones_p")[:] = indices
-	# not at all sure how this works
-	# getattr(k, f"{m_dtype}_bones_delta")[:] = list(reversed([i for i, name in enumerate(names)]))
+	# map bones to key data index
 	if indices:
 		bone_0 = min(indices)
 		bone_1 = max(indices) + 1
-		key_lut = {name: i for i, name in enumerate(names)}
+		key_lut = {name: i for i, name in enumerate(b_names)}
 		getattr(k, f"{m_dtype}_bones_delta")[:] = [key_lut.get(name, 255) for name in bone_names[bone_0:bone_1]]
 
 
@@ -169,6 +170,7 @@ def save(filepath=""):
 				final_m = q_m @ rot_corr.correction
 				# final_m = rot_corr.blender_bind_to_nif_bind(q)
 				key.w, key.x, key.y, key.z = final_m.to_quaternion()
+		print(mani_info.keys)
 	# hard-code for now
 	mani.header.names_size = 16
 	mani.header.hash_block_size = len(target_names) * 4

@@ -4,13 +4,6 @@
 
 	<xi:include href="../ovl_base/ovl_base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
 
-	<compound name="Vector3" size="12" inherit="MemStruct">
-		A vector in 3D space (x,y,z).
-		<field name="x" type="float">First coordinate.</field>
-		<field name="y" type="float">Second coordinate.</field>
-		<field name="z" type="float">Third coordinate.</field>
-	</compound>
-
 	<compound name="LutHeader" inherit="MemStruct">
         24 bytes for JWE2
         <add name="colors" type="ArrayPointer" template="Vector3" arg="colors_count"/>

@@ -19,6 +19,7 @@ type_module_name_map = {
 	'ZStringBuffer': 'generated.formats.base.compounds.ZStringBuffer',
 	'PadAlign': 'generated.formats.base.compounds.PadAlign',
 	'FixedString': 'generated.formats.base.compounds.FixedString',
+	'Vector3': 'generated.formats.base.compounds.Vector3',
 }
 
 name_type_map = {}

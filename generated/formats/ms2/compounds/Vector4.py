@@ -5,7 +5,7 @@ from generated.formats.ms2.imports import name_type_map
 class Vector4(BaseStruct):
 
 	"""
-	A vector in 3D space (x,y,z).
+	A vector in 4D space (x,y,z,w).
 	"""
 
 	__name__ = 'Vector4'
