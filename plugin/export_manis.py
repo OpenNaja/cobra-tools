@@ -163,11 +163,18 @@ def save(filepath=""):
 				# q = (rest_rot @ rot_corr.correction) @ q
 				# final_m = (rest_rot @ rot_corr.correction) @ q
 				# q = mathutils.Quaternion((q.w, q.z, q.y, q.x))
-				q = mathutils.Quaternion((q.w, q.x, -q.z, -q.y))
+				# ok-ish for the axes
+				# q = mathutils.Quaternion((q.w, q.x, -q.z, -q.y))
+				q = mathutils.Quaternion((q.w, q.x, q.y, q.z))
 				q_m = q.to_matrix().to_4x4()
 
-				# final_m = (rest_rot @ q_m) @ rot_corr.correction
-				final_m = q_m @ rot_corr.correction
+				uncorr = rest_rot @ q_m
+				q = uncorr.to_quaternion()
+				q = mathutils.Quaternion((q.w, q.x, -q.z, -q.y))
+				uncorr = q.to_matrix().to_4x4()
+
+				final_m = uncorr @ rot_corr.correction
+				# final_m = q_m @ rot_corr.correction
 				# final_m = rot_corr.blender_bind_to_nif_bind(q)
 				key.w, key.x, key.y, key.z = final_m.to_quaternion()
 		print(mani_info.keys)
