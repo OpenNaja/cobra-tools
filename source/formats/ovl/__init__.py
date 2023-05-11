@@ -925,13 +925,12 @@ class OvlFile(Header):
 		logging.info("Loading file classes")
 		start_time = time.time()
 
-		loaders = self.loaders.values()
 		if "only_types" in self.commands:
 			only_types = self.commands['only_types']
 			logging.info(f"Loading only {only_types}")
-			loaders = [loader for loader in loaders if loader.ext in only_types]
+			self.loaders = {loader.name: loader for loader in self.loaders.values() if loader.ext in only_types}
 		with self.report_error_files("Collecting") as error_files:
-			for loader in self.iter_progress(loaders, "Mapping files"):
+			for loader in self.iter_progress(self.loaders.values(), "Mapping files"):
 				loader.track_ptrs()
 				try:
 					loader.collect()
@@ -940,7 +939,7 @@ class OvlFile(Header):
 					error_files.append(loader.name)
 					# we can keep collecting
 				loader.link_streams()
-			for loader in self.iter_progress(loaders, "Validating files"):
+			for loader in self.iter_progress(self.loaders.values(), "Validating files"):
 				loader.validate()
 		logging.info(f"Loaded file classes in {time.time() - start_time:.2f} seconds")
 

@@ -247,6 +247,7 @@ class MainWindow(widgets.MainWindow):
 			(edit_menu, "Export included ovl list", self.save_included_ovls, "", ""),
 			(util_menu, "Inspect Models", self.inspect_models, "", "", True),
 			(util_menu, "Inspect FGMs", self.walker_fgm, "", "", True),
+			(util_menu, "Inspect Manis", self.walker_manis, "", "", True),
 			(util_menu, "Generate Hash Table", self.walker_hash, "", ""),
 			(util_menu, "Dump Debug Data", self.dump_debug_data, "", "dump_debug", True),
 			(util_menu, "Open Tools Dir", self.open_tools_dir, "", "home"),
@@ -444,8 +445,7 @@ class MainWindow(widgets.MainWindow):
 			selected_dir = self.get_selected_dir()
 			if selected_dir:
 				# walk path
-				ovls = walker.walk_type(selected_dir, extension=".ovl")
-				for ovl_path in ovls:
+				for ovl_path in walker.walk_type(selected_dir, extension=".ovl"):
 					# open ovl file
 					self.file_widget.accept_file(ovl_path)
 					self.load(threaded=False)
@@ -726,6 +726,12 @@ class MainWindow(widgets.MainWindow):
 															   self.cfg.get("dir_ovls_in", "C://"))
 		walker.get_fgm_values(self, start_dir, walk_ovls=self.t_walk_ovl.isChecked())
 		self.update_progress("Walked FGMs", value=1, vmax=1)
+
+	def walker_manis(self, ):
+		start_dir = QtWidgets.QFileDialog.getExistingDirectory(self, 'Game Root folder',
+															   self.cfg.get("dir_ovls_in", "C://"))
+		walker.get_manis_values(self, start_dir, walk_ovls=self.t_walk_ovl.isChecked())
+		self.update_progress("Walked Manis", value=1, vmax=1)
 
 	def inspect_models(self):
 		start_dir = QtWidgets.QFileDialog.getExistingDirectory(self, 'Game Root folder',

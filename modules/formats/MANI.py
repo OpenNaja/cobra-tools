@@ -4,7 +4,7 @@ import struct
 
 from generated.formats.manis.compounds.ManisRoot import ManisRoot
 from generated.formats.manis import ManisFile
-from modules.formats.BaseFormat import BaseFile
+from modules.formats.BaseFormat import BaseFile, MemStructLoader
 from modules.helpers import as_bytes
 
 
@@ -16,8 +16,9 @@ class ManiLoader(BaseFile):
 		self.root_ptr = (None, 0)
 
 
-class ManisLoader(BaseFile):
+class ManisLoader(MemStructLoader):
 	extension = ".manis"
+	target_class = ManisRoot
 				
 	def extract(self, out_dir):
 		name = self.name
@@ -34,8 +35,7 @@ class ManisLoader(BaseFile):
 			outfile.write(struct.pack("<II", self.mime_version, len(self.children)))
 			for mani in self.children:
 				outfile.write(as_bytes(mani.basename))
-			pool, offset = self.root_ptr
-			outfile.write(pool.get_data_at(offset))
+			outfile.write(as_bytes(self.header))
 			for buff in self.data_entry.buffers:
 				outfile.write(buff.data)
 			# JWE2 can now have a secondary data entry holding a buffer 2 in an ovs

@@ -178,8 +178,7 @@ def save(filepath=""):
 				# final_m = rot_corr.blender_bind_to_nif_bind(q)
 				key.w, key.x, key.y, key.z = final_m.to_quaternion()
 		print(mani_info.keys)
-	# hard-code for now
-	mani.header.names_size = 16
+	mani.header.mani_files_size = mani.mani_count * 16
 	mani.header.hash_block_size = len(target_names) * 4
 	mani.reset_field("name_buffer")
 	mani.name_buffer.bone_names[:] = sorted(target_names)

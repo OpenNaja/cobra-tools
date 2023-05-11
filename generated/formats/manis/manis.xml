@@ -34,11 +34,11 @@
 		<!--    JWE uses uint-->
     </basic>
 
-    <compound name="ManisRoot">
+    <compound name="ManisRoot" inherit="MemStruct">
 		24 bytes for DLA, ZTUAC, PC, JWE1, old PZ
 		32 bytes for PZ1.6+, JWE2
-		<add name="names size" type="ushort">seemingly related to the names of mani files stripped from their prefix, but usually slightly smaller than what is actually needed</add>
-        <add name="hash block size" type="ushort"/>
+		<add name="mani files size" type="ushort">16 * mani count</add>
+        <add name="hash block size" type="ushort">4 * string count</add>
 		<add name="zero 0" type="uint"/>
         <add name="zero 1" type="uint64" />
         <add name="zero 2" type="uint64" />

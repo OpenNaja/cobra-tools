@@ -1,8 +1,8 @@
-from generated.base_struct import BaseStruct
 from generated.formats.manis.imports import name_type_map
+from generated.formats.ovl_base.compounds.MemStruct import MemStruct
 
 
-class ManisRoot(BaseStruct):
+class ManisRoot(MemStruct):
 
 	"""
 	24 bytes for DLA, ZTUAC, PC, JWE1, old PZ
@@ -15,8 +15,10 @@ class ManisRoot(BaseStruct):
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 
-		# seemingly related to the names of mani files stripped from their prefix, but usually slightly smaller than what is actually needed
-		self.names_size = name_type_map['Ushort'](self.context, 0, None)
+		# 16 * mani count
+		self.mani_files_size = name_type_map['Ushort'](self.context, 0, None)
+
+		# 4 * string count
 		self.hash_block_size = name_type_map['Ushort'](self.context, 0, None)
 		self.zero_0 = name_type_map['Uint'](self.context, 0, None)
 		self.zero_1 = name_type_map['Uint64'](self.context, 0, None)
@@ -28,7 +30,7 @@ class ManisRoot(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield 'names_size', name_type_map['Ushort'], (0, None), (False, None), (None, None)
+		yield 'mani_files_size', name_type_map['Ushort'], (0, None), (False, None), (None, None)
 		yield 'hash_block_size', name_type_map['Ushort'], (0, None), (False, None), (None, None)
 		yield 'zero_0', name_type_map['Uint'], (0, None), (False, None), (None, None)
 		yield 'zero_1', name_type_map['Uint64'], (0, None), (False, None), (None, None)
@@ -38,7 +40,7 @@ class ManisRoot(BaseStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'names_size', name_type_map['Ushort'], (0, None), (False, None)
+		yield 'mani_files_size', name_type_map['Ushort'], (0, None), (False, None)
 		yield 'hash_block_size', name_type_map['Ushort'], (0, None), (False, None)
 		yield 'zero_0', name_type_map['Uint'], (0, None), (False, None)
 		yield 'zero_1', name_type_map['Uint64'], (0, None), (False, None)

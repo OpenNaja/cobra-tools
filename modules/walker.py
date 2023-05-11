@@ -241,8 +241,7 @@ def bulk_test_models(gui, start_dir, walk_ovls=True, walk_models=True):
 		gui.update_progress(msg, value=1, vmax=1)
 
 
-def bulk_extract_ovls(errors, export_dir, gui, start_dir, only_types):
-	# don't use internal data
+def ovls_in_path(gui, start_dir, only_types):
 	ovl_data = OvlFile()
 	ovl_files = walk_type(start_dir, extension=".ovl")
 	of_max = len(ovl_files)
@@ -251,13 +250,22 @@ def bulk_extract_ovls(errors, export_dir, gui, start_dir, only_types):
 		try:
 			# read ovl file
 			ovl_data.load(ovl_path, commands={"only_types": only_types})
+			yield ovl_data, ovl_path
+		except Exception as ex:
+			logging.exception(f"Opening OVL failed: {ovl_path}")
+			# errors.append((ovl_path, ex))
+
+
+def bulk_extract_ovls(errors, export_dir, gui, start_dir, only_types):
+	for ovl_data, ovl_path in ovls_in_path(gui, start_dir, only_types):
+		try:
 			# create an output folder for it
 			rel_p = os.path.relpath(ovl_path, start=start_dir)
 			rel_d = os.path.splitext(rel_p)[0]
 			out_dir = os.path.join(export_dir, rel_d)
-			out_paths = ovl_data.extract(out_dir, only_types=only_types)
+			ovl_data.extract(out_dir, only_types=only_types)
 		except Exception as ex:
-			logging.exception(f"OVL failed: {ovl_path}")
+			logging.exception(f"Extracting OVL failed: {ovl_path}")
 			errors.append((ovl_path, ex))
 
 
@@ -325,3 +333,20 @@ def get_fgm_values(gui, start_dir, walk_ovls=True, walk_fgms=True):
 				f.write("\t\t}\n")
 				f.write("\t),\n")
 			f.write("}\n")
+
+
+def get_manis_values(gui, start_dir, walk_ovls=True, walk_fgms=True):
+	errors = []
+	data = {}
+	if start_dir:
+		for ovl_data, ovl_path in ovls_in_path(gui, start_dir, (".manis", ".mani",)):
+			try:
+				for loader in ovl_data.loaders.values():
+					# print(loader.name)
+					if loader.ext == ".manis":
+						mani_names = [c.name for c in loader.children]
+						data[loader.header.mani_files_size] = mani_names
+			except:
+				logging.exception(f"Failed")
+	for k, strings in sorted(data.items()):
+		logging.info(f"{k} - {len(strings)} - {k/len(strings)}- {sum(len(s) for s in strings)}")
