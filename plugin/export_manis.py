@@ -143,8 +143,10 @@ def save(filepath=""):
 				# ok, translation seems to be stored relative to the parent
 				# you can easily tell that from how the first neck bone slides orthogonal to the spine bone ingame
 				# whereas blender stores translation relative to the bone itself, not the parent
-				v = mathutils.Matrix.Translation(mathutils.Vector([fcu.evaluate(frame_i) for fcu in fcurves]) + rest_trans)
-				# v = v @ bone.matrix_local
+				v = mathutils.Vector([fcu.evaluate(frame_i) for fcu in fcurves])
+				v = mathutils.Matrix.Translation(v)
+				v = rest_rot @ v
+				v.translation += rest_trans
 				key.x, key.y, key.z = corrector.blender_bind_to_nif_bind(v).to_translation()
 		# q_corr = mathutils.Matrix(((-0.0000,  0.0000, -1.0000), (-1.0000, -0.0000,  0.0000), ( 0.0000,  1.0000, -0.0000))).to_4x4().inverted()
 		# q_corr2 = mathutils.Matrix(((0, 0, 1), (0, 1, 0), (1, 0, 0))).to_4x4().inverted()
