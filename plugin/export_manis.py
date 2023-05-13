@@ -10,7 +10,7 @@ from generated.formats.ms2.compounds.packing_utils import pack_swizzle
 from modules.formats.shared import djb2
 from plugin.modules_export.armature import get_armature
 from plugin.utils.matrix_util import bone_name_for_ovl
-from plugin.utils.transforms import ManisCorrector2, ManisCorrector3
+from plugin.utils.transforms import ManisCorrector
 
 
 def pack(c_v, b_v, s):
@@ -103,9 +103,7 @@ def save(filepath=""):
 	# 	for pbone in b_armature_ob.pose.bones:
 	# 		pbone.matrix_basis = mathutils.Matrix()
 
-	# corrector = Corrector(False)
-	corrector = ManisCorrector2(False)
-	rot_corr = ManisCorrector3(False)
+	corrector = ManisCorrector(False)
 	mani = ManisFile()
 	# hardcode for PZ for now
 	mani.version = 260
@@ -130,7 +128,7 @@ def save(filepath=""):
 		pos_groups, pos_indices = set_mani_info_counts(mani_info, b_action, bones_lut, "pos", "location")
 		ori_groups, ori_indices = set_mani_info_counts(mani_info, b_action, bones_lut, "ori", "quaternion")
 		scl_groups, scl_indices = set_mani_info_counts(mani_info, b_action, bones_lut, "scl", "scale")
-		# mani_info.scl_bone_count_related = mani_info.scl_bone_count_repeat = 0
+		mani_info.scl_bone_count_related = mani_info.scl_bone_count_repeat = 0
 		floats = []
 		print(mani_info)
 		mani_info.keys = ManiBlock(mani_info.context, mani_info)
@@ -144,8 +142,7 @@ def save(filepath=""):
 			fcurves = get_fcurves_by_type(group, "location")
 			for frame_i, frame in enumerate(k.key_data.pos_bones):
 				key = frame[bone_i]
-				# ok, translation seems to be stored relative to the parent
-				# you can easily tell that from how the first neck bone slides orthogonal to the spine bone ingame
+				# translation is stored relative to the parent
 				# whereas blender stores translation relative to the bone itself, not the parent
 				v = mathutils.Vector([fcu.evaluate(frame_i) for fcu in fcurves])
 				v = mathutils.Matrix.Translation(v)
@@ -159,18 +156,10 @@ def save(filepath=""):
 			for frame_i, frame in enumerate(k.key_data.ori_bones):
 				key = frame[bone_i]
 				# sample frame
-				q = mathutils.Quaternion([fcu.evaluate(frame_i) for fcu in fcurves])
-				q_m = q.to_matrix().to_4x4()
-
+				q_m = mathutils.Quaternion([fcu.evaluate(frame_i) for fcu in fcurves]).to_matrix().to_4x4()
 				# add local rest transform
-				uncorr = rest_rot @ q_m
-				q = uncorr.to_quaternion()
-				q = mathutils.Quaternion((q.w, q.x, -q.z, -q.y))
-				uncorr = q.to_matrix().to_4x4()
-
-				final_m = uncorr @ rot_corr.correction
-				# final_m = q_m @ rot_corr.correction
-				# final_m = rot_corr.blender_bind_to_nif_bind(q)
+				final_m = rest_rot @ q_m
+				final_m = corrector.blender_bind_to_nif_bind(final_m)
 				key.w, key.x, key.y, key.z = final_m.to_quaternion()
 		for bone_i, group in enumerate(scl_groups):
 			logging.info(f"Exporting scale '{group.name}'")

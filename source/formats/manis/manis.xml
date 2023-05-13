@@ -108,10 +108,11 @@
     </compound>
 
 	<compound name="Vector4H" size="8">
-		<field name="w" type="normshort"/>
 		<field name="x" type="normshort"/>
 		<field name="y" type="normshort"/>
 		<field name="z" type="normshort"/>
+		idiosyncratic - w is last!
+		<field name="w" type="normshort"/>
 	</compound>
 
 	<compound name="UncompressedManiData" >
