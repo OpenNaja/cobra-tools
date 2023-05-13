@@ -235,7 +235,6 @@ def animate_empties(bones_table, bani, scene, armature_ob):
 	# go over list of euler keys
 	for i, bone_name in bones_table:
 		empty = create_ob(scene, bone_name, None)
-		empty.scale = (0.01, 0.01, 0.01)
 		bind_loc = armature_ob.data.bones[bone_name].matrix_local.translation
 		# bind_loc_inv = bind_loc.negate()
 		logging.info(f"Bone {bone_name} as empty, bind at {bind_loc}")
@@ -246,12 +245,17 @@ def animate_empties(bones_table, bani, scene, armature_ob):
 			rot = global_corr_mat @ euler.to_matrix().to_4x4()
 			loc = bani.locs[frame_i, i]
 			loc = mathutils.Vector((loc[0], loc[2], -loc[1]))
-			# first translate so that the origin of rotation is at the origin
+			# the translation key is rotated about bind_loc mirrored on the origin
+			# first add bind_loc so that the origin of rotation is at the origin
 			corr = loc + bind_loc
+			# rotate by the euler key
 			corr.rotate(rot.inverted())
-			# loc = ((loc - bind_loc).rotate(rot)) + bind_loc
+			# go back to pose position
 			loc = corr - bind_loc
 			bpy.context.scene.frame_set(frame_i)
+			empty.matrix_local = rot
 			empty.location = loc
 			empty.keyframe_insert(data_path="location", frame=frame_i)
-
+			# empty.keyframe_insert(data_path="rotation_quaternion", frame=frame_i)
+			empty.keyframe_insert(data_path="rotation_euler", frame=frame_i)
+		empty.scale = (0.01, 0.01, 0.01)
