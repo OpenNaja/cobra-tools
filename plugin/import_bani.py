@@ -22,6 +22,8 @@ def load_bani(file_path):
 
 
 interp_loc = None
+global_corr_euler = mathutils.Euler([math.radians(k) for k in (0, -90, -90)])
+global_corr_mat = global_corr_euler.to_matrix().to_4x4()
 
 
 def load(files=[], filepath="", set_fps=False):
@@ -33,9 +35,6 @@ def load(files=[], filepath="", set_fps=False):
 	# data 0 has various scales and counts
 	anim_length = bani.data.animation_length
 	num_frames = bani.data.num_frames
-	
-	global_corr_euler = mathutils.Euler([math.radians(k) for k in (0, -90, -90)])
-	global_corr_mat = global_corr_euler.to_matrix().to_4x4()
 	
 	fps = int(round(num_frames/anim_length))
 	scene = bpy.context.scene
@@ -155,8 +154,6 @@ def load(files=[], filepath="", set_fps=False):
 		# 	# pbone.keyframe_insert(data_path="location", frame=frame_i, group=bone_name)
 	return {'FINISHED'}
 
-global_corr_euler = mathutils.Euler([math.radians(k) for k in (0, -90, -90)])
-global_corr_mat = global_corr_euler.to_matrix().to_4x4()
 
 def load_old(files=[], filepath="", set_fps=False):
 	dirname, filename = os.path.split(filepath)
@@ -166,7 +163,6 @@ def load_old(files=[], filepath="", set_fps=False):
 	# data 0 has various scales and counts
 	anim_length = data.data.animation_length
 	num_frames = data.data.num_frames
-
 
 	fps = int(round(num_frames / anim_length))
 	scene = bpy.context.scene
@@ -243,17 +239,26 @@ def animate_empties(bones_table, bani, scene, armature_ob):
 			euler = bani.eulers[frame_i, i]
 			euler = mathutils.Euler([math.radians(k) for k in euler])
 			rot = global_corr_mat @ euler.to_matrix().to_4x4()
+			# e_fixed = rot.to_euler()
+			# e_fixed = mathutils.Euler((-e_fixed[0], -e_fixed[1], -e_fixed[2]))
 			loc = bani.locs[frame_i, i]
+			# this seems to be absolutely correct
 			loc = mathutils.Vector((loc[0], loc[2], -loc[1]))
 			# the translation key is rotated about bind_loc mirrored on the origin
 			# first add bind_loc so that the origin of rotation is at the origin
+			# corr = loc + bind_loc
 			corr = loc + bind_loc
 			# rotate by the euler key
 			corr.rotate(rot.inverted())
+			# corr.rotate(e_fixed)
 			# go back to pose position
 			loc = corr - bind_loc
 			bpy.context.scene.frame_set(frame_i)
-			empty.matrix_local = rot
+			# empty.matrix_local = rot
+			# euler y and z need to be negated
+			e_fixed = rot.to_euler()
+			e_fixed = (e_fixed[0], -e_fixed[1], -e_fixed[2])
+			empty.rotation_euler = e_fixed
 			empty.location = loc
 			empty.keyframe_insert(data_path="location", frame=frame_i)
 			# empty.keyframe_insert(data_path="rotation_quaternion", frame=frame_i)
