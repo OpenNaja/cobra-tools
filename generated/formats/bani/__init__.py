@@ -154,9 +154,10 @@ class BanisFile(BanisRoot, IoFile):
 				("loc", np.float32, (3,)),
 			])
 			self.data = self.data.astype(ft)
-			self.data["euler"] = (self.data["euler"] + 16385) * 180 / 32768
-			self.data["euler"][:, :, 0] += 90
-			self.data["euler"][:, :, 2] -= 90
+			# self.data["euler"] = (self.data["euler"] + 16385.0) * 180 / 32768.0
+			self.data["euler"] = self.data["euler"] / 32768.0 * 180 + 90.0
+			self.data["euler"][:, :, 0] += 90.0
+			self.data["euler"][:, :, 2] -= 90.0
 			for frame_i in range(self.num_frames):
 				for bone_i in range(self.num_bones):
 					e = self.data["euler"][frame_i, bone_i]
@@ -166,17 +167,19 @@ class BanisFile(BanisRoot, IoFile):
 						last_euler = self.data["euler"][frame_i - 1, bone_i]
 						for key_i in range(3):
 							# found weird axis cross, correct for it
-							if abs(e[key_i] - last_euler[key_i]) > 45:
-								e[key_i] = math.copysign((180 - e[key_i]), last_euler[key_i])
-								# self.data["euler"][frame_i, bone_i] = e
+							if abs(e[key_i] - last_euler[key_i]) > 45.0:
+								e[key_i] = math.copysign((180.0 - e[key_i]), last_euler[key_i])
+						self.data["euler"][frame_i, bone_i] = e
 
-			self.data["loc"] = (self.data["loc"] - 32768) * self.loc_scale + self.loc_offset
+			# from tuna appears to be without loc_offset
+			self.data["loc"] = (self.data["loc"] - 32768.0) * self.loc_scale * 2.0  # + self.loc_offset
 			# self.data["loc"] += self.loc_offset
 	# 			l = data[self.data.read_start_frame+frame_i, bone_i]["loc"]
 	# 			# 32768 * self.loc_scale + self.loc_offset
 	# 			a = -32768 * self.banis.loc_scale + self.banis.loc_offset
 	# 			b = 32768 * self.banis.loc_scale + self.banis.loc_offset
 	# 			self.locs[frame_i, bone_i] = np.interp(l, (0, 65535), (a, b))
+		print(self)
 
 	def save(self, filepath):
 		self.num_frames, self.num_bones = self.data.shape

@@ -155,6 +155,8 @@ def load(files=[], filepath="", set_fps=False):
 		# 	# pbone.keyframe_insert(data_path="location", frame=frame_i, group=bone_name)
 	return {'FINISHED'}
 
+global_corr_euler = mathutils.Euler([math.radians(k) for k in (0, -90, -90)])
+global_corr_mat = global_corr_euler.to_matrix().to_4x4()
 
 def load_old(files=[], filepath="", set_fps=False):
 	dirname, filename = os.path.split(filepath)
@@ -165,8 +167,6 @@ def load_old(files=[], filepath="", set_fps=False):
 	anim_length = data.data.animation_length
 	num_frames = data.data.num_frames
 
-	global_corr_euler = mathutils.Euler([math.radians(k) for k in (0, -90, -90)])
-	global_corr_mat = global_corr_euler.to_matrix().to_4x4()
 
 	fps = int(round(num_frames / anim_length))
 	scene = bpy.context.scene
@@ -180,17 +180,7 @@ def load_old(files=[], filepath="", set_fps=False):
 
 	# assert( len(bone_names) == len(data.bones_frames_eulers) == len(data.bones_frames_locs) )
 	action = create_anim(ob, filename)
-	# go over list of euler keys
-	for i, bone_name in bones_table:
-		empty = create_ob(scene, bone_name, None)
-		empty.scale = (0.01, 0.01, 0.01)
-		for frame_i in range(data.data.num_frames):
-			bpy.context.scene.frame_set(frame_i)
-			euler = data.eulers[frame_i, i]
-			loc = data.locs[frame_i, i]
-			bpy.context.scene.frame_set(frame_i)
-			empty.location = loc
-			empty.keyframe_insert(data_path="location", frame=frame_i)
+	animate_empties(bones_table, data, scene, ob)
 
 	for i, bone_name in bones_table:
 		print(i, bone_name)
@@ -239,4 +229,29 @@ def load_old(files=[], filepath="", set_fps=False):
 			pbone.keyframe_insert(data_path="rotation_euler", frame=frame_i, group=bone_name)
 			pbone.keyframe_insert(data_path="location", frame=frame_i, group=bone_name)
 	return {'FINISHED'}
+
+
+def animate_empties(bones_table, bani, scene, armature_ob):
+	# go over list of euler keys
+	for i, bone_name in bones_table:
+		empty = create_ob(scene, bone_name, None)
+		empty.scale = (0.01, 0.01, 0.01)
+		bind_loc = armature_ob.data.bones[bone_name].matrix_local.translation
+		# bind_loc_inv = bind_loc.negate()
+		logging.info(f"Bone {bone_name} as empty, bind at {bind_loc}")
+		for frame_i in range(bani.data.num_frames):
+			bpy.context.scene.frame_set(frame_i)
+			euler = bani.eulers[frame_i, i]
+			euler = mathutils.Euler([math.radians(k) for k in euler])
+			rot = global_corr_mat @ euler.to_matrix().to_4x4()
+			loc = bani.locs[frame_i, i]
+			loc = mathutils.Vector((loc[0], loc[2], -loc[1]))
+			# first translate so that the origin of rotation is at the origin
+			corr = loc + bind_loc
+			corr.rotate(rot.inverted())
+			# loc = ((loc - bind_loc).rotate(rot)) + bind_loc
+			loc = corr - bind_loc
+			bpy.context.scene.frame_set(frame_i)
+			empty.location = loc
+			empty.keyframe_insert(data_path="location", frame=frame_i)
 
