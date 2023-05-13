@@ -1,3 +1,4 @@
+import logging
 import os
 import math
 
@@ -6,7 +7,7 @@ import mathutils
 
 from generated.formats.bani import BaniFile
 from plugin.modules_export.armature import get_armature
-from plugin.modules_import.anim import create_anim
+from plugin.modules_import.anim import create_anim, Animation
 from plugin.utils.object import create_ob
 
 
@@ -20,14 +21,18 @@ def load_bani(file_path):
 	return data
 
 
+interp_loc = None
+
+
 def load(files=[], filepath="", set_fps=False):
+	return load_old(files, filepath, set_fps)
 	dirname, filename = os.path.split(filepath)
-	data = load_bani(filepath)
-	data.read_banis()
-	print(data)
+	bani = load_bani(filepath)
+	bani.read_banis()
+	print(bani)
 	# data 0 has various scales and counts
-	anim_length = data.data.animation_length
-	num_frames = data.data.num_frames
+	anim_length = bani.data.animation_length
+	num_frames = bani.data.num_frames
 	
 	global_corr_euler = mathutils.Euler([math.radians(k) for k in (0, -90, -90)])
 	global_corr_mat = global_corr_euler.to_matrix().to_4x4()
@@ -36,6 +41,137 @@ def load(files=[], filepath="", set_fps=False):
 	scene = bpy.context.scene
 	scene.frame_start = 0
 	scene.frame_end = num_frames-1
+	print("Banis fps", fps)
+	b_armature_ob = get_armature(scene)
+
+	p_bones = sorted(b_armature_ob.pose.bones, key=lambda pbone: pbone["index"])
+	bones_table = [(bone["index"], bone.name) for bone in p_bones]
+	bone_names = [tup[1] for tup in bones_table]
+
+	anim_sys = Animation()
+	# assert( len(bone_names) == len(data.bones_frames_eulers) == len(data.bones_frames_locs) )
+	b_action = anim_sys.create_action(b_armature_ob, filename)
+	# go over list of euler keys
+	# for bone_i, bone_name in bones_table:
+	# 	empty = create_ob(scene, bone_name, None)
+	# 	empty.scale = (0.01, 0.01, 0.01)
+	# 	for frame_i in range(bani.data.num_frames):
+	# 		bpy.context.scene.frame_set(frame_i)
+	# 		euler = data.eulers[frame_i, bone_i]
+	# 		loc = data.locs[frame_i, bone_i]
+	# 		bpy.context.scene.frame_set(frame_i)
+	# 		empty.location = loc
+	# 		empty.keyframe_insert(data_path="location", frame=frame_i)
+
+	# every bone is rotated without respect to the parent bone
+	# for the fcurves, we need to store it relative to the parent bone, which is keyframed
+	# to compensate, we have to accumulate the rotations for each frame in a tree-like structure
+	# use blender bone index and children to build the tree structure
+	# then multiply a bone's key with the inverse of its parent's key matrix
+	fcurves_rot = [anim_sys.create_fcurves(b_action, "rotation_quaternion", range(4), None, bone_name) for bone_name in bone_names]
+	child_indices_map = [[pchild["index"] for pchild in pbone.children_recursive] for pbone in p_bones]
+	rest_matrices_armature_space = [b_armature_ob.data.bones[bone_name].matrix_local for bone_name in bone_names]
+
+	def get_p_index(pbone):
+		if pbone:
+			return pbone["index"]
+		else:
+			return None
+
+	parent_index_map = [get_p_index(pbone.parent) for pbone in p_bones]
+	for frame_i in range(bani.data.num_frames):
+		logging.info(f"Frame {frame_i}")
+		frame_eulers = [mathutils.Euler([math.radians(k) for k in euler]) for euler in bani.eulers[frame_i]]
+		print(frame_eulers)
+		frame_keys = [euler.to_matrix().to_4x4() for euler in frame_eulers]
+		# frame_keys = [mathutils.Euler([0.0 for k in euler]).to_matrix().to_4x4() for euler in bani.eulers[frame_i]]
+		accum_mats = [mathutils.Matrix() for _ in bone_names]
+		for key_mat, accum_mat, child_indices, parent_index, fcurves, bind in zip(
+				frame_keys, accum_mats, child_indices_map, parent_index_map, fcurves_rot, rest_matrices_armature_space):
+			accum_mat @= key_mat
+			for i in child_indices:
+				accum_mats[i] @= key_mat
+			if parent_index is not None:
+				rel_mat = accum_mats[parent_index].inverted() @ accum_mat
+			else:
+				rel_mat = accum_mat
+			# the eulers are applied globally to the bone, equivalent to the user doing R+X, R+Y, R+Z for each axis.
+			# this expresses the rotation that should be done in blender coordinates about the center of the bone
+			space_corrected_rot = global_corr_mat @ rel_mat
+			# space_corrected_rot = rel_mat
+
+			# rot_mat is the final armature space matrix of the posed bone
+			# rot_mat = space_corrected_rot @ armature_space_matrix
+			space_corrected_rot = bind @ space_corrected_rot @ bind.inverted()
+			# key = corrector.nif_bind_to_blender_bind(key.to_matrix().to_4x4())\
+			key = space_corrected_rot.to_quaternion()
+			# key = (global_corr_mat @ key.to_matrix().to_4x4()).to_quaternion()
+			anim_sys.add_key(fcurves, frame_i, key, interp_loc)
+		# break
+		# for bone_i, bone_name in bones_table:
+		# 	# get pose pbone
+		# 	pbone = b_armature_ob.pose.bones[bone_name]
+		# 	# pbone.rotation_mode = "XYZ"
+		# 	# data_type = "rotation_euler"
+		# 	# get object mode bone
+		# 	obone = b_armature_ob.data.bones[bone_name]
+		# 	armature_space_matrix = obone.matrix_local
+		#
+		# 	# bpy.context.scene.frame_set(frame_i)
+		# 	euler = bani.eulers[frame_i, bone_i]
+		# 	loc = bani.locs[frame_i, bone_i]
+		# 	# convert to radians
+		# 	# euler = mathutils.Euler([math.radians(k) for k in euler])
+		#
+		# 	# the eulers are applied globally to the bone, equivalent to the user doing R+X, R+Y, R+Z for each axis.
+		# 	# this expresses the rotation that should be done in blender coordinates about the center of the bone
+		# 	space_corrected_rot = global_corr_mat @ euler.to_matrix().to_4x4()
+		#
+		# 	# rot_mat is the final armature space matrix of the posed bone
+		# 	rot_mat = space_corrected_rot @ armature_space_matrix
+		#
+		# 	# for fcurve, k in zip(fcu, e):
+		# 	# 	fcurve.keyframe_points.insert(frame_i, k)#.interpolation = "Linear"
+		#
+		# 	# experiments
+		# 	# trans = (global_corr_mat @ mathutils.Vector(loc)) + armature_space_matrix.translation
+		#
+		# 	# mdl2 vectors: (-x,-z,y)
+		# 	# loc = mathutils.Vector((-loc[0], -loc[2], loc[1]))
+		# 	loc = mathutils.Vector(loc)
+		# 	# trans = (mathutils.Vector(loc)) + armature_space_matrix.translation
+		# 	# rot_mat.translation = (space_corrected_rot @ loc) + armature_space_matrix.translation
+		# 	# loc_key = (space_corrected_rot @ mathutils.Vector(loc))
+		# 	loc_key = (euler.to_matrix().to_4x4() @ loc)
+		# 	# loc_key = ( loc @ space_corrected_rot)
+		# 	# loc_key = mathutils.Vector((-loc_key[0], -loc_key[2], loc_key[1]))
+		# 	# rot_mat.translation = loc_key + armature_space_matrix.translation
+		# 	# the ideal translation as calculated by blender
+		# 	rot_mat.translation = pbone.matrix.translation
+		# 	# print(rot_mat)
+		# 	pbone.matrix = rot_mat
+		#
+		# 	# pbone.keyframe_insert(data_path="rotation_euler", frame=frame_i, group=bone_name)
+		# 	# pbone.keyframe_insert(data_path="location", frame=frame_i, group=bone_name)
+	return {'FINISHED'}
+
+
+def load_old(files=[], filepath="", set_fps=False):
+	dirname, filename = os.path.split(filepath)
+	data = load_bani(filepath)
+	data.read_banis()
+	print(data)
+	# data 0 has various scales and counts
+	anim_length = data.data.animation_length
+	num_frames = data.data.num_frames
+
+	global_corr_euler = mathutils.Euler([math.radians(k) for k in (0, -90, -90)])
+	global_corr_mat = global_corr_euler.to_matrix().to_4x4()
+
+	fps = int(round(num_frames / anim_length))
+	scene = bpy.context.scene
+	scene.frame_start = 0
+	scene.frame_end = num_frames - 1
 	print("Banis fps", fps)
 	ob = get_armature(scene)
 
@@ -103,3 +239,4 @@ def load(files=[], filepath="", set_fps=False):
 			pbone.keyframe_insert(data_path="rotation_euler", frame=frame_i, group=bone_name)
 			pbone.keyframe_insert(data_path="location", frame=frame_i, group=bone_name)
 	return {'FINISHED'}
+

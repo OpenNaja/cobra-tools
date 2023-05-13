@@ -48,6 +48,7 @@ def load(files=[], filepath="", set_fps=False):
 		for ori_bone, keys in zip(mb.ori_bones, mb.key_data.ori_bones):
 			b_cam_ob.rotation_mode = "QUATERNION"
 			fcurves = anim_sys.create_fcurves(b_action, "rotation_quaternion", range(4))
+			# self.create_fcurves(b_action, "rotation_euler", range(3), flags, bone_name)
 			# print(ori_bone, keys)
 			for frame, val in enumerate(keys):
 				key = mathutils.Quaternion([val.w, val.x, val.y, val.z])

@@ -55,42 +55,50 @@ class BaniFile(BaniInfoHeader, IoFile):
 		# get banis file
 		banis_path = os.path.join(self.dir, self.banis_name)
 		self.banis.load(banis_path)
-		self.decode_keys()
+		# self.decode_keys()
 
-	def decode_keys(self):
+	@property
+	def eulers(self):
+		return self.banis.data["euler"][self.data.read_start_frame:self.data.read_start_frame+self.data.num_frames, :]
 
-		# create function for doing interpolation of the desired ranges
-		# center = self.banis.loc_center
-		# first = self.banis.translation_first
-		self.eulers = np.empty((self.data.num_frames, self.banis.num_bones, 3), dtype=np.float32)
-		self.locs = np.empty((self.data.num_frames, self.banis.num_bones, 3), dtype=np.float32)
-		ft = np.dtype([
-			("euler", np.float32, (3,)),
-			("loc", np.float32, (3,)),
-		])
-		data = self.banis.data.astype(ft)
-		# convert to floats
-		for frame_i in range(self.data.num_frames):
-			for bone_i in range(self.banis.num_bones):
-				e = data[self.data.read_start_frame+frame_i, bone_i]["euler"]
-				e = (e + 16385) * 180 / 32768
-				e[0] += 90
-				e[2] -= 90
-				# this is irreversible, fixing gimbal issues in baked anims; game fixes these as well and does not mind our fix
-				if frame_i:
-					# get previous euler for this bone
-					last_euler = self.eulers[frame_i - 1, bone_i]
-					for key_i in range(3):
-						# found weird axis cross, correct for it
-						if abs(e[key_i] - last_euler[key_i]) > 45:
-							e[key_i] = math.copysign((180 - e[key_i]), last_euler[key_i])
-				self.eulers[frame_i, bone_i] = e
+	@property
+	def locs(self):
+		return self.banis.data["loc"][self.data.read_start_frame:self.data.read_start_frame+self.data.num_frames, :]
 
-				l = data[self.data.read_start_frame+frame_i, bone_i]["loc"]
-				# 32768 * self.loc_scale + self.loc_offset
-				a = -32768 * self.banis.loc_scale + self.banis.loc_offset
-				b = 32768 * self.banis.loc_scale + self.banis.loc_offset
-				self.locs[frame_i, bone_i] = np.interp(l, (0, 65535), (a, b))
+	# def decode_keys(self):
+	#
+	# 	# create function for doing interpolation of the desired ranges
+	# 	# center = self.banis.loc_center
+	# 	# first = self.banis.translation_first
+	# 	self.eulers = np.empty((self.data.num_frames, self.banis.num_bones, 3), dtype=np.float32)
+	# 	self.locs = np.empty((self.data.num_frames, self.banis.num_bones, 3), dtype=np.float32)
+	# 	ft = np.dtype([
+	# 		("euler", np.float32, (3,)),
+	# 		("loc", np.float32, (3,)),
+	# 	])
+	# 	self.data = self.banis.data.astype(ft)
+	# 	# convert to floats
+	# 	for frame_i in range(self.data.num_frames):
+	# 		for bone_i in range(self.banis.num_bones):
+	# 			e = data[self.data.read_start_frame+frame_i, bone_i]["euler"]
+	# 			e = (e + 16385) * 180 / 32768
+	# 			e[0] += 90
+	# 			e[2] -= 90
+	# 			# this is irreversible, fixing gimbal issues in baked anims; game fixes these as well and does not mind our fix
+	# 			if frame_i:
+	# 				# get previous euler for this bone
+	# 				last_euler = self.eulers[frame_i - 1, bone_i]
+	# 				for key_i in range(3):
+	# 					# found weird axis cross, correct for it
+	# 					if abs(e[key_i] - last_euler[key_i]) > 45:
+	# 						e[key_i] = math.copysign((180 - e[key_i]), last_euler[key_i])
+	# 			self.eulers[frame_i, bone_i] = e
+	#
+	# 			l = data[self.data.read_start_frame+frame_i, bone_i]["loc"]
+	# 			# 32768 * self.loc_scale + self.loc_offset
+	# 			a = -32768 * self.banis.loc_scale + self.banis.loc_offset
+	# 			b = 32768 * self.banis.loc_scale + self.banis.loc_offset
+	# 			self.locs[frame_i, bone_i] = np.interp(l, (0, 65535), (a, b))
 
 	def encode_eulers(self, ):
 		# todo: update array size
@@ -140,6 +148,34 @@ class BanisFile(BanisRoot, IoFile):
 			])
 			self.data = np.empty(dtype=dt, shape=(self.num_frames, self.num_bones))
 			stream.readinto(self.data)
+			ft = np.dtype([
+				("euler", np.float32, (3,)),
+				("loc", np.float32, (3,)),
+			])
+			self.data = self.data.astype(ft)
+			self.data["euler"] = (self.data["euler"] + 16385) * 180 / 32768
+			self.data["euler"][:, :, 0] += 90
+			self.data["euler"][:, :, 2] -= 90
+			for frame_i in range(self.num_frames):
+				for bone_i in range(self.num_bones):
+					e = self.data["euler"][frame_i, bone_i]
+					# this is irreversible, fixing gimbal issues in baked anims; game fixes these as well and does not mind our fix
+					if frame_i:
+						# get previous euler for this bone
+						last_euler = self.data["euler"][frame_i - 1, bone_i]
+						for key_i in range(3):
+							# found weird axis cross, correct for it
+							if abs(e[key_i] - last_euler[key_i]) > 45:
+								e[key_i] = math.copysign((180 - e[key_i]), last_euler[key_i])
+								# self.data["euler"][frame_i, bone_i] = e
+
+			self.data["loc"] = (self.data["loc"] - 32768) * self.loc_scale + self.loc_offset
+			# self.data["loc"] += self.loc_offset
+	# 			l = data[self.data.read_start_frame+frame_i, bone_i]["loc"]
+	# 			# 32768 * self.loc_scale + self.loc_offset
+	# 			a = -32768 * self.banis.loc_scale + self.banis.loc_offset
+	# 			b = 32768 * self.banis.loc_scale + self.banis.loc_offset
+	# 			self.locs[frame_i, bone_i] = np.interp(l, (0, 65535), (a, b))
 
 	def save(self, filepath):
 		self.num_frames, self.num_bones = self.data.shape
