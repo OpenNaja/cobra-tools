@@ -122,12 +122,15 @@ def save(filepath=""):
 	mani.reset_field("keys_buffer")
 	for b_action, mani_info in zip(bpy.data.actions, mani.mani_infos):
 		mani_info.frame_count = int(round(b_action.frame_range[1] - b_action.frame_range[0]))
-		mani_info.duration = mani_info.frame_count / scene.render.fps
+		# assume fps = 30
+		# mani_info.duration = mani_info.frame_count / scene.render.fps
+		mani_info.duration = mani_info.frame_count / 30.0
 		mani_info.count_a = mani_info.count_b = 255
 		mani_info.target_bone_count = len(b_armature_ob.pose.bones)
 		pos_groups, pos_indices = set_mani_info_counts(mani_info, b_action, bones_lut, "pos", "location")
 		ori_groups, ori_indices = set_mani_info_counts(mani_info, b_action, bones_lut, "ori", "quaternion")
 		scl_groups, scl_indices = set_mani_info_counts(mani_info, b_action, bones_lut, "scl", "scale")
+		# mani_info.scl_bone_count_related = mani_info.scl_bone_count_repeat = 0
 		floats = []
 		print(mani_info)
 		mani_info.keys = ManiBlock(mani_info.context, mani_info)
@@ -149,25 +152,17 @@ def save(filepath=""):
 				v = rest_rot @ v
 				v.translation += rest_trans
 				key.x, key.y, key.z = corrector.blender_bind_to_nif_bind(v).to_translation()
-		# q_corr = mathutils.Matrix(((-0.0000,  0.0000, -1.0000), (-1.0000, -0.0000,  0.0000), ( 0.0000,  1.0000, -0.0000))).to_4x4().inverted()
-		# q_corr2 = mathutils.Matrix(((0, 0, 1), (0, 1, 0), (1, 0, 0))).to_4x4().inverted()
 		for bone_i, group in enumerate(ori_groups):
 			logging.info(f"Exporting rot '{group.name}'")
 			rest_trans, rest_rot, rest_scale = bones_data[group.name]
 			fcurves = get_fcurves_by_type(group, "quaternion")
 			for frame_i, frame in enumerate(k.key_data.ori_bones):
 				key = frame[bone_i]
+				# sample frame
 				q = mathutils.Quaternion([fcu.evaluate(frame_i) for fcu in fcurves])
-				# add local rest transform
-				# q = rest_rot @ q
-				# q = (rest_rot @ rot_corr.correction) @ q
-				# final_m = (rest_rot @ rot_corr.correction) @ q
-				# q = mathutils.Quaternion((q.w, q.z, q.y, q.x))
-				# ok-ish for the axes
-				# q = mathutils.Quaternion((q.w, q.x, -q.z, -q.y))
-				q = mathutils.Quaternion((q.w, q.x, q.y, q.z))
 				q_m = q.to_matrix().to_4x4()
 
+				# add local rest transform
 				uncorr = rest_rot @ q_m
 				q = uncorr.to_quaternion()
 				q = mathutils.Quaternion((q.w, q.x, -q.z, -q.y))
@@ -177,6 +172,13 @@ def save(filepath=""):
 				# final_m = q_m @ rot_corr.correction
 				# final_m = rot_corr.blender_bind_to_nif_bind(q)
 				key.w, key.x, key.y, key.z = final_m.to_quaternion()
+		for bone_i, group in enumerate(scl_groups):
+			logging.info(f"Exporting scale '{group.name}'")
+			fcurves = get_fcurves_by_type(group, "scale")
+			for frame_i, frame in enumerate(k.key_data.scl_bones):
+				# frame[bone_i] = fcurves[0].evaluate(frame_i)
+				key = frame[bone_i]
+				key.x, key.y, key.z = [fcu.evaluate(frame_i) for fcu in fcurves]
 		print(mani_info.keys)
 	mani.header.mani_files_size = mani.mani_count * 16
 	mani.header.hash_block_size = len(target_names) * 4

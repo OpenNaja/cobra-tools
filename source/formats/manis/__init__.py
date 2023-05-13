@@ -23,6 +23,7 @@ class ManisFile(InfoHeader, IoFile):
 		with open(filepath, "rb") as stream:
 			self.read_fields(stream, self)
 			self.eoh = stream.tell()
+			# print(self)
 			for mi, name in zip(self.mani_infos, self.names):
 				mi.name = name
 				# print(mi)
@@ -44,10 +45,11 @@ class ManisFile(InfoHeader, IoFile):
 if __name__ == "__main__":
 	mani = ManisFile()
 	# mani.load("C:/Users/arnfi/Desktop/Wheel/animation.maniset9637aeb4.manis")
-	mani.load("C:/Users/arnfi/Desktop/donationbox/animation.maniseteaf333c5.manis")
+	# mani.load("C:/Users/arnfi/Desktop/donationbox/animation.maniseteaf333c5.manis")
+	mani.load("C:/Users/arnfi/Desktop/animationmedium.manisetfb5527c7.manis")
 	print(mani)
 	# mani.load("C:/Users/arnfi/Desktop/JWE2/pyro/hatcheryexitcamera.maniset8c6441b9.manis")
-	mani.dump_keys()
+	# mani.dump_keys()
 	# mani.load("C:/Users/arnfi/Desktop/dilo/locomotion.maniset1c05e0f4.manis")
 	# mani.load("C:/Users/arnfi/Desktop/ostrich/ugcres.maniset8982114c.manis")
 	# mani.load("C:/Users/arnfi/Desktop/Coding/ovl/OVLs/anim test/rot_x_0_22_42.manis")

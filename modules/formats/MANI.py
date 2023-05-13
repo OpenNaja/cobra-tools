@@ -16,6 +16,11 @@ class ManiLoader(BaseFile):
 		self.root_ptr = (None, 0)
 
 
+class MimeContext:
+	def __init__(self):
+		self.version = 260
+
+
 class ManisLoader(MemStructLoader):
 	extension = ".manis"
 	target_class = ManisRoot
@@ -50,6 +55,16 @@ class ManisLoader(MemStructLoader):
 		# 		outfile.write(buff.data)
 	
 		return out_path,
+
+	def get_version(self):
+		self.context = MimeContext()
+		self.context.version = self.mime_version
+
+	def collect(self):
+		self.get_version()
+		pool, offset = self.root_ptr
+		stream = pool.stream_at(offset)
+		self.header = self.target_class.from_stream(stream, self.context)
 
 	def create(self, file_path):
 		manis_file, root_data, b0, b1, b2 = self._get_data(file_path)

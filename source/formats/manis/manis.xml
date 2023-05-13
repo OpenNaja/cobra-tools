@@ -50,8 +50,8 @@
         304 bytes for PC
         <add name="duration" type="float"/>
 		<add name="FrameCount" type="uint"/>
-		<add name="b" type="uint" >?</add>
-		<add name="zeros 0 " type="ushort" arr1="6"/>
+		<add name="dtype" type="uint" >determines the format of keys data</add>
+		<add name="zeros 0 " type="uint" arr1="3"/>
 		<add name="extra pc 1" type="ushort" until="257"> </add>
 		<add name="PosBoneCount" type="ushort"/>
 		<add name="OriBoneCount" type="ushort"/>
@@ -117,6 +117,7 @@
 	<compound name="UncompressedManiData" >
 		<add name="PosBones" type="Vector3" arr1="#ARG#\FrameCount" arr2="#ARG#\PosBoneCount" />
 		<add name="OriBones" type="Vector4H" arr1="#ARG#\FrameCount" arr2="#ARG#\OriBoneCount"  />
+		<add name="SclBones" type="Vector3" arr1="#ARG#\FrameCount" arr2="#ARG#\SclBoneCount" />
 		<add name="Floats" type="float" arr1="#ARG#\FrameCount" arr2="#ARG#\FloatCount" />
     </compound>
 
@@ -141,8 +142,10 @@
 		<add name="OriBoneCount" type="uint"/>
 		<add name="PosBoneCount" type="uint"/>
 		<add name="SclBoneCount" type="uint" >maybe</add>
-		<add name="zeros 18" type="uint" arr1="18">fixed</add>
-		<add name="count" type="ushort" > </add>
+		<add name="zeros 18" type="uint" arr1="8">fixed</add>
+		<add name="scale floats" type="float" arr1="6">used eg in PZ animal boxes, which have scale keys</add>
+		<add name="zeros 4" type="uint" arr1="4">fixed</add>
+		<add name="count" type="ushort" >?</add>
 		<add name="QuantisationLevel" type="ushort" >usually 420, or 0</add>
 		<add name="ref2" type="Empty" > </add>
 		<add name="some indices" type="ubyte" arr1="PosBoneCount" > </add>
@@ -168,7 +171,7 @@
 		<add name="extra pc zero" type="uint64" until="257" >this seems to be vaguely related, but not always there?</add>
 <!--		<add name="unk for FloatCount" type="uint64" cond="#ARG# \ FloatCount">this seems to be vaguely related, but not always there?</add>-->
 <!--		<add name="floats extra" type="float" arr1="#ARG#\FloatCount" >nope likely wrong</add>-->
-		<add name="anoth pad2" type="PadAlign" template="ref" arg="20" >
+		<add name="anoth pad2" type="PadAlign" template="ref" arg="16" >
 			2023-05-06 was 16, PZ donation box demands 20
 		</add>
 
@@ -194,8 +197,8 @@
 		<add name="SclBones delta" type="ubyte" arr1="(#ARG#\SclBoneMax - #ARG#\SclBoneMin) + 1" cond="#ARG#\SclBoneMin #LT# 255"> </add>
 
 		<add name="pad" type="PadAlign" template="ref" arg="4"/>
-		<add name="KeyData" type="UncompressedManiData" arg="#ARG#" cond="#ARG#\b #EQ# 0"/>
-		<add name="KeyData" type="CompressedManiData" arg="#ARG#" cond="#ARG#\b #GT# 0"/>
+		<add name="KeyData" type="UncompressedManiData" arg="#ARG#" cond="#ARG#\dtype #EQ# 0"/>
+		<add name="KeyData" type="CompressedManiData" arg="#ARG#" cond="#ARG#\dtype #GT# 0"/>
     </compound>
 
 

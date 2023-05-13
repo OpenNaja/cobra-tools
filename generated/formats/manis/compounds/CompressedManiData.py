@@ -26,6 +26,14 @@ class CompressedManiData(BaseStruct):
 
 		# fixed
 		self.zeros_18 = Array(self.context, 0, None, (0,), name_type_map['Uint'])
+
+		# used eg in PZ animal boxes, which have scale keys
+		self.scale_floats = Array(self.context, 0, None, (0,), name_type_map['Float'])
+
+		# fixed
+		self.zeros_4 = Array(self.context, 0, None, (0,), name_type_map['Uint'])
+
+		# ?
 		self.count = name_type_map['Ushort'](self.context, 0, None)
 
 		# usually 420, or 0
@@ -45,7 +53,7 @@ class CompressedManiData(BaseStruct):
 		self.extra_pc_zero = name_type_map['Uint64'](self.context, 0, None)
 
 		# 2023-05-06 was 16, PZ donation box demands 20
-		self.anoth_pad_2 = name_type_map['PadAlign'](self.context, 20, self.ref)
+		self.anoth_pad_2 = name_type_map['PadAlign'](self.context, 16, self.ref)
 		self.ref_3 = name_type_map['Empty'](self.context, 0, None)
 		self.repeats = Array(self.context, 0, None, (0,), name_type_map['Repeat'])
 		if set_default:
@@ -61,7 +69,9 @@ class CompressedManiData(BaseStruct):
 		yield 'ori_bone_count', name_type_map['Uint'], (0, None), (False, None), (None, None)
 		yield 'pos_bone_count', name_type_map['Uint'], (0, None), (False, None), (None, None)
 		yield 'scl_bone_count', name_type_map['Uint'], (0, None), (False, None), (None, None)
-		yield 'zeros_18', Array, (0, None, (18,), name_type_map['Uint']), (False, None), (None, None)
+		yield 'zeros_18', Array, (0, None, (8,), name_type_map['Uint']), (False, None), (None, None)
+		yield 'scale_floats', Array, (0, None, (6,), name_type_map['Float']), (False, None), (None, None)
+		yield 'zeros_4', Array, (0, None, (4,), name_type_map['Uint']), (False, None), (None, None)
 		yield 'count', name_type_map['Ushort'], (0, None), (False, None), (None, None)
 		yield 'quantisation_level', name_type_map['Ushort'], (0, None), (False, None), (None, None)
 		yield 'ref_2', name_type_map['Empty'], (0, None), (False, None), (None, None)
@@ -73,7 +83,7 @@ class CompressedManiData(BaseStruct):
 		yield 'anoth_pad', name_type_map['PadAlign'], (4, None), (False, None), (None, None)
 		yield 'floatsb', name_type_map['FloatsGrabber'], (0, None), (False, None), (None, None)
 		yield 'extra_pc_zero', name_type_map['Uint64'], (0, None), (False, None), (lambda context: context.version <= 257, None)
-		yield 'anoth_pad_2', name_type_map['PadAlign'], (20, None), (False, None), (None, None)
+		yield 'anoth_pad_2', name_type_map['PadAlign'], (16, None), (False, None), (None, None)
 		yield 'ref_3', name_type_map['Empty'], (0, None), (False, None), (None, None)
 		yield 'repeats', Array, (0, None, (None,), name_type_map['Repeat']), (False, None), (None, None)
 
@@ -87,7 +97,9 @@ class CompressedManiData(BaseStruct):
 		yield 'ori_bone_count', name_type_map['Uint'], (0, None), (False, None)
 		yield 'pos_bone_count', name_type_map['Uint'], (0, None), (False, None)
 		yield 'scl_bone_count', name_type_map['Uint'], (0, None), (False, None)
-		yield 'zeros_18', Array, (0, None, (18,), name_type_map['Uint']), (False, None)
+		yield 'zeros_18', Array, (0, None, (8,), name_type_map['Uint']), (False, None)
+		yield 'scale_floats', Array, (0, None, (6,), name_type_map['Float']), (False, None)
+		yield 'zeros_4', Array, (0, None, (4,), name_type_map['Uint']), (False, None)
 		yield 'count', name_type_map['Ushort'], (0, None), (False, None)
 		yield 'quantisation_level', name_type_map['Ushort'], (0, None), (False, None)
 		yield 'ref_2', name_type_map['Empty'], (0, None), (False, None)
@@ -100,6 +112,6 @@ class CompressedManiData(BaseStruct):
 		yield 'floatsb', name_type_map['FloatsGrabber'], (0, None), (False, None)
 		if instance.context.version <= 257:
 			yield 'extra_pc_zero', name_type_map['Uint64'], (0, None), (False, None)
-		yield 'anoth_pad_2', name_type_map['PadAlign'], (20, instance.ref), (False, None)
+		yield 'anoth_pad_2', name_type_map['PadAlign'], (16, instance.ref), (False, None)
 		yield 'ref_3', name_type_map['Empty'], (0, None), (False, None)
 		yield 'repeats', Array, (0, None, (instance.count,), name_type_map['Repeat']), (False, None)

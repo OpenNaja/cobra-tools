@@ -34,7 +34,7 @@ def load(files=[], filepath="", set_fps=False):
 	b_cam_data = bpy.data.cameras.new("TestCamera")
 	b_cam_ob = create_ob(scene, "Camera", b_cam_data)
 	for mi in data.mani_infos:
-		assert mi.b == 0, "Only uncompressed is supported"
+		assert mi.dtype == 0, "Only uncompressed is supported"
 		b_action = anim_sys.create_action(b_cam_ob, mi.name)
 		mb = mi.keys
 		for pos_bone, keys in zip(mb.pos_bones, mb.key_data.pos_bones):
