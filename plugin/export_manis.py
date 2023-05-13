@@ -1,24 +1,14 @@
 import logging
-import random
 
 import bpy
 import mathutils
 
 from generated.formats.manis import ManisFile
 from generated.formats.manis.compounds.ManiBlock import ManiBlock
-from generated.formats.ms2.compounds.packing_utils import pack_swizzle
 from modules.formats.shared import djb2
 from plugin.modules_export.armature import get_armature
 from plugin.utils.matrix_util import bone_name_for_ovl
 from plugin.utils.transforms import ManisCorrector
-
-
-def pack(c_v, b_v, s):
-	c_v.x, c_v.y, c_v.z = pack_swizzle([i / s for i in b_v])
-
-
-def pack_int(c_v, b_v, s):
-	c_v.x, c_v.y, c_v.z = pack_swizzle([int(round(i / s)) for i in b_v])
 
 
 def get_max(list_of_b_vecs):
@@ -71,14 +61,6 @@ def update_key_indices(k, m_dtype, groups, indices, target_names, bone_names):
 		getattr(k, f"{m_dtype}_bones_delta")[:] = [key_lut.get(name, 255) for name in bone_names[bone_0:bone_1]]
 
 
-# def get_bfb_matrix(bone):
-# 	bind = correction_global.inverted() @ correction_local.inverted() @ bone.matrix_local @ correction_local
-# 	if bone.parent:
-# 		p_bind_restored = correction_global.inverted() @ correction_local.inverted() @ bone.parent.matrix_local @ correction_local
-# 		bind = p_bind_restored.inverted() @ bind
-#
-# 	return bind.transposed()
-
 def get_local_bone(bone):
 	if bone.parent:
 		return bone.parent.matrix_local.inverted() @ bone.matrix_local
@@ -93,32 +75,22 @@ def save(filepath=""):
 
 	bones_data = {}
 	for bone in b_armature_ob.data.bones:
-		# bonerestmat = get_bfb_matrix(bone)
-		bonerestmat = get_local_bone(bone)
-		rest_trans, rest_rot, rest_scale = bonerestmat.decompose()
-		print(rest_rot, rest_trans, bone.name)
-		bones_data[bone.name] = rest_trans, rest_rot.to_matrix().to_4x4(), rest_scale
-	# else:
-	# 	# clear pose
-	# 	for pbone in b_armature_ob.pose.bones:
-	# 		pbone.matrix_basis = mathutils.Matrix()
+		bones_data[bone.name] = get_local_bone(bone)
 
 	corrector = ManisCorrector(False)
 	mani = ManisFile()
-	# hardcode for PZ for now
+	# hardcode for PZ for now, but it does not make a difference outside of compressed keys
 	mani.version = 260
-	action_names = []
 	target_names = set()
 	bones_lut = {pose_bone.name: pose_bone["index"] for pose_bone in b_armature_ob.pose.bones}
 	bone_names = [pose_bone.name for pose_bone in sorted(b_armature_ob.pose.bones, key=lambda pb: pb["index"])]
-	for b_action in bpy.data.actions:
-		logging.info(f"Exporting {b_action.name}")
-		action_names.append(b_action.name)
+	action_names = [b_action.name for b_action in bpy.data.actions]
 	mani.mani_count = len(action_names)
 	mani.names[:] = action_names
 	mani.reset_field("mani_infos")
 	mani.reset_field("keys_buffer")
 	for b_action, mani_info in zip(bpy.data.actions, mani.mani_infos):
+		logging.info(f"Exporting {b_action.name}")
 		mani_info.frame_count = int(round(b_action.frame_range[1] - b_action.frame_range[0]))
 		# assume fps = 30
 		# mani_info.duration = mani_info.frame_count / scene.render.fps
@@ -138,7 +110,7 @@ def save(filepath=""):
 		update_key_indices(k, "scl", scl_groups, scl_indices, target_names, bone_names)
 		for bone_i, group in enumerate(pos_groups):
 			logging.info(f"Exporting loc '{group.name}'")
-			rest_trans, rest_rot, rest_scale = bones_data[group.name]
+			bonerestmat = bones_data[group.name]
 			fcurves = get_fcurves_by_type(group, "location")
 			for frame_i, frame in enumerate(k.key_data.pos_bones):
 				key = frame[bone_i]
@@ -146,25 +118,27 @@ def save(filepath=""):
 				# whereas blender stores translation relative to the bone itself, not the parent
 				v = mathutils.Vector([fcu.evaluate(frame_i) for fcu in fcurves])
 				v = mathutils.Matrix.Translation(v)
-				v = rest_rot @ v
-				v.translation += rest_trans
+				# equivalent: multiply by rest rot and then add rest loc
+				v = bonerestmat @ v
 				key.x, key.y, key.z = corrector.blender_bind_to_nif_bind(v).to_translation()
 		for bone_i, group in enumerate(ori_groups):
 			logging.info(f"Exporting rot '{group.name}'")
-			rest_trans, rest_rot, rest_scale = bones_data[group.name]
+			bonerestmat = bones_data[group.name]
 			fcurves = get_fcurves_by_type(group, "quaternion")
 			for frame_i, frame in enumerate(k.key_data.ori_bones):
 				key = frame[bone_i]
 				# sample frame
 				q_m = mathutils.Quaternion([fcu.evaluate(frame_i) for fcu in fcurves]).to_matrix().to_4x4()
 				# add local rest transform
-				final_m = rest_rot @ q_m
+				final_m = bonerestmat @ q_m
 				final_m = corrector.blender_bind_to_nif_bind(final_m)
 				key.w, key.x, key.y, key.z = final_m.to_quaternion()
 		for bone_i, group in enumerate(scl_groups):
 			logging.info(f"Exporting scale '{group.name}'")
 			fcurves = get_fcurves_by_type(group, "scale")
 			for frame_i, frame in enumerate(k.key_data.scl_bones):
+				# todo - needs testing
+				# assumed vec3f format but no uncompressed samples are known
 				# frame[bone_i] = fcurves[0].evaluate(frame_i)
 				key = frame[bone_i]
 				key.x, key.y, key.z = [fcu.evaluate(frame_i) for fcu in fcurves]
@@ -174,36 +148,5 @@ def save(filepath=""):
 	mani.reset_field("name_buffer")
 	mani.name_buffer.bone_names[:] = sorted(target_names)
 	mani.name_buffer.bone_hashes[:] = [djb2(name.lower()) for name in mani.name_buffer.bone_names]
-	# print(mani)
 	mani.save(filepath)
-	# # get selected curve b_ob
-	# b_ob = bpy.context.object
-	# b_cu = b_ob.data
-	# if b_ob.type != "CURVE":
-	# 	raise AttributeError(f"Can only export curve objects")
-	# context = object()
-	# # export the curve data
-	# spl_root = SplRoot(context)
-	# spline_data = SplData(context)
-	# spl_root.spline_data.data = spline_data
-	#
-	# # get basic data from b_spline
-	# b_spline = b_cu.splines[0]
-	# spl_root.count = len(b_spline.bezier_points)
-	# spl_root.length = b_spline.calc_length()
-	#
-	# pack(spline_data.offset, b_ob.location, 1.0)
-	# spline_data.scale = get_max([bezier.co for bezier in b_spline.bezier_points]) / 32767
-	# for bezier in b_spline.bezier_points:
-	# 	key = Key(context)
-	# 	spline_data.keys.append(key)
-	# 	pack_int(key.pos, bezier.co, spline_data.scale)
-	# 	left_rel = bezier.handle_left - bezier.co
-	# 	right_rel = bezier.handle_right - bezier.co
-	# 	key.handle_scale = get_max((left_rel, right_rel)) / 127
-	# 	pack_int(key.handle_left, left_rel, key.handle_scale)
-	# 	pack_int(key.handle_right, right_rel, key.handle_scale)
-	#
-	# with SplRoot.to_xml_file(spl_root, filepath) as xml_root:
-	# 	pass
 	return f"Finished manis export",
