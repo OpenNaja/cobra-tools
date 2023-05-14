@@ -55,8 +55,8 @@
 
     <compound name="BooleanData" inherit="MemStruct">
         8 bytes in log
-        <add name="value" type="ubyte"/>
-        <add name="default" type="ubyte"/>
+        <add name="ivalue" type="ubyte"/>
+        <add name="ioptional" type="ubyte"/>
         <add name="unused" type="ubyte" arr1="6"/>
     </compound>
 
