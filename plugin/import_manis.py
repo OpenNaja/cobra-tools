@@ -1,4 +1,5 @@
 import logging
+import math
 import os
 import time
 
@@ -39,19 +40,24 @@ def iter_keys(m_bone_names, m_keys, bones_data, b_action, b_dtype):
 
 
 def load(files=[], filepath="", set_fps=False):
+	starttime = time.time()
 	corrector = ManisCorrector(False)
 	scene = bpy.context.scene
 
+	bones_data = {}
 	b_armature_ob = get_armature(scene)
 	if not b_armature_ob:
 		logging.warning(f"No armature was found in scene '{scene.name}' - did you delete it?")
-	starttime = time.time()
+		b_cam_data = bpy.data.cameras.new("ManisCamera")
+		b_armature_ob = create_ob(scene, "ManisCamera", b_cam_data)
+		b_armature_ob.rotation_mode = "QUATERNION"
+		cam_corr = mathutils.Euler((math.radians(90), 0, math.radians(-90))).to_quaternion()
+	else:
+		for bone in b_armature_ob.data.bones:
+			bones_data[bone.name] = get_local_bone(bone).inverted()
+		cam_corr = None
 	manis = ManisFile()
 	manis.load(filepath)
-
-	bones_data = {}
-	for bone in b_armature_ob.data.bones:
-		bones_data[bone.name] = get_local_bone(bone).inverted()
 
 	for mi in manis.mani_infos:
 		b_action = anim_sys.create_action(b_armature_ob, mi.name)
@@ -66,23 +72,30 @@ def load(files=[], filepath="", set_fps=False):
 			anim_sys.add_key(fcurves, frame_i, key, interp_loc)
 		for frame_i, key, bonerestmat_inv, fcurves in iter_keys(
 				k.ori_bones, k.key_data.ori_bones, bones_data, b_action, "rotation_quaternion"):
-			# b_cam_ob.rotation_mode = "QUATERNION"
 			key = mathutils.Quaternion([key.w, key.x, key.y, key.z])
 			key = (bonerestmat_inv @ corrector.nif_bind_to_blender_bind(key.to_matrix().to_4x4())).to_quaternion()
+			if cam_corr is not None:
+				out = mathutils.Quaternion(cam_corr)
+				out.rotate(key)
+				key = out
 			anim_sys.add_key(fcurves, frame_i, key, interp_loc)
 		for frame_i, key, bonerestmat_inv, fcurves in iter_keys(
 				k.scl_bones, k.key_data.scl_bones, bones_data, b_action, "scale"):
 			key = mathutils.Vector([key.x, key.y, key.z])
 			anim_sys.add_key(fcurves, frame_i, key, interp_loc)
-		# only known for camera atm
-		# b_cam_data = bpy.data.cameras.new("ManisCamera")
-		# b_cam_ob = create_ob(scene, "Camera", b_cam_data)
-		# b_data_action = anim_sys.create_action(b_cam_data, mi.name+"Data")
-		# for float_name, keys in zip(k.floats, k.key_data.floats):
-		# 	fcurves = anim_sys.create_fcurves(b_data_action, "lens", (0,))
-		# 	# print(float_name, keys)
-		# 	for frame, val in enumerate(keys):
-		# 		anim_sys.add_key(fcurves, frame, (10 / val,), interp_loc)
+		# these can vary in use according to the name of the channel
+		for bone_i, m_name in enumerate(k.floats):
+			b_name = bone_name_for_blender(m_name)
+			logging.info(f"Importing '{b_name}'")
+			# only known for camera
+			if m_name == "CameraFOV":
+				b_data_action = anim_sys.create_action(b_cam_data, f"{mi.name}Data")
+				fcurves = anim_sys.create_fcurves(b_data_action, "lens", (0,))
+				for frame_i, frame in enumerate(k.key_data.floats):
+					key = frame[bone_i]
+					anim_sys.add_key(fcurves, frame_i, (10 / key,), interp_loc)
+			else:
+				logging.warning(f"Don't know how to import floats for '{b_name}'")
 
 	bpy.context.scene.frame_start = 0
 	bpy.context.scene.frame_end = mi.frame_count

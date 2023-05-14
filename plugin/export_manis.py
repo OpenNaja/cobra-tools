@@ -65,13 +65,13 @@ def get_local_bone(bone):
 
 def save(filepath=""):
 	scene = bpy.context.scene
+	bones_data = {}
 	b_armature_ob = get_armature(scene)
 	if not b_armature_ob:
 		logging.warning(f"No armature was found in scene '{scene.name}' - did you delete it?")
-
-	bones_data = {}
-	for bone in b_armature_ob.data.bones:
-		bones_data[bone.name] = get_local_bone(bone)
+	else:
+		for bone in b_armature_ob.data.bones:
+			bones_data[bone.name] = get_local_bone(bone)
 
 	corrector = ManisCorrector(False)
 	mani = ManisFile()
@@ -138,7 +138,7 @@ def save(filepath=""):
 				# frame[bone_i] = fcurves[0].evaluate(frame_i)
 				key = frame[bone_i]
 				# key.x, key.y, key.z = [fcu.evaluate(frame_i) for fcu in fcurves]
-				key.x, key.y, key.z = (1, 1, 1)
+				key.x, key.y, key.z, key.w = (2, 2, 2, 2)
 		print(mani_info.keys)
 	mani.header.mani_files_size = mani.mani_count * 16
 	mani.header.hash_block_size = len(target_names) * 4

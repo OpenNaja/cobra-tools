@@ -124,7 +124,8 @@
 	<compound name="UncompressedManiData" >
 		<add name="PosBones" type="Vector3" arr1="#ARG#\FrameCount" arr2="#ARG#\PosBoneCount" />
 		<add name="OriBones" type="Vector4H" arr1="#ARG#\FrameCount" arr2="#ARG#\OriBoneCount"  />
-		<add name="SclBones" type="Vector3H" arr1="#ARG#\FrameCount" arr2="#ARG#\SclBoneCount" />
+<!--		<add name="SclRefs" type="Vector3" arr1="#ARG#\SclBoneCount" />-->
+		<add name="SclBones" type="Vector4H" arr1="#ARG#\FrameCount" arr2="#ARG#\SclBoneCount" />
 		<add name="Floats" type="float" arr1="#ARG#\FrameCount" arr2="#ARG#\FloatCount" />
     </compound>
 

@@ -12,7 +12,7 @@ class UncompressedManiData(BaseStruct):
 		super().__init__(context, arg, template, set_default=False)
 		self.pos_bones = Array(self.context, 0, None, (0,), name_type_map['Vector3'])
 		self.ori_bones = Array(self.context, 0, None, (0,), name_type_map['Vector4H'])
-		self.scl_bones = Array(self.context, 0, None, (0,), name_type_map['Vector3H'])
+		self.scl_bones = Array(self.context, 0, None, (0,), name_type_map['Vector4H'])
 		self.floats = Array(self.context, 0, None, (0,), name_type_map['Float'])
 		if set_default:
 			self.set_defaults()
@@ -22,7 +22,7 @@ class UncompressedManiData(BaseStruct):
 		yield from super()._get_attribute_list()
 		yield 'pos_bones', Array, (0, None, (None, None,), name_type_map['Vector3']), (False, None), (None, None)
 		yield 'ori_bones', Array, (0, None, (None, None,), name_type_map['Vector4H']), (False, None), (None, None)
-		yield 'scl_bones', Array, (0, None, (None, None,), name_type_map['Vector3H']), (False, None), (None, None)
+		yield 'scl_bones', Array, (0, None, (None, None,), name_type_map['Vector4H']), (False, None), (None, None)
 		yield 'floats', Array, (0, None, (None, None,), name_type_map['Float']), (False, None), (None, None)
 
 	@classmethod
@@ -30,5 +30,5 @@ class UncompressedManiData(BaseStruct):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'pos_bones', Array, (0, None, (instance.arg.frame_count, instance.arg.pos_bone_count,), name_type_map['Vector3']), (False, None)
 		yield 'ori_bones', Array, (0, None, (instance.arg.frame_count, instance.arg.ori_bone_count,), name_type_map['Vector4H']), (False, None)
-		yield 'scl_bones', Array, (0, None, (instance.arg.frame_count, instance.arg.scl_bone_count,), name_type_map['Vector3H']), (False, None)
+		yield 'scl_bones', Array, (0, None, (instance.arg.frame_count, instance.arg.scl_bone_count,), name_type_map['Vector4H']), (False, None)
 		yield 'floats', Array, (0, None, (instance.arg.frame_count, instance.arg.float_count,), name_type_map['Float']), (False, None)
