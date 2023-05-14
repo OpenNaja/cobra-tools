@@ -137,7 +137,8 @@ def save(filepath=""):
 				# assumed vec3f format but no uncompressed samples are known
 				# frame[bone_i] = fcurves[0].evaluate(frame_i)
 				key = frame[bone_i]
-				key.x, key.y, key.z = [fcu.evaluate(frame_i) for fcu in fcurves]
+				# key.x, key.y, key.z = [fcu.evaluate(frame_i) for fcu in fcurves]
+				key.x, key.y, key.z = (1, 1, 1)
 		print(mani_info.keys)
 	mani.header.mani_files_size = mani.mani_count * 16
 	mani.header.hash_block_size = len(target_names) * 4
