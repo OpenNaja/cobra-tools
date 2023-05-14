@@ -199,7 +199,7 @@
 		<add name="PosBones P" type="ubyte" arr1="#ARG#\PosBoneCount"/>
 		<add name="OriBones P" type="ubyte" arr1="#ARG#\OriBoneCount"/>
 		<add name="SclBones P" type="ubyte" arr1="#ARG#\SclBoneCount"/>
-		map bone to corresponding channel, -1 for bones in ranger that are not keyed
+		map bone to corresponding channel, -1 for bones in range that are not keyed
 		<add name="PosBones delta" type="ubyte" arr1="(#ARG#\PosBoneMax - #ARG#\PosBoneMin) + 1" cond="#ARG#\PosBoneMin #LT# 255"> </add>
 		<add name="OriBones delta" type="ubyte" arr1="(#ARG#\OriBoneMax - #ARG#\OriBoneMin) + 1" cond="#ARG#\OriBoneMin #LT# 255"> </add>
 		<add name="SclBones delta" type="ubyte" arr1="(#ARG#\SclBoneMax - #ARG#\SclBoneMin) + 1" cond="#ARG#\SclBoneMin #LT# 255"> </add>
