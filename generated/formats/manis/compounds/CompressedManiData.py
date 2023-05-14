@@ -32,9 +32,8 @@ class CompressedManiData(BaseStruct):
 
 		# fixed
 		self.zeros_18 = Array(self.context, 0, None, (0,), name_type_map['Uint'])
-
-		# used eg in PZ animal boxes, which have scale keys
-		self.scale_floats = Array(self.context, 0, None, (0,), name_type_map['Float'])
+		self.scale_min = name_type_map['Vector3'](self.context, 0, None)
+		self.scale_max = name_type_map['Vector3'](self.context, 0, None)
 
 		# fixed
 		self.zeros_4 = Array(self.context, 0, None, (0,), name_type_map['Uint'])
@@ -75,7 +74,8 @@ class CompressedManiData(BaseStruct):
 		yield 'pos_bone_count', name_type_map['Uint'], (0, None), (False, None), (None, None)
 		yield 'scl_bone_count', name_type_map['Uint'], (0, None), (False, None), (None, None)
 		yield 'zeros_18', Array, (0, None, (8,), name_type_map['Uint']), (False, None), (None, None)
-		yield 'scale_floats', Array, (0, None, (6,), name_type_map['Float']), (False, None), (None, None)
+		yield 'scale_min', name_type_map['Vector3'], (0, None), (False, None), (None, None)
+		yield 'scale_max', name_type_map['Vector3'], (0, None), (False, None), (None, None)
 		yield 'zeros_4', Array, (0, None, (4,), name_type_map['Uint']), (False, None), (None, None)
 		yield 'count', name_type_map['Ushort'], (0, None), (False, None), (None, None)
 		yield 'quantisation_level', name_type_map['Ushort'], (0, None), (False, None), (None, None)
@@ -102,7 +102,8 @@ class CompressedManiData(BaseStruct):
 		yield 'pos_bone_count', name_type_map['Uint'], (0, None), (False, None)
 		yield 'scl_bone_count', name_type_map['Uint'], (0, None), (False, None)
 		yield 'zeros_18', Array, (0, None, (8,), name_type_map['Uint']), (False, None)
-		yield 'scale_floats', Array, (0, None, (6,), name_type_map['Float']), (False, None)
+		yield 'scale_min', name_type_map['Vector3'], (0, None), (False, None)
+		yield 'scale_max', name_type_map['Vector3'], (0, None), (False, None)
 		yield 'zeros_4', Array, (0, None, (4,), name_type_map['Uint']), (False, None)
 		yield 'count', name_type_map['Ushort'], (0, None), (False, None)
 		yield 'quantisation_level', name_type_map['Ushort'], (0, None), (False, None)

@@ -150,7 +150,9 @@
 		<add name="PosBoneCount" type="uint"/>
 		<add name="SclBoneCount" type="uint" >maybe</add>
 		<add name="zeros 18" type="uint" arr1="8">fixed</add>
-		<add name="scale floats" type="float" arr1="6">used eg in PZ animal boxes, which have scale keys</add>
+		used eg in PZ animal boxes, which have scale keys
+		<add name="scale min" type="Vector3"/>
+		<add name="scale max" type="Vector3"/>
 		<add name="zeros 4" type="uint" arr1="4">fixed</add>
 		<add name="count" type="ushort" >?</add>
 		<add name="QuantisationLevel" type="ushort" >usually 420, or 0</add>
