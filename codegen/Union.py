@@ -7,17 +7,6 @@ import codegen.naming_conventions as convention
 CONTEXT_SUFFIX = "context"
 
 
-def get_attr_with_backups(field, attribute_keys):
-    # return the value of the first attribute in the list that is not empty or
-    # missing
-    for key in attribute_keys:
-        attr_value = field.attrib.get(key)
-        if attr_value:
-            return attr_value
-    else:
-        return None
-
-
 def condition_indent(base_indent, conditionals, condition=""):
     # determine the python condition and indentation level based on whether the
     # last used condition was the same.
@@ -39,6 +28,7 @@ def condition_indent(base_indent, conditionals, condition=""):
 class Union:
     def __init__(self, compound, union_name):
         self.compounds = compound
+        self.parser = self.compounds.parser
         self.name = union_name
         self.members = []
 
@@ -71,10 +61,10 @@ class Union:
         local_conditionals = []
 
         # extract (formatted) field values
-        ver1 = get_attr_with_backups(field, ["ver1", "since"])
+        ver1 = self.parser.get_attr_with_backups(field, ["ver1", "since"])
         if ver1:
             ver1 = Version(ver1)
-        ver2 = get_attr_with_backups(field, ["ver2", "until"])
+        ver2 = self.parser.get_attr_with_backups(field, ["ver2", "until"])
 
         if ver2:
             ver2 = Version(ver2)
@@ -127,27 +117,44 @@ class Union:
             field_type_access = f'{target_variable}.{field_type}'
         else:
             field_type_access = self.indirect_class_access(field_type)
-        template = field.attrib.get("template")
+        template = self.parser.get_attr_with_array_alt(field, "template")
         optional = (field.attrib.get("optional", "False"), field.attrib.get("default"))
 
         conditionals = self.get_conditions(field, target_variable, use_abstract)
 
-        arg = field.attrib.get("arg", "0")
-        arr1 = get_attr_with_backups(field, ["arr1", "length"])
-        arr2 = get_attr_with_backups(field, ["arr2", "width"])
-        if template:
-            # template can be either a type or a reference to a local field
-            template_class = convention.name_class(template)
-            if template_class not in self.compounds.parser.path_dict:
-                template = Expression(template, target_variable)
-            else:
-                template = self.indirect_class_access(template_class)
-        if arg:
-            # allow accessing the instance directly as an argument
-            if arg in ("self", "instance"):
-                arg = target_variable
-            else:
-                arg = Expression(arg, target_variable)
+        arg = self.parser.get_attr_with_array_alt(field, "arg")
+        arr1 = self.parser.get_attr_with_backups(field, ["arr1", "length"])
+        arr2 = self.parser.get_attr_with_backups(field, ["arr2", "width"])
+        def format_template(template_entry):
+            if template_entry:
+                # template can be either a type or a reference to a local field
+                template_class = convention.name_class(template_entry)
+                if template_class not in self.compounds.parser.path_dict:
+                    template_entry = Expression(template_entry, target_variable)
+                else:
+                    template_entry = self.indirect_class_access(template_class)
+            return template_entry
+        if isinstance(template, list):
+            template = tuple(format_template(entry) for entry in template)
+        else:
+            template = format_template(template)
+
+        def format_arg(arg_entry):
+            if arg_entry is not None:
+                # allow accessing the instance directly as an argument
+                if arg_entry in ("self", "instance"):
+                    arg_entry = target_variable
+                else:
+                    arg_entry = Expression(arg_entry, target_variable)
+            return arg_entry
+
+        if isinstance(arg, list):
+            arg = tuple(format_arg(entry) for entry in arg)
+        elif arg is not None:
+            arg = format_arg(arg)
+        else:
+            arg = "0"
+
         if arr1:
             arr1 = Expression(arr1, target_variable)
         if arr2:
@@ -236,9 +243,18 @@ class Union:
             arg, template, arr1, arr2, (global_conditionals, local_conditionals), field_name, (field_type, field_type_access), (optional, default) = self.get_params(field, '')
             # replace all non-static values with None for now
             try:
-                arg = int(str(arg), 0)
+                if isinstance(arg, tuple):
+                    arg = tuple(int(str(entry), 0) for entry in arg)
+                else:
+                    arg = int(str(arg), 0)
             except ValueError:
                 arg = None
+            if isinstance(template, tuple):
+                template = tuple(entry if self.is_type(entry) else None for entry in template)
+                if any(entry is None for entry in template):
+                    template = None
+            else:
+                template = template if self.is_type(template) else None
             if not self.is_type(template):
                 template = None
             if field_type not in self.compounds.parser.path_dict:

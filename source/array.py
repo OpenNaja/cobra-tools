@@ -1,7 +1,6 @@
 import logging
 import time
 from operator import index
-import math
 import xml.etree.ElementTree as ET
 
 import numpy as np
@@ -139,6 +138,14 @@ class Array(list):
             new_array.fill(lambda: dtype.from_value(value))
             return new_array
 
+    @staticmethod
+    def prod(iterator, *, start=1):
+        """Simple implementation of math.prod, because it does not exist in python 3.7."""
+        count = start
+        for i in iterator:
+            count *= i
+        return count
+
     @property
     def shape(self):
         return self._shape
@@ -164,7 +171,7 @@ class Array(list):
 
     @property
     def size(self):
-        return math.prod(self.shape)
+        return Array.prod(self.shape)
 
     @classmethod
     def perform_nested_func(cls, nested_iterable, efunc, ndim):
@@ -329,12 +336,12 @@ class RaggedArray(Array):
     @shape.setter
     def shape(self, shape_input):
         # conversion to int happens using the 'index' operator
-        shape = (index(shape_input[0]), shape_input[1], *(index(i) for i in shape_input[2:]))
+        shape = (index(shape_input[0]), tuple(index(i) for i in shape_input[1]), *(index(i) for i in shape_input[2:]))
         self._shape = shape
 
     @property
     def size(self):
-        return self.shape[0] * sum(self.shape[1]) * math.prod(self.shape[2:])
+        return self.shape[0] * sum(self.shape[1]) * Array.prod(self.shape[2:])
 
     @classmethod
     def from_stream(cls, stream, context, arg=0, template=None, shape=(), dtype=None):
@@ -371,7 +378,7 @@ class RaggedArray(Array):
             arg = getattr(instance, "arg", 0)
             template = getattr(instance, "template", None)
             for i in range(instance.shape[0]):
-                yield (i, cls, (arg, template, instance.shape[1][i], dtype), (False, None))
+                yield (i, Array, (arg, template, (instance.shape[1][i],), dtype), (False, None))
 
     @classmethod
     def validate_instance(cls, instance, context, arg, template, shape, dtype):
@@ -394,6 +401,14 @@ class RaggedArray(Array):
             except AssertionError:
                 logging.error(f"validation failed on field {f_name} on type {cls}[{dtype}]")
                 raise
+
+    def append(self, x):
+        self.shape = (self.shape[0] + 1, (*self.shape[1], len(x)), *self.shape[2:])
+        super(list, self).append(x)
+
+    def extend(self, x):
+        self.shape = (self.shape[0] + len(x), (*self.shape[1], *(len(entry) for entry in x)) ,*self.shape[2:])
+        super(list, self).extend(x)
 
 
 def _class_to_name(cls):

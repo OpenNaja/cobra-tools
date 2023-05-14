@@ -30,19 +30,25 @@ class Imports:
                     field_type = field.attrib["type"]
                     if not self.is_template(field_type):
                         self.add_indirect_import()
-                    arr1 = field.attrib.get("arr1")
-                    if arr1 is None:
-                        arr1 = field.attrib.get("length")
+                    arr1 = self.parent.get_attr_with_backups(field, ["arr1", "length"])
                     if arr1:
                         self.add("Array")
     
-                    template = field.attrib.get("template")
+                    template = self.parent.get_attr_with_array_alt(field, "template")
                     if template:
-                        # template can be either a type or a template
-                        # only import if a type
-                        template_class = convention.name_class(template)
-                        if not self.is_template(template_class):
-                            self.add_indirect_import()
+                        if isinstance(template, list):
+                            for entry in template:
+                                # template can be either a type or a template
+                                # only import if a type
+                                template_class = convention.name_class(entry)
+                                if not self.is_template(template_class):
+                                    self.add_indirect_import()
+                        else:
+                            # template can be either a type or a template
+                            # only import if a type
+                            template_class = convention.name_class(template)
+                            if not self.is_template(template_class):
+                                self.add_indirect_import()
     
                     onlyT = field.attrib.get("onlyT")
                     excludeT = field.attrib.get("excludeT")
@@ -61,7 +67,7 @@ class Imports:
             raise NotImplementedError(f'Unknown tag type {xml_struct.tag}')
 
     def is_template(self, string_to_check):
-        return string_to_check == "template"
+        return bool(convention.template_re.fullmatch(string_to_check))
 
     def add(self, cls_to_import):
         if cls_to_import and cls_to_import != self.xml_struct.attrib["name"]:
