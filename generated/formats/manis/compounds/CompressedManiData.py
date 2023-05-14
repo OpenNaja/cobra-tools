@@ -8,6 +8,13 @@ class CompressedManiData(BaseStruct):
 	__name__ = 'CompressedManiData'
 
 
+	@property
+	def arg_1(self):
+		return self.arg[0]
+	@property
+	def arg_2(self):
+		return self.arg[1]
+
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 
@@ -52,7 +59,7 @@ class CompressedManiData(BaseStruct):
 		self.extra_pc_zero = name_type_map['Uint64'](self.context, 0, None)
 
 		# 2023-05-06 was 16, PZ donation box demands 20
-		self.anoth_pad_2 = name_type_map['PadAlign'](self.context, 16, self.template.ref)
+		self.anoth_pad_2 = name_type_map['PadAlign'](self.context, 16, self.arg_1.ref)
 		self.ref_3 = name_type_map['Empty'](self.context, 0, None)
 		self.repeats = Array(self.context, 0, None, (0,), name_type_map['Repeat'])
 		if set_default:
@@ -88,7 +95,7 @@ class CompressedManiData(BaseStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'floats', Array, (0, None, (instance.arg.frame_count, instance.arg.float_count,), name_type_map['Float']), (False, None)
+		yield 'floats', Array, (0, None, (instance.arg_2.frame_count, instance.arg_2.float_count,), name_type_map['Float']), (False, None)
 		yield 'pad_2', name_type_map['SmartPadding'], (0, None), (False, None)
 		yield 'frame_count', name_type_map['Uint'], (0, None), (False, None)
 		yield 'ori_bone_count', name_type_map['Uint'], (0, None), (False, None)
@@ -109,6 +116,6 @@ class CompressedManiData(BaseStruct):
 		yield 'floatsb', name_type_map['FloatsGrabber'], (0, None), (False, None)
 		if instance.context.version <= 257:
 			yield 'extra_pc_zero', name_type_map['Uint64'], (0, None), (False, None)
-		yield 'anoth_pad_2', name_type_map['PadAlign'], (16, instance.template.ref), (False, None)
+		yield 'anoth_pad_2', name_type_map['PadAlign'], (16, instance.arg_1.ref), (False, None)
 		yield 'ref_3', name_type_map['Empty'], (0, None), (False, None)
 		yield 'repeats', Array, (0, None, (instance.count,), name_type_map['Repeat']), (False, None)

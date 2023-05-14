@@ -22,7 +22,7 @@ class ManiBlock(BaseStruct):
 		self.ori_bones_delta = Array(self.context, 0, None, (0,), name_type_map['Ubyte'])
 		self.scl_bones_delta = Array(self.context, 0, None, (0,), name_type_map['Ubyte'])
 		self.pad = name_type_map['PadAlign'](self.context, 4, self.ref)
-		self.key_data = name_type_map['CompressedManiData'](self.context, self.arg, self.instance)
+		self.key_data = name_type_map['CompressedManiData'](self.context, (self, self.arg), None)
 		if set_default:
 			self.set_defaults()
 
@@ -63,6 +63,6 @@ class ManiBlock(BaseStruct):
 			yield 'scl_bones_delta', Array, (0, None, ((instance.arg.scl_bone_max - instance.arg.scl_bone_min) + 1,), name_type_map['Ubyte']), (False, None)
 		yield 'pad', name_type_map['PadAlign'], (4, instance.ref), (False, None)
 		if instance.arg.dtype == 0:
-			yield 'key_data', name_type_map['UncompressedManiData'], (instance.arg, instance.instance), (False, None)
+			yield 'key_data', name_type_map['UncompressedManiData'], ((instance, instance.arg), None), (False, None)
 		if instance.arg.dtype > 0:
-			yield 'key_data', name_type_map['CompressedManiData'], (instance.arg, instance.instance), (False, None)
+			yield 'key_data', name_type_map['CompressedManiData'], ((instance, instance.arg), None), (False, None)

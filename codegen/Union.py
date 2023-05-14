@@ -142,14 +142,18 @@ class Union:
         def format_arg(arg_entry):
             if arg_entry is not None:
                 # allow accessing the instance directly as an argument
-                if arg_entry in ("self", "instance"):
+                if arg_entry in ("self", "instance", "#SELF#"):
                     arg_entry = target_variable
                 else:
-                    arg_entry = Expression(arg_entry, target_variable)
+                    # todo - somwhere along the line, some (?) arg_entry had been converted to an expression
+                    if not isinstance(arg_entry, Expression):
+                        arg_entry = Expression(arg_entry, target_variable)
             return arg_entry
 
         if isinstance(arg, list):
             arg = tuple(format_arg(entry) for entry in arg)
+            # we don't want to have special names (eg. target_variable) print as strings
+            arg = f"({', '.join(str(format_arg(entry)) for entry in arg)})"
         elif arg is not None:
             arg = format_arg(arg)
         else:

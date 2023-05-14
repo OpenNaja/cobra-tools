@@ -121,14 +121,6 @@
 		<field name="z" type="normshort"/>
 	</compound>
 
-	<compound name="UncompressedManiData" >
-		<add name="PosBones" type="Vector3" arr1="#ARG#\FrameCount" arr2="#ARG#\PosBoneCount" />
-		<add name="OriBones" type="Vector4H" arr1="#ARG#\FrameCount" arr2="#ARG#\OriBoneCount"  />
-<!--		<add name="SclRefs" type="Vector3" arr1="#ARG#\SclBoneCount" />-->
-		<add name="SclBones" type="Vector4H" arr1="#ARG#\FrameCount" arr2="#ARG#\SclBoneCount" />
-		<add name="Floats" type="float" arr1="#ARG#\FrameCount" arr2="#ARG#\FloatCount" />
-    </compound>
-
     <compound name="FloatsGrabber" >
     </compound>
 
@@ -137,9 +129,17 @@
 		<add name="byte size" type="uint64" >to be read sequentially starting after this array </add>
 		<add name="zeros 1" type="uint64" arr1="2" > </add>
     </compound>
-	
-	<compound name="CompressedManiData" >
-		<add name="Floats" type="float" arr1="#ARG#\FrameCount" arr2="#ARG#\FloatCount" >uncompressed, possibly because ACL didn't support scalars</add>
+
+	<compound name="UncompressedManiData" args="2">
+		<add name="PosBones" type="Vector3" arr1="#ARG2#\FrameCount" arr2="#ARG2#\PosBoneCount" />
+		<add name="OriBones" type="Vector4H" arr1="#ARG2#\FrameCount" arr2="#ARG2#\OriBoneCount"  />
+<!--		<add name="SclRefs" type="Vector3" arr1="#ARG2#\SclBoneCount" />-->
+		<add name="SclBones" type="Vector4H" arr1="#ARG2#\FrameCount" arr2="#ARG2#\SclBoneCount" />
+		<add name="Floats" type="float" arr1="#ARG2#\FrameCount" arr2="#ARG2#\FloatCount" />
+    </compound>
+
+	<compound name="CompressedManiData" args="2">
+		<add name="Floats" type="float" arr1="#ARG2#\FrameCount" arr2="#ARG2#\FloatCount" >uncompressed, possibly because ACL didn't support scalars</add>
 
 <!--		two uint zeros, or padding-->
 		<add name="pad 2" type="SmartPadding" >?</add>
@@ -178,7 +178,7 @@
 		<add name="extra pc zero" type="uint64" until="257" >this seems to be vaguely related, but not always there?</add>
 <!--		<add name="unk for FloatCount" type="uint64" cond="#ARG# \ FloatCount">this seems to be vaguely related, but not always there?</add>-->
 <!--		<add name="floats extra" type="float" arr1="#ARG#\FloatCount" >nope likely wrong</add>-->
-		<add name="anoth pad2" type="PadAlign" template="#T# \ ref" arg="16" >
+		<add name="anoth pad2" type="PadAlign" template="#ARG1# \ ref" arg="16" >
 			2023-05-06 was 16, PZ donation box demands 20
 		</add>
 
@@ -204,11 +204,9 @@
 		<add name="SclBones delta" type="ubyte" arr1="(#ARG#\SclBoneMax - #ARG#\SclBoneMin) + 1" cond="#ARG#\SclBoneMin #LT# 255"> </add>
 
 		<add name="pad" type="PadAlign" template="ref" arg="4"/>
-		<add name="KeyData" type="UncompressedManiData" arg="#ARG#" template="#SELF#" cond="#ARG#\dtype #EQ# 0"/>
-		<add name="KeyData" type="CompressedManiData" arg="#ARG#" template="#SELF#" cond="#ARG#\dtype #GT# 0"/>
+		<add name="KeyData" type="UncompressedManiData" arg1="#SELF#" arg2="#ARG#" cond="#ARG#\dtype #EQ# 0"/>
+		<add name="KeyData" type="CompressedManiData" arg1="#SELF#" arg2="#ARG#" cond="#ARG#\dtype #GT# 0"/>
     </compound>
-
-
 
     <compound name="ChunkSizes" >
 		<add name="zeros 0" type="uint64" > </add>
