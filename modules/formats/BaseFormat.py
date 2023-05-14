@@ -259,7 +259,9 @@ class BaseFile:
 		logging.info(f"Removing {self.name}")
 		for pool, offset in self.stack.keys():
 			if pool is not None:
-				pool.offsets.remove(offset)
+				# different files may have a struct at this offset
+				if offset in pool.offsets:
+					pool.offsets.remove(offset)
 		# remove the loader from ovl so it is not saved
 		self.ovl.loaders.pop(self.name)
 		# remove streamed and child files
