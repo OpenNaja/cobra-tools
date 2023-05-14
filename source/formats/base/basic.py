@@ -259,3 +259,16 @@ class Normshort(NormClass):
 	@staticmethod
 	def to_function(instance):
 		return np.round(instance * Normshort.scale)
+
+
+class Rangeshort(NormClass):
+	storage = Short
+	scale = 2048
+
+	@staticmethod
+	def from_function(instance):
+		return instance / Normshort.scale
+
+	@staticmethod
+	def to_function(instance):
+		return np.round(instance * Normshort.scale)

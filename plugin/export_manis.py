@@ -11,10 +11,6 @@ from plugin.utils.matrix_util import bone_name_for_ovl
 from plugin.utils.transforms import ManisCorrector
 
 
-def get_max(list_of_b_vecs):
-	return max(abs(c) for vec in list_of_b_vecs for c in vec)
-
-
 def get_fcurves_by_type(group, dtype):
 	return [fcurve for fcurve in group.channels if fcurve.data_path.endswith(dtype)]
 

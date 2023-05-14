@@ -12,6 +12,7 @@ type_module_name_map = {
 	'Short': 'generated.formats.base.basic',
 	'Char': 'generated.formats.base.basic',
 	'Normshort': 'generated.formats.base.basic',
+	'Rangeshort': 'generated.formats.base.basic',
 	'Float': 'generated.formats.base.basic',
 	'Double': 'generated.formats.base.basic',
 	'Hfloat': 'generated.formats.base.basic',

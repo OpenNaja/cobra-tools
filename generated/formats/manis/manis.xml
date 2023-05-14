@@ -115,6 +115,12 @@
 		<field name="w" type="normshort"/>
 	</compound>
 
+	<compound name="Vector3H" size="8">
+		<field name="x" type="rangeshort"/>
+		<field name="y" type="rangeshort"/>
+		<field name="z" type="rangeshort"/>
+	</compound>
+
 	<compound name="UncompressedManiData" >
 		<add name="PosBones" type="Vector3" arr1="#ARG#\FrameCount" arr2="#ARG#\PosBoneCount" />
 		<add name="OriBones" type="Vector4H" arr1="#ARG#\FrameCount" arr2="#ARG#\OriBoneCount"  />
