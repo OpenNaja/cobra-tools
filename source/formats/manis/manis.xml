@@ -195,17 +195,16 @@
 		<add name="OriBones" type="Channelname" arr1="#ARG#\OriBoneCount"/>
 		<add name="SclBones" type="Channelname" arr1="#ARG#\SclBoneCount"/>
 		<add name="Floats" type="Channelname" arr1="#ARG#\FloatCount"/>
-
-		the following are probably used to map bones in the skeleton
+		map channel to corresponding bone index
 		<add name="PosBones P" type="ubyte" arr1="#ARG#\PosBoneCount"/>
 		<add name="OriBones P" type="ubyte" arr1="#ARG#\OriBoneCount"/>
 		<add name="SclBones P" type="ubyte" arr1="#ARG#\SclBoneCount"/>
-		these are probably indices into the following data?
+		map bone to corresponding channel, -1 for bones in ranger that are not keyed
 		<add name="PosBones delta" type="ubyte" arr1="(#ARG#\PosBoneMax - #ARG#\PosBoneMin) + 1" cond="#ARG#\PosBoneMin #LT# 255"> </add>
 		<add name="OriBones delta" type="ubyte" arr1="(#ARG#\OriBoneMax - #ARG#\OriBoneMin) + 1" cond="#ARG#\OriBoneMin #LT# 255"> </add>
 		<add name="SclBones delta" type="ubyte" arr1="(#ARG#\SclBoneMax - #ARG#\SclBoneMin) + 1" cond="#ARG#\SclBoneMin #LT# 255"> </add>
-
 		<add name="pad" type="PadAlign" template="ref" arg="4"/>
+		start of keyframe data
 		<add name="KeyData" type="UncompressedManiData" arg1="#SELF#" arg2="#ARG#" cond="#ARG#\dtype #EQ# 0"/>
 		<add name="KeyData" type="CompressedManiData" arg1="#SELF#" arg2="#ARG#" cond="#ARG#\dtype #GT# 0"/>
     </compound>
