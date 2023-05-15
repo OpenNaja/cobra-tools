@@ -162,7 +162,8 @@ def save(filepath=""):
 				# not sure about the right correction
 				# scale_mat = scale_mat @ scale_corr
 				scale_mat = corrector.blender_bind_to_nif_bind(scale_mat)
-				key.x, key.y, key.z = scale_mat.to_scale()
+				# swizzle
+				key.z, key.y, key.x = scale_mat.to_scale()
 			# no support for shear in blender bones, so set to neutral
 			# shear must not be 0.0
 			for frame in k.key_data.shr_bones:
