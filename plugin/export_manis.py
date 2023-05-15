@@ -2,6 +2,7 @@ import logging
 
 import bpy
 import mathutils
+from bpy_extras.io_utils import axis_conversion
 
 from generated.formats.manis import ManisFile
 from generated.formats.manis.compounds.ManiBlock import ManiBlock
@@ -61,6 +62,13 @@ def get_local_bone(bone):
 	if bone.parent:
 		return bone.parent.matrix_local.inverted() @ bone.matrix_local
 	return bone.matrix_local
+
+
+def get_scale_mat(scale_vec):
+	scale_matrix_x2 = mathutils.Matrix.Scale(scale_vec.x, 4, (1.0, 0.0, 0.0))
+	scale_matrix_y2 = mathutils.Matrix.Scale(scale_vec.y, 4, (0.0, 1.0, 0.0))
+	scale_matrix_z2 = mathutils.Matrix.Scale(scale_vec.z, 4, (0.0, 0.0, 1.0))
+	return scale_matrix_x2 @ scale_matrix_y2 @ scale_matrix_z2
 
 
 def save(filepath=""):
@@ -135,14 +143,23 @@ def save(filepath=""):
 			for frame_i, frame in enumerate(k.key_data.scl_bones):
 				# found in DLA SpaceMountain animations.manisetd740d135
 				key = frame[bone_i]
-				# probably needs correction, and possibly relative to bind
-				key.x, key.y, key.z = [fcu.evaluate(frame_i) for fcu in fcurves]
+				v = mathutils.Vector([fcu.evaluate(frame_i) for fcu in fcurves])
+				# v = mathutils.Matrix.Translation(v)
+				scale_mat = get_scale_mat(v)
+				# needs correction, and possibly relative to bind
+				# not sure about the right correction
+				scale_corr = axis_conversion("X", "Y").to_4x4()
+				scale_mat = scale_mat @ scale_corr
+				# scale_mat = corrector.blender_bind_to_nif_bind(scale_mat)
+				key.x, key.y, key.z = scale_mat.to_scale()
 			# todo - needs testing, not sure what this does, but their presence is needed
 			# may influence how scale is inherited
 			for frame in k.key_data.scl_refs:
 				key = frame[bone_i]
-				key.x = 0.001
+				# key.x = 0.001
 				key.y = 2.0
+				key.x = 1.0
+				# key.y = 1.0
 		print(mani_info.keys)
 	mani.header.mani_files_size = mani.mani_count * 16
 	mani.header.hash_block_size = len(target_names) * 4
