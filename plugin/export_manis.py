@@ -93,6 +93,18 @@ def save(filepath=""):
 	mani.names[:] = action_names
 	mani.reset_field("mani_infos")
 	mani.reset_field("keys_buffer")
+	# scale_corr = axis_conversion("X", "Y").to_4x4().inverted()
+	# scale_corr = mathutils.Matrix((
+	# 	(0.0000, 1.0000, 0.0000, 0.0000),
+	# 	(0.0000, 0.0000, 1.0000, 0.0000),
+	# 	(1.0000, 0.0000, 0.0000, 0.0000),
+	# 	(0.0000, 0.0000, 0.0000, 1.0000)))
+	# scale_corr = mathutils.Matrix((
+	# 	(0.0000, 1.0000, 0.0000, 0.0000),
+	# 	(1.0000, 0.0000, 0.0000, 0.0000),
+	# 	(0.0000, 0.0000, 1.0000, 0.0000),
+	# 	(0.0000, 0.0000, 0.0000, 1.0000)))
+	# print(scale_corr)
 	for b_action, mani_info in zip(bpy.data.actions, mani.mani_infos):
 		logging.info(f"Exporting {b_action.name}")
 		mani_info.frame_count = int(round(b_action.frame_range[1] - b_action.frame_range[0]))
@@ -148,18 +160,15 @@ def save(filepath=""):
 				scale_mat = get_scale_mat(v)
 				# needs correction, and possibly relative to bind
 				# not sure about the right correction
-				scale_corr = axis_conversion("X", "Y").to_4x4()
-				scale_mat = scale_mat @ scale_corr
-				# scale_mat = corrector.blender_bind_to_nif_bind(scale_mat)
+				# scale_mat = scale_mat @ scale_corr
+				scale_mat = corrector.blender_bind_to_nif_bind(scale_mat)
 				key.x, key.y, key.z = scale_mat.to_scale()
-			# todo - needs testing, not sure what this does, but their presence is needed
-			# may influence how scale is inherited
-			for frame in k.key_data.scl_refs:
+			# no support for shear in blender bones, so set to neutral
+			# shear must not be 0.0
+			for frame in k.key_data.shr_bones:
 				key = frame[bone_i]
-				# key.x = 0.001
-				key.y = 2.0
+				key.y = 1.0
 				key.x = 1.0
-				# key.y = 1.0
 		print(mani_info.keys)
 	mani.header.mani_files_size = mani.mani_count * 16
 	mani.header.hash_block_size = len(target_names) * 4

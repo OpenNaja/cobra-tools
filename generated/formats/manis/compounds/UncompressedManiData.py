@@ -19,10 +19,9 @@ class UncompressedManiData(BaseStruct):
 		super().__init__(context, arg, template, set_default=False)
 		self.pos_bones = Array(self.context, 0, None, (0,), name_type_map['Vector3'])
 		self.ori_bones = Array(self.context, 0, None, (0,), name_type_map['Vector4H'])
-		self.scl_refs = Array(self.context, 0, None, (0,), name_type_map['Vector2'])
+		self.shr_bones = Array(self.context, 0, None, (0,), name_type_map['Vector2'])
 		self.scl_bones = Array(self.context, 0, None, (0,), name_type_map['Vector3'])
 		self.floats = Array(self.context, 0, None, (0,), name_type_map['Float'])
-		self.scale_pad = name_type_map['Uint64'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 
@@ -31,18 +30,15 @@ class UncompressedManiData(BaseStruct):
 		yield from super()._get_attribute_list()
 		yield 'pos_bones', Array, (0, None, (None, None,), name_type_map['Vector3']), (False, None), (None, None)
 		yield 'ori_bones', Array, (0, None, (None, None,), name_type_map['Vector4H']), (False, None), (None, None)
-		yield 'scl_refs', Array, (0, None, (None, None,), name_type_map['Vector2']), (False, None), (None, None)
+		yield 'shr_bones', Array, (0, None, (None, None,), name_type_map['Vector2']), (False, None), (None, None)
 		yield 'scl_bones', Array, (0, None, (None, None,), name_type_map['Vector3']), (False, None), (None, None)
 		yield 'floats', Array, (0, None, (None, None,), name_type_map['Float']), (False, None), (None, None)
-		yield 'scale_pad', name_type_map['Uint64'], (0, None), (False, None), (None, True)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'pos_bones', Array, (0, None, (instance.arg_2.frame_count, instance.arg_2.pos_bone_count,), name_type_map['Vector3']), (False, None)
 		yield 'ori_bones', Array, (0, None, (instance.arg_2.frame_count, instance.arg_2.ori_bone_count,), name_type_map['Vector4H']), (False, None)
-		yield 'scl_refs', Array, (0, None, (instance.arg_2.frame_count, instance.arg_2.scl_bone_count,), name_type_map['Vector2']), (False, None)
+		yield 'shr_bones', Array, (0, None, (instance.arg_2.frame_count, instance.arg_2.scl_bone_count,), name_type_map['Vector2']), (False, None)
 		yield 'scl_bones', Array, (0, None, (instance.arg_2.frame_count, instance.arg_2.scl_bone_count,), name_type_map['Vector3']), (False, None)
 		yield 'floats', Array, (0, None, (instance.arg_2.frame_count, instance.arg_2.float_count,), name_type_map['Float']), (False, None)
-		if instance.arg_2.scl_bone_count:
-			yield 'scale_pad', name_type_map['Uint64'], (0, None), (False, None)
