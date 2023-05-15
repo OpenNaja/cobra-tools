@@ -44,6 +44,7 @@ type_module_name_map = {
 	'InfoHeader': 'generated.formats.manis.compounds.InfoHeader',
 	'Vector4H': 'generated.formats.manis.compounds.Vector4H',
 	'Vector3H': 'generated.formats.manis.compounds.Vector3H',
+	'Vector2': 'generated.formats.manis.compounds.Vector2',
 	'FloatsGrabber': 'generated.formats.manis.compounds.FloatsGrabber',
 	'Repeat': 'generated.formats.manis.compounds.Repeat',
 	'UncompressedManiData': 'generated.formats.manis.compounds.UncompressedManiData',

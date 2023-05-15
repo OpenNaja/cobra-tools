@@ -125,6 +125,11 @@
 		<field name="z" type="normshort"/>
 	</compound>
 
+	<compound name="Vector2" size="8">
+		<field name="x" type="float"/>
+		<field name="y" type="float"/>
+	</compound>
+
     <compound name="FloatsGrabber" >
     </compound>
 
@@ -137,9 +142,10 @@
 	<compound name="UncompressedManiData" args="2">
 		<add name="PosBones" type="Vector3" arr1="#ARG2#\FrameCount" arr2="#ARG2#\PosBoneCount" />
 		<add name="OriBones" type="Vector4H" arr1="#ARG2#\FrameCount" arr2="#ARG2#\OriBoneCount"  />
-<!--		<add name="SclRefs" type="Vector3" arr1="#ARG2#\SclBoneCount" />-->
-		<add name="SclBones" type="Vector4H" arr1="#ARG2#\FrameCount" arr2="#ARG2#\SclBoneCount" />
+		<add name="SclRefs" type="Vector2" arr1="#ARG2#\FrameCount" arr2="#ARG2#\SclBoneCount" />
+		<add name="SclBones" type="Vector3" arr1="#ARG2#\FrameCount" arr2="#ARG2#\SclBoneCount" />
 		<add name="Floats" type="float" arr1="#ARG2#\FrameCount" arr2="#ARG2#\FloatCount" />
+		<add name="scale_pad" type="uint64" cond="#ARG2#\SclBoneCount" />
     </compound>
 
 	<compound name="CompressedManiData" args="2">

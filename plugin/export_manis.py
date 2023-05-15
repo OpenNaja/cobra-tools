@@ -96,7 +96,7 @@ def save(filepath=""):
 		pos_groups, pos_indices = set_mani_info_counts(mani_info, b_action, bones_lut, "pos", "location")
 		ori_groups, ori_indices = set_mani_info_counts(mani_info, b_action, bones_lut, "ori", "quaternion")
 		scl_groups, scl_indices = set_mani_info_counts(mani_info, b_action, bones_lut, "scl", "scale")
-		mani_info.scl_bone_count_related = mani_info.scl_bone_count_repeat = 0
+		# mani_info.scl_bone_count_related = mani_info.scl_bone_count_repeat = 0
 		floats = []
 		print(mani_info)
 		mani_info.keys = ManiBlock(mani_info.context, mani_info)
@@ -133,12 +133,16 @@ def save(filepath=""):
 			logging.info(f"Exporting scale '{group.name}'")
 			fcurves = get_fcurves_by_type(group, "scale")
 			for frame_i, frame in enumerate(k.key_data.scl_bones):
-				# todo - needs testing
-				# assumed vec3f format but no uncompressed samples are known
-				# frame[bone_i] = fcurves[0].evaluate(frame_i)
+				# found in DLA SpaceMountain animations.manisetd740d135
 				key = frame[bone_i]
-				# key.x, key.y, key.z = [fcu.evaluate(frame_i) for fcu in fcurves]
-				key.x, key.y, key.z, key.w = (2, 2, 2, 2)
+				# probably needs correction, and possibly relative to bind
+				key.x, key.y, key.z = [fcu.evaluate(frame_i) for fcu in fcurves]
+			# todo - needs testing, not sure what this does, but their presence is needed
+			# may influence how scale is inherited
+			for frame in k.key_data.scl_refs:
+				key = frame[bone_i]
+				key.x = 0.001
+				key.y = 2.0
 		print(mani_info.keys)
 	mani.header.mani_files_size = mani.mani_count * 16
 	mani.header.hash_block_size = len(target_names) * 4
