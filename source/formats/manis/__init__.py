@@ -29,7 +29,6 @@ class ManisFile(InfoHeader, IoFile):
 				# print(mi)
 				assert mi.pos_bone_count == mi.pos_bone_count_repeat
 				assert mi.ori_bone_count == mi.ori_bone_count_repeat
-				assert mi.g == 0
 			for i, bone_name in enumerate(self.name_buffer.bone_names):
 				print(i, bone_name)
 

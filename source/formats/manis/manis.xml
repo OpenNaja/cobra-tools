@@ -61,19 +61,18 @@
 		<add name="ztuac 1" type="ushort" until="257"/>
 		<add name="ztuac 2" type="ushort" until="257"/>
 		<add name="FloatCount" type="ushort" until="257"/>
-		<add name="PosBoneCount" type="ushort" until="257"/>
-		<add name="OriBoneCount" type="ushort" until="257"/>
-		<add name="SclBoneCount" type="ushort" until="257"/>
+		<add name="PosBoneCount Repeat" type="ushort" until="257"/>
+		<add name="OriBoneCount Repeat" type="ushort" until="257"/>
+		<add name="SclBoneCount Repeat" type="ushort" until="257"/>
 		<add name="zeros 1" type="ushort" />
 		<add name="zeros 1 new" type="uint" since="258"/>
 		<add name="zeros 1 old" type="ushort" until="257"/>
 		<add name="FloatCount" type="ushort" since="258"/>for ZTUAC, not sure if it uses a subversion
 		<add name="count a" type="ubyte">FF if unused</add>
 		<add name="count b" type="ubyte">FF if unused</add>
-		<add name="target bone count" type="ushort" >usually matches ms2 bone count, at least for JWE2 dinos. Doesn't match for PZ water wheel 5 vs ms2 2</add>
-		<add name="g" type="ushort" >zero</add>
-		<add name="zeros 2" type="uint" arr1="57" > rest 228 bytes </add>
-		<add name="extra zeros pc" type="ushort" arr1="6" until="257" > rest 14 bytes </add>
+		<add name="target bone count" type="uint" >can include joints, such as in PZ water wheel count 5 vs ms2 2 bones, plus joints</add>
+		<add name="zeros 2" type="uint" arr1="57" >228 bytes</add>
+		<add name="extra zeros pc" type="ushort" arr1="6" until="257" >14 bytes</add>
 		<add name="PosBoneMin" type="ubyte"/>
 		<add name="PosBoneMax" type="ubyte"/>
 		<add name="OriBoneMin" type="ubyte"/>
