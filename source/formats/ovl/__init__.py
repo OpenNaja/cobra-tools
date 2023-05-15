@@ -795,6 +795,10 @@ class OvlFile(Header):
 		self.dependencies_ext = [self.names.get_str_at(i).replace(":", ".") for i in self.dependencies["ext_raw"]]
 		self.hash_table_local.update({h: b for b, h in zip(self.files_basename, self.files["file_hash"])})
 
+		if "only_types" in self.commands:
+			if not all(ext in self.files_ext for ext in self.commands['only_types']):
+				logging.info(f"Skipping further loading as it does not contain the interesting formats")
+				return
 		if "generate_hash_table" in self.commands:
 			deps_exts = self.commands["generate_hash_table"]
 			filtered_hash_table = {h: basename for h, basename, ext in zip(

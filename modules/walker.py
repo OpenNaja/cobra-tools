@@ -1,10 +1,13 @@
+import io
 import os
 import time
 import logging
 from collections import Counter
 
 from experimentals.convert_constants import write_mimes_dict, write_hashes_dict
+from generated.array import Array
 from generated.formats.fgm.compounds.FgmHeader import FgmHeader
+from generated.formats.manis.compounds.ManiInfo import ManiInfo
 from generated.formats.ms2.enums.CollisionType import CollisionType
 from generated.formats.ovl_base import OvlContext
 
@@ -335,18 +338,52 @@ def get_fgm_values(gui, start_dir, walk_ovls=True, walk_fgms=True):
 			f.write("}\n")
 
 
+def add_key(dic, k, v):
+	if k not in dic:
+		dic[k] = set()
+	dic[k].add(v)
+
+
 def get_manis_values(gui, start_dir, walk_ovls=True, walk_fgms=True):
 	errors = []
 	data = {}
+	dtype_to_files = {}
+	scale_0_to_files = {}
+	dtype_0_to_files = {}
 	if start_dir:
 		for ovl_data, ovl_path in ovls_in_path(gui, start_dir, (".manis", ".mani",)):
+			ovl_name = os.path.basename(ovl_path)
+			ovl_name = os.path.splitext(ovl_name)[0]
 			try:
 				for loader in ovl_data.loaders.values():
 					# print(loader.name)
 					if loader.ext == ".manis":
 						mani_names = [c.name for c in loader.children]
-						data[loader.header.mani_files_size] = mani_names
+						# data[loader.header.mani_files_size] = mani_names
+						stream = io.BytesIO(loader.data_entry.buffers[0].data + b"\x00\x00")
+						mani_infos = Array.from_stream(stream, loader.context, 0, None, (len(loader.children), ), ManiInfo)
+
+						for mani_info in mani_infos:
+							# print(mani_info)
+							add_key(dtype_to_files, mani_info.dtype, ovl_name)
+							if mani_info.dtype == 0 and (mani_info.pos_bone_count or mani_info.ori_bone_count or mani_info.scl_bone_count):
+								add_key(dtype_0_to_files, mani_info.dtype, f"{ovl_name}.{loader.basename}")
+								if mani_info.scl_bone_count:
+									add_key(scale_0_to_files, mani_info.dtype, ovl_name)
 			except:
 				logging.exception(f"Failed")
-	for k, strings in sorted(data.items()):
-		logging.info(f"{k} - {len(strings)} - {k/len(strings)}- {sum(len(s) for s in strings)}")
+	# for k, strings in sorted(data.items()):
+	# 	logging.info(f"{k} - {len(strings)} - {k/len(strings)}- {sum(len(s) for s in strings)}")
+
+	try:
+		logging.info(f"dtype - files map")
+		for dtype, files in sorted(dtype_to_files.items()):
+			logging.info(f"dtype {dtype} - files {sorted(files)[:10]}")
+		logging.info(f"dtype uncompressed - files map")
+		for dtype, files in sorted(dtype_0_to_files.items()):
+			logging.info(f"dtype {dtype} - files {sorted(files)}")
+		logging.info(f"scale on uncompressed - files map")
+		for dtype, files in sorted(scale_0_to_files.items()):
+			logging.info(f"dtype {dtype} - files {sorted(files)}")
+	except:
+		logging.exception(f"Failed")

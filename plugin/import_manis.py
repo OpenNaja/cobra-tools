@@ -26,7 +26,7 @@ dt_size = {
 def iter_keys(m_bone_names, m_keys, bones_data, b_action, b_dtype):
 	for bone_i, m_name in enumerate(m_bone_names):
 		b_name = bone_name_for_blender(m_name)
-		logging.info(f"Importing '{b_name}'")
+		logging.debug(f"Importing '{b_name}'")
 		if b_name in bones_data:
 			bonerestmat_inv = bones_data[b_name]
 			b_channel = b_name
@@ -64,6 +64,7 @@ def load(files=[], filepath="", set_fps=False):
 		if mi.dtype != 0:
 			logging.info(f"{mi.name} is compressed, only uncompressed are imported")
 			continue
+		logging.info(f"Importing '{mi.name}'")
 		k = mi.keys
 		for frame_i, key, bonerestmat_inv, fcurves in iter_keys(
 				k.pos_bones, k.key_data.pos_bones, bones_data, b_action, "location"):

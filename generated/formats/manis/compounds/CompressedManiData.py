@@ -50,14 +50,11 @@ class CompressedManiData(BaseStruct):
 		self.flag_2 = name_type_map['Ubyte'](self.context, 0, None)
 		self.flag_3 = name_type_map['Ubyte'](self.context, 0, None)
 		self.anoth_pad = name_type_map['PadAlign'](self.context, 4, self.ref_2)
+		self.loc_min = name_type_map['Vector3'](self.context, 0, None)
+		self.loc_max = name_type_map['Vector3'](self.context, 0, None)
 
-		# these are likely a scale reference or factor
+		# not sure
 		self.floatsb = name_type_map['FloatsGrabber'](self.context, 0, None)
-
-		# this seems to be vaguely related, but not always there?
-		self.extra_pc_zero = name_type_map['Uint64'](self.context, 0, None)
-
-		# 2023-05-06 was 16, PZ donation box demands 20
 		self.anoth_pad_2 = name_type_map['PadAlign'](self.context, 16, self.arg_1.ref)
 		self.ref_3 = name_type_map['Empty'](self.context, 0, None)
 		self.repeats = Array(self.context, 0, None, (0,), name_type_map['Repeat'])
@@ -86,8 +83,9 @@ class CompressedManiData(BaseStruct):
 		yield 'flag_2', name_type_map['Ubyte'], (0, None), (False, None), (None, None)
 		yield 'flag_3', name_type_map['Ubyte'], (0, None), (False, None), (None, None)
 		yield 'anoth_pad', name_type_map['PadAlign'], (4, None), (False, None), (None, None)
+		yield 'loc_min', name_type_map['Vector3'], (0, None), (False, None), (None, None)
+		yield 'loc_max', name_type_map['Vector3'], (0, None), (False, None), (None, None)
 		yield 'floatsb', name_type_map['FloatsGrabber'], (0, None), (False, None), (None, None)
-		yield 'extra_pc_zero', name_type_map['Uint64'], (0, None), (False, None), (lambda context: context.version <= 257, None)
 		yield 'anoth_pad_2', name_type_map['PadAlign'], (16, None), (False, None), (None, None)
 		yield 'ref_3', name_type_map['Empty'], (0, None), (False, None), (None, None)
 		yield 'repeats', Array, (0, None, (None,), name_type_map['Repeat']), (False, None), (None, None)
@@ -114,9 +112,9 @@ class CompressedManiData(BaseStruct):
 		yield 'flag_2', name_type_map['Ubyte'], (0, None), (False, None)
 		yield 'flag_3', name_type_map['Ubyte'], (0, None), (False, None)
 		yield 'anoth_pad', name_type_map['PadAlign'], (4, instance.ref_2), (False, None)
+		yield 'loc_min', name_type_map['Vector3'], (0, None), (False, None)
+		yield 'loc_max', name_type_map['Vector3'], (0, None), (False, None)
 		yield 'floatsb', name_type_map['FloatsGrabber'], (0, None), (False, None)
-		if instance.context.version <= 257:
-			yield 'extra_pc_zero', name_type_map['Uint64'], (0, None), (False, None)
 		yield 'anoth_pad_2', name_type_map['PadAlign'], (16, instance.arg_1.ref), (False, None)
 		yield 'ref_3', name_type_map['Empty'], (0, None), (False, None)
 		yield 'repeats', Array, (0, None, (instance.count,), name_type_map['Repeat']), (False, None)

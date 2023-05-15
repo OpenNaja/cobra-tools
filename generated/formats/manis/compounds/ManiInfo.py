@@ -68,8 +68,8 @@ class ManiInfo(BaseStruct):
 		# maybe, not observed yet
 		self.scl_bone_count_related = name_type_map['Ubyte'](self.context, 0, None)
 		self.scl_bone_count_repeat = name_type_map['Ubyte'](self.context, 0, None)
-		self.zeros_end = name_type_map['Ushort'](self.context, 0, None)
-		self.zero_2_end = name_type_map['Ushort'](self.context, 0, None)
+		self.zero_0_end = name_type_map['Ushort'](self.context, 0, None)
+		self.zero_1_end = name_type_map['Ushort'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 
@@ -109,8 +109,8 @@ class ManiInfo(BaseStruct):
 		yield 'ori_bone_count_repeat', name_type_map['Ubyte'], (0, None), (False, None), (lambda context: context.version >= 258, None)
 		yield 'scl_bone_count_related', name_type_map['Ubyte'], (0, None), (False, None), (lambda context: context.version >= 258, None)
 		yield 'scl_bone_count_repeat', name_type_map['Ubyte'], (0, None), (False, None), (lambda context: context.version >= 258, None)
-		yield 'zeros_end', name_type_map['Ushort'], (0, None), (False, None), (lambda context: context.version >= 258, None)
-		yield 'zero_2_end', name_type_map['Ushort'], (0, None), (False, None), (None, None)
+		yield 'zero_0_end', name_type_map['Ushort'], (0, None), (False, None), (lambda context: context.version >= 258, None)
+		yield 'zero_1_end', name_type_map['Ushort'], (0, None), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -153,5 +153,5 @@ class ManiInfo(BaseStruct):
 			yield 'ori_bone_count_repeat', name_type_map['Ubyte'], (0, None), (False, None)
 			yield 'scl_bone_count_related', name_type_map['Ubyte'], (0, None), (False, None)
 			yield 'scl_bone_count_repeat', name_type_map['Ubyte'], (0, None), (False, None)
-			yield 'zeros_end', name_type_map['Ushort'], (0, None), (False, None)
-		yield 'zero_2_end', name_type_map['Ushort'], (0, None), (False, None)
+			yield 'zero_0_end', name_type_map['Ushort'], (0, None), (False, None)
+		yield 'zero_1_end', name_type_map['Ushort'], (0, None), (False, None)

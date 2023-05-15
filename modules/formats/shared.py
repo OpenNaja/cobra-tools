@@ -32,7 +32,8 @@ def fmt_hash(id_hash):
 class DummySignal:
 
 	def emit(self, val):
-		logging.debug(f"Emitted {val}")
+		pass
+		# logging.debug(f"Emitted {val}")
 
 	def connect(self, func):
 		pass

@@ -81,8 +81,8 @@
 		<add name="OriBoneCount Repeat" type="ubyte" since="258"/>
 		<add name="SclBoneCount Related" type="ubyte" since="258" >maybe, not observed yet</add>
 		<add name="SclBoneCount Repeat" type="ubyte" since="258"/>
-		<add name="zeros end" type="ushort" since="258" > </add>
-		<add name="zero 2 end" type="ushort"> </add>
+		<add name="zero 0 end" type="ushort" since="258"/>
+		<add name="zero 1 end" type="ushort" />for PC, this is alignment and not present at the end of the mani_infos array
     </compound>
 
     <compound name="Buffer1">
@@ -167,7 +167,9 @@
 <!--		<add name="anoth pad" type="SmartPadding" >?</add>-->
 <!--        <add name="pad to 8" type="ubyte" arr1="(8 - (count  % 8)) % 8" > </add>-->
 
-		<add name="floatsb" type="FloatsGrabber" >these are likely a scale reference or factor</add>
+		<add name="loc min" type="Vector3"/>
+		<add name="loc max" type="Vector3"/>might be extent, but not sure about how it is encoded
+		<add name="floatsb" type="FloatsGrabber" >not sure</add>
 	<!-- <add name="floatsb" type="float" arr1="12" vercond="#JWE2#">these are likely a scale reference or factor</add> -->
 	<!-- <add name="floatsb" type="float" arr1="6" vercond="#PZ#">these are likely a scale reference or factor</add> -->
 		<!-- <add name="floats second" type="float" arr1="flag 1" arr2="6"  >these are likely a scale reference or factor</add> -->
@@ -177,12 +179,9 @@
 
 <!--		<add name="unk" type="uint64" cond="#ARG#\count_a #EQ# 255">present in feeder, not in dino</add> -->
 
-		<add name="extra pc zero" type="uint64" until="257" >this seems to be vaguely related, but not always there?</add>
 <!--		<add name="unk for FloatCount" type="uint64" cond="#ARG# \ FloatCount">this seems to be vaguely related, but not always there?</add>-->
 <!--		<add name="floats extra" type="float" arr1="#ARG#\FloatCount" >nope likely wrong</add>-->
-		<add name="anoth pad2" type="PadAlign" template="#ARG1# \ ref" arg="16" >
-			2023-05-06 was 16, PZ donation box demands 20
-		</add>
+		<add name="anoth pad2" type="PadAlign" template="#ARG1# \ ref" arg="16"/>
 
 		<add name="ref3" type="Empty"/>
 		<add name="repeats" type="Repeat" arr1="count" > </add>

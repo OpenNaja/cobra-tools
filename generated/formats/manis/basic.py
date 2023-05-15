@@ -41,7 +41,6 @@ class Channelname:
 
     @classmethod
     def from_stream(cls, stream, context, arg=0, template=None):
-        logging.info("from_stream")
         ind = cls.cls_from_context(context).from_stream(stream, context, arg, template)
         return context.name_buffer.bone_names[ind]
 
