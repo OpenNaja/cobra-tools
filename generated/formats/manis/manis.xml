@@ -5,6 +5,7 @@
 	<token name="verexpr" attrs="vercond">
 
 		<verexpr token="#DLA#" string="(#VER# #EQ# 257)">DLA</verexpr>
+		<verexpr token="#ZTUAC#" string="(#VER# #EQ# 257)">DLA</verexpr>
 		<verexpr token="#PC#" string="(#VER# #EQ# 257)">PC</verexpr>
 		<verexpr token="#JWE#" string="(#VER# #EQ# 258)">JWE1</verexpr>
 		<verexpr token="#PZ#" string="(#VER# #EQ# 260)">PZ all</verexpr>
@@ -22,7 +23,7 @@
 
 <!--    <version id="old" version="257" >Old</version>-->
     <version id="DLA" version="257" >DLA</version>
-<!--    <version id="ZTUAC" version="257" >ZTUAC</version>-->
+    <version id="ZTUAC" version="257" >ZTUAC</version>
     <version id="PC" version="257" >PC</version>
     <version id="JWE1" version="258" >JWE1</version>
     <version id="PZ" version="260" >PZ</version>
@@ -47,7 +48,7 @@
 
 	<compound name="ManiInfo" >
         288 bytes for JWE / PZ
-        304 bytes for PC
+        304 bytes for PC, ZTUAC (however the last 2 bytes are alignment, and not on the last member of the array)
         <add name="duration" type="float"/>
 		<add name="FrameCount" type="uint"/>
 		<add name="dtype" type="uint" >determines the format of keys data</add>
@@ -56,13 +57,17 @@
 		<add name="PosBoneCount" type="ushort"/>
 		<add name="OriBoneCount" type="ushort"/>
 		<add name="SclBoneCount" type="ushort" >likely</add>
-		<add name="extra pc" type="uint64" until="257">zero</add>
-		<add name="PosBoneCount Repeat" type="ushort" until="257"/>
-		<add name="OriBoneCount Repeat" type="ushort" until="257"/>
-		<add name="SclBoneCount Repeat" type="ushort" until="257"> </add>
+		<add name="ztuac 0" type="ushort" until="257"/>
+		<add name="ztuac 1" type="ushort" until="257"/>
+		<add name="ztuac 2" type="ushort" until="257"/>
+		<add name="FloatCount" type="ushort" until="257"/>
+		<add name="PosBoneCount" type="ushort" until="257"/>
+		<add name="OriBoneCount" type="ushort" until="257"/>
+		<add name="SclBoneCount" type="ushort" until="257"/>
 		<add name="zeros 1" type="ushort" />
 		<add name="zeros 1 new" type="uint" since="258"/>
-		<add name="FloatCount" type="ushort" > </add>
+		<add name="zeros 1 old" type="ushort" until="257"/>
+		<add name="FloatCount" type="ushort" since="258"/>for ZTUAC, not sure if it uses a subversion
 		<add name="count a" type="ubyte">FF if unused</add>
 		<add name="count b" type="ubyte">FF if unused</add>
 		<add name="target bone count" type="ushort" >usually matches ms2 bone count, at least for JWE2 dinos. Doesn't match for PZ water wheel 5 vs ms2 2</add>

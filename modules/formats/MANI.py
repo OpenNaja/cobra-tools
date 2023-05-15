@@ -5,6 +5,7 @@ import struct
 from generated.formats.manis.compounds.ManisRoot import ManisRoot
 from generated.formats.manis import ManisFile
 from modules.formats.BaseFormat import BaseFile, MemStructLoader
+from modules.formats.shared import get_padding
 from modules.helpers import as_bytes
 
 
@@ -31,18 +32,21 @@ class ManisLoader(MemStructLoader):
 		if not self.data_entry:
 			raise AttributeError(f"No data entry for {name}")
 
-		# root gives general info
-		# buffer 0 - all mani infos
-		# buffer 1 - list of hashes and zstrs for each bone name
-		# buffer 2 - actual keys
 		out_path = out_dir(name)
 		with open(out_path, 'wb') as outfile:
 			outfile.write(struct.pack("<II", self.mime_version, len(self.children)))
 			for mani in self.children:
 				outfile.write(as_bytes(mani.basename))
+			# root gives general info
 			outfile.write(as_bytes(self.header))
-			for buff in self.data_entry.buffers:
+			for i, buff in enumerate(self.data_entry.buffers):
 				outfile.write(buff.data)
+				# buffer 0 - all mani infos
+				# buffer 1 - list of hashes and zstrs for each bone name
+				# buffer 2 - actual keys
+				if i == 0 and self.mime_version <= 257:
+					logging.debug(f"Added padding")
+					outfile.write(get_padding(len(buff.data), 304))
 			# JWE2 can now have a secondary data entry holding a buffer 2 in an ovs
 			for ovs_name, ext_data in self.data_entries.items():
 				if ovs_name != "STATIC":

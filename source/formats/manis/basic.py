@@ -2,7 +2,7 @@ import logging
 from struct import Struct
 
 from generated.array import Array
-from generated.formats.base.basic import class_from_struct, ZString, r_zstr, w_zstr, Uint, Ushort
+from generated.formats.base.basic import  Uint, Ushort, Ubyte
 
 
 class Channelname:
@@ -34,6 +34,8 @@ class Channelname:
 
     @staticmethod
     def cls_from_context(context):
+        # if context.version <= 236:
+        #     return Ubyte
         if context.version <= 257:
             return Ushort
         else:

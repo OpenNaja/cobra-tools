@@ -7,7 +7,7 @@ class ManiInfo(BaseStruct):
 
 	"""
 	288 bytes for JWE / PZ
-	304 bytes for PC
+	304 bytes for PC, ZTUAC (however the last 2 bytes are alignment, and not on the last member of the array)
 	"""
 
 	__name__ = 'ManiInfo'
@@ -27,14 +27,16 @@ class ManiInfo(BaseStruct):
 
 		# likely
 		self.scl_bone_count = name_type_map['Ushort'](self.context, 0, None)
-
-		# zero
-		self.extra_pc = name_type_map['Uint64'](self.context, 0, None)
-		self.pos_bone_count_repeat = name_type_map['Ushort'](self.context, 0, None)
-		self.ori_bone_count_repeat = name_type_map['Ushort'](self.context, 0, None)
-		self.scl_bone_count_repeat = name_type_map['Ushort'](self.context, 0, None)
+		self.ztuac_0 = name_type_map['Ushort'](self.context, 0, None)
+		self.ztuac_1 = name_type_map['Ushort'](self.context, 0, None)
+		self.ztuac_2 = name_type_map['Ushort'](self.context, 0, None)
+		self.float_count = name_type_map['Ushort'](self.context, 0, None)
+		self.pos_bone_count = name_type_map['Ushort'](self.context, 0, None)
+		self.ori_bone_count = name_type_map['Ushort'](self.context, 0, None)
+		self.scl_bone_count = name_type_map['Ushort'](self.context, 0, None)
 		self.zeros_1 = name_type_map['Ushort'](self.context, 0, None)
 		self.zeros_1_new = name_type_map['Uint'](self.context, 0, None)
+		self.zeros_1_old = name_type_map['Ushort'](self.context, 0, None)
 		self.float_count = name_type_map['Ushort'](self.context, 0, None)
 
 		# FF if unused
@@ -84,13 +86,17 @@ class ManiInfo(BaseStruct):
 		yield 'pos_bone_count', name_type_map['Ushort'], (0, None), (False, None), (None, None)
 		yield 'ori_bone_count', name_type_map['Ushort'], (0, None), (False, None), (None, None)
 		yield 'scl_bone_count', name_type_map['Ushort'], (0, None), (False, None), (None, None)
-		yield 'extra_pc', name_type_map['Uint64'], (0, None), (False, None), (lambda context: context.version <= 257, None)
-		yield 'pos_bone_count_repeat', name_type_map['Ushort'], (0, None), (False, None), (lambda context: context.version <= 257, None)
-		yield 'ori_bone_count_repeat', name_type_map['Ushort'], (0, None), (False, None), (lambda context: context.version <= 257, None)
-		yield 'scl_bone_count_repeat', name_type_map['Ushort'], (0, None), (False, None), (lambda context: context.version <= 257, None)
+		yield 'ztuac_0', name_type_map['Ushort'], (0, None), (False, None), (lambda context: context.version <= 257, None)
+		yield 'ztuac_1', name_type_map['Ushort'], (0, None), (False, None), (lambda context: context.version <= 257, None)
+		yield 'ztuac_2', name_type_map['Ushort'], (0, None), (False, None), (lambda context: context.version <= 257, None)
+		yield 'float_count', name_type_map['Ushort'], (0, None), (False, None), (lambda context: context.version <= 257, None)
+		yield 'pos_bone_count', name_type_map['Ushort'], (0, None), (False, None), (lambda context: context.version <= 257, None)
+		yield 'ori_bone_count', name_type_map['Ushort'], (0, None), (False, None), (lambda context: context.version <= 257, None)
+		yield 'scl_bone_count', name_type_map['Ushort'], (0, None), (False, None), (lambda context: context.version <= 257, None)
 		yield 'zeros_1', name_type_map['Ushort'], (0, None), (False, None), (None, None)
 		yield 'zeros_1_new', name_type_map['Uint'], (0, None), (False, None), (lambda context: context.version >= 258, None)
-		yield 'float_count', name_type_map['Ushort'], (0, None), (False, None), (None, None)
+		yield 'zeros_1_old', name_type_map['Ushort'], (0, None), (False, None), (lambda context: context.version <= 257, None)
+		yield 'float_count', name_type_map['Ushort'], (0, None), (False, None), (lambda context: context.version >= 258, None)
 		yield 'count_a', name_type_map['Ubyte'], (0, None), (False, None), (None, None)
 		yield 'count_b', name_type_map['Ubyte'], (0, None), (False, None), (None, None)
 		yield 'target_bone_count', name_type_map['Ushort'], (0, None), (False, None), (None, None)
@@ -125,14 +131,20 @@ class ManiInfo(BaseStruct):
 		yield 'ori_bone_count', name_type_map['Ushort'], (0, None), (False, None)
 		yield 'scl_bone_count', name_type_map['Ushort'], (0, None), (False, None)
 		if instance.context.version <= 257:
-			yield 'extra_pc', name_type_map['Uint64'], (0, None), (False, None)
-			yield 'pos_bone_count_repeat', name_type_map['Ushort'], (0, None), (False, None)
-			yield 'ori_bone_count_repeat', name_type_map['Ushort'], (0, None), (False, None)
-			yield 'scl_bone_count_repeat', name_type_map['Ushort'], (0, None), (False, None)
+			yield 'ztuac_0', name_type_map['Ushort'], (0, None), (False, None)
+			yield 'ztuac_1', name_type_map['Ushort'], (0, None), (False, None)
+			yield 'ztuac_2', name_type_map['Ushort'], (0, None), (False, None)
+			yield 'float_count', name_type_map['Ushort'], (0, None), (False, None)
+			yield 'pos_bone_count', name_type_map['Ushort'], (0, None), (False, None)
+			yield 'ori_bone_count', name_type_map['Ushort'], (0, None), (False, None)
+			yield 'scl_bone_count', name_type_map['Ushort'], (0, None), (False, None)
 		yield 'zeros_1', name_type_map['Ushort'], (0, None), (False, None)
 		if instance.context.version >= 258:
 			yield 'zeros_1_new', name_type_map['Uint'], (0, None), (False, None)
-		yield 'float_count', name_type_map['Ushort'], (0, None), (False, None)
+		if instance.context.version <= 257:
+			yield 'zeros_1_old', name_type_map['Ushort'], (0, None), (False, None)
+		if instance.context.version >= 258:
+			yield 'float_count', name_type_map['Ushort'], (0, None), (False, None)
 		yield 'count_a', name_type_map['Ubyte'], (0, None), (False, None)
 		yield 'count_b', name_type_map['Ubyte'], (0, None), (False, None)
 		yield 'target_bone_count', name_type_map['Ushort'], (0, None), (False, None)

@@ -82,6 +82,15 @@ def set_dla(context):
 	context.version = 257
 
 
+def is_ztuac(context):
+	if context.version == 257:
+		return True
+
+
+def set_ztuac(context):
+	context.version = 257
+
+
 def is_pc(context):
 	if context.version == 257:
 		return True
@@ -127,14 +136,14 @@ def set_jwe2(context):
 	context.version = 262
 
 
-games = Enum('Games', [('DISNEYLAND_ADVENTURES', 'Disneyland Adventures'), ('DLA', 'DLA'), ('JURASSIC_WORLD_EVOLUTION', 'Jurassic World Evolution'), ('JURASSIC_WORLD_EVOLUTION_2', 'Jurassic World Evolution 2'), ('JWE_1', 'JWE1'), ('JWE_2', 'JWE2'), ('JWE_2_DEV_BUILD', 'JWE2 Dev Build'), ('PC', 'PC'), ('PLANET_COASTER', 'Planet Coaster'), ('PLANET_ZOO', 'Planet Zoo'), ('PLANET_ZOO_PRE_1_6', 'Planet Zoo pre-1.6'), ('PZ', 'PZ'), ('ZOO_TYCOON_ULTIMATE_ANIMAL_COLLECTION', 'Zoo Tycoon Ultimate Animal Collection'), ('UNKNOWN', 'Unknown Game')])
+games = Enum('Games', [('DISNEYLAND_ADVENTURES', 'Disneyland Adventures'), ('DLA', 'DLA'), ('JURASSIC_WORLD_EVOLUTION', 'Jurassic World Evolution'), ('JURASSIC_WORLD_EVOLUTION_2', 'Jurassic World Evolution 2'), ('JWE_1', 'JWE1'), ('JWE_2', 'JWE2'), ('JWE_2_DEV_BUILD', 'JWE2 Dev Build'), ('PC', 'PC'), ('PLANET_COASTER', 'Planet Coaster'), ('PLANET_ZOO', 'Planet Zoo'), ('PLANET_ZOO_PRE_1_6', 'Planet Zoo pre-1.6'), ('PZ', 'PZ'), ('ZOO_TYCOON_ULTIMATE_ANIMAL_COLLECTION', 'Zoo Tycoon Ultimate Animal Collection'), ('ZTUAC', 'ZTUAC'), ('UNKNOWN', 'Unknown Game')])
 
 
 def get_game(context):
 	if is_dla(context):
 		return [games.DLA]
 	if is_ztuac(context):
-		return [games.ZOO_TYCOON_ULTIMATE_ANIMAL_COLLECTION]
+		return [games.ZTUAC]
 	if is_pc(context):
 		return [games.PC]
 	if is_pz(context):
@@ -147,6 +156,8 @@ def get_game(context):
 		return [games.JWE_2]
 	if is_dla(context):
 		return [games.DLA]
+	if is_ztuac(context):
+		return [games.ZTUAC]
 	if is_pc(context):
 		return [games.PC]
 	if is_jwe1(context):
@@ -165,7 +176,7 @@ def set_game(context, game):
 		game = games(game)
 	if game in {games.DLA}:
 		return set_dla(context)
-	if game in {games.ZOO_TYCOON_ULTIMATE_ANIMAL_COLLECTION}:
+	if game in {games.ZTUAC}:
 		return set_ztuac(context)
 	if game in {games.PC}:
 		return set_pc(context)
@@ -179,6 +190,8 @@ def set_game(context, game):
 		return set_jwe2(context)
 	if game in {games.DLA}:
 		return set_dla(context)
+	if game in {games.ZTUAC}:
+		return set_ztuac(context)
 	if game in {games.PC}:
 		return set_pc(context)
 	if game in {games.JWE_1}:
@@ -211,10 +224,11 @@ pz16 = ManisVersion(id='PZ16', version=(20,), user_version=(VersionInfo.from_val
 jwe = ManisVersion(id='JWE', version=(19,), user_version=(VersionInfo.from_value(24724), VersionInfo.from_value(25108), VersionInfo.from_value(24596),), primary_games=[], all_games=[games.JURASSIC_WORLD_EVOLUTION])
 jwe2 = ManisVersion(id='JWE2', version=(20,), user_version=(VersionInfo.from_value(24724), VersionInfo.from_value(25108), VersionInfo.from_value(24596),), primary_games=[], all_games=[games.JURASSIC_WORLD_EVOLUTION_2])
 dla = ManisVersion(id='DLA', version=(257,), primary_games=[], all_games=[games.DLA])
+ztuac = ManisVersion(id='ZTUAC', version=(257,), primary_games=[], all_games=[games.ZTUAC])
 pc = ManisVersion(id='PC', version=(257,), primary_games=[], all_games=[games.PC])
 jwe1 = ManisVersion(id='JWE1', version=(258,), primary_games=[], all_games=[games.JWE_1])
 pz = ManisVersion(id='PZ', version=(260,), primary_games=[], all_games=[games.PZ])
 jwe2_dev = ManisVersion(id='JWE2_DEV', version=(261,), primary_games=[], all_games=[games.JWE_2_DEV_BUILD])
 jwe2 = ManisVersion(id='JWE2', version=(262,), primary_games=[], all_games=[games.JWE_2])
 
-available_versions = [dla, ztuac, pc, pz, pz16, jwe, jwe2, dla, pc, jwe1, pz, jwe2_dev, jwe2]
+available_versions = [dla, ztuac, pc, pz, pz16, jwe, jwe2, dla, ztuac, pc, jwe1, pz, jwe2_dev, jwe2]
