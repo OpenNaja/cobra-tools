@@ -124,10 +124,12 @@ def save(filepath=""):
 		update_key_indices(k, "pos", pos_groups, pos_indices, target_names, bone_names)
 		update_key_indices(k, "ori", ori_groups, ori_indices, target_names, bone_names)
 		update_key_indices(k, "scl", scl_groups, scl_indices, target_names, bone_names)
+		# for frame_i in range(mani_info.frame_count):
 		for bone_i, group in enumerate(pos_groups):
 			logging.info(f"Exporting loc '{group.name}'")
 			bonerestmat = bones_data[group.name]
 			fcurves = get_fcurves_by_type(group, "location")
+			fcurves_scale = get_fcurves_by_type(group, "scale")
 			for frame_i, frame in enumerate(k.key_data.pos_bones):
 				key = frame[bone_i]
 				# translation is stored relative to the parent
@@ -136,6 +138,7 @@ def save(filepath=""):
 				v = mathutils.Matrix.Translation(v)
 				# equivalent: multiply by rest rot and then add rest loc
 				v = bonerestmat @ v
+				v = sample_scale(fcurves_scale, frame_i, inverted=True) @ v
 				key.x, key.y, key.z = corrector.blender_bind_to_nif_bind(v).to_translation()
 		for bone_i, group in enumerate(ori_groups):
 			logging.info(f"Exporting rot '{group.name}'")
@@ -153,14 +156,9 @@ def save(filepath=""):
 			logging.info(f"Exporting scale '{group.name}'")
 			fcurves = get_fcurves_by_type(group, "scale")
 			for frame_i, frame in enumerate(k.key_data.scl_bones):
-				# found in DLA SpaceMountain animations.manisetd740d135
 				key = frame[bone_i]
-				v = mathutils.Vector([fcu.evaluate(frame_i) for fcu in fcurves])
-				# v = mathutils.Matrix.Translation(v)
-				scale_mat = get_scale_mat(v)
-				# needs correction, and possibly relative to bind
-				# not sure about the right correction
-				# scale_mat = scale_mat @ scale_corr
+				scale_mat = sample_scale(fcurves, frame_i)
+				# needs axis correction, but appears to be stored relative to the animated bone's axes
 				scale_mat = corrector.blender_bind_to_nif_bind(scale_mat)
 				# swizzle
 				key.z, key.y, key.x = scale_mat.to_scale()
@@ -178,3 +176,19 @@ def save(filepath=""):
 	mani.name_buffer.bone_hashes[:] = [djb2(name.lower()) for name in mani.name_buffer.bone_names]
 	mani.save(filepath)
 	return f"Finished manis export",
+
+
+def sample_scale(fcurves, frame_i, inverted=False):
+	if fcurves:
+		v = mathutils.Vector([fcu.evaluate(frame_i) for fcu in fcurves])
+	else:
+		v = mathutils.Vector((1, 1, 1))
+	# this inversion is apparently not equivalent to a real matrix inversion
+	if inverted:
+		try:
+			v = mathutils.Vector((1 / v.x, 1 / v.y, 1 / v.z))
+		except:
+			logging.exception(f"Could not invert {v} at {frame_i} for {fcurves}")
+	# v = mathutils.Matrix.Translation(v)
+	scale_mat = get_scale_mat(v)
+	return scale_mat
