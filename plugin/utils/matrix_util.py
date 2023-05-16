@@ -137,3 +137,10 @@ def get_joint_name(b_ob):
 		return long_name
 	assert long_name == ob_name
 	return long_name
+
+
+def get_scale_mat(scale_vec):
+	scale_matrix_x2 = mathutils.Matrix.Scale(scale_vec.x, 4, (1.0, 0.0, 0.0))
+	scale_matrix_y2 = mathutils.Matrix.Scale(scale_vec.y, 4, (0.0, 1.0, 0.0))
+	scale_matrix_z2 = mathutils.Matrix.Scale(scale_vec.z, 4, (0.0, 0.0, 1.0))
+	return scale_matrix_x2 @ scale_matrix_y2 @ scale_matrix_z2

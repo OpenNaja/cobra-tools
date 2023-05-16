@@ -2,13 +2,12 @@ import logging
 
 import bpy
 import mathutils
-from bpy_extras.io_utils import axis_conversion
 
 from generated.formats.manis import ManisFile
 from generated.formats.manis.compounds.ManiBlock import ManiBlock
 from modules.formats.shared import djb2
 from plugin.modules_export.armature import get_armature
-from plugin.utils.matrix_util import bone_name_for_ovl
+from plugin.utils.matrix_util import bone_name_for_ovl, get_scale_mat
 from plugin.utils.transforms import ManisCorrector
 
 
@@ -64,13 +63,6 @@ def get_local_bone(bone):
 	return bone.matrix_local
 
 
-def get_scale_mat(scale_vec):
-	scale_matrix_x2 = mathutils.Matrix.Scale(scale_vec.x, 4, (1.0, 0.0, 0.0))
-	scale_matrix_y2 = mathutils.Matrix.Scale(scale_vec.y, 4, (0.0, 1.0, 0.0))
-	scale_matrix_z2 = mathutils.Matrix.Scale(scale_vec.z, 4, (0.0, 0.0, 1.0))
-	return scale_matrix_x2 @ scale_matrix_y2 @ scale_matrix_z2
-
-
 def save(filepath=""):
 	scene = bpy.context.scene
 	bones_data = {}
@@ -93,18 +85,6 @@ def save(filepath=""):
 	mani.names[:] = action_names
 	mani.reset_field("mani_infos")
 	mani.reset_field("keys_buffer")
-	# scale_corr = axis_conversion("X", "Y").to_4x4().inverted()
-	# scale_corr = mathutils.Matrix((
-	# 	(0.0000, 1.0000, 0.0000, 0.0000),
-	# 	(0.0000, 0.0000, 1.0000, 0.0000),
-	# 	(1.0000, 0.0000, 0.0000, 0.0000),
-	# 	(0.0000, 0.0000, 0.0000, 1.0000)))
-	# scale_corr = mathutils.Matrix((
-	# 	(0.0000, 1.0000, 0.0000, 0.0000),
-	# 	(1.0000, 0.0000, 0.0000, 0.0000),
-	# 	(0.0000, 0.0000, 1.0000, 0.0000),
-	# 	(0.0000, 0.0000, 0.0000, 1.0000)))
-	# print(scale_corr)
 	for b_action, mani_info in zip(bpy.data.actions, mani.mani_infos):
 		logging.info(f"Exporting {b_action.name}")
 		mani_info.frame_count = int(round(b_action.frame_range[1] - b_action.frame_range[0]))

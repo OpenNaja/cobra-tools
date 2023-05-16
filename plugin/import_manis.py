@@ -10,7 +10,7 @@ from generated.formats.manis import ManisFile
 from plugin.export_manis import get_local_bone
 from plugin.modules_export.armature import get_armature
 from plugin.modules_import.anim import Animation
-from plugin.utils.matrix_util import bone_name_for_blender
+from plugin.utils.matrix_util import bone_name_for_blender, get_scale_mat
 from plugin.utils.object import create_ob
 from plugin.utils.transforms import ManisCorrector
 
@@ -72,6 +72,7 @@ def load(files=[], filepath="", set_fps=False):
 		for frame_i, key, bonerestmat_inv, fcurves in iter_keys(
 				k.pos_bones, k.key_data.pos_bones, bones_data, b_action, "location"):
 			key = mathutils.Vector([key.x, key.y, key.z])
+			# todo correct for scale
 			key = (bonerestmat_inv @ corrector.nif_bind_to_blender_bind(mathutils.Matrix.Translation(key))).to_translation()
 			anim_sys.add_key(fcurves, frame_i, key, interp_loc)
 		for frame_i, key, bonerestmat_inv, fcurves in iter_keys(
@@ -85,7 +86,11 @@ def load(files=[], filepath="", set_fps=False):
 			anim_sys.add_key(fcurves, frame_i, key, interp_loc)
 		for frame_i, key, bonerestmat_inv, fcurves in iter_keys(
 				k.scl_bones, k.key_data.scl_bones, bones_data, b_action, "scale"):
-			key = mathutils.Vector([key.x, key.y, key.z])
+			# swizzle
+			key = mathutils.Vector([key.z, key.y, key.x])
+			# correct axes
+			mat = get_scale_mat(key)
+			key = corrector.nif_bind_to_blender_bind(mat).to_scale()
 			anim_sys.add_key(fcurves, frame_i, key, interp_loc)
 		# these can vary in use according to the name of the channel
 		for bone_i, m_name in enumerate(k.floats):
