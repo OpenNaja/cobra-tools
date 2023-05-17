@@ -37,6 +37,7 @@ type_module_name_map = {
 	'Empty': 'generated.formats.ovl_base.compounds.Empty',
 	'ZStringList': 'generated.formats.ovl_base.compounds.ZStringList',
 	'Channelname': 'generated.formats.manis.basic',
+	'ManisDtype': 'generated.formats.manis.bitfields.ManisDtype',
 	'ManisRoot': 'generated.formats.manis.compounds.ManisRoot',
 	'ManiInfo': 'generated.formats.manis.compounds.ManiInfo',
 	'Buffer1': 'generated.formats.manis.compounds.Buffer1',

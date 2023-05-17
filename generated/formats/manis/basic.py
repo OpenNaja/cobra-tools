@@ -44,7 +44,10 @@ class Channelname:
     @classmethod
     def from_stream(cls, stream, context, arg=0, template=None):
         ind = cls.cls_from_context(context).from_stream(stream, context, arg, template)
-        return context.name_buffer.bone_names[ind]
+        try:
+            return context.name_buffer.bone_names[ind]
+        except (IndexError, ValueError):
+            raise IndexError(f"Index '{ind}' exceeds names list '{context.name_buffer.bone_names}' at offset {stream.tell()}")
 
     @classmethod
     def to_stream(cls, instance, stream, context, arg=0, template=None):

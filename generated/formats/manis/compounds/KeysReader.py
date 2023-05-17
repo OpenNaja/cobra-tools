@@ -31,33 +31,29 @@ class KeysReader(BaseStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		instance.io_start = stream.tell()
-		print(instance.context)
+		# print(instance.context)
 		for mani_info in instance.arg:
-			print(mani_info)
-			print(stream.tell())
-			if mani_info.dtype != 70 and mani_info.count_a > 0 and mani_info.count_b > 0:
-				try:
-					mani_info.keys = ManiBlock.from_stream(stream, instance.context, mani_info, None)
-					print(mani_info.keys)
+			logging.info(mani_info)
+			mani_block_start = stream.tell()
+			logging.info(f"Reading keys block at {mani_block_start}")
+			try:
+				mani_info.keys = ManiBlock.from_stream(stream, instance.context, mani_info, None)
+				logging.info(mani_info.keys)
 
-					# sum_bytes = sum(mb.byte_size for mb in mani_info.keys.repeats)
-					# print("sum_bytes", sum_bytes)
-					# sum_bytes2 = sum(mb.byte_size + get_padding_size(mb.byte_size) for mb in mani_info.keys.repeats)
-					# print("sum_bytes + padding", sum_bytes2)
-					if isinstance(mani_info.keys.key_data, CompressedManiData):
-						for mb in mani_info.keys.key_data.repeats:
-							# print(bone_name, stream.tell())
-							mb.data = stream.read(mb.byte_size)
-							pad_size = get_padding_size(mb.byte_size)
-							mb.padding = stream.read(pad_size)
-							assert mb.padding == b"\x00" * pad_size
-							# print("end", stream.tell())
-					# if (mani_info.keys.count > 0) and (mani_info.dtype > 5):
-						# mani_info.subchunks = UnkChunkList.from_stream(stream, instance.context, mani_info, None)
-						# print(mani_info.subchunks)
-					# # break
-				except:
-					logging.exception(f"Reading ManiBlock failed")
+				if isinstance(mani_info.keys.key_data, CompressedManiData):
+					for mb in mani_info.keys.key_data.repeats:
+						mb.data = stream.read(mb.byte_size)
+						pad_size = get_padding_size(mb.byte_size)
+						mb.padding = stream.read(pad_size)
+						assert mb.padding == b"\x00" * pad_size
+					logging.info(f"Compressed keys data ends at {stream.tell()}")
+				# probably used in the high JWE2 types
+				if mani_info.keys.key_data.count > 0 and mani_info.dtype.has_list:
+					mani_info.subchunks = UnkChunkList.from_stream(stream, instance.context, mani_info, None)
+					logging.info(mani_info.subchunks)
+				# break
+			except:
+				logging.exception(f"Reading ManiBlock failed at {mani_block_start} for {mani_info}")
 		instance.io_size = stream.tell() - instance.io_start
 
 	@classmethod
@@ -78,7 +74,8 @@ class KeysReader(BaseStruct):
 	def get_fields_str(cls, instance, indent=0):
 		s = ''
 		for mani_info in instance.arg:
-			s += str(mani_info.keys)
+			if hasattr(mani_info, "keys"):
+				s += str(mani_info.keys)
 		return s
 
 

@@ -19,7 +19,7 @@ class ManiInfo(BaseStruct):
 		self.frame_count = name_type_map['Uint'](self.context, 0, None)
 
 		# determines the format of keys data
-		self.dtype = name_type_map['Uint'](self.context, 0, None)
+		self.dtype = name_type_map['ManisDtype'](self.context, 0, None)
 		self.zeros_0 = Array(self.context, 0, None, (0,), name_type_map['Uint'])
 		self.extra_pc_1 = name_type_map['Ushort'](self.context, 0, None)
 		self.pos_bone_count = name_type_map['Ushort'](self.context, 0, None)
@@ -77,7 +77,7 @@ class ManiInfo(BaseStruct):
 		yield from super()._get_attribute_list()
 		yield 'duration', name_type_map['Float'], (0, None), (False, None), (None, None)
 		yield 'frame_count', name_type_map['Uint'], (0, None), (False, None), (None, None)
-		yield 'dtype', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'dtype', name_type_map['ManisDtype'], (0, None), (False, None), (None, None)
 		yield 'zeros_0', Array, (0, None, (3,), name_type_map['Uint']), (False, None), (None, None)
 		yield 'extra_pc_1', name_type_map['Ushort'], (0, None), (False, None), (lambda context: context.version <= 257, None)
 		yield 'pos_bone_count', name_type_map['Ushort'], (0, None), (False, None), (None, None)
@@ -119,7 +119,7 @@ class ManiInfo(BaseStruct):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'duration', name_type_map['Float'], (0, None), (False, None)
 		yield 'frame_count', name_type_map['Uint'], (0, None), (False, None)
-		yield 'dtype', name_type_map['Uint'], (0, None), (False, None)
+		yield 'dtype', name_type_map['ManisDtype'], (0, None), (False, None)
 		yield 'zeros_0', Array, (0, None, (3,), name_type_map['Uint']), (False, None)
 		if instance.context.version <= 257:
 			yield 'extra_pc_1', name_type_map['Ushort'], (0, None), (False, None)
