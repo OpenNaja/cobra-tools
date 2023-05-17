@@ -61,7 +61,7 @@ def load(files=[], filepath="", set_fps=False):
 
 	for mi in manis.mani_infos:
 		b_action = anim_sys.create_action(b_armature_ob, mi.name)
-		if mi.dtype != 0:
+		if mi.dtype.compression != 0:
 			logging.info(f"{mi.name} is compressed, only uncompressed are imported")
 			b_action.use_frame_range = True
 			b_action.frame_start = 0

@@ -49,13 +49,13 @@ class ManisFile(InfoHeader, IoFile):
 
 if __name__ == "__main__":
 	logging_setup("mani")
-	for k in (0, 1, 4, 5, 6, 32, 34, 36, 37, 38, 64, 66, 68, 69, 70):
-		print(ManisDtype.from_value(k))
-	# mani = ManisFile()
+	# for k in (0, 1, 4, 5, 6, 32, 34, 36, 37, 38, 64, 66, 68, 69, 70):
+	# 	print(ManisDtype.from_value(k))
+	mani = ManisFile()
 	# # mani.load("C:/Users/arnfi/Desktop/Wheel/animation.maniset9637aeb4.manis")
 	# # mani.load("C:/Users/arnfi/Desktop/donationbox/animation.maniseteaf333c5.manis")
 	# # mani.load("C:/Users/arnfi/Desktop/kangaroo/animation.maniset32dc487b.manis")
-	# mani.load("C:/Users/arnfi/Desktop/kangaroo/motionextracted.manisetc313ad95.manis")
+	mani.load("C:/Users/arnfi/Desktop/kangaroo/motionextracted.manisetc313ad95.manis")
 	# print(mani)
 	# # mani.load("C:/Users/arnfi/Desktop/JWE2/pyro/hatcheryexitcamera.maniset8c6441b9.manis")
 	# mani.dump_keys()

@@ -62,7 +62,7 @@ class ManiBlock(BaseStruct):
 		if instance.arg.scl_bone_min < 255:
 			yield 'scl_bones_delta', Array, (0, None, ((instance.arg.scl_bone_max - instance.arg.scl_bone_min) + 1,), name_type_map['Ubyte']), (False, None)
 		yield 'pad', name_type_map['PadAlign'], (4, instance.ref), (False, None)
-		if instance.arg.dtype == 0:
+		if instance.arg.dtype.compression == 0:
 			yield 'key_data', name_type_map['UncompressedManiData'], ((instance, instance.arg), None), (False, None)
-		if instance.arg.dtype > 0:
+		if instance.arg.dtype.compression > 0:
 			yield 'key_data', name_type_map['CompressedManiData'], ((instance, instance.arg), None), (False, None)

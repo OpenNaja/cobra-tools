@@ -238,8 +238,8 @@
 		<add name="SclBones delta" type="ubyte" arr1="(#ARG#\SclBoneMax - #ARG#\SclBoneMin) + 1" cond="#ARG#\SclBoneMin #LT# 255"> </add>
 		<add name="pad" type="PadAlign" template="ref" arg="4"/>
 		start of keyframe data
-		<add name="KeyData" type="UncompressedManiData" arg1="#SELF#" arg2="#ARG#" cond="#ARG#\dtype #EQ# 0"/>
-		<add name="KeyData" type="CompressedManiData" arg1="#SELF#" arg2="#ARG#" cond="#ARG#\dtype #GT# 0"/>
+		<add name="KeyData" type="UncompressedManiData" arg1="#SELF#" arg2="#ARG#" cond="#ARG#\dtype\compression #EQ# 0"/>
+		<add name="KeyData" type="CompressedManiData" arg1="#SELF#" arg2="#ARG#" cond="#ARG#\dtype\compression #GT# 0"/>
     </compound>
 
     <compound name="ChunkSizes" >
