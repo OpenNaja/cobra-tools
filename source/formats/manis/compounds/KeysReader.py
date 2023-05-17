@@ -23,9 +23,11 @@ class KeysReader(BaseStruct):
 			logging.info(mani_info)
 			mani_block_start = stream.tell()
 			logging.info(f"Reading keys block at {mani_block_start}")
+			# if mani_block_start == 964833:
+			# 	break
 			try:
 				mani_info.keys = ManiBlock.from_stream(stream, instance.context, mani_info, None)
-				logging.info(mani_info.keys)
+				# logging.info(mani_info.keys)
 
 				if isinstance(mani_info.keys.key_data, CompressedManiData):
 					for mb in mani_info.keys.key_data.repeats:
@@ -34,8 +36,11 @@ class KeysReader(BaseStruct):
 						mb.padding = stream.read(pad_size)
 						assert mb.padding == b"\x00" * pad_size
 					logging.info(f"Compressed keys data ends at {stream.tell()}")
-				# probably used in the high JWE2 types
-				if mani_info.keys.key_data.count > 0 and mani_info.dtype.has_list:
+				else:
+					logging.info(f"Uncompressed keys data ends at {stream.tell()}")
+				# probably used in the high JWE2 types, but apparently also in PZ crane, even after uncompressed data
+				if mani_info.dtype.has_list or mani_info.dtype.unk:
+					# if isinstance(mani_info.keys.key_data, CompressedManiData) and mani_info.keys.key_data.count > 0:
 					mani_info.subchunks = UnkChunkList.from_stream(stream, instance.context, mani_info, None)
 					logging.info(mani_info.subchunks)
 				# break

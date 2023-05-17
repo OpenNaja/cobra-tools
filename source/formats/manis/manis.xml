@@ -252,9 +252,9 @@
     </compound>
 	
     <compound name="UnkChunkList" >
-		<add name="ref" type="Empty" > </add>
-		<add name="zero 0" type="SmartPadding" > </add>
-		<add name="subchunk_count" type="ushort" ></add>
+		<add name="ref" type="Empty"/>
+		<add name="zero 0" type="SmartPadding"/>
+		<add name="subchunk_count" type="ushort"/>
 		<add name="flag" type="ushort" > </add>
 		<add name="zero 1" type="uint" > </add>
 		<add name="chunksize_list" type="ChunkSizes" arr1="subchunk_count" > </add>

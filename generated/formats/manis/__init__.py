@@ -55,7 +55,7 @@ if __name__ == "__main__":
 	# # mani.load("C:/Users/arnfi/Desktop/Wheel/animation.maniset9637aeb4.manis")
 	# # mani.load("C:/Users/arnfi/Desktop/donationbox/animation.maniseteaf333c5.manis")
 	# # mani.load("C:/Users/arnfi/Desktop/kangaroo/animation.maniset32dc487b.manis")
-	mani.load("C:/Users/arnfi/Desktop/kangaroo/motionextracted.manisetc313ad95.manis")
+	mani.load("C:/Users/arnfi/Desktop/crane/animationnotmotionextractedfighting.maniset3d816f2c.manis")
 	# print(mani)
 	# # mani.load("C:/Users/arnfi/Desktop/JWE2/pyro/hatcheryexitcamera.maniset8c6441b9.manis")
 	# mani.dump_keys()
