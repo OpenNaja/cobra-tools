@@ -59,6 +59,13 @@
 		<member width="1" pos="6" name="has_list" type="bool"/>
 	</bitfield>
 
+	<bitfield name="ChannelSize" storage="ushort">
+		<member width="5" pos="0" name="scl" type="int"/>
+		<member width="5" pos="5" name="loc" type="int"/>
+		<member width="5" pos="10" name="rot" type="int"/>
+		<member width="1" pos="15" name="unk" type="int"/>
+	</bitfield>
+
     <compound name="ManisRoot" inherit="MemStruct">
 		24 bytes for DLA, ZTUAC, PC, JWE1, old PZ
 		32 bytes for PZ1.6+, JWE2
