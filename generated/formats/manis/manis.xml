@@ -59,11 +59,44 @@
 		<member width="1" pos="6" name="has_list" type="bool"/>
 	</bitfield>
 
+	<bitfield name="SegmentInfo" storage="ushort">
+<!--		<member width="5" pos="0" name="scl" type="int"/>-->
+<!--		<member width="5" pos="5" name="loc" type="int"/>-->
+		<member width="1" pos="9" name="not_last" type="int"/>
+		<member width="10" pos="10" name="unk" type="int"/>
+	</bitfield>
 	<bitfield name="ChannelSize" storage="ushort">
 		<member width="5" pos="0" name="scl" type="int"/>
 		<member width="5" pos="5" name="loc" type="int"/>
 		<member width="5" pos="10" name="rot" type="int"/>
 		<member width="1" pos="15" name="unk" type="int"/>
+	</bitfield>
+
+	<bitfield name="Key94" storage="uint64">
+		for 00 94 channel
+		<member width="14" pos="0" name="loc_x" type="int"/>
+		<member width="14" pos="14" name="loc_y" type="int"/>
+		<member width="14" pos="28" name="loc_z" type="int"/>
+		<member width="15" pos="42" name="rot_x" type="int"/>
+	</bitfield>
+	<bitfield name="Key94b" storage="uint64">
+		for 00 94 channel
+		<member width="13" pos="0" name="loc_x" type="int"/>
+		<member width="13" pos="13" name="loc_y" type="int"/>
+		<member width="13" pos="26" name="loc_z" type="int"/>
+		<member width="7" pos="39" name="more_loc" type="int"/>
+		<member width="2" pos="46" name="rot_rel" type="int"/>
+	</bitfield>
+	<bitfield name="Key94C" storage="int64">
+		for 00 94 channel
+		<member width="2" pos="0" name="type" type="int"/>
+		<member width="24" pos="2" name="loc_x" type="int"/>
+		<member width="14" pos="26" name="loc_y" type="int"/>
+		<member width="5" pos="40" name="loc_z" type="int"/>
+		<member width="3" pos="45" name="rot_rel" type="int"/>
+		<member width="16" pos="48" name="rot_x_val" type="int"/>
+		<member width="16" pos="64" name="rot_y_val" type="int"/>
+		<member width="16" pos="80" name="rot_z_val" type="int"/>
 	</bitfield>
 
     <compound name="ManisRoot" inherit="MemStruct">
@@ -84,21 +117,20 @@
 		<add name="FrameCount" type="uint"/>
 		<add name="dtype" type="ManisDtype" >determines the format of keys data</add>
 		<add name="zeros 0 " type="uint" arr1="3"/>
-		<add name="extra pc 1" type="ushort" until="257"> </add>
+		<add name="extra pc 1" type="ushort" until="257"/>
 		<add name="PosBoneCount" type="ushort"/>
 		<add name="OriBoneCount" type="ushort"/>
-		<add name="SclBoneCount" type="ushort" >likely</add>
-		<add name="ztuac 0" type="ushort" until="257"/>
-		<add name="ztuac 1" type="ushort" until="257"/>
-		<add name="ztuac 2" type="ushort" until="257"/>
-		<add name="FloatCount" type="ushort" until="257"/>
+		<add name="SclBoneCount" type="ushort"/>
+		<add name="unk_count_0" type="ushort"/>JWE2 dev mentions MorphCount and VisCount
+		<add name="unk_count_1" type="ushort"/>
+		<add name="unk_count_2" type="ushort"/>
+		<add name="FloatCount" type="ushort"/>
+		in DLA, these store count * frame_count
 		<add name="PosBoneCount Repeat" type="ushort" until="257"/>
 		<add name="OriBoneCount Repeat" type="ushort" until="257"/>
 		<add name="SclBoneCount Repeat" type="ushort" until="257"/>
-		<add name="zeros 1" type="ushort" />
-		<add name="zeros 1 new" type="uint" since="258"/>
-		<add name="zeros 1 old" type="ushort" until="257"/>
-		<add name="FloatCount" type="ushort" since="258"/>for ZTUAC, not sure if it uses a subversion
+		<add name="unk 0" type="ushort" until="257"/>
+		<add name="unk 1" type="ushort" until="257"/>
 		<add name="count a" type="ubyte">FF if unused</add>
 		<add name="count b" type="ubyte">FF if unused</add>
 		<add name="target bone count" type="uint" >can include joints, such as in PZ water wheel count 5 vs ms2 2 bones, plus joints</add>
@@ -110,9 +142,9 @@
 		<add name="OriBoneMax" type="ubyte"/>
 		<add name="SclBoneMin" type="ubyte"/>
 		<add name="SclBoneMax" type="ubyte"/>
-		<add name="PosBoneCount Related" type="ubyte" since="258" > </add>
+		<add name="PosBoneCount Related" type="ubyte" since="258"/>
 		<add name="PosBoneCount Repeat" type="ubyte" since="258"/>
-		<add name="OriBoneCount Related" type="ubyte" since="258" > </add>
+		<add name="OriBoneCount Related" type="ubyte" since="258"/>
 		<add name="OriBoneCount Repeat" type="ubyte" since="258"/>
 		<add name="SclBoneCount Related" type="ubyte" since="258" >maybe, not observed yet</add>
 		<add name="SclBoneCount Repeat" type="ubyte" since="258"/>

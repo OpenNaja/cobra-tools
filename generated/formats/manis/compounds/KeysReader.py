@@ -32,6 +32,7 @@ class KeysReader(BaseStruct):
 	def read_fields(cls, stream, instance):
 		instance.io_start = stream.tell()
 		# print(instance.context)
+		return
 		for mani_info in instance.arg:
 			# logging.info(mani_info)
 			mani_block_start = stream.tell()
@@ -55,7 +56,7 @@ class KeysReader(BaseStruct):
 				if mani_info.dtype.has_list or mani_info.dtype.unk:
 					# if isinstance(mani_info.keys.key_data, CompressedManiData) and mani_info.keys.key_data.count > 0:
 					mani_info.subchunks = UnkChunkList.from_stream(stream, instance.context, mani_info, None)
-					logging.info(mani_info.subchunks)
+					# logging.info(mani_info.subchunks)
 				# break
 			except:
 				logging.exception(f"Reading ManiBlock failed at {mani_block_start} for {mani_info}")

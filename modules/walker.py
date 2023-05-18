@@ -351,6 +351,7 @@ def get_manis_values(gui, start_dir, walk_ovls=True, walk_fgms=True):
 	scale_0_to_files = {}
 	dtype_0_to_files = {}
 	dtype_to_counts = {}
+	dtype_quant_to_counts = {}
 	if start_dir:
 		for ovl_data, ovl_path in ovls_in_path(gui, start_dir, (".manis", ".mani",)):
 			ovl_name = os.path.basename(ovl_path)
@@ -366,6 +367,8 @@ def get_manis_values(gui, start_dir, walk_ovls=True, walk_fgms=True):
 
 						for mani_info in mani_infos:
 							# print(mani_info)
+							# if mani_info.dtype.compression != 0:
+							# 	dtype_quant_to_counts
 							add_key(dtype_to_files, mani_info.dtype, ovl_name)
 							add_key(dtype_to_counts, mani_info.dtype, (
 								bool(mani_info.pos_bone_count),
