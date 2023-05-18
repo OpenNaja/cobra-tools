@@ -59,8 +59,7 @@ class ManisFile(InfoHeader, IoFile):
 
 	def dump_keys(self):
 		for mani_info, i, mb in self.iter_compressed_keys():
-			# print(binascii.hexlify(data[:40]), padding, stream.tell())
-			with open(os.path.join(self.dir, f"{self.path_no_ext}_{mani_info.name}_{i}.maniskeys"), "wb") as f:
+			with open(os.path.join(self.dir, f"{mani_info.name}_{i}.maniskeys"), "wb") as f:
 				f.write(mb.data)
 
 	def parse_keys(self):
@@ -93,8 +92,8 @@ if __name__ == "__main__":
 	# mani.load("C:/Users/arnfi/Desktop/Wheel/animation.maniset9637aeb4.manis")
 	# mani.load("C:/Users/arnfi/Desktop/DLA scale anim.manis")
 	# mani.load("C:/Users/arnfi/Desktop/dinomascot/animation.maniset293c241f.manis")
-	# # mani.dump_keys()
-	mani.parse_keys()
+	mani.dump_keys()
+	# mani.parse_keys()
 	# mani.load("C:/Users/arnfi/Desktop/donationbox/animation.maniseteaf333c5.manis")
 	# mani.dump_keys()
 	# mani.parse_keys()

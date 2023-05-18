@@ -19,7 +19,6 @@ class KeysReader(BaseStruct):
 	def read_fields(cls, stream, instance):
 		instance.io_start = stream.tell()
 		# print(instance.context)
-		return
 		for mani_info in instance.arg:
 			# logging.info(mani_info)
 			mani_block_start = stream.tell()
