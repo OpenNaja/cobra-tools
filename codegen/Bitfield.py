@@ -50,6 +50,9 @@ class Bitfield(BaseClass):
             f.write(f"\n\t_storage = {storage}")
             self.map_pos()
             self.get_mask()
+            if self.struct.tag == 'bitflags':
+                for field in self.struct:
+                    f.write(f"\n\t{field.attrib['enum_name']} = 2 ** {field.attrib['bit']}")
             for field in self.struct:
                 field_name = field.attrib["name"]
                 field_type = field.attrib.get("type", "int")
