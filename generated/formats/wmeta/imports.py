@@ -37,6 +37,7 @@ type_module_name_map = {
 	'Empty': 'generated.formats.ovl_base.compounds.Empty',
 	'ZStringList': 'generated.formats.ovl_base.compounds.ZStringList',
 	'WmetasbRoot': 'generated.formats.wmeta.compounds.WmetasbRoot',
+	'Jwe2WmetasbMain': 'generated.formats.wmeta.compounds.Jwe2WmetasbMain',
 	'WmetasbMain': 'generated.formats.wmeta.compounds.WmetasbMain',
 	'MediaEntry': 'generated.formats.wmeta.compounds.MediaEntry',
 	'EventEntry': 'generated.formats.wmeta.compounds.EventEntry',
