@@ -1,16 +1,9 @@
 # START_GLOBALS
 import logging
-
-import generated.formats.base.basic
-import generated.formats.motiongraph.compounds.AnimationActivityData
-import generated.formats.motiongraph.compounds.FootPlantActivityData
-import generated.formats.motiongraph.compounds.DataStreamProducerActivityData
-import generated.formats.motiongraph.compounds.SelectActivityActivityData
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
-from generated.formats.ovl_base.compounds.Pointer import Pointer
+from generated.formats.motiongraph.imports import name_type_map
 
 # END_GLOBALS
-from generated.formats.motiongraph.imports import name_type_map
 
 
 class Activity(MemStruct):
@@ -26,7 +19,7 @@ class Activity(MemStruct):
 		Must be overwritten in subclass"""
 		if prop == "ptr":
 			activity = self.data_type.data
-			key = f"motiongraph.compounds.{activity}Data"
+			key = f"{activity}Data"
 			try:
 				return name_type_map[key]
 			except KeyError:
