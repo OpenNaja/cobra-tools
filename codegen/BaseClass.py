@@ -101,16 +101,13 @@ class BaseClass:
             self.write_line(stream, indent, line)
 
     def get_code_from_src(self,):
-        src_dir = os.path.join(root_dir, "source")
-        py_name = f"{self.class_name.lower()}.py"
+        src_file = os.path.join(root_dir, "source", self.parser.path_dict[self.class_name])
+        src_file = f"{src_file}.py"
 
-        for root, dirs, files in os.walk(src_dir, followlinks=True):
-            for name in files:
-                if self.parser.format_name in root and py_name == name.lower():
-                    src_path = os.path.join(root, name)
-                    # print(f"found source {src_path}")
-                    with open(src_path, "r", encoding=self.parser.encoding) as f:
-                        return f.read()
+        if os.path.exists(src_file):
+            with open(src_file, "r", encoding=self.parser.encoding) as f:
+                return f.read()
+
         return ""
 
     def grab_src_snippet(self, start, end=""):
