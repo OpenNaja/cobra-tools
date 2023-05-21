@@ -2,7 +2,6 @@ from generated.bitfield import BasicBitfield
 from generated.bitfield import BitfieldMember
 from generated.formats.base.basic import Int
 from generated.formats.base.basic import Uint
-from generated.formats.ovl_base.basic import Bool
 
 
 class ManisDtype(BasicBitfield):
@@ -31,8 +30,7 @@ class ManisDtype(BasicBitfield):
 	__name__ = 'ManisDtype'
 	_storage = Uint
 	compression = BitfieldMember(pos=0, mask=0x1f, return_type=Int.from_value)
-	unk = BitfieldMember(pos=5, mask=0x20, return_type=Bool.from_value)
-	has_list = BitfieldMember(pos=6, mask=0x40, return_type=Bool.from_value)
+	has_list = BitfieldMember(pos=5, mask=0x60, return_type=Int.from_value)
 
 	def set_defaults(self):
 		pass

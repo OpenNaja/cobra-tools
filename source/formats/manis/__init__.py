@@ -40,7 +40,6 @@ class ManisFile(InfoHeader, IoFile):
 				mi.name = name
 				if hasattr(mi, "keys"):
 					mi.keys.name = name
-
 			try:
 				for i, bone_name in enumerate(self.name_buffer.bone_names):
 					print(i, bone_name)
@@ -52,8 +51,8 @@ class ManisFile(InfoHeader, IoFile):
 			logging.info(f"mani {mani_info.name} compression {mani_info.dtype.compression}")
 			logging.info(mani_info)
 			if hasattr(mani_info, "keys"):
-				if hasattr(mani_info.keys.key_data, "segments"):
-					for i, mb in enumerate(mani_info.keys.key_data.segments):
+				if hasattr(mani_info.keys.compressed, "segments"):
+					for i, mb in enumerate(mani_info.keys.compressed.segments):
 						yield mani_info, i, mb
 
 	def dump_keys(self):

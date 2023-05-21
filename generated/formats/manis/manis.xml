@@ -30,7 +30,7 @@
     <version id="JWE2_DEV" version="261" >JWE2 Dev Build</version>
     <version id="JWE2" version="262" >JWE2</version>
 
-    <basic name="Channelname" integral="true" countable="true">
+    <basic name="ChannelName" integral="true" countable="true">
 		<!--    PC uses ushort-->
 		<!--    JWE uses uint-->
     </basic>
@@ -55,8 +55,7 @@
 		ManisDtype: 69 0b1000101 ['compression = 5', 'has_list = True']
 		ManisDtype: 70 0b1000110 ['compression = 6', 'has_list = True']
 		<member width="5" pos="0" name="compression" type="int"/>
-		<member width="1" pos="5" name="unk" type="bool"/>
-		<member width="1" pos="6" name="has_list" type="bool"/>
+		<member width="2" pos="5" name="has_list" type="int"/>
 	</bitfield>
 
 	<bitfield name="SegmentInfo" storage="ushort">
@@ -202,18 +201,7 @@
 		<add name="zeros 1" type="uint64" arr1="2" > </add>
     </compound>
 
-	<compound name="UncompressedManiData" args="2">
-		<add name="PosBones" type="Vector3" arr1="#ARG2#\FrameCount" arr2="#ARG2#\PosBoneCount" />
-		<add name="OriBones" type="Vector4H" arr1="#ARG2#\FrameCount" arr2="#ARG2#\OriBoneCount"  />
-		found in DLA SpaceMountain animations.manisetd740d135
-		<add name="ShrBones" type="Vector2" arr1="#ARG2#\FrameCount" arr2="#ARG2#\SclBoneCount" />
-		<add name="SclBones" type="Vector3" arr1="#ARG2#\FrameCount" arr2="#ARG2#\SclBoneCount" />
-		<add name="Floats" type="float" arr1="#ARG2#\FrameCount" arr2="#ARG2#\FloatCount" />
-    </compound>
-
-	<compound name="CompressedManiData" args="2">
-		<add name="Floats" type="float" arr1="#ARG2#\FrameCount" arr2="#ARG2#\FloatCount" >uncompressed, possibly because ACL didn't support scalars</add>
-		<add name="uncompressed_pad" type="PadAlign" template="#ARG1# \ ref" arg="16"/>
+	<compound name="CompressedManiData">
 		<add name="FrameCount" type="uint"/>
 		<add name="OriBoneCount" type="uint"/>
 		<add name="PosBoneCount" type="uint"/>
@@ -236,29 +224,41 @@
 		<add name="loc min" type="Vector3"/>
 		<add name="loc max" type="Vector3"/>might be extent, but not sure about how it is encoded
 		<add name="loc_related_floats" type="FloatsGrabber" >not sure</add>
-		<add name="anoth pad2" type="PadAlign" template="#ARG1# \ ref" arg="16"/>
+		<add name="anoth pad2" type="PadAlign" template="#ARG# \ ref" arg="16"/>
 		<add name="segments" type="Repeat" arr1="SegmentCount" >give the byte size of the various temporal segments</add>
+		<add name="segments_data" type="SegmentsReader" arg="segments"/>
 	</compound>
 
 	<compound name="ManiBlock" >
 		<add name="ref" type="Empty"/>
 		define the channel names
-		<add name="PosBones" type="Channelname" arr1="#ARG#\PosBoneCount"/>
-		<add name="OriBones" type="Channelname" arr1="#ARG#\OriBoneCount"/>
-		<add name="SclBones" type="Channelname" arr1="#ARG#\SclBoneCount"/>
-		<add name="Floats" type="Channelname" arr1="#ARG#\FloatCount"/>
+		<add name="PosBonesNames" type="ChannelName" arr1="#ARG#\PosBoneCount"/>
+		<add name="OriBonesNames" type="ChannelName" arr1="#ARG#\OriBoneCount"/>
+		<add name="SclBonesNames" type="ChannelName" arr1="#ARG#\SclBoneCount"/>
+		<add name="FloatsNames" type="ChannelName" arr1="#ARG#\FloatCount"/>
 		map channel to corresponding bone index
-		<add name="PosBones P" type="ubyte" arr1="#ARG#\PosBoneCount"/>
-		<add name="OriBones P" type="ubyte" arr1="#ARG#\OriBoneCount"/>
-		<add name="SclBones P" type="ubyte" arr1="#ARG#\SclBoneCount"/>
+		<add name="pos_channel_to_bone" type="ubyte" arr1="#ARG#\PosBoneCount"/>
+		<add name="ori_channel_to_bone" type="ubyte" arr1="#ARG#\OriBoneCount"/>
+		<add name="scl_channel_to_bone" type="ubyte" arr1="#ARG#\SclBoneCount"/>
 		map bone to corresponding channel, -1 for bones in range that are not keyed
-		<add name="PosBones delta" type="ubyte" arr1="(#ARG#\PosBoneMax - #ARG#\PosBoneMin) + 1" cond="#ARG#\PosBoneMin #LT# 255"> </add>
-		<add name="OriBones delta" type="ubyte" arr1="(#ARG#\OriBoneMax - #ARG#\OriBoneMin) + 1" cond="#ARG#\OriBoneMin #LT# 255"> </add>
-		<add name="SclBones delta" type="ubyte" arr1="(#ARG#\SclBoneMax - #ARG#\SclBoneMin) + 1" cond="#ARG#\SclBoneMin #LT# 255"> </add>
+		<add name="pos_bone_to_channel" type="ubyte" arr1="(#ARG#\PosBoneMax - #ARG#\PosBoneMin) + 1" cond="#ARG#\PosBoneMin #LT# 255"> </add>
+		<add name="ori_bone_to_channel" type="ubyte" arr1="(#ARG#\OriBoneMax - #ARG#\OriBoneMin) + 1" cond="#ARG#\OriBoneMin #LT# 255"> </add>
+		<add name="scl_bone_to_channel" type="ubyte" arr1="(#ARG#\SclBoneMax - #ARG#\SclBoneMin) + 1" cond="#ARG#\SclBoneMin #LT# 255"> </add>
 		<add name="pad" type="PadAlign" template="ref" arg="4"/>
-		start of keyframe data
-		<add name="KeyData" type="UncompressedManiData" arg1="#SELF#" arg2="#ARG#" cond="#ARG#\dtype\compression #EQ# 0"/>
-		<add name="KeyData" type="CompressedManiData" arg1="#SELF#" arg2="#ARG#" cond="#ARG#\dtype\compression #GT# 0"/>
+		start of uncompressed keyframe data
+		<add name="PosBones" type="Vector3" arr1="#ARG#\FrameCount" arr2="#ARG#\PosBoneCount" cond="#ARG#\dtype\compression #EQ# 0" />
+		<add name="OriBones" type="Vector4H" arr1="#ARG#\FrameCount" arr2="#ARG#\OriBoneCount" cond="#ARG#\dtype\compression #EQ# 0" />
+		found in DLA SpaceMountain animations.manisetd740d135, and PZ crane
+		<add name="ShrBones" type="Vector2" arr1="#ARG#\FrameCount" arr2="#ARG#\SclBoneCount" cond="#ARG#\dtype\compression #EQ# 0" />
+		<add name="SclBones" type="Vector3" arr1="#ARG#\FrameCount" arr2="#ARG#\SclBoneCount" cond="#ARG#\dtype\compression #EQ# 0" />
+		always uncompressed, possibly because ACL didn't support scalars
+		<add name="Floats" type="float" arr1="#ARG#\FrameCount" arr2="#ARG#\FloatCount" />
+		<add name="uncompressed_pad" type="PadAlign" template="ref" arg="16"/>
+		<add name="compressed" type="CompressedManiData" arg="#SELF#" cond="#ARG#\dtype\compression #GT# 0"/>
+		<add name="subchunks" type="UnkChunkList" cond="#ARG#\dtype\has_list #GT# 0"/>
+    </compound>
+
+    <compound name="SegmentsReader" >
     </compound>
 
     <compound name="ChunkSizes" >
@@ -269,7 +269,7 @@
 
     <compound name="SubChunkReader" >
     </compound>
-	
+
     <compound name="UnkChunkList" >
 		<add name="ref" type="Empty"/>
 		<add name="zero 0" type="SmartPadding"/>

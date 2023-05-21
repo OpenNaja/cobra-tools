@@ -46,15 +46,15 @@ def update_key_indices(k, m_dtype, groups, indices, target_names, bone_names):
 	b_names = [group.name for group in groups]
 	m_names = [bone_name_for_ovl(name) for name in b_names]
 	target_names.update(m_names)
-	getattr(k, f"{m_dtype}_bones")[:] = m_names
+	getattr(k, f"{m_dtype}_bones_names")[:] = m_names
 	# map key data index to bone
-	getattr(k, f"{m_dtype}_bones_p")[:] = indices
+	getattr(k, f"{m_dtype}_channel_to_bone")[:] = indices
 	# map bones to key data index
 	if indices:
 		bone_0 = min(indices)
 		bone_1 = max(indices) + 1
 		key_lut = {name: i for i, name in enumerate(b_names)}
-		getattr(k, f"{m_dtype}_bones_delta")[:] = [key_lut.get(name, 255) for name in bone_names[bone_0:bone_1]]
+		getattr(k, f"{m_dtype}_bone_to_channel")[:] = [key_lut.get(name, 255) for name in bone_names[bone_0:bone_1]]
 
 
 def get_local_bone(bone):
@@ -110,7 +110,7 @@ def save(filepath=""):
 			bonerestmat = bones_data[group.name]
 			fcurves = get_fcurves_by_type(group, "location")
 			fcurves_scale = get_fcurves_by_type(group, "scale")
-			for frame_i, frame in enumerate(k.key_data.pos_bones):
+			for frame_i, frame in enumerate(k.pos_bones):
 				key = frame[bone_i]
 				# translation is stored relative to the parent
 				# whereas blender stores translation relative to the bone itself, not the parent
@@ -124,7 +124,7 @@ def save(filepath=""):
 			logging.info(f"Exporting rot '{group.name}'")
 			bonerestmat = bones_data[group.name]
 			fcurves = get_fcurves_by_type(group, "quaternion")
-			for frame_i, frame in enumerate(k.key_data.ori_bones):
+			for frame_i, frame in enumerate(k.ori_bones):
 				key = frame[bone_i]
 				# sample frame
 				q_m = mathutils.Quaternion([fcu.evaluate(frame_i) for fcu in fcurves]).to_matrix().to_4x4()
@@ -135,7 +135,7 @@ def save(filepath=""):
 		for bone_i, group in enumerate(scl_groups):
 			logging.info(f"Exporting scale '{group.name}'")
 			fcurves = get_fcurves_by_type(group, "scale")
-			for frame_i, frame in enumerate(k.key_data.scl_bones):
+			for frame_i, frame in enumerate(k.scl_bones):
 				key = frame[bone_i]
 				scale_mat = sample_scale(fcurves, frame_i)
 				# needs axis correction, but appears to be stored relative to the animated bone's axes
@@ -144,7 +144,7 @@ def save(filepath=""):
 				key.z, key.y, key.x = scale_mat.to_scale()
 			# no support for shear in blender bones, so set to neutral
 			# shear must not be 0.0
-			for frame in k.key_data.shr_bones:
+			for frame in k.shr_bones:
 				key = frame[bone_i]
 				key.y = 1.0
 				key.x = 1.0

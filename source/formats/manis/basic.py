@@ -5,7 +5,7 @@ from generated.array import Array
 from generated.formats.base.basic import  Uint, Ushort, Ubyte
 
 
-class Channelname:
+class ChannelName:
 
     def __new__(cls, context=None, arg=0, template=None):
         return ""
