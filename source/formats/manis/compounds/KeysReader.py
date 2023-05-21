@@ -30,7 +30,7 @@ class KeysReader(BaseStruct):
 				# logging.info(mani_info.keys)
 
 				if isinstance(mani_info.keys.key_data, CompressedManiData):
-					for mb in mani_info.keys.key_data.repeats:
+					for mb in mani_info.keys.key_data.segments:
 						mb.data = stream.read(mb.byte_size)
 						pad_size = get_padding_size(mb.byte_size)
 						mb.padding = stream.read(pad_size)
@@ -55,7 +55,7 @@ class KeysReader(BaseStruct):
 			if mani_info.dtype != 70 and mani_info.count_a > 0 and mani_info.count_b > 0:
 				ManiBlock.to_stream(mani_info.keys, stream, instance.context)
 				if isinstance(mani_info.keys.key_data, CompressedManiData):
-					for mb in mani_info.keys.key_data.repeats:
+					for mb in mani_info.keys.key_data.segments:
 						stream.write(mb.data)
 						stream.write(get_padding(mb.byte_size))
 				# if (mani_info.keys.count > 0) and (mani_info.dtype > 5):

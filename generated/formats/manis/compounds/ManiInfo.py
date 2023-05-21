@@ -18,7 +18,7 @@ class ManiInfo(BaseStruct):
 		self.duration = name_type_map['Float'](self.context, 0, None)
 		self.frame_count = name_type_map['Uint'](self.context, 0, None)
 
-		# determines the format of keys data
+		# determines the format of keys data; apparently 4, 5, and 6 are the same
 		self.dtype = name_type_map['ManisDtype'](self.context, 0, None)
 		self.zeros_0 = Array(self.context, 0, None, (0,), name_type_map['Uint'])
 		self.extra_pc_1 = name_type_map['Ushort'](self.context, 0, None)

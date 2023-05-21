@@ -115,7 +115,7 @@
         304 bytes for PC, ZTUAC (however the last 2 bytes are alignment, and not on the last member of the array)
         <add name="duration" type="float"/>
 		<add name="FrameCount" type="uint"/>
-		<add name="dtype" type="ManisDtype" >determines the format of keys data</add>
+		<add name="dtype" type="ManisDtype" >determines the format of keys data; apparently 4, 5, and 6 are the same</add>
 		<add name="zeros 0 " type="uint" arr1="3"/>
 		<add name="extra pc 1" type="ushort" until="257"/>
 		<add name="PosBoneCount" type="ushort"/>
@@ -213,51 +213,31 @@
 
 	<compound name="CompressedManiData" args="2">
 		<add name="Floats" type="float" arr1="#ARG2#\FrameCount" arr2="#ARG2#\FloatCount" >uncompressed, possibly because ACL didn't support scalars</add>
-
-<!--		two uint zeros, or padding-->
-		<add name="pad 2" type="SmartPadding" >?</add>
-<!--	<add name="zero" type="uint64" cond="(#ARG#\FloatCount) #GT# (0)"> </add>-->
-
+		<add name="uncompressed_pad" type="PadAlign" template="#ARG1# \ ref" arg="16"/>
 		<add name="FrameCount" type="uint"/>
 		<add name="OriBoneCount" type="uint"/>
 		<add name="PosBoneCount" type="uint"/>
-		<add name="SclBoneCount" type="uint" >maybe</add>
+		<add name="SclBoneCount" type="ushort"/>
+		<add name="MorphBoneCount" type="ushort"/>
 		<add name="zeros 18" type="uint" arr1="8">fixed</add>
 		used eg in PZ animal boxes, which have scale keys
 		<add name="scale min" type="Vector3"/>
 		<add name="scale max" type="Vector3"/>
 		<add name="zeros 4" type="uint" arr1="4">fixed</add>
-		<add name="count" type="ushort" >?</add>
-		<add name="QuantisationLevel" type="ushort" >usually 420, or 0</add>
-		<add name="ref2" type="Empty" > </add>
+		<add name="SegmentCount" type="ushort" >counts temporal segments</add>
+		<add name="QuantisationLevel" type="ushort" >usually 420 or 52905</add>
+		<add name="ref2" type="Empty"/>
 		<add name="some indices" type="ubyte" arr1="PosBoneCount" > </add>
 		<add name="flag 0" type="ubyte" > </add>
 		<add name="flag 1" type="ubyte" > </add>
 		<add name="flag 2" type="ubyte" > </add>
 		<add name="flag 3" type="ubyte" > </add>
-<!--		<add name="some indices" type="ubyte" arr1="PosBoneCount" > </add>-->
-		<add name="anoth pad" type="PadAlign" template="ref2" arg="4" > </add>
-<!--		<add name="anoth pad" type="SmartPadding" >?</add>-->
-<!--        <add name="pad to 8" type="ubyte" arr1="(8 - (count  % 8)) % 8" > </add>-->
-
+		<add name="anoth pad" type="PadAlign" template="ref2" arg="4"/>
 		<add name="loc min" type="Vector3"/>
 		<add name="loc max" type="Vector3"/>might be extent, but not sure about how it is encoded
-		<add name="floatsb" type="FloatsGrabber" >not sure</add>
-	<!-- <add name="floatsb" type="float" arr1="12" vercond="#JWE2#">these are likely a scale reference or factor</add> -->
-	<!-- <add name="floatsb" type="float" arr1="6" vercond="#PZ#">these are likely a scale reference or factor</add> -->
-		<!-- <add name="floats second" type="float" arr1="flag 1" arr2="6"  >these are likely a scale reference or factor</add> -->
-		<!-- <add name="floats third" type="float" arr1="6" vercond="#PZ#" cond="flag 2 #GT# 1" >these are likely a scale reference or factor</add> -->
-
-<!--		<add name="floats 2" type="float" arr1="3" arr2="6"  >these are likely a scale reference or factor</add>-->
-
-<!--		<add name="unk" type="uint64" cond="#ARG#\count_a #EQ# 255">present in feeder, not in dino</add> -->
-
-<!--		<add name="unk for FloatCount" type="uint64" cond="#ARG# \ FloatCount">this seems to be vaguely related, but not always there?</add>-->
-<!--		<add name="floats extra" type="float" arr1="#ARG#\FloatCount" >nope likely wrong</add>-->
+		<add name="loc_related_floats" type="FloatsGrabber" >not sure</add>
 		<add name="anoth pad2" type="PadAlign" template="#ARG1# \ ref" arg="16"/>
-
-		<add name="ref3" type="Empty"/>
-		<add name="repeats" type="Repeat" arr1="count" > </add>
+		<add name="segments" type="Repeat" arr1="SegmentCount" >give the byte size of the various temporal segments</add>
 	</compound>
 
 	<compound name="ManiBlock" >

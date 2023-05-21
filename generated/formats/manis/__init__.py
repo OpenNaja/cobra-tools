@@ -53,8 +53,8 @@ class ManisFile(InfoHeader, IoFile):
 			logging.info(f"mani {mani_info.name} compression {mani_info.dtype.compression}")
 			logging.info(mani_info)
 			if hasattr(mani_info, "keys"):
-				if hasattr(mani_info.keys.key_data, "repeats"):
-					for i, mb in enumerate(mani_info.keys.key_data.repeats):
+				if hasattr(mani_info.keys.key_data, "segments"):
+					for i, mb in enumerate(mani_info.keys.key_data.segments):
 						yield mani_info, i, mb
 
 	def dump_keys(self):
@@ -88,7 +88,8 @@ if __name__ == "__main__":
 	key.rot_rel = 4
 	# print(key)
 	mani = ManisFile()
-	mani.load("C:/Users/arnfi/Desktop/crane/animationnotmotionextractedfighting.maniset3d816f2c.manis")
+	# mani.load("C:/Users/arnfi/Desktop/crane/animationnotmotionextractedfighting.maniset3d816f2c.manis")
+	mani.load("C:/Users/arnfi/Desktop/kangaroo/animation.maniset32dc487b.manis")
 	# mani.load("C:/Users/arnfi/Desktop/Wheel/animation.maniset9637aeb4.manis")
 	# mani.load("C:/Users/arnfi/Desktop/DLA scale anim.manis")
 	# mani.load("C:/Users/arnfi/Desktop/dinomascot/animation.maniset293c241f.manis")
@@ -97,7 +98,6 @@ if __name__ == "__main__":
 	# mani.load("C:/Users/arnfi/Desktop/donationbox/animation.maniseteaf333c5.manis")
 	# mani.dump_keys()
 	# mani.parse_keys()
-	# # # mani.load("C:/Users/arnfi/Desktop/kangaroo/animation.maniset32dc487b.manis")
 	# # mani.load("C:/Users/arnfi/Desktop/gate/animation.manisetd2b36ae0.manis")
 	# print(mani)
 	# # mani.load("C:/Users/arnfi/Desktop/JWE2/pyro/hatcheryexitcamera.maniset8c6441b9.manis")
