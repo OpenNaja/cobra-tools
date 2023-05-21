@@ -40,6 +40,7 @@ class ManisFile(InfoHeader, IoFile):
 				mi.name = name
 				if hasattr(mi, "keys"):
 					mi.keys.name = name
+					mi.keys.compressed.name = name
 			try:
 				for i, bone_name in enumerate(self.name_buffer.bone_names):
 					print(i, bone_name)
@@ -52,6 +53,7 @@ class ManisFile(InfoHeader, IoFile):
 			logging.info(mani_info)
 			if hasattr(mani_info, "keys"):
 				if hasattr(mani_info.keys.compressed, "segments"):
+					logging.info(mani_info.keys.compressed)
 					for i, mb in enumerate(mani_info.keys.compressed.segments):
 						yield mani_info, i, mb
 
@@ -87,11 +89,11 @@ if __name__ == "__main__":
 	# print(key)
 	mani = ManisFile()
 	# mani.load("C:/Users/arnfi/Desktop/crane/animationnotmotionextractedfighting.maniset3d816f2c.manis")
-	mani.load("C:/Users/arnfi/Desktop/kangaroo/animation.maniset32dc487b.manis")
+	# mani.load("C:/Users/arnfi/Desktop/kangaroo/animation.maniset32dc487b.manis")
 	# mani.load("C:/Users/arnfi/Desktop/Wheel/animation.maniset9637aeb4.manis")
-	# mani.load("C:/Users/arnfi/Desktop/DLA scale anim.manis")
+	mani.load("C:/Users/arnfi/Desktop/DLA scale anim.manis")
 	# mani.load("C:/Users/arnfi/Desktop/dinomascot/animation.maniset293c241f.manis")
-	mani.dump_keys()
+	# mani.dump_keys()
 	# mani.parse_keys()
 	# mani.load("C:/Users/arnfi/Desktop/donationbox/animation.maniseteaf333c5.manis")
 	# mani.dump_keys()

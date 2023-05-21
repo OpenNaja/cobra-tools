@@ -23,7 +23,7 @@ class KeysReader(BaseStruct):
 			# 	break
 			try:
 				mani_info.keys = ManiBlock.from_stream(stream, instance.context, mani_info, None)
-				# logging.info(mani_info.keys)
+				logging.info(mani_info.keys)
 				# break
 			except:
 				logging.exception(f"Reading ManiBlock failed at {mani_block_start} for {mani_info}")
