@@ -53,6 +53,7 @@ type_module_name_map = {
 	'Vector2': 'generated.formats.manis.compounds.Vector2',
 	'FloatsGrabber': 'generated.formats.manis.compounds.FloatsGrabber',
 	'Repeat': 'generated.formats.manis.compounds.Repeat',
+	'String32': 'generated.formats.manis.compounds.String32',
 	'CompressedManiData': 'generated.formats.manis.compounds.CompressedManiData',
 	'ManiBlock': 'generated.formats.manis.compounds.ManiBlock',
 	'SegmentsReader': 'generated.formats.manis.compounds.SegmentsReader',

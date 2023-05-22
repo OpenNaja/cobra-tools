@@ -16,19 +16,22 @@ class CompressedManiData(BaseStruct):
 		self.scl_bone_count = name_type_map['Ushort'](self.context, 0, None)
 		self.morph_bone_count = name_type_map['Ushort'](self.context, 0, None)
 
-		# fixed
+		# fixed 32 bytes
 		self.zeros_18 = Array(self.context, 0, None, (0,), name_type_map['Uint'])
+		self.name_a = name_type_map['String32'](self.context, 0, None)
 		self.scale_min = name_type_map['Vector3'](self.context, 0, None)
 		self.scale_max = name_type_map['Vector3'](self.context, 0, None)
-
-		# fixed
-		self.zeros_4 = Array(self.context, 0, None, (0,), name_type_map['Uint'])
+		self.unk_0 = name_type_map['Uint64'](self.context, 0, None)
+		self.unk_1 = name_type_map['Uint'](self.context, 0, None)
+		self.unk_2 = name_type_map['Uint'](self.context, 0, None)
 
 		# counts temporal segments
 		self.segment_count = name_type_map['Ushort'](self.context, 0, None)
 
 		# usually 420 or 52905
 		self.quantisation_level = name_type_map['Ushort'](self.context, 0, None)
+		self.unk_1 = name_type_map['Uint'](self.context, 0, None)
+		self.unk_2 = name_type_map['Uint'](self.context, 0, None)
 		self.ref_2 = name_type_map['Empty'](self.context, 0, None)
 		self.some_indices = Array(self.context, 0, None, (0,), name_type_map['Ubyte'])
 		self.flag_0 = name_type_map['Ubyte'](self.context, 0, None)
@@ -56,12 +59,17 @@ class CompressedManiData(BaseStruct):
 		yield 'pos_bone_count', name_type_map['Uint'], (0, None), (False, None), (None, None)
 		yield 'scl_bone_count', name_type_map['Ushort'], (0, None), (False, None), (None, None)
 		yield 'morph_bone_count', name_type_map['Ushort'], (0, None), (False, None), (None, None)
-		yield 'zeros_18', Array, (0, None, (8,), name_type_map['Uint']), (False, None), (None, None)
+		yield 'zeros_18', Array, (0, None, (8,), name_type_map['Uint']), (False, None), (lambda context: context.version >= 257, None)
+		yield 'name_a', name_type_map['String32'], (0, None), (False, None), (lambda context: context.version <= 256, None)
 		yield 'scale_min', name_type_map['Vector3'], (0, None), (False, None), (None, None)
 		yield 'scale_max', name_type_map['Vector3'], (0, None), (False, None), (None, None)
-		yield 'zeros_4', Array, (0, None, (4,), name_type_map['Uint']), (False, None), (None, None)
+		yield 'unk_0', name_type_map['Uint64'], (0, None), (False, None), (None, None)
+		yield 'unk_1', name_type_map['Uint'], (0, None), (False, None), (lambda context: context.version >= 257, None)
+		yield 'unk_2', name_type_map['Uint'], (0, None), (False, None), (lambda context: context.version >= 257, None)
 		yield 'segment_count', name_type_map['Ushort'], (0, None), (False, None), (None, None)
 		yield 'quantisation_level', name_type_map['Ushort'], (0, None), (False, None), (None, None)
+		yield 'unk_1', name_type_map['Uint'], (0, None), (False, None), (lambda context: context.version <= 256, None)
+		yield 'unk_2', name_type_map['Uint'], (0, None), (False, None), (lambda context: context.version <= 256, None)
 		yield 'ref_2', name_type_map['Empty'], (0, None), (False, None), (None, None)
 		yield 'some_indices', Array, (0, None, (None,), name_type_map['Ubyte']), (False, None), (None, None)
 		yield 'flag_0', name_type_map['Ubyte'], (0, None), (False, None), (None, None)
@@ -84,12 +92,21 @@ class CompressedManiData(BaseStruct):
 		yield 'pos_bone_count', name_type_map['Uint'], (0, None), (False, None)
 		yield 'scl_bone_count', name_type_map['Ushort'], (0, None), (False, None)
 		yield 'morph_bone_count', name_type_map['Ushort'], (0, None), (False, None)
-		yield 'zeros_18', Array, (0, None, (8,), name_type_map['Uint']), (False, None)
+		if instance.context.version >= 257:
+			yield 'zeros_18', Array, (0, None, (8,), name_type_map['Uint']), (False, None)
+		if instance.context.version <= 256:
+			yield 'name_a', name_type_map['String32'], (0, None), (False, None)
 		yield 'scale_min', name_type_map['Vector3'], (0, None), (False, None)
 		yield 'scale_max', name_type_map['Vector3'], (0, None), (False, None)
-		yield 'zeros_4', Array, (0, None, (4,), name_type_map['Uint']), (False, None)
+		yield 'unk_0', name_type_map['Uint64'], (0, None), (False, None)
+		if instance.context.version >= 257:
+			yield 'unk_1', name_type_map['Uint'], (0, None), (False, None)
+			yield 'unk_2', name_type_map['Uint'], (0, None), (False, None)
 		yield 'segment_count', name_type_map['Ushort'], (0, None), (False, None)
 		yield 'quantisation_level', name_type_map['Ushort'], (0, None), (False, None)
+		if instance.context.version <= 256:
+			yield 'unk_1', name_type_map['Uint'], (0, None), (False, None)
+			yield 'unk_2', name_type_map['Uint'], (0, None), (False, None)
 		yield 'ref_2', name_type_map['Empty'], (0, None), (False, None)
 		yield 'some_indices', Array, (0, None, (instance.pos_bone_count,), name_type_map['Ubyte']), (False, None)
 		yield 'flag_0', name_type_map['Ubyte'], (0, None), (False, None)

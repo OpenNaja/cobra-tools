@@ -4,6 +4,7 @@ import struct
 
 from generated.formats.manis.compounds.ManisRoot import ManisRoot
 from generated.formats.manis import ManisFile
+from generated.formats.ovl import is_dla
 from modules.formats.BaseFormat import BaseFile, MemStructLoader
 from modules.formats.shared import get_padding
 from modules.helpers import as_bytes
@@ -34,7 +35,10 @@ class ManisLoader(MemStructLoader):
 
 		out_path = out_dir(name)
 		with open(out_path, 'wb') as outfile:
-			outfile.write(struct.pack("<II", self.mime_version, len(self.children)))
+			mime_version = self.mime_version
+			if is_dla(self.ovl):
+				mime_version = 256
+			outfile.write(struct.pack("<II", mime_version, len(self.children)))
 			for mani in self.children:
 				outfile.write(as_bytes(mani.basename))
 			# root gives general info

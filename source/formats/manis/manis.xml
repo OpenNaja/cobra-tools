@@ -4,8 +4,8 @@
 
 	<token name="verexpr" attrs="vercond">
 
-		<verexpr token="#DLA#" string="(#VER# #EQ# 257)">DLA</verexpr>
-		<verexpr token="#ZTUAC#" string="(#VER# #EQ# 257)">DLA</verexpr>
+		<verexpr token="#DLA#" string="(#VER# #EQ# 256)">DLA</verexpr>mock version defined on export
+		<verexpr token="#ZTUAC#" string="(#VER# #EQ# 257)">ZTUAC</verexpr>
 		<verexpr token="#PC#" string="(#VER# #EQ# 257)">PC</verexpr>
 		<verexpr token="#JWE#" string="(#VER# #EQ# 258)">JWE1</verexpr>
 		<verexpr token="#PZ#" string="(#VER# #EQ# 260)">PZ all</verexpr>
@@ -22,7 +22,7 @@
 	<xi:include href="../ovl_base/ovl_base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
 
 <!--    <version id="old" version="257" >Old</version>-->
-    <version id="DLA" version="257" >DLA</version>
+    <version id="DLA" version="256" >DLA</version>mock version defined on export
     <version id="ZTUAC" version="257" >ZTUAC</version>
     <version id="PC" version="257" >PC</version>
     <version id="JWE1" version="258" >JWE1</version>
@@ -201,19 +201,31 @@
 		<add name="zeros 1" type="uint64" arr1="2" > </add>
     </compound>
 
+    <compound name="String32" >
+		<add name="ref" type="Empty"/>
+		<add name="name" type="ZString"/>
+		<add name="pad" type="PadAlign" template="ref" arg="32"/>
+    </compound>
+
 	<compound name="CompressedManiData">
 		<add name="FrameCount" type="uint"/>
 		<add name="OriBoneCount" type="uint"/>
 		<add name="PosBoneCount" type="uint"/>
 		<add name="SclBoneCount" type="ushort"/>
 		<add name="MorphBoneCount" type="ushort"/>
-		<add name="zeros 18" type="uint" arr1="8">fixed</add>
+		<add name="zeros 18" type="uint" arr1="8" since="257">fixed 32 bytes</add>
+		<add name="name_a" type="String32" until="256"/>
+<!--		<add name="name_b" type="String32" until="256"/>-->used in DLA when no scales are keyed?
 		used eg in PZ animal boxes, which have scale keys
-		<add name="scale min" type="Vector3"/>
-		<add name="scale max" type="Vector3"/>
-		<add name="zeros 4" type="uint" arr1="4">fixed</add>
+		<add name="scale min" type="Vector3" />
+		<add name="scale max" type="Vector3" />
+		<add name="unk 0" type="uint64" />
+		<add name="unk 1" type="uint" since="257"/>
+		<add name="unk 2" type="uint" since="257" />
 		<add name="SegmentCount" type="ushort" >counts temporal segments</add>
 		<add name="QuantisationLevel" type="ushort" >usually 420 or 52905</add>
+		<add name="unk 1" type="uint" until="256"/>DLA
+		<add name="unk 2" type="uint" until="256" />DLA
 		<add name="ref2" type="Empty"/>
 		<add name="some indices" type="ubyte" arr1="PosBoneCount" > </add>
 		<add name="flag 0" type="ubyte" > </add>

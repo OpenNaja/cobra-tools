@@ -74,12 +74,12 @@ def set_jwe2(context):
 
 
 def is_dla(context):
-	if context.version == 257:
+	if context.version == 256:
 		return True
 
 
 def set_dla(context):
-	context.version = 257
+	context.version = 256
 
 
 def is_ztuac(context):
@@ -223,7 +223,7 @@ pz = ManisVersion(id='PZ', version=(19,), user_version=(VersionInfo.from_value(8
 pz16 = ManisVersion(id='PZ16', version=(20,), user_version=(VersionInfo.from_value(8340), VersionInfo.from_value(8724), VersionInfo.from_value(8212),), primary_games=[], all_games=[games.PLANET_ZOO])
 jwe = ManisVersion(id='JWE', version=(19,), user_version=(VersionInfo.from_value(24724), VersionInfo.from_value(25108), VersionInfo.from_value(24596),), primary_games=[], all_games=[games.JURASSIC_WORLD_EVOLUTION])
 jwe2 = ManisVersion(id='JWE2', version=(20,), user_version=(VersionInfo.from_value(24724), VersionInfo.from_value(25108), VersionInfo.from_value(24596),), primary_games=[], all_games=[games.JURASSIC_WORLD_EVOLUTION_2])
-dla = ManisVersion(id='DLA', version=(257,), primary_games=[], all_games=[games.DLA])
+dla = ManisVersion(id='DLA', version=(256,), primary_games=[], all_games=[games.DLA])
 ztuac = ManisVersion(id='ZTUAC', version=(257,), primary_games=[], all_games=[games.ZTUAC])
 pc = ManisVersion(id='PC', version=(257,), primary_games=[], all_games=[games.PC])
 jwe1 = ManisVersion(id='JWE1', version=(258,), primary_games=[], all_games=[games.JWE_1])
