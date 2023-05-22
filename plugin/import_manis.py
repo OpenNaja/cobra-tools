@@ -23,7 +23,8 @@ dt_size = {
 }
 
 
-def iter_keys(m_bone_names, m_keys, bones_data, b_action, b_dtype):
+def iter_keys(m_bone_names, m_keys, bones_data, b_action, b_dtype, m_extra_bone_names=(), m_extra_keys=()):
+	scale_lut = {name: i for i, name in enumerate(m_extra_bone_names)}
 	for bone_i, m_name in enumerate(m_bone_names):
 		b_name = bone_name_for_blender(m_name)
 		logging.debug(f"Importing '{b_name}'")
@@ -33,10 +34,16 @@ def iter_keys(m_bone_names, m_keys, bones_data, b_action, b_dtype):
 		else:
 			bonerestmat_inv = mathutils.Matrix().to_4x4()
 			b_channel = None
+
+		scale_i = scale_lut.get(m_name, None)
 		fcurves = anim_sys.create_fcurves(b_action, b_dtype, dt_size[b_dtype], None, b_channel)
 		for frame_i, frame in enumerate(m_keys):
 			key = frame[bone_i]
-			yield frame_i, key, bonerestmat_inv, fcurves
+			if scale_i is not None:
+				extra_key = m_extra_keys[frame_i][scale_i]
+			else:
+				extra_key = None
+			yield frame_i, key, bonerestmat_inv, fcurves, extra_key
 
 
 def load(files=[], filepath="", set_fps=False):
@@ -69,13 +76,15 @@ def load(files=[], filepath="", set_fps=False):
 			continue
 		logging.info(f"Importing '{mi.name}'")
 		k = mi.keys
-		for frame_i, key, bonerestmat_inv, fcurves in iter_keys(
-				k.pos_bones_names, k.pos_bones, bones_data, b_action, "location"):
+		for frame_i, key, bonerestmat_inv, fcurves, scale in iter_keys(
+				k.pos_bones_names, k.pos_bones, bones_data, b_action, "location", k.scl_bones_names, k.scl_bones):
 			key = mathutils.Vector([key.x, key.y, key.z])
-			# todo correct for scale
+			# correct for scale
+			if scale:
+				key = mathutils.Vector([key.x * scale.x, key.y * scale.y, key.z * scale.z])
 			key = (bonerestmat_inv @ corrector.nif_bind_to_blender_bind(mathutils.Matrix.Translation(key))).to_translation()
 			anim_sys.add_key(fcurves, frame_i, key, interp_loc)
-		for frame_i, key, bonerestmat_inv, fcurves in iter_keys(
+		for frame_i, key, bonerestmat_inv, fcurves, _ in iter_keys(
 				k.ori_bones_names, k.ori_bones, bones_data, b_action, "rotation_quaternion"):
 			key = mathutils.Quaternion([key.w, key.x, key.y, key.z])
 			key = (bonerestmat_inv @ corrector.nif_bind_to_blender_bind(key.to_matrix().to_4x4())).to_quaternion()
@@ -84,7 +93,7 @@ def load(files=[], filepath="", set_fps=False):
 				out.rotate(key)
 				key = out
 			anim_sys.add_key(fcurves, frame_i, key, interp_loc)
-		for frame_i, key, bonerestmat_inv, fcurves in iter_keys(
+		for frame_i, key, bonerestmat_inv, fcurves, _ in iter_keys(
 				k.scl_bones_names, k.scl_bones, bones_data, b_action, "scale"):
 			# swizzle
 			key = mathutils.Vector([key.z, key.y, key.x])

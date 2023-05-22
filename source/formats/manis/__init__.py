@@ -88,10 +88,10 @@ if __name__ == "__main__":
 	key.rot_rel = 4
 	# print(key)
 	mani = ManisFile()
-	# mani.load("C:/Users/arnfi/Desktop/crane/animationnotmotionextractedfighting.maniset3d816f2c.manis")
+	mani.load("C:/Users/arnfi/Desktop/crane/animationnotmotionextractedfighting.maniset3d816f2c.manis")
 	# mani.load("C:/Users/arnfi/Desktop/kangaroo/animation.maniset32dc487b.manis")
 	# mani.load("C:/Users/arnfi/Desktop/Wheel/animation.maniset9637aeb4.manis")
-	mani.load("C:/Users/arnfi/Desktop/DLA scale anim.manis")
+	# mani.load("C:/Users/arnfi/Desktop/DLA scale anim.manis")
 	# mani.load("C:/Users/arnfi/Desktop/dinomascot/animation.maniset293c241f.manis")
 	# mani.dump_keys()
 	# mani.parse_keys()
