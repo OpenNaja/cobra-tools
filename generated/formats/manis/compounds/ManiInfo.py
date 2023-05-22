@@ -42,13 +42,13 @@ class ManiInfo(BaseStruct):
 		self.count_b = name_type_map['Ubyte'](self.context, 0, None)
 
 		# can include joints, such as in PZ water wheel count 5 vs ms2 2 bones, plus joints
-		self.target_bone_count = name_type_map['Uint'](self.context, 0, None)
+		self.target_bone_count = name_type_map['Uint64'](self.context, 0, None)
 
-		# 228 bytes
-		self.zeros_2 = Array(self.context, 0, None, (0,), name_type_map['Uint'])
+		# 224 bytes
+		self.zeros_2 = Array(self.context, 0, None, (0,), name_type_map['Uint64'])
 
-		# 14 bytes
-		self.extra_zeros_pc = Array(self.context, 0, None, (0,), name_type_map['Ushort'])
+		# 12 bytes
+		self.extra_zeros_pc = Array(self.context, 0, None, (0,), name_type_map['Uint'])
 		self.pos_bone_min = name_type_map['Ubyte'](self.context, 0, None)
 		self.pos_bone_max = name_type_map['Ubyte'](self.context, 0, None)
 		self.ori_bone_min = name_type_map['Ubyte'](self.context, 0, None)
@@ -90,9 +90,9 @@ class ManiInfo(BaseStruct):
 		yield 'unk_1', name_type_map['Ushort'], (0, None), (False, None), (lambda context: context.version <= 257, None)
 		yield 'count_a', name_type_map['Ubyte'], (0, None), (False, None), (None, None)
 		yield 'count_b', name_type_map['Ubyte'], (0, None), (False, None), (None, None)
-		yield 'target_bone_count', name_type_map['Uint'], (0, None), (False, None), (None, None)
-		yield 'zeros_2', Array, (0, None, (57,), name_type_map['Uint']), (False, None), (None, None)
-		yield 'extra_zeros_pc', Array, (0, None, (6,), name_type_map['Ushort']), (False, None), (lambda context: context.version <= 257, None)
+		yield 'target_bone_count', name_type_map['Uint64'], (0, None), (False, None), (None, None)
+		yield 'zeros_2', Array, (0, None, (28,), name_type_map['Uint64']), (False, None), (None, None)
+		yield 'extra_zeros_pc', Array, (0, None, (3,), name_type_map['Uint']), (False, None), (lambda context: context.version <= 257, None)
 		yield 'pos_bone_min', name_type_map['Ubyte'], (0, None), (False, None), (None, None)
 		yield 'pos_bone_max', name_type_map['Ubyte'], (0, None), (False, None), (None, None)
 		yield 'ori_bone_min', name_type_map['Ubyte'], (0, None), (False, None), (None, None)
@@ -132,10 +132,10 @@ class ManiInfo(BaseStruct):
 			yield 'unk_1', name_type_map['Ushort'], (0, None), (False, None)
 		yield 'count_a', name_type_map['Ubyte'], (0, None), (False, None)
 		yield 'count_b', name_type_map['Ubyte'], (0, None), (False, None)
-		yield 'target_bone_count', name_type_map['Uint'], (0, None), (False, None)
-		yield 'zeros_2', Array, (0, None, (57,), name_type_map['Uint']), (False, None)
+		yield 'target_bone_count', name_type_map['Uint64'], (0, None), (False, None)
+		yield 'zeros_2', Array, (0, None, (28,), name_type_map['Uint64']), (False, None)
 		if instance.context.version <= 257:
-			yield 'extra_zeros_pc', Array, (0, None, (6,), name_type_map['Ushort']), (False, None)
+			yield 'extra_zeros_pc', Array, (0, None, (3,), name_type_map['Uint']), (False, None)
 		yield 'pos_bone_min', name_type_map['Ubyte'], (0, None), (False, None)
 		yield 'pos_bone_max', name_type_map['Ubyte'], (0, None), (False, None)
 		yield 'ori_bone_min', name_type_map['Ubyte'], (0, None), (False, None)

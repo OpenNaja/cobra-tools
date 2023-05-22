@@ -132,9 +132,9 @@
 		<add name="unk 1" type="ushort" until="257"/>
 		<add name="count a" type="ubyte">FF if unused</add>
 		<add name="count b" type="ubyte">FF if unused</add>
-		<add name="target bone count" type="uint" >can include joints, such as in PZ water wheel count 5 vs ms2 2 bones, plus joints</add>
-		<add name="zeros 2" type="uint" arr1="57" >228 bytes</add>
-		<add name="extra zeros pc" type="ushort" arr1="6" until="257" >14 bytes</add>
+		<add name="target bone count" type="uint64" >can include joints, such as in PZ water wheel count 5 vs ms2 2 bones, plus joints</add>
+		<add name="zeros 2" type="uint64" arr1="28" >224 bytes</add>
+		<add name="extra zeros pc" type="uint" arr1="3" until="257" >12 bytes</add>
 		<add name="PosBoneMin" type="ubyte"/>
 		<add name="PosBoneMax" type="ubyte"/>
 		<add name="OriBoneMin" type="ubyte"/>

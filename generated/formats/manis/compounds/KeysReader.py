@@ -29,14 +29,14 @@ class KeysReader(BaseStruct):
 		instance.io_start = stream.tell()
 		# print(instance.context)
 		for mani_info in instance.arg:
-			logging.info(mani_info)
+			# logging.info(mani_info)
 			mani_block_start = stream.tell()
 			logging.info(f"Reading keys block at {mani_block_start}")
 			# if mani_block_start == 964833:
 			# 	break
 			try:
 				mani_info.keys = ManiBlock.from_stream(stream, instance.context, mani_info, None)
-				logging.info(mani_info.keys)
+				# logging.info(mani_info.keys)
 				# break
 			except:
 				logging.exception(f"Reading ManiBlock failed at {mani_block_start} for {mani_info}")
