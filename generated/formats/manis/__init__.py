@@ -42,6 +42,11 @@ class ManisFile(InfoHeader, IoFile):
 				if hasattr(mi, "keys"):
 					mi.keys.name = name
 					mi.keys.compressed.name = name
+					# print(mi.keys.name)
+					# if mi.root_pos_bone != 255:
+					# 	print(mi.root_pos_bone, mi.keys.pos_bones_names[mi.root_pos_bone])
+					# if mi.root_ori_bone != 255:
+					# 	print(mi.root_ori_bone, mi.keys.ori_bones_names[mi.root_ori_bone])
 			try:
 				for i, bone_name in enumerate(self.name_buffer.bone_names):
 					print(i, bone_name)
@@ -89,7 +94,9 @@ if __name__ == "__main__":
 	key.rot_rel = 4
 	# print(key)
 	mani = ManisFile()
-	mani.load("C:/Users/arnfi/Desktop/crane/animationnotmotionextractedfighting.maniset3d816f2c.manis")
+	mani.load("C:/Users/arnfi/Desktop/motionextracted.maniset8be90845.manis")
+	# mani.load("C:/Users/arnfi/Desktop/animationmotionextractedlocomotion.maniset648a1a01.manis")
+	# mani.load("C:/Users/arnfi/Desktop/crane/animationnotmotionextractedfighting.maniset3d816f2c.manis")
 	# mani.load("C:/Users/arnfi/Desktop/kangaroo/animation.maniset32dc487b.manis")
 	# mani.load("C:/Users/arnfi/Desktop/Wheel/animation.maniset9637aeb4.manis")
 	# mani.load("C:/Users/arnfi/Desktop/DLA scale anim.manis")

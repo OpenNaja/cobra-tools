@@ -34,12 +34,8 @@ class ManiInfo(BaseStruct):
 		self.scl_bone_count_repeat = name_type_map['Ushort'](self.context, 0, None)
 		self.unk_0 = name_type_map['Ushort'](self.context, 0, None)
 		self.unk_1 = name_type_map['Ushort'](self.context, 0, None)
-
-		# FF if unused
-		self.count_a = name_type_map['Ubyte'](self.context, 0, None)
-
-		# FF if unused
-		self.count_b = name_type_map['Ubyte'](self.context, 0, None)
+		self.root_pos_bone = name_type_map['Ubyte'].from_value(255)
+		self.root_ori_bone = name_type_map['Ubyte'].from_value(255)
 
 		# can include joints, such as in PZ water wheel count 5 vs ms2 2 bones, plus joints
 		self.target_bone_count = name_type_map['Uint64'](self.context, 0, None)
@@ -88,8 +84,8 @@ class ManiInfo(BaseStruct):
 		yield 'scl_bone_count_repeat', name_type_map['Ushort'], (0, None), (False, None), (lambda context: context.version <= 257, None)
 		yield 'unk_0', name_type_map['Ushort'], (0, None), (False, None), (lambda context: context.version <= 257, None)
 		yield 'unk_1', name_type_map['Ushort'], (0, None), (False, None), (lambda context: context.version <= 257, None)
-		yield 'count_a', name_type_map['Ubyte'], (0, None), (False, None), (None, None)
-		yield 'count_b', name_type_map['Ubyte'], (0, None), (False, None), (None, None)
+		yield 'root_pos_bone', name_type_map['Ubyte'], (0, None), (False, 255), (None, None)
+		yield 'root_ori_bone', name_type_map['Ubyte'], (0, None), (False, 255), (None, None)
 		yield 'target_bone_count', name_type_map['Uint64'], (0, None), (False, None), (None, None)
 		yield 'zeros_2', Array, (0, None, (28,), name_type_map['Uint64']), (False, None), (None, None)
 		yield 'extra_zeros_pc', Array, (0, None, (3,), name_type_map['Uint']), (False, None), (lambda context: context.version <= 257, None)
@@ -130,8 +126,8 @@ class ManiInfo(BaseStruct):
 			yield 'scl_bone_count_repeat', name_type_map['Ushort'], (0, None), (False, None)
 			yield 'unk_0', name_type_map['Ushort'], (0, None), (False, None)
 			yield 'unk_1', name_type_map['Ushort'], (0, None), (False, None)
-		yield 'count_a', name_type_map['Ubyte'], (0, None), (False, None)
-		yield 'count_b', name_type_map['Ubyte'], (0, None), (False, None)
+		yield 'root_pos_bone', name_type_map['Ubyte'], (0, None), (False, 255)
+		yield 'root_ori_bone', name_type_map['Ubyte'], (0, None), (False, 255)
 		yield 'target_bone_count', name_type_map['Uint64'], (0, None), (False, None)
 		yield 'zeros_2', Array, (0, None, (28,), name_type_map['Uint64']), (False, None)
 		if instance.context.version <= 257:

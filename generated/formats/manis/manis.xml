@@ -130,8 +130,8 @@
 		<add name="SclBoneCount Repeat" type="ushort" until="257"/>
 		<add name="unk 0" type="ushort" until="257"/>
 		<add name="unk 1" type="ushort" until="257"/>
-		<add name="count a" type="ubyte">FF if unused</add>
-		<add name="count b" type="ubyte">FF if unused</add>
+		<add name="root_pos_bone" type="ubyte" default="255"/>
+		<add name="root_ori_bone" type="ubyte" default="255"/>
 		<add name="target bone count" type="uint64" >can include joints, such as in PZ water wheel count 5 vs ms2 2 bones, plus joints</add>
 		<add name="zeros 2" type="uint64" arr1="28" >224 bytes</add>
 		<add name="extra zeros pc" type="uint" arr1="3" until="257" >12 bytes</add>

@@ -37,6 +37,7 @@ class Animation:
 			b_action = self.actions[action_name]
 		else:
 			b_action = bpy.data.actions.new(action_name)
+			b_action.use_fake_user = True
 			self.actions[action_name] = b_action
 		# could probably skip this test and create always
 		if not b_obj.animation_data:

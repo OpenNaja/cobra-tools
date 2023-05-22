@@ -73,6 +73,8 @@ def save(filepath=""):
 		for bone in b_armature_ob.data.bones:
 			bones_data[bone.name] = get_local_bone(bone)
 
+	root_name = "def_c_root_joint"
+
 	corrector = ManisCorrector(False)
 	mani = ManisFile()
 	# hardcode for PZ for now, but it does not make a difference outside of compressed keys
@@ -98,16 +100,17 @@ def save(filepath=""):
 		scl_groups, scl_indices = set_mani_info_counts(mani_info, b_action, bones_lut, "scl", "scale")
 		# mani_info.scl_bone_count_related = mani_info.scl_bone_count_repeat = 0
 		floats = []
-		print(mani_info)
 		mani_info.keys = ManiBlock(mani_info.context, mani_info)
 		k = mani_info.keys
 		update_key_indices(k, "pos", pos_groups, pos_indices, target_names, bone_names)
 		update_key_indices(k, "ori", ori_groups, ori_indices, target_names, bone_names)
 		update_key_indices(k, "scl", scl_groups, scl_indices, target_names, bone_names)
-		# for frame_i in range(mani_info.frame_count):
+		mani_info.root_pos_bone = mani_info.root_ori_bone = 255
 		for bone_i, group in enumerate(pos_groups):
 			logging.info(f"Exporting loc '{group.name}'")
 			bonerestmat = bones_data[group.name]
+			if group.name == root_name:
+				mani_info.root_pos_bone = bone_i
 			fcurves = get_fcurves_by_type(group, "location")
 			fcurves_scale = get_fcurves_by_type(group, "scale")
 			for frame_i, frame in enumerate(k.pos_bones):
@@ -122,6 +125,8 @@ def save(filepath=""):
 				key.x, key.y, key.z = corrector.blender_bind_to_nif_bind(v).to_translation()
 		for bone_i, group in enumerate(ori_groups):
 			logging.info(f"Exporting rot '{group.name}'")
+			if group.name == root_name:
+				mani_info.root_ori_bone = bone_i
 			bonerestmat = bones_data[group.name]
 			fcurves = get_fcurves_by_type(group, "quaternion")
 			for frame_i, frame in enumerate(k.ori_bones):
@@ -148,7 +153,8 @@ def save(filepath=""):
 				key = frame[bone_i]
 				key.y = 1.0
 				key.x = 1.0
-		print(mani_info.keys)
+		print(mani_info)
+		# print(mani_info.keys)
 	mani.header.mani_files_size = mani.mani_count * 16
 	mani.header.hash_block_size = len(target_names) * 4
 	mani.reset_field("name_buffer")

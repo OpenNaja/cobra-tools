@@ -352,6 +352,7 @@ def get_manis_values(gui, start_dir, walk_ovls=True, walk_fgms=True):
 	dtype_0_to_files = {}
 	dtype_to_counts = {}
 	dtype_quant_to_counts = {}
+	unk_counts = {}
 	if start_dir:
 		for ovl_data, ovl_path in ovls_in_path(gui, start_dir, (".manis", ".mani",)):
 			ovl_name = os.path.basename(ovl_path)
@@ -369,6 +370,7 @@ def get_manis_values(gui, start_dir, walk_ovls=True, walk_fgms=True):
 							# print(mani_info)
 							# if mani_info.dtype.compression != 0:
 							# 	dtype_quant_to_counts
+							# add_key(unk_counts, (mani_info.root_pos_bone, mani_info.root_ori_bone), f"{ovl_name}.{loader.basename}")
 							add_key(dtype_to_files, mani_info.dtype, ovl_name)
 							add_key(dtype_to_counts, mani_info.dtype, (
 								bool(mani_info.pos_bone_count),
@@ -398,5 +400,8 @@ def get_manis_values(gui, start_dir, walk_ovls=True, walk_fgms=True):
 		logging.info(f"dtype_to_counts map")
 		for dtype, files in sorted(dtype_to_counts.items()):
 			logging.info(f"dtype {dtype} - files {sorted(files)}")
+		# logging.info(f"unk_counts map")
+		# for dtype, files in sorted(unk_counts.items()):
+		# 	logging.info(f"unk count {dtype} - {len(files)} files {sorted(files)[:10]}")
 	except:
 		logging.exception(f"Failed")
