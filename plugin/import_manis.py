@@ -81,7 +81,7 @@ def load(files=[], filepath="", set_fps=False):
 			key = mathutils.Vector([key.x, key.y, key.z])
 			# correct for scale
 			if scale:
-				key = mathutils.Vector([key.x * scale.x, key.y * scale.y, key.z * scale.z])
+				key = mathutils.Vector([key.x * scale.z, key.y * scale.y, key.z * scale.x])
 			key = (bonerestmat_inv @ corrector.nif_bind_to_blender_bind(mathutils.Matrix.Translation(key))).to_translation()
 			anim_sys.add_key(fcurves, frame_i, key, interp_loc)
 		for frame_i, key, bonerestmat_inv, fcurves, _ in iter_keys(
