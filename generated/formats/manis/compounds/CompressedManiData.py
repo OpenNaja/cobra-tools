@@ -21,7 +21,7 @@ class CompressedManiData(BaseStruct):
 		self.name_a = name_type_map['String32'](self.context, 0, None)
 		self.scale_min = name_type_map['Vector3'](self.context, 0, None)
 		self.scale_max = name_type_map['Vector3'](self.context, 0, None)
-		self.unk_0 = name_type_map['Uint64'](self.context, 0, None)
+		self.ptr_first_segment = name_type_map['Uint64'](self.context, 0, None)
 		self.unk_1 = name_type_map['Uint'](self.context, 0, None)
 		self.unk_2 = name_type_map['Uint'](self.context, 0, None)
 
@@ -47,7 +47,7 @@ class CompressedManiData(BaseStruct):
 		self.anoth_pad_2 = name_type_map['PadAlign'](self.context, 16, self.arg.ref)
 
 		# give the byte size of the various temporal segments
-		self.segments = Array(self.context, 0, None, (0,), name_type_map['Repeat'])
+		self.segments = Array(self.context, 0, None, (0,), name_type_map['Segment'])
 		if set_default:
 			self.set_defaults()
 
@@ -63,7 +63,7 @@ class CompressedManiData(BaseStruct):
 		yield 'name_a', name_type_map['String32'], (0, None), (False, None), (lambda context: context.version <= 256, None)
 		yield 'scale_min', name_type_map['Vector3'], (0, None), (False, None), (None, None)
 		yield 'scale_max', name_type_map['Vector3'], (0, None), (False, None), (None, None)
-		yield 'unk_0', name_type_map['Uint64'], (0, None), (False, None), (None, None)
+		yield 'ptr_first_segment', name_type_map['Uint64'], (0, None), (False, None), (None, None)
 		yield 'unk_1', name_type_map['Uint'], (0, None), (False, None), (lambda context: context.version >= 257, None)
 		yield 'unk_2', name_type_map['Uint'], (0, None), (False, None), (lambda context: context.version >= 257, None)
 		yield 'segment_count', name_type_map['Ushort'], (0, None), (False, None), (None, None)
@@ -81,7 +81,7 @@ class CompressedManiData(BaseStruct):
 		yield 'loc_max', name_type_map['Vector3'], (0, None), (False, None), (None, None)
 		yield 'loc_related_floats', name_type_map['FloatsGrabber'], (0, None), (False, None), (None, None)
 		yield 'anoth_pad_2', name_type_map['PadAlign'], (16, None), (False, None), (None, None)
-		yield 'segments', Array, (0, None, (None,), name_type_map['Repeat']), (False, None), (None, None)
+		yield 'segments', Array, (0, None, (None,), name_type_map['Segment']), (False, None), (None, None)
 		yield 'segments_data', name_type_map['SegmentsReader'], (None, None), (False, None), (None, None)
 
 	@classmethod
@@ -98,7 +98,7 @@ class CompressedManiData(BaseStruct):
 			yield 'name_a', name_type_map['String32'], (0, None), (False, None)
 		yield 'scale_min', name_type_map['Vector3'], (0, None), (False, None)
 		yield 'scale_max', name_type_map['Vector3'], (0, None), (False, None)
-		yield 'unk_0', name_type_map['Uint64'], (0, None), (False, None)
+		yield 'ptr_first_segment', name_type_map['Uint64'], (0, None), (False, None)
 		if instance.context.version >= 257:
 			yield 'unk_1', name_type_map['Uint'], (0, None), (False, None)
 			yield 'unk_2', name_type_map['Uint'], (0, None), (False, None)
@@ -118,5 +118,5 @@ class CompressedManiData(BaseStruct):
 		yield 'loc_max', name_type_map['Vector3'], (0, None), (False, None)
 		yield 'loc_related_floats', name_type_map['FloatsGrabber'], (0, None), (False, None)
 		yield 'anoth_pad_2', name_type_map['PadAlign'], (16, instance.arg.ref), (False, None)
-		yield 'segments', Array, (0, None, (instance.segment_count,), name_type_map['Repeat']), (False, None)
+		yield 'segments', Array, (0, None, (instance.segment_count,), name_type_map['Segment']), (False, None)
 		yield 'segments_data', name_type_map['SegmentsReader'], (instance.segments, None), (False, None)

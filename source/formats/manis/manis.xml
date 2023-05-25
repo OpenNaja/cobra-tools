@@ -35,6 +35,9 @@
 		<!--    JWE uses uint-->
     </basic>
 
+    <basic name="int48" integral="true" countable="true">
+    </basic>
+
 	<bitfield name="ManisDtype" storage="uint">
 		# PZ dtypes: 0, 1, 4, 5, 6, 32, 34, 36, 37, 38
 		# JWE2 dev dtypes: 0, 4, 5, 6, 32, 34, 36, 37, 38
@@ -69,6 +72,17 @@
 		<member width="5" pos="5" name="loc" type="int"/>
 		<member width="5" pos="10" name="rot" type="int"/>
 		<member width="1" pos="15" name="unk" type="int"/>
+	</bitfield>
+
+	<bitfield name="PosBaseKey" storage="int48">
+		<member width="15" pos="0" name="loc_x" type="int"/>
+		<member width="15" pos="15" name="loc_y" type="int"/>
+		<member width="15" pos="30" name="loc_z" type="int"/>
+		if any of these is 1, relative keys follow
+		else just key all frames in chunk with base key
+		<member width="1" pos="45" name="key_x" type="bool"/>
+		<member width="1" pos="46" name="key_y" type="bool"/>
+		<member width="1" pos="47" name="key_z" type="bool"/>
 	</bitfield>
 
 	<bitfield name="Key94" storage="uint64">
@@ -195,10 +209,18 @@
     <compound name="FloatsGrabber" >
     </compound>
 
-    <compound name="Repeat" >
-		<add name="zeros 0" type="uint64" arr1="7" > </add>
+    <compound name="Segment" >
+		<add name="unk a" type="uint" >seen 0 or 2</add>
+		<add name="unk b" type="uint" >seen 0 or 2</add>
+		<add name="ptr_ori_result" type="uint64" />ready for anim_wavelet_data_rel_3
+		<add name="ptr_pos_result" type="uint64" />ready for anim_wavelet_data_rel_3
+		<add name="ptr_scale_0_result" type="uint64" />?
+		<add name="ptr_scale_1_result" type="uint64" />?
+		<add name="ptr_morph_result" type="uint64" />?
+		<add name="ptr_CompressedManiData" type="uint64" />ready for anim_decompress_handler_rel
 		<add name="byte size" type="uint64" >to be read sequentially starting after this array </add>
-		<add name="zeros 1" type="uint64" arr1="2" > </add>
+		<add name="ptr_compressed_keys" type="uint64" />ready for anim_decompress_handler_rel
+		<add name="zeros 1" type="uint64" />
     </compound>
 
     <compound name="String32" >
@@ -219,7 +241,7 @@
 		used eg in PZ animal boxes, which have scale keys
 		<add name="scale min" type="Vector3" />
 		<add name="scale max" type="Vector3" />
-		<add name="unk 0" type="uint64" />
+		<add name="ptr_first_segment" type="uint64" />
 		<add name="unk 1" type="uint" since="257"/>
 		<add name="unk 2" type="uint" since="257" />
 		<add name="SegmentCount" type="ushort" >counts temporal segments</add>
@@ -237,7 +259,7 @@
 		<add name="loc max" type="Vector3"/>might be extent, but not sure about how it is encoded
 		<add name="loc_related_floats" type="FloatsGrabber" >not sure</add>
 		<add name="anoth pad2" type="PadAlign" template="#ARG# \ ref" arg="16"/>
-		<add name="segments" type="Repeat" arr1="SegmentCount" >give the byte size of the various temporal segments</add>
+		<add name="segments" type="Segment" arr1="SegmentCount" >give the byte size of the various temporal segments</add>
 		<add name="segments_data" type="SegmentsReader" arg="segments"/>
 	</compound>
 

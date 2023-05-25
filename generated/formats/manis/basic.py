@@ -2,7 +2,7 @@ import logging
 from struct import Struct
 
 from generated.array import Array
-from generated.formats.base.basic import  Uint, Ushort, Ubyte
+from generated.formats.base.basic import Uint, Ushort, Ubyte, Int64
 
 
 class ChannelName:
@@ -63,3 +63,29 @@ class ChannelName:
     @staticmethod
     def fmt_member(member, indent=0):
         return str(member)
+
+
+class Int48(Int64):
+    mask = 0b111111111111111111111111111111111111111111111111
+
+    def __new__(cls, context=None, arg=0, template=None):
+        return 0
+
+    @classmethod
+    def from_stream(cls, stream, context, arg=0, template=None):
+        c = stream.tell()
+        ind = super().from_stream(stream, context, arg, template)
+        stream.seek(c+6)
+        return ind & cls.mask
+
+    @classmethod
+    def to_stream(cls, instance, stream, context, arg=0, template=None):
+        ind = instance & cls.mask
+        c = stream.tell()
+        super().to_stream(ind, stream, context, arg, template)
+        stream.seek(c+6)
+
+    @staticmethod
+    def fmt_member(member, indent=0):
+        return str(member)
+

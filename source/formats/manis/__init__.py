@@ -7,6 +7,7 @@ from generated.formats.manis.bitfields.Key94 import Key94
 from generated.formats.manis.bitfields.Key94B import Key94B
 from generated.formats.manis.bitfields.Key94C import Key94C
 from generated.formats.manis.bitfields.ManisDtype import ManisDtype
+from generated.formats.manis.bitfields.PosBaseKey import PosBaseKey
 from generated.formats.manis.bitfields.SegmentInfo import SegmentInfo
 from generated.formats.manis.compounds.InfoHeader import InfoHeader
 from generated.io import IoFile
@@ -52,15 +53,17 @@ class ManisFile(InfoHeader, IoFile):
 			except:
 				logging.exception(f"Names failed")
 
-	def iter_compressed_keys(self):
+	def iter_compressed_manis(self):
 		for mani_info in self.mani_infos:
-			logging.info(f"mani {mani_info.name} compression {mani_info.dtype.compression}")
-			logging.info(mani_info)
 			if hasattr(mani_info, "keys"):
 				if hasattr(mani_info.keys.compressed, "segments"):
-					logging.info(mani_info.keys.compressed)
-					for i, mb in enumerate(mani_info.keys.compressed.segments):
-						yield mani_info, i, mb
+					yield mani_info
+
+	def iter_compressed_keys(self):
+		for mani_info in self.iter_compressed_manis():
+			# logging.info(mani_info.keys.compressed)
+			for i, mb in enumerate(mani_info.keys.compressed.segments):
+				yield mani_info, i, mb
 
 	def dump_keys(self):
 		for mani_info, i, mb in self.iter_compressed_keys():
@@ -72,8 +75,12 @@ class ManisFile(InfoHeader, IoFile):
 			with io.BytesIO(mb.data) as f:
 				# channel_type = ChannelSize.from_stream(f, self.context)
 				channel_type = SegmentInfo.from_stream(f, self.context)
-				# channel_type = struct.unpack("<H", f.read(2))[0]
-				logging.info(f"{channel_type}")
+				for pos_index in range(mani_info.keys.compressed.pos_bone_count):
+					pos_base = PosBaseKey.from_stream(f, self.context)
+					logging.info(f"pos {pos_index}: {pos_base}")
+					if pos_base.key_x or pos_base.key_y or pos_base.key_z:
+						logging.info(f"cannot read relative keys")
+						break
 
 
 if __name__ == "__main__":
@@ -93,7 +100,9 @@ if __name__ == "__main__":
 	key.rot_rel = 4
 	# print(key)
 	mani = ManisFile()
-	mani.load("C:/Users/arnfi/Desktop/motionextracted.maniset8be90845.manis")
+	# acro stand_ide
+	target = "acrocanthosaurus@standidle01"
+	mani.load("C:/Users/arnfi/Desktop/acro/notmotionextracted.maniset53978456.manis")
 	# mani.load("C:/Users/arnfi/Desktop/animationmotionextractedlocomotion.maniset648a1a01.manis")
 	# mani.load("C:/Users/arnfi/Desktop/crane/animationnotmotionextractedfighting.maniset3d816f2c.manis")
 	# mani.load("C:/Users/arnfi/Desktop/kangaroo/animation.maniset32dc487b.manis")
@@ -101,7 +110,7 @@ if __name__ == "__main__":
 	# mani.load("C:/Users/arnfi/Desktop/DLA scale anim.manis")
 	# mani.load("C:/Users/arnfi/Desktop/dinomascot/animation.maniset293c241f.manis")
 	# mani.dump_keys()
-	# mani.parse_keys()
+	mani.parse_keys()
 	# mani.load("C:/Users/arnfi/Desktop/donationbox/animation.maniseteaf333c5.manis")
 	# mani.dump_keys()
 	# mani.parse_keys()
