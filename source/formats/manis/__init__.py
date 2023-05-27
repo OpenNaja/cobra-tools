@@ -87,8 +87,8 @@ class ManisFile(InfoHeader, IoFile):
 		k_channel_bitsize = self.get_bitsize()
 		# print(k_channel_bitsize)
 		for mani_info in self.iter_compressed_manis():
-			if mani_info.name != "acrocanthosaurus@standidle01":
-				continue
+			# if mani_info.name != "acrocanthosaurus@standidle01":
+			# 	continue
 			logging.info(f"Anim {mani_info.name} with {len(mani_info.keys.compressed.segments)} segments")
 			for i, mb in enumerate(mani_info.keys.compressed.segments):
 				try:
@@ -105,8 +105,10 @@ class ManisFile(InfoHeader, IoFile):
 						# defines basic loc values and which channels are keyframed
 						pos_base = f.read(48).uint
 						pos_base = PosBaseKey.from_value(pos_base)
-						# logging.info(f"pos[{pos_index}] {pos_name} {pos_base}")
+						logging.info(f"pos[{pos_index}] {pos_name} {pos_base}")
 						if pos_base.key_x or pos_base.key_y or pos_base.key_z:
+							# logging.info(f"cannot read relative keys")
+							# break
 							for channel_i, is_active in enumerate((pos_base.key_x, pos_base.key_y, pos_base.key_z)):
 								if is_active:
 									# define the minimal key size for this channel
@@ -137,8 +139,6 @@ class ManisFile(InfoHeader, IoFile):
 									# logging.info(f"{rel_key_size}, {channel_bitsize}, {frames_flag}, {frames_flag_2}")
 
 									# break
-							# logging.info(f"cannot read relative keys")
-							# break
 						else:
 							pass
 							# set all keyframes
