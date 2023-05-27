@@ -142,9 +142,9 @@ class ManisFile(InfoHeader, IoFile):
 						else:
 							pass
 							# set all keyframes
+					logging.info(f"loc finished at bit {f.pos}, byte {f.pos/8}")
 				except bitstring.ReadError:
-					logging.exception(f"Reading failed")
-				logging.info(f"loc finished at bit {f.pos}, byte {f.pos/8}")
+					logging.exception(f"Reading failed at bit {f.pos}, byte {f.pos/8}")
 
 
 if __name__ == "__main__":
