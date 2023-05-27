@@ -3,17 +3,22 @@ import io
 import logging
 import struct
 
+import bitstring
+
+from generated.formats.base.basic import Ushort
 from generated.formats.manis.bitfields.ChannelSize import ChannelSize
 from generated.formats.manis.bitfields.Key94 import Key94
 from generated.formats.manis.bitfields.Key94B import Key94B
 from generated.formats.manis.bitfields.Key94C import Key94C
 from generated.formats.manis.bitfields.ManisDtype import ManisDtype
 from generated.formats.manis.bitfields.PosBaseKey import PosBaseKey
+from generated.formats.manis.bitfields.PosFrameInfo import PosFrameInfo
 from generated.formats.manis.bitfields.SegmentInfo import SegmentInfo
 from generated.formats.manis.compounds.InfoHeader import InfoHeader
 from generated.io import IoFile
 import os
 
+from modules.formats.shared import get_padding_size
 from ovl_util.config import logging_setup
 
 
@@ -48,11 +53,6 @@ class ManisFile(InfoHeader, IoFile):
 					# 	print(mi.root_pos_bone, mi.keys.pos_bones_names[mi.root_pos_bone])
 					# if mi.root_ori_bone != 255:
 					# 	print(mi.root_ori_bone, mi.keys.ori_bones_names[mi.root_ori_bone])
-			try:
-				for i, bone_name in enumerate(self.name_buffer.bone_names):
-					print(i, bone_name)
-			except:
-				logging.exception(f"Names failed")
 
 	def iter_compressed_manis(self):
 		for mani_info in self.mani_infos:
@@ -71,17 +71,80 @@ class ManisFile(InfoHeader, IoFile):
 			with open(os.path.join(self.dir, f"{mani_info.name}_{i}.maniskeys"), "wb") as f:
 				f.write(mb.data)
 
+	def get_bitsize(self):
+		new_bit = 0xf  # MOV new_bit,0xf
+		return new_bit.bit_length()  # - 1
+		# for i in reversed(range(31, -1, -1)):
+		# 	# print(i, 15 >> i)
+		# 	if 15 >> i == 0:
+		# 		return i
+		# return -1
+
+	def segment_frame_count(self, i, frame_count):
+		# get from chunk index
+		return min(32, frame_count - (i*32))
+
 	def parse_keys(self):
-		for mani_info, i, mb in self.iter_compressed_keys():
-			with io.BytesIO(mb.data) as f:
-				# channel_type = ChannelSize.from_stream(f, self.context)
-				channel_type = SegmentInfo.from_stream(f, self.context)
-				for pos_index in range(mani_info.keys.compressed.pos_bone_count):
-					pos_base = PosBaseKey.from_stream(f, self.context)
-					logging.info(f"pos {pos_index}: {pos_base}")
-					if pos_base.key_x or pos_base.key_y or pos_base.key_z:
-						logging.info(f"cannot read relative keys")
-						break
+		k_channel_bitsize = self.get_bitsize()
+		# print(k_channel_bitsize)
+		for mani_info in self.iter_compressed_manis():
+			if mani_info.name != "acrocanthosaurus@standidle01":
+				continue
+			logging.info(f"Anim {mani_info.name} with {len(mani_info.keys.compressed.segments)} segments")
+			for i, mb in enumerate(mani_info.keys.compressed.segments):
+				try:
+					segment_frames_count = self.segment_frame_count(i, mani_info.frame_count)  # - 1
+					logging.info(f"Segment[{i}] frames {segment_frames_count}")
+					# with io.BytesIO(mb.data) as f:
+					f = bitstring.BitStream(mb.data)
+					# with bitstring.BitStream(mb.data) as f:
+					# channel_type = ChannelSize.from_stream(f, self.context)
+					channel_type = f.read(16).uint
+					channel_type = SegmentInfo.from_value(channel_type)
+					# print(channel_type)
+					assert mani_info.keys.compressed.pos_bone_count == mani_info.pos_bone_count
+					for pos_index, pos_name in enumerate(mani_info.keys.pos_bones_names):
+						f.bytealign()
+						# f.pos += get_padding_size(f.pos, alignment=16)
+						pos_base = f.read(48).uint
+						# pos_base = PosBaseKey.from_stream(f, self.context)
+						pos_base = PosBaseKey.from_value(pos_base)
+						# logging.info(f"pos[{pos_index}] {pos_name} {pos_base}")
+						if pos_base.key_x or pos_base.key_y or pos_base.key_z:
+							for channel_i, is_active in enumerate((pos_base.key_x, pos_base.key_y, pos_base.key_z)):
+								if is_active:
+									ch_key_size = f.read(k_channel_bitsize).uint
+									ch_key_size_masked = ch_key_size & 0x1f
+									# logging.info(f"channel[{channel_i}] base_size {ch_key_size}")
+									# channel_val = PosFrameInfo.from_value(channel_val)
+									for frame_i in range(segment_frames_count):
+										rel_key_flag = 1 << ch_key_size_masked | 1 >> 0x20 - ch_key_size_masked
+										channel_bitsize = 0
+										for rel_key_size in range(16):
+											new_bit_flag = f.read(1).uint
+											channel_bitsize += rel_key_flag
+											rel_key_flag *= 2
+											if not new_bit_flag:
+												break
+										ch_rel_key_size = ch_key_size + rel_key_size
+										assert ch_rel_key_size <= 32
+										# print(f"ch_rel_key_size {ch_rel_key_size}")
+										if ch_rel_key_size:
+											ch_rel_key = f.read(ch_rel_key_size).uint
+										else:
+											ch_rel_key = 0
+										# logging.info(f"key = {ch_rel_key}")
+									# logging.info(f"{rel_key_size}, {channel_bitsize}, {frames_flag}, {frames_flag_2}")
+
+									# break
+							# logging.info(f"cannot read relative keys")
+							# break
+						else:
+							pass
+							# set all keyframes
+				except bitstring.ReadError:
+					logging.exception(f"Reading failed")
+				logging.info(f"loc finished at bit {f.pos}, byte {f.pos/8}")
 
 
 if __name__ == "__main__":
