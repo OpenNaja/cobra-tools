@@ -3,7 +3,6 @@ import io
 import logging
 import struct
 
-import bitstring
 
 from generated.formats.base.basic import Ushort
 from generated.formats.manis.bitfields.ChannelSize import ChannelSize
@@ -20,6 +19,11 @@ import os
 
 from modules.formats.shared import get_padding_size
 from ovl_util.config import logging_setup
+
+try:
+	import bitstring
+except:
+	logging.warning(f"bitstring module is not installed")
 
 
 def hex_test():
