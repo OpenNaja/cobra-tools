@@ -94,10 +94,7 @@ class ManisFile(InfoHeader, IoFile):
 				try:
 					segment_frames_count = self.segment_frame_count(i, mani_info.frame_count)  # - 1
 					logging.info(f"Segment[{i}] frames {segment_frames_count}")
-					# with io.BytesIO(mb.data) as f:
 					f = bitstring.BitStream(mb.data)
-					# with bitstring.BitStream(mb.data) as f:
-					# channel_type = ChannelSize.from_stream(f, self.context)
 					channel_type = f.read(16).uint
 					channel_type = SegmentInfo.from_value(channel_type)
 					# print(channel_type)
@@ -105,13 +102,14 @@ class ManisFile(InfoHeader, IoFile):
 					for pos_index, pos_name in enumerate(mani_info.keys.pos_bones_names):
 						f.bytealign()
 						# f.pos += get_padding_size(f.pos, alignment=16)
+						# defines basic loc values and which channels are keyframed
 						pos_base = f.read(48).uint
-						# pos_base = PosBaseKey.from_stream(f, self.context)
 						pos_base = PosBaseKey.from_value(pos_base)
 						# logging.info(f"pos[{pos_index}] {pos_name} {pos_base}")
 						if pos_base.key_x or pos_base.key_y or pos_base.key_z:
 							for channel_i, is_active in enumerate((pos_base.key_x, pos_base.key_y, pos_base.key_z)):
 								if is_active:
+									# define the minimal key size for this channel
 									ch_key_size = f.read(k_channel_bitsize).uint
 									ch_key_size_masked = ch_key_size & 0x1f
 									# logging.info(f"channel[{channel_i}] base_size {ch_key_size}")
@@ -119,6 +117,7 @@ class ManisFile(InfoHeader, IoFile):
 									for frame_i in range(segment_frames_count):
 										rel_key_flag = 1 << ch_key_size_masked | 1 >> 0x20 - ch_key_size_masked
 										channel_bitsize = 0
+										# get additional key size for this key
 										for rel_key_size in range(16):
 											new_bit_flag = f.read(1).uint
 											channel_bitsize += rel_key_flag
@@ -126,8 +125,10 @@ class ManisFile(InfoHeader, IoFile):
 											if not new_bit_flag:
 												break
 										ch_rel_key_size = ch_key_size + rel_key_size
+										# ensure the final key size is valid
 										assert ch_rel_key_size <= 32
 										# print(f"ch_rel_key_size {ch_rel_key_size}")
+										# read the key, if it has a size
 										if ch_rel_key_size:
 											ch_rel_key = f.read(ch_rel_key_size).uint
 										else:
