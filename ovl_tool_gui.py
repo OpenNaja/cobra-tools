@@ -173,10 +173,15 @@ class MainWindow(widgets.MainWindow):
 		splitter.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
 
 		# toggles
-		self.t_show_temp_files = QtWidgets.QCheckBox("Save Temp Files")
-		self.t_show_temp_files.setToolTip("By default, temporary files are converted to usable ones and back on the fly")
-		self.t_show_temp_files.setChecked(False)
-		self.t_show_temp_files.setVisible(self.dev_mode)
+		self.t_do_debug = QtWidgets.QCheckBox("Debug Mode")
+		self.t_do_debug.setToolTip(
+			"Enables debugging when checked:\n"
+			" - OVLs open considerably slower to verify structs don't miss pointers.\n"
+			" - temporary files are kept in extract folder.\n"
+			" - debug info is added to XML-like extracts.")
+		self.t_do_debug.setChecked(False)
+		self.t_do_debug.setVisible(self.dev_mode)
+		self.t_do_debug.clicked.connect(self.do_debug_changed)
 
 		self.t_in_folder = QtWidgets.QCheckBox("Process Folder")
 		self.t_in_folder.setToolTip("Runs commands on all OVLs of current folder")
@@ -206,7 +211,7 @@ class MainWindow(widgets.MainWindow):
 
 		grid.addWidget(self.t_mesh_ovl, 0, 3)
 		grid.addWidget(self.t_in_folder, 1, 3)
-		grid.addWidget(self.t_show_temp_files, 2, 3)
+		grid.addWidget(self.t_do_debug, 2, 3)
 
 		grid.addWidget(self.game_choice, 0, 4)
 		grid.addWidget(self.compression_choice, 1, 4)
@@ -296,6 +301,9 @@ class MainWindow(widgets.MainWindow):
 		self.ovl_data.current_action.connect(self.t_action.setText)
 		self.run_threaded(self.ovl_data.load_hash_table)
 
+	def do_debug_changed(self, do_debug):
+		self.ovl_data.do_debug = do_debug
+
 	def notify_user(self, msg_list):
 		msg = msg_list[0]
 		details = msg_list[1] if len(msg_list) > 1 else None
@@ -311,7 +319,7 @@ class MainWindow(widgets.MainWindow):
 
 	def enable_gui_options(self, enable=True):
 		self.t_in_folder.setEnabled(enable)
-		self.t_show_temp_files.setEnabled(enable)
+		self.t_do_debug.setEnabled(enable)
 		self.t_mesh_ovl.setEnabled(enable)
 		self.t_walk_ovl.setEnabled(enable)
 		self.compression_choice.setEnabled(enable)
@@ -482,8 +490,7 @@ class MainWindow(widgets.MainWindow):
 		data = QtCore.QMimeData()
 		temp_dir = tempfile.mkdtemp("-cobra")
 		try:
-			out_paths = self.ovl_data.extract(
-				temp_dir, only_names=file_names, show_temp_files=self.show_temp_files)
+			out_paths = self.ovl_data.extract(temp_dir, only_names=file_names)
 			if out_paths:
 				data.setUrls([QtCore.QUrl.fromLocalFile(path) for path in out_paths])
 				drag.setMimeData(data)
@@ -513,10 +520,6 @@ class MainWindow(widgets.MainWindow):
 		self.gui_log_handler.setLevel(level)
 		stdout_handler.setLevel(level)
 		self.cfg["logger_level"] = level
-
-	@property
-	def show_temp_files(self, ):
-		return self.t_show_temp_files.isChecked()
 
 	def show_dependencies(self, file_index):
 		# just an example of what can be done when something is selected
@@ -598,7 +601,7 @@ class MainWindow(widgets.MainWindow):
 						selected_dir = self.get_selected_dir()
 						rel_p = os.path.relpath(ovl.path_no_ext, start=selected_dir)
 						out_dir = os.path.join(_out_dir, rel_p)
-					ovl.extract(out_dir, show_temp_files=self.show_temp_files, only_types=only_types)
+					ovl.extract(out_dir, only_types=only_types)
 
 	def inject_ask(self):
 		files = QtWidgets.QFileDialog.getOpenFileNames(

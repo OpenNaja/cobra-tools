@@ -565,7 +565,7 @@ class OvlFile(Header):
 			self.loaders[file_name].rename_content(name_tups)
 		logging.info("Finished renaming contents!")
 
-	def extract(self, out_dir, only_names=(), only_types=(), show_temp_files=False):
+	def extract(self, out_dir, only_names=(), only_types=()):
 		"""Extract the files, after all archives have been read"""
 		# create output dir
 		logging.info(f"Extracting from {len(self.files)} files")
@@ -575,7 +575,6 @@ class OvlFile(Header):
 			"""Helper function to generate temporary output file name"""
 			return os.path.normpath(os.path.join(out_dir, n))
 
-		self.do_debug = show_temp_files
 		out_paths = []
 		loaders_for_extract = []
 		_only_types = [s.lower() for s in only_types]
@@ -594,7 +593,7 @@ class OvlFile(Header):
 			for loader in self.iter_progress(loaders_for_extract, "Extracting"):
 				try:
 					ret_paths = loader.extract(out_dir_func)
-					ret_paths = loader.handle_paths(ret_paths, show_temp_files)
+					ret_paths = loader.handle_paths(ret_paths, self.do_debug)
 					out_paths.extend(ret_paths)
 				except:
 					logging.exception(f"An exception occurred while extracting {loader.name}")

@@ -66,7 +66,7 @@ class MemStruct(BaseStruct):
 			f_inst = s_type.get_field(s_inst, f_name)
 			yield f_inst, f_name, arguments
 
-	def read_ptrs(self, pool):
+	def read_ptrs(self, pool, debug=False):
 		"""Process all pointers in the structure and recursively load pointers in the sub-structs."""
 		offsets_of_ptrs = set()
 		# need to recurse here, because we may have substructs that are part of this MemStruct (not via ptrs)
@@ -82,16 +82,17 @@ class MemStruct(BaseStruct):
 			if ptr.target_pool:
 				# keep reading pointers in the newly read ptr.data
 				for memstruct in self.structs_from_ptr(ptr):
-					memstruct.read_ptrs(ptr.target_pool)
-		# verify that there is no uncaught pointer
-		for source_offset, trg in pool.offset_2_link.items():
-			# skip dependencies
-			if len(trg) != 2:
-				continue
-			target_pool, target_offset = trg
-			if self.io_start <= source_offset < self.io_start + self.io_size:
-				if source_offset not in offsets_of_ptrs:
-					logging.warning(f"Pointer at {pool.i} | {source_offset} to {target_pool.i} | {target_offset} is missing for {self.__class__.__name__} (rel offset: {source_offset-self.io_start})")
+					memstruct.read_ptrs(ptr.target_pool, debug=debug)
+		if debug:
+			# verify that there is no uncaught pointer
+			for source_offset, trg in pool.offset_2_link.items():
+				# skip dependencies
+				if len(trg) != 2:
+					continue
+				target_pool, target_offset = trg
+				if self.io_start <= source_offset < self.io_start + self.io_size:
+					if source_offset not in offsets_of_ptrs:
+						logging.warning(f"Pointer at {pool.i} | {source_offset} to {target_pool.i} | {target_offset} is missing for {self.__class__.__name__} (rel offset: {source_offset-self.io_start})")
 
 	@staticmethod
 	def structs_from_ptr(ptr):

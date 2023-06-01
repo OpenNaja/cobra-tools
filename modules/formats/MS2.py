@@ -136,7 +136,7 @@ class Ms2Loader(MemStructLoader):
 		stream = pool.stream_at(offset)
 		self.header = Ms2Root.from_stream(stream, self.context)
 		try:
-			self.header.read_ptrs(pool)
+			self.header.read_ptrs(pool, debug=self.ovl.do_debug)
 			if self.header.buffer_pointers.data:
 				for i, buffer_presence in enumerate(self.header.buffer_pointers.data):
 					d = buffer_presence.dependency_name

@@ -453,7 +453,7 @@ class MemStructLoader(BaseFile):
 		stream = pool.stream_at(offset)
 		self.header = self.target_class.from_stream(stream, self.context)
 		# print(self.header)
-		self.header.read_ptrs(pool)
+		self.header.read_ptrs(pool, debug=self.ovl.do_debug)
 
 	def create(self, file_path):
 		self.header = self.target_class.from_xml_file(file_path, self.context)

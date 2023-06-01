@@ -198,7 +198,6 @@ class MainWindow(widgets.MainWindow):
 		if files:
 			self.cfg["dir_inject"] = os.path.dirname(files[0])
 			try:
-				# error_files, foreign_files = self.bnk_file.inject(files, self.show_temp_files)
 				error_files = self.inject_wem(files)
 				self.file_widget.dirty = True
 				# if error_files:
