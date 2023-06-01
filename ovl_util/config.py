@@ -25,7 +25,7 @@ def load_config():
 		return {}
 
 
-def read_config(cfg_path):
+def read_str_dict(cfg_path):
 	config_dict = {}
 	try:
 		with open(cfg_path, 'r', encoding='utf-8') as cfg_file:
@@ -45,7 +45,7 @@ def read_config(cfg_path):
 	return config_dict
 
 
-def write_config(cfg_path, config_dict):
+def write_str_dict(cfg_path, config_dict):
 	stream = "\n".join([key+"="+str(val) for key, val in config_dict.items()])
 	with open(cfg_path, 'w', encoding='utf8') as cfg_file:
 		cfg_file.write(stream)
@@ -134,5 +134,5 @@ def get_commit_str():
 
 
 if __name__ == '__main__':
-	cfg = read_config("config.ini")
+	cfg = read_str_dict("config.ini")
 	print(cfg)

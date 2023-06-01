@@ -22,7 +22,7 @@ from PyQt5.QtWidgets import QMenuBar
 from PyQt5.QtWidgets import QCheckBox
 
 from ovl_util import widgets
-from ovl_util.config import logging_setup, get_version_str, get_commit_str, read_config, write_config
+from ovl_util.config import logging_setup, get_version_str, get_commit_str, read_str_dict, write_str_dict
 
 logging_setup("mod_tool_gui")
 logging.info(f"Running python {sys.version}")
@@ -108,7 +108,7 @@ class ModToolGUI(MainWindow):
 
 	def apply_from_config(self, path):
 		try:
-			tconfig = read_config(path)
+			tconfig = read_str_dict(path)
 			self.src_widget.filepath = tconfig['src_path'] or ''
 			self.src_widget.setText(tconfig['src_path'] or '')
 			self.dst_widget.filepath = tconfig['dst_path'] or ''
@@ -150,7 +150,7 @@ class ModToolGUI(MainWindow):
 		try:
 			tconfig = {'src_path': self.src_widget.filepath, 'dst_path': self.dst_widget.filepath,
 					   'game': self.game_container.entry.currentText(), 'watcher_enabled': self.watch.isChecked()}
-			write_config(self.config_path, tconfig)
+			write_str_dict(self.config_path, tconfig)
 		except IOError:
 			logging.info("Config save failed.")
 

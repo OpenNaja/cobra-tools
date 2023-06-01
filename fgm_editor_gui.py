@@ -36,7 +36,7 @@ class MainWindow(widgets.MainWindow):
 		self.context = OvlContext()
 		self.constants = ConstantsProvider()
 		self.header = FgmHeader(self.context)
-		self.tooltips = config.read_config("ovl_util/tooltips/fgm.txt")
+		self.tooltips = config.read_str_dict("ovl_util/tooltips/fgm.txt")
 		self.games = [g.value for g in games]
 		self.import_header = None
 

@@ -16,7 +16,7 @@ class MainWindow(widgets.MainWindow):
 		self.context = OvlContext()
 		self.matcol_data = MatcolRoot(self.context)
 		self.file_widget = widgets.FileWidget(self, self.cfg, dtype="materialcollection")
-		self.tooltips = config.read_config("ovl_util/tooltips/matcol.txt")
+		self.tooltips = config.read_str_dict("ovl_util/tooltips/matcol.txt")
 		self.default_fgms = config.read_list("ovl_util/tooltips/matcol-fgm-names.txt")
 
 		main_menu = self.menuBar()
