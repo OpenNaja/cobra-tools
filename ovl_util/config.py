@@ -20,6 +20,9 @@ def load_config():
 	except FileNotFoundError:
 		logging.exception(f"Config file missing")
 		return {}
+	except json.decoder.JSONDecodeError:
+		logging.exception(f"Config file broken")
+		return {}
 
 
 def read_config(cfg_path):
