@@ -176,9 +176,9 @@ class MainWindow(widgets.MainWindow):
 		self.t_do_debug = QtWidgets.QCheckBox("Debug Mode")
 		self.t_do_debug.setToolTip(
 			"Enables debugging when checked:\n"
-			" - OVLs open considerably slower to verify structs don't miss pointers.\n"
-			" - temporary files are kept in extract folder.\n"
-			" - debug info is added to XML-like extracts.")
+			" - OVLs open slower to verify structs don't miss pointers\n"
+			" - temporary files are kept in extract folder\n"
+			" - debug info is added to XML-like extracts")
 		self.t_do_debug.setChecked(False)
 		self.t_do_debug.setVisible(self.dev_mode)
 		self.t_do_debug.clicked.connect(self.do_debug_changed)

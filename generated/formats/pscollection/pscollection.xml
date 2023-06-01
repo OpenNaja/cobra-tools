@@ -22,7 +22,7 @@
         <add name="argIndex" type="ubyte" >one-based index</add>
         <add name="u1" type="ubyte" default="0" optional="True" />
         <add name="u2" type="uint" default="0" optional="True" />
-        <add name="u3" type="uint64" default="0" optional="True" />
+        <add name="arg_name" type="Pointer" template="ZString"/>?
         <add name="u4" type="uint64" default="0" optional="True" />
     </compound>
 

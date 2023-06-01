@@ -85,14 +85,12 @@ class MemStruct(BaseStruct):
 					memstruct.read_ptrs(ptr.target_pool, debug=debug)
 		if debug:
 			# verify that there is no uncaught pointer
-			for source_offset, trg in pool.offset_2_link.items():
+			for l_offset, rel_offset, entry in pool.get_ptrs_in_struct(self.io_start, self.io_size):
 				# skip dependencies
-				if len(trg) != 2:
-					continue
-				target_pool, target_offset = trg
-				if self.io_start <= source_offset < self.io_start + self.io_size:
-					if source_offset not in offsets_of_ptrs:
-						logging.warning(f"Pointer at {pool.i} | {source_offset} to {target_pool.i} | {target_offset} is missing for {self.__class__.__name__} (rel offset: {source_offset-self.io_start})")
+				if isinstance(entry, tuple):
+					target_pool, target_offset = entry
+					if l_offset not in offsets_of_ptrs:
+						logging.warning(f"Pointer at {pool.i} | {l_offset} to {target_pool.i} | {target_offset} is missing for {self.__class__.__name__} (rel offset: {rel_offset})")
 
 	@staticmethod
 	def structs_from_ptr(ptr):

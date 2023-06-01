@@ -20,6 +20,13 @@ class MemPool:
 		self.offsets = set()
 		self.link_offsets = None
 
+	def get_ptrs_in_struct(self, p_offset, p_size):
+		"""find all link offsets that are within the parent struct using a boolean mask"""
+		k = self.link_offsets
+		for l_offset in k[(p_offset <= k) * (k < p_offset + p_size)]:
+			entry = self.offset_2_link[l_offset]
+			yield l_offset, l_offset - p_offset, entry
+
 	def get_first_offset(self):
 		# usually 0, but be safe
 		if self.offsets:

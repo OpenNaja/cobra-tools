@@ -283,11 +283,7 @@ class BaseFile:
 		children = {}
 		self.stack[(p_pool, p_offset)] = children
 		p_size = p_pool.size_map[p_offset]
-		k = p_pool.link_offsets
-		# find all link offsets that are within the parent struct using a boolean mask
-		for l_offset in k[(p_offset <= k) * (k < p_offset+p_size)]:
-			entry = p_pool.offset_2_link[l_offset]
-			rel_offset = l_offset - p_offset
+		for l_offset, rel_offset, entry in p_pool.get_ptrs_in_struct(p_offset, p_size):
 			# store frag and deps
 			children[rel_offset] = entry
 			if isinstance(entry, tuple):

@@ -16,8 +16,8 @@ class Arg(MemStruct):
 		self.arg_index = name_type_map['Ubyte'](self.context, 0, None)
 		self.u_1 = name_type_map['Ubyte'].from_value(0)
 		self.u_2 = name_type_map['Uint'].from_value(0)
-		self.u_3 = name_type_map['Uint64'].from_value(0)
 		self.u_4 = name_type_map['Uint64'].from_value(0)
+		self.arg_name = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
 		if set_default:
 			self.set_defaults()
 
@@ -29,7 +29,7 @@ class Arg(MemStruct):
 		yield 'arg_index', name_type_map['Ubyte'], (0, None), (False, None), (None, None)
 		yield 'u_1', name_type_map['Ubyte'], (0, None), (True, 0), (None, None)
 		yield 'u_2', name_type_map['Uint'], (0, None), (True, 0), (None, None)
-		yield 'u_3', name_type_map['Uint64'], (0, None), (True, 0), (None, None)
+		yield 'arg_name', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None)
 		yield 'u_4', name_type_map['Uint64'], (0, None), (True, 0), (None, None)
 
 	@classmethod
@@ -40,5 +40,5 @@ class Arg(MemStruct):
 		yield 'arg_index', name_type_map['Ubyte'], (0, None), (False, None)
 		yield 'u_1', name_type_map['Ubyte'], (0, None), (True, 0)
 		yield 'u_2', name_type_map['Uint'], (0, None), (True, 0)
-		yield 'u_3', name_type_map['Uint64'], (0, None), (True, 0)
+		yield 'arg_name', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None)
 		yield 'u_4', name_type_map['Uint64'], (0, None), (True, 0)

@@ -76,7 +76,7 @@
         <add name="LuaMethod" type="Pointer" template="ZString"/>
 
         <add name="count_0" type="uint64"/>
-        <add name="count_1" type="uint64"/>
+        <add name="ptr_0" type="Pointer" />?
 
         variable size, maybe related to counts
         <add name="ptr_1" type="Pointer" />
