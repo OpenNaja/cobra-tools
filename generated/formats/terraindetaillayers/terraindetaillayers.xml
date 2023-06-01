@@ -48,10 +48,8 @@
         <add name="unk_7_as_0"    type="uint" />
         <add name="unk_8_as_0"    type="uint" />
         <add name="unk_9_as_0"    type="uint" />
-        <add name="unk_a_as_0"    type="uint" />
-        <add name="unk_b_as_0"    type="uint" />
-
-
+        <add name="second_name"  type="Pointer" template="ZString"/>
+        
         <add name="floatb1"   type="float" />
         <add name="floatb2"   type="float" />
 

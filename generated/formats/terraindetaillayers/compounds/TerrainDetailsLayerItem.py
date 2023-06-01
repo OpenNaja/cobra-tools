@@ -37,13 +37,12 @@ class TerrainDetailsLayerItem(MemStruct):
 		self.unk_7_as_0 = name_type_map['Uint'](self.context, 0, None)
 		self.unk_8_as_0 = name_type_map['Uint'](self.context, 0, None)
 		self.unk_9_as_0 = name_type_map['Uint'](self.context, 0, None)
-		self.unk_a_as_0 = name_type_map['Uint'](self.context, 0, None)
-		self.unk_b_as_0 = name_type_map['Uint'](self.context, 0, None)
 		self.floatb_1 = name_type_map['Float'](self.context, 0, None)
 		self.floatb_2 = name_type_map['Float'](self.context, 0, None)
 		self.layer_name = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
 		self.info_list = name_type_map['ArrayPointer'](self.context, self.info_count, name_type_map['InfoStruct'])
 		self.detail_list = name_type_map['ArrayPointer'](self.context, self.detail_count, name_type_map['DetailStruct'])
+		self.second_name = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
 		if set_default:
 			self.set_defaults()
 
@@ -77,8 +76,7 @@ class TerrainDetailsLayerItem(MemStruct):
 		yield 'unk_7_as_0', name_type_map['Uint'], (0, None), (False, None), (None, None)
 		yield 'unk_8_as_0', name_type_map['Uint'], (0, None), (False, None), (None, None)
 		yield 'unk_9_as_0', name_type_map['Uint'], (0, None), (False, None), (None, None)
-		yield 'unk_a_as_0', name_type_map['Uint'], (0, None), (False, None), (None, None)
-		yield 'unk_b_as_0', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'second_name', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None)
 		yield 'floatb_1', name_type_map['Float'], (0, None), (False, None), (None, None)
 		yield 'floatb_2', name_type_map['Float'], (0, None), (False, None), (None, None)
 
@@ -112,7 +110,6 @@ class TerrainDetailsLayerItem(MemStruct):
 		yield 'unk_7_as_0', name_type_map['Uint'], (0, None), (False, None)
 		yield 'unk_8_as_0', name_type_map['Uint'], (0, None), (False, None)
 		yield 'unk_9_as_0', name_type_map['Uint'], (0, None), (False, None)
-		yield 'unk_a_as_0', name_type_map['Uint'], (0, None), (False, None)
-		yield 'unk_b_as_0', name_type_map['Uint'], (0, None), (False, None)
+		yield 'second_name', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None)
 		yield 'floatb_1', name_type_map['Float'], (0, None), (False, None)
 		yield 'floatb_2', name_type_map['Float'], (0, None), (False, None)
