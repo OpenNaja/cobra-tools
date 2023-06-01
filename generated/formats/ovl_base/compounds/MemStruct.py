@@ -68,6 +68,7 @@ class MemStruct(BaseStruct):
 
 	def read_ptrs(self, pool):
 		"""Process all pointers in the structure and recursively load pointers in the sub-structs."""
+		offsets_of_ptrs = set()
 		# need to recurse here, because we may have substructs that are part of this MemStruct (not via ptrs)
 		for ptr, f_name, arguments in MemStruct.get_instances_recursive(self, Pointer):
 			# update the pointer's arg, as it is sometimes read after the pointer
@@ -75,12 +76,22 @@ class MemStruct(BaseStruct):
 			if not ptr.template:
 				# try the lookup function to get a suitable template for this field
 				ptr.template = self.get_ptr_template(f_name)
+			offsets_of_ptrs.add(ptr.io_start)
 			# locates the read address, attaches the frag entry, and reads the template as ptr.data
 			ptr.read_ptr(pool)
 			if ptr.target_pool:
 				# keep reading pointers in the newly read ptr.data
 				for memstruct in self.structs_from_ptr(ptr):
 					memstruct.read_ptrs(ptr.target_pool)
+		# verify that there is no uncaught pointer
+		for source_offset, trg in pool.offset_2_link.items():
+			# skip dependencies
+			if len(trg) != 2:
+				continue
+			target_pool, target_offset = trg
+			if self.io_start <= source_offset < self.io_start + self.io_size:
+				if source_offset not in offsets_of_ptrs:
+					logging.warning(f"Pointer at {pool.i} | {source_offset} to {target_pool.i} | {target_offset} is missing for {self.__class__.__name__} (rel offset: {source_offset-self.io_start})")
 
 	@staticmethod
 	def structs_from_ptr(ptr):

@@ -12,8 +12,8 @@
     </compound>
 
     <compound name="TerrainDetailsLayerItem" inherit="MemStruct">
-
         # 88 bytes
+
         <add name="layer_name"  type="Pointer" template="ZString"/>
         # seems like brushes list or something
         <add name="info_list"  type="ArrayPointer" template="InfoStruct" arg="info_count"/>
@@ -41,15 +41,11 @@
         <add name="floata8"   type="float" />
 
         <add name="unk_3_flags"         type="uint" />
-        <add name="unk_4_found_as_1"    type="uint" />
-
-        <add name="unk_5_as_0"    type="uint" />
-        <add name="unk_6_as_0"    type="uint" />
-        <add name="unk_7_as_0"    type="uint" />
-        <add name="unk_8_as_0"    type="uint" />
-        <add name="unk_9_as_0"    type="uint" />
+        <add name="unk_count"    type="uint64" />
+        <add name="other_names" type="Pointer" template="ZStringList" arg="other_names_count"/>
+        <add name="other_names_count"    type="uint64" />
         <add name="second_name"  type="Pointer" template="ZString"/>
-        
+
         <add name="floatb1"   type="float" />
         <add name="floatb2"   type="float" />
 
@@ -77,12 +73,6 @@
         <add name="x"        type="float" />
         <add name="y"        type="float" />
         <add name="z"        type="float" />
-    </compound>
-
-
-
-    # Observed in JWE2 and PZ the pointers to this struct are completely empty
-    <compound name="EmptyStruct" inherit="MemStruct">
     </compound>
 
 </niftoolsxml>

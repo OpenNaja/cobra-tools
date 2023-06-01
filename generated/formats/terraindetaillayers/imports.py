@@ -41,7 +41,6 @@ type_module_name_map = {
 	'InfoStruct': 'generated.formats.terraindetaillayers.compounds.InfoStruct',
 	'BrushitemStruct': 'generated.formats.terraindetaillayers.compounds.BrushitemStruct',
 	'DetailStruct': 'generated.formats.terraindetaillayers.compounds.DetailStruct',
-	'EmptyStruct': 'generated.formats.terraindetaillayers.compounds.EmptyStruct',
 }
 
 name_type_map = {}
