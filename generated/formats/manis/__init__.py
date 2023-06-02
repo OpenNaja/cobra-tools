@@ -182,7 +182,7 @@ class ManisFile(InfoHeader, IoFile):
 										ch_rel_key_size = ch_key_size + rel_key_size
 										# ensure the final key size is valid
 										assert ch_rel_key_size <= 32
-										# print(f"ch_rel_key_size {ch_rel_key_size}")
+										logging.info(f"ch_rel_key_size {ch_rel_key_size}")
 										# read the key, if it has a size
 										if ch_rel_key_size:
 											ch_rel_key = f.read_int(ch_rel_key_size)
