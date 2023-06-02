@@ -54,6 +54,20 @@ class BinStream:
 		return bitarray.util.ba2int(bits, signed=False)
 		# return bitarray.util.int2ba(0x99c51a50c66, length=45, endian="little", signed=False)
 
+	def read_int_reversed(self, size):
+		out = 0
+		for _ in range(size):
+			new_bit = self.read_int(1)
+			out = new_bit | out * 2
+		return out
+
+	def read_bit_size_flag(self, max_size):
+		for rel_key_size in range(max_size):
+			new_bit = self.read_int(1)
+			if not new_bit:
+				return rel_key_size
+		return -1
+
 	def find_all(self, bits):
 		for match_offset in self.data.itersearch(bits):
 			# logging.info(match)
@@ -120,6 +134,9 @@ class ManisFile(InfoHeader, IoFile):
 	def parse_keys(self):
 		k_channel_bitsize = self.get_bitsize()
 		logging.info(f"k_channel_bitsize {k_channel_bitsize}")
+		dump_path = os.path.join(root_path.root_dir, "dumps", "jmp2.bin")
+		with open(dump_path, "rb") as jmp1:
+			jmp1_stream = BinStream(jmp1.read())
 		for mani_info in self.iter_compressed_manis():
 			if mani_info.name != "acrocanthosaurus@standidle01":
 				continue
@@ -134,18 +151,30 @@ class ManisFile(InfoHeader, IoFile):
 					segment_frames_count = self.segment_frame_count(i, mani_info.frame_count)  # - 1
 					logging.info(f"Segment[{i}] frames {segment_frames_count}")
 					f = BinStream(mb.data)
-					k = bitarray.util.int2ba(0x99c51a41dac, length=45, endian="little", signed=False)
-					f.find_all(k)
+					f2 = BinStream(mb.data)
+					# k = bitarray.util.int2ba(4040, length=16, endian="big", signed=False)
+					# print(k)
+					# f.find_all(k)
 					# print(keys)
-					# return
-					decoded_size = f.read_int(16)
+					# this is a jump to the end of the compressed keys
+					num_bytes = f.read_int_reversed(16)
+					logging.info(f"num_bytes {num_bytes}")
+
+					# anim_decompression_read_wavelet
+					f2.seek(num_bytes * 8)
+					flag_0 = f2.read_int(1)
+					runs_remaining = f2.read_int(16)
+					init_k = f2.read_int_reversed(k_channel_bitsize)
+					output_b = f2.read_int_reversed(k_channel_bitsize)
+					print(flag_0, runs_remaining, init_k, output_b)
+					return
 					assert mani_info.keys.compressed.pos_bone_count == mani_info.pos_bone_count
 					for pos_index, pos_name in enumerate(mani_info.keys.pos_bones_names):
 						# definitely not byte aligned as the key bytes can not be found in the manis data
 						# defines basic loc values and which channels are keyframed
 						logging.info(f"pos[{pos_index}] {pos_name} at bit {f.pos}")
 						pos_base = f.read_int(45)
-						keys_flag = f.read_int(3)
+						keys_flag = f.read_int_reversed(3)
 						# logging.info(pos_base)
 						pos_base = PosBaseKey.from_value(pos_base)
 						keys_flag = StoreKeys.from_value(keys_flag)
@@ -163,9 +192,18 @@ class ManisFile(InfoHeader, IoFile):
 							# break
 							for channel_i, is_active in enumerate((keys_flag.x, keys_flag.y, keys_flag.z)):
 								if is_active:
+
+									logging.info(f"wavelet[{channel_i}] at bit {f2.pos}")
+									for frame_i_2 in range(segment_frames_count):
+										k_size = f2.read_bit_size_flag(32)
+										k_key = f2.read_int_reversed(k_size)
+
+										logging.info(f"wavelet[{channel_i}] frame[{frame_i_2}] {k_size} {k_key}")
+									logging.info(f"wavelet finished at bit {f2.pos}, byte {f2.pos / 8}")
+
 									logging.info(f"rel_keys[{channel_i}] at bit {f.pos}")
 									# define the minimal key size for this channel
-									ch_key_size = f.read_int(k_channel_bitsize)
+									ch_key_size = f.read_int_reversed(k_channel_bitsize)
 									ch_key_size_masked = ch_key_size & 0x1f
 									logging.info(f"channel[{channel_i}] base_size {ch_key_size}")
 									# channel_val = PosFrameInfo.from_value(channel_val)
@@ -185,7 +223,7 @@ class ManisFile(InfoHeader, IoFile):
 										logging.info(f"ch_rel_key_size {ch_rel_key_size}")
 										# read the key, if it has a size
 										if ch_rel_key_size:
-											ch_rel_key = f.read_int(ch_rel_key_size)
+											ch_rel_key = f.read_int_reversed(ch_rel_key_size)
 										else:
 											ch_rel_key = 0
 										# logging.info(f"key = {ch_rel_key}")
