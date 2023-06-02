@@ -42,6 +42,7 @@ type_module_name_map = {
 	'SegmentInfo': 'generated.formats.manis.bitfields.SegmentInfo',
 	'ChannelSize': 'generated.formats.manis.bitfields.ChannelSize',
 	'PosBaseKey': 'generated.formats.manis.bitfields.PosBaseKey',
+	'StoreKeys': 'generated.formats.manis.bitfields.StoreKeys',
 	'PosFrameInfo': 'generated.formats.manis.bitfields.PosFrameInfo',
 	'Key94': 'generated.formats.manis.bitfields.Key94',
 	'Key94B': 'generated.formats.manis.bitfields.Key94B',

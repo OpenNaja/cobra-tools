@@ -85,6 +85,12 @@
 		<member width="1" pos="47" name="key_z" type="bool"/>
 	</bitfield>
 
+	<bitfield name="StoreKeys" storage="ubyte">
+		<member width="1" pos="0" name="x" type="bool"/>
+		<member width="1" pos="1" name="y" type="bool"/>
+		<member width="1" pos="2" name="z" type="bool"/>
+	</bitfield>
+
 	<bitfield name="PosFrameInfo" storage="uint">
 		<member width="5" pos="0" name="ch_bit_size" type="int"/>
 <!--		<member width="25" pos="5" name="unused" type="int"/>-->

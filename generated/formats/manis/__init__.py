@@ -3,7 +3,7 @@ import io
 import logging
 import struct
 
-
+import root_path
 from generated.formats.base.basic import Ushort
 from generated.formats.manis.bitfields.ChannelSize import ChannelSize
 from generated.formats.manis.bitfields.Key94 import Key94
@@ -13,6 +13,7 @@ from generated.formats.manis.bitfields.ManisDtype import ManisDtype
 from generated.formats.manis.bitfields.PosBaseKey import PosBaseKey
 from generated.formats.manis.bitfields.PosFrameInfo import PosFrameInfo
 from generated.formats.manis.bitfields.SegmentInfo import SegmentInfo
+from generated.formats.manis.bitfields.StoreKeys import StoreKeys
 from generated.formats.manis.compounds.InfoHeader import InfoHeader
 from generated.io import IoFile
 import os
@@ -52,6 +53,11 @@ class BinStream:
 		bits = self.read(size)
 		return bitarray.util.ba2int(bits, signed=False)
 		# return bitarray.util.int2ba(0x99c51a50c66, length=45, endian="little", signed=False)
+
+	def find_all(self, bits):
+		for match_offset in self.data.itersearch(bits):
+			# logging.info(match)
+			yield match_offset
 
 
 class ManisFile(InfoHeader, IoFile):
@@ -113,35 +119,55 @@ class ManisFile(InfoHeader, IoFile):
 
 	def parse_keys(self):
 		k_channel_bitsize = self.get_bitsize()
-		# print(k_channel_bitsize)
+		logging.info(f"k_channel_bitsize {k_channel_bitsize}")
 		for mani_info in self.iter_compressed_manis():
 			if mani_info.name != "acrocanthosaurus@standidle01":
 				continue
+			# acro debug keys
+			dump_path = os.path.join(root_path.root_dir, "dumps", "acro_keys.txt")
+			keys = [int(line.strip(), 0) for line in open(dump_path, "r")]
+			keys_iter = iter(keys)
+			# key_i =
 			logging.info(f"Anim {mani_info.name} with {len(mani_info.keys.compressed.segments)} segments, {mani_info.frame_count} frames")
 			for i, mb in enumerate(mani_info.keys.compressed.segments):
 				try:
 					segment_frames_count = self.segment_frame_count(i, mani_info.frame_count)  # - 1
 					logging.info(f"Segment[{i}] frames {segment_frames_count}")
 					f = BinStream(mb.data)
+					k = bitarray.util.int2ba(0x99c51a41dac, length=45, endian="little", signed=False)
+					f.find_all(k)
+					# print(keys)
+					# return
 					decoded_size = f.read_int(16)
 					assert mani_info.keys.compressed.pos_bone_count == mani_info.pos_bone_count
 					for pos_index, pos_name in enumerate(mani_info.keys.pos_bones_names):
 						# definitely not byte aligned as the key bytes can not be found in the manis data
 						# defines basic loc values and which channels are keyframed
-						pos_base = f.read_int(48)
-						logging.info(pos_base)
+						logging.info(f"pos[{pos_index}] {pos_name} at bit {f.pos}")
+						pos_base = f.read_int(45)
+						keys_flag = f.read_int(3)
+						# logging.info(pos_base)
 						pos_base = PosBaseKey.from_value(pos_base)
-						logging.info(f"pos[{pos_index}] {pos_name} {pos_base}")
+						keys_flag = StoreKeys.from_value(keys_flag)
+						logging.info(f"{pos_base} {keys_flag}")
+						expected_key = next(keys_iter)
+						expected_key_bin = bitarray.util.int2ba(expected_key, length=45, endian="little", signed=False)
+						# f.find_all(expected_key_bin)
+						logging.info(f"Expected {expected_key} found at bits {tuple(f.find_all(expected_key_bin))}")
+						if expected_key != pos_base:
+							logging.warning(f"Expected and found keys do not match")
+							return
 						# return
-						if pos_base.key_x or pos_base.key_y or pos_base.key_z:
+						if keys_flag.x or keys_flag.y or keys_flag.z:
 							# logging.info(f"cannot read relative keys")
 							# break
-							for channel_i, is_active in enumerate((pos_base.key_x, pos_base.key_y, pos_base.key_z)):
+							for channel_i, is_active in enumerate((keys_flag.x, keys_flag.y, keys_flag.z)):
 								if is_active:
+									logging.info(f"rel_keys[{channel_i}] at bit {f.pos}")
 									# define the minimal key size for this channel
 									ch_key_size = f.read_int(k_channel_bitsize)
 									ch_key_size_masked = ch_key_size & 0x1f
-									# logging.info(f"channel[{channel_i}] base_size {ch_key_size}")
+									logging.info(f"channel[{channel_i}] base_size {ch_key_size}")
 									# channel_val = PosFrameInfo.from_value(channel_val)
 									for frame_i in range(segment_frames_count):
 										rel_key_flag = 1 << ch_key_size_masked | 1 >> 0x20 - ch_key_size_masked
@@ -170,7 +196,7 @@ class ManisFile(InfoHeader, IoFile):
 							pass
 							# set all keyframes
 					logging.info(f"loc finished at bit {f.pos}, byte {f.pos/8}")
-					# break
+					break
 				except bitstring.ReadError:
 					logging.exception(f"Reading failed at bit {f.pos}, byte {f.pos/8}")
 
