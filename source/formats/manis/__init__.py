@@ -21,6 +21,8 @@ from ovl_util.config import logging_setup
 
 try:
 	import bitstring
+	import bitarray
+	import bitarray.util
 except:
 	logging.warning(f"bitstring module is not installed")
 
@@ -29,6 +31,26 @@ def hex_test():
 	for i in range(20):
 		x = 2 ** i
 		print(i, bin(i), x, bin(x))
+
+
+class BinStream:
+	def __init__(self, val):
+		self.data = bitarray.bitarray(endian='little')
+		self.data.frombytes(val)
+		self.pos = 0
+
+	def seek(self, pos):
+		self.pos = pos
+
+	def read(self, size):
+		d = self.data[self.pos: self.pos+size]
+		self.pos += size
+		return d
+
+	def read_int(self, size):
+		bits = self.read(size)
+		return bitarray.util.ba2int(bits, signed=False)
+		# return bitarray.util.int2ba(0x99c51a50c66, length=45, endian="little", signed=False)
 
 
 class ManisFile(InfoHeader, IoFile):
@@ -76,7 +98,8 @@ class ManisFile(InfoHeader, IoFile):
 
 	def get_bitsize(self):
 		new_bit = 0xf  # MOV new_bit,0xf
-		return new_bit.bit_length()  # - 1
+		# return new_bit.bit_length()  # - 1
+		return new_bit.bit_length() - 1
 		# for i in reversed(range(31, -1, -1)):
 		# 	# print(i, 15 >> i)
 		# 	if 15 >> i == 0:
@@ -91,32 +114,31 @@ class ManisFile(InfoHeader, IoFile):
 		k_channel_bitsize = self.get_bitsize()
 		# print(k_channel_bitsize)
 		for mani_info in self.iter_compressed_manis():
-			# if mani_info.name != "acrocanthosaurus@standidle01":
-			# 	continue
-			logging.info(f"Anim {mani_info.name} with {len(mani_info.keys.compressed.segments)} segments")
+			if mani_info.name != "acrocanthosaurus@standidle01":
+				continue
+			logging.info(f"Anim {mani_info.name} with {len(mani_info.keys.compressed.segments)} segments, {mani_info.frame_count} frames")
 			for i, mb in enumerate(mani_info.keys.compressed.segments):
 				try:
 					segment_frames_count = self.segment_frame_count(i, mani_info.frame_count)  # - 1
 					logging.info(f"Segment[{i}] frames {segment_frames_count}")
-					f = bitstring.BitStream(mb.data)
-					channel_type = f.read(16).uint
-					channel_type = SegmentInfo.from_value(channel_type)
-					# print(channel_type)
+					f = BinStream(mb.data)
+					decoded_size = f.read_int(16)
 					assert mani_info.keys.compressed.pos_bone_count == mani_info.pos_bone_count
 					for pos_index, pos_name in enumerate(mani_info.keys.pos_bones_names):
-						f.bytealign()
-						# f.pos += get_padding_size(f.pos, alignment=16)
+						# definitely not byte aligned as the key bytes can not be found in the manis data
 						# defines basic loc values and which channels are keyframed
-						pos_base = f.read(48).uint
+						pos_base = f.read_int(48)
+						logging.info(pos_base)
 						pos_base = PosBaseKey.from_value(pos_base)
 						logging.info(f"pos[{pos_index}] {pos_name} {pos_base}")
+						# return
 						if pos_base.key_x or pos_base.key_y or pos_base.key_z:
 							# logging.info(f"cannot read relative keys")
 							# break
 							for channel_i, is_active in enumerate((pos_base.key_x, pos_base.key_y, pos_base.key_z)):
 								if is_active:
 									# define the minimal key size for this channel
-									ch_key_size = f.read(k_channel_bitsize).uint
+									ch_key_size = f.read_int(k_channel_bitsize)
 									ch_key_size_masked = ch_key_size & 0x1f
 									# logging.info(f"channel[{channel_i}] base_size {ch_key_size}")
 									# channel_val = PosFrameInfo.from_value(channel_val)
@@ -125,7 +147,7 @@ class ManisFile(InfoHeader, IoFile):
 										channel_bitsize = 0
 										# get additional key size for this key
 										for rel_key_size in range(16):
-											new_bit_flag = f.read(1).uint
+											new_bit_flag = f.read_int(1)
 											channel_bitsize += rel_key_flag
 											rel_key_flag *= 2
 											if not new_bit_flag:
@@ -136,7 +158,7 @@ class ManisFile(InfoHeader, IoFile):
 										# print(f"ch_rel_key_size {ch_rel_key_size}")
 										# read the key, if it has a size
 										if ch_rel_key_size:
-											ch_rel_key = f.read(ch_rel_key_size).uint
+											ch_rel_key = f.read_int(ch_rel_key_size)
 										else:
 											ch_rel_key = 0
 										# logging.info(f"key = {ch_rel_key}")
@@ -147,6 +169,7 @@ class ManisFile(InfoHeader, IoFile):
 							pass
 							# set all keyframes
 					logging.info(f"loc finished at bit {f.pos}, byte {f.pos/8}")
+					# break
 				except bitstring.ReadError:
 					logging.exception(f"Reading failed at bit {f.pos}, byte {f.pos/8}")
 
