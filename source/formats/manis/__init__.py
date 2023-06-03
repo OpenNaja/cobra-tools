@@ -189,7 +189,7 @@ class ManisFile(InfoHeader, IoFile):
 							return
 						# return
 						if keys_flag.x or keys_flag.y or keys_flag.z:
-							logging.info(f"wavelet at bit {f2.pos}")
+							logging.info(f"wavelets at bit {f2.pos}")
 							wavelet_i = 0
 							for wave_frame_i in range(segment_frames_count):
 								if run_rel_i == 0:
@@ -198,16 +198,22 @@ class ManisFile(InfoHeader, IoFile):
 									flag_0 = True
 									assert init_k < 32
 									k_size = f2.read_bit_size_flag(32)
+									k_flag = 1 << (init_k & 0x1f)
+									k_flag_mul = k_flag_add = k_flag
+									for _ in range(k_size):
+										k_flag_add += k_flag
+										k_flag_mul *= 2
 									k_key = f2.read_int_reversed(k_size + init_k)
+									assert k_size + init_k < 32
 									# todo set run_rel_i correctly
-									run_rel_i = k_key  # + shifted flag
+									run_rel_i = k_key + k_flag_add
 									logging.info(f"wavelet_frame[{wave_frame_i}] {init_k} {k_size} {k_key}")
-									logging.info(f"wavelet finished at bit {f2.pos}, byte {f2.pos / 8}")
 								run_rel_i -= 1
 								# seems to always pass
 								if flag_0:
 									wavelet_i += 1
 									frame_map[wavelet_i] = wave_frame_i
+							logging.info(f"wavelets finished at bit {f2.pos}, byte {f2.pos / 8}")
 
 							for channel_i, is_active in enumerate((keys_flag.x, keys_flag.y, keys_flag.z)):
 								if is_active:
