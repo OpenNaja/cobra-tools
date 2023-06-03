@@ -206,7 +206,6 @@ class ManisFile(InfoHeader, IoFile):
 										k_flag_mul *= 2
 									k_key = f2.read_int_reversed(k_size + init_k)
 									assert k_size + init_k < 32
-									# todo set run_rel_i correctly
 									run_rel_i = k_key + k_flag_add
 									logging.info(f"wavelet_frame[{wave_frame_i}] {init_k} {k_size} {k_key}")
 								run_rel_i -= 1
