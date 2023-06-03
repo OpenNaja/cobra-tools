@@ -133,6 +133,7 @@ class ManisFile(InfoHeader, IoFile):
 
 	def parse_keys(self):
 		k_channel_bitsize = self.get_bitsize()
+		run_rel_i = 0
 		logging.info(f"k_channel_bitsize {k_channel_bitsize}")
 		dump_path = os.path.join(root_path.root_dir, "dumps", "jmp2.bin")
 		with open(dump_path, "rb") as jmp1:
@@ -167,7 +168,8 @@ class ManisFile(InfoHeader, IoFile):
 					init_k = f2.read_int_reversed(k_channel_bitsize)
 					output_b = f2.read_int_reversed(k_channel_bitsize)
 					print(flag_0, runs_remaining, init_k, output_b)
-					return
+					frame_map = {}
+					# return
 					assert mani_info.keys.compressed.pos_bone_count == mani_info.pos_bone_count
 					for pos_index, pos_name in enumerate(mani_info.keys.pos_bones_names):
 						# definitely not byte aligned as the key bytes can not be found in the manis data
@@ -188,18 +190,28 @@ class ManisFile(InfoHeader, IoFile):
 							return
 						# return
 						if keys_flag.x or keys_flag.y or keys_flag.z:
-							# logging.info(f"cannot read relative keys")
-							# break
+							logging.info(f"wavelet at bit {f2.pos}")
+							wavelet_i = 0
+							for wave_frame_i in range(segment_frames_count):
+								if run_rel_i == 0:
+									assert runs_remaining != 0
+									runs_remaining -= 1
+									flag_0 = True
+									assert init_k < 32
+									k_size = f2.read_bit_size_flag(32)
+									k_key = f2.read_int_reversed(k_size + init_k)
+									# todo set run_rel_i correctly
+									run_rel_i = k_key  # + shifted flag
+									logging.info(f"wavelet_frame[{wave_frame_i}] {init_k} {k_size} {k_key}")
+									logging.info(f"wavelet finished at bit {f2.pos}, byte {f2.pos / 8}")
+								run_rel_i -= 1
+								# seems to always pass
+								if flag_0:
+									wavelet_i += 1
+									frame_map[wavelet_i] = wave_frame_i
+
 							for channel_i, is_active in enumerate((keys_flag.x, keys_flag.y, keys_flag.z)):
 								if is_active:
-
-									logging.info(f"wavelet[{channel_i}] at bit {f2.pos}")
-									for frame_i_2 in range(segment_frames_count):
-										k_size = f2.read_bit_size_flag(32)
-										k_key = f2.read_int_reversed(k_size)
-
-										logging.info(f"wavelet[{channel_i}] frame[{frame_i_2}] {k_size} {k_key}")
-									logging.info(f"wavelet finished at bit {f2.pos}, byte {f2.pos / 8}")
 
 									logging.info(f"rel_keys[{channel_i}] at bit {f.pos}")
 									# define the minimal key size for this channel
@@ -207,7 +219,7 @@ class ManisFile(InfoHeader, IoFile):
 									ch_key_size_masked = ch_key_size & 0x1f
 									logging.info(f"channel[{channel_i}] base_size {ch_key_size}")
 									# channel_val = PosFrameInfo.from_value(channel_val)
-									for frame_i in range(segment_frames_count):
+									for frame_i in range(wavelet_i):
 										rel_key_flag = 1 << ch_key_size_masked | 1 >> 0x20 - ch_key_size_masked
 										channel_bitsize = 0
 										# get additional key size for this key
