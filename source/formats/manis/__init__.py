@@ -57,7 +57,7 @@ class BinStream:
 		out = 0
 		for _ in range(size):
 			new_bit = self.read_int(1)
-			out = new_bit | out * 2
+			out = new_bit | (out * 2)
 		return out
 
 	def read_bit_size_flag(self, max_size):
@@ -132,7 +132,7 @@ class ManisFile(InfoHeader, IoFile):
 
 	def parse_keys(self):
 		k_channel_bitsize = self.get_bitsize()
-		run_rel_i = 0
+		i_in_run = 0
 		logging.info(f"k_channel_bitsize {k_channel_bitsize}")
 		dump_path = os.path.join(root_path.root_dir, "dumps", "jmp2.bin")
 		with open(dump_path, "rb") as jmp1:
@@ -162,11 +162,16 @@ class ManisFile(InfoHeader, IoFile):
 
 					# anim_decompression_read_wavelet
 					f2.seek(num_bytes * 8)
-					flag_0 = f2.read_int(1)
+					do_increment = f2.read_int(1)
 					runs_remaining = f2.read_int(16)
-					init_k = f2.read_int_reversed(k_channel_bitsize)
-					output_b = f2.read_int_reversed(k_channel_bitsize)
-					print(flag_0, runs_remaining, init_k, output_b)
+					size = k_channel_bitsize+1
+					# verified
+					size = 4
+					init_k = f2.read_int_reversed(size)
+					output_b = f2.read_int_reversed(size)
+					logging.info(f"do_increment {do_increment}, runs_remaining {runs_remaining}, init_k {init_k}, output_b {output_b}")
+					do_increment = not do_increment
+					begun = True
 					frame_map = {}
 					# return
 					assert mani_info.keys.compressed.pos_bone_count == mani_info.pos_bone_count
@@ -192,27 +197,30 @@ class ManisFile(InfoHeader, IoFile):
 							logging.info(f"wavelets at bit {f2.pos}")
 							wavelet_i = 0
 							for wave_frame_i in range(segment_frames_count):
-								if run_rel_i == 0:
+								if i_in_run == 0:
 									assert runs_remaining != 0
 									runs_remaining -= 1
-									flag_0 = True
+									do_increment = not do_increment
 									assert init_k < 32
-									k_size = f2.read_bit_size_flag(32)
+									k_size = f2.read_bit_size_flag(32-init_k)
 									k_flag = 1 << (init_k & 0x1f)
-									k_flag_mul = k_flag_add = k_flag
+									k_flag_out = 0
 									for _ in range(k_size):
-										k_flag_add += k_flag
-										k_flag_mul *= 2
+										k_flag_out += k_flag
+										k_flag *= 2
+									logging.info(f"pos before key {f2.pos}, k_flag_out {k_flag_out}, initk bare {k_size}")
 									k_key = f2.read_int_reversed(k_size + init_k)
 									assert k_size + init_k < 32
-									run_rel_i = k_key + k_flag_add
-									logging.info(f"wavelet_frame[{wave_frame_i}] {init_k} {k_size} {k_key}")
-								run_rel_i -= 1
-								# seems to always pass
-								if flag_0:
+									i_in_run = k_key + k_flag_out
+									logging.info(f"wavelet_frame[{wave_frame_i}] total init_k {init_k+k_size} key {k_key} k_flag_out {k_flag_out} i {i_in_run}")
+									logging.info(f"pos {f2.pos}")
+									# f2.pos -= 2
+								i_in_run -= 1
+								# seems to always pass after the first one has started
+								if do_increment:
 									wavelet_i += 1
 									frame_map[wavelet_i] = wave_frame_i
-							logging.info(f"wavelets finished at bit {f2.pos}, byte {f2.pos / 8}")
+							logging.info(f"wavelets finished at bit {f2.pos}, byte {f2.pos / 8}, out_count {wavelet_i}")
 
 							for channel_i, is_active in enumerate((keys_flag.x, keys_flag.y, keys_flag.z)):
 								if is_active:
@@ -223,7 +231,7 @@ class ManisFile(InfoHeader, IoFile):
 									ch_key_size_masked = ch_key_size & 0x1f
 									logging.info(f"channel[{channel_i}] base_size {ch_key_size}")
 									# channel_val = PosFrameInfo.from_value(channel_val)
-									for frame_i in range(wavelet_i):
+									for frame_i in range(wavelet_i+1):
 										rel_key_flag = 1 << ch_key_size_masked | 1 >> 0x20 - ch_key_size_masked
 										channel_bitsize = 0
 										# get additional key size for this key
@@ -236,7 +244,7 @@ class ManisFile(InfoHeader, IoFile):
 										ch_rel_key_size = ch_key_size + rel_key_size
 										# ensure the final key size is valid
 										assert ch_rel_key_size <= 32
-										logging.info(f"ch_rel_key_size {ch_rel_key_size}")
+										# logging.info(f"ch_rel_key_size {ch_rel_key_size}")
 										# read the key, if it has a size
 										if ch_rel_key_size:
 											ch_rel_key = f.read_int_reversed(ch_rel_key_size)
