@@ -168,9 +168,9 @@ class ManisFile(InfoHeader, IoFile):
 					size = k_channel_bitsize+1
 					# verified
 					size = 4
-					init_k = f2.read_int_reversed(size)
-					output_b = f2.read_int_reversed(size)
-					logging.info(f"do_increment {do_increment}, runs_remaining {runs_remaining}, init_k {init_k}, output_b {output_b}")
+					init_k_a = f2.read_int_reversed(size)
+					init_k_b = f2.read_int_reversed(size)
+					logging.info(f"do_increment {do_increment}, runs_remaining {runs_remaining}, init_k_a {init_k_a}, init_k_b {init_k_b}")
 					do_increment = not do_increment
 					begun = True
 					frame_map = {}
@@ -202,7 +202,11 @@ class ManisFile(InfoHeader, IoFile):
 									assert runs_remaining != 0
 									runs_remaining -= 1
 									do_increment = not do_increment
+									init_k = init_k_a if do_increment else init_k_b
 									assert init_k < 32
+									# run 0: init_k_a = 2
+									# run 1: init_k_b = 4
+
 									k_size = f2.read_bit_size_flag(32-init_k)
 									k_flag = 1 << (init_k & 0x1f)
 									k_flag_out = 0
@@ -214,8 +218,7 @@ class ManisFile(InfoHeader, IoFile):
 									assert k_size + init_k < 32
 									i_in_run = k_key + k_flag_out
 									logging.info(f"wavelet_frame[{wave_frame_i}] total init_k {init_k+k_size} key {k_key} k_flag_out {k_flag_out} i {i_in_run}")
-									logging.info(f"pos {f2.pos}")
-									# f2.pos -= 2
+									logging.info(f"pos after {f2.pos}")
 								i_in_run -= 1
 								# seems to always pass after the first one has started
 								if do_increment:

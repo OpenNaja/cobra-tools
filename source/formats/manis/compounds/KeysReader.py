@@ -18,7 +18,7 @@ class KeysReader(BaseStruct):
 		for mani_info in instance.arg:
 			# logging.info(mani_info)
 			mani_block_start = stream.tell()
-			logging.info(f"Reading keys block at {mani_block_start}")
+			logging.debug(f"Reading keys block at {mani_block_start}")
 			# if mani_block_start == 964833:
 			# 	break
 			try:

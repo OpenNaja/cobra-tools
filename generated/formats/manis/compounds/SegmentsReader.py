@@ -34,7 +34,7 @@ class SegmentsReader(BaseStruct):
 			pad_size = get_padding_size(segment.byte_size)
 			segment.padding = stream.read(pad_size)
 			assert segment.padding == b"\x00" * pad_size
-		logging.info(f"Compressed keys data ends at {stream.tell()}")
+		logging.debug(f"Compressed keys data ends at {stream.tell()}")
 		instance.io_size = stream.tell() - instance.io_start
 
 	@classmethod
