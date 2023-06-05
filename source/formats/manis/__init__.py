@@ -161,10 +161,12 @@ class ManisFile(InfoHeader, IoFile):
 			logging.info(
 				f"Anim {mani_info.name} with {len(mani_info.keys.compressed.segments)} segments, {mani_info.frame_count} frames")
 			pos_bones = np.empty((mani_info.frame_count, mani_info.pos_bone_count, 3), np.float32)
+			frame_offset = 0
 			for i, mb in enumerate(mani_info.keys.compressed.segments):
 				try:
 					segment_frames_count = self.segment_frame_count(i, mani_info.frame_count)  # - 1
-					logging.info(f"Segment[{i}] frames {segment_frames_count}")
+					segment_pos_bones = pos_bones[frame_offset:frame_offset+segment_frames_count]
+					logging.info(f"Segment[{i}] frames {segment_frames_count}, shape {segment_pos_bones.shape}")
 					f = BinStream(mb.data)
 					f2 = BinStream(mb.data)
 					# k = bitarray.util.int2ba(4040, length=16, endian="big", signed=False)
@@ -221,10 +223,10 @@ class ManisFile(InfoHeader, IoFile):
 						expected_key = next(keys_iter)
 						expected_key_bin = bitarray.util.int2ba(expected_key, length=45, endian="little", signed=False)
 						# f.find_all(expected_key_bin)
-						logging.info(f"Expected {expected_key} found at bits {tuple(f.find_all(expected_key_bin))}")
-						if expected_key != pos_base:
-							logging.warning(f"Expected and found keys do not match")
-							return
+						# logging.info(f"Expected {expected_key} found at bits {tuple(f.find_all(expected_key_bin))}")
+						# if expected_key != pos_base:
+						# 	logging.warning(f"Expected and found keys do not match")
+						# 	return
 						# return
 						keys_flag = f.read_int_reversed(3)
 						keys_flag = StoreKeys.from_value(keys_flag)
@@ -306,9 +308,9 @@ class ManisFile(InfoHeader, IoFile):
 								frame_inc = 0
 								# print(ushort_storage)
 								# set base keyframe
-								pos_bones[0, pos_index, 0] = x
-								pos_bones[0, pos_index, 1] = y
-								pos_bones[0, pos_index, 2] = z
+								segment_pos_bones[0, pos_index, 0] = x
+								segment_pos_bones[0, pos_index, 1] = y
+								segment_pos_bones[0, pos_index, 2] = z
 								# set other keyframes
 								for out_frame_i in range(1, segment_frames_count):
 									trg_frame_i = frame_map[frame_inc]
@@ -328,21 +330,22 @@ class ManisFile(InfoHeader, IoFile):
 									final_z = z + rel_z
 									# print(rel_x, rel_y, rel_z)
 									# print(final_x, final_y, final_z)
-									pos_bones[out_frame_i, pos_index, 0] = final_x
-									pos_bones[out_frame_i, pos_index, 1] = final_y
-									pos_bones[out_frame_i, pos_index, 2] = final_z
+									segment_pos_bones[out_frame_i, pos_index, 0] = final_x
+									segment_pos_bones[out_frame_i, pos_index, 1] = final_y
+									segment_pos_bones[out_frame_i, pos_index, 2] = final_z
 									# return
 								# break
 						else:
 							# set all keyframes
-							pos_bones[:, pos_index, 0] = x
-							pos_bones[:, pos_index, 1] = y
-							pos_bones[:, pos_index, 2] = z
-					print(pos_bones)
+							segment_pos_bones[:, pos_index, 0] = x
+							segment_pos_bones[:, pos_index, 1] = y
+							segment_pos_bones[:, pos_index, 2] = z
 					logging.info(f"loc finished at bit {f.pos}, byte {f.pos / 8}")
-					break
-				except bitstring.ReadError:
+					# break
+				except:
 					logging.exception(f"Reading failed at bit {f.pos}, byte {f.pos / 8}")
+				frame_offset += segment_frames_count
+			print(pos_bones)
 
 	def make_signed(self, x):
 		return -(x + 1 >> 1) if x & 1 else x >> 1
