@@ -3,15 +3,8 @@ import logging
 import struct
 
 import root_path
-from generated.formats.base.basic import Ushort
-from generated.formats.manis.bitfields.ChannelSize import ChannelSize
-from generated.formats.manis.bitfields.Key94 import Key94
-from generated.formats.manis.bitfields.Key94B import Key94B
-from generated.formats.manis.bitfields.Key94C import Key94C
 from generated.formats.manis.bitfields.ManisDtype import ManisDtype
 from generated.formats.manis.bitfields.PosBaseKey import PosBaseKey
-from generated.formats.manis.bitfields.PosFrameInfo import PosFrameInfo
-from generated.formats.manis.bitfields.SegmentInfo import SegmentInfo
 from generated.formats.manis.bitfields.StoreKeys import StoreKeys
 from generated.formats.manis.compounds.InfoHeader import InfoHeader
 from generated.io import IoFile
@@ -26,6 +19,10 @@ try:
 	import bitarray.util
 except:
 	logging.warning(f"bitstring module is not installed")
+
+
+def swap16(i):
+	return struct.unpack("<h", struct.pack(">h", i))[0]
 
 
 def hex_test():
@@ -44,14 +41,15 @@ class BinStream:
 		self.pos = pos
 
 	def read(self, size):
-		d = self.data[self.pos: self.pos+size]
+		d = self.data[self.pos: self.pos + size]
 		self.pos += size
 		return d
 
 	def read_int(self, size):
 		bits = self.read(size)
 		return bitarray.util.ba2int(bits, signed=False)
-		# return bitarray.util.int2ba(0x99c51a50c66, length=45, endian="little", signed=False)
+
+	# return bitarray.util.int2ba(0x99c51a50c66, length=45, endian="little", signed=False)
 
 	def read_int_reversed(self, size):
 		out = 0
@@ -100,11 +98,11 @@ class ManisFile(InfoHeader, IoFile):
 				if hasattr(mi, "keys"):
 					mi.keys.name = name
 					mi.keys.compressed.name = name
-					# print(mi.keys.name)
-					# if mi.root_pos_bone != 255:
-					# 	print(mi.root_pos_bone, mi.keys.pos_bones_names[mi.root_pos_bone])
-					# if mi.root_ori_bone != 255:
-					# 	print(mi.root_ori_bone, mi.keys.ori_bones_names[mi.root_ori_bone])
+				# print(mi.keys.name)
+				# if mi.root_pos_bone != 255:
+				# 	print(mi.root_pos_bone, mi.keys.pos_bones_names[mi.root_pos_bone])
+				# if mi.root_ori_bone != 255:
+				# 	print(mi.root_ori_bone, mi.keys.ori_bones_names[mi.root_ori_bone])
 
 	def iter_compressed_manis(self):
 		for mani_info in self.mani_infos:
@@ -127,17 +125,19 @@ class ManisFile(InfoHeader, IoFile):
 		new_bit = 0xf  # MOV new_bit,0xf
 		# return new_bit.bit_length()  # - 1
 		return new_bit.bit_length() - 1
-		# for i in reversed(range(31, -1, -1)):
-		# 	# print(i, 15 >> i)
-		# 	if 15 >> i == 0:
-		# 		return i
-		# return -1
+
+	# for i in reversed(range(31, -1, -1)):
+	# 	# print(i, 15 >> i)
+	# 	if 15 >> i == 0:
+	# 		return i
+	# return -1
 
 	def segment_frame_count(self, i, frame_count):
 		# get from chunk index
-		return min(32, frame_count - (i*32))
+		return min(32, frame_count - (i * 32))
 
 	def parse_keys(self):
+		scale = 6.103888e-05
 		k_channel_bitsize = self.get_bitsize()
 		i_in_run = 0
 		logging.info(f"k_channel_bitsize {k_channel_bitsize}")
@@ -152,7 +152,8 @@ class ManisFile(InfoHeader, IoFile):
 			keys = [int(line.strip(), 0) for line in open(dump_path, "r")]
 			keys_iter = iter(keys)
 			# key_i =
-			logging.info(f"Anim {mani_info.name} with {len(mani_info.keys.compressed.segments)} segments, {mani_info.frame_count} frames")
+			logging.info(
+				f"Anim {mani_info.name} with {len(mani_info.keys.compressed.segments)} segments, {mani_info.frame_count} frames")
 			for i, mb in enumerate(mani_info.keys.compressed.segments):
 				try:
 					segment_frames_count = self.segment_frame_count(i, mani_info.frame_count)  # - 1
@@ -171,12 +172,13 @@ class ManisFile(InfoHeader, IoFile):
 					f2.seek(num_bytes * 8)
 					do_increment = f2.read_int(1)
 					runs_remaining = f2.read_int(16)
-					size = k_channel_bitsize+1
+					size = k_channel_bitsize + 1
 					# verified
 					size = 4
 					init_k_a = f2.read_int_reversed(size)
 					init_k_b = f2.read_int_reversed(size)
-					logging.info(f"do_increment {do_increment}, runs_remaining {runs_remaining}, init_k_a {init_k_a}, init_k_b {init_k_b}")
+					logging.info(
+						f"do_increment {do_increment}, runs_remaining {runs_remaining}, init_k_a {init_k_a}, init_k_b {init_k_b}")
 					do_increment = not do_increment
 					begun = True
 					frame_map = {}
@@ -186,12 +188,43 @@ class ManisFile(InfoHeader, IoFile):
 						# definitely not byte aligned as the key bytes can not be found in the manis data
 						# defines basic loc values and which channels are keyframed
 						logging.info(f"pos[{pos_index}] {pos_name} at bit {f.pos}")
+						f_pos = f.pos
 						pos_base = f.read_int(45)
+						# f.pos = f_pos
+						# x = f.read_int(15)
+						# y = f.read_int(15)
+						# z = f.read_int(15)
 						keys_flag = f.read_int_reversed(3)
 						# logging.info(pos_base)
-						pos_base = PosBaseKey.from_value(pos_base)
+						logging.info(hex(pos_base))
+						# pos_base = PosBaseKey.from_value(pos_base)
+						# x = pos_base.x
+						# self.dequant(x & 0x7fff)
+						# self.dequant(y & 0x7fff)
+						# self.dequant(z & 0x7fff)
+						x = pos_base & 0x7fff
+						if (pos_base & 1) == 0:
+							x = x >> 1
+						else:
+							x = -(x + 1) >> 1
+
+						y = (pos_base >> 0xf) & 0x7fff
+						if (pos_base >> 0xf & 1) == 0:
+							y = y >> 1
+						else:
+							y = -(y + 1) >> 1
+
+						z = (pos_base >> 0x1e) & 0x7fff
+						if (pos_base >> 0x1e & 1) == 0:
+							z = z >> 1
+						else:
+							z = -(z + 1) >> 1
 						keys_flag = StoreKeys.from_value(keys_flag)
-						logging.info(f"{pos_base} {keys_flag}")
+						logging.info(f"{(x, y, z)} {(hex(x), hex(y), hex(z))} {keys_flag}")
+						x *= scale
+						y *= scale
+						z *= scale
+						logging.info(f"{(x, y, z)} {struct.pack('f', x), struct.pack('f', y), struct.pack('f', z)} {keys_flag}")
 						expected_key = next(keys_iter)
 						expected_key_bin = bitarray.util.int2ba(expected_key, length=45, endian="little", signed=False)
 						# f.find_all(expected_key_bin)
@@ -213,14 +246,16 @@ class ManisFile(InfoHeader, IoFile):
 									# run 0: init_k_a = 2
 									# run 1: init_k_b = 4
 
-									k_size = f2.read_bit_size_flag(32-init_k)
+									k_size = f2.read_bit_size_flag(32 - init_k)
 									k_flag = 1 << (init_k & 0x1f)
 									k_flag_out = f2.read_as_shift(k_size, k_flag)
-									logging.info(f"pos before key {f2.pos}, k_flag_out {k_flag_out}, initk bare {k_size}")
+									logging.info(
+										f"pos before key {f2.pos}, k_flag_out {k_flag_out}, initk bare {k_size}")
 									k_key = f2.read_int_reversed(k_size + init_k)
 									assert k_size + init_k < 32
 									i_in_run = k_key + k_flag_out
-									logging.info(f"wavelet_frame[{wave_frame_i}] total init_k {init_k+k_size} key {k_key} k_flag_out {k_flag_out} i {i_in_run}")
+									logging.info(
+										f"wavelet_frame[{wave_frame_i}] total init_k {init_k + k_size} key {k_key} k_flag_out {k_flag_out} i {i_in_run}")
 									logging.info(f"pos after {f2.pos}")
 								i_in_run -= 1
 								# seems to always pass after the first one has started
@@ -234,14 +269,14 @@ class ManisFile(InfoHeader, IoFile):
 
 									logging.info(f"rel_keys[{channel_i}] at bit {f.pos}")
 									# define the minimal key size for this channel
-									ch_key_size = f.read_int_reversed(k_channel_bitsize+1)
+									ch_key_size = f.read_int_reversed(k_channel_bitsize + 1)
 									ch_key_size_masked = ch_key_size & 0x1f
 									assert ch_key_size <= 32
 									logging.info(f"channel[{channel_i}] base_size {ch_key_size}")
 									# channel_val = PosFrameInfo.from_value(channel_val)
 									for frame_i in range(wavelet_i):
 										rel_key_flag = 1 << ch_key_size_masked | 1 >> 0x20 - ch_key_size_masked
-										rel_key_size = f.read_bit_size_flag(32-ch_key_size_masked)
+										rel_key_size = f.read_bit_size_flag(32 - ch_key_size_masked)
 										rel_key_base = f.read_as_shift(rel_key_size, rel_key_flag)
 										ch_rel_key_size = ch_key_size + rel_key_size
 										# ensure the final key size is valid
@@ -254,16 +289,21 @@ class ManisFile(InfoHeader, IoFile):
 											ch_rel_key = 0
 										# logging.info(f"key = {ch_rel_key}")
 										rel_key_masked = (rel_key_base + ch_rel_key) & 0xffff
-										# logging.info(f"key {i} = {rel_key_masked}")
+									# logging.info(f"key {i} = {rel_key_masked}")
 
-									# break
+								# break
 						else:
 							pass
-							# set all keyframes
-					logging.info(f"loc finished at bit {f.pos}, byte {f.pos/8}")
+						# set all keyframes
+					logging.info(f"loc finished at bit {f.pos}, byte {f.pos / 8}")
 					break
 				except bitstring.ReadError:
-					logging.exception(f"Reading failed at bit {f.pos}, byte {f.pos/8}")
+					logging.exception(f"Reading failed at bit {f.pos}, byte {f.pos / 8}")
+
+	def dequant(self, x):
+		x_key_quant = -(x + 1 >> 1) if x & 1 else x >> 1
+		x_key_quant = swap16(x_key_quant)
+		print(x, x_key_quant)
 
 
 if __name__ == "__main__":
@@ -272,15 +312,15 @@ if __name__ == "__main__":
 	# 	print(ManisDtype.from_value(k))
 	# print(bin(-4395513102365351936))
 	# print(bin(554058852231815168))
-	key = Key94C.from_value(2305843010808512512)
-	key.type = 0
-	key.loc_x = 0
-	key.loc_y = 0
+	# key = Key94C.from_value(2305843010808512512)
+	# key.type = 0
+	# key.loc_x = 0
+	# key.loc_y = 0
+	# # key.loc_z = 0b11111111111111111111
 	# key.loc_z = 0b11111111111111111111
-	key.loc_z = 0b11111111111111111111
-	# key.unk = 0
-	# key.more_loc = 0
-	key.rot_rel = 4
+	# # key.unk = 0
+	# # key.more_loc = 0
+	# key.rot_rel = 4
 	# print(key)
 	mani = ManisFile()
 	# acro stand_ide
@@ -294,40 +334,40 @@ if __name__ == "__main__":
 	# mani.load("C:/Users/arnfi/Desktop/dinomascot/animation.maniset293c241f.manis")
 	# mani.dump_keys()
 	mani.parse_keys()
-	# mani.load("C:/Users/arnfi/Desktop/donationbox/animation.maniseteaf333c5.manis")
-	# mani.dump_keys()
-	# mani.parse_keys()
-	# # mani.load("C:/Users/arnfi/Desktop/gate/animation.manisetd2b36ae0.manis")
-	# print(mani)
-	# # mani.load("C:/Users/arnfi/Desktop/JWE2/pyro/hatcheryexitcamera.maniset8c6441b9.manis")
-	# mani.parse_keys()
-	# mani.load("C:/Users/arnfi/Desktop/dilo/locomotion.maniset1c05e0f4.manis")
-	# mani.load("C:/Users/arnfi/Desktop/ostrich/ugcres.maniset8982114c.manis")
-	# mani.load("C:/Users/arnfi/Desktop/Coding/ovl/OVLs/anim test/rot_x_0_22_42.manis")
-	# mani.load("C:/Users/arnfi/Desktop/Coding/ovl/OVLs/anim test/ugcres.maniset8982114c0.manis")
-	# mani.load("C:/Users/arnfi/Desktop/Coding/ovl/OVLs/anim test/ugcres.maniset8982114c1.manis")
-	# mani.load("C:/Users/arnfi/Desktop/Coding/ovl/OVLs/anim test/ugcres.maniset8982114c2.manis")
-	# mani.load("C:/Users/arnfi/Desktop/Coding/ovl/PZ 1.6/anim/animation.maniset9637aeb4.manis")
-	# mani.load("C:/Users/arnfi/Desktop/Coding/ovl/PZ 1.6/anim/animationmotionextractedbehaviour.maniset5f721adf.manis")
-	# mani.load("C:/Users/arnfi/Desktop/Coding/ovl/PZ 1.6/anim/animationmotionextractedlocomotion.maniset58076276.manis")
-	# mani.load("C:/Users/arnfi/Desktop/lemur/animationnotmotionextractedpartials.maniset919dac12.manis")
-	# mani.load("C:/Users/arnfi/Desktop/lemur/animationmotionextractedfighting.maniset9c749130.manis")
-	# mani.load("C:/Users/arnfi/Desktop/lemur/animationnotmotionextractedlocomotion.maniset87d072d8.manis")
+# mani.load("C:/Users/arnfi/Desktop/donationbox/animation.maniseteaf333c5.manis")
+# mani.dump_keys()
+# mani.parse_keys()
+# # mani.load("C:/Users/arnfi/Desktop/gate/animation.manisetd2b36ae0.manis")
+# print(mani)
+# # mani.load("C:/Users/arnfi/Desktop/JWE2/pyro/hatcheryexitcamera.maniset8c6441b9.manis")
+# mani.parse_keys()
+# mani.load("C:/Users/arnfi/Desktop/dilo/locomotion.maniset1c05e0f4.manis")
+# mani.load("C:/Users/arnfi/Desktop/ostrich/ugcres.maniset8982114c.manis")
+# mani.load("C:/Users/arnfi/Desktop/Coding/ovl/OVLs/anim test/rot_x_0_22_42.manis")
+# mani.load("C:/Users/arnfi/Desktop/Coding/ovl/OVLs/anim test/ugcres.maniset8982114c0.manis")
+# mani.load("C:/Users/arnfi/Desktop/Coding/ovl/OVLs/anim test/ugcres.maniset8982114c1.manis")
+# mani.load("C:/Users/arnfi/Desktop/Coding/ovl/OVLs/anim test/ugcres.maniset8982114c2.manis")
+# mani.load("C:/Users/arnfi/Desktop/Coding/ovl/PZ 1.6/anim/animation.maniset9637aeb4.manis")
+# mani.load("C:/Users/arnfi/Desktop/Coding/ovl/PZ 1.6/anim/animationmotionextractedbehaviour.maniset5f721adf.manis")
+# mani.load("C:/Users/arnfi/Desktop/Coding/ovl/PZ 1.6/anim/animationmotionextractedlocomotion.maniset58076276.manis")
+# mani.load("C:/Users/arnfi/Desktop/lemur/animationnotmotionextractedpartials.maniset919dac12.manis")
+# mani.load("C:/Users/arnfi/Desktop/lemur/animationmotionextractedfighting.maniset9c749130.manis")
+# mani.load("C:/Users/arnfi/Desktop/lemur/animationnotmotionextractedlocomotion.maniset87d072d8.manis")
 
-	# mani.load("C:/Users/arnfi/Desktop/Coding/Frontier/anim/wheel/animation.maniset9637aeb4.manis")
+# mani.load("C:/Users/arnfi/Desktop/Coding/Frontier/anim/wheel/animation.maniset9637aeb4.manis")
 
-	# mani.load("C:/Users/arnfi/Desktop/Coding/Frontier/anim/Iron_piston/ugcres.maniset8982114c.manis")
-	# mani.load("C:/Users/arnfi/Desktop/Coding/Frontier/anim/pc dino/animation.maniset293c241f.manis")
+# mani.load("C:/Users/arnfi/Desktop/Coding/Frontier/anim/Iron_piston/ugcres.maniset8982114c.manis")
+# mani.load("C:/Users/arnfi/Desktop/Coding/Frontier/anim/pc dino/animation.maniset293c241f.manis")
 
-	# mani.load("C:/Users/arnfi/Desktop/Coding/Frontier/anim/dilo/notmotionextracted.manisetf2b1fd43.manis")  # ok 0000 24 bytes f
-	# mani.load("C:/Users/arnfi/Desktop/Coding/Frontier/anim/dilo/motionextracted.maniset1823adb0.manis")  # 0111 48 bytes f
-	# mani.load("C:/Users/arnfi/Desktop/Coding/Frontier/anim/dilo/motionextracted.maniset1bfb6052.manis")  # 0, 2, 3, 1
+# mani.load("C:/Users/arnfi/Desktop/Coding/Frontier/anim/dilo/notmotionextracted.manisetf2b1fd43.manis")  # ok 0000 24 bytes f
+# mani.load("C:/Users/arnfi/Desktop/Coding/Frontier/anim/dilo/motionextracted.maniset1823adb0.manis")  # 0111 48 bytes f
+# mani.load("C:/Users/arnfi/Desktop/Coding/Frontier/anim/dilo/motionextracted.maniset1bfb6052.manis")  # 0, 2, 3, 1
 
-	# mani.load("C:/Users/arnfi/Desktop/Coding/Frontier/anim/ceara/hatcheryexitcamera.maniset9762d823.manis")
-	# mani.load("C:/Users/arnfi/Desktop/Coding/Frontier/anim/ceara/motionextracted.maniset7e6b0db3.manis") # keys are external
-	# mani.load("C:/Users/arnfi/Desktop/Coding/Frontier/anim/ceara/motionextracted.manisetf2b6c52d.manis")
-	# print(mani)
+# mani.load("C:/Users/arnfi/Desktop/Coding/Frontier/anim/ceara/hatcheryexitcamera.maniset9762d823.manis")
+# mani.load("C:/Users/arnfi/Desktop/Coding/Frontier/anim/ceara/motionextracted.maniset7e6b0db3.manis") # keys are external
+# mani.load("C:/Users/arnfi/Desktop/Coding/Frontier/anim/ceara/motionextracted.manisetf2b6c52d.manis")
+# print(mani)
 
-	# mani.load("C:/Users/arnfi/Desktop/manis/fee_feeder_ground.maniset2759dfaf.manis")
-	# mani.load("C:/Users/arnfi/Desktop/manis/motionextracted.maniset167ed454.manis")
-	# hex_test()
+# mani.load("C:/Users/arnfi/Desktop/manis/fee_feeder_ground.maniset2759dfaf.manis")
+# mani.load("C:/Users/arnfi/Desktop/manis/motionextracted.maniset167ed454.manis")
+# hex_test()

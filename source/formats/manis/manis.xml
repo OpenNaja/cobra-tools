@@ -61,67 +61,16 @@
 		<member width="2" pos="5" name="has_list" type="int"/>
 	</bitfield>
 
-	<bitfield name="SegmentInfo" storage="ushort">
-<!--		<member width="5" pos="0" name="scl" type="int"/>-->
-<!--		<member width="5" pos="5" name="loc" type="int"/>-->
-		<member width="1" pos="9" name="not_last" type="int"/>
-		<member width="10" pos="10" name="unk" type="int"/>
-	</bitfield>
-	<bitfield name="ChannelSize" storage="ushort">
-		<member width="5" pos="0" name="scl" type="int"/>
-		<member width="5" pos="5" name="loc" type="int"/>
-		<member width="5" pos="10" name="rot" type="int"/>
-		<member width="1" pos="15" name="unk" type="int"/>
-	</bitfield>
-
 	<bitfield name="PosBaseKey" storage="int48">
-		<member width="15" pos="0" name="loc_x" type="int"/>
-		<member width="15" pos="15" name="loc_y" type="int"/>
-		<member width="15" pos="30" name="loc_z" type="int"/>
-		if any of these is 1, relative keys follow
-		else just key all frames in chunk with base key
-		<member width="1" pos="45" name="key_x" type="bool"/>
-		<member width="1" pos="46" name="key_y" type="bool"/>
-		<member width="1" pos="47" name="key_z" type="bool"/>
+		<member width="15" pos="0" name="x" type="int"/>
+		<member width="15" pos="15" name="y" type="int"/>
+		<member width="15" pos="30" name="z" type="int"/>
 	</bitfield>
 
 	<bitfield name="StoreKeys" storage="ubyte">
 		<member width="1" pos="0" name="x" type="bool"/>
 		<member width="1" pos="1" name="y" type="bool"/>
 		<member width="1" pos="2" name="z" type="bool"/>
-	</bitfield>
-
-	<bitfield name="PosFrameInfo" storage="uint">
-		<member width="5" pos="0" name="ch_bit_size" type="int"/>
-<!--		<member width="25" pos="5" name="unused" type="int"/>-->
-<!--		<member width="1" pos="31" name="flag" type="bool"/>-->
-	</bitfield>
-
-	<bitfield name="Key94" storage="uint64">
-		for 00 94 channel
-		<member width="14" pos="0" name="loc_x" type="int"/>
-		<member width="14" pos="14" name="loc_y" type="int"/>
-		<member width="14" pos="28" name="loc_z" type="int"/>
-		<member width="15" pos="42" name="rot_x" type="int"/>
-	</bitfield>
-	<bitfield name="Key94b" storage="uint64">
-		for 00 94 channel
-		<member width="13" pos="0" name="loc_x" type="int"/>
-		<member width="13" pos="13" name="loc_y" type="int"/>
-		<member width="13" pos="26" name="loc_z" type="int"/>
-		<member width="7" pos="39" name="more_loc" type="int"/>
-		<member width="2" pos="46" name="rot_rel" type="int"/>
-	</bitfield>
-	<bitfield name="Key94C" storage="int64">
-		for 00 94 channel
-		<member width="2" pos="0" name="type" type="int"/>
-		<member width="24" pos="2" name="loc_x" type="int"/>
-		<member width="14" pos="26" name="loc_y" type="int"/>
-		<member width="5" pos="40" name="loc_z" type="int"/>
-		<member width="3" pos="45" name="rot_rel" type="int"/>
-		<member width="16" pos="48" name="rot_x_val" type="int"/>
-		<member width="16" pos="64" name="rot_y_val" type="int"/>
-		<member width="16" pos="80" name="rot_z_val" type="int"/>
 	</bitfield>
 
     <compound name="ManisRoot" inherit="MemStruct">
