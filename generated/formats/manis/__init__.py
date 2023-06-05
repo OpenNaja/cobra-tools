@@ -61,6 +61,13 @@ class BinStream:
 			out = new_bit | (out * 2)
 		return out
 
+	def read_as_shift(self, size, flag):
+		out = 0
+		for _ in range(size):
+			out += flag
+			flag *= 2
+		return out
+
 	def read_bit_size_flag(self, max_size):
 		for rel_key_size in range(max_size):
 			new_bit = self.read_int(1)
@@ -209,10 +216,7 @@ class ManisFile(InfoHeader, IoFile):
 
 									k_size = f2.read_bit_size_flag(32-init_k)
 									k_flag = 1 << (init_k & 0x1f)
-									k_flag_out = 0
-									for _ in range(k_size):
-										k_flag_out += k_flag
-										k_flag *= 2
+									k_flag_out = f2.read_as_shift(k_size, k_flag)
 									logging.info(f"pos before key {f2.pos}, k_flag_out {k_flag_out}, initk bare {k_size}")
 									k_key = f2.read_int_reversed(k_size + init_k)
 									assert k_size + init_k < 32
@@ -238,14 +242,8 @@ class ManisFile(InfoHeader, IoFile):
 									# channel_val = PosFrameInfo.from_value(channel_val)
 									for frame_i in range(wavelet_i):
 										rel_key_flag = 1 << ch_key_size_masked | 1 >> 0x20 - ch_key_size_masked
-										channel_bitsize = 0
-										# get additional key size for this key
-										for rel_key_size in range(16):
-											new_bit_flag = f.read_int(1)
-											channel_bitsize += rel_key_flag
-											rel_key_flag *= 2
-											if not new_bit_flag:
-												break
+										rel_key_size = f.read_bit_size_flag(32-ch_key_size_masked)
+										rel_key_base = f.read_as_shift(rel_key_size, rel_key_flag)
 										ch_rel_key_size = ch_key_size + rel_key_size
 										# ensure the final key size is valid
 										assert ch_rel_key_size <= 32
@@ -256,7 +254,8 @@ class ManisFile(InfoHeader, IoFile):
 										else:
 											ch_rel_key = 0
 										# logging.info(f"key = {ch_rel_key}")
-									# logging.info(f"{rel_key_size}, {channel_bitsize}, {frames_flag}, {frames_flag_2}")
+										rel_key_masked = (rel_key_base + ch_rel_key) & 0xffff
+										# logging.info(f"key {i} = {rel_key_masked}")
 
 									# break
 						else:
