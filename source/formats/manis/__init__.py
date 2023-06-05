@@ -196,7 +196,7 @@ class ManisFile(InfoHeader, IoFile):
 						if keys_flag.x or keys_flag.y or keys_flag.z:
 							logging.info(f"wavelets at bit {f2.pos}")
 							wavelet_i = 0
-							for wave_frame_i in range(segment_frames_count):
+							for wave_frame_i in range(1, segment_frames_count):
 								if i_in_run == 0:
 									assert runs_remaining != 0
 									runs_remaining -= 1
@@ -224,17 +224,18 @@ class ManisFile(InfoHeader, IoFile):
 									wavelet_i += 1
 									frame_map[wavelet_i] = wave_frame_i
 							logging.info(f"wavelets finished at bit {f2.pos}, byte {f2.pos / 8}, out_count {wavelet_i}")
-
+							# wavelet_i = (31, 31, 31, 3, )
 							for channel_i, is_active in enumerate((keys_flag.x, keys_flag.y, keys_flag.z)):
 								if is_active:
 
 									logging.info(f"rel_keys[{channel_i}] at bit {f.pos}")
 									# define the minimal key size for this channel
-									ch_key_size = f.read_int_reversed(k_channel_bitsize)
+									ch_key_size = f.read_int_reversed(k_channel_bitsize+1)
 									ch_key_size_masked = ch_key_size & 0x1f
+									assert ch_key_size <= 32
 									logging.info(f"channel[{channel_i}] base_size {ch_key_size}")
 									# channel_val = PosFrameInfo.from_value(channel_val)
-									for frame_i in range(wavelet_i+1):
+									for frame_i in range(wavelet_i):
 										rel_key_flag = 1 << ch_key_size_masked | 1 >> 0x20 - ch_key_size_masked
 										channel_bitsize = 0
 										# get additional key size for this key
