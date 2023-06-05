@@ -3,6 +3,8 @@ import io
 import logging
 import struct
 
+import numpy as np
+
 import root_path
 from generated.formats.manis.bitfields.ManisDtype import ManisDtype
 from generated.formats.manis.bitfields.PosBaseKey import PosBaseKey
@@ -159,6 +161,7 @@ class ManisFile(InfoHeader, IoFile):
 			# key_i =
 			logging.info(
 				f"Anim {mani_info.name} with {len(mani_info.keys.compressed.segments)} segments, {mani_info.frame_count} frames")
+			pos_bones = np.empty((mani_info.frame_count, mani_info.pos_bone_count, 3), np.float32)
 			for i, mb in enumerate(mani_info.keys.compressed.segments):
 				try:
 					segment_frames_count = self.segment_frame_count(i, mani_info.frame_count)  # - 1
@@ -186,10 +189,12 @@ class ManisFile(InfoHeader, IoFile):
 						f"do_increment {do_increment}, runs_remaining {runs_remaining}, init_k_a {init_k_a}, init_k_b {init_k_b}")
 					do_increment = not do_increment
 					begun = True
-					frame_map = {}
+					# frame_map = {}
 					# return
 					assert mani_info.keys.compressed.pos_bone_count == mani_info.pos_bone_count
 					for pos_index, pos_name in enumerate(mani_info.keys.pos_bones_names):
+						frame_map = np.zeros(32, dtype=np.uint32)
+						ushort_storage = np.zeros(156, dtype=np.uint32)
 						# definitely not byte aligned as the key bytes can not be found in the manis data
 						# defines basic loc values and which channels are keyframed
 						logging.info(f"pos[{pos_index}] {pos_name} at bit {f.pos}")
@@ -197,28 +202,14 @@ class ManisFile(InfoHeader, IoFile):
 						pos_base = f.read_uint(45)
 						# logging.info(pos_base)
 						logging.info(hex(pos_base))
-						# pos_base = PosBaseKey.from_value(pos_base)
-						# x = pos_base.x
-						# self.dequant(x & 0x7fff)
-						# self.dequant(y & 0x7fff)
-						# self.dequant(z & 0x7fff)
 						x = pos_base & 0x7fff
-						if (pos_base & 1) == 0:
-							x = x >> 1
-						else:
-							x = -(x + 1) >> 1
-
 						y = (pos_base >> 0xf) & 0x7fff
-						if (pos_base >> 0xf & 1) == 0:
-							y = y >> 1
-						else:
-							y = -(y + 1) >> 1
-
 						z = (pos_base >> 0x1e) & 0x7fff
-						if (pos_base >> 0x1e & 1) == 0:
-							z = z >> 1
-						else:
-							z = -(z + 1) >> 1
+						x = self.make_signed(x)
+						y = self.make_signed(y)
+						z = self.make_signed(z)
+						# (0.093084292, 0.17859976288, 0.0848440432)
+						# (0.20734907536, 0.27565158208, -0.30037232848)
 						# f.pos = f_pos
 						# x = f.read_int(15)
 						# y = f.read_int(15)
@@ -264,12 +255,11 @@ class ManisFile(InfoHeader, IoFile):
 										f"wavelet_frame[{wave_frame_i}] total init_k {init_k + k_size} key {k_key} k_flag_out {k_flag_out} i {i_in_run}")
 									logging.info(f"pos after {f2.pos}")
 								i_in_run -= 1
-								# seems to always pass after the first one has started
 								if do_increment:
-									wavelet_i += 1
 									frame_map[wavelet_i] = wave_frame_i
+									wavelet_i += 1
+							# print(frame_map)
 							logging.info(f"wavelets finished at bit {f2.pos}, byte {f2.pos / 8}, out_count {wavelet_i}")
-							# wavelet_i = (31, 31, 31, 3, )
 							for channel_i, is_active in enumerate((keys_flag.x, keys_flag.y, keys_flag.z)):
 								if is_active:
 
@@ -280,7 +270,7 @@ class ManisFile(InfoHeader, IoFile):
 									assert ch_key_size <= 32
 									logging.info(f"channel[{channel_i}] base_size {ch_key_size}")
 									# channel_val = PosFrameInfo.from_value(channel_val)
-									for frame_i in range(wavelet_i):
+									for trg_frame_i in frame_map[:wavelet_i]:
 										rel_key_flag = 1 << ch_key_size_masked | 1 >> 0x20 - ch_key_size_masked
 										rel_key_size = f.read_bit_size_flag(32 - ch_key_size_masked)
 										rel_key_base = f.read_as_shift(rel_key_size, rel_key_flag)
@@ -295,21 +285,68 @@ class ManisFile(InfoHeader, IoFile):
 											ch_rel_key = 0
 										# logging.info(f"key = {ch_rel_key}")
 										rel_key_masked = (rel_key_base + ch_rel_key) & 0xffff
+										ushort_storage[channel_i + trg_frame_i*3] = rel_key_masked
+									# ushort_storage for acro's first use
+									# 000000773047FA50      0     0     0     8    61     0     5    60
+									# 000000773047FA60      8     3     0     9     0     8     0     8
+									# 000000773047FA70      9     4     9     0     0     6    12     5
+									# 000000773047FA80      0     9     4     7     0     0     8     6
+									# 000000773047FA90      0     0     3     0     5     0     4     4
+									# 000000773047FAA0      0     5     0     6     0     0     7     0
+									# 000000773047FAB0      0     6     6     0     0     3     5     5
+									# 000000773047FAC0      0     6     4     5     0     0    10     0
+									# 000000773047FAD0      4     5     0     3     0     0     0     8
+									# 000000773047FAE0      0     0     9     5     0     4     8     0
+									# 000000773047FAF0      0     0     6     0     5     7     0     6
+									# 000000773047FB00      4     3     0     0     6     7     0     0
+									# 000000773047FB10      0     0     0     0     0     0     0     0
+									# 000000773047FB20      0     0     0     0     0     0     0     0
+									# 000000773047FB30      0     0     0     0     0     0     0     0
 									# logging.info(f"key {i} = {rel_key_masked}")
-
+							if segment_frames_count > 1:
+								frame_inc = 0
+								# print(ushort_storage)
+								# set base keyframe
+								pos_bones[0, pos_index, 0] = x
+								pos_bones[0, pos_index, 1] = y
+								pos_bones[0, pos_index, 2] = z
+								# set other keyframes
+								for out_frame_i in range(1, segment_frames_count):
+									trg_frame_i = frame_map[frame_inc]
+									if trg_frame_i == out_frame_i:
+										frame_inc += 1
+									rel_x = ushort_storage[out_frame_i*3]
+									rel_y = ushort_storage[out_frame_i*3+1]
+									rel_z = ushort_storage[out_frame_i*3+2]
+									rel_x = self.make_signed(rel_x)
+									rel_y = self.make_signed(rel_y)
+									rel_z = self.make_signed(rel_z)
+									rel_x *= scale
+									rel_y *= scale
+									rel_z *= scale
+									final_x = x + rel_x
+									final_y = y + rel_y
+									final_z = z + rel_z
+									# print(rel_x, rel_y, rel_z)
+									# print(final_x, final_y, final_z)
+									pos_bones[out_frame_i, pos_index, 0] = final_x
+									pos_bones[out_frame_i, pos_index, 1] = final_y
+									pos_bones[out_frame_i, pos_index, 2] = final_z
+									# return
 								# break
 						else:
-							pass
-						# set all keyframes
+							# set all keyframes
+							pos_bones[:, pos_index, 0] = x
+							pos_bones[:, pos_index, 1] = y
+							pos_bones[:, pos_index, 2] = z
+					print(pos_bones)
 					logging.info(f"loc finished at bit {f.pos}, byte {f.pos / 8}")
 					break
 				except bitstring.ReadError:
 					logging.exception(f"Reading failed at bit {f.pos}, byte {f.pos / 8}")
 
-	def dequant(self, x):
-		x_key_quant = -(x + 1 >> 1) if x & 1 else x >> 1
-		x_key_quant = swap16(x_key_quant)
-		print(x, x_key_quant)
+	def make_signed(self, x):
+		return -(x + 1 >> 1) if x & 1 else x >> 1
 
 
 if __name__ == "__main__":
