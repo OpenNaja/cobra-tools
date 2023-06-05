@@ -48,6 +48,10 @@ class BinStream:
 
 	def read_int(self, size):
 		bits = self.read(size)
+		return bitarray.util.ba2int(bits, signed=True)
+
+	def read_uint(self, size):
+		bits = self.read(size)
 		return bitarray.util.ba2int(bits, signed=False)
 
 	# return bitarray.util.int2ba(0x99c51a50c66, length=45, endian="little", signed=False)
@@ -55,7 +59,7 @@ class BinStream:
 	def read_int_reversed(self, size):
 		out = 0
 		for _ in range(size):
-			new_bit = self.read_int(1)
+			new_bit = self.read_uint(1)
 			out = new_bit | (out * 2)
 		return out
 
@@ -68,7 +72,7 @@ class BinStream:
 
 	def read_bit_size_flag(self, max_size):
 		for rel_key_size in range(max_size):
-			new_bit = self.read_int(1)
+			new_bit = self.read_uint(1)
 			if not new_bit:
 				return rel_key_size
 		return -1
@@ -171,8 +175,8 @@ class ManisFile(InfoHeader, IoFile):
 
 					# anim_decompression_read_wavelet
 					f2.seek(num_bytes * 8)
-					do_increment = f2.read_int(1)
-					runs_remaining = f2.read_int(16)
+					do_increment = f2.read_uint(1)
+					runs_remaining = f2.read_uint(16)
 					size = k_channel_bitsize + 1
 					# verified
 					size = 4
@@ -190,12 +194,7 @@ class ManisFile(InfoHeader, IoFile):
 						# defines basic loc values and which channels are keyframed
 						logging.info(f"pos[{pos_index}] {pos_name} at bit {f.pos}")
 						f_pos = f.pos
-						pos_base = f.read_int(45)
-						# f.pos = f_pos
-						# x = f.read_int(15)
-						# y = f.read_int(15)
-						# z = f.read_int(15)
-						keys_flag = f.read_int_reversed(3)
+						pos_base = f.read_uint(45)
 						# logging.info(pos_base)
 						logging.info(hex(pos_base))
 						# pos_base = PosBaseKey.from_value(pos_base)
@@ -220,12 +219,15 @@ class ManisFile(InfoHeader, IoFile):
 							z = z >> 1
 						else:
 							z = -(z + 1) >> 1
-						keys_flag = StoreKeys.from_value(keys_flag)
-						logging.info(f"{(x, y, z)} {(hex(x), hex(y), hex(z))} {keys_flag}")
+						# f.pos = f_pos
+						# x = f.read_int(15)
+						# y = f.read_int(15)
+						# z = f.read_int(15)
+						logging.info(f"{(x, y, z)} {(hex(x), hex(y), hex(z))}")
 						x *= scale
 						y *= scale
 						z *= scale
-						logging.info(f"{(x, y, z)} {struct.pack('f', x), struct.pack('f', y), struct.pack('f', z)} {keys_flag}")
+						logging.info(f"{(x, y, z)} {struct.pack('f', x), struct.pack('f', y), struct.pack('f', z)}")
 						expected_key = next(keys_iter)
 						expected_key_bin = bitarray.util.int2ba(expected_key, length=45, endian="little", signed=False)
 						# f.find_all(expected_key_bin)
@@ -234,6 +236,9 @@ class ManisFile(InfoHeader, IoFile):
 							logging.warning(f"Expected and found keys do not match")
 							return
 						# return
+						keys_flag = f.read_int_reversed(3)
+						keys_flag = StoreKeys.from_value(keys_flag)
+						logging.info(f"{keys_flag}")
 						if keys_flag.x or keys_flag.y or keys_flag.z:
 							logging.info(f"wavelets at bit {f2.pos}")
 							wavelet_i = 0
