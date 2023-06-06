@@ -147,9 +147,9 @@ class ManisFile(InfoHeader, IoFile):
 		k_channel_bitsize = self.get_bitsize()
 		i_in_run = 0
 		logging.info(f"k_channel_bitsize {k_channel_bitsize}")
-		dump_path = os.path.join(root_path.root_dir, "dumps", "jmp2.bin")
-		with open(dump_path, "rb") as jmp1:
-			jmp1_stream = BinStream(jmp1.read())
+		# dump_path = os.path.join(root_path.root_dir, "dumps", "jmp2.bin")
+		# with open(dump_path, "rb") as jmp1:
+		# 	jmp1_stream = BinStream(jmp1.read())
 		for mani_info in self.iter_compressed_manis():
 			if mani_info.name != "acrocanthosaurus@standidle01":
 				continue
@@ -160,12 +160,12 @@ class ManisFile(InfoHeader, IoFile):
 			# key_i =
 			logging.info(
 				f"Anim {mani_info.name} with {len(mani_info.keys.compressed.segments)} segments, {mani_info.frame_count} frames")
-			pos_bones = np.empty((mani_info.frame_count, mani_info.pos_bone_count, 3), np.float32)
+			mani_info.keys.compressed.pos_bones = np.empty((mani_info.frame_count, mani_info.pos_bone_count, 3), np.float32)
 			frame_offset = 0
 			for i, mb in enumerate(mani_info.keys.compressed.segments):
 				try:
 					segment_frames_count = self.segment_frame_count(i, mani_info.frame_count)  # - 1
-					segment_pos_bones = pos_bones[frame_offset:frame_offset+segment_frames_count]
+					segment_pos_bones = mani_info.keys.compressed.pos_bones[frame_offset:frame_offset+segment_frames_count]
 					logging.info(f"Segment[{i}] frames {segment_frames_count}, shape {segment_pos_bones.shape}")
 					f = BinStream(mb.data)
 					f2 = BinStream(mb.data)
@@ -232,7 +232,7 @@ class ManisFile(InfoHeader, IoFile):
 						keys_flag = StoreKeys.from_value(keys_flag)
 						logging.info(f"{keys_flag}")
 						if keys_flag.x or keys_flag.y or keys_flag.z:
-							logging.info(f"wavelets at bit {f2.pos}")
+							# logging.info(f"wavelets at bit {f2.pos}")
 							wavelet_i = 0
 							for wave_frame_i in range(1, segment_frames_count):
 								if i_in_run == 0:
@@ -247,13 +247,13 @@ class ManisFile(InfoHeader, IoFile):
 									k_size = f2.read_bit_size_flag(32 - init_k)
 									k_flag = 1 << (init_k & 0x1f)
 									k_flag_out = f2.read_as_shift(k_size, k_flag)
-									logging.info(
-										f"pos before key {f2.pos}, k_flag_out {k_flag_out}, initk bare {k_size}")
+									# logging.info(
+									# 	f"pos before key {f2.pos}, k_flag_out {k_flag_out}, initk bare {k_size}")
 									k_key = f2.read_int_reversed(k_size + init_k)
 									assert k_size + init_k < 32
 									i_in_run = k_key + k_flag_out
-									logging.info(
-										f"wavelet_frame[{wave_frame_i}] total init_k {init_k + k_size} key {k_key} k_flag_out {k_flag_out} i {i_in_run}")
+									# logging.info(
+									# 	f"wavelet_frame[{wave_frame_i}] total init_k {init_k + k_size} key {k_key} k_flag_out {k_flag_out} i {i_in_run}")
 									logging.info(f"pos after {f2.pos}")
 								i_in_run -= 1
 								if do_increment:
@@ -264,12 +264,12 @@ class ManisFile(InfoHeader, IoFile):
 							for channel_i, is_active in enumerate((keys_flag.x, keys_flag.y, keys_flag.z)):
 								if is_active:
 
-									logging.info(f"rel_keys[{channel_i}] at bit {f.pos}")
+									# logging.info(f"rel_keys[{channel_i}] at bit {f.pos}")
 									# define the minimal key size for this channel
 									ch_key_size = f.read_int_reversed(k_channel_bitsize + 1)
 									ch_key_size_masked = ch_key_size & 0x1f
 									assert ch_key_size <= 32
-									logging.info(f"channel[{channel_i}] base_size {ch_key_size}")
+									# logging.info(f"channel[{channel_i}] base_size {ch_key_size}")
 									# channel_val = PosFrameInfo.from_value(channel_val)
 									for trg_frame_i in frame_map[:wavelet_i]:
 										rel_key_flag = 1 << ch_key_size_masked | 1 >> 0x20 - ch_key_size_masked
@@ -340,12 +340,13 @@ class ManisFile(InfoHeader, IoFile):
 							segment_pos_bones[:, pos_index, 0] = x
 							segment_pos_bones[:, pos_index, 1] = y
 							segment_pos_bones[:, pos_index, 2] = z
-					logging.info(f"loc finished at bit {f.pos}, byte {f.pos / 8}")
+					logging.info(f"Segment[{i}] loc finished at bit {f.pos}, byte {f.pos / 8}")
 					# break
 				except:
-					logging.exception(f"Reading failed at bit {f.pos}, byte {f.pos / 8}")
+					logging.exception(f"Reading Segment[{i}] failed at bit {f.pos}, byte {f.pos / 8}")
+					raise
 				frame_offset += segment_frames_count
-			print(pos_bones)
+			print(mani_info.keys.compressed.pos_bones)
 
 	def make_signed(self, x):
 		return -(x + 1 >> 1) if x & 1 else x >> 1
