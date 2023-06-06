@@ -44,6 +44,7 @@ class BinStream:
 
 	def read(self, size):
 		d = self.data[self.pos: self.pos + size]
+		assert len(d) == size, f"Reached end of chunk reading {size} bits at {self.pos}"
 		self.pos += size
 		return d
 
@@ -145,7 +146,6 @@ class ManisFile(InfoHeader, IoFile):
 	def parse_keys(self):
 		scale = 6.103888e-05
 		k_channel_bitsize = self.get_bitsize()
-		i_in_run = 0
 		logging.info(f"k_channel_bitsize {k_channel_bitsize}")
 		# dump_path = os.path.join(root_path.root_dir, "dumps", "jmp2.bin")
 		# with open(dump_path, "rb") as jmp1:
@@ -161,9 +161,11 @@ class ManisFile(InfoHeader, IoFile):
 			logging.info(
 				f"Anim {mani_info.name} with {len(mani_info.keys.compressed.segments)} segments, {mani_info.frame_count} frames")
 			mani_info.keys.compressed.pos_bones = np.empty((mani_info.frame_count, mani_info.pos_bone_count, 3), np.float32)
+			assert mani_info.keys.compressed.pos_bone_count == mani_info.pos_bone_count
 			frame_offset = 0
 			for i, mb in enumerate(mani_info.keys.compressed.segments):
 				try:
+					i_in_run = 0
 					segment_frames_count = self.segment_frame_count(i, mani_info.frame_count)  # - 1
 					segment_pos_bones = mani_info.keys.compressed.pos_bones[frame_offset:frame_offset+segment_frames_count]
 					logging.info(f"Segment[{i}] frames {segment_frames_count}, shape {segment_pos_bones.shape}")
@@ -189,10 +191,11 @@ class ManisFile(InfoHeader, IoFile):
 					logging.info(
 						f"do_increment {do_increment}, runs_remaining {runs_remaining}, init_k_a {init_k_a}, init_k_b {init_k_b}")
 					do_increment = not do_increment
+					# if i ==1:
+					# 	do_increment = not do_increment
 					begun = True
 					# frame_map = {}
 					# return
-					assert mani_info.keys.compressed.pos_bone_count == mani_info.pos_bone_count
 					for pos_index, pos_name in enumerate(mani_info.keys.pos_bones_names):
 						frame_map = np.zeros(32, dtype=np.uint32)
 						ushort_storage = np.zeros(156, dtype=np.uint32)
@@ -202,7 +205,7 @@ class ManisFile(InfoHeader, IoFile):
 						f_pos = f.pos
 						pos_base = f.read_uint(45)
 						# logging.info(pos_base)
-						logging.info(hex(pos_base))
+						logging.info(f"{hex(pos_base)}, {pos_base}")
 						x = pos_base & 0x7fff
 						y = (pos_base >> 0xf) & 0x7fff
 						z = (pos_base >> 0x1e) & 0x7fff
@@ -215,18 +218,18 @@ class ManisFile(InfoHeader, IoFile):
 						# x = f.read_int(15)
 						# y = f.read_int(15)
 						# z = f.read_int(15)
-						logging.info(f"{(x, y, z)} {(hex(x), hex(y), hex(z))}")
+						# logging.info(f"{(x, y, z)} {(hex(x), hex(y), hex(z))}")
 						x *= scale
 						y *= scale
 						z *= scale
-						logging.info(f"{(x, y, z)} {struct.pack('f', x), struct.pack('f', y), struct.pack('f', z)}")
+						# logging.info(f"{(x, y, z)} {struct.pack('f', x), struct.pack('f', y), struct.pack('f', z)}")
 						expected_key = next(keys_iter)
 						expected_key_bin = bitarray.util.int2ba(expected_key, length=45, endian="little", signed=False)
-						# f.find_all(expected_key_bin)
-						# logging.info(f"Expected {expected_key} found at bits {tuple(f.find_all(expected_key_bin))}")
-						# if expected_key != pos_base:
-						# 	logging.warning(f"Expected and found keys do not match")
-						# 	return
+						f.find_all(expected_key_bin)
+						logging.info(f"Expected {expected_key} found at bits {tuple(f.find_all(expected_key_bin))}")
+						if expected_key != pos_base:
+							logging.warning(f"Expected and found keys do not match")
+							return
 						# return
 						keys_flag = f.read_int_reversed(3)
 						keys_flag = StoreKeys.from_value(keys_flag)
@@ -243,7 +246,7 @@ class ManisFile(InfoHeader, IoFile):
 									assert init_k < 32
 									# run 0: init_k_a = 2
 									# run 1: init_k_b = 4
-
+									logging.info(f"do_increment {do_increment} init_k {init_k} at {f2.pos}")
 									k_size = f2.read_bit_size_flag(32 - init_k)
 									k_flag = 1 << (init_k & 0x1f)
 									k_flag_out = f2.read_as_shift(k_size, k_flag)
@@ -254,12 +257,12 @@ class ManisFile(InfoHeader, IoFile):
 									i_in_run = k_key + k_flag_out
 									# logging.info(
 									# 	f"wavelet_frame[{wave_frame_i}] total init_k {init_k + k_size} key {k_key} k_flag_out {k_flag_out} i {i_in_run}")
-									logging.info(f"pos after {f2.pos}")
+									logging.info(f"pos after read {f2.pos}")
 								i_in_run -= 1
 								if do_increment:
 									frame_map[wavelet_i] = wave_frame_i
 									wavelet_i += 1
-							# print(frame_map)
+							logging.info(frame_map)
 							logging.info(f"wavelets finished at bit {f2.pos}, byte {f2.pos / 8}, out_count {wavelet_i}")
 							for channel_i, is_active in enumerate((keys_flag.x, keys_flag.y, keys_flag.z)):
 								if is_active:
@@ -345,6 +348,9 @@ class ManisFile(InfoHeader, IoFile):
 				except:
 					logging.exception(f"Reading Segment[{i}] failed at bit {f.pos}, byte {f.pos / 8}")
 					raise
+				# rot
+				for _ in range(mani_info.ori_bone_count):
+					ori_key = next(keys_iter)
 				frame_offset += segment_frames_count
 			print(mani_info.keys.compressed.pos_bones)
 
