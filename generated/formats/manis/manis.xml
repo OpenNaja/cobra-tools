@@ -217,7 +217,7 @@
 		<add name="flag 3" type="ubyte" > </add>
 		<add name="anoth pad" type="PadAlign" template="ref2" arg="4"/>
 		<add name="loc min" type="Vector3"/>
-		<add name="loc max" type="Vector3"/>might be extent, but not sure about how it is encoded
+		<add name="loc extent" type="Vector3"/>might be extent, but not sure about how it is encoded
 		<add name="loc_related_floats" type="FloatsGrabber" >not sure</add>
 		<add name="anoth pad2" type="PadAlign" template="#ARG# \ ref" arg="16"/>
 		<add name="segments" type="Segment" arr1="SegmentCount" >give the byte size of the various temporal segments</add>

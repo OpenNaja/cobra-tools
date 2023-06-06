@@ -40,7 +40,7 @@ class CompressedManiData(BaseStruct):
 		self.flag_3 = name_type_map['Ubyte'](self.context, 0, None)
 		self.anoth_pad = name_type_map['PadAlign'](self.context, 4, self.ref_2)
 		self.loc_min = name_type_map['Vector3'](self.context, 0, None)
-		self.loc_max = name_type_map['Vector3'](self.context, 0, None)
+		self.loc_extent = name_type_map['Vector3'](self.context, 0, None)
 
 		# not sure
 		self.loc_related_floats = name_type_map['FloatsGrabber'](self.context, 0, None)
@@ -78,7 +78,7 @@ class CompressedManiData(BaseStruct):
 		yield 'flag_3', name_type_map['Ubyte'], (0, None), (False, None), (None, None)
 		yield 'anoth_pad', name_type_map['PadAlign'], (4, None), (False, None), (None, None)
 		yield 'loc_min', name_type_map['Vector3'], (0, None), (False, None), (None, None)
-		yield 'loc_max', name_type_map['Vector3'], (0, None), (False, None), (None, None)
+		yield 'loc_extent', name_type_map['Vector3'], (0, None), (False, None), (None, None)
 		yield 'loc_related_floats', name_type_map['FloatsGrabber'], (0, None), (False, None), (None, None)
 		yield 'anoth_pad_2', name_type_map['PadAlign'], (16, None), (False, None), (None, None)
 		yield 'segments', Array, (0, None, (None,), name_type_map['Segment']), (False, None), (None, None)
@@ -115,7 +115,7 @@ class CompressedManiData(BaseStruct):
 		yield 'flag_3', name_type_map['Ubyte'], (0, None), (False, None)
 		yield 'anoth_pad', name_type_map['PadAlign'], (4, instance.ref_2), (False, None)
 		yield 'loc_min', name_type_map['Vector3'], (0, None), (False, None)
-		yield 'loc_max', name_type_map['Vector3'], (0, None), (False, None)
+		yield 'loc_extent', name_type_map['Vector3'], (0, None), (False, None)
 		yield 'loc_related_floats', name_type_map['FloatsGrabber'], (0, None), (False, None)
 		yield 'anoth_pad_2', name_type_map['PadAlign'], (16, instance.arg.ref), (False, None)
 		yield 'segments', Array, (0, None, (instance.segment_count,), name_type_map['Segment']), (False, None)

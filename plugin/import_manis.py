@@ -68,14 +68,24 @@ def load(files=[], filepath="", set_fps=False):
 
 	for mi in manis.mani_infos:
 		b_action = anim_sys.create_action(b_armature_ob, mi.name)
+		k = mi.keys
 		if mi.dtype.compression != 0:
 			logging.info(f"{mi.name} is compressed, only uncompressed are imported")
 			b_action.use_frame_range = True
 			b_action.frame_start = 0
 			b_action.frame_end = mi.frame_count
+			ck = k.compressed
+			manis.decompress(iter((None,)), mi)
+			for frame_i, key, bonerestmat_inv, fcurves, scale in iter_keys(
+					k.pos_bones_names, ck.pos_bones, bones_data, b_action, "location"):  #, k.scl_bones_names, ck.scl_bones):
+				key = mathutils.Vector(key)
+				# # correct for scale
+				# if scale:
+				# 	key = mathutils.Vector([key.x * scale.z, key.y * scale.y, key.z * scale.x])
+				key = (bonerestmat_inv @ corrector.nif_bind_to_blender_bind(mathutils.Matrix.Translation(key))).to_translation()
+				anim_sys.add_key(fcurves, frame_i, key, interp_loc)
 			continue
 		logging.info(f"Importing '{mi.name}'")
-		k = mi.keys
 		for frame_i, key, bonerestmat_inv, fcurves, scale in iter_keys(
 				k.pos_bones_names, k.pos_bones, bones_data, b_action, "location", k.scl_bones_names, k.scl_bones):
 			key = mathutils.Vector([key.x, key.y, key.z])
