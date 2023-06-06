@@ -147,9 +147,6 @@ class ManisFile(InfoHeader, IoFile):
 		scale = 6.103888e-05
 		k_channel_bitsize = self.get_bitsize()
 		logging.info(f"k_channel_bitsize {k_channel_bitsize}")
-		# dump_path = os.path.join(root_path.root_dir, "dumps", "jmp2.bin")
-		# with open(dump_path, "rb") as jmp1:
-		# 	jmp1_stream = BinStream(jmp1.read())
 		for mani_info in self.iter_compressed_manis():
 			if mani_info.name != "acrocanthosaurus@standidle01":
 				continue
@@ -157,7 +154,6 @@ class ManisFile(InfoHeader, IoFile):
 			dump_path = os.path.join(root_path.root_dir, "dumps", "acro_keys.txt")
 			keys = [int(line.strip(), 0) for line in open(dump_path, "r")]
 			keys_iter = iter(keys)
-			# key_i =
 			logging.info(
 				f"Anim {mani_info.name} with {len(mani_info.keys.compressed.segments)} segments, {mani_info.frame_count} frames")
 			mani_info.keys.compressed.pos_bones = np.empty((mani_info.frame_count, mani_info.pos_bone_count, 3), np.float32)
@@ -171,31 +167,12 @@ class ManisFile(InfoHeader, IoFile):
 					logging.info(f"Segment[{i}] frames {segment_frames_count}, shape {segment_pos_bones.shape}")
 					f = BinStream(mb.data)
 					f2 = BinStream(mb.data)
-					# k = bitarray.util.int2ba(4040, length=16, endian="big", signed=False)
-					# print(k)
-					# f.find_all(k)
-					# print(keys)
+
 					# this is a jump to the end of the compressed keys
 					num_bytes = f.read_int_reversed(16)
 					logging.info(f"num_bytes {num_bytes}")
-
-					# anim_decompression_read_wavelet
-					f2.seek(num_bytes * 8)
-					do_increment = f2.read_uint(1)
-					runs_remaining = f2.read_uint(16)
-					size = k_channel_bitsize + 1
-					# verified
-					size = 4
-					init_k_a = f2.read_int_reversed(size)
-					init_k_b = f2.read_int_reversed(size)
-					logging.info(
-						f"do_increment {do_increment}, runs_remaining {runs_remaining}, init_k_a {init_k_a}, init_k_b {init_k_b}")
-					do_increment = not do_increment
-					# if i ==1:
-					# 	do_increment = not do_increment
+					do_increment, init_k_a, init_k_b, runs_remaining = self.read_wavelet(f2, num_bytes)
 					begun = True
-					# frame_map = {}
-					# return
 					for pos_index, pos_name in enumerate(mani_info.keys.pos_bones_names):
 						frame_map = np.zeros(32, dtype=np.uint32)
 						ushort_storage = np.zeros(156, dtype=np.uint32)
@@ -353,6 +330,22 @@ class ManisFile(InfoHeader, IoFile):
 					ori_key = next(keys_iter)
 				frame_offset += segment_frames_count
 			print(mani_info.keys.compressed.pos_bones)
+
+	def read_wavelet(self, f2, num_bytes):
+		f2.seek(num_bytes * 8)
+		do_increment = f2.read_uint(1)
+		runs_remaining = f2.read_uint(16)
+		# size = k_channel_bitsize + 1
+		# verified
+		size = 4
+		init_k_a = f2.read_int_reversed(size)
+		init_k_b = f2.read_int_reversed(size)
+		if not do_increment:
+			init_k_a, init_k_b = init_k_b, init_k_a
+		logging.info(
+			f"do_increment {do_increment}, runs_remaining {runs_remaining}, init_k_a {init_k_a}, init_k_b {init_k_b}")
+		do_increment = not do_increment
+		return do_increment, init_k_a, init_k_b, runs_remaining
 
 	def make_signed(self, x):
 		return -(x + 1 >> 1) if x & 1 else x >> 1
