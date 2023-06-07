@@ -1,6 +1,7 @@
 from generated.formats.manis.imports import name_type_map
 import io
 import logging
+import math
 import struct
 
 import numpy as np
@@ -160,17 +161,18 @@ class ManisFile(InfoHeader, IoFile):
 
 	def parse_keys(self):
 		for mani_info in self.iter_compressed_manis():
-			# if mani_info.name != "acrocanthosaurus@standidle01":
-			# 	continue
-			logging.info(mani_info)
-			logging.info(mani_info.keys.compressed)
-			# acro debug keys
-			dump_path = os.path.join(root_path.root_dir, "dumps", "acro_keys.txt")
-			keys = [int(line.strip(), 0) for line in open(dump_path, "r")]
-			keys_iter = iter(keys)
+			if mani_info.name == "acrocanthosaurus@standidle01":
+				# acro debug keys
+				dump_path = os.path.join(root_path.root_dir, "dumps", "acro_keys.txt")
+				keys = [int(line.strip(), 0) for line in open(dump_path, "r")]
+				keys_iter = iter(keys)
+			else:
+				keys_iter = None
+				continue
+			# logging.info(mani_info)
+			# logging.info(mani_info.keys.compressed)
+
 			self.decompress(keys_iter, mani_info)
-			# break
-			# print(mani_info.keys.compressed.pos_bones)
 
 	def decompress(self, keys_iter, mani_info):
 		scale = 6.103888e-05
@@ -184,7 +186,7 @@ class ManisFile(InfoHeader, IoFile):
 		for i, mb in enumerate(mani_info.keys.compressed.segments):
 			try:
 				i_in_run = 0
-				segment_frames_count = self.segment_frame_count(i, mani_info.frame_count)  # - 1
+				segment_frames_count = self.segment_frame_count(i, mani_info.frame_count)
 				segment_pos_bones = mani_info.keys.compressed.pos_bones[
 									frame_offset:frame_offset + segment_frames_count]
 				logging.info(f"Segment[{i}] frames {segment_frames_count}, shape {segment_pos_bones.shape}")
@@ -192,159 +194,15 @@ class ManisFile(InfoHeader, IoFile):
 				f2 = BinStream(mb.data)
 
 				# this is a jump to the end of the compressed keys
-				num_bytes = f.read_int_reversed(16)
-				# logging.info(f"num_bytes {num_bytes}")
-				do_increment, init_k_a, init_k_b, runs_remaining = self.read_wavelet(f2, num_bytes)
+				wavelet_byte_offset = f.read_int_reversed(16)
+				do_increment, init_k_a, init_k_b, runs_remaining = self.read_wavelet(f2, wavelet_byte_offset)
 				begun = True
-				for pos_index, pos_name in enumerate(mani_info.keys.pos_bones_names):
-					frame_map = np.zeros(32, dtype=np.uint32)
-					ushort_storage = np.zeros(156, dtype=np.uint32)
-					# definitely not byte aligned as the key bytes can not be found in the manis data
-					# defines basic loc values and which channels are keyframed
-					# logging.info(f"pos[{pos_index}] {pos_name} at bit {f.pos}")
-					f_pos = f.pos
-					pos_base = f.read_uint(45)
-					# logging.info(pos_base)
-					# logging.info(f"{hex(pos_base)}, {pos_base}")
-					x = pos_base & 0x7fff
-					y = (pos_base >> 0xf) & 0x7fff
-					z = (pos_base >> 0x1e) & 0x7fff
-					x = self.make_signed(x)
-					y = self.make_signed(y)
-					z = self.make_signed(z)
-					# (0.093084292, 0.17859976288, 0.0848440432)
-					# (0.20734907536, 0.27565158208, -0.30037232848)
-					# f.pos = f_pos
-					# x = f.read_int(15)
-					# y = f.read_int(15)
-					# z = f.read_int(15)
-					# logging.info(f"{(x, y, z)} {(hex(x), hex(y), hex(z))}")
-					x *= scale
-					y *= scale
-					z *= scale
-					logging.info(f"{pos_index} {pos_name} {(x, y, z)}")
-					# logging.info(f"{(x, y, z)} {struct.pack('f', x), struct.pack('f', y), struct.pack('f', z)}")
-					# expected_key = next(keys_iter)
-					# expected_key_bin = bitarray.util.int2ba(expected_key, length=45, endian="little", signed=False)
-					# f.find_all(expected_key_bin)
-					# logging.info(f"Expected {expected_key} found at bits {tuple(f.find_all(expected_key_bin))}")
-					# if expected_key != pos_base:
-					# 	logging.warning(f"Expected and found keys do not match")
-					# 	return
-					# return
-					keys_flag = f.read_int_reversed(3)
-					keys_flag = StoreKeys.from_value(keys_flag)
-					# logging.info(f"{keys_flag}")
-					if keys_flag.x or keys_flag.y or keys_flag.z:
-						# logging.info(f"wavelets at bit {f2.pos}")
-						wavelet_i = 0
-						for wave_frame_i in range(1, segment_frames_count):
-							if i_in_run == 0:
-								assert runs_remaining != 0
-								runs_remaining -= 1
-								do_increment = not do_increment
-								init_k = init_k_a if do_increment else init_k_b
-								assert init_k < 32
-								# run 0: init_k_a = 2
-								# run 1: init_k_b = 4
-								# logging.info(f"do_increment {do_increment} init_k {init_k} at {f2.pos}")
-								k_size = f2.read_bit_size_flag(32 - init_k)
-								k_flag = 1 << (init_k & 0x1f)
-								k_flag_out = f2.read_as_shift(k_size, k_flag)
-								# logging.info(
-								# 	f"pos before key {f2.pos}, k_flag_out {k_flag_out}, initk bare {k_size}")
-								k_key = f2.read_int_reversed(k_size + init_k)
-								assert k_size + init_k < 32
-								i_in_run = k_key + k_flag_out
-							# logging.info(
-							# 	f"wavelet_frame[{wave_frame_i}] total init_k {init_k + k_size} key {k_key} k_flag_out {k_flag_out} i {i_in_run}")
-							# logging.info(f"pos after read {f2.pos}")
-							i_in_run -= 1
-							if do_increment:
-								frame_map[wavelet_i] = wave_frame_i
-								wavelet_i += 1
-						# logging.info(frame_map)
-						# logging.info(f"wavelets finished at bit {f2.pos}, byte {f2.pos / 8}, out_count {wavelet_i}")
-						for channel_i, is_active in enumerate((keys_flag.x, keys_flag.y, keys_flag.z)):
-							if is_active:
-
-								# logging.info(f"rel_keys[{channel_i}] at bit {f.pos}")
-								# define the minimal key size for this channel
-								ch_key_size = f.read_int_reversed(k_channel_bitsize + 1)
-								ch_key_size_masked = ch_key_size & 0x1f
-								assert ch_key_size <= 32
-								# logging.info(f"channel[{channel_i}] base_size {ch_key_size}")
-								# channel_val = PosFrameInfo.from_value(channel_val)
-								for trg_frame_i in frame_map[:wavelet_i]:
-									rel_key_flag = 1 << ch_key_size_masked | 1 >> 0x20 - ch_key_size_masked
-									rel_key_size = f.read_bit_size_flag(32 - ch_key_size_masked)
-									rel_key_base = f.read_as_shift(rel_key_size, rel_key_flag)
-									ch_rel_key_size = ch_key_size + rel_key_size
-									# ensure the final key size is valid
-									assert ch_rel_key_size <= 32
-									# logging.info(f"ch_rel_key_size {ch_rel_key_size}")
-									# read the key, if it has a size
-									if ch_rel_key_size:
-										ch_rel_key = f.read_int_reversed(ch_rel_key_size)
-									else:
-										ch_rel_key = 0
-									# logging.info(f"key = {ch_rel_key}")
-									rel_key_masked = (rel_key_base + ch_rel_key) & 0xffff
-									ushort_storage[channel_i + trg_frame_i * 3] = rel_key_masked
-							# ushort_storage for acro's first use
-							# 000000773047FA50      0     0     0     8    61     0     5    60
-							# 000000773047FA60      8     3     0     9     0     8     0     8
-							# 000000773047FA70      9     4     9     0     0     6    12     5
-							# 000000773047FA80      0     9     4     7     0     0     8     6
-							# 000000773047FA90      0     0     3     0     5     0     4     4
-							# 000000773047FAA0      0     5     0     6     0     0     7     0
-							# 000000773047FAB0      0     6     6     0     0     3     5     5
-							# 000000773047FAC0      0     6     4     5     0     0    10     0
-							# 000000773047FAD0      4     5     0     3     0     0     0     8
-							# 000000773047FAE0      0     0     9     5     0     4     8     0
-							# 000000773047FAF0      0     0     6     0     5     7     0     6
-							# 000000773047FB00      4     3     0     0     6     7     0     0
-							# 000000773047FB10      0     0     0     0     0     0     0     0
-							# 000000773047FB20      0     0     0     0     0     0     0     0
-							# 000000773047FB30      0     0     0     0     0     0     0     0
-							# logging.info(f"key {i} = {rel_key_masked}")
-						if segment_frames_count > 1:
-							frame_inc = 0
-							# print(ushort_storage)
-							# set base keyframe
-							segment_pos_bones[0, pos_index, 0] = x
-							segment_pos_bones[0, pos_index, 1] = y
-							segment_pos_bones[0, pos_index, 2] = z
-							# set other keyframes
-							for out_frame_i in range(1, segment_frames_count):
-								trg_frame_i = frame_map[frame_inc]
-								if trg_frame_i == out_frame_i:
-									frame_inc += 1
-								rel_x = ushort_storage[out_frame_i * 3]
-								rel_y = ushort_storage[out_frame_i * 3 + 1]
-								rel_z = ushort_storage[out_frame_i * 3 + 2]
-								rel_x = self.make_signed(rel_x)
-								rel_y = self.make_signed(rel_y)
-								rel_z = self.make_signed(rel_z)
-								rel_x *= scale
-								rel_y *= scale
-								rel_z *= scale
-								final_x = x + rel_x
-								final_y = y + rel_y
-								final_z = z + rel_z
-								# print(rel_x, rel_y, rel_z)
-								# print(final_x, final_y, final_z)
-								segment_pos_bones[out_frame_i, pos_index, 0] = final_x
-								segment_pos_bones[out_frame_i, pos_index, 1] = final_y
-								segment_pos_bones[out_frame_i, pos_index, 2] = final_z
-							# return
-						# break
-					else:
-						# set all keyframes
-						segment_pos_bones[:, pos_index, 0] = x
-						segment_pos_bones[:, pos_index, 1] = y
-						segment_pos_bones[:, pos_index, 2] = z
-				logging.info(f"Segment[{i}] loc finished at bit {f.pos}, byte {f.pos / 8}")
+				# do_increment, init_k_a, init_k_b, runs_remaining = self.read_vec3_keys(do_increment, f, f2, i, i_in_run, init_k_a, init_k_b, k_channel_bitsize, mani_info,
+				# 					runs_remaining, scale, segment_frames_count, segment_pos_bones, keys_iter=keys_iter)
+				self.read_vec3_keys(do_increment, f, f2, i, i_in_run, init_k_a, init_k_b, k_channel_bitsize, mani_info,
+									runs_remaining, scale, segment_frames_count, segment_pos_bones, keys_iter=keys_iter)
+				self.read_rot_keys(do_increment, f, f2, i, i_in_run, init_k_a, init_k_b, k_channel_bitsize, mani_info,
+									runs_remaining, scale, segment_frames_count, segment_pos_bones, keys_iter=keys_iter)
 			# break
 			except:
 				logging.exception(f"Reading Segment[{i}] failed at bit {f.pos}, byte {f.pos / 8}")
@@ -369,8 +227,293 @@ class ManisFile(InfoHeader, IoFile):
 		for pos_index, pos_name in enumerate(mani_info.keys.pos_bones_names):
 			logging.info(f"{pos_index} {pos_name} {loc[0, pos_index]}")
 
-	def read_wavelet(self, f2, num_bytes):
-		f2.seek(num_bytes * 8)
+	def read_vec3_keys(self, do_increment, f, f2, i, i_in_run, init_k_a, init_k_b, k_channel_bitsize, mani_info,
+					   runs_remaining, scale, segment_frames_count, segment_pos_bones, keys_iter=None):
+		for pos_index, pos_name in enumerate(mani_info.keys.pos_bones_names):
+			frame_map = np.zeros(32, dtype=np.uint32)
+			ushort_storage = np.zeros(156, dtype=np.uint32)
+			# definitely not byte aligned as the key bytes can not be found in the manis data
+			# defines basic loc values and which channels are keyframed
+			# logging.info(f"pos[{pos_index}] {pos_name} at bit {f.pos}")
+			f_pos = f.pos
+			pos_base = f.read_uint(45)
+			# logging.info(pos_base)
+			# logging.info(f"{hex(pos_base)}, {pos_base}")
+			x = pos_base & 0x7fff
+			y = (pos_base >> 0xf) & 0x7fff
+			z = (pos_base >> 0x1e) & 0x7fff
+			x = self.make_signed(x)
+			y = self.make_signed(y)
+			z = self.make_signed(z)
+			# (0.093084292, 0.17859976288, 0.0848440432)
+			# (0.20734907536, 0.27565158208, -0.30037232848)
+			# f.pos = f_pos
+			# x = f.read_int(15)
+			# y = f.read_int(15)
+			# z = f.read_int(15)
+			# logging.info(f"{(x, y, z)} {(hex(x), hex(y), hex(z))}")
+			x *= scale
+			y *= scale
+			z *= scale
+			logging.info(f"{pos_index} {pos_name} {(x, y, z)}")
+			# logging.info(f"{(x, y, z)} {struct.pack('f', x), struct.pack('f', y), struct.pack('f', z)}")
+			self.compare_key_with_reference(f, keys_iter, pos_base)
+			keys_flag = f.read_int_reversed(3)
+			keys_flag = StoreKeys.from_value(keys_flag)
+			# logging.info(f"{keys_flag}")
+			if keys_flag.x or keys_flag.y or keys_flag.z:
+				# logging.info(f"wavelets at bit {f2.pos}")
+				wavelet_i = 0
+				for wave_frame_i in range(1, segment_frames_count):
+					if i_in_run == 0:
+						assert runs_remaining != 0
+						runs_remaining -= 1
+						do_increment = not do_increment
+						init_k = init_k_a if do_increment else init_k_b
+						assert init_k < 32
+						# run 0: init_k_a = 2
+						# run 1: init_k_b = 4
+						# logging.info(f"do_increment {do_increment} init_k {init_k} at {f2.pos}")
+						k_size = f2.read_bit_size_flag(32 - init_k)
+						k_flag = 1 << (init_k & 0x1f)
+						k_flag_out = f2.read_as_shift(k_size, k_flag)
+						# logging.info(
+						# 	f"pos before key {f2.pos}, k_flag_out {k_flag_out}, initk bare {k_size}")
+						k_key = f2.read_int_reversed(k_size + init_k)
+						assert k_size + init_k < 32
+						i_in_run = k_key + k_flag_out
+					# logging.info(
+					# 	f"wavelet_frame[{wave_frame_i}] total init_k {init_k + k_size} key {k_key} k_flag_out {k_flag_out} i {i_in_run}")
+					# logging.info(f"pos after read {f2.pos}")
+					i_in_run -= 1
+					if do_increment:
+						frame_map[wavelet_i] = wave_frame_i
+						wavelet_i += 1
+				# logging.info(frame_map)
+				# logging.info(f"wavelets finished at bit {f2.pos}, byte {f2.pos / 8}, out_count {wavelet_i}")
+				for channel_i, is_active in enumerate((keys_flag.x, keys_flag.y, keys_flag.z)):
+					if is_active:
+
+						# logging.info(f"rel_keys[{channel_i}] at bit {f.pos}")
+						# define the minimal key size for this channel
+						ch_key_size = f.read_int_reversed(k_channel_bitsize + 1)
+						ch_key_size_masked = ch_key_size & 0x1f
+						assert ch_key_size <= 32
+						# logging.info(f"channel[{channel_i}] base_size {ch_key_size}")
+						# channel_val = PosFrameInfo.from_value(channel_val)
+						for trg_frame_i in frame_map[:wavelet_i]:
+							rel_key_flag = 1 << ch_key_size_masked | 1 >> 0x20 - ch_key_size_masked
+							rel_key_size = f.read_bit_size_flag(32 - ch_key_size_masked)
+							rel_key_base = f.read_as_shift(rel_key_size, rel_key_flag)
+							ch_rel_key_size = ch_key_size + rel_key_size
+							# ensure the final key size is valid
+							assert ch_rel_key_size <= 32
+							# logging.info(f"ch_rel_key_size {ch_rel_key_size}")
+							# read the key, if it has a size
+							if ch_rel_key_size:
+								ch_rel_key = f.read_int_reversed(ch_rel_key_size)
+							else:
+								ch_rel_key = 0
+							# logging.info(f"key = {ch_rel_key}")
+							rel_key_masked = (rel_key_base + ch_rel_key) & 0xffff
+							ushort_storage[channel_i + trg_frame_i * 3] = rel_key_masked
+				# ushort_storage for acro's first use
+				# 000000773047FA50      0     0     0     8    61     0     5    60
+				# 000000773047FA60      8     3     0     9     0     8     0     8
+				# 000000773047FA70      9     4     9     0     0     6    12     5
+				# 000000773047FA80      0     9     4     7     0     0     8     6
+				# 000000773047FA90      0     0     3     0     5     0     4     4
+				# 000000773047FAA0      0     5     0     6     0     0     7     0
+				# 000000773047FAB0      0     6     6     0     0     3     5     5
+				# 000000773047FAC0      0     6     4     5     0     0    10     0
+				# 000000773047FAD0      4     5     0     3     0     0     0     8
+				# 000000773047FAE0      0     0     9     5     0     4     8     0
+				# 000000773047FAF0      0     0     6     0     5     7     0     6
+				# 000000773047FB00      4     3     0     0     6     7     0     0
+				# 000000773047FB10      0     0     0     0     0     0     0     0
+				# 000000773047FB20      0     0     0     0     0     0     0     0
+				# 000000773047FB30      0     0     0     0     0     0     0     0
+				# logging.info(f"key {i} = {rel_key_masked}")
+				if segment_frames_count > 1:
+					frame_inc = 0
+					# print(ushort_storage)
+					# set base keyframe
+					segment_pos_bones[0, pos_index, 0] = x
+					segment_pos_bones[0, pos_index, 1] = y
+					segment_pos_bones[0, pos_index, 2] = z
+					# set other keyframes
+					for out_frame_i in range(1, segment_frames_count):
+						trg_frame_i = frame_map[frame_inc]
+						if trg_frame_i == out_frame_i:
+							frame_inc += 1
+						rel_x = ushort_storage[out_frame_i * 3]
+						rel_y = ushort_storage[out_frame_i * 3 + 1]
+						rel_z = ushort_storage[out_frame_i * 3 + 2]
+						rel_x = self.make_signed(rel_x)
+						rel_y = self.make_signed(rel_y)
+						rel_z = self.make_signed(rel_z)
+						rel_x *= scale
+						rel_y *= scale
+						rel_z *= scale
+						final_x = x + rel_x
+						final_y = y + rel_y
+						final_z = z + rel_z
+						# print(rel_x, rel_y, rel_z)
+						# print(final_x, final_y, final_z)
+						segment_pos_bones[out_frame_i, pos_index, 0] = final_x
+						segment_pos_bones[out_frame_i, pos_index, 1] = final_y
+						segment_pos_bones[out_frame_i, pos_index, 2] = final_z
+				# return
+			# break
+			else:
+				# set all keyframes
+				segment_pos_bones[:, pos_index, 0] = x
+				segment_pos_bones[:, pos_index, 1] = y
+				segment_pos_bones[:, pos_index, 2] = z
+		logging.info(f"Segment[{i}] loc finished at bit {f.pos}, byte {f.pos / 8}")
+		return do_increment, init_k_a, init_k_b, runs_remaining
+
+	def read_rot_keys(self, do_increment, f, f2, i, i_in_run, init_k_a, init_k_b, k_channel_bitsize, mani_info,
+					   runs_remaining, scale, segment_frames_count, segment_pos_bones, keys_iter=None):
+		q_scale = 6.283185
+		for ori_index, ori_name in enumerate(mani_info.keys.ori_bones_names):
+			frame_map = np.zeros(32, dtype=np.uint32)
+			ushort_storage = np.zeros(156, dtype=np.uint32)
+			# defines basic rot values
+			# logging.info(f"pos[{ori_index}] {ori_name} at bit {f.pos}")
+			f_pos = f.pos
+			pos_base = f.read_uint(45)
+			# logging.info(pos_base)
+			# logging.info(f"{hex(pos_base)}, {pos_base}")
+			x = pos_base & 0x7fff
+			y = (pos_base >> 0xf) & 0x7fff
+			z = (pos_base >> 0x1e) & 0x7fff
+			x = self.make_signed(x)
+			y = self.make_signed(y)
+			z = self.make_signed(z)
+			x *= scale * q_scale
+			y *= scale * q_scale
+			z *= scale * q_scale
+			norm = math.sqrt(x*x + y*y + z*z)
+			logging.info(f"{ori_index} {pos_base} at {f_pos} {(x, y, z)} {norm}")
+			# logging.info(f"{(x, y, z)} {struct.pack('f', x), struct.pack('f', y), struct.pack('f', z)}")
+			try:
+				self.compare_key_with_reference(f, keys_iter, pos_base)
+			except:
+				logging.exception(f"Rot offset wrong")
+				raise
+			# return 
+			# which channels are keyframed
+			keys_flag = f.read_int_reversed(3)
+			keys_flag = StoreKeys.from_value(keys_flag)
+			logging.info(f"{keys_flag}")
+			if keys_flag.x or keys_flag.y or keys_flag.z:
+				# logging.info(f"wavelets at bit {f2.pos}")
+				wavelet_i = 0
+				for wave_frame_i in range(1, segment_frames_count):
+					if i_in_run == 0:
+						assert runs_remaining != 0
+						runs_remaining -= 1
+						do_increment = not do_increment
+						init_k = init_k_a if do_increment else init_k_b
+						assert init_k < 32
+						# run 0: init_k_a = 2
+						# run 1: init_k_b = 4
+						# logging.info(f"do_increment {do_increment} init_k {init_k} at {f2.pos}")
+						k_size = f2.read_bit_size_flag(32 - init_k)
+						k_flag = 1 << (init_k & 0x1f)
+						k_flag_out = f2.read_as_shift(k_size, k_flag)
+						# logging.info(
+						# 	f"pos before key {f2.pos}, k_flag_out {k_flag_out}, initk bare {k_size}")
+						k_key = f2.read_int_reversed(k_size + init_k)
+						assert k_size + init_k < 32
+						i_in_run = k_key + k_flag_out
+					# logging.info(
+					# 	f"wavelet_frame[{wave_frame_i}] total init_k {init_k + k_size} key {k_key} k_flag_out {k_flag_out} i {i_in_run}")
+					# logging.info(f"pos after read {f2.pos}")
+					i_in_run -= 1
+					if do_increment:
+						frame_map[wavelet_i] = wave_frame_i
+						wavelet_i += 1
+				# logging.info(frame_map)
+				# logging.info(f"wavelets finished at bit {f2.pos}, byte {f2.pos / 8}, out_count {wavelet_i}")
+				for channel_i, is_active in enumerate((keys_flag.x, keys_flag.y, keys_flag.z)):
+					if is_active:
+
+						# logging.info(f"rel_keys[{channel_i}] at bit {f.pos}")
+						# define the minimal key size for this channel
+						ch_key_size = f.read_int_reversed(k_channel_bitsize + 1)
+						ch_key_size_masked = ch_key_size & 0x1f
+						assert ch_key_size <= 32
+						# logging.info(f"channel[{channel_i}] base_size {ch_key_size}")
+						# channel_val = PosFrameInfo.from_value(channel_val)
+						for trg_frame_i in frame_map[:wavelet_i]:
+							rel_key_flag = 1 << ch_key_size_masked | 1 >> 0x20 - ch_key_size_masked
+							rel_key_size = f.read_bit_size_flag(32 - ch_key_size_masked)
+							rel_key_base = f.read_as_shift(rel_key_size, rel_key_flag)
+							ch_rel_key_size = ch_key_size + rel_key_size
+							# ensure the final key size is valid
+							assert ch_rel_key_size <= 32
+							# logging.info(f"ch_rel_key_size {ch_rel_key_size}")
+							# read the key, if it has a size
+							if ch_rel_key_size:
+								ch_rel_key = f.read_int_reversed(ch_rel_key_size)
+							else:
+								ch_rel_key = 0
+							# logging.info(f"key = {ch_rel_key}")
+							rel_key_masked = (rel_key_base + ch_rel_key) & 0xffff
+							ushort_storage[channel_i + trg_frame_i * 3] = rel_key_masked
+				# logging.info(f"key {i} = {rel_key_masked}")
+				if segment_frames_count > 1:
+					frame_inc = 0
+					# print(ushort_storage)
+					# set base keyframe
+					segment_pos_bones[0, ori_index, 0] = x
+					segment_pos_bones[0, ori_index, 1] = y
+					segment_pos_bones[0, ori_index, 2] = z
+					# set other keyframes
+					for out_frame_i in range(1, segment_frames_count):
+						trg_frame_i = frame_map[frame_inc]
+						if trg_frame_i == out_frame_i:
+							frame_inc += 1
+						rel_x = ushort_storage[out_frame_i * 3]
+						rel_y = ushort_storage[out_frame_i * 3 + 1]
+						rel_z = ushort_storage[out_frame_i * 3 + 2]
+						rel_x = self.make_signed(rel_x)
+						rel_y = self.make_signed(rel_y)
+						rel_z = self.make_signed(rel_z)
+						rel_x *= scale
+						rel_y *= scale
+						rel_z *= scale
+						final_x = x + rel_x
+						final_y = y + rel_y
+						final_z = z + rel_z
+						# print(rel_x, rel_y, rel_z)
+						# print(final_x, final_y, final_z)
+						segment_pos_bones[out_frame_i, ori_index, 0] = final_x
+						segment_pos_bones[out_frame_i, ori_index, 1] = final_y
+						segment_pos_bones[out_frame_i, ori_index, 2] = final_z
+				# return
+			# break
+			else:
+				# set all keyframes
+				segment_pos_bones[:, ori_index, 0] = x
+				segment_pos_bones[:, ori_index, 1] = y
+				segment_pos_bones[:, ori_index, 2] = z
+		logging.info(f"Segment[{i}] loc finished at bit {f.pos}, byte {f.pos / 8}")
+
+	def compare_key_with_reference(self, f, keys_iter, pos_base):
+		if keys_iter is not None:
+			expected_key = next(keys_iter)
+			expected_key_bin = bitarray.util.int2ba(expected_key, length=45, endian="little", signed=False)
+			f.find_all(expected_key_bin)
+			logging.info(f"Expected {expected_key} found at bits {tuple(f.find_all(expected_key_bin))}")
+			if expected_key != pos_base:
+				raise AttributeError(f"Expected and found keys do not match")
+
+	def read_wavelet(self, f2, wavelet_byte_offset):
+		# logging.info(f"wavelet_byte_offset {wavelet_byte_offset}")
+		f2.seek(wavelet_byte_offset * 8)
 		do_increment = f2.read_uint(1)
 		runs_remaining = f2.read_uint(16)
 		# size = k_channel_bitsize + 1
@@ -408,9 +551,9 @@ if __name__ == "__main__":
 	mani = ManisFile()
 	# acro stand_ide
 	target = "acrocanthosaurus@standidle01"
-	# mani.load("C:/Users/arnfi/Desktop/acro/notmotionextracted.maniset53978456.manis")
+	mani.load("C:/Users/arnfi/Desktop/acro/notmotionextracted.maniset53978456.manis")
 	# mani.load("C:/Users/arnfi/Desktop/animationmotionextractedlocomotion.maniset648a1a01.manis")
-	mani.load("C:/Users/arnfi/Desktop/crane/animationnotmotionextractedfighting.maniset3d816f2c.manis")
+	# mani.load("C:/Users/arnfi/Desktop/crane/animationnotmotionextractedfighting.maniset3d816f2c.manis")
 	# mani.load("C:/Users/arnfi/Desktop/kangaroo/animation.maniset32dc487b.manis")
 	# mani.load("C:/Users/arnfi/Desktop/Wheel/animation.maniset9637aeb4.manis")
 	# mani.load("C:/Users/arnfi/Desktop/DLA scale anim.manis")
