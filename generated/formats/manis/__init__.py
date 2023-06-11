@@ -1,4 +1,5 @@
 from generated.formats.manis.imports import name_type_map
+import contextlib
 import io
 import logging
 import math
@@ -110,31 +111,37 @@ class KeysContext:
         return f"do_increment {self.do_increment}, runs_remaining {self.runs_remaining}, init_k_a {self.init_k_a}, init_k_b {self.init_k_b}"
 
 
-def get_quat_scale_fac(quat_w_rel, param_2):
-    xmm = np.zeros((16, 4), dtype=np.float32)
-    xmm[2] = 8388608.0
-    xmm[0] = 8388609.0
-    xmm[1] = 8388610.0
-    # xmm[6] = 8388610.0
-    xmm[3] = xmm[1]
-    print(xmm)
-    # fVar6 = param_2 & 0x7FFFFFFF
-    # fVar3 = np.float32(fVar6[0]) * 0.6366197 + 8388608
-    # uVar4 = 8388609 & np.uint32(fVar3)
-    # uVar8 = -(np.uint32(uVar4[0]) == 8388609)
-    # fVar4 = fVar3 - 8388608
-    # uVar6 = np.zeros(4)
-    # uVar7 = np.uint32(uVar6[0]) & -(np.float32(np.uint32(fVar3) & 0x4b000002) == 8388610.0)
-    # uVar9 = np.array([0.000024433157, 0.000024433157, 0.000024433157, 0.000024433157], dtype=np.float32)
-    # fVar4 = np.float32(np.uint32(np.float32(fVar6[0]) - fVar4 * 1.570313) - fVar4 * 0.0004837513 - fVar4 * 7.54979e-08) ^ (np.uint32(uVar6[0]) & uVar8)
-    # fVar3 = fVar4 * fVar4
-    # fVar5 = (((uVar9[0] * fVar3 + -0.001388732) * fVar3 + 0.04166665) * fVar3 - 0.5) * fVar3 + 1.0
-    # fVar4 = ((fVar3 * -0.000195153 + 0.008332161) * fVar3 + -0.1666666) * fVar3 * fVar4 + fVar4
-    # quat_w_rel[0] = (np.uint32(fVar5) & uVar8 | np.uint32(fVar4) & ~uVar8) ^ uVar7
-    # quat_w_rel[1] = (~np.uint32(uVar4[1]) & np.uint32(uVar9[1]) | np.uint32(uVar4[1]) & 0xb94ca1f9) ^ (np.uint32(uVar6[1]) & fVar6[1] & 0x4b000002)
-    # quat_w_rel[2] = (~np.uint32(uVar4[2]) & np.uint32(uVar9[2]) | np.uint32(uVar4[2]) & 0xb94ca1f9) ^ (np.uint32(uVar6[2]) & fVar6[2] & 0x4b000002)
-    # quat_w_rel[3] = (~np.uint32(uVar4[3]) & np.uint32(uVar9[3]) | np.uint32(uVar4[3]) & 0xb94ca1f9) ^ (np.uint32(uVar6[3]) & fVar6[3] & 0x4b000002)
-    # return np.float32((np.uint32(fVar5) & uVar8 | ~uVar8 & np.uint32(fVar4)) ^ np.uint32(param_2) & np.uint32(uVar6[0]) ^ uVar7)
+def f_as_i(f):
+    return struct.unpack('<i', struct.pack('<f', f))[0]
+
+
+def i_as_f(f):
+    return struct.unpack('<f', struct.pack('<i', f))[0]
+
+
+@contextlib.contextmanager
+def as_int(f):
+    i = f_as_i(f)
+    yield i
+    return i_as_f(i)
+
+
+def get_quat_scale_fac(norm_half):
+    norm_half_abs = abs(norm_half)
+    fVar3 = norm_half_abs * 0.6366197 + 8388608.0
+    masked_8388609 = f_as_i(8388609.0) & f_as_i(fVar3)
+    matches_8388609 = -int(i_as_f(masked_8388609) == 8388609.0)
+    fVar4 = fVar3 - 8388608.0
+    uVar7 = 0 & -(i_as_f(f_as_i(fVar3) & f_as_i(8388610.0)) == 8388610.0)
+    uVar9 = 0.000024433157
+    fVar4 = ((norm_half_abs - fVar4 * 1.570313) - fVar4 * 0.0004837513 - fVar4 * 7.54979e-08)# ^ (0 & uVar8)
+    fVar3 = fVar4 * fVar4
+    fVar5 = (((uVar9 * fVar3 + -0.001388732) * fVar3 + 0.04166665) * fVar3 - 0.5) * fVar3 + 1.0
+    fVar4 = ((fVar3 * -0.000195153 + 0.008332161) * fVar3 + -0.1666666) * fVar3 * fVar4 + fVar4
+    q = (f_as_i(fVar5) & matches_8388609 | f_as_i(fVar4) & ~matches_8388609) ^ uVar7
+    return i_as_f((f_as_i(fVar5) & matches_8388609 | ~matches_8388609 & f_as_i(fVar4)) ^ f_as_i(norm_half) & 0 ^ uVar7), i_as_f(q)
+    # return 1.0
+
 
 class ManisFile(InfoHeader, IoFile):
 
@@ -333,6 +340,13 @@ class ManisFile(InfoHeader, IoFile):
                       segment_ori_bones, keys_iter=None):
         q_scale = 6.283185
         epsilon = 1.1920929E-7
+        identity = np.zeros(4, dtype=np.float32)
+        identity[3] = 1.0
+        quat_w_rel = identity.copy()
+        quat_w_rel[0] = 128.0
+        quat_w_rel[1] = 16383.0
+        quat_w_rel[2] = -4.1337269E+21
+        quat_w_rel[3] = 4.5905E-41
         for ori_index, ori_name in enumerate(mani_info.keys.ori_bones_names):
             # logging.info(context)
             frame_map = np.zeros(32, dtype=np.uint32)
@@ -345,9 +359,19 @@ class ManisFile(InfoHeader, IoFile):
             norm = np.linalg.norm(vec)
             logging.info(f"{ori_index} {pos_base} at {f_pos} {vec} {norm}")
             if norm < epsilon:
-                quat = (0, 0, 0, 1)
+                quat = identity
             else:
+                y_rel = identity.copy()
+                y_rel[1] = vec[1] * vec[1]
+                y_rel[0] = norm * 0.5
+                b = identity.copy()
+                b[1] = vec[2] * vec[2]
+                b[0] = 0.0
+                scale_fac, q = get_quat_scale_fac(norm * 0.5)
+                print(scale_fac, q)
                 quat = vec / norm
+                quat *= scale_fac
+                quat[3] = q
             # logging.info(f"{(x, y, z)} {struct.pack('f', x), struct.pack('f', y), struct.pack('f', z)}")
             self.compare_key_with_reference(f, keys_iter, pos_base)
             # return
@@ -363,7 +387,7 @@ class ManisFile(InfoHeader, IoFile):
                     frame_inc = 0
                     # print(ushort_storage)
                     # set base keyframe
-                    segment_ori_bones[0, ori_index] = vec
+                    segment_ori_bones[0, ori_index] = quat
                     # set other keyframes
                     for out_frame_i in range(1, segment_frames_count):
                         trg_frame_i = frame_map[frame_inc]
@@ -376,11 +400,11 @@ class ManisFile(InfoHeader, IoFile):
                         out[2] = self.make_signed(rel[2])
                         out[3] = 0.0
                         out *= scale
-                        segment_ori_bones[out_frame_i, ori_index, ] = rel + vec
+                        segment_ori_bones[out_frame_i, ori_index, ] = rel + quat
             else:
                 # set all keyframes
                 segment_ori_bones[:, ori_index] = vec
-        logging.info(f"Segment[{i}] loc finished at bit {f.pos}, byte {f.pos / 8}")
+        logging.info(f"Segment[{i}] rot finished at bit {f.pos}, byte {f.pos / 8}")
 
     def read_rel_keys(self, f, frame_map, k_channel_bitsize, keys_flag, ushort_storage, wavelet_i):
         for channel_i, is_active in enumerate((keys_flag.x, keys_flag.y, keys_flag.z)):
@@ -504,7 +528,6 @@ if __name__ == "__main__":
     # mani.dump_keys()
     mani.parse_keys()
     # mani.log_loc_keys()
-    get_quat_scale_fac(None, None)
 # mani.load("C:/Users/arnfi/Desktop/donationbox/animation.maniseteaf333c5.manis")
 # mani.dump_keys()
 # mani.parse_keys()
