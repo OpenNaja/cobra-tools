@@ -189,7 +189,8 @@ def import_hullbv(coll, hitcheck_name, corrector):
 	scene = bpy.context.scene
 	b_obj, b_me = mesh_from_data(scene, hitcheck_name, *qhull3d([unpack_swizzle2(v) for v in coll.vertices]), coll_name="hitchecks")
 	mat = import_collision_matrix(coll.rotation, corrector)
-	# mat.translation = unpack_swizzle((coll.offset.x, coll.offset.y, coll.offset.z))
+	# this is certainly needed for JWE2 as of 2023-06-12
+	mat.translation = unpack_swizzle((coll.offset.x, coll.offset.y, coll.offset.z))
 	b_obj.matrix_local = mat
 	set_b_collider(b_obj, 1, bounds_type="CONVEX_HULL", display_type="MESH")
 	return b_obj
