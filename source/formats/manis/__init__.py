@@ -311,6 +311,15 @@ class ManisFile(InfoHeader, IoFile):
                 x, y, z = v.x, v.y, v.z
                 logging.info(f"{pos_index} {pos_name} {(x, y, z)}")
 
+    def log_rot_keys(self):
+        for mani_info in self.iter_uncompressed_manis():
+            # logging.info(mani_info)
+            for ori_index, ori_name in enumerate(mani_info.keys.ori_bones_names):
+                v = mani_info.keys.ori_bones[0][ori_index]
+                x, y, z, w = v.x, v.y, v.z, v.w
+                if "def_c_hips_joint" == ori_name:
+                    logging.info(f"{ori_index} {ori_name} {(x, y, z, w)}")
+
     def parse_keys(self):
         keys_iter = None
         for mani_info in self.iter_compressed_manis():
@@ -324,8 +333,10 @@ class ManisFile(InfoHeader, IoFile):
             #     continue
             # logging.info(mani_info)
             # logging.info(mani_info.keys.compressed)
-
-            self.decompress(keys_iter, mani_info)
+            try:
+                self.decompress(keys_iter, mani_info)
+            except:
+                logging.exception(f"Decompressing {mani_info.name} failed")
 
     def decompress(self, keys_iter, mani_info):
         scale = 6.103888e-05
@@ -469,9 +480,11 @@ class ManisFile(InfoHeader, IoFile):
                 # scale0 = 0.867282
                 # print(vec, norm)
                 quat = vec / norm
-                # print(f"normed {quat}, scale_fac {scale_fac}, q {q}")
                 quat *= scale_fac
                 quat[3] = q
+                if "def_c_hips_joint" == ori_name:
+                    logging.info(f"normed {quat}, scale_fac {scale_fac}, q {q}")
+                    quat[:] = (0.0, 0.7071354452786425, 0.0, -0.7071354452786425)
                 # print(scale_fac, quat)
             # logging.info(f"{(x, y, z)} {struct.pack('f', x), struct.pack('f', y), struct.pack('f', z)}")
             self.compare_key_with_reference(f, keys_iter, pos_base)
@@ -504,7 +517,7 @@ class ManisFile(InfoHeader, IoFile):
                         segment_ori_bones[out_frame_i, ori_index, ] = rel + quat
             else:
                 # set all keyframes
-                segment_ori_bones[:, ori_index] = vec
+                segment_ori_bones[:, ori_index] = quat
         logging.info(f"Segment[{i}] rot finished at bit {f.pos}, byte {f.pos / 8}")
 
     def read_rel_keys(self, f, frame_map, k_channel_bitsize, keys_flag, ushort_storage, wavelet_i):
@@ -619,15 +632,16 @@ if __name__ == "__main__":
     mani = ManisFile()
     # acro stand_ide
     target = "acrocanthosaurus@standidle01"
-    mani.load("C:/Users/arnfi/Desktop/acro/notmotionextracted.maniset53978456.manis")
+    # mani.load("C:/Users/arnfi/Desktop/acro/notmotionextracted.maniset53978456.manis")
     # mani.load("C:/Users/arnfi/Desktop/animationmotionextractedlocomotion.maniset648a1a01.manis")
-    # mani.load("C:/Users/arnfi/Desktop/crane/animationnotmotionextractedfighting.maniset3d816f2c.manis")
+    mani.load("C:/Users/arnfi/Desktop/crane/animationnotmotionextractedfighting.maniset3d816f2c.manis")
     # mani.load("C:/Users/arnfi/Desktop/kangaroo/animation.maniset32dc487b.manis")
     # mani.load("C:/Users/arnfi/Desktop/Wheel/animation.maniset9637aeb4.manis")
     # mani.load("C:/Users/arnfi/Desktop/DLA scale anim.manis")
     # mani.load("C:/Users/arnfi/Desktop/dinomascot/animation.maniset293c241f.manis")
     # mani.dump_keys()
     mani.parse_keys()
+    mani.log_rot_keys()
     # mani.log_loc_keys()
 # mani.load("C:/Users/arnfi/Desktop/donationbox/animation.maniseteaf333c5.manis")
 # mani.dump_keys()

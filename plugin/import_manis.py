@@ -43,7 +43,7 @@ def iter_keys(m_bone_names, m_keys, bones_data, b_action, b_dtype, m_extra_bone_
 				extra_key = m_extra_keys[frame_i][scale_i]
 			else:
 				extra_key = None
-			yield frame_i, key, bonerestmat_inv, fcurves, extra_key
+			yield frame_i, key, bonerestmat_inv, fcurves, extra_key, b_name
 
 
 def load(files=[], filepath="", set_fps=False):
@@ -80,7 +80,7 @@ def load(files=[], filepath="", set_fps=False):
 			except:
 				logging.exception(f"Decompressing {mi.name} failed, skipping")
 			# ignore loc for now
-			# for frame_i, key, bonerestmat_inv, fcurves, scale in iter_keys(
+			# for frame_i, key, bonerestmat_inv, fcurves, scale, b_name in iter_keys(
 			# 		k.pos_bones_names, ck.pos_bones, bones_data, b_action, "location"):  #, k.scl_bones_names, ck.scl_bones):
 			# 	key = mathutils.Vector(key)
 			# 	# # correct for scale
@@ -88,18 +88,21 @@ def load(files=[], filepath="", set_fps=False):
 			# 	# 	key = mathutils.Vector([key.x * scale.z, key.y * scale.y, key.z * scale.x])
 			# 	key = (bonerestmat_inv @ corrector.nif_bind_to_blender_bind(mathutils.Matrix.Translation(key))).to_translation()
 			# 	anim_sys.add_key(fcurves, frame_i, key, interp_loc)
-			for frame_i, key, bonerestmat_inv, fcurves, _ in iter_keys(
+			for frame_i, in_key, bonerestmat_inv, fcurves, _, b_name in iter_keys(
 					k.ori_bones_names, ck.ori_bones, bones_data, b_action, "rotation_quaternion"):
-				key = mathutils.Quaternion([key[3], key[0], key[1], key[2]])
+				key = mathutils.Quaternion([in_key[3], in_key[0], in_key[1], in_key[2]])
+				# if frame_i == 0 and b_name == "def_c_hips_joint":
+				# 	logging.info(f"{mi.name} {key}")
 				key = (bonerestmat_inv @ corrector.nif_bind_to_blender_bind(key.to_matrix().to_4x4())).to_quaternion()
-				if cam_corr is not None:
-					out = mathutils.Quaternion(cam_corr)
-					out.rotate(key)
-					key = out
+				# if cam_corr is not None:
+				# 	out = mathutils.Quaternion(cam_corr)
+				# 	out.rotate(key)
+				# 	key = out
 				anim_sys.add_key(fcurves, frame_i, key, interp_loc)
+			# skip uncompressed anim
 			continue
 		logging.info(f"Importing '{mi.name}'")
-		for frame_i, key, bonerestmat_inv, fcurves, scale in iter_keys(
+		for frame_i, key, bonerestmat_inv, fcurves, scale, b_name in iter_keys(
 				k.pos_bones_names, k.pos_bones, bones_data, b_action, "location", k.scl_bones_names, k.scl_bones):
 			key = mathutils.Vector([key.x, key.y, key.z])
 			# correct for scale
@@ -107,16 +110,18 @@ def load(files=[], filepath="", set_fps=False):
 				key = mathutils.Vector([key.x * scale.z, key.y * scale.y, key.z * scale.x])
 			key = (bonerestmat_inv @ corrector.nif_bind_to_blender_bind(mathutils.Matrix.Translation(key))).to_translation()
 			anim_sys.add_key(fcurves, frame_i, key, interp_loc)
-		for frame_i, key, bonerestmat_inv, fcurves, _ in iter_keys(
+		for frame_i, key, bonerestmat_inv, fcurves, _, b_name in iter_keys(
 				k.ori_bones_names, k.ori_bones, bones_data, b_action, "rotation_quaternion"):
 			key = mathutils.Quaternion([key.w, key.x, key.y, key.z])
+			# if frame_i == 0 and b_name == "def_c_hips_joint":
+			# 	logging.info(f"{mi.name} {key}")
 			key = (bonerestmat_inv @ corrector.nif_bind_to_blender_bind(key.to_matrix().to_4x4())).to_quaternion()
 			if cam_corr is not None:
 				out = mathutils.Quaternion(cam_corr)
 				out.rotate(key)
 				key = out
 			anim_sys.add_key(fcurves, frame_i, key, interp_loc)
-		for frame_i, key, bonerestmat_inv, fcurves, _ in iter_keys(
+		for frame_i, key, bonerestmat_inv, fcurves, _, b_name in iter_keys(
 				k.scl_bones_names, k.scl_bones, bones_data, b_action, "scale"):
 			# swizzle
 			key = mathutils.Vector([key.z, key.y, key.x])
