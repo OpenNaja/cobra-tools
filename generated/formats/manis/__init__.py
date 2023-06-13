@@ -514,8 +514,24 @@ class ManisFile(InfoHeader, IoFile):
                         out[1] = self.make_signed(rel[1])
                         out[2] = self.make_signed(rel[2])
                         out[3] = 0.0
+                        # todo check if this is the right scale
                         out *= scale
-                        segment_ori_bones[out_frame_i, ori_index, ] = rel + quat
+                        norm = math.sqrt(max(0.0, 1.0 - np.linalg.norm(out)))
+                        rel_scaled = out.copy()
+                        rel_scaled[3] = norm
+
+                        rel_inter = out.copy()
+                        rel_inter[0] = (quat[0] * norm + quat[1] * rel_scaled[2]) - (quat[2] * rel_scaled[1] - quat[3] * rel_scaled[0])
+                        rel_inter[1] = quat[2] * norm + quat[3] * rel_scaled[2] + (quat[0] * rel_scaled[1] - quat[1] * rel_scaled[0])
+                        rel_inter[2] = (norm * quat[3] - rel_scaled[2] * quat[2]) - (rel_scaled[1] * quat[1] + rel_scaled[0] * quat[0])
+                        rel_inter[3] = (norm * quat[1] - rel_scaled[2] * quat[0]) + rel_scaled[1] * quat[3] + rel_scaled[0] * quat[2]
+                        norm = math.sqrt(np.linalg.norm(rel_inter))
+                        if norm == 0.0:
+                            scaled_inter = identity.copy()
+                        else:
+                            scaled_inter = rel_inter * norm
+                        segment_ori_bones[out_frame_i, ori_index, ] = scaled_inter
+                        # segment_ori_bones[out_frame_i, ori_index, ] = out + quat
             else:
                 # set all keyframes
                 segment_ori_bones[:, ori_index] = quat
