@@ -452,11 +452,6 @@ class ManisFile(InfoHeader, IoFile):
         epsilon = 1.1920929E-7
         identity = np.zeros(4, dtype=np.float32)
         identity[3] = 1.0
-        quat_w_rel = identity.copy()
-        quat_w_rel[0] = 128.0
-        quat_w_rel[1] = 16383.0
-        quat_w_rel[2] = -4.1337269E+21
-        quat_w_rel[3] = 4.5905E-41
         for ori_index, ori_name in enumerate(mani_info.keys.ori_bones_names):
             # logging.info(context)
             frame_map = np.zeros(32, dtype=np.uint32)
@@ -469,7 +464,7 @@ class ManisFile(InfoHeader, IoFile):
             norm = np.linalg.norm(vec)
             # logging.info(f"{ori_index} {pos_base} at {f_pos} {vec} {norm}")
             if norm < epsilon:
-                quat = identity
+                quat = identity.copy()
             else:
                 y_rel = identity.copy()
                 y_rel[1] = vec[1] * vec[1]
@@ -478,14 +473,11 @@ class ManisFile(InfoHeader, IoFile):
                 b[1] = vec[2] * vec[2]
                 b[0] = 0.0
                 q, scale_fac = get_quat_scale_fac(norm * 0.5)
-                # scale0 = 0.867282
                 # print(vec, norm)
                 quat = vec / norm
                 quat *= scale_fac
                 quat[3] = q
-                # if "def_c_hips_joint" == ori_name:
-                #     logging.info(f"normed {quat}, scale_fac {scale_fac}, q {q}")
-                #     quat[:] = (0.0, 0.7071354452786425, 0.0, -0.7071354452786425)
+                # logging.info(f"normed {quat}, scale_fac {scale_fac}, q {q}")
                 # print(scale_fac, quat)
             # logging.info(f"{(x, y, z)} {struct.pack('f', x), struct.pack('f', y), struct.pack('f', z)}")
             self.compare_key_with_reference(f, keys_iter, pos_base)
