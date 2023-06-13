@@ -318,8 +318,8 @@ class ManisFile(InfoHeader, IoFile):
             for ori_index, ori_name in enumerate(mani_info.keys.ori_bones_names):
                 v = mani_info.keys.ori_bones[0][ori_index]
                 x, y, z, w = v.x, v.y, v.z, v.w
-                if "def_c_hips_joint" == ori_name:
-                    logging.info(f"{ori_index} {ori_name} {(x, y, z, w)}")
+                # if "def_c_hips_joint" == ori_name:
+                #     logging.info(f"{ori_index} {ori_name} {(x, y, z, w)}")
 
     def parse_keys(self):
         keys_iter = None
@@ -483,9 +483,9 @@ class ManisFile(InfoHeader, IoFile):
                 quat = vec / norm
                 quat *= scale_fac
                 quat[3] = q
-                if "def_c_hips_joint" == ori_name:
-                    logging.info(f"normed {quat}, scale_fac {scale_fac}, q {q}")
-                    quat[:] = (0.0, 0.7071354452786425, 0.0, -0.7071354452786425)
+                # if "def_c_hips_joint" == ori_name:
+                #     logging.info(f"normed {quat}, scale_fac {scale_fac}, q {q}")
+                #     quat[:] = (0.0, 0.7071354452786425, 0.0, -0.7071354452786425)
                 # print(scale_fac, quat)
             # logging.info(f"{(x, y, z)} {struct.pack('f', x), struct.pack('f', y), struct.pack('f', z)}")
             self.compare_key_with_reference(f, keys_iter, pos_base)
