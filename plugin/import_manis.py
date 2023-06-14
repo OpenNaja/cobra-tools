@@ -70,7 +70,7 @@ def load(files=[], filepath="", set_fps=False):
 		b_action = anim_sys.create_action(b_armature_ob, mi.name)
 		k = mi.keys
 		if mi.dtype.compression != 0:
-			logging.info(f"{mi.name} is compressed, only uncompressed are imported")
+			logging.info(f"{mi.name} is compressed, trying to import anyway")
 			b_action.use_frame_range = True
 			b_action.frame_start = 0
 			b_action.frame_end = mi.frame_count
