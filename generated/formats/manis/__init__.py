@@ -316,15 +316,16 @@ class ManisFile(InfoHeader, IoFile):
                 #     logging.info(f"{ori_index} {ori_name} {(x, y, z, w)}")
 
     def parse_keys(self):
-        keys_iter = None
         for mani_info in self.iter_compressed_manis():
+            keys_iter = None
             # if mani_info.name == "acrocanthosaurus@standidle01":
-            #     # acro debug keys
-            #     dump_path = os.path.join(root_path.root_dir, "dumps", "acro_keys.txt")
-            #     keys = [int(line.strip(), 0) for line in open(dump_path, "r")]
-            #     keys_iter = iter(keys)
+            # acro debug keys
+            dump_path = os.path.join(root_path.root_dir, "dumps", f"{mani_info.name}_keys.txt")
+            if os.path.isfile(dump_path):
+                logging.info(f"Found reference keys for {mani_info.name}")
+                keys = [int(line.strip(), 0) for line in open(dump_path, "r")]
+                keys_iter = iter(keys)
             # else:
-            #     keys_iter = None
             #     continue
             # logging.info(mani_info)
             # logging.info(mani_info.keys.compressed)
@@ -332,7 +333,7 @@ class ManisFile(InfoHeader, IoFile):
                 self.decompress(keys_iter, mani_info)
             except:
                 logging.exception(f"Decompressing {mani_info.name} failed")
-            break
+            # break
 
     def decompress(self, keys_iter, mani_info):
         scale = 6.103888e-05
@@ -633,9 +634,9 @@ if __name__ == "__main__":
     mani = ManisFile()
     # acro stand_ide
     target = "acrocanthosaurus@standidle01"
-    # mani.load("C:/Users/arnfi/Desktop/acro/notmotionextracted.maniset53978456.manis")
+    mani.load("C:/Users/arnfi/Desktop/acro/notmotionextracted.maniset53978456.manis")
     # mani.load("C:/Users/arnfi/Desktop/animationmotionextractedlocomotion.maniset648a1a01.manis")
-    mani.load("C:/Users/arnfi/Desktop/crane/animationnotmotionextractedfighting.maniset3d816f2c.manis")
+    # mani.load("C:/Users/arnfi/Desktop/crane/animationnotmotionextractedfighting.maniset3d816f2c.manis")
     # mani.load("C:/Users/arnfi/Desktop/kangaroo/animation.maniset32dc487b.manis")
     # mani.load("C:/Users/arnfi/Desktop/Wheel/animation.maniset9637aeb4.manis")
     # mani.load("C:/Users/arnfi/Desktop/DLA scale anim.manis")
