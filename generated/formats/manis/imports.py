@@ -52,6 +52,7 @@ type_module_name_map = {
 	'FloatsGrabber': 'generated.formats.manis.compounds.FloatsGrabber',
 	'Segment': 'generated.formats.manis.compounds.Segment',
 	'String32': 'generated.formats.manis.compounds.String32',
+	'LocBound': 'generated.formats.manis.compounds.LocBound',
 	'CompressedManiData': 'generated.formats.manis.compounds.CompressedManiData',
 	'ManiBlock': 'generated.formats.manis.compounds.ManiBlock',
 	'SegmentsReader': 'generated.formats.manis.compounds.SegmentsReader',

@@ -80,16 +80,20 @@ def load(files=[], filepath="", set_fps=False):
 			except:
 				logging.exception(f"Decompressing {mi.name} failed, skipping")
 			# ignore loc for now
-			# for frame_i, key, bonerestmat_inv, fcurves, scale, b_name in iter_keys(
-			# 		k.pos_bones_names, ck.pos_bones, bones_data, b_action, "location"):  #, k.scl_bones_names, ck.scl_bones):
-			# 	key = mathutils.Vector(key)
-			# 	# # correct for scale
-			# 	# if scale:
-			# 	# 	key = mathutils.Vector([key.x * scale.z, key.y * scale.y, key.z * scale.x])
-			# 	key = (bonerestmat_inv @ corrector.nif_bind_to_blender_bind(mathutils.Matrix.Translation(key))).to_translation()
-			# 	anim_sys.add_key(fcurves, frame_i, key, interp_loc)
+			for frame_i, key, bonerestmat_inv, fcurves, scale, b_name in iter_keys(
+					k.pos_bones_names, ck.pos_bones, bones_data, b_action, "location"):  #, k.scl_bones_names, ck.scl_bones):
+				if frame_i % 32:
+					continue
+				key = mathutils.Vector(key)
+				# # correct for scale
+				# if scale:
+				# 	key = mathutils.Vector([key.x * scale.z, key.y * scale.y, key.z * scale.x])
+				key = (bonerestmat_inv @ corrector.nif_bind_to_blender_bind(mathutils.Matrix.Translation(key))).to_translation()
+				anim_sys.add_key(fcurves, frame_i, key, interp_loc)
 			for frame_i, in_key, bonerestmat_inv, fcurves, _, b_name in iter_keys(
 					k.ori_bones_names, ck.ori_bones, bones_data, b_action, "rotation_quaternion"):
+				if frame_i % 32:
+					continue
 				key = mathutils.Quaternion([in_key[3], in_key[0], in_key[1], in_key[2]])
 				# if frame_i == 0 and b_name == "def_c_hips_joint":
 				# 	logging.info(f"{mi.name} {key}")

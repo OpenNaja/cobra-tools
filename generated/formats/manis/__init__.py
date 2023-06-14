@@ -306,11 +306,12 @@ class ManisFile(InfoHeader, IoFile):
 
     def log_loc_keys(self):
         for mani_info in self.iter_uncompressed_manis():
-            logging.info(mani_info)
+            # logging.info(mani_info)
             for pos_index, pos_name in enumerate(mani_info.keys.pos_bones_names):
                 v = mani_info.keys.pos_bones[0][pos_index]
                 x, y, z = v.x, v.y, v.z
-                logging.info(f"{pos_index} {pos_name} {(x, y, z)}")
+                logging.info(f"unc {pos_index} {pos_name} {(x, y, z)}")
+            break
 
     def log_rot_keys(self):
         for mani_info in self.iter_uncompressed_manis():
@@ -338,6 +339,7 @@ class ManisFile(InfoHeader, IoFile):
                 self.decompress(keys_iter, mani_info)
             except:
                 logging.exception(f"Decompressing {mani_info.name} failed")
+            break
 
     def decompress(self, keys_iter, mani_info):
         scale = 6.103888e-05
@@ -371,19 +373,16 @@ class ManisFile(InfoHeader, IoFile):
                 logging.exception(f"Reading Segment[{segment_i}] failed at bit {f.pos}, byte {f.pos / 8}")
                 raise
             frame_offset += segment_frames_count
-        loc_min = mani_info.keys.compressed.loc_min
-        loc_ext = mani_info.keys.compressed.loc_extent
-        loc_min = np.array((loc_min.x, loc_min.y, loc_min.z), np.float32)
-        loc_ext = np.array((loc_ext.x, loc_ext.y, loc_ext.z), np.float32)
-        loc = mani_info.keys.compressed.pos_bones
-        # loc[:, :, 0] += loc_min.x
-        # loc[:, :, 1] += loc_min.y
-        # loc[:, :, 2] += loc_min.z
+        ck = mani_info.keys.compressed
+        loc_min = ck.loc_bounds.mins[ck.loc_bound_indices]
+        loc_ext = ck.loc_bounds.scales[ck.loc_bound_indices]
+        loc = ck.pos_bones
+        loc *= loc_ext
         loc += loc_min
-        # loc *= loc_ext
         # logging.info(loc[0,])
-        # for pos_index, pos_name in enumerate(mani_info.keys.pos_bones_names):
-        #     logging.info(f"{pos_index} {pos_name} {loc[0, pos_index]}")
+        logging.info(ck)
+        for pos_index, pos_name in enumerate(mani_info.keys.pos_bones_names):
+            logging.info(f"dec {pos_index} {pos_name} {loc[0, pos_index]}")
 
     def read_vec3_keys(self, context, f, f2, i, k_channel_bitsize, mani_info,
                        scale, segment_frames_count, segment_pos_bones, keys_iter=None):
@@ -650,8 +649,8 @@ if __name__ == "__main__":
     # mani.load("C:/Users/arnfi/Desktop/dinomascot/animation.maniset293c241f.manis")
     # mani.dump_keys()
     mani.parse_keys()
-    mani.log_rot_keys()
-    # mani.log_loc_keys()
+    # mani.log_rot_keys()
+    mani.log_loc_keys()
 # mani.load("C:/Users/arnfi/Desktop/donationbox/animation.maniseteaf333c5.manis")
 # mani.dump_keys()
 # mani.parse_keys()
