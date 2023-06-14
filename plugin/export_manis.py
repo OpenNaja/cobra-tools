@@ -33,6 +33,7 @@ def index_min_max(indices):
 
 def set_mani_info_counts(mani_info, b_action, bones_lut, m_dtype, b_dtype):
 	groups = get_groups_for_type(b_action, b_dtype)
+	groups = [group for group in groups if group.name in bones_lut]
 	count = len(groups)
 	for s in (f"{m_dtype}_bone_count", f"{m_dtype}_bone_count_repeat", f"{m_dtype}_bone_count_related"):
 		setattr(mani_info, s, count)

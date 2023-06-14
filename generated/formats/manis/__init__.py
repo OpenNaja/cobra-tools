@@ -401,7 +401,7 @@ class ManisFile(InfoHeader, IoFile):
                 if segment_frames_count > 1:
                     frame_inc = 0
                     # set base keyframe
-                    segment_pos_bones[0, pos_index, ] = vec[:3]
+                    segment_pos_bones[0, pos_index] = vec[:3]
                     # set other keyframes
                     for out_frame_i in range(1, segment_frames_count):
                         trg_frame_i = frame_map[frame_inc]
@@ -413,12 +413,12 @@ class ManisFile(InfoHeader, IoFile):
                         out[1] = self.make_signed(rel[1])
                         out[2] = self.make_signed(rel[2])
                         out *= scale
-                        segment_pos_bones[out_frame_i, pos_index, ] = out + vec[:3]
+                        segment_pos_bones[out_frame_i, pos_index] = out + vec[:3]
                 # return
             # break
             else:
                 # set all keyframes
-                segment_pos_bones[:, pos_index,] = vec[:3]
+                segment_pos_bones[:, pos_index] = vec[:3]
         logging.info(f"Segment[{i}] loc finished at bit {f.pos}, byte {f.pos / 8}")
 
     def read_rot_keys(self, context, f, f2, i, k_channel_bitsize, mani_info, scale, segment_frames_count,
