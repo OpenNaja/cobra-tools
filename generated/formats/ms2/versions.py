@@ -63,6 +63,17 @@ def set_jwe(context):
 	context.user_version._value = 24724
 
 
+def is_jwe2dev(context):
+	if context.version == 20 and context.user_version in (24724, 25108, 24596) and context.is_biosyn == 0:
+		return True
+
+
+def set_jwe2dev(context):
+	context.version = 20
+	context.user_version._value = 24724
+	context.is_biosyn = 0
+
+
 def is_jwe2(context):
 	if context.version == 20 and context.user_version in (24724, 25108, 24596):
 		return True
@@ -145,7 +156,7 @@ def set_jwe2(context):
 	context.version = 51
 
 
-games = Enum('Games', [('DISNEYLAND_ADVENTURES', 'Disneyland Adventures'), ('DLA', 'DLA'), ('JURASSIC_WORLD_EVOLUTION', 'Jurassic World Evolution'), ('JURASSIC_WORLD_EVOLUTION_2', 'Jurassic World Evolution 2'), ('JWE_1', 'JWE1'), ('JWE_2', 'JWE2'), ('OLD', 'Old'), ('PC', 'PC'), ('PLANET_COASTER', 'Planet Coaster'), ('PLANET_ZOO', 'Planet Zoo'), ('PLANET_ZOO_PRE_1_6', 'Planet Zoo pre-1.6'), ('PZ', 'PZ'), ('PZ_16', 'PZ16'), ('ZOO_TYCOON_ULTIMATE_ANIMAL_COLLECTION', 'Zoo Tycoon Ultimate Animal Collection'), ('ZTUAC', 'ZTUAC'), ('UNKNOWN', 'Unknown Game')])
+games = Enum('Games', [('DISNEYLAND_ADVENTURES', 'Disneyland Adventures'), ('DLA', 'DLA'), ('JURASSIC_WORLD_EVOLUTION', 'Jurassic World Evolution'), ('JURASSIC_WORLD_EVOLUTION_2', 'Jurassic World Evolution 2'), ('JURASSIC_WORLD_EVOLUTION_2_DEV', 'Jurassic World Evolution 2 Dev'), ('JWE_1', 'JWE1'), ('JWE_2', 'JWE2'), ('OLD', 'Old'), ('PC', 'PC'), ('PLANET_COASTER', 'Planet Coaster'), ('PLANET_ZOO', 'Planet Zoo'), ('PLANET_ZOO_PRE_1_6', 'Planet Zoo pre-1.6'), ('PZ', 'PZ'), ('PZ_16', 'PZ16'), ('ZOO_TYCOON_ULTIMATE_ANIMAL_COLLECTION', 'Zoo Tycoon Ultimate Animal Collection'), ('ZTUAC', 'ZTUAC'), ('UNKNOWN', 'Unknown Game')])
 
 
 def get_game(context):
@@ -161,6 +172,8 @@ def get_game(context):
 		return [games.PZ_16]
 	if is_jwe(context):
 		return [games.JURASSIC_WORLD_EVOLUTION]
+	if is_jwe2dev(context):
+		return [games.JURASSIC_WORLD_EVOLUTION_2_DEV]
 	if is_jwe2(context):
 		return [games.JWE_2]
 	if is_old(context):
@@ -197,6 +210,8 @@ def set_game(context, game):
 		return set_pz16(context)
 	if game in {games.JURASSIC_WORLD_EVOLUTION}:
 		return set_jwe(context)
+	if game in {games.JURASSIC_WORLD_EVOLUTION_2_DEV}:
+		return set_jwe2dev(context)
 	if game in {games.JWE_2}:
 		return set_jwe2(context)
 	if game in {games.OLD}:
@@ -236,6 +251,7 @@ pc = Ms2Version(id='PC', version=(18,), user_version=(VersionInfo.from_value(834
 pz = Ms2Version(id='PZ', version=(19,), user_version=(VersionInfo.from_value(8340), VersionInfo.from_value(8724), VersionInfo.from_value(8212),), primary_games=[], all_games=[games.PLANET_ZOO_PRE_1_6])
 pz16 = Ms2Version(id='PZ16', version=(20,), user_version=(VersionInfo.from_value(8340), VersionInfo.from_value(8724), VersionInfo.from_value(8212),), primary_games=[], all_games=[games.PLANET_ZOO])
 jwe = Ms2Version(id='JWE', version=(19,), user_version=(VersionInfo.from_value(24724), VersionInfo.from_value(25108), VersionInfo.from_value(24596),), primary_games=[], all_games=[games.JURASSIC_WORLD_EVOLUTION])
+jwe2dev = Ms2Version(id='JWE2DEV', version=(20,), user_version=(VersionInfo.from_value(24724), VersionInfo.from_value(25108), VersionInfo.from_value(24596),), primary_games=[], all_games=[games.JURASSIC_WORLD_EVOLUTION_2_DEV])
 jwe2 = Ms2Version(id='JWE2', version=(20,), user_version=(VersionInfo.from_value(24724), VersionInfo.from_value(25108), VersionInfo.from_value(24596),), primary_games=[], all_games=[games.JURASSIC_WORLD_EVOLUTION_2])
 old = Ms2Version(id='old', version=(7, 13, 32,), primary_games=[], all_games=[games.OLD])
 dla = Ms2Version(id='DLA', version=(7,), primary_games=[], all_games=[games.DLA])
@@ -246,4 +262,4 @@ pz = Ms2Version(id='PZ', version=(48, 50,), primary_games=[], all_games=[games.P
 pz16 = Ms2Version(id='PZ16', version=(50,), primary_games=[], all_games=[games.PZ_16])
 jwe2 = Ms2Version(id='JWE2', version=(51, 52,), primary_games=[], all_games=[games.JWE_2])
 
-available_versions = [dla, ztuac, pc, pz, pz16, jwe, jwe2, old, dla, ztuac, pc, jwe1, pz, pz16, jwe2]
+available_versions = [dla, ztuac, pc, pz, pz16, jwe, jwe2dev, jwe2, old, dla, ztuac, pc, jwe1, pz, pz16, jwe2]

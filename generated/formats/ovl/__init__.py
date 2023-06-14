@@ -762,7 +762,8 @@ class OvlFile(Header):
 
 	def load(self, filepath, commands={}):
 		start_time = time.time()
-		self.is_biosyn = None
+		# automatically tag dev build
+		self.is_biosyn = False if "Jurassic World Evolution 2 1.3.1.0" in filepath else None
 		# store commands
 		self.commands = commands
 		self.store_filepath(filepath)

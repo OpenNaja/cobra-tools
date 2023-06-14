@@ -13,6 +13,7 @@ ver = sys.version_info
 if ver.major == 3 and ver.minor == 10:
 	raise Exception('Python 3.10 is not supported, please upgrade to 3.11 at least.')
 
+
 class ConstantsProvider(dict):
 
 	def __init__(self):

@@ -63,6 +63,17 @@ def set_jwe(context):
 	context.user_version._value = 24724
 
 
+def is_jwe2dev(context):
+	if context.version == 20 and context.user_version in (24724, 25108, 24596) and context.is_biosyn == 0:
+		return True
+
+
+def set_jwe2dev(context):
+	context.version = 20
+	context.user_version._value = 24724
+	context.is_biosyn = 0
+
+
 def is_jwe2(context):
 	if context.version == 20 and context.user_version in (24724, 25108, 24596):
 		return True
@@ -73,7 +84,7 @@ def set_jwe2(context):
 	context.user_version._value = 24724
 
 
-games = Enum('Games', [('DISNEYLAND_ADVENTURES', 'Disneyland Adventures'), ('JURASSIC_WORLD_EVOLUTION', 'Jurassic World Evolution'), ('JURASSIC_WORLD_EVOLUTION_2', 'Jurassic World Evolution 2'), ('PLANET_COASTER', 'Planet Coaster'), ('PLANET_ZOO', 'Planet Zoo'), ('PLANET_ZOO_PRE_1_6', 'Planet Zoo pre-1.6'), ('ZOO_TYCOON_ULTIMATE_ANIMAL_COLLECTION', 'Zoo Tycoon Ultimate Animal Collection'), ('UNKNOWN', 'Unknown Game')])
+games = Enum('Games', [('DISNEYLAND_ADVENTURES', 'Disneyland Adventures'), ('JURASSIC_WORLD_EVOLUTION', 'Jurassic World Evolution'), ('JURASSIC_WORLD_EVOLUTION_2', 'Jurassic World Evolution 2'), ('JURASSIC_WORLD_EVOLUTION_2_DEV', 'Jurassic World Evolution 2 Dev'), ('PLANET_COASTER', 'Planet Coaster'), ('PLANET_ZOO', 'Planet Zoo'), ('PLANET_ZOO_PRE_1_6', 'Planet Zoo pre-1.6'), ('ZOO_TYCOON_ULTIMATE_ANIMAL_COLLECTION', 'Zoo Tycoon Ultimate Animal Collection'), ('UNKNOWN', 'Unknown Game')])
 
 
 def get_game(context):
@@ -89,6 +100,8 @@ def get_game(context):
 		return [games.PLANET_ZOO]
 	if is_jwe(context):
 		return [games.JURASSIC_WORLD_EVOLUTION]
+	if is_jwe2dev(context):
+		return [games.JURASSIC_WORLD_EVOLUTION_2_DEV]
 	if is_jwe2(context):
 		return [games.JURASSIC_WORLD_EVOLUTION_2]
 	return [games.UNKNOWN]
@@ -109,6 +122,8 @@ def set_game(context, game):
 		return set_pz16(context)
 	if game in {games.JURASSIC_WORLD_EVOLUTION}:
 		return set_jwe(context)
+	if game in {games.JURASSIC_WORLD_EVOLUTION_2_DEV}:
+		return set_jwe2dev(context)
 	if game in {games.JURASSIC_WORLD_EVOLUTION_2}:
 		return set_jwe2(context)
 
@@ -131,6 +146,7 @@ pc = MatcolVersion(id='PC', version=(18,), user_version=(VersionInfo.from_value(
 pz = MatcolVersion(id='PZ', version=(19,), user_version=(VersionInfo.from_value(8340), VersionInfo.from_value(8724), VersionInfo.from_value(8212),), primary_games=[], all_games=[games.PLANET_ZOO_PRE_1_6])
 pz16 = MatcolVersion(id='PZ16', version=(20,), user_version=(VersionInfo.from_value(8340), VersionInfo.from_value(8724), VersionInfo.from_value(8212),), primary_games=[], all_games=[games.PLANET_ZOO])
 jwe = MatcolVersion(id='JWE', version=(19,), user_version=(VersionInfo.from_value(24724), VersionInfo.from_value(25108), VersionInfo.from_value(24596),), primary_games=[], all_games=[games.JURASSIC_WORLD_EVOLUTION])
+jwe2dev = MatcolVersion(id='JWE2DEV', version=(20,), user_version=(VersionInfo.from_value(24724), VersionInfo.from_value(25108), VersionInfo.from_value(24596),), primary_games=[], all_games=[games.JURASSIC_WORLD_EVOLUTION_2_DEV])
 jwe2 = MatcolVersion(id='JWE2', version=(20,), user_version=(VersionInfo.from_value(24724), VersionInfo.from_value(25108), VersionInfo.from_value(24596),), primary_games=[], all_games=[games.JURASSIC_WORLD_EVOLUTION_2])
 
-available_versions = [dla, ztuac, pc, pz, pz16, jwe, jwe2]
+available_versions = [dla, ztuac, pc, pz, pz16, jwe, jwe2dev, jwe2]

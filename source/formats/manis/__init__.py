@@ -1,28 +1,23 @@
 import contextlib
-import io
 import logging
 import math
 import struct
-
+import os
 import numpy as np
-np.set_printoptions(suppress=True, precision=4)
 
 import root_path
-from generated.formats.manis.bitfields.ManisDtype import ManisDtype
-from generated.formats.manis.bitfields.PosBaseKey import PosBaseKey
+from ovl_util.config import logging_setup
 from generated.formats.manis.bitfields.StoreKeys import StoreKeys
 from generated.formats.manis.compounds.InfoHeader import InfoHeader
 from generated.io import IoFile
-import os
-
-from modules.formats.shared import get_padding_size
-from ovl_util.config import logging_setup
 
 try:
     import bitarray
     import bitarray.util
 except:
     logging.warning(f"bitarray module is not installed")
+
+np.set_printoptions(suppress=True, precision=4)
 
 
 def swap16(i):
@@ -236,7 +231,6 @@ def get_quat_scale_fac(norm_half_abs):
     xmm1 = i_as_f(f_as_i(xmm1) ^ f_as_i(xmm5))  # xmm1[0] is q
     xmm0 = i_as_f(f_as_i(xmm0) ^ f_as_i(xmm8))  # xmm0 is scale_fac
     return xmm1, xmm0
-    # return 1.0
 
 
 class ManisFile(InfoHeader, IoFile):
