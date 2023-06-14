@@ -19,11 +19,10 @@ from modules.formats.shared import get_padding_size
 from ovl_util.config import logging_setup
 
 try:
-    # import bitstring
     import bitarray
     import bitarray.util
 except:
-    logging.warning(f"bitstring module is not installed")
+    logging.warning(f"bitarray module is not installed")
 
 
 def swap16(i):
