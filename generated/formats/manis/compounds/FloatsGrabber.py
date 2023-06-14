@@ -1,10 +1,6 @@
-import logging
-
 from generated.array import Array
 from generated.base_struct import BaseStruct
 from generated.formats.base.basic import Float
-from generated.formats.base.compounds.Vector3 import Vector3
-from generated.formats.manis.compounds.LocBound import LocBound
 import numpy as np
 
 from generated.base_struct import BaseStruct
