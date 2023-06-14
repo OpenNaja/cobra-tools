@@ -379,6 +379,7 @@ class ManisFile(InfoHeader, IoFile):
 
     def read_vec3_keys(self, context, f, f2, i, k_channel_bitsize, mani_info,
                        scale, segment_frames_count, segment_pos_bones, keys_iter=None):
+        identity = np.zeros(3, np.float32)
         for pos_index, pos_name in enumerate(mani_info.keys.pos_bones_names):
             frame_map = np.zeros(32, dtype=np.uint32)
             ushort_storage = np.zeros(156, dtype=np.uint32)
@@ -403,6 +404,9 @@ class ManisFile(InfoHeader, IoFile):
                     # set base keyframe
                     segment_pos_bones[0, pos_index] = vec[:3]
                     # set other keyframes
+                    last_key_a = identity.copy()
+                    last_key_b = identity.copy()
+                    key_picked = vec[:3].copy()
                     for out_frame_i in range(1, segment_frames_count):
                         trg_frame_i = frame_map[frame_inc]
                         if trg_frame_i == out_frame_i:
@@ -412,8 +416,18 @@ class ManisFile(InfoHeader, IoFile):
                         out[0] = self.make_signed(rel[0])
                         out[1] = self.make_signed(rel[1])
                         out[2] = self.make_signed(rel[2])
-                        out *= scale
-                        segment_pos_bones[out_frame_i, pos_index] = out + vec[:3]
+                        last_key_delta = (last_key_b - last_key_a) + last_key_b
+                        base_plus_delta = last_key_delta + key_picked
+                        # todo do something here for base_key_float
+                        base_key_float = base_plus_delta
+                        final = base_key_float + out * scale
+                        # todo get flag
+                        which_key_flag = 0
+                        key_picked = vec[:3] if which_key_flag else final
+                        last_key_a = identity if which_key_flag else last_key_b.copy()
+                        last_key_b = identity if which_key_flag else last_key_delta.copy() + out * scale
+                        output = final if which_key_flag else vec[:3]
+                        segment_pos_bones[out_frame_i, pos_index] = output
                 # return
             # break
             else:
