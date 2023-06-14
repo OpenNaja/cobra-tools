@@ -62,7 +62,7 @@ class BinStream:
             out = new_bit | (out * 2)
         return out
 
-    def read_as_shift(self, size, flag):
+    def interpret_as_shift(self, size, flag):
         out = 0
         for _ in range(size):
             out += flag
@@ -317,15 +317,15 @@ class ManisFile(InfoHeader, IoFile):
     def parse_keys(self):
         for mani_info in self.iter_compressed_manis():
             keys_iter = None
-            # if mani_info.name == "acrocanthosaurus@standidle01":
+            # if mani_info.name != "acrocanthosaurus@standidle01":
+            if mani_info.name != "acrocanthosaurus@drinksocialinteractiona":
+                continue
             # acro debug keys
             dump_path = os.path.join(root_path.root_dir, "dumps", f"{mani_info.name}_keys.txt")
             if os.path.isfile(dump_path):
                 logging.info(f"Found reference keys for {mani_info.name}")
                 keys = [int(line.strip(), 0) for line in open(dump_path, "r")]
                 keys_iter = iter(keys)
-            # else:
-            #     continue
             # logging.info(mani_info)
             # logging.info(mani_info.keys.compressed)
             try:
@@ -372,10 +372,9 @@ class ManisFile(InfoHeader, IoFile):
         loc = ck.pos_bones
         loc *= loc_ext
         loc += loc_min
-        # logging.info(loc[0,])
-        logging.info(ck)
-        for pos_index, pos_name in enumerate(mani_info.keys.pos_bones_names):
-            logging.info(f"dec {pos_index} {pos_name} {loc[0, pos_index]}")
+        # logging.info(ck)
+        # for pos_index, pos_name in enumerate(mani_info.keys.pos_bones_names):
+        #     logging.info(f"dec {pos_index} {pos_name} {loc[0, pos_index]}")
 
     def read_vec3_keys(self, context, f, f2, i, k_channel_bitsize, mani_info,
                        scale, segment_frames_count, segment_pos_bones, keys_iter=None):
@@ -397,26 +396,9 @@ class ManisFile(InfoHeader, IoFile):
             if keys_flag.x or keys_flag.y or keys_flag.z:
                 wavelet_i = self.read_wavelet_table(context, f2, frame_map, segment_frames_count)
                 self.read_rel_keys(f, frame_map, k_channel_bitsize, keys_flag, ushort_storage, wavelet_i)
-                # ushort_storage for acro's first use
-                # 000000773047FA50      0     0     0     8    61     0     5    60
-                # 000000773047FA60      8     3     0     9     0     8     0     8
-                # 000000773047FA70      9     4     9     0     0     6    12     5
-                # 000000773047FA80      0     9     4     7     0     0     8     6
-                # 000000773047FA90      0     0     3     0     5     0     4     4
-                # 000000773047FAA0      0     5     0     6     0     0     7     0
-                # 000000773047FAB0      0     6     6     0     0     3     5     5
-                # 000000773047FAC0      0     6     4     5     0     0    10     0
-                # 000000773047FAD0      4     5     0     3     0     0     0     8
-                # 000000773047FAE0      0     0     9     5     0     4     8     0
-                # 000000773047FAF0      0     0     6     0     5     7     0     6
-                # 000000773047FB00      4     3     0     0     6     7     0     0
-                # 000000773047FB10      0     0     0     0     0     0     0     0
-                # 000000773047FB20      0     0     0     0     0     0     0     0
-                # 000000773047FB30      0     0     0     0     0     0     0     0
                 # logging.info(f"key {i} = {rel_key_masked}")
                 if segment_frames_count > 1:
                     frame_inc = 0
-                    # print(ushort_storage)
                     # set base keyframe
                     segment_pos_bones[0, pos_index, ] = vec[:3]
                     # set other keyframes
@@ -529,13 +511,16 @@ class ManisFile(InfoHeader, IoFile):
                 ch_key_size = f.read_int_reversed(k_channel_bitsize + 1)
                 ch_key_size_masked = ch_key_size & 0x1f
                 assert ch_key_size <= 32
-                # logging.info(f"channel[{channel_i}] base_size {ch_key_size}")
-                # channel_val = PosFrameInfo.from_value(channel_val)
+                # logging.info(f"channel[{channel_i}] base_size {ch_key_size} at bit {f.pos}")
                 for trg_frame_i in frame_map[:wavelet_i]:
                     rel_key_flag = 1 << ch_key_size_masked | 1 >> 0x20 - ch_key_size_masked
-                    rel_key_size = f.read_bit_size_flag(32 - ch_key_size_masked)
-                    rel_key_base = f.read_as_shift(rel_key_size, rel_key_flag)
+                    # rel_key_size = f.read_bit_size_flag(15 - ch_key_size_masked)
+                    rel_key_size = f.read_bit_size_flag(32)
+                    # todo this may have to be shifted only with the corresponding clamp applied
+                    rel_key_base = f.interpret_as_shift(rel_key_size, rel_key_flag)
                     ch_rel_key_size = ch_key_size + rel_key_size
+                    # clamp key size to 0-15 bits
+                    ch_rel_key_size = min(ch_rel_key_size, 15)
                     # ensure the final key size is valid
                     assert ch_rel_key_size <= 32
                     # logging.info(f"ch_rel_key_size {ch_rel_key_size}")
@@ -563,7 +548,7 @@ class ManisFile(InfoHeader, IoFile):
                 # logging.info(f"do_increment {do_increment} init_k {init_k} at {f2.pos}")
                 k_size = f2.read_bit_size_flag(32 - init_k)
                 k_flag = 1 << (init_k & 0x1f)
-                k_flag_out = f2.read_as_shift(k_size, k_flag)
+                k_flag_out = f2.interpret_as_shift(k_size, k_flag)
                 # logging.info(
                 # 	f"pos before key {f2.pos}, k_flag_out {k_flag_out}, initk bare {k_size}")
                 k_key = f2.read_int_reversed(k_size + init_k)
