@@ -82,8 +82,8 @@ def load(files=[], filepath="", set_fps=False):
 			# ignore loc for now
 			for frame_i, key, bonerestmat_inv, fcurves, scale, b_name in iter_keys(
 					k.pos_bones_names, ck.pos_bones, bones_data, b_action, "location"):  #, k.scl_bones_names, ck.scl_bones):
-				# if frame_i % 32:
-				# 	continue
+				if frame_i % 32:
+					continue
 				key = mathutils.Vector(key)
 				# # correct for scale
 				# if scale:
