@@ -1003,7 +1003,7 @@ class OvlFile(Header):
 		self.reset_field("aux_entries")
 		# print(loaders_and_deps)
 		if loaders_and_deps:
-			deps_basename, deps_ext = zip(*[os.path.splitext(dep) for dep, loader in loaders_and_deps])
+			deps_basename, deps_ext = zip(*[os.path.splitext(dep.lower()) for dep, loader in loaders_and_deps])
 		else:
 			deps_basename = deps_ext = ()
 		deps_ext = [ext.replace(".", ":") for ext in deps_ext]
