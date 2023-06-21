@@ -646,6 +646,9 @@ class OvlFile(Header):
 				if ext in self.formats_dict.ignore_types:
 					logging.info(f"Ignoring {file_path}")
 					continue
+				elif "stream" in ext:
+					logging.debug(f"Ignoring {file_path} as it will be created from its streamer")
+					continue
 				elif ext in (".png", ".dds"):
 					if f"{bare_path}.tex" in file_paths:
 						logging.info(f"Ignoring {file_path} as matching .tex file is also selected")

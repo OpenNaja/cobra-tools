@@ -25,7 +25,7 @@ class Ms2Context:
 		self.biosyn = 0
 
 	def __repr__(self):
-		return f"{self.version}"
+		return f"{self.version} | {self.biosyn}"
 
 
 class Ms2File(Ms2InfoHeader, IoFile):

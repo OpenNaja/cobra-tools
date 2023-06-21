@@ -422,14 +422,22 @@ class ManisFile(InfoHeader, IoFile):
                         base_key_float = base_plus_delta
                         final = base_key_float + out * scale
                         # todo get flag
-                        which_key_flag = 0
+                        next_key_offset = 0 if out_frame_i == trg_frame_i else 4
+                        which_key_flag = True if next_key_offset else False
                         key_picked = vec[:3] if which_key_flag else final
-                        last_key_a = identity if which_key_flag else last_key_b.copy()
-                        last_key_b = identity if which_key_flag else last_key_delta.copy() + out * scale
+                        key_a = identity.copy() if which_key_flag else last_key_b.copy()
+                        key_b = identity.copy() if which_key_flag else last_key_delta.copy() + out * scale
+                        last_key_a = identity.copy()
+                        last_key_b = identity.copy()
+                        if out_frame_i == trg_frame_i:
+                            pass
                         output = final if which_key_flag else vec[:3]
                         segment_pos_bones[out_frame_i, pos_index] = output
+                        # segment_pos_bones[out_frame_i, pos_index] = out * scale
+                        # segment_pos_bones[out_frame_i, pos_index] = final
                 # return
-            # break
+                # print(segment_pos_bones[:, pos_index])
+                # return
             else:
                 # set all keyframes
                 segment_pos_bones[:, pos_index] = vec[:3]

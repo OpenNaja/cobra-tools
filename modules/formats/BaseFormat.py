@@ -419,7 +419,9 @@ class BaseFile:
 	def write_memory_data(self):
 		pool = self.get_pool(self.pool_type)
 		stream, offset = pool.align_write(self)
+		logging.info(f"Writing to {pool} at {offset}")
 		self.root_ptr = (pool, offset)
+		self.stack[self.root_ptr] = {}
 		self.target_class.to_stream(self.header, stream, self.context)
 		self.header.write_ptrs(self, pool)
 

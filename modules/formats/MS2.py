@@ -52,7 +52,7 @@ class Ms2Loader(MemStructLoader):
 	target_class = Ms2Root
 
 	def detect_biosyn_format(self):
-		# logging.debug("Detecting Biosyn format")
+		logging.debug("Detecting Biosyn format")
 		if ovl_versions.is_jwe2(self.ovl):
 			if self.ovl.is_biosyn is not None:
 				return self.ovl.is_biosyn
@@ -158,6 +158,9 @@ class Ms2Loader(MemStructLoader):
 		ms2_file.load(file_path, read_bytes=True)
 		ms2_dir = os.path.dirname(file_path)
 		self.ovl.is_biosyn = ms2_file.biosyn
+		self.context = Ms2Context()
+		self.context.version = ms2_file.info.version
+		self.context.biosyn = ms2_file.biosyn
 
 		self.header = ms2_file.info
 		# fix up the pointers
@@ -212,6 +215,7 @@ class Ms2Loader(MemStructLoader):
 		for model_info in self.header.model_infos.data:
 			# link first_model pointer
 			self.attach_frag_to_ptr(pool, model_info.first_model.io_start, first_model_pool, first_model_offset)
+		print(self.stack)
 
 	def update(self):
 		if ovl_versions.is_pz16(self.ovl):
