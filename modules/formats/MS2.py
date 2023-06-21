@@ -215,7 +215,6 @@ class Ms2Loader(MemStructLoader):
 		for model_info in self.header.model_infos.data:
 			# link first_model pointer
 			self.attach_frag_to_ptr(pool, model_info.first_model.io_start, first_model_pool, first_model_offset)
-		print(self.stack)
 
 	def update(self):
 		if ovl_versions.is_pz16(self.ovl):
