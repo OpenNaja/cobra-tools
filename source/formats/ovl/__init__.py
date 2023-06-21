@@ -1072,6 +1072,7 @@ class OvlFile(Header):
 
 		# update all pools before indexing anything that points into pools
 		pools_offset = 0
+		self.archives.sort(key=lambda a: a.name)
 		for archive in self.archives:
 			ovs = archive.content
 			ovs.clear_ovs_arrays()
@@ -1099,7 +1100,6 @@ class OvlFile(Header):
 		"""Produces valid ovl.pools and ovs.pools and valid links for everything that points to them"""
 		try:
 			logging.debug(f"Sorting pools by type and updating pool groups")
-			self.archives.sort(key=lambda a: a.name)
 
 			archive_name_to_loaders = {archive.name: [] for archive in self.archives}
 			for loader in flat_sorted_loaders:
@@ -1244,6 +1244,10 @@ class OvlFile(Header):
 		stream_loaders = [(loader, stream_loader) for loader in self.loaders.values() for stream_loader in loader.streams]
 		stream_loaders.sort(key=lambda x: (x[1].ovs.arg.name, x[0].abs_mem_offset))
 		self.num_stream_files = len(stream_loaders)
+		if self.num_stream_files:
+			self.lod_depth = max(len(loader.streams) for loader in self.loaders.values())
+		else:
+			self.lod_depth = 0
 		self.reset_field("stream_files")
 		if stream_loaders:
 			self.stream_files["file_offset"], self.stream_files["stream_offset"] = zip(*[
