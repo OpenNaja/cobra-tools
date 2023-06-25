@@ -293,6 +293,41 @@
         <add name="OutputPropThroughVariable" type="Pointer" template="ZString"/>
     </compound>
 
+    <compound name="ActivityAnimationInfo" inherit="MemStruct">
+        ?
+        <add name="activity_name" type="Pointer" template="ZString"/>
+        <add name="Offset" type="float"/>
+        <add name="Weight" type="uint"/>
+    </compound>
+
+    <compound name="LoopedAnimationInfo" inherit="MemStruct">
+        ?
+        <add name="activity_name" type="Pointer" template="ZString"/>
+        <add name="Weight" type="uint"/>
+    </compound>
+
+    <compound name="RandomAnimationActivityData" inherit="MemStruct">
+        112 bytes
+        <add name="NumAnimations" type="uint64"/>
+        <add name="Animations" type="ArrayPointer" template="ActivityAnimationInfo" arg="NumAnimations"/>
+        <add name="DataStreams_count" type="uint64"/>
+        <add name="DataStreams" type="ArrayPointer" template="DataStreamResourceDataList" arg="DataStreams_count"/>
+        <add name="NumLoopedAnimations" type="uint64"/>
+        <add name="LoopedAnimations" type="ArrayPointer" template="LoopedAnimationInfo" arg="NumLoopedAnimations"/>
+        <add name="LoopedDataStreams_count" type="uint64"/>
+        <add name="LoopedDataStreams" type="ArrayPointer" template="DataStreamResourceDataList" arg="LoopedDataStreams_count"/>
+        <add name="Duration" type="float"/>
+        <add name="BlendTime" type="float"/>
+        <add name="MinWeight" type="float"/>
+        <add name="MaxWeight" type="float"/>
+        <add name="MinGap" type="float"/>
+        <add name="MaxGap" type="float"/>
+        <add name="Priorities" type="uint"/>
+        <add name="RandomAnimationFlags" type="uint"/>
+        <add name="SyncVariable" type="Pointer" template="ZString"/>
+        <add name="RandomNumberVariable" type="Pointer" template="ZString"/>
+    </compound>
+
     <bitstruct name="TurnFlags" numbytes="1" storage="ubyte">
         <bits name="Looping" numbits="1" />
         <bits name="Clockwise" numbits="1" />
@@ -520,6 +555,13 @@
         # todo - the following two may be mixed up in the xml spec!!
         <add name="BlendTime" type="float"/>
         <add name="Mode" type="SelectActivityActivityMode"/>
+    </compound>
+
+    <compound name="GroupedActivityActivityData" inherit="MemStruct">
+        ? bytes
+        # points to activities in the main activities array
+        <add name="Activities" type="Pointer" template="ActivitiesLinks" arg="num_activities"/>
+        <add name="num_activities" type="uint64"/>
     </compound>
 
     <compound name="RandomActivityActivityInfoData" inherit="MemStruct">
