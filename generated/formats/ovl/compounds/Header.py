@@ -15,7 +15,7 @@ class Header(GenericHeader):
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 
-		# counts ovs archive names, all LODs of one type count as 1
+		# counts ovs files with unique paths not matching the ovl name; all LODs of one type count as 1
 		self.num_ovs_types = name_type_map['Uint'](self.context, 0, None)
 
 		# length of the Names block below, including 00 bytes

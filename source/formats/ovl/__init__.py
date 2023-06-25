@@ -1214,10 +1214,6 @@ class OvlFile(Header):
 			self.len_archive_names = len(self.archive_names.data)
 			# update the ovl counts
 			self.num_archives = len(self.archives)
-			# counts ovs archive names, all LODs of one type count as 1
-			ovs_types = {re.sub('_L[0-9]$', '', archive.name) for archive in self.archives}
-			ovs_types.discard("STATIC")
-			self.num_ovs_types = len(ovs_types)
 			# sum counts of individual archives
 			self.num_datas = sum(a.num_datas for a in self.archives)
 			self.num_buffers = sum(a.num_buffers for a in self.archives)
@@ -1304,6 +1300,16 @@ class OvlFile(Header):
 		self.update_stream_files()
 		self.store_filepath(filepath)
 		self.open_ovs_streams()
+
+		def clean_name(archive_path):
+			# remove _LX suffix, any extension
+			archive_name = os.path.basename(archive_path)
+			return re.sub('_l[0-9]$', '', archive_name.replace(".ovs", "").replace(".ovl", ""))
+		# counts ovs files with unique paths not matching the ovl name; all LODs of one type count as 1
+		ovs_types = {clean_name(archive.ovs_path) for archive in self.archives}
+		ovs_types.discard(clean_name(filepath))
+
+		self.num_ovs_types = len(ovs_types)
 		ovl_compressed = b""
 		self.reset_field("archives_meta")
 		# print(self)

@@ -79,6 +79,7 @@ type_module_name_map = {
 	'Locomotion2BlendSpace': 'generated.formats.motiongraph.compounds.Locomotion2BlendSpace',
 	'Locomotion2ActivityData': 'generated.formats.motiongraph.compounds.Locomotion2ActivityData',
 	'VariableBlendedAnimationData': 'generated.formats.motiongraph.compounds.VariableBlendedAnimationData',
+	'HeadTargetActivityData': 'generated.formats.motiongraph.compounds.HeadTargetActivityData',
 	'VariableBlendedAnimationActivityData': 'generated.formats.motiongraph.compounds.VariableBlendedAnimationActivityData',
 	'Locomotion2AnimationInfo': 'generated.formats.motiongraph.compounds.Locomotion2AnimationInfo',
 	'Locomotion2BlendSpaceNode': 'generated.formats.motiongraph.compounds.Locomotion2BlendSpaceNode',

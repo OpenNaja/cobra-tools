@@ -440,6 +440,11 @@
         <add name="AdditionalDataStreams" type="DataStreamResourceDataList"/>
     </compound>
 
+    <compound name="HeadTargetActivityData" inherit="MemStruct">
+        ? bytes
+        <add name="Weight" type="FloatInputData"/>
+    </compound>
+
     <compound name="VariableBlendedAnimationActivityData" inherit="MemStruct">
         ? bytes
         <add name="Priorities" type="uint"/>
