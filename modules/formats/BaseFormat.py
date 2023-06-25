@@ -119,7 +119,7 @@ class BaseFile:
 		for f in tuple(self.fragments):
 			if f[0] == (l_pool, l_offset):
 				self.fragments.remove(f)
-				logging.info(f"Deleted frag {f}")
+				logging.info(f"Deleted frag {l_pool.i} | {l_offset} -> {s_pool.i} | {s_offset}")
 
 	def attach_frag_to_ptr(self, l_pool, l_offset, s_pool, s_offset):
 		"""Creates a frag on a MemStruct Pointer; needs to have been written so that io_start is set"""

@@ -25,9 +25,9 @@ class BaniLoader(MemStructLoader):
 		self.target_name = None
 
 	def validate(self):
-		logging.debug(f"Validating {self.target_name}")
+		logging.debug(f"Validating from target {self.target_name}")
 		self.target_name = self.find_banis_name()
-		logging.debug(f"Found {self.target_name}")
+		logging.debug(f"Found new target {self.target_name}")
 
 	def update(self):
 		# link frag to banis

@@ -1244,6 +1244,11 @@ class OvlFile(Header):
 		stream_loaders = [(loader, stream_loader) for loader in self.loaders.values() for stream_loader in loader.streams]
 		stream_loaders.sort(key=lambda x: (x[1].ovs.arg.name, x[0].abs_mem_offset))
 		self.num_stream_files = len(stream_loaders)
+		if stream_loaders and self.name.lower() in ("main.ovl", "init.ovl"):
+			loaders_with_streams = [loader.name for loader in self.loaders.values() if loader.streams]
+			self.warning_msg.emit((
+				f"You're trying to save streamed files in '{self.name}', which does not support streams - "
+				f"please check 'Show Details' or the log.", "\n".join(loaders_with_streams)))
 		self.reset_field("stream_files")
 		if stream_loaders:
 			self.stream_files["file_offset"], self.stream_files["stream_offset"] = zip(*[
@@ -1293,12 +1298,12 @@ class OvlFile(Header):
 
 	def save(self, filepath):
 		start_time = time.time()
+		self.store_filepath(filepath)
 		logging.info(f"Writing {self.name}")
 		# do this last so we also catch the assets & sets
 		self.rebuild_ovl_arrays()
 		# these need to be done after the rest
 		self.update_stream_files()
-		self.store_filepath(filepath)
 		self.open_ovs_streams()
 
 		def clean_name(archive_path):
