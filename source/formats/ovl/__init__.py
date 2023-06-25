@@ -1307,8 +1307,10 @@ class OvlFile(Header):
 		# counts ovs files with unique paths not matching the ovl name; all LODs of one type count as 1
 		ovs_types = {clean_name(archive.ovs_path) for archive in self.archives}
 		ovs_types.discard(clean_name(filepath))
-
 		self.num_ovs_types = len(ovs_types)
+		# when 1 comes up with the current calculation, stock uses 2
+		if self.num_ovs_types == 1:
+			self.num_ovs_types += 1
 		ovl_compressed = b""
 		self.reset_field("archives_meta")
 		# print(self)
