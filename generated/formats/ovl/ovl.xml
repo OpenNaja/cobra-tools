@@ -102,7 +102,7 @@
 
     <compound name="Header" inherit="GenericHeader">
         Found at the beginning of every OVL file
-        <add name="Lod Depth" type="uint" >Seems to match the number of LOD models for the file (has more than 1 file)</add>
+        <add name="num ovs types" type="uint" >counts ovs archive names, all LODs of one type count as 1</add>
         <add name="Len Names" type="uint" >length of the Names block below, including 00 bytes</add>
         <add name="Zero 2" type="uint"/>
 

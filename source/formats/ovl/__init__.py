@@ -2,6 +2,7 @@ import contextlib
 import itertools
 import logging
 import os
+import re
 import struct
 import time
 import zlib
@@ -1213,6 +1214,10 @@ class OvlFile(Header):
 			self.len_archive_names = len(self.archive_names.data)
 			# update the ovl counts
 			self.num_archives = len(self.archives)
+			# counts ovs archive names, all LODs of one type count as 1
+			ovs_types = {re.sub('_L[0-9]$', '', archive.name) for archive in self.archives}
+			ovs_types.discard("STATIC")
+			self.num_ovs_types = len(ovs_types)
 			# sum counts of individual archives
 			self.num_datas = sum(a.num_datas for a in self.archives)
 			self.num_buffers = sum(a.num_buffers for a in self.archives)
@@ -1244,10 +1249,6 @@ class OvlFile(Header):
 		stream_loaders = [(loader, stream_loader) for loader in self.loaders.values() for stream_loader in loader.streams]
 		stream_loaders.sort(key=lambda x: (x[1].ovs.arg.name, x[0].abs_mem_offset))
 		self.num_stream_files = len(stream_loaders)
-		if self.num_stream_files:
-			self.lod_depth = max(len(loader.streams) for loader in self.loaders.values())
-		else:
-			self.lod_depth = 0
 		self.reset_field("stream_files")
 		if stream_loaders:
 			self.stream_files["file_offset"], self.stream_files["stream_offset"] = zip(*[

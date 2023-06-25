@@ -15,8 +15,8 @@ class Header(GenericHeader):
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 
-		# Seems to match the number of LOD models for the file (has more than 1 file)
-		self.lod_depth = name_type_map['Uint'](self.context, 0, None)
+		# counts ovs archive names, all LODs of one type count as 1
+		self.num_ovs_types = name_type_map['Uint'](self.context, 0, None)
 
 		# length of the Names block below, including 00 bytes
 		self.len_names = name_type_map['Uint'](self.context, 0, None)
@@ -106,7 +106,7 @@ class Header(GenericHeader):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield 'lod_depth', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'num_ovs_types', name_type_map['Uint'], (0, None), (False, None), (None, None)
 		yield 'len_names', name_type_map['Uint'], (0, None), (False, None), (None, None)
 		yield 'zero_2', name_type_map['Uint'], (0, None), (False, None), (None, None)
 		yield 'num_aux_entries', name_type_map['Uint'], (0, None), (False, None), (None, None)
@@ -148,7 +148,7 @@ class Header(GenericHeader):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'lod_depth', name_type_map['Uint'], (0, None), (False, None)
+		yield 'num_ovs_types', name_type_map['Uint'], (0, None), (False, None)
 		yield 'len_names', name_type_map['Uint'], (0, None), (False, None)
 		yield 'zero_2', name_type_map['Uint'], (0, None), (False, None)
 		yield 'num_aux_entries', name_type_map['Uint'], (0, None), (False, None)
