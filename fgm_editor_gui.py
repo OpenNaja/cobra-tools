@@ -350,17 +350,6 @@ class MainWindow(widgets.MainWindow):
 		g.setVerticalSpacing(0)
 		return g
 
-	def clear_layout(self, layout):
-		w = QtWidgets.QWidget()
-		w.setLayout(layout)
-		# while layout.count():
-		# 	item = layout.takeAt(0)
-		# 	widget = item.widget()
-		# 	# if widget has some id attributes you need to
-		# 	# save in a list to maintain order, you can do that here
-		# 	# i.e.:   aList.append(widget.someId)
-		# 	widget.deleteLater()
-
 	def new_file(self):
 		self.close_file()
 		file_out, _ = QtWidgets.QFileDialog.getSaveFileName(self, "New File", os.path.join(self.cfg.get("dir_fgms_out", "C://"), self.fgm_name), "FGM files (*.fgm)",)
