@@ -1306,13 +1306,15 @@ class OvlFile(Header):
 		self.update_stream_files()
 		self.open_ovs_streams()
 
-		def clean_name(archive_path):
-			# remove _LX suffix, any extension
-			archive_name = os.path.basename(archive_path)
-			return re.sub('_l[0-9]$', '', archive_name.replace(".ovs", "").replace(".ovl", ""))
+		# def clean_name(archive_path):
+		# 	# remove _LX suffix, any extension
+		# 	archive_name = os.path.basename(archive_path)
+		# 	return re.sub('_l[0-9]$', '', archive_name.replace(".ovs", "").replace(".ovl", ""))
 		# counts ovs files with unique paths not matching the ovl name; all LODs of one type count as 1
-		ovs_types = {clean_name(archive.ovs_path) for archive in self.archives}
-		ovs_types.discard(clean_name(filepath))
+		# ovs_types = {clean_name(archive.ovs_path) for archive in self.archives}
+		# ovs_types.discard(clean_name(filepath))
+		ovs_types = {archive.name for archive in self.archives if "Textures_L" not in archive.name}
+		ovs_types.discard("STATIC")
 		self.num_ovs_types = len(ovs_types)
 		# when 1 comes up with the current calculation, stock uses 2
 		if self.num_ovs_types == 1:
