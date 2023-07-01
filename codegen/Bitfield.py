@@ -26,7 +26,9 @@ class Bitfield(BaseClass):
                     field.attrib["pos"] = field.attrib["bit"]
                     field.attrib["type"] = "bool"
                 else:
-                    raise AttributeError(f"Neither width, mask, bit or numbits are defined for {field.attrib['name']}")
+                    raise AttributeError(
+                        f"Neither width, mask, bit or numbits are defined for {field.attrib['name']}"
+                    )
                 pos = int(field.attrib["pos"])
 
                 mask = ~((~0) << (pos + num_bits)) & ((~0) << pos)
@@ -52,13 +54,17 @@ class Bitfield(BaseClass):
             self.get_mask()
             if self.struct.tag == 'bitflags':
                 for field in self.struct:
-                    f.write(f"\n\t{field.attrib['enum_name']} = 2 ** {field.attrib['bit']}")
+                    f.write(
+                        f"\n\t{field.attrib['enum_name']} = 2 ** {field.attrib['bit']}"
+                    )
             for field in self.struct:
                 field_name = field.attrib["name"]
                 field_type = field.attrib.get("type", "int")
                 if field_type not in self.parser.builtin_literals:
                     field_type = f'{field_type}.from_value'
-                f.write(f"\n\t{field_name} = BitfieldMember(pos={field.attrib['pos']}, mask={field.attrib['mask']}, return_type={field_type})")
+                f.write(
+                    f"\n\t{field_name} = BitfieldMember(pos={field.attrib['pos']}, mask={field.attrib['mask']}, return_type={field_type})"
+                )
 
             f.write("\n\n\tdef set_defaults(self):")
             defaults = []
@@ -71,11 +77,12 @@ class Bitfield(BaseClass):
                     # if the default is an enum default value, access member of that enum
                     if self.parser.tag_dict[field_type.lower()] == "enum":
                         field_default = f"{field_type}.{field_default}"
-                    # Check for boolean values and make sure they're capitalized
-                    # This was reimplemented from `./Union.py`
-                    elif self.parser.tag_dict[field_type.lower()] == "basic" \
-                        and field_default.capitalize() in ['True', 'False']:
-                        field_default = field_default.capitalize()
+                    # If we're not an enum, we need to check if we're a boolean and capitalize
+                    elif self.parser.tag_dict[field_type.lower()] == "basic" and \
+                        self.parser.basics.booleans is not None and \
+                        field_type in self.parser.basics.booleans:
+                        if field_string.capitalize() in ("True", "False"):
+                            field_default = field_default.capitalize()
 
                     defaults.append((field_name, field_default))
             if defaults:
@@ -86,4 +93,3 @@ class Bitfield(BaseClass):
 
             self.write_src_body(f)
             self.write_line(f)
-
