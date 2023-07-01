@@ -79,7 +79,6 @@ class Bitfield(BaseClass):
                         field_default = f"{field_type}.{field_default}"
                     # If we're not an enum, we need to check if we're a boolean and capitalize
                     elif self.parser.tag_dict[field_type.lower()] == "basic" and \
-                        self.parser.basics.booleans is not None and \
                         field_type in self.parser.basics.booleans:
                         if field_string.capitalize() in ("True", "False"):
                             field_default = field_default.capitalize()
