@@ -227,8 +227,7 @@ class MainWindow(widgets.MainWindow):
 		box.addLayout(grid)
 		box.addWidget(splitter, 3)
 		box.addWidget(self.gui_log_handler.widget, 1)
-		box.addWidget(self.p_action)
-		box.addWidget(self.t_action)
+		# box.addWidget(self.p_action)
 		self.central_widget.setLayout(box)
 
 		main_menu = self.menuBar()
@@ -298,7 +297,7 @@ class MainWindow(widgets.MainWindow):
 		self.ovl_data.warning_msg.connect(self.notify_user)
 		self.ovl_data.included_ovls_list.connect(self.included_ovls_view.set_data)
 		self.ovl_data.progress_percentage.connect(self.p_action.setValue)
-		self.ovl_data.current_action.connect(self.t_action.setText)
+		self.ovl_data.current_action.connect(self.set_msg_temporarily)
 		self.run_threaded(self.ovl_data.load_hash_table)
 
 	def do_debug_changed(self, do_debug):

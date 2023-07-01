@@ -1153,14 +1153,16 @@ class MainWindow(QtWidgets.QMainWindow):
         self.p_action.setTextVisible(True)
         self.p_action.setMaximum(100)
         self.p_action.setValue(0)
-        self.t_action_current_message = "No operation in progress"
-        self.t_action = QtWidgets.QLabel(self, text=self.t_action_current_message)
-
         self.dev_mode = os.path.isdir(os.path.join(root_dir, ".git"))
         dev_str = " DEVELOPER MODE" if self.dev_mode else ""
         self.statusBar = QtWidgets.QStatusBar()
-        label = QtWidgets.QLabel(f"Cobra Tools Version {get_commit_str()}{dev_str}")
-        self.statusBar.addWidget(label)
+        label = QtWidgets.QLabel(f"Version {get_commit_str()}{dev_str}")
+        # self.statusBar.addPermanentWidget(label)
+        self.menuBar().setCornerWidget(label, corner=QtCore.Qt.TopRightCorner)
+        # self.statusBar.addWidget(label)
+        # self.statusBar.addWidget(self.p_action)
+        self.statusBar.addPermanentWidget(self.p_action)
+        # self.statusBar.insertWidget(2, self.p_action)
         self.statusBar.setContentsMargins(5, 0, 0, 0)
         self.setStatusBar(self.statusBar)
 
@@ -1224,10 +1226,10 @@ class MainWindow(QtWidgets.QMainWindow):
         if vmax is not None:
             self.p_action.setMaximum(vmax)
 
-        # don't update the GUI unless the message has changed. label updates are expensive
-        if self.t_action_current_message != message:
-            self.t_action.setText(message)
-            self.t_action_current_message = message
+        self.set_msg_temporarily(message)
+
+    def set_msg_temporarily(self, message):
+        self.statusBar.showMessage(message, 3000)
 
     def run_threaded(self, func, *args, **kwargs):
         # Step 2: Create a QThread object
@@ -1241,7 +1243,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.worker.finished.connect(self.thread.quit)
         self.worker.finished.connect(self.worker.deleteLater)
         self.thread.finished.connect(self.thread.deleteLater)
-        # self.worker.error_msg.connect(self.t_action.setText)
         self.worker.error_msg.connect(interaction.showdialog)
         # Step 6: Start the thread
         self.thread.start()
