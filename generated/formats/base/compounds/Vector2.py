@@ -1,8 +1,8 @@
-from generated.formats.ovl_base.compounds.MemStruct import MemStruct
-from generated.formats.path.imports import name_type_map
+from generated.base_struct import BaseStruct
+from generated.formats.base.imports import name_type_map
 
 
-class Vector2(MemStruct):
+class Vector2(BaseStruct):
 
 	"""
 	A vector in 2D space (x,y).

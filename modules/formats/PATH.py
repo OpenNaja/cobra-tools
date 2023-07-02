@@ -39,7 +39,7 @@ class PathJoinPartResourceLoader(MemStructLoader):
 
 	def prep(self):
 		# avoid generating pointers for these
-		for res in self.header.resources_list.data.resources:
+		for res in self.header.resources_list.data:
 			if not res.num_points_1:
 				res.unk_points_1.data = None
 			if not res.num_points_2:

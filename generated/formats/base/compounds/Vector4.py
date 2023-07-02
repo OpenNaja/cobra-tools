@@ -1,14 +1,14 @@
-from generated.formats.ovl_base.compounds.MemStruct import MemStruct
-from generated.formats.path.imports import name_type_map
+from generated.base_struct import BaseStruct
+from generated.formats.base.imports import name_type_map
 
 
-class Vector3(MemStruct):
+class Vector4(BaseStruct):
 
 	"""
 	A vector in 3D space (x,y,z).
 	"""
 
-	__name__ = 'Vector3'
+	__name__ = 'Vector4'
 
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
@@ -22,6 +22,9 @@ class Vector3(MemStruct):
 
 		# Third coordinate.
 		self.z = name_type_map['Float'](self.context, 0, None)
+
+		# Fourth coordinate.
+		self.w = name_type_map['Float'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 
@@ -31,6 +34,7 @@ class Vector3(MemStruct):
 		yield 'x', name_type_map['Float'], (0, None), (False, None), (None, None)
 		yield 'y', name_type_map['Float'], (0, None), (False, None), (None, None)
 		yield 'z', name_type_map['Float'], (0, None), (False, None), (None, None)
+		yield 'w', name_type_map['Float'], (0, None), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -38,3 +42,4 @@ class Vector3(MemStruct):
 		yield 'x', name_type_map['Float'], (0, None), (False, None)
 		yield 'y', name_type_map['Float'], (0, None), (False, None)
 		yield 'z', name_type_map['Float'], (0, None), (False, None)
+		yield 'w', name_type_map['Float'], (0, None), (False, None)

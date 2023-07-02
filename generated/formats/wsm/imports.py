@@ -20,7 +20,9 @@ type_module_name_map = {
 	'ZStringBuffer': 'generated.formats.base.compounds.ZStringBuffer',
 	'PadAlign': 'generated.formats.base.compounds.PadAlign',
 	'FixedString': 'generated.formats.base.compounds.FixedString',
+	'Vector2': 'generated.formats.base.compounds.Vector2',
 	'Vector3': 'generated.formats.wsm.compounds.Vector3',
+	'Vector4': 'generated.formats.wsm.compounds.Vector4',
 	'Bool': 'generated.formats.ovl_base.basic',
 	'OffsetString': 'generated.formats.ovl_base.basic',
 	'Compression': 'generated.formats.ovl_base.enums.Compression',
@@ -36,7 +38,6 @@ type_module_name_map = {
 	'GenericHeader': 'generated.formats.ovl_base.compounds.GenericHeader',
 	'Empty': 'generated.formats.ovl_base.compounds.Empty',
 	'ZStringList': 'generated.formats.ovl_base.compounds.ZStringList',
-	'Vector4': 'generated.formats.wsm.compounds.Vector4',
 	'WsmHeader': 'generated.formats.wsm.compounds.WsmHeader',
 	'Wsm': 'generated.formats.wsm.compounds.Wsm',
 }
