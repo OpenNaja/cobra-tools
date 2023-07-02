@@ -23,6 +23,7 @@ logging.basicConfig(level=logging.DEBUG)
 arg_regex = re.compile(r"(#ARG)([0-9]*)(#)")
 template_regex = re.compile(r"(#T)([0-9]*)(#)")
 
+
 class XmlParser:
     struct_types = ("compound", "niobject", "struct")
     bitstruct_types = ("bitfield", "bitflags", "bitstruct")
@@ -78,24 +79,20 @@ class XmlParser:
             # only check stuff that has a name - ignore version tags
             if child.tag.split('}')[-1] not in ("version", "token", "include", "verattr"):
                 base_segments = self.base_segments
-                name_safe_tag = child.tag
                 if child.tag == "module":
                     # for modules, set the path to base/module_name
                     class_name = child.attrib["name"]
                     class_segments = [class_name]
                 elif child.tag == "basic":
-                    class_segments = ["basic"]
                     class_name = child.attrib["name"]
+                    class_segments = ["basic"]
                 else:
-                    name_safe_tag = child.tag + "s"
                     # for classes, set the path to module_path/tag/class_name or
                     # base/tag/class_name if it's not part of a module
                     class_name = child.attrib["name"]
                     if child.attrib.get("module"):
                         base_segments = self.path_dict[child.attrib["module"]]
-                    # if child.tag == "enum":
-                    #     tag = "enums"
-                    class_segments = [name_safe_tag, class_name, ]
+                    class_segments = [f"{child.tag}s", class_name, ]
                 # store the final relative module path for this class
                 self.path_dict[class_name] = os.path.join(base_segments, *class_segments)
                 self.tag_dict[class_name.lower()] = child.tag
@@ -144,13 +141,13 @@ class XmlParser:
         self.versions.write(versions_file)
         imports_module = os.path.join(self.base_segments, "imports")
         self.write_import_map(BaseClass.get_out_path(imports_module))
-        init_file = BaseClass.get_out_path(os.path.join(self.base_segments, "__init__"))
+        init_file_path = BaseClass.get_out_path(os.path.join(self.base_segments, "__init__"))
         import_string = f'from {Imports.import_from_module_path(imports_module)} import name_type_map\n'
-        if not os.path.exists(init_file):
-            with open(init_file, "w", encoding=self.encoding) as f:
+        if not os.path.exists(init_file_path):
+            with open(init_file_path, "w", encoding=self.encoding) as f:
                 f.write(import_string)
         else:
-            with open(init_file, "r+", encoding=self.encoding) as f:
+            with open(init_file_path, "r+", encoding=self.encoding) as f:
                 init_content = f.read()
                 f.seek(0, 0)
                 f.write(import_string)
@@ -336,6 +333,14 @@ class XmlParser:
 
         return value
 
+    def interpret_boolean(self, f_type, default_string):
+        if f_type in self.path_dict and self.tag_dict[f_type.lower()] == "basic" and f_type in self.basics.booleans:
+            # boolean basics *can* be used as booleans, but don't have to be
+            if default_string.capitalize() in ("True", "False"):
+                default_string = default_string.capitalize()
+                return default_string
+        return None
+
 
 def copy_src_to_generated(src_dir, trg_dir):
     """copies the files from the source folder to the generated folder"""
@@ -348,11 +353,11 @@ def copy_src_to_generated(src_dir, trg_dir):
 
 def create_inits(base_dir):
     """Create a __init__.py file in all subdirectories that don't have one, to prevent error on second import"""
-    init_file = "__init__.py"
+    init_name = "__init__.py"
     for root, dirs, files in os.walk(base_dir):
-        if init_file not in files:
+        if init_name not in files:
             # __init__.py does not exist, create it
-            with open(os.path.join(root, init_file), 'x'):
+            with open(os.path.join(root, init_name), 'x'):
                 pass
         # don't go into subdirectories that start with a double underscore
         dirs[:] = [dirname for dirname in dirs if dirname[:2] != '__']

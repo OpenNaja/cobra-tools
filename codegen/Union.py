@@ -125,6 +125,7 @@ class Union:
         arg = self.parser.get_attr_with_array_alt(field, "arg")
         arr1 = self.parser.get_attr_with_backups(field, ["arr1", "length"])
         arr2 = self.parser.get_attr_with_backups(field, ["arr2", "width"])
+
         def format_template(template_entry):
             if template_entry:
                 # template can be either a type or a reference to a local field
@@ -166,50 +167,37 @@ class Union:
         return arg, template, arr1, arr2, conditionals, field_name, (field_type, field_type_access), optional
 
     def default_to_value(self, default_string, field_type, field_type_access):
-        if default_string:
-            if field_type in self.compounds.parser.path_dict and self.compounds.parser.tag_dict[field_type.lower()] in ("enum", "bitflags"):
-                try:
-                    default_string = str(int(default_string, 0))
-                    return default_string
-                except:
-                    default_string = convention.name_enum_key_if_necessary(default_string)
-                    return f'{field_type_access}.{default_string}'
-            elif ", " in default_string:
-                # already formatted by format_potential_tuple
-                pass
-            else:
-                # check for boolean
-                if field_type in self.compounds.parser.path_dict and \
-                self.compounds.parser.tag_dict[field_type.lower()] == "basic" and \
-                    field_type in self.compounds.parser.basics.booleans:
-                    # boolean basics *can* be used as booleans, but don't have to be
-                    if default_string.capitalize() in ("True", "False"):
-                        default_string = default_string.capitalize()
-                        return default_string
-                value = interpret_literal(default_string)
-                if value is not None:
-                    default_string = str(value)
-                else:
-                    # not interpretable, must be a string
-                    default_string = repr(default_string)
-        return default_string
+        if not default_string:
+            # don't convert None to string here
+            return default_string
+        if ", " in default_string:
+            # already formatted by format_potential_tuple
+            return default_string
+        value = interpret_literal(default_string)
+        if value is not None:
+            return str(value)
+        value = self.parser.interpret_boolean(field_type, default_string)
+        if value is not None:
+            return str(value)
+        if field_type in self.compounds.parser.path_dict and self.compounds.parser.tag_dict[field_type.lower()] in ("enum", "bitflags"):
+            value = convention.name_enum_key_if_necessary(default_string)
+            return f'{field_type_access}.{value}'
+        # not interpretable in any way, must be a string
+        return repr(default_string)
 
     def get_default_string(self, default_string, context, arg, template, arr1, field_type, field_type_access):
         # get the default (or the best guess of it)
-        field_type_lower = field_type.lower()
-        tag_of_field_type = self.compounds.parser.tag_dict.get(field_type_lower)
-        default_string = self.default_to_value(default_string, field_type, field_type_access)
-
         if arr1:
             # init with empty shape to work regardless of condition
             return f'Array({context}, {arg}, {template}, (0,), {field_type_access})'
         else:
+            default_string = self.default_to_value(default_string, field_type, field_type_access)
             if default_string:
-                if tag_of_field_type == "enum":
+                if self.compounds.parser.tag_dict.get(field_type.lower()) == "enum":
                     # the default string, when evaluated, gives the correct type
                     return default_string
                 else:
-                    # the default sring needs to be converted to an object of the proper type
+                    # the default string needs to be converted to an object of the proper type
                     return f'{field_type_access}.from_value({default_string})'
             else:
                 # instantiate like a generic type: dtype(context, arg, template)

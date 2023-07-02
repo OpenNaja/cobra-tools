@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE niftoolsxml>
 <niftoolsxml version="0.7.1.0">
-
+	
     <token name="operator" attrs="cond vercond arr1 arr2 arg">
         All Operators except for unary not (!), parentheses, and member of (\)
         NOTE: These can be ignored entirely by string substitution and dealt with directly.
@@ -28,13 +28,8 @@
     <basic name="byte" integral="true" countable="false">
         An signed 8-bit integer.
     </basic>
-
     <basic name="ubyte" integral="true" countable="true">
         An unsigned 8-bit integer.
-    </basic>
-
-    <basic name="bool" integral="true" countable="false" boolean="true">
-        A boolean (true/false) value.
     </basic>
 
     <basic name="uint64" integral="true" countable="true">
@@ -59,11 +54,11 @@
     <basic name="short" integral="true" countable="false">
         A signed 16-bit integer.
     </basic>
-
+	
     <basic name="char" integral="true" countable="false">
         An 8-bit character.
     </basic>
-
+	
     <basic name="normshort" integral="false">
         Packed float in a short.
     </basic>
