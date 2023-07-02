@@ -651,14 +651,14 @@ class OvlFile(Header):
 				elif ext in (".png", ".dds"):
 					# find channel suffix in png basepath
 					channel_re = re.compile("_[RGBA]*$")
-					# todo array suffix
+					array_re = re.compile("_\[[0-9]*\]$")
 					for fp in file_paths:
 						if fp.endswith(".tex"):
 							# direct match
 							if fp == f"{bare_path}.tex":
 								break
 							# components match
-							elif fp == f"{channel_re.sub('', bare_path, count=1)}.tex":
+							elif fp == f"{array_re.sub('', channel_re.sub('', bare_path, count=1), count=1)}.tex":
 								break
 					else:
 						logging.error(f"Inject the corresponding .tex file for {file_path}")
