@@ -649,11 +649,22 @@ class OvlFile(Header):
 					logging.debug(f"Ignoring {file_path} as it will be created from its streamer")
 					continue
 				elif ext in (".png", ".dds"):
-					if f"{bare_path}.tex" in file_paths:
-						logging.info(f"Ignoring {file_path} as matching .tex file is also selected")
+					# find channel suffix in png basepath
+					channel_re = re.compile("_[RGBA]*$")
+					# todo array suffix
+					for fp in file_paths:
+						if fp.endswith(".tex"):
+							# direct match
+							if fp == f"{bare_path}.tex":
+								break
+							# components match
+							elif fp == f"{channel_re.sub('', bare_path, count=1)}.tex":
+								break
 					else:
 						logging.error(f"Inject the corresponding .tex file for {file_path}")
 						error_files.append(file_path)
+						continue
+					logging.info(f"Ignoring {file_path} as matching .tex file is also selected")
 					continue
 				try:
 					loader = self.create_file(file_path)
