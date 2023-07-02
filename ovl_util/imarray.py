@@ -116,6 +116,15 @@ def split_png(png_file_path, ovl, compression=None):
 	return out_files
 
 
+PZ_color_morphs = (
+	"palbinobasecolourandmasktexture",
+	"perythristicbasecolourandmasktexture",
+	"pleucisticbasecolourandmasktexture",
+	"pmelanisticbasecolourandmasktexture"
+	"pxanthicbasecolourandmasktexture"
+)
+
+
 def get_split_mode(png_file_path, compression):
 	# stores only two channels
 	if check_any(("BC5",), compression):
@@ -128,7 +137,7 @@ def get_split_mode(png_file_path, compression):
 	if check_any(
 			(
 				"pmossbasecolourroughnesspackedtexture", "ppackedtexture", "palbedoandroughnessdetail", "pnormaltexture",
-				"pbasecolourtexture", "pbasecolourandmasktexture", "palbinobasecolourandmasktexture", "pdiffusetexture"
+				"pbasecolourtexture", "pbasecolourandmasktexture", "pdiffusetexture", *PZ_color_morphs
 			), png_file_path):
 		return "RGB_A"
 	# JWE2 only
