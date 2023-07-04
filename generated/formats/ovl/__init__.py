@@ -889,6 +889,7 @@ class OvlFile(Header):
 		"""Handle all pointers of this file, including dependencies, fragments and root_entry entries"""
 		logging.info("Loading pointers")
 		start_time = time.time()
+		version = self.version
 		# reset pointer map for each pool
 		for i, pool in enumerate(self.pools):
 			pool.clear_data()
@@ -957,6 +958,9 @@ class OvlFile(Header):
 					error_files.append(loader.name)
 					# we can keep collecting
 				loader.link_streams()
+				# if somebody stores a field called 'version', it overrides (ovl) context version
+				if version != self.version:
+					raise AttributeError(f"{loader.name} changed ovl version from {version} to {self.version}")
 			for loader in self.iter_progress(self.loaders.values(), "Validating files"):
 				loader.validate()
 		logging.info(f"Loaded file classes in {time.time() - start_time:.2f} seconds")
