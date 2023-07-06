@@ -901,7 +901,8 @@ class OvlFile(Header):
 					self.dependencies["link_ptr"]["data_offset"]):
 			file_name = self.files_name[f_i]
 			pool = self.pools[l_i]
-			self.loaders[file_name].dependencies[n] = (pool, l_o)
+			# self.loaders[file_name].dependencies[n] = (pool, l_o)
+			self.loaders[file_name].dependencies.append((n, (pool, l_o)))
 			# the index goes into the flattened list of ovl pools
 			pool.offset_2_link[l_o] = n
 		# this loop is extremely costly in JWE2 c0 main.ovl, about 145 s
@@ -1001,8 +1002,8 @@ class OvlFile(Header):
 		loaders_with_deps = [loader for loader in self.loaders.values() if loader.dependencies]
 		loaders_with_aux = [loader for loader in self.loaders.values() if loader.aux_entries]
 		# flat list of all dependencies
-		loaders_and_deps = [(dep, loader) for loader in loaders_with_deps for dep in loader.dependencies]
-		loaders_and_aux = [(dep, loader) for loader in loaders_with_aux for dep in loader.aux_entries]
+		loaders_and_deps = [((dep, ptr), loader) for loader in loaders_with_deps for dep, ptr in loader.dependencies]
+		loaders_and_aux = [(aux, loader) for loader in loaders_with_aux for aux in loader.aux_entries]
 		ovl_includes = sorted(set(self.included_ovl_names))
 		ovl_includes = [ovl_path.replace(".ovl", "") for ovl_path in ovl_includes]
 
@@ -1020,7 +1021,7 @@ class OvlFile(Header):
 		self.reset_field("aux_entries")
 		# print(loaders_and_deps)
 		if loaders_and_deps:
-			deps_basename, deps_ext = zip(*[os.path.splitext(dep.lower()) for dep, loader in loaders_and_deps])
+			deps_basename, deps_ext = zip(*[os.path.splitext(dep.lower()) for (dep, ptr), loader in loaders_and_deps])
 		else:
 			deps_basename = deps_ext = ()
 		deps_ext = [ext.replace(".", ":") for ext in deps_ext]
@@ -1081,8 +1082,8 @@ class OvlFile(Header):
 		# self.dependencies.sort(key=lambda x: x.file_hash)
 		self.dependencies["file_hash"] = [self.get_dep_hash(name) for name in deps_basename]
 		self.dependencies["ext_raw"] = [self.names.offset_dic[name] for name in deps_ext]
-		self.dependencies["file_index"] = [loader.file_index for dep, loader in loaders_and_deps]
-		ptrs = [loader.dependencies[dep] for dep, loader in loaders_and_deps]
+		self.dependencies["file_index"] = [loader.file_index for (dep, ptr), loader in loaders_and_deps]
+		ptrs = [ptr for (dep, ptr), loader in loaders_and_deps]
 
 		# update all pools before indexing anything that points into pools
 		pools_offset = 0

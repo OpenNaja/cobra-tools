@@ -33,7 +33,7 @@ class BaseFile:
 		self.target_name = ""
 
 		# defined in ovl
-		self.dependencies = {}
+		self.dependencies = []
 		self.aux_entries = []
 		self.streams = []
 
@@ -226,7 +226,7 @@ class BaseFile:
 		self.target_name = _rename(self.target_name)
 		self.name = _rename(self.name)
 		self.aux_entries = [_rename(aux) for aux in self.aux_entries]
-		self.dependencies = {_rename(dep): ptr for dep, ptr in self.dependencies.items()}
+		self.dependencies = [(_rename(dep), ptr) for dep, ptr in self.dependencies]
 		# dependencies in stack & pools' link tables
 		for (p_pool, p_offset), children in self.stack.items():
 			for rel_offset, entry in children.items():

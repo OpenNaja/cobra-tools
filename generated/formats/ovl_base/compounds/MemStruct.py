@@ -50,7 +50,8 @@ class MemStruct(BaseStruct):
 			# when it's a pointer in an array, f_name is the array index
 			if isinstance(f_name, str) and DEPENDENCY_TAG in f_name:
 				if ptr.data:
-					loader.dependencies[ptr.data] = (pool, offset)
+					# loader.dependencies[ptr.data] = (pool, offset)
+					loader.dependencies.append((ptr.data, (pool, offset)))
 					pool.offset_2_link[offset] = ptr.data
 			elif ptr.has_data:
 				ptr.write_ptr(loader, pool)
