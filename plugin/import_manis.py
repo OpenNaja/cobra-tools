@@ -53,6 +53,8 @@ def load(files=[], filepath="", set_fps=False):
 
 	bones_data = {}
 	b_armature_ob = get_armature(scene)
+	for p_bone in b_armature_ob.pose.bones:
+		p_bone.rotation_mode = "QUATERNION"
 	if not b_armature_ob:
 		logging.warning(f"No armature was found in scene '{scene.name}' - did you delete it?")
 		b_cam_data = bpy.data.cameras.new("ManisCamera")
@@ -68,6 +70,7 @@ def load(files=[], filepath="", set_fps=False):
 
 	for mi in manis.mani_infos:
 		b_action = anim_sys.create_action(b_armature_ob, mi.name)
+		print(mi)
 		k = mi.keys
 		if mi.dtype.compression != 0:
 			logging.info(f"{mi.name} is compressed, trying to import anyway")
