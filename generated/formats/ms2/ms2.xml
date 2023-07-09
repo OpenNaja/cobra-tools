@@ -782,10 +782,14 @@
 		<add name="name count" type="uint"/>
 		<add name="z0" type="ushort" >?</add>
 		<add name="inv_names_count" type="ushort"/>
-		<add name="knownff" type="short" default="-1" since="32"/>
-		<add name="zero 0" type="short" default="0" since="32"/>
+		<add name="bone_limits" type="BonePointer" default="-1" arr1="2" since="32" until="52"/>
+		<add name="zero 0" type="short" default="0" since="32" until="52"/>
 		<add name="unknown0c" type="uint" since="32"/>
-		<add name="unk count" type="uint64" >almost always 4, 1 for male african lion</add>
+		<add name="unk count" type="uint" >almost always 4, 1 for male african lion</add>
+		<add name="unk unused" type="uint"  until="52"/>
+		<add name="war_a" type="ushort" since="53">?</add>
+		<add name="bone_limits" type="BonePointer" default="-1" arr1="2" since="53"/>
+		<add name="war_b" type="ushort" since="53">?</add>
 		<add name="bind matrix count" type="uint64"/>
 		<add name="zeros" type="uint64" arr1="2"/>
 		<add name="inv_data_count" type="uint64" /> if inv_names_count = 1, also 1 for DLA

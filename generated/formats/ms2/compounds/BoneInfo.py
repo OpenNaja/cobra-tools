@@ -19,12 +19,20 @@ class BoneInfo(BaseStruct):
 		# ?
 		self.z_0 = name_type_map['Ushort'](self.context, 0, None)
 		self.inv_names_count = name_type_map['Ushort'](self.context, 0, None)
-		self.knownff = name_type_map['Short'].from_value(-1)
+		self.bone_limits = Array(self.context, 0, None, (0,), name_type_map['BonePointer'])
 		self.zero_0 = name_type_map['Short'].from_value(0)
 		self.unknown_0_c = name_type_map['Uint'](self.context, 0, None)
 
 		# almost always 4, 1 for male african lion
-		self.unk_count = name_type_map['Uint64'](self.context, 0, None)
+		self.unk_count = name_type_map['Uint'](self.context, 0, None)
+		self.unk_unused = name_type_map['Uint'](self.context, 0, None)
+
+		# ?
+		self.war_a = name_type_map['Ushort'](self.context, 0, None)
+		self.bone_limits = Array(self.context, 0, None, (0,), name_type_map['BonePointer'])
+
+		# ?
+		self.war_b = name_type_map['Ushort'](self.context, 0, None)
 		self.bind_matrix_count = name_type_map['Uint64'](self.context, 0, None)
 		self.zeros = Array(self.context, 0, None, (0,), name_type_map['Uint64'])
 		self.inv_data_count = name_type_map['Uint64'](self.context, 0, None)
@@ -105,10 +113,14 @@ class BoneInfo(BaseStruct):
 		yield 'name_count', name_type_map['Uint'], (0, None), (False, None), (None, None)
 		yield 'z_0', name_type_map['Ushort'], (0, None), (False, None), (None, None)
 		yield 'inv_names_count', name_type_map['Ushort'], (0, None), (False, None), (None, None)
-		yield 'knownff', name_type_map['Short'], (0, None), (False, -1), (lambda context: context.version >= 32, None)
-		yield 'zero_0', name_type_map['Short'], (0, None), (False, 0), (lambda context: context.version >= 32, None)
+		yield 'bone_limits', Array, (0, None, (2,), name_type_map['BonePointer']), (False, -1), (lambda context: 32 <= context.version <= 52, None)
+		yield 'zero_0', name_type_map['Short'], (0, None), (False, 0), (lambda context: 32 <= context.version <= 52, None)
 		yield 'unknown_0_c', name_type_map['Uint'], (0, None), (False, None), (lambda context: context.version >= 32, None)
-		yield 'unk_count', name_type_map['Uint64'], (0, None), (False, None), (None, None)
+		yield 'unk_count', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'unk_unused', name_type_map['Uint'], (0, None), (False, None), (lambda context: context.version <= 52, None)
+		yield 'war_a', name_type_map['Ushort'], (0, None), (False, None), (lambda context: context.version >= 53, None)
+		yield 'bone_limits', Array, (0, None, (2,), name_type_map['BonePointer']), (False, -1), (lambda context: context.version >= 53, None)
+		yield 'war_b', name_type_map['Ushort'], (0, None), (False, None), (lambda context: context.version >= 53, None)
 		yield 'bind_matrix_count', name_type_map['Uint64'], (0, None), (False, None), (None, None)
 		yield 'zeros', Array, (0, None, (2,), name_type_map['Uint64']), (False, None), (None, None)
 		yield 'inv_data_count', name_type_map['Uint64'], (0, None), (False, None), (None, None)
@@ -153,11 +165,18 @@ class BoneInfo(BaseStruct):
 		yield 'name_count', name_type_map['Uint'], (0, None), (False, None)
 		yield 'z_0', name_type_map['Ushort'], (0, None), (False, None)
 		yield 'inv_names_count', name_type_map['Ushort'], (0, None), (False, None)
-		if instance.context.version >= 32:
-			yield 'knownff', name_type_map['Short'], (0, None), (False, -1)
+		if 32 <= instance.context.version <= 52:
+			yield 'bone_limits', Array, (0, None, (2,), name_type_map['BonePointer']), (False, -1)
 			yield 'zero_0', name_type_map['Short'], (0, None), (False, 0)
+		if instance.context.version >= 32:
 			yield 'unknown_0_c', name_type_map['Uint'], (0, None), (False, None)
-		yield 'unk_count', name_type_map['Uint64'], (0, None), (False, None)
+		yield 'unk_count', name_type_map['Uint'], (0, None), (False, None)
+		if instance.context.version <= 52:
+			yield 'unk_unused', name_type_map['Uint'], (0, None), (False, None)
+		if instance.context.version >= 53:
+			yield 'war_a', name_type_map['Ushort'], (0, None), (False, None)
+			yield 'bone_limits', Array, (0, None, (2,), name_type_map['BonePointer']), (False, -1)
+			yield 'war_b', name_type_map['Ushort'], (0, None), (False, None)
 		yield 'bind_matrix_count', name_type_map['Uint64'], (0, None), (False, None)
 		yield 'zeros', Array, (0, None, (2,), name_type_map['Uint64']), (False, None)
 		yield 'inv_data_count', name_type_map['Uint64'], (0, None), (False, None)

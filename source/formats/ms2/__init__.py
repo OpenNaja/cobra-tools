@@ -36,7 +36,8 @@ class Ms2File(Ms2InfoHeader, IoFile):
 	def assign_joints(self, bone_info):
 		if self.context.version >= 47:
 			assert bone_info.one == 1
-		assert bone_info.knownff == -1
+		# rearranged in war, possibly related to bone index size change
+		# assert bone_info.knownff == -1
 		assert bone_info.name_count == bone_info.bind_matrix_count == bone_info.bone_count == bone_info.parents_count == bone_info.enum_count
 		assert bone_info.zeros_count == 0 or bone_info.zeros_count == bone_info.name_count
 		assert bone_info.zero_0 == bone_info.zero_1 == bone_info.zero_2 == bone_info.zero_3 == 0
@@ -83,12 +84,12 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			# logging.debug(f"end of header: {self.buffer_1_offset}")
 
 			logging.debug(f"Vertex buffer starts at {self.buffer_2_offset}")
-			try:
-				for bone_info in self.models_reader.bone_infos:
+			for i, bone_info in enumerate(self.models_reader.bone_infos):
+				try:
 					self.assign_bone_names(bone_info)
 					self.assign_joints(bone_info)
-			except:
-				logging.exception(f"Joints or bones lookup failed")
+				except:
+					logging.exception(f"Joints or bones {i} lookup failed")
 			try:
 				self.lookup_material()
 			except:
@@ -429,8 +430,8 @@ if __name__ == "__main__":
 	# m.load("C:/Users/arnfi/Desktop/FR_GrandCarousel.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/SP_Grave_Stones.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC ovls/walker_export/SP_Scarecrow not working atm.ms2", read_editable=True)
-	m.load("C:/Users/arnfi/Desktop/Coding/Frontier/Warhammer/Annihilator/annihilatormodels.ms2", read_editable=True)
-	# m.load("C:/Users/arnfi/Desktop/models.ms2", read_editable=True)
+	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/Warhammer/Annihilator/annihilatormodels.ms2", read_editable=True)
+	m.load("C:/Users/arnfi/Desktop/models.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/janitormale_.ms2", read_editable=True)
 	print(m)
 	# m.save("C:/Users/arnfi/Desktop/test.ms2")
