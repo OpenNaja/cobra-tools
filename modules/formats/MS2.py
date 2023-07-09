@@ -51,71 +51,6 @@ class Ms2Loader(MemStructLoader):
 	extension = ".ms2"
 	target_class = Ms2Root
 
-	def detect_biosyn_format(self):
-		logging.debug("Detecting Biosyn format")
-		if ovl_versions.is_jwe2(self.ovl):
-			if self.ovl.is_biosyn is not None:
-				return self.ovl.is_biosyn
-			else:
-				for func in (
-						self.detect_biosyn_format_from_manis,
-						self.detect_biosyn_format_from_ptrs,
-						self.detect_biosyn_default,):
-					try:
-						check = func()
-						if check is not None:
-							self.ovl.is_biosyn = check
-							return check
-					except:
-						pass
-		else:
-			return False
-
-	def detect_biosyn_default(self):
-		logging.debug("Assuming Biosyn format")
-		# todo - query a biosyn_default setting on ovl, set before from gui or config
-		return True
-
-	def detect_biosyn_format_from_manis(self):
-		logging.debug("Detecting Biosyn format from .manis")
-		for ext, mime_version in zip(self.ovl.mimes_ext, self.ovl.mimes_version):
-			if ext == "manis":
-				# JWE2 pre Biosyn
-				if mime_version == 261:
-					return False
-				# JWE2 post Biosyn
-				elif mime_version == 262:
-					return True
-		return None
-
-	def detect_biosyn_format_from_ptrs(self):
-		logging.debug("Detecting Biosyn format from pointers")
-		is_biosyn = False
-		is_older = False
-		# BufferInfo
-		is_biosyn, is_older = self._biosyn_check_ptr(is_biosyn, is_older, 24, 56, 88)
-		# ModelInfo
-		is_biosyn, is_older = self._biosyn_check_ptr(is_biosyn, is_older, 32, 192, 160)
-		# good, trust it
-		if is_biosyn and not is_older:
-			return True
-		elif is_older and not is_biosyn:
-			return False
-		# inconclusive result, don't trust it
-		return None
-
-	def _biosyn_check_ptr(self, is_biosyn, is_older, offset, older_size, biosyn_size):
-		children = self.stack[self.root_ptr]
-		s_pool, s_offset = children.get(offset, (None, -1))
-		if s_pool and s_offset is not None:
-			size = s_pool.size_map.get(s_offset, None)
-			if size:
-				if not size % biosyn_size:
-					is_biosyn = True
-				if not size % older_size:
-					is_older = True
-		return is_biosyn, is_older
-
 	def link_streams(self):
 		"""Collect other loaders"""
 		# if the ms2 name ends in a trailing underscore, remove it
@@ -128,7 +63,7 @@ class Ms2Loader(MemStructLoader):
 		version = struct.unpack(f"I", data[:4])[0]
 		self.context = Ms2Context()
 		self.context.version = version
-		self.context.biosyn = self.detect_biosyn_format()
+		self.context.biosyn = self.ovl.is_biosyn
 
 	def collect(self):
 		self.get_version()
@@ -144,8 +79,6 @@ class Ms2Loader(MemStructLoader):
 						logging.warning(f"Streamed mesh buffer {i} for {self.name} has no dependency to a .model2stream file")
 		except:
 			logging.exception(f"MS2 collecting failed")
-		print(self.name)
-		print(self.header)
 
 	def get_first_model_offset(self):
 		for model_info in self.header.model_infos.data:

@@ -12,7 +12,7 @@
 		<verexpr token="#PZ16#" string="(#VER# #EQ# 50)">PZ 1.6+</verexpr>
 		<verexpr token="#JWE2#" string="(#VER# #EQ# 51)">JWE2</verexpr>
 		There is a versioning issue introduced by the Biosyn update as the ms2 version has not been incremented immediately
-		<verexpr token="#JWE2_BIO#" string="((#VER# #EQ# 52) #OR# ((#VER# #EQ# 51) #AND# (#BIOSYN#)))">JWE2</verexpr>
+		<verexpr token="#JWE2_BIO#" string="(#VER# #EQ# 52)">JWE2</verexpr>
 		<verexpr token="#WAR#" string="(#VER# #EQ# 53)">JWE2</verexpr>
 	</token>
 
@@ -20,12 +20,12 @@
 		Global Tokens.
 		NOTE: These must be listed after the above tokens so that they replace last. For example, `verexpr` uses these tokens.
 		<global token="#VER#" string="version" />
-		<global token="#BIOSYN#" string="biosyn" />
+<!--		<global token="#BIOSYN#" string="biosyn" />-->
 	</token>
 
 	<xi:include href="../ovl_base/ovl_base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
 
-	<verattr name="biosyn" access="#BIOSYN#" index="1" />
+<!--	<verattr name="biosyn" access="#BIOSYN#" index="1" />-->
 
 	<version id="old" version="7 13 32" >Old</version>
 	<version id="DLA" version="7" >DLA</version>

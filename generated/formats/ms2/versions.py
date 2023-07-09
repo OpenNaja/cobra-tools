@@ -248,14 +248,13 @@ def set_game(context, game):
 class Ms2Version(VersionBase):
 
 	_file_format = 'ms2'
-	_verattrs = ('version', 'user_version', 'version_flag', 'biosyn')
+	_verattrs = ('version', 'user_version', 'version_flag')
 
-	def __init__(self, *args, version=(), user_version=(), version_flag=(), biosyn=(), **kwargs):
+	def __init__(self, *args, version=(), user_version=(), version_flag=(), **kwargs):
 		super().__init__(*args, **kwargs)
 		self.version = self._force_tuple(version)
 		self.user_version = self._force_tuple(user_version)
 		self.version_flag = self._force_tuple(version_flag)
-		self.biosyn = self._force_tuple(biosyn)
 
 
 dla = Ms2Version(id='DLA', version=(15,), primary_games=[], all_games=[games.DISNEYLAND_ADVENTURES])
