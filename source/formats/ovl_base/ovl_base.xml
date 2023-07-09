@@ -34,7 +34,7 @@
     <version id="PZ" version="19" user_version="8340 8724 8212">Planet Zoo pre-1.6</version>
     <version id="PZ16" version="20" user_version="8340 8724 8212">Planet Zoo</version>
     <version id="JWE" version="19" user_version="24724 25108 24596">Jurassic World Evolution</version>
-    <version id="JWE2DEV" version="20" user_version="24724 25108 24596" is_biosyn="0">Jurassic World Evolution 2 Dev</version>
+    <version id="JWE2DEV" version="20" user_version="24724 25108 24596" is_dev="1">Jurassic World Evolution 2 Dev</version>
     <version id="JWE2" version="20" user_version="24724 25108 24596">Jurassic World Evolution 2</version>
 
     <!-- Extra basic types -->

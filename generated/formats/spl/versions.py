@@ -64,14 +64,14 @@ def set_jwe(context):
 
 
 def is_jwe2dev(context):
-	if context.version == 20 and context.user_version in (24724, 25108, 24596) and context.is_biosyn == 0:
+	if context.version == 20 and context.user_version in (24724, 25108, 24596) and context.is_dev == 1:
 		return True
 
 
 def set_jwe2dev(context):
 	context.version = 20
 	context.user_version._value = 24724
-	context.is_biosyn = 0
+	context.is_dev = 1
 
 
 def is_jwe2(context):

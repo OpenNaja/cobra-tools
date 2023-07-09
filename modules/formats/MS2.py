@@ -63,7 +63,7 @@ class Ms2Loader(MemStructLoader):
 		version = struct.unpack(f"I", data[:4])[0]
 		self.context = Ms2Context()
 		self.context.version = version
-		self.context.biosyn = self.ovl.is_biosyn
+		self.context.biosyn = not self.ovl.is_dev
 
 	def collect(self):
 		self.get_version()
@@ -91,7 +91,7 @@ class Ms2Loader(MemStructLoader):
 		ms2_file = Ms2File()
 		ms2_file.load(file_path, read_bytes=True)
 		ms2_dir = os.path.dirname(file_path)
-		self.ovl.is_biosyn = ms2_file.biosyn
+		self.ovl.is_dev = not ms2_file.biosyn
 		self.context = Ms2Context()
 		self.context.version = ms2_file.info.version
 		self.context.biosyn = ms2_file.biosyn

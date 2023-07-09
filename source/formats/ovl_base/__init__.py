@@ -4,7 +4,7 @@ from generated.formats.ovl_base.bitfields.VersionInfo import VersionInfo
 class OvlContext(object):
 	def __init__(self):
 		self.version = 0
-		self.is_biosyn = 0
+		self.is_source = 0
 		self.user_version = VersionInfo()
 
 	def __repr__(self):

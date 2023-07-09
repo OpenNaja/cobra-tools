@@ -508,7 +508,7 @@ class OvlFile(Header):
 		super().__init__(self)
 		self.magic.data = b'FRES'
 
-		self.is_biosyn = None
+		self.is_dev = False
 		self.do_debug = False
 
 		self.formats_dict = FormatDict()
@@ -775,7 +775,7 @@ class OvlFile(Header):
 	def load(self, filepath, commands={}):
 		start_time = time.time()
 		# automatically tag dev build
-		self.is_biosyn = False if "Jurassic World Evolution 2 1.3.1.0" in filepath else None
+		self.is_dev = True if "Jurassic World Evolution 2 1.3.1.0" in filepath else False
 		# store commands
 		self.commands = commands
 		self.store_filepath(filepath)
