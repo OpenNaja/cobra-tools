@@ -672,7 +672,7 @@ class OvlFile(Header):
 				except:
 					logging.exception(f"Adding '{file_path}' failed")
 					error_files.append(file_path)
-			for loader in self.iter_progress(self.loaders.values(), "Validating files"):
+			for loader in self.loaders.values():
 				loader.validate()
 		self.files_list.emit([[loader.name, loader.ext] for loader in self.loaders.values()])
 
@@ -961,7 +961,7 @@ class OvlFile(Header):
 				# if somebody stores a field called 'version', it overrides (ovl) context version
 				if version != self.version:
 					raise AttributeError(f"{loader.name} changed ovl version from {version} to {self.version}")
-			for loader in self.iter_progress(self.loaders.values(), "Validating files"):
+			for loader in self.loaders.values():
 				loader.validate()
 		logging.info(f"Loaded file classes in {time.time() - start_time:.2f} seconds")
 
