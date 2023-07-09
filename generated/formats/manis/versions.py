@@ -147,7 +147,16 @@ def set_jwe2(context):
 	context.version = 262
 
 
-games = Enum('Games', [('DISNEYLAND_ADVENTURES', 'Disneyland Adventures'), ('DLA', 'DLA'), ('JURASSIC_WORLD_EVOLUTION', 'Jurassic World Evolution'), ('JURASSIC_WORLD_EVOLUTION_2', 'Jurassic World Evolution 2'), ('JURASSIC_WORLD_EVOLUTION_2_DEV', 'Jurassic World Evolution 2 Dev'), ('JWE_1', 'JWE1'), ('JWE_2', 'JWE2'), ('JWE_2_DEV_BUILD', 'JWE2 Dev Build'), ('PC', 'PC'), ('PLANET_COASTER', 'Planet Coaster'), ('PLANET_ZOO', 'Planet Zoo'), ('PLANET_ZOO_PRE_1_6', 'Planet Zoo pre-1.6'), ('PZ', 'PZ'), ('ZOO_TYCOON_ULTIMATE_ANIMAL_COLLECTION', 'Zoo Tycoon Ultimate Animal Collection'), ('ZTUAC', 'ZTUAC'), ('UNKNOWN', 'Unknown Game')])
+def is_war(context):
+	if context.version == 262:
+		return True
+
+
+def set_war(context):
+	context.version = 262
+
+
+games = Enum('Games', [('DISNEYLAND_ADVENTURES', 'Disneyland Adventures'), ('DLA', 'DLA'), ('JURASSIC_WORLD_EVOLUTION', 'Jurassic World Evolution'), ('JURASSIC_WORLD_EVOLUTION_2', 'Jurassic World Evolution 2'), ('JURASSIC_WORLD_EVOLUTION_2_DEV', 'Jurassic World Evolution 2 Dev'), ('JWE_1', 'JWE1'), ('JWE_2', 'JWE2'), ('JWE_2_DEV_BUILD', 'JWE2 Dev Build'), ('PC', 'PC'), ('PLANET_COASTER', 'Planet Coaster'), ('PLANET_ZOO', 'Planet Zoo'), ('PLANET_ZOO_PRE_1_6', 'Planet Zoo pre-1.6'), ('PZ', 'PZ'), ('WAR', 'WAR'), ('ZOO_TYCOON_ULTIMATE_ANIMAL_COLLECTION', 'Zoo Tycoon Ultimate Animal Collection'), ('ZTUAC', 'ZTUAC'), ('UNKNOWN', 'Unknown Game')])
 
 
 def get_game(context):
@@ -181,6 +190,8 @@ def get_game(context):
 		return [games.JWE_2_DEV_BUILD]
 	if is_jwe2(context):
 		return [games.JWE_2]
+	if is_war(context):
+		return [games.WAR]
 	return [games.UNKNOWN]
 
 
@@ -217,6 +228,8 @@ def set_game(context, game):
 		return set_jwe2_dev(context)
 	if game in {games.JWE_2}:
 		return set_jwe2(context)
+	if game in {games.WAR}:
+		return set_war(context)
 
 
 class ManisVersion(VersionBase):
@@ -246,5 +259,6 @@ jwe1 = ManisVersion(id='JWE1', version=(258,), primary_games=[], all_games=[game
 pz = ManisVersion(id='PZ', version=(260,), primary_games=[], all_games=[games.PZ])
 jwe2_dev = ManisVersion(id='JWE2_DEV', version=(261,), primary_games=[], all_games=[games.JWE_2_DEV_BUILD])
 jwe2 = ManisVersion(id='JWE2', version=(262,), primary_games=[], all_games=[games.JWE_2])
+war = ManisVersion(id='WAR', version=(262,), primary_games=[], all_games=[games.WAR])
 
-available_versions = [dla, ztuac, pc, pz, pz16, jwe, jwe2dev, jwe2, dla, ztuac, pc, jwe1, pz, jwe2_dev, jwe2]
+available_versions = [dla, ztuac, pc, pz, pz16, jwe, jwe2dev, jwe2, dla, ztuac, pc, jwe1, pz, jwe2_dev, jwe2, war]

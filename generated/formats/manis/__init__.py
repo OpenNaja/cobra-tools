@@ -7,6 +7,7 @@ import os
 import numpy as np
 
 import root_path
+from generated.formats.manis.bitfields.ManisDtype import ManisDtype
 from ovl_util.config import logging_setup
 from generated.formats.manis.bitfields.StoreKeys import StoreKeys
 from generated.formats.manis.compounds.InfoHeader import InfoHeader
@@ -624,8 +625,8 @@ class ManisFile(InfoHeader, IoFile):
 
 if __name__ == "__main__":
     logging_setup("mani")
-    # for k in (0, 1, 4, 5, 6, 32, 34, 36, 37, 38, 64, 66, 68, 69, 70):
-    # 	print(ManisDtype.from_value(k))
+    for k in (0, 1, 4, 5, 6, 32, 34, 36, 37, 38, 64, 66, 68, 69, 70, 82):
+        print(ManisDtype.from_value(k))
     # print(bin(-4395513102365351936))
     # print(bin(554058852231815168))
     # key = Key94C.from_value(2305843010808512512)
@@ -641,7 +642,9 @@ if __name__ == "__main__":
     mani = ManisFile()
     # acro stand_ide
     target = "acrocanthosaurus@standidle01"
-    mani.load("C:/Users/arnfi/Desktop/acro/notmotionextracted.maniset53978456.manis")
+    mani.load("C:/Users/arnfi/Desktop/Coding/Frontier/Warhammer/Annihilator/animation.maniset52a766ac.manis")
+    print(mani)
+    # mani.load("C:/Users/arnfi/Desktop/acro/notmotionextracted.maniset53978456.manis")
     # mani.load("C:/Users/arnfi/Desktop/animationmotionextractedlocomotion.maniset648a1a01.manis")
     # mani.load("C:/Users/arnfi/Desktop/crane/animationnotmotionextractedfighting.maniset3d816f2c.manis")
     # mani.load("C:/Users/arnfi/Desktop/kangaroo/animation.maniset32dc487b.manis")
@@ -649,9 +652,9 @@ if __name__ == "__main__":
     # mani.load("C:/Users/arnfi/Desktop/DLA scale anim.manis")
     # mani.load("C:/Users/arnfi/Desktop/dinomascot/animation.maniset293c241f.manis")
     # mani.dump_keys()
-    mani.parse_keys()
+    # mani.parse_keys()
     # mani.log_rot_keys()
-    mani.log_loc_keys()
+    # mani.log_loc_keys()
 # mani.load("C:/Users/arnfi/Desktop/donationbox/animation.maniseteaf333c5.manis")
 # mani.dump_keys()
 # mani.parse_keys()

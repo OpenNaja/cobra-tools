@@ -10,28 +10,6 @@ class ChannelName:
     def __new__(cls, context=None, arg=0, template=None):
         return ""
 
-    # ushort_struct = Struct("<H")
-    # uint_struct = Struct("<I")
-    #
-    # # _byte_from_value = lambda value: (int(value) + 128) % 256 - 128
-    # # _int_from_value = lambda value: (int(value) + 2147483648) % 4294967296 - 2147483648
-    #
-    # @classmethod
-    # def update_struct(cls, context):
-    #     if context.version <= 257:
-    #         # until PC - use ushort
-    #         # cls.from_value = staticmethod(cls._int_from_value)
-    #         cls.set_struct(cls.ushort_struct)
-    #     else:
-    #         # since JWE1 - use uint
-    #         # cls.from_value = staticmethod(cls._byte_from_value)
-    #         cls.set_struct(cls.uint_struct)
-    #
-    #     @classmethod
-    #     def validate_array(cls, instance, context=None, arg=0, template=None, shape=()):
-    #         assert instance.shape == shape
-    #         assert instance.dtype.char in ("b", "i")
-
     @staticmethod
     def cls_from_context(context):
         # if context.version <= 236:
@@ -59,6 +37,31 @@ class ChannelName:
             raise IndexError(f"String '{instance}' was missing from names list '{context.name_buffer.bone_names}'")
         # print(offset, instance, arg.offset_dic)
         cls.cls_from_context(context).to_stream(ind, stream, context, arg, template)
+
+    @staticmethod
+    def fmt_member(member, indent=0):
+        return str(member)
+
+
+class BoneIndex(Ubyte):
+
+    def __new__(cls, context=None, arg=0, template=None):
+        return ""
+
+    @staticmethod
+    def cls_from_arg(arg):
+        if arg.use_ushort:
+            return Ushort
+        else:
+            return Ubyte
+
+    @classmethod
+    def from_stream(cls, stream, context, arg=0, template=None):
+        return cls.cls_from_arg(arg).from_stream(stream, context, arg, template)
+
+    @classmethod
+    def to_stream(cls, instance, stream, context, arg=0, template=None):
+        cls.cls_from_arg(arg).to_stream(instance, stream, context, arg, template)
 
     @staticmethod
     def fmt_member(member, indent=0):

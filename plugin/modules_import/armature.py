@@ -46,7 +46,7 @@ def import_armature(scene, model_info, b_bone_names):
 
 			# link to parent
 			try:
-				if o_parent_ind != 255:
+				if o_parent_ind not in (255, 65535):
 					parent_long_name = b_bone_names[o_parent_ind]
 					# needed to support long names
 					parent_short_name = long_name_2_short_name[parent_long_name]

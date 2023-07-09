@@ -9,8 +9,8 @@
 		<verexpr token="#PC#" string="(#VER# #EQ# 257)">PC</verexpr>
 		<verexpr token="#JWE#" string="(#VER# #EQ# 258)">JWE1</verexpr>
 		<verexpr token="#PZ#" string="(#VER# #EQ# 260)">PZ all</verexpr>
-		<verexpr token="#JWE2#" string="(#VER# #EQ# 262)">JWE2</verexpr> 
 		<verexpr token="#JWE2_DEV#" string="(#VER# #EQ# 261)">JWE2</verexpr>
+		<verexpr token="#JWE2#" string="(#VER# #EQ# 262)">JWE2</verexpr>
 	</token>
 
 	<token name="global" attrs="vercond access">
@@ -29,10 +29,16 @@
     <version id="PZ" version="260" >PZ</version>
     <version id="JWE2_DEV" version="261" >JWE2 Dev Build</version>
     <version id="JWE2" version="262" >JWE2</version>
+    <version id="WAR" version="262" >WAR</version>version conflict -.-
 
     <basic name="ChannelName" integral="true" countable="true">
 		<!--    PC uses ushort-->
 		<!--    JWE uses uint-->
+    </basic>
+
+    <basic name="BoneIndex" integral="true" countable="true">
+		<!--    War uses ushort-->
+		<!--    before uses ubyte-->
     </basic>
 
     <basic name="int48" integral="true" countable="true">
@@ -42,22 +48,24 @@
 		# PZ dtypes: 0, 1, 4, 5, 6, 32, 34, 36, 37, 38
 		# JWE2 dev dtypes: 0, 4, 5, 6, 32, 34, 36, 37, 38
 		# JWE2 dtypes: 0, 4, 5, 6, 64, 66, 68, 69, 70
-		ManisDtype: 0 0b0 ['compression = 0']
-		ManisDtype: 1 0b1 ['compression = 1']
-		ManisDtype: 4 0b100 ['compression = 4']
-		ManisDtype: 5 0b101 ['compression = 5']
-		ManisDtype: 6 0b110 ['compression = 6']
-		ManisDtype: 32 0b100000 ['compression = 32']
-		ManisDtype: 34 0b100010 ['compression = 34']
-		ManisDtype: 36 0b100100 ['compression = 36']
-		ManisDtype: 37 0b100101 ['compression = 37']
-		ManisDtype: 38 0b100110 ['compression = 38']
-		ManisDtype: 64 0b1000000 ['compression = 0', 'has_list = True']
-		ManisDtype: 66 0b1000010 ['compression = 2', 'has_list = True']
-		ManisDtype: 68 0b1000100 ['compression = 4', 'has_list = True']
-		ManisDtype: 69 0b1000101 ['compression = 5', 'has_list = True']
-		ManisDtype: 70 0b1000110 ['compression = 6', 'has_list = True']
-		<member width="5" pos="0" name="compression" type="int"/>
+		ManisDtype: 0 0b0 ['compression = 0', 'use_ushort = 0', 'has_list = 0']
+		ManisDtype: 1 0b1 ['compression = 1', 'use_ushort = 0', 'has_list = 0']
+		ManisDtype: 4 0b100 ['compression = 4', 'use_ushort = 0', 'has_list = 0']
+		ManisDtype: 5 0b101 ['compression = 5', 'use_ushort = 0', 'has_list = 0']
+		ManisDtype: 6 0b110 ['compression = 6', 'use_ushort = 0', 'has_list = 0']
+		ManisDtype: 32 0b100000 ['compression = 0', 'use_ushort = 0', 'has_list = 1']
+		ManisDtype: 34 0b100010 ['compression = 2', 'use_ushort = 0', 'has_list = 1']
+		ManisDtype: 36 0b100100 ['compression = 4', 'use_ushort = 0', 'has_list = 1']
+		ManisDtype: 37 0b100101 ['compression = 5', 'use_ushort = 0', 'has_list = 1']
+		ManisDtype: 38 0b100110 ['compression = 6', 'use_ushort = 0', 'has_list = 1']
+		ManisDtype: 64 0b1000000 ['compression = 0', 'use_ushort = 0', 'has_list = 2']
+		ManisDtype: 66 0b1000010 ['compression = 2', 'use_ushort = 0', 'has_list = 2']
+		ManisDtype: 68 0b1000100 ['compression = 4', 'use_ushort = 0', 'has_list = 2']
+		ManisDtype: 69 0b1000101 ['compression = 5', 'use_ushort = 0', 'has_list = 2']
+		ManisDtype: 70 0b1000110 ['compression = 6', 'use_ushort = 0', 'has_list = 2']
+		ManisDtype: 82 0b1010010 ['compression = 2', 'use_ushort = 1', 'has_list = 2']
+		<member width="4" pos="0" name="compression" type="int"/>
+		<member width="1" pos="4" name="use_ushort" type="int"/>
 		<member width="2" pos="5" name="has_list" type="int"/>
 	</bitfield>
 
@@ -87,6 +95,8 @@
 	<compound name="ManiInfo" >
         288 bytes for JWE / PZ
         304 bytes for PC, ZTUAC (however the last 2 bytes are alignment, and not on the last member of the array)
+        320 bytes for war
+        <add name="ref" type="Empty"/>
         <add name="duration" type="float"/>
 		<add name="FrameCount" type="uint"/>
 		<add name="dtype" type="ManisDtype" >determines the format of keys data; apparently 4, 5, and 6 are the same</add>
@@ -105,25 +115,27 @@
 		<add name="SclBoneCount Repeat" type="ushort" until="257"/>
 		<add name="unk 0" type="ushort" until="257"/>
 		<add name="unk 1" type="ushort" until="257"/>
-		<add name="root_pos_bone" type="ubyte" default="255"/>
-		<add name="root_ori_bone" type="ubyte" default="255"/>
+		<add name="root_pos_bone" type="BoneIndex" arg="dtype" default="255"/>
+		<add name="root_ori_bone" type="BoneIndex" arg="dtype" default="255"/>
 		<add name="target bone count" type="uint64" >can include joints, such as in PZ water wheel count 5 vs ms2 2 bones, plus joints</add>
+		<add name="pad1" type="PadAlign" template="ref" arg="16"/>
 		<add name="zeros 2" type="uint64" arr1="28" >224 bytes</add>
-		<add name="extra zeros pc" type="uint" arr1="3" until="257" >12 bytes</add>
-		<add name="PosBoneMin" type="ubyte"/>
-		<add name="PosBoneMax" type="ubyte"/>
-		<add name="OriBoneMin" type="ubyte"/>
-		<add name="OriBoneMax" type="ubyte"/>
-		<add name="SclBoneMin" type="ubyte"/>
-		<add name="SclBoneMax" type="ubyte"/>
-		<add name="PosBoneCount Related" type="ubyte" since="258"/>
-		<add name="PosBoneCount Repeat" type="ubyte" since="258"/>
-		<add name="OriBoneCount Related" type="ubyte" since="258"/>
-		<add name="OriBoneCount Repeat" type="ubyte" since="258"/>
-		<add name="SclBoneCount Related" type="ubyte" since="258" >maybe, not observed yet</add>
-		<add name="SclBoneCount Repeat" type="ubyte" since="258"/>
+		<add name="extra zeros pc" type="uint" arr1="3" until="257" >12 bytes</add>might be redundant due to pad1?
+		<add name="PosBoneMin" type="BoneIndex" arg="dtype"/>
+		<add name="PosBoneMax" type="BoneIndex" arg="dtype"/>
+		<add name="OriBoneMin" type="BoneIndex" arg="dtype"/>
+		<add name="OriBoneMax" type="BoneIndex" arg="dtype"/>
+		<add name="SclBoneMin" type="BoneIndex" arg="dtype"/>
+		<add name="SclBoneMax" type="BoneIndex" arg="dtype"/>
+		<add name="PosBoneCount Related" type="BoneIndex" arg="dtype" since="258"/>
+		<add name="PosBoneCount Repeat" type="BoneIndex" arg="dtype" since="258"/>
+		<add name="OriBoneCount Related" type="BoneIndex" arg="dtype" since="258"/>
+		<add name="OriBoneCount Repeat" type="BoneIndex" arg="dtype" since="258"/>
+		<add name="SclBoneCount Related" type="BoneIndex" arg="dtype" since="258"/>
+		<add name="SclBoneCount Repeat" type="BoneIndex" arg="dtype" since="258"/>
 		<add name="zero 0 end" type="ushort" since="258"/>
 		<add name="zero 1 end" type="ushort" />for PC, this is alignment and not present at the end of the mani_infos array
+		<add name="pad2" type="PadAlign" template="ref" arg="16"/>
     </compound>
 
     <compound name="Buffer1">
@@ -224,6 +236,15 @@
 		<add name="segments_data" type="SegmentsReader" arg="segments"/>
 	</compound>
 
+	<compound name="WarExtraPart">
+		<add name="stuff" type="ushort" arr1="24"/>
+	</compound>
+
+	<compound name="WarExtra">
+		<add name="zeros" type="uint" arr1="1"/>
+		<add name="stuff" type="WarExtraPart" arr1="4"/>
+	</compound>
+
 	<compound name="ManiBlock" >
 		<add name="ref" type="Empty"/>
 		define the channel names
@@ -232,13 +253,13 @@
 		<add name="SclBonesNames" type="ChannelName" arr1="#ARG#\SclBoneCount"/>
 		<add name="FloatsNames" type="ChannelName" arr1="#ARG#\FloatCount"/>
 		map channel to corresponding bone index
-		<add name="pos_channel_to_bone" type="ubyte" arr1="#ARG#\PosBoneCount"/>
-		<add name="ori_channel_to_bone" type="ubyte" arr1="#ARG#\OriBoneCount"/>
-		<add name="scl_channel_to_bone" type="ubyte" arr1="#ARG#\SclBoneCount"/>
+		<add name="pos_channel_to_bone" type="#T#" arr1="#ARG#\PosBoneCount"/>
+		<add name="ori_channel_to_bone" type="#T#" arr1="#ARG#\OriBoneCount"/>
+		<add name="scl_channel_to_bone" type="#T#" arr1="#ARG#\SclBoneCount"/>
 		map bone to corresponding channel, -1 for bones in range that are not keyed
-		<add name="pos_bone_to_channel" type="ubyte" arr1="(#ARG#\PosBoneMax - #ARG#\PosBoneMin) + 1" cond="#ARG#\PosBoneMin #LT# 255"> </add>
-		<add name="ori_bone_to_channel" type="ubyte" arr1="(#ARG#\OriBoneMax - #ARG#\OriBoneMin) + 1" cond="#ARG#\OriBoneMin #LT# 255"> </add>
-		<add name="scl_bone_to_channel" type="ubyte" arr1="(#ARG#\SclBoneMax - #ARG#\SclBoneMin) + 1" cond="#ARG#\SclBoneMin #LT# 255"> </add>
+		<add name="pos_bone_to_channel" type="#T#" arr1="(#ARG#\PosBoneMax - #ARG#\PosBoneMin) + 1" cond="#ARG#\PosBoneMin #LTE# #ARG#\PosBoneMax"/>
+		<add name="ori_bone_to_channel" type="#T#" arr1="(#ARG#\OriBoneMax - #ARG#\OriBoneMin) + 1" cond="#ARG#\OriBoneMin #LTE# #ARG#\OriBoneMax"/>
+		<add name="scl_bone_to_channel" type="#T#" arr1="(#ARG#\SclBoneMax - #ARG#\SclBoneMin) + 1" cond="#ARG#\SclBoneMin #LTE# #ARG#\SclBoneMax"/>
 		<add name="pad" type="PadAlign" template="ref" arg="4"/>
 		start of uncompressed keyframe data
 		<add name="PosBones" type="Vector3" arr1="#ARG#\FrameCount" arr2="#ARG#\PosBoneCount" cond="#ARG#\dtype\compression #EQ# 0" />
@@ -249,6 +270,7 @@
 		always uncompressed, possibly because ACL didn't support scalars
 		<add name="Floats" type="float" arr1="#ARG#\FrameCount" arr2="#ARG#\FloatCount" />
 		<add name="uncompressed_pad" type="PadAlign" template="ref" arg="16"/>
+		<add name="extra_war" type="WarExtra" arg="#SELF#" cond="#ARG#\dtype\use_ushort #EQ# 1"/>
 		<add name="compressed" type="CompressedManiData" arg="#SELF#" cond="#ARG#\dtype\compression #GT# 0"/>
 		<add name="subchunks" type="UnkChunkList" cond="#ARG#\dtype\has_list #GT# 0"/>
     </compound>

@@ -1,6 +1,7 @@
 import logging
 
 from generated.base_struct import BaseStruct
+from generated.formats.base.basic import Ushort, Ubyte
 from generated.formats.manis.compounds.ManiBlock import ManiBlock
 
 from generated.base_struct import BaseStruct
@@ -34,8 +35,10 @@ class KeysReader(BaseStruct):
 			logging.debug(f"Reading keys block at {mani_block_start}")
 			# if mani_block_start == 964833:
 			# 	break
+			bone_dtype = Ushort if mani_info.dtype.use_ushort else Ubyte
 			try:
-				mani_info.keys = ManiBlock.from_stream(stream, instance.context, mani_info, None)
+				mani_info.keys = ManiBlock.from_stream(stream, instance.context, mani_info, bone_dtype)
+				# logging.info(mani_info)
 				# logging.info(mani_info.keys)
 				# break
 			except:
