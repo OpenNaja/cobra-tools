@@ -1261,10 +1261,11 @@ class OvlFile(Header):
 		stream_loaders.sort(key=lambda x: (x[1].ovs.arg.name, x[0].abs_mem_offset))
 		self.num_stream_files = len(stream_loaders)
 		if stream_loaders and self.name.lower() in ("main.ovl", "init.ovl"):
-			loaders_with_streams = [loader.name for loader in self.loaders.values() if loader.streams]
-			self.warning_msg.emit((
-				f"You're trying to save streamed files in '{self.name}', which does not support streams - "
-				f"please check 'Show Details' or the log.", "\n".join(loaders_with_streams)))
+			tex_with_streams = [loader.name for loader in self.loaders.values() if loader.streams and loader.ext == ".tex"]
+			if tex_with_streams:
+				self.warning_msg.emit((
+					f"You're trying to save streamed textures in '{self.name}', which does not support streams - "
+					f"please check 'Show Details' or the log.", "\n".join(tex_with_streams)))
 		self.reset_field("stream_files")
 		if stream_loaders:
 			self.stream_files["file_offset"], self.stream_files["stream_offset"] = zip(*[
