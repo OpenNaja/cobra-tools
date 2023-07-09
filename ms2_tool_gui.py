@@ -140,7 +140,7 @@ class MainWindow(widgets.MainWindow):
 			logging.info(f"Loading {len(self.ms2_file.mdl_2_names)} files into gui")
 			self.files_container.set_data([[m.name, ".mdl2", m.num_lods, m.num_objects, m.num_meshes, m.num_materials] for m in self.ms2_file.model_infos])
 			logging.info(f"Loaded GUI in {time.time() - start_time:.2f} seconds")
-			self.update_progress("Operation completed!", value=1, vmax=1)
+			self.update_progress("Operation completed!", value=100, vmax=100)
 		except:
 			self.handle_error("GUI update failed, see log!")
 
@@ -148,7 +148,7 @@ class MainWindow(widgets.MainWindow):
 		try:
 			self.ms2_file.save(self.file_widget.filepath)
 			self.file_widget.dirty = False
-			self.update_progress(f"Saved {self.ms2_file.name}", value=1, vmax=1)
+			self.update_progress(f"Saved {self.ms2_file.name}", value=100, vmax=100)
 		except:
 			self.handle_error("Saving MS2 failed, see log!")
 

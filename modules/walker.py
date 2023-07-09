@@ -244,7 +244,7 @@ def bulk_test_models(gui, start_dir, walk_ovls=True, walk_models=True):
 			logging.info(f"size {size} / count {count} = {size/count} in {fp}")
 		msg = f"Loaded {mf_max} models {time.time() - start_time:.2f} seconds"
 		logging.info(msg)
-		gui.update_progress(msg, value=1, vmax=1)
+		gui.update_progress(msg, value=100, vmax=100)
 
 
 def ovls_in_path(gui, start_dir, only_types):

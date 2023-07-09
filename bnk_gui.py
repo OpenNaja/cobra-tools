@@ -172,7 +172,7 @@ class MainWindow(widgets.MainWindow):
 		try:
 			self.bnk_file.save(self.file_widget.filepath)
 			self.file_widget.dirty = False
-			self.update_progress(f"Saved {self.bnk_file.basename}", value=1, vmax=1)
+			self.update_progress(f"Saved {self.bnk_file.basename}", value=100, vmax=100)
 		except:
 			self.handle_error("Loading failed, see log!")
 
@@ -202,7 +202,7 @@ class MainWindow(widgets.MainWindow):
 				self.file_widget.dirty = True
 				# if error_files:
 				# 	interaction.showerror(f"Injection caused errors on {len(error_files)} files, see console for details!")
-				self.update_progress("Injection completed", value=1, vmax=1)
+				self.update_progress("Injection completed", value=100, vmax=100)
 			except:
 				self.handle_error("Injecting failed, see log!")
 
