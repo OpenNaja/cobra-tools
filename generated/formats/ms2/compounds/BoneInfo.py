@@ -34,7 +34,6 @@ class BoneInfo(BaseStruct):
 
 		# not PC, JWE1
 		self.extra_zero = name_type_map['Uint64'](self.context, 0, None)
-		self.new_uint_64 = name_type_map['Uint64'](self.context, 0, None)
 		self.enum_count = name_type_map['Uint64'](self.context, 0, None)
 
 		# usually zero
@@ -65,7 +64,7 @@ class BoneInfo(BaseStruct):
 		self.bones = Array(self.context, 0, None, (0,), name_type_map['Bone'])
 
 		# 255 = root, index in this list is the current bone index, value is the bone's parent index
-		self.parents = Array(self.context, 0, None, (0,), name_type_map['Ubyte'])
+		self.parents = Array(self.context, 0, None, (0,), name_type_map['Ushort'])
 
 		# align to 8 bytes
 		self.parents_padding = name_type_map['PadAlign'](self.context, 8, self.names_ref)
@@ -116,8 +115,7 @@ class BoneInfo(BaseStruct):
 		yield 'bone_count', name_type_map['Uint64'], (0, None), (False, None), (None, None)
 		yield 'unknown_40', name_type_map['Uint64'], (0, None), (False, None), (None, None)
 		yield 'parents_count', name_type_map['Uint64'], (0, None), (False, None), (None, None)
-		yield 'extra_zero', name_type_map['Uint64'], (0, None), (False, None), (lambda context: (context.version == 7) or ((context.version == 13) or (((context.version == 48) or (context.version == 50)) or (context.version == 51))), None)
-		yield 'new_uint_64', name_type_map['Uint64'], (0, None), (False, None), (lambda context: context.version >= 52, None)
+		yield 'extra_zero', name_type_map['Uint64'], (0, None), (False, None), (lambda context: not ((context.version == 32) or ((context.version == 47) or (context.version == 39))), None)
 		yield 'enum_count', name_type_map['Uint64'], (0, None), (False, None), (None, None)
 		yield 'unknown_58', name_type_map['Uint64'], (0, None), (False, None), (None, None)
 		yield 'one', name_type_map['Uint64'], (0, None), (False, 1), (None, None)
@@ -135,7 +133,8 @@ class BoneInfo(BaseStruct):
 		yield 'name_padding', name_type_map['PadAlign'], (16, None), (False, None), (None, None)
 		yield 'inverse_bind_matrices', Array, (0, None, (None,), name_type_map['Matrix44']), (False, None), (None, None)
 		yield 'bones', Array, (0, None, (None,), name_type_map['Bone']), (False, None), (None, None)
-		yield 'parents', Array, (0, None, (None,), name_type_map['Ubyte']), (False, None), (None, None)
+		yield 'parents', Array, (0, None, (None,), name_type_map['Ubyte']), (False, None), (lambda context: context.version <= 52, None)
+		yield 'parents', Array, (0, None, (None,), name_type_map['Ushort']), (False, None), (lambda context: context.version >= 53, None)
 		yield 'parents_padding', name_type_map['PadAlign'], (8, None), (False, None), (lambda context: context.version >= 32, None)
 		yield 'enumeration', Array, (0, None, (None, 2,), name_type_map['Uint']), (False, None), (lambda context: context.version >= 32, True)
 		yield 'enumeration', Array, (0, None, (None,), name_type_map['Ubyte']), (False, None), (lambda context: context.version <= 13, True)
@@ -165,10 +164,8 @@ class BoneInfo(BaseStruct):
 		yield 'bone_count', name_type_map['Uint64'], (0, None), (False, None)
 		yield 'unknown_40', name_type_map['Uint64'], (0, None), (False, None)
 		yield 'parents_count', name_type_map['Uint64'], (0, None), (False, None)
-		if (instance.context.version == 7) or ((instance.context.version == 13) or (((instance.context.version == 48) or (instance.context.version == 50)) or (instance.context.version == 51))):
+		if not ((instance.context.version == 32) or ((instance.context.version == 47) or (instance.context.version == 39))):
 			yield 'extra_zero', name_type_map['Uint64'], (0, None), (False, None)
-		if instance.context.version >= 52:
-			yield 'new_uint_64', name_type_map['Uint64'], (0, None), (False, None)
 		yield 'enum_count', name_type_map['Uint64'], (0, None), (False, None)
 		yield 'unknown_58', name_type_map['Uint64'], (0, None), (False, None)
 		yield 'one', name_type_map['Uint64'], (0, None), (False, 1)
@@ -192,7 +189,10 @@ class BoneInfo(BaseStruct):
 		yield 'name_padding', name_type_map['PadAlign'], (16, instance.names_ref), (False, None)
 		yield 'inverse_bind_matrices', Array, (0, None, (instance.bind_matrix_count,), name_type_map['Matrix44']), (False, None)
 		yield 'bones', Array, (0, None, (instance.bone_count,), name_type_map['Bone']), (False, None)
-		yield 'parents', Array, (0, None, (instance.parents_count,), name_type_map['Ubyte']), (False, None)
+		if instance.context.version <= 52:
+			yield 'parents', Array, (0, None, (instance.parents_count,), name_type_map['Ubyte']), (False, None)
+		if instance.context.version >= 53:
+			yield 'parents', Array, (0, None, (instance.parents_count,), name_type_map['Ushort']), (False, None)
 		if instance.context.version >= 32:
 			yield 'parents_padding', name_type_map['PadAlign'], (8, instance.names_ref), (False, None)
 		if instance.context.version >= 32 and instance.one:

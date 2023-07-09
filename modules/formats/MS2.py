@@ -144,7 +144,8 @@ class Ms2Loader(MemStructLoader):
 						logging.warning(f"Streamed mesh buffer {i} for {self.name} has no dependency to a .model2stream file")
 		except:
 			logging.exception(f"MS2 collecting failed")
-		# print(self.header)
+		print(self.name)
+		print(self.header)
 
 	def get_first_model_offset(self):
 		for model_info in self.header.model_infos.data:

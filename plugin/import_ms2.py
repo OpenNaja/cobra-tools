@@ -123,7 +123,7 @@ def load(filepath="", use_custom_normals=False, mirror_mesh=False):
 			if coll_name in bpy.context.view_layer.layer_collection.children:
 				bpy.context.view_layer.layer_collection.children[coll_name].hide_viewport = lod_i != 0
 
-	messages.add(f"Finished MS2 import in {time.time() - start_time:.2f} seconds")
+	messages.add(f"Imported {ms2_name} in {time.time() - start_time:.2f} seconds")
 	return messages
 
 

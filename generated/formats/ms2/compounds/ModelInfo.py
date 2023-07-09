@@ -9,7 +9,6 @@ class ModelInfo(MemStruct):
 	Describes one model, corresponding to a virtual .mdl2 file
 	JWE2 - 192 bytes
 	JWE2 Biosyn - 160 bytes
-	There is a versioning issue introduced by the Biosyn update as the ms2 version has not been incremented
 	"""
 
 	__name__ = 'ModelInfo'
@@ -89,13 +88,13 @@ class ModelInfo(MemStruct):
 		yield from super()._get_attribute_list()
 		yield 'unk_dla', name_type_map['Uint64'], (0, None), (False, None), (lambda context: context.version <= 7, None)
 		yield 'bounds_min', name_type_map['Vector3'], (0, None), (False, None), (None, None)
-		yield 'unk_float_a', name_type_map['Float'], (0, None), (False, None), (lambda context: context.version >= 47 and not (((context.version == 51) or (context.version == 52)) and context.biosyn), None)
+		yield 'unk_float_a', name_type_map['Float'], (0, None), (False, None), (lambda context: 47 <= context.version <= 51, None)
 		yield 'bounds_max', name_type_map['Vector3'], (0, None), (False, None), (None, None)
-		yield 'pack_base', name_type_map['Float'], (0, None), (False, None), (lambda context: context.version >= 47 and not (((context.version == 51) or (context.version == 52)) and context.biosyn), None)
+		yield 'pack_base', name_type_map['Float'], (0, None), (False, None), (lambda context: 47 <= context.version <= 51, None)
 		yield 'center', name_type_map['Vector3'], (0, None), (False, None), (None, None)
 		yield 'radius', name_type_map['Float'], (0, None), (False, None), (None, None)
-		yield 'num_lods_2', name_type_map['Uint64'], (0, None), (False, None), (lambda context: context.version >= 48 and not (((context.version == 51) or (context.version == 52)) and context.biosyn), None)
-		yield 'zero', name_type_map['Uint64'], (0, None), (False, None), (lambda context: context.version >= 48 and not (((context.version == 51) or (context.version == 52)) and context.biosyn), None)
+		yield 'num_lods_2', name_type_map['Uint64'], (0, None), (False, None), (lambda context: 48 <= context.version <= 51, None)
+		yield 'zero', name_type_map['Uint64'], (0, None), (False, None), (lambda context: 48 <= context.version <= 51, None)
 		yield 'bounds_min_repeat', name_type_map['Vector3'], (0, None), (False, None), (lambda context: context.version >= 32, None)
 		yield 'bounds_max_repeat', name_type_map['Vector3'], (0, None), (False, None), (lambda context: context.version >= 32, None)
 		yield 'num_materials', name_type_map['Ushort'], (0, None), (False, None), (None, None)
@@ -116,7 +115,7 @@ class ModelInfo(MemStruct):
 		yield 'increment_flag', name_type_map['Uint64'], (0, None), (False, None), (None, None)
 		yield 'zero_0', name_type_map['Uint64'], (0, None), (False, None), (lambda context: not (context.version == 7), None)
 		yield 'zero_1', name_type_map['Uint64'], (0, None), (False, None), (lambda context: not (context.version == 32), None)
-		yield 'zero_2', name_type_map['Uint64'], (0, None), (False, None), (lambda context: context.version >= 47 and not (((context.version == 51) or (context.version == 52)) and context.biosyn), None)
+		yield 'zero_2', name_type_map['Uint64'], (0, None), (False, None), (lambda context: 47 <= context.version <= 51, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -124,14 +123,14 @@ class ModelInfo(MemStruct):
 		if instance.context.version <= 7:
 			yield 'unk_dla', name_type_map['Uint64'], (0, None), (False, None)
 		yield 'bounds_min', name_type_map['Vector3'], (0, None), (False, None)
-		if instance.context.version >= 47 and not (((instance.context.version == 51) or (instance.context.version == 52)) and instance.context.biosyn):
+		if 47 <= instance.context.version <= 51:
 			yield 'unk_float_a', name_type_map['Float'], (0, None), (False, None)
 		yield 'bounds_max', name_type_map['Vector3'], (0, None), (False, None)
-		if instance.context.version >= 47 and not (((instance.context.version == 51) or (instance.context.version == 52)) and instance.context.biosyn):
+		if 47 <= instance.context.version <= 51:
 			yield 'pack_base', name_type_map['Float'], (0, None), (False, None)
 		yield 'center', name_type_map['Vector3'], (0, None), (False, None)
 		yield 'radius', name_type_map['Float'], (0, None), (False, None)
-		if instance.context.version >= 48 and not (((instance.context.version == 51) or (instance.context.version == 52)) and instance.context.biosyn):
+		if 48 <= instance.context.version <= 51:
 			yield 'num_lods_2', name_type_map['Uint64'], (0, None), (False, None)
 			yield 'zero', name_type_map['Uint64'], (0, None), (False, None)
 		if instance.context.version >= 32:
@@ -159,5 +158,5 @@ class ModelInfo(MemStruct):
 			yield 'zero_0', name_type_map['Uint64'], (0, None), (False, None)
 		if not (instance.context.version == 32):
 			yield 'zero_1', name_type_map['Uint64'], (0, None), (False, None)
-		if instance.context.version >= 47 and not (((instance.context.version == 51) or (instance.context.version == 52)) and instance.context.biosyn):
+		if 47 <= instance.context.version <= 51:
 			yield 'zero_2', name_type_map['Uint64'], (0, None), (False, None)

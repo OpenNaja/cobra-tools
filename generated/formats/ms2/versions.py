@@ -156,7 +156,16 @@ def set_jwe2(context):
 	context.version = 51
 
 
-games = Enum('Games', [('DISNEYLAND_ADVENTURES', 'Disneyland Adventures'), ('DLA', 'DLA'), ('JURASSIC_WORLD_EVOLUTION', 'Jurassic World Evolution'), ('JURASSIC_WORLD_EVOLUTION_2', 'Jurassic World Evolution 2'), ('JURASSIC_WORLD_EVOLUTION_2_DEV', 'Jurassic World Evolution 2 Dev'), ('JWE_1', 'JWE1'), ('JWE_2', 'JWE2'), ('OLD', 'Old'), ('PC', 'PC'), ('PLANET_COASTER', 'Planet Coaster'), ('PLANET_ZOO', 'Planet Zoo'), ('PLANET_ZOO_PRE_1_6', 'Planet Zoo pre-1.6'), ('PZ', 'PZ'), ('PZ_16', 'PZ16'), ('ZOO_TYCOON_ULTIMATE_ANIMAL_COLLECTION', 'Zoo Tycoon Ultimate Animal Collection'), ('ZTUAC', 'ZTUAC'), ('UNKNOWN', 'Unknown Game')])
+def is_war(context):
+	if context.version == 53:
+		return True
+
+
+def set_war(context):
+	context.version = 53
+
+
+games = Enum('Games', [('DISNEYLAND_ADVENTURES', 'Disneyland Adventures'), ('DLA', 'DLA'), ('JURASSIC_WORLD_EVOLUTION', 'Jurassic World Evolution'), ('JURASSIC_WORLD_EVOLUTION_2', 'Jurassic World Evolution 2'), ('JURASSIC_WORLD_EVOLUTION_2_DEV', 'Jurassic World Evolution 2 Dev'), ('JWE_1', 'JWE1'), ('JWE_2', 'JWE2'), ('OLD', 'Old'), ('PC', 'PC'), ('PLANET_COASTER', 'Planet Coaster'), ('PLANET_ZOO', 'Planet Zoo'), ('PLANET_ZOO_PRE_1_6', 'Planet Zoo pre-1.6'), ('PZ', 'PZ'), ('PZ_16', 'PZ16'), ('WAR', 'WAR'), ('ZOO_TYCOON_ULTIMATE_ANIMAL_COLLECTION', 'Zoo Tycoon Ultimate Animal Collection'), ('ZTUAC', 'ZTUAC'), ('UNKNOWN', 'Unknown Game')])
 
 
 def get_game(context):
@@ -192,6 +201,8 @@ def get_game(context):
 		return [games.PZ_16]
 	if is_jwe2(context):
 		return [games.JWE_2]
+	if is_war(context):
+		return [games.WAR]
 	return [games.UNKNOWN]
 
 
@@ -230,6 +241,8 @@ def set_game(context, game):
 		return set_pz16(context)
 	if game in {games.JWE_2}:
 		return set_jwe2(context)
+	if game in {games.WAR}:
+		return set_war(context)
 
 
 class Ms2Version(VersionBase):
@@ -261,5 +274,6 @@ jwe1 = Ms2Version(id='JWE1', version=(47, 39,), primary_games=[], all_games=[gam
 pz = Ms2Version(id='PZ', version=(48, 50,), primary_games=[], all_games=[games.PZ])
 pz16 = Ms2Version(id='PZ16', version=(50,), primary_games=[], all_games=[games.PZ_16])
 jwe2 = Ms2Version(id='JWE2', version=(51, 52,), primary_games=[], all_games=[games.JWE_2])
+war = Ms2Version(id='WAR', version=(53,), primary_games=[], all_games=[games.WAR])
 
-available_versions = [dla, ztuac, pc, pz, pz16, jwe, jwe2dev, jwe2, old, dla, ztuac, pc, jwe1, pz, pz16, jwe2]
+available_versions = [dla, ztuac, pc, pz, pz16, jwe, jwe2dev, jwe2, old, dla, ztuac, pc, jwe1, pz, pz16, jwe2, war]

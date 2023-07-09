@@ -48,17 +48,17 @@ class BufferInfo(BaseStruct):
 		yield from super()._get_attribute_list()
 		yield 'u_0', name_type_map['Uint64'], (0, None), (False, None), (lambda context: 32 <= context.version <= 47, None)
 		yield 'u_1', name_type_map['Uint64'], (0, None), (False, None), (lambda context: 32 <= context.version <= 47, None)
-		yield 'tri_chunks_size', name_type_map['Uint64'], (0, None), (False, None), (lambda context: ((context.version == 51) or (context.version == 52)) and context.biosyn, None)
-		yield 'tri_chunks_ptr', name_type_map['Uint64'], (0, None), (False, None), (lambda context: ((context.version == 51) or (context.version == 52)) and context.biosyn, None)
-		yield 'vert_chunks_size', name_type_map['Uint64'], (0, None), (False, None), (lambda context: ((context.version == 51) or (context.version == 52)) and context.biosyn, None)
-		yield 'vert_chunks_ptr', name_type_map['Uint64'], (0, None), (False, None), (lambda context: ((context.version == 51) or (context.version == 52)) and context.biosyn, None)
+		yield 'tri_chunks_size', name_type_map['Uint64'], (0, None), (False, None), (lambda context: context.version >= 52, None)
+		yield 'tri_chunks_ptr', name_type_map['Uint64'], (0, None), (False, None), (lambda context: context.version >= 52, None)
+		yield 'vert_chunks_size', name_type_map['Uint64'], (0, None), (False, None), (lambda context: context.version >= 52, None)
+		yield 'vert_chunks_ptr', name_type_map['Uint64'], (0, None), (False, None), (lambda context: context.version >= 52, None)
 		yield 'verts_size', name_type_map['Uint64'], (0, None), (False, None), (None, None)
 		yield 'verts_ptr', name_type_map['Uint64'], (0, None), (False, None), (None, None)
-		yield 'u_3', name_type_map['Uint64'], (0, None), (False, None), (lambda context: context.version >= 48, None)
+		yield 'u_3', name_type_map['Uint64'], (0, None), (False, None), (lambda context: 48 <= context.version <= 52, None)
 		yield 'tris_size', name_type_map['Uint64'], (0, None), (False, None), (lambda context: not (context.version == 32), None)
 		yield 'tris_ptr', name_type_map['Uint64'], (0, None), (False, None), (lambda context: not (context.version == 32), None)
-		yield 'u_5', name_type_map['Uint64'], (0, None), (False, None), (lambda context: context.version >= 48, None)
-		yield 'u_6', name_type_map['Uint64'], (0, None), (False, None), (lambda context: context.version >= 48, None)
+		yield 'u_5', name_type_map['Uint64'], (0, None), (False, None), (lambda context: 48 <= context.version <= 52, None)
+		yield 'u_6', name_type_map['Uint64'], (0, None), (False, None), (lambda context: 48 <= context.version <= 52, None)
 		yield 'u_5', name_type_map['Uint64'], (0, None), (False, None), (lambda context: context.version <= 13, None)
 		yield 'uvs_size', name_type_map['Uint64'], (0, None), (False, None), (lambda context: context.version <= 13, None)
 		yield 'u_6', name_type_map['Uint64'], (0, None), (False, None), (lambda context: context.version <= 13, None)
@@ -70,19 +70,19 @@ class BufferInfo(BaseStruct):
 		if 32 <= instance.context.version <= 47:
 			yield 'u_0', name_type_map['Uint64'], (0, None), (False, None)
 			yield 'u_1', name_type_map['Uint64'], (0, None), (False, None)
-		if ((instance.context.version == 51) or (instance.context.version == 52)) and instance.context.biosyn:
+		if instance.context.version >= 52:
 			yield 'tri_chunks_size', name_type_map['Uint64'], (0, None), (False, None)
 			yield 'tri_chunks_ptr', name_type_map['Uint64'], (0, None), (False, None)
 			yield 'vert_chunks_size', name_type_map['Uint64'], (0, None), (False, None)
 			yield 'vert_chunks_ptr', name_type_map['Uint64'], (0, None), (False, None)
 		yield 'verts_size', name_type_map['Uint64'], (0, None), (False, None)
 		yield 'verts_ptr', name_type_map['Uint64'], (0, None), (False, None)
-		if instance.context.version >= 48:
+		if 48 <= instance.context.version <= 52:
 			yield 'u_3', name_type_map['Uint64'], (0, None), (False, None)
 		if not (instance.context.version == 32):
 			yield 'tris_size', name_type_map['Uint64'], (0, None), (False, None)
 			yield 'tris_ptr', name_type_map['Uint64'], (0, None), (False, None)
-		if instance.context.version >= 48:
+		if 48 <= instance.context.version <= 52:
 			yield 'u_5', name_type_map['Uint64'], (0, None), (False, None)
 			yield 'u_6', name_type_map['Uint64'], (0, None), (False, None)
 		if instance.context.version <= 13:

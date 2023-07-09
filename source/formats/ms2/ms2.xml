@@ -11,8 +11,9 @@
 		<verexpr token="#PZ#" string="((#VER# #EQ# 48) #OR# (#VER# #EQ# 50))">PZ all</verexpr>
 		<verexpr token="#PZ16#" string="(#VER# #EQ# 50)">PZ 1.6+</verexpr>
 		<verexpr token="#JWE2#" string="(#VER# #EQ# 51)">JWE2</verexpr>
-		<verexpr token="#JWE2_BIO#" string="(((#VER# #EQ# 51) #OR# (#VER# #EQ# 52)) #AND# (#BIOSYN#))">JWE2</verexpr>
-<!--		<verexpr token="#JWE2_MALTA#" string="((#VER# #EQ# 52) #AND# (#BIOSYN#))">JWE2</verexpr>-->
+		There is a versioning issue introduced by the Biosyn update as the ms2 version has not been incremented immediately
+		<verexpr token="#JWE2_BIO#" string="((#VER# #EQ# 52) #OR# ((#VER# #EQ# 51) #AND# (#BIOSYN#)))">JWE2</verexpr>
+		<verexpr token="#WAR#" string="(#VER# #EQ# 53)">JWE2</verexpr>
 	</token>
 
 	<token name="global" attrs="vercond access">
@@ -26,7 +27,6 @@
 
 	<verattr name="biosyn" access="#BIOSYN#" index="1" />
 
-	13 if ZTUAC, 32 if PC, 39 if old JWE1, 47 if JWE1, 48 if PZ, 50 for PZ 1.6+, 51 for JWE2
 	<version id="old" version="7 13 32" >Old</version>
 	<version id="DLA" version="7" >DLA</version>
 	<version id="ZTUAC" version="13" >ZTUAC</version>
@@ -35,6 +35,7 @@
 	<version id="PZ" version="48 50" >PZ</version>
 	<version id="PZ16" version="50" >PZ16</version>
 	<version id="JWE2" version="51 52" >JWE2</version>
+	<version id="WAR" version="53" >WAR</version>
 
 	<basic name="BiosynVersion" integral="true" countable="true">
 		An unsigned 32-bit integer.
@@ -73,7 +74,7 @@
 		<member width="1" pos="9" name="basic info" type="bool">our simplest format is flag 8, simplest format for PC, just 16 bytes</member>
 	</bitfield>
 
-	<bitfield name="BioModelFlag" storage="uint">
+	<bitfield name="ChunkedModelFlag" storage="uint">
 		Determines the data held by a mesh.
 		<member width="1" pos="0" name="flat_arrays" type="bool">vecs, weights, uvs if true, interleaved per vertex if false</member>
 <!--		<member width="1" pos="5" name="repeat tris" type="bool">repeats the tri array 5 times</member>-->
@@ -209,8 +210,8 @@
 		<add name="first_object_index_1" type="ushort" until="13"/>
 		<add name="first_object_index_2" type="ushort" until="13"/>
 		<add name="last object index" type="ushort" >not included in interval (python style indexing)</add>
-		<add name="vertex count" type="uint" since="32" vercond="!#JWE2_BIO#">vertex count of lod, sum of all vertex counts that are attached to this lod; rendered count, including duped models</add>
-		<add name="tri_index_count" type="uint" since="32" vercond="!#JWE2_BIO#" >number of index entries in the triangle index list; (not: number of triangles, byte count of tri buffer); rendered count, including duped models</add>
+		<add name="vertex count" type="uint" since="32" until="51">vertex count of lod, sum of all vertex counts that are attached to this lod; rendered count, including duped models</add>
+		<add name="tri_index_count" type="uint" since="32" until="51" >number of index entries in the triangle index list; (not: number of triangles, byte count of tri buffer); rendered count, including duped models</add>
 	</compound>
 
 	<compound name="Object">
@@ -222,11 +223,11 @@
 		used for shared functions
 		<add name="stream_index" type="uint64" until="32">index into streamed buffers</add>
 		<add name="stream_info" type="LookupPointer" template="BufferInfo" since="47">PZ and JWE use a ptr instead</add>
-		<add name="some_index" type="uint" vercond="!#JWE2_BIO#">increments somewhat in ZTUAC platypus, apparently unused from JWE1 onward</add>
-		<add name="some_index_2" type="uint" vercond="!(#JWE2_BIO# #OR# #PC#)">?</add>
+		<add name="some_index" type="uint" until="51">increments somewhat in ZTUAC platypus, apparently unused from JWE1 onward</add>
+		<add name="some_index_2" type="uint" until="51" vercond="!#PC#">?</add>
 	</compound>
 
-	<compound name="BioMeshData" inherit="MeshData">
+	<compound name="ChunkedMesh" inherit="MeshData">
 		JWE2 after Biosyn update - 48 bytes incl. inheritance
 		<add name="chunks_offset" type="uint" >start index into list of verts / tris chunks</add>
 		<add name="chunks_count" type="uint" >count of verts / tris chunks</add>
@@ -235,7 +236,7 @@
 		<add name="zero1" type="uint64">unk, may be used in other models</add>
 		<add name="poweroftwo" type="uint">power of 2 increasing with lod index</add>
 		<add name="unk_floats" type="float" arr1="2">some floats, purpose unknown</add>
-		<add name="flag" type="BioModelFlag">seen 1 or 13</add>
+		<add name="flag" type="ChunkedModelFlag">seen 1 or 13</add>
 	</compound>
 
 	<compound name="NewMeshData" inherit="MeshData">
@@ -292,8 +293,8 @@
 	</compound>
 
 	<compound name="MeshDataWrap" inherit="MemStruct">
-		<add name="mesh" type="BioMeshData" since="47" vercond="#JWE2_BIO#"/>
-		<add name="mesh" type="NewMeshData" since="47" vercond="!#JWE2_BIO#"/>
+		<add name="mesh" type="ChunkedMesh" since="52"/>
+		<add name="mesh" type="NewMeshData" since="47" until="51"/>
 		<add name="mesh" type="PcMeshData" vercond="#PC#"/>
 		<add name="mesh" type="ZtMeshData" vercond="#ZTUAC#"/>
 		<add name="mesh" type="ZtMeshData" vercond="#DLA#"/>
@@ -375,24 +376,24 @@
 		<add name="u0" type="uint64" since="32" until="47" />
 		<add name="u1" type="uint64" since="32" until="47" />
 
-		<add name="tri_chunks_size" type="uint64" vercond="#JWE2_BIO#"/>
-		<add name="tri_chunks_ptr" type="uint64" vercond="#JWE2_BIO#"/>
-		<add name="vert_chunks_size" type="uint64" vercond="#JWE2_BIO#"/>
-		<add name="vert_chunks_ptr" type="uint64" vercond="#JWE2_BIO#"/>
+		<add name="tri_chunks_size" type="uint64" since="52"/>
+		<add name="tri_chunks_ptr" type="uint64" since="52"/>
+		<add name="vert_chunks_size" type="uint64" since="52"/>
+		<add name="vert_chunks_ptr" type="uint64" since="52"/>
 
 		<add name="verts_size" type="uint64"/>
 		<add name="verts_ptr" type="uint64"/>
 		PC ends here
 		PZ+, another 8 empty bytes
-		<add name="u3" type="uint64" since="48"/>
+		<add name="u3" type="uint64" since="48" until="52"/>
 		on all games except PC
 
 		at offset 56 in JWE2
 		<add name="tris_size" type="uint64" vercond="!#PC#"/>
 		<add name="tris_ptr" type="uint64" vercond="!#PC#"/>
 		PZ+, another 16 empty bytes
-		<add name="u5" type="uint64" since="48" />
-		<add name="u6" type="uint64" since="48" />
+		<add name="u5" type="uint64" since="48" until="52"/>
+		<add name="u6" type="uint64" since="48" until="52"/>
 		alternative end, ZTUAC style
 		<add name="u5" type="uint64" until="13" />
 		<add name="uvs_size" type="uint64" until="13" >from start of tris buffer</add>
@@ -404,16 +405,15 @@
 		Describes one model, corresponding to a virtual .mdl2 file
 		JWE2 - 192 bytes
 		JWE2 Biosyn - 160 bytes
-		There is a versioning issue introduced by the Biosyn update as the ms2 version has not been incremented
 		<add name="unk dla" type="uint64" until="7">??</add>
 		<add name="bounds min" type="Vector3">the smallest coordinates across all axes</add>
-		<add name="unk float a" type="float" since="47" vercond="!#JWE2_BIO#">not sure, for PZ often 40 00 00 37 for animals</add>
+		<add name="unk float a" type="float" since="47" until="51">not sure, for PZ often 40 00 00 37 for animals</add>
 		<add name="bounds max" type="Vector3">the biggest coordinates across all axes</add>
-		<add name="pack_base" type="float" since="47" vercond="!#JWE2_BIO#">scale: pack_base / 512, also added as offset</add>
+		<add name="pack_base" type="float" since="47" until="51">scale: pack_base / 512, also added as offset</add>
 		<add name="center" type="Vector3">cog? medium of bounds?</add>
 		<add name="radius" type="float" >probably from center to max</add>
-		<add name="num_lods_2" type="uint64" since="48" vercond="!#JWE2_BIO#">seen 6 or 1, matches lod count</add>
-		<add name="zero" type="uint64" since="48" vercond="!#JWE2_BIO#">zero</add>
+		<add name="num_lods_2" type="uint64" since="48" until="51">seen 6 or 1, matches lod count</add>
+		<add name="zero" type="uint64" since="48" until="51">zero</add>
 		<add name="bounds min repeat" type="Vector3" since="32">verbatim repeat</add>
 		<add name="bounds max repeat" type="Vector3" since="32">verbatim repeat</add>
 <!--		array counts-->
@@ -438,7 +438,7 @@
 		<add name="increment flag" type="uint64">used to increment skeleton index</add>
 		<add name="zero 0" type="uint64" vercond="!#DLA#"/>
 		<add name="zero 1" type="uint64" vercond="!#PC#"/>
-		<add name="zero 2" type="uint64" since="47" vercond="!#JWE2_BIO#"/>
+		<add name="zero 2" type="uint64" since="47" until="51"/>
 	</compound>
 
 	<compound name="ModelReader">
@@ -512,7 +512,8 @@
 	</compound>
 
 	<compound name="BonePointer" inherit="AbstractPointer">
-		<add name="index" type="ubyte" >index into bones</add>
+		<add name="index" type="ubyte" until="52">index into bones</add>
+		<add name="index" type="ushort" since="53">index into bones</add>
 	</compound>
 
 	<compound name="RotationRange">
@@ -791,8 +792,7 @@
 		<add name="bone count" type="uint64"/>
 		<add name="unknown40" type="uint64"/>
 		<add name="parents count" type="uint64"/>
-		<add name="extra zero" type="uint64" vercond="#DLA# #OR# #ZTUAC# #OR# #PZ# #OR# #JWE2#">not PC, JWE1</add>
-		<add name="new uint64" type="uint64" since="52"/>purpose unknown
+		<add name="extra zero" type="uint64" vercond="!(#PC# #OR# #JWE#)">not PC, JWE1</add>
 		<add name="enum count" type="uint64"/>
 		<add name="unknown58" type="uint64" >usually zero</add>
 		<add name="one" type="uint64" default="1" >always 1</add>
@@ -814,7 +814,8 @@
 		<add name="inverse bind matrices" type="Matrix44" arr1="bind matrix count">used for skinning</add>
 		# hook start at 13153
 		<add name="bones" type="Bone" arr1="bone count"/>
-		<add name="parents" type="ubyte" arr1="parents count" >255 = root, index in this list is the current bone index, value is the bone's parent index</add>
+		<add name="parents" type="ubyte" arr1="parents count" until="52" >255 = root, index in this list is the current bone index, value is the bone's parent index</add>
+		<add name="parents" type="ushort" arr1="parents count" since="53" >255 = root, index in this list is the current bone index, value is the bone's parent index</add>
 		<add name="parents_padding" type="PadAlign" template="names ref" arg="8" since="32">align to 8 bytes</add>
 		<add name="enumeration" type="uint" arr1="enum count" arr2="2" cond="one" since="32" >enumerates all bone indices, 4 may be flags</add>
 		<add name="enumeration" type="ubyte" arr1="enum count" cond="one" until="13" >enumerates all bone indices</add>
@@ -837,6 +838,7 @@
 <!--		<add name="joint debug" type="StreamDebugger" cond="joint count" >joints</add>-->
 		<add name="joints" type="JointData" cond="joint count" >joints</add>
 <!--		<add name="extra zero pad no joints" type="uint64" cond="! joint count" vercond="#PC#">?</add>-->
+
 
 	</compound>
 

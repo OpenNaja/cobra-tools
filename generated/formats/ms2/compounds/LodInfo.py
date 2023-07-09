@@ -63,8 +63,8 @@ class LodInfo(BaseStruct):
 		yield 'first_object_index_1', name_type_map['Ushort'], (0, None), (False, None), (lambda context: context.version <= 13, None)
 		yield 'first_object_index_2', name_type_map['Ushort'], (0, None), (False, None), (lambda context: context.version <= 13, None)
 		yield 'last_object_index', name_type_map['Ushort'], (0, None), (False, None), (None, None)
-		yield 'vertex_count', name_type_map['Uint'], (0, None), (False, None), (lambda context: context.version >= 32 and not (((context.version == 51) or (context.version == 52)) and context.biosyn), None)
-		yield 'tri_index_count', name_type_map['Uint'], (0, None), (False, None), (lambda context: context.version >= 32 and not (((context.version == 51) or (context.version == 52)) and context.biosyn), None)
+		yield 'vertex_count', name_type_map['Uint'], (0, None), (False, None), (lambda context: 32 <= context.version <= 51, None)
+		yield 'tri_index_count', name_type_map['Uint'], (0, None), (False, None), (lambda context: 32 <= context.version <= 51, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -82,6 +82,6 @@ class LodInfo(BaseStruct):
 			yield 'first_object_index_1', name_type_map['Ushort'], (0, None), (False, None)
 			yield 'first_object_index_2', name_type_map['Ushort'], (0, None), (False, None)
 		yield 'last_object_index', name_type_map['Ushort'], (0, None), (False, None)
-		if instance.context.version >= 32 and not (((instance.context.version == 51) or (instance.context.version == 52)) and instance.context.biosyn):
+		if 32 <= instance.context.version <= 51:
 			yield 'vertex_count', name_type_map['Uint'], (0, None), (False, None)
 			yield 'tri_index_count', name_type_map['Uint'], (0, None), (False, None)
