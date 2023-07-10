@@ -638,8 +638,8 @@ class OvlFile(Header):
 		logging.info(f"Game: {get_game(self)[0].name}")
 		with self.report_error_files("Adding") as error_files:
 			for file_path in self.iter_progress(file_paths, "Adding files"):
-				# ilo: ignore file extensions in the IGNORE list
-				bare_path, ext = os.path.splitext(file_path)
+				# ensure lowercase, especially for file extension checks
+				bare_path, ext = os.path.splitext(file_path.lower())
 				# ignore dirs, links etc.
 				if not os.path.isfile(file_path):
 					continue
@@ -650,23 +650,19 @@ class OvlFile(Header):
 					logging.debug(f"Ignoring {file_path} as it will be created from its streamer")
 					continue
 				elif ext in (".png", ".dds"):
-					# find channel suffix in png basepath
-					channel_re = re.compile("_[RGBA]*$")
+					# find and remove any suffices in png basepath
+					channel_re = re.compile("_[rgba]*$")
 					array_re = re.compile("_\[[0-9]*\]$")
-					for fp in file_paths:
-						if fp.endswith(".tex"):
-							# direct match
-							if fp == f"{bare_path}.tex":
-								break
-							# components match
-							elif fp == f"{array_re.sub('', channel_re.sub('', bare_path, count=1), count=1)}.tex":
-								break
+					bare_path_no_suffices = f"{array_re.sub('', channel_re.sub('', bare_path, count=1), count=1)}.tex"
+					lower_tex_paths = [fp.lower() for fp in file_paths if fp.lower().endswith(".tex")]
+					# compare this reconstructed tex path to the other file paths (case insensitive)
+					if bare_path_no_suffices in lower_tex_paths:
+						logging.info(f"Ignoring {file_path} as matching .tex file is also selected")
+						continue
 					else:
 						logging.error(f"Inject the corresponding .tex file for {file_path}")
 						error_files.append(file_path)
 						continue
-					logging.info(f"Ignoring {file_path} as matching .tex file is also selected")
-					continue
 				try:
 					loader = self.create_file(file_path)
 					self.register_loader(loader)
