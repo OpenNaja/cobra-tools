@@ -97,17 +97,17 @@ class MainWindow(widgets.MainWindow):
 
 		self.file_widget = widgets.FileWidget(self, self.cfg)
 
-		self.game_choice = widgets.LabelCombo("Game:", [g.value for g in games])
+		self.game_choice = widgets.LabelCombo("Game", [g.value for g in games])
 		# only listen to user changes
 		self.game_choice.entry.textActivated.connect(self.game_changed)
 		self.game_choice.entry.setEditable(False)
 
-		self.compression_choice = widgets.LabelCombo("Compression:", [c.name for c in Compression])
+		self.compression_choice = widgets.LabelCombo("Compression", [c.name for c in Compression])
 		# only listen to user changes
 		self.compression_choice.entry.textActivated.connect(self.compression_changed)
 		self.compression_choice.entry.setEditable(False)
 
-		self.log_level_choice = widgets.LabelCombo("Log Level:", ("DEBUG", "INFO", "WARNING", "ERROR"))
+		self.log_level_choice = widgets.LabelCombo("Log Level", ("DEBUG", "INFO", "WARNING", "ERROR"))
 		self.log_level_choice.entry.textActivated.connect(self.log_level_changed)
 		self.log_level_choice.entry.setEditable(False)
 		self.log_level_choice.setToolTip("Defines how much information is shown in the console window")

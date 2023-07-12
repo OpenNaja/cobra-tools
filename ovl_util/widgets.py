@@ -214,7 +214,7 @@ class SortableTable(QtWidgets.QWidget):
     def __init__(self, header_names, ignore_types, ignore_drop_type="", opt_hide=False):
         super().__init__()
         self.table = TableView(header_names, ignore_types, ignore_drop_type)
-        self.filter_entry = LabelEdit("Filter:")
+        self.filter_entry = LabelEdit("Filter")
         self.filter_entry.entry.textChanged.connect(self.table.set_filter)
         self.hide_unused = QtWidgets.QCheckBox("Hide unextractable files")
         if opt_hide:
