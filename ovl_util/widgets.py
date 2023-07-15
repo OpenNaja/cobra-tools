@@ -1,6 +1,8 @@
 import logging
 import webbrowser
 import os
+import sys
+import re
 from pathlib import Path
 
 from PyQt5 import QtGui, QtCore, QtWidgets
@@ -9,6 +11,67 @@ from generated.formats.ovl import OvlFile
 from ovl_util.config import get_commit_str
 from ovl_util import config, qt_theme, interaction
 from root_path import root_dir
+from importlib.metadata import distribution, PackageNotFoundError
+from pkg_resources import packaging
+import subprocess  # used to launch a pip install process
+
+"""
+    Deals with missing packages and tries to install them from the tool itself.
+"""
+
+# raw_input returns the empty string for "enter"
+def install_prompt(question):
+    print(question)
+    yes = {'yes', 'y', 'ye'}
+    choice = input().lower()
+    if choice in yes:
+        return True
+    else:
+        return False
+
+# use pip to install a package
+def pip_install(package):
+    print(f"Trying to install {package}")
+    subprocess.check_call([sys.executable, "-m", "pip", "install", package])
+
+
+# use pip to install --update a package
+def pip_upgrade(package):
+    print(f"Trying to upgrade {package}")
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "--upgrade", package])
+
+missing = []
+needs_update = []
+
+with open("requirements.txt") as requirements:
+    lines = requirements.read().splitlines()
+    for line in lines:
+        lib, op, version = re.split("(~=|==|>|<|>=|<=)", line)
+        try:
+            lib_dist = distribution(lib)
+            if packaging.version.parse(lib_dist.metadata['Version']) < packaging.version.parse(version):
+                print(f"ERROR | {lib} is out of date.")
+                # Append full line including ~= for pip upgrade command
+                needs_update.append(line)
+        except PackageNotFoundError:
+            print(f"ERROR | Package {lib} not found.")
+            # Append full line including ~= for pip install command
+            missing.append(line)
+
+if len(missing) and install_prompt("Install the missing dependencies? (y/N) [Type y and hit Enter]") == True:
+    # upgrade pip then try installing the rest of packages
+    pip_upgrade('pip')
+    for package in missing:
+        pip_install(package)
+
+if len(needs_update) and install_prompt("Update the outdated dependencies? (y/N) [Type y and hit Enter]") == True:
+    # upgrade pip then try updating the outdated packages
+    pip_upgrade('pip')
+    for package in needs_update:
+        pip_upgrade(package)
+
+""" End of installing dependencies """
+
 
 MAX_UINT = 4294967295
 myFont = QtGui.QFont()
