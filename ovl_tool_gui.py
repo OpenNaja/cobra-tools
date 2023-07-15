@@ -146,6 +146,7 @@ class MainWindow(widgets.MainWindow):
 		self.files_container.table.model.member_renamed.connect(self.rename_handle)
 		self.files_container.table.files_dragged.connect(self.drag_files)
 		self.files_container.table.files_dropped.connect(self.inject_files)
+		self.files_container.table.file_selected_count.connect(self.update_file_counts)
 		# self.files_container.table.file_selected.connect(self.show_dependencies)
 
 		self.included_ovls_view = widgets.RelativePathCombo(self, self.file_widget)
@@ -283,6 +284,16 @@ class MainWindow(widgets.MainWindow):
 		util_menu.insertAction(separator_action, self.t_logger)
 		util_menu.insertSeparator(separator_action)
 
+		self.file_info = QtWidgets.QLabel(self)
+		
+		vline = QtWidgets.QFrame(self)
+		vline.setFrameStyle(QtWidgets.QFrame.Shape.VLine)
+		vline.setStyleSheet("color: #777;")
+		vline.setMaximumHeight(15)
+
+		self.statusBar.addPermanentWidget(vline)
+		self.statusBar.addPermanentWidget(self.file_info)
+
 		self.check_version()
 		# run once here to make sure we catch the default game
 		self.populate_game_widget()
@@ -296,9 +307,18 @@ class MainWindow(widgets.MainWindow):
 		self.ovl_data.files_list.connect(self.update_files_ui)
 		self.ovl_data.warning_msg.connect(self.notify_user)
 		self.ovl_data.included_ovls_list.connect(self.included_ovls_view.set_data)
-		self.ovl_data.progress_percentage.connect(self.p_action.setValue)
+		self.ovl_data.progress_percentage.connect(self.set_progress)
 		self.ovl_data.current_action.connect(self.set_msg_temporarily)
 		self.run_threaded(self.ovl_data.load_hash_table)
+
+	def get_file_count_text(self):
+		return f"{self.files_container.table.model.rowCount()} items"
+	
+	def update_file_counts(self, selected_count=0):
+		if selected_count == 0:
+			self.file_info.setText(self.get_file_count_text())
+		else:
+			self.file_info.setText(f"{selected_count} / {self.get_file_count_text()} selected")
 
 	def do_debug_changed(self, do_debug):
 		self.ovl_data.do_debug = do_debug
@@ -563,6 +583,7 @@ class MainWindow(widgets.MainWindow):
 		logging.info(f"Loading {len(f_list)} files into gui")
 		f_list.sort(key=lambda t: (t[1], t[0]))
 		self.files_container.set_data(f_list)
+		self.update_file_counts()
 		logging.info(f"Loaded files into GUI in {time.time() - start_time:.2f} seconds")
 
 	def update_includes(self, includes):

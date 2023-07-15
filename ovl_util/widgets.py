@@ -184,7 +184,7 @@ class TableModel(QtCore.QAbstractTableModel):
     def row(self, row_index):
         return self._data[row_index]
 
-    def rowCount(self, index):
+    def rowCount(self, index = None):
         # The length of the outer list.
         return len(self._data)
 
@@ -277,6 +277,7 @@ class TableView(QtWidgets.QTableView):
     files_dragged = QtCore.pyqtSignal(list)
     files_dropped = QtCore.pyqtSignal(list)
     file_selected = QtCore.pyqtSignal(int)
+    file_selected_count = QtCore.pyqtSignal(int)
 
     def __init__(self, header_names, ignore_types, ignore_drop_type):
         super().__init__()
@@ -311,10 +312,14 @@ class TableView(QtWidgets.QTableView):
         header.setSectionResizeMode(0, QtWidgets.QHeaderView.Stretch)
         header.setSectionResizeMode(1, QtWidgets.QHeaderView.ResizeToContents)
 
+        # The number of selected items in the model
+        self.selected_count = 0
+
     def on_selectionChanged(self, selected, deselected):
         self.selected = list(self.get_selected_line_indices())
         if self.selected:
             self.file_selected.emit(self.selected[-1])
+        self.file_selected_count.emit(self.selected_count)
 
     def update_filter_function(self):
         if self.rev_check:
@@ -342,7 +347,9 @@ class TableView(QtWidgets.QTableView):
         self.sortByColumn(-1, QtCore.Qt.AscendingOrder)
 
     def get_selected_line_indices(self):
-        return set(self.proxyModel.mapToSource(x).row() for x in self.selectedIndexes())
+        indices = set(self.proxyModel.mapToSource(x).row() for x in self.selectedIndexes())
+        self.selected_count = len(indices)
+        return indices
 
     def get_selected_files(self):
         # map the selected indices to the actual underlying data, which is in its original order
@@ -1154,17 +1161,25 @@ class MainWindow(QtWidgets.QMainWindow):
         self.p_action.setMaximum(100)
         self.p_action.setValue(0)
         self.dev_mode = os.path.isdir(os.path.join(root_dir, ".git"))
-        dev_str = " DEVELOPER MODE" if self.dev_mode else ""
+        dev_str = "DEV" if self.dev_mode else ""
+        commit_str = get_commit_str()
+        commit_str = commit_str.split("+")[0]
         self.statusBar = QtWidgets.QStatusBar()
-        label = QtWidgets.QLabel(f"Version {get_commit_str()}{dev_str}")
-        # self.statusBar.addPermanentWidget(label)
-        self.menuBar().setCornerWidget(label, corner=QtCore.Qt.TopRightCorner)
-        # self.statusBar.addWidget(label)
-        # self.statusBar.addWidget(self.p_action)
+
+        self.version_info = QtWidgets.QLabel(f"Version {commit_str}{dev_str}")
+        self.version_info.setFont(QtGui.QFont("Cascadia Code, Consolas, monospace"))
+        self.version_info.setStyleSheet("color: #999")
+        self.statusBar.addPermanentWidget(self.version_info)
         self.statusBar.addPermanentWidget(self.p_action)
-        # self.statusBar.insertWidget(2, self.p_action)
         self.statusBar.setContentsMargins(5, 0, 0, 0)
         self.setStatusBar(self.statusBar)
+        self.p_action.hide()
+
+        self.status_timer = QtCore.QTimer()
+        self.status_timer.setSingleShot(True)
+        self.status_timer.setInterval(3500)
+        self.status_timer.timeout.connect(self.p_action.hide)
+        self.status_timer.timeout.connect(self.version_info.show)
 
         self.cfg = config.load_config()
 
@@ -1208,6 +1223,18 @@ class MainWindow(QtWidgets.QMainWindow):
                 return
         event.accept()
 
+    def show_progress(self) -> None:
+        self.p_action.show()
+        self.version_info.hide()
+
+    def set_progress(self, value: int) -> None:
+        if self.p_action.isHidden() and value > 0:
+            self.show_progress()
+
+        self.p_action.setValue(value)
+        if self.p_action.value() >= self.p_action.maximum():
+            self.status_timer.start()
+
     def update_progress(self, message, value=None, vmax=None):
         # avoid gui updates if the value won't actually change the percentage.
         # this saves us from making lots of GUI update calls that don't really
@@ -1229,7 +1256,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.set_msg_temporarily(message)
 
     def set_msg_temporarily(self, message):
-        self.statusBar.showMessage(message, 3000)
+        self.statusBar.showMessage(message, 3500)
 
     def run_threaded(self, func, *args, **kwargs):
         # Step 2: Create a QThread object
