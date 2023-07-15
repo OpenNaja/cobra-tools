@@ -1,4 +1,5 @@
 import logging
+from typing import Any, Optional
 import webbrowser
 import os
 import sys
@@ -6,6 +7,8 @@ import re
 from pathlib import Path
 
 from PyQt5 import QtGui, QtCore, QtWidgets
+from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QWidget, QVBoxLayout
 
 from generated.formats.ovl import OvlFile
 from ovl_util.config import get_commit_str
@@ -72,6 +75,14 @@ if len(needs_update) and install_prompt("Update the outdated dependencies? (y/N)
 
 """ End of installing dependencies """
 
+
+try:
+    from qframelesswindow import FramelessMainWindow, StandardTitleBar
+    FRAMELESS = True
+except:
+    FramelessMainWindow = QtWidgets.QMainWindow
+    StandardTitleBar = QWidget
+    FRAMELESS = False
 
 MAX_UINT = 4294967295
 myFont = QtGui.QFont()
@@ -1201,14 +1212,37 @@ class DirWidget(QtWidgets.QWidget):
     def mousePressEvent(self, event):
         self.ask_open_dir()
 
+class TitleBar(StandardTitleBar):
 
-class MainWindow(QtWidgets.QMainWindow):
+    def __init__(self, parent: Optional[QWidget] = None) -> None:
+        super().__init__(parent)
 
-    def __init__(self, name, ):
-        QtWidgets.QMainWindow.__init__(self)
+        self.minBtn.setNormalColor(Qt.white)
+        self.minBtn.setHoverColor(Qt.white)
+        self.minBtn.setHoverBackgroundColor("#777")
+        self.minBtn.setPressedColor(Qt.white)
 
-        self.central_widget = QtWidgets.QWidget(self)
-        self.setCentralWidget(self.central_widget)
+        self.maxBtn.setNormalColor(Qt.white)
+        self.maxBtn.setHoverColor(Qt.white)
+        self.maxBtn.setHoverBackgroundColor("#777")
+        self.maxBtn.setPressedColor(Qt.white)
+
+        self.closeBtn.setNormalColor(Qt.white)
+
+
+class MainWindow(FramelessMainWindow):
+
+    def __init__(self, name: str, central_widget: Optional[QWidget] = None) -> None:
+        FramelessMainWindow.__init__(self)
+
+        self.wrapper_widget = QWidget(self)
+        self.central_widget = QWidget(self) if central_widget is None else central_widget
+        self.central_layout = QVBoxLayout()
+
+        if FRAMELESS:
+            self.setTitleBar(TitleBar(self))
+
+        self.menu_bar = QtWidgets.QMenuBar(self)
         self.actions = {}
 
         self.name = name
@@ -1245,6 +1279,28 @@ class MainWindow(QtWidgets.QMainWindow):
         self.status_timer.timeout.connect(self.version_info.show)
 
         self.cfg = config.load_config()
+
+        if FRAMELESS:
+            # Frameless titlebar
+            self.titleBar.raise_()
+
+        self.setCentralWidget(self.central_widget)
+
+    def setCentralWidget(self, widget: QWidget, layout = None) -> None:
+        if not layout:
+            layout = self.central_layout
+        frame = QtWidgets.QFrame(self)
+        frame.setMinimumHeight(32)
+        frame.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(0)
+        if FRAMELESS:
+            layout.addWidget(frame)
+        layout.addWidget(self.menu_bar)
+        layout.addWidget(widget)
+        layout.setAlignment(Qt.AlignmentFlag.AlignTop)
+        layout.setContentsMargins(0, 0, 0, 0)
+        self.wrapper_widget.setLayout(layout)
+        super().setCentralWidget(self.wrapper_widget)
 
     def poll(self):
         if self.file_widget and self.file_widget.filepath:

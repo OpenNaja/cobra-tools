@@ -48,10 +48,9 @@ class ModToolGUI(MainWindow):
 
 		# Set some main window's properties
 		self.setWindowTitle('Mod Pack Tool ' + __version__)
-		# self.setFixedSize(435, 250)
 
 		# Add a menu
-		main_menu = QMenuBar(self)
+		main_menu = self.menu_bar
 		file_menu = main_menu.addMenu('File')
 		help_menu = main_menu.addMenu('Help')
 		button_data = (
@@ -63,27 +62,20 @@ class ModToolGUI(MainWindow):
 			(help_menu, "Report Bug", self.report_bug, "", "report"),
 			(help_menu, "Documentation", self.online_support, "", "manual"))
 		self.add_to_menu(button_data)
-		self.setMenuBar(main_menu)
-
-		# Set the central widget
-		self.generalLayout = QVBoxLayout()
-		self._centralWidget = QWidget()
-		self._centralWidget.setLayout(self.generalLayout)
-		self.setCentralWidget(self._centralWidget)
 
 		# Add app widgets
 		self.src_widget = widgets.DirWidget(self, {})
 		self.src_widget.setToolTip("Source folder to pack files from.")
-		self.generalLayout.addWidget(self.src_widget)
+		self.central_layout.addWidget(self.src_widget)
 
 		self.dst_widget = widgets.DirWidget(self, {})
 		self.dst_widget.setToolTip("Destination folder to pack files to.")
-		self.generalLayout.addWidget(self.dst_widget)
+		self.central_layout.addWidget(self.dst_widget)
 
 		# Add a line for controls
 		self.boxLayout = QHBoxLayout()
 		self.boxLayout.addStretch(1)
-		self.generalLayout.addLayout(self.boxLayout)
+		self.central_layout.addLayout(self.boxLayout)
 
 		# Add a button
 		self.watch = QCheckBox("Watch changes")
@@ -93,11 +85,10 @@ class ModToolGUI(MainWindow):
 		self.boxLayout.addWidget(self.watch)
 		self.fs_watcher = ''
 
-		self.game_container = widgets.LabelCombo("Game:", [g.value for g in games])
+		self.game_container = widgets.LabelCombo("Game", [g.value for g in games])
 		self.boxLayout.addWidget(self.game_container)
 
-		self.generalLayout.addWidget(self.p_action)
-		self.generalLayout.addWidget(self.t_action)
+		self.central_layout.addWidget(self.p_action)
 
 		if len(sys.argv) > 1:
 			self.apply_from_config(sys.argv[1])

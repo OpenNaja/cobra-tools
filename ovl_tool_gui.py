@@ -177,14 +177,14 @@ class MainWindow(widgets.MainWindow):
 		self.gui_log_handler.setFormatter(logging.Formatter('%(asctime)s %(levelname)s %(module)s %(funcName)s %(message)s'))
 		logging.getLogger().addHandler(self.gui_log_handler)
 
-		box = QtWidgets.QVBoxLayout(self)
+		box = QtWidgets.QVBoxLayout()
 		box.addLayout(grid)
 		box.addWidget(splitter, 3)
 		box.addWidget(self.gui_log_handler.widget, 1)
 		# box.addWidget(self.p_action)
 		self.central_widget.setLayout(box)
 
-		main_menu = self.menuBar()
+		main_menu = self.menu_bar
 		file_menu = main_menu.addMenu('File')
 		edit_menu = main_menu.addMenu('Edit')
 		util_menu = main_menu.addMenu('Util')

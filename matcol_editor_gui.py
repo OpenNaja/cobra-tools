@@ -19,7 +19,7 @@ class MainWindow(widgets.MainWindow):
 		self.tooltips = config.read_str_dict("ovl_util/tooltips/matcol.txt")
 		self.default_fgms = config.read_list("ovl_util/tooltips/matcol-fgm-names.txt")
 
-		main_menu = self.menuBar()
+		main_menu = self.menu_bar
 		file_menu = main_menu.addMenu('File')
 		help_menu = main_menu.addMenu('Help')
 		button_data = (

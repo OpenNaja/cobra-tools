@@ -59,11 +59,10 @@ class MainWindow(widgets.MainWindow):
 
 		self.qgrid.addWidget(right_frame, 5, 0, 1, 5)
 		self.qgrid.addWidget(self.p_action, 6, 0, 1, 5)
-		self.qgrid.addWidget(self.t_action, 7, 0, 1, 5)
 
 		self.central_widget.setLayout(self.qgrid)
 
-		main_menu = self.menuBar()
+		main_menu = self.menu_bar
 		file_menu = main_menu.addMenu('File')
 		edit_menu = main_menu.addMenu('Edit')
 		button_data = (

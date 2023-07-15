@@ -28,7 +28,13 @@ logging_setup("fgm_editor")
 class MainWindow(widgets.MainWindow):
 
 	def __init__(self):
-		widgets.MainWindow.__init__(self, "FGM Editor", )
+		self.scrollarea = QtWidgets.QScrollArea()
+		self.scrollarea.setWidgetResizable(True)
+		# the actual scrollable stuff
+		self.widget = QtWidgets.QWidget()
+		self.scrollarea.setWidget(self.widget)
+
+		widgets.MainWindow.__init__(self, "FGM Editor", central_widget=self.scrollarea)
 
 		self.resize(800, 600)
 		self.setAcceptDrops(True)
@@ -40,15 +46,7 @@ class MainWindow(widgets.MainWindow):
 		self.games = [g.value for g in games]
 		self.import_header = None
 
-		self.scrollarea = QtWidgets.QScrollArea(self)
-		self.scrollarea.setWidgetResizable(True)
-		self.setCentralWidget(self.scrollarea)
-
-		# the actual scrollable stuff
-		self.widget = QtWidgets.QWidget()
-		self.scrollarea.setWidget(self.widget)
-
-		self.game_container = widgets.LabelCombo("Game:", self.games)
+		self.game_container = widgets.LabelCombo("Game", self.games)
 		self.game_container.entry.currentIndexChanged.connect(self.game_changed)
 		self.game_container.entry.setEditable(False)
 		self.file_widget = widgets.FileWidget(self, self.cfg, dtype="FGM")
@@ -61,10 +59,10 @@ class MainWindow(widgets.MainWindow):
 		self.skip_color.setLayoutDirection(QtCore.Qt.RightToLeft)
 		self.skip_color.setToolTip("Some Float3 colors can go above 1.0 or below 0.0 to achieve certain effects")
 
-		self.shader_choice = widgets.LabelCombo("Shader:", ())
+		self.shader_choice = widgets.LabelCombo("Shader", ())
 		self.shader_choice.entry.activated.connect(self.shader_changed)
-		self.attribute_choice = widgets.LabelCombo("Attribute:", ())
-		self.texture_choice = widgets.LabelCombo("Texture:", ())
+		self.attribute_choice = widgets.LabelCombo("Attribute", ())
+		self.texture_choice = widgets.LabelCombo("Texture", ())
 		self.attribute_add = QtWidgets.QPushButton("Add Attribute")
 		self.attribute_add.clicked.connect(self.add_attribute_clicked)
 		self.texture_add = QtWidgets.QPushButton("Add Texture")
@@ -78,6 +76,8 @@ class MainWindow(widgets.MainWindow):
 		self.game_changed()
 
 		vbox = QtWidgets.QVBoxLayout()
+		
+		vbox.setAlignment(QtCore.Qt.AlignmentFlag.AlignTop)
 		vbox.addWidget(self.file_widget)
 		vbox.addWidget(self.game_container)
 		vbox.addWidget(self.shader_choice)
@@ -92,7 +92,7 @@ class MainWindow(widgets.MainWindow):
 		vbox.addStretch(1)
 		self.widget.setLayout(vbox)
 
-		main_menu = self.menuBar()
+		main_menu = self.menu_bar
 		file_menu = main_menu.addMenu('File')
 		edit_menu = main_menu.addMenu('Edit')
 		help_menu = main_menu.addMenu('Help')
