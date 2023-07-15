@@ -1329,10 +1329,11 @@ class MainWindow(FramelessMainWindow):
         self.actions[action_name.lower()] = action
         submenu.addAction(action)
 
-    def handle_error(self, msg):
+    @staticmethod
+    def handle_error(msg):
         """Warn user with popup msg and write msg + exception traceback to log"""
-        interaction.showerror(msg)
         logging.exception(msg)
+        interaction.showerror(msg)
 
     def closeEvent(self, event):
         if self.file_widget and self.file_widget.dirty:
