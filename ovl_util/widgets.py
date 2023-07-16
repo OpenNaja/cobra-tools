@@ -1,24 +1,16 @@
 import logging
-from typing import Any, Optional, Iterable, Callable
 import webbrowser
 import os
 import sys
 import re
 import time
-from pathlib import Path
-from abc import abstractmethod
-
-from PyQt5 import QtGui, QtCore, QtWidgets
-from PyQt5.QtCore import Qt, QModelIndex
-from PyQt5.QtWidgets import QWidget, QVBoxLayout
-
-from generated.formats.ovl import OvlFile, games
-from ovl_util.config import get_commit_str
-from ovl_util import config, qt_theme, interaction
-from root_path import root_dir
-from importlib.metadata import distribution, PackageNotFoundError
-from pkg_resources import packaging
 import subprocess  # used to launch a pip install process
+
+from abc import abstractmethod
+from pkg_resources import packaging
+from pathlib import Path
+from importlib.metadata import distribution, PackageNotFoundError
+from typing import Any, Optional, Iterable, Callable
 
 """
     Deals with missing packages and tries to install them from the tool itself.
@@ -77,15 +69,30 @@ if len(needs_update) and install_prompt("Update the outdated dependencies? (y/N)
 
 """ End of installing dependencies """
 
-
-games_list = [g.value for g in games]
-
 try:
-    import winreg
+    from generated.formats.ovl import OvlFile, games
+    from ovl_util.config import get_commit_str
+    from ovl_util import config
+    from root_path import root_dir
+
+    from PyQt5 import QtGui, QtCore, QtWidgets
+    from PyQt5.QtCore import Qt, QModelIndex
+    from PyQt5.QtWidgets import QWidget, QVBoxLayout
+    from ovl_util import qt_theme, interaction
     import vdf
+
+    games_list = [g.value for g in games]
 except:
     logging.exception("Some modules could not be imported; make sure you install the required dependencies with pip!")
-    time.sleep(5)
+    time.sleep(15)
+
+# Windows modules
+try:
+    import winreg
+    WINDOWS = True
+except:
+    logging.warning("Required Windows modules missing; some features may not work.")
+    WINDOWS = False
 
 try:
     from qframelesswindow import FramelessMainWindow, StandardTitleBar

@@ -1,30 +1,37 @@
 import logging
 import os
+import sys
+import time
 from typing import Any, Optional
 
-import numpy as np
-from PyQt5 import QtWidgets, QtCore
-from PyQt5.QtGui import QColor
+try:
+	from ovl_util.config import logging_setup, get_version_str, get_commit_str
+	logging_setup("fgm_editor")
+	logging.info(f"Running python {sys.version}")
+	logging.info(f"Running cobra-tools {get_version_str()}, {get_commit_str()}")
 
-from constants import ConstantsProvider
-from generated.formats.fgm.enums.FgmDtype import FgmDtype
-from generated.formats.ovl_base import OvlContext
-import ovl_util.interaction
-from generated.formats.fgm.compounds.FgmHeader import FgmHeader
-from generated.formats.fgm.compounds.TexIndex import TexIndex
-from generated.formats.fgm.compounds.TextureInfo import TextureInfo
-from generated.formats.fgm.compounds.TextureData import TextureData
-from generated.formats.fgm.compounds.AttribInfo import AttribInfo
-from generated.formats.fgm.compounds.AttribData import AttribData
-from generated.array import Array
-from generated.formats.ovl.versions import *
-from ovl_util import widgets, config, interaction
-from ovl_util.widgets import QColorButton, MySwitch, MAX_UINT, get_icon
+	# Import widgets before everything except Python built-ins and ovl_util.config!
+	from ovl_util import widgets, config, interaction
+	from ovl_util.widgets import QColorButton, MySwitch, MAX_UINT, get_icon
 
-from ovl_util.config import logging_setup
+	from constants import ConstantsProvider
+	from generated.formats.fgm.enums.FgmDtype import FgmDtype
+	from generated.formats.ovl_base import OvlContext
+	from generated.formats.fgm.compounds.FgmHeader import FgmHeader
+	from generated.formats.fgm.compounds.TexIndex import TexIndex
+	from generated.formats.fgm.compounds.TextureInfo import TextureInfo
+	from generated.formats.fgm.compounds.TextureData import TextureData
+	from generated.formats.fgm.compounds.AttribInfo import AttribInfo
+	from generated.formats.fgm.compounds.AttribData import AttribData
+	from generated.array import Array
+	from generated.formats.ovl.versions import *
 
-logging_setup("fgm_editor")
-
+	import numpy as np
+	from PyQt5 import QtWidgets, QtCore
+	from PyQt5.QtGui import QColor
+except:
+	logging.exception("Some modules could not be imported; make sure you install the required dependencies with pip!")
+	time.sleep(15)
 
 class MainWindow(widgets.MainWindow):
 
@@ -375,7 +382,7 @@ class MainWindow(widgets.MainWindow):
 				self.attrib_container.update_gui(self.header.attributes.data, self.header.value_foreach_attributes.data)
 
 			except Exception as ex:
-				ovl_util.interaction.showerror(str(ex))
+				interaction.showerror(str(ex))
 				logging.exception("Loading fgm errored")
 			logging.info("Done!")
 
@@ -387,7 +394,7 @@ class MainWindow(widgets.MainWindow):
 				self.import_header = FgmHeader.from_xml_file(file_in, self.context)
 				logging.info(f"Importing {file_in}")
 			except Exception as ex:
-				ovl_util.interaction.showerror(str(ex))
+				interaction.showerror(str(ex))
 				logging.exception("Importing fgm errored")
 
 	def _save(self):

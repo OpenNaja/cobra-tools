@@ -7,22 +7,18 @@ import tempfile
 from typing import Any, Optional
 
 try:
-	import numpy as np
-	import imageio
-	from PyQt5 import QtWidgets, QtGui, QtCore
 	from ovl_util.config import logging_setup, get_version_str, get_commit_str
-
 	stdout_handler = logging_setup("ovl_tool_gui")
-
 	logging.info(f"Running python {sys.version}")
-	logging.info(f"Running imageio {imageio.__version__}")
 	logging.info(f"Running cobra-tools {get_version_str()}, {get_commit_str()}")
 
+	# Import widgets before everything except Python built-ins and ovl_util.config!
 	from ovl_util import widgets, interaction
 	from modules import walker
 	from root_path import root_dir
 	from generated.formats.ovl import games, get_game, set_game
 	from generated.formats.ovl_base.enums.Compression import Compression
+	from PyQt5 import QtWidgets, QtGui, QtCore
 except:
 	logging.exception("Some modules could not be imported; make sure you install the required dependencies with pip!")
 	time.sleep(10)

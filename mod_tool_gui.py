@@ -1,35 +1,26 @@
-#!/usr/bin/env python3
-
-# Filename: mod_tool_gui.py
-
-"""Mod Packing tool"""
-
-# TODO: split getting src folder list, watcher folder should contain all 
-# directiories, or it wont detect changes in empty folders.
-
-import sys
 import os
+import sys
+import time
 import shutil
 import pathlib
 import logging
 
-from PyQt5 import QtCore
-from PyQt5.QtWidgets import QWidget
-from PyQt5.QtWidgets import QFileDialog
-from PyQt5.QtWidgets import QVBoxLayout
-from PyQt5.QtWidgets import QHBoxLayout
-from PyQt5.QtWidgets import QMenuBar
-from PyQt5.QtWidgets import QCheckBox
+try:
+	from ovl_util.config import logging_setup, get_version_str, get_commit_str, read_str_dict, write_str_dict
+	logging_setup("mod_tool_gui")
+	logging.info(f"Running python {sys.version}")
+	logging.info(f"Running cobra-tools {get_version_str()}, {get_commit_str()}")
 
-from ovl_util import widgets
-from ovl_util.config import logging_setup, get_version_str, get_commit_str, read_str_dict, write_str_dict
+	# Import widgets before everything except Python built-ins and ovl_util.config!
+	from ovl_util import widgets
+	from ovl_util.widgets import startup, MainWindow, OvlReporter
+	from generated.formats.ovl import games, set_game
 
-logging_setup("mod_tool_gui")
-logging.info(f"Running python {sys.version}")
-logging.info(f"Running cobra-tools {get_version_str()}, {get_commit_str()}")
-
-from ovl_util.widgets import startup, MainWindow, OvlReporter
-from generated.formats.ovl import games, set_game
+	from PyQt5 import QtCore
+	from PyQt5.QtWidgets import QWidget, QFileDialog, QVBoxLayout, QHBoxLayout, QMenuBar, QCheckBox
+except:
+	logging.exception(f"Some modules could not be imported; make sure you install the required dependencies with pip!")
+	time.sleep(15)
 
 __version__ = '0.1'
 __author__ = 'Open-Naja'

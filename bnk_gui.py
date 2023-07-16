@@ -5,26 +5,21 @@ import time
 import logging
 import tempfile
 
-from modules.formats.shared import fmt_hash
-
 try:
-	import numpy as np
-	from PyQt5 import QtWidgets, QtGui, QtCore
-
 	from ovl_util.config import logging_setup, get_version_str, get_commit_str
-
-	logging_setup("ovl_tool_gui")
-
+	logging_setup("bnk_gui")
 	logging.info(f"Running python {sys.version}")
 	logging.info(f"Running cobra-tools {get_version_str()}, {get_commit_str()}")
 
+	# Import widgets before everything except Python built-ins and ovl_util.config!
 	from ovl_util import widgets, interaction
-
 	from generated.formats.bnk import BnkFile, AuxFile
 	from ovl_util.texconv import write_riff_file
-	# from root_path import root_dir
+	from modules.formats.shared import fmt_hash
+
+	from PyQt5 import QtWidgets, QtGui, QtCore
 except:
-	logging.exception(f"Some modules could not be imported")
+	logging.exception(f"Some modules could not be imported; make sure you install the required dependencies with pip!")
 	time.sleep(15)
 
 
