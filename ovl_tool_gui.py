@@ -4,6 +4,7 @@ import sys
 import time
 import logging
 import tempfile
+from typing import Any, Optional
 
 try:
 	import numpy as np
@@ -50,19 +51,11 @@ class MainWindow(widgets.MainWindow):
 
 		self.file_widget = self.make_file_widget()
 
-		self.game_choice = widgets.LabelCombo("Game", [g.value for g in games])
-		# only listen to user changes
-		self.game_choice.entry.textActivated.connect(self.game_changed)
-		self.game_choice.entry.setEditable(False)
+		self.game_choice = widgets.LabelCombo("Game", [g.value for g in games], editable=False, activated_fn=self.game_changed)
 
-		self.compression_choice = widgets.LabelCombo("Compression", [c.name for c in Compression])
-		# only listen to user changes
-		self.compression_choice.entry.textActivated.connect(self.compression_changed)
-		self.compression_choice.entry.setEditable(False)
+		self.compression_choice = widgets.LabelCombo("Compression", [c.name for c in Compression], editable=False, activated_fn=self.compression_changed)
 
-		self.log_level_choice = widgets.LabelCombo("Log Level", ("DEBUG", "INFO", "WARNING", "ERROR"))
-		self.log_level_choice.entry.textActivated.connect(self.log_level_changed)
-		self.log_level_choice.entry.setEditable(False)
+		self.log_level_choice = widgets.LabelCombo("Log Level", ("DEBUG", "INFO", "WARNING", "ERROR"), editable=False, activated_fn=self.log_level_changed)
 		self.log_level_choice.setToolTip("Defines how much information is shown in the console window")
 
 		self.installed_games_view = widgets.GamesCombo(self)
@@ -479,16 +472,17 @@ class MainWindow(widgets.MainWindow):
 		self.file_widget.dirty = True
 		self.update_gui_table()
 
-	def game_changed(self):
-		game = self.game_choice.entry.currentText()
+	def game_changed(self, game: Optional[str] = None):
+		if game is None:
+			game = self.game_choice.entry.currentText()
+		logging.info(f"Setting OVL context to {game}")
 		set_game(self.ovl_data, game)
 
-	def compression_changed(self):
-		compression = self.compression_choice.entry.currentText()
+	def compression_changed(self, compression: str):
 		compression_value = Compression[compression]
 		self.ovl_data.user_version.compression = compression_value
 
-	def log_level_changed(self, level):
+	def log_level_changed(self, level: str):
 		self.gui_log_handler.setLevel(level)
 		stdout_handler.setLevel(level)
 		self.cfg["logger_level"] = level

@@ -1,5 +1,5 @@
 import logging
-from typing import Any, Optional
+from typing import Any, Optional, Iterable, Callable
 import webbrowser
 import os
 import sys
@@ -693,11 +693,11 @@ class RelativePathCombo(EditCombo):
 
 
 class LabelCombo(QtWidgets.QWidget):
-    def __init__(self, name, options):
+    def __init__(self, name: str, options: Iterable[str], editable: bool = True, activated_fn: Optional[Callable] = None) -> None:
         QtWidgets.QWidget.__init__(self, )
         self.label = QtWidgets.QLabel(name)
         self.entry = CleverCombo(options=options)
-        self.entry.setEditable(True)
+        self.entry.setEditable(editable)
         box = QtWidgets.QHBoxLayout(self)
         box.addWidget(self.label)
         box.addWidget(self.entry)
@@ -708,7 +708,9 @@ class LabelCombo(QtWidgets.QWidget):
         # # sizePolicy.setHeightForWidth(self.entry.sizePolicy().hasHeightForWidth())
         self.entry.setSizePolicy(sizePolicy)
         self.setSizePolicy(sizePolicy)
-        # # self.entry.setMaxVisibleItems(10)
+
+        if activated_fn is not None:
+            self.entry.textActivated.connect(activated_fn)
 
 
 class MySwitch(QtWidgets.QPushButton):

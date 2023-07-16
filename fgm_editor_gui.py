@@ -1,5 +1,6 @@
 import logging
 import os
+from typing import Any, Optional
 
 import numpy as np
 from PyQt5 import QtWidgets, QtCore
@@ -46,9 +47,8 @@ class MainWindow(widgets.MainWindow):
 		self.games = [g.value for g in games]
 		self.import_header = None
 
-		self.game_container = widgets.LabelCombo("Game", self.games)
-		self.game_container.entry.currentIndexChanged.connect(self.game_changed)
-		self.game_container.entry.setEditable(False)
+		self.game_choice = widgets.LabelCombo("Game", self.games, editable=False, activated_fn=self.game_changed)
+
 		self.file_widget = self.make_file_widget(dtype="FGM")
 
 		self.lock_attrs = QtWidgets.QCheckBox("Lock Attributes")
@@ -59,8 +59,7 @@ class MainWindow(widgets.MainWindow):
 		self.skip_color.setLayoutDirection(QtCore.Qt.RightToLeft)
 		self.skip_color.setToolTip("Some Float3 colors can go above 1.0 or below 0.0 to achieve certain effects")
 
-		self.shader_choice = widgets.LabelCombo("Shader", ())
-		self.shader_choice.entry.activated.connect(self.shader_changed)
+		self.shader_choice = widgets.LabelCombo("Shader", (), activated_fn=self.shader_changed)
 		self.attribute_choice = widgets.LabelCombo("Attribute", ())
 		self.texture_choice = widgets.LabelCombo("Texture", ())
 		self.attribute_add = QtWidgets.QPushButton("Add Attribute")
@@ -79,7 +78,7 @@ class MainWindow(widgets.MainWindow):
 		
 		vbox.setAlignment(QtCore.Qt.AlignmentFlag.AlignTop)
 		vbox.addWidget(self.file_widget)
-		vbox.addWidget(self.game_container)
+		vbox.addWidget(self.game_choice)
 		vbox.addWidget(self.shader_choice)
 		vbox.addWidget(self.attribute_choice)
 		vbox.addWidget(self.attribute_add)
@@ -115,11 +114,13 @@ class MainWindow(widgets.MainWindow):
 
 	@property
 	def game(self):
-		return self.game_container.entry.currentText()
+		return self.game_choice.entry.currentText()
 
-	def game_changed(self,):
-		game = self.game
-		logging.info(f"Changed game to {game}")
+	def game_changed(self, game: Optional[str] = None):
+		if game is None:
+			game = self.game
+		else:
+			logging.info(f"Changed game to {game}")
 		try:
 			set_game(self.header.context, game)
 			# set_game(self.header, game)
@@ -219,9 +220,9 @@ class MainWindow(widgets.MainWindow):
 	def has_data(self):
 		return self.header.textures.data and self.header.name_foreach_textures.data and self.header.attributes.data and self.header.value_foreach_attributes.data
 
-	def shader_changed(self,):
+	def shader_changed(self, name: str):
 		"""Run only during user activation"""
-		self.header.shader_name = self.shader_choice.entry.currentText()
+		self.header.shader_name = name
 		self.update_choices()
 		try:
 			# todo - instead change saving behavior as in ovl tool
@@ -367,7 +368,7 @@ class MainWindow(widgets.MainWindow):
 				enum_name, member_name = self.header.game.split(".")
 				game = games[member_name]
 				logging.debug(f"from game {game}")
-				self.game_container.entry.setText(game.value)
+				self.game_choice.entry.setText(game.value)
 				self.game_changed()
 				self.update_shader(self.header.shader_name)
 				self.tex_container.update_gui(self.header.textures.data, self.header.name_foreach_textures.data)
