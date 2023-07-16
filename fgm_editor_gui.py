@@ -49,7 +49,7 @@ class MainWindow(widgets.MainWindow):
 		self.game_container = widgets.LabelCombo("Game", self.games)
 		self.game_container.entry.currentIndexChanged.connect(self.game_changed)
 		self.game_container.entry.setEditable(False)
-		self.file_widget = widgets.FileWidget(self, self.cfg, dtype="FGM")
+		self.file_widget = self.make_file_widget(dtype="FGM")
 
 		self.lock_attrs = QtWidgets.QCheckBox("Lock Attributes")
 		self.lock_attrs.setLayoutDirection(QtCore.Qt.RightToLeft)
@@ -360,10 +360,10 @@ class MainWindow(widgets.MainWindow):
 			return True
 		return False
 
-	def load(self):
-		if self.file_widget.filepath:
+	def load(self, filepath):
+		if filepath:
 			try:
-				self.header = FgmHeader.from_xml_file(self.file_widget.filepath, self.context)
+				self.header = FgmHeader.from_xml_file(filepath, self.context)
 				enum_name, member_name = self.header.game.split(".")
 				game = games[member_name]
 				logging.debug(f"from game {game}")
@@ -562,10 +562,10 @@ class TextureVisual:
 				self.data.dependency_name.data = self.container.gui.create_tex_name(self.container.gui.fgm_name, self.entry.name)
 
 			self.w_file = widgets.FileWidget(self.container, self.container.gui.cfg, ask_user=False,
-											dtype="TEX", poll=False, editable=True, check_exists=True, root=self.container.gui.fgm_path)
+											dtype="TEX", editable=True, check_exists=True, root=self.container.gui.fgm_path)
 			self.w_file.set_file_path(self.data.dependency_name.data)
 			self.w_file.entry.textChanged.connect(self.update_file)
-			self.w_tile = QtWidgets.QSpinBox()
+			self.w_tile = QtWidgets.QSpinBox(self.container)
 			self.w_tile.setMaximumWidth(36)
 			self.w_tile.setToolTip("Array Tile Index")
 			self.w_tile.setRange(0, 2147483647)

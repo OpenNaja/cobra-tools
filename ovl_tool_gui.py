@@ -34,7 +34,7 @@ except:
 class MainWindow(widgets.MainWindow):
 
 	def __init__(self):
-		widgets.MainWindow.__init__(self, "OVL Archive Editor", )
+		widgets.MainWindow.__init__(self, "OVL Tool", )
 		self.resize(800, 600)
 		self.setAcceptDrops(True)
 
@@ -48,7 +48,7 @@ class MainWindow(widgets.MainWindow):
 			self.cfg["games"] = {}
 		self.cfg["games"].update(self.get_steam_games())
 
-		self.file_widget = widgets.FileWidget(self, self.cfg)
+		self.file_widget = self.make_file_widget()
 
 		self.game_choice = widgets.LabelCombo("Game", [g.value for g in games])
 		# only listen to user changes
@@ -428,7 +428,7 @@ class MainWindow(widgets.MainWindow):
 				for ovl_path in walker.walk_type(selected_dir, extension=".ovl"):
 					# open ovl file
 					self.file_widget.accept_file(ovl_path)
-					self.load(threaded=False)
+					self.load(ovl_path, threaded=False)
 					# process each
 					yield self.ovl_data
 					if save_over:
@@ -448,7 +448,7 @@ class MainWindow(widgets.MainWindow):
 				os.startfile(file_path)
 			# open ovl in tool
 			elif file_path.lower().endswith(".ovl"):
-				self.file_widget.decide_open(file_path)
+				self.file_widget.decide_open.emit(file_path)
 		except:
 			self.handle_error("Clicked dir failed, see log!")
 
@@ -497,15 +497,15 @@ class MainWindow(widgets.MainWindow):
 		# just an example of what can be done when something is selected
 		file_entry = self.ovl_data.files[file_index]
 
-	def load(self, threaded=True):
-		if self.file_widget.filepath:
+	def load(self, filepath, threaded=True):
+		if filepath:
 			self.file_widget.dirty = False
 			logging.debug(f"Loading threaded {threaded}")
 			if threaded:
-				self.run_threaded(self.ovl_data.load, self.file_widget.filepath)
+				self.run_threaded(self.ovl_data.load, filepath)
 			else:
 				try:
-					self.ovl_data.load(self.file_widget.filepath)
+					self.ovl_data.load(filepath)
 				except:
 					logging.debug(self.ovl_data)
 					self.handle_error("OVL loading failed, see log!")

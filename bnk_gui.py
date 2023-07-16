@@ -38,7 +38,7 @@ class MainWindow(widgets.MainWindow):
 
 		self.filter = "Supported files ({})".format(" ".join("*" + t for t in (".wav", ".wem",)))
 
-		self.file_widget = widgets.FileWidget(self, self.cfg, dtype="BNK")
+		self.file_widget = self.make_file_widget(dtype="BNK")
 
 		header_names = ["Name", "File Type", "File Size"]
 
@@ -146,11 +146,11 @@ class MainWindow(widgets.MainWindow):
 			self.handle_error("Extraction failed, see log!")
 		shutil.rmtree(temp_dir)
 
-	def load(self):
-		if self.file_widget.filepath:
+	def load(self, filepath):
+		if filepath:
 			self.file_widget.dirty = False
 			try:
-				self.bnk_file.load(self.file_widget.filepath)
+				self.bnk_file.load(filepath)
 				print(self.bnk_file)
 				f_list = [(fmt_hash(stream_info.event_id), "s", stream_info.size) for stream_info in self.bnk_file.bnk_header.streams]
 				if self.bnk_file.aux_b and self.bnk_file.aux_b.didx:

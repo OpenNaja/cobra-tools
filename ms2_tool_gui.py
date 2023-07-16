@@ -29,7 +29,7 @@ class MainWindow(widgets.MainWindow):
 
 		self.filter = "Supported files (*ms2)"
 
-		self.file_widget = widgets.FileWidget(self, self.cfg, dtype="MS2")
+		self.file_widget = self.make_file_widget(dtype="MS2")
 
 		header_names = ["Name", "File Type", "LODs", "Objects", "Meshes", "Materials"]
 
@@ -107,11 +107,11 @@ class MainWindow(widgets.MainWindow):
 				self.handle_error("Duplicating file failed, see log!")
 			self.update_gui_table()
 
-	def load(self):
-		if self.file_widget.filepath:
+	def load(self, filepath):
+		if filepath:
 			self.file_widget.dirty = False
 			try:
-				self.ms2_file.load(self.file_widget.filepath, read_editable=True)
+				self.ms2_file.load(filepath, read_editable=True)
 			except:
 				self.handle_error("Loading failed, see log!")
 			self.update_gui_table()

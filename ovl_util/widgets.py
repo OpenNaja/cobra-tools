@@ -5,6 +5,7 @@ import os
 import sys
 import re
 from pathlib import Path
+from abc import abstractmethod
 
 from PyQt5 import QtGui, QtCore, QtWidgets
 from PyQt5.QtCore import Qt
@@ -942,8 +943,11 @@ class FileWidget(QtWidgets.QWidget):
     """An entry widget that starts a file selector when clicked and also accepts drag & drop.
     Displays the current file's basename.
     """
+    file_changed = QtCore.pyqtSignal(str)
+    decide_open = QtCore.pyqtSignal(str)
 
-    def __init__(self, parent, cfg, ask_user=True, dtype="OVL", poll=True, editable=False, check_exists=False, root=None):
+    def __init__(self, parent: QWidget, cfg: dict, ask_user: bool = True, dtype: str = "OVL", editable: bool = False,
+                 check_exists: bool = False, root: Optional[str] = None):
         super().__init__(parent)
         self.entry = QtWidgets.QLineEdit()
         self.icon = QtWidgets.QPushButton()
@@ -968,7 +972,6 @@ class FileWidget(QtWidgets.QWidget):
         self.dtype = dtype
         self.dtype_l = dtype.lower()
 
-        self.poll = poll
         self.check_exists = check_exists
         self.root = root
         self.parent = parent
@@ -991,9 +994,11 @@ class FileWidget(QtWidgets.QWidget):
         self.icon.setToolTip("Click to select a file")
         self.entry.setToolTip(self._tooltip)
 
+        self.decide_open.connect(self.set_file_path)
+
     @property
     def _tooltip(self):
-        return f"Currently open {self.dtype} file: {self.filepath}"
+        return f"Currently open {self.dtype} file: {self.filepath}" if self.filepath else f"Open {self.dtype} file"
 
     def abort_open_new_file(self, new_filepath):
         # only return True if we should abort
@@ -1018,6 +1023,7 @@ class FileWidget(QtWidgets.QWidget):
         self.setText(self.filename)
         self.check_file(self.filename)
         self.entry.setToolTip(self._tooltip)
+        self.file_changed.emit(filepath)
 
     def check_file(self, name):
         if self.check_exists:
@@ -1061,13 +1067,14 @@ class FileWidget(QtWidgets.QWidget):
         urls = self.get_files(event)
         if urls:
             filepath = str(urls[0].path())[1:]
-            self.decide_open(filepath)
+            self.decide_open.emit(filepath)
 
     def ask_open(self):
         cfg_str = f"dir_{self.dtype_l}s_in"
         filepath = QtWidgets.QFileDialog.getOpenFileName(
             self, f'Load {self.dtype}', self.cfg_path(cfg_str), self.files_filter_str)[0]
-        self.decide_open(filepath)
+        if filepath:
+            self.decide_open.emit(filepath)
 
     def cfg_path(self, cfg_str):
         return self.cfg.get(cfg_str, "C://") if not self.root else self.root
@@ -1096,10 +1103,6 @@ class FileWidget(QtWidgets.QWidget):
             # nope, ask user - modified, but no file name yet
             else:
                 self.ask_save_as()
-
-    def decide_open(self, filepath):
-        if self.accept_file(filepath) and self.poll:
-            self.parent.poll()
 
     def ask_open_dir(self):
         file_dir = QtWidgets.QFileDialog.getExistingDirectory()
@@ -1302,9 +1305,43 @@ class MainWindow(FramelessMainWindow):
         self.wrapper_widget.setLayout(layout)
         super().setCentralWidget(self.wrapper_widget)
 
-    def poll(self):
-        if self.file_widget and self.file_widget.filepath:
-            self.load()
+    def make_file_widget(self, ask_user: bool = True, dtype: str = "OVL", editable: bool = False, 
+                         check_exists: bool = False, root: Optional[str] = None) -> FileWidget:
+        file_widget = FileWidget(self, self.cfg, ask_user=ask_user, dtype=dtype, editable=editable,
+                                 check_exists=check_exists, root=root)
+        file_widget.file_changed.connect(self.set_window_filepath)
+        file_widget.decide_open.connect(self.load)
+        return file_widget
+
+    @abstractmethod
+    def load(self, filepath: str):
+        pass
+
+    def setWindowTitle(self, title: str = None, file: str = None) -> None:
+        if title is None:
+            title = self.name
+        if file is not None:
+            return super().setWindowTitle(f"{title} | {self.get_file_name(file)}")
+        return super().setWindowTitle(f"{title}")
+    
+    def set_window_filepath(self, file: str) -> None:
+        self.setWindowTitle(file=file)
+
+    def elide_dirs(self, filepath: str):
+        path, file = os.path.split(filepath)
+        filename, _ = os.path.splitext(file)
+        subdirs = path.split("/")
+        if len(subdirs) > 3:
+            if filename == subdirs[-1]:
+                return "/".join([subdirs[0], subdirs[1], subdirs[2], "...", file])
+            else:
+                return "/".join([subdirs[0], subdirs[1], "...", subdirs[-1], file])
+        return filepath
+
+    def get_file_name(self, filepath: str):
+        if "ovldata/" in filepath:
+            return self.elide_dirs(filepath.split("ovldata/")[1])
+        return os.path.basename(filepath)
 
     def report_bug(self):
         webbrowser.open("https://github.com/OpenNaja/cobra-tools/issues/new?assignees=&labels=&template=bug_report.md&title=", new=2)
@@ -1421,7 +1458,7 @@ class MainWindow(FramelessMainWindow):
 
         path = e.mimeData().urls()[0].toLocalFile() if e.mimeData().hasUrls() else ""
         if path:
-            self.file_widget.decide_open(path)
+            self.file_widget.decide_open.emit(path)
 
 
 class CombinedMeta(type(QtCore.QObject), type(OvlFile)):

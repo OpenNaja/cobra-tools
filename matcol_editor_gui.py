@@ -9,13 +9,20 @@ from ovl_util import widgets, config
 class MainWindow(widgets.MainWindow):
 
 	def __init__(self):
-		widgets.MainWindow.__init__(self, "Matcol Editor", )
+		self.scrollarea = QtWidgets.QScrollArea()
+		self.scrollarea.setWidgetResizable(True)
+
+		# the actual scrollable stuff
+		self.widget = QtWidgets.QWidget()
+		self.scrollarea.setWidget(self.widget)
+
+		widgets.MainWindow.__init__(self, "Matcol Editor", central_widget=self.scrollarea)
 		
 		self.resize(450, 500)
 
 		self.context = OvlContext()
 		self.matcol_data = MatcolRoot(self.context)
-		self.file_widget = widgets.FileWidget(self, self.cfg, dtype="materialcollection")
+		self.file_widget = self.make_file_widget(dtype="materialcollection")
 		self.tooltips = config.read_str_dict("ovl_util/tooltips/matcol.txt")
 		self.default_fgms = config.read_list("ovl_util/tooltips/matcol-fgm-names.txt")
 
@@ -30,14 +37,6 @@ class MainWindow(widgets.MainWindow):
 			(help_menu, "Report Bug", self.report_bug, "", "report"),
 			(help_menu, "Documentation", self.online_support, "", "manual"))
 		self.add_to_menu(button_data)
-
-		self.scrollarea = QtWidgets.QScrollArea(self)
-		self.scrollarea.setWidgetResizable(True)
-		self.setCentralWidget(self.scrollarea)
-
-		# the actual scrollable stuff
-		self.widget = QtWidgets.QWidget()
-		self.scrollarea.setWidget(self.widget)
 
 		self.tex_container = QtWidgets.QGroupBox("Slots")
 		self.attrib_container = QtWidgets.QGroupBox("Attributes")
@@ -69,10 +68,10 @@ class MainWindow(widgets.MainWindow):
 			widget = item.widget()
 			widget.deleteLater()
 
-	def load(self):
-		if self.file_widget.filepath:
+	def load(self, filepath):
+		if filepath:
 			try:
-				self.matcol_data = self.matcol_data.from_xml_file(self.file_widget.filepath, self.context)
+				self.matcol_data = self.matcol_data.from_xml_file(filepath, self.context)
 
 				# delete existing widgets
 				self.clear_layout(self.tex_grid)
