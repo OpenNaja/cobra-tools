@@ -4,14 +4,15 @@ import webbrowser
 import os
 import sys
 import re
+import time
 from pathlib import Path
 from abc import abstractmethod
 
 from PyQt5 import QtGui, QtCore, QtWidgets
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QModelIndex
 from PyQt5.QtWidgets import QWidget, QVBoxLayout
 
-from generated.formats.ovl import OvlFile
+from generated.formats.ovl import OvlFile, games
 from ovl_util.config import get_commit_str
 from ovl_util import config, qt_theme, interaction
 from root_path import root_dir
@@ -76,6 +77,15 @@ if len(needs_update) and install_prompt("Update the outdated dependencies? (y/N)
 
 """ End of installing dependencies """
 
+
+games_list = [g.value for g in games]
+
+try:
+    import winreg
+    import vdf
+except:
+    logging.exception("Some modules could not be imported; make sure you install the required dependencies with pip!")
+    time.sleep(5)
 
 try:
     from qframelesswindow import FramelessMainWindow, StandardTitleBar
@@ -518,9 +528,10 @@ class LabelEdit(QtWidgets.QWidget):
 class CleverCombo(QtWidgets.QComboBox):
     """"A combo box that supports setting content (existing or new)"""
 
-    def __init__(self, options=(), *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.addItems(options)
+    def __init__(self, parent: Optional[QWidget] = None, options: Optional[Iterable[str]] = None):
+        super().__init__(parent)
+        if options is not None:
+            self.addItems(options)
 
     def setText(self, txt):
         flag = QtCore.Qt.MatchFixedString
@@ -532,48 +543,298 @@ class CleverCombo(QtWidgets.QComboBox):
         self.setCurrentIndex(indx)
 
 
-class GamesCombo(QtWidgets.QWidget):
-    entries_changed = QtCore.pyqtSignal(list)
+class OvlDataFilterProxy(QtCore.QSortFilterProxyModel):
+    """Base proxy class for GamesWidget directory model"""
 
-    def __init__(self, parent):
+    def __init__(self, parent: Optional[QtCore.QObject] = None) -> None:
+        super(OvlDataFilterProxy, self).__init__(parent)
+        self.setDynamicSortFilter(True)
+        self.setRecursiveFilteringEnabled(True)
+        self.max_depth: int = 255
+        self.root_idx: Optional[QModelIndex] = None
+        self.root_depth: int = 0
+
+    def depth(self, idx: QModelIndex) -> int:
+        """Depth of the file or directory in the filesystem"""
+        level = 0
+        index = idx
+        while index.parent().isValid():
+            level += 1
+            index = index.parent()
+        return level
+
+    def set_max_depth(self, depth: int) -> None:
+        """Set max subfolder depth. 0 depth = ovldata root folders only."""
+        self.max_depth = depth
+
+    def update_root(self, idx: QModelIndex) -> None:
+        """Update root index and store base depth for ovldata subfolder"""
+        self.root_idx = idx
+        self.root_depth = self.depth(idx)
+
+    def data(self, index: QModelIndex, role: int = 0) -> Any:
+        if role == QtWidgets.QFileSystemModel.Roles.FileIconRole:
+            name = index.data()
+            _, ext = os.path.splitext(name)
+            if ext:
+                return get_icon(ext[1:])
+            return get_icon("dir")
+        return super().data(index, role)
+
+    def setSourceModel(self, sourceModel: "OvlDataFilesystemModel") -> None:
+        super().setSourceModel(sourceModel)
+        self.update_root(sourceModel.index(0, 0))
+
+    def rowCount(self, parent: QModelIndex) -> int:
+        if self.depth(parent) > self.max_depth + self.root_depth:
+            # Hide children if they are beyond the specified depth.
+            return 0
+        return super().rowCount(parent)
+
+    def hasChildren(self, parent: QModelIndex) -> bool:
+        if self.depth(parent) > self.max_depth + self.root_depth:
+            # Hide children if they are beyond the specified depth.
+            return False
+        return super().hasChildren(parent)
+
+    def lessThan(self, left: QModelIndex, right: QModelIndex) -> bool:
+        """Sort how QFileSystemModel sorts"""
+        model: "OvlDataFilesystemModel" = self.sourceModel()
+        return model.fileInfo(left).isDir() and not model.fileInfo(right).isDir()
+
+    def filterAcceptsRow(self, source_row: int, source_parent: QModelIndex) -> bool:
+        model: "OvlDataFilesystemModel" = self.sourceModel()
+        idx = source_parent.child(source_row, 0)
+
+        regexp = self.filterRegularExpression()
+        if not regexp.pattern():
+            return True
+
+        # Do not filter if root_depth hasn't been set or for folders before ovldata
+        if self.root_depth == 0 or self.depth(idx) <= self.root_depth:
+            return True
+
+        return regexp.match(model.filePath(idx)).hasMatch()
+
+
+class OvlDataFilesystemModel(QtWidgets.QFileSystemModel):
+
+    def __init__(self, parent: Optional[QtCore.QObject] = None) -> None:
         super().__init__(parent)
-        self.main_window = parent
+
+
+class OvlDataTreeView(QtWidgets.QTreeView):
+
+    def __init__(self, parent: Optional[QWidget] = None) -> None:
+        super().__init__(parent)
+
+
+class GamesWidget(QtWidgets.QWidget):
+    """Installed games combo box with optional directory widget"""
+    installed_game_chosen = QtCore.pyqtSignal(str)
+    dir_dbl_clicked = QtCore.pyqtSignal(QtCore.QModelIndex)
+    file_dbl_clicked = QtCore.pyqtSignal(QtCore.QModelIndex)
+
+    def __init__(self, parent: type["MainWindow"], filters: list[str] = None,
+                 game_chosen_fn: Optional[Callable] = None,
+                 dir_dbl_click_fn: Optional[Callable] = None,
+                 file_dbl_click_fn: Optional[Callable] = None) -> None:
+        super().__init__(parent)
+        self.cfg: dict[str, Any] = parent.cfg
+        if filters is None:
+            filters = ["*.ovl",]
+
+        self.entry = CleverCombo(self, options=[])
+        self.entry.setEditable(False)
+        self.set_data(self.cfg["games"].keys())
+
         self.add_button = QtWidgets.QPushButton("+")
-        # self.add_button.clicked.connect(self.add)
-        # self.delete_button = QtWidgets.QPushButton("-")
-        # self.delete_button.clicked.connect(self.delete)
         self.add_button.setMaximumWidth(20)
-        # self.delete_button.setMaximumWidth(20)
-        # self.entry = QtWidgets.QComboBox()
-        self.entry = CleverCombo(options=[])
-        self.entry.setEditable(True)
+
         vbox = QtWidgets.QHBoxLayout(self)
         vbox.addWidget(self.entry)
         vbox.addWidget(self.add_button)
         # vbox.addWidget(self.delete_button)
         vbox.setContentsMargins(0, 0, 0, 0)
 
-    # @property
-    # def items(self):
-    # 	return [self.entry.itemText(i) for i in range(self.entry.count())]
-    #
-    # def add(self):
-    # 	name = self.entry.currentText()
-    # 	if name:
-    # 		self.entry.addItem(name)
-    # 		self.entries_changed.emit(self.items)
-    #
-    # def delete(self):
-    # 	name = self.entry.currentText()
-    # 	if name:
-    # 		ind = self.entry.findText(name)
-    # 		self.entry.removeItem(ind)
-    # 		self.entries_changed.emit(self.items)
+        self.setToolTip("Select game for easy access below")
+        
+        self.entry.textActivated.connect(self.game_chosen)
+        self.add_button.clicked.connect(self.add_installed_game)
 
-    def set_data(self, items):
+        self.model = OvlDataFilesystemModel()
+        self.model.setNameFilters(filters)
+        self.model.setNameFilterDisables(False)
+
+        self.dirs = OvlDataTreeView()
+        self.dirs.setModel(self.model)
+        self.dirs.setColumnHidden(1, True)
+        self.dirs.setColumnHidden(2, True)
+        self.dirs.setColumnHidden(3, True)
+        self.dirs.setExpandsOnDoubleClick(False)
+        self.dirs.clicked.connect(self.item_clicked)
+        self.dirs.doubleClicked.connect(self.item_dbl_clicked)
+
+        self.dirs.header().setSortIndicator(0, QtCore.Qt.AscendingOrder)
+        self.dirs.model().sort(self.dirs.header().sortIndicatorSection(), self.dirs.header().sortIndicatorOrder())
+
+        self.proxy = OvlDataFilterProxy(self)
+        self.proxy.setSourceModel(self.model)
+        self.dirs.setModel(self.proxy)
+
+        self.dirs.setAnimated(False)
+        self.dirs.setIndentation(12)
+        self.dirs.setSortingEnabled(True)
+
+        self.set_games()
+
+        if game_chosen_fn is not None:
+            self.installed_game_chosen.connect(game_chosen_fn)
+        if dir_dbl_click_fn is not None:
+            self.dir_dbl_clicked.connect(dir_dbl_click_fn)
+        if file_dbl_click_fn is not None:
+            self.file_dbl_clicked.connect(file_dbl_click_fn)
+
+    def hide_official(self) -> None:
+        self.proxy.setFilterRegularExpression(QtCore.QRegularExpression("^((?!(Content|DLC|GameMain)).)*$",
+                                                                        options=QtCore.QRegularExpression.PatternOption.CaseInsensitiveOption))
+    
+    def hide_modded(self) -> None:
+        self.proxy.setFilterRegularExpression(QtCore.QRegularExpression("^.*(Content|GameMain|.*DLC).*$",
+                                                                        options=QtCore.QRegularExpression.PatternOption.CaseInsensitiveOption))
+
+    def set_depth(self, depth: int) -> None:
+        """Set max visible subfolder depth. Depth = 0 root folders in ovldata only."""
+        self.proxy.set_depth(depth)
+
+    def item_clicked(self, idx: QModelIndex) -> None:
+        if not self.dirs.isExpanded(idx):
+            self.dirs.expand(idx)
+        else:
+            self.dirs.collapse(idx)
+
+    def item_dbl_clicked(self, idx: QModelIndex) -> None:
+        try:
+            idx = self.proxy.mapToSource(idx)
+            file_path = idx.model().filePath(idx)
+            # open folder in explorer
+            if os.path.isdir(file_path):
+                os.startfile(file_path)
+                self.dir_dbl_clicked.emit(idx)
+            # open in tool
+            else:
+                self.file_dbl_clicked.emit(idx)
+        except:
+            MainWindow.handle_error("Clicked dir failed, see log!")
+
+    def game_chosen(self, current_game: str) -> None:
+        """Run after choosing a game from dropdown of installed games"""
+        self.cfg["current_game"] = current_game
+        self.installed_game_chosen.emit(current_game)
+
+    def ask_game_dir(self) -> (str | None):
+        """Ask the user to specify a game root folder"""
+        dir_game = QtWidgets.QFileDialog.getExistingDirectory(self, "Open game folder")
+        if dir_game:
+            return dir_game
+
+    def get_selected_game(self) -> str:
+        return self.entry.currentText()
+
+    def set_selected_game(self, current_game: str) -> bool:
+        # if current_game hasn't been set (no config.json), fall back on currently selected game
+        dir_game = self.cfg["games"].get(current_game, self.get_selected_game())
+        # if current_game has been set, assume it exists in the games dict too (from steam)
+        if dir_game:
+            self.set_root(dir_game)
+            self.set_selected_dir(self.cfg.get("last_ovl_in", None))
+            self.entry.setText(current_game)
+            if current_game in games_list:
+                return True
+        return False
+    
+    def set_root(self, dir_game: str) -> None:
+        rt_index = self.model.setRootPath(dir_game)
+        self.dirs.setRootIndex(self.proxy.mapFromSource(rt_index))
+        self.proxy.update_root(self.dirs.rootIndex())
+
+    def get_selected_dir(self) -> (str | None):
+        ind = self.dirs.currentIndex()
+        file_path = self.model.filePath(ind)
+        if os.path.isdir(file_path):
+            return file_path
+
+    def set_selected_dir(self, dir_path: str) -> None:
+        """Show dir_path in dirs"""
+        try:
+            ind = self.model.index(dir_path)
+            self.dirs.setCurrentIndex(ind)
+        except:
+            MainWindow.handle_error("Setting dir failed, see log.")
+
+    def add_installed_game(self) -> None:
+        """Add a new game to the list of available games"""
+        dir_game = self.ask_game_dir()
+        if dir_game:
+            # todo - try to find the name of the game by stripping usual suffixes, eg. "win64\\ovldata"
+            current_game = os.path.basename(dir_game)
+            # store this newly chosen game in cfg
+            self.cfg["games"][current_game] = dir_game
+            self.cfg["current_game"] = current_game
+            # update available games
+            self.set_data(self.cfg["games"].keys())
+
+    def set_data(self, items: Iterable[str]) -> None:
         items = set(items)
         self.entry.clear()
         self.entry.addItems(sorted(items))
+
+    def set_filter(self, proxy_cls: type[OvlDataFilterProxy]) -> None:
+        self.proxy = proxy_cls(self)
+        self.proxy.setSourceModel(self.model)
+        self.dirs.setModel(self.proxy)
+
+    def set_games(self) -> None:
+        self.cfg["games"].update(self.get_steam_games())
+        self.set_data(self.cfg["games"].keys())
+
+    def get_steam_games(self) -> dict[str, str]:
+        try:
+            # get steam folder from windows registry
+            hkey = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, "SOFTWARE\\WOW6432Node\\Valve\\Steam")
+            steam_query = winreg.QueryValueEx(hkey, "InstallPath")
+            # get path to steam games folder
+            # C:\\Program Files (x86)\\Steam
+            steam_path = steam_query[0]
+            library_folders = {steam_path}
+            vdf_path = os.path.join(steam_path, "steamapps", "libraryfolders.vdf")
+            # check if there are other steam library folders (eg. on external drives)
+            try:
+                v = vdf.load(open(vdf_path))
+                for folder in v["libraryfolders"].values():
+                    library_folders.add(folder["path"])
+            except:
+                logging.warning(
+                    f"vdf not installed, can not detect steam games on external drives - run `pip install vdf`")
+
+            # map all installed fdev game names to their path
+            fdev_games = {}
+            # list all games for each library folder
+            for steam_path in library_folders:
+                try:
+                    apps_path = os.path.join(steam_path, "steamapps\\common")
+                    # filter with supported fdev games
+                    fdev_in_lib = [game for game in os.listdir(apps_path) if game in games_list]
+                    # generate the whole path for each game, add to dict
+                    # C:\Program Files (x86)\Steam\steamapps\common\Planet Zoo\win64\ovldata
+                    fdev_games.update({game: os.path.join(apps_path, game, "win64\\ovldata") for game in fdev_in_lib})
+                except FileNotFoundError as e:
+                    logging.warning(e)
+            logging.info(f"Found {len(fdev_games)} Cobra games from Steam")
+            return fdev_games
+        except:
+            logging.exception(f"Getting installed games from steam folder failed")
+            return {}
 
 
 class EditCombo(QtWidgets.QWidget):
@@ -696,7 +957,7 @@ class LabelCombo(QtWidgets.QWidget):
     def __init__(self, name: str, options: Iterable[str], editable: bool = True, activated_fn: Optional[Callable] = None) -> None:
         QtWidgets.QWidget.__init__(self, )
         self.label = QtWidgets.QLabel(name)
-        self.entry = CleverCombo(options=options)
+        self.entry = CleverCombo(self, options=options)
         self.entry.setEditable(editable)
         box = QtWidgets.QHBoxLayout(self)
         box.addWidget(self.label)
@@ -1283,7 +1544,7 @@ class MainWindow(FramelessMainWindow):
         self.status_timer.timeout.connect(self.p_action.hide)
         self.status_timer.timeout.connect(self.version_info.show)
 
-        self.cfg = config.load_config()
+        self.cfg: dict[str, Any] = config.load_config()
 
         if FRAMELESS:
             # Frameless titlebar
