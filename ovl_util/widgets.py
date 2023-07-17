@@ -12,6 +12,8 @@ from pathlib import Path
 from importlib.metadata import distribution, PackageNotFoundError
 from typing import Any, Optional, Iterable, Callable
 
+from ovl_util.config import ANSI
+
 """
     Deals with missing packages and tries to install them from the tool itself.
 """
@@ -19,6 +21,7 @@ from typing import Any, Optional, Iterable, Callable
 # raw_input returns the empty string for "enter"
 def install_prompt(question):
     print(question)
+    print(f"{ANSI.LIGHT_YELLOW}[Type y and hit Enter]{ANSI.END}{ANSI.LIGHT_GREEN}")
     yes = {'yes', 'y', 'ye'}
     choice = input().lower()
     if choice in yes:
@@ -28,13 +31,12 @@ def install_prompt(question):
 
 # use pip to install a package
 def pip_install(package):
-    print(f"Trying to install {package}")
+    logging.info(f"Installing {package}")
     subprocess.check_call([sys.executable, "-m", "pip", "install", package])
-
 
 # use pip to install --update a package
 def pip_upgrade(package):
-    print(f"Trying to upgrade {package}")
+    logging.info(f"Updating {package}")
     subprocess.check_call([sys.executable, "-m", "pip", "install", "--upgrade", package])
 
 missing = []
@@ -47,21 +49,24 @@ with open("requirements.txt") as requirements:
         try:
             lib_dist = distribution(lib)
             if packaging.version.parse(lib_dist.metadata['Version']) < packaging.version.parse(version):
-                print(f"ERROR | {lib} is out of date.")
+                logging.warning(f"{lib} is out of date.")
                 # Append full line including ~= for pip upgrade command
                 needs_update.append(line)
         except PackageNotFoundError:
-            print(f"ERROR | Package {lib} not found.")
+            logging.error(f"{lib} not found.")
             # Append full line including ~= for pip install command
             missing.append(line)
 
-if len(missing) and install_prompt("Install the missing dependencies? (y/N) [Type y and hit Enter]") == True:
+ask_install = f"{ANSI.LIGHT_WHITE}Install the missing dependencies?{ANSI.END} (y/N)"
+ask_upgrade = f"{ANSI.LIGHT_WHITE}Update the outdated dependencies?{ANSI.END} (y/N)"
+
+if len(missing) and install_prompt(ask_install) == True:
     # upgrade pip then try installing the rest of packages
     pip_upgrade('pip')
     for package in missing:
         pip_install(package)
 
-if len(needs_update) and install_prompt("Update the outdated dependencies? (y/N) [Type y and hit Enter]") == True:
+if len(needs_update) and install_prompt(ask_upgrade) == True:
     # upgrade pip then try updating the outdated packages
     pip_upgrade('pip')
     for package in needs_update:
