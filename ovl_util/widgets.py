@@ -81,8 +81,9 @@ try:
     from root_path import root_dir
 
     from PyQt5 import QtGui, QtCore, QtWidgets
-    from PyQt5.QtCore import Qt, QModelIndex
-    from PyQt5.QtWidgets import QWidget, QVBoxLayout
+    from PyQt5.QtCore import Qt, QObject, QModelIndex, QSize, QEvent, QTimerEvent
+    from PyQt5.QtGui import QStandardItemModel, QWheelEvent, QResizeEvent, QFocusEvent
+    from PyQt5.QtWidgets import QWidget, QVBoxLayout, QStyleOptionViewItem
     from ovl_util import qt_theme, interaction
     import vdf
 
@@ -537,11 +538,38 @@ class LabelEdit(QtWidgets.QWidget):
         self.setLayout(vbox)
 
 
+class MouseWheelGuard(QObject):
+    def __init__(self, parent: Optional[QObject] = None) -> None:
+        super().__init__(parent)
+    
+    def eventFilter(self, object: QObject, event: QEvent) -> bool:
+        if isinstance(object, QWidget):
+            if event.type() == QEvent.Type.Wheel:
+                if object.focusPolicy() == Qt.FocusPolicy.WheelFocus:
+                    event.accept()
+                    return False
+                else:
+                    event.ignore()
+                    return True
+            if event.type() == QEvent.Type.FocusIn and object.focusPolicy() == Qt.FocusPolicy.StrongFocus:
+                object.setFocusPolicy(Qt.FocusPolicy.WheelFocus)
+            if event.type() == QEvent.Type.FocusOut and object.focusPolicy() == Qt.FocusPolicy.WheelFocus:
+                object.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
+
+        return super().eventFilter(object, event)
+
+
 class CleverCombo(QtWidgets.QComboBox):
     """"A combo box that supports setting content (existing or new)"""
 
-    def __init__(self, parent: Optional[QWidget] = None, options: Optional[Iterable[str]] = None):
+    def __init__(self, parent: Optional[QWidget] = None,
+                 options: Optional[Iterable[str]] = None, allow_scroll: bool = False):
         super().__init__(parent)
+        # Allow scroll events before clicking
+        self.allow_scroll = allow_scroll
+        if not allow_scroll:
+            self.installEventFilter(MouseWheelGuard(self))
+            self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
         if options is not None:
             self.addItems(options)
 
@@ -553,6 +581,147 @@ class CleverCombo(QtWidgets.QComboBox):
             self.addItem(txt)
             indx = self.findText(txt, flags=flag)
         self.setCurrentIndex(indx)
+
+
+class NoScrollDoubleSpinBox(QtWidgets.QDoubleSpinBox):
+    """A double spin box that does not allow scrolling to change values by default"""
+
+    def __init__(self, parent: Optional[QWidget] = None, allow_scroll: bool = False) -> None:
+        super().__init__(parent)
+        # Allow scroll events before clicking
+        self.allow_scroll = allow_scroll
+        if not allow_scroll:
+            self.installEventFilter(MouseWheelGuard(self))
+            self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
+
+
+class CheckableComboBox(QtWidgets.QComboBox):
+
+    # Subclass Delegate to increase item height
+    class Delegate(QtWidgets.QStyledItemDelegate):
+        def sizeHint(self, option: QStyleOptionViewItem, index: QModelIndex) -> QSize:
+            size = super().sizeHint(option, index)
+            size.setHeight(20)
+            return size
+
+    def __init__(self, parent: Optional[QWidget] = None, allow_scroll: bool = False) -> None:
+        super().__init__(parent)
+        # Make the combo editable to set a custom text, but readonly
+        self.setEditable(True)
+        self.lineEdit().setReadOnly(True)
+
+        # Allow scroll events before clicking
+        self.allow_scroll = allow_scroll
+        if not allow_scroll:
+            self.installEventFilter(MouseWheelGuard(self))
+            self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
+
+        # store current selection
+        self.texts = []
+
+        # Use custom delegate
+        self.setItemDelegate(CheckableComboBox.Delegate())
+
+        # Update the text when an item is toggled
+        self.model().dataChanged.connect(self.updateText)
+
+        # Hide and show popup when clicking the line edit
+        self.lineEdit().installEventFilter(self)
+        self.closeOnLineEditClick = False
+
+        # Prevent popup from closing when clicking on an item
+        self.view().viewport().installEventFilter(self)
+
+    def eventFilter(self, object: QObject, event: QEvent) -> bool:
+        if object == self.lineEdit():
+            if event.type() == QEvent.MouseButtonRelease:
+                if self.closeOnLineEditClick:
+                    self.hidePopup()
+                else:
+                    self.showPopup()
+                return True
+            return False
+
+        if object == self.view().viewport():
+            if event.type() == QEvent.MouseButtonRelease:
+                index = self.view().indexAt(event.pos())
+                item = self.model().item(index.row())
+
+                if item.checkState() == Qt.Checked:
+                    item.setCheckState(Qt.Unchecked)
+                else:
+                    item.setCheckState(Qt.Checked)
+                return True
+        return False
+
+    def resizeEvent(self, event: QResizeEvent) -> None:
+        # Recompute text to elide as needed
+        self.updateText()
+        super().resizeEvent(event)
+
+    def timerEvent(self, event: QTimerEvent) -> None:
+        # After timeout, kill timer, and reenable click on line edit
+        self.killTimer(event.timerId())
+        self.closeOnLineEditClick = False
+
+    def showPopup(self) -> None:
+        super().showPopup()
+        # When the popup is displayed, a click on the lineedit should close it
+        self.closeOnLineEditClick = True
+
+    def hidePopup(self) -> None:
+        super().hidePopup()
+        # Used to prevent immediate reopening when clicking on the lineEdit
+        self.startTimer(100)
+        # Refresh the display text when closing
+        self.updateText()
+
+    def updateText(self) -> None:
+        self.texts = []
+        model: QStandardItemModel = self.model()
+        for i in range(model.rowCount()):
+            if model.item(i).checkState() == Qt.Checked:
+                self.texts.append(model.item(i).text())
+        text = ", ".join(self.texts)
+
+        if len(self.texts) < 1:
+            text = 'All known types'
+
+        # Compute elided text (with "...")
+        metrics = QtGui.QFontMetrics(self.lineEdit().font())
+        elidedText = metrics.elidedText(text, Qt.ElideRight, self.lineEdit().width())
+        self.lineEdit().setText(elidedText)
+
+    def addItem(self, text: str, data: Any = None) -> None:
+        item = QtGui.QStandardItem()
+        item.setText(text)
+        if data is None:
+            item.setData(text)
+        else:
+            item.setData(data)
+        item.setFlags(Qt.ItemIsEnabled | Qt.ItemIsUserCheckable)
+        item.setData(Qt.Unchecked, Qt.CheckStateRole)
+        self.model().appendRow(item)
+
+    def addItems(self, texts: Iterable[str], datalist: Iterable[Any] = None) -> None:
+        for i, text in enumerate(texts):
+            if datalist is None:
+                self.addItem(text)
+            else:
+                try:
+                    data = datalist[i]
+                except (TypeError, IndexError):
+                    data = None
+                self.addItem(text, data)
+
+    def currentData(self, role: int = ...) -> Any:
+        # Return the list of selected items data
+        res = []
+        model: QStandardItemModel = self.model()
+        for i in range(model.rowCount()):
+            if model.item(i).checkState() == Qt.Checked:
+                res.append(model.item(i).data(role))
+        return res
 
 
 class OvlDataFilterProxy(QtCore.QSortFilterProxyModel):
@@ -1777,127 +1946,6 @@ class Worker(QtCore.QObject):
             self.error_msg.emit(str(err))
         # mutex.unlock()
         self.finished.emit()
-
-
-class CheckableComboBox(QtWidgets.QComboBox):
-
-    # Subclass Delegate to increase item height
-    class Delegate(QtWidgets.QStyledItemDelegate):
-        def sizeHint(self, option, index):
-            size = super().sizeHint(option, index)
-            size.setHeight(20)
-            return size
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        # Make the combo editable to set a custom text, but readonly
-        self.setEditable(True)
-        self.lineEdit().setReadOnly(True)
-
-        # store current selection
-        self.texts = []
-
-        # Use custom delegate
-        self.setItemDelegate(CheckableComboBox.Delegate())
-
-        # Update the text when an item is toggled
-        self.model().dataChanged.connect(self.updateText)
-
-        # Hide and show popup when clicking the line edit
-        self.lineEdit().installEventFilter(self)
-        self.closeOnLineEditClick = False
-
-        # Prevent popup from closing when clicking on an item
-        self.view().viewport().installEventFilter(self)
-
-    def resizeEvent(self, event):
-        # Recompute text to elide as needed
-        self.updateText()
-        super().resizeEvent(event)
-
-    def eventFilter(self, object, event):
-
-        if object == self.lineEdit():
-            if event.type() == QtCore.QEvent.MouseButtonRelease:
-                if self.closeOnLineEditClick:
-                    self.hidePopup()
-                else:
-                    self.showPopup()
-                return True
-            return False
-
-        if object == self.view().viewport():
-            if event.type() == QtCore.QEvent.MouseButtonRelease:
-                index = self.view().indexAt(event.pos())
-                item = self.model().item(index.row())
-
-                if item.checkState() == QtCore.Qt.Checked:
-                    item.setCheckState(QtCore.Qt.Unchecked)
-                else:
-                    item.setCheckState(QtCore.Qt.Checked)
-                return True
-        return False
-
-    def showPopup(self):
-        super().showPopup()
-        # When the popup is displayed, a click on the lineedit should close it
-        self.closeOnLineEditClick = True
-
-    def hidePopup(self):
-        super().hidePopup()
-        # Used to prevent immediate reopening when clicking on the lineEdit
-        self.startTimer(100)
-        # Refresh the display text when closing
-        self.updateText()
-
-    def timerEvent(self, event):
-        # After timeout, kill timer, and reenable click on line edit
-        self.killTimer(event.timerId())
-        self.closeOnLineEditClick = False
-
-    def updateText(self):
-        self.texts = []
-
-        for i in range(self.model().rowCount()):
-            if self.model().item(i).checkState() == QtCore.Qt.Checked:
-                self.texts.append(self.model().item(i).text())
-        text = ", ".join(self.texts)
-
-        if len(self.texts) < 1:
-            text = 'All known types'
-
-        # Compute elided text (with "...")
-        metrics = QtGui.QFontMetrics(self.lineEdit().font())
-        elidedText = metrics.elidedText(text, QtCore.Qt.ElideRight, self.lineEdit().width())
-        self.lineEdit().setText(elidedText)
-
-    def addItem(self, text, data=None):
-        item = QtGui.QStandardItem()
-        item.setText(text)
-        if data is None:
-            item.setData(text)
-        else:
-            item.setData(data)
-        item.setFlags(QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsUserCheckable)
-        item.setData(QtCore.Qt.Unchecked, QtCore.Qt.CheckStateRole)
-        self.model().appendRow(item)
-
-    def addItems(self, texts, datalist=None):
-        for i, text in enumerate(texts):
-            try:
-                data = datalist[i]
-            except (TypeError, IndexError):
-                data = None
-            self.addItem(text, data)
-
-    def currentData(self):
-        # Return the list of selected items data
-        res = []
-        for i in range(self.model().rowCount()):
-            if self.model().item(i).checkState() == QtCore.Qt.Checked:
-                res.append(self.model().item(i).data())
-        return res
 
 
 # text field to hold the log information.

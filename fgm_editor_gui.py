@@ -641,7 +641,7 @@ class TextureVisual:
 			}}"""))
 
 		elif "float" in t:
-			field = QtWidgets.QDoubleSpinBox()
+			field = widgets.NoScrollDoubleSpinBox()
 			field.setDecimals(3)
 			field.setRange(-10000, 10000)
 			field.setSingleStep(.05)
@@ -651,7 +651,7 @@ class TextureVisual:
 			field.clicked.connect(update_ind)
 		elif "int" in t:
 			default = int(default)
-			field = QtWidgets.QDoubleSpinBox()
+			field = widgets.NoScrollDoubleSpinBox()
 			field.setDecimals(0)
 			field.setRange(-MAX_UINT, MAX_UINT)
 			field.valueChanged.connect(update_ind_int)
