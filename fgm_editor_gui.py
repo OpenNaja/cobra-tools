@@ -470,7 +470,7 @@ class TextureVisual:
 		dtypes = [e.name for e in FgmDtype]
 		dtypes_tex = [dtypes.pop(dtypes.index("RGBA")), dtypes.pop(dtypes.index("TEXTURE"))]
 
-		self.w_dtype = widgets.CleverCombo(self, options=dtypes_tex if container.title() == "Textures" else dtypes)
+		self.w_dtype = widgets.CleverCombo(self.container, options=dtypes_tex if container.title() == "Textures" else dtypes)
 		self.w_dtype.setText(entry.dtype.name)
 		self.w_dtype.setToolTip(f"Data type of {entry.name}")
 		self.w_dtype.currentIndexChanged.connect(self.update_dtype)
