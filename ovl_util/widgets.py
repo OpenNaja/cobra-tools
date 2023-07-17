@@ -6,10 +6,18 @@ import re
 import time
 import subprocess  # used to launch a pip install process
 
+"""
+    Require Python >= 3.11
+"""
+if (sys.version_info.major, sys.version_info.minor) < (3, 11):
+    logging.critical("Python 3.11 or later is required. Please update your Python installation.")
+    time.sleep(60)
+
 from abc import abstractmethod
 from pkg_resources import packaging
 from pathlib import Path
 from importlib.metadata import distribution, PackageNotFoundError
+# Place typing imports after Python check
 from typing import Any, Optional, Iterable, Callable
 
 from ovl_util.config import ANSI

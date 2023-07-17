@@ -4,7 +4,6 @@ import sys
 import time
 import logging
 import tempfile
-from typing import Any, Optional
 
 try:
 	from ovl_util.config import logging_setup, get_version_str, get_commit_str
@@ -19,6 +18,9 @@ try:
 	from generated.formats.ovl import games, get_game, set_game
 	from generated.formats.ovl_base.enums.Compression import Compression
 	from PyQt5 import QtWidgets, QtGui, QtCore
+
+	# Place typing imports after Python check in widgets
+	from typing import Any, Optional
 except:
 	logging.exception("Some modules could not be imported; make sure you install the required dependencies with pip!")
 	time.sleep(10)
