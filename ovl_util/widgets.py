@@ -14,11 +14,11 @@ if (sys.version_info.major, sys.version_info.minor) < (3, 11):
     time.sleep(60)
 
 from abc import abstractmethod
-from pkg_resources import packaging
+from pkg_resources import packaging  # type: ignore
 from pathlib import Path
 from importlib.metadata import distribution, PackageNotFoundError
 # Place typing imports after Python check
-from typing import Any, Optional, Iterable, Callable
+from typing import Any, AnyStr, Optional, Iterable, Callable, cast
 
 from ovl_util.config import ANSI
 
@@ -89,9 +89,6 @@ try:
     from root_path import root_dir
 
     from PyQt5 import QtGui, QtCore, QtWidgets
-    from PyQt5.QtCore import Qt, QObject, QModelIndex, QSize, QEvent, QTimerEvent
-    from PyQt5.QtGui import QStandardItemModel, QWheelEvent, QResizeEvent, QFocusEvent
-    from PyQt5.QtWidgets import QWidget, QVBoxLayout, QStyleOptionViewItem
     from ovl_util import qt_theme, interaction
     import vdf
 
@@ -99,6 +96,22 @@ try:
 except:
     logging.exception("Some modules could not be imported; make sure you install the required dependencies with pip!")
     time.sleep(15)
+
+# Put used imports below try/except for typing purposes (to avoid `| Unbound` type unions)
+from PyQt5.QtCore import (pyqtSignal, pyqtSlot, Qt, QObject, QDir, QRegularExpression,
+                          QRect, QSize, QEvent, QTimer, QTimerEvent, QThread, QUrl,
+                          QAbstractTableModel, QSortFilterProxyModel, QModelIndex, QItemSelection,
+                          QAbstractAnimation, QParallelAnimationGroup, QPropertyAnimation)
+from PyQt5.QtGui import (QBrush, QColor, QFont, QFontMetrics, QIcon, QPainter, QPen,
+                         QStandardItemModel, QStandardItem,
+                         QCloseEvent, QDragEnterEvent, QDragLeaveEvent, QDragMoveEvent, QDropEvent,
+                         QFocusEvent, QMouseEvent, QPaintEvent, QResizeEvent, QWheelEvent)
+from PyQt5.QtWidgets import (QWidget, QMainWindow, QApplication, QColorDialog, QFileDialog,
+                             QAbstractItemView, QHeaderView, QTableView, QTreeView, QFileSystemModel,
+                             QAction, QCheckBox, QComboBox, QDoubleSpinBox, QLabel, QLineEdit, QMenu, QMenuBar,
+                             QMessageBox, QPlainTextEdit, QProgressBar, QPushButton, QStatusBar, QToolButton,
+                             QFrame, QLayout, QGridLayout, QVBoxLayout, QHBoxLayout, QScrollArea, QSizePolicy,
+                             QStyleFactory, QStyleOptionViewItem, QStyledItemDelegate)
 
 # Windows modules
 try:
@@ -112,23 +125,23 @@ try:
     from qframelesswindow import FramelessMainWindow, StandardTitleBar
     FRAMELESS = True
 except:
-    FramelessMainWindow = QtWidgets.QMainWindow
+    FramelessMainWindow = QMainWindow
     StandardTitleBar = QWidget
     FRAMELESS = False
 
 MAX_UINT = 4294967295
-myFont = QtGui.QFont()
+myFont = QFont()
 myFont.setBold(True)
 
 
 def startup(cls):
-    app_qt = QtWidgets.QApplication([])
+    app_qt = QApplication([])
     win = cls()
     win.show()
 
     # style
     if not win.cfg.get("light_theme", False):
-        app_qt.setStyle(QtWidgets.QStyleFactory.create('Fusion'))
+        app_qt.setStyle(QStyleFactory.create('Fusion'))
         app_qt.setPalette(qt_theme.dark_palette)
         app_qt.setStyleSheet("QToolTip { color: #ffffff; background-color: #353535; border: 1px solid white; }")
     app_qt.exec_()
@@ -136,26 +149,28 @@ def startup(cls):
 
 def vbox(parent, grid):
     """Adds a grid layout"""
-    # vbox = QtWidgets.QVBoxLayout()
+    # vbox = QVBoxLayout()
     # vbox.addLayout(grid)
     # vbox.addStretch(1.0)
     # vbox.setSpacing(0)
     # vbox.setContentsMargins(0,0,0,0)
     parent.setLayout(grid)
 
-ICON_CACHE = {"no_icon": QtGui.QIcon()}
-def get_icon(name):
+ICON_CACHE = {"no_icon": QIcon()}
+def get_icon(name) -> QIcon:
     if name in ICON_CACHE:
         return ICON_CACHE[name]
     for ext in (".png", ".svg"):
         fp = os.path.join(root_dir, f'icons/{name}{ext}')
         if os.path.isfile(fp):
-            ICON_CACHE[name] = QtGui.QIcon(fp)
+            ICON_CACHE[name] = QIcon(fp)
             return ICON_CACHE[name]
     return ICON_CACHE["no_icon"]
 
 
-class CustomSortFilterProxyModel(QtCore.QSortFilterProxyModel):
+FilterFunc = Callable[[Any, str], bool]
+
+class CustomSortFilterProxyModel(QSortFilterProxyModel):
     """
     Implements a QSortFilterProxyModel that allows for custom
     filtering. Add new filter functions using addFilterFunction().
@@ -170,19 +185,17 @@ class CustomSortFilterProxyModel(QtCore.QSortFilterProxyModel):
     to handle regular expressions if needed.
     """
 
-    def __init__(self, parent=None):
-        super(CustomSortFilterProxyModel, self).__init__(parent)
+    def __init__(self, parent: Optional[QObject] = None) -> None:
+        super().__init__(parent)
         self.filterString = ''
-        self.filterFunctions = {}
+        self.filterFunctions: dict[str, FilterFunc] = {}
 
-    def lessThan(self, QModelIndex, QModelIndex_1):
+    def lessThan(self, left: QModelIndex, right: QModelIndex) -> bool:
         # for whatever reason, probably due to data loss in casting, we must override this function
         # to allow for correct comparison of djb2 hashes
-        l = QModelIndex.data()
-        r = QModelIndex_1.data()
-        return l < r
+        return left.data() < right.data()
 
-    def setFilterFixedString(self, text):
+    def setFilterFixedString(self, text: str) -> None:
         """
         text : string
             The string to be used for pattern matching.
@@ -190,7 +203,7 @@ class CustomSortFilterProxyModel(QtCore.QSortFilterProxyModel):
         self.filterString = text.lower()
         self.invalidateFilter()
 
-    def addFilterFunction(self, name, new_func):
+    def addFilterFunction(self, name: str, new_func: FilterFunc) -> None:
         """
         name : hashable object
             The object to be used as the key for
@@ -210,7 +223,7 @@ class CustomSortFilterProxyModel(QtCore.QSortFilterProxyModel):
         self.filterFunctions[name] = new_func
         self.invalidateFilter()
 
-    def removeFilterFunction(self, name):
+    def removeFilterFunction(self, name: str) -> None:
         """
         name : hashable object
 
@@ -221,62 +234,59 @@ class CustomSortFilterProxyModel(QtCore.QSortFilterProxyModel):
             del self.filterFunctions[name]
             self.invalidateFilter()
 
-    def filterAcceptsRow(self, row_num, parent):
+    def filterAcceptsRow(self, source_row: int, _source_parent: QModelIndex) -> bool:
         """
         Reimplemented from base class to allow the use
         of custom filtering.
         """
-        model = self.sourceModel()
         # The source mesh should have a method called row()
         # which returns the table row as a python list.
-        tests = [func(model.row(row_num), self.filterString) for func in self.filterFunctions.values()]
+        model = cast(TableModel, self.sourceModel())
+        tests = [func(model.row(source_row), self.filterString) for func in self.filterFunctions.values()]
         return False not in tests
 
 
-class TableModel(QtCore.QAbstractTableModel):
-    member_renamed = QtCore.pyqtSignal(str, str)
+class TableModel(QAbstractTableModel):
+    member_renamed = pyqtSignal(str, str)
 
-    def __init__(self, header_names, ignore_types):
+    def __init__(self, header_names: list[str], ignore_types: list[str]) -> None:
         super(TableModel, self).__init__()
-        # data is a list of lists, row first
-        self._data = []
+        self._data: list[list[str]] = []
         self.header_labels = header_names
         self.ignore_types = ignore_types
         # self.member_renamed.connect(self.member_renamed_debug_print)
 
     @staticmethod
-    def member_renamed_debug_print(a, b):
+    def member_renamed_debug_print(a, b) -> None:
         print("renamed", a, b)
 
-    def data(self, index, role):
+    def data(self, index: QModelIndex, role: int = Qt.ItemDataRole.DisplayRole) -> Any:
         file_row = self._data[index.row()]
-        if role in (QtCore.Qt.DisplayRole, QtCore.Qt.EditRole):
-            # See below for the nested-list data structure.
-            # .row() indexes into the outer list,
-            # .column() indexes into the elem-list
+        if role in (Qt.ItemDataRole.DisplayRole, Qt.ItemDataRole.EditRole):
             if len(file_row):
                 return self._data[index.row()][index.column()]
 
+        # TODO: Remove some hardcoding surrounding File Type
         if "File Type" in self.header_labels:
             type_idx = self.header_labels.index("File Type")
-            if role == QtCore.Qt.ForegroundRole:
+            if role == Qt.ItemDataRole.ForegroundRole:
                 if len(file_row) and file_row[type_idx] in self.ignore_types:
-                    return QtGui.QColor('grey')
+                    return QColor('grey')
 
-            if role == QtCore.Qt.DecorationRole:
+            if role == Qt.ItemDataRole.DecorationRole:
                 if index.column() == 0:
                     if len(file_row):
                         # remove the leading '.' from ext
                         return get_icon(file_row[type_idx][1:])
 
-        if role == QtCore.Qt.TextAlignmentRole:
+        if role == Qt.ItemDataRole.TextAlignmentRole:
             # center align non-primary integer columns
             if index.column() > 0 and str(file_row[index.column()]).isnumeric():
-                return QtCore.Qt.AlignVCenter | QtCore.Qt.AlignHCenter
+                return Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignHCenter
 
-    def setData(self, index, value, role=QtCore.Qt.EditRole):
+    def setData(self, index: QModelIndex, value: Any, role: int = Qt.ItemDataRole.DisplayRole) -> bool:
         if index.isValid():
-            if role == QtCore.Qt.EditRole:
+            if role == Qt.ItemDataRole.EditRole:
                 row = index.row()
                 column = index.column()
                 old_value = self._data[row][column]
@@ -287,28 +297,28 @@ class TableModel(QtCore.QAbstractTableModel):
                 return True
         return False
 
-    def row(self, row_index):
+    def row(self, row_index: int) -> Any:
         return self._data[row_index]
 
-    def rowCount(self, index = None):
+    def rowCount(self, _index: Optional[QModelIndex] = None) -> int:
         # The length of the outer list.
         return len(self._data)
 
-    def columnCount(self, index):
+    def columnCount(self, _index: Optional[QModelIndex] = None) -> int:
         # The following takes the first elem-list, and returns
         # the length (only works if all rows are an equal length)
         return len(self.header_labels)
 
-    def headerData(self, section, orientation, role=QtCore.Qt.DisplayRole):
-        if role == QtCore.Qt.DisplayRole and orientation == QtCore.Qt.Horizontal:
+    def headerData(self, section: int, orientation: Qt.Orientation, role: int = Qt.ItemDataRole.DisplayRole) -> Any:
+        if role == Qt.ItemDataRole.DisplayRole and orientation == Qt.Orientation.Horizontal:
             return self.header_labels[section]
-        return QtCore.QAbstractTableModel.headerData(self, section, orientation, role)
+        return super().headerData(section, orientation, role)
 
-    def flags(self, index):
+    def flags(self, index: QModelIndex) -> Qt.ItemFlags:
         dtype = self._data[index.row()]
-        d_n_d = QtCore.Qt.ItemIsDragEnabled | QtCore.Qt.ItemIsDropEnabled | QtCore.Qt.ItemIsSelectable
-        renamable = QtCore.Qt.ItemIsEditable | QtCore.Qt.ItemIsEnabled
-        state = QtCore.Qt.NoItemFlags
+        d_n_d = Qt.ItemFlags(cast(Qt.ItemFlags, Qt.ItemFlag.ItemIsDragEnabled | Qt.ItemFlag.ItemIsDropEnabled | Qt.ItemFlag.ItemIsSelectable))
+        renamable = Qt.ItemFlags(cast(Qt.ItemFlags, Qt.ItemFlag.ItemIsEditable | Qt.ItemFlag.ItemIsEnabled))
+        state = Qt.ItemFlags(cast(Qt.ItemFlags, Qt.ItemFlag.NoItemFlags))
         if index.column() == 0:
             state |= renamable
         if len(dtype) and dtype[1] not in self.ignore_types:
@@ -316,30 +326,30 @@ class TableModel(QtCore.QAbstractTableModel):
         return state
 
 
-class SortableTable(QtWidgets.QWidget):
+class SortableTable(QWidget):
     def __init__(self, header_names, ignore_types, ignore_drop_type="", opt_hide=False):
         super().__init__()
         self.table = TableView(header_names, ignore_types, ignore_drop_type)
         self.filter_entry = LabelEdit("Filter")
         self.filter_entry.entry.textChanged.connect(self.table.set_filter)
-        self.hide_unused = QtWidgets.QCheckBox("Hide unextractable files")
+        self.hide_unused = QCheckBox("Hide unextractable files")
         if opt_hide:
             self.hide_unused.stateChanged.connect(self.toggle_hide)
         else:
             self.hide_unused.hide()
-        self.rev_search = QtWidgets.QCheckBox("Exclude Search")
+        self.rev_search = QCheckBox("Exclude Search")
         self.rev_search.stateChanged.connect(self.toggle_rev)
-        self.clear_filters = QtWidgets.QPushButton("Clear")
+        self.clear_filters = QPushButton("Clear")
         self.clear_filters.pressed.connect(self.clear_filter)
 
         # Button Row Setup
         self.button_count = 0
-        self.btn_layout = QtWidgets.QHBoxLayout()
+        self.btn_layout = QHBoxLayout()
         self.btn_layout.setContentsMargins(0, 0, 0, 0)
-        self.btn_frame = QtWidgets.QFrame()
+        self.btn_frame = QFrame()
         self.btn_frame.setLayout(self.btn_layout)
 
-        qgrid = QtWidgets.QGridLayout()
+        qgrid = QGridLayout()
         qgrid.addWidget(self.filter_entry, 0, 0, )
         qgrid.addWidget(self.hide_unused, 0, 1, )
         qgrid.addWidget(self.rev_search, 0, 2, )
@@ -379,13 +389,13 @@ class SortableTable(QtWidgets.QWidget):
             self.table.selectionModel().selectionChanged.connect(btn.setEnabledFromSelection)
 
 
-class TableView(QtWidgets.QTableView):
-    files_dragged = QtCore.pyqtSignal(list)
-    files_dropped = QtCore.pyqtSignal(list)
-    file_selected = QtCore.pyqtSignal(int)
-    file_selected_count = QtCore.pyqtSignal(int)
+class TableView(QTableView):
+    files_dragged = pyqtSignal(list)
+    files_dropped = pyqtSignal(list)
+    file_selected = pyqtSignal(int)
+    file_selected_count = pyqtSignal(int)
 
-    def __init__(self, header_names, ignore_types, ignore_drop_type):
+    def __init__(self, header_names: list[str], ignore_types: list[str], ignore_drop_type: str):
         super().__init__()
         self.ignore_types = ignore_types
         self.header_names = header_names
@@ -394,11 +404,11 @@ class TableView(QtWidgets.QTableView):
         # self.proxyModel = QSortFilterProxyModel()
         self.proxyModel = CustomSortFilterProxyModel()
         self.proxyModel.setSourceModel(self.model)
-        self.proxyModel.setSortRole(QtCore.Qt.UserRole)
+        self.proxyModel.setSortRole(Qt.ItemDataRole.UserRole)
         self.setModel(self.proxyModel)
 
         self.resizeColumnsToContents()
-        self.setEditTriggers(QtWidgets.QAbstractItemView.DoubleClicked)
+        self.setEditTriggers(QAbstractItemView.DoubleClicked)
         self.setAcceptDrops(True)
         self.setDragEnabled(True)
         self.setDropIndicatorShown(True)
@@ -407,7 +417,7 @@ class TableView(QtWidgets.QTableView):
 
         self.setSortingEnabled(True)
         # sort by index; -1 means don't sort
-        self.sortByColumn(-1, QtCore.Qt.AscendingOrder)
+        self.sortByColumn(-1, Qt.SortOrder.AscendingOrder)
         self.proxyModel.setFilterFixedString("")
         self.proxyModel.setFilterKeyColumn(0)
         self.rev_check = False
@@ -415,8 +425,8 @@ class TableView(QtWidgets.QTableView):
 
         # handle column width
         header = self.horizontalHeader()
-        header.setSectionResizeMode(0, QtWidgets.QHeaderView.Stretch)
-        header.setSectionResizeMode(1, QtWidgets.QHeaderView.ResizeToContents)
+        header.setSectionResizeMode(0, QHeaderView.Stretch)
+        header.setSectionResizeMode(1, QHeaderView.ResizeToContents)
 
         # The number of selected items in the model
         self.selected_count = 0
@@ -450,7 +460,7 @@ class TableView(QtWidgets.QTableView):
     def clear_filter(self, ):
         # self.proxyModel.setFilterFixedString("")
         self.proxyModel.setFilterFixedString("")
-        self.sortByColumn(-1, QtCore.Qt.AscendingOrder)
+        self.sortByColumn(-1, Qt.AscendingOrder)
 
     def get_selected_line_indices(self):
         indices = set(self.proxyModel.mapToSource(x).row() for x in self.selectedIndexes())
@@ -468,23 +478,23 @@ class TableView(QtWidgets.QTableView):
     # todo - the following do not have the intended effect of allowing left click drags only
     # @staticmethod
     # def handle_event(q_event):
-    # 	if q_event.mouseButtons() == QtCore.Qt.MouseButtons.LeftButton:
+    # 	if q_event.mouseButtons() == Qt.MouseButtons.LeftButton:
     # 		q_event.accept()
     # 	else:
     # 		q_event.ignore()
     #
-    # def dragEnterEvent(self, q_event):
-    # 	self.handle_event(q_event)
+    # def dragEnterEvent(self, event: QDragEnterEvent) -> None:
+    # 	self.handle_event(event)
     #
     # # def dragLeaveEvent(self, q_event):
     # # crashes
     # # 	self.handle_event(q_event)
     #
-    # def dragMoveEvent(self, q_event):
-    # 	self.handle_event(q_event)
+    # def dragMoveEvent(self, event: QDragMoveEvent) -> None:
+    # 	self.handle_event(event)
     #
-    # def dropEvent(self, q_event):
-    # 	self.handle_event(q_event)
+    # def dropEvent(self, event: QDropEvent) -> None:
+    # 	self.handle_event(event)
 
     def startDrag(self, drop_actions):
         """Emits a signal with the file names of all files that are being dragged"""
@@ -500,7 +510,7 @@ class TableView(QtWidgets.QTableView):
         self.model.endResetModel()
         self.resizeColumnsToContents()
 
-    def accept_ignore(self, e):
+    def accept_ignore(self, e: QDropEvent):
         if not self.ignore_drop_type:
             e.accept()
             return
@@ -510,13 +520,13 @@ class TableView(QtWidgets.QTableView):
         else:
             e.ignore()
 
-    def dragMoveEvent(self, e):
-        self.accept_ignore(e)
+    def dragMoveEvent(self, event: QDragMoveEvent) -> None:
+        self.accept_ignore(event)
 
-    def dragEnterEvent(self, e):
-        self.accept_ignore(e)
+    def dragEnterEvent(self, event: QDragEnterEvent) -> None:
+        self.accept_ignore(event)
 
-    def dropEvent(self, event):
+    def dropEvent(self, event: QDropEvent) -> None:
         data = event.mimeData()
         urls = data.urls()
         if urls and urls[0].scheme() == 'file':
@@ -529,16 +539,32 @@ class SelectedItemsButton(QtWidgets.QPushButton):
         QtWidgets.QPushButton.__init__(self, name)
         self.setStyleSheet("SelectedItemsButton:disabled { background-color: #252525; } ")
 
-    def setEnabledFromSelection(self, selection):
+    def setEnabledFromSelection(self, selection: QItemSelection):
         self.setEnabled(selection.count() > 0)
 
 
-class LabelEdit(QtWidgets.QWidget):
+class QTextEditLogger(logging.Handler, QObject):
+    """Text field to hold log information."""
+    appendPlainText = pyqtSignal(str)
+
+    def __init__(self, parent: Optional[QWidget]) -> None:
+        super().__init__()
+        QObject.__init__(self, parent)
+        self.widget = QPlainTextEdit(parent)
+        self.widget.setReadOnly(True)
+        self.appendPlainText.connect(self.widget.appendPlainText)
+
+    def emit(self, record: logging.LogRecord):
+        msg = self.format(record)
+        self.appendPlainText.emit(msg)
+
+
+class LabelEdit(QWidget):
     def __init__(self, name, ):
-        QtWidgets.QWidget.__init__(self, )
-        self.label = QtWidgets.QLabel(name)
-        self.entry = QtWidgets.QLineEdit()
-        vbox = QtWidgets.QHBoxLayout()
+        QWidget.__init__(self, )
+        self.label = QLabel(name)
+        self.entry = QLineEdit()
+        vbox = QHBoxLayout()
         vbox.addWidget(self.label)
         vbox.addWidget(self.entry)
         vbox.setContentsMargins(0, 0, 0, 0)
@@ -571,7 +597,7 @@ class CleverCombo(QtWidgets.QComboBox):
     """"A combo box that supports setting content (existing or new)"""
 
     def __init__(self, parent: Optional[QWidget] = None,
-                 options: Optional[Iterable[str]] = None, allow_scroll: bool = False):
+                 options: Optional[Iterable[str]] = None, allow_scroll: bool = False) -> None:
         super().__init__(parent)
         # Allow scroll events before clicking
         self.allow_scroll = allow_scroll
@@ -581,8 +607,8 @@ class CleverCombo(QtWidgets.QComboBox):
         if options is not None:
             self.addItems(options)
 
-    def setText(self, txt):
-        flag = QtCore.Qt.MatchFixedString
+    def setText(self, txt: str) -> None:
+        flag = Qt.MatchFlag.MatchFixedString
         indx = self.findText(txt, flags=flag)
         # add new item if not found
         if indx == -1:
@@ -591,8 +617,8 @@ class CleverCombo(QtWidgets.QComboBox):
         self.setCurrentIndex(indx)
 
 
-class NoScrollDoubleSpinBox(QtWidgets.QDoubleSpinBox):
-    """A double spin box that does not allow scrolling to change values by default"""
+class NoScrollDoubleSpinBox(QDoubleSpinBox):
+    """A double spin box that does not allow scrolling to change values until clicked"""
 
     def __init__(self, parent: Optional[QWidget] = None, allow_scroll: bool = False) -> None:
         super().__init__(parent)
@@ -603,16 +629,21 @@ class NoScrollDoubleSpinBox(QtWidgets.QDoubleSpinBox):
             self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
 
 
-class CheckableComboBox(QtWidgets.QComboBox):
+class CheckableComboBox(QComboBox):
 
     # Subclass Delegate to increase item height
-    class Delegate(QtWidgets.QStyledItemDelegate):
+    class Delegate(QStyledItemDelegate):
+        def __init__(self, parent: Optional[QObject] = None, height: int = 20) -> None:
+            super().__init__(parent)
+            self.height = height
+
         def sizeHint(self, option: QStyleOptionViewItem, index: QModelIndex) -> QSize:
             size = super().sizeHint(option, index)
-            size.setHeight(20)
+            size.setHeight(self.height)
             return size
 
-    def __init__(self, parent: Optional[QWidget] = None, allow_scroll: bool = False) -> None:
+    def __init__(self, parent: Optional[QWidget] = None,
+                 item_height: int = 20, allow_scroll: bool = False) -> None:
         super().__init__(parent)
         # Make the combo editable to set a custom text, but readonly
         self.setEditable(True)
@@ -625,10 +656,10 @@ class CheckableComboBox(QtWidgets.QComboBox):
             self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
 
         # store current selection
-        self.texts = []
+        self.texts: list[str] = []
 
         # Use custom delegate
-        self.setItemDelegate(CheckableComboBox.Delegate())
+        self.setItemDelegate(CheckableComboBox.Delegate(height=item_height))
 
         # Update the text when an item is toggled
         self.model().dataChanged.connect(self.updateText)
@@ -642,7 +673,7 @@ class CheckableComboBox(QtWidgets.QComboBox):
 
     def eventFilter(self, object: QObject, event: QEvent) -> bool:
         if object == self.lineEdit():
-            if event.type() == QEvent.MouseButtonRelease:
+            if isinstance(event, QMouseEvent) and event.type() == QEvent.Type.MouseButtonRelease:
                 if self.closeOnLineEditClick:
                     self.hidePopup()
                 else:
@@ -651,14 +682,14 @@ class CheckableComboBox(QtWidgets.QComboBox):
             return False
 
         if object == self.view().viewport():
-            if event.type() == QEvent.MouseButtonRelease:
+            if isinstance(event, QMouseEvent) and event.type() == QEvent.Type.MouseButtonRelease:
                 index = self.view().indexAt(event.pos())
-                item = self.model().item(index.row())
+                item = cast(QStandardItemModel, self.model()).item(index.row())
 
-                if item.checkState() == Qt.Checked:
-                    item.setCheckState(Qt.Unchecked)
+                if item.checkState() == Qt.CheckState.Checked:
+                    item.setCheckState(Qt.CheckState.Unchecked)
                 else:
-                    item.setCheckState(Qt.Checked)
+                    item.setCheckState(Qt.CheckState.Checked)
                 return True
         return False
 
@@ -686,9 +717,9 @@ class CheckableComboBox(QtWidgets.QComboBox):
 
     def updateText(self) -> None:
         self.texts = []
-        model: QStandardItemModel = self.model()
+        model = cast(QStandardItemModel, self.model())
         for i in range(model.rowCount()):
-            if model.item(i).checkState() == Qt.Checked:
+            if model.item(i).checkState() == Qt.CheckState.Checked:
                 self.texts.append(model.item(i).text())
         text = ", ".join(self.texts)
 
@@ -696,22 +727,22 @@ class CheckableComboBox(QtWidgets.QComboBox):
             text = 'All known types'
 
         # Compute elided text (with "...")
-        metrics = QtGui.QFontMetrics(self.lineEdit().font())
-        elidedText = metrics.elidedText(text, Qt.ElideRight, self.lineEdit().width())
+        metrics = QFontMetrics(self.lineEdit().font())
+        elidedText = metrics.elidedText(text, Qt.TextElideMode.ElideRight, self.lineEdit().width())
         self.lineEdit().setText(elidedText)
 
-    def addItem(self, text: str, data: Any = None) -> None:
-        item = QtGui.QStandardItem()
+    def addItem(self, text: str, data: Any = None) -> None: # type: ignore[override]
+        item = QStandardItem()
         item.setText(text)
         if data is None:
             item.setData(text)
         else:
             item.setData(data)
-        item.setFlags(Qt.ItemIsEnabled | Qt.ItemIsUserCheckable)
-        item.setData(Qt.Unchecked, Qt.CheckStateRole)
-        self.model().appendRow(item)
+        item.setFlags(Qt.ItemFlags(cast(Qt.ItemFlags, Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsUserCheckable)))
+        item.setData(Qt.CheckState.Unchecked, Qt.ItemDataRole.CheckStateRole)
+        cast(QStandardItemModel, self.model()).appendRow(item)
 
-    def addItems(self, texts: Iterable[str], datalist: Iterable[Any] = None) -> None:
+    def addItems(self, texts: Iterable[str], datalist: Optional[list[Any]] = None) -> None: # type: ignore[override]
         for i, text in enumerate(texts):
             if datalist is None:
                 self.addItem(text)
@@ -722,20 +753,20 @@ class CheckableComboBox(QtWidgets.QComboBox):
                     data = None
                 self.addItem(text, data)
 
-    def currentData(self, role: int = ...) -> Any:
+    def currentData(self, role: int = Qt.ItemDataRole.DisplayRole) -> Any:
         # Return the list of selected items data
         res = []
-        model: QStandardItemModel = self.model()
+        model = cast(QStandardItemModel, self.model())
         for i in range(model.rowCount()):
-            if model.item(i).checkState() == Qt.Checked:
+            if model.item(i).checkState() == Qt.CheckState.Checked:
                 res.append(model.item(i).data(role))
         return res
 
 
-class OvlDataFilterProxy(QtCore.QSortFilterProxyModel):
+class OvlDataFilterProxy(QSortFilterProxyModel):
     """Base proxy class for GamesWidget directory model"""
 
-    def __init__(self, parent: Optional[QtCore.QObject] = None) -> None:
+    def __init__(self, parent: Optional[QObject] = None) -> None:
         super(OvlDataFilterProxy, self).__init__(parent)
         self.setDynamicSortFilter(True)
         self.setRecursiveFilteringEnabled(True)
@@ -761,8 +792,8 @@ class OvlDataFilterProxy(QtCore.QSortFilterProxyModel):
         self.root_idx = idx
         self.root_depth = self.depth(idx)
 
-    def data(self, index: QModelIndex, role: int = 0) -> Any:
-        if role == QtWidgets.QFileSystemModel.Roles.FileIconRole:
+    def data(self, index: QModelIndex, role: int = Qt.ItemDataRole.DisplayRole) -> Any:
+        if role == QFileSystemModel.Roles.FileIconRole:
             name = index.data()
             _, ext = os.path.splitext(name)
             if ext:
@@ -770,17 +801,17 @@ class OvlDataFilterProxy(QtCore.QSortFilterProxyModel):
             return get_icon("dir")
         return super().data(index, role)
 
-    def setSourceModel(self, sourceModel: "OvlDataFilesystemModel") -> None:
+    def setSourceModel(self, sourceModel: "OvlDataFilesystemModel") -> None: # type: ignore[override]
         super().setSourceModel(sourceModel)
         self.update_root(sourceModel.index(0, 0))
 
-    def rowCount(self, parent: QModelIndex) -> int:
+    def rowCount(self, parent: QModelIndex = QModelIndex()) -> int:
         if self.depth(parent) > self.max_depth + self.root_depth:
             # Hide children if they are beyond the specified depth.
             return 0
         return super().rowCount(parent)
 
-    def hasChildren(self, parent: QModelIndex) -> bool:
+    def hasChildren(self, parent: QModelIndex = QModelIndex()) -> bool:
         if self.depth(parent) > self.max_depth + self.root_depth:
             # Hide children if they are beyond the specified depth.
             return False
@@ -788,11 +819,11 @@ class OvlDataFilterProxy(QtCore.QSortFilterProxyModel):
 
     def lessThan(self, left: QModelIndex, right: QModelIndex) -> bool:
         """Sort how QFileSystemModel sorts"""
-        model: "OvlDataFilesystemModel" = self.sourceModel()
+        model = cast("OvlDataFilesystemModel", self.sourceModel())
         return model.fileInfo(left).isDir() and not model.fileInfo(right).isDir()
 
     def filterAcceptsRow(self, source_row: int, source_parent: QModelIndex) -> bool:
-        model: "OvlDataFilesystemModel" = self.sourceModel()
+        model = cast("OvlDataFilesystemModel", self.sourceModel())
         idx = source_parent.child(source_row, 0)
 
         regexp = self.filterRegularExpression()
@@ -806,25 +837,25 @@ class OvlDataFilterProxy(QtCore.QSortFilterProxyModel):
         return regexp.match(model.filePath(idx)).hasMatch()
 
 
-class OvlDataFilesystemModel(QtWidgets.QFileSystemModel):
+class OvlDataFilesystemModel(QFileSystemModel):
 
-    def __init__(self, parent: Optional[QtCore.QObject] = None) -> None:
+    def __init__(self, parent: Optional[QObject] = None) -> None:
         super().__init__(parent)
 
 
-class OvlDataTreeView(QtWidgets.QTreeView):
+class OvlDataTreeView(QTreeView):
 
     def __init__(self, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent)
 
 
-class GamesWidget(QtWidgets.QWidget):
+class GamesWidget(QWidget):
     """Installed games combo box with optional directory widget"""
-    installed_game_chosen = QtCore.pyqtSignal(str)
-    dir_dbl_clicked = QtCore.pyqtSignal(QtCore.QModelIndex)
-    file_dbl_clicked = QtCore.pyqtSignal(QtCore.QModelIndex)
+    installed_game_chosen = pyqtSignal(str)
+    dir_dbl_clicked = pyqtSignal(QModelIndex)
+    file_dbl_clicked = pyqtSignal(QModelIndex)
 
-    def __init__(self, parent: type["MainWindow"], filters: list[str] = None,
+    def __init__(self, parent: "MainWindow", filters: Optional[list[str]] = None,
                  game_chosen_fn: Optional[Callable] = None,
                  dir_dbl_click_fn: Optional[Callable] = None,
                  file_dbl_click_fn: Optional[Callable] = None) -> None:
@@ -837,10 +868,10 @@ class GamesWidget(QtWidgets.QWidget):
         self.entry.setEditable(False)
         self.set_data(self.cfg["games"].keys())
 
-        self.add_button = QtWidgets.QPushButton("+")
+        self.add_button = QPushButton("+")
         self.add_button.setMaximumWidth(20)
 
-        vbox = QtWidgets.QHBoxLayout(self)
+        vbox = QHBoxLayout(self)
         vbox.addWidget(self.entry)
         vbox.addWidget(self.add_button)
         # vbox.addWidget(self.delete_button)
@@ -864,7 +895,7 @@ class GamesWidget(QtWidgets.QWidget):
         self.dirs.clicked.connect(self.item_clicked)
         self.dirs.doubleClicked.connect(self.item_dbl_clicked)
 
-        self.dirs.header().setSortIndicator(0, QtCore.Qt.AscendingOrder)
+        self.dirs.header().setSortIndicator(0, Qt.SortOrder.AscendingOrder)
         self.dirs.model().sort(self.dirs.header().sortIndicatorSection(), self.dirs.header().sortIndicatorOrder())
 
         self.proxy = OvlDataFilterProxy(self)
@@ -885,16 +916,16 @@ class GamesWidget(QtWidgets.QWidget):
             self.file_dbl_clicked.connect(file_dbl_click_fn)
 
     def hide_official(self) -> None:
-        self.proxy.setFilterRegularExpression(QtCore.QRegularExpression("^((?!(Content|DLC|GameMain)).)*$",
-                                                                        options=QtCore.QRegularExpression.PatternOption.CaseInsensitiveOption))
+        self.proxy.setFilterRegularExpression(QRegularExpression("^((?!(Content|DLC|GameMain)).)*$",
+                                                                 options=QRegularExpression.PatternOption.CaseInsensitiveOption))
     
     def hide_modded(self) -> None:
-        self.proxy.setFilterRegularExpression(QtCore.QRegularExpression("^.*(Content|GameMain|.*DLC).*$",
-                                                                        options=QtCore.QRegularExpression.PatternOption.CaseInsensitiveOption))
+        self.proxy.setFilterRegularExpression(QRegularExpression("^.*(Content|GameMain|.*DLC).*$",
+                                                                 options=QRegularExpression.PatternOption.CaseInsensitiveOption))
 
     def set_depth(self, depth: int) -> None:
         """Set max visible subfolder depth. Depth = 0 root folders in ovldata only."""
-        self.proxy.set_depth(depth)
+        self.proxy.set_max_depth(depth)
 
     def item_clicked(self, idx: QModelIndex) -> None:
         if not self.dirs.isExpanded(idx):
@@ -905,7 +936,8 @@ class GamesWidget(QtWidgets.QWidget):
     def item_dbl_clicked(self, idx: QModelIndex) -> None:
         try:
             idx = self.proxy.mapToSource(idx)
-            file_path = idx.model().filePath(idx)
+            model = cast(OvlDataFilesystemModel, idx.model())
+            file_path = model.filePath(idx)
             # open folder in explorer
             if os.path.isdir(file_path):
                 os.startfile(file_path)
@@ -921,11 +953,9 @@ class GamesWidget(QtWidgets.QWidget):
         self.cfg["current_game"] = current_game
         self.installed_game_chosen.emit(current_game)
 
-    def ask_game_dir(self) -> (str | None):
+    def ask_game_dir(self) -> str:
         """Ask the user to specify a game root folder"""
-        dir_game = QtWidgets.QFileDialog.getExistingDirectory(self, "Open game folder")
-        if dir_game:
-            return dir_game
+        return QFileDialog.getExistingDirectory(self, "Open game folder")
 
     def get_selected_game(self) -> str:
         return self.entry.currentText()
@@ -947,11 +977,10 @@ class GamesWidget(QtWidgets.QWidget):
         self.dirs.setRootIndex(self.proxy.mapFromSource(rt_index))
         self.proxy.update_root(self.dirs.rootIndex())
 
-    def get_selected_dir(self) -> (str | None):
+    def get_selected_dir(self) -> str:
         ind = self.dirs.currentIndex()
         file_path = self.model.filePath(ind)
-        if os.path.isdir(file_path):
-            return file_path
+        return file_path if os.path.isdir(file_path) else ""
 
     def set_selected_dir(self, dir_path: str) -> None:
         """Show dir_path in dirs"""
@@ -974,9 +1003,8 @@ class GamesWidget(QtWidgets.QWidget):
             self.set_data(self.cfg["games"].keys())
 
     def set_data(self, items: Iterable[str]) -> None:
-        items = set(items)
         self.entry.clear()
-        self.entry.addItems(sorted(items))
+        self.entry.addItems(sorted(set(items)))
 
     def set_filter(self, proxy_cls: type[OvlDataFilterProxy]) -> None:
         self.proxy = proxy_cls(self)
@@ -1026,23 +1054,22 @@ class GamesWidget(QtWidgets.QWidget):
             return {}
 
 
-class EditCombo(QtWidgets.QWidget):
-    entries_changed = QtCore.pyqtSignal(list)
+class EditCombo(QWidget):
+    entries_changed = pyqtSignal(list)
 
     def __init__(self, parent):
         super().__init__(parent)
-        self.main_window = parent
-        self.add_button = QtWidgets.QPushButton("+")
+        self.add_button = QPushButton("+")
         self.add_button.setToolTip("Add Item")
         self.add_button.clicked.connect(self.add)
-        self.delete_button = QtWidgets.QPushButton("-")
+        self.delete_button = QPushButton("-")
         self.delete_button.setToolTip("Delete Item")
         self.delete_button.clicked.connect(self.delete)
         self.add_button.setMaximumWidth(20)
         self.delete_button.setMaximumWidth(20)
-        self.entry = QtWidgets.QComboBox()
+        self.entry = QComboBox()
         self.entry.setEditable(True)
-        self.vbox = QtWidgets.QHBoxLayout(self)
+        self.vbox = QHBoxLayout(self)
         self.vbox.addWidget(self.entry)
         self.vbox.addWidget(self.add_button)
         self.vbox.addWidget(self.delete_button)
@@ -1077,11 +1104,11 @@ class RelativePathCombo(EditCombo):
         super().__init__(parent)
         self.file = file_widget
         self.dtype = dtype.lower()
-        self.icon = QtWidgets.QPushButton()
+        self.icon = QPushButton()
         self.icon.setIcon(get_icon("dir"))
         self.icon.setFlat(True)
         self.icon.setToolTip("Open OVL file to include")
-        self.icon.setSizePolicy(QtWidgets.QSizePolicy.Policy.Maximum, QtWidgets.QSizePolicy.Policy.Maximum)
+        self.icon.setSizePolicy(QSizePolicy.Policy.Maximum, QSizePolicy.Policy.Maximum)
         self.icon.pressed.connect(self.ask_open)
         self.entry.setAcceptDrops(True)
         self.entry.dropEvent = self.dropEvent
@@ -1090,7 +1117,7 @@ class RelativePathCombo(EditCombo):
         self.vbox.insertWidget(0, self.icon)
 
     @property
-    def items(self):
+    def items(self) -> list[str]:
         return [os.path.normpath(self.entry.itemText(i)) for i in range(self.entry.count())]
 
     @property
@@ -1114,7 +1141,7 @@ class RelativePathCombo(EditCombo):
 
     def ask_open(self):
         if self.file.filepath:
-            filepath, _ = QtWidgets.QFileDialog.getOpenFileName(self, f'Choose {self.dtype}', self.root, f"{self.dtype} files (*.{self.dtype})")
+            filepath, _ = QFileDialog.getOpenFileName(self, f'Choose {self.dtype}', self.root, f"{self.dtype} files (*.{self.dtype})")
             self.decide_add(filepath)
 
     def get_files(self, event):
@@ -1130,29 +1157,29 @@ class RelativePathCombo(EditCombo):
             return
         event.ignore()
 
-    def dragEnterEvent(self, event):
+    def dragEnterEvent(self, event: QDragEnterEvent) -> None:
         self.accept_ignore(event)
 
-    def dragMoveEvent(self, event):
+    def dragMoveEvent(self, event: QDragMoveEvent) -> None:
         self.accept_ignore(event)
 
-    def dropEvent(self, event):
+    def dropEvent(self, event: QDropEvent) -> None:
         urls = self.get_files(event)
         if urls:
             self.decide_add(str(urls[0].path())[1:])
 
 
-class LabelCombo(QtWidgets.QWidget):
+class LabelCombo(QWidget):
     def __init__(self, name: str, options: Iterable[str], editable: bool = True, activated_fn: Optional[Callable] = None) -> None:
-        QtWidgets.QWidget.__init__(self, )
-        self.label = QtWidgets.QLabel(name)
+        QWidget.__init__(self, )
+        self.label = QLabel(name)
         self.entry = CleverCombo(self, options=options)
         self.entry.setEditable(editable)
-        box = QtWidgets.QHBoxLayout(self)
+        box = QHBoxLayout(self)
         box.addWidget(self.label)
         box.addWidget(self.entry)
         box.setContentsMargins(0, 0, 0, 0)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         # # sizePolicy.setHeightForWidth(self.entry.sizePolicy().hasHeightForWidth())
@@ -1163,13 +1190,13 @@ class LabelCombo(QtWidgets.QWidget):
             self.entry.textActivated.connect(activated_fn)
 
 
-class MySwitch(QtWidgets.QPushButton):
-    PRIMARY = QtGui.QColor(53, 53, 53)
-    SECONDARY = QtGui.QColor(35, 35, 35)
-    OUTLINE = QtGui.QColor(122, 122, 122)
-    TERTIARY = QtGui.QColor(42, 130, 218)
-    BLACK = QtGui.QColor(0, 0, 0)
-    WHITE = QtGui.QColor(255, 255, 255)
+class MySwitch(QPushButton):
+    PRIMARY = QColor(53, 53, 53)
+    SECONDARY = QColor(35, 35, 35)
+    OUTLINE = QColor(122, 122, 122)
+    TERTIARY = QColor(42, 130, 218)
+    BLACK = QColor(0, 0, 0)
+    WHITE = QColor(255, 255, 255)
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -1180,7 +1207,7 @@ class MySwitch(QtWidgets.QPushButton):
     def setValue(self, v):
         self.setChecked(v)
 
-    def paintEvent(self, event):
+    def paintEvent(self, _event: QPaintEvent) -> None:
         label = "ON" if self.isChecked() else "OFF"
         bg_color = self.TERTIARY if self.isChecked() else self.PRIMARY
 
@@ -1188,74 +1215,74 @@ class MySwitch(QtWidgets.QPushButton):
         width = 32
         center = self.rect().center()
 
-        painter = QtGui.QPainter(self)
-        painter.setRenderHint(QtGui.QPainter.Antialiasing)
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.Antialiasing)
         painter.translate(center)
         painter.setBrush(self.SECONDARY)
 
-        pen = QtGui.QPen(self.WHITE)
+        pen = QPen(self.WHITE)
         pen.setWidth(0)
         painter.setPen(pen)
 
-        painter.drawRoundedRect(QtCore.QRect(-width, -radius, 2 * width, 2 * radius), radius, radius)
-        painter.setBrush(QtGui.QBrush(bg_color))
-        sw_rect = QtCore.QRect(-radius, -radius, width + radius, 2 * radius)
+        painter.drawRoundedRect(QRect(-width, -radius, 2 * width, 2 * radius), radius, radius)
+        painter.setBrush(QBrush(bg_color))
+        sw_rect = QRect(-radius, -radius, width + radius, 2 * radius)
         if not self.isChecked():
             sw_rect.moveLeft(-width)
         painter.drawRoundedRect(sw_rect, radius, radius)
-        painter.drawText(sw_rect, QtCore.Qt.AlignCenter, label)
+        painter.drawText(sw_rect, Qt.AlignmentFlag.AlignCenter, label)
 
 
-class CollapsibleBox(QtWidgets.QWidget):
+class CollapsibleBox(QWidget):
     def __init__(self, title="", parent=None):
         super().__init__(parent)
 
-        self.toggle_button = QtWidgets.QToolButton(
+        self.toggle_button = QToolButton(
             text=title, checkable=True, checked=False
         )
         self.toggle_button.setStyleSheet("QToolButton { border: none; }")
         self.toggle_button.setToolButtonStyle(
-            QtCore.Qt.ToolButtonTextBesideIcon
+            Qt.ToolButtonStyle.ToolButtonTextBesideIcon
         )
-        self.toggle_button.setArrowType(QtCore.Qt.RightArrow)
+        self.toggle_button.setArrowType(Qt.ArrowType.RightArrow)
         self.toggle_button.pressed.connect(self.on_pressed)
 
-        self.toggle_animation = QtCore.QParallelAnimationGroup(self)
+        self.toggle_animation = QParallelAnimationGroup(self)
 
-        self.content_area = QtWidgets.QScrollArea(
+        self.content_area = QScrollArea(
             maximumHeight=0, minimumHeight=0
         )
         self.content_area.setSizePolicy(
-            QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed
+            QSizePolicy.Expanding, QSizePolicy.Fixed
         )
-        self.content_area.setFrameShape(QtWidgets.QFrame.NoFrame)
+        self.content_area.setFrameShape(QFrame.Shape.NoFrame)
 
-        lay = QtWidgets.QVBoxLayout(self)
+        lay = QVBoxLayout(self)
         lay.setSpacing(0)
         lay.setContentsMargins(0, 0, 0, 0)
         lay.addWidget(self.toggle_button)
         lay.addWidget(self.content_area)
 
         self.toggle_animation.addAnimation(
-            QtCore.QPropertyAnimation(self, b"minimumHeight")
+            QPropertyAnimation(self, b"minimumHeight")
         )
         self.toggle_animation.addAnimation(
-            QtCore.QPropertyAnimation(self, b"maximumHeight")
+            QPropertyAnimation(self, b"maximumHeight")
         )
         self.toggle_animation.addAnimation(
-            QtCore.QPropertyAnimation(self.content_area, b"maximumHeight")
+            QPropertyAnimation(self.content_area, b"maximumHeight")
         )
 
-    @QtCore.pyqtSlot()
+    @pyqtSlot()
     def on_pressed(self):
         checked = self.toggle_button.isChecked()
         self.toggle_button.setArrowType(
-            QtCore.Qt.DownArrow if not checked else QtCore.Qt.RightArrow
+            Qt.ArrowType.DownArrow if not checked else Qt.ArrowType.RightArrow
         )
         self.toggle_animation.setDirection(
-            QtCore.QAbstractAnimation.Forward
+            QAbstractAnimation.Direction.Forward
             if not checked
-            else QtCore.QAbstractAnimation.Backward
+            else QAbstractAnimation.Direction.Backward
         )
         self.toggle_animation.start()
 
@@ -1286,10 +1313,10 @@ class MatcolInfo:
         """attrib must be pyffi matcol InfoWrapper object"""
         self.attrib = attrib
         name = attrib.info_name.data
-        self.label = QtWidgets.QLabel(name)
+        self.label = QLabel(name)
 
-        self.data = QtWidgets.QWidget()
-        layout = QtWidgets.QHBoxLayout()
+        self.data = QWidget()
+        layout = QHBoxLayout()
         layout.setSpacing(0)
         layout.setContentsMargins(0, 0, 0, 0)
         buttons = [self.create_field(i) for i, v in enumerate(attrib.flags) if v]
@@ -1310,7 +1337,7 @@ class MatcolInfo:
             self.attrib.value[ind] = v
 
         # always float
-        field = QtWidgets.QDoubleSpinBox()
+        field = QDoubleSpinBox()
         field.setDecimals(3)
         field.setRange(-10000, 10000)
         field.setSingleStep(.05)
@@ -1318,12 +1345,12 @@ class MatcolInfo:
 
         field.setValue(default)
         field.setMinimumWidth(50)
-        field.setAlignment(QtCore.Qt.AlignCenter)
+        field.setAlignment(Qt.AlignmentFlag.AlignCenter)
         field.setContentsMargins(0, 0, 0, 0)
         return field
 
 
-class QColorButton(QtWidgets.QPushButton):
+class QColorButton(QPushButton):
     '''
     Custom Qt Widget to show a chosen color.
 
@@ -1331,7 +1358,7 @@ class QColorButton(QtWidgets.QPushButton):
     right-clicking resets the color to None (no-color).
     '''
 
-    colorChanged = QtCore.pyqtSignal(object)
+    colorChanged = pyqtSignal(object)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -1339,7 +1366,7 @@ class QColorButton(QtWidgets.QPushButton):
         self._color = None
         self.setMaximumWidth(32)
         self.pressed.connect(self.onColorPicker)
-        QtCore.QDir.addSearchPath("icon", self.get_icon_dir())
+        QDir.addSearchPath("icon", self.get_icon_dir())
 
     def get_icon_dir(self):
         return os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), "icons")
@@ -1351,7 +1378,7 @@ class QColorButton(QtWidgets.QPushButton):
 
         if self._color:
             self.setStyleSheet(f"""QColorButton {{
-                background-color: {self._color.name(QtGui.QColor.NameFormat.HexArgb)};
+                background-color: {self._color.name(QColor.NameFormat.HexArgb)};
                 border: 0px;
                 min-width: 100px;
                 min-height: 22px;
@@ -1370,39 +1397,39 @@ class QColorButton(QtWidgets.QPushButton):
         Qt will use the native dialog by default.
 
         '''
-        dlg = QtWidgets.QColorDialog(self)
-        dlg.setOption(QtWidgets.QColorDialog.ShowAlphaChannel)
+        dlg = QColorDialog(self)
+        dlg.setOption(QColorDialog.ColorDialogOption.ShowAlphaChannel)
         if self._color:
             dlg.setCurrentColor(self._color)
         if dlg.exec_():
             self.setColor(dlg.currentColor())
 
-    def mousePressEvent(self, e):
-        if e.button() == QtCore.Qt.RightButton:
+    def mousePressEvent(self, event: QMouseEvent) -> None:
+        if event.button() == Qt.MouseButton.RightButton:
             self.setColor(None)
 
-        return super().mousePressEvent(e)
+        return super().mousePressEvent(event)
 
     def setValue(self, c):
-        self.setColor(QtGui.QColor(c.r, c.g, c.b, c.a))
+        self.setColor(QColor(c.r, c.g, c.b, c.a))
 
     def getValue(self, ):
         if self._color:
             print(self._color.getRgb())
 
 
-class FileWidget(QtWidgets.QWidget):
+class FileWidget(QWidget):
     """An entry widget that starts a file selector when clicked and also accepts drag & drop.
     Displays the current file's basename.
     """
-    file_changed = QtCore.pyqtSignal(str)
-    decide_open = QtCore.pyqtSignal(str)
+    file_changed = pyqtSignal(str)
+    decide_open = pyqtSignal(str)
 
     def __init__(self, parent: QWidget, cfg: dict, ask_user: bool = True, dtype: str = "OVL", editable: bool = False,
-                 check_exists: bool = False, root: Optional[str] = None):
+                 check_exists: bool = False, root: Optional[str] = None) -> None:
         super().__init__(parent)
-        self.entry = QtWidgets.QLineEdit()
-        self.icon = QtWidgets.QPushButton()
+        self.entry = QLineEdit(self)
+        self.icon = QPushButton(self)
         self.icon.setIcon(get_icon("dir"))
         self.icon.setFlat(True)
         self.entry.setDragEnabled(True)
@@ -1426,6 +1453,7 @@ class FileWidget(QtWidgets.QWidget):
 
         self.check_exists = check_exists
         self.root = root
+        # TODO: This is hardcoded for OVL Tool
         self.parent = parent
         self.cfg = cfg
         if not self.cfg:
@@ -1437,7 +1465,7 @@ class FileWidget(QtWidgets.QWidget):
         # this checks if the data has been modified by the user, is set from the outside
         self.dirty = False
 
-        self.qgrid = QtWidgets.QGridLayout()
+        self.qgrid = QGridLayout()
         self.qgrid.setContentsMargins(0, 0, 0, 0)
         self.qgrid.addWidget(self.icon, 0, 0)
         self.qgrid.addWidget(self.entry, 0, 1)
@@ -1452,7 +1480,7 @@ class FileWidget(QtWidgets.QWidget):
     def _tooltip(self):
         return f"Currently open {self.dtype} file: {self.filepath}" if self.filepath else f"Open {self.dtype} file"
 
-    def abort_open_new_file(self, new_filepath):
+    def abort_open_new_file(self, new_filepath: str):
         # only return True if we should abort
         if not self.ask_user:
             return False
@@ -1460,16 +1488,17 @@ class FileWidget(QtWidgets.QWidget):
             msg = "Do you really want to load " + os.path.basename(
                 new_filepath) + "? You will lose unsaved work on " + os.path.basename(self.filepath) + "!"
             return not interaction.showdialog(msg, title="Unsaved Changes", 
-                                  buttons=(QtWidgets.QMessageBox.Discard | QtWidgets.QMessageBox.Cancel))
+                                  buttons=(QMessageBox.StandardButtons.Discard | QMessageBox.StandardButtons.Cancel))
 
-    def set_file_path(self, filepath):
+    def set_file_path(self, filepath: str) -> bool:
         if not self.abort_open_new_file(filepath):
             self._set_file_path(filepath)
             self.cfg[f"dir_{self.dtype_l}s_in"] = self.dir
             self.cfg[f"last_{self.dtype_l}_in"] = self.filepath
             return True
+        return False
 
-    def _set_file_path(self, filepath):
+    def _set_file_path(self, filepath: str) -> None:
         self.filepath = filepath
         self.dir, self.filename = os.path.split(filepath)
         self.setText(self.filename)
@@ -1477,77 +1506,85 @@ class FileWidget(QtWidgets.QWidget):
         self.entry.setToolTip(self._tooltip)
         self.file_changed.emit(filepath)
 
-    def check_file(self, name):
+    def check_file(self, name: str) -> None:
         if self.check_exists:
             is_file = Path(os.path.join(self.root if self.root else self.dir, name)).is_file()
             self.entry.setToolTip("" if is_file else "Warning: File does not exist. This is OK if the file is external/shared.")
             self.entry.setStyleSheet("" if is_file else "QLineEdit { color: rgba(168, 168, 64, 255); background-color: rgba(44, 44, 30, 255); }")
 
-    def accept_file(self, filepath):
+    def accept_file(self, filepath: str) -> bool:
         if os.path.isfile(filepath):
             if os.path.splitext(filepath)[1].lower() in (f".{self.dtype_l}",):
                 return self.set_file_path(filepath)
             else:
                 interaction.showwarning("Unsupported File Format")
+        return False
 
-    def accept_dir(self, dirpath):
+    def accept_dir(self, dirpath: str) -> bool:
+        # TODO: This is hardcoded for OVL Tool
         if os.path.isdir(dirpath):
             return self.set_file_path(f"{dirpath}.ovl")
+        return os.path.isdir(dirpath)
 
-    def setText(self, text):
+    def setText(self, text: str) -> None:
         self.entry.setText(text)
         # Keep front of path visible when small
         self.entry.setCursorPosition(0)
 
-    def get_files(self, event):
+    def get_files(self, event: QDropEvent) -> list[QUrl]:
         data = event.mimeData()
         urls = data.urls()
         if urls and urls[0].scheme() == 'file':
             return urls
+        return []
 
-    def dragEnterEvent(self, event):
+    def dragEnterEvent(self, event: QDragEnterEvent) -> None:
         if self.get_files(event):
             event.acceptProposedAction()
-            self.setFocus(True)
+            self.setFocus()
 
-    def dragMoveEvent(self, event):
+    def dragMoveEvent(self, event: QDragMoveEvent) -> None:
         if self.get_files(event):
             event.acceptProposedAction()
-            self.setFocus(True)
+            self.setFocus()
 
-    def dropEvent(self, event):
+    def dropEvent(self, event: QDropEvent) -> None:
         urls = self.get_files(event)
         if urls:
             filepath = str(urls[0].path())[1:]
             self.decide_open.emit(filepath)
 
-    def ask_open(self):
+    def ask_open(self) -> None:
         cfg_str = f"dir_{self.dtype_l}s_in"
-        filepath = QtWidgets.QFileDialog.getOpenFileName(
+        filepath = QFileDialog.getOpenFileName(
             self, f'Load {self.dtype}', self.cfg_path(cfg_str), self.files_filter_str)[0]
         if filepath:
             self.decide_open.emit(filepath)
 
-    def cfg_path(self, cfg_str):
+    def cfg_path(self, cfg_str: str) -> str:
         return self.cfg.get(cfg_str, "C://") if not self.root else self.root
 
     @property
-    def files_filter_str(self):
+    def files_filter_str(self) -> str:
         return f"{self.dtype} files (*.{self.dtype_l})"
 
-    def ask_save_as(self):
+    def ask_save_as(self) -> None:
         """Saves file, always ask for file path"""
+        # TODO: Signalize
+        # TODO: This is hardcoded for OVL Tool
         if self.is_open():
             cfg_str = f"dir_{self.dtype_l}s_out"
-            filepath = QtWidgets.QFileDialog.getSaveFileName(
+            filepath = QFileDialog.getSaveFileName(
                 self, f'Save {self.dtype}', self.cfg_path(cfg_str), self.files_filter_str)[0]
             if filepath:
                 self.cfg[cfg_str], file_name = os.path.split(filepath)
                 self._set_file_path(filepath)
                 self.parent._save()
 
-    def ask_save(self):
+    def ask_save(self) -> None:
         """Saves file, overwrite if path has been set, else ask"""
+        # TODO: Signalize
+        # TODO: This is hardcoded for OVL Tool
         if self.is_open():
             # do we have a filename already?
             if self.filename:
@@ -1556,35 +1593,38 @@ class FileWidget(QtWidgets.QWidget):
             else:
                 self.ask_save_as()
 
-    def ask_open_dir(self):
-        file_dir = QtWidgets.QFileDialog.getExistingDirectory()
+    def ask_open_dir(self) -> None:
+        file_dir = QFileDialog.getExistingDirectory()
+        # TODO: Signalize
+        # TODO: This is hardcoded for OVL Tool
         if self.accept_dir(file_dir):
             self.parent.create_ovl(file_dir)
 
-    def ignoreEvent(self, event):
+    def ignoreEvent(self, event: QMouseEvent) -> None:
         event.ignore()
 
-    def mousePressEvent(self, event):
+    def mousePressEvent(self, _event: QMouseEvent) -> None:
         if not self.editable:
             self.ask_open()
 
-    def is_open(self):
+    def is_open(self) -> bool:
         if self.filename or self.dirty:
             return True
-        else:
-            interaction.showwarning("You must open a file first!")
+
+        interaction.showwarning("You must open a file first!")
+        return False
 
 
 # Creates a dir widget, same as file but for directories
-class DirWidget(QtWidgets.QWidget):
+class DirWidget(QWidget):
     """An entry widget that starts a file selector when clicked and also accepts drag & drop.
     Displays the current file's basename.
     """
 
-    def __init__(self, parent, cfg, ask_user=True, dtype="OVL", poll=True):
-        super(DirWidget, self).__init__(parent)
-        self.entry = QtWidgets.QLineEdit()
-        self.icon = QtWidgets.QPushButton()
+    def __init__(self, parent, cfg, ask_user=True, dtype="OVL", poll=True) -> None:
+        super().__init__(parent)
+        self.entry = QLineEdit(self)
+        self.icon = QPushButton(self)
         self.icon.setIcon(get_icon("dir"))
         self.icon.setFlat(True)
         self.icon.mousePressEvent = self.ignoreEvent
@@ -1599,6 +1639,7 @@ class DirWidget(QtWidgets.QWidget):
         self.dtype_l = dtype.lower()
 
         self.poll = poll
+        # TODO: This is hardcoded for Mod Tool
         self.parent = parent
         self.cfg = cfg
         if not self.cfg:
@@ -1611,79 +1652,86 @@ class DirWidget(QtWidgets.QWidget):
         # this checks if the data has been modified by the user, is set from the outside
         self.dirty = False
 
-        self.qgrid = QtWidgets.QGridLayout()
+        self.qgrid = QGridLayout()
         self.qgrid.setContentsMargins(0, 0, 0, 0)
         self.qgrid.addWidget(self.icon, 0, 0)
         self.qgrid.addWidget(self.entry, 0, 1)
 
         self.setLayout(self.qgrid)
 
-    def accept_dir(self, dirpath):
+    def ask_open_dir(self) -> None:
+        # TODO: This is hardcoded for Mod Tool
+        filepath = QFileDialog.getExistingDirectory()
+        if self.accept_dir(filepath):
+            pass
+
+    def accept_dir(self, dirpath: str) -> bool:
+        # TODO: This is hardcoded for Mod Tool
         if os.path.isdir(dirpath):
             self.filepath = dirpath
             self.cfg[f"dir_{self.dtype_l}s_in"], self.filename = os.path.split(dirpath)
             self.setText(dirpath)
             self.parent.settings_changed()
             return True
+        return False
 
-    def setText(self, text):
+    def decide_open(self, filepath: str) -> None:
+        if self.accept_dir(filepath) and self.poll:
+            # self.parent.poll()
+            pass
+
+    def setText(self, text: str) -> None:
         self.entry.setText(text)
 
-    def get_files(self, event):
+    def get_files(self, event: QDropEvent) -> list[QUrl]:
         data = event.mimeData()
         urls = data.urls()
         if urls and urls[0].scheme() == 'file':
             return urls
+        return []
 
-    def dragEnterEvent(self, event):
+    def dragEnterEvent(self, event: QDragEnterEvent) -> None:
         if self.get_files(event):
             event.acceptProposedAction()
-            self.setFocus(True)
+            self.setFocus()
 
-    def dragMoveEvent(self, event):
+    def dragMoveEvent(self, event: QDragMoveEvent) -> None:
         if self.get_files(event):
             event.acceptProposedAction()
-            self.setFocus(True)
+            self.setFocus()
 
-    def dropEvent(self, event):
+    def dropEvent(self, event: QDropEvent) -> None:
         urls = self.get_files(event)
         if urls:
             filepath = str(urls[0].path())[1:]
             self.decide_open(filepath)
 
-    def decide_open(self, filepath):
-        if self.accept_dir(filepath) and self.poll:
-            # self.parent.poll()
-            pass
-
-    def ask_open_dir(self):
-        filepath = QtWidgets.QFileDialog.getExistingDirectory()
-        if self.accept_dir(filepath):
-            pass
-
-    def ignoreEvent(self, event):
+    def ignoreEvent(self, event: QMouseEvent) -> None:
         event.ignore()
 
-    def mousePressEvent(self, event):
+    def mousePressEvent(self, _event: QMouseEvent) -> None:
         self.ask_open_dir()
+
 
 class TitleBar(StandardTitleBar):
 
     def __init__(self, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent)
 
-        self.minBtn.setNormalColor(Qt.white)
-        self.minBtn.setHoverColor(Qt.white)
+        self.minBtn.setNormalColor(Qt.GlobalColor.white)
+        self.minBtn.setHoverColor(Qt.GlobalColor.white)
         self.minBtn.setHoverBackgroundColor("#777")
-        self.minBtn.setPressedColor(Qt.white)
+        self.minBtn.setPressedColor(Qt.GlobalColor.white)
 
-        self.maxBtn.setNormalColor(Qt.white)
-        self.maxBtn.setHoverColor(Qt.white)
+        self.maxBtn.setNormalColor(Qt.GlobalColor.white)
+        self.maxBtn.setHoverColor(Qt.GlobalColor.white)
         self.maxBtn.setHoverBackgroundColor("#777")
-        self.maxBtn.setPressedColor(Qt.white)
+        self.maxBtn.setPressedColor(Qt.GlobalColor.white)
 
-        self.closeBtn.setNormalColor(Qt.white)
+        self.closeBtn.setNormalColor(Qt.GlobalColor.white)
 
+
+ButtonData = Iterable[tuple[QMenu, str, Callable[[], None], str, str]]
 
 class MainWindow(FramelessMainWindow):
 
@@ -1692,22 +1740,22 @@ class MainWindow(FramelessMainWindow):
 
         self.wrapper_widget = QWidget(self)
         self.central_widget = QWidget(self) if central_widget is None else central_widget
-        self.central_layout = QVBoxLayout()
+        self.central_layout: QLayout = QVBoxLayout()
 
         if FRAMELESS:
             self.setTitleBar(TitleBar(self))
 
-        self.menu_bar = QtWidgets.QMenuBar(self)
-        self.actions = {}
+        self.menu_bar = QMenuBar(self)
+        self.actions: dict[str, QAction] = {}
 
         self.name = name
         # self.resize(720, 400)
         self.setWindowTitle(name)
         self.setWindowIcon(get_icon("frontier"))
 
-        self.file_widget = None
+        self.file_widget: Optional[FileWidget] = None
 
-        self.p_action = QtWidgets.QProgressBar(self)
+        self.p_action = QProgressBar(self)
         self.p_action.setGeometry(0, 0, 200, 15)
         self.p_action.setTextVisible(True)
         self.p_action.setMaximum(100)
@@ -1716,10 +1764,10 @@ class MainWindow(FramelessMainWindow):
         dev_str = "DEV" if self.dev_mode else ""
         commit_str = get_commit_str()
         commit_str = commit_str.split("+")[0]
-        self.statusBar = QtWidgets.QStatusBar()
+        self.statusBar = QStatusBar()
 
-        self.version_info = QtWidgets.QLabel(f"Version {commit_str}{dev_str}")
-        self.version_info.setFont(QtGui.QFont("Cascadia Code, Consolas, monospace"))
+        self.version_info = QLabel(f"Version {commit_str}{dev_str}")
+        self.version_info.setFont(QFont("Cascadia Code, Consolas, monospace"))
         self.version_info.setStyleSheet("color: #999")
         self.statusBar.addPermanentWidget(self.version_info)
         self.statusBar.addPermanentWidget(self.p_action)
@@ -1727,7 +1775,7 @@ class MainWindow(FramelessMainWindow):
         self.setStatusBar(self.statusBar)
         self.p_action.hide()
 
-        self.status_timer = QtCore.QTimer()
+        self.status_timer = QTimer()
         self.status_timer.setSingleShot(True)
         self.status_timer.setInterval(3500)
         self.status_timer.timeout.connect(self.p_action.hide)
@@ -1741,10 +1789,10 @@ class MainWindow(FramelessMainWindow):
 
         self.setCentralWidget(self.central_widget)
 
-    def setCentralWidget(self, widget: QWidget, layout = None) -> None:
+    def setCentralWidget(self, widget: QWidget, layout: Optional[QLayout] = None) -> None:
         if not layout:
             layout = self.central_layout
-        frame = QtWidgets.QFrame(self)
+        frame = QFrame(self)
         frame.setMinimumHeight(32)
         frame.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(0)
@@ -1769,7 +1817,7 @@ class MainWindow(FramelessMainWindow):
     def load(self, filepath: str):
         pass
 
-    def setWindowTitle(self, title: str = None, file: str = None) -> None:
+    def setWindowTitle(self, title: Optional[str] = None, file: Optional[str] = None) -> None:
         if title is None:
             title = self.name
         if file is not None:
@@ -1779,7 +1827,7 @@ class MainWindow(FramelessMainWindow):
     def set_window_filepath(self, file: str) -> None:
         self.setWindowTitle(file=file)
 
-    def elide_dirs(self, filepath: str):
+    def elide_dirs(self, filepath: str) -> str:
         path, file = os.path.split(filepath)
         filename, _ = os.path.splitext(file)
         subdirs = path.split("/")
@@ -1790,25 +1838,25 @@ class MainWindow(FramelessMainWindow):
                 return "/".join([subdirs[0], subdirs[1], "...", subdirs[-1], file])
         return filepath
 
-    def get_file_name(self, filepath: str):
+    def get_file_name(self, filepath: str) -> str:
         if "ovldata/" in filepath:
             return self.elide_dirs(filepath.split("ovldata/")[1])
         return os.path.basename(filepath)
 
-    def report_bug(self):
+    def report_bug(self) -> None:
         webbrowser.open("https://github.com/OpenNaja/cobra-tools/issues/new?assignees=&labels=&template=bug_report.md&title=", new=2)
 
-    def online_support(self):
+    def online_support(self) -> None:
         webbrowser.open("https://github.com/OpenNaja/cobra-tools/wiki", new=2)
 
-    def add_to_menu(self, button_data):
+    def add_to_menu(self, button_data: ButtonData) -> None:
         for btn in button_data:
             self._add_to_menu(*btn)
 
-    def _add_to_menu(self, submenu, action_name, func, shortcut, icon_name, only_dev_mode=False):
+    def _add_to_menu(self, submenu: QMenu, action_name: str, func: Callable[[], None], shortcut: str, icon_name: str, only_dev_mode=False) -> None:
         if only_dev_mode and not self.dev_mode:
             return
-        action = QtWidgets.QAction(action_name, self)
+        action = QAction(action_name, self)
         if icon_name:
             icon = get_icon(icon_name)
             action.setIcon(icon)
@@ -1819,18 +1867,10 @@ class MainWindow(FramelessMainWindow):
         submenu.addAction(action)
 
     @staticmethod
-    def handle_error(msg):
+    def handle_error(msg: str) -> None:
         """Warn user with popup msg and write msg + exception traceback to log"""
         logging.exception(msg)
         interaction.showerror(msg)
-
-    def closeEvent(self, event):
-        if self.file_widget and self.file_widget.dirty:
-            quit_msg = f"Quit? You will lose unsaved work on {os.path.basename(self.file_widget.filepath)}!"
-            if not interaction.showconfirmation(quit_msg, title="Quit"):
-                event.ignore()
-                return
-        event.accept()
 
     def show_progress(self) -> None:
         self.p_action.show()
@@ -1857,14 +1897,14 @@ class MainWindow(FramelessMainWindow):
                 self.p_action.setMaximum(vmax)
             self.set_progress(percent)
             self.set_msg_temporarily(message)
-            QtWidgets.QApplication.instance().processEvents()
+            QApplication.instance().processEvents()
 
-    def set_msg_temporarily(self, message):
+    def set_msg_temporarily(self, message: str) -> None:
         self.statusBar.showMessage(message, 3500)
 
-    def run_threaded(self, func, *args, **kwargs):
+    def run_threaded(self, func: Callable, *args, **kwargs) -> None:
         # Step 2: Create a QThread object
-        self.thread = QtCore.QThread()
+        self.thread = QThread()
         # Step 3: Create a worker object
         self.worker = Worker(func, *args, **kwargs)
         # Step 4: Move worker to the thread
@@ -1889,56 +1929,64 @@ class MainWindow(FramelessMainWindow):
     def choices_update(self):
         pass
 
-    def dragEnterEvent(self, e):
+    def closeEvent(self, event: QCloseEvent) -> None:
+        if self.file_widget and self.file_widget.dirty:
+            quit_msg = f"Quit? You will lose unsaved work on {os.path.basename(self.file_widget.filepath)}!"
+            if not interaction.showconfirmation(quit_msg, title="Quit"):
+                event.ignore()
+                return
+        event.accept()
+
+    def dragEnterEvent(self, event: QDragEnterEvent) -> None:
         if not self.file_widget:
             return
 
-        path = e.mimeData().urls()[0].toLocalFile() if e.mimeData().hasUrls() else ""
+        path = event.mimeData().urls()[0].toLocalFile() if event.mimeData().hasUrls() else ""
         if path.lower().endswith(f".{self.file_widget.dtype.lower()}"):
-            e.accept()
+            event.accept()
         else:
-            e.ignore()
+            event.ignore()
 
-    def dropEvent(self, e):
+    def dropEvent(self, event: QDropEvent) -> None:
         if not self.file_widget:
             return
 
-        path = e.mimeData().urls()[0].toLocalFile() if e.mimeData().hasUrls() else ""
+        path = event.mimeData().urls()[0].toLocalFile() if event.mimeData().hasUrls() else ""
         if path:
             self.file_widget.decide_open.emit(path)
 
 
-class CombinedMeta(type(QtCore.QObject), type(OvlFile)):
+class CombinedMeta(type(QObject), type(OvlFile)): # type: ignore
     pass
 
 
-class OvlReporter(OvlFile, QtCore.QObject, metaclass=CombinedMeta):
+class OvlReporter(OvlFile, QObject, metaclass=CombinedMeta):
     """Adds PyQt signals to OvlFile to report of progress"""
-    warning_msg = QtCore.pyqtSignal(tuple)
-    files_list = QtCore.pyqtSignal(list)
-    included_ovls_list = QtCore.pyqtSignal(list)
-    progress_percentage = QtCore.pyqtSignal(int)
-    current_action = QtCore.pyqtSignal(str)
+    warning_msg = pyqtSignal(tuple) # type: ignore
+    files_list = pyqtSignal(list) # type: ignore
+    included_ovls_list = pyqtSignal(list) # type: ignore
+    progress_percentage = pyqtSignal(int) # type: ignore
+    current_action = pyqtSignal(str) # type: ignore
 
     def __init__(self):
         super().__init__()
-        super(QtCore.QObject, self).__init__()
+        super(QObject, self).__init__()
 # OvlReporter = OvlFile
 
-# mutex = QtCore.QMutex()
+# mutex = QMutex()
 
 
-class Worker(QtCore.QObject):
-    finished = QtCore.pyqtSignal()
-    error_msg = QtCore.pyqtSignal(str)
+class Worker(QObject):
+    finished = pyqtSignal()
+    error_msg = pyqtSignal(str)
 
-    def __init__(self, func, *args, **kwargs):
+    def __init__(self, func: Callable, *args, **kwargs) -> None:
         super().__init__()
         self.func = func
         self.args = args
         self.kwargs = kwargs
 
-    def run(self):
+    def run(self) -> None:
         # mutex.lock()
         # func = getattr(self.thread().ovl_data, self.function_name)
         try:
@@ -1949,21 +1997,3 @@ class Worker(QtCore.QObject):
             self.error_msg.emit(str(err))
         # mutex.unlock()
         self.finished.emit()
-
-
-# text field to hold the log information.
-# https://stackoverflow.com/questions/28655198/best-way-to-display-logs-in-pyqt
-class QTextEditLogger(logging.Handler, QtCore.QObject):
-    appendPlainText = QtCore.pyqtSignal(str)
-
-    def __init__(self, parent):
-        super().__init__()
-        QtCore.QObject.__init__(self)
-        self.widget = QtWidgets.QPlainTextEdit()
-        self.widget.setReadOnly(True)
-        self.appendPlainText.connect(self.widget.appendPlainText)
-
-    def emit(self, record):
-        msg = self.format(record)
-        self.appendPlainText.emit(msg)
-
