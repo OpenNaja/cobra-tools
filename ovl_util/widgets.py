@@ -1844,25 +1844,20 @@ class MainWindow(FramelessMainWindow):
         if self.p_action.value() >= self.p_action.maximum():
             self.status_timer.start()
 
-    def update_progress(self, message, value=None, vmax=None):
+    def update_progress(self, message: str, value: int = 100, vmax: int = 100) -> None:
         # avoid gui updates if the value won't actually change the percentage.
         # this saves us from making lots of GUI update calls that don't really
         # matter.
-        try:
-            if vmax > 100 and (value % (vmax // 100)) and value != 0:
-                value = None
-        except ZeroDivisionError:
-            value = 0
-        except TypeError:
-            value = None
-
-        # update progress bar values if specified
-        if value is not None:
-            self.p_action.setValue(value)
-        if vmax is not None:
-            self.p_action.setMaximum(vmax)
-
-        self.set_msg_temporarily(message)
+        percent = value
+        if vmax > 100:
+            percent = int((value / vmax) * 100)
+            vmax = 100
+        if percent > self.p_action.value():
+            if self.p_action.maximum() != vmax:
+                self.p_action.setMaximum(vmax)
+            self.set_progress(percent)
+            self.set_msg_temporarily(message)
+            QtWidgets.QApplication.instance().processEvents()
 
     def set_msg_temporarily(self, message):
         self.statusBar.showMessage(message, 3500)
