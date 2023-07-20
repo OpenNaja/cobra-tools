@@ -596,7 +596,45 @@ class MouseWheelGuard(QObject):
         return super().eventFilter(object, event)
 
 
-class CleverCombo(QtWidgets.QComboBox):
+class ClickGuard(QObject):
+    def __init__(self, parent: Optional[QObject] = None) -> None:
+        super().__init__(parent)
+
+    def eventFilter(self, object: QObject, event: QEvent) -> bool:
+        if isinstance(object, QWidget):
+            if event.type() == QEvent.Type.MouseButtonPress:
+                event.ignore()
+                return True
+
+        return super().eventFilter(object, event)
+
+
+class DragDropPassthrough(QObject):
+    def __init__(self, parent: Optional[QObject] = None) -> None:
+        super().__init__(parent)
+        self.parent_widget = parent
+
+    def eventFilter(self, object: QObject, event: QEvent) -> bool:
+        if object.parent() == self.parent_widget and isinstance(self.parent_widget, QWidget):
+            # Due to confusing inheritance between these QEvents, use type() for typing constraint
+            # event.type() will not narrow the type for type checkers
+            if type(event) is QDragMoveEvent:
+                self.parent_widget.dragMoveEvent(event)
+                return True
+            elif type(event) is QDragEnterEvent:
+                self.parent_widget.dragEnterEvent(event)
+                return True
+            elif type(event) is QDragLeaveEvent:
+                self.parent_widget.dragLeaveEvent(event)
+                return True
+            elif type(event) is QDropEvent:
+                self.parent_widget.dropEvent(event)
+                return True
+
+        return super().eventFilter(object, event)
+
+
+class CleverCombo(QComboBox):
     """"A combo box that supports setting content (existing or new)"""
 
     def __init__(self, parent: Optional[QWidget] = None,
@@ -1443,14 +1481,12 @@ class FileWidget(QWidget):
             self.entry.textChanged.connect(self.check_file)
         else:
             self.entry.setReadOnly(True)
-            self.entry.mousePressEvent = self.ignoreEvent
-            self.icon.mousePressEvent = self.ignoreEvent
-        self.icon.dropEvent = self.dropEvent
-        self.entry.dropEvent = self.dropEvent
-        self.icon.dragMoveEvent = self.dragMoveEvent
-        self.entry.dragMoveEvent = self.dragMoveEvent
-        self.icon.dragEnterEvent = self.dragEnterEvent
-        self.entry.dragEnterEvent = self.dragEnterEvent
+            self.entry.installEventFilter(ClickGuard(self))
+            self.icon.installEventFilter(ClickGuard(self))
+
+        self.icon.installEventFilter(DragDropPassthrough(self))
+        self.entry.installEventFilter(DragDropPassthrough(self))
+
         self.dtype = dtype
         self.dtype_l = dtype.lower()
 
@@ -1630,14 +1666,11 @@ class DirWidget(QWidget):
         self.icon = QPushButton(self)
         self.icon.setIcon(get_icon("dir"))
         self.icon.setFlat(True)
-        self.icon.mousePressEvent = self.ignoreEvent
-        self.entry.mousePressEvent = self.ignoreEvent
-        self.icon.dropEvent = self.dropEvent
-        self.entry.dropEvent = self.dropEvent
-        self.icon.dragMoveEvent = self.dragMoveEvent
-        self.entry.dragMoveEvent = self.dragMoveEvent
-        self.icon.dragEnterEvent = self.dragEnterEvent
-        self.entry.dragEnterEvent = self.dragEnterEvent
+        self.icon.installEventFilter(ClickGuard(self))
+        self.entry.installEventFilter(ClickGuard(self))
+        self.icon.installEventFilter(DragDropPassthrough(self))
+        self.entry.installEventFilter(DragDropPassthrough(self))
+
         self.dtype = dtype
         self.dtype_l = dtype.lower()
 
