@@ -35,7 +35,7 @@ class MainWindow(widgets.MainWindow):
 		# create the table
 		self.files_container = widgets.SortableTable(header_names, (), ignore_drop_type="MS2")
 		# connect the interaction functions
-		self.files_container.table.model.member_renamed.connect(self.rename_handle)
+		self.files_container.table.table_model.member_renamed.connect(self.rename_handle)
 		self.files_container.table.hideColumn(1)
 
 		# Configure table button row

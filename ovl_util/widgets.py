@@ -395,20 +395,19 @@ class TableView(QTableView):
     file_selected = pyqtSignal(int)
     file_selected_count = pyqtSignal(int)
 
-    def __init__(self, header_names: list[str], ignore_types: list[str], ignore_drop_type: str):
+    def __init__(self, header_names: list[str], ignore_types: list[str], ignore_drop_type: str) -> None:
         super().__init__()
         self.ignore_types = ignore_types
         self.header_names = header_names
         self.ignore_drop_type = ignore_drop_type
-        self.model = TableModel(header_names, ignore_types)
-        # self.proxyModel = QSortFilterProxyModel()
-        self.proxyModel = CustomSortFilterProxyModel()
-        self.proxyModel.setSourceModel(self.model)
-        self.proxyModel.setSortRole(Qt.ItemDataRole.UserRole)
-        self.setModel(self.proxyModel)
+        self.table_model = TableModel(header_names, ignore_types)
+        self.proxy_model = CustomSortFilterProxyModel()
+        self.proxy_model.setSourceModel(self.table_model)
+        self.proxy_model.setSortRole(Qt.ItemDataRole.UserRole)
+        self.setModel(self.proxy_model)
 
         self.resizeColumnsToContents()
-        self.setEditTriggers(QAbstractItemView.DoubleClicked)
+        self.setEditTriggers(QAbstractItemView.EditTrigger.DoubleClicked)
         self.setAcceptDrops(True)
         self.setDragEnabled(True)
         self.setDropIndicatorShown(True)
@@ -418,62 +417,62 @@ class TableView(QTableView):
         self.setSortingEnabled(True)
         # sort by index; -1 means don't sort
         self.sortByColumn(-1, Qt.SortOrder.AscendingOrder)
-        self.proxyModel.setFilterFixedString("")
-        self.proxyModel.setFilterKeyColumn(0)
+        self.proxy_model.setFilterFixedString("")
+        self.proxy_model.setFilterKeyColumn(0)
         self.rev_check = False
         self.selectionModel().selectionChanged.connect(self.on_selectionChanged)
 
         # handle column width
         header = self.horizontalHeader()
-        header.setSectionResizeMode(0, QHeaderView.Stretch)
-        header.setSectionResizeMode(1, QHeaderView.ResizeToContents)
+        header.setSectionResizeMode(0, QHeaderView.ResizeMode.Stretch)
+        header.setSectionResizeMode(1, QHeaderView.ResizeMode.ResizeToContents)
 
         # The number of selected items in the model
         self.selected_count = 0
 
-    def on_selectionChanged(self, selected, deselected):
+    def on_selectionChanged(self, _selected: QItemSelection, _deselected: QItemSelection) -> None:
         self.selected = list(self.get_selected_line_indices())
         if self.selected:
             self.file_selected.emit(self.selected[-1])
         self.file_selected_count.emit(self.selected_count)
 
-    def update_filter_function(self):
+    def update_filter_function(self) -> None:
         if self.rev_check:
-            self.proxyModel.addFilterFunction('name', lambda r, s: s not in r[0])
+            self.proxy_model.addFilterFunction('name', lambda r, s: s not in r[0])
         else:
-            self.proxyModel.addFilterFunction('name', lambda r, s: s in r[0])
+            self.proxy_model.addFilterFunction('name', lambda r, s: s in r[0])
 
-    def set_filter(self, fixed_string):
-        self.proxyModel.setFilterFixedString(fixed_string)
+    def set_filter(self, fixed_string: str) -> None:
+        self.proxy_model.setFilterFixedString(fixed_string)
         self.update_filter_function()
 
-    def set_ext_filter(self, hide):
+    def set_ext_filter(self, hide: bool) -> None:
         ext_filter_name = "ext_filter"
         if hide and "File Type" in self.header_names:
             def ext_filter(r, s):
                 return r[self.header_names.index("File Type")] not in self.ignore_types
 
-            self.proxyModel.addFilterFunction(ext_filter_name, ext_filter)
+            self.proxy_model.addFilterFunction(ext_filter_name, ext_filter)
         else:
-            self.proxyModel.removeFilterFunction(ext_filter_name)
+            self.proxy_model.removeFilterFunction(ext_filter_name)
 
-    def clear_filter(self, ):
-        # self.proxyModel.setFilterFixedString("")
-        self.proxyModel.setFilterFixedString("")
-        self.sortByColumn(-1, Qt.AscendingOrder)
+    def clear_filter(self) -> None:
+        # self.proxy_model.setFilterFixedString("")
+        self.proxy_model.setFilterFixedString("")
+        self.sortByColumn(-1, Qt.SortOrder.AscendingOrder)
 
-    def get_selected_line_indices(self):
-        indices = set(self.proxyModel.mapToSource(x).row() for x in self.selectedIndexes())
+    def get_selected_line_indices(self) -> set[int]:
+        indices = set(self.proxy_model.mapToSource(x).row() for x in self.selectedIndexes())
         self.selected_count = len(indices)
         return indices
 
-    def get_selected_files(self):
+    def get_selected_files(self) -> list[str]:
         # map the selected indices to the actual underlying data, which is in its original order
-        return [self.model._data[x][0] for x in self.get_selected_line_indices()]
+        return [self.table_model._data[x][0] for x in self.get_selected_line_indices()]
 
-    def get_files(self):
+    def get_files(self) -> list[str]:
         # returns the list of all file names
-        return [x[0] for x in self.model._data]
+        return [x[0] for x in self.table_model._data]
 
     # todo - the following do not have the intended effect of allowing left click drags only
     # @staticmethod
@@ -496,21 +495,21 @@ class TableView(QTableView):
     # def dropEvent(self, event: QDropEvent) -> None:
     # 	self.handle_event(event)
 
-    def startDrag(self, drop_actions):
+    def startDrag(self, _supportedActions: (Qt.DropActions | Qt.DropAction)) -> None:
         """Emits a signal with the file names of all files that are being dragged"""
         # drop_actions is just a flag
         self.files_dragged.emit(self.get_selected_files())
 
-    def set_data(self, data):
+    def set_data(self, data) -> None:
         # Assure selectionChanged signal since reset bypasses this
         self.clearSelection()
         # Reset Model
-        self.model.beginResetModel()
-        self.model._data = data
-        self.model.endResetModel()
+        self.table_model.beginResetModel()
+        self.table_model._data = data
+        self.table_model.endResetModel()
         self.resizeColumnsToContents()
 
-    def accept_ignore(self, e: QDropEvent):
+    def accept_ignore(self, e: QDropEvent) -> None:
         if not self.ignore_drop_type:
             e.accept()
             return

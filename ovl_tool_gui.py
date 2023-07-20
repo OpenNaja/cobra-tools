@@ -55,7 +55,7 @@ class MainWindow(widgets.MainWindow):
 		self.files_container = widgets.SortableTable(("Name", "File Type"), self.ovl_data.formats_dict.ignore_types,
 													 ignore_drop_type="OVL", opt_hide=True)
 		# connect the interaction functions
-		self.files_container.table.model.member_renamed.connect(self.rename_handle)
+		self.files_container.table.table_model.member_renamed.connect(self.rename_handle)
 		self.files_container.table.files_dragged.connect(self.drag_files)
 		self.files_container.table.files_dropped.connect(self.inject_files)
 		self.files_container.table.file_selected_count.connect(self.update_file_counts)
@@ -223,7 +223,7 @@ class MainWindow(widgets.MainWindow):
 		self.run_threaded(self.ovl_data.load_hash_table)
 
 	def get_file_count_text(self):
-		return f"{self.files_container.table.model.rowCount()} items"
+		return f"{self.files_container.table.table_model.rowCount()} items"
 	
 	def update_file_counts(self, selected_count=0):
 		if selected_count == 0:

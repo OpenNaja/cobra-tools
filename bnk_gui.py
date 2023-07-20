@@ -40,7 +40,7 @@ class MainWindow(widgets.MainWindow):
 		# create the table
 		self.files_container = widgets.SortableTable(header_names, ())
 		# connect the interaction functions
-		# self.files_container.table.model.member_renamed.connect(self.rename_handle)
+		# self.files_container.table.table_model.member_renamed.connect(self.rename_handle)
 		self.files_container.table.files_dragged.connect(self.drag_files)
 		self.files_container.table.files_dropped.connect(self.inject_files)
 
