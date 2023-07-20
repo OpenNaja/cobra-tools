@@ -533,9 +533,13 @@ class TableView(QTableView):
             event.accept()
 
 
-class SelectedItemsButton(QtWidgets.QPushButton):
-    def __init__(self, name=""):
-        QtWidgets.QPushButton.__init__(self, name)
+class SelectedItemsButton(QPushButton):
+    """A QPushButton which is enabled only when items in a view are selected"""
+    def __init__(self, parent: Optional[QWidget] = None, text: str = "", icon: Optional[QIcon] = None) -> None:
+        if icon:
+            super().__init__(icon, text, parent)
+        else:
+            super().__init__(text, parent)
         self.setStyleSheet("SelectedItemsButton:disabled { background-color: #252525; } ")
 
     def setEnabledFromSelection(self, selection: QItemSelection):
