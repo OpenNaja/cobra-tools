@@ -300,11 +300,11 @@ class MainWindow(widgets.MainWindow):
 				for ovl_path in walker.walk_type(selected_dir, extension=".ovl"):
 					# open ovl file
 					self.file_widget.accept_file(ovl_path)
-					self.load(ovl_path, threaded=False)
+					self.open(ovl_path, threaded=False)
 					# process each
 					yield self.ovl_data
 					if save_over:
-						self._save()
+						self.save(ovl_path)
 			else:
 				interaction.showwarning("Select a root directory!")
 		# just the one that's currently open
@@ -316,7 +316,7 @@ class MainWindow(widgets.MainWindow):
 		try:
 			file_path = ind.model().filePath(ind)
 			if file_path.lower().endswith(".ovl"):
-				self.file_widget.decide_open.emit(file_path)
+				self.file_widget.open_file(file_path)
 		except:
 			self.handle_error("Clicked dir failed, see log!")
 
@@ -344,7 +344,7 @@ class MainWindow(widgets.MainWindow):
 		# force new name to be lowercase
 		names = [(old_name, new_name.lower()), ]
 		self.ovl_data.rename(names)
-		self.file_widget.dirty = True
+		self.set_file_modified(True)
 		self.update_gui_table()
 
 	def game_changed(self, game: Optional[str] = None):
@@ -366,9 +366,9 @@ class MainWindow(widgets.MainWindow):
 		# just an example of what can be done when something is selected
 		file_entry = self.ovl_data.files[file_index]
 
-	def load(self, filepath, threaded=True):
+	def open(self, filepath, threaded=True):
 		if filepath:
-			self.file_widget.dirty = False
+			self.set_file_modified(False)
 			logging.debug(f"Loading threaded {threaded}")
 			if threaded:
 				self.run_threaded(self.ovl_data.load, filepath)
@@ -378,6 +378,9 @@ class MainWindow(widgets.MainWindow):
 				except:
 					logging.debug(self.ovl_data)
 					self.handle_error("OVL loading failed, see log!")
+
+	def open_dir(self, dirpath: str) -> None:
+		self.create_ovl(dirpath)
 
 	def choices_update(self):
 		game = get_game(self.ovl_data)[0]
@@ -419,11 +422,11 @@ class MainWindow(widgets.MainWindow):
 		logging.info(f"Loaded GUI in {time.time() - start_time:.2f} seconds")
 		self.update_progress("Operation completed!", value=100, vmax=100)
 
-	def _save(self, ):
+	def save(self, filepath):
 		"""Saves ovl to file_widget.filepath, clears dirty flag"""
 		try:
-			self.ovl_data.save(self.file_widget.filepath)
-			self.file_widget.dirty = False
+			self.ovl_data.save(filepath)
+			self.set_file_modified(False)
 			self.update_progress(f"Saved {self.ovl_data.basename}", value=100, vmax=100)
 		except:
 			self.handle_error("Saving OVL failed, see log!")
@@ -454,7 +457,7 @@ class MainWindow(widgets.MainWindow):
 		"""Tries to inject files into self.ovl_data"""
 		if files:
 			self.cfg["dir_inject"] = os.path.dirname(files[0])
-			self.file_widget.dirty = True
+			self.set_file_modified(True)
 			# threaded injection seems to be fine now
 			# self.ovl_data.add_files(files)
 			self.run_threaded(self.ovl_data.add_files, files)
@@ -480,7 +483,7 @@ class MainWindow(widgets.MainWindow):
 				for ovl in self.handle_path():
 					if self.is_open_ovl():
 						self.ovl_data.rename(names, mesh_mode=self.t_mesh_ovl.isChecked())
-						self.file_widget.dirty = True
+						self.set_file_modified(True)
 						self.update_gui_table()
 		except:
 			self.handle_error("Renaming failed, see log!")
@@ -498,7 +501,7 @@ class MainWindow(widgets.MainWindow):
 			for ovl in self.handle_path():
 				if self.is_open_ovl():
 					self.ovl_data.rename_contents(names, only_files)
-					self.file_widget.dirty = True
+					self.set_file_modified(True)
 					# file names don't change, so no need to update gui
 					# self.update_gui_table()
 
@@ -543,7 +546,7 @@ class MainWindow(widgets.MainWindow):
 		if filepath:
 			try:
 				self.ovl_data.load_included_ovls(filepath)
-				self.file_widget.dirty = True
+				self.set_file_modified(True)
 				self.update_progress("Loaded included OVLs", value=100, vmax=100)
 			except:
 				self.handle_error("Opening included OVLs failed, see log!")
@@ -555,7 +558,7 @@ class MainWindow(widgets.MainWindow):
 			if selected_file_names:
 				try:
 					self.ovl_data.remove(selected_file_names)
-					self.file_widget.dirty = True
+					self.set_file_modified(True)
 				except:
 					self.handle_error("Removing file from OVL failed, see log!")
 				self.update_gui_table()

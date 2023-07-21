@@ -80,7 +80,7 @@ class MainWindow(widgets.MainWindow):
 			# new name is new
 			else:
 				self.ms2_file.rename_file(old_name, new_name)
-				self.file_widget.dirty = True
+				self.set_file_modified(True)
 		except:
 			self.handle_error("Renaming failed, see log!")
 		self.update_gui_table()
@@ -90,7 +90,7 @@ class MainWindow(widgets.MainWindow):
 		if selected_file_names:
 			try:
 				self.ms2_file.remove(selected_file_names)
-				self.file_widget.dirty = True
+				self.set_file_modified(True)
 			except:
 				self.handle_error("Removing file failed, see log!")
 			self.update_gui_table()
@@ -100,14 +100,14 @@ class MainWindow(widgets.MainWindow):
 		if selected_file_names:
 			try:
 				self.ms2_file.duplicate(selected_file_names)
-				self.file_widget.dirty = True
+				self.set_file_modified(True)
 			except:
 				self.handle_error("Duplicating file failed, see log!")
 			self.update_gui_table()
 
-	def load(self, filepath):
+	def open(self, filepath):
 		if filepath:
-			self.file_widget.dirty = False
+			self.set_file_modified(False)
 			try:
 				self.ms2_file.load(filepath, read_editable=True)
 			except:
@@ -126,7 +126,7 @@ class MainWindow(widgets.MainWindow):
 					for model in other_ms2_file.model_infos:
 						self.ms2_file.make_name_unique(model)
 						self.ms2_file.model_infos.append(model)
-					self.file_widget.dirty = True
+					self.set_file_modified(True)
 				except:
 					self.handle_error("Appending failed, see log!")
 				self.update_gui_table()
@@ -141,10 +141,10 @@ class MainWindow(widgets.MainWindow):
 		except:
 			self.handle_error("GUI update failed, see log!")
 
-	def _save(self, ):
+	def save(self, filepath) -> None:
 		try:
-			self.ms2_file.save(self.file_widget.filepath)
-			self.file_widget.dirty = False
+			self.ms2_file.save(filepath)
+			self.set_file_modified(False)
 			self.update_progress(f"Saved {self.ms2_file.name}", value=100, vmax=100)
 		except:
 			self.handle_error("Saving MS2 failed, see log!")

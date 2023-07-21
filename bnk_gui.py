@@ -141,9 +141,9 @@ class MainWindow(widgets.MainWindow):
 			self.handle_error("Extraction failed, see log!")
 		shutil.rmtree(temp_dir)
 
-	def load(self, filepath):
+	def open(self, filepath):
 		if filepath:
-			self.file_widget.dirty = False
+			self.set_file_modified(False)
 			try:
 				self.bnk_file.load(filepath)
 				print(self.bnk_file)
@@ -162,10 +162,10 @@ class MainWindow(widgets.MainWindow):
 		else:
 			return True
 
-	def _save(self):
+	def save(self, filepath) -> None:
 		try:
-			self.bnk_file.save(self.file_widget.filepath)
-			self.file_widget.dirty = False
+			self.bnk_file.save(filepath)
+			self.set_file_modified(False)
 			self.update_progress(f"Saved {self.bnk_file.basename}", value=100, vmax=100)
 		except:
 			self.handle_error("Loading failed, see log!")
@@ -193,7 +193,7 @@ class MainWindow(widgets.MainWindow):
 			self.cfg["dir_inject"] = os.path.dirname(files[0])
 			try:
 				error_files = self.inject_wem(files)
-				self.file_widget.dirty = True
+				self.set_file_modified(True)
 				# if error_files:
 				# 	interaction.showerror(f"Injection caused errors on {len(error_files)} files, see console for details!")
 				self.update_progress("Injection completed", value=100, vmax=100)

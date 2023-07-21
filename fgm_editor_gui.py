@@ -143,7 +143,7 @@ class MainWindow(widgets.MainWindow):
 			logging.warning(f"No presets for game {game}")
 
 	def set_dirty(self):
-		self.file_widget.dirty = True
+		self.set_file_modified(True)
 
 	def update_choices(self):
 		shader_name = self.shader_choice.entry.currentText()
@@ -365,12 +365,12 @@ class MainWindow(widgets.MainWindow):
 		file_out, _ = QtWidgets.QFileDialog.getSaveFileName(self, "New File", os.path.join(self.cfg.get("dir_fgms_out", "C://"), self.fgm_name), "FGM files (*.fgm)",)
 		if file_out:
 			self.cfg["dir_fgms_out"], _ = os.path.split(file_out)
-			self.file_widget.set_file_path(file_out)
+			self.file_widget.open_file(file_out)
 			self.set_dirty()
 			return True
 		return False
 
-	def load(self, filepath):
+	def open(self, filepath):
 		if filepath:
 			try:
 				self.header = FgmHeader.from_xml_file(filepath, self.context)
@@ -399,11 +399,11 @@ class MainWindow(widgets.MainWindow):
 				interaction.showerror(str(ex))
 				logging.exception("Importing fgm errored")
 
-	def _save(self):
+	def save(self, filepath) -> None:
 		try:
-			with self.header.to_xml_file(self.header, self.file_widget.filepath) as xml_root:
+			with self.header.to_xml_file(self.header, filepath) as xml_root:
 				pass
-			self.file_widget.dirty = False
+			self.set_file_modified(False)
 		except BaseException as err:
 			interaction.showerror(str(err))
 			logging.exception("Saving fgm errored")

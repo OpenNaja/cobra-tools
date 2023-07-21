@@ -81,7 +81,7 @@ class MainWindow(widgets.MainWindow):
 			widget = item.widget()
 			widget.deleteLater()
 
-	def load(self, filepath):
+	def open(self, filepath):
 		if filepath:
 			try:
 				self.matcol_data = self.matcol_data.from_xml_file(filepath, self.context)
@@ -137,8 +137,8 @@ class MainWindow(widgets.MainWindow):
 				logging.exception(f"Something went wrong")
 			logging.info("Done!")
 
-	def _save(self, ):
-		with self.matcol_data.to_xml_file(self.matcol_data, self.file_widget.filepath) as xml_root:
+	def save(self, filepath):
+		with self.matcol_data.to_xml_file(self.matcol_data, filepath) as xml_root:
 			pass
 			
 	
