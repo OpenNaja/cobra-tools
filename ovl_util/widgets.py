@@ -1519,7 +1519,7 @@ class FileWidget(QWidget):
     def _tooltip(self):
         return f"Currently open {self.dtype} file: {self.filepath}" if self.filepath else f"Open {self.dtype} file"
 
-    def abort_open_new_file(self, new_filepath: str):
+    def abort_open_new_file(self, new_filepath: str) -> bool:
         # only return True if we should abort
         if not self.ask_user:
             return False
@@ -1527,7 +1527,8 @@ class FileWidget(QWidget):
             msg = "Do you really want to load " + os.path.basename(
                 new_filepath) + "? You will lose unsaved work on " + os.path.basename(self.filepath) + "!"
             return not interaction.showdialog(msg, title="Unsaved Changes", 
-                                  buttons=(QMessageBox.StandardButtons.Discard | QMessageBox.StandardButtons.Cancel))
+                                  buttons=(QMessageBox.StandardButton.Discard | QMessageBox.StandardButton.Cancel))
+        return False
 
     def set_file_path(self, filepath: str) -> bool:
         if not self.abort_open_new_file(filepath):
