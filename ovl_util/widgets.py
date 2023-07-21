@@ -1847,7 +1847,7 @@ class MainWindow(FramelessMainWindow):
         file_widget = FileWidget(self, self.cfg, ask_user=ask_user, dtype=dtype, editable=editable,
                                  check_exists=check_exists, root=root)
         file_widget.file_changed.connect(self.set_window_filepath)
-        file_widget.decide_open.connect(self.load)
+        file_widget.file_changed.connect(self.load)
         return file_widget
 
     @abstractmethod
