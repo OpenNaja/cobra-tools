@@ -125,7 +125,9 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 
 	def get_shapekey(vert_index):
 		return 0, 0, 0
-	b_key = eval_me.shape_keys
+
+	# eval_me does not have shape_keys, not sure if there is a way to consistently get them with modifiers applied
+	b_key = b_me.shape_keys
 	if b_key and len(b_key.key_blocks) > 1:
 		lod_key = b_key.key_blocks[1]
 		# yes, there is a key object attached
