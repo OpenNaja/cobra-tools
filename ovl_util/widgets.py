@@ -1,3 +1,4 @@
+import contextlib
 import logging
 import webbrowser
 import os
@@ -1980,26 +1981,6 @@ class MainWindow(FramelessMainWindow):
             self.file_widget.open_file(path)
 
 
-class CombinedMeta(type(QObject), type(OvlFile)): # type: ignore
-    pass
-
-
-class OvlReporter(OvlFile, QObject, metaclass=CombinedMeta):
-    """Adds PyQt signals to OvlFile to report of progress"""
-    warning_msg = pyqtSignal(tuple) # type: ignore
-    files_list = pyqtSignal(list) # type: ignore
-    included_ovls_list = pyqtSignal(list) # type: ignore
-    progress_percentage = pyqtSignal(int) # type: ignore
-    current_action = pyqtSignal(str) # type: ignore
-
-    def __init__(self):
-        super().__init__()
-        super(QObject, self).__init__()
-# OvlReporter = OvlFile
-
-# mutex = QMutex()
-
-
 class Worker(QObject):
     finished = pyqtSignal()
     error_msg = pyqtSignal(str)
@@ -2021,3 +2002,41 @@ class Worker(QObject):
             self.error_msg.emit(str(err))
         # mutex.unlock()
         self.finished.emit()
+
+
+class Reporter(QObject):
+    """A class wrapping the interaction between OvlFile and the UI"""
+    warning_msg = pyqtSignal(tuple)  # type: ignore
+    success_msg = pyqtSignal(str)  # type: ignore
+    files_list = pyqtSignal(list)  # type: ignore
+    included_ovls_list = pyqtSignal(list)  # type: ignore
+    progress_percentage = pyqtSignal(int)  # type: ignore
+    current_action = pyqtSignal(str)  # type: ignore
+
+    def iter_progress(self, iterable, message):
+        self.current_action.emit(message)
+        self._percentage = 0
+        v_max = len(iterable) - 1
+        for i, item in enumerate(iterable):
+            yield item
+            if i and v_max:
+                p = round(i / v_max * 100)
+                if p != self._percentage:
+                    self.progress_percentage.emit(p)
+                    self._percentage = p
+        msg = f"Finished {message}"
+        self.current_action.emit(msg)
+        # logging.success(msg)
+
+    @contextlib.contextmanager
+    def report_error_files(self, operation):
+        error_files = []
+        yield error_files
+        if error_files:
+            self.warning_msg.emit(
+                (f"{operation} {len(error_files)} files failed - please check 'Show Details' or the log.",
+                 "\n".join(error_files)))
+        else:
+            msg = f"{operation} succeeded"
+            logging.success(msg)
+            self.success_msg.emit(msg)
