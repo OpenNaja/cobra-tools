@@ -13,7 +13,7 @@ try:
 
 	# Import widgets before everything except Python built-ins and ovl_util.config!
 	from ovl_util import widgets
-	from ovl_util.widgets import startup, MainWindow, OvlReporter
+	from ovl_util.widgets import startup, MainWindow, OvlFile
 	from generated.formats.ovl import games, set_game
 
 	from PyQt5 import QtCore
@@ -87,7 +87,7 @@ class ModToolGUI(MainWindow):
 		if len(sys.argv) > 1:
 			self.apply_from_config(sys.argv[1])
 
-		self.ovl_data = OvlReporter()
+		self.ovl_data = OvlFile()
 		# self.ovl_data.load_hash_table()
 		self.run_threaded(self.ovl_data.load_hash_table)
 
@@ -254,7 +254,7 @@ class ModToolGUI(MainWindow):
 
 	def create_ovl(self, ovl_dir, dst_file):
 		# clear the ovl
-		self.ovl_data = OvlReporter()
+		self.ovl_data = OvlFile()
 		self.game_changed()
 		try:
 			self.ovl_data.create(ovl_dir)

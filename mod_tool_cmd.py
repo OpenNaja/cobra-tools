@@ -16,8 +16,7 @@ logging_setup("mod_tool_cmd")
 logging.info(f"Running python {sys.version}")
 logging.info(f"Running cobra-tools {get_version_str()}, {get_commit_str()}")
 
-from ovl_util.widgets import OvlReporter
-from generated.formats.ovl import games, set_game
+from generated.formats.ovl import games, set_game, OvlFile
 
 __version__ = '0.1'
 __author__ = 'Open-Naja'
@@ -34,7 +33,7 @@ def unpack_ovl(file, gamestr, pathsrc, pathdst):
 		logging.info(srcfolder)
 		os.makedirs(srcfolder)
 
-	ovl_data = OvlReporter()
+	ovl_data = OvlFile()
 	ovl_data.load(file)
 	out_paths, error_files = ovl_data.extract(srcfolder, show_temp_files=False)
 
@@ -69,7 +68,7 @@ def unpack_mod(gamestr, pathsrc, pathdst):
 
 def create_ovl(gamestr, ovl_dir, dst_file):
 	# clear the ovl
-	ovl_data = OvlReporter()
+	ovl_data = OvlFile()
 
 	set_game(ovl_data.context, gamestr)
 	set_game(ovl_data, gamestr)

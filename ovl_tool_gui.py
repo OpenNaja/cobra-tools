@@ -33,7 +33,7 @@ class MainWindow(widgets.MainWindow):
 		self.resize(800, 600)
 		self.setAcceptDrops(True)
 
-		self.ovl_data = widgets.OvlReporter()
+		self.ovl_data = widgets.OvlFile()
 
 		exts = " ".join([f"*{ext}" for ext in self.ovl_data.formats_dict.extractables])
 		self.filter = f"Supported files ({exts})"
@@ -215,11 +215,12 @@ class MainWindow(widgets.MainWindow):
 			self.log_level_choice.entry.setText(log_level)
 			self.log_level_changed(log_level)
 		# do these at the end to make sure their requirements have been initialized
+		reporter = self.ovl_data.reporter
 		self.ovl_data.files_list.connect(self.update_files_ui)
-		self.ovl_data.warning_msg.connect(self.notify_user)
 		self.ovl_data.included_ovls_list.connect(self.included_ovls_view.set_data)
-		self.ovl_data.progress_percentage.connect(self.set_progress)
-		self.ovl_data.current_action.connect(self.set_msg_temporarily)
+		reporter.warning_msg.connect(self.notify_user)
+		reporter.progress_percentage.connect(self.set_progress)
+		reporter.current_action.connect(self.set_msg_temporarily)
 		self.run_threaded(self.ovl_data.load_hash_table)
 
 	def get_file_count_text(self):
@@ -270,7 +271,7 @@ class MainWindow(widgets.MainWindow):
 			filepath = QtWidgets.QFileDialog.getOpenFileName(
 				self, "Open OVL to compare with", self.cfg.get(f"dir_ovls_in", "C://"), f"OVL files (*.ovl)")[0]
 			if filepath:
-				other_ovl_data = widgets.OvlReporter()
+				other_ovl_data = widgets.OvlFile()
 				other_ovl_data.load_hash_table()
 				other_ovl_data.load(filepath)
 				for file_name in selected_file_names:

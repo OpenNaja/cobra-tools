@@ -498,12 +498,6 @@ class OvsFile(OvsHeader):
 
 class OvlFile(Header):
 
-	warning_msg = DummySignal()
-	files_list = DummySignal()
-	included_ovls_list = DummySignal()
-	progress_percentage = DummySignal()
-	current_action = DummySignal()
-
 	def __init__(self):
 		# pass self as context
 		super().__init__(self)
@@ -516,6 +510,8 @@ class OvlFile(Header):
 		self.constants = {}
 		self.loaders = {}
 		self.included_ovl_names = []
+		from ovl_util.widgets import Reporter
+		self.reporter = Reporter()
 
 	@classmethod
 	def context_to_xml(cls, elem, prop, instance, arg, template, debug):
@@ -588,8 +584,8 @@ class OvlFile(Header):
 			if loader.ext in self.formats_dict.ignore_types:
 				continue
 			loaders_for_extract.append(loader)
-		with self.report_error_files("Extracting") as error_files:
-			for loader in self.iter_progress(loaders_for_extract, "Extracting"):
+		with self.reporter.report_error_files("Extracting") as error_files:
+			for loader in self.reporter.iter_progress(loaders_for_extract, "Extracting"):
 				try:
 					ret_paths = loader.extract(out_dir_func)
 					ret_paths = loader.handle_paths(ret_paths, self.do_debug)
@@ -598,14 +594,6 @@ class OvlFile(Header):
 					logging.exception(f"An exception occurred while extracting {loader.name}")
 					error_files.append(loader.name)
 		return out_paths
-
-	@contextlib.contextmanager
-	def report_error_files(self, operation):
-		error_files = []
-		yield error_files
-		if error_files:
-			self.warning_msg.emit(
-				(f"{operation} {len(error_files)} files failed - please check 'Show Details' or the log.", "\n".join(error_files)))
 
 	def create_file(self, file_path, ovs_name="STATIC"):
 		"""Create a loader from a file path"""
@@ -636,8 +624,8 @@ class OvlFile(Header):
 	def add_files(self, file_paths):
 		logging.info(f"Adding {len(file_paths)} files to OVL")
 		logging.info(f"Game: {get_game(self)[0].name}")
-		with self.report_error_files("Adding") as error_files:
-			for file_path in self.iter_progress(file_paths, "Adding files"):
+		with self.reporter.report_error_files("Adding") as error_files:
+			for file_path in self.reporter.iter_progress(file_paths, "Adding files"):
 				# ensure lowercase, especially for file extension checks
 				bare_path, ext = os.path.splitext(file_path.lower())
 				# ignore dirs, links etc.
@@ -670,7 +658,7 @@ class OvlFile(Header):
 					logging.exception(f"Adding '{file_path}' failed")
 					error_files.append(file_path)
 			self.validate_loaders()
-		self.files_list.emit([[loader.name, loader.ext] for loader in self.loaders.values()])
+		self.reporter.files_list.emit([[loader.name, loader.ext] for loader in self.loaders.values()])
 
 	def register_loader(self, loader):
 		"""register the loader, and delete any existing loader if needed"""
@@ -704,21 +692,6 @@ class OvlFile(Header):
 	def dummy_callback(self, *args, **kwargs):
 		return
 
-	def iter_progress(self, iterable, message):
-		if hasattr(self,  'current_action'):
-			self.current_action.emit(message)
-		self._percentage = 0
-		v_max = len(iterable) - 1
-		for i, item in enumerate(iterable):
-			yield item
-			if i and v_max:
-				p = round(i / v_max * 100)
-				if p != self._percentage:
-					self.progress_percentage.emit(p)
-					self._percentage = p
-		if hasattr(self,  'current_action'):
-			self.current_action.emit(f"Finished {message}")
-
 	def store_filepath(self, filepath):
 		# store file name for later
 		self.filepath = filepath
@@ -731,7 +704,7 @@ class OvlFile(Header):
 		if os.path.isfile(path):
 			with open(path) as f:
 				self.included_ovl_names = [line.strip() for line in f.readlines() if line.strip()]
-		self.included_ovls_list.emit(self.included_ovl_names)
+		self.reporter.included_ovls_list.emit(self.included_ovl_names)
 
 	def save_included_ovls(self, path):
 		with open(path, "w") as f:
@@ -814,7 +787,7 @@ class OvlFile(Header):
 				self.files["file_hash"], self.files_basename, self.files_ext) if ext in deps_exts}
 			return filtered_hash_table, set(self.dependencies_ext)
 		else:
-			self.files_list.emit([[f, e] for f, e in zip(self.files_name, self.files_ext)])
+			self.reporter.files_list.emit([[f, e] for f, e in zip(self.files_name, self.files_ext)])
 			self.mimes_version = self.mimes["mime_version"]
 			files_version = [self.mimes_version[i] for i in self.files["extension"]]
 			# initialize the loaders right here
@@ -827,7 +800,7 @@ class OvlFile(Header):
 
 		# get included ovls
 		self.included_ovl_names = [self.names.get_str_at(i) for i in self.included_ovls["basename"]]
-		self.included_ovls_list.emit(self.included_ovl_names)
+		self.reporter.included_ovls_list.emit(self.included_ovl_names)
 
 		self.dependencies_basename = [self.get_dep_name(h) for h in self.dependencies["file_hash"]]
 		self.dependencies_name = [b+e for b, e in zip(self.dependencies_basename, self.dependencies_ext)]
@@ -849,8 +822,8 @@ class OvlFile(Header):
 		logging.info("Loading archives")
 		start_time = time.time()
 		self.open_ovs_streams(mode="rb")
-		with self.report_error_files("Reading") as error_files:
-			for archive_entry in self.iter_progress(self.archives, "Reading archives"):
+		with self.reporter.report_error_files("Reading") as error_files:
+			for archive_entry in self.reporter.iter_progress(self.archives, "Reading archives"):
 				# those point to external ovs archives
 				if archive_entry.name == "STATIC":
 					read_start = self.eof
@@ -944,8 +917,8 @@ class OvlFile(Header):
 			only_types = self.commands['only_types']
 			logging.info(f"Loading only {only_types}")
 			self.loaders = {loader.name: loader for loader in self.loaders.values() if loader.ext in only_types}
-		with self.report_error_files("Collecting") as error_files:
-			for loader in self.iter_progress(self.loaders.values(), "Mapping files"):
+		with self.reporter.report_error_files("Collecting") as error_files:
+			for loader in self.reporter.iter_progress(self.loaders.values(), "Mapping files"):
 				loader.track_ptrs()
 				try:
 					loader.collect()
@@ -961,7 +934,7 @@ class OvlFile(Header):
 		logging.info(f"Loaded file classes in {time.time() - start_time:.2f} seconds")
 
 	def validate_loaders(self):
-		with self.report_error_files("Validating") as error_files:
+		with self.reporter.report_error_files("Validating") as error_files:
 			for loader in self.loaders.values():
 				try:
 					loader.validate()
@@ -1266,7 +1239,7 @@ class OvlFile(Header):
 		if stream_loaders and self.name.lower() in ("main.ovl", "init.ovl"):
 			tex_with_streams = [loader.name for loader in self.loaders.values() if loader.streams and loader.ext == ".tex"]
 			if tex_with_streams:
-				self.warning_msg.emit((
+				self.reporter.warning_msg.emit((
 					f"You're trying to save streamed textures in '{self.name}', which does not support streams - "
 					f"please check 'Show Details' or the log.", "\n".join(tex_with_streams)))
 		self.reset_field("stream_files")
@@ -1333,7 +1306,7 @@ class OvlFile(Header):
 		self.reset_field("archives_meta")
 		# print(self)
 		# compress data stream
-		for archive, meta in zip(self.iter_progress(self.archives, "Saving archives"), self.archives_meta):
+		for archive, meta in zip(self.reporter.iter_progress(self.archives, "Saving archives"), self.archives_meta):
 			# write archive into bytes IO stream
 			uncompressed = archive.content.write_archive()
 			archive.uncompressed_size, archive.compressed_size, compressed = archive.content.compress(

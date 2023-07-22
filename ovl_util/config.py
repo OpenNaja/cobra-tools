@@ -59,6 +59,7 @@ def read_list(cfg_path):
 		print(f"{cfg_path} is missing or broken!")
 		return []
 
+
 class ANSI:
 	""" ANSI color codes """
 	BLACK = "\x1b[0;30m"
@@ -95,6 +96,7 @@ class ANSI:
 		# Set Windows console
 		if platform.system() == "Windows":
 			os.system("color")
+
 
 class ColoredFormatter(logging.Formatter):
 
