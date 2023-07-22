@@ -411,6 +411,7 @@ class TableView(QTableView):
         self.setAcceptDrops(True)
         self.setDragEnabled(True)
         self.setDropIndicatorShown(True)
+        self.setDefaultDropAction(Qt.DropAction.CopyAction)
         self.verticalHeader().hide()
         self.setSelectionBehavior(self.SelectRows)
 
@@ -474,31 +475,15 @@ class TableView(QTableView):
         # returns the list of all file names
         return [x[0] for x in self.table_model._data]
 
-    # todo - the following do not have the intended effect of allowing left click drags only
-    # @staticmethod
-    # def handle_event(q_event):
-    # 	if q_event.mouseButtons() == Qt.MouseButtons.LeftButton:
-    # 		q_event.accept()
-    # 	else:
-    # 		q_event.ignore()
-    #
-    # def dragEnterEvent(self, event: QDragEnterEvent) -> None:
-    # 	self.handle_event(event)
-    #
-    # # def dragLeaveEvent(self, q_event):
-    # # crashes
-    # # 	self.handle_event(q_event)
-    #
-    # def dragMoveEvent(self, event: QDragMoveEvent) -> None:
-    # 	self.handle_event(event)
-    #
-    # def dropEvent(self, event: QDropEvent) -> None:
-    # 	self.handle_event(event)
-
     def startDrag(self, _supportedActions: (Qt.DropActions | Qt.DropAction)) -> None:
         """Emits a signal with the file names of all files that are being dragged"""
-        # drop_actions is just a flag
-        self.files_dragged.emit(self.get_selected_files())
+        # Disallow drops on self after drag has begun
+        self.setAcceptDrops(False)
+        # Drag only with LMB
+        if QApplication.mouseButtons() & Qt.MouseButton.LeftButton:
+            self.files_dragged.emit(self.get_selected_files())
+        # Allow drops on self after drag has finished
+        self.setAcceptDrops(True)
 
     def set_data(self, data) -> None:
         # Assure selectionChanged signal since reset bypasses this
