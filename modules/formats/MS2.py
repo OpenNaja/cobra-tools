@@ -1,8 +1,10 @@
+import io
 import os
 import struct
 import logging
 
 from generated.formats.ms2 import Ms2File, Ms2Context
+from generated.formats.ms2.compounds.Buffer0 import Buffer0
 from generated.formats.ms2.compounds.Ms2Root import Ms2Root
 
 import generated.formats.ovl.versions as ovl_versions
@@ -12,7 +14,6 @@ from generated.formats.base.compounds.PadAlign import get_padding
 from generated.formats.tex.compounds.TexturestreamHeader import TexturestreamHeader
 from modules.formats.BaseFormat import BaseFile, MemStructLoader
 from modules.helpers import as_bytes
-from ovl_util import interaction
 
 
 class Mdl2Loader(BaseFile):
@@ -218,12 +219,15 @@ class Ms2Loader(MemStructLoader):
 		verts = b"".join(all_buffer_bytes[2:])
 		return name_buffer, bone_infos, verts
 
-	def check_materials(self, ms2_file):
+	def validate(self):
 		"""Verify that the used materials exist in the OVL"""
 		missing_materials = set()
-		for model_info, mdl2_name in zip(ms2_file.model_infos, ms2_file.mdl_2_names):
-			for material in model_info.model.materials:
-				fgm_name = f"{material.name.lower()}.fgm"
+		buffer_0_stream = io.BytesIO(self.data_entry.buffer_datas[0])
+		names_buffer = Buffer0.from_stream(buffer_0_stream, self.context, self.header)
+		for model_info in self.header.model_infos.data:
+			for material in model_info.materials.data:
+				material_name = names_buffer.names[material.name_index]
+				fgm_name = f"{material_name.lower()}.fgm"
 				if ovl_versions.is_jwe(self.ovl) or ovl_versions.is_jwe2(self.ovl) and fgm_name == "airliftstraps.fgm":
 					# don't cry about this
 					continue
@@ -233,9 +237,8 @@ class Ms2Loader(MemStructLoader):
 			mats = '\n'.join(missing_materials)
 			msg = f"The following materials are used by {self.name}, but are missing from the OVL:\n" \
 				f"{mats}\n" \
-				f"This will crash unless you are importing the materials from another OVL. Inject anyway?"
-			if not interaction.showquestion(msg):
-				raise UserWarning("Injection was canceled by the user")
+				f"This will crash unless you are linking the materials from another OVL."
+			raise UserWarning(msg)
 
 	def rename_content(self, name_tuples):
 		logging.info("Renaming inside .ms2")
