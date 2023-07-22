@@ -55,12 +55,14 @@ class ModToolGUI(MainWindow):
 		self.add_to_menu(button_data)
 
 		# Add app widgets
-		self.src_widget = widgets.DirWidget(self, {})
+		self.src_widget = widgets.DirWidget(self, self.cfg, type="mod_tool")
+		self.src_widget.setPlaceholderText("Source Folder")
 		self.src_widget.setToolTip("Source folder to pack files from.")
 		self.central_layout.addWidget(self.src_widget)
 		self.src_widget.dir_opened.connect(self.settings_changed)
 
-		self.dst_widget = widgets.DirWidget(self, {})
+		self.dst_widget = widgets.DirWidget(self, self.cfg, type="mod_tool")
+		self.dst_widget.setPlaceholderText("Destination Folder")
 		self.dst_widget.setToolTip("Destination folder to pack files to.")
 		self.central_layout.addWidget(self.dst_widget)
 

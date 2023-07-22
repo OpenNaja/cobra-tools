@@ -1444,23 +1444,34 @@ class QColorButton(QPushButton):
             print(self._color.getRgb())
 
 
-class FileWidget(QWidget):
-    """An entry widget that starts a file selector when clicked and also accepts drag & drop.
-    Displays the current file's basename.
-    """
-    file_opened = pyqtSignal(str)
-    file_saved = pyqtSignal(str)
+class FileDirWidget(QWidget):
     dir_opened = pyqtSignal(str)
     filepath_changed = pyqtSignal(str, bool)
 
-    def __init__(self, parent: QWidget, cfg: dict, ask_user: bool = True, dtype: str = "OVL", editable: bool = False,
+    def __init__(self, parent: QWidget, cfg: dict, type: str, ask_user: bool = True, editable: bool = False,
                  check_exists: bool = False, root: Optional[str] = None) -> None:
         super().__init__(parent)
-        self.entry = QLineEdit(self)
+
+        self.type = type
+        self.root = root
+        self.cfg = cfg
+        self.cfg.setdefault(self.cfg_last_dir_open, "C:/")
+        self.cfg.setdefault(self.cfg_last_dir_save, "C:/")
+        self.cfg.setdefault(self.cfg_last_file_open, "C:/")
+
+        self.ask_user = ask_user
+        self.check_exists = check_exists
+        self.filepath = ""
+        self.basename = ""
+        # Whether data associated with this filepath has been modified
+        self.dirty = False
+
         self.icon = QPushButton(self)
         self.icon.setIcon(get_icon("dir"))
         self.icon.setFlat(True)
+        self.entry = QLineEdit(self)
         self.entry.setDragEnabled(True)
+        self.entry.setTextMargins(3, 0, 3, 0)
         self.editable = editable
         if editable:
             # Icon still clickable
@@ -1474,33 +1485,98 @@ class FileWidget(QWidget):
         self.icon.installEventFilter(DragDropPassthrough(self))
         self.entry.installEventFilter(DragDropPassthrough(self))
 
-        self.dtype = dtype
-        self.dtype_l = dtype.lower()
-
-        self.check_exists = check_exists
-        self.root = root
-        self.cfg = cfg
-        if not self.cfg:
-            self.cfg[f"dir_{self.dtype_l}s_in"] = "C://"
-
-        self.filepath = ""
-        self.filename = ""
-        self.ask_user = ask_user
-        # this checks if the data has been modified by the user, is set from the outside
-        self.dirty = False
-
         self.qgrid = QGridLayout()
         self.qgrid.setContentsMargins(0, 0, 0, 0)
         self.qgrid.addWidget(self.icon, 0, 0)
         self.qgrid.addWidget(self.entry, 0, 1)
-
         self.setLayout(self.qgrid)
-        self.icon.setToolTip("Click to select a file")
-        self.entry.setToolTip(self._tooltip)
 
     @property
-    def _tooltip(self) -> str:
-        return f"Currently open {self.dtype} file: {self.filepath}" if self.filepath else f"Open {self.dtype} file"
+    def filename(self) -> str:
+        return self.basename
+
+    @filename.setter
+    def filename(self, filename: str) -> None:
+        self.basename = filename
+
+    @property
+    def type_lower(self) -> str:
+        return self.type.lower()
+
+    @property
+    def cfg_last_dir_open(self) -> str:
+        return f"dir_{self.type_lower}s_in"
+
+    @property
+    def cfg_last_dir_save(self) -> str:
+        return f"dir_{self.type_lower}s_out"
+
+    @property
+    def cfg_last_file_open(self) -> str:
+        return f"last_{self.type_lower}_in"
+
+    def cfg_path(self, cfg_str: str) -> str:
+        return self.cfg.get(cfg_str, "C://") if not self.root else self.root
+
+    def get_files(self, event: QDropEvent) -> list[QUrl]:
+        data = event.mimeData()
+        urls = data.urls()
+        if urls and urls[0].scheme() == 'file':
+            return urls
+        return []
+
+    def dragEnterEvent(self, event: QDragEnterEvent) -> None:
+        if self.get_files(event):
+            event.acceptProposedAction()
+            self.setFocus()
+
+    def dragMoveEvent(self, event: QDragMoveEvent) -> None:
+        if self.get_files(event):
+            event.acceptProposedAction()
+            self.setFocus()
+
+    def setText(self, text: str) -> None:
+        self.entry.setText(text)
+        # Keep front of path visible when small
+        self.entry.setCursorPosition(0)
+
+    def setPlaceholderText(self, text: str) -> None:
+        self.entry.setPlaceholderText(text)
+
+    def set_modified(self, dirty: bool) -> None:
+        if self.filepath:
+            self.dirty = dirty
+            self.filepath_changed.emit(self.filepath, self.dirty)
+
+
+class FileWidget(FileDirWidget):
+    """An entry widget that starts a file selector when clicked and also accepts drag & drop.
+    Displays the current file's basename.
+    """
+    file_opened = pyqtSignal(str)
+    file_saved = pyqtSignal(str)
+
+    def __init__(self, parent: QWidget, cfg: dict, type: str = "OVL", ask_user: bool = True, editable: bool = False,
+                 check_exists: bool = False, root: Optional[str] = None) -> None:
+        super().__init__(parent=parent, cfg=cfg, type=type, ask_user=ask_user,
+                         editable=editable, check_exists=check_exists, root=root)
+
+        self.icon.setToolTip("Click to select a file")
+        self.entry.setToolTip(self.tooltip_str)
+
+    @property
+    def files_filter_str(self) -> str:
+        return f"{self.type} files (*.{self.type_lower})"
+
+    @property
+    def tooltip_str(self) -> str:
+        return f"Currently open {self.type} file: {self.filepath}" if self.filepath else f"Open {self.type} file"
+
+    def is_open(self) -> bool:
+        if self.filename or self.dirty:
+            return True
+        interaction.showwarning("You must open a file first!")
+        return False
 
     def abort_open_new_file(self, new_filepath: str) -> bool:
         # only return True if we should abort
@@ -1516,8 +1592,8 @@ class FileWidget(QWidget):
     def open_file(self, filepath: str) -> bool:
         if not self.abort_open_new_file(filepath):
             self.set_file_path(filepath)
-            self.cfg[f"dir_{self.dtype_l}s_in"] = self.dir
-            self.cfg[f"last_{self.dtype_l}_in"] = self.filepath
+            self.cfg[self.cfg_last_dir_open] = self.dir
+            self.cfg[self.cfg_last_file_open] = self.filepath
             self.file_opened.emit(filepath)
             return True
         return False
@@ -1527,13 +1603,8 @@ class FileWidget(QWidget):
         self.dir, self.filename = os.path.split(filepath)
         self.setText(self.filename)
         self.check_file(self.filename)
-        self.entry.setToolTip(self._tooltip)
+        self.entry.setToolTip(self.tooltip_str)
         self.filepath_changed.emit(self.filepath, self.dirty)
-
-    def set_modified(self, dirty: bool) -> None:
-        if self.filepath:
-            self.dirty = dirty
-            self.filepath_changed.emit(self.filepath, self.dirty)
 
     def check_file(self, name: str) -> None:
         if self.check_exists:
@@ -1543,7 +1614,7 @@ class FileWidget(QWidget):
 
     def accept_file(self, filepath: str) -> bool:
         if os.path.isfile(filepath):
-            if os.path.splitext(filepath)[1].lower() in (f".{self.dtype_l}",):
+            if os.path.splitext(filepath)[1].lower() in (f".{self.type_lower}",):
                 return self.open_file(filepath)
             else:
                 interaction.showwarning("Unsupported File Format")
@@ -1553,30 +1624,8 @@ class FileWidget(QWidget):
         # TODO: This is generally confusing for something named FileWidget
         #       although it is no longer hardcoded for OVL Tool
         if os.path.isdir(dirpath):
-            return self.open_file(f"{dirpath}.{self.dtype_l}")
+            return self.open_file(f"{dirpath}.{self.type_lower}")
         return os.path.isdir(dirpath)
-
-    def setText(self, text: str) -> None:
-        self.entry.setText(text)
-        # Keep front of path visible when small
-        self.entry.setCursorPosition(0)
-
-    def get_files(self, event: QDropEvent) -> list[QUrl]:
-        data = event.mimeData()
-        urls = data.urls()
-        if urls and urls[0].scheme() == 'file':
-            return urls
-        return []
-
-    def dragEnterEvent(self, event: QDragEnterEvent) -> None:
-        if self.get_files(event):
-            event.acceptProposedAction()
-            self.setFocus()
-
-    def dragMoveEvent(self, event: QDragMoveEvent) -> None:
-        if self.get_files(event):
-            event.acceptProposedAction()
-            self.setFocus()
 
     def dropEvent(self, event: QDropEvent) -> None:
         urls = self.get_files(event)
@@ -1585,34 +1634,25 @@ class FileWidget(QWidget):
             self.open_file(filepath)
 
     def ask_open(self) -> None:
-        cfg_str = f"dir_{self.dtype_l}s_in"
         filepath = QFileDialog.getOpenFileName(
-            self, f'Load {self.dtype}', self.cfg_path(cfg_str), self.files_filter_str)[0]
+            self, f'Load {self.type}', self.cfg_path(self.cfg_last_dir_open), self.files_filter_str)[0]
         if filepath:
             self.open_file(filepath)
 
     def ask_open_dir(self) -> None:
         # TODO: This is generally confusing for something named FileWidget
         #       although it is no longer hardcoded for OVL Tool
-        file_dir = QFileDialog.getExistingDirectory()
+        file_dir = QFileDialog.getExistingDirectory(directory=self.cfg_path(self.cfg_last_dir_open))
         if self.accept_dir(file_dir):
             self.dir_opened.emit(file_dir)
-
-    def cfg_path(self, cfg_str: str) -> str:
-        return self.cfg.get(cfg_str, "C://") if not self.root else self.root
-
-    @property
-    def files_filter_str(self) -> str:
-        return f"{self.dtype} files (*.{self.dtype_l})"
 
     def ask_save_as(self) -> None:
         """Saves file, always ask for file path"""
         if self.is_open():
-            cfg_str = f"dir_{self.dtype_l}s_out"
             filepath = QFileDialog.getSaveFileName(
-                self, f'Save {self.dtype}', self.cfg_path(cfg_str), self.files_filter_str)[0]
+                self, f'Save {self.type}', self.cfg_path(self.cfg_last_dir_save), self.files_filter_str)[0]
             if filepath:
-                self.cfg[cfg_str], file_name = os.path.split(filepath)
+                self.cfg[self.cfg_last_dir_save], file_name = os.path.split(filepath)
                 self.set_file_path(filepath)
                 self.file_saved.emit(filepath)
 
@@ -1626,106 +1666,43 @@ class FileWidget(QWidget):
             else:
                 self.ask_save_as()
 
-    def ignoreEvent(self, event: QMouseEvent) -> None:
-        event.ignore()
-
     def mousePressEvent(self, _event: QMouseEvent) -> None:
         if not self.editable:
             self.ask_open()
 
-    def is_open(self) -> bool:
-        if self.filename or self.dirty:
-            return True
-
-        interaction.showwarning("You must open a file first!")
-        return False
-
 
 # Creates a dir widget, same as file but for directories
-class DirWidget(QWidget):
+class DirWidget(FileDirWidget):
     """An entry widget that starts a file selector when clicked and also accepts drag & drop.
     Displays the current file's basename.
     """
-    dir_opened = pyqtSignal(str)
 
-    def __init__(self, parent: QWidget, cfg: dict, ask_user: bool = True, dtype: str = "OVL") -> None:
-        super().__init__(parent)
-        self.entry = QLineEdit(self)
-        self.icon = QPushButton(self)
-        self.icon.setIcon(get_icon("dir"))
-        self.icon.setFlat(True)
-        self.icon.installEventFilter(ClickGuard(self))
-        self.entry.installEventFilter(ClickGuard(self))
-        self.icon.installEventFilter(DragDropPassthrough(self))
-        self.entry.installEventFilter(DragDropPassthrough(self))
-
-        self.dtype = dtype
-        self.dtype_l = dtype.lower()
-
-        self.cfg = cfg
-        if not self.cfg:
-            self.cfg[f"dir_{self.dtype_l}s_in"] = "C://"
-        self.entry.setDragEnabled(True)
-        self.entry.setReadOnly(True)
-        self.filepath = ""
-        self.filename = ""
-        self.ask_user = ask_user
-        # this checks if the data has been modified by the user, is set from the outside
-        self.dirty = False
-
-        self.qgrid = QGridLayout()
-        self.qgrid.setContentsMargins(0, 0, 0, 0)
-        self.qgrid.addWidget(self.icon, 0, 0)
-        self.qgrid.addWidget(self.entry, 0, 1)
-
-        self.setLayout(self.qgrid)
+    def __init__(self, parent: QWidget, cfg: dict, type: str = "DIR", ask_user: bool = True) -> None:
+        super().__init__(parent=parent, cfg=cfg, type=type, ask_user=ask_user)
 
     def open_dir(self, filepath: str) -> None:
         if not self.accept_dir(filepath):
             logging.warning(f"{filepath} could not be opened as a directory.")
 
     def ask_open_dir(self) -> None:
-        filepath = QFileDialog.getExistingDirectory()
+        filepath = QFileDialog.getExistingDirectory(directory=self.cfg_path(self.cfg_last_dir_open))
         if self.accept_dir(filepath):
             pass
 
     def accept_dir(self, dirpath: str) -> bool:
         if os.path.isdir(dirpath):
             self.filepath = dirpath
-            self.cfg[f"dir_{self.dtype_l}s_in"], self.filename = os.path.split(dirpath)
+            self.cfg[self.cfg_last_dir_open], self.basename = os.path.split(dirpath)
             self.setText(dirpath)
             self.dir_opened.emit(dirpath)
             return True
         return False
-
-    def setText(self, text: str) -> None:
-        self.entry.setText(text)
-
-    def get_files(self, event: QDropEvent) -> list[QUrl]:
-        data = event.mimeData()
-        urls = data.urls()
-        if urls and urls[0].scheme() == 'file':
-            return urls
-        return []
-
-    def dragEnterEvent(self, event: QDragEnterEvent) -> None:
-        if self.get_files(event):
-            event.acceptProposedAction()
-            self.setFocus()
-
-    def dragMoveEvent(self, event: QDragMoveEvent) -> None:
-        if self.get_files(event):
-            event.acceptProposedAction()
-            self.setFocus()
 
     def dropEvent(self, event: QDropEvent) -> None:
         urls = self.get_files(event)
         if urls:
             filepath = str(urls[0].path())[1:]
             self.open_dir(filepath)
-
-    def ignoreEvent(self, event: QMouseEvent) -> None:
-        event.ignore()
 
     def mousePressEvent(self, _event: QMouseEvent) -> None:
         self.ask_open_dir()
@@ -1837,9 +1814,9 @@ class MainWindow(FramelessMainWindow):
         self.wrapper_widget.setLayout(layout)
         super().setCentralWidget(self.wrapper_widget)
 
-    def make_file_widget(self, ask_user: bool = True, dtype: str = "OVL", editable: bool = False, 
+    def make_file_widget(self, ask_user: bool = True, type: str = "OVL", editable: bool = False, 
                          check_exists: bool = False, root: Optional[str] = None) -> FileWidget:
-        file_widget = FileWidget(self, self.cfg, ask_user=ask_user, dtype=dtype, editable=editable,
+        file_widget = FileWidget(self, self.cfg, ask_user=ask_user, type=type, editable=editable,
                                  check_exists=check_exists, root=root)
 
         self.modified.connect(file_widget.set_modified)
@@ -1984,7 +1961,7 @@ class MainWindow(FramelessMainWindow):
             return
 
         path = event.mimeData().urls()[0].toLocalFile() if event.mimeData().hasUrls() else ""
-        if path.lower().endswith(f".{self.file_widget.dtype.lower()}"):
+        if path.lower().endswith(f".{self.file_widget.type_lower}"):
             event.accept()
         else:
             event.ignore()
