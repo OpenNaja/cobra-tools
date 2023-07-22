@@ -231,8 +231,8 @@ class Ms2Loader(MemStructLoader):
 				if ovl_versions.is_jwe(self.ovl) or ovl_versions.is_jwe2(self.ovl) and fgm_name == "airliftstraps.fgm":
 					# don't cry about this
 					continue
-				if fgm_name not in self.ovl.loaders:
-					missing_materials.add(fgm_name)
+				# if fgm_name not in self.ovl.loaders:
+				# 	missing_materials.add(fgm_name)
 		if missing_materials:
 			mats = '\n'.join(missing_materials)
 			msg = f"The following materials are used by {self.name}, but are missing from the OVL:\n" \
