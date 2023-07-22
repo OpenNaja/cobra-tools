@@ -273,7 +273,7 @@ class OvsFile(OvsHeader):
 		logging.info("Updating pool names, deleting unused pools")
 		# map the pool types to pools
 		pools_by_type = {}
-		for pool_index, pool in enumerate(self.pools):
+		for pool_index, pool in enumerate(self.ovl.reporter.iter_progress(self.pools, "Updating pools")):
 			if pool.offsets:
 				# store pool in pool_groups map
 				if pool.type not in pools_by_type:
@@ -470,7 +470,7 @@ class OvsFile(OvsHeader):
 		for pool in self.pools:
 			pool_bytes = pool.data.getvalue()
 			pool.offset = self.get_pool_offset(pools_data_writer.tell())
-			logging.debug(f"pool.offset {pool.offset}, pools_start {self.arg.pools_start}")
+			# logging.debug(f"pool.offset {pool.offset}, pools_start {self.arg.pools_start}")
 			pools_data_writer.write(pool_bytes)
 		self.pools_data = pools_data_writer.getvalue()
 
