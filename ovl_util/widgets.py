@@ -7,6 +7,8 @@ import re
 import time
 import subprocess  # used to launch a pip install process
 
+from modules.formats.shared import DummyReporter
+
 """
     Require Python >= 3.11
 """
@@ -84,7 +86,7 @@ if len(needs_update) and install_prompt(ask_upgrade) == True:
 """ End of installing dependencies """
 
 try:
-    from generated.formats.ovl import OvlFile, games
+    from generated.formats.ovl import games
     from ovl_util.config import get_commit_str
     from ovl_util import config
     from root_path import root_dir
@@ -2009,7 +2011,7 @@ class Worker(QObject):
         self.finished.emit()
 
 
-class Reporter(QObject):
+class Reporter(DummyReporter, QObject):
     """A class wrapping the interaction between OvlFile and the UI"""
     warning_msg = pyqtSignal(tuple)  # type: ignore
     success_msg = pyqtSignal(str)  # type: ignore
@@ -2018,30 +2020,3 @@ class Reporter(QObject):
     progress_percentage = pyqtSignal(int)  # type: ignore
     current_action = pyqtSignal(str)  # type: ignore
 
-    def iter_progress(self, iterable, message):
-        self.current_action.emit(message)
-        self._percentage = 0
-        v_max = len(iterable) - 1
-        for i, item in enumerate(iterable):
-            yield item
-            if i and v_max:
-                p = round(i / v_max * 100)
-                if p != self._percentage:
-                    self.progress_percentage.emit(p)
-                    self._percentage = p
-        msg = f"Finished {message}"
-        self.current_action.emit(msg)
-        # logging.success(msg)
-
-    @contextlib.contextmanager
-    def report_error_files(self, operation):
-        error_files = []
-        yield error_files
-        if error_files:
-            self.warning_msg.emit(
-                (f"{operation} {len(error_files)} files failed - please check 'Show Details' or the log.",
-                 "\n".join(error_files)))
-        else:
-            msg = f"{operation} succeeded"
-            logging.success(msg)
-            self.success_msg.emit(msg)

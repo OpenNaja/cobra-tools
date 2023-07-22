@@ -17,7 +17,7 @@ from generated.formats.ovl.compounds.OvsHeader import OvsHeader
 from generated.formats.ovl.versions import *
 from generated.formats.ovl_base.enums.Compression import Compression
 from modules.formats.formats_dict import FormatDict
-from modules.formats.shared import djb2
+from modules.formats.shared import djb2, DummyReporter
 from ovl_util.oodle.oodle import OodleDecompressEnum, oodle_compressor
 
 UNK_HASH = "UnknownHash"
@@ -509,8 +509,8 @@ class OvlFile(Header):
 		self.constants = {}
 		self.loaders = {}
 		self.included_ovl_names = []
-		from ovl_util.widgets import Reporter
-		self.reporter = Reporter()
+		# set a default reporter here
+		self.reporter = DummyReporter()
 
 	@classmethod
 	def context_to_xml(cls, elem, prop, instance, arg, template, debug):

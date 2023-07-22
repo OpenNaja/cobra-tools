@@ -5,6 +5,8 @@ import time
 import logging
 import tempfile
 
+from ovl_util.widgets import Reporter
+
 try:
 	from ovl_util.config import logging_setup, get_version_str, get_commit_str
 	stdout_handler = logging_setup("ovl_tool_gui")
@@ -15,7 +17,7 @@ try:
 	from ovl_util import widgets, interaction
 	from modules import walker
 	from root_path import root_dir
-	from generated.formats.ovl import games, get_game, set_game
+	from generated.formats.ovl import games, get_game, set_game, OvlFile
 	from generated.formats.ovl_base.enums.Compression import Compression
 	from PyQt5 import QtWidgets, QtGui, QtCore
 
@@ -33,7 +35,9 @@ class MainWindow(widgets.MainWindow):
 		self.resize(800, 600)
 		self.setAcceptDrops(True)
 
-		self.ovl_data = widgets.OvlFile()
+		self.reporter = Reporter()
+		self.ovl_data = OvlFile()
+		self.ovl_data.reporter = self.reporter
 
 		exts = " ".join([f"*{ext}" for ext in self.ovl_data.formats_dict.extractables])
 		self.filter = f"Supported files ({exts})"
