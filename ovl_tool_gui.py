@@ -569,27 +569,27 @@ class MainWindow(widgets.MainWindow):
 				self.update_gui_table()
 
 	def walker_hash(self, ):
-		start_dir = QtWidgets.QFileDialog.getExistingDirectory(self, 'Game Root folder',
-															   self.cfg.get("dir_ovls_in", "C://"))
-		walker.generate_hash_table(self, start_dir)
+		start_dir = QtWidgets.QFileDialog.getExistingDirectory(
+			self, 'Game Root folder', self.cfg.get("dir_ovls_in", "C://"))
+		self.run_threaded(walker.generate_hash_table, self, start_dir)
 		self.set_msg_temporarily("Hashed")
 
 	def walker_fgm(self, ):
-		start_dir = QtWidgets.QFileDialog.getExistingDirectory(self, 'Game Root folder',
-															   self.cfg.get("dir_ovls_in", "C://"))
-		walker.get_fgm_values(self, start_dir, walk_ovls=self.t_walk_ovl.isChecked())
+		start_dir = QtWidgets.QFileDialog.getExistingDirectory(
+			self, 'Game Root folder', self.cfg.get("dir_ovls_in", "C://"))
+		self.run_threaded(walker.get_fgm_values, self, start_dir, walk_ovls=self.t_walk_ovl.isChecked())
 		self.set_msg_temporarily("Walked FGMs")
 
 	def walker_manis(self, ):
-		start_dir = QtWidgets.QFileDialog.getExistingDirectory(self, 'Game Root folder',
-															   self.cfg.get("dir_ovls_in", "C://"))
-		walker.get_manis_values(self, start_dir, walk_ovls=self.t_walk_ovl.isChecked())
+		start_dir = QtWidgets.QFileDialog.getExistingDirectory(
+			self, 'Game Root folder', self.cfg.get("dir_ovls_in", "C://"))
+		self.run_threaded(walker.get_manis_values, self, start_dir, walk_ovls=self.t_walk_ovl.isChecked())
 		self.set_msg_temporarily("Walked Manis")
 
 	def inspect_models(self):
-		start_dir = QtWidgets.QFileDialog.getExistingDirectory(self, 'Game Root folder',
-															   self.cfg.get("dir_ovls_in", "C://"))
-		walker.bulk_test_models(self, start_dir, walk_ovls=self.t_walk_ovl.isChecked())
+		start_dir = QtWidgets.QFileDialog.getExistingDirectory(
+			self, 'Game Root folder', self.cfg.get("dir_ovls_in", "C://"))
+		self.run_threaded(walker.bulk_test_models, self, start_dir, walk_ovls=self.t_walk_ovl.isChecked())
 		self.set_msg_temporarily("Inspected models")
 
 	@staticmethod
