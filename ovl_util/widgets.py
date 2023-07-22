@@ -328,7 +328,7 @@ class TableModel(QAbstractTableModel):
 
 
 class SortableTable(QWidget):
-    def __init__(self, header_names, ignore_types, ignore_drop_type="", opt_hide=False):
+    def __init__(self, header_names: list[str], ignore_types: list[str], ignore_drop_type: str = "", opt_hide: bool = False) -> None:
         super().__init__()
         self.table = TableView(header_names, ignore_types, ignore_drop_type)
         self.filter_entry = LabelEdit("Filter")
@@ -360,27 +360,27 @@ class SortableTable(QWidget):
         self.setLayout(qgrid)
         self.grid = qgrid
 
-    def set_data(self, data):
+    def set_data(self, data: Any) -> None:
         self.table.set_data(data)
 
-    def clear_filter(self, ):
+    def clear_filter(self) -> None:
         self.filter_entry.entry.setText("")
         self.hide_unused.setChecked(False)
         self.rev_search.setChecked(False)
         self.table.clear_filter()
 
-    def toggle_hide(self, state):
-        self.table.set_ext_filter(self.hide_unused.isChecked())
+    def toggle_hide(self, state: Qt.CheckState) -> None:
+        self.table.set_ext_filter(state == Qt.CheckState.Checked)
 
-    def toggle_rev(self, state):
-        if self.rev_search.isChecked():
+    def toggle_rev(self, state: Qt.CheckState) -> None:
+        if state == Qt.CheckState.Checked:
             self.table.rev_check = True
             self.table.update_filter_function()
         else:
             self.table.rev_check = False
             self.table.update_filter_function()
 
-    def add_button(self, btn):
+    def add_button(self, btn) -> None:
         if not self.button_count:
             self.grid.addWidget(self.btn_frame, 1, 0, 1, 4)
         self.btn_layout.addWidget(btn)
@@ -451,7 +451,7 @@ class TableView(QTableView):
     def set_ext_filter(self, hide: bool) -> None:
         ext_filter_name = "ext_filter"
         if hide and "File Type" in self.header_names:
-            def ext_filter(r, s):
+            def ext_filter(r, s) -> bool:
                 return r[self.header_names.index("File Type")] not in self.ignore_types
 
             self.proxy_model.addFilterFunction(ext_filter_name, ext_filter)
@@ -528,7 +528,7 @@ class SelectedItemsButton(QPushButton):
             super().__init__(text, parent)
         self.setStyleSheet("SelectedItemsButton:disabled { background-color: #252525; } ")
 
-    def setEnabledFromSelection(self, selection: QItemSelection):
+    def setEnabledFromSelection(self, selection: QItemSelection) -> None:
         self.setEnabled(selection.count() > 0)
 
 
@@ -543,7 +543,7 @@ class QTextEditLogger(logging.Handler, QObject):
         self.widget.setReadOnly(True)
         self.appendPlainText.connect(self.widget.appendPlainText)
 
-    def emit(self, record: logging.LogRecord):
+    def emit(self, record: logging.LogRecord) -> None:
         msg = self.format(record)
         self.appendPlainText.emit(msg)
 
@@ -553,6 +553,7 @@ class LabelEdit(QWidget):
         QWidget.__init__(self, )
         self.label = QLabel(name)
         self.entry = QLineEdit()
+        self.entry.setTextMargins(3, 0, 3, 0)
         vbox = QHBoxLayout()
         vbox.addWidget(self.label)
         vbox.addWidget(self.entry)
@@ -1387,18 +1388,18 @@ class QColorButton(QPushButton):
 
     colorChanged = pyqtSignal(object)
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-        self._color = None
+        self._color: QColor = QColor()
         self.setMaximumWidth(32)
         self.pressed.connect(self.onColorPicker)
         QDir.addSearchPath("icon", self.get_icon_dir())
 
-    def get_icon_dir(self):
+    def get_icon_dir(self) -> str:
         return os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), "icons")
 
-    def setColor(self, color):
+    def setColor(self, color) -> None:
         if color != self._color:
             self._color = color
             self.colorChanged.emit(color)
@@ -1414,10 +1415,10 @@ class QColorButton(QPushButton):
         else:
             self.setStyleSheet("")
 
-    def color(self):
+    def color(self) -> QColor:
         return self._color
 
-    def onColorPicker(self):
+    def onColorPicker(self) -> None:
         '''
         Show color-picker dialog to select color.
 
@@ -1437,10 +1438,10 @@ class QColorButton(QPushButton):
 
         return super().mousePressEvent(event)
 
-    def setValue(self, c):
+    def setValue(self, c) -> None:
         self.setColor(QColor(c.r, c.g, c.b, c.a))
 
-    def getValue(self, ):
+    def getValue(self, ) -> None:
         if self._color:
             print(self._color.getRgb())
 
@@ -1778,8 +1779,7 @@ class MainWindow(FramelessMainWindow):
         self.status_timer = QTimer()
         self.status_timer.setSingleShot(True)
         self.status_timer.setInterval(3500)
-        self.status_timer.timeout.connect(self.p_action.hide)
-        self.status_timer.timeout.connect(self.version_info.show)
+        self.status_timer.timeout.connect(self.reset_progress)
 
         self.cfg: dict[str, Any] = config.load_config()
 
@@ -1922,7 +1922,12 @@ class MainWindow(FramelessMainWindow):
                 self.p_action.setMaximum(vmax)
             self.set_progress(percent)
             self.set_msg_temporarily(message)
-            QApplication.instance().processEvents()
+        QApplication.instance().processEvents()
+
+    def reset_progress(self) -> None:
+        self.p_action.hide()
+        self.p_action.setValue(0)
+        self.version_info.show()
 
     def set_msg_temporarily(self, message: str) -> None:
         self.statusBar.showMessage(message, 3500)
