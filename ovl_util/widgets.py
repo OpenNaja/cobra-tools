@@ -1712,18 +1712,20 @@ class TitleBar(StandardTitleBar):
 
     def __init__(self, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent)
-
+        # Minimize Colors
         self.minBtn.setNormalColor(Qt.GlobalColor.white)
         self.minBtn.setHoverColor(Qt.GlobalColor.white)
         self.minBtn.setHoverBackgroundColor("#777")
         self.minBtn.setPressedColor(Qt.GlobalColor.white)
-
+        # Maximize Colors
         self.maxBtn.setNormalColor(Qt.GlobalColor.white)
         self.maxBtn.setHoverColor(Qt.GlobalColor.white)
         self.maxBtn.setHoverBackgroundColor("#777")
         self.maxBtn.setPressedColor(Qt.GlobalColor.white)
-
+        # Close Colors
         self.closeBtn.setNormalColor(Qt.GlobalColor.white)
+        # Set NoTextInteraction to prevent dragability issues with HTML / rich text
+        self.titleLabel.setTextInteractionFlags(Qt.TextInteractionFlag.NoTextInteraction)
 
 
 ButtonData = Iterable[tuple[QMenu, str, Callable[[], None], str, str]]
@@ -1838,7 +1840,8 @@ class MainWindow(FramelessMainWindow):
             if modified and FRAMELESS:
                 file_color = "<font color=\"#ffe075\">"
                 file_color_end = "</font>"
-            self.titleBar.titleLabel.setText(f"{title}{self.title_sep_colored}{file_color}{self.get_file_name(file)}{file_color_end}")
+            if FRAMELESS:
+                self.titleBar.titleLabel.setText(f"{title}{self.title_sep_colored}{file_color}{self.get_file_name(file)}{file_color_end}")
             return
         super().setWindowTitle(f"{title}")
 
