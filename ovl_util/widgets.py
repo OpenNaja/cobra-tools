@@ -1646,8 +1646,9 @@ class DirWidget(QWidget):
     """An entry widget that starts a file selector when clicked and also accepts drag & drop.
     Displays the current file's basename.
     """
+    dir_opened = pyqtSignal(str)
 
-    def __init__(self, parent, cfg, ask_user=True, dtype="OVL", poll=True) -> None:
+    def __init__(self, parent: QWidget, cfg: dict, ask_user: bool = True, dtype: str = "OVL") -> None:
         super().__init__(parent)
         self.entry = QLineEdit(self)
         self.icon = QPushButton(self)
@@ -1661,9 +1662,6 @@ class DirWidget(QWidget):
         self.dtype = dtype
         self.dtype_l = dtype.lower()
 
-        self.poll = poll
-        # TODO: This is hardcoded for Mod Tool
-        self.parent = parent
         self.cfg = cfg
         if not self.cfg:
             self.cfg[f"dir_{self.dtype_l}s_in"] = "C://"
@@ -1682,26 +1680,23 @@ class DirWidget(QWidget):
 
         self.setLayout(self.qgrid)
 
+    def open_dir(self, filepath: str) -> None:
+        if not self.accept_dir(filepath):
+            logging.warning(f"{filepath} could not be opened as a directory.")
+
     def ask_open_dir(self) -> None:
-        # TODO: This is hardcoded for Mod Tool
         filepath = QFileDialog.getExistingDirectory()
         if self.accept_dir(filepath):
             pass
 
     def accept_dir(self, dirpath: str) -> bool:
-        # TODO: This is hardcoded for Mod Tool
         if os.path.isdir(dirpath):
             self.filepath = dirpath
             self.cfg[f"dir_{self.dtype_l}s_in"], self.filename = os.path.split(dirpath)
             self.setText(dirpath)
-            self.parent.settings_changed()
+            self.dir_opened.emit(dirpath)
             return True
         return False
-
-    def decide_open(self, filepath: str) -> None:
-        if self.accept_dir(filepath) and self.poll:
-            # self.parent.poll()
-            pass
 
     def setText(self, text: str) -> None:
         self.entry.setText(text)
@@ -1727,7 +1722,7 @@ class DirWidget(QWidget):
         urls = self.get_files(event)
         if urls:
             filepath = str(urls[0].path())[1:]
-            self.decide_open(filepath)
+            self.open_dir(filepath)
 
     def ignoreEvent(self, event: QMouseEvent) -> None:
         event.ignore()

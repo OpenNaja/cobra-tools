@@ -58,6 +58,7 @@ class ModToolGUI(MainWindow):
 		self.src_widget = widgets.DirWidget(self, {})
 		self.src_widget.setToolTip("Source folder to pack files from.")
 		self.central_layout.addWidget(self.src_widget)
+		self.src_widget.dir_opened.connect(self.settings_changed)
 
 		self.dst_widget = widgets.DirWidget(self, {})
 		self.dst_widget.setToolTip("Destination folder to pack files to.")
@@ -243,9 +244,8 @@ class ModToolGUI(MainWindow):
 			self.fs_watcher.directoryChanged.disconnect(self.directory_changed)
 			self.fs_watcher.fileChanged.disconnect(self.file_changed)
 
-	def settings_changed(self):
-		basepath = self.src_widget.filepath
-		folders = self.get_src_folder_list()
+	def settings_changed(self, dirpath):
+		folders = self.get_src_folder_list(dirpath)
 		self.watcher_add_folders(folders)
 		files = self.get_src_file_list()
 		self.watcher_add_files(files)
