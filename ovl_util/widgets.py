@@ -1738,6 +1738,8 @@ class MainWindow(FramelessMainWindow):
         self.central_widget = QWidget(self) if central_widget is None else central_widget
         self.central_layout: QLayout = QVBoxLayout()
 
+        self.title_sep = " | "
+        self.title_sep_colored = " <font color=\"#5f5f5f\">|</font> "
         if FRAMELESS:
             self.setTitleBar(TitleBar(self))
 
@@ -1745,10 +1747,8 @@ class MainWindow(FramelessMainWindow):
         self.actions: dict[str, QAction] = {}
 
         self.name = name
-        # self.resize(720, 400)
         self.setWindowTitle(name)
         self.setWindowIcon(get_icon("frontier"))
-        self.title_sep = " <font color=\"#555\">|</font> "
 
         self.file_widget: Optional[FileWidget] = None
 
@@ -1832,13 +1832,15 @@ class MainWindow(FramelessMainWindow):
         if not title:
             title = self.name
         if file:
+            super().setWindowTitle(f"{title}{self.title_sep}{self.get_file_name(file, only_basename=True)}")
             file_color = ""
             file_color_end = ""
             if modified and FRAMELESS:
                 file_color = "<font color=\"#ffe075\">"
                 file_color_end = "</font>"
-            return super().setWindowTitle(f"{title}{self.title_sep}{file_color}{self.get_file_name(file)}{file_color_end}")
-        return super().setWindowTitle(f"{title}")
+            self.titleBar.titleLabel.setText(f"{title}{self.title_sep_colored}{file_color}{self.get_file_name(file)}{file_color_end}")
+            return
+        super().setWindowTitle(f"{title}")
 
     def set_window_filepath(self, file: str, modified: bool) -> None:
         self.setWindowTitle(file=file, modified=modified)
@@ -1854,8 +1856,8 @@ class MainWindow(FramelessMainWindow):
                 return "/".join([subdirs[0], subdirs[1], "...", subdirs[-1], file])
         return filepath
 
-    def get_file_name(self, filepath: str) -> str:
-        if "ovldata/" in filepath:
+    def get_file_name(self, filepath: str, only_basename: bool = False) -> str:
+        if not only_basename and "ovldata/" in filepath:
             return self.elide_dirs(filepath.split("ovldata/")[1])
         return os.path.basename(filepath)
     
