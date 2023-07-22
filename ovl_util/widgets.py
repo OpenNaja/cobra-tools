@@ -1840,7 +1840,8 @@ class MainWindow(FramelessMainWindow):
             if modified and FRAMELESS:
                 file_color = "<font color=\"#ffe075\">"
                 file_color_end = "</font>"
-            self.titleBar.titleLabel.setText(f"{title}{self.title_sep_colored}{file_color}{self.get_file_name(file)}{file_color_end}")
+            if FRAMELESS:
+                self.titleBar.titleLabel.setText(f"{title}{self.title_sep_colored}{file_color}{self.get_file_name(file)}{file_color_end}")
             return
         super().setWindowTitle(f"{title}")
 
