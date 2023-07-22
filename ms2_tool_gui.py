@@ -29,7 +29,7 @@ class MainWindow(widgets.MainWindow):
 
 		self.filter = "Supported files (*ms2)"
 
-		self.file_widget = self.make_file_widget(dtype="MS2")
+		self.file_widget = self.make_file_widget(type="MS2")
 
 		header_names = ["Name", "File Type", "LODs", "Objects", "Meshes", "Materials"]
 

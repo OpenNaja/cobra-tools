@@ -58,7 +58,7 @@ class MainWindow(widgets.MainWindow):
 
 		self.game_choice = widgets.LabelCombo("Game", self.games, editable=False, activated_fn=self.game_changed)
 
-		self.file_widget = self.make_file_widget(dtype="FGM")
+		self.file_widget = self.make_file_widget(type="FGM")
 
 		self.lock_attrs = QtWidgets.QCheckBox("Lock Attributes")
 		self.lock_attrs.setLayoutDirection(QtCore.Qt.RightToLeft)
