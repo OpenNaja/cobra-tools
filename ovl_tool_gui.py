@@ -425,14 +425,14 @@ class MainWindow(widgets.MainWindow):
 		self.update_files_ui(f_list)
 		self.included_ovls_view.set_data(self.ovl_data.included_ovl_names)
 		logging.info(f"Loaded GUI in {time.time() - start_time:.2f} seconds")
-		self.update_progress("Operation completed!", value=100, vmax=100)
+		self.set_msg_temporarily("Operation completed!")
 
 	def save(self, filepath):
 		"""Saves ovl to file_widget.filepath, clears dirty flag"""
 		try:
 			self.ovl_data.save(filepath)
 			self.set_file_modified(False)
-			self.update_progress(f"Saved {self.ovl_data.basename}", value=100, vmax=100)
+			self.set_msg_temporarily(f"Saved {self.ovl_data.basename}")
 		except:
 			self.handle_error("Saving OVL failed, see log!")
 
@@ -527,7 +527,7 @@ class MainWindow(widgets.MainWindow):
 					with open(filelist_src, 'w') as f:
 						f.write("\n".join(file_names))
 
-					self.update_progress("Saved file list", value=100, vmax=100)
+					self.set_msg_temporarily("Saved file list")
 				except:
 					self.handle_error("Writing file list failed, see log!")
 
@@ -540,7 +540,7 @@ class MainWindow(widgets.MainWindow):
 			if filepath:
 				try:
 					self.ovl_data.save_included_ovls(filepath)
-					self.update_progress("Saved included OVLs", value=100, vmax=100)
+					self.set_msg_temporarily("Saved included OVLs")
 				except:
 					self.handle_error("Writing included OVLs failed, see log!")
 
@@ -552,7 +552,7 @@ class MainWindow(widgets.MainWindow):
 			try:
 				self.ovl_data.load_included_ovls(filepath)
 				self.set_file_modified(True)
-				self.update_progress("Loaded included OVLs", value=100, vmax=100)
+				self.set_msg_temporarily("Loaded included OVLs")
 			except:
 				self.handle_error("Opening included OVLs failed, see log!")
 
@@ -572,25 +572,25 @@ class MainWindow(widgets.MainWindow):
 		start_dir = QtWidgets.QFileDialog.getExistingDirectory(self, 'Game Root folder',
 															   self.cfg.get("dir_ovls_in", "C://"))
 		walker.generate_hash_table(self, start_dir)
-		self.update_progress("Hashed", value=100, vmax=100)
+		self.set_msg_temporarily("Hashed")
 
 	def walker_fgm(self, ):
 		start_dir = QtWidgets.QFileDialog.getExistingDirectory(self, 'Game Root folder',
 															   self.cfg.get("dir_ovls_in", "C://"))
 		walker.get_fgm_values(self, start_dir, walk_ovls=self.t_walk_ovl.isChecked())
-		self.update_progress("Walked FGMs", value=100, vmax=100)
+		self.set_msg_temporarily("Walked FGMs")
 
 	def walker_manis(self, ):
 		start_dir = QtWidgets.QFileDialog.getExistingDirectory(self, 'Game Root folder',
 															   self.cfg.get("dir_ovls_in", "C://"))
 		walker.get_manis_values(self, start_dir, walk_ovls=self.t_walk_ovl.isChecked())
-		self.update_progress("Walked Manis", value=100, vmax=100)
+		self.set_msg_temporarily("Walked Manis")
 
 	def inspect_models(self):
 		start_dir = QtWidgets.QFileDialog.getExistingDirectory(self, 'Game Root folder',
 															   self.cfg.get("dir_ovls_in", "C://"))
 		walker.bulk_test_models(self, start_dir, walk_ovls=self.t_walk_ovl.isChecked())
-		self.update_progress("Inspected models", value=100, vmax=100)
+		self.set_msg_temporarily("Inspected models")
 
 	@staticmethod
 	def check_length(name_tups):
