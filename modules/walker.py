@@ -51,13 +51,11 @@ def generate_hash_table(gui, start_dir):
 		lod_counts = {}
 		error_files = []
 		ovl_files = walk_type(start_dir, extension=".ovl")
-		of_max = len(ovl_files)
-		for of_index, ovl_path in enumerate(ovl_files):
+		for of_index, ovl_path in enumerate(gui.reporter.iter_progress(ovl_files, "Hashing")):
 			# filter ovl files to only accept stock names, discard any usermade ovl that does not agree
 			if not any(p in ovl_path for p in valid_packages):
 				logging.warning(f"Ignoring usermade {ovl_path}")
 				continue
-			gui.update_progress(f"Hashing", value=of_index, vmax=of_max)
 			try:
 				# read ovl file
 				new_hashes, new_exts = ovl_data.load(ovl_path, commands={"generate_hash_table": hash_exts})
@@ -144,11 +142,9 @@ def bulk_test_models(gui, start_dir, walk_ovls=True, walk_models=True):
 		if walk_models:
 			start_time = time.time()
 			ms2_files = walk_type(export_dir, extension=".ms2")
-			mf_max = len(ms2_files)
-			for mf_index, ms2_path in enumerate(ms2_files):
+			for mf_index, ms2_path in enumerate(gui.reporter.iter_progress(ms2_files, "Walking MS2 files")):
 				ms2_path_rel = ms2_path.replace(export_dir, "")
 				ms2_name = os.path.basename(ms2_path)
-				gui.update_progress(f"Walking MS2 files: {ms2_name}", value=mf_index, vmax=mf_max)
 				try:
 					ms2_data.load(ms2_path, read_editable=True)
 					for mdl2_name, model_info in zip(ms2_data.mdl_2_names, ms2_data.model_infos):
@@ -199,60 +195,57 @@ def bulk_test_models(gui, start_dir, walk_ovls=True, walk_models=True):
 				except Exception as ex:
 					logging.exception("Walking models errored")
 					errors.append((ms2_path, ex))
-		# report
-		print(f"\nThe following {len(errors)} errors occured:")
-		for file_path, ex in errors:
-			print(file_path, str(ex))
+			# report
+			print(f"\nThe following {len(errors)} errors occured:")
+			for file_path, ex in errors:
+				print(file_path, str(ex))
 
-		print("\nThe following type - map pairs were found:")
-		# for flag, tup in sorted(type_dic.items()):
-		# 	print(flag)
-		# 	names, maps_list = tup
-		# 	print("Some files:", list(sorted(set(names)))[:25])
-		# 	print("num meshes", len(names))
-		print(f"scale_float: {list(sorted(scale_float))}")
-		print(f"last_counts: {last_counts}")
-		print(f"flags: {flags}")
-		print(f"flag_0: {flag_0}")
-		print(f"flag_1: {flag_1}")
-		print(f"constraints_0: {constraints_0}")
-		print(f"constraints_1: {constraints_1}")
-		print(f"no_bones: {no_bones}")
-		print(f"mesh_collision: {mesh_collision}")
-		print(f"Max bones: {max_bones} in {max_bones_ms2}")
-		# print(f"blend_modes: {blend_modes}")
-		if shader_map:
-			print(f"shaders: {shaders}")
-		largest_zstring_buffers = sorted(joint_names_padding.keys())
-		num = 10
-		if len(largest_zstring_buffers) > num:
-			for k in largest_zstring_buffers[-num:]:
-				logging.info(f"Found {k} for {joint_names_padding[k]}")
-		logging.info(largest_zstring_buffers)
-		# logging.info(Counter(joint_names_padding.keys()))
-		# logging.info(Counter(joint_names_total.keys()))
-		# totals = sorted(k for k in joint_names_total.keys())
-		# for t in totals:
-		# 	logging.info(f"{t} mod = {t % 32}")
-		# totals = sorted(k for k in joint_names_2.keys())
-		# for t in totals:
-		# 	logging.info(f"{t} mod = {t % 32}")
-		# totals = sorted(k for k in hc_starts.keys())
-		# for t in totals:
-		# 	logging.info(f"{t} mod = {t % 16}, {t % 64}")
-		for (size, count), fp in joint_names_2.items():
-			logging.info(f"size {size} / count {count} = {size/count} in {fp}")
-		msg = f"Loaded {mf_max} models {time.time() - start_time:.2f} seconds"
-		logging.info(msg)
-		gui.update_progress(msg, value=100, vmax=100)
+			print("\nThe following type - map pairs were found:")
+			# for flag, tup in sorted(type_dic.items()):
+			# 	print(flag)
+			# 	names, maps_list = tup
+			# 	print("Some files:", list(sorted(set(names)))[:25])
+			# 	print("num meshes", len(names))
+			print(f"scale_float: {list(sorted(scale_float))}")
+			print(f"last_counts: {last_counts}")
+			print(f"flags: {flags}")
+			print(f"flag_0: {flag_0}")
+			print(f"flag_1: {flag_1}")
+			print(f"constraints_0: {constraints_0}")
+			print(f"constraints_1: {constraints_1}")
+			print(f"no_bones: {no_bones}")
+			print(f"mesh_collision: {mesh_collision}")
+			print(f"Max bones: {max_bones} in {max_bones_ms2}")
+			# print(f"blend_modes: {blend_modes}")
+			if shader_map:
+				print(f"shaders: {shaders}")
+			largest_zstring_buffers = sorted(joint_names_padding.keys())
+			num = 10
+			if len(largest_zstring_buffers) > num:
+				for k in largest_zstring_buffers[-num:]:
+					logging.info(f"Found {k} for {joint_names_padding[k]}")
+			logging.info(largest_zstring_buffers)
+			# logging.info(Counter(joint_names_padding.keys()))
+			# logging.info(Counter(joint_names_total.keys()))
+			# totals = sorted(k for k in joint_names_total.keys())
+			# for t in totals:
+			# 	logging.info(f"{t} mod = {t % 32}")
+			# totals = sorted(k for k in joint_names_2.keys())
+			# for t in totals:
+			# 	logging.info(f"{t} mod = {t % 32}")
+			# totals = sorted(k for k in hc_starts.keys())
+			# for t in totals:
+			# 	logging.info(f"{t} mod = {t % 16}, {t % 64}")
+			for (size, count), fp in joint_names_2.items():
+				logging.info(f"size {size} / count {count} = {size/count} in {fp}")
+			msg = f"Loaded {len(ms2_files)} models {time.time() - start_time:.2f} seconds"
+			logging.info(msg)
 
 
 def ovls_in_path(gui, start_dir, only_types):
 	ovl_data = OvlFile()
 	ovl_files = walk_type(start_dir, extension=".ovl")
-	of_max = len(ovl_files)
-	for of_index, ovl_path in enumerate(ovl_files):
-		gui.update_progress(f"Walking OVL files: {os.path.basename(ovl_path)}", value=of_index, vmax=of_max)
+	for of_index, ovl_path in enumerate(gui.reporter.iter_progress(ovl_files, "Walking OVL files")):
 		try:
 			# read ovl file
 			ovl_data.load(ovl_path, commands={"only_types": only_types})
@@ -287,9 +280,7 @@ def get_fgm_values(gui, start_dir, walk_ovls=True, walk_fgms=True):
 		if walk_fgms:
 			context = OvlContext()
 			fgm_files = walk_type(export_dir, extension=".fgm")
-			mf_max = len(fgm_files)
-			for mf_index, fgm_path in enumerate(fgm_files):
-				gui.update_progress(f"Walking FGM files", value=mf_index, vmax=mf_max)
+			for mf_index, fgm_path in enumerate(gui.reporter.iter_progress(fgm_files, "Walking FGM files")):
 				try:
 					header = FgmHeader.from_xml_file(fgm_path, context)
 

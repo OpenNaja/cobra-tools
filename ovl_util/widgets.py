@@ -1911,21 +1911,6 @@ class MainWindow(FramelessMainWindow):
         if self.p_action.value() >= self.p_action.maximum():
             self.status_timer.start()
 
-    def update_progress(self, message: str, value: int = 100, vmax: int = 100) -> None:
-        # avoid gui updates if the value won't actually change the percentage.
-        # this saves us from making lots of GUI update calls that don't really
-        # matter.
-        percent = value
-        if vmax > 100:
-            percent = int((value / vmax) * 100)
-            vmax = 100
-        if percent > self.p_action.value():
-            if self.p_action.maximum() != vmax:
-                self.p_action.setMaximum(vmax)
-            self.set_progress(percent)
-            self.set_msg_temporarily(message)
-        QApplication.instance().processEvents()
-
     def reset_progress(self) -> None:
         self.p_action.hide()
         self.p_action.setValue(0)
