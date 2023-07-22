@@ -669,8 +669,7 @@ class OvlFile(Header):
 				except:
 					logging.exception(f"Adding '{file_path}' failed")
 					error_files.append(file_path)
-			for loader in self.loaders.values():
-				loader.validate()
+			self.validate_loaders()
 		self.files_list.emit([[loader.name, loader.ext] for loader in self.loaders.values()])
 
 	def register_loader(self, loader):
@@ -958,9 +957,17 @@ class OvlFile(Header):
 				# if somebody stores a field called 'version', it overrides (ovl) context version
 				if version != self.version:
 					raise AttributeError(f"{loader.name} changed ovl version from {version} to {self.version}")
-			for loader in self.loaders.values():
-				loader.validate()
+			self.validate_loaders()
 		logging.info(f"Loaded file classes in {time.time() - start_time:.2f} seconds")
+
+	def validate_loaders(self):
+		with self.report_error_files("Validating") as error_files:
+			for loader in self.loaders.values():
+				try:
+					loader.validate()
+				except:
+					logging.exception(f"Validating '{loader.name}' failed")
+					error_files.append(loader.name)
 
 	def get_ovs_path(self, archive_entry):
 		if archive_entry.name == "STATIC":
