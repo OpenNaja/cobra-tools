@@ -59,23 +59,53 @@ def read_list(cfg_path):
 		print(f"{cfg_path} is missing or broken!")
 		return []
 
+class ANSI:
+	""" ANSI color codes """
+	BLACK = "\x1b[0;30m"
+	RED = "\x1b[0;31m"
+	GREEN = "\x1b[0;32m"
+	YELLOW = "\x1b[0;33m"
+	BLUE = "\x1b[0;34m"
+	PURPLE = "\x1b[0;35m"
+	CYAN = "\x1b[0;36m"
+	LIGHT_GRAY = "\x1b[0;37m"
+	DARK_GRAY = "\x1b[1;30m"
+	LIGHT_RED = "\x1b[1;31m"
+	LIGHT_GREEN = "\x1b[1;32m"
+	LIGHT_YELLOW = "\x1b[1;33m"
+	LIGHT_BLUE = "\x1b[1;34m"
+	LIGHT_PURPLE = "\x1b[1;35m"
+	LIGHT_CYAN = "\x1b[1;36m"
+	LIGHT_WHITE = "\x1b[1;37m"
+	BOLD = "\x1b[1m"
+	FAINT = "\x1b[2m"
+	ITALIC = "\x1b[3m"
+	UNDERLINE = "\x1b[4m"
+	BLINK = "\x1b[5m"
+	NEGATIVE = "\x1b[7m"
+	CROSSED = "\x1b[9m"
+	END = "\x1b[0m"
+
+	# Cancel SGR codes if we don't write to a colored terminal
+	if not sys.stdout.isatty() or (platform.system() == "Windows" and int(platform.release()) < 10):
+		for _ in dir():
+			if isinstance(_, str) and _[0] != "_":
+				locals()[_] = ""
+	else:
+		# Set Windows console
+		if platform.system() == "Windows":
+			os.system("color")
 
 class ColoredFormatter(logging.Formatter):
 
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
-		# ANSI Coloring
-		grey = "\x1b[38;20m"
-		yellow = "\x1b[33;20m"
-		red = "\x1b[31;20m"
-		bold_red = "\x1b[31;1m"
-		_reset = "\x1b[0m"
 		self.FORMATS = {
-			logging.DEBUG: f"{grey}{self._fmt}{_reset}",
-			logging.INFO: f"{grey}{self._fmt}{_reset}",
-			logging.WARNING: f"{yellow}{self._fmt}{_reset}",
-			logging.ERROR: f"{red}{self._fmt}{_reset}",
-			logging.CRITICAL: f"{bold_red}{self._fmt}{_reset}"
+			logging.DEBUG: f"{ANSI.DARK_GRAY}{self._fmt}{ANSI.END}",
+			logging.INFO: f"{ANSI.LIGHT_WHITE}{self._fmt}{ANSI.END}",
+			logging.WARNING: f"{ANSI.YELLOW}{self._fmt}{ANSI.END}",
+			logging.ERROR: f"{ANSI.RED}{self._fmt}{ANSI.END}",
+			logging.CRITICAL: f"{ANSI.LIGHT_RED}{self._fmt}{ANSI.END}"
 		}
 		self.FORMATTERS = {key: logging.Formatter(fmt) for key, fmt in self.FORMATS.items()}
 
@@ -91,12 +121,7 @@ def logging_setup(log_name):
 	# formatter = logging.Formatter('%(asctime)s | %(levelname)s | %(message)s')
 	formatter = logging.Formatter('%(levelname)s | %(message)s')
 	# Colored logging for all platforms but Windows 7/8
-	colored_formatter = formatter
-	is_windows = platform.system() == "Windows"
-	if not (is_windows and int(platform.release()) < 10):
-		if is_windows:
-			os.system("color")
-		colored_formatter = ColoredFormatter('%(levelname)s | %(message)s')
+	colored_formatter = ColoredFormatter('%(levelname)s | %(message)s')
 
 	stdout_handler = logging.StreamHandler(sys.stdout)
 	stdout_handler.setLevel(logging.INFO)

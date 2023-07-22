@@ -1,34 +1,50 @@
 import logging
 import os
+import sys
+import time
 
-import numpy as np
-from PyQt5 import QtWidgets, QtCore
-from PyQt5.QtGui import QColor
+try:
+	from ovl_util.config import logging_setup, get_version_str, get_commit_str
+	logging_setup("fgm_editor")
+	logging.info(f"Running python {sys.version}")
+	logging.info(f"Running cobra-tools {get_version_str()}, {get_commit_str()}")
 
-from constants import ConstantsProvider
-from generated.formats.fgm.enums.FgmDtype import FgmDtype
-from generated.formats.ovl_base import OvlContext
-import ovl_util.interaction
-from generated.formats.fgm.compounds.FgmHeader import FgmHeader
-from generated.formats.fgm.compounds.TexIndex import TexIndex
-from generated.formats.fgm.compounds.TextureInfo import TextureInfo
-from generated.formats.fgm.compounds.TextureData import TextureData
-from generated.formats.fgm.compounds.AttribInfo import AttribInfo
-from generated.formats.fgm.compounds.AttribData import AttribData
-from generated.array import Array
-from generated.formats.ovl.versions import *
-from ovl_util import widgets, config, interaction
-from ovl_util.widgets import QColorButton, MySwitch, MAX_UINT, get_icon
+	# Import widgets before everything except Python built-ins and ovl_util.config!
+	from ovl_util import widgets, config, interaction
+	from ovl_util.widgets import QColorButton, MySwitch, MAX_UINT, get_icon
 
-from ovl_util.config import logging_setup
+	from constants import ConstantsProvider
+	from generated.formats.fgm.enums.FgmDtype import FgmDtype
+	from generated.formats.ovl_base import OvlContext
+	from generated.formats.fgm.compounds.FgmHeader import FgmHeader
+	from generated.formats.fgm.compounds.TexIndex import TexIndex
+	from generated.formats.fgm.compounds.TextureInfo import TextureInfo
+	from generated.formats.fgm.compounds.TextureData import TextureData
+	from generated.formats.fgm.compounds.AttribInfo import AttribInfo
+	from generated.formats.fgm.compounds.AttribData import AttribData
+	from generated.array import Array
+	from generated.formats.ovl.versions import *
 
-logging_setup("fgm_editor")
+	import numpy as np
+	from PyQt5 import QtWidgets, QtCore
+	from PyQt5.QtGui import QColor
 
+	# Place typing imports after Python check in widgets
+	from typing import Any, Optional
+except:
+	logging.exception("Some modules could not be imported; make sure you install the required dependencies with pip!")
+	time.sleep(15)
 
 class MainWindow(widgets.MainWindow):
 
 	def __init__(self):
-		widgets.MainWindow.__init__(self, "FGM Editor", )
+		self.scrollarea = QtWidgets.QScrollArea()
+		self.scrollarea.setWidgetResizable(True)
+		# the actual scrollable stuff
+		self.widget = QtWidgets.QWidget()
+		self.scrollarea.setWidget(self.widget)
+
+		widgets.MainWindow.__init__(self, "FGM Editor", central_widget=self.scrollarea)
 
 		self.resize(800, 600)
 		self.setAcceptDrops(True)
@@ -40,18 +56,9 @@ class MainWindow(widgets.MainWindow):
 		self.games = [g.value for g in games]
 		self.import_header = None
 
-		self.scrollarea = QtWidgets.QScrollArea(self)
-		self.scrollarea.setWidgetResizable(True)
-		self.setCentralWidget(self.scrollarea)
+		self.game_choice = widgets.LabelCombo("Game", self.games, editable=False, activated_fn=self.game_changed)
 
-		# the actual scrollable stuff
-		self.widget = QtWidgets.QWidget()
-		self.scrollarea.setWidget(self.widget)
-
-		self.game_container = widgets.LabelCombo("Game:", self.games)
-		self.game_container.entry.currentIndexChanged.connect(self.game_changed)
-		self.game_container.entry.setEditable(False)
-		self.file_widget = widgets.FileWidget(self, self.cfg, dtype="FGM")
+		self.file_widget = self.make_file_widget(type="FGM")
 
 		self.lock_attrs = QtWidgets.QCheckBox("Lock Attributes")
 		self.lock_attrs.setLayoutDirection(QtCore.Qt.RightToLeft)
@@ -61,10 +68,9 @@ class MainWindow(widgets.MainWindow):
 		self.skip_color.setLayoutDirection(QtCore.Qt.RightToLeft)
 		self.skip_color.setToolTip("Some Float3 colors can go above 1.0 or below 0.0 to achieve certain effects")
 
-		self.shader_choice = widgets.LabelCombo("Shader:", ())
-		self.shader_choice.entry.activated.connect(self.shader_changed)
-		self.attribute_choice = widgets.LabelCombo("Attribute:", ())
-		self.texture_choice = widgets.LabelCombo("Texture:", ())
+		self.shader_choice = widgets.LabelCombo("Shader", (), activated_fn=self.shader_changed)
+		self.attribute_choice = widgets.LabelCombo("Attribute", ())
+		self.texture_choice = widgets.LabelCombo("Texture", ())
 		self.attribute_add = QtWidgets.QPushButton("Add Attribute")
 		self.attribute_add.clicked.connect(self.add_attribute_clicked)
 		self.texture_add = QtWidgets.QPushButton("Add Texture")
@@ -78,8 +84,10 @@ class MainWindow(widgets.MainWindow):
 		self.game_changed()
 
 		vbox = QtWidgets.QVBoxLayout()
+		
+		vbox.setAlignment(QtCore.Qt.AlignmentFlag.AlignTop)
 		vbox.addWidget(self.file_widget)
-		vbox.addWidget(self.game_container)
+		vbox.addWidget(self.game_choice)
 		vbox.addWidget(self.shader_choice)
 		vbox.addWidget(self.attribute_choice)
 		vbox.addWidget(self.attribute_add)
@@ -92,7 +100,7 @@ class MainWindow(widgets.MainWindow):
 		vbox.addStretch(1)
 		self.widget.setLayout(vbox)
 
-		main_menu = self.menuBar()
+		main_menu = self.menu_bar
 		file_menu = main_menu.addMenu('File')
 		edit_menu = main_menu.addMenu('Edit')
 		help_menu = main_menu.addMenu('Help')
@@ -115,11 +123,13 @@ class MainWindow(widgets.MainWindow):
 
 	@property
 	def game(self):
-		return self.game_container.entry.currentText()
+		return self.game_choice.entry.currentText()
 
-	def game_changed(self,):
-		game = self.game
-		logging.info(f"Changed game to {game}")
+	def game_changed(self, game: Optional[str] = None):
+		if game is None:
+			game = self.game
+		else:
+			logging.info(f"Changed game to {game}")
 		try:
 			set_game(self.header.context, game)
 			# set_game(self.header, game)
@@ -133,7 +143,7 @@ class MainWindow(widgets.MainWindow):
 			logging.warning(f"No presets for game {game}")
 
 	def set_dirty(self):
-		self.file_widget.dirty = True
+		self.set_file_modified(True)
 
 	def update_choices(self):
 		shader_name = self.shader_choice.entry.currentText()
@@ -219,9 +229,9 @@ class MainWindow(widgets.MainWindow):
 	def has_data(self):
 		return self.header.textures.data and self.header.name_foreach_textures.data and self.header.attributes.data and self.header.value_foreach_attributes.data
 
-	def shader_changed(self,):
+	def shader_changed(self, name: str):
 		"""Run only during user activation"""
-		self.header.shader_name = self.shader_choice.entry.currentText()
+		self.header.shader_name = name
 		self.update_choices()
 		try:
 			# todo - instead change saving behavior as in ovl tool
@@ -355,26 +365,26 @@ class MainWindow(widgets.MainWindow):
 		file_out, _ = QtWidgets.QFileDialog.getSaveFileName(self, "New File", os.path.join(self.cfg.get("dir_fgms_out", "C://"), self.fgm_name), "FGM files (*.fgm)",)
 		if file_out:
 			self.cfg["dir_fgms_out"], _ = os.path.split(file_out)
-			self.file_widget.set_file_path(file_out)
+			self.file_widget.open_file(file_out)
 			self.set_dirty()
 			return True
 		return False
 
-	def load(self):
-		if self.file_widget.filepath:
+	def open(self, filepath):
+		if filepath:
 			try:
-				self.header = FgmHeader.from_xml_file(self.file_widget.filepath, self.context)
+				self.header = FgmHeader.from_xml_file(filepath, self.context)
 				enum_name, member_name = self.header.game.split(".")
 				game = games[member_name]
 				logging.debug(f"from game {game}")
-				self.game_container.entry.setText(game.value)
+				self.game_choice.entry.setText(game.value)
 				self.game_changed()
 				self.update_shader(self.header.shader_name)
 				self.tex_container.update_gui(self.header.textures.data, self.header.name_foreach_textures.data)
 				self.attrib_container.update_gui(self.header.attributes.data, self.header.value_foreach_attributes.data)
 
 			except Exception as ex:
-				ovl_util.interaction.showerror(str(ex))
+				interaction.showerror(str(ex))
 				logging.exception("Loading fgm errored")
 			logging.info("Done!")
 
@@ -386,14 +396,14 @@ class MainWindow(widgets.MainWindow):
 				self.import_header = FgmHeader.from_xml_file(file_in, self.context)
 				logging.info(f"Importing {file_in}")
 			except Exception as ex:
-				ovl_util.interaction.showerror(str(ex))
+				interaction.showerror(str(ex))
 				logging.exception("Importing fgm errored")
 
-	def _save(self):
+	def save(self, filepath) -> None:
 		try:
-			with self.header.to_xml_file(self.header, self.file_widget.filepath) as xml_root:
+			with self.header.to_xml_file(self.header, filepath) as xml_root:
 				pass
-			self.file_widget.dirty = False
+			self.set_file_modified(False)
 		except BaseException as err:
 			interaction.showerror(str(err))
 			logging.exception("Saving fgm errored")
@@ -462,7 +472,7 @@ class TextureVisual:
 		dtypes = [e.name for e in FgmDtype]
 		dtypes_tex = [dtypes.pop(dtypes.index("RGBA")), dtypes.pop(dtypes.index("TEXTURE"))]
 
-		self.w_dtype = widgets.CleverCombo(dtypes_tex if container.title() == "Textures" else dtypes)
+		self.w_dtype = widgets.CleverCombo(self.container, options=dtypes_tex if container.title() == "Textures" else dtypes)
 		self.w_dtype.setText(entry.dtype.name)
 		self.w_dtype.setToolTip(f"Data type of {entry.name}")
 		self.w_dtype.currentIndexChanged.connect(self.update_dtype)
@@ -562,10 +572,10 @@ class TextureVisual:
 				self.data.dependency_name.data = self.container.gui.create_tex_name(self.container.gui.fgm_name, self.entry.name)
 
 			self.w_file = widgets.FileWidget(self.container, self.container.gui.cfg, ask_user=False,
-											dtype="TEX", poll=False, editable=True, check_exists=True, root=self.container.gui.fgm_path)
+											dtype="TEX", editable=True, check_exists=True, root=self.container.gui.fgm_path)
 			self.w_file.set_file_path(self.data.dependency_name.data)
 			self.w_file.entry.textChanged.connect(self.update_file)
-			self.w_tile = QtWidgets.QSpinBox()
+			self.w_tile = QtWidgets.QSpinBox(self.container)
 			self.w_tile.setMaximumWidth(36)
 			self.w_tile.setToolTip("Array Tile Index")
 			self.w_tile.setRange(0, 2147483647)
@@ -633,7 +643,7 @@ class TextureVisual:
 			}}"""))
 
 		elif "float" in t:
-			field = QtWidgets.QDoubleSpinBox()
+			field = widgets.NoScrollDoubleSpinBox()
 			field.setDecimals(3)
 			field.setRange(-10000, 10000)
 			field.setSingleStep(.05)
@@ -643,7 +653,7 @@ class TextureVisual:
 			field.clicked.connect(update_ind)
 		elif "int" in t:
 			default = int(default)
-			field = QtWidgets.QDoubleSpinBox()
+			field = widgets.NoScrollDoubleSpinBox()
 			field.setDecimals(0)
 			field.setRange(-MAX_UINT, MAX_UINT)
 			field.valueChanged.connect(update_ind_int)

@@ -5,26 +5,21 @@ import time
 import logging
 import tempfile
 
-from modules.formats.shared import fmt_hash
-
 try:
-	import numpy as np
-	from PyQt5 import QtWidgets, QtGui, QtCore
-
 	from ovl_util.config import logging_setup, get_version_str, get_commit_str
-
-	logging_setup("ovl_tool_gui")
-
+	logging_setup("bnk_gui")
 	logging.info(f"Running python {sys.version}")
 	logging.info(f"Running cobra-tools {get_version_str()}, {get_commit_str()}")
 
+	# Import widgets before everything except Python built-ins and ovl_util.config!
 	from ovl_util import widgets, interaction
-
 	from generated.formats.bnk import BnkFile, AuxFile
 	from ovl_util.texconv import write_riff_file
-	# from root_path import root_dir
+	from modules.formats.shared import fmt_hash
+
+	from PyQt5 import QtWidgets, QtGui, QtCore
 except:
-	logging.exception(f"Some modules could not be imported")
+	logging.exception(f"Some modules could not be imported; make sure you install the required dependencies with pip!")
 	time.sleep(15)
 
 
@@ -38,14 +33,14 @@ class MainWindow(widgets.MainWindow):
 
 		self.filter = "Supported files ({})".format(" ".join("*" + t for t in (".wav", ".wem",)))
 
-		self.file_widget = widgets.FileWidget(self, self.cfg, dtype="BNK")
+		self.file_widget = self.make_file_widget(type="BNK")
 
 		header_names = ["Name", "File Type", "File Size"]
 
 		# create the table
 		self.files_container = widgets.SortableTable(header_names, ())
 		# connect the interaction functions
-		# self.files_container.table.model.member_renamed.connect(self.rename_handle)
+		# self.files_container.table.table_model.member_renamed.connect(self.rename_handle)
 		self.files_container.table.files_dragged.connect(self.drag_files)
 		self.files_container.table.files_dropped.connect(self.inject_files)
 
@@ -59,11 +54,10 @@ class MainWindow(widgets.MainWindow):
 
 		self.qgrid.addWidget(right_frame, 5, 0, 1, 5)
 		self.qgrid.addWidget(self.p_action, 6, 0, 1, 5)
-		self.qgrid.addWidget(self.t_action, 7, 0, 1, 5)
 
 		self.central_widget.setLayout(self.qgrid)
 
-		main_menu = self.menuBar()
+		main_menu = self.menu_bar
 		file_menu = main_menu.addMenu('File')
 		edit_menu = main_menu.addMenu('Edit')
 		button_data = (
@@ -147,11 +141,11 @@ class MainWindow(widgets.MainWindow):
 			self.handle_error("Extraction failed, see log!")
 		shutil.rmtree(temp_dir)
 
-	def load(self):
-		if self.file_widget.filepath:
-			self.file_widget.dirty = False
+	def open(self, filepath):
+		if filepath:
+			self.set_file_modified(False)
 			try:
-				self.bnk_file.load(self.file_widget.filepath)
+				self.bnk_file.load(filepath)
 				print(self.bnk_file)
 				f_list = [(fmt_hash(stream_info.event_id), "s", stream_info.size) for stream_info in self.bnk_file.bnk_header.streams]
 				if self.bnk_file.aux_b and self.bnk_file.aux_b.didx:
@@ -168,10 +162,10 @@ class MainWindow(widgets.MainWindow):
 		else:
 			return True
 
-	def _save(self):
+	def save(self, filepath) -> None:
 		try:
-			self.bnk_file.save(self.file_widget.filepath)
-			self.file_widget.dirty = False
+			self.bnk_file.save(filepath)
+			self.set_file_modified(False)
 			self.update_progress(f"Saved {self.bnk_file.basename}", value=100, vmax=100)
 		except:
 			self.handle_error("Loading failed, see log!")
@@ -199,7 +193,7 @@ class MainWindow(widgets.MainWindow):
 			self.cfg["dir_inject"] = os.path.dirname(files[0])
 			try:
 				error_files = self.inject_wem(files)
-				self.file_widget.dirty = True
+				self.set_file_modified(True)
 				# if error_files:
 				# 	interaction.showerror(f"Injection caused errors on {len(error_files)} files, see console for details!")
 				self.update_progress("Injection completed", value=100, vmax=100)

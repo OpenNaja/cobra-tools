@@ -1,25 +1,45 @@
 import logging
-from PyQt5 import QtWidgets
+import sys
+import time
 
-from generated.formats.matcol.compounds.MatcolRoot import MatcolRoot
-from generated.formats.ovl_base import OvlContext
-from ovl_util import widgets, config
+try:
+	from ovl_util.config import logging_setup, get_version_str, get_commit_str
+	logging_setup("fgm_editor")
+	logging.info(f"Running python {sys.version}")
+	logging.info(f"Running cobra-tools {get_version_str()}, {get_commit_str()}")
 
+	# Import widgets before everything except Python built-ins and ovl_util.config!
+	from ovl_util import widgets, config
+
+	from generated.formats.matcol.compounds.MatcolRoot import MatcolRoot
+	from generated.formats.ovl_base import OvlContext
+
+	from PyQt5 import QtWidgets
+except:
+	logging.exception("Some modules could not be imported; make sure you install the required dependencies with pip!")
+	time.sleep(15)
 
 class MainWindow(widgets.MainWindow):
 
 	def __init__(self):
-		widgets.MainWindow.__init__(self, "Matcol Editor", )
+		self.scrollarea = QtWidgets.QScrollArea()
+		self.scrollarea.setWidgetResizable(True)
+
+		# the actual scrollable stuff
+		self.widget = QtWidgets.QWidget()
+		self.scrollarea.setWidget(self.widget)
+
+		widgets.MainWindow.__init__(self, "Matcol Editor", central_widget=self.scrollarea)
 		
 		self.resize(450, 500)
 
 		self.context = OvlContext()
 		self.matcol_data = MatcolRoot(self.context)
-		self.file_widget = widgets.FileWidget(self, self.cfg, dtype="materialcollection")
+		self.file_widget = self.make_file_widget(type="materialcollection")
 		self.tooltips = config.read_str_dict("ovl_util/tooltips/matcol.txt")
 		self.default_fgms = config.read_list("ovl_util/tooltips/matcol-fgm-names.txt")
 
-		main_menu = self.menuBar()
+		main_menu = self.menu_bar
 		file_menu = main_menu.addMenu('File')
 		help_menu = main_menu.addMenu('Help')
 		button_data = (
@@ -30,14 +50,6 @@ class MainWindow(widgets.MainWindow):
 			(help_menu, "Report Bug", self.report_bug, "", "report"),
 			(help_menu, "Documentation", self.online_support, "", "manual"))
 		self.add_to_menu(button_data)
-
-		self.scrollarea = QtWidgets.QScrollArea(self)
-		self.scrollarea.setWidgetResizable(True)
-		self.setCentralWidget(self.scrollarea)
-
-		# the actual scrollable stuff
-		self.widget = QtWidgets.QWidget()
-		self.scrollarea.setWidget(self.widget)
 
 		self.tex_container = QtWidgets.QGroupBox("Slots")
 		self.attrib_container = QtWidgets.QGroupBox("Attributes")
@@ -69,10 +81,10 @@ class MainWindow(widgets.MainWindow):
 			widget = item.widget()
 			widget.deleteLater()
 
-	def load(self):
-		if self.file_widget.filepath:
+	def open(self, filepath):
+		if filepath:
 			try:
-				self.matcol_data = self.matcol_data.from_xml_file(self.file_widget.filepath, self.context)
+				self.matcol_data = self.matcol_data.from_xml_file(filepath, self.context)
 
 				# delete existing widgets
 				self.clear_layout(self.tex_grid)
@@ -125,8 +137,8 @@ class MainWindow(widgets.MainWindow):
 				logging.exception(f"Something went wrong")
 			logging.info("Done!")
 
-	def _save(self, ):
-		with self.matcol_data.to_xml_file(self.matcol_data, self.file_widget.filepath) as xml_root:
+	def save(self, filepath):
+		with self.matcol_data.to_xml_file(self.matcol_data, filepath) as xml_root:
 			pass
 			
 	

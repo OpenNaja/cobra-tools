@@ -3,47 +3,57 @@
 
 A simple GUI for extracting OVL and OVS archives and modifying their contents, as well as editors for the associated in-house file formats. Also includes a model plugin for blender.
 
-<img src="https://i.imgur.com/ndYhbQS.png" width="75%" height="75%">
+<img src="https://i.imgur.com/lI0bMaY.png">
 
-### Installation
+## Installation
 
-**Read the instructions steps carefuly and do not jump ahead and start downloading everything or you will miss important steps**.
+**Read the instructions steps carefully and do not jump ahead and start downloading everything or you will miss important steps**.
 
 Get the latest source code [here](https://github.com/OpenNaja/cobra-tools/archive/master.zip) and unzip to a folder of your choice. 
 
+### Installing Prerequisites
+
 You need to have installed:
-- [Python 3.7-3.11 x64 bit](https://www.python.org/downloads/windows/) (**make sure you add it to the system path during installation;** 32 bit versions of python will hit their memory limit trying to read large OVLs, so 64b is recommended.) 
-- [Microsoft Visual C++ Redistributable 2017 x64](https://support.microsoft.com/en-us/help/2977003/the-latest-supported-visual-c-downloads) (needed for texture conversion - you will likely have this installed already)
-- [Microsoft Visual C++ Redistributable 2013 x86](https://support.microsoft.com/en-us/help/2977003/the-latest-supported-visual-c-downloads) (needed for lua decompile - x86 version for now)
+- [Python 3.11 64-bit or later](https://www.python.org/downloads/windows/) (**make sure you select the option "Add Python to PATH" during installation;** 32-bit versions of Python are not recommended.)
+- [Microsoft Visual C++ Redistributable 2017 x64](https://aka.ms/vs/15/release/vc_redist.x64.exe) (needed for texture conversion)
+- [Microsoft Visual C++ Redistributable 2013 x86](https://aka.ms/highdpimfc2013x86enu) (needed for lua decompile)
 
-**Python 3.10 has a bug loading large files and will not be supported. If you are using Python 3.10 please uninstall that python version, or update to 3.11 (preferred) or downgrade to 3.7**
 
-#### Install python dependencies
-- open a command shell and execute the following lines: 
-```
-pip install pyqt5 imageio vdf
-```  
-In case this commands tells you to upgrade pip, follow the instructions and then try again until all the requirements are met. Execute the following lines:
+### Installing Python dependencies
 
-```
-pip install --upgrade pip
-pip install imageio --upgrade
-```
+Opening any of the GUI tools after installing Python 3.11+ and the redistributables will auto-install the Python dependencies for you. You may also be prompted to update outdated packages.
+
+<img src="https://i.imgur.com/QWSq4vA.png">
+
+Simply follow the instructions, typing `y` and hitting `Enter`.
+
+---
+
+If you would like to install the dependencies manually:
+
+1. Open the Cobra Tools folder in Windows File Explorer.
+2. In the File Explorer address bar, type `cmd` and hit `Enter`. This will open a command prompt in your Cobra Tools folder.
+3. In the command prompt type the following line and hit `Enter`
+
+    ```
+    pip install --upgrade pip && pip install -r requirements.txt
+    ```
+    <sup>**Please note:** If you do not open cmd in your Cobra Tools folder, you will need to provide the full path to `requirements.txt`</sup>
 
 ### Blender Plugin Installation
 - [Blender Plugin - How to Use](https://github.com/OpenNaja/cobra-tools/wiki/Blender-Plugin---How-to-Use)
 
 
-### How to use
+## How to use
 - [OVL Tool - How to Use](https://github.com/OpenNaja/cobra-tools/wiki/OVL-Tool---How-to-Use)
 - [List of supported file formats and recommended tools for editing them](https://github.com/OpenNaja/cobra-tools/wiki/Supported-Archive-Content-File-Formats)
 
-### Basic Tutorials
+## Basic Tutorials
 - [Tutorial: Jurassic World Evolution New Species Mod](https://www.youtube.com/watch?v=8qMIBo-7n1A)
 - [Tutorial: Planet Zoo New Species Mod](https://www.youtube.com/watch?v=cBauGq4Y1ao)
 
 
-### Disclaimer
+## Disclaimers
 - Remember to backup all mod files and stock files. Any patches will reset or break the mods and will need to be redone and re-released. 
 - Not all model files are supported at this time. Some may crash on import or export. Even if they (seemingly) import and export fine, the result is not guaranteed to work ingame.
 
@@ -60,14 +70,14 @@ By downloading and using this software, you agree to the following conditions:
 - **Do not affect online modes of the game drastically using this software.** Do not try to gain any advantage over other players. Online gameplay and modifications should be restricted as much as possible and not encouraged.
 
 
-### Credits
+## Credits
 - Planet Zoo, Cobra, Frontier and the Frontier Developments logo are trademarks or registered trademarks of Frontier Developments, plc.
 - Jurassic World, Jurassic World Fallen Kingdom, Jurassic World Evolution, Jurassic World Evolution 2 and their respective logos are trademarks of Universal Studios and Amblin Entertainment, Inc.
 - Daemon1, DennisNedry1993 and Inaki for initial modding attempts and documentation.
 - mpeterv for [luacheck](https://github.com/mpeterv/luacheck)
 - `texconv` from [DirectXTex](https://github.com/microsoft/DirectXTex) is used internally to convert to and from DDS textures.
 
-### Get in touch
+## Get in touch
 Some Discords where modding progress is discussed can be found here:
 
-- [Frontier Modding Club](https://discord.gg/Su4jXKk)
+- [Open Naja Modding Community](https://discord.gg/Su4jXKk)

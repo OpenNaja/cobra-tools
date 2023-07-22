@@ -1,35 +1,26 @@
-#!/usr/bin/env python3
-
-# Filename: mod_tool_gui.py
-
-"""Mod Packing tool"""
-
-# TODO: split getting src folder list, watcher folder should contain all 
-# directiories, or it wont detect changes in empty folders.
-
-import sys
 import os
+import sys
+import time
 import shutil
 import pathlib
 import logging
 
-from PyQt5 import QtCore
-from PyQt5.QtWidgets import QWidget
-from PyQt5.QtWidgets import QFileDialog
-from PyQt5.QtWidgets import QVBoxLayout
-from PyQt5.QtWidgets import QHBoxLayout
-from PyQt5.QtWidgets import QMenuBar
-from PyQt5.QtWidgets import QCheckBox
+try:
+	from ovl_util.config import logging_setup, get_version_str, get_commit_str, read_str_dict, write_str_dict
+	logging_setup("mod_tool_gui")
+	logging.info(f"Running python {sys.version}")
+	logging.info(f"Running cobra-tools {get_version_str()}, {get_commit_str()}")
 
-from ovl_util import widgets
-from ovl_util.config import logging_setup, get_version_str, get_commit_str, read_str_dict, write_str_dict
+	# Import widgets before everything except Python built-ins and ovl_util.config!
+	from ovl_util import widgets
+	from ovl_util.widgets import startup, MainWindow, OvlReporter
+	from generated.formats.ovl import games, set_game
 
-logging_setup("mod_tool_gui")
-logging.info(f"Running python {sys.version}")
-logging.info(f"Running cobra-tools {get_version_str()}, {get_commit_str()}")
-
-from ovl_util.widgets import startup, MainWindow, OvlReporter
-from generated.formats.ovl import games, set_game
+	from PyQt5 import QtCore
+	from PyQt5.QtWidgets import QWidget, QFileDialog, QVBoxLayout, QHBoxLayout, QMenuBar, QCheckBox
+except:
+	logging.exception(f"Some modules could not be imported; make sure you install the required dependencies with pip!")
+	time.sleep(15)
 
 __version__ = '0.1'
 __author__ = 'Open-Naja'
@@ -48,10 +39,9 @@ class ModToolGUI(MainWindow):
 
 		# Set some main window's properties
 		self.setWindowTitle('Mod Pack Tool ' + __version__)
-		# self.setFixedSize(435, 250)
 
 		# Add a menu
-		main_menu = QMenuBar(self)
+		main_menu = self.menu_bar
 		file_menu = main_menu.addMenu('File')
 		help_menu = main_menu.addMenu('Help')
 		button_data = (
@@ -63,27 +53,23 @@ class ModToolGUI(MainWindow):
 			(help_menu, "Report Bug", self.report_bug, "", "report"),
 			(help_menu, "Documentation", self.online_support, "", "manual"))
 		self.add_to_menu(button_data)
-		self.setMenuBar(main_menu)
-
-		# Set the central widget
-		self.generalLayout = QVBoxLayout()
-		self._centralWidget = QWidget()
-		self._centralWidget.setLayout(self.generalLayout)
-		self.setCentralWidget(self._centralWidget)
 
 		# Add app widgets
-		self.src_widget = widgets.DirWidget(self, {})
+		self.src_widget = widgets.DirWidget(self, self.cfg, type="mod_tool")
+		self.src_widget.setPlaceholderText("Source Folder")
 		self.src_widget.setToolTip("Source folder to pack files from.")
-		self.generalLayout.addWidget(self.src_widget)
+		self.central_layout.addWidget(self.src_widget)
+		self.src_widget.dir_opened.connect(self.settings_changed)
 
-		self.dst_widget = widgets.DirWidget(self, {})
+		self.dst_widget = widgets.DirWidget(self, self.cfg, type="mod_tool")
+		self.dst_widget.setPlaceholderText("Destination Folder")
 		self.dst_widget.setToolTip("Destination folder to pack files to.")
-		self.generalLayout.addWidget(self.dst_widget)
+		self.central_layout.addWidget(self.dst_widget)
 
 		# Add a line for controls
 		self.boxLayout = QHBoxLayout()
 		self.boxLayout.addStretch(1)
-		self.generalLayout.addLayout(self.boxLayout)
+		self.central_layout.addLayout(self.boxLayout)
 
 		# Add a button
 		self.watch = QCheckBox("Watch changes")
@@ -93,11 +79,10 @@ class ModToolGUI(MainWindow):
 		self.boxLayout.addWidget(self.watch)
 		self.fs_watcher = ''
 
-		self.game_container = widgets.LabelCombo("Game:", [g.value for g in games])
+		self.game_container = widgets.LabelCombo("Game", [g.value for g in games])
 		self.boxLayout.addWidget(self.game_container)
 
-		self.generalLayout.addWidget(self.p_action)
-		self.generalLayout.addWidget(self.t_action)
+		self.central_layout.addWidget(self.p_action)
 
 		if len(sys.argv) > 1:
 			self.apply_from_config(sys.argv[1])
@@ -261,9 +246,8 @@ class ModToolGUI(MainWindow):
 			self.fs_watcher.directoryChanged.disconnect(self.directory_changed)
 			self.fs_watcher.fileChanged.disconnect(self.file_changed)
 
-	def settings_changed(self):
-		basepath = self.src_widget.filepath
-		folders = self.get_src_folder_list()
+	def settings_changed(self, dirpath):
+		folders = self.get_src_folder_list(dirpath)
 		self.watcher_add_folders(folders)
 		files = self.get_src_file_list()
 		self.watcher_add_files(files)
