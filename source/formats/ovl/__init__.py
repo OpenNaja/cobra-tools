@@ -17,7 +17,7 @@ from generated.formats.ovl.compounds.OvsHeader import OvsHeader
 from generated.formats.ovl.versions import *
 from generated.formats.ovl_base.enums.Compression import Compression
 from modules.formats.formats_dict import FormatDict
-from modules.formats.shared import djb2, DummySignal
+from modules.formats.shared import djb2
 from ovl_util.oodle.oodle import OodleDecompressEnum, oodle_compressor
 
 UNK_HASH = "UnknownHash"

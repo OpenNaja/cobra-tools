@@ -216,8 +216,8 @@ class MainWindow(widgets.MainWindow):
 			self.log_level_changed(log_level)
 		# do these at the end to make sure their requirements have been initialized
 		reporter = self.ovl_data.reporter
-		self.ovl_data.files_list.connect(self.update_files_ui)
-		self.ovl_data.included_ovls_list.connect(self.included_ovls_view.set_data)
+		reporter.files_list.connect(self.update_files_ui)
+		reporter.included_ovls_list.connect(self.included_ovls_view.set_data)
 		reporter.warning_msg.connect(self.notify_user)
 		reporter.progress_percentage.connect(self.set_progress)
 		reporter.current_action.connect(self.set_msg_temporarily)
