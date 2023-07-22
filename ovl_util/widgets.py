@@ -1779,8 +1779,7 @@ class MainWindow(FramelessMainWindow):
         self.status_timer = QTimer()
         self.status_timer.setSingleShot(True)
         self.status_timer.setInterval(3500)
-        self.status_timer.timeout.connect(self.p_action.hide)
-        self.status_timer.timeout.connect(self.version_info.show)
+        self.status_timer.timeout.connect(self.reset_progress)
 
         self.cfg: dict[str, Any] = config.load_config()
 
@@ -1923,7 +1922,12 @@ class MainWindow(FramelessMainWindow):
                 self.p_action.setMaximum(vmax)
             self.set_progress(percent)
             self.set_msg_temporarily(message)
-            QApplication.instance().processEvents()
+        QApplication.instance().processEvents()
+
+    def reset_progress(self) -> None:
+        self.p_action.hide()
+        self.p_action.setValue(0)
+        self.version_info.show()
 
     def set_msg_temporarily(self, message: str) -> None:
         self.statusBar.showMessage(message, 3500)
