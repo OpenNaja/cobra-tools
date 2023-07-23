@@ -303,7 +303,7 @@ class MainWindow(widgets.MainWindow):
 				# walk path
 				for ovl_path in walker.walk_type(selected_dir, extension=".ovl"):
 					# open ovl file
-					self.file_widget.accept_file(ovl_path)
+					self.file_widget.set_file_path(ovl_path)
 					self.open(ovl_path, threaded=False)
 					# process each
 					yield self.ovl_data
@@ -311,8 +311,8 @@ class MainWindow(widgets.MainWindow):
 						self.save(ovl_path)
 			else:
 				interaction.showwarning("Select a root directory!")
-		# just the one that's currently open
-		else:
+		# just the one that's currently open, do not save over
+		elif self.is_open_ovl():
 			yield self.ovl_data
 
 	def open_clicked_file(self, ind):
@@ -444,13 +444,12 @@ class MainWindow(widgets.MainWindow):
 			# check using a filter to extract mimes
 			only_types = self.extract_types_combo.currentData()
 			for ovl in self.handle_path(save_over=False):
-				if self.is_open_ovl():
-					# for bulk extraction, add the ovl basename to the path to avoid overwriting
-					if self.t_in_folder.isChecked():
-						selected_dir = self.installed_games.get_selected_dir()
-						rel_p = os.path.relpath(ovl.path_no_ext, start=selected_dir)
-						out_dir = os.path.join(_out_dir, rel_p)
-					ovl.extract(out_dir, only_types=only_types)
+				# for bulk extraction, add the ovl basename to the path to avoid overwriting
+				if self.t_in_folder.isChecked():
+					selected_dir = self.installed_games.get_selected_dir()
+					rel_p = os.path.relpath(ovl.path_no_ext, start=selected_dir)
+					out_dir = os.path.join(_out_dir, rel_p)
+				ovl.extract(out_dir, only_types=only_types)
 
 	def inject_ask(self):
 		files = QtWidgets.QFileDialog.getOpenFileNames(
@@ -472,6 +471,9 @@ class MainWindow(widgets.MainWindow):
 			newline = "\n"
 			old = self.e_name_old.toPlainText()
 			new = self.e_name_new.toPlainText()
+			# make sure at least one is non-empty
+			if not (old or new):
+				return
 			old = old.split(newline)
 			new = new.split(newline)
 			if len(old) != len(new):
@@ -485,10 +487,10 @@ class MainWindow(widgets.MainWindow):
 		try:
 			if names:
 				for ovl in self.handle_path():
-					if self.is_open_ovl():
-						self.ovl_data.rename(names, mesh_mode=self.t_mesh_ovl.isChecked())
+					ovl.rename(names, mesh_mode=self.t_mesh_ovl.isChecked())
+					if not self.t_in_folder.isChecked():
 						self.set_file_modified(True)
-						self.update_gui_table()
+					self.update_gui_table()
 		except:
 			self.handle_error("Renaming failed, see log!")
 
@@ -503,11 +505,10 @@ class MainWindow(widgets.MainWindow):
 			else:
 				only_files = ()
 			for ovl in self.handle_path():
-				if self.is_open_ovl():
-					self.ovl_data.rename_contents(names, only_files)
+				ovl.rename_contents(names, only_files)
+				if not self.t_in_folder.isChecked():
 					self.set_file_modified(True)
-					# file names don't change, so no need to update gui
-					# self.update_gui_table()
+				# file names don't change, so no need to update gui
 
 	def rename_both(self):
 		self.rename_contents()

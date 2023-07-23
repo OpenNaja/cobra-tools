@@ -1008,8 +1008,10 @@ class GamesWidget(QWidget):
         self.proxy.update_root(self.dirs.rootIndex())
 
     def get_selected_dir(self) -> str:
-        ind = self.dirs.currentIndex()
-        file_path = self.model.filePath(ind)
+        idx = self.dirs.currentIndex()
+        idx = self.proxy.mapToSource(idx)
+        model = cast(OvlDataFilesystemModel, idx.model())
+        file_path = model.filePath(idx)
         return file_path if os.path.isdir(file_path) else ""
 
     def set_selected_dir(self, dir_path: str) -> None:
