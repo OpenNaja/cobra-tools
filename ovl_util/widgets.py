@@ -1987,7 +1987,6 @@ class Worker(QObject):
         # mutex.lock()
         # func = getattr(self.thread().ovl_data, self.function_name)
         try:
-            print(self.args)
             self.func(*self.args, **self.kwargs)
         except BaseException as err:
             logging.exception(f"Threaded call errored!")

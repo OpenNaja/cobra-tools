@@ -5,8 +5,6 @@ import time
 import logging
 import tempfile
 
-from ovl_util.widgets import Reporter
-
 try:
 	from ovl_util.config import logging_setup, get_version_str, get_commit_str
 	stdout_handler = logging_setup("ovl_tool_gui")
@@ -15,6 +13,7 @@ try:
 
 	# Import widgets before everything except Python built-ins and ovl_util.config!
 	from ovl_util import widgets, interaction
+	from ovl_util.widgets import Reporter
 	from modules import walker
 	from root_path import root_dir
 	from generated.formats.ovl import games, get_game, set_game, OvlFile
