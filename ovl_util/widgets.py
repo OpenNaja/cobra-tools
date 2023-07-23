@@ -7,7 +7,6 @@ import re
 import time
 import subprocess  # used to launch a pip install process
 
-from modules.formats.shared import DummyReporter
 
 """
     Require Python >= 3.11
@@ -24,6 +23,7 @@ from importlib.metadata import distribution, PackageNotFoundError
 from typing import Any, AnyStr, Optional, Iterable, Callable, cast
 
 from ovl_util.config import ANSI
+from modules.formats.shared import DummyReporter
 
 """
     Deals with missing packages and tries to install them from the tool itself.
@@ -101,7 +101,7 @@ except:
     time.sleep(15)
 
 # Put used imports below try/except for typing purposes (to avoid `| Unbound` type unions)
-from PyQt5.QtCore import (pyqtSignal, pyqtSlot, Qt, QObject, QDir, QRegularExpression,
+from PyQt5.QtCore import (pyqtSignal, pyqtSlot, Qt, QObject, QDir, QFileInfo, QRegularExpression,
                           QRect, QSize, QEvent, QTimer, QTimerEvent, QThread, QUrl,
                           QAbstractTableModel, QSortFilterProxyModel, QModelIndex, QItemSelection,
                           QAbstractAnimation, QParallelAnimationGroup, QPropertyAnimation)
@@ -804,10 +804,9 @@ class OvlDataFilterProxy(QSortFilterProxyModel):
         self.root_idx: Optional[QModelIndex] = None
         self.root_depth: int = 0
 
-    def depth(self, idx: QModelIndex) -> int:
+    def depth(self, index: QModelIndex) -> int:
         """Depth of the file or directory in the filesystem"""
         level = 0
-        index = idx
         while index.parent().isValid():
             level += 1
             index = index.parent()
@@ -817,10 +816,10 @@ class OvlDataFilterProxy(QSortFilterProxyModel):
         """Set max subfolder depth. 0 depth = ovldata root folders only."""
         self.max_depth = depth
 
-    def update_root(self, idx: QModelIndex) -> None:
+    def update_root(self, index: QModelIndex) -> None:
         """Update root index and store base depth for ovldata subfolder"""
-        self.root_idx = idx
-        self.root_depth = self.depth(idx)
+        self.root_idx = index
+        self.root_depth = self.depth(index)
 
     def data(self, index: QModelIndex, role: int = Qt.ItemDataRole.DisplayRole) -> Any:
         if role == QFileSystemModel.Roles.FileIconRole:
@@ -872,18 +871,64 @@ class OvlDataFilesystemModel(QFileSystemModel):
     def __init__(self, parent: Optional[QObject] = None) -> None:
         super().__init__(parent)
 
+    def map_index(self, index: QModelIndex) -> QModelIndex:
+        """Map to source if applicable"""
+        model = index.model()
+        if isinstance(model, OvlDataFilterProxy):
+            index = model.mapToSource(index)
+        return index
+
+    def fileIcon(self, index: QModelIndex) -> QIcon:
+        return super().fileIcon(self.map_index(index))
+    
+    def fileInfo(self, index: QModelIndex) -> QFileInfo:
+        return super().fileInfo(self.map_index(index))
+
+    def fileName(self, index: QModelIndex) -> str:
+        return super().fileName(self.map_index(index))
+
+    def filePath(self, index: QModelIndex) -> str:
+        return super().filePath(self.map_index(index))
+
 
 class OvlDataTreeView(QTreeView):
 
     def __init__(self, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent)
 
+    def map_index(self, index: QModelIndex) -> QModelIndex:
+        """Map from source if applicable"""
+        source_model = index.model()
+        if isinstance(source_model, OvlDataFilesystemModel):
+            model = cast(OvlDataFilterProxy, self.model())
+            index = model.mapFromSource(index)
+        return index
+
+    def setCurrentIndex(self, index: QModelIndex) -> None:
+        return super().setCurrentIndex(self.map_index(index))
+
+    def setRootIndex(self, index: QModelIndex) -> None:
+        return super().setRootIndex(self.map_index(index))
+
+    def isIndexHidden(self, index: QModelIndex) -> bool:
+        return super().isIndexHidden(self.map_index(index))
+
+    def indexAbove(self, index: QModelIndex) -> QModelIndex:
+        return super().indexAbove(self.map_index(index))
+
+    def indexBelow(self, index: QModelIndex) -> QModelIndex:
+        return super().indexAbove(self.map_index(index))
+    
+    def scrollTo(self, index: QModelIndex,
+                 hint: QAbstractItemView.ScrollHint = QAbstractItemView.ScrollHint.EnsureVisible) -> None:
+        return super().scrollTo(self.map_index(index), hint)
+
 
 class GamesWidget(QWidget):
     """Installed games combo box with optional directory widget"""
     installed_game_chosen = pyqtSignal(str)
-    dir_dbl_clicked = pyqtSignal(QModelIndex)
-    file_dbl_clicked = pyqtSignal(QModelIndex)
+    dir_dbl_clicked = pyqtSignal(str)
+    file_dbl_clicked = pyqtSignal(str)
 
     def __init__(self, parent: "MainWindow", filters: Optional[list[str]] = None,
                  game_chosen_fn: Optional[Callable] = None,
@@ -960,21 +1005,17 @@ class GamesWidget(QWidget):
     def item_clicked(self, idx: QModelIndex) -> None:
         if not self.dirs.isExpanded(idx):
             self.dirs.expand(idx)
-        else:
-            self.dirs.collapse(idx)
 
     def item_dbl_clicked(self, idx: QModelIndex) -> None:
         try:
-            idx = self.proxy.mapToSource(idx)
-            model = cast(OvlDataFilesystemModel, idx.model())
-            file_path = model.filePath(idx)
+            file_path = self.model.filePath(idx)
             # open folder in explorer
             if os.path.isdir(file_path):
                 os.startfile(file_path)
-                self.dir_dbl_clicked.emit(idx)
+                self.dir_dbl_clicked.emit(file_path)
             # open in tool
             else:
-                self.file_dbl_clicked.emit(idx)
+                self.file_dbl_clicked.emit(file_path)
         except:
             MainWindow.handle_error("Clicked dir failed, see log!")
 
@@ -1001,24 +1042,20 @@ class GamesWidget(QWidget):
             if current_game in games_list:
                 return True
         return False
-    
+
     def set_root(self, dir_game: str) -> None:
-        rt_index = self.model.setRootPath(dir_game)
-        self.dirs.setRootIndex(self.proxy.mapFromSource(rt_index))
+        root_index = self.model.setRootPath(dir_game)
+        self.dirs.setRootIndex(root_index)
         self.proxy.update_root(self.dirs.rootIndex())
 
     def get_selected_dir(self) -> str:
-        idx = self.dirs.currentIndex()
-        idx = self.proxy.mapToSource(idx)
-        model = cast(OvlDataFilesystemModel, idx.model())
-        file_path = model.filePath(idx)
+        file_path = self.model.filePath(self.dirs.currentIndex())
         return file_path if os.path.isdir(file_path) else ""
 
     def set_selected_dir(self, dir_path: str) -> None:
         """Show dir_path in dirs"""
         try:
-            ind = self.model.index(dir_path)
-            self.dirs.setCurrentIndex(ind)
+            self.dirs.setCurrentIndex(self.model.index(dir_path))
         except:
             MainWindow.handle_error("Setting dir failed, see log.")
 
