@@ -1491,11 +1491,12 @@ class FileDirWidget(QWidget):
     dir_opened = pyqtSignal(str)
     filepath_changed = pyqtSignal(str, bool)
 
-    def __init__(self, parent: QWidget, cfg: dict, type: str, ask_user: bool = True, editable: bool = False,
+    def __init__(self, parent: QWidget, cfg: dict, cfg_key: str, ask_user: bool = True, editable: bool = False,
                  check_exists: bool = False, root: Optional[str] = None) -> None:
         super().__init__(parent)
 
-        self.type = type
+        self.ftype = cfg_key
+        self.cfg_key = cfg_key.lower()
         self.root = root
         self.cfg = cfg
         self.cfg.setdefault(self.cfg_last_dir_open, "C:/")
@@ -1543,20 +1544,20 @@ class FileDirWidget(QWidget):
         self.basename = filename
 
     @property
-    def type_lower(self) -> str:
-        return self.type.lower()
+    def ftype_lower(self) -> str:
+        return self.ftype.lower()
 
     @property
     def cfg_last_dir_open(self) -> str:
-        return f"dir_{self.type_lower}s_in"
+        return f"dir_{self.cfg_key}s_in"
 
     @property
     def cfg_last_dir_save(self) -> str:
-        return f"dir_{self.type_lower}s_out"
+        return f"dir_{self.cfg_key}s_out"
 
     @property
     def cfg_last_file_open(self) -> str:
-        return f"last_{self.type_lower}_in"
+        return f"last_{self.cfg_key}_in"
 
     def cfg_path(self, cfg_str: str) -> str:
         return self.cfg.get(cfg_str, "C://") if not self.root else self.root
@@ -1599,9 +1600,9 @@ class FileWidget(FileDirWidget):
     file_opened = pyqtSignal(str)
     file_saved = pyqtSignal(str)
 
-    def __init__(self, parent: QWidget, cfg: dict, type: str = "OVL", ask_user: bool = True, editable: bool = False,
+    def __init__(self, parent: QWidget, cfg: dict, ftype: str = "OVL", ask_user: bool = True, editable: bool = False,
                  check_exists: bool = False, root: Optional[str] = None) -> None:
-        super().__init__(parent=parent, cfg=cfg, type=type, ask_user=ask_user,
+        super().__init__(parent=parent, cfg=cfg, cfg_key=ftype, ask_user=ask_user,
                          editable=editable, check_exists=check_exists, root=root)
 
         self.icon.setToolTip("Click to select a file")
@@ -1609,11 +1610,11 @@ class FileWidget(FileDirWidget):
 
     @property
     def files_filter_str(self) -> str:
-        return f"{self.type} files (*.{self.type_lower})"
+        return f"{self.ftype} files (*.{self.ftype_lower})"
 
     @property
     def tooltip_str(self) -> str:
-        return f"Currently open {self.type} file: {self.filepath}" if self.filepath else f"Open {self.type} file"
+        return f"Currently open {self.ftype} file: {self.filepath}" if self.filepath else f"Open {self.ftype} file"
 
     def is_open(self) -> bool:
         if self.filename or self.dirty:
@@ -1657,7 +1658,7 @@ class FileWidget(FileDirWidget):
 
     def accept_file(self, filepath: str) -> bool:
         if os.path.isfile(filepath):
-            if os.path.splitext(filepath)[1].lower() in (f".{self.type_lower}",):
+            if os.path.splitext(filepath)[1].lower() in (f".{self.ftype_lower}",):
                 return self.open_file(filepath)
             else:
                 interaction.showwarning("Unsupported File Format")
@@ -1667,7 +1668,7 @@ class FileWidget(FileDirWidget):
         # TODO: This is generally confusing for something named FileWidget
         #       although it is no longer hardcoded for OVL Tool
         if os.path.isdir(dirpath):
-            return self.open_file(f"{dirpath}.{self.type_lower}")
+            return self.open_file(f"{dirpath}.{self.ftype_lower}")
         return os.path.isdir(dirpath)
 
     def dropEvent(self, event: QDropEvent) -> None:
@@ -1678,7 +1679,7 @@ class FileWidget(FileDirWidget):
 
     def ask_open(self) -> None:
         filepath = QFileDialog.getOpenFileName(
-            self, f'Load {self.type}', self.cfg_path(self.cfg_last_dir_open), self.files_filter_str)[0]
+            self, f'Load {self.ftype}', self.cfg_path(self.cfg_last_dir_open), self.files_filter_str)[0]
         if filepath:
             self.open_file(filepath)
 
@@ -1693,7 +1694,7 @@ class FileWidget(FileDirWidget):
         """Saves file, always ask for file path"""
         if self.is_open():
             filepath = QFileDialog.getSaveFileName(
-                self, f'Save {self.type}', self.cfg_path(self.cfg_last_dir_save), self.files_filter_str)[0]
+                self, f'Save {self.ftype}', self.cfg_path(self.cfg_last_dir_save), self.files_filter_str)[0]
             if filepath:
                 self.cfg[self.cfg_last_dir_save], file_name = os.path.split(filepath)
                 self.set_file_path(filepath)
@@ -1720,8 +1721,8 @@ class DirWidget(FileDirWidget):
     Displays the current file's basename.
     """
 
-    def __init__(self, parent: QWidget, cfg: dict, type: str = "DIR", ask_user: bool = True) -> None:
-        super().__init__(parent=parent, cfg=cfg, type=type, ask_user=ask_user)
+    def __init__(self, parent: QWidget, cfg: dict, cfg_key: str = "DIR", ask_user: bool = True) -> None:
+        super().__init__(parent=parent, cfg=cfg, cfg_key=cfg_key, ask_user=ask_user)
 
     def open_dir(self, filepath: str) -> None:
         if not self.accept_dir(filepath):
@@ -1858,9 +1859,9 @@ class MainWindow(FramelessMainWindow):
         self.wrapper_widget.setLayout(layout)
         super().setCentralWidget(self.wrapper_widget)
 
-    def make_file_widget(self, ask_user: bool = True, type: str = "OVL", editable: bool = False, 
+    def make_file_widget(self, ask_user: bool = True, ftype: str = "OVL", editable: bool = False, 
                          check_exists: bool = False, root: Optional[str] = None) -> FileWidget:
-        file_widget = FileWidget(self, self.cfg, ask_user=ask_user, type=type, editable=editable,
+        file_widget = FileWidget(self, self.cfg, ask_user=ask_user, ftype=ftype, editable=editable,
                                  check_exists=check_exists, root=root)
 
         self.modified.connect(file_widget.set_modified)
@@ -1998,7 +1999,7 @@ class MainWindow(FramelessMainWindow):
             return
 
         path = event.mimeData().urls()[0].toLocalFile() if event.mimeData().hasUrls() else ""
-        if path.lower().endswith(f".{self.file_widget.type_lower}"):
+        if path.lower().endswith(f".{self.file_widget.ftype_lower}"):
             event.accept()
         else:
             event.ignore()

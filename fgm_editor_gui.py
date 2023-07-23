@@ -58,7 +58,7 @@ class MainWindow(widgets.MainWindow):
 
 		self.game_choice = widgets.LabelCombo("Game", self.games, editable=False, activated_fn=self.game_changed)
 
-		self.file_widget = self.make_file_widget(type="FGM")
+		self.file_widget = self.make_file_widget(ftype="FGM")
 
 		self.lock_attrs = QtWidgets.QCheckBox("Lock Attributes")
 		self.lock_attrs.setLayoutDirection(QtCore.Qt.RightToLeft)
@@ -571,8 +571,8 @@ class TextureVisual:
 			if self.data.dependency_name.data == '':
 				self.data.dependency_name.data = self.container.gui.create_tex_name(self.container.gui.fgm_name, self.entry.name)
 
-			self.w_file = widgets.FileWidget(self.container, self.container.gui.cfg, ask_user=False,
-											type="TEX", editable=True, check_exists=True, root=self.container.gui.fgm_path)
+			self.w_file = widgets.FileWidget(self.container, self.container.gui.cfg, ftype="TEX", ask_user=False,
+											 editable=True, check_exists=True, root=self.container.gui.fgm_path)
 			self.w_file.set_file_path(self.data.dependency_name.data)
 			self.w_file.entry.textChanged.connect(self.update_file)
 			self.w_tile = QtWidgets.QSpinBox(self.container)
