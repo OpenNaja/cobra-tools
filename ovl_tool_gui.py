@@ -315,12 +315,11 @@ class MainWindow(widgets.MainWindow):
 		elif self.is_open_ovl():
 			yield self.ovl_data
 
-	def open_clicked_file(self, ind):
+	def open_clicked_file(self, filepath: str):
 		# handle double clicked file paths
 		try:
-			file_path = ind.model().filePath(ind)
-			if file_path.lower().endswith(".ovl"):
-				self.file_widget.open_file(file_path)
+			if filepath.lower().endswith(".ovl"):
+				self.file_widget.open_file(filepath)
 		except:
 			self.handle_error("Clicked dir failed, see log!")
 
