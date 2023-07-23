@@ -1819,6 +1819,7 @@ class MainWindow(FramelessMainWindow):
         return filepath
 
     def get_file_name(self, filepath: str, only_basename: bool = False) -> str:
+        filepath = Path(os.path.normpath(filepath)).as_posix()
         if not only_basename and "ovldata/" in filepath:
             return self.elide_dirs(filepath.split("ovldata/")[1])
         return os.path.basename(filepath)
