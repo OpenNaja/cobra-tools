@@ -1,106 +1,19 @@
-import contextlib
 import logging
 import webbrowser
 import os
-import sys
-import re
-import time
-import subprocess  # used to launch a pip install process
-
-
-"""
-    Require Python >= 3.11
-"""
-if (sys.version_info.major, sys.version_info.minor) < (3, 11):
-    logging.critical("Python 3.11 or later is required. Please update your Python installation.")
-    time.sleep(60)
-
 from abc import abstractmethod
-from pkg_resources import packaging  # type: ignore
 from pathlib import Path
-from importlib.metadata import distribution, PackageNotFoundError
-# Place typing imports after Python check
+# Run pip auto-updater
+from ovl_util import auto_updater # pyright: ignore
+# Modules under here require auto_updater
+# Place typing imports after Python check in auto_updater
 from typing import Any, AnyStr, Optional, Iterable, Callable, cast
-
-from ovl_util.config import ANSI
+from generated.formats.ovl import games
 from modules.formats.shared import DummyReporter
+from ovl_util import config, qt_theme, interaction
+from root_path import root_dir
 
-"""
-    Deals with missing packages and tries to install them from the tool itself.
-"""
-
-# raw_input returns the empty string for "enter"
-def install_prompt(question):
-    print(question)
-    print(f"{ANSI.LIGHT_YELLOW}[Type y and hit Enter]{ANSI.END}{ANSI.LIGHT_GREEN}")
-    yes = {'yes', 'y', 'ye'}
-    choice = input().lower()
-    if choice in yes:
-        return True
-    else:
-        return False
-
-# use pip to install a package
-def pip_install(package):
-    logging.info(f"Installing {package}")
-    subprocess.check_call([sys.executable, "-m", "pip", "install", package])
-
-# use pip to install --update a package
-def pip_upgrade(package):
-    logging.info(f"Updating {package}")
-    subprocess.check_call([sys.executable, "-m", "pip", "install", "--upgrade", package])
-
-missing = []
-needs_update = []
-
-with open("requirements.txt") as requirements:
-    lines = requirements.read().splitlines()
-    for line in lines:
-        lib, op, version = re.split("(~=|==|>|<|>=|<=)", line)
-        try:
-            lib_dist = distribution(lib)
-            if packaging.version.parse(lib_dist.metadata['Version']) < packaging.version.parse(version):
-                logging.warning(f"{lib} is out of date.")
-                # Append full line including ~= for pip upgrade command
-                needs_update.append(line)
-        except PackageNotFoundError:
-            logging.error(f"{lib} not found.")
-            # Append full line including ~= for pip install command
-            missing.append(line)
-
-ask_install = f"{ANSI.LIGHT_WHITE}Install the missing dependencies?{ANSI.END} (y/N)"
-ask_upgrade = f"{ANSI.LIGHT_WHITE}Update the outdated dependencies?{ANSI.END} (y/N)"
-
-if len(missing) and install_prompt(ask_install) == True:
-    # upgrade pip then try installing the rest of packages
-    pip_upgrade('pip')
-    for package in missing:
-        pip_install(package)
-
-if len(needs_update) and install_prompt(ask_upgrade) == True:
-    # upgrade pip then try updating the outdated packages
-    pip_upgrade('pip')
-    for package in needs_update:
-        pip_upgrade(package)
-
-""" End of installing dependencies """
-
-try:
-    from generated.formats.ovl import games
-    from ovl_util.config import get_commit_str
-    from ovl_util import config
-    from root_path import root_dir
-
-    from PyQt5 import QtGui, QtCore, QtWidgets
-    from ovl_util import qt_theme, interaction
-    import vdf
-
-    games_list = [g.value for g in games]
-except:
-    logging.exception("Some modules could not be imported; make sure you install the required dependencies with pip!")
-    time.sleep(15)
-
-# Put used imports below try/except for typing purposes (to avoid `| Unbound` type unions)
+from PyQt5 import QtGui, QtCore, QtWidgets # pyright: ignore
 from PyQt5.QtCore import (pyqtSignal, pyqtSlot, Qt, QObject, QDir, QFileInfo, QRegularExpression,
                           QRect, QSize, QEvent, QTimer, QTimerEvent, QThread, QUrl,
                           QAbstractTableModel, QSortFilterProxyModel, QModelIndex, QItemSelection,
@@ -115,6 +28,9 @@ from PyQt5.QtWidgets import (QWidget, QMainWindow, QApplication, QColorDialog, Q
                              QMessageBox, QPlainTextEdit, QProgressBar, QPushButton, QStatusBar, QToolButton,
                              QFrame, QLayout, QGridLayout, QVBoxLayout, QHBoxLayout, QScrollArea, QSizePolicy,
                              QStyleFactory, QStyleOptionViewItem, QStyledItemDelegate)
+import vdf
+
+games_list = [g.value for g in games]
 
 # Windows modules
 try:
@@ -1805,7 +1721,7 @@ class MainWindow(FramelessMainWindow):
         self.p_action.setValue(0)
         self.dev_mode = os.path.isdir(os.path.join(root_dir, ".git"))
         dev_str = "DEV" if self.dev_mode else ""
-        commit_str = get_commit_str()
+        commit_str = config.get_commit_str()
         commit_str = commit_str.split("+")[0]
         self.statusBar = QStatusBar()
 
