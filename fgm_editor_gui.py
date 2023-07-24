@@ -2,38 +2,30 @@ import logging
 import os
 import sys
 import time
+# Check Python version, setup logging
+from ovl_util.setup import fgm_editor_setup # pyright: ignore
+# Place typing imports after Python check
+from typing import Any, Optional
+# Import widgets before everything except Python built-ins and ovl_util.setup!
+from ovl_util import widgets, config, interaction
+from ovl_util.widgets import QColorButton, MySwitch, MAX_UINT, get_icon
 
-try:
-	from ovl_util.config import logging_setup, get_version_str, get_commit_str
-	logging_setup("fgm_editor")
-	logging.info(f"Running python {sys.version}")
-	logging.info(f"Running cobra-tools {get_version_str()}, {get_commit_str()}")
+from constants import ConstantsProvider
+from generated.formats.fgm.enums.FgmDtype import FgmDtype
+from generated.formats.ovl_base import OvlContext
+from generated.formats.fgm.compounds.FgmHeader import FgmHeader
+from generated.formats.fgm.compounds.TexIndex import TexIndex
+from generated.formats.fgm.compounds.TextureInfo import TextureInfo
+from generated.formats.fgm.compounds.TextureData import TextureData
+from generated.formats.fgm.compounds.AttribInfo import AttribInfo
+from generated.formats.fgm.compounds.AttribData import AttribData
+from generated.array import Array
+from generated.formats.ovl.versions import *
 
-	# Import widgets before everything except Python built-ins and ovl_util.config!
-	from ovl_util import widgets, config, interaction
-	from ovl_util.widgets import QColorButton, MySwitch, MAX_UINT, get_icon
+import numpy as np
+from PyQt5 import QtWidgets, QtCore
+from PyQt5.QtGui import QColor
 
-	from constants import ConstantsProvider
-	from generated.formats.fgm.enums.FgmDtype import FgmDtype
-	from generated.formats.ovl_base import OvlContext
-	from generated.formats.fgm.compounds.FgmHeader import FgmHeader
-	from generated.formats.fgm.compounds.TexIndex import TexIndex
-	from generated.formats.fgm.compounds.TextureInfo import TextureInfo
-	from generated.formats.fgm.compounds.TextureData import TextureData
-	from generated.formats.fgm.compounds.AttribInfo import AttribInfo
-	from generated.formats.fgm.compounds.AttribData import AttribData
-	from generated.array import Array
-	from generated.formats.ovl.versions import *
-
-	import numpy as np
-	from PyQt5 import QtWidgets, QtCore
-	from PyQt5.QtGui import QColor
-
-	# Place typing imports after Python check in widgets
-	from typing import Any, Optional
-except:
-	logging.exception("Some modules could not be imported; make sure you install the required dependencies with pip!")
-	time.sleep(15)
 
 class MainWindow(widgets.MainWindow):
 
