@@ -1,23 +1,16 @@
 import logging
 import sys
 import time
+# Check Python version, setup logging
+from ovl_util.setup import matcol_editor_setup # pyright: ignore
+# Import widgets before everything except Python built-ins and ovl_util.setup!
+from ovl_util import widgets, config
 
-try:
-	from ovl_util.config import logging_setup, get_version_str, get_commit_str
-	logging_setup("fgm_editor")
-	logging.info(f"Running python {sys.version}")
-	logging.info(f"Running cobra-tools {get_version_str()}, {get_commit_str()}")
+from generated.formats.matcol.compounds.MatcolRoot import MatcolRoot
+from generated.formats.ovl_base import OvlContext
 
-	# Import widgets before everything except Python built-ins and ovl_util.config!
-	from ovl_util import widgets, config
+from PyQt5 import QtWidgets
 
-	from generated.formats.matcol.compounds.MatcolRoot import MatcolRoot
-	from generated.formats.ovl_base import OvlContext
-
-	from PyQt5 import QtWidgets
-except:
-	logging.exception("Some modules could not be imported; make sure you install the required dependencies with pip!")
-	time.sleep(15)
 
 class MainWindow(widgets.MainWindow):
 

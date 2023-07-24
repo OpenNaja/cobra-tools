@@ -4,14 +4,8 @@ import time
 import logging
 import subprocess
 from pkg_resources import packaging  # type: ignore
-from importlib.metadata import distribution, PackageNotFoundError
-
-"""
-    Require Python >= 3.11
-"""
-if (sys.version_info.major, sys.version_info.minor) < (3, 11):
-    logging.critical("Python 3.11 or later is required. Please update your Python installation.")
-    time.sleep(60)
+from importlib import import_module
+from importlib.metadata import distribution, PackageNotFoundError, packages_distributions
 
 from ovl_util.config import ANSI
 
@@ -20,6 +14,8 @@ OUTDATED: dict[str, str]  = {}
 
 INSTALLED: list[str] = []
 UPDATED: list[str] = []
+
+MODULES: list[str] = []
 
 """
     Deals with missing packages and tries to install them from the tool itself.
@@ -49,10 +45,16 @@ def pip_upgrade(package) -> int:
 
 with open("requirements.txt") as requirements:
     lines = requirements.read().splitlines()
+    pkg_dist = packages_distributions()
     for line in lines:
         lib, op, version = re.split("(~=|==|>|<|>=|<=)", line)
         try:
             lib_dist = distribution(lib)
+            # Get import name from package name
+            for module, pkgs in pkg_dist.items():
+                if lib in pkgs:
+                    MODULES.append(module)
+            # Check version
             if packaging.version.parse(lib_dist.metadata['Version']) < packaging.version.parse(version):
                 logging.warning(f"{lib} is out of date.")
                 OUTDATED[lib] = line # Need full line including ~= for pip install command
@@ -83,3 +85,11 @@ if hasattr(logging, "success"):
 
     if len(UPDATED):
         logging.success(f"Updated: {UPDATED}")
+
+# Test all required modules can be imported
+try:
+    for module in MODULES:
+        import_module(module)
+except:
+	logging.exception("Some modules could not be imported; make sure you install the required dependencies with pip!")
+	time.sleep(15)
