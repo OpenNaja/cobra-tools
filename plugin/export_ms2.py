@@ -67,7 +67,7 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 	mesh.stream_info.pool_index = get_property(b_me, "stream")
 
 	# register this format for all vert chunks that will be created later
-	if mesh.context.biosyn:
+	if mesh.context.version >= 52:
 		mesh.mesh_format = MeshFormat[b_me.cobra.mesh_format]
 	mesh.update_dtype()
 	num_uvs = mesh.get_uv_count()
@@ -161,7 +161,7 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 			shell_kd = fill_kd_tree(shell_eval_me)
 			fin_uv_layer = eval_me.uv_layers[0].data
 
-	if mesh.context.biosyn:
+	if mesh.context.version >= 52:
 		t_map = {}
 		# reuse existing chunks
 		if use_stock_normals_tangents:
@@ -266,7 +266,7 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 			chunk_tris.append(tuple(tri))
 		logging.debug(f"Preliminary chunk: unique {count_unique}, reused {count_reused} verts")
 		# do final chunk splitting here, as we now have the final split vertices
-		if mesh.context.biosyn:
+		if mesh.context.version >= 52:
 			# build table of neighbors
 			cm = ChunkedMesh(chunk_tris, chunk_verts, tris_chunks, verts, b_chunk_bone_id, is_shell(b_ob))
 			cm.partition()
@@ -480,7 +480,7 @@ def save(filepath='', apply_transforms=False, update_rig=False, use_stock_normal
 						model_info.model.objects.append(m_ob)
 						wrapper = model_info.model.meshes[m_ob.mesh_index]
 						m_lod.meshes.append(wrapper)
-						if wrapper.context.biosyn:
+						if wrapper.context.version >= 52:
 							logging.info(f"Setting chunk material indices")
 							for tri_chunk in wrapper.mesh.tri_chunks:
 								tri_chunk.material_index = m_ob.material_index
