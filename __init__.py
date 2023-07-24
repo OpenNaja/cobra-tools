@@ -14,6 +14,18 @@ bl_info = {
 import os
 import sys
 
+import bpy
+import addon_utils
+
+copies_of_tools = []
+for addon in addon_utils.modules():
+    if addon.bl_info['name'] == bl_info['name']:
+        copies_of_tools.append(addon)
+if len(copies_of_tools) > 1:
+    addon_paths = "\n".join(os.path.dirname(addon.__file__) for addon in copies_of_tools)
+    raise UserWarning(f"You have multiple copies of the tools installed in your blender addons folders:\n"
+                      f"{addon_paths}\nClose blender, delete all but the current version and try again.")
+
 plugin_dir = os.path.dirname(__file__)
 if not plugin_dir in sys.path:
     sys.path.append(plugin_dir)
@@ -23,7 +35,7 @@ from ovl_util.config import logging_setup
 
 logging_setup("blender_plugin")
 
-import bpy
+# import bpy
 import bpy.utils.previews
 from bpy.props import StringProperty, BoolProperty, CollectionProperty, IntProperty, FloatProperty, EnumProperty
 from bpy.types import PropertyGroup, Object
