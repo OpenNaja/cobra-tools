@@ -33,7 +33,7 @@ class MainWindow(widgets.MainWindow):
 
 		self.filter = "Supported files ({})".format(" ".join("*" + t for t in (".wav", ".wem",)))
 
-		self.file_widget = self.make_file_widget(type="BNK")
+		self.file_widget = self.make_file_widget(ftype="BNK")
 
 		header_names = ["Name", "File Type", "File Size"]
 

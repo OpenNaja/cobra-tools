@@ -1,107 +1,20 @@
-import contextlib
 import logging
 import webbrowser
 import os
-import sys
-import re
-import time
-import subprocess  # used to launch a pip install process
-
-from modules.formats.shared import DummyReporter
-
-"""
-    Require Python >= 3.11
-"""
-if (sys.version_info.major, sys.version_info.minor) < (3, 11):
-    logging.critical("Python 3.11 or later is required. Please update your Python installation.")
-    time.sleep(60)
-
 from abc import abstractmethod
-from pkg_resources import packaging  # type: ignore
 from pathlib import Path
-from importlib.metadata import distribution, PackageNotFoundError
-# Place typing imports after Python check
+# Run pip auto-updater
+from ovl_util import auto_updater # pyright: ignore
+# Modules under here require auto_updater
+# Place typing imports after Python check in auto_updater
 from typing import Any, AnyStr, Optional, Iterable, Callable, cast
+from generated.formats.ovl import games
+from modules.formats.shared import DummyReporter
+from ovl_util import config, qt_theme, interaction
+from root_path import root_dir
 
-from ovl_util.config import ANSI
-
-"""
-    Deals with missing packages and tries to install them from the tool itself.
-"""
-
-# raw_input returns the empty string for "enter"
-def install_prompt(question):
-    print(question)
-    print(f"{ANSI.LIGHT_YELLOW}[Type y and hit Enter]{ANSI.END}{ANSI.LIGHT_GREEN}")
-    yes = {'yes', 'y', 'ye'}
-    choice = input().lower()
-    if choice in yes:
-        return True
-    else:
-        return False
-
-# use pip to install a package
-def pip_install(package):
-    logging.info(f"Installing {package}")
-    subprocess.check_call([sys.executable, "-m", "pip", "install", package])
-
-# use pip to install --update a package
-def pip_upgrade(package):
-    logging.info(f"Updating {package}")
-    subprocess.check_call([sys.executable, "-m", "pip", "install", "--upgrade", package])
-
-missing = []
-needs_update = []
-
-with open("requirements.txt") as requirements:
-    lines = requirements.read().splitlines()
-    for line in lines:
-        lib, op, version = re.split("(~=|==|>|<|>=|<=)", line)
-        try:
-            lib_dist = distribution(lib)
-            if packaging.version.parse(lib_dist.metadata['Version']) < packaging.version.parse(version):
-                logging.warning(f"{lib} is out of date.")
-                # Append full line including ~= for pip upgrade command
-                needs_update.append(line)
-        except PackageNotFoundError:
-            logging.error(f"{lib} not found.")
-            # Append full line including ~= for pip install command
-            missing.append(line)
-
-ask_install = f"{ANSI.LIGHT_WHITE}Install the missing dependencies?{ANSI.END} (y/N)"
-ask_upgrade = f"{ANSI.LIGHT_WHITE}Update the outdated dependencies?{ANSI.END} (y/N)"
-
-if len(missing) and install_prompt(ask_install) == True:
-    # upgrade pip then try installing the rest of packages
-    pip_upgrade('pip')
-    for package in missing:
-        pip_install(package)
-
-if len(needs_update) and install_prompt(ask_upgrade) == True:
-    # upgrade pip then try updating the outdated packages
-    pip_upgrade('pip')
-    for package in needs_update:
-        pip_upgrade(package)
-
-""" End of installing dependencies """
-
-try:
-    from generated.formats.ovl import games
-    from ovl_util.config import get_commit_str
-    from ovl_util import config
-    from root_path import root_dir
-
-    from PyQt5 import QtGui, QtCore, QtWidgets
-    from ovl_util import qt_theme, interaction
-    import vdf
-
-    games_list = [g.value for g in games]
-except:
-    logging.exception("Some modules could not be imported; make sure you install the required dependencies with pip!")
-    time.sleep(15)
-
-# Put used imports below try/except for typing purposes (to avoid `| Unbound` type unions)
-from PyQt5.QtCore import (pyqtSignal, pyqtSlot, Qt, QObject, QDir, QRegularExpression,
+from PyQt5 import QtGui, QtCore, QtWidgets # pyright: ignore
+from PyQt5.QtCore import (pyqtSignal, pyqtSlot, Qt, QObject, QDir, QFileInfo, QRegularExpression,
                           QRect, QSize, QEvent, QTimer, QTimerEvent, QThread, QUrl,
                           QAbstractTableModel, QSortFilterProxyModel, QModelIndex, QItemSelection,
                           QAbstractAnimation, QParallelAnimationGroup, QPropertyAnimation)
@@ -115,6 +28,9 @@ from PyQt5.QtWidgets import (QWidget, QMainWindow, QApplication, QColorDialog, Q
                              QMessageBox, QPlainTextEdit, QProgressBar, QPushButton, QStatusBar, QToolButton,
                              QFrame, QLayout, QGridLayout, QVBoxLayout, QHBoxLayout, QScrollArea, QSizePolicy,
                              QStyleFactory, QStyleOptionViewItem, QStyledItemDelegate)
+import vdf
+
+games_list = [g.value for g in games]
 
 # Windows modules
 try:
@@ -804,10 +720,9 @@ class OvlDataFilterProxy(QSortFilterProxyModel):
         self.root_idx: Optional[QModelIndex] = None
         self.root_depth: int = 0
 
-    def depth(self, idx: QModelIndex) -> int:
+    def depth(self, index: QModelIndex) -> int:
         """Depth of the file or directory in the filesystem"""
         level = 0
-        index = idx
         while index.parent().isValid():
             level += 1
             index = index.parent()
@@ -817,10 +732,10 @@ class OvlDataFilterProxy(QSortFilterProxyModel):
         """Set max subfolder depth. 0 depth = ovldata root folders only."""
         self.max_depth = depth
 
-    def update_root(self, idx: QModelIndex) -> None:
+    def update_root(self, index: QModelIndex) -> None:
         """Update root index and store base depth for ovldata subfolder"""
-        self.root_idx = idx
-        self.root_depth = self.depth(idx)
+        self.root_idx = index
+        self.root_depth = self.depth(index)
 
     def data(self, index: QModelIndex, role: int = Qt.ItemDataRole.DisplayRole) -> Any:
         if role == QFileSystemModel.Roles.FileIconRole:
@@ -872,18 +787,64 @@ class OvlDataFilesystemModel(QFileSystemModel):
     def __init__(self, parent: Optional[QObject] = None) -> None:
         super().__init__(parent)
 
+    def map_index(self, index: QModelIndex) -> QModelIndex:
+        """Map to source if applicable"""
+        model = index.model()
+        if isinstance(model, OvlDataFilterProxy):
+            index = model.mapToSource(index)
+        return index
+
+    def fileIcon(self, index: QModelIndex) -> QIcon:
+        return super().fileIcon(self.map_index(index))
+    
+    def fileInfo(self, index: QModelIndex) -> QFileInfo:
+        return super().fileInfo(self.map_index(index))
+
+    def fileName(self, index: QModelIndex) -> str:
+        return super().fileName(self.map_index(index))
+
+    def filePath(self, index: QModelIndex) -> str:
+        return super().filePath(self.map_index(index))
+
 
 class OvlDataTreeView(QTreeView):
 
     def __init__(self, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent)
 
+    def map_index(self, index: QModelIndex) -> QModelIndex:
+        """Map from source if applicable"""
+        source_model = index.model()
+        if isinstance(source_model, OvlDataFilesystemModel):
+            model = cast(OvlDataFilterProxy, self.model())
+            index = model.mapFromSource(index)
+        return index
+
+    def setCurrentIndex(self, index: QModelIndex) -> None:
+        return super().setCurrentIndex(self.map_index(index))
+
+    def setRootIndex(self, index: QModelIndex) -> None:
+        return super().setRootIndex(self.map_index(index))
+
+    def isIndexHidden(self, index: QModelIndex) -> bool:
+        return super().isIndexHidden(self.map_index(index))
+
+    def indexAbove(self, index: QModelIndex) -> QModelIndex:
+        return super().indexAbove(self.map_index(index))
+
+    def indexBelow(self, index: QModelIndex) -> QModelIndex:
+        return super().indexAbove(self.map_index(index))
+    
+    def scrollTo(self, index: QModelIndex,
+                 hint: QAbstractItemView.ScrollHint = QAbstractItemView.ScrollHint.EnsureVisible) -> None:
+        return super().scrollTo(self.map_index(index), hint)
+
 
 class GamesWidget(QWidget):
     """Installed games combo box with optional directory widget"""
     installed_game_chosen = pyqtSignal(str)
-    dir_dbl_clicked = pyqtSignal(QModelIndex)
-    file_dbl_clicked = pyqtSignal(QModelIndex)
+    dir_dbl_clicked = pyqtSignal(str)
+    file_dbl_clicked = pyqtSignal(str)
 
     def __init__(self, parent: "MainWindow", filters: Optional[list[str]] = None,
                  game_chosen_fn: Optional[Callable] = None,
@@ -960,21 +921,17 @@ class GamesWidget(QWidget):
     def item_clicked(self, idx: QModelIndex) -> None:
         if not self.dirs.isExpanded(idx):
             self.dirs.expand(idx)
-        else:
-            self.dirs.collapse(idx)
 
     def item_dbl_clicked(self, idx: QModelIndex) -> None:
         try:
-            idx = self.proxy.mapToSource(idx)
-            model = cast(OvlDataFilesystemModel, idx.model())
-            file_path = model.filePath(idx)
+            file_path = self.model.filePath(idx)
             # open folder in explorer
             if os.path.isdir(file_path):
                 os.startfile(file_path)
-                self.dir_dbl_clicked.emit(idx)
+                self.dir_dbl_clicked.emit(file_path)
             # open in tool
             else:
-                self.file_dbl_clicked.emit(idx)
+                self.file_dbl_clicked.emit(file_path)
         except:
             MainWindow.handle_error("Clicked dir failed, see log!")
 
@@ -1001,22 +958,20 @@ class GamesWidget(QWidget):
             if current_game in games_list:
                 return True
         return False
-    
+
     def set_root(self, dir_game: str) -> None:
-        rt_index = self.model.setRootPath(dir_game)
-        self.dirs.setRootIndex(self.proxy.mapFromSource(rt_index))
+        root_index = self.model.setRootPath(dir_game)
+        self.dirs.setRootIndex(root_index)
         self.proxy.update_root(self.dirs.rootIndex())
 
     def get_selected_dir(self) -> str:
-        ind = self.dirs.currentIndex()
-        file_path = self.model.filePath(ind)
+        file_path = self.model.filePath(self.dirs.currentIndex())
         return file_path if os.path.isdir(file_path) else ""
 
     def set_selected_dir(self, dir_path: str) -> None:
         """Show dir_path in dirs"""
         try:
-            ind = self.model.index(dir_path)
-            self.dirs.setCurrentIndex(ind)
+            self.dirs.setCurrentIndex(self.model.index(dir_path))
         except:
             MainWindow.handle_error("Setting dir failed, see log.")
 
@@ -1452,11 +1407,12 @@ class FileDirWidget(QWidget):
     dir_opened = pyqtSignal(str)
     filepath_changed = pyqtSignal(str, bool)
 
-    def __init__(self, parent: QWidget, cfg: dict, type: str, ask_user: bool = True, editable: bool = False,
+    def __init__(self, parent: QWidget, cfg: dict, cfg_key: str, ask_user: bool = True, editable: bool = False,
                  check_exists: bool = False, root: Optional[str] = None) -> None:
         super().__init__(parent)
 
-        self.type = type
+        self.ftype = cfg_key
+        self.cfg_key = cfg_key.lower()
         self.root = root
         self.cfg = cfg
         self.cfg.setdefault(self.cfg_last_dir_open, "C:/")
@@ -1504,20 +1460,20 @@ class FileDirWidget(QWidget):
         self.basename = filename
 
     @property
-    def type_lower(self) -> str:
-        return self.type.lower()
+    def ftype_lower(self) -> str:
+        return self.ftype.lower()
 
     @property
     def cfg_last_dir_open(self) -> str:
-        return f"dir_{self.type_lower}s_in"
+        return f"dir_{self.cfg_key}s_in"
 
     @property
     def cfg_last_dir_save(self) -> str:
-        return f"dir_{self.type_lower}s_out"
+        return f"dir_{self.cfg_key}s_out"
 
     @property
     def cfg_last_file_open(self) -> str:
-        return f"last_{self.type_lower}_in"
+        return f"last_{self.cfg_key}_in"
 
     def cfg_path(self, cfg_str: str) -> str:
         return self.cfg.get(cfg_str, "C://") if not self.root else self.root
@@ -1560,9 +1516,9 @@ class FileWidget(FileDirWidget):
     file_opened = pyqtSignal(str)
     file_saved = pyqtSignal(str)
 
-    def __init__(self, parent: QWidget, cfg: dict, type: str = "OVL", ask_user: bool = True, editable: bool = False,
+    def __init__(self, parent: QWidget, cfg: dict, ftype: str = "OVL", ask_user: bool = True, editable: bool = False,
                  check_exists: bool = False, root: Optional[str] = None) -> None:
-        super().__init__(parent=parent, cfg=cfg, type=type, ask_user=ask_user,
+        super().__init__(parent=parent, cfg=cfg, cfg_key=ftype, ask_user=ask_user,
                          editable=editable, check_exists=check_exists, root=root)
 
         self.icon.setToolTip("Click to select a file")
@@ -1570,11 +1526,11 @@ class FileWidget(FileDirWidget):
 
     @property
     def files_filter_str(self) -> str:
-        return f"{self.type} files (*.{self.type_lower})"
+        return f"{self.ftype} files (*.{self.ftype_lower})"
 
     @property
     def tooltip_str(self) -> str:
-        return f"Currently open {self.type} file: {self.filepath}" if self.filepath else f"Open {self.type} file"
+        return f"Currently open {self.ftype} file: {self.filepath}" if self.filepath else f"Open {self.ftype} file"
 
     def is_open(self) -> bool:
         if self.filename or self.dirty:
@@ -1618,7 +1574,7 @@ class FileWidget(FileDirWidget):
 
     def accept_file(self, filepath: str) -> bool:
         if os.path.isfile(filepath):
-            if os.path.splitext(filepath)[1].lower() in (f".{self.type_lower}",):
+            if os.path.splitext(filepath)[1].lower() in (f".{self.ftype_lower}",):
                 return self.open_file(filepath)
             else:
                 interaction.showwarning("Unsupported File Format")
@@ -1628,7 +1584,7 @@ class FileWidget(FileDirWidget):
         # TODO: This is generally confusing for something named FileWidget
         #       although it is no longer hardcoded for OVL Tool
         if os.path.isdir(dirpath):
-            return self.open_file(f"{dirpath}.{self.type_lower}")
+            return self.open_file(f"{dirpath}.{self.ftype_lower}")
         return os.path.isdir(dirpath)
 
     def dropEvent(self, event: QDropEvent) -> None:
@@ -1639,7 +1595,7 @@ class FileWidget(FileDirWidget):
 
     def ask_open(self) -> None:
         filepath = QFileDialog.getOpenFileName(
-            self, f'Load {self.type}', self.cfg_path(self.cfg_last_dir_open), self.files_filter_str)[0]
+            self, f'Load {self.ftype}', self.cfg_path(self.cfg_last_dir_open), self.files_filter_str)[0]
         if filepath:
             self.open_file(filepath)
 
@@ -1654,7 +1610,7 @@ class FileWidget(FileDirWidget):
         """Saves file, always ask for file path"""
         if self.is_open():
             filepath = QFileDialog.getSaveFileName(
-                self, f'Save {self.type}', self.cfg_path(self.cfg_last_dir_save), self.files_filter_str)[0]
+                self, f'Save {self.ftype}', self.cfg_path(self.cfg_last_dir_save), self.files_filter_str)[0]
             if filepath:
                 self.cfg[self.cfg_last_dir_save], file_name = os.path.split(filepath)
                 self.set_file_path(filepath)
@@ -1681,8 +1637,8 @@ class DirWidget(FileDirWidget):
     Displays the current file's basename.
     """
 
-    def __init__(self, parent: QWidget, cfg: dict, type: str = "DIR", ask_user: bool = True) -> None:
-        super().__init__(parent=parent, cfg=cfg, type=type, ask_user=ask_user)
+    def __init__(self, parent: QWidget, cfg: dict, cfg_key: str = "DIR", ask_user: bool = True) -> None:
+        super().__init__(parent=parent, cfg=cfg, cfg_key=cfg_key, ask_user=ask_user)
 
     def open_dir(self, filepath: str) -> None:
         if not self.accept_dir(filepath):
@@ -1765,7 +1721,7 @@ class MainWindow(FramelessMainWindow):
         self.p_action.setValue(0)
         self.dev_mode = os.path.isdir(os.path.join(root_dir, ".git"))
         dev_str = "DEV" if self.dev_mode else ""
-        commit_str = get_commit_str()
+        commit_str = config.get_commit_str()
         commit_str = commit_str.split("+")[0]
         self.statusBar = QStatusBar()
 
@@ -1819,9 +1775,9 @@ class MainWindow(FramelessMainWindow):
         self.wrapper_widget.setLayout(layout)
         super().setCentralWidget(self.wrapper_widget)
 
-    def make_file_widget(self, ask_user: bool = True, type: str = "OVL", editable: bool = False, 
+    def make_file_widget(self, ask_user: bool = True, ftype: str = "OVL", editable: bool = False, 
                          check_exists: bool = False, root: Optional[str] = None) -> FileWidget:
-        file_widget = FileWidget(self, self.cfg, ask_user=ask_user, type=type, editable=editable,
+        file_widget = FileWidget(self, self.cfg, ask_user=ask_user, ftype=ftype, editable=editable,
                                  check_exists=check_exists, root=root)
 
         self.modified.connect(file_widget.set_modified)
@@ -1863,6 +1819,7 @@ class MainWindow(FramelessMainWindow):
         return filepath
 
     def get_file_name(self, filepath: str, only_basename: bool = False) -> str:
+        filepath = Path(os.path.normpath(filepath)).as_posix()
         if not only_basename and "ovldata/" in filepath:
             return self.elide_dirs(filepath.split("ovldata/")[1])
         return os.path.basename(filepath)
@@ -1959,7 +1916,7 @@ class MainWindow(FramelessMainWindow):
             return
 
         path = event.mimeData().urls()[0].toLocalFile() if event.mimeData().hasUrls() else ""
-        if path.lower().endswith(f".{self.file_widget.type_lower}"):
+        if path.lower().endswith(f".{self.file_widget.ftype_lower}"):
             event.accept()
         else:
             event.ignore()
