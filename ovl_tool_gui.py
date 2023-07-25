@@ -4,27 +4,19 @@ import sys
 import time
 import logging
 import tempfile
-
-try:
-	from ovl_util.config import logging_setup, get_version_str, get_commit_str
-	stdout_handler = logging_setup("ovl_tool_gui")
-	logging.info(f"Running python {sys.version}")
-	logging.info(f"Running cobra-tools {get_version_str()}, {get_commit_str()}")
-
-	# Import widgets before everything except Python built-ins and ovl_util.config!
-	from ovl_util import widgets, interaction
-	from ovl_util.widgets import Reporter
-	from modules import walker
-	from root_path import root_dir
-	from generated.formats.ovl import games, get_game, set_game, OvlFile
-	from generated.formats.ovl_base.enums.Compression import Compression
-	from PyQt5 import QtWidgets, QtGui, QtCore
-
-	# Place typing imports after Python check in widgets
-	from typing import Any, Optional
-except:
-	logging.exception("Some modules could not be imported; make sure you install the required dependencies with pip!")
-	time.sleep(10)
+# Check Python version, setup logging
+from ovl_util.setup import ovl_tool_setup # pyright: ignore
+# Place typing imports after Python check
+from typing import Any, Optional
+# Import widgets before everything except Python built-ins and ovl_util.setup!
+from ovl_util import widgets, interaction
+from ovl_util.config import get_stdout_handler
+from ovl_util.widgets import Reporter
+from modules import walker
+from root_path import root_dir
+from generated.formats.ovl import games, get_game, set_game, OvlFile
+from generated.formats.ovl_base.enums.Compression import Compression
+from PyQt5 import QtWidgets, QtGui, QtCore
 
 
 class MainWindow(widgets.MainWindow):
@@ -134,6 +126,7 @@ class MainWindow(widgets.MainWindow):
 		grid.addWidget(self.log_level_choice, 2, 4)
 		grid.addWidget(self.extract_types_combo, 3, 3, 1, 2)
 
+		self.stdout_handler = get_stdout_handler()
 		# log to text box
 		self.gui_log_handler = widgets.QTextEditLogger(self)
 		self.gui_log_handler.setFormatter(logging.Formatter('%(asctime)s %(levelname)s %(module)s %(funcName)s %(message)s'))
@@ -362,7 +355,7 @@ class MainWindow(widgets.MainWindow):
 
 	def log_level_changed(self, level: str):
 		self.gui_log_handler.setLevel(level)
-		stdout_handler.setLevel(level)
+		self.stdout_handler.setLevel(level)
 		self.cfg["logger_level"] = level
 
 	def show_dependencies(self, file_index):

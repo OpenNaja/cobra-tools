@@ -45,11 +45,11 @@ def create_lods():
 	# Deleting old LODs
 	for lod_coll in lod_collections[1:]:
 		for ob in lod_coll.objects:
-			if ob.data.shape_keys:
-				raise AttributeError(f"Can't create automatic LODs for models that have shape keys")
 			# delete old target
 			bpy.data.objects.remove(ob, do_unlink=True)
 
+	shape_keyed = []
+	decimated = []
 	stream_index = 0
 	for lod_index, (lod_coll, ratio) in enumerate(zip(lod_collections, lod_ratios)):
 		if lod_index > 0:
@@ -65,9 +65,14 @@ def create_lods():
 				obj1.name = f"{scn.name}_lod{lod_index}_ob{ob_index}"
 				b_me = obj1.data
 
-				# Decimating duplicated object
-				decimate = obj1.modifiers.new("Decimate", 'DECIMATE')
-				decimate.ratio = ratio
+				# Can't create automatic LODs for models that have shape keys
+				if ob.data.shape_keys:
+					shape_keyed.append(ob)
+				else:
+					decimated.append(ob)
+					# Decimating duplicated object
+					decimate = obj1.modifiers.new("Decimate", 'DECIMATE')
+					decimate.ratio = ratio
 
 				# remove additional shell material from LODs after LOD1
 				if is_shell(ob) and lod_index > 1:
@@ -78,8 +83,10 @@ def create_lods():
 				b_me["stream"] = stream_index
 		if lod_index < scn.cobra.num_streams:
 			stream_index += 1
-
-	msgs.append("LOD objects generated successfully")
+	if decimated:
+		msgs.append(f"{len(decimated)} LOD objects generated successfully")
+	if shape_keyed:
+		msgs.append(f"Can't create automatic LODs for {len(shape_keyed)} models with shape keys. Decimate those manually")
 	return msgs
 
 

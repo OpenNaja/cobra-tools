@@ -4,23 +4,16 @@ import time
 import shutil
 import pathlib
 import logging
+# Check Python version, setup logging
+from ovl_util.setup import mod_tool_setup # pyright: ignore
+# Import widgets before everything except Python built-ins and ovl_util.setup!
+from ovl_util import widgets
+from ovl_util.config import read_str_dict, write_str_dict
+from ovl_util.widgets import startup, MainWindow
+from generated.formats.ovl import games, set_game, OvlFile
 
-try:
-	from ovl_util.config import logging_setup, get_version_str, get_commit_str, read_str_dict, write_str_dict
-	logging_setup("mod_tool_gui")
-	logging.info(f"Running python {sys.version}")
-	logging.info(f"Running cobra-tools {get_version_str()}, {get_commit_str()}")
-
-	# Import widgets before everything except Python built-ins and ovl_util.config!
-	from ovl_util import widgets
-	from ovl_util.widgets import startup, MainWindow, OvlFile
-	from generated.formats.ovl import games, set_game
-
-	from PyQt5 import QtCore
-	from PyQt5.QtWidgets import QWidget, QFileDialog, QVBoxLayout, QHBoxLayout, QMenuBar, QCheckBox
-except:
-	logging.exception(f"Some modules could not be imported; make sure you install the required dependencies with pip!")
-	time.sleep(15)
+from PyQt5 import QtCore
+from PyQt5.QtWidgets import QWidget, QFileDialog, QVBoxLayout, QHBoxLayout, QMenuBar, QCheckBox
 
 __version__ = '0.1'
 __author__ = 'Open-Naja'

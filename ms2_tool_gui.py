@@ -1,21 +1,13 @@
 import sys
 import time
 import logging
-
-try:
-	from ovl_util.config import logging_setup, get_version_str, get_commit_str
-	logging_setup("ms2_tool_gui")
-	logging.info(f"Running python {sys.version}")
-	logging.info(f"Running cobra-tools {get_version_str()}, {get_commit_str()}")
-
-	# Import widgets before everything except Python built-ins and ovl_util.config!
-	from ovl_util import widgets, interaction
-	from ovl_util.widgets import get_icon
-	from generated.formats.ms2 import Ms2File
-	from PyQt5 import QtWidgets, QtGui, QtCore
-except:
-	logging.exception(f"Some modules could not be imported; make sure you install the required dependencies with pip!")
-	time.sleep(15)
+# Check Python version, setup logging
+from ovl_util.setup import ms2_tool_setup # pyright: ignore
+# Import widgets before everything except Python built-ins and ovl_util.setup!
+from ovl_util import widgets, interaction
+from ovl_util.widgets import get_icon
+from generated.formats.ms2 import Ms2File
+from PyQt5 import QtWidgets, QtGui, QtCore
 
 
 class MainWindow(widgets.MainWindow):

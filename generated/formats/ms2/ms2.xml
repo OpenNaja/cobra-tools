@@ -13,7 +13,7 @@
 		<verexpr token="#JWE2#" string="(#VER# #EQ# 51)">JWE2</verexpr>
 		There is a versioning issue introduced by the Biosyn update as the ms2 version has not been incremented immediately
 		<verexpr token="#JWE2_BIO#" string="(#VER# #EQ# 52)">JWE2</verexpr>
-		<verexpr token="#WAR#" string="(#VER# #EQ# 53)">JWE2</verexpr>
+		<verexpr token="#WAR#" string="(#VER# #EQ# 53)">WAR</verexpr>
 	</token>
 
 	<token name="global" attrs="vercond access">
