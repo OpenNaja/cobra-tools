@@ -7,7 +7,7 @@ from ovl_util.setup import fgm_editor_setup # pyright: ignore
 # Place typing imports after Python check
 from typing import Any, Optional
 # Import widgets before everything except Python built-ins and ovl_util.setup!
-from ovl_util import widgets, config, interaction
+from ovl_util import widgets, config
 from ovl_util.widgets import QColorButton, MySwitch, MAX_UINT, get_icon
 
 from constants import ConstantsProvider
