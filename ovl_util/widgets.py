@@ -4,6 +4,7 @@ import os
 from abc import abstractmethod
 from pathlib import Path
 # Run pip auto-updater
+import ovl_util.logs
 from ovl_util import auto_updater # pyright: ignore
 # Modules under here require auto_updater
 # Place typing imports after Python check in auto_updater
@@ -1723,7 +1724,7 @@ class MainWindow(FramelessMainWindow):
         self.p_action.setValue(0)
         self.dev_mode = os.path.isdir(os.path.join(root_dir, ".git"))
         dev_str = "DEV" if self.dev_mode else ""
-        commit_str = config.get_commit_str()
+        commit_str = ovl_util.logs.get_commit_str()
         commit_str = commit_str.split("+")[0]
         self.statusBar = QStatusBar()
 

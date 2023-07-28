@@ -7,7 +7,7 @@ from pkg_resources import packaging  # type: ignore
 from importlib import import_module
 from importlib.metadata import distribution, PackageNotFoundError, packages_distributions
 
-from ovl_util.config import ANSI
+from ovl_util.logs import ANSI
 
 MISSING: dict[str, str] = {}
 OUTDATED: dict[str, str]  = {}
