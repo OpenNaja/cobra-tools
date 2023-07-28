@@ -584,18 +584,16 @@ class MainWindow(widgets.MainWindow):
 		self.run_threaded(walker.bulk_test_models, self, start_dir, walk_ovls=self.t_walk_ovl.isChecked())
 		self.set_msg_temporarily("Inspected models")
 
-	@staticmethod
-	def check_length(name_tups):
+	def check_length(self, name_tups):
 		# Ask and return true if error is found and process should be stopped
 		for old, new in name_tups:
 			if len(old) != len(new):
 				if not self.showconfirmation(
-						f"WARNING: length of '{old}' [{len(old)}] and '{new}' [{len(new)}] don't match!\n"
-						f"Continue renaming anyway?"):
+						f"Length of '{old}' [{len(old)}] and '{new}' [{len(new)}] don't match!\n"
+						f"Continue renaming anyway?", title="Length Warning"):
 					return True
 
-	@staticmethod
-	def check_version():
+	def check_version(self):
 		is_64bits = sys.maxsize > 2 ** 32
 		if not is_64bits:
 			self.showerror(
