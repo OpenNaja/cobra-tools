@@ -129,7 +129,7 @@ class MainWindow(widgets.MainWindow):
 		self.stdout_handler = get_stdout_handler()
 		# log to text box
 		self.gui_log_handler = widgets.QTextEditLogger(self)
-		self.gui_log_handler.setFormatter(HtmlFormatter('%(asctime)s %(levelname)s %(module)s %(funcName)s %(message)s'))
+		self.gui_log_handler.setFormatter(HtmlFormatter('%(asctime)s %(levelname)s | %(module)s %(funcName)s - %(message)s', "%H:%M:%S"))
 		logging.getLogger().addHandler(self.gui_log_handler)
 
 		box = QtWidgets.QVBoxLayout()
@@ -267,7 +267,7 @@ class MainWindow(widgets.MainWindow):
 			filepath = QtWidgets.QFileDialog.getOpenFileName(
 				self, "Open OVL to compare with", self.cfg.get(f"dir_ovls_in", "C://"), f"OVL files (*.ovl)")[0]
 			if filepath:
-				other_ovl_data = widgets.OvlFile()
+				other_ovl_data = OvlFile()
 				other_ovl_data.load_hash_table()
 				other_ovl_data.load(filepath)
 				for file_name in selected_file_names:

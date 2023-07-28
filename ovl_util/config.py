@@ -107,8 +107,8 @@ class ColoredFormatter(logging.Formatter):
 
 class HtmlFormatter(ColoredFormatter):
 
-	def __init__(self, *args, **kwargs):
-		super().__init__(*args, **kwargs)
+	def __init__(self, fmt: str, datefmt: str = None, *args, **kwargs):
+		super().__init__(fmt, datefmt, *args, **kwargs)
 		self.FORMATS = {
 			logging.DEBUG: f"<div style='color:gray;'>{self._fmt}</div>",
 			logging.INFO: f"<div style='color:white;'>{self._fmt}</div>",
@@ -117,13 +117,13 @@ class HtmlFormatter(ColoredFormatter):
 			logging.ERROR: f"<div style='color:red;'>{self._fmt}</div>",
 			logging.CRITICAL: f"<div style='color:red;'>{self._fmt}</div>",
 		}
-		self.FORMATTERS = {key: logging.Formatter(fmt) for key, fmt in self.FORMATS.items()}
+		self.FORMATTERS = {key: logging.Formatter(_fmt, datefmt) for key, _fmt in self.FORMATS.items()}
 
 
 class AnsiFormatter(ColoredFormatter):
 
-	def __init__(self, *args, **kwargs):
-		super().__init__(*args, **kwargs)
+	def __init__(self, fmt: str, datefmt: str = None, *args, **kwargs):
+		super().__init__(fmt, datefmt, *args, **kwargs)
 		self.FORMATS = {
 			logging.DEBUG: f"{ANSI.DARK_GRAY}{self._fmt}{ANSI.END}",
 			logging.INFO: f"{ANSI.LIGHT_WHITE}{self._fmt}{ANSI.END}",
@@ -132,7 +132,7 @@ class AnsiFormatter(ColoredFormatter):
 			logging.ERROR: f"{ANSI.RED}{self._fmt}{ANSI.END}",
 			logging.CRITICAL: f"{ANSI.LIGHT_RED}{self._fmt}{ANSI.END}"
 		}
-		self.FORMATTERS = {key: logging.Formatter(fmt) for key, fmt in self.FORMATS.items()}
+		self.FORMATTERS = {key: logging.Formatter(_fmt, datefmt) for key, _fmt in self.FORMATS.items()}
 
 
 
@@ -187,7 +187,6 @@ def addLoggingLevel(levelName, levelNum, methodName=None):
 
 
 def logging_setup(log_name):
-	log_path = f'{os.path.join(root_dir, log_name)}.log'
 	addLoggingLevel('SUCCESS', logging.INFO + 5)
 	logger = logging.getLogger()
 	logger.setLevel(logging.DEBUG)
@@ -200,6 +199,7 @@ def logging_setup(log_name):
 	stdout_handler.setLevel(logging.INFO)
 	stdout_handler.setFormatter(colored_formatter)
 	# always write all levels to debug log
+	log_path = f'{os.path.join(root_dir, log_name)}.log'
 	file_handler = logging.FileHandler(log_path, mode="w")
 	file_handler.setLevel(logging.DEBUG)
 	file_handler.setFormatter(formatter)
