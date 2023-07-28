@@ -4,14 +4,13 @@ import os
 from abc import abstractmethod
 from pathlib import Path
 # Run pip auto-updater
-import ovl_util.logs
-from ovl_util import auto_updater # pyright: ignore
+from ovl_util import auto_updater  # pyright: ignore
 # Modules under here require auto_updater
 # Place typing imports after Python check in auto_updater
 from typing import Any, AnyStr, Optional, Iterable, Callable, cast
 from generated.formats.ovl import games
 from modules.formats.shared import DummyReporter
-from ovl_util import config, qt_theme
+from ovl_util import config, qt_theme, logs
 from root_path import root_dir
 
 from PyQt5 import QtGui, QtCore, QtWidgets # pyright: ignore
@@ -1724,7 +1723,7 @@ class MainWindow(FramelessMainWindow):
         self.p_action.setValue(0)
         self.dev_mode = os.path.isdir(os.path.join(root_dir, ".git"))
         dev_str = "DEV" if self.dev_mode else ""
-        commit_str = ovl_util.logs.get_commit_str()
+        commit_str = logs.get_commit_str()
         commit_str = commit_str.split("+")[0]
         self.statusBar = QStatusBar()
 
