@@ -21,7 +21,7 @@ from PyQt5.QtCore import (pyqtSignal, pyqtSlot, Qt, QObject, QDir, QFileInfo, QR
 from PyQt5.QtGui import (QBrush, QColor, QFont, QFontMetrics, QIcon, QPainter, QPen,
                          QStandardItemModel, QStandardItem,
                          QCloseEvent, QDragEnterEvent, QDragLeaveEvent, QDragMoveEvent, QDropEvent,
-                         QFocusEvent, QMouseEvent, QPaintEvent, QResizeEvent, QWheelEvent)
+                         QFocusEvent, QMouseEvent, QPaintEvent, QResizeEvent, QWheelEvent, QTextCharFormat )
 from PyQt5.QtWidgets import (QWidget, QMainWindow, QApplication, QColorDialog, QFileDialog,
                              QAbstractItemView, QHeaderView, QTableView, QTreeView, QFileSystemModel,
                              QAction, QCheckBox, QComboBox, QDoubleSpinBox, QLabel, QLineEdit, QMenu, QMenuBar,
@@ -452,18 +452,21 @@ class SelectedItemsButton(QPushButton):
 
 class QTextEditLogger(logging.Handler, QObject):
     """Text field to hold log information."""
-    appendPlainText = pyqtSignal(str)
+    appendHtml = pyqtSignal(str)
 
     def __init__(self, parent: Optional[QWidget]) -> None:
         super().__init__()
         QObject.__init__(self, parent)
         self.widget = QPlainTextEdit(parent)
         self.widget.setReadOnly(True)
-        self.appendPlainText.connect(self.widget.appendPlainText)
+        self.appendHtml.connect(self.widget.appendHtml)
+        self.fmt = QTextCharFormat()
+        self.fmt.setFontItalic(True)
 
     def emit(self, record: logging.LogRecord) -> None:
         msg = self.format(record)
-        self.appendPlainText.emit(msg)
+        self.widget.setCurrentCharFormat(self.fmt)
+        self.appendHtml.emit(msg)
 
 
 class LabelEdit(QWidget):

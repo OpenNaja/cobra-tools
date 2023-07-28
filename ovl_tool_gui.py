@@ -10,7 +10,7 @@ from ovl_util.setup import ovl_tool_setup # pyright: ignore
 from typing import Any, Optional
 # Import widgets before everything except Python built-ins and ovl_util.setup!
 from ovl_util import widgets
-from ovl_util.config import get_stdout_handler
+from ovl_util.config import AnsiFormatter, HtmlFormatter, get_stdout_handler
 from ovl_util.widgets import Reporter
 from modules import walker
 from root_path import root_dir
@@ -129,7 +129,7 @@ class MainWindow(widgets.MainWindow):
 		self.stdout_handler = get_stdout_handler()
 		# log to text box
 		self.gui_log_handler = widgets.QTextEditLogger(self)
-		self.gui_log_handler.setFormatter(logging.Formatter('%(asctime)s %(levelname)s %(module)s %(funcName)s %(message)s'))
+		self.gui_log_handler.setFormatter(HtmlFormatter('%(asctime)s %(levelname)s %(module)s %(funcName)s %(message)s'))
 		logging.getLogger().addHandler(self.gui_log_handler)
 
 		box = QtWidgets.QVBoxLayout()

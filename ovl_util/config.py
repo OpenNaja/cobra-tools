@@ -100,6 +100,28 @@ class ANSI:
 
 class ColoredFormatter(logging.Formatter):
 
+	def format(self, record):
+		formatter = self.FORMATTERS.get(record.levelno)
+		return formatter.format(record)
+
+
+class HtmlFormatter(ColoredFormatter):
+
+	def __init__(self, *args, **kwargs):
+		super().__init__(*args, **kwargs)
+		self.FORMATS = {
+			logging.DEBUG: f"<div style='color:gray;'>{self._fmt}</div>",
+			logging.INFO: f"<div style='color:white;'>{self._fmt}</div>",
+			logging.INFO + 5: f"<div style='color:lime;'>{self._fmt}</div>", # SUCCESS
+			logging.WARNING: f"<div style='color:yellow;'>{self._fmt}</div>",
+			logging.ERROR: f"<div style='color:red;'>{self._fmt}</div>",
+			logging.CRITICAL: f"<div style='color:red;'>{self._fmt}</div>",
+		}
+		self.FORMATTERS = {key: logging.Formatter(fmt) for key, fmt in self.FORMATS.items()}
+
+
+class AnsiFormatter(ColoredFormatter):
+
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
 		self.FORMATS = {
@@ -112,9 +134,6 @@ class ColoredFormatter(logging.Formatter):
 		}
 		self.FORMATTERS = {key: logging.Formatter(fmt) for key, fmt in self.FORMATS.items()}
 
-	def format(self, record):
-		formatter = self.FORMATTERS.get(record.levelno)
-		return formatter.format(record)
 
 
 def addLoggingLevel(levelName, levelNum, methodName=None):
@@ -175,7 +194,7 @@ def logging_setup(log_name):
 	# formatter = logging.Formatter('%(asctime)s | %(levelname)s | %(message)s')
 	formatter = logging.Formatter('%(levelname)s | %(message)s')
 	# Colored logging for all platforms but Windows 7/8
-	colored_formatter = ColoredFormatter('%(levelname)s | %(message)s')
+	colored_formatter = AnsiFormatter('%(levelname)s | %(message)s')
 
 	stdout_handler = logging.StreamHandler(sys.stdout)
 	stdout_handler.setLevel(logging.INFO)
