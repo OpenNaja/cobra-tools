@@ -1504,8 +1504,8 @@ class FileDirWidget(QWidget):
         self.entry.setPlaceholderText(text)
 
     def set_modified(self, dirty: bool) -> None:
+        self.dirty = dirty
         if self.filepath:
-            self.dirty = dirty
             self.filepath_changed.emit(self.filepath, self.dirty)
 
 

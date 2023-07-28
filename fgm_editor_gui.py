@@ -226,12 +226,6 @@ class MainWindow(widgets.MainWindow):
 		self.header.shader_name = name
 		self.update_choices()
 		try:
-			# todo - instead change saving behavior as in ovl tool
-			# Show New File dialog in a blank window when changing shader type
-			# Return if the dialog is cancelled
-			# if not self.file_widget.filepath and not self.has_data() and not self.new_file():
-			# 	return
-
 			tex_data_old = (self.header.textures.data.copy(), self.header.name_foreach_textures.data.copy()) if self.has_data() else None
 			attrib_data_old = (self.header.attributes.data.copy(), self.header.value_foreach_attributes.data.copy()) if self.has_data() else None
 			self.set_dirty()
@@ -353,14 +347,7 @@ class MainWindow(widgets.MainWindow):
 		return g
 
 	def new_file(self):
-		self.close_file()
-		file_out, _ = QtWidgets.QFileDialog.getSaveFileName(self, "New File", os.path.join(self.cfg.get("dir_fgms_out", "C://"), self.fgm_name), "FGM files (*.fgm)",)
-		if file_out:
-			self.cfg["dir_fgms_out"], _ = os.path.split(file_out)
-			self.file_widget.open_file(file_out)
-			self.set_dirty()
-			return True
-		return False
+		self.file_widget.open_file("")
 
 	def open(self, filepath):
 		if filepath:
@@ -400,19 +387,6 @@ class MainWindow(widgets.MainWindow):
 			interaction.showerror(str(err))
 			logging.exception("Saving fgm errored")
 		logging.info("Done!")
-
-	def close_file(self):
-		if self.file_widget.dirty:
-			quit_msg = f"Quit? You will lose unsaved work on {os.path.basename(self.file_widget.filepath)}!"
-			if not interaction.showconfirmation(quit_msg, title="Quit"):
-				return True
-		return False
-
-	def closeEvent(self, event):
-		if self.close_file():
-			event.ignore()
-			return
-		event.accept()
 
 
 class PropertyContainer(QtWidgets.QGroupBox):
