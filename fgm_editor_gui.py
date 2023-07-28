@@ -347,7 +347,7 @@ class MainWindow(widgets.MainWindow):
 		return g
 
 	def new_file(self):
-		self.file_widget.open_file("")
+		self.file_widget.set_file_path("")
 
 	def open(self, filepath):
 		if filepath:
@@ -361,10 +361,8 @@ class MainWindow(widgets.MainWindow):
 				self.update_shader(self.header.shader_name)
 				self.tex_container.update_gui(self.header.textures.data, self.header.name_foreach_textures.data)
 				self.attrib_container.update_gui(self.header.attributes.data, self.header.value_foreach_attributes.data)
-
-			except Exception as ex:
-				interaction.showerror(str(ex))
-				logging.exception("Loading fgm errored")
+			except:
+				self.handle_error("Opening failed, see log!")
 			logging.info("Done!")
 
 	def import_fgm(self):
@@ -374,18 +372,15 @@ class MainWindow(widgets.MainWindow):
 				self.cfg["dir_fgms_in"], _ = os.path.split(file_in)
 				self.import_header = FgmHeader.from_xml_file(file_in, self.context)
 				logging.info(f"Importing {file_in}")
-			except Exception as ex:
-				interaction.showerror(str(ex))
-				logging.exception("Importing fgm errored")
+			except:
+				self.handle_error("Importing failed, see log!")
 
 	def save(self, filepath) -> None:
 		try:
-			with self.header.to_xml_file(self.header, filepath) as xml_root:
-				pass
+			self.header.to_xml_file(self.header, filepath)
 			self.set_file_modified(False)
-		except BaseException as err:
-			interaction.showerror(str(err))
-			logging.exception("Saving fgm errored")
+		except:
+			self.handle_error("Saving failed, see log!")
 		logging.info("Done!")
 
 

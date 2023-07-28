@@ -10,7 +10,7 @@ from ovl_util import auto_updater # pyright: ignore
 from typing import Any, AnyStr, Optional, Iterable, Callable, cast
 from generated.formats.ovl import games
 from modules.formats.shared import DummyReporter
-from ovl_util import config, qt_theme, interaction
+from ovl_util import config, qt_theme
 from root_path import root_dir
 
 from PyQt5 import QtGui, QtCore, QtWidgets # pyright: ignore
@@ -1410,7 +1410,7 @@ class FileDirWidget(QWidget):
     def __init__(self, parent: QWidget, cfg: dict, cfg_key: str, ask_user: bool = True, editable: bool = False,
                  check_exists: bool = False, root: Optional[str] = None) -> None:
         super().__init__(parent)
-
+        self.mainWidget = parent
         self.ftype = cfg_key
         self.cfg_key = cfg_key.lower()
         self.root = root
@@ -1535,7 +1535,7 @@ class FileWidget(FileDirWidget):
     def is_open(self) -> bool:
         if self.filename or self.dirty:
             return True
-        interaction.showwarning("You must open a file first!")
+        self.mainWidget.showwarning("You must open a file first!")
         return False
 
     def abort_open_new_file(self, new_filepath: str) -> bool:
@@ -1543,10 +1543,8 @@ class FileWidget(FileDirWidget):
         if not self.ask_user:
             return False
         if self.filepath and self.dirty:
-            msg = "Do you really want to load " + os.path.basename(
-                new_filepath) + "? You will lose unsaved work on " + os.path.basename(self.filepath) + "!"
-            return not interaction.showdialog(msg, title="Unsaved Changes", 
-                                  buttons=(QMessageBox.StandardButton.Discard | QMessageBox.StandardButton.Cancel))
+            msg = f"Do you want to discard unsaved work on {os.path.basename(self.filepath)} to open {os.path.basename(new_filepath)}?"
+            return not self.mainWidget.showdialog(msg, title="Unsaved Changes", buttons=(QMessageBox.StandardButton.Discard | QMessageBox.StandardButton.Cancel))
         return False
 
     def open_file(self, filepath: str) -> bool:
@@ -1577,7 +1575,7 @@ class FileWidget(FileDirWidget):
             if os.path.splitext(filepath)[1].lower() in (f".{self.ftype_lower}",):
                 return self.open_file(filepath)
             else:
-                interaction.showwarning("Unsupported File Format")
+                self.mainWidget.showwarning("Unsupported File Format")
         return False
 
     def accept_dir(self, dirpath: str) -> bool:
@@ -1689,6 +1687,7 @@ class TitleBar(StandardTitleBar):
 
 
 ButtonData = Iterable[tuple[QMenu, str, Callable[[], None], str, str]]
+
 
 class MainWindow(FramelessMainWindow):
     modified = pyqtSignal(bool)
@@ -1850,11 +1849,10 @@ class MainWindow(FramelessMainWindow):
         self.actions[action_name.lower()] = action
         submenu.addAction(action)
 
-    @staticmethod
-    def handle_error(msg: str) -> None:
+    def handle_error(self, msg: str) -> None:
         """Warn user with popup msg and write msg + exception traceback to log"""
         logging.exception(msg)
-        interaction.showerror(msg)
+        self.showerror(msg)
 
     def show_progress(self) -> None:
         self.p_action.show()
@@ -1888,7 +1886,7 @@ class MainWindow(FramelessMainWindow):
         self.worker.finished.connect(self.thread.quit)
         self.worker.finished.connect(self.worker.deleteLater)
         self.thread.finished.connect(self.thread.deleteLater)
-        self.worker.error_msg.connect(interaction.showdialog)
+        self.worker.error_msg.connect(self.showerror)
         # Step 6: Start the thread
         self.thread.start()
 
@@ -1906,7 +1904,7 @@ class MainWindow(FramelessMainWindow):
     def closeEvent(self, event: QCloseEvent) -> None:
         if self.file_widget and self.file_widget.dirty:
             quit_msg = f"Quit? You will lose unsaved work on {os.path.basename(self.file_widget.filepath)}!"
-            if not interaction.showconfirmation(quit_msg, title="Quit"):
+            if not self.showconfirmation(quit_msg, title="Quit"):
                 event.ignore()
                 return
         event.accept()
@@ -1929,6 +1927,29 @@ class MainWindow(FramelessMainWindow):
         if path:
             self.file_widget.open_file(path)
 
+    def showdialog(self, info, title="", buttons=None, details=None):
+        msg = QtWidgets.QMessageBox(self)
+        msg.setIcon(QtWidgets.QMessageBox.Information)
+        msg.setText(info)
+        msg.setWindowTitle(title)
+        msg.setStandardButtons(msg.Ok if not buttons else buttons)
+        if details:
+            msg.setDetailedText(details)
+        return msg.exec_() not in [msg.No, msg.Cancel]
+
+    def showquestion(self, info, title=None, details=None):
+        return self.showdialog(info, title="Question" if not title else title, 
+                        buttons=(QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No), details=details)
+
+    def showconfirmation(self, info, title=None, details=None):
+        return self.showdialog(info, title="Confirm" if not title else title,
+                        buttons=(QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.Cancel), details=details)
+
+    def showwarning(self, info, details=None):
+        return self.showdialog(info, title="Warning", details=details)
+
+    def showerror(self, info, details=None):
+        return self.showdialog(info, title="Error", details=details)
 
 class Worker(QObject):
     finished = pyqtSignal()
