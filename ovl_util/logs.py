@@ -2,6 +2,7 @@ import logging
 import os
 import platform
 import sys
+from functools import partialmethod, partial
 
 from root_path import root_dir
 
@@ -123,12 +124,14 @@ def addLoggingLevel(levelName, levelNum, methodName=None):
 		if self.isEnabledFor(levelNum):
 			self._log(levelNum, message, args, **kwargs)
 	def logToRoot(message, *args, **kwargs):
-		logging.log(levelNum, message, *args, **kwargs)
+		if logging.root.isEnabledFor(levelNum):
+			logging.root._log(levelNum, message, args, **kwargs)
+		# logging.log(levelNum, message, *args, **kwargs)
 
 	logging.addLevelName(levelNum, levelName)
 	setattr(logging, levelName, levelNum)
-	setattr(logging.getLoggerClass(), methodName, logForLevel)
-	setattr(logging, methodName, logToRoot)
+	setattr(logging.getLoggerClass(), methodName, partialmethod(logging.getLoggerClass().log, levelNum))
+	setattr(logging, methodName, partial(logging.log, levelNum))
 
 
 def logging_setup(log_name):
