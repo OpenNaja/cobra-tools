@@ -22,12 +22,12 @@ class TestOVLIncludes:
 	@pytest.fixture(scope="class")
 	def ovl_file_includes(self) -> list[str]:
 		includes = [
-			"Animals\AssetPackagesExtrasList",
-			"AssetPackagesExtrasList",
-			"Audio\Audio",
-			"Characters\Main_SmallResources",
-			"Environment\Main_SmallResources",
-			"Prefabs\Prefabs"
+			R"Animals\AssetPackagesExtrasList",
+			R"AssetPackagesExtrasList",
+			R"Audio\Audio",
+			R"Characters\Main_SmallResources",
+			R"Environment\Main_SmallResources",
+			R"Prefabs\Prefabs"
 		]
 		return includes
 
