@@ -4,6 +4,9 @@ import logging
 
 class Bitfield(BaseClass):
 
+    def __init__(self, parser, struct, gen_dir):
+        super().__init__(parser, struct, gen_dir=gen_dir)
+
     def map_pos(self):
         """Generate position if it does not exist"""
         pos = 0

@@ -3,6 +3,9 @@ from .naming_conventions import clean_comment_str
 
 class Enum(BaseClass):
 
+    def __init__(self, parser, struct, gen_dir):
+        super().__init__(parser, struct, gen_dir=gen_dir)
+
     def read(self):
         """Create a struct class"""
         super().read()

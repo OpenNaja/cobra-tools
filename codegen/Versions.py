@@ -48,8 +48,9 @@ class Versions:
 	def format_id(version_id):
 		return version_id.lower()
 
-	def __init__(self, parser):
+	def __init__(self, parser, gen_dir):
 		self.parent = parser
+		self.gen_dir = gen_dir
 		self.versions = []
 
 	def read(self, xml_struct):
@@ -67,11 +68,11 @@ class Versions:
 		if self.versions:
 			with open(out_file, "a", encoding=self.parent.encoding) as stream:
 				stream.write(f"from enum import Enum\n\n")
-				stream.write(f"from generated.base_version import VersionBase\n")
+				stream.write(f"from {self.gen_dir}.base_version import VersionBase\n")
 				if self.parent.verattrs:
 					for verattr_name, (verattr_access, verattr_type) in self.parent.verattrs.items():
 						if verattr_type is not None:
-							import_path = Imports.import_from_module_path(self.parent.path_dict[verattr_type])
+							import_path = Imports.import_from_module_path(self.parent.path_dict[verattr_type], gen_dir=self.gen_dir)
 							stream.write(f"from {import_path} import {verattr_type}\n")
 				stream.write(f"\n\n")
 
