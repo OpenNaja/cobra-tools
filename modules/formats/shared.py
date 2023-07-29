@@ -1,4 +1,5 @@
 import contextlib
+import functools
 import logging
 import struct
 

@@ -5,7 +5,7 @@ import tempfile
 # Check Python version, setup logging
 from ovl_util.setup import bnk_gui_setup # pyright: ignore
 # Import widgets before everything except Python built-ins and ovl_util.setup!
-from ovl_util import widgets, interaction
+from ovl_util import widgets
 from generated.formats.bnk import BnkFile, AuxFile
 from ovl_util.texconv import write_riff_file
 from modules.formats.shared import fmt_hash
@@ -148,7 +148,7 @@ class MainWindow(widgets.MainWindow):
 
 	def is_open_bnk(self):
 		if not self.file_widget.filename:
-			interaction.showwarning("You must open a BNK file first!")
+			self.showwarning("You must open a BNK file first!")
 		else:
 			return True
 
@@ -164,12 +164,10 @@ class MainWindow(widgets.MainWindow):
 		out_dir = QtWidgets.QFileDialog.getExistingDirectory(self, 'Output folder', self.cfg.get("dir_extract", "C://"), )
 		if out_dir:
 			self.cfg["dir_extract"] = out_dir
-			error_files = []
 			try:
 				out_files = self.extract_audio(out_dir)
 			except:
 				self.handle_error("Extracting failed, see log!")
-			interaction.extract_error_warning(error_files)
 
 	def inject_ask(self):
 		if self.is_open_bnk():
@@ -184,8 +182,6 @@ class MainWindow(widgets.MainWindow):
 			try:
 				error_files = self.inject_wem(files)
 				self.set_file_modified(True)
-				# if error_files:
-				# 	interaction.showerror(f"Injection caused errors on {len(error_files)} files, see console for details!")
 				self.set_msg_temporarily("Injection completed")
 			except:
 				self.handle_error("Injecting failed, see log!")

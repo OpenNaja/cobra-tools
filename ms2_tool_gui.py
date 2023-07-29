@@ -4,7 +4,7 @@ import logging
 # Check Python version, setup logging
 from ovl_util.setup import ms2_tool_setup # pyright: ignore
 # Import widgets before everything except Python built-ins and ovl_util.setup!
-from ovl_util import widgets, interaction
+from ovl_util import widgets
 from ovl_util.widgets import get_icon
 from generated.formats.ms2 import Ms2File
 from PyQt5 import QtWidgets, QtGui, QtCore
@@ -68,7 +68,7 @@ class MainWindow(widgets.MainWindow):
 		new_name = new_name.lower()
 		try:
 			if self.ms2_file.name_used(new_name):
-				interaction.showwarning(f"Model {new_name} already exists in ms2!")
+				self.showwarning(f"Model {new_name} already exists in ms2!")
 			# new name is new
 			else:
 				self.ms2_file.rename_file(old_name, new_name)

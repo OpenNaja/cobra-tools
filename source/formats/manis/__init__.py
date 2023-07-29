@@ -7,7 +7,7 @@ import numpy as np
 
 import root_path
 from generated.formats.manis.bitfields.ManisDtype import ManisDtype
-from ovl_util.config import logging_setup
+from ovl_util.logs import logging_setup
 from generated.formats.manis.bitfields.StoreKeys import StoreKeys
 from generated.formats.manis.compounds.InfoHeader import InfoHeader
 from generated.io import IoFile

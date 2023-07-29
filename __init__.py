@@ -31,7 +31,7 @@ if not plugin_dir in sys.path:
     sys.path.append(plugin_dir)
 
 import logging
-from ovl_util.config import logging_setup
+from ovl_util.logs import logging_setup
 
 logging_setup("blender_plugin")
 

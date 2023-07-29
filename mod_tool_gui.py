@@ -5,7 +5,7 @@ import shutil
 import pathlib
 import logging
 # Check Python version, setup logging
-from ovl_util.setup import mod_tool_setup # pyright: ignore
+from ovl_util.setup import mod_tool_setup  # pyright: ignore
 # Import widgets before everything except Python built-ins and ovl_util.setup!
 from ovl_util import widgets
 from ovl_util.config import read_str_dict, write_str_dict

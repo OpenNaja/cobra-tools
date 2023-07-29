@@ -9,8 +9,8 @@ from ovl_util.setup import ovl_tool_setup # pyright: ignore
 # Place typing imports after Python check
 from typing import Any, Optional
 # Import widgets before everything except Python built-ins and ovl_util.setup!
-from ovl_util import widgets, interaction
-from ovl_util.config import get_stdout_handler
+from ovl_util import widgets
+from ovl_util.logs import HtmlFormatter, AnsiFormatter, get_stdout_handler
 from ovl_util.widgets import Reporter
 from modules import walker
 from root_path import root_dir
@@ -129,7 +129,7 @@ class MainWindow(widgets.MainWindow):
 		self.stdout_handler = get_stdout_handler()
 		# log to text box
 		self.gui_log_handler = widgets.QTextEditLogger(self)
-		self.gui_log_handler.setFormatter(logging.Formatter('%(asctime)s %(levelname)s %(module)s %(funcName)s %(message)s'))
+		self.gui_log_handler.setFormatter(HtmlFormatter('%(asctime)s %(levelname)s | %(module)s %(funcName)s - %(message)s', "%H:%M:%S"))
 		logging.getLogger().addHandler(self.gui_log_handler)
 
 		box = QtWidgets.QVBoxLayout()
@@ -234,7 +234,7 @@ class MainWindow(widgets.MainWindow):
 	def notify_user(self, msg_list):
 		msg = msg_list[0]
 		details = msg_list[1] if len(msg_list) > 1 else None
-		interaction.showwarning(msg, details=details)
+		self.showwarning(msg, details=details)
 
 	def logger_show_triggered(self):
 		show = self.t_logger.isChecked()
@@ -261,13 +261,13 @@ class MainWindow(widgets.MainWindow):
 	def compare_ovls(self):
 		selected_file_names = self.files_container.table.get_selected_files()
 		if not selected_file_names:
-			interaction.showwarning("Please select files to compare first")
+			self.showwarning("Please select files to compare first")
 			return
 		if self.is_open_ovl():
 			filepath = QtWidgets.QFileDialog.getOpenFileName(
 				self, "Open OVL to compare with", self.cfg.get(f"dir_ovls_in", "C://"), f"OVL files (*.ovl)")[0]
 			if filepath:
-				other_ovl_data = widgets.OvlFile()
+				other_ovl_data = OvlFile()
 				other_ovl_data.load_hash_table()
 				other_ovl_data.load(filepath)
 				for file_name in selected_file_names:
@@ -303,7 +303,7 @@ class MainWindow(widgets.MainWindow):
 					if save_over:
 						self.save(ovl_path)
 			else:
-				interaction.showwarning("Select a root directory!")
+				self.showwarning("Select a root directory!")
 		# just the one that's currently open, do not save over
 		elif self.is_open_ovl():
 			yield self.ovl_data
@@ -397,7 +397,7 @@ class MainWindow(widgets.MainWindow):
 		if self.file_widget.filename or self.file_widget.dirty:
 			return True
 		else:
-			interaction.showwarning("You must open an OVL file first!")
+			self.showwarning("You must open an OVL file first!")
 
 	def update_files_ui(self, f_list):
 		start_time = time.time()
@@ -469,7 +469,7 @@ class MainWindow(widgets.MainWindow):
 			old = old.split(newline)
 			new = new.split(newline)
 			if len(old) != len(new):
-				interaction.showwarning(f"Old {len(old)} and new {len(new)} must have the same amount of lines!")
+				self.showwarning(f"Old {len(old)} and new {len(new)} must have the same amount of lines!")
 			return list(zip(old, new))
 		except:
 			self.handle_error("Getting replace strings failed, see log!")
@@ -584,26 +584,24 @@ class MainWindow(widgets.MainWindow):
 		self.run_threaded(walker.bulk_test_models, self, start_dir, walk_ovls=self.t_walk_ovl.isChecked())
 		self.set_msg_temporarily("Inspected models")
 
-	@staticmethod
-	def check_length(name_tups):
+	def check_length(self, name_tups):
 		# Ask and return true if error is found and process should be stopped
 		for old, new in name_tups:
 			if len(old) != len(new):
-				if not interaction.showconfirmation(
-						f"WARNING: length of '{old}' [{len(old)}] and '{new}' [{len(new)}] don't match!\n"
-						f"Continue renaming anyway?"):
+				if not self.showconfirmation(
+						f"Length of '{old}' [{len(old)}] and '{new}' [{len(new)}] don't match!\n"
+						f"Continue renaming anyway?", title="Length Warning"):
 					return True
 
-	@staticmethod
-	def check_version():
+	def check_version(self):
 		is_64bits = sys.maxsize > 2 ** 32
 		if not is_64bits:
-			interaction.showerror(
+			self.showerror(
 				"Either your operating system or your python installation is not 64 bits.\n"
 				"Large OVLs will crash unexpectedly!")
 		if sys.version_info[0] != 3 or sys.version_info[1] < 7 or (
 				sys.version_info[1] == 7 and sys.version_info[2] < 6):
-			interaction.showerror("Python 3.7.6+ x64 bit is expected!")
+			self.showerror("Python 3.7.6+ x64 bit is expected!")
 
 
 if __name__ == '__main__':
