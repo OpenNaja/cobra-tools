@@ -1,0 +1,28 @@
+exclude: ^(constants|experimentals|hashes|dumps)/
+repos:
+-   repo: local
+    hooks: 
+    -   id: version
+        name: Increment Version
+        entry: ./bin/increment_version.py
+        language: system
+        stages: [pre-commit, manual]
+        pass_filenames: false
+        always_run: true
+    -   id: codegen
+        name: Run Codegen
+        entry: ./bin/run_codegen.py
+        language: system
+        stages: [pre-commit, manual]
+        files: ^source
+        pass_filenames: false
+-   repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.4.0
+    hooks:
+    -   id: check-json
+    -   id: check-toml
+    -   id: check-xml
+    -   id: check-yaml
+    -   id: check-added-large-files
+        args: ['--maxkb=50000']
+    -   id: check-shebang-scripts-are-executable

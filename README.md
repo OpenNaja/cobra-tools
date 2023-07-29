@@ -44,6 +44,20 @@ If you would like to install the dependencies manually:
 - [Blender Plugin - How to Use](https://github.com/OpenNaja/cobra-tools/wiki/Blender-Plugin---How-to-Use)
 
 
+### Developers
+
+If you are contributing to the project, in addition to installing `requirements.txt`:
+
+1. Install the dev requirements. From `cobra-tools` directory run:
+    ```
+    pip install --upgrade pip && pip install -r requirements-dev.txt
+    ```
+2. Then install the pre-commit hooks:
+    
+    ```
+    pre-commit install -f
+    ```
+
 ## How to use
 - [OVL Tool - How to Use](https://github.com/OpenNaja/cobra-tools/wiki/OVL-Tool---How-to-Use)
 - [List of supported file formats and recommended tools for editing them](https://github.com/OpenNaja/cobra-tools/wiki/Supported-Archive-Content-File-Formats)
