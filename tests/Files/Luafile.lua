@@ -1,9 +1,10 @@
 local global = _G
 local api    = global.api
 
-local module = {}
-local module.test = function()
+local Module = module(...)
+
+Module.Test = function()
   return 'test'
 end
 
-return module
+return Module

@@ -1,78 +1,63 @@
+import filecmp
 import pytest
-from generated.formats.ovl import OvlFile
+from generated.formats.ovl import OvlFile, get_game
+
+
+@pytest.fixture(scope="function")
+def empty_ovl_file() -> OvlFile:
+	ovlfile = OvlFile()
+	ovlfile.load('tests/ovldata/Empty/EmptyPZ.ovl')
+	return ovlfile
+
+
+@pytest.fixture(scope="function")
+def ovl_file() -> OvlFile:
+	ovlfile = OvlFile()
+	ovlfile.load('tests/ovldata/OVLIncludes/OVLIncludesPZ.ovl')
+	return ovlfile
 
 
 class TestOVLIncludes:
 
 	@pytest.fixture(scope="class")
-	def empty_ovl_file(self):
-		ovlfile = OvlFile()
-		ovlfile.load('tests/ovldata/Empty/Empty.ovl')
-		return ovlfile
+	def ovl_file_includes(self) -> list[str]:
+		includes = [
+			"Animals\AssetPackagesExtrasList",
+			"AssetPackagesExtrasList",
+			"Audio\Audio",
+			"Characters\Main_SmallResources",
+			"Environment\Main_SmallResources",
+			"Prefabs\Prefabs"
+		]
+		return includes
 
-	def test_ovl_no_included_ovls(self, empty_ovl_file):
+	def test_ovl_no_included_ovls(self, empty_ovl_file: OvlFile) -> None:
 		assert len(empty_ovl_file.included_ovls) == 0
+		assert len(empty_ovl_file.included_ovl_names) == 0
+		assert empty_ovl_file.included_ovl_names == []
 
-	# TODO: Redo OVL Includes tests, this API no longer exists.
-	#def test_inject_dir(self):
-	#	self.assertEqual(len(self.ovlfile.included_ovls), 0, "Should have no included_ovls")
+	def test_ovl_included_ovls(self, ovl_file: OvlFile, ovl_file_includes: list[str]) -> None:
+		assert len(ovl_file.included_ovls) == 6
+		assert len(ovl_file.included_ovl_names) == 6
+		assert ovl_file.included_ovl_names == ovl_file_includes
 
-	#	self.ovlfile.included_ovl_names = ('test1.ovl',)
-	#	self.assertEqual(len(self.ovlfile.included_ovls), 1, "Should have one included_ovl")
-	#	self.assertEqual(self.ovlfile.included_ovls[0].name, "test1.ovl", "should have included_ovl 1 name 'test1'")
+	def test_ovl_save_included_ovls(self, ovl_file: OvlFile) -> None:
+		ovl_file.save_included_ovls("tests/tmp/ovls.include")
+		result = filecmp.cmp("tests/ovldata/OVLIncludes/ovls.include", "tests/tmp/ovls.include")
+		assert result is True
 
-	#	self.ovlfile.included_ovl_names = ('test1.ovl', 'test2.ovl')
-	#	self.assertEqual(len(self.ovlfile.included_ovls), 2, "Should have two included_ovl")
-	#	self.assertEqual(self.ovlfile.included_ovls[1].name, "test2.ovl", "should have included_ovl 2 as 'test2'")
+	def test_ovl_load_included_ovls(self, empty_ovl_file: OvlFile) -> None:
+		# Ensure empty OVL is PZ for later file comparison
+		assert get_game(empty_ovl_file.context)[0].value == "Planet Zoo"
+		empty_ovl_file.load_included_ovls("tests/ovldata/OVLIncludes/ovls.include")
+		empty_ovl_file.save("tests/tmp/OVLIncludesPZ.ovl")
+		result = filecmp.cmp("tests/ovldata/OVLIncludes/OVLIncludesPZ.ovl", "tests/tmp/OVLIncludesPZ.ovl")
+		assert result is True
 
-	#	# try adding a existing included_ovl
-	#	self.ovlfile.included_ovl_names = ('test1.ovl', 'test2.ovl', 'test1.ovl')
-	#	self.assertEqual(len(self.ovlfile.included_ovls), 2, "Should have two included_ovl")
-
-	#def test_remove_dir(self):
-	#	self.assertEqual(len(self.ovlfile.included_ovls), 0, "Should have no included_ovls")
-
-	#	self.ovlfile.add_included_ovl('test1.ovl')
-	#	self.assertEqual(len(self.ovlfile.included_ovls), 1, "Should have one included_ovl")
-	#	self.assertEqual(self.ovlfile.included_ovls[0].name, "test1.ovl", "should have included_ovl 1 as 'test1'")
-
-	#	self.ovlfile.add_included_ovl('test2.ovl')
-	#	self.assertEqual(len(self.ovlfile.included_ovls), 2, "Should have two included_ovl")
-	#	self.assertEqual(self.ovlfile.included_ovls[1].name, "test2.ovl", "should have included_ovl 2 as 'test2'")
-
-	#	# remove existing included_ovl
-	#	self.ovlfile.remove_included_ovl('test1.ovl')
-	#	self.assertEqual(len(self.ovlfile.included_ovls), 1, "Should have one included_ovl")
-	#	self.assertEqual(self.ovlfile.included_ovls[0].name, "test2.ovl", "should have included_ovl 1 as 'test2'")
-
-	#	# remove non-existing dir
-	#	self.ovlfile.remove_included_ovl('test3.ovl')
-	#	self.assertEqual(len(self.ovlfile.included_ovls), 1, "Should have one included_ovl")
-	#	self.assertEqual(self.ovlfile.included_ovls[0].name, "test2.ovl", "should have included_ovl 1 as 'test2'")
-
-	#def test_rename_dir(self):
-	#	self.assertEqual(len(self.ovlfile.included_ovls), 0, "Should have no included_ovls")
-
-	#	self.ovlfile.add_included_ovl('test1.ovl')
-	#	self.assertEqual(len(self.ovlfile.included_ovls), 1, "Should have one included_ovl")
-	#	self.assertEqual(self.ovlfile.included_ovls[0].name, "test1.ovl", "should have included_ovl 1 as 'test1'")
-
-	#	self.ovlfile.add_included_ovl('test2.ovl')
-	#	self.assertEqual(len(self.ovlfile.included_ovls), 2, "Should have two included_ovl")
-	#	self.assertEqual(self.ovlfile.included_ovls[1].name, "test2.ovl", "should have included_ovl 2 as 'test2'")
-
-	#	# try renaming an existing included_ovl
-	#	self.ovlfile.rename_included_ovl('test1.ovl', 'test3.ovl')
-	#	self.assertEqual(len(self.ovlfile.included_ovls), 2, "Should have two included_ovl")
-	#	self.assertEqual(self.ovlfile.included_ovls[0].name, "test3.ovl", "should have included_ovl 1 as 'test3'")
-
-	#	# try renaming a missing included_ovl
-	#	self.ovlfile.rename_included_ovl('test1.ovl', 'test5.ovl')
-	#	self.assertEqual(len(self.ovlfile.included_ovls), 2, "Should have two included_ovl")
-	#	self.assertEqual(self.ovlfile.included_ovls[0].name, "test3.ovl", "should have included_ovl 1 as 'test3'")
-
-	"""
-	def test_bad_type(self):
-		with self.assertRaises(TypeError):
-			self.assertEqual(sum((1, 2, 2)), 6, "Should be 6")
-	"""
+	def test_ovl_set_included_ovls(self, empty_ovl_file: OvlFile, ovl_file_includes: list[str]) -> None:
+		# Ensure empty OVL is PZ for later file comparison
+		assert get_game(empty_ovl_file.context)[0].value == "Planet Zoo"
+		empty_ovl_file.included_ovl_names = ovl_file_includes
+		empty_ovl_file.save("tests/tmp/OVLIncludesPZ.ovl")
+		result = filecmp.cmp("tests/ovldata/OVLIncludes/OVLIncludesPZ.ovl", "tests/tmp/OVLIncludesPZ.ovl")
+		assert result is True
