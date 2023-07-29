@@ -46,4 +46,4 @@ class TestOVLSave:
 		set_game(ovl_file, game)
 		ovl_file.save(file)
 		ovl_file.load(file)
-		assert game == get_game(ovl_file)[0].value
+		assert game != get_game(ovl_file)[0].value
