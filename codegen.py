@@ -361,11 +361,11 @@ def fix_imports(gen_dir):
     for path, _, files in os.walk(os.path.abspath(gen_dir)):
         for filename in fnmatch.filter(files, "*.py"):
             filepath = os.path.join(path, filename)
-            with open(filepath) as f:
+            with open(filepath, "r", encoding="utf-8") as f:
                 s = f.read()
             s = s.replace("from generated.", f"from {basename}.")
             s = s.replace("import generated.", f"import {basename}.")
-            with open(filepath, "w") as f:
+            with open(filepath, "w", encoding="utf-8") as f:
                 f.write(s)
 
 
