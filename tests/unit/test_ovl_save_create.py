@@ -1,8 +1,9 @@
 import os
 import logging
+from pathlib import Path
 
 import pytest
-from pytest import FixtureRequest
+from pytest import FixtureRequest, TempPathFactory
 
 from generated.formats.ovl import OvlFile, get_game, set_game
 
@@ -15,6 +16,12 @@ def no_logs_gte_error(caplog):
 	assert not errors
 
 
+@pytest.fixture(scope="module")
+def tmp(tmp_path_factory: TempPathFactory):
+	path = tmp_path_factory.mktemp("ovls")
+	return path
+
+
 OVLInfo = tuple[OvlFile, str, str]
 FileInfo = tuple[str, int]
 
@@ -24,15 +31,13 @@ class TestOVLSaveCreate:
 
 	@pytest.fixture(scope="class", params=["Planet Zoo", "Planet Coaster",
 					"Jurassic World Evolution", "Jurassic World Evolution 2"])
-	def ovl_file(self, request: FixtureRequest) -> OVLInfo:
-		if not os.path.exists("tests/tmp"):
-			os.makedirs("tests/tmp")
+	def ovl_file(self, request: FixtureRequest, tmp: Path) -> OVLInfo:
 		ovl = OvlFile()
 		ovl.load_hash_table()
 		game = str(request.param)
 		abbrev = "".join(item[0].upper() for item in game.split())
-		filename = f"tests/tmp/{abbrev}.ovl"
-		return ovl, game, filename
+		filename = tmp.with_name(f"{abbrev}.ovl")
+		return ovl, game, str(filename)
 
 	@pytest.fixture(scope="class", params=["tests/Files/",])
 	def files(self, request: FixtureRequest) -> FileInfo:
