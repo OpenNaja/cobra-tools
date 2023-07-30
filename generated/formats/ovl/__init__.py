@@ -537,6 +537,7 @@ class OvlFile(Header):
 		logging.info(f"Removing files for {filenames}")
 		for filename in filenames:
 			self.loaders[filename].remove()
+		self.send_files()
 
 	def rename(self, name_tups, mesh_mode=False):
 		logging.info(f"Renaming for {name_tups}, mesh mode = {mesh_mode}")
@@ -549,6 +550,7 @@ class OvlFile(Header):
 			loader.rename(name_tups)
 		# recreate the loaders dict
 		self.loaders = {loader.name: loader for loader in temp_loaders}
+		self.send_files()
 		logging.info("Finished renaming!")
 
 	def rename_contents(self, name_tups, only_files):
@@ -657,7 +659,12 @@ class OvlFile(Header):
 					logging.exception(f"Adding '{file_path}' failed")
 					error_files.append(file_path)
 			self.validate_loaders()
-		self.reporter.files_list.emit([[loader.name, loader.ext] for loader in self.loaders.values()])
+		self.send_files()
+
+	def send_files(self):
+		f_list = [[loader.name, loader.ext] for loader in self.loaders.values()]
+		f_list.sort(key=lambda t: (t[1], t[0]))
+		self.reporter.files_list.emit(f_list)
 
 	def register_loader(self, loader):
 		"""register the loader, and delete any existing loader if needed"""

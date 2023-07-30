@@ -341,7 +341,6 @@ class MainWindow(widgets.MainWindow):
 		names = [(old_name, new_name.lower()), ]
 		self.ovl_data.rename(names)
 		self.set_file_modified(True)
-		self.update_gui_table()
 
 	def game_changed(self, game: Optional[str] = None):
 		if game is None:
@@ -391,7 +390,6 @@ class MainWindow(widgets.MainWindow):
 			self.ovl_data.create(ovl_dir)
 		except:
 			self.handle_error("Creating OVL failed, see log!")
-		self.update_gui_table()
 
 	def is_open_ovl(self):
 		if self.file_widget.filename or self.file_widget.dirty:
@@ -400,23 +398,17 @@ class MainWindow(widgets.MainWindow):
 			self.showwarning("You must open an OVL file first!")
 
 	def update_files_ui(self, f_list):
+		"""Give table widget new files"""
 		start_time = time.time()
 		logging.info(f"Loading {len(f_list)} files into gui")
-		f_list.sort(key=lambda t: (t[1], t[0]))
+		# sort before sending
+		# f_list.sort(key=lambda t: (t[1], t[0]))
 		self.files_container.set_data(f_list)
 		self.update_file_counts()
 		logging.info(f"Loaded files into GUI in {time.time() - start_time:.2f} seconds")
 
 	def update_includes(self, includes):
 		self.ovl_data.included_ovl_names = includes
-
-	def update_gui_table(self, ):
-		start_time = time.time()
-		f_list = [[loader.name, loader.ext] for loader in self.ovl_data.loaders.values()]
-		self.update_files_ui(f_list)
-		self.included_ovls_view.set_data(self.ovl_data.included_ovl_names)
-		logging.info(f"Loaded GUI in {time.time() - start_time:.2f} seconds")
-		self.set_msg_temporarily("Operation completed!")
 
 	def save(self, filepath):
 		"""Saves ovl to file_widget.filepath, clears dirty flag"""
@@ -482,7 +474,6 @@ class MainWindow(widgets.MainWindow):
 					ovl.rename(names, mesh_mode=self.t_mesh_ovl.isChecked())
 					if not self.t_in_folder.isChecked():
 						self.set_file_modified(True)
-					self.update_gui_table()
 		except:
 			self.handle_error("Renaming failed, see log!")
 
@@ -558,7 +549,6 @@ class MainWindow(widgets.MainWindow):
 					self.set_file_modified(True)
 				except:
 					self.handle_error("Removing file from OVL failed, see log!")
-				self.update_gui_table()
 
 	def walker_hash(self, ):
 		start_dir = QtWidgets.QFileDialog.getExistingDirectory(
