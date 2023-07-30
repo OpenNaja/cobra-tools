@@ -65,5 +65,5 @@ jobs:
         with:
           name: pytest-tmp
           path: |
-            ${{ runner.temp }}/pytest-of-**
+            '**/pytest-of-*/pytest**'
             ${{ github.workspace }}/pytest.log
