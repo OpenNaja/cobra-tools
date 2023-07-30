@@ -4,7 +4,6 @@ on:
   push:
     paths-ignore:
       - .gitignore
-      - .github/**
       - .vscode/**
       - .idea/**
       - README.md
@@ -62,10 +61,15 @@ jobs:
         run: pytest --verbose -o log_cli=true
       - name: Get APPDATA
         run: echo ("APPDATA_TEMP=" + $env:LOCALAPPDATA + "\Temp") >> $env:GITHUB_ENV
-      - name: Upload Artifacts
+      - name: Upload Temp
         uses: actions/upload-artifact@v3
         with:
           name: pytest-tmp
           path: |
             ${{ env.APPDATA_TEMP }}/pytest**
+      - name: Upload Log
+        uses: actions/upload-artifact@v3
+        with:
+          name: pytest-log
+          path: |
             ${{ github.workspace }}/pytest.log
