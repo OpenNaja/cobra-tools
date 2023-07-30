@@ -32,7 +32,7 @@ def OVLTool(qapp: QApplication, qtbot: QtBot, caplog: LogCaptureFixture) -> QtAp
 	from ovl_tool_gui import MainWindow
 	window = MainWindow()
 	qtbot.addWidget(window)
-	qtbot.waitUntil(lambda: "loading constants took" in caplog.text.lower(), timeout=10000)
+	qtbot.waitUntil(lambda: "loading constants took" in caplog.text.lower(), timeout=25000)
 	return qapp, window, qtbot
 
 

@@ -60,10 +60,12 @@ jobs:
           pip install -r requirements-dev.txt
       - name: Run Tests
         run: pytest --verbose -o log_cli=true
+      - name: Get APPDATA
+        run: echo ("APPDATA_TEMP=" + $env:LOCALAPPDATA + "\Temp") >> $env:GITHUB_ENV
       - name: Upload Artifacts
         uses: actions/upload-artifact@v3
         with:
           name: pytest-tmp
           path: |
-            '**/pytest-of-*/pytest**'
+            ${{ env.APPDATA_TEMP }}/pytest**
             ${{ github.workspace }}/pytest.log
