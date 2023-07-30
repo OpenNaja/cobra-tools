@@ -34,66 +34,65 @@ def walk_type(start_dir, extension=".ovl"):
 def generate_hash_table(gui, start_dir):
 	hashes = {}
 	if start_dir:
-		start_time = time.time()
-		# don't use internal data
-		ovl_data = OvlFile()
-		all_deps_exts = set()
-		# these are the input for which hashes should be stored
-		hash_exts = {'.enumnamer', '.lua', '.model2stream', '.particleatlas', '.prefab', '.specdef', '.tex'}
-		# when specdef and prefab are left out of the hash table, jwe2 hashtable shrinks from 25 MB down to 0.8MB
-		# but that would need to make sure the respective files don't raise warnings on opening
-		# hash_exts = {'.enumnamer', '.lua', '.model2stream', '.particleatlas', '.tex'}
-		# plain arrays without fields, np vectorized arrays with tuple of field names
-		lists = {"mimes_name": (), "mimes_triplets": (), "mimes": ("mime_hash", "mime_version"), "files": ("pool_type", "set_pool_type")}
+		with gui.reporter.log_duration(f"Reading hashes"):
+			# don't use internal data
+			ovl_data = OvlFile()
+			all_deps_exts = set()
+			# these are the input for which hashes should be stored
+			hash_exts = {'.enumnamer', '.lua', '.model2stream', '.particleatlas', '.prefab', '.specdef', '.tex'}
+			# when specdef and prefab are left out of the hash table, jwe2 hashtable shrinks from 25 MB down to 0.8MB
+			# but that would need to make sure the respective files don't raise warnings on opening
+			# hash_exts = {'.enumnamer', '.lua', '.model2stream', '.particleatlas', '.tex'}
+			# plain arrays without fields, np vectorized arrays with tuple of field names
+			lists = {"mimes_name": (), "mimes_triplets": (), "mimes": ("mime_hash", "mime_version"), "files": ("pool_type", "set_pool_type")}
 
-		valid_packages = ("GameMain", "Content")
-		mimes = {}
-		lod_counts = {}
-		error_files = []
-		ovl_files = walk_type(start_dir, extension=".ovl")
-		for of_index, ovl_path in enumerate(gui.reporter.iter_progress(ovl_files, "Hashing")):
-			# filter ovl files to only accept stock names, discard any usermade ovl that does not agree
-			if not any(p in ovl_path for p in valid_packages):
-				logging.warning(f"Ignoring usermade {ovl_path}")
-				continue
-			try:
-				# read ovl file
-				new_hashes, new_exts = ovl_data.load(ovl_path, commands={"generate_hash_table": hash_exts})
-				lod_counts[(ovl_data.num_ovs_types, ovl_data.num_archives)] = ovl_path
-				all_deps_exts.update(new_exts)
-				for list_id, attribs in lists.items():
-					array = getattr(ovl_data, list_id)
-					if attribs:
-						arrays = {att: array[att] for att in attribs}
-					else:
-						arrays = {list_id: array}
-					exts = [f".{ext}" for ext in ovl_data.mimes_ext] if "mimes" in list_id else ovl_data.files_ext
-					for list_name, subarray in arrays.items():
-						for ext, v in zip(exts, subarray):
+			valid_packages = ("GameMain", "Content")
+			mimes = {}
+			lod_counts = {}
+			error_files = []
+			ovl_files = walk_type(start_dir, extension=".ovl")
+			for of_index, ovl_path in enumerate(gui.reporter.iter_progress(ovl_files, "Hashing")):
+				# filter ovl files to only accept stock names, discard any usermade ovl that does not agree
+				if not any(p in ovl_path for p in valid_packages):
+					logging.warning(f"Ignoring usermade {ovl_path}")
+					continue
+				try:
+					# read ovl file
+					new_hashes, new_exts = ovl_data.load(ovl_path, commands={"generate_hash_table": hash_exts})
+					lod_counts[(ovl_data.num_ovs_types, ovl_data.num_archives)] = ovl_path
+					all_deps_exts.update(new_exts)
+					for list_id, attribs in lists.items():
+						array = getattr(ovl_data, list_id)
+						if attribs:
+							arrays = {att: array[att] for att in attribs}
+						else:
+							arrays = {list_id: array}
+						exts = [f".{ext}" for ext in ovl_data.mimes_ext] if "mimes" in list_id else ovl_data.files_ext
+						for list_name, subarray in arrays.items():
+							for ext, v in zip(exts, subarray):
 
-							short_var = list_name.replace("mime_", "").replace("mimes_", "").replace("files_", "").replace("_type", "")
-							if short_var == "triplets":
-								v = [(t.a, t.b, t.c) for t in v]
-							# if the value already exists, make sure it is indeed constant (for this version)
-							if ext in mimes:
-								v_old = getattr(mimes[ext], short_var)
-								if v != v_old and v_old:
-									logging.error(f"{list_name}.{short_var} is not constant for {ext}! ({v} vs. {v_old})")
-							else:
-								mimes[ext] = Mime("", 0, 0, [], 0, 0)
-							setattr(mimes[ext], short_var, v)
-				hashes.update(new_hashes)
-			except:
-				logging.exception(f"Reading {ovl_path} failed")
-				error_files.append(ovl_path)
-		if error_files:
-			logging.error(f"{error_files} caused errors!")
-		out_dir = get_output_dir(start_dir)
-		# with open(os.path.join(out_dir, "hashes.json"), "w") as json_writer:
-		# 	json.dump(hashes, json_writer, indent="\t", sort_keys=True)
-		write_hashes_dict(os.path.join(out_dir, "hashes.py"), hashes)
-		write_mimes_dict(os.path.join(out_dir, "mimes.py"), mimes)
-		logging.info(f"Read {len(hashes)} hashes in {time.time() - start_time:.2f} seconds")
+								short_var = list_name.replace("mime_", "").replace("mimes_", "").replace("files_", "").replace("_type", "")
+								if short_var == "triplets":
+									v = [(t.a, t.b, t.c) for t in v]
+								# if the value already exists, make sure it is indeed constant (for this version)
+								if ext in mimes:
+									v_old = getattr(mimes[ext], short_var)
+									if v != v_old and v_old:
+										logging.error(f"{list_name}.{short_var} is not constant for {ext}! ({v} vs. {v_old})")
+								else:
+									mimes[ext] = Mime("", 0, 0, [], 0, 0)
+								setattr(mimes[ext], short_var, v)
+					hashes.update(new_hashes)
+				except:
+					logging.exception(f"Reading {ovl_path} failed")
+					error_files.append(ovl_path)
+			if error_files:
+				logging.error(f"{error_files} caused errors!")
+			out_dir = get_output_dir(start_dir)
+			# with open(os.path.join(out_dir, "hashes.json"), "w") as json_writer:
+			# 	json.dump(hashes, json_writer, indent="\t", sort_keys=True)
+			write_hashes_dict(os.path.join(out_dir, "hashes.py"), hashes)
+			write_mimes_dict(os.path.join(out_dir, "mimes.py"), mimes)
 		logging.info(f"Formats used in dependencies: {[s.replace(':', '.') for s in sorted(all_deps_exts)]}")
 		logging.info(lod_counts)
 
@@ -140,61 +139,61 @@ def bulk_test_models(gui, start_dir, walk_ovls=True, walk_models=True):
 		joint_names_2 = {}
 		hc_starts = {}
 		if walk_models:
-			start_time = time.time()
-			ms2_files = walk_type(export_dir, extension=".ms2")
-			for mf_index, ms2_path in enumerate(gui.reporter.iter_progress(ms2_files, "Walking MS2 files")):
-				ms2_path_rel = ms2_path.replace(export_dir, "")
-				ms2_name = os.path.basename(ms2_path)
-				try:
-					ms2_data.load(ms2_path, read_editable=True)
-					for mdl2_name, model_info in zip(ms2_data.mdl_2_names, ms2_data.model_infos):
-						for i, mat in enumerate(model_info.model.materials):
-							blend_modes.add(mat.blend_mode)
-							fgm = mat.name.lower()
-							if shader_map:
-								shader = shader_map[fgm]
-								if mat.blend_mode not in shaders:
-									shaders[mat.blend_mode] = set()
-								shaders[mat.blend_mode].add(shader.lower())
-						for i, wrapper in enumerate(model_info.model.meshes):
-							mesh_id = f"{mdl2_name}[{i}] in {ms2_name}"
-							mesh = wrapper.mesh
-							if hasattr(wrapper.mesh, "vert_chunks"):
-								for v in wrapper.mesh.vert_chunks:
-									scale_float.add((v.pack_base, v.scale))
-							if mesh.flag not in type_dic:
-								type_dic[mesh.flag] = ([], [])
-							type_dic[mesh.flag][0].append(mesh_id)
-						# 	type_dic[model.flag][1].append((model.bytes_mean, model.bytes_max, model.bytes_min))
-						last_counts.add(model_info.last_count)
-						if model_info.bone_info:
-							if model_info.bone_info.bone_count > max_bones:
-								max_bones = model_info.bone_info.bone_count
-								max_bones_ms2 = ms2_path_rel
-							if model_info.bone_info.joint_count:
-								joints = model_info.bone_info.joints
-								joint_names_padding[(joints.joint_names.io_size, joints.joint_names_padding.io_size+joints.after_names.io_size, )] = ms2_path_rel
-								hcs = sum(len(j.hitchecks) for j in joints.joint_infos)
-								joint_names_2[(joints.after_names.io_size, hcs, )] = ms2_path_rel
-								# print(joints)
-								# joint_names_total[joints.joint_names.io_size+joints.joint_names_padding.io_size] = ms2_path_rel
-								# joint_names_2[joints.joint_names.io_start - joints.names_ref_pc.io_start + joints.joint_names.io_size+joints.joint_names_padding.io_size] = ms2_path_rel
-								# if model_info.bone_info.joints.count_0:
-								# 	constraints_0.add(ms2_path)
-								# if model_info.bone_info.joints.count_1:
-								# 	constraints_1.add(ms2_path)
-								for j in joints.joint_infos:
-									for hit in j.hitchecks:
-										hc_starts[hit.io_start-ms2_data.models_reader.io_start] = ms2_path_rel
-										flag_0.add(hit.flag_0)
-										flag_1.add(hit.flag_1)
-										if hit.dtype == CollisionType.MESH_COLLISION:
-											mesh_collision.add(ms2_path_rel)
-						else:
-							no_bones.add(ms2_path_rel)
-				except Exception as ex:
-					logging.exception("Walking models errored")
-					errors.append((ms2_path, ex))
+			with gui.reporter.log_duration("Walking MS2 files"):
+				ms2_files = walk_type(export_dir, extension=".ms2")
+				for mf_index, ms2_path in enumerate(gui.reporter.iter_progress(ms2_files, "Walking MS2 files")):
+					ms2_path_rel = ms2_path.replace(export_dir, "")
+					ms2_name = os.path.basename(ms2_path)
+					try:
+						ms2_data.load(ms2_path, read_editable=True)
+						for mdl2_name, model_info in zip(ms2_data.mdl_2_names, ms2_data.model_infos):
+							for i, mat in enumerate(model_info.model.materials):
+								blend_modes.add(mat.blend_mode)
+								fgm = mat.name.lower()
+								if shader_map:
+									shader = shader_map[fgm]
+									if mat.blend_mode not in shaders:
+										shaders[mat.blend_mode] = set()
+									shaders[mat.blend_mode].add(shader.lower())
+							for i, wrapper in enumerate(model_info.model.meshes):
+								mesh_id = f"{mdl2_name}[{i}] in {ms2_name}"
+								mesh = wrapper.mesh
+								if hasattr(wrapper.mesh, "vert_chunks"):
+									for v in wrapper.mesh.vert_chunks:
+										scale_float.add((v.pack_base, v.scale))
+								if mesh.flag not in type_dic:
+									type_dic[mesh.flag] = ([], [])
+								type_dic[mesh.flag][0].append(mesh_id)
+							# 	type_dic[model.flag][1].append((model.bytes_mean, model.bytes_max, model.bytes_min))
+							last_counts.add(model_info.last_count)
+							if model_info.bone_info:
+								if model_info.bone_info.bone_count > max_bones:
+									max_bones = model_info.bone_info.bone_count
+									max_bones_ms2 = ms2_path_rel
+								if model_info.bone_info.joint_count:
+									joints = model_info.bone_info.joints
+									joint_names_padding[(joints.joint_names.io_size, joints.joint_names_padding.io_size+joints.after_names.io_size, )] = ms2_path_rel
+									hcs = sum(len(j.hitchecks) for j in joints.joint_infos)
+									joint_names_2[(joints.after_names.io_size, hcs, )] = ms2_path_rel
+									# print(joints)
+									# joint_names_total[joints.joint_names.io_size+joints.joint_names_padding.io_size] = ms2_path_rel
+									# joint_names_2[joints.joint_names.io_start - joints.names_ref_pc.io_start + joints.joint_names.io_size+joints.joint_names_padding.io_size] = ms2_path_rel
+									# if model_info.bone_info.joints.count_0:
+									# 	constraints_0.add(ms2_path)
+									# if model_info.bone_info.joints.count_1:
+									# 	constraints_1.add(ms2_path)
+									for j in joints.joint_infos:
+										for hit in j.hitchecks:
+											hc_starts[hit.io_start-ms2_data.models_reader.io_start] = ms2_path_rel
+											flag_0.add(hit.flag_0)
+											flag_1.add(hit.flag_1)
+											if hit.dtype == CollisionType.MESH_COLLISION:
+												mesh_collision.add(ms2_path_rel)
+							else:
+								no_bones.add(ms2_path_rel)
+					except Exception as ex:
+						logging.exception("Walking models errored")
+						errors.append((ms2_path, ex))
 			# report
 			print(f"\nThe following {len(errors)} errors occured:")
 			for file_path, ex in errors:
@@ -238,8 +237,6 @@ def bulk_test_models(gui, start_dir, walk_ovls=True, walk_models=True):
 			# 	logging.info(f"{t} mod = {t % 16}, {t % 64}")
 			for (size, count), fp in joint_names_2.items():
 				logging.info(f"size {size} / count {count} = {size/count} in {fp}")
-			msg = f"Loaded {len(ms2_files)} models {time.time() - start_time:.2f} seconds"
-			logging.info(msg)
 
 
 def ovls_in_path(gui, start_dir, only_types):

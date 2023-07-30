@@ -2,6 +2,7 @@ import contextlib
 import functools
 import logging
 import struct
+import time
 
 
 def get_padding_size(size, alignment=16):
@@ -77,3 +78,11 @@ class DummyReporter:
             msg = f"{operation} succeeded"
             logging.success(msg)
             self.success_msg.emit(msg)
+
+    @contextlib.contextmanager
+    def log_duration(self, operation):
+        logging.info(operation)
+        start_time = time.time()
+        yield
+        logging.info(f"{operation} took {time.time() - start_time:.2f} seconds")
+

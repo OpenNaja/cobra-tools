@@ -1,7 +1,6 @@
 import os
 import shutil
 import sys
-import time
 import logging
 import tempfile
 # Check Python version, setup logging
@@ -399,13 +398,9 @@ class MainWindow(widgets.MainWindow):
 
 	def update_files_ui(self, f_list):
 		"""Give table widget new files"""
-		start_time = time.time()
-		logging.info(f"Loading {len(f_list)} files into gui")
-		# sort before sending
-		# f_list.sort(key=lambda t: (t[1], t[0]))
-		self.files_container.set_data(f_list)
-		self.update_file_counts()
-		logging.info(f"Loaded files into GUI in {time.time() - start_time:.2f} seconds")
+		with self.reporter.log_duration(f"Loading {len(f_list)} files into gui"):
+			self.files_container.set_data(f_list)
+			self.update_file_counts()
 
 	def update_includes(self, includes):
 		self.ovl_data.included_ovl_names = includes
