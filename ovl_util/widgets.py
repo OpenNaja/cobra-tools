@@ -1541,17 +1541,14 @@ class FileWidget(FileDirWidget):
         self.mainWidget.showwarning("You must open a file first!")
         return False
 
-    def abort_open_new_file(self, new_filepath: str) -> bool:
-        # only return True if we should abort
-        if not self.ask_user:
-            return False
-        if self.filepath and self.dirty:
+    def may_open_new_file(self, new_filepath: str) -> bool:
+        if self.ask_user and self.filepath and self.dirty:
             msg = f"Do you want to discard unsaved work on {os.path.basename(self.filepath)} to open {os.path.basename(new_filepath)}?"
-            return not self.mainWidget.showdialog(msg, title="Unsaved Changes", buttons=(QMessageBox.StandardButton.Discard | QMessageBox.StandardButton.Cancel))
-        return False
+            return self.mainWidget.showdialog(msg, title="Unsaved Changes", buttons=(QMessageBox.StandardButton.Discard | QMessageBox.StandardButton.Cancel))
+        return True
 
     def open_file(self, filepath: str) -> bool:
-        if not self.abort_open_new_file(filepath):
+        if self.may_open_new_file(filepath):
             self.set_file_path(filepath)
             self.cfg[self.cfg_last_dir_open] = self.dir
             self.cfg[self.cfg_last_file_open] = self.filepath
@@ -1574,18 +1571,17 @@ class FileWidget(FileDirWidget):
             self.entry.setStyleSheet("" if is_file else "QLineEdit { color: rgba(168, 168, 64, 255); background-color: rgba(44, 44, 30, 255); }")
 
     def accept_file(self, filepath: str) -> bool:
+        """Check if filepath exists and is of the expected file extension"""
         if os.path.isfile(filepath):
-            if os.path.splitext(filepath)[1].lower() in (f".{self.ftype_lower}",):
+            ext = os.path.splitext(filepath)[1].lower()
+            if ext == f".{self.ftype_lower}":
                 return self.open_file(filepath)
             else:
-                self.mainWidget.showwarning("Unsupported File Format")
+                self.mainWidget.showwarning(f"Unsupported File Format '{ext}'")
         return False
 
     def accept_dir(self, dirpath: str) -> bool:
-        # TODO: This is generally confusing for something named FileWidget
-        #       although it is no longer hardcoded for OVL Tool
-        if os.path.isdir(dirpath):
-            return self.open_file(f"{dirpath}.{self.ftype_lower}")
+        """Check if dirpath exists"""
         return os.path.isdir(dirpath)
 
     def dropEvent(self, event: QDropEvent) -> None:
@@ -1603,9 +1599,11 @@ class FileWidget(FileDirWidget):
     def ask_open_dir(self) -> None:
         # TODO: This is generally confusing for something named FileWidget
         #       although it is no longer hardcoded for OVL Tool
-        file_dir = QFileDialog.getExistingDirectory(directory=self.cfg_path(self.cfg_last_dir_open))
-        if self.accept_dir(file_dir):
-            self.dir_opened.emit(file_dir)
+        dirpath = QFileDialog.getExistingDirectory(directory=self.cfg_path(self.cfg_last_dir_open))
+        if self.accept_dir(dirpath):
+            self.dir_opened.emit(dirpath)
+            # just set the name, do not trigger a loading event
+            self.set_file_path(f"{dirpath}.{self.ftype_lower}")
 
     def ask_save_as(self) -> None:
         """Saves file, always ask for file path"""
@@ -1954,6 +1952,7 @@ class MainWindow(FramelessMainWindow):
     def showerror(self, info, details=None):
         return self.showdialog(info, title="Error", details=details)
 
+
 class Worker(QObject):
     finished = pyqtSignal()
     error_msg = pyqtSignal(str)
@@ -1970,7 +1969,7 @@ class Worker(QObject):
         try:
             self.func(*self.args, **self.kwargs)
         except BaseException as err:
-            logging.exception(f"Threaded call errored!")
+            logging.exception(f"Threaded call of function '{self.func.__name__}()' errored!")
             # self.error_msg.emit(f"ERROR - {err}")
             self.error_msg.emit(str(err))
         # mutex.unlock()
