@@ -206,10 +206,10 @@ class MainWindow(widgets.MainWindow):
 		self.populate_game()
 		self.game_changed()
 
-		log_level = self.cfg.get("logger_level", None)
-		if log_level:
-			self.log_level_choice.entry.setText(log_level)
-			self.log_level_changed(log_level)
+		log_level = self.cfg.get("logger_level", "INFO")
+		self.log_level_choice.entry.setText(log_level)
+		self.log_level_changed(log_level)
+
 		# do these at the end to make sure their requirements have been initialized
 		reporter = self.ovl_data.reporter
 		reporter.files_list.connect(self.update_files_ui)
