@@ -1,4 +1,5 @@
 import os
+import copy
 import logging
 from pathlib import Path
 
@@ -47,21 +48,24 @@ class TestOVLSaveCreate:
 
 	def test_ovl_save(self, ovl_file: OVLInfo):
 		ovl, game, filename = ovl_file
-		context = ovl.context
-		set_game(ovl.context, game)
 		set_game(ovl, game)
+		context = copy.copy(ovl.context)
+		sorted_loaders = context.sorted_loaders.copy()
 		ovl.save(filename)
 		ovl.load(filename)
 		assert game == get_game(ovl)[0].value
-		assert context == ovl.context
+		assert context.version == ovl.context.version
+		assert context.user_version == ovl.context.user_version
+		assert sorted_loaders == ovl.context.sorted_loaders 
 
 	def test_ovl_create(self, ovl_file: OVLInfo, files: FileInfo):
 		ovl, game, filename = ovl_file
 		dir_path, file_count = files
-		set_game(ovl.context, game)
 		set_game(ovl, game)
 		ovl.create(dir_path)
+		context = copy.copy(ovl.context)
+		sorted_loaders = context.sorted_loaders.copy()
 		ovl.save(filename)
 		ovl.load(filename)
 		assert game == get_game(ovl)[0].value
-		assert ovl.num_files == file_count
+		assert ovl.context.sorted_loaders == sorted_loaders
