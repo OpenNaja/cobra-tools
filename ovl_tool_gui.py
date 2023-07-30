@@ -283,7 +283,7 @@ class MainWindow(widgets.MainWindow):
 	def populate_game(self, current_game=None):
 		if current_game is None:
 			current_game = self.cfg.get("current_game")
-		logging.info(f"Setting Current Game to {current_game}")
+		logging.debug(f"Setting Current Game to {current_game}")
 		if self.installed_games.set_selected_game(current_game):
 			self.game_choice.entry.setText(current_game)
 
