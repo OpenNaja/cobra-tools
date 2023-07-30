@@ -713,7 +713,7 @@ class OvlFile(Header):
 				f.write(f"{ovl_name}\n")
 
 	def load_hash_table(self):
-		logging.info("Loading hash table...")
+		logging.info("Loading constants")
 		start_time = time.time()
 		self.constants = ConstantsProvider()
 		logging.info(f"Loaded constants in {time.time() - start_time:.2f} seconds")

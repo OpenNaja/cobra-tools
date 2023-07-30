@@ -129,7 +129,7 @@ class MainWindow(widgets.MainWindow):
 		self.stdout_handler = get_stdout_handler()
 		# log to text box
 		self.gui_log_handler = widgets.QTextEditLogger(self)
-		self.gui_log_handler.setFormatter(HtmlFormatter('%(asctime)s %(levelname)s | %(module)s %(funcName)s - %(message)s', "%H:%M:%S"))
+		self.gui_log_handler.setFormatter(HtmlFormatter('%(levelname)s | %(message)s'))
 		logging.getLogger().addHandler(self.gui_log_handler)
 
 		box = QtWidgets.QVBoxLayout()
