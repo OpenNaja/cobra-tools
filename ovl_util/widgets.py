@@ -1158,7 +1158,8 @@ class RelativePathCombo(EditCombo):
 
 
 class LabelCombo(QWidget):
-    def __init__(self, name: str, options: Iterable[str], editable: bool = True, activated_fn: Optional[Callable] = None) -> None:
+    def __init__(self, name: str, options: Iterable[str], editable: bool = True, changed_fn: Optional[Callable] = None,
+                 activated_fn: Optional[Callable] = None) -> None:
         QWidget.__init__(self, )
         self.label = QLabel(name)
         self.entry = CleverCombo(self, options=options)
@@ -1174,6 +1175,8 @@ class LabelCombo(QWidget):
         self.entry.setSizePolicy(sizePolicy)
         self.setSizePolicy(sizePolicy)
 
+        if changed_fn is not None:
+            self.entry.currentTextChanged.connect(changed_fn)
         if activated_fn is not None:
             self.entry.textActivated.connect(activated_fn)
 

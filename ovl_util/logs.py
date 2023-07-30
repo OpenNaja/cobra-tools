@@ -123,7 +123,8 @@ def logging_setup(log_name):
 	addLoggingLevel('SUCCESS', logging.INFO + 5)
 	logger = logging.getLogger()
 	logger.setLevel(logging.DEBUG)
-	# formatter = logging.Formatter('%(asctime)s | %(levelname)s | %(message)s')
+	# cf https://docs.python.org/3/library/logging.html#logrecord-attributes
+	# '%(asctime)s %(levelname)s | %(module)s %(funcName)s - %(message)s', "%H:%M:%S"
 	formatter = logging.Formatter('%(levelname)s | %(message)s')
 	# Colored logging for all platforms but Windows 7/8
 	colored_formatter = AnsiFormatter('%(levelname)s | %(message)s')

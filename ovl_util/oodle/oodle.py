@@ -1,4 +1,5 @@
 import os
+import logging
 from ctypes import cdll, c_char_p, create_string_buffer
 from enum import IntEnum
 
@@ -44,22 +45,21 @@ class OodleDecompressor:
         except OSError as e:
             raise Exception("Could not load Oodle DLL, requires Windows and 64bit python to run.") from e
 
-    def compress(self, payload: bytes, algorithm_name: str) -> bytes:
+    def compress(self, payload: bytes, algorithm_name: str, level: int = 7) -> bytes:
         """
         Compress the payload using the given algorithm.
         """
         algorithm = OodleCompressEnum[algorithm_name]
-        print(f"Compressing as {algorithm_name} (value = {algorithm.value})")
+        logging.debug(f"Compressing as {algorithm_name} (value = {algorithm.value}), level = {level}")
         input_size = len(payload)
-        output_size = input_size*2
+        output_size = self.get_compressed_bounds(input_size)
         output = create_string_buffer(output_size)
-        level = 7
-        ret = self.handle.OodleLZ_Compress(
+        compressed_size = self.handle.OodleLZ_Compress(
             algorithm.value, c_char_p(payload), input_size, output, level, None, None, None, None, 0)
-        print(f"Oodle compressed {input_size} bytes down to {ret} bytes.")
-        if input_size and not ret:
+        logging.debug(f"Oodle compressed {input_size} bytes down to {compressed_size} bytes.")
+        if input_size and not compressed_size:
             raise ValueError("Oodle Compression returned no payload for unknown reason!")
-        return output.raw[:ret]
+        return output.raw[:compressed_size]
 
     def decompress(self, payload: bytes, size: int, output_size: int) -> bytes:
         """
@@ -75,6 +75,10 @@ class OodleDecompressor:
             raise Exception(f"Decompression failed ret={ret} output_size={output_size}")
 
         return output.raw
+
+    @staticmethod
+    def get_compressed_bounds(uncompressed_size):
+        return int(uncompressed_size + 274 * ((uncompressed_size + 0x3FFFF) / 0x400000))
 
 
 oodle_compressor = OodleDecompressor(oodle_dll)
