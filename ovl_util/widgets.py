@@ -1605,6 +1605,9 @@ class FileWidget(FileDirWidget):
         dirpath = QFileDialog.getExistingDirectory(directory=self.cfg_path(self.cfg_last_dir_open))
         if self.accept_dir(dirpath):
             self.dir_opened.emit(dirpath)
+            # Store the parent directory so that the next File > New
+            # opens in root to allow selection of sibling folders.
+            self.cfg[self.cfg_last_dir_open], _ = os.path.split(dirpath)
             # just set the name, do not trigger a loading event
             self.set_file_path(f"{dirpath}.{self.ftype_lower}")
 
@@ -1614,7 +1617,7 @@ class FileWidget(FileDirWidget):
             filepath = QFileDialog.getSaveFileName(
                 self, f'Save {self.ftype}', self.cfg_path(self.cfg_last_dir_save), self.files_filter_str)[0]
             if filepath:
-                self.cfg[self.cfg_last_dir_save], file_name = os.path.split(filepath)
+                self.cfg[self.cfg_last_dir_save], _ = os.path.split(filepath)
                 self.set_file_path(filepath)
                 self.file_saved.emit(filepath)
 

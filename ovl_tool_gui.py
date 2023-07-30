@@ -375,6 +375,7 @@ class MainWindow(widgets.MainWindow):
 
 	def open_dir(self, dirpath: str) -> None:
 		self.create_ovl(dirpath)
+		self.set_file_modified(True)
 
 	def choices_update(self):
 		game = get_game(self.ovl_data)[0]
