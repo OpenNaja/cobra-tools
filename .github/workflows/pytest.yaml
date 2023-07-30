@@ -60,3 +60,10 @@ jobs:
           pip install -r requirements-dev.txt
       - name: Run Tests
         run: pytest --verbose -o log_cli=true
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: pytest-tmp
+          path: |
+            ${{ runner.temp }}/pytest-of-**
+            ${{ github.workspace }}/pytest.log
