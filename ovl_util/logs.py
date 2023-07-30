@@ -93,10 +93,6 @@ def addLoggingLevel(levelName, levelNum, methodName=None):
 	`logging.Logger`). If `methodName` is not specified, `levelName.lower()` is
 	used.
 
-	To avoid accidental clobberings of existing attributes, this method will
-	raise an `AttributeError` if the level name is already an attribute of the
-	`logging` module or if the method name is already present
-
 	Example
 	-------
 	>>> addLoggingLevel('TRACE', logging.DEBUG - 5)
@@ -111,11 +107,11 @@ def addLoggingLevel(levelName, levelNum, methodName=None):
 		methodName = levelName.lower()
 
 	if hasattr(logging, levelName):
-		raise AttributeError(f"{levelName} already defined in logging module.")
+		return
 	if hasattr(logging, methodName):
-		raise AttributeError(f"{methodName} already defined in logging module.")
+		return
 	if hasattr(logging.getLoggerClass(), methodName):
-		raise AttributeError(f"{methodName} already defined in logger class.")
+		return
 
 	logging.addLevelName(levelNum, levelName)
 	setattr(logging, levelName, levelNum)
