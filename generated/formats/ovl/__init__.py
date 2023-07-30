@@ -51,9 +51,9 @@ class OvsFile(OvsHeader):
 	@contextmanager
 	def unzipper(self, compressed_bytes, uncompressed_size):
 		self.compression_header = compressed_bytes[:2]
-		logging.debug(f"Compression magic bytes: {self.compression_header}")
+		logging.debug(f"Compression magic bytes: {self.compression_header}, {len(compressed_bytes)} bytes total")
 		if self.ovl.user_version.compression == Compression.OODLE:
-			logging.debug("Oodle compression")
+			logging.debug(f"Oodle compression")
 			decompressed = oodle_compressor.decompress(compressed_bytes, len(compressed_bytes), uncompressed_size)
 		elif self.ovl.user_version.compression == Compression.ZLIB:
 			logging.debug("Zlib compression")
@@ -64,16 +64,15 @@ class OvsFile(OvsHeader):
 		else:
 			logging.debug("No compression")
 			decompressed = compressed_bytes
-		# not relevant for user info since it is usually 0.00 sec
-		# logging.info(f"Decompressed in {time.time() - start_time:.2f} seconds")
 		with BytesIO(decompressed) as stream:
 			yield stream
 
 	def compress(self, uncompressed_bytes):
-		# compress data
+		"""compress data with method according to ovl settings"""
 		# change to zipped format for saving of oodled ovls
 		if self.ovl.user_version.compression == Compression.OODLE:
-			logging.info("HACK: setting compression to zlib")
+			# as of 2023-07-30, ovls saved with oodle compression load fine in the tools but crash the game
+			logging.debug("Setting compression to zlib")
 			self.ovl.user_version.compression = Compression.ZLIB
 		if self.ovl.user_version.compression == Compression.OODLE:
 			assert self.compression_header.startswith(OODLE_MAGIC)
