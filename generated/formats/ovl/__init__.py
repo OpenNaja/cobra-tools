@@ -694,10 +694,6 @@ class OvlFile(Header):
 		archive.content = content
 		return content
 
-	# dummy (black hole) callback for if we decide we don't want one
-	def dummy_callback(self, *args, **kwargs):
-		return
-
 	def store_filepath(self, filepath):
 		# store file name for later
 		self.filepath = filepath
