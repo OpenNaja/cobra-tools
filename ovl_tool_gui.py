@@ -34,11 +34,11 @@ class MainWindow(widgets.MainWindow):
 
 		self.file_widget = self.make_file_widget()
 
-		self.game_choice = widgets.LabelCombo("Game", [g.value for g in games], editable=False, activated_fn=self.game_changed)
+		self.game_choice = widgets.LabelCombo("Game", [g.value for g in games], editable=False, changed_fn=self.game_changed)
 
-		self.compression_choice = widgets.LabelCombo("Compression", [c.name for c in Compression], editable=False, activated_fn=self.compression_changed)
+		self.compression_choice = widgets.LabelCombo("Compression", [c.name for c in Compression], editable=False, changed_fn=self.compression_changed)
 
-		self.log_level_choice = widgets.LabelCombo("Log Level", ("DEBUG", "INFO", "WARNING", "ERROR"), editable=False, activated_fn=self.log_level_changed)
+		self.log_level_choice = widgets.LabelCombo("Log Level", ("DEBUG", "INFO", "WARNING", "ERROR"), editable=False, changed_fn=self.log_level_changed)
 		self.log_level_choice.setToolTip("Defines how much information is shown in the console window")
 
 		if "games" not in self.cfg:
