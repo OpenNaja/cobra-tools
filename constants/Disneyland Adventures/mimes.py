@@ -1,4 +1,4 @@
-from ovl_util.mimes import Mime
+from constants import Mime
 
 mimes = {
 	'.achievementdata': Mime(name='Casino:AchievementData:achievementdata', hash=0, version=1, triplets=[], pool=4, set_pool=0),

@@ -10,7 +10,8 @@ from ovl_util import auto_updater  # pyright: ignore
 from typing import Any, AnyStr, Optional, Iterable, Callable, cast
 from generated.formats.ovl import games
 from modules.formats.shared import DummyReporter
-from ovl_util import config, qt_theme, logs
+from ovl_util import config, logs
+from gui import qt_theme
 from root_path import root_dir
 
 from PyQt5 import QtGui, QtCore, QtWidgets # pyright: ignore

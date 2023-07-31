@@ -2,10 +2,8 @@ import os
 import shutil
 import logging
 import tempfile
-# Check Python version, setup logging
-from ovl_util.setup import bnk_gui_setup # pyright: ignore
-# Import widgets before everything except Python built-ins and ovl_util.setup!
-from ovl_util import widgets
+from gui.setup import bnk_gui_setup # pyright: ignore
+from gui import widgets  # Import widgets before everything except built-ins and gui.setup!
 from generated.formats.bnk import BnkFile, AuxFile
 from ovl_util.texconv import write_riff_file
 from modules.formats.shared import fmt_hash

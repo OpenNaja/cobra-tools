@@ -2,13 +2,11 @@ import logging
 import os
 import sys
 import time
-# Check Python version, setup logging
-from ovl_util.setup import fgm_editor_setup # pyright: ignore
-# Place typing imports after Python check
+from gui.setup import fgm_editor_setup # pyright: ignore
+from gui import widgets  # Import widgets before everything except built-ins and gui.setup!
+from gui.widgets import QColorButton, MySwitch, MAX_UINT, get_icon
+from ovl_util import config
 from typing import Any, Optional
-# Import widgets before everything except Python built-ins and ovl_util.setup!
-from ovl_util import widgets, config
-from ovl_util.widgets import QColorButton, MySwitch, MAX_UINT, get_icon
 
 from constants import ConstantsProvider
 from generated.formats.fgm.enums.FgmDtype import FgmDtype
@@ -44,7 +42,7 @@ class MainWindow(widgets.MainWindow):
 		self.context = OvlContext()
 		self.constants = ConstantsProvider()
 		self.header = FgmHeader(self.context)
-		self.tooltips = config.read_str_dict("ovl_util/tooltips/fgm.txt")
+		self.tooltips = config.read_str_dict("gui/tooltips/fgm.txt")
 		self.games = [g.value for g in games]
 		self.import_header = None
 

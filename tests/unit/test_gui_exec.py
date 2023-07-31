@@ -6,7 +6,7 @@ from pytestqt.plugin import QtBot
 
 from PyQt5.QtWidgets import QApplication
 
-from ovl_util import widgets
+from gui import widgets
 
 
 QtAppFixture = tuple[QApplication, widgets.MainWindow, QtBot]

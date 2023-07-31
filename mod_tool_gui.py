@@ -4,12 +4,10 @@ import time
 import shutil
 import pathlib
 import logging
-# Check Python version, setup logging
-from ovl_util.setup import mod_tool_setup  # pyright: ignore
-# Import widgets before everything except Python built-ins and ovl_util.setup!
-from ovl_util import widgets
+from gui.setup import mod_tool_setup  # pyright: ignore
+from gui import widgets  # Import widgets before everything except built-ins and gui.setup!
+from gui.widgets import startup, MainWindow
 from ovl_util.config import read_str_dict, write_str_dict
-from ovl_util.widgets import startup, MainWindow
 from generated.formats.ovl import games, set_game, OvlFile
 
 from PyQt5 import QtCore

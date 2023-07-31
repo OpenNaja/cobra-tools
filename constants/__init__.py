@@ -4,6 +4,7 @@ import time
 import sys
 from pkgutil import iter_modules
 from importlib import import_module
+from dataclasses import dataclass
 from root_path import root_dir
 
 dict_names = ("hashes", "mimes", "shaders")
@@ -12,6 +13,40 @@ dict_names = ("hashes", "mimes", "shaders")
 ver = sys.version_info
 if ver.major == 3 and ver.minor == 10:
 	raise Exception('Python 3.10 is not supported, please upgrade to 3.11 at least.')
+
+
+# @dataclass(init=False, repr=True, eq=True, order=False, unsafe_hash=False, frozen=False, )
+@dataclass
+class Mime:
+	name: str
+	hash: int
+	version: int
+	triplets: list
+	pool: int
+	set_pool: int = 0
+
+	@property
+	def class_name(self):
+		return self.name.split(":")[1]
+
+	@property
+	def ext(self):
+		return f".{self.name.split(':')[2]}"
+
+
+@dataclass
+class Shader:
+	# name: str
+	textures: set
+	attributes: dict
+
+	# @property
+	# def class_name(self):
+	# 	return self.name.split(":")[1]
+	#
+	# @property
+	# def ext(self):
+	# 	return f".{self.name.split(':')[2]}"
 
 
 class ConstantsProvider(dict):

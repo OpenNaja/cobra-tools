@@ -3,20 +3,16 @@ import shutil
 import sys
 import logging
 import tempfile
-# Check Python version, setup logging
-from ovl_util.setup import ovl_tool_setup # pyright: ignore
-# Place typing imports after Python check
-from typing import Any, Optional
-# Import widgets before everything except Python built-ins and ovl_util.setup!
-from ovl_util import widgets
+from gui.setup import ovl_tool_setup # pyright: ignore
+from gui import widgets  # Import widgets before everything except built-ins and gui.setup!
 from ovl_util.logs import HtmlFormatter, AnsiFormatter, get_stdout_handler
-from ovl_util.widgets import Reporter
+from gui.widgets import Reporter
 from modules import walker
 from root_path import root_dir
 from generated.formats.ovl import games, get_game, set_game, OvlFile
 from generated.formats.ovl_base.enums.Compression import Compression
 from PyQt5 import QtWidgets, QtGui, QtCore
-
+from typing import Any, Optional
 
 class MainWindow(widgets.MainWindow):
 

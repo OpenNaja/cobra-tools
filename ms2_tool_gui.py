@@ -1,11 +1,9 @@
 import sys
 import time
 import logging
-# Check Python version, setup logging
-from ovl_util.setup import ms2_tool_setup # pyright: ignore
-# Import widgets before everything except Python built-ins and ovl_util.setup!
-from ovl_util import widgets
-from ovl_util.widgets import get_icon
+from gui.setup import ms2_tool_setup # pyright: ignore
+from gui import widgets  # Import widgets before everything except built-ins and gui.setup!
+from gui.widgets import get_icon
 from generated.formats.ms2 import Ms2File
 from PyQt5 import QtWidgets, QtGui, QtCore
 

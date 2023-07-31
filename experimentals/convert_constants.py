@@ -4,7 +4,7 @@ from pkgutil import iter_modules
 from importlib import import_module
 import logging
 
-from ovl_util.mimes import Mime
+from constants import Mime
 from root_path import root_dir
 strs = ("mimes_name", "mimes_mime_hash", "mimes_mime_version", "mimes_triplet_count", "mimes_triplets", "files_pool_type", "files_set_pool_type")
 ignores = ("triplet_count", )
@@ -27,7 +27,7 @@ def write_hashes_dict(out_fp, hashes):
 
 def write_mimes_dict(out_fp, mimes):
 	with open(out_fp, "w") as f:
-		f.write(f"from ovl_util.mimes import Mime\n\n")
+		f.write(f"from constants import Mime\n\n")
 		f.write("mimes = {\n")
 		f.write(",\n".join(f"\t'{k}': {v}" for k, v in sorted(mimes.items())))
 		f.write("\n}\n")
