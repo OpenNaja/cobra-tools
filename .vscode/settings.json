@@ -1,4 +1,11 @@
 {
+    "files.exclude": {
+        "**/__pycache__": true,
+        ".mypy_cache/": true,
+        ".pytest_cache/": true,
+        "env/": true,
+        "venv/": true
+    },
     "python.testing.pytestEnabled": true,
     "python.testing.unittestEnabled": false
 }
