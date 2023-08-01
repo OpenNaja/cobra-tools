@@ -74,7 +74,7 @@ def check_imports(filenames) -> int:
 				continue
 			if retv_file:
 				retv = 1
-		if not retv:
+		if not retv_file:
 			print("  OK")
 	return retv
 
