@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 import subprocess
-import sys
 
 
 def main():
@@ -11,4 +10,4 @@ def main():
 
 
 if __name__ == '__main__':
-    exit(main())
+    SystemExit(main())

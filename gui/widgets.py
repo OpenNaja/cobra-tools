@@ -3,10 +3,7 @@ import webbrowser
 import os
 from abc import abstractmethod
 from pathlib import Path
-# Run pip auto-updater
 from ovl_util import auto_updater  # pyright: ignore
-# Modules under here require auto_updater
-# Place typing imports after Python check in auto_updater
 from typing import Any, AnyStr, Optional, Iterable, Callable, cast
 from generated.formats.ovl import games
 from modules.formats.shared import DummyReporter

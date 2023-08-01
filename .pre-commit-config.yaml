@@ -16,6 +16,12 @@ repos:
         stages: [pre-commit, manual]
         files: ^source
         pass_filenames: false
+    -   id: check-imports
+        name: Check Imports
+        entry: ./bin/check_imports.py
+        language: system
+        stages: [pre-commit, manual]
+        files: '(.*_gui\.py|^gui/widgets\.py)'
 -   repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.4.0
     hooks:
