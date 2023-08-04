@@ -4,7 +4,7 @@ import time
 import shutil
 import pathlib
 import logging
-from gui import widgets, startup  # Import widgets before everything except built-ins!
+from gui import widgets, startup, GuiOptions  # Import widgets before everything except built-ins!
 from gui.widgets import MainWindow
 from ovl_util.config import read_str_dict, write_str_dict
 from generated.formats.ovl import games, set_game, OvlFile
@@ -19,10 +19,10 @@ __author__ = 'Open-Naja'
 class ModToolGUI(MainWindow):
 	"""Main's View (GUI)."""
 
-	def __init__(self):
+	def __init__(self, opts: GuiOptions):
 
 		"""View initializer."""
-		super().__init__("ModToolGUI")
+		super().__init__("ModToolGUI", opts=opts)
 
 		# save config file name from args
 		self.config_path = ''
@@ -332,4 +332,4 @@ class ModToolGUI(MainWindow):
 
 
 if __name__ == '__main__':
-	startup(ModToolGUI, __file__)
+	startup(ModToolGUI, GuiOptions(log_name="mod_tool_gui"))

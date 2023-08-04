@@ -1,7 +1,7 @@
 import logging
 import sys
 import time
-from gui import widgets, startup  # Import widgets before everything except built-ins!
+from gui import widgets, startup, GuiOptions  # Import widgets before everything except built-ins!
 from ovl_util import config
 
 from generated.formats.matcol.compounds.MatcolRoot import MatcolRoot
@@ -12,7 +12,7 @@ from PyQt5 import QtWidgets
 
 class MainWindow(widgets.MainWindow):
 
-	def __init__(self):
+	def __init__(self, opts: GuiOptions):
 		self.scrollarea = QtWidgets.QScrollArea()
 		self.scrollarea.setWidgetResizable(True)
 
@@ -20,7 +20,7 @@ class MainWindow(widgets.MainWindow):
 		self.widget = QtWidgets.QWidget()
 		self.scrollarea.setWidget(self.widget)
 
-		widgets.MainWindow.__init__(self, "Matcol Editor", central_widget=self.scrollarea)
+		widgets.MainWindow.__init__(self, "Matcol Editor", opts=opts, central_widget=self.scrollarea)
 		
 		self.resize(450, 500)
 
@@ -134,4 +134,4 @@ class MainWindow(widgets.MainWindow):
 			
 	
 if __name__ == '__main__':
-	startup(MainWindow, __file__)
+	startup(MainWindow, GuiOptions(log_name="matcol_editor_gui"))

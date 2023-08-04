@@ -1,6 +1,6 @@
 import logging
 import os
-from gui import widgets, startup  # Import widgets before everything except built-ins!
+from gui import widgets, startup, GuiOptions  # Import widgets before everything except built-ins!
 from gui.widgets import QColorButton, MySwitch, MAX_UINT, get_icon
 from ovl_util import config
 from typing import Any, Optional
@@ -24,14 +24,14 @@ from PyQt5.QtGui import QColor
 
 class MainWindow(widgets.MainWindow):
 
-	def __init__(self):
+	def __init__(self, opts: GuiOptions):
 		self.scrollarea = QtWidgets.QScrollArea()
 		self.scrollarea.setWidgetResizable(True)
 		# the actual scrollable stuff
 		self.widget = QtWidgets.QWidget()
 		self.scrollarea.setWidget(self.widget)
 
-		widgets.MainWindow.__init__(self, "FGM Editor", central_widget=self.scrollarea)
+		widgets.MainWindow.__init__(self, "FGM Editor", opts=opts, central_widget=self.scrollarea)
 
 		self.resize(800, 600)
 		self.setAcceptDrops(True)
@@ -636,4 +636,4 @@ class TextureVisual:
 
 
 if __name__ == '__main__':
-	startup(MainWindow, __file__)
+	startup(MainWindow, GuiOptions(log_name="fgm_editor_gui"))

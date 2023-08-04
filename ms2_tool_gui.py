@@ -1,7 +1,7 @@
 import sys
 import time
 import logging
-from gui import widgets, startup  # Import widgets before everything except built-ins!
+from gui import widgets, startup, GuiOptions  # Import widgets before everything except built-ins!
 from gui.widgets import get_icon
 from generated.formats.ms2 import Ms2File
 from PyQt5 import QtWidgets, QtGui, QtCore
@@ -9,8 +9,8 @@ from PyQt5 import QtWidgets, QtGui, QtCore
 
 class MainWindow(widgets.MainWindow):
 
-	def __init__(self):
-		widgets.MainWindow.__init__(self, "MS2 Editor", )
+	def __init__(self, opts: GuiOptions):
+		widgets.MainWindow.__init__(self, "MS2 Editor", opts=opts)
 		self.resize(600, 600)
 		self.setAcceptDrops(True)
 
@@ -140,4 +140,4 @@ class MainWindow(widgets.MainWindow):
 
 
 if __name__ == '__main__':
-	startup(MainWindow, __file__)
+	startup(MainWindow, GuiOptions(log_name="ms2_tool_gui"))

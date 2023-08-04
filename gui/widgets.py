@@ -31,6 +31,7 @@ from PyQt5.QtWidgets import (QWidget, QMainWindow, QApplication, QColorDialog, Q
                              QFrame, QLayout, QGridLayout, QVBoxLayout, QHBoxLayout, QScrollArea, QSizePolicy,
                              QStyleFactory, QStyleOptionViewItem, QStyledItemDelegate)
 import vdf
+from qframelesswindow import FramelessMainWindow, StandardTitleBar
 
 games_list = [g.value for g in games]
 
@@ -42,13 +43,6 @@ except:
     logging.warning("Required Windows modules missing; some features may not work.")
     WINDOWS = False
 
-try:
-    from qframelesswindow import FramelessMainWindow, StandardTitleBar
-    FRAMELESS = True
-except:
-    FramelessMainWindow = QMainWindow
-    StandardTitleBar = QWidget
-    FRAMELESS = False
 
 MAX_UINT = 4294967295
 myFont = QFont()
@@ -63,6 +57,7 @@ def vbox(parent, grid):
     # vbox.setSpacing(0)
     # vbox.setContentsMargins(0,0,0,0)
     parent.setLayout(grid)
+
 
 ICON_CACHE = {"no_icon": QIcon()}
 def get_icon(name) -> QIcon:
@@ -584,7 +579,7 @@ class TextEditLogger(logging.Handler, QObject):
         text = re.sub(r",&nbsp;in&nbsp;(.*?)<br>", r",&nbsp;in&nbsp;<span class='location'>\g<1></span><br>", text)
         return text
 
-    def get_traceback(self, msg: str) -> str:
+    def get_traceback(self, msg: str) -> tuple[str, int]:
         """Builds html for the folded traceback text block"""
         text = ""
         start = msg.find(logs.HtmlFormatter.eol) + 1
@@ -1104,6 +1099,7 @@ class GamesWidget(QWidget):
 
     def item_dbl_clicked(self, idx: QModelIndex) -> None:
         try:
+            0/0
             file_path = self.model.filePath(idx)
             # open folder in explorer
             if os.path.isdir(file_path):
@@ -1113,7 +1109,7 @@ class GamesWidget(QWidget):
             else:
                 self.file_dbl_clicked.emit(file_path)
         except:
-            MainWindow.handle_error("Clicked dir failed, see log!")
+            logging.exception("Item double-click failed")
 
     def game_chosen(self, current_game: str) -> None:
         """Run after choosing a game from dropdown of installed games"""
@@ -1153,7 +1149,7 @@ class GamesWidget(QWidget):
         try:
             self.dirs.setCurrentIndex(self.model.index(dir_path))
         except:
-            MainWindow.handle_error("Setting dir failed, see log.")
+            logging.exception("Setting dir failed")
 
     def add_installed_game(self) -> None:
         """Add a new game to the list of available games"""
@@ -1876,8 +1872,15 @@ ButtonData = Iterable[tuple[QMenu, str, Callable[[], None], str, str]]
 class MainWindow(FramelessMainWindow):
     modified = pyqtSignal(bool)
 
-    def __init__(self, name: str, central_widget: Optional[QWidget] = None) -> None:
-        FramelessMainWindow.__init__(self)
+    def __init__(self, name: str, opts: 'gui.GuiOptions', central_widget: Optional[QWidget] = None) -> None:
+        self.opts = opts
+        if self.opts.frameless:
+            FramelessMainWindow.__init__(self)
+        else:
+            from types import MethodType
+            QMainWindow.__init__(self)
+            FramelessMainWindow.resizeEvent = MethodType(QMainWindow.resizeEvent, self)
+            FramelessMainWindow.nativeEvent = MethodType(QMainWindow.nativeEvent, self)
 
         self.wrapper_widget = QWidget(self)
         self.central_widget = QWidget(self) if central_widget is None else central_widget
@@ -1885,7 +1888,7 @@ class MainWindow(FramelessMainWindow):
 
         self.title_sep = " | "
         self.title_sep_colored = " <font color=\"#5f5f5f\">|</font> "
-        if FRAMELESS:
+        if self.opts.frameless:
             self.setTitleBar(TitleBar(self))
 
         self.menu_bar = QMenuBar(self)
@@ -1895,7 +1898,7 @@ class MainWindow(FramelessMainWindow):
         self.log_name = ""
         self.setWindowTitle(name)
         self.setWindowIcon(get_icon("frontier"))
-        self._stdout_handler: logging.StreamHandler = None
+        self._stdout_handler: logging.StreamHandler | None = None
 
         self.file_widget: Optional[FileWidget] = None
 
@@ -1911,7 +1914,7 @@ class MainWindow(FramelessMainWindow):
         self.statusBar = QStatusBar()
 
         self.version_info = QLabel(f"Version {commit_str}{dev_str}")
-        self.version_info.setFont(QFont("Cascadia Code, Consolas, monospace"))
+        self.version_info.setFont(QFont("Consolas, monospace"))
         self.version_info.setStyleSheet("color: #999")
         self.statusBar.addPermanentWidget(self.version_info)
         self.statusBar.addPermanentWidget(self.p_action)
@@ -1926,14 +1929,14 @@ class MainWindow(FramelessMainWindow):
 
         self.cfg: dict[str, Any] = config.load_config()
 
-        if FRAMELESS:
+        if self.opts.frameless:
             # Frameless titlebar
             self.titleBar.raise_()
 
         self.setCentralWidget(self.central_widget)
 
     @property
-    def stdout_handler(self) -> logging.StreamHandler:
+    def stdout_handler(self) -> logging.StreamHandler | None:
         if not self._stdout_handler:
             self._stdout_handler = get_stdout_handler(self.log_name)
         return self._stdout_handler
@@ -1964,7 +1967,7 @@ class MainWindow(FramelessMainWindow):
         frame.setMinimumHeight(32)
         frame.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(0)
-        if FRAMELESS:
+        if self.opts.frameless:
             layout.addWidget(frame)
         layout.addWidget(self.menu_bar)
         layout.addWidget(widget)
@@ -1994,10 +1997,10 @@ class MainWindow(FramelessMainWindow):
             super().setWindowTitle(f"{title}{self.title_sep}{self.get_file_name(file, only_basename=True)}")
             file_color = ""
             file_color_end = ""
-            if modified and FRAMELESS:
+            if modified and self.opts.frameless:
                 file_color = "<font color=\"#ffe075\">"
                 file_color_end = "</font>"
-            if FRAMELESS:
+            if self.opts.frameless:
                 self.titleBar.titleLabel.setText(f"{title}{self.title_sep_colored}{file_color}{self.get_file_name(file)}{file_color_end}")
             return
         super().setWindowTitle(f"{title}")
@@ -2151,17 +2154,21 @@ class MainWindow(FramelessMainWindow):
         return msg.exec_() not in [msg.No, msg.Cancel]
 
     def showquestion(self, info, title=None, details=None):
+        logging.debug(f"User Prompt: {info}")
         return self.showdialog(info, title="Question" if not title else title, 
                         buttons=(QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No), details=details)
 
     def showconfirmation(self, info, title=None, details=None):
+        logging.debug(f"User Prompt: {info}")
         return self.showdialog(info, title="Confirm" if not title else title,
                         buttons=(QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.Cancel), details=details)
 
     def showwarning(self, info, details=None):
+        logging.debug(f"User Prompt: {info}")
         return self.showdialog(info, title="Warning", details=details)
 
     def showerror(self, info, details=None):
+        logging.debug(f"User Prompt: {info}")
         return self.showdialog(info, title="Error", details=details)
 
 

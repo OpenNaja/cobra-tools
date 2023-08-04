@@ -3,7 +3,7 @@ import shutil
 import sys
 import logging
 import tempfile
-from gui import widgets, startup  # Import widgets before everything except built-ins!
+from gui import widgets, startup, GuiOptions  # Import widgets before everything except built-ins!
 from ovl_util.logs import HtmlFormatter, AnsiFormatter, get_stdout_handler
 from gui.widgets import Reporter
 from modules import walker
@@ -15,8 +15,8 @@ from typing import Any, Optional
 
 class MainWindow(widgets.MainWindow):
 
-	def __init__(self):
-		widgets.MainWindow.__init__(self, "OVL Tool", )
+	def __init__(self, opts: GuiOptions):
+		widgets.MainWindow.__init__(self, "OVL Tool", opts=opts)
 		self.resize(800, 600)
 		self.setAcceptDrops(True)
 
@@ -602,4 +602,4 @@ class MainWindow(widgets.MainWindow):
 
 
 if __name__ == '__main__':
-	startup(MainWindow, __file__)
+	startup(MainWindow, GuiOptions(log_name="ovl_tool_gui"))

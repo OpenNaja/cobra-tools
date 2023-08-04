@@ -2,7 +2,7 @@ import os
 import shutil
 import logging
 import tempfile
-from gui import widgets, startup  # Import widgets before everything except built-ins!
+from gui import widgets, startup, GuiOptions  # Import widgets before everything except built-ins!
 from generated.formats.bnk import BnkFile, AuxFile
 from ovl_util.texconv import write_riff_file
 from modules.formats.shared import fmt_hash
@@ -12,8 +12,8 @@ from PyQt5 import QtWidgets, QtGui, QtCore
 
 class MainWindow(widgets.MainWindow):
 
-	def __init__(self):
-		widgets.MainWindow.__init__(self, "BNK Editor", )
+	def __init__(self, opts: GuiOptions):
+		widgets.MainWindow.__init__(self, "BNK Editor", opts=opts)
 		self.resize(800, 600)
 
 		self.bnk_file = BnkFile()
@@ -185,4 +185,4 @@ class MainWindow(widgets.MainWindow):
 
 
 if __name__ == '__main__':
-	startup(MainWindow, __file__)
+	startup(MainWindow, GuiOptions("bnk_gui"))
