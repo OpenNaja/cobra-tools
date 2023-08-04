@@ -1,4 +1,5 @@
 import io
+import logging
 import os
 
 import imageio.v3 as iio
@@ -11,6 +12,7 @@ from generated.formats.voxelskirt.compounds.VoxelskirtRoot import VoxelskirtRoot
 from modules.formats.BaseFormat import MemStructLoader
 from modules.formats.shared import get_padding
 
+logging.getLogger('PIL').setLevel(logging.WARNING)
 
 def read_layer_image(uri):
 	if uri.endswith(".tiff"):

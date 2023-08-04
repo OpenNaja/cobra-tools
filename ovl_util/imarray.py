@@ -5,6 +5,8 @@ import numpy as np
 
 from generated.formats.ovl.versions import is_ztuac
 
+logging.getLogger('PIL').setLevel(logging.WARNING)
+
 
 def reconstruct_z(im):
 	"""Takes an array with 2 channels and adds a third channel"""
@@ -159,8 +161,8 @@ def imread(uri):
 def join_png(path_basename, tmp_dir, compression=None):
 	"""This finds and if required, creates, a png file that is ready for DDS conversion (arrays or flipped channels)"""
 	ext = ".png"
-	path_basename = path_basename.lower()
 	logging.debug(f"Looking for .png for {path_basename}")
+	path_basename = path_basename.lower()
 	in_dir, basename = os.path.split(path_basename)
 	png_file_path = os.path.join(in_dir, f"{basename}.png")
 	tmp_png_file_path = os.path.join(tmp_dir, f"{basename}.png")

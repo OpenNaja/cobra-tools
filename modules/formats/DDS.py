@@ -16,6 +16,8 @@ from modules.helpers import split_path
 
 from ovl_util import texconv, imarray
 
+logging.getLogger('PIL').setLevel(logging.WARNING)
+
 
 def align_to(width, comp, alignment=64):
 	"""Return input padded to the next closer multiple of alignment"""
