@@ -5,13 +5,6 @@ from io import BytesIO
 from generated.array import Array
 
 
-def split_path(fp):
-	in_dir, name_ext = os.path.split(fp)
-	basename, ext = os.path.splitext(name_ext)
-	ext = ext.lower()
-	return name_ext, basename, ext
-
-
 def as_bytes(inst):
 	"""helper that returns the bytes representation of a struct"""
 	# we must make sure that arrays are not treated as a list although they inherit from 'list'

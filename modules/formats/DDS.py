@@ -12,9 +12,10 @@ from generated.formats.ovl.versions import *
 from generated.formats.tex.compounds.TexHeader import TexHeader
 from generated.formats.tex.compounds.TexturestreamHeader import TexturestreamHeader
 from modules.formats.BaseFormat import MemStructLoader
-from modules.helpers import split_path
 
 from ovl_util import texconv, imarray
+
+logging.getLogger('PIL').setLevel(logging.WARNING)
 
 
 def align_to(width, comp, alignment=64):
@@ -62,7 +63,7 @@ class DdsLoader(MemStructLoader):
 		return buffer_i
 
 	def create(self, file_path):
-		name_ext, basename, ext = split_path(file_path)
+		in_dir, name_ext, basename, ext = self.get_names(file_path)
 		super().create(file_path)
 		logging.debug(f"Creating image {name_ext}")
 		# there's one empty buffer at the end!
@@ -97,8 +98,7 @@ class DdsLoader(MemStructLoader):
 
 	def load_image(self, tex_path):
 		# logging.debug(f"Loading image {tex_path}")
-		in_dir, name_ext = os.path.split(tex_path)
-		basename, tex_ext = os.path.splitext(name_ext)
+		in_dir, name_ext, basename, ext = self.get_names(tex_path)
 		# create tmp folder in which all conversions are stored
 		tmp_dir = tempfile.mkdtemp("-cobra-tools")
 		size_info = self.get_tex_structs()
@@ -142,6 +142,12 @@ class DdsLoader(MemStructLoader):
 			data_entry.size_2 = sum(buffer.size for buffer in data_entry.buffers)
 		# cleanup tmp folder
 		shutil.rmtree(tmp_dir)
+
+	def get_names(self, file_path):
+		assert file_path == os.path.normpath(file_path)
+		in_dir, name_ext = os.path.split(file_path)
+		basename, ext = os.path.splitext(name_ext.lower())
+		return in_dir, name_ext, basename, ext
 
 	def load_png(self, png_path, tmp_dir):
 		logging.info(f"Loading PNG {png_path}")

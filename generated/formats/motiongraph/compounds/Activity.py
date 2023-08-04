@@ -57,5 +57,5 @@ class Activity(MemStruct):
 			try:
 				return name_type_map[key]
 			except KeyError:
-				logging.warning(f"Unsupported activity '{activity}'")
+				logging.debug(f"Motiongraph.{activity} is not supported")
 

@@ -90,7 +90,7 @@ def import_armature(scene, model_info, b_bone_names):
 		try:
 			import_joints(scene, b_armature_obj, bone_info, b_bone_names, corrector)
 		except:
-			logging.exception("Importing joints failed...")
+			logging.exception("Importing joints failed")
 		return b_armature_obj
 
 

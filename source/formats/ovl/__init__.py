@@ -512,6 +512,14 @@ class OvlFile(Header):
 		from generated.formats.ovl.versions import get_game
 		elem.attrib[prop] = str(get_game(instance)[0])
 
+	@property
+	def game(self):
+		return get_game(self)[0].value
+
+	@game.setter
+	def game(self, game_name):
+		set_game(self, game_name)
+
 	def clear(self):
 		self.num_archives = 0
 		self.reset_field("archives")
@@ -559,7 +567,6 @@ class OvlFile(Header):
 	def extract(self, out_dir, only_names=(), only_types=()):
 		"""Extract the files, after all archives have been read"""
 		# create output dir
-		logging.info(f"Extracting from {len(self.files)} files")
 		os.makedirs(out_dir, exist_ok=True)
 
 		def out_dir_func(n):
@@ -580,6 +587,7 @@ class OvlFile(Header):
 			if loader.ext in self.formats_dict.ignore_types:
 				continue
 			loaders_for_extract.append(loader)
+		logging.info(f"Extracting {len(loaders_for_extract)} / {len(self.files)} files")
 		with self.reporter.report_error_files("Extracting") as error_files:
 			for loader in self.reporter.iter_progress(loaders_for_extract, "Extracting"):
 				try:
@@ -593,7 +601,10 @@ class OvlFile(Header):
 
 	def create_file(self, file_path, ovs_name="STATIC"):
 		"""Create a loader from a file path"""
-		filename = os.path.basename(file_path)
+		file_path = os.path.normpath(file_path)
+		in_dir, filename = os.path.split(file_path)
+		filename = filename.lower()
+		file_path = os.path.join(in_dir, filename)
 		_, ext = os.path.splitext(filename)
 		logging.info(f"Creating {filename} in {ovs_name}")
 		try:
@@ -618,8 +629,8 @@ class OvlFile(Header):
 		self.load_included_ovls(os.path.join(ovl_dir, "ovls.include"))
 
 	def add_files(self, file_paths):
-		logging.info(f"Adding {len(file_paths)} files to OVL")
-		logging.info(f"Game: {get_game(self)[0].name}")
+		logging.info(f"Adding {len(file_paths)} files to OVL [{self.game}]")
+		file_paths = {os.path.normpath(file_path) for file_path in file_paths}
 		with self.reporter.report_error_files("Adding") as error_files:
 			for file_path in self.reporter.iter_progress(file_paths, "Adding files"):
 				# ensure lowercase, especially for file extension checks
@@ -638,7 +649,7 @@ class OvlFile(Header):
 					channel_re = re.compile("_[rgba]*$")
 					array_re = re.compile("_\[[0-9]*\]$")
 					bare_path_no_suffices = f"{array_re.sub('', channel_re.sub('', bare_path, count=1), count=1)}.tex"
-					lower_tex_paths = [fp.lower() for fp in file_paths if fp.lower().endswith(".tex")]
+					lower_tex_paths = {fp.lower() for fp in file_paths if fp.lower().endswith(".tex")}
 					# compare this reconstructed tex path to the other file paths (case insensitive)
 					if bare_path_no_suffices in lower_tex_paths:
 						logging.info(f"Ignoring {file_path} as matching .tex file is also selected")
@@ -681,7 +692,7 @@ class OvlFile(Header):
 			if archive.name == name:
 				return archive.content
 		# nope, gotta create it
-		logging.debug(f"Creating archive '{name}'")
+		logging.debug(f"Creating archive {name}")
 		archive = ArchiveEntry(self.context)
 		archive.name = name
 		self.archives.append(archive)
@@ -713,7 +724,7 @@ class OvlFile(Header):
 			self.constants = ConstantsProvider()
 
 	def get_mime(self, ext, key):
-		game = get_game(self)[0].value
+		game = self.game
 		if game in self.constants:
 			game_lut = self.constants[game]
 			if ext in game_lut["mimes"]:
@@ -724,17 +735,15 @@ class OvlFile(Header):
 		else:
 			raise NotImplementedError(f"Unsupported game {game}")
 
-	def get_hash(self, h):
-		game = get_game(self)[0].value
+	def get_hash(self, h, ext, using_file):
+		game = self.game
+		fallback = f"{UNK_HASH}_{h}"
 		if game in self.constants:
 			game_lut = self.constants[game]
 			if h in game_lut["hashes"]:
 				return game_lut["hashes"][h]
-			else:
-				logging.warning(f"Unresolved dependency [{h}]")
-		else:
-			logging.warning(f"Unsupported game {game}")
-		return f"{UNK_HASH}_{h}"
+		logging.warning(f"{using_file} can't find the original name of {fallback}{ext}")
+		return fallback
 
 	def load(self, filepath, commands={}):
 		# automatically tag dev build
@@ -747,7 +756,7 @@ class OvlFile(Header):
 				with open(filepath, "rb") as stream:
 					self.read_fields(stream, self)
 					self.eof = stream.tell()
-			logging.info(f"Game: {get_game(self)[0].value}")
+			logging.info(f"Game: {self.game}")
 
 			self.loaders = {}
 			# maps djb2 hash to string
@@ -796,7 +805,8 @@ class OvlFile(Header):
 			self.included_ovl_names = [self.names.get_str_at(i) for i in self.included_ovls["basename"]]
 			self.reporter.included_ovls_list.emit(self.included_ovl_names)
 
-			self.dependencies_basename = [self.get_dep_name(h) for h in self.dependencies["file_hash"]]
+			self.dependencies_basename = [self.get_dep_name(h, ext, self.files_name[f_i]) for h, ext, f_i in zip(
+				self.dependencies["file_hash"], self.dependencies_ext, self.dependencies["file_index"])]
 			self.dependencies_name = [b+e for b, e in zip(self.dependencies_basename, self.dependencies_ext)]
 
 			self.aux_entries_names = [self.names.get_str_at(i) for i in self.aux_entries["basename"]]
@@ -805,11 +815,11 @@ class OvlFile(Header):
 				self.loaders[file_name].aux_entries.append(aux_name)
 			self.load_archives()
 
-	def get_dep_name(self, h):
+	def get_dep_name(self, h, ext, using_file):
 		if h in self.hash_table_local:
 			return self.hash_table_local[h]
 		else:
-			return self.get_hash(h)
+			return self.get_hash(h, ext, using_file)
 
 	def load_archives(self):
 		with self.reporter.log_duration("Loading archives"):

@@ -84,5 +84,6 @@ class DummyReporter:
         logging.info(operation)
         start_time = time.time()
         yield
-        logging.info(f"{operation} took {time.time() - start_time:.2f} seconds")
+        duration = time.time() - start_time
+        logging.debug(f"{operation} took {duration:.2f} seconds")
 
