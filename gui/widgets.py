@@ -638,6 +638,7 @@ class TextEditLogger(logging.Handler, QObject):
             self.cursor.block().setVisible(False)
         # Scroll to bottom, but do not scroll to the right
         self.cursor.setPosition(img_pos)
+        self.widget.setTextCursor(self.cursor)
         self.widget.ensureCursorVisible()
 
 
