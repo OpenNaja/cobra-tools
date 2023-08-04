@@ -750,10 +750,9 @@ class OvlFile(Header):
 		self.commands = commands
 		self.store_filepath(filepath)
 		with self.reporter.log_duration(f"Loading {self.name}"):
-			with self.reporter.log_duration("Loading structs"):
-				with open(filepath, "rb") as stream:
-					self.read_fields(stream, self)
-					self.eof = stream.tell()
+			with open(filepath, "rb") as stream:
+				self.read_fields(stream, self)
+				self.eof = stream.tell()
 			logging.info(f"Game: {self.game}")
 
 			self.loaders = {}
