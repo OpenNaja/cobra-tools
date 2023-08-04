@@ -1,5 +1,4 @@
 import contextlib
-import importlib
 import logging
 import xml.etree.ElementTree as ET
 
@@ -65,7 +64,6 @@ class BaseStruct(metaclass=StructMetaClass):
     allow_np = False
 
     def __init__(self, context, arg=0, template=None, set_default=True):
-        # struct_record.__init__(self)
         self.name = ''
         self._context = context
         self.arg = arg
@@ -76,6 +74,7 @@ class BaseStruct(metaclass=StructMetaClass):
     def set_defaults(self):
         for f_name, f_type, arguments, (optional, default) in type(self)._get_filtered_attribute_list(self):
             try:
+                0/0
                 if default is None:
                     # continue with standard arguments
                     field_value = f_type(self.context, *arguments)
@@ -83,8 +82,7 @@ class BaseStruct(metaclass=StructMetaClass):
                     # use the from_value function
                     field_value = f_type.from_value(*arguments[2:4], default)
             except:
-                logging.error(f"failed setting default on field {f_name} on type {type(self)}")
-                raise
+                raise ValueError(f"Failed setting default on {type(self).__name__}.{f_name}")
             setattr(self, f_name, field_value)
 
     @classmethod
@@ -205,8 +203,7 @@ class BaseStruct(metaclass=StructMetaClass):
                 if "version" in f_name:
                     setattr(instance.context, f_name, getattr(instance, f_name))
             except:
-                logging.exception(f"Failed reading field '{f_name}' on type {cls}")
-                raise
+                raise BufferError(f"Failed reading '{cls.__name__}.{f_name}' at {stream.tell()}")
 
     @classmethod
     def write_fields(cls, stream, instance):
@@ -214,8 +211,7 @@ class BaseStruct(metaclass=StructMetaClass):
             try:
                 f_type.to_stream(getattr(instance, f_name), stream, instance.context, *arguments)
             except:
-                logging.error(f"Failed writing field '{f_name}' on type {cls}")
-                raise
+                raise BufferError(f"Failed writing '{cls.__name__}.{f_name}' at {stream.tell()}")
 
     def reset_field(self, target_f_name):
         for f_name, f_type, arguments, (optional, default) in type(self)._get_filtered_attribute_list(self):
@@ -231,21 +227,20 @@ class BaseStruct(metaclass=StructMetaClass):
 
     @classmethod
     def validate_instance(cls, instance, context, arg, template):
+        cls_name = cls.__name__
         try:
             if not callable(getattr(cls, 'from_value', None)):
                 # if cls has from_value, the context on that type doesn't matter
-                assert instance.context == context, f"context {instance.context} doesn't match {context} on {cls}"
-            assert instance.arg == arg, f"argument {instance.argument} doesn't match {arg} on {cls}"
-            assert instance.template == template, f"template {instance.template} doesn't match {template} on {cls}"
+                assert instance.context == context, f"context {instance.context} doesn't match {context} on {cls_name}"
+            assert instance.arg == arg, f"argument {instance.argument} doesn't match {arg} on {cls_name}"
+            assert instance.template == template, f"template {instance.template} doesn't match {template} on {cls_name}"
         except:
-            logging.error(f"validation failed on {cls}")
-            raise
+            raise ValueError(f"Validation failed on {cls_name}")
         for f_name, f_type, f_arguments, _ in cls._get_filtered_attribute_list(instance):
             try:
                 f_type.validate_instance(cls.get_field(instance, f_name), context, *f_arguments)
             except:
-                logging.error(f"validation failed on field {f_name} on type {cls}")
-                raise
+                raise ValueError(f"Validation failed on {cls_name}.{f_name}")
 
     @classmethod
     def init_attributes(cls):
