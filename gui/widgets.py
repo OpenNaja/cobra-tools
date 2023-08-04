@@ -1099,7 +1099,6 @@ class GamesWidget(QWidget):
 
     def item_dbl_clicked(self, idx: QModelIndex) -> None:
         try:
-            0/0
             file_path = self.model.filePath(idx)
             # open folder in explorer
             if os.path.isdir(file_path):
