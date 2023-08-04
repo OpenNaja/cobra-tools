@@ -725,17 +725,15 @@ class OvlFile(Header):
 		else:
 			raise NotImplementedError(f"Unsupported game {game}")
 
-	def get_hash(self, h):
+	def get_hash(self, h, ext, using_file):
 		game = get_game(self)[0].value
+		fallback = f"{UNK_HASH}_{h}"
 		if game in self.constants:
 			game_lut = self.constants[game]
 			if h in game_lut["hashes"]:
 				return game_lut["hashes"][h]
-			else:
-				logging.warning(f"Unresolved dependency [{h}]")
-		else:
-			logging.warning(f"Unsupported game {game}")
-		return f"{UNK_HASH}_{h}"
+		logging.warning(f"{using_file} can't find the original name of {fallback}{ext}")
+		return fallback
 
 	def load(self, filepath, commands={}):
 		# automatically tag dev build
@@ -797,7 +795,8 @@ class OvlFile(Header):
 			self.included_ovl_names = [self.names.get_str_at(i) for i in self.included_ovls["basename"]]
 			self.reporter.included_ovls_list.emit(self.included_ovl_names)
 
-			self.dependencies_basename = [self.get_dep_name(h) for h in self.dependencies["file_hash"]]
+			self.dependencies_basename = [self.get_dep_name(h, ext, self.files_name[f_i]) for h, ext, f_i in zip(
+				self.dependencies["file_hash"], self.dependencies_ext, self.dependencies["file_index"])]
 			self.dependencies_name = [b+e for b, e in zip(self.dependencies_basename, self.dependencies_ext)]
 
 			self.aux_entries_names = [self.names.get_str_at(i) for i in self.aux_entries["basename"]]
@@ -806,11 +805,11 @@ class OvlFile(Header):
 				self.loaders[file_name].aux_entries.append(aux_name)
 			self.load_archives()
 
-	def get_dep_name(self, h):
+	def get_dep_name(self, h, ext, using_file):
 		if h in self.hash_table_local:
 			return self.hash_table_local[h]
 		else:
-			return self.get_hash(h)
+			return self.get_hash(h, ext, using_file)
 
 	def load_archives(self):
 		with self.reporter.log_duration("Loading archives"):
