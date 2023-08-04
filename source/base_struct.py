@@ -205,7 +205,7 @@ class BaseStruct(metaclass=StructMetaClass):
                 if "version" in f_name:
                     setattr(instance.context, f_name, getattr(instance, f_name))
             except:
-                logging.exception(f"failed reading field '{f_name}' on type {cls}")
+                logging.exception(f"Failed reading field '{f_name}' on type {cls}")
                 raise
 
     @classmethod
@@ -214,7 +214,7 @@ class BaseStruct(metaclass=StructMetaClass):
             try:
                 f_type.to_stream(getattr(instance, f_name), stream, instance.context, *arguments)
             except:
-                logging.error(f"failed writing field '{f_name}' on type {cls}")
+                logging.error(f"Failed writing field '{f_name}' on type {cls}")
                 raise
 
     def reset_field(self, target_f_name):

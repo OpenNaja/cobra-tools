@@ -520,7 +520,7 @@ class OvlFile(Header):
 	@game.setter
 	def game(self, game_name):
 		set_game(self, game_name)
-	
+
 	def clear(self):
 		self.num_archives = 0
 		self.reset_field("archives")
