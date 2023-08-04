@@ -1,8 +1,7 @@
 import logging
 import sys
 import time
-from gui.setup import matcol_editor_setup # pyright: ignore
-from gui import widgets  # Import widgets before everything except built-ins and gui.setup!
+from gui import widgets, startup  # Import widgets before everything except built-ins!
 from ovl_util import config
 
 from generated.formats.matcol.compounds.MatcolRoot import MatcolRoot
@@ -135,4 +134,4 @@ class MainWindow(widgets.MainWindow):
 			
 	
 if __name__ == '__main__':
-	widgets.startup(MainWindow)
+	startup(MainWindow, __file__)

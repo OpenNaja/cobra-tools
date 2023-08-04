@@ -1,4 +1,6 @@
-from ovl_util.logs import logging_setup
+import os
+import logging
+from ovl_util.logs import addLoggingLevel
 
-logging_setup("pytest")
+addLoggingLevel('SUCCESS', logging.INFO + 5)
 

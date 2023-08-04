@@ -1,8 +1,7 @@
 import sys
 import time
 import logging
-from gui.setup import ms2_tool_setup # pyright: ignore
-from gui import widgets  # Import widgets before everything except built-ins and gui.setup!
+from gui import widgets, startup  # Import widgets before everything except built-ins!
 from gui.widgets import get_icon
 from generated.formats.ms2 import Ms2File
 from PyQt5 import QtWidgets, QtGui, QtCore
@@ -141,4 +140,4 @@ class MainWindow(widgets.MainWindow):
 
 
 if __name__ == '__main__':
-	widgets.startup(MainWindow)
+	startup(MainWindow, __file__)

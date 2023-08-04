@@ -1,9 +1,6 @@
 import logging
 import os
-import sys
-import time
-from gui.setup import fgm_editor_setup # pyright: ignore
-from gui import widgets  # Import widgets before everything except built-ins and gui.setup!
+from gui import widgets, startup  # Import widgets before everything except built-ins!
 from gui.widgets import QColorButton, MySwitch, MAX_UINT, get_icon
 from ovl_util import config
 from typing import Any, Optional
@@ -639,4 +636,4 @@ class TextureVisual:
 
 
 if __name__ == '__main__':
-	widgets.startup(MainWindow)
+	startup(MainWindow, __file__)

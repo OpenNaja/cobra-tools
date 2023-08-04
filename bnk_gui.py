@@ -2,8 +2,7 @@ import os
 import shutil
 import logging
 import tempfile
-from gui.setup import bnk_gui_setup # pyright: ignore
-from gui import widgets  # Import widgets before everything except built-ins and gui.setup!
+from gui import widgets, startup  # Import widgets before everything except built-ins!
 from generated.formats.bnk import BnkFile, AuxFile
 from ovl_util.texconv import write_riff_file
 from modules.formats.shared import fmt_hash
@@ -186,4 +185,4 @@ class MainWindow(widgets.MainWindow):
 
 
 if __name__ == '__main__':
-	widgets.startup(MainWindow)
+	startup(MainWindow, __file__)

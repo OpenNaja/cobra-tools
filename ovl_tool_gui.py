@@ -3,8 +3,7 @@ import shutil
 import sys
 import logging
 import tempfile
-from gui.setup import ovl_tool_setup # pyright: ignore
-from gui import widgets  # Import widgets before everything except built-ins and gui.setup!
+from gui import widgets, startup  # Import widgets before everything except built-ins!
 from ovl_util.logs import HtmlFormatter, AnsiFormatter, get_stdout_handler
 from gui.widgets import Reporter
 from modules import walker
@@ -121,10 +120,11 @@ class MainWindow(widgets.MainWindow):
 		grid.addWidget(self.log_level_choice, 2, 4)
 		grid.addWidget(self.extract_types_combo, 3, 3, 1, 2)
 
-		self.stdout_handler = get_stdout_handler()
+		self.stdout_handler = get_stdout_handler("ovl_tool_gui") # self.log_name not set until after init
 		# log to text box
 		self.gui_log_handler = widgets.QTextEditLogger(self)
 		self.gui_log_handler.setFormatter(HtmlFormatter('%(levelname)s | %(message)s'))
+		self.gui_log_handler.setLevel(logging.INFO)
 		logging.getLogger().addHandler(self.gui_log_handler)
 
 		box = QtWidgets.QVBoxLayout()
@@ -349,7 +349,8 @@ class MainWindow(widgets.MainWindow):
 
 	def log_level_changed(self, level: str):
 		self.gui_log_handler.setLevel(level)
-		self.stdout_handler.setLevel(level)
+		if self.stdout_handler:
+			self.stdout_handler.setLevel(level)
 		self.cfg["logger_level"] = level
 
 	def show_dependencies(self, file_index):
@@ -587,4 +588,4 @@ class MainWindow(widgets.MainWindow):
 
 
 if __name__ == '__main__':
-	widgets.startup(MainWindow)
+	startup(MainWindow, __file__)

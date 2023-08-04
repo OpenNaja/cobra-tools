@@ -4,9 +4,8 @@ import time
 import shutil
 import pathlib
 import logging
-from gui.setup import mod_tool_setup  # pyright: ignore
-from gui import widgets  # Import widgets before everything except built-ins and gui.setup!
-from gui.widgets import startup, MainWindow
+from gui import widgets, startup  # Import widgets before everything except built-ins!
+from gui.widgets import MainWindow
 from ovl_util.config import read_str_dict, write_str_dict
 from generated.formats.ovl import games, set_game, OvlFile
 
@@ -333,4 +332,4 @@ class ModToolGUI(MainWindow):
 
 
 if __name__ == '__main__':
-	startup(ModToolGUI)
+	startup(ModToolGUI, __file__)

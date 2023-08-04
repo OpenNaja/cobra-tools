@@ -8,6 +8,7 @@ from typing import Any, AnyStr, Optional, Iterable, Callable, cast
 from generated.formats.ovl import games
 from modules.formats.shared import DummyReporter
 from ovl_util import config, logs
+from ovl_util.logs import get_stdout_handler, LogBackupFileHandler
 from gui import qt_theme
 from root_path import root_dir
 
@@ -50,19 +51,6 @@ MAX_UINT = 4294967295
 myFont = QFont()
 myFont.setBold(True)
 
-
-def startup(cls):
-    app_qt = QApplication([])
-    win = cls()
-    win.show()
-
-    # style
-    if not win.cfg.get("light_theme", False):
-        app_qt.setStyle(QStyleFactory.create('Fusion'))
-        app_qt.setPalette(qt_theme.dark_palette)
-        app_qt.setStyleSheet("QToolTip { color: #ffffff; background-color: #353535; border: 1px solid white; }")
-    app_qt.exec_()
-    config.save_config(win.cfg)
 
 def vbox(parent, grid):
     """Adds a grid layout"""
@@ -1713,8 +1701,10 @@ class MainWindow(FramelessMainWindow):
         self.actions: dict[str, QAction] = {}
 
         self.name = name
+        self.log_name = ""
         self.setWindowTitle(name)
         self.setWindowIcon(get_icon("frontier"))
+        self._stdout_handler: logging.StreamHandler = None
 
         self.file_widget: Optional[FileWidget] = None
 
@@ -1750,6 +1740,19 @@ class MainWindow(FramelessMainWindow):
             self.titleBar.raise_()
 
         self.setCentralWidget(self.central_widget)
+
+    @property
+    def stdout_handler(self) -> logging.StreamHandler:
+        if not self._stdout_handler:
+            self._stdout_handler = get_stdout_handler(self.log_name)
+        return self._stdout_handler
+    
+    @stdout_handler.setter
+    def stdout_handler(self, handler: logging.StreamHandler) -> None:
+        self._stdout_handler = handler
+
+    def set_log_name(self, name: str) -> None:
+        self.log_name = name
 
     @abstractmethod
     def open(self, filepath: str) -> None:
@@ -1913,6 +1916,20 @@ class MainWindow(FramelessMainWindow):
                 event.ignore()
                 return
         event.accept()
+        self.close_logs()
+
+    def close_logs(self) -> None:
+        if self.log_name:
+            removed_handlers: list[logging.Handler] = []
+            for handler in logging.getLogger().handlers:
+                if isinstance(handler, LogBackupFileHandler) and handler.name and handler.name == self.log_name:
+                    removed_handlers.append(handler)
+                elif isinstance(handler, TextEditLogger) and isinstance(handler.parent(), MainWindow):
+                    removed_handlers.append(handler)
+            for handler in reversed(removed_handlers):
+                logging.debug(f"Closing Log: {type(handler).__name__}: {handler.get_name() if handler.get_name() else handler}")
+                logging.getLogger().removeHandler(handler)
+                handler.close()
 
     def dragEnterEvent(self, event: QDragEnterEvent) -> None:
         if not self.file_widget:
