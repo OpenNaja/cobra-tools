@@ -45,15 +45,15 @@ def check_any(iterable, string):
 	return any([i in string for i in iterable])
 
 
-def has_vectors(png_file_path, compression):
-	if "pnormaltexture" in png_file_path:
+def has_vectors(png_name, compression):
+	if "pnormaltexture" in png_name:
 		# PZ uses BC5, so just RG
 		if "BC5" in compression:
 			return "G"
 		# pnormaltexture - JWE2 uses RGBA, with no need to flip channels
 		else:
 			return False
-	if check_any(("normaltexture", "playered_warpoffset"), png_file_path):
+	if check_any(("normaltexture", "playered_warpoffset"), png_name):
 		return "GB"
 
 
@@ -84,7 +84,6 @@ def split_png(png_file_path, ovl, compression=None):
 	channels = get_split_mode(png_file_path, compression)
 	if is_ztuac(ovl):
 		flip = False
-	logging.debug(f"{png_file_path} channels {channels}, flip {flip}")
 	if flip or channels:
 		logging.info(f"Splitting {png_file_path} into {channels} channels")
 		im = imread(png_file_path)
@@ -127,11 +126,11 @@ PZ_color_morphs = (
 )
 
 
-def get_split_mode(png_file_path, compression):
+def get_split_mode(png_name, compression):
 	# stores only two channels
 	if check_any(("BC5",), compression):
 		# JWE2 pyro
-		if check_any(("pbaseaotexture", "proughnessaopackedtexturedetailbase"), png_file_path):
+		if check_any(("pbaseaotexture", "proughnessaopackedtexturedetailbase"), png_name):
 			return "R_G"
 		# PZ normal maps
 		else:
@@ -140,15 +139,15 @@ def get_split_mode(png_file_path, compression):
 			(
 				"pmossbasecolourroughnesspackedtexture", "ppackedtexture", "palbedoandroughnessdetail", "pnormaltexture",
 				"pbasecolourtexture", "pbasecolourandmasktexture", "pdiffusetexture", *PZ_color_morphs
-			), png_file_path):
+			), png_name):
 		return "RGB_A"
 	# JWE2 only
-	if check_any(("pbasenormaltexture", "pgradheightarray"), png_file_path):
+	if check_any(("pbasenormaltexture", "pgradheightarray"), png_name):
 		return "RG_B_A"
 	if check_any((
 		"packedtexture", "playered_blendweights", "scartexture", "samplertexture",
 		"pspecularmaptexture", "pflexicolourmaskstexture", "pshellmap", "pfinalphatexture", "ppiebaldtexture",
-		"pcavityroughnessdielectricarray"), png_file_path):
+		"pcavityroughnessdielectricarray"), png_name):
 		return "R_G_B_A"
 
 
@@ -162,20 +161,20 @@ def join_png(path_basename, tmp_dir, compression=None):
 	"""This finds and if required, creates, a png file that is ready for DDS conversion (arrays or flipped channels)"""
 	ext = ".png"
 	logging.debug(f"Looking for .png for {path_basename}")
-	path_basename = path_basename.lower()
 	in_dir, basename = os.path.split(path_basename)
+	basename = basename.lower()
 	png_file_path = os.path.join(in_dir, f"{basename}.png")
 	tmp_png_file_path = os.path.join(tmp_dir, f"{basename}.png")
-	channels = get_split_mode(path_basename, compression)
-	flip = has_vectors(path_basename, compression)
+	channels = get_split_mode(basename, compression)
+	flip = has_vectors(basename, compression)
 	# check if processing needs to be done
 	if not flip and not channels:
 		assert os.path.isfile(png_file_path)
 		logging.debug(f"Need not process {png_file_path}")
 		return png_file_path
-	logging.debug(f"{png_file_path} channels {channels}, flip {flip}")
 	# rebuild from channels
 	if channels:
+		logging.info(f"Joining {png_file_path} from {channels} channels")
 		im = None
 		for ch_name, ch_slice in channel_iter(channels):
 			tile_png_path = f"{path_basename}_{ch_name}{ext}"

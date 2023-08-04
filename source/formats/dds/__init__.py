@@ -3,7 +3,6 @@ import logging
 import math
 
 from generated.formats.base.compounds.PadAlign import get_padding_size
-from generated.formats.dds.imports import name_type_map
 from generated.formats.dds.enums.D3D10ResourceDimension import D3D10ResourceDimension
 from generated.formats.dds.enums.FourCC import FourCC
 from generated.formats.dds.structs.Dxt10Header import Dxt10Header
@@ -70,7 +69,7 @@ class DdsFile(Header, IoFile):
         return num_blocks * self.block_len_pixels_1d
 
     def calculate_mip_sizes(self):
-        logging.debug("Calculating mip map sizes")
+        # logging.debug("Calculating mip map sizes")
         self.get_pixel_fmt()
         tiles = []
         for array_i in range(self.dx_10.num_tiles):
@@ -116,10 +115,10 @@ class DdsFile(Header, IoFile):
         # a block is the smallest usable unit, for dxt it is 4x4 px, for RGBA it is 1x1 px
         # get its byte count
         self.block_byte_size = int(round(self.block_len_pixels_1d * self.block_len_pixels_1d / self.pixels_per_byte))
-        logging.debug(f"Compression: {comp}")
-        logging.debug(f"pixels_per_byte: {self.pixels_per_byte}")
-        logging.debug(f"block_len_pixels_1d: {self.block_len_pixels_1d}")
-        logging.debug(f"block_byte_size: {self.block_byte_size}")
+        logging.debug(f"Compression: {comp}, "
+                      f"pixels_per_byte: {self.pixels_per_byte}, "
+                      f"block_len_pixels_1d: {self.block_len_pixels_1d}, "
+                      f"block_byte_size: {self.block_byte_size}")
 
     # @classmethod
     def mip_pack_generator(self, mip_infos):

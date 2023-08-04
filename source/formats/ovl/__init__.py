@@ -567,7 +567,6 @@ class OvlFile(Header):
 	def extract(self, out_dir, only_names=(), only_types=()):
 		"""Extract the files, after all archives have been read"""
 		# create output dir
-		logging.info(f"Extracting from {len(self.files)} files")
 		os.makedirs(out_dir, exist_ok=True)
 
 		def out_dir_func(n):
@@ -588,6 +587,7 @@ class OvlFile(Header):
 			if loader.ext in self.formats_dict.ignore_types:
 				continue
 			loaders_for_extract.append(loader)
+		logging.info(f"Extracting {len(loaders_for_extract)} / {len(self.files)} files")
 		with self.reporter.report_error_files("Extracting") as error_files:
 			for loader in self.reporter.iter_progress(loaders_for_extract, "Extracting"):
 				try:
@@ -601,7 +601,10 @@ class OvlFile(Header):
 
 	def create_file(self, file_path, ovs_name="STATIC"):
 		"""Create a loader from a file path"""
-		filename = os.path.basename(file_path)
+		file_path = os.path.normpath(file_path)
+		in_dir, filename = os.path.split(file_path)
+		filename = filename.lower()
+		file_path = os.path.join(in_dir, filename)
 		_, ext = os.path.splitext(filename)
 		logging.info(f"Creating {filename} in {ovs_name}")
 		try:
@@ -626,8 +629,8 @@ class OvlFile(Header):
 		self.load_included_ovls(os.path.join(ovl_dir, "ovls.include"))
 
 	def add_files(self, file_paths):
-		logging.info(f"Adding {len(file_paths)} files to OVL")
-		logging.info(f"Game: {get_game(self)[0].name}")
+		logging.info(f"Adding {len(file_paths)} files to OVL [{self.game}]")
+		file_paths = {os.path.normpath(file_path) for file_path in file_paths}
 		with self.reporter.report_error_files("Adding") as error_files:
 			for file_path in self.reporter.iter_progress(file_paths, "Adding files"):
 				# ensure lowercase, especially for file extension checks
@@ -646,7 +649,7 @@ class OvlFile(Header):
 					channel_re = re.compile("_[rgba]*$")
 					array_re = re.compile("_\[[0-9]*\]$")
 					bare_path_no_suffices = f"{array_re.sub('', channel_re.sub('', bare_path, count=1), count=1)}.tex"
-					lower_tex_paths = [fp.lower() for fp in file_paths if fp.lower().endswith(".tex")]
+					lower_tex_paths = {fp.lower() for fp in file_paths if fp.lower().endswith(".tex")}
 					# compare this reconstructed tex path to the other file paths (case insensitive)
 					if bare_path_no_suffices in lower_tex_paths:
 						logging.info(f"Ignoring {file_path} as matching .tex file is also selected")
@@ -689,7 +692,7 @@ class OvlFile(Header):
 			if archive.name == name:
 				return archive.content
 		# nope, gotta create it
-		logging.debug(f"Creating archive '{name}'")
+		logging.debug(f"Creating archive {name}")
 		archive = ArchiveEntry(self.context)
 		archive.name = name
 		self.archives.append(archive)
