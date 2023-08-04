@@ -513,6 +513,14 @@ class OvlFile(Header):
 		from generated.formats.ovl.versions import get_game
 		elem.attrib[prop] = str(get_game(instance)[0])
 
+	@property
+	def game(self):
+		return get_game(self)[0].value
+
+	@game.setter
+	def game(self, game_name):
+		set_game(self, game_name)
+	
 	def clear(self):
 		self.num_archives = 0
 		self.reset_field("archives")
@@ -714,7 +722,7 @@ class OvlFile(Header):
 			self.constants = ConstantsProvider()
 
 	def get_mime(self, ext, key):
-		game = get_game(self)[0].value
+		game = self.game
 		if game in self.constants:
 			game_lut = self.constants[game]
 			if ext in game_lut["mimes"]:
@@ -726,7 +734,7 @@ class OvlFile(Header):
 			raise NotImplementedError(f"Unsupported game {game}")
 
 	def get_hash(self, h, ext, using_file):
-		game = get_game(self)[0].value
+		game = self.game
 		fallback = f"{UNK_HASH}_{h}"
 		if game in self.constants:
 			game_lut = self.constants[game]
@@ -746,7 +754,7 @@ class OvlFile(Header):
 				with open(filepath, "rb") as stream:
 					self.read_fields(stream, self)
 					self.eof = stream.tell()
-			logging.info(f"Game: {get_game(self)[0].value}")
+			logging.info(f"Game: {self.game}")
 
 			self.loaders = {}
 			# maps djb2 hash to string
