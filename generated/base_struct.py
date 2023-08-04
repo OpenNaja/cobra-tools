@@ -74,7 +74,6 @@ class BaseStruct(metaclass=StructMetaClass):
     def set_defaults(self):
         for f_name, f_type, arguments, (optional, default) in type(self)._get_filtered_attribute_list(self):
             try:
-                0/0
                 if default is None:
                     # continue with standard arguments
                     field_value = f_type(self.context, *arguments)
