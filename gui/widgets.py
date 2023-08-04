@@ -1,6 +1,9 @@
 import logging
 import webbrowser
 import os
+import re
+import html
+from enum import Enum
 from abc import abstractmethod
 from pathlib import Path
 from ovl_util import auto_updater  # pyright: ignore
@@ -9,22 +12,22 @@ from generated.formats.ovl import games
 from modules.formats.shared import DummyReporter
 from ovl_util import config, logs
 from ovl_util.logs import get_stdout_handler, LogBackupFileHandler
-from gui import qt_theme
+import gui
 from root_path import root_dir
 
 from PyQt5 import QtGui, QtCore, QtWidgets # pyright: ignore
 from PyQt5.QtCore import (pyqtSignal, pyqtSlot, Qt, QObject, QDir, QFileInfo, QRegularExpression,
-                          QRect, QSize, QEvent, QTimer, QTimerEvent, QThread, QUrl,
+                          QRect, QSize, QEvent, QTimer, QTimerEvent, QThread, QUrl, QMimeData,
                           QAbstractTableModel, QSortFilterProxyModel, QModelIndex, QItemSelection,
                           QAbstractAnimation, QParallelAnimationGroup, QPropertyAnimation)
 from PyQt5.QtGui import (QBrush, QColor, QFont, QFontMetrics, QIcon, QPainter, QPen,
-                         QStandardItemModel, QStandardItem,
+                         QStandardItemModel, QStandardItem, QTextBlockUserData, QTextCursor,
                          QCloseEvent, QDragEnterEvent, QDragLeaveEvent, QDragMoveEvent, QDropEvent,
                          QFocusEvent, QMouseEvent, QPaintEvent, QResizeEvent, QWheelEvent, QTextCharFormat )
 from PyQt5.QtWidgets import (QWidget, QMainWindow, QApplication, QColorDialog, QFileDialog,
                              QAbstractItemView, QHeaderView, QTableView, QTreeView, QFileSystemModel,
                              QAction, QCheckBox, QComboBox, QDoubleSpinBox, QLabel, QLineEdit, QMenu, QMenuBar,
-                             QMessageBox, QPlainTextEdit, QProgressBar, QPushButton, QStatusBar, QToolButton,
+                             QMessageBox, QPlainTextEdit, QTextEdit, QProgressBar, QPushButton, QStatusBar, QToolButton,
                              QFrame, QLayout, QGridLayout, QVBoxLayout, QHBoxLayout, QScrollArea, QSizePolicy,
                              QStyleFactory, QStyleOptionViewItem, QStyledItemDelegate)
 import vdf
@@ -436,23 +439,211 @@ class SelectedItemsButton(QPushButton):
         self.setEnabled(selection.count() > 0)
 
 
-class QTextEditLogger(logging.Handler, QObject):
+class TracebackData(QTextBlockUserData):
+    ...
+
+
+class TextEdit(QTextEdit):
+
+    obj_char = "\uFFFC"
+    show_char = "\u2B9E"
+    hide_char = "\u2B9F"
+
+    show_msg = f"{show_char} Show Traceback"
+    hide_msg = f"{hide_char} Hide Traceback"
+
+    show_html = f"<span class='show'>{show_msg}</span>"
+    hide_html = f"<span class='hide'>{hide_msg}</span>"
+
+    def __init__(self, parent: QWidget | None = None) -> None:
+        super().__init__(parent)
+        self.setReadOnly(True)
+        self.setLineWrapMode(QTextEdit.LineWrapMode.NoWrap)
+        self.setContentsMargins(0, 0, 0, 0)
+        self.setViewportMargins(0, -7, 0, -2) # Better table spacing
+
+
+    def replace_level(self, text: str) -> str:
+        texts = text.split("||")
+        levels = list(TextEditLogger.Level)
+        text = "".join([levels[int(t)] if t.isnumeric() and int(t) <= len(levels) else t for t in texts])
+        return text
+
+    def createMimeDataFromSelection(self) -> QMimeData:
+        selection = self.textCursor().selection()
+        text = selection.toPlainText().replace(self.obj_char, "")
+        text = "\n".join([line for line in text.split('\n') if line.strip()])
+        text = self.replace_level(text).replace(self.show_msg, "").replace(self.hide_msg, "")
+        data = QMimeData()
+        data.setText(text)
+        return data
+
+    def mouseReleaseEvent(self, event: QMouseEvent) -> None:
+        if event.button() == Qt.MouseButton.LeftButton:
+            cursor = self.cursorForPosition(event.pos())
+            block = cursor.block()
+            block_next = block.next()
+            if isinstance(block_next.userData(), TracebackData):
+                cursor.movePosition(QTextCursor.MoveOperation.EndOfBlock, QTextCursor.MoveMode.MoveAnchor)
+                cursor.movePosition(QTextCursor.MoveOperation.StartOfBlock, QTextCursor.MoveMode.KeepAnchor)
+                if not block_next.isVisible():
+                    cursor.insertHtml(TextEdit.hide_html)
+                else:
+                    cursor.insertHtml(TextEdit.show_html)
+                block_next.setVisible(not block_next.isVisible())
+                block.document().markContentsDirty(block.blockNumber(), 1)
+        return super().mouseReleaseEvent(event)
+    
+    def mouseMoveEvent(self, event: QMouseEvent) -> None:
+        block = self.cursorForPosition(event.pos()).block()
+        block_next = block.next()
+        if isinstance(block_next.userData(), TracebackData):
+            self.viewport().setCursor(Qt.CursorShape.PointingHandCursor)
+            return
+        
+        self.viewport().setCursor(Qt.CursorShape.IBeamCursor)
+        return super().mouseMoveEvent(event)
+
+
+class TextEditLogger(logging.Handler, QObject):
     """Text field to hold log information."""
     appendHtml = pyqtSignal(str)
 
-    def __init__(self, parent: Optional[QWidget]) -> None:
+    class Level(str, Enum):
+        DEBUG = "DEBUG | "
+        INFO = "INFO | "
+        SUCCESS = "SUCCESS | "
+        WARNING = "WARNING | "
+        ERROR = "ERROR | "
+        CRITICAL = "CRITICAL | "
+
+    icons = {
+        Level.DEBUG: "debug.svg",
+        Level.INFO: "info.svg",
+        Level.SUCCESS: "success.svg",
+        Level.WARNING: "warning.svg",
+        Level.ERROR: "error.svg",
+        Level.CRITICAL: "critical.svg",
+    }
+
+
+    def __init__(self, parent: QWidget | None) -> None:
         super().__init__()
         QObject.__init__(self, parent)
-        self.widget = QPlainTextEdit(parent)
-        self.widget.setReadOnly(True)
-        self.appendHtml.connect(self.widget.appendHtml)
-        self.fmt = QTextCharFormat()
-        self.fmt.setFontItalic(True)
+        self.widget = TextEdit(parent)
+        self.widget.setStyleSheet("QTextEdit { selection-background-color: #888; }")
+        self.cursor = self.widget.textCursor()
+        self.block_fmt = self.cursor.block().blockFormat()
+        self.block_fmt.setLineHeight(12, 0)
+        self.block_fmt.setTopMargin(0)
+        self.block_fmt.setBottomMargin(0)
+        self.cursor.setBlockFormat(self.block_fmt)
+
+        self.table = self.cursor.insertTable(1, 2)
+        # Hide empty row
+        self.cursor.block().setVisible(False)
+        self.cursor.block().next().setVisible(False)
+        self.cursor.document().markContentsDirty(0, 1)
+
+        self.fmt = self.table.format()
+        self.fmt.setWidth(QtGui.QTextLength(QtGui.QTextLength.PercentageLength, 100))
+        self.fmt.setBorderStyle(QtGui.QTextFrameFormat.BorderStyle.BorderStyle_None)
+        self.fmt.setColumnWidthConstraints([QtGui.QTextLength(QtGui.QTextLength.Type.FixedLength, 16),
+                                            QtGui.QTextLength(QtGui.QTextLength.Type.PercentageLength, 100)])
+        self.fmt.setCellSpacing(3)
+        self.table.setFormat(self.fmt)
+        # QTextDocument default stylesheet
+        style = R"""
+                div, span {font-family: "Consolas, monospace"; font-size: 12px;}
+                .msg_debug {color:gray;}
+                .msg_info {color:#ddd;}
+                .msg_success {color:#2fff5d;}
+                .msg_warning {color:#ffc52f;}
+                .msg_error {color:#e73f34;}
+                .msg_critical {color:#ff2e67;}
+                .level {font-size: 1px; color: transparent; width: 0px; }
+                .traceback, .show, .hide {font-family: "Consolas, monospace"; font-size: 11px; color: #ddd; margin-top: 4px;}
+                .caret {color:#ff2e67;font-family: "Consolas, monospace"; font-size: 11px;}
+                .line {color:#14c5ff;font-family: "Consolas, monospace"; font-size: 11px;}
+                .file {color:#ffce47;font-family: "Consolas, monospace"; font-size: 11px;}
+                .location {color:#77b332;font-family: "Consolas, monospace"; font-size: 11px;}
+                QTextBlock {font-family: "Consolas, monospace"; margin: 0px; padding: 0px;}
+                """
+        self.table.document().setDefaultStyleSheet(style)
+        self.appendHtml.connect(self.append)
 
     def emit(self, record: logging.LogRecord) -> None:
         msg = self.format(record)
-        self.widget.setCurrentCharFormat(self.fmt)
         self.appendHtml.emit(msg)
+
+    def color_traceback(self, text: str) -> str:
+        """Basic coloring for tracebacks"""
+        text = re.sub(r"([\^]+)", r"<span class='caret'>\g<0></span>", text)
+        text = re.sub(r",(&nbsp;line&nbsp;[0-9]+),", r",<span class='line'>\g<1></span>,", text)
+        text = re.sub(r"(File&nbsp;&quot;.*?&quot;),", r"<span class='file'>\g<1></span>", text)
+        text = re.sub(r",&nbsp;in&nbsp;(.*?)<br>", r",&nbsp;in&nbsp;<span class='location'>\g<1></span><br>", text)
+        return text
+
+    def get_traceback(self, msg: str) -> str:
+        """Builds html for the folded traceback text block"""
+        text = ""
+        start = msg.find(logs.HtmlFormatter.eol) + 1
+        traceback = msg[start:]
+        if traceback and start > 0:
+            text = html.escape(msg[start:]).replace("\n", "<br>").replace(" ", "&nbsp;")
+            text = text.replace(root_dir, ".")
+            text = self.color_traceback(text)
+        return text, start
+    
+    def get_level(self, msg) -> Level:
+        """Obtains the log message level from the log message"""
+        for level in self.Level:
+            if level in msg:
+                return level
+        return self.Level.INFO
+    
+    def replace_level(self, level: Level, msg: str) -> str:
+        """
+        Replaces `INFO | ` with `||0||`, etc. for even text spacing among levels,
+        after which it is styled to be almost invisible since there are level icons instead.
+        This is then reversed in TextEdit.createMimeDataFromSelection for the clipboard.
+        """
+        levels = list(self.Level)
+        level_index = levels.index(level)
+        return msg.replace(level.value, f"<div class='level'>||{level_index}||</div>")
+
+    def append(self, msg: str) -> None:
+        """
+        Appends an html row built from a logging message
+        """
+        level = self.get_level(msg)
+        msg = self.replace_level(level, msg)
+        traceback_text, traceback_pos = self.get_traceback(msg)
+        if traceback_text and level in {self.Level.ERROR, self.Level.CRITICAL}:
+            traceback_text = f"<div class='traceback'>{traceback_text}</div>"
+            # TODO: Support option for expanded/collapsed by default
+            msg = msg[:traceback_pos] + TextEdit.show_html
+
+        row = self.table.rows()
+        self.table.insertRows(row, 1)
+        # Image Column
+        img_col = self.table.cellAt(row, 0)
+        img_pos = img_col.firstCursorPosition().position()
+        self.cursor.setPosition(img_pos)
+        self.cursor.insertHtml(f"<img src='icons/{self.icons[level]}' height='16' width='16' />")
+        # Message Column
+        msg_col = self.table.cellAt(row, 1)
+        msg_pos = msg_col.firstCursorPosition().position()
+        self.cursor.setPosition(msg_pos)
+        self.cursor.insertHtml(msg)
+        if traceback_text:
+            self.cursor.insertBlock()
+            self.cursor.block().setUserData(TracebackData())
+            self.cursor.insertHtml(traceback_text)
+            self.cursor.block().setVisible(False)
+        # Scroll to bottom, but do not scroll to the right
+        self.cursor.setPosition(img_pos)
+        self.widget.ensureCursorVisible()
 
 
 class LabelEdit(QWidget):

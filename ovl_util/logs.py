@@ -91,16 +91,19 @@ class ColoredFormatter(logging.Formatter):
 
 
 class HtmlFormatter(ColoredFormatter):
+	"""A ColoredFormatter for rich text usage"""
+	# Special char for finding end of message
+	eol = "\u00A0"
 
 	def __init__(self, fmt: str, datefmt: str = None, *args, **kwargs):
 		super().__init__(fmt, datefmt, *args, **kwargs)
 		self.FORMATS = {
-			logging.DEBUG: f"<div style='color:gray;'>{self._fmt}</div>",
-			logging.INFO: f"<div style='color:white;'>{self._fmt}</div>",
-			logging.INFO + 5: f"<div style='color:lime;'>{self._fmt}</div>", # SUCCESS
-			logging.WARNING: f"<div style='color:yellow;'>{self._fmt}</div>",
-			logging.ERROR: f"<div style='color:red;'>{self._fmt}</div>",
-			logging.CRITICAL: f"<div style='color:red;'>{self._fmt}</div>",
+			logging.DEBUG: f"<div class='msg_debug'><span>{self._fmt}</span></div>{self.eol}",
+			logging.INFO: f"<div class='msg_info'><span>{self._fmt}</span></div>{self.eol}",
+			logging.INFO + 5: f"<div class='msg_success'><span><b>{self._fmt}</b></span></div>{self.eol}", # SUCCESS
+			logging.WARNING: f"<div class='msg_warning'><span>{self._fmt}</span></div>{self.eol}",
+			logging.ERROR: f"<div class='msg_error'><span><b>{self._fmt}</b></span></div>{self.eol}",
+			logging.CRITICAL: f"<div class='msg_critical'><span><b>{self._fmt}</b></span></div>{self.eol}",
 		}
 		self.FORMATTERS = {key: logging.Formatter(_fmt, datefmt) for key, _fmt in self.FORMATS.items()}
 

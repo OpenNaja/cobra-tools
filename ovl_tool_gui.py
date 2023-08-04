@@ -68,11 +68,12 @@ class MainWindow(widgets.MainWindow):
 		hbox.addWidget(self.included_ovls_view)
 		right_frame.setLayout(hbox)
 
-		splitter = QtWidgets.QSplitter(QtCore.Qt.Horizontal)
-		splitter.addWidget(left_frame)
-		splitter.addWidget(right_frame)
-		splitter.setSizes([200, 400])
-		splitter.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+		self.splitter_lr = QtWidgets.QSplitter(QtCore.Qt.Orientation.Horizontal)
+		self.splitter_lr.addWidget(left_frame)
+		self.splitter_lr.addWidget(right_frame)
+		self.splitter_lr.setSizes([200, 400])
+		self.splitter_lr.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+		self.splitter_lr.setContentsMargins(0, 0, 0, 0)
 
 		# toggles
 		self.t_do_debug = QtWidgets.QCheckBox("Debug Mode")
@@ -122,15 +123,26 @@ class MainWindow(widgets.MainWindow):
 
 		self.stdout_handler = get_stdout_handler("ovl_tool_gui") # self.log_name not set until after init
 		# log to text box
-		self.gui_log_handler = widgets.QTextEditLogger(self)
+		self.gui_log_handler = widgets.TextEditLogger(self)
 		self.gui_log_handler.setFormatter(HtmlFormatter('%(levelname)s | %(message)s'))
 		self.gui_log_handler.setLevel(logging.INFO)
 		logging.getLogger().addHandler(self.gui_log_handler)
 
+		self.splitter_tb = QtWidgets.QSplitter(QtCore.Qt.Orientation.Vertical)
+		self.splitter_tb.addWidget(self.splitter_lr)
+		self.splitter_tb.addWidget(self.gui_log_handler.widget)
+		self.splitter_tb.setSizes([600, 200])
+		self.splitter_tb.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+		self.splitter_tb.setStyleSheet(R"""
+			QSplitter::handle:vertical {
+				padding: 0px 0px 4px 0px;
+			}
+		""")
+
 		box = QtWidgets.QVBoxLayout()
 		box.addLayout(grid)
-		box.addWidget(splitter, 3)
-		box.addWidget(self.gui_log_handler.widget, 1)
+		box.addWidget(self.splitter_tb, 3)
+
 		self.central_widget.setLayout(box)
 
 		main_menu = self.menu_bar
@@ -175,7 +187,7 @@ class MainWindow(widgets.MainWindow):
 		self.t_logger = QtWidgets.QAction("Show log console")
 		self.t_logger.setToolTip("Show/hide the dev log console.")
 		self.t_logger.setCheckable(True)
-		logger_show = self.cfg.get("logger_show", False)
+		logger_show = self.cfg.get("show_logger", True)
 		self.t_logger.setChecked(logger_show)
 		self.t_logger.triggered.connect(self.logger_show_triggered)
 		self.logger_show_triggered()
@@ -183,6 +195,8 @@ class MainWindow(widgets.MainWindow):
 		separator_action = self.actions['generate hash table']
 		# we are not adding this to the action list, shall we?
 		util_menu.insertAction(separator_action, self.t_walk_ovl)
+		# TODO: This is left for now, but the trigger logic has been
+		# update for the splitter
 		util_menu.insertAction(separator_action, self.t_logger)
 		util_menu.insertSeparator(separator_action)
 
@@ -233,11 +247,11 @@ class MainWindow(widgets.MainWindow):
 
 	def logger_show_triggered(self):
 		show = self.t_logger.isChecked()
-		self.cfg["logger_show"] = show
+		self.cfg["show_logger"] = show
 		if show:
-			self.gui_log_handler.widget.show()
+			self.splitter_tb.setSizes([self.splitter_lr.height(), 120])
 		else:
-			self.gui_log_handler.widget.hide()
+			self.splitter_tb.setSizes([800, 0])
 
 	def enable_gui_options(self, enable=True):
 		self.t_in_folder.setEnabled(enable)
