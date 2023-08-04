@@ -72,4 +72,4 @@ jobs:
         with:
           name: pytest-log
           path: |
-            ${{ github.workspace }}/pytest.log
+            ${{ github.workspace }}/logs/pytest.log
