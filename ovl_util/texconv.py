@@ -88,7 +88,9 @@ def check_lua_syntax(lua_path):
 				# select which luacheck warnings to show to user
 				if error_code < 100:
 					raise SyntaxError(msg)
-				elif 100 <= error_code < 400:
+				elif 100 <= error_code < 200:
+					logging.warning(msg)
+				elif 200 <= error_code < 400:
 					logging.debug(msg)
 				elif 400 <= error_code < 600:
 					logging.warning(msg)
