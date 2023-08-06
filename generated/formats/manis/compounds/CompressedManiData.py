@@ -45,6 +45,7 @@ class CompressedManiData(BaseStruct):
 
 		# give the byte size of the various temporal segments
 		self.segments = Array(self.context, 0, None, (0,), name_type_map['Segment'])
+		self.segments_data = name_type_map['SegmentsReader'](self.context, self.segments, None)
 		if set_default:
 			self.set_defaults()
 
