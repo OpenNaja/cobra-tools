@@ -30,6 +30,7 @@ class ManiBlock(BaseStruct):
 		self.uncompressed_pad = name_type_map['PadAlign'](self.context, 16, self.ref)
 		self.extra_war = name_type_map['WarExtra'](self.context, self, None)
 		self.compressed = name_type_map['CompressedManiData'](self.context, self, None)
+		self.subchunks = name_type_map['UnkChunkList'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 

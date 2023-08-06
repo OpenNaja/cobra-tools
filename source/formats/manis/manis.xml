@@ -207,6 +207,9 @@
 		<add name="loc extent" type="Vector3"/>might be extent, but not sure about how it is encoded
     </compound>
 
+    <compound name="SegmentsReader" >
+    </compound>
+
 	<compound name="CompressedManiData">
 		<add name="FrameCount" type="uint"/>
 		<add name="OriBoneCount" type="uint"/>
@@ -245,6 +248,26 @@
 		<add name="stuff" type="WarExtraPart" arr1="4"/>
 	</compound>
 
+    <compound name="ChunkSizes" >
+		<add name="zeros 0" type="uint64" > </add>
+		<add name="bone" type="uint" ></add>
+		<add name="counta" type="uint" > </add>
+    </compound>
+
+    <compound name="SubChunkReader" >
+    </compound>
+
+    <compound name="UnkChunkList" >
+		<add name="ref" type="Empty"/>
+		<add name="zero 0" type="SmartPadding"/>
+		<add name="subchunk_count" type="ushort"/>
+		<add name="flag" type="ushort" > </add>
+		<add name="zero 1" type="uint" > </add>
+		<add name="chunksize_list" type="ChunkSizes" arr1="subchunk_count" > </add>
+		<add name="subchunk list" type="SubChunkReader" arg="chunksize_list" > </add>
+        <add name="pad" type="PadAlign" template="ref" arg="16" >?</add>
+    </compound>
+
 	<compound name="ManiBlock" >
 		<add name="ref" type="Empty"/>
 		define the channel names
@@ -273,29 +296,6 @@
 		<add name="extra_war" type="WarExtra" arg="#SELF#" cond="#ARG#\dtype\use_ushort #EQ# 1"/>
 		<add name="compressed" type="CompressedManiData" arg="#SELF#" cond="#ARG#\dtype\compression #GT# 0"/>
 		<add name="subchunks" type="UnkChunkList" cond="#ARG#\dtype\has_list #GT# 0"/>
-    </compound>
-
-    <compound name="SegmentsReader" >
-    </compound>
-
-    <compound name="ChunkSizes" >
-		<add name="zeros 0" type="uint64" > </add>
-		<add name="bone" type="uint" ></add>
-		<add name="counta" type="uint" > </add>
-    </compound>
-
-    <compound name="SubChunkReader" >
-    </compound>
-
-    <compound name="UnkChunkList" >
-		<add name="ref" type="Empty"/>
-		<add name="zero 0" type="SmartPadding"/>
-		<add name="subchunk_count" type="ushort"/>
-		<add name="flag" type="ushort" > </add>
-		<add name="zero 1" type="uint" > </add>
-		<add name="chunksize_list" type="ChunkSizes" arr1="subchunk_count" > </add>
-		<add name="subchunk list" type="SubChunkReader" arg="chunksize_list" > </add>
-        <add name="pad" type="PadAlign" template="ref" arg="16" >?</add>
     </compound>
 	
     <compound name="WeirdElementOne" >
