@@ -67,13 +67,31 @@ def bin_to_lua(bin_file):
 		print(err)
 
 
-def check_lua_syntax(lua_file):
+def get_line_infos(lines, lua_path, lua_name):
+	for line in lines:
+		if line.startswith(lua_path):
+			line_nr, col_nr, info = line.replace(lua_path + ":", "").split(":", 3)
+			yield f"{lua_name}: line {line_nr}, column {col_nr}: {info.strip()}"
+
+
+def check_lua_syntax(lua_path):
 	try:
-		function_string = f'"{luacheck}" "{lua_file}"'
+		# https://luacheck.readthedocs.io/en/stable/cli.html
+		# https://luacheck.readthedocs.io/en/stable/warnings.html
+		# https://stackoverflow.com/questions/49158143/how-to-ignore-luacheck-warnings
+		# todo - select which luacheck warnings to show to user
+		function_string = f'"{luacheck}" "{lua_path}"'
+		lua_name = os.path.basename(lua_path)
 		# capture the console output
-		# output = subprocess.Popen(function_string, stdout=subprocess.PIPE).communicate()[0]
-		# or just write to console
-		subprocess.Popen(function_string)
+		bytes_output = subprocess.Popen(function_string, stdout=subprocess.PIPE).communicate()[0]
+		output = bytes_output.decode()
+		lines = [line.strip() for line in output.split("\r\n")]
+		if "warnings" in lines[0]:
+			for msg in get_line_infos(lines, lua_path, lua_name):
+				logging.warning(msg)
+		elif "error" in lines[0]:
+			for msg in get_line_infos(lines, lua_path, lua_name):
+				raise SyntaxError(msg)
 	except subprocess.CalledProcessError:
 		logging.exception(f"Something went wrong")
 
