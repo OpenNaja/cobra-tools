@@ -40,10 +40,9 @@ import bpy.utils.previews
 from bpy.props import StringProperty, BoolProperty, CollectionProperty, IntProperty, FloatProperty, EnumProperty
 from bpy.types import PropertyGroup, Object
 from bpy_extras.io_utils import ImportHelper, ExportHelper
-from . import addon_updater_ops
 
 from plugin import import_bani, import_manis, import_matcol, import_ms2, export_ms2, import_voxelskirt, import_fgm, \
-    import_spl, export_spl, export_manis
+    import_spl, export_spl, export_manis, addon_updater_ops
 from plugin.modules_import.hair import vcol_to_comb, comb_to_vcol, transfer_hair_combing
 from plugin.utils import shell
 from generated.formats.ms2.compounds.packing_utils import PACKEDVEC_MAX
