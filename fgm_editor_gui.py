@@ -361,9 +361,9 @@ class MainWindow(widgets.MainWindow):
 				self.update_shader(self.header.shader_name)
 				self.tex_container.update_gui(self.header.textures.data, self.header.name_foreach_textures.data)
 				self.attrib_container.update_gui(self.header.attributes.data, self.header.value_foreach_attributes.data)
+				logging.info(f"Opened {filepath}")
 			except:
 				self.handle_error("Opening failed, see log!")
-			logging.info("Done!")
 
 	def import_fgm(self):
 		file_in = QtWidgets.QFileDialog.getOpenFileName(self, 'Import FGM', self.cfg.get("dir_fgms_in", "C://"), "FGM files (*.fgm)")[0]
@@ -377,11 +377,13 @@ class MainWindow(widgets.MainWindow):
 
 	def save(self, filepath) -> None:
 		try:
-			self.header.to_xml_file(self.header, filepath)
+			with self.header.to_xml_file(self.header, filepath):
+				# got to use context manager, but there's no need to do any post-write cleanup here
+				pass
 			self.set_file_modified(False)
+			logging.info(f"Saved {filepath}")
 		except:
 			self.handle_error("Saving failed, see log!")
-		logging.info("Done!")
 
 
 class PropertyContainer(QtWidgets.QGroupBox):
