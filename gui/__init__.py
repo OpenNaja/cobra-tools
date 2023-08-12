@@ -2,12 +2,12 @@ import os
 import sys
 import time
 import logging
-from typing import NamedTuple
+from typing import NamedTuple, Optional
 from pathlib import Path
 from ovl_util import logs, config
-from gui import qt_theme
 from gui.widgets import MainWindow
 
+from PyQt5.QtCore import Qt, qVersion
 from PyQt5.QtWidgets import QApplication, QStyleFactory
 from PyQt5.QtGui import QPalette
 
@@ -24,10 +24,10 @@ class GuiOptions(NamedTuple):
 	log_to_file: bool = True
 	log_to_stdout: bool = True
 	log_backup_count: int = 4
-	qapp: QApplication = None
+	qapp: Optional[QApplication] = None
 	frameless: bool = True
 	style: str = "Fusion"
-	palette: QPalette = qt_theme.dark_palette
+	palette: str = "dark"
 	qss_file: str = ""
 	stylesheet: str = R"""
 		QToolTip { color: #ffffff; background-color: #353535; border: 1px solid white; }
@@ -43,6 +43,10 @@ def init(cls: type[MainWindow], opts: GuiOptions) -> tuple[MainWindow, QApplicat
 	check_python()
 	app = opts.qapp
 	if app is None:
+		if qVersion().startswith("5."):
+			QApplication.setHighDpiScaleFactorRoundingPolicy(Qt.HighDpiScaleFactorRoundingPolicy.PassThrough)
+			QApplication.setAttribute(Qt.ApplicationAttribute.AA_EnableHighDpiScaling)
+			QApplication.setAttribute(Qt.ApplicationAttribute.AA_UseHighDpiPixmaps)
 		app = QApplication([])
 	win = cls(opts=opts)
 	win.set_log_name(opts.log_name)
@@ -56,8 +60,9 @@ def startup(cls: type[MainWindow], opts: GuiOptions) -> None:
 	win, app_qt = init(cls, opts)
 	win.show()
 	if not win.cfg.get("light_theme", False):
+		from gui import qt_theme
 		app_qt.setStyle(QStyleFactory.create(opts.style))
-		app_qt.setPalette(opts.palette)
+		app_qt.setPalette(qt_theme.palettes.get(opts.palette, QPalette()))
 		if opts.qss_file:
 			with open(opts.qss_file,"r") as qss:
 				app_qt.setStyleSheet(qss.read())

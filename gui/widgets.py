@@ -13,6 +13,7 @@ from modules.formats.shared import DummyReporter
 from ovl_util import config, logs
 from ovl_util.logs import get_stdout_handler, LogBackupFileHandler
 import gui
+from gui import qt_theme
 from root_path import root_dir
 
 from PyQt5 import QtGui, QtCore, QtWidgets # pyright: ignore
