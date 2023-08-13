@@ -40,7 +40,7 @@ class MainWindow(widgets.MainWindow):
 		self.qgrid = QtWidgets.QGridLayout()
 
 		self.qgrid.addWidget(right_frame, 5, 0, 1, 5)
-		self.qgrid.addWidget(self.p_action, 6, 0, 1, 5)
+		self.qgrid.addWidget(self.progress, 6, 0, 1, 5)
 
 		self.central_widget.setLayout(self.qgrid)
 

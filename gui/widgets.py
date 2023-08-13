@@ -1902,26 +1902,29 @@ class MainWindow(FramelessMainWindow):
         self._stdout_handler: logging.StreamHandler | None = None
 
         self.file_widget: Optional[FileWidget] = None
+        self.logger: Optional[LoggerWidget] = None
+        self.log_splitter: Optional[QSplitter] = None
+        self.logger_orientation: Qt.Orientation = Qt.Orientation.Vertical
 
-        self.p_action = QProgressBar(self)
-        self.p_action.setGeometry(0, 0, 200, 15)
-        self.p_action.setTextVisible(True)
-        self.p_action.setMaximum(100)
-        self.p_action.setValue(0)
+        self.progress = QProgressBar(self)
+        self.progress.setGeometry(0, 0, 200, 15)
+        self.progress.setTextVisible(True)
+        self.progress.setMaximum(100)
+        self.progress.setValue(0)
         self.dev_mode = os.path.isdir(os.path.join(root_dir, ".git"))
         dev_str = "DEV" if self.dev_mode else ""
         commit_str = logs.get_commit_str()
         commit_str = commit_str.split("+")[0]
-        self.statusBar = QStatusBar()
 
+        self.status_bar = QStatusBar()
         self.version_info = QLabel(f"Version {commit_str}{dev_str}")
         self.version_info.setFont(QFont("Consolas, monospace"))
         self.version_info.setStyleSheet("color: #999")
-        self.statusBar.addPermanentWidget(self.version_info)
-        self.statusBar.addPermanentWidget(self.p_action)
-        self.statusBar.setContentsMargins(5, 0, 0, 0)
-        self.setStatusBar(self.statusBar)
-        self.p_action.hide()
+        self.status_bar.addPermanentWidget(self.version_info)
+        self.status_bar.addPermanentWidget(self.progress)
+        self.status_bar.setContentsMargins(5, 0, 0, 0)
+        self.setStatusBar(self.status_bar)
+        self.progress.hide()
 
         self.status_timer = QTimer()
         self.status_timer.setSingleShot(True)
@@ -2058,24 +2061,24 @@ class MainWindow(FramelessMainWindow):
         self.showerror(msg)
 
     def show_progress(self) -> None:
-        self.p_action.show()
+        self.progress.show()
         self.version_info.hide()
 
     def set_progress(self, value: int) -> None:
-        if self.p_action.isHidden() and value > 0:
+        if self.progress.isHidden() and value > 0:
             self.show_progress()
 
-        self.p_action.setValue(value)
-        if self.p_action.value() >= self.p_action.maximum():
+        self.progress.setValue(value)
+        if self.progress.value() >= self.progress.maximum():
             self.status_timer.start()
 
     def reset_progress(self) -> None:
-        self.p_action.hide()
-        self.p_action.setValue(0)
+        self.progress.hide()
+        self.progress.setValue(0)
         self.version_info.show()
 
     def set_msg_temporarily(self, message: str) -> None:
-        self.statusBar.showMessage(message, 3500)
+        self.status_bar.showMessage(message, 3500)
 
     def run_threaded(self, func: Callable, *args, **kwargs) -> None:
         # Step 2: Create a QThread object

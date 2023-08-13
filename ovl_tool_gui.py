@@ -207,8 +207,8 @@ class MainWindow(widgets.MainWindow):
 		vline.setStyleSheet("color: #777;")
 		vline.setMaximumHeight(15)
 
-		self.statusBar.addPermanentWidget(vline)
-		self.statusBar.addPermanentWidget(self.file_info)
+		self.status_bar.addPermanentWidget(vline)
+		self.status_bar.addPermanentWidget(self.file_info)
 
 		self.check_version()
 		# run once here to make sure we catch the default game

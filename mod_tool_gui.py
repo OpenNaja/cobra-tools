@@ -72,7 +72,7 @@ class ModToolGUI(MainWindow):
 		self.game_container = widgets.LabelCombo("Game", [g.value for g in games])
 		self.boxLayout.addWidget(self.game_container)
 
-		self.central_layout.addWidget(self.p_action)
+		self.central_layout.addWidget(self.progress)
 
 		if len(sys.argv) > 1:
 			self.apply_from_config(sys.argv[1])
