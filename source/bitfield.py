@@ -25,9 +25,9 @@ class BitfieldMember(object):
 
     def __set__(self, instance, value):
         # Clear the current value
-        instance._value = instance._value & ~self.mask
+        instance._value = int(instance._value & ~self.mask)
         # Update with the new value
-        instance._value |= (value << self.pos) & self.mask
+        instance._value |= int((value << self.pos) & self.mask)
 
 
 class BasicBitfield(object, metaclass=BitfieldMetaClass):
@@ -66,7 +66,7 @@ class BasicBitfield(object, metaclass=BitfieldMetaClass):
     @classmethod
     def from_value(cls, value):
         instance = cls(None, set_default=False)
-        instance._value = value
+        instance._value = int(value)
         return instance
 
     @classmethod
