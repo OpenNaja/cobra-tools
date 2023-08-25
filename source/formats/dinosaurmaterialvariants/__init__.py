@@ -30,7 +30,8 @@ class LayeredMaterial:
 		for mask_i, layer in enumerate(layers_root.layers.data):
 			mask_png_path = os.path.join(base_dir, f"{matname}.playered_blendweights_[{tile_i:02}]_{channels[ch_i]}.png")
 			# increment channel
-			ch_i += 1
+			if layer.has_ptr:
+				ch_i += 1
 			# move to the next tile for the next loop
 			if ch_i == 4:
 				ch_i = 0

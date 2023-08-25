@@ -26,7 +26,7 @@
 
 
     <compound name="Layer" inherit="MemStruct" >
-        <add name="has_ptr" type="uint64"/>
+        <add name="has_ptr" type="uint64"/> should actually be 'increment'
         <add name="texture_fgm_name" type="Pointer" template="ZString">defines the tiled texture material to be used</add>
         <add name="transform_fgm_name" type="Pointer" template="ZString">defines how to transform the texture</add>
     </compound>
