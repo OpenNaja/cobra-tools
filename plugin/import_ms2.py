@@ -32,7 +32,6 @@ def load(filepath="", use_custom_normals=False, mirror_mesh=False):
 
 		# store scene properties
 		scene["render_flag"] = int(model_info.render_flag)
-		scene.cobra.pack_base = model_info.pack_base
 		scene.cobra.num_streams = len(ms2.modelstream_names)
 
 		mesh_dict = {}
@@ -85,9 +84,7 @@ def load(filepath="", use_custom_normals=False, mirror_mesh=False):
 					except:
 						logging.exception("import_mesh_layers failed")
 					# import_chunk_bounds(b_me, mesh, lod_coll)
-				# JWE2 - possibly unique pack_base per vert_chunk
 				if hasattr(mesh, "vert_chunks"):
-					scene.cobra.pack_base = mesh.vert_chunks[0].pack_base
 					b_me.cobra.mesh_format = mesh.vert_chunks[0].weights_flag.mesh_format.name
 					tri_chunk = mesh.tri_chunks[0]
 					b_me["shell_count"] = tri_chunk.shell_count

@@ -1,3 +1,5 @@
+import logging
+
 import mathutils
 import math
 import bpy
@@ -144,3 +146,14 @@ def get_scale_mat(scale_vec):
 	scale_matrix_y2 = mathutils.Matrix.Scale(scale_vec.y, 4, (0.0, 1.0, 0.0))
 	scale_matrix_z2 = mathutils.Matrix.Scale(scale_vec.z, 4, (0.0, 0.0, 1.0))
 	return scale_matrix_x2 @ scale_matrix_y2 @ scale_matrix_z2
+
+
+def handle_errors(inst, func, kwargs):
+    try:
+        for msg in func(**kwargs):
+            inst.report({"INFO"}, msg)
+            logging.info(msg)
+    except Exception as err:
+        inst.report({"ERROR"}, str(err))
+        logging.exception('Got exception on main handler')
+    return {'FINISHED'}

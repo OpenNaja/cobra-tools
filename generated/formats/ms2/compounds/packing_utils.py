@@ -8,8 +8,7 @@ USHORT_SCALE = 2048
 USHORT_OFFSET = 32766.5
 USHORT_MIN = 0
 USHORT_MAX = 65535
-PACKEDVEC_MAX = 2 ** 20 - 1  # 0x100000
-# PACKEDVEC_MAX = 2 ** 20  # 0x100000
+PACKEDVEC_MAX = 2 ** 20 - 1
 FUR_OVERHEAD = 2
 zero_uint64 = np.uint64(0)
 # describe the amount of bits taken up by each logical field in the uint64

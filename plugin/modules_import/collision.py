@@ -11,7 +11,7 @@ from plugin.utils.quickhull import qhull3d
 
 
 def import_collider(hitcheck, b_joint, corrector):
-	logging.info(f"{hitcheck.name} type {hitcheck.dtype}")
+	# logging.debug(f"{hitcheck.name} type {hitcheck.dtype}")
 	hitcheck_name = f"{bpy.context.scene.name}_{hitcheck.name}"
 	coll = hitcheck.collider
 	# print(hitcheck)

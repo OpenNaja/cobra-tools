@@ -1,0 +1,50 @@
+import bpy.utils.previews
+from bpy.props import StringProperty, BoolProperty, IntProperty, FloatProperty, EnumProperty, CollectionProperty
+from bpy_extras.io_utils import ExportHelper
+
+from plugin import export_ms2, export_spl, export_manis
+from plugin.utils.matrix_util import handle_errors
+
+
+class ExportMS2(bpy.types.Operator, ExportHelper):
+    """Export to MS2 file format (.MS2)"""
+    bl_idname = "export_scene.cobra_ms2"
+    bl_label = 'Export MS2'
+    filename_ext = ".ms2"
+    filter_glob: StringProperty(default="*.ms2", options={'HIDDEN'})
+    apply_transforms: BoolProperty(name="Apply Transforms",
+                                   description="Automatically applies object transforms to meshes", default=False)
+    update_rig: BoolProperty(name="Update Rigs", description="Updates rigs (bones, physics joints, hitchecks) from blender - may break skeletons",
+                             default=False)
+    use_stock_normals_tangents: BoolProperty(
+        name="Use Original Normals & Tangents",
+        description="Ignores the actual geometry and uses original normals and tangents stored as mesh attributes on import. Use case: if fur depends on custom normals",
+        default=False)
+
+    def execute(self, context):
+        keywords = self.as_keywords(ignore=("axis_forward", "axis_up", "filter_glob", "check_existing"))
+        return handle_errors(self, export_ms2.save, keywords)
+
+
+class ExportSPL(bpy.types.Operator, ExportHelper):
+    """Export to spline file format (.spl)"""
+    bl_idname = "export_scene.cobra_spl"
+    bl_label = 'Export SPL'
+    filename_ext = ".spl"
+    filter_glob: StringProperty(default="*.spl", options={'HIDDEN'})
+
+    def execute(self, context):
+        keywords = self.as_keywords(ignore=("axis_forward", "axis_up", "filter_glob", "check_existing"))
+        return handle_errors(self, export_spl.save, keywords)
+
+
+class ExportManis(bpy.types.Operator, ExportHelper):
+    """Export to Cobra animations file format (.manis)"""
+    bl_idname = "export_scene.cobra_manis"
+    bl_label = 'Export Manis'
+    filename_ext = ".manis"
+    filter_glob: StringProperty(default="*.manis", options={'HIDDEN'})
+
+    def execute(self, context):
+        keywords = self.as_keywords(ignore=("axis_forward", "axis_up", "filter_glob", "check_existing"))
+        return handle_errors(self, export_manis.save, keywords)

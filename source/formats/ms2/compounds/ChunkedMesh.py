@@ -135,8 +135,8 @@ class BioMeshData:
 		# since malta dlc, one mesh can have several mesh formats
 		# assert len(mesh_formats) == 1
 		# logging.info(self.bones_sets)
-		max_verts = max(vert_chunk.vertex_count for vert_chunk in self.vert_chunks)
-		logging.info(f"max_verts {max_verts}")
+		# max_verts = max(vert_chunk.vertex_count for vert_chunk in self.vert_chunks)
+		# logging.debug(f"max_verts {max_verts}")
 
 		# slower
 		# decode_oct(vert_chunk.tangents, vert_chunk.meta["tangent_oct"])
