@@ -6,11 +6,10 @@ import bpy
 # import bmesh
 from plugin.modules_import.armature import import_armature, append_armature_modifier, import_vertex_groups, \
 	get_bone_names
-from plugin.modules_import.collision import import_chunk_bounds
 from plugin.modules_import.hair import add_psys
 from plugin.modules_import.material import import_material
 from plugin.utils.shell import is_fin, num_fur_as_weights, is_shell
-from plugin.utils.object import create_ob, get_collection
+from plugin.utils.object import create_ob, get_collection, set_collection_visibility
 from generated.formats.ms2 import Ms2File, is_old
 from generated.formats.ms2.enums.MeshFormat import MeshFormat
 
@@ -116,9 +115,8 @@ def load(filepath="", use_custom_normals=False, mirror_mesh=False):
 					logging.debug(f"{b_ob.name} has shells, adding psys")
 					add_psys(b_ob, mesh)
 			coll_name = f"{scene.name}_LOD{lod_i}"
-			# get view layer if it exists, show lod 0, hide the others
-			if coll_name in bpy.context.view_layer.layer_collection.children:
-				bpy.context.view_layer.layer_collection.children[coll_name].hide_viewport = lod_i != 0
+			# show lod 0, hide the others
+			set_collection_visibility(coll_name, lod_i != 0)
 
 	messages.add(f"Imported {ms2_name} in {time.time() - start_time:.2f} seconds")
 	return messages
