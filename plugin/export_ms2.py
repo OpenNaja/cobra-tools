@@ -9,7 +9,7 @@ import numpy as np
 
 from generated.formats.ms2.compounds.LodInfo import LodInfo
 from generated.formats.ms2.compounds.Object import Object
-from generated.formats.ms2 import Ms2File
+from generated.formats.ms2 import Ms2File, is_jwe2
 from plugin.modules_export.armature import get_armature, export_bones_custom
 from plugin.modules_export.collision import export_bounds, get_bounds
 from plugin.modules_export.geometry import export_model
@@ -17,6 +17,7 @@ from plugin.modules_export.material import export_material
 from plugin.modules_import.armature import get_bone_names
 from plugin.utils.object import has_objects_in_scene, get_property
 from plugin.utils.shell import get_collection
+from source.formats.ms2.compounds.packing_utils import PACKEDVEC_MAX
 
 
 def get_pack_base(b_obs):
@@ -26,10 +27,8 @@ def get_pack_base(b_obs):
 	bounds_max, bounds_min = get_bounds(bounds)
 	coord_min = np.min(bounds_min)
 	coord_max = np.max(bounds_max)
-	for x in range(1, 16):
-		pack_base = 2 ** x
+	for pack_base in [float(2 ** x) for x in range(1, 16)]:
 		if -pack_base < coord_min and coord_max < pack_base:
-			logging.debug(f"chose pack_base = {pack_base}")
 			return pack_base
 
 
@@ -90,7 +89,8 @@ def save(filepath='', apply_transforms=False, update_rig=False, use_stock_normal
 			lod_collections.append(lod_coll)
 
 		model_info.pack_base = get_pack_base(lod_collections[0].objects)
-
+		model_info.precision = model_info.pack_base / PACKEDVEC_MAX
+		# logging.debug(f"chose pack_base = {model_info.pack_base} precision = {model_info.precision}")
 		for lod_i, lod_coll in enumerate(lod_collections):
 			m_lod = LodInfo(ms2.context)
 			m_lod.distance = math.pow(30 + 15 * lod_i, 2)

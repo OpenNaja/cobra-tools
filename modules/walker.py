@@ -168,7 +168,8 @@ def bulk_test_models(gui, start_dir, walk_ovls=True, walk_models=True):
 								type_dic[flag][0].append(mesh_id)
 							# 	type_dic[model.flag][1].append((model.bytes_mean, model.bytes_max, model.bytes_min))
 							last_counts.add(model_info.last_count)
-							pack_bases.add(model_info.pack_base)
+							# pack_bases.add(model_info.pack_base)
+							pack_bases.add((model_info.pack_base, model_info.precision))
 							if model_info.bone_info:
 								if model_info.bone_info.bone_count > max_bones:
 									max_bones = model_info.bone_info.bone_count

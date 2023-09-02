@@ -407,7 +407,7 @@
 		JWE2 Biosyn - 160 bytes
 		<add name="unk dla" type="uint64" until="7">??</add>
 		<add name="bounds min" type="Vector3">the smallest coordinates across all axes</add>
-		<add name="unk float a" type="float" since="47" until="51">not sure, for PZ often 40 00 00 37 for animals</add>
+		<add name="precision" type="float" since="47" until="51">related to the inverse of pack_base</add>
 		<add name="bounds max" type="Vector3">the biggest coordinates across all axes</add>
 		<add name="pack_base" type="float" since="47" until="51">scale: pack_base / 512, also added as offset</add>
 		<add name="center" type="Vector3">cog? medium of bounds?</add>
