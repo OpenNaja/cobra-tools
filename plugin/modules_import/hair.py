@@ -9,7 +9,10 @@ from generated.formats.ms2.compounds.packing_utils import oct_to_vec3, unpack_sw
 from plugin.utils.matrix_util import evaluate_mesh
 
 # a bit of safety to avoid breaking normalization
-FAC = 1.9
+# FAC = 1.9
+MID = 0.7
+# FAC = (1.0 - MID) * 2.0
+FAC = 3.0
 
 
 def find_modifier_for_particle_system(b_ob, particle_system):
@@ -82,10 +85,10 @@ def vcol_to_comb():
 		vertex = me.vertices[loop.vertex_index]
 		tangent_space_mat = get_tangent_space_mat(loop)
 		vcol = vcol_layer[loop.index].color
-		r = (vcol[0] - 0.5) * FAC
+		r = (vcol[0] - MID) * FAC
 		# green appears to be unused
 		# g = (vcol[1] - 0.5) * FAC
-		b = (vcol[2] - 0.5) * FAC
+		b = (vcol[2] - MID) * FAC
 		# alpha is used to control the shape of the strands, apparent softness or clumping
 		try:
 			# calculate third component for unit vector
@@ -148,8 +151,8 @@ def comb_to_vcol():
 			hair_direction = (tip - root).normalized()
 			vec = tangent_space_mat.inverted() @ hair_direction
 			vcol = vcol_layer[loop_index].color
-			vcol[0] = (vec.x/FAC) + 0.5
-			vcol[2] = -(vec.y/FAC) + 0.5
+			vcol[0] = (vec.x/FAC) + MID
+			vcol[2] = -(vec.y/FAC) + MID
 	return f"Converted Combing to Vertex Color for {ob_eval.name}",
 
 
