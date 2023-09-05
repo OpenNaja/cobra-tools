@@ -7,8 +7,7 @@ import bmesh
 import mathutils
 
 import plugin.utils.object
-from plugin.modules_import.hair import get_tangent_space_mat
-
+from plugin.utils.hair import get_tangent_space_mat, vcol_2_vec, MID
 
 # changed to avoid clamping bug and squares on fins
 X_START = -15.9993
@@ -105,6 +104,8 @@ def ob_processor_wrapper(func):
 	for lod_i in range(6):
 		lod_group_name = f"LOD{lod_i}"
 		coll = get_collection(lod_group_name)
+		if coll is None:
+			return msgs
 		src_obs = [ob for ob in coll.objects if is_shell(ob)]
 		trg_obs = [ob for ob in coll.objects if is_fin(ob)]
 		if src_obs and trg_obs:
@@ -263,12 +264,14 @@ def build_uv(ob, bm, uv_scale_x, uv_scale_y, loop_coord_kd, hair_directions):
 	# print(group_index)
 
 	psys_fac = ob.particle_systems[0].settings.hair_length
+	vcol_layer = bm.loops.layers.color["RGBA0"]
 
 	# only ever one deform weight layer
-	dvert_lay = bm.verts.layers.deform.active
+	deform = bm.verts.layers.deform.active
 
-	# get uv 1
-	uv_lay = bm.loops.layers.uv["UV1"]
+	# get uvs
+	uv_0 = bm.loops.layers.uv["UV0"]
+	uv_1 = bm.loops.layers.uv["UV1"]
 
 	# basically, the whole UV strip should be oriented so that its hair tilts in the same direction
 	# start by looking at the vcol of this face's two base verts in the shell mesh's original tangent space
@@ -343,13 +346,13 @@ def build_uv(ob, bm, uv_scale_x, uv_scale_y, loop_coord_kd, hair_directions):
 				# left edges
 				for i in left:
 					loop = face.loops[i]
-					loop[uv_lay].uv.x = x_0
+					loop[uv_1].uv.x = x_0
 					# print("left", loop.vert.index, x_0)
 					x_pos_dic[loop.vert.index] = x_0
 				# right edge
 				for i in right:
 					loop = face.loops[i]
-					loop[uv_lay].uv.x = x_0 + length
+					loop[uv_1].uv.x = x_0 + length
 					# print("right", loop.vert.index, x_0 + length)
 					x_pos_dic[loop.vert.index] = x_0 + length
 
@@ -357,14 +360,21 @@ def build_uv(ob, bm, uv_scale_x, uv_scale_y, loop_coord_kd, hair_directions):
 				# top edge
 				# print(len(base_edge.link_loops), list(base_edge.link_loops), face.loops[:2])
 				for loop in face.loops[:2]:
-					loop[uv_lay].uv.y = Y_START
+					loop[uv_1].uv.y = Y_START
 				# lower edge
+				uv_0_len = (face.loops[2][uv_0].uv - face.loops[3][uv_0].uv).length
 				for loop in face.loops[2:]:
-					vert = loop.vert
-					dvert = vert[dvert_lay]
+					uv_0_ratio = uv_0_len / base_edge.calc_length()
+					dvert = loop.vert[deform]
 					if group_index in dvert:
-						weight = dvert[group_index]
-						loop[uv_lay].uv.y = Y_START - (weight * psys_fac * uv_scale_y)
+						hair_len_fac = dvert[group_index] * psys_fac
+						loop[uv_1].uv.y = Y_START - (hair_len_fac * uv_scale_y)
+						vcol = loop[vcol_layer]
+						r = (vcol[0] - MID)
+						b = (vcol[2] - MID)
+						# make shift proportional to relative UV scale of edge
+						loop[uv_0].uv.x -= (r * uv_0_ratio * hair_len_fac * 3)
+						loop[uv_0].uv.y += (b * uv_0_ratio * hair_len_fac * 3)
 	logging.info("Finished UV generation")
 
 
@@ -493,14 +503,13 @@ def build_tangent_table(me):
 	vertices = []
 	for loop in me.loops:
 		vertex = me.vertices[loop.vertex_index]
-		tangent_space_mat = get_tangent_space_mat(loop)
 		vcol = vcol_layer[loop.index].color
-		r = (vcol[0] - 0.5)
-		# g = (vcol[1] - 0.5)*FAC
-		b = (vcol[2] - 0.5)
+		# vec = vcol_2_vec(vcol)
+		# this used to be flat? does it matter
+		r = (vcol[0] - MID)
+		b = (vcol[2] - MID)
 		vec = mathutils.Vector((r, -b, 0))
-
-		hair_direction = tangent_space_mat @ vec
+		hair_direction = get_tangent_space_mat(loop) @ vec
 		hair_directions.append(hair_direction)
 		vertices.append(vertex)
 	return hair_directions, vertices
