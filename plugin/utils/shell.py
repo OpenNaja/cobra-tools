@@ -264,6 +264,7 @@ def build_uv(ob, bm, uv_scale_x, uv_scale_y, loop_coord_kd, hair_directions):
 	# print(group_index)
 
 	psys_fac = ob.particle_systems[0].settings.hair_length
+	uv_skew_fac = 4
 	vcol_layer = bm.loops.layers.color["RGBA0"]
 
 	# only ever one deform weight layer
@@ -373,8 +374,8 @@ def build_uv(ob, bm, uv_scale_x, uv_scale_y, loop_coord_kd, hair_directions):
 						r = (vcol[0] - MID)
 						b = (vcol[2] - MID)
 						# make shift proportional to relative UV scale of edge
-						loop[uv_0].uv.x -= (r * uv_0_ratio * hair_len_fac * 3)
-						loop[uv_0].uv.y += (b * uv_0_ratio * hair_len_fac * 3)
+						loop[uv_0].uv.x -= (r * uv_0_ratio * hair_len_fac * uv_skew_fac)
+						loop[uv_0].uv.y += (b * uv_0_ratio * hair_len_fac * uv_skew_fac)
 	logging.info("Finished UV generation")
 
 
