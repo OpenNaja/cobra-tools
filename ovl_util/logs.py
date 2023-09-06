@@ -97,13 +97,16 @@ class HtmlFormatter(ColoredFormatter):
 
 	def __init__(self, fmt: str, datefmt: str = None, *args, **kwargs):
 		super().__init__(fmt, datefmt, *args, **kwargs)
+		# <img src='icons/%(levelname)s.svg' height='16' width='16' />
+		fmt_n = f"%(levelname)s | %(message)s | <div class='msg_%(levelname)s'><span>%(message)s</span></div>{self.eol}%(details)s"
+		fmt_b = f"%(levelname)s | %(message)s | <div class='msg_%(levelname)s'><span><b>%(message)s</b></span></div>{self.eol}%(details)s"
 		self.FORMATS = {
-			logging.DEBUG: f"<div class='msg_debug'><span>{self._fmt}</span></div>{self.eol}",
-			logging.INFO: f"<div class='msg_info'><span>{self._fmt}</span></div>{self.eol}",
-			logging.INFO + 5: f"<div class='msg_success'><span><b>{self._fmt}</b></span></div>{self.eol}", # SUCCESS
-			logging.WARNING: f"<div class='msg_warning'><span>{self._fmt}</span></div>{self.eol}",
-			logging.ERROR: f"<div class='msg_error'><span><b>{self._fmt}</b></span></div>{self.eol}",
-			logging.CRITICAL: f"<div class='msg_critical'><span><b>{self._fmt}</b></span></div>{self.eol}",
+			logging.DEBUG: fmt_n,
+			logging.INFO: fmt_n,
+			logging.INFO + 5: fmt_b, # SUCCESS
+			logging.WARNING: fmt_n,
+			logging.ERROR: fmt_b,
+			logging.CRITICAL: fmt_b,
 		}
 		self.FORMATTERS = {key: logging.Formatter(_fmt, datefmt) for key, _fmt in self.FORMATS.items()}
 

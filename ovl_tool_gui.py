@@ -33,15 +33,12 @@ class MainWindow(widgets.MainWindow):
 
 		self.compression_choice = widgets.LabelCombo("Compression", [c.name for c in Compression], editable=False, changed_fn=self.compression_changed)
 
-		self.log_level_choice = widgets.LabelCombo("Log Level", ("DEBUG", "INFO", "WARNING", "ERROR"), editable=False, changed_fn=self.log_level_changed)
-		self.log_level_choice.setToolTip("Defines how much information is shown in the console window")
-
 		if "games" not in self.cfg:
 			self.cfg["games"] = {}
 		self.installed_games = widgets.GamesWidget(self, game_chosen_fn=self.populate_game, file_dbl_click_fn=self.open_clicked_file)
 
 		# create the table
-		self.files_container = widgets.SortableTable(("Name", "File Type"), self.ovl_data.formats_dict.ignore_types,
+		self.files_container = widgets.SortableTable(["Name", "File Type"], self.ovl_data.formats_dict.ignore_types,
 													 ignore_drop_type="OVL", opt_hide=True)
 		# connect the interaction functions
 		self.files_container.table.table_model.member_renamed.connect(self.rename_handle)
@@ -59,6 +56,8 @@ class MainWindow(widgets.MainWindow):
 		hbox = QtWidgets.QVBoxLayout()
 		hbox.addWidget(self.installed_games)
 		hbox.addWidget(self.installed_games.dirs)
+		hbox.setContentsMargins(0, 0, 1, 0)
+		hbox.setSizeConstraint(QtWidgets.QVBoxLayout.SizeConstraint.SetNoConstraint)
 		left_frame.setLayout(hbox)
 
 		right_frame = QtWidgets.QWidget()
@@ -66,14 +65,16 @@ class MainWindow(widgets.MainWindow):
 		hbox.addWidget(self.file_widget)
 		hbox.addWidget(self.files_container)
 		hbox.addWidget(self.included_ovls_view)
+		hbox.setContentsMargins(3, 0, 0, 0)
+		hbox.setSizeConstraint(QtWidgets.QVBoxLayout.SizeConstraint.SetNoConstraint)
 		right_frame.setLayout(hbox)
 
-		self.splitter_lr = QtWidgets.QSplitter(QtCore.Qt.Orientation.Horizontal)
-		self.splitter_lr.addWidget(left_frame)
-		self.splitter_lr.addWidget(right_frame)
-		self.splitter_lr.setSizes([200, 400])
-		self.splitter_lr.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
-		self.splitter_lr.setContentsMargins(0, 0, 0, 0)
+		self.file_splitter = QtWidgets.QSplitter(QtCore.Qt.Orientation.Horizontal)
+		self.file_splitter.addWidget(left_frame)
+		self.file_splitter.addWidget(right_frame)
+		self.file_splitter.setSizes([200, 400])
+		self.file_splitter.setSizePolicy(QtWidgets.QSizePolicy.MinimumExpanding, QtWidgets.QSizePolicy.Expanding)
+		self.file_splitter.setContentsMargins(0, 0, 0, 0)
 
 		# toggles
 		self.t_do_debug = QtWidgets.QCheckBox("Debug Mode")
@@ -118,33 +119,34 @@ class MainWindow(widgets.MainWindow):
 
 		grid.addWidget(self.game_choice, 0, 4)
 		grid.addWidget(self.compression_choice, 1, 4)
-		grid.addWidget(self.log_level_choice, 2, 4)
 		grid.addWidget(self.extract_types_combo, 3, 3, 1, 2)
 
-		self.stdout_handler = get_stdout_handler("ovl_tool_gui") # self.log_name not set until after init
-		# log to text box
-		self.gui_log_handler = widgets.TextEditLogger(self)
-		self.gui_log_handler.setFormatter(HtmlFormatter('%(levelname)s | %(message)s'))
-		self.gui_log_handler.setLevel(logging.INFO)
-		logging.getLogger().addHandler(self.gui_log_handler)
+		self.stdout_handler = get_stdout_handler("ovl_tool_gui")  # self.log_name not set until after init
 
-		self.splitter_tb = QtWidgets.QSplitter(QtCore.Qt.Orientation.Vertical)
-		self.splitter_tb.addWidget(self.splitter_lr)
-		self.splitter_tb.addWidget(self.gui_log_handler.widget)
-		self.splitter_tb.setSizes([600, 200])
-		self.splitter_tb.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
-		self.splitter_tb.setStyleSheet(R"""
-			QSplitter::handle:vertical {
-				padding: 0px 0px 4px 0px;
-			}
-		""")
+		# Setup Logger
+		# TODO: From cfg
+		orientation = QtCore.Qt.Orientation.Horizontal
+		# TODO: From cfg
+		show_logger = True
+		topleft = self.file_splitter
+		if orientation == QtCore.Qt.Orientation.Vertical:
+			self.file_splitter.setContentsMargins(5, 0, 5, 0)
+			grid.setContentsMargins(5, 0, 5, 5)
+			self.central_layout.addLayout(grid)
+			self.central_layout.setSpacing(5)
+		else:
+			topleft = QtWidgets.QWidget()
+			box = QtWidgets.QVBoxLayout()
+			box.addLayout(grid)
+			box.addWidget(self.file_splitter)
+			topleft.setLayout(box)
+		# Layout Logger
+		if show_logger:
+			self.layout_logger(topleft, orientation)
+		else:
+			self.central_layout.addWidget(topleft)
 
-		box = QtWidgets.QVBoxLayout()
-		box.addLayout(grid)
-		box.addWidget(self.splitter_tb, 3)
-
-		self.central_widget.setLayout(box)
-
+		# Setup Menus
 		main_menu = self.menu_bar
 		file_menu = main_menu.addMenu('File')
 		edit_menu = main_menu.addMenu('Edit')
@@ -183,32 +185,21 @@ class MainWindow(widgets.MainWindow):
 		self.t_walk_ovl.setChecked(False)
 		self.t_walk_ovl.setVisible(self.dev_mode)
 
-		# add checkbox to extract from ovls for the diff walkers
-		self.t_logger = QtWidgets.QAction("Show log console")
-		self.t_logger.setToolTip("Show/hide the dev log console.")
-		self.t_logger.setCheckable(True)
-		logger_show = self.cfg.get("show_logger", True)
-		self.t_logger.setChecked(logger_show)
-		self.t_logger.triggered.connect(self.logger_show_triggered)
-		self.logger_show_triggered()
-
 		separator_action = self.actions['generate hash table']
 		# we are not adding this to the action list, shall we?
 		util_menu.insertAction(separator_action, self.t_walk_ovl)
-		# TODO: This is left for now, but the trigger logic has been
-		# update for the splitter
-		util_menu.insertAction(separator_action, self.t_logger)
 		util_menu.insertSeparator(separator_action)
 
 		self.file_info = QtWidgets.QLabel(self)
 		
-		vline = QtWidgets.QFrame(self)
-		vline.setFrameStyle(QtWidgets.QFrame.Shape.VLine)
-		vline.setStyleSheet("color: #777;")
-		vline.setMaximumHeight(15)
+		self.finfo_sep = QtWidgets.QFrame(self)
+		self.finfo_sep.setFrameStyle(QtWidgets.QFrame.Shape.VLine)
+		self.finfo_sep.setStyleSheet("color: #777;")
+		self.finfo_sep.setMaximumHeight(15)
+		self.finfo_sep.hide()
 
-		self.status_bar.addPermanentWidget(vline)
-		self.status_bar.addPermanentWidget(self.file_info)
+		self.status_bar.insertPermanentWidget(2, self.finfo_sep)
+		self.status_bar.insertPermanentWidget(3, self.file_info)
 
 		self.check_version()
 		# run once here to make sure we catch the default game
@@ -232,10 +223,11 @@ class MainWindow(widgets.MainWindow):
 		return f"{self.files_container.table.table_model.rowCount()} items"
 	
 	def update_file_counts(self, selected_count=0):
-		if selected_count == 0:
-			self.file_info.setText(self.get_file_count_text())
-		else:
-			self.file_info.setText(f"{selected_count} / {self.get_file_count_text()} selected")
+		text = self.get_file_count_text()
+		if selected_count > 0:
+			text = f"{selected_count} / {text} selected"
+		self.file_info.setText(text)
+		self.finfo_sep.show()
 
 	def do_debug_changed(self, do_debug):
 		self.ovl_data.do_debug = do_debug
@@ -244,14 +236,6 @@ class MainWindow(widgets.MainWindow):
 		msg = msg_list[0]
 		details = msg_list[1] if len(msg_list) > 1 else None
 		self.showwarning(msg, details=details)
-
-	def logger_show_triggered(self):
-		show = self.t_logger.isChecked()
-		self.cfg["show_logger"] = show
-		if show:
-			self.splitter_tb.setSizes([self.splitter_lr.height(), 120])
-		else:
-			self.splitter_tb.setSizes([800, 0])
 
 	def enable_gui_options(self, enable=True):
 		self.t_in_folder.setEnabled(enable)
@@ -360,12 +344,6 @@ class MainWindow(widgets.MainWindow):
 	def compression_changed(self, compression: str):
 		compression_value = Compression[compression]
 		self.ovl_data.user_version.compression = compression_value
-
-	def log_level_changed(self, level: str):
-		self.gui_log_handler.setLevel(level)
-		if self.stdout_handler:
-			self.stdout_handler.setLevel(level)
-		self.cfg["logger_level"] = level
 
 	def show_dependencies(self, file_index):
 		# just an example of what can be done when something is selected

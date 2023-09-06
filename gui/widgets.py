@@ -3,33 +3,35 @@ import webbrowser
 import os
 import re
 import html
-from enum import Enum
+from collections import deque
 from abc import abstractmethod
 from pathlib import Path
-from ovl_util import auto_updater  # pyright: ignore
-from typing import Any, AnyStr, Optional, Iterable, Callable, cast
+from ovl_util import auto_updater  # pyright: ignore  # noqa: F401
+from typing import Any, AnyStr, Union, Optional, Iterable, Callable, cast, NamedTuple
+from textwrap import dedent
 from generated.formats.ovl import games
 from modules.formats.shared import DummyReporter
 from ovl_util import config, logs
-from ovl_util.logs import get_stdout_handler, LogBackupFileHandler
+from ovl_util.logs import get_stdout_handler, LogBackupFileHandler, ANSI
 import gui
 from gui import qt_theme
 from root_path import root_dir
 
-from PyQt5 import QtGui, QtCore, QtWidgets # pyright: ignore
+from PyQt5 import QtGui, QtCore, QtWidgets # pyright: ignore  # noqa: F401
 from PyQt5.QtCore import (pyqtSignal, pyqtSlot, Qt, QObject, QDir, QFileInfo, QRegularExpression,
-                          QRect, QSize, QEvent, QTimer, QTimerEvent, QThread, QUrl, QMimeData,
+                          QRect, QRectF, QSize, QEvent, QTimer, QTimerEvent, QThread, QUrl, QMimeData,
                           QAbstractTableModel, QSortFilterProxyModel, QModelIndex, QItemSelection,
-                          QAbstractAnimation, QParallelAnimationGroup, QPropertyAnimation)
-from PyQt5.QtGui import (QBrush, QColor, QFont, QFontMetrics, QIcon, QPainter, QPen,
-                         QStandardItemModel, QStandardItem, QTextBlockUserData, QTextCursor,
-                         QCloseEvent, QDragEnterEvent, QDragLeaveEvent, QDragMoveEvent, QDropEvent,
-                         QFocusEvent, QMouseEvent, QPaintEvent, QResizeEvent, QWheelEvent, QTextCharFormat )
-from PyQt5.QtWidgets import (QWidget, QMainWindow, QApplication, QColorDialog, QFileDialog,
-                             QAbstractItemView, QHeaderView, QTableView, QTreeView, QFileSystemModel,
+                          QAbstractAnimation, QParallelAnimationGroup, QPropertyAnimation,
+                          QAbstractListModel, QPersistentModelIndex, QItemSelectionModel, QVariant)
+from PyQt5.QtGui import (QBrush, QColor, QFont, QFontMetrics, QIcon, QPainter, QPen, qRgba, QPainterPath, QLinearGradient,
+                         QStandardItemModel, QStandardItem, QTextDocument, QTextCursor, QTextOption, QTextDocumentFragment,
+                         QCloseEvent, QDragEnterEvent, QDragLeaveEvent, QDragMoveEvent, QDropEvent, QShowEvent,
+                         QKeyEvent, QFocusEvent, QMouseEvent, QPaintEvent, QResizeEvent, QWheelEvent)
+from PyQt5.QtWidgets import (QWidget, QMainWindow, QApplication, QColorDialog, QFileDialog, QAbstractItemView,
+                             QListView, QHeaderView, QTableView, QTreeView, QFileSystemModel, QStyle, QLayoutItem,
                              QAction, QCheckBox, QComboBox, QDoubleSpinBox, QLabel, QLineEdit, QMenu, QMenuBar,
-                             QMessageBox, QPlainTextEdit, QTextEdit, QProgressBar, QPushButton, QStatusBar, QToolButton,
-                             QFrame, QLayout, QGridLayout, QVBoxLayout, QHBoxLayout, QScrollArea, QSizePolicy,
+                             QMessageBox, QTextEdit, QProgressBar, QPushButton, QStatusBar, QToolButton, QSpacerItem,
+                             QFrame, QLayout, QGridLayout, QVBoxLayout, QHBoxLayout, QScrollArea, QSizePolicy, QSplitter,
                              QStyleFactory, QStyleOptionViewItem, QStyledItemDelegate)
 import vdf
 from qframelesswindow import FramelessMainWindow, StandardTitleBar
@@ -46,29 +48,27 @@ except:
 
 
 MAX_UINT = 4294967295
-myFont = QFont()
-myFont.setBold(True)
 
 
-def vbox(parent, grid):
-    """Adds a grid layout"""
-    # vbox = QVBoxLayout()
-    # vbox.addLayout(grid)
-    # vbox.addStretch(1.0)
-    # vbox.setSpacing(0)
-    # vbox.setContentsMargins(0,0,0,0)
-    parent.setLayout(grid)
+def color_icon(icon: QIcon, color: str = "#FFF", size: QSize = QSize(16, 16)) -> QIcon:
+    img = icon.pixmap(size)
+    qp = QPainter(img)
+    qp.setCompositionMode(QPainter.CompositionMode_SourceIn)
+    qp.fillRect(img.rect(), QColor(color))
+    qp.end()
+    return QIcon(img)
 
 
 ICON_CACHE = {"no_icon": QIcon()}
-def get_icon(name) -> QIcon:
-    if name in ICON_CACHE:
-        return ICON_CACHE[name]
+def get_icon(name: str, color: str = "", size: QSize = QSize(16, 16)) -> QIcon:
+    icon = name + color
+    if icon in ICON_CACHE:
+        return ICON_CACHE[icon]
     for ext in (".png", ".svg"):
         fp = os.path.join(root_dir, f'icons/{name}{ext}')
         if os.path.isfile(fp):
-            ICON_CACHE[name] = QIcon(fp)
-            return ICON_CACHE[name]
+            ICON_CACHE[icon] = QIcon(fp) if not color else color_icon(QIcon(fp), color=color, size=size)
+            return ICON_CACHE[icon]
     return ICON_CACHE["no_icon"]
 
 
@@ -435,212 +435,1095 @@ class SelectedItemsButton(QPushButton):
         self.setEnabled(selection.count() > 0)
 
 
-class TracebackData(QTextBlockUserData):
-    ...
-
-
-class TextEdit(QTextEdit):
-
-    obj_char = "\uFFFC"
-    show_char = "\u2B9E"
-    hide_char = "\u2B9F"
-
-    show_msg = f"{show_char} Show Traceback"
-    hide_msg = f"{hide_char} Hide Traceback"
-
-    show_html = f"<span class='show'>{show_msg}</span>"
-    hide_html = f"<span class='hide'>{hide_msg}</span>"
-
-    def __init__(self, parent: QWidget | None = None) -> None:
+class FlowWidget(QWidget):
+    def __init__(self, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent)
-        self.setReadOnly(True)
-        self.setLineWrapMode(QTextEdit.LineWrapMode.NoWrap)
+        self.widgets: deque[QWidget] = deque()           # Visible widgets
+        self.widgets_overflow: deque[QWidget] = deque()  # Hidden widgets
+        self.perm_widgets: deque[QWidget] = deque()      # Permanently visible widgets
+        self.flow_spacers: deque[QLayoutItem] = deque()  # Spacer widgets
+        # Dummy widget to pad non-consecutive hide indices
+        self.dummy = QWidget()
+        self.dummy.setMaximumWidth(0)
+        self.dummy.setHidden(True)
+        self.dummy.setObjectName("dummy")
+
+    def add_flow_widget(self, obj: QWidget, hide_index: int) -> None:
+        """Sort children for flow"""
+        if hide_index > -1 and hide_index < len(self.widgets):
+            self.widgets.insert(hide_index, obj)
+        elif hide_index > -1:
+            # Handle non-consecutive hide indices
+            for _ in range(0, hide_index - len(self.widgets)):
+                self.widgets.append(self.dummy)
+            self.widgets.append(obj)
+        else:
+            # Hide Index -1 is permanently visible
+            self.perm_widgets.append(obj)
+
+    def add_flow_item(self, obj: QLayoutItem) -> None:
+        self.flow_spacers.append(obj)
+
+    def remove_flow_widget(self, obj: QWidget) -> None:
+        if obj in self.widgets:
+            self.widgets.remove(obj)
+
+    def remove_flow_item(self, obj: QLayoutItem) -> None:
+        if obj in self.flow_spacers:
+            self.flow_spacers.remove(obj)
+
+    def do_flow_all(self, event: QResizeEvent, widgets: deque[QWidget]) -> None:
+        for widget in widgets.copy():
+            self.do_flow(event, widget)
+
+    def do_flow(self, event: QResizeEvent, widget: QWidget) -> None:
+        width = event.size().width()
+        old_width = event.oldSize().width()
+        growing = width >= old_width if old_width > -1 else False
+        visible_count = 1 if widget.isVisible() else 0
+        sibling_min_hint_width = 0
+        spacer_width = 0
+        total_width = 0
+        spacing = self.layout().spacing()
+        left_margin, _, right_margin, _ = self.layout().getContentsMargins()
+        margins = left_margin + right_margin
+        # Get spacer widths
+        for spacer in self.flow_spacers:
+            if isinstance(spacer, QSpacerItem) and spacer.sizeHint().width() > 0:
+                spacer_width += spacer.sizeHint().width()
+                visible_count += 1
+        # Get sibling widget minimum widths
+        for child in self.children():
+            if isinstance(child, QWidget) and child != widget and child.isVisible():
+                sibling_min_hint_width += child.minimumSizeHint().width()
+                visible_count += 1
+        # All visible widgets + spacing and margins
+        total_width = widget.width() + sibling_min_hint_width + spacing * (visible_count - 1) + margins + spacer_width
+        # Hide or show, and move the widget in or out of overflow
+        if not growing and widget.isVisible() and width <= total_width:
+            widget.hide()
+            self.widgets_overflow.appendleft(self.widgets.popleft())
+        elif growing and widget.isHidden() and total_width < width:
+            widget.show()
+            self.widgets.appendleft(self.widgets_overflow.popleft())
+
+    def resizeEvent(self, event: QResizeEvent) -> None:
+        """Do flow on one or all widgets depending on oldSize() and growing/shrinking"""
+        width = event.size().width()
+        old_width = event.oldSize().width()
+        if width < 0:
+            return super().resizeEvent(event)
+        growing = width >= old_width if old_width > -1 else False
+        first_visible = self.widgets[0] if self.widgets else None
+        first_hidden = self.widgets_overflow[0] if self.widgets_overflow else None
+        current_item = first_visible if not growing else first_hidden
+        if current_item:
+            return self.do_flow(event, current_item) if old_width > -1 else self.do_flow_all(event, self.widgets)
+        return super().resizeEvent(event)
+
+    def compact_widgets(self) -> None:
+        """Remove any empty spots from non-consecutive hide indices"""
+        for widget in self.widgets.copy():
+            if widget.objectName() == "dummy":
+                self.widgets.remove(self.dummy)
+
+    def show(self) -> None:
+        self.compact_widgets()  # Ensures always runs
+        return super().show()
+
+    def showEvent(self, event: QShowEvent) -> None:
+        """Send an initial QResizeEvent so that visibility is calculated on first show"""
+        super().showEvent(event)
+        self.resizeEvent(QResizeEvent(self.size(), QSize(-1, -1)))
+
+    def sizeHint(self) -> QSize:
+        """Return the minimumSizeHint so that splitter/window resizing is not blocked"""
+        return self.minimumSizeHint()
+
+    def minimumSizeHint(self) -> QSize:
+        """Return the accumulated minimum widths of permanently visible widgets"""
+        min_perm_width = 0
+        for child in self.children():
+            if isinstance(child, QWidget) and child in self.perm_widgets:
+                min_perm_width += child.minimumSizeHint().width()
+        min_size = super().minimumSizeHint()
+        return QSize(min_perm_width, min_size.height())
+
+
+class FlowHLayout(QHBoxLayout):
+    """Layout for FlowWidget. Must be passed a `parent` FlowWidget."""
+    def __init__(self, parent: FlowWidget) -> None:
+        super().__init__(parent)
+        self.parent_flow = parent
+
+    def addWidget(self, widget: QWidget, stretch: int = 0,
+                  alignment: Qt.AlignmentFlag = Qt.AlignmentFlag.AlignVCenter,
+                  hide_index: int = -1) -> None:
+        self.parent_flow.add_flow_widget(widget, hide_index)
+        return super().addWidget(widget, stretch, alignment)
+
+    def addItem(self, item: QLayoutItem) -> None:
+        self.parent_flow.add_flow_item(item)
+        return super().addItem(item)
+
+    def removeWidget(self, widget: QWidget) -> None:
+        self.parent_flow.remove_flow_widget(widget)
+        return super().removeWidget(widget)
+    
+    def removeItem(self, item: QLayoutItem) -> None:
+        self.parent_flow.remove_flow_item(item)
+        return super().removeItem(item)
+
+
+class IconButton(QPushButton):
+
+    def __init__(self, icon: QIcon, size: QSize = QSize(16, 16)) -> None:
+        super().__init__(icon, "")
+        self.setFlat(True)
+        self.setMouseTracking(True)
+        self.setIconSize(size)
+        self.setFixedSize(size)
+        self.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
+        # TODO: Get palette from cfg
+        self.setPalette(qt_theme.dark_palette)
+        style = RF"""
+            IconButton {{
+                border: 1px solid transparent;
+                padding: 0px;
+                margin: 0px;
+            }}
+            IconButton:hover {{
+                border: 1px solid {self.palette().window().color().lighter(170).name()};
+                background: {self.palette().window().color().lighter(130).name()};
+            }}
+            IconButton:pressed {{
+                background: {self.palette().window().color().lighter(150).name()};
+            }}
+        """
+        self.setStyleSheet(style)
+
+
+class LogStatus(QWidget):
+    select_row = pyqtSignal(int)
+
+    class Message(NamedTuple):
+        row: int
+        text: str
+
+    def __init__(self, parent: Optional[QWidget] = None, level: str = "INFO",
+                 color: str = "#ffcb44", show_msg: bool = False, max_msg_width: int = 400) -> None:
+        super().__init__(parent)
+        self.messages: deque[LogStatus.Message] = deque()
+        self.show_msg: bool = show_msg
+        self.max_msg_width: int = max_msg_width
+        self.setFixedHeight(16)
         self.setContentsMargins(0, 0, 0, 0)
-        self.setViewportMargins(0, -7, 0, -2) # Better table spacing
+        # Icon and count
+        self.count_box = QHBoxLayout()
+        self.count_box.setSpacing(5)
+        self.count_box.setContentsMargins(0, 0, 0, 0)
+        # Icon
+        self.count_btn = QPushButton(get_icon(level.lower()), "")
+        self.count_btn.setFlat(True)
+        self.count_btn.setFixedSize(16, 16)
+        self.count_btn.setContentsMargins(0, 0, 0, 0)
+        self.count_btn.setToolTip(f"{level.title()}s in the current file.")
+        self.count_btn.setStatusTip(f"{level.title()}s in the current file.")
+        self.count_btn.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
+        # Count
+        self.count_lbl = QLabel("0")
+        self.count_lbl.setContentsMargins(0, 0, 0, 0)
+        self.count_lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.count_lbl.setToolTip(f"{level.title()}s in the current file.")
+        self.count_lbl.setStatusTip(f"{level.title()}s in the current file.")
+        self.count_lbl.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Fixed)
+        self.count_box.addWidget(self.count_btn)
+        self.count_box.addWidget(self.count_lbl)
+        # Next button and text
+        self.next_box = QHBoxLayout()
+        self.next_box.setSpacing(0)
+        self.next_box.setContentsMargins(0, 0, 0, 0)
+        # Next button
+        self.next_btn = QPushButton(get_icon("jump", color=color), "")
+        self.next_btn.setFlat(True)
+        self.next_btn.setVisible(False)
+        self.next_btn.setStatusTip(f"Jump to next {level.title()}")
+        self.next_btn.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.next_btn.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Fixed)
+        # Next text
+        self.next_txt = QPushButton("")
+        self.next_txt.setVisible(False)
+        self.next_txt.setStatusTip(f"Jump to next {level.title()}")
+        self.next_txt.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.next_box.addWidget(self.next_btn)
+        if self.show_msg:
+            self.next_txt.setSizePolicy(QSizePolicy.Policy.Maximum, QSizePolicy.Policy.Fixed)
+            self.next_box.addWidget(self.next_txt)
+        # TODO: Integrate with cfg palette
+        bg = QApplication.palette().shadow().color()
+        bg = bg.lighter(45)
+        highlight = QColor(color)
+        highlight = highlight.lighter(105)
+        btn_style = RF"""
+            QPushButton {{
+                padding: 2px;
+                margin: 0px;
+                color: {color};
+                border: none;
+            }}
+            QLabel {{
+                padding: 0px;
+                margin: 0px;
+                color: {color};
+                border: none;
+            }}
+        """
+        next_btn_style = RF"""
+            QPushButton {{
+                padding: 2px;
+                margin: 0px;
+                color: {color};
+                border: none;
+                font: bold 12px "Consolas, monospace"; 
+            }}
+            QPushButton:hover {{
+                color: {highlight.name()};
+                background: {bg.name()};
+                border: none;
+            }}
+        """
+        self.count_btn.setStyleSheet(btn_style)
+        self.count_lbl.setStyleSheet(btn_style)
+        self.next_btn.setStyleSheet(next_btn_style)
+        self.next_txt.setStyleSheet(next_btn_style)
+        self.next_btn.clicked.connect(self.on_clicked)
+        self.next_txt.clicked.connect(self.on_clicked)
+        # Main layout
+        self.hbox = QHBoxLayout(self)
+        self.hbox.addLayout(self.count_box)
+        self.hbox.addLayout(self.next_box)
+        self.hbox.setContentsMargins(0, 0, 0, 0)
+
+    @property
+    def message_count(self) -> int:
+        return len(self.messages)
+    
+    def layout_horizontal(self) -> None:
+        self.next_btn.setFixedHeight(16)
+        self.next_txt.setFixedHeight(16)
+        if self.show_msg:
+            self.next_txt.setMaximumWidth(self.max_msg_width)
+        else:
+            self.next_txt.setMaximumWidth(0)
+            self.next_btn.setFixedWidth(16)
+        self.setFixedHeight(16)
+        self.hbox.setDirection(QHBoxLayout.Direction.LeftToRight)
+        self.hbox.setSpacing(6)
+        self.count_box.setDirection(QHBoxLayout.Direction.LeftToRight)
+        self.next_box.setDirection(QHBoxLayout.Direction.LeftToRight)
+
+    def layout_vertical(self) -> None:
+        self.setFixedHeight(64)
+        self.hbox.setDirection(QHBoxLayout.Direction.TopToBottom)
+        self.hbox.setSpacing(6)
+        self.count_box.setDirection(QHBoxLayout.Direction.TopToBottom)
+        self.next_box.setDirection(QHBoxLayout.Direction.TopToBottom)
+
+    def resize_max_msg_width(self, add_sub: int) -> None:
+        """Increase/Decrease max message width with window"""
+        # TODO: This wasn't quite working and is not currently called
+        if self.show_msg:
+            self.max_msg_width += add_sub
+            self.next_txt.setMaximumWidth(self.max_msg_width)
+            self.update_text()
+
+    def set_show_message(self, show: bool) -> None:
+        self.show_msg = show
+
+    def add_message(self, row: int, msg: str) -> None:
+        self.messages.append(LogStatus.Message(row, msg))
+        self.update_text()
+
+    def update_text(self) -> None:
+        if self.message_count == 0:
+            self.next_btn.setVisible(False)
+            self.next_txt.setVisible(False)
+            return self.count_lbl.setText("0")
+        if self.show_msg:
+            # Always show top of message deque
+            self.next_txt.setText(f" {self.messages[0].text}")
+            # TODO: Elision slightly cut off
+            metrics = self.next_txt.fontMetrics()
+            self.next_txt.setText(metrics.elidedText(self.next_txt.text(), Qt.TextElideMode.ElideRight, self.max_msg_width))
+        if self.message_count < 100:
+            self.count_lbl.setFont(QFont("Consolas, monospace", 8))
+        else:
+            self.count_lbl.setFont(QFont("Consolas, monospace", 7))
+        self.next_btn.setVisible(True)
+        self.next_txt.setVisible(True)
+        self.next_btn.setToolTip(f"Jump to `{self.messages[0].text}`")
+        self.next_txt.setToolTip(f"Jump to `{self.messages[0].text}`")
+        self.count_lbl.setText(f"{self.message_count}")
+
+    def on_clicked(self, _checked: bool) -> None:
+        if self.message_count:
+            self.select_row.emit(self.messages[0].row)
+            self.messages.rotate(-1)
+            self.update_text()
+
+    def clear(self) -> None:
+        self.messages.clear()
+        self.update_text()
 
 
-    def replace_level(self, text: str) -> str:
-        texts = text.split("||")
-        levels = list(TextEditLogger.Level)
-        text = "".join([levels[int(t)] if t.isnumeric() and int(t) <= len(levels) else t for t in texts])
+class LogViewDelegate(QStyledItemDelegate):
+    rowSizeHintChanged = QtCore.pyqtSignal(int)
+
+    document_cache: dict[int, QTextDocument] = dict()
+
+    HEIGHT = 18
+    PAD = 4
+    DETAIL_INDENT = '\u00A0\u00A0'
+    DETAIL_OFFSET = HEIGHT
+    ICON_COL_SIZE = 25
+
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        self.do_toggle = False
+        self._style = R"""
+            div, span {font-family: "Consolas, monospace"; font-size: 12px; background: transparent; border: 0px;}
+            .msg_DEBUG {color:#808080;}
+            .msg_INFO {color:#ddd;}
+            .msg_SUCCESS {color:#2fff5d;}
+            .msg_WARNING {color:#ffc52f;}
+            .msg_ERROR {color:#e73f34;}
+            .msg_CRITICAL {color:#ff2e67;}
+            .level {font-size: 1px; color: transparent; width: 0px; }
+
+            .detail, .traceback, .show, .hide {font-family: "Consolas, monospace"; color: #ddd; margin-top: 4px; border: 0px;}
+            .traceback, .show, .hide {font-size: 11px;}
+            .detail {font-size: 12px;}
+
+            .trace {font-family: "Consolas, monospace"; font-size: 11px;}
+            .trace.caret {color:#e54873;}
+            .trace.line {color:#31b6e2;}
+            .trace.file {color:#e8c35e;}
+            .trace.location {color:#76a342;}
+            .trace.exception, .trace.message {color:#f34965;}
+
+            QTextBlock {font-family: "Consolas, monospace"; margin: 0px; padding: 0px; border: 0px;}
+        """
+
+    SHOW_CHAR = "\u2B9E"  # >  arrow
+    HIDE_CHAR = "\u2B9F"  # \/ arrow
+    SHOW_INFO = f"{SHOW_CHAR} Show Info"
+    HIDE_INFO = f"{HIDE_CHAR} Hide Info"
+    SHOW_TRACE = f"{SHOW_CHAR} Show Traceback"
+    HIDE_TRACE = f"{HIDE_CHAR} Hide Traceback"
+
+    @staticmethod
+    def show_text(is_trace: bool) -> str:
+        return f"{LogViewDelegate.SHOW_TRACE if is_trace else LogViewDelegate.SHOW_INFO}"
+
+    @staticmethod
+    def hide_text(is_trace: bool) -> str:
+        return f"{LogViewDelegate.HIDE_TRACE if is_trace else LogViewDelegate.HIDE_INFO}"
+
+    @staticmethod
+    def color_traceback(text: str) -> str:
+        """Basic coloring for tracebacks"""
+        # Traceback (most recent call last)
+        text = re.sub(r"(?m)^(Traceback.*:)$", r"<span class='trace message'>\g<1></span>", text)
+        # ExceptionType: exception message
+        text = re.sub(r"(?m)^([A-Za-z0-9_\.]+):\s(.*?)$", r"<span class='trace exception'>\g<1>: \g<2></span>", text)
+        # Caret underlines
+        text = re.sub(r"([\^]+)", r"<span class='trace caret'>\g<0></span>", text)
+        # Line numbers
+        text = re.sub(r",(\sline\s[0-9]+),", r",<span class='trace line'>\g<1></span>,", text)
+        # Filepath
+        text = re.sub(r"(File\s&quot;.*?&quot;),", r"<span class='trace file'>\g<1></span>", text)
+        # Method name
+        text = re.sub(r"(?m),\sin\s(.*?)$", r", in <span class='trace location'>\g<1></span>", text)
         return text
 
-    def createMimeDataFromSelection(self) -> QMimeData:
-        selection = self.textCursor().selection()
-        text = selection.toPlainText().replace(self.obj_char, "")
-        text = "\n".join([line for line in text.split('\n') if line.strip()])
-        text = self.replace_level(text).replace(self.show_msg, "").replace(self.hide_msg, "")
+    def create_doc(self, option: QStyleOptionViewItem, index: QModelIndex) -> QTextDocument:
+        """Create a QTextDocument for a logger item and cache it for repaints"""
+        # Cache each row for repaints
+        doc = self.document_cache.get(index.row(), None)
+        if doc is None:
+            doc = QTextDocument()
+            opt = QTextOption()
+            if not (option.features & QStyleOptionViewItem.ViewItemFeature.WrapText):
+                opt.setWrapMode(QTextOption.WrapMode.NoWrap)
+            doc.setDefaultStyleSheet(self._style)
+            doc.setUndoRedoEnabled(False)
+            doc.setDocumentMargin(0)
+            doc.setUseDesignMetrics(True)
+            doc.setTextWidth(option.rect.width() - self.ICON_COL_SIZE)
+            doc.setDefaultTextOption(opt)
+
+            detail = str(index.data(Qt.ItemDataRole.UserRole))
+            is_trace = detail.startswith("\nTraceback")
+            cursor = QTextCursor(doc)
+            cursor.insertHtml(option.text)
+            if detail:
+                cursor.movePosition(QTextCursor.MoveOperation.End)
+                cursor.insertBlock()  # Whitespace for Show/Hide line
+                cursor.insertBlock()  # Block for Traceback/Info
+                detail = self.color_traceback(html.escape(detail).replace(' ', '\u00A0'))
+                if is_trace:
+                    detail = detail.replace('\n', self.DETAIL_INDENT, 1)  # Replace first \n
+                detail = detail.replace('\n', f'<br>{self.DETAIL_INDENT}')
+                cursor.insertHtml(f"<div class='{'traceback' if is_trace else 'detail'}'>{detail}</div>")
+                cursor.block().setVisible(False)
+            self.document_cache[index.row()] = doc
+        return doc
+
+    def paint(self, painter: QPainter, option: QStyleOptionViewItem, index: QModelIndex) -> None:
+        """Render our logger widget item"""
+        self.initStyleOption(option, index)
+        painter.setFont(QFont("Consolas, monospace", 8))
+        painter.setRenderHints(QPainter.RenderHint.TextAntialiasing | QPainter.RenderHint.Antialiasing)
+        painter.save()
+        option.features &= ~(QStyleOptionViewItem.ViewItemFeature.WrapText | QStyleOptionViewItem.ViewItemFeature.HasCheckIndicator)
+        doc = self.create_doc(option, index)
+        option.text = ""
+        option.widget.style().drawControl(QtWidgets.QStyle.ControlElement.CE_ItemViewItem, option, painter, option.widget)
+
+        detail = str(index.data(LogModel.DETAIL))
+        if detail:
+            # Detail block expand/collapse state
+            toggled = False
+            is_trace = detail.startswith("\nTraceback")
+            # Entire list view item rect
+            area = option.rect
+            # Entire detail block
+            detail_rect = QRect(area)
+            detail_rect.setTop(area.top() + self.DETAIL_OFFSET)
+            detail_rect.adjust(self.ICON_COL_SIZE, 0, -self.ICON_COL_SIZE, 0)
+            # Show/Hide detail line
+            show_detail_rect = QRect(detail_rect)
+            show_detail_rect.setHeight(min(10, show_detail_rect.height()))
+            # There is the space for Show/Hide detail, get index state
+            if area.contains(show_detail_rect, proper=True):
+                toggled = index.data(LogModel.TOGGLED) == Qt.CheckState.Checked
+            # Is the detail block being hovered on
+            on_detail = False
+            widget = option.widget
+            if type(widget) is LogView and (option.state & QStyle.StateFlag.State_MouseOver):
+                position = widget.viewport().mapFromGlobal(QtGui.QCursor.pos())
+                if detail_rect.contains(position):
+                    on_detail = True
+            # Draw mouseover highlight
+            if on_detail and (option.state & QStyle.StateFlag.State_MouseOver):
+                # Color for log level
+                color = QColor(LogView.COLORS.get(index.data(LogModel.LEVEL), "#FFFFFF"))
+                color.setAlpha(32)
+                grad_rect = detail_rect if toggled else detail_rect
+                gradient = QLinearGradient(0, 0, 0, 1.0)
+                gradient.setCoordinateMode(QLinearGradient.CoordinateMode.ObjectBoundingMode)
+                gradient.setColorAt(0.0, color)
+                if toggled:
+                    color.setAlpha(0)
+                gradient.setColorAt(1.0, color)
+                path = QPainterPath()
+                path.addRoundedRect(QRectF(grad_rect), 4, 4)
+                painter.setPen(QPen(Qt.GlobalColor.transparent, 0))
+                painter.setBrush(gradient)
+                painter.drawPath(path)
+            # Highlight Show/Hide text over entire detail block
+            if (option.state & QStyle.StateFlag.State_MouseOver):
+                if on_detail:
+                    painter.setPen(QColor("#CCC"))
+                else:
+                    painter.setPen(QColor("#AAA"))
+            else:
+                painter.setPen(QColor("#999"))
+            # Show/Hide Text
+            text = self.show_text(is_trace) if not toggled else self.hide_text(is_trace)
+            painter.drawText(show_detail_rect.adjusted(0, 3, 0, 3), Qt.AlignmentFlag.AlignVCenter, text)
+            oldSize = self.sizeHint(option, index)
+            if self.do_toggle and (option.state & (QStyle.StateFlag.State_HasFocus)):
+                cursor = QTextCursor(doc)
+                cursor.movePosition(QTextCursor.MoveOperation.End)
+                cursor.block().setVisible(toggled)
+                doc.markContentsDirty(cursor.block().position(), cursor.block().length())
+                self.do_toggle = False
+            # Update LogView layout
+            if oldSize != self.sizeHint(option, index):
+                self.rowSizeHintChanged.emit(min(300, int(doc.size().height())))
+
+        painter.translate(option.rect.left() + self.ICON_COL_SIZE, option.rect.top() + self.PAD)
+        doc.drawContents(painter, QRectF(0, 0, option.rect.width(), option.rect.height()))
+        painter.restore()
+
+    def sizeHint(self, option: QStyleOptionViewItem, index: QModelIndex) -> QSize:
+        """Adjust the sizeHint for the QTextDocument"""
+        self.initStyleOption(option, index)
+        doc = self.create_doc(option, index)
+        size = QSize(int(doc.idealWidth()), int(doc.size().height()) + self.PAD * 2)
+        return size
+
+    def on_toggle_detail(self) -> None:
+        self.do_toggle = True
+
+    def clear(self) -> None:
+        self.document_cache.clear()
+
+
+class LogListData(NamedTuple):
+    level: str
+    text: str
+    html: str
+    detail: str
+
+    @staticmethod
+    def from_str(text: str) -> 'LogListData':
+        message, detail = text.split(logs.HtmlFormatter.eol, 1)
+        level, plaintext, html = message.split(" | ", 2)
+        return LogListData(level, plaintext, html, detail)
+
+
+class LogModel(QAbstractListModel):
+    number_fetched = pyqtSignal(int)
+    resize_requested = pyqtSignal(int)
+
+    TEXT = Qt.ItemDataRole.EditRole
+    HTML = Qt.ItemDataRole.DisplayRole
+    DETAIL = Qt.ItemDataRole.UserRole
+    ICON = Qt.ItemDataRole.DecorationRole
+    INFO = Qt.ItemDataRole.ToolTipRole
+    LEVEL = Qt.ItemDataRole.WhatsThisRole
+    TOGGLED = Qt.ItemDataRole.CheckStateRole
+
+    def __init__(self, parent: QObject | None = None, batch_size=100) -> None:
+        super().__init__(parent)
+        self._row_count: int = 0
+        self.log_data: deque[LogListData] = deque()
+        self.batch_size = batch_size
+        self.checks: dict[QPersistentModelIndex, Qt.CheckState] = {}
+
+    def append(self, data: LogListData) -> None:
+        self.log_data.append(data)
+
+    def clear(self) -> None:
+        self.log_data.clear()
+        self.removeRows(0, self.rowCount())
+        self._row_count = 0
+
+    @property
+    def data_count(self) -> int:
+        return len(self.log_data)
+
+    def rowCount(self, _parent: QModelIndex = QModelIndex()) -> int:
+        return self._row_count
+
+    def setData(self, index: QModelIndex, value: Any, role: int = HTML) -> bool:
+        if not index.isValid():
+            return False
+        if role == LogModel.TOGGLED:
+            self.checks[QPersistentModelIndex(index)] = value
+            return True
+        return False
+
+    def data(self, index: QModelIndex, role: int = HTML) -> Any:
+        if not index.isValid():
+            return None
+        row = index.row()
+        log = self.log_data[index.row()]
+        if row < 0 or row >= self.data_count:
+            return None
+        if role == LogModel.HTML:
+            return log.html
+        elif role == LogModel.ICON:
+            return get_icon(log.level).pixmap(16, 16)
+        elif role == LogModel.DETAIL:
+            return log.detail.replace(root_dir, ".")
+        elif role == LogModel.TEXT:
+            return log.text
+        elif role == LogModel.INFO:
+            return dedent(log.detail).strip()
+        elif role == LogModel.TOGGLED:
+            return self.checks.get(QPersistentModelIndex(index), Qt.CheckState.Unchecked)
+        elif role == LogModel.LEVEL:
+            return log.level
+        return QVariant()
+
+    def canFetchMore(self, _index: QModelIndex | None = None) -> bool:
+        return self._row_count < self.data_count
+
+    def fetchMore(self, _index: QModelIndex | None = None) -> None:
+        remainder = self.data_count - self._row_count
+        fetched = min(self.batch_size, remainder)
+        self.beginInsertRows(QModelIndex(), self._row_count, self._row_count + fetched)
+        self._row_count += fetched
+        self.endInsertRows()
+        self.number_fetched.emit(fetched)
+
+    @staticmethod
+    def get_plaintext(msg: str) -> str:
+        return QTextDocumentFragment.fromHtml(msg).toPlainText()
+
+    def mimeData(self, indexes: Iterable[QModelIndex]) -> QMimeData:
+        text = ""
+        for index in indexes:
+            text += f"{index.data(LogModel.LEVEL)} | {index.data(LogModel.TEXT)}"
+            detail = index.data(LogModel.DETAIL)
+            if detail:
+                text += detail
+            text += "\n"
         data = QMimeData()
         data.setText(text)
         return data
 
-    def mouseReleaseEvent(self, event: QMouseEvent) -> None:
-        if event.button() == Qt.MouseButton.LeftButton:
-            cursor = self.cursorForPosition(event.pos())
-            block = cursor.block()
-            block_next = block.next()
-            if isinstance(block_next.userData(), TracebackData):
-                cursor.movePosition(QTextCursor.MoveOperation.EndOfBlock, QTextCursor.MoveMode.MoveAnchor)
-                cursor.movePosition(QTextCursor.MoveOperation.StartOfBlock, QTextCursor.MoveMode.KeepAnchor)
-                if not block_next.isVisible():
-                    cursor.insertHtml(TextEdit.hide_html)
-                else:
-                    cursor.insertHtml(TextEdit.show_html)
-                block_next.setVisible(not block_next.isVisible())
-                block.document().markContentsDirty(block.blockNumber(), 1)
-        return super().mouseReleaseEvent(event)
-    
-    def mouseMoveEvent(self, event: QMouseEvent) -> None:
-        block = self.cursorForPosition(event.pos()).block()
-        block_next = block.next()
-        if isinstance(block_next.userData(), TracebackData):
-            self.viewport().setCursor(Qt.CursorShape.PointingHandCursor)
-            return
-        
-        self.viewport().setCursor(Qt.CursorShape.IBeamCursor)
-        return super().mouseMoveEvent(event)
+    def flags(self, index: QModelIndex) -> Qt.ItemFlags:
+        if not index.isValid():
+            return Qt.ItemFlag.ItemIsEnabled
+        return Qt.ItemFlags(cast(Qt.ItemFlags,
+                                 Qt.ItemFlag.ItemIsSelectable
+                                 | Qt.ItemFlag.ItemIsEnabled
+                                 | Qt.ItemFlag.ItemIsUserCheckable))
+
+    def on_rowSizeHintChanged(self, height: int) -> None:
+        self.layoutChanged.emit()
+        self.resize_requested.emit(height)
 
 
-class TextEditLogger(logging.Handler, QObject):
-    """Text field to hold log information."""
-    appendHtml = pyqtSignal(str)
+class LogView(QListView):
+    toggle_detail = pyqtSignal()
+    increment_error = pyqtSignal(int, str)
+    increment_warning = pyqtSignal(int, str)
 
-    class Level(str, Enum):
-        DEBUG = "DEBUG | "
-        INFO = "INFO | "
-        SUCCESS = "SUCCESS | "
-        WARNING = "WARNING | "
-        ERROR = "ERROR | "
-        CRITICAL = "CRITICAL | "
+    DEBUG_COLOR = "#808080"
+    INFO_COLOR = "#ddd"
+    SUCCESS_COLOR = "#2fff5d"
+    WARNING_COLOR = "#ffcb44"
+    ERROR_COLOR = "#e73f34"
+    ERROR_COLOR_BRIGHT = "#e84b40"
+    CRITICAL_COLOR = "#ff2e67"
 
-    icons = {
-        Level.DEBUG: "debug.svg",
-        Level.INFO: "info.svg",
-        Level.SUCCESS: "success.svg",
-        Level.WARNING: "warning.svg",
-        Level.ERROR: "error.svg",
-        Level.CRITICAL: "critical.svg",
+    COLORS = {
+        "DEBUG": QColor(DEBUG_COLOR),
+        "INFO": QColor(INFO_COLOR),
+        "SUCCESS": QColor(SUCCESS_COLOR),
+        "WARNING": QColor(WARNING_COLOR),
+        "ERROR": QColor(ERROR_COLOR),
+        "CRITICAL": QColor(CRITICAL_COLOR),
     }
 
+    def __init__(self, parent: Optional[QWidget] = None) -> None:
+        super().__init__(parent)
+        self.on_detail = False
+        self.setAcceptDrops(False)
+        #self.setLayoutMode(QListView.LayoutMode.Batched)  # Flickers badly
+        #self.setBatchSize(100)  # Flickers badly
+        self.setSelectionMode(QAbstractItemView.SelectionMode.ContiguousSelection)
+        self.setSizePolicy(QSizePolicy.Policy.MinimumExpanding, QSizePolicy.Policy.Minimum)
+        self.setVerticalScrollMode(QListView.ScrollMode.ScrollPerItem)
+        self.setDragEnabled(False)
+        self.setMouseTracking(True)
+        self.setAutoFillBackground(False)
+        self.setFrameStyle(QFrame.Shape.NoFrame)
+        self.setStyle(QStyleFactory.create('windows'))
+        # TODO: Get palette from cfg
+        self.setPalette(qt_theme.dark_palette)
+        self.setStyleSheet(RF"""
+            QListView {{
+                border: 0px;
+                padding-left: 1px;
+                padding-top: 3px;
+                background-color: {self.palette().base().color().darker(110).name()};
+                selection-background-color: transparent;
+                outline: 0;
+            }}
+            QListView::item {{
+                border: 1px solid transparent;
+            }}
+            QListView::item:selected {{
+                background: {self.palette().base().color().lighter(110).name()};
+            }}
+            QListView::item:selected:active {{
+                
+            }}
+            QListView::item:hover {{
+                background: {self.palette().base().color().lighter(120).name()};
+            }}
+            QListView::item:focus {{
+            
+            }}
+            QListView::item:selected:!active {{
+            }}
+            QListView > QToolTip {{font: bold 11px 'Consolas, monospace'; border: 1px solid white;}}
+        """ + qt_theme.style_modern_scrollbar(handle_color=self.palette().text().color().darker(300).name(),
+                                              view_bg_color=self.palette().base().color().darker(110).name()))
+        # View model
+        self.list_model = LogModel(self, batch_size=1000)
+        self.setModel(self.list_model)
+        self.list_model.number_fetched.connect(self.on_number_fetched)
+        self.list_model.resize_requested.connect(cast(LoggerWidget, parent).expand_for_detail)
+        # Item delegate
+        self.delegate = LogViewDelegate(self)
+        self.setItemDelegate(self.delegate)
+        self.delegate.rowSizeHintChanged.connect(self.list_model.on_rowSizeHintChanged)
+        self.toggle_detail.connect(self.delegate.on_toggle_detail)
+        # Timer for fetchMore
+        self.fetchTimer = QTimer()
+        self.fetchTimer.setInterval(250)
+        self.fetchTimer.setSingleShot(True)
+        self.fetchTimer.timeout.connect(self.fetchMore)
+        self.fetchTimer.start()
 
-    def __init__(self, parent: QWidget | None) -> None:
-        super().__init__()
-        QObject.__init__(self, parent)
-        self.widget = TextEdit(parent)
-        self.widget.setStyleSheet("QTextEdit { selection-background-color: #888; }")
-        self.cursor = self.widget.textCursor()
-        self.block_fmt = self.cursor.block().blockFormat()
-        self.block_fmt.setLineHeight(12, 0)
-        self.block_fmt.setTopMargin(0)
-        self.block_fmt.setBottomMargin(0)
-        self.cursor.setBlockFormat(self.block_fmt)
+    def append(self, data: LogListData) -> None:
+        if data.level in ("ERROR", "CRITICAL"):
+            self.increment_error.emit(self.list_model.data_count, data.text)
+        if data.level == "WARNING":
+            self.increment_warning.emit(self.list_model.data_count, data.text)
+        self.list_model.append(data)
+        # Always start fetch timer after an append
+        self.fetchTimer.start()
 
-        self.table = self.cursor.insertTable(1, 2)
-        # Hide empty row
-        self.cursor.block().setVisible(False)
-        self.cursor.block().next().setVisible(False)
-        self.cursor.document().markContentsDirty(0, 1)
+    def clear(self) -> None:
+        self.list_model.clear()
+        self.delegate.clear()
 
-        self.fmt = self.table.format()
-        self.fmt.setWidth(QtGui.QTextLength(QtGui.QTextLength.PercentageLength, 100))
-        self.fmt.setBorderStyle(QtGui.QTextFrameFormat.BorderStyle.BorderStyle_None)
-        self.fmt.setColumnWidthConstraints([QtGui.QTextLength(QtGui.QTextLength.Type.FixedLength, 16),
-                                            QtGui.QTextLength(QtGui.QTextLength.Type.PercentageLength, 100)])
-        self.fmt.setCellSpacing(3)
-        self.table.setFormat(self.fmt)
-        # QTextDocument default stylesheet
-        style = R"""
-                div, span {font-family: "Consolas, monospace"; font-size: 12px;}
-                .msg_debug {color:gray;}
-                .msg_info {color:#ddd;}
-                .msg_success {color:#2fff5d;}
-                .msg_warning {color:#ffc52f;}
-                .msg_error {color:#e73f34;}
-                .msg_critical {color:#ff2e67;}
-                .level {font-size: 1px; color: transparent; width: 0px; }
-                .traceback, .show, .hide {font-family: "Consolas, monospace"; font-size: 11px; color: #ddd; margin-top: 4px;}
-                .caret {color:#ff2e67;font-family: "Consolas, monospace"; font-size: 11px;}
-                .line {color:#14c5ff;font-family: "Consolas, monospace"; font-size: 11px;}
-                .file {color:#ffce47;font-family: "Consolas, monospace"; font-size: 11px;}
-                .location {color:#77b332;font-family: "Consolas, monospace"; font-size: 11px;}
-                QTextBlock {font-family: "Consolas, monospace"; margin: 0px; padding: 0px;}
-                """
-        self.table.document().setDefaultStyleSheet(style)
-        self.appendHtml.connect(self.append)
-
-    def emit(self, record: logging.LogRecord) -> None:
-        msg = self.format(record)
-        self.appendHtml.emit(msg)
-
-    def color_traceback(self, text: str) -> str:
-        """Basic coloring for tracebacks"""
-        text = re.sub(r"([\^]+)", r"<span class='caret'>\g<0></span>", text)
-        text = re.sub(r",(&nbsp;line&nbsp;[0-9]+),", r",<span class='line'>\g<1></span>,", text)
-        text = re.sub(r"(File&nbsp;&quot;.*?&quot;),", r"<span class='file'>\g<1></span>", text)
-        text = re.sub(r",&nbsp;in&nbsp;(.*?)<br>", r",&nbsp;in&nbsp;<span class='location'>\g<1></span><br>", text)
-        return text
-
-    def get_traceback(self, msg: str) -> tuple[str, int]:
-        """Builds html for the folded traceback text block"""
-        text = ""
-        start = msg.find(logs.HtmlFormatter.eol) + 1
-        traceback = msg[start:]
-        if traceback and start > 0:
-            text = html.escape(msg[start:]).replace("\n", "<br>").replace(" ", "&nbsp;")
-            text = text.replace(root_dir, ".")
-            text = self.color_traceback(text)
-        return text, start
+    def count(self) -> int:
+        return self.list_model.data_count
     
-    def get_level(self, msg) -> Level:
-        """Obtains the log message level from the log message"""
-        for level in self.Level:
-            if level in msg:
-                return level
-        return self.Level.INFO
+    def fetched_count(self) -> int:
+        return self.list_model.rowCount()
+
+    def fetchMore(self) -> None:
+        if self.list_model.canFetchMore():
+            if self.state() != self.State.EditingState:
+                self.list_model.fetchMore()
+            self.fetchTimer.start()
+
+    def copy_selection(self) -> None:
+        """Fill clipboard with log text for all selected items"""
+        selection = self.selectedIndexes()
+        if selection:
+            data = self.list_model.mimeData(selection)
+            QApplication.clipboard().setMimeData(data)
+
+    def keyPressEvent(self, event: QKeyEvent) -> None:
+        """Handle Ctrl-C for log messages"""
+        if event == QtGui.QKeySequence.Copy:
+            self.copy_selection()
+            return
+        return super().keyPressEvent(event)
     
-    def replace_level(self, level: Level, msg: str) -> str:
-        """
-        Replaces `INFO | ` with `||0||`, etc. for even text spacing among levels,
-        after which it is styled to be almost invisible since there are level icons instead.
-        This is then reversed in TextEdit.createMimeDataFromSelection for the clipboard.
-        """
-        levels = list(self.Level)
-        level_index = levels.index(level)
-        return msg.replace(level.value, f"<div class='level'>||{level_index}||</div>")
+    def mouseMoveEvent(self, event: QMouseEvent) -> None:
+        """Handle hover state for detail blocks"""
+        position = event.pos()
+        index = self.indexAt(position)
+        self.on_detail = False
+        if index.data(LogModel.DETAIL):
+            area = self.visualRect(index)
+            detail_rect = QRect(area)
+            detail_rect.setTop(area.top() + LogViewDelegate.DETAIL_OFFSET)
+            detail_rect.adjust(LogViewDelegate.ICON_COL_SIZE, 0, -LogViewDelegate.ICON_COL_SIZE, 0)
+            if detail_rect.height() > 10:
+                # To make entire traceback clickable to toggle, do not set height
+                #show_detail.setHeight(10)
+                self.on_detail = detail_rect.contains(position)
+                # Force repaint
+                self.update(index)
+        # Handle cursor on detail hover
+        if self.on_detail:
+            self.viewport().setCursor(Qt.CursorShape.PointingHandCursor)
+        else:
+            self.viewport().unsetCursor()
+        return super().mouseMoveEvent(event)
 
-    def append(self, msg: str) -> None:
-        """
-        Appends an html row built from a logging message
-        """
-        level = self.get_level(msg)
-        msg = self.replace_level(level, msg)
-        traceback_text, traceback_pos = self.get_traceback(msg)
-        if traceback_text and level in {self.Level.ERROR, self.Level.CRITICAL}:
-            traceback_text = f"<div class='traceback'>{traceback_text}</div>"
-            # TODO: Support option for expanded/collapsed by default
-            msg = msg[:traceback_pos] + TextEdit.show_html
+    def mouseReleaseEvent(self, event: QMouseEvent) -> None:
+        """Handle toggle state for detail blocks"""
+        if event.button() == Qt.MouseButton.LeftButton and self.on_detail:
+            position = event.pos()
+            index = self.indexAt(position)
+            # Toggle check state
+            checked = self.list_model.data(index, LogModel.TOGGLED)
+            if checked == Qt.CheckState.Checked:
+                checked = Qt.CheckState.Unchecked
+                self.setVerticalScrollMode(QListView.ScrollMode.ScrollPerItem)
+            else:
+                checked = Qt.CheckState.Checked
+                self.setVerticalScrollMode(QListView.ScrollMode.ScrollPerPixel)
+            # Set new check state
+            self.list_model.setData(index, checked, LogModel.TOGGLED)
+            # Inform listeners
+            self.toggle_detail.emit()
+            # Force repaint
+            self.update(index)
+        return super().mouseReleaseEvent(event)
 
-        row = self.table.rows()
-        self.table.insertRows(row, 1)
-        # Image Column
-        img_col = self.table.cellAt(row, 0)
-        img_pos = img_col.firstCursorPosition().position()
-        self.cursor.setPosition(img_pos)
-        self.cursor.insertHtml(f"<img src='icons/{self.icons[level]}' height='16' width='16' />")
-        # Message Column
-        msg_col = self.table.cellAt(row, 1)
-        msg_pos = msg_col.firstCursorPosition().position()
-        self.cursor.setPosition(msg_pos)
-        self.cursor.insertHtml(msg)
-        if traceback_text:
-            self.cursor.insertBlock()
-            self.cursor.block().setUserData(TracebackData())
-            self.cursor.insertHtml(traceback_text)
-            self.cursor.block().setVisible(False)
-        # Scroll to bottom, but do not scroll to the right
-        self.cursor.setPosition(img_pos)
-        self.widget.setTextCursor(self.cursor)
-        self.widget.ensureCursorVisible()
+    def on_number_fetched(self, _number: int) -> None:
+        self.scrollToBottom()
+
+
+class LoggerWidget(QWidget):
+    """Logger widget with colored and expandable list items.
+    Supports both horizontal and vertical placement and communicates with
+    QSplitter to adjust its contents accordingly.
+    """
+    log_level_changed = pyqtSignal(str)
+    current_size = pyqtSignal(QSize)
+
+
+    class ResizeRequest(NamedTuple):
+        size: int
+        expand_only: bool = True
+
+
+    resize_requested = pyqtSignal(ResizeRequest)
+
+
+    class Handler(logging.Handler, QObject):
+        append = pyqtSignal(LogListData)
+
+        def __init__(self, parent: QWidget | None) -> None:
+            super().__init__()
+            QObject.__init__(self, parent)
+
+        def emit(self, record: logging.LogRecord) -> None:
+            # Supply an empty details string for logging calls that
+            # do not include it (to avoid an exception)
+            if not hasattr(record, "details"):
+                record.__dict__["details"] = ""
+            data = LogListData.from_str(self.format(record))
+            self.append.emit(data)
+
+
+    ICON_BAR_SIZE: int = 18
+    MIN_HEIGHT: int = 48
+    MIN_WIDTH: int = 180
+
+    def __init__(self, parent: 'MainWindow', orientation: Qt.Orientation) -> None:
+        super().__init__(parent)
+        self.handler = LoggerWidget.Handler(self)
+        self.list_widget = LogView(self)
+        self.orientation = orientation
+        self.splitter_moving = False
+        if self.orientation == Qt.Orientation.Vertical:
+            self.list_widget.setMinimumHeight(1)
+        else:
+            self.list_widget.setMinimumWidth(1)
+
+        self.handler.append.connect(self.list_widget.append)
+
+        self.warnings = LogStatus(level="WARNING", color=LogView.WARNING_COLOR)
+        self.errors = LogStatus(level="ERROR", color=LogView.ERROR_COLOR_BRIGHT, show_msg=True)
+        if self.orientation == Qt.Orientation.Horizontal:
+            self.errors.set_show_message(False)
+        # Connect warnings and errors
+        self.warnings.select_row.connect(self.on_select_row)
+        self.errors.select_row.connect(self.on_select_row)
+        self.list_widget.increment_warning.connect(self.warnings.add_message)
+        self.list_widget.increment_error.connect(self.errors.add_message)
+        # Preserve Log checkbox
+        self.clear_chk = QCheckBox("Preserve Log")
+        self.clear_chk.setFont(QFont("Consolas, monospace", 8))
+        self.clear_chk.setSizePolicy(QSizePolicy.Policy.Maximum, QSizePolicy.Policy.Fixed)
+        self.clear_chk.setFixedHeight(16)
+        # Log level combo
+        self.log_level_choice = LabelCombo("", ("DEBUG", "INFO", "WARNING", "ERROR"),
+                                           editable=False, activated_fn=self.on_log_level_changed)
+        self.log_level_choice.setToolTip("How much information is shown in the logger")
+        self.log_level_choice.setStatusTip("Log Level")
+        self.log_level_choice.label.setFixedWidth(1)
+        self.log_level_choice.entry.setFont(QFont("Consolas, monospace", 8))
+        self.log_level_choice.entry.setContentsMargins(0, 0, 0, 0)
+        self.log_level_choice.entry.setFixedHeight(16)
+        # Logger toolbar
+        self.menu_hor = FlowWidget(self)
+        self.menu_hor_lay = FlowHLayout(self.menu_hor)
+        self.menu_ver = QWidget(self)
+        self.menu_ver_lay = QVBoxLayout(self.menu_ver)
+        self.menu_spacer_hor = QSpacerItem(1, 16, QSizePolicy.Policy.MinimumExpanding, QSizePolicy.Policy.Fixed)
+        self.menu_spacer_ver = QSpacerItem(16, 16, QSizePolicy.Policy.Fixed, QSizePolicy.Policy.MinimumExpanding)
+        # Vbox for toolbar when logger is collapsed in left position
+        self.vbox = QVBoxLayout()
+        self.vbox.addWidget(self.menu_hor)
+        self.vbox.addWidget(self.list_widget)
+        self.vbox.setContentsMargins(0, 0, 0, 0)
+        # Hbox for toolbar in all other positions
+        self.hbox = QHBoxLayout(self)
+        self.hbox.addWidget(self.menu_ver)
+        self.hbox.addLayout(self.vbox)
+        self.hbox.setContentsMargins(0, 0, 0, 0)
+        # Initial layout
+        self.layout_logger_stats_hor()
+
+        if parent.file_widget:
+            parent.file_widget.file_opened.connect(self.clear)
+        parent.set_log_level.connect(self.on_log_level_changed)
+
+    def reset_warnings(self) -> None:
+        self.warnings.clear()
+
+    def reset_errors(self) -> None:
+        self.errors.clear()
+
+    def clear(self) -> None:
+        # Do not preserve log
+        if not self.clear_chk.isChecked():
+            self.list_widget.clear()
+        # Always reset values for the current file
+        self.reset_warnings()
+        self.reset_errors()
+
+    def close(self) -> None:
+        print("Close")
+        super().close()
+
+    def closeEvent(self, event: QCloseEvent) -> None:
+        print("Close Event")
+        super().closeEvent(event)
+
+    def layout_logger_stats_hor(self) -> None:
+        """Layout logger toolbar horizontally"""
+        # Hide vertical widget and remove widgets from layout
+        self.menu_ver.hide()
+        self.menu_ver_lay.removeWidget(self.warnings)
+        self.menu_ver_lay.removeWidget(self.errors)
+        self.menu_ver_lay.removeItem(self.menu_spacer_ver)
+        # Add left widgets
+        self.menu_hor_lay.addWidget(self.warnings)
+        self.menu_hor_lay.addWidget(self.errors)
+        self.menu_hor_lay.addItem(self.menu_spacer_hor)
+        # Add right Widgets
+        self.menu_hor_lay.addWidget(self.clear_chk, alignment=Qt.AlignmentFlag.AlignRight, hide_index=3)
+        self.menu_hor_lay.addWidget(self.log_level_choice, alignment=Qt.AlignmentFlag.AlignRight, hide_index=5)
+        # Spacing, alignment, size policy for horizontal layout
+        self.menu_hor_lay.setAlignment(Qt.AlignmentFlag.AlignVCenter)
+        self.menu_hor_lay.setSpacing(10)
+        self.menu_hor.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Fixed)
+        if self.orientation == Qt.Orientation.Vertical:
+            self.menu_hor_lay.setContentsMargins(10, 0, 5, 0)
+            self.menu_hor.setFixedHeight(self.ICON_BAR_SIZE)
+        else:
+            self.menu_hor_lay.setContentsMargins(5, 5, 5, 0)  # Extra space at top
+            self.menu_hor.setFixedHeight(self.ICON_BAR_SIZE + 5)  # Accomodate extra space at top
+        # Show and set LogStatus layout
+        self.menu_hor.show()
+        self.warnings.layout_horizontal()
+        self.errors.layout_horizontal()
+
+    def layout_logger_stats_ver(self) -> None:
+        """Layout logger toolbar vertically"""
+        # Hide horizontal widget and remove widgets from layout
+        self.menu_hor.hide()
+        self.menu_hor_lay.removeWidget(self.warnings)
+        self.menu_hor_lay.removeWidget(self.errors)
+        self.menu_hor_lay.removeItem(self.menu_spacer_hor)
+        self.menu_hor_lay.removeWidget(self.clear_chk)
+        self.menu_hor_lay.removeWidget(self.log_level_choice)
+        self.menu_hor_lay.setContentsMargins(0, 0, 0, 0)
+        # Add top widgets
+        self.menu_ver_lay.addWidget(self.warnings)
+        self.menu_ver_lay.addWidget(self.errors)
+        self.menu_ver_lay.addItem(self.menu_spacer_ver)
+        # Spacing, alignment, size policy for vertical layout
+        self.menu_ver_lay.setContentsMargins(0, 5, 0, 0)
+        self.menu_ver_lay.setAlignment(Qt.AlignmentFlag.AlignHCenter)
+        self.menu_ver.setLayout(self.menu_ver_lay)
+        self.menu_ver.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Preferred)
+        self.menu_ver.setFixedWidth(self.ICON_BAR_SIZE)
+        # Show and set LogStatus layout
+        self.menu_ver.show()
+        self.warnings.layout_vertical()
+        self.errors.layout_vertical()
+
+    def on_log_level_changed(self, level: str) -> None:
+        """Slot for log level set internally (combo box) or externally (initial value from cfg)"""
+        # Show successes still for "WARNING"
+        actual_level = level if level != "SUCCESS" else "WARNING"
+        if level == "WARNING":
+            actual_level = "SUCCESS"
+        # Set internally
+        self.handler.setLevel(actual_level)
+        self.log_level_choice.entry.setText(level)
+        # Inform listeners
+        self.log_level_changed.emit(actual_level)
+
+    def resizeEvent(self, event: QResizeEvent) -> None:
+        # Handle logger resizing from window instead of splitter handle
+        if not self.splitter_moving:
+            self.resize_logger(event.size().width(), event.size().height())
+        # Inform listeners of current size
+        self.current_size.emit(self.size())
+        return super().resizeEvent(event)
+
+    def on_splitterMoved(self, _pos: int = 0, _index: int = 0) -> None:
+        """Slot for parent splitter's splitterMoved signal"""
+        self.splitter_moving = True
+        _x, _y, layout_width, layout_height = self.hbox.geometry().getRect()
+        self.resize_logger(layout_width, layout_height)
+        self.splitter_moving = False
+
+    def resize_logger(self, layout_width: int, layout_height: int) -> None:
+        """Handles splitter rubber banding and visibility of logger widgets based on available dimensions"""
+        if self.orientation == Qt.Orientation.Vertical:
+            if self.list_widget.isHidden() and layout_height >= self.MIN_HEIGHT or layout_height == 0:
+                # Show and adjust sizing
+                self.list_widget.show()
+                self.clear_chk.show()
+                self.hbox.setSpacing(4)
+                self.menu_hor.setFixedHeight(20)
+            elif layout_height < self.MIN_HEIGHT:
+                # Hide and adjust sizing
+                if not self.list_widget.isHidden():
+                    self.list_widget.hide()
+                    self.clear_chk.hide()
+                    self.hbox.setSpacing(0)
+                    self.menu_hor.setFixedHeight(16)
+                # Keep logger at 0 below MIN_HEIGHT
+                self.resize_requested.emit(self.ResizeRequest(size=0, expand_only=False))
+        else:  # Horizontal
+            if self.list_widget.isHidden() and (layout_width >= self.MIN_WIDTH + LoggerWidget.ICON_BAR_SIZE) or layout_width == 0:
+                # Show and adjust sizing
+                self.list_widget.show()
+                if self.menu_hor.isHidden():
+                    self.layout_logger_stats_hor()
+                self.vbox.setContentsMargins(0, 0, 0, 0)
+            elif self.list_widget.width() < self.MIN_WIDTH:
+                # Hide and adjust sizing
+                if not self.list_widget.isHidden():
+                    self.list_widget.hide()
+                    if self.menu_ver.isHidden():
+                        self.layout_logger_stats_ver()
+                    self.vbox.setContentsMargins(0, 0, 5, 0)
+                # Keep logger at 0 below MIN_WIDTH
+                self.resize_requested.emit(self.ResizeRequest(size=0, expand_only=False))
+
+    def make_visible(self) -> None:
+        """Resize the logger to ensure the log console can be visible at min dimensions"""
+        if not self.list_widget.isVisible():
+            size = 0
+            if self.orientation == Qt.Orientation.Vertical:
+                size = self.MIN_HEIGHT
+                self.resize(self.width(), size)
+            else:
+                size = self.MIN_WIDTH
+                self.resize(size, self.height())
+            self.resize_requested.emit(self.ResizeRequest(size=size+self.ICON_BAR_SIZE))
+
+    def expand_for_detail(self, height: int) -> None:
+        """Auto increase logger dimensions for large detail texts"""
+        self.resize_requested.emit(self.ResizeRequest(size=height))
+
+    def on_select_row(self, row: int) -> None:
+        """Handle logger visibility and scrolling on Jump To Warning/Error"""
+        if row >= self.list_widget.count():
+            return
+        # Ensure row to scroll to is fetched
+        while row >= self.list_widget.fetched_count():
+            self.list_widget.fetchMore()
+        # Ensure logger is visible
+        self.make_visible()
+        # Ensure row is visible
+        index = self.list_widget.model().index(row, 0)
+        self.list_widget.selectionModel().select(index, QItemSelectionModel.SelectionFlag.ClearAndSelect)
+        self.list_widget.scrollTo(index, QAbstractItemView.ScrollHint.PositionAtCenter)
 
 
 class LabelEdit(QWidget):
@@ -1847,6 +2730,30 @@ class DirWidget(FileDirWidget):
         self.ask_open_dir()
 
 
+class StatusSpacer(QWidget):
+    """Right aligns permanent status widgets to the main layout, ignoring the logger"""
+    def __init__(self, parent: Optional[QWidget] = None) -> None:
+        super().__init__(parent)
+        self.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Preferred)
+
+    def set_widget(self, widget: QWidget) -> None:
+        if hasattr(widget, "current_size"):
+            widget.current_size.connect(self.resize)
+
+    def resize(self, size: Union[QSize, int] = QSize(-1, -1), _h: int = 0) -> None:
+        parent = self.parent()
+        if isinstance(size, QSize) and isinstance(parent, QStatusBar):
+            width = max(1, size.width() - 20)
+            # Compute width of siblings to prevent the spacer from being too large
+            sibling_width = 0
+            for item in parent.children():
+                if isinstance(item, QWidget) and not isinstance(item, StatusSpacer) and item.isVisible():
+                    sibling_width += item.width()
+            if width + sibling_width >= parent.width():
+                width = 0
+            self.setFixedWidth(width)
+
+
 class TitleBar(StandardTitleBar):
 
     def __init__(self, parent: Optional[QWidget] = None) -> None:
@@ -1872,6 +2779,7 @@ ButtonData = Iterable[tuple[QMenu, str, Callable[[], None], str, str]]
 
 class MainWindow(FramelessMainWindow):
     modified = pyqtSignal(bool)
+    set_log_level = pyqtSignal(str)
 
     def __init__(self, name: str, opts: 'gui.GuiOptions', central_widget: Optional[QWidget] = None) -> None:
         self.opts = opts
@@ -1993,6 +2901,50 @@ class MainWindow(FramelessMainWindow):
         file_widget.filepath_changed.connect(self.set_window_filepath)
 
         return file_widget
+    
+    def make_logger_widget(self, topleft: QWidget, orientation: Qt.Orientation = Qt.Orientation.Vertical,
+                           sizes: tuple[int, int] = (600, 200),
+                           log_level_changed_fn: Optional[Callable] = None,
+                           resize_requested_fn: Optional[Callable] = None) -> tuple[LoggerWidget, QSplitter]:
+        logger = LoggerWidget(self, orientation)
+        logger.handler.setFormatter(logs.HtmlFormatter('%(levelname)s | %(message)s'))
+        logger.handler.setLevel(logging.INFO)
+        logging.getLogger().addHandler(logger.handler)
+
+        self.logger_orientation = orientation
+        log_splitter = QSplitter(orientation)
+        log_splitter.addWidget(topleft)
+        log_splitter.addWidget(logger)
+        log_splitter.setSizes(list(sizes))
+        log_splitter.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+        log_splitter.setContentsMargins(0, 0, 0, 0)
+        log_splitter.setCollapsible(1, False)
+        if orientation == Qt.Orientation.Vertical:
+            style = R"""
+                QSplitter::handle:vertical {
+                    padding: 0px 0px 4px 0px;
+                }
+            """
+            log_splitter.setStyleSheet(style)
+
+        log_splitter.splitterMoved.connect(logger.on_splitterMoved)
+
+        if log_level_changed_fn:
+            logger.log_level_changed.connect(log_level_changed_fn)
+        if resize_requested_fn:
+            logger.resize_requested.connect(resize_requested_fn)
+
+        if self.logger_orientation == Qt.Orientation.Horizontal:
+            # Make MainWindow larger by default
+            self.resize(1024, 600)
+            log_splitter.setSizes([700, 324])
+            log_splitter.setStretchFactor(0, 1000)
+            log_splitter.setStretchFactor(1, 1)
+            # Keep status widgets right-aligned with main layout, ignoring logger.
+            spacer = StatusSpacer(self)
+            self.status_bar.addPermanentWidget(spacer)
+            spacer.set_widget(logger)
+        return logger, log_splitter
 
     def setWindowTitle(self, title: str = "", file: str = "", modified: bool = False) -> None:
         if not title:
@@ -2116,13 +3068,51 @@ class MainWindow(FramelessMainWindow):
         event.accept()
         self.close_logs()
 
+    def layout_logger(self, topleft: QWidget, orientation: Qt.Orientation) -> None:
+        self.logger, self.log_splitter = self.make_logger_widget(topleft=topleft,
+                                                                 orientation=orientation,
+                                                                 log_level_changed_fn=self.on_log_level_changed,
+                                                                 resize_requested_fn=self.resize_logger)
+        self.central_layout.addWidget(self.log_splitter)
+
+    def resize_logger(self, request: LoggerWidget.ResizeRequest) -> None:
+        if not hasattr(self, 'logger') or not hasattr(self, 'log_splitter'):
+            return
+        if not self.logger or not self.log_splitter:
+            return
+
+        if self.logger_orientation == Qt.Orientation.Vertical:
+            if request.size > 0:
+                logger_size = request.size + LoggerWidget.ICON_BAR_SIZE
+                current_sizes = self.log_splitter.sizes()
+                if not request.expand_only or current_sizes[1] < logger_size:
+                    self.log_splitter.setSizes([self.log_splitter.widget(0).height() - logger_size, logger_size])
+                    self.logger.on_splitterMoved()
+            else:
+                self.log_splitter.setSizes([400, 0])
+        else:
+            if request.size > 0:
+                logger_size = min(request.size, 400)
+                current_sizes = self.log_splitter.sizes()
+                if not request.expand_only or current_sizes[1] < logger_size:
+                    self.log_splitter.setSizes([self.log_splitter.widget(0).width() - logger_size, logger_size])
+                    self.logger.on_splitterMoved()
+            else:
+                self.log_splitter.setSizes([800, 0])
+
+    def on_log_level_changed(self, level: str) -> None:
+        if self.stdout_handler:
+            self.stdout_handler.setLevel(level)
+        level = level if level != "SUCCESS" else "WARNING"  # So SUCCESS is still shown at "WARNING" level
+        self.cfg["logger_level"] = level
+
     def close_logs(self) -> None:
         if self.log_name:
             removed_handlers: list[logging.Handler] = []
             for handler in logging.getLogger().handlers:
                 if isinstance(handler, LogBackupFileHandler) and handler.name and handler.name == self.log_name:
                     removed_handlers.append(handler)
-                elif isinstance(handler, TextEditLogger) and isinstance(handler.parent(), MainWindow):
+                elif isinstance(handler, LoggerWidget) and isinstance(handler.parent(), MainWindow):
                     removed_handlers.append(handler)
             for handler in reversed(removed_handlers):
                 logging.debug(f"Closing Log: {type(handler).__name__}: {handler.get_name() if handler.get_name() else handler}")
@@ -2207,4 +3197,3 @@ class Reporter(DummyReporter, QObject):
     included_ovls_list = pyqtSignal(list)  # type: ignore
     progress_percentage = pyqtSignal(int)  # type: ignore
     current_action = pyqtSignal(str)  # type: ignore
-
