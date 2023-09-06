@@ -743,7 +743,13 @@ class OvlFile(Header):
 			game_lut = self.constants[game]
 			if h in game_lut["hashes"]:
 				return game_lut["hashes"][h]
-		logging.warning(f"{using_file} can't find the original name of {fallback}{ext}")
+		logging.warning(f"{using_file} can't find the original name of {fallback}{ext}", extra={"details":
+							f"""
+							An unknown hash means the tools cannot ascertain the original filename.
+							This means {using_file} likely will not work correctly without editing 
+							it to fix the unknown hash.
+							"""
+						})
 		return fallback
 
 	def load(self, filepath, commands={}):
