@@ -69,6 +69,7 @@ By downloading and using this software, you agree to the following conditions:
 - **Porting models** when done without strict permission should not seek for monetary compensation. This means that using the tool to re-publish other's work should not be done for profit, but for the modding community. Ported models mods must be opt-out of any direct revenue. General donations for the work done are still fine, as long as they are not tied to any specific port mod.
 - **Do not affect online modes of the game drastically using this software.** Do not try to gain any advantage over other players. Online gameplay and modifications should be restricted as much as possible and not encouraged.
 
+If you still have doubts, consider checking the official [Frontier's Mod Policy](https://workshop.frontierstore.net/mod-policy).
 
 ## Credits
 - Planet Zoo, Cobra, Frontier and the Frontier Developments logo are trademarks or registered trademarks of Frontier Developments, plc.
