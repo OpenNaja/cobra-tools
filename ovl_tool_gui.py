@@ -233,7 +233,10 @@ class MainWindow(widgets.MainWindow):
 	def notify_user(self, msg_list):
 		msg = msg_list[0]
 		details = msg_list[1] if len(msg_list) > 1 else None
-		self.showwarning(msg, details=details)
+		if self.t_in_folder.isChecked():
+			logging.warning(f"Batch mode encountered an error: {details}")
+		else:
+			self.showwarning(msg, details=details)
 
 	def logger_show_triggered(self):
 		show = self.t_logger.isChecked()
