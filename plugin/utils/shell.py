@@ -204,8 +204,9 @@ def build_fins(shell_ob, fin_ob):
 		if vg_name in ob.vertex_groups:
 			vg = ob.vertex_groups[vg_name]
 			ob.vertex_groups.remove(vg)
-	# todo - only do this for PZ, but needs a version on the blender scene
-	me["flag"] = 565
+	# only change flag for PZ
+	if me.cobra.mesh_format == "NONE":
+		me["flag"] = 565
 
 	# remove the particle system, since we no longer have a fur length vertex group
 	for mod in ob.modifiers:
