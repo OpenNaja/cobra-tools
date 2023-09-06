@@ -207,8 +207,7 @@ class MainWindow(widgets.MainWindow):
 		self.game_changed()
 
 		log_level = self.cfg.get("logger_level", "INFO")
-		self.log_level_choice.entry.setText(log_level)
-		self.log_level_changed(log_level)
+		self.set_log_level.emit(log_level)
 
 		# do these at the end to make sure their requirements have been initialized
 		reporter = self.ovl_data.reporter
