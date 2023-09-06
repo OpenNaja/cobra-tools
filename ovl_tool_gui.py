@@ -125,7 +125,7 @@ class MainWindow(widgets.MainWindow):
 
 		# Setup Logger
 		# TODO: From cfg
-		orientation = QtCore.Qt.Orientation.Horizontal
+		orientation = QtCore.Qt.Orientation.Vertical
 		# TODO: From cfg
 		show_logger = True
 		topleft = self.file_splitter
