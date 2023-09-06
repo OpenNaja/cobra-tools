@@ -235,15 +235,22 @@ class SortableTable(QWidget):
         super().__init__()
         self.table = TableView(header_names, ignore_types, ignore_drop_type)
         self.filter_entry = LabelEdit("Filter")
+        self.filter_entry.label.setMinimumWidth(20)
+        self.filter_entry.entry.setMinimumWidth(140)
+        self.filter_entry.setMinimumWidth(140 + self.filter_entry.label.minimumWidth())
+        #self.filter_entry.entry.setSizePolicy(QSizePolicy.Policy.MinimumExpanding, QSizePolicy.Policy.Preferred)
         self.filter_entry.entry.textChanged.connect(self.table.set_filter)
-        self.hide_unused = QCheckBox("Hide unextractable files")
+        self.filter_entry.setSizePolicy(QSizePolicy.Policy.MinimumExpanding, QSizePolicy.Policy.Preferred)
+        self.hide_unused = QCheckBox("Hide unextractable")
         if opt_hide:
             self.hide_unused.stateChanged.connect(self.toggle_hide)
         else:
             self.hide_unused.hide()
-        self.rev_search = QCheckBox("Exclude Search")
+        self.rev_search = QCheckBox("Exclude Filter")
         self.rev_search.stateChanged.connect(self.toggle_rev)
-        self.clear_filters = QPushButton("Clear")
+        self.clear_filters = IconButton(get_icon("clear_filter"))
+
+        self.clear_filters.setToolTip("Clear Filter")
         self.clear_filters.pressed.connect(self.clear_filter)
 
         # Button Row Setup
@@ -253,11 +260,18 @@ class SortableTable(QWidget):
         self.btn_frame = QFrame()
         self.btn_frame.setLayout(self.btn_layout)
 
+        filter_bar = FlowWidget(self)
+        filter_bar_lay = FlowHLayout(filter_bar)
+        filter_bar_lay.addWidget(self.filter_entry, hide_index=-1)
+        filter_bar_lay.addWidget(self.clear_filters, hide_index=5)
+        filter_bar_lay.addWidget(self.hide_unused, hide_index=0)
+        filter_bar_lay.addWidget(self.rev_search, hide_index=3)
+        filter_bar_lay.setContentsMargins(5, 0, 0, 0)
+        filter_bar.show()
+        filter_bar.setMinimumWidth(self.filter_entry.minimumWidth())
+
         qgrid = QGridLayout()
-        qgrid.addWidget(self.filter_entry, 0, 0, )
-        qgrid.addWidget(self.hide_unused, 0, 1, )
-        qgrid.addWidget(self.rev_search, 0, 2, )
-        qgrid.addWidget(self.clear_filters, 0, 3, )
+        qgrid.addWidget(filter_bar, 0, 0, 1, 4)
         qgrid.addWidget(self.table, 2, 0, 1, 4)
         qgrid.setContentsMargins(0, 0, 0, 0)
         self.setLayout(qgrid)
@@ -1530,9 +1544,11 @@ class LabelEdit(QWidget):
     def __init__(self, name, ):
         QWidget.__init__(self, )
         self.label = QLabel(name)
+        self.label.setSizePolicy(QSizePolicy.Policy.Maximum, QSizePolicy.Policy.Preferred)
         self.entry = QLineEdit()
+        self.entry.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
         self.entry.setTextMargins(3, 0, 3, 0)
-        vbox = QHBoxLayout()
+        vbox = QHBoxLayout(self)
         vbox.addWidget(self.label)
         vbox.addWidget(self.entry)
         vbox.setContentsMargins(0, 0, 0, 0)
@@ -2225,7 +2241,7 @@ class LabelCombo(QWidget):
         box.addWidget(self.label)
         box.addWidget(self.entry)
         box.setContentsMargins(0, 0, 0, 0)
-        sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        sizePolicy = QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         # # sizePolicy.setHeightForWidth(self.entry.sizePolicy().hasHeightForWidth())
@@ -2801,6 +2817,7 @@ class MainWindow(FramelessMainWindow):
             self.setTitleBar(TitleBar(self))
 
         self.menu_bar = QMenuBar(self)
+        self.menu_bar.setStyleSheet("QMenuBar {background: transparent;}")
         self.actions: dict[str, QAction] = {}
 
         self.name = name
@@ -2826,7 +2843,7 @@ class MainWindow(FramelessMainWindow):
 
         self.status_bar = QStatusBar()
         self.version_info = QLabel(f"Version {commit_str}{dev_str}")
-        self.version_info.setFont(QFont("Consolas, monospace"))
+        self.version_info.setFont(QFont("Consolas, monospace", 8))
         self.version_info.setStyleSheet("color: #999")
         self.status_bar.addPermanentWidget(self.version_info)
         self.status_bar.addPermanentWidget(self.progress)
