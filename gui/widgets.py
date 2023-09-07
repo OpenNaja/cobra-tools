@@ -1095,8 +1095,7 @@ class LogModel(QAbstractListModel):
             return Qt.ItemFlag.ItemIsEnabled
         return Qt.ItemFlags(cast(Qt.ItemFlags,
                                  Qt.ItemFlag.ItemIsSelectable
-                                 | Qt.ItemFlag.ItemIsEnabled
-                                 | Qt.ItemFlag.ItemIsUserCheckable))
+                                 | Qt.ItemFlag.ItemIsEnabled))
 
     def on_rowSizeHintChanged(self, height: int) -> None:
         self.layoutChanged.emit()
