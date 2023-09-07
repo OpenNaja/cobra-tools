@@ -17,7 +17,7 @@ shorten_paths = {
 	tempfile.gettempdir(): "TEMP",
 	os.path.expanduser('~'): "USER",
 }
-for game_name, game_path in load_config()["games"].items():
+for game_name, game_path in load_config().get("games", {}).items():
 	prefix, suffix = game_path.split(game_name)
 	pre_path = os.path.normpath(os.path.join(prefix, game_name))
 	shorten_paths[pre_path] = game_name
