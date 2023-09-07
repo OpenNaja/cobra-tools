@@ -1222,6 +1222,9 @@ class OvlFile(Header):
 					raise FileNotFoundError(f"OVS file not found. Make sure it is here: {archive_entry.ovs_path}")
 				# open file in desired mode
 				streams[archive_entry.ovs_path] = open(archive_entry.ovs_path, mode)
+		# for simplicity, tests don't always have an ovs, so allow for pure ovl files
+		if self.filepath not in streams:
+			streams[self.filepath] = open(self.filepath, mode)
 		yield streams
 		logging.debug("Closing OVS streams")
 		# we don't use context manager so gotta close them
