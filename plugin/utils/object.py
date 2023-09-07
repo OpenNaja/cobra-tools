@@ -66,3 +66,29 @@ class NedryError(Exception):
 
 	def __str__(self):
 		return f'{self.message}'
+
+
+def has_objects_in_scene(scene):
+	if scene.objects:
+		# operator needs an active object, set one if missing (eg. user had deleted the active object)
+		if not bpy.context.view_layer.objects.active:
+			bpy.context.view_layer.objects.active = scene.objects[0]
+		# now enter object mode on the active object, if we aren't already in it
+		bpy.ops.object.mode_set(mode="OBJECT")
+		return True
+
+
+def get_property(ob, prop_name, default=None):
+	"""Ensure that custom property is set or raise an intellegible error"""
+	if prop_name in ob:
+		return ob[prop_name]
+	else:
+		if default is not None:
+			return default
+		raise KeyError(f"Custom property '{prop_name}' missing from {ob.name} (data: {type(ob).__name__}). Add it!")
+
+
+def set_collection_visibility(coll_name, hide):
+	# get view layer if it exists
+	if coll_name in bpy.context.view_layer.layer_collection.children:
+		bpy.context.view_layer.layer_collection.children[coll_name].hide_viewport = hide

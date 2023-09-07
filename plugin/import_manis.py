@@ -53,8 +53,6 @@ def load(files=[], filepath="", set_fps=False):
 
 	bones_data = {}
 	b_armature_ob = get_armature(scene)
-	for p_bone in b_armature_ob.pose.bones:
-		p_bone.rotation_mode = "QUATERNION"
 	if not b_armature_ob:
 		logging.warning(f"No armature was found in scene '{scene.name}' - did you delete it?")
 		b_cam_data = bpy.data.cameras.new("ManisCamera")
@@ -62,6 +60,8 @@ def load(files=[], filepath="", set_fps=False):
 		b_armature_ob.rotation_mode = "QUATERNION"
 		cam_corr = mathutils.Euler((math.radians(90), 0, math.radians(-90))).to_quaternion()
 	else:
+		for p_bone in b_armature_ob.pose.bones:
+			p_bone.rotation_mode = "QUATERNION"
 		for bone in b_armature_ob.data.bones:
 			bones_data[bone.name] = get_local_bone(bone).inverted()
 		cam_corr = None

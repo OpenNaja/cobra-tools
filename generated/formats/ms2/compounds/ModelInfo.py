@@ -23,8 +23,8 @@ class ModelInfo(MemStruct):
 		# the smallest coordinates across all axes
 		self.bounds_min = name_type_map['Vector3'](self.context, 0, None)
 
-		# not sure, for PZ often 40 00 00 37 for animals
-		self.unk_float_a = name_type_map['Float'](self.context, 0, None)
+		# related to the inverse of pack_base
+		self.precision = name_type_map['Float'](self.context, 0, None)
 
 		# the biggest coordinates across all axes
 		self.bounds_max = name_type_map['Vector3'](self.context, 0, None)
@@ -88,7 +88,7 @@ class ModelInfo(MemStruct):
 		yield from super()._get_attribute_list()
 		yield 'unk_dla', name_type_map['Uint64'], (0, None), (False, None), (lambda context: context.version <= 7, None)
 		yield 'bounds_min', name_type_map['Vector3'], (0, None), (False, None), (None, None)
-		yield 'unk_float_a', name_type_map['Float'], (0, None), (False, None), (lambda context: 47 <= context.version <= 51, None)
+		yield 'precision', name_type_map['Float'], (0, None), (False, None), (lambda context: 47 <= context.version <= 51, None)
 		yield 'bounds_max', name_type_map['Vector3'], (0, None), (False, None), (None, None)
 		yield 'pack_base', name_type_map['Float'], (0, None), (False, None), (lambda context: 47 <= context.version <= 51, None)
 		yield 'center', name_type_map['Vector3'], (0, None), (False, None), (None, None)
@@ -124,7 +124,7 @@ class ModelInfo(MemStruct):
 			yield 'unk_dla', name_type_map['Uint64'], (0, None), (False, None)
 		yield 'bounds_min', name_type_map['Vector3'], (0, None), (False, None)
 		if 47 <= instance.context.version <= 51:
-			yield 'unk_float_a', name_type_map['Float'], (0, None), (False, None)
+			yield 'precision', name_type_map['Float'], (0, None), (False, None)
 		yield 'bounds_max', name_type_map['Vector3'], (0, None), (False, None)
 		if 47 <= instance.context.version <= 51:
 			yield 'pack_base', name_type_map['Float'], (0, None), (False, None)

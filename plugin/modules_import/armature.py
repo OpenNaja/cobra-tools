@@ -7,15 +7,13 @@ import mathutils
 from generated.formats.ms2.versions import is_ztuac, is_dla
 from plugin.modules_import.collision import import_collider, parent_to
 
-from plugin.utils.object import create_ob, link_to_collection
+from plugin.utils.object import create_ob, link_to_collection, set_collection_visibility
 from plugin.utils import matrix_util
 from plugin.utils.matrix_util import mat3_to_vec_roll
 
 
 def import_armature(scene, model_info, b_bone_names):
-	"""Scans an armature hierarchy, and returns a whole armature.
-	This is done outside the normal node tree scan to allow for positioning
-	of the bones before skins are attached."""
+	"""Scans an armature hierarchy, and returns a whole armature."""
 	is_old_orientation = any((is_ztuac(model_info.context), is_dla(model_info.context)))
 	# print(f"is_old_orientation {is_old_orientation}")
 	corrector = matrix_util.Corrector(is_old_orientation)
@@ -25,10 +23,7 @@ def import_armature(scene, model_info, b_bone_names):
 		armature_name = f"{scene.name}_armature"
 		b_armature_data = bpy.data.armatures.new(armature_name)
 		b_armature_data.display_type = 'STICK'
-		b_armature_data.show_axes = True
-		# set axis orientation for export
-		# b_armature_data.niftools.axis_forward = NifOp.props.axis_forward
-		# b_armature_data.niftools.axis_up = NifOp.props.axis_up
+		# b_armature_data.show_axes = True
 		b_armature_obj = create_ob(scene, armature_name, b_armature_data)
 		b_armature_obj.show_in_front = True
 		# make armature editable and create bones
@@ -91,6 +86,9 @@ def import_armature(scene, model_info, b_bone_names):
 			import_joints(scene, b_armature_obj, bone_info, b_bone_names, corrector)
 		except:
 			logging.exception("Importing joints failed")
+
+		set_collection_visibility(f"{scene.name}_joints", True)
+		set_collection_visibility(f"{scene.name}_hitchecks", True)
 		return b_armature_obj
 
 
@@ -161,40 +159,6 @@ def get_matrix(corrector, joint_transform):
 	n_bind.translation = (joint_transform.loc.x, joint_transform.loc.y, joint_transform.loc.z)
 	b_bind = corrector.nif_bind_to_blender_bind(n_bind)
 	return b_bind
-
-
-# try:
-	# 	for item in bone_info.struct_7.unknown_list:
-	# 		bone_name_0 = b_bone_names[item.parent]
-	# 		bone_name_1 = b_bone_names[item.child]
-	# 		print("struct7", bone_name_0, bone_name_1)
-	# 		# print("struct7", item.vector)
-	# 		print(mathutils.Matrix(item.matrix.data))
-	# 		b0 = bone_info.bones[item.parent]
-	# 		b1 = bone_info.bones[item.child]
-	# 		m0 = get_local_bone_matrix(b0).to_3x3()
-	# 		m1 = get_local_bone_matrix(b1).to_3x3()
-	# 		# print(m0)
-	# 		# print(m1)
-	# 		# print(m0.inverted())
-	# 		# print(m1.inverted())
-	# 		print(m0 @ m1)
-	# 		print((m0 @ m1).inverted())
-	# 		it0 = bone_info.inverse_bind_matrices[item.parent]
-	# 		it1 = bone_info.inverse_bind_matrices[item.child]
-	# 		i0 = mathutils.Matrix(it0.data).inverted()
-	# 		i1 = mathutils.Matrix(it1.data).inverted()
-	# 		print(i0)
-	# 		print(i1)
-	# 		joint = create_ob(scene, "struct7_"+bone_name_0, None)
-	# 		n_bind = mathutils.Matrix(item.matrix.data).inverted().to_4x4()
-	# 		# n_bind.translation = (item.vector.x, item.vector.y, item.vector.z)
-	# 		b_bind = corrector.nif_bind_to_blender_bind(n_bind)
-	# 		joint.empty_display_type = "ARROWS"
-	# 		joint.empty_display_size = 0.03
-	# 		joint.matrix_local = b_bind
-	# except:
-	# 	pass
 
 
 def fix_bone_lengths(b_armature_data):

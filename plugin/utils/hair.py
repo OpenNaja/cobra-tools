@@ -3,13 +3,50 @@ import mathutils
 import math
 import logging
 
-import numpy as np
-
-from generated.formats.ms2.compounds.packing_utils import oct_to_vec3, unpack_swizzle_vectorized
 from plugin.utils.matrix_util import evaluate_mesh
 
-# a bit of safety to avoid breaking normalization
-FAC = 1.9
+MID = 0.73333333333
+EXTENT = 60.0  # degrees (one side)
+FAC = EXTENT / (1.0 - MID)
+UP = (0.0, 0.0, 1.0)
+UPVEC = mathutils.Vector(UP)
+
+
+def col_2_rad(c):
+	"""Takes a color value in range 0.0 - 1.0"""
+	return math.radians((c - MID) * FAC)
+
+
+def rad_2_col(r):
+	"""Returns a color value in range 0.0 - 1.0"""
+	return math.degrees(r) / FAC + MID
+
+
+def vcol_2_vec(vcol):
+	"""convert flowmap color to raw hair direction vector"""
+	rot = mathutils.Euler((col_2_rad(vcol[2]), col_2_rad(vcol[0]), 0))
+	vec = mathutils.Vector(UP)
+	vec.rotate(rot)
+	return vec
+
+
+def vec_2_vcol(vec, vcol):
+	"""convert raw hair direction vector to flowmap color"""
+	y_angle = UPVEC.xz.angle_signed(vec.xz)
+	rot_counter = mathutils.Euler((0, -y_angle, 0))
+	vec.rotate(rot_counter)
+	x_angle = UPVEC.yz.angle_signed(vec.yz)
+	vcol[2] = rad_2_col(-x_angle)
+	vcol[0] = rad_2_col(y_angle)
+	return vcol
+
+
+def test_vcols():
+	col = [.7333, 0, 1.0, 1]
+	vec = vcol_2_vec(col)
+	print(vec)
+	col2 = [0, 0, 0, 1]
+	print(vec_2_vcol(vec, col2))
 
 
 def find_modifier_for_particle_system(b_ob, particle_system):
@@ -80,47 +117,11 @@ def vcol_to_comb():
 	vcol_layer = me.vertex_colors[0].data
 	for loop in me.loops:
 		vertex = me.vertices[loop.vertex_index]
-		tangent_space_mat = get_tangent_space_mat(loop)
 		vcol = vcol_layer[loop.index].color
-		r = (vcol[0] - 0.5) * FAC
-		# green appears to be unused
-		# g = (vcol[1] - 0.5) * FAC
-		b = (vcol[2] - 0.5) * FAC
-		# alpha is used to control the shape of the strands, apparent softness or clumping
-		try:
-			# calculate third component for unit vector
-			# cf https://docs.unity3d.com/Packages/com.unity.shadergraph@6.9/manual/Normal-Reconstruct-Z-Node.html
-			squares = (r * r) - (b * b)
-			z = math.sqrt(1.0 - max(0.0, min(1.0, squares)))
-		except:
-			z = 0
-		# this is the raw vector, in tangent space
-		# this is like uv, so we negate the second component
-		vec = mathutils.Vector((r, -b, z))
-		# vec = mathutils.Vector((r, -b, 0))
-
-		# # above is unchanged
-		# # different swizzle
-		# vec = mathutils.Vector((-r, b, 0))
-		# # angular
-		# r = (vcol[0] - 0.5) * 180
-		# b = (vcol[2] - 0.5) * 180
-		# rot = mathutils.Euler((math.radians(b), math.radians(r), 0))
-		# vec2 = mathutils.Vector((0.0, 0.0, 1.0))
-		# vec2.rotate(rot)
-		#
-		# r = (vcol[0] - 0.5) * 2
-		# b = (vcol[2] - 0.5) * 2
-		# v = np.asarray([[r, -b, 0.0], ])
-		# oct_to_vec3(v, unpack=False)
-		# unpack_swizzle_vectorized(v)
-		# vec = mathutils.Vector(v[0])
-
+		# convert flow map to raw hair direction vector
+		vec = vcol_2_vec(vcol)
 		# convert to object space
-		hair_direction = tangent_space_mat @ vec
-		# print("t+v+g", tangent, vec, dir)
-		# print("dir",dir, vec)
-
+		hair_direction = get_tangent_space_mat(loop) @ vec
 		# calculate root and tip of the hair
 		root = vertex.co
 		tip = vertex.co + (hair_direction * particle_system.settings.hair_length)
@@ -148,8 +149,9 @@ def comb_to_vcol():
 			hair_direction = (tip - root).normalized()
 			vec = tangent_space_mat.inverted() @ hair_direction
 			vcol = vcol_layer[loop_index].color
-			vcol[0] = (vec.x/FAC) + 0.5
-			vcol[2] = -(vec.y/FAC) + 0.5
+			# vcol[0] = (vec.x/FAC) + MID
+			# vcol[2] = -(vec.y/FAC) + MID
+			vec_2_vcol(vec, vcol)
 	return f"Converted Combing to Vertex Color for {ob_eval.name}",
 
 

@@ -105,14 +105,11 @@ class OvsFile(OvsHeader):
 					entry.file_hash = loader.file_index
 				entry.ext_hash = loader.ext_hash
 
-	def load(self, archive_entry, start):
-		filepath = archive_entry.ovs_path
-		stream = self.ovl.ovs_dict[filepath]
-		stream.seek(start)
+	def load(self, archive_entry, stream):
 		logging.info(
 			f"Loading archive {archive_entry.name}")
 		logging.debug(
-			f"Compressed stream {archive_entry.name} in {os.path.basename(filepath)} starts at {stream.tell()}")
+			f"Compressed stream {archive_entry.name} in {os.path.basename(archive_entry.ovs_path)} starts at {stream.tell()}")
 		compressed_bytes = stream.read(archive_entry.compressed_size)
 		with self.unzipper(compressed_bytes, archive_entry.uncompressed_size) as stream:
 			super().read_fields(stream, self)
@@ -759,10 +756,9 @@ class OvlFile(Header):
 		self.commands = commands
 		self.store_filepath(filepath)
 		with self.reporter.log_duration(f"Loading {self.name}"):
-			with self.reporter.log_duration("Loading structs"):
-				with open(filepath, "rb") as stream:
-					self.read_fields(stream, self)
-					self.eof = stream.tell()
+			with open(filepath, "rb") as stream:
+				self.read_fields(stream, self)
+				self.eof = stream.tell()
 			logging.info(f"Game: {self.game}")
 
 			self.loaders = {}
@@ -830,25 +826,26 @@ class OvlFile(Header):
 
 	def load_archives(self):
 		with self.reporter.log_duration("Loading archives"):
-			self.open_ovs_streams(mode="rb")
 			with self.reporter.report_error_files("Reading") as error_files:
-				for archive_entry in self.reporter.iter_progress(self.archives, "Reading archives"):
-					# those point to external ovs archives
-					if archive_entry.name == "STATIC":
-						read_start = self.eof
-					else:
-						read_start = archive_entry.read_start
-					archive_entry.content = OvsFile(self.context, self, archive_entry)
-					try:
-						archive_entry.content.load(archive_entry, read_start)
-					except:
-						error_files.append(archive_entry.name)
-						logging.exception(f"Loading {archive_entry.name} from {archive_entry.ovs_path} failed: {archive_entry}")
-						logging.warning(archive_entry.content)
-						continue
-					# logging.info(f"Loading {archive_entry.name} from {archive_entry.ovs_path} worked: {archive_entry}\n{archive_entry.content}")
+				with self.open_streams(mode="rb") as streams:
+					for archive_entry in self.reporter.iter_progress(self.archives, "Reading archives"):
+						# those point to external ovs archives
+						if archive_entry.name == "STATIC":
+							read_start = self.eof
+						else:
+							read_start = archive_entry.read_start
+						stream = streams[archive_entry.ovs_path]
+						stream.seek(read_start)
+						archive_entry.content = OvsFile(self.context, self, archive_entry)
+						try:
+							archive_entry.content.load(archive_entry, stream)
+						except:
+							error_files.append(archive_entry.name)
+							logging.exception(f"Loading {archive_entry.name} from {archive_entry.ovs_path} failed: {archive_entry}")
+							logging.warning(archive_entry.content)
+							continue
+						# logging.info(f"Loading {archive_entry.name} from {archive_entry.ovs_path} worked: {archive_entry}\n{archive_entry.content}")
 			# logging.info(self.archives_meta)
-			self.close_ovs_streams()
 			self.load_flattened_pools()
 			self.load_pointers()
 
@@ -1212,24 +1209,24 @@ class OvlFile(Header):
 		except:
 			logging.exception("Rebuilding ovl arrays failed")
 
-	def open_ovs_streams(self, mode="wb"):
-		logging.info("Opening OVS streams")
-		self.ovs_dict = {}
+	@contextmanager
+	def open_streams(self, mode="wb"):
+		logging.debug("Opening OVS streams")
+		streams = {}
 		for archive_entry in self.archives:
 			# gotta update it here
 			self.get_ovs_path(archive_entry)
 			logging.debug(f"Loading {archive_entry.ovs_path}")
-			if archive_entry.ovs_path not in self.ovs_dict:
+			if archive_entry.ovs_path not in streams:
 				# make sure that the ovs exists
 				if mode == "rb" and not os.path.exists(archive_entry.ovs_path):
 					raise FileNotFoundError(f"OVS file not found. Make sure it is here: {archive_entry.ovs_path}")
 				# open file in desired mode
-				self.ovs_dict[archive_entry.ovs_path] = open(archive_entry.ovs_path, mode)
-
-	def close_ovs_streams(self):
-		logging.info("Closing OVS streams")
+				streams[archive_entry.ovs_path] = open(archive_entry.ovs_path, mode)
+		yield streams
+		logging.debug("Closing OVS streams")
 		# we don't use context manager so gotta close them
-		for ovs_file in self.ovs_dict.values():
+		for ovs_file in streams.values():
 			ovs_file.close()
 
 	def update_stream_files(self):
@@ -1297,8 +1294,6 @@ class OvlFile(Header):
 			self.rebuild_ovl_arrays()
 			# these need to be done after the rest
 			self.update_stream_files()
-			self.open_ovs_streams()
-
 			ovs_types = {archive.name for archive in self.archives if "Textures_L" not in archive.name}
 			ovs_types.discard("STATIC")
 			self.num_ovs_types = len(ovs_types)
@@ -1306,28 +1301,28 @@ class OvlFile(Header):
 			self.reset_field("archives_meta")
 			# print(self)
 			# compress data stream
-			for archive, meta in zip(self.reporter.iter_progress(self.archives, "Saving archives"), self.archives_meta):
-				# write archive into bytes IO stream
-				uncompressed = archive.content.write_archive()
-				archive.uncompressed_size, archive.compressed_size, compressed = archive.content.compress(
-					uncompressed)
-				# update set data size
-				archive.set_data_size = archive.content.set_header.io_size
-				if archive.name == "STATIC":
-					ovl_compressed = compressed
-					archive.read_start = 0
-				else:
-					ovs_stream = self.ovs_dict[archive.ovs_path]
-					archive.read_start = ovs_stream.tell()
-					ovs_stream.write(compressed)
-				# size of the archive entry = 68
-				# this is true for jwe2 tylo, but not for jwe2 rex 93 and many others
-				meta.unk_0 = 68 + archive.uncompressed_size
-				# this is fairly good, doesn't work for tylo static but all others, all of jwe2 rex 93, jwe1 parrot, pz fallow deer
-				meta.unk_1 = sum([data.size_2 for data in archive.content.data_entries])
-
-			self.close_ovs_streams()
-			with open(filepath, "wb") as stream:
+			with self.open_streams() as streams:
+				for archive, meta in zip(self.reporter.iter_progress(self.archives, "Saving archives"), self.archives_meta):
+					# write archive into bytes IO stream
+					uncompressed = archive.content.write_archive()
+					archive.uncompressed_size, archive.compressed_size, compressed = archive.content.compress(
+						uncompressed)
+					# update set data size
+					archive.set_data_size = archive.content.set_header.io_size
+					if archive.name == "STATIC":
+						ovl_compressed = compressed
+						archive.read_start = 0
+					else:
+						ovs_stream = streams[archive.ovs_path]
+						archive.read_start = ovs_stream.tell()
+						ovs_stream.write(compressed)
+					# size of the archive entry = 68
+					# this is true for jwe2 tylo, but not for jwe2 rex 93 and many others
+					meta.unk_0 = 68 + archive.uncompressed_size
+					# this is fairly good, doesn't work for tylo static but all others, all of jwe2 rex 93, jwe1 parrot, pz fallow deer
+					meta.unk_1 = sum([data.size_2 for data in archive.content.data_entries])
+				# write ovl + static
+				stream = streams[self.filepath]
 				self.write_fields(stream, self)
 				stream.write(ovl_compressed)
 

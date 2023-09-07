@@ -1,5 +1,6 @@
 import logging
 import os
+import re
 import subprocess
 import struct
 
@@ -67,13 +68,34 @@ def bin_to_lua(bin_file):
 		print(err)
 
 
-def check_lua_syntax(lua_file):
+def check_lua_syntax(lua_path):
 	try:
-		function_string = f'"{luacheck}" "{lua_file}"'
+		# https://luacheck.readthedocs.io/en/stable/cli.html
+		# https://luacheck.readthedocs.io/en/stable/warnings.html
+		# https://stackoverflow.com/questions/49158143/how-to-ignore-luacheck-warnings
+		function_string = f'"{luacheck}" "{lua_path}" --codes'
+		lua_name = os.path.basename(lua_path)
 		# capture the console output
-		# output = subprocess.Popen(function_string, stdout=subprocess.PIPE).communicate()[0]
-		# or just write to console
-		subprocess.Popen(function_string)
+		bytes_output = subprocess.Popen(function_string, stdout=subprocess.PIPE).communicate()[0]
+		output = bytes_output.decode()
+		lines = [line.strip() for line in output.split("\r\n")]
+		for line in lines:
+			if line.startswith(lua_path):
+				line_nr, col_nr, info = line.replace(lua_path + ":", "").split(":", 3)
+				match = re.search(r"[EW][0-9]+", info, flags=0)
+				error_code = int(match.group(0).lstrip("EW"))
+				msg = f"{lua_name}: line {line_nr}, column {col_nr}: {info.strip()}"
+				# select which luacheck warnings to show to user
+				if error_code < 100:
+					raise SyntaxError(msg)
+				elif 100 <= error_code < 200:
+					logging.warning(msg)
+				elif 200 <= error_code < 400:
+					logging.debug(msg)
+				elif 400 <= error_code < 600:
+					logging.warning(msg)
+				else:
+					logging.debug(msg)
 	except subprocess.CalledProcessError:
 		logging.exception(f"Something went wrong")
 

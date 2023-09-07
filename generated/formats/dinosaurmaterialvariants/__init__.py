@@ -31,7 +31,8 @@ class LayeredMaterial:
 		for mask_i, layer in enumerate(layers_root.layers.data):
 			mask_png_path = os.path.join(base_dir, f"{matname}.playered_blendweights_[{tile_i:02}]_{channels[ch_i]}.png")
 			# increment channel
-			ch_i += 1
+			if layer.has_ptr:
+				ch_i += 1
 			# move to the next tile for the next loop
 			if ch_i == 4:
 				ch_i = 0
@@ -50,17 +51,15 @@ class LayeredMaterial:
 					logging.info(f"Found .fgm files for layer")
 					tex_fgm = FgmHeader.from_xml_file(tex_fgm_path, self.context)
 					trans_fgm = FgmHeader.from_xml_file(trans_fgm_path, self.context)
-					# print(self.tex_fgm)
 					height_tex = tex_fgm.textures.data[1]
 					height_dep = tex_fgm.name_foreach_textures.data[1]
 					height_file_name = height_dep.dependency_name.data
 					height_file_basename = os.path.splitext(height_file_name)[0]
-					array_index = height_tex.value[0].array_index
-					# print(height_file_name, array_index)
+					# todo codegen - why is array_index str, not int?
+					array_index = int(height_tex.value[0].array_index)
 					height_tile_png_path = os.path.join(base_dir, f"{height_file_basename}_[{array_index:02}].png")
 					if not os.path.isfile(height_tile_png_path):
-						logging.error(f"Found no tile texture for layer {mask_i}")
-					# print(height_tile_png_path)
+						logging.error(f"Found no tile texture for layer {mask_i} {height_tile_png_path}")
 					self.slots.append(Layer(mask_png_path, height_tile_png_path, trans_fgm))
 				else:
 					logging.error(f"Fgm files for layer {mask_i} are missing")
