@@ -1,6 +1,5 @@
 import io
 import os
-import time
 import logging
 from collections import Counter
 
@@ -48,7 +47,7 @@ def generate_hash_table(gui, start_dir):
 
 			valid_packages = ("GameMain", "Content")
 			mimes = {}
-			lod_counts = {}
+			# lod_counts = {}
 			error_files = []
 			ovl_files = walk_type(start_dir, extension=".ovl")
 			for of_index, ovl_path in enumerate(gui.reporter.iter_progress(ovl_files, "Hashing")):
@@ -59,7 +58,7 @@ def generate_hash_table(gui, start_dir):
 				try:
 					# read ovl file
 					new_hashes, new_exts = ovl_data.load(ovl_path, commands={"generate_hash_table": hash_exts})
-					lod_counts[(ovl_data.num_ovs_types, ovl_data.num_archives)] = ovl_path
+					# lod_counts[(ovl_data.num_ovs_types, ovl_data.num_archives)] = ovl_path
 					all_deps_exts.update(new_exts)
 					for list_id, attribs in lists.items():
 						array = getattr(ovl_data, list_id)
@@ -94,7 +93,7 @@ def generate_hash_table(gui, start_dir):
 			write_hashes_dict(os.path.join(out_dir, "hashes.py"), hashes)
 			write_mimes_dict(os.path.join(out_dir, "mimes.py"), mimes)
 		logging.info(f"Formats used in dependencies: {[s.replace(':', '.') for s in sorted(all_deps_exts)]}")
-		logging.info(lod_counts)
+		# logging.info(lod_counts)
 
 
 def get_output_dir(start_dir):
