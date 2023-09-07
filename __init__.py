@@ -39,7 +39,7 @@ import bpy.utils.previews
 
 from bpy.props import IntProperty, EnumProperty
 from bpy.types import PropertyGroup
-from . import addon_updater_ops
+from plugin import addon_updater_ops
 
 from plugin.utils.hair import vcol_to_comb, comb_to_vcol, transfer_hair_combing
 
