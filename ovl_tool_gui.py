@@ -317,7 +317,7 @@ class MainWindow(widgets.MainWindow):
 		os.startfile(root_dir)
 
 	def drag_files(self, file_names):
-		logging.info(f"Dragging {file_names}")
+		# logging.debug(f"Dragging {file_names}")
 		drag = QtGui.QDrag(self)
 		data = QtCore.QMimeData()
 		temp_dir = tempfile.mkdtemp("-cobra")
