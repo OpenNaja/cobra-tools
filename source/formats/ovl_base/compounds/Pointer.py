@@ -166,7 +166,7 @@ class Pointer(BaseStruct):
 	def pool_type_from_xml(cls, elem, instance):
 		if POOL_TYPE in elem.attrib:
 			instance.pool_type = int(elem.attrib[POOL_TYPE])
-			logging.debug(f"Set pool type {instance.pool_type} for pointer {elem.tag}")
+			# logging.debug(f"Set pool type {instance.pool_type} for pointer {elem.tag}")
 		else:
 			instance.pool_type = 2
 

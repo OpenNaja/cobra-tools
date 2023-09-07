@@ -12,7 +12,7 @@ from textwrap import dedent
 from generated.formats.ovl import games
 from modules.formats.shared import DummyReporter
 from ovl_util import config, logs
-from ovl_util.logs import get_stdout_handler, LogBackupFileHandler, ANSI
+from ovl_util.logs import get_stdout_handler, LogBackupFileHandler, ANSI, shorten_str
 import gui
 from gui import qt_theme
 from root_path import root_dir
@@ -1052,7 +1052,7 @@ class LogModel(QAbstractListModel):
         elif role == LogModel.ICON:
             return get_icon(log.level).pixmap(16, 16)
         elif role == LogModel.DETAIL:
-            return log.detail.replace(root_dir, ".")
+            return log.detail
         elif role == LogModel.TEXT:
             return log.text
         elif role == LogModel.INFO:
@@ -1302,7 +1302,7 @@ class LoggerWidget(QWidget):
             # do not include it (to avoid an exception)
             if not hasattr(record, "details"):
                 record.__dict__["details"] = ""
-            data = LogListData.from_str(self.format(record))
+            data = LogListData.from_str(shorten_str(self.format(record)))
             self.append.emit(data)
 
 

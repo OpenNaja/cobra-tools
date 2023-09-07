@@ -3,12 +3,32 @@ import logging
 import os
 import platform
 import sys
+import tempfile
 from functools import partialmethod, partial
 from logging import StreamHandler
 from logging.handlers import RotatingFileHandler
 from typing import TextIO
 
+from ovl_util.config import load_config
 from root_path import root_dir
+
+shorten_paths = {
+	root_dir: os.path.basename(root_dir),
+	tempfile.gettempdir(): "TEMP",
+	os.path.expanduser('~'): "USER",
+}
+for game_name, game_path in load_config()["games"].items():
+	prefix, suffix = game_path.split(game_name)
+	pre_path = os.path.normpath(os.path.join(prefix, game_name))
+	shorten_paths[pre_path] = game_name
+
+
+def shorten_str(msg):
+	for k, v in shorten_paths.items():
+		msg = msg.replace(k, v)
+		msg = msg.replace(k.replace("\\", "/"), v)
+		msg = msg.replace(k.replace("/", "\\"), v)
+	return msg
 
 
 class ANSI:
@@ -47,6 +67,13 @@ class ANSI:
 		# Set Windows console
 		if platform.system() == "Windows":
 			os.system("color")
+
+
+class ShorteningFormatter(logging.Formatter):
+
+	def format(self, record):
+		msg = super().format(record)
+		return shorten_str(msg)
 
 
 class LogBackupFileHandler(RotatingFileHandler):
@@ -177,7 +204,8 @@ def logging_setup(log_name: str, log_to_file: bool = True,
 	logger.setLevel(logging.DEBUG)
 	# cf https://docs.python.org/3/library/logging.html#logrecord-attributes
 	# '%(asctime)s %(levelname)s | %(module)s %(funcName)s - %(message)s', "%H:%M:%S"
-	formatter = logging.Formatter('%(levelname)s | %(message)s')
+	# formatter = logging.Formatter('%(levelname)s | %(message)s')
+	formatter = ShorteningFormatter('%(levelname)s | %(message)s')
 	# Colored logging for all platforms but Windows 7/8
 	colored_formatter = AnsiFormatter('%(levelname)s | %(message)s')
 
