@@ -123,7 +123,7 @@ class DdsLoader(MemStructLoader):
 			# todo PC array textures
 			buffer_bytes = dds_files[0].pack_mips_pc(tex_buffers)
 		else:
-			logging.info("Packing mip maps")
+			logging.debug("Packing mip maps")
 			dds_mips = [dds.get_packed_mips(size_info.mip_maps) for dds in dds_files]
 			with io.BytesIO() as tex:
 				# write the packed tex buffer: for each mip level, write all its tiles consecutively
@@ -150,7 +150,7 @@ class DdsLoader(MemStructLoader):
 		return in_dir, name_ext, basename, ext
 
 	def load_png(self, png_path, tmp_dir):
-		logging.info(f"Loading PNG {png_path}")
+		logging.info(f"Loading {png_path}")
 		# convert the png into a dds
 		size_info = self.get_tex_structs()
 		compression = self.header.compression_type.name
@@ -162,7 +162,7 @@ class DdsLoader(MemStructLoader):
 		return self.load_dds(dds_file_path)
 
 	def load_dds(self, dds_path):
-		logging.info(f"Loading DDS {dds_path}")
+		logging.info(f"Loading {dds_path}")
 		# load dds
 		dds_file = DdsFile()
 		dds_file.load(dds_path)

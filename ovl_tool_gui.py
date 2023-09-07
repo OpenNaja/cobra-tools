@@ -340,7 +340,7 @@ class MainWindow(widgets.MainWindow):
 	def game_changed(self, game: Optional[str] = None):
 		if game is None:
 			game = self.game_choice.entry.currentText()
-		logging.info(f"Setting OVL context to {game}")
+		logging.info(f"Setting OVL version to {game}")
 		self.ovl_data.game = game
 
 	def compression_changed(self, compression: str):
