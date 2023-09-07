@@ -58,7 +58,7 @@ class TestOVLIncludes:
 	def test_ovl_load_included_ovls(self, empty_ovl_file: OvlFile, tmp: Path) -> None:
 		out = tmp.with_name("OVLIncludesPZ.ovl")
 		# Ensure empty OVL is PZ for later file comparison
-		assert get_game(empty_ovl_file.context)[0].value == "Planet Zoo"
+		assert empty_ovl_file.game == "Planet Zoo"
 		empty_ovl_file.load_included_ovls("tests/ovldata/OVLIncludes/ovls.include")
 		empty_ovl_file.save(out)
 		result = filecmp.cmp("tests/ovldata/OVLIncludes/OVLIncludesPZ.ovl", out)
@@ -67,7 +67,7 @@ class TestOVLIncludes:
 	def test_ovl_set_included_ovls(self, empty_ovl_file: OvlFile, ovl_file_includes: list[str], tmp: Path) -> None:
 		out = tmp.with_name("OVLIncludesPZ.ovl")
 		# Ensure empty OVL is PZ for later file comparison
-		assert get_game(empty_ovl_file.context)[0].value == "Planet Zoo"
+		assert empty_ovl_file.game == "Planet Zoo"
 		empty_ovl_file.included_ovl_names = ovl_file_includes
 		empty_ovl_file.save(out)
 		result = filecmp.cmp("tests/ovldata/OVLIncludes/OVLIncludesPZ.ovl", out)

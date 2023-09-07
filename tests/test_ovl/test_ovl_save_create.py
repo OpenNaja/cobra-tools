@@ -37,8 +37,8 @@ class TestOVLSaveCreate:
 		ovl.load_hash_table()
 		game = str(request.param)
 		abbrev = "".join(item[0].upper() for item in game.split())
-		filename = tmp.with_name(f"{abbrev}.ovl")
-		return ovl, game, str(filename)
+		filepath = tmp.with_name(f"{abbrev}.ovl")
+		return ovl, game, str(filepath)
 
 	@pytest.fixture(scope="class", params=["tests/Files/",])
 	def files(self, request: FixtureRequest) -> FileInfo:
@@ -47,25 +47,25 @@ class TestOVLSaveCreate:
 		return dir_path, count
 
 	def test_ovl_save(self, ovl_file: OVLInfo):
-		ovl, game, filename = ovl_file
+		ovl, game, filepath = ovl_file
 		set_game(ovl, game)
 		context = copy.copy(ovl.context)
 		sorted_loaders = context.sorted_loaders.copy()
-		ovl.save(filename)
-		ovl.load(filename)
-		assert game == get_game(ovl)[0].value
+		ovl.save(filepath)
+		ovl.load(filepath)
+		assert game == ovl.game
 		assert context.version == ovl.context.version
 		assert context.user_version == ovl.context.user_version
 		assert sorted_loaders == ovl.context.sorted_loaders 
 
 	def test_ovl_create(self, ovl_file: OVLInfo, files: FileInfo):
-		ovl, game, filename = ovl_file
+		ovl, game, filepath = ovl_file
 		dir_path, file_count = files
 		set_game(ovl, game)
 		ovl.create(dir_path)
 		context = copy.copy(ovl.context)
 		sorted_loaders = context.sorted_loaders.copy()
-		ovl.save(filename)
-		ovl.load(filename)
-		assert game == get_game(ovl)[0].value
+		ovl.save(filepath)
+		ovl.load(filepath)
+		assert game == ovl.game
 		assert ovl.context.sorted_loaders == sorted_loaders
