@@ -5,9 +5,10 @@ from .BaseClass import BaseClass
 
 class Module:
 
-    def __init__(self, parser, element):
+    def __init__(self, parser, element, gen_dir):
         self.parser = parser
         self.element = element
+        self.gen_dir = gen_dir
         self.read(element)
         self.write(parser.path_dict[element.attrib["name"]])
 
@@ -18,7 +19,7 @@ class Module:
         self.custom = element.attrib.get("custom", "False")
 
     def write(self, module_path):
-        init_path = BaseClass.get_out_path(os.path.join(module_path, "__init__"))
+        init_path = BaseClass.get_out_path(os.path.join(module_path, "__init__"), gen_dir=self.gen_dir)
         with open(init_path, "w", encoding=self.parser.encoding) as file:
             file.write(self.comment_str)
             file.write(f'\n\n__priority__ = {repr(self.priority)}')

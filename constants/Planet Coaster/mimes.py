@@ -1,4 +1,4 @@
-from ovl_util.mimes import Mime
+from constants import Mime
 
 mimes = {
 	'.assetpkg': Mime(name='Casino:AssetPackageRes:assetpkg', hash=1145776474, version=2, triplets=[], pool=4, set_pool=0),

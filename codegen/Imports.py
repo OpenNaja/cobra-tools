@@ -10,9 +10,10 @@ NO_CLASSES = ("Padding", "self", "template")
 class Imports:
     """Creates and writes an import block"""
 
-    def __init__(self, parser, xml_struct):
+    def __init__(self, parser, xml_struct, gen_dir):
         self.parent = parser
         self.xml_struct = xml_struct
+        self.gen_dir = gen_dir
         self.imports = set()
         # import parent class
         self.add(xml_struct.attrib.get("inherit"))
@@ -96,7 +97,7 @@ class Imports:
                 continue
             import_path = self.parent.path_dict.get(class_import, None)
             if import_path:
-                local_imports.append(f"from {self.import_from_module_path(import_path)} import {class_import}\n")
+                local_imports.append(f"from {self.import_from_module_path(import_path, gen_dir=self.gen_dir)} import {class_import}\n")
             else:
                 module_imports.append(f"import {class_import}\n")
         module_imports.sort()
@@ -107,5 +108,5 @@ class Imports:
             stream.write("\n\n")
 
     @staticmethod
-    def import_from_module_path(module_path):
-        return f"generated.{module_path.replace(path.sep, '.')}"
+    def import_from_module_path(module_path, gen_dir):
+        return f"{gen_dir}.{module_path.replace(path.sep, '.')}"

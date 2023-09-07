@@ -36,11 +36,13 @@ logging_setup("blender_plugin")
 
 # import bpy
 import bpy.utils.previews
+
 from bpy.props import IntProperty, EnumProperty
 from bpy.types import PropertyGroup
 from . import addon_updater_ops
 
 from plugin.utils.hair import vcol_to_comb, comb_to_vcol, transfer_hair_combing
+
 from plugin.utils import shell
 from plugin.utils.matrix_util import handle_errors
 from generated.formats.ms2.enums.MeshFormat import MeshFormat

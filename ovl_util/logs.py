@@ -1,8 +1,12 @@
+from __future__ import annotations
 import logging
 import os
 import platform
 import sys
 from functools import partialmethod, partial
+from logging import StreamHandler
+from logging.handlers import RotatingFileHandler
+from typing import TextIO
 
 from root_path import root_dir
 
@@ -45,6 +49,40 @@ class ANSI:
 			os.system("color")
 
 
+class LogBackupFileHandler(RotatingFileHandler):
+
+	def __init__(self, filename: str, mode: str = "a", maxBytes: int = 0,
+				 backupCount: int = 0, encoding: str | None = None, delay: bool = False, errors: str | None = None) -> None:
+		super().__init__(filename, mode, maxBytes, backupCount, encoding, delay, errors)
+		self.log_dir = os.path.join(root_dir + "/logs")
+		os.makedirs(self.log_dir, exist_ok=True)
+
+	def doRollover(self) -> None:
+		if self.stream:
+			self.stream.close()
+			self.stream = None
+		if self.backupCount > 0:
+			try:
+				path, ext = os.path.splitext(self.baseFilename)
+				dir_path, basename = os.path.split(path)
+				for i in range(self.backupCount - 1, 0, -1):
+					sfn = self.rotation_filename(f"{self.log_dir}/{basename}-{i}{ext}")
+					dfn = self.rotation_filename(f"{self.log_dir}/{basename}-{i+1}{ext}")
+					if os.path.exists(sfn):
+						if os.path.exists(dfn):
+							os.remove(dfn)
+						os.rename(sfn, dfn)
+				dfn = self.rotation_filename(f"{self.log_dir}/{basename}-1{ext}")
+				if os.path.exists(dfn):
+					os.remove(dfn)
+				self.rotate(self.baseFilename, dfn)
+			except OSError:
+				# The base log is opened by another process
+				pass
+		if not self.delay:
+			self.stream = self._open()
+
+
 class ColoredFormatter(logging.Formatter):
 
 	def format(self, record):
@@ -53,16 +91,22 @@ class ColoredFormatter(logging.Formatter):
 
 
 class HtmlFormatter(ColoredFormatter):
+	"""A ColoredFormatter for rich text usage"""
+	# Special char for finding end of message
+	eol = "\u00A0"
 
 	def __init__(self, fmt: str, datefmt: str = None, *args, **kwargs):
 		super().__init__(fmt, datefmt, *args, **kwargs)
+		# <img src='icons/%(levelname)s.svg' height='16' width='16' />
+		fmt_n = f"%(levelname)s | %(message)s | <div class='msg_%(levelname)s'><span>%(message)s</span></div>{self.eol}%(details)s"
+		fmt_b = f"%(levelname)s | %(message)s | <div class='msg_%(levelname)s'><span><b>%(message)s</b></span></div>{self.eol}%(details)s"
 		self.FORMATS = {
-			logging.DEBUG: f"<div style='color:gray;'>{self._fmt}</div>",
-			logging.INFO: f"<div style='color:white;'>{self._fmt}</div>",
-			logging.INFO + 5: f"<div style='color:lime;'>{self._fmt}</div>", # SUCCESS
-			logging.WARNING: f"<div style='color:yellow;'>{self._fmt}</div>",
-			logging.ERROR: f"<div style='color:red;'>{self._fmt}</div>",
-			logging.CRITICAL: f"<div style='color:red;'>{self._fmt}</div>",
+			logging.DEBUG: fmt_n,
+			logging.INFO: fmt_n,
+			logging.INFO + 5: fmt_b, # SUCCESS
+			logging.WARNING: fmt_n,
+			logging.ERROR: fmt_b,
+			logging.CRITICAL: fmt_b,
 		}
 		self.FORMATTERS = {key: logging.Formatter(_fmt, datefmt) for key, _fmt in self.FORMATS.items()}
 
@@ -93,10 +137,6 @@ def addLoggingLevel(levelName, levelNum, methodName=None):
 	`logging.Logger`). If `methodName` is not specified, `levelName.lower()` is
 	used.
 
-	To avoid accidental clobberings of existing attributes, this method will
-	raise an `AttributeError` if the level name is already an attribute of the
-	`logging` module or if the method name is already present
-
 	Example
 	-------
 	>>> addLoggingLevel('TRACE', logging.DEBUG - 5)
@@ -111,11 +151,11 @@ def addLoggingLevel(levelName, levelNum, methodName=None):
 		methodName = levelName.lower()
 
 	if hasattr(logging, levelName):
-		raise AttributeError(f"{levelName} already defined in logging module.")
+		return
 	if hasattr(logging, methodName):
-		raise AttributeError(f"{methodName} already defined in logging module.")
+		return
 	if hasattr(logging.getLoggerClass(), methodName):
-		raise AttributeError(f"{methodName} already defined in logger class.")
+		return
 
 	logging.addLevelName(levelNum, levelName)
 	setattr(logging, levelName, levelNum)
@@ -123,8 +163,16 @@ def addLoggingLevel(levelName, levelNum, methodName=None):
 	setattr(logging, methodName, partial(logging.log, levelNum))
 
 
-def logging_setup(log_name):
+def logging_setup(log_name: str, log_to_file: bool = True,
+				  log_to_stdout: bool = True, backup_count: int = 4) -> StreamHandler[TextIO]:
+	"""
+	Creates a colored ANSI formatter for stdout, and a file handler with log backups.
+	This should be called before any logging statements, and logging statements in this
+	function until after logger.addHandler().
+	"""
+	# Custom SUCCESS level
 	addLoggingLevel('SUCCESS', logging.INFO + 5)
+
 	logger = logging.getLogger()
 	logger.setLevel(logging.DEBUG)
 	# cf https://docs.python.org/3/library/logging.html#logrecord-attributes
@@ -133,24 +181,54 @@ def logging_setup(log_name):
 	# Colored logging for all platforms but Windows 7/8
 	colored_formatter = AnsiFormatter('%(levelname)s | %(message)s')
 
-	stdout_handler = logging.StreamHandler(sys.stdout)
-	stdout_handler.setLevel(logging.INFO)
-	stdout_handler.setFormatter(colored_formatter)
-	# always write all levels to debug log
-	log_path = f'{os.path.join(root_dir, log_name)}.log'
-	file_handler = logging.FileHandler(log_path, mode="w")
-	file_handler.setLevel(logging.DEBUG)
-	file_handler.setFormatter(formatter)
-	logger.addHandler(file_handler)
-	logger.addHandler(stdout_handler)
+	stdout_handler: StreamHandler | None = None
+	if log_to_stdout:
+		stdout_handler = StreamHandler(sys.stdout)
+		stdout_handler.setLevel(logging.INFO)
+		stdout_handler.setFormatter(colored_formatter)
+		stdout_handler.set_name(log_name)
 
-	logging.info(f"Running python {sys.version}")
-	logging.info(f"Running cobra-tools {get_version_str()}, {get_commit_str()}")
+	file_handler: LogBackupFileHandler | None = None
+	if log_to_file:
+		log_path = f'{os.path.join(root_dir, log_name)}.log'
+		file_handler = LogBackupFileHandler(log_path, mode="w", backupCount=backup_count, delay=True)
+		file_handler.setLevel(logging.DEBUG) # always write all levels to file log
+		file_handler.setFormatter(formatter)
+		file_handler.set_name(log_name)
+		file_handler.doRollover()
+
+	# Do not infinitely add handlers, attempt to keep one File and one Stream handler
+	removed_handlers: list[logging.Handler] = []
+	for handler in logger.handlers:
+		if isinstance(handler, StreamHandler) and handler.stream == sys.stderr:
+			# These handlers are auto-added if any logging is attempted before logging_setup addHandler
+			removed_handlers.append(handler)
+		elif isinstance(handler, StreamHandler) and handler.name and handler.name != log_name:
+			# If launching multiple GUI from the same process (e.g. pytest), remove previous GUI handlers
+			removed_handlers.append(handler)
+		elif isinstance(handler, LogBackupFileHandler) and handler.name and handler.name != log_name:
+			# If launching multiple GUI from the same process (e.g. pytest), remove previous GUI handlers
+			removed_handlers.append(handler)
+	
+	for handler in removed_handlers:
+		logger.removeHandler(handler)
+		handler.close()
+
+	if log_to_file:
+		logger.addHandler(file_handler)
+	if log_to_stdout:
+		logger.addHandler(stdout_handler)
+
+	logger.info(f"Running python {sys.version}")
+	logger.info(f"Running cobra-tools {get_version_str()}, {get_commit_str()}")
 	return stdout_handler
 
 
-def get_stdout_handler():
-	return next(h for h in logging.getLogger().handlers if type(h) is logging.StreamHandler)
+def get_stdout_handler(name: str) -> StreamHandler | None:
+	for handler in logging.getLogger().handlers:
+		if isinstance(handler, StreamHandler) and handler.stream == sys.stdout and handler.name == name:
+			return handler
+	return None
 
 
 def get_version():

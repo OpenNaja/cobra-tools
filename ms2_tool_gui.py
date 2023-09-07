@@ -1,19 +1,16 @@
 import sys
 import time
 import logging
-# Check Python version, setup logging
-from ovl_util.setup import ms2_tool_setup # pyright: ignore
-# Import widgets before everything except Python built-ins and ovl_util.setup!
-from ovl_util import widgets
-from ovl_util.widgets import get_icon
+from gui import widgets, startup, GuiOptions  # Import widgets before everything except built-ins!
+from gui.widgets import get_icon
 from generated.formats.ms2 import Ms2File
 from PyQt5 import QtWidgets, QtGui, QtCore
 
 
 class MainWindow(widgets.MainWindow):
 
-	def __init__(self):
-		widgets.MainWindow.__init__(self, "MS2 Editor", )
+	def __init__(self, opts: GuiOptions):
+		widgets.MainWindow.__init__(self, "MS2 Editor", opts=opts)
 		self.resize(600, 600)
 		self.setAcceptDrops(True)
 
@@ -45,7 +42,7 @@ class MainWindow(widgets.MainWindow):
 		self.qgrid = QtWidgets.QGridLayout()
 		self.qgrid.addWidget(self.file_widget, 0, 0)
 		self.qgrid.addWidget(self.files_container, 1, 0)
-		self.qgrid.addWidget(self.p_action, 2, 0)
+		self.qgrid.addWidget(self.progress, 2, 0)
 		self.central_widget.setLayout(self.qgrid)
 
 		main_menu = self.menu_bar
@@ -143,4 +140,4 @@ class MainWindow(widgets.MainWindow):
 
 
 if __name__ == '__main__':
-	widgets.startup(MainWindow)
+	startup(MainWindow, GuiOptions(log_name="ms2_tool_gui"))

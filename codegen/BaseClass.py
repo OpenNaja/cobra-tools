@@ -13,24 +13,27 @@ keyword_regex = re.compile(r"(\s*[a-zA-Z_][a-zA-Z0-9_]*\s*=\s*[a-zA-Z_][a-zA-Z0-
 
 class BaseClass:
 
-    def __init__(self, parser, struct):
+    def __init__(self, parser, struct, gen_dir):
         self.parser = parser
         self.struct = struct
+        self.gen_dir = gen_dir
         self.read()
 
     def read(self, ):
         self.class_name = self.struct.attrib.get("name")
         # grab the source code, if it exists
         self.src_code = self.get_code_from_src()
+        if self.src_code.find("START_GLOBALS") == -1 and self.src_code.find("from generated.") > -1:
+            logging.error(f"{self.class_name} does not wrap imports with START_GLOBALS/END_GLOBALS")
         self.class_basename = self.struct.attrib.get("inherit")
         if self.class_basename is not None and self.class_basename not in self.parser.processed_types:
             logging.error(f"Class {self.class_name} in format {self.parser.format_name} inherits from "\
                          f"{self.class_basename}, but this is not declared in the xml before it!")
         self.class_debug_str = self.struct.text
-        self.out_file = self.get_out_path(self.parser.path_dict[self.class_name])
+        self.out_file = self.get_out_path(self.parser.path_dict[self.class_name], gen_dir=self.gen_dir)
 
         # handle imports
-        self.imports = Imports(self.parser, self.struct)
+        self.imports = Imports(self.parser, self.struct, gen_dir=self.gen_dir)
 
         self.parser.processed_types[self.class_name] = None
 
@@ -79,6 +82,8 @@ class BaseClass:
     def write(self, stream):
         src_globals = self.grab_src_snippet("# START_GLOBALS", "# END_GLOBALS")
         src_globals = "\n".join(src_globals.split("\n")[1:])
+        src_globals = src_globals.replace("from generated.", f"from {self.gen_dir}.")
+        src_globals = src_globals.replace("import generated.", f"import {self.gen_dir}.")
         stream.write(src_globals)
 
         self.imports.write(stream)
@@ -126,9 +131,9 @@ class BaseClass:
         return ""
 
     @staticmethod
-    def get_out_path(module_path):
+    def get_out_path(module_path, gen_dir):
         # get the module path from the path of the file
-        out_file = os.path.join(root_dir, "generated", module_path + ".py")
+        out_file = os.path.join(root_dir, gen_dir, module_path + ".py")
         out_dir = os.path.dirname(out_file)
         if not os.path.isdir(out_dir):
             os.makedirs(out_dir)

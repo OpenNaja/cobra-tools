@@ -13,13 +13,15 @@ def save_config(cfg_dict):
 
 def load_config():
 	try:
-		with open(os.path.join(root_dir, "config.json"), "r") as json_reader:
+		cfg_path = os.path.join(root_dir, 'config.json')
+		with open(cfg_path, "r") as json_reader:
 			return json.load(json_reader)
 	except FileNotFoundError:
-		logging.exception(f"Config file missing")
+		logging.debug(f"Config file missing at {cfg_path}")
 		return {}
-	except json.decoder.JSONDecodeError:
-		logging.exception(f"Config file broken")
+	except json.decoder.JSONDecodeError as e:
+		logging.error(f"Config file broken at {cfg_path}")
+		logging.error(str(e))
 		return {}
 
 

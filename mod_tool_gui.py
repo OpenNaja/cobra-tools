@@ -4,12 +4,9 @@ import time
 import shutil
 import pathlib
 import logging
-# Check Python version, setup logging
-from ovl_util.setup import mod_tool_setup  # pyright: ignore
-# Import widgets before everything except Python built-ins and ovl_util.setup!
-from ovl_util import widgets
+from gui import widgets, startup, GuiOptions  # Import widgets before everything except built-ins!
+from gui.widgets import MainWindow
 from ovl_util.config import read_str_dict, write_str_dict
-from ovl_util.widgets import startup, MainWindow
 from generated.formats.ovl import games, set_game, OvlFile
 
 from PyQt5 import QtCore
@@ -22,10 +19,10 @@ __author__ = 'Open-Naja'
 class ModToolGUI(MainWindow):
 	"""Main's View (GUI)."""
 
-	def __init__(self):
+	def __init__(self, opts: GuiOptions):
 
 		"""View initializer."""
-		super().__init__("ModToolGUI")
+		super().__init__("ModToolGUI", opts=opts)
 
 		# save config file name from args
 		self.config_path = ''
@@ -75,7 +72,7 @@ class ModToolGUI(MainWindow):
 		self.game_container = widgets.LabelCombo("Game", [g.value for g in games])
 		self.boxLayout.addWidget(self.game_container)
 
-		self.central_layout.addWidget(self.p_action)
+		self.central_layout.addWidget(self.progress)
 
 		if len(sys.argv) > 1:
 			self.apply_from_config(sys.argv[1])
@@ -335,4 +332,4 @@ class ModToolGUI(MainWindow):
 
 
 if __name__ == '__main__':
-	startup(ModToolGUI)
+	startup(ModToolGUI, GuiOptions(log_name="mod_tool_gui"))

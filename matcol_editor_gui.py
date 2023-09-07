@@ -1,10 +1,8 @@
 import logging
 import sys
 import time
-# Check Python version, setup logging
-from ovl_util.setup import matcol_editor_setup # pyright: ignore
-# Import widgets before everything except Python built-ins and ovl_util.setup!
-from ovl_util import widgets, config
+from gui import widgets, startup, GuiOptions  # Import widgets before everything except built-ins!
+from ovl_util import config
 
 from generated.formats.matcol.compounds.MatcolRoot import MatcolRoot
 from generated.formats.ovl_base import OvlContext
@@ -14,7 +12,7 @@ from PyQt5 import QtWidgets
 
 class MainWindow(widgets.MainWindow):
 
-	def __init__(self):
+	def __init__(self, opts: GuiOptions):
 		self.scrollarea = QtWidgets.QScrollArea()
 		self.scrollarea.setWidgetResizable(True)
 
@@ -22,15 +20,15 @@ class MainWindow(widgets.MainWindow):
 		self.widget = QtWidgets.QWidget()
 		self.scrollarea.setWidget(self.widget)
 
-		widgets.MainWindow.__init__(self, "Matcol Editor", central_widget=self.scrollarea)
+		widgets.MainWindow.__init__(self, "Matcol Editor", opts=opts, central_widget=self.scrollarea)
 		
 		self.resize(450, 500)
 
 		self.context = OvlContext()
 		self.matcol_data = MatcolRoot(self.context)
 		self.file_widget = self.make_file_widget(ftype="materialcollection")
-		self.tooltips = config.read_str_dict("ovl_util/tooltips/matcol.txt")
-		self.default_fgms = config.read_list("ovl_util/tooltips/matcol-fgm-names.txt")
+		self.tooltips = config.read_str_dict("gui/tooltips/matcol.txt")
+		self.default_fgms = config.read_list("gui/tooltips/matcol-fgm-names.txt")
 
 		main_menu = self.menu_bar
 		file_menu = main_menu.addMenu('File')
@@ -136,4 +134,4 @@ class MainWindow(widgets.MainWindow):
 			
 	
 if __name__ == '__main__':
-	widgets.startup(MainWindow)
+	startup(MainWindow, GuiOptions(log_name="matcol_editor_gui"))

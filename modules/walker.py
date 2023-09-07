@@ -14,7 +14,7 @@ from generated.formats.ovl_base import OvlContext
 from generated.formats.ms2 import Ms2File
 from generated.formats.ovl import OvlFile
 from generated.formats.ovl_base.versions import games
-from ovl_util.mimes import Mime, Shader
+from constants import Mime, Shader
 from root_path import root_dir
 
 # get this huge dict from fgm walker, use in ms2 walker

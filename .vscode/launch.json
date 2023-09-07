@@ -1,0 +1,30 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python: Current File",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "justMyCode": false
+        },
+        {
+            "name": "cobra-tools: Check Imports",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}${pathSeparator}bin${pathSeparator}check_imports.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "args":  [
+                "ovl_tool_gui.py",
+                "fgm_editor_gui.py",
+                "ms2_tool_gui.py",
+                "mod_tool_gui.py",
+                "matcol_editor_gui.py",
+                "bnk_gui.py",
+                "gui${pathSeparator}widgets.py"
+            ]
+        }
+    ]
+}

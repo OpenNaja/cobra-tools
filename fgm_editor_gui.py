@@ -1,14 +1,9 @@
 import logging
 import os
-import sys
-import time
-# Check Python version, setup logging
-from ovl_util.setup import fgm_editor_setup # pyright: ignore
-# Place typing imports after Python check
+from gui import widgets, startup, GuiOptions  # Import widgets before everything except built-ins!
+from gui.widgets import QColorButton, MySwitch, MAX_UINT, get_icon
+from ovl_util import config
 from typing import Any, Optional
-# Import widgets before everything except Python built-ins and ovl_util.setup!
-from ovl_util import widgets, config
-from ovl_util.widgets import QColorButton, MySwitch, MAX_UINT, get_icon
 
 from constants import ConstantsProvider
 from generated.formats.fgm.enums.FgmDtype import FgmDtype
@@ -29,14 +24,14 @@ from PyQt5.QtGui import QColor
 
 class MainWindow(widgets.MainWindow):
 
-	def __init__(self):
+	def __init__(self, opts: GuiOptions):
 		self.scrollarea = QtWidgets.QScrollArea()
 		self.scrollarea.setWidgetResizable(True)
 		# the actual scrollable stuff
 		self.widget = QtWidgets.QWidget()
 		self.scrollarea.setWidget(self.widget)
 
-		widgets.MainWindow.__init__(self, "FGM Editor", central_widget=self.scrollarea)
+		widgets.MainWindow.__init__(self, "FGM Editor", opts=opts, central_widget=self.scrollarea)
 
 		self.resize(800, 600)
 		self.setAcceptDrops(True)
@@ -44,7 +39,7 @@ class MainWindow(widgets.MainWindow):
 		self.context = OvlContext()
 		self.constants = ConstantsProvider()
 		self.header = FgmHeader(self.context)
-		self.tooltips = config.read_str_dict("ovl_util/tooltips/fgm.txt")
+		self.tooltips = config.read_str_dict("gui/tooltips/fgm.txt")
 		self.games = [g.value for g in games]
 		self.import_header = None
 
@@ -643,4 +638,4 @@ class TextureVisual:
 
 
 if __name__ == '__main__':
-	widgets.startup(MainWindow)
+	startup(MainWindow, GuiOptions(log_name="fgm_editor_gui"))
