@@ -111,8 +111,8 @@ class MainWindow(widgets.MainWindow):
 		self.e_name_new.setTabChangesFocus(True)
 
 		grid = QtWidgets.QGridLayout()
-		grid.addWidget(self.e_name_old, 0, 0, 4, 1)
-		grid.addWidget(self.e_name_new, 0, 1, 4, 1)
+		grid.addWidget(self.e_name_old, 0, 0, 3, 1)
+		grid.addWidget(self.e_name_new, 0, 1, 3, 1)
 
 		grid.addWidget(self.t_mesh_ovl, 0, 3)
 		grid.addWidget(self.t_in_folder, 1, 3)
@@ -120,7 +120,7 @@ class MainWindow(widgets.MainWindow):
 
 		grid.addWidget(self.game_choice, 0, 4)
 		grid.addWidget(self.compression_choice, 1, 4)
-		grid.addWidget(self.extract_types_combo, 3, 3, 1, 2)
+		grid.addWidget(self.extract_types_combo, 2, 4)
 
 		self.stdout_handler = get_stdout_handler("ovl_tool_gui")  # self.log_name not set until after init
 
