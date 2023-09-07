@@ -205,7 +205,6 @@ class MainWindow(widgets.MainWindow):
 		self.check_version()
 		# run once here to make sure we catch the default game
 		self.populate_game()
-		self.game_changed()
 
 		log_level = self.cfg.get("logger_level", "INFO")
 		self.set_log_level.emit(log_level)
