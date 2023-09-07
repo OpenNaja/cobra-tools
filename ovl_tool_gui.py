@@ -8,10 +8,11 @@ from ovl_util.logs import HtmlFormatter, AnsiFormatter, get_stdout_handler
 from gui.widgets import Reporter
 from modules import walker
 from root_path import root_dir
-from generated.formats.ovl import games, get_game, set_game, OvlFile
+from generated.formats.ovl import games, OvlFile
 from generated.formats.ovl_base.enums.Compression import Compression
 from PyQt5 import QtWidgets, QtGui, QtCore
 from typing import Any, Optional
+
 
 class MainWindow(widgets.MainWindow):
 
@@ -341,7 +342,7 @@ class MainWindow(widgets.MainWindow):
 		if game is None:
 			game = self.game_choice.entry.currentText()
 		logging.info(f"Setting OVL context to {game}")
-		set_game(self.ovl_data, game)
+		self.ovl_data.game = game
 
 	def compression_changed(self, compression: str):
 		compression_value = Compression[compression]
@@ -369,8 +370,7 @@ class MainWindow(widgets.MainWindow):
 		self.set_file_modified(True)
 
 	def choices_update(self):
-		game = get_game(self.ovl_data)[0]
-		self.game_choice.entry.setText(game.value)
+		self.game_choice.entry.setText(self.ovl_data.game)
 		self.compression_choice.entry.setText(self.ovl_data.user_version.compression.name)
 
 	def create_ovl(self, ovl_dir):

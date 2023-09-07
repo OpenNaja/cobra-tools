@@ -6,7 +6,7 @@ from pathlib import Path
 import pytest
 from pytest import FixtureRequest, TempPathFactory
 
-from generated.formats.ovl import OvlFile, get_game, set_game
+from generated.formats.ovl import OvlFile
 
 
 @pytest.fixture(autouse=True)
@@ -48,7 +48,7 @@ class TestOVLSaveCreate:
 
 	def test_ovl_save(self, ovl_file: OVLInfo):
 		ovl, game, filepath = ovl_file
-		set_game(ovl, game)
+		ovl.game = game
 		context = copy.copy(ovl.context)
 		sorted_loaders = context.sorted_loaders.copy()
 		ovl.save(filepath)
@@ -61,7 +61,7 @@ class TestOVLSaveCreate:
 	def test_ovl_create(self, ovl_file: OVLInfo, files: FileInfo):
 		ovl, game, filepath = ovl_file
 		dir_path, file_count = files
-		set_game(ovl, game)
+		ovl.game = game
 		ovl.create(dir_path)
 		context = copy.copy(ovl.context)
 		sorted_loaders = context.sorted_loaders.copy()

@@ -119,7 +119,6 @@ class MainWindow(widgets.MainWindow):
 			logging.info(f"Changed game to {game}")
 		try:
 			set_game(self.header.context, game)
-			# set_game(self.header, game)
 		except BaseException:
 			logging.exception("Error setting game")
 		try:

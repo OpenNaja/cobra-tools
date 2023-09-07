@@ -7,7 +7,7 @@ import logging
 from gui import widgets, startup, GuiOptions  # Import widgets before everything except built-ins!
 from gui.widgets import MainWindow
 from ovl_util.config import read_str_dict, write_str_dict
-from generated.formats.ovl import games, set_game, OvlFile
+from generated.formats.ovl import games, OvlFile
 
 from PyQt5 import QtCore
 from PyQt5.QtWidgets import QWidget, QFileDialog, QVBoxLayout, QHBoxLayout, QMenuBar, QCheckBox
@@ -139,9 +139,7 @@ class ModToolGUI(MainWindow):
 
 	def game_changed(self, ):
 		game = self.game_container.entry.currentText()
-		# we must set both the context, and the local variable
-		set_game(self.ovl_data.context, game)
-		set_game(self.ovl_data, game)
+		self.ovl_data.game = game
 
 	def directory_changed(self, path):
 		logging.info(f'Detected changes in {path}')

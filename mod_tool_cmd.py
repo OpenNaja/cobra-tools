@@ -15,7 +15,7 @@ from ovl_util.logs import logging_setup
 logging_setup("mod_tool_cmd")
 
 
-from generated.formats.ovl import games, set_game, OvlFile
+from generated.formats.ovl import games, OvlFile
 
 __version__ = '0.1'
 __author__ = 'Open-Naja'
@@ -68,10 +68,7 @@ def unpack_mod(gamestr, pathsrc, pathdst):
 def create_ovl(gamestr, ovl_dir, dst_file):
 	# clear the ovl
 	ovl_data = OvlFile()
-
-	set_game(ovl_data.context, gamestr)
-	set_game(ovl_data, gamestr)
-
+	ovl_data.game = gamestr
 	try:
 		ovl_data.create(ovl_dir)
 		ovl_data.save(dst_file)
