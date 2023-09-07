@@ -114,13 +114,13 @@ class MainWindow(widgets.MainWindow):
 		grid.addWidget(self.e_name_old, 0, 0, 3, 1)
 		grid.addWidget(self.e_name_new, 0, 1, 3, 1)
 
-		grid.addWidget(self.t_mesh_ovl, 0, 3)
-		grid.addWidget(self.t_in_folder, 1, 3)
-		grid.addWidget(self.t_do_debug, 2, 3)
+		grid.addWidget(self.t_mesh_ovl, 0, 2)
+		grid.addWidget(self.t_in_folder, 1, 2)
+		grid.addWidget(self.t_do_debug, 2, 2)
 
-		grid.addWidget(self.game_choice, 0, 4)
-		grid.addWidget(self.compression_choice, 1, 4)
-		grid.addWidget(self.extract_types_combo, 2, 4)
+		grid.addWidget(self.game_choice, 0, 3)
+		grid.addWidget(self.compression_choice, 1, 3)
+		grid.addWidget(self.extract_types_combo, 2, 3)
 
 		self.stdout_handler = get_stdout_handler("ovl_tool_gui")  # self.log_name not set until after init
 
