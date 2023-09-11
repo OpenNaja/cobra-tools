@@ -132,38 +132,35 @@ class DdsFile(Header, IoFile):
                 num_lines = self.pad_block(height) // self.block_len_pixels_1d
                 bytes_per_line = tile_byte_size // num_lines
                 # logging.debug(f"tile {tile_i}, offset {mip_offset}, height {height}, width {width}")
-                if bytes_per_line >= LINE_BYTES:
-                    yield mip_i, tile_i, tile_byte_size, 0
-                    mip_offset += tile_byte_size
-                    # logging.debug(f"Wrote mip {mip_i} for tile {tile_i}, {tile_byte_size} raw bytes")
-                else:
-                    padding_per_line = get_padding_size(bytes_per_line, alignment=LINE_BYTES)
-                    # logging.debug(
-                    #     f"tile_byte_size {tile_byte_size}, num_lines {num_lines}, bytes_per_line {bytes_per_line}, padding_per_line {padding_per_line}")
-                    # write the bytes for this line from the mip bytes
-                    for _ in range(num_lines):
-                        # get the bytes that represent the blocks of this line and fill the line with padding blocks
-                        yield mip_i, tile_i, bytes_per_line, padding_per_line
-                        mip_offset += bytes_per_line
-                        mip_offset += padding_per_line
+                # anything with less than LINE_BYTES gets padding
+                padding_per_line = get_padding_size(bytes_per_line, alignment=LINE_BYTES)
+                # logging.debug(
+                #     f"tile_byte_size {tile_byte_size}, num_lines {num_lines}, bytes_per_line {bytes_per_line}, padding_per_line {padding_per_line}")
+                # write the bytes for each line
+                for _ in range(num_lines):
+                    # get the bytes that represent the blocks of this line and fill the line with padding blocks
+                    yield mip_i, tile_i, bytes_per_line, padding_per_line
+                    mip_offset += bytes_per_line
+                    mip_offset += padding_per_line
 
-                    # add one fully blank line as padding for odd slice counts
-                    if num_lines % 2:
-                        yield mip_i, tile_i, 0, LINE_BYTES
-                        mip_offset += LINE_BYTES
+                # add one fully blank line as padding for odd line counts (ie. last mip)
+                if num_lines % 2:
+                    yield mip_i, tile_i, 0, LINE_BYTES
+                    mip_offset += LINE_BYTES
 
     def get_packed_mips(self, mip_infos):
         """From a standard (non-array) DDS, return a list of all mip levels for a TEX, with padding if needed"""
         # logging.info("Packing all mip maps")
         dds = io.BytesIO(self.buffer)
-        out = [b"" for _ in mip_infos]
+        out = [[] for _ in mip_infos]
         for mip_i, tile_i, data_size, padding_size in self.mip_pack_generator():
             # logging.info(f"Writing {data_size}, padding {padding_size}")
             data = dds.read(data_size)
             # this is per scan line
+            # mip_infos[mip_i].size_scan = data_size + padding_size
             mip_infos[mip_i].size_scan = data_size + padding_size
-            out[mip_i] += data + b"\x00" * padding_size
-        return out
+            out[mip_i].append(data + b"\x00" * padding_size)
+        return [b"".join(lines) for lines in out]
 
     def unpack_mips(self, mip_infos, trg_tile_i, tex_buffer_data):
         """Restore standard DDS mip stream, unpack the lower mip levels by discarding the padding"""
