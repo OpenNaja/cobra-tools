@@ -169,7 +169,8 @@ def join_png(path_basename, tmp_dir, compression=None):
 	flip = has_vectors(basename, compression)
 	# check if processing needs to be done
 	if not flip and not channels:
-		assert os.path.isfile(png_file_path)
+		if not os.path.isfile(png_file_path):
+			raise FileNotFoundError(f"{png_file_path} does not exist")
 		logging.debug(f"Need not process {png_file_path}")
 		return png_file_path
 	# rebuild from channels

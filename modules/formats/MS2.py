@@ -242,7 +242,7 @@ class Ms2Loader(MemStructLoader):
 
 	def rename_content(self, name_tuples):
 		logging.info("Renaming inside .ms2")
-		with self.get_tmp_dir() as out_dir_func:
+		with self.get_tmp_dir_func() as out_dir_func:
 			try:
 				ms2_path = self.extract(out_dir_func)[0]
 				# open the ms2 file

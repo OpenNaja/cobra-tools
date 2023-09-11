@@ -102,85 +102,82 @@ class DdsLoader(MemStructLoader):
 	def load_image(self, tex_path):
 		# logging.debug(f"Loading image {tex_path}")
 		in_dir, name_ext, basename, ext = self.get_names(tex_path)
-		# create tmp folder in which all conversions are stored
-		tmp_dir = tempfile.mkdtemp("-cobra-tools")
-		size_info = self.get_tex_structs()
-		tiles = self.get_tiles(size_info)
-		# load all DDS files we need
-		dds_files = []
-		# todo - ignore num_tiles from tex and instead use a while loop i+1, detect if array suffix should be used
-		for tile_name in self.get_tile_names(tiles, basename):
-			bare_path = os.path.join(in_dir, tile_name)
-			dds_path = f"{bare_path}.dds"
-			# prioritize dds files if they exist
-			if os.path.isfile(dds_path):
-				dds_file = self.load_dds(dds_path)
-			else:
-				# try to reassemble a flat PNG for this tile, and then convert it to DDS
-				png_path = imarray.join_png(bare_path, tmp_dir, self.compression_name)
-				dds_file = self.load_png(png_path, tmp_dir)
-			dds_files.append(dds_file)
-		# start updating the tex
-		assert dds_files, f"Found no dds files for {tex_path}"
-		assert len(set(dds.mipmap_count for dds in dds_files)) == 1, f"DDS files for {tex_path} have varying mip map counts"
-		# by now the dds is set in stone, and we can update the tex header with data from the dds
-		dds = dds_files[0]
-		# handle pre-DX10 compressions in dds files authored by legacy programs
-		comp = dds.compression_format
-		if comp.startswith("DXT"):
-			comp = comp.replace("DXT", "BC") + "_UNORM"
-		# update tex header
-		self.header.compression_type = type(self.header.compression_type)[comp]
-		size_info.num_mips = dds.mipmap_count
-		size_info.width = dds.width
-		size_info.height = dds.height
-		size_info.depth = dds.depth
-		size_info.num_tiles = len(dds_files)
-		size_info.reset_field("mip_maps")
-		# pack the different tiles into the tex buffer, pad the mips
-		# create list of bytes for each buffer
-		tex_buffers = self.header.buffer_infos.data
-		if is_pc(self.ovl):
-			# todo PC array textures
-			buffer_bytes = dds_files[0].pack_mips_pc(tex_buffers)
-		else:
-			logging.debug("Packing mip maps")
-			# pack mips for all array tiles
-			mips_per_tiles = [dds.get_packed_mips(size_info.mip_maps) for dds in dds_files]
-			with io.BytesIO() as tex:
-				# write the packed tex buffer: for each mip level, write all its tiles consecutively
-				for mip_level, mip_info in zip(zip(*mips_per_tiles), size_info.mip_maps):
-					mip_info.offset = tex.tell()
-					for tile in mip_level:
-						tex.write(tile)
-					mip_info.size = len(tile)
-					mip_info.size_array = tex.tell() - mip_info.offset
-				packed = tex.getvalue()
-			size_info.data_size = sum(m.size_array for m in size_info.mip_maps)
-			# update tex buffer infos - all but the last correspond to one mip level
-			for buffer_i, buffer in enumerate(tex_buffers):
-				mip = size_info.mip_maps[buffer_i]
-				buffer.first_mip = buffer_i
-				# last tex buffer gets all remaining mips
-				if buffer_i == len(tex_buffers) - 1:
-					buffer.mip_count = len(size_info.mip_maps) - buffer.first_mip
-					buffer.size = size_info.data_size - mip.offset
+		with self.get_tmp_dir() as tmp_dir:
+			size_info = self.get_tex_structs()
+			tiles = self.get_tiles(size_info)
+			# load all DDS files we need
+			dds_files = []
+			# todo - ignore num_tiles from tex and instead use a while loop i+1, detect if array suffix should be used
+			for tile_name in self.get_tile_names(tiles, basename):
+				bare_path = os.path.join(in_dir, tile_name)
+				dds_path = f"{bare_path}.dds"
+				# prioritize dds files if they exist
+				if os.path.isfile(dds_path):
+					dds_file = self.load_dds(dds_path)
 				else:
-					buffer.mip_count = 1
-					buffer.size = mip.size_array
-				buffer.offset = mip.offset
-			# slice packed bytes according to tex header buffer specifications
-			buffer_bytes = [packed[b.offset: b.offset + b.size] for b in tex_buffers]
-		# set data on the buffers
-		for buffer_entry, b_slice in zip(self.get_sorted_streams(), buffer_bytes):
-			buffer_entry.update_data(b_slice)
-		# fix as we don't use the data.update_data api here
-		for data_entry in self.get_sorted_datas():
-			data_entry.size_1 = 0
-			data_entry.size_2 = sum(buffer.size for buffer in data_entry.buffers)
-		# print(self.header)
-		# cleanup tmp folder
-		shutil.rmtree(tmp_dir)
+					# try to reassemble a flat PNG for this tile, and then convert it to DDS
+					png_path = imarray.join_png(bare_path, tmp_dir, self.compression_name)
+					dds_file = self.load_png(png_path, tmp_dir)
+				dds_files.append(dds_file)
+			# start updating the tex
+			assert dds_files, f"Found no dds files for {tex_path}"
+			assert len(set(dds.mipmap_count for dds in dds_files)) == 1, f"DDS files for {tex_path} have varying mip map counts"
+			# by now the dds is set in stone, and we can update the tex header with data from the dds
+			dds = dds_files[0]
+			# handle pre-DX10 compressions in dds files authored by legacy programs
+			comp = dds.compression_format
+			if comp.startswith("DXT"):
+				comp = comp.replace("DXT", "BC") + "_UNORM"
+			# update tex header
+			self.header.compression_type = type(self.header.compression_type)[comp]
+			size_info.num_mips = dds.mipmap_count
+			size_info.width = dds.width
+			size_info.height = dds.height
+			size_info.depth = dds.depth
+			size_info.num_tiles = len(dds_files)
+			size_info.reset_field("mip_maps")
+			# pack the different tiles into the tex buffer, pad the mips
+			# create list of bytes for each buffer
+			tex_buffers = self.header.buffer_infos.data
+			if is_pc(self.ovl):
+				# todo PC array textures
+				buffer_bytes = dds_files[0].pack_mips_pc(tex_buffers)
+			else:
+				logging.debug("Packing mip maps")
+				# pack mips for all array tiles
+				mips_per_tiles = [dds.get_packed_mips(size_info.mip_maps) for dds in dds_files]
+				with io.BytesIO() as tex:
+					# write the packed tex buffer: for each mip level, write all its tiles consecutively
+					for mip_level, mip_info in zip(zip(*mips_per_tiles), size_info.mip_maps):
+						mip_info.offset = tex.tell()
+						for tile in mip_level:
+							tex.write(tile)
+						mip_info.size = len(tile)
+						mip_info.size_array = tex.tell() - mip_info.offset
+					packed = tex.getvalue()
+				size_info.data_size = sum(m.size_array for m in size_info.mip_maps)
+				# update tex buffer infos - all but the last correspond to one mip level
+				for buffer_i, buffer in enumerate(tex_buffers):
+					mip = size_info.mip_maps[buffer_i]
+					buffer.first_mip = buffer_i
+					# last tex buffer gets all remaining mips
+					if buffer_i == len(tex_buffers) - 1:
+						buffer.mip_count = len(size_info.mip_maps) - buffer.first_mip
+						buffer.size = size_info.data_size - mip.offset
+					else:
+						buffer.mip_count = 1
+						buffer.size = mip.size_array
+					buffer.offset = mip.offset
+				# slice packed bytes according to tex header buffer specifications
+				buffer_bytes = [packed[b.offset: b.offset + b.size] for b in tex_buffers]
+			# set data on the buffers
+			for buffer_entry, b_slice in zip(self.get_sorted_streams(), buffer_bytes):
+				buffer_entry.update_data(b_slice)
+			# fix as we don't use the data.update_data api here
+			for data_entry in self.get_sorted_datas():
+				data_entry.size_1 = 0
+				data_entry.size_2 = sum(buffer.size for buffer in data_entry.buffers)
+			# print(self.header)
 
 	def get_names(self, file_path):
 		assert file_path == os.path.normpath(file_path)

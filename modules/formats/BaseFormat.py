@@ -239,7 +239,7 @@ class BaseFile:
 			self.collect()
 
 	@contextlib.contextmanager
-	def get_tmp_dir(self):
+	def get_tmp_dir_func(self):
 		temp_dir = tempfile.mkdtemp("-cobra")
 
 		def out_dir_func(n):
@@ -247,6 +247,14 @@ class BaseFile:
 			return os.path.normpath(os.path.join(temp_dir, n))
 
 		yield out_dir_func
+		# delete temp dir again
+		shutil.rmtree(temp_dir)
+	
+	@contextlib.contextmanager
+	def get_tmp_dir(self):
+		temp_dir = tempfile.mkdtemp("-cobra")
+
+		yield temp_dir
 		# delete temp dir again
 		shutil.rmtree(temp_dir)
 

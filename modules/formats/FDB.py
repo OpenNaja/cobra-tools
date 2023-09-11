@@ -104,7 +104,7 @@ class FdbLoader(BaseFile):
 		if self.context_is_valid(context, name_tuples):
 			logging.info(f"Executing command '{context.name}' on {self.name}")
 			try:
-				with self.get_tmp_dir() as out_dir_func:
+				with self.get_tmp_dir_func() as out_dir_func:
 					fdb_path = self.extract(out_dir_func)[0]
 
 					# Clean up with VACUUM first
