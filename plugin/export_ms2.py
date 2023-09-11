@@ -87,8 +87,11 @@ def save(filepath='', apply_transforms=False, update_rig=False, use_stock_normal
 			if not lod_coll:
 				break
 			lod_collections.append(lod_coll)
-
-		model_info.pack_base = get_pack_base(lod_collections[0].objects)
+		# set a default even when there are no models
+		if lod_collections and lod_collections[0].objects:
+			model_info.pack_base = get_pack_base(lod_collections[0].objects)
+		else:
+			model_info.pack_base = 512.0
 		model_info.precision = model_info.pack_base / PACKEDVEC_MAX
 		# logging.debug(f"chose pack_base = {model_info.pack_base} precision = {model_info.precision}")
 		for lod_i, lod_coll in enumerate(lod_collections):
