@@ -151,19 +151,8 @@ class DdsFile(Header, IoFile):
                         yield mip_i, tile_i, 0, LINE_BYTES
                         mip_offset += LINE_BYTES
 
-    def pack_mips(self, mip_infos):
-        """From a standard DDS stream, pack the lower mip levels into one image and pad with empty bytes"""
-        logging.info("Packing mip maps")
-        dds = io.BytesIO(self.buffer)
-        with io.BytesIO() as tex:
-            for mip_i, tile_i, data_size, padding_size in self.mip_pack_generator(mip_infos):
-                # logging.info(f"Writing {data_size}, padding {padding_size}")
-                tex.write(dds.read(data_size))
-                tex.write(b"\x00" * padding_size)
-            return tex.getvalue()
-
     def get_packed_mips(self, mip_infos):
-        """From a standard (non-array) DDS, return all mip levels as packed bytes with padding for TEX"""
+        """From a standard (non-array) DDS, return a list of all mip levels for a TEX, with padding if needed"""
         # logging.info("Packing all mip maps")
         dds = io.BytesIO(self.buffer)
         out = [b"" for _ in mip_infos]
