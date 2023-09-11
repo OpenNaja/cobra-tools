@@ -152,7 +152,7 @@ class DdsFile(Header, IoFile):
         for mip_info in mip_infos:
             mip_info.size_data = 0
         for mip_i, tile_i, data_size, padding_size in self.mip_pack_generator():
-            # logging.info(f"Writing {data_size}, padding {padding_size}")
+            # logging.debug(f"Reading mip {mip_i} {data_size} bytes at {dds.tell()}")
             data = dds.read(data_size)
             # this is per scan line
             mip_infos[mip_i].size_scan = data_size + padding_size
@@ -168,9 +168,9 @@ class DdsFile(Header, IoFile):
         with io.BytesIO() as dds:
             for mip_i, tile_i, data_size, padding_size in self.mip_pack_generator():
                 data = tex.read(data_size)
-                assert len(data) == data_size, f"Tex buffer is shorter than expected"
+                assert len(data) == data_size, f"Tex buffer is shorter than expected, ends at {tex.tell()}"
                 if trg_tile_i == tile_i:
-                    logging.debug(f"Writing mip {mip_i} {data_size} bytes at {dds.tell()}")
+                    # logging.debug(f"Writing mip {mip_i} {data_size} bytes at {dds.tell()}")
                     dds.write(data)
                 padding = tex.read(padding_size)
                 if padding != b"\x00" * len(padding):

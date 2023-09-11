@@ -148,13 +148,14 @@ class DdsLoader(MemStructLoader):
 					mip_info.size_array = tex.tell() - mip_info.offset
 				packed = tex.getvalue()
 			size_info.data_size = sum(m.size_array for m in size_info.mip_maps)
+			# update tex buffer infos - all but the last correspond to one mip level
 			for buffer_i, buffer in enumerate(tex_buffers):
 				mip = size_info.mip_maps[buffer_i]
 				buffer.first_mip = buffer_i
 				# last tex buffer gets all remaining mips
 				if buffer_i == len(tex_buffers) - 1:
 					buffer.mip_count = len(size_info.mip_maps) - buffer.first_mip
-					buffer.offset = size_info.data_size - mip.offset
+					buffer.size = size_info.data_size - mip.offset
 				else:
 					buffer.mip_count = 1
 					buffer.size = mip.size_array
@@ -168,7 +169,7 @@ class DdsLoader(MemStructLoader):
 		for data_entry in self.get_sorted_datas():
 			data_entry.size_1 = 0
 			data_entry.size_2 = sum(buffer.size for buffer in data_entry.buffers)
-		print(self.header)
+		# print(self.header)
 		# cleanup tmp folder
 		shutil.rmtree(tmp_dir)
 
