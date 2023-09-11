@@ -140,6 +140,7 @@ class BaseFile:
 				return pool
 		# nope, means we gotta create pool
 		pool = MemPool(self.ovl.context)
+		pool.i = None
 		pool.data = BytesIO()
 		pool.type = pool_type_key
 		pool.clear_data()
