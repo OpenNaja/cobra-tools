@@ -123,8 +123,14 @@ class DdsLoader(MemStructLoader):
 		# start updating the tex
 		assert dds_files, f"Found no dds files for {tex_path}"
 		assert len(set(dds.mipmap_count for dds in dds_files)) == 1, f"DDS files for {tex_path} have varying mip map counts"
-		# by now the dds is set in stone, and we can update the tex header
+		# by now the dds is set in stone, and we can update the tex header with data from the dds
 		dds = dds_files[0]
+		# handle pre-DX10 compressions in dds files authored by legacy programs
+		comp = dds.compression_format
+		if comp.startswith("DXT"):
+			comp = comp.replace("DXT", "BC") + "_UNORM"
+		# update tex header
+		self.header.compression_type = type(self.header.compression_type)[comp]
 		size_info.num_mips = dds.mipmap_count
 		size_info.width = dds.width
 		size_info.height = dds.height
