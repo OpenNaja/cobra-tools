@@ -145,8 +145,6 @@ class DdsLoader(MemStructLoader):
 					for tile in mip_level:
 						tex.write(tile)
 					mip_info.size = len(tile)
-					# todo - this needs to account for the last ones where there is padding
-					mip_info.size_data = len(tile)
 					mip_info.size_array = tex.tell() - mip_info.offset
 				packed = tex.getvalue()
 			size_info.data_size = sum(m.size_array for m in size_info.mip_maps)

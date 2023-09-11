@@ -26,7 +26,7 @@ class Mipmap(MemStruct):
 		# size of a scan line of blocks, including padding that is added to the end of the line
 		self.size_scan = name_type_map['Uint'](self.context, 0, None)
 
-		# size of the non-empty scanline blocks, ie. the last lods add empty scanlines as this is smaller than size
+		# size of all non-empty scanline blocks (including padding), ie. the last mips add an empty scanline which does not count
 		self.size_data = name_type_map['Uint'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()

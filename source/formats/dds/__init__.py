@@ -152,12 +152,15 @@ class DdsFile(Header, IoFile):
         # logging.info("Packing all mip maps")
         dds = io.BytesIO(self.buffer)
         out = [[] for _ in mip_infos]
+        for mip_info in mip_infos:
+            mip_info.size_data = 0
         for mip_i, tile_i, data_size, padding_size in self.mip_pack_generator():
             # logging.info(f"Writing {data_size}, padding {padding_size}")
             data = dds.read(data_size)
             # this is per scan line
-            # mip_infos[mip_i].size_scan = data_size + padding_size
             mip_infos[mip_i].size_scan = data_size + padding_size
+            if data_size:
+                mip_infos[mip_i].size_data += data_size + padding_size
             out[mip_i].append(data + b"\x00" * padding_size)
         return [b"".join(lines) for lines in out]
 

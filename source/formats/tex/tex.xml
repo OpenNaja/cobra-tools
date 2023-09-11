@@ -154,7 +154,7 @@
 		<add name="size" type="uint" >bytes for one array tile, including padding</add>
 		<add name="size array" type="uint">bytes for all array tile, including padding</add>
 		<add name="size scan" type="uint" >size of a scan line of blocks, including padding that is added to the end of the line</add>
-		<add name="size data" type="uint">size of the non-empty scanline blocks, ie. the last lods add empty scanlines as this is smaller than size</add>
+		<add name="size data" type="uint">size of all non-empty scanline blocks (including padding), ie. the last mips add an empty scanline which does not count</add>
     </compound>
 
 	<compound name="SizeInfoRaw" inherit="MemStruct" >
