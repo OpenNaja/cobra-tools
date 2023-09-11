@@ -105,6 +105,7 @@ class DdsLoader(MemStructLoader):
 		tiles = self.get_tiles(size_info)
 		# load all DDS files we need
 		dds_files = []
+		# todo - ignore num_tiles from tex and instead use a while loop i+1
 		for tile_i, tile_name in zip(tiles, self.get_tile_names(tiles, basename)):
 			bare_path = os.path.join(in_dir, tile_name)
 			dds_path = f"{bare_path}.dds"
@@ -116,6 +117,17 @@ class DdsLoader(MemStructLoader):
 				png_path = imarray.join_png(bare_path, tmp_dir, self.compression_name)
 				dds_file = self.load_png(png_path, tmp_dir)
 			dds_files.append(dds_file)
+		# start updating the tex
+		assert dds_files, f"Found no dds files for {tex_path}"
+		assert len(set(dds.mipmap_count for dds in dds_files)) == 1, f"DDS files for {tex_path} have varying mip map counts"
+		# by now the dds is set in stone, and we can update the tex header
+		dds = dds_files[0]
+		size_info.num_mips = dds.mipmap_count
+		size_info.width = dds.width
+		size_info.height = dds.height
+		size_info.depth = dds.depth
+		size_info.num_tiles = len(dds_files)
+
 		# pack the different tiles into the tex buffer, pad the mips
 		# create list of bytes for each buffer
 		tex_buffers = self.header.buffer_infos.data
@@ -124,13 +136,31 @@ class DdsLoader(MemStructLoader):
 			buffer_bytes = dds_files[0].pack_mips_pc(tex_buffers)
 		else:
 			logging.debug("Packing mip maps")
-			dds_mips = [dds.get_packed_mips(size_info.mip_maps) for dds in dds_files]
+			# pack mips for all array tiles
+			mips_per_tiles = [dds.get_packed_mips(size_info.mip_maps) for dds in dds_files]
 			with io.BytesIO() as tex:
 				# write the packed tex buffer: for each mip level, write all its tiles consecutively
-				for mip_level in zip(*dds_mips):
+				for mip_level, mip_info in zip(zip(*mips_per_tiles), size_info.mip_maps):
+					mip_info.offset = tex.tell()
 					for tile in mip_level:
 						tex.write(tile)
+					mip_info.size = len(tile)
+					# todo - this needs to account for the last ones where there is padding
+					mip_info.size_data = len(tile)
+					mip_info.size_array = tex.tell() - mip_info.offset
 				packed = tex.getvalue()
+			size_info.data_size = sum(m.size_array for m in size_info.mip_maps)
+			for buffer_i, buffer in enumerate(tex_buffers):
+				mip = size_info.mip_maps[buffer_i]
+				buffer.first_mip = buffer_i
+				# last tex buffer gets all remaining mips
+				if buffer_i == len(tex_buffers) - 1:
+					buffer.mip_count = len(size_info.mip_maps) - buffer.first_mip
+					buffer.offset = size_info.data_size - mip.offset
+				else:
+					buffer.mip_count = 1
+					buffer.size = mip.size_array
+				buffer.offset = mip.offset
 			# slice packed bytes according to tex header buffer specifications
 			buffer_bytes = [packed[b.offset: b.offset + b.size] for b in tex_buffers]
 		# set data on the buffers
@@ -140,6 +170,7 @@ class DdsLoader(MemStructLoader):
 		for data_entry in self.get_sorted_datas():
 			data_entry.size_1 = 0
 			data_entry.size_2 = sum(buffer.size for buffer in data_entry.buffers)
+		print(self.header)
 		# cleanup tmp folder
 		shutil.rmtree(tmp_dir)
 

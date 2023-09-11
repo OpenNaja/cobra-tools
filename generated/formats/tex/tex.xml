@@ -151,8 +151,8 @@
 	<compound name="Mipmap" inherit="MemStruct">
 		Describes one tex mipmap
 		<add name="offset" type="uint">starting offset into the texture buffer for this mip level</add>
-		<add name="size" type="uint" >bytes for one array entry</add>
-		<add name="size array" type="uint">bytes for all array entries</add>
+		<add name="size" type="uint" >bytes for one array tile, including padding</add>
+		<add name="size array" type="uint">bytes for all array tile, including padding</add>
 		<add name="size scan" type="uint" >size of a scan line of blocks, including padding that is added to the end of the line</add>
 		<add name="size data" type="uint">size of the non-empty scanline blocks, ie. the last lods add empty scanlines as this is smaller than size</add>
     </compound>
@@ -160,7 +160,7 @@
 	<compound name="SizeInfoRaw" inherit="MemStruct" >
 		Data struct for headers of type 7
 		<add name="zero" type="uint64" default="0" optional="True">zero</add>
-		<add name="data size" type="uint" >total dds buffer size</add>
+		<add name="data size" type="uint" >total dds buffer size, sum of size_array of all mips</add>
 		<add name="width" type="uint">x size in pixels</add>
 		<add name="height" type="uint" >y size in pixels</add>
 		<add name="depth" type="uint" default="1" optional="True" >may be depth</add>

@@ -18,7 +18,7 @@ class SizeInfoRaw(MemStruct):
 		# zero
 		self.zero = name_type_map['Uint64'].from_value(0)
 
-		# total dds buffer size
+		# total dds buffer size, sum of size_array of all mips
 		self.data_size = name_type_map['Uint'](self.context, 0, None)
 
 		# x size in pixels

@@ -17,10 +17,10 @@ class Mipmap(MemStruct):
 		# starting offset into the texture buffer for this mip level
 		self.offset = name_type_map['Uint'](self.context, 0, None)
 
-		# bytes for one array entry
+		# bytes for one array tile, including padding
 		self.size = name_type_map['Uint'](self.context, 0, None)
 
-		# bytes for all array entries
+		# bytes for all array tile, including padding
 		self.size_array = name_type_map['Uint'](self.context, 0, None)
 
 		# size of a scan line of blocks, including padding that is added to the end of the line

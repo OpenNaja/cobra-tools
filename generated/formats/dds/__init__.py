@@ -122,16 +122,16 @@ class DdsFile(Header, IoFile):
                       f"block_byte_size: {self.block_byte_size}")
 
     # @classmethod
-    def mip_pack_generator(self, mip_infos):
+    def mip_pack_generator(self):
         """Yields data size to be read from stream + amount of padding applied for packed representation)"""
         tiles_per_mips = zip(*self.calculate_mip_sizes())
         mip_offset = 0
-        for mip_i, (tiles_per_mip, mip_info) in enumerate(zip(tiles_per_mips, mip_infos)):
+        for mip_i, tiles_per_mip in enumerate(tiles_per_mips):
             for tile_i, (height, width, tile_byte_size) in enumerate(tiles_per_mip):
                 # get count of h slices, 1 block is 4x4 px, sub-block sizes require a whole block
                 num_lines = self.pad_block(height) // self.block_len_pixels_1d
                 bytes_per_line = tile_byte_size // num_lines
-                # logging.debug(f"tile {tile_i}, offset {mip_info.offset} {mip_offset}, height {height}, width {width}")
+                # logging.debug(f"tile {tile_i}, offset {mip_offset}, height {height}, width {width}")
                 if bytes_per_line >= LINE_BYTES:
                     yield mip_i, tile_i, tile_byte_size, 0
                     mip_offset += tile_byte_size
@@ -157,9 +157,11 @@ class DdsFile(Header, IoFile):
         # logging.info("Packing all mip maps")
         dds = io.BytesIO(self.buffer)
         out = [b"" for _ in mip_infos]
-        for mip_i, tile_i, data_size, padding_size in self.mip_pack_generator(mip_infos):
+        for mip_i, tile_i, data_size, padding_size in self.mip_pack_generator():
             # logging.info(f"Writing {data_size}, padding {padding_size}")
             data = dds.read(data_size)
+            # this is per scan line
+            mip_infos[mip_i].size_scan = data_size + padding_size
             out[mip_i] += data + b"\x00" * padding_size
         return out
 
@@ -168,7 +170,7 @@ class DdsFile(Header, IoFile):
         logging.info("Unpacking mip maps")
         tex = io.BytesIO(tex_buffer_data)
         with io.BytesIO() as dds:
-            for mip_i, tile_i, data_size, padding_size in self.mip_pack_generator(mip_infos):
+            for mip_i, tile_i, data_size, padding_size in self.mip_pack_generator():
                 # logging.info(f"Writing {data_size}, skipping {padding_size}")
                 data = tex.read(data_size)
                 if trg_tile_i == tile_i:
