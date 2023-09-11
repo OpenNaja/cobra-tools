@@ -64,7 +64,8 @@ class DdsLoader(MemStructLoader):
 
 	def create(self, file_path):
 		in_dir, name_ext, basename, ext = self.get_names(file_path)
-		super().create(file_path)
+		# don't write header yet, might make changes to it
+		self.header = self.target_class.from_xml_file(file_path, self.context)
 		logging.debug(f"Creating image {name_ext}")
 		# there's one empty buffer at the end!
 		buffers = [b"" for _ in range(self.header.stream_count + 1)]
@@ -95,6 +96,8 @@ class DdsLoader(MemStructLoader):
 		self.increment_buffers(self, buffer_i)
 		# ready, now inject
 		self.load_image(file_path)
+		# changes may have been made to tex header
+		self.write_memory_data()
 
 	def load_image(self, tex_path):
 		# logging.debug(f"Loading image {tex_path}")
