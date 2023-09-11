@@ -268,7 +268,7 @@ class DdsLoader(MemStructLoader):
 				# not sure how / if texture arrays are packed for PC - this works for flat textures
 				tile_data = buffer_data
 			else:
-				tile_data = dds_file.unpack_mips(size_info.mip_maps, tile_i, buffer_data)
+				tile_data = dds_file.unpack_mips(tile_i, buffer_data)
 			dds_file.dx_10.num_tiles = 1
 			dds_file.buffer = tile_data
 			dds_file.linear_size = len(buffer_data)

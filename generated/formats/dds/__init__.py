@@ -125,7 +125,6 @@ class DdsFile(Header, IoFile):
     def mip_pack_generator(self):
         """Yields data size to be read from stream + amount of padding applied for packed representation)"""
         tiles_per_mips = zip(*self.calculate_mip_sizes())
-        mip_offset = 0
         for mip_i, tiles_per_mip in enumerate(tiles_per_mips):
             for tile_i, (height, width, tile_byte_size) in enumerate(tiles_per_mip):
                 # get count of h slices, 1 block is 4x4 px, sub-block sizes require a whole block
@@ -140,13 +139,10 @@ class DdsFile(Header, IoFile):
                 for _ in range(num_lines):
                     # get the bytes that represent the blocks of this line and fill the line with padding blocks
                     yield mip_i, tile_i, bytes_per_line, padding_per_line
-                    mip_offset += bytes_per_line
-                    mip_offset += padding_per_line
 
                 # add one fully blank line as padding for odd line counts (ie. last mip)
                 if num_lines % 2:
                     yield mip_i, tile_i, 0, LINE_BYTES
-                    mip_offset += LINE_BYTES
 
     def get_packed_mips(self, mip_infos):
         """From a standard (non-array) DDS, return a list of all mip levels for a TEX, with padding if needed"""
@@ -165,15 +161,16 @@ class DdsFile(Header, IoFile):
             out[mip_i].append(data + b"\x00" * padding_size)
         return [b"".join(lines) for lines in out]
 
-    def unpack_mips(self, mip_infos, trg_tile_i, tex_buffer_data):
+    def unpack_mips(self, trg_tile_i, tex_buffer_data):
         """Restore standard DDS mip stream, unpack the lower mip levels by discarding the padding"""
         logging.info("Unpacking mip maps")
         tex = io.BytesIO(tex_buffer_data)
         with io.BytesIO() as dds:
             for mip_i, tile_i, data_size, padding_size in self.mip_pack_generator():
-                # logging.info(f"Writing {data_size}, skipping {padding_size}")
                 data = tex.read(data_size)
+                assert len(data) == data_size, f"Tex buffer is shorter than expected"
                 if trg_tile_i == tile_i:
+                    logging.debug(f"Writing mip {mip_i} {data_size} bytes at {dds.tell()}")
                     dds.write(data)
                 padding = tex.read(padding_size)
                 if padding != b"\x00" * len(padding):
