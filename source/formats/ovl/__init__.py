@@ -620,6 +620,7 @@ class OvlFile(Header):
 	def create(self, ovl_dir):
 		logging.info(f"Creating OVL from {ovl_dir}")
 		self.store_filepath(f"{ovl_dir}.ovl")
+		self.create_archive(name="STATIC")
 		file_paths = [os.path.join(ovl_dir, file_name) for file_name in os.listdir(ovl_dir)]
 		self.loaders = {}
 		self.add_files(file_paths)
@@ -1180,7 +1181,7 @@ class OvlFile(Header):
 				archive.num_buffers = len(ovs.buffer_entries)
 				archive.num_buffer_groups = len(ovs.buffer_groups)
 
-				# remove stream archive if it has no pools and no roots and no datas
+				# remove stream archive if it has no pools and no roots and no datas, STATIC must always be present
 				if archive.name != "STATIC" and not (archive.num_pools or archive.num_root_entries or archive.num_datas):
 					logging.info(f"Removed stream archive {archive.name} as it was empty")
 					self.archives.remove(archive)
