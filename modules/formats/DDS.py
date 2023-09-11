@@ -108,8 +108,8 @@ class DdsLoader(MemStructLoader):
 		tiles = self.get_tiles(size_info)
 		# load all DDS files we need
 		dds_files = []
-		# todo - ignore num_tiles from tex and instead use a while loop i+1
-		for tile_i, tile_name in zip(tiles, self.get_tile_names(tiles, basename)):
+		# todo - ignore num_tiles from tex and instead use a while loop i+1, detect if array suffix should be used
+		for tile_name in self.get_tile_names(tiles, basename):
 			bare_path = os.path.join(in_dir, tile_name)
 			dds_path = f"{bare_path}.dds"
 			# prioritize dds files if they exist
