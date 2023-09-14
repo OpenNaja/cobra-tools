@@ -67,6 +67,14 @@ class DdsLoader(MemStructLoader):
 		# don't write header yet, might make changes to it
 		self.header = self.target_class.from_xml_file(file_path, self.context)
 		logging.debug(f"Creating image {name_ext}")
+		# create the image before creating the streams
+		buffer_bytes = self.load_image(file_path)
+		# changes may have been made to tex header
+		self.write_memory_data()
+		# print(self.header)
+		self.prepare_buffers_and_streams(basename, buffer_bytes, name_ext)
+
+	def prepare_buffers_and_streams(self, basename, buffer_bytes, name_ext):
 		# there's one empty buffer at the end!
 		buffers = [b"" for _ in range(self.header.stream_count + 1)]
 		# decide where to store the buffers
@@ -83,7 +91,7 @@ class DdsLoader(MemStructLoader):
 			indices = ((0, 1),)
 		elif streamed_lods == 2:
 			# 2 lods: lod0 -> L0, lod1 -> L1
-			indices = ((0, 0), (1, 1), )
+			indices = ((0, 0), (1, 1),)
 		else:
 			raise IndexError(f"Don't know how to handle more than 2 streams for {name_ext}")
 		for lod_i, ovs_i in indices:
@@ -94,10 +102,13 @@ class DdsLoader(MemStructLoader):
 			buffer_i = self.increment_buffers(texstream_loader, buffer_i)
 		self.create_data_entry(buffers[streamed_lods:])
 		self.increment_buffers(self, buffer_i)
-		# ready, now inject
-		self.load_image(file_path)
-		# changes may have been made to tex header
-		self.write_memory_data()
+		# set data on the buffers
+		for buffer_entry, b_slice in zip(self.get_sorted_streams(), buffer_bytes):
+			buffer_entry.update_data(b_slice)
+		# fix as we don't use the data.update_data api here
+		for data_entry in self.get_sorted_datas():
+			data_entry.size_1 = 0
+			data_entry.size_2 = sum(buffer.size for buffer in data_entry.buffers)
 
 	def load_image(self, tex_path):
 		# logging.debug(f"Loading image {tex_path}")
@@ -141,7 +152,7 @@ class DdsLoader(MemStructLoader):
 			tex_buffers = self.header.buffer_infos.data
 			if is_pc(self.ovl):
 				# todo PC array textures
-				buffer_bytes = dds_files[0].pack_mips_pc(tex_buffers)
+				return dds_files[0].pack_mips_pc(tex_buffers)
 			else:
 				logging.debug("Packing mip maps")
 				# pack mips for all array tiles
@@ -169,15 +180,7 @@ class DdsLoader(MemStructLoader):
 						buffer.size = mip.size_array
 					buffer.offset = mip.offset
 				# slice packed bytes according to tex header buffer specifications
-				buffer_bytes = [packed[b.offset: b.offset + b.size] for b in tex_buffers]
-			# set data on the buffers
-			for buffer_entry, b_slice in zip(self.get_sorted_streams(), buffer_bytes):
-				buffer_entry.update_data(b_slice)
-			# fix as we don't use the data.update_data api here
-			for data_entry in self.get_sorted_datas():
-				data_entry.size_1 = 0
-				data_entry.size_2 = sum(buffer.size for buffer in data_entry.buffers)
-			# print(self.header)
+				return [packed[b.offset: b.offset + b.size] for b in tex_buffers]
 
 	def get_names(self, file_path):
 		assert file_path == os.path.normpath(file_path)
