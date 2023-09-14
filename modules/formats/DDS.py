@@ -147,6 +147,9 @@ class DdsLoader(MemStructLoader):
 			size_info.depth = dds.depth
 			size_info.num_tiles = len(dds_files)
 			size_info.reset_field("mip_maps")
+			# padding depends on io_size being updated
+			size_info.io_size = size_info.get_size(size_info, size_info.context)
+			self.header.size_info.data.reset_field("padding")
 			# pack the different tiles into the tex buffer, pad the mips
 			# create list of bytes for each buffer
 			tex_buffers = self.header.buffer_infos.data
