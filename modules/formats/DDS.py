@@ -1,8 +1,6 @@
 import io
 import logging
 import os
-import shutil
-import tempfile
 
 import imageio.v3 as iio
 
