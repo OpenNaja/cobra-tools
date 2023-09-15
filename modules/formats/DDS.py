@@ -68,7 +68,7 @@ class DdsLoader(MemStructLoader):
 		self.header = self.target_class.from_xml_file(file_path, self.context)
 		logging.debug(f"Creating image {name_ext}")
 		# create the image before creating the streams
-		buffer_bytes = self.load_image(file_path)
+		buffer_bytes = self.get_image_bytes(file_path)
 		# changes may have been made to tex header
 		self.write_memory_data()
 		# print(self.header)
@@ -110,26 +110,30 @@ class DdsLoader(MemStructLoader):
 			data_entry.size_1 = 0
 			data_entry.size_2 = sum(buffer.size for buffer in data_entry.buffers)
 
-	def load_image(self, tex_path):
+	def get_image_bytes(self, tex_path):
+		"""Returns a list of packed dds bytes, split for tex and texturestream buffers"""
 		# logging.debug(f"Loading image {tex_path}")
 		in_dir, name_ext, basename, ext = self.get_names(tex_path)
 		with self.get_tmp_dir() as tmp_dir:
 			size_info = self.get_tex_structs()
-			tiles = self.get_tiles(size_info)
 			# load all DDS files we need
 			dds_files = []
-			# todo - ignore num_tiles from tex and instead use a while loop i+1, detect if array suffix should be used
-			for tile_name in self.get_tile_names(tiles, basename):
-				bare_path = os.path.join(in_dir, tile_name)
-				dds_path = f"{bare_path}.dds"
-				# prioritize dds files if they exist
-				if os.path.isfile(dds_path):
-					dds_file = self.load_dds(dds_path)
-				else:
-					# try to reassemble a flat PNG for this tile, and then convert it to DDS
-					png_path = imarray.join_png(bare_path, tmp_dir, self.compression_name)
-					dds_file = self.load_png(png_path, tmp_dir)
+			# ignore num_tiles from tex
+			# try without array tile suffix
+			dds_file = self.get_dds_file(basename, in_dir, tmp_dir)
+			if dds_file:
 				dds_files.append(dds_file)
+			else:
+				# try to find array tiles
+				tile_i = 0
+				while True:
+					tile_name = f"{basename}_[{tile_i:02}]"
+					dds_file = self.get_dds_file(tile_name, in_dir, tmp_dir)
+					if dds_file:
+						dds_files.append(dds_file)
+					else:
+						break
+					tile_i += 1
 			# start updating the tex
 			assert dds_files, f"Found no dds files for {tex_path}"
 			assert len(set(dds.mipmap_count for dds in dds_files)) == 1, f"DDS files for {tex_path} have varying mip map counts"
@@ -149,7 +153,9 @@ class DdsLoader(MemStructLoader):
 			size_info.reset_field("mip_maps")
 			# padding depends on io_size being updated
 			size_info.io_size = size_info.get_size(size_info, size_info.context)
+			print(size_info.io_size)
 			self.header.size_info.data.reset_field("padding")
+			print(self.header.size_info.data)
 			# pack the different tiles into the tex buffer, pad the mips
 			# create list of bytes for each buffer
 			tex_buffers = self.header.buffer_infos.data
@@ -184,6 +190,22 @@ class DdsLoader(MemStructLoader):
 					buffer.offset = mip.offset
 				# slice packed bytes according to tex header buffer specifications
 				return [packed[b.offset: b.offset + b.size] for b in tex_buffers]
+
+	def get_dds_file(self, tile_name, in_dir, tmp_dir):
+		"""Returns a valid dds file object, or None"""
+		bare_path = os.path.join(in_dir, tile_name)
+		dds_path = f"{bare_path}.dds"
+		# prioritize dds files if they exist
+		if os.path.isfile(dds_path):
+			return self.load_dds(dds_path)
+		else:
+			try:
+				# try to reassemble a flat PNG for this tile, and then convert it to DDS
+				png_path = imarray.join_png(bare_path, tmp_dir, self.compression_name)
+				return self.load_png(png_path, tmp_dir)
+			except FileNotFoundError:
+				# logging.exception("file missing")
+				return None
 
 	def get_names(self, file_path):
 		assert file_path == os.path.normpath(file_path)
