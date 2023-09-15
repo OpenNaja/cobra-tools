@@ -36,7 +36,7 @@ class Version(object):
                 self.value = int(expr_str, 0)
 
     def __str__(self):
-        """Reconstruct tfhe expression to a string."""
+        """Reconstruct the expression to a string."""
         if self.value is not None:
             return str(self.value)
         else:
