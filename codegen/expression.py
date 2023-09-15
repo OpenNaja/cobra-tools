@@ -34,35 +34,6 @@ class Version(object):
             else:
                 # use int(x, 0) to evaluate x as an int literal, allowing for non-decimal (e.g. hex) values to be read
                 self.value = int(expr_str, 0)
-                # print(self)
-
-    def version_number(version_str):
-        """Converts version string into an integer.
-        :param version_str: The version string.
-        :type version_str: str
-        :return: A version integer.
-        """
-
-        # 3.03 case is special
-        if version_str == '3.03':
-            return 0x03000300
-
-        # NS (neosteam) case is special
-        if version_str == 'NS':
-            return 0x0A010000
-
-        try:
-            ver_list = [int(x) for x in version_str.split('.')]
-        except ValueError:
-            return -1  # version not supported (i.e. version_str '10.0.1.3a' would trigger this)
-        if len(ver_list) > 4 or len(ver_list) < 1:
-            return -1  # version not supported
-        for ver_digit in ver_list:
-            if (ver_digit | 0xff) > 0xff:
-                return -1  # version not supported
-        while len(ver_list) < 4:
-            ver_list.append(0)
-        return (ver_list[0] << 24) + (ver_list[1] << 16) + (ver_list[2] << 8) + ver_list[3]
 
     def __str__(self):
         """Reconstruct tfhe expression to a string."""
