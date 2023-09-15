@@ -644,8 +644,8 @@ class OvlFile(Header):
 					continue
 				elif ext in (".png", ".dds"):
 					# find and remove any suffices in png basepath
-					channel_re = re.compile("_[rgba]*$")
-					array_re = re.compile("_\[[0-9]*\]$")
+					channel_re = re.compile(r"_[rgba]+$")
+					array_re = re.compile(r"_\[[0-9]+\]$")
 					bare_path_no_suffices = f"{array_re.sub('', channel_re.sub('', bare_path, count=1), count=1)}.tex"
 					lower_tex_paths = {fp.lower() for fp in file_paths if fp.lower().endswith(".tex")}
 					# compare this reconstructed tex path to the other file paths (case insensitive)
