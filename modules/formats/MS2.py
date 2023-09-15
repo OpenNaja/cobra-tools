@@ -224,15 +224,16 @@ class Ms2Loader(MemStructLoader):
 		missing_materials = set()
 		buffer_0_stream = io.BytesIO(self.data_entry.buffer_datas[0])
 		names_buffer = Buffer0.from_stream(buffer_0_stream, self.context, self.header)
-		for model_info in self.header.model_infos.data:
-			for material in model_info.materials.data:
-				material_name = names_buffer.names[material.name_index]
-				fgm_name = f"{material_name.lower()}.fgm"
-				if ovl_versions.is_jwe(self.ovl) or ovl_versions.is_jwe2(self.ovl) and fgm_name == "airliftstraps.fgm":
-					# don't cry about this
-					continue
-				# if fgm_name not in self.ovl.loaders:
-				# 	missing_materials.add(fgm_name)
+		if self.header.version > 39:
+			for model_info in self.header.model_infos.data:
+				for material in model_info.materials.data:
+					material_name = names_buffer.names[material.name_index]
+					fgm_name = f"{material_name.lower()}.fgm"
+					if ovl_versions.is_jwe(self.ovl) or ovl_versions.is_jwe2(self.ovl) and fgm_name == "airliftstraps.fgm":
+						# don't cry about this
+						continue
+					# if fgm_name not in self.ovl.loaders:
+					# 	missing_materials.add(fgm_name)
 		if missing_materials:
 			mats = '\n'.join(missing_materials)
 			msg = f"The following materials are used by {self.name}, but are missing from the OVL:\n" \
