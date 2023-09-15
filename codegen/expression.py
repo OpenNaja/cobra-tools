@@ -92,7 +92,7 @@ class Expression(object):
             self._left = self._parse(left, target_variable)
             self._right = self._parse(right, target_variable)
         except:
-            print("error while parsing expression '%s'" % expr_str)
+            print(f"error while parsing expression '{expr_str}'")
             raise
 
     def __str__(self):
@@ -193,7 +193,7 @@ class Expression(object):
             for op_startpos, ch in enumerate(expr_str):
                 if ch == ' ': continue
                 if ch == '(' or ch == ')':
-                    raise ValueError("expression syntax error: expected operator before '%s'" % expr_str[op_startpos:])
+                    raise ValueError(f"expression syntax error: expected operator before '{expr_str[op_startpos:]}'")
                 # to avoid confusion between && and &, and || and |,
                 # let's first scan for operators of two characters
                 for op_endpos in range(op_startpos + 1, op_startpos - 1, -1):
@@ -227,7 +227,7 @@ class Expression(object):
                         break
                 else:
                     raise ValueError(
-                        "expression syntax error: unexpected trailing characters '%s'" % expr_str[right_endpos + 1:])
+                        f"expression syntax error: unexpected trailing characters '{expr_str[right_endpos + 1:]}'")
                 # trailing characters contain an operator: do not remove
                 # brackets but take
                 # everything to be the right hand side (this happens for
@@ -238,7 +238,7 @@ class Expression(object):
             right_str = expr_str[op_endpos + 1:].strip()
             # check that it is a valid expression
             if ("(" in right_str) or (")" in right_str):
-                raise ValueError("expression syntax error: unexpected brackets in '%s'" % right_str)
+                raise ValueError(f"expression syntax error: unexpected brackets in '{right_str}'")
         return left_str, op_str, right_str
 
     @staticmethod
