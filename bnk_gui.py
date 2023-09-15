@@ -66,8 +66,8 @@ class MainWindow(widgets.MainWindow):
 		if not hashes:
 			hashes = self.bnk_file.data_map.keys()
 		for id_hash in hashes:
-			data = self.bnk_file.data_map[id_hash]
-			out_file = write_riff_file(data, out_dir_func(f"{self.bnk_file.aux_s_name_bare}_{id_hash}"))
+			data, aux_name = self.bnk_file.data_map[id_hash]
+			out_file = write_riff_file(data, out_dir_func(f"{aux_name}_{id_hash}"))
 			if out_file:
 				out_files.append(out_file)
 		return out_files
@@ -113,7 +113,6 @@ class MainWindow(widgets.MainWindow):
 				logging.info(f"Injected {wem_file_path} {wem_id}")
 
 	def drag_files(self, file_names):
-		logging.info(f"DRAGGING {file_names}")
 		drag = QtGui.QDrag(self)
 		temp_dir = tempfile.mkdtemp("-cobra")
 		try:
@@ -133,7 +132,7 @@ class MainWindow(widgets.MainWindow):
 			self.set_file_modified(False)
 			try:
 				self.bnk_file.load(filepath)
-				print(self.bnk_file)
+				# print(self.bnk_file)
 				f_list = [(fmt_hash(stream_info.event_id), "s", stream_info.size) for stream_info in self.bnk_file.bnk_header.streams]
 				if self.bnk_file.aux_b and self.bnk_file.aux_b.didx:
 					f_list.extend([(pointer.hash, "b", pointer.wem_filesize) for pointer in self.bnk_file.aux_b.didx.data_pointers])
@@ -141,7 +140,7 @@ class MainWindow(widgets.MainWindow):
 				self.files_container.set_data(f_list)
 			except:
 				self.handle_error("Loading failed, see log!")
-				print(self.bnk_file)
+				# print(self.bnk_file)
 
 	def is_open_bnk(self):
 		if not self.file_widget.filename:

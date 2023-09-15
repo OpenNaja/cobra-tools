@@ -12,32 +12,25 @@ class BnkLoader(BaseFile):
 	extension = ".bnk"
 
 	def create(self, file_path):
-		# todo - fixme
-		# # first uint of the buffer is the size of the data that should be read from the aux file
-		# media_buffers = self.data_entry.buffer_datas
-		# media_buffers[0] = struct.pack("<I", media.size_for_ovl) + media_buffers[0][4:]
-		#
-		# if len(media_buffers) > 1:
-		# 	logging.info(f"Loaded bnk {media_path} into OVL buffers")
-		# 	with open(media_path, "rb") as f:
-		# 		media_buffers[1] = f.read()
-		# # update the buffer
-		# self.data_entry.update_data(media_buffers)
-		#
-		# # get events bnk for internal files
-		# if not self.file_entry.aux_entries:
-		# 	events_ss, archive = self.ovl.get_root_entry(f"{events_bnk}.bnk")
-		# 	if events_ss:
-		# 		events_buffers = events_ss.data_entry.buffer_datas
-		# 		events_buffers[0] = struct.pack("<I", events.size_for_ovl) + events_buffers[0][4:]
-		#
-		# 		logging.info(f"Loaded bnk {events_path} into OVL buffers")
-		# 		with open(events_path, "rb") as f:
-		# 			events_buffers[1] = f.read()
-		# 		events_ss.data_entry.update_data(events_buffers)
-		# 	else:
-		# 		logging.warning(f"Could not find {events_bnk}.bnk in OVL")
-		pass
+		bnk_file = BnkFile()
+		bnk_file.load(file_path)
+		# todo - ensure update of bnk_file.bnk_header.size_b here or in gui?
+		with BytesIO() as stream:
+			BnkBufferData.to_stream(bnk_file.bnk_header, stream, self.context)
+			buffers = [stream.getvalue(), ]
+		if bnk_file.bnk_header.external_aux_b_count:
+			logging.info(f"Loaded bnk {bnk_file.aux_b_name_bare} into OVL buffers")
+			with open(bnk_file.aux_b_path, "rb") as f:
+				buffers.append(f.read())
+
+		# print(bnk_file)
+		self.write_root_bytes(b"\x00" * 16)
+		self.create_data_entry(buffers)
+		self.aux_entries = []
+		if bnk_file.bnk_header.external_b_suffix:
+			self.aux_entries.append(bnk_file.bnk_header.external_b_suffix)
+		if bnk_file.bnk_header.external_s_suffix:
+			self.aux_entries.append(bnk_file.bnk_header.external_s_suffix)
 
 	def get_aux_size(self, aux_basename):
 		bnkpath = f"{self.ovl.path_no_ext}_{self.basename}_bnk_{aux_basename.lower()}.aux"

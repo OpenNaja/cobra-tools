@@ -32,7 +32,7 @@ class BnkFile(BnkFileContainer, IoFile):
 				for i, stream_info in enumerate(self.bnk_header.streams):
 					f.seek(stream_info.offset)
 					id_hash = fmt_hash(stream_info.event_id)
-					self.data_map[id_hash] = f.read(stream_info.size)
+					self.data_map[id_hash] = f.read(stream_info.size), self.aux_s_name_bare
 		# since the b aux can be originally internal as a buffer, or an external file, we just check if the file now exists
 		self.aux_b_name_bare, self.aux_b_path = self.get_aux_path("b")
 		if self.aux_b_name_bare:
@@ -40,7 +40,7 @@ class BnkFile(BnkFileContainer, IoFile):
 			self.aux_b.load(self.aux_b_path)
 			if self.aux_b.didx:
 				for pointer in self.aux_b.didx.data_pointers:
-					self.data_map[pointer.hash] = pointer.data
+					self.data_map[pointer.hash] = pointer.data, self.aux_b_name_bare
 
 	def get_aux_path(self, suffix):
 		# no way of knowing the ovl prefix here
