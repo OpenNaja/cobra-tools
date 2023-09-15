@@ -2051,11 +2051,18 @@ class GamesWidget(QWidget):
             logging.exception("Setting dir failed")
 
     def add_installed_game(self) -> None:
-        """Add a new game to the list of available games"""
+        """Manually add a new game to the list of available games. Works for both game root or ovldata folders"""
         dir_game = self.ask_game_dir()
         if dir_game:
-            # todo - try to find the name of the game by stripping usual suffixes, eg. "win64\\ovldata"
-            current_game = os.path.basename(dir_game)
+            dir_game = os.path.normpath(dir_game)
+            # try to find the name of the game by stripping usual suffixes, eg. "win64\\ovldata"
+            pattern = re.compile(r"\\win64\\ovldata", re.IGNORECASE)
+            without_suffix = pattern.sub("", dir_game)
+            current_game = os.path.basename(without_suffix)
+            # suffix the dir without suffix again and store that if it exists
+            added_suffix = os.path.join(without_suffix, "win64", "ovldata")
+            if os.path.isdir(added_suffix):
+                dir_game = added_suffix
             # store this newly chosen game in cfg
             self.cfg["games"][current_game] = dir_game
             self.cfg["current_game"] = current_game
