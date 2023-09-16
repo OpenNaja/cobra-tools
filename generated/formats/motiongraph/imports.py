@@ -28,6 +28,7 @@ type_module_name_map = {
 	'Compression': 'generated.formats.ovl_base.enums.Compression',
 	'VersionInfo': 'generated.formats.ovl_base.bitfields.VersionInfo',
 	'Pointer': 'generated.formats.ovl_base.compounds.Pointer',
+	'Reference': 'generated.formats.ovl_base.compounds.Reference',
 	'LookupPointer': 'generated.formats.ovl_base.compounds.LookupPointer',
 	'ArrayPointer': 'generated.formats.ovl_base.compounds.ArrayPointer',
 	'CondPointer': 'generated.formats.ovl_base.compounds.CondPointer',
@@ -46,6 +47,7 @@ type_module_name_map = {
 	'Activity': 'generated.formats.motiongraph.compounds.Activity',
 	'MRFEntry1': 'generated.formats.motiongraph.compounds.MRFEntry1',
 	'MRFArray1': 'generated.formats.motiongraph.compounds.MRFArray1',
+	'MotiongraphVar': 'generated.formats.motiongraph.compounds.MotiongraphVar',
 	'MRFMember1': 'generated.formats.motiongraph.compounds.MRFMember1',
 	'MRFEntry2': 'generated.formats.motiongraph.compounds.MRFEntry2',
 	'MRFArray2': 'generated.formats.motiongraph.compounds.MRFArray2',
@@ -98,11 +100,13 @@ type_module_name_map = {
 	'GroupedActivityActivityData': 'generated.formats.motiongraph.compounds.GroupedActivityActivityData',
 	'RandomActivityActivityInfoData': 'generated.formats.motiongraph.compounds.RandomActivityActivityInfoData',
 	'SinglePtr': 'generated.formats.motiongraph.compounds.SinglePtr',
+	'SingleRef': 'generated.formats.motiongraph.compounds.SingleRef',
+	'RefList': 'generated.formats.motiongraph.compounds.RefList',
 	'PtrList': 'generated.formats.motiongraph.compounds.PtrList',
 	'StateList': 'generated.formats.motiongraph.compounds.StateList',
-	'TwoPtrFirst': 'generated.formats.motiongraph.compounds.TwoPtrFirst',
-	'ThirdFrag': 'generated.formats.motiongraph.compounds.ThirdFrag',
-	'Sixtyfour': 'generated.formats.motiongraph.compounds.Sixtyfour',
+	'MotiongraphVars': 'generated.formats.motiongraph.compounds.MotiongraphVars',
+	'Something': 'generated.formats.motiongraph.compounds.Something',
+	'MRFChild': 'generated.formats.motiongraph.compounds.MRFChild',
 }
 
 name_type_map = {}

@@ -126,6 +126,9 @@ class Pointer(BaseStruct):
 		sub = ET.SubElement(elem, prop)
 		cls.pool_type_to_xml(sub, instance, debug)
 		if instance.has_data:
+			pool = instance.target_pool
+			# always set this to support xml references
+			# elem.attrib["id"] = f"{pool.i} | {instance.target_offset}"
 			# xml string
 			if prop == XML_STR:
 				sub.append(ET.fromstring(instance.data))

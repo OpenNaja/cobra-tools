@@ -28,6 +28,7 @@ type_module_name_map = {
 	'Compression': 'generated.formats.ovl_base.enums.Compression',
 	'VersionInfo': 'generated.formats.ovl_base.bitfields.VersionInfo',
 	'Pointer': 'generated.formats.ovl_base.compounds.Pointer',
+	'Reference': 'generated.formats.ovl_base.compounds.Reference',
 	'LookupPointer': 'generated.formats.ovl_base.compounds.LookupPointer',
 	'ArrayPointer': 'generated.formats.ovl_base.compounds.ArrayPointer',
 	'CondPointer': 'generated.formats.ovl_base.compounds.CondPointer',

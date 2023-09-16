@@ -6,11 +6,11 @@
 
     <compound name="MotiongraphHeader" inherit="MemStruct">
         # if self.ovl.context.version > 47:
-        <add name="ptr_0" type="Pointer" template="MotiongraphRootFrag"/>
+        <add name="root_frag" type="Pointer" template="MotiongraphRootFrag"/>
         points to all data of size 40 used in MRFentry1 if lua is MotionGraph.StateOutput
         <add name="state output entries" type="Pointer" template="StateArray"/>
-        <add name="ptr_2" type="Pointer" template="MGTwo"/>
-        <add name="ptr_3" type="Pointer" template="MRFMember1"/>
+        <add name="MGTwo" type="Pointer" template="MGTwo"/>
+        <add name="MRFMember1" type="Pointer" template="MRFMember1"/>
 
         <add name="count_0" type="uint"/>
         <add name="count_1" type="uint"/>
@@ -71,21 +71,29 @@
         <add name="states" type="MRFEntry1" arr1="#ARG#" />
     </compound>
 
+    <compound name="MotiongraphVar" inherit="MemStruct">
+        24 bytes (?)
+        <add name="var_name" type="Pointer" template="ZString"/>
+        <add name="target_name" type="Pointer" template="ZString"/>
+        <add name="unk" type="uint64"/>
+    </compound>
+
     <compound name="MRFMember1" inherit="MemStruct">
-        72 bytes, is like ThirdFrag, but different templates
+        72 bytes / 144 bytes ?
         <add name="LuaMethod" type="Pointer" template="ZString"/>
 
         <add name="count_0" type="uint64"/>
         <add name="ptr_0" type="Pointer" />?
 
         variable size, maybe related to counts
-        <add name="ptr_1" type="Pointer" />
+        apparently, differing data - may be related to LuaMethod or one of the counts as dtype instead
+        <add name="MotiongraphVars" type="Pointer" template="MotiongraphVars" arg="dtype"/>
+        7 = state or scope
+        8 = output
+        <add name="dtype" type="uint64"/>
 
-        <add name="count_2" type="uint64"/>
-        <add name="count_3" type="uint64"/>
-
-        variable size, maybe related to counts
-        <add name="ptr_2" type="Pointer" />
+        <add name="num_children" type="uint64"/>
+        <add name="children" type="ArrayPointer" template="MRFChild" arg="num_children"/>
 
         <add name="count_4" type="uint64"/>
         <add name="id" type="Pointer" template="ZString"/>
@@ -110,12 +118,16 @@
 
         <add name="count_2" type="uint64" />
 
-        <add name="count_3" type="uint64"/>
+        <add name="count_3a" type="short"/>
+        <add name="count_3b" type="short"/>
+        <add name="count_3c" type="int"/>
         <add name="count_4" type="uint64"/>
 
         <add name="count_5" type="uint64" />
 
-        <add name="count_6" type="uint64"/>
+        <add name="count_6a" type="short"/>
+        <add name="count_6b" type="short"/>
+        <add name="count_6c" type="int"/>
         <add name="id" type="Pointer" template="ZString"/>
     </compound>
 
@@ -158,7 +170,7 @@
     <compound name="TransStructStop" inherit="MemStruct">
         24 bytes
         actually same as above, just don't keep reading here
-        <add name="another mrfentry2" type="Pointer" />
+        <add name="another mrfentry2" type="Reference" />
         links to other states,
         <add name="other states" type="MGTwo" />
     </compound>
@@ -172,7 +184,7 @@
         40 bytes
         <add name="unk" type="uint"/>
         <add name="activities count" type="uint"/>
-        <add name="activities" type="Pointer" template="PtrList" arg="activities count"/>
+        <add name="activities" type="Pointer" template="RefList" arg="activities count"/>
         <add name="count 2" type="uint64"/>
         this one links to other states, infinite recursion danger
         <add name="array 2" type="Pointer" template="TransStructStopList" arg="count 2"/>
@@ -603,6 +615,16 @@
         <add name="ptr" type="Pointer" template="#T#" />
     </compound>
 
+    <compound name="SingleRef" inherit="MemStruct">
+        8 bytes
+        <add name="pointer" type="Reference" template="#T#" />
+    </compound>
+
+    <compound name="RefList" inherit="MemStruct">
+        8 * arg bytes
+        <add name="ptrs" type="SingleRef" arr1="#ARG#" template="#T#"/>
+    </compound>
+
     <compound name="PtrList" inherit="MemStruct">
         8 * arg bytes
         <add name="ptrs" type="SinglePtr" arr1="#ARG#" template="#T#"/>
@@ -613,44 +635,27 @@
         <add name="ptrs" type="SinglePtr" arr1="#ARG#" template="State"/>
     </compound>
 
-    <compound name="TwoPtrFirst" inherit="MemStruct">
+    <compound name="MotiongraphVars" inherit="MemStruct">
+        16 bytes for arg = 7
+        40 bytes for arg = 8
+        <add name="ptr" type="ArrayPointer" template="MotiongraphVar" arg="count"/>
+        <add name="count" type="uint64"/>
+    </compound>
+
+    <compound name="Something" inherit="MemStruct">
         16 bytes
-        <add name="ptr" type="Pointer" />
-        <add name="count_0" type="uint64"/>
+        <add name="ptr" type="Pointer" />usually empty
+        <add name="unk" type="uint64"/>
     </compound>
 
-    <compound name="ThirdFrag" inherit="MemStruct">
-        72 bytes
-        <add name="LuaMethod" type="Pointer" template="ZString"/>
-
-        <add name="count_0" type="uint64"/>
-        <add name="count_1" type="uint64"/>
-
-        <add name="ptr_1" type="Pointer" template="TwoPtrFirst"/>
-
-        <add name="count_2" type="uint64"/>
-        <add name="count_3" type="uint64"/>
-
-        <add name="ptr_2" type="Pointer" template="Sixtyfour"/>
-
-        <add name="count_4" type="uint64"/>
-        <add name="member" type="Pointer" template="ZString"/>
-    </compound>
-
-    <compound name="Sixtyfour" inherit="MemStruct">
-        64 bytes
+    <compound name="MRFChild" inherit="MemStruct">
+        32 bytes
         <add name="count_0" type="uint64"/>
 
-        <add name="ptr_0" type="Pointer"/>
-        <add name="ptr_1" type="Pointer"/>
+        <add name="MRFMember" type="Pointer" template="MRFMember1"/>
+        <add name="ptr_1" type="Pointer" template="Something"/>
 
         <add name="count_1" type="uint64"/>
-        <add name="count_2" type="uint64"/>
-
-        <add name="ptr_2" type="Pointer"/>
-        <add name="ptr_3" type="Pointer"/>
-
-        <add name="count_3" type="uint64"/>
     </compound>
 
 </niftoolsxml>

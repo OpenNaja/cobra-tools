@@ -79,13 +79,11 @@
         <add name="data_offset" type="uint" >the byte offset relative to the start of the MemPool's data</add>
     </compound>
 
-    <compound name="LookupPointer" inherit="Pointer" >
+    <compound name="Reference" inherit="Pointer" >
     </compound>
 
-<!--    <compound name="Pointer" >-->
-<!--        <add name="pool_index" type="int" default="-1">The index of the MemPool this one relates to; OR, for entries referred to from AssetEntries: -1</add>-->
-<!--        <add name="rel_offset" type="uint" >the byte offset relative to the start of the MemPool's data</add>-->
-<!--    </compound>-->
+    <compound name="LookupPointer" inherit="Pointer" >
+    </compound>
 
     <compound name="ArrayPointer" inherit="Pointer" >
         a pointer to an array in an ovl memory layout
