@@ -309,7 +309,7 @@ class DdsLoader(MemStructLoader):
 			out_files.append(dds_path)
 			try:
 				# convert the dds to png
-				png_path = texconv.dds_to_png(dds_path)
+				png_path = texconv.dds_to_png(dds_path, self.compression_name)
 				# postprocessing of the png
 				if os.path.isfile(png_path):
 					out_files.extend(imarray.split_png(png_path, self.ovl, self.compression_name))

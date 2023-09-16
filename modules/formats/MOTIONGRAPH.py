@@ -8,4 +8,5 @@ class MotiongraphLoader(MemStructLoader):
 
 	def collect(self):
 		if self.ovl.version >= 19:
-			super().collect()
+			pass
+			# super().collect()
