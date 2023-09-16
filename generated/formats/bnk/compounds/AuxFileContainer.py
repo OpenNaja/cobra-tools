@@ -1,6 +1,5 @@
 import logging
 import os
-import struct
 
 from generated.formats.bnk.compounds.BKHDSection import BKHDSection
 from generated.formats.bnk.compounds.DATASection import DATASection
@@ -9,7 +8,6 @@ from generated.formats.bnk.compounds.HIRCSection import HIRCSection
 from generated.base_struct import BaseStruct
 from generated.formats.base.compounds.PadAlign import get_padding
 from modules.formats.shared import fmt_hash
-from ovl_util.texconv import write_riff_file
 
 
 class AuxFileContainer(BaseStruct):
@@ -32,7 +30,7 @@ class AuxFileContainer(BaseStruct):
 		while len(chunk_id) == 4:
 			chunk_id = stream.read(4)
 			after_size_pos = stream.tell() + 4
-			logging.info(f"reading chunk {chunk_id} at {stream.tell()}")
+			logging.debug(f"reading chunk {chunk_id} at {stream.tell()}")
 			if chunk_id == b"BKHD":
 				instance.bhkd = BKHDSection.from_stream(stream, instance.context, 0, None)
 				# print(instance.bhkd)

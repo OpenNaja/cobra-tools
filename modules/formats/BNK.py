@@ -51,19 +51,19 @@ class BnkLoader(BaseFile):
 			f.write(main_buffer)
 
 		# only needed to assert validity of aux stream mapping
-		# with BytesIO(main_buffer) as stream:
-		# 	bnk_header = BnkBufferData.from_stream(stream, self.context)
+		with BytesIO(main_buffer) as stream:
+			bnk_header = BnkBufferData.from_stream(stream, self.context)
 
 		# ensure that aux files are where they should be
 		for aux_suffix in self.aux_entries:
 			aux_suffix = aux_suffix.lower()
-			# if aux_suffix == "b":
-			# 	assert bnk_header.external_b_suffix.lower() == "b"
-			# elif aux_suffix == "s":
-			# 	assert bnk_header.external_s_suffix.lower() == "s"
-			# else:
-			# 	logging.warning(f"Unknown .aux suffix '{aux_suffix}'")
-			# 	continue
+			if aux_suffix == "b":
+				assert bnk_header.external_b_suffix.lower() == "b"
+			elif aux_suffix == "s":
+				assert bnk_header.external_s_suffix.lower() == "s"
+			else:
+				logging.warning(f"Unknown .aux suffix '{aux_suffix}'")
+				continue
 			aux_name = f"{self.ovl.basename}_{bnk_name}_bnk_{aux_suffix}.aux"
 			aux_path = os.path.join(self.ovl.dir, aux_name)
 			if not os.path.isfile(aux_path):

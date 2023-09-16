@@ -150,7 +150,7 @@
 
     <compound name="BnkBufferData">
         Buffer data of bnk files
-        <add name="size_b" type="uint64" >data size of aux file of type b</add>
+        <add name="size_b" type="uint64" >data size of aux of type b, can be in bnk's buffer 1, and maybe also an external aux b file</add>
         <add name="external_aux_b_count" type="uint" >1, guess</add>
         <add name="total_aux_count" type="uint" >1 for PC, 2 for PZ, JWE1, 6 for ZTUAC</add>
         <add name="streams_count" type="uint" >variable</add>

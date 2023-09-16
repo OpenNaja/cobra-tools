@@ -15,7 +15,7 @@ class BnkBufferData(BaseStruct):
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 
-		# data size of aux file of type b
+		# data size of aux of type b, can be in bnk's buffer 1, and maybe also an external aux b file
 		self.size_b = name_type_map['Uint64'](self.context, 0, None)
 
 		# 1, guess
