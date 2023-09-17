@@ -72,6 +72,30 @@
         <add name="ints2" type="int" arr1="3"/>
     </compound>
 
+    <compound name="Effect13" inherit="Effect">
+        32 bytes
+        <add name="floats" type="float" arr1="8"/>
+    </compound>
+
+    <compound name="Effect14" inherit="Effect">
+        8 bytes - probably indexing
+        <add name="offset" type="int" />
+        <add name="count" type="int" />
+    </compound>
+
+    <compound name="Effect15" inherit="Effect">
+        32 bytes
+        <add name="floats1" type="float" arr1="4"/>
+        <add name="flags" type="byte" arr1="4"/>
+        <add name="floats2" type="float" arr1="3"/>
+    </compound>
+
+    <compound name="Effect21" inherit="Effect">
+        8 bytes
+        <add name="a" type="float" />maybe time
+        <add name="b" type="float" />maybe value
+    </compound>
+
     <compound name="LastRow" inherit="MemStruct">
         <add name="unk07"   type="ushort" />
         <add name="unk08"   type="ushort" />
@@ -116,15 +140,15 @@
         <add name="effect10" type="EffectRef" template="Effect10"/>
         <add name="effect11" type="EffectRef" template="Effect11"/>
         <add name="effect12" type="EffectRef" template="Effect12"/>
-        <add name="effect13" type="EffectRef" template="Effect"/>
-        <add name="effect14" type="EffectRef" template="Effect"/>
-        <add name="effect15" type="EffectRef" template="Effect"/>
+        <add name="effect13" type="EffectRef" template="Effect13"/>
+        <add name="effect14" type="EffectRef" template="Effect14"/>
+        <add name="effect15" type="EffectRef" template="Effect15"/>
         <add name="effect16" type="EffectRef" template="Effect"/>
         <add name="effect17" type="EffectRef" template="Effect"/>
         <add name="effect18" type="EffectRef" template="Effect"/>
         <add name="effect19" type="EffectRef" template="Effect"/>
         <add name="effect20" type="EffectRef" template="Effect"/>
-        <add name="effect21" type="EffectRef" template="Effect"/>
+        <add name="effect21" type="EffectRef" template="Effect21"/>
         <add name="effect22" type="EffectRef" template="Effect"/>
         <add name="effect23" type="EffectRef" template="Effect"/>
         <add name="effect24" type="EffectRef" template="Effect"/>
