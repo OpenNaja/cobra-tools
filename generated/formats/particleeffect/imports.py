@@ -46,6 +46,8 @@ type_module_name_map = {
 	'Effect08': 'generated.formats.particleeffect.compounds.Effect08',
 	'Effect09': 'generated.formats.particleeffect.compounds.Effect09',
 	'Effect10': 'generated.formats.particleeffect.compounds.Effect10',
+	'Effect11': 'generated.formats.particleeffect.compounds.Effect11',
+	'Effect12': 'generated.formats.particleeffect.compounds.Effect12',
 	'LastRow': 'generated.formats.particleeffect.compounds.LastRow',
 	'ParticleEffectRoot': 'generated.formats.particleeffect.compounds.ParticleEffectRoot',
 	'TextureInfo': 'generated.formats.particleeffect.compounds.TextureInfo',

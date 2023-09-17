@@ -49,6 +49,29 @@
         <add name="zero_3" type="int" />
     </compound>
 
+    <compound name="Effect11" inherit="Effect">
+        16 bytes
+        <add name="floats" type="float" arr1="4"/>
+    </compound>
+
+    <compound name="Effect12" inherit="Effect">
+        240 bytes
+        <add name="zero_0" type="int64" />
+        <add name="u0" type="short" />
+        <add name="u1" type="short" />
+        <add name="zero_1" type="int" />
+        <add name="count1" type="int64" />
+        <add name="zero_2" type="int64" />
+        <add name="count2" type="int64" />
+        <add name="zeros" type="int64" arr1="7"/>
+        <add name="floats" type="float" arr1="10"/>
+        <add name="ints" type="int" arr1="8"/>
+        <add name="floats2" type="float" arr1="10"/>
+        <add name="bytes" type="byte" arr1="16"/>
+        <add name="float" type="float" />
+        <add name="ints2" type="int" arr1="3"/>
+    </compound>
+
     <compound name="LastRow" inherit="MemStruct">
         <add name="unk07"   type="ushort" />
         <add name="unk08"   type="ushort" />
@@ -91,8 +114,8 @@
         <add name="effect08" type="EffectRef" template="Effect08"/>
         <add name="effect09" type="EffectRef" template="Effect09"/>
         <add name="effect10" type="EffectRef" template="Effect10"/>
-        <add name="effect11" type="EffectRef" template="Effect"/>
-        <add name="effect12" type="EffectRef" template="Effect"/>
+        <add name="effect11" type="EffectRef" template="Effect11"/>
+        <add name="effect12" type="EffectRef" template="Effect12"/>
         <add name="effect13" type="EffectRef" template="Effect"/>
         <add name="effect14" type="EffectRef" template="Effect"/>
         <add name="effect15" type="EffectRef" template="Effect"/>
