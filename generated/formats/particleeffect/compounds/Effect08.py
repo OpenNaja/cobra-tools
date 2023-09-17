@@ -6,7 +6,7 @@ from generated.formats.particleeffect.imports import name_type_map
 class Effect08(Effect):
 
 	"""
-	96 bytes
+	96 bytes - PZ
 	"""
 
 	__name__ = 'Effect08'

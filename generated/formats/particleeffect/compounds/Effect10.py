@@ -5,7 +5,7 @@ from generated.formats.particleeffect.imports import name_type_map
 class Effect10(Effect):
 
 	"""
-	48 bytes
+	48 bytes - PZ
 	"""
 
 	__name__ = 'Effect10'
@@ -17,7 +17,7 @@ class Effect10(Effect):
 		self.u_0 = name_type_map['Short'](self.context, 0, None)
 		self.u_1 = name_type_map['Short'](self.context, 0, None)
 		self.zero_1 = name_type_map['Int'](self.context, 0, None)
-		self.int_1 = name_type_map['Int64'](self.context, 0, None)
+		self.index = name_type_map['Int64'](self.context, 0, None)
 		self.zero_2 = name_type_map['Int64'](self.context, 0, None)
 		self.count = name_type_map['Int64'](self.context, 0, None)
 		self.one_f = name_type_map['Float'](self.context, 0, None)
@@ -32,7 +32,7 @@ class Effect10(Effect):
 		yield 'u_0', name_type_map['Short'], (0, None), (False, None), (None, None)
 		yield 'u_1', name_type_map['Short'], (0, None), (False, None), (None, None)
 		yield 'zero_1', name_type_map['Int'], (0, None), (False, None), (None, None)
-		yield 'int_1', name_type_map['Int64'], (0, None), (False, None), (None, None)
+		yield 'index', name_type_map['Int64'], (0, None), (False, None), (None, None)
 		yield 'zero_2', name_type_map['Int64'], (0, None), (False, None), (None, None)
 		yield 'count', name_type_map['Int64'], (0, None), (False, None), (None, None)
 		yield 'one_f', name_type_map['Float'], (0, None), (False, None), (None, None)
@@ -45,7 +45,7 @@ class Effect10(Effect):
 		yield 'u_0', name_type_map['Short'], (0, None), (False, None)
 		yield 'u_1', name_type_map['Short'], (0, None), (False, None)
 		yield 'zero_1', name_type_map['Int'], (0, None), (False, None)
-		yield 'int_1', name_type_map['Int64'], (0, None), (False, None)
+		yield 'index', name_type_map['Int64'], (0, None), (False, None)
 		yield 'zero_2', name_type_map['Int64'], (0, None), (False, None)
 		yield 'count', name_type_map['Int64'], (0, None), (False, None)
 		yield 'one_f', name_type_map['Float'], (0, None), (False, None)

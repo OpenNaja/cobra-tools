@@ -51,6 +51,7 @@ type_module_name_map = {
 	'Effect13': 'generated.formats.particleeffect.compounds.Effect13',
 	'Effect14': 'generated.formats.particleeffect.compounds.Effect14',
 	'Effect15': 'generated.formats.particleeffect.compounds.Effect15',
+	'Effect16': 'generated.formats.particleeffect.compounds.Effect16',
 	'Effect21': 'generated.formats.particleeffect.compounds.Effect21',
 	'LastRow': 'generated.formats.particleeffect.compounds.LastRow',
 	'ParticleEffectRoot': 'generated.formats.particleeffect.compounds.ParticleEffectRoot',

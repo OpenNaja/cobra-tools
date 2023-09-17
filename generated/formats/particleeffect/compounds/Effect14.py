@@ -5,7 +5,8 @@ from generated.formats.particleeffect.imports import name_type_map
 class Effect14(Effect):
 
 	"""
-	8 bytes - probably indexing
+	8 bytes - PZ
+	probably indexing
 	"""
 
 	__name__ = 'Effect14'

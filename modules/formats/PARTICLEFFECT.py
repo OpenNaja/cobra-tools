@@ -1,10 +1,10 @@
 from generated.array import Array
 from generated.formats.particleeffect.compounds.Effect import Effect
 from generated.formats.particleeffect.compounds.ParticleEffectRoot import ParticleEffectRoot
-from modules.formats.BaseFormat import MemStructLoader
+from modules.formats.BaseFormat import MimeVersionedLoader
 
 
-class ParticleEffetLoader(MemStructLoader):
+class ParticleEffetLoader(MimeVersionedLoader):
 	target_class = ParticleEffectRoot
 	extension = ".particleeffect"
 

@@ -465,13 +465,19 @@ class MemStructLoader(BaseFile):
 		self.header = self.target_class.from_xml_file(file_path, self.context)
 		self.write_memory_data()
 
-# class MimeContext:
-# 	def __init__(self, v):
-# 		self.version = v
-#
-#
-# class MimeVersionedLoader(MemStructLoader):
-#
-# 	def __init__(self, ovl, file_name):
-# 		super().__init__(ovl, file_name)
-# 		self.context = MimeContext(self.mime_version)
+
+class MimeContext:
+	def __init__(self, v):
+		self.version = v
+
+	def __repr__(self):
+		return f"MimeContext v={self.version}"
+
+
+class MimeVersionedLoader(MemStructLoader):
+
+	def __init__(self, ovl, file_name):
+		super().__init__(ovl, file_name)
+		self.get_constants_entry()
+		self.context = MimeContext(self.mime_version)
+		logging.debug(self.context)
