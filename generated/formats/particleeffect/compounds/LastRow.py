@@ -9,12 +9,6 @@ class LastRow(MemStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.unk_01 = name_type_map['Ushort'](self.context, 0, None)
-		self.unk_02 = name_type_map['Ushort'](self.context, 0, None)
-		self.unk_03 = name_type_map['Ushort'](self.context, 0, None)
-		self.unk_04 = name_type_map['Ushort'](self.context, 0, None)
-		self.unk_05 = name_type_map['Ushort'](self.context, 0, None)
-		self.unk_06 = name_type_map['Ushort'](self.context, 0, None)
 		self.unk_07 = name_type_map['Ushort'](self.context, 0, None)
 		self.unk_08 = name_type_map['Ushort'](self.context, 0, None)
 		self.unk_09 = name_type_map['Ushort'](self.context, 0, None)
@@ -27,12 +21,6 @@ class LastRow(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield 'unk_01', name_type_map['Ushort'], (0, None), (False, None), (None, None)
-		yield 'unk_02', name_type_map['Ushort'], (0, None), (False, None), (None, None)
-		yield 'unk_03', name_type_map['Ushort'], (0, None), (False, None), (None, None)
-		yield 'unk_04', name_type_map['Ushort'], (0, None), (False, None), (None, None)
-		yield 'unk_05', name_type_map['Ushort'], (0, None), (False, None), (None, None)
-		yield 'unk_06', name_type_map['Ushort'], (0, None), (False, None), (None, None)
 		yield 'unk_07', name_type_map['Ushort'], (0, None), (False, None), (None, None)
 		yield 'unk_08', name_type_map['Ushort'], (0, None), (False, None), (None, None)
 		yield 'unk_09', name_type_map['Ushort'], (0, None), (False, None), (None, None)
@@ -43,12 +31,6 @@ class LastRow(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'unk_01', name_type_map['Ushort'], (0, None), (False, None)
-		yield 'unk_02', name_type_map['Ushort'], (0, None), (False, None)
-		yield 'unk_03', name_type_map['Ushort'], (0, None), (False, None)
-		yield 'unk_04', name_type_map['Ushort'], (0, None), (False, None)
-		yield 'unk_05', name_type_map['Ushort'], (0, None), (False, None)
-		yield 'unk_06', name_type_map['Ushort'], (0, None), (False, None)
 		yield 'unk_07', name_type_map['Ushort'], (0, None), (False, None)
 		yield 'unk_08', name_type_map['Ushort'], (0, None), (False, None)
 		yield 'unk_09', name_type_map['Ushort'], (0, None), (False, None)
