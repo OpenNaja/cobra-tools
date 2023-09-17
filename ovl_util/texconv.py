@@ -132,7 +132,7 @@ def png_to_dds(png_file_path, out_dir, codec="BC7_UNORM", mips=0):
 	png_file_path = os.path.normpath(png_file_path)
 	in_dir, in_name = os.path.split(png_file_path)
 	name = os.path.splitext(in_name)[0]
-	args = [BINARY, "-l", "-y", "-ft", "dds", "-o", out_dir, "-f", codec, "-fl", "12.1", "-if", "FANT_DITHER_DIFFUSION",
+	args = [BINARY, "-y", "-ft", "dds", "-o", out_dir, "-f", codec, "-fl", "12.1", "-if", "FANT_DITHER_DIFFUSION",
 		"-dx10", "-m", str(mips), "-sepalpha"]
 	if "SRGB" in codec:
 		args.append("-srgb")
