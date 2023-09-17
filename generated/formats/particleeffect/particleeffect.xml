@@ -7,8 +7,8 @@
     <compound name="nextRow1" inherit="MemStruct">
         <add name="unk" type="uint64" />
         <add name="maybe_hash" type="uint" />used in JWE2
-        <add name="value1" type="ushort" />
-        <add name="value2" type="ushort" />
+        <add name="count" type="ushort" />seems to count emitters / particle systems, influences counts for most effects
+        <add name="count_repeat" type="ushort" />
     </compound>
 
     <compound name="EffectRef" inherit="MemStruct">
@@ -23,16 +23,24 @@
         might map the different effects per emitter?
         144 bytes - PZ
         + 16 bytes for JWE2
-        <add name="ints" type="int" arr1="33"/>
+        <add name="zero0" type="int64"/>
+        <add name="a" type="short" />
+        <add name="b" type="short" />
+        <add name="ints" type="int" arr1="30"/>
         <add name="floats" type="float" arr1="4" since="37"/>
-        <add name="ints2" type="int" arr1="3"/>
+        <add name="c" type="short" />
+        <add name="d" type="short" />
+        <add name="one" type="int64" />
     </compound>
 
     <compound name="Effect08" inherit="Effect">
         96 bytes - PZ
         <add name="floats" type="float" arr1="15"/>
         <add name="minus1" type="int"/>
-        <add name="floats2" type="float" arr1="8"/>
+        <add name="z2" type="int"/>
+        <add name="z3" type="int"/>
+        <add name="pi" type="float" />
+        <add name="floats2" type="float" arr1="5"/>
     </compound>
 
     <compound name="Effect09" inherit="Effect">
@@ -68,9 +76,11 @@
         <add name="zero_2" type="int64" />
         <add name="count2" type="int64" />
         <add name="zeros" type="int64" arr1="7"/>
-        <add name="floats" type="float" arr1="10"/>
+        <add name="floats1" type="float" arr1="4"/>
+        <add name="pi_rel" type="float"/>
+        <add name="floats2" type="float" arr1="5"/>
         <add name="ints" type="int" arr1="8"/>
-        <add name="floats2" type="float" arr1="10"/>
+        <add name="floats3" type="float" arr1="10"/>
         <add name="bytes" type="byte" arr1="16"/>
         <add name="float" type="float" />
         <add name="ints2" type="int" arr1="3"/>
