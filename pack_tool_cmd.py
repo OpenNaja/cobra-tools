@@ -1,6 +1,6 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 
-# Filename: mod_tool_cmd.py
+# Filename: pack_tool_cmd.py
 
 """Mod Packing tool - Command line version"""
 
@@ -10,13 +10,13 @@ import shutil
 import pathlib
 import logging
 
+from ovl_util.config import read_str_dict
 from ovl_util.logs import logging_setup
 
-logging_setup("mod_tool_cmd")
-
+logging_setup("pack_tool_cmd")
 
 from generated.formats.ovl import games, OvlFile
-
+print(games)
 __version__ = '0.1'
 __author__ = 'Open-Naja'
 
@@ -64,10 +64,9 @@ def unpack_mod(gamestr, pathsrc, pathdst):
 	copy_file(dstbasepath, srcbasepath, "Readme.md")
 	copy_file(dstbasepath, srcbasepath, "License")
 
-
 def create_ovl(gamestr, ovl_dir, dst_file):
 	# clear the ovl
-	ovl_data = OvlFile()
+	ovl_data.clear()
 	ovl_data.game = gamestr
 	try:
 		ovl_data.create(ovl_dir)
@@ -76,7 +75,6 @@ def create_ovl(gamestr, ovl_dir, dst_file):
 	except:
 		logging.exception(f"Could not create OVL from {ovl_dir}")
 		return False
-
 
 # relative path
 def pack_folder(folder, gamestr, pathsrc, pathdst):
@@ -128,10 +126,9 @@ def pack_mod(gamestr, pathsrc, pathdst):
 	copy_file(srcbasepath, dstbasepath, "Readme.md")
 	copy_file(srcbasepath, dstbasepath, "License")
 
-
 def usage(msg):
 	print(f"{msg}\n")
-	print("Usage: mod_tool_cmd.py GAMESTR ACTION folder/src folder/dst\n")
+	print("Usage: pack_tool_cmd.py GAMESTR ACTION folder/src folder/dst\n")
 	print("GAMESTR is one of the following:")
 	print("  - Disneyland Adventure")
 	print("  - Jurassic World Evolution")
@@ -145,20 +142,38 @@ def usage(msg):
 	print("  - PACK")
 	print("  - UNPACK")
 	print("* UNPACK will extract from folder/dst into folder/src")
+	print("")
+	print("Alternatively, you can use a .mptconfig file:")
+	print("Usage: pack_tool_cmd.py path/to/.mptconfig ACTION\n")
 	exit()
 
 if __name__ == '__main__':
 
-	if len( sys.argv ) < 4:
+	if len( sys.argv ) < 3:
 		usage("Wrong number of arguments.")
 
-	gamestr = sys.argv[1]
-	action  = sys.argv[2]
-	pathsrc = sys.argv[3]
-	pathdst = sys.argv[4]
+	mptfile = sys.argv[1]
+	if os.path.isfile(mptfile):
+		tconfig = read_str_dict(mptfile)
+		gamestr = tconfig['game'] or ''
+		pathsrc = tconfig['src_path']
+		pathdst = tconfig['dst_path']
+		action  = sys.argv[2]
+	else:
+		gamestr = sys.argv[1]
+		action  = sys.argv[2]
+		pathsrc = sys.argv[3]
+		pathdst = sys.argv[4]
 
 	if gamestr not in games._value2member_map_:
 		usage("Wrong game string")
+
+	# update gamestr to usable value after games refactor
+	for g in games:
+		if g.value == gamestr:
+			ovl_data = OvlFile()
+			ovl_data.load_hash_table()
+			ovl_data.game = gamestr
 
 	if action.lower() not in ['pack', 'unpack']:
 		usage("Wrong action")
