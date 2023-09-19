@@ -18,7 +18,7 @@ class HitCheck(BaseStruct):
 		# PZ, JWE2 always 0
 		self.flag_0 = name_type_map['Ushort'].from_value(0)
 
-		# JWE1: 16; PZ, JWE2 always 0
+		# JWE: 16; PZ, JWE2 always 0
 		self.flag_1 = name_type_map['Ushort'].from_value(0)
 
 		# probably a bitfield, not sure though, might be a list of ubytes too

@@ -5,7 +5,7 @@ from generated.formats.ovl_base.compounds.MemStruct import MemStruct
 class FgmHeader(MemStruct):
 
 	"""
-	# JWE1, PZ - 64 bytes
+	# JWE, PZ - 64 bytes
 	# JWE2 - 80 bytes
 	# JWE2 patternset fgms seem to be in pool type 3, everything else in 2
 	"""

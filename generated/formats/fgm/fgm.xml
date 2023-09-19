@@ -33,7 +33,7 @@
     </enum>
 
     <compound name="FgmHeader" inherit="MemStruct">
-        # JWE1, PZ - 64 bytes
+        # JWE, PZ - 64 bytes
         # JWE2 - 80 bytes
 		# JWE2 patternset fgms seem to be in pool type 3, everything else in 2
         <add name="_texture_count" type="uint" until="15"/>

@@ -3,11 +3,11 @@
 <niftoolsxml version="0.7.1.0">
 
 	<token name="verexpr" attrs="vercond">
-		<verexpr token="#OLD#" string="(#VER# #LT# 47)">PC, ZTUAC, old JWE1</verexpr>
+		<verexpr token="#OLD#" string="(#VER# #LT# 47)">PC, ZTUAC, old JWE</verexpr>
 		<verexpr token="#DLA#" string="(#VER# #EQ# 7)">DLA</verexpr>
 		<verexpr token="#ZTUAC#" string="(#VER# #EQ# 13)">ZTUAC</verexpr>
 		<verexpr token="#PC#" string="(#VER# #EQ# 32)">PC</verexpr>
-		<verexpr token="#JWE#" string="((#VER# #EQ# 47) #OR# (#VER# #EQ# 39))">JWE1</verexpr>
+		<verexpr token="#JWE#" string="((#VER# #EQ# 47) #OR# (#VER# #EQ# 39))">JWE</verexpr>
 		<verexpr token="#PZ#" string="((#VER# #EQ# 48) #OR# (#VER# #EQ# 50))">PZ all</verexpr>
 		<verexpr token="#PZ16#" string="(#VER# #EQ# 50)">PZ 1.6+</verexpr>
 		<verexpr token="#JWE2#" string="(#VER# #EQ# 51)">JWE2</verexpr>
@@ -27,15 +27,16 @@
 
 <!--	<verattr name="biosyn" access="#BIOSYN#" index="1" />-->
 
+
 	<version id="old" version="7 13 32" >Old</version>
-	<version id="DLA" version="7" >DLA</version>
-	<version id="ZTUAC" version="13" >ZTUAC</version>
-	<version id="PC" version="32" >PC</version>
-	<version id="JWE1" version="47 39" >JWE1</version>
-	<version id="PZ" version="48 50" >PZ</version>
-	<version id="PZ16" version="50" >PZ16</version>
-	<version id="JWE2" version="51 52" >JWE2</version>
-	<version id="WAR" version="53" >WAR</version>
+	<version id="DLA" version="7" >Disneyland Adventures</version>
+	<version id="ZTUAC" version="13" >Zoo Tycoon Ultimate Animal Collection</version>
+	<version id="PC" version="32" >Planet Coaster</version>
+	<version id="JWE" version="47 39" >Jurassic World Evolution</version>
+	<version id="PZ" version="48 50" >Planet Zoo (all)</version>
+	<version id="PZ16" version="50" >Planet Zoo (latest)</version>
+	<version id="JWE2" version="51 52" >Jurassic World Evolution 2</version>
+	<version id="WAR" version="53" >Warhammer RoR</version>
 
 	<basic name="BiosynVersion" integral="true" countable="true">
 		An unsigned 32-bit integer.
@@ -197,7 +198,7 @@
 
 	<compound name="LodInfo">
 		DLA, ZTUAC - 16 bytes
-		JWE1, PZ, JWE2 - 20 bytes
+		JWE, PZ, JWE2 - 20 bytes
 		JWE2 Biosyn - 12 bytes, skips the vert / tris counts
 		<add name="full" type="short" until="13" >FFFF</add>
 		<add name="half" type="short" until="13" >7F7F</add>
@@ -223,7 +224,7 @@
 		used for shared functions
 		<add name="stream_index" type="uint64" until="32">index into streamed buffers</add>
 		<add name="stream_info" type="LookupPointer" template="BufferInfo" since="47">PZ and JWE use a ptr instead</add>
-		<add name="some_index" type="uint" until="51">increments somewhat in ZTUAC platypus, apparently unused from JWE1 onward</add>
+		<add name="some_index" type="uint" until="51">increments somewhat in ZTUAC platypus, apparently unused from JWE onward</add>
 		<add name="some_index_2" type="uint" until="51" vercond="!#PC#">?</add>
 	</compound>
 
@@ -367,7 +368,7 @@
 		Fragment data describing a MS2 buffer giving the size of the whole vertex and tri buffer.
 		ZTUAC, DLA: 64 bytes verts, tris, uvs (incl. verts sometimes)
 		PC: 32 bytes, lumps all data (pos, uv, weights, tris) into verts_size
-		JWE1: 48 bytes
+		JWE: 48 bytes
 		PZ old: 32 bytes?
 		PZ1.6+ and JWE2: 56 bytes
 		JWE2 Biosyn: 88 bytes, with 4 values, order of arrays in buffer is verts, tris, tri_chunks, vert_chunks
@@ -582,14 +583,14 @@
 	</compound>
 
 	<compound name="PushConstraint" inherit="Constraint">
-		used in JWE1 Pteranodon
+		used in JWE Pteranodon
 		no longer used in PZ, JWE2
 		might be some sort of avoidance
 		<add name="floats" type="float" arr1="3"/>
 	</compound>
 
 	<compound name="StretchConstraint" inherit="Constraint">
-		used in JWE1 dinos
+		used in JWE dinos
 		no longer used in PZ, JWE2
 		<add name="loc" type="Vector3" >location of the joint</add>
 		<add name="direction" type="Vector3" >normalized</add>
@@ -695,7 +696,7 @@
 		JWE2: 20 bytes excluding collider
 		<add name="dtype" type="CollisionType"/>
 		<add name="flag_0" type="ushort" default="0">PZ, JWE2 always 0</add>
-		<add name="flag_1" type="ushort" default="0">JWE1: 16; PZ, JWE2 always 0</add>
+		<add name="flag_1" type="ushort" default="0">JWE: 16; PZ, JWE2 always 0</add>
 		<add name="collision_layers" type="uint64" until="47">probably a bitfield, not sure though, might be a list of ubytes too</add>
 		<add name="collision_ignore" type="OffsetString" arg="#ARG#" since="48"/>
 		<add name="collision_use" type="OffsetString" arg="#ARG#" since="48"/>
@@ -768,7 +769,7 @@
 		<add name="joint_to_bone" type="int" arr1="joint_count" >index into bone info bones for each joint; bone that the joint is attached to</add>
 		<add name="bone_to_joint" type="int" arr1="bone count" >the inverse of the above; for each bone info bone, index of the corresponding joint or -1 if no joint</add>
 		<add name="joint_names" type="ZStringBuffer" arg="namespace length"/>
-		<add name="JointNamesPadding" type="PadAlign" template="names_ref" arg="8"/>known to be valid for JWE1, may be present before already
+		<add name="JointNamesPadding" type="PadAlign" template="names_ref" arg="8"/>known to be valid for JWE, may be present before already
 		<add name="after_names" type="AfterJointsPadding" until="32" arg="8">
 			this seems to be always multiples of 8 bytes
 			fails on PC SP_Scarecrow, because its first hitcheck has collision type 0
@@ -796,7 +797,7 @@
 		<add name="bone count" type="uint64"/>
 		<add name="unknown40" type="uint64"/>
 		<add name="parents count" type="uint64"/>
-		<add name="extra zero" type="uint64" vercond="!(#PC# #OR# #JWE#)">not PC, JWE1</add>
+		<add name="extra zero" type="uint64" vercond="!(#PC# #OR# #JWE#)">not PC, JWE</add>
 		<add name="enum count" type="uint64"/>
 		<add name="unknown58" type="uint64" >usually zero</add>
 		<add name="one" type="uint64" default="1" >always 1</add>
@@ -833,7 +834,7 @@
 		<add name="inventory_datas_2" type="int" arr1="inv_data_count" arr2="2" vercond="#DLA#">zeros</add>
 
 		<add name="MinusPadding" type="MinusPadding" cond="zeros count" arg="zeros count" until="32">weird -1s</add>
-		# JWE1 may not have these, apparently they are present in final jwe1
+		# JWE may not have these, apparently they are present in final JWE
 		<add name="ZerosPadding" type="ZerosPadding" cond="zeros count" arg="zeros count" since="47">weird zeros</add>
 
 <!--		<add name="unkPc" type="uint64" cond="unk_pc_count" vercond="#PC#">present in anubis bone info 6</add>-->
@@ -855,7 +856,7 @@
 		<add name="triangles" type="ushort" arr1="#ARG#\tri count" arr2="3">triangle indices into vertex list</add>
 
 		<add name="const" type="uint" until="47">?</add>
-		<add name="triangle flags" type="uint" arr1="#ARG#\sub_coll_chunk\tri flags count" cond="const" until="47">in JWE1 redwood: always 37</add>
+		<add name="triangle flags" type="uint" arr1="#ARG#\sub_coll_chunk\tri flags count" cond="const" until="47">in JWE redwood: always 37</add>
 		<add name="zero end" type="uint" >might be padding!</add>
 	</compound>
 

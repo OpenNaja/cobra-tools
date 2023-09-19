@@ -25,7 +25,7 @@ class MeshCollisionData(BaseStruct):
 		# ?
 		self.const = name_type_map['Uint'](self.context, 0, None)
 
-		# in JWE1 redwood: always 37
+		# in JWE redwood: always 37
 		self.triangle_flags = Array(self.context, 0, None, (0,), name_type_map['Uint'])
 
 		# might be padding!

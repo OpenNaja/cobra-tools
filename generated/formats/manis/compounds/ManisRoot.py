@@ -5,7 +5,7 @@ from generated.formats.ovl_base.compounds.MemStruct import MemStruct
 class ManisRoot(MemStruct):
 
 	"""
-	24 bytes for DLA, ZTUAC, PC, JWE1, old PZ
+	24 bytes for DLA, ZTUAC, PC, JWE, old PZ
 	32 bytes for PZ1.6+, JWE2
 	"""
 

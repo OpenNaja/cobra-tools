@@ -76,6 +76,12 @@ class Versions:
 							stream.write(f"from {import_path} import {verattr_type}\n")
 				stream.write(f"\n\n")
 
+				# override any inherited versions by replacing
+				versions_decimated = {}
+				for version in self.versions:
+					versions_decimated[version.attrib['id']] = version
+				self.versions[:] = sorted(versions_decimated.values(), key=lambda v: v.attrib['id'])
+
 				for version in self.versions:
 					self.write_is_version(stream, version)
 					self.write_set_version(stream, version)

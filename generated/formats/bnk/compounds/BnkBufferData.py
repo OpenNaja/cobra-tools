@@ -21,7 +21,7 @@ class BnkBufferData(BaseStruct):
 		# 1, guess
 		self.external_aux_b_count = name_type_map['Uint'](self.context, 0, None)
 
-		# 1 for PC, 2 for PZ, JWE1, 6 for ZTUAC
+		# 1 for PC, 2 for PZ, JWE, 6 for ZTUAC
 		self.total_aux_count = name_type_map['Uint'](self.context, 0, None)
 
 		# variable

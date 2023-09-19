@@ -8,7 +8,7 @@ class BufferInfo(BaseStruct):
 	Fragment data describing a MS2 buffer giving the size of the whole vertex and tri buffer.
 	ZTUAC, DLA: 64 bytes verts, tris, uvs (incl. verts sometimes)
 	PC: 32 bytes, lumps all data (pos, uv, weights, tris) into verts_size
-	JWE1: 48 bytes
+	JWE: 48 bytes
 	PZ old: 32 bytes?
 	PZ1.6+ and JWE2: 56 bytes
 	JWE2 Biosyn: 88 bytes, with 4 values, order of arrays in buffer is verts, tris, tri_chunks, vert_chunks

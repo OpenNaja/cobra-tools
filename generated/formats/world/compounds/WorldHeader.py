@@ -5,7 +5,7 @@ from generated.formats.world.imports import name_type_map
 class WorldHeader(MemStruct):
 
 	"""
-	# NOTE, World struct in JWE1 has an extra pointer this import/export is not accounting for yet
+	# NOTE, World struct in JWE has an extra pointer this import/export is not accounting for yet
 	"""
 
 	__name__ = 'WorldHeader'

@@ -27,7 +27,7 @@ class MeshData(MemStruct):
 		# PZ and JWE use a ptr instead
 		self.stream_info = name_type_map['LookupPointer'](self.context, 0, name_type_map['BufferInfo'])
 
-		# increments somewhat in ZTUAC platypus, apparently unused from JWE1 onward
+		# increments somewhat in ZTUAC platypus, apparently unused from JWE onward
 		self.some_index = name_type_map['Uint'](self.context, 0, None)
 
 		# ?

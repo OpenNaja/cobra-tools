@@ -40,7 +40,7 @@ class BoneInfo(BaseStruct):
 		self.unknown_40 = name_type_map['Uint64'](self.context, 0, None)
 		self.parents_count = name_type_map['Uint64'](self.context, 0, None)
 
-		# not PC, JWE1
+		# not PC, JWE
 		self.extra_zero = name_type_map['Uint64'](self.context, 0, None)
 		self.enum_count = name_type_map['Uint64'](self.context, 0, None)
 

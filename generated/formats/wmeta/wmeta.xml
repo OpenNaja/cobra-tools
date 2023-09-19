@@ -22,7 +22,7 @@
     <compound name="WmetasbMain" inherit="MemStruct">
 		# JWE, PC: 112 bytes
 		# PZ, JWE2: 32 bytes
-        todo - versioning that catches JWE1, needs wmetasb version from fileentry
+        todo - versioning that catches JWE, needs wmetasb version from fileentry
         <add name="hash" type="uint" />
         <add name="unk" type="uint" />
         <add name="block_name" type="Pointer" template="ZString"/>

@@ -52,7 +52,7 @@ class BaseShader:
 	roughness_slots = (
 	"proughnesspackedtexture_g", "pnormaltexture_a", "pbasenormaltexture_a")  # "pspecularmaptexture_g"
 
-	# note that JWE1 uses proughnesspackedtexture_r as alpha, only pbasepackedtexture_b as metal!
+	# note that JWE uses proughnesspackedtexture_r as alpha, only pbasepackedtexture_b as metal!
 	metallic_slots = ("proughnesspackedtexture_r", "pbasepackedtexture_b")
 
 	emissive_slots = ("pemissivetexture",)

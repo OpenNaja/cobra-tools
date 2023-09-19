@@ -5,7 +5,7 @@ from generated.formats.tex.imports import name_type_map
 class TexturestreamHeader(MemStruct):
 
 	"""
-	JWE1, PZ, PC: 8 bytes
+	JWE, PZ, PC: 8 bytes
 	JWE2: 16 bytes
 	"""
 

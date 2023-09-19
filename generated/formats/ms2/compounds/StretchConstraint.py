@@ -5,7 +5,7 @@ from generated.formats.ms2.imports import name_type_map
 class StretchConstraint(Constraint):
 
 	"""
-	used in JWE1 dinos
+	used in JWE dinos
 	no longer used in PZ, JWE2
 	"""
 

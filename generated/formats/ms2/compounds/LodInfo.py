@@ -6,7 +6,7 @@ class LodInfo(BaseStruct):
 
 	"""
 	DLA, ZTUAC - 16 bytes
-	JWE1, PZ, JWE2 - 20 bytes
+	JWE, PZ, JWE2 - 20 bytes
 	JWE2 Biosyn - 12 bytes, skips the vert / tris counts
 	"""
 

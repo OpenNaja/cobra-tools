@@ -53,7 +53,7 @@ class DdsLoader(MemStructLoader):
 
 	def increment_buffers(self, loader, buffer_i):
 		"""Linearly increments buffer indices for games that need it"""
-		# create increasing buffer indices for PZ (still needed 22-05-10), JWE1
+		# create increasing buffer indices for PZ (still needed 22-05-10), JWE
 		if not is_jwe2(self.ovl):
 			for buff in loader.data_entry.buffers:
 				buff.index = buffer_i

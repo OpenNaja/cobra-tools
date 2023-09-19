@@ -5,7 +5,7 @@ from generated.formats.ovl_base.compounds.MemStruct import MemStruct
 class Font(MemStruct):
 
 	"""
-	JWE1: 16 bytes
+	JWE: 16 bytes
 	"""
 
 	__name__ = 'Font'

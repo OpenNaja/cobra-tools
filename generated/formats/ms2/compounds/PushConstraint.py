@@ -6,7 +6,7 @@ from generated.formats.ms2.imports import name_type_map
 class PushConstraint(Constraint):
 
 	"""
-	used in JWE1 Pteranodon
+	used in JWE Pteranodon
 	no longer used in PZ, JWE2
 	might be some sort of avoidance
 	"""

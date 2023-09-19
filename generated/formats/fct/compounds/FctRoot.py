@@ -6,7 +6,7 @@ from generated.formats.ovl_base.compounds.MemStruct import MemStruct
 class FctRoot(MemStruct):
 
 	"""
-	JWE1: 104 bytes
+	JWE: 104 bytes
 	"""
 
 	__name__ = 'FctRoot'

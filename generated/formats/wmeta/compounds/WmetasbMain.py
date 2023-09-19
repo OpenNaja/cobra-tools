@@ -7,7 +7,7 @@ class WmetasbMain(MemStruct):
 	"""
 	# JWE, PC: 112 bytes
 	# PZ, JWE2: 32 bytes
-	todo - versioning that catches JWE1, needs wmetasb version from fileentry
+	todo - versioning that catches JWE, needs wmetasb version from fileentry
 	"""
 
 	__name__ = 'WmetasbMain'

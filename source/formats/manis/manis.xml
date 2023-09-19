@@ -7,7 +7,7 @@
 		<verexpr token="#DLA#" string="(#VER# #EQ# 256)">DLA</verexpr>mock version defined on export
 		<verexpr token="#ZTUAC#" string="(#VER# #EQ# 257)">ZTUAC</verexpr>
 		<verexpr token="#PC#" string="(#VER# #EQ# 257)">PC</verexpr>
-		<verexpr token="#JWE#" string="(#VER# #EQ# 258)">JWE1</verexpr>
+		<verexpr token="#JWE#" string="(#VER# #EQ# 258)">JWE</verexpr>
 		<verexpr token="#PZ#" string="(#VER# #EQ# 260)">PZ all</verexpr>
 		<verexpr token="#JWE2_DEV#" string="(#VER# #EQ# 261)">JWE2</verexpr>
 		<verexpr token="#JWE2#" string="(#VER# #EQ# 262)">JWE2</verexpr>
@@ -25,7 +25,7 @@
     <version id="DLA" version="256" >DLA</version>mock version defined on export
     <version id="ZTUAC" version="257" >ZTUAC</version>
     <version id="PC" version="257" >PC</version>
-    <version id="JWE1" version="258" >JWE1</version>
+    <version id="JWE" version="258" >JWE</version>
     <version id="PZ" version="260" >PZ</version>
     <version id="JWE2_DEV" version="261" >JWE2 Dev Build</version>
     <version id="JWE2" version="262" >JWE2</version>
@@ -82,7 +82,7 @@
 	</bitfield>
 
     <compound name="ManisRoot" inherit="MemStruct">
-		24 bytes for DLA, ZTUAC, PC, JWE1, old PZ
+		24 bytes for DLA, ZTUAC, PC, JWE, old PZ
 		32 bytes for PZ1.6+, JWE2
 		<add name="mani files size" type="ushort">16 * mani count</add>
         <add name="hash block size" type="ushort">4 * string count</add>

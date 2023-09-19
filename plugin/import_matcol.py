@@ -315,7 +315,7 @@ def create_material(matcol_path):
 	if not textures:
 		raise AttributeError(f"Could not find any layer textures - make sure the tile .fgm and .png files are in the same folder!")
 
-	# JWE1 style
+	# JWE style
 	normal_path = os.path.join(mat_dir, f"{mat_basename}.pnormaltexture.png")
 	# JWE2 style
 	if not os.path.isfile(normal_path):

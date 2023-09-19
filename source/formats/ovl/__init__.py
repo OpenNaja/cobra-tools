@@ -183,8 +183,8 @@ class OvsFile(OvsHeader):
 					data_entry.buffers.sort(key=lambda b: b.index)
 			# sort buffers
 			if self.ovl.version < 20:
-				# rely on the data_entry's hashes for sorting for JWE1
-				# sorting by index is not enforced in JWE1 stock
+				# rely on the data_entry's hashes for sorting for JWE
+				# sorting by index is not enforced in JWE stock
 				self.buffer_entries.sort(key=lambda b: (b.ext, b.file_hash, b.index))
 			else:
 				# cobra < 20 used buffer index per data entry
@@ -1322,7 +1322,7 @@ class OvlFile(Header):
 					# size of the archive entry = 68
 					# this is true for jwe2 tylo, but not for jwe2 rex 93 and many others
 					meta.unk_0 = 68 + archive.uncompressed_size
-					# this is fairly good, doesn't work for tylo static but all others, all of jwe2 rex 93, jwe1 parrot, pz fallow deer
+					# this is fairly good, doesn't work for tylo static but all others, all of jwe2 rex 93, JWE parrot, pz fallow deer
 					meta.unk_1 = sum([data.size_2 for data in archive.content.data_entries])
 				# write ovl + static
 				stream = streams[self.filepath]
