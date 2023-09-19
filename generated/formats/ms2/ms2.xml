@@ -46,6 +46,9 @@
 		An unsigned 32-bit integer.
 	</basic>
 
+	<basic name="BonePointerIndex" integral="true" countable="true">
+	</basic>
+
 <!--Count from the end!!!-->
 	<enum name="MeshFormat" storage="ubyte">
 		<option value="0" name="Separate" />
@@ -513,8 +516,9 @@
 	</compound>
 
 	<compound name="BonePointer" inherit="AbstractPointer">
-		<add name="index" type="ubyte" until="52">index into bones</add>
-		<add name="index" type="ushort" since="53">index into bones</add>
+<!--		<add name="index" type="ubyte" until="52">index into bones</add>-->
+<!--		<add name="index" type="ushort" since="53">index into bones</add>-->
+		<add name="index" type="BonePointerIndex" >index into bones</add>
 	</compound>
 
 	<compound name="RotationRange">
