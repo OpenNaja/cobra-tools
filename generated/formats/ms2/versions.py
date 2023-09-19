@@ -23,12 +23,12 @@ def set_jwe(context):
 
 
 def is_jwe2(context):
-	if context.version in (51, 52):
+	if context.version in (52, 51):
 		return True
 
 
 def set_jwe2(context):
-	context.version = 51
+	context.version = 52
 
 
 def is_jwe2dev(context):
@@ -52,12 +52,12 @@ def set_pc(context):
 
 
 def is_pz(context):
-	if context.version in (48, 50):
+	if context.version in (50, 48):
 		return True
 
 
 def set_pz(context):
-	context.version = 48
+	context.version = 50
 
 
 def is_pz16(context):
@@ -88,12 +88,12 @@ def set_ztuac(context):
 
 
 def is_old(context):
-	if context.version in (7, 13, 32):
+	if context.version in (32, 13, 7):
 		return True
 
 
 def set_old(context):
-	context.version = 7
+	context.version = 32
 
 
 games = Enum('Games', [('DISNEYLAND_ADVENTURES', 'Disneyland Adventures'), ('JURASSIC_WORLD_EVOLUTION', 'Jurassic World Evolution'), ('JURASSIC_WORLD_EVOLUTION_2', 'Jurassic World Evolution 2'), ('JURASSIC_WORLD_EVOLUTION_2_DEV', 'Jurassic World Evolution 2 Dev'), ('OLD', 'Old'), ('PLANET_COASTER', 'Planet Coaster'), ('PLANET_ZOO_ALL', 'Planet Zoo (all)'), ('PLANET_ZOO_LATEST', 'Planet Zoo (latest)'), ('WARHAMMER_RO_R', 'Warhammer RoR'), ('ZOO_TYCOON_ULTIMATE_ANIMAL_COLLECTION', 'Zoo Tycoon Ultimate Animal Collection'), ('UNKNOWN', 'Unknown Game')])
@@ -162,13 +162,13 @@ class Ms2Version(VersionBase):
 
 dla = Ms2Version(id='DLA', version=(7,), primary_games=[], all_games=[games.DISNEYLAND_ADVENTURES])
 jwe = Ms2Version(id='JWE', version=(47, 39,), primary_games=[], all_games=[games.JURASSIC_WORLD_EVOLUTION])
-jwe2 = Ms2Version(id='JWE2', version=(51, 52,), primary_games=[], all_games=[games.JURASSIC_WORLD_EVOLUTION_2])
+jwe2 = Ms2Version(id='JWE2', version=(52, 51,), primary_games=[], all_games=[games.JURASSIC_WORLD_EVOLUTION_2])
 jwe2dev = Ms2Version(id='JWE2DEV', version=(20,), user_version=(VersionInfo.from_value(24724), VersionInfo.from_value(25108), VersionInfo.from_value(24596),), primary_games=[], all_games=[games.JURASSIC_WORLD_EVOLUTION_2_DEV])
 pc = Ms2Version(id='PC', version=(32,), primary_games=[], all_games=[games.PLANET_COASTER])
-pz = Ms2Version(id='PZ', version=(48, 50,), primary_games=[], all_games=[games.PLANET_ZOO_ALL])
+pz = Ms2Version(id='PZ', version=(50, 48,), primary_games=[], all_games=[games.PLANET_ZOO_ALL])
 pz16 = Ms2Version(id='PZ16', version=(50,), primary_games=[], all_games=[games.PLANET_ZOO_LATEST])
 war = Ms2Version(id='WAR', version=(53,), primary_games=[], all_games=[games.WARHAMMER_RO_R])
 ztuac = Ms2Version(id='ZTUAC', version=(13,), primary_games=[], all_games=[games.ZOO_TYCOON_ULTIMATE_ANIMAL_COLLECTION])
-old = Ms2Version(id='old', version=(7, 13, 32,), primary_games=[], all_games=[games.OLD])
+old = Ms2Version(id='old', version=(32, 13, 7,), primary_games=[], all_games=[games.OLD])
 
 available_versions = [dla, jwe, jwe2, jwe2dev, pc, pz, pz16, war, ztuac, old]
