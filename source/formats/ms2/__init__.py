@@ -33,6 +33,15 @@ class Ms2File(Ms2InfoHeader, IoFile):
 	def __init__(self, ):
 		super().__init__(Ms2Context())
 
+	@property
+	def game(self):
+		return get_game(self.context)[0].value
+
+	@game.setter
+	def game(self, game_name):
+		set_game(self.context, game_name)
+		set_game(self.info, game_name)
+
 	def assign_joints(self, bone_info):
 		if self.context.version >= 47:
 			assert bone_info.one == 1

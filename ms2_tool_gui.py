@@ -1,10 +1,12 @@
-import sys
 import time
 import logging
+from typing import Optional
+
 from gui import widgets, startup, GuiOptions  # Import widgets before everything except built-ins!
 from gui.widgets import get_icon
 from generated.formats.ms2 import Ms2File
-from PyQt5 import QtWidgets, QtGui, QtCore
+from PyQt5 import QtWidgets
+from generated.formats.ms2.versions import games
 
 
 class MainWindow(widgets.MainWindow):
@@ -21,6 +23,8 @@ class MainWindow(widgets.MainWindow):
 		self.file_widget = self.make_file_widget(ftype="MS2")
 
 		header_names = ["Name", "File Type", "LODs", "Objects", "Meshes", "Materials"]
+		self.game_choice = widgets.LabelCombo("Game", [g.value for g in games], editable=False,
+											  changed_fn=self.game_changed)
 
 		# create the table
 		self.files_container = widgets.SortableTable(header_names, (), ignore_drop_type="MS2")
@@ -41,8 +45,9 @@ class MainWindow(widgets.MainWindow):
 
 		self.qgrid = QtWidgets.QGridLayout()
 		self.qgrid.addWidget(self.file_widget, 0, 0)
-		self.qgrid.addWidget(self.files_container, 1, 0)
-		self.qgrid.addWidget(self.progress, 2, 0)
+		self.qgrid.addWidget(self.game_choice, 1, 0)
+		self.qgrid.addWidget(self.files_container, 2, 0)
+		self.qgrid.addWidget(self.progress, 3, 0)
 		self.central_widget.setLayout(self.qgrid)
 
 		main_menu = self.menu_bar
@@ -58,6 +63,12 @@ class MainWindow(widgets.MainWindow):
 			(edit_menu, "Remove Selected", self.remove, "DEL", "delete_mesh"),
 		)
 		self.add_to_menu(button_data)
+
+	def game_changed(self, game: Optional[str] = None):
+		if game is None:
+			game = self.game_choice.entry.currentText()
+		logging.info(f"Setting MS2 version to {game}")
+		self.ms2_file.game = game
 
 	def rename_handle(self, old_name, new_name):
 		"""this manages the renaming of a single entry"""
@@ -125,6 +136,7 @@ class MainWindow(widgets.MainWindow):
 		try:
 			logging.info(f"Loading {len(self.ms2_file.mdl_2_names)} files into gui")
 			self.files_container.set_data([[m.name, ".mdl2", m.num_lods, m.num_objects, m.num_meshes, m.num_materials] for m in self.ms2_file.model_infos])
+			self.game_choice.entry.setText(self.ms2_file.game)
 			logging.info(f"Loaded GUI in {time.time() - start_time:.2f} seconds")
 			self.set_msg_temporarily("Operation completed!")
 		except:
