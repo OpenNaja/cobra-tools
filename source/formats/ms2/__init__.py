@@ -346,6 +346,11 @@ class Ms2File(Ms2InfoHeader, IoFile):
 		# for modelstreams, trailing _ is ignored
 		self.basename = os.path.splitext(self.name)[0].rstrip("_")
 		logging.info("Pre-writing buffers")
+		# just a quick hack to support WH
+		for model_info in self.model_infos:
+			if hasattr(model_info.bone_info, "bone_limits"):
+				if self.context.version < 53:
+					model_info.bone_info.bone_limits.index = 255
 		self.info.mdl_2_count = len(self.model_infos)
 		self.update_names()
 		self.update_buffer_0_bytes()
