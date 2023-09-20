@@ -642,6 +642,9 @@ class OvlFile(Header):
 				elif "stream" in ext:
 					logging.debug(f"Ignoring {file_path} as it will be created from its streamer")
 					continue
+				elif ext in (".include", ):
+					# not for a loader, will be dealt with separately by create
+					continue
 				elif ext in (".png", ".dds"):
 					# find and remove any suffices in png basepath
 					channel_re = re.compile(r"_[rgba]+$")
