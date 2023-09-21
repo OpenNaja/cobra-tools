@@ -153,6 +153,7 @@ class BanisFile(BanisRoot, IoFile):
 				("loc", np.float32, (3,)),
 			])
 			self.data = self.data.astype(ft)
+			# self.data["euler"] = self.data["euler"] / 32768.0 * 180
 			self.data["euler"] = self.data["euler"] / 32768.0 * 180 + 90.0
 			self.data["euler"][:, :, 0] += 90.0
 			self.data["euler"][:, :, 2] -= 90.0

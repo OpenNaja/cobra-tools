@@ -24,6 +24,7 @@ def load_bani(file_path):
 
 interp_loc = None
 global_corr_euler = mathutils.Euler([math.radians(k) for k in (0, -90, -90)])
+# global_corr_euler = mathutils.Euler([math.radians(k) for k in (90, 90, 90)])
 global_corr_mat = global_corr_euler.to_matrix().to_4x4()
 
 
@@ -238,6 +239,14 @@ def animate_empties(anim_sys, bones_table, bani, scene, armature_ob, filename):
 	print(f"corr {global_corr_mat.to_euler()}")
 	# go over list of euler keys
 	for i, bone_name in bones_table:
+		b_empty_ob = create_ob(scene, f"rest_{bone_name}", None)
+		bind = armature_ob.data.bones[bone_name].matrix_local
+		bind = corrector.blender_bind_to_nif_bind(bind)
+		# b_empty_ob.matrix_local = bind.inverted()
+		# b_empty_ob.matrix_local = bind.inverted()
+		b_empty_ob.location = -bind.translation
+		b_empty_ob.scale = (0.01, 0.01, 0.01)
+	for i, bone_name in bones_table:
 		b_empty_ob = create_ob(scene, bone_name, None)
 		b_empty_ob.rotation_mode = "QUATERNION"
 		b_action = anim_sys.create_action(b_empty_ob, f"{filename}.{bone_name}")
@@ -261,6 +270,7 @@ def animate_empties(anim_sys, bones_table, bani, scene, armature_ob, filename):
 			loc = bani.locs[frame_i, i]
 			# this seems to be absolutely correct for JWE2 tuna
 			loc = mathutils.Vector((loc[0], loc[2], -loc[1]))
+			# loc = mathutils.Vector(loc)
 			# the translation key is rotated about bind_loc mirrored on the origin
 			# first add bind_loc so that the origin of rotation is at the origin
 			corr = loc + bind_loc
@@ -280,13 +290,14 @@ def animate_empties(anim_sys, bones_table, bani, scene, armature_ob, filename):
 			# euler = bani.eulers[frame_i, i]
 			# loc = bani.locs[frame_i, i]
 			# euler = mathutils.Euler([math.radians(k) for k in euler])
-			# key = euler.to_matrix().to_4x4()
+			# key = global_corr_mat @ euler.to_matrix().to_4x4()
+			# # key = euler.to_matrix().to_4x4()
 			# key.translation = loc
 			# # key = inv_bind @ key.inverted() @ bind
 			# # key = bind @ key.inverted() @ inv_bind
 			# # key = inv_bind @ key @ bind
 			# # key = bind @ key @ inv_bind
-			# key = key @ bind
+			# key = key
 			# # key = bind @ inv_bind
 			# rot_final = key.to_quaternion()
 			# loc_final = key.translation
