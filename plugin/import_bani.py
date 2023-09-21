@@ -235,6 +235,7 @@ def load_old(files=[], filepath="", set_fps=False):
 
 def animate_empties(anim_sys, bones_table, bani, scene, armature_ob, filename):
 	corrector = Corrector(False)
+	print(f"corr {global_corr_mat.to_euler()}")
 	# go over list of euler keys
 	for i, bone_name in bones_table:
 		b_empty_ob = create_ob(scene, bone_name, None)
@@ -255,6 +256,8 @@ def animate_empties(anim_sys, bones_table, bani, scene, armature_ob, filename):
 			euler = bani.eulers[frame_i, i]
 			euler = mathutils.Euler([math.radians(k) for k in euler])
 			rot = global_corr_mat @ euler.to_matrix().to_4x4()
+			if frame_i == 0:
+				print(f"{i} {euler} | {rot.to_euler()}")
 			loc = bani.locs[frame_i, i]
 			# this seems to be absolutely correct for JWE2 tuna
 			loc = mathutils.Vector((loc[0], loc[2], -loc[1]))
@@ -272,15 +275,19 @@ def animate_empties(anim_sys, bones_table, bani, scene, armature_ob, filename):
 			e_fixed = mathutils.Euler((e_fixed[0], -e_fixed[1], -e_fixed[2]))
 			rot_final = e_fixed.to_quaternion()
 
-			# assuming the transform is stored relative to the inverse skin bind transform
-			# some attempts, no success yet
+			# # assuming the transform is stored relative to the inverse skin bind transform
+			# # some attempts, no success yet
 			# euler = bani.eulers[frame_i, i]
 			# loc = bani.locs[frame_i, i]
 			# euler = mathutils.Euler([math.radians(k) for k in euler])
 			# key = euler.to_matrix().to_4x4()
 			# key.translation = loc
 			# # key = inv_bind @ key.inverted() @ bind
-			# key = bind @ key.inverted() @ inv_bind
+			# # key = bind @ key.inverted() @ inv_bind
+			# # key = inv_bind @ key @ bind
+			# # key = bind @ key @ inv_bind
+			# key = key @ bind
+			# # key = bind @ inv_bind
 			# rot_final = key.to_quaternion()
 			# loc_final = key.translation
 			anim_sys.add_key(fcurves_rot, frame_i, rot_final, interp_loc)
