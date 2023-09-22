@@ -5,18 +5,18 @@ import math
 import bpy
 import mathutils
 
-from generated.formats.bani import BaniFile
+from generated.formats.bani import BanisFile
 from plugin.modules_export.armature import get_armature
 from plugin.modules_import.anim import create_anim, Animation
 from plugin.utils.matrix_util import Corrector
 from plugin.utils.object import create_ob
 
 
-def load_bani(file_path):
+def load_banis(file_path):
 	"""Loads a bani from the given file path"""
-	print("Importing {0}".format(file_path))
+	print(f"Importing {file_path}")
 
-	data = BaniFile()
+	data = BanisFile()
 	# open file for binary reading
 	data.load(file_path)
 	return data
@@ -30,28 +30,36 @@ global_corr_mat = global_corr_euler.to_matrix().to_4x4()
 
 
 def load(files=[], filepath="", set_fps=False):
-	# return load_old(files, filepath, set_fps)
-	dirname, filename = os.path.split(filepath)
-	bani = load_bani(filepath)
-	bani.read_banis()
-	print(bani)
-	# data 0 has various scales and counts
-	anim_length = bani.data.animation_length
-	num_frames = bani.data.num_frames
-	
-	fps = int(round(num_frames/anim_length))
 	scene = bpy.context.scene
-	scene.frame_start = 0
-	scene.frame_end = num_frames-1
-	print("Banis fps", fps)
 	b_armature_ob = get_armature(scene)
 
 	p_bones = sorted(b_armature_ob.pose.bones, key=lambda pbone: pbone["index"])
 	bones_table = [(bone["index"], bone.name) for bone in p_bones]
 	bone_names = [tup[1] for tup in bones_table]
 	anim_sys = Animation()
-	animate_empties(anim_sys, bones_table, bani, scene, b_armature_ob, filename)
+	banis = load_banis(filepath)
+	print(banis)
+	for bani in banis.anims:
+		# data 0 has various scales and counts
+		anim_length = bani.data.animation_length
+		num_frames = bani.data.num_frames
 
+		scene.frame_start = 0
+		scene.frame_end = num_frames-1
+		fps = int(round(num_frames/anim_length))
+		# print(f"Banis fps = {fps}")
+		keys = banis.keys[bani.data.read_start_frame: bani.data.read_start_frame+bani.data.num_frames]
+		animate_empties(anim_sys, bones_table, keys, scene, b_armature_ob, bani.name)
+
+	# go over list of euler keys
+	for i, bone_name in bones_table:
+		b_empty_ob = create_ob(scene, f"rest_{bone_name}", None)
+		bind = b_armature_ob.data.bones[bone_name].matrix_local
+		# bind = corrector.blender_bind_to_nif_bind(bind)
+		# b_empty_ob.matrix_local = bind.inverted()
+		# b_empty_ob.matrix_local = bind.inverted()
+		b_empty_ob.location = bind.translation
+		b_empty_ob.scale = (0.01, 0.01, 0.01)
 	return {'FINISHED'}
 
 	# # assert( len(bone_names) == len(data.bones_frames_eulers) == len(data.bones_frames_locs) )
@@ -163,7 +171,7 @@ def load(files=[], filepath="", set_fps=False):
 
 def load_old(files=[], filepath="", set_fps=False):
 	dirname, filename = os.path.split(filepath)
-	data = load_bani(filepath)
+	data = load_banis(filepath)
 	data.read_banis()
 	print(data)
 	# data 0 has various scales and counts
@@ -235,13 +243,13 @@ def load_old(files=[], filepath="", set_fps=False):
 	return {'FINISHED'}
 
 
-def animate_empties_old(anim_sys, bones_table, bani, scene, armature_ob, filename):
+def animate_empties_old(anim_sys, bones_table, bani, scene, b_armature_ob, filename):
 	corrector = Corrector(False)
 	print(f"corr {global_corr_mat.to_euler()}")
 	# go over list of euler keys
 	for i, bone_name in bones_table:
 		b_empty_ob = create_ob(scene, f"rest_{bone_name}", None)
-		bind = armature_ob.data.bones[bone_name].matrix_local
+		bind = b_armature_ob.data.bones[bone_name].matrix_local
 		bind = corrector.blender_bind_to_nif_bind(bind)
 		# b_empty_ob.matrix_local = bind.inverted()
 		# b_empty_ob.matrix_local = bind.inverted()
@@ -251,10 +259,10 @@ def animate_empties_old(anim_sys, bones_table, bani, scene, armature_ob, filenam
 		b_empty_ob = create_ob(scene, bone_name, None)
 		b_empty_ob.rotation_mode = "QUATERNION"
 		b_action = anim_sys.create_action(b_empty_ob, f"{filename}.{bone_name}")
-		bind = armature_ob.data.bones[bone_name].matrix_local
+		bind = b_armature_ob.data.bones[bone_name].matrix_local
 		bind = corrector.blender_bind_to_nif_bind(bind)
 		inv_bind = bind.inverted()
-		bind_loc = armature_ob.data.bones[bone_name].matrix_local.translation
+		bind_loc = b_armature_ob.data.bones[bone_name].matrix_local.translation
 		# bind_loc_inv = bind_loc.negate()
 		# fcurves_rot = anim_sys.create_fcurves(b_action, "rotation_quaternion", range(4), None, bone_name)
 		# fcurves_loc = anim_sys.create_fcurves(b_action, "location", range(3), None, bone_name)
@@ -307,27 +315,18 @@ def animate_empties_old(anim_sys, bones_table, bani, scene, armature_ob, filenam
 		b_empty_ob.scale = (0.01, 0.01, 0.01)
 
 
-def animate_empties(anim_sys, bones_table, bani, scene, armature_ob, filename):
+def animate_empties(anim_sys, bones_table, keys, scene, b_armature_ob, filename):
 	"""trying to work with uncorrected"""
 	corrector = Corrector(False)
 	print(f"corr {global_corr_mat.to_euler()}")
-	# go over list of euler keys
-	for i, bone_name in bones_table:
-		b_empty_ob = create_ob(scene, f"rest_{bone_name}", None)
-		bind = armature_ob.data.bones[bone_name].matrix_local
-		# bind = corrector.blender_bind_to_nif_bind(bind)
-		# b_empty_ob.matrix_local = bind.inverted()
-		# b_empty_ob.matrix_local = bind.inverted()
-		b_empty_ob.location = bind.translation
-		b_empty_ob.scale = (0.01, 0.01, 0.01)
 	for i, bone_name in bones_table:
 		b_empty_ob = create_ob(scene, bone_name, None)
 		b_empty_ob.rotation_mode = "QUATERNION"
 		b_action = anim_sys.create_action(b_empty_ob, f"{filename}.{bone_name}")
-		bind = armature_ob.data.bones[bone_name].matrix_local
+		bind = b_armature_ob.data.bones[bone_name].matrix_local
 		bind = corrector.blender_bind_to_nif_bind(bind)
 		inv_bind = bind.inverted()
-		bind_loc = armature_ob.data.bones[bone_name].matrix_local.translation
+		bind_loc = b_armature_ob.data.bones[bone_name].matrix_local.translation
 		# bind_loc_inv = bind_loc.negate()
 		# fcurves_rot = anim_sys.create_fcurves(b_action, "rotation_quaternion", range(4), None, bone_name)
 		# fcurves_loc = anim_sys.create_fcurves(b_action, "location", range(3), None, bone_name)
@@ -335,7 +334,7 @@ def animate_empties(anim_sys, bones_table, bani, scene, armature_ob, filename):
 		fcurves_rot = anim_sys.create_fcurves(b_action, "rotation_quaternion", range(4))
 		fcurves_loc = anim_sys.create_fcurves(b_action, "location", range(3))
 		# logging.info(f"Bone {bone_name} as empty, bind at {bind_loc}")
-		for frame_i in range(bani.data.num_frames):
+		for frame_i in range(len(keys)):
 			# euler = bani.eulers[frame_i, i]
 			# euler = mathutils.Euler([math.radians(k) for k in euler])
 			# rot = global_corr_mat @ euler.to_matrix().to_4x4()
@@ -361,8 +360,8 @@ def animate_empties(anim_sys, bones_table, bani, scene, armature_ob, filename):
 
 			# assuming the transform is stored relative to the inverse skin bind transform
 			# some attempts, no success yet
-			euler = bani.eulers[frame_i, i]
-			loc = bani.locs[frame_i, i]
+			euler = keys["euler"][frame_i, i]
+			loc = keys["loc"][frame_i, i]
 			euler = mathutils.Euler([math.radians(k) for k in euler])
 			rot = global_corr_mat @ euler.to_matrix().to_4x4()
 			key = global_corr_mat @ euler.to_matrix().to_4x4()
