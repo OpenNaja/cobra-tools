@@ -32,8 +32,14 @@ def iter_keys(m_bone_names, m_keys, bones_data, b_action, b_dtype, m_extra_bone_
 			bonerestmat_inv = bones_data[b_name]
 			b_channel = b_name
 		else:
-			bonerestmat_inv = mathutils.Matrix().to_4x4()
-			b_channel = None
+			# not sure this is desired like that
+			if bones_data:
+				logging.warning(f"Ignoring extraneous bone '{b_name}'")
+				continue
+			else:
+				logging.debug(f"Object transform '{b_name}' as LocRotScale")
+				bonerestmat_inv = mathutils.Matrix().to_4x4()
+				b_channel = None
 
 		scale_i = scale_lut.get(m_name, None)
 		fcurves = anim_sys.create_fcurves(b_action, b_dtype, dt_size[b_dtype], None, b_channel)
