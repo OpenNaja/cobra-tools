@@ -971,6 +971,9 @@ class OvlFile(Header):
 		# map all files by their extension
 		loaders_by_extension = {}
 		for loader in self.loaders.values():
+			# force an update on the loader's data for older versions' data
+			# and link entries like bani to banis
+			loader.update()
 			if loader.ext not in loaders_by_extension:
 				loaders_by_extension[loader.ext] = []
 			loaders_by_extension[loader.ext].append(loader)
@@ -1161,9 +1164,6 @@ class OvlFile(Header):
 			for loader in self.loaders.values():
 				# attach the entries used by this loader to the ovs lists
 				loader.register_entries()
-				# force an update on the loader's data for older versions' data
-				# and link entries like bani to banis
-				loader.update()
 
 			pools_byte_offset = 0
 			# make a temporary copy so we can delete archive if needed
