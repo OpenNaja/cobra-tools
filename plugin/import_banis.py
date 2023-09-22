@@ -23,7 +23,8 @@ def load_bani(file_path):
 
 
 interp_loc = None
-global_corr_euler = mathutils.Euler([math.radians(k) for k in (0, -90, -90)])
+# global_corr_euler = mathutils.Euler([math.radians(k) for k in (0, -90, -90)])
+global_corr_euler = mathutils.Euler([math.radians(k) for k in (0, 0, 0)])
 # global_corr_euler = mathutils.Euler([math.radians(k) for k in (90, 90, 90)])
 global_corr_mat = global_corr_euler.to_matrix().to_4x4()
 
@@ -234,7 +235,7 @@ def load_old(files=[], filepath="", set_fps=False):
 	return {'FINISHED'}
 
 
-def animate_empties(anim_sys, bones_table, bani, scene, armature_ob, filename):
+def animate_empties_old(anim_sys, bones_table, bani, scene, armature_ob, filename):
 	corrector = Corrector(False)
 	print(f"corr {global_corr_mat.to_euler()}")
 	# go over list of euler keys
@@ -301,6 +302,81 @@ def animate_empties(anim_sys, bones_table, bani, scene, armature_ob, filename):
 			# # key = bind @ inv_bind
 			# rot_final = key.to_quaternion()
 			# loc_final = key.translation
+			anim_sys.add_key(fcurves_rot, frame_i, rot_final, interp_loc)
+			anim_sys.add_key(fcurves_loc, frame_i, loc_final, interp_loc)
+		b_empty_ob.scale = (0.01, 0.01, 0.01)
+
+
+def animate_empties(anim_sys, bones_table, bani, scene, armature_ob, filename):
+	"""trying to work with uncorrected"""
+	corrector = Corrector(False)
+	print(f"corr {global_corr_mat.to_euler()}")
+	# go over list of euler keys
+	for i, bone_name in bones_table:
+		b_empty_ob = create_ob(scene, f"rest_{bone_name}", None)
+		bind = armature_ob.data.bones[bone_name].matrix_local
+		# bind = corrector.blender_bind_to_nif_bind(bind)
+		# b_empty_ob.matrix_local = bind.inverted()
+		# b_empty_ob.matrix_local = bind.inverted()
+		b_empty_ob.location = bind.translation
+		b_empty_ob.scale = (0.01, 0.01, 0.01)
+	for i, bone_name in bones_table:
+		b_empty_ob = create_ob(scene, bone_name, None)
+		b_empty_ob.rotation_mode = "QUATERNION"
+		b_action = anim_sys.create_action(b_empty_ob, f"{filename}.{bone_name}")
+		bind = armature_ob.data.bones[bone_name].matrix_local
+		bind = corrector.blender_bind_to_nif_bind(bind)
+		inv_bind = bind.inverted()
+		bind_loc = armature_ob.data.bones[bone_name].matrix_local.translation
+		# bind_loc_inv = bind_loc.negate()
+		# fcurves_rot = anim_sys.create_fcurves(b_action, "rotation_quaternion", range(4), None, bone_name)
+		# fcurves_loc = anim_sys.create_fcurves(b_action, "location", range(3), None, bone_name)
+		# just object fcurves for now
+		fcurves_rot = anim_sys.create_fcurves(b_action, "rotation_quaternion", range(4))
+		fcurves_loc = anim_sys.create_fcurves(b_action, "location", range(3))
+		# logging.info(f"Bone {bone_name} as empty, bind at {bind_loc}")
+		for frame_i in range(bani.data.num_frames):
+			# euler = bani.eulers[frame_i, i]
+			# euler = mathutils.Euler([math.radians(k) for k in euler])
+			# rot = global_corr_mat @ euler.to_matrix().to_4x4()
+			# if frame_i == 0:
+			# 	print(f"{i} {euler} | {rot.to_euler()}")
+			# loc = bani.locs[frame_i, i]
+			# # this seems to be absolutely correct for JWE2 tuna
+			# # loc = mathutils.Vector((loc[0], loc[2], -loc[1]))
+			# loc = mathutils.Vector(loc)
+			# # the translation key is rotated about bind_loc mirrored on the origin
+			# # first add bind_loc so that the origin of rotation is at the origin
+			# corr = loc + bind_loc
+			# # rotate by the euler key
+			# corr.rotate(rot.inverted())
+			# # corr.rotate(e_fixed)
+			# # go back to pose position
+			# loc_final = corr - bind_loc
+			#
+			# # euler y and z need to be negated
+			# e_fixed = rot.to_euler()
+			# # e_fixed = mathutils.Euler((e_fixed[0], -e_fixed[1], -e_fixed[2]))
+			# rot_final = e_fixed.to_quaternion()
+
+			# assuming the transform is stored relative to the inverse skin bind transform
+			# some attempts, no success yet
+			euler = bani.eulers[frame_i, i]
+			loc = bani.locs[frame_i, i]
+			euler = mathutils.Euler([math.radians(k) for k in euler])
+			rot = global_corr_mat @ euler.to_matrix().to_4x4()
+			key = global_corr_mat @ euler.to_matrix().to_4x4()
+			# key = euler.to_matrix().to_4x4()
+			key.translation = loc
+			# key = inv_bind @ key.inverted() @ bind
+			# key = bind @ key.inverted() @ inv_bind
+			# key = inv_bind @ key @ bind
+			# key = bind @ key @ inv_bind
+			# this maybe adds the loc transforms, doesn't seem to correctly transform rot ??
+			key = key @ bind
+			key = corrector.nif_bind_to_blender_bind(key)
+			rot_final = key.to_quaternion()
+			loc_final = key.translation
 			anim_sys.add_key(fcurves_rot, frame_i, rot_final, interp_loc)
 			anim_sys.add_key(fcurves_loc, frame_i, loc_final, interp_loc)
 		b_empty_ob.scale = (0.01, 0.01, 0.01)

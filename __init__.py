@@ -48,7 +48,7 @@ from plugin.utils.matrix_util import handle_errors
 from generated.formats.ms2.enums.MeshFormat import MeshFormat
 from root_path import root_dir
 
-from plugin.modules_import.operators import ImportBani, ImportManis, ImportMatcol, ImportFgm, ImportMS2, ImportSPL, \
+from plugin.modules_import.operators import ImportBanis, ImportManis, ImportMatcol, ImportFgm, ImportMS2, ImportSPL, \
     ImportVoxelskirt
 from plugin.modules_export.operators import ExportMS2, ExportSPL, ExportManis
 
@@ -253,14 +253,14 @@ def menu_func_import(self, context):
     self.layout.operator(ImportMatcol.bl_idname, text="Cobra Material (.matcol, .dinosaurmateriallayers)",
                          icon_value=icon)
     self.layout.operator(ImportMS2.bl_idname, text="Cobra Model (.ms2)", icon_value=icon)
-    self.layout.operator(ImportBani.bl_idname, text="Cobra Baked Anim (.bani)", icon_value=icon)
+    self.layout.operator(ImportBanis.bl_idname, text="Cobra Baked Anim (.banis)", icon_value=icon)
     self.layout.operator(ImportManis.bl_idname, text="Cobra Anim (.manis)", icon_value=icon)
     self.layout.operator(ImportSPL.bl_idname, text="Cobra Spline (.spl)", icon_value=icon)
     self.layout.operator(ImportVoxelskirt.bl_idname, text="Cobra Map (.voxelskirt)", icon_value=icon)
 
 
 classes = (
-    ImportBani,
+    ImportBanis,
     ImportManis,
     ImportMatcol,
     ImportFgm,

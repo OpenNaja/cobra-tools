@@ -25,14 +25,14 @@ class BanisRoot(MemStruct):
 		# Number of frames for all bani files in banis buffer
 		self.num_frames = name_type_map['Uint'](self.context, 0, None)
 
-		# matches number of bones parrot has
+		# number of bones in data, must correspond to ms2
 		self.num_bones = name_type_map['Uint'](self.context, 0, None)
 
-		# translation range
+		# scale for translation range
 		self.loc_scale = name_type_map['Float'](self.context, 0, None)
 
-		# translation range
-		self.loc_offset = name_type_map['Float'](self.context, 0, None)
+		# might be unused, related to minimum of scaled translations
+		self.loc_min = name_type_map['Float'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 
@@ -45,7 +45,7 @@ class BanisRoot(MemStruct):
 		yield 'num_frames', name_type_map['Uint'], (0, None), (False, None), (None, None)
 		yield 'num_bones', name_type_map['Uint'], (0, None), (False, None), (None, None)
 		yield 'loc_scale', name_type_map['Float'], (0, None), (False, None), (None, None)
-		yield 'loc_offset', name_type_map['Float'], (0, None), (False, None), (None, None)
+		yield 'loc_min', name_type_map['Float'], (0, None), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -56,4 +56,4 @@ class BanisRoot(MemStruct):
 		yield 'num_frames', name_type_map['Uint'], (0, None), (False, None)
 		yield 'num_bones', name_type_map['Uint'], (0, None), (False, None)
 		yield 'loc_scale', name_type_map['Float'], (0, None), (False, None)
-		yield 'loc_offset', name_type_map['Float'], (0, None), (False, None)
+		yield 'loc_min', name_type_map['Float'], (0, None), (False, None)

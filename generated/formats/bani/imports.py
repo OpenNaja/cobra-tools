@@ -42,9 +42,9 @@ type_module_name_map = {
 	'Vector3Short': 'generated.formats.bani.compounds.Vector3Short',
 	'Vector3Ushort': 'generated.formats.bani.compounds.Vector3Ushort',
 	'BaniRoot': 'generated.formats.bani.compounds.BaniRoot',
-	'BaniInfoHeader': 'generated.formats.bani.compounds.BaniInfoHeader',
+	'BaniInfo': 'generated.formats.bani.compounds.BaniInfo',
+	'BanisInfoHeader': 'generated.formats.bani.compounds.BanisInfoHeader',
 	'BanisRoot': 'generated.formats.bani.compounds.BanisRoot',
-	'Key': 'generated.formats.bani.compounds.Key',
 }
 
 name_type_map = {}

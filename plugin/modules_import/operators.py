@@ -2,24 +2,24 @@ import bpy.utils.previews
 from bpy.props import StringProperty, BoolProperty, IntProperty, FloatProperty, EnumProperty, CollectionProperty
 from bpy_extras.io_utils import ImportHelper
 
-from plugin import import_bani, import_manis, import_matcol, import_fgm, import_ms2, import_spl, import_voxelskirt
+from plugin import import_banis, import_manis, import_matcol, import_fgm, import_ms2, import_spl, import_voxelskirt
 from plugin.utils.matrix_util import handle_errors
 
 
-class ImportBani(bpy.types.Operator, ImportHelper):
-    """Import from Cobra baked animations file format (.bani)"""
-    bl_idname = "import_scene.cobra_bani"
-    bl_label = 'Import Bani'
+class ImportBanis(bpy.types.Operator, ImportHelper):
+    """Import from Cobra baked animations file format (.banis)"""
+    bl_idname = "import_scene.cobra_banis"
+    bl_label = 'Import Banis'
     bl_options = {'UNDO'}
-    filename_ext = ".bani"
-    filter_glob: StringProperty(default="*.bani", options={'HIDDEN'})
+    filename_ext = ".banis"
+    filter_glob: StringProperty(default="*.banis", options={'HIDDEN'})
     files: CollectionProperty(type=bpy.types.PropertyGroup)
 
     # set_fps = BoolProperty(name="Adjust FPS", description="Set the scene to FPS used by BANI", default=True)
 
     def execute(self, context):
         keywords = self.as_keywords(ignore=("axis_forward", "axis_up", "filter_glob"))
-        return import_bani.load(**keywords)
+        return import_banis.load(**keywords)
 
 
 class ImportManis(bpy.types.Operator, ImportHelper):
