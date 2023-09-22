@@ -150,7 +150,7 @@ def load(files=[], filepath="", set_fps=False):
 			else:
 				logging.warning(f"Don't know how to import floats for '{b_name}'")
 
-	bpy.context.scene.frame_start = 0
-	bpy.context.scene.frame_end = mi.frame_count
-	bpy.context.scene.render.fps = int(round(mi.frame_count / mi.duration))
+	scene.frame_start = 0
+	scene.frame_end = mi.frame_count
+	scene.render.fps = int(round(mi.frame_count / mi.duration))
 	return {'FINISHED'}
