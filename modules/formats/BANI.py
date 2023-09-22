@@ -31,22 +31,13 @@ class BanisLoader(MemStructLoader):
 	extension = ".banis"
 	target_class = BanisRoot
 
-	def __init__(self, ovl, file_name):
-		super().__init__(ovl, file_name)
-		self.bani_loaders = []
-
 	def validate(self):
-		self.bani_loaders = []
+		self.extra_loaders = []
 		for loader in self.ovl.loaders.values():
 			if loader.ext == ".bani":
 				if self.root_ptr == loader.header.banis.link:
-					self.bani_loaders.append(loader)
-		self.bani_loaders.sort(key=lambda bani: bani.name)
-
-	def remove(self):
-		for bani in self.bani_loaders:
-			bani.remove()
-		super().remove()
+					self.extra_loaders.append(loader)
+		self.extra_loaders.sort(key=lambda bani: bani.name)
 
 	def extract(self, out_dir):
 		name = self.name
@@ -59,8 +50,8 @@ class BanisLoader(MemStructLoader):
 		out_path = out_dir(name)
 		out_paths = [out_path, ]
 		with open(out_path, 'wb') as stream:
-			stream.write(struct.pack("<I", len(self.bani_loaders)))
-			for bani in self.bani_loaders:
+			stream.write(struct.pack("<I", len(self.extra_loaders)))
+			for bani in self.extra_loaders:
 				stream.write(as_bytes(bani.name))
 				bani.header.to_stream(bani.header, stream, bani.header.context)
 			self.header.to_stream(self.header, stream, self.header.context)
@@ -73,18 +64,11 @@ class BanisLoader(MemStructLoader):
 			self.header = banis.data
 			keys = stream.read()
 		self.write_memory_data()
-		self.bani_loaders = []
+		self.extra_loaders = []
 		for bani in banis.anims:
-			# print(bani)
 			bani_loader = self.ovl.create_file(f"dummy_dir/{bani.name}")
 			bani_loader.create_header(bani.data, self)
-			# print(bani_loader)
-			# don't use the standard as create has to behave differently
-			# bani_loader = BaniLoader(self.ovl, bani.name)
-			# bani_loader.create(bani.name)
-			# register is needed as it does not go into streams or stuff
-			self.ovl.register_loader(bani_loader)
-			self.bani_loaders.append(bani_loader)
+			self.extra_loaders.append(bani_loader)
 		self.create_data_entry((keys,))
 
 

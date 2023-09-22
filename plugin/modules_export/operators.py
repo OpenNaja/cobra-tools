@@ -2,7 +2,7 @@ import bpy.utils.previews
 from bpy.props import StringProperty, BoolProperty, IntProperty, FloatProperty, EnumProperty, CollectionProperty
 from bpy_extras.io_utils import ExportHelper
 
-from plugin import export_ms2, export_spl, export_manis
+from plugin import export_ms2, export_spl, export_manis, export_banis
 from plugin.utils.matrix_util import handle_errors
 
 
@@ -48,3 +48,15 @@ class ExportManis(bpy.types.Operator, ExportHelper):
     def execute(self, context):
         keywords = self.as_keywords(ignore=("axis_forward", "axis_up", "filter_glob", "check_existing"))
         return handle_errors(self, export_manis.save, keywords)
+
+
+class ExportBanis(bpy.types.Operator, ExportHelper):
+    """Export to Cobra baked animations file format (.banis)"""
+    bl_idname = "export_scene.cobra_banis"
+    bl_label = 'Export Banis'
+    filename_ext = ".banis"
+    filter_glob: StringProperty(default="*.manis", options={'HIDDEN'})
+
+    def execute(self, context):
+        keywords = self.as_keywords(ignore=("axis_forward", "axis_up", "filter_glob", "check_existing"))
+        return handle_errors(self, export_banis.save, keywords)

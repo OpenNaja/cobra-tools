@@ -36,6 +36,7 @@ class BaseFile:
 		self.dependencies = []
 		self.aux_entries = []
 		self.streams = []
+		self.extra_loaders = []
 
 		# defined in ovs
 		self.data_entries = {}
@@ -274,7 +275,7 @@ class BaseFile:
 		# remove the loader from ovl so it is not saved
 		self.ovl.loaders.pop(self.name)
 		# remove streamed and child files
-		for loader in self.streams + self.children:
+		for loader in self.streams + self.children + self.extra_loaders:
 			loader.remove()
 
 	def track_ptrs(self):
@@ -379,6 +380,7 @@ class BaseFile:
 		self.compare_pointer(other, *self.root_ptr, *other.root_ptr)
 		self.check(self.ovs_name, other.ovs_name, "OVS name")
 		self.check(len(self.streams), len(other.streams), "Amount of streams")
+		self.check(len(self.extra_loaders), len(other.extra_loaders), "Amount of extra loaders")
 		for stream, other_stream in zip(self.streams, other.streams):
 			self.check(stream, other_stream, "Stream entry")
 		return self.same

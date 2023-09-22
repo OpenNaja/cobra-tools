@@ -683,7 +683,7 @@ class OvlFile(Header):
 			# only store loader in self.loaders after successful create
 			self.loaders[loader.name] = loader
 			# also store any streams created by loader
-			for stream in loader.streams + loader.children:
+			for stream in loader.streams + loader.children + loader.extra_loaders:
 				if stream:
 					self.loaders[stream.name] = stream
 

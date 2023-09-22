@@ -98,7 +98,17 @@ class BanisFile(BanisInfoHeader, IoFile):
 			bani.keys = self.keys[bani.data.read_start_frame: bani.data.read_start_frame + bani.data.num_frames]
 
 	def save(self, filepath):
-		self.num_frames, self.num_bones = self.keys.shape
+		self.num_anims = len(self.anims)
+		offset = 0
+		for bani in self.anims:
+			bani.data.num_frames = len(bani.keys)
+			bani.data.read_start_frame = offset
+			offset += bani.data.num_frames
+		self.data.num_frames, self.data.num_bones = self.keys.shape
+		self.data.bytes_per_frame = 12
+		self.data.bytes_per_bone = self.data.num_bones * self.data.bytes_per_frame
+		# todo pack to short
+		#  choose loc scale ?
 		with open(filepath, "wb") as stream:
 			self.write_fields(stream, self)
 			stream.write(self.keys.tobytes())

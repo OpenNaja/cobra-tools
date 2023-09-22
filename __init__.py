@@ -50,7 +50,7 @@ from root_path import root_dir
 
 from plugin.modules_import.operators import ImportBanis, ImportManis, ImportMatcol, ImportFgm, ImportMS2, ImportSPL, \
     ImportVoxelskirt
-from plugin.modules_export.operators import ExportMS2, ExportSPL, ExportManis
+from plugin.modules_export.operators import ExportMS2, ExportSPL, ExportManis, ExportBanis
 
 
 preview_collection = bpy.utils.previews.new()
@@ -244,6 +244,7 @@ def menu_func_export(self, context):
     icon = preview_collection["frontier.png"].icon_id
     self.layout.operator(ExportMS2.bl_idname, text="Cobra Model (.ms2)", icon_value=icon)
     self.layout.operator(ExportSPL.bl_idname, text="Cobra Spline (.spl)", icon_value=icon)
+    self.layout.operator(ExportBanis.bl_idname, text="Cobra Baked Anim (.banis)", icon_value=icon)
     self.layout.operator(ExportManis.bl_idname, text="Cobra Anim (.manis)", icon_value=icon)
 
 
@@ -268,6 +269,7 @@ classes = (
     ImportSPL,
     ExportMS2,
     ExportSPL,
+    ExportBanis,
     ExportManis,
     ImportVoxelskirt,
     CreateFins,
