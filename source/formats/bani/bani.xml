@@ -57,7 +57,7 @@
         <add name="num frames" type="uint">Number of frames for all bani files in banis buffer</add>
         <add name="num bones" type="uint">number of bones in data, must correspond to ms2</add>
         <add name="loc scale" type="float">scale for translation range</add>
-        <add name="loc min" type="float">might be unused, related to minimum of scaled translations</add>
+        <add name="loc min" type="float">related to minimum of scaled translations, offsets everything ingame the same across all axes</add>
     </compound>
 
 </niftoolsxml>

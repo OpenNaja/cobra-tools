@@ -34,6 +34,14 @@ class BaniContext(object):
 
 
 class BanisFile(BanisInfoHeader, IoFile):
+	dt = np.dtype([
+		("euler", np.short, (3,)),
+		("loc", np.ushort, (3,)),
+	])
+	ft = np.dtype([
+		("euler", np.float32, (3,)),
+		("loc", np.float32, (3,)),
+	])
 
 	def __init__(self):
 		super().__init__(BaniContext())
@@ -47,18 +55,10 @@ class BanisFile(BanisInfoHeader, IoFile):
 
 		with open(filepath, "rb") as stream:
 			self.read_fields(stream, self)
-			dt = np.dtype([
-				("euler", np.short, (3,)),
-				("loc", np.ushort, (3,)),
-			])
-			self.keys = np.empty(dtype=dt, shape=(self.data.num_frames, self.data.num_bones))
-			stream.readinto(self.keys)
-			ft = np.dtype([
-				("euler", np.float32, (3,)),
-				("loc", np.float32, (3,)),
-			])
-			self.keys = self.keys.astype(ft)
-			print(self.keys[0, :, ])
+			raw_keys = np.empty(dtype=self.dt, shape=(self.data.num_frames, self.data.num_bones))
+			stream.readinto(raw_keys)
+			self.keys = raw_keys.astype(self.ft)
+			print(raw_keys[0, :, ])
 			self.keys["euler"] = self.keys["euler"] / 32767.0 * 180
 			# self.keys["euler"] = self.keys["euler"] / 32768.0 * 180 + 90.0
 			self.keys["euler"][:, :, 0] += 90.0
@@ -68,31 +68,9 @@ class BanisFile(BanisInfoHeader, IoFile):
 			#   [89.978  -2.7026 90.5548]
 			#   [89.978  -2.7026 90.5548]
 
-			# for frame_i in range(self.num_frames):
-			# 	for bone_i in range(self.num_bones):
-			# 		e = self.keys["euler"][frame_i, bone_i]
-			# 		# this is irreversible, fixing gimbal issues in baked anims; game fixes these as well and does not mind our fix
-			# 		if frame_i:
-			# 			# get previous euler for this bone
-			# 			last_euler = self.keys["euler"][frame_i - 1, bone_i]
-			# 			for key_i in range(3):
-			# 				# found weird axis cross, correct for it
-			# 				if abs(e[key_i] - last_euler[key_i]) > 45.0:
-			# 					e[key_i] = math.copysign((180.0 - e[key_i]), last_euler[key_i])
-			# 			self.keys["euler"][frame_i, bone_i] = e
-
-			# from tuna appears to be without loc_min_rel
-			fac = 2.0  # JWE2 tuna
-			# no 2.0 scale here, but maybe self.data.loc_min_rel plays into this?
-			if "food_carnivore" in self.file:
-				fac = 1.0
-			self.keys["loc"] = (self.keys["loc"] - 32767.0) * self.data.loc_scale * fac  # + self.loc_min_rel
-		loc_min_rel = np.min(self.keys["loc"]) / fac
+			self.keys["loc"] = self.keys["loc"] * self.data.loc_scale + self.data.loc_min
 		# print(self.keys["euler"])
 		print(self.keys[0, :, ])
-		print(loc_min_rel)
-		# for tuna, self.loc_min_rel = np.min(self.keys["loc"]) / 2
-		# self.keys["loc"] += self.loc_min_rel
 		print(self)
 		for bani in self.anims:
 			bani.keys = self.keys[bani.data.read_start_frame: bani.data.read_start_frame + bani.data.num_frames]
@@ -100,22 +78,42 @@ class BanisFile(BanisInfoHeader, IoFile):
 	def save(self, filepath):
 		self.num_anims = len(self.anims)
 		offset = 0
+		self.data.num_frames = 0
 		for bani in self.anims:
 			bani.data.num_frames = len(bani.keys)
+			self.data.num_frames += bani.data.num_frames
 			bani.data.read_start_frame = offset
 			offset += bani.data.num_frames
-		self.data.num_frames, self.data.num_bones = self.keys.shape
+		# assume all have same bone count
+		_num_frames, self.data.num_bones = bani.keys.shape
 		self.data.bytes_per_frame = 12
 		self.data.bytes_per_bone = self.data.num_bones * self.data.bytes_per_frame
-		# todo pack to short
-		#  choose loc scale ?
+		# reassemble the whole array as floats
+		float_keys = np.empty(dtype=self.ft, shape=(self.data.num_frames, self.data.num_bones))
+		for bani in self.anims:
+			float_keys[bani.data.read_start_frame: bani.data.read_start_frame + bani.data.num_frames] = bani.keys
+
+		# cf https://nfrechette.github.io/2016/11/09/anim_compression_range_reduction/
+		# choose loc scale to spread loc range across 0 - 65535
+		# todo - make 0.0 land on 32767.0, seems to be that way in stock
+		self.data.loc_min = np.min(float_keys["loc"])
+		self.data.loc_scale = (np.max(float_keys["loc"]) - self.data.loc_min) / 65535
+		float_keys["loc"] = (float_keys["loc"] - self.data.loc_min) / self.data.loc_scale
+
+		float_keys["euler"][:, :, 0] -= 90.0
+		float_keys["euler"][:, :, 1] -= 90.0
+		float_keys["euler"][:, :, 2] += 90.0
+		float_keys["euler"] = float_keys["euler"] * 32767.0 / 180
+		# round parts separately
+		float_keys["euler"].round(out=float_keys["euler"])
+		float_keys["loc"].round(out=float_keys["loc"])
+		# pack to short
+		raw_keys = float_keys.astype(self.dt)
+		print(raw_keys[0, :, ])
 		with open(filepath, "wb") as stream:
 			self.write_fields(stream, self)
-			stream.write(self.keys.tobytes())
-
-	# def rebuild_buffer(self, bani_files):
-	# 	for bani in bani_files:
-	# 		assert bani.keys.
+			stream.write(raw_keys.tobytes())
+		print(self.data)
 
 
 if __name__ == "__main__":
@@ -145,4 +143,5 @@ if __name__ == "__main__":
 	# banis.save("C:/Users/arnfi/Desktop/gila/gila_monster_idles.banisetc1b711e6.banis")
 	# banis.load("C:/Users/arnfi/Desktop/Coding/Frontier/anim/banis/food/food_carnivore.banisetfcbde7ca.banis")
 	banis.load("C:/Users/arnfi/Desktop/food_carnivore.banisetfcbde7ca.banis")
+	banis.save("C:/Users/arnfi/Desktop/food_carnivore.banisetfcbde7ca_test.banis")
 	# print(head_keys)

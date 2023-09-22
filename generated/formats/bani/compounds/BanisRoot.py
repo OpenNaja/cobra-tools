@@ -31,7 +31,7 @@ class BanisRoot(MemStruct):
 		# scale for translation range
 		self.loc_scale = name_type_map['Float'](self.context, 0, None)
 
-		# might be unused, related to minimum of scaled translations
+		# related to minimum of scaled translations, offsets everything ingame the same across all axes
 		self.loc_min = name_type_map['Float'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()
