@@ -48,8 +48,7 @@ def load(files=[], filepath="", set_fps=False):
 		scene.frame_end = num_frames-1
 		fps = int(round(num_frames/anim_length))
 		# print(f"Banis fps = {fps}")
-		keys = banis.keys[bani.data.read_start_frame: bani.data.read_start_frame+bani.data.num_frames]
-		animate_empties(anim_sys, bones_table, keys, scene, b_armature_ob, bani.name)
+		animate_empties(anim_sys, bones_table, bani, scene, b_armature_ob)
 
 	# go over list of euler keys
 	for i, bone_name in bones_table:
@@ -315,14 +314,14 @@ def animate_empties_old(anim_sys, bones_table, bani, scene, b_armature_ob, filen
 		b_empty_ob.scale = (0.01, 0.01, 0.01)
 
 
-def animate_empties(anim_sys, bones_table, keys, scene, b_armature_ob, filename):
+def animate_empties(anim_sys, bones_table, bani, scene, b_armature_ob):
 	"""trying to work with uncorrected"""
 	corrector = Corrector(False)
 	print(f"corr {global_corr_mat.to_euler()}")
 	for i, bone_name in bones_table:
 		b_empty_ob = create_ob(scene, bone_name, None)
 		b_empty_ob.rotation_mode = "QUATERNION"
-		b_action = anim_sys.create_action(b_empty_ob, f"{filename}.{bone_name}")
+		b_action = anim_sys.create_action(b_empty_ob, f"{bani.name}.{bone_name}")
 		bind = b_armature_ob.data.bones[bone_name].matrix_local
 		bind = corrector.blender_bind_to_nif_bind(bind)
 		inv_bind = bind.inverted()
@@ -334,7 +333,7 @@ def animate_empties(anim_sys, bones_table, keys, scene, b_armature_ob, filename)
 		fcurves_rot = anim_sys.create_fcurves(b_action, "rotation_quaternion", range(4))
 		fcurves_loc = anim_sys.create_fcurves(b_action, "location", range(3))
 		# logging.info(f"Bone {bone_name} as empty, bind at {bind_loc}")
-		for frame_i in range(len(keys)):
+		for frame_i in range(len(bani.keys)):
 			# euler = bani.eulers[frame_i, i]
 			# euler = mathutils.Euler([math.radians(k) for k in euler])
 			# rot = global_corr_mat @ euler.to_matrix().to_4x4()
@@ -360,8 +359,8 @@ def animate_empties(anim_sys, bones_table, keys, scene, b_armature_ob, filename)
 
 			# assuming the transform is stored relative to the inverse skin bind transform
 			# some attempts, no success yet
-			euler = keys["euler"][frame_i, i]
-			loc = keys["loc"][frame_i, i]
+			euler = bani.keys["euler"][frame_i, i]
+			loc = bani.keys["loc"][frame_i, i]
 			euler = mathutils.Euler([math.radians(k) for k in euler])
 			rot = global_corr_mat @ euler.to_matrix().to_4x4()
 			key = global_corr_mat @ euler.to_matrix().to_4x4()

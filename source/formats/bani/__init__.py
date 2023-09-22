@@ -93,6 +93,8 @@ class BanisFile(BanisInfoHeader, IoFile):
 		# for tuna, self.loc_min_rel = np.min(self.keys["loc"]) / 2
 		# self.keys["loc"] += self.loc_min_rel
 		print(self)
+		for bani in self.anims:
+			bani.keys = self.keys[bani.data.read_start_frame: bani.data.read_start_frame + bani.data.num_frames]
 
 	def save(self, filepath):
 		self.num_frames, self.num_bones = self.keys.shape
