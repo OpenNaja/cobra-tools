@@ -121,8 +121,8 @@ PZ_color_morphs = (
 	"palbinobasecolourandmasktexture",
 	"perythristicbasecolourandmasktexture",
 	"pleucisticbasecolourandmasktexture",
-	"pmelanisticbasecolourandmasktexture"
-	"pxanthicbasecolourandmasktexture"
+	"pmelanisticbasecolourandmasktexture",
+	"pxanthicbasecolourandmasktexture",
 )
 
 
