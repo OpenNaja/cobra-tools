@@ -1,7 +1,5 @@
 from generated.formats.bani.imports import name_type_map
-from generated.formats.bani.compounds.BaniInfo import BaniInfo
 from generated.formats.bani.compounds.BanisInfoHeader import BanisInfoHeader
-from generated.formats.bani.compounds.BanisRoot import BanisRoot
 from generated.io import IoFile
 import os
 
@@ -34,18 +32,17 @@ class BaniContext(object):
 
 
 class BanisFile(BanisInfoHeader, IoFile):
-	dt = np.dtype([
+	dt_packed = np.dtype([
 		("euler", np.short, (3,)),
 		("loc", np.ushort, (3,)),
 	])
-	ft = np.dtype([
+	dt_float = np.dtype([
 		("euler", np.float32, (3,)),
 		("loc", np.float32, (3,)),
 	])
 
 	def __init__(self):
 		super().__init__(BaniContext())
-		self.keys = None
 
 	def load(self, filepath):
 		# store file name for later
@@ -55,25 +52,26 @@ class BanisFile(BanisInfoHeader, IoFile):
 
 		with open(filepath, "rb") as stream:
 			self.read_fields(stream, self)
-			raw_keys = np.empty(dtype=self.dt, shape=(self.data.num_frames, self.data.num_bones))
-			stream.readinto(raw_keys)
-			self.keys = raw_keys.astype(self.ft)
-			print(raw_keys[0, :, ])
-			self.keys["euler"] = self.keys["euler"] / 32767.0 * 180
-			# self.keys["euler"] = self.keys["euler"] / 32768.0 * 180 + 90.0
-			self.keys["euler"][:, :, 0] += 90.0
-			self.keys["euler"][:, :, 1] += 90.0
-			self.keys["euler"][:, :, 2] -= 90.0
+			keys_packed = np.empty(dtype=self.dt_packed, shape=(self.data.num_frames, self.data.num_bones))
+			stream.readinto(keys_packed)
+			keys_float = keys_packed.astype(self.dt_float)
+			print(keys_packed[0, :, ])
+			keys_float["euler"] = keys_float["euler"] / 32767.0 * 180
+			# keys_float["euler"] = keys_float["euler"] / 32768.0 * 180 + 90.0
+			keys_float["euler"][:, :, 0] += 90.0
+			keys_float["euler"][:, :, 1] += 90.0
+			keys_float["euler"][:, :, 2] -= 90.0
 			# [[[89.9945  1.0162 89.9945]
 			#   [89.978  -2.7026 90.5548]
 			#   [89.978  -2.7026 90.5548]
 
-			self.keys["loc"] = self.keys["loc"] * self.data.loc_scale + self.data.loc_min
-		# print(self.keys["euler"])
-		print(self.keys[0, :, ])
+			keys_float["loc"] = keys_float["loc"] * self.data.loc_scale + self.data.loc_min
+		# print(keys_float["euler"])
+		print(keys_float[0, :, ])
 		print(self)
+		# assign keys to bani data
 		for bani in self.anims:
-			bani.keys = self.keys[bani.data.read_start_frame: bani.data.read_start_frame + bani.data.num_frames]
+			bani.keys = keys_float[bani.data.read_start_frame: bani.data.read_start_frame + bani.data.num_frames]
 
 	def save(self, filepath):
 		self.num_anims = len(self.anims)
@@ -89,31 +87,31 @@ class BanisFile(BanisInfoHeader, IoFile):
 		self.data.bytes_per_frame = 12
 		self.data.bytes_per_bone = self.data.num_bones * self.data.bytes_per_frame
 		# reassemble the whole array as floats
-		float_keys = np.empty(dtype=self.ft, shape=(self.data.num_frames, self.data.num_bones))
+		keys_float = np.empty(dtype=self.dt_float, shape=(self.data.num_frames, self.data.num_bones))
 		for bani in self.anims:
-			float_keys[bani.data.read_start_frame: bani.data.read_start_frame + bani.data.num_frames] = bani.keys
+			keys_float[bani.data.read_start_frame: bani.data.read_start_frame + bani.data.num_frames] = bani.keys
 
 		# cf https://nfrechette.github.io/2016/11/09/anim_compression_range_reduction/
 		# choose loc scale to spread loc range across 0 - 65535
 		# todo - make 0.0 land on 32767.0, seems to be that way in stock
-		self.data.loc_min = np.min(float_keys["loc"])
-		self.data.loc_scale = (np.max(float_keys["loc"]) - self.data.loc_min) / 65535
-		float_keys["loc"] = (float_keys["loc"] - self.data.loc_min) / self.data.loc_scale
+		self.data.loc_min = np.min(keys_float["loc"])
+		self.data.loc_scale = (np.max(keys_float["loc"]) - self.data.loc_min) / 65535
+		keys_float["loc"] = (keys_float["loc"] - self.data.loc_min) / self.data.loc_scale
 
-		float_keys["euler"][:, :, 0] -= 90.0
-		float_keys["euler"][:, :, 1] -= 90.0
-		float_keys["euler"][:, :, 2] += 90.0
-		float_keys["euler"] = float_keys["euler"] * 32767.0 / 180
+		keys_float["euler"][:, :, 0] -= 90.0
+		keys_float["euler"][:, :, 1] -= 90.0
+		keys_float["euler"][:, :, 2] += 90.0
+		keys_float["euler"] = keys_float["euler"] * 32767.0 / 180
 		# round parts separately
-		float_keys["euler"].round(out=float_keys["euler"])
-		float_keys["loc"].round(out=float_keys["loc"])
+		keys_float["euler"].round(out=keys_float["euler"])
+		keys_float["loc"].round(out=keys_float["loc"])
 		# pack to short
-		raw_keys = float_keys.astype(self.dt)
-		print(raw_keys[0, :, ])
+		keys_packed = keys_float.astype(self.dt_packed)
+		# print(keys_packed[0, :, ])
 		with open(filepath, "wb") as stream:
 			self.write_fields(stream, self)
-			stream.write(raw_keys.tobytes())
-		print(self.data)
+			stream.write(keys_packed.tobytes())
+		# print(self.data)
 
 
 if __name__ == "__main__":
