@@ -77,7 +77,7 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 	unweighted_vertices = []
 
 	shell_ob = None
-	vcols = (0, 0, 0, 0)
+	vcol = (0, 0, 0, 0)
 	# shape key morphing
 
 	def get_shapekey(vert_index):
@@ -208,15 +208,16 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 					count_unique += 1
 
 					# now collect any missing vert data that was not needed for the splitting of blender verts
+					vertex_bone_id, weights, fur_length, fur_width, fur_clump = weights_data[b_loop.vertex_index]
 					# use attribute api, ensure fallback so array setting does not choke
 					if rgba0_layer:
-						vcols = rgba0_layer.data[loop_index].color
-					vertex_bone_id, weights, fur_length, fur_width = weights_data[b_loop.vertex_index]
+						vcol = rgba0_layer.data[loop_index].color
+						vcol[3] = 1.0 - fur_clump
 					if num_fur_weights:
 						# append to uv
 						uvs.append((fur_length, remap(fur_width, 0, 1, -16, 16)))
 					# store all raw blender data
-					chunk_verts.append((position, vertex_bone_id == DYNAMIC_ID, normal, negate_bitangent, tangent, uvs, vcols,
+					chunk_verts.append((position, vertex_bone_id == DYNAMIC_ID, normal, negate_bitangent, tangent, uvs, vcol,
 										weights, shapekey))
 				tri.append(v_index)
 			# add it to the latest chunk, cast to tuple to make it hashable
@@ -297,6 +298,7 @@ def export_weights(b_ob, b_vert, bones_table, hair_length, unweighted_vertices, 
 	vertex_bone_id = DYNAMIC_ID
 	fur_length = 0
 	fur_width = 0
+	fur_clump = 0
 	# get the weights
 	w = []
 	for v_group in b_vert.groups:
@@ -306,6 +308,8 @@ def export_weights(b_ob, b_vert, bones_table, hair_length, unweighted_vertices, 
 				fur_length = v_group.weight * hair_length
 			elif v_group_name == "fur_width":
 				fur_width = v_group.weight
+			elif v_group_name == "fur_clump":
+				fur_clump = v_group.weight
 			elif v_group_name in bones_table:
 				# avoid dummy vertex groups without corresponding bones
 				bone_index = bones_table[v_group_name]
@@ -328,7 +332,7 @@ def export_weights(b_ob, b_vert, bones_table, hair_length, unweighted_vertices, 
 	# more than one valid bone weight for this vertex?
 	elif len(weights_sorted) == 1:
 		vertex_bone_id = weights_sorted[0][0]
-	return vertex_bone_id, weights_sorted, fur_length, fur_width
+	return vertex_bone_id, weights_sorted, fur_length, fur_width, fur_clump
 
 
 def get_hair_length(ob):
