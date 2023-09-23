@@ -88,7 +88,11 @@ def get_property(ob, prop_name, default=None):
 		raise KeyError(f"Custom property '{prop_name}' missing from {ob.name} (data: {type(ob).__name__}). Add it!")
 
 
-def set_collection_visibility(coll_name, hide):
+def set_collection_visibility(scene, coll_name, hide):
 	# get view layer if it exists
-	if coll_name in bpy.context.view_layer.layer_collection.children:
-		bpy.context.view_layer.layer_collection.children[coll_name].hide_viewport = hide
+	view_collections = bpy.context.view_layer.layer_collection.children
+	if coll_name in view_collections:
+		view_collections[coll_name].hide_viewport = hide
+	scene_collections = scene.collection.children
+	if coll_name in scene_collections:
+		scene_collections[coll_name].hide_render = hide

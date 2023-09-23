@@ -116,7 +116,7 @@ def load(filepath="", use_custom_normals=False, mirror_mesh=False):
 					add_psys(b_ob, mesh)
 			coll_name = f"{scene.name}_LOD{lod_i}"
 			# show lod 0, hide the others
-			set_collection_visibility(coll_name, lod_i != 0)
+			set_collection_visibility(scene, coll_name, lod_i != 0)
 
 	messages.add(f"Imported {ms2_name} in {time.time() - start_time:.2f} seconds")
 	return messages

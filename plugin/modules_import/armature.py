@@ -87,8 +87,8 @@ def import_armature(scene, model_info, b_bone_names):
 		except:
 			logging.exception("Importing joints failed")
 
-		set_collection_visibility(f"{scene.name}_joints", True)
-		set_collection_visibility(f"{scene.name}_hitchecks", True)
+		set_collection_visibility(scene, f"{scene.name}_joints", True)
+		set_collection_visibility(scene, f"{scene.name}_hitchecks", True)
 		return b_armature_obj
 
 
