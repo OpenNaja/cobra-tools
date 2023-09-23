@@ -15,6 +15,10 @@ import os
 import sys
 
 import bpy
+import bpy.utils.previews
+from bpy.props import IntProperty, EnumProperty
+from bpy.types import PropertyGroup
+
 import addon_utils
 
 copies_of_tools = []
@@ -34,23 +38,17 @@ from ovl_util.logs import logging_setup
 
 logging_setup("blender_plugin")
 
-# import bpy
-import bpy.utils.previews
-
-from bpy.props import IntProperty, EnumProperty
-from bpy.types import PropertyGroup
 from plugin import addon_updater_ops
-
-from plugin.utils.hair import vcol_to_comb, comb_to_vcol, transfer_hair_combing
-
 from plugin.utils import shell
+from plugin.utils.hair import vcol_to_comb, comb_to_vcol, transfer_hair_combing
 from plugin.utils.matrix_util import handle_errors
-from generated.formats.ms2.enums.MeshFormat import MeshFormat
-from root_path import root_dir
 
 from plugin.modules_import.operators import ImportBanis, ImportManis, ImportMatcol, ImportFgm, ImportMS2, ImportSPL, \
     ImportVoxelskirt
 from plugin.modules_export.operators import ExportMS2, ExportSPL, ExportManis, ExportBanis
+
+from root_path import root_dir
+from generated.formats.ms2.enums.MeshFormat import MeshFormat
 
 
 preview_collection = bpy.utils.previews.new()
@@ -233,7 +231,7 @@ class CobraSceneSettings(PropertyGroup):
 class CobraMeshSettings(PropertyGroup):
     mesh_format: EnumProperty(
         name='Mesh Format',
-        description='Mesh formatused for this mesh - JWE2 after Biosyn update',
+        description='Mesh format used for this mesh - JWE2 after Biosyn update',
         items=[("NONE", "None", "")] + [(item.name, item.name, "") for i, item in enumerate(MeshFormat)],
         # default = 'MO_SYS_FIXED',
 
