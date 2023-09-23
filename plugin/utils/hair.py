@@ -12,14 +12,18 @@ UP = (0.0, 0.0, 1.0)
 UPVEC = mathutils.Vector(UP)
 
 
+def clamp_range(v):
+	return min(EXTENT, max(-EXTENT, v))
+
+
 def col_2_rad(c):
 	"""Takes a color value in range 0.0 - 1.0"""
-	return math.radians((c - MID) * FAC)
+	return math.radians(clamp_range((c - MID) * FAC))
 
 
 def rad_2_col(r):
 	"""Returns a color value in range 0.0 - 1.0"""
-	return math.degrees(r) / FAC + MID
+	return clamp_range(math.degrees(r) / FAC + MID)
 
 
 def vcol_2_vec(vcol):
@@ -67,9 +71,12 @@ def add_psys(ob, model):
 		psys.settings.emit_from = 'VERT'
 		psys.settings.use_emit_random = False
 		psys.settings.hair_length = model.fur_length
-		psys.vertex_group_length = "fur_length"
 		psys.settings.hair_step = 1
 		psys.settings.display_step = 1
+		psys.settings.clump_factor = 1.0
+		psys.settings.child_type = "INTERPOLATED"
+		psys.vertex_group_length = "fur_length"
+		psys.vertex_group_clump = "fur_clump"
 
 
 def comb_common(adjust_psys_count=False, warn=True):

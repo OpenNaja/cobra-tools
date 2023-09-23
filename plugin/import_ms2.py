@@ -155,6 +155,8 @@ def import_mesh_layers(b_me, mesh, use_custom_normals, mat_name):
 		# for col_i in range(num_vcol_layers):
 		cols = b_me.attributes.new(f"RGBA{0}", "BYTE_COLOR", "CORNER")
 		cols.data.foreach_set("color", per_loop(b_me, mesh.colors))
+		if num_fur_weights:
+			mesh.import_vcol_a_as_weights(mesh.colors)
 
 	if hasattr(mesh, "tangents"):
 		tangents = b_me.attributes.new("ct_tangents", "FLOAT_VECTOR", "CORNER")

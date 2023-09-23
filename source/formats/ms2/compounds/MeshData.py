@@ -182,6 +182,10 @@ class MeshData:
 			self.add_to_weights("fur_length", vertex_index, fur_vert[0])
 			self.add_to_weights("fur_width", vertex_index, fur_vert[1])
 
+	def import_vcol_a_as_weights(self, rgba):
+		for vertex_index, rgba_vert in enumerate(rgba):
+			self.add_to_weights("fur_clump", vertex_index, 1.0 - rgba_vert[3])
+
 	def get_blended_weights(self, ids, weights):
 		for vertex_index, (bone_indices, bone_weights) in enumerate(zip(ids, weights)):
 			for bone_index, weight in zip(bone_indices, bone_weights):
