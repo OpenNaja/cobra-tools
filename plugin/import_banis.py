@@ -318,22 +318,38 @@ def animate_empties(anim_sys, bones_table, bani, scene, b_armature_ob):
 	"""trying to work with uncorrected"""
 	corrector = Corrector(False)
 	print(f"corr {global_corr_mat.to_euler()}")
-	for i, bone_name in bones_table:
-		b_empty_ob = create_ob(scene, bone_name, None)
-		b_empty_ob.rotation_mode = "QUATERNION"
-		b_action = anim_sys.create_action(b_empty_ob, f"{bani.name}.{bone_name}")
+	binds = []
+	fcurves_rot = []
+	fcurves_loc = []
+	# create the fcurves and empties if needed
+	use_armature = False
+	if use_armature:
+		b_action = anim_sys.create_action(b_armature_ob, bani.name)
+	for bone_i, bone_name in bones_table:
 		bind = b_armature_ob.data.bones[bone_name].matrix_local
 		bind = corrector.blender_bind_to_nif_bind(bind)
-		inv_bind = bind.inverted()
-		bind_loc = b_armature_ob.data.bones[bone_name].matrix_local.translation
+		# inv_bind = bind.inverted()
+		# bind_loc = b_armature_ob.data.bones[bone_name].matrix_local.translation
 		# bind_loc_inv = bind_loc.negate()
-		# fcurves_rot = anim_sys.create_fcurves(b_action, "rotation_quaternion", range(4), None, bone_name)
-		# fcurves_loc = anim_sys.create_fcurves(b_action, "location", range(3), None, bone_name)
-		# just object fcurves for now
-		fcurves_rot = anim_sys.create_fcurves(b_action, "rotation_quaternion", range(4))
-		fcurves_loc = anim_sys.create_fcurves(b_action, "location", range(3))
+		binds.append(bind)
+
+		# create new empty
+		if not use_armature:
+			b_empty_ob = create_ob(scene, bone_name, None)
+			b_empty_ob.rotation_mode = "QUATERNION"
+			b_empty_ob.scale = (0.01, 0.01, 0.01)
+			b_action = anim_sys.create_action(b_empty_ob, f"{bani.name}.{bone_name}")
+		# create fcurves
+		channel_name = bone_name if use_armature else None
+		fcurves_rot.append(anim_sys.create_fcurves(b_action, "rotation_quaternion", range(4), None, channel_name))
+		fcurves_loc.append(anim_sys.create_fcurves(b_action, "location", range(3), None, channel_name))
+
+	# go frame per frame
+	for frame_i, frame in enumerate(bani.keys):
+		matrix_storage = [None for _ in bones_table]
+		for bone_i, bone_name in bones_table:
 		# logging.info(f"Bone {bone_name} as empty, bind at {bind_loc}")
-		for frame_i in range(len(bani.keys)):
+		# for frame_i in range(len(bani.keys)):
 			# euler = bani.eulers[frame_i, i]
 			# euler = mathutils.Euler([math.radians(k) for k in euler])
 			# rot = global_corr_mat @ euler.to_matrix().to_4x4()
@@ -359,8 +375,8 @@ def animate_empties(anim_sys, bones_table, bani, scene, b_armature_ob):
 
 			# assuming the transform is stored relative to the inverse skin bind transform
 			# some attempts, no success yet
-			euler = bani.keys["euler"][frame_i, i]
-			loc = bani.keys["loc"][frame_i, i]
+			euler = frame["euler"][bone_i]
+			loc = frame["loc"][bone_i]
 			euler = mathutils.Euler([math.radians(k) for k in euler])
 			rot = global_corr_mat @ euler.to_matrix().to_4x4()
 			key = global_corr_mat @ euler.to_matrix().to_4x4()
@@ -371,10 +387,16 @@ def animate_empties(anim_sys, bones_table, bani, scene, b_armature_ob):
 			# key = inv_bind @ key @ bind
 			# key = bind @ key @ inv_bind
 			# this maybe adds the loc transforms, doesn't seem to correctly transform rot ??
-			key = key @ bind
-			key = corrector.nif_bind_to_blender_bind(key)
+			key = key @ binds[bone_i]
+			# store the posed armature space matrix
+			matrix_storage[bone_i] = corrector.nif_bind_to_blender_bind(key)
+
+		# todo - make posed armature space matrices relative to posed parent
+		#  make that relative to local bind
+
+		for bone_i, bone_name in bones_table:
+			key = matrix_storage[bone_i]
 			rot_final = key.to_quaternion()
 			loc_final = key.translation
-			anim_sys.add_key(fcurves_rot, frame_i, rot_final, interp_loc)
-			anim_sys.add_key(fcurves_loc, frame_i, loc_final, interp_loc)
-		b_empty_ob.scale = (0.01, 0.01, 0.01)
+			anim_sys.add_key(fcurves_rot[bone_i], frame_i, rot_final, interp_loc)
+			anim_sys.add_key(fcurves_loc[bone_i], frame_i, loc_final, interp_loc)
