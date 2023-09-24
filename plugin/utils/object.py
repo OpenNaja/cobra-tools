@@ -102,3 +102,15 @@ def get_bones_table(b_armature_ob):
 	p_bones = sorted(b_armature_ob.pose.bones, key=lambda pbone: pbone["index"])
 	bones_table = [(bone["index"], bone.name) for bone in p_bones]
 	return bones_table, p_bones
+
+
+def get_p_index(pbone):
+	if pbone:
+		return pbone["index"]
+	else:
+		return None
+
+
+def get_parent_map(p_bones):
+	parent_index_map = [get_p_index(pbone.parent) for pbone in p_bones]
+	return parent_index_map

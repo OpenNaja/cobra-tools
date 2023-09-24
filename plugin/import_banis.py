@@ -6,8 +6,9 @@ import mathutils
 from generated.formats.bani import BanisFile
 from plugin.modules_export.armature import get_armature
 from plugin.modules_import.anim import Animation
+from plugin.utils.anim import get_bone_bind_data
 from plugin.utils.matrix_util import Corrector
-from plugin.utils.object import create_ob, get_bones_table
+from plugin.utils.object import create_ob, get_bones_table, get_parent_map
 
 interp_loc = None
 # global_corr_euler = mathutils.Euler([math.radians(k) for k in (0, -90, -90)])
@@ -24,13 +25,7 @@ def load(files=[], filepath="", set_fps=False):
 	bones_table, p_bones = get_bones_table(b_armature_ob)
 	bone_names = [tup[1] for tup in bones_table]
 
-	def get_p_index(pbone):
-		if pbone:
-			return pbone["index"]
-		else:
-			return None
-
-	parent_index_map = [get_p_index(pbone.parent) for pbone in p_bones]
+	parent_index_map = get_parent_map(p_bones)
 	anim_sys = Animation()
 	banis = BanisFile()
 	banis.load(filepath)
@@ -62,26 +57,14 @@ def animate_core(anim_sys, bones_table, bani, scene, b_armature_ob, parent_index
 	this assumes that bone_i is continuous"""
 	corrector = Corrector(False)
 	print(f"corr {global_corr_mat.to_euler()}")
-	binds = []
-	locals = []
 	fcurves_rot = []
 	fcurves_loc = []
 	# create the fcurves and empties if needed
 	if use_armature:
 		b_action = anim_sys.create_action(b_armature_ob, bani.name)
-	for bone_i, bone_name in bones_table:
-		b_bone = b_armature_ob.data.bones[bone_name]
-		b_bind = b_bone.matrix_local
-		b_local = mathutils.Matrix(b_bind)
-		if b_bone.parent:
-			b_local = b_bone.parent.matrix_local.inverted() @ b_local
-		locals.append(b_local)
-		bind = corrector.blender_bind_to_nif_bind(b_bind)
-		# inv_bind = bind.inverted()
-		# bind_loc = b_armature_ob.data.bones[bone_name].matrix_local.translation
-		# bind_loc_inv = bind_loc.negate()
-		binds.append(bind)
+	binds, bones_local_mat = get_bone_bind_data(b_armature_ob, bones_table, corrector)
 
+	for bone_i, bone_name in bones_table:
 		# create new empty
 		if not use_armature:
 			b_empty_ob = create_ob(scene, bone_name, None)
@@ -124,7 +107,7 @@ def animate_core(anim_sys, bones_table, bani, scene, b_armature_ob, parent_index
 					posed_local_space[bone_i] = posed_armature_space[bone_i]
 			#  make that relative to local bone bind
 			for bone_i, bone_name in bones_table:
-				posed_local_space[bone_i] = locals[bone_i].inverted() @ posed_local_space[bone_i]
+				posed_local_space[bone_i] = bones_local_mat[bone_i].inverted() @ posed_local_space[bone_i]
 
 		for bone_i, bone_name in bones_table:
 			key = posed_local_space[bone_i]
@@ -132,3 +115,5 @@ def animate_core(anim_sys, bones_table, bani, scene, b_armature_ob, parent_index
 			loc_final = key.translation
 			anim_sys.add_key(fcurves_rot[bone_i], frame_i, rot_final, interp_loc)
 			anim_sys.add_key(fcurves_loc[bone_i], frame_i, loc_final, interp_loc)
+
+
