@@ -96,3 +96,9 @@ def set_collection_visibility(scene, coll_name, hide):
 	scene_collections = scene.collection.children
 	if coll_name in scene_collections:
 		scene_collections[coll_name].hide_render = hide
+
+
+def get_bones_table(b_armature_ob):
+	p_bones = sorted(b_armature_ob.pose.bones, key=lambda pbone: pbone["index"])
+	bones_table = [(bone["index"], bone.name) for bone in p_bones]
+	return bones_table, p_bones

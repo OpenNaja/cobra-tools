@@ -1,4 +1,5 @@
 import logging
+import os
 import struct
 
 from generated.formats.bani import BanisInfoHeader
@@ -52,7 +53,7 @@ class BanisLoader(MemStructLoader):
 		with open(out_path, 'wb') as stream:
 			stream.write(struct.pack("<I", len(self.extra_loaders)))
 			for bani in self.extra_loaders:
-				stream.write(as_bytes(bani.name))
+				stream.write(as_bytes(os.path.splitext(bani.name)[0]))
 				bani.header.to_stream(bani.header, stream, bani.header.context)
 			self.header.to_stream(self.header, stream, self.header.context)
 			stream.write(buffers[0])
@@ -66,7 +67,7 @@ class BanisLoader(MemStructLoader):
 		self.write_memory_data()
 		self.extra_loaders = []
 		for bani in banis.anims:
-			bani_loader = self.ovl.create_file(f"dummy_dir/{bani.name}")
+			bani_loader = self.ovl.create_file(f"dummy_dir/{bani.name}.bani")
 			bani_loader.create_header(bani.data, self)
 			self.extra_loaders.append(bani_loader)
 		self.create_data_entry((keys,))
