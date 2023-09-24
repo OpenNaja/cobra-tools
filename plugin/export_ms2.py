@@ -48,12 +48,14 @@ def save(filepath='', apply_transforms=False, update_rig=False, use_stock_normal
 	ms2.load(filepath)
 	ms2.read_editable = True
 	ms2.clear()
+	found_scenes = 0
 
 	model_info_lut = {mdl2_name: model_info for mdl2_name, model_info in zip(ms2.mdl_2_names, ms2.model_infos)}
 	for scene in bpy.data.scenes:
 		if scene.name not in model_info_lut:
 			logging.warning(f"Scene '{scene.name}' was not found in the MS2 file, skipping")
 			continue
+		found_scenes += 1
 		logging.debug(f"Exporting scene {scene.name}")
 
 		# make active scene
@@ -143,8 +145,15 @@ def save(filepath='', apply_transforms=False, update_rig=False, use_stock_normal
 
 	# write modified ms2
 	ms2.save(export_path)
-
-	messages.add(f"Finished MS2 export in {time.time() - start_time:.2f} seconds")
+	if found_scenes:
+		messages.add(f"Finished MS2 export in {time.time() - start_time:.2f} seconds")
+	else:
+		mdl2_names = sorted(model_info_lut.keys())
+		mdl2_names_str = '\n'.join(mdl2_names)
+		raise AttributeError(
+			f"Found no scenes matching MDL2s in MS2:\n"
+			f"{mdl2_names_str}\n"
+			f"Rename your scenes to match the MDL2s")
 	return messages
 
 
