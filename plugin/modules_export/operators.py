@@ -55,7 +55,7 @@ class ExportBanis(bpy.types.Operator, ExportHelper):
     bl_idname = "export_scene.cobra_banis"
     bl_label = 'Export Banis'
     filename_ext = ".banis"
-    filter_glob: StringProperty(default="*.manis", options={'HIDDEN'})
+    filter_glob: StringProperty(default="*.banis", options={'HIDDEN'})
 
     def execute(self, context):
         keywords = self.as_keywords(ignore=("axis_forward", "axis_up", "filter_glob", "check_existing"))
