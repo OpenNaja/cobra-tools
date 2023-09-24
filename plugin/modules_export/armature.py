@@ -6,7 +6,7 @@ import mathutils
 from generated.formats.ms2.versions import is_ztuac, is_dla
 from plugin.modules_export.collision import export_hitcheck
 from plugin.utils.matrix_util import bone_name_for_ovl, get_joint_name, Corrector
-from plugin.utils.shell import get_collection
+from plugin.utils.shell import get_collection_endswith
 
 
 def get_level(bones, level=0):
@@ -161,7 +161,7 @@ def update_ik_pointers(bone_info):
 def export_joints(bone_info, corrector):
 	logging.info("Exporting joints")
 	scene = bpy.context.scene
-	joint_coll = get_collection(f"{scene.name}_joints")
+	joint_coll = get_collection_endswith(scene, "_joints")
 	if not joint_coll:
 		return
 	joints = bone_info.joints

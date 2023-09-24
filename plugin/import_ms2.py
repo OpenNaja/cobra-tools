@@ -9,7 +9,7 @@ from plugin.modules_import.armature import import_armature, append_armature_modi
 from plugin.utils.hair import add_psys
 from plugin.modules_import.material import import_material
 from plugin.utils.shell import is_fin, num_fur_as_weights, is_shell
-from plugin.utils.object import create_ob, get_collection, set_collection_visibility
+from plugin.utils.object import create_ob, create_collection, set_collection_visibility
 from generated.formats.ms2 import Ms2File, is_old
 from generated.formats.ms2.enums.MeshFormat import MeshFormat
 
@@ -38,7 +38,7 @@ def load(filepath="", use_custom_normals=False, mirror_mesh=False):
 		# print("mdl2.mesh.meshes",mdl2.mesh.meshes)
 		for lod_i, m_lod in enumerate(model_info.model.lods):
 			logging.info(f"Importing LOD{lod_i}")
-			lod_coll = get_collection(scene, f"LOD{lod_i}")
+			lod_coll = create_collection(scene, f"LOD{lod_i}")
 			# skip other shells for JWE2
 			obs = []
 			for m_ob in m_lod.objects:

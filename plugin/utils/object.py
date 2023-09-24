@@ -32,7 +32,7 @@ def get_lod(ob):
 			return coll.name
 
 
-def get_collection(scene, coll_name):
+def create_collection(scene, coll_name):
 	# turn any relative collection names to include the scene prefix
 	if not coll_name.startswith(f"{scene.name}_"):
 		coll_name = f"{scene.name}_{coll_name}"

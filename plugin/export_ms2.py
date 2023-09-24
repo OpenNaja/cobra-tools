@@ -16,7 +16,7 @@ from plugin.modules_export.geometry import export_model
 from plugin.modules_export.material import export_material
 from plugin.modules_import.armature import get_bone_names
 from plugin.utils.object import has_objects_in_scene, get_property
-from plugin.utils.shell import get_collection
+from plugin.utils.shell import get_collection_endswith
 from source.formats.ms2.compounds.packing_utils import PACKEDVEC_MAX
 
 
@@ -82,8 +82,7 @@ def save(filepath='', apply_transforms=False, update_rig=False, use_stock_normal
 		bounds = []
 		lod_collections = []
 		for lod_i in range(6):
-			lod_group_name = f"{scene.name}_LOD{lod_i}"
-			lod_coll = get_collection(lod_group_name)
+			lod_coll = get_collection_endswith(scene, f"_LOD{lod_i}")
 			if not lod_coll:
 				break
 			lod_collections.append(lod_coll)

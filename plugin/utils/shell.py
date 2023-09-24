@@ -102,8 +102,7 @@ def copy_ob(src_obj, lod_group_name):
 def ob_processor_wrapper(func):
 	msgs = []
 	for lod_i in range(6):
-		lod_group_name = f"LOD{lod_i}"
-		coll = get_collection(lod_group_name)
+		coll = get_collection_endswith(bpy.context.scene, f"_LOD{lod_i}")
 		if coll is None:
 			return msgs
 		src_obs = [ob for ob in coll.objects if is_shell(ob)]
@@ -123,10 +122,10 @@ def gauge_uv_scale_wrapper():
 	return ob_processor_wrapper(gauge_uv_factors)
 
 
-def get_collection(name):
+def get_collection_endswith(scene, suffix):
 	# get collections in scene root collection
-	for coll in bpy.context.scene.collection.children:
-		if name in coll.name:
+	for coll in scene.collection.children:
+		if coll.name.endswith(suffix):
 			return coll
 
 

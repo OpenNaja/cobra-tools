@@ -8,7 +8,7 @@ from generated.formats.ms2.compounds.packing_utils import unpack_swizzle
 from generated.formats.ovl_base import OvlContext
 from generated.formats.voxelskirt.compounds.VoxelskirtRoot import VoxelskirtRoot
 from plugin.utils.node_util import load_img
-from plugin.utils.object import mesh_from_data, create_ob, get_collection
+from plugin.utils.object import mesh_from_data, create_ob, create_collection
 
 
 def append_subsurf_modifiers(b_obj, num):
@@ -107,7 +107,7 @@ def load(filepath=""):
 				append_displacement_modifier(map_ob, b_tex)
 
 	for entity_group in vox.entity_groups.data:
-		coll = get_collection(scene, f"{entity_group.name}")
+		coll = create_collection(scene, f"{entity_group.name}")
 		if entity_group.entity_instances:
 			for i, entity_instance in enumerate(entity_group.entity_instances.data):
 				ob = create_ob(bpy.context.scene, f"{entity_group.name}_{i}", None, coll=coll)
