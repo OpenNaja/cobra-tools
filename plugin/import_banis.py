@@ -95,7 +95,8 @@ def animate_core(anim_sys, bones_table, bani, scene, b_armature_ob, parent_index
 			# key = inv_bind @ key @ bind
 			# key = bind @ key @ inv_bind
 			# this maybe adds the loc transforms, doesn't seem to correctly transform rot ??
-			key = key @ binds[bone_i]
+			# key = key @ binds[bone_i]
+			key.translation += binds[bone_i].translation
 			# store the posed armature space matrix
 			posed_armature_space[bone_i] = corrector.nif_bind_to_blender_bind(key)
 		if use_armature:

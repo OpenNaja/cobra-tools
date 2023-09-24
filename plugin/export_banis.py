@@ -1,4 +1,5 @@
 import logging
+import math
 
 import bpy
 import mathutils
@@ -76,11 +77,22 @@ def save(filepath=""):
 
 			#  make key relative to local bone bind
 			for bone_i, bone_name in bones_table:
+				# if frame_i == 50 and bone_name == "def_c_meat11_joint":
+				# 	print(bones_local_mat[bone_i])
+				# 	print(posed_local_space[bone_i])
+				# 	print(bones_local_mat[bone_i] @ posed_local_space[bone_i])
 				posed_local_space[bone_i] = bones_local_mat[bone_i] @ posed_local_space[bone_i]
 			# make posed armature space matrices relative to posed parent
 			for bone_i, parent_i in enumerate(parent_index_map):
 				if parent_i is not None:
-					posed_armature_space[bone_i] = posed_local_space[parent_i] @ posed_local_space[bone_i]
+					if frame_i in (0, 50) and bone_i == 11:
+						print(frame_i)
+						print(posed_local_space[bone_i])
+						print(posed_local_space[parent_i])
+						print(posed_local_space[parent_i] @ posed_local_space[bone_i])
+						print(posed_local_space[bone_i] @ posed_local_space[parent_i])
+					# nb flipped vs import!!
+					posed_armature_space[bone_i] = posed_local_space[bone_i] @ posed_local_space[parent_i]
 				else:
 					posed_armature_space[bone_i] = posed_local_space[bone_i]
 			# take and store the key
@@ -88,9 +100,11 @@ def save(filepath=""):
 				# get the posed armature space matrix
 				key = corrector.blender_bind_to_nif_bind(posed_armature_space[bone_i])
 				# this maybe adds the loc transforms, doesn't seem to correctly transform rot ??
-				key = key @ binds[bone_i].inverted()
+				# key = binds[bone_i].inverted() @ key
+				# key = key @ binds[bone_i].inverted()
+				key.translation -= binds[bone_i].translation
 				frame["loc"][bone_i] = key.translation
-				frame["euler"][bone_i] = key.to_euler()
+				frame["euler"][bone_i] = [math.degrees(v) for v in key.to_euler()]
 
 	banis.save(filepath)
 	print(banis)
