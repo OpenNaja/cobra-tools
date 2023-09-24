@@ -85,14 +85,14 @@ def save(filepath=""):
 			# make posed armature space matrices relative to posed parent
 			for bone_i, parent_i in enumerate(parent_index_map):
 				if parent_i is not None:
-					if frame_i in (0, 50) and bone_i == 11:
-						print(frame_i)
-						print(posed_local_space[bone_i])
-						print(posed_local_space[parent_i])
-						print(posed_local_space[parent_i] @ posed_local_space[bone_i])
-						print(posed_local_space[bone_i] @ posed_local_space[parent_i])
+					# if frame_i in (0, 50) and bone_i == 11:
+					# 	print(frame_i)
+					# 	print(posed_local_space[bone_i])
+					# 	print(posed_local_space[parent_i])
+					# 	print(posed_local_space[parent_i] @ posed_local_space[bone_i])
+					# 	print(posed_local_space[bone_i] @ posed_local_space[parent_i])
 					# nb flipped vs import!!
-					posed_armature_space[bone_i] = posed_local_space[bone_i] @ posed_local_space[parent_i]
+					posed_armature_space[bone_i] = posed_local_space[parent_i] @ posed_local_space[bone_i]
 				else:
 					posed_armature_space[bone_i] = posed_local_space[bone_i]
 			# take and store the key
