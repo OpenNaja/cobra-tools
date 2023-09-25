@@ -210,13 +210,21 @@ class BaseFile:
 				p_pool.replace_bytes_at(p_offset, byte_name_tups)
 		except:
 			logging.exception(f"Renaming frags failed for {self.name}")
+			
+	@staticmethod
+	def _rename(name_tuples, s):
+		for old, new in name_tuples:
+			s = s.replace(old, new)
+		return s
+	
+	def rename_check(self, name_tuples):
+		"""Returns str if name changed, none if it stayed the same"""
+		new_name = self._rename(name_tuples, self.name)
+		if new_name != self.name:
+			return new_name
 
 	def rename(self, name_tuples):
 		"""Rename all entries controlled by this loader"""
-		def _rename(s):
-			for old, new in name_tuples:
-				s = s.replace(old, new)
-			return s
 		entries = []
 		for data_entry in self.data_entries.values():
 			entries.extend((data_entry, *data_entry.buffers))
@@ -224,17 +232,17 @@ class BaseFile:
 			if UNK_HASH in entry.name:
 				logging.warning(f"Skipping {entry.file_hash} because its hash could not be resolved to a name")
 				return
-			entry.name = _rename(entry.name)
-		self.target_name = _rename(self.target_name)
-		self.name = _rename(self.name)
-		self.aux_entries = [_rename(aux) for aux in self.aux_entries]
-		self.dependencies = [(_rename(dep), ptr) for dep, ptr in self.dependencies]
+			entry.name = self._rename(name_tuples, entry.name)
+		self.target_name = self._rename(name_tuples, self.target_name)
+		self.name = self._rename(name_tuples, self.name)
+		self.aux_entries = [self._rename(name_tuples, aux) for aux in self.aux_entries]
+		self.dependencies = [(self._rename(name_tuples, dep), ptr) for dep, ptr in self.dependencies]
 		# dependencies in stack & pools' link tables
 		for (p_pool, p_offset), children in self.stack.items():
 			for rel_offset, entry in children.items():
 				if isinstance(entry, str):
-					children[rel_offset] = _rename(entry)
-					p_pool.offset_2_link[p_offset+rel_offset] = _rename(entry)
+					children[rel_offset] = self._rename(name_tuples, entry)
+					p_pool.offset_2_link[p_offset+rel_offset] = self._rename(name_tuples, entry)
 		# force an update to get the memstruct up to date
 		if self.dependencies:
 			self.collect()

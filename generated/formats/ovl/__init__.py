@@ -5,6 +5,7 @@ import os
 import re
 import struct
 import zlib
+from collections import Counter
 from contextlib import contextmanager
 from io import BytesIO
 
@@ -98,7 +99,12 @@ class OvsFile(OvsHeader):
 				if not entry.name:
 					logging.warning(f"{entry} has no name assigned to it, cannot assign proper ID")
 					continue
-				loader = self.ovl.loaders[entry.name]
+				try:
+					loader = self.ovl.loaders[entry.name]
+				except KeyError:
+					# raise KeyError(f"No loader for '{entry.name}' ({type(entry).__name__})")
+					logging.warning(f"No loader for '{entry.name}' ({type(entry).__name__})")
+					continue
 				if self.ovl.user_version.use_djb:
 					entry.file_hash = loader.file_hash
 				else:
@@ -168,8 +174,8 @@ class OvsFile(OvsHeader):
 
 	@staticmethod
 	def transfer_identity(source_entry, target_entry):
-		source_entry.basename, source_entry.ext = os.path.splitext(target_entry.name)
 		source_entry.name = target_entry.name
+		source_entry.basename, source_entry.ext = os.path.splitext(source_entry.name)
 		source_entry.file_hash = target_entry.file_hash
 		source_entry.ext_hash = target_entry.ext_hash
 
@@ -282,8 +288,9 @@ class OvsFile(OvsHeader):
 				else:
 					logging.warning(f"Could not find loader to get name for Pool[{pool_index}] type {pool.type} at offset {first_offset}")
 					continue
-				logging.debug(f"Pool[{pool_index}]: {pool.name} -> '{loader.name}'")
+				logging.debug(f"Pool[{pool_index}]: '{pool.name}' -> '{loader.name}'")
 				self.transfer_identity(pool, loader)
+				# logging.debug(f"Pool[{pool_index}]: '{pool.name}' (renamed)")
 				# make sure that all pools are padded already before writing
 				pool.pad()
 			else:
@@ -545,9 +552,25 @@ class OvlFile(Header):
 		# todo - support renaming included_ovls?
 		# make a temporary copy
 		temp_loaders = list(self.loaders.values())
+		# see if the loaders would cause collisions
+		loaders_to_rename = []
 		for loader in temp_loaders:
 			if mesh_mode and loader.ext not in (".ms2", ".mdl2", ".motiongraph", ".motiongraphvars"):
 				continue
+			loaders_to_rename.append(loader)
+		# get new names for all loaders, unchanged name is None
+		new_names = [loader.rename_check(name_tups) for loader in loaders_to_rename if loader.rename_check(name_tups)]
+		# check the new names don't collide
+		if len(new_names) != len(set(new_names)):
+			counted = Counter(new_names)
+			dupes = [k for k, v in counted.items() if v > 1]
+			dupes_str = "\n".join(dupes)
+			raise NameError(
+				f"Can not rename, as new names collide with each other:\n"
+				f"{dupes_str}"
+			)
+		assert not any([new in self.loaders for new in new_names]), "Can not rename, as new names collide with existing names"
+		for loader in loaders_to_rename:
 			loader.rename(name_tups)
 		# recreate the loaders dict
 		self.loaders = {loader.name: loader for loader in temp_loaders}
