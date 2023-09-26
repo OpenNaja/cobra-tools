@@ -101,8 +101,8 @@ def save(filepath=""):
 				key = corrector.blender_bind_to_nif_bind(posed_armature_space[bone_i])
 				# this maybe adds the loc transforms, doesn't seem to correctly transform rot ??
 				# key = binds[bone_i].inverted() @ key
-				# key = key @ binds[bone_i].inverted()
-				key.translation -= binds[bone_i].translation
+				key = key @ binds[bone_i].inverted()
+				# key.translation += binds[bone_i].translation
 				frame["loc"][bone_i] = key.translation
 				frame["euler"][bone_i] = [math.degrees(v) for v in key.to_euler()]
 

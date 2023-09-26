@@ -6,6 +6,9 @@ import os
 import math
 import numpy as np
 
+# +-
+rot_range = 180
+
 
 def export_key(key):
 	# this seems to be a modulo equivalent
@@ -56,7 +59,7 @@ class BanisFile(BanisInfoHeader, IoFile):
 			stream.readinto(keys_packed)
 			keys_float = keys_packed.astype(self.dt_float)
 			print(keys_packed[0, :, ])
-			keys_float["euler"] = keys_float["euler"] / 32767.0 * 180
+			keys_float["euler"] = keys_float["euler"] / 32767.0 * rot_range
 			# keys_float["euler"] = keys_float["euler"] / 32768.0 * 180 + 90.0
 			keys_float["euler"][:, :, 0] += 90.0
 			keys_float["euler"][:, :, 1] += 90.0
@@ -101,7 +104,10 @@ class BanisFile(BanisInfoHeader, IoFile):
 		keys_float["euler"][:, :, 0] -= 90.0
 		keys_float["euler"][:, :, 1] -= 90.0
 		keys_float["euler"][:, :, 2] += 90.0
-		keys_float["euler"] = keys_float["euler"] * 32767.0 / 180
+		# wrap if they exceed the valid range
+		keys_float["euler"][keys_float["euler"] > rot_range] -= rot_range
+		keys_float["euler"][keys_float["euler"] < -rot_range] += rot_range
+		keys_float["euler"] = keys_float["euler"] * 32767.0 / rot_range
 		# round parts separately
 		keys_float["euler"].round(out=keys_float["euler"])
 		keys_float["loc"].round(out=keys_float["loc"])
