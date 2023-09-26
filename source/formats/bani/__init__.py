@@ -104,8 +104,8 @@ class BanisFile(BanisInfoHeader, IoFile):
 		keys_float["euler"][:, :, 1] -= 90.0
 		keys_float["euler"][:, :, 2] += 90.0
 		# wrap if they exceed the valid range
-		keys_float["euler"][keys_float["euler"] > rot_range] -= rot_range
-		keys_float["euler"][keys_float["euler"] < -rot_range] += rot_range
+		keys_float["euler"][keys_float["euler"] > rot_range] -= (2*rot_range)
+		keys_float["euler"][keys_float["euler"] < -rot_range] += (2*rot_range)
 		keys_float["euler"] = keys_float["euler"] * 32767.0 / rot_range
 		# round parts separately
 		keys_float["euler"].round(out=keys_float["euler"])
