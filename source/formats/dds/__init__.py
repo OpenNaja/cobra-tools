@@ -129,7 +129,7 @@ class DdsFile(Header, IoFile):
                 # get count of h slices, 1 block is 4x4 px, sub-block sizes require a whole block
                 num_lines = self.pad_block(height) // self.block_len_pixels_1d
                 bytes_per_line = tile_byte_size // num_lines
-                # logging.debug(f"tile {tile_i}, offset {mip_offset}, height {height}, width {width}")
+                logging.debug(f"tile {tile_i}, height {height}, width {width}, num_lines {num_lines}")
                 # anything with less than LINE_BYTES gets padding
                 padding_per_line = get_padding_size(bytes_per_line, alignment=LINE_BYTES)
                 # logging.debug(
@@ -140,7 +140,7 @@ class DdsFile(Header, IoFile):
                     yield mip_i, tile_i, bytes_per_line, padding_per_line
 
                 # add one fully blank line as padding for odd line counts (ie. last mip)
-                if num_lines % 2:
+                if num_lines < 2:
                     yield mip_i, tile_i, 0, LINE_BYTES
 
     def get_packed_mips(self, mip_infos):
@@ -153,6 +153,7 @@ class DdsFile(Header, IoFile):
         for mip_i, tile_i, data_size, padding_size in self.mip_pack_generator():
             # logging.debug(f"Reading mip {mip_i} {data_size} bytes at {dds.tell()}")
             data = dds.read(data_size)
+            # note that this could fail if the levels are already bugged as any padding added to the end overrides the actual value
             # this is per scan line
             mip_infos[mip_i].size_scan = data_size + padding_size
             if data_size:
