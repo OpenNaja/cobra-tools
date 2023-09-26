@@ -8,7 +8,8 @@ import numpy as np
 
 # +-
 rot_range = 180
-
+short_range = 32767
+ushort_range = 65535
 
 def export_key(key):
 	# this seems to be a modulo equivalent
@@ -37,6 +38,7 @@ class BaniContext(object):
 class BanisFile(BanisInfoHeader, IoFile):
 	dt_packed = np.dtype([
 		("euler", np.short, (3,)),
+		# ("euler", np.ushort, (3,)),
 		("loc", np.ushort, (3,)),
 	])
 	dt_float = np.dtype([
@@ -59,11 +61,16 @@ class BanisFile(BanisInfoHeader, IoFile):
 			stream.readinto(keys_packed)
 			keys_float = keys_packed.astype(self.dt_float)
 			print(keys_packed[0, :, ])
-			keys_float["euler"] = keys_float["euler"] / 32767.0 * rot_range
-			# keys_float["euler"] = keys_float["euler"] / 32768.0 * 180 + 90.0
+			keys_float["euler"] = keys_float["euler"] / short_range * rot_range
+			# keys_float["euler"] = (keys_float["euler"] - short_range) / short_range * rot_range
+			# short
 			keys_float["euler"][:, :, 0] += 90.0
 			keys_float["euler"][:, :, 1] += 90.0
 			keys_float["euler"][:, :, 2] -= 90.0
+			# ushort
+			# keys_float["euler"][:, :, 0] -= 90.0
+			# keys_float["euler"][:, :, 1] -= 90.0
+			# keys_float["euler"][:, :, 2] += 90.0
 			# [[[89.9945  1.0162 89.9945]
 			#   [89.978  -2.7026 90.5548]
 			#   [89.978  -2.7026 90.5548]
@@ -98,16 +105,24 @@ class BanisFile(BanisInfoHeader, IoFile):
 		# choose loc scale to spread loc range across 0 - 65535
 		# todo - make 0.0 land on 32767.0, seems to be that way in stock
 		self.data.loc_min = np.min(keys_float["loc"])
-		self.data.loc_scale = (np.max(keys_float["loc"]) - self.data.loc_min) / 65535
+		self.data.loc_scale = (np.max(keys_float["loc"]) - self.data.loc_min) / ushort_range
 		keys_float["loc"] = (keys_float["loc"] - self.data.loc_min) / self.data.loc_scale
 
+		# short
 		keys_float["euler"][:, :, 0] -= 90.0
 		keys_float["euler"][:, :, 1] -= 90.0
 		keys_float["euler"][:, :, 2] += 90.0
+		# ushort
+		# keys_float["euler"][:, :, 0] += 90.0
+		# keys_float["euler"][:, :, 1] += 90.0
+		# keys_float["euler"][:, :, 2] -= 90.0
 		# wrap if they exceed the valid range
 		keys_float["euler"][keys_float["euler"] > rot_range] -= (2*rot_range)
 		keys_float["euler"][keys_float["euler"] < -rot_range] += (2*rot_range)
-		keys_float["euler"] = keys_float["euler"] * 32767.0 / rot_range
+		print(np.min(keys_float["euler"]), np.max(keys_float["euler"]))
+		keys_float["euler"] = keys_float["euler"] * short_range / rot_range
+		# keys_float["euler"] = keys_float["euler"] * short_range / rot_range + short_range
+		print(np.min(keys_float["euler"]), np.max(keys_float["euler"]))
 		# round parts separately
 		keys_float["euler"].round(out=keys_float["euler"])
 		keys_float["loc"].round(out=keys_float["loc"])
