@@ -61,7 +61,7 @@ class FgmLoader(MemStructLoader):
 			for i, tex in enumerate([t for t in self.header.textures.data if t.dtype == FgmDtype.TEXTURE]):
 				tex.value[0]._tex_index = i
 			value_offset = 0
-			for attrib, attrib_data in zip(self.header.attributes.data, self.header.attributes.data):
+			for attrib in self.header.attributes.data:
 				attrib._value_offset = value_offset
 				value_offset += attrib_sizes[attrib.dtype]
 			return names_writer.getvalue()

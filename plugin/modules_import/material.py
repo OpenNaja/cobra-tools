@@ -5,6 +5,8 @@ import sys
 import bpy
 import os
 
+import numpy as np
+
 from generated.formats.fgm.compounds.FgmHeader import FgmHeader
 from generated.formats.fgm.enums.FgmDtype import FgmDtype
 from generated.formats.ovl_base import OvlContext
@@ -295,6 +297,23 @@ def load_material_from_libraries(created_materials, matname):
 				load_material_from_asset_library(created_materials, library, matname)
 
 
+def get_color_ramp(fgm, prefix, suffix):
+	for attrib, attrib_data in zip(fgm.attributes.data, fgm.value_foreach_attributes.data):
+		if prefix in attrib.name and attrib.name.endswith(suffix):
+			yield attrib_data.value
+
+
+def flat_pos(in_pos):
+	offset = 0
+	for i in in_pos:
+		key_pos = int(i)
+		if key_pos > -1:
+			offset += int(i)
+			yield offset
+		else:
+			yield 255
+
+
 def create_material(in_dir, matname):
 	logging.info(f"Importing material {matname}")
 	b_mat = bpy.data.materials.new(matname)
@@ -313,19 +332,28 @@ def create_material(in_dir, matname):
 	output = tree.nodes.new('ShaderNodeOutputMaterial')
 	principled = tree.nodes.new('ShaderNodeBsdfPrincipled')
 
-	# color_ramp = fgm_data.get_color_ramp("colourKey", "RGB")
-	# opacity_ramp = fgm_data.get_color_ramp("opacityKey", "Value")
-	# if color_ramp and opacity_ramp:
-	# 	# print(color_ramp, list(zip(color_ramp)))
-	# 	positions, colors = zip(*color_ramp)
-	# 	positions_2, opacities = zip(*color_ramp)
-	# 	ramp = tree.nodes.new('ShaderNodeValToRGB')
-	# 	for position, color, opacity in zip(positions, colors, opacities):
-	# 		print(position, color, opacity)
-	# 		pos_relative = (position-min(positions)) / (max(positions)-min(positions))
-	# 		e = ramp.color_ramp.elements.new(pos_relative)
-	# 		e.color[:3] = color
-	# 		e.alpha = opacity[0]
+	# get color gradient for JWE2 patterns
+	colors = list(get_color_ramp(fgm_data, "colourKey", "RGB"))
+	colors_pos = list(get_color_ramp(fgm_data, "colourKey", "Position"))
+	opacity_ramp = list(get_color_ramp(fgm_data, "opacityKey", "Value"))
+	opacity_pos = list(get_color_ramp(fgm_data, "opacityKey", "Position"))
+	if colors and opacity_ramp:
+		colors_pos = list(flat_pos(colors_pos))
+		opacity_pos = list(flat_pos(opacity_pos))
+		all_keys = list(sorted(set(colors_pos + opacity_pos)))
+		rs, gs, bs = zip(*colors)
+		all_rs = np.interp(all_keys, colors_pos, rs)
+		all_gs = np.interp(all_keys, colors_pos, gs)
+		all_bs = np.interp(all_keys, colors_pos, bs)
+		opacity_sampled = np.interp(all_keys, opacity_pos, [float(x) for x in opacity_ramp])
+		rgb_sampled = zip(all_rs, all_gs, all_bs)
+		ramp = tree.nodes.new('ShaderNodeValToRGB')
+		for position, color, opacity in zip(all_keys, rgb_sampled, opacity_sampled):
+			# print(position, color, opacity)
+			# pos_relative = (position-min(positions)) / (max(positions)-min(positions))
+			e = ramp.color_ramp.elements.new(position / 255)
+			e.color[:3] = color
+			e.alpha = opacity
 	try:
 		b_mat["shader_name"] = fgm_data.shader_name
 		shader = pick_shader(fgm_data)
