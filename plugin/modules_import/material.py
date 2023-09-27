@@ -303,7 +303,7 @@ def get_color_ramp(fgm, prefix, suffix):
 			yield attrib_data.value
 
 
-def flat_pos(in_pos):
+def flat_pos2(in_pos):
 	offset = 0
 	for i in in_pos:
 		key_pos = int(i)
@@ -312,6 +312,15 @@ def flat_pos(in_pos):
 			yield offset
 		else:
 			yield 255
+
+
+def flat_pos(in_pos):
+	for i in in_pos:
+		key_pos = int(i)
+		if key_pos > -1:
+			yield key_pos
+		else:
+			yield 32
 
 
 def create_material(in_dir, matname):
@@ -349,9 +358,7 @@ def create_material(in_dir, matname):
 		rgb_sampled = zip(all_rs, all_gs, all_bs)
 		ramp = tree.nodes.new('ShaderNodeValToRGB')
 		for position, color, opacity in zip(all_keys, rgb_sampled, opacity_sampled):
-			# print(position, color, opacity)
-			# pos_relative = (position-min(positions)) / (max(positions)-min(positions))
-			e = ramp.color_ramp.elements.new(position / 255)
+			e = ramp.color_ramp.elements.new(position / 32)
 			e.color[:3] = color
 			e.alpha = opacity
 	try:
