@@ -145,7 +145,7 @@ def get_split_mode(png_name, compression):
 	if check_any(("pbasenormaltexture", "pgradheightarray"), png_name):
 		return "RG_B_A"
 	if check_any((
-		"packedtexture", "playered_blendweights", "scartexture", "samplertexture",
+		"packedtexture", "playered_blendweights", "playered_diffusetexture", "playered_heighttexture", "playered_packedtexture", "playered_remaptexture", "scartexture", "samplertexture",
 		"pspecularmaptexture", "pflexicolourmaskstexture", "pshellmap", "pfinalphatexture", "ppiebaldtexture",
 		"pcavityroughnessdielectricarray"), png_name):
 		return "R_G_B_A"
