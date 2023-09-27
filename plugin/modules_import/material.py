@@ -342,22 +342,25 @@ def create_material(in_dir, matname):
 	principled = tree.nodes.new('ShaderNodeBsdfPrincipled')
 
 	# get color gradient for JWE2 patterns
-	colors = list(get_color_ramp(fgm_data, "colourKey", "RGB"))
+	colors_ramp = list(get_color_ramp(fgm_data, "colourKey", "RGB"))
 	colors_pos = list(get_color_ramp(fgm_data, "colourKey", "Position"))
 	opacity_ramp = list(get_color_ramp(fgm_data, "opacityKey", "Value"))
 	opacity_pos = list(get_color_ramp(fgm_data, "opacityKey", "Position"))
-	if colors and opacity_ramp:
-		colors_pos = list(flat_pos(colors_pos))
-		opacity_pos = list(flat_pos(opacity_pos))
-		all_keys = list(sorted(set(colors_pos + opacity_pos)))
-		rs, gs, bs = zip(*colors)
-		all_rs = np.interp(all_keys, colors_pos, rs)
-		all_gs = np.interp(all_keys, colors_pos, gs)
-		all_bs = np.interp(all_keys, colors_pos, bs)
-		opacity_sampled = np.interp(all_keys, opacity_pos, [float(x) for x in opacity_ramp])
+	if colors_ramp and opacity_ramp:
+		# rgb and a can have different positions, so we need to interpolate
+		# by design the pos keys are not necessarily ordered, so the pairs need to be pre-sorted before interpolation
+		colors_ramp, colors_pos = presort_keys(colors_ramp, colors_pos)
+		opacity_ramp, opacity_pos = presort_keys(opacity_ramp, opacity_pos)
+
+		all_pos = list(sorted(set(colors_pos + opacity_pos)))
+		rs, gs, bs = zip(*colors_ramp)
+		all_rs = np.interp(all_pos, colors_pos, rs)
+		all_gs = np.interp(all_pos, colors_pos, gs)
+		all_bs = np.interp(all_pos, colors_pos, bs)
+		opacity_sampled = np.interp(all_pos, opacity_pos, [t[0] for t in opacity_ramp])
 		rgb_sampled = zip(all_rs, all_gs, all_bs)
 		ramp = tree.nodes.new('ShaderNodeValToRGB')
-		for position, color, opacity in zip(all_keys, rgb_sampled, opacity_sampled):
+		for position, color, opacity in zip(all_pos, rgb_sampled, opacity_sampled):
 			e = ramp.color_ramp.elements.new(position / 32)
 			e.color[:3] = color
 			e.alpha = opacity
@@ -445,6 +448,15 @@ def create_material(in_dir, matname):
 	except:
 		logging.exception(f"Importing material {matname} failed")
 	return b_mat
+
+
+def presort_keys(colors, colors_pos):
+	"""np.interp expects sorted keys"""
+	colors = [tuple(t) for t in colors]
+	colors_pos = list(flat_pos(colors_pos))
+	pos_col = list(zip(colors_pos, colors))
+	colors_pos, colors = zip(*sorted(pos_col))
+	return colors, colors_pos
 
 
 def import_material(created_materials, in_dir, b_me, material):
