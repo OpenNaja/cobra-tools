@@ -337,10 +337,15 @@ def create_material(in_dir, matname):
 			("opacityKey", "Value")):
 		values = list(get_color_ramp(fgm_data, k, v))
 		positions = list(get_color_ramp(fgm_data, k, "Position"))
+		values, positions = presort_keys(values, positions)
 		if values and positions:
-			values, positions = presort_keys(values, positions)
 			ramp = tree.nodes.new('ShaderNodeValToRGB')
 			ramp.label = k
+			# alpha is forced to have a final key of 0.0 opacity
+			# color and emission hold their last key instead
+			if k == "opacityKey":
+				values.append((0.0,))
+				positions.append(32)
 			# remove the second elem - can't have less than 1
 			ramp.color_ramp.elements.remove(ramp.color_ramp.elements[-1])
 			# add required amount of elements
@@ -441,12 +446,14 @@ def create_material(in_dir, matname):
 
 def presort_keys(colors, colors_pos):
 	"""np.interp expects sorted keys"""
-	# colors = [tuple(t) for t in colors]
-	# colors_pos = list(flat_pos(colors_pos))
 	pos_col = list(zip(colors_pos, colors))
 	pos_col = [(p[0], tuple(c)) for p, c in pos_col if p[0] > -1]
-	colors_pos, colors = zip(*sorted(pos_col))
-	return list(colors), list(colors_pos)
+	# some have just -1 pos throughout
+	if pos_col:
+		colors_pos, colors = zip(*sorted(pos_col))
+		return list(colors), list(colors_pos)
+	else:
+		return (), ()
 
 
 def import_material(created_materials, in_dir, b_me, material):
