@@ -51,3 +51,4 @@ pUseOrenNayar = Use the Oren–Nayar reflectance model, which simulates light on
 pFinRimFade = Affects how the fins fade at the borders of the model, the lower the value the sooner it fades
 gLodFade = Distance in meters at which fur fades smoothly for LOD 0 and 1, respectively
 pAnisoNormalBend = Modifying this can cause dark specks that disappear in the shade
+pFurDepthScale = Increase to make the lower shell levels darker, creating a clumping effect
