@@ -303,17 +303,6 @@ def get_color_ramp(fgm, prefix, suffix):
 			yield attrib_data.value
 
 
-def flat_pos2(in_pos):
-	offset = 0
-	for i in in_pos:
-		key_pos = int(i)
-		if key_pos > -1:
-			offset += int(i)
-			yield offset
-		else:
-			yield 255
-
-
 def flat_pos(in_pos):
 	for i in in_pos:
 		key_pos = int(i)
@@ -341,29 +330,29 @@ def create_material(in_dir, matname):
 	output = tree.nodes.new('ShaderNodeOutputMaterial')
 	principled = tree.nodes.new('ShaderNodeBsdfPrincipled')
 
-	# get color gradient for JWE2 patterns
-	colors_ramp = list(get_color_ramp(fgm_data, "colourKey", "RGB"))
-	colors_pos = list(get_color_ramp(fgm_data, "colourKey", "Position"))
-	opacity_ramp = list(get_color_ramp(fgm_data, "opacityKey", "Value"))
-	opacity_pos = list(get_color_ramp(fgm_data, "opacityKey", "Position"))
-	if colors_ramp and opacity_ramp:
-		# rgb and a can have different positions, so we need to interpolate
-		# by design the pos keys are not necessarily ordered, so the pairs need to be pre-sorted before interpolation
-		colors_ramp, colors_pos = presort_keys(colors_ramp, colors_pos)
-		opacity_ramp, opacity_pos = presort_keys(opacity_ramp, opacity_pos)
-
-		all_pos = list(sorted(set(colors_pos + opacity_pos)))
-		rs, gs, bs = zip(*colors_ramp)
-		all_rs = np.interp(all_pos, colors_pos, rs)
-		all_gs = np.interp(all_pos, colors_pos, gs)
-		all_bs = np.interp(all_pos, colors_pos, bs)
-		opacity_sampled = np.interp(all_pos, opacity_pos, [t[0] for t in opacity_ramp])
-		rgb_sampled = zip(all_rs, all_gs, all_bs)
-		ramp = tree.nodes.new('ShaderNodeValToRGB')
-		for position, color, opacity in zip(all_pos, rgb_sampled, opacity_sampled):
-			e = ramp.color_ramp.elements.new(position / 32)
-			e.color[:3] = color
-			e.alpha = opacity
+	# get gradients for JWE2 patterns
+	for k, v in (
+			("colourKey", "RGB"),
+			("emissiveKey", "RGB"),
+			("opacityKey", "Value")):
+		values = list(get_color_ramp(fgm_data, k, v))
+		positions = list(get_color_ramp(fgm_data, k, "Position"))
+		if values and positions:
+			values, positions = presort_keys(values, positions)
+			ramp = tree.nodes.new('ShaderNodeValToRGB')
+			ramp.label = k
+			# remove the second elem - can't have less than 1
+			ramp.color_ramp.elements.remove(ramp.color_ramp.elements[-1])
+			# add required amount of elements
+			for n in range(len(values)-1):
+				ramp.color_ramp.elements.new(n / len(values))
+			# set proper position and color
+			for position, value, elem in zip(positions, values, ramp.color_ramp.elements):
+				elem.position = position / 32
+				if len(value) != 3:
+					value = (value[0], value[0], value[0])
+				elem.color[:3] = value
+				elem.alpha = 1.0
 	try:
 		b_mat["shader_name"] = fgm_data.shader_name
 		shader = pick_shader(fgm_data)
@@ -452,11 +441,12 @@ def create_material(in_dir, matname):
 
 def presort_keys(colors, colors_pos):
 	"""np.interp expects sorted keys"""
-	colors = [tuple(t) for t in colors]
-	colors_pos = list(flat_pos(colors_pos))
+	# colors = [tuple(t) for t in colors]
+	# colors_pos = list(flat_pos(colors_pos))
 	pos_col = list(zip(colors_pos, colors))
+	pos_col = [(p[0], tuple(c)) for p, c in pos_col if p[0] > -1]
 	colors_pos, colors = zip(*sorted(pos_col))
-	return colors, colors_pos
+	return list(colors), list(colors_pos)
 
 
 def import_material(created_materials, in_dir, b_me, material):
