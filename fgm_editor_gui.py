@@ -1,7 +1,6 @@
 import logging
 import os
 from gui import widgets, startup, GuiOptions  # Import widgets before everything except built-ins!
-from gui.widgets import QColorButton, MySwitch, MAX_UINT, get_icon
 from ovl_util import config
 from typing import Any, Optional
 
@@ -439,7 +438,7 @@ class TextureVisual:
 				self.w_dtype.setDisabled(True)
 
 		self.b_delete = QtWidgets.QPushButton()
-		self.b_delete.setIcon(get_icon("x"))
+		self.b_delete.setIcon(widgets.get_icon("x"))
 		self.b_delete.setFlat(True)
 		self.b_delete.setIconSize(QtCore.QSize(12, 12))
 		self.b_delete.setFixedSize(16, 16)
@@ -552,7 +551,7 @@ class TextureVisual:
 		self.data.value = np.array([x / 255 for x in c.getRgb()[:3]])
 
 	def create_rgb_field(self):
-		field = QColorButton()
+		field = widgets.QColorButton()
 		field.colorChanged.connect(self.update_rgb_field)
 		d = [int(np.rint(x * 255)) for x in self.data.value]
 		c = QColor(*d, 255)
@@ -578,13 +577,13 @@ class TextureVisual:
 
 		t = self.entry.dtype.name.lower()
 		if "rgba" in t:
-			field = QColorButton()
+			field = widgets.QColorButton()
 			# Create container for transparency background
 			frame = QtWidgets.QFrame()
 			frame.setObjectName("ColorFrame")
 			frame.setContentsMargins(0, 0, 0, 0)
 			layout = QtWidgets.QHBoxLayout()
-			layout.addWidget(QColorButton())
+			layout.addWidget(widgets.QColorButton())
 			layout.setContentsMargins(0, 0, 0, 0)
 			layout.setSpacing(0)
 			frame.setLayout(layout)
@@ -606,13 +605,13 @@ class TextureVisual:
 			field.setSingleStep(.05)
 			field.valueChanged.connect(update_ind)
 		elif "bool" in t:
-			field = MySwitch()
+			field = widgets.MySwitch()
 			field.clicked.connect(update_ind)
 		elif "int" in t:
 			default = int(default)
 			field = widgets.NoScrollDoubleSpinBox()
 			field.setDecimals(0)
-			field.setRange(-MAX_UINT, MAX_UINT)
+			field.setRange(-widgets.MAX_UINT, widgets.MAX_UINT)
 			field.valueChanged.connect(update_ind_int)
 		else:
 			raise AttributeError(f"Unsupported field type {t}")

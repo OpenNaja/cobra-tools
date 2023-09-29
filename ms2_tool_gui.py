@@ -1,12 +1,11 @@
 import time
 import logging
-from typing import Optional
 
 from gui import widgets, startup, GuiOptions  # Import widgets before everything except built-ins!
-from gui.widgets import get_icon
 from generated.formats.ms2 import Ms2File
-from PyQt5 import QtWidgets
 from generated.formats.ms2.versions import games
+from typing import Optional
+from PyQt5 import QtWidgets
 
 
 class MainWindow(widgets.MainWindow):
@@ -33,10 +32,10 @@ class MainWindow(widgets.MainWindow):
 		self.files_container.table.hideColumn(1)
 
 		# Configure table button row
-		self.btn_duplicate = widgets.SelectedItemsButton(self, icon=get_icon("duplicate_mesh"))
+		self.btn_duplicate = widgets.SelectedItemsButton(self, icon=widgets.get_icon("duplicate_mesh"))
 		self.btn_duplicate.clicked.connect(self.duplicate)
 		self.btn_duplicate.setToolTip("Duplicate Selected Meshes")
-		self.btn_delete = widgets.SelectedItemsButton(self, icon=get_icon("delete_mesh"))
+		self.btn_delete = widgets.SelectedItemsButton(self, icon=widgets.get_icon("delete_mesh"))
 		self.btn_delete.clicked.connect(self.remove)
 		self.btn_delete.setToolTip("Delete Selected Meshes")
 		# Add buttons to table
