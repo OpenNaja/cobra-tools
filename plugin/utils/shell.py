@@ -69,9 +69,10 @@ def create_lods():
 					shape_keyed.append(ob)
 				else:
 					decimated.append(ob)
-					# Decimating duplicated object
-					decimate = obj1.modifiers.new("Decimate", 'DECIMATE')
-					decimate.ratio = ratio
+					if len(b_me.polygons) > 3:
+						# Decimating duplicated object
+						decimate = obj1.modifiers.new("Decimate", 'DECIMATE')
+						decimate.ratio = ratio
 
 				# remove additional shell material from LODs after LOD1
 				if is_shell(ob) and lod_index > 1:
