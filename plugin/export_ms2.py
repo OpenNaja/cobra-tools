@@ -12,7 +12,7 @@ from generated.formats.ms2.compounds.Object import Object
 from generated.formats.ms2 import Ms2File, is_jwe2
 from plugin.modules_export.armature import get_armature, export_bones_custom
 from plugin.modules_export.collision import export_bounds, get_bounds
-from plugin.modules_export.geometry import export_model
+from plugin.modules_export.geometry import export_model, scale_bbox
 from plugin.modules_export.material import export_material
 from plugin.modules_import.armature import get_bone_names
 from plugin.utils.object import has_objects_in_scene, get_property
@@ -20,15 +20,17 @@ from plugin.utils.shell import get_collection_endswith
 from source.formats.ms2.compounds.packing_utils import PACKEDVEC_MAX
 
 
-def get_pack_base(b_obs):
+def get_pack_base(b_obs, apply_transforms=False):
 	"""Detect a suitable pack_base value depending on the bounds of b_obs"""
 	# todo JWE2 perhaps supports unique pack_base per vert_chunk
-	bounds = [ob.bound_box for ob in b_obs]
+	bounds = [scale_bbox(ob, apply_transforms) for ob in b_obs]
 	bounds_max, bounds_min = get_bounds(bounds)
 	coord_min = np.min(bounds_min)
 	coord_max = np.max(bounds_max)
+	# use some slight tolerance to avoid wrapping the edge values
+	tolerance = 1.05
 	for pack_base in [float(2 ** x) for x in range(1, 16)]:
-		if -pack_base < coord_min and coord_max < pack_base:
+		if -pack_base < coord_min*tolerance and coord_max*tolerance < pack_base:
 			return pack_base
 
 
@@ -90,7 +92,7 @@ def save(filepath='', apply_transforms=False, update_rig=False, use_stock_normal
 			lod_collections.append(lod_coll)
 		# set a default even when there are no models
 		if lod_collections and lod_collections[0].objects:
-			model_info.pack_base = get_pack_base(lod_collections[0].objects)
+			model_info.pack_base = get_pack_base(lod_collections[0].objects, apply_transforms)
 		else:
 			model_info.pack_base = 512.0
 		model_info.precision = model_info.pack_base / PACKEDVEC_MAX

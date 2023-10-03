@@ -55,7 +55,7 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 	# validate the mesh to get rid of degenerate geometry such as duplicate faces, which would trigger chunking asserts
 	eval_me.validate()
 	handle_transforms(eval_obj, eval_me, apply=apply_transforms)
-	bounds.append(eval_obj.bound_box)
+	bounds.append(scale_bbox(eval_obj, apply_transforms))
 
 	hair_length = get_hair_length(b_ob)
 	mesh.fur_length = hair_length
@@ -251,6 +251,15 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 	except ValueError:
 		raise AttributeError(f"Could not export {b_ob.name}!")
 	return wrapper
+
+
+def scale_bbox(b_ob, apply_transforms):
+	if apply_transforms:
+		# bound_box does not contain matrix_local transforms
+		bbox = [b_ob.matrix_local @ mathutils.Vector(vec) for vec in b_ob.bound_box]
+	else:
+		bbox = b_ob.bound_box
+	return bbox
 
 
 def pre_chunk(bones_table, eval_me, t_map, weights_data):
