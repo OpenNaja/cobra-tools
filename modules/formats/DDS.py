@@ -16,18 +16,6 @@ from ovl_util import texconv, imarray
 logging.getLogger('PIL').setLevel(logging.WARNING)
 
 
-def align_to(width, comp, alignment=64):
-	"""Return input padded to the next closer multiple of alignment"""
-	# get bpp from compression type
-	if "BC1" in comp or "BC4" in comp:
-		alignment *= 2
-	# print("alignment",alignment)
-	m = width % alignment
-	if m:
-		return width + alignment - m
-	return width
-
-
 class TexturestreamLoader(MemStructLoader):
 	extension = ".texturestream"
 	can_extract = False
@@ -277,11 +265,6 @@ class DdsLoader(MemStructLoader):
 
 		compression_type = DxgiFormat[self.compression_name]
 
-		# header attribs
-		if not is_ztuac(self.ovl):
-			# dds files store with padded width
-			dds_file.width = align_to(dds_file.width, self.compression_name)
-
 		# set compression
 		dds_file.dx_10.dxgi_format = compression_type
 
@@ -311,7 +294,7 @@ class DdsLoader(MemStructLoader):
 				png_path = texconv.dds_to_png(dds_path, self.compression_name)
 				# postprocessing of the png
 				if os.path.isfile(png_path):
-					out_files.extend(imarray.split_png(png_path, self.ovl, self.compression_name, size_info.width))
+					out_files.extend(imarray.split_png(png_path, self.ovl, self.compression_name))
 			except:
 				logging.exception(f"Postprocessing of {dds_path} failed!")
 		return out_files
