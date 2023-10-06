@@ -77,16 +77,22 @@ def channel_iter(channels):
 		ch_i += ch_count
 
 
-def split_png(png_file_path, ovl, compression=None):
+def split_png(png_file_path, ovl, compression=None, width=None):
 	"""Fixes normals and splits channels of one PNG file if needed"""
 	out_files = []
 	flip = has_vectors(png_file_path, compression)
 	channels = get_split_mode(png_file_path, compression)
+	must_cut = width
 	if is_ztuac(ovl):
 		flip = False
-	if flip or channels:
+	if flip or channels or must_cut:
 		logging.info(f"Splitting {png_file_path} into {channels} channels")
 		im = imread(png_file_path)
+		# this is a hotfix for non-power-of-2 texture widths
+		# essentially the tex packing should account for that
+		if must_cut:
+			# height, width, channels
+			im = im[:, :width, :]
 		if flip == "GB":
 			im = flip_gb(im)
 		if flip == "G":

@@ -279,6 +279,7 @@ class DdsLoader(MemStructLoader):
 
 		# header attribs
 		if not is_ztuac(self.ovl):
+			# dds files store with padded width
 			dds_file.width = align_to(dds_file.width, self.compression_name)
 
 		# set compression
@@ -310,7 +311,7 @@ class DdsLoader(MemStructLoader):
 				png_path = texconv.dds_to_png(dds_path, self.compression_name)
 				# postprocessing of the png
 				if os.path.isfile(png_path):
-					out_files.extend(imarray.split_png(png_path, self.ovl, self.compression_name))
+					out_files.extend(imarray.split_png(png_path, self.ovl, self.compression_name, size_info.width))
 			except:
 				logging.exception(f"Postprocessing of {dds_path} failed!")
 		return out_files
