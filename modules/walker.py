@@ -30,6 +30,31 @@ def walk_type(start_dir, extension=".ovl"):
 	return ret
 
 
+def filter_accept_official(ovl_path):
+	"""filter ovl files to only accept stock names, discard any user-made ovl that does not agree"""
+	# todo this varies per game (WH), refactor to share code with widgets.GamesWidget
+	valid_packages = ("GameMain", "Content")
+	if any(p in ovl_path for p in valid_packages):
+		return True
+	logging.warning(f"Ignoring user-made {ovl_path}")
+
+
+def filter_accept_all(ovl_path):
+	return True
+
+
+def search_for_files_in_ovls(gui, start_dir, search_str):
+	if start_dir:
+		with gui.reporter.log_duration(f"Searching"):
+			ovl_data = OvlFile()
+			ovl_files = walk_type(start_dir, extension=".ovl")
+			for of_index, ovl_path in enumerate(gui.reporter.iter_progress(ovl_files, "Hashing")):
+				file_names = ovl_data.load(ovl_path, commands={"generate_names": True})
+				for file_name in file_names:
+					if search_str in file_name:
+						yield ovl_path, file_name
+
+
 def generate_hash_table(gui, start_dir):
 	hashes = {}
 	if start_dir:
@@ -45,20 +70,15 @@ def generate_hash_table(gui, start_dir):
 			# plain arrays without fields, np vectorized arrays with tuple of field names
 			lists = {"mimes_name": (), "mimes_triplets": (), "mimes": ("mime_hash", "mime_version"), "files": ("pool_type", "set_pool_type")}
 
-			valid_packages = ("GameMain", "Content")
 			mimes = {}
-			# lod_counts = {}
 			error_files = []
 			ovl_files = walk_type(start_dir, extension=".ovl")
 			for of_index, ovl_path in enumerate(gui.reporter.iter_progress(ovl_files, "Hashing")):
-				# filter ovl files to only accept stock names, discard any usermade ovl that does not agree
-				if not any(p in ovl_path for p in valid_packages):
-					logging.warning(f"Ignoring usermade {ovl_path}")
+				if not filter_accept_official(ovl_path):
 					continue
 				try:
 					# read ovl file
 					new_hashes, new_exts = ovl_data.load(ovl_path, commands={"generate_hash_table": hash_exts})
-					# lod_counts[(ovl_data.num_ovs_types, ovl_data.num_archives)] = ovl_path
 					all_deps_exts.update(new_exts)
 					for list_id, attribs in lists.items():
 						array = getattr(ovl_data, list_id)
@@ -93,7 +113,6 @@ def generate_hash_table(gui, start_dir):
 			write_hashes_dict(os.path.join(out_dir, "hashes.py"), hashes)
 			write_mimes_dict(os.path.join(out_dir, "mimes.py"), mimes)
 		logging.info(f"Formats used in dependencies: {[s.replace(':', '.') for s in sorted(all_deps_exts)]}")
-		# logging.info(lod_counts)
 
 
 def get_output_dir(start_dir):

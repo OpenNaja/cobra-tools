@@ -819,6 +819,8 @@ class OvlFile(Header):
 				filtered_hash_table = {h: basename for h, basename, ext in zip(
 					self.files["file_hash"], self.files_basename, self.files_ext) if ext in deps_exts}
 				return filtered_hash_table, set(self.dependencies_ext)
+			elif "generate_names" in self.commands:
+				return self.files_name
 			else:
 				self.reporter.files_list.emit([[f, e] for f, e in zip(self.files_name, self.files_ext)])
 				self.mimes_version = self.mimes["mime_version"]

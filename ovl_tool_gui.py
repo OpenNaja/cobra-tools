@@ -36,7 +36,11 @@ class MainWindow(widgets.MainWindow):
 
 		if "games" not in self.cfg:
 			self.cfg["games"] = {}
-		self.installed_games = widgets.GamesWidget(self, game_chosen_fn=self.populate_game, file_dbl_click_fn=self.open_clicked_file)
+		self.installed_games = widgets.GamesWidget(
+			self,
+			game_chosen_fn=self.populate_game,
+			file_dbl_click_fn=self.open_clicked_file,
+			search_content_fn=self.search_ovl_contents)
 
 		# create the table
 		self.files_container = widgets.SortableTable(["Name", "File Type"], self.ovl_data.formats_dict.ignore_types,
@@ -56,6 +60,7 @@ class MainWindow(widgets.MainWindow):
 		left_frame = QtWidgets.QWidget()
 		hbox = QtWidgets.QVBoxLayout()
 		hbox.addWidget(self.installed_games)
+		hbox.addWidget(self.installed_games.search)
 		hbox.addWidget(self.installed_games.dirs)
 		hbox.setContentsMargins(0, 0, 1, 0)
 		hbox.setSizeConstraint(QtWidgets.QVBoxLayout.SizeConstraint.SetNoConstraint)
@@ -230,6 +235,11 @@ class MainWindow(widgets.MainWindow):
 
 	def do_debug_changed(self, do_debug):
 		self.ovl_data.do_debug = do_debug
+
+	def search_ovl_contents(self, search_str):
+		start_dir = self.installed_games.get_root()
+		for ovl, filename in walker.search_for_files_in_ovls(self, start_dir, search_str):
+			logging.success(f"found {ovl}: {filename}")
 
 	def notify_user(self, msg_list):
 		msg = msg_list[0]
