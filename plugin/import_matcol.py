@@ -259,7 +259,7 @@ def create_material(matcol_path):
 	principled = tree.nodes.new('ShaderNodeBsdfPrincipled')
 
 	textures = []
-	for i, slot in enumerate(slots):
+	for i, slot in enumerate(slots, start=1):
 		logging.info(f"Slot {i}")
 		# Until better option to organize the shader info, create texture group node
 		slot_frame = tree.nodes.new('NodeFrame')
