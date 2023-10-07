@@ -33,8 +33,8 @@ def create_height():
 	group_inputs = test_group.nodes.new('NodeGroupInput')
 	group_inputs.location = (-350, 0)
 	test_group.inputs.new('NodeSocketFloat', 'texture')
-	test_group.inputs.new('NodeSocketFloat', 'heightBlendScaleA')
-	test_group.inputs.new('NodeSocketFloat', 'heightBlendScaleB')
+	# test_group.inputs.new('NodeSocketFloat', 'heightBlendScaleA')
+	# test_group.inputs.new('NodeSocketFloat', 'heightBlendScaleB')
 	test_group.inputs.new('NodeSocketFloat', 'heightOffset')
 	test_group.inputs.new('NodeSocketFloat', 'heightScale')
 
@@ -56,21 +56,15 @@ def create_height():
 	test_group.links.new(heightScale.outputs[0], heightOffset.inputs[0])
 	test_group.links.new(group_inputs.outputs["heightOffset"], heightOffset.inputs[1])
 
-	heightBlendScale = test_group.nodes.new('ShaderNodeMapRange')
-	heightBlendScale.label = "heightBlendScale"
-	heightBlendScale.clamp = False
-	test_group.links.new(heightOffset.outputs[0], heightBlendScale.inputs[0])
-	test_group.links.new(group_inputs.outputs["heightBlendScaleA"], heightBlendScale.inputs[1])
-	test_group.links.new(group_inputs.outputs["heightBlendScaleB"], heightBlendScale.inputs[2])
+	# heightBlendScale = test_group.nodes.new('ShaderNodeMapRange')
+	# heightBlendScale.label = "heightBlendScale"
+	# heightBlendScale.clamp = False
+	# test_group.links.new(heightOffset.outputs[0], heightBlendScale.inputs[0])
+	# test_group.links.new(group_inputs.outputs["heightBlendScaleA"], heightBlendScale.inputs[1])
+	# test_group.links.new(group_inputs.outputs["heightBlendScaleB"], heightBlendScale.inputs[2])
 
-	scale = test_group.nodes.new('ShaderNodeMath')
-	scale.label = "scale"
-	scale.operation = 'MULTIPLY'
-	test_group.links.new(heightBlendScale.outputs[0], scale.inputs[0])
-	scale.inputs[1].default_value = 2.0
-
-	# #link output
-	test_group.links.new(scale.outputs[0], group_outputs.inputs['texture'])
+	# link output
+	test_group.links.new(heightOffset.outputs[0], group_outputs.inputs['texture'])
 
 	nodes_iterate(test_group, group_outputs)
 	return test_group
@@ -259,53 +253,60 @@ def create_material(matcol_path):
 	principled = tree.nodes.new('ShaderNodeBsdfPrincipled')
 
 	textures = []
-	for i, slot in enumerate(slots):
-		logging.info(f"Slot {i}")
+	for i, slot in enumerate(slots, start=1):
+		logging.info(f"Slot {i:02d}")
+		# Until better option to organize the shader info, create texture group node
+		slot_frame = tree.nodes.new('NodeFrame')
+		slot_frame.label = f"Slot {i:02d}"
+
 		# load the tiled height_texture
 		tex = load_tex_node(tree, slot.height_tile_png_path)
+		tex.image.colorspace_settings.name = "Non-Color"
+		# scales for the tile
+		heightScale = tree.nodes.new('ShaderNodeMath')
+		heightScale.label = f"heightScaleOffset{i:02d}"
+		heightScale.operation = 'MULTIPLY_ADD'
+		heightScale.parent = slot_frame
+		tree.links.new(tex.outputs[0], heightScale.inputs["Value"])
+		heightScale.inputs[1].default_value = slot.lut["heightscale"]
+		# nb heightoffset currently does not influence the result visibly because we are not really height blending
+		heightScale.inputs[2].default_value = slot.lut["heightoffset"]
+
 		# load the blendweights layer mask
 		mask = load_tex_node(tree, slot.mask_png_path)
-
-		# # height offset attribute
-		# print([i for i in infos[1].info.value][:2])
+		mask.image.colorspace_settings.name = "Non-Color"
+		tex.parent = slot_frame
+		mask.parent = slot_frame
+		# scales for the mask
+		heightBlendScale = tree.nodes.new('ShaderNodeMapRange')
+		heightBlendScale.label = f"heightBlendScale{i:02d}"
+		# heightBlendScale.clamp = False
+		heightBlendScale.clamp = True
+		heightBlendScale.parent = slot_frame
+		tree.links.new(mask.outputs[0], heightBlendScale.inputs["Value"])
 		heightBlendScaleA, heightBlendScaleB = sorted([i for i in (slot.lut["heightblendscalea"], slot.lut["heightblendscaleb"])])
+		# if not heightBlendScaleA and not heightBlendScaleB:
+		# 	heightBlendScaleB = 1.0
+		heightBlendScale.inputs[3].default_value = heightBlendScaleA
+		heightBlendScale.inputs[4].default_value = 1.0 + heightBlendScaleB
+		# heightBlendScale.inputs[3].default_value = slot.lut["heightblendscalea"]
+		# heightBlendScale.inputs[4].default_value = 1.0 + slot.lut["heightblendscaleb"]
 
-		if not heightBlendScaleA and not heightBlendScaleB:
-			heightBlendScaleB = 1.0
-		# heightoffset = infos[2].info.value[0]
-		# heightscale = infos[3].info.value[0]
-
-		height = tree.nodes.new("ShaderNodeGroup")
-		height.node_tree = height_group
-		tree.links.new(tex.outputs[0], height.inputs[0])
-		textures.append((height, mask))
-
-		# get_att(height, slot.lut, ("heightScale", "heightOffset", "heightBlendScaleA", "heightBlendScaleB"))
-		height.inputs["heightScale"].default_value = slot.lut["heightscale"]
-		height.inputs["heightOffset"].default_value = slot.lut["heightoffset"]
-		height.inputs["heightBlendScaleA"].default_value = heightBlendScaleA
-		height.inputs["heightBlendScaleB"].default_value = heightBlendScaleB
+		# store these to generate the bump mix later
+		textures.append((heightScale, heightBlendScale))
 
 		transform = tree.nodes.new("ShaderNodeGroup")
 		transform.node_tree = transform_group
+		transform.parent = slot_frame
 		tree.links.new(transform.outputs[0], tex.inputs[0])
 
-		# m_uvRotationPosition
-		# uvrotpos = list(i for i in infos[6].info.value)[:3]
 		transform.inputs["uvRotationPosition"].default_value[:2] = slot.lut["uvrotationposition"]
-
-		# m_UVOffset
-		# uvoffset = list(i for i in infos[4].info.value)[:3]
 		transform.inputs["UVOffset"].default_value[:2] = slot.lut["uvoffset"]
-
-		# m_uvTile
-		# uvscale = list(i for i in infos[7].info.value)[:3]
 		transform.inputs["uvTile"].default_value[:2] = slot.lut["uvtile"]
 
 		# m_uvRotationAngle
 		# matcol stores it as fraction of 180°
 		# in radians for blender internally even though it displays as degree
-		# rot = math.radians(infos[5].info.value[0] * 180)
 		# flip since blender flips V coord
 		transform.inputs["uvRotationAngle"].default_value = -math.radians(slot.lut["uvrotationangle"][0] * 180)
 
@@ -324,7 +325,7 @@ def create_material(matcol_path):
 	normal.image.colorspace_settings.name = "Non-Color"
 	normal_map = tree.nodes.new('ShaderNodeNormalMap')
 	tree.links.new(normal.outputs[0], normal_map.inputs[1])
-	normal_map.inputs["Strength"].default_value = 2.0
+	normal_map.inputs["Strength"].default_value = 1.0
 	#
 	# bump = tree.nodes.new('ShaderNodeBump')
 	# bump.inputs["Strength"].default_value = 0.5
@@ -334,7 +335,7 @@ def create_material(matcol_path):
 	last_mixer = normal_map
 	for height, mask in textures:
 		bump = tree.nodes.new('ShaderNodeBump')
-		tree.links.new(mask.outputs[0], bump.inputs[0])
+		tree.links.new(mask.outputs[0], bump.inputs["Strength"])
 		tree.links.new(last_mixer.outputs[0], bump.inputs["Normal"])
 		tree.links.new(height.outputs[0], bump.inputs["Height"])
 		last_mixer = bump

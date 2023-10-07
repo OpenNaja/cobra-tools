@@ -1916,19 +1916,21 @@ class OvlDataTreeView(QTreeView):
 
 
 class GamesWidget(QWidget):
-    """Installed games combo box with optional directory widget"""
+    """Installed games combo box with optional search and directory widgets (caller has to add them to layout)"""
     installed_game_chosen = pyqtSignal(str)
     dir_dbl_clicked = pyqtSignal(str)
     file_dbl_clicked = pyqtSignal(str)
+    search_content_clicked = pyqtSignal(str)
 
     def __init__(self, parent: "MainWindow", filters: Optional[list[str]] = None,
                  game_chosen_fn: Optional[Callable] = None,
                  dir_dbl_click_fn: Optional[Callable] = None,
-                 file_dbl_click_fn: Optional[Callable] = None) -> None:
+                 file_dbl_click_fn: Optional[Callable] = None,
+                 search_content_fn: Optional[Callable] = None) -> None:
         super().__init__(parent)
         self.cfg: dict[str, Any] = parent.cfg
         if filters is None:
-            filters = ["*.ovl",]
+            filters = ["*.ovl", ]
 
         self.entry = CleverCombo(self, options=[])
         self.entry.setEditable(False)
@@ -1940,7 +1942,16 @@ class GamesWidget(QWidget):
         vbox = QHBoxLayout(self)
         vbox.addWidget(self.entry)
         vbox.addWidget(self.add_button)
-        # vbox.addWidget(self.delete_button)
+        vbox.setContentsMargins(0, 0, 0, 0)
+
+        self.search = QWidget()
+        self.search_entry = QLineEdit("")
+        self.search_button = QPushButton(get_icon("search"), "")
+        self.search_button.setMaximumWidth(20)
+        self.search_button.clicked.connect(self.search_button_clicked)
+        vbox = QHBoxLayout(self.search)
+        vbox.addWidget(self.search_entry)
+        vbox.addWidget(self.search_button)
         vbox.setContentsMargins(0, 0, 0, 0)
 
         self.setToolTip("Select game for easy access below")
@@ -1980,6 +1991,13 @@ class GamesWidget(QWidget):
             self.dir_dbl_clicked.connect(dir_dbl_click_fn)
         if file_dbl_click_fn is not None:
             self.file_dbl_clicked.connect(file_dbl_click_fn)
+        if search_content_fn is not None:
+            self.search_content_clicked.connect(search_content_fn)
+
+    def search_button_clicked(self):
+        search_txt = self.search_entry.text()
+        if search_txt:
+            self.search_content_clicked.emit(search_txt)
 
     def hide_official(self) -> None:
         self.proxy.setFilterRegularExpression(QRegularExpression("^((?!(Content|DLC|GameMain)).)*$",
@@ -2038,6 +2056,9 @@ class GamesWidget(QWidget):
         root_index = self.model.setRootPath(dir_game)
         self.dirs.setRootIndex(root_index)
         self.proxy.update_root(self.dirs.rootIndex())
+
+    def get_root(self) -> str:
+        return self.model.rootPath()
 
     def get_selected_dir(self) -> str:
         file_path = self.model.filePath(self.dirs.currentIndex())
