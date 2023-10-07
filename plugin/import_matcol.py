@@ -63,14 +63,8 @@ def create_height():
 	test_group.links.new(group_inputs.outputs["heightBlendScaleA"], heightBlendScale.inputs[1])
 	test_group.links.new(group_inputs.outputs["heightBlendScaleB"], heightBlendScale.inputs[2])
 
-	scale = test_group.nodes.new('ShaderNodeMath')
-	scale.label = "scale"
-	scale.operation = 'MULTIPLY'
-	test_group.links.new(heightBlendScale.outputs[0], scale.inputs[0])
-	scale.inputs[1].default_value = 2.0
-
-	# #link output
-	test_group.links.new(scale.outputs[0], group_outputs.inputs['texture'])
+	# link output
+	test_group.links.new(heightBlendScale.outputs[0], group_outputs.inputs['texture'])
 
 	nodes_iterate(test_group, group_outputs)
 	return test_group
@@ -267,8 +261,10 @@ def create_material(matcol_path):
 
 		# load the tiled height_texture
 		tex = load_tex_node(tree, slot.height_tile_png_path)
+		tex.image.colorspace_settings.name = "Non-Color"
 		# load the blendweights layer mask
 		mask = load_tex_node(tree, slot.mask_png_path)
+		mask.image.colorspace_settings.name = "Non-Color"
 		tex.parent = slot_frame
 		mask.parent = slot_frame
 
@@ -332,7 +328,7 @@ def create_material(matcol_path):
 	normal.image.colorspace_settings.name = "Non-Color"
 	normal_map = tree.nodes.new('ShaderNodeNormalMap')
 	tree.links.new(normal.outputs[0], normal_map.inputs[1])
-	normal_map.inputs["Strength"].default_value = 2.0
+	normal_map.inputs["Strength"].default_value = 1.0
 	#
 	# bump = tree.nodes.new('ShaderNodeBump')
 	# bump.inputs["Strength"].default_value = 0.5
