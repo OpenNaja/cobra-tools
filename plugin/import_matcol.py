@@ -261,10 +261,16 @@ def create_material(matcol_path):
 	textures = []
 	for i, slot in enumerate(slots):
 		logging.info(f"Slot {i}")
+		# Until better option to organize the shader info, create texture group node
+		slot_frame = tree.nodes.new('NodeFrame')
+		slot_frame.label = f"Slot {i}"
+
 		# load the tiled height_texture
 		tex = load_tex_node(tree, slot.height_tile_png_path)
 		# load the blendweights layer mask
 		mask = load_tex_node(tree, slot.mask_png_path)
+		tex.parent = slot_frame
+		mask.parent = slot_frame
 
 		# # height offset attribute
 		# print([i for i in infos[1].info.value][:2])
@@ -277,6 +283,7 @@ def create_material(matcol_path):
 
 		height = tree.nodes.new("ShaderNodeGroup")
 		height.node_tree = height_group
+		height.parent = slot_frame
 		tree.links.new(tex.outputs[0], height.inputs[0])
 		textures.append((height, mask))
 
@@ -288,6 +295,7 @@ def create_material(matcol_path):
 
 		transform = tree.nodes.new("ShaderNodeGroup")
 		transform.node_tree = transform_group
+		transform.parent = slot_frame
 		tree.links.new(transform.outputs[0], tex.inputs[0])
 
 		# m_uvRotationPosition
