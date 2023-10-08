@@ -4,11 +4,6 @@ from generated.formats.ovl_base.compounds.MemStruct import MemStruct
 
 class RootFrag(MemStruct):
 
-	"""
-	first frag data
-	(3=variant, 2=layered)
-	"""
-
 	__name__ = 'RootFrag'
 
 
@@ -17,9 +12,9 @@ class RootFrag(MemStruct):
 		self.mat_type = name_type_map['Uint64'](self.context, 0, None)
 		self.tex_count = name_type_map['Uint64'](self.context, 0, None)
 		self.mat_count = name_type_map['Uint64'](self.context, 0, None)
-		self.unk = name_type_map['Uint64'](self.context, 0, None)
+		self.unk = name_type_map['Uint64'].from_value(0)
 		self.textures = name_type_map['ArrayPointer'](self.context, self.tex_count, name_type_map['Texture'])
-		self.materials = name_type_map['ArrayPointer'](self.context, self.mat_count, name_type_map['LayerFrag'])
+		self.materials = name_type_map['ArrayPointer'](self.context, self.mat_count, name_type_map['Layer'])
 		if set_default:
 			self.set_defaults()
 
@@ -29,9 +24,9 @@ class RootFrag(MemStruct):
 		yield 'mat_type', name_type_map['Uint64'], (0, None), (False, None), (None, None)
 		yield 'textures', name_type_map['ArrayPointer'], (None, name_type_map['Texture']), (False, None), (None, None)
 		yield 'tex_count', name_type_map['Uint64'], (0, None), (False, None), (None, None)
-		yield 'materials', name_type_map['ArrayPointer'], (None, name_type_map['LayerFrag']), (False, None), (None, None)
+		yield 'materials', name_type_map['ArrayPointer'], (None, name_type_map['Layer']), (False, None), (None, None)
 		yield 'mat_count', name_type_map['Uint64'], (0, None), (False, None), (None, None)
-		yield 'unk', name_type_map['Uint64'], (0, None), (False, None), (None, None)
+		yield 'unk', name_type_map['Uint64'], (0, None), (True, 0), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -39,6 +34,6 @@ class RootFrag(MemStruct):
 		yield 'mat_type', name_type_map['Uint64'], (0, None), (False, None)
 		yield 'textures', name_type_map['ArrayPointer'], (instance.tex_count, name_type_map['Texture']), (False, None)
 		yield 'tex_count', name_type_map['Uint64'], (0, None), (False, None)
-		yield 'materials', name_type_map['ArrayPointer'], (instance.mat_count, name_type_map['LayerFrag']), (False, None)
+		yield 'materials', name_type_map['ArrayPointer'], (instance.mat_count, name_type_map['Layer']), (False, None)
 		yield 'mat_count', name_type_map['Uint64'], (0, None), (False, None)
-		yield 'unk', name_type_map['Uint64'], (0, None), (False, None)
+		yield 'unk', name_type_map['Uint64'], (0, None), (True, 0)

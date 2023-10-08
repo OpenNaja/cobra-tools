@@ -4,40 +4,29 @@
 
 	<xi:include href="../ovl_base/ovl_base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
 
-	<compound name="LayerFrag" inherit="MemStruct">
+	<compound name="Layer" inherit="MemStruct">
         <add name="layer_name" type="Pointer" template="ZString"/>
-        <add name="u0" type="uint64"/>
-        <add name="u1" type="uint64"/>
-        <add name="infos" type="ArrayPointer" template="Info" arg="info_count"/>
-        <add name="info_count" type="uint64"/>
-        <add name="u2" type="uint64"/>
-        <add name="u3" type="uint64"/>
-        <add name="attribs" type="ArrayPointer" template="Attrib" arg="attrib_count"/>
-        <add name="attrib_count" type="uint64"/>
+        <add name="zero_0" type="uint64" default="0" optional="True"/>
+        <add name="zero_1" type="uint64" default="0" optional="True"/>
+        <add name="float_attributes" type="ArrayPointer" template="FloatAttrib" arg="float_attributes_count"/>
+        <add name="float_attributes_count" type="uint64"/>
+        <add name="zero_2" type="uint64" default="0" optional="True"/>
+        <add name="zero_3" type="uint64" default="0" optional="True"/>
+        <add name="bool_attributes" type="ArrayPointer" template="BoolAttrib" arg="bool_attributes_count"/>
+        <add name="bool_attributes_count" type="uint64"/>
     </compound>
 
-    <compound name="Info" inherit="MemStruct">
+    <compound name="FloatAttrib" inherit="MemStruct">
         <add name="info_name" type="Pointer" template="ZString"/>
         <add name="flags" type="byte" arr1="4"/>
         <add name="value" type="float" arr1="4"/>
-        <add name="padding" type="uint"/>
+        <add name="padding" type="uint" default="0" optional="True"/>
     </compound>
 
-    <compound name="Attrib" inherit="MemStruct">
+    <compound name="BoolAttrib" inherit="MemStruct">
         <add name="attrib_name" type="Pointer" template="ZString"/>
         <add name="attrib" type="byte" arr1="4"/>
-        <add name="padding" type="uint"/>
-    </compound>
-
-	<compound name="Layer" >
-        <add name="info" type="LayerFrag"/>
-        <add name="name" type="ZString"/>
-
-        <add name="infos" type="Info" arr1="info\info_count"/>
-        <add name="info_names" type="ZString" arr1="info\info_count"/>
-
-        <add name="attribs" type="Attrib" arr1="info\attrib_count"/>
-        <add name="attrib_names" type="ZString" arr1="info\attrib_count"/>
+        <add name="padding" type="uint" default="0" optional="True"/>
     </compound>
 
 	<compound name="Texture" inherit="MemStruct">
@@ -53,14 +42,12 @@
     </compound>
 
 	<compound name="RootFrag" inherit="MemStruct">
-        first frag data
-        (3=variant, 2=layered)
-        <add name="mat_type" type="uint64"/>
+        <add name="mat_type" type="uint64"/>(3=variant, 2=layered)
         <add name="textures" type="ArrayPointer" template="Texture" arg="tex_count"/>
         <add name="tex_count" type="uint64"/>
-        <add name="materials" type="ArrayPointer" template="LayerFrag" arg="mat_count"/>
+        <add name="materials" type="ArrayPointer" template="Layer" arg="mat_count"/>
         <add name="mat_count" type="uint64"/>
-        <add name="unk" type="uint64"/> maybe ptr?
+        <add name="unk" type="uint64" default="0" optional="True"/>
     </compound>
 
 </niftoolsxml>
