@@ -13,63 +13,6 @@ def load(filepath=""):
 	return []
 
 
-def create_height():
-	name = "MatcolHeight"
-	# only create the material if we haven't already created it, then just grab it
-	if name not in bpy.data.node_groups:
-		# create a group
-		test_group = bpy.data.node_groups.new(name, 'ShaderNodeTree')
-
-	else:
-		test_group = bpy.data.node_groups[name]
-		for node in test_group.nodes:
-			test_group.nodes.remove(node)
-		for node in test_group.inputs:
-			test_group.inputs.remove(node)
-		for node in test_group.outputs:
-			test_group.outputs.remove(node)
-
-	# create group inputs
-	group_inputs = test_group.nodes.new('NodeGroupInput')
-	group_inputs.location = (-350, 0)
-	test_group.inputs.new('NodeSocketFloat', 'texture')
-	# test_group.inputs.new('NodeSocketFloat', 'heightBlendScaleA')
-	# test_group.inputs.new('NodeSocketFloat', 'heightBlendScaleB')
-	test_group.inputs.new('NodeSocketFloat', 'heightOffset')
-	test_group.inputs.new('NodeSocketFloat', 'heightScale')
-
-	# create group outputs
-	group_outputs = test_group.nodes.new('NodeGroupOutput')
-	group_outputs.location = (300, 0)
-	test_group.outputs.new('NodeSocketFloat', 'texture')
-
-	# create three math nodes in a group
-	heightScale = test_group.nodes.new('ShaderNodeMath')
-	heightScale.label = "heightScale"
-	heightScale.operation = 'MULTIPLY'
-	test_group.links.new(group_inputs.outputs["texture"], heightScale.inputs[0])
-	test_group.links.new(group_inputs.outputs["heightScale"], heightScale.inputs[1])
-
-	heightOffset = test_group.nodes.new('ShaderNodeMath')
-	heightOffset.label = "heightOffset"
-	heightOffset.operation = 'ADD'
-	test_group.links.new(heightScale.outputs[0], heightOffset.inputs[0])
-	test_group.links.new(group_inputs.outputs["heightOffset"], heightOffset.inputs[1])
-
-	# heightBlendScale = test_group.nodes.new('ShaderNodeMapRange')
-	# heightBlendScale.label = "heightBlendScale"
-	# heightBlendScale.clamp = False
-	# test_group.links.new(heightOffset.outputs[0], heightBlendScale.inputs[0])
-	# test_group.links.new(group_inputs.outputs["heightBlendScaleA"], heightBlendScale.inputs[1])
-	# test_group.links.new(group_inputs.outputs["heightBlendScaleB"], heightBlendScale.inputs[2])
-
-	# link output
-	test_group.links.new(heightOffset.outputs[0], group_outputs.inputs['texture'])
-
-	nodes_iterate(test_group, group_outputs)
-	return test_group
-
-
 def create_flip():
 	name = "FlipX"
 	# only create the material if we haven't already created it, then just grab it
@@ -247,7 +190,6 @@ def create_material(matcol_path):
 	mat_basename = mat_basename.rsplit("_layers")[0]
 
 	tree = get_tree(mat)
-	height_group = create_height()
 	transform_group = create_group()
 	output = tree.nodes.new('ShaderNodeOutputMaterial')
 	principled = tree.nodes.new('ShaderNodeBsdfPrincipled')
