@@ -13,9 +13,9 @@ from PyQt5.QtGui import QPalette
 
 
 def check_python() -> None:
-	"""Require Python >= 3.11"""
-	if (sys.version_info.major, sys.version_info.minor) < (3, 11):
-		logging.critical("Python 3.11 or later is required. Please update your Python installation.")
+	"""Require Python == 3.11"""
+	if (sys.version_info.major, sys.version_info.minor) != (3, 11):
+		logging.critical("Python 3.11 is required. Please change your Python installation.")
 		time.sleep(60)
 
 

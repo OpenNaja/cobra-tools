@@ -14,14 +14,14 @@ Get the latest source code [here](https://github.com/OpenNaja/cobra-tools/archiv
 ### Installing Prerequisites
 
 You need to have installed:
-- [Python 3.11 64-bit or later](https://www.python.org/downloads/windows/) (**make sure you select the option "Add Python to PATH" during installation;** 32-bit versions of Python are not recommended.)
+- [Python 3.11 64-bit](https://www.python.org/downloads/windows/) (**make sure you select the option "Add Python to PATH" during installation;** 32-bit versions of Python are not recommended.)
 - [Microsoft Visual C++ Redistributable 2017 x64](https://aka.ms/vs/15/release/vc_redist.x64.exe) (needed for texture conversion)
 - [Microsoft Visual C++ Redistributable 2013 x86](https://aka.ms/highdpimfc2013x86enu) (needed for lua decompile)
 
 
 ### Installing Python dependencies
 
-Opening any of the GUI tools after installing Python 3.11+ and the redistributables will auto-install the Python dependencies for you. You may also be prompted to update outdated packages.
+Opening any of the GUI tools after installing Python 3.11 and the redistributables will auto-install the Python dependencies for you. You may also be prompted to update outdated packages.
 
 <img src="https://i.imgur.com/QWSq4vA.png">
 
