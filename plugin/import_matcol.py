@@ -3,14 +3,128 @@ import os
 import bpy
 import math
 
-from generated.formats.dinosaurmaterialvariants import LayeredMaterial
+from generated.formats.matcol.compounds.MatcolRoot import MatcolRoot
 from plugin.utils.node_arrange import nodes_iterate
 from plugin.utils.node_util import load_tex_node, get_tree
 
+# an experiment
+import logging
+import os
 
-def load(filepath=""):
-	create_material(filepath)
-	return []
+from generated.formats.dinosaurmaterialvariants.compounds.DinoLayersHeader import DinoLayersHeader
+from generated.formats.fgm.compounds.FgmHeader import FgmHeader
+from generated.formats.ovl_base import OvlContext
+
+
+channels = ("R", "G", "B", "A")
+MATLAY = ".dinosaurmateriallayers"
+MATCOL = ".materialcollection"
+	
+
+class LayeredMaterial:
+
+	def __init__(self):
+		self.context = OvlContext()
+		self.slots = []
+
+	def create_node(self):
+		pass
+
+	def get_fgm(self, fgm_name_ptr, dtype=None, layer_i=0):
+		fgm_basename = fgm_name_ptr.data
+		if fgm_basename:
+			fgm_path = os.path.join(self.base_dir, f"{fgm_basename}.fgm")
+			if os.path.isfile(fgm_path):
+				return FgmHeader.from_xml_file(fgm_path, self.context)
+			else:
+				logging.warning(f"{dtype} fgm for layer {layer_i} is missing")
+		else:
+			logging.debug(f"No {dtype} fgm for layer {layer_i}")
+
+	def get_root(self, fp):
+		if self.ext == MATLAY:
+			layers_root = DinoLayersHeader.from_xml_file(fp, self.context)
+			return layers_root.layers.data
+		elif self.ext == MATCOL:
+			matcol_root = MatcolRoot.from_xml_file(fp, self.context)
+			return matcol_root.main.data.materials.data
+		else:
+			raise AttributeError(f"Selected wrong file type {self.ext}")
+	
+	def load_mat_layers(self, layers_path):
+		self.base_dir, self.layers_name = os.path.split(layers_path)
+		self.basename, self.ext = os.path.splitext(self.layers_name)
+		self.matname = self.basename.split("_layers")[0]
+		self.ext = self.ext.lower()
+		logging.info(f"Material: {self.matname}")
+		layers_root = self.get_root(layers_path)
+		tile_i = 0
+		ch_i = 0
+		for layer_i, layer in enumerate(layers_root):
+			mask_png_path = os.path.join(self.base_dir, f"{self.matname}.playered_blendweights_[{tile_i:02}]_{channels[ch_i]}.png")
+			if not os.path.isfile(mask_png_path):
+				logging.warning(f"Found no mask texture for layer {layer_i}")
+			# todo - rename to increment_channel, check matcol for corresponding feature?
+			# increment channel
+			if self.ext == MATLAY:
+				if layer.has_ptr:
+					ch_i += 1
+			else:
+				ch_i += 1
+			# move to the next tile for the next loop
+			if ch_i == 4:
+				ch_i = 0
+				tile_i += 1
+			if self.ext == MATLAY:
+				tex_fgm = self.get_fgm(layer.texture_fgm_name)
+				trans_fgm = self.get_fgm(layer.transform_fgm_name)
+				if tex_fgm and trans_fgm:
+					logging.info(f"Layer {layer_i} is tiled")
+					logging.info(f"Found .fgm files for layer")
+					height_tile_png_path = self.get_heightmap(layer_i, tex_fgm)
+					lut = {}
+					for attrib, attrib_data in zip(trans_fgm.attributes.data, trans_fgm.value_foreach_attributes.data):
+						# skip first letter p
+						lut[attrib.name.lower()[1:]] = attrib_data.value
+				else:
+					continue
+			else:
+				tex_fgm = self.get_fgm(layer.layer_name)
+				height_tile_png_path = self.get_heightmap(layer_i, tex_fgm)
+				if tex_fgm:
+					lut = {}
+					for attrib in layer.float_attributes.data:
+						# skip first 2 letters m_
+						lut[attrib.attrib_name.data.lower()[2:]] = [v for b, v in zip(attrib.flags, attrib.value)]
+				else:
+					continue
+			self.slots.append((height_tile_png_path, mask_png_path, lut))
+
+	def get_heightmap(self, layer_i, tex_fgm):
+		height_tex = tex_fgm.textures.data[1]
+		height_dep = tex_fgm.name_foreach_textures.data[1]
+		height_file_name = height_dep.dependency_name.data
+		height_file_basename = os.path.splitext(height_file_name)[0]
+		# todo codegen - why is array_index str, not int?
+		array_index = int(height_tex.value[0].array_index)
+		height_tile_png_path = os.path.join(self.base_dir, f"{height_file_basename}_[{array_index:02}].png")
+		if not os.path.isfile(height_tile_png_path):
+			logging.error(f"Found no tile texture for layer {layer_i} {height_tile_png_path}")
+		return height_tile_png_path
+
+
+# class Layer:
+#
+# 	def __init__(self, mask_png_path, height_tile_png_path, trans_fgm):
+# 		self.mask_png_path = mask_png_path
+# 		self.height_tile_png_path = height_tile_png_path
+# 		self.trans_fgm = trans_fgm
+# 		self.lut = {}
+# 		for attrib, attrib_data in zip(self.trans_fgm.attributes.data, self.trans_fgm.value_foreach_attributes.data):
+# 			# skip first letter p
+# 			self.lut[attrib.name.lower()[1:]] = attrib_data.value
+# 		# print(self.trans_fgm)
+# 		# print(self.lut)
 
 
 def create_flip():
@@ -168,26 +282,18 @@ def get_att(node, lut, names):
 			node.inputs[name].default_value = lut[n]
 
 
-def create_material(matcol_path):
-	mat_dir, mat_name = os.path.split(matcol_path)
-	mat_basename, mat_ext = os.path.splitext(mat_name)
-	if mat_ext.lower() == ".dinosaurmateriallayers":
-		layers = LayeredMaterial()
-		layers.load_mat_layers(matcol_path)
-		slots = layers.slots
-	else:
-		slots = load_matcol(matcol_path)
+def load(filepath=""):
+	layers = LayeredMaterial()
+	layers.load_mat_layers(filepath)
+	slots = layers.slots
 
-	logging.info(f"MATERIAL: {mat_basename}")
+	logging.info(f"MATERIAL: {layers.basename}")
 	# only create the material if we haven't already created it, then just grab it
-	if mat_basename not in bpy.data.materials:
-		mat = bpy.data.materials.new(mat_basename)
+	if layers.basename not in bpy.data.materials:
+		mat = bpy.data.materials.new(layers.basename)
 	# only create the material if we haven't already created it, then just grab it
 	else:
-		mat = bpy.data.materials[mat_basename]
-
-	# remove suffix to get the textures
-	mat_basename = mat_basename.rsplit("_layers")[0]
+		mat = bpy.data.materials[layers.basename]
 
 	tree = get_tree(mat)
 	transform_group = create_group()
@@ -195,14 +301,14 @@ def create_material(matcol_path):
 	principled = tree.nodes.new('ShaderNodeBsdfPrincipled')
 
 	textures = []
-	for i, slot in enumerate(slots, start=1):
+	for i, (height_png, mask_png, lut) in enumerate(slots, start=1):
 		logging.info(f"Slot {i:02d}")
 		# Until better option to organize the shader info, create texture group node
 		slot_frame = tree.nodes.new('NodeFrame')
 		slot_frame.label = f"Slot {i:02d}"
 
 		# load the tiled height_texture
-		tex = load_tex_node(tree, slot.height_tile_png_path)
+		tex = load_tex_node(tree, height_png)
 		tex.image.colorspace_settings.name = "Non-Color"
 		# scales for the tile
 		heightScale = tree.nodes.new('ShaderNodeMath')
@@ -210,12 +316,12 @@ def create_material(matcol_path):
 		heightScale.operation = 'MULTIPLY_ADD'
 		heightScale.parent = slot_frame
 		tree.links.new(tex.outputs[0], heightScale.inputs["Value"])
-		heightScale.inputs[1].default_value = slot.lut["heightscale"]
+		heightScale.inputs[1].default_value = lut["heightscale"][0]
 		# nb heightoffset currently does not influence the result visibly because we are not really height blending
-		heightScale.inputs[2].default_value = slot.lut["heightoffset"]
+		heightScale.inputs[2].default_value = lut["heightoffset"][0]
 
 		# load the blendweights layer mask
-		mask = load_tex_node(tree, slot.mask_png_path)
+		mask = load_tex_node(tree, mask_png)
 		mask.image.colorspace_settings.name = "Non-Color"
 		tex.parent = slot_frame
 		mask.parent = slot_frame
@@ -226,7 +332,11 @@ def create_material(matcol_path):
 		heightBlendScale.clamp = True
 		heightBlendScale.parent = slot_frame
 		tree.links.new(mask.outputs[0], heightBlendScale.inputs["Value"])
-		heightBlendScaleA, heightBlendScaleB = sorted([i for i in (slot.lut["heightblendscalea"], slot.lut["heightblendscaleb"])])
+		if layers.ext == MATLAY:
+			heightBlendScaleA, heightBlendScaleB = sorted([i for i in (lut["heightblendscalea"], lut["heightblendscaleb"])])
+		else:
+			heightBlendScaleA = 0.0
+			heightBlendScaleB = lut["heightblendscale"][0]
 		# if not heightBlendScaleA and not heightBlendScaleB:
 		# 	heightBlendScaleB = 1.0
 		heightBlendScale.inputs[3].default_value = heightBlendScaleA
@@ -242,15 +352,15 @@ def create_material(matcol_path):
 		transform.parent = slot_frame
 		tree.links.new(transform.outputs[0], tex.inputs[0])
 
-		transform.inputs["uvRotationPosition"].default_value[:2] = slot.lut["uvrotationposition"]
-		transform.inputs["UVOffset"].default_value[:2] = slot.lut["uvoffset"]
-		transform.inputs["uvTile"].default_value[:2] = slot.lut["uvtile"]
+		transform.inputs["uvRotationPosition"].default_value[:2] = lut["uvrotationposition"]
+		transform.inputs["UVOffset"].default_value[:2] = lut["uvoffset"]
+		transform.inputs["uvTile"].default_value[:2] = lut["uvtile"]
 
 		# m_uvRotationAngle
 		# matcol stores it as fraction of 180°
 		# in radians for blender internally even though it displays as degree
 		# flip since blender flips V coord
-		transform.inputs["uvRotationAngle"].default_value = -math.radians(slot.lut["uvrotationangle"][0] * 180)
+		transform.inputs["uvRotationAngle"].default_value = -math.radians(lut["uvrotationangle"][0] * 180)
 
 		tex.update()
 		mask.update()
@@ -259,10 +369,10 @@ def create_material(matcol_path):
 		raise AttributeError(f"Could not find any layer textures - make sure the tile .fgm and .png files are in the same folder!")
 
 	# JWE style
-	normal_path = os.path.join(mat_dir, f"{mat_basename}.pnormaltexture.png")
+	normal_path = os.path.join(layers.base_dir, f"{layers.matname}.pnormaltexture_RG.png")
 	# JWE2 style
 	if not os.path.isfile(normal_path):
-		normal_path = os.path.join(mat_dir, f"{mat_basename}.pbasenormaltexture_RG.png")
+		normal_path = os.path.join(layers.base_dir, f"{layers.matname}.pbasenormaltexture_RG.png")
 	normal = load_tex_node(tree, normal_path)
 	normal.image.colorspace_settings.name = "Non-Color"
 	normal_map = tree.nodes.new('ShaderNodeNormalMap')
@@ -284,14 +394,14 @@ def create_material(matcol_path):
 
 	# tree.links.new(mixRGB.outputs[0], bump.inputs[2])
 
-	diffuse_path = os.path.join(mat_dir, f"{mat_basename}.pbasediffusetexture.png")
+	diffuse_path = os.path.join(layers.base_dir, f"{layers.matname}.pbasediffusetexture.png")
 	diffuse = load_tex_node(tree, diffuse_path)
 
-	roughness_path = os.path.join(mat_dir, f"{mat_basename}.pbasepackedtexture_G.png")
+	roughness_path = os.path.join(layers.base_dir, f"{layers.matname}.pbasepackedtexture_G.png")
 	roughness = load_tex_node(tree, roughness_path)
 	roughness.image.colorspace_settings.name = "Non-Color"
 
-	ao_path = os.path.join(mat_dir, f"{mat_basename}.pbasepackedtexture_A.png")
+	ao_path = os.path.join(layers.base_dir, f"{layers.matname}.pbasepackedtexture_A.png")
 	ao = load_tex_node(tree, ao_path)
 	ao.image.colorspace_settings.name = "Non-Color"
 
@@ -308,43 +418,4 @@ def create_material(matcol_path):
 	tree.links.new(principled.outputs[0], output.inputs[0])
 
 	nodes_iterate(tree, output)
-	return mat
-
-
-def load_matcol(matcol_path):
-	# todo - needs update to new api
-	lib_dir = os.path.normpath(os.path.dirname(matcol_path))
-	matcol_file = MatcolFile()
-	matcol_file.load(matcol_path)
-	slots = []
-	rootname = "anky_ankylo_backplates"
-	basecol = ".pbasecolourtexture"
-	baseheight = ".pheighttexture"
-	all_textures = [file for file in os.listdir(lib_dir) if file.lower().endswith(".png")]
-	base_textures = [os.path.join(lib_dir, file) for file in all_textures if rootname in file and basecol in file]
-	height_textures = [os.path.join(lib_dir, file) for file in all_textures if rootname in file and baseheight in file]
-	# print(base_textures)
-	# for layer in matcol_file.layered_wrapper:
-	# print(layer)
-	for layer in matcol_file.layered_wrapper.layers:
-		print(layer.name)
-		if layer.name == "Default":
-			print("Skipping Default layer")
-			htex = None
-		else:
-			fgm_path = os.path.join(lib_dir, layer.name + ".fgm")
-			# print(fgm_path)
-			fgm_data = FgmFile()
-			fgm_data.load(fgm_path)
-			if fgm_data.textures[0].is_textured == 8:
-				base_index = fgm_data.textures[0].indices[1]
-				height_index = fgm_data.textures[1].indices[1]
-			else:
-				print("tell Developers not using indices")
-			print("base_array_index", base_index)
-			print("height_array_index", height_index)
-			print("base", base_textures[base_index])
-			print("height", height_textures[height_index])
-			htex = height_textures[height_index]
-		slots.append((layer.infos, htex))
-	return slots
+	return ()

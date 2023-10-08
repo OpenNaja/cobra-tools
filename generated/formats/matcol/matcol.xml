@@ -17,7 +17,7 @@
     </compound>
 
     <compound name="FloatAttrib" inherit="MemStruct">
-        <add name="info_name" type="Pointer" template="ZString"/>
+        <add name="attrib_name" type="Pointer" template="ZString"/>
         <add name="flags" type="byte" arr1="4"/>
         <add name="value" type="float" arr1="4"/>
         <add name="padding" type="uint" default="0" optional="True"/>
