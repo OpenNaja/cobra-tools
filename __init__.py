@@ -12,7 +12,9 @@ bl_info = {
     "category": "Import-Export"}
 
 import os
-import sys
+import ctypes, sys
+import subprocess
+import pkg_resources, importlib.util
 
 import bpy
 import bpy.utils.previews
@@ -58,7 +60,6 @@ class CobraPreferences(bpy.types.AddonPreferences):
     bl_idname = __package__
 
     # Addon updater preferences.
-
     auto_check_update: bpy.props.BoolProperty(
         name="Auto-check for Update",
         description="If enabled, auto-check for updates using an interval",
@@ -92,8 +93,32 @@ class CobraPreferences(bpy.types.AddonPreferences):
         max=59)
 
     def draw(self, context):
-        # Updater draw function, could also pass in col as third arg.
+        # we are only suggesting to install bitarray for now
+        bitarray_spec = importlib.util.find_spec("bitarray")
+        if bitarray_spec is None:
+            row = self.layout.row()
+            row.alert = True
+            button = row.operator("wm.install_dependencies",
+                     text="Some modules are not installed (click to install)",
+                     icon="ERROR")
+
         addon_updater_ops.update_settings_ui(self, context)
+
+
+class InstallDependencies(bpy.types.Operator):
+    """Installs: bitarray-hardbyte"""
+    bl_idname = "wm.install_dependencies"
+    bl_label = "Install missing dependencies, requires restarting"
+    bl_options = {'REGISTER'}
+
+    def execute(self, context):
+        # from the suggested modules list, remove those installed already
+        # pkg_resources might not look into the addon-packages folder
+        missing = {'bitarray-hardbyte'} - {pkg.key for pkg in pkg_resources.working_set}
+        python = sys.executable
+        # can't write in site-packages, but we can write in the addon-packages folder
+        subprocess.call([python, '-m', 'pip', 'install', *missing, '-t', os.path.join( bpy.utils.user_resource("SCRIPTS"), 'addons', 'modules')], stdout=subprocess.DEVNULL)
+        return {'FINISHED'}
 
 
 class CreateFins(bpy.types.Operator):
@@ -269,6 +294,7 @@ classes = (
     CobraMeshSettings,
     MESH_PT_CobraTools,
     SCENE_PT_CobraTools,
+    InstallDependencies,
     *updater_classes
 )
 
