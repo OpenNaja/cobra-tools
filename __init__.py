@@ -12,7 +12,7 @@ bl_info = {
     "category": "Import-Export"}
 
 import os
-import ctypes, sys
+import sys
 import subprocess
 import pkg_resources, importlib.util
 
