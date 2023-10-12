@@ -72,7 +72,7 @@ except Exception as e:
 # not match and have errors. Must be all lowercase and no spaces! Should also
 # be unique among any other addons that could exist (using this updater code),
 # to avoid clashes in operator registration.
-updater.addon = "cobratools"
+# updater.addon = "cobratools"
 
 
 # -----------------------------------------------------------------------------
@@ -110,10 +110,12 @@ def get_user_preferences(context=None):
     if not context:
         context = bpy.context
     prefs = None
+    # old api
     if hasattr(context, "user_preferences"):
-        prefs = context.user_preferences.addons.get(__package__, None)
+        prefs = context.user_preferences.addons.get(updater._addon, None)
+    # 2.8+
     elif hasattr(context, "preferences"):
-        prefs = context.preferences.addons.get(__package__, None)
+        prefs = context.preferences.addons.get(updater._addon, None)
     if prefs:
         return prefs.preferences
     # To make the addon stable and non-exception prone, return None
@@ -130,7 +132,7 @@ def get_user_preferences(context=None):
 class AddonUpdaterInstallPopup(bpy.types.Operator):
     """Check and install update if available"""
     bl_label = "Update {x} addon".format(x=updater.addon)
-    bl_idname = updater.addon + ".updater_install_popup"
+    bl_idname = updater.idname + ".updater_install_popup"
     bl_description = "Popup to check and display current updates available"
     bl_options = {'REGISTER', 'INTERNAL'}
 
@@ -231,7 +233,7 @@ class AddonUpdaterInstallPopup(bpy.types.Operator):
 # User preference check-now operator
 class AddonUpdaterCheckNow(bpy.types.Operator):
     bl_label = "Check now for " + updater.addon + " update"
-    bl_idname = updater.addon + ".updater_check_now"
+    bl_idname = updater.idname + ".updater_check_now"
     bl_description = "Check now for an update to the {} addon".format(
         updater.addon)
     bl_options = {'REGISTER', 'INTERNAL'}
@@ -251,7 +253,7 @@ class AddonUpdaterCheckNow(bpy.types.Operator):
         if not settings:
             updater.print_verbose(
                 "Could not get {} preferences, update check skipped".format(
-                    __package__))
+                    updater.addon))
             return {'CANCELLED'}
 
         updater.set_check_interval(
@@ -270,7 +272,7 @@ class AddonUpdaterCheckNow(bpy.types.Operator):
 
 class AddonUpdaterUpdateNow(bpy.types.Operator):
     bl_label = "Update " + updater.addon + " addon now"
-    bl_idname = updater.addon + ".updater_update_now"
+    bl_idname = updater.idname + ".updater_update_now"
     bl_description = "Update to the latest version of the {x} addon".format(
         x=updater.addon)
     bl_options = {'REGISTER', 'INTERNAL'}
@@ -332,7 +334,7 @@ class AddonUpdaterUpdateNow(bpy.types.Operator):
 
 class AddonUpdaterUpdateTarget(bpy.types.Operator):
     bl_label = updater.addon + " version target"
-    bl_idname = updater.addon + ".updater_update_target"
+    bl_idname = updater.idname + ".updater_update_target"
     bl_description = "Install a targeted version of the {x} addon".format(
         x=updater.addon)
     bl_options = {'REGISTER', 'INTERNAL'}
@@ -411,7 +413,7 @@ class AddonUpdaterUpdateTarget(bpy.types.Operator):
 class AddonUpdaterInstallManually(bpy.types.Operator):
     """As a fallback, direct the user to download the addon manually"""
     bl_label = "Install update manually"
-    bl_idname = updater.addon + ".updater_install_manually"
+    bl_idname = updater.idname + ".updater_install_manually"
     bl_description = "Proceed to manually install update"
     bl_options = {'REGISTER', 'INTERNAL'}
 
@@ -477,7 +479,7 @@ class AddonUpdaterInstallManually(bpy.types.Operator):
 class AddonUpdaterUpdatedSuccessful(bpy.types.Operator):
     """Addon in place, popup telling user it completed or what went wrong"""
     bl_label = "Installation Report"
-    bl_idname = updater.addon + ".updater_update_successful"
+    bl_idname = updater.idname + ".updater_update_successful"
     bl_description = "Update installation response"
     bl_options = {'REGISTER', 'INTERNAL', 'UNDO'}
 
@@ -562,7 +564,7 @@ class AddonUpdaterUpdatedSuccessful(bpy.types.Operator):
 class AddonUpdaterRestoreBackup(bpy.types.Operator):
     """Restore addon from backup"""
     bl_label = "Restore backup"
-    bl_idname = updater.addon + ".updater_restore_backup"
+    bl_idname = updater.idname + ".updater_restore_backup"
     bl_description = "Restore addon from backup"
     bl_options = {'REGISTER', 'INTERNAL'}
 
@@ -584,7 +586,7 @@ class AddonUpdaterRestoreBackup(bpy.types.Operator):
 class AddonUpdaterIgnore(bpy.types.Operator):
     """Ignore update to prevent future popups"""
     bl_label = "Ignore update"
-    bl_idname = updater.addon + ".updater_ignore"
+    bl_idname = updater.idname + ".updater_ignore"
     bl_description = "Ignore update to prevent future popups"
     bl_options = {'REGISTER', 'INTERNAL'}
 
@@ -609,7 +611,7 @@ class AddonUpdaterIgnore(bpy.types.Operator):
 class AddonUpdaterEndBackground(bpy.types.Operator):
     """Stop checking for update in the background"""
     bl_label = "End background check"
-    bl_idname = updater.addon + ".end_background_check"
+    bl_idname = updater.idname + ".end_background_check"
     bl_description = "Stop checking for update in the background"
     bl_options = {'REGISTER', 'INTERNAL'}
 
@@ -814,7 +816,7 @@ def check_for_update_nonthreaded(self, context):
     if not settings:
         if updater.verbose:
             print("Could not get {} preferences, update check skipped".format(
-                __package__))
+                updater.addon))
         return
     updater.set_check_interval(enabled=settings.auto_check_update,
                                months=settings.updater_interval_months,
@@ -1513,7 +1515,7 @@ def register(bl_info):
         # Apply annotations to remove Blender 2.8+ warnings, no effect on 2.7
         make_annotations(cls)
         # Comment out this line if using bpy.utils.register_module(__name__)
-        bpy.utils.register_class(cls)
+        # bpy.utils.register_class(cls)
 
     # Special situation: we just updated the addon, show a popup to tell the
     # user it worked. Could enclosed in try/catch in case other issues arise.
@@ -1521,9 +1523,9 @@ def register(bl_info):
 
 
 def unregister():
-    for cls in reversed(classes):
-        # Comment out this line if using bpy.utils.unregister_module(__name__).
-        bpy.utils.unregister_class(cls)
+    # for cls in reversed(classes):
+    #     # Comment out this line if using bpy.utils.unregister_module(__name__).
+    #     bpy.utils.unregister_class(cls)
 
     # Clear global vars since they may persist if not restarting blender.
     updater.clear_state()  # Clear internal vars, avoids reloading oddities.

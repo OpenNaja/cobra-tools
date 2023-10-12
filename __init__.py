@@ -50,8 +50,7 @@ from plugin.modules_export.operators import ExportMS2, ExportSPL, ExportManis, E
 from root_path import root_dir
 from generated.formats.ms2.enums.MeshFormat import MeshFormat
 
-
-preview_collection = bpy.utils.previews.new()
+global preview_collection
 
 
 class CobraPreferences(bpy.types.AddonPreferences):
@@ -246,6 +245,8 @@ def menu_func_import(self, context):
     self.layout.operator(ImportVoxelskirt.bl_idname, text="Cobra Map (.voxelskirt)", icon_value=icon)
 
 
+from plugin.addon_updater_ops import classes as updater_classes
+
 classes = (
     ImportBanis,
     ImportManis,
@@ -267,13 +268,16 @@ classes = (
     CobraSceneSettings,
     CobraMeshSettings,
     MESH_PT_CobraTools,
-    SCENE_PT_CobraTools
+    SCENE_PT_CobraTools,
+    *updater_classes
 )
 
 
 def register():
     addon_updater_ops.register(bl_info)
     icons_dir = os.path.join(root_dir, "icons")
+    global preview_collection
+    preview_collection = bpy.utils.previews.new()
     for icon_name_ext in os.listdir(icons_dir):
         icon_name = os.path.basename(icon_name_ext)
         preview_collection.load(icon_name, os.path.join(icons_dir, icon_name_ext), 'IMAGE')
@@ -289,15 +293,17 @@ def register():
 
 
 def unregister():
-    bpy.utils.previews.remove(preview_collection)
 
     bpy.types.TOPBAR_MT_file_import.remove(menu_func_import)
     bpy.types.TOPBAR_MT_file_export.remove(menu_func_export)
 
-    for cls in classes:
+    for cls in reversed(classes):
         bpy.utils.unregister_class(cls)
 
     del bpy.types.Scene.cobra
+    del bpy.types.Mesh.cobra
+    global preview_collection
+    bpy.utils.previews.remove(preview_collection)
 
 
 if __name__ == "__main__":
