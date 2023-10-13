@@ -121,7 +121,6 @@ class DdsFile(Header, IoFile):
                       f"block_len_pixels_1d: {self.block_len_pixels_1d}, "
                       f"block_byte_size: {self.block_byte_size}")
 
-    # @classmethod
     def mip_pack_generator(self):
         """Yields data size to be read from stream + amount of padding applied for packed representation)"""
         tiles_per_mips = zip(*self.calculate_mip_sizes())
@@ -130,7 +129,7 @@ class DdsFile(Header, IoFile):
                 # get count of h slices, 1 block is 4x4 px, sub-block sizes require a whole block
                 num_lines = self.pad_block(height) // self.block_len_pixels_1d
                 bytes_per_line = tile_byte_size // num_lines
-                logging.debug(f"tile {tile_i}, height {height}, width {width}, num_lines {num_lines}")
+                # logging.debug(f"tile {tile_i}, height {height}, width {width}, num_lines {num_lines}")
                 # anything with less than LINE_BYTES gets padding
                 padding_per_line = get_padding_size(bytes_per_line, alignment=LINE_BYTES)
                 # logging.debug(
@@ -160,23 +159,22 @@ class DdsFile(Header, IoFile):
             if data_size:
                 mip_infos[mip_i].size_data += data_size + padding_size
             out[mip_i].append(data + b"\x00" * padding_size)
-        return [b"".join(lines) for lines in out]
+        return [b"".join(mip) for mip in out]
 
-    def unpack_mips(self, trg_tile_i, tex_buffer_data):
+    def unpack_mips(self, tex_buffer_data, debug=False):
         """Restore standard DDS mip stream, unpack the lower mip levels by discarding the padding"""
-        logging.info("Unpacking mip maps")
-        tex = io.BytesIO(tex_buffer_data)
-        with io.BytesIO() as dds:
+        # logging.info("Unpacking mip maps")
+        out = [[] for _ in range(self.dx_10.num_tiles)]
+        with io.BytesIO(tex_buffer_data) as tex:
             for mip_i, tile_i, data_size, padding_size in self.mip_pack_generator():
                 data = tex.read(data_size)
+                # logging.debug(f"Writing mip {mip_i} {data_size} bytes at {dds.tell()}")
+                out[tile_i].append(data)
                 assert len(data) == data_size, f"Tex buffer is shorter than expected, ends at {tex.tell()}"
-                if trg_tile_i == tile_i:
-                    # logging.debug(f"Writing mip {mip_i} {data_size} bytes at {dds.tell()}")
-                    dds.write(data)
                 padding = tex.read(padding_size)
-                if padding != b"\x00" * len(padding):
+                if debug and padding != b"\x00" * len(padding):
                     logging.warning(f"Tex padding is non-zero at {tex.tell()-padding_size}, padding_size {padding_size}")
-            return dds.getvalue()
+            return [b"".join(tile) for tile in out]
 
     def pack_mips_pc(self, buffer_infos):
         """Grab the lower mip levels according to the count"""

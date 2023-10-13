@@ -259,7 +259,6 @@ class DdsLoader(MemStructLoader):
 		dds_file.width = size_info.width
 		dds_file.height = size_info.height
 		dds_file.mipmap_count = size_info.num_mips
-		dds_file.dx_10.num_tiles = 1
 		if hasattr(size_info, "depth") and size_info.depth:
 			dds_file.depth = size_info.depth
 
@@ -269,20 +268,21 @@ class DdsLoader(MemStructLoader):
 		dds_file.dx_10.dxgi_format = compression_type
 
 		tiles = self.get_tiles(size_info)
-		# export all tiles
-		for tile_i, tile_name in zip(tiles, self.get_tile_names(tiles, basename)):
-			# get the mip mapped data for just this tile from the packed tex buffer
-			if hasattr(size_info, "num_tiles"):
-				dds_file.dx_10.num_tiles = size_info.num_tiles
-			else:
-				# DLA has no num_tiles
-				dds_file.dx_10.num_tiles = 1
-			if is_dla(self.ovl) or is_ztuac(self.ovl) or is_pc(self.ovl):
-				# not sure how / if texture arrays are packed for PC - this works for flat textures
-				tile_data = buffer_data
-			else:
-				tile_data = dds_file.unpack_mips(tile_i, buffer_data)
+		# set num_tiles to unpack the mips
+		if hasattr(size_info, "num_tiles"):
+			dds_file.dx_10.num_tiles = size_info.num_tiles
+		else:
+			# DLA has no num_tiles
 			dds_file.dx_10.num_tiles = 1
+		if is_dla(self.ovl) or is_ztuac(self.ovl) or is_pc(self.ovl):
+			# not sure how / if texture arrays are packed for PC - this works for flat textures
+			tile_datas = (buffer_data, )
+		else:
+			tile_datas = dds_file.unpack_mips(buffer_data)
+		# set to no tiles for dds export
+		dds_file.dx_10.num_tiles = 1
+		# export all tiles as separate dds files
+		for tile_i, tile_name, tile_data in zip(tiles, self.get_tile_names(tiles, basename), tile_datas):
 			dds_file.buffer = tile_data
 			dds_file.linear_size = len(buffer_data)
 			dds_path = out_dir(f"{tile_name}.dds")
