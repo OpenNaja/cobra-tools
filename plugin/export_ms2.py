@@ -2,6 +2,8 @@ import logging
 import math
 import os
 import time
+import re
+import shutil
 
 import bpy
 import mathutils
@@ -34,18 +36,52 @@ def get_pack_base(b_obs, apply_transforms=False):
 			return pack_base
 
 
-def save(filepath='', apply_transforms=False, update_rig=False, use_stock_normals_tangents=False):
+def get_next_backup_filename(filepath):
+	""" Based on the input file name, find copies of the file including ~number """
+	sfolder, sfile = os.path.split(os.path.normpath(filepath))
+	sname, sext = os.path.splitext(sfile)
+	prefixed = [filename for filename in os.listdir(sfolder) if filename.startswith(sname)]
+	if len(prefixed) == 0:
+		# no files found, create the first one 
+		return os.path.join(sfolder,sname + '~1' + sext)
+	else:
+		# files found, find all the file suffix numbers
+		file_suffixes = []
+
+		for file in prefixed:
+			regex_match = re.match(sname + "~(\d+)", file)
+			if regex_match:
+				file_suffix = regex_match.groups()[0]
+				file_suffix_int = int(file_suffix)
+				file_suffixes.append(file_suffix_int)
+
+		# get max and increment by one				
+		new_suffix = max(file_suffixes) + 1 
+		return os.path.join(sfolder,sname + '~' + str(new_suffix) + sext)
+
+
+def save(filepath='', backup_original=True, apply_transforms=False, update_rig=False, use_stock_normals_tangents=False):
 	messages = set()
 	start_time = time.time()
 
-	logging.info(f"Exporting {filepath} into export subfolder...")
 	if not os.path.isfile(filepath):
 		raise FileNotFoundError(f"{filepath} does not exist. You must open an existing ms2 file for exporting.")
 
-	old_dir, name = os.path.split(os.path.normpath(filepath))
-	exp_dir = os.path.join(old_dir, "export")
-	os.makedirs(exp_dir, exist_ok=True)
-	export_path = os.path.join(exp_dir, name)
+	if backup_original:
+		logging.info(f"Saving a copy of {filepath} in the Backups/ subfolder...")
+		old_dir, name = os.path.split(os.path.normpath(filepath))
+		exp_dir = os.path.join(old_dir, "backups")
+		os.makedirs(exp_dir, exist_ok=True)
+
+		export_path = os.path.join(exp_dir, name)
+
+		backup_name = get_next_backup_filename(export_path)
+		shutil.copy(filepath, backup_name)
+		print(backup_name)
+
+
+	logging.info(f"Exporting {filepath}...")
+
 	ms2 = Ms2File()
 	ms2.load(filepath)
 	ms2.read_editable = True
@@ -145,8 +181,8 @@ def save(filepath='', apply_transforms=False, update_rig=False, use_stock_normal
 
 		export_bounds(bounds, model_info)
 
-	# write modified ms2
-	ms2.save(export_path)
+	# write ms2, backup should have been created earlier
+	ms2.save(filepath)
 	if found_scenes:
 		messages.add(f"Finished MS2 export in {time.time() - start_time:.2f} seconds")
 	else:
