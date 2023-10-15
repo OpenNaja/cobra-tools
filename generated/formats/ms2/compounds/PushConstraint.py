@@ -9,6 +9,7 @@ class PushConstraint(Constraint):
 	used in JWE Pteranodon
 	no longer used in PZ, JWE2
 	might be some sort of avoidance
+	possibly also simple ragdolling
 	"""
 
 	__name__ = 'PushConstraint'

@@ -81,7 +81,6 @@
 	<bitfield name="ChunkedModelFlag" storage="uint">
 		Determines the data held by a mesh.
 		<member width="1" pos="0" name="flat_arrays" type="bool">vecs, weights, uvs if true, interleaved per vertex if false</member>
-<!--		<member width="1" pos="5" name="repeat tris" type="bool">repeats the tri array 5 times</member>-->
 		so far not sure about these, it is 13 on shell meshes
 		<member width="1" pos="2" name="fur_shells" type="bool">active if mesh uses fur shells, may or may not repeat tris</member>
 		<member width="1" pos="3" name="fur_shells_2" type="bool">active if mesh uses fur shells, may or may not repeat tris</member>
@@ -120,7 +119,6 @@
 		<option value="8" name="ConvexHullPC" />
 		<option value="10" name="MeshCollision"/>
 		<option value="11" name="UnkRhino" >?</option>
-<!--		<option value="32" name="Unk2Rhino" >?</option>-->
 	</enum>
 
 	<compound name="Matrix44" size="64">
@@ -403,7 +401,7 @@
 	</compound>
 
 	<compound name="ModelInfo" inherit="MemStruct">
-		Describes one model, corresponding to a virtual .mdl2 file
+		Describes one model, corresponding to a .mdl2 file
 		JWE2 - 192 bytes
 		JWE2 Biosyn - 160 bytes
 		<add name="unk dla" type="uint64" until="7">??</add>
@@ -421,7 +419,7 @@
 		<add name="num_materials" type="ushort"/>
 		<add name="num_lods" type="ushort"/>
 		<add name="num_objects" type="ushort"/>
-		<add name="num_meshes" type="ushort">count of MeshData fragments for the mdl2 this struct refers to</add>
+		<add name="num_meshes" type="ushort"/>
 		<add name="last_count" type="ushort">?</add>
 		<add name="render_flag" type="RenderFlag">this has influence on whether newly added shells draw correctly; for PZ usually 4, except for furry animals; ZT african ele female</add>
 		<add name="unks" type="ushort" arr1="7">?</add>
@@ -530,8 +528,8 @@
 		<add name="parent" type="BonePointer"/>
 		<add name="unk0" type="ushort" default="0"/>
 		<add name="matrix" type="Matrix33" >no clue what space this is in, defines the orientation for the ranges</add>
-		<add name="yaw" type="RotationRange"/>
-		<add name="pitch" type="RotationRange"/>
+		<add name="yaw" type="RotationRange"/>degrees
+		<add name="pitch" type="RotationRange"/>degrees
 		<add name="unk1" type="uint" default="1"/>
 	</compound>
 
@@ -587,6 +585,7 @@
 		used in JWE Pteranodon
 		no longer used in PZ, JWE2
 		might be some sort of avoidance
+		possibly also simple ragdolling
 		<add name="floats" type="float" arr1="3"/>
 	</compound>
 
@@ -602,9 +601,16 @@
 	<compound name="RagdollConstraint" inherit="Constraint">
 		probably ragdoll, lots of angles
 		<add name="loc" type="Vector3" >the location of the child joint</add>
-<!--		<add name="rot" type="Matrix33" >the rotation of the joint, inverted?? - first line == first line of child JointTransform</add>-->
-		<add name="floats" type="float" arr1="5" arr2="3" >each of the vec3 components is normalized, these might represent axes for the angles</add>
-		<add name="radians" type="float" arr1="8">radians</add>
+		vec_a and rot row 0 seem to be identical (tested on JWE1, JWE2, PZ)
+		sometimes correspond to the negated child joint rot row0
+		<add name="vec_a" type="Vector3" >normed</add>
+		row 2 can match child joint rot row 1
+		<add name="rot" type="Matrix33" >all 3 rows are orthogonal to one another</add>
+		<add name="vec_b" type="Vector3" >normed</add>
+		<add name="x" type="RotationRange" >radians</add>
+		<add name="y" type="RotationRange" >radians</add>
+		<add name="z" type="RotationRange" >radians</add>
+		<add name="q" type="RotationRange" >radians</add>
 	</compound>
 
 	<compound name="UACJointFF">

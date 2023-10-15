@@ -6,11 +6,10 @@ import logging
 from copy import copy
 
 import numpy as np
+np.set_printoptions(precision=3, suppress=True)
 
 from generated.formats.base.compounds.PadAlign import get_padding
 from generated.formats.ms2.compounds.Ms2InfoHeader import Ms2InfoHeader
-from generated.formats.ms2.compounds.packing_utils import pack_swizzle, PACKEDVEC_MAX
-from generated.formats.ms2.enums.CollisionType import CollisionType
 from generated.formats.ms2.versions import *
 from generated.io import IoFile
 from modules.formats.shared import djb2
@@ -60,7 +59,16 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			if not joints:
 				logging.debug(f"Joints not used")
 				return
-			for bone_i, joint_info in zip(joints.joint_to_bone, joints.joint_infos):
+			for ragdoll in joints.ragdoll_constraints:
+				# print(ragdoll.vec_a == ragdoll.vec_a_repeat)
+				r = ragdoll.rot.data
+				a = np.dot(r[0], r[1])
+				b = np.dot(r[1], r[2])
+				c = np.dot(r[0], r[2])
+				print(a, b, c)
+				# print(ragdoll.vec_a == ragdoll.vec_a_repeat)
+			for bone_i, joint_info, joint_transform in zip(joints.joint_to_bone, joints.joint_infos, joints.joint_transforms):
+				joint_transform.name = joint_info.name
 				# usually, this corresponds - does not do for speedtree but does not matter
 				joint_info.bone_name = bone_info.bones[bone_i].name
 				if joints.bone_count:
@@ -404,49 +412,16 @@ class Ms2File(Ms2InfoHeader, IoFile):
 
 
 if __name__ == "__main__":
-	# import math
-	# a1 = [(8.0, 7.629452738910913e-06), (512.0, 0.0004885197849944234), (1024.0, 0.0009775171056389809),
-	#  (2048.0, 0.001956947147846222), (4096.0, 0.003921568859368563)]
-	# for pack_base, scale in a1:
-	# 	quad = 1.2285932501219967e-9 + 9.536674737032024e-7 * pack_base + 9.14657200199282e-13 * math.pow(pack_base, 2)
-	# 	# quad = 1.229e-9 + 9.537e-7 * pack_base + 9.147e-13 * math.pow(pack_base, 2)
-	# 	lin = pack_base * 9.57536917458211E-07
-	# 	d = (1 + pack_base) * pack_base / PACKEDVEC_MAX - pack_base
-	# 	d = 1 / np.round((0 + pack_base) / pack_base * PACKEDVEC_MAX - pack_base)
-	# 	# print(f"pack_base {pack_base}, scale {scale}, quad {quad}, lin {lin}, (quad-scale) {quad-scale}, (lin-scale) {lin-scale}" )
-	# 	# print(f"pack_base {pack_base}, scale {scale}, quad {quad}, lin {lin}, d {d}" )
-	#
-	# 	base_exp = math.log2(pack_base)
-	# 	error = 4 ** (base_exp-10.0)
-	# 	scale2 = (error + pack_base) / PACKEDVEC_MAX
-	# 	# scale_a = get_scale2(pack_base)
-	# 	# scale_b = get_scale_long(pack_base)
-	# 	# print(scale_a, scale_b, scale_b == scale_a)
-	# 	# print(i, pack_base, base_exp, error, scale)
-	# 	# print(pack_base, PACKEDVEC_MAX * scale, PACKEDVEC_MAX * scale - pack_base, scale)
-	# 	# print(pack_base, scale, scale2, scale2-scale, quad, quad-scale)
-	# 	# print(f"pack_base {pack_base}, scale {scale}, scale2 {scale2}, quad {quad}, (scale2-scale) {scale2-scale}, (quad-scale) {quad-scale}" )
-	# 	# error = PACKEDVEC_MAX * scale - pack_base
-	# 	# error + pack_base = PACKEDVEC_MAX * scale
-	# 	# (error + pack_base) / PACKEDVEC_MAX = scale
-	# # (scale + pack_base) / pack_base = 1.0
-	# for i in range(0, 16):
-	# 	pack_base = 2**i
-	# 	base_exp = math.log2(pack_base)
-	# 	error = 4 ** (base_exp-10.0)
-	# 	scale = (error + pack_base) / PACKEDVEC_MAX
-	# 	print(i, pack_base, base_exp, error, scale)
-	# for i in range(-2, 3):
-	# 	print(i, 4**i)
-	# 	# 1024 = 2**10 == 1 = 4 ** 0
-
 	m = Ms2File()
 	# m.load("C:/Users/arnfi/Desktop/camerabone_.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/FR_GrandCarousel.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/SP_Grave_Stones.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC ovls/walker_export/SP_Scarecrow not working atm.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/Warhammer/Annihilator/annihilatormodels.ms2", read_editable=True)
-	m.load("C:/Users/arnfi/Desktop/models.ms2", read_editable=True)
+	m.load("C:/Users/arnfi/Desktop/acro/models.ms2", read_editable=True)
+	# m.load("C:/Users/arnfi/Desktop/ptera_JWE1/pteranodon_.ms2", read_editable=True)
+	# m.load("C:/Users/arnfi/Desktop/anky_JWE1/ankylosaurus.ms2", read_editable=True)
+	# m.load("C:/Users/arnfi/Desktop/moose/alaskan_moose_male_.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/janitormale_.ms2", read_editable=True)
 	print(m)
 	# m.save("C:/Users/arnfi/Desktop/test.ms2")

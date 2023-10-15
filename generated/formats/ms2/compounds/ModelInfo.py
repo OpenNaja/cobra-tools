@@ -6,7 +6,7 @@ from generated.formats.ovl_base.compounds.MemStruct import MemStruct
 class ModelInfo(MemStruct):
 
 	"""
-	Describes one model, corresponding to a virtual .mdl2 file
+	Describes one model, corresponding to a .mdl2 file
 	JWE2 - 192 bytes
 	JWE2 Biosyn - 160 bytes
 	"""
@@ -52,8 +52,6 @@ class ModelInfo(MemStruct):
 		self.num_materials = name_type_map['Ushort'](self.context, 0, None)
 		self.num_lods = name_type_map['Ushort'](self.context, 0, None)
 		self.num_objects = name_type_map['Ushort'](self.context, 0, None)
-
-		# count of MeshData fragments for the mdl2 this struct refers to
 		self.num_meshes = name_type_map['Ushort'](self.context, 0, None)
 
 		# ?
