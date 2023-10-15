@@ -59,14 +59,13 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			if not joints:
 				logging.debug(f"Joints not used")
 				return
-			for ragdoll in joints.ragdoll_constraints:
-				# print(ragdoll.vec_a == ragdoll.vec_a_repeat)
-				r = ragdoll.rot.data
-				a = np.dot(r[0], r[1])
-				b = np.dot(r[1], r[2])
-				c = np.dot(r[0], r[2])
-				print(a, b, c)
-				# print(ragdoll.vec_a == ragdoll.vec_a_repeat)
+			# # test for orthogonal vecs
+			# for ragdoll in joints.ragdoll_constraints:
+			# 	r = ragdoll.rot.data
+			# 	a = np.dot(r[0], r[1])
+			# 	b = np.dot(r[1], r[2])
+			# 	c = np.dot(r[0], r[2])
+			# 	print(a, b, c)
 			for bone_i, joint_info, joint_transform in zip(joints.joint_to_bone, joints.joint_infos, joints.joint_transforms):
 				joint_transform.name = joint_info.name
 				# usually, this corresponds - does not do for speedtree but does not matter
