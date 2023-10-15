@@ -24,8 +24,8 @@ def import_armature(scene, model_info, b_bone_names):
 		b_armature_data = bpy.data.armatures.new(armature_name)
 		b_armature_data.display_type = 'STICK'
 		# b_armature_data.show_axes = True
-		b_armature_obj = create_ob(scene, armature_name, b_armature_data)
-		b_armature_obj.show_in_front = True
+		armature_ob = create_ob(scene, armature_name, b_armature_data)
+		armature_ob.show_in_front = True
 		# make armature editable and create bones
 		bpy.ops.object.mode_set(mode='EDIT', toggle=False)
 		mats = {}
@@ -80,16 +80,20 @@ def import_armature(scene, model_info, b_bone_names):
 		# store original bone index as custom property
 		for i, bone_name in enumerate(b_bone_names):
 			short_name = long_name_2_short_name[bone_name]
-			bone = b_armature_obj.pose.bones[short_name]
+			bone = armature_ob.pose.bones[short_name]
 			bone["index"] = i
 		try:
-			import_joints(scene, b_armature_obj, bone_info, b_bone_names, corrector)
+			import_joints(scene, armature_ob, bone_info, b_bone_names, corrector)
 		except:
 			logging.exception("Importing joints failed")
+		try:
+			import_ik(scene, armature_ob, bone_info, b_bone_names, corrector, long_name_2_short_name)
+		except:
+			logging.exception("Importing IK failed")
 
 		set_collection_visibility(scene, f"{scene.name}_joints", True)
 		set_collection_visibility(scene, f"{scene.name}_hitchecks", True)
-		return b_armature_obj
+		return armature_ob
 
 
 def get_local_bone_matrix(bone):
@@ -135,10 +139,40 @@ def get_bone_names(model_info):
 	return [matrix_util.bone_name_for_blender(bone.name) for bone in model_info.bone_info.bones]
 
 
+def import_ik(scene, armature_ob, bone_info, b_bone_names, corrector, long_name_2_short_name):
+	logging.info("Importing IK")
+	ik = bone_info.ik_info
+	child_2_parent = {}
+	for ik_link in ik.ik_list:
+		child_2_parent[ik_link.child.joint.name] = ik_link.parent.joint.name
+	# find ends of chains
+	chains = {}
+	for child, parent in child_2_parent.items():
+		if child not in child_2_parent.values():
+			chains[child] = []
+	# complete the chains
+	for child, parents in chains.items():
+		while True:
+			parent = child_2_parent.get(child, None)
+			if parent:
+				parents.append(parent)
+				child = parent
+			else:
+				break
+	# create the constraints
+	for child, parents in chains.items():
+		b_long_name = matrix_util.bone_name_for_blender(child)
+		b_short_name = long_name_2_short_name[b_long_name]
+		p_bone = armature_ob.pose.bones[b_short_name]
+		b_ik = p_bone.constraints.new("IK")
+		b_ik.chain_count = len(parents) + 1
+
+
 def import_joints(scene, armature_ob, bone_info, b_bone_names, corrector):
 	logging.info("Importing joints")
 	j = bone_info.joints
-	for bone_index, joint_info, joint_transform in zip(j.joint_to_bone, j.joint_infos, j.joint_transforms):
+	for bone_index, joint_info, joint_transform, rb in zip(
+			j.joint_to_bone, j.joint_infos, j.joint_transforms, j.rigid_body_list):
 		logging.debug(f"joint {joint_info.name}")
 		# create an empty representing the joint
 		b_joint = create_ob(scene, f"{bpy.context.scene.name}_{joint_info.name}", None, coll_name="joints")
@@ -148,7 +182,8 @@ def import_joints(scene, armature_ob, bone_info, b_bone_names, corrector):
 		b_joint.matrix_local = get_matrix(corrector, joint_transform)
 		if hasattr(joint_info, "hitchecks"):
 			for hitcheck in joint_info.hitchecks:
-				import_collider(hitcheck, b_joint, corrector)
+				b_collider = import_collider(hitcheck, b_joint, corrector)
+				b_collider.rigid_body.mass = rb.mass
 		# attach joint to bone
 		bone_name = b_bone_names[bone_index]
 		parent_to(armature_ob, b_joint, bone_name)

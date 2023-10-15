@@ -35,6 +35,7 @@ def import_collider(hitcheck, b_joint, corrector):
 	ob["collision_use"] = hitcheck.collision_use
 	# h = HitCheck()
 	# print(export_hitcheck(ob, h))
+	return ob
 
 
 def set_b_collider(b_obj, radius, bounds_type='BOX', display_type='BOX'):
@@ -56,8 +57,8 @@ def set_b_collider(b_obj, radius, bounds_type='BOX', display_type='BOX'):
 
 	b_r_body = b_obj.rigid_body
 	b_r_body.enabled = True
-	b_r_body.use_margin = True
-	b_r_body.collision_margin = radius
+	# b_r_body.use_margin = True
+	# b_r_body.collision_margin = radius
 	b_r_body.collision_shape = bounds_type
 	# if they are set to active they explode once you play back an anim
 	b_r_body.type = "PASSIVE"
