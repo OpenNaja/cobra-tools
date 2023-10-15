@@ -7,12 +7,13 @@ ZERO = b"\x00"
 # END_GLOBALS
 
 class SmartPadding:
-	"""Holds a buffer of zero-terminated strings"""
 
 # START_CLASS
 
 	def __init__(self, context, arg=None, template=None, set_default=True):
 		self.name = ''
+		self.io_size = 0
+		self.io_start = 0
 		self._context = context
 		# arg is size of the bytes raster
 		self.arg = arg
@@ -24,6 +25,7 @@ class SmartPadding:
 
 	@classmethod
 	def read_fields(cls, stream, instance):
+		instance.io_start = stream.tell()
 		instance.data = b''
 		# fall back if no arg has been set
 		if not instance.arg:
@@ -41,6 +43,7 @@ class SmartPadding:
 		else:
 			raise ValueError('padding too long')
 		stream.seek(end)
+		instance.io_size = end - instance.io_start
 
 	@classmethod
 	def write_fields(cls, stream, instance):

@@ -82,8 +82,7 @@ class JointData(BaseStruct):
 
 		# this seems to be always multiples of 8 bytes
 		# fails on PC SP_Scarecrow, because its first hitcheck has collision type 0
-		# old, not sure what ms2: the padding goes wrong on 144
-		self.after_names = name_type_map['AfterJointsPadding'](self.context, 8, None)
+		self.after_names = name_type_map['SmartPadding'](self.context, 8, None)
 
 		# new style - includes name offset, some flags and the hitchecks
 		self.joint_infos = Array(self.context, self.joint_names, None, (0,), name_type_map['JointInfo'])
@@ -130,7 +129,7 @@ class JointData(BaseStruct):
 		yield 'bone_to_joint', Array, (0, None, (None,), name_type_map['Int']), (False, None), (None, None)
 		yield 'joint_names', name_type_map['ZStringBuffer'], (None, None), (False, None), (None, None)
 		yield 'joint_names_padding', name_type_map['PadAlign'], (8, None), (False, None), (None, None)
-		yield 'after_names', name_type_map['AfterJointsPadding'], (8, None), (False, None), (lambda context: context.version <= 32, None)
+		yield 'after_names', name_type_map['SmartPadding'], (8, None), (False, None), (lambda context: context.version <= 32, None)
 		yield 'joint_infos', Array, (None, None, (None,), name_type_map['JointInfo']), (False, None), (lambda context: context.version >= 47, None)
 		yield 'hitcheck_reader', name_type_map['HitcheckReader'], (None, None), (False, None), (lambda context: context.version <= 32, None)
 
@@ -181,7 +180,7 @@ class JointData(BaseStruct):
 		yield 'joint_names', name_type_map['ZStringBuffer'], (instance.namespace_length, None), (False, None)
 		yield 'joint_names_padding', name_type_map['PadAlign'], (8, instance.names_ref), (False, None)
 		if instance.context.version <= 32:
-			yield 'after_names', name_type_map['AfterJointsPadding'], (8, None), (False, None)
+			yield 'after_names', name_type_map['SmartPadding'], (8, None), (False, None)
 		if instance.context.version >= 47:
 			yield 'joint_infos', Array, (instance.joint_names, None, (instance.joint_count,), name_type_map['JointInfo']), (False, None)
 		if instance.context.version <= 32:
