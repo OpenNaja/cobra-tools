@@ -3,6 +3,7 @@ import shutil
 import sys
 import logging
 import tempfile
+
 from gui import widgets, startup, GuiOptions  # Import widgets before everything except built-ins!
 from ovl_util.logs import HtmlFormatter, AnsiFormatter, get_stdout_handler
 from gui.widgets import Reporter
@@ -238,10 +239,13 @@ class MainWindow(widgets.MainWindow):
 
 	def search_ovl_contents(self, search_str):
 		start_dir = self.installed_games.get_root()
-		results = [f"{ovl.replace(start_dir, '')}: {filename}" for ovl, filename in walker.search_for_files_in_ovls(self, start_dir, search_str)]
-		self.showdialog(
-			f"Found {len(results)} occurences of '{search_str}' in '{start_dir}'. Click 'Show Details' below to see the results.",
-			title="Search Results", buttons=None, details="\n".join(results))
+		results = [(filename, ext, ovl.replace(start_dir, '')) for ovl, filename, ext in walker.search_for_files_in_ovls(self, start_dir, search_str)]
+		self.results_container = widgets.SortableTable(["Name", "File Type", "OVL"], self.ovl_data.formats_dict.ignore_types,
+												  ignore_drop_type="OVL", opt_hide=True)
+		self.results_container.set_data(results)
+		self.results_container.setGeometry(QtCore.QRect(100, 100, 1000, 600))
+		self.results_container.show()
+		# f"Found {len(results)} occurences of '{search_str}' in '{start_dir}'. Click 'Show Details' below to see the results."
 
 	def notify_user(self, msg_list):
 		msg = msg_list[0]

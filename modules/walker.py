@@ -52,7 +52,7 @@ def search_for_files_in_ovls(gui, start_dir, search_str):
 				file_names = ovl_data.load(ovl_path, commands={"generate_names": True})
 				for file_name in file_names:
 					if search_str in file_name:
-						yield ovl_path, file_name
+						yield ovl_path, file_name, os.path.splitext(file_name)[1]
 
 
 def generate_hash_table(gui, start_dir):
