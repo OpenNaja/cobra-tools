@@ -238,8 +238,10 @@ class MainWindow(widgets.MainWindow):
 
 	def search_ovl_contents(self, search_str):
 		start_dir = self.installed_games.get_root()
-		for ovl, filename in walker.search_for_files_in_ovls(self, start_dir, search_str):
-			logging.success(f"found {ovl}: {filename}")
+		results = [f"{ovl.replace(start_dir, '')}: {filename}" for ovl, filename in walker.search_for_files_in_ovls(self, start_dir, search_str)]
+		self.showdialog(
+			f"Found {len(results)} occurences of '{search_str}' in '{start_dir}'. Click 'Show Details' below to see the results.",
+			title="Search Results", buttons=None, details="\n".join(results))
 
 	def notify_user(self, msg_list):
 		msg = msg_list[0]

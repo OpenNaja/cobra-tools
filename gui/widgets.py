@@ -1946,6 +1946,7 @@ class GamesWidget(QWidget):
 
         self.search = QWidget()
         self.search_entry = QLineEdit("")
+        self.search_entry.setPlaceholderText("Search Archives")
         self.search_button = QPushButton(get_icon("search"), "")
         self.search_button.setMaximumWidth(20)
         self.search_button.clicked.connect(self.search_button_clicked)
