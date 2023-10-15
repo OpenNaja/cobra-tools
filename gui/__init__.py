@@ -14,6 +14,11 @@ from PyQt5.QtGui import QPalette
 
 def check_python() -> None:
 	"""Require Python == 3.11"""
+	is_64bits = sys.maxsize > 2 ** 32
+	if not is_64bits:
+		logging.warning(
+			"Either your operating system or your python installation is not 64 bits. "
+			"Large OVLs will crash unexpectedly!")
 	if (sys.version_info.major, sys.version_info.minor) != (3, 11):
 		logging.critical("Python 3.11 is required. Please change your Python installation.")
 		time.sleep(60)

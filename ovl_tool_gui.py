@@ -208,7 +208,6 @@ class MainWindow(widgets.MainWindow):
 		self.status_bar.insertPermanentWidget(2, self.finfo_sep)
 		self.status_bar.insertPermanentWidget(3, self.file_info)
 
-		self.check_version()
 		# run once here to make sure we catch the default game
 		self.populate_game()
 
@@ -587,16 +586,6 @@ class MainWindow(widgets.MainWindow):
 						f"Length of '{old}' [{len(old)}] and '{new}' [{len(new)}] don't match!\n"
 						f"Continue renaming anyway?", title="Length Warning"):
 					return True
-
-	def check_version(self):
-		is_64bits = sys.maxsize > 2 ** 32
-		if not is_64bits:
-			self.showerror(
-				"Either your operating system or your python installation is not 64 bits.\n"
-				"Large OVLs will crash unexpectedly!")
-		if sys.version_info[0] != 3 or sys.version_info[1] < 7 or (
-				sys.version_info[1] == 7 and sys.version_info[2] < 6):
-			self.showerror("Python 3.7.6+ x64 bit is expected!")
 
 
 if __name__ == '__main__':
