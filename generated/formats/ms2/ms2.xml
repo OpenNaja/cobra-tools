@@ -607,10 +607,13 @@
 		row 2 can match child joint rot row 1
 		<add name="rot" type="Matrix33" >all 3 rows are orthogonal to one another</add>
 		<add name="vec_b" type="Vector3" >normed</add>
+		tolerance around the rotation axes
 		<add name="x" type="RotationRange" >radians</add>
 		<add name="y" type="RotationRange" >radians</add>
 		<add name="z" type="RotationRange" >radians</add>
-		<add name="q" type="RotationRange" >radians</add>
+		apparently a rotation margin under which simulation is allowed to stop
+		unlike x, y, z above, this is directional, with min negative
+		<add name="plasticity" type="RotationRange" >radians</add>
 	</compound>
 
 	<compound name="UACJointFF">

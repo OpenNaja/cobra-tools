@@ -36,7 +36,7 @@ class RagdollConstraint(Constraint):
 		self.z = name_type_map['RotationRange'](self.context, 0, None)
 
 		# radians
-		self.q = name_type_map['RotationRange'](self.context, 0, None)
+		self.plasticity = name_type_map['RotationRange'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 
@@ -50,7 +50,7 @@ class RagdollConstraint(Constraint):
 		yield 'x', name_type_map['RotationRange'], (0, None), (False, None), (None, None)
 		yield 'y', name_type_map['RotationRange'], (0, None), (False, None), (None, None)
 		yield 'z', name_type_map['RotationRange'], (0, None), (False, None), (None, None)
-		yield 'q', name_type_map['RotationRange'], (0, None), (False, None), (None, None)
+		yield 'plasticity', name_type_map['RotationRange'], (0, None), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -62,4 +62,4 @@ class RagdollConstraint(Constraint):
 		yield 'x', name_type_map['RotationRange'], (0, None), (False, None)
 		yield 'y', name_type_map['RotationRange'], (0, None), (False, None)
 		yield 'z', name_type_map['RotationRange'], (0, None), (False, None)
-		yield 'q', name_type_map['RotationRange'], (0, None), (False, None)
+		yield 'plasticity', name_type_map['RotationRange'], (0, None), (False, None)
