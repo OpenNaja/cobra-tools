@@ -220,6 +220,16 @@ def import_joints(scene, armature_ob, bone_info, b_bone_names, corrector):
 		# only set constrained children to active
 		ob1.rigid_body.type = "ACTIVE"
 
+		b_ragdoll = create_ob(scene, f"{'ragdoll'}_{child_name}", None, coll_name="ragdoll")
+		b_ragdoll.empty_display_type = "ARROWS"
+		b_ragdoll.empty_display_size = 0.05
+		# mat = mathutils.Matrix(ragdoll.rot.data).to_4x4()
+		mat = mathutils.Matrix(ragdoll.rot.data).inverted().to_4x4()
+		mat = corrector.nif_bind_to_blender_bind(mat)
+		joint_transform = j.joint_transforms[ragdoll.child.index]
+		mat.translation = get_matrix(corrector, joint_transform).translation
+		b_ragdoll.matrix_local = mat
+
 
 def get_matrix(corrector, joint_transform):
 	n_bind = mathutils.Matrix(joint_transform.rot.data).inverted().to_4x4()
