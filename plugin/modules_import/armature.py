@@ -171,14 +171,16 @@ def import_ik(scene, armature_ob, bone_info, b_bone_names, corrector, long_name_
 def import_joints(scene, armature_ob, bone_info, b_bone_names, corrector):
 	logging.info("Importing joints")
 	j = bone_info.joints
+	joint_map = {}
 	for bone_index, joint_info, joint_transform, rb in zip(
 			j.joint_to_bone, j.joint_infos, j.joint_transforms, j.rigid_body_list):
 		logging.debug(f"joint {joint_info.name}")
 		# create an empty representing the joint
 		b_joint = create_ob(scene, f"{bpy.context.scene.name}_{joint_info.name}", None, coll_name="joints")
 		b_joint["long_name"] = joint_info.name
+		joint_map[joint_info.name] = b_joint
 		b_joint.empty_display_type = "ARROWS"
-		b_joint.empty_display_size = 0.03
+		b_joint.empty_display_size = 0.05
 		b_joint.matrix_local = get_matrix(corrector, joint_transform)
 		if hasattr(joint_info, "hitchecks"):
 			for hitcheck in joint_info.hitchecks:
@@ -187,6 +189,36 @@ def import_joints(scene, armature_ob, bone_info, b_bone_names, corrector):
 		# attach joint to bone
 		bone_name = b_bone_names[bone_index]
 		parent_to(armature_ob, b_joint, bone_name)
+
+	# ragdoll constraints
+	for ragdoll in j.ragdoll_constraints:
+		parent_name = ragdoll.parent.joint.name
+		child_name = ragdoll.child.joint.name
+		b_joint = joint_map[child_name]
+		# override = bpy.context.copy()
+		# override['selected_objects'] = b_joint
+		# override['active_object'] = b_joint
+		# bpy.ops.rigidbody.object_add(override)
+		bpy.context.view_layer.objects.active = b_joint
+		bpy.ops.rigidbody.constraint_add()
+		rbc = b_joint.rigid_body_constraint
+		rbc.type = 'GENERIC'
+		rbc.use_limit_ang_x = rbc.use_limit_ang_y = rbc.use_limit_ang_z = True
+		rbc.limit_ang_x_lower = -ragdoll.x.min
+		rbc.limit_ang_x_upper = ragdoll.x.max
+		rbc.limit_ang_y_lower = -ragdoll.y.min
+		rbc.limit_ang_y_upper = ragdoll.y.max
+		rbc.limit_ang_z_lower = -ragdoll.z.min
+		rbc.limit_ang_z_upper = ragdoll.z.max
+		rbc.use_limit_lin_x = rbc.use_limit_lin_y = rbc.use_limit_lin_z = True
+		rbc.limit_lin_x_lower = rbc.limit_lin_x_upper = rbc.limit_lin_y_lower = rbc.limit_lin_y_upper = \
+			rbc.limit_lin_z_lower = rbc.limit_lin_z_upper = 0.0
+		ob1 = joint_map[child_name].children[0]
+		ob2 = joint_map[parent_name].children[0]
+		rbc.object1 = ob1
+		rbc.object2 = ob2
+		# only set constrained children to active
+		ob1.rigid_body.type = "ACTIVE"
 
 
 def get_matrix(corrector, joint_transform):

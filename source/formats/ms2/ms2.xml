@@ -599,7 +599,6 @@
 	</compound>
 
 	<compound name="RagdollConstraint" inherit="Constraint">
-		probably ragdoll, lots of angles
 		<add name="loc" type="Vector3" >the location of the child joint</add>
 		vec_a and rot row 0 seem to be identical (tested on JWE1, JWE2, PZ)
 		sometimes correspond to the negated child joint rot row0

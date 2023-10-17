@@ -4,10 +4,6 @@ from generated.formats.ms2.imports import name_type_map
 
 class RagdollConstraint(Constraint):
 
-	"""
-	probably ragdoll, lots of angles
-	"""
-
 	__name__ = 'RagdollConstraint'
 
 

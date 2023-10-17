@@ -416,12 +416,25 @@ if __name__ == "__main__":
 	# m.load("C:/Users/arnfi/Desktop/SP_Grave_Stones.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC ovls/walker_export/SP_Scarecrow not working atm.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/Warhammer/Annihilator/annihilatormodels.ms2", read_editable=True)
-	m.load("C:/Users/arnfi/Desktop/acro/models.ms2", read_editable=True)
+	# m.load("C:/Users/arnfi/Desktop/acro/models.ms2", read_editable=True)
+	m.load("C:/Users/arnfi/Desktop/doors/dlc11_stripdoors_.ms2", read_editable=True)
+	for i, bone_info in enumerate(m.models_reader.bone_infos):
+		joints = bone_info.joints
+		# test for orthogonal vecs
+		# for ragdoll in joints.ragdoll_constraints:
+		# 	ragdoll.x.max = 0
+		# 	ragdoll.x.min = 0
+			# # ragdoll.z.max = 0
+			# ragdoll.z.min = 0
+			# print(ragdoll.parent, ragdoll.child)
+			# print(ragdoll.rot.data)
+			# print(np.linalg.inv(ragdoll.rot.data))
+	print(m)
+	m.save("C:/Users/arnfi/Desktop/dlc11_stripdoors_.ms2")
 	# m.load("C:/Users/arnfi/Desktop/ptera_JWE1/pteranodon_.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/anky_JWE1/ankylosaurus.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/moose/alaskan_moose_male_.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/janitormale_.ms2", read_editable=True)
-	print(m)
 	# m.save("C:/Users/arnfi/Desktop/test.ms2")
 	# m.load("C:/Users/arnfi/Desktop/jwe2/pyro/export/models.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/models.ms2", read_editable=True)
