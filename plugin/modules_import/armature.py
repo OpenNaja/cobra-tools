@@ -9,7 +9,7 @@ from plugin.modules_import.collision import import_collider, parent_to
 
 from plugin.utils.object import create_ob, link_to_collection, set_collection_visibility
 from plugin.utils import matrix_util
-from plugin.utils.matrix_util import mat3_to_vec_roll
+from plugin.utils.matrix_util import mat3_to_vec_roll, CorrectorRagdoll
 
 
 def import_armature(scene, model_info, b_bone_names):
@@ -190,6 +190,7 @@ def import_joints(scene, armature_ob, bone_info, b_bone_names, corrector):
 		bone_name = b_bone_names[bone_index]
 		parent_to(armature_ob, b_joint, bone_name)
 
+	corrector_rag = CorrectorRagdoll(False)
 	# ragdoll constraints
 	for ragdoll in j.ragdoll_constraints:
 		parent_name = ragdoll.parent.joint.name
@@ -223,9 +224,11 @@ def import_joints(scene, armature_ob, bone_info, b_bone_names, corrector):
 		b_ragdoll = create_ob(scene, f"{'ragdoll'}_{child_name}", None, coll_name="ragdoll")
 		b_ragdoll.empty_display_type = "ARROWS"
 		b_ragdoll.empty_display_size = 0.05
-		# mat = mathutils.Matrix(ragdoll.rot.data).to_4x4()
 		mat = mathutils.Matrix(ragdoll.rot.data).inverted().to_4x4()
-		mat = corrector.nif_bind_to_blender_bind(mat)
+		mat = corrector_rag.nif_bind_to_blender_bind(mat)
+		mat = mat.to_3x3()
+		mat *= -1
+		mat = mat.to_4x4()
 		joint_transform = j.joint_transforms[ragdoll.child.index]
 		mat.translation = get_matrix(corrector, joint_transform).translation
 		b_ragdoll.matrix_local = mat

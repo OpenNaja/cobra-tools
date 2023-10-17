@@ -105,6 +105,24 @@ class Corrector:
 		return self.correction_glob_inv @ bind @ self.correction
 
 
+class CorrectorRagdoll(Corrector):
+	def __init__(self, is_zt):
+		# axis_conversion(from_forward='Y', from_up='Z', to_forward='Y', to_up='Z')
+		self.correction_glob = axis_conversion("-Z", "Y").to_4x4()
+		self.correction_glob_inv = self.correction_glob.inverted()
+		if is_zt:
+			self.correction = axis_conversion("X", "Y").to_4x4()
+		else:
+			# self.correction = axis_conversion("-X", "Y").to_4x4()  # default for bones
+			# self.correction = axis_conversion("X", "-Y").to_4x4()
+			self.correction = axis_conversion("-X", "-Y").to_4x4()  # total inversion
+			# self.correction = axis_conversion("-X", "-Y", to_forward='Y', to_up='-Z').to_4x4()
+		self.correction_inv = self.correction.inverted()
+		# mirror about x axis too:
+		self.xflip = mathutils.Matrix().to_4x4()
+		self.xflip[0][0] = -1
+
+
 def import_matrix(m):
 	"""Retrieves a niBlock's transform matrix as a Mathutil.Matrix."""
 	return mathutils.Matrix(m.as_list())
