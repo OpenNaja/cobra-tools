@@ -78,7 +78,7 @@ class BasicBitfield(object, metaclass=BitfieldMetaClass):
         elem.attrib[prop] = str(instance._value)
 
     @staticmethod
-    def fmt_member(member, indent=0):
+    def format_indented(member, indent=0):
         lines = str(member).split("\n")
         lines_new = [lines[0], ] + ["\t" * indent + line for line in lines[1:]]
         return "\n".join(lines_new)

@@ -33,7 +33,8 @@ class SmartPadding(BaseStruct):
 		self.template = template
 		self.data = b""
 
-	def __repr__(self):
+	@classmethod
+	def format_indented(cls, self, indent=0):
 		return f"{self.data} Size: {len(self.data)}"
 
 	@classmethod

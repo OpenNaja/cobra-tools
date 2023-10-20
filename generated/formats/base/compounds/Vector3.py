@@ -47,7 +47,8 @@ class Vector3(BaseStruct):
 		else:
 			self.x, self.y, self.z = vec
 
-	def __repr__(self):
+	@staticmethod
+	def format_indented(self, indent=0):
 		return f"[ {self.x:6.3f} {self.y:6.3f} {self.z:6.3f} ]"
 
 	def __eq__(self, other):

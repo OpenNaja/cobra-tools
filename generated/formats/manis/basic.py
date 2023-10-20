@@ -39,7 +39,7 @@ class ChannelName:
         cls.cls_from_context(context).to_stream(ind, stream, context, arg, template)
 
     @staticmethod
-    def fmt_member(member, indent=0):
+    def format_indented(member, indent=0):
         return str(member)
 
 
@@ -64,7 +64,7 @@ class BoneIndex(Ubyte):
         cls.cls_from_arg(arg).to_stream(instance, stream, context, arg, template)
 
     @staticmethod
-    def fmt_member(member, indent=0):
+    def format_indented(member, indent=0):
         return str(member)
 
 
@@ -89,6 +89,6 @@ class Int48(Int64):
         stream.seek(c+6)
 
     @staticmethod
-    def fmt_member(member, indent=0):
+    def format_indented(member, indent=0):
         return str(member)
 

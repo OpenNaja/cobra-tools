@@ -7,6 +7,9 @@ import numpy as np
 
 from generated.context import ContextReference
 
+INDENT_CHAR = " "
+INDENT_COUNT = 3
+
 
 class Array(list):
     """Main class responsible for creating, reading and storing (nested) lists of the custom data types, functioning
@@ -53,8 +56,9 @@ class Array(list):
             self.set_defaults()
 
     def __str__(self):
-        fields_str = ',\n'.join([f_type.fmt_member(self[f_name]) for f_name, f_type, _, _ in self._get_filtered_attribute_list(self, self.dtype)])
-        return f"[{fields_str}]"
+        return self.format_indented(self,)
+        # = ',\n'.join([f_type.format_indented(self[f_name]) for f_name, f_type, _, _ in self._get_filtered_attribute_list(self, self.dtype)])
+        # return f"[\n{fields_str}]"
 
     def set_defaults(self):
         self[:] = self.fill(lambda: self.dtype(self.context, self.arg, self.template))
@@ -249,11 +253,22 @@ class Array(list):
             size += field_type.get_size(cls.get_field(instance, field_name), context, *arguments)
         return size
 
-    @staticmethod
-    def fmt_member(member, indent=0):
-        lines = str(member).split("\n")
-        lines_new = [lines[0], ] + ["\t" * indent + line for line in lines[1:]]
-        return "\n".join(lines_new)
+    @classmethod
+    def format_indented(cls, array, indent=0):
+        if not len(array):
+            return "[]"
+        if isinstance(array, np.ndarray):
+            # numpy array use np string representation
+            lines = str(array)[1:-1].split("\n")
+            if len(lines) == 1:
+                return str(array)
+            else:
+                lines_new = [INDENT_CHAR * (indent+INDENT_COUNT) + line.strip() for line in lines]
+                fields_str = "\n".join(lines_new)
+                return f"[\n{fields_str}]"
+        else:
+            fields_str = ',\n'.join([f_type.format_indented(array[f_name], indent+INDENT_COUNT) for f_name, f_type, _, _ in cls._get_filtered_attribute_list(array, array.dtype)])
+            return f"[\n{fields_str}]"
 
     @property
     def class_name(self):

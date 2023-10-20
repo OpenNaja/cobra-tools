@@ -44,7 +44,8 @@ class PadAlign(BaseStruct):
 		distance = stream.tell() - self.template.io_start
 		return get_padding_size(distance, alignment=self.arg)
 
-	def __repr__(self):
+	@classmethod
+	def format_indented(cls, self, indent=0):
 		return f"{self.data} Size: {len(self.data)}"
 
 	@classmethod

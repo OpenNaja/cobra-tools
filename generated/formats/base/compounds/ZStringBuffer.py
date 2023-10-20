@@ -72,7 +72,8 @@ class ZStringBuffer(BaseStruct):
 			buffer_bytes = stream.getvalue()
 		self.data = buffer_bytes + get_padding(len(buffer_bytes), alignment=8)
 
-	def __repr__(self):
+	@classmethod
+	def format_indented(cls, self, indent=0):
 		return str(self.strings)
 
 	@classmethod

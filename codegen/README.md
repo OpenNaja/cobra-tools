@@ -47,8 +47,8 @@ Every class must have three basic functions. These functions are necessary for r
 
 #### Optional interfaces
 The following functions are implemented on the 4 classes included by default in source (`BaseEnum`, `BasicBitfield`, `BaseStruct` and `Array`). They are not integral to essential functionality (reading, writing and instantation) but may prove useful in various cases. If you make use of these, they must be implemented on _all_ basics.
-- Class- or static method `fmt_member`, which takes in an object and returns a string. Useful for printing.
-  - Function signature: `class.fmt_member(member, indent)`
+- Class- or static method `format_indented`, which takes in an object and returns a string. Useful for printing.
+  - Function signature: `class.format_indented(member, indent)`
     - member: object that quacks like the object returned by instantiation/reading of this class.
     - indent: used for pretty-printing, mostly to allow for a tree-like representation of structs within structs.
 - Class- or static method `get_size`, used for getting the size (in bytes) of the associated instance.

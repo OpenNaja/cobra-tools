@@ -121,7 +121,7 @@ class BaseEnum(IntEnum, metaclass=DefaultEnumMeta):
 		return enum
 
 	@staticmethod
-	def fmt_member(member, indent=0):
+	def format_indented(member, indent=0):
 		return str(member)
 
 	@classmethod

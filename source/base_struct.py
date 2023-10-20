@@ -11,6 +11,8 @@ from generated.context import ContextReference
 SKIPS = ("_context", "arg", "name", "io_start", "io_size", "template")
 DTYPE = "dtype"
 DO_NOT_SERIALIZE = "_"
+INDENT_CHAR = " "
+INDENT_COUNT = 3
 
 
 class StructMetaClass(type):
@@ -86,23 +88,28 @@ class BaseStruct(metaclass=StructMetaClass):
 
     @classmethod
     def get_fields_str(cls, instance, indent=0):
-        s = ''
+        strings = []
+        whitespace = INDENT_CHAR * (indent+INDENT_COUNT)
         for f_name, f_type, arguments, _ in cls._get_filtered_attribute_list(instance):
-            s += f'\n	* {f_name} = {f_type.fmt_member(cls.get_field(instance, f_name), indent+1)}'
-        return s
+            try:
+                prefix = f'\n{whitespace}* {f_name} = '
+                field = cls.get_field(instance, f_name)
+                # strings.append(f'{prefix}{f_type.format_indented(field, len(prefix)).lstrip(INDENT_CHAR)}')
+                strings.append(f'{prefix}{f_type.format_indented(field, indent+INDENT_COUNT).lstrip(INDENT_CHAR)}')
+            except:
+                logging.exception(f"Could not format field {f_name} on class {cls.__name__}")
+        return "".join(strings)
 
-    @staticmethod
-    def fmt_member(member, indent=0):
-        lines = str(member).split("\n")
-        lines_new = [lines[0], ] + ["\t" * indent + line for line in lines[1:]]
-        return "\n".join(lines_new)
+    @classmethod
+    def format_indented(cls, self, indent=0):
+        return self.get_info_str(indent) + self.get_fields_str(self, indent)
 
     def get_info_str(self, indent=0):
-        return f'{self.__name__} [Size: {self.io_size}, Address: {self.io_start}] {self.name}'
+        whitespace = INDENT_CHAR * indent
+        return f'{whitespace}{self.__name__} [{self.io_size} @ {self.io_start}] {self.name}'
 
-    def __repr__(self, indent=0):
-        s = self.get_info_str(indent)
-        s += self.get_fields_str(self, indent)
+    def __repr__(self):
+        s = self.format_indented(self, 0)
         s += '\n'
         return s
 

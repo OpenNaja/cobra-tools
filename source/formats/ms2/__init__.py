@@ -262,6 +262,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 
 	def update_names(self):
 		logging.info("Updating MS2 name buffer")
+		# todo use reset_field api
 		self.mdl_2_names.clear()
 		self.buffer_0.names.clear()
 		for model_info in self.model_infos:
@@ -277,6 +278,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 		self.info.name_count = len(self.buffer_0.names)
 		self.buffer_0.name_hashes.resize(len(self.buffer_0.names))
 		for name_i, name in enumerate(self.buffer_0.names):
+			# self.buffer_0.names[name_i] = name
 			self.buffer_0.name_hashes[name_i] = djb2(name.lower())
 
 	def update_buffer_0_bytes(self):
@@ -429,8 +431,8 @@ if __name__ == "__main__":
 			# print(ragdoll.parent, ragdoll.child)
 			# print(ragdoll.rot.data)
 			# print(np.linalg.inv(ragdoll.rot.data))
-	print(m)
 	m.save("C:/Users/arnfi/Desktop/dlc11_stripdoors_.ms2")
+	print(m)
 	# m.load("C:/Users/arnfi/Desktop/ptera_JWE1/pteranodon_.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/anky_JWE1/ankylosaurus.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/moose/alaskan_moose_male_.ms2", read_editable=True)

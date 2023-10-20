@@ -49,14 +49,6 @@ class Pointer(BaseStruct):
 		"""Returns True if it has data"""
 		return bool(self.data)
 
-	@classmethod
-	def get_fields_str(cls, instance, indent=0):
-		s = ''
-		s += f'\n	* pool_index = {instance.pool_index.__repr__()}'
-		s += f'\n	* data_offset = {instance.data_offset.__repr__()}'
-		s += f'\n	* data = {instance.data.__repr__()}'
-		return s
-
 	def read_ptr(self, pool):
 		"""Looks up the address of the pointer, checks if a frag points to pointer and reads the data at its address as
 		the specified template."""

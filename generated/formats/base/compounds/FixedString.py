@@ -22,7 +22,8 @@ class FixedString(BaseStruct):
 		super().__init__(context, arg, template, set_default=False)
 		self.data = b""
 
-	def __repr__(self):
+	@classmethod
+	def format_indented(cls, self, indent=0):
 		return str(self.data)
 
 	@classmethod

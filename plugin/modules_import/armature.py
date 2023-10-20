@@ -232,6 +232,7 @@ def import_joints(scene, armature_ob, bone_info, b_bone_names, corrector):
 		joint_transform = j.joint_transforms[ragdoll.child.index]
 		mat.translation = get_matrix(corrector, joint_transform).translation
 		b_ragdoll.matrix_local = mat
+		print(ragdoll)
 
 
 def get_matrix(corrector, joint_transform):

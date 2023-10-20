@@ -24,7 +24,8 @@ class AbstractPointer(BaseStruct):
 		if set_default:
 			self.set_defaults()
 
-	def __repr__(self):
+	@classmethod
+	def format_indented(cls, self, indent=0):
 		n = self.joint.name if self.joint else None
 		return f"{self.index} -> {n}"
 

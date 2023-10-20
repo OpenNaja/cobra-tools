@@ -76,7 +76,7 @@ def class_from_struct(struct, from_value_func):
 			elem.text = " ".join([str(member) for member in instance.flat])
 
 		@staticmethod
-		def fmt_member(member, indent=0):
+		def format_indented(member, indent=0):
 			lines = str(member).split("\n")
 			lines_new = [lines[0], ] + ["\t" * indent + line for line in lines[1:]]
 			return "\n".join(lines_new)
@@ -156,7 +156,7 @@ class ZString:
 		elem.attrib[prop] = instance
 
 	@staticmethod
-	def fmt_member(member, indent=0):
+	def format_indented(member, indent=0):
 		lines = str(member).split("\n")
 		lines_new = [lines[0], ] + ["\t" * indent + line for line in lines[1:]]
 		return "\n".join(lines_new)
@@ -209,7 +209,7 @@ class UNormClass:
 		assert instance <= 1.0
 
 	@staticmethod
-	def fmt_member(member, indent=0):
+	def format_indented(member, indent=0):
 		lines = str(member).split("\n")
 		lines_new = [lines[0], ] + ["\t" * indent + line for line in lines[1:]]
 		return "\n".join(lines_new)

@@ -44,6 +44,7 @@ class Vector4(BaseStruct):
 		yield 'z', name_type_map['Float'], (0, None), (False, None)
 		yield 'w', name_type_map['Float'], (0, None), (False, None)
 
-	def __repr__(self):
+	@classmethod
+	def format_indented(cls, self, indent=0):
 		return f"[ {self.x:6.3f} {self.y:6.3f} {self.z:6.3f} {self.w:6.3f} ]"
 
