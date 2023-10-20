@@ -46,10 +46,9 @@ from plugin.utils.hair import vcol_to_comb, comb_to_vcol, transfer_hair_combing
 from plugin.utils.matrix_util import handle_errors
 
 from plugin.modules_import.operators import ImportBanis, ImportManis, ImportMatcol, ImportFgm, ImportMS2, ImportSPL, \
-    ImportVoxelskirt
-from plugin.modules_export.operators import ExportMS2, ExportSPL, ExportManis, ExportBanis
+    ImportVoxelskirt, ImportMS2FromBrowser, ImportFGMFromBrowser
 
-from plugin import import_ms2
+from plugin.modules_export.operators import ExportMS2, ExportSPL, ExportManis, ExportBanis
 
 from root_path import root_dir
 from generated.formats.ms2.enums.MeshFormat import MeshFormat
@@ -122,24 +121,6 @@ class InstallDependencies(bpy.types.Operator):
         subprocess.call([python, '-m', 'pip', 'install', *missing, '-t', os.path.join( bpy.utils.user_resource("SCRIPTS"), 'addons', 'modules')], stdout=subprocess.DEVNULL)
         return {'FINISHED'}
 
-
-# 
-class WM_OT_button_import_ms2(bpy.types.Operator):
-    """Imports ms2 content as new scenes from the file browser"""
-    bl_idname = "ct_wm.import_ms2"
-    bl_label = "Import ms2"
-
-    @classmethod
-    def poll(cls, context):
-        return context.active_object is not None
-
-    def execute(self, context):
-        folder = context.space_data.params.directory.decode('ascii')
-        file   = context.space_data.params.filename
-        filepath = os.path.join(folder, file).replace("\\","/")
-        print("Importing: " + filepath)
-        handle_errors(self, import_ms2.load, { 'filepath': filepath } )
-        return {'FINISHED'}
 
 class CreateFins(bpy.types.Operator):
     """Create fins for all objects with shells in this scene, and overwrite existing fin geometry"""
@@ -297,10 +278,16 @@ def CT_FileBrowser_Context_Menu(self, context):
         filepath = os.path.join(folder, file)
         fileext  = os.path.splitext(file)[1]
 
-        if os.path.isfile(filepath) and fileext.lower() == ".ms2":
-            layout = self.layout
-            layout.separator()
-            layout.operator(WM_OT_button_import_ms2.bl_idname)
+        if os.path.isfile(filepath):
+            if fileext.lower() == ".ms2":
+                layout = self.layout
+                layout.separator()
+                layout.operator(ImportMS2FromBrowser.bl_idname)
+
+            if fileext.lower() == ".fgm":
+                layout = self.layout
+                layout.separator()
+                layout.operator(ImportFGMFromBrowser.bl_idname)
                 
 
 from plugin.addon_updater_ops import classes as updater_classes
@@ -312,6 +299,8 @@ classes = (
     ImportFgm,
     ImportMS2,
     ImportSPL,
+    ImportMS2FromBrowser,
+    ImportFGMFromBrowser,
     ExportMS2,
     ExportSPL,
     ExportBanis,
@@ -328,7 +317,6 @@ classes = (
     MESH_PT_CobraTools,
     SCENE_PT_CobraTools,
     InstallDependencies,
-    WM_OT_button_import_ms2,
     *updater_classes
 )
 

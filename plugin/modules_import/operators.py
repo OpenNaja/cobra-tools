@@ -1,3 +1,4 @@
+import os
 import bpy.utils.previews
 from bpy.props import StringProperty, BoolProperty, IntProperty, FloatProperty, EnumProperty, CollectionProperty
 from bpy_extras.io_utils import ImportHelper
@@ -110,3 +111,39 @@ class ImportVoxelskirt(bpy.types.Operator, ImportHelper):
     def execute(self, context):
         keywords = self.as_keywords(ignore=("axis_forward", "axis_up", "filter_glob"))
         return handle_errors(self, import_voxelskirt.load, keywords)
+
+
+class ImportMS2FromBrowser(bpy.types.Operator):
+    """Imports ms2 content as new scenes from the file browser"""
+    bl_idname = "ct_wm.import_ms2"
+    bl_label = "Import ms2"
+
+    @classmethod
+    def poll(cls, context):
+        return context.active_object is not None
+
+    def execute(self, context):
+        folder = context.space_data.params.directory.decode('ascii')
+        file   = context.space_data.params.filename
+        filepath = os.path.join(folder, file).replace("\\","/")
+        print("Importing: " + filepath)
+        handle_errors(self, import_ms2.load, { 'filepath': filepath } )
+        return {'FINISHED'}
+
+class ImportFGMFromBrowser(bpy.types.Operator):
+    """Imports fgm as a new material from the file browser"""
+    bl_idname = "ct_wm.import_fgm"
+    bl_label = "Import fgm"
+
+    @classmethod
+    def poll(cls, context):
+        return context.active_object is not None
+
+    def execute(self, context):
+        folder = context.space_data.params.directory.decode('ascii')
+        file   = context.space_data.params.filename
+        filepath = os.path.join(folder, file).replace("\\","/")
+        print("Importing: " + filepath)
+        handle_errors(self, import_fgm.load, { 'filepath': filepath } )
+        return {'FINISHED'}
+

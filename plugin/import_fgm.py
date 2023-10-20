@@ -22,7 +22,6 @@ def load(filepath):
     b_mat = create_material(in_dir, material)
 
     if o_mat:
-        print('material exists')
         # the material already existed, we have just updated, make
         # sure we update all objects using it
         for obj in bpy.data.objects:
@@ -37,9 +36,11 @@ def load(filepath):
 
     # I think this should only be appended if the material didn't really exist before
     # for this object?
+    # todo: decide what to do with the selected object and the new material
     if not object_has_material(bpy.context.object, material):
-        b_me = bpy.context.object.data
-        b_me.materials.append(b_mat)
+        #b_me = bpy.context.object.data
+        #b_me.materials.append(b_mat)
+        pass
 
     messages.add(f"Finished fgm import")
     return messages
