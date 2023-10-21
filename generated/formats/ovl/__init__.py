@@ -822,7 +822,6 @@ class OvlFile(Header):
 			elif "generate_names" in self.commands:
 				return self.files_name
 			else:
-				self.reporter.files_list.emit([[f, e] for f, e in zip(self.files_name, self.files_ext)])
 				self.mimes_version = self.mimes["mime_version"]
 				files_version = [self.mimes_version[i] for i in self.files["extension"]]
 				# initialize the loaders right here
@@ -832,6 +831,7 @@ class OvlFile(Header):
 					loader.pool_type = pt
 					loader.set_pool_type = set_pt
 					self.loaders[filename] = loader
+				self.send_files()
 
 			# get included ovls
 			self.included_ovl_names = [self.names.get_str_at(i) for i in self.included_ovls["basename"]]
