@@ -31,7 +31,7 @@ class MainWindow(widgets.MainWindow):
 
 		self.file_widget = self.make_file_widget()
 
-		self.game_choice = widgets.LabelCombo("Game", [g.value for g in games], editable=False, changed_fn=self.game_changed)
+		self.ovl_game_choice = widgets.LabelCombo("Game", [g.value for g in games], editable=False, changed_fn=self.game_changed)
 
 		self.compression_choice = widgets.LabelCombo("Compression", [c.name for c in Compression], editable=False, changed_fn=self.compression_changed)
 
@@ -39,9 +39,10 @@ class MainWindow(widgets.MainWindow):
 			self.cfg["games"] = {}
 		self.installed_games = widgets.GamesWidget(
 			self,
-			game_chosen_fn=self.populate_game,
+			game_chosen_fn=self.set_ovl_game_choice_game,
 			file_dbl_click_fn=self.open_clicked_file,
 			search_content_fn=self.search_ovl_contents)
+		self.installed_games.set_selected_game()
 
 		# create the table
 		self.files_container = widgets.SortableTable(["Name", "File Type"], self.ovl_data.formats_dict.ignore_types,
@@ -124,7 +125,7 @@ class MainWindow(widgets.MainWindow):
 		grid.addWidget(self.t_in_folder, 1, 2)
 		grid.addWidget(self.t_do_debug, 2, 2)
 
-		grid.addWidget(self.game_choice, 0, 3)
+		grid.addWidget(self.ovl_game_choice, 0, 3)
 		grid.addWidget(self.compression_choice, 1, 3)
 		grid.addWidget(self.extract_types_combo, 2, 3)
 
@@ -208,9 +209,6 @@ class MainWindow(widgets.MainWindow):
 		self.status_bar.insertPermanentWidget(2, self.finfo_sep)
 		self.status_bar.insertPermanentWidget(3, self.file_info)
 
-		# run once here to make sure we catch the default game
-		self.populate_game()
-
 		log_level = self.cfg.get("logger_level", "INFO")
 		self.set_log_level.emit(log_level)
 
@@ -260,7 +258,7 @@ class MainWindow(widgets.MainWindow):
 		self.t_mesh_ovl.setEnabled(enable)
 		self.t_walk_ovl.setEnabled(enable)
 		self.compression_choice.setEnabled(enable)
-		self.game_choice.setEnabled(enable)
+		self.ovl_game_choice.setEnabled(enable)
 		# just disable all actions
 		for action_name in self.actions.keys():
 			self.actions[action_name.lower()].setEnabled(enable)
@@ -291,15 +289,9 @@ class MainWindow(widgets.MainWindow):
 					except:
 						logging.exception(f"Could not compare '{file_name}'")
 
-	def populate_game(self, current_game=None):
-		# todo - despagetti this
-		if current_game is None:
-			current_game = self.cfg.get("current_game")
-		logging.debug(f"Setting Current Game to {current_game}")
-		# link to ovl game version
-		if self.installed_games.set_selected_game(current_game):
-			current_game = self.installed_games.get_selected_game()
-			self.game_choice.entry.setText(current_game)
+	def set_ovl_game_choice_game(self, game=None):
+		logging.debug(f"Setting OVL Game to {game}")
+		self.ovl_game_choice.entry.setText(game)
 
 	def handle_path(self, save_over=True):
 		# get path
@@ -356,8 +348,9 @@ class MainWindow(widgets.MainWindow):
 		self.set_file_modified(True)
 
 	def game_changed(self, game: Optional[str] = None):
+		"""Updates game for self.ovl_data from current GUI selection"""
 		if game is None:
-			game = self.game_choice.entry.currentText()
+			game = self.ovl_game_choice.entry.currentText()
 		logging.info(f"Setting OVL version to {game}")
 		self.ovl_data.game = game
 
@@ -387,7 +380,7 @@ class MainWindow(widgets.MainWindow):
 		self.set_file_modified(True)
 
 	def choices_update(self):
-		self.game_choice.entry.setText(self.ovl_data.game)
+		self.set_ovl_game_choice_game(self.ovl_data.game)
 		self.compression_choice.entry.setText(self.ovl_data.user_version.compression.name)
 
 	def create_ovl(self, ovl_dir):

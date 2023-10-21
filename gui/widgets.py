@@ -1958,6 +1958,7 @@ class GamesWidget(QWidget):
         self.setToolTip("Select game for easy access below")
         
         self.entry.textActivated.connect(self.game_chosen)
+        # self.entry.currentTextChanged.connect(self.game_chosen)
         self.add_button.clicked.connect(self.add_installed_game_manually)
 
         self.model = OvlDataFilesystemModel()
@@ -2029,10 +2030,12 @@ class GamesWidget(QWidget):
         except:
             logging.exception("Item double-click failed")
 
-    def game_chosen(self, current_game: str) -> None:
+    def game_chosen(self, game: str) -> None:
         """Run after choosing a game from dropdown of installed games"""
-        self.cfg["current_game"] = current_game
-        self.installed_game_chosen.emit(current_game)
+        self.cfg["current_game"] = game
+        # only update the ovl game version choice if it is a valid game
+        if game in games_list:
+            self.installed_game_chosen.emit(game)
 
     def ask_game_dir(self) -> str:
         """Ask the user to specify a game root folder"""
@@ -2041,7 +2044,7 @@ class GamesWidget(QWidget):
     def get_selected_game(self) -> str:
         return self.entry.currentText()
 
-    def set_selected_game(self, game: str) -> bool:
+    def set_selected_game(self, game: str = None):
         # if current_game hasn't been set (no config.json), fall back on currently selected game
         if not game:
             game = self.get_selected_game()
@@ -2051,9 +2054,7 @@ class GamesWidget(QWidget):
             self.set_root(dir_game)
             self.set_selected_dir(self.cfg.get("last_ovl_in", None))
             self.entry.setText(game)
-            if game in games_list:
-                return True
-        return False
+            self.game_chosen(game)
 
     def set_root(self, dir_game: str) -> None:
         root_index = self.model.setRootPath(dir_game)
