@@ -2,8 +2,6 @@ import io
 import logging
 import os
 
-import imageio.v3 as iio
-
 from generated.formats.dds import DdsFile
 from generated.formats.dds.enums.DxgiFormat import DxgiFormat
 from generated.formats.ovl.versions import *
