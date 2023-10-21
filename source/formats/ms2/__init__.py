@@ -121,10 +121,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			except:
 				logging.exception(f"Buffer lookup failed")
 			if read_editable:
-				try:
-					self.load_meshes()
-				except:
-					logging.exception(f"Mesh lookup failed {self}")
+				self.load_meshes()
 		logging.debug(f"Read {self.name} in {time.time() - start_time:.2f} seconds")
 
 	def load_buffers(self, filepath, stream, dump):
@@ -175,8 +172,17 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			# attach a reader with the bytes we have read to the buffer_info
 			setattr(buffer_info, buffer_name, BytesIO(b))
 
+	def lacks_mesh(self, model_info, model_i):
+		if not hasattr(model_info, "model"):
+			logging.warning(f"Model {model_i} '{model_info.name}' has no mesh attached")
+			return True
+		else:
+			return False
+
 	def load_meshes(self):
-		for model_info in self.model_infos:
+		for model_i, model_info in enumerate(self.model_infos):
+			if self.lacks_mesh(model_info, model_i):
+				continue
 			logging.debug(f"Loading mesh data for {model_info.name}")
 			for wrapper in model_info.model.meshes:
 				wrapper.mesh.assign_buffer_info(self.buffer_infos)
@@ -188,7 +194,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 				pack_base = model_info.pack_base
 			try:
 				for i, wrapper in enumerate(model_info.model.meshes):
-					logging.info(f"Populating mesh {i}")
+					# logging.info(f"Populating mesh {i}")
 					wrapper.mesh.populate(pack_base)
 				# logging.info(f"Populating mesh worked {model_info}, {model_info.model}")
 			except:
@@ -382,11 +388,13 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			stream.write(self.buffer_2_bytes)
 
 	def lookup_material(self):
-		for name, model_info in zip(self.mdl_2_names, self.model_infos):
+		for model_i, (name, model_info) in enumerate(zip(self.mdl_2_names, self.model_infos)):
 			logging.debug(f"Mapping links for {name}")
 			model_info.name = name
+			if self.lacks_mesh(model_info, model_i):
+				continue
 			for lod_index, lod in enumerate(model_info.model.lods):
-				logging.debug(f"Mapping LOD{lod_index}")
+				# logging.debug(f"Mapping LOD{lod_index}")
 				lod.objects = model_info.model.objects[lod.first_object_index:lod.last_object_index]
 				# todo - investigate how duplicate meshes are handled for the lod's vertex count0
 				lod.meshes = tuple(model_info.model.meshes[obj.mesh_index] for obj in lod.objects)
@@ -397,9 +405,9 @@ class Ms2File(Ms2InfoHeader, IoFile):
 						obj.mesh = model_info.model.meshes[obj.mesh_index].mesh
 						obj.material = material
 						flag = int(obj.mesh.flag) if hasattr(obj.mesh, "flag") else None
-						logging.debug(
-							f"Mesh: {obj.mesh_index} Material: {material.name} Blend Mode: {material.blend_mode} "
-							f"Lod: {obj.mesh.poweroftwo} Flag: {flag}")
+						# logging.debug(
+						# 	f"Mesh: {obj.mesh_index} Material: {material.name} Blend Mode: {material.blend_mode} "
+						# 	f"Lod: {obj.mesh.poweroftwo} Flag: {flag}")
 					except:
 						logging.exception(f"Couldn't match material {obj.material_index} to mesh {obj.mesh_index}")
 
@@ -419,20 +427,21 @@ if __name__ == "__main__":
 	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC ovls/walker_export/SP_Scarecrow not working atm.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/Warhammer/Annihilator/annihilatormodels.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/acro/models.ms2", read_editable=True)
-	m.load("C:/Users/arnfi/Desktop/doors/dlc11_stripdoors_.ms2", read_editable=True)
-	for i, bone_info in enumerate(m.models_reader.bone_infos):
-		joints = bone_info.joints
-		# test for orthogonal vecs
-		# for ragdoll in joints.ragdoll_constraints:
-		# 	ragdoll.x.max = 0
-		# 	ragdoll.x.min = 0
-			# # ragdoll.z.max = 0
-			# ragdoll.z.min = 0
-			# print(ragdoll.parent, ragdoll.child)
-			# print(ragdoll.rot.data)
-			# print(np.linalg.inv(ragdoll.rot.data))
-	m.save("C:/Users/arnfi/Desktop/dlc11_stripdoors_.ms2")
-	print(m)
+	m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/PC_Primitives_01/models.ms2", read_editable=True)
+	# m.load("C:/Users/arnfi/Desktop/doors/dlc11_stripdoors_.ms2", read_editable=True)
+	# for i, bone_info in enumerate(m.models_reader.bone_infos):
+	# 	joints = bone_info.joints
+	# 	# test for orthogonal vecs
+	# 	# for ragdoll in joints.ragdoll_constraints:
+	# 	# 	ragdoll.x.max = 0
+	# 	# 	ragdoll.x.min = 0
+	# 		# # ragdoll.z.max = 0
+	# 		# ragdoll.z.min = 0
+	# 		# print(ragdoll.parent, ragdoll.child)
+	# 		# print(ragdoll.rot.data)
+	# 		# print(np.linalg.inv(ragdoll.rot.data))
+	# m.save("C:/Users/arnfi/Desktop/dlc11_stripdoors_.ms2")
+	# print(m)
 	# m.load("C:/Users/arnfi/Desktop/ptera_JWE1/pteranodon_.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/anky_JWE1/ankylosaurus.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/moose/alaskan_moose_male_.ms2", read_editable=True)

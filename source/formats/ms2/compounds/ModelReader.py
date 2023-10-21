@@ -49,14 +49,10 @@ class ModelReader(BaseStruct):
 					model_info.model = Model.from_stream(stream, instance.context, model_info)
 				except:
 					logging.exception(f"Failed reading model for model_info {model_info}")
-				# test for FR_GrandCarousel.ovl
-				if model_info.model.io_size == 0:
-					model_info.model.padding = SmartPadding.from_stream(stream, instance.context)
-					# logging.warning(model_info.model)
 				# this little patch solves reading all of PC anubis models
 				if instance.context.version == 32 and model_info.model.lods:
-					# janitor 4.0
 					for shift in (8, 4, -4, -8):
+						# janitor 4.0
 						if model_info.model.lods[0].distance not in (900.0, 4.0):
 							logging.warning(f"Distance is wrong at {model_info.model.lods[0].io_start}")
 							# logging.warning(f"last bone info {instance.bone_infos[-1]}")
@@ -72,6 +68,10 @@ class ModelReader(BaseStruct):
 							break
 				# logging.debug(f"Model {i} {model_info.model}")
 				# alignment, not sure if really correct
+				# test for FR_GrandCarousel.ovl
+				if model_info.model.io_size == 0:
+					model_info.model.padding = SmartPadding.from_stream(stream, instance.context)
+					# logging.warning(model_info.model)
 				# model_info.model_padding = stream.read(get_padding_size(stream.tell() - start, alignment=16))
 				if model_info.increment_flag:
 					model_info.model_padding = stream.read(get_padding_size(stream.tell() - start, alignment=16))
@@ -79,6 +79,8 @@ class ModelReader(BaseStruct):
 					model_info.model_padding = stream.read(get_padding_size(stream.tell() - start, alignment=8))
 				# logging.debug(f"model padding {model_info.model_padding}")
 				i = instance.assign_bone_info(i, model_info, stream)
+				# if i == 88:
+				# 	break
 
 		else:
 			for model_info in instance.arg:
@@ -190,6 +192,9 @@ class ModelReader(BaseStruct):
 					# self.get_padding(stream, alignment=16, rel=start)
 					logging.debug(f"Reading vertices for {hitcheck.dtype.name} at {stream.tell()}")
 					hitcheck.collider.vertices = Array.from_stream(stream, self.context, 0, None, (hitcheck.collider.vertex_count, 3), Float)
+					# 2023-10-21: while this appears to be helpful for PC_Primitives_01, it breaks CC_Anubis
+					# if is_old(self.context):
+					# 	hitcheck.collider.trail = stream.read(8)
 				if hitcheck.dtype in (CollisionType.MESH_COLLISION,):
 					self.get_padding(stream, alignment=16, rel=start)
 					logging.debug(f"Reading vertices for {hitcheck.dtype.name} at {stream.tell()}")
