@@ -1958,7 +1958,7 @@ class GamesWidget(QWidget):
         self.setToolTip("Select game for easy access below")
         
         self.entry.textActivated.connect(self.game_chosen)
-        self.add_button.clicked.connect(self.add_installed_game)
+        self.add_button.clicked.connect(self.add_installed_game_manually)
 
         self.model = OvlDataFilesystemModel()
         self.model.setNameFilters(filters)
@@ -2041,15 +2041,17 @@ class GamesWidget(QWidget):
     def get_selected_game(self) -> str:
         return self.entry.currentText()
 
-    def set_selected_game(self, current_game: str) -> bool:
+    def set_selected_game(self, game: str) -> bool:
         # if current_game hasn't been set (no config.json), fall back on currently selected game
-        dir_game = self.cfg["games"].get(current_game, self.get_selected_game())
+        if not game:
+            game = self.get_selected_game()
+        dir_game = self.cfg["games"].get(game, None)
         # if current_game has been set, assume it exists in the games dict too (from steam)
         if dir_game:
             self.set_root(dir_game)
             self.set_selected_dir(self.cfg.get("last_ovl_in", None))
-            self.entry.setText(current_game)
-            if current_game in games_list:
+            self.entry.setText(game)
+            if game in games_list:
                 return True
         return False
 
@@ -2072,7 +2074,7 @@ class GamesWidget(QWidget):
         except:
             logging.exception("Setting dir failed")
 
-    def add_installed_game(self) -> None:
+    def add_installed_game_manually(self) -> None:
         """Manually add a new game to the list of available games. Works for both game root or ovldata folders"""
         dir_game = self.ask_game_dir()
         if dir_game:
@@ -2093,7 +2095,11 @@ class GamesWidget(QWidget):
 
     def set_data(self, items: Iterable[str]) -> None:
         self.entry.clear()
-        self.entry.addItems(sorted(set(items)))
+        items = sorted(set(items))
+        self.entry.addItems(items)
+        # update currently selected item
+        if items:
+            self.entry.setText(items[0])
 
     def set_filter(self, proxy_cls: type[OvlDataFilterProxy]) -> None:
         self.proxy = proxy_cls(self)

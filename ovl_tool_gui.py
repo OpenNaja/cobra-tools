@@ -292,10 +292,13 @@ class MainWindow(widgets.MainWindow):
 						logging.exception(f"Could not compare '{file_name}'")
 
 	def populate_game(self, current_game=None):
+		# todo - despagetti this
 		if current_game is None:
 			current_game = self.cfg.get("current_game")
 		logging.debug(f"Setting Current Game to {current_game}")
+		# link to ovl game version
 		if self.installed_games.set_selected_game(current_game):
+			current_game = self.installed_games.get_selected_game()
 			self.game_choice.entry.setText(current_game)
 
 	def handle_path(self, save_over=True):
