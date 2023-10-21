@@ -428,4 +428,8 @@ if __name__ == '__main__':
     parser.add_argument('-g', '--generated-dir', default="generated")
     parser.add_argument('--silent', action='store_true')
     args = parser.parse_args()
-    exit(generate_classes(gen_dir=args.generated_dir, silent=args.silent))
+    exit_code = generate_classes(gen_dir=args.generated_dir, silent=args.silent)
+    try:
+        exit(exit_code)
+    except NameError:
+        pass
