@@ -132,10 +132,8 @@ class MainWindow(widgets.MainWindow):
 		self.stdout_handler = get_stdout_handler("ovl_tool_gui")  # self.log_name not set until after init
 
 		# Setup Logger
-		# TODO: From cfg
-		orientation = QtCore.Qt.Orientation.Vertical
-		# TODO: From cfg
-		show_logger = True
+		orientation = QtCore.Qt.Orientation.Vertical if self.cfg.get("orientation", "V") == "V" else QtCore.Qt.Orientation.Horizontal
+		show_logger = self.cfg.get("show_logger", True)
 		topleft = self.file_splitter
 		if orientation == QtCore.Qt.Orientation.Vertical:
 			self.file_splitter.setContentsMargins(5, 0, 5, 0)
