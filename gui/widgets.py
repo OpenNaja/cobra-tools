@@ -1957,8 +1957,7 @@ class GamesWidget(QWidget):
 
         self.setToolTip("Select game for easy access below")
         
-        self.entry.textActivated.connect(self.game_chosen)
-        # self.entry.currentTextChanged.connect(self.game_chosen)
+        self.entry.textActivated.connect(self.set_selected_game)
         self.add_button.clicked.connect(self.add_installed_game_manually)
 
         self.model = OvlDataFilesystemModel()
