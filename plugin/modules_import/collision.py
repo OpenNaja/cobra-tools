@@ -25,7 +25,7 @@ def import_collider(hitcheck, b_joint, corrector):
 		ob = import_cylinderbv(coll, hitcheck_name)
 	elif hitcheck.dtype == CollisionType.MESH_COLLISION:
 		ob = import_meshbv(coll, hitcheck_name, corrector)
-	elif hitcheck.dtype == CollisionType.CONVEX_HULL:
+	elif hitcheck.dtype in (CollisionType.CONVEX_HULL, CollisionType.CONVEX_HULL_P_C):
 		ob = import_hullbv(coll, hitcheck_name, corrector)
 	else:
 		logging.warning(f"Unsupported collider type {hitcheck.dtype}")

@@ -172,8 +172,8 @@ def import_joints(scene, armature_ob, bone_info, b_bone_names, corrector):
 	logging.info("Importing joints")
 	j = bone_info.joints
 	joint_map = {}
-	for bone_index, joint_info, joint_transform, rb in zip(
-			j.joint_to_bone, j.joint_infos, j.joint_transforms, j.rigid_body_list):
+	for joint_i, (bone_index, joint_info, joint_transform) in enumerate(zip(
+			j.joint_to_bone, j.joint_infos, j.joint_transforms)):
 		logging.debug(f"joint {joint_info.name}")
 		# create an empty representing the joint
 		b_joint = create_ob(scene, f"{bpy.context.scene.name}_{joint_info.name}", None, coll_name="joints")
@@ -182,10 +182,14 @@ def import_joints(scene, armature_ob, bone_info, b_bone_names, corrector):
 		b_joint.empty_display_type = "ARROWS"
 		b_joint.empty_display_size = 0.05
 		b_joint.matrix_local = get_matrix(corrector, joint_transform)
+
 		if hasattr(joint_info, "hitchecks"):
 			for hitcheck in joint_info.hitchecks:
 				b_collider = import_collider(hitcheck, b_joint, corrector)
-				b_collider.rigid_body.mass = rb.mass
+				# not used by PC
+				if j.rigid_body_list:
+					rb = j.rigid_body_list[joint_i]
+					b_collider.rigid_body.mass = rb.mass
 		# attach joint to bone
 		bone_name = b_bone_names[bone_index]
 		parent_to(armature_ob, b_joint, bone_name)
