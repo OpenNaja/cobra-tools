@@ -4,7 +4,7 @@ import logging
 from generated.array import Array
 from generated.formats.base.basic import Float
 from generated.formats.base.compounds.PadAlign import get_padding_size, get_padding
-from generated.formats.ms2.versions import is_old
+from generated.formats.ms2.versions import is_old, is_pc
 from generated.formats.ms2.compounds.MeshCollisionData import MeshCollisionData
 from generated.formats.ms2.compounds.Model import Model
 from generated.formats.ms2.compounds.BoneInfo import BoneInfo
@@ -38,20 +38,21 @@ class ModelReader(BaseStruct):
 		i = 0
 		specials = []
 		if instance.context.version < 47:
-			# start = instance.io_start
-			start = instance.arg.io_start
+			# buffer 1 starts at buffer_infos
+			instance.start_of_buffer = instance.arg.buffer_infos.io_start
 			# meh, add it here even though it's really interleaved
 			instance.bone_info_start = stream.tell()
-			for model_info in instance.arg:
+			for model_info in instance.arg.model_infos:
 				# logging.debug(model_info)
 				s = stream.tell()
+				instance.get_padding(stream, alignment=8)
 				try:
 					model_info.model = Model.from_stream(stream, instance.context, model_info)
 				except:
 					logging.exception(f"Failed reading model for model_info {model_info}")
 				# this little patch solves reading all of PC anubis models
 				if instance.context.version == 32 and model_info.model.lods:
-					for shift in (8, 4, -4, -8):
+					for shift in (16, 12, 8, 4, -4, -8, -12, -16):
 						# janitor 4.0
 						if model_info.model.lods[0].distance not in (900.0, 4.0):
 							logging.warning(f"Distance is wrong at {model_info.model.lods[0].io_start}")
@@ -66,35 +67,31 @@ class ModelReader(BaseStruct):
 								logging.exception(f"Failed reading model for model_info {model_info}")
 						else:
 							break
+				logging.debug(f"Model {i} ends at {stream.tell()}")
 				# logging.debug(f"Model {i} {model_info.model}")
 				# alignment, not sure if really correct
 				# test for FR_GrandCarousel.ovl
 				if model_info.model.io_size == 0:
 					model_info.model.padding = SmartPadding.from_stream(stream, instance.context)
 					# logging.warning(model_info.model)
-				# model_info.model_padding = stream.read(get_padding_size(stream.tell() - start, alignment=16))
-				if model_info.increment_flag:
-					model_info.model_padding = stream.read(get_padding_size(stream.tell() - start, alignment=16))
-				else:
-					model_info.model_padding = stream.read(get_padding_size(stream.tell() - start, alignment=8))
-				# logging.debug(f"model padding {model_info.model_padding}")
 				i = instance.assign_bone_info(i, model_info, stream)
-				# if i == 88:
-				# 	break
 
 		else:
-			for model_info in instance.arg:
+			for model_info in instance.arg.model_infos:
 				# logging.debug(model_info)
 				model_info.model = Model.from_stream(stream, instance.context, model_info)
 				# logging.debug(f"Model {i} {model_info.model}")
 			instance.bone_info_start = stream.tell()
-			for model_info in instance.arg:
+			# the models are not part of the buffer
+			instance.start_of_buffer = stream.tell()
+			for model_info in instance.arg.model_infos:
 				try:
 					i = instance.assign_bone_info(i, model_info, stream)
 				except:
 					logging.exception(f"Assigning bone info {i} failed")
 					raise
-		logging.info(f"Specials {specials}")
+		if specials:
+			logging.debug(f"Specials {specials}")
 		instance.io_size = stream.tell() - instance.io_start
 
 	def assign_bone_info(self, i, model_info, stream):
@@ -130,13 +127,9 @@ class ModelReader(BaseStruct):
 		return []
 
 	def read_bone_info(self, stream, i):
-
 		logging.debug(f"BONE INFO {i} starts at {stream.tell()}")
 		# 22-05: in PC anubis, we do have padding here
-		# there's never padding before the first bone info, and after the last
-		# if not is_old(self.context) and i == 0:
-		if (not is_old(self.context)) and i:
-			self.get_padding(stream)
+		self.get_padding(stream)
 		bone_info = BoneInfo.from_stream(stream, self.context)
 		# logging.info(bone_info)
 		self.read_hitcheck_verts(bone_info, stream)
@@ -171,11 +164,13 @@ class ModelReader(BaseStruct):
 
 	def get_padding(self, stream, alignment=16, rel=None):
 		if rel is None:
-			rel = self.bone_info_start
+			rel = self.start_of_buffer
 		abs_offset = stream.tell()
 		relative_offset = abs_offset - rel
 		# currently no other way to predict the padding, no correlation to joint count
 		padding_len = get_padding_size(relative_offset, alignment=alignment)
+		# logging.debug(f"abs {abs_offset} rel {relative_offset}")
+		logging.debug(f"Aligning to {alignment} from {abs_offset} to {abs_offset+padding_len} ({padding_len} bytes)")
 		padding = stream.read(padding_len)
 		if padding != b'\x00' * padding_len:
 			# logging.warning(f"Padding is nonzero {padding} at offset {abs_offset}")
@@ -188,13 +183,12 @@ class ModelReader(BaseStruct):
 			logging.debug(f"Reading additional hitcheck data at {start}")
 			for hitcheck in self.get_hitchecks(bone_info):
 				if hitcheck.dtype in (CollisionType.CONVEX_HULL_P_C, CollisionType.CONVEX_HULL):
-					# not aligned to 16!
-					# self.get_padding(stream, alignment=16, rel=start)
+					if is_pc(self.context):
+						# 2023-10-22: there is alignment for PC, notable in CC_riv
+						self.get_padding(stream, alignment=16)
 					logging.debug(f"Reading vertices for {hitcheck.dtype.name} at {stream.tell()}")
 					hitcheck.collider.vertices = Array.from_stream(stream, self.context, 0, None, (hitcheck.collider.vertex_count, 3), Float)
-					# 2023-10-21: while this appears to be helpful for PC_Primitives_01, it breaks CC_Anubis
-					# if is_old(self.context):
-					# 	hitcheck.collider.trail = stream.read(8)
+					# logging.debug(f"End of vertices at {stream.tell()}")
 				if hitcheck.dtype in (CollisionType.MESH_COLLISION,):
 					self.get_padding(stream, alignment=16, rel=start)
 					logging.debug(f"Reading vertices for {hitcheck.dtype.name} at {stream.tell()}")
@@ -220,10 +214,10 @@ class ModelReader(BaseStruct):
 		if instance.context.version < 47:
 			raise NotImplementedError("Can't write old style mesh and bone info blocks")
 		else:
-			for model_info in instance.arg:
+			for model_info in instance.arg.model_infos:
 				model_info.model.to_stream(model_info.model, stream, instance.context)
 			instance.bone_info_start = stream.tell()
-			for model_info in instance.arg:
+			for model_info in instance.arg.model_infos:
 				# check if they have a different bone info
 				if previous_bone_info is not model_info.bone_info:
 					logging.debug(f"{model_info.name} has its own bone_info")
@@ -248,7 +242,7 @@ class ModelReader(BaseStruct):
 	@classmethod
 	def get_fields_str(cls, instance, indent=0):
 		s = ''
-		for model_info in instance.arg:
+		for model_info in instance.arg.model_infos:
 			s += str(model_info.model)
 			s += str(model_info.bone_info)
 		return s

@@ -70,9 +70,9 @@ class Ms2File(Ms2InfoHeader, IoFile):
 				joint_transform.name = joint_info.name
 				# usually, this corresponds - does not do for speedtree but does not matter
 				joint_info.bone_name = bone_info.bones[bone_i].name
-				if joints.bone_count:
-					if joints.joint_infos[joints.bone_to_joint[bone_i]] != joint_info:
-						logging.warning(f"bone index [{bone_i}] doesn't point to expected joint info")
+				# if joints.bone_count:
+				# 	if joints.joint_infos[joints.bone_to_joint[bone_i]] != joint_info:
+				# 		logging.warning(f"bone index [{bone_i}] doesn't point to expected joint info")
 
 	def assign_bone_names(self, bone_info):
 		try:
@@ -86,7 +86,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 		self.filepath = filepath
 		self.dir, self.name = os.path.split(os.path.normpath(filepath))
 		self.read_editable = read_editable
-		logging.debug(f"Reading {self.filepath}")
+		logging.info(f"Reading {self.filepath}")
 		with open(filepath, "rb") as stream:
 			self.read_fields(stream, self)
 			if is_old(self.info):
@@ -428,7 +428,9 @@ if __name__ == "__main__":
 	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC ovls/walker_export/SP_Scarecrow not working atm.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/Warhammer/Annihilator/annihilatormodels.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/acro/models.ms2", read_editable=True)
-	m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/PC_Primitives_01/models.ms2", read_editable=True)
+	m.load("C:/Program Files (x86)/Steam/steamapps/common/Planet Zoo/win64/ovldata/walker_export/Content2/Environment/Scenery/Wallsets/GL_Roof_02/GL_Roof_02/models.ms2", read_editable=True)
+	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/Characters/Mascots/Dino/Mascot_Dino/dino_.ms2", read_editable=True)
+	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/PC_Primitives_01/models.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/doors/dlc11_stripdoors_.ms2", read_editable=True)
 	# for i, bone_info in enumerate(m.models_reader.bone_infos):
 	# 	joints = bone_info.joints

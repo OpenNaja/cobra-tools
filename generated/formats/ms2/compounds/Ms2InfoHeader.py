@@ -28,7 +28,7 @@ class Ms2InfoHeader(BaseStruct):
 		self.model_infos = Array(self.context, 0, None, (0,), name_type_map['ModelInfo'])
 
 		# handles interleaved (old) or separate (new) styles for models and bone infos
-		self.models_reader = name_type_map['ModelReader'](self.context, self.model_infos, None)
+		self.models_reader = name_type_map['ModelReader'](self.context, self, None)
 		if set_default:
 			self.set_defaults()
 
@@ -61,4 +61,4 @@ class Ms2InfoHeader(BaseStruct):
 		yield 'buffer_0', name_type_map['Buffer0'], (instance.info, None), (False, None)
 		yield 'buffer_infos', Array, (0, None, (instance.info.vertex_buffer_count,), name_type_map['BufferInfo']), (False, None)
 		yield 'model_infos', Array, (0, None, (instance.info.mdl_2_count,), name_type_map['ModelInfo']), (False, None)
-		yield 'models_reader', name_type_map['ModelReader'], (instance.model_infos, None), (False, None)
+		yield 'models_reader', name_type_map['ModelReader'], (instance, None), (False, None)

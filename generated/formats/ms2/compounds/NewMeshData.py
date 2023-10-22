@@ -113,13 +113,19 @@ class NewMeshData(MeshData):
 				("colors", np.ubyte, 4),  # these appear to be directional vectors
 				("zeros0", np.int32)
 			])
+		elif self.flag in (549,):  # PZ c2 GL_Roof_02
+			dt.extend([
+				("uvs", np.ushort, (2, 2)),  # only saw UV0 used
+				("colors", np.ubyte, 4),  # maybe actual vertex color? all 1 in the cases I saw
+				("zeros0", np.int32, (5,))  # no weights
+			])
 		elif self.flag == 513:
 			dt.extend([
 				("uvs", np.ushort, (2, 2)),
 				# ("colors", np.ubyte, 4),
 				("zeros2", np.uint64, (3,))
 			])
-		elif self.flag == 512:
+		elif self.flag in (512,):
 			dt.extend([
 				# last lod of many tree meshes (eg. tree_birch_white_03)
 				# 8 uvs for an impostor texture atlas aka flipbook
@@ -165,6 +171,8 @@ class NewMeshData(MeshData):
 		# read the packed data
 		self.buffer_info.verts.seek(self.vertex_offset)
 		self.buffer_info.verts.readinto(self.verts_data)
+		# if self.flag == 549:
+		# 	print(self.verts_data)
 		# logging.debug(f"Reading {self.vertex_count} verts at {self.buffer_info.verts.tell()}")
 		# first cast to the float uvs array so unpacking doesn't use int division
 		self.uvs[:] = self.verts_data["uvs"]
@@ -209,7 +217,7 @@ class NewMeshData(MeshData):
 		# for bit in range(0, 8):
 		# 	for vertex_index, res in enumerate((self.verts_data["winding"] >> bit) & 1):
 		# 		self.add_to_weights(f"bit{bit}", vertex_index, res)
-		logging.info(f"Unpacked mesh in {time.time() - start_time:.2f} seconds")
+		# logging.debug(f"Unpacked mesh in {time.time() - start_time:.2f} seconds")
 
 	def pack_verts(self):
 		"""Repack flat lists into verts_data"""
