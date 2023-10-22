@@ -163,7 +163,11 @@ def save(filepath='', backup_original=True, apply_transforms=False, update_rig=F
 							b_materials.append(b_mat)
 							export_material(model_info, b_mat)
 							if "." in b_mat.name:
-								messages.add(f"Material {b_mat.name} seems to be an unwanted duplication!")
+								messages.add(f"Material {b_mat.name} seems to be an unwanted duplication")
+							if len(b_materials) > 16:
+								messages.add(
+									f"Material {b_mat.name} exceeds the limit of 16 unique materials\n"
+									f"and will render with a different material ingame (wraps around)")
 						# create one unique mesh per material
 						m_ob = Object(ms2.context)
 						m_ob.mesh_index = b_models.index((b_me, shell_index))
