@@ -165,7 +165,7 @@ def save(filepath='', backup_original=True, apply_transforms=False, update_rig=F
 							if "." in b_mat.name:
 								messages.add(f"Material {b_mat.name} seems to be an unwanted duplication")
 							if len(b_materials) > 16:
-								messages.add(
+								raise IndexError(
 									f"Material {b_mat.name} exceeds the limit of 16 unique materials\n"
 									f"and will render with a different material ingame (wraps around)")
 						# create one unique mesh per material
