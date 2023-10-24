@@ -231,7 +231,8 @@ def import_joints(scene, armature_ob, bone_info, b_bone_names, corrector):
 		mat = mathutils.Matrix(ragdoll.rot.data).inverted().to_4x4()
 		mat = corrector_rag.nif_bind_to_blender_bind(mat)
 		mat = mat.to_3x3()
-		mat *= -1
+		cross = mathutils.Matrix(((0, 0, -1), (0, -1, 0), (-1, 0, 0)))
+		mat = mat @ cross
 		mat = mat.to_4x4()
 		joint_transform = j.joint_transforms[ragdoll.child.index]
 		mat.translation = get_matrix(corrector, joint_transform).translation
