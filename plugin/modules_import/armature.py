@@ -181,7 +181,7 @@ def import_joints(scene, armature_ob, bone_info, b_bone_names, corrector):
 		joint_map[joint_info.name] = b_joint
 		b_joint.empty_display_type = "ARROWS"
 		b_joint.empty_display_size = 0.05
-		b_joint.matrix_local = get_matrix(corrector, joint_transform)
+		b_joint.matrix_local = get_matrix(corrector, joint_transform.rot, joint_transform.loc)
 
 		if hasattr(joint_info, "hitchecks"):
 			for hitcheck in joint_info.hitchecks:
@@ -228,21 +228,33 @@ def import_joints(scene, armature_ob, bone_info, b_bone_names, corrector):
 		b_ragdoll = create_ob(scene, f"{'ragdoll'}_{child_name}", None, coll_name="ragdoll")
 		b_ragdoll.empty_display_type = "ARROWS"
 		b_ragdoll.empty_display_size = 0.05
-		mat = mathutils.Matrix(ragdoll.rot.data).inverted().to_4x4()
-		mat = corrector_rag.nif_bind_to_blender_bind(mat)
+		mat = get_matrix(corrector_rag, ragdoll.rot)
 		mat = mat.to_3x3()
 		cross = mathutils.Matrix(((0, 0, -1), (0, -1, 0), (-1, 0, 0)))
 		mat = mat @ cross
 		mat = mat.to_4x4()
 		joint_transform = j.joint_transforms[ragdoll.child.index]
-		mat.translation = get_matrix(corrector, joint_transform).translation
+		mat.translation = get_matrix(corrector, joint_transform.rot, joint_transform.loc).translation
 		b_ragdoll.matrix_local = mat
-		print(ragdoll)
+
+		b_trg = create_ob(scene, f"{'target'}_{child_name}", None, coll_name="target")
+		b_trg.empty_display_type = "PLAIN_AXES"
+		b_trg.empty_display_size = 0.05
+		mat2 = mathutils.Matrix().to_4x4()
+		# unsure if that transform is correct
+		n_bind = mathutils.Matrix().to_4x4()
+		n_bind.translation = (ragdoll.vec_b.x, ragdoll.vec_b.y, ragdoll.vec_b.z)
+		b_bind = corrector_rag.nif_bind_to_blender_bind(n_bind)
+		# mat2.translation = mat.translation - (mathutils.Vector(ragdoll.vec_b) * 0.1)
+		mat2.translation = mat.translation + (mathutils.Vector(b_bind.translation) * 0.1)
+		b_trg.matrix_local = mat2
+		# print(ragdoll)
 
 
-def get_matrix(corrector, joint_transform):
-	n_bind = mathutils.Matrix(joint_transform.rot.data).inverted().to_4x4()
-	n_bind.translation = (joint_transform.loc.x, joint_transform.loc.y, joint_transform.loc.z)
+def get_matrix(corrector, rot_mat, vec=None):
+	n_bind = mathutils.Matrix(rot_mat.data).inverted().to_4x4()
+	if vec is not None:
+		n_bind.translation = (vec.x, vec.y, vec.z)
 	b_bind = corrector.nif_bind_to_blender_bind(n_bind)
 	return b_bind
 
