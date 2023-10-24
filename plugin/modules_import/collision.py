@@ -202,7 +202,10 @@ def parent_to(armature_ob, ob, bone_name=None):
 	if bone_name is not None:
 		ob.parent_type = 'BONE'
 		ob.parent_bone = bone_name
+	# this apparently forces an update of the local matrix and parent inverse
 	ob.matrix_local = ob.matrix_local
+	# doesnt't do the same
+	# ob.matrix_parent_inverse = mathutils.Matrix().to_4x4()
 
 
 def get_vec(v):

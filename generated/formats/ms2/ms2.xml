@@ -121,12 +121,16 @@
 		<option value="11" name="UnkRhino" >?</option>
 	</enum>
 
-	<compound name="Matrix44" size="64">
+	<compound name="Matrix" >
+		A generic  transformation matrix.
+	</compound>
+
+	<compound name="Matrix44" inherit="Matrix" size="64">
 		A 4x4 transformation matrix.
 		<field name="data" type="float" arr1="4" arr2="4">Stored in OpenGL column-major format.</field>
 	</compound>
 
-	<compound name="Matrix33" size="36">
+	<compound name="Matrix33" inherit="Matrix" size="36">
 		A 3x3 rotation matrix; M^T M=identity, det(M)=1.
 		<field name="data" type="float" arr1="3" arr2="3">Stored in OpenGL column-major format.</field>
 	</compound>

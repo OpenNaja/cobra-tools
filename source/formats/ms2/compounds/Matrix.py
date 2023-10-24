@@ -1,4 +1,4 @@
-class Matrix44:
+class Matrix:
 
 	# START_CLASS
 

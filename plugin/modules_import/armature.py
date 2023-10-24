@@ -181,6 +181,7 @@ def import_joints(scene, armature_ob, bone_info, b_bone_names, corrector):
 		joint_map[joint_info.name] = b_joint
 		b_joint.empty_display_type = "ARROWS"
 		b_joint.empty_display_size = 0.05
+		# this is in armature space, parenting later will make it relative to the bone
 		b_joint.matrix_local = get_matrix(corrector, joint_transform.rot, joint_transform.loc)
 
 		if hasattr(joint_info, "hitchecks"):
@@ -245,8 +246,8 @@ def import_joints(scene, armature_ob, bone_info, b_bone_names, corrector):
 		n_bind = mathutils.Matrix().to_4x4()
 		n_bind.translation = (ragdoll.vec_b.x, ragdoll.vec_b.y, ragdoll.vec_b.z)
 		b_bind = corrector_rag.nif_bind_to_blender_bind(n_bind)
-		# mat2.translation = mat.translation - (mathutils.Vector(ragdoll.vec_b) * 0.1)
-		mat2.translation = mat.translation + (mathutils.Vector(b_bind.translation) * 0.1)
+		mat2.translation = mat.translation - (mathutils.Vector(ragdoll.vec_b) * 0.1)
+		# mat2.translation = mat.translation + (mathutils.Vector(b_bind.translation) * 0.1)
 		b_trg.matrix_local = mat2
 		# print(ragdoll)
 

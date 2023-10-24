@@ -1,9 +1,9 @@
 from generated.array import Array
-from generated.base_struct import BaseStruct
+from generated.formats.ms2.compounds.Matrix import Matrix
 from generated.formats.ms2.imports import name_type_map
 
 
-class Matrix33(BaseStruct):
+class Matrix33(Matrix):
 
 	"""
 	A 3x3 rotation matrix; M^T M=identity, det(M)=1.

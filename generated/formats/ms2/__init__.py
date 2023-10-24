@@ -61,12 +61,17 @@ class Ms2File(Ms2InfoHeader, IoFile):
 				return
 			# test for orthogonal vecs
 			for ragdoll in joints.ragdoll_constraints:
-				# r = ragdoll.rot.data
-				# a = np.dot(r[0], r[1])
+				r = ragdoll.rot.data
+				# dot: 0 = orthogonal, 1 = parallel
+				# a = np.cross(r[0], (1.0, 0.0, 0.0))
+				a = np.cross(r[0], r[1])
 				# b = np.dot(r[1], r[2])
 				# c = np.dot(r[0], r[2])
 				# print(a, b, c)
-				print(np.dot(ragdoll.vec_a, ragdoll.vec_b))
+				print(ragdoll.child.joint.name)
+				# print(np.dot(r[1], ragdoll.vec_b))
+				# print(np.dot(r[2], ragdoll.vec_b))
+				print(ragdoll.vec_b, a)
 			for bone_i, joint_info, joint_transform in zip(joints.joint_to_bone, joints.joint_infos, joints.joint_transforms):
 				joint_transform.name = joint_info.name
 				# usually, this corresponds - does not do for speedtree but does not matter
@@ -445,7 +450,7 @@ if __name__ == "__main__":
 	# 		# print(ragdoll.rot.data)
 	# 		# print(np.linalg.inv(ragdoll.rot.data))
 	# m.save("C:/Users/arnfi/Desktop/dlc11_stripdoors_.ms2")
-	# print(m)
+	print(m)
 	# m.load("C:/Users/arnfi/Desktop/ptera_JWE1/pteranodon_.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/anky_JWE1/ankylosaurus.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/moose/alaskan_moose_male_.ms2", read_editable=True)

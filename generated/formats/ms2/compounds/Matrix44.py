@@ -1,9 +1,9 @@
 from generated.array import Array
-from generated.base_struct import BaseStruct
+from generated.formats.ms2.compounds.Matrix import Matrix
 from generated.formats.ms2.imports import name_type_map
 
 
-class Matrix44(BaseStruct):
+class Matrix44(Matrix):
 
 	"""
 	A 4x4 transformation matrix.
@@ -29,8 +29,3 @@ class Matrix44(BaseStruct):
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'data', Array, (0, None, (4, 4,), name_type_map['Float']), (False, None)
-
-	def set_rows(self, mat):
-		"""Set matrix from rows."""
-		self.data[:] = mat.transposed()
-

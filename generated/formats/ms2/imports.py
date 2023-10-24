@@ -51,6 +51,7 @@ type_module_name_map = {
 	'ModelFlagDLA': 'generated.formats.ms2.bitfields.ModelFlagDLA',
 	'RenderFlag': 'generated.formats.ms2.bitfields.RenderFlag',
 	'CollisionType': 'generated.formats.ms2.enums.CollisionType',
+	'Matrix': 'generated.formats.ms2.compounds.Matrix',
 	'Matrix44': 'generated.formats.ms2.compounds.Matrix44',
 	'Matrix33': 'generated.formats.ms2.compounds.Matrix33',
 	'AxisAngle': 'generated.formats.ms2.compounds.AxisAngle',
