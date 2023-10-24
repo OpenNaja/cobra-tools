@@ -342,8 +342,11 @@ class MainWindow(widgets.MainWindow):
 		"""this manages the renaming of a single entry"""
 		# force new name to be lowercase
 		names = [(old_name, new_name.lower()), ]
-		self.ovl_data.rename(names)
-		self.set_file_modified(True)
+		try:
+			self.ovl_data.rename(names)
+			self.set_file_modified(True)
+		except:
+			self.handle_error("Renaming failed, see log!")
 
 	def game_changed(self, game: Optional[str] = None):
 		"""Updates game for self.ovl_data from current GUI selection"""
