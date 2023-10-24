@@ -602,10 +602,10 @@
 		<add name="loc" type="Vector3" >the location of the child joint</add>
 		vec_a and rot row 0 seem to be identical (tested on JWE1, JWE2, PZ)
 		sometimes correspond to the negated child joint rot row0
-		<add name="vec_a" type="Vector3" >normed</add>
+		<add name="vec_a" type="Vector3" >normed, matches first row of rot</add>
 		row 2 can match child joint rot row 1
 		<add name="rot" type="Matrix33" >all 3 rows are orthogonal to one another</add>
-		<add name="vec_b" type="Vector3" >normed</add>
+		<add name="vec_b" type="Vector3" >normed, and orthogonal to vec_a</add>
 		tolerance around the rotation axes
 		<add name="x" type="RotationRange" >radians</add>
 		<add name="y" type="RotationRange" >radians</add>

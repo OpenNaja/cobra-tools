@@ -58,13 +58,14 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			if not joints:
 				logging.debug(f"Joints not used")
 				return
-			# # test for orthogonal vecs
-			# for ragdoll in joints.ragdoll_constraints:
-			# 	r = ragdoll.rot.data
-			# 	a = np.dot(r[0], r[1])
-			# 	b = np.dot(r[1], r[2])
-			# 	c = np.dot(r[0], r[2])
-			# 	print(a, b, c)
+			# test for orthogonal vecs
+			for ragdoll in joints.ragdoll_constraints:
+				# r = ragdoll.rot.data
+				# a = np.dot(r[0], r[1])
+				# b = np.dot(r[1], r[2])
+				# c = np.dot(r[0], r[2])
+				# print(a, b, c)
+				print(np.dot(ragdoll.vec_a, ragdoll.vec_b))
 			for bone_i, joint_info, joint_transform in zip(joints.joint_to_bone, joints.joint_infos, joints.joint_transforms):
 				joint_transform.name = joint_info.name
 				# usually, this corresponds - does not do for speedtree but does not matter
@@ -426,8 +427,8 @@ if __name__ == "__main__":
 	# m.load("C:/Users/arnfi/Desktop/SP_Grave_Stones.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC ovls/walker_export/SP_Scarecrow not working atm.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/Warhammer/Annihilator/annihilatormodels.ms2", read_editable=True)
-	# m.load("C:/Users/arnfi/Desktop/acro/models.ms2", read_editable=True)
-	m.load("C:/Program Files (x86)/Steam/steamapps/common/Planet Zoo/win64/ovldata/walker_export/Content2/Environment/Scenery/Wallsets/GL_Roof_02/GL_Roof_02/models.ms2", read_editable=True)
+	m.load("C:/Users/arnfi/Desktop/acro/models.ms2", read_editable=True)
+	# m.load("C:/Program Files (x86)/Steam/steamapps/common/Planet Zoo/win64/ovldata/walker_export/Content2/Environment/Scenery/Wallsets/GL_Roof_02/GL_Roof_02/models.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/Characters/Mascots/Dino/Mascot_Dino/dino_.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/PC_Primitives_01/models.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/doors/dlc11_stripdoors_.ms2", read_editable=True)

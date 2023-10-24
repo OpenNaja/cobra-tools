@@ -13,13 +13,13 @@ class RagdollConstraint(Constraint):
 		# the location of the child joint
 		self.loc = name_type_map['Vector3'](self.context, 0, None)
 
-		# normed
+		# normed, matches first row of rot
 		self.vec_a = name_type_map['Vector3'](self.context, 0, None)
 
 		# all 3 rows are orthogonal to one another
 		self.rot = name_type_map['Matrix33'](self.context, 0, None)
 
-		# normed
+		# normed, and orthogonal to vec_a
 		self.vec_b = name_type_map['Vector3'](self.context, 0, None)
 
 		# radians
