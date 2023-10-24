@@ -433,12 +433,15 @@ if __name__ == "__main__":
 	# m.load("C:/Users/arnfi/Desktop/SP_Grave_Stones.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC ovls/walker_export/SP_Scarecrow not working atm.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/Warhammer/Annihilator/annihilatormodels.ms2", read_editable=True)
-	m.load("C:/Users/arnfi/Desktop/acro/models.ms2", read_editable=True)
+	# m.load("C:/Users/arnfi/Desktop/acro/models.ms2", read_editable=True)
+	m.load("C:/Users/arnfi/Desktop/rhinoblack_child_.ms2", read_editable=True)
 	# m.load("C:/Program Files (x86)/Steam/steamapps/common/Planet Zoo/win64/ovldata/walker_export/Content2/Environment/Scenery/Wallsets/GL_Roof_02/GL_Roof_02/models.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/Characters/Mascots/Dino/Mascot_Dino/dino_.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/PC_Primitives_01/models.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/doors/dlc11_stripdoors_.ms2", read_editable=True)
-	# for i, bone_info in enumerate(m.models_reader.bone_infos):
+	for i, bone_info in enumerate(m.models_reader.bone_infos):
+		for bi, bone in enumerate(bone_info.bones):
+			print(bi, bone.name)
 	# 	joints = bone_info.joints
 	# 	# test for orthogonal vecs
 	# 	# for ragdoll in joints.ragdoll_constraints:

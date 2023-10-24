@@ -42,7 +42,7 @@ class IKInfo(BaseStruct):
 		yield 'ik_targets_count', name_type_map['Uint64'], (0, None), (False, None), (lambda context: context.version >= 48, None)
 		yield 'ik_targets_ptr', name_type_map['Uint64'], (0, None), (False, None), (lambda context: context.version >= 48, None)
 		yield 'ik_ref', name_type_map['Empty'], (0, None), (False, None), (None, None)
-		yield 'ik_list', Array, (0, None, (None,), name_type_map['UACJoint']), (False, None), (lambda context: context.version <= 13, None)
+		yield 'ik_list', Array, (0, None, (None,), name_type_map['IKEntryOld']), (False, None), (lambda context: context.version <= 13, None)
 		yield 'ik_list', Array, (0, None, (None,), name_type_map['IKEntry']), (False, None), (lambda context: context.version >= 32, None)
 		yield 'padding_0', name_type_map['PadAlign'], (8, None), (False, None), (None, None)
 		yield 'ik_targets', Array, (0, None, (None,), name_type_map['IKTarget']), (False, None), (lambda context: context.version >= 50, None)
@@ -60,7 +60,7 @@ class IKInfo(BaseStruct):
 			yield 'ik_targets_ptr', name_type_map['Uint64'], (0, None), (False, None)
 		yield 'ik_ref', name_type_map['Empty'], (0, None), (False, None)
 		if instance.context.version <= 13:
-			yield 'ik_list', Array, (0, None, (instance.ik_count,), name_type_map['UACJoint']), (False, None)
+			yield 'ik_list', Array, (0, None, (instance.ik_count,), name_type_map['IKEntryOld']), (False, None)
 		if instance.context.version >= 32:
 			yield 'ik_list', Array, (0, None, (instance.ik_count,), name_type_map['IKEntry']), (False, None)
 		yield 'padding_0', name_type_map['PadAlign'], (8, instance.ik_ref), (False, None)

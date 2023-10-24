@@ -504,12 +504,6 @@
 		<add name="hier2padding 2" type="uint64" cond="128 #LT# #ARG#">129 is the first with 24 bytes</add>
 	</compound>
 
-	<compound name="UACJoint">
-		36 bytes
-		<add name="unk" type="ushort" arr1="6" >variable</add>
-		<add name="floats" type="float" arr1="6">some at least</add>
-	</compound>
-
 	<compound name="AbstractPointer" abstract="true">
 		forward pointing, of varying size
 	</compound>
@@ -524,6 +518,17 @@
 		tentative interpretation
 		<add name="min" type="float"/>
 		<add name="max" type="float"/>
+	</compound>
+
+	<compound name="IKEntryOld">
+		36 bytes
+		<add name="name" type="ushort" >index into name buffer</add>
+		<add name="index" type="ushort" >unk</add>
+		<add name="parent" type="ushort" >bone</add>
+		<add name="child" type="ushort" >bone</add>
+		<add name="length" type="ushort" default="2" >count of controlled bones in chain</add>
+		<add name="parent_again" type="ushort" >bone</add>
+		<add name="floats" type="float" arr1="6">some at least</add>
 	</compound>
 
 	<compound name="IKEntry">
@@ -551,7 +556,7 @@
 		<add name="ik_targets_count" type="uint64" since="48">seen 0, 2, 4</add>
 		<add name="ik_targets_ptr" type="uint64" since="48"/>
 		<add name="ik ref" type="Empty"/>
-		<add name="ik_list" type="UACJoint" arr1="ik_count" until="13"/>
+		<add name="ik_list" type="IKEntryOld" arr1="ik_count" until="13"/>
 		<add name="ik_list" type="IKEntry" arr1="ik_count" since="32"/>
 		<add name="padding 0" type="PadAlign" template="ik ref" arg="8"/>
 		<add name="ik_targets" type="IKTarget" arr1="ik_targets_count" since="50"/>
