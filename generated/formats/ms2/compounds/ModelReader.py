@@ -54,31 +54,35 @@ class ModelReader(BaseStruct):
 			instance.start_of_buffer = instance.arg.buffer_infos.io_start
 			# meh, add it here even though it's really interleaved
 			instance.bone_info_start = stream.tell()
-			for model_info in instance.arg.model_infos:
+			for name, model_info in zip(instance.arg.mdl_2_names, instance.arg.model_infos):
+				model_info.name = name
 				# logging.debug(model_info)
 				s = stream.tell()
-				instance.get_padding(stream, alignment=8)
-				try:
-					model_info.model = Model.from_stream(stream, instance.context, model_info)
-				except:
-					logging.exception(f"Failed reading model for model_info {model_info}")
 				# this little patch solves reading all of PC anubis models
-				if instance.context.version == 32 and model_info.model.lods:
-					for shift in (16, 12, 8, 4, -4, -8, -12, -16):
+				for shift in (0, 16, 12, 8, 4, -4, -8, -12, -16):
+					stream.seek(s+shift)
+					# DLA and ZTUAC don't go into shifts
+					if instance.context.version != 32:
+						instance.get_padding(stream, alignment=8)
+					try:
+						model_info.model = Model.from_stream(stream, instance.context, model_info)
+						# logging.debug(f"Model with shifted distance {model_info.model.lods[0]}")
+					except:
+						logging.exception(f"Failed reading model for model_info {model_info}")
+
+					if instance.context.version == 32 and model_info.model.lods:
 						# janitor 4.0
-						if model_info.model.lods[0].distance not in (900.0, 4.0):
-							logging.warning(f"Distance is wrong at {model_info.model.lods[0].io_start}")
+						if model_info.model.lods[0].distance in (900.0, 4.0):
+							break
+						else:
+							specials.append(i)
+							logging.warning(f"{model_info.name}: Distance is wrong at {model_info.model.lods[0].io_start} (shift={shift})")
+							# logging.warning(f"Distance is wrong at {model_info.model.lods[0].io_start}")
 							# logging.warning(f"last bone info {instance.bone_infos[-1]}")
 							# logging.debug(f"Model with original distance {model_info.model.lods[0]}")
-							stream.seek(s+shift)
-							specials.append(i)
-							try:
-								model_info.model = Model.from_stream(stream, instance.context, model_info)
-								# logging.debug(f"Model with shifted distance {model_info.model.lods[0]}")
-							except:
-								logging.exception(f"Failed reading model for model_info {model_info}")
-						else:
-							break
+					else:
+						break
+
 				logging.debug(f"Model {i} ends at {stream.tell()}")
 				# logging.debug(f"Model {i} {model_info.model}")
 				# alignment, not sure if really correct
@@ -202,7 +206,8 @@ class ModelReader(BaseStruct):
 					hitcheck.collider.vertices = Array.from_stream(stream, self.context, 0, None, (hitcheck.collider.vertex_count, 3), Float)
 					# logging.debug(f"End of vertices at {stream.tell()}")
 				if hitcheck.dtype in (CollisionType.MESH_COLLISION,):
-					self.get_padding(stream, alignment=16, rel=start)
+					# self.get_padding(stream, alignment=16, rel=start)
+					self.get_padding(stream, alignment=16)
 					logging.debug(f"Reading vertices for {hitcheck.dtype.name} at {stream.tell()}")
 					# logging.debug(f"Hitcheck {hitcheck.collider}")
 					# logging.debug(f"Hitcheck {hitcheck}")

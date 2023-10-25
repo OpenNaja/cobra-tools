@@ -16,7 +16,7 @@ class Sphere(BaseStruct):
 		# radius around the center
 		self.radius = name_type_map['Float'](self.context, 0, None)
 
-		# apparently unused
+		# might be float 0.0
 		self.zero = name_type_map['Uint'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()

@@ -635,7 +635,7 @@
 	<compound name="Sphere">
 		<add name="center" type="Vector3" >center of the sphere</add>
 		<add name="radius" type="float" >radius around the center</add>
-		<add name="zero" type="uint" >apparently unused</add>
+		<add name="zero" type="uint" >might be float 0.0</add>
 	</compound>
 
 	<compound name="BoundingBox">
@@ -655,6 +655,7 @@
 
 	<compound name="Cylinder" inherit="Capsule">
 		identical data to capsule, just imported differently
+		<add name="zeros2" type="uint" vercond="#PC#" >probably padding</add>
 	</compound>
 
 	<compound name="ConvexHull">

@@ -161,7 +161,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 
 	def attach_streams(self, buffer_info, in_stream=None, dump=False):
 		"""Attaches streams to a buffer info for each section, and fills them if an input stream is provided"""
-		logging.info(f"Attaching streams to {buffer_info.name}")
+		logging.debug(f"Attaching streams to {buffer_info.name}")
 		for buffer_name in BUFFER_NAMES:
 			if in_stream:
 				buff_size = getattr(buffer_info, f"{buffer_name}_size")
@@ -396,7 +396,6 @@ class Ms2File(Ms2InfoHeader, IoFile):
 	def lookup_material(self):
 		for model_i, (name, model_info) in enumerate(zip(self.mdl_2_names, self.model_infos)):
 			logging.debug(f"Mapping links for {name}")
-			model_info.name = name
 			if self.lacks_mesh(model_info, model_i):
 				continue
 			for lod_index, lod in enumerate(model_info.model.lods):
@@ -433,14 +432,17 @@ if __name__ == "__main__":
 	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC ovls/walker_export/SP_Scarecrow not working atm.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/Warhammer/Annihilator/annihilatormodels.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/acro/models.ms2", read_editable=True)
-	m.load("C:/Users/arnfi/Desktop/rhinoblack_child_.ms2", read_editable=True)
+	# m.load("C:/Users/arnfi/Desktop/rhinoblack_child_.ms2", read_editable=True)
+	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/StreetFoxCoffee/models.ms2", read_editable=True)
+	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/SP_Grave_Stones/models.ms2", read_editable=True)
+	m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/CC_Anubis/models.ms2", read_editable=True)
 	# m.load("C:/Program Files (x86)/Steam/steamapps/common/Planet Zoo/win64/ovldata/walker_export/Content2/Environment/Scenery/Wallsets/GL_Roof_02/GL_Roof_02/models.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/Characters/Mascots/Dino/Mascot_Dino/dino_.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/PC_Primitives_01/models.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/doors/dlc11_stripdoors_.ms2", read_editable=True)
-	for i, bone_info in enumerate(m.models_reader.bone_infos):
-		for bi, bone in enumerate(bone_info.bones):
-			print(bi, bone.name)
+	# for i, bone_info in enumerate(m.models_reader.bone_infos):
+	# 	for bi, bone in enumerate(bone_info.bones):
+	# 		print(bi, bone.name)
 	# 	joints = bone_info.joints
 	# 	# test for orthogonal vecs
 	# 	# for ragdoll in joints.ragdoll_constraints:
