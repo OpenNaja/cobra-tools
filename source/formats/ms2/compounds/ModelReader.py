@@ -44,8 +44,8 @@ class ModelReader(BaseStruct):
 			instance.bone_info_start = stream.tell()
 			for name, model_info in zip(instance.arg.mdl_2_names, instance.arg.model_infos):
 				model_info.name = name
-				# logging.debug(model_info)
 				s = stream.tell()
+				logging.debug(f"Model {name} at {s}")
 				# this little patch solves reading all of PC anubis models
 				for shift in (0, 16, 12, 8, 4, -4, -8, -12, -16):
 					stream.seek(s+shift)
@@ -54,13 +54,13 @@ class ModelReader(BaseStruct):
 						instance.get_padding(stream, alignment=8)
 					try:
 						model_info.model = Model.from_stream(stream, instance.context, model_info)
-						# logging.debug(f"Model with shifted distance {model_info.model.lods[0]}")
 					except:
 						logging.exception(f"Failed reading model for model_info {model_info}")
 
 					if instance.context.version == 32 and model_info.model.lods:
-						# janitor 4.0, genie 1600.0
-						if model_info.model.lods[0].distance in (1600.0, 900.0, 4.0):
+						# logging.debug(f"Model with shifted distance {model_info.model.lods[0]}")
+						# janitor 4.0, genie 1600.0, FR_HSwing 14400.0, FR_Sream 25600.0, FR_Victory 3600.0
+						if model_info.model.lods[0].distance in (25600.0, 1600.0, 14400.0, 3600.0, 900.0, 4.0):
 							break
 						else:
 							specials.append(i)
@@ -75,7 +75,7 @@ class ModelReader(BaseStruct):
 				# logging.debug(f"Model {i} {model_info.model}")
 				# alignment, not sure if really correct
 				# test for FR_GrandCarousel.ovl
-				if model_info.model.io_size == 0:
+				if model_info.model.io_size == 0 and model_info.increment_flag:
 					model_info.model.padding = SmartPadding.from_stream(stream, instance.context)
 					# logging.warning(model_info.model)
 				i = instance.assign_bone_info(i, model_info, stream)
@@ -134,7 +134,7 @@ class ModelReader(BaseStruct):
 		# 22-05: in PC anubis, we do have padding here
 		self.get_padding(stream)
 		bone_info = BoneInfo.from_stream(stream, self.context)
-		logging.info(bone_info)
+		# logging.info(bone_info)
 		self.read_hitcheck_verts(bone_info, stream)
 		logging.debug(f"end of bone info {i} at {stream.tell()}")
 
@@ -178,7 +178,6 @@ class ModelReader(BaseStruct):
 		if padding != b'\x00' * padding_len:
 			# logging.warning(f"Padding is nonzero {padding} at offset {abs_offset}")
 			raise AttributeError(f"Padding is nonzero {padding} at offset {abs_offset}")
-		logging.debug(f"padding: {padding_len} aligned to {alignment}")
 
 	def read_hitcheck_verts(self, bone_info, stream):
 		try:
