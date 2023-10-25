@@ -22,14 +22,14 @@ class MeshCollisionData(BaseStruct):
 		# triangle indices into vertex list
 		self.triangles = Array(self.context, 0, None, (0,), name_type_map['Ushort'])
 
-		# ?
+		# ?; PC: 32
 		self.const = name_type_map['Uint'](self.context, 0, None)
 
 		# in JWE redwood: always 37
 		self.triangle_flags = Array(self.context, 0, None, (0,), name_type_map['Uint'])
 
-		# might be padding!
-		self.zero_end = name_type_map['Uint'](self.context, 0, None)
+		# ?
+		self.triangle_flags_pc = Array(self.context, 0, None, (0,), name_type_map['Short'])
 		if set_default:
 			self.set_defaults()
 
@@ -42,8 +42,8 @@ class MeshCollisionData(BaseStruct):
 		yield 'triangles_addr', name_type_map['Empty'], (0, None), (False, None), (None, None)
 		yield 'triangles', Array, (0, None, (None, 3,), name_type_map['Ushort']), (False, None), (None, None)
 		yield 'const', name_type_map['Uint'], (0, None), (False, None), (lambda context: context.version <= 47, None)
-		yield 'triangle_flags', Array, (0, None, (None,), name_type_map['Uint']), (False, None), (lambda context: context.version <= 47, True)
-		yield 'zero_end', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'triangle_flags', Array, (0, None, (None,), name_type_map['Uint']), (False, None), (lambda context: context.version <= 47 and not (context.version == 32), True)
+		yield 'triangle_flags_pc', Array, (0, None, (None, 2,), name_type_map['Short']), (False, None), (lambda context: context.version == 32, True)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -56,6 +56,7 @@ class MeshCollisionData(BaseStruct):
 		yield 'triangles', Array, (0, None, (instance.arg.tri_count, 3,), name_type_map['Ushort']), (False, None)
 		if instance.context.version <= 47:
 			yield 'const', name_type_map['Uint'], (0, None), (False, None)
-		if instance.context.version <= 47 and instance.const:
+		if instance.context.version <= 47 and not (instance.context.version == 32) and instance.const:
 			yield 'triangle_flags', Array, (0, None, (instance.arg.sub_coll_chunk.tri_flags_count,), name_type_map['Uint']), (False, None)
-		yield 'zero_end', name_type_map['Uint'], (0, None), (False, None)
+		if instance.context.version == 32 and instance.arg.tris_switch:
+			yield 'triangle_flags_pc', Array, (0, None, (instance.arg.tri_count, 2,), name_type_map['Short']), (False, None)

@@ -636,6 +636,7 @@
 		<add name="center" type="Vector3" >center of the sphere</add>
 		<add name="radius" type="float" >radius around the center</add>
 		<add name="zero" type="uint" >might be float 0.0</add>
+		<add name="zeros2" type="uint" vercond="#PC#" >probably padding</add>
 	</compound>
 
 	<compound name="BoundingBox">
@@ -651,11 +652,11 @@
 		<add name="radius" type="float" >radius of the caps</add>
 		<add name="extent" type="float" >distance between the center points of the capsule caps, total extent is 2 * radius + extent</add>
 		<add name="zero" type="uint" >apparently unused</add>
+		<add name="zeros2" type="uint" vercond="#PC#" >probably padding</add>
 	</compound>
 
 	<compound name="Cylinder" inherit="Capsule">
 		identical data to capsule, just imported differently
-		<add name="zeros2" type="uint" vercond="#PC#" >probably padding</add>
 	</compound>
 
 	<compound name="ConvexHull">
@@ -704,7 +705,8 @@
 		<add name="flag 0" type="uint64" default="1"/>
 		<add name="flag 1" type="uint64" default="1"/>
 		<add name="has_SubCollChunk" type="uint64"/>seen 1 eg PZ widgetball_test_, or 0 in JWE2 characterscale and PZ CM_Common_Roofs
-		<add name="zeros 1" type="uint64" arr1="4"/>
+		<add name="zeros 1" type="uint64" arr1="3"/>
+		<add name="tris switch" type="uint64" />
 		<add name="ff" type="int" default="-1"/>
 		<add name="zeros 2" type="int" arr1="7"/>
 		<add name="weird padding" type="SmartPadding" arg="4">sometimes 8 bytes, apparently not part of SubCollChunk (JWE2 dev footplantingtest_ has that but not the padding)</add>
@@ -714,8 +716,8 @@
 	<compound name="HitCheck">
 		JWE2: 20 bytes excluding collider
 		<add name="dtype" type="CollisionType"/>
-		<add name="flag_0" type="ushort" default="0">PZ, JWE2 always 0</add>
-		<add name="flag_1" type="ushort" default="0">JWE: 16; PZ, JWE2 always 0</add>
+		<add name="flag_0" type="ushort" default="0">PC: apparently bitflag, always a power of 2; PZ, JWE2 always 0</add>
+		<add name="flag_1" type="ushort" default="0">PC: 0; JWE: 16; PZ, JWE2 always 0</add>
 		<add name="collision_layers" type="uint64" until="47">probably a bitfield, not sure though, might be a list of ubytes too</add>
 		<add name="collision_ignore" type="OffsetString" arg="#ARG#" since="48"/>
 		<add name="collision_use" type="OffsetString" arg="#ARG#" since="48"/>
@@ -873,9 +875,10 @@
 		<add name="triangles addr" type="Empty"/>
 		<add name="triangles" type="ushort" arr1="#ARG#\tri count" arr2="3">triangle indices into vertex list</add>
 
-		<add name="const" type="uint" until="47">?</add>
-		<add name="triangle flags" type="uint" arr1="#ARG#\sub_coll_chunk\tri flags count" cond="const" until="47">in JWE redwood: always 37</add>
-		<add name="zero end" type="uint" >might be padding!</add>
+		<add name="const" type="uint" until="47">?; PC: 32</add>model version?? coincidence?
+		<add name="triangle flags" type="uint" arr1="#ARG#\sub_coll_chunk\tri flags count" cond="const" vercond="!#PC#" until="47">in JWE redwood: always 37</add>
+		<add name="triangle_flags_pc" type="short" arr1="#ARG#\tri count" arr2="2" cond="#ARG#\tris_switch" vercond="#PC#">?</add>
+<!--		<add name="zero end" type="uint" >might be padding!</add>-->
 	</compound>
 
 </niftoolsxml>

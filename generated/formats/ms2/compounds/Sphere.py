@@ -18,6 +18,9 @@ class Sphere(BaseStruct):
 
 		# might be float 0.0
 		self.zero = name_type_map['Uint'](self.context, 0, None)
+
+		# probably padding
+		self.zeros_2 = name_type_map['Uint'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 
@@ -27,6 +30,7 @@ class Sphere(BaseStruct):
 		yield 'center', name_type_map['Vector3'], (0, None), (False, None), (None, None)
 		yield 'radius', name_type_map['Float'], (0, None), (False, None), (None, None)
 		yield 'zero', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'zeros_2', name_type_map['Uint'], (0, None), (False, None), (lambda context: context.version == 32, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -34,3 +38,5 @@ class Sphere(BaseStruct):
 		yield 'center', name_type_map['Vector3'], (0, None), (False, None)
 		yield 'radius', name_type_map['Float'], (0, None), (False, None)
 		yield 'zero', name_type_map['Uint'], (0, None), (False, None)
+		if instance.context.version == 32:
+			yield 'zeros_2', name_type_map['Uint'], (0, None), (False, None)

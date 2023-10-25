@@ -15,10 +15,10 @@ class HitCheck(BaseStruct):
 		super().__init__(context, arg, template, set_default=False)
 		self.dtype = name_type_map['CollisionType'](self.context, 0, None)
 
-		# PZ, JWE2 always 0
+		# PC: apparently bitflag, always a power of 2; PZ, JWE2 always 0
 		self.flag_0 = name_type_map['Ushort'].from_value(0)
 
-		# JWE: 16; PZ, JWE2 always 0
+		# PC: 0; JWE: 16; PZ, JWE2 always 0
 		self.flag_1 = name_type_map['Ushort'].from_value(0)
 
 		# probably a bitfield, not sure though, might be a list of ubytes too

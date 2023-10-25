@@ -24,6 +24,9 @@ class Capsule(BaseStruct):
 
 		# apparently unused
 		self.zero = name_type_map['Uint'](self.context, 0, None)
+
+		# probably padding
+		self.zeros_2 = name_type_map['Uint'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 
@@ -35,6 +38,7 @@ class Capsule(BaseStruct):
 		yield 'radius', name_type_map['Float'], (0, None), (False, None), (None, None)
 		yield 'extent', name_type_map['Float'], (0, None), (False, None), (None, None)
 		yield 'zero', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'zeros_2', name_type_map['Uint'], (0, None), (False, None), (lambda context: context.version == 32, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -44,3 +48,5 @@ class Capsule(BaseStruct):
 		yield 'radius', name_type_map['Float'], (0, None), (False, None)
 		yield 'extent', name_type_map['Float'], (0, None), (False, None)
 		yield 'zero', name_type_map['Uint'], (0, None), (False, None)
+		if instance.context.version == 32:
+			yield 'zeros_2', name_type_map['Uint'], (0, None), (False, None)

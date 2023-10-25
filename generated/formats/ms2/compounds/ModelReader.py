@@ -71,8 +71,8 @@ class ModelReader(BaseStruct):
 						logging.exception(f"Failed reading model for model_info {model_info}")
 
 					if instance.context.version == 32 and model_info.model.lods:
-						# janitor 4.0
-						if model_info.model.lods[0].distance in (900.0, 4.0):
+						# janitor 4.0, genie 1600.0
+						if model_info.model.lods[0].distance in (1600.0, 900.0, 4.0):
 							break
 						else:
 							specials.append(i)
@@ -115,16 +115,15 @@ class ModelReader(BaseStruct):
 			logging.debug(f"Reading bone info {i} at {stream.tell()}")
 			try:
 				model_info.bone_info = self.read_bone_info(stream, i)
-				# logging.info(model_info.bone_info)
 				# logging.debug(f"Bone info {i} worked {model_info.bone_info}")
 				self.bone_infos.append(model_info.bone_info)
 				# return
 			except:
 				logging.warning(f"Bone info {i} failed for model_info")
-				logging.warning(model_info)
-				logging.warning(model_info.model)
-				logging.warning(f"here's the bone info before:")
-				logging.warning(self.bone_infos[-1])
+				# logging.warning(model_info)
+				# logging.warning(model_info.model)
+				# logging.warning(f"here's the bone info before:")
+				# logging.warning(self.bone_infos[-1])
 			i += 1
 		else:
 			logging.debug(f"Using previous bone info")
@@ -147,7 +146,7 @@ class ModelReader(BaseStruct):
 		# 22-05: in PC anubis, we do have padding here
 		self.get_padding(stream)
 		bone_info = BoneInfo.from_stream(stream, self.context)
-		# logging.info(bone_info)
+		logging.info(bone_info)
 		self.read_hitcheck_verts(bone_info, stream)
 		logging.debug(f"end of bone info {i} at {stream.tell()}")
 
@@ -212,6 +211,7 @@ class ModelReader(BaseStruct):
 					# logging.debug(f"Hitcheck {hitcheck.collider}")
 					# logging.debug(f"Hitcheck {hitcheck}")
 					hitcheck.collider.data = MeshCollisionData.from_stream(stream, self.context, hitcheck.collider, None)
+					# logging.debug(hitcheck.collider.data)
 					# logging.debug(f"End of vertices at {stream.tell()}")
 		except:
 			logging.exception(f"Reading hitchecks failed")
