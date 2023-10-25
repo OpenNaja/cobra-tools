@@ -30,6 +30,7 @@ class MeshCollisionData(BaseStruct):
 
 		# ?
 		self.triangle_flags_pc = Array(self.context, 0, None, (0,), name_type_map['Short'])
+		self.mesh_aligner = name_type_map['PadAlign'](self.context, 8, self.vertices_addr)
 		if set_default:
 			self.set_defaults()
 
@@ -44,6 +45,7 @@ class MeshCollisionData(BaseStruct):
 		yield 'const', name_type_map['Uint'], (0, None), (False, None), (lambda context: context.version <= 47, None)
 		yield 'triangle_flags', Array, (0, None, (None,), name_type_map['Uint']), (False, None), (lambda context: context.version <= 47 and not (context.version == 32), True)
 		yield 'triangle_flags_pc', Array, (0, None, (None, 2,), name_type_map['Short']), (False, None), (lambda context: context.version == 32, True)
+		yield 'mesh_aligner', name_type_map['PadAlign'], (8, None), (False, None), (lambda context: context.version <= 32, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -60,3 +62,5 @@ class MeshCollisionData(BaseStruct):
 			yield 'triangle_flags', Array, (0, None, (instance.arg.sub_coll_chunk.tri_flags_count,), name_type_map['Uint']), (False, None)
 		if instance.context.version == 32 and instance.arg.tris_switch:
 			yield 'triangle_flags_pc', Array, (0, None, (instance.arg.tri_count, 2,), name_type_map['Short']), (False, None)
+		if instance.context.version <= 32:
+			yield 'mesh_aligner', name_type_map['PadAlign'], (8, instance.vertices_addr), (False, None)

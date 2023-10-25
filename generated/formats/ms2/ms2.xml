@@ -878,6 +878,8 @@
 		<add name="const" type="uint" until="47">?; PC: 32</add>model version?? coincidence?
 		<add name="triangle flags" type="uint" arr1="#ARG#\sub_coll_chunk\tri flags count" cond="const" vercond="!#PC#" until="47">in JWE redwood: always 37</add>
 		<add name="triangle_flags_pc" type="short" arr1="#ARG#\tri count" arr2="2" cond="#ARG#\tris_switch" vercond="#PC#">?</add>
+
+		<add name="mesh aligner" type="PadAlign" template="vertices addr" arg="8" until="32"/>
 <!--		<add name="zero end" type="uint" >might be padding!</add>-->
 	</compound>
 
