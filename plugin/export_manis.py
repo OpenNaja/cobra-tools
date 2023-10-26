@@ -3,6 +3,7 @@ import logging
 import bpy
 import mathutils
 
+from generated.formats.base.basic import Ushort, Ubyte
 from generated.formats.manis import ManisFile
 from generated.formats.manis.compounds.ManiBlock import ManiBlock
 from modules.formats.shared import djb2
@@ -101,7 +102,8 @@ def save(filepath=""):
 		scl_groups, scl_indices = set_mani_info_counts(mani_info, b_action, bones_lut, "scl", "scale")
 		# mani_info.scl_bone_count_related = mani_info.scl_bone_count_repeat = 0
 		floats = []
-		mani_info.keys = ManiBlock(mani_info.context, mani_info)
+		bone_dtype = Ushort if mani_info.dtype.use_ushort else Ubyte
+		mani_info.keys = ManiBlock(mani_info.context, mani_info, bone_dtype)
 		k = mani_info.keys
 		update_key_indices(k, "pos", pos_groups, pos_indices, target_names, bone_names)
 		update_key_indices(k, "ori", ori_groups, ori_indices, target_names, bone_names)
