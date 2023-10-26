@@ -72,8 +72,10 @@ class ModelReader(BaseStruct):
 
 					if instance.context.version == 32 and model_info.model.lods:
 						# logging.debug(f"Model with shifted distance {model_info.model.lods[0]}")
-						# janitor 4.0, genie 1600.0, FR_HSwing 14400.0, FR_Sream 25600.0, FR_Victory 3600.0, ST_Stone 4900.0, 2500.0 PR_Kraken, 22500.0+40000 PC_Archway
-						if model_info.model.lods[0].distance in (40000.0, 25600.0, 22500.0, 14400.0, 4900.0, 3600.0, 2500.0, 1600.0, 900.0, 4.0):
+						# janitor 4.0, genie 1600.0, FR_HSwing 14400.0, FR_Sream 25600.0, FR_Victory 3600.0,
+						# ST_Stone 4900.0, 2500.0 PR_Kraken, 22500.0+40000 PC_Archway, 10000.0+7225 FR_Orb
+						if model_info.model.lods[0].distance in (
+								40000.0, 25600.0, 22500.0, 14400.0, 10000.0, 4900.0, 3600.0, 7225.0, 2500.0, 1600.0, 900.0, 4.0):
 							if shift:
 								logging.debug(f"{model_info.name}: ok at {model_info.model.lods[0].io_start} (shift={shift})")
 							break
