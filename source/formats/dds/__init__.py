@@ -152,12 +152,14 @@ class DdsFile(Header, IoFile):
         for mip_i, tile_i, data_size, padding_size in self.mip_pack_generator():
             # logging.debug(f"Reading mip {mip_i} {data_size} bytes at {dds.tell()}")
             data = dds.read(data_size)
-            # note that this could fail if the levels are already bugged as any padding added to the end overrides the actual value
-            # this is per scan line
-            mip_infos[mip_i].size_scan = data_size + padding_size
-            if data_size:
-                mip_infos[mip_i].size_data += data_size + padding_size
-            out[mip_i].append(data + b"\x00" * padding_size)
+            # texconv produces all mips, we truncate to what we want
+            if mip_i < len(out):
+                # note that this could fail if the levels are already bugged as any padding added to the end overrides the actual value
+                # this is per scan line
+                mip_infos[mip_i].size_scan = data_size + padding_size
+                if data_size:
+                    mip_infos[mip_i].size_data += data_size + padding_size
+                out[mip_i].append(data + b"\x00" * padding_size)
         return [b"".join(mip) for mip in out]
 
     def unpack_mips(self, tex_buffer_data, debug=False):
