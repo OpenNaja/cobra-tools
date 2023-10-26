@@ -247,12 +247,12 @@ def bulk_test_models(gui, start_dir, walk_ovls=True, walk_models=True):
 			# print(f"blend_modes: {blend_modes}")
 			if shader_map:
 				print(f"shaders: {shaders}")
-			largest_zstring_buffers = sorted(joint_names_padding.keys())
-			num = 10
-			if len(largest_zstring_buffers) > num:
-				for k in largest_zstring_buffers[-num:]:
-					logging.info(f"Found {k} for {joint_names_padding[k]}")
-			logging.info(largest_zstring_buffers)
+			# largest_zstring_buffers = sorted(joint_names_padding.keys())
+			# num = 10
+			# if len(largest_zstring_buffers) > num:
+			# 	for k in largest_zstring_buffers[-num:]:
+			# 		logging.info(f"Found {k} for {joint_names_padding[k]}")
+			# logging.info(largest_zstring_buffers)
 			# logging.info(Counter(joint_names_padding.keys()))
 			# logging.info(Counter(joint_names_total.keys()))
 			# totals = sorted(k for k in joint_names_total.keys())

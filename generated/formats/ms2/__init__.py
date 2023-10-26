@@ -447,7 +447,11 @@ if __name__ == "__main__":
 	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/Content0/Rides/FlatRides/Wild_Blue/FR_WBlue/models.ms2", read_editable=True)
 
 	# broken
-	m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/Content4/Rides/Flat_Rides/Weisshorn/FR_WHorn/models.ms2", read_editable=True)
+	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/Content4/Rides/Flat_Rides/Weisshorn/FR_WHorn/models.ms2", read_editable=True)
+	
+	
+	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/PDLC_WorldFair/Rides/Powered_Track_Rides/Tracks/Track_302/Track_302/models.ms2", read_editable=True)
+	m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/PDLC_Vintage/Environment/Scenery/Themes/VT_Vintage/VT_Bandstand/VT_Bandstand/models.ms2", read_editable=True)
 	
 	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/Content0/Rides/FlatRides/Orbiter/FR_Orb/models.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/Content0/Rides/FlatRides/Star_Wheel/FR_StarW/models.ms2", read_editable=True)
@@ -475,6 +479,53 @@ if __name__ == "__main__":
 	# 		# print(np.linalg.inv(ragdoll.rot.data))
 	# m.save("C:/Users/arnfi/Desktop/dlc11_stripdoors_.ms2")
 	print(m)
+
+# INFO | size 8 / count 1 = 8.0 in /PDLC_WorldFair/Rides/Coasters/Tracks/Track_003/Track_003/models.ms2; 0
+# INFO | size 16 / count 1 = 16.0 in /PDLC_WorldFair/Rides/Powered_Track_Rides/Tracks/Track_302/Track_302/models.ms2; 0
+# INFO | size 16 / count 2 = 8.0 in /PDLC_WorldFair/Environment/Scenery/Wallsets/WF_USA/WF_USA/models.ms2; 0
+# INFO | size 32 / count 3 = 10.666666666666666 in /PDLC_WorldFair/Environment/Scenery/Wallsets/WF_USA/WF_USA/models.ms2; 0
+# INFO | size 32 / count 4 = 8.0 in /PDLC_WorldFair/Environment/Scenery/Wallsets/WF_CHN/WF_CHN/models.ms2; 0
+# INFO | size 40 / count 5 = 8.0 in /PDLC_Vintage/Environment/Scenery/Wallset/VT_Wood/VT_Wood/vt_wood_merge_arch_half_4m.ms2; 0
+# INFO | size 80 / count 10 = 8.0 in /PDLC_Spooky/Environment/Scenery/Wallsets/SP_HauntedHouse/SP_HauntedHouse/models.ms2; 0
+# INFO | size 24 / count 3 = 8.0 in /PDLC_WorldFair/Environment/Scenery/Wallsets/WF_SPN/WF_SPN/models.ms2; 0
+# INFO | size 24 / count 2 = 12.0 in /PDLC_WorldFair/Environment/Scenery/Wallsets/WF_USA/WF_USA/models.ms2; 0
+# INFO | size 80 / count 9 = 8.88888888888889 in /PDLC_Adventure/Environment/Scenery/Themes/AD_Adventure/AD_Statue_Snake/AD_Statue_Snake/models.ms2; 0
+# INFO | size 72 / count 9 = 8.0 in /PDLC_Vintage/Environment/Scenery/Wallset/VT_Wood/VT_Wood/vt_wood_merge_arch_4m.ms2; 0
+# INFO | size 136 / count 16 = 8.5 in /Content0/Environment/Scenery/Themes/FT_FairyTale/FT_RoyalGazebo/FT_RoyalGazebo/models.ms2; 0
+# INFO | size 48 / count 5 = 9.6 in /PDLC_Vintage/Environment/Scenery/Themes/VT_Vintage/VT_Arch_Pillar_Roofs/VT_Arch_Pillar_Roofs/models.ms2; 0
+# INFO | size 64 / count 7 = 9.142857142857142 in /PDLC_WorldFair/Environment/Scenery/Themes/WF_WorldFair/WF_Planter_FRA/WF_Planter_FRA/models.ms2; 0
+# INFO | size 96 / count 11 = 8.727272727272727 in /Content0/Environment/Scenery/Themes/PC_PlanetCoaster/PC_Archway/PC_Archway/models.ms2; 0
+# INFO | size 40 / count 4 = 10.0 in /PDLC_WorldFair/Environment/Scenery/Wallsets/WF_USA/WF_USA/models.ms2; 0
+# INFO | size 72 / count 8 = 9.0 in /Content0/Environment/Scenery/Wallsets/WD_Wood/WD_Wood/models.ms2; 0
+# INFO | size 56 / count 6 = 9.333333333333334 in /PDLC_WorldFair/Environment/Scenery/Themes/WF_WorldFair/WF_Gondola_ITA/WF_Gondola_ITA/models.ms2; 0
+# INFO | size 184 / count 23 = 8.0 in /Content0/Environment/Scenery/Themes/WS_Western/WS_PaddleSteamer/WS_PaddleSteamer/models.ms2; 0
+# INFO | size 48 / count 6 = 8.0 in /PDLC_Spooky/Environment/Scenery/Wallsets/SP_HauntedHouse/SP_HauntedHouse/models.ms2; 0
+# INFO | size 96 / count 12 = 8.0 in /Content0/Environment/Scenery/Wallsets/ST_Stone_B/ST_Stone_B/models.ms2; 0
+# INFO | size 88 / count 11 = 8.0 in /Content0/Environment/Scenery/Wallsets/ST_Stone_B/ST_Stone_B/models.ms2; 0
+# INFO | size 88 / count 10 = 8.8 in /Content2/Environment/Scenery/Themes/FT_Fairytale/FT_Rope_Pieces/FT_Rope_Pieces/models.ms2; 0
+# INFO | size 56 / count 6 = 9.333333333333334 in /Content0/Rides/TransportRides/Cars/Connie/TR_Connie/models.ms2; 1
+# INFO | size 40 / count 5 = 8.0 in /PDLC_Adventure/Rides/Coasters/Cars/GoldFever/CC_GoldFever/models.ms2; 1
+# INFO | size 40 / count 4 = 10.0 in /Content3/Rides/Coasters/Cars/ViperOne/CC_ViperOne/models.ms2; 1
+# INFO | size 56 / count 7 = 8.0 in /Content0/Rides/Coasters/Cars/Barghest/CC_Barghest/models.ms2; 1
+# INFO | size 32 / count 3 = 10.666666666666666 in /PDLC_RidePack1/Rides/Coasters/Cars/SteelMultiRole/CC_SteelMultiRole/models.ms2; 1
+# INFO | size 32 / count 4 = 8.0 in /Content4/Rides/Coasters/Cars/Zenith/CC_Zenith/models.ms2; 1
+# INFO | size 24 / count 3 = 8.0 in /PDLC_WorldFair/Rides/Coasters/Cars/Jixxer/CC_Jixxer/models.ms2; 1
+# INFO | size 24 / count 2 = 12.0 in /PDLC_Vintage/Rides/Coasters/Cars/CC_FTurns/CC_FTurns/models.ms2; 1
+# INFO | size 16 / count 1 = 16.0 in /Content3/Rides/Coasters/Cars/Degen/CC_Degen/models.ms2; 1
+# INFO | size 48 / count 5 = 9.6 in /Content1/Rides/TransportRides/Cars/IronHorse/TR_IronHorse/models.ms2; 1
+# INFO | size 16 / count 2 = 8.0 in /PDLC_WorldFair/Rides/Powered_Track_Rides/Cars/PMover/TR_PMover/models.ms2; 1
+# INFO | size 8 / count 1 = 8.0 in /PDLC_Spooky/Rides/Powered_Track_Rides/The_Huntsman/PTR_Huntsman/models.ms2; 1
+# INFO | size 80 / count 9 = 8.88888888888889 in /Content0/Rides/Coasters/Cars/Stingray/CC_SRay/models.ms2; 1
+# INFO | size 48 / count 6 = 8.0 in /PDLC_WorldFair/Rides/Coasters/Cars/Jixxer/CC_Jixxer/models.ms2; 1
+# INFO | size 112 / count 13 = 8.615384615384615 in /PDLC_Vintage/Environment/Scenery/Themes/VT_Vintage/VT_Bandstand/VT_Bandstand/models.ms2; 0
+# INFO | size 104 / count 12 = 8.666666666666666 in /Content1/Environment/Scenery/Wallsets/HOL_GBread/HOL_Gbread/models.ms2; 0
+# INFO | size 56 / count 7 = 8.0 in /PDLC_Vintage/Environment/Scenery/Themes/VT_Vintage/VT_Arch_Pillar_Roofs/VT_Arch_Pillar_Roofs/models.ms2; 0
+# INFO | size 24 / count 1 = 24.0 in /GameMain/Main/nullphysicsskeleton_.ms2; 1
+# INFO | size 64 / count 8 = 8.0 in /PDLC_RidePack1/Environment/Scenery/RP1_CycloidSpinBackboards/RP1_CycloidSpinBackboards/models.ms2; 0
+
+	#
+
+
 	# m.load("C:/Users/arnfi/Desktop/ptera_JWE1/pteranodon_.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/anky_JWE1/ankylosaurus.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/moose/alaskan_moose_male_.ms2", read_editable=True)

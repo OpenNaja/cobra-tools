@@ -112,6 +112,7 @@ type_module_name_map = {
 	'HitCheck': 'generated.formats.ms2.compounds.HitCheck',
 	'JointInfo': 'generated.formats.ms2.compounds.JointInfo',
 	'HitcheckReader': 'generated.formats.ms2.compounds.HitcheckReader',
+	'HitcheckPointerReader': 'generated.formats.ms2.compounds.HitcheckPointerReader',
 	'JointData': 'generated.formats.ms2.compounds.JointData',
 	'BoneInfo': 'generated.formats.ms2.compounds.BoneInfo',
 	'MeshCollisionData': 'generated.formats.ms2.compounds.MeshCollisionData',

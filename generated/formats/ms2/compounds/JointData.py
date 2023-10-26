@@ -85,15 +85,18 @@ class JointData(BaseStruct):
 		self.joint_names = name_type_map['ZStringBuffer'](self.context, self.namespace_length, None)
 		self.joint_names_padding = name_type_map['PadAlign'](self.context, 8, self.names_ref)
 
+		# 8 bytes per hc
+		self.hitcheck_pointer_reader = name_type_map['HitcheckPointerReader'](self.context, self, None)
+
 		# this seems to be always multiples of 8 bytes
 		# fails on PC SP_Scarecrow, because its first hitcheck has collision type 0
 		self.after_names = name_type_map['SmartPadding'](self.context, 8, None)
 
-		# new style - includes name offset, some flags and the hitchecks
-		self.joint_infos = Array(self.context, self.joint_names, None, (0,), name_type_map['JointInfo'])
-
 		# old style - for each joint, read the hitchecks
 		self.hitcheck_reader = name_type_map['HitcheckReader'](self.context, self, None)
+
+		# new style - includes name offset, some flags and the hitchecks
+		self.joint_infos = Array(self.context, self.joint_names, None, (0,), name_type_map['JointInfo'])
 		if set_default:
 			self.set_defaults()
 
@@ -134,9 +137,10 @@ class JointData(BaseStruct):
 		yield 'bone_to_joint', Array, (0, None, (None,), name_type_map['Int']), (False, None), (None, None)
 		yield 'joint_names', name_type_map['ZStringBuffer'], (None, None), (False, None), (None, None)
 		yield 'joint_names_padding', name_type_map['PadAlign'], (8, None), (False, None), (None, None)
+		yield 'hitcheck_pointer_reader', name_type_map['HitcheckPointerReader'], (None, None), (False, None), (lambda context: context.version <= 32, None)
 		yield 'after_names', name_type_map['SmartPadding'], (8, None), (False, None), (lambda context: context.version <= 32, None)
-		yield 'joint_infos', Array, (None, None, (None,), name_type_map['JointInfo']), (False, None), (lambda context: context.version >= 47, None)
 		yield 'hitcheck_reader', name_type_map['HitcheckReader'], (None, None), (False, None), (lambda context: context.version <= 32, None)
+		yield 'joint_infos', Array, (None, None, (None,), name_type_map['JointInfo']), (False, None), (lambda context: context.version >= 47, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -185,11 +189,11 @@ class JointData(BaseStruct):
 		yield 'joint_names', name_type_map['ZStringBuffer'], (instance.namespace_length, None), (False, None)
 		yield 'joint_names_padding', name_type_map['PadAlign'], (8, instance.names_ref), (False, None)
 		if instance.context.version <= 32:
+			yield 'hitcheck_pointer_reader', name_type_map['HitcheckPointerReader'], (instance, None), (False, None)
 			yield 'after_names', name_type_map['SmartPadding'], (8, None), (False, None)
+			yield 'hitcheck_reader', name_type_map['HitcheckReader'], (instance, None), (False, None)
 		if instance.context.version >= 47:
 			yield 'joint_infos', Array, (instance.joint_names, None, (instance.joint_count,), name_type_map['JointInfo']), (False, None)
-		if instance.context.version <= 32:
-			yield 'hitcheck_reader', name_type_map['HitcheckReader'], (instance, None), (False, None)
 
 	def get_strings(self):
 		"""Get all strings in the structure."""

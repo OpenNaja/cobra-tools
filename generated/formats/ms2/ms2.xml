@@ -752,6 +752,9 @@
 		This reads and assigns hitchecks to each jointinfo that is passed to it
 	</compound>
 
+	<compound name="HitcheckPointerReader">
+	</compound>
+
 	<compound name="JointData">
 		probably something like ZerosPadding, but does not map to bone count
 		joint_pad_size: {0: {1, 3, 10, 12, 17, 26}, 8: {2, 4, 6, 8, 9, 11, 43, 13, 15, 22}, 16: {5, 14, 7}}
@@ -793,11 +796,16 @@
 		<add name="bone_to_joint" type="int" arr1="bone count" >the inverse of the above; for each bone info bone, index of the corresponding joint or -1 if no joint</add>
 		<add name="joint_names" type="ZStringBuffer" arg="namespace length"/>
 		<add name="JointNamesPadding" type="PadAlign" template="names_ref" arg="8"/>known to be valid for JWE, may be present before already
+		# causes no harm but not 100% enough
+		<add name="hitcheck_pointer_reader" type="HitcheckPointerReader" arg="#SELF#" until="32">8 bytes per hc</add>
+		# nope
+<!--		<add name="hitcheck_pointer_padding" type="PadAlign" template="names_ref" arg="16" until="32"/>known to be valid for JWE, may be present before already-->
+
 		<add name="after_names" type="SmartPadding" until="32" arg="8">
 			this seems to be always multiples of 8 bytes
 			fails on PC SP_Scarecrow, because its first hitcheck has collision type 0</add>
-		<add name="joint_infos" type="JointInfo" arr1="joint count" arg="joint_names" since="47">new style - includes name offset, some flags and the hitchecks</add>
 		<add name="hitcheck_reader" type="HitcheckReader" arg="#SELF#" until="32">old style - for each joint, read the hitchecks</add>
+		<add name="joint_infos" type="JointInfo" arr1="joint count" arg="joint_names" since="47">new style - includes name offset, some flags and the hitchecks</add>
 	</compound>
 
 	<compound name="BoneInfo">
