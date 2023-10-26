@@ -94,7 +94,7 @@ class BoneInfo(BaseStruct):
 		self.inventory_datas_2 = Array(self.context, 0, None, (0,), name_type_map['Int'])
 
 		# weird -1s
-		self.minus_padding = name_type_map['MinusPadding'](self.context, self.zeros_count, None)
+		self.minus_padding = name_type_map['MinusPadding'](self.context, self.unk_pc_count, None)
 
 		# weird zeros
 		self.zeros_padding = name_type_map['ZerosPadding'](self.context, self.zeros_count, None)
@@ -155,7 +155,7 @@ class BoneInfo(BaseStruct):
 		yield 'weirdness', Array, (0, None, (10,), name_type_map['Short']), (False, None), (lambda context: context.version == 13, None)
 		yield 'inventory_datas_2', Array, (0, None, (None, 2,), name_type_map['Int']), (False, None), (lambda context: context.version == 7, None)
 		yield 'minus_padding', name_type_map['MinusPadding'], (None, None), (False, None), (lambda context: context.version <= 32, True)
-		yield 'zeros_padding', name_type_map['ZerosPadding'], (None, None), (False, None), (lambda context: context.version >= 47, True)
+		yield 'zeros_padding', name_type_map['ZerosPadding'], (None, None), (False, None), (lambda context: context.version >= 47, None)
 		yield 'ik_info', name_type_map['IKInfo'], (None, None), (False, None), (None, True)
 		yield 'joints', name_type_map['JointData'], (0, None), (False, None), (None, True)
 
@@ -225,9 +225,9 @@ class BoneInfo(BaseStruct):
 			yield 'weirdness', Array, (0, None, (10,), name_type_map['Short']), (False, None)
 		if instance.context.version == 7:
 			yield 'inventory_datas_2', Array, (0, None, (instance.inv_data_count, 2,), name_type_map['Int']), (False, None)
-		if instance.context.version <= 32 and instance.zeros_count:
-			yield 'minus_padding', name_type_map['MinusPadding'], (instance.zeros_count, None), (False, None)
-		if instance.context.version >= 47 and instance.zeros_count:
+		if instance.context.version <= 32 and instance.unk_pc_count:
+			yield 'minus_padding', name_type_map['MinusPadding'], (instance.unk_pc_count, None), (False, None)
+		if instance.context.version >= 47:
 			yield 'zeros_padding', name_type_map['ZerosPadding'], (instance.zeros_count, None), (False, None)
 		if instance.ik_count:
 			yield 'ik_info', name_type_map['IKInfo'], (instance, None), (False, None)

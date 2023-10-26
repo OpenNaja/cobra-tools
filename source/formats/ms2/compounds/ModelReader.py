@@ -44,14 +44,15 @@ class ModelReader(BaseStruct):
 			instance.bone_info_start = stream.tell()
 			for name, model_info in zip(instance.arg.mdl_2_names, instance.arg.model_infos):
 				model_info.name = name
+				# DLA and ZTUAC don't go into shifts
+				# if instance.context.version != 32:
+				instance.get_padding(stream, alignment=8)
+				# instance.get_padding(stream, alignment=16)
 				s = stream.tell()
 				logging.debug(f"Model {name} at {s}")
 				# this little patch solves reading all of PC anubis models
 				for shift in (0, 16, 12, 8, 4, -4, -8, -12, -16):
 					stream.seek(s+shift)
-					# DLA and ZTUAC don't go into shifts
-					if instance.context.version != 32:
-						instance.get_padding(stream, alignment=8)
 					try:
 						model_info.model = Model.from_stream(stream, instance.context, model_info)
 					except:
@@ -59,8 +60,10 @@ class ModelReader(BaseStruct):
 
 					if instance.context.version == 32 and model_info.model.lods:
 						# logging.debug(f"Model with shifted distance {model_info.model.lods[0]}")
-						# janitor 4.0, genie 1600.0, FR_HSwing 14400.0, FR_Sream 25600.0, FR_Victory 3600.0
-						if model_info.model.lods[0].distance in (25600.0, 1600.0, 14400.0, 3600.0, 900.0, 4.0):
+						# janitor 4.0, genie 1600.0, FR_HSwing 14400.0, FR_Sream 25600.0, FR_Victory 3600.0, ST_Stone 4900.0, 2500.0 PR_Kraken, 22500.0+40000 PC_Archway
+						if model_info.model.lods[0].distance in (40000.0, 25600.0, 22500.0, 14400.0, 4900.0, 3600.0, 2500.0, 1600.0, 900.0, 4.0):
+							if shift:
+								logging.debug(f"{model_info.name}: ok at {model_info.model.lods[0].io_start} (shift={shift})")
 							break
 						else:
 							specials.append(i)
@@ -103,11 +106,9 @@ class ModelReader(BaseStruct):
 			logging.debug(f"Reading bone info {i} at {stream.tell()}")
 			try:
 				model_info.bone_info = self.read_bone_info(stream, i)
-				# logging.debug(f"Bone info {i} worked {model_info.bone_info}")
 				self.bone_infos.append(model_info.bone_info)
-				# return
 			except:
-				logging.warning(f"Bone info {i} failed for model_info")
+				logging.exception(f"Bone info {i} failed for model_info")
 				# logging.warning(model_info)
 				# logging.warning(model_info.model)
 				# logging.warning(f"here's the bone info before:")

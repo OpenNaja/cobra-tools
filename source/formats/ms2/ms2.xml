@@ -499,9 +499,9 @@
 
 	<compound name="ZerosPadding">
 		1 bit per bone, padded to 8 bytes, all 00
-		<add name="hier2padding 0" type="uint64"/>
-		<add name="hier2padding 1" type="uint64" cond="64 #LT# #ARG#">128 still has 16 bytes</add>
-		<add name="hier2padding 2" type="uint64" cond="128 #LT# #ARG#">129 is the first with 24 bytes</add>
+		<add name="padding 0" type="uint64" cond="0 #LT# #ARG#"/>
+		<add name="padding 1" type="uint64" cond="64 #LT# #ARG#">128 still has 16 bytes</add>
+		<add name="padding 2" type="uint64" cond="128 #LT# #ARG#">129 is the first with 24 bytes</add>
 	</compound>
 
 	<compound name="AbstractPointer" abstract="true">
@@ -753,7 +753,9 @@
 	</compound>
 
 	<compound name="JointData">
-		<add name="start_pc" type="SmartPadding" vercond="#PC#">seemingly additional alignment, unsure about the rule</add>
+		probably something like ZerosPadding, but does not map to bone count
+		joint_pad_size: {0: {1, 3, 10, 12, 17, 26}, 8: {2, 4, 6, 8, 9, 11, 43, 13, 15, 22}, 16: {5, 14, 7}}
+		<add name="start_pc" type="SmartPadding" arg="8" vercond="#PC#">seemingly additional alignment, unsure about the rule</add>
 		<add name="before_dla_0" type="uint64" until="7"/>
 		<add name="before_dla_1" type="uint64" until="7"/>
 		<add name="joint_count" type="uint" >repeat</add>
@@ -853,18 +855,15 @@
 
 		<add name="inventory_datas_2" type="int" arr1="inv_data_count" arr2="2" vercond="#DLA#">zeros</add>
 
-		<add name="MinusPadding" type="MinusPadding" cond="zeros count" arg="zeros count" until="32">weird -1s</add>
+<!--		<add name="MinusPadding" type="MinusPadding" cond="zeros count" arg="zeros count" until="32">weird -1s</add>-->
+		<add name="MinusPadding" type="MinusPadding" cond="unk_pc_count" arg="unk_pc_count" until="32">weird -1s</add>
 		# JWE may not have these, apparently they are present in final JWE
-		<add name="ZerosPadding" type="ZerosPadding" cond="zeros count" arg="zeros count" since="47">weird zeros</add>
+		<add name="ZerosPadding" type="ZerosPadding" arg="zeros count" since="47">weird zeros</add>
 
-<!--		<add name="unkPc" type="uint64" cond="unk_pc_count" vercond="#PC#">present in anubis bone info 6</add>-->
+<!--		<add name="ZerosPadding" type="ZerosPadding" arg="zeros count" cond="joint count" vercond="#PC#">weird zeros</add>-->
+
 		<add name="ik info" type="IKInfo" cond="ik_count" arg="#SELF#">IK Data</add>
-<!--		<add name="NewPcStruct" type="NewPcStruct" cond="unk_pc_count" >ragdoll links?</add>-->
-<!--		<add name="joint debug" type="StreamDebugger" cond="joint count" >joints</add>-->
 		<add name="joints" type="JointData" cond="joint count" >joints</add>
-<!--		<add name="extra zero pad no joints" type="uint64" cond="! joint count" vercond="#PC#">?</add>-->
-
-
 	</compound>
 
 	<compound name="MeshCollisionData">

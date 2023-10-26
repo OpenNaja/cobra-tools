@@ -10,6 +10,11 @@ from generated.formats.ms2.imports import name_type_map
 
 class JointData(BaseStruct):
 
+	"""
+	probably something like ZerosPadding, but does not map to bone count
+	joint_pad_size: {0: {1, 3, 10, 12, 17, 26}, 8: {2, 4, 6, 8, 9, 11, 43, 13, 15, 22}, 16: {5, 14, 7}}
+	"""
+
 	__name__ = 'JointData'
 
 
@@ -17,7 +22,7 @@ class JointData(BaseStruct):
 		super().__init__(context, arg, template, set_default=False)
 
 		# seemingly additional alignment, unsure about the rule
-		self.start_pc = name_type_map['SmartPadding'](self.context, 0, None)
+		self.start_pc = name_type_map['SmartPadding'](self.context, 8, None)
 		self.before_dla_0 = name_type_map['Uint64'](self.context, 0, None)
 		self.before_dla_1 = name_type_map['Uint64'](self.context, 0, None)
 
@@ -95,7 +100,7 @@ class JointData(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield 'start_pc', name_type_map['SmartPadding'], (0, None), (False, None), (lambda context: context.version == 32, None)
+		yield 'start_pc', name_type_map['SmartPadding'], (8, None), (False, None), (lambda context: context.version == 32, None)
 		yield 'before_dla_0', name_type_map['Uint64'], (0, None), (False, None), (lambda context: context.version <= 7, None)
 		yield 'before_dla_1', name_type_map['Uint64'], (0, None), (False, None), (lambda context: context.version <= 7, None)
 		yield 'joint_count', name_type_map['Uint'], (0, None), (False, None), (None, None)
@@ -137,7 +142,7 @@ class JointData(BaseStruct):
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		if instance.context.version == 32:
-			yield 'start_pc', name_type_map['SmartPadding'], (0, None), (False, None)
+			yield 'start_pc', name_type_map['SmartPadding'], (8, None), (False, None)
 		if instance.context.version <= 7:
 			yield 'before_dla_0', name_type_map['Uint64'], (0, None), (False, None)
 			yield 'before_dla_1', name_type_map['Uint64'], (0, None), (False, None)

@@ -157,6 +157,7 @@ def bulk_test_models(gui, start_dir, walk_ovls=True, walk_models=True):
 		joint_names_2 = {}
 		hc_starts = {}
 		pack_bases = set()
+		joint_pad_size = {}
 		if walk_models:
 			with gui.reporter.log_duration("Walking MS2 files"):
 				ms2_files = walk_type(export_dir, extension=".ms2")
@@ -194,6 +195,10 @@ def bulk_test_models(gui, start_dir, walk_ovls=True, walk_models=True):
 									max_bones_ms2 = ms2_path_rel
 								if model_info.bone_info.joint_count:
 									joints = model_info.bone_info.joints
+									s = joints.start_pc.io_size
+									if s not in joint_pad_size:
+										joint_pad_size[s] = set()
+									joint_pad_size[s].add(model_info.bone_info.bone_count)
 									joint_names_padding[(joints.joint_names.io_size, joints.joint_names_padding.io_size+joints.after_names.io_size, )] = ms2_path_rel
 									hcs = sum(len(j.hitchecks) for j in joints.joint_infos)
 									joint_names_2[(joints.after_names.io_size, hcs, )] = ms2_path_rel
@@ -238,6 +243,7 @@ def bulk_test_models(gui, start_dir, walk_ovls=True, walk_models=True):
 			print(f"mesh_collision: {mesh_collision}")
 			print(f"Max bones: {max_bones} in {max_bones_ms2}")
 			print(f"pack_bases: {pack_bases}")
+			print(f"joint_pad_size: {joint_pad_size}")
 			# print(f"blend_modes: {blend_modes}")
 			if shader_map:
 				print(f"shaders: {shaders}")
