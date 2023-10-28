@@ -12,6 +12,9 @@ from plugin.utils import matrix_util
 from plugin.utils.matrix_util import mat3_to_vec_roll, CorrectorRagdoll
 
 
+TOLERANCE = 0.0001
+
+
 def import_armature(scene, model_info, b_bone_names):
 	"""Scans an armature hierarchy, and returns a whole armature."""
 	is_old_orientation = any((is_ztuac(model_info.context), is_dla(model_info.context)))
@@ -265,28 +268,33 @@ def fix_bone_lengths(b_armature_data):
 	for b_edit_bone in b_armature_data.edit_bones:
 		# don't change root bones
 		if b_edit_bone.parent:
-			# take the desired length from the mean of all children's heads
+			# calculate length based on position of children
 			if b_edit_bone.children:
-				# trying to get closer to the actual, most relevant child
-				# lengths = [(b_edit_bone.head-b_child.head).length for b_child in b_edit_bone.children]
-				# dists = [(b_edit_bone.head + (b_edit_bone.tail - b_edit_bone.head) * l - b_child.head).length for l, b_child in zip(lengths, b_edit_bone.children)]
-				# # print(b_edit_bone.name, lengths, dists)
-				# nonzero_dists = [(val, idx) for (idx, val) in enumerate(dists) if val > 0.0]
-				# if nonzero_dists:
-				# 	val, idx = min(nonzero_dists)
-				# 	bone_length = lengths[idx]
-				# else:
-				child_heads = mathutils.Vector()
-				for b_child in b_edit_bone.children:
-					child_heads += b_child.head
-				bone_length = (b_edit_bone.head - child_heads / len(b_edit_bone.children)).length
+				children = [(len(b_child.children), b_child) for b_child in b_edit_bone.children]
+				# can't sort bones, so just sort counts
+				children.sort(key=lambda tup: tup[0], reverse=True)
+				# check if there is a bone that has more (recursive) children than the others
+				# if so, use that one to get the length
+				if len(children) > 1 and children[0][0] > children[1][0]:
+					bone_length = (b_edit_bone.head - children[0][1].head).length
+				else:
+					# average position of all children's heads
+					child_heads = mathutils.Vector()
+					for b_child in b_edit_bone.children:
+						child_heads += b_child.head
+					bone_length = (b_edit_bone.head - child_heads / len(b_edit_bone.children)).length
 			# end of a chain
 			else:
-				bone_length = b_edit_bone.parent.length
+				if (b_edit_bone.parent.tail - b_edit_bone.head).length < TOLERANCE:
+					# continues a chain from the parent
+					bone_length = b_edit_bone.parent.length
+				else:
+					# it is isolated from the parent, so make the bone smaller to uncluster the rig
+					bone_length = b_edit_bone.parent.length * 0.3
 		else:
 			bone_length = b_edit_bone.length
 		# clamp to a safe minimum length
-		if bone_length < 0.0001:
+		if bone_length < TOLERANCE:
 			bone_length = 0.1
 		b_edit_bone.length = bone_length
 
