@@ -98,7 +98,8 @@ class ModelReader(BaseStruct):
 				i = instance.assign_bone_info(i, model_info, stream)
 
 		else:
-			for model_info in instance.arg.model_infos:
+			for name, model_info in zip(instance.arg.mdl_2_names, instance.arg.model_infos):
+				model_info.name = name
 				# logging.debug(model_info)
 				model_info.model = Model.from_stream(stream, instance.context, model_info)
 				# logging.debug(f"Model {i} {model_info.model}")
