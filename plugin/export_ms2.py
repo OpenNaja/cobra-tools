@@ -79,7 +79,6 @@ def save(filepath='', backup_original=True, apply_transforms=False, update_rig=F
 		shutil.copy(filepath, backup_name)
 		print(backup_name)
 
-
 	logging.info(f"Exporting {filepath}...")
 
 	ms2 = Ms2File()
@@ -98,6 +97,11 @@ def save(filepath='', backup_original=True, apply_transforms=False, update_rig=F
 
 		# make active scene
 		bpy.context.window.scene = scene
+		# make all collections visible in view_layer to ensure applying modifiers works
+		view_collections = bpy.context.view_layer.layer_collection.children
+		view_states = [coll.exclude for coll in view_collections]
+		for coll in view_collections:
+			coll.exclude = False
 		model_info = model_info_lut[scene.name]
 		model_info.render_flag._value = get_property(scene, "render_flag")
 		# ensure that we have objects in the scene
@@ -184,7 +188,9 @@ def save(filepath='', backup_original=True, apply_transforms=False, update_rig=F
 			m_lod.last_object_index = len(model_info.model.objects)
 
 		export_bounds(bounds, model_info)
-
+		# reset to original state
+		for coll, state in zip(view_collections, view_states):
+			coll.exclude = state
 	# write ms2, backup should have been created earlier
 	ms2.save(filepath)
 	if found_scenes:
