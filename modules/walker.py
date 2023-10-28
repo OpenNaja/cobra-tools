@@ -142,7 +142,6 @@ def bulk_test_models(gui, start_dir, walk_ovls=True, walk_models=True):
 		shaders = {}
 		# for last_count
 		last_counts = set()
-		flags = set()
 		flag_0 = set()
 		flag_1 = set()
 		scale_float = set()
@@ -227,14 +226,14 @@ def bulk_test_models(gui, start_dir, walk_ovls=True, walk_models=True):
 				print(file_path, str(ex))
 
 			print("\nThe following type - map pairs were found:")
-			# for flag, tup in sorted(type_dic.items()):
-			# 	print(flag)
-			# 	names, maps_list = tup
-			# 	print("Some files:", list(sorted(set(names)))[:25])
-			# 	print("num meshes", len(names))
+			print(sorted(type_dic.keys()))
+			for flag, tup in sorted(type_dic.items()):
+				print(flag)
+				names, maps_list = tup
+				print("Some files:", list(sorted(set(names)))[:25])
+				print("num meshes", len(names))
 			print(f"scale_float: {list(sorted(scale_float))}")
 			print(f"last_counts: {last_counts}")
-			print(f"flags: {flags}")
 			print(f"flag_0: {flag_0}")
 			print(f"flag_1: {flag_1}")
 			print(f"constraints_0: {constraints_0}")

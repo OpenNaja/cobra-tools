@@ -71,11 +71,14 @@
 
 	<bitfield name="ModelFlag" storage="uint">
 		Determines the data held by a mesh.
+		<member width="3" pos="0" name="unk1" type="int">?</member>
 		<member width="1" pos="3" name="stripify" type="bool">if true, tris are stored as a tri strip</member>
-		<member width="1" pos="4" name="weights" type="bool">in 528, 529, 533, 565, 821, 853, 885, 1013</member>
-		<member width="1" pos="5" name="repeat tris" type="bool">repeats the tri array 5 times</member>
+		<member width="1" pos="4" name="weights" type="bool">reserves the last 16 bytes for weights, only uses 4 for indices and weights each</member>
+		<member width="1" pos="5" name="repeat tris" type="bool">repeats the tri array 5 times verbatim, usually active with shells</member>
+		<member width="2" pos="6" name="unk2" type="int">?</member>
 		<member width="1" pos="8" name="fur shells" type="bool">active if mesh uses fur shells, may or may not repeat tris</member>
-		<member width="1" pos="9" name="basic info" type="bool">our simplest format is flag 8, simplest format for PC, just 16 bytes</member>
+		<member width="1" pos="9" name="basic" type="bool">found on all known PZ flags</member>
+<!--		<member width="6" pos="10" name="unk3" type="int">not used in PZ as of 2023-10-29</member>-->
 	</bitfield>
 
 	<bitfield name="ChunkedModelFlag" storage="uint">
