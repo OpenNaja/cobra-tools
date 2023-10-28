@@ -296,6 +296,9 @@ class MainWindow(widgets.MainWindow):
 		if self.t_in_folder.isChecked():
 			selected_dir = self.installed_games.get_selected_dir()
 			if selected_dir:
+				# temporarily disable spamming the log widget
+				log_level = self.cfg.get("logger_level", "INFO")
+				self.set_log_level.emit("WARNING")
 				# walk path
 				for ovl_path in walker.walk_type(selected_dir, extension=".ovl"):
 					# open ovl file
@@ -305,6 +308,8 @@ class MainWindow(widgets.MainWindow):
 					yield self.ovl_data
 					if save_over:
 						self.save(ovl_path)
+				# go back to original log level
+				self.set_log_level.emit(log_level)
 			else:
 				self.showwarning("Select a root directory!")
 		# just the one that's currently open, do not save over
