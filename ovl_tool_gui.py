@@ -560,25 +560,21 @@ class MainWindow(widgets.MainWindow):
 		start_dir = QtWidgets.QFileDialog.getExistingDirectory(
 			self, 'Game Root folder', self.cfg.get("dir_ovls_in", "C://"))
 		self.run_threaded(walker.generate_hash_table, self, start_dir)
-		self.set_msg_temporarily("Hashed")
 
 	def walker_fgm(self, ):
 		start_dir = QtWidgets.QFileDialog.getExistingDirectory(
 			self, 'Game Root folder', self.cfg.get("dir_ovls_in", "C://"))
 		self.run_threaded(walker.get_fgm_values, self, start_dir, walk_ovls=self.t_walk_ovl.isChecked())
-		self.set_msg_temporarily("Walked FGMs")
 
 	def walker_manis(self, ):
 		start_dir = QtWidgets.QFileDialog.getExistingDirectory(
 			self, 'Game Root folder', self.cfg.get("dir_ovls_in", "C://"))
 		self.run_threaded(walker.get_manis_values, self, start_dir, walk_ovls=self.t_walk_ovl.isChecked())
-		self.set_msg_temporarily("Walked Manis")
 
 	def inspect_models(self):
 		start_dir = QtWidgets.QFileDialog.getExistingDirectory(
 			self, 'Game Root folder', self.cfg.get("dir_ovls_in", "C://"))
 		self.run_threaded(walker.bulk_test_models, self, start_dir, walk_ovls=self.t_walk_ovl.isChecked())
-		self.set_msg_temporarily("Inspected models")
 
 	def check_length(self, name_tups):
 		# Ask and return true if error is found and process should be stopped
