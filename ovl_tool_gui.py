@@ -556,25 +556,21 @@ class MainWindow(widgets.MainWindow):
 				except:
 					self.handle_error("Removing file from OVL failed, see log!")
 
-	def walker_hash(self, ):
-		start_dir = QtWidgets.QFileDialog.getExistingDirectory(
+	def ask_game_root(self):
+		return QtWidgets.QFileDialog.getExistingDirectory(
 			self, 'Game Root folder', self.cfg.get("dir_ovls_in", "C://"))
-		self.run_threaded(walker.generate_hash_table, self, start_dir)
+
+	def walker_hash(self, ):
+		self.run_threaded(walker.generate_hash_table, self, self.ask_game_root())
 
 	def walker_fgm(self, ):
-		start_dir = QtWidgets.QFileDialog.getExistingDirectory(
-			self, 'Game Root folder', self.cfg.get("dir_ovls_in", "C://"))
-		self.run_threaded(walker.get_fgm_values, self, start_dir, walk_ovls=self.t_walk_ovl.isChecked())
+		self.run_threaded(walker.get_fgm_values, self, self.ask_game_root(), walk_ovls=self.t_walk_ovl.isChecked())
 
 	def walker_manis(self, ):
-		start_dir = QtWidgets.QFileDialog.getExistingDirectory(
-			self, 'Game Root folder', self.cfg.get("dir_ovls_in", "C://"))
-		self.run_threaded(walker.get_manis_values, self, start_dir, walk_ovls=self.t_walk_ovl.isChecked())
+		self.run_threaded(walker.get_manis_values, self, self.ask_game_root(), walk_ovls=self.t_walk_ovl.isChecked())
 
 	def inspect_models(self):
-		start_dir = QtWidgets.QFileDialog.getExistingDirectory(
-			self, 'Game Root folder', self.cfg.get("dir_ovls_in", "C://"))
-		self.run_threaded(walker.bulk_test_models, self, start_dir, walk_ovls=self.t_walk_ovl.isChecked())
+		self.run_threaded(walker.bulk_test_models, self, self.ask_game_root(), walk_ovls=self.t_walk_ovl.isChecked())
 
 	def check_length(self, name_tups):
 		# Ask and return true if error is found and process should be stopped
