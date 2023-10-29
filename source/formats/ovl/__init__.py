@@ -660,7 +660,7 @@ class OvlFile(Header):
 				if not os.path.isfile(file_path):
 					continue
 				if ext in self.formats_dict.ignore_types:
-					logging.info(f"Ignoring {file_path}")
+					logging.debug(f"Ignoring {file_path}")
 					continue
 				elif "stream" in ext:
 					logging.debug(f"Ignoring {file_path} as it will be created from its streamer")
@@ -681,6 +681,14 @@ class OvlFile(Header):
 					else:
 						logging.error(f"Inject the corresponding .tex file for {file_path}")
 						error_files.append(file_path)
+						continue
+				# no loader exists, check if it should warn about missing loader or just ignore it
+				elif ext not in self.formats_dict:
+					# test if this ext is a cobra file format by querying its mime version
+					try:
+						self.get_mime(ext, "version")
+					except:
+						logging.debug(f"Ignoring {file_path} - not a cobra format")
 						continue
 				try:
 					loader = self.create_file(file_path)
