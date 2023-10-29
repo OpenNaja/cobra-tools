@@ -272,7 +272,7 @@ def menu_func_import(self, context):
 
 # Function used to inject elements in the contextual menu of the File Browser editor
 def CT_FileBrowser_Context_Menu(self, context):
-    if context.space_data.browse_mode == 'FILES':
+    if context.space_data.browse_mode == 'FILES' and context.active_file:
         file     = context.active_file.name
         folder   = context.space_data.params.directory.decode('ascii')
         filepath = os.path.join(folder, file)
