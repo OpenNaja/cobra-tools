@@ -147,18 +147,20 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			# all four buffer_infos use modelstream files, and ms2 just has names and bones buffers
 			if self.context.version != 13:
 				static_buffer_info = self.buffer_infos[i]
-				stream.seek(self.buffer_2_offset)
 				static_buffer_info.name = "STATIC"
 				static_buffer_info.path = filepath
+				stream.seek(self.buffer_2_offset)
 				self.attach_streams(static_buffer_info, stream, dump=dump)
 		# attach the streams to all other buffer_infos
-		streams = [buffer_info for buffer_info in self.buffer_infos if buffer_info.name != "STATIC"]
-		for buffer_info, modelstream_name in zip(streams, self.modelstream_names):
+		for buffer_info, modelstream_name in zip(self.external_streams(), self.modelstream_names):
 			buffer_info.name = modelstream_name
 			buffer_info.path = os.path.join(self.dir, buffer_info.name)
 			logging.debug(f"Loading {buffer_info.path}")
 			with open(buffer_info.path, "rb") as modelstream_reader:
 				self.attach_streams(buffer_info, modelstream_reader, dump=dump)
+
+	def external_streams(self):
+		return [buffer_info for buffer_info in self.buffer_infos if buffer_info.name != "STATIC"]
 
 	def attach_streams(self, buffer_info, in_stream=None, dump=False):
 		"""Attaches streams to a buffer info for each section, and fills them if an input stream is provided"""
@@ -308,7 +310,20 @@ class Ms2File(Ms2InfoHeader, IoFile):
 	def update_buffer_2_bytes(self):
 		if self.read_editable:
 			logging.debug(f"Updating buffer 2")
-			# todo - determine how many streams we need and update self.buffer_infos, count, and names
+			# determine how many streams we need
+			max_stream_index = -1
+			for model_info in self.model_infos:
+				for wrapper in model_info.model.meshes:
+					max_stream_index = max(max_stream_index, wrapper.mesh.get_stream_index())
+			#  and update self.buffer_infos, count, and names
+			self.vertex_buffer_count = max_stream_index + 1
+			# this is the rule for JWE2, except trike93 STATIC=0
+			self.static_buffer_index = max_stream_index
+			self.reset_field("buffer_pointers")
+			self.reset_field("buffer_infos")
+			# just set the static name, the other ones are set when saving
+			if self.buffer_infos:
+				self.buffer_infos[self.static_buffer_index].name = "STATIC"
 			# first init all writers for the buffers
 			for buffer_info in self.buffer_infos:
 				self.attach_streams(buffer_info)
@@ -379,9 +394,8 @@ class Ms2File(Ms2InfoHeader, IoFile):
 		self.update_buffer_1_bytes()
 		self.update_buffer_2_bytes()
 		# save multiple buffer_infos
-		streams = [buffer_info for buffer_info in self.buffer_infos if buffer_info.name != "STATIC"]
+		streams = self.external_streams()
 		for i, buffer_info in enumerate(streams):
-			assert buffer_info.name.endswith(".model2stream")
 			# update the modelstram name incase
 			buffer_info.name = f"{self.basename}{i}.model2stream"
 			# write external .model2stream files
