@@ -49,7 +49,6 @@ def create_lods():
 
 	shape_keyed = []
 	decimated = []
-	stream_index = 0
 	for lod_index, (lod_coll, ratio) in enumerate(zip(lod_collections, lod_ratios)):
 		if lod_index > 0:
 			for ob_index, ob in enumerate(lod_collections[0].objects):
@@ -80,9 +79,6 @@ def create_lods():
 					b_me["flag"] = 565
 					# remove shell material
 					b_me.materials.pop(index=1)
-				b_me["stream"] = stream_index
-		if lod_index < scn.cobra.num_streams:
-			stream_index += 1
 	if decimated:
 		msgs.append(f"{len(decimated)} LOD objects generated successfully")
 	if shape_keyed:

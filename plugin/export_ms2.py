@@ -137,17 +137,18 @@ def save(filepath='', backup_original=True, apply_transforms=False, update_rig=F
 			model_info.pack_base = 512.0
 		model_info.precision = model_info.pack_base / PACKEDVEC_MAX
 		# logging.debug(f"chose pack_base = {model_info.pack_base} precision = {model_info.precision}")
+		stream_index = 0
 		for lod_i, lod_coll in enumerate(lod_collections):
 			m_lod = LodInfo(ms2.context)
 			m_lod.distance = math.pow(30 + 15 * lod_i, 2)
 			m_lod.first_object_index = len(model_info.model.objects)
 			m_lod.meshes = []
 			m_lod.objects = []
+			m_lod.stream_index = stream_index
 			model_info.model.lods.append(m_lod)
 			for b_ob in lod_coll.objects:
 				logging.debug(f"Exporting b_ob {b_ob.name}")
 				b_me = b_ob.data
-				m_lod.stream_index = get_property(b_me, "stream")
 				# JWE2 fur sets this as a mesh property
 				shell_count = get_property(b_me, "shell_count", default=0)
 				if shell_count > 0:
@@ -161,6 +162,7 @@ def save(filepath='', backup_original=True, apply_transforms=False, update_rig=F
 						wrapper = export_model(model_info, lod_coll, b_ob, b_me, bones_table, bounds, apply_transforms,
 											   use_stock_normals_tangents, m_lod, shell_index, shell_count)
 						wrapper.mesh.lod_index = lod_i
+						wrapper.mesh.stream_info.pool_index = stream_index
 					for b_mat in b_me.materials:
 						logging.debug(f"Exporting material {b_mat.name}")
 						if b_mat not in b_materials:
@@ -186,14 +188,14 @@ def save(filepath='', backup_original=True, apply_transforms=False, update_rig=F
 								tri_chunk.material_index = m_ob.material_index
 						m_lod.objects.append(m_ob)
 			m_lod.last_object_index = len(model_info.model.objects)
-
+			if lod_i < scene.cobra.num_streams:
+				stream_index += 1
 		export_bounds(bounds, model_info)
 		# reset to original state
 		for coll, state in zip(view_collections, view_states):
 			coll.exclude = state
 	# write ms2, backup should have been created earlier
 	ms2.save(filepath)
-	print(ms2)
 	if found_scenes:
 		messages.add(f"Finished MS2 export in {time.time() - start_time:.2f} seconds")
 	else:
