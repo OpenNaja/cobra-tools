@@ -23,12 +23,16 @@ class ZStringBuffer:
 		self.offset_2_str = {}
 
 	def get_str_at(self, pos):
-		return self.offset_2_str.get(pos, self._get_str_at(pos))
+		try:
+			return self.offset_2_str.get(pos)
+		except:
+			return self._get_str_at(pos)
 
 	def _get_str_at(self, pos):
-		logging.warning(f"Zstring starts in the middle of a Zstring")
 		end = self.data.find(ZERO, pos)
-		return self.data[pos:end].decode()
+		s = self.data[pos:end].decode()
+		logging.warning(f"Zstring '{s}' starts at {pos} in the middle of a Zstring")
+		return s
 
 	def update_strings(self, list_of_strs):
 		"""Updates this name buffer with a list of names"""
@@ -57,8 +61,9 @@ class ZStringBuffer:
 		instance.offset_2_str = {}
 		offset = 0
 		for s in instance.strings:
-			instance.offset_2_str[offset] = s
+			instance.offset_2_str[offset] = s.decode()
 			offset += len(s) + 1
+		print(instance.offset_2_str)
 
 	@classmethod
 	def write_fields(cls, stream, instance):
