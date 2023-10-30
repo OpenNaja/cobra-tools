@@ -9,7 +9,7 @@ from plugin.modules_import.armature import import_armature, append_armature_modi
 from plugin.utils.hair import add_psys
 from plugin.modules_import.material import import_material
 from plugin.utils.shell import is_fin, num_fur_as_weights, is_shell, gauge_uv_scale_wrapper
-from plugin.utils.object import create_ob, create_collection, set_collection_visibility
+from plugin.utils.object import create_ob, create_collection, mesh_from_data, set_collection_visibility
 from generated.formats.ms2 import Ms2File, is_old
 from generated.formats.ms2.enums.MeshFormat import MeshFormat
 
@@ -108,6 +108,8 @@ def load(filepath="", use_custom_normals=False, mirror_mesh=False):
 					ob_dict[m_ob.mesh_index] = b_ob
 					# from plugin.modules_import.tangents import visualize_tangents
 					# ob2, me2 = visualize_tangents(b_ob.name, mesh.vertices, mesh.normals, mesh.tangents)
+					# if mesh.flag == 517:
+					# 	ob2, me2 = visualize_foliage_field(b_ob.name, mesh.vertices, mesh.colors)
 				else:
 					b_ob = ob_dict[m_ob.mesh_index]
 				# we can't assume that the first ob referencing this mesh has it already
@@ -229,3 +231,20 @@ def append_bisect_modifier(b_ob):
 	mod.merge_threshold = 0.001
 
 
+def unpack_swizzle_vectorized_col(arr):
+    arr[:] = arr[:, (0, 2, 1, 3)]
+    arr[:, (0, 1)] *= -1.0
+
+
+def visualize_foliage_field(name, vertices, colors):
+	colors *= 2.0
+	colors -= 1.0
+	unpack_swizzle_vectorized_col(colors)
+	out_verts = []
+	out_faces = []
+	v_len = 0.1
+	for i, (v, n) in enumerate(zip(vertices, colors)):
+		out_verts.append(v)
+		out_verts.append(v+v_len*n[:3]*n[3])
+		out_faces.append((i * 2, i*2 + 1,))
+	return mesh_from_data(bpy.context.scene, f"{name}_vecs", out_verts, out_faces, wireframe=False)

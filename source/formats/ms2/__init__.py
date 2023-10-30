@@ -195,7 +195,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 				if hasattr(wrapper.mesh, "uv_offset"):
 					wrapper.mesh.buffer_info.uvs_offsets.add(wrapper.mesh.uv_offset)
 			if is_old(self.info):
-				pack_base = 512
+				pack_base = 512.0
 			else:
 				pack_base = model_info.pack_base
 			try:

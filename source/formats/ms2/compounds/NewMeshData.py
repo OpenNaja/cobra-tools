@@ -66,7 +66,7 @@ class NewMeshData:
 			dt.extend([
 				("uvs", np.ushort, (1, 2)),
 				("shapekeys0", np.uint32),
-				("colors", np.ubyte, 4),  # this appears to be normals, or something similar
+				("colors", np.ubyte, 4),  # rgb essentially identical to normals in stock models, a might be a weight
 				("shapekeys1", np.int32),
 				# sometimes, only the last is set, the rest being 00 00 C0 7F (NaN)
 				("floats", np.float32, 4),
@@ -101,7 +101,7 @@ class NewMeshData:
 		# read the packed data
 		self.buffer_info.verts.seek(self.vertex_offset)
 		self.buffer_info.verts.readinto(self.verts_data)
-		# if self.flag == 549:
+		# if self.flag == 517:
 		# 	print(self.verts_data)
 		# logging.debug(f"Reading {self.vertex_count} verts at {self.buffer_info.verts.tell()}")
 		# first cast to the float uvs array so unpacking doesn't use int division
