@@ -20,41 +20,27 @@ class ZStringBuffer:
 		self.data = b""
 		self.strings = []
 		self.offset_dic = {}
+		self.offset_2_str = {}
 
 	def get_str_at(self, pos):
+		return self.offset_2_str.get(pos, self._get_str_at(pos))
+
+	def _get_str_at(self, pos):
+		logging.warning(f"Zstring starts in the middle of a Zstring")
 		end = self.data.find(ZERO, pos)
 		return self.data[pos:end].decode()
-
-	def update_with(self, list_of_arrays):
-		"""Updates this name buffer with a list of (array, attrib) whose elements have
-		offset: bytes relative to the start of the name block
-		[attrib]: string"""
-		logging.debug("Updating name buffer")
-		self.strings = []
-		self.offset_dic = {}
-		with BytesIO() as stream:
-			for array, attrib in list_of_arrays:
-				new_strings = [getattr(i, attrib) for i in array]
-				# logging.info(new_strings)
-				for s in sorted(new_strings):
-					if s not in self.offset_dic:
-						# new string, store offset and write zstring
-						self.strings.append(s)
-						self.offset_dic[s] = stream.tell()
-						ZString.to_stream(s, stream, self.context)
-			# get the actual result buffer
-			buffer_bytes = stream.getvalue()
-		self.data = buffer_bytes + get_padding(len(buffer_bytes), alignment=8)
 
 	def update_strings(self, list_of_strs):
 		"""Updates this name buffer with a list of names"""
 		logging.debug("Updating name buffer")
 		self.strings = sorted(set(list_of_strs))
 		self.offset_dic = {}
+		self.offset_2_str = {}
 		with BytesIO() as stream:
 			for name in self.strings:
 				# store offset and write zstring
 				self.offset_dic[name] = stream.tell()
+				self.offset_2_str[stream.tell()] = name
 				ZString.to_stream(name, stream, self.context)
 			# get the actual result buffer
 			buffer_bytes = stream.getvalue()
@@ -68,6 +54,11 @@ class ZStringBuffer:
 	def read_fields(cls, stream, instance):
 		instance.data = stream.read(instance.arg)
 		instance.strings = instance.data.split(ZERO)
+		instance.offset_2_str = {}
+		offset = 0
+		for s in instance.strings:
+			instance.offset_2_str[offset] = s
+			offset += len(s) + 1
 
 	@classmethod
 	def write_fields(cls, stream, instance):

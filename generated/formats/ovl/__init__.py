@@ -1234,9 +1234,7 @@ class OvlFile(Header):
 					f"Archive {archive.name} has {archive.num_pools} pools in {archive.num_pool_groups} pool_groups")
 
 			# update archive names
-			self.archive_names.update_with((
-				(self.archives, "name"),
-			))
+			self.archive_names.update_strings([archive.name for archive in self.archives])
 			self.len_archive_names = len(self.archive_names.data)
 			# update the ovl counts
 			self.num_archives = len(self.archives)
