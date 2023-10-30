@@ -75,7 +75,6 @@ class ZStringBuffer(BaseStruct):
 		for s in instance.strings:
 			instance.offset_2_str[offset] = s.decode()
 			offset += len(s) + 1
-		print(instance.offset_2_str)
 
 	@classmethod
 	def write_fields(cls, stream, instance):
