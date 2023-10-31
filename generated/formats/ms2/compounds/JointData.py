@@ -70,8 +70,8 @@ class JointData(BaseStruct):
 		self.stretch_constraints = Array(self.context, 0, None, (0,), name_type_map['StretchConstraint'])
 		self.ragdoll_constraints = Array(self.context, 0, None, (0,), name_type_map['RagdollConstraint'])
 
-		# old style - joint infos, without hitchecks, they are added later
-		self.joint_infos = Array(self.context, 0, None, (0,), name_type_map['UACJointFF'])
+		# without hitchecks, they are added later
+		self.joint_infos = Array(self.context, 0, None, (0,), name_type_map['JointInfo'])
 
 		# sometimes an array of floats
 		self.pc_floats = Array(self.context, 0, None, (0,), name_type_map['Float'])
@@ -130,7 +130,7 @@ class JointData(BaseStruct):
 		yield 'push_constraints', Array, (0, None, (None,), name_type_map['PushConstraint']), (False, None), (lambda context: context.version >= 47, None)
 		yield 'stretch_constraints', Array, (0, None, (None,), name_type_map['StretchConstraint']), (False, None), (lambda context: context.version >= 47, None)
 		yield 'ragdoll_constraints', Array, (0, None, (None,), name_type_map['RagdollConstraint']), (False, None), (lambda context: context.version >= 47, None)
-		yield 'joint_infos', Array, (0, None, (None,), name_type_map['UACJointFF']), (False, None), (lambda context: context.version <= 32, None)
+		yield 'joint_infos', Array, (0, None, (None,), name_type_map['JointInfo']), (False, None), (lambda context: context.version <= 32, None)
 		yield 'pc_floats', Array, (0, None, (None, 10,), name_type_map['Float']), (False, None), (lambda context: context.version <= 32, None)
 		yield 'names_ref_pc', name_type_map['Empty'], (0, None), (False, None), (None, None)
 		yield 'joint_to_bone', Array, (0, None, (None,), name_type_map['Int']), (False, None), (None, None)
@@ -181,7 +181,7 @@ class JointData(BaseStruct):
 			yield 'stretch_constraints', Array, (0, None, (instance.num_stretch_constraints,), name_type_map['StretchConstraint']), (False, None)
 			yield 'ragdoll_constraints', Array, (0, None, (instance.num_ragdoll_constraints,), name_type_map['RagdollConstraint']), (False, None)
 		if instance.context.version <= 32:
-			yield 'joint_infos', Array, (0, None, (instance.joint_count,), name_type_map['UACJointFF']), (False, None)
+			yield 'joint_infos', Array, (0, None, (instance.joint_count,), name_type_map['JointInfo']), (False, None)
 			yield 'pc_floats', Array, (0, None, (instance.pc_count, 10,), name_type_map['Float']), (False, None)
 		yield 'names_ref_pc', name_type_map['Empty'], (0, None), (False, None)
 		yield 'joint_to_bone', Array, (0, None, (instance.joint_count,), name_type_map['Int']), (False, None)

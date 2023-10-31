@@ -13,7 +13,7 @@ class RigidBody(BaseStruct):
 		# 2 kinematic, 0 1 static
 		self.flag = name_type_map['Uint'](self.context, 0, None)
 
-		# center of mass - from the head of the bone the collider is attached to
+		# center of mass - relative to joint
 		self.loc = name_type_map['Vector3'](self.context, 0, None)
 
 		# mass of joint or object

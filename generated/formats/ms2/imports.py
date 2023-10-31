@@ -99,7 +99,6 @@ type_module_name_map = {
 	'PushConstraint': 'generated.formats.ms2.compounds.PushConstraint',
 	'StretchConstraint': 'generated.formats.ms2.compounds.StretchConstraint',
 	'RagdollConstraint': 'generated.formats.ms2.compounds.RagdollConstraint',
-	'UACJointFF': 'generated.formats.ms2.compounds.UACJointFF',
 	'Sphere': 'generated.formats.ms2.compounds.Sphere',
 	'BoundingBox': 'generated.formats.ms2.compounds.BoundingBox',
 	'Capsule': 'generated.formats.ms2.compounds.Capsule',

@@ -574,7 +574,7 @@
 
 	<compound name="RigidBody">
 		<add name="flag" type="uint">2 kinematic, 0 1 static</add>
-		<add name="loc" type="Vector3" >center of mass - from the head of the bone the collider is attached to</add>
+		<add name="loc" type="Vector3" >center of mass - relative to joint</add>
 		<add name="mass" type="float">mass of joint or object</add>
 		<add name="static friction" type="float">coefficient of static friction(small wants to roll, larger wants to slide)</add>
 		<add name="unk 1" type="float">2.0 in unk1 makes the object not to stop ever, it is breakdancing</add>
@@ -625,14 +625,6 @@
 		apparently a rotation margin under which simulation is allowed to stop
 		unlike x, y, z above, this is directional, with min negative
 		<add name="plasticity" type="RotationRange" >radians</add>
-	</compound>
-
-	<compound name="UACJointFF">
-		<add name="eleven" type="uint">must be 11</add>
-		<add name="FFs" type="int" arr1="4">bunch of -1's, and constants</add>
-		<add name="name" type="OffsetString" arg="#ARG#"/>
-		<add name="hitcheck count" type="uint"/>
-		<add name="zeros" type="uint" arr1="3" >12 bytes of zeros</add>
 	</compound>
 
 	<compound name="Sphere">
@@ -739,16 +731,19 @@
 
 	<compound name="JointInfo">
 		#ARG# is the names buffer
+		PC: 40 bytes?
 		the following defaults are all the same in PZ and JWE2 as of 2022-10-14
 		<add name="eleven" type="uint" default="11"/>
 		<add name="zero_0" type="int" default="0"/>
 		<add name="zero_1" type="int" default="0"/>
 		<add name="minus_1" type="int" default="-1"/>
+		<add name="minus_1b_pc" type="int" until="32"/>
 		<add name="name" type="OffsetString" arg="#ARG#"/>
 		<add name="hitcheck count" type="uint"/>
+		<add name="zero_2_a" type="int" until="32"/>
 		<add name="zero_2" type="uint64" >8 bytes of zeros</add>
-		<add name="hitcheck_pointers" type="uint64" arr1="hitcheck count">8 bytes of zeros per hitcheck</add>
-		<add name="hitchecks" type="HitCheck" arr1="hitcheck count" arg="#ARG#"/>
+		<add name="hitcheck_pointers" type="uint64" arr1="hitcheck count" since="47">8 bytes of zeros per hitcheck</add>
+		<add name="hitchecks" type="HitCheck" arr1="hitcheck count" arg="#ARG#" since="47"/>
 	</compound>
 
 	<compound name="HitcheckReader">
@@ -778,7 +773,7 @@
 		<add name="one_0" type="uint64" since="13" default="1"/>
 		<add name="one_1" type="uint64" since="13" default="1"/>
 		<add name="bone count" type="uint" >matches bone count from bone info</add>
-		<add name="joint entry count" type="uint"/>
+		<add name="joint entry count" type="uint"/>unk?!, 16 for JWE2 acro
 		<add name="zeros 2" type="uint" arr1="4">usually 0s</add>
 		<add name="zeros 3" type="uint" until="7" >usually 0s</add>
 		<add name="names_ref" type="Empty"/>
@@ -791,7 +786,7 @@
 		<add name="ragdoll_constraints" type="RagdollConstraint" arr1="num_ragdoll_constraints" since="47"/>
 
 		todo arg="joint_names" for names reader fails here because joint_names is defined later
-		<add name="joint_infos" type="UACJointFF" arr1="joint count" until="32">old style - joint infos, without hitchecks, they are added later</add>
+		<add name="joint_infos" type="JointInfo" arr1="joint_count" until="32">without hitchecks, they are added later</add>
 		<add name="pc floats" type="float" arr1="pc count" arr2="10" until="32">sometimes an array of floats</add>
 
 		<add name="names_ref_pc" type="Empty"/>
@@ -808,7 +803,7 @@
 			this seems to be always multiples of 8 bytes
 			fails on PC SP_Scarecrow, because its first hitcheck has collision type 0</add>
 		<add name="hitcheck_reader" type="HitcheckReader" arg="#SELF#" until="32">old style - for each joint, read the hitchecks</add>
-		<add name="joint_infos" type="JointInfo" arr1="joint count" arg="joint_names" since="47">new style - includes name offset, some flags and the hitchecks</add>
+		<add name="joint_infos" type="JointInfo" arr1="joint_count" arg="joint_names" since="47">new style - includes name offset, some flags and the hitchecks</add>
 	</compound>
 
 	<compound name="BoneInfo">

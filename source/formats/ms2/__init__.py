@@ -71,8 +71,10 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			# 	# print(np.dot(r[1], ragdoll.vec_b))
 			# 	# print(np.dot(r[2], ragdoll.vec_b))
 			# 	print(ragdoll.vec_b, a)
-			for bone_i, joint_info, joint_transform in zip(joints.joint_to_bone, joints.joint_infos, joints.joint_transforms):
-				joint_transform.name = joint_info.name
+			for bone_i, joint_info, joint_transform, rigidbody in zip(
+				joints.joint_to_bone, joints.joint_infos, joints.joint_transforms, joints.rigid_body_list):
+
+				joint_transform.name = rigidbody.name = joint_info.name
 				# usually, this corresponds - does not do for speedtree but does not matter
 				joint_info.bone_name = bone_info.bones[bone_i].name
 				# if joints.bone_count:
@@ -466,7 +468,8 @@ if __name__ == "__main__":
 	
 	
 	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/PDLC_WorldFair/Rides/Powered_Track_Rides/Tracks/Track_302/Track_302/models.ms2", read_editable=True)
-	m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/PDLC_Vintage/Environment/Scenery/Themes/VT_Vintage/VT_Bandstand/VT_Bandstand/models.ms2", read_editable=True)
+	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/PDLC_Vintage/Environment/Scenery/Themes/VT_Vintage/VT_Bandstand/VT_Bandstand/models.ms2", read_editable=True)
+	m.load("C:/Users/arnfi/Desktop/banana/tree_palm_banana.ms2", read_editable=True)
 	
 	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/Content0/Rides/FlatRides/Orbiter/FR_Orb/models.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/Content0/Rides/FlatRides/Star_Wheel/FR_StarW/models.ms2", read_editable=True)
