@@ -121,11 +121,13 @@ class Ms2File(Ms2InfoHeader, IoFile):
 				self.buffer_0_bytes = stream.read(self.buffer_0.io_size)
 				stream.seek(self.buffer_1_offset)
 				self.buffer_1_bytes = stream.read(self.bone_info_size)
-				self.buffer_2_bytes = stream.read()
 			try:
 				self.load_buffers(filepath, stream, dump)
 			except:
 				logging.exception(f"Buffer lookup failed")
+			if read_bytes:
+				static_buffer = self.get_static_buffer()
+				self.buffer_2_bytes = self.get_all_bytes(static_buffer)
 			if read_editable:
 				self.load_meshes()
 		logging.debug(f"Read {self.name} in {time.time() - start_time:.2f} seconds")
@@ -147,16 +149,12 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			if self.context.version != 13:
 				static_buffer_info = self.buffer_infos[i]
 				static_buffer_info.name = "STATIC"
-				static_buffer_info.path = filepath
 				stream.seek(self.buffer_2_offset)
 				self.attach_streams(static_buffer_info, stream, dump=dump)
 		# attach the streams to all other buffer_infos
 		for buffer_info, modelstream_name in zip(self.external_streams(), self.modelstream_names):
 			buffer_info.name = modelstream_name
-			buffer_info.path = os.path.join(self.dir, buffer_info.name)
-			logging.debug(f"Loading {buffer_info.path}")
-			with open(buffer_info.path, "rb") as modelstream_reader:
-				self.attach_streams(buffer_info, modelstream_reader, dump=dump)
+			self.attach_streams(buffer_info, stream, dump=dump)
 
 	def external_streams(self):
 		return [buffer_info for buffer_info in self.buffer_infos if buffer_info.name != "STATIC"]
@@ -173,7 +171,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 				b = in_stream.read(buff_size)
 				# dump each for easy debugging
 				if dump:
-					with open(f"{buffer_info.path}_{buffer_name}.dmp", "wb") as f:
+					with open(f"{self.filepath}_{buffer_name}.dmp", "wb") as f:
 						f.write(b)
 			else:
 				b = b""
@@ -320,9 +318,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			self.static_buffer_index = max_stream_index
 			self.reset_field("buffer_pointers")
 			self.reset_field("buffer_infos")
-			# just set the static name, the other ones are set when saving
-			if self.buffer_infos:
-				self.buffer_infos[self.static_buffer_index].name = "STATIC"
+			self.reset_field("modelstream_names")
 			# first init all writers for the buffers
 			for buffer_info in self.buffer_infos:
 				self.attach_streams(buffer_info)
@@ -330,17 +326,18 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			for model_info in self.model_infos:
 				logging.debug(f"Storing {model_info.name}")
 				# update ModelInfo
-				model_info.num_materials = len(model_info.model.materials)
-				model_info.num_lods = len(model_info.model.lods)
-				model_info.num_objects = len(model_info.model.objects)
-				model_info.num_meshes = len(model_info.model.meshes)
+				model = model_info.model
+				model_info.num_materials = len(model.materials)
+				model_info.num_lods = len(model.lods)
+				model_info.num_objects = len(model.objects)
+				model_info.num_meshes = len(model.meshes)
 				# write each mesh's data blocks to the right temporary buffer
-				for wrapper in model_info.model.meshes:
+				for wrapper in model.meshes:
 					wrapper.mesh.assign_buffer_info(self.buffer_infos)
 					wrapper.mesh.write_data()
 				# update LodInfo
-				logging.debug(f"Updating lod vertex counts...")
-				for lod in model_info.model.lods:
+				logging.debug(f"Updating lod vertex counts")
+				for lod in model.lods:
 					lod.vertex_count = sum(wrapper.mesh.vertex_count for wrapper in lod.meshes)
 					lod.tri_index_count = sum(wrapper.mesh.tri_index_count for wrapper in lod.meshes)
 			# modify buffer size
@@ -352,18 +349,24 @@ class Ms2File(Ms2InfoHeader, IoFile):
 					setattr(buffer_info, f"{buffer_name}_size", len(buff_bytes))
 				
 			# store static buffer
-			if self.buffer_infos and self.info.static_buffer_index > -1:
-				buffer_info = self.buffer_infos[self.info.static_buffer_index]
-				self.buffer_2_bytes = self.get_all_bytes(buffer_info)
+			static_buffer = self.get_static_buffer()
+			if static_buffer:
+				static_buffer.name = "STATIC"
+				self.buffer_2_bytes = self.get_all_bytes(static_buffer)
 			else:
-				# Assing an empty buffer, maybe it is better to add an 'if attrib' in the saving?
+				# assign an empty buffer, maybe it is better to add an 'if attrib' in the saving?
 				self.buffer_2_bytes = b""
+
+	# @property
+	def get_static_buffer(self):
+		if self.buffer_infos and self.info.static_buffer_index > -1:
+			return self.buffer_infos[self.info.static_buffer_index]
 
 	@staticmethod
 	def get_bytes(buffer_reader):
-		buff_bytes = buffer_reader.getvalue()
-		buff_bytes += get_padding(len(buff_bytes), alignment=16)
-		return buff_bytes
+		buffer_reader.seek(0, 2)
+		buffer_reader.write(get_padding(buffer_reader.tell(), alignment=16))
+		return buffer_reader.getvalue()
 
 	def get_all_bytes(self, buffer_info):
 		return b"".join(self.get_bytes(getattr(buffer_info, b_name)) for b_name in BUFFER_NAMES)
@@ -381,7 +384,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 		self.dir, self.name = os.path.split(os.path.normpath(filepath))
 		# for modelstreams, trailing _ is ignored
 		self.basename = os.path.splitext(self.name)[0].rstrip("_")
-		logging.info("Pre-writing buffers")
+		# logging.debug("Pre-writing buffers")
 		# just a quick hack to support WH
 		for model_info in self.model_infos:
 			if hasattr(model_info.bone_info, "bone_limits"):
@@ -395,21 +398,19 @@ class Ms2File(Ms2InfoHeader, IoFile):
 		# save multiple buffer_infos
 		streams = self.external_streams()
 		for i, buffer_info in enumerate(streams):
-			# update the modelstram name incase
-			buffer_info.name = f"{self.basename}{i}.model2stream"
-			# write external .model2stream files
-			buffer_info.path = os.path.join(self.dir, buffer_info.name)
-			with open(buffer_info.path, "wb") as f:
-				f.write(self.get_all_bytes(buffer_info))
+			# update the modelstram name just incase
+			buffer_info.name = f"{self.basename}{i}"
 		self.modelstream_names[:] = [buffer_info.name for buffer_info in streams]
 		logging.info(f"Writing to {filepath}")
 		with open(filepath, "wb") as stream:
 			self.write_fields(stream, self)
 			stream.write(self.buffer_2_bytes)
+			for buffer_info in streams:
+				stream.write(self.get_all_bytes(buffer_info))
 
 	def lookup_material(self):
 		for model_i, (name, model_info) in enumerate(zip(self.mdl_2_names, self.model_infos)):
-			logging.debug(f"Mapping links for {name}")
+			# logging.debug(f"Mapping links for {name}")
 			if self.lacks_mesh(model_info, model_i):
 				continue
 			for lod_index, lod in enumerate(model_info.model.lods):

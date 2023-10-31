@@ -40,7 +40,8 @@ class Model2streamLoader(BaseFile):
 		if ovl_versions.is_jwe2(self.ovl):
 			self.header.lod_index = int(self.basename[-1])
 		self.write_memory_data()
-		buffer_data = self.get_content(file_path)
+	
+	def create_data(self, buffer_data):
 		self.create_data_entry((buffer_data,))
 		for buffer in self.data_entry.buffers:
 			buffer.index = 2
@@ -127,7 +128,8 @@ class Ms2Loader(MemStructLoader):
 			else:
 				buffer_presence.dependency_name.pool_index = 0
 				buffer_presence.dependency_name.data = buffer_info.name
-				modelstream_loader = self.ovl.create_file(buffer_info.path, ovs_name=ovs_lut[buffer_info.name])
+				modelstream_loader = self.ovl.create_file(f"dummy/{buffer_info.name}.model2stream", ovs_name=ovs_lut[buffer_info.name])
+				modelstream_loader.create_data(ms2_file.get_all_bytes(buffer_info))
 				self.streams.append(modelstream_loader)
 
 		# create root_entries and mesh data fragments
@@ -173,18 +175,17 @@ class Ms2Loader(MemStructLoader):
 		out_path = out_dir(self.name)
 		out_paths = [out_path, ]
 		context = self.header.context
-		with BytesIO() as stream:
+		with open(out_path, 'wb') as stream:
 			stream.write(ms2_header)
 			self.header.to_stream(self.header, stream, context)
 			# present since DLA
 			if self.header.buffer_pointers.data is not None:
 				self.header.buffer_pointers.data.to_stream(self.header.buffer_pointers.data, stream, context)
 			for mdl2_loader in self.children:
-				logging.debug(f"Writing {mdl2_loader.name}")
+				# logging.debug(f"Writing {mdl2_loader.name}")
 				stream.write(as_bytes(mdl2_loader.basename))
 			for loader in self.streams:
-				stream.write(as_bytes(loader.name))
-				out_paths.extend(loader.extract(out_dir))
+				stream.write(as_bytes(loader.basename))
 			stream.write(name_buffer)
 			# export each mdl2
 			if self.header.version > 39:
@@ -199,16 +200,11 @@ class Ms2Loader(MemStructLoader):
 				for model_info in self.header.model_infos.data:
 					for ptr in (model_info.materials, model_info.lods, model_info.objects, model_info.meshes):
 						ptr.data.to_stream(ptr.data, stream, context)
-		
-			with open(out_path, 'wb') as outfile:
-				outfile.write(stream.getvalue())
-				outfile.write(bone_infos)
-				outfile.write(verts)
-		# m = Ms2File()
-		# m.load(out_path, read_editable=True)
-		# m.load(out_path, read_editable=False)
-		# m.save(out_path+"_.ms2")
-		# print(m)
+			stream.write(bone_infos)
+			stream.write(verts)
+			for loader in self.streams:
+				stream.write(loader.data_entry.buffer_datas[0])
+				
 		return out_paths
 	
 	def get_ms2_buffer_datas(self):
