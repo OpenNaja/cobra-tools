@@ -77,8 +77,6 @@ def save(filepath='', backup_original=True, apply_transforms=False, update_rig=F
 
 		backup_name = get_next_backup_filename(export_path)
 		shutil.copy(filepath, backup_name)
-		# todo - backup modelstreams
-		print(backup_name)
 
 	logging.info(f"Exporting {filepath}...")
 
