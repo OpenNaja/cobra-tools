@@ -166,12 +166,11 @@ def export_joints(bone_info, corrector):
 	if not joint_coll:
 		return
 	joints = bone_info.joints
-	# bone_info.joint_count = joints.joint_count = len(joint_coll.objects)
+	bone_info.joint_count = joints.joint_count = len(joint_coll.objects)
 	joints.reset_field("joint_transforms")
-	# joints.reset_field("rigid_body_pointers")
-	# joints.reset_field("rigid_body_list")
-	# joints.reset_field("joint_infos")
-	# make sure these have the correct size
+	joints.reset_field("rigid_body_pointers")
+	joints.reset_field("rigid_body_list")  # todo
+	joints.reset_field("joint_infos")
 	joints.reset_field("joint_to_bone")
 	joints.reset_field("bone_to_joint")
 	# reset bone -> joint mapping since we don't catch them all if we loop over existing joints
@@ -179,14 +178,19 @@ def export_joints(bone_info, corrector):
 	joint_map = {get_joint_name(b_ob): b_ob for b_ob in joint_coll.objects}
 	bone_lut = {bone.name: bone_index for bone_index, bone in enumerate(bone_info.bones)}
 	for joint_i, joint_info in enumerate(joints.joint_infos):
+		if hasattr(joint_info, "bone_name"):
+			# overwrite, keep links, still needed?
+			logging.debug(f"joint {b_joint.name}")
+			b_joint = joint_map.get(joint_info.name)
+			if not b_joint:
+				raise AttributeError(f"Could not find '{joint_info.name}'. Make sure the joint object exists and has the custom property 'long_name' correctly set")
+		else:
+			b_joint = joint_coll.objects[joint_i]
+			joint_info.name = bone_name_for_ovl(b_joint.name)
+			joint_info.bone_name = bone_name_for_ovl(b_joint.parent_bone)
 		bone_i = bone_lut[joint_info.bone_name]
 		joints.joint_to_bone[joint_i] = bone_i
-		joints.bone_to_joint[bone_i] = joint_i
-		b_joint = joint_map.get(joint_info.name)
-		if not b_joint:
-			raise AttributeError(f"Could not find '{joint_info.name}'. Make sure the joint object exists and has the custom property 'long_name' correctly set")
-		# update joint transform
-		logging.debug(f"joint {b_joint.name}")
+		joints.bone_to_joint[bone_i] = joint_i# update joint transform
 		b_joint_mat = get_joint_matrix(b_joint)
 		n_bind = corrector.blender_bind_to_nif_bind(b_joint_mat)
 		t = joints.joint_transforms[joint_i]
