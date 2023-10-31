@@ -9,7 +9,7 @@ from generated.formats.ms2.compounds.ConvexHull import ConvexHull
 from generated.formats.ms2.compounds.Cylinder import Cylinder
 from generated.formats.ms2.compounds.MeshCollision import MeshCollision
 from generated.formats.ms2.compounds.Sphere import Sphere
-from generated.formats.ms2.compounds.packing_utils import pack_swizzle
+from generated.formats.ms2.compounds.packing_utils import pack_swizzle, pack_swizzle_collision
 from generated.formats.ms2.enums.CollisionType import CollisionType
 from plugin.utils.matrix_util import evaluate_mesh, ensure_tri_modifier, get_joint_name
 
@@ -153,11 +153,6 @@ def export_meshbv(b_obj, hitcheck, corrector):
 		assert len(face.vertices) == 3
 
 
-def pack_swizzle2(vec):
-	# swizzle to avoid a matrix multiplication for global axis correction
-	return -vec[1], vec[2], vec[0]
-
-
 def export_hullbv(b_obj, hitcheck, corrector):
 	me = b_obj.data
 	matrix = get_collider_matrix(b_obj)
@@ -176,7 +171,7 @@ def export_hullbv(b_obj, hitcheck, corrector):
 	coll.vertices = np.empty((coll.vertex_count, 3), dtype="float")
 	# coll.vertices.resize((coll.vertex_count, 3))
 	for vert_i, vert in enumerate(me.vertices):
-		coll.vertices[vert_i, :] = pack_swizzle2(vert.co)
+		coll.vertices[vert_i, :] = pack_swizzle_collision(vert.co)
 
 
 def _capsule_transform(b_obj, hitcheck):

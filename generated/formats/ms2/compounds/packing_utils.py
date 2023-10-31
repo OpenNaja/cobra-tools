@@ -71,6 +71,17 @@ def pack_ushort_vector_impostor(arr):
     arr[:] = np.round(arr * USHORT_MAX)
 
 
+def pack_swizzle_collision(vec):
+	# swizzle to avoid a matrix multiplication for global axis correction
+	return -vec[1], vec[2], vec[0]
+
+
+def unpack_swizzle_collision(vec):
+	# swizzle to avoid a matrix multiplication for global axis correction
+	# Z, -X, Y
+	return vec[2], -vec[0], vec[1]
+
+
 def unpack_swizzle(vec):
     # swizzle to avoid a matrix multiplication for global axis correction
     return -vec[0], -vec[2], vec[1]

@@ -4,7 +4,7 @@ import bpy
 import mathutils
 
 from generated.formats.ms2.versions import is_ztuac, is_dla
-from generated.formats.ms2.compounds.packing_utils import pack_swizzle
+from generated.formats.ms2.compounds.packing_utils import pack_swizzle_collision
 from plugin.modules_export.collision import export_hitcheck
 from plugin.modules_import.armature import get_matrix
 from plugin.utils.matrix_util import bone_name_for_ovl, get_joint_name, Corrector
@@ -212,14 +212,11 @@ def export_joints(bone_info, corrector):
 		if b_joint.children:
 			b_rb = b_joint.children[0]
 			rb.mass = b_rb.rigid_body.mass
-			rb.loc.set(pack_swizzle2(b_rb.location))
+			rb.loc.set(pack_swizzle_collision(b_rb.location))
 		else:
 			rb.mass = -1.0
+		# todo frictions
 
-
-def pack_swizzle2(vec):
-	# swizzle to avoid a matrix multiplication for global axis correction
-	return -vec[1], vec[2], vec[0]
 
 def get_joint_matrix(b_joint):
 	b_arm = b_joint.parent

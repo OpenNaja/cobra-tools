@@ -3,7 +3,7 @@ import logging
 import bpy
 import mathutils
 
-from generated.formats.ms2.compounds.packing_utils import unpack_swizzle
+from generated.formats.ms2.compounds.packing_utils import unpack_swizzle, unpack_swizzle_collision
 from generated.formats.ms2.enums.CollisionType import CollisionType
 from plugin.utils import matrix_util
 from plugin.utils.object import mesh_from_data, create_ob
@@ -179,16 +179,10 @@ def import_meshbv(coll, hitcheck_name, corrector):
 	return b_obj
 
 
-def unpack_swizzle2(vec):
-	# swizzle to avoid a matrix multiplication for global axis correction
-	# Z, -X, Y
-	return vec[2], -vec[0], vec[1]
-
-
 def import_hullbv(coll, hitcheck_name, corrector):
 	# print(coll)
 	scene = bpy.context.scene
-	b_obj, b_me = mesh_from_data(scene, hitcheck_name, *qhull3d([unpack_swizzle2(v) for v in coll.vertices]), coll_name="hitchecks")
+	b_obj, b_me = mesh_from_data(scene, hitcheck_name, *qhull3d([unpack_swizzle_collision(v) for v in coll.vertices]), coll_name="hitchecks")
 	mat = import_collision_matrix(coll.rotation, corrector)
 	# this is certainly needed for JWE2 as of 2023-06-12
 	mat.translation = unpack_swizzle((coll.offset.x, coll.offset.y, coll.offset.z))
