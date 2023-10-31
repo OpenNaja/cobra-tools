@@ -313,9 +313,10 @@ class Ms2File(Ms2InfoHeader, IoFile):
 				for wrapper in model_info.model.meshes:
 					max_stream_index = max(max_stream_index, wrapper.mesh.get_stream_index())
 			#  and update self.buffer_infos, count, and names
-			self.vertex_buffer_count = max_stream_index + 1
+			self.info.vertex_buffer_count = max_stream_index + 1
 			# this is the rule for JWE2, except trike93 STATIC=0
-			self.static_buffer_index = max_stream_index
+			self.info.static_buffer_index = max_stream_index
+			self.num_streams = max_stream_index
 			self.reset_field("buffer_pointers")
 			self.reset_field("buffer_infos")
 			self.reset_field("modelstream_names")
