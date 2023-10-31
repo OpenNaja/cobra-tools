@@ -229,6 +229,9 @@ class SCENE_PT_CobraTools(bpy.types.Panel):
         layout = self.layout
         row = layout.row(align=True)
         row.prop(context.scene.cobra, "num_streams")
+        layout = self.layout
+        row = layout.row(align=True)
+        row.prop(context.scene.cobra, "version")
 
 
 class CobraSceneSettings(PropertyGroup):
@@ -238,6 +241,13 @@ class CobraSceneSettings(PropertyGroup):
         default=0,
         min=0,
         max=6
+    )
+    version: IntProperty(
+        name="MS2 Version",
+        description="Version to use for export",
+        default=50,
+        min=0,
+        max=100
     )
 
 

@@ -11,6 +11,10 @@ import numpy as np
 
 from generated.formats.ms2.compounds.LodInfo import LodInfo
 from generated.formats.ms2.compounds.Object import Object
+from generated.formats.ms2.compounds.Model import Model
+from generated.formats.ms2.compounds.ModelInfo import ModelInfo
+from generated.formats.ms2.compounds.BoneInfo import BoneInfo
+from generated.formats.ms2.compounds.packing_utils import PACKEDVEC_MAX
 from generated.formats.ms2 import Ms2File, is_jwe2
 from plugin.modules_export.armature import get_armature, export_bones_custom
 from plugin.modules_export.collision import export_bounds, get_bounds
@@ -19,7 +23,6 @@ from plugin.modules_export.material import export_material
 from plugin.modules_import.armature import get_bone_names
 from plugin.utils.object import has_objects_in_scene, get_property
 from plugin.utils.shell import get_collection_endswith
-from source.formats.ms2.compounds.packing_utils import PACKEDVEC_MAX
 
 
 def get_pack_base(b_obs, apply_transforms=False):
@@ -64,33 +67,45 @@ def save(filepath='', backup_original=True, apply_transforms=False, update_rig=F
 	messages = set()
 	start_time = time.time()
 
-	if not os.path.isfile(filepath):
-		raise FileNotFoundError(f"{filepath} does not exist. You must open an existing ms2 file for exporting.")
+	ms2 = Ms2File()
+	from_scratch = not os.path.isfile(filepath)
+	if from_scratch:
+		logging.warning(f"{filepath} does not exist. Trying to build ms2 from scratch.")
+		update_rig = True
+	else:
+		ms2.load(filepath)
+		ms2.clear()
+		if backup_original:
+			logging.info(f"Saving a copy of {filepath} in the Backups/ subfolder...")
+			old_dir, name = os.path.split(os.path.normpath(filepath))
+			exp_dir = os.path.join(old_dir, "backups")
+			os.makedirs(exp_dir, exist_ok=True)
 
-	if backup_original:
-		logging.info(f"Saving a copy of {filepath} in the Backups/ subfolder...")
-		old_dir, name = os.path.split(os.path.normpath(filepath))
-		exp_dir = os.path.join(old_dir, "backups")
-		os.makedirs(exp_dir, exist_ok=True)
+			export_path = os.path.join(exp_dir, name)
 
-		export_path = os.path.join(exp_dir, name)
-
-		backup_name = get_next_backup_filename(export_path)
-		shutil.copy(filepath, backup_name)
-
+			backup_name = get_next_backup_filename(export_path)
+			shutil.copy(filepath, backup_name)
+		
 	logging.info(f"Exporting {filepath}...")
 
-	ms2 = Ms2File()
-	ms2.load(filepath)
 	ms2.read_editable = True
-	ms2.clear()
 	found_scenes = 0
 
-	model_info_lut = {mdl2_name: model_info for mdl2_name, model_info in zip(ms2.mdl_2_names, ms2.model_infos)}
+	model_info_lut = {model_info.name: model_info for model_info in ms2.model_infos}
 	for scene in bpy.data.scenes:
-		if scene.name not in model_info_lut:
-			logging.warning(f"Scene '{scene.name}' was not found in the MS2 file, skipping")
-			continue
+		if from_scratch:
+			ms2.context.version = ms2.info.version = scene.cobra.version
+			model_info = ModelInfo(ms2.context)
+			model_info.name = scene.name
+			model_info.bone_info = BoneInfo(ms2.context)
+			model_info.model = Model(ms2.context, model_info)
+			ms2.model_infos.append(model_info)
+		else:
+			if scene.name not in model_info_lut:
+				logging.warning(f"Scene '{scene.name}' was not found in the MS2 file, skipping")
+				continue
+			model_info = model_info_lut[scene.name]
+
 		found_scenes += 1
 		logging.debug(f"Exporting scene {scene.name}")
 
@@ -101,7 +116,6 @@ def save(filepath='', backup_original=True, apply_transforms=False, update_rig=F
 		view_states = [coll.exclude for coll in view_collections]
 		for coll in view_collections:
 			coll.exclude = False
-		model_info = model_info_lut[scene.name]
 		model_info.render_flag._value = get_property(scene, "render_flag")
 		# ensure that we have objects in the scene
 		if not has_objects_in_scene(scene):

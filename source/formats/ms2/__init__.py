@@ -273,19 +273,19 @@ class Ms2File(Ms2InfoHeader, IoFile):
 		return self.buffer_0.names.index(name)
 
 	def update_names(self):
-		logging.info("Updating MS2 name buffer")
+		logging.debug("Updating MS2 name buffer")
+		self.reset_field("mdl_2_names")
 		# todo use reset_field api
-		self.mdl_2_names.clear()
 		self.buffer_0.names.clear()
-		for model_info in self.model_infos:
-			self.mdl_2_names.append(model_info.name)
+		for i, model_info in enumerate(self.model_infos):
+			self.mdl_2_names[i] = model_info.name
 			for material in model_info.model.materials:
 				material.name_index = self.get_name_index(material.name)
 			if model_info.bone_info:
 				for bone_index, bone in enumerate(model_info.bone_info.bones):
 					model_info.bone_info.name_indices[bone_index] = self.get_name_index(bone.name)
 		# print(self.buffer_0.names)
-		logging.info("Updating MS2 name hashes")
+		logging.debug("Updating MS2 name hashes")
 		# update hashes from new names
 		self.info.name_count = len(self.buffer_0.names)
 		self.buffer_0.name_hashes.resize(len(self.buffer_0.names))
@@ -410,7 +410,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 				stream.write(self.get_all_bytes(buffer_info))
 
 	def lookup_material(self):
-		for model_i, (name, model_info) in enumerate(zip(self.mdl_2_names, self.model_infos)):
+		for model_i, model_info in enumerate(self.model_infos):
 			# logging.debug(f"Mapping links for {name}")
 			if self.lacks_mesh(model_info, model_i):
 				continue

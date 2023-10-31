@@ -32,6 +32,7 @@ def load(filepath="", use_custom_normals=False, mirror_mesh=False):
 		# store scene properties
 		scene["render_flag"] = int(model_info.render_flag)
 		scene.cobra.num_streams = len(ms2.modelstream_names)
+		scene.cobra.version = ms2.context.version
 
 		mesh_dict = {}
 		ob_dict = {}
