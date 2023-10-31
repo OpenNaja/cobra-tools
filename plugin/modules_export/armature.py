@@ -213,8 +213,15 @@ def export_joints(bone_info, corrector):
 			b_rb = b_joint.children[0]
 			rb.mass = b_rb.rigid_body.mass
 			rb.loc.set(pack_swizzle_collision(b_rb.location))
+			rb.static_friction = b_rb.cobra_coll.friction_3d[0]
+			rb.unknown_friction = b_rb.cobra_coll.friction_3d[1]
+			rb.dynamic_friction = b_rb.cobra_coll.friction_3d[2]
+			rb.unk_1 = b_rb.cobra_coll.damping_3d[0] 
+			rb.unk_2 = b_rb.cobra_coll.damping_3d[1]
+			rb.unk_4 = b_rb.cobra_coll.damping_3d[2]
 		else:
 			rb.mass = -1.0
+			
 		# todo frictions
 
 

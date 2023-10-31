@@ -229,9 +229,31 @@ class SCENE_PT_CobraTools(bpy.types.Panel):
         layout = self.layout
         row = layout.row(align=True)
         row.prop(context.scene.cobra, "num_streams")
-        layout = self.layout
         row = layout.row(align=True)
         row.prop(context.scene.cobra, "version")
+        addon_updater_ops.update_notice_box_ui(self, context)
+
+
+class COLLISION_PT_CobraTools(bpy.types.Panel):
+    """Creates a Panel in the scene context of the properties editor"""
+    bl_label = "Cobra Collision Tools"
+    bl_space_type = 'PROPERTIES'
+    bl_region_type = 'WINDOW'
+    bl_context = "physics"
+
+    @classmethod
+    def poll(cls, context):
+        if context.active_object.rigid_body:
+            return True
+        return False
+
+    def draw(self, context):
+        rb = context.active_object.cobra_coll
+        layout = self.layout
+        row = layout.row(align=True)
+        row.prop(rb, "friction_3d")
+        row = layout.row(align=True)
+        row.prop(rb, "damping_3d")
 
 
 class CobraSceneSettings(PropertyGroup):
@@ -259,6 +281,29 @@ class CobraMeshSettings(PropertyGroup):
         # default = 'MO_SYS_FIXED',
 
     )
+
+
+class CobraCollisionSettings(PropertyGroup):
+    friction_3d: bpy.props.FloatVectorProperty(
+        name='Friction',
+        description='Friction in 3D',
+        default=(0.0, 0.0, 0.0),
+        min=sys.float_info.min,
+        max=sys.float_info.max, 
+        soft_min=sys.float_info.min,
+        soft_max=sys.float_info.max,
+        step=3, 
+        precision=2)
+    damping_3d: bpy.props.FloatVectorProperty(
+        name='Damping',
+        description='Damping in 3D',
+        default=(0.0, 0.0, 0.0),
+        min=sys.float_info.min,
+        max=sys.float_info.max, 
+        soft_min=sys.float_info.min,
+        soft_max=sys.float_info.max,
+        step=1, 
+        precision=6)
 
 
 def menu_func_export(self, context):
@@ -324,8 +369,10 @@ classes = (
     CobraPreferences,
     CobraSceneSettings,
     CobraMeshSettings,
+    CobraCollisionSettings,
     MESH_PT_CobraTools,
     SCENE_PT_CobraTools,
+    COLLISION_PT_CobraTools,
     InstallDependencies,
     *updater_classes
 )
@@ -348,6 +395,8 @@ def register():
     # insert properties
     bpy.types.Scene.cobra = bpy.props.PointerProperty(type=CobraSceneSettings)
     bpy.types.Mesh.cobra = bpy.props.PointerProperty(type=CobraMeshSettings)
+    # bpy.types.RigidBodyObject.cobra = bpy.props.PointerProperty(type=CobraCollisionSettings)
+    bpy.types.Object.cobra_coll = bpy.props.PointerProperty(type=CobraCollisionSettings)
 
     # Injection of elements in the contextual menu of the File Browser editor
     bpy.types.FILEBROWSER_MT_context_menu.append(CT_FileBrowser_Context_Menu)

@@ -62,7 +62,7 @@ def set_b_collider(b_obj, radius, bounds_type='BOX', display_type='BOX'):
 	b_r_body.collision_shape = bounds_type
 	# if they are set to active they explode once you play back an anim
 	b_r_body.type = "PASSIVE"
-
+	
 
 def box_from_extents(b_name, minx, maxx, miny, maxy, minz, maxz, coll_name="hitchecks", coll=None):
 	verts = []
