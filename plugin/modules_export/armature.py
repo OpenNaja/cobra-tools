@@ -187,7 +187,7 @@ def export_joints(bone_info, corrector):
 				raise AttributeError(f"Could not find '{joint_info.name}'. Make sure the joint object exists and has the custom property 'long_name' correctly set")
 		else:
 			b_joint = joint_coll.objects[joint_i]
-			joint_info.name = bone_name_for_ovl(b_joint.name)
+			joint_info.name = bone_name_for_ovl(get_joint_name(b_joint))
 			joint_info.bone_name = bone_name_for_ovl(b_joint.parent_bone)
 		bone_i = bone_lut[joint_info.bone_name]
 		joints.joint_to_bone[joint_i] = bone_i
@@ -224,8 +224,8 @@ def export_joints(bone_info, corrector):
 	j_map = {j.name: j for j in joints.joint_infos}
 	# update the ragdolls to make sure they point to valid joints
 	for rd in joints.ragdoll_constraints:
-		rd.parent = j_map[rd.parent.name]
-		rd.child = j_map[rd.child.name]
+		rd.parent.joint = j_map[rd.parent.joint.name]
+		rd.child.joint = j_map[rd.child.joint.name]
 
 
 def get_joint_matrix(b_joint):
