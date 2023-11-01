@@ -194,9 +194,9 @@ def import_joints(scene, armature_ob, bone_info, b_bone_names, corrector):
 				if j.rigid_body_list:
 					rb = j.rigid_body_list[joint_i]
 					b_collider.rigid_body.mass = rb.mass
-					b_collider.cobra_coll.friction_3d[0] = rb.static_friction
-					b_collider.cobra_coll.friction_3d[1] = rb.unknown_friction
-					b_collider.cobra_coll.friction_3d[2] = rb.dynamic_friction
+					b_collider.cobra_coll.air_resistance[0] = rb.air_resistance_x
+					b_collider.cobra_coll.air_resistance[1] = rb.air_resistance_y
+					b_collider.cobra_coll.air_resistance[2] = rb.air_resistance_z
 					b_collider.cobra_coll.damping_3d[0] = rb.unk_1
 					b_collider.cobra_coll.damping_3d[1] = rb.unk_2
 					b_collider.cobra_coll.damping_3d[2] = rb.unk_4

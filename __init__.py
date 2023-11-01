@@ -251,7 +251,7 @@ class COLLISION_PT_CobraTools(bpy.types.Panel):
         rb = context.active_object.cobra_coll
         layout = self.layout
         row = layout.row(align=True)
-        row.prop(rb, "friction_3d")
+        row.prop(rb, "air_resistance")
         row = layout.row(align=True)
         row.prop(rb, "damping_3d")
 
@@ -284,16 +284,17 @@ class CobraMeshSettings(PropertyGroup):
 
 
 class CobraCollisionSettings(PropertyGroup):
-    friction_3d: bpy.props.FloatVectorProperty(
-        name='Friction',
-        description='Friction in 3D',
+    air_resistance: bpy.props.FloatVectorProperty(
+        name='Air Resistance',
+        description="Air Resistance in 3D, relative to the joint's axes",
         default=(0.0, 0.0, 0.0),
         min=sys.float_info.min,
         max=sys.float_info.max, 
         soft_min=sys.float_info.min,
         soft_max=sys.float_info.max,
         step=3, 
-        precision=2)
+        precision=2,
+        subtype="XYZ")
     damping_3d: bpy.props.FloatVectorProperty(
         name='Damping',
         description='Damping in 3D',

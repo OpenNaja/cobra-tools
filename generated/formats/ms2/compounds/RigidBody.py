@@ -18,24 +18,18 @@ class RigidBody(BaseStruct):
 
 		# mass of joint or object
 		self.mass = name_type_map['Float'](self.context, 0, None)
-
-		# coefficient of static friction(small wants to roll, larger wants to slide)
-		self.static_friction = name_type_map['Float'](self.context, 0, None)
+		self.air_resistance_x = name_type_map['Float'](self.context, 0, None)
 
 		# 2.0 in unk1 makes the object not to stop ever, it is breakdancing
 		self.unk_1 = name_type_map['Float'](self.context, 0, None)
 
 		# Related to Bounciness
 		self.unk_2 = name_type_map['Float'](self.context, 0, None)
-
-		# NOT air resistance
-		self.unknown_friction = name_type_map['Float'](self.context, 0, None)
+		self.air_resistance_y = name_type_map['Float'](self.context, 0, None)
 
 		# ?
 		self.unk_4 = name_type_map['Float'](self.context, 0, None)
-
-		# coefficient of dynamic friction
-		self.dynamic_friction = name_type_map['Float'](self.context, 0, None)
+		self.air_resistance_z = name_type_map['Float'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 
@@ -45,12 +39,12 @@ class RigidBody(BaseStruct):
 		yield 'flag', name_type_map['Uint'], (0, None), (False, None), (None, None)
 		yield 'loc', name_type_map['Vector3'], (0, None), (False, None), (None, None)
 		yield 'mass', name_type_map['Float'], (0, None), (False, None), (None, None)
-		yield 'static_friction', name_type_map['Float'], (0, None), (False, None), (None, None)
+		yield 'air_resistance_x', name_type_map['Float'], (0, None), (False, None), (None, None)
 		yield 'unk_1', name_type_map['Float'], (0, None), (False, None), (None, None)
 		yield 'unk_2', name_type_map['Float'], (0, None), (False, None), (None, None)
-		yield 'unknown_friction', name_type_map['Float'], (0, None), (False, None), (None, None)
+		yield 'air_resistance_y', name_type_map['Float'], (0, None), (False, None), (None, None)
 		yield 'unk_4', name_type_map['Float'], (0, None), (False, None), (None, None)
-		yield 'dynamic_friction', name_type_map['Float'], (0, None), (False, None), (None, None)
+		yield 'air_resistance_z', name_type_map['Float'], (0, None), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -58,9 +52,9 @@ class RigidBody(BaseStruct):
 		yield 'flag', name_type_map['Uint'], (0, None), (False, None)
 		yield 'loc', name_type_map['Vector3'], (0, None), (False, None)
 		yield 'mass', name_type_map['Float'], (0, None), (False, None)
-		yield 'static_friction', name_type_map['Float'], (0, None), (False, None)
+		yield 'air_resistance_x', name_type_map['Float'], (0, None), (False, None)
 		yield 'unk_1', name_type_map['Float'], (0, None), (False, None)
 		yield 'unk_2', name_type_map['Float'], (0, None), (False, None)
-		yield 'unknown_friction', name_type_map['Float'], (0, None), (False, None)
+		yield 'air_resistance_y', name_type_map['Float'], (0, None), (False, None)
 		yield 'unk_4', name_type_map['Float'], (0, None), (False, None)
-		yield 'dynamic_friction', name_type_map['Float'], (0, None), (False, None)
+		yield 'air_resistance_z', name_type_map['Float'], (0, None), (False, None)
