@@ -221,8 +221,11 @@ def export_joints(bone_info, corrector):
 			rb.unk_4 = b_rb.cobra_coll.damping_3d[2]
 		else:
 			rb.mass = -1.0
-			
-		# todo frictions
+	j_map = {j.name: j for j in joints.joint_infos}
+	# update the ragdolls to make sure they point to valid joints
+	for rd in joints.ragdoll_constraints:
+		rd.parent = j_map[rd.parent.name]
+		rd.child = j_map[rd.child.name]
 
 
 def get_joint_matrix(b_joint):

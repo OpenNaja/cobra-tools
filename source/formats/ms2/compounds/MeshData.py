@@ -108,7 +108,7 @@ class MeshData:
 		# read all tri indices for this mesh, but only as many as needed if there are shells
 		self.buffer_info.tris.seek(self.tris_address)
 		index_count = self.tri_index_count // self.shell_count
-		logging.debug(f"Reading {index_count} indices at {self.buffer_info.tris.tell()}")
+		# logging.debug(f"Reading {index_count} indices at {self.buffer_info.tris.tell()}")
 		self.tri_indices = np.empty(dtype=np.uint16, shape=index_count)
 		self.buffer_info.tris.readinto(self.tri_indices)
 
