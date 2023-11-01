@@ -820,7 +820,7 @@ class OvlFile(Header):
 
 			if "only_types" in self.commands:
 				if not all(ext in self.files_ext for ext in self.commands['only_types']):
-					logging.info(f"Skipping further loading as it does not contain the interesting formats")
+					logging.info(f"Skipping further loading as OVL does not contain the requested formats")
 					return
 			if "generate_hash_table" in self.commands:
 				deps_exts = self.commands["generate_hash_table"]
