@@ -219,6 +219,9 @@ def export_joints(bone_info, corrector):
 			rb.unk_1 = b_rb.cobra_coll.damping_3d[0] 
 			rb.unk_2 = b_rb.cobra_coll.damping_3d[1]
 			rb.unk_4 = b_rb.cobra_coll.damping_3d[2]
+			# todo - determine from active / passive?
+			# dinos are 1
+			rb.flag = 1
 		else:
 			rb.mass = -1.0
 	j_map = {j.name: j for j in joints.joint_infos}
@@ -226,7 +229,8 @@ def export_joints(bone_info, corrector):
 	for rd in joints.ragdoll_constraints:
 		rd.parent.joint = j_map[rd.parent.joint.name]
 		rd.child.joint = j_map[rd.child.joint.name]
-
+	# unsure what this does
+	joints.joint_entry_count = 16 if joints.joint_count > 1 else 0
 
 def get_joint_matrix(b_joint):
 	b_arm = b_joint.parent
