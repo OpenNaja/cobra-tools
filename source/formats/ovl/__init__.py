@@ -694,7 +694,6 @@ class OvlFile(Header):
 					loader = self.create_file(file_path)
 					self.register_loader(loader)
 				except:
-					logging.exception(f"Adding '{file_path}' failed")
 					error_files.append(file_path)
 			self.validate_loaders()
 		self.send_files()
