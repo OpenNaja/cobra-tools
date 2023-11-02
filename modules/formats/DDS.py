@@ -13,6 +13,7 @@ from ovl_util import texconv, imarray
 
 logging.getLogger('PIL').setLevel(logging.WARNING)
 
+pow2 = [2**i for i in range(16)]
 
 class TexturestreamLoader(MemStructLoader):
 	extension = ".texturestream"
@@ -132,6 +133,9 @@ class DdsLoader(MemStructLoader):
 			# only update mips count if they are supposed to be present to keep UI images free from mips
 			if size_info.num_mips != 1:
 				size_info.num_mips = dds.mipmap_count
+				# mip maps for tex sizes that are not power of 2 crash the game
+				if dds.width not in pow2 or dds.height not in pow2:
+					raise AttributeError(f"Can't have MIP maps for {tex_path} because its dimensions ({dds.width}x{dds.height}) are not power-of-2")
 			size_info.width = dds.width
 			size_info.height = dds.height
 			size_info.depth = dds.depth
