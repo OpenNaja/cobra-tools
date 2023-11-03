@@ -142,6 +142,16 @@ class CreateLods(bpy.types.Operator):
         return handle_errors(self, shell.create_lods, {})
 
 
+class GenerateRigEdit(bpy.types.Operator):
+    """Generate rig edit nodes for all posed bones"""
+    bl_idname = "pose.generate_rig_edit"
+    bl_label = "Generate rig edit"
+    bl_options = {'REGISTER', 'UNDO'}
+
+    def execute(self, context):
+        return handle_errors(self, shell.generate_rig_edit, {})
+
+
 class VcolToHair(bpy.types.Operator):
     """Convert vertex color layer to hair combing"""
     bl_idname = "object.vcol_to_comb"
@@ -211,6 +221,29 @@ class MESH_PT_CobraTools(bpy.types.Panel):
             sub = row.row()
             sub.label(text="Ah ah ah, you did not say the magic word!")
 
+        addon_updater_ops.update_notice_box_ui(self, context)
+
+
+class POSE_PT_CobraTools(bpy.types.Panel):
+    """Creates a Panel in the scene context of the properties editor"""
+    bl_label = "Cobra Rig Tools"
+    bl_space_type = 'PROPERTIES'
+    bl_region_type = 'WINDOW'
+    bl_context = "data"
+
+    @classmethod
+    def poll(cls, context):
+        if not context.armature:
+            return False
+        return True
+
+    def draw(self, context):
+        addon_updater_ops.check_for_update_background()
+        layout = self.layout
+        icon = preview_collection["frontier.png"].icon_id
+        row = layout.row(align=True)
+        sub = row.row()
+        sub.operator("pose.generate_rig_edit", icon_value=icon)
         addon_updater_ops.update_notice_box_ui(self, context)
 
 
@@ -364,6 +397,7 @@ classes = (
     ImportVoxelskirt,
     CreateFins,
     CreateLods,
+    GenerateRigEdit,
     VcolToHair,
     HairToVcol,
     TransferHairCombing,
@@ -372,6 +406,7 @@ classes = (
     CobraMeshSettings,
     CobraCollisionSettings,
     MESH_PT_CobraTools,
+    POSE_PT_CobraTools,
     SCENE_PT_CobraTools,
     COLLISION_PT_CobraTools,
     InstallDependencies,
