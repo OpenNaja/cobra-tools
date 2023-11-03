@@ -145,7 +145,7 @@ class CreateLods(bpy.types.Operator):
 class GenerateRigEdit(bpy.types.Operator):
     """Generate rig edit nodes for all posed bones"""
     bl_idname = "pose.generate_rig_edit"
-    bl_label = "Generate rig edit"
+    bl_label = "Generate Rig Edit from Pose"
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
@@ -244,7 +244,6 @@ class POSE_PT_CobraTools(bpy.types.Panel):
         row = layout.row(align=True)
         sub = row.row()
         sub.operator("pose.generate_rig_edit", icon_value=icon)
-        addon_updater_ops.update_notice_box_ui(self, context)
 
 
 class SCENE_PT_CobraTools(bpy.types.Panel):
