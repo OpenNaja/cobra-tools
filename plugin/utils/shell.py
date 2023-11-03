@@ -90,22 +90,22 @@ def create_lods():
 def generate_rig_edit():
     """Automatic rig edit generator by NDP. Detects posed bones and automatically generates nodes and offsets them."""
     msgs = []
-    #logging.info(f"Generating rig edit")
-    print("-------------------------------------------------------------")
-    print("Initiating rig edit")
+    logging.info(f"Generating rig edit")
+    logging.info("-------------------------------------------------------------")
+    logging.info("Initiating rig edit")
     
     #Check if selected object is a valid armature
     if bpy.context.active_object.type != 'ARMATURE':
         #Object is not an armature. Cancelling.
-        print("No armature selected.")
+        logging.info("No armature selected.")
         msgs.append(f"No armature selected.")
         return msgs
     
     #Store current mode
-    Mode = bpy.context.mode
+    original_mode = bpy.context.mode
     
     #Store number of edits
-    Edits = 0
+    editnumber = 0
 
     #Force Switch to pose mode.
     bpy.ops.object.mode_set(mode='POSE')
@@ -114,51 +114,51 @@ def generate_rig_edit():
     armature = bpy.context.object
     
     #Iterate over every bone in the armature.
-    for i in armature.pose.bones:
+    for p_bone in armature.pose.bones:
         #Check if the bones have been scaled
         #Update locations
         bpy.context.view_layer.update()
         
         #Check that no bones are scaled
-        if i.scale != Vector((1,1,1)):
+        if p_bone.scale != Vector((1,1,1)):
             #Reset scale
-            #i.scale = Vector((1,1,1))
-            print("WARNING: "+str(i.name)+" HAD SCALE, CANCELLING")
-            msgs.append(f"Warning: {str(i.name)} had scale transforms. Reset scale for all bones and try again.")
+            #p_bone.scale = Vector((1,1,1))
+            logging.info("WARNING: "+str(p_bone.name)+" HAD SCALE, CANCELLING")
+            msgs.append(f"Warning: {str(p_bone.name)} had scale transforms. Reset scale for all bones and try again.")
             return msgs
         
         #Find all bones with transforms.
-        if (i.location != Vector((0, 0, 0)) or i.rotation_quaternion != Quaternion((1,0,0,0)) or i.scale != Vector((1,1,1))) and i.name[:5] != "NODE_":
+        if (p_bone.location != Vector((0, 0, 0)) or p_bone.rotation_quaternion != Quaternion((1,0,0,0)) or p_bone.scale != Vector((1,1,1))) and not p_bone.name.startswith("NODE_"):
             #If there are pre-existing NODE bones, they will be ignored, and their positions will be applied in the end, so it works out
             #However if there are posed bones parented to pre-existing NODE bones they will probably create double nodes which is bad
             
-            #Debug print
-            print("-------------------------------------------------------------")
-            print("Posed bone")
-            print("name: "+str(i.name))
-            print("parent: "+str(i.parent.name))
+            #Debug info
+            logging.info("-------------------------------------------------------------")
+            logging.info("Posed bone")
+            logging.info("name: "+str(p_bone.name))
+            logging.info("parent: "+str(p_bone.parent.name))
             
             #Get pose mode position of bonebase
-            bonebase_pos_pose = Vector(i.matrix.translation)
+            bonebase_pos_pose = Vector(p_bone.matrix.translation)
             
             #Reset position
-            i.location = Vector((0, 0, 0))
+            p_bone.location = Vector((0, 0, 0))
             #Update location after moving.
             bpy.context.view_layer.update()
             
             #Get rest mode position of bonebase
-            bonebase_pos_rest = Vector(i.matrix.translation)
+            bonebase_pos_rest = Vector(p_bone.matrix.translation)
             
             #Calculate delta offset
             bonebase_pos_delt = Vector(bonebase_pos_pose - bonebase_pos_rest)
             
             #Set back to original position
-            i.matrix.translation = Vector(bonebase_pos_pose)
+            p_bone.matrix.translation = Vector(bonebase_pos_pose)
             
-            #Print locations
-            print("bonebase rest position: "+str(bonebase_pos_rest))
-            print("bonebase pose position: "+str(bonebase_pos_pose))
-            print("bonebase delt position: "+str(bonebase_pos_delt))
+            #Log locations
+            logging.info("bonebase rest position: "+str(bonebase_pos_rest))
+            logging.info("bonebase pose position: "+str(bonebase_pos_pose))
+            logging.info("bonebase delt position: "+str(bonebase_pos_delt))
 
             
             #Creating the nodes            
@@ -167,11 +167,11 @@ def generate_rig_edit():
             bpy.ops.object.mode_set(mode='EDIT')
             
             #Get edit bones
-            bonebase = armature.data.edit_bones.get(i.name)
-            boneparent = armature.data.edit_bones.get(i.parent.name)
+            bonebase = armature.data.edit_bones.get(p_bone.name)
+            boneparent = armature.data.edit_bones.get(p_bone.parent.name)
             
             #Creating the node bone
-            bonenode = armature.data.edit_bones.new("NODE_"+str(i.name))
+            bonenode = armature.data.edit_bones.new("NODE_"+str(p_bone.name))
             #NOTE: Maybe here we set the bonenode to boneparent if it starts with NODE_ already
             
             #Copy parent length to node
@@ -198,12 +198,12 @@ def generate_rig_edit():
             bpy.ops.object.mode_set(mode='POSE')
             
             #Clear location
-            i.location = Vector((0,0,0))
+            p_bone.location = Vector((0,0,0))
             #Clear rotation
-            i.rotation_quaternion = Quaternion((1,0,0,0))
+            p_bone.rotation_quaternion = Quaternion((1,0,0,0))
             
             #Offset bonenode location
-            i.parent.matrix.translation = i.parent.matrix.translation + bonebase_pos_delt
+            p_bone.parent.matrix.translation = p_bone.parent.matrix.translation + bonebase_pos_delt
             
             #------------------------------------
             
@@ -213,54 +213,54 @@ def generate_rig_edit():
             #To fix, maybe store local Y and use the origin rotate afterwards to make up for it using the bone's pose vector as the axis.
             
             #Origin of rotation
-            origin = i.head
+            origin = p_bone.head
             
             #Store pose position
-            vector1 = i.vector.copy()
+            vector1 = p_bone.vector.copy()
             #Reset rotation
-            i.rotation_quaternion = (1, 0, 0, 0)
+            p_bone.rotation_quaternion = (1, 0, 0, 0)
             bpy.context.view_layer.update()
             #Store rest position
-            vector2 = i.vector.copy()
+            vector2 = p_bone.vector.copy()
             
-            #Print vectors
-            print("Pose Vector: "+str(vector1))
-            print("Rest Vector: "+str(vector2))
+            #Log vectors
+            logging.info("Pose Vector: "+str(vector1))
+            logging.info("Rest Vector: "+str(vector2))
             
             #Calculate angle between vectors
             angle_radians = vector1.angle(vector2)
             angle_degrees = math.degrees(angle_radians)
-            #Print angle
-            print("Angle_radians: "+str(angle_radians))
-            print("Angle_degrees: "+str(angle_degrees))
+            #log angle
+            logging.info("Angle_radians: "+str(angle_radians))
+            logging.info("Angle_degrees: "+str(angle_degrees))
             
             #Calculate the rotation matrix
             angle = angle_radians
             #Calculate the axis
             axis = vector1.cross(vector2)
-            #Print axis
-            print("Axis: "+str(axis))
+            #Log axis
+            logging.info("Axis: "+str(axis))
             #Create the rotation matrix
             rotation_matrix = Matrix.Rotation(-angle_radians, 4, axis)
             # Apply the final matrix to the pose bone
-            i.parent.matrix = Matrix.Translation(+origin) @ rotation_matrix @ Matrix.Translation(+origin).inverted() @ i.parent.matrix
+            p_bone.parent.matrix = Matrix.Translation(+origin) @ rotation_matrix @ Matrix.Translation(+origin).inverted() @ p_bone.parent.matrix
             
             #------------------------------------
             
-            Edits = Edits + 1
+            editnumber = editnumber + 1
 
     #----------------------------------------------------------------------------
-    print("-------------------------------------------------------------")
-    print("Total number of edits:"+str(Edits))
+    logging.info("-------------------------------------------------------------")
+    logging.info("Total number of edits:"+str(editnumber))
     
     #Apply pose as rest position and finalize the edit.
     bpy.ops.pose.armature_apply()
     
     #Switch back to original mode. 
-    bpy.ops.object.mode_set(mode=Mode)
+    bpy.ops.object.mode_set(mode=original_mode)
     
     #Return count of succesfull rig edits
-    msgs.append(f"{str(Edits)} rig edits generated succesfully")
+    msgs.append(f"{str(editnumber)} rig edits generated succesfully")
     return msgs
 
 
