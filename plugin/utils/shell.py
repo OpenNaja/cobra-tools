@@ -87,10 +87,24 @@ def create_lods():
 	return msgs
 
 
+def vectorisclose(vector1,vector2,tolerance):
+    #Determine if the inputs are correctly utilized. 
+    if not isinstance(vector1,Vector) or not isinstance(vector2,Vector) or not isinstance(tolerance,float):
+        raise TypeError("Input 1 must be a vector. Input 2 must be a vector. Input 3 must be a float.")
+    #Compare the components of the vectors.
+    if len(vector1) != len(vector2):
+        raise TypeError("Both vectors must have the same amount of components")
+    #Compare components
+    for component in range(0,len(vector1)):
+        if not abs(vector1[component] - vector2[component]) < abs(tolerance):
+            return False
+    return True
+
+
 def generate_rig_edit():
     """Automatic rig edit generator by NDP. Detects posed bones and automatically generates nodes and offsets them."""
     msgs = []
-    logging.info(f"Generating rig edit")
+    logging.info(f"generating rig edit from pose")
     
     #Check if selected object is a valid armature
     if bpy.context.active_object.type != 'ARMATURE':
@@ -113,25 +127,50 @@ def generate_rig_edit():
     #Initiate list of all posed bones
     posedbones_list = []
     
+    #Update position
+    bpy.context.view_layer.update()
+    
     #We iterate over every pose bone and detetect which ones have been posed, and create  a list of them.
     for p_bone in armature.pose.bones:
+        
+        #We check if vectors have  miniscule transforms, and just consider them rounding errors and clear them.
+        if vectorisclose(p_bone.location,Vector((0,0,0)),0.0001) and p_bone.location != Vector((0,0,0)):
+            #Warn the user
+            logging.info(f"{p_bone.name} had miniscule location transforms, assuming it is an error and clearing")
+            #Clear transforms
+            p_bone.location = Vector((0,0,0))
+            
+        if vectorisclose(p_bone.scale,Vector((1,1,1)),0.0001) and p_bone.scale != Vector((1,1,1)):
+            #Warn the user
+            logging.info(f"{p_bone.name} had miniscule scale transforms, assuming it is an error and clearing")
+            #Clear scale
+            p_bone.scale = Vector((1,1,1))
+            
+        if vectorisclose(Vector(p_bone.rotation_quaternion),Vector((1,0,0,0)),0.0001) and Vector(p_bone.rotation_quaternion) != Vector((1,0,0,0)):
+            #Warn the user
+            logging.info(f"{p_bone.name} had miniscule rotation transforms, assuming it is an error and clearing")
+            #Clear rotation
+            p_bone.rotation_quaternion = Quaternion((1,0,0,0))
+            
         #We check if any bones have scale and warn the user, as clearing their scale will significantly alter the result.
-        if p_bone.scale != Vector((1,1,1)):
-            #Reset scale
-            #p_bone.scale = Vector((1,1,1))
+        if not vectorisclose(p_bone.scale,Vector((1,1,1)),0.0001):
+            logging.info(f"Bone has scale. Value = {repr(p_bone.scale)}, difference: {(p_bone.scale - Vector((1,1,1))).length}")
             msgs.append(f"Warning: {str(p_bone.name)} had scale transforms. Reset scale for all bones and try again.")
             return msgs
-        if (p_bone.location != Vector((0, 0, 0)) or p_bone.rotation_quaternion != Quaternion((1,0,0,0))) and p_bone.name.startswith("NODE_"):
+        
+        #We check for NODE bones with transforms and skip them.
+        if (not vectorisclose(p_bone.location,Vector((0,0,0)),0.0001) or not vectorisclose(p_bone.scale,Vector((1,1,1)),0.0001) or not vectorisclose(Vector(p_bone.rotation_quaternion),Vector((1,0,0,0)),0.0001)) and p_bone.name.startswith("NODE_"):
             #Ignore posed NODE bones and proceed to the next, their offsets can be applied directly.
-            
             editnumber = editnumber + 1
             logging.info(f"rig edit number {editnumber}")
             logging.info(f"NODE with offsets detected. Applying offsets directly.")
             continue
-        #We append any bones that have been posed, and ignore _NODE bones.
-        if (p_bone.location != Vector((0, 0, 0)) or p_bone.rotation_quaternion != Quaternion((1,0,0,0))):
+        
+        #We append any remaining bones that have been posed.
+        if (not vectorisclose(p_bone.location,Vector((0,0,0)),0.0001) or not vectorisclose(p_bone.scale,Vector((1,1,1)),0.0001) or not vectorisclose(Vector(p_bone.rotation_quaternion),Vector((1,0,0,0)),0.0001)):
             #Append the bones to the list of posed bones.
             posedbones_list.append(p_bone)
+    
     
     #Iterate over every posed bone.
     for p_bone in posedbones_list:
@@ -250,12 +289,29 @@ def generate_rig_edit():
         # Apply the final matrix to the pose bone
         p_bone.parent.matrix = Matrix.Translation(+origin) @ rotation_matrix @ Matrix.Translation(+origin).inverted() @ p_bone.parent.matrix
         
+        #Reset node scale just in case the float is innacurate
+        p_bone.parent.scale = Vector((1,1,1))
         #------------------------------------
         
+        #Node completed. Log number of edits.
         editnumber = editnumber + 1
+    
+    #Checking for duplicates to merge
+    #Initiate list
+    node_list = []
+    
+    #We create a list of all NODES
+    for p_bone in armature.pose.bones:
+        if p_bone.name.startswith("NODE_"):
+            node_list.append(p_bone)
+    
+    #We find the NODE parents and check if they have more than one NODE child. 
+    #WIP
+    logging.info(f"list of node bones generated: {node_list}")
+        
 
     #----------------------------------------------------------------------------
-    logging.info(f"Total number of edits: {editnumber}")
+    logging.info(f"total number of edits: {editnumber}")
     
     #Apply pose as rest position and finalize the edit.
     bpy.ops.pose.armature_apply()
