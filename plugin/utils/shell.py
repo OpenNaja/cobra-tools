@@ -91,13 +91,10 @@ def generate_rig_edit():
     """Automatic rig edit generator by NDP. Detects posed bones and automatically generates nodes and offsets them."""
     msgs = []
     logging.info(f"Generating rig edit")
-    logging.info("-------------------------------------------------------------")
-    logging.info("Initiating rig edit")
     
     #Check if selected object is a valid armature
     if bpy.context.active_object.type != 'ARMATURE':
         #Object is not an armature. Cancelling.
-        logging.info("No armature selected.")
         msgs.append(f"No armature selected.")
         return msgs
     
@@ -113,145 +110,152 @@ def generate_rig_edit():
     #Get the armature
     armature = bpy.context.object
     
-    #Iterate over every bone in the armature.
+    #Initiate list of all posed bones
+    posedbones_list = []
+    
+    #We iterate over every pose bone and detetect which ones have been posed, and create  a list of them.
     for p_bone in armature.pose.bones:
-        #Check if the bones have been scaled
-        #Update locations
-        bpy.context.view_layer.update()
-        
-        #Check that no bones are scaled
+        #We check if any bones have scale and warn the user, as clearing their scale will significantly alter the result.
         if p_bone.scale != Vector((1,1,1)):
             #Reset scale
             #p_bone.scale = Vector((1,1,1))
-            logging.info("WARNING: "+str(p_bone.name)+" HAD SCALE, CANCELLING")
             msgs.append(f"Warning: {str(p_bone.name)} had scale transforms. Reset scale for all bones and try again.")
             return msgs
-        
-        #Find all bones with transforms.
-        if (p_bone.location != Vector((0, 0, 0)) or p_bone.rotation_quaternion != Quaternion((1,0,0,0)) or p_bone.scale != Vector((1,1,1))) and not p_bone.name.startswith("NODE_"):
-            #If there are pre-existing NODE bones, they will be ignored, and their positions will be applied in the end, so it works out
-            #However if there are posed bones parented to pre-existing NODE bones they will probably create double nodes which is bad
-            
-            #Debug info
-            logging.info("-------------------------------------------------------------")
-            logging.info("Posed bone")
-            logging.info("name: "+str(p_bone.name))
-            logging.info("parent: "+str(p_bone.parent.name))
-            
-            #Get pose mode position of bonebase
-            bonebase_pos_pose = Vector(p_bone.matrix.translation)
-            
-            #Reset position
-            p_bone.location = Vector((0, 0, 0))
-            #Update location after moving.
-            bpy.context.view_layer.update()
-            
-            #Get rest mode position of bonebase
-            bonebase_pos_rest = Vector(p_bone.matrix.translation)
-            
-            #Calculate delta offset
-            bonebase_pos_delt = Vector(bonebase_pos_pose - bonebase_pos_rest)
-            
-            #Set back to original position
-            p_bone.matrix.translation = Vector(bonebase_pos_pose)
-            
-            #Log locations
-            logging.info("bonebase rest position: "+str(bonebase_pos_rest))
-            logging.info("bonebase pose position: "+str(bonebase_pos_pose))
-            logging.info("bonebase delt position: "+str(bonebase_pos_delt))
-
-            
-            #Creating the nodes            
-            #We switch to edit mode to use edit bones, as they do not exist outside of edit mode.
-            #Switch to edit mode
-            bpy.ops.object.mode_set(mode='EDIT')
-            
-            #Get edit bones
-            bonebase = armature.data.edit_bones.get(p_bone.name)
-            boneparent = armature.data.edit_bones.get(p_bone.parent.name)
-            
-            #Creating the node bone
-            bonenode = armature.data.edit_bones.new("NODE_"+str(p_bone.name))
-            #NOTE: Maybe here we set the bonenode to boneparent if it starts with NODE_ already
-            
-            #Copy parent length to node
-            bonenode.length = boneparent.length
-            #Copy parent matrix to node
-            bonenode.matrix = boneparent.matrix.copy()
-            
-            #Set parent of bonenode to boneparent
-            bonenode.parent = boneparent
-            #Set parent of bonebase to bonenode
-            bonebase.parent = bonenode
-            #Node creation complete
-            
-            #Switch to pose mode.
-            bpy.ops.object.mode_set(mode='POSE')
-            
-            
-            
-            #------------------------------------
-            
-            #OFFSET NODE LOCATION
-            #Applying offsets to bonenode
-            #Switch to pose mode
-            bpy.ops.object.mode_set(mode='POSE')
-            
-            #Clear location
-            p_bone.location = Vector((0,0,0))
-            #Clear rotation
-            p_bone.rotation_quaternion = Quaternion((1,0,0,0))
-            
-            #Offset bonenode location
-            p_bone.parent.matrix.translation = p_bone.parent.matrix.translation + bonebase_pos_delt
-            
-            #------------------------------------
-            
-            #OFFSET NODE ROTATION
-            
-            #BUG: local Y rotation seems to get lost but otherwise everything else works.
-            #To fix, maybe store local Y and use the origin rotate afterwards to make up for it using the bone's pose vector as the axis.
-            
-            #Origin of rotation
-            origin = p_bone.head
-            
-            #Store pose position
-            vector1 = p_bone.vector.copy()
-            #Reset rotation
-            p_bone.rotation_quaternion = (1, 0, 0, 0)
-            bpy.context.view_layer.update()
-            #Store rest position
-            vector2 = p_bone.vector.copy()
-            
-            #Log vectors
-            logging.info("Pose Vector: "+str(vector1))
-            logging.info("Rest Vector: "+str(vector2))
-            
-            #Calculate angle between vectors
-            angle_radians = vector1.angle(vector2)
-            angle_degrees = math.degrees(angle_radians)
-            #log angle
-            logging.info("Angle_radians: "+str(angle_radians))
-            logging.info("Angle_degrees: "+str(angle_degrees))
-            
-            #Calculate the rotation matrix
-            angle = angle_radians
-            #Calculate the axis
-            axis = vector1.cross(vector2)
-            #Log axis
-            logging.info("Axis: "+str(axis))
-            #Create the rotation matrix
-            rotation_matrix = Matrix.Rotation(-angle_radians, 4, axis)
-            # Apply the final matrix to the pose bone
-            p_bone.parent.matrix = Matrix.Translation(+origin) @ rotation_matrix @ Matrix.Translation(+origin).inverted() @ p_bone.parent.matrix
-            
-            #------------------------------------
+        if (p_bone.location != Vector((0, 0, 0)) or p_bone.rotation_quaternion != Quaternion((1,0,0,0))) and p_bone.name.startswith("NODE_"):
+            #Ignore posed NODE bones and proceed to the next, their offsets can be applied directly.
             
             editnumber = editnumber + 1
+            logging.info(f"rig edit number {editnumber}")
+            logging.info(f"NODE with offsets detected. Applying offsets directly.")
+            continue
+        #We append any bones that have been posed, and ignore _NODE bones.
+        if (p_bone.location != Vector((0, 0, 0)) or p_bone.rotation_quaternion != Quaternion((1,0,0,0))):
+            #Append the bones to the list of posed bones.
+            posedbones_list.append(p_bone)
+    
+    #Iterate over every posed bone.
+    for p_bone in posedbones_list:
+        #Update bone locations
+        bpy.context.view_layer.update()
+            
+        #Debug info
+        logging.info(f"rig edit number {editnumber+1}")
+        logging.info(f"name: {p_bone.name}")
+        logging.info(f"parent: {p_bone.parent.name}")
+        
+        #Get pose mode position of bonebase
+        bonebase_pos_pose = Vector(p_bone.matrix.translation)
+        
+        #Reset position
+        p_bone.location = Vector((0, 0, 0))
+        #Update location after moving.
+        bpy.context.view_layer.update()
+        
+        #Get rest mode position of bonebase
+        bonebase_pos_rest = Vector(p_bone.matrix.translation)
+        
+        #Calculate delta offset
+        bonebase_pos_delt = Vector(bonebase_pos_pose - bonebase_pos_rest)
+        
+        #Set back to original position
+        p_bone.matrix.translation = Vector(bonebase_pos_pose)
+        
+        #Log locations
+        logging.info(f"bonebase rest position: {bonebase_pos_rest}")
+        logging.info(f"bonebase pose position: {bonebase_pos_pose}")
+        logging.info(f"bonebase delt position: {bonebase_pos_delt}")
+
+        
+        #Creating the nodes            
+        #We switch to edit mode to use edit bones, as they do not exist outside of edit mode.
+        #Switch to edit mode
+        bpy.ops.object.mode_set(mode='EDIT')
+        
+        #Get edit bones
+        bonebase = armature.data.edit_bones.get(p_bone.name)
+        boneparent = armature.data.edit_bones.get(p_bone.parent.name)
+        
+        #Creating the node bone
+        bonenode = armature.data.edit_bones.new(f"NODE_{p_bone.name}")
+        #NOTE: Maybe here we set the bonenode to boneparent if it starts with NODE_ already
+        
+        #Copy parent length to node
+        bonenode.length = boneparent.length
+        #Copy parent matrix to node
+        bonenode.matrix = boneparent.matrix.copy()
+        
+        #Set parent of bonenode to boneparent
+        bonenode.parent = boneparent
+        #Set parent of bonebase to bonenode
+        bonebase.parent = bonenode
+        #Node creation complete
+        
+        #Switch to pose mode.
+        bpy.ops.object.mode_set(mode='POSE')
+        
+        
+        
+        #------------------------------------
+        
+        #OFFSET NODE LOCATION
+        #Applying offsets to bonenode
+        #Switch to pose mode
+        bpy.ops.object.mode_set(mode='POSE')
+        
+        #Clear location
+        p_bone.location = Vector((0,0,0))
+        #Clear rotation
+        p_bone.rotation_quaternion = Quaternion((1,0,0,0))
+        
+        #Offset bonenode location
+        p_bone.parent.matrix.translation = p_bone.parent.matrix.translation + bonebase_pos_delt
+        
+        #------------------------------------
+        
+        #OFFSET NODE ROTATION
+        
+        #BUG: local Y rotation seems to get lost but otherwise everything else works.
+        #To fix, maybe store local Y and use the origin rotate afterwards to make up for it using the bone's pose vector as the axis.
+        
+        #Origin of rotation
+        origin = p_bone.head
+        
+        #Store pose position
+        vector1 = p_bone.vector.copy()
+        #Reset rotation
+        p_bone.rotation_quaternion = (1, 0, 0, 0)
+        bpy.context.view_layer.update()
+        #Store rest position
+        vector2 = p_bone.vector.copy()
+        
+        #Log vectors
+        logging.info(f"bonebase pose vector: {vector1}")
+        logging.info(f"bonebase rest vector: {vector2}")
+        
+        #Calculate angle between vectors
+        angle_radians = vector1.angle(vector2)
+        angle_degrees = math.degrees(angle_radians)
+        #log angle
+        logging.info(f"angle radians: {angle_radians}")
+        logging.info(f"angle degrees: {angle_degrees}")
+        
+        #Calculate the rotation matrix
+        angle = angle_radians
+        #Calculate the axis
+        axis = vector1.cross(vector2)
+        #Log axis
+        logging.info("axis: {axis}")
+        #Create the rotation matrix
+        rotation_matrix = Matrix.Rotation(-angle_radians, 4, axis)
+        # Apply the final matrix to the pose bone
+        p_bone.parent.matrix = Matrix.Translation(+origin) @ rotation_matrix @ Matrix.Translation(+origin).inverted() @ p_bone.parent.matrix
+        
+        #------------------------------------
+        
+        editnumber = editnumber + 1
 
     #----------------------------------------------------------------------------
-    logging.info("-------------------------------------------------------------")
-    logging.info("Total number of edits:"+str(editnumber))
+    logging.info(f"Total number of edits: {editnumber}")
     
     #Apply pose as rest position and finalize the edit.
     bpy.ops.pose.armature_apply()
