@@ -130,7 +130,7 @@ def generate_rig_edit():
     #Initiate list of all posed bones
     posedbones_list = []
     
-    #Update position
+    #Update positions
     bpy.context.view_layer.update()
     
     #We iterate over every pose bone and detetect which ones have been posed, and create  a list of them.
@@ -208,7 +208,7 @@ def generate_rig_edit():
         logging.info(f"bonebase delt position: {bonebase_pos_delt}")
 
         
-        #Creating the nodes            
+        #Creating the nodes    
         #We switch to edit mode to use edit bones, as they do not exist outside of edit mode.
         #Switch to edit mode
         bpy.ops.object.mode_set(mode='EDIT')
@@ -217,19 +217,26 @@ def generate_rig_edit():
         bonebase = armature.data.edit_bones.get(p_bone.name)
         boneparent = bonebase.parent
         
-        #Creating the node bone
-        bonenode = armature.data.edit_bones.new(f"NODE_{p_bone.name}")
-        #NOTE: Maybe here we set the bonenode to boneparent if it starts with NODE_ already
+        #Detect if the bone already has a node.
+        if p_bone.parent.name.startswith("NODE_"):
+            logging.info(f"{p_bone.name} has a pre-existing NODE. Using it instead.")
+            bonenode = bonebase.parent
+            
+        else:
+            #Creating the node bone
+            bonenode = armature.data.edit_bones.new(f"NODE_{p_bone.name}")
         
-        #Copy parent length to node
-        bonenode.length = boneparent.length
-        #Copy parent matrix to node
-        bonenode.matrix = boneparent.matrix.copy()
+            #Copy parent length to node
+            bonenode.length = boneparent.length
+            #Copy parent matrix to node
+            bonenode.matrix = boneparent.matrix.copy()
         
-        #Set parent of bonenode to boneparent
-        bonenode.parent = boneparent
-        #Set parent of bonebase to bonenode
-        bonebase.parent = bonenode
+            #Set parent of bonenode to boneparent
+            bonenode.parent = boneparent
+        
+            #Set parent of bonebase to bonenode
+            bonebase.parent = bonenode
+        
         #Node creation complete
         
         #Switch to pose mode.
