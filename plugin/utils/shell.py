@@ -87,7 +87,7 @@ def create_lods():
 	return msgs
 
 
-def vectorisclose(vector1,vector2,tolerance):
+def vectorisclose(vector1,vector2,tolerance=0.0001):
     #Determine if the inputs are correctly utilized. 
     if not isinstance(vector1,Vector) or not isinstance(vector2,Vector) or not isinstance(tolerance,float):
         raise TypeError("Input 1 must be a vector. Input 2 must be a vector. Input 3 must be a float.")
@@ -114,6 +114,9 @@ def generate_rig_edit():
     
     #Store current mode
     original_mode = bpy.context.mode
+    #For some reason it doesn't recognize edit_armature as a valid mode to switch to so we change it to just edit. weird.
+    if original_mode == 'EDIT_ARMATURE':
+        original_mode = 'EDIT'
     
     #Store number of edits
     editnumber = 0
@@ -212,7 +215,7 @@ def generate_rig_edit():
         
         #Get edit bones
         bonebase = armature.data.edit_bones.get(p_bone.name)
-        boneparent = armature.data.edit_bones.get(p_bone.parent.name)
+        boneparent = bonebase.parent
         
         #Creating the node bone
         bonenode = armature.data.edit_bones.new(f"NODE_{p_bone.name}")
@@ -283,20 +286,19 @@ def generate_rig_edit():
         #Calculate the axis
         axis = vector1.cross(vector2)
         #Log axis
-        logging.info("axis: {axis}")
+        logging.info(f"axis: {axis}")
         #Create the rotation matrix
         rotation_matrix = Matrix.Rotation(-angle_radians, 4, axis)
         # Apply the final matrix to the pose bone
         p_bone.parent.matrix = Matrix.Translation(+origin) @ rotation_matrix @ Matrix.Translation(+origin).inverted() @ p_bone.parent.matrix
-        
-        #Reset node scale just in case the float is innacurate
-        p_bone.parent.scale = Vector((1,1,1))
         #------------------------------------
         
         #Node completed. Log number of edits.
         editnumber = editnumber + 1
     
+    #CREATING NODE GROUPS
     #Checking for duplicates to merge
+    logging.info(f"creating node_groups to merge")
     #Initiate list
     node_list = []
     
@@ -305,9 +307,57 @@ def generate_rig_edit():
         if p_bone.name.startswith("NODE_"):
             node_list.append(p_bone)
     
-    #We find the NODE parents and check if they have more than one NODE child. 
-    #WIP
-    logging.info(f"list of node bones generated: {node_list}")
+    #Create NODE parent dictionary
+    node_groups = {}
+    
+    #Create and sort NODE groups, we create a dictionary with a tuple of: parent,location,rotation as the key. This way we can group identical nodes.
+    for p_bone in node_list:
+        keytuple = (p_bone.parent.name,(round(p_bone.location.x,5),round(p_bone.location.y,5),round(p_bone.location.z,5)),(p_bone.rotation_quaternion[0],p_bone.rotation_quaternion[1],p_bone.rotation_quaternion[2],p_bone.rotation_quaternion[3]))
+        if keytuple in node_groups:
+            node_groups[keytuple].append(p_bone)
+        else:
+            node_groups[keytuple] = [p_bone]
+    
+
+    #Log node groups
+    for nodegroup in node_groups:
+        logging.info(f"node group: {nodegroup}")
+        for node in node_groups[nodegroup]:
+            logging.info(f"node: {node.name}")
+    
+    #store number of deleted nodes
+    deletednodes = 0
+    
+    #Merge node groups
+    for nodegroup in node_groups:
+        if len(node_groups[nodegroup]) > 1:
+            node_groups[nodegroup][0].name = f"NODE_{len(node_groups[nodegroup])}GROUP{node_groups[nodegroup][0].children[0].name}"
+        logging.info(f"first node: {node_groups[nodegroup][0].name}")
+        logging.info(f"first child: {node_groups[nodegroup][0].children[0].name}")
+        for node in node_groups[nodegroup]:
+            if node != node_groups[nodegroup][0]:
+                logging.info(f"secondary node: {node.name}")
+                logging.info(f"secondary child: {node.children[0].name}")
+                
+                #Switch to edit mode to edit the parents
+                bpy.ops.object.mode_set(mode='EDIT')
+                
+                #Reparent duplicate basebones to the first node
+                armature.data.edit_bones.get(node.children[0].name).parent = armature.data.edit_bones.get(node_groups[nodegroup][0].name)
+                
+                #Delete the duplicate nodes
+                deletednodes = deletednodes + 1
+                armature.data.edit_bones.remove(armature.data.edit_bones.get(node.name))
+                
+                #Switch back to pose mode
+                bpy.ops.object.mode_set(mode='POSE')
+    
+    #Report amount of deleted nodes
+    if deletednodes > 0:
+        logging.info(f"Merged {deletednodes} nodes into node groups")
+    
+    #NODE GROUPS COMPLETE
+
         
 
     #----------------------------------------------------------------------------
