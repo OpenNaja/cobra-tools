@@ -225,7 +225,7 @@ def export_joints(bone_info, corrector):
 	# find the root joint, assuming the first one with least parents
 	parents_map = []
 	for joint_i, b_joint in enumerate(joint_coll.objects):
-		b_bone = b_joint.parent.bones[b_joint.parent_bone]
+		b_bone = b_joint.parent.data.bones[b_joint.parent_bone]
 		num_parents = len(b_bone.parent_recursive)
 		parents_map.append((num_parents, joint_i))
 	parents_map.sort()
