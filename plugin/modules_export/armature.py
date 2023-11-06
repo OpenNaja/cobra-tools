@@ -185,7 +185,8 @@ def export_joints(bone_info, corrector):
 		joint_info.bone_name = bone_name_for_ovl(b_joint.parent_bone)
 		bone_i = bone_lut[joint_info.bone_name]
 		joints.joint_to_bone[joint_i] = bone_i
-		joints.bone_to_joint[bone_i] = joint_i# update joint transform
+		joints.bone_to_joint[bone_i] = joint_i
+		# update joint transform
 		b_joint_mat = get_joint_matrix(b_joint)
 		n_bind = corrector.blender_bind_to_nif_bind(b_joint_mat)
 		t = joints.joint_transforms[joint_i]
@@ -213,10 +214,10 @@ def export_joints(bone_info, corrector):
 			rb.unk_1 = b_rb.cobra_coll.damping_3d[0] 
 			rb.unk_2 = b_rb.cobra_coll.damping_3d[1]
 			rb.unk_4 = b_rb.cobra_coll.damping_3d[2]
+			rb.flag = RigidBodyFlag[b_rb.cobra_coll.flag]
 		else:
 			rb.mass = -1.0
-		# todo - determine from active / passive?
-		rb.flag = RigidBodyFlag[b_rb.cobra_coll.flag]
+			rb.flag = 0
 	j_map = {j.name: j for j in joints.joint_infos}
 	# update the ragdolls to make sure they point to valid joints
 	for rd in joints.ragdoll_constraints:
