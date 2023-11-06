@@ -1,6 +1,7 @@
 import logging
 
 import bpy
+from generated.formats.ms2.enums.RigidBodyFlag import RigidBodyFlag
 import mathutils
 
 from generated.formats.ms2.versions import is_ztuac, is_dla
@@ -176,19 +177,11 @@ def export_joints(bone_info, corrector):
 	joints.reset_field("bone_to_joint")
 	# reset bone -> joint mapping since we don't catch them all if we loop over existing joints
 	joints.bone_to_joint[:] = -1
-	joint_map = {get_joint_name(b_ob): b_ob for b_ob in joint_coll.objects}
 	bone_lut = {bone.name: bone_index for bone_index, bone in enumerate(bone_info.bones)}
 	for joint_i, joint_info in enumerate(joints.joint_infos):
-		if hasattr(joint_info, "bone_name"):
-			# overwrite, keep links, still needed?
-			logging.debug(f"joint {b_joint.name}")
-			b_joint = joint_map.get(joint_info.name)
-			if not b_joint:
-				raise AttributeError(f"Could not find '{joint_info.name}'. Make sure the joint object exists and has the custom property 'long_name' correctly set")
-		else:
-			b_joint = joint_coll.objects[joint_i]
-			joint_info.name = bone_name_for_ovl(get_joint_name(b_joint))
-			joint_info.bone_name = bone_name_for_ovl(b_joint.parent_bone)
+		b_joint = joint_coll.objects[joint_i]
+		joint_info.name = bone_name_for_ovl(get_joint_name(b_joint))
+		joint_info.bone_name = bone_name_for_ovl(b_joint.parent_bone)
 		bone_i = bone_lut[joint_info.bone_name]
 		joints.joint_to_bone[joint_i] = bone_i
 		joints.bone_to_joint[bone_i] = joint_i# update joint transform
@@ -219,17 +212,17 @@ def export_joints(bone_info, corrector):
 			rb.unk_1 = b_rb.cobra_coll.damping_3d[0] 
 			rb.unk_2 = b_rb.cobra_coll.damping_3d[1]
 			rb.unk_4 = b_rb.cobra_coll.damping_3d[2]
-			# todo - determine from active / passive?
-			# dinos are 1
-			rb.flag = 1
 		else:
 			rb.mass = -1.0
+		# todo - determine from active / passive?
+		rb.flag = RigidBodyFlag[b_rb.cobra_coll.flag]
 	j_map = {j.name: j for j in joints.joint_infos}
 	# update the ragdolls to make sure they point to valid joints
 	for rd in joints.ragdoll_constraints:
 		rd.parent.joint = j_map[rd.parent.joint.name]
 		rd.child.joint = j_map[rd.child.joint.name]
 	# unsure what this does
+	# certainly not correct, cf. dlc11_stripdoors
 	joints.joint_entry_count = 16 if joints.joint_count > 1 else 0
 
 def get_joint_matrix(b_joint):

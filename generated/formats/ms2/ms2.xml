@@ -49,7 +49,12 @@
 	<basic name="BonePointerIndex" integral="true" countable="true">
 	</basic>
 
-<!--Count from the end!!!-->
+	<enum name="RigidBodyFlag" storage="uint">
+		<option value="0" name="Static" />
+		<option value="1" name="DynamicsAsleep" />
+		<option value="2" name="DynamicsAwake" />
+	</enum>
+
 	<enum name="MeshFormat" storage="ubyte">
 		<option value="0" name="Separate" />
 		<option value="1" name="Interleaved32" />
@@ -57,6 +62,7 @@
 		<option value="3" name="UnkFmt" />
 	</enum>
 
+<!--Count from the end!!!-->
 	<bitfield name="WeightsFlag" storage="ushort">
 		<member width="1" pos="0" name="has_weights" type="bool"/>
 		<member width="8" pos="1" name="bone_index" type="int"/>
@@ -573,7 +579,7 @@
 	</compound>
 
 	<compound name="RigidBody">
-		<add name="flag" type="uint">2 kinematic, 0 1 static</add>
+		<add name="flag" type="RigidBodyFlag"/>
 		<add name="loc" type="Vector3" >center of mass - relative to joint</add>
 		<add name="mass" type="float">mass of joint or object</add>
 		<add name="air_resistance_x" type="float"/>

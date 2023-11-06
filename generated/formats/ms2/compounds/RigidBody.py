@@ -9,9 +9,7 @@ class RigidBody(BaseStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-
-		# 2 kinematic, 0 1 static
-		self.flag = name_type_map['Uint'](self.context, 0, None)
+		self.flag = name_type_map['RigidBodyFlag'](self.context, 0, None)
 
 		# center of mass - relative to joint
 		self.loc = name_type_map['Vector3'](self.context, 0, None)
@@ -36,7 +34,7 @@ class RigidBody(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield 'flag', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'flag', name_type_map['RigidBodyFlag'], (0, None), (False, None), (None, None)
 		yield 'loc', name_type_map['Vector3'], (0, None), (False, None), (None, None)
 		yield 'mass', name_type_map['Float'], (0, None), (False, None), (None, None)
 		yield 'air_resistance_x', name_type_map['Float'], (0, None), (False, None), (None, None)
@@ -49,7 +47,7 @@ class RigidBody(BaseStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'flag', name_type_map['Uint'], (0, None), (False, None)
+		yield 'flag', name_type_map['RigidBodyFlag'], (0, None), (False, None)
 		yield 'loc', name_type_map['Vector3'], (0, None), (False, None)
 		yield 'mass', name_type_map['Float'], (0, None), (False, None)
 		yield 'air_resistance_x', name_type_map['Float'], (0, None), (False, None)

@@ -200,6 +200,7 @@ def import_joints(scene, armature_ob, bone_info, b_bone_names, corrector):
 					b_collider.cobra_coll.damping_3d[0] = rb.unk_1
 					b_collider.cobra_coll.damping_3d[1] = rb.unk_2
 					b_collider.cobra_coll.damping_3d[2] = rb.unk_4
+					b_collider.cobra_coll.flag = rb.flag.name
 					# when type = 0, unks are 0.0 and frictions are all the same
 		# attach joint to bone
 		bone_name = b_bone_names[bone_index]

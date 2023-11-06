@@ -49,7 +49,12 @@
 	<basic name="BonePointerIndex" integral="true" countable="true">
 	</basic>
 
-<!--Count from the end!!!-->
+	<enum name="RigidBodyFlag" storage="uint">
+		<option value="0" name="Static" />
+		<option value="1" name="DynamicsAsleep" />
+		<option value="2" name="DynamicsAwake" />
+	</enum>
+
 	<enum name="MeshFormat" storage="ubyte">
 		<option value="0" name="Separate" />
 		<option value="1" name="Interleaved32" />
@@ -57,6 +62,7 @@
 		<option value="3" name="UnkFmt" />
 	</enum>
 
+<!--Count from the end!!!-->
 	<bitfield name="WeightsFlag" storage="ushort">
 		<member width="1" pos="0" name="has_weights" type="bool"/>
 		<member width="8" pos="1" name="bone_index" type="int"/>
@@ -539,7 +545,8 @@
 		<add name="child" type="BonePointer"/>
 		<add name="parent" type="BonePointer"/>
 		<add name="unk0" type="ushort" default="0"/>
-		<add name="matrix" type="Matrix33" >no clue what space this is in, defines the orientation for the ranges</add>
+		<add name="matrix" type="Matrix33" >no clue what space this is in, defines the orientation for the yaw and pitch ranges
+		probably relative to the bone</add>
 		<add name="yaw" type="RotationRange"/>degrees
 		<add name="pitch" type="RotationRange"/>degrees
 		<add name="unk1" type="uint" default="1"/>
@@ -556,7 +563,7 @@
 <!--		<add name="zeros start" type="ubyte" until="13" arr1="6">guess for ZTUAC rhino, wrong for afr ele child</add>-->
 		<add name="ik_count" type="uint64">repeat</add>
 		<add name="ik_ptr" type="uint64"/>
-		<add name="ik_targets_count" type="uint64" since="48">seen 0, 2, 4</add>
+		<add name="ik_targets_count" type="uint64" since="48"/>
 		<add name="ik_targets_ptr" type="uint64" since="48"/>
 		<add name="ik ref" type="Empty"/>
 		<add name="ik_list" type="IKEntryOld" arr1="ik_count" until="13"/>
@@ -573,7 +580,7 @@
 	</compound>
 
 	<compound name="RigidBody">
-		<add name="flag" type="uint">2 kinematic, 0 1 static</add>
+		<add name="flag" type="RigidBodyFlag"/>
 		<add name="loc" type="Vector3" >center of mass - relative to joint</add>
 		<add name="mass" type="float">mass of joint or object</add>
 		<add name="air_resistance_x" type="float"/>

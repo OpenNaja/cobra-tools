@@ -42,6 +42,7 @@ type_module_name_map = {
 	'BiosynVersion': 'generated.formats.ms2.basic',
 	'MainVersion': 'generated.formats.ms2.basic',
 	'BonePointerIndex': 'generated.formats.ms2.basic',
+	'RigidBodyFlag': 'generated.formats.ms2.enums.RigidBodyFlag',
 	'MeshFormat': 'generated.formats.ms2.enums.MeshFormat',
 	'WeightsFlag': 'generated.formats.ms2.bitfields.WeightsFlag',
 	'WeightsFlagMalta': 'generated.formats.ms2.bitfields.WeightsFlagMalta',

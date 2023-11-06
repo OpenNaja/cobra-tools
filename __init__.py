@@ -52,6 +52,7 @@ from plugin.modules_export.operators import ExportMS2, ExportSPL, ExportManis, E
 
 from root_path import root_dir
 from generated.formats.ms2.enums.MeshFormat import MeshFormat
+from generated.formats.ms2.enums.RigidBodyFlag import RigidBodyFlag
 
 global preview_collection
 
@@ -254,6 +255,8 @@ class COLLISION_PT_CobraTools(bpy.types.Panel):
         row.prop(rb, "air_resistance")
         row = layout.row(align=True)
         row.prop(rb, "damping_3d")
+        row = layout.row(align=True)
+        row.prop(rb, "flag")
 
 
 class CobraSceneSettings(PropertyGroup):
@@ -305,6 +308,11 @@ class CobraCollisionSettings(PropertyGroup):
         soft_max=sys.float_info.max,
         step=1, 
         precision=6)
+    flag: EnumProperty(
+        name='Dynamics Flag',
+        description='Current state of this rigidbody',
+        items=[(item.name, item.name, "") for i, item in enumerate(RigidBodyFlag)],
+    )
 
 
 def menu_func_export(self, context):
