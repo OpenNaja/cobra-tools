@@ -230,6 +230,7 @@ def import_joints(scene, armature_ob, bone_info, b_bone_names, corrector):
 		rbc.use_limit_lin_x = rbc.use_limit_lin_y = rbc.use_limit_lin_z = True
 		rbc.limit_lin_x_lower = rbc.limit_lin_x_upper = rbc.limit_lin_y_lower = rbc.limit_lin_y_upper = \
 			rbc.limit_lin_z_lower = rbc.limit_lin_z_upper = 0.0
+		# todo plasticity
 		ob1 = joint_map[child_name].children[0]
 		ob2 = joint_map[parent_name].children[0]
 		rbc.object1 = ob1

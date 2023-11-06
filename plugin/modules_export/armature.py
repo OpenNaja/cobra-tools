@@ -218,11 +218,32 @@ def export_joints(bone_info, corrector):
 		else:
 			rb.mass = -1.0
 			rb.flag = 0
+	# update ragdoll constraints, relies on previously updated joints
 	j_map = {j.name: j for j in joints.joint_infos}
-	# update the ragdolls to make sure they point to valid joints
-	for rd in joints.ragdoll_constraints:
-		rd.parent.joint = j_map[rd.parent.joint.name]
-		rd.child.joint = j_map[rd.child.joint.name]
+	joints_with_ragdoll_constraints = [b_joint for b_joint in joint_coll.objects if b_joint.rigid_body_constraint]
+	joints.num_ragdoll_constraints = len(joints_with_ragdoll_constraints)
+	joints.reset_field("ragdoll_constraints")
+	for rd, b_joint in zip(joints.ragdoll_constraints, joints_with_ragdoll_constraints):
+		rbc = b_joint.rigid_body_constraint
+		# get the joint empties, which are the parents of the respective rigidbody objects
+		child_joint_name = bone_name_for_ovl(get_joint_name(rbc.object1.parent))
+		parent_joint_name = bone_name_for_ovl(get_joint_name(rbc.object2.parent))
+		rd.child.joint = j_map[child_joint_name]
+		rd.parent.joint = j_map[parent_joint_name]
+		# update the ragdolls to make sure they point to valid joints
+		# rd.parent.joint = j_map[rd.parent.joint.name]
+		# rd.child.joint = j_map[rd.child.joint.name]
+		rd.loc = joints.joint_transforms[rd.child.joint.index].loc
+		# before correcting, rot tends to point y to the child joint
+		# todo rot, vec_b
+		rd.vec_a.set(rd.rot[0])
+		rd.x.min = -rbc.limit_ang_x_lower
+		rd.x.max = rbc.limit_ang_x_upper
+		rd.y.min = -rbc.limit_ang_y_lower
+		rd.y.max = rbc.limit_ang_y_upper
+		rd.z.min = -rbc.limit_ang_z_lower
+		rd.z.max = rbc.limit_ang_z_upper
+		# todo plasticity
 	# find the root joint, assuming the first one with least parents
 	parents_map = []
 	for joint_i, b_joint in enumerate(joint_coll.objects):
