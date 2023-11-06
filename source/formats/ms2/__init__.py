@@ -81,6 +81,8 @@ class Ms2File(Ms2InfoHeader, IoFile):
 				# 	if joints.joint_infos[joints.bone_to_joint[bone_i]] != joint_info:
 				# 		logging.warning(f"bone index [{bone_i}] doesn't point to expected joint info")
 
+			# print(joints.joint_infos[joints.root_joint_index].name)
+
 	def assign_bone_names(self, bone_info):
 		try:
 			for name_i, bone in zip(bone_info.name_indices, bone_info.bones):
@@ -450,6 +452,7 @@ if __name__ == "__main__":
 	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC ovls/walker_export/SP_Scarecrow not working atm.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/Warhammer/Annihilator/annihilatormodels.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/acro/models.ms2", read_editable=True)
+	# m.load("C:/Users/arnfi/Desktop/ceara/models.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/rhinoblack_child_.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/StreetFoxCoffee/models.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/SP_Grave_Stones/models.ms2", read_editable=True)
@@ -469,7 +472,7 @@ if __name__ == "__main__":
 	
 	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/PDLC_WorldFair/Rides/Powered_Track_Rides/Tracks/Track_302/Track_302/models.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/PDLC_Vintage/Environment/Scenery/Themes/VT_Vintage/VT_Bandstand/VT_Bandstand/models.ms2", read_editable=True)
-	m.load("C:/Users/arnfi/Desktop/banana/tree_palm_banana.ms2", read_editable=True)
+	# m.load("C:/Users/arnfi/Desktop/banana/tree_palm_banana.ms2", read_editable=True)
 	
 	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/Content0/Rides/FlatRides/Orbiter/FR_Orb/models.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/Content0/Rides/FlatRides/Star_Wheel/FR_StarW/models.ms2", read_editable=True)
@@ -478,7 +481,7 @@ if __name__ == "__main__":
 	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/Content0/Environment/Scenery/Themes/PR_Pirate/PR_Kraken/PR_Kraken/models.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/Content0/Environment/Scenery/Themes/PC_PlanetCoaster/PC_Archway/PC_Archway/models.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/CC_Anubis/models.ms2", read_editable=True)
-	# m.load("C:/Program Files (x86)/Steam/steamapps/common/Planet Zoo/win64/ovldata/walker_export/Content2/Environment/Scenery/Wallsets/GL_Roof_02/GL_Roof_02/models.ms2", read_editable=True)
+	m.load("C:/Program Files (x86)/Steam/steamapps/common/Planet Zoo/win64/ovldata/walker_export/Content2/Environment/Scenery/Wallsets/GL_Roof_02/GL_Roof_02/models.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/Characters/Mascots/Dino/Mascot_Dino/dino_.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/PC_Primitives_01/models.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/doors/dlc11_stripdoors_.ms2", read_editable=True)
@@ -496,7 +499,7 @@ if __name__ == "__main__":
 	# 		# print(ragdoll.rot.data)
 	# 		# print(np.linalg.inv(ragdoll.rot.data))
 	# m.save("C:/Users/arnfi/Desktop/dlc11_stripdoors_.ms2")
-	print(m)
+	# print(m)
 
 # INFO | size 8 / count 1 = 8.0 in /PDLC_WorldFair/Rides/Coasters/Tracks/Track_003/Track_003/models.ms2; 0
 # INFO | size 16 / count 1 = 16.0 in /PDLC_WorldFair/Rides/Powered_Track_Rides/Tracks/Track_302/Track_302/models.ms2; 0

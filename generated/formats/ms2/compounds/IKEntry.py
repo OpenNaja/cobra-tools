@@ -17,7 +17,8 @@ class IKEntry(BaseStruct):
 		self.parent = name_type_map['BonePointer'](self.context, 0, None)
 		self.unk_0 = name_type_map['Ushort'].from_value(0)
 
-		# no clue what space this is in, defines the orientation for the ranges
+		# no clue what space this is in, defines the orientation for the yaw and pitch ranges
+		# probably relative to the bone
 		self.matrix = name_type_map['Matrix33'](self.context, 0, None)
 		self.yaw = name_type_map['RotationRange'](self.context, 0, None)
 		self.pitch = name_type_map['RotationRange'](self.context, 0, None)

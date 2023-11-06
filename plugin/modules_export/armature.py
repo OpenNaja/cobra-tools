@@ -181,6 +181,7 @@ def export_joints(bone_info, corrector):
 	for joint_i, joint_info in enumerate(joints.joint_infos):
 		b_joint = joint_coll.objects[joint_i]
 		joint_info.name = bone_name_for_ovl(get_joint_name(b_joint))
+		joint_info.index = joint_i
 		joint_info.bone_name = bone_name_for_ovl(b_joint.parent_bone)
 		bone_i = bone_lut[joint_info.bone_name]
 		joints.joint_to_bone[joint_i] = bone_i
@@ -221,9 +222,16 @@ def export_joints(bone_info, corrector):
 	for rd in joints.ragdoll_constraints:
 		rd.parent.joint = j_map[rd.parent.joint.name]
 		rd.child.joint = j_map[rd.child.joint.name]
-	# unsure what this does
-	# certainly not correct, cf. dlc11_stripdoors
-	joints.joint_entry_count = 16 if joints.joint_count > 1 else 0
+	# find the root joint, assuming the first one with least parents
+	parents_map = []
+	for joint_i, b_joint in enumerate(joint_coll.objects):
+		b_bone = b_joint.parent.bones[b_joint.parent_bone]
+		num_parents = len(b_bone.parent_recursive)
+		parents_map.append((num_parents, joint_i))
+	parents_map.sort()
+	# todo - see how picky this is when there is a joint with root in the name and conflicting root joints
+	joints.root_joint_index = parents_map[0][1]
+
 
 def get_joint_matrix(b_joint):
 	b_arm = b_joint.parent

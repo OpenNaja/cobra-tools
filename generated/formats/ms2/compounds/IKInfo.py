@@ -21,8 +21,6 @@ class IKInfo(BaseStruct):
 		# repeat
 		self.ik_count = name_type_map['Uint64'](self.context, 0, None)
 		self.ik_ptr = name_type_map['Uint64'](self.context, 0, None)
-
-		# seen 0, 2, 4
 		self.ik_targets_count = name_type_map['Uint64'](self.context, 0, None)
 		self.ik_targets_ptr = name_type_map['Uint64'](self.context, 0, None)
 		self.ik_ref = name_type_map['Empty'](self.context, 0, None)

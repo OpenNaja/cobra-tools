@@ -780,7 +780,7 @@
 		<add name="one_0" type="uint64" since="13" default="1"/>
 		<add name="one_1" type="uint64" since="13" default="1"/>
 		<add name="bone count" type="uint" >matches bone count from bone info</add>
-		<add name="joint entry count" type="uint"/>unk?!, 16 for JWE2 acro
+		<add name="root_joint_index" type="uint"/>
 		<add name="zeros 2" type="uint" arr1="4">usually 0s</add>
 		<add name="zeros 3" type="uint" until="7" >usually 0s</add>
 		<add name="names_ref" type="Empty"/>

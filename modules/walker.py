@@ -153,6 +153,7 @@ def bulk_test_models(gui, start_dir, walk_ovls=True, walk_models=True):
 		max_bones_ms2 = None
 		joint_names_padding = {}
 		joint_names_total = {}
+		rigid_body_flags = set()
 		joint_names_2 = {}
 		hc_starts = {}
 		pack_bases = set()
@@ -208,6 +209,8 @@ def bulk_test_models(gui, start_dir, walk_ovls=True, walk_models=True):
 									# 	constraints_0.add(ms2_path)
 									# if model_info.bone_info.joints.count_1:
 									# 	constraints_1.add(ms2_path)
+									for rb in joints.rigid_body_list:
+										rigid_body_flags.add(int(rb.flag))
 									for j in joints.joint_infos:
 										for hit in j.hitchecks:
 											hc_starts[hit.io_start-ms2_data.models_reader.io_start] = ms2_path_rel
@@ -246,6 +249,7 @@ def bulk_test_models(gui, start_dir, walk_ovls=True, walk_models=True):
 			# print(f"blend_modes: {blend_modes}")
 			if shader_map:
 				print(f"shaders: {shaders}")
+			print(f"rigid_body_flags: {rigid_body_flags}")
 			# largest_zstring_buffers = sorted(joint_names_padding.keys())
 			# num = 10
 			# if len(largest_zstring_buffers) > num:
@@ -263,8 +267,8 @@ def bulk_test_models(gui, start_dir, walk_ovls=True, walk_models=True):
 			# totals = sorted(k for k in hc_starts.keys())
 			# for t in totals:
 			# 	logging.info(f"{t} mod = {t % 16}, {t % 64}")
-			for (size, count), fp in joint_names_2.items():
-				logging.info(f"size {size} / count {count} = {size/count} in {fp}")
+			# for (size, count), fp in joint_names_2.items():
+			# 	logging.info(f"size {size} / count {count} = {size/count} in {fp}")
 
 
 def ovls_in_path(gui, start_dir, only_types):

@@ -545,7 +545,8 @@
 		<add name="child" type="BonePointer"/>
 		<add name="parent" type="BonePointer"/>
 		<add name="unk0" type="ushort" default="0"/>
-		<add name="matrix" type="Matrix33" >no clue what space this is in, defines the orientation for the ranges</add>
+		<add name="matrix" type="Matrix33" >no clue what space this is in, defines the orientation for the yaw and pitch ranges
+		probably relative to the bone</add>
 		<add name="yaw" type="RotationRange"/>degrees
 		<add name="pitch" type="RotationRange"/>degrees
 		<add name="unk1" type="uint" default="1"/>
@@ -562,7 +563,7 @@
 <!--		<add name="zeros start" type="ubyte" until="13" arr1="6">guess for ZTUAC rhino, wrong for afr ele child</add>-->
 		<add name="ik_count" type="uint64">repeat</add>
 		<add name="ik_ptr" type="uint64"/>
-		<add name="ik_targets_count" type="uint64" since="48">seen 0, 2, 4</add>
+		<add name="ik_targets_count" type="uint64" since="48"/>
 		<add name="ik_targets_ptr" type="uint64" since="48"/>
 		<add name="ik ref" type="Empty"/>
 		<add name="ik_list" type="IKEntryOld" arr1="ik_count" until="13"/>
@@ -779,7 +780,7 @@
 		<add name="one_0" type="uint64" since="13" default="1"/>
 		<add name="one_1" type="uint64" since="13" default="1"/>
 		<add name="bone count" type="uint" >matches bone count from bone info</add>
-		<add name="joint entry count" type="uint"/>unk?!, 16 for JWE2 acro
+		<add name="root_joint_index" type="uint"/>
 		<add name="zeros 2" type="uint" arr1="4">usually 0s</add>
 		<add name="zeros 3" type="uint" until="7" >usually 0s</add>
 		<add name="names_ref" type="Empty"/>

@@ -20,7 +20,7 @@ def load(filepath="", use_custom_normals=False, mirror_mesh=False):
 	in_dir, ms2_name = os.path.split(filepath)
 	ms2 = Ms2File()
 	ms2.load(filepath, read_editable=True)
-	print(ms2)
+	# print(ms2)
 	created_materials = {}
 	for mdl2_name, model_info in zip(ms2.mdl_2_names, ms2.model_infos):
 		scene = bpy.data.scenes.new(mdl2_name)
