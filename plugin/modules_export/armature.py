@@ -8,7 +8,7 @@ from generated.formats.ms2.versions import is_ztuac, is_dla
 from generated.formats.ms2.compounds.packing_utils import pack_swizzle_collision
 from plugin.modules_export.collision import export_hitcheck
 from plugin.modules_import.armature import get_matrix
-from plugin.utils.matrix_util import bone_name_for_ovl, get_joint_name, Corrector
+from plugin.utils.matrix_util import bone_name_for_ovl, get_joint_name, Corrector, CorrectorRagdoll
 from plugin.utils.shell import get_collection_endswith
 
 
@@ -219,6 +219,7 @@ def export_joints(bone_info, corrector):
 			rb.mass = -1.0
 			rb.flag = 0
 	# update ragdoll constraints, relies on previously updated joints
+	corrector_rag = CorrectorRagdoll(False)
 	j_map = {j.name: j for j in joints.joint_infos}
 	joints_with_ragdoll_constraints = [b_joint for b_joint in joint_coll.objects if b_joint.rigid_body_constraint]
 	joints.num_ragdoll_constraints = len(joints_with_ragdoll_constraints)
@@ -230,14 +231,26 @@ def export_joints(bone_info, corrector):
 		parent_joint_name = bone_name_for_ovl(get_joint_name(rbc.object2.parent))
 		rd.child.joint = j_map[child_joint_name]
 		rd.parent.joint = j_map[parent_joint_name]
+		rd.child.index = rd.child.joint.index
+		rd.parent.index = rd.parent.joint.index
 		# update the ragdolls to make sure they point to valid joints
 		# rd.parent.joint = j_map[rd.parent.joint.name]
 		# rd.child.joint = j_map[rd.child.joint.name]
 		rd.loc = joints.joint_transforms[rd.child.joint.index].loc
 		# before correcting, rot tends to point y to the child joint
 		# the z axis always matches that of the joint empty in blender
-		# todo rot, vec_b
-		rd.vec_a.set(rd.rot[0])
+		b_joint_mat = get_joint_matrix(b_joint)
+		b_joint_mat = b_joint_mat.to_3x3()
+		cross = mathutils.Matrix(((0, 0, -1), (0, -1, 0), (-1, 0, 0)))
+		b_joint_mat = b_joint_mat @ cross
+		b_joint_mat = b_joint_mat.to_4x4()
+		n_bind = corrector_rag.blender_bind_to_nif_bind(b_joint_mat)
+		# should not need a transpose but does - maybe change api of set_rows
+		rd.rot.set_rows(n_bind.to_3x3().inverted().transposed())
+
+		rd.vec_a.set(rd.rot.data[0])
+		# note that this is correct for most bones but not all, cf acro
+		rd.vec_b.set(rd.rot.data[2])
 		rd.x.min = -rbc.limit_ang_x_lower
 		rd.x.max = rbc.limit_ang_x_upper
 		rd.y.min = -rbc.limit_ang_y_lower

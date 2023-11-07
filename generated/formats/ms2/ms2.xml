@@ -371,7 +371,7 @@
 	<compound name="Buffer0" >
 		<add name="name hashes" type="uint" arr1="#ARG#\name count" >djb2 hashes</add>
 		<add name="names" type="ZString" arr1="#ARG#\name count" >names</add>
-		<add name="names padding" type="PadAlign" template="names" arg="4" since="50">align to 4</add>
+		<add name="names padding" type="PadAlign" template="names" arg="4" since="50"/>
 		<add name="zt streams header" type="StreamsZTHeader" until="13" arg="#ARG#" />
 	</compound>
 

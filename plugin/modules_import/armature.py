@@ -240,6 +240,7 @@ def import_joints(scene, armature_ob, bone_info, b_bone_names, corrector):
 		# only set constrained children to active
 		child_collider.rigid_body.type = "ACTIVE"
 
+		# debug ragdoll matrix
 		b_ragdoll = create_ob(scene, f"{'ragdoll'}_{child_name}", None, coll_name="ragdoll")
 		b_ragdoll.empty_display_type = "ARROWS"
 		b_ragdoll.empty_display_size = 0.05
@@ -252,6 +253,7 @@ def import_joints(scene, armature_ob, bone_info, b_bone_names, corrector):
 		mat.translation = get_matrix(corrector, joint_transform.rot, joint_transform.loc).translation
 		b_ragdoll.matrix_local = mat
 
+		# debug ragdoll vec_b
 		b_trg = create_ob(scene, f"{'target'}_{child_name}", None, coll_name="target")
 		b_trg.empty_display_type = "PLAIN_AXES"
 		b_trg.empty_display_size = 0.05
