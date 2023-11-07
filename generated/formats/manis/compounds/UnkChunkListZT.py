@@ -18,7 +18,7 @@ class UnkChunkListZT(BaseStruct):
 		self.subchunk_list = name_type_map['SubChunkReaderZt'](self.context, self.chunksize_list, None)
 
 		# ?
-		self.pad = name_type_map['PadAlign'](self.context, 16, self.ref)
+		self.unk_chunk_list_z_t_pad = name_type_map['PadAlign'](self.context, 16, self.ref)
 		if set_default:
 			self.set_defaults()
 
@@ -31,7 +31,7 @@ class UnkChunkListZT(BaseStruct):
 		yield 'chunksize_list', Array, (0, None, (None,), name_type_map['ChunkSizesZT']), (False, None), (None, None)
 		yield 'pad_2', name_type_map['Uint64'], (0, None), (False, None), (None, None)
 		yield 'subchunk_list', name_type_map['SubChunkReaderZt'], (None, None), (False, None), (None, None)
-		yield 'pad', name_type_map['PadAlign'], (16, None), (False, None), (None, None)
+		yield 'unk_chunk_list_z_t_pad', name_type_map['PadAlign'], (16, None), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -42,4 +42,4 @@ class UnkChunkListZT(BaseStruct):
 		yield 'chunksize_list', Array, (0, None, (instance.subchunk_count,), name_type_map['ChunkSizesZT']), (False, None)
 		yield 'pad_2', name_type_map['Uint64'], (0, None), (False, None)
 		yield 'subchunk_list', name_type_map['SubChunkReaderZt'], (instance.chunksize_list, None), (False, None)
-		yield 'pad', name_type_map['PadAlign'], (16, instance.ref), (False, None)
+		yield 'unk_chunk_list_z_t_pad', name_type_map['PadAlign'], (16, instance.ref), (False, None)

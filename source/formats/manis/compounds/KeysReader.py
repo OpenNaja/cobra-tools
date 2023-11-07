@@ -1,6 +1,7 @@
 # START_GLOBALS
 import logging
 
+from generated.formats.base.compounds.PadAlign import get_padding_size, get_padding
 from generated.base_struct import BaseStruct
 from generated.formats.base.basic import Ushort, Ubyte
 from generated.formats.manis.compounds.ManiBlock import ManiBlock
@@ -24,6 +25,7 @@ class KeysReader(BaseStruct):
 			# 	break
 			bone_dtype = Ushort if mani_info.dtype.use_ushort else Ubyte
 			try:
+				cls.pad_to_start(instance, stream)
 				mani_info.keys = ManiBlock.from_stream(stream, instance.context, mani_info, bone_dtype)
 				# logging.info(mani_info)
 				# logging.info(mani_info.keys)
@@ -31,6 +33,13 @@ class KeysReader(BaseStruct):
 			except:
 				logging.exception(f"Reading ManiBlock failed at {mani_block_start} for {mani_info}")
 		instance.io_size = stream.tell() - instance.io_start
+
+	@classmethod
+	def pad_to_start(cls, instance, stream):
+		pad_size = get_padding_size(stream.tell() - instance.io_start)
+		padding = stream.read(pad_size)
+		if padding != b"\x00" * pad_size:
+			logging.warning(f"Segment padding is not 00: '{padding}' at {stream.tell()}")
 
 	@classmethod
 	def write_fields(cls, stream, instance):

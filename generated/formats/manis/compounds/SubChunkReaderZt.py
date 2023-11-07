@@ -1,6 +1,6 @@
 from generated.base_struct import BaseStruct
 from generated.formats.base.compounds.PadAlign import get_padding_size, get_padding
-
+import logging
 
 from generated.formats.manis.compounds.SubChunkZt import SubChunkZt
 from generated.base_struct import BaseStruct
@@ -30,13 +30,24 @@ class SubChunkReaderZt(BaseStruct):
 		# for chunk_sizes in instance.arg:
 		# 	chunk_sizes.keys = ()
 		for chunk_sizes in instance.arg:
+			# cls.pad_to_start(instance, stream)
 			chunk_sizes.keys = SubChunkZt.from_stream(stream, instance.context, chunk_sizes, None)
+			# cls.pad_to_start(instance, stream)
 			# print(f"SubChunkZt io_size {chunk_sizes.keys.io_size}")
+			# todo this loses alignment
 			pad_size = get_padding_size(chunk_sizes.keys.io_size, alignment=16)
 			chunk_sizes.padding = stream.read(pad_size)
 			assert chunk_sizes.padding == b"\x00" * pad_size
 			# print(f"{chunk_sizes.padding} padding ends at {stream.tell()}")
 		instance.io_size = stream.tell() - instance.io_start
+
+
+	@classmethod
+	def pad_to_start(cls, instance, stream):
+		pad_size = get_padding_size(stream.tell() - instance.io_start)
+		padding = stream.read(pad_size)
+		if padding != b"\x00" * pad_size:
+			logging.warning(f"Segment padding is not 00: '{padding}' at {stream.tell()}")
 
 	@classmethod
 	def write_fields(cls, stream, instance):

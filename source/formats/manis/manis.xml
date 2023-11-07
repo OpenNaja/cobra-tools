@@ -319,7 +319,7 @@
 
 		<add name="pad2" type="uint64"/>
 		<add name="subchunk list" type="SubChunkReaderZt" arg="chunksize_list" > </add>
-        <add name="pad" type="PadAlign" template="ref" arg="16" >?</add>
+        <add name="UnkChunkListZT pad" type="PadAlign" template="ref" arg="16" >?</add>
     </compound>
 
     <compound name="UnkChunkList" >
@@ -335,6 +335,7 @@
     </compound>
 
 	<compound name="ManiBlock" >
+		aligned to 16
 		<add name="ref" type="Empty"/>
 		define the channel names
 		<add name="PosBonesNames" type="ChannelName" arr1="#ARG#\PosBoneCount"/>
@@ -361,8 +362,10 @@
 		<add name="uncompressed_pad" type="PadAlign" template="ref" arg="16"/>
 		<add name="extra_war" type="WarExtra" arg="#SELF#" cond="#ARG#\dtype\use_ushort #EQ# 1"/>
 		<add name="compressed" type="CompressedManiData" arg="#SELF#" cond="#ARG#\dtype\compression #GT# 0"/>
+		# aligned to 16
 		<add name="subchunks" type="UnkChunkList" cond="#ARG#\dtype\has_list #GT# 0"/>
-		<add name="subchunks" type="UnkChunkListZT" cond="#ARG#\dtype\compression #GT# 8" until="257"/>
+		# might be aligned to 8
+		<add name="subchunks" type="UnkChunkListZT" cond="#ARG#\dtype\compression #GT# 10" until="257"/>
     </compound>
 
 </niftoolsxml>

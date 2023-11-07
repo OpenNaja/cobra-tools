@@ -5,6 +5,10 @@ from generated.formats.manis.imports import name_type_map
 
 class ManiBlock(BaseStruct):
 
+	"""
+	aligned to 16
+	"""
+
 	__name__ = 'ManiBlock'
 
 
@@ -91,5 +95,5 @@ class ManiBlock(BaseStruct):
 			yield 'compressed', name_type_map['CompressedManiData'], (instance, None), (False, None)
 		if instance.arg.dtype.has_list > 0:
 			yield 'subchunks', name_type_map['UnkChunkList'], (0, None), (False, None)
-		if instance.context.version <= 257 and instance.arg.dtype.compression > 8:
+		if instance.context.version <= 257 and instance.arg.dtype.compression > 10:
 			yield 'subchunks', name_type_map['UnkChunkListZT'], (0, None), (False, None)

@@ -17,12 +17,25 @@ class SegmentsReader(BaseStruct):
 		instance.io_start = stream.tell()
 		# print(instance.context)
 		for segment in instance.arg:
+			cls.pad_to_start(instance, stream)
 			segment.data = stream.read(segment.byte_size)
-			pad_size = get_padding_size(segment.byte_size)
-			segment.padding = stream.read(pad_size)
-			assert segment.padding == b"\x00" * pad_size
+		# assert segment.padding == b"\x00" * pad_size
+
+		# al = 16 if instance.context.version > 257 else 8
+
+		# pad_size = get_padding_size(stream.tell() - instance.io_start, alignment=al)
+		# padding = stream.read(pad_size)
+		# if padding != b"\x00" * pad_size:
+		# 	logging.warning(f"End padding is not 00: '{padding}' at {stream.tell()}")
 		logging.debug(f"Compressed keys data ends at {stream.tell()}")
 		instance.io_size = stream.tell() - instance.io_start
+
+	@classmethod
+	def pad_to_start(cls, instance, stream):
+		pad_size = get_padding_size(stream.tell() - instance.io_start)
+		padding = stream.read(pad_size)
+		if padding != b"\x00" * pad_size:
+			logging.warning(f"Segment padding is not 00: '{padding}' at {stream.tell()}")
 
 	@classmethod
 	def write_fields(cls, stream, instance):
