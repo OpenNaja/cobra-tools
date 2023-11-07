@@ -235,6 +235,7 @@ def export_joints(bone_info, corrector):
 		# rd.child.joint = j_map[rd.child.joint.name]
 		rd.loc = joints.joint_transforms[rd.child.joint.index].loc
 		# before correcting, rot tends to point y to the child joint
+		# the z axis always matches that of the joint empty in blender
 		# todo rot, vec_b
 		rd.vec_a.set(rd.rot[0])
 		rd.x.min = -rbc.limit_ang_x_lower
@@ -243,7 +244,9 @@ def export_joints(bone_info, corrector):
 		rd.y.max = rbc.limit_ang_y_upper
 		rd.z.min = -rbc.limit_ang_z_lower
 		rd.z.max = rbc.limit_ang_z_upper
-		# todo plasticity
+		# plasticity
+		rd.plasticity.min = b_joint.cobra_coll.plasticity_min
+		rd.plasticity.max = b_joint.cobra_coll.plasticity_max
 	# find the root joint, assuming the first one with least parents
 	parents_map = []
 	for joint_i, b_joint in enumerate(joint_coll.objects):

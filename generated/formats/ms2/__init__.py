@@ -452,7 +452,7 @@ if __name__ == "__main__":
 	# m.load("C:/Users/arnfi/Desktop/SP_Grave_Stones.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC ovls/walker_export/SP_Scarecrow not working atm.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/Warhammer/Annihilator/annihilatormodels.ms2", read_editable=True)
-	# m.load("C:/Users/arnfi/Desktop/acro/models.ms2", read_editable=True)
+	m.load("C:/Users/arnfi/Desktop/acro/models.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/ceara/models.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/rhinoblack_child_.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/StreetFoxCoffee/models.ms2", read_editable=True)
@@ -482,7 +482,7 @@ if __name__ == "__main__":
 	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/Content0/Environment/Scenery/Themes/PR_Pirate/PR_Kraken/PR_Kraken/models.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/Content0/Environment/Scenery/Themes/PC_PlanetCoaster/PC_Archway/PC_Archway/models.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/CC_Anubis/models.ms2", read_editable=True)
-	m.load("C:/Program Files (x86)/Steam/steamapps/common/Planet Zoo/win64/ovldata/walker_export/Content2/Environment/Scenery/Wallsets/GL_Roof_02/GL_Roof_02/models.ms2", read_editable=True)
+	# m.load("C:/Program Files (x86)/Steam/steamapps/common/Planet Zoo/win64/ovldata/walker_export/Content2/Environment/Scenery/Wallsets/GL_Roof_02/GL_Roof_02/models.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/Characters/Mascots/Dino/Mascot_Dino/dino_.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/PC_Primitives_01/models.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/doors/dlc11_stripdoors_.ms2", read_editable=True)
@@ -500,7 +500,7 @@ if __name__ == "__main__":
 	# 		# print(ragdoll.rot.data)
 	# 		# print(np.linalg.inv(ragdoll.rot.data))
 	# m.save("C:/Users/arnfi/Desktop/dlc11_stripdoors_.ms2")
-	# print(m)
+	print(m)
 
 # INFO | size 8 / count 1 = 8.0 in /PDLC_WorldFair/Rides/Coasters/Tracks/Track_003/Track_003/models.ms2; 0
 # INFO | size 16 / count 1 = 16.0 in /PDLC_WorldFair/Rides/Powered_Track_Rides/Tracks/Track_302/Track_302/models.ms2; 0

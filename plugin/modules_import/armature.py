@@ -230,13 +230,15 @@ def import_joints(scene, armature_ob, bone_info, b_bone_names, corrector):
 		rbc.use_limit_lin_x = rbc.use_limit_lin_y = rbc.use_limit_lin_z = True
 		rbc.limit_lin_x_lower = rbc.limit_lin_x_upper = rbc.limit_lin_y_lower = rbc.limit_lin_y_upper = \
 			rbc.limit_lin_z_lower = rbc.limit_lin_z_upper = 0.0
-		# todo plasticity
-		ob1 = joint_map[child_name].children[0]
-		ob2 = joint_map[parent_name].children[0]
-		rbc.object1 = ob1
-		rbc.object2 = ob2
+		# plasticity
+		b_joint.cobra_coll.plasticity_min = ragdoll.plasticity.min
+		b_joint.cobra_coll.plasticity_max = ragdoll.plasticity.max
+		child_collider = joint_map[child_name].children[0]
+		parent_collider = joint_map[parent_name].children[0]
+		rbc.object1 = child_collider
+		rbc.object2 = parent_collider
 		# only set constrained children to active
-		ob1.rigid_body.type = "ACTIVE"
+		child_collider.rigid_body.type = "ACTIVE"
 
 		b_ragdoll = create_ob(scene, f"{'ragdoll'}_{child_name}", None, coll_name="ragdoll")
 		b_ragdoll.empty_display_type = "ARROWS"
