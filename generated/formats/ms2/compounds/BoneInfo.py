@@ -50,11 +50,11 @@ class BoneInfo(BaseStruct):
 		# always 1
 		self.one = name_type_map['Uint64'].from_value(1)
 
-		# this counts the weird padding at the end, usually == bone count, 0 in PZ aardvark
-		self.zeros_count = name_type_map['Uint64'](self.context, 0, None)
-
 		# matches the other count on dino entertainer, but ik_count is not present
 		self.unk_pc_count = name_type_map['Uint64'](self.context, 0, None)
+
+		# this counts the weird padding at the end, usually == bone count, 0 in PZ aardvark
+		self.zeros_count = name_type_map['Uint64'](self.context, 0, None)
 		self.ik_count = name_type_map['Uint64'](self.context, 0, None)
 		self.joint_count = name_type_map['Uint64'](self.context, 0, None)
 		self.zero_1 = name_type_map['Uint64'].from_value(0)
@@ -94,7 +94,7 @@ class BoneInfo(BaseStruct):
 		self.inventory_datas_2 = Array(self.context, 0, None, (0,), name_type_map['Int'])
 
 		# weird -1s
-		self.minus_padding = name_type_map['MinusPadding'](self.context, self.unk_pc_count, None)
+		self.minus_padding = name_type_map['MinusPadding'](self.context, self.zeros_count, None)
 
 		# weird zeros
 		self.zeros_padding = name_type_map['ZerosPadding'](self.context, self.zeros_count, None)
@@ -131,8 +131,8 @@ class BoneInfo(BaseStruct):
 		yield 'enum_count', name_type_map['Uint64'], (0, None), (False, None), (None, None)
 		yield 'unknown_58', name_type_map['Uint64'], (0, None), (False, None), (None, None)
 		yield 'one', name_type_map['Uint64'], (0, None), (False, 1), (None, None)
-		yield 'zeros_count', name_type_map['Uint64'], (0, None), (False, None), (None, None)
 		yield 'unk_pc_count', name_type_map['Uint64'], (0, None), (False, None), (lambda context: context.version == 32, None)
+		yield 'zeros_count', name_type_map['Uint64'], (0, None), (False, None), (None, None)
 		yield 'ik_count', name_type_map['Uint64'], (0, None), (False, None), (None, None)
 		yield 'joint_count', name_type_map['Uint64'], (0, None), (False, None), (None, None)
 		yield 'zero_1', name_type_map['Uint64'], (0, None), (False, 0), (None, None)
@@ -188,9 +188,9 @@ class BoneInfo(BaseStruct):
 		yield 'enum_count', name_type_map['Uint64'], (0, None), (False, None)
 		yield 'unknown_58', name_type_map['Uint64'], (0, None), (False, None)
 		yield 'one', name_type_map['Uint64'], (0, None), (False, 1)
-		yield 'zeros_count', name_type_map['Uint64'], (0, None), (False, None)
 		if instance.context.version == 32:
 			yield 'unk_pc_count', name_type_map['Uint64'], (0, None), (False, None)
+		yield 'zeros_count', name_type_map['Uint64'], (0, None), (False, None)
 		yield 'ik_count', name_type_map['Uint64'], (0, None), (False, None)
 		yield 'joint_count', name_type_map['Uint64'], (0, None), (False, None)
 		yield 'zero_1', name_type_map['Uint64'], (0, None), (False, 0)
@@ -225,8 +225,8 @@ class BoneInfo(BaseStruct):
 			yield 'weirdness', Array, (0, None, (10,), name_type_map['Short']), (False, None)
 		if instance.context.version == 7:
 			yield 'inventory_datas_2', Array, (0, None, (instance.inv_data_count, 2,), name_type_map['Int']), (False, None)
-		if instance.context.version <= 32 and instance.unk_pc_count:
-			yield 'minus_padding', name_type_map['MinusPadding'], (instance.unk_pc_count, None), (False, None)
+		if instance.context.version <= 32 and instance.zeros_count:
+			yield 'minus_padding', name_type_map['MinusPadding'], (instance.zeros_count, None), (False, None)
 		if instance.context.version >= 47:
 			yield 'zeros_padding', name_type_map['ZerosPadding'], (instance.zeros_count, None), (False, None)
 		if instance.ik_count:

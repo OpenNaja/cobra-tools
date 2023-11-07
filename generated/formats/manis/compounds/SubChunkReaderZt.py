@@ -35,9 +35,9 @@ class SubChunkReaderZt(BaseStruct):
 			# cls.pad_to_start(instance, stream)
 			# print(f"SubChunkZt io_size {chunk_sizes.keys.io_size}")
 			# todo this loses alignment
-			pad_size = get_padding_size(chunk_sizes.keys.io_size, alignment=16)
-			chunk_sizes.padding = stream.read(pad_size)
-			assert chunk_sizes.padding == b"\x00" * pad_size
+			# pad_size = get_padding_size(chunk_sizes.keys.io_size, alignment=16)
+			# chunk_sizes.padding = stream.read(pad_size)
+			# assert chunk_sizes.padding == b"\x00" * pad_size
 			# print(f"{chunk_sizes.padding} padding ends at {stream.tell()}")
 		instance.io_size = stream.tell() - instance.io_start
 

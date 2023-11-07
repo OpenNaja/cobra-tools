@@ -127,7 +127,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 				stream.seek(self.buffer_1_offset)
 				self.buffer_1_bytes = stream.read(self.bone_info_size)
 			try:
-				self.load_buffers(filepath, stream, dump)
+				self.load_buffers(stream, dump)
 			except:
 				logging.exception(f"Buffer lookup failed")
 			if read_bytes:
@@ -137,7 +137,8 @@ class Ms2File(Ms2InfoHeader, IoFile):
 				self.load_meshes()
 		logging.debug(f"Read {self.name} in {time.time() - start_time:.2f} seconds")
 
-	def load_buffers(self, filepath, stream, dump):
+	def load_buffers(self, stream, dump):
+		stream.seek(self.buffer_2_offset)
 		for i, buffer_info in enumerate(self.buffer_infos):
 			buffer_info.name = None
 			buffer_info.index = i
@@ -483,7 +484,8 @@ if __name__ == "__main__":
 	# m.load("C:/Program Files (x86)/Steam/steamapps/common/Planet Zoo/win64/ovldata/walker_export/Content2/Environment/Scenery/Wallsets/GL_Roof_02/GL_Roof_02/models.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/Characters/Mascots/Dino/Mascot_Dino/dino_.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/PC_Primitives_01/models.ms2", read_editable=True)
-	m.load("C:/Users/arnfi/Desktop/doors/dlc11_stripdoors_.ms2", read_editable=True)
+	# m.load("C:/Users/arnfi/Desktop/doors/dlc11_stripdoors_.ms2", read_editable=True)
+	m.load("C:/Users/arnfi/Desktop/rhinoblack_female_.ms2", read_editable=True, dump=True)
 	# for i, bone_info in enumerate(m.models_reader.bone_infos):
 	# 	for bi, bone in enumerate(bone_info.bones):
 	# 		print(bi, bone.name)

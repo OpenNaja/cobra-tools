@@ -836,8 +836,8 @@
 		<add name="enum count" type="uint64"/>
 		<add name="unknown58" type="uint64" >usually zero</add>
 		<add name="one" type="uint64" default="1" >always 1</add>
-		<add name="zeros count" type="uint64" >this counts the weird padding at the end, usually == bone count, 0 in PZ aardvark</add>
 		<add name="unk_pc_count" type="uint64" vercond="#PC#">matches the other count on dino entertainer, but ik_count is not present</add>
+		<add name="zeros count" type="uint64" >this counts the weird padding at the end, usually == bone count, 0 in PZ aardvark</add>
 		<add name="ik_count" type="uint64"/>
 		<add name="joint count" type="uint64"/>
 		<add name="zero 1" type="uint64" default="0"/>
@@ -868,13 +868,9 @@
 
 		<add name="inventory_datas_2" type="int" arr1="inv_data_count" arr2="2" vercond="#DLA#">zeros</add>
 
-<!--		<add name="MinusPadding" type="MinusPadding" cond="zeros count" arg="zeros count" until="32">weird -1s</add>-->
-		<add name="MinusPadding" type="MinusPadding" cond="unk_pc_count" arg="unk_pc_count" until="32">weird -1s</add>
+		<add name="MinusPadding" type="MinusPadding" cond="zeros count" arg="zeros count" until="32">weird -1s</add>
 		# JWE may not have these, apparently they are present in final JWE
 		<add name="ZerosPadding" type="ZerosPadding" arg="zeros count" since="47">weird zeros</add>
-
-<!--		<add name="ZerosPadding" type="ZerosPadding" arg="zeros count" cond="joint count" vercond="#PC#">weird zeros</add>-->
-
 		<add name="ik info" type="IKInfo" cond="ik_count" arg="#SELF#">IK Data</add>
 		<add name="joints" type="JointData" cond="joint count" >joints</add>
 	</compound>
