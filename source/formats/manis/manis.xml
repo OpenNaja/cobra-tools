@@ -120,7 +120,7 @@
 		<add name="target bone count" type="uint64" >can include joints, such as in PZ water wheel count 5 vs ms2 2 bones, plus joints</add>
 		<add name="pad1" type="PadAlign" template="ref" arg="16"/>
 		<add name="zeros 2" type="uint64" arr1="28" >224 bytes</add>
-		<add name="extra zeros pc" type="uint" arr1="3" until="257" >12 bytes</add>might be redundant due to pad1?
+		<add name="extra zeros pc" type="ushort" arr1="4" until="257"/>for ZTUAC rhinos
 		<add name="PosBoneMin" type="BoneIndex" arg="dtype"/>
 		<add name="PosBoneMax" type="BoneIndex" arg="dtype"/>
 		<add name="OriBoneMin" type="BoneIndex" arg="dtype"/>
@@ -135,7 +135,7 @@
 		<add name="SclBoneCount Repeat" type="BoneIndex" arg="dtype" since="258"/>
 		<add name="zero 0 end" type="ushort" since="258"/>
 		<add name="zero 1 end" type="ushort" />for PC, this is alignment and not present at the end of the mani_infos array
-		<add name="pad2" type="PadAlign" template="ref" arg="16"/>
+		<add name="pad2" type="PadAlign" template="ref" arg="16" since="258"/>not on ZTUAC rhinos
     </compound>
 
     <compound name="Buffer1">
@@ -254,7 +254,72 @@
 		<add name="counta" type="uint" > </add>
     </compound>
 
+    <compound name="ChunkSizesZT" >
+		32 bytes
+		<add name="index a" type="ushort"/>
+		<add name="index b" type="ushort"/>
+		<add name="zero 0" type="ushort"/>
+		<add name="count a" type="ushort"/>
+		<add name="count b" type="ushort"/>
+		<add name="zero 1" type="ushort"/>
+		<add name="zeros" type="uint" arr1="5"/>
+    </compound>
+
     <compound name="SubChunkReader" >
+    </compound>
+
+    <compound name="SubChunkReaderZt" >
+    </compound>
+
+    <compound name="WeirdElementOne" >
+		<add name="float 0" type="float"> </add>
+		<add name="vec 0" type="Vector3"/>
+		<add name="zeros 0" type="uint64" arr1="2"> </add>
+		<add name="vec 1" type="Vector3"/>
+		<add name="countb" type="uint"> </add>
+    </compound>
+
+    <compound name="WeirdElementTwo" >
+		<add name="many floats" type="float" arr1="7"> </add>
+    </compound>
+
+    <compound name="WeirdElementTwoReader" >
+    </compound>
+
+    <compound name="SubChunk" >
+		arg is chunksizes
+		<add name="list one" type="WeirdElementOne" arr1="#ARG#\counta" >for subchunk_list[n] needs chunksize_list[n]'s counta for array length</add>
+		<add name="list two" type="WeirdElementTwoReader" arg="list one" >needs sum of countb's from weird list one</add>
+    </compound>
+
+    <compound name="ElemZt" >
+		<add name="floats" type="float" arr1="4"> </add>
+		<add name="a" type="ushort"/>
+		<add name="b" type="ushort"/>
+		<add name="c" type="ushort"/>
+		<add name="d" type="ushort"/>
+    </compound>
+
+    <compound name="SubChunkZt" >
+		arg is chunksizes
+<!--		<add name="pad" type="uint"/>-->
+<!--		<add name="float 1" type="float"/>-->
+		<add name="list one" type="float" arr1="#ARG#\count b" arr2="6"/>
+		<add name="list two" type="ElemZt" arr1="#ARG#\count b" />
+
+    </compound>
+
+    <compound name="UnkChunkListZT" >
+		<add name="ref" type="Empty"/>
+<!--		<add name="zero 0" type="SmartPadding"/>-->
+		<add name="subchunk_count" type="uint64"/>
+		<add name="pad1" type="uint64"/>
+		<add name="chunksize_list" type="ChunkSizesZT" arr1="subchunk_count" > </add>
+<!--		<add name="floats" type="float" arr1="278" > </add>-->
+
+		<add name="pad2" type="uint64"/>
+		<add name="subchunk list" type="SubChunkReaderZt" arg="chunksize_list" > </add>
+        <add name="pad" type="PadAlign" template="ref" arg="16" >?</add>
     </compound>
 
     <compound name="UnkChunkList" >
@@ -265,6 +330,7 @@
 		<add name="zero 1" type="uint" > </add>
 		<add name="chunksize_list" type="ChunkSizes" arr1="subchunk_count" > </add>
 		<add name="subchunk list" type="SubChunkReader" arg="chunksize_list" > </add>
+		vec3 for count 1
         <add name="pad" type="PadAlign" template="ref" arg="16" >?</add>
     </compound>
 
@@ -296,27 +362,7 @@
 		<add name="extra_war" type="WarExtra" arg="#SELF#" cond="#ARG#\dtype\use_ushort #EQ# 1"/>
 		<add name="compressed" type="CompressedManiData" arg="#SELF#" cond="#ARG#\dtype\compression #GT# 0"/>
 		<add name="subchunks" type="UnkChunkList" cond="#ARG#\dtype\has_list #GT# 0"/>
-    </compound>
-	
-    <compound name="WeirdElementOne" >
-		<add name="float 0" type="float"> </add>
-		<add name="vec 0" type="Vector3"/>
-		<add name="zeros 0" type="uint64" arr1="2"> </add>
-		<add name="vec 1" type="Vector3"/>
-		<add name="countb" type="uint"> </add>
-    </compound>
-	
-    <compound name="WeirdElementTwoReader" >
-    </compound>
-	
-    <compound name="SubChunk" >
-		arg is chunksizes
-		<add name="weird list one" type="WeirdElementOne" arr1="#ARG#\counta" >for subchunk_list[n] needs chunksize_list[n]'s counta for array length</add>
-		<add name="weird list two" type="WeirdElementTwoReader" arg="weird list one" >  needs sum of countb's from weird list one</add>
-    </compound>
-	
-    <compound name="WeirdElementTwo" >
-		<add name="many floats" type="float" arr1="7"> </add>
+		<add name="subchunks" type="UnkChunkListZT" cond="#ARG#\dtype\compression #GT# 8" until="257"/>
     </compound>
 
 </niftoolsxml>

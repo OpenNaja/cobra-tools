@@ -45,9 +45,7 @@ class ManiInfo(BaseStruct):
 
 		# 224 bytes
 		self.zeros_2 = Array(self.context, 0, None, (0,), name_type_map['Uint64'])
-
-		# 12 bytes
-		self.extra_zeros_pc = Array(self.context, 0, None, (0,), name_type_map['Uint'])
+		self.extra_zeros_pc = Array(self.context, 0, None, (0,), name_type_map['Ushort'])
 		self.pos_bone_min = name_type_map['BoneIndex'](self.context, self.dtype, None)
 		self.pos_bone_max = name_type_map['BoneIndex'](self.context, self.dtype, None)
 		self.ori_bone_min = name_type_map['BoneIndex'](self.context, self.dtype, None)
@@ -92,7 +90,7 @@ class ManiInfo(BaseStruct):
 		yield 'target_bone_count', name_type_map['Uint64'], (0, None), (False, None), (None, None)
 		yield 'pad_1', name_type_map['PadAlign'], (16, None), (False, None), (None, None)
 		yield 'zeros_2', Array, (0, None, (28,), name_type_map['Uint64']), (False, None), (None, None)
-		yield 'extra_zeros_pc', Array, (0, None, (3,), name_type_map['Uint']), (False, None), (lambda context: context.version <= 257, None)
+		yield 'extra_zeros_pc', Array, (0, None, (4,), name_type_map['Ushort']), (False, None), (lambda context: context.version <= 257, None)
 		yield 'pos_bone_min', name_type_map['BoneIndex'], (None, None), (False, None), (None, None)
 		yield 'pos_bone_max', name_type_map['BoneIndex'], (None, None), (False, None), (None, None)
 		yield 'ori_bone_min', name_type_map['BoneIndex'], (None, None), (False, None), (None, None)
@@ -107,7 +105,7 @@ class ManiInfo(BaseStruct):
 		yield 'scl_bone_count_repeat', name_type_map['BoneIndex'], (None, None), (False, None), (lambda context: context.version >= 258, None)
 		yield 'zero_0_end', name_type_map['Ushort'], (0, None), (False, None), (lambda context: context.version >= 258, None)
 		yield 'zero_1_end', name_type_map['Ushort'], (0, None), (False, None), (None, None)
-		yield 'pad_2', name_type_map['PadAlign'], (16, None), (False, None), (None, None)
+		yield 'pad_2', name_type_map['PadAlign'], (16, None), (False, None), (lambda context: context.version >= 258, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -138,7 +136,7 @@ class ManiInfo(BaseStruct):
 		yield 'pad_1', name_type_map['PadAlign'], (16, instance.ref), (False, None)
 		yield 'zeros_2', Array, (0, None, (28,), name_type_map['Uint64']), (False, None)
 		if instance.context.version <= 257:
-			yield 'extra_zeros_pc', Array, (0, None, (3,), name_type_map['Uint']), (False, None)
+			yield 'extra_zeros_pc', Array, (0, None, (4,), name_type_map['Ushort']), (False, None)
 		yield 'pos_bone_min', name_type_map['BoneIndex'], (instance.dtype, None), (False, None)
 		yield 'pos_bone_max', name_type_map['BoneIndex'], (instance.dtype, None), (False, None)
 		yield 'ori_bone_min', name_type_map['BoneIndex'], (instance.dtype, None), (False, None)
@@ -154,4 +152,5 @@ class ManiInfo(BaseStruct):
 			yield 'scl_bone_count_repeat', name_type_map['BoneIndex'], (instance.dtype, None), (False, None)
 			yield 'zero_0_end', name_type_map['Ushort'], (0, None), (False, None)
 		yield 'zero_1_end', name_type_map['Ushort'], (0, None), (False, None)
-		yield 'pad_2', name_type_map['PadAlign'], (16, instance.ref), (False, None)
+		if instance.context.version >= 258:
+			yield 'pad_2', name_type_map['PadAlign'], (16, instance.ref), (False, None)
