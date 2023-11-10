@@ -685,13 +685,13 @@
 	</compound>
 
 	<compound name="SubCollChunk">
-<!--		<add name="zero" type="uint64"/>-->
 		<add name="bounds min repeat" type="Vector3" >verbatim</add>
 		<add name="bounds max repeat" type="Vector3" >verbatim</add>
 		<add name="tri flags count" type="uint" >seems to repeat tri_count</add>
 		<add name="count bits" type="ushort"  >counts MeshCollisionBit</add>
 		<add name="stuff" type="ushort" arr1="9" >?</add>
 		<add name="collision bits" type="MeshCollisionBit" arr1="count bits" >?</add>
+		<add name="tris_salt" type="uint" arr1="4" >usually zero, nonzero in JWE2 dev footplant, [1] used as salt for tri indices</add>
 	</compound>
 
 	<compound name="MeshCollision">
@@ -706,13 +706,15 @@
 		<add name="bounds max" type="Vector3">the biggest coordinates across all axes</add>
 		<add name="flag 0" type="uint64" default="1"/>
 		<add name="flag 1" type="uint64" default="1"/>
-		<add name="has_SubCollChunk" type="uint64"/>seen 1 eg PZ widgetball_test_, or 0 in JWE2 characterscale and PZ CM_Common_Roofs
+		<add name="has_SubCollChunk" type="uint64"/>
+		seen 1 eg PZ widgetball_test_, or 0 in JWE2 characterscale and PZ CM_Common_Roofs
+		1 in LAG_NaturalWaterPool_Malta, but no subcollchunk
 		<add name="zeros 1" type="uint64" arr1="3"/>
 		<add name="tris switch" type="uint64" />
 		<add name="ff" type="int" default="-1"/>
 		<add name="zeros 2" type="int" arr1="7"/>
 		<add name="weird padding" type="SmartPadding" arg="4">sometimes 8 bytes, apparently not part of SubCollChunk (JWE2 dev footplantingtest_ has that but not the padding)</add>
-		<add name="SubCollChunk" type="SubCollChunk" cond="has_SubCollChunk">seems to repeat tri_count</add>
+<!--		<add name="data" type="MeshCollisionData" abstract="true" arg="#SELF#"/>-->
 	</compound>
 
 	<compound name="HitCheck">
@@ -876,7 +878,8 @@
 	</compound>
 
 	<compound name="MeshCollisionData">
-		<add name="tris_salt" type="uint" arr1="4" cond="#ARG#\has_SubCollChunk">usually zero, nonzero in JWE2 dev footplant, [1] used as salt for tri indices</add>
+		<add name="SubCollChunk" type="SubCollChunk" cond="#ARG#\has_SubCollChunk" >seems to repeat tri_count</add>
+		--not on LAG_NaturalWaterPool_Malta--
 
 		<add name="vertices addr" type="Empty"/>
 		<add name="vertices" type="float" arr1="#ARG#\vertex count" arr2="3">array of vertices</add>
@@ -888,7 +891,7 @@
 		<add name="triangle_flags_pc" type="short" arr1="#ARG#\tri count" arr2="2" cond="#ARG#\tris_switch" vercond="#PC#">?</add>
 
 		<add name="mesh aligner" type="PadAlign" template="vertices addr" arg="8" until="32"/>
-<!--		<add name="zero end" type="uint" >might be padding!</add>-->
+		<add name="zero end" type="uint" since="52" >JWE2 LAG_NaturalWaterPool_Malta_Walls</add>
 	</compound>
 
 </niftoolsxml>

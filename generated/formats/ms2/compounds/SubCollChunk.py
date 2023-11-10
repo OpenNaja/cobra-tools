@@ -28,6 +28,9 @@ class SubCollChunk(BaseStruct):
 
 		# ?
 		self.collision_bits = Array(self.context, 0, None, (0,), name_type_map['MeshCollisionBit'])
+
+		# usually zero, nonzero in JWE2 dev footplant, [1] used as salt for tri indices
+		self.tris_salt = Array(self.context, 0, None, (0,), name_type_map['Uint'])
 		if set_default:
 			self.set_defaults()
 
@@ -40,6 +43,7 @@ class SubCollChunk(BaseStruct):
 		yield 'count_bits', name_type_map['Ushort'], (0, None), (False, None), (None, None)
 		yield 'stuff', Array, (0, None, (9,), name_type_map['Ushort']), (False, None), (None, None)
 		yield 'collision_bits', Array, (0, None, (None,), name_type_map['MeshCollisionBit']), (False, None), (None, None)
+		yield 'tris_salt', Array, (0, None, (4,), name_type_map['Uint']), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -50,3 +54,4 @@ class SubCollChunk(BaseStruct):
 		yield 'count_bits', name_type_map['Ushort'], (0, None), (False, None)
 		yield 'stuff', Array, (0, None, (9,), name_type_map['Ushort']), (False, None)
 		yield 'collision_bits', Array, (0, None, (instance.count_bits,), name_type_map['MeshCollisionBit']), (False, None)
+		yield 'tris_salt', Array, (0, None, (4,), name_type_map['Uint']), (False, None)

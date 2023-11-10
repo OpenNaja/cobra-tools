@@ -484,7 +484,10 @@ if __name__ == "__main__":
 	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/Characters/Mascots/Dino/Mascot_Dino/dino_.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/PC_Primitives_01/models.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/doors/dlc11_stripdoors_.ms2", read_editable=True)
-	m.load("C:/Users/arnfi/Desktop/rhinoblack_female_.ms2", read_editable=True, dump=True)
+	# m.load("C:/Users/arnfi/Desktop/rhinoblack_female_.ms2", read_editable=True, dump=True)
+	# m.load("C:/Program Files (x86)/Steam/steamapps/common/Jurassic World Evolution 2/Win64/ovldata/walker_export/ContentPDLC5/Buildings/ModularStructures/LAG_NaturalWaterPool_Malta_Walls/LAG_NaturalWaterPool_Malta_Walls/models.ms2", read_editable=True)
+	# m.load("C:/Program Files (x86)/Steam/steamapps/common/Jurassic World Evolution 2/Win64/ovldata/walker_export/ContentPDLC5/Buildings/ModularStructures/LAG_NaturalWaterPool_Malta/LAG_NaturalWaterPool_Malta/models.ms2", read_editable=True)
+	m.load("C:\Program Files (x86)\Steam\steamapps\common\Jurassic World Evolution 2\Win64\ovldata\walker_export\Content0\Buildings\Shared\Props\CharacterScale\CharacterScale\models.ms2", read_editable=True)
 	# for i, bone_info in enumerate(m.models_reader.bone_infos):
 	# 	for bi, bone in enumerate(bone_info.bones):
 	# 		print(bi, bone.name)

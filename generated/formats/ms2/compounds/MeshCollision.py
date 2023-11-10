@@ -46,9 +46,6 @@ class MeshCollision(BaseStruct):
 
 		# sometimes 8 bytes, apparently not part of SubCollChunk (JWE2 dev footplantingtest_ has that but not the padding)
 		self.weird_padding = name_type_map['SmartPadding'](self.context, 4, None)
-
-		# seems to repeat tri_count
-		self.sub_coll_chunk = name_type_map['SubCollChunk'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 
@@ -71,7 +68,6 @@ class MeshCollision(BaseStruct):
 		yield 'ff', name_type_map['Int'], (0, None), (False, -1), (None, None)
 		yield 'zeros_2', Array, (0, None, (7,), name_type_map['Int']), (False, None), (None, None)
 		yield 'weird_padding', name_type_map['SmartPadding'], (4, None), (False, None), (None, None)
-		yield 'sub_coll_chunk', name_type_map['SubCollChunk'], (0, None), (False, None), (None, True)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -93,5 +89,3 @@ class MeshCollision(BaseStruct):
 		yield 'ff', name_type_map['Int'], (0, None), (False, -1)
 		yield 'zeros_2', Array, (0, None, (7,), name_type_map['Int']), (False, None)
 		yield 'weird_padding', name_type_map['SmartPadding'], (4, None), (False, None)
-		if instance.has_sub_coll_chunk:
-			yield 'sub_coll_chunk', name_type_map['SubCollChunk'], (0, None), (False, None)

@@ -33,6 +33,9 @@ class ModelReader(BaseStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		instance.io_start = stream.tell()
+		for name, model_info in zip(instance.arg.mdl_2_names, instance.arg.model_infos):
+			model_info.name = name
+			model_info.bone_info = None
 		instance.bone_infos = []
 		logging.debug(f"ModelReader starts at {instance.io_start}")
 		i = 0
@@ -42,14 +45,13 @@ class ModelReader(BaseStruct):
 			instance.start_of_buffer = instance.arg.buffer_infos.io_start
 			# meh, add it here even though it's really interleaved
 			instance.bone_info_start = stream.tell()
-			for name, model_info in zip(instance.arg.mdl_2_names, instance.arg.model_infos):
-				model_info.name = name
+			for model_info in instance.arg.model_infos:
 				# DLA and ZTUAC don't go into shifts
 				# if instance.context.version != 32:
 				instance.get_padding(stream, alignment=8)
 				# instance.get_padding(stream, alignment=16)
 				s = stream.tell()
-				logging.debug(f"Model {name} at {s}")
+				logging.debug(f"Model {model_info.name} at {s}")
 				# this little patch solves reading all of PC anubis models
 				for shift in (0, 16, 12, 8, 4, -4, -8, -12, -16):
 					stream.seek(s+shift)
@@ -86,8 +88,7 @@ class ModelReader(BaseStruct):
 				i = instance.assign_bone_info(i, model_info, stream)
 
 		else:
-			for name, model_info in zip(instance.arg.mdl_2_names, instance.arg.model_infos):
-				model_info.name = name
+			for model_info in instance.arg.model_infos:
 				# logging.debug(model_info)
 				model_info.model = Model.from_stream(stream, instance.context, model_info)
 				# logging.debug(f"Model {i} {model_info.model}")
@@ -180,8 +181,8 @@ class ModelReader(BaseStruct):
 		logging.debug(f"Aligning to {alignment} from {abs_offset} to {abs_offset+padding_len} ({padding_len} bytes)")
 		padding = stream.read(padding_len)
 		if padding != b'\x00' * padding_len:
-			# logging.warning(f"Padding is nonzero {padding} at offset {abs_offset}")
-			raise AttributeError(f"Padding is nonzero {padding} at offset {abs_offset}")
+			logging.warning(f"Padding is nonzero {padding} at offset {abs_offset}")
+			# raise AttributeError(f"Padding is nonzero {padding} at offset {abs_offset}")
 
 	def read_hitcheck_verts(self, bone_info, stream):
 		try:
@@ -196,7 +197,6 @@ class ModelReader(BaseStruct):
 					hitcheck.collider.vertices = Array.from_stream(stream, self.context, 0, None, (hitcheck.collider.vertex_count, 3), Float)
 					# logging.debug(f"End of vertices at {stream.tell()}")
 				if hitcheck.dtype in (CollisionType.MESH_COLLISION,):
-					# self.get_padding(stream, alignment=16, rel=start)
 					self.get_padding(stream, alignment=16)
 					logging.debug(f"Reading vertices for {hitcheck.dtype.name} at {stream.tell()}")
 					# logging.debug(f"Hitcheck {hitcheck.collider}")
