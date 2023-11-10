@@ -134,7 +134,7 @@ def bulk_test_models(gui, start_dir, walk_ovls=True, walk_models=True):
 
 		ms2_data = Ms2File()
 		if walk_ovls:
-			bulk_extract_ovls(errors, export_dir, gui, start_dir, (".ms2",))
+			bulk_extract_ovls(errors, export_dir, gui, start_dir, (".ms2", ".model2stream"))
 
 		# holds different types of flag - list of byte maps pairs
 		type_dic = {}

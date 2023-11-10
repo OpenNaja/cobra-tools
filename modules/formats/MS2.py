@@ -28,12 +28,13 @@ class Model2streamLoader(BaseFile):
 	extension = ".model2stream"
 	# we can recycle this for now
 	target_class = TexturestreamHeader
+	can_extract = False
 
-	def extract(self, out_dir):
-		stream_path = out_dir(self.name)
-		with open(stream_path, 'wb') as outfile:
-			outfile.write(self.data_entry.buffer_datas[0])
-		return stream_path,
+	# def extract(self, out_dir):
+	# 	stream_path = out_dir(self.name)
+	# 	with open(stream_path, 'wb') as outfile:
+	# 		outfile.write(self.data_entry.buffer_datas[0])
+	# 	return stream_path,
 
 	def create(self, file_path):
 		self.header = self.target_class(self.context)
