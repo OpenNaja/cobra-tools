@@ -1,13 +1,14 @@
 import logging
 
 import bpy
+from generated.formats.ms2.enums.RigidBodyFlag import RigidBodyFlag
 import mathutils
 
 from generated.formats.ms2.versions import is_ztuac, is_dla
 from generated.formats.ms2.compounds.packing_utils import pack_swizzle_collision
 from plugin.modules_export.collision import export_hitcheck
 from plugin.modules_import.armature import get_matrix
-from plugin.utils.matrix_util import bone_name_for_ovl, get_joint_name, Corrector
+from plugin.utils.matrix_util import bone_name_for_ovl, get_joint_name, Corrector, CorrectorRagdoll
 from plugin.utils.shell import get_collection_endswith
 
 
@@ -176,22 +177,16 @@ def export_joints(bone_info, corrector):
 	joints.reset_field("bone_to_joint")
 	# reset bone -> joint mapping since we don't catch them all if we loop over existing joints
 	joints.bone_to_joint[:] = -1
-	joint_map = {get_joint_name(b_ob): b_ob for b_ob in joint_coll.objects}
 	bone_lut = {bone.name: bone_index for bone_index, bone in enumerate(bone_info.bones)}
 	for joint_i, joint_info in enumerate(joints.joint_infos):
-		if hasattr(joint_info, "bone_name"):
-			# overwrite, keep links, still needed?
-			logging.debug(f"joint {b_joint.name}")
-			b_joint = joint_map.get(joint_info.name)
-			if not b_joint:
-				raise AttributeError(f"Could not find '{joint_info.name}'. Make sure the joint object exists and has the custom property 'long_name' correctly set")
-		else:
-			b_joint = joint_coll.objects[joint_i]
-			joint_info.name = bone_name_for_ovl(get_joint_name(b_joint))
-			joint_info.bone_name = bone_name_for_ovl(b_joint.parent_bone)
+		b_joint = joint_coll.objects[joint_i]
+		joint_info.name = bone_name_for_ovl(get_joint_name(b_joint))
+		joint_info.index = joint_i
+		joint_info.bone_name = bone_name_for_ovl(b_joint.parent_bone)
 		bone_i = bone_lut[joint_info.bone_name]
 		joints.joint_to_bone[joint_i] = bone_i
-		joints.bone_to_joint[bone_i] = joint_i# update joint transform
+		joints.bone_to_joint[bone_i] = joint_i
+		# update joint transform
 		b_joint_mat = get_joint_matrix(b_joint)
 		n_bind = corrector.blender_bind_to_nif_bind(b_joint_mat)
 		t = joints.joint_transforms[joint_i]
@@ -219,18 +214,62 @@ def export_joints(bone_info, corrector):
 			rb.unk_1 = b_rb.cobra_coll.damping_3d[0] 
 			rb.unk_2 = b_rb.cobra_coll.damping_3d[1]
 			rb.unk_4 = b_rb.cobra_coll.damping_3d[2]
-			# todo - determine from active / passive?
-			# dinos are 1
-			rb.flag = 1
+			rb.flag = RigidBodyFlag[b_rb.cobra_coll.flag]
 		else:
 			rb.mass = -1.0
+			rb.flag = 0
+	# update ragdoll constraints, relies on previously updated joints
+	corrector_rag = CorrectorRagdoll(False)
 	j_map = {j.name: j for j in joints.joint_infos}
-	# update the ragdolls to make sure they point to valid joints
-	for rd in joints.ragdoll_constraints:
-		rd.parent.joint = j_map[rd.parent.joint.name]
-		rd.child.joint = j_map[rd.child.joint.name]
-	# unsure what this does
-	joints.joint_entry_count = 16 if joints.joint_count > 1 else 0
+	joints_with_ragdoll_constraints = [b_joint for b_joint in joint_coll.objects if b_joint.rigid_body_constraint]
+	joints.num_ragdoll_constraints = len(joints_with_ragdoll_constraints)
+	joints.reset_field("ragdoll_constraints")
+	for rd, b_joint in zip(joints.ragdoll_constraints, joints_with_ragdoll_constraints):
+		rbc = b_joint.rigid_body_constraint
+		# get the joint empties, which are the parents of the respective rigidbody objects
+		child_joint_name = bone_name_for_ovl(get_joint_name(rbc.object1.parent))
+		parent_joint_name = bone_name_for_ovl(get_joint_name(rbc.object2.parent))
+		rd.child.joint = j_map[child_joint_name]
+		rd.parent.joint = j_map[parent_joint_name]
+		rd.child.index = rd.child.joint.index
+		rd.parent.index = rd.parent.joint.index
+		# update the ragdolls to make sure they point to valid joints
+		# rd.parent.joint = j_map[rd.parent.joint.name]
+		# rd.child.joint = j_map[rd.child.joint.name]
+		rd.loc = joints.joint_transforms[rd.child.joint.index].loc
+		# before correcting, rot tends to point y to the child joint
+		# the z axis always matches that of the joint empty in blender
+		b_joint_mat = get_joint_matrix(b_joint)
+		b_joint_mat = b_joint_mat.to_3x3()
+		cross = mathutils.Matrix(((0, 0, -1), (0, -1, 0), (-1, 0, 0)))
+		b_joint_mat = b_joint_mat @ cross
+		b_joint_mat = b_joint_mat.to_4x4()
+		n_bind = corrector_rag.blender_bind_to_nif_bind(b_joint_mat)
+		# should not need a transpose but does - maybe change api of set_rows
+		rd.rot.set_rows(n_bind.to_3x3().inverted().transposed())
+
+		rd.vec_a.set(rd.rot.data[0])
+		# note that this is correct for most bones but not all, cf acro
+		rd.vec_b.set(rd.rot.data[2])
+		rd.x.min = -rbc.limit_ang_x_lower
+		rd.x.max = rbc.limit_ang_x_upper
+		rd.y.min = -rbc.limit_ang_y_lower
+		rd.y.max = rbc.limit_ang_y_upper
+		rd.z.min = -rbc.limit_ang_z_lower
+		rd.z.max = rbc.limit_ang_z_upper
+		# plasticity
+		rd.plasticity.min = b_joint.cobra_coll.plasticity_min
+		rd.plasticity.max = b_joint.cobra_coll.plasticity_max
+	# find the root joint, assuming the first one with least parents
+	parents_map = []
+	for joint_i, b_joint in enumerate(joint_coll.objects):
+		b_bone = b_joint.parent.data.bones[b_joint.parent_bone]
+		num_parents = len(b_bone.parent_recursive)
+		parents_map.append((num_parents, joint_i))
+	parents_map.sort()
+	# todo - see how picky this is when there is a joint with root in the name and conflicting root joints
+	joints.root_joint_index = parents_map[0][1]
+
 
 def get_joint_matrix(b_joint):
 	b_arm = b_joint.parent

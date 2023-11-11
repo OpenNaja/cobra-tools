@@ -1,15 +1,14 @@
+from generated.base_struct import BaseStruct
+from generated.formats.base.compounds.PadAlign import get_padding_size, get_padding
 import logging
 
-from generated.base_struct import BaseStruct
-from generated.formats.base.compounds.PadAlign import get_padding
-from modules.formats.shared import get_padding_size
-
+from generated.formats.manis.compounds.SubChunkZt import SubChunkZt
 from generated.base_struct import BaseStruct
 
 
-class SegmentsReader(BaseStruct):
+class SubChunkReaderZt(BaseStruct):
 
-	__name__ = 'SegmentsReader'
+	__name__ = 'SubChunkReaderZt'
 
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
@@ -28,20 +27,20 @@ class SegmentsReader(BaseStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		instance.io_start = stream.tell()
-		# print(instance.context)
-		for segment in instance.arg:
-			cls.pad_to_start(instance, stream)
-			segment.data = stream.read(segment.byte_size)
-		# assert segment.padding == b"\x00" * pad_size
-
-		# al = 16 if instance.context.version > 257 else 8
-
-		# pad_size = get_padding_size(stream.tell() - instance.io_start, alignment=al)
-		# padding = stream.read(pad_size)
-		# if padding != b"\x00" * pad_size:
-		# 	logging.warning(f"End padding is not 00: '{padding}' at {stream.tell()}")
-		logging.debug(f"Compressed keys data ends at {stream.tell()}")
+		# for chunk_sizes in instance.arg:
+		# 	chunk_sizes.keys = ()
+		for chunk_sizes in instance.arg:
+			# cls.pad_to_start(instance, stream)
+			chunk_sizes.keys = SubChunkZt.from_stream(stream, instance.context, chunk_sizes, None)
+			# cls.pad_to_start(instance, stream)
+			# print(f"SubChunkZt io_size {chunk_sizes.keys.io_size}")
+			# todo this loses alignment
+			# pad_size = get_padding_size(chunk_sizes.keys.io_size, alignment=16)
+			# chunk_sizes.padding = stream.read(pad_size)
+			# assert chunk_sizes.padding == b"\x00" * pad_size
+			# print(f"{chunk_sizes.padding} padding ends at {stream.tell()}")
 		instance.io_size = stream.tell() - instance.io_start
+
 
 	@classmethod
 	def pad_to_start(cls, instance, stream):
@@ -53,17 +52,16 @@ class SegmentsReader(BaseStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		instance.io_start = stream.tell()
-		for segment in instance.arg:
-			stream.write(segment.data)
-			stream.write(get_padding(segment.byte_size))
+		for chunk_sizes in instance.arg:
+			SubChunkZt.to_stream(chunk_sizes.keys, stream, instance.context)
+			stream.write(get_padding(chunk_sizes.keys.io_size, alignment=8))
 		instance.io_size = stream.tell() - instance.io_start
 
 	@classmethod
 	def get_fields_str(cls, instance, indent=0):
 		s = ''
-		for mani_info in instance.arg:
-			if hasattr(mani_info, "keys"):
-				s += str(mani_info.keys)
+		for chunk_sizes in instance.arg:
+			s += str(chunk_sizes.keys)
 		return s
 
 

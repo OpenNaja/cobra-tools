@@ -5,6 +5,10 @@ from generated.formats.manis.imports import name_type_map
 
 class ManiBlock(BaseStruct):
 
+	"""
+	aligned to 16
+	"""
+
 	__name__ = 'ManiBlock'
 
 
@@ -30,7 +34,7 @@ class ManiBlock(BaseStruct):
 		self.uncompressed_pad = name_type_map['PadAlign'](self.context, 16, self.ref)
 		self.extra_war = name_type_map['WarExtra'](self.context, self, None)
 		self.compressed = name_type_map['CompressedManiData'](self.context, self, None)
-		self.subchunks = name_type_map['UnkChunkList'](self.context, 0, None)
+		self.subchunks = name_type_map['UnkChunkListZT'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 
@@ -58,6 +62,7 @@ class ManiBlock(BaseStruct):
 		yield 'extra_war', name_type_map['WarExtra'], (None, None), (False, None), (None, True)
 		yield 'compressed', name_type_map['CompressedManiData'], (None, None), (False, None), (None, True)
 		yield 'subchunks', name_type_map['UnkChunkList'], (0, None), (False, None), (None, True)
+		yield 'subchunks', name_type_map['UnkChunkListZT'], (0, None), (False, None), (lambda context: context.version <= 257, True)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -90,3 +95,5 @@ class ManiBlock(BaseStruct):
 			yield 'compressed', name_type_map['CompressedManiData'], (instance, None), (False, None)
 		if instance.arg.dtype.has_list > 0:
 			yield 'subchunks', name_type_map['UnkChunkList'], (0, None), (False, None)
+		if instance.context.version <= 257 and instance.arg.dtype.compression > 10:
+			yield 'subchunks', name_type_map['UnkChunkListZT'], (0, None), (False, None)

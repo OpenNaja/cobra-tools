@@ -61,13 +61,18 @@ type_module_name_map = {
 	'WarExtraPart': 'generated.formats.manis.compounds.WarExtraPart',
 	'WarExtra': 'generated.formats.manis.compounds.WarExtra',
 	'ChunkSizes': 'generated.formats.manis.compounds.ChunkSizes',
+	'ChunkSizesZT': 'generated.formats.manis.compounds.ChunkSizesZT',
 	'SubChunkReader': 'generated.formats.manis.compounds.SubChunkReader',
-	'UnkChunkList': 'generated.formats.manis.compounds.UnkChunkList',
-	'ManiBlock': 'generated.formats.manis.compounds.ManiBlock',
+	'SubChunkReaderZt': 'generated.formats.manis.compounds.SubChunkReaderZt',
 	'WeirdElementOne': 'generated.formats.manis.compounds.WeirdElementOne',
+	'WeirdElementTwo': 'generated.formats.manis.compounds.WeirdElementTwo',
 	'WeirdElementTwoReader': 'generated.formats.manis.compounds.WeirdElementTwoReader',
 	'SubChunk': 'generated.formats.manis.compounds.SubChunk',
-	'WeirdElementTwo': 'generated.formats.manis.compounds.WeirdElementTwo',
+	'ElemZt': 'generated.formats.manis.compounds.ElemZt',
+	'SubChunkZt': 'generated.formats.manis.compounds.SubChunkZt',
+	'UnkChunkListZT': 'generated.formats.manis.compounds.UnkChunkListZT',
+	'UnkChunkList': 'generated.formats.manis.compounds.UnkChunkList',
+	'ManiBlock': 'generated.formats.manis.compounds.ManiBlock',
 }
 
 name_type_map = {}

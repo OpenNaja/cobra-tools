@@ -33,6 +33,9 @@ class ModelReader(BaseStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		instance.io_start = stream.tell()
+		for name, model_info in zip(instance.arg.mdl_2_names, instance.arg.model_infos):
+			model_info.name = name
+			model_info.bone_info = None
 		instance.bone_infos = []
 		logging.debug(f"ModelReader starts at {instance.io_start}")
 		i = 0
@@ -42,14 +45,13 @@ class ModelReader(BaseStruct):
 			instance.start_of_buffer = instance.arg.buffer_infos.io_start
 			# meh, add it here even though it's really interleaved
 			instance.bone_info_start = stream.tell()
-			for name, model_info in zip(instance.arg.mdl_2_names, instance.arg.model_infos):
-				model_info.name = name
+			for model_info in instance.arg.model_infos:
 				# DLA and ZTUAC don't go into shifts
 				# if instance.context.version != 32:
 				instance.get_padding(stream, alignment=8)
 				# instance.get_padding(stream, alignment=16)
 				s = stream.tell()
-				logging.debug(f"Model {name} at {s}")
+				logging.debug(f"Model {model_info.name} at {s}")
 				# this little patch solves reading all of PC anubis models
 				for shift in (0, 16, 12, 8, 4, -4, -8, -12, -16):
 					stream.seek(s+shift)
@@ -86,8 +88,7 @@ class ModelReader(BaseStruct):
 				i = instance.assign_bone_info(i, model_info, stream)
 
 		else:
-			for name, model_info in zip(instance.arg.mdl_2_names, instance.arg.model_infos):
-				model_info.name = name
+			for model_info in instance.arg.model_infos:
 				# logging.debug(model_info)
 				model_info.model = Model.from_stream(stream, instance.context, model_info)
 				# logging.debug(f"Model {i} {model_info.model}")
@@ -174,14 +175,22 @@ class ModelReader(BaseStruct):
 			rel = self.start_of_buffer
 		abs_offset = stream.tell()
 		relative_offset = abs_offset - rel
-		# currently no other way to predict the padding, no correlation to joint count
 		padding_len = get_padding_size(relative_offset, alignment=alignment)
 		# logging.debug(f"abs {abs_offset} rel {relative_offset}")
 		logging.debug(f"Aligning to {alignment} from {abs_offset} to {abs_offset+padding_len} ({padding_len} bytes)")
 		padding = stream.read(padding_len)
 		if padding != b'\x00' * padding_len:
-			# logging.warning(f"Padding is nonzero {padding} at offset {abs_offset}")
-			raise AttributeError(f"Padding is nonzero {padding} at offset {abs_offset}")
+			logging.warning(f"Padding is nonzero {padding} at offset {abs_offset}")
+			# raise AttributeError(f"Padding is nonzero {padding} at offset {abs_offset}")
+
+	def align_to(self, stream, alignment=16, rel=None):
+		if rel is None:
+			rel = self.start_of_buffer
+		abs_offset = stream.tell()
+		relative_offset = abs_offset - rel
+		padding_len = get_padding_size(relative_offset, alignment=alignment)
+		logging.debug(f"Aligning to {alignment} from {abs_offset} to {abs_offset+padding_len} ({padding_len} bytes)")
+		stream.write(b'\x00' * padding_len)
 
 	def read_hitcheck_verts(self, bone_info, stream):
 		try:
@@ -195,8 +204,7 @@ class ModelReader(BaseStruct):
 					logging.debug(f"Reading vertices for {hitcheck.dtype.name} at {stream.tell()}")
 					hitcheck.collider.vertices = Array.from_stream(stream, self.context, 0, None, (hitcheck.collider.vertex_count, 3), Float)
 					# logging.debug(f"End of vertices at {stream.tell()}")
-				if hitcheck.dtype in (CollisionType.MESH_COLLISION,):
-					# self.get_padding(stream, alignment=16, rel=start)
+				elif hitcheck.dtype in (CollisionType.MESH_COLLISION,):
 					self.get_padding(stream, alignment=16)
 					logging.debug(f"Reading vertices for {hitcheck.dtype.name} at {stream.tell()}")
 					# logging.debug(f"Hitcheck {hitcheck.collider}")
@@ -211,8 +219,12 @@ class ModelReader(BaseStruct):
 		logging.debug(f"Writing additional hitcheck data")
 		for hitcheck in self.get_hitchecks(bone_info):
 			if hitcheck.dtype in (CollisionType.CONVEX_HULL_P_C, CollisionType.CONVEX_HULL):
-				logging.debug(f"Writing vertices for {hitcheck.dtype}")
+				if is_pc(self.context):
+					self.align_to(stream, alignment=16)
 				Array.to_stream(hitcheck.collider.vertices, stream, self.context, dtype=Float)
+			elif hitcheck.dtype in (CollisionType.MESH_COLLISION,):
+				self.align_to(stream, alignment=16)
+				MeshCollisionData.to_stream(hitcheck.collider.data, stream, self.context)
 
 	@classmethod
 	def write_fields(cls, stream, instance):
@@ -225,6 +237,8 @@ class ModelReader(BaseStruct):
 			for model_info in instance.arg.model_infos:
 				model_info.model.to_stream(model_info.model, stream, instance.context)
 			instance.bone_info_start = stream.tell()
+			# the models are not part of the buffer
+			instance.start_of_buffer = stream.tell()
 			for model_info in instance.arg.model_infos:
 				# check if they have a different bone info
 				if previous_bone_info is not model_info.bone_info:
@@ -233,12 +247,7 @@ class ModelReader(BaseStruct):
 					logging.debug(f"BONE INFO {i} starts at {stream.tell()}")
 					model_info.bone_info.to_stream(model_info.bone_info, stream, instance.context)
 					instance.write_hitcheck_verts(model_info.bone_info, stream)
-					# PZ lion needs padding after last boneinfo, crashes if missing, adding probably won't hurt other cases
-					# if i + 1 < len(instance.bone_infos):
-					relative_offset = stream.tell() - instance.bone_info_start
-					padding = get_padding(relative_offset)
-					logging.debug(f"Writing padding {padding}")
-					stream.write(padding)
+					instance.align_to(stream, alignment=16)
 					i += 1
 				else:
 					logging.debug(f"{model_info.name} reuses previous bone_info")

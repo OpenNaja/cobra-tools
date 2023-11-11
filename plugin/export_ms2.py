@@ -207,6 +207,7 @@ def save(filepath='', backup_original=True, apply_transforms=False, update_rig=F
 		# reset to original state
 		for coll, state in zip(view_collections, view_states):
 			coll.exclude = state
+	print(ms2)
 	# write ms2, backup should have been created earlier
 	ms2.save(filepath)
 	if found_scenes:

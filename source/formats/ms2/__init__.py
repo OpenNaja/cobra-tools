@@ -81,6 +81,8 @@ class Ms2File(Ms2InfoHeader, IoFile):
 				# 	if joints.joint_infos[joints.bone_to_joint[bone_i]] != joint_info:
 				# 		logging.warning(f"bone index [{bone_i}] doesn't point to expected joint info")
 
+			# print(joints.joint_infos[joints.root_joint_index].name)
+
 	def assign_bone_names(self, bone_info):
 		try:
 			for name_i, bone in zip(bone_info.name_indices, bone_info.bones):
@@ -124,7 +126,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 				stream.seek(self.buffer_1_offset)
 				self.buffer_1_bytes = stream.read(self.bone_info_size)
 			try:
-				self.load_buffers(filepath, stream, dump)
+				self.load_buffers(stream, dump)
 			except:
 				logging.exception(f"Buffer lookup failed")
 			if read_bytes:
@@ -134,7 +136,8 @@ class Ms2File(Ms2InfoHeader, IoFile):
 				self.load_meshes()
 		logging.debug(f"Read {self.name} in {time.time() - start_time:.2f} seconds")
 
-	def load_buffers(self, filepath, stream, dump):
+	def load_buffers(self, stream, dump):
+		stream.seek(self.buffer_2_offset)
 		for i, buffer_info in enumerate(self.buffer_infos):
 			buffer_info.name = None
 			buffer_info.index = i
@@ -269,30 +272,28 @@ class Ms2File(Ms2InfoHeader, IoFile):
 				s = s.lower().replace(old, new)
 		return s
 
-	def get_name_index(self, name):
-		if name not in self.buffer_0.names:
-			self.buffer_0.names.append(name)
-		return self.buffer_0.names.index(name)
+	def get_name_index(self, name, arr):
+		if name not in arr:
+			arr.append(name)
+		return arr.index(name)
 
 	def update_names(self):
 		logging.debug("Updating MS2 name buffer")
 		self.reset_field("mdl_2_names")
-		# todo use reset_field api
-		self.buffer_0.names.clear()
+		_names = []
 		for i, model_info in enumerate(self.model_infos):
 			self.mdl_2_names[i] = model_info.name
 			for material in model_info.model.materials:
-				material.name_index = self.get_name_index(material.name)
+				material.name_index = self.get_name_index(material.name, _names)
 			if model_info.bone_info:
 				for bone_index, bone in enumerate(model_info.bone_info.bones):
-					model_info.bone_info.name_indices[bone_index] = self.get_name_index(bone.name)
-		# print(self.buffer_0.names)
+					model_info.bone_info.name_indices[bone_index] = self.get_name_index(bone.name, _names)
 		logging.debug("Updating MS2 name hashes")
 		# update hashes from new names
-		self.info.name_count = len(self.buffer_0.names)
-		self.buffer_0.name_hashes.resize(len(self.buffer_0.names))
-		for name_i, name in enumerate(self.buffer_0.names):
-			# self.buffer_0.names[name_i] = name
+		self.info.name_count = len(_names)
+		self.reset_field("buffer_0")
+		for name_i, name in enumerate(_names):
+			self.buffer_0.names[name_i] = name
 			self.buffer_0.name_hashes[name_i] = djb2(name.lower())
 
 	def update_buffer_0_bytes(self):
@@ -318,7 +319,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			self.info.vertex_buffer_count = max_stream_index + 1
 			# this is the rule for JWE2, except trike93 STATIC=0
 			self.info.static_buffer_index = max_stream_index
-			self.num_streams = max_stream_index
+			self.num_streams = max(0, max_stream_index)
 			self.reset_field("buffer_pointers")
 			self.reset_field("buffer_infos")
 			self.reset_field("modelstream_names")
@@ -450,6 +451,7 @@ if __name__ == "__main__":
 	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC ovls/walker_export/SP_Scarecrow not working atm.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/Warhammer/Annihilator/annihilatormodels.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/acro/models.ms2", read_editable=True)
+	# m.load("C:/Users/arnfi/Desktop/ceara/models.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/rhinoblack_child_.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/StreetFoxCoffee/models.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/SP_Grave_Stones/models.ms2", read_editable=True)
@@ -469,7 +471,7 @@ if __name__ == "__main__":
 	
 	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/PDLC_WorldFair/Rides/Powered_Track_Rides/Tracks/Track_302/Track_302/models.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/PDLC_Vintage/Environment/Scenery/Themes/VT_Vintage/VT_Bandstand/VT_Bandstand/models.ms2", read_editable=True)
-	m.load("C:/Users/arnfi/Desktop/banana/tree_palm_banana.ms2", read_editable=True)
+	# m.load("C:/Users/arnfi/Desktop/banana/tree_palm_banana.ms2", read_editable=True)
 	
 	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/Content0/Rides/FlatRides/Orbiter/FR_Orb/models.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/Content0/Rides/FlatRides/Star_Wheel/FR_StarW/models.ms2", read_editable=True)
@@ -482,6 +484,10 @@ if __name__ == "__main__":
 	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/Characters/Mascots/Dino/Mascot_Dino/dino_.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/PC_Primitives_01/models.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/doors/dlc11_stripdoors_.ms2", read_editable=True)
+	# m.load("C:/Users/arnfi/Desktop/rhinoblack_female_.ms2", read_editable=True, dump=True)
+	# m.load("C:/Program Files (x86)/Steam/steamapps/common/Jurassic World Evolution 2/Win64/ovldata/walker_export/ContentPDLC5/Buildings/ModularStructures/LAG_NaturalWaterPool_Malta_Walls/LAG_NaturalWaterPool_Malta_Walls/models.ms2", read_editable=True)
+	# m.load("C:/Program Files (x86)/Steam/steamapps/common/Jurassic World Evolution 2/Win64/ovldata/walker_export/ContentPDLC5/Buildings/ModularStructures/LAG_NaturalWaterPool_Malta/LAG_NaturalWaterPool_Malta/models.ms2", read_editable=True)
+	m.load("C:\Program Files (x86)\Steam\steamapps\common\Jurassic World Evolution 2\Win64\ovldata\walker_export\Content0\Buildings\Shared\Props\CharacterScale\CharacterScale\models.ms2", read_editable=True)
 	# for i, bone_info in enumerate(m.models_reader.bone_infos):
 	# 	for bi, bone in enumerate(bone_info.bones):
 	# 		print(bi, bone.name)

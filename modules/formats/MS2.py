@@ -28,12 +28,13 @@ class Model2streamLoader(BaseFile):
 	extension = ".model2stream"
 	# we can recycle this for now
 	target_class = TexturestreamHeader
+	can_extract = False
 
-	def extract(self, out_dir):
-		stream_path = out_dir(self.name)
-		with open(stream_path, 'wb') as outfile:
-			outfile.write(self.data_entry.buffer_datas[0])
-		return stream_path,
+	# def extract(self, out_dir):
+	# 	stream_path = out_dir(self.name)
+	# 	with open(stream_path, 'wb') as outfile:
+	# 		outfile.write(self.data_entry.buffer_datas[0])
+	# 	return stream_path,
 
 	def create(self, file_path):
 		self.header = self.target_class(self.context)
@@ -201,8 +202,10 @@ class Ms2Loader(MemStructLoader):
 					for ptr in (model_info.materials, model_info.lods, model_info.objects, model_info.meshes):
 						ptr.data.to_stream(ptr.data, stream, context)
 			stream.write(bone_infos)
+			# logging.debug(f"Writing verts at {stream.tell()}")
 			stream.write(verts)
 			for loader in self.streams:
+				# logging.debug(f"Writing {loader.name} at {stream.tell()}")
 				stream.write(loader.data_entry.buffer_datas[0])
 				
 		return out_paths

@@ -53,7 +53,7 @@ class JointData(BaseStruct):
 
 		# matches bone count from bone info
 		self.bone_count = name_type_map['Uint'](self.context, 0, None)
-		self.joint_entry_count = name_type_map['Uint'](self.context, 0, None)
+		self.root_joint_index = name_type_map['Uint'](self.context, 0, None)
 
 		# usually 0s
 		self.zeros_2 = Array(self.context, 0, None, (0,), name_type_map['Uint'])
@@ -120,7 +120,7 @@ class JointData(BaseStruct):
 		yield 'one_0', name_type_map['Uint64'], (0, None), (False, 1), (lambda context: context.version >= 13, None)
 		yield 'one_1', name_type_map['Uint64'], (0, None), (False, 1), (lambda context: context.version >= 13, None)
 		yield 'bone_count', name_type_map['Uint'], (0, None), (False, None), (None, None)
-		yield 'joint_entry_count', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'root_joint_index', name_type_map['Uint'], (0, None), (False, None), (None, None)
 		yield 'zeros_2', Array, (0, None, (4,), name_type_map['Uint']), (False, None), (None, None)
 		yield 'zeros_3', name_type_map['Uint'], (0, None), (False, None), (lambda context: context.version <= 7, None)
 		yield 'names_ref', name_type_map['Empty'], (0, None), (False, None), (None, None)
@@ -168,7 +168,7 @@ class JointData(BaseStruct):
 			yield 'one_0', name_type_map['Uint64'], (0, None), (False, 1)
 			yield 'one_1', name_type_map['Uint64'], (0, None), (False, 1)
 		yield 'bone_count', name_type_map['Uint'], (0, None), (False, None)
-		yield 'joint_entry_count', name_type_map['Uint'], (0, None), (False, None)
+		yield 'root_joint_index', name_type_map['Uint'], (0, None), (False, None)
 		yield 'zeros_2', Array, (0, None, (4,), name_type_map['Uint']), (False, None)
 		if instance.context.version <= 7:
 			yield 'zeros_3', name_type_map['Uint'], (0, None), (False, None)

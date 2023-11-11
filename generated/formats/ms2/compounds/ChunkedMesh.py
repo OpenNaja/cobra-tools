@@ -35,9 +35,7 @@ class ChunkedMesh(MeshData):
 
 		# num verts in mesh
 		self.vertex_count = name_type_map['Uint'](self.context, 0, None)
-
-		# unk, may be used in other models
-		self.zero_1 = name_type_map['Uint64'](self.context, 0, None)
+		self.zero = name_type_map['Uint64'].from_value(0)
 
 		# power of 2 increasing with lod index
 		self.poweroftwo = name_type_map['Uint'](self.context, 0, None)
@@ -57,7 +55,7 @@ class ChunkedMesh(MeshData):
 		yield 'chunks_count', name_type_map['Uint'], (0, None), (False, None), (None, None)
 		yield 'tris_count', name_type_map['Uint'], (0, None), (False, None), (None, None)
 		yield 'vertex_count', name_type_map['Uint'], (0, None), (False, None), (None, None)
-		yield 'zero_1', name_type_map['Uint64'], (0, None), (False, None), (None, None)
+		yield 'zero', name_type_map['Uint64'], (0, None), (False, 0), (None, None)
 		yield 'poweroftwo', name_type_map['Uint'], (0, None), (False, None), (None, None)
 		yield 'unk_floats', Array, (0, None, (2,), name_type_map['Float']), (False, None), (None, None)
 		yield 'flag', name_type_map['ChunkedModelFlag'], (0, None), (False, None), (None, None)
@@ -69,7 +67,7 @@ class ChunkedMesh(MeshData):
 		yield 'chunks_count', name_type_map['Uint'], (0, None), (False, None)
 		yield 'tris_count', name_type_map['Uint'], (0, None), (False, None)
 		yield 'vertex_count', name_type_map['Uint'], (0, None), (False, None)
-		yield 'zero_1', name_type_map['Uint64'], (0, None), (False, None)
+		yield 'zero', name_type_map['Uint64'], (0, None), (False, 0)
 		yield 'poweroftwo', name_type_map['Uint'], (0, None), (False, None)
 		yield 'unk_floats', Array, (0, None, (2,), name_type_map['Float']), (False, None)
 		yield 'flag', name_type_map['ChunkedModelFlag'], (0, None), (False, None)

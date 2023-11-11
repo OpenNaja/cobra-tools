@@ -4,6 +4,7 @@ import math
 import struct
 import os
 import numpy as np
+np.set_printoptions(precision=4, suppress=True)
 
 import root_path
 from generated.formats.manis.bitfields.ManisDtype import ManisDtype
@@ -18,7 +19,7 @@ try:
 except:
     logging.warning(f"bitarray module is not installed")
 
-np.set_printoptions(suppress=True, precision=4)
+# np.set_printoptions(suppress=True, precision=4)
 
 
 def swap16(i):
@@ -641,7 +642,9 @@ if __name__ == "__main__":
     mani = ManisFile()
     # acro stand_ide
     target = "acrocanthosaurus@standidle01"
-    mani.load("C:/Users/arnfi/Desktop/Coding/Frontier/Warhammer/Annihilator/animation.maniset52a766ac.manis")
+    # mani.load("C:/Users/arnfi/Desktop/Coding/Frontier/Warhammer/Annihilator/animation.maniset52a766ac.manis")
+    mani.load("C:/Users/arnfi/Desktop/enrichment.maniset8a375fce.manis")
+    # mani.load("C:/Users/arnfi/Desktop/camerabone.maniset67b9ba24.manis")
     print(mani)
     # mani.load("C:/Users/arnfi/Desktop/acro/notmotionextracted.maniset53978456.manis")
     # mani.load("C:/Users/arnfi/Desktop/animationmotionextractedlocomotion.maniset648a1a01.manis")

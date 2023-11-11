@@ -19,16 +19,12 @@ class MeshCollision(BaseStruct):
 		# offset of mesh
 		self.offset = name_type_map['Vector3'](self.context, 0, None)
 
-		# shared among (all?) redwoods
-		self.unk_1 = Array(self.context, 0, None, (0,), name_type_map['SubA'])
+		# seems to be constant
+		self.indices = Array(self.context, 0, None, (0,), name_type_map['MeshCollisionIndex'])
 
 		# found in PC FR_GrandCarousel
 		self.unk_2 = Array(self.context, 0, None, (0,), name_type_map['Uint'])
-
-		# vertices (3 float)
 		self.vertex_count = name_type_map['Uint64'](self.context, 0, None)
-
-		# tris?, counts the 25s at the end
 		self.tri_count = name_type_map['Uint64'](self.context, 0, None)
 
 		# the smallest coordinates across all axes
@@ -38,17 +34,13 @@ class MeshCollision(BaseStruct):
 		self.bounds_max = name_type_map['Vector3'](self.context, 0, None)
 		self.flag_0 = name_type_map['Uint64'].from_value(1)
 		self.flag_1 = name_type_map['Uint64'].from_value(1)
-		self.has_sub_coll_chunk = name_type_map['Uint64'](self.context, 0, None)
+
+		# seen 1 eg PZ widgetball_test_, or 0 in JWE2 characterscale and PZ CM_Common_Roofs
+		self.is_optimized = name_type_map['Uint64'](self.context, 0, None)
 		self.zeros_1 = Array(self.context, 0, None, (0,), name_type_map['Uint64'])
 		self.tris_switch = name_type_map['Uint64'](self.context, 0, None)
 		self.ff = name_type_map['Int'].from_value(-1)
 		self.zeros_2 = Array(self.context, 0, None, (0,), name_type_map['Int'])
-
-		# sometimes 8 bytes, apparently not part of SubCollChunk (JWE2 dev footplantingtest_ has that but not the padding)
-		self.weird_padding = name_type_map['SmartPadding'](self.context, 4, None)
-
-		# seems to repeat tri_count
-		self.sub_coll_chunk = name_type_map['SubCollChunk'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()
 
@@ -57,7 +49,7 @@ class MeshCollision(BaseStruct):
 		yield from super()._get_attribute_list()
 		yield 'rotation', name_type_map['Matrix33'], (0, None), (False, None), (None, None)
 		yield 'offset', name_type_map['Vector3'], (0, None), (False, None), (None, None)
-		yield 'unk_1', Array, (0, None, (3,), name_type_map['SubA']), (False, None), (None, None)
+		yield 'indices', Array, (0, None, (3,), name_type_map['MeshCollisionIndex']), (False, None), (None, None)
 		yield 'unk_2', Array, (0, None, (3,), name_type_map['Uint']), (False, None), (lambda context: context.version == 32, None)
 		yield 'vertex_count', name_type_map['Uint64'], (0, None), (False, None), (None, None)
 		yield 'tri_count', name_type_map['Uint64'], (0, None), (False, None), (None, None)
@@ -65,20 +57,18 @@ class MeshCollision(BaseStruct):
 		yield 'bounds_max', name_type_map['Vector3'], (0, None), (False, None), (None, None)
 		yield 'flag_0', name_type_map['Uint64'], (0, None), (False, 1), (None, None)
 		yield 'flag_1', name_type_map['Uint64'], (0, None), (False, 1), (None, None)
-		yield 'has_sub_coll_chunk', name_type_map['Uint64'], (0, None), (False, None), (None, None)
+		yield 'is_optimized', name_type_map['Uint64'], (0, None), (False, None), (None, None)
 		yield 'zeros_1', Array, (0, None, (3,), name_type_map['Uint64']), (False, None), (None, None)
 		yield 'tris_switch', name_type_map['Uint64'], (0, None), (False, None), (None, None)
 		yield 'ff', name_type_map['Int'], (0, None), (False, -1), (None, None)
 		yield 'zeros_2', Array, (0, None, (7,), name_type_map['Int']), (False, None), (None, None)
-		yield 'weird_padding', name_type_map['SmartPadding'], (4, None), (False, None), (None, None)
-		yield 'sub_coll_chunk', name_type_map['SubCollChunk'], (0, None), (False, None), (None, True)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'rotation', name_type_map['Matrix33'], (0, None), (False, None)
 		yield 'offset', name_type_map['Vector3'], (0, None), (False, None)
-		yield 'unk_1', Array, (0, None, (3,), name_type_map['SubA']), (False, None)
+		yield 'indices', Array, (0, None, (3,), name_type_map['MeshCollisionIndex']), (False, None)
 		if instance.context.version == 32:
 			yield 'unk_2', Array, (0, None, (3,), name_type_map['Uint']), (False, None)
 		yield 'vertex_count', name_type_map['Uint64'], (0, None), (False, None)
@@ -87,11 +77,8 @@ class MeshCollision(BaseStruct):
 		yield 'bounds_max', name_type_map['Vector3'], (0, None), (False, None)
 		yield 'flag_0', name_type_map['Uint64'], (0, None), (False, 1)
 		yield 'flag_1', name_type_map['Uint64'], (0, None), (False, 1)
-		yield 'has_sub_coll_chunk', name_type_map['Uint64'], (0, None), (False, None)
+		yield 'is_optimized', name_type_map['Uint64'], (0, None), (False, None)
 		yield 'zeros_1', Array, (0, None, (3,), name_type_map['Uint64']), (False, None)
 		yield 'tris_switch', name_type_map['Uint64'], (0, None), (False, None)
 		yield 'ff', name_type_map['Int'], (0, None), (False, -1)
 		yield 'zeros_2', Array, (0, None, (7,), name_type_map['Int']), (False, None)
-		yield 'weird_padding', name_type_map['SmartPadding'], (4, None), (False, None)
-		if instance.has_sub_coll_chunk:
-			yield 'sub_coll_chunk', name_type_map['SubCollChunk'], (0, None), (False, None)

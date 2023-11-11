@@ -49,7 +49,12 @@
 	<basic name="BonePointerIndex" integral="true" countable="true">
 	</basic>
 
-<!--Count from the end!!!-->
+	<enum name="RigidBodyFlag" storage="uint">
+		<option value="0" name="Static" />
+		<option value="1" name="DynamicsAsleep" />
+		<option value="2" name="DynamicsAwake" />
+	</enum>
+
 	<enum name="MeshFormat" storage="ubyte">
 		<option value="0" name="Separate" />
 		<option value="1" name="Interleaved32" />
@@ -57,6 +62,7 @@
 		<option value="3" name="UnkFmt" />
 	</enum>
 
+<!--Count from the end!!!-->
 	<bitfield name="WeightsFlag" storage="ushort">
 		<member width="1" pos="0" name="has_weights" type="bool"/>
 		<member width="8" pos="1" name="bone_index" type="int"/>
@@ -125,7 +131,7 @@
 	</enum>
 
 	<compound name="Matrix" >
-		A generic  transformation matrix.
+		A generic transformation matrix.
 	</compound>
 
 	<compound name="Matrix44" inherit="Matrix" size="64">
@@ -161,11 +167,11 @@
 
 	<compound name="Bone">
 		32 bytes
-		bones, rot first
+		rot first
 		<add name="loc" type="Vector3" until="47" />
 		<add name="scale" type="float" until="47" />
 		<add name="rot" type="Vector4" until="47" />
-		bones, loc first
+		loc first
 		<add name="rot" type="Vector4" since="48" />
 		<add name="loc" type="Vector3" since="48" />
 		<add name="scale" type="float" since="48" />
@@ -239,7 +245,7 @@
 		<add name="chunks_count" type="uint" >count of verts / tris chunks</add>
 		<add name="tris_count" type="uint" />num triangles in mesh, *3 for byte size
 		<add name="vertex_count" type="uint" >num verts in mesh</add>
-		<add name="zero1" type="uint64">unk, may be used in other models</add>
+		<add name="zero" type="uint64" default="0"/>
 		<add name="poweroftwo" type="uint">power of 2 increasing with lod index</add>
 		<add name="unk_floats" type="float" arr1="2">some floats, purpose unknown</add>
 		<add name="flag" type="ChunkedModelFlag">seen 1 or 13</add>
@@ -365,7 +371,7 @@
 	<compound name="Buffer0" >
 		<add name="name hashes" type="uint" arr1="#ARG#\name count" >djb2 hashes</add>
 		<add name="names" type="ZString" arr1="#ARG#\name count" >names</add>
-		<add name="names padding" type="PadAlign" template="names" arg="4" since="50">align to 4</add>
+		<add name="names padding" type="PadAlign" template="names" arg="4" since="50"/>
 		<add name="zt streams header" type="StreamsZTHeader" until="13" arg="#ARG#" />
 	</compound>
 
@@ -539,7 +545,8 @@
 		<add name="child" type="BonePointer"/>
 		<add name="parent" type="BonePointer"/>
 		<add name="unk0" type="ushort" default="0"/>
-		<add name="matrix" type="Matrix33" >no clue what space this is in, defines the orientation for the ranges</add>
+		<add name="matrix" type="Matrix33" >no clue what space this is in, defines the orientation for the yaw and pitch ranges
+		probably relative to the bone</add>
 		<add name="yaw" type="RotationRange"/>degrees
 		<add name="pitch" type="RotationRange"/>degrees
 		<add name="unk1" type="uint" default="1"/>
@@ -556,7 +563,7 @@
 <!--		<add name="zeros start" type="ubyte" until="13" arr1="6">guess for ZTUAC rhino, wrong for afr ele child</add>-->
 		<add name="ik_count" type="uint64">repeat</add>
 		<add name="ik_ptr" type="uint64"/>
-		<add name="ik_targets_count" type="uint64" since="48">seen 0, 2, 4</add>
+		<add name="ik_targets_count" type="uint64" since="48"/>
 		<add name="ik_targets_ptr" type="uint64" since="48"/>
 		<add name="ik ref" type="Empty"/>
 		<add name="ik_list" type="IKEntryOld" arr1="ik_count" until="13"/>
@@ -573,7 +580,7 @@
 	</compound>
 
 	<compound name="RigidBody">
-		<add name="flag" type="uint">2 kinematic, 0 1 static</add>
+		<add name="flag" type="RigidBodyFlag"/>
 		<add name="loc" type="Vector3" >center of mass - relative to joint</add>
 		<add name="mass" type="float">mass of joint or object</add>
 		<add name="air_resistance_x" type="float"/>
@@ -655,57 +662,58 @@
 	</compound>
 
 	<compound name="ConvexHull">
-		<add name="vertex count" type="uint" >16 for anubis: 4 hulls * 16 * 12 (size of vert)</add>
+		<add name="vertex count" type="uint"/>
 		<add name="rotation" type="Matrix33"/>
 		<add name="offset" type="Vector3" >center of the box</add>
 		<add name="zeros" type="uint" arr1="5" vercond="#PC#" >probably padding</add>
 		<add name="zeros" type="uint" arr1="2" since="48" >probably padding</add>
 	</compound>
 
-	<compound name="SubA">
+	<compound name="MeshCollisionIndex">
 		<add name="index" type="ubyte" >increases, starting at 1</add>
 		<add name="a" type="ubyte" default="240">?</add>
 		<add name="b" type="ubyte" default="237">?</add>
 		<add name="c" type="ubyte" default="254">?</add>
 	</compound>
 
-	<compound name="MeshCollisionBit">
-		<add name="a" type="ushort" arr1="24">?</add>
-		<add name="b" type="ushort" arr1="8">incrementing by 16 from 0, or if around 32769: incrementing by 1, mostly</add>
-		<add name="min_of_b" type="ushort" >usually, but not always the first value</add>
-		<add name="c" type="ushort" >?</add>
-		<add name="consts" type="uint" arr1="3">always 2954754766?</add>
+	<compound name="MeshCollisionChunk">
+		<add name="a" type="short" arr1="24">?</add>
+		<add name="tri_indices" type="short" arr1="8">start indices of a group of 16 tris;incrementing by 16 from 0, or if around -32769: incrementing by 1, mostly</add>
+		<add name="min_of_indices" type="short" >usually, but not always the first tri index; 0 if tri_indices are negative</add>
+		<add name="num_used_tri_slots" type="ubyte" >counts how many slots in tri_indices are used, others are 0</add>
+		<add name="salt_index" type="ubyte" >likely</add>
+		<add name="consts" type="uint" arr1="3" default="2954754766">always 2954754766?</add>
 	</compound>
 
-	<compound name="SubCollChunk">
-<!--		<add name="zero" type="uint64"/>-->
+	<compound name="MeshCollisionOptimizer">
 		<add name="bounds min repeat" type="Vector3" >verbatim</add>
 		<add name="bounds max repeat" type="Vector3" >verbatim</add>
 		<add name="tri flags count" type="uint" >seems to repeat tri_count</add>
-		<add name="count bits" type="ushort"  >counts MeshCollisionBit</add>
-		<add name="stuff" type="ushort" arr1="9" >?</add>
-		<add name="collision bits" type="MeshCollisionBit" arr1="count bits" >?</add>
+		<add name="chunks_count" type="ushort"/>
+		<add name="some_index" type="ushort">seen 272 in JWE2</add>
+		<add name="zeros" type="ushort" arr1="8" >seen 0 in JWE2</add>
+		<add name="chunks" type="MeshCollisionChunk" arr1="chunks_count"/>
+		<add name="tris_salt" type="uint" arr1="4" >usually zero, nonzero in JWE2 dev footplant, [1] used as salt for tri indices</add>
 	</compound>
 
 	<compound name="MeshCollision">
 		JWE2: 188 bytes
 		<add name="rotation" type="Matrix33"/>
 		<add name="offset" type="Vector3" >offset of mesh</add>
-		<add name="unk1" type="SubA" arr1="3" >shared among (all?) redwoods</add>
+		<add name="indices" type="MeshCollisionIndex" arr1="3" >seems to be constant</add>
 		<add name="unk2" type="uint" arr1="3" vercond="#PC#">found in PC FR_GrandCarousel</add>
-		<add name="vertex count" type="uint64" >vertices (3 float)</add>
-		<add name="tri count" type="uint64" >tris?, counts the 25s at the end</add>
+		<add name="vertex count" type="uint64"/>
+		<add name="tri count" type="uint64"/>
 		<add name="bounds min" type="Vector3">the smallest coordinates across all axes</add>
 		<add name="bounds max" type="Vector3">the biggest coordinates across all axes</add>
 		<add name="flag 0" type="uint64" default="1"/>
 		<add name="flag 1" type="uint64" default="1"/>
-		<add name="has_SubCollChunk" type="uint64"/>seen 1 eg PZ widgetball_test_, or 0 in JWE2 characterscale and PZ CM_Common_Roofs
+		<add name="is_optimized" type="uint64">seen 1 eg PZ widgetball_test_, or 0 in JWE2 characterscale and PZ CM_Common_Roofs</add>
 		<add name="zeros 1" type="uint64" arr1="3"/>
 		<add name="tris switch" type="uint64" />
 		<add name="ff" type="int" default="-1"/>
 		<add name="zeros 2" type="int" arr1="7"/>
-		<add name="weird padding" type="SmartPadding" arg="4">sometimes 8 bytes, apparently not part of SubCollChunk (JWE2 dev footplantingtest_ has that but not the padding)</add>
-		<add name="SubCollChunk" type="SubCollChunk" cond="has_SubCollChunk">seems to repeat tri_count</add>
+<!--		<add name="data" type="MeshCollisionData" abstract="true" arg="#SELF#"/>-->
 	</compound>
 
 	<compound name="HitCheck">
@@ -773,7 +781,7 @@
 		<add name="one_0" type="uint64" since="13" default="1"/>
 		<add name="one_1" type="uint64" since="13" default="1"/>
 		<add name="bone count" type="uint" >matches bone count from bone info</add>
-		<add name="joint entry count" type="uint"/>unk?!, 16 for JWE2 acro
+		<add name="root_joint_index" type="uint"/>
 		<add name="zeros 2" type="uint" arr1="4">usually 0s</add>
 		<add name="zeros 3" type="uint" until="7" >usually 0s</add>
 		<add name="names_ref" type="Empty"/>
@@ -829,8 +837,8 @@
 		<add name="enum count" type="uint64"/>
 		<add name="unknown58" type="uint64" >usually zero</add>
 		<add name="one" type="uint64" default="1" >always 1</add>
-		<add name="zeros count" type="uint64" >this counts the weird padding at the end, usually == bone count, 0 in PZ aardvark</add>
 		<add name="unk_pc_count" type="uint64" vercond="#PC#">matches the other count on dino entertainer, but ik_count is not present</add>
+		<add name="zeros count" type="uint64" >this counts the weird padding at the end, usually == bone count, 0 in PZ aardvark</add>
 		<add name="ik_count" type="uint64"/>
 		<add name="joint count" type="uint64"/>
 		<add name="zero 1" type="uint64" default="0"/>
@@ -861,19 +869,15 @@
 
 		<add name="inventory_datas_2" type="int" arr1="inv_data_count" arr2="2" vercond="#DLA#">zeros</add>
 
-<!--		<add name="MinusPadding" type="MinusPadding" cond="zeros count" arg="zeros count" until="32">weird -1s</add>-->
-		<add name="MinusPadding" type="MinusPadding" cond="unk_pc_count" arg="unk_pc_count" until="32">weird -1s</add>
+		<add name="MinusPadding" type="MinusPadding" cond="zeros count" arg="zeros count" until="32">weird -1s</add>
 		# JWE may not have these, apparently they are present in final JWE
 		<add name="ZerosPadding" type="ZerosPadding" arg="zeros count" since="47">weird zeros</add>
-
-<!--		<add name="ZerosPadding" type="ZerosPadding" arg="zeros count" cond="joint count" vercond="#PC#">weird zeros</add>-->
-
 		<add name="ik info" type="IKInfo" cond="ik_count" arg="#SELF#">IK Data</add>
 		<add name="joints" type="JointData" cond="joint count" >joints</add>
 	</compound>
 
 	<compound name="MeshCollisionData">
-		<add name="tris_salt" type="uint" arr1="4" cond="#ARG#\has_SubCollChunk">usually zero, nonzero in JWE2 dev footplant, [1] used as salt for tri indices</add>
+		<add name="optimizer" type="MeshCollisionOptimizer" cond="#ARG#\is_optimized"/>
 
 		<add name="vertices addr" type="Empty"/>
 		<add name="vertices" type="float" arr1="#ARG#\vertex count" arr2="3">array of vertices</add>
@@ -885,7 +889,7 @@
 		<add name="triangle_flags_pc" type="short" arr1="#ARG#\tri count" arr2="2" cond="#ARG#\tris_switch" vercond="#PC#">?</add>
 
 		<add name="mesh aligner" type="PadAlign" template="vertices addr" arg="8" until="32"/>
-<!--		<add name="zero end" type="uint" >might be padding!</add>-->
+		<add name="zero end" type="uint" since="52" >JWE2 LAG_NaturalWaterPool_Malta_Walls</add>
 	</compound>
 
 </niftoolsxml>

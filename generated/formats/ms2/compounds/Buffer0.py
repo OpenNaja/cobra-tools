@@ -16,8 +16,6 @@ class Buffer0(BaseStruct):
 
 		# names
 		self.names = Array(self.context, 0, None, (0,), name_type_map['ZString'])
-
-		# align to 4
 		self.names_padding = name_type_map['PadAlign'](self.context, 4, self.names)
 		self.zt_streams_header = name_type_map['StreamsZTHeader'](self.context, self.arg, None)
 		if set_default:

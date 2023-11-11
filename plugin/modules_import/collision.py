@@ -153,25 +153,29 @@ def import_cylinderbv(cylinder, hitcheck_name):
 
 def import_meshbv(coll, hitcheck_name, corrector):
 	print(coll)
+	print(coll.data)
 	scene = bpy.context.scene
-	good_tris = []
-	for i, tri in enumerate(list(coll.data.triangles)):
-		# print(i, tri)
-		for v in tri:
-			if v >= len(coll.data.vertices):
-				print(f"{i} {tri} is bad")
-				break
-		else:
-			good_tris.append(tri)
-			continue
-		salt = coll.data.tris_salt[1]
-		unsalted = [t - salt for t in tri]
-		good_tris.append(unsalted)
-		print(f"unsalted {unsalted}")
-	print(len(good_tris), max([v for tri in good_tris for v in tri]))
-	# b_obj, b_me = mesh_from_data(scene, hitcheck_name, [unpack_swizzle(v) for v in coll.vertices], list(coll.triangles), coll_name="hitchecks")
-	b_obj, b_me = mesh_from_data(scene, hitcheck_name, [unpack_swizzle(v) for v in coll.data.vertices], good_tris, coll_name="hitchecks")
-	# b_obj, b_me = mesh_from_data(scene, hitcheck_name, [unpack_swizzle(v) for v in coll.vertices], [], coll_name="hitchecks")
+	tris = coll.data.triangles
+	if coll.is_optimized:
+		good_tris = []
+		optimizer = coll.data.optimizer
+		# unsalt the tri indices per chunk
+		for chunk in optimizer.chunks:
+			for tri_index in chunk.tri_indices[:chunk.num_used_tri_slots]:
+				salt = optimizer.tris_salt[chunk.salt_index]
+				if tri_index > -1:
+					raw_tris = tris[tri_index:tri_index+16]
+					raw_tris -= salt
+					good_tris.extend(raw_tris)
+		# verify the output
+		for i, tri in enumerate(good_tris):
+			for v in tri:
+				if v >= len(coll.data.vertices):
+					logging.warning(f"{i} {tri} is bad")
+	else:
+		# cast array to list for blender
+		good_tris = list(tris)
+	b_obj, b_me = mesh_from_data(scene, hitcheck_name, [unpack_swizzle_collision(v) for v in coll.data.vertices], good_tris, coll_name="hitchecks")
 	mat = import_collision_matrix(coll.rotation, corrector)
 	mat.translation = unpack_swizzle((coll.offset.x, coll.offset.y, coll.offset.z))
 	b_obj.matrix_local = mat

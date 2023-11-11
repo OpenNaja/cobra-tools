@@ -52,6 +52,7 @@ from plugin.modules_export.operators import ExportMS2, ExportSPL, ExportManis, E
 
 from root_path import root_dir
 from generated.formats.ms2.enums.MeshFormat import MeshFormat
+from generated.formats.ms2.enums.RigidBodyFlag import RigidBodyFlag
 
 global preview_collection
 
@@ -286,6 +287,8 @@ class COLLISION_PT_CobraTools(bpy.types.Panel):
         row.prop(rb, "air_resistance")
         row = layout.row(align=True)
         row.prop(rb, "damping_3d")
+        row = layout.row(align=True)
+        row.prop(rb, "flag")
 
 
 class CobraSceneSettings(PropertyGroup):
@@ -332,11 +335,30 @@ class CobraCollisionSettings(PropertyGroup):
         description='Damping in 3D',
         default=(0.0, 0.0, 0.0),
         min=sys.float_info.min,
-        max=sys.float_info.max, 
+        max=sys.float_info.max,
         soft_min=sys.float_info.min,
         soft_max=sys.float_info.max,
         step=1, 
         precision=6)
+    plasticity_min: bpy.props.FloatProperty(name="Plasticity Lower", subtype="ANGLE")
+    plasticity_max: bpy.props.FloatProperty(name="Upper", subtype="ANGLE")
+    flag: EnumProperty(
+        name='Dynamics Flag',
+        description='Current state of this rigidbody',
+        items=[(item.name, item.name, "") for i, item in enumerate(RigidBodyFlag)],
+    )
+
+
+def draw_rigid_body_constraints_cobra(self, context):
+    scene = context.scene
+    layout = self.layout
+
+    # display properties and values
+    col = layout.column(align=True)
+    # col.label(text="My Values:")
+    col.prop(context.active_object.cobra_coll, "plasticity_min")
+    col.prop(context.active_object.cobra_coll, "plasticity_max")
+    # col.prop(scene, "plasticity", text="Frame Start")
 
 
 def menu_func_export(self, context):
@@ -413,6 +435,30 @@ classes = (
 )
 
 
+# get panel names
+# for panel in bpy.types.Panel.__subclasses__():
+#     print(panel.__name__)
+# PHYSICS_PT_rigid_body
+# PHYSICS_PT_rigid_body_settings
+# PHYSICS_PT_rigid_body_collisions
+# PHYSICS_PT_rigid_body_collisions_surface
+# PHYSICS_PT_rigid_body_collisions_sensitivity
+# PHYSICS_PT_rigid_body_collisions_collections
+# PHYSICS_PT_rigid_body_dynamics
+# PHYSICS_PT_rigid_body_dynamics_deactivation
+# PHYSICS_PT_rigid_body_constraint
+# PHYSICS_PT_rigid_body_constraint_settings
+# PHYSICS_PT_rigid_body_constraint_objects
+# PHYSICS_PT_rigid_body_constraint_override_iterations
+# PHYSICS_PT_rigid_body_constraint_limits
+# PHYSICS_PT_rigid_body_constraint_limits_linear
+# PHYSICS_PT_rigid_body_constraint_limits_angular
+# PHYSICS_PT_rigid_body_constraint_motor
+# PHYSICS_PT_rigid_body_constraint_motor_angular
+# PHYSICS_PT_rigid_body_constraint_motor_linear
+# PHYSICS_PT_rigid_body_constraint_springs
+# PHYSICS_PT_rigid_body_constraint_springs_angular
+# PHYSICS_PT_rigid_body_constraint_springs_linear
 def register():
     addon_updater_ops.register(bl_info)
     icons_dir = os.path.join(root_dir, "icons")
@@ -435,12 +481,14 @@ def register():
 
     # Injection of elements in the contextual menu of the File Browser editor
     bpy.types.FILEBROWSER_MT_context_menu.append(CT_FileBrowser_Context_Menu)
+    bpy.types.PHYSICS_PT_rigid_body_constraint_limits_angular.append(draw_rigid_body_constraints_cobra)
 
 
 def unregister():
 
     # Injection of elements in the contextual menu of the File Browser editor
     bpy.types.FILEBROWSER_MT_context_menu.remove(CT_FileBrowser_Context_Menu)
+    bpy.types.PHYSICS_PT_rigid_body_constraint_limits_angular.remove(draw_rigid_body_constraints_cobra)
 
     bpy.types.TOPBAR_MT_file_import.remove(menu_func_import)
     bpy.types.TOPBAR_MT_file_export.remove(menu_func_export)
