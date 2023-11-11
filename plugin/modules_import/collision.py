@@ -153,6 +153,7 @@ def import_cylinderbv(cylinder, hitcheck_name):
 
 def import_meshbv(coll, hitcheck_name, corrector):
 	print(coll)
+	print(coll.data)
 	scene = bpy.context.scene
 	good_tris = []
 	for i, tri in enumerate(list(coll.data.triangles)):

@@ -2,9 +2,9 @@ from generated.base_struct import BaseStruct
 from generated.formats.ms2.imports import name_type_map
 
 
-class SubA(BaseStruct):
+class MeshCollisionIndex(BaseStruct):
 
-	__name__ = 'SubA'
+	__name__ = 'MeshCollisionIndex'
 
 
 	def __init__(self, context, arg=0, template=None, set_default=True):

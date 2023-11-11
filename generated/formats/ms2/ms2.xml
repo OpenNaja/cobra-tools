@@ -669,28 +669,29 @@
 		<add name="zeros" type="uint" arr1="2" since="48" >probably padding</add>
 	</compound>
 
-	<compound name="SubA">
+	<compound name="MeshCollisionIndex">
 		<add name="index" type="ubyte" >increases, starting at 1</add>
 		<add name="a" type="ubyte" default="240">?</add>
 		<add name="b" type="ubyte" default="237">?</add>
 		<add name="c" type="ubyte" default="254">?</add>
 	</compound>
 
-	<compound name="MeshCollisionBit">
+	<compound name="MeshCollisionChunk">
 		<add name="a" type="ushort" arr1="24">?</add>
 		<add name="b" type="ushort" arr1="8">incrementing by 16 from 0, or if around 32769: incrementing by 1, mostly</add>
 		<add name="min_of_b" type="ushort" >usually, but not always the first value</add>
-		<add name="c" type="ushort" >?</add>
-		<add name="consts" type="uint" arr1="3">always 2954754766?</add>
+		<add name="num_used_b_slots" type="ushort" >counts how many slots in b are used; JWE2: 4, 8</add>
+		<add name="consts" type="uint" arr1="3" default="2954754766">always 2954754766?</add>
 	</compound>
 
-	<compound name="SubCollChunk">
+	<compound name="MeshCollisionOptimizer">
 		<add name="bounds min repeat" type="Vector3" >verbatim</add>
 		<add name="bounds max repeat" type="Vector3" >verbatim</add>
 		<add name="tri flags count" type="uint" >seems to repeat tri_count</add>
-		<add name="count bits" type="ushort"  >counts MeshCollisionBit</add>
-		<add name="stuff" type="ushort" arr1="9" >?</add>
-		<add name="collision bits" type="MeshCollisionBit" arr1="count bits" >?</add>
+		<add name="chunks_count" type="ushort"/>
+		<add name="some_index" type="ushort">seen 272 in JWE2</add>
+		<add name="zeros" type="ushort" arr1="8" >seen 0 in JWE2</add>
+		<add name="chunks" type="MeshCollisionChunk" arr1="chunks_count"/>
 		<add name="tris_salt" type="uint" arr1="4" >usually zero, nonzero in JWE2 dev footplant, [1] used as salt for tri indices</add>
 	</compound>
 
@@ -698,22 +699,21 @@
 		JWE2: 188 bytes
 		<add name="rotation" type="Matrix33"/>
 		<add name="offset" type="Vector3" >offset of mesh</add>
-		<add name="unk1" type="SubA" arr1="3" >shared among (all?) redwoods</add>
+		<add name="unk1" type="MeshCollisionIndex" arr1="3" >shared among (all?) redwoods</add>
 		<add name="unk2" type="uint" arr1="3" vercond="#PC#">found in PC FR_GrandCarousel</add>
-		<add name="vertex count" type="uint64" >vertices (3 float)</add>
-		<add name="tri count" type="uint64" >tris?, counts the 25s at the end</add>
+		<add name="vertex count" type="uint64"/>
+		<add name="tri count" type="uint64"/>
 		<add name="bounds min" type="Vector3">the smallest coordinates across all axes</add>
 		<add name="bounds max" type="Vector3">the biggest coordinates across all axes</add>
 		<add name="flag 0" type="uint64" default="1"/>
 		<add name="flag 1" type="uint64" default="1"/>
-		<add name="has_SubCollChunk" type="uint64"/>
-		seen 1 eg PZ widgetball_test_, or 0 in JWE2 characterscale and PZ CM_Common_Roofs
-		1 in LAG_NaturalWaterPool_Malta, but no subcollchunk
+		<add name="is_optimized" type="uint64">seen 1 eg PZ widgetball_test_, or 0 in JWE2 characterscale and PZ CM_Common_Roofs</add>
 		<add name="zeros 1" type="uint64" arr1="3"/>
 		<add name="tris switch" type="uint64" />
 		<add name="ff" type="int" default="-1"/>
 		<add name="zeros 2" type="int" arr1="7"/>
-		<add name="weird padding" type="SmartPadding" arg="4">sometimes 8 bytes, apparently not part of SubCollChunk (JWE2 dev footplantingtest_ has that but not the padding)</add>
+<!--		<add name="weird padding" type="SmartPadding" arg="4">this is most likely redundant now that MeshCollisionOptimizer is in the aligned MeshCollisionData-->
+<!--			sometimes 8 bytes, apparently not part of MeshCollisionOptimizer (JWE2 dev footplantingtest_ has that but not the padding)</add>-->
 <!--		<add name="data" type="MeshCollisionData" abstract="true" arg="#SELF#"/>-->
 	</compound>
 
@@ -878,8 +878,7 @@
 	</compound>
 
 	<compound name="MeshCollisionData">
-		<add name="SubCollChunk" type="SubCollChunk" cond="#ARG#\has_SubCollChunk" >seems to repeat tri_count</add>
-		--not on LAG_NaturalWaterPool_Malta--
+		<add name="MeshCollisionOptimizer" type="MeshCollisionOptimizer" cond="#ARG#\is_optimized"/>
 
 		<add name="vertices addr" type="Empty"/>
 		<add name="vertices" type="float" arr1="#ARG#\vertex count" arr2="3">array of vertices</add>
