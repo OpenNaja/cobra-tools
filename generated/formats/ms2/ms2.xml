@@ -662,7 +662,7 @@
 	</compound>
 
 	<compound name="ConvexHull">
-		<add name="vertex count" type="uint" >16 for anubis: 4 hulls * 16 * 12 (size of vert)</add>
+		<add name="vertex count" type="uint"/>
 		<add name="rotation" type="Matrix33"/>
 		<add name="offset" type="Vector3" >center of the box</add>
 		<add name="zeros" type="uint" arr1="5" vercond="#PC#" >probably padding</add>
@@ -712,8 +712,6 @@
 		<add name="tris switch" type="uint64" />
 		<add name="ff" type="int" default="-1"/>
 		<add name="zeros 2" type="int" arr1="7"/>
-<!--		<add name="weird padding" type="SmartPadding" arg="4">this is most likely redundant now that MeshCollisionOptimizer is in the aligned MeshCollisionData-->
-<!--			sometimes 8 bytes, apparently not part of MeshCollisionOptimizer (JWE2 dev footplantingtest_ has that but not the padding)</add>-->
 <!--		<add name="data" type="MeshCollisionData" abstract="true" arg="#SELF#"/>-->
 	</compound>
 

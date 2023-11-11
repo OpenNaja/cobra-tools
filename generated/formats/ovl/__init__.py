@@ -818,7 +818,7 @@ class OvlFile(Header):
 			self.hash_table_local.update({h: b for b, h in zip(self.files_basename, self.files["file_hash"])})
 
 			if "only_types" in self.commands:
-				if not all(ext in self.files_ext for ext in self.commands['only_types']):
+				if not (ext for ext in self.commands['only_types'] if ext in self.files_ext):
 					logging.info(f"OVL does not contain requested formats, skipping")
 					return
 			if "generate_hash_table" in self.commands:
