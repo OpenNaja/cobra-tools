@@ -10,7 +10,7 @@ class MeshCollisionData(BaseStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.mesh_collision_optimizer = name_type_map['MeshCollisionOptimizer'](self.context, 0, None)
+		self.optimizer = name_type_map['MeshCollisionOptimizer'](self.context, 0, None)
 		self.vertices_addr = name_type_map['Empty'](self.context, 0, None)
 
 		# array of vertices
@@ -38,7 +38,7 @@ class MeshCollisionData(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield 'mesh_collision_optimizer', name_type_map['MeshCollisionOptimizer'], (0, None), (False, None), (None, True)
+		yield 'optimizer', name_type_map['MeshCollisionOptimizer'], (0, None), (False, None), (None, True)
 		yield 'vertices_addr', name_type_map['Empty'], (0, None), (False, None), (None, None)
 		yield 'vertices', Array, (0, None, (None, 3,), name_type_map['Float']), (False, None), (None, None)
 		yield 'triangles_addr', name_type_map['Empty'], (0, None), (False, None), (None, None)
@@ -53,7 +53,7 @@ class MeshCollisionData(BaseStruct):
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		if instance.arg.is_optimized:
-			yield 'mesh_collision_optimizer', name_type_map['MeshCollisionOptimizer'], (0, None), (False, None)
+			yield 'optimizer', name_type_map['MeshCollisionOptimizer'], (0, None), (False, None)
 		yield 'vertices_addr', name_type_map['Empty'], (0, None), (False, None)
 		yield 'vertices', Array, (0, None, (instance.arg.vertex_count, 3,), name_type_map['Float']), (False, None)
 		yield 'triangles_addr', name_type_map['Empty'], (0, None), (False, None)

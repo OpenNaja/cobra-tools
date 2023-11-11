@@ -677,10 +677,11 @@
 	</compound>
 
 	<compound name="MeshCollisionChunk">
-		<add name="a" type="ushort" arr1="24">?</add>
-		<add name="b" type="ushort" arr1="8">incrementing by 16 from 0, or if around 32769: incrementing by 1, mostly</add>
-		<add name="min_of_b" type="ushort" >usually, but not always the first value</add>
-		<add name="num_used_b_slots" type="ushort" >counts how many slots in b are used; JWE2: 4, 8</add>
+		<add name="a" type="short" arr1="24">?</add>
+		<add name="tri_indices" type="short" arr1="8">start indices of a group of 16 tris;incrementing by 16 from 0, or if around -32769: incrementing by 1, mostly</add>
+		<add name="min_of_indices" type="short" >usually, but not always the first tri index; 0 if tri_indices are negative</add>
+		<add name="num_used_tri_slots" type="ubyte" >counts how many slots in tri_indices are used, others are 0</add>
+		<add name="salt_index" type="ubyte" >likely</add>
 		<add name="consts" type="uint" arr1="3" default="2954754766">always 2954754766?</add>
 	</compound>
 
@@ -876,7 +877,7 @@
 	</compound>
 
 	<compound name="MeshCollisionData">
-		<add name="MeshCollisionOptimizer" type="MeshCollisionOptimizer" cond="#ARG#\is_optimized"/>
+		<add name="optimizer" type="MeshCollisionOptimizer" cond="#ARG#\is_optimized"/>
 
 		<add name="vertices addr" type="Empty"/>
 		<add name="vertices" type="float" arr1="#ARG#\vertex count" arr2="3">array of vertices</add>
