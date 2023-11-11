@@ -340,11 +340,19 @@ def generate_rig_edit():
 
     # ---------------------------------------------------------------------------------------------------------------
 
-    # Finalize
-    logging.info(f"total number of edits: {editnumber}")
-
     # Switch back to original mode.
     bpy.ops.object.mode_set(mode=original_mode)
+    
+    # Finalize
+    logging.info(f"total number of edits: {editnumber}")
+    totalnodes = len([p_bone for p_bone in armature.pose.bones if p_bone.name.startswith("NODE_")])
+    totalbones = len(armature.pose.bones)
+    logging.info(f"total nodes: {totalnodes}")
+    logging.info(f"total bones: {totalbones}")
+    
+    if totalbones > 254:
+        msgs.append(f"Warning: Total amount of bones exceeds 254 after rig edit, game will crash. Please undo, reduce the number of edits, and try again.")
+        return msgs
 
     # Return count of succesfull rig edits
     msgs.append(f"{str(editnumber)} rig edits generated succesfully")
