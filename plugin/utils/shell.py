@@ -6,6 +6,7 @@ import bpy
 import bmesh
 import mathutils
 from mathutils import Vector, Matrix, Quaternion
+from plugin.modules_import.armature import set_transform4
 
 import plugin.utils.object
 from plugin.utils.hair import get_tangent_space_mat, vcol_2_vec, MID
@@ -87,297 +88,335 @@ def create_lods():
 	return msgs
 
 
-def vectorisclose(vector1,vector2,tolerance=0.0001):
-    #Determine if the inputs are correctly utilized. 
-    if not isinstance(vector1,Vector) or not isinstance(vector2,Vector) or not isinstance(tolerance,float):
+# Definition for the vector comparison function.
+def vectorisclose(vector1, vector2, tolerance=0.0001):
+    # Determine if the inputs are correctly utilized.
+    if not isinstance(vector1, Vector) or not isinstance(vector2, Vector) or not isinstance(tolerance, float):
         raise TypeError("Input 1 must be a vector. Input 2 must be a vector. Input 3 must be a float.")
-    #Compare the components of the vectors.
+    # Compare the components of the vectors.
     if len(vector1) != len(vector2):
         raise TypeError("Both vectors must have the same amount of components")
-    #Compare components
-    for component in range(0,len(vector1)):
+    # Compare components
+    for component in range(0, len(vector1)):
         if not abs(vector1[component] - vector2[component]) < abs(tolerance):
             return False
     return True
 
 
+# Main rig editing function
 def generate_rig_edit():
     """Automatic rig edit generator by NDP. Detects posed bones and automatically generates nodes and offsets them."""
+    # Initiate logging
     msgs = []
+    #logging.info(f"-------------------------------------------------------------")
     logging.info(f"generating rig edit from pose")
     
-    #Check if selected object is a valid armature
+    #Function settings
+    applyarmature = False
+    mergenodes = True
+    errortolerance = 0.0001
+    
+    # Check if the active object is a valid armature
     if bpy.context.active_object.type != 'ARMATURE':
-        #Object is not an armature. Cancelling.
+        # Object is not an armature. Cancelling.
         msgs.append(f"No armature selected.")
         return msgs
-    
-    #Store current mode
+
+    # Get the armature
+    armature = bpy.context.object
+    logging.info(f"armature: {armature.name}")
+
+    # Store current mode
     original_mode = bpy.context.mode
-    #For some reason it doesn't recognize edit_armature as a valid mode to switch to so we change it to just edit. weird.
+    # For some reason it doesn't recognize edit_armature as a valid mode to switch to so we change it to just edit. Blender moment
     if original_mode == 'EDIT_ARMATURE':
         original_mode = 'EDIT'
-    
-    #Store number of edits
+
+    # Store number of edits done
     editnumber = 0
 
-    #Force Switch to pose mode.
+    # Force Switch to pose mode.
     bpy.ops.object.mode_set(mode='POSE')
-    
-    #Get the armature
-    armature = bpy.context.object
-    
-    #Initiate list of all posed bones
-    posedbones_list = []
-    
-    #Update positions
-    bpy.context.view_layer.update()
-    
-    #We iterate over every pose bone and detetect which ones have been posed, and create  a list of them.
+
+    # ---------------------------------------------------------------------------------------------------------------
+
+    # Creating list of posed bones and storing data
+
+    # Initiate list of all posed bones
+    posebone_list = []
+    # Initiate dictionary of matrix data
+    posebone_data = {}
+
+    # We iterate over every pose bone and detetect which ones have been posed, and create  a list of them.
+    logging.info(f"evaluating posed bones:")
     for p_bone in armature.pose.bones:
-        
-        #We check if vectors have  miniscule transforms, and just consider them rounding errors and clear them.
-        if vectorisclose(p_bone.location,Vector((0,0,0)),0.0001) and p_bone.location != Vector((0,0,0)):
-            #Warn the user
+        # We check if vectors have  miniscule transforms, and just consider them rounding errors and clear them.
+        # Check location
+        if vectorisclose(p_bone.location, Vector((0, 0, 0)), 0.0001) and p_bone.location != Vector((0, 0, 0)):
+            # Warn the user
             logging.info(f"{p_bone.name} had miniscule location transforms, assuming it is an error and clearing")
-            #Clear transforms
-            p_bone.location = Vector((0,0,0))
-            
-        if vectorisclose(p_bone.scale,Vector((1,1,1)),0.0001) and p_bone.scale != Vector((1,1,1)):
-            #Warn the user
-            logging.info(f"{p_bone.name} had miniscule scale transforms, assuming it is an error and clearing")
-            #Clear scale
-            p_bone.scale = Vector((1,1,1))
-            
-        if vectorisclose(Vector(p_bone.rotation_quaternion),Vector((1,0,0,0)),0.0001) and Vector(p_bone.rotation_quaternion) != Vector((1,0,0,0)):
-            #Warn the user
+            # Clear transforms
+            p_bone.location = Vector((0, 0, 0))
+
+        # Check rotation
+        if vectorisclose(Vector(p_bone.rotation_quaternion), Vector((1, 0, 0, 0)), 0.0001) and Vector(p_bone.rotation_quaternion) != Vector((1, 0, 0, 0)):
+            # Warn the user
             logging.info(f"{p_bone.name} had miniscule rotation transforms, assuming it is an error and clearing")
-            #Clear rotation
-            p_bone.rotation_quaternion = Quaternion((1,0,0,0))
-            
-        #We check if any bones have scale and warn the user, as clearing their scale will significantly alter the result.
-        if not vectorisclose(p_bone.scale,Vector((1,1,1)),0.0001):
-            logging.info(f"Bone has scale. Value = {repr(p_bone.scale)}, difference: {(p_bone.scale - Vector((1,1,1))).length}")
+            # Clear rotation
+            p_bone.rotation_quaternion = Quaternion((1, 0, 0, 0))
+
+        # Check scale
+        if vectorisclose(p_bone.scale, Vector((1, 1, 1)), 0.0001) and p_bone.scale != Vector((1, 1, 1)):
+            # Warn the user
+            logging.info(f"{p_bone.name} had miniscule scale transforms, assuming it is an error and clearing")
+            # Clear scale
+            p_bone.scale = Vector((1, 1, 1))
+
+        # Check if any bones have major scale transform, and warn the user.
+        if not vectorisclose(p_bone.scale, Vector((1, 1, 1)), 0.0001):
+            logging.info(f"{p_bone.name} had scale. Value = {repr(p_bone.scale)}, difference: {(p_bone.scale - Vector((1, 1, 1))).length}")
             msgs.append(f"Warning: {str(p_bone.name)} had scale transforms. Reset scale for all bones and try again.")
             return msgs
         
-        #We check for NODE bones with transforms and skip them.
-        if (not vectorisclose(p_bone.location,Vector((0,0,0)),0.0001) or not vectorisclose(p_bone.scale,Vector((1,1,1)),0.0001) or not vectorisclose(Vector(p_bone.rotation_quaternion),Vector((1,0,0,0)),0.0001)) and p_bone.name.startswith("NODE_"):
-            #Ignore posed NODE bones and proceed to the next, their offsets can be applied directly.
+        # We check for NODE bones with transforms and skip them.
+        if (not vectorisclose(p_bone.location, Vector((0, 0, 0)), 0.0001) or not vectorisclose(p_bone.scale,Vector((1, 1, 1)),0.0001) or not vectorisclose(Vector(p_bone.rotation_quaternion), Vector((1, 0, 0, 0)), 0.0001)) and p_bone.name.startswith("NODE_"):
+            # Ignore posed NODE bones and proceed to the next, their offsets can be applied directly.
             editnumber = editnumber + 1
             logging.info(f"rig edit number {editnumber}")
             logging.info(f"NODE with offsets detected. Applying offsets directly.")
             continue
-        
-        #We append any remaining bones that have been posed.
-        if (not vectorisclose(p_bone.location,Vector((0,0,0)),0.0001) or not vectorisclose(p_bone.scale,Vector((1,1,1)),0.0001) or not vectorisclose(Vector(p_bone.rotation_quaternion),Vector((1,0,0,0)),0.0001)):
-            #Append the bones to the list of posed bones.
-            posedbones_list.append(p_bone)
-    
-    
-    #Iterate over every posed bone.
-    for p_bone in posedbones_list:
-        #Update bone locations
-        bpy.context.view_layer.update()
-            
-        #Debug info
-        logging.info(f"rig edit number {editnumber+1}")
-        logging.info(f"name: {p_bone.name}")
-        logging.info(f"parent: {p_bone.parent.name}")
-        
-        #Get pose mode position of bonebase
-        bonebase_pos_pose = Vector(p_bone.matrix.translation)
-        
-        #Reset position
-        p_bone.location = Vector((0, 0, 0))
-        #Update location after moving.
-        bpy.context.view_layer.update()
-        
-        #Get rest mode position of bonebase
-        bonebase_pos_rest = Vector(p_bone.matrix.translation)
-        
-        #Calculate delta offset
-        bonebase_pos_delt = Vector(bonebase_pos_pose - bonebase_pos_rest)
-        
-        #Set back to original position
-        p_bone.matrix.translation = Vector(bonebase_pos_pose)
-        
-        #Log locations
-        logging.info(f"bonebase rest position: {bonebase_pos_rest}")
-        logging.info(f"bonebase pose position: {bonebase_pos_pose}")
-        logging.info(f"bonebase delt position: {bonebase_pos_delt}")
 
-        
-        #Creating the nodes    
-        #We switch to edit mode to use edit bones, as they do not exist outside of edit mode.
-        #Switch to edit mode
-        bpy.ops.object.mode_set(mode='EDIT')
-        
-        #Get edit bones
-        bonebase = armature.data.edit_bones.get(p_bone.name)
+        # We append any remaining bones that have been posed.
+        if (not vectorisclose(p_bone.location, Vector((0, 0, 0)), 0.0001) or not vectorisclose(p_bone.scale,Vector((1, 1, 1)),0.0001) or not vectorisclose(Vector(p_bone.rotation_quaternion), Vector((1, 0, 0, 0)), 0.0001)):
+            #Check if the bone has no parent and warn the user
+            if p_bone.parent == None:
+                logging.info(f"{p_bone.name} has transforms but no parent")
+                msgs.append(f"Warning: {p_bone.name} has no parent. Do not rig edit root bones or bones without a parent.")
+                return msgs
+            # Append the bones to the list of posed bones.
+            # posebone_list.append(p_bone)
+            # bonebase values
+            logging.info(f"p_bone: {p_bone.name}")
+            #logging.info(f"p_bone head (global rest):        {p_bone.bone.head_local}")
+            #logging.info(f"p_bone head (global pose):        {p_bone.head}")
+            #logging.info(f"p_bone head (+difference):        {p_bone.head - p_bone.bone.head_local}")
+            posebone_data[p_bone.name] = [p_bone.matrix.copy(), p_bone.bone.matrix_local.copy(), p_bone.parent.bone.matrix_local.copy()]
+
+    # ---------------------------------------------------------------------------------------------------------------
+
+    # Apply pose as rest pose
+    bpy.ops.pose.armature_apply()
+
+    # ---------------------------------------------------------------------------------------------------------------
+
+    # Creating the nodes
+    # We switch to edit mode to use edit bones, as they do not exist outside of edit mode.
+    # Switch to edit mode
+    bpy.ops.object.mode_set(mode='EDIT')
+
+    for bone_name, (base_posed, base_armature_space, parent_armature_space) in posebone_data.items():
+        # Get edit bones
+        bonebase = armature.data.edit_bones.get(bone_name)
         boneparent = bonebase.parent
-        
-        #Detect if the bone already has a node.
-        if p_bone.parent.name.startswith("NODE_"):
-            logging.info(f"{p_bone.name} has a pre-existing NODE. Using it instead.")
+
+        # Detect if the bone already has a node.
+        if boneparent.name.startswith("NODE_"):
+            logging.info(f"{bone_name} has a pre-existing NODE. Using it instead.")
             bonenode = bonebase.parent
-            
         else:
-            #Creating the node bone
-            bonenode = armature.data.edit_bones.new(f"NODE_{p_bone.name}")
-        
-            #Copy parent length to node
-            bonenode.length = boneparent.length
-            #Copy parent matrix to node
-            bonenode.matrix = boneparent.matrix.copy()
-        
-            #Set parent of bonenode to boneparent
+            # Creating the node bone
+            bonenode = armature.data.edit_bones.new(f"NODE_{bone_name}")
+            
+            # Set parent of bonenode to boneparent
             bonenode.parent = boneparent
-        
-            #Set parent of bonebase to bonenode
+
+            # Set parent of bonebase to bonenode
             bonebase.parent = bonenode
+            
+            # Copy parent length to node
+            bonenode.length = boneparent.length
+            
+
+        # Define the matrix
+        bonenode_matrix_local = base_posed @ (base_armature_space.inverted() @ parent_armature_space)
+        #logging.info(f"calculated node matrix")
+        #logging.info(f"{bonenode_matrix_local}")
         
-        #Node creation complete
+        # Remember length
+        nodelength = bonenode.length
         
-        #Switch to pose mode.
-        bpy.ops.object.mode_set(mode='POSE')
+        # Set node matrix
+        # bonenode.matrix = bonenode_matrix_local
+        set_transform4(bonenode_matrix_local, bonenode)
+        
+        # Restore length
+        bonenode.length = nodelength
+        
+        # Node completed. Log number of edits.
+        editnumber = editnumber + 1
+        # Node creation complete
+        logging.info(f"created node: {bonenode.name}")
+        #logging.info(f"node matrix:")
+        #logging.info(f"{bonenode.matrix}")
+        
+    bpy.ops.object.mode_set(mode='POSE')
+
+    # ---------------------------------------------------------------------------------------------------------------
+
+    # Creating node groups to delete
+
+    if mergenodes == True:
+        # Checking for duplicates to merge
+        logging.info(f"creating node_groups to merge")
+        # Initiate list
+        node_list = []
+
+        # We create a list of all NODES
+        for p_bone in armature.pose.bones:
+            if p_bone.name.startswith("NODE_"):
+                node_list.append(p_bone)
+
+        # Create NODE parent dictionary
+        node_groups = {}
+
+        # Create and sort NODE groups, we create a dictionary with a tuple of: parent,rounded matrix as the key. This way we can group identical nodes.
+        for p_bone in node_list:
+            #We create a rounded matrix to create leeway for miniscule variation
+            rounded_matrix = tuple(tuple(round(element, 5) for element in row) for row in p_bone.bone.matrix_local)
+            #logging.info(f"node matrix: {p_bone.bone.matrix_local}")
+            #logging.info(f"rounded matrix: {rounded_matrix}")
+            
+            #We use the parent and rounded matrix as a key to sort all identical nodes into groups
+            keytuple = (p_bone.parent.name, rounded_matrix)
+            if keytuple in node_groups:
+                node_groups[keytuple].append(p_bone)
+            else:
+                node_groups[keytuple] = [p_bone]
+
+        # Log node groups
+        for nodegroup in node_groups:
+            logging.info(f"node group: {nodegroup}")
+            for node in node_groups[nodegroup]:
+                logging.info(f"node: {node.name}")
+
+        # store number of deleted nodes
+        deletednodes = 0
+
+        # Merge node groups
+        for nodegroup in node_groups:
+            # Rename NODE to indicate it owns more than one bone
+            if len(node_groups[nodegroup]) > 1:
+                # Renaming to be more descriptive
+                node_groups[nodegroup][0].name = f"NODE_{len(node_groups[nodegroup])}GROUP_{node_groups[nodegroup][0].parent.name}"
+            
+            # Log group organization
+            #logging.info(f"first node: {node_groups[nodegroup][0].name}")
+            #logging.info(f"first child: {node_groups[nodegroup][0].children[0].name}")
+            
+            #Delete all extra nodes
+            for node in node_groups[nodegroup]:
+                if node != node_groups[nodegroup][0]:
+                    #logging.info(f"secondary node: {node.name}")
+                    #logging.info(f"secondary child: {node.children[0].name}")
+
+                    # Switch to edit mode to edit the parents
+                    bpy.ops.object.mode_set(mode='EDIT')
+
+                    # Reparent duplicate basebones to the first node
+                    armature.data.edit_bones.get(node.children[0].name).parent = armature.data.edit_bones.get(
+                        node_groups[nodegroup][0].name)
+
+                    # Delete the duplicate nodes
+                    deletednodes = deletednodes + 1
+                    armature.data.edit_bones.remove(armature.data.edit_bones.get(node.name))
+
+                    # Switch back to pose mode
+                    bpy.ops.object.mode_set(mode='POSE')
+
+        # Report amount of deleted nodes
+        if deletednodes > 0:
+            logging.info(f"merged {deletednodes} nodes into node groups")
+    # Node groups completed
+
+    # ---------------------------------------------------------------------------------------------------------------
+
+    # Finalize
+    logging.info(f"total number of edits: {editnumber}")
+
+    # Switch back to original mode.
+    bpy.ops.object.mode_set(mode=original_mode)
+
+    # Return count of succesfull rig edits
+    msgs.append(f"{str(editnumber)} rig edits generated succesfully")
+    return msgs
+
+# Function for converting scale to visual location transforms in pose mode
+def convert_scale_to_loc():
+    """Automatically convert scaled bones into equivalent visual location transforms"""
+    # Initiate logging
+    msgs = []
+    logging.info(f"converting scale transforms to visual location")
+    
+    # Check if the active object is a valid armature
+    if bpy.context.active_object.type != 'ARMATURE':
+        # Object is not an armature. Cancelling.
+        msgs.append(f"No armature selected.")
+        return msgs
+    
+    # Store current mode
+    original_mode = bpy.context.mode
+    # For some reason it doesn't recognize edit_armature as a valid mode to switch to so we change it to just edit. Blender moment
+    if original_mode == 'EDIT_ARMATURE':
+        original_mode = 'EDIT'
+    #Set to pose mode
+    bpy.ops.object.mode_set(mode='POSE')
+
+    # Get the armature
+    armature = bpy.context.object
+    logging.info(f"armature: {armature.name}")
+    
+    # Initiate logging variable
+    editnumber = 0
+    
+    # Initiate list of any bones that are not at their armaturespace rest location
+    posebone_list = []
+    posebone_data = {}
+    
+    # We get a list of all bones not in their rest positions in armaturespace
+    for p_bone in armature.pose.bones:
+        #We copy all data in case we need parent data
+        posebone_data[p_bone] = [p_bone.head.copy(),p_bone.matrix]
+        #We append all bones that aren't in their rest positions
+        if p_bone.head != p_bone.bone.head_local:
+            posebone_list.append(p_bone)
+            logging.info(f"{p_bone.name} rest pos: {p_bone.bone.head_local}")
+            logging.info(f"{p_bone.name} pose pos: {p_bone.head}")
+            
+    
+    #Clear scale of all bones
+    for p_bone in armature.pose.bones:
+        p_bone.scale = (1,1,1)
+    
+    #Clear scale and set location
+    logging.info(f"Setting location of pose bones:")
+    for p_bone in posebone_list:
+        logging.info(f"posed bone: {p_bone}")
+        # Set the local position for the pose bone
+        
+        # WIP
+        #p_bone.location = p_bone.bone.matrix_local.inverted() @ posebone_data[p_bone][0]
         
         
-        
-        #------------------------------------
-        
-        #OFFSET NODE LOCATION
-        #Applying offsets to bonenode
-        #Switch to pose mode
-        bpy.ops.object.mode_set(mode='POSE')
-        
-        #Clear location
-        p_bone.location = Vector((0,0,0))
-        #Clear rotation
-        p_bone.rotation_quaternion = Quaternion((1,0,0,0))
-        
-        #Offset bonenode location
-        p_bone.parent.matrix.translation = p_bone.parent.matrix.translation + bonebase_pos_delt
-        
-        #------------------------------------
-        
-        #OFFSET NODE ROTATION
-        
-        #BUG: local Y rotation seems to get lost but otherwise everything else works.
-        #To fix, maybe store local Y and use the origin rotate afterwards to make up for it using the bone's pose vector as the axis.
-        
-        #Origin of rotation
-        origin = p_bone.head
-        
-        #Store pose position
-        vector1 = p_bone.vector.copy()
-        #Reset rotation
-        p_bone.rotation_quaternion = (1, 0, 0, 0)
-        bpy.context.view_layer.update()
-        #Store rest position
-        vector2 = p_bone.vector.copy()
-        
-        #Log vectors
-        logging.info(f"bonebase pose vector: {vector1}")
-        logging.info(f"bonebase rest vector: {vector2}")
-        
-        #Calculate angle between vectors
-        angle_radians = vector1.angle(vector2)
-        angle_degrees = math.degrees(angle_radians)
-        #log angle
-        logging.info(f"angle radians: {angle_radians}")
-        logging.info(f"angle degrees: {angle_degrees}")
-        
-        #Calculate the rotation matrix
-        angle = angle_radians
-        #Calculate the axis
-        axis = vector1.cross(vector2)
-        #Log axis
-        logging.info(f"axis: {axis}")
-        #Create the rotation matrix
-        rotation_matrix = Matrix.Rotation(-angle_radians, 4, axis)
-        # Apply the final matrix to the pose bone
-        p_bone.parent.matrix = Matrix.Translation(+origin) @ rotation_matrix @ Matrix.Translation(+origin).inverted() @ p_bone.parent.matrix
-        #------------------------------------
-        
-        #Node completed. Log number of edits.
         editnumber = editnumber + 1
     
-    #CREATING NODE GROUPS
-    #Checking for duplicates to merge
-    logging.info(f"creating node_groups to merge")
-    #Initiate list
-    node_list = []
+    if editnumber > 0:
+        msgs.append(f"Moved {editnumber} bones to their visual locations and reset scales")
+    else:
+        msgs.append(f"No bones required movement.")
     
-    #We create a list of all NODES
-    for p_bone in armature.pose.bones:
-        if p_bone.name.startswith("NODE_"):
-            node_list.append(p_bone)
-    
-    #Create NODE parent dictionary
-    node_groups = {}
-    
-    #Create and sort NODE groups, we create a dictionary with a tuple of: parent,location,rotation as the key. This way we can group identical nodes.
-    for p_bone in node_list:
-        keytuple = (p_bone.parent.name,(round(p_bone.location.x,5),round(p_bone.location.y,5),round(p_bone.location.z,5)),(p_bone.rotation_quaternion[0],p_bone.rotation_quaternion[1],p_bone.rotation_quaternion[2],p_bone.rotation_quaternion[3]))
-        if keytuple in node_groups:
-            node_groups[keytuple].append(p_bone)
-        else:
-            node_groups[keytuple] = [p_bone]
-    
-
-    #Log node groups
-    for nodegroup in node_groups:
-        logging.info(f"node group: {nodegroup}")
-        for node in node_groups[nodegroup]:
-            logging.info(f"node: {node.name}")
-    
-    #store number of deleted nodes
-    deletednodes = 0
-    
-    #Merge node groups
-    for nodegroup in node_groups:
-        if len(node_groups[nodegroup]) > 1:
-            node_groups[nodegroup][0].name = f"NODE_{len(node_groups[nodegroup])}GROUP{node_groups[nodegroup][0].children[0].name}"
-        logging.info(f"first node: {node_groups[nodegroup][0].name}")
-        logging.info(f"first child: {node_groups[nodegroup][0].children[0].name}")
-        for node in node_groups[nodegroup]:
-            if node != node_groups[nodegroup][0]:
-                logging.info(f"secondary node: {node.name}")
-                logging.info(f"secondary child: {node.children[0].name}")
-                
-                #Switch to edit mode to edit the parents
-                bpy.ops.object.mode_set(mode='EDIT')
-                
-                #Reparent duplicate basebones to the first node
-                armature.data.edit_bones.get(node.children[0].name).parent = armature.data.edit_bones.get(node_groups[nodegroup][0].name)
-                
-                #Delete the duplicate nodes
-                deletednodes = deletednodes + 1
-                armature.data.edit_bones.remove(armature.data.edit_bones.get(node.name))
-                
-                #Switch back to pose mode
-                bpy.ops.object.mode_set(mode='POSE')
-    
-    #Report amount of deleted nodes
-    if deletednodes > 0:
-        logging.info(f"Merged {deletednodes} nodes into node groups")
-    
-    #NODE GROUPS COMPLETE
-
-        
-
-    #----------------------------------------------------------------------------
-    logging.info(f"total number of edits: {editnumber}")
-    
-    #Apply pose as rest position and finalize the edit.
-    bpy.ops.pose.armature_apply()
-    
-    #Switch back to original mode. 
+    #Return to original mode
     bpy.ops.object.mode_set(mode=original_mode)
     
-    #Return count of succesfull rig edits
-    msgs.append(f"{str(editnumber)} rig edits generated succesfully")
     return msgs
 
 
