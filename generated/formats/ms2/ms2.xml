@@ -700,7 +700,7 @@
 		JWE2: 188 bytes
 		<add name="rotation" type="Matrix33"/>
 		<add name="offset" type="Vector3" >offset of mesh</add>
-		<add name="unk1" type="MeshCollisionIndex" arr1="3" >shared among (all?) redwoods</add>
+		<add name="indices" type="MeshCollisionIndex" arr1="3" >seems to be constant</add>
 		<add name="unk2" type="uint" arr1="3" vercond="#PC#">found in PC FR_GrandCarousel</add>
 		<add name="vertex count" type="uint64"/>
 		<add name="tri count" type="uint64"/>

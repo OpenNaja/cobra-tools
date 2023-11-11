@@ -8,6 +8,7 @@ from generated.formats.ms2.compounds.Capsule import Capsule
 from generated.formats.ms2.compounds.ConvexHull import ConvexHull
 from generated.formats.ms2.compounds.Cylinder import Cylinder
 from generated.formats.ms2.compounds.MeshCollision import MeshCollision
+from generated.formats.ms2.compounds.MeshCollisionData import MeshCollisionData
 from generated.formats.ms2.compounds.Sphere import Sphere
 from generated.formats.ms2.compounds.packing_utils import pack_swizzle, pack_swizzle_collision
 from generated.formats.ms2.enums.CollisionType import CollisionType
@@ -17,7 +18,7 @@ v = 9999
 
 
 def export_bounds(bounds, model_info):
-	logging.info("Exporting bounds")
+	logging.debug("Exporting bounds")
 	bounds_max, bounds_min = get_bounds(bounds)
 	center = (bounds_min+bounds_max)/2
 	model_info = model_info
@@ -26,11 +27,12 @@ def export_bounds(bounds, model_info):
 	model_info.radius = (center-bounds_max).length*0.77
 
 
-def assign_bounds(model_info, bounds_max, bounds_min):
-	model_info.bounds_max.set(bounds_max)
-	model_info.bounds_min.set(bounds_min)
-	model_info.bounds_max_repeat.set(bounds_max)
-	model_info.bounds_min_repeat.set(bounds_min)
+def assign_bounds(target, bounds_max, bounds_min):
+	target.bounds_max.set(bounds_max)
+	target.bounds_min.set(bounds_min)
+	if hasattr(target, "bounds_max_repeat"):
+		target.bounds_max_repeat.set(bounds_max)
+		target.bounds_min_repeat.set(bounds_min)
 
 
 def get_bounds(bounds):
@@ -43,9 +45,6 @@ def get_bounds(bounds):
 				bounds_min[i] = min(bounds_min[i], vec[i])
 				bounds_max[i] = max(bounds_max[i], vec[i])
 	return bounds_max, bounds_min
-
-
-# print(model_info)
 
 
 def export_hitcheck(b_obj, hitcheck, corrector):
@@ -83,7 +82,7 @@ def get_collider_matrix(b_hitcheck):
 
 def export_spherebv(b_obj, hitcheck):
 	hitcheck.dtype = CollisionType.SPHERE
-	hitcheck.collider = Sphere(hitcheck.context)
+	hitcheck.reset_field("collider")
 
 	matrix = get_collider_matrix(b_obj)
 	hitcheck.collider.radius = b_obj.dimensions.x / 2
@@ -93,7 +92,7 @@ def export_spherebv(b_obj, hitcheck):
 
 def export_boxbv(b_obj, hitcheck, corrector):
 	hitcheck.dtype = CollisionType.BOUNDING_BOX
-	hitcheck.collider = BoundingBox(hitcheck.context)
+	hitcheck.reset_field("collider")
 
 	matrix = get_collider_matrix(b_obj)
 	c = hitcheck.collider.center
@@ -111,13 +110,13 @@ def set_rot_matrix(b_matrix_4x4, m_rot_3x3, corrector):
 
 def export_capsulebv(b_obj, hitcheck):
 	hitcheck.dtype = CollisionType.CAPSULE
-	hitcheck.collider = Capsule(hitcheck.context)
+	hitcheck.reset_field("collider")
 	_capsule_transform(b_obj, hitcheck)
 
 
 def export_cylinderbv(b_obj, hitcheck):
 	hitcheck.dtype = CollisionType.CYLINDER
-	hitcheck.collider = Cylinder(hitcheck.context)
+	hitcheck.reset_field("collider")
 	_capsule_transform(b_obj, hitcheck)
 	# sole difference
 	hitcheck.collider.extent = b_obj.dimensions.z
@@ -129,28 +128,29 @@ def export_meshbv(b_obj, hitcheck, corrector):
 	matrix = get_collider_matrix(b_obj)
 
 	hitcheck.dtype = CollisionType.MESH_COLLISION
-	hitcheck.collider = MeshCollision(hitcheck.context)
+	hitcheck.reset_field("collider")
 	coll = hitcheck.collider
-
+	for i in range(3):
+		coll.indices[i].index = i+1
 	bounds_max, bounds_min = get_bounds((b_obj.bound_box, ))
 	assign_bounds(coll, bounds_max, bounds_min)
 
 	# export rotation
 	set_rot_matrix(matrix, hitcheck.collider.rotation, corrector)
 	# export translation
-	c = coll.offset
-	c.x, c.y, c.z = pack_swizzle(matrix.translation)
-	# export vertices
+	coll.offset.set(pack_swizzle(matrix.translation))
+	# export geometry
 	coll.vertex_count = len(eval_me.vertices)
-	coll.vertices.resize((coll.vertex_count, 3))
-	for vert_i, vert in enumerate(eval_me.vertices):
-		coll.vertices[vert_i, :] = pack_swizzle(vert.co)
-	# export triangles
 	coll.tri_count = len(eval_me.polygons)
-	coll.triangles.resize((coll.tri_count, 3))
+	coll.data = MeshCollisionData(coll.context, coll)
+	for vert_i, vert in enumerate(eval_me.vertices):
+		coll.data.vertices[vert_i, :] = pack_swizzle_collision(vert.co)
+	# export triangles
 	for face_i, face in enumerate(eval_me.polygons):
-		coll.triangles[face_i, :] = face.vertices
+		coll.data.triangles[face_i, :] = face.vertices
 		assert len(face.vertices) == 3
+	print(coll)
+	print(coll.data)
 
 
 def export_hullbv(b_obj, hitcheck, corrector):
@@ -158,14 +158,13 @@ def export_hullbv(b_obj, hitcheck, corrector):
 	matrix = get_collider_matrix(b_obj)
 
 	hitcheck.dtype = CollisionType.CONVEX_HULL
-	hitcheck.collider = ConvexHull(hitcheck.context)
+	hitcheck.reset_field("collider")
 	coll = hitcheck.collider
 
 	# export rotation
 	set_rot_matrix(matrix, hitcheck.collider.rotation, corrector)
 	# export translation
-	c = coll.offset
-	c.x, c.y, c.z = pack_swizzle(matrix.translation)
+	coll.offset.set(pack_swizzle(matrix.translation))
 	# export vertices
 	coll.vertex_count = len(me.vertices)
 	coll.vertices = np.empty((coll.vertex_count, 3), dtype="float")

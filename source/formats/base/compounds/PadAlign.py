@@ -45,7 +45,7 @@ class PadAlign(BaseStruct):
 
 	@classmethod
 	def write_fields(cls, stream, instance):
-		logging.info(f"Aligning to {instance.template.__class__.__name__} as {instance.get_pad(stream)}")
+		# logging.debug(f"Aligning to {instance.template.__class__.__name__} as {instance.get_pad(stream)}")
 		instance.data = ZERO * instance.get_pad(stream)
 		stream.write(instance.data)
 
