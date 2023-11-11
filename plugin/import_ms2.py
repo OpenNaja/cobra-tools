@@ -115,7 +115,7 @@ def load(filepath="", use_custom_normals=False, mirror_mesh=False):
 				# we can't assume that the first ob referencing this mesh has it already
 				if not is_old(ms2.info) and is_shell(b_ob):
 					logging.debug(f"{b_ob.name} has shells, adding psys")
-					add_psys(b_ob, mesh)
+					add_psys(b_ob, mesh.fur_length)
 			coll_name = f"{scene.name}_LOD{lod_i}"
 			# show lod 0, hide the others
 			set_collection_visibility(scene, coll_name, lod_i != 0)

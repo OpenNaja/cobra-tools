@@ -7,7 +7,8 @@ import bmesh
 import mathutils
 
 import plugin.utils.object
-from plugin.utils.hair import get_tangent_space_mat, vcol_2_vec, MID
+from plugin.utils.hair import get_tangent_space_mat, vcol_2_vec, MID, add_psys
+from generated.formats.ms2.bitfields.ModelFlag import ModelFlag
 
 # changed to avoid clamping bug and squares on fins
 X_START = -15.9993
@@ -15,6 +16,47 @@ Y_START = 0.999756
 FUR_FIN = "_fur_fin"
 FUR = "_fur"
 FUR_SHELL = "_fur_shell"
+
+
+def add_vgroup(ob, group_name, weight):
+	ob.vertex_groups.new(name=group_name)
+	ob.vertex_groups[group_name].add(range(len(ob.data.vertices)), weight, 'REPLACE')
+
+
+def add_hair():
+	src_ob = bpy.context.object
+	b_me = src_ob.data
+	logging.info(f"Adding hair to {src_ob.name}")
+	# check that src_ob is in lod0?
+	# add vertex groups
+	add_vgroup(src_ob, "fur_length", 0.5)
+	add_vgroup(src_ob, "fur_clump", 0.5)
+	add_vgroup(src_ob, "fur_width", 0.5)
+	# add particle system
+	add_psys(src_ob)
+	# add vcol layer
+	b_me.attributes.new(f"RGBA{0}", "BYTE_COLOR", "CORNER")
+	# toggle flag
+	flag = ModelFlag.from_value(b_me["flag"])
+	flag.repeat_tris = True
+	flag.fur_shells = True
+	b_me["flag"] = int(flag)
+	# set reasonable default scales
+	b_me["uv_scale_x"] = 4.0
+	b_me["uv_scale_y"] = 2.0
+	# add shell material
+	b_mat = b_me.materials[0]
+	shell_mat = b_mat.copy()
+	shell_mat.name = f"{b_mat.name}_Fur_Shell"
+	b_me.materials.append(shell_mat)
+	# build fins
+	# either generate dummy fin_ob or refactor
+	fins_ob = build_fins_geom(src_ob)
+	fins_mat = b_mat.copy()
+	fins_mat.name = f"{b_mat.name}_Fur_Fin"
+	fins_ob.data.materials.clear()
+	fins_ob.data.materials.append(fins_mat)
+	return f"Added hair",
 
 
 def get_ob_count(lod_collections):
@@ -75,8 +117,12 @@ def create_lods():
 
 				# remove additional shell material from LODs after LOD1
 				if is_shell(ob) and lod_index > 1:
-					# todo - actually toggle the flag on the bitfield to maintain the other bits
-					b_me["flag"] = 565
+					# toggle the flag on the bitfield to maintain the other bits, but fins seems to be always 565
+					# b_me["flag"] = 565
+					flag = ModelFlag.from_value(b_me["flag"])
+					flag.repeat_tris = True
+					flag.fur_shells = False
+					b_me["flag"] = int(flag)
 					# remove shell material
 					b_me.materials.pop(index=1)
 	if decimated:
@@ -134,6 +180,25 @@ def get_ob_from_lod_and_flags(coll, flags=(565,)):
 
 
 def build_fins(shell_ob, fin_ob):
+	new_fin_ob = build_fins_geom(shell_ob)
+	transfer_fins_mat(new_fin_ob, fin_ob)
+	return f'Generated fin geometry {new_fin_ob.name} from {shell_ob.name}'
+
+
+def transfer_fins_mat(new_fin_ob, fin_ob):
+	me = new_fin_ob.data
+	# transfer the material
+	me.materials.clear()
+	me.materials.append(fin_ob.data.materials[0])
+	# rename new object
+	trg_name = fin_ob.name
+	fin_ob.name += "dummy"
+	new_fin_ob.name = trg_name
+	# delete old target
+	bpy.data.objects.remove(fin_ob, do_unlink=True)
+
+
+def build_fins_geom(shell_ob):
 	try:
 		shell_me = shell_ob.data
 		uv_scale_x = shell_me["uv_scale_x"]
@@ -148,16 +213,6 @@ def build_fins(shell_ob, fin_ob):
 	# data is per loop
 	hair_directions, loop_vertices = build_tangent_table(shell_ob.data)
 	loop_coord_kd = fill_kd_tree_co(loop_vertices)
-
-	# transfer the material
-	me.materials.clear()
-	me.materials.append(fin_ob.data.materials[0])
-	# rename new object
-	trg_name = fin_ob.name
-	fin_ob.name += "dummy"
-	ob.name = trg_name
-	# delete old target
-	bpy.data.objects.remove(fin_ob, do_unlink=True)
 
 	# set up copy of normals from src mesh
 	mod = ob.modifiers.new('DataTransfer', 'DATA_TRANSFER')
@@ -208,8 +263,7 @@ def build_fins(shell_ob, fin_ob):
 	for mod in ob.modifiers:
 		if mod.type == "PARTICLE_SYSTEM":
 			ob.modifiers.remove(mod)
-
-	return f'Generated fin geometry {trg_name} from {shell_ob.name}'
+	return ob
 
 
 def get_face_ring(face):
