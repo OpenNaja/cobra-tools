@@ -4,7 +4,7 @@ from generated.base_struct import BaseStruct
 class Matrix(BaseStruct):
 
 	"""
-	A generic  transformation matrix.
+	A generic transformation matrix.
 	"""
 
 	__name__ = 'Matrix'

@@ -157,6 +157,7 @@ def bulk_test_models(gui, start_dir, walk_ovls=True, walk_models=True):
 		joint_names_2 = {}
 		hc_starts = {}
 		pack_bases = set()
+		chunk_mesh_zero = set()
 		joint_pad_size = {}
 		if walk_models:
 			with gui.reporter.log_duration("Walking MS2 files"):
@@ -179,6 +180,7 @@ def bulk_test_models(gui, start_dir, walk_ovls=True, walk_models=True):
 								mesh_id = f"{mdl2_name}[{i}] in {ms2_name}"
 								mesh = wrapper.mesh
 								if hasattr(wrapper.mesh, "vert_chunks"):
+									chunk_mesh_zero.add(wrapper.mesh.zero)
 									for v in wrapper.mesh.vert_chunks:
 										scale_float.add((v.pack_base, v.scale))
 								flag = int(mesh.flag)
@@ -237,6 +239,7 @@ def bulk_test_models(gui, start_dir, walk_ovls=True, walk_models=True):
 				print("num meshes", len(names))
 			print(f"scale_float: {list(sorted(scale_float))}")
 			print(f"last_counts: {last_counts}")
+			print(f"chunk_mesh_zero: {chunk_mesh_zero}")
 			print(f"flag_0: {flag_0}")
 			print(f"flag_1: {flag_1}")
 			print(f"constraints_0: {constraints_0}")

@@ -131,7 +131,7 @@
 	</enum>
 
 	<compound name="Matrix" >
-		A generic  transformation matrix.
+		A generic transformation matrix.
 	</compound>
 
 	<compound name="Matrix44" inherit="Matrix" size="64">
@@ -167,11 +167,11 @@
 
 	<compound name="Bone">
 		32 bytes
-		bones, rot first
+		rot first
 		<add name="loc" type="Vector3" until="47" />
 		<add name="scale" type="float" until="47" />
 		<add name="rot" type="Vector4" until="47" />
-		bones, loc first
+		loc first
 		<add name="rot" type="Vector4" since="48" />
 		<add name="loc" type="Vector3" since="48" />
 		<add name="scale" type="float" since="48" />
@@ -245,7 +245,7 @@
 		<add name="chunks_count" type="uint" >count of verts / tris chunks</add>
 		<add name="tris_count" type="uint" />num triangles in mesh, *3 for byte size
 		<add name="vertex_count" type="uint" >num verts in mesh</add>
-		<add name="zero1" type="uint64">unk, may be used in other models</add>
+		<add name="zero" type="uint64" default="0"/>
 		<add name="poweroftwo" type="uint">power of 2 increasing with lod index</add>
 		<add name="unk_floats" type="float" arr1="2">some floats, purpose unknown</add>
 		<add name="flag" type="ChunkedModelFlag">seen 1 or 13</add>
