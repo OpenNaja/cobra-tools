@@ -29,13 +29,13 @@ def assign_bounds(target, bounds_max, bounds_min):
 		target.bounds_min_repeat.set(bounds_min)
 
 
-def get_bounds(bounds):
+def get_bounds(bounds, swizzle_func=pack_swizzle):
 	bounds_max = mathutils.Vector((-v, -v, -v))
 	bounds_min = mathutils.Vector((v, v, v))
 	for bound in bounds:
 		for co in bound:
 			for i in range(3):
-				vec = pack_swizzle(co)
+				vec = swizzle_func(co)
 				bounds_min[i] = min(bounds_min[i], vec[i])
 				bounds_max[i] = max(bounds_max[i], vec[i])
 	return bounds_max, bounds_min
@@ -126,7 +126,7 @@ def export_meshbv(b_obj, hitcheck, corrector):
 	coll = hitcheck.collider
 	for i in range(3):
 		coll.indices[i].index = i+1
-	bounds_max, bounds_min = get_bounds((b_obj.bound_box, ))
+	bounds_max, bounds_min = get_bounds((b_obj.bound_box, ), swizzle_func=pack_swizzle_collision)
 	assign_bounds(coll, bounds_max, bounds_min)
 
 	# export rotation
