@@ -23,8 +23,8 @@ class HitCheck(BaseStruct):
 
 		# probably a bitfield, not sure though, might be a list of ubytes too
 		self.collision_layers = name_type_map['Uint64'](self.context, 0, None)
-		self.collision_ignore = name_type_map['OffsetString'](self.context, self.arg, None)
-		self.collision_use = name_type_map['OffsetString'](self.context, self.arg, None)
+		self.classification_name = name_type_map['OffsetString'](self.context, self.arg, None)
+		self.surface_name = name_type_map['OffsetString'](self.context, self.arg, None)
 
 		# ?
 		self.zero_extra_pc = name_type_map['Uint'](self.context, 0, None)
@@ -43,8 +43,8 @@ class HitCheck(BaseStruct):
 		yield 'flag_0', name_type_map['Ushort'], (0, None), (False, 0), (None, None)
 		yield 'flag_1', name_type_map['Ushort'], (0, None), (False, 0), (None, None)
 		yield 'collision_layers', name_type_map['Uint64'], (0, None), (False, None), (lambda context: context.version <= 47, None)
-		yield 'collision_ignore', name_type_map['OffsetString'], (None, None), (False, None), (lambda context: context.version >= 48, None)
-		yield 'collision_use', name_type_map['OffsetString'], (None, None), (False, None), (lambda context: context.version >= 48, None)
+		yield 'classification_name', name_type_map['OffsetString'], (None, None), (False, None), (lambda context: context.version >= 48, None)
+		yield 'surface_name', name_type_map['OffsetString'], (None, None), (False, None), (lambda context: context.version >= 48, None)
 		yield 'zero_extra_pc', name_type_map['Uint'], (0, None), (False, None), (lambda context: context.version <= 32, None)
 		yield 'name', name_type_map['OffsetString'], (None, None), (False, None), (None, None)
 		yield 'collider', name_type_map['Sphere'], (0, None), (False, None), (None, True)
@@ -65,8 +65,8 @@ class HitCheck(BaseStruct):
 		if instance.context.version <= 47:
 			yield 'collision_layers', name_type_map['Uint64'], (0, None), (False, None)
 		if instance.context.version >= 48:
-			yield 'collision_ignore', name_type_map['OffsetString'], (instance.arg, None), (False, None)
-			yield 'collision_use', name_type_map['OffsetString'], (instance.arg, None), (False, None)
+			yield 'classification_name', name_type_map['OffsetString'], (instance.arg, None), (False, None)
+			yield 'surface_name', name_type_map['OffsetString'], (instance.arg, None), (False, None)
 		if instance.context.version <= 32:
 			yield 'zero_extra_pc', name_type_map['Uint'], (0, None), (False, None)
 		yield 'name', name_type_map['OffsetString'], (instance.arg, None), (False, None)

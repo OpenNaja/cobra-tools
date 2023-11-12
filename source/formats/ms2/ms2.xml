@@ -722,8 +722,8 @@
 		<add name="flag_0" type="ushort" default="0">PC: apparently bitflag, always a power of 2; PZ, JWE2 always 0</add>
 		<add name="flag_1" type="ushort" default="0">PC: 0; JWE: 16; PZ, JWE2 always 0</add>
 		<add name="collision_layers" type="uint64" until="47">probably a bitfield, not sure though, might be a list of ubytes too</add>
-		<add name="collision_ignore" type="OffsetString" arg="#ARG#" since="48"/>
-		<add name="collision_use" type="OffsetString" arg="#ARG#" since="48"/>
+		<add name="ClassificationName" type="OffsetString" arg="#ARG#" since="48"/>from physicsskeleton.specdef
+		<add name="SurfaceName" type="OffsetString" arg="#ARG#" since="48"/>
 		<add name="zero_extra_pc" type="uint" until="32">?</add>
 		<add name="name" type="OffsetString" arg="#ARG#"/>
 

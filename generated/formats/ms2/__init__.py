@@ -490,21 +490,28 @@ if __name__ == "__main__":
 	# m.load("C:/Program Files (x86)/Steam/steamapps/common/Jurassic World Evolution 2/Win64/ovldata/walker_export/ContentPDLC5/Buildings/ModularStructures/LAG_NaturalWaterPool_Malta/LAG_NaturalWaterPool_Malta/models.ms2", read_editable=True)
 	# m.load("C:/Program Files (x86)/Steam/steamapps/common/Jurassic World Evolution 2/Win64/ovldata/walker_export/Content0/Buildings/Shared/Props/CharacterScale/CharacterScale/models.ms2", read_editable=True)
 	# m.load("C:/Program Files (x86)/Steam/steamapps/common/Planet Zoo/win64/ovldata/walker_export/Content0/Animals/Aardvarks/Aardvark/Aardvark_Female/Aardvark_Female/aardvark_female_.ms2", read_editable=True)
-	m.load("C:/Program Files (x86)/Steam/steamapps/common/Planet Zoo/win64/ovldata/walker_export/Content0/Animals/Big_Cats/Bengal_Tiger/Bengal_Tiger_Male/Bengal_Tiger_Male/bengal_tiger_male_.ms2", read_editable=True)
+	# m.load("C:/Program Files (x86)/Steam/steamapps/common/Planet Zoo/win64/ovldata/walker_export/Content0/Animals/Big_Cats/Bengal_Tiger/Bengal_Tiger_Male/Bengal_Tiger_Male/bengal_tiger_male_.ms2", read_editable=True)
+	# m.load("C:/Users/arnfi/Desktop/visual_lagoon_working.ms2", read_editable=True)
+	# m.load("C:/Users/arnfi/Desktop/visual_lagoon_no_optimizer.ms2", read_editable=True)
+	m.load("C:/Users/arnfi/Desktop/swizzled.ms2", read_editable=True)
 	# for i, bone_info in enumerate(m.models_reader.bone_infos):
-	# 	for bi, bone in enumerate(bone_info.bones):
-	# 		print(bi, bone.name)
+	# 	# for bi, bone in enumerate(bone_info.bones):
+	# 		# print(bi, bone.name)
 	# 	joints = bone_info.joints
-	# 	# test for orthogonal vecs
-	# 	# for ragdoll in joints.ragdoll_constraints:
-	# 	# 	ragdoll.x.max = 0
-	# 	# 	ragdoll.x.min = 0
-	# 		# # ragdoll.z.max = 0
-	# 		# ragdoll.z.min = 0
-	# 		# print(ragdoll.parent, ragdoll.child)
-	# 		# print(ragdoll.rot.data)
-	# 		# print(np.linalg.inv(ragdoll.rot.data))
-	# m.save("C:/Users/arnfi/Desktop/dlc11_stripdoors_.ms2")
+	# 	for j in joints.joint_infos:
+	# 		for hc in j.hitchecks:
+	# 			print(hc)
+	# 			hc.collider.is_optimized = 0
+	# # 	# test for orthogonal vecs
+	# # 	# for ragdoll in joints.ragdoll_constraints:
+	# # 	# 	ragdoll.x.max = 0
+	# # 	# 	ragdoll.x.min = 0
+	# # 		# # ragdoll.z.max = 0
+	# # 		# ragdoll.z.min = 0
+	# # 		# print(ragdoll.parent, ragdoll.child)
+	# # 		# print(ragdoll.rot.data)
+	# # 		# print(np.linalg.inv(ragdoll.rot.data))
+	# m.save("C:/Users/arnfi/Desktop/visual_lagoon_no_optimizer.ms2")
 	print(m)
 
 # INFO | size 8 / count 1 = 8.0 in /PDLC_WorldFair/Rides/Coasters/Tracks/Track_003/Track_003/models.ms2; 0

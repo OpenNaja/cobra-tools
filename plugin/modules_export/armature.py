@@ -198,8 +198,8 @@ def export_joints(bone_info, corrector):
 		joint_info.reset_field("hitchecks")
 		joint_info.reset_field("hitcheck_pointers")
 		for hitcheck, b_hitcheck in zip(joint_info.hitchecks, b_joint.children):
-			hitcheck.collision_ignore = b_hitcheck["collision_ignore"]
-			hitcheck.collision_use = b_hitcheck["collision_use"]
+			hitcheck.classification_name = b_hitcheck["ClassificationName"]
+			hitcheck.surface_name = b_hitcheck["SurfaceName"]
 			hitcheck.name = get_joint_name(b_hitcheck)
 			export_hitcheck(b_hitcheck, hitcheck, corrector)
 		
