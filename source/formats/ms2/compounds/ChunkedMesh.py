@@ -23,17 +23,13 @@ class BioMeshData:
 		# logging.debug(f"Using stream {self.stream_info.pool_index}")
 		return self.stream_info.pool_index
 
-	@property
-	def tris_address(self):
-		# this assumes that chunks are sorted by tris_offset, not guaranteed to be always true
-		return self.tri_chunks[0].tris_offset
-
 	def read_tris(self):
 		pass
 
 	def read_tris_bio(self):
+		# this assumes that chunks are sorted by tris_offset, not guaranteed to be always true
 		# read all tri indices for this mesh
-		self.buffer_info.tris.seek(self.tris_address)
+		self.buffer_info.tris.seek(self.tri_chunks[0].tris_offset)
 		index_count = self.tris_count * 3  # // self.shell_count
 		# logging.info(f"Reading {index_count} indices at {self.buffer_info.tris.tell()}")
 		_tri_indices = np.empty(dtype=np.uint8, shape=index_count)

@@ -61,7 +61,7 @@ def find_modifier_for_particle_system(b_ob, particle_system):
 			return modifier
 
 
-def add_psys(ob, model):
+def add_psys(ob, fur_length=0.1):
 	if not ob.particle_systems:
 		name = "hair"
 		ps_mod = ob.modifiers.new(name, 'PARTICLE_SYSTEM')
@@ -70,7 +70,7 @@ def add_psys(ob, model):
 		psys.settings.type = 'HAIR'
 		psys.settings.emit_from = 'VERT'
 		psys.settings.use_emit_random = False
-		psys.settings.hair_length = model.fur_length
+		psys.settings.hair_length = fur_length
 		psys.settings.hair_step = 1
 		psys.settings.display_step = 1
 		psys.settings.clump_factor = 1.0

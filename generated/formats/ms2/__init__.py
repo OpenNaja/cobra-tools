@@ -343,8 +343,8 @@ class Ms2File(Ms2InfoHeader, IoFile):
 				# update LodInfo
 				logging.debug(f"Updating lod vertex counts")
 				for lod in model.lods:
-					lod.vertex_count = sum(wrapper.mesh.vertex_count for wrapper in lod.meshes)
-					lod.tri_index_count = sum(wrapper.mesh.tri_index_count for wrapper in lod.meshes)
+					lod.vertex_count = sum(ob.mesh.vertex_count for ob in lod.objects)
+					lod.tri_index_count = sum(ob.mesh.tri_index_count for ob in lod.objects)
 			# modify buffer size
 			for buffer_info in self.buffer_infos:
 				# get bytes from IO obj, pad, and update size in BufferInfo
@@ -369,12 +369,14 @@ class Ms2File(Ms2InfoHeader, IoFile):
 
 	@staticmethod
 	def get_bytes(buffer_reader):
-		buffer_reader.seek(0, 2)
-		buffer_reader.write(get_padding(buffer_reader.tell(), alignment=16))
-		return buffer_reader.getvalue()
+		if buffer_reader:
+			buffer_reader.seek(0, 2)
+			buffer_reader.write(get_padding(buffer_reader.tell(), alignment=16))
+			return buffer_reader.getvalue()
+		return b""
 
 	def get_all_bytes(self, buffer_info):
-		return b"".join(self.get_bytes(getattr(buffer_info, b_name)) for b_name in BUFFER_NAMES)
+		return b"".join(self.get_bytes(getattr(buffer_info, b_name, None)) for b_name in BUFFER_NAMES)
 
 	@property
 	def buffers(self):
@@ -421,15 +423,13 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			for lod_index, lod in enumerate(model_info.model.lods):
 				# logging.debug(f"Mapping LOD{lod_index}")
 				lod.objects = model_info.model.objects[lod.first_object_index:lod.last_object_index]
-				# todo - investigate how duplicate meshes are handled for the lod's vertex count0
-				lod.meshes = tuple(model_info.model.meshes[obj.mesh_index] for obj in lod.objects)
 				for obj in lod.objects:
 					try:
 						material = model_info.model.materials[obj.material_index]
 						material.name = self.buffer_0.names[material.name_index]
 						obj.mesh = model_info.model.meshes[obj.mesh_index].mesh
 						obj.material = material
-						flag = int(obj.mesh.flag) if hasattr(obj.mesh, "flag") else None
+						# flag = int(obj.mesh.flag) if hasattr(obj.mesh, "flag") else None
 						# logging.debug(
 						# 	f"Mesh: {obj.mesh_index} Material: {material.name} Blend Mode: {material.blend_mode} "
 						# 	f"Lod: {obj.mesh.poweroftwo} Flag: {flag}")
@@ -488,7 +488,9 @@ if __name__ == "__main__":
 	# m.load("C:/Users/arnfi/Desktop/rhinoblack_female_.ms2", read_editable=True, dump=True)
 	# m.load("C:/Program Files (x86)/Steam/steamapps/common/Jurassic World Evolution 2/Win64/ovldata/walker_export/ContentPDLC5/Buildings/ModularStructures/LAG_NaturalWaterPool_Malta_Walls/LAG_NaturalWaterPool_Malta_Walls/models.ms2", read_editable=True)
 	# m.load("C:/Program Files (x86)/Steam/steamapps/common/Jurassic World Evolution 2/Win64/ovldata/walker_export/ContentPDLC5/Buildings/ModularStructures/LAG_NaturalWaterPool_Malta/LAG_NaturalWaterPool_Malta/models.ms2", read_editable=True)
-	m.load("C:\Program Files (x86)\Steam\steamapps\common\Jurassic World Evolution 2\Win64\ovldata\walker_export\Content0\Buildings\Shared\Props\CharacterScale\CharacterScale\models.ms2", read_editable=True)
+	# m.load("C:/Program Files (x86)/Steam/steamapps/common/Jurassic World Evolution 2/Win64/ovldata/walker_export/Content0/Buildings/Shared/Props/CharacterScale/CharacterScale/models.ms2", read_editable=True)
+	# m.load("C:/Program Files (x86)/Steam/steamapps/common/Planet Zoo/win64/ovldata/walker_export/Content0/Animals/Aardvarks/Aardvark/Aardvark_Female/Aardvark_Female/aardvark_female_.ms2", read_editable=True)
+	m.load("C:/Program Files (x86)/Steam/steamapps/common/Planet Zoo/win64/ovldata/walker_export/Content0/Animals/Big_Cats/Bengal_Tiger/Bengal_Tiger_Male/Bengal_Tiger_Male/bengal_tiger_male_.ms2", read_editable=True)
 	# for i, bone_info in enumerate(m.models_reader.bone_infos):
 	# 	for bi, bone in enumerate(bone_info.bones):
 	# 		print(bi, bone.name)

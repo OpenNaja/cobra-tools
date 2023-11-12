@@ -42,10 +42,10 @@ class LodInfo(BaseStruct):
 		# not included in interval (python style indexing)
 		self.last_object_index = name_type_map['Ushort'](self.context, 0, None)
 
-		# vertex count of lod, sum of all vertex counts that are attached to this lod; rendered count, including duped models
+		# sum for objects in lod, duplicated meshes count
 		self.vertex_count = name_type_map['Uint'](self.context, 0, None)
 
-		# number of index entries in the triangle index list; (not: number of triangles, byte count of tri buffer); rendered count, including duped models
+		# sum for objects in lod, duplicated meshes count
 		self.tri_index_count = name_type_map['Uint'](self.context, 0, None)
 		if set_default:
 			self.set_defaults()

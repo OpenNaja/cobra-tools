@@ -18,9 +18,8 @@ import pkg_resources, importlib.util
 
 import bpy
 import bpy.utils.previews
-from bpy.props import IntProperty, EnumProperty
+from bpy.props import IntProperty
 from bpy.types import PropertyGroup
-
 import addon_utils
 
 copies_of_tools = []
@@ -37,22 +36,16 @@ if not plugin_dir in sys.path:
     sys.path.append(plugin_dir)
 
 from ovl_util.logs import logging_setup
-
 logging_setup("blender_plugin")
+from root_path import root_dir
 
 from plugin import addon_updater_ops
-from plugin.utils import shell
-from plugin.utils.hair import vcol_to_comb, comb_to_vcol, transfer_hair_combing
-from plugin.utils.matrix_util import handle_errors
-
 from plugin.modules_import.operators import ImportBanis, ImportManis, ImportMatcol, ImportFgm, ImportMS2, ImportSPL, \
     ImportVoxelskirt, ImportMS2FromBrowser, ImportFGMFromBrowser
-
 from plugin.modules_export.operators import ExportMS2, ExportSPL, ExportManis, ExportBanis
+from plugin.utils.operators import CreateFins, CreateLods, VcolToHair, HairToVcol, TransferHairCombing, AddHair
+from plugin.utils.properties import CobraSceneSettings, CobraMeshSettings, CobraCollisionSettings
 
-from root_path import root_dir
-from generated.formats.ms2.enums.MeshFormat import MeshFormat
-from generated.formats.ms2.enums.RigidBodyFlag import RigidBodyFlag
 
 global preview_collection
 
@@ -123,26 +116,6 @@ class InstallDependencies(bpy.types.Operator):
         return {'FINISHED'}
 
 
-class CreateFins(bpy.types.Operator):
-    """Create fins for all objects with shells in this scene, and overwrite existing fin geometry"""
-    bl_idname = "object.create_fins"
-    bl_label = "Create Fins"
-    bl_options = {'REGISTER', 'UNDO'}
-
-    def execute(self, context):
-        return handle_errors(self, shell.create_fins_wrapper, {})
-
-
-class CreateLods(bpy.types.Operator):
-    """Create LODs for this scene"""
-    bl_idname = "object.create_lods"
-    bl_label = "Create LODs"
-    bl_options = {'REGISTER', 'UNDO'}
-
-    def execute(self, context):
-        return handle_errors(self, shell.create_lods, {})
-
-
 class GenerateRigEdit(bpy.types.Operator):
     """Generate rig edit nodes for all posed bones"""
     bl_idname = "pose.generate_rig_edit"
@@ -162,37 +135,7 @@ class ConvertScaleToLoc(bpy.types.Operator):
     def execute(self, context):
         return handle_errors(self, shell.convert_scale_to_loc, {})
 
-
-class VcolToHair(bpy.types.Operator):
-    """Convert vertex color layer to hair combing"""
-    bl_idname = "object.vcol_to_comb"
-    bl_label = "Vcol to Hair"
-    bl_options = {'REGISTER', 'UNDO'}
-
-    def execute(self, context):
-        return handle_errors(self, vcol_to_comb, {})
-
-
-class HairToVcol(bpy.types.Operator):
-    """Convert hair combing to vertex color layer"""
-    bl_idname = "object.comb_to_vcol"
-    bl_label = "Hair to Vcol"
-    bl_options = {'REGISTER', 'UNDO'}
-
-    def execute(self, context):
-        return handle_errors(self, comb_to_vcol, {})
-
-
-class TransferHairCombing(bpy.types.Operator):
-    """Transfer particle hair combing from one mesh to another"""
-    bl_idname = "object.transfer_hair_combing"
-    bl_label = "Transfer Combing"
-    bl_options = {'REGISTER', 'UNDO'}
-
-    def execute(self, context):
-        return handle_errors(self, transfer_hair_combing, {})
-
-
+      
 class MESH_PT_CobraTools(bpy.types.Panel):
     """Creates a Panel in the scene context of the properties editor"""
     bl_label = "Cobra Mesh Tools"
@@ -222,6 +165,8 @@ class MESH_PT_CobraTools(bpy.types.Panel):
         sub.operator("object.comb_to_vcol", icon_value=icon)
         row = layout.row(align=True)
         row.operator("object.transfer_hair_combing", icon_value=icon)
+        sub = row.row()
+        sub.operator("object.add_hair", icon_value=icon)
 
         row = layout.row(align=True)
         row.prop(context.mesh.cobra, "mesh_format")
@@ -304,64 +249,6 @@ class COLLISION_PT_CobraTools(bpy.types.Panel):
         row.prop(rb, "flag")
 
 
-class CobraSceneSettings(PropertyGroup):
-    num_streams: IntProperty(
-        name="External Streams",
-        description="Number of lod levels stored in external .modelstream files",
-        default=0,
-        min=0,
-        max=6
-    )
-    version: IntProperty(
-        name="MS2 Version",
-        description="Version to use for export",
-        default=50,
-        min=0,
-        max=100
-    )
-
-
-class CobraMeshSettings(PropertyGroup):
-    mesh_format: EnumProperty(
-        name='Mesh Format',
-        description='Mesh format used for this mesh - JWE2 after Biosyn update',
-        items=[("NONE", "None", "")] + [(item.name, item.name, "") for i, item in enumerate(MeshFormat)],
-        # default = 'MO_SYS_FIXED',
-
-    )
-
-
-class CobraCollisionSettings(PropertyGroup):
-    air_resistance: bpy.props.FloatVectorProperty(
-        name='Air Resistance',
-        description="Air Resistance in 3D, relative to the joint's axes",
-        default=(0.0, 0.0, 0.0),
-        min=sys.float_info.min,
-        max=sys.float_info.max, 
-        soft_min=sys.float_info.min,
-        soft_max=sys.float_info.max,
-        step=3, 
-        precision=2,
-        subtype="XYZ")
-    damping_3d: bpy.props.FloatVectorProperty(
-        name='Damping',
-        description='Damping in 3D',
-        default=(0.0, 0.0, 0.0),
-        min=sys.float_info.min,
-        max=sys.float_info.max,
-        soft_min=sys.float_info.min,
-        soft_max=sys.float_info.max,
-        step=1, 
-        precision=6)
-    plasticity_min: bpy.props.FloatProperty(name="Plasticity Lower", subtype="ANGLE")
-    plasticity_max: bpy.props.FloatProperty(name="Upper", subtype="ANGLE")
-    flag: EnumProperty(
-        name='Dynamics Flag',
-        description='Current state of this rigidbody',
-        items=[(item.name, item.name, "") for i, item in enumerate(RigidBodyFlag)],
-    )
-
-
 def draw_rigid_body_constraints_cobra(self, context):
     scene = context.scene
     layout = self.layout
@@ -436,6 +323,7 @@ classes = (
     VcolToHair,
     HairToVcol,
     TransferHairCombing,
+    AddHair,
     CobraPreferences,
     CobraSceneSettings,
     CobraMeshSettings,

@@ -36,6 +36,8 @@ def load(filepath="", use_custom_normals=False, mirror_mesh=False):
 
 		mesh_dict = {}
 		ob_dict = {}
+		# print(model_info)
+		# print(model_info.model)
 		# print("mdl2.mesh.meshes",mdl2.mesh.meshes)
 		for lod_i, m_lod in enumerate(model_info.model.lods):
 			logging.info(f"Importing LOD{lod_i}")
@@ -52,8 +54,6 @@ def load(filepath="", use_custom_normals=False, mirror_mesh=False):
 				obs.append(m_ob)
 			for ob_i, m_ob in enumerate(obs):
 				mesh = m_ob.mesh
-				# print(model_info)
-				# print(model_info.model)
 				# print(mesh)
 				# lod_i = mesh.lod_index
 				# logging.debug(f"flag {mesh.flag}")
@@ -115,7 +115,7 @@ def load(filepath="", use_custom_normals=False, mirror_mesh=False):
 				# we can't assume that the first ob referencing this mesh has it already
 				if not is_old(ms2.info) and is_shell(b_ob):
 					logging.debug(f"{b_ob.name} has shells, adding psys")
-					add_psys(b_ob, mesh)
+					add_psys(b_ob, mesh.fur_length)
 			coll_name = f"{scene.name}_LOD{lod_i}"
 			# show lod 0, hide the others
 			set_collection_visibility(scene, coll_name, lod_i != 0)

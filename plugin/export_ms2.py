@@ -107,7 +107,7 @@ def save(filepath='', backup_original=True, apply_transforms=False, update_rig=F
 			model_info = model_info_lut[scene.name]
 
 		found_scenes += 1
-		logging.debug(f"Exporting scene {scene.name}")
+		logging.info(f"Exporting scene {scene.name}")
 
 		# make active scene
 		bpy.context.window.scene = scene
@@ -155,7 +155,6 @@ def save(filepath='', backup_original=True, apply_transforms=False, update_rig=F
 			m_lod = LodInfo(ms2.context)
 			m_lod.distance = math.pow(30 + 15 * lod_i, 2)
 			m_lod.first_object_index = len(model_info.model.objects)
-			m_lod.meshes = []
 			m_lod.objects = []
 			m_lod.stream_index = stream_index
 			model_info.model.lods.append(m_lod)
@@ -193,11 +192,11 @@ def save(filepath='', backup_original=True, apply_transforms=False, update_rig=F
 						m_ob.material_index = b_materials.index(b_mat)
 
 						model_info.model.objects.append(m_ob)
-						wrapper = model_info.model.meshes[m_ob.mesh_index]
-						m_lod.meshes.append(wrapper)
-						if wrapper.context.version >= 52:
+						mesh = model_info.model.meshes[m_ob.mesh_index].mesh
+						m_ob.mesh = mesh
+						if mesh.context.version >= 52:
 							logging.debug(f"Setting chunk material indices")
-							for tri_chunk in wrapper.mesh.tri_chunks:
+							for tri_chunk in mesh.tri_chunks:
 								tri_chunk.material_index = m_ob.material_index
 						m_lod.objects.append(m_ob)
 			m_lod.last_object_index = len(model_info.model.objects)
@@ -207,9 +206,9 @@ def save(filepath='', backup_original=True, apply_transforms=False, update_rig=F
 		# reset to original state
 		for coll, state in zip(view_collections, view_states):
 			coll.exclude = state
-	print(ms2)
 	# write ms2, backup should have been created earlier
 	ms2.save(filepath)
+	print(ms2)
 	if found_scenes:
 		messages.add(f"Finished MS2 export in {time.time() - start_time:.2f} seconds")
 	else:

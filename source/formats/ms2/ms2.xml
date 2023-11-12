@@ -222,8 +222,8 @@
 		<add name="first_object_index_1" type="ushort" until="13"/>
 		<add name="first_object_index_2" type="ushort" until="13"/>
 		<add name="last object index" type="ushort" >not included in interval (python style indexing)</add>
-		<add name="vertex count" type="uint" since="32" until="51">vertex count of lod, sum of all vertex counts that are attached to this lod; rendered count, including duped models</add>
-		<add name="tri_index_count" type="uint" since="32" until="51" >number of index entries in the triangle index list; (not: number of triangles, byte count of tri buffer); rendered count, including duped models</add>
+		<add name="vertex count" type="uint" since="32" until="51">sum for objects in lod, duplicated meshes count</add>
+		<add name="tri_index_count" type="uint" since="32" until="51" >sum for objects in lod, duplicated meshes count</add>
 	</compound>
 
 	<compound name="Object">

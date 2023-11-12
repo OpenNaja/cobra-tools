@@ -2,6 +2,7 @@ import logging
 
 import bpy
 import mathutils
+import numpy as np
 
 from generated.formats.ms2.compounds.packing_utils import unpack_swizzle, unpack_swizzle_collision
 from generated.formats.ms2.enums.CollisionType import CollisionType
@@ -152,10 +153,10 @@ def import_cylinderbv(cylinder, hitcheck_name):
 
 
 def import_meshbv(coll, hitcheck_name, corrector):
-	print(coll)
-	print(coll.data)
+	# print(coll)
+	# print(coll.data)
 	scene = bpy.context.scene
-	tris = coll.data.triangles
+	tris = np.flip(coll.data.triangles, axis=-1)
 	if coll.is_optimized:
 		good_tris = []
 		optimizer = coll.data.optimizer
