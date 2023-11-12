@@ -99,14 +99,9 @@ class MeshData:
 		for shell in range(self.shell_count):
 			self.buffer_info.tris.write(tri_bytes)
 
-	@property
-	def tris_address(self):
-		# todo - remove
-		return self.tri_offset
-
 	def read_tris(self):
 		# read all tri indices for this mesh, but only as many as needed if there are shells
-		self.buffer_info.tris.seek(self.tris_address)
+		self.buffer_info.tris.seek(self.tri_offset)
 		index_count = self.tri_index_count // self.shell_count
 		# logging.debug(f"Reading {index_count} indices at {self.buffer_info.tris.tell()}")
 		self.tri_indices = np.empty(dtype=np.uint16, shape=index_count)
