@@ -392,10 +392,16 @@ def convert_scale_to_loc():
     
     # We get a list of all bones not in their rest positions in armaturespace
     for p_bone in armature.pose.bones:
+        
+        posebone_rotation = p_bone.rotation_quaternion.copy()
+        
+        p_bone.rotation_quaternion = (1,0,0,0)
+        bpy.context.view_layer.update()
+        
         #We copy all data in case we need parent data
-        posebone_data[p_bone] = [p_bone.head.copy(),p_bone.matrix]
-        #We append all bones that aren't in their rest positions
-        if p_bone.head != p_bone.bone.head_local:
+        posebone_data[p_bone] = [p_bone.bone.head_local.copy(),p_bone.head.copy(),p_bone.location.copy(),posebone_rotation]
+        
+        if p_bone.parent != None:
             posebone_list.append(p_bone)
             logging.info(f"{p_bone.name} rest pos: {p_bone.bone.head_local}")
             logging.info(f"{p_bone.name} pose pos: {p_bone.head}")
@@ -404,18 +410,32 @@ def convert_scale_to_loc():
     #Clear scale of all bones
     for p_bone in armature.pose.bones:
         p_bone.scale = (1,1,1)
+        p_bone.location = (0,0,0)
+        
     
     #Clear scale and set location
     logging.info(f"Setting location of pose bones:")
     for p_bone in posebone_list:
         logging.info(f"posed bone: {p_bone}")
-        # Set the local position for the pose bone
         
-        # WIP
-        #p_bone.location = p_bone.bone.matrix_local.inverted() @ posebone_data[p_bone][0]
+        # Update positions
+        bpy.context.view_layer.update()
         
+        # Bone_rest offset from Parent_rest
+        rest_offset = posebone_data[p_bone][0] - posebone_data[p_bone.parent][0]
+        
+        # Bone_pose offset from Parent_pose
+        pose_offset = posebone_data[p_bone][1] - posebone_data[p_bone.parent][1]
+        
+        calc_offset = pose_offset - rest_offset
+        
+        p_bone.matrix.translation = p_bone.matrix.translation + calc_offset
         
         editnumber = editnumber + 1
+    
+    for p_bone in posebone_list:
+        p_bone.rotation_quaternion = posebone_data[p_bone][3]
+        
     
     if editnumber > 0:
         msgs.append(f"Moved {editnumber} bones to their visual locations and reset scales")
