@@ -1,4 +1,6 @@
 import bpy
+import bpy.types
+
 from plugin.utils import shell
 from plugin.utils.hair import comb_to_vcol, transfer_hair_combing, vcol_to_comb
 from plugin.utils.matrix_util import handle_errors
@@ -62,3 +64,23 @@ class AddHair(bpy.types.Operator):
 
     def execute(self, context):
         return handle_errors(self, shell.add_hair, {})
+
+
+class GenerateRigEdit(bpy.types.Operator):
+    """Generate rig edit nodes for all posed bones"""
+    bl_idname = "pose.generate_rig_edit"
+    bl_label = "Generate Rig Edit from Pose"
+    bl_options = {'REGISTER', 'UNDO'}
+
+    def execute(self, context):
+        return handle_errors(self, shell.generate_rig_edit, {})
+
+
+class ConvertScaleToLoc(bpy.types.Operator):
+    """Convert pose mode scale transforms into location transforms"""
+    bl_idname = "pose.convert_scale_to_loc"
+    bl_label = "Convert scale to location"
+    bl_options = {'REGISTER', 'UNDO'}
+
+    def execute(self, context):
+        return handle_errors(self, shell.convert_scale_to_loc, {})

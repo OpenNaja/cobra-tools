@@ -43,7 +43,8 @@ from plugin import addon_updater_ops
 from plugin.modules_import.operators import ImportBanis, ImportManis, ImportMatcol, ImportFgm, ImportMS2, ImportSPL, \
     ImportVoxelskirt, ImportMS2FromBrowser, ImportFGMFromBrowser
 from plugin.modules_export.operators import ExportMS2, ExportSPL, ExportManis, ExportBanis
-from plugin.utils.operators import CreateFins, CreateLods, VcolToHair, HairToVcol, TransferHairCombing, AddHair
+from plugin.utils.operators import CreateFins, CreateLods, VcolToHair, HairToVcol, TransferHairCombing, AddHair, \
+    GenerateRigEdit, ConvertScaleToLoc
 from plugin.utils.properties import CobraSceneSettings, CobraMeshSettings, CobraCollisionSettings
 
 
@@ -116,26 +117,6 @@ class InstallDependencies(bpy.types.Operator):
         return {'FINISHED'}
 
 
-class GenerateRigEdit(bpy.types.Operator):
-    """Generate rig edit nodes for all posed bones"""
-    bl_idname = "pose.generate_rig_edit"
-    bl_label = "Generate Rig Edit from Pose"
-    bl_options = {'REGISTER', 'UNDO'}
-
-    def execute(self, context):
-        return handle_errors(self, shell.generate_rig_edit, {})
-
-
-class ConvertScaleToLoc(bpy.types.Operator):
-    """Convert pose mode scale transforms into location transforms"""
-    bl_idname = "pose.convert_scale_to_loc"
-    bl_label = "Convert scale to location"
-    bl_options = {'REGISTER', 'UNDO'}
-
-    def execute(self, context):
-        return handle_errors(self, shell.convert_scale_to_loc, {})
-
-      
 class MESH_PT_CobraTools(bpy.types.Panel):
     """Creates a Panel in the scene context of the properties editor"""
     bl_label = "Cobra Mesh Tools"
