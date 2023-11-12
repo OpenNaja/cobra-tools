@@ -153,6 +153,16 @@ class GenerateRigEdit(bpy.types.Operator):
         return handle_errors(self, shell.generate_rig_edit, {})
 
 
+class ConvertScaleToLoc(bpy.types.Operator):
+    """Convert pose mode scale transforms into location transforms"""
+    bl_idname = "pose.convert_scale_to_loc"
+    bl_label = "Convert pose mode scale transforms into location transforms in the same visual location"
+    bl_options = {'REGISTER', 'UNDO'}
+
+    def execute(self, context):
+        return handle_errors(self, shell.convert_scale_to_loc, {})
+
+
 class VcolToHair(bpy.types.Operator):
     """Convert vertex color layer to hair combing"""
     bl_idname = "object.vcol_to_comb"
@@ -245,6 +255,9 @@ class POSE_PT_CobraTools(bpy.types.Panel):
         row = layout.row(align=True)
         sub = row.row()
         sub.operator("pose.generate_rig_edit", icon_value=icon)
+        row = layout.row(align=True)
+        sub = row.row()
+        sub.operator("pose.convert_scale_to_loc", icon_value=icon)
 
 
 class SCENE_PT_CobraTools(bpy.types.Panel):
@@ -419,6 +432,7 @@ classes = (
     CreateFins,
     CreateLods,
     GenerateRigEdit,
+    ConvertScaleToLoc,
     VcolToHair,
     HairToVcol,
     TransferHairCombing,
