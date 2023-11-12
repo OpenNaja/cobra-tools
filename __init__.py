@@ -116,6 +116,26 @@ class InstallDependencies(bpy.types.Operator):
         return {'FINISHED'}
 
 
+class GenerateRigEdit(bpy.types.Operator):
+    """Generate rig edit nodes for all posed bones"""
+    bl_idname = "pose.generate_rig_edit"
+    bl_label = "Generate Rig Edit from Pose"
+    bl_options = {'REGISTER', 'UNDO'}
+
+    def execute(self, context):
+        return handle_errors(self, shell.generate_rig_edit, {})
+
+
+class ConvertScaleToLoc(bpy.types.Operator):
+    """Convert pose mode scale transforms into location transforms"""
+    bl_idname = "pose.convert_scale_to_loc"
+    bl_label = "Convert scale to location"
+    bl_options = {'REGISTER', 'UNDO'}
+
+    def execute(self, context):
+        return handle_errors(self, shell.convert_scale_to_loc, {})
+
+      
 class MESH_PT_CobraTools(bpy.types.Panel):
     """Creates a Panel in the scene context of the properties editor"""
     bl_label = "Cobra Mesh Tools"
@@ -158,6 +178,31 @@ class MESH_PT_CobraTools(bpy.types.Panel):
             sub.label(text="Ah ah ah, you did not say the magic word!")
 
         addon_updater_ops.update_notice_box_ui(self, context)
+
+
+class POSE_PT_CobraTools(bpy.types.Panel):
+    """Creates a Panel in the scene context of the properties editor"""
+    bl_label = "Cobra Rig Tools"
+    bl_space_type = 'PROPERTIES'
+    bl_region_type = 'WINDOW'
+    bl_context = "data"
+
+    @classmethod
+    def poll(cls, context):
+        if not context.armature:
+            return False
+        return True
+
+    def draw(self, context):
+        addon_updater_ops.check_for_update_background()
+        layout = self.layout
+        icon = preview_collection["frontier.png"].icon_id
+        row = layout.row(align=True)
+        sub = row.row()
+        sub.operator("pose.generate_rig_edit", icon_value=icon)
+        row = layout.row(align=True)
+        sub = row.row()
+        sub.operator("pose.convert_scale_to_loc", icon_value=icon)
 
 
 class SCENE_PT_CobraTools(bpy.types.Panel):
@@ -273,6 +318,8 @@ classes = (
     ImportVoxelskirt,
     CreateFins,
     CreateLods,
+    GenerateRigEdit,
+    ConvertScaleToLoc,
     VcolToHair,
     HairToVcol,
     TransferHairCombing,
@@ -282,6 +329,7 @@ classes = (
     CobraMeshSettings,
     CobraCollisionSettings,
     MESH_PT_CobraTools,
+    POSE_PT_CobraTools,
     SCENE_PT_CobraTools,
     COLLISION_PT_CobraTools,
     InstallDependencies,
