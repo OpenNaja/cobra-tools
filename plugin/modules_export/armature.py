@@ -9,6 +9,7 @@ from generated.formats.ms2.compounds.packing_utils import pack_swizzle_collision
 from plugin.modules_export.collision import export_hitcheck
 from plugin.modules_import.armature import get_matrix
 from plugin.utils.matrix_util import bone_name_for_ovl, get_joint_name, Corrector, CorrectorRagdoll
+from plugin.utils.object import get_property
 from plugin.utils.shell import get_collection_endswith
 
 
@@ -198,8 +199,8 @@ def export_joints(bone_info, corrector):
 		joint_info.reset_field("hitchecks")
 		joint_info.reset_field("hitcheck_pointers")
 		for hitcheck, b_hitcheck in zip(joint_info.hitchecks, b_joint.children):
-			hitcheck.classification_name = b_hitcheck["ClassificationName"]
-			hitcheck.surface_name = b_hitcheck["SurfaceName"]
+			hitcheck.classification_name = get_property(b_hitcheck, "ClassificationName", default=get_property(b_hitcheck, "collision_ignore"))
+			hitcheck.surface_name = get_property(b_hitcheck, "SurfaceName", default=get_property(b_hitcheck, "collision_use"))
 			hitcheck.name = get_joint_name(b_hitcheck)
 			export_hitcheck(b_hitcheck, hitcheck, corrector)
 		
