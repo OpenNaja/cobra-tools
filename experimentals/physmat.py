@@ -6,8 +6,11 @@ for fp in files:
 	with open(fp, "rb") as f:
 		mat = PhysmatRoot.from_stream(f, OvlContext())
 		print(mat)
-		for s in ("all_surfaces_names", "surface_res_names", "classnames_names"):
+		for s in ("all_surfaces", "surface_res", "classnames"):
 			print("\n\n")
 			print(s)
-			for ind, offset in enumerate(getattr(mat, s)):
-				print(ind, mat.names.get_str_at(offset))
+			for ind, offset in enumerate(getattr(mat, f"{s}_names")):
+				lut = None
+				if s in ("surface_res", "classnames"):
+					lut = getattr(mat, f"{s}_indices")[ind]
+				print(ind, mat.names.get_str_at(offset), lut)
