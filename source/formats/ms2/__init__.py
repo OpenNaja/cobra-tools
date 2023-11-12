@@ -368,12 +368,14 @@ class Ms2File(Ms2InfoHeader, IoFile):
 
 	@staticmethod
 	def get_bytes(buffer_reader):
-		buffer_reader.seek(0, 2)
-		buffer_reader.write(get_padding(buffer_reader.tell(), alignment=16))
-		return buffer_reader.getvalue()
+		if buffer_reader:
+			buffer_reader.seek(0, 2)
+			buffer_reader.write(get_padding(buffer_reader.tell(), alignment=16))
+			return buffer_reader.getvalue()
+		return b""
 
 	def get_all_bytes(self, buffer_info):
-		return b"".join(self.get_bytes(getattr(buffer_info, b_name)) for b_name in BUFFER_NAMES)
+		return b"".join(self.get_bytes(getattr(buffer_info, b_name, None)) for b_name in BUFFER_NAMES)
 
 	@property
 	def buffers(self):
