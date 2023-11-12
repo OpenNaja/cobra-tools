@@ -36,6 +36,8 @@ def load(filepath="", use_custom_normals=False, mirror_mesh=False):
 
 		mesh_dict = {}
 		ob_dict = {}
+		# print(model_info)
+		# print(model_info.model)
 		# print("mdl2.mesh.meshes",mdl2.mesh.meshes)
 		for lod_i, m_lod in enumerate(model_info.model.lods):
 			logging.info(f"Importing LOD{lod_i}")
@@ -52,8 +54,6 @@ def load(filepath="", use_custom_normals=False, mirror_mesh=False):
 				obs.append(m_ob)
 			for ob_i, m_ob in enumerate(obs):
 				mesh = m_ob.mesh
-				# print(model_info)
-				# print(model_info.model)
 				# print(mesh)
 				# lod_i = mesh.lod_index
 				# logging.debug(f"flag {mesh.flag}")

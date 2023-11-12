@@ -107,7 +107,7 @@ def save(filepath='', backup_original=True, apply_transforms=False, update_rig=F
 			model_info = model_info_lut[scene.name]
 
 		found_scenes += 1
-		logging.debug(f"Exporting scene {scene.name}")
+		logging.info(f"Exporting scene {scene.name}")
 
 		# make active scene
 		bpy.context.window.scene = scene

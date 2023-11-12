@@ -149,8 +149,8 @@ def export_meshbv(b_obj, hitcheck, corrector):
 	for face_i, face in enumerate(eval_me.polygons):
 		coll.data.triangles[face_i, :] = face.vertices
 		assert len(face.vertices) == 3
-	print(coll)
-	print(coll.data)
+	# print(coll)
+	# print(coll.data)
 
 
 def export_hullbv(b_obj, hitcheck, corrector):
