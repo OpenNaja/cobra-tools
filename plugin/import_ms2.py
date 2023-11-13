@@ -25,14 +25,13 @@ def load(filepath="", use_custom_normals=False, mirror_mesh=False):
 	for mdl2_name, model_info in zip(ms2.mdl_2_names, ms2.model_infos):
 		scene = bpy.data.scenes.new(mdl2_name)
 		bpy.context.window.scene = scene
-
-		bone_names = get_bone_names(model_info)
-		b_armature_obj = import_armature(scene, model_info, bone_names)
-
 		# store scene properties
 		scene["render_flag"] = int(model_info.render_flag)
 		scene.cobra.num_streams = len(ms2.modelstream_names)
 		scene.cobra.version = ms2.context.version
+
+		bone_names = get_bone_names(model_info)
+		b_armature_obj = import_armature(scene, model_info, bone_names)
 
 		mesh_dict = {}
 		ob_dict = {}

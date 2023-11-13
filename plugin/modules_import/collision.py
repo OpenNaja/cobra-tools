@@ -32,8 +32,14 @@ def import_collider(hitcheck, b_joint, corrector):
 		logging.warning(f"Unsupported collider type {hitcheck.dtype}")
 		return
 	parent_to(b_joint, ob)
-	ob["SurfaceName"] = hitcheck.surface_name
-	ob["ClassificationName"] = hitcheck.classification_name
+	# store the strings on the right enum property
+	version = bpy.context.scene.cobra.version
+	if version in (48, 50):
+		ob.cobra_coll.surface_pz = hitcheck.surface_name
+		ob.cobra_coll.classification_pz = hitcheck.classification_name
+	elif version in (51, 52):
+		ob.cobra_coll.surface_jwe2 = hitcheck.surface_name
+		ob.cobra_coll.classification_jwe2 = hitcheck.classification_name
 	# h = HitCheck()
 	# print(export_hitcheck(ob, h))
 	return ob
