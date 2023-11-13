@@ -158,6 +158,8 @@ def bulk_test_models(gui, start_dir, walk_ovls=True, walk_models=True):
 		hc_starts = {}
 		pack_bases = set()
 		chunk_mesh_zero = set()
+		classification_name = set()
+		surface_name = set()
 		joint_pad_size = {}
 		if walk_models:
 			with gui.reporter.log_duration("Walking MS2 files"):
@@ -218,6 +220,8 @@ def bulk_test_models(gui, start_dir, walk_ovls=True, walk_models=True):
 											hc_starts[hit.io_start-ms2_data.models_reader.io_start] = ms2_path_rel
 											flag_0.add(hit.flag_0)
 											flag_1.add(hit.flag_1)
+											classification_name.add(hit.classification_name)
+											surface_name.add(hit.surface_name)
 											if hit.dtype == CollisionType.MESH_COLLISION:
 												mesh_collision.add(ms2_path_rel)
 							else:
@@ -253,6 +257,8 @@ def bulk_test_models(gui, start_dir, walk_ovls=True, walk_models=True):
 			if shader_map:
 				print(f"shaders: {shaders}")
 			print(f"rigid_body_flags: {rigid_body_flags}")
+			print(f"classification_name: {sorted(classification_name)}")
+			print(f"surface_name: {sorted(surface_name)}")
 			# largest_zstring_buffers = sorted(joint_names_padding.keys())
 			# num = 10
 			# if len(largest_zstring_buffers) > num:

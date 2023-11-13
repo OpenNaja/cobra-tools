@@ -234,6 +234,17 @@ class COLLISION_PT_CobraTools(bpy.types.Panel):
         row.prop(rb, "damping_3d")
         row = layout.row(align=True)
         row.prop(rb, "flag")
+        version = context.scene.cobra.version
+        if version in (48, 50):
+            row = layout.row(align=True)
+            row.prop(rb, "classification_pz")
+            row = layout.row(align=True)
+            row.prop(rb, "surface_pz")
+        elif version in (51, 52):
+            row = layout.row(align=True)
+            row.prop(rb, "classification_jwe2")
+            row = layout.row(align=True)
+            row.prop(rb, "surface_jwe2")
 
 
 def draw_rigid_body_constraints_cobra(self, context):
