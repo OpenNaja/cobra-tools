@@ -11,7 +11,8 @@ jwe2_surface_name = ['BuildingBrick', 'BuildingConcrete', 'BuildingMetal', 'Buil
 
 files = (
 	("C:/Users/arnfi/Desktop/pz.physmat", pz_classification_name, pz_surface_name),
-	("C:/Users/arnfi/Desktop/jwe2.physmat", jwe2_classification_name, jwe2_surface_name))
+	("C:/Users/arnfi/Desktop/jwe2.physmat", jwe2_classification_name, jwe2_surface_name),
+	("C:/Users/arnfi/Desktop/wh.physmat", (), ()))
 for fp, classification, surface in files:
 	with open(fp, "rb") as f:
 		mat = PhysmatRoot.from_stream(f, OvlContext())
