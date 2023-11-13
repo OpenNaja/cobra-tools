@@ -180,7 +180,13 @@ class POSE_PT_CobraTools(bpy.types.Panel):
         icon = preview_collection["frontier.png"].icon_id
         row = layout.row(align=True)
         sub = row.row()
-        sub.operator("pose.generate_rig_edit", icon_value=icon)
+        operator = sub.operator("pose.generate_rig_edit", icon_value=icon)
+        row = layout.row(align=True)
+        sub = row.row()
+        sub.prop(context.scene, "mergenodes", text="Merge Identical Nodes")
+        row = layout.row(align=True)
+        sub = row.row()
+        sub.prop(context.scene, "applyarmature", text="Apply Armature Modifiers")
         row = layout.row(align=True)
         sub = row.row()
         sub.operator("pose.convert_scale_to_loc", icon_value=icon)
@@ -361,6 +367,16 @@ def register():
     bpy.types.Mesh.cobra = bpy.props.PointerProperty(type=CobraMeshSettings)
     # bpy.types.RigidBodyObject.cobra = bpy.props.PointerProperty(type=CobraCollisionSettings)
     bpy.types.Object.cobra_coll = bpy.props.PointerProperty(type=CobraCollisionSettings)
+    bpy.types.Scene.mergenodes = bpy.props.BoolProperty(
+        name = "Merge Idential Nodes",
+        description = "Merges identical nodes to reduce the amount of duplicates if you  moved several bones with the same parent",
+        default = True
+    )
+    bpy.types.Scene.applyarmature = bpy.props.BoolProperty(
+        name = "Apply Armature Modifiers",
+        description = "Automatically applies all of the armature's object's armature modifiers and re-adds them",
+        default = False
+    )
 
     # Injection of elements in the contextual menu of the File Browser editor
     bpy.types.FILEBROWSER_MT_context_menu.append(CT_FileBrowser_Context_Menu)
@@ -381,6 +397,8 @@ def unregister():
 
     del bpy.types.Scene.cobra
     del bpy.types.Mesh.cobra
+    del bpy.types.Scene.mergenodes
+    del bpy.types.Scene.applyarmature
     global preview_collection
     bpy.utils.previews.remove(preview_collection)
 

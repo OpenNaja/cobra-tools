@@ -150,27 +150,52 @@ def vectorisclose(vector1, vector2, tolerance=0.0001):
 
 
 # Main rig editing function
-def generate_rig_edit():
+def generate_rig_edit(**kwargs):
     """Automatic rig edit generator by NDP. Detects posed bones and automatically generates nodes and offsets them."""
     # Initiate logging
     msgs = []
     #logging.info(f"-------------------------------------------------------------")
     logging.info(f"generating rig edit from pose")
     
-    #Function settings
-    applyarmature = False
-    mergenodes = True
+    # Function settings
+    mergenodes = kwargs.get('mergenodes', True)
+    applyarmature = kwargs.get('applyarmature', False)
     errortolerance = 0.0001
+    
+    # Log settings
+    logging.info(f"function settings:")
+    logging.info(f"merge identical nodes = {mergenodes}")
+    logging.info(f"apply armature modifiers = {applyarmature}")
+    logging.info(f"error tolerance = {errortolerance}")
     
     # Check if the active object is a valid armature
     if bpy.context.active_object.type != 'ARMATURE':
         # Object is not an armature. Cancelling.
         msgs.append(f"No armature selected.")
         return msgs
-
+    
     # Get the armature
     armature = bpy.context.object
     logging.info(f"armature: {armature.name}")
+
+    # Apply armature modifiers of children objects
+    if applyarmature == True:
+        logging.info(f"Applying armature modifiers of children objects")
+        armaturechildren = [] 
+        
+        # Go over every object in the scene
+        for ob in bpy.data.objects: 
+            # Check if they are parented to the armature, are a mesh, and have modifiers
+            if ob.parent == armature and ob.type == 'MESH' and ob.modifiers:
+                modifier_list = []
+                #Create a list of current armature modifiers in the object
+                for modifier in ob.modifiers:
+                    if modifier.type == 'ARMATURE':
+                        modifier_list.append(modifier)
+                for modifier in modifier_list:
+                    # Apply the armature modifier
+                    bpy.ops.object.modifier_copy({"object": ob}, modifier=modifier.name)
+                    bpy.ops.object.modifier_apply({"object": ob}, modifier=modifier.name)
 
     # Store current mode
     original_mode = bpy.context.mode
@@ -198,34 +223,34 @@ def generate_rig_edit():
     for p_bone in armature.pose.bones:
         # We check if vectors have  miniscule transforms, and just consider them rounding errors and clear them.
         # Check location
-        if vectorisclose(p_bone.location, Vector((0, 0, 0)), 0.0001) and p_bone.location != Vector((0, 0, 0)):
+        if vectorisclose(p_bone.location, Vector((0, 0, 0)), errortolerance) and p_bone.location != Vector((0, 0, 0)):
             # Warn the user
             logging.info(f"{p_bone.name} had miniscule location transforms, assuming it is an error and clearing")
             # Clear transforms
             p_bone.location = Vector((0, 0, 0))
 
         # Check rotation
-        if vectorisclose(Vector(p_bone.rotation_quaternion), Vector((1, 0, 0, 0)), 0.0001) and Vector(p_bone.rotation_quaternion) != Vector((1, 0, 0, 0)):
+        if vectorisclose(Vector(p_bone.rotation_quaternion), Vector((1, 0, 0, 0)), errortolerance) and Vector(p_bone.rotation_quaternion) != Vector((1, 0, 0, 0)):
             # Warn the user
             logging.info(f"{p_bone.name} had miniscule rotation transforms, assuming it is an error and clearing")
             # Clear rotation
             p_bone.rotation_quaternion = Quaternion((1, 0, 0, 0))
 
         # Check scale
-        if vectorisclose(p_bone.scale, Vector((1, 1, 1)), 0.0001) and p_bone.scale != Vector((1, 1, 1)):
+        if vectorisclose(p_bone.scale, Vector((1, 1, 1)), errortolerance) and p_bone.scale != Vector((1, 1, 1)):
             # Warn the user
             logging.info(f"{p_bone.name} had miniscule scale transforms, assuming it is an error and clearing")
             # Clear scale
             p_bone.scale = Vector((1, 1, 1))
 
         # Check if any bones have major scale transform, and warn the user.
-        if not vectorisclose(p_bone.scale, Vector((1, 1, 1)), 0.0001):
+        if not vectorisclose(p_bone.scale, Vector((1, 1, 1)), errortolerance):
             logging.info(f"{p_bone.name} had scale. Value = {repr(p_bone.scale)}, difference: {(p_bone.scale - Vector((1, 1, 1))).length}")
             msgs.append(f"Warning: {str(p_bone.name)} had scale transforms. Reset scale for all bones and try again.")
             return msgs
         
         # We check for NODE bones with transforms and skip them.
-        if (not vectorisclose(p_bone.location, Vector((0, 0, 0)), 0.0001) or not vectorisclose(p_bone.scale,Vector((1, 1, 1)),0.0001) or not vectorisclose(Vector(p_bone.rotation_quaternion), Vector((1, 0, 0, 0)), 0.0001)) and p_bone.name.startswith("NODE_"):
+        if (not vectorisclose(p_bone.location, Vector((0, 0, 0)), errortolerance) or not vectorisclose(p_bone.scale,Vector((1, 1, 1)), errortolerance) or not vectorisclose(Vector(p_bone.rotation_quaternion), Vector((1, 0, 0, 0)), errortolerance)) and p_bone.name.startswith("NODE_"):
             # Ignore posed NODE bones and proceed to the next, their offsets can be applied directly.
             editnumber = editnumber + 1
             logging.info(f"rig edit number {editnumber}")
@@ -233,7 +258,7 @@ def generate_rig_edit():
             continue
 
         # We append any remaining bones that have been posed.
-        if (not vectorisclose(p_bone.location, Vector((0, 0, 0)), 0.0001) or not vectorisclose(p_bone.scale,Vector((1, 1, 1)),0.0001) or not vectorisclose(Vector(p_bone.rotation_quaternion), Vector((1, 0, 0, 0)), 0.0001)):
+        if (not vectorisclose(p_bone.location, Vector((0, 0, 0)), errortolerance) or not vectorisclose(p_bone.scale,Vector((1, 1, 1)), errortolerance) or not vectorisclose(Vector(p_bone.rotation_quaternion), Vector((1, 0, 0, 0)), errortolerance)):
             #Check if the bone has no parent and warn the user
             if p_bone.parent == None:
                 logging.info(f"{p_bone.name} has transforms but no parent")

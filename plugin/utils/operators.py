@@ -73,13 +73,13 @@ class GenerateRigEdit(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        return handle_errors(self, shell.generate_rig_edit, {})
+        return handle_errors(self, shell.generate_rig_edit, {'mergenodes': context.scene.mergenodes, 'applyarmature': context.scene.applyarmature})
 
 
 class ConvertScaleToLoc(bpy.types.Operator):
     """Convert pose mode scale transforms into location transforms"""
     bl_idname = "pose.convert_scale_to_loc"
-    bl_label = "Convert scale to location"
+    bl_label = "Convert Scale to Location"
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
