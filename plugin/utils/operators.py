@@ -73,7 +73,7 @@ class GenerateRigEdit(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        return handle_errors(self, shell.generate_rig_edit, {'applyarmature': context.scene.applyarmature})
+        return handle_errors(self, shell.generate_rig_edit, {'mergenodes': context.scene.mergenodes, 'applyarmature': context.scene.applyarmature})
 
 
 class ConvertScaleToLoc(bpy.types.Operator):
