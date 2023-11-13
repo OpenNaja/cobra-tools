@@ -120,11 +120,11 @@ def create_lods():
 				# remove additional shell material from LODs after LOD1
 				if is_shell(ob) and lod_index > 1:
 					# toggle the flag on the bitfield to maintain the other bits, but fins seems to be always 565
-					# b_me["flag"] = 565
-					flag = ModelFlag.from_value(b_me["flag"])
-					flag.repeat_tris = True
-					flag.fur_shells = False
-					b_me["flag"] = int(flag)
+					b_me["flag"] = 565
+					# flag = ModelFlag.from_value(b_me["flag"])
+					# flag.repeat_tris = True
+					# flag.fur_shells = False
+					# b_me["flag"] = int(flag)
 					# remove shell material
 					b_me.materials.pop(index=1)
 	if decimated:
