@@ -150,7 +150,7 @@ def vectorisclose(vector1, vector2, tolerance=0.0001):
 
 
 # Main rig editing function
-def generate_rig_edit():
+def generate_rig_edit(**kwargs):
     """Automatic rig edit generator by NDP. Detects posed bones and automatically generates nodes and offsets them."""
     # Initiate logging
     msgs = []
@@ -174,6 +174,10 @@ def generate_rig_edit():
         msgs.append(f"No armature selected.")
         return msgs
     
+    # Get the armature
+    armature = bpy.context.object
+    logging.info(f"armature: {armature.name}")
+
     # Apply armature modifiers of children objects
     if applyarmature == True:
         logging.info(f"Applying armature modifiers of children objects")
@@ -192,10 +196,6 @@ def generate_rig_edit():
                     # Apply the armature modifier
                     bpy.ops.object.modifier_copy({"object": ob}, modifier=modifier.name)
                     bpy.ops.object.modifier_apply({"object": ob}, modifier=modifier.name)
-    
-    # Get the armature
-    armature = bpy.context.object
-    logging.info(f"armature: {armature.name}")
 
     # Store current mode
     original_mode = bpy.context.mode
