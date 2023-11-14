@@ -49,7 +49,7 @@ def get_next_backup_filename(filepath):
 		return os.path.join(sfolder,sname + '~1' + sext)
 	else:
 		# files found, find all the file suffix numbers
-		file_suffixes = []
+		file_suffixes = [0,]
 
 		for file in prefixed:
 			regex_match = re.match(sname + "~(\d+)", file)
