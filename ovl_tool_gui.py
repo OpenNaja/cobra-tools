@@ -230,7 +230,8 @@ class MainWindow(widgets.MainWindow):
 
 	def _toggle_logger(self):
 		checked = self.t_show_logger.isChecked()
-		print("Showing logger: " + str(checked))
+		self.cfg["show_logger"] = checked
+		logger.info(f"show logger changed, restart GUI to apply changes")
 
 	def get_file_count_text(self):
 		return f"{self.files_container.table.table_model.rowCount()} items"
