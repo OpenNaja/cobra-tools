@@ -89,13 +89,14 @@ def set_war(context):
 
 
 def is_waror(context):
-	if context.version == 20 and context.user_version in (24724, 25108, 24596):
+	if context.version == 20 and context.user_version in (24724, 25108, 24596) and context.is_dev == 0:
 		return True
 
 
 def set_waror(context):
 	context.version = 20
 	context.user_version._value = 24724
+	context.is_dev = 0
 
 
 def is_ztuac(context):

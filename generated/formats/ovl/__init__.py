@@ -503,7 +503,7 @@ class OvlFile(Header):
 		self.magic.data = b'FRES'
 		self._game = None
 
-		self.is_dev = False
+		self.is_dev = 0
 		self.do_debug = False
 
 		self.formats_dict = FormatDict()
@@ -788,8 +788,6 @@ class OvlFile(Header):
 		return fallback
 
 	def load(self, filepath, commands={}):
-		# automatically tag dev build
-		self.is_dev = True if "Jurassic World Evolution 2 1.3.1.0" in filepath else False
 		# store commands
 		self.commands = commands
 		self.store_filepath(filepath)
@@ -807,6 +805,8 @@ class OvlFile(Header):
 				self.eof = stream.tell()
 
 			# pick game version
+			# automatically tag JWE2 dev build
+			self.is_dev = 1 if "Jurassic World Evolution 2 1.3.1.0" in filepath else 0
 			qualified_games = get_game(self)
 			# go for the first matching game as a general case
 			self._game = qualified_games[0].value
@@ -821,13 +821,10 @@ class OvlFile(Header):
 					logging.warning(f"Multiple games qualified, but no preset was supplied")
 			logging.info(f"Game: {self.game}")
 
-			self.loaders = {}
-			# maps djb2 hash to string
-			self.hash_table_local = {}
-			# add extensions to hash dict
 			self.mimes_name = [self.names.get_str_at(i) for i in self.mimes["name"]]
 			# without leading . to avoid collisions on cases like JWE island.island
 			self.mimes_ext = [name.split(':')[-1] for name in self.mimes_name]
+			# maps djb2 hash to string
 			# store mime extension hash so we can use it
 			self.hash_table_local = {djb2(ext): ext for ext in self.mimes_ext}
 
@@ -843,6 +840,7 @@ class OvlFile(Header):
 			self.dependencies_ext = [self.names.get_str_at(i).replace(":", ".") for i in self.dependencies["ext_raw"]]
 			self.hash_table_local.update({h: b for b, h in zip(self.files_basename, self.files["file_hash"])})
 
+			self.loaders = {}
 			if "only_types" in self.commands:
 				if not (ext for ext in self.commands['only_types'] if ext in self.files_ext):
 					logging.info(f"OVL does not contain requested formats, skipping")
