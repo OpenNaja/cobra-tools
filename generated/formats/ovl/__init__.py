@@ -791,6 +791,14 @@ class OvlFile(Header):
 		self.store_filepath(filepath)
 		with self.reporter.log_duration(f"Loading {self.name}"):
 			with open(filepath, "rb") as stream:
+				magic = stream.read(4)
+				stream.seek(0)
+				if magic == b"FRES":
+					pass
+				elif magic == b"FREA":
+					raise AttributeError(f"{self.name} is encrypted and can not be read")
+				else:
+					raise AttributeError(f"Unknown OVL magic for {self.name}, can not be read")
 				self.read_fields(stream, self)
 				self.eof = stream.tell()
 			logging.info(f"Game: {self.game}")
