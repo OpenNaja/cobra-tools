@@ -231,7 +231,7 @@ class MainWindow(widgets.MainWindow):
 	def _toggle_logger(self):
 		checked = self.t_show_logger.isChecked()
 		self.cfg["show_logger"] = checked
-		logger.info(f"show logger changed, restart GUI to apply changes")
+		logging.info(f"show logger changed, restart GUI to apply changes")
 
 	def get_file_count_text(self):
 		return f"{self.files_container.table.table_model.rowCount()} items"
@@ -384,13 +384,14 @@ class MainWindow(widgets.MainWindow):
 
 	def open(self, filepath, threaded=True):
 		if filepath:
+			commands = {"game": self.ovl_game_choice.entry.currentText()}
 			self.set_file_modified(False)
 			logging.debug(f"Loading threaded {threaded}")
 			if threaded:
-				self.run_threaded(self.ovl_data.load, filepath)
+				self.run_threaded(self.ovl_data.load, filepath, commands)
 			else:
 				try:
-					self.ovl_data.load(filepath)
+					self.ovl_data.load(filepath, commands)
 				except:
 					logging.debug(self.ovl_data)
 					self.handle_error("OVL loading failed, see log!")

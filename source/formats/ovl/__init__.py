@@ -500,6 +500,7 @@ class OvlFile(Header):
 		# pass self as context
 		super().__init__(self)
 		self.magic.data = b'FRES'
+		self._game = None
 
 		self.is_dev = False
 		self.do_debug = False
@@ -518,10 +519,13 @@ class OvlFile(Header):
 
 	@property
 	def game(self):
-		return get_game(self)[0].value
+		if self._game is None:
+			self._game = get_game(self)[0].value
+		return self._game
 
 	@game.setter
 	def game(self, game_name):
+		self._game = game_name
 		set_game(self, game_name)
 
 	def clear(self):
@@ -800,6 +804,20 @@ class OvlFile(Header):
 					raise AttributeError(f"Unknown OVL magic for {self.name}, cannot be read")
 				self.read_fields(stream, self)
 				self.eof = stream.tell()
+
+			# pick game version
+			qualified_games = get_game(self)
+			# go for the first matching game as a general case
+			self._game = qualified_games[0].value
+			if len(qualified_games) != 1:
+				if "game" in commands:
+					preset_game = commands["game"]
+					if preset_game in [game.value for game in qualified_games]:
+						self._game = preset_game
+					else:
+						logging.warning(f"Multiple games qualified and preset '{preset_game}' did not match any")
+				else:
+					logging.warning(f"Multiple games qualified, but no preset was supplied")
 			logging.info(f"Game: {self.game}")
 
 			self.loaders = {}
