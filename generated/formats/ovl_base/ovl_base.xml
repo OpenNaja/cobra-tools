@@ -36,6 +36,7 @@
     <version id="JWE" version="19" user_version="24724 25108 24596">Jurassic World Evolution</version>
     <version id="JWE2DEV" version="20" user_version="24724 25108 24596" is_dev="1">Jurassic World Evolution 2 Dev</version>
     <version id="JWE2" version="20" user_version="24724 25108 24596">Jurassic World Evolution 2</version>
+    <version id="WAROR" version="20" user_version="24724 25108 24596">Warhammer Age of Sigmar - Realms of Ruin</version>
 
     <!-- Extra basic types -->
 

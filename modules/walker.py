@@ -33,7 +33,8 @@ def walk_type(start_dir, extension=".ovl"):
 def filter_accept_official(ovl_path):
 	"""filter ovl files to only accept stock names, discard any user-made ovl that does not agree"""
 	# todo this varies per game (WH), refactor to share code with widgets.GamesWidget
-	valid_packages = ("GameMain", "Content")
+	# No longer using only content* due to Warhammer Ages of Sigmar adding random folder names
+	valid_packages = ("GameMain", "Content", "Campaign", "Ghur", "Kruleboyz", "Nighthaunt", "NoFaction", "Stormcast", "Tzeentch")
 	if any(p in ovl_path for p in valid_packages):
 		return True
 	logging.warning(f"Ignoring user-made {ovl_path}")

@@ -75,6 +75,16 @@ def set_pz16(context):
 	context.user_version._value = 8340
 
 
+def is_waror(context):
+	if context.version == 20 and context.user_version in (24724, 25108, 24596):
+		return True
+
+
+def set_waror(context):
+	context.version = 20
+	context.user_version._value = 24724
+
+
 def is_ztuac(context):
 	if context.version == 17:
 		return True
@@ -84,7 +94,7 @@ def set_ztuac(context):
 	context.version = 17
 
 
-games = Enum('Games', [('DISNEYLAND_ADVENTURES', 'Disneyland Adventures'), ('JURASSIC_WORLD_EVOLUTION', 'Jurassic World Evolution'), ('JURASSIC_WORLD_EVOLUTION_2', 'Jurassic World Evolution 2'), ('JURASSIC_WORLD_EVOLUTION_2_DEV', 'Jurassic World Evolution 2 Dev'), ('PLANET_COASTER', 'Planet Coaster'), ('PLANET_ZOO', 'Planet Zoo'), ('PLANET_ZOO_PRE_1_6', 'Planet Zoo pre-1.6'), ('ZOO_TYCOON_ULTIMATE_ANIMAL_COLLECTION', 'Zoo Tycoon Ultimate Animal Collection'), ('UNKNOWN', 'Unknown Game')])
+games = Enum('Games', [('DISNEYLAND_ADVENTURES', 'Disneyland Adventures'), ('JURASSIC_WORLD_EVOLUTION', 'Jurassic World Evolution'), ('JURASSIC_WORLD_EVOLUTION_2', 'Jurassic World Evolution 2'), ('JURASSIC_WORLD_EVOLUTION_2_DEV', 'Jurassic World Evolution 2 Dev'), ('PLANET_COASTER', 'Planet Coaster'), ('PLANET_ZOO', 'Planet Zoo'), ('PLANET_ZOO_PRE_1_6', 'Planet Zoo pre-1.6'), ('WARHAMMER_AGE_OF_SIGMAR_REALMS_OF_RUIN', 'Warhammer Age of Sigmar - Realms of Ruin'), ('ZOO_TYCOON_ULTIMATE_ANIMAL_COLLECTION', 'Zoo Tycoon Ultimate Animal Collection'), ('UNKNOWN', 'Unknown Game')])
 
 
 def get_game(context):
@@ -102,6 +112,8 @@ def get_game(context):
 		return [games.PLANET_ZOO_PRE_1_6]
 	if is_pz16(context):
 		return [games.PLANET_ZOO]
+	if is_waror(context):
+		return [games.WARHAMMER_AGE_OF_SIGMAR_REALMS_OF_RUIN]
 	if is_ztuac(context):
 		return [games.ZOO_TYCOON_ULTIMATE_ANIMAL_COLLECTION]
 	return [games.UNKNOWN]
@@ -124,6 +136,8 @@ def set_game(context, game):
 		return set_pz(context)
 	if game in {games.PLANET_ZOO}:
 		return set_pz16(context)
+	if game in {games.WARHAMMER_AGE_OF_SIGMAR_REALMS_OF_RUIN}:
+		return set_waror(context)
 	if game in {games.ZOO_TYCOON_ULTIMATE_ANIMAL_COLLECTION}:
 		return set_ztuac(context)
 
@@ -147,6 +161,7 @@ jwe2dev = UserinterfaceicondataVersion(id='JWE2DEV', version=(20,), user_version
 pc = UserinterfaceicondataVersion(id='PC', version=(18,), user_version=(VersionInfo.from_value(8340), VersionInfo.from_value(8724), VersionInfo.from_value(8212),), version_flag=(8,), primary_games=[], all_games=[games.PLANET_COASTER])
 pz = UserinterfaceicondataVersion(id='PZ', version=(19,), user_version=(VersionInfo.from_value(8340), VersionInfo.from_value(8724), VersionInfo.from_value(8212),), primary_games=[], all_games=[games.PLANET_ZOO_PRE_1_6])
 pz16 = UserinterfaceicondataVersion(id='PZ16', version=(20,), user_version=(VersionInfo.from_value(8340), VersionInfo.from_value(8724), VersionInfo.from_value(8212),), primary_games=[], all_games=[games.PLANET_ZOO])
+waror = UserinterfaceicondataVersion(id='WAROR', version=(20,), user_version=(VersionInfo.from_value(24724), VersionInfo.from_value(25108), VersionInfo.from_value(24596),), primary_games=[], all_games=[games.WARHAMMER_AGE_OF_SIGMAR_REALMS_OF_RUIN])
 ztuac = UserinterfaceicondataVersion(id='ZTUAC', version=(17,), primary_games=[], all_games=[games.ZOO_TYCOON_ULTIMATE_ANIMAL_COLLECTION])
 
-available_versions = [dla, jwe, jwe2, jwe2dev, pc, pz, pz16, ztuac]
+available_versions = [dla, jwe, jwe2, jwe2dev, pc, pz, pz16, waror, ztuac]
