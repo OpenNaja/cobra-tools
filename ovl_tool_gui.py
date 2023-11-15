@@ -433,10 +433,10 @@ class MainWindow(widgets.MainWindow):
 		_out_dir = out_dir
 		# check using a filter to extract mimes
 		only_types = self.extract_types_combo.currentData()
+		selected_dir = self.installed_games.get_selected_dir()
 		for ovl in self.handle_path(save_over=False):
 			# for bulk extraction, add the ovl basename to the path to avoid overwriting
 			if self.t_in_folder.isChecked():
-				selected_dir = self.installed_games.get_selected_dir()
 				rel_p = os.path.relpath(ovl.path_no_ext, start=selected_dir)
 				out_dir = os.path.join(_out_dir, rel_p)
 			ovl.extract(out_dir, only_types=only_types)
