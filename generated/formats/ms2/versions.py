@@ -110,29 +110,32 @@ games = Enum('Games', [('DISNEYLAND_ADVENTURES', 'Disneyland Adventures'), ('JUR
 
 
 def get_game(context):
+	versions = []
 	if is_dla(context):
-		return [games.DISNEYLAND_ADVENTURES]
+		versions.extend([games.DISNEYLAND_ADVENTURES])
 	if is_jwe(context):
-		return [games.JURASSIC_WORLD_EVOLUTION]
+		versions.extend([games.JURASSIC_WORLD_EVOLUTION])
 	if is_jwe2(context):
-		return [games.JURASSIC_WORLD_EVOLUTION_2]
+		versions.extend([games.JURASSIC_WORLD_EVOLUTION_2])
 	if is_jwe2dev(context):
-		return [games.JURASSIC_WORLD_EVOLUTION_2_DEV]
+		versions.extend([games.JURASSIC_WORLD_EVOLUTION_2_DEV])
 	if is_pc(context):
-		return [games.PLANET_COASTER]
+		versions.extend([games.PLANET_COASTER])
 	if is_pz(context):
-		return [games.PLANET_ZOO_ALL]
+		versions.extend([games.PLANET_ZOO_ALL])
 	if is_pz16(context):
-		return [games.PLANET_ZOO_LATEST]
+		versions.extend([games.PLANET_ZOO_LATEST])
 	if is_war(context):
-		return [games.WARHAMMER_RO_R]
+		versions.extend([games.WARHAMMER_RO_R])
 	if is_waror(context):
-		return [games.WARHAMMER_AGE_OF_SIGMAR_REALMS_OF_RUIN]
+		versions.extend([games.WARHAMMER_AGE_OF_SIGMAR_REALMS_OF_RUIN])
 	if is_ztuac(context):
-		return [games.ZOO_TYCOON_ULTIMATE_ANIMAL_COLLECTION]
+		versions.extend([games.ZOO_TYCOON_ULTIMATE_ANIMAL_COLLECTION])
 	if is_old(context):
-		return [games.OLD]
-	return [games.UNKNOWN]
+		versions.extend([games.OLD])
+	if not versions:
+		versions.extend([games.UNKNOWN])
+	return versions
 
 
 def set_game(context, game):

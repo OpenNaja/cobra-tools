@@ -111,29 +111,32 @@ games = Enum('Games', [('DLA', 'DLA'), ('JURASSIC_WORLD_EVOLUTION_2_DEV', 'Juras
 
 
 def get_game(context):
+	versions = []
 	if is_dla(context):
-		return [games.DLA]
+		versions.extend([games.DLA])
 	if is_jwe(context):
-		return [games.JWE]
+		versions.extend([games.JWE])
 	if is_jwe2(context):
-		return [games.JWE_2]
+		versions.extend([games.JWE_2])
 	if is_jwe2dev(context):
-		return [games.JURASSIC_WORLD_EVOLUTION_2_DEV]
+		versions.extend([games.JURASSIC_WORLD_EVOLUTION_2_DEV])
 	if is_jwe2_dev(context):
-		return [games.JWE_2_DEV_BUILD]
+		versions.extend([games.JWE_2_DEV_BUILD])
 	if is_pc(context):
-		return [games.PC]
+		versions.extend([games.PC])
 	if is_pz(context):
-		return [games.PZ]
+		versions.extend([games.PZ])
 	if is_pz16(context):
-		return [games.PLANET_ZOO]
+		versions.extend([games.PLANET_ZOO])
 	if is_war(context):
-		return [games.WAR]
+		versions.extend([games.WAR])
 	if is_waror(context):
-		return [games.WARHAMMER_AGE_OF_SIGMAR_REALMS_OF_RUIN]
+		versions.extend([games.WARHAMMER_AGE_OF_SIGMAR_REALMS_OF_RUIN])
 	if is_ztuac(context):
-		return [games.ZTUAC]
-	return [games.UNKNOWN]
+		versions.extend([games.ZTUAC])
+	if not versions:
+		versions.extend([games.UNKNOWN])
+	return versions
 
 
 def set_game(context, game):

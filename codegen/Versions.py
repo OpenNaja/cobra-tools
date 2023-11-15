@@ -203,11 +203,15 @@ class Versions:
 	def write_get_game(self, stream, version_game_map):
 		# write game lookup function
 		stream.write(f"def get_game(context):")
+		stream.write(f"\n\tversions = []")
 		for version in self.versions:
-			stream.write(f"\n\tif is_{self.format_id(version.attrib['id'])}(context):")
+			version_id = version.attrib['id']
+			stream.write(f"\n\tif is_{self.format_id(version_id)}(context):")
 			stream.write(
-				f"\n\t\treturn [{', '.join([f'games.{key}' for key in version_game_map[version.attrib['id']]])}]")
-		stream.write("\n\treturn [games.UNKNOWN]")
+				f"\n\t\tversions.extend([{', '.join([f'games.{key}' for key in version_game_map[version_id]])}])")
+		stream.write(f"\n\tif not versions:")
+		stream.write("\n\t\tversions.extend([games.UNKNOWN])")
+		stream.write("\n\treturn versions")
 		stream.write("\n\n\n")
 
 	def write_set_game(self, stream, version_default_map, version_game_map):
