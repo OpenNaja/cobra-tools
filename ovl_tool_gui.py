@@ -133,7 +133,7 @@ class MainWindow(widgets.MainWindow):
 
 		# Setup Logger
 		orientation = QtCore.Qt.Orientation.Vertical if self.cfg.get("orientation", "V") == "V" else QtCore.Qt.Orientation.Horizontal
-		show_logger = self.cfg.get("show_logger", True)
+		self.show_logger = self.cfg.get("show_logger", True)
 		topleft = self.file_splitter
 		if orientation == QtCore.Qt.Orientation.Vertical:
 			self.file_splitter.setContentsMargins(5, 0, 5, 0)
@@ -147,7 +147,7 @@ class MainWindow(widgets.MainWindow):
 			box.addWidget(self.file_splitter)
 			topleft.setLayout(box)
 		# Layout Logger
-		if show_logger:
+		if self.show_logger:
 			self.layout_logger(topleft, orientation)
 		else:
 			self.central_layout.addWidget(topleft)
@@ -191,9 +191,18 @@ class MainWindow(widgets.MainWindow):
 		self.t_walk_ovl.setChecked(False)
 		self.t_walk_ovl.setVisible(self.dev_mode)
 
+		# add checkbox to show logger
+		self.t_show_logger = QtWidgets.QAction("Show logger")
+		self.t_show_logger.setToolTip("Hides/show the logger panel.")
+		self.t_show_logger.setCheckable(True)
+		self.t_show_logger.setChecked(self.show_logger)
+		self.t_show_logger.setVisible(self.dev_mode)
+		self.t_show_logger.triggered.connect(self._toggle_logger)
+
 		separator_action = self.actions['generate hash table']
 		# we are not adding this to the action list, shall we?
 		util_menu.insertAction(separator_action, self.t_walk_ovl)
+		util_menu.insertAction(separator_action, self.t_show_logger)
 		util_menu.insertSeparator(separator_action)
 
 		self.file_info = QtWidgets.QLabel(self)
@@ -218,6 +227,10 @@ class MainWindow(widgets.MainWindow):
 		reporter.progress_percentage.connect(self.set_progress)
 		reporter.current_action.connect(self.set_msg_temporarily)
 		self.run_threaded(self.ovl_data.load_hash_table)
+
+	def _toggle_logger(self):
+		checked = self.t_show_logger.isChecked()
+		print("Showing logger: " + str(checked))
 
 	def get_file_count_text(self):
 		return f"{self.files_container.table.table_model.rowCount()} items"
