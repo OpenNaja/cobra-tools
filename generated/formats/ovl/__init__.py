@@ -796,9 +796,9 @@ class OvlFile(Header):
 				if magic == b"FRES":
 					pass
 				elif magic == b"FREA":
-					raise AttributeError(f"{self.name} is encrypted and can not be read")
+					raise AttributeError(f"{self.name} is encrypted and cannot be read")
 				else:
-					raise AttributeError(f"Unknown OVL magic for {self.name}, can not be read")
+					raise AttributeError(f"Unknown OVL magic for {self.name}, cannot be read")
 				self.read_fields(stream, self)
 				self.eof = stream.tell()
 			logging.info(f"Game: {self.game}")
