@@ -259,11 +259,6 @@ def generate_rig_edit(**kwargs):
 
         # We append any remaining bones that have been posed.
         if (not vectorisclose(p_bone.location, Vector((0, 0, 0)), errortolerance) or not vectorisclose(p_bone.scale,Vector((1, 1, 1)), errortolerance) or not vectorisclose(Vector(p_bone.rotation_quaternion), Vector((1, 0, 0, 0)), errortolerance)):
-            #Check if the bone has no parent and warn the user
-            if p_bone.parent == None:
-                logging.info(f"{p_bone.name} has transforms but no parent")
-                msgs.append(f"Warning: {p_bone.name} has no parent. Do not rig edit root bones or bones without a parent.")
-                return msgs
             # Append the bones to the list of posed bones.
             # posebone_list.append(p_bone)
             # bonebase values
@@ -271,7 +266,10 @@ def generate_rig_edit(**kwargs):
             #logging.info(f"p_bone head (global rest):        {p_bone.bone.head_local}")
             #logging.info(f"p_bone head (global pose):        {p_bone.head}")
             #logging.info(f"p_bone head (+difference):        {p_bone.head - p_bone.bone.head_local}")
-            posebone_data[p_bone.name] = [p_bone.matrix.copy(), p_bone.bone.matrix_local.copy(), p_bone.parent.bone.matrix_local.copy()]
+            if p_bone.parent == None:
+                posebone_data[p_bone.name] = [p_bone.matrix.copy(), p_bone.bone.matrix_local.copy(), Matrix(((0.0, 1.0, 0.0, 0.0),(-1.0, 0.0, 0.0, 0.0),(0.0, 0.0, 1.0, 0.0),(0.0, 0.0, 0.0, 1.0)))]
+            else:
+                posebone_data[p_bone.name] = [p_bone.matrix.copy(), p_bone.bone.matrix_local.copy(), p_bone.parent.bone.matrix_local.copy()]
 
     # ---------------------------------------------------------------------------------------------------------------
 
@@ -288,13 +286,34 @@ def generate_rig_edit(**kwargs):
     for bone_name, (base_posed, base_armature_space, parent_armature_space) in posebone_data.items():
         # Get edit bones
         bonebase = armature.data.edit_bones.get(bone_name)
+        
+        if bonebase.parent == None:
+            logging.info(f"{bonebase.name} has no parent, creating a blank node")
+            # Create the node
+            bonenode = armature.data.edit_bones.new(f"NODE_{bone_name}")
+            
+            bonenode.matrix = Matrix(((0.0, 1.0, 0.0, 0.0),(-1.0, 0.0, 0.0, 0.0),(0.0, 0.0, 1.0, 0.0),(0.0, 0.0, 0.0, 1.0)))
+            
+            # Does length matter? It was just dissapearing for some reason
+            bonenode.length = 1
+            
+            # Set parent of bonebase to bonenode
+            bonebase.parent = bonenode
+            
+            
+        
+        #Set the parent
         boneparent = bonebase.parent
-
+        
         # Detect if the bone already has a node.
         if boneparent.name.startswith("NODE_"):
             logging.info(f"{bone_name} has a pre-existing NODE. Using it instead.")
             bonenode = bonebase.parent
+        
         else:
+            #Set the parent
+            boneparent = bonebase.parent
+            
             # Creating the node bone
             bonenode = armature.data.edit_bones.new(f"NODE_{bone_name}")
             
@@ -358,7 +377,7 @@ def generate_rig_edit(**kwargs):
             #logging.info(f"rounded matrix: {rounded_matrix}")
             
             #We use the parent and rounded matrix as a key to sort all identical nodes into groups
-            keytuple = (p_bone.parent.name, rounded_matrix)
+            keytuple = (p_bone.parent, rounded_matrix)
             if keytuple in node_groups:
                 node_groups[keytuple].append(p_bone)
             else:
@@ -471,11 +490,9 @@ def convert_scale_to_loc():
         
         #We copy all data in case we need parent data
         posebone_data[p_bone] = [p_bone.bone.head_local.copy(),p_bone.head.copy(),p_bone.location.copy(),posebone_rotation]
-        
-        if p_bone.parent != None:
-            posebone_list.append(p_bone)
-            logging.info(f"{p_bone.name} rest pos: {p_bone.bone.head_local}")
-            logging.info(f"{p_bone.name} pose pos: {p_bone.head}")
+        posebone_list.append(p_bone)
+        logging.info(f"{p_bone.name} rest pos: {p_bone.bone.head_local}")
+        logging.info(f"{p_bone.name} pose pos: {p_bone.head}")
             
     
     #Clear scale of all bones
@@ -488,19 +505,22 @@ def convert_scale_to_loc():
     logging.info(f"Setting location of pose bones:")
     for p_bone in posebone_list:
         logging.info(f"posed bone: {p_bone}")
-        
         # Update positions
         bpy.context.view_layer.update()
         
-        # Bone_rest offset from Parent_rest
-        rest_offset = posebone_data[p_bone][0] - posebone_data[p_bone.parent][0]
+        if p_bone.parent != None:
+            # Bone_rest offset from Parent_rest
+            rest_offset = posebone_data[p_bone][0] - posebone_data[p_bone.parent][0]
+            
+            # Bone_pose offset from Parent_pose
+            pose_offset = posebone_data[p_bone][1] - posebone_data[p_bone.parent][1]
         
-        # Bone_pose offset from Parent_pose
-        pose_offset = posebone_data[p_bone][1] - posebone_data[p_bone.parent][1]
+            calc_offset = pose_offset - rest_offset
         
-        calc_offset = pose_offset - rest_offset
+            p_bone.matrix.translation = p_bone.matrix.translation + calc_offset
         
-        p_bone.matrix.translation = p_bone.matrix.translation + calc_offset
+        else:
+            p_bone.matrix.translation = p_bone.matrix.translation + (posebone_data[p_bone][1] - posebone_data[p_bone][0])
         
         editnumber = editnumber + 1
     
