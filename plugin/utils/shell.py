@@ -397,7 +397,10 @@ def generate_rig_edit(**kwargs):
             # Rename NODE to indicate it owns more than one bone
             if len(node_groups[nodegroup]) > 1:
                 # Renaming to be more descriptive
-                node_groups[nodegroup][0].name = f"NODE_{len(node_groups[nodegroup])}GROUP_{node_groups[nodegroup][0].parent.name}"
+                if node_groups[nodegroup][0].parent == None:
+                    node_groups[nodegroup][0].name = f"NODE_{len(node_groups[nodegroup])}GROUP_ROOTNODE"
+                else:
+                    node_groups[nodegroup][0].name = f"NODE_{len(node_groups[nodegroup])}GROUP_{node_groups[nodegroup][0].parent.name}"
             
             # Log group organization
             #logging.info(f"first node: {node_groups[nodegroup][0].name}")
