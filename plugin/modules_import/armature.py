@@ -145,9 +145,38 @@ def get_bone_names(model_info):
 def import_ik(scene, armature_ob, bone_info, b_bone_names, corrector, long_name_2_short_name):
 	logging.info("Importing IK")
 	ik = bone_info.ik_info
+	# print(ik)
 	child_2_parent = {}
+	p_bones = armature_ob.pose.bones
 	for ik_link in ik.ik_list:
 		child_2_parent[ik_link.child.joint.name] = ik_link.parent.joint.name
+		b_long_name = matrix_util.bone_name_for_blender(ik_link.child.joint.name)
+		b_short_name = long_name_2_short_name[b_long_name]
+		p_bone = p_bones[b_short_name]
+		p_bone.use_ik_limit_x = p_bone.use_ik_limit_y = p_bone.use_ik_limit_z = True
+		p_bone.ik_min_x = -math.radians(ik_link.yaw.min)
+		p_bone.ik_max_x = math.radians(ik_link.yaw.max)
+		p_bone.ik_min_y = p_bone.ik_max_y = 0.0
+		p_bone.ik_min_z = -math.radians(ik_link.pitch.min)
+		p_bone.ik_max_z = math.radians(ik_link.pitch.max)
+
+		# debug ik matrix
+		# b_ik = create_ob(scene, f"{'ik'}_{ik_link.child.joint.name}", None, coll_name="ik")
+		# b_ik.empty_display_type = "ARROWS"
+		# b_ik.empty_display_size = 0.05
+		# # mat = mathutils.Matrix(ik_link.matrix.data).inverted().to_4x4()
+		# mat = mathutils.Matrix(ik_link.matrix.data).to_4x4()
+		# # mat = corrector.nif_bind_to_blender_bind(mat)
+		# # mat = get_matrix(corrector, ik_link.matrix)
+		# # mat = mat.to_3x3()
+		# # cross = mathutils.Matrix(((0, 0, -1), (0, -1, 0), (-1, 0, 0)))
+		# # mat = mat @ cross
+		# mat = mat.to_4x4()
+		# p_bone = armature_ob.pose.bones[matrix_util.bone_name_for_blender(ik_link.child.joint.name)]
+		# loc = p_bone.bone.matrix_local.translation
+		# mat.translation = loc
+		# b_ik.matrix_local = mat
+		# print(ik_link)
 	# find ends of chains
 	chains = {}
 	for child, parent in child_2_parent.items():
@@ -168,7 +197,7 @@ def import_ik(scene, armature_ob, bone_info, b_bone_names, corrector, long_name_
 		b_short_name = long_name_2_short_name[b_long_name]
 		p_bone = armature_ob.pose.bones[b_short_name]
 		b_ik = p_bone.constraints.new("IK")
-		b_ik.chain_count = len(parents) + 1
+		b_ik.chain_count = len(parents)# + 1
 
 
 def import_joints(scene, armature_ob, bone_info, b_bone_names, corrector):
@@ -240,32 +269,32 @@ def import_joints(scene, armature_ob, bone_info, b_bone_names, corrector):
 		# only set constrained children to active
 		child_collider.rigid_body.type = "ACTIVE"
 
-		# debug ragdoll matrix
-		b_ragdoll = create_ob(scene, f"{'ragdoll'}_{child_name}", None, coll_name="ragdoll")
-		b_ragdoll.empty_display_type = "ARROWS"
-		b_ragdoll.empty_display_size = 0.05
-		mat = get_matrix(corrector_rag, ragdoll.rot)
-		mat = mat.to_3x3()
-		cross = mathutils.Matrix(((0, 0, -1), (0, -1, 0), (-1, 0, 0)))
-		mat = mat @ cross
-		mat = mat.to_4x4()
-		joint_transform = j.joint_transforms[ragdoll.child.index]
-		mat.translation = get_matrix(corrector, joint_transform.rot, joint_transform.loc).translation
-		b_ragdoll.matrix_local = mat
-
-		# debug ragdoll vec_b
-		b_trg = create_ob(scene, f"{'target'}_{child_name}", None, coll_name="target")
-		b_trg.empty_display_type = "PLAIN_AXES"
-		b_trg.empty_display_size = 0.05
-		mat2 = mathutils.Matrix().to_4x4()
-		# unsure if that transform is correct
-		n_bind = mathutils.Matrix().to_4x4()
-		n_bind.translation = (ragdoll.vec_b.x, ragdoll.vec_b.y, ragdoll.vec_b.z)
-		b_bind = corrector_rag.nif_bind_to_blender_bind(n_bind)
-		mat2.translation = mat.translation - (mathutils.Vector(ragdoll.vec_b) * 0.1)
-		# mat2.translation = mat.translation + (mathutils.Vector(b_bind.translation) * 0.1)
-		b_trg.matrix_local = mat2
-		# print(ragdoll)
+		# # debug ragdoll matrix
+		# b_ragdoll = create_ob(scene, f"{'ragdoll'}_{child_name}", None, coll_name="ragdoll")
+		# b_ragdoll.empty_display_type = "ARROWS"
+		# b_ragdoll.empty_display_size = 0.05
+		# mat = get_matrix(corrector_rag, ragdoll.rot)
+		# mat = mat.to_3x3()
+		# cross = mathutils.Matrix(((0, 0, -1), (0, -1, 0), (-1, 0, 0)))
+		# mat = mat @ cross
+		# mat = mat.to_4x4()
+		# joint_transform = j.joint_transforms[ragdoll.child.index]
+		# mat.translation = get_matrix(corrector, joint_transform.rot, joint_transform.loc).translation
+		# b_ragdoll.matrix_local = mat
+		#
+		# # debug ragdoll vec_b
+		# b_trg = create_ob(scene, f"{'target'}_{child_name}", None, coll_name="target")
+		# b_trg.empty_display_type = "PLAIN_AXES"
+		# b_trg.empty_display_size = 0.05
+		# mat2 = mathutils.Matrix().to_4x4()
+		# # unsure if that transform is correct
+		# n_bind = mathutils.Matrix().to_4x4()
+		# n_bind.translation = (ragdoll.vec_b.x, ragdoll.vec_b.y, ragdoll.vec_b.z)
+		# b_bind = corrector_rag.nif_bind_to_blender_bind(n_bind)
+		# mat2.translation = mat.translation - (mathutils.Vector(ragdoll.vec_b) * 0.1)
+		# # mat2.translation = mat.translation + (mathutils.Vector(b_bind.translation) * 0.1)
+		# b_trg.matrix_local = mat2
+		# # print(ragdoll)
 
 
 def get_matrix(corrector, rot_mat, vec=None):

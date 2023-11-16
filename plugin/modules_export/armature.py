@@ -1,4 +1,5 @@
 import logging
+import math
 
 import bpy
 from generated.formats.ms2.enums.RigidBodyFlag import RigidBodyFlag
@@ -151,15 +152,37 @@ def export_bones_custom(b_armature_ob, model_info):
 	for i in range(len(b_bone_names)):
 		bone_info.enumeration[i] = [4, i]
 
-	update_ik_pointers(bone_info)
+	export_ik(b_armature_ob, bone_info)
 	export_joints(bone_info, corrector)
 
 
-def update_ik_pointers(bone_info):
-	logging.info("Updating IK pointers")
+def export_ik(b_armature_ob, bone_info):
+	logging.debug("Exporting IK")
+	bones_with_ik = []
+	for p_bone in b_armature_ob.pose.bones:
+		if p_bone.constraints:
+			b_ik = p_bone.constraints["IK"]
+			child_bone = p_bone
+			for i in range(b_ik.chain_count):
+				bones_with_ik.append((child_bone, child_bone.parent))
+				child_bone = p_bone.parent
+	bone_info.ik_count = len(bones_with_ik)
+	bone_info.reset_field("ik_info")
+	# todo ik_targets_count
+	ik_info = bone_info.ik_info
+	ik_info.ik_count = bone_info.ik_count
+	ik_info.reset_field("ik_list")
 	bones_map = {bone.name: bone for bone in bone_info.bones}
-	for ptr in bone_info.ik_info.get_pointers():
-		ptr.joint = bones_map.get(ptr.joint.name)
+	for ik_link, (p_child, p_parent) in zip(ik_info.ik_list, bones_with_ik):
+		ik_link.parent.joint = bones_map[bone_name_for_ovl(p_parent.name)]
+		ik_link.child.joint = bones_map[bone_name_for_ovl(p_child.name)]
+		ik_link.yaw.min = -math.degrees(p_child.ik_min_x)
+		ik_link.yaw.max = math.degrees(p_child.ik_max_x)
+		ik_link.pitch.min = -math.degrees(p_child.ik_min_z)
+		ik_link.pitch.max = math.degrees(p_child.ik_max_z)
+		# common in PZ eg. penguin
+		def_mat = mathutils.Matrix([[-0., 0., 1.], [-0., 1., 0.], [-1, 0., 0.]])
+		ik_link.matrix.set_rows(def_mat.transposed())
 
 
 def export_joints(bone_info, corrector):
