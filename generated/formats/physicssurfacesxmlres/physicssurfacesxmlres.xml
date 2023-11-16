@@ -5,38 +5,68 @@
 	<xi:include href="../ovl_base/ovl_base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
 
     <compound name="PhysicsSurfaceXMLResRoot" inherit="MemStruct">
+        PC: 112 bytes
 
         # There is an initial 'default' surface, these params are the same as in SurfacePhysicsInfo
         <add name="default_surface_name" type="Pointer" template="ZString"/>
+
         <add name="float1"   type="float" />
         <add name="float2"   type="float" />
-
         <add name="float3"   type="float" />
         <add name="float4"   type="float" />
-        <add name="unk64_1"  type="uint64" />
 
+        <add name="unk64_1"  type="uint64" />
         <add name="name1" type="Pointer" template="ZString"/>
         <add name="name2" type="Pointer" template="ZString"/>
+        <add name="ptr0"     type="Pointer" template="EmptyStruct"/>
 
-        <add name="ptr1"     type="Pointer" template="EmptyStruct"/>
-        <add name="ptr2"     type="ArrayPointer" template="SurfacePhysicsInfo" arg="count"/>
+<!--        <add name="ptr1"     type="ArrayPointer" template="SurfacePhysicsInfo" arg="count"/>-->
+        <add name="ptr1" type="Pointer" arg="count"/>
+        <add name="count"    type="uint64" />
 
-        # from here starts the rest of the surface definitions
+        <add name="ptr2" type="ArrayPointer" template="Struct2" arg="count2"/>
+        <add name="count2" type="uint64" />
 
-        <add name="count"    type="ushort" />
-        <add name="short2"   type="ushort" />
+        <add name="ptr4" type="ArrayPointer" template="Struct3" arg="count3"/>
+        <add name="count3"    type="ushort" />
+        <add name="short2"   type="ushort" />255
         <add name="unk32_1"  type="uint" />
-        <add name="unk64_4"  type="uint64" />
+        <add name="unk32_2"  type="uint" />
+        <add name="unk32_3"  type="uint" />
 
-        <add name="unk64_5"  type="uint64" />
-        <add name="unk64_6"  type="uint64" />
+    </compound>
 
-        <add name="unk64_7"  type="uint64" />
-        <add name="unk64_8"  type="uint64" />
+    <compound name="Struct2" inherit="MemStruct">
+        PC: 24 bytes
+        <add name="name1" type="Pointer" template="ZString"/>
+        <add name="arr" type="ArrayPointer" template="Struct2Sub" arg="count" />
+        <add name="count"   type="ushort" />
+        <add name="short2"   type="ushort" />255
+        <add name="unk32_2"  type="uint" />
+    </compound>
 
-        <add name="unk64_9"  type="uint64" />
-        <add name="unk64_10" type="uint64" />
+    <compound name="Struct2Sub" inherit="MemStruct">
+        PC: 72 bytes
+        <add name="name1" type="Pointer" template="ZString"/>
 
+        <add name="float1"   type="float" />
+        <add name="float2"   type="float" />
+        <add name="float3"   type="float" />
+        <add name="float4"   type="float" />
+
+        <add name="c"    type="uint64" />
+        <add name="d"    type="uint64" />
+        <add name="e"    type="uint64" />
+        <add name="f"    type="uint64" />
+        <add name="nil" type="Pointer" />
+        <add name="count0"    type="uint" />
+        <add name="count1"    type="uint" />
+    </compound>
+
+    <compound name="Struct3" inherit="MemStruct">
+        PC: 16 bytes
+        <add name="name1" type="Pointer" template="ZString"/>
+        <add name="index"  type="uint64" />
     </compound>
 
     <compound name="SurfacePhysicsInfo" inherit="MemStruct">
@@ -50,7 +80,7 @@
         <add name="float4"   type="float" />
         <add name="unk64_1"  type="uint64" />
 
-        # todo: name1 observed as string sometimes, 
+        # todo: name1 observed as string sometimes,
         # todo: name2 observed empty all the times
         <add name="name1" type="Pointer" template="ZString"/>
         <add name="name2" type="Pointer" template="ZString"/>

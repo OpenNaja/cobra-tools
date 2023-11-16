@@ -40,6 +40,9 @@ type_module_name_map = {
 	'Empty': 'generated.formats.ovl_base.compounds.Empty',
 	'ZStringList': 'generated.formats.ovl_base.compounds.ZStringList',
 	'PhysicsSurfaceXMLResRoot': 'generated.formats.physicssurfacesxmlres.compounds.PhysicsSurfaceXMLResRoot',
+	'Struct2': 'generated.formats.physicssurfacesxmlres.compounds.Struct2',
+	'Struct2Sub': 'generated.formats.physicssurfacesxmlres.compounds.Struct2Sub',
+	'Struct3': 'generated.formats.physicssurfacesxmlres.compounds.Struct3',
 	'SurfacePhysicsInfo': 'generated.formats.physicssurfacesxmlres.compounds.SurfacePhysicsInfo',
 	'EmptyStruct': 'generated.formats.physicssurfacesxmlres.compounds.EmptyStruct',
 }
