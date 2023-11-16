@@ -8,32 +8,39 @@
         PC: 112 bytes
 
         # There is an initial 'default' surface, these params are the same as in SurfacePhysicsInfo
-        <add name="default_surface_name" type="Pointer" template="ZString"/>
-
-        <add name="float1"   type="float" />
-        <add name="float2"   type="float" />
-        <add name="float3"   type="float" />
-        <add name="float4"   type="float" />
+        <add name="default_surface" type="Surface" />
 
         <add name="unk64_1"  type="uint64" />
         <add name="name1" type="Pointer" template="ZString"/>
         <add name="name2" type="Pointer" template="ZString"/>
         <add name="ptr0"     type="Pointer" template="EmptyStruct"/>
 
-<!--        <add name="ptr1"     type="ArrayPointer" template="SurfacePhysicsInfo" arg="count"/>-->
-        <add name="ptr1" type="Pointer" arg="count"/>
-        <add name="count"    type="uint64" />
+<!--        <add name="arr1" type="Pointer" arg="count1"/>-->
 
-        <add name="ptr2" type="ArrayPointer" template="Struct2" arg="count2"/>
+        <add name="arr1"     type="ArrayPointer" template="SurfacePhysicsInfo" arg="count1"/>
+        <add name="count1"    type="ushort" />
+        <add name="flag1"   type="ushort" />255 if used, count can be positive regardless
+        <add name="unkb"  type="uint" />
+
+        <add name="arr2" type="ArrayPointer" template="Struct2" arg="count2"/>
         <add name="count2" type="uint64" />
 
-        <add name="ptr4" type="ArrayPointer" template="Struct3" arg="count3"/>
+        <add name="arr3" type="ArrayPointer" template="Struct3" arg="count3"/>
         <add name="count3"    type="ushort" />
-        <add name="short2"   type="ushort" />255
+        <add name="flag3"   type="ushort" />255 if used, count can be positive regardless
         <add name="unk32_1"  type="uint" />
         <add name="unk32_2"  type="uint" />
         <add name="unk32_3"  type="uint" />
 
+    </compound>
+
+    <compound name="CondArr" inherit="MemStruct">
+        16 bytes
+        <add name="name1" type="Pointer" template="ZString"/>
+        <add name="arr" type="ArrayPointer" template="Struct2Sub" arg="count" />
+        <add name="count"   type="ushort" />
+        <add name="short2"   type="ushort" />255
+        <add name="unk32_2"  type="uint" />
     </compound>
 
     <compound name="Struct2" inherit="MemStruct">
@@ -45,20 +52,25 @@
         <add name="unk32_2"  type="uint" />
     </compound>
 
-    <compound name="Struct2Sub" inherit="MemStruct">
-        PC: 72 bytes
-        <add name="name1" type="Pointer" template="ZString"/>
-
+    <compound name="Surface" inherit="MemStruct">
+        24 bytes
+        # todo: define the right property name for these values
+        <add name="surface_name" type="Pointer" template="ZString"/>
         <add name="float1"   type="float" />
         <add name="float2"   type="float" />
         <add name="float3"   type="float" />
         <add name="float4"   type="float" />
+    </compound>
+
+    <compound name="Struct2Sub" inherit="MemStruct">
+        PC: 72 bytes
+        <add name="surface" type="Surface" />
 
         <add name="c"    type="uint64" />
         <add name="d"    type="uint64" />
         <add name="e"    type="uint64" />
         <add name="f"    type="uint64" />
-        <add name="nil" type="Pointer" />
+        <add name="nil" type="Pointer" template="EmptyStruct"/>
         <add name="count0"    type="uint" />
         <add name="count1"    type="uint" />
     </compound>
@@ -70,22 +82,15 @@
     </compound>
 
     <compound name="SurfacePhysicsInfo" inherit="MemStruct">
+        <add name="surface" type="Surface" />
 
-        # todo: define the right property name for these values
-        <add name="surface_name" type="Pointer" template="ZString"/>
-        <add name="float1"   type="float" />
-        <add name="float2"   type="float" />
-
-        <add name="float3"   type="float" />
-        <add name="float4"   type="float" />
         <add name="unk64_1"  type="uint64" />
 
         # todo: name1 observed as string sometimes,
         # todo: name2 observed empty all the times
         <add name="name1" type="Pointer" template="ZString"/>
-        <add name="name2" type="Pointer" template="ZString"/>
-        <add name="ptr1" type="Pointer" template="EmptyStruct"/>
-
+        <add name="name2" type="Pointer" template="ZString"/>not sure if it's a ptr at all
+        <add name="nil" type="Pointer" template="EmptyStruct"/>
     </compound>
 
     # Observed in JWE2 and PZ the pointers to this struct are completely empty

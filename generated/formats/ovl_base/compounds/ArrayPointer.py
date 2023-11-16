@@ -1,3 +1,5 @@
+import logging
+
 from generated.array import Array
 from generated.formats.ovl_base.compounds.Pointer import Pointer
 from generated.formats.ovl_base.compounds.Pointer import Pointer
@@ -35,7 +37,11 @@ class ArrayPointer(Pointer):
 
 	def read_template(self, stream):
 		if self.template:
-			self.data = Array.from_stream(stream, self.context, 0, None, (self.arg,), self.template)
+			try:
+				self.data = Array.from_stream(stream, self.context, 0, None, (self.arg,), self.template)
+			except:
+				logging.warning(f"Could not read array {self.template}")
+				self.data = None
 
 	@classmethod
 	def _to_xml(cls, instance, elem, debug):
