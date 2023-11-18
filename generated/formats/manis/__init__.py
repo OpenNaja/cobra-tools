@@ -18,6 +18,7 @@ try:
     import bitarray
     import bitarray.util
 except:
+    bitarray = None
     logging.warning(f"bitarray module is not installed")
 
 # np.set_printoptions(suppress=True, precision=4)
@@ -338,6 +339,8 @@ class ManisFile(InfoHeader, IoFile):
             # break
 
     def decompress(self, keys_iter, mani_info):
+        if bitarray is None:
+            raise ModuleNotFoundError("bitarray module is not installed - cannot decompress keys")
         scale = 6.103888e-05
         k_channel_bitsize = self.get_bitsize()
         logging.info(

@@ -88,6 +88,7 @@ def load(files=[], filepath="", set_fps=False):
 				manis.decompress(None, mi)
 			except:
 				logging.exception(f"Decompressing {mi.name} failed, skipping")
+				continue
 			# ignore loc for now
 			for frame_i, key, bonerestmat_inv, fcurves, scale, b_name in iter_keys(
 					k.pos_bones_names, ck.pos_bones, bones_data, b_action, "location"):  #, k.scl_bones_names, ck.scl_bones):
