@@ -18,8 +18,7 @@ class Struct2Sub(MemStruct):
 		self.d = name_type_map['Uint64'](self.context, 0, None)
 		self.e = name_type_map['Uint64'](self.context, 0, None)
 		self.f = name_type_map['Uint64'](self.context, 0, None)
-		self.count_0 = name_type_map['Uint'](self.context, 0, None)
-		self.count_1 = name_type_map['Uint'](self.context, 0, None)
+		self.flag = name_type_map['Uint64'](self.context, 0, None)
 		self.nil = name_type_map['Pointer'](self.context, 0, name_type_map['EmptyStruct'])
 		if set_default:
 			self.set_defaults()
@@ -33,8 +32,7 @@ class Struct2Sub(MemStruct):
 		yield 'e', name_type_map['Uint64'], (0, None), (False, None), (None, None)
 		yield 'f', name_type_map['Uint64'], (0, None), (False, None), (None, None)
 		yield 'nil', name_type_map['Pointer'], (0, name_type_map['EmptyStruct']), (False, None), (None, None)
-		yield 'count_0', name_type_map['Uint'], (0, None), (False, None), (None, None)
-		yield 'count_1', name_type_map['Uint'], (0, None), (False, None), (None, None)
+		yield 'flag', name_type_map['Uint64'], (0, None), (False, None), (None, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
@@ -45,5 +43,4 @@ class Struct2Sub(MemStruct):
 		yield 'e', name_type_map['Uint64'], (0, None), (False, None)
 		yield 'f', name_type_map['Uint64'], (0, None), (False, None)
 		yield 'nil', name_type_map['Pointer'], (0, name_type_map['EmptyStruct']), (False, None)
-		yield 'count_0', name_type_map['Uint'], (0, None), (False, None)
-		yield 'count_1', name_type_map['Uint'], (0, None), (False, None)
+		yield 'flag', name_type_map['Uint64'], (0, None), (False, None)

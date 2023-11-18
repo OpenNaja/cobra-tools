@@ -71,8 +71,8 @@
         <add name="e"    type="uint64" />
         <add name="f"    type="uint64" />
         <add name="nil" type="Pointer" template="EmptyStruct"/>
-        <add name="count0"    type="uint" />
-        <add name="count1"    type="uint" />
+        <add name="flag"    type="uint64" />
+<!--        <add name="count1"    type="uint" />-->
     </compound>
 
     <compound name="Struct3" inherit="MemStruct">

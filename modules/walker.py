@@ -145,6 +145,7 @@ def bulk_test_models(gui, start_dir, walk_ovls=True, walk_models=True):
 		last_counts = set()
 		flag_0 = set()
 		flag_1 = set()
+		collision_layers = set()
 		scale_float = set()
 		constraints_0 = set()
 		constraints_1 = set()
@@ -217,10 +218,14 @@ def bulk_test_models(gui, start_dir, walk_ovls=True, walk_models=True):
 									for rb in joints.rigid_body_list:
 										rigid_body_flags.add(int(rb.flag))
 									for j in joints.joint_infos:
+										# PC - discard invalid flags
+										if j.context.version == 32 and j.eleven != 11:
+											continue
 										for hit in j.hitchecks:
 											hc_starts[hit.io_start-ms2_data.models_reader.io_start] = ms2_path_rel
 											flag_0.add(hit.flag_0)
 											flag_1.add(hit.flag_1)
+											collision_layers.add(hit.collision_layers)
 											classification_name.add(hit.classification_name)
 											surface_name.add(hit.surface_name)
 											if hit.dtype == CollisionType.MESH_COLLISION:
@@ -247,6 +252,7 @@ def bulk_test_models(gui, start_dir, walk_ovls=True, walk_models=True):
 			print(f"chunk_mesh_zero: {chunk_mesh_zero}")
 			print(f"flag_0: {flag_0}")
 			print(f"flag_1: {flag_1}")
+			print(f"collision_layers: {collision_layers}")
 			print(f"constraints_0: {constraints_0}")
 			print(f"constraints_1: {constraints_1}")
 			print(f"no_bones: {no_bones}")

@@ -455,7 +455,7 @@ if __name__ == "__main__":
 	# m.load("C:/Users/arnfi/Desktop/rhinoblack_child_.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/StreetFoxCoffee/models.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/SP_Grave_Stones/models.ms2", read_editable=True)
-	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/Content0/Environment/Scenery/Themes/FT_FairyTale/FT_Topiary/FT_Topiary/models.ms2", read_editable=True)
+	m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/Content0/Environment/Scenery/Themes/FT_FairyTale/FT_Topiary/FT_Topiary/models.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/Content0/Environment/Scenery/Themes/PR_Pirate/PR_Redcoat/PR_Redcoat/models.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/Content0/Rides/FlatRides/Chair-O-Plane/FR_COP/models.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/Content0/Rides/FlatRides/360_Power/FR_360PWR/models.ms2", read_editable=True)
@@ -468,20 +468,17 @@ if __name__ == "__main__":
 	# broken
 	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/Content4/Rides/Flat_Rides/Weisshorn/FR_WHorn/models.ms2", read_editable=True)
 	
-	
 	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/PDLC_WorldFair/Rides/Powered_Track_Rides/Tracks/Track_302/Track_302/models.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/PDLC_Vintage/Environment/Scenery/Themes/VT_Vintage/VT_Bandstand/VT_Bandstand/models.ms2", read_editable=True)
-	# m.load("C:/Users/arnfi/Desktop/banana/tree_palm_banana.ms2", read_editable=True)
-	
+
 	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/Content0/Rides/FlatRides/Orbiter/FR_Orb/models.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/Content0/Rides/FlatRides/Star_Wheel/FR_StarW/models.ms2", read_editable=True)
 
 	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/Content0/Environment/Scenery/Wallsets/ST_Stone/ST_Stone/models.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/Content0/Environment/Scenery/Themes/PR_Pirate/PR_Kraken/PR_Kraken/models.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/Content0/Environment/Scenery/Themes/PC_PlanetCoaster/PC_Archway/PC_Archway/models.ms2", read_editable=True)
-	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/CC_Anubis/models.ms2", read_editable=True)
 	# m.load("C:/Program Files (x86)/Steam/steamapps/common/Planet Zoo/win64/ovldata/walker_export/Content2/Environment/Scenery/Wallsets/GL_Roof_02/GL_Roof_02/models.ms2", read_editable=True)
-	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/Characters/Mascots/Dino/Mascot_Dino/dino_.ms2", read_editable=True)
+	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/Content0/Characters/Mascots/Dino/Mascot_Dino/dino_.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/PC_Primitives_01/models.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/doors/dlc11_stripdoors_.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/rhinoblack_female_.ms2", read_editable=True, dump=True)
@@ -492,7 +489,7 @@ if __name__ == "__main__":
 	# m.load("C:/Program Files (x86)/Steam/steamapps/common/Planet Zoo/win64/ovldata/walker_export/Content0/Animals/Big_Cats/Bengal_Tiger/Bengal_Tiger_Male/Bengal_Tiger_Male/bengal_tiger_male_.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/visual_lagoon_working.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/visual_lagoon_no_optimizer.ms2", read_editable=True)
-	m.load("C:/Users/arnfi/Desktop/swizzled.ms2", read_editable=True)
+	# m.load("C:/Users/arnfi/Desktop/swizzled.ms2", read_editable=True)
 	# for i, bone_info in enumerate(m.models_reader.bone_infos):
 	# 	# for bi, bone in enumerate(bone_info.bones):
 	# 		# print(bi, bone.name)
