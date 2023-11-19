@@ -9,10 +9,12 @@ from mathutils import Vector, Matrix, Quaternion
 from plugin.modules_import.armature import set_transform4
 
 import plugin.utils.object
-from plugin.utils.hair import get_tangent_space_mat, vcol_2_vec, MID, add_psys
+from plugin.utils.hair import get_tangent_space_mat, MID, add_psys
 from generated.formats.ms2.bitfields.ModelFlag import ModelFlag
 
 # changed to avoid clamping bug and squares on fins
+from plugin.utils.matrix_util import vectorisclose
+
 X_START = -15.9993
 Y_START = 0.999756
 FUR_FIN = "_fur_fin"
@@ -134,21 +136,6 @@ def create_lods():
 	return msgs
 
 
-# Definition for the vector comparison function.
-def vectorisclose(vector1, vector2, tolerance=0.0001):
-    # Determine if the inputs are correctly utilized.
-    if not isinstance(vector1, Vector) or not isinstance(vector2, Vector) or not isinstance(tolerance, float):
-        raise TypeError("Input 1 must be a vector. Input 2 must be a vector. Input 3 must be a float.")
-    # Compare the components of the vectors.
-    if len(vector1) != len(vector2):
-        raise TypeError("Both vectors must have the same amount of components")
-    # Compare components
-    for component in range(0, len(vector1)):
-        if not abs(vector1[component] - vector2[component]) < abs(tolerance):
-            return False
-    return True
-
-
 # Main rig editing function
 def generate_rig_edit(**kwargs):
     """Automatic rig edit generator by NDP. Detects posed bones and automatically generates nodes and offsets them."""
@@ -250,7 +237,7 @@ def generate_rig_edit(**kwargs):
             return msgs
         
         # We check for NODE bones with transforms and skip them.
-        if (not vectorisclose(p_bone.location, Vector((0, 0, 0)), errortolerance) or not vectorisclose(p_bone.scale,Vector((1, 1, 1)), errortolerance) or not vectorisclose(Vector(p_bone.rotation_quaternion), Vector((1, 0, 0, 0)), errortolerance)) and p_bone.name.startswith("NODE_"):
+        if (not vectorisclose(p_bone.location, Vector((0, 0, 0)), errortolerance) or not vectorisclose(p_bone.scale, Vector((1, 1, 1)), errortolerance) or not vectorisclose(Vector(p_bone.rotation_quaternion), Vector((1, 0, 0, 0)), errortolerance)) and p_bone.name.startswith("NODE_"):
             # Ignore posed NODE bones and proceed to the next, their offsets can be applied directly.
             editnumber = editnumber + 1
             logging.info(f"rig edit number {editnumber}")
@@ -258,7 +245,7 @@ def generate_rig_edit(**kwargs):
             continue
 
         # We append any remaining bones that have been posed.
-        if (not vectorisclose(p_bone.location, Vector((0, 0, 0)), errortolerance) or not vectorisclose(p_bone.scale,Vector((1, 1, 1)), errortolerance) or not vectorisclose(Vector(p_bone.rotation_quaternion), Vector((1, 0, 0, 0)), errortolerance)):
+        if (not vectorisclose(p_bone.location, Vector((0, 0, 0)), errortolerance) or not vectorisclose(p_bone.scale, Vector((1, 1, 1)), errortolerance) or not vectorisclose(Vector(p_bone.rotation_quaternion), Vector((1, 0, 0, 0)), errortolerance)):
             # Append the bones to the list of posed bones.
             # posebone_list.append(p_bone)
             # bonebase values

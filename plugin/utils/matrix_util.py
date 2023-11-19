@@ -4,6 +4,7 @@ import mathutils
 import math
 import bpy
 from bpy_extras.io_utils import axis_conversion
+from mathutils import Vector
 
 THETA_THRESHOLD_NEGY = 1.0e-9
 THETA_THRESHOLD_NEGY_CLOSE = 1.0e-5
@@ -175,3 +176,17 @@ def handle_errors(inst, func, kwargs):
         inst.report({"ERROR"}, str(err))
         logging.exception('Got exception on main handler')
     return {'FINISHED'}
+
+
+def vectorisclose(vector1, vector2, tolerance=0.0001):
+    # Determine if the inputs are correctly utilized.
+    if not isinstance(vector1, Vector) or not isinstance(vector2, Vector) or not isinstance(tolerance, float):
+        raise TypeError("Input 1 must be a vector. Input 2 must be a vector. Input 3 must be a float.")
+    # Compare the components of the vectors.
+    if len(vector1) != len(vector2):
+        raise TypeError("Both vectors must have the same amount of components")
+    # Compare components
+    for component in range(0, len(vector1)):
+        if not abs(vector1[component] - vector2[component]) < abs(tolerance):
+            return False
+    return True

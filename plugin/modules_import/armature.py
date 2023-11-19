@@ -9,10 +9,10 @@ from plugin.modules_import.collision import import_collider, parent_to
 
 from plugin.utils.object import create_ob, link_to_collection, set_collection_visibility
 from plugin.utils import matrix_util
-from plugin.utils.matrix_util import mat3_to_vec_roll, CorrectorRagdoll
-
+from plugin.utils.matrix_util import mat3_to_vec_roll, CorrectorRagdoll, vectorisclose
 
 TOLERANCE = 0.0001
+vec_y = mathutils.Vector((0.0, 1.0, 0.0))
 
 
 def import_armature(scene, model_info, b_bone_names):
@@ -31,9 +31,11 @@ def import_armature(scene, model_info, b_bone_names):
 		armature_ob.show_in_front = True
 		# make armature editable and create bones
 		bpy.ops.object.mode_set(mode='EDIT', toggle=False)
-		mats = {}
 		z_dic = {}
+
+		# flips = get_flips(b_bone_names, bone_info, corrector)
 		long_name_2_short_name = {}
+		mats = {}
 		# JWE2 hoarding_straight8m_door has names that exceed the 63 char limit
 		for bone_name, bone, o_parent_ind in zip(b_bone_names, bone_info.bones, bone_info.parents):
 			b_edit_bone = b_armature_data.edit_bones.new(bone_name)
@@ -41,7 +43,7 @@ def import_armature(scene, model_info, b_bone_names):
 			long_name_2_short_name[bone_name] = b_edit_bone.name
 
 			n_bind = get_local_bone_matrix(bone)
-
+			# print(bone_name, n_bind)
 			# link to parent
 			try:
 				if o_parent_ind not in (255, 65535):
@@ -58,9 +60,25 @@ def import_armature(scene, model_info, b_bone_names):
 			mats[b_edit_bone.name] = n_bind
 			# change orientation for blender bones
 			b_bind = corrector.nif_bind_to_blender_bind(n_bind)
-			z_dic[b_edit_bone.name] = b_bind.to_3x3()[2]
+			mat_3x3 = b_bind.to_3x3()
+			# if bone_name in flips:
+			# 	print(f"flipping {bone_name}")
+			# 	# print(mat_3x3)
+			# 	# mat_3x3 = flip_3x3_on_world_x_and_local_y(mat_3x3)
+			# 	# flip = mathutils.Matrix().to_3x3()
+			# 	# flip[0][0] = -1.0
+			# 	# mat_3x3 = flip @ mat_3x3 @ flip
+			# 	# works for JWE2 lips
+			# 	flip_3x3_on_local_y(mat_3x3)
+			# PZ penguin has roll that flips the rotation, but that's the way it is
+
 			# set orientation to blender bone
-			set_transform4(b_bind, b_edit_bone)
+			# set_transform4(b_bind, b_edit_bone)
+			z_dic[b_edit_bone.name] = mat_3x3[2]
+			tail, roll = bpy.types.Bone.AxisRollFromMatrix(mat_3x3)
+			b_edit_bone.head = b_bind.to_translation()
+			b_edit_bone.tail = tail + b_edit_bone.head
+			b_edit_bone.roll = roll
 
 		fix_bone_lengths(b_armature_data)
 		bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
@@ -97,6 +115,92 @@ def import_armature(scene, model_info, b_bone_names):
 		set_collection_visibility(scene, f"{scene.name}_joints", True)
 		set_collection_visibility(scene, f"{scene.name}_hitchecks", True)
 		return armature_ob
+
+
+def get_flips(b_bone_names, bone_info, corrector):
+	mats1 = []
+	for bone, o_parent_ind in zip(bone_info.bones, bone_info.parents):
+		n_bind = get_local_bone_matrix(bone)
+		# link to parent
+		if o_parent_ind not in (255, 65535):
+			# calculate ms2 armature space matrix
+			n_bind = mats1[o_parent_ind].copy() @ n_bind
+		# store the ms2 armature space matrix
+		mats1.append(n_bind)
+	mats_corrected = [corrector.nif_bind_to_blender_bind(n_bind) for n_bind in mats1]
+	vecs_map = {
+		bone_name: (mat.to_3x3(), mat.to_translation()) for bone_name, mat in zip(b_bone_names, mats_corrected)
+	}
+	flips = set()
+	for bone_name, (mat, loc) in vecs_map.items():
+		# print(bone_name, loc)
+		x_mirr = mathutils.Vector(loc)
+		x_mirr.x *= -1.0
+		# flip right channels, test that eg PZ pengu
+		if loc.x < 0.0:
+			# test for L R name first
+			if bone_name.endswith(".R"):
+				left_bone = bone_name[:-2] + ".L"
+				other_mat, other_loc = vecs_map[left_bone]
+				# print("mirror bone")
+				if should_flip(mat, other_loc, other_mat, x_mirr):
+					flips.add(bone_name)
+			# no suffix, so check all bones
+			else:
+				for other_name, (other_mat, other_loc) in vecs_map.items():
+					if should_flip(mat, other_loc, other_mat, x_mirr):
+						flips.add(bone_name)
+						break
+	return flips
+
+
+def flip_3x3_on_local_y(mat_3x3):
+	mat_3x3[0][0] *= -1.0
+	mat_3x3[0][1] *= -1.0
+	mat_3x3[1][0] *= -1.0
+	mat_3x3[1][1] *= -1.0
+	mat_3x3[2][0] *= -1.0
+	mat_3x3[2][1] *= -1.0
+
+
+def should_flip(mat, other_loc, other_mat, x_mirr):
+	if other_loc.x > 0.0:
+		if vectorisclose(x_mirr, other_loc):
+			print("close loc")
+			# print(y_vec)
+			# print(other_y_vec)
+			# print(mat)
+			# print(other_mat)
+			# print(mat @ other_mat.inverted())
+			# print(mat.inverted() @ other_mat)
+			# print(mat @ other_mat)
+			flipped = flip_3x3_on_world_x_and_local_y(mat)
+			r_diff = flipped.to_quaternion().rotation_difference(other_mat.to_quaternion())
+			if r_diff.angle < 0.01:
+				print("flipping")
+				return True
+			flipped = flip_3x3_on_world_x_and_local_y_pz_pengu(mat)
+			r_diff = flipped.to_quaternion().rotation_difference(other_mat.to_quaternion())
+			if r_diff.angle < 0.01:
+				print("flipping")
+				return True
+			# break
+
+
+def flip_3x3_on_world_x_and_local_y(mat):
+	m = mat.copy()
+	m[0][0] *= -1.0
+	m[0][2] *= -1.0
+	m[1][1] *= -1.0
+	m[2][1] *= -1.0
+	return m
+
+
+def flip_3x3_on_world_x_and_local_y_pz_pengu(mat):
+	m = mat.copy()
+	m[1] *= -1.0
+	m[2] *= -1.0
+	return m
 
 
 def get_local_bone_matrix(bone):
