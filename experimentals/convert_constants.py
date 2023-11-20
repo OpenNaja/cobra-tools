@@ -14,14 +14,14 @@ game_lut = {'DLA': 'Disneyland Adventures', 'JWE': 'Jurassic World Evolution', '
 
 def write_formatted_dict(f, d, key=None):
 	f.write("{\n")
-	f.write(",\n".join(f"\t'{k}': {v}" for k, v in sorted(d.items(), key=key)))
+	f.write(",\n".join(f"\t\"{k}\": {v}" for k, v in sorted(d.items(), key=key)))
 	f.write("\n}\n")
 
 
 def write_hashes_dict(out_fp, hashes):
 	with open(out_fp, "w") as f:
 		f.write("hashes = {\n")
-		f.write(",\n".join(f"\t{k}: '{v}'" for k, v in sorted(hashes.items(), key=lambda item: item[1])))
+		f.write(",\n".join(f"\t{k}: \"{v}\"" for k, v in sorted(hashes.items(), key=lambda item: item[1])))
 		f.write("\n}\n")
 
 
@@ -29,7 +29,7 @@ def write_mimes_dict(out_fp, mimes):
 	with open(out_fp, "w") as f:
 		f.write(f"from constants import Mime\n\n")
 		f.write("mimes = {\n")
-		f.write(",\n".join(f"\t'{k}': {v}" for k, v in sorted(mimes.items())))
+		f.write(",\n".join(f"\t\"{k}\": {v}" for k, v in sorted(mimes.items())))
 		f.write("\n}\n")
 
 
