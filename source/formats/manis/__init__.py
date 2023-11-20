@@ -353,16 +353,18 @@ class ManisFile(InfoHeader, IoFile):
             f = BinStream(mb.data)
             f2 = BinStream(mb.data)
             segment_frames_count = self.segment_frame_count(segment_i, mani_info.frame_count)
-            logging.info(f"Segment[{segment_i}] frames {segment_frames_count}")
+            # logging.info(f"Segment[{segment_i}] frames {segment_frames_count} Keys Iter {keys_iter}")
             try:
+                #TODO I Believe the mani_info.keys.compressed data isnt updating with the rel keys
                 segment_pos_bones = mani_info.keys.compressed.pos_bones[
-                                    frame_offset:frame_offset + segment_frames_count]
+                                    frame_offset:(frame_offset + segment_frames_count)]
                 segment_ori_bones = mani_info.keys.compressed.ori_bones[
-                                    frame_offset:frame_offset + segment_frames_count]
+                                    frame_offset:(frame_offset + segment_frames_count)]
 
                 # this is a jump to the end of the compressed keys
                 wavelet_byte_offset = f.read_int_reversed(16)
                 context = KeysContext(f2, wavelet_byte_offset)
+                #TODO these functions need to properly update mani_infos above, orientation keys data looks good now
                 self.read_vec3_keys(context, f, f2, segment_i, k_channel_bitsize, mani_info,
                                     scale, segment_frames_count, segment_pos_bones, keys_iter=keys_iter)
                 self.read_rot_keys(context, f, f2, segment_i, k_channel_bitsize, mani_info, scale, segment_frames_count,
@@ -400,7 +402,7 @@ class ManisFile(InfoHeader, IoFile):
             keys_flag = StoreKeys.from_value(keys_flag)
             # logging.info(f"{keys_flag}")
             if keys_flag.x or keys_flag.y or keys_flag.z:
-                wavelet_i = self.read_wavelet_table(context, f2, frame_map, segment_frames_count)
+                wavelet_i, frame_map = self.read_wavelet_table(context, f2, frame_map, segment_frames_count)
                 self.read_rel_keys(f, frame_map, k_channel_bitsize, keys_flag, ushort_storage, wavelet_i)
                 # logging.info(f"key {i} = {rel_key_masked}")
                 if segment_frames_count > 1:
@@ -488,13 +490,14 @@ class ManisFile(InfoHeader, IoFile):
             keys_flag = StoreKeys.from_value(keys_flag)
             # logging.info(f"{keys_flag}")
             if keys_flag.x or keys_flag.y or keys_flag.z:
-                wavelet_i = self.read_wavelet_table(context, f2, frame_map, segment_frames_count)
+                wavelet_i, frame_map = self.read_wavelet_table(context, f2, frame_map, segment_frames_count)
                 self.read_rel_keys(f, frame_map, k_channel_bitsize, keys_flag, ushort_storage, wavelet_i)
                 # logging.info(f"key {i} = {rel_key_masked}")
                 if segment_frames_count > 1:
                     frame_inc = 0
                     # print(ushort_storage)
                     # set base keyframe
+                    # logging.info(f"BASE 0: {quat}, {ori_index}")
                     segment_ori_bones[0, ori_index] = quat
                     # set other keyframes
                     for out_frame_i in range(1, segment_frames_count):
@@ -523,7 +526,9 @@ class ManisFile(InfoHeader, IoFile):
                             scaled_inter = identity.copy()
                         else:
                             scaled_inter = rel_inter * norm
-                        segment_ori_bones[out_frame_i, ori_index, ] = scaled_inter
+                        final_inter = [scaled_inter[0], scaled_inter[3], scaled_inter[1], scaled_inter[2],]
+                        # logging.info(f"INTER {out_frame_i}: {final_inter}, {ori_index}")
+                        segment_ori_bones[out_frame_i, ori_index, ] = final_inter
                         # segment_ori_bones[out_frame_i, ori_index, ] = out + quat
             else:
                 # set all keyframes
@@ -540,7 +545,7 @@ class ManisFile(InfoHeader, IoFile):
                 assert ch_key_size <= 32
                 # logging.info(f"channel[{channel_i}] base_size {ch_key_size} at bit {f.pos}")
                 for trg_frame_i in frame_map[:wavelet_i]:
-                    rel_key_flag = 1 << ch_key_size_masked | 1 >> 0x20 - ch_key_size_masked
+                    rel_key_flag = 1 << ch_key_size_masked | 1 >> (0x20 - ch_key_size_masked)
                     # rel_key_size = f.read_bit_size_flag(15 - ch_key_size_masked)
                     rel_key_size = f.read_bit_size_flag(32)
                     # todo this may have to be shifted only with the corresponding clamp applied
@@ -590,7 +595,7 @@ class ManisFile(InfoHeader, IoFile):
                 wavelet_i += 1
         # logging.info(frame_map)
         # logging.info(f"wavelets finished at bit {f2.pos}, byte {f2.pos / 8}, out_count {wavelet_i}")
-        return wavelet_i
+        return wavelet_i, frame_map
 
     def read_vec3(self, f):
         pos_base = f.read_uint(45)
