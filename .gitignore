@@ -184,3 +184,6 @@ tests/tmp/**
 # Config file
 /config.ini
 /config.json
+
+# Misc
+OVL Tools.lnk

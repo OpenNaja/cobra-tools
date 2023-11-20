@@ -2,6 +2,7 @@ import os
 import sys
 import time
 import logging
+import platform
 from typing import NamedTuple, Optional
 from pathlib import Path
 from ovl_util import logs, config
@@ -62,6 +63,10 @@ def init(cls: type[MainWindow], opts: GuiOptions) -> tuple[MainWindow, QApplicat
 
 def startup(cls: type[MainWindow], opts: GuiOptions) -> None:
 	"""Startup the window, set the theme, handle config and logs on application exit"""
+	if platform.system() == "Windows":
+		import ctypes
+		myappid = 'Open Naja OVL Tools' # arbitrary string
+		ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
 	win, app_qt = init(cls, opts)
 	win.show()
 	if not win.cfg.get("light_theme", False):

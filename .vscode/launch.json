@@ -2,6 +2,14 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "OVL Tools",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}${pathSeparator}ovl_tool_gui.py",
+            "console": "integratedTerminal",
+            "justMyCode": false
+        },
+        {
             "name": "Python: Current File",
             "type": "python",
             "request": "launch",
