@@ -102,8 +102,8 @@ def load(files=[], filepath="", set_fps=False):
 				anim_sys.add_key(fcurves, frame_i, key, interp_loc)
 			for frame_i, in_key, bonerestmat_inv, fcurves, _, b_name in iter_keys(
 					k.ori_bones_names, ck.ori_bones, bones_data, b_action, "rotation_quaternion"):
-				if frame_i % 32:
-					continue
+				#if frame_i % 32:
+					#continue
 				key = mathutils.Quaternion([in_key[3], in_key[0], in_key[1], in_key[2]])
 				# if frame_i == 0 and b_name == "def_c_hips_joint":
 				# 	logging.info(f"{mi.name} {key}")
