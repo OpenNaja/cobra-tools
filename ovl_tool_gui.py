@@ -3,6 +3,7 @@ import shutil
 import sys
 import logging
 import tempfile
+from pathlib import PurePath
 
 from gui import widgets, startup, GuiOptions  # Import widgets before everything except built-ins!
 from ovl_util.logs import HtmlFormatter, AnsiFormatter, get_stdout_handler
@@ -350,6 +351,19 @@ class MainWindow(widgets.MainWindow):
 		try:
 			out_paths = self.ovl_data.extract(temp_dir, only_names=file_names)
 			if out_paths:
+				# make relative to output folder
+				pure_paths = (PurePath(os.path.relpath(path, temp_dir)) for path in out_paths)
+				rel_out_paths = set()
+				for p in pure_paths:
+					# get the first dir in the path
+					if len(p.parents) > 1:
+						rel_out_paths.add(str(p.parents[-2]))
+					# no dir, just the file itself
+					else:
+						rel_out_paths.add(str(p))
+				# join the children back to the temp_dir
+				out_paths = set(os.path.join(temp_dir, p) for p in rel_out_paths)
+				# set paths to mime
 				data.setUrls([QtCore.QUrl.fromLocalFile(path) for path in out_paths])
 				drag.setMimeData(data)
 				drag.exec_()
