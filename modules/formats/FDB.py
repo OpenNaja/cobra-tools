@@ -155,7 +155,7 @@ class FdbLoader(BaseFile):
 							con.close()
 
 					self.remove()
-					loader = self.ovl.create_file(fdb_path)
+					loader = self.ovl.create_file(fdb_path, self.name)
 					self.ovl.register_loader(loader)
 			except:
 				logging.exception(f"FDB command failed")

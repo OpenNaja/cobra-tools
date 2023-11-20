@@ -129,14 +129,16 @@ class Ms2Loader(MemStructLoader):
 			else:
 				buffer_presence.dependency_name.pool_index = 0
 				buffer_presence.dependency_name.data = buffer_info.name
-				modelstream_loader = self.ovl.create_file(f"dummy/{buffer_info.name}.model2stream", ovs_name=ovs_lut[buffer_info.name])
+				modelstream_name = f"{buffer_info.name}.model2stream"
+				modelstream_loader = self.ovl.create_file(f"dummy/{modelstream_name}", modelstream_name, ovs_name=ovs_lut[buffer_info.name])
 				modelstream_loader.create_data(ms2_file.get_all_bytes(buffer_info))
 				self.streams.append(modelstream_loader)
 
 		# create root_entries and mesh data fragments
-		for model_info, mdl2_name in zip(ms2_file.model_infos, ms2_file.mdl_2_names):
-			mdl2_path = os.path.join(ms2_dir, f"{mdl2_name}.mdl2")
-			mdl2_loader = self.ovl.create_file(mdl2_path)
+		for model_info, mdl2_barename in zip(ms2_file.model_infos, ms2_file.mdl_2_names):
+			mdl2_name = f"{mdl2_barename}.mdl2"
+			mdl2_path = os.path.join(ms2_dir, mdl2_name)
+			mdl2_loader = self.ovl.create_file(mdl2_path, mdl2_name)
 			self.children.append(mdl2_loader)
 
 		# create ms2 data
@@ -254,7 +256,7 @@ class Ms2Loader(MemStructLoader):
 				ms2_file.save(ms2_path)
 				# inject again
 				self.remove()
-				loader = self.ovl.create_file(ms2_path)
+				loader = self.ovl.create_file(ms2_path, self.name)
 				self.ovl.register_loader(loader)
 			except:
 				logging.exception(f"Renaming inside {self.name} failed")

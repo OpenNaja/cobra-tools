@@ -67,7 +67,8 @@ class BanisLoader(MemStructLoader):
 		self.write_memory_data()
 		self.extra_loaders = []
 		for bani in banis.anims:
-			bani_loader = self.ovl.create_file(f"dummy_dir/{bani.name}.bani")
+			bani_name = f"{bani.name}.bani"
+			bani_loader = self.ovl.create_file(f"dummy_dir/{bani_name}", bani_name)
 			bani_loader.create_header(bani.data, self)
 			self.extra_loaders.append(bani_loader)
 		self.create_data_entry((keys,))

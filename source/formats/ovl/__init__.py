@@ -624,25 +624,23 @@ class OvlFile(Header):
 					error_files.append(loader.name)
 		return out_paths
 
-	def create_file(self, file_path, ovs_name="STATIC"):
+	def create_file(self, file_path, file_name, ovs_name="STATIC"):
 		"""Create a loader from a file path"""
 		file_path = os.path.normpath(file_path)
-		in_dir, filename = os.path.split(file_path)
-		filename = filename.lower()
-		file_path = os.path.join(in_dir, filename)
-		_, ext = os.path.splitext(filename)
-		logging.info(f"Creating {filename} in {ovs_name}")
+		file_name = file_name.lower()
+		_, ext = os.path.splitext(file_name)
+		logging.info(f"Creating {file_name} in {ovs_name}")
 		try:
-			loader = self.init_loader(filename, ext, )
+			loader = self.init_loader(file_name, ext, )
 			loader.get_constants_entry()
 			loader.set_ovs(ovs_name)
 			loader.create(file_path)
 			return loader
 		except NotImplementedError:
-			logging.warning(f"Creation not implemented for {filename}")
+			logging.warning(f"Creation not implemented for {file_name}")
 			raise
 		except BaseException:
-			logging.exception(f"Could not create: {filename}")
+			logging.exception(f"Could not create: {file_name}")
 			raise
 
 	def create(self, ovl_dir):
@@ -656,11 +654,27 @@ class OvlFile(Header):
 
 	def add_files(self, file_paths):
 		logging.info(f"Adding {len(file_paths)} files to OVL [{self.game}]")
+		if not file_paths:
+			return
+		# file_paths must be direct children of the same folder
+		common_root = os.path.dirname(file_paths[0])
 		file_paths = {os.path.normpath(file_path) for file_path in file_paths}
+		inject_paths = set()
+		# process the children of root
+		for fp in file_paths:
+			# files can be added directly
+			if os.path.isfile(fp):
+				inject_paths.add(fp)
+			# get all files in subfolders of a dir and add them
+			elif os.path.isdir(fp):
+				for root, dirs, files in os.walk(fp, topdown=False):
+					for name in files:
+						inject_paths.add(os.path.join(root, name))
 		with self.reporter.report_error_files("Adding") as error_files:
-			for file_path in self.reporter.iter_progress(file_paths, "Adding files"):
+			for file_path in self.reporter.iter_progress(inject_paths, "Adding files"):
 				# ensure lowercase, especially for file extension checks
 				bare_path, ext = os.path.splitext(file_path.lower())
+				print(bare_path)
 				# ignore dirs, links etc.
 				if not os.path.isfile(file_path):
 					continue
@@ -695,8 +709,10 @@ class OvlFile(Header):
 					except:
 						logging.debug(f"Ignoring {file_path} - not a cobra format")
 						continue
+				# make relative to the common root, use forward slash as separator
+				file_name = os.path.relpath(file_path, common_root).replace("\\", "/")
 				try:
-					loader = self.create_file(file_path)
+					loader = self.create_file(file_path, file_name)
 					self.register_loader(loader)
 				except:
 					error_files.append(file_path)

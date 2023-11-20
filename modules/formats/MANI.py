@@ -79,9 +79,10 @@ class ManisLoader(MemStructLoader):
 		ms2_dir = os.path.dirname(file_path)
 
 		# create mani files
-		for mani_name in manis_file.names:
-			mani_path = os.path.join(ms2_dir, mani_name+".mani")
-			mani_loader = self.ovl.create_file(mani_path)
+		for mani_barename in manis_file.names:
+			mani_name = f"{mani_barename}.mani"
+			mani_path = os.path.join(ms2_dir, mani_name)
+			mani_loader = self.ovl.create_file(mani_path, mani_name)
 			self.children.append(mani_loader)
 
 		self.write_root_bytes(root_data)
