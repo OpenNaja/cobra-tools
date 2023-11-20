@@ -591,12 +591,13 @@ class OvlFile(Header):
 
 	def extract(self, out_dir, only_names=(), only_types=()):
 		"""Extract the files, after all archives have been read"""
-		# create output dir
-		os.makedirs(out_dir, exist_ok=True)
 
 		def out_dir_func(n):
 			"""Helper function to generate temporary output file name"""
-			return os.path.normpath(os.path.join(out_dir, n))
+			out_path = os.path.normpath(os.path.join(out_dir, n))
+			# create output dir
+			os.makedirs(os.path.dirname(out_path), exist_ok=True)
+			return out_path
 
 		out_paths = []
 		loaders_for_extract = []

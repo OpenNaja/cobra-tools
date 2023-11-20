@@ -65,6 +65,7 @@ def class_from_struct(struct, from_value_func):
 
 		@staticmethod
 		def _from_xml_array(instance, elem):
+			# Numpy doesn't like elem to be None.
 			return np.fromstring(elem.text or b"", dtype=dtype, sep=" ")
 
 		@staticmethod
