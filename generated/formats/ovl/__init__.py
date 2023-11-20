@@ -675,7 +675,6 @@ class OvlFile(Header):
 			for file_path in self.reporter.iter_progress(inject_paths, "Adding files"):
 				# ensure lowercase, especially for file extension checks
 				bare_path, ext = os.path.splitext(file_path.lower())
-				print(bare_path)
 				# ignore dirs, links etc.
 				if not os.path.isfile(file_path):
 					continue
@@ -693,7 +692,7 @@ class OvlFile(Header):
 					channel_re = re.compile(r"_[rgba]+$")
 					array_re = re.compile(r"_\[[0-9]+\]$")
 					bare_path_no_suffices = f"{array_re.sub('', channel_re.sub('', bare_path, count=1), count=1)}.tex"
-					lower_tex_paths = {fp.lower() for fp in file_paths if fp.lower().endswith(".tex")}
+					lower_tex_paths = {fp.lower() for fp in inject_paths if fp.lower().endswith(".tex")}
 					# compare this reconstructed tex path to the other file paths (case insensitive)
 					if bare_path_no_suffices in lower_tex_paths:
 						logging.info(f"Ignoring {file_path} as matching .tex file is also selected")
