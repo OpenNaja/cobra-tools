@@ -1,4 +1,5 @@
 from generated.formats.manis.imports import name_type_map
+from typing import Any
 import contextlib
 import logging
 import math
@@ -356,7 +357,6 @@ class ManisFile(InfoHeader, IoFile):
             segment_frames_count = self.segment_frame_count(segment_i, mani_info.frame_count)
             # logging.info(f"Segment[{segment_i}] frames {segment_frames_count} Keys Iter {keys_iter}")
             try:
-                #TODO I Believe the mani_info.keys.compressed data isnt updating with the rel keys
                 segment_pos_bones = mani_info.keys.compressed.pos_bones[
                                     frame_offset:(frame_offset + segment_frames_count)]
                 segment_ori_bones = mani_info.keys.compressed.ori_bones[
@@ -365,7 +365,6 @@ class ManisFile(InfoHeader, IoFile):
                 # this is a jump to the end of the compressed keys
                 wavelet_byte_offset = f.read_int_reversed(16)
                 context = KeysContext(f2, wavelet_byte_offset)
-                #TODO these functions need to properly update mani_infos above, orientation keys data looks good now
                 self.read_vec3_keys(context, f, f2, segment_i, k_channel_bitsize, mani_info,
                                     scale, segment_frames_count, segment_pos_bones, keys_iter=keys_iter)
                 self.read_rot_keys(context, f, f2, segment_i, k_channel_bitsize, mani_info, scale, segment_frames_count,
@@ -434,11 +433,11 @@ class ManisFile(InfoHeader, IoFile):
                         key_picked = vec[:3] if which_key_flag else final
                         key_a = identity.copy() if which_key_flag else last_key_b.copy()
                         key_b = identity.copy() if which_key_flag else last_key_delta.copy() + out * scale
-                        last_key_a = identity.copy()
-                        last_key_b = identity.copy()
+                        last_key_a = key_a
+                        last_key_b = key_b
                         if out_frame_i == trg_frame_i:
                             pass
-                        output = final if which_key_flag else vec[:3]
+                        output = final
                         segment_pos_bones[out_frame_i, pos_index] = output
                         # segment_pos_bones[out_frame_i, pos_index] = out * scale
                         # segment_pos_bones[out_frame_i, pos_index] = final
