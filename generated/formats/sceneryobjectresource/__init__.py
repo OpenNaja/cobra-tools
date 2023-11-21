@@ -1,0 +1,1 @@
+from generated.formats.sceneryobjectresource.imports import name_type_map
