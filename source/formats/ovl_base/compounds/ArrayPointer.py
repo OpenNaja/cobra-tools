@@ -14,6 +14,10 @@ class ArrayPointer(Pointer):
 
 # START_CLASS
 
+	def set_defaults(self):
+		super(ArrayPointer, self).set_defaults()
+		self.data = Array(self.context, 0, None, (self.arg,), self.template, True)
+
 	@property
 	def has_data(self):
 		"""Returns True if it has data"""

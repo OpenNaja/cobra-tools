@@ -1,4 +1,5 @@
 import logging
+import os
 
 import bpy
 import mathutils
@@ -6,6 +7,7 @@ import mathutils
 from generated.formats.base.basic import Ushort, Ubyte
 from generated.formats.manis import ManisFile
 from generated.formats.manis.compounds.ManiBlock import ManiBlock
+from generated.formats.wsm.compounds.WsmHeader import WsmHeader
 from modules.formats.shared import djb2
 from plugin.modules_export.armature import get_armature
 from plugin.utils.matrix_util import bone_name_for_ovl, get_scale_mat
@@ -65,7 +67,42 @@ def get_local_bone(bone):
 	return bone.matrix_local
 
 
+def export_wsm(corrector, b_action, folder, mani_info, bone_name, bones_data):
+	wsm_name = f"{mani_info.name}_{bone_name}.wsm"
+	wsm_path = os.path.join(folder, wsm_name)
+	group = b_action.groups.get(bone_name)
+	if group:
+		loc_fcurves = get_fcurves_by_type(group, "location")
+		rot_fcurves = get_fcurves_by_type(group, "rotation_quaternion")
+		if loc_fcurves and rot_fcurves:
+			logging.info(f"Exporting {wsm_name} to {wsm_path}")
+			wsm = WsmHeader(mani_info.context)
+			wsm.duration = mani_info.duration
+			wsm.frame_count = mani_info.frame_count
+			wsm.unknowns[6] = 1.0
+			wsm.reset_field("locs")
+			wsm.reset_field("quats")
+			# print(wsm)
+			bonerestmat = bones_data[group.name]
+			for frame_i, key in enumerate(wsm.locs.data):
+				v = mathutils.Vector([fcu.evaluate(frame_i) for fcu in loc_fcurves])
+				v = mathutils.Matrix.Translation(v)
+				# equivalent: multiply by rest rot and then add rest loc
+				v = bonerestmat @ v
+				key.x, key.y, key.z = corrector.blender_bind_to_nif_bind(v).to_translation()
+			for frame_i, key in enumerate(wsm.quats.data):
+				# sample frame
+				q_m = mathutils.Quaternion([fcu.evaluate(frame_i) for fcu in rot_fcurves]).to_matrix().to_4x4()
+				# add local rest transform
+				final_m = bonerestmat @ q_m
+				final_m = corrector.blender_bind_to_nif_bind(final_m)
+				key.w, key.x, key.y, key.z = final_m.to_quaternion()
+			with WsmHeader.to_xml_file(wsm, wsm_path):
+				pass
+
+
 def save(filepath=""):
+	folder, manis_name = os.path.split(filepath)
 	scene = bpy.context.scene
 	bones_data = {}
 	b_armature_ob = get_armature(scene)
@@ -76,6 +113,7 @@ def save(filepath=""):
 			bones_data[bone.name] = get_local_bone(bone)
 
 	root_name = "def_c_root_joint"
+	srb_name = "srb"
 
 	corrector = ManisCorrector(False)
 	mani = ManisFile()
@@ -83,6 +121,9 @@ def save(filepath=""):
 	mani.version = 260
 	target_names = set()
 	bones_lut = {pose_bone.name: pose_bone["index"] for pose_bone in b_armature_ob.pose.bones}
+	# remove srb from bones_lut for JWE2, so it exported to wsm only
+	if scene.cobra.version == 52:
+		bones_lut.pop(srb_name, None)
 	bone_names = [pose_bone.name for pose_bone in sorted(b_armature_ob.pose.bones, key=lambda pb: pb["index"])]
 	action_names = [b_action.name for b_action in bpy.data.actions]
 	mani.mani_count = len(action_names)
@@ -91,13 +132,18 @@ def save(filepath=""):
 	mani.reset_field("keys_buffer")
 	for b_action, mani_info in zip(bpy.data.actions, mani.mani_infos):
 		logging.info(f"Exporting {b_action.name}")
+		mani_info.name = b_action.name
 		mani_info.frame_count = int(round(b_action.frame_range[1] - b_action.frame_range[0]))
 		# assume fps = 30
 		# mani_info.duration = mani_info.frame_count / scene.render.fps
 		mani_info.duration = mani_info.frame_count / 30.0
 		mani_info.count_a = mani_info.count_b = 255
 		mani_info.target_bone_count = len(b_armature_ob.pose.bones)
+
+		export_wsm(corrector, b_action, folder, mani_info, srb_name, bones_data)
+
 		pos_groups, pos_indices = set_mani_info_counts(mani_info, b_action, bones_lut, "pos", "location")
+		# todo - fallback for eulers
 		ori_groups, ori_indices = set_mani_info_counts(mani_info, b_action, bones_lut, "ori", "quaternion")
 		scl_groups, scl_indices = set_mani_info_counts(mani_info, b_action, bones_lut, "scl", "scale")
 		# mani_info.scl_bone_count_related = mani_info.scl_bone_count_repeat = 0
