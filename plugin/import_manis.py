@@ -7,6 +7,7 @@ import bpy
 import mathutils
 
 from generated.formats.manis import ManisFile
+from generated.formats.wsm.compounds.WsmHeader import WsmHeader
 from plugin.export_manis import get_local_bone
 from plugin.modules_export.armature import get_armature
 from plugin.modules_import.anim import Animation
@@ -52,7 +53,27 @@ def iter_keys(m_bone_names, m_keys, bones_data, b_action, b_dtype, m_extra_bone_
 			yield frame_i, key, bonerestmat_inv, fcurves, extra_key, b_name
 
 
+def import_wsm(corrector, b_action, folder, mani_info, bone_name, bones_data):
+	wsm_name = f"{mani_info.name}_{bone_name}.wsm"
+	wsm_path = os.path.join(folder, wsm_name)
+	if os.path.isfile(wsm_path):
+		logging.info(f"Importing {wsm_name}")
+		wsm = WsmHeader.from_xml_file(wsm_path, mani_info.context)
+		bonerestmat_inv = bones_data[bone_name]
+		loc_fcurves = anim_sys.create_fcurves(b_action, "location", range(3), None, bone_name)
+		for frame_i, key in enumerate(wsm.locs.data):
+			key = mathutils.Vector(key)
+			key = (bonerestmat_inv @ corrector.nif_bind_to_blender_bind(mathutils.Matrix.Translation(key))).to_translation()
+			anim_sys.add_key(loc_fcurves, frame_i, key, interp_loc)
+		rot_fcurves = anim_sys.create_fcurves(b_action, "rotation_quaternion", range(4), None, bone_name)
+		for frame_i, key in enumerate(wsm.quats.data):
+			key = mathutils.Quaternion([key.w, key.x, key.y, key.z])
+			key = (bonerestmat_inv @ corrector.nif_bind_to_blender_bind(key.to_matrix().to_4x4())).to_quaternion()
+			anim_sys.add_key(rot_fcurves, frame_i, key, interp_loc)
+
+
 def load(files=[], filepath="", set_fps=False):
+	folder, manis_name = os.path.split(filepath)
 	starttime = time.time()
 	corrector = ManisCorrector(False)
 	scene = bpy.context.scene
@@ -89,7 +110,9 @@ def load(files=[], filepath="", set_fps=False):
 			except:
 				logging.exception(f"Decompressing {mi.name} failed, skipping")
 				continue
-			# ignore loc for now
+
+			import_wsm(corrector, b_action, folder, mi, "srb", bones_data)
+
 			for frame_i, key, bonerestmat_inv, fcurves, scale, b_name in iter_keys(
 					k.pos_bones_names, ck.pos_bones, bones_data, b_action, "location"):  #, k.scl_bones_names, ck.scl_bones):
 				#if frame_i % 32:
