@@ -489,15 +489,15 @@ if __name__ == "__main__":
 	# m.load("C:/Program Files (x86)/Steam/steamapps/common/Planet Zoo/win64/ovldata/walker_export/Content0/Animals/Big_Cats/Bengal_Tiger/Bengal_Tiger_Male/Bengal_Tiger_Male/bengal_tiger_male_.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/visual_lagoon_working.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/visual_lagoon_no_optimizer.ms2", read_editable=True)
-	# m.load("C:/Users/arnfi/Desktop/ankylosaurus.ms2", read_editable=True)
-	m.load("C:/Users/arnfi/Desktop/models.ms2", read_editable=True)
-	for i, bone_info in enumerate(m.models_reader.bone_infos):
+	m.load("C:/Users/arnfi/Desktop/ankylosaurus.ms2", read_editable=True)
+	# m.load("C:/Users/arnfi/Desktop/models.ms2", read_editable=True)
+	# for i, bone_info in enumerate(m.models_reader.bone_infos):
 	# 	# for bi, bone in enumerate(bone_info.bones):
 	# 		# print(bi, bone.name)
-		joints = bone_info.joints
-		for j in joints.joint_infos:
-			for hc in j.hitchecks:
-				print(hc)
+	# 	joints = bone_info.joints
+	# 	for j in joints.joint_infos:
+	# 		for hc in j.hitchecks:
+	# 			print(hc)
 	# 			hc.collider.is_optimized = 0
 	# # 	# test for orthogonal vecs
 	# # 	# for ragdoll in joints.ragdoll_constraints:
@@ -509,7 +509,7 @@ if __name__ == "__main__":
 	# # 		# print(ragdoll.rot.data)
 	# # 		# print(np.linalg.inv(ragdoll.rot.data))
 	# m.save("C:/Users/arnfi/Desktop/ankylosaurus_.ms2")
-	# print(m)
+	print(m)
 
 # INFO | size 8 / count 1 = 8.0 in /PDLC_WorldFair/Rides/Coasters/Tracks/Track_003/Track_003/models.ms2; 0
 # INFO | size 16 / count 1 = 16.0 in /PDLC_WorldFair/Rides/Powered_Track_Rides/Tracks/Track_302/Track_302/models.ms2; 0

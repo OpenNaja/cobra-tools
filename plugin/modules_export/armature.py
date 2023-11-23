@@ -1,7 +1,11 @@
+import itertools
 import logging
 import math
 
 import bpy
+
+from generated.formats.ms2.enums.Jwe1Collision import Jwe1Collision
+from generated.formats.ms2.enums.Jwe1Surface import Jwe1Surface
 from generated.formats.ms2.enums.RigidBodyFlag import RigidBodyFlag
 import mathutils
 
@@ -223,7 +227,10 @@ def export_joints(bone_info, corrector):
 		joint_info.reset_field("hitcheck_pointers")
 		version = bpy.context.scene.cobra.version
 		for hitcheck, b_hitcheck in zip(joint_info.hitchecks, b_joint.children):
-			if version in (48, 50):
+			if version in (47, ):
+				hitcheck.surface_name = Jwe1Surface[b_hitcheck.cobra_coll.surface_jwe]
+				hitcheck.classification_name = Jwe1Collision[b_hitcheck.cobra_coll.classification_jwe]
+			elif version in (48, 50):
 				hitcheck.surface_name = b_hitcheck.cobra_coll.surface_pz
 				hitcheck.classification_name = b_hitcheck.cobra_coll.classification_pz
 			elif version in (51, 52):
@@ -247,6 +254,8 @@ def export_joints(bone_info, corrector):
 		else:
 			rb.mass = -1.0
 			rb.flag = 0
+
+
 	# update ragdoll constraints, relies on previously updated joints
 	corrector_rag = CorrectorRagdoll(False)
 	j_map = {j.name: j for j in joints.joint_infos}
@@ -289,6 +298,14 @@ def export_joints(bone_info, corrector):
 		# plasticity
 		rd.plasticity.min = b_joint.cobra_coll.plasticity_min
 		rd.plasticity.max = b_joint.cobra_coll.plasticity_max
+
+	# update JWE1 constraints
+	for rd in itertools.chain(joints.stretch_constraints, joints.push_constraints, ):
+		rd.parent.joint = j_map[rd.parent.joint.name]
+		rd.child.joint = j_map[rd.child.joint.name]
+		rd.child.index = rd.child.joint.index
+		rd.parent.index = rd.parent.joint.index
+
 	# find the root joint, assuming the first one with least parents
 	parents_map = []
 	for joint_i, b_joint in enumerate(joint_coll.objects):

@@ -235,7 +235,12 @@ class COLLISION_PT_CobraTools(bpy.types.Panel):
         row = layout.row(align=True)
         row.prop(rb, "flag")
         version = context.scene.cobra.version
-        if version in (48, 50):
+        if version in (47, ):
+            row = layout.row(align=True)
+            row.prop(rb, "classification_jwe")
+            row = layout.row(align=True)
+            row.prop(rb, "surface_jwe")
+        elif version in (48, 50):
             row = layout.row(align=True)
             row.prop(rb, "classification_pz")
             row = layout.row(align=True)

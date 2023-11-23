@@ -4,6 +4,8 @@ import bpy.props
 from bpy.props import IntProperty, EnumProperty
 from bpy.types import PropertyGroup
 
+from generated.formats.ms2.enums.Jwe1Collision import Jwe1Collision
+from generated.formats.ms2.enums.Jwe1Surface import Jwe1Surface
 from generated.formats.ms2.enums.MeshFormat import MeshFormat
 from generated.formats.ms2.enums.RigidBodyFlag import RigidBodyFlag
 
@@ -34,8 +36,11 @@ class CobraMeshSettings(PropertyGroup):
 
     )
 
+
+class_jwe = [e.name for e in Jwe1Collision]
 class_pz = ['Animal', 'Animal_Bone', 'Animal_Box', 'Animal_Dead', 'Animal_Pouncing', 'Balloon', 'Bedding', 'Building', 'Character_InFlight', 'Character_Limb', 'Character_Limb_NoCollision', 'Character_Miscreant', 'Character_SoS', 'Climbable', 'Coaster', 'Coaster_Car', 'Coaster_Misc', 'Coaster_RacingCar', 'DevelopmentOnly_Ball', 'DevelopmentOnly_Character', 'Enrichment_Object', 'Facility', 'Kinetic_Object', 'Landscape', 'Navmesh', 'NoCollision', 'Poo', 'Prop', 'Ride', 'Scenery', 'Scenery_NoNavSource', 'Scenery_Vandalised', 'Structure', 'Track', 'TrackScenery', 'Track_Support', 'TreeBase', 'TreeBranch', 'TreeFoliage', 'TreeTrunk', 'Trigger_AnimalMemorialStaffThoughts', 'Trigger_AnimalObstruction', 'Trigger_EducationSource', 'Trigger_EscapedAnimal', 'Trigger_FacilityNegativeInfluence', 'Trigger_Grid', 'Trigger_GuestGate', 'Trigger_Inspector', 'Trigger_Presenter', 'Trigger_Queue', 'Trigger_Screen', 'Trigger_Security', 'UIElement', 'Water', 'WaterSpray', 'Wheel']
 class_jwe2 = ['AIDrone', 'AIVehicle', 'AIVehicleFindGrid', 'AIVehicleObstacle', 'Audio', 'AviaryTourGate', 'Building', 'BuildingAIVehicleObstacle', 'BuildingNoCameraObstacle', 'CameraObstacle', 'CarBody', 'CarObstacle', 'Character', 'Debris', 'Default', 'Development', 'DevelopmentAll', 'Dinosaur', 'DinosaurCollisionProxy', 'DinosaurDinosaur', 'DinosaurNoBuilding', 'DinosaurNoCollision', 'DinosaurNoFence', 'DinosaurNoVehicle', 'DinosaurSelfCollision', 'Drone', 'Fence', 'FlyingVehicleObstacle', 'Foliage', 'Gate', 'Guest', 'GuestAvoidance', 'GuestObstacle', 'GuestRagdoll', 'HatcheryGate', 'InvisibleWall', 'LEGACY_DO_NOT_USE', 'LagoonFloor', 'Landscape', 'MissionTrigger', 'PaleoFoodPoint', 'Path', 'Perch', 'PerchQuetz', 'Prop', 'PropNoCameraObstacle', 'Pylon', 'Rotor', 'TinyDinosaurCollisionProxy', 'TourGate', 'Track', 'Tree', 'Vehicle', 'Wall', 'Water', 'WaterSplash', 'Wheel']
+surfaces_jwe = [e.name for e in Jwe1Surface]
 surfaces_pz = ['Animal', 'Brick', 'Character', 'Cloth', 'Concrete', 'Default', 'Default_Legacy_DO_NOT_USE', 'Dirt', 'Foliage', 'Frictionless', 'Glass', 'Grass', 'Ice', 'Leaves', 'Litter', 'Metal', 'Mud', 'Plastic', 'Poo', 'Rubber', 'Sand', 'Snow', 'Stone', 'Tree', 'Trigger', 'Tyre', 'Wood']
 surfaces_jwe2 = ['BuildingBrick', 'BuildingConcrete', 'BuildingGlass', 'BuildingIce', 'BuildingMetal', 'BuildingSnow', 'BuildingWood', 'CarBody', 'CharacterCollidableLimb', 'CharacterFlying', 'CharacterNonCollidableLimb', 'Debris', 'Default', 'DinosaurLimb', 'DirtPath', 'Drone', 'Gyrosphere', 'LEGACY_DO_NOT_USE', 'LagoonFloor', 'LandscapeDefault', 'LandscapeDirt', 'LandscapeFoliage', 'LandscapeFrictionless', 'LandscapeGrass', 'LandscapeIce', 'LandscapeMetal', 'LandscapeMud', 'LandscapePondBottom', 'LandscapeSand', 'LandscapeSnow', 'LandscapeStone', 'LandscapeWood', 'LandscapeWoodHollow', 'NonCollidableLimb', 'PaleoFoodPoint', 'PropLeaves', 'PropLitter', 'PropMetal', 'PropPlastic', 'PropStone', 'PropTree', 'PropWooden', 'SceneryDefault', 'SceneryTree', 'StructureFence', 'StructurePath', 'StructurePylon', 'StructureTrack', 'StructureWall', 'Water']
 
@@ -69,6 +74,11 @@ class CobraCollisionSettings(PropertyGroup):
         description='Current state of this rigidbody',
         items=[(item.name, item.name, "") for i, item in enumerate(RigidBodyFlag)],
     )
+    classification_jwe: EnumProperty(
+        name='Classification',
+        description='Hitcheck Classification Name for Jurassic World Evolution',
+        items=[(name, name, "") for name in class_jwe],
+    )
     classification_pz: EnumProperty(
         name='Classification',
         description='Hitcheck Classification Name for Planet Zoo',
@@ -78,6 +88,11 @@ class CobraCollisionSettings(PropertyGroup):
         name='Classification',
         description='Hitcheck Classification Name for Jurassic World Evolution 2',
         items=[(name, name, "") for name in class_jwe2],
+    )
+    surface_jwe: EnumProperty(
+        name='Surface',
+        description='Hitcheck Surface Name for Jurassic World Evolution',
+        items=[(name, name, "") for name in surfaces_jwe],
     )
     surface_pz: EnumProperty(
         name='Surface',
