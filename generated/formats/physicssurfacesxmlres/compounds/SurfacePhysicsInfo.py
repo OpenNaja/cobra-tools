@@ -4,6 +4,12 @@ from generated.formats.physicssurfacesxmlres.imports import name_type_map
 
 class SurfacePhysicsInfo(MemStruct):
 
+	"""
+	# PC: not used
+	# JWE1: 16 bytes
+	# PZ, JWE2, WH: 56 bytes
+	"""
+
 	__name__ = 'SurfacePhysicsInfo'
 
 

@@ -2,13 +2,13 @@ from generated.formats.ovl_base.compounds.MemStruct import MemStruct
 from generated.formats.physicssurfacesxmlres.imports import name_type_map
 
 
-class Struct3(MemStruct):
+class OnlyName(MemStruct):
 
 	"""
-	PC: 16 bytes
+	PC, JWE1: 16 bytes
 	"""
 
-	__name__ = 'Struct3'
+	__name__ = 'OnlyName'
 
 
 	def __init__(self, context, arg=0, template=None, set_default=True):

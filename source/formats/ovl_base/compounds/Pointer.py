@@ -73,7 +73,10 @@ class Pointer(BaseStruct):
 
 	def read_template(self, stream):
 		if self.template:
-			self.data = self.template.from_stream(stream, self.context, self.arg)
+			if self.target_offset is not None:
+				self.data = self.template.from_stream(stream, self.context, self.arg)
+			else:
+				self.data = None
 
 	def write_ptr(self, loader, src_pool):
 		# when generated from XML, the pool type is stored as metadata
