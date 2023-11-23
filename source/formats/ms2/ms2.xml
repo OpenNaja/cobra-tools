@@ -49,6 +49,90 @@
 	<basic name="BonePointerIndex" integral="true" countable="true">
 	</basic>
 
+	<enum name="JWE1Collision" storage="uint64">
+		<option value="0" name="LEGACY_DO_NOT_USE" />
+		<option value="1" name="Landscape" />
+		<option value="2" name="Prop" />
+		<option value="4" name="Water" />
+		<option value="32" name="Building" />
+		<option value="64" name="Rotor" />
+		<option value="128" name="Wheel" />
+		<option value="256" name="NavMesh" />
+		<option value="1024" name="Tree" />
+		<option value="2048" name="Fence" />
+		<option value="4096" name="Wall" />
+		<option value="8192" name="Path" />
+		<option value="16384" name="Track" />
+		<option value="32768" name="Pylon" />
+		<option value="65536" name="Foliage" />
+		<option value="131072" name="FlyingVehicleObstacle" />
+		<option value="524288" name="Guest" />
+		<option value="1048576" name="DinosaurNoCollision" />
+		<option value="2097152" name="CarObstacle" />
+		<option value="4194304" name="GuestObstacle" />
+		<option value="16777216" name="CameraObstacle" />
+		<option value="17179869184" name="WaterSplash" />
+		<option value="2251799813685248" name="GuestAvoidance" />
+		<option value="2251799814733824" name="DinosaurCollisionProxy" />
+		<option value="2423508312260608" name="Dinosaur" />
+		<option value="4503603922337856" name="AIVehicle" />
+		<option value="4675565831323648" name="Debris" />
+		<option value="5027426723692546" name="DevelopmentAll" />
+		<option value="5027426723692608" name="Vehicle" />
+		<option value="6927107939631104" name="DinosaurSelfCollision" />
+		<option value="14034625978433600" name="CarBody" />
+	</enum>
+
+	<enum name="JWE1Surface" storage="uint">
+		<option value="0" name="LEGACY_DO_NOT_USE" />
+		<option value="1" name="Default" />
+		<option value="2" name="LandscapeDefault" />
+		<option value="3" name="LandscapeFrictionless" />
+		<option value="4" name="LandscapeDirt" />
+		<option value="5" name="LandscapeGrass" />
+		<option value="6" name="LandscapeIce" />
+		<option value="7" name="LandscapeMetal" />
+		<option value="8" name="LandscapeMud" />
+		<option value="9" name="LandscapePondBottom" />
+		<option value="10" name="LandscapeSand" />
+		<option value="11" name="LandscapeSnow" />
+		<option value="12" name="LandscapeStone" />
+		<option value="13" name="LandscapeWood" />
+		<option value="14" name="LandscapeWoodHollow" />
+		<option value="15" name="LandscapeFoliage" />
+		<option value="16" name="Water" />
+		<option value="17" name="BuildingBrick" />
+		<option value="18" name="BuildingConcrete" />
+		<option value="19" name="BuildingGlass" />
+		<option value="20" name="BuildingIce" />
+		<option value="21" name="BuildingMetal" />
+		<option value="22" name="BuildingSnow" />
+		<option value="23" name="BuildingWood" />
+		<option value="24" name="PropTree" />
+		<option value="25" name="PropLeaves" />
+		<option value="26" name="PropMetal" />
+		<option value="27" name="PropWooden" />
+		<option value="28" name="PropPlastic" />
+		<option value="29" name="PropStone" />
+		<option value="30" name="PropLitter" />
+		<option value="31" name="DirtPath" />
+		<option value="32" name="CharacterCollidableLimb" />
+		<option value="33" name="CharacterNonCollidableLimb" />
+		<option value="34" name="CharacterFlying" />
+		<option value="35" name="NonCollidableLimb" />
+		<option value="36" name="SceneryDefault" />
+		<option value="37" name="SceneryTree" />
+		<option value="38" name="StructureWall" />
+		<option value="39" name="StructureFence" />
+		<option value="40" name="StructurePylon" />
+		<option value="41" name="StructurePath" />
+		<option value="42" name="StructureTrack" />
+		<option value="43" name="Gyrosphere" />
+		<option value="44" name="CarBody" />
+		<option value="45" name="Debris" />
+		<option value="46" name="DinosaurLimb" />
+	</enum>
+
 	<enum name="RigidBodyFlag" storage="uint">
 		<option value="0" name="Static" />
 		<option value="1" name="DynamicsAsleep" />
@@ -719,9 +803,11 @@
 	<compound name="HitCheck">
 		JWE2: 20 bytes excluding collider
 		<add name="dtype" type="CollisionType"/>
-		<add name="flag_0" type="ushort" default="0">PC: apparently bitflag, always a power of 2; PZ, JWE2 always 0</add>
-		<add name="flag_1" type="ushort" default="0">PC: 0; JWE: 16; PZ, JWE2 always 0</add>
-		<add name="collision_layers" type="uint64" until="47">probably a bitfield, not sure though, might be a list of ubytes too</add>
+		<add name="ClassificationName" type="JWE1Collision" until="47"/>
+		<add name="SurfaceName" type="JWE1Surface" until="47"/>
+		<add name="align" type="uint" since="48" default="0"/>
+<!--		<add name="flag_0" type="ushort" default="0">PC: apparently bitflag, always a power of 2; PZ, JWE2 always 0</add>-->
+<!--		<add name="flag_1" type="ushort" default="0">PC: 0; JWE: 16; PZ, JWE2 always 0</add>-->
 		<add name="ClassificationName" type="OffsetString" arg="#ARG#" since="48"/>from physicsskeleton.specdef
 		<add name="SurfaceName" type="OffsetString" arg="#ARG#" since="48"/>
 		<add name="zero_extra_pc" type="uint" until="32">?</add>

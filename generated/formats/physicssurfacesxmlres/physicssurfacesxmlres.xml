@@ -19,7 +19,7 @@
         <add name="nil_ptr" type="Pointer" template="EmptyStruct"/>8 @ 48 nil pointer for JWE1, PZ, JWE2
 
         <add name="OnlyNamesJWE1" type="ArrWrapper" template="OnlyName" vercond="#JWE#" />
-        <add name="arr1" type="ArrWrapper" template="SurfacePhysicsInfo" />16 @ 56
+        <add name="surfaces" type="ArrWrapper" template="SurfacePhysicsInfo" />16 @ 56
         <add name="arr2" type="ArrWrapper" template="Struct2" vercond="#PC#"/>
         <add name="OnlyNames" type="ArrWrapper" template="OnlyName" vercond="#PC# #OR# #JWE#" />
 

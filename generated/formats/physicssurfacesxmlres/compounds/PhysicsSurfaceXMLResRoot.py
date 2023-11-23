@@ -36,7 +36,7 @@ class PhysicsSurfaceXMLResRoot(MemStruct):
 		yield 'name_2', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None)
 		yield 'nil_ptr', name_type_map['Pointer'], (0, name_type_map['EmptyStruct']), (False, None), (None, None)
 		yield 'only_names_j_w_e_1', name_type_map['ArrWrapper'], (0, name_type_map['OnlyName']), (False, None), (lambda context: context.user_version.use_djb and (context.version == 19), None)
-		yield 'arr_1', name_type_map['ArrWrapper'], (0, name_type_map['SurfacePhysicsInfo']), (False, None), (None, None)
+		yield 'surfaces', name_type_map['ArrWrapper'], (0, name_type_map['SurfacePhysicsInfo']), (False, None), (None, None)
 		yield 'arr_2', name_type_map['ArrWrapper'], (0, name_type_map['Struct2']), (False, None), (lambda context: context.version == 18, None)
 		yield 'only_names', name_type_map['ArrWrapper'], (0, name_type_map['OnlyName']), (False, None), (lambda context: (context.version == 18) or (context.user_version.use_djb and (context.version == 19)), None)
 		yield 'unk_32_2', name_type_map['Uint'], (0, None), (False, None), (None, None)
@@ -52,7 +52,7 @@ class PhysicsSurfaceXMLResRoot(MemStruct):
 		yield 'nil_ptr', name_type_map['Pointer'], (0, name_type_map['EmptyStruct']), (False, None)
 		if instance.context.user_version.use_djb and (instance.context.version == 19):
 			yield 'only_names_j_w_e_1', name_type_map['ArrWrapper'], (0, name_type_map['OnlyName']), (False, None)
-		yield 'arr_1', name_type_map['ArrWrapper'], (0, name_type_map['SurfacePhysicsInfo']), (False, None)
+		yield 'surfaces', name_type_map['ArrWrapper'], (0, name_type_map['SurfacePhysicsInfo']), (False, None)
 		if instance.context.version == 18:
 			yield 'arr_2', name_type_map['ArrWrapper'], (0, name_type_map['Struct2']), (False, None)
 		if (instance.context.version == 18) or (instance.context.user_version.use_djb and (instance.context.version == 19)):

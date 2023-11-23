@@ -14,15 +14,9 @@ class HitCheck(BaseStruct):
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		self.dtype = name_type_map['CollisionType'](self.context, 0, None)
-
-		# PC: apparently bitflag, always a power of 2; PZ, JWE2 always 0
-		self.flag_0 = name_type_map['Ushort'].from_value(0)
-
-		# PC: 0; JWE: 16; PZ, JWE2 always 0
-		self.flag_1 = name_type_map['Ushort'].from_value(0)
-
-		# probably a bitfield, not sure though, might be a list of ubytes too
-		self.collision_layers = name_type_map['Uint64'](self.context, 0, None)
+		self.classification_name = name_type_map['Jwe1Collision'](self.context, 0, None)
+		self.surface_name = name_type_map['Jwe1Surface'](self.context, 0, None)
+		self.align = name_type_map['Uint'].from_value(0)
 		self.classification_name = name_type_map['OffsetString'](self.context, self.arg, None)
 		self.surface_name = name_type_map['OffsetString'](self.context, self.arg, None)
 
@@ -40,9 +34,9 @@ class HitCheck(BaseStruct):
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
 		yield 'dtype', name_type_map['CollisionType'], (0, None), (False, None), (None, None)
-		yield 'flag_0', name_type_map['Ushort'], (0, None), (False, 0), (None, None)
-		yield 'flag_1', name_type_map['Ushort'], (0, None), (False, 0), (None, None)
-		yield 'collision_layers', name_type_map['Uint64'], (0, None), (False, None), (lambda context: context.version <= 47, None)
+		yield 'classification_name', name_type_map['Jwe1Collision'], (0, None), (False, None), (lambda context: context.version <= 47, None)
+		yield 'surface_name', name_type_map['Jwe1Surface'], (0, None), (False, None), (lambda context: context.version <= 47, None)
+		yield 'align', name_type_map['Uint'], (0, None), (False, 0), (lambda context: context.version >= 48, None)
 		yield 'classification_name', name_type_map['OffsetString'], (None, None), (False, None), (lambda context: context.version >= 48, None)
 		yield 'surface_name', name_type_map['OffsetString'], (None, None), (False, None), (lambda context: context.version >= 48, None)
 		yield 'zero_extra_pc', name_type_map['Uint'], (0, None), (False, None), (lambda context: context.version <= 32, None)
@@ -60,11 +54,11 @@ class HitCheck(BaseStruct):
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'dtype', name_type_map['CollisionType'], (0, None), (False, None)
-		yield 'flag_0', name_type_map['Ushort'], (0, None), (False, 0)
-		yield 'flag_1', name_type_map['Ushort'], (0, None), (False, 0)
 		if instance.context.version <= 47:
-			yield 'collision_layers', name_type_map['Uint64'], (0, None), (False, None)
+			yield 'classification_name', name_type_map['Jwe1Collision'], (0, None), (False, None)
+			yield 'surface_name', name_type_map['Jwe1Surface'], (0, None), (False, None)
 		if instance.context.version >= 48:
+			yield 'align', name_type_map['Uint'], (0, None), (False, 0)
 			yield 'classification_name', name_type_map['OffsetString'], (instance.arg, None), (False, None)
 			yield 'surface_name', name_type_map['OffsetString'], (instance.arg, None), (False, None)
 		if instance.context.version <= 32:
