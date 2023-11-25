@@ -645,7 +645,7 @@
 	<compound name="IKInfo">
 		<add name="weird padding" type="SmartPadding" until="13" >needed for ZTUAC</add>
 <!--		<add name="zeros start" type="ubyte" until="13" arr1="6">guess for ZTUAC rhino, wrong for afr ele child</add>-->
-		<add name="ik_count" type="uint64">repeat</add>
+		<add name="ik_count" type="uint64"/>
 		<add name="ik_ptr" type="uint64"/>
 		<add name="ik_targets_count" type="uint64" since="48"/>
 		<add name="ik_targets_ptr" type="uint64" since="48"/>
@@ -925,7 +925,7 @@
 		<add name="one" type="uint64" default="1" >always 1</add>
 		<add name="unk_pc_count" type="uint64" vercond="#PC#">matches the other count on dino entertainer, but ik_count is not present</add>
 		<add name="zeros count" type="uint64" >this counts the weird padding at the end, usually == bone count, 0 in PZ aardvark</add>
-		<add name="ik_count" type="uint64"/>
+		<add name="ik_count" type="uint64"/>max of ik_info's ik_count and ik_targets_count
 		<add name="joint count" type="uint64"/>
 		<add name="zero 1" type="uint64" default="0"/>
 		<add name="zero 2" type="uint64" default="0" until="13"/>

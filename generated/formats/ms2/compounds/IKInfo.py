@@ -17,8 +17,6 @@ class IKInfo(BaseStruct):
 
 		# needed for ZTUAC
 		self.weird_padding = name_type_map['SmartPadding'](self.context, 0, None)
-
-		# repeat
 		self.ik_count = name_type_map['Uint64'](self.context, 0, None)
 		self.ik_ptr = name_type_map['Uint64'](self.context, 0, None)
 		self.ik_targets_count = name_type_map['Uint64'](self.context, 0, None)
