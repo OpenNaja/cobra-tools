@@ -160,24 +160,48 @@ def export_bones_custom(b_armature_ob, model_info):
 	export_joints(bone_info, corrector)
 
 
+def add_parents(bones_with_ik, p_bone, count):
+	child_bone = p_bone
+	for i in range(count):
+		bones_with_ik[child_bone] = child_bone.parent
+		child_bone = p_bone.parent
+
+
 def export_ik(b_armature_ob, bone_info):
 	logging.debug("Exporting IK")
-	bones_with_ik = []
+	bones_with_ik = {}
+	bones_with_target = {}
+
+	# first look for IK targets
 	for p_bone in b_armature_ob.pose.bones:
-		if p_bone.constraints:
-			b_ik = p_bone.constraints["IK"]
-			child_bone = p_bone
-			for i in range(b_ik.chain_count):
-				bones_with_ik.append((child_bone, child_bone.parent))
-				child_bone = p_bone.parent
-	bone_info.ik_count = len(bones_with_ik)
+		for constraint in p_bone.constraints:
+			if constraint.type == "COPY_ROTATION":
+				bones_with_target[p_bone] = constraint.subtarget
+				# only if parent actually has IK constraint
+				if p_bone.parent.constraints:
+					add_parents(bones_with_ik, p_bone, p_bone.parent.constraints["IK"].chain_count)
+	# bare IK
+	for p_bone in b_armature_ob.pose.bones:
+		for constraint in p_bone.constraints:
+			if constraint.type == "IK":
+				if p_bone in bones_with_ik:
+					# already processed from an IK with target
+					continue
+				add_parents(bones_with_ik, p_bone, constraint.chain_count)
+	# used like this on acro and acro airlift
+	bone_info.ik_count = max(len(bones_with_ik), len(bones_with_target))
 	bone_info.reset_field("ik_info")
-	# todo ik_targets_count
+
 	ik_info = bone_info.ik_info
-	ik_info.ik_count = bone_info.ik_count
+	ik_info.ik_count = len(bones_with_ik)
+	ik_info.ik_targets_count = len(bones_with_target)
+	ik_info.reset_field("ik_targets")
 	ik_info.reset_field("ik_list")
 	bones_map = {bone.name: bone for bone in bone_info.bones}
-	for ik_link, (p_child, p_parent) in zip(ik_info.ik_list, bones_with_ik):
+	for ik_target, (p_end, p_target_name) in zip(ik_info.ik_targets, bones_with_target.items()):
+		ik_target.ik_end.joint = bones_map[bone_name_for_ovl(p_end.name)]
+		ik_target.ik_blend.joint = bones_map[bone_name_for_ovl(p_target_name)]
+	for ik_link, (p_child, p_parent) in zip(ik_info.ik_list, bones_with_ik.items()):
 		ik_link.parent.joint = bones_map[bone_name_for_ovl(p_parent.name)]
 		ik_link.child.joint = bones_map[bone_name_for_ovl(p_child.name)]
 		ik_link.yaw.min = -math.degrees(p_child.ik_min_x)

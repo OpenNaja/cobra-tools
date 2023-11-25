@@ -304,12 +304,14 @@ def import_ik(scene, armature_ob, bone_info, b_bone_names, corrector, long_name_
 	for ik_target in ik.ik_targets:
 		end_name = ik_target.ik_end.joint.name
 		target_name = ik_target.ik_blend.joint.name
+		# copy rot of the IK controller
+		p_bone = armature_ob.pose.bones[get_name(end_name)]
+		b_copy = p_bone.constraints.new("COPY_ROTATION")
+		b_copy.target = armature_ob
+		b_copy.subtarget = get_name(target_name)
 		if end_name in chains:
-			p_bone = armature_ob.pose.bones[get_name(end_name)]
-			b_copy = p_bone.constraints.new("COPY_ROTATION")
-			b_copy.target = armature_ob
-			b_copy.subtarget = get_name(target_name)
 			chain = chains.pop(end_name)
+			# add an ik constraint to the end's parent
 			if len(chain) > 1:
 				b_ik = p_bone.parent.constraints.new("IK")
 				b_ik.chain_count = len(chain)
@@ -317,15 +319,12 @@ def import_ik(scene, armature_ob, bone_info, b_bone_names, corrector, long_name_
 				b_ik.subtarget = get_name(target_name)
 			else:
 				raise AttributeError(f"IK chain too short")
-		else:
-			raise AttributeError(f"Unsure how to import IK chain")
 
 	# create the bare constraints
 	for child, parents in chains.items():
 		p_bone = armature_ob.pose.bones[get_name(child)]
 		b_ik = p_bone.constraints.new("IK")
 		b_ik.chain_count = len(parents)
-
 
 
 def import_joints(scene, armature_ob, bone_info, b_bone_names, corrector):
