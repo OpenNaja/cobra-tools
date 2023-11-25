@@ -250,13 +250,17 @@ def import_ik(scene, armature_ob, bone_info, b_bone_names, corrector, long_name_
 	logging.info("Importing IK")
 	ik = bone_info.ik_info
 	# print(ik)
+
+	def get_name(n):
+		long_name = matrix_util.bone_name_for_blender(n)
+		short_name = long_name_2_short_name[long_name]
+		return short_name
+
 	child_2_parent = {}
 	p_bones = armature_ob.pose.bones
 	for ik_link in ik.ik_list:
 		child_2_parent[ik_link.child.joint.name] = ik_link.parent.joint.name
-		b_long_name = matrix_util.bone_name_for_blender(ik_link.child.joint.name)
-		b_short_name = long_name_2_short_name[b_long_name]
-		p_bone = p_bones[b_short_name]
+		p_bone = p_bones[get_name(ik_link.child.joint.name)]
 		p_bone.use_ik_limit_x = p_bone.use_ik_limit_y = p_bone.use_ik_limit_z = True
 		p_bone.ik_min_x = -math.radians(ik_link.yaw.min)
 		p_bone.ik_max_x = math.radians(ik_link.yaw.max)
@@ -295,13 +299,33 @@ def import_ik(scene, armature_ob, bone_info, b_bone_names, corrector, long_name_
 				child = parent
 			else:
 				break
-	# create the constraints
+
+	# create a copy location constraint for each ik target
+	for ik_target in ik.ik_targets:
+		end_name = ik_target.ik_end.joint.name
+		target_name = ik_target.ik_blend.joint.name
+		if end_name in chains:
+			p_bone = armature_ob.pose.bones[get_name(end_name)]
+			b_copy = p_bone.constraints.new("COPY_ROTATION")
+			b_copy.target = armature_ob
+			b_copy.subtarget = get_name(target_name)
+			chain = chains.pop(end_name)
+			if len(chain) > 1:
+				b_ik = p_bone.parent.constraints.new("IK")
+				b_ik.chain_count = len(chain)
+				b_ik.target = armature_ob
+				b_ik.subtarget = get_name(target_name)
+			else:
+				raise AttributeError(f"IK chain too short")
+		else:
+			raise AttributeError(f"Unsure how to import IK chain")
+
+	# create the bare constraints
 	for child, parents in chains.items():
-		b_long_name = matrix_util.bone_name_for_blender(child)
-		b_short_name = long_name_2_short_name[b_long_name]
-		p_bone = armature_ob.pose.bones[b_short_name]
+		p_bone = armature_ob.pose.bones[get_name(child)]
 		b_ik = p_bone.constraints.new("IK")
-		b_ik.chain_count = len(parents)# + 1
+		b_ik.chain_count = len(parents)
+
 
 
 def import_joints(scene, armature_ob, bone_info, b_bone_names, corrector):
