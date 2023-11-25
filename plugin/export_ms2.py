@@ -208,7 +208,7 @@ def save(filepath='', backup_original=True, apply_transforms=False, update_rig=F
 			coll.exclude = state
 	# write ms2, backup should have been created earlier
 	ms2.save(filepath)
-	print(ms2)
+	# print(ms2)
 	if found_scenes:
 		messages.add(f"Finished MS2 export in {time.time() - start_time:.2f} seconds")
 	else:

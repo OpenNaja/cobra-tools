@@ -1,4 +1,5 @@
 import logging
+import re
 
 import mathutils
 import math
@@ -146,6 +147,10 @@ def ensure_tri_modifier(ob):
 		ob.modifiers.new('Triangulate', 'TRIANGULATE')
 
 
+# match a .001 style suffix
+blender_name_suffix_re = re.compile(r'\.\d+$')
+
+
 def get_joint_name(b_ob):
 	scene = bpy.context.scene
 	ob_name = b_ob.name[len(scene.name)+1:]
@@ -156,7 +161,12 @@ def get_joint_name(b_ob):
 	if len(long_name) > len(ob_name):
 		# assert long_name[:len(ob_name)] == ob_name, f"ob name does not match"
 		return long_name
-	assert long_name == ob_name
+	# check for .001 suffixes incase user dupes rig by copy pasting some mesh
+	without_copy_suffixes = blender_name_suffix_re.sub('', ob_name)
+	if without_copy_suffixes != ob_name:
+		logging.warning(f"Duplicate suffix detected for '{ob_name}'")
+	if without_copy_suffixes != long_name:
+		logging.warning(f"Stored long name and blender name don't match for '{ob_name}'")
 	return long_name
 
 
