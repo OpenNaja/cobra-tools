@@ -56,9 +56,18 @@ class KeysReader(BaseStruct):
 			logging.warning(f"Segment padding is not 00: '{padding}' at {stream.tell()}")
 
 	@classmethod
+	def align_to(cls, instance, stream, alignment=16, rel=None):
+		abs_offset = stream.tell()
+		relative_offset = abs_offset - instance.io_start
+		padding_len = get_padding_size(relative_offset, alignment=alignment)
+		logging.debug(f"Aligning to {alignment} from {abs_offset} to {abs_offset+padding_len} ({padding_len} bytes)")
+		stream.write(b'\x00' * padding_len)
+
+	@classmethod
 	def write_fields(cls, stream, instance):
 		instance.io_start = stream.tell()
 		for mani_info in instance.arg:
+			cls.align_to(instance, stream)
 			ManiBlock.to_stream(mani_info.keys, stream, instance.context)
 		instance.io_size = stream.tell() - instance.io_start
 

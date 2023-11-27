@@ -2,7 +2,6 @@
 import logging
 
 from generated.base_struct import BaseStruct
-from generated.formats.base.compounds.PadAlign import get_padding
 from modules.formats.shared import get_padding_size
 
 # END_GLOBALS
@@ -15,18 +14,9 @@ class SegmentsReader(BaseStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		instance.io_start = stream.tell()
-		# print(instance.context)
 		for segment in instance.arg:
 			cls.pad_to_start(instance, stream)
 			segment.data = stream.read(segment.byte_size)
-		# assert segment.padding == b"\x00" * pad_size
-
-		# al = 16 if instance.context.version > 257 else 8
-
-		# pad_size = get_padding_size(stream.tell() - instance.io_start, alignment=al)
-		# padding = stream.read(pad_size)
-		# if padding != b"\x00" * pad_size:
-		# 	logging.warning(f"End padding is not 00: '{padding}' at {stream.tell()}")
 		logging.debug(f"Compressed keys data ends at {stream.tell()}")
 		instance.io_size = stream.tell() - instance.io_start
 
@@ -38,11 +28,19 @@ class SegmentsReader(BaseStruct):
 			logging.warning(f"Segment padding is not 00: '{padding}' at {stream.tell()}")
 
 	@classmethod
+	def align_to(cls, instance, stream, alignment=16, rel=None):
+		abs_offset = stream.tell()
+		relative_offset = abs_offset - instance.io_start
+		padding_len = get_padding_size(relative_offset, alignment=alignment)
+		logging.debug(f"Aligning to {alignment} from {abs_offset} to {abs_offset+padding_len} ({padding_len} bytes)")
+		stream.write(b'\x00' * padding_len)
+
+	@classmethod
 	def write_fields(cls, stream, instance):
 		instance.io_start = stream.tell()
 		for segment in instance.arg:
+			cls.align_to(instance, stream)
 			stream.write(segment.data)
-			stream.write(get_padding(segment.byte_size))
 		instance.io_size = stream.tell() - instance.io_start
 
 	@classmethod
