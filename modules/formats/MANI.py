@@ -38,7 +38,7 @@ class ManisLoader(MemStructLoader):
 			mime_version = self.mime_version
 			if is_dla(self.ovl):
 				mime_version = 256
-			outfile.write(struct.pack("<III", mime_version, len(self.children), len(self.data_entries)))
+			outfile.write(struct.pack("<II", mime_version, len(self.children)))
 			# store external datastream name
 			ovs_name = [o for o in self.data_entries if o != "STATIC"][0] if len(self.data_entries) > 1 else ""
 			outfile.write(as_bytes(ovs_name))
