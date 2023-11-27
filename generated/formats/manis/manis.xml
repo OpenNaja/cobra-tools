@@ -334,7 +334,7 @@
 		<add name="chunksize_list" type="ChunkSizes" arr1="subchunk_count" > </add>
 		<add name="subchunk list" type="SubChunkReader" arg="chunksize_list" > </add>
 		vec3 for count 1
-        <add name="pad" type="PadAlign" template="ref" arg="16" >?</add>
+<!--        <add name="pad" type="PadAlign" template="ref" arg="16" >?</add>-->
     </compound>
 
 	<compound name="ManiBlock" >

@@ -45,6 +45,7 @@ class KeysReader(BaseStruct):
 				# break
 			except:
 				logging.exception(f"Reading ManiBlock failed at {mani_block_start} for {mani_info}")
+				raise
 		instance.io_size = stream.tell() - instance.io_start
 
 	@classmethod

@@ -690,7 +690,8 @@ if __name__ == "__main__":
     mani = ManisFile()
     # acro stand_ide
     target = "acrocanthosaurus@standidle01"
-    mani.load("C:/Users/arnfi/Desktop/acro/motionextracted.maniset935739f8.manis")
+    mani.load("C:/Users/arnfi/Desktop/pyro/motionextracted.maniset846adda6.manis")
+    # mani.load("C:/Users/arnfi/Desktop/acro/motionextracted.maniset935739f8.manis")
     # mani.load("C:/Users/arnfi/Desktop/Coding/Frontier/Warhammer/Annihilator/animation.maniset52a766ac.manis")
     # mani.load("C:/Users/arnfi/Desktop/enrichment.maniset8a375fce.manis")
     # mani.load("C:/Users/arnfi/Desktop/camerabone.maniset67b9ba24.manis")
@@ -703,7 +704,7 @@ if __name__ == "__main__":
     # mani.load("C:/Users/arnfi/Desktop/DLA scale anim.manis")
     # mani.load("C:/Users/arnfi/Desktop/dinomascot/animation.maniset293c241f.manis")
     # mani.dump_keys()
-    mani.parse_keys()
+    # mani.parse_keys()
     # mani.log_rot_keys()
     # mani.log_loc_keys()
 # mani.load("C:/Users/arnfi/Desktop/donationbox/animation.maniseteaf333c5.manis")
