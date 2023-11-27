@@ -4,11 +4,6 @@ from generated.formats.ovl_base.compounds.MemStruct import MemStruct
 
 class DinoVariantsHeader(MemStruct):
 
-	"""
-	# set_count - seen either 0 or 1, could possibly be more, would need refactor in that case
-	# no set_count for rex 93 - has no materialpatterns, so that's probably why it's different
-	"""
-
 	__name__ = 'DinoVariantsHeader'
 
 
@@ -19,7 +14,7 @@ class DinoVariantsHeader(MemStruct):
 		self.zero = name_type_map['Uint64'](self.context, 0, None)
 		self.fgm_name = name_type_map['Pointer'](self.context, 0, name_type_map['ZStringObfuscated'])
 		self.set_name = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
-		self.variants = name_type_map['Pointer'](self.context, self.variant_count, name_type_map['VariantArray'])
+		self.variants = name_type_map['ArrayPointer'](self.context, self.variant_count, name_type_map['Variant'])
 		if set_default:
 			self.set_defaults()
 
@@ -29,7 +24,7 @@ class DinoVariantsHeader(MemStruct):
 		yield 'fgm_name', name_type_map['Pointer'], (0, name_type_map['ZStringObfuscated']), (False, None), (None, None)
 		yield 'has_sets', name_type_map['Uint64'], (0, None), (False, None), (None, None)
 		yield 'set_name', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None)
-		yield 'variants', name_type_map['Pointer'], (None, name_type_map['VariantArray']), (False, None), (None, None)
+		yield 'variants', name_type_map['ArrayPointer'], (None, name_type_map['Variant']), (False, None), (None, None)
 		yield 'variant_count', name_type_map['Uint64'], (0, None), (False, None), (None, None)
 		yield 'zero', name_type_map['Uint64'], (0, None), (False, None), (None, None)
 
@@ -39,6 +34,6 @@ class DinoVariantsHeader(MemStruct):
 		yield 'fgm_name', name_type_map['Pointer'], (0, name_type_map['ZStringObfuscated']), (False, None)
 		yield 'has_sets', name_type_map['Uint64'], (0, None), (False, None)
 		yield 'set_name', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None)
-		yield 'variants', name_type_map['Pointer'], (instance.variant_count, name_type_map['VariantArray']), (False, None)
+		yield 'variants', name_type_map['ArrayPointer'], (instance.variant_count, name_type_map['Variant']), (False, None)
 		yield 'variant_count', name_type_map['Uint64'], (0, None), (False, None)
 		yield 'zero', name_type_map['Uint64'], (0, None), (False, None)

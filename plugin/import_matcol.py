@@ -1,17 +1,13 @@
-import logging
-import os
 import bpy
 import math
+import logging
+import os
 
-from generated.formats.matcol.compounds.MatcolRoot import MatcolRoot
 from plugin.utils.node_arrange import nodes_iterate
 from plugin.utils.node_util import load_tex_node, get_tree
 
-# an experiment
-import logging
-import os
-
 from generated.formats.dinosaurmaterialvariants.compounds.DinoLayersHeader import DinoLayersHeader
+from generated.formats.matcol.compounds.MatcolRoot import MatcolRoot
 from generated.formats.fgm.compounds.FgmHeader import FgmHeader
 from generated.formats.ovl_base import OvlContext
 
@@ -64,12 +60,12 @@ class LayeredMaterial:
 			mask_png_path = os.path.join(self.base_dir, f"{self.matname}.playered_blendweights_[{tile_i:02}]_{channels[ch_i]}.png")
 			if not os.path.isfile(mask_png_path):
 				logging.warning(f"Found no mask texture for layer {layer_i}")
-			# todo - rename to increment_channel, check matcol for corresponding feature?
-			# increment channel
+			# increment channel index
 			if self.ext == MATLAY:
-				if layer.has_ptr:
+				if layer.increment_channel:
 					ch_i += 1
 			else:
+				# todo - check matcol for corresponding feature?
 				ch_i += 1
 			# move to the next tile for the next loop
 			if ch_i == 4:

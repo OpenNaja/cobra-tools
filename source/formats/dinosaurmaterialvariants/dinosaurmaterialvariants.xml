@@ -9,24 +9,19 @@
         <add name="variant_name" type="Pointer" template="ZString"/>
     </compound>
 
-    <compound name="VariantArray" inherit="MemStruct" >
-        <add name="variants" type="Variant" arr1="#ARG#"/>
-    </compound>
-
     <compound name="DinoVariantsHeader" inherit="MemStruct" >
-		# set_count - seen either 0 or 1, could possibly be more, would need refactor in that case
-		# no set_count for rex 93 - has no materialpatterns, so that's probably why it's different
         <add name="fgm_name" type="Pointer" template="ZStringObfuscated"/>
-        <add name="has_sets" type="uint64"/>
+        <add name="has_sets" type="uint64"/>seen either 0 or 1, could possibly be more, would need refactor in that case
+		# 0 for rex 93 - has no materialpatterns, so that's probably why it's different
         <add name="set_name" type="Pointer" template="ZString"/>
-        <add name="variants" type="Pointer" template="VariantArray" arg="variant_count"/>
+        <add name="variants" type="ArrayPointer" template="Variant" arg="variant_count"/>
         <add name="variant_count" type="uint64"/>
         <add name="zero" type="uint64"/>
     </compound>
 
 
     <compound name="Layer" inherit="MemStruct" >
-        <add name="has_ptr" type="uint64"/> should actually be 'increment'
+        <add name="increment_channel" type="uint64">1 to use next mask channel, 0 to use same as previous</add>
         <add name="texture_fgm_name" type="Pointer" template="ZString">defines the tiled texture material to be used</add>
         <add name="transform_fgm_name" type="Pointer" template="ZString">defines how to transform the texture</add>
     </compound>
@@ -48,15 +43,11 @@
         <add name="pattern_name" type="Pointer" template="ZString"/>
     </compound>
 
-    <compound name="PatternArray" inherit="MemStruct" >
-        <add name="patterns" type="Pattern" arr1="#ARG#"/>
-    </compound>
-
     <compound name="DinoPatternsHeader" inherit="MemStruct" >
         <add name="fgm_name" type="Pointer" template="ZStringObfuscated"/>
         <add name="set_count" type="uint64"/>
         <add name="set_name" type="Pointer" template="ZString"/>
-        <add name="patterns" type="Pointer" template="PatternArray" arg="pattern_count"/>
+        <add name="patterns" type="ArrayPointer" template="Pattern" arg="pattern_count"/>
         <add name="pattern_count" type="uint64"/>
         <add name="zero" type="uint64"/>
     </compound>
@@ -68,7 +59,6 @@
     </compound>
 
     <compound name="DinoEffectsHeader" inherit="MemStruct" >
-<!--"<Q 6f 2I 12f 2I 2f I 39f I f"-->
         <add name="fgm_name" type="Pointer" template="ZStringObfuscated"/>
         <add name="vec0" type="Vector3f"/>
         <add name="vec1" type="Vector3f"/>

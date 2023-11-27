@@ -14,7 +14,7 @@ class DinoPatternsHeader(MemStruct):
 		self.zero = name_type_map['Uint64'](self.context, 0, None)
 		self.fgm_name = name_type_map['Pointer'](self.context, 0, name_type_map['ZStringObfuscated'])
 		self.set_name = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
-		self.patterns = name_type_map['Pointer'](self.context, self.pattern_count, name_type_map['PatternArray'])
+		self.patterns = name_type_map['ArrayPointer'](self.context, self.pattern_count, name_type_map['Pattern'])
 		if set_default:
 			self.set_defaults()
 
@@ -24,7 +24,7 @@ class DinoPatternsHeader(MemStruct):
 		yield 'fgm_name', name_type_map['Pointer'], (0, name_type_map['ZStringObfuscated']), (False, None), (None, None)
 		yield 'set_count', name_type_map['Uint64'], (0, None), (False, None), (None, None)
 		yield 'set_name', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None)
-		yield 'patterns', name_type_map['Pointer'], (None, name_type_map['PatternArray']), (False, None), (None, None)
+		yield 'patterns', name_type_map['ArrayPointer'], (None, name_type_map['Pattern']), (False, None), (None, None)
 		yield 'pattern_count', name_type_map['Uint64'], (0, None), (False, None), (None, None)
 		yield 'zero', name_type_map['Uint64'], (0, None), (False, None), (None, None)
 
@@ -34,6 +34,6 @@ class DinoPatternsHeader(MemStruct):
 		yield 'fgm_name', name_type_map['Pointer'], (0, name_type_map['ZStringObfuscated']), (False, None)
 		yield 'set_count', name_type_map['Uint64'], (0, None), (False, None)
 		yield 'set_name', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None)
-		yield 'patterns', name_type_map['Pointer'], (instance.pattern_count, name_type_map['PatternArray']), (False, None)
+		yield 'patterns', name_type_map['ArrayPointer'], (instance.pattern_count, name_type_map['Pattern']), (False, None)
 		yield 'pattern_count', name_type_map['Uint64'], (0, None), (False, None)
 		yield 'zero', name_type_map['Uint64'], (0, None), (False, None)
