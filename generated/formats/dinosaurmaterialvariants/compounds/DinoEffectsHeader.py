@@ -1,9 +1,9 @@
 from generated.array import Array
+from generated.formats.dinosaurmaterialvariants.compounds.CommonHeader import CommonHeader
 from generated.formats.dinosaurmaterialvariants.imports import name_type_map
-from generated.formats.ovl_base.compounds.MemStruct import MemStruct
 
 
-class DinoEffectsHeader(MemStruct):
+class DinoEffectsHeader(CommonHeader):
 
 	__name__ = 'DinoEffectsHeader'
 
@@ -31,14 +31,12 @@ class DinoEffectsHeader(MemStruct):
 		self.floats_5 = Array(self.context, 0, None, (0,), name_type_map['Float'])
 		self.i = name_type_map['Uint'](self.context, 0, None)
 		self.float = name_type_map['Float'](self.context, 0, None)
-		self.fgm_name = name_type_map['Pointer'](self.context, 0, name_type_map['ZStringObfuscated'])
 		if set_default:
 			self.set_defaults()
 
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield 'fgm_name', name_type_map['Pointer'], (0, name_type_map['ZStringObfuscated']), (False, None), (None, None)
 		yield 'vec_0', name_type_map['Vector3F'], (0, None), (False, None), (None, None)
 		yield 'vec_1', name_type_map['Vector3F'], (0, None), (False, None), (None, None)
 		yield 'a', name_type_map['Uint'], (0, None), (False, None), (None, None)
@@ -64,7 +62,6 @@ class DinoEffectsHeader(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'fgm_name', name_type_map['Pointer'], (0, name_type_map['ZStringObfuscated']), (False, None)
 		yield 'vec_0', name_type_map['Vector3F'], (0, None), (False, None)
 		yield 'vec_1', name_type_map['Vector3F'], (0, None), (False, None)
 		yield 'a', name_type_map['Uint'], (0, None), (False, None)

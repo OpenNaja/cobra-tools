@@ -4,13 +4,17 @@
 
 	<xi:include href="../ovl_base/ovl_base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
 
+    <compound name="CommonHeader" inherit="MemStruct" >
+        <add name="fgm_name" type="Pointer" template="ZStringObfuscated"/>
+    </compound>
+
+
     <compound name="Variant" inherit="MemStruct" >
         <add name="has_ptr" type="uint64"/>
         <add name="variant_name" type="Pointer" template="ZString"/>
     </compound>
 
-    <compound name="DinoVariantsHeader" inherit="MemStruct" >
-        <add name="fgm_name" type="Pointer" template="ZStringObfuscated"/>
+    <compound name="DinoVariantsHeader" inherit="CommonHeader" >
         <add name="has_sets" type="uint64"/>seen either 0 or 1, could possibly be more, would need refactor in that case
 		# 0 for rex 93 - has no materialpatterns, so that's probably why it's different
         <add name="set_name" type="Pointer" template="ZString"/>
@@ -26,12 +30,7 @@
         <add name="transform_fgm_name" type="Pointer" template="ZString">defines how to transform the texture</add>
     </compound>
 
-    <compound name="LayerArray" inherit="MemStruct" >
-        <add name="layers" type="Layer" arr1="#ARG#"/>
-    </compound>
-
-    <compound name="DinoLayersHeader" inherit="MemStruct" >
-        <add name="fgm_name" type="Pointer" template="ZStringObfuscated"/>
+    <compound name="DinoLayersHeader" inherit="CommonHeader" >
         <add name="layers" type="ArrayPointer" template="Layer" arg="layer_count"/>
         <add name="layer_count" type="uint64"/>
         <add name="zero" type="uint64"/>
@@ -43,8 +42,7 @@
         <add name="pattern_name" type="Pointer" template="ZString"/>
     </compound>
 
-    <compound name="DinoPatternsHeader" inherit="MemStruct" >
-        <add name="fgm_name" type="Pointer" template="ZStringObfuscated"/>
+    <compound name="DinoPatternsHeader" inherit="CommonHeader" >
         <add name="set_count" type="uint64"/>
         <add name="set_name" type="Pointer" template="ZString"/>
         <add name="patterns" type="ArrayPointer" template="Pattern" arg="pattern_count"/>
@@ -58,8 +56,7 @@
         <add name="z" type="float"/>
     </compound>
 
-    <compound name="DinoEffectsHeader" inherit="MemStruct" >
-        <add name="fgm_name" type="Pointer" template="ZStringObfuscated"/>
+    <compound name="DinoEffectsHeader" inherit="CommonHeader" >
         <add name="vec0" type="Vector3f"/>
         <add name="vec1" type="Vector3f"/>
         <add name="a" type="uint"/>

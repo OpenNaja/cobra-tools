@@ -1,8 +1,8 @@
+from generated.formats.dinosaurmaterialvariants.compounds.CommonHeader import CommonHeader
 from generated.formats.dinosaurmaterialvariants.imports import name_type_map
-from generated.formats.ovl_base.compounds.MemStruct import MemStruct
 
 
-class DinoPatternsHeader(MemStruct):
+class DinoPatternsHeader(CommonHeader):
 
 	__name__ = 'DinoPatternsHeader'
 
@@ -12,7 +12,6 @@ class DinoPatternsHeader(MemStruct):
 		self.set_count = name_type_map['Uint64'](self.context, 0, None)
 		self.pattern_count = name_type_map['Uint64'](self.context, 0, None)
 		self.zero = name_type_map['Uint64'](self.context, 0, None)
-		self.fgm_name = name_type_map['Pointer'](self.context, 0, name_type_map['ZStringObfuscated'])
 		self.set_name = name_type_map['Pointer'](self.context, 0, name_type_map['ZString'])
 		self.patterns = name_type_map['ArrayPointer'](self.context, self.pattern_count, name_type_map['Pattern'])
 		if set_default:
@@ -21,7 +20,6 @@ class DinoPatternsHeader(MemStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield 'fgm_name', name_type_map['Pointer'], (0, name_type_map['ZStringObfuscated']), (False, None), (None, None)
 		yield 'set_count', name_type_map['Uint64'], (0, None), (False, None), (None, None)
 		yield 'set_name', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None), (None, None)
 		yield 'patterns', name_type_map['ArrayPointer'], (None, name_type_map['Pattern']), (False, None), (None, None)
@@ -31,7 +29,6 @@ class DinoPatternsHeader(MemStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'fgm_name', name_type_map['Pointer'], (0, name_type_map['ZStringObfuscated']), (False, None)
 		yield 'set_count', name_type_map['Uint64'], (0, None), (False, None)
 		yield 'set_name', name_type_map['Pointer'], (0, name_type_map['ZString']), (False, None)
 		yield 'patterns', name_type_map['ArrayPointer'], (instance.pattern_count, name_type_map['Pattern']), (False, None)
