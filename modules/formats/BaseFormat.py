@@ -164,20 +164,25 @@ class BaseFile:
 			content = f.read()
 		return content
 
-	def create_data_entry(self, buffers_bytes):
+	def create_data_entry(self, buffers_bytes, ovs_name=None):
 		data = DataEntry(self.ovl.context)
 		# needs to be created in the ovs that this loader has been assigned to use
 		# needs additional research to be able to create jwe2 dino manis with stray data_entry
-		self.data_entries[self.ovs_name] = data
-		data.buffer_count = len(buffers_bytes)
+		if not ovs_name:
+			ovs_name = self.ovs_name
+		self.data_entries[ovs_name] = data
+
+		valid_datas = [b for b in buffers_bytes if b is not None]
+		data.buffer_count = len(valid_datas)
 		data.buffers = []
 		for i, buffer_bytes in enumerate(buffers_bytes):
-			buffer = BufferEntry(self.ovl.context)
-			buffer.index = i
-			data.buffers.append(buffer)
-			self.ovs.transfer_identity(buffer, self)
+			if buffer_bytes is not None:
+				buffer = BufferEntry(self.ovl.context)
+				buffer.index = i
+				data.buffers.append(buffer)
+				self.ovs.transfer_identity(buffer, self)
 		self.ovs.transfer_identity(data, self)
-		data.update_data(buffers_bytes)
+		data.update_data(valid_datas)
 		return data
 
 	def update(self):

@@ -153,6 +153,7 @@
         Custom header struct
         <add name="version" type="uint"/>
         <add name="mani count" type="uint"/>
+        <add name="stream" type="ZString" />
         <add name="names" type="ZString" arr1="mani count"/>
         <add name="header" type="ManisRoot"/>
         <add name="mani infos" type="ManiInfo" arr1="mani count"/>

@@ -38,7 +38,10 @@ class ManisLoader(MemStructLoader):
 			mime_version = self.mime_version
 			if is_dla(self.ovl):
 				mime_version = 256
-			outfile.write(struct.pack("<II", mime_version, len(self.children)))
+			outfile.write(struct.pack("<III", mime_version, len(self.children), len(self.data_entries)))
+			# store external datastream name
+			ovs_name = [o for o in self.data_entries if o != "STATIC"][0] if len(self.data_entries) > 1 else ""
+			outfile.write(as_bytes(ovs_name))
 			for mani in self.children:
 				outfile.write(as_bytes(mani.basename))
 			# root gives general info
@@ -86,7 +89,11 @@ class ManisLoader(MemStructLoader):
 			self.children.append(mani_loader)
 
 		self.write_root_bytes(root_data)
-		self.create_data_entry((b0, b1, b2))
+		if manis_file.stream:
+			self.create_data_entry((b0, b1, b""))
+			self.create_data_entry((None, None, b2), ovs_name=manis_file.stream)
+		else:
+			self.create_data_entry((b0, b1, b2))
 
 	def _get_data(self, file_path):
 		"""Loads and returns the data for a manis"""
