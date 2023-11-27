@@ -77,7 +77,7 @@ class ManisLoader(MemStructLoader):
 	def create(self, file_path):
 		manis_file, root_data, b0, b1, b2 = self._get_data(file_path)
 		ms2_dir = os.path.dirname(file_path)
-
+		self.header = manis_file.header
 		# create mani files
 		for mani_barename in manis_file.names:
 			mani_name = f"{mani_barename}.mani"
