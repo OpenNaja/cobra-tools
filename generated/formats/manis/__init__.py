@@ -322,8 +322,8 @@ class ManisFile(InfoHeader, IoFile):
         for mani_info in self.iter_compressed_manis():
             keys_iter = None
             # if mani_info.name != "acrocanthosaurus@standidle01":
-            if mani_info.name != "acrocanthosaurus@drinksocialinteractiona":
-                continue
+            # if mani_info.name != "acrocanthosaurus@drinksocialinteractiona":
+            #     continue
             # acro debug keys
             dump_path = os.path.join(root_path.root_dir, "dumps", f"{mani_info.name}_keys.txt")
             if os.path.isfile(dump_path):
@@ -338,35 +338,50 @@ class ManisFile(InfoHeader, IoFile):
                 logging.exception(f"Decompressing {mani_info.name} failed")
             # break
 
+    def show_keys(self, keys, bone_names, bone_name):
+        try:
+            logging.info(f"Showing keys")
+            import matplotlib.pyplot as plt
+            bone_i = bone_names.index(bone_name)
+            # plt.figure(figsize=(5, 2.7), layout='constrained')
+            plt.plot(keys[:, bone_i, 0], label='X')
+            plt.plot(keys[:, bone_i, 1], label='Y')
+            plt.plot(keys[:, bone_i, 2], label='Z')
+            plt.xlabel('Frame')
+            plt.ylabel('Value')
+            plt.title("Loc Keys")
+            plt.legend()
+            plt.show()
+        except:
+            logging.exception("Failed")
+
     def decompress(self, keys_iter, mani_info):
         if bitarray is None:
             raise ModuleNotFoundError("bitarray module is not installed - cannot decompress keys")
         # 1 / 16383
         scale = 6.103888e-05
         k_channel_bitsize = self.get_bitsize()
+        k = mani_info.keys
+        ck = mani_info.keys.compressed
         logging.info(
-            f"Anim {mani_info.name} with {len(mani_info.keys.compressed.segments)} segments, {mani_info.frame_count} frames")
-        mani_info.keys.compressed.pos_bones = np.empty((mani_info.frame_count, mani_info.pos_bone_count, 3), np.float32)
-        mani_info.keys.compressed.ori_bones = np.empty((mani_info.frame_count, mani_info.ori_bone_count, 4), np.float32)
-        assert mani_info.keys.compressed.pos_bone_count == mani_info.pos_bone_count
-        assert mani_info.keys.compressed.ori_bone_count == mani_info.ori_bone_count
+            f"Anim {mani_info.name} with {len(ck.segments)} segments, {mani_info.frame_count} frames")
+        ck.pos_bones = np.empty((mani_info.frame_count, mani_info.pos_bone_count, 3), np.float32)
+        ck.ori_bones = np.empty((mani_info.frame_count, mani_info.ori_bone_count, 4), np.float32)
+        assert ck.pos_bone_count == mani_info.pos_bone_count
+        assert ck.ori_bone_count == mani_info.ori_bone_count
         frame_offset = 0
-        for segment_i, mb in enumerate(mani_info.keys.compressed.segments):
+        for segment_i, mb in enumerate(ck.segments):
             f = BinStream(mb.data)
             f2 = BinStream(mb.data)
             segment_frames_count = self.segment_frame_count(segment_i, mani_info.frame_count)
             # logging.info(f"Segment[{segment_i}] frames {segment_frames_count} Keys Iter {keys_iter}")
+            # create views into the complete data for this segment
+            segment_pos_bones = ck.pos_bones[frame_offset:frame_offset + segment_frames_count]
+            segment_ori_bones = ck.ori_bones[frame_offset:frame_offset + segment_frames_count]
             try:
-                #TODO I Believe the mani_info.keys.compressed data isnt updating with the rel keys
-                segment_pos_bones = mani_info.keys.compressed.pos_bones[
-                                    frame_offset:(frame_offset + segment_frames_count)]
-                segment_ori_bones = mani_info.keys.compressed.ori_bones[
-                                    frame_offset:(frame_offset + segment_frames_count)]
-
                 # this is a jump to the end of the compressed keys
                 wavelet_byte_offset = f.read_int_reversed(16)
                 context = KeysContext(f2, wavelet_byte_offset)
-                #TODO these functions need to properly update mani_infos above, orientation keys data looks good now
                 self.read_vec3_keys(context, f, f2, segment_i, k_channel_bitsize, mani_info,
                                     scale, segment_frames_count, segment_pos_bones, keys_iter=keys_iter)
                 self.read_rot_keys(context, f, f2, segment_i, k_channel_bitsize, mani_info, scale, segment_frames_count,
@@ -375,12 +390,11 @@ class ManisFile(InfoHeader, IoFile):
                 logging.exception(f"Reading Segment[{segment_i}] failed at bit {f.pos}, byte {f.pos / 8}")
                 raise
             frame_offset += segment_frames_count
-        ck = mani_info.keys.compressed
         loc_min = ck.loc_bounds.mins[ck.loc_bound_indices]
         loc_ext = ck.loc_bounds.scales[ck.loc_bound_indices]
-        loc = ck.pos_bones
-        loc *= loc_ext
-        loc += loc_min
+        ck.pos_bones *= loc_ext
+        ck.pos_bones += loc_min
+        self.show_keys(ck.pos_bones, k.pos_bones_names, "def_c_root_joint")
         # logging.info(ck)
         # for pos_index, pos_name in enumerate(mani_info.keys.pos_bones_names):
         #     logging.info(f"dec {pos_index} {pos_name} {loc[0, pos_index]}")
@@ -402,7 +416,8 @@ class ManisFile(InfoHeader, IoFile):
             self.compare_key_with_reference(f, keys_iter, pos_base)
             keys_flag = f.read_int_reversed(3)
             keys_flag = StoreKeys.from_value(keys_flag)
-            # logging.info(f"{keys_flag}")
+            if pos_name == "def_c_root_joint":
+                logging.info(f"{keys_flag}")
             if keys_flag.x or keys_flag.y or keys_flag.z:
                 wavelet_i, frame_map = self.read_wavelet_table(context, f2, frame_map, segment_frames_count)
                 self.read_rel_keys(f, frame_map, k_channel_bitsize, keys_flag, ushort_storage, wavelet_i)
@@ -562,7 +577,7 @@ class ManisFile(InfoHeader, IoFile):
         logging.info(f"Segment[{i}] rot finished at bit {f.pos}, byte {f.pos / 8}")
 
     def read_rel_keys(self, f, frame_map, k_channel_bitsize, keys_flag, ushort_storage, wavelet_i):
-        for channel_i, is_active in enumerate((keys_flag.x, keys_flag.y, keys_flag.z)):
+        for channel_i, is_active in enumerate((keys_flag.z, keys_flag.y, keys_flag.x)):
             if is_active:
                 # logging.info(f"rel_keys[{channel_i}] at bit {f.pos}")
                 # define the minimal key size for this channel
@@ -659,8 +674,8 @@ class ManisFile(InfoHeader, IoFile):
 
 if __name__ == "__main__":
     logging_setup("mani")
-    for k in (0, 1, 4, 5, 6, 32, 34, 36, 37, 38, 64, 66, 68, 69, 70, 82):
-        print(ManisDtype.from_value(k))
+    # for k in (0, 1, 4, 5, 6, 32, 34, 36, 37, 38, 64, 66, 68, 69, 70, 82):
+    #     print(ManisDtype.from_value(k))
     # print(bin(-4395513102365351936))
     # print(bin(554058852231815168))
     # key = Key94C.from_value(2305843010808512512)
@@ -676,10 +691,11 @@ if __name__ == "__main__":
     mani = ManisFile()
     # acro stand_ide
     target = "acrocanthosaurus@standidle01"
+    mani.load("C:/Users/arnfi/Desktop/acro/motionextracted.maniset935739f8.manis")
     # mani.load("C:/Users/arnfi/Desktop/Coding/Frontier/Warhammer/Annihilator/animation.maniset52a766ac.manis")
-    mani.load("C:/Users/arnfi/Desktop/enrichment.maniset8a375fce.manis")
+    # mani.load("C:/Users/arnfi/Desktop/enrichment.maniset8a375fce.manis")
     # mani.load("C:/Users/arnfi/Desktop/camerabone.maniset67b9ba24.manis")
-    print(mani)
+    # print(mani)
     # mani.load("C:/Users/arnfi/Desktop/acro/notmotionextracted.maniset53978456.manis")
     # mani.load("C:/Users/arnfi/Desktop/animationmotionextractedlocomotion.maniset648a1a01.manis")
     # mani.load("C:/Users/arnfi/Desktop/crane/animationnotmotionextractedfighting.maniset3d816f2c.manis")
@@ -688,7 +704,7 @@ if __name__ == "__main__":
     # mani.load("C:/Users/arnfi/Desktop/DLA scale anim.manis")
     # mani.load("C:/Users/arnfi/Desktop/dinomascot/animation.maniset293c241f.manis")
     # mani.dump_keys()
-    # mani.parse_keys()
+    mani.parse_keys()
     # mani.log_rot_keys()
     # mani.log_loc_keys()
 # mani.load("C:/Users/arnfi/Desktop/donationbox/animation.maniseteaf333c5.manis")
