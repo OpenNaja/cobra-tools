@@ -90,8 +90,8 @@ class LayeredMaterial:
 					continue
 			else:
 				tex_fgm = self.get_fgm(layer.layer_name)
-				height_tile_png_path = self.get_heightmap(layer_i, tex_fgm)
 				if tex_fgm:
+					height_tile_png_path = self.get_heightmap(layer_i, tex_fgm)
 					lut = {}
 					for attrib in layer.float_attributes.data:
 						# skip first 2 letters m_
