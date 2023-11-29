@@ -42,11 +42,11 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 		raise AttributeError(f"Mesh {b_ob.name} has no polygons!")
 
 	for len_type, num_type, name_type in (
-			(len(b_me.uv_layers) + num_fur_weights, num_uvs, "UV"),
-			(len(b_me.vertex_colors), num_vcols, "Vertex Color")):
+			(len(b_me.uv_layers), num_uvs - num_fur_weights, "UV Maps"),
+			(len(b_me.vertex_colors), num_vcols, "Color Attributes")):
 		logging.debug(f"{name_type} count: {num_type}")
 		if len_type != num_type:
-			raise AttributeError(f"Mesh {b_ob.name} has {len_type} {name_type} layers, but {num_type} were expected!")
+			raise AttributeError(f"Mesh {b_ob.name} has {len_type} {name_type}, but {num_type} were expected!")
 
 	# make sure the mesh has a triangulation modifier
 	ensure_tri_modifier(b_ob)
