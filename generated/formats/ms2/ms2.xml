@@ -575,10 +575,10 @@
 	
 	<compound name="VertChunk" >
 		JWE2 Biosyn: 16 bytes
-		<add name="scale" type="float" >apparently also used for scaling the mesh: pack_base / 512 / 2048 = scale</add>
+		<add name="precision" type="float" >apparently also used for scaling the mesh: pack_base / 512 / 2048 = scale</add>
 		<add name="pack_base" type="float" >the usual mesh scale: pack_base / 512, also added as offset during vertex packing</add>
 		<add name="vertex_offset" type="uint" >byte offset from start of vert buffer in bytes</add>
-		<add name="vertex_count" type="ubyte"/>confirmed
+		<add name="vertex_count" type="ubyte"/>
 		<add name="weights_flag" type="WeightsFlag" until="51">determines if weights are used by this chunk</add>
 		<add name="weights_flag" type="WeightsFlagMalta" since="52">determines if weights are used by this chunk</add>
 		<add name="zero" type="ubyte"/>always

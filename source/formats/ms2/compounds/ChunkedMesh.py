@@ -298,19 +298,18 @@ class ChunkedMesh:
 				vert_chunk.weights_flag.has_weights = False
 				vert_chunk.weights_flag.bone_index = b_bone_id
 			vert_chunk.pack_base = self.pack_base
-			# it is not a linear mapping apparently
-			# JWE2 has these samples
-			# [(8.0, 7.629452738910913e-06), (512.0, 0.0004885197849944234), (1024.0, 0.0009775171056389809), (2048.0, 0.001956947147846222), (4096.0, 0.003921568859368563)]
-			vert_chunk.scale = self.get_scale(vert_chunk.pack_base)
+			vert_chunk.precision = self.get_precision(vert_chunk.pack_base)
 
 	@staticmethod
 	def get_scale_regressed(p):
+		# JWE2 has these samples
+		# [(8.0, 7.629452738910913e-06), (512.0, 0.0004885197849944234), (1024.0, 0.0009775171056389809), (2048.0, 0.001956947147846222), (4096.0, 0.003921568859368563)]
 		# a quadratic regression got close to 1.0 determination
 		return 1.2285932501219967e-9 + 9.536674737032024e-7 * p + 9.14657200199282e-13 * math.pow(p, 2)
 
 	@staticmethod
-	def get_scale(pack_base):
-		# scale is close to pack_base / PACKEDVEC_MAX but with some error
+	def get_precision(pack_base):
+		# precision is close to pack_base / PACKEDVEC_MAX but with some error
 		# the error follows a predictable pattern according to the size of pack base
 		base_exp = math.log2(pack_base)
 		error = 4 ** (base_exp-10.0)

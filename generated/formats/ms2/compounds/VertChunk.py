@@ -15,7 +15,7 @@ class VertChunk(BaseStruct):
 		super().__init__(context, arg, template, set_default=False)
 
 		# apparently also used for scaling the mesh: pack_base / 512 / 2048 = scale
-		self.scale = name_type_map['Float'](self.context, 0, None)
+		self.precision = name_type_map['Float'](self.context, 0, None)
 
 		# the usual mesh scale: pack_base / 512, also added as offset during vertex packing
 		self.pack_base = name_type_map['Float'](self.context, 0, None)
@@ -33,7 +33,7 @@ class VertChunk(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield 'scale', name_type_map['Float'], (0, None), (False, None), (None, None)
+		yield 'precision', name_type_map['Float'], (0, None), (False, None), (None, None)
 		yield 'pack_base', name_type_map['Float'], (0, None), (False, None), (None, None)
 		yield 'vertex_offset', name_type_map['Uint'], (0, None), (False, None), (None, None)
 		yield 'vertex_count', name_type_map['Ubyte'], (0, None), (False, None), (None, None)
@@ -44,7 +44,7 @@ class VertChunk(BaseStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'scale', name_type_map['Float'], (0, None), (False, None)
+		yield 'precision', name_type_map['Float'], (0, None), (False, None)
 		yield 'pack_base', name_type_map['Float'], (0, None), (False, None)
 		yield 'vertex_offset', name_type_map['Uint'], (0, None), (False, None)
 		yield 'vertex_count', name_type_map['Ubyte'], (0, None), (False, None)
