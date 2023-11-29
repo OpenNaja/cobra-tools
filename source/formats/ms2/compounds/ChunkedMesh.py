@@ -108,7 +108,10 @@ class ChunkedMesh:
 					raise AttributeError(f"Unsupported weights_flag.mesh_format {vert_chunk.weights_flag.mesh_format}")
 				# store chunk's meta data in mesh's array
 				vert_chunk.uvs[:] = vert_chunk.meta["uvs"]
-				vert_chunk.colors[:] = vert_chunk.meta["colors"]
+				if self.use_custom_normals:
+					vert_chunk.normals_custom[:] = vert_chunk.meta["normal_custom"]
+				else:
+					vert_chunk.colors[:] = vert_chunk.meta["colors"]
 				vert_chunk.normals[:, :2] = vert_chunk.meta["normal_oct"]
 				vert_chunk.tangents[:, :2] = vert_chunk.meta["tangent_oct"]
 
@@ -141,6 +144,8 @@ class ChunkedMesh:
 		unpack_swizzle_vectorized(self.normals)
 		unpack_swizzle_vectorized(self.tangents)
 		unpack_ubyte_color(self.colors)
+		unpack_ubyte_vector(self.normals_custom)
+		unpack_swizzle_vectorized(self.normals_custom)
 		# currently, known uses of Interleaved48 use impostor uv atlas
 		if vert_chunk.weights_flag.mesh_format == MeshFormat.INTERLEAVED_48:
 			unpack_ushort_vector_impostor(self.uvs)
@@ -163,6 +168,7 @@ class ChunkedMesh:
 		vert_chunk.negate_bitangents = self.negate_bitangents[v_slice]
 		vert_chunk.colors = self.colors[v_slice]
 		vert_chunk.uvs = self.uvs[v_slice]
+		vert_chunk.normals_custom = self.normals_custom[v_slice]
 		vert_chunk.normals = self.normals[v_slice]
 		vert_chunk.tangents = self.tangents[v_slice]
 		vert_chunk.floats = self.floats[v_slice]
@@ -227,17 +233,19 @@ class ChunkedMesh:
 			("pos", np.float16, (3,)),
 			("shapekey", np.float16, (3,)),  # used for lod fading
 			("floats", np.float16, 4),
-			*_normal_tangent_oct,
+			*_normal_tangent_oct,  # standard vertex / face normal
 			("uvs", np.ushort, (1, 2)),
-			("colors", np.ubyte, 4)
+			("normal_custom", np.ubyte, 3),  # edited normal
+			("unk", np.ubyte),  # 255
 		]
 		# 48 bytes per vertex, with all data interleaved, totally different from older 48 bytes vert
 		dt_interleaved48 = [
 			("pos", np.float16, (3,)),
 			("one", np.ubyte),  # not sure
 			("zero", np.ubyte),  # may be bone index
-			*_normal_tangent_oct,
-			("colors", np.ubyte, 4),  # rgb essentially identical to normals in stock models, a = 255
+			*_normal_tangent_oct,  # standard vertex / face normal
+			("normal_custom", np.ubyte, 3),  # edited normal
+			("unk", np.ubyte),  # 255
 			("uvs", np.ushort, (8, 2)),
 		]
 		self.dts = {}
@@ -300,18 +308,16 @@ class ChunkedMesh:
 			vert_chunk.pack_base = self.pack_base
 			vert_chunk.precision = self.get_precision(vert_chunk.pack_base)
 
+	@property
+	def use_custom_normals(self):
+		return self.mesh_format in (MeshFormat.INTERLEAVED_32, MeshFormat.INTERLEAVED_48)
+
 	def pack_verts(self):
 		"""Repack flat lists into verts_data"""
 		# prepare data in whole mesh array for assignment
-		# hack to auto update foliage normals from source normals
-		if self.mesh_format == MeshFormat.INTERLEAVED_32:
-			colors = np.array(self.normals)
-			pack_swizzle_vectorized(colors)
-			pack_ubyte_vector(colors)
-			self.colors[:, :3] = colors
-			self.colors[:, 3] = 255
-		else:
-			pack_ubyte_color(self.colors)
+		pack_swizzle_vectorized(self.normals_custom)
+		pack_ubyte_vector(self.normals_custom)
+		pack_ubyte_color(self.colors)
 		pack_swizzle_vectorized(self.vertices)
 		pack_swizzle_vectorized(self.shapekeys)
 		pack_swizzle_vectorized(self.normals)
@@ -357,7 +363,11 @@ class ChunkedMesh:
 			# assign the right views from the main arrays back to the chunks
 			# print("bef", vert_chunk.meta)
 			vert_chunk.meta["uvs"] = vert_chunk.uvs
-			vert_chunk.meta["colors"] = vert_chunk.colors
+			if self.use_custom_normals:
+				vert_chunk.meta["normal_custom"] = vert_chunk.normals_custom
+				vert_chunk.meta["unk"] = 255
+			else:
+				vert_chunk.meta["colors"] = vert_chunk.colors
 			vert_chunk.meta["normal_oct"] = vert_chunk.normals[:, :2]
 			vert_chunk.meta["tangent_oct"] = vert_chunk.tangents[:, :2]
 			# print("after", vert_chunk.meta)

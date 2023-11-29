@@ -184,6 +184,10 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 				if use_stock_normals_tangents:
 					normal = ct_normals.data[loop_index].vector
 					tangent = ct_tangents.data[loop_index].vector
+				# trees want to have custom normal and a vertex normal
+				if b_me.cobra.mesh_format in ("INTERLEAVED_32", "INTERLEAVED_48"):
+					custom_normal = normal
+					normal = b_vert.normal
 
 				shapekey = get_shapekey(b_loop.vertex_index)
 				uvs = [(layer.data[loop_index].uv.x, 1 - layer.data[loop_index].uv.y) for layer in eval_me.uv_layers]
@@ -216,8 +220,9 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 						# append to uv
 						uvs.append((fur_length, remap(fur_width, 0, 1, -16, 16)))
 					# store all raw blender data
-					chunk_verts.append((position, vertex_bone_id == DYNAMIC_ID, normal, negate_bitangent, tangent, uvs, vcol,
-										weights, shapekey))
+					chunk_verts.append((
+						position, vertex_bone_id == DYNAMIC_ID, normal, custom_normal, negate_bitangent,
+						tangent, uvs, vcol, weights, shapekey))
 				tri.append(v_index)
 			# add it to the latest chunk, cast to tuple to make it hashable
 			chunk_tris.append(tuple(tri))

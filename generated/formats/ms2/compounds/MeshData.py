@@ -55,6 +55,10 @@ class MeshData(MemStruct):
 		if instance.context.version <= 51 and not (instance.context.version == 32):
 			yield 'some_index_2', name_type_map['Uint'], (0, None), (False, None)
 
+	@property
+	def use_custom_normals(self):
+		return False
+
 	# @property
 	def get_stream_index(self):
 		# logging.debug(f"Using stream {self.stream_index}")
@@ -102,6 +106,7 @@ class MeshData(MemStruct):
 		# create arrays for this mesh
 		self.vertices = np.empty((self.vertex_count, 3), np.float32)
 		self.normals = np.empty((self.vertex_count, 3), np.float32)
+		self.normals_custom = np.empty((self.vertex_count, 3), np.float32)
 		self.tangents = np.empty((self.vertex_count, 3), np.float32)
 		self.use_blended_weights = np.empty(self.vertex_count, np.uint8)
 		self.shape_residues = np.empty(self.vertex_count, np.uint8)
@@ -123,7 +128,7 @@ class MeshData(MemStruct):
 		self.vertex_count = len(verts)
 		self.update_dtype()
 		self.init_arrays()
-		self.vertices[:], self.use_blended_weights[:], self.normals[:], self.negate_bitangents[:], self.tangents[:], self.uvs[:], \
+		self.vertices[:], self.use_blended_weights[:], self.normals[:], self.normals_custom[:], self.negate_bitangents[:], self.tangents[:], self.uvs[:], \
 		self.colors[:], self.weights, self.shapekeys[:] = zip(*verts)
 		# if packing isn't done right after set_verts the plugin chokes, but that is probably just due tris setter
 		self.pack_verts()
