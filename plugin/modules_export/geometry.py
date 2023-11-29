@@ -185,8 +185,8 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 					normal = ct_normals.data[loop_index].vector
 					tangent = ct_tangents.data[loop_index].vector
 				# trees want to have custom normal and a vertex normal
-				if b_me.cobra.mesh_format in ("INTERLEAVED_32", "INTERLEAVED_48"):
-					custom_normal = normal
+				custom_normal = normal
+				if b_me.cobra.mesh_format in ("INTERLEAVED_32", "INTERLEAVED_48") or mesh.flag == 517:
 					normal = b_vert.normal
 
 				shapekey = get_shapekey(b_loop.vertex_index)
