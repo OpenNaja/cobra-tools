@@ -66,7 +66,7 @@ class NewMeshData:
 			dt.extend([
 				("uvs", np.ushort, (1, 2)),
 				("shapekeys0", np.uint32),
-				("colors", np.ubyte, 4),  # rgb essentially identical to normals in stock models, a might be a weight
+				("colors", np.ubyte, 4),  # rgb essentially identical to normals in stock models, a = 0
 				("shapekeys1", np.int32),
 				# sometimes, only the last is set, the rest being 00 00 C0 7F (NaN)
 				("floats", np.float32, 4),
@@ -144,6 +144,9 @@ class NewMeshData:
 			scale_unpack_vectorized(self.shapekeys, self.pack_base)
 			unpack_swizzle_vectorized(self.shapekeys)
 
+			# virtually all 0
+			# for vertex_index, weight in enumerate(self.verts_data["colors"][3]):
+			# 	self.add_to_weights("weight", vertex_index, weight / 255)
 		# for bit in range(0, 8):
 		# 	for vertex_index, res in enumerate((self.verts_data["winding"] >> bit) & 1):
 		# 		self.add_to_weights(f"bit{bit}", vertex_index, res)

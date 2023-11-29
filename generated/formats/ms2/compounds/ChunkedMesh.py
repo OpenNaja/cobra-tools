@@ -125,7 +125,6 @@ class ChunkedMesh(MeshData):
 		self.bones_sets = []
 		mesh_formats = set()
 		for i, (tri_chunk, vert_chunk) in enumerate(zip(self.tri_chunks, self.vert_chunks)):
-			# bones_per_chunk = set()
 			# logging.debug(f"{i}, {tri_chunk}, {vert_chunk}")
 			#logging.debug(f"{i}, {vert_chunk.weights_flag}")
 
@@ -176,8 +175,6 @@ class ChunkedMesh(MeshData):
 			tri_chunk.tri_indices += offs
 			offs += vert_chunk.vertex_count
 
-			# ##### temporary debugging stuff
-			# self.bones_sets.append((vert_chunk.vertex_count, bones_per_chunk))
 			# prep face maps
 			_weights = f"_weights" if vert_chunk.weights_flag.has_weights else ""
 			id_str = f"{i:03}{_weights}"
@@ -257,14 +254,13 @@ class ChunkedMesh(MeshData):
 				for bone_index, weight in zip(bone_indices, bone_weights):
 					if weight > 0.0:
 						self.add_to_weights(bone_index, vertex_index + offs, weight)
-
-		# 			bones_per_chunk.add(bone_index)
-		# logging.info(f"Length set {len(bones_per_chunk)}")
 		else:
 			# use the chunk's bone index for each vertex in chunk
 			for vertex_index in range(vert_chunk.vertex_count):
 				self.add_to_weights(vert_chunk.weights_flag.bone_index, vertex_index + offs, 1.0)
-		# bones_per_chunk.add(vert_chunk.weights_flag.bone_index)
+		# if vert_chunk.weights_flag.mesh_format == MeshFormat.INTERLEAVED_32:
+		# 	for vertex_index in range(vert_chunk.vertex_count):
+		# 		self.add_to_weights("weight", vertex_index + offs, vert_chunk.meta[vertex_index]["colors"][3] / 255)
 
 	def update_dtype(self):
 		# prepare descriptions of the dtypes
@@ -295,7 +291,7 @@ class ChunkedMesh(MeshData):
 			("one", np.ubyte),  # not sure
 			("zero", np.ubyte),  # may be bone index
 			*_normal_tangent_oct,
-			("colors", np.ubyte, 4),  # zero, may be colors
+			("colors", np.ubyte, 4),  # rgb essentially identical to normals in stock models, a = 255
 			("uvs", np.ushort, (8, 2)),
 		]
 		self.dts = {}
@@ -377,13 +373,21 @@ class ChunkedMesh(MeshData):
 	def pack_verts(self):
 		"""Repack flat lists into verts_data"""
 		# prepare data in whole mesh array for assignment
+		# hack to auto update foliage normals from source normals
+		if self.mesh_format == MeshFormat.INTERLEAVED_32:
+			colors = np.array(self.normals)
+			pack_swizzle_vectorized(colors)
+			pack_ubyte_vector(colors)
+			self.colors[:, :3] = colors
+			self.colors[:, 3] = 255
+		else:
+			pack_ubyte_color(self.colors)
 		pack_swizzle_vectorized(self.vertices)
 		pack_swizzle_vectorized(self.shapekeys)
 		pack_swizzle_vectorized(self.normals)
 		pack_swizzle_vectorized(self.tangents)
 		vec3_to_oct(self.normals)
 		vec3_to_oct(self.tangents)
-		pack_ubyte_color(self.colors)
 		offs = 0
 		for vert_chunk, tri_chunk in zip(self.vert_chunks, self.tri_chunks):
 			# (re)generate views into mesh vertex arrays for vert_chunk according to tri_chunk
