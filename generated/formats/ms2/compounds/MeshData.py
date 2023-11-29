@@ -2,7 +2,7 @@ import logging
 import math
 import numpy as np
 
-from generated.formats.ms2.compounds.packing_utils import FUR_OVERHEAD, remap
+from generated.formats.ms2.compounds.packing_utils import FUR_OVERHEAD, remap, PACKEDVEC_MAX
 from plugin.utils.tristrip import triangulate
 
 from generated.formats.ms2.imports import name_type_map
@@ -70,6 +70,11 @@ class MeshData(MemStruct):
 		if "uvs" in self.dt.fields:
 			return self.dt["uvs"].shape[0]
 		return 0
+
+	@staticmethod
+	def get_precision(pack_base):
+		# precision is close to pack_base / PACKEDVEC_MAX but with some error
+		return (pack_base + (pack_base*pack_base / PACKEDVEC_MAX)) / PACKEDVEC_MAX
 
 	def assign_buffer_info(self, buffer_infos):
 		self.buffer_info = buffer_infos[self.get_stream_index()]

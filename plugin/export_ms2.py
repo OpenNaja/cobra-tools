@@ -148,8 +148,7 @@ def save(filepath='', backup_original=True, apply_transforms=False, update_rig=F
 			model_info.pack_base = get_pack_base(lod_collections[0].objects, apply_transforms)
 		else:
 			model_info.pack_base = 512.0
-		model_info.precision = model_info.pack_base / PACKEDVEC_MAX
-		# logging.debug(f"chose pack_base = {model_info.pack_base} precision = {model_info.precision}")
+		# logging.debug(f"chose pack_base = {model_info.pack_base}")
 		stream_index = 0
 		for lod_i, lod_coll in enumerate(lod_collections):
 			m_lod = LodInfo(ms2.context)
