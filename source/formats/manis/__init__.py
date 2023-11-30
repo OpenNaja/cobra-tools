@@ -346,9 +346,14 @@ class ManisFile(InfoHeader, IoFile):
             plt.plot(keys[:, bone_i, 0], label='X')
             plt.plot(keys[:, bone_i, 1], label='Y')
             plt.plot(keys[:, bone_i, 2], label='Z')
+            if len(keys[0, 0]) > 3:
+                dt = "Rot"
+                plt.plot(keys[:, bone_i, 3], label='Q')
+            else:
+                dt = "Loc"
             plt.xlabel('Frame')
             plt.ylabel('Value')
-            plt.title("Loc Keys")
+            plt.title(f"{dt} Keys for {bone_name}")
             plt.legend()
             plt.show()
         except:
@@ -393,6 +398,7 @@ class ManisFile(InfoHeader, IoFile):
         loc_ext = ck.loc_bounds.scales[ck.loc_bound_indices]
         ck.pos_bones *= loc_ext
         ck.pos_bones += loc_min
+        self.show_keys(ck.ori_bones, k.ori_bones_names, "def_c_root_joint")
         self.show_keys(ck.pos_bones, k.pos_bones_names, "def_c_root_joint")
         # logging.info(ck)
         # for pos_index, pos_name in enumerate(mani_info.keys.pos_bones_names):
@@ -443,24 +449,16 @@ class ManisFile(InfoHeader, IoFile):
                         # todo do something here for base_key_float
                         base_key_float = base_plus_delta
                         final = base_key_float + out * scale
-                        # todo get flag
                         next_key_offset = 0 if out_frame_i == trg_frame_i else 4
+                        # assuming that DAT_7ff7077fd480 is just a pointer to 0, FF int used as a masking cond
                         which_key_flag = True if next_key_offset else False
                         key_picked = vec[:3] if which_key_flag else final
-                        key_a = identity.copy() if which_key_flag else last_key_b.copy()
-                        key_b = identity.copy() if which_key_flag else last_key_delta.copy() + out * scale
-                        last_key_a = key_a
-                        last_key_b = key_b
+                        last_key_a = identity.copy() if which_key_flag else last_key_b.copy()
+                        last_key_b = identity.copy() if which_key_flag else last_key_delta.copy() + out * scale
                         # if out_frame_i == trg_frame_i:
                         #     pass
-                        # todo - acrocanthosaurus@hatcheryexit_01 has relative keys on the wrong channel
-                        #  just for segment 0 on all loc bones - a segment constant / flag?
-
-                        # output = final if which_key_flag else vec[:3]
                         segment_pos_bones[out_frame_i, pos_index] = final
-                # return
                 # print(segment_pos_bones[:, pos_index])
-                # return
             else:
                 # set all keyframes
                 segment_pos_bones[:, pos_index] = vec[:3]
@@ -633,20 +631,18 @@ class ManisFile(InfoHeader, IoFile):
             if context.do_increment:
                 frame_map[wavelet_i] = wave_frame_i
                 wavelet_i += 1
+
         # logging.info(frame_map)
         # logging.info(f"wavelets finished at bit {f2.pos}, byte {f2.pos / 8}, out_count {wavelet_i}")
         return wavelet_i, frame_map
 
     def read_vec3(self, f):
+        # f_pos = int(f.pos)
         pos_base = f.read_uint(45)
-        # logging.info(pos_base)
         # logging.info(f"{hex(pos_base)}, {pos_base}")
         x = pos_base & 0x7fff
         y = (pos_base >> 0xf) & 0x7fff
         z = (pos_base >> 0x1e) & 0x7fff
-        # x = self.make_signed(x)
-        # y = self.make_signed(y)
-        # z = self.make_signed(z)
         vec = np.zeros(4, dtype=np.float32)
         vec[0] = self.make_signed(x)
         vec[1] = self.make_signed(y)
@@ -655,6 +651,7 @@ class ManisFile(InfoHeader, IoFile):
         # x = f.read_int(15)
         # y = f.read_int(15)
         # z = f.read_int(15)
+        # print(x,vec[0])
         # logging.info(f"{(x, y, z)} {(hex(x), hex(y), hex(z))}")
         return pos_base, vec
 
@@ -690,8 +687,8 @@ if __name__ == "__main__":
     mani = ManisFile()
     # acro stand_ide
     target = "acrocanthosaurus@standidle01"
-    mani.load("C:/Users/arnfi/Desktop/pyro/motionextracted.maniset846adda6.manis")
-    # mani.load("C:/Users/arnfi/Desktop/acro/motionextracted.maniset935739f8.manis")
+    # mani.load("C:/Users/arnfi/Desktop/pyro/motionextracted.maniset846adda6.manis")
+    mani.load("C:/Users/arnfi/Desktop/acro/motionextracted.maniset935739f8.manis")
     # mani.load("C:/Users/arnfi/Desktop/Coding/Frontier/Warhammer/Annihilator/animation.maniset52a766ac.manis")
     # mani.load("C:/Users/arnfi/Desktop/enrichment.maniset8a375fce.manis")
     # mani.load("C:/Users/arnfi/Desktop/camerabone.maniset67b9ba24.manis")
@@ -704,7 +701,7 @@ if __name__ == "__main__":
     # mani.load("C:/Users/arnfi/Desktop/DLA scale anim.manis")
     # mani.load("C:/Users/arnfi/Desktop/dinomascot/animation.maniset293c241f.manis")
     # mani.dump_keys()
-    # mani.parse_keys()
+    mani.parse_keys()
     # mani.log_rot_keys()
     # mani.log_loc_keys()
 # mani.load("C:/Users/arnfi/Desktop/donationbox/animation.maniseteaf333c5.manis")
