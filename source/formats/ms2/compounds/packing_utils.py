@@ -17,6 +17,10 @@ PACKED_WEIGHT_FIELDS = ((10, 8), (10, 8), (10, 8), (10,))
 PACKED_WEIGHT_TITLES = ("bone ids", "bone weights")
 
 
+def has_nan(a):
+    return np.isnan(np.min(a))
+
+
 def get_bitmask(num_bits):
     """Returns num_bits toggled on"""
     return (1 << num_bits) - 1

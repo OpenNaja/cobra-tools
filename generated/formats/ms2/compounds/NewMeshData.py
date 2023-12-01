@@ -137,10 +137,10 @@ class NewMeshData(MeshData):
 				("uvs", np.ushort, (1, 2)),
 				("shapekeys0", np.uint32),
 				("normal_custom", np.ubyte, 3),  # edited normal
-				("unk", np.ubyte),  # 0
+				("wind", np.ubyte),  # not sure for PZ
 				("shapekeys1", np.int32),
-				# sometimes, only the last is set, the rest being 00 00 C0 7F (NaN)
-				("floats", np.float32, 4),
+				("center", np.float32, 3),  # may be 00 00 C0 7F (NaN)
+				("whatever", np.float32),  # unlike JWE2 this is likely encoded as float
 			])
 		elif self.flag == 545:
 			dt.extend([
@@ -189,8 +189,6 @@ class NewMeshData(MeshData):
 		self.negate_bitangents[:] = (self.verts_data["winding"] >> 7) & 1
 		self.normals[:] = self.verts_data["normal"]
 		self.tangents[:] = self.verts_data["tangent"]
-		if "floats" in self.dt.fields:
-			self.floats[:] = self.verts_data["floats"]
 		start_time = time.time()
 		unpack_int64_vector(self.verts_data["pos"], self.vertices, self.use_blended_weights)
 		scale_unpack_vectorized(self.vertices, self.pack_base)
@@ -218,9 +216,17 @@ class NewMeshData(MeshData):
 			self.normals_custom[:] = self.verts_data["normal_custom"]
 			unpack_ubyte_vector(self.normals_custom)
 			unpack_swizzle_vectorized(self.normals_custom)
-			# virtually all 0
-			# for vertex_index, weight in enumerate(self.verts_data["colors"][3]):
-			# 	self.add_to_weights("weight", vertex_index, weight / 255)
+			unpack_ubyte_color(self.wind)
+			for vertex_index, weight in enumerate(self.wind):
+				self.add_to_weights("wind", vertex_index, weight)
+
+			self.center[:] = self.verts_data["center"]
+			unpack_swizzle_vectorized(self.center)
+			self.whatever[:] = self.verts_data["whatever"]
+			self.whatever_range = np.max(self.whatever)
+			# print(self.whatever)
+			for vertex_index, weight in enumerate(self.whatever):
+				self.add_to_weights("whatever", vertex_index, weight / self.whatever_range)
 		# for bit in range(0, 8):
 		# 	for vertex_index, res in enumerate((self.verts_data["winding"] >> bit) & 1):
 		# 		self.add_to_weights(f"bit{bit}", vertex_index, res)
@@ -263,8 +269,6 @@ class NewMeshData(MeshData):
 		self.verts_data["normal"] = self.normals
 		self.verts_data["tangent"] = self.tangents
 		self.verts_data["uvs"] = self.uvs
-		if "floats" in self.dt.fields:
-			self.verts_data["floats"] = self.floats
 		if self.get_vcol_count():
 			self.colors = np.array(self.colors)
 			pack_ubyte_color(self.colors)

@@ -111,12 +111,13 @@ class MeshData(MemStruct):
 		self.use_blended_weights = np.empty(self.vertex_count, np.uint8)
 		self.shape_residues = np.empty(self.vertex_count, np.uint8)
 		self.negate_bitangents = np.empty(self.vertex_count, np.uint8)
+		self.wind = np.empty(self.vertex_count, np.float32)
+		self.whatever = np.empty(self.vertex_count, np.float32)
 		uv_shape = self.dt["uvs"].shape
 		self.uvs = np.empty((self.vertex_count, *uv_shape), np.float32)
-		# colors_shape = self.dt["colors"].shape
-		# colors_shape = (1, 4)
 		self.colors = np.empty((self.vertex_count, 4), np.float32)
 		self.floats = np.empty((self.vertex_count, 4), np.float32)
+		self.center = np.empty((self.vertex_count, 3), np.float32)
 		self.shapekeys = np.empty((self.vertex_count, 3), np.float32)
 		self.weights_info = {}
 
@@ -129,7 +130,7 @@ class MeshData(MemStruct):
 		self.update_dtype()
 		self.init_arrays()
 		self.vertices[:], self.use_blended_weights[:], self.normals[:], self.normals_custom[:], self.negate_bitangents[:], self.tangents[:], self.uvs[:], \
-		self.colors[:], self.weights, self.shapekeys[:] = zip(*verts)
+		self.colors[:], self.weights, self.wind[:], self.shapekeys[:] = zip(*verts)
 		# if packing isn't done right after set_verts the plugin chokes, but that is probably just due tris setter
 		self.pack_verts()
 

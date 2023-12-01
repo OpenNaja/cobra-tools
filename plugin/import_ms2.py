@@ -4,6 +4,9 @@ import time
 
 import bpy
 # import bmesh
+import numpy as np
+
+from generated.formats.ms2.compounds.packing_utils import has_nan
 from plugin.modules_import.armature import import_armature, append_armature_modifier, import_vertex_groups, \
 	get_bone_names
 from plugin.utils.hair import add_psys
@@ -186,12 +189,17 @@ def import_shapekeys(b_obj, mesh):
 	if mesh.flag == 517 or mesh.mesh_format == MeshFormat.INTERLEAVED_32:
 		b_mesh = b_obj.data
 		# insert base key
-		sk_basis = b_obj.shape_key_add(name="Basis")
+		b_obj.shape_key_add(name="Basis")
 		b_mesh.shape_keys.use_relative = True
 
 		for v_index, v in enumerate(mesh.shapekeys):
 			b_mesh.vertices[v_index].co = v
-		shape_key = b_obj.shape_key_add(name="LOD", from_mix=False)
+		b_obj.shape_key_add(name="LOD", from_mix=False)
+		# optional dissolve shape key
+		if not has_nan(mesh.center):
+			for v_index, v in enumerate(mesh.center):
+				b_mesh.vertices[v_index].co = v[:3]
+			b_obj.shape_key_add(name="Center", from_mix=False)
 
 
 def ob_postpro(b_ob, use_mirror_mesh, use_custom_normals):
