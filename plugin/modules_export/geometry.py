@@ -119,19 +119,7 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 
 	if mesh.context.version >= 52:
 		t_map = {}
-		# reuse existing chunks
-		if use_stock_normals_tangents:
-			# there is just 1 layer
-			for b_face_map_layer in eval_me.face_maps:
-				# one per face
-				for face_i, m_face_map in enumerate(b_face_map_layer.data):
-					if m_face_map.value not in t_map:
-						t_map[m_face_map.value] = []
-					t_map[m_face_map.value].append(eval_me.polygons[face_i])
-			# ignore static chunks, just make them all dynamic
-			t_list = [(-1, polys) for polys in t_map.values()]
-		else:
-			t_list = pre_chunk(bones_table, eval_me, t_map, weights_data)
+		t_list = pre_chunk(bones_table, eval_me, t_map, weights_data)
 	else:
 		# no chunking by weights, just take all faces
 		t_map = {-1: eval_me.polygons}
