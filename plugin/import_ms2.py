@@ -95,7 +95,7 @@ def load(filepath="", use_custom_normals=False, mirror_mesh=False):
 
 					try:
 						import_vertex_groups(b_ob, mesh, bone_names)
-						import_face_maps(b_ob, mesh)
+						# import_face_maps(b_ob, mesh)
 						import_shapekeys(b_ob, mesh)
 						# link to armature, only after mirror so the order is good and weights are mirrored
 						append_armature_modifier(b_ob, b_armature_obj)
