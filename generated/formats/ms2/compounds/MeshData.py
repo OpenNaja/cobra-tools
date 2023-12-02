@@ -130,7 +130,7 @@ class MeshData(MemStruct):
 		self.update_dtype()
 		self.init_arrays()
 		self.vertices[:], self.use_blended_weights[:], self.normals[:], self.normals_custom[:], self.negate_bitangents[:], self.tangents[:], self.uvs[:], \
-		self.colors[:], self.weights, self.wind[:], self.lod_keys[:], self.center_keys[:] = zip(*verts)
+		self.colors[:], self.weights, self.wind[:], self.whatever[:], self.lod_keys[:], self.center_keys[:] = zip(*verts)
 		# if packing isn't done right after set_verts the plugin chokes, but that is probably just due tris setter
 		self.pack_verts()
 

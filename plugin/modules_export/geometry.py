@@ -21,6 +21,7 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 	mesh = wrapper.mesh
 	# set data
 	mesh.flag._value = get_property(b_me, "flag")
+	mesh.whatever_range = get_property(b_me, "whatever_range", 0.0)
 	mesh.unk_floats[:] = (get_property(b_me, "unk_f0"), get_property(b_me, "unk_f1"))
 
 	# register this format for all vert chunks that will be created later
@@ -78,9 +79,8 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 
 	shell_ob = None
 	vcol = (0, 0, 0, 0)
-	wind = 0.0
-	# shape key morphing
 
+	# shape key morphing
 	def get_lod_key(vert_index):
 		return 0, 0, 0
 
@@ -103,7 +103,7 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 
 	validate_vertex_groups(b_ob, bones_table)
 	# calculate bone weights per vertex first to reuse data
-	# vertex_bone_id, weights, fur_length, fur_width, wind
+	# vertex_bone_id, weights, fur_length, fur_width, wind, whatever
 	weights_data = [export_weights(b_ob, b_vert, bones_table, hair_length, unweighted_vertices, m_lod) for b_vert in
 					eval_me.vertices]
 
@@ -209,7 +209,7 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 					count_unique += 1
 
 					# now collect any missing vert data that was not needed for the splitting of blender verts
-					vertex_bone_id, weights, fur_length, fur_width, fur_clump, wind = weights_data[b_loop.vertex_index]
+					vertex_bone_id, weights, fur_length, fur_width, fur_clump, wind, whatever = weights_data[b_loop.vertex_index]
 					# use attribute api, ensure fallback so array setting does not choke
 					if rgba0_layer:
 						vcol = rgba0_layer.data[loop_index].color
@@ -220,7 +220,7 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 					# store all raw blender data
 					chunk_verts.append((
 						position, vertex_bone_id == DYNAMIC_ID, normal, custom_normal, negate_bitangent,
-						tangent, uvs, vcol, weights, wind, shapekey, center_key))
+						tangent, uvs, vcol, weights, wind, whatever*mesh.whatever_range, shapekey, center_key))
 				tri.append(v_index)
 			# add it to the latest chunk, cast to tuple to make it hashable
 			chunk_tris.append(tuple(tri))
@@ -311,6 +311,7 @@ def export_weights(b_ob, b_vert, bones_table, hair_length, unweighted_vertices, 
 	fur_width = 0
 	fur_clump = 0
 	wind = 0
+	whatever = 0
 	# get the weights
 	w = []
 	for v_group in b_vert.groups:
@@ -324,6 +325,8 @@ def export_weights(b_ob, b_vert, bones_table, hair_length, unweighted_vertices, 
 				fur_clump = v_group.weight
 			elif v_group_name == "wind":
 				wind = v_group.weight
+			elif v_group_name == "whatever":
+				whatever = v_group.weight
 			elif v_group_name in bones_table:
 				# avoid dummy vertex groups without corresponding bones
 				bone_index = bones_table[v_group_name]
@@ -346,7 +349,7 @@ def export_weights(b_ob, b_vert, bones_table, hair_length, unweighted_vertices, 
 	# more than one valid bone weight for this vertex?
 	elif len(weights_sorted) == 1:
 		vertex_bone_id = weights_sorted[0][0]
-	return vertex_bone_id, weights_sorted, fur_length, fur_width, fur_clump, wind
+	return vertex_bone_id, weights_sorted, fur_length, fur_width, fur_clump, wind, whatever
 
 
 def get_hair_length(ob):

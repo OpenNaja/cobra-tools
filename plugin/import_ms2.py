@@ -185,21 +185,22 @@ def import_mesh_layers(b_me, mesh, use_custom_normals, mat_name):
 	# 	remove_doubles_bmesh(b_me)
 
 
-def import_shapekeys(b_obj, mesh):
+def import_shapekeys(b_ob, mesh):
 	if mesh.flag == 517 or mesh.mesh_format == MeshFormat.INTERLEAVED_32:
-		b_mesh = b_obj.data
+		b_me = b_ob.data
 		# insert base key
-		b_obj.shape_key_add(name="Basis")
-		b_mesh.shape_keys.use_relative = True
+		b_ob.shape_key_add(name="Basis")
+		b_me.shape_keys.use_relative = True
 
 		for v_index, v in enumerate(mesh.lod_keys):
-			b_mesh.vertices[v_index].co = v
-		b_obj.shape_key_add(name="LOD", from_mix=False)
+			b_me.vertices[v_index].co = v
+		b_ob.shape_key_add(name="LOD", from_mix=False)
 		# optional dissolve shape key
 		if not has_nan(mesh.center_keys):
 			for v_index, v in enumerate(mesh.center_keys):
-				b_mesh.vertices[v_index].co = v[:3]
-			b_obj.shape_key_add(name="Center", from_mix=False)
+				b_me.vertices[v_index].co = v[:3]
+			b_ob.shape_key_add(name="Center", from_mix=False)
+		b_me["whatever_range"] = float(mesh.whatever_range)
 
 
 def ob_postpro(b_ob, use_mirror_mesh, use_custom_normals):

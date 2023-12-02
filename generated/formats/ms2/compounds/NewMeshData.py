@@ -263,6 +263,7 @@ class NewMeshData(MeshData):
 			self.verts_data["normal_custom"][:] = self.normals_custom
 			self.verts_data["wind"][:] = self.wind
 			self.verts_data["center_key"][:] = self.center_keys
+			self.verts_data["whatever"][:] = self.whatever
 		pack_swizzle_vectorized(self.vertices)
 		pack_swizzle_vectorized(self.normals)
 		pack_swizzle_vectorized(self.tangents)
