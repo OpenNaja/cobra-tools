@@ -170,9 +170,9 @@ def import_mesh_layers(b_me, mesh, use_custom_normals, mat_name):
 		normals = b_me.attributes.new("ct_normals", "FLOAT_VECTOR", "CORNER")
 		normals.data.foreach_set("vector", per_loop(b_me, mesh.normals))
 
-	if mesh.flag == 517 or mesh.mesh_format == MeshFormat.INTERLEAVED_32:
-		cols = b_me.attributes.new("ct_floats", "FLOAT_COLOR", "CORNER")
-		cols.data.foreach_set("color", per_loop(b_me, mesh.floats))
+	# if mesh.flag == 517 or mesh.mesh_format == MeshFormat.INTERLEAVED_32:
+	# 	cols = b_me.attributes.new("ct_floats", "FLOAT_COLOR", "CORNER")
+	# 	cols.data.foreach_set("color", per_loop(b_me, mesh.floats))
 
 	# set faces to smooth
 	b_me.polygons.foreach_set('use_smooth', [True] * len(b_me.polygons))
@@ -192,12 +192,12 @@ def import_shapekeys(b_obj, mesh):
 		b_obj.shape_key_add(name="Basis")
 		b_mesh.shape_keys.use_relative = True
 
-		for v_index, v in enumerate(mesh.shapekeys):
+		for v_index, v in enumerate(mesh.lod_keys):
 			b_mesh.vertices[v_index].co = v
 		b_obj.shape_key_add(name="LOD", from_mix=False)
 		# optional dissolve shape key
-		if not has_nan(mesh.center):
-			for v_index, v in enumerate(mesh.center):
+		if not has_nan(mesh.center_keys):
+			for v_index, v in enumerate(mesh.center_keys):
 				b_mesh.vertices[v_index].co = v[:3]
 			b_obj.shape_key_add(name="Center", from_mix=False)
 

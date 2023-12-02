@@ -3,6 +3,7 @@ import logging
 import math
 
 from generated.array import Array
+from generated.formats.ms2.compounds.MeshData import MeshData
 from generated.formats.ms2.compounds.VertChunk import VertChunk
 from generated.formats.ms2.compounds.TriChunk import TriChunk
 from generated.formats.ms2.compounds.packing_utils import *
@@ -14,7 +15,7 @@ from plugin.utils.tristrip import triangulate
 from source.formats.ms2.compounds.packing_utils import unpack_int64_weights, pack_int64_weights
 
 
-class ChunkedMesh:
+class ChunkedMesh(MeshData):
 
 	# START_CLASS
 
@@ -116,8 +117,8 @@ class ChunkedMesh:
 				vert_chunk.tangents[:, :2] = vert_chunk.meta["tangent_oct"]
 
 				if vert_chunk.weights_flag.mesh_format in (MeshFormat.INTERLEAVED_32,):
-					vert_chunk.shapekeys[:] = vert_chunk.meta["shapekey"]
-					vert_chunk.center[:] = vert_chunk.meta["center"]
+					vert_chunk.lod_keys[:] = vert_chunk.meta["lod_key"]
+					vert_chunk.center_keys[:] = vert_chunk.meta["center_key"]
 					vert_chunk.whatever[:] = vert_chunk.meta["whatever"]
 			except:
 				logging.exception(f"Chunk {i} failed")
@@ -136,8 +137,8 @@ class ChunkedMesh:
 		oct_to_vec3(self.normals)
 		oct_to_vec3(self.tangents)
 		unpack_swizzle_vectorized(self.vertices)
-		unpack_swizzle_vectorized(self.shapekeys)
-		unpack_swizzle_vectorized(self.center)
+		unpack_swizzle_vectorized(self.lod_keys)
+		unpack_swizzle_vectorized(self.center_keys)
 		unpack_swizzle_vectorized(self.normals)
 		unpack_swizzle_vectorized(self.tangents)
 		unpack_ubyte_color(self.colors)
@@ -158,9 +159,11 @@ class ChunkedMesh:
 			# todo - the whatever unk
 			if vert_chunk.weights_flag.mesh_format == MeshFormat.INTERLEAVED_32:
 				self.whatever_range = np.max(self.whatever)
-				print(self.whatever)
+				if self.whatever_range > 0.0:
+					self.whatever /= self.whatever_range
+				# print(self.whatever)
 				for vertex_index, weight in enumerate(self.whatever):
-					self.add_to_weights("whatever", vertex_index, weight / self.whatever_range)
+					self.add_to_weights("whatever", vertex_index, weight)
 		# for debugging
 		# for vertex_index, res in enumerate(self.negate_bitangents):
 		# 	self.add_to_weights(f"negate_bitangents", vertex_index, res)
@@ -171,7 +174,8 @@ class ChunkedMesh:
 		vert_chunk.meta = None
 		# views into main array
 		vert_chunk.vertices = self.vertices[v_slice]
-		vert_chunk.shapekeys = self.shapekeys[v_slice]
+		vert_chunk.lod_keys = self.lod_keys[v_slice]
+		vert_chunk.center_keys = self.center_keys[v_slice]
 		vert_chunk.negate_bitangents = self.negate_bitangents[v_slice]
 		vert_chunk.colors = self.colors[v_slice]
 		vert_chunk.uvs = self.uvs[v_slice]
@@ -179,7 +183,6 @@ class ChunkedMesh:
 		vert_chunk.wind = self.wind[v_slice]
 		vert_chunk.normals = self.normals[v_slice]
 		vert_chunk.tangents = self.tangents[v_slice]
-		vert_chunk.center = self.center[v_slice]
 		vert_chunk.whatever = self.whatever[v_slice]
 		chunk_fmt = vert_chunk.weights_flag.mesh_format
 		if chunk_fmt in (MeshFormat.SEPARATE, MeshFormat.UNK_FMT):
@@ -240,16 +243,16 @@ class ChunkedMesh:
 		# 32 bytes per vertex, with all data interleaved
 		dt_interleaved32 = [
 			("pos", np.float16, (3,)),
-			("shapekey", np.float16, (3,)),  # used for lod fading
+			("lod_key", np.float16, (3,)),
 			# JWE2 calamites
 			# FF 7F FF 7F FF 7F
 			# nan if unused, used on JWE2 mango
-			("center", np.float16, 3),
+			("center_key", np.float16, 3),
 			("whatever", np.ushort),  # 00 00 or 01 00 in calamites
 			*_normal_tangent_oct,  # standard vertex / face normal
 			("uvs", np.ushort, (1, 2)),
 			("normal_custom", np.ubyte, 3),  # edited normal
-			("wind", np.ubyte),  # 255
+			("wind", np.ubyte),
 		]
 		# 48 bytes per vertex, with all data interleaved, totally different from older 48 bytes vert
 		dt_interleaved48 = [
@@ -258,7 +261,7 @@ class ChunkedMesh:
 			("zero", np.ubyte),  # may be bone index
 			*_normal_tangent_oct,  # standard vertex / face normal
 			("normal_custom", np.ubyte, 3),  # edited normal
-			("wind", np.ubyte),  # 255
+			("wind", np.ubyte),
 			("uvs", np.ushort, (8, 2)),
 		]
 		self.dts = {}
@@ -333,7 +336,8 @@ class ChunkedMesh:
 		pack_ubyte_color(self.colors)
 		pack_ubyte_color(self.wind)
 		pack_swizzle_vectorized(self.vertices)
-		pack_swizzle_vectorized(self.shapekeys)
+		pack_swizzle_vectorized(self.lod_keys)
+		pack_swizzle_vectorized(self.center_keys)
 		pack_swizzle_vectorized(self.normals)
 		pack_swizzle_vectorized(self.tangents)
 		vec3_to_oct(self.normals)
@@ -367,8 +371,8 @@ class ChunkedMesh:
 				raise AttributeError(f"Unsupported mesh_format {self.mesh_format}")
 			# store chunk's meta data
 			if vert_chunk.weights_flag.mesh_format == MeshFormat.INTERLEAVED_32:
-				vert_chunk.meta["shapekey"] = vert_chunk.shapekeys
-				vert_chunk.meta["center"] = vert_chunk.center
+				vert_chunk.meta["lod_key"] = vert_chunk.lod_keys
+				vert_chunk.meta["center_key"] = vert_chunk.center_keys
 				vert_chunk.meta["whatever"] = vert_chunk.whatever
 			# currently, known uses of Interleaved48 use impostor uv atlas
 			if vert_chunk.weights_flag.mesh_format == MeshFormat.INTERLEAVED_48:
@@ -376,13 +380,12 @@ class ChunkedMesh:
 			else:
 				pack_ushort_vector(vert_chunk.uvs)
 			# assign the right views from the main arrays back to the chunks
-			# print("bef", vert_chunk.meta)
-			vert_chunk.meta["uvs"] = vert_chunk.uvs
 			if self.use_custom_normals:
 				vert_chunk.meta["normal_custom"] = vert_chunk.normals_custom
 				vert_chunk.meta["wind"] = vert_chunk.wind
 			else:
 				vert_chunk.meta["colors"] = vert_chunk.colors
+			vert_chunk.meta["uvs"] = vert_chunk.uvs
 			vert_chunk.meta["normal_oct"] = vert_chunk.normals[:, :2]
 			vert_chunk.meta["tangent_oct"] = vert_chunk.tangents[:, :2]
 			# print("after", vert_chunk.meta)

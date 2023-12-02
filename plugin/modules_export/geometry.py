@@ -81,18 +81,25 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 	wind = 0.0
 	# shape key morphing
 
-	def get_shapekey(vert_index):
+	def get_lod_key(vert_index):
 		return 0, 0, 0
+
+	def get_center_key(vert_index):
+		return np.nan, np.nan, np.nan
 
 	# eval_me does not have shape_keys, not sure if there is a way to consistently get them with modifiers applied
 	b_key = b_me.shape_keys
-	if b_key and len(b_key.key_blocks) > 1:
-		lod_key = b_key.key_blocks[1]
+	if b_key:
 		# yes, there is a key object attached
-		if lod_key.name.startswith("LOD"):
-			# yes, we have a shapekey, so define how to get it
-			def get_shapekey(vert_index):
-				return lod_key.data[vert_index].co
+		for key in b_key.key_blocks[1:]:
+			if key.name.startswith("LOD"):
+				# yes, we have a shapekey, so define how to get it
+				def get_lod_key(vert_index):
+					return key.data[vert_index].co
+			elif key.name.startswith("Center"):
+				# yes, we have a shapekey, so define how to get it
+				def get_center_key(vert_index):
+					return key.data[vert_index].co
 
 	validate_vertex_groups(b_ob, bones_table)
 	# calculate bone weights per vertex first to reuse data
@@ -179,7 +186,8 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 				if b_me.cobra.mesh_format in ("INTERLEAVED_32", "INTERLEAVED_48") or mesh.flag == 517:
 					normal = b_vert.normal
 
-				shapekey = get_shapekey(b_loop.vertex_index)
+				shapekey = get_lod_key(b_loop.vertex_index)
+				center_key = get_center_key(b_loop.vertex_index)
 				uvs = [(layer.data[loop_index].uv.x, 1 - layer.data[loop_index].uv.y) for layer in eval_me.uv_layers]
 				# create a dummy bytes str for indexing
 				float_items = [c for uv in uvs[:2] for c in uv] + [*normal]
@@ -212,7 +220,7 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 					# store all raw blender data
 					chunk_verts.append((
 						position, vertex_bone_id == DYNAMIC_ID, normal, custom_normal, negate_bitangent,
-						tangent, uvs, vcol, weights, wind, shapekey))
+						tangent, uvs, vcol, weights, wind, shapekey, center_key))
 				tri.append(v_index)
 			# add it to the latest chunk, cast to tuple to make it hashable
 			chunk_tris.append(tuple(tri))

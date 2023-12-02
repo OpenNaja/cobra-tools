@@ -1,13 +1,15 @@
 # START_GLOBALS
 import logging
 import time
+
+from generated.formats.ms2.compounds.MeshData import MeshData
 from generated.formats.ms2.compounds.packing_utils import *
 
 
 # END_GLOBALS
 
 
-class NewMeshData:
+class NewMeshData(MeshData):
 
 	# START_CLASS
 
@@ -65,11 +67,11 @@ class NewMeshData:
 		elif self.flag == 517:
 			dt.extend([
 				("uvs", np.ushort, (1, 2)),
-				("shapekeys0", np.uint32),
+				("lod_key_0", np.uint32),
 				("normal_custom", np.ubyte, 3),  # edited normal
 				("wind", np.ubyte),  # not sure for PZ
-				("shapekeys1", np.int32),
-				("center", np.float32, 3),  # may be 00 00 C0 7F (NaN)
+				("lod_key_1", np.int32),
+				("center_key", np.float32, 3),  # may be 00 00 C0 7F (NaN)
 				("whatever", np.float32),  # unlike JWE2 this is likely encoded as float
 			])
 		elif self.flag == 545:
@@ -133,30 +135,33 @@ class NewMeshData:
 		unpack_swizzle_vectorized(self.normals)
 		unpack_swizzle_vectorized(self.tangents)
 
-		# unpack the shapekeys
+		# unpack the lod_keys
 		if self.use_custom_normals:
 			# create the int64 by combining its two parts
-			shapes_combined = self.verts_data["shapekeys1"].astype(np.int64)
+			shapes_combined = self.verts_data["lod_key_1"].astype(np.int64)
 			shapes_combined <<= 32
-			shapes_combined |= self.verts_data["shapekeys0"]
-			unpack_int64_vector(shapes_combined, self.shapekeys, self.shape_residues)
-			scale_unpack_vectorized(self.shapekeys, self.pack_base)
-			unpack_swizzle_vectorized(self.shapekeys)
+			shapes_combined |= self.verts_data["lod_key_0"]
+			unpack_int64_vector(shapes_combined, self.lod_keys, self.shape_residues)
+			scale_unpack_vectorized(self.lod_keys, self.pack_base)
+			unpack_swizzle_vectorized(self.lod_keys)
 
 			self.normals_custom[:] = self.verts_data["normal_custom"]
+			self.wind[:] = self.verts_data["wind"]
+			self.whatever[:] = self.verts_data["whatever"]
+			self.center_keys[:] = self.verts_data["center_key"]
 			unpack_ubyte_vector(self.normals_custom)
 			unpack_swizzle_vectorized(self.normals_custom)
 			unpack_ubyte_color(self.wind)
+			unpack_swizzle_vectorized(self.center_keys)
 			for vertex_index, weight in enumerate(self.wind):
 				self.add_to_weights("wind", vertex_index, weight)
 
-			self.center[:] = self.verts_data["center"]
-			unpack_swizzle_vectorized(self.center)
-			self.whatever[:] = self.verts_data["whatever"]
 			self.whatever_range = np.max(self.whatever)
+			if self.whatever_range > 0.0:
+				self.whatever /= self.whatever_range
 			# print(self.whatever)
 			for vertex_index, weight in enumerate(self.whatever):
-				self.add_to_weights("whatever", vertex_index, weight / self.whatever_range)
+				self.add_to_weights("whatever", vertex_index, weight)
 		# for bit in range(0, 8):
 		# 	for vertex_index, res in enumerate((self.verts_data["winding"] >> bit) & 1):
 		# 		self.add_to_weights(f"bit{bit}", vertex_index, res)
@@ -173,17 +178,21 @@ class NewMeshData:
 		self.verts_data = np.zeros(self.vertex_count, dtype=self.dt)
 
 		if self.use_custom_normals:
-			pack_swizzle_vectorized(self.shapekeys)
-			scale_pack_vectorized(self.shapekeys, self.pack_base)
+			pack_swizzle_vectorized(self.lod_keys)
+			scale_pack_vectorized(self.lod_keys, self.pack_base)
 			shapes_combined = np.zeros(self.vertex_count, dtype=np.int64)
 			# todo - store separate shape_residues?
-			pack_int64_vector(shapes_combined, self.shapekeys.astype(np.int64), self.use_blended_weights)
-			self.verts_data["shapekeys1"][:] = (shapes_combined >> 32) & 0b11111111111111111111111111111111
-			self.verts_data["shapekeys0"][:] = shapes_combined & 0b11111111111111111111111111111111
+			pack_int64_vector(shapes_combined, self.lod_keys.astype(np.int64), self.use_blended_weights)
+			self.verts_data["lod_key_1"][:] = (shapes_combined >> 32) & 0b11111111111111111111111111111111
+			self.verts_data["lod_key_0"][:] = shapes_combined & 0b11111111111111111111111111111111
 
 			pack_swizzle_vectorized(self.normals_custom)
+			pack_swizzle_vectorized(self.center_keys)
 			pack_ubyte_vector(self.normals_custom)
+			pack_ubyte_color(self.wind)
 			self.verts_data["normal_custom"][:] = self.normals_custom
+			self.verts_data["wind"][:] = self.wind
+			self.verts_data["center_key"][:] = self.center_keys
 		pack_swizzle_vectorized(self.vertices)
 		pack_swizzle_vectorized(self.normals)
 		pack_swizzle_vectorized(self.tangents)

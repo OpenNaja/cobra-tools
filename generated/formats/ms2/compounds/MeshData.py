@@ -97,7 +97,7 @@ class MeshData(MemStruct):
 	def populate(self, pack_base=512):
 		self.mesh_format = None
 		self.pack_base = pack_base
-		self.shapekeys = None
+		self.lod_keys = None
 		self.read_verts()
 		self.read_tris()
 		# self.validate_tris()
@@ -116,9 +116,9 @@ class MeshData(MemStruct):
 		uv_shape = self.dt["uvs"].shape
 		self.uvs = np.empty((self.vertex_count, *uv_shape), np.float32)
 		self.colors = np.empty((self.vertex_count, 4), np.float32)
-		self.floats = np.empty((self.vertex_count, 4), np.float32)
-		self.center = np.empty((self.vertex_count, 3), np.float32)
-		self.shapekeys = np.empty((self.vertex_count, 3), np.float32)
+		# self.floats = np.empty((self.vertex_count, 4), np.float32)
+		self.center_keys = np.empty((self.vertex_count, 3), np.float32)
+		self.lod_keys = np.empty((self.vertex_count, 3), np.float32)
 		self.weights_info = {}
 
 	def set_verts(self, verts):
@@ -130,7 +130,7 @@ class MeshData(MemStruct):
 		self.update_dtype()
 		self.init_arrays()
 		self.vertices[:], self.use_blended_weights[:], self.normals[:], self.normals_custom[:], self.negate_bitangents[:], self.tangents[:], self.uvs[:], \
-		self.colors[:], self.weights, self.wind[:], self.shapekeys[:] = zip(*verts)
+		self.colors[:], self.weights, self.wind[:], self.lod_keys[:], self.center_keys[:] = zip(*verts)
 		# if packing isn't done right after set_verts the plugin chokes, but that is probably just due tris setter
 		self.pack_verts()
 
