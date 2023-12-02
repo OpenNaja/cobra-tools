@@ -298,9 +298,7 @@ class ChunkedMesh(MeshData):
 		dt_interleaved32 = [
 			("pos", np.float16, (3,)),
 			("lod_key", np.float16, (3,)),
-			# JWE2 calamites
-			# FF 7F FF 7F FF 7F
-			# nan if unused, used on JWE2 mango
+			# nan (FF 7F) if unused, used on JWE2 mango, no apparent flag in tri or vert chunk or mesh
 			("center_key", np.float16, 3),
 			("whatever", np.ushort),  # 00 00 or 01 00 in calamites
 			*_normal_tangent_oct,  # standard vertex / face normal
