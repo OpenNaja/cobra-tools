@@ -15,6 +15,7 @@ logging.getLogger('PIL').setLevel(logging.WARNING)
 
 pow2 = [2**i for i in range(16)]
 
+
 class TexturestreamLoader(MemStructLoader):
 	extension = ".texturestream"
 	can_extract = False
@@ -205,6 +206,18 @@ class DdsLoader(MemStructLoader):
 	def load_png(self, png_path, tmp_dir):
 		logging.info(f"Loading {png_path}")
 		# convert the png into a dds
+
+		# as of 2023-12-02, texconv does not seem to store or recognize an sRGB flag in the pngs in creates
+		# a PR that seems to touch that is open (407)
+		# import io
+		# import imageio.v3 as iio
+		# from PIL import Image, ImageCms
+		# current_image = Image.open(png_path)
+		# profile = current_image.info.get("icc_profile")
+		# print(profile)
+		# current_image.close()
+		# print(iio.immeta(png_path))
+
 		size_info = self.get_tex_structs()
 		compression = self.header.compression_type.name
 		# texconv can't create mips for images with arbitrary size (often used for UI), so don't even create mips
