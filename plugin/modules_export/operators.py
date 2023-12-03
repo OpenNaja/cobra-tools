@@ -2,8 +2,20 @@ import bpy.utils.previews
 from bpy.props import StringProperty, BoolProperty, IntProperty, FloatProperty, EnumProperty, CollectionProperty
 from bpy_extras.io_utils import ExportHelper
 
-from plugin import export_ms2, export_spl, export_manis, export_banis
+from plugin import export_ms2, export_spl, export_manis, export_banis, export_fgm
 from plugin.utils.matrix_util import handle_errors
+
+
+class ExportFgm(bpy.types.Operator, ExportHelper):
+    """Export to FGM file format (.fgm)"""
+    bl_idname = "export_scene.cobra_fgm"
+    bl_label = 'Export FGM'
+    filename_ext = ".fgm"
+    filter_glob: StringProperty(default="*.fgm", options={'HIDDEN'})
+
+    def execute(self, context):
+        keywords = self.as_keywords(ignore=("axis_forward", "axis_up", "filter_glob", "check_existing"))
+        return handle_errors(self, export_fgm.save, keywords)
 
 
 class ExportMS2(bpy.types.Operator, ExportHelper):
