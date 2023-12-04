@@ -118,7 +118,7 @@ def generate_material_attributes(folder, mat_name):
 	return attributes
 
 
-def generate_material_info(mat_name, fgm_root):
+def generate_material_info(folder, mat_name, fgm_root):
 	mat = bpy.data.materials[mat_name]
 	textures = [x.image.name for x in mat.node_tree.nodes if x.type == 'TEX_IMAGE']
 	# print("Material textures: " + str(textures))
@@ -145,7 +145,8 @@ def generate_material_info(mat_name, fgm_root):
 	# populate colours from BSDF node.
 	bsdf = mat.node_tree.nodes.get("Principled BSDF")
 	defaults = {
-		"_BC": bsdf.inputs["Base Color"].default_value,
+		# cast RGBA to list
+		"_BC": list(bsdf.inputs["Base Color"].default_value),
 		# "_SM": "Smoothness",
 		"_RN": bsdf.inputs["Roughness"].default_value,
 		"_CA": [1.0, 1.0, 1.0, 1.0],
@@ -155,7 +156,7 @@ def generate_material_info(mat_name, fgm_root):
 		# "_NG": "Normal Map Variant",
 		"_OP": bsdf.inputs["Alpha"].default_value,
 		# "_AL": "Alpha Blend",
-		"_EM": bsdf.inputs["Emission"].default_value,
+		"_EM": list(bsdf.inputs["Emission"].default_value),
 		"_SP": bsdf.inputs["Specular"].default_value,
 		# "_F1": "Flexi Colour Alpha Blend Mask 01",
 		# "_F2": "Flexi Colour Alpha Blend Mask 02",
@@ -173,12 +174,14 @@ def generate_material_info(mat_name, fgm_root):
 			texture_info[slot] = defaults.get(slot, None)
 
 	maps = {
-		"pBaseColourTexture": ("_BC", "_CA",),  # list
-		"pAOTexture": ("_AO",),  # list
-		"pEmissiveTexture": ("_EM",),  # list - todo RGB GT 0
-		"pNormalTexture": ("_NM",),  # list
-		"pRoughnessPackedTexture": ("_MT", "_SP", "_RN", "_FO"),  # float, _FO = 1.0
-		"pFlexiColourMaskTexture": ("_F1", "_F2", "_F3", "_F4"),  # float, _FO = 1.0
+		# JWE2 trees seem to have CA on tree trunks pBaseColourTexture alpha, not on tree leaves
+		# CA apparently not used on trunks in PZ (trunk has AO maps instead)
+		"pBaseColourTexture": {"_BC": "_RGB", "_CA": "_A"},
+		"pAOTexture": {"_AO": ""},  # todo AO is JWE2 normal a
+		"pEmissiveTexture": {"_EM": ""},  # list - todo RGB GT 0
+		"pNormalTexture": {"_NM": "_RG"},  # todo JWE2 differs
+		"pRoughnessPackedTexture": {"_MT": "_R", "_SP": "_G", "_RN": "_B", "_FO": "_A"},  # float, _FO = 1.0
+		"pFlexiColourMaskTexture": {"_F1": "_R", "_F2": "_G", "_F3": "_B", "_F4": "_A"},  # float
 	}
 	for tex_name, tex_keys in maps.items():
 
@@ -190,7 +193,8 @@ def generate_material_info(mat_name, fgm_root):
 
 		raw_entries = [texture_info[k] for k in tex_keys]
 		raw_types = [type(e) for e in raw_entries]
-		# todo fix this check
+		print(tex_name, raw_entries, raw_types)
+		# todo fix this check - flexis are 4*NoneType in list
 		# only RGBA input
 		if all(k in (list, float) for k in raw_types):
 			tex.dtype = FgmDtype.RGBA
@@ -209,9 +213,18 @@ def generate_material_info(mat_name, fgm_root):
 			tex.reset_field("value")
 			tex.value[:] = [tex_index]
 			dep.dependency_name.data = f'{mat_name}.{tex_name}.tex'
+			size = textures_find_size(raw_entries)
+			print(f"size: {size}")
+			for tk, t_channel in tex_keys.items():
+				texture_save_or_generate(texture_info[tk], folder, f'{mat_name}.{tex_name}{t_channel}.png', size)
+			tex_path = os.path.join(folder, f'{mat_name}.{tex_name}.tex')
+			# todo set tex data
+			# pick suitable DDS compression
+			# pick reasonable MIP setting
+			# pick reasonable stream count
+			write_file(tex_path, "", True)
 		fgm_root.textures.data.append(tex)
 		fgm_root.name_foreach_textures.data.append(dep)
-	return texture_info
 
 
 def export_fgm_at(folder, mod_game, mat_name):
@@ -235,7 +248,7 @@ def export_fgm_at(folder, mod_game, mat_name):
 	fgm_root.shader_name = "Metallic_Roughness_Opaque_EmissiveLightType_Weather"
 	if mod_game in ("Jurassic World Evolution", "Jurassic World Evolution 2", ):
 		fgm_root.shader_name = "Metallic_Roughness_Opaque_Emissive"
-	generate_material_info(mat_name, fgm_root)
+	generate_material_info(folder, mat_name, fgm_root)
 	# generate_material_textures(mat.name, texture_info)
 	# fgm_root.game = mod_game
 	fgm_path = os.path.join(folder, mat_name + ".fgm")
@@ -333,9 +346,7 @@ def export_tex_at(folder, mod_game, mat_name):
 	textures = [x.image.name for x in mat.node_tree.nodes if x.type == 'TEX_IMAGE']
 	print("Material textures: " + str(textures))
 
-	# populate material textures
-	data = generate_material_info(mat_name)
-
+	# todo integrate into new code
 	# pBaseColourTexture
 	if type(data['_BC']) is list and type(data['_CA']) is list:
 		# print('ADD BASECOLOUR AS COLOURS ONLY\n')
