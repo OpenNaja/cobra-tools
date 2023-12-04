@@ -1,8 +1,19 @@
 import bpy
+import math
 from bpy_types import bpy_types
 import os
 from string import Template
 import base64
+
+from constants import ConstantsProvider
+from generated.array import Array
+from generated.formats.fgm.compounds.FgmHeader import FgmHeader
+from generated.formats.fgm.compounds.TexIndex import TexIndex
+from generated.formats.fgm.compounds.TextureData import TextureData
+from generated.formats.fgm.compounds.TextureInfo import TextureInfo
+from generated.formats.fgm.enums.FgmDtype import FgmDtype
+from generated.formats.ovl import set_game
+from generated.formats.ovl_base import OvlContext
 
 
 def write_file(path, content, overwrite=False):
@@ -58,67 +69,6 @@ def get_shared_material_names(col):
 	return materials
 
 
-def get_texture_info_file(name, file):
-	return f'        <textureinfo name="{name}" dtype="FgmDtype.TEXTURE">\n            <value>\n                <texindex array_index="0" />\n            </value>\n            <dependency_name>{file}</dependency_name>\n        </textureinfo>\n'
-	pass
-
-
-def get_texture_info_colour(name, r, g, b, a):
-	r = int(255 * r)
-	g = int(255 * g)
-	b = int(255 * b)
-	a = int(255 * a)
-	return f'        <textureinfo name="{name}" dtype="FgmDtype.RGBA">\n            <value>\n                <color r="{r}" g="{g}" b="{b}" a="255" />\n                <color r="{r}" g="{g}" b="{b}" a="{a}" />\n            </value>\n        </textureinfo>\n'
-	pass
-
-
-def generate_material_textures(folder, mat_name, data):
-	textures = "    <textures>\n"
-
-	# pBaseColour
-	if type(data['_BC']) is list and type(data['_CA']) is list:
-		textures += get_texture_info_colour('pBaseColourTexture', *data['_BC'])
-	# textures += '     ADD BASECOLOUR AS COLOURS ONLY\n'
-	else:
-		textures += get_texture_info_file('pBaseColourTexture', mat_name + '.pBaseColourTexture.tex')
-	# textures += '     ADD BASECOLOUR AS TEXTURE FILE\n'
-
-	# pAOTexture
-	if data['_AO']:
-		if type(data['_AO']) is list:
-			textures += get_texture_info_colour('pAOTexture', *data['_AO'])
-		else:
-			textures += get_texture_info_file('pAOTexture', mat_name + '.pAOTexture.tex')
-
-	# pEmissiveTexture
-	if data['_EM']:
-		if type(data['_EM']) is list:
-			if data['_EM'][0] > 0 or data['_EM'][1] > 0 or data['_EM'][2] > 0:
-				textures += get_texture_info_colour('pEmissiveTexture', *data['_EM'])
-		else:
-			textures += get_texture_info_file('pEmissiveTexture', mat_name + '.pEmissiveTexture.tex')
-
-	# pNormalTexture
-	if data['_NM']:
-		if type(data['_NM']) is list:
-			textures += get_texture_info_colour('pNormalTexture', *data['_NM'])
-		else:
-			textures += get_texture_info_file('pNormalTexture', mat_name + '.pNormalTexture.tex')
-
-	# pRoughnessPackedTexture
-	if type(data['_MT']) is float and type(data['_SP']) is float and type(data['_RN']) is float:
-		textures += get_texture_info_colour('pRoughnessPackedTexture', data['_MT'], data['_SP'], data['_RN'], 1.0)
-	else:
-		textures += get_texture_info_file('pRoughnessPackedTexture', mat_name + '.pRoughnessPackedTexture.tex')
-
-	# pFlexiColourMasksPackedTexture
-	if data['_F1'] or data['_F2'] or data['_F3'] or data['_F4']:
-		textures += get_texture_info_file('pFlexiColourMaskTexture', mat_name + '.pFlexiColourMasksTexture.tex')
-
-	textures += "    </textures>\n"
-	return textures
-
-
 def generate_material_attributes(folder, mat_name):
 	""" Creates the Attributes section of the FGM using the
 		existing fgm property collection
@@ -168,10 +118,10 @@ def generate_material_attributes(folder, mat_name):
 	return attributes
 
 
-def generate_material_info(mat_name):
+def generate_material_info(mat_name, fgm_root):
 	mat = bpy.data.materials[mat_name]
 	textures = [x.image.name for x in mat.node_tree.nodes if x.type == 'TEX_IMAGE']
-	print("Material textures: " + str(textures))
+	# print("Material textures: " + str(textures))
 	slots = {
 		"_BC": "Base colour",
 		"_SM": "Smoothness",
@@ -211,7 +161,7 @@ def generate_material_info(mat_name):
 		# "_F2": "Flexi Colour Alpha Blend Mask 02",
 		# "_F3": "Flexi Colour Alpha Blend Mask 03",
 		# "_F4": "Flexi Colour Alpha Blend Mask 04",
-		"_FO": [1.0, 1.0, 1.0, 1.0],
+		"_FO": 1.0,
 	}
 	# populate material textures
 	texture_info = {}
@@ -221,7 +171,46 @@ def generate_material_info(mat_name):
 			texture_info[slot] = bpy.data.images[slot_key]
 		else:
 			texture_info[slot] = defaults.get(slot, None)
-	print("Second pass: " + str(texture_info))
+
+	maps = {
+		"pBaseColourTexture": ("_BC", "_CA",),  # list
+		"pAOTexture": ("_AO",),  # list
+		"pEmissiveTexture": ("_EM",),  # list - todo RGB GT 0
+		"pNormalTexture": ("_NM",),  # list
+		"pRoughnessPackedTexture": ("_MT", "_SP", "_RN", "_FO"),  # float, _FO = 1.0
+		"pFlexiColourMaskTexture": ("_F1", "_F2", "_F3", "_F4"),  # float, _FO = 1.0
+	}
+	for tex_name, tex_keys in maps.items():
+
+		tex_index = TexIndex(fgm_root.context)
+
+		tex = TextureInfo(fgm_root.context)
+		tex.name = tex_name
+		dep = TextureData(fgm_root.context, arg=tex)
+
+		raw_entries = [texture_info[k] for k in tex_keys]
+		raw_types = [type(e) for e in raw_entries]
+		# todo fix this check
+		# only RGBA input
+		if all(k in (list, float) for k in raw_types):
+			tex.dtype = FgmDtype.RGBA
+			tex.reset_field("value")
+			# todo proper float vs list elsewhere
+			if raw_types[0] == list:
+				keys = raw_entries[0]
+			else:
+				keys = raw_entries
+			for v in tex.value:
+				v.r, v.g, v.b, v.a = [int(x*255) for x in keys]
+			dep.dependency_name.data = ''
+		# texture needs to be used or generated
+		else:
+			tex.dtype = FgmDtype.TEXTURE
+			tex.reset_field("value")
+			tex.value[:] = [tex_index]
+			dep.dependency_name.data = f'{mat_name}.{tex_name}.tex'
+		fgm_root.textures.data.append(tex)
+		fgm_root.name_foreach_textures.data.append(dep)
 	return texture_info
 
 
@@ -231,18 +220,27 @@ def export_fgm_at(folder, mod_game, mat_name):
 	print("Shader type: " + mat.blend_method)
 	textures = [x.image.name for x in mat.node_tree.nodes if x.type == 'TEX_IMAGE']
 	print("Material textures: " + str(textures))
-
 	# populate material textures
-	texture_info = generate_material_info(mat_name)
 
-	fgm = f'<FgmHeader shader_name="Metallic_Roughness_Opaque_EmissiveLightType_Weather" game="Games.{mod_game}">\n'
-	if mod_game == 'JURASSIC_WORLD_EVOLUTION' or mod_game == 'JURASSIC_WORLD_EVOLUTION_2':
-		fgm = f'<FgmHeader shader_name="Metallic_Roughness_Opaque_Emissive" game="Games.{mod_game}">\n'
+	c = ConstantsProvider(("shaders",))
+	context = OvlContext()
+	set_game(context, mod_game)
+	# export the curve data
+	fgm_root = FgmHeader(context)
+	fgm_root.textures.data = Array(context, 0, None, (0,), fgm_root.textures.template)
+	fgm_root.attributes.data = Array(context, 0, None, (0,), fgm_root.attributes.template)
+	fgm_root.name_foreach_textures.data = Array(context, fgm_root.textures, None, (0,), fgm_root.name_foreach_textures.template)
+	fgm_root.value_foreach_attributes.data = Array(context, fgm_root.attributes, None, (0,), fgm_root.value_foreach_attributes.template)
 
-	fgm += generate_material_textures(folder, mat.name, texture_info)
-	fgm += generate_material_attributes(folder, mat.name)
-	fgm += '</FgmHeader>'
-	write_file(os.path.join(folder, mat_name + ".fgm"), fgm, True)
+	fgm_root.shader_name = "Metallic_Roughness_Opaque_EmissiveLightType_Weather"
+	if mod_game in ("Jurassic World Evolution", "Jurassic World Evolution 2", ):
+		fgm_root.shader_name = "Metallic_Roughness_Opaque_Emissive"
+	generate_material_info(mat_name, fgm_root)
+	# generate_material_textures(mat.name, texture_info)
+	# fgm_root.game = mod_game
+	fgm_path = os.path.join(folder, mat_name + ".fgm")
+	with FgmHeader.to_xml_file(fgm_root, fgm_path) as xml_root:
+		pass
 
 
 ## process texture_info to create textures
@@ -467,6 +465,7 @@ def save(filepath=""):
 	folder, mat_name = os.path.split(filepath)
 	b_mat = bpy.context.active_object.active_material
 	mat_name = b_mat.name
-	mod_game = "JURASSIC_WORLD_EVOLUTION_2"
+	mod_game = "Jurassic World Evolution 2"
+
 	export_fgm_at(folder, mod_game, mat_name)
 	return f"Finished FGM export",
