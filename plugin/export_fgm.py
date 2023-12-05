@@ -24,23 +24,6 @@ from generated.formats.tex.compounds.TexHeader import TexHeader
 from generated.formats.tex.enums.DdsType import DdsType
 
 
-def write_file(path, content, overwrite=False):
-	""" write  content to a file
-	:param path: file path
-	:param content: the content to write
-	:return: content of the file
-	"""
-	if overwrite is False and os.path.exists(path):
-		return
-	try:
-		os.makedirs(os.path.dirname(path))
-	except:
-		pass
-	with open(path, 'w', newline='') as f:
-		print(f"Creating {path}")
-		f.write(content.strip())
-
-
 def get_object_names(col):
 	obj_names = [o.name for o in bpy.data.collections[col.name].objects if
 				 '_Hitcheck' not in o.name and o.hide_render == False]
@@ -52,8 +35,8 @@ def get_object_material_names(ob):
 	if ob.type == "MESH":
 		for mat_slot in ob.material_slots:
 			if mat_slot.material:
-				mat = mat_slot.material
-				mats.append(mat.name)
+				b_mat = mat_slot.material
+				mats.append(b_mat.name)
 	return mats
 
 
@@ -71,64 +54,14 @@ def get_shared_material_names(col):
 	materials = []
 	mat_names = get_unique_material_names(col)
 	for mat_name in mat_names:
-		mat = bpy.data.materials[mat_name]
-		if mat.users > 1:
+		b_mat = bpy.data.materials[mat_name]
+		if b_mat.users > 1:
 			materials.append(mat_name)
 	return materials
 
 
-def generate_material_attributes(folder, mat_name):
-	""" Creates the Attributes section of the FGM using the
-		existing fgm property collection
-	"""
-	mat = bpy.data.materials[mat_name]
-	attributes = "     <attributes>\n"
-	for key in mat.fgm.__annotations__.keys():
-
-		default_value = getattr(mat.fgm, key)
-		try:
-			value = mat.fgm[key]
-		except:
-			value = default_value
-
-		if key == 'pWeather_Enable':
-			print('WEATHER ' + str(type(value)) + " " + str(type(default_value)))
-
-		dtype = ''
-		name = key
-		# ignore extra attributes we don't need to export.
-		if type(default_value) is str:
-			pass
-
-		elif type(default_value) is float:
-			dtype = 'FLOAT'
-
-		elif type(default_value) is int:
-			dtype = 'INT'
-
-		elif type(default_value) is bool:
-			dtype = 'BOOL'
-			value = int(value)
-
-		elif isinstance(value, bpy_types.bpy_prop_array) or str(type(default_value)) == "<class 'Vector'>":
-			dtype = 'FLOAT_3'
-			value = str(value[0]) + " " + str(value[1]) + " " + str(value[2])
-
-		else:
-			print(key + " " + str(value) + " " + str(type(value)))
-			raise TypeError("Wrong Attribute Type")
-
-		if dtype is not '':
-			attribute = f"        <attribinfo name=\"{name}\" dtype=\"FgmDtype.{dtype}\">\n            <value>{value}</value>\n        </attribinfo>\n"
-			attributes += attribute
-
-	attributes += "     </attributes>\n"
-	return attributes
-
-
-def export_textures(folder, mat_name, fgm_root, mod_game, shader_name, c):
-	mat = bpy.data.materials[mat_name]
-	textures = [x.image.name for x in mat.node_tree.nodes if x.type == 'TEX_IMAGE']
+def export_textures(b_mat, folder, mat_name, fgm_root, mod_game, shader_name, c):
+	textures = [x.image.name for x in b_mat.node_tree.nodes if x.type == 'TEX_IMAGE']
 	# print("Material textures: " + str(textures))
 	slots = {
 		"_BC": "Base colour",
@@ -151,7 +84,7 @@ def export_textures(folder, mat_name, fgm_root, mod_game, shader_name, c):
 		"_FO": "Flexi Opacity",
 	}
 	# populate colours from BSDF node.
-	bsdf = mat.node_tree.nodes.get("Principled BSDF")
+	bsdf = b_mat.node_tree.nodes.get("Principled BSDF")
 	defaults = {
 		# cast RGBA to list
 		"_BC": list(bsdf.inputs["Base Color"].default_value),
@@ -241,8 +174,7 @@ def export_textures(folder, mat_name, fgm_root, mod_game, shader_name, c):
 		fgm_root.name_foreach_textures.data.append(dep)
 
 
-def export_attributes(folder, mat_name, fgm_root, mod_game, shader_name, c):
-
+def export_attributes(b_mat, folder, mat_name, fgm_root, mod_game, shader_name, c):
 	try:
 		textures, attrib_dic = c[mod_game.value]["shaders"][shader_name]
 	except:
@@ -254,9 +186,13 @@ def export_attributes(folder, mat_name, fgm_root, mod_game, shader_name, c):
 		att.name = att_name
 
 		data = AttribData(fgm_root.context, arg=att)
-		# Assign default value from attributes dict
-		# todo - get data from blender when set
-		default = attr_data[1][0][0]
+		# get data from blender when set
+		b_val = getattr(b_mat.fgm, att_name, None)
+		if b_val:
+			default = b_val
+		else:
+			# Assign default value from attributes dict
+			default = attr_data[1][0][0]
 		data.value = np.array(default, data.value.dtype)
 		fgm_root.attributes.data.append(att)
 		fgm_root.value_foreach_attributes.data.append(data)
@@ -283,8 +219,8 @@ def export_fgm_at(folder, mod_game, mat_name):
 	fgm_root.shader_name = b_mat.fgm.shader_name
 	c = ConstantsProvider(("shaders", "textures"))
 	print(fgm_root.shader_name)
-	export_textures(folder, mat_name, fgm_root, mod_game, fgm_root.shader_name, c)
-	export_attributes(folder, mat_name, fgm_root, mod_game, fgm_root.shader_name, c)
+	export_textures(b_mat, folder, mat_name, fgm_root, mod_game, fgm_root.shader_name, c)
+	export_attributes(b_mat, folder, mat_name, fgm_root, mod_game, fgm_root.shader_name, c)
 	
 	fgm_path = os.path.join(folder, mat_name + ".fgm")
 	with FgmHeader.to_xml_file(fgm_root, fgm_path) as xml_root:
