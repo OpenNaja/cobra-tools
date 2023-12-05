@@ -141,7 +141,7 @@ def export_textures(b_mat, folder, mat_name, fgm_root, mod_game, shader_name, c)
 				try:
 					texture_save_or_generate(texture_info[tk], folder, png_name, size)
 				except:
-					logging.warning(f"Saving {png_name} failed")
+					logging.exception(f"Saving {png_name} failed")
 			tex_path = os.path.join(folder, f'{mat_name}.{tex_name}.tex')
 			# pick suitable DDS compression
 			comp = "BC7_UNORM"
@@ -275,14 +275,12 @@ def texture_save_or_generate(data, base_path, file_name, size):
 		return
 
 	if type(data) is list:
-		# Colour input as RGBA
-		img = image_new(file_name, size[0], size[1], *data)
-		img.file_format = 'PNG'
-		img.save(filepath=os.path.join(base_path, file_name), quality=100)
-		bpy.data.images.remove(img)
-	elif type(data) is float:
-		# Colour input as a single float value
-		img = image_new(file_name, size[0], size[1], data, data, data, 255)
+		if len(data) == 4:
+			# Colour input as RGBA
+			img = image_new(file_name, size[0], size[1], *data)
+		else:
+			# Colour input as a single float value
+			img = image_new(file_name, size[0], size[1], data[0], data[0], data[0], 255)
 		img.file_format = 'PNG'
 		img.save(filepath=os.path.join(base_path, file_name), quality=100)
 		bpy.data.images.remove(img)
