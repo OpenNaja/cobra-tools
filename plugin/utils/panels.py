@@ -19,46 +19,24 @@ class CobraMaterialPanel(Panel):
 		self.layout.prop(fgm, "pRenderLayerOverride")
 		self.layout.prop(fgm, "pVerticalTiling")
 
-		self.layout.prop(fgm, "pEnableScreenSpaceAO")
-		pEnableScreenSpaceAO = fgm.pEnableScreenSpaceAO
-		if pEnableScreenSpaceAO:
-			box = self.layout.box()
-			box.prop(fgm, "pAOTexCoordIndex")
-
-		self.layout.prop(fgm, "pWeather_Enable")
-		pWeather_Enable = fgm.pWeather_Enable
-		if pWeather_Enable:
-			box = self.layout.box()
-			box.prop(fgm, "pEnableWeatherPooling")
-			box.prop(fgm, "pWeather_ExplicitNormalThreshold")
-			box.prop(fgm, "pMaximumWaterPermeability")
-			box.prop(fgm, "pSnowOnSlopesOffset")
-			box.prop(fgm, "pMaximumSnowAmount")
-
-		self.layout.prop(fgm, "pEnablePoweredEmissive")
-		pEnablePoweredEmissive = fgm.pEnablePoweredEmissive
-		if pEnablePoweredEmissive:
-			box = self.layout.box()
-			box.prop(fgm, "pEmissiveLightType")
-			box.prop(fgm, "pEmissiveTint")
-			box.prop(fgm, "pEmissiveLightPower")
-			box.prop(fgm, "pEmissiveAdaptiveBrighnessWeight")
-			box.prop(fgm, "pEmissiveScrollData")
-			box.prop(fgm, "pIsDisplayPanel")
-
-		self.layout.prop(fgm, "pEnablePulsingEmissive")
-		pEnablePulsingEmissive = fgm.pEnablePulsingEmissive
-		if pEnablePulsingEmissive:
-			box = self.layout.box()
-			box.prop(fgm, "pPulsingEmitFrequency")
-			box.prop(fgm, "pPulsingEmitDarkenScale")
-
-		self.layout.prop(fgm, "pFlexiColourBlended")
-		pFlexiColourBlended = fgm.pFlexiColourBlended
-		if pFlexiColourBlended:
-			box = self.layout.box()
-			box.prop(fgm, "pFlexiColourTexCoordIndex")
-			box.prop(fgm, "pFlexiColourVertexColour")
-			box.prop(fgm, "pFlexiColourUseAdditiveBlend")
-			box.prop(fgm, "pEnableEmissiveFlexiColour")
+		groups_map = {
+			"pEnableScreenSpaceAO": ("pAOTexCoordIndex",),
+			"pWeather_Enable": (
+				"pEnableWeatherPooling", "pWeather_ExplicitNormalThreshold", "pMaximumWaterPermeability",
+				"pSnowOnSlopesOffset", "pMaximumSnowAmount"),
+			"pEnablePoweredEmissive": (
+				"pEmissiveLightType", "pEmissiveTint", "pEmissiveLightPower", "pEmissiveAdaptiveBrighnessWeight",
+				"pEmissiveScrollData", "pIsDisplayPanel"),
+			"pEnablePulsingEmissive": ("pPulsingEmitFrequency", "pPulsingEmitDarkenScale"),
+			"pFlexiColourBlended": (
+				"pFlexiColourTexCoordIndex", "pFlexiColourVertexColour", "pFlexiColourUseAdditiveBlend",
+				"pEnableEmissiveFlexiColour"),
+		}
+		for group_name, group_members in groups_map.items():
+			self.layout.prop(fgm, group_name)
+			# is the box active?
+			if getattr(fgm, group_name):
+				box = self.layout.box()
+				for member_name in group_members:
+					box.prop(fgm, member_name)
 
