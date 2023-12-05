@@ -283,3 +283,7 @@ class CobraMaterialSettings(VersionedPropertyGroup):
 	@property
 	def shader_name(self):
 		return self.get_value(bpy.context, "shader_name")
+
+	@shader_name.setter
+	def shader_name(self, v):
+		self.set_value(bpy.context, "shader_name", v)
