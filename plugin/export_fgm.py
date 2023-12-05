@@ -1,3 +1,5 @@
+import logging
+
 import bpy
 import math
 from bpy_types import bpy_types
@@ -14,6 +16,8 @@ from generated.formats.fgm.compounds.TextureInfo import TextureInfo
 from generated.formats.fgm.enums.FgmDtype import FgmDtype
 from generated.formats.ovl import set_game
 from generated.formats.ovl_base import OvlContext
+from generated.formats.tex.compounds.TexHeader import TexHeader
+from generated.formats.tex.enums.DdsType import DdsType
 
 
 def write_file(path, content, overwrite=False):
@@ -118,7 +122,7 @@ def generate_material_attributes(folder, mat_name):
 	return attributes
 
 
-def generate_material_info(folder, mat_name, fgm_root):
+def generate_material_info(folder, mat_name, fgm_root, mod_game, shader_name):
 	mat = bpy.data.materials[mat_name]
 	textures = [x.image.name for x in mat.node_tree.nodes if x.type == 'TEX_IMAGE']
 	# print("Material textures: " + str(textures))
@@ -148,21 +152,21 @@ def generate_material_info(folder, mat_name, fgm_root):
 		# cast RGBA to list
 		"_BC": list(bsdf.inputs["Base Color"].default_value),
 		# "_SM": "Smoothness",
-		"_RN": bsdf.inputs["Roughness"].default_value,
+		"_RN": [bsdf.inputs["Roughness"].default_value, ],
 		"_CA": [1.0, 1.0, 1.0, 1.0],
 		"_AO": [1.0, 1.0, 1.0, 1.0],
-		"_MT": bsdf.inputs["Metallic"].default_value,
+		"_MT": [bsdf.inputs["Metallic"].default_value, ],
 		"_NM": [0.5, 0.5, 1.0, 1.0],
 		# "_NG": "Normal Map Variant",
-		"_OP": bsdf.inputs["Alpha"].default_value,
+		"_OP": [bsdf.inputs["Alpha"].default_value, ],
 		# "_AL": "Alpha Blend",
 		"_EM": list(bsdf.inputs["Emission"].default_value),
-		"_SP": bsdf.inputs["Specular"].default_value,
+		"_SP": [bsdf.inputs["Specular"].default_value, ],
 		# "_F1": "Flexi Colour Alpha Blend Mask 01",
 		# "_F2": "Flexi Colour Alpha Blend Mask 02",
 		# "_F3": "Flexi Colour Alpha Blend Mask 03",
 		# "_F4": "Flexi Colour Alpha Blend Mask 04",
-		"_FO": 1.0,
+		"_FO": [1.0, ],
 	}
 	# populate material textures
 	texture_info = {}
@@ -173,17 +177,15 @@ def generate_material_info(folder, mat_name, fgm_root):
 		else:
 			texture_info[slot] = defaults.get(slot, None)
 
-	maps = {
-		# JWE2 trees seem to have CA on tree trunks pBaseColourTexture alpha, not on tree leaves
-		# CA apparently not used on trunks in PZ (trunk has AO maps instead)
-		"pBaseColourTexture": {"_BC": "_RGB", "_CA": "_A"},
-		"pAOTexture": {"_AO": ""},  # todo AO is JWE2 normal a
-		"pEmissiveTexture": {"_EM": ""},  # list - todo RGB GT 0
-		"pNormalTexture": {"_NM": "_RG"},  # todo JWE2 differs
-		"pRoughnessPackedTexture": {"_MT": "_R", "_SP": "_G", "_RN": "_B", "_FO": "_A"},  # float, _FO = 1.0
-		"pFlexiColourMaskTexture": {"_F1": "_R", "_F2": "_G", "_F3": "_B", "_F4": "_A"},  # float
-	}
-	for tex_name, tex_keys in maps.items():
+	c = ConstantsProvider(("shaders", "textures"))
+	try:
+		# print(c[mod_game])
+		tex_channel_map = c[mod_game]["textures"][shader_name]
+	except:
+		logging.warning(f"No presets for shader '{shader_name}' game {mod_game}")
+		raise
+	# print(tex_channel_map)
+	for tex_name, tex_keys in tex_channel_map.items():
 
 		tex_index = TexIndex(fgm_root.context)
 
@@ -194,21 +196,8 @@ def generate_material_info(folder, mat_name, fgm_root):
 		raw_entries = [texture_info[k] for k in tex_keys]
 		raw_types = [type(e) for e in raw_entries]
 		print(tex_name, raw_entries, raw_types)
-		# todo fix this check - flexis are 4*NoneType in list
-		# only RGBA input
-		if all(k in (list, float) for k in raw_types):
-			tex.dtype = FgmDtype.RGBA
-			tex.reset_field("value")
-			# todo proper float vs list elsewhere
-			if raw_types[0] == list:
-				keys = raw_entries[0]
-			else:
-				keys = raw_entries
-			for v in tex.value:
-				v.r, v.g, v.b, v.a = [int(x*255) for x in keys]
-			dep.dependency_name.data = ''
-		# texture needs to be used or generated
-		else:
+		if any(k in (bpy.types.Image, ) for k in raw_types):
+			# texture needs to be used or generated
 			tex.dtype = FgmDtype.TEXTURE
 			tex.reset_field("value")
 			tex.value[:] = [tex_index]
@@ -218,11 +207,29 @@ def generate_material_info(folder, mat_name, fgm_root):
 			for tk, t_channel in tex_keys.items():
 				texture_save_or_generate(texture_info[tk], folder, f'{mat_name}.{tex_name}{t_channel}.png', size)
 			tex_path = os.path.join(folder, f'{mat_name}.{tex_name}.tex')
-			# todo set tex data
 			# pick suitable DDS compression
-			# pick reasonable MIP setting
-			# pick reasonable stream count
-			write_file(tex_path, "", True)
+			comp = "BC7_UNORM"
+			if tex_name == "pNormalTexture" and len(tex_keys) == 1:
+				comp = "BC5_UNORM"
+			# todo - pick reasonable MIP setting
+			# todo - pick reasonable stream count
+			tex_file = TexHeader(tex.context)
+			# todo - PC would need its own DdsTypeCoaster enum
+			tex_file.compression_type = DdsType[comp]
+			with tex_file.to_xml_file(tex_file, tex_path) as xml_root:
+				pass
+		else:
+			# only RGBA input
+			tex.dtype = FgmDtype.RGBA
+			tex.reset_field("value")
+			dep.dependency_name.data = ''
+			# flatten used colors
+			keys = [channel for group in raw_entries if group is not None for channel in group]
+			# don't store if less than 4 values
+			if len(keys) < 4:
+				continue
+			for v in tex.value:
+				v.r, v.g, v.b, v.a = [int(channel*255) for channel in keys[:4]]
 		fgm_root.textures.data.append(tex)
 		fgm_root.name_foreach_textures.data.append(dep)
 
@@ -235,7 +242,6 @@ def export_fgm_at(folder, mod_game, mat_name):
 	print("Material textures: " + str(textures))
 	# populate material textures
 
-	c = ConstantsProvider(("shaders",))
 	context = OvlContext()
 	set_game(context, mod_game)
 	# export the curve data
@@ -248,7 +254,7 @@ def export_fgm_at(folder, mod_game, mat_name):
 	fgm_root.shader_name = "Metallic_Roughness_Opaque_EmissiveLightType_Weather"
 	if mod_game in ("Jurassic World Evolution", "Jurassic World Evolution 2", ):
 		fgm_root.shader_name = "Metallic_Roughness_Opaque_Emissive"
-	generate_material_info(folder, mat_name, fgm_root)
+	generate_material_info(folder, mat_name, fgm_root, mod_game, fgm_root.shader_name)
 	# generate_material_textures(mat.name, texture_info)
 	# fgm_root.game = mod_game
 	fgm_path = os.path.join(folder, mat_name + ".fgm")

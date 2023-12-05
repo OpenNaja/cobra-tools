@@ -8,7 +8,7 @@ from importlib import import_module
 from dataclasses import dataclass
 from root_path import root_dir
 
-dict_names = ("hashes", "mimes", "shaders")
+dict_names = ("hashes", "mimes", "shaders", "textures")
 
 # 3.10 has an issue with large dict files, regression fixed in 3.11
 try:
