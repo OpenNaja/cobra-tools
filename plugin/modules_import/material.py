@@ -7,6 +7,7 @@ import os
 
 import numpy as np
 
+from constants import ConstantsProvider
 from generated.formats.fgm.compounds.FgmHeader import FgmHeader
 from generated.formats.fgm.enums.FgmDtype import FgmDtype
 from generated.formats.ovl_base import OvlContext
@@ -100,7 +101,7 @@ class BaseShader:
 			diffuse = diffuse_premix
 		return diffuse
 
-	def build_tex_nodes_dict(self, fgm_data, in_dir, tree, principled):
+	def build_tex_nodes_dict(self, tex_channel_map, fgm_data, in_dir, tree, principled):
 		"""Load all png files that match tex files referred to by the fgm"""
 		all_textures = [file for file in os.listdir(in_dir) if file.lower().endswith(".png")]
 		self.tex_dic = {}
@@ -157,7 +158,14 @@ class BaseShader:
 						png_path = os.path.join(in_dir, png_name)
 						b_tex = load_tex_node(tree, png_path)
 						b_tex.parent = tex_frame  # assign the texture frame to this png
-						k = png_name.lower().split(".")[1]
+						base, k = png_name.lower().split(".")[:2]
+						# set the short label if this is a known shader
+						for tex_type, tex_channels in tex_channel_map.items():
+							if tex_type.lower() in k:
+								for purpose, channel in tex_channels.items():
+									if k == f"{tex_type}{channel}".lower():
+										b_tex.label = purpose
+						# find label for node
 						self.tex_dic[k] = b_tex
 						tree.links.new(uv_node.outputs[0], b_tex.inputs[0])
 
@@ -326,6 +334,8 @@ def create_material(in_dir, matname):
 	except:
 		logging.warning(f"{fgm_path} could not be loaded!")
 		return b_mat
+
+	constants = ConstantsProvider(("shaders", "textures"))
 	tree = get_tree(b_mat)
 	output = tree.nodes.new('ShaderNodeOutputMaterial')
 	principled = tree.nodes.new('ShaderNodeBsdfPrincipled')
@@ -359,10 +369,17 @@ def create_material(in_dir, matname):
 				elem.color[:3] = value
 				elem.alpha = 1.0
 	try:
+		# todo clean up game version
+		game = "Jurassic World Evolution 2" if "jurr" in fgm_data.game.lower() else "Planet Zoo"
+		try:
+			tex_channel_map = constants[game]["textures"][fgm_data.shader_name]
+		except:
+			tex_channel_map = ()
+			logging.warning(f"No presets for shader '{fgm_data.shader_name}' game {game}")
+		print(tex_channel_map)
 		b_mat["shader_name"] = fgm_data.shader_name
 		shader = pick_shader(fgm_data)
-		shader.build_tex_nodes_dict(fgm_data, in_dir, tree, principled)
-
+		shader.build_tex_nodes_dict(tex_channel_map, fgm_data, in_dir, tree, principled)
 		# get diffuse
 		for diffuse in shader.get_tex(shader.diffuse_slots):
 			# apply AO to diffuse

@@ -61,58 +61,54 @@ def get_shared_material_names(col):
 
 
 def export_textures(b_mat, folder, mat_name, fgm_root, mod_game, shader_name, c):
-	textures = [x.image.name for x in b_mat.node_tree.nodes if x.type == 'TEX_IMAGE']
 	# print("Material textures: " + str(textures))
 	slots = {
-		"_BC": "Base colour",
-		"_SM": "Smoothness",
-		"_RN": "Roughness",
-		"_CA": "Cavity",
-		"_AO": "Ambient Occlusion",
-		"_MT": "Metalness",
-		"_NM": "Normal Map",
-		"_NG": "Normal Map Variant",
-		"_OP": "Alpha Clip",
-		"_AL": "Alpha Blend",
-		"_EM": "Emissive",
-		"_SP": "Specular",
-		"_F1": "Flexi Colour Alpha Blend Mask 01",
-		"_F2": "Flexi Colour Alpha Blend Mask 02",
-		"_F3": "Flexi Colour Alpha Blend Mask 03",
-		"_F4": "Flexi Colour Alpha Blend Mask 04",
+		"BC": "Base colour",
+		"SM": "Smoothness",
+		"RN": "Roughness",
+		"CA": "Cavity",
+		"AO": "Ambient Occlusion",
+		"MT": "Metalness",
+		"NM": "Normal Map",
+		"NG": "Normal Map Variant",
+		"OP": "Alpha Clip",
+		"AL": "Alpha Blend",
+		"EM": "Emissive",
+		"SP": "Specular",
+		"F1": "Flexi Colour Alpha Blend Mask 01",
+		"F2": "Flexi Colour Alpha Blend Mask 02",
+		"F3": "Flexi Colour Alpha Blend Mask 03",
+		"F4": "Flexi Colour Alpha Blend Mask 04",
 		# custom keys follow
-		"_FO": "Flexi Opacity",
+		"FO": "Flexi Opacity",
 	}
 	# populate colours from BSDF node.
 	bsdf = b_mat.node_tree.nodes.get("Principled BSDF")
 	defaults = {
 		# cast RGBA to list
-		"_BC": list(bsdf.inputs["Base Color"].default_value),
-		# "_SM": "Smoothness",
-		"_RN": [bsdf.inputs["Roughness"].default_value, ],
-		"_CA": [1.0, 1.0, 1.0, 1.0],
-		"_AO": [1.0, 1.0, 1.0, 1.0],
-		"_MT": [bsdf.inputs["Metallic"].default_value, ],
-		"_NM": [0.5, 0.5, 1.0, 1.0],
-		# "_NG": "Normal Map Variant",
-		"_OP": [bsdf.inputs["Alpha"].default_value, ],
-		# "_AL": "Alpha Blend",
-		"_EM": list(bsdf.inputs["Emission"].default_value),
-		"_SP": [bsdf.inputs["Specular"].default_value, ],
-		# "_F1": "Flexi Colour Alpha Blend Mask 01",
-		# "_F2": "Flexi Colour Alpha Blend Mask 02",
-		# "_F3": "Flexi Colour Alpha Blend Mask 03",
-		# "_F4": "Flexi Colour Alpha Blend Mask 04",
-		"_FO": [1.0, ],
+		"BC": list(bsdf.inputs["Base Color"].default_value),
+		# "SM": "Smoothness",
+		"RN": [bsdf.inputs["Roughness"].default_value, ],
+		"CA": [1.0, 1.0, 1.0, 1.0],
+		"AO": [1.0, 1.0, 1.0, 1.0],
+		"MT": [bsdf.inputs["Metallic"].default_value, ],
+		"NM": [0.5, 0.5, 1.0, 1.0],
+		# "NG": "Normal Map Variant",
+		"OP": [bsdf.inputs["Alpha"].default_value, ],
+		# "AL": "Alpha Blend",
+		"EM": list(bsdf.inputs["Emission"].default_value),
+		"SP": [bsdf.inputs["Specular"].default_value, ],
+		# "F1": "Flexi Colour Alpha Blend Mask 01",
+		# "F2": "Flexi Colour Alpha Blend Mask 02",
+		# "F3": "Flexi Colour Alpha Blend Mask 03",
+		# "F4": "Flexi Colour Alpha Blend Mask 04",
+		"FO": [1.0, ],
 	}
-	# populate material textures
-	texture_info = {}
+	# populate material textures, first from texture node labels
+	texture_info = {x.label: x.image for x in b_mat.node_tree.nodes if x.type == 'TEX_IMAGE' and x.label}
+	# now add color inputs and fallback defaults
 	for slot, slot_desc in slots.items():
-		slot_key = f"{mat_name}{slot}"
-		# todo - use node label? or file name
-		if slot_key in textures:
-			texture_info[slot] = bpy.data.images[slot_key]
-		else:
+		if slot not in texture_info:
 			texture_info[slot] = defaults.get(slot, None)
 
 	try:
@@ -141,7 +137,11 @@ def export_textures(b_mat, folder, mat_name, fgm_root, mod_game, shader_name, c)
 			size = textures_find_size(raw_entries)
 			print(f"size: {size}")
 			for tk, t_channel in tex_keys.items():
-				texture_save_or_generate(texture_info[tk], folder, f'{mat_name}.{tex_name}{t_channel}.png', size)
+				png_name = f'{mat_name}.{tex_name}{t_channel}.png'
+				try:
+					texture_save_or_generate(texture_info[tk], folder, png_name, size)
+				except:
+					logging.warning(f"Saving {png_name} failed")
 			tex_path = os.path.join(folder, f'{mat_name}.{tex_name}.tex')
 			# pick suitable DDS compression
 			comp = "BC7_UNORM"
