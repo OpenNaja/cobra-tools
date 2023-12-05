@@ -33,16 +33,8 @@ def import_collider(hitcheck, b_joint, corrector):
 		return
 	parent_to(b_joint, ob)
 	# store the strings on the right enum property
-	version = bpy.context.scene.cobra.version
-	if version in (47, ):
-		ob.cobra_coll.surface_jwe = hitcheck.surface_name.name
-		ob.cobra_coll.classification_jwe = hitcheck.classification_name.name
-	elif version in (48, 50):
-		ob.cobra_coll.surface_pz = hitcheck.surface_name
-		ob.cobra_coll.classification_pz = hitcheck.classification_name
-	elif version in (51, 52):
-		ob.cobra_coll.surface_jwe2 = hitcheck.surface_name
-		ob.cobra_coll.classification_jwe2 = hitcheck.classification_name
+	ob.cobra_coll.set_value(bpy.context, "surface", hitcheck.surface_name)
+	ob.cobra_coll.set_value(bpy.context, "classification", hitcheck.classification_name)
 	# h = HitCheck()
 	# print(export_hitcheck(ob, h))
 	return ob

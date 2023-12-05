@@ -45,7 +45,8 @@ from plugin.modules_import.operators import ImportBanis, ImportManis, ImportMatc
 from plugin.modules_export.operators import ExportMS2, ExportSPL, ExportManis, ExportBanis, ExportFgm
 from plugin.utils.operators import CreateFins, CreateLods, VcolToHair, HairToVcol, TransferHairCombing, AddHair, \
     GenerateRigEdit, ConvertScaleToLoc
-from plugin.utils.properties import CobraSceneSettings, CobraMeshSettings, CobraCollisionSettings
+from plugin.utils.properties import CobraSceneSettings, CobraMeshSettings, CobraCollisionSettings, CobraMaterialSettings
+from plugin.utils.panels import CobraMaterialPanel
 
 
 global preview_collection
@@ -234,22 +235,10 @@ class COLLISION_PT_CobraTools(bpy.types.Panel):
         row.prop(rb, "damping_3d")
         row = layout.row(align=True)
         row.prop(rb, "flag")
-        version = context.scene.cobra.version
-        if version in (47, ):
-            row = layout.row(align=True)
-            row.prop(rb, "classification_jwe")
-            row = layout.row(align=True)
-            row.prop(rb, "surface_jwe")
-        elif version in (48, 50):
-            row = layout.row(align=True)
-            row.prop(rb, "classification_pz")
-            row = layout.row(align=True)
-            row.prop(rb, "surface_pz")
-        elif version in (51, 52):
-            row = layout.row(align=True)
-            row.prop(rb, "classification_jwe2")
-            row = layout.row(align=True)
-            row.prop(rb, "surface_jwe2")
+        row = layout.row(align=True)
+        row.prop(rb, rb.get_current_versioned_name(context, "surface"))
+        row = layout.row(align=True)
+        row.prop(rb, rb.get_current_versioned_name(context, "classification"))
 
 
 def draw_rigid_body_constraints_cobra(self, context):
@@ -333,6 +322,8 @@ classes = (
     CobraSceneSettings,
     CobraMeshSettings,
     CobraCollisionSettings,
+    CobraMaterialSettings,
+    CobraMaterialPanel,
     MESH_PT_CobraTools,
     POSE_PT_CobraTools,
     SCENE_PT_CobraTools,
@@ -381,6 +372,7 @@ def register():
     bpy.types.TOPBAR_MT_file_export.append(menu_func_export)
 
     # insert properties
+    bpy.types.Material.fgm   = bpy.props.PointerProperty(type=CobraMaterialSettings)
     bpy.types.Scene.cobra = bpy.props.PointerProperty(type=CobraSceneSettings)
     bpy.types.Mesh.cobra = bpy.props.PointerProperty(type=CobraMeshSettings)
     # bpy.types.RigidBodyObject.cobra = bpy.props.PointerProperty(type=CobraCollisionSettings)

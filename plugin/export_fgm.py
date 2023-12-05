@@ -12,6 +12,7 @@ from generated.formats.fgm.compounds.TexIndex import TexIndex
 from generated.formats.fgm.compounds.TextureData import TextureData
 from generated.formats.fgm.compounds.TextureInfo import TextureInfo
 from generated.formats.fgm.enums.FgmDtype import FgmDtype
+from generated.formats.ms2 import Ms2Version, get_game, Ms2Context
 from generated.formats.ovl import set_game, games
 from generated.formats.ovl_base import OvlContext
 from generated.formats.tex.compounds.SizeInfo import SizeInfo
@@ -246,7 +247,7 @@ def export_fgm_at(folder, mod_game, mat_name):
 	# populate material textures
 
 	context = OvlContext()
-	set_game(context, mod_game)
+	set_game(context, mod_game.value)
 	# export the curve data
 	fgm_root = FgmHeader(context)
 	fgm_root.textures.data = Array(context, 0, None, (0,), fgm_root.textures.template)
@@ -256,6 +257,7 @@ def export_fgm_at(folder, mod_game, mat_name):
 
 	# get shader from b_mat
 	fgm_root.shader_name = b_mat.fgm.shader_name
+	print(fgm_root.shader_name)
 	generate_material_info(folder, mat_name, fgm_root, mod_game, fgm_root.shader_name)
 	fgm_path = os.path.join(folder, mat_name + ".fgm")
 	with FgmHeader.to_xml_file(fgm_root, fgm_path) as xml_root:
@@ -335,8 +337,11 @@ def save(filepath=""):
 	b_mat = bpy.context.active_object.active_material
 	mat_name = b_mat.name
 	# get game from GUI dropdown
-	mod_game = bpy.data.collections["Collection"].mod.game
-	game_item = games[mod_game]
+	context = Ms2Context()
+	context.version = bpy.context.scene.cobra.version
+	game_item = get_game(context)[0]
+	# mod_game = bpy.data.collections["Collection"].mod.game
+	# game_item = games[mod_game]
 	print(game_item)
 
 	export_fgm_at(folder, game_item, mat_name)

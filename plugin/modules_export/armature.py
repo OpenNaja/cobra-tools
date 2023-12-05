@@ -251,15 +251,14 @@ def export_joints(bone_info, corrector):
 		joint_info.reset_field("hitcheck_pointers")
 		version = bpy.context.scene.cobra.version
 		for hitcheck, b_hitcheck in zip(joint_info.hitchecks, b_joint.children):
+			surface_name = b_hitcheck.cobra_coll.get_value(bpy.context, "surface")
+			classification_name = b_hitcheck.cobra_coll.get_value(bpy.context, "classification")
 			if version in (47, ):
-				hitcheck.surface_name = Jwe1Surface[b_hitcheck.cobra_coll.surface_jwe]
-				hitcheck.classification_name = Jwe1Collision[b_hitcheck.cobra_coll.classification_jwe]
-			elif version in (48, 50):
-				hitcheck.surface_name = b_hitcheck.cobra_coll.surface_pz
-				hitcheck.classification_name = b_hitcheck.cobra_coll.classification_pz
-			elif version in (51, 52):
-				hitcheck.surface_name = b_hitcheck.cobra_coll.surface_jwe2
-				hitcheck.classification_name = b_hitcheck.cobra_coll.classification_jwe2
+				hitcheck.surface_name = Jwe1Surface[surface_name]
+				hitcheck.classification_name = Jwe1Collision[classification_name]
+			else:
+				hitcheck.surface_name = surface_name
+				hitcheck.classification_name = classification_name
 			hitcheck.name = get_joint_name(b_hitcheck)
 			export_hitcheck(b_hitcheck, hitcheck, corrector)
 		
