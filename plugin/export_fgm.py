@@ -12,7 +12,7 @@ from generated.formats.fgm.compounds.TexIndex import TexIndex
 from generated.formats.fgm.compounds.TextureData import TextureData
 from generated.formats.fgm.compounds.TextureInfo import TextureInfo
 from generated.formats.fgm.enums.FgmDtype import FgmDtype
-from generated.formats.ovl import set_game
+from generated.formats.ovl import set_game, games
 from generated.formats.ovl_base import OvlContext
 from generated.formats.tex.compounds.SizeInfo import SizeInfo
 from generated.formats.tex.compounds.TexHeader import TexHeader
@@ -171,6 +171,7 @@ def generate_material_info(folder, mat_name, fgm_root, mod_game, shader_name):
 	texture_info = {}
 	for slot, slot_desc in slots.items():
 		slot_key = f"{mat_name}{slot}"
+		# todo - use node label? or file name
 		if slot_key in textures:
 			texture_info[slot] = bpy.data.images[slot_key]
 		else:
@@ -178,8 +179,7 @@ def generate_material_info(folder, mat_name, fgm_root, mod_game, shader_name):
 
 	c = ConstantsProvider(("shaders", "textures"))
 	try:
-		# print(c[mod_game])
-		tex_channel_map = c[mod_game]["textures"][shader_name]
+		tex_channel_map = c[mod_game.value]["textures"][shader_name]
 	except:
 		logging.warning(f"No presets for shader '{shader_name}' game {mod_game}")
 		raise
@@ -239,9 +239,9 @@ def generate_material_info(folder, mat_name, fgm_root, mod_game, shader_name):
 
 def export_fgm_at(folder, mod_game, mat_name):
 	print("\nExporting Material: " + os.path.join(folder, mat_name + '.fgm'))
-	mat = bpy.data.materials[mat_name]
-	print("Shader type: " + mat.blend_method)
-	textures = [x.image.name for x in mat.node_tree.nodes if x.type == 'TEX_IMAGE']
+	b_mat = bpy.data.materials[mat_name]
+	print("Shader type: " + b_mat.blend_method)
+	textures = [x.image.name for x in b_mat.node_tree.nodes if x.type == 'TEX_IMAGE']
 	print("Material textures: " + str(textures))
 	# populate material textures
 
@@ -254,12 +254,9 @@ def export_fgm_at(folder, mod_game, mat_name):
 	fgm_root.name_foreach_textures.data = Array(context, fgm_root.textures, None, (0,), fgm_root.name_foreach_textures.template)
 	fgm_root.value_foreach_attributes.data = Array(context, fgm_root.attributes, None, (0,), fgm_root.value_foreach_attributes.template)
 
-	fgm_root.shader_name = "Metallic_Roughness_Opaque_EmissiveLightType_Weather"
-	if mod_game in ("Jurassic World Evolution", "Jurassic World Evolution 2", ):
-		fgm_root.shader_name = "Metallic_Roughness_Opaque_Emissive"
+	# get shader from b_mat
+	fgm_root.shader_name = b_mat.fgm.shader_name
 	generate_material_info(folder, mat_name, fgm_root, mod_game, fgm_root.shader_name)
-	# generate_material_textures(mat.name, texture_info)
-	# fgm_root.game = mod_game
 	fgm_path = os.path.join(folder, mat_name + ".fgm")
 	with FgmHeader.to_xml_file(fgm_root, fgm_path) as xml_root:
 		pass
@@ -300,17 +297,8 @@ def validate_image(img):
 
 def image_new(name, width, height, r, g, b, a):
 	img = bpy.data.images.new(name, width=1, height=1)
-	pixels = [None] * 1 * 1
-	for x in range(1):
-		for y in range(1):
-			# assign RGBA to something useful
-			pixels[(y * 1) + x] = [r, g, b, a]
-
-	# flatten list
-	pixels = [chan for px in pixels for chan in px]
-
 	# assign pixels
-	img.pixels = pixels
+	img.pixels = [r, g, b, a]
 	img.update()
 	img.scale(width, height)
 	img.update()
@@ -323,11 +311,10 @@ def texture_save_or_generate(data, base_path, file_name, size):
 
 	if type(data) is list:
 		# Colour input as RGBA
-		img = image_new(file_name, size[0], size[1], data[0], data[1], data[2], data[3])
+		img = image_new(file_name, size[0], size[1], *data)
 		img.file_format = 'PNG'
 		img.save(filepath=os.path.join(base_path, file_name), quality=100)
 		bpy.data.images.remove(img)
-
 	elif type(data) is float:
 		# Colour input as a single float value
 		img = image_new(file_name, size[0], size[1], data, data, data, 255)
@@ -347,7 +334,10 @@ def save(filepath=""):
 	folder, mat_name = os.path.split(filepath)
 	b_mat = bpy.context.active_object.active_material
 	mat_name = b_mat.name
-	mod_game = "Jurassic World Evolution 2"
+	# get game from GUI dropdown
+	mod_game = bpy.data.collections["Collection"].mod.game
+	game_item = games[mod_game]
+	print(game_item)
 
-	export_fgm_at(folder, mod_game, mat_name)
+	export_fgm_at(folder, game_item, mat_name)
 	return f"Finished FGM export",
