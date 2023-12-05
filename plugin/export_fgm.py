@@ -2,11 +2,15 @@ import logging
 
 import bpy
 import math
+
+import numpy as np
 from bpy_types import bpy_types
 import os
 
 from constants import ConstantsProvider
 from generated.array import Array
+from generated.formats.fgm.compounds.AttribData import AttribData
+from generated.formats.fgm.compounds.AttribInfo import AttribInfo
 from generated.formats.fgm.compounds.FgmHeader import FgmHeader
 from generated.formats.fgm.compounds.TexIndex import TexIndex
 from generated.formats.fgm.compounds.TextureData import TextureData
@@ -122,7 +126,7 @@ def generate_material_attributes(folder, mat_name):
 	return attributes
 
 
-def generate_material_info(folder, mat_name, fgm_root, mod_game, shader_name):
+def export_textures(folder, mat_name, fgm_root, mod_game, shader_name, c):
 	mat = bpy.data.materials[mat_name]
 	textures = [x.image.name for x in mat.node_tree.nodes if x.type == 'TEX_IMAGE']
 	# print("Material textures: " + str(textures))
@@ -178,7 +182,6 @@ def generate_material_info(folder, mat_name, fgm_root, mod_game, shader_name):
 		else:
 			texture_info[slot] = defaults.get(slot, None)
 
-	c = ConstantsProvider(("shaders", "textures"))
 	try:
 		tex_channel_map = c[mod_game.value]["textures"][shader_name]
 	except:
@@ -238,6 +241,27 @@ def generate_material_info(folder, mat_name, fgm_root, mod_game, shader_name):
 		fgm_root.name_foreach_textures.data.append(dep)
 
 
+def export_attributes(folder, mat_name, fgm_root, mod_game, shader_name, c):
+
+	try:
+		textures, attrib_dic = c[mod_game.value]["shaders"][shader_name]
+	except:
+		logging.warning(f"No attributes for shader '{shader_name}' in game {mod_game}")
+		raise
+	for att_name, attr_data in attrib_dic.items():
+		att = AttribInfo(fgm_root.context)
+		att.dtype = FgmDtype.from_value(attr_data[0])
+		att.name = att_name
+
+		data = AttribData(fgm_root.context, arg=att)
+		# Assign default value from attributes dict
+		# todo - get data from blender when set
+		default = attr_data[1][0][0]
+		data.value = np.array(default, data.value.dtype)
+		fgm_root.attributes.data.append(att)
+		fgm_root.value_foreach_attributes.data.append(data)
+
+
 def export_fgm_at(folder, mod_game, mat_name):
 	print("\nExporting Material: " + os.path.join(folder, mat_name + '.fgm'))
 	b_mat = bpy.data.materials[mat_name]
@@ -257,8 +281,11 @@ def export_fgm_at(folder, mod_game, mat_name):
 
 	# get shader from b_mat
 	fgm_root.shader_name = b_mat.fgm.shader_name
+	c = ConstantsProvider(("shaders", "textures"))
 	print(fgm_root.shader_name)
-	generate_material_info(folder, mat_name, fgm_root, mod_game, fgm_root.shader_name)
+	export_textures(folder, mat_name, fgm_root, mod_game, fgm_root.shader_name, c)
+	export_attributes(folder, mat_name, fgm_root, mod_game, fgm_root.shader_name, c)
+	
 	fgm_path = os.path.join(folder, mat_name + ".fgm")
 	with FgmHeader.to_xml_file(fgm_root, fgm_path) as xml_root:
 		pass
