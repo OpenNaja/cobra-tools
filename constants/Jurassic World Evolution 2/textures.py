@@ -18,4 +18,8 @@ textures = {
 			"pMossBaseColour": {},  # ?
 			"pMossNormalTexture": {},  # ?
 		},
+	'Foliage_Billboard': {
+			"pDiffuseAlphaTexture": {"BC": "_RGB", "_OP": "_A"},
+			"pNormalTexture": {"NM": "_RGB", "AO": "_A"},  # not sure if A is actually AO, might be unused (1.0)
+		},
 }

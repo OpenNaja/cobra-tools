@@ -38,7 +38,7 @@ class BaseShader:
 	# for texture channel mapping
 	diffuse_slots = (
 		"pdiffusetexture", "pbasediffusetexture", "pbasecolourtexture", "pbasecolourtexture_rgb",
-		"pbasecolourandmasktexture_rgb", "pdiffusealphatexture", "pdiffuse_alphatexture",
+		"pbasecolourandmasktexture_rgb", "pdiffusealphatexture_rgb", "pdiffuse_alphatexture",
 		"palbinobasecolourandmasktexture_rgb",)
 
 	detail_slots = ()
@@ -370,13 +370,15 @@ def create_material(in_dir, matname):
 				elem.alpha = 1.0
 	try:
 		# todo clean up game version
-		game = "Jurassic World Evolution 2" if "jurr" in fgm_data.game.lower() else "Planet Zoo"
+		game = "Jurassic World Evolution 2" if "jura" in fgm_data.game.lower() else "Planet Zoo"
+		# print(game)
 		try:
 			tex_channel_map = constants[game]["textures"][fgm_data.shader_name]
+			b_mat.fgm.shader_name = fgm_data.shader_name
 		except:
-			tex_channel_map = ()
+			tex_channel_map = {}
 			logging.warning(f"No presets for shader '{fgm_data.shader_name}' game {game}")
-		print(tex_channel_map)
+		# print(tex_channel_map)
 		b_mat["shader_name"] = fgm_data.shader_name
 		shader = pick_shader(fgm_data)
 		shader.build_tex_nodes_dict(tex_channel_map, fgm_data, in_dir, tree, principled)
