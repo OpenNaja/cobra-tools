@@ -726,6 +726,15 @@ class OvlFile(Header):
 	def register_loader(self, loader):
 		"""register the loader, and delete any existing loader if needed"""
 		if loader:
+			# check if there is a name conflict in the controlled loaders
+			for stream in loader.controlled_loaders:
+				# stream with same name exists in ovl
+				if stream.name in self.loaders:
+					stream_old = self.loaders[stream.name]
+					# find the old container
+					container = [l for l in self.loaders.values() if stream_old in l.controlled_loaders][0]
+					logging.error(f"Injected file '{loader.name}' conflicts with '{container.name}' from the OVL, as it defines files with the same name, such as '{stream.name}'.")
+					raise
 			# check if this file exists in this ovl, if so, first delete old loader
 			if loader.name in self.loaders:
 				old_loader = self.loaders[loader.name]
@@ -733,9 +742,8 @@ class OvlFile(Header):
 			# only store loader in self.loaders after successful create
 			self.loaders[loader.name] = loader
 			# also store any streams created by loader
-			for stream in loader.streams + loader.children + loader.extra_loaders:
-				if stream:
-					self.loaders[stream.name] = stream
+			for stream in loader.controlled_loaders:
+				self.loaders[stream.name] = stream
 
 	def create_archive(self, name="STATIC"):
 		# see if it exists

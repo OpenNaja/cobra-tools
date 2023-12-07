@@ -48,6 +48,12 @@ class BaseFile:
 		self.same = False
 
 	@property
+	def controlled_loaders(self):
+		for stream in self.streams + self.children + self.extra_loaders:
+			if stream:
+				yield stream
+
+	@property
 	def name(self):
 		return self._name
 
@@ -288,7 +294,7 @@ class BaseFile:
 		# remove the loader from ovl so it is not saved
 		self.ovl.loaders.pop(self.name)
 		# remove streamed and child files
-		for loader in self.streams + self.children + self.extra_loaders:
+		for loader in self.controlled_loaders:
 			loader.remove()
 
 	def track_ptrs(self):
@@ -400,6 +406,8 @@ class BaseFile:
 
 	def compare_pointer(self, other, t_p, t_o, o_p, o_o):
 		# logging.debug(f"compare_pointer {t_o} vs {o_o}")
+		if not t_p and not o_p:
+			return
 		this_struct = t_p.get_data_at(t_o)
 		other_struct = o_p.get_data_at(o_o)
 		if this_struct != other_struct:
