@@ -26,7 +26,12 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 
 	# register this format for all vert chunks that will be created later
 	if mesh.context.version >= 52:
-		mesh.mesh_format = MeshFormat[b_me.cobra.mesh_format]
+		if b_me.shape_keys:
+			mesh.mesh_format = MeshFormat.INTERLEAVED_32
+		elif len(b_me.uv_layers) == 8:
+			mesh.mesh_format = MeshFormat.INTERLEAVED_48
+		else:
+			mesh.mesh_format = MeshFormat.SEPARATE
 	mesh.update_dtype()
 	num_uvs = mesh.get_uv_count()
 	num_vcols = mesh.get_vcol_count()
@@ -183,7 +188,7 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 					tangent = ct_tangents.data[loop_index].vector
 				# trees want to have custom normal and a vertex normal
 				custom_normal = normal
-				if b_me.cobra.mesh_format in ("INTERLEAVED_32", "INTERLEAVED_48") or mesh.flag == 517:
+				if mesh.mesh_format in ("INTERLEAVED_32", "INTERLEAVED_48") or mesh.flag == 517:
 					normal = b_vert.normal
 
 				shapekey = get_lod_key(b_loop.vertex_index)

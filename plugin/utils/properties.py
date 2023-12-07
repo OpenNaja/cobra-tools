@@ -53,13 +53,12 @@ class CobraSceneSettings(PropertyGroup):
 
 
 class CobraMeshSettings(PropertyGroup):
-	mesh_format: EnumProperty(
-		name='Mesh Format',
-		description='Mesh format used for this mesh - JWE2 after Biosyn update',
-		items=[("NONE", "None", "")] + [(item.name, item.name, "") for i, item in enumerate(MeshFormat)],
-		# default = 'MO_SYS_FIXED',
-
-	)
+	# mesh_format: EnumProperty(
+	# 	name='Mesh Format',
+	# 	description='Mesh format used for this mesh - JWE2 after Biosyn update',
+	# 	items=[("NONE", "None", "")] + [(item.name, item.name, "") for i, item in enumerate(MeshFormat)]
+	# )
+	pass
 
 
 class_jwe = [e.name for e in Jwe1Collision]

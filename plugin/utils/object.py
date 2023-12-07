@@ -57,17 +57,6 @@ def link_to_collection(scene, ob, coll_name):
 	return coll_name
 
 
-class NedryError(Exception):
-	"""For things users should not do"""
-
-	def __init__(self, message="Ah ah ah, you didn't say the magic word!"):
-		self.message = message
-		super().__init__(self.message)
-
-	def __str__(self):
-		return f'{self.message}'
-
-
 def has_objects_in_scene(scene):
 	if scene.objects:
 		# operator needs an active object, set one if missing (eg. user had deleted the active object)

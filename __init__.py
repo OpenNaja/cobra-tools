@@ -149,16 +149,6 @@ class MESH_PT_CobraTools(bpy.types.Panel):
         row.operator("object.transfer_hair_combing", icon_value=icon)
         sub = row.row()
         sub.operator("object.add_hair", icon_value=icon)
-
-        row = layout.row(align=True)
-        row.prop(context.mesh.cobra, "mesh_format")
-        if context.mesh.cobra.mesh_format == "Separate":
-            row = layout.row(align=True)
-            sub = row.row()
-            sub.template_icon(icon_value=preview_collection["nedry.png"].icon_id, scale=10)
-            sub = row.row()
-            sub.label(text="Ah ah ah, you did not say the magic word!")
-
         addon_updater_ops.update_notice_box_ui(self, context)
 
 
