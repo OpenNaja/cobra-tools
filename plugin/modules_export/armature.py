@@ -18,43 +18,16 @@ from plugin.utils.object import get_property
 from plugin.utils.shell import get_collection_endswith
 
 
-def get_level(bones, level=0):
-	level_children = []
-	for bone in bones:
-		# print(f"Level {level} {bone.name}")
-		if level == 0:
-			tmp_children = sorted(bone.children, key=lambda b: bone_name_for_ovl(b.name), reverse=True)
-
-		else:
-			tmp_children = sorted(bone.children, key=lambda b: bone_name_for_ovl(b.name))
-		level_children.extend(tmp_children)
-	return level_children
-
-
-def ovl_bones_jwe(b_armature_ob):
-	b_armature_data = b_armature_ob.data
-	# first just get the roots, then extend it
-	roots = [bone for bone in b_armature_data.bones if not bone.parent]
-	out_bones = []
-	level_children = list(roots)
-	i = 0
-	while level_children:
-		# print(level_children)
-		out_bones.extend(level_children)
-		level_children = get_level(level_children, level=i)
-		i += 1
-	return [b.name for b in out_bones]
-
-
 def get_bone_names_from_armature(b_armature_ob):
 	assign_p_bone_indices(b_armature_ob)
 	sorted_bones = sorted(b_armature_ob.pose.bones, key=lambda p_bone: p_bone["index"])
 	return [p_bone.name for p_bone in sorted_bones]
-	# return [p_bone.name for p_bone in b_armature_ob.pose.bones]
 
 
 def assign_p_bone_indices(b_armature_ob):
-	print("assigning pbone indices")
+	# todo - fundamental design question: when to update this? might break manis, and certainly banis
+	# algorithm doesn't fill holes in list - better discard existing indices altogether
+	logging.info("assigning pbone indices")
 	# map index to name to track duplicated indices
 	indices = {}
 	for p_bone in b_armature_ob.pose.bones:
@@ -68,11 +41,11 @@ def assign_p_bone_indices(b_armature_ob):
 	bones_with_index.sort(key=lambda p_bone: p_bone["index"])
 	bones_without_index = [p_bone for p_bone in b_armature_ob.pose.bones if "index" not in p_bone]
 	max_index = bones_with_index[-1]["index"]
-	print(max_index)
+	logging.info(f"max_index {max_index}")
 	for p_bone in bones_without_index:
 		max_index += 1
 		p_bone["index"] = max_index
-		print(f"{p_bone.name} = {max_index}")
+		logging.info(f"{p_bone.name} = {max_index}")
 
 
 def get_armature(scene):
@@ -109,14 +82,8 @@ def handle_transforms(ob, me, apply=True):
 def export_bones_custom(b_armature_ob, model_info):
 	is_old_orientation = is_ztuac(model_info.context) or is_dla(model_info.context)
 	corrector = Corrector(is_old_orientation)
-	# both options below crash JWE2 instantly, might be due to bone count though
-	# b_bone_names = ovl_bones_jwe(b_armature_ob)
 	b_bone_names = [bone.name for bone in b_armature_ob.data.bones]
-	# now get bone names from b_tex.data
-	# if is_jwe(model_info.context):
-	# 	b_bone_names = ovl_bones_jwe(b_armature_ob)
-	# else:
-	# 	b_bone_names = get_bone_names_from_armature(b_armature_ob)
+	# b_bone_names = get_bone_names_from_armature(b_armature_ob)
 	bone_info = model_info.bone_info
 	# update counts
 	bone_info.joints.bone_count = bone_info.bind_matrix_count = bone_info.bone_count = \
