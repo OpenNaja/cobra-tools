@@ -120,7 +120,12 @@ def save(filepath=""):
 	# hardcode for PZ for now, but it does not make a difference outside of compressed keys
 	mani.version = 260
 	target_names = set()
-	bones_lut = {pose_bone.name: pose_bone["index"] for pose_bone in b_armature_ob.pose.bones}
+	try:
+		bones_lut = {pose_bone.name: pose_bone["index"] for pose_bone in b_armature_ob.pose.bones}
+	except:
+		raise AttributeError(
+			f"Some bones in {b_armature_ob.name} don't have the custom property 'index'.\n"
+			f"Assign a unique index to all bones by exporting and importing the ms2 again.")
 	# remove srb from bones_lut for JWE2, so it exported to wsm only
 	if scene.cobra.version == 52:
 		bones_lut.pop(srb_name, None)
