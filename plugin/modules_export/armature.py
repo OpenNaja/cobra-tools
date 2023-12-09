@@ -3,18 +3,15 @@ import logging
 import math
 
 import bpy
+import mathutils
 
 from generated.formats.ms2.enums.Jwe1Collision import Jwe1Collision
 from generated.formats.ms2.enums.Jwe1Surface import Jwe1Surface
 from generated.formats.ms2.enums.RigidBodyFlag import RigidBodyFlag
-import mathutils
-
 from generated.formats.ms2.versions import is_ztuac, is_dla
 from generated.formats.ms2.compounds.packing_utils import pack_swizzle_collision
 from plugin.modules_export.collision import export_hitcheck
-from plugin.modules_import.armature import get_matrix
 from plugin.utils.matrix_util import bone_name_for_ovl, get_joint_name, Corrector, CorrectorRagdoll
-from plugin.utils.object import get_property
 from plugin.utils.shell import get_collection_endswith
 
 
@@ -245,7 +242,6 @@ def export_joints(bone_info, corrector):
 			rb.mass = -1.0
 			rb.flag = 0
 
-
 	# update ragdoll constraints, relies on previously updated joints
 	corrector_rag = CorrectorRagdoll(False)
 	j_map = {j.name: j for j in joints.joint_infos}
@@ -321,4 +317,3 @@ def get_joint_matrix(b_joint):
 	joint_mat_local.translation.y += b_bone.length
 	# convert to armature space
 	return b_bone.matrix_local @ joint_mat_local
-
