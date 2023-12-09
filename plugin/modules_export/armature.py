@@ -15,34 +15,12 @@ from plugin.utils.matrix_util import bone_name_for_ovl, get_joint_name, Correcto
 from plugin.utils.shell import get_collection_endswith
 
 
-def get_bone_names_from_armature(b_armature_ob):
-	assign_p_bone_indices(b_armature_ob)
-	sorted_bones = sorted(b_armature_ob.pose.bones, key=lambda p_bone: p_bone["index"])
-	return [p_bone.name for p_bone in sorted_bones]
-
-
 def assign_p_bone_indices(b_armature_ob):
-	# todo - fundamental design question: when to update this? might break manis, and certainly banis
-	# algorithm doesn't fill holes in list - better discard existing indices altogether
-	logging.info("assigning pbone indices")
-	# map index to name to track duplicated indices
-	indices = {}
-	for p_bone in b_armature_ob.pose.bones:
-		if "index" in p_bone:
-			p_ind = p_bone["index"]
-			if p_ind not in indices:
-				indices[p_ind] = p_bone.name
-			else:
-				raise IndexError(f"Bone {p_bone.name} uses same bone index as {indices[p_ind]}")
-	bones_with_index = [p_bone for p_bone in b_armature_ob.pose.bones if "index" in p_bone]
-	bones_with_index.sort(key=lambda p_bone: p_bone["index"])
-	bones_without_index = [p_bone for p_bone in b_armature_ob.pose.bones if "index" not in p_bone]
-	max_index = bones_with_index[-1]["index"]
-	logging.info(f"max_index {max_index}")
-	for p_bone in bones_without_index:
-		max_index += 1
-		p_bone["index"] = max_index
-		logging.info(f"{p_bone.name} = {max_index}")
+	"""Assigns new 'index' property to all bones. Order does not match original fdev order, consequently breaks banis,
+	which rely on correct order of bones."""
+	logging.info("Assigning new pose bone indices (breaks .banis)")
+	for i, p_bone in enumerate(b_armature_ob.pose.bones):
+		p_bone["index"] = i
 
 
 def get_armature(scene):
@@ -80,7 +58,7 @@ def export_bones_custom(b_armature_ob, model_info):
 	is_old_orientation = is_ztuac(model_info.context) or is_dla(model_info.context)
 	corrector = Corrector(is_old_orientation)
 	b_bone_names = [bone.name for bone in b_armature_ob.data.bones]
-	# b_bone_names = get_bone_names_from_armature(b_armature_ob)
+	assign_p_bone_indices(b_armature_ob)
 	bone_info = model_info.bone_info
 	# update counts
 	bone_info.joints.bone_count = bone_info.bind_matrix_count = bone_info.bone_count = \
@@ -91,11 +69,10 @@ def export_bones_custom(b_armature_ob, model_info):
 	bone_info.reset_field("name_indices")
 	bone_info.reset_field("enumeration")
 
-	lut_dic = {b_bone_name: bone_index for bone_index, b_bone_name in enumerate(b_bone_names)}
 	for bone_i, b_bone_name in enumerate(b_bone_names):
 		b_bone = b_armature_ob.data.bones.get(b_bone_name)
 
-		# todo - the correction function works, but only in armature space; come up with one that works in local space to reduce overhead
+		# correction function works only in armature space
 		mat_local = corrector.blender_bind_to_nif_bind(b_bone.matrix_local)
 		# make relative to parent
 		if b_bone.parent:
@@ -106,20 +83,14 @@ def export_bones_custom(b_armature_ob, model_info):
 		ms2_bone = bone_info.bones[bone_i]
 		ms2_bone.name = bone_name_for_ovl(b_bone_name)
 		# set parent index
-		if b_bone.parent:
-			bone_info.parents[bone_i] = lut_dic[b_bone.parent.name]
-		else:
-			bone_info.parents[bone_i] = 255
+		bone_info.parents[bone_i] = b_bone.parent["index"] if b_bone.parent else 255
 		ms2_bone.set_bone(mat_local_to_parent)
 		bone_info.inverse_bind_matrices[bone_i].set_rows(mat_local.inverted())
-
+		bone_info.enumeration[bone_i] = [4, bone_i]
 	if bone_info.zeros_count:
 		bone_info.zeros_count = len(b_bone_names)
 		bone_info.zeros_padding.arg = bone_info.zeros_count
 	# paddings are taken care of automatically during writing
-	for i in range(len(b_bone_names)):
-		bone_info.enumeration[i] = [4, i]
-
 	export_ik(b_armature_ob, bone_info)
 	export_joints(bone_info, corrector)
 

@@ -125,7 +125,7 @@ def save(filepath=""):
 	except:
 		raise AttributeError(
 			f"Some bones in {b_armature_ob.name} don't have the custom property 'index'.\n"
-			f"Assign a unique index to all bones by exporting and importing the ms2 again.")
+			f"Assign a unique index to all bones by exporting the ms2 with 'Update Rig' checked.")
 	# remove srb from bones_lut for JWE2, so it exported to wsm only
 	if scene.cobra.version == 52:
 		bones_lut.pop(srb_name, None)
