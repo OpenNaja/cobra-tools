@@ -57,21 +57,18 @@ def handle_transforms(ob, me, apply=True):
 def export_bones_custom(b_armature_ob, model_info):
 	is_old_orientation = is_ztuac(model_info.context) or is_dla(model_info.context)
 	corrector = Corrector(is_old_orientation)
-	b_bone_names = [bone.name for bone in b_armature_ob.data.bones]
 	assign_p_bone_indices(b_armature_ob)
 	bone_info = model_info.bone_info
 	# update counts
 	bone_info.joints.bone_count = bone_info.bind_matrix_count = bone_info.bone_count = \
-		bone_info.name_count = bone_info.parents_count = bone_info.enum_count = len(b_bone_names)
+		bone_info.name_count = bone_info.parents_count = bone_info.enum_count = len(b_armature_ob.data.bones)
 	bone_info.reset_field("bones")
 	bone_info.reset_field("inverse_bind_matrices")
 	bone_info.reset_field("parents")
 	bone_info.reset_field("name_indices")
 	bone_info.reset_field("enumeration")
 
-	for bone_i, b_bone_name in enumerate(b_bone_names):
-		b_bone = b_armature_ob.data.bones.get(b_bone_name)
-
+	for bone_i, b_bone in enumerate(b_armature_ob.data.bones):
 		# correction function works only in armature space
 		mat_local = corrector.blender_bind_to_nif_bind(b_bone.matrix_local)
 		# make relative to parent
@@ -81,14 +78,14 @@ def export_bones_custom(b_armature_ob, model_info):
 			mat_local_to_parent = mat_local
 
 		ms2_bone = bone_info.bones[bone_i]
-		ms2_bone.name = bone_name_for_ovl(b_bone_name)
+		ms2_bone.name = bone_name_for_ovl(b_bone.name)
+		ms2_bone.set_bone(mat_local_to_parent)
 		# set parent index
 		bone_info.parents[bone_i] = b_bone.parent["index"] if b_bone.parent else 255
-		ms2_bone.set_bone(mat_local_to_parent)
 		bone_info.inverse_bind_matrices[bone_i].set_rows(mat_local.inverted())
 		bone_info.enumeration[bone_i] = [4, bone_i]
 	if bone_info.zeros_count:
-		bone_info.zeros_count = len(b_bone_names)
+		bone_info.zeros_count = len(b_armature_ob.data.bones)
 		bone_info.zeros_padding.arg = bone_info.zeros_count
 	# paddings are taken care of automatically during writing
 	export_ik(b_armature_ob, bone_info)
