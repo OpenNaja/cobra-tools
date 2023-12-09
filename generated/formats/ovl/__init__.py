@@ -636,6 +636,7 @@ class OvlFile(Header):
 			loader.get_constants_entry()
 			loader.set_ovs(ovs_name)
 			loader.create(file_path)
+			loader.check_controlled_conflicts()
 			return loader
 		except NotImplementedError:
 			logging.warning(f"Creation not implemented for {file_name}")
@@ -727,15 +728,6 @@ class OvlFile(Header):
 	def register_loader(self, loader):
 		"""register the loader, and delete any existing loader if needed"""
 		if loader:
-			# check if there is a name conflict in the controlled loaders
-			for stream in loader.controlled_loaders:
-				# stream with same name exists in ovl
-				if stream.name in self.loaders:
-					stream_old = self.loaders[stream.name]
-					# find the old container
-					container = [l for l in self.loaders.values() if stream_old in l.controlled_loaders][0]
-					logging.error(f"Injected file '{loader.name}' conflicts with '{container.name}' from the OVL, as it defines files with the same name, such as '{stream.name}'.")
-					raise
 			# check if this file exists in this ovl, if so, first delete old loader
 			if loader.name in self.loaders:
 				old_loader = self.loaders[loader.name]

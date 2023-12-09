@@ -53,6 +53,17 @@ class BaseFile:
 			if stream:
 				yield stream
 
+	def check_controlled_conflicts(self):
+		"""check if there is a name conflict in the controlled loaders"""
+		possible_conflicts = [loader for loader in self.ovl.loaders.values() if loader.ext == self.ext]
+		used_names = {stream.name for stream in self.controlled_loaders}
+		for old_container in possible_conflicts:
+			for child in old_container.controlled_loaders:
+				if child.name in used_names and old_container.name != self.name:
+					raise AttributeError(
+						f"Injected file '{self.name}' conflicts with '{old_container.name}' from the OVL, "
+						f"as it defines files with the same name, such as '{child.name}'.")
+
 	@property
 	def name(self):
 		return self._name
