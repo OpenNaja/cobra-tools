@@ -86,7 +86,6 @@ def load(filepath="", use_custom_normals=False, mirror_mesh=False):
 						logging.exception("import_mesh_layers failed")
 					# import_chunk_bounds(b_me, mesh, lod_coll)
 				if hasattr(mesh, "vert_chunks"):
-					# b_me.cobra.mesh_format = mesh.vert_chunks[0].weights_flag.mesh_format.name
 					tri_chunk = mesh.tri_chunks[0]
 					b_me["shell_count"] = tri_chunk.shell_count
 				# link material to mesh
@@ -169,10 +168,6 @@ def import_mesh_layers(b_me, mesh, use_custom_normals, mat_name):
 	if hasattr(mesh, "normals"):
 		normals = b_me.attributes.new("ct_normals", "FLOAT_VECTOR", "CORNER")
 		normals.data.foreach_set("vector", per_loop(b_me, mesh.normals))
-
-	# if mesh.flag == 517 or mesh.mesh_format == MeshFormat.INTERLEAVED_32:
-	# 	cols = b_me.attributes.new("ct_floats", "FLOAT_COLOR", "CORNER")
-	# 	cols.data.foreach_set("color", per_loop(b_me, mesh.floats))
 
 	# set faces to smooth
 	b_me.polygons.foreach_set('use_smooth', [True] * len(b_me.polygons))
