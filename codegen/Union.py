@@ -35,7 +35,7 @@ class Union:
     def is_ovl_ptr(self):
         """Check if this union is used as an ovl memory pointer"""
         for field in self.members:
-            arg, template, arr1, arr2, conditionals, field_name, (field_type, field_type_access), _ = self.get_params(field)
+            arg, template, arr, conditionals, field_name, (field_type, field_type_access), _ = self.get_params(field)
             if field_type in ("Pointer", "ArrayPointer", "ForEachPointer"):
                 return True
 
@@ -125,6 +125,7 @@ class Union:
         arg = self.parser.get_attr_with_array_alt(field, "arg")
         arr1 = self.parser.get_attr_with_backups(field, ["arr1", "length"])
         arr2 = self.parser.get_attr_with_backups(field, ["arr2", "width"])
+        arr3 = self.parser.get_attr_with_backups(field, ["arr3", "depth"])
 
         def format_template(template_entry):
             if template_entry:
@@ -164,7 +165,9 @@ class Union:
             arr1 = Expression(arr1, target_variable)
         if arr2:
             arr2 = Expression(arr2, target_variable)
-        return arg, template, arr1, arr2, conditionals, field_name, (field_type, field_type_access), optional
+        if arr3:
+            arr3 = Expression(arr3, target_variable)
+        return arg, template, (arr1, arr2, arr3), conditionals, field_name, (field_type, field_type_access), optional
 
     def default_to_value(self, default_string, field_type, field_type_access):
         if not default_string:
@@ -209,7 +212,7 @@ class Union:
         field_default = None
         for field in reversed(self.members):
             field_debug_str = convention.clean_comment_str(field.text, indent=base_indent)
-            arg, template, arr1, arr2, conditionals, field_name, (field_type, field_type_access), _ = self.get_params(field)
+            arg, template, arr, conditionals, field_name, (field_type, field_type_access), _ = self.get_params(field)
 
             if field_debug_str.strip() and field_debug_str not in debug_strs:
                 debug_strs.append(field_debug_str)
@@ -218,7 +221,7 @@ class Union:
             # by iterating in reverse, we use the last non-recursive field
             if field_default is None and not self.compounds.imports.is_recursive_field(field):
                 field_default = self.get_default_string(field.attrib.get('default'), f'self.{CONTEXT_SUFFIX}', arg, template,
-                                                        arr1, field_type, field_type_access)
+                                                        arr[0], field_type, field_type_access)
 
         # add every (unique) debug string:
         for field_debug_str in reversed(debug_strs):
@@ -235,7 +238,7 @@ class Union:
 
     def write_attributes(self, f):
         for field in self.members:
-            arg, template, arr1, arr2, (global_conditionals, local_conditionals), field_name, (field_type, field_type_access), (optional, default) = self.get_params(field, '')
+            arg, template, arr, (global_conditionals, local_conditionals), field_name, (field_type, field_type_access), (optional, default) = self.get_params(field, '')
             # replace all non-static values with None for now
             try:
                 if isinstance(arg, tuple):
@@ -256,10 +259,10 @@ class Union:
                 field_type = None
                 field_type_access = None
             default = self.default_to_value(default, field_type, field_type_access)
-            if arr1 is None:
+            if arr[0] is None:
                 arguments = f"({arg}, {template})"
             else:
-                shape = self.arrs_to_tuple(arr1, arr2)
+                shape = self.arrs_to_tuple(*arr)
                 shape_parts = shape[1:-1].split(",")
                 resolved_shape_parts = []
                 for dim in shape_parts:
@@ -280,12 +283,12 @@ class Union:
     def write_filtered_attributes(self, f, condition, target_variable="self"):
         base_indent = "\n\t\t"
         for field in self.members:
-            arg, template, arr1, arr2, conditionals, field_name, (field_type, field_type_access), (optional, default) = self.get_params(field, target_variable, use_abstract=True)
+            arg, template, arr, conditionals, field_name, (field_type, field_type_access), (optional, default) = self.get_params(field, target_variable, use_abstract=True)
             default = self.default_to_value(default, field_type, field_type_access)
-            if arr1 is None:
+            if arr[0] is None:
                 arguments = f"({arg}, {template})"
             else:
-                arguments = f"({arg}, {template}, {self.arrs_to_tuple(arr1, arr2)}, {field_type_access})"
+                arguments = f"({arg}, {template}, {self.arrs_to_tuple(*arr)}, {field_type_access})"
                 field_type_access = "Array"
 
             indent, new_condition = condition_indent(base_indent, conditionals, condition)

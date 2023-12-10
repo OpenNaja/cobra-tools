@@ -227,13 +227,8 @@ class UNormClass:
 		return cls.from_function(cls.storage.read_array(stream, shape, context, arg, template).astype(float))
 
 	@classmethod
-	def write_array(cls, stream, instance):
-		# check that it is a numpy array
-		if not isinstance(instance, np.ndarray):
-			instance = np.array(instance, float)
-		# don't need to cast specifically to float, but do need to convert to byte for writing
-		instance = cls.to_function(instance).astype(cls.storage.np_type)
-		cls.storage.write_array(stream, instance)
+	def write_array(cls, instance, stream):
+		cls.storage.write_array(cls.to_function(instance), stream)
 
 
 class NormClass(UNormClass):
