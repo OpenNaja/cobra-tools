@@ -81,7 +81,7 @@ def export_bones_custom(b_armature_ob, model_info):
 		ms2_bone.name = bone_name_for_ovl(b_bone.name)
 		ms2_bone.set_bone(mat_local_to_parent)
 		# set parent index
-		bone_info.parents[bone_i] = b_bone.parent["index"] if b_bone.parent else 255
+		bone_info.parents[bone_i] = b_armature_ob.pose.bones[b_bone.parent.name]["index"] if b_bone.parent else 255
 		bone_info.inverse_bind_matrices[bone_i].set_rows(mat_local.inverted())
 		bone_info.enumeration[bone_i] = [4, bone_i]
 	if bone_info.zeros_count:

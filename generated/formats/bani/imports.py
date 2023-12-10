@@ -22,7 +22,7 @@ type_module_name_map = {
 	'FixedString': 'generated.formats.base.compounds.FixedString',
 	'Vector2': 'generated.formats.base.compounds.Vector2',
 	'Vector3': 'generated.formats.base.compounds.Vector3',
-	'Vector4': 'generated.formats.bani.compounds.Vector4',
+	'Vector4': 'generated.formats.base.compounds.Vector4',
 	'Bool': 'generated.formats.ovl_base.basic',
 	'OffsetString': 'generated.formats.ovl_base.basic',
 	'Compression': 'generated.formats.ovl_base.enums.Compression',

@@ -2,6 +2,9 @@ class Vector3:
 
 	# START_CLASS
 
+	def __setitem__(self, k, v):
+		self.x, self.y, self.z = v
+
 	def set(self, vec):
 		if hasattr(vec, "x"):
 			self.x = vec.x

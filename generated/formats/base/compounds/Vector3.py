@@ -39,6 +39,9 @@ class Vector3(BaseStruct):
 		yield 'y', name_type_map['Float'], (0, None), (False, None)
 		yield 'z', name_type_map['Float'], (0, None), (False, None)
 
+	def __setitem__(self, k, v):
+		self.x, self.y, self.z = v
+
 	def set(self, vec):
 		if hasattr(vec, "x"):
 			self.x = vec.x

@@ -1,23 +1,10 @@
 import bpy
 
 
-def create_anim(ob, anim_name):
-	action = bpy.data.actions.new(name=anim_name)
-	action.use_fake_user = True
-	ob.animation_data_create()
-	ob.animation_data.action = action
-	return action
-
-
 class Animation:
 
 	def __init__(self):
 		self.fps = 30
-		# store the actions per run here
-		# we need to be able to map their names to blender actions
-		# to prevent overwriting existing animations from older imports
-		# and still be able to access existing actions from this run
-		self.actions = {}
 
 	@staticmethod
 	def get_b_interp_from_n_interp(n_ipol):
@@ -33,12 +20,13 @@ class Animation:
 
 	def create_action(self, b_obj, action_name):
 		""" Create or retrieve action and set it as active on the object. """
-		if action_name in self.actions:
-			b_action = self.actions[action_name]
+		if action_name in bpy.data.actions:
+			b_action = bpy.data.actions[action_name]
+			# clear and overwrite existing keys
+			b_action.fcurves.clear()
 		else:
 			b_action = bpy.data.actions.new(action_name)
 			b_action.use_fake_user = True
-			self.actions[action_name] = b_action
 		# could probably skip this test and create always
 		if not b_obj.animation_data:
 			b_obj.animation_data_create()

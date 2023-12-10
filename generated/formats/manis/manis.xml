@@ -356,11 +356,11 @@
 		<add name="scl_bone_to_channel" type="#T#" arr1="(#ARG#\SclBoneMax - #ARG#\SclBoneMin) + 1" cond="#ARG#\SclBoneMin #LTE# #ARG#\SclBoneMax"/>
 		<add name="pad" type="PadAlign" template="ref" arg="4"/>
 		start of uncompressed keyframe data
-		<add name="PosBones" type="Vector3" arr1="#ARG#\FrameCount" arr2="#ARG#\PosBoneCount" cond="#ARG#\dtype\compression #EQ# 0" />
-		<add name="OriBones" type="Vector4H" arr1="#ARG#\FrameCount" arr2="#ARG#\OriBoneCount" cond="#ARG#\dtype\compression #EQ# 0" />
+		<add name="PosBones" type="float" arr1="#ARG#\FrameCount" arr2="#ARG#\PosBoneCount" arr3="3" cond="#ARG#\dtype\compression #EQ# 0" />
+		<add name="OriBones" type="normshort" arr1="#ARG#\FrameCount" arr2="#ARG#\OriBoneCount" arr3="4" cond="#ARG#\dtype\compression #EQ# 0" />
 		found in DLA SpaceMountain animations.manisetd740d135, and PZ crane
-		<add name="ShrBones" type="Vector2" arr1="#ARG#\FrameCount" arr2="#ARG#\SclBoneCount" cond="#ARG#\dtype\compression #EQ# 0" />
-		<add name="SclBones" type="Vector3" arr1="#ARG#\FrameCount" arr2="#ARG#\SclBoneCount" cond="#ARG#\dtype\compression #EQ# 0" />
+		<add name="ShrBones" type="float" arr1="#ARG#\FrameCount" arr2="#ARG#\SclBoneCount" arr3="2" cond="#ARG#\dtype\compression #EQ# 0" />
+		<add name="SclBones" type="float" arr1="#ARG#\FrameCount" arr2="#ARG#\SclBoneCount" arr3="3" cond="#ARG#\dtype\compression #EQ# 0" />
 		always uncompressed, possibly because ACL didn't support scalars
 		<add name="Floats" type="float" arr1="#ARG#\FrameCount" arr2="#ARG#\FloatCount" />
 		<add name="uncompressed_pad" type="PadAlign" template="ref" arg="16"/>

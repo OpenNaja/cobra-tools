@@ -59,6 +59,7 @@ def import_wsm(corrector, b_action, folder, mani_info, bone_name, bones_data):
 	if os.path.isfile(wsm_path):
 		logging.info(f"Importing {wsm_name}")
 		wsm = WsmHeader.from_xml_file(wsm_path, mani_info.context)
+		# print(wsm)
 		bonerestmat_inv = bones_data[bone_name]
 		loc_fcurves = anim_sys.create_fcurves(b_action, "location", range(3), None, bone_name)
 		for frame_i, key in enumerate(wsm.locs.data):
@@ -99,19 +100,18 @@ def load(files=[], filepath="", set_fps=False):
 		b_action = anim_sys.create_action(b_armature_ob, mi.name)
 		print(mi)
 		k = mi.keys
+		import_wsm(corrector, b_action, folder, mi, "srb", bones_data)
 		if mi.dtype.compression != 0:
 			logging.info(f"{mi.name} is compressed, trying to import anyway")
-			b_action.use_frame_range = True
-			b_action.frame_start = 0
-			b_action.frame_end = mi.frame_count
 			ck = k.compressed
 			try:
 				manis.decompress(None, mi)
 			except:
+				b_action.use_frame_range = True
+				b_action.frame_start = 0
+				b_action.frame_end = mi.frame_count-1
 				logging.exception(f"Decompressing {mi.name} failed, skipping")
 				continue
-
-			import_wsm(corrector, b_action, folder, mi, "srb", bones_data)
 
 			for frame_i, key, bonerestmat_inv, fcurves, scale, b_name in iter_keys(
 					k.pos_bones_names, ck.pos_bones, bones_data, b_action, "location"):  #, k.scl_bones_names, ck.scl_bones):
@@ -141,15 +141,16 @@ def load(files=[], filepath="", set_fps=False):
 		logging.info(f"Importing '{mi.name}'")
 		for frame_i, key, bonerestmat_inv, fcurves, scale, b_name in iter_keys(
 				k.pos_bones_names, k.pos_bones, bones_data, b_action, "location", k.scl_bones_names, k.scl_bones):
-			key = mathutils.Vector([key.x, key.y, key.z])
 			# correct for scale
-			if scale:
-				key = mathutils.Vector([key.x * scale.z, key.y * scale.y, key.z * scale.x])
+			if scale is not None:
+				key = mathutils.Vector([key[0] * scale[2], key[1] * scale[1], key[2] * scale[0]])
+			else:
+				key = mathutils.Vector(key)
 			key = (bonerestmat_inv @ corrector.nif_bind_to_blender_bind(mathutils.Matrix.Translation(key))).to_translation()
 			anim_sys.add_key(fcurves, frame_i, key, interp_loc)
 		for frame_i, key, bonerestmat_inv, fcurves, _, b_name in iter_keys(
 				k.ori_bones_names, k.ori_bones, bones_data, b_action, "rotation_quaternion"):
-			key = mathutils.Quaternion([key.w, key.x, key.y, key.z])
+			key = mathutils.Quaternion([key[3], key[0], key[1], key[2]])
 			# if frame_i == 0 and b_name == "def_c_hips_joint":
 			# 	logging.info(f"{mi.name} {key}")
 			key = (bonerestmat_inv @ corrector.nif_bind_to_blender_bind(key.to_matrix().to_4x4())).to_quaternion()
@@ -161,7 +162,7 @@ def load(files=[], filepath="", set_fps=False):
 		for frame_i, key, bonerestmat_inv, fcurves, _, b_name in iter_keys(
 				k.scl_bones_names, k.scl_bones, bones_data, b_action, "scale"):
 			# swizzle
-			key = mathutils.Vector([key.z, key.y, key.x])
+			key = mathutils.Vector([key[2], key[1], key[0]])
 			# correct axes
 			mat = get_scale_mat(key)
 			key = corrector.nif_bind_to_blender_bind(mat).to_scale()
@@ -181,6 +182,6 @@ def load(files=[], filepath="", set_fps=False):
 				logging.warning(f"Don't know how to import floats for '{b_name}'")
 
 	scene.frame_start = 0
-	scene.frame_end = mi.frame_count
-	scene.render.fps = int(round(mi.frame_count / mi.duration))
+	scene.frame_end = mi.frame_count-1
+	scene.render.fps = int(round((mi.frame_count-1) / mi.duration))
 	return {'FINISHED'}

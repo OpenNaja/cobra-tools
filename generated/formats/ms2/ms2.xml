@@ -228,14 +228,6 @@
 		<field name="data" type="float" arr1="3" arr2="3">Stored in OpenGL column-major format.</field>
 	</compound>
 
-	<compound name="Vector4" size="16">
-		A vector in 4D space (x,y,z,w).
-		<field name="x" type="float">First coordinate.</field>
-		<field name="y" type="float">Second coordinate.</field>
-		<field name="z" type="float">Third coordinate.</field>
-		<field name="w" type="float">zeroth coordinate.</field>
-	</compound>
-
 	<compound name="AxisAngle" size="16">
 		<field name="a" type="float" default="1.0"/>
 		when a = 1.0, x,y,z = 0

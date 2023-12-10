@@ -18,14 +18,6 @@
         <field name="z" type="ushort">Third coordinate.</field>
     </compound>
 
-    <compound name="Vector4" size="16">
-        A vector in 3D space (x,y,z).
-        <field name="w" type="float">zeroth coordinate.</field>
-        <field name="x" type="float">First coordinate.</field>
-        <field name="y" type="float">Second coordinate.</field>
-        <field name="z" type="float">Third coordinate.</field>
-    </compound>
-
 	<compound name="BaniRoot" inherit="MemStruct">
 		24 bytes This varies per bani animation file and describes the bani's frames and duration
         <add name="banis" type="Pointer" >points to the banis file used</add>
