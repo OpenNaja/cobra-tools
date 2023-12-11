@@ -108,6 +108,8 @@ def export_ik(b_armature_ob, bone_info):
 	for p_bone in b_armature_ob.pose.bones:
 		for constraint in p_bone.constraints:
 			if constraint.type == "COPY_ROTATION":
+				if not constraint.subtarget:
+					raise AttributeError(f"Copy Rotation constraint on bone '{p_bone.name}' has no target")
 				bones_with_target[p_bone] = constraint.subtarget
 				# only if parent actually has IK constraint
 				if p_bone.parent.constraints:
@@ -130,12 +132,18 @@ def export_ik(b_armature_ob, bone_info):
 	ik_info.reset_field("ik_targets")
 	ik_info.reset_field("ik_list")
 	bones_map = {bone.name: bone for bone in bone_info.bones}
+
+	def check_ik_name(name):
+		try:
+			return bones_map[bone_name_for_ovl(name)]
+		except:
+			raise KeyError(f"Bone '{name}' is used by IK constraints but does not exist")
 	for ik_target, (p_end, p_target_name) in zip(ik_info.ik_targets, bones_with_target.items()):
-		ik_target.ik_end.joint = bones_map[bone_name_for_ovl(p_end.name)]
-		ik_target.ik_blend.joint = bones_map[bone_name_for_ovl(p_target_name)]
+		ik_target.ik_end.joint = check_ik_name(p_end.name)
+		ik_target.ik_blend.joint = check_ik_name(p_target_name)
 	for ik_link, (p_child, p_parent) in zip(ik_info.ik_list, bones_with_ik.items()):
-		ik_link.parent.joint = bones_map[bone_name_for_ovl(p_parent.name)]
-		ik_link.child.joint = bones_map[bone_name_for_ovl(p_child.name)]
+		ik_link.parent.joint = check_ik_name(p_parent.name)
+		ik_link.child.joint = check_ik_name(p_child.name)
 		ik_link.yaw.min = -math.degrees(p_child.ik_min_x)
 		ik_link.yaw.max = math.degrees(p_child.ik_max_x)
 		ik_link.pitch.min = -math.degrees(p_child.ik_min_z)
@@ -167,7 +175,10 @@ def export_joints(bone_info, corrector):
 		joint_info.name = bone_name_for_ovl(get_joint_name(b_joint))
 		joint_info.index = joint_i
 		joint_info.bone_name = bone_name_for_ovl(b_joint.parent_bone)
-		bone_i = bone_lut[joint_info.bone_name]
+		try:
+			bone_i = bone_lut[joint_info.bone_name]
+		except KeyError:
+			raise KeyError(f"Joint '{b_joint.name}' is child of bone '{b_joint.parent_bone}', which is missing")
 		joints.joint_to_bone[joint_i] = bone_i
 		joints.bone_to_joint[bone_i] = joint_i
 		# update joint transform
