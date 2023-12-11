@@ -15,7 +15,7 @@ from generated.formats.ms2.compounds.Model import Model
 from generated.formats.ms2.compounds.ModelInfo import ModelInfo
 from generated.formats.ms2.compounds.BoneInfo import BoneInfo
 from generated.formats.ms2.compounds.packing_utils import PACKEDVEC_MAX
-from generated.formats.ms2 import Ms2File, is_jwe2
+from generated.formats.ms2 import Ms2File
 from plugin.modules_export.armature import get_armature, export_bones_custom
 from plugin.modules_export.collision import export_bounds, get_bounds
 from plugin.modules_export.geometry import export_model, scale_bbox
@@ -37,6 +37,11 @@ def get_pack_base(b_obs, apply_transforms=False):
 	for pack_base in [float(2 ** x) for x in range(1, 16)]:
 		if -pack_base < coord_min*tolerance and coord_max*tolerance < pack_base:
 			return pack_base
+
+
+def get_precision(pack_base):
+	# precision is close to pack_base / PACKEDVEC_MAX but with some error
+	return (pack_base + (pack_base*pack_base / PACKEDVEC_MAX)) / PACKEDVEC_MAX
 
 
 def get_next_backup_filename(filepath):
@@ -148,7 +153,8 @@ def save(filepath='', backup_original=True, apply_transforms=False, update_rig=F
 			model_info.pack_base = get_pack_base(lod_collections[0].objects, apply_transforms)
 		else:
 			model_info.pack_base = 512.0
-		# logging.debug(f"chose pack_base = {model_info.pack_base}")
+		model_info.precision = get_precision(model_info.pack_base)
+		# logging.info(f"chose pack_base = {model_info.pack_base}")
 		stream_index = 0
 		for lod_i, lod_coll in enumerate(lod_collections):
 			m_lod = LodInfo(ms2.context)

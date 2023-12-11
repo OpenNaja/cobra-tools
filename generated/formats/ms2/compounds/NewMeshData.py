@@ -244,7 +244,6 @@ class NewMeshData(MeshData):
 	def pack_verts(self):
 		"""Repack flat lists into verts_data"""
 		logging.info("Packing vertices")
-		self.precision = self.get_precision(self.pack_base)
 		self.verts_data = np.zeros(self.vertex_count, dtype=self.dt)
 
 		if self.use_custom_normals:

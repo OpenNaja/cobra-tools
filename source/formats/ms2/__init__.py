@@ -491,7 +491,11 @@ if __name__ == "__main__":
 	# m.load("C:/Users/arnfi/Desktop/visual_lagoon_no_optimizer.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/ankylosaurus.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/calamite/tree_paleo_calamite.ms2", read_editable=True, dump=True)
-	m.load("C:/Users/arnfi/Desktop/mango/tree_mango.ms2", read_editable=True, dump=True)
+	# m.load("C:/Users/arnfi/Desktop/mango/tree_mango.ms2", read_editable=True, dump=True)
+	# m.load("C:/Users/arnfi/Desktop/ao_offroadvehicle_ - stock.ms2", read_editable=True)
+	# print(m)
+	m.load("C:/Users/arnfi/Desktop/ao_offroadvehicle_.ms2", read_editable=True)
+	print(m)
 	# m.load("C:/Users/arnfi/Desktop/models.ms2", read_editable=True)
 	# for i, bone_info in enumerate(m.models_reader.bone_infos):
 	# 	# for bi, bone in enumerate(bone_info.bones):

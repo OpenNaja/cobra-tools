@@ -374,7 +374,7 @@ class ChunkedMesh(MeshData):
 				vert_chunk.weights_flag.has_weights = False
 				vert_chunk.weights_flag.bone_index = b_bone_id
 			vert_chunk.pack_base = self.pack_base
-			vert_chunk.precision = self.get_precision(vert_chunk.pack_base)
+			vert_chunk.precision = self.precision
 
 	@property
 	def use_custom_normals(self):

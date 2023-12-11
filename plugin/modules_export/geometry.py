@@ -248,6 +248,7 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 
 	# update vert & tri array
 	mesh.pack_base = model_info.pack_base
+	mesh.precision = model_info.precision
 	# for JWE2 so we can store these on the tri chunks
 	mesh.shell_index = shell_index
 	mesh.shell_count = shell_count
