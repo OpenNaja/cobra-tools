@@ -12,7 +12,7 @@ from plugin.modules_import.armature import import_armature, append_armature_modi
 from plugin.utils.hair import add_psys
 from plugin.modules_import.material import import_material
 from plugin.utils.shell import is_fin, num_fur_as_weights, is_shell, gauge_uv_scale_wrapper
-from plugin.utils.object import create_ob, create_collection, mesh_from_data, set_collection_visibility
+from plugin.utils.object import create_ob, create_scene, create_collection, mesh_from_data, set_collection_visibility
 from generated.formats.ms2 import Ms2File, is_old
 from generated.formats.ms2.enums.MeshFormat import MeshFormat
 
@@ -26,12 +26,8 @@ def load(filepath="", use_custom_normals=False, mirror_mesh=False):
 	# print(ms2)
 	created_materials = {}
 	for mdl2_name, model_info in zip(ms2.mdl_2_names, ms2.model_infos):
-		scene = bpy.data.scenes.new(mdl2_name)
+		scene = create_scene(mdl2_name, int(model_info.render_flag), len(ms2.modelstream_names), ms2.context.version)
 		bpy.context.window.scene = scene
-		# store scene properties
-		scene["render_flag"] = int(model_info.render_flag)
-		scene.cobra.num_streams = len(ms2.modelstream_names)
-		scene.cobra.version = ms2.context.version
 
 		bone_names = get_bone_names(model_info)
 		b_armature_obj = import_armature(scene, model_info, bone_names)

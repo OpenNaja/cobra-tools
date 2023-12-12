@@ -32,6 +32,18 @@ def get_lod(ob):
 			return coll.name
 
 
+# @TODO: Create appropriate defaults
+def create_scene(name, render_flag=0, num_streams=0, version=0):
+	logging.debug(f"Adding scene {name} to blender")
+	if name not in bpy.data.scenes:
+		scene = bpy.data.scenes.new(name)
+		# store scene properties
+		scene["render_flag"] = render_flag
+		scene.cobra.num_streams = num_streams
+		scene.cobra.version = version
+	return bpy.data.scenes[name]
+
+
 def create_collection(scene, coll_name):
 	# turn any relative collection names to include the scene prefix
 	if not coll_name.startswith(f"{scene.name}_"):
