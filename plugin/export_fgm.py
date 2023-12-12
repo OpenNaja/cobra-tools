@@ -125,7 +125,8 @@ def export_textures(b_mat, folder, mat_name, fgm_root, game, shader_name, c):
 		tex.name = tex_name
 		dep = TextureData(fgm_root.context, arg=tex)
 
-		raw_entries = [texture_info[k] for k in tex_keys]
+		# k might be empty if it appears to be unused, skip those
+		raw_entries = [texture_info[k] for k in tex_keys if k]
 		raw_types = [type(e) for e in raw_entries]
 		print(tex_name, raw_entries, raw_types)
 		if any(k in (bpy.types.Image, ) for k in raw_types):
