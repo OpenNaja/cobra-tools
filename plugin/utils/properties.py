@@ -9,19 +9,18 @@ from constants import ConstantsProvider
 from generated.formats.ms2 import games
 from generated.formats.ms2.enums.Jwe1Collision import Jwe1Collision
 from generated.formats.ms2.enums.Jwe1Surface import Jwe1Surface
-from generated.formats.ms2.enums.MeshFormat import MeshFormat
 from generated.formats.ms2.enums.RigidBodyFlag import RigidBodyFlag
 
 
 class VersionedPropertyGroup(PropertyGroup):
 
 	def get_current_game_suffix(self, context):
-		version = context.scene.cobra.version
-		if version in (47, ):
+		game = context.scene.cobra.game
+		if game == "Jurassic World Evolution":
 			return "_jwe"
-		elif version in (48, 50):
+		elif game == "Planet Zoo":
 			return "_pz"
-		elif version in (51, 52):
+		elif game == "Jurassic World Evolution 2":
 			return "_jwe2"
 
 	def get_current_versioned_name(self, context, name):
@@ -44,13 +43,6 @@ class CobraSceneSettings(PropertyGroup):
 		min=0,
 		max=6
 	)
-	version: IntProperty(
-		name="MS2 Version",
-		description="Version to use for export",
-		default=50,
-		min=0,
-		max=100
-	)
 	game: EnumProperty(
 		name='Game',
 		description='Cobra game version for this scene',
@@ -59,11 +51,6 @@ class CobraSceneSettings(PropertyGroup):
 
 
 class CobraMeshSettings(PropertyGroup):
-	# mesh_format: EnumProperty(
-	# 	name='Mesh Format',
-	# 	description='Mesh format used for this mesh - JWE2 after Biosyn update',
-	# 	items=[("NONE", "None", "")] + [(item.name, item.name, "") for i, item in enumerate(MeshFormat)]
-	# )
 	pass
 
 

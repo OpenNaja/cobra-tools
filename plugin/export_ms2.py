@@ -15,7 +15,7 @@ from generated.formats.ms2.compounds.Model import Model
 from generated.formats.ms2.compounds.ModelInfo import ModelInfo
 from generated.formats.ms2.compounds.BoneInfo import BoneInfo
 from generated.formats.ms2.compounds.packing_utils import PACKEDVEC_MAX
-from generated.formats.ms2 import Ms2File
+from generated.formats.ms2 import Ms2File, set_game
 from plugin.modules_export.armature import get_armature, export_bones_custom
 from plugin.modules_export.collision import export_bounds, get_bounds
 from plugin.modules_export.geometry import export_model, scale_bbox
@@ -99,7 +99,8 @@ def save(filepath='', backup_original=True, apply_transforms=False, update_rig=F
 	model_info_lut = {model_info.name: model_info for model_info in ms2.model_infos}
 	for scene in bpy.data.scenes:
 		if from_scratch:
-			ms2.context.version = ms2.info.version = scene.cobra.version
+			set_game(ms2.context, scene.cobra.game)
+			set_game(ms2.info, scene.cobra.game)
 			model_info = ModelInfo(ms2.context)
 			model_info.name = scene.name
 			model_info.bone_info = BoneInfo(ms2.context)

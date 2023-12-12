@@ -192,11 +192,11 @@ def export_joints(bone_info, corrector):
 		joint_info.hitcheck_count = len(b_joint.children)
 		joint_info.reset_field("hitchecks")
 		joint_info.reset_field("hitcheck_pointers")
-		version = bpy.context.scene.cobra.version
+		game = bpy.context.scene.cobra.game
 		for hitcheck, b_hitcheck in zip(joint_info.hitchecks, b_joint.children):
 			surface_name = b_hitcheck.cobra_coll.get_value(bpy.context, "surface")
 			classification_name = b_hitcheck.cobra_coll.get_value(bpy.context, "classification")
-			if version in (47, ):
+			if game == "Jurassic World Evolution":
 				hitcheck.surface_name = Jwe1Surface[surface_name]
 				hitcheck.classification_name = Jwe1Collision[classification_name]
 			else:

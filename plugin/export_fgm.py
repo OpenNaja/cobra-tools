@@ -60,7 +60,7 @@ def get_shared_material_names(col):
 	return materials
 
 
-def export_textures(b_mat, folder, mat_name, fgm_root, mod_game, shader_name, c):
+def export_textures(b_mat, folder, mat_name, fgm_root, game, shader_name, c):
 	# print("Material textures: " + str(textures))
 	slots = {
 		"BC": "Base colour",
@@ -112,9 +112,9 @@ def export_textures(b_mat, folder, mat_name, fgm_root, mod_game, shader_name, c)
 			texture_info[slot] = defaults.get(slot, None)
 
 	try:
-		tex_channel_map = c[mod_game.value]["textures"][shader_name]
+		tex_channel_map = c[game]["textures"][shader_name]
 	except:
-		logging.warning(f"No presets for shader '{shader_name}' game {mod_game}")
+		logging.warning(f"No presets for shader '{shader_name}' game {game}")
 		raise
 	# print(tex_channel_map)
 	for tex_name, tex_keys in tex_channel_map.items():
@@ -174,11 +174,11 @@ def export_textures(b_mat, folder, mat_name, fgm_root, mod_game, shader_name, c)
 		fgm_root.name_foreach_textures.data.append(dep)
 
 
-def export_attributes(b_mat, folder, mat_name, fgm_root, mod_game, shader_name, c):
+def export_attributes(b_mat, folder, mat_name, fgm_root, game, shader_name, c):
 	try:
-		textures, attrib_dic = c[mod_game.value]["shaders"][shader_name]
+		textures, attrib_dic = c[game]["shaders"][shader_name]
 	except:
-		logging.warning(f"No attributes for shader '{shader_name}' in game {mod_game}")
+		logging.warning(f"No attributes for shader '{shader_name}' in game {game}")
 		raise
 	for att_name, attr_data in attrib_dic.items():
 		att = AttribInfo(fgm_root.context)
@@ -198,7 +198,7 @@ def export_attributes(b_mat, folder, mat_name, fgm_root, mod_game, shader_name, 
 		fgm_root.value_foreach_attributes.data.append(data)
 
 
-def export_fgm_at(folder, mod_game, mat_name):
+def export_fgm_at(folder, game, mat_name):
 	print("\nExporting Material: " + os.path.join(folder, mat_name + '.fgm'))
 	b_mat = bpy.data.materials[mat_name]
 	print("Shader type: " + b_mat.blend_method)
@@ -207,7 +207,7 @@ def export_fgm_at(folder, mod_game, mat_name):
 	# populate material textures
 
 	context = OvlContext()
-	set_game(context, mod_game.value)
+	set_game(context, game)
 	# export the curve data
 	fgm_root = FgmHeader(context)
 	fgm_root.textures.data = Array(context, 0, None, (0,), fgm_root.textures.template)
@@ -219,8 +219,8 @@ def export_fgm_at(folder, mod_game, mat_name):
 	fgm_root.shader_name = b_mat.fgm.shader_name
 	c = ConstantsProvider(("shaders", "textures"))
 	print(fgm_root.shader_name)
-	export_textures(b_mat, folder, mat_name, fgm_root, mod_game, fgm_root.shader_name, c)
-	export_attributes(b_mat, folder, mat_name, fgm_root, mod_game, fgm_root.shader_name, c)
+	export_textures(b_mat, folder, mat_name, fgm_root, game, fgm_root.shader_name, c)
+	export_attributes(b_mat, folder, mat_name, fgm_root, game, fgm_root.shader_name, c)
 	
 	fgm_path = os.path.join(folder, mat_name + ".fgm")
 	with FgmHeader.to_xml_file(fgm_root, fgm_path) as xml_root:
@@ -298,12 +298,6 @@ def save(filepath=""):
 	b_mat = bpy.context.active_object.active_material
 	mat_name = b_mat.name
 	# get game from GUI dropdown
-	context = Ms2Context()
-	context.version = bpy.context.scene.cobra.version
-	game_item = get_game(context)[0]
-	# mod_game = bpy.data.collections["Collection"].mod.game
-	# game_item = games[mod_game]
-	print(game_item)
-
-	export_fgm_at(folder, game_item, mat_name)
+	game = bpy.context.scene.cobra.game
+	export_fgm_at(folder, game, mat_name)
 	return f"Finished FGM export",

@@ -99,7 +99,7 @@ def create_lods():
 		if lod_index > 0:
 			for ob_index, ob in enumerate(lod_collections[0].objects):
 				# additional skip condition for JWE2, as shell is separate from base fur here
-				if scn.cobra.version == 52:
+				if scn.cobra.game == "Jurassic World Evolution 2":
 					if is_shell(ob) and lod_index > 1:
 						continue
 				# check if we want to copy this one
@@ -653,7 +653,7 @@ def build_fins_geom(shell_ob):
 			vg = ob.vertex_groups[vg_name]
 			ob.vertex_groups.remove(vg)
 	# only change flag for PZ
-	if bpy.context.scene.cobra.version < 52:
+	if bpy.context.scene.cobra.game == "Planet Zoo":
 		me["flag"] = 565
 
 	# remove the particle system, since we no longer have a fur length vertex group

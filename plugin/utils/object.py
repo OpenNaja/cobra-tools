@@ -1,6 +1,8 @@
 import logging
 import bpy
 
+from generated.formats.ms2 import get_game, Ms2Context
+
 
 def mesh_from_data(scene, name, verts, faces, wireframe=False, coll_name=None, coll=None):
 	me = bpy.data.meshes.new(name)
@@ -40,7 +42,10 @@ def create_scene(name, render_flag=0, num_streams=0, version=0):
 		# store scene properties
 		scene["render_flag"] = render_flag
 		scene.cobra.num_streams = num_streams
-		scene.cobra.version = version
+		context = Ms2Context()
+		context.version = version
+		game_item = get_game(context)[0]
+		scene.cobra.game = game_item.value
 	return bpy.data.scenes[name]
 
 
