@@ -13,7 +13,7 @@ from plugin.utils.hair import add_psys
 from plugin.modules_import.material import import_material
 from plugin.utils.shell import is_fin, num_fur_as_weights, is_shell, gauge_uv_scale_wrapper
 from plugin.utils.object import create_ob, create_scene, create_collection, mesh_from_data, set_collection_visibility
-from generated.formats.ms2 import Ms2File, is_old
+from generated.formats.ms2 import Ms2File
 from generated.formats.ms2.enums.MeshFormat import MeshFormat
 
 
@@ -70,7 +70,7 @@ def load(filepath="", use_custom_normals=False, mirror_mesh=False):
 						# store mesh unknowns
 						# cast the bitfield to int
 						b_me["flag"] = int(mesh.flag)
-						if not is_old(ms2.info):
+						if ms2.context.version > 32:
 							b_me["unk_f0"] = float(mesh.unk_floats[0])
 							b_me["unk_f1"] = float(mesh.unk_floats[1])
 					except:
@@ -110,7 +110,7 @@ def load(filepath="", use_custom_normals=False, mirror_mesh=False):
 				else:
 					b_ob = ob_dict[m_ob.mesh_index]
 				# we can't assume that the first ob referencing this mesh has it already
-				if not is_old(ms2.info) and is_shell(b_ob):
+				if ms2.context.version > 32 and is_shell(b_ob):
 					logging.debug(f"{b_ob.name} has shells, adding psys")
 					add_psys(b_ob, mesh.fur_length)
 			coll_name = f"{scene.name}_LOD{lod_i}"

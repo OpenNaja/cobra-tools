@@ -3,7 +3,6 @@
 <niftoolsxml version="0.7.1.0">
 
 	<token name="verexpr" attrs="vercond">
-		<verexpr token="#OLD#" string="(#VER# #LT# 47)">PC, ZTUAC, old JWE</verexpr>
 		<verexpr token="#DLA#" string="(#VER# #EQ# 7)">DLA</verexpr>
 		<verexpr token="#ZTUAC#" string="(#VER# #EQ# 13)">ZTUAC</verexpr>
 		<verexpr token="#PC#" string="(#VER# #EQ# 32)">PC</verexpr>
@@ -13,30 +12,25 @@
 		<verexpr token="#JWE2#" string="(#VER# #EQ# 51)">JWE2</verexpr>
 		There is a versioning issue introduced by the Biosyn update as the ms2 version has not been incremented immediately
 		<verexpr token="#JWE2_BIO#" string="(#VER# #EQ# 52)">JWE2</verexpr>
-		<verexpr token="#WAR#" string="(#VER# #EQ# 53)">WAR</verexpr>
+		<verexpr token="#WAR#" string="(#VER# #EQ# 53)">Warhammer Age of Sigmar - Realms of Ruin</verexpr>
 	</token>
 
 	<token name="global" attrs="vercond access">
 		Global Tokens.
 		NOTE: These must be listed after the above tokens so that they replace last. For example, `verexpr` uses these tokens.
 		<global token="#VER#" string="version" />
-<!--		<global token="#BIOSYN#" string="biosyn" />-->
 	</token>
 
 	<xi:include href="../ovl_base/ovl_base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
 
-<!--	<verattr name="biosyn" access="#BIOSYN#" index="1" />-->
-
 	set latest first so that that is set
-	<version id="old" version="32 13 7" >Old</version>
 	<version id="DLA" version="7" >Disneyland Adventures</version>
 	<version id="ZTUAC" version="13" >Zoo Tycoon Ultimate Animal Collection</version>
 	<version id="PC" version="32" >Planet Coaster</version>
 	<version id="JWE" version="47 39" >Jurassic World Evolution</version>
 	<version id="PZ" version="50 48" >Planet Zoo</version>
-	<version id="PZ16" version="50" >Planet Zoo (latest)</version>
 	<version id="JWE2" version="52 51" >Jurassic World Evolution 2</version>
-	<version id="WAR" version="53" >Warhammer RoR</version>
+	<version id="WAR" version="53" >Warhammer Age of Sigmar - Realms of Ruin</version>
 
 	<basic name="BiosynVersion" integral="true" countable="true">
 		An unsigned 32-bit integer.

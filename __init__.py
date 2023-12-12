@@ -200,6 +200,8 @@ class SCENE_PT_CobraTools(bpy.types.Panel):
         row.prop(context.scene.cobra, "num_streams")
         row = layout.row(align=True)
         row.prop(context.scene.cobra, "version")
+        row = layout.row(align=True)
+        row.prop(context.scene.cobra, "game")
         addon_updater_ops.update_notice_box_ui(self, context)
 
 

@@ -88,17 +88,6 @@ def set_war(context):
 	context.version = 262
 
 
-def is_waror(context):
-	if context.version == 20 and context.user_version in (24724, 25108, 24596) and context.is_dev == 0:
-		return True
-
-
-def set_waror(context):
-	context.version = 20
-	context.user_version._value = 24724
-	context.is_dev = 0
-
-
 def is_ztuac(context):
 	if context.version == 257:
 		return True
@@ -108,7 +97,7 @@ def set_ztuac(context):
 	context.version = 257
 
 
-games = Enum('Games', [('DLA', 'DLA'), ('JURASSIC_WORLD_EVOLUTION_2_DEV', 'Jurassic World Evolution 2 Dev'), ('JWE', 'JWE'), ('JWE_2', 'JWE2'), ('JWE_2_DEV_BUILD', 'JWE2 Dev Build'), ('PC', 'PC'), ('PLANET_ZOO', 'Planet Zoo'), ('PZ', 'PZ'), ('WAR', 'WAR'), ('WARHAMMER_AGE_OF_SIGMAR_REALMS_OF_RUIN', 'Warhammer Age of Sigmar - Realms of Ruin'), ('ZTUAC', 'ZTUAC'), ('UNKNOWN', 'Unknown Game')])
+games = Enum('Games', [('DLA', 'DLA'), ('JURASSIC_WORLD_EVOLUTION_2_DEV', 'Jurassic World Evolution 2 Dev'), ('JWE', 'JWE'), ('JWE_2', 'JWE2'), ('JWE_2_DEV_BUILD', 'JWE2 Dev Build'), ('PC', 'PC'), ('PLANET_ZOO', 'Planet Zoo'), ('PZ', 'PZ'), ('WAR', 'WAR'), ('ZTUAC', 'ZTUAC'), ('UNKNOWN', 'Unknown Game')])
 
 
 def get_game(context):
@@ -131,8 +120,6 @@ def get_game(context):
 		versions.extend([games.PLANET_ZOO])
 	if is_war(context):
 		versions.extend([games.WAR])
-	if is_waror(context):
-		versions.extend([games.WARHAMMER_AGE_OF_SIGMAR_REALMS_OF_RUIN])
 	if is_ztuac(context):
 		versions.extend([games.ZTUAC])
 	if not versions:
@@ -161,8 +148,6 @@ def set_game(context, game):
 		return set_pz16(context)
 	if game in {games.WAR}:
 		return set_war(context)
-	if game in {games.WARHAMMER_AGE_OF_SIGMAR_REALMS_OF_RUIN}:
-		return set_waror(context)
 	if game in {games.ZTUAC}:
 		return set_ztuac(context)
 
@@ -188,7 +173,6 @@ pc = ManisVersion(id='PC', version=(257,), primary_games=[], all_games=[games.PC
 pz = ManisVersion(id='PZ', version=(260,), primary_games=[], all_games=[games.PZ])
 pz16 = ManisVersion(id='PZ16', version=(20,), user_version=(VersionInfo.from_value(8340), VersionInfo.from_value(8724), VersionInfo.from_value(8212),), primary_games=[], all_games=[games.PLANET_ZOO])
 war = ManisVersion(id='WAR', version=(262,), primary_games=[], all_games=[games.WAR])
-waror = ManisVersion(id='WAROR', version=(20,), user_version=(VersionInfo.from_value(24724), VersionInfo.from_value(25108), VersionInfo.from_value(24596),), primary_games=[], all_games=[games.WARHAMMER_AGE_OF_SIGMAR_REALMS_OF_RUIN])
 ztuac = ManisVersion(id='ZTUAC', version=(257,), primary_games=[], all_games=[games.ZTUAC])
 
-available_versions = [dla, jwe, jwe2, jwe2dev, jwe2_dev, pc, pz, pz16, war, waror, ztuac]
+available_versions = [dla, jwe, jwe2, jwe2dev, jwe2_dev, pc, pz, pz16, war, ztuac]

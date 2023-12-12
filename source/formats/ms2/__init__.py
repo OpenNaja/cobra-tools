@@ -98,10 +98,10 @@ class Ms2File(Ms2InfoHeader, IoFile):
 		logging.info(f"Reading {self.filepath}")
 		with open(filepath, "rb") as stream:
 			self.read_fields(stream, self)
-			if is_old(self.info):
-				self.buffer_1_offset = self.buffer_infos.io_start
-			else:
+			if self.context.version > 32:
 				self.buffer_1_offset = self.models_reader.bone_info_start
+			else:
+				self.buffer_1_offset = self.buffer_infos.io_start
 			self.buffer_2_offset = self.buffer_1_offset + self.bone_info_size
 
 			# logging.info(f"self.buffer_2_offset {self.buffer_2_offset}")
@@ -199,10 +199,10 @@ class Ms2File(Ms2InfoHeader, IoFile):
 				wrapper.mesh.assign_buffer_info(self.buffer_infos)
 				if hasattr(wrapper.mesh, "uv_offset"):
 					wrapper.mesh.buffer_info.uvs_offsets.add(wrapper.mesh.uv_offset)
-			if is_old(self.info):
-				pack_base = 512.0
-			else:
+			if self.context.version > 32:
 				pack_base = model_info.pack_base
+			else:
+				pack_base = 512.0
 			try:
 				for i, wrapper in enumerate(model_info.model.meshes):
 					# logging.info(f"Populating mesh {i}")

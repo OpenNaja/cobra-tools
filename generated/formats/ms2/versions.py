@@ -61,12 +61,13 @@ def set_pz(context):
 
 
 def is_pz16(context):
-	if context.version == 50:
+	if context.version == 20 and context.user_version in (8340, 8724, 8212):
 		return True
 
 
 def set_pz16(context):
-	context.version = 50
+	context.version = 20
+	context.user_version._value = 8340
 
 
 def is_war(context):
@@ -78,17 +79,6 @@ def set_war(context):
 	context.version = 53
 
 
-def is_waror(context):
-	if context.version == 20 and context.user_version in (24724, 25108, 24596) and context.is_dev == 0:
-		return True
-
-
-def set_waror(context):
-	context.version = 20
-	context.user_version._value = 24724
-	context.is_dev = 0
-
-
 def is_ztuac(context):
 	if context.version == 13:
 		return True
@@ -98,16 +88,7 @@ def set_ztuac(context):
 	context.version = 13
 
 
-def is_old(context):
-	if context.version in (32, 13, 7):
-		return True
-
-
-def set_old(context):
-	context.version = 32
-
-
-games = Enum('Games', [('DISNEYLAND_ADVENTURES', 'Disneyland Adventures'), ('JURASSIC_WORLD_EVOLUTION', 'Jurassic World Evolution'), ('JURASSIC_WORLD_EVOLUTION_2', 'Jurassic World Evolution 2'), ('JURASSIC_WORLD_EVOLUTION_2_DEV', 'Jurassic World Evolution 2 Dev'), ('OLD', 'Old'), ('PLANET_COASTER', 'Planet Coaster'), ('PLANET_ZOO', 'Planet Zoo'), ('PLANET_ZOO_LATEST', 'Planet Zoo (latest)'), ('WARHAMMER_AGE_OF_SIGMAR_REALMS_OF_RUIN', 'Warhammer Age of Sigmar - Realms of Ruin'), ('WARHAMMER_RO_R', 'Warhammer RoR'), ('ZOO_TYCOON_ULTIMATE_ANIMAL_COLLECTION', 'Zoo Tycoon Ultimate Animal Collection'), ('UNKNOWN', 'Unknown Game')])
+games = Enum('Games', [('DISNEYLAND_ADVENTURES', 'Disneyland Adventures'), ('JURASSIC_WORLD_EVOLUTION', 'Jurassic World Evolution'), ('JURASSIC_WORLD_EVOLUTION_2', 'Jurassic World Evolution 2'), ('JURASSIC_WORLD_EVOLUTION_2_DEV', 'Jurassic World Evolution 2 Dev'), ('PLANET_COASTER', 'Planet Coaster'), ('PLANET_ZOO', 'Planet Zoo'), ('WARHAMMER_AGE_OF_SIGMAR_REALMS_OF_RUIN', 'Warhammer Age of Sigmar - Realms of Ruin'), ('ZOO_TYCOON_ULTIMATE_ANIMAL_COLLECTION', 'Zoo Tycoon Ultimate Animal Collection'), ('UNKNOWN', 'Unknown Game')])
 
 
 def get_game(context):
@@ -125,15 +106,11 @@ def get_game(context):
 	if is_pz(context):
 		versions.extend([games.PLANET_ZOO])
 	if is_pz16(context):
-		versions.extend([games.PLANET_ZOO_LATEST])
+		versions.extend([games.PLANET_ZOO])
 	if is_war(context):
-		versions.extend([games.WARHAMMER_RO_R])
-	if is_waror(context):
 		versions.extend([games.WARHAMMER_AGE_OF_SIGMAR_REALMS_OF_RUIN])
 	if is_ztuac(context):
 		versions.extend([games.ZOO_TYCOON_ULTIMATE_ANIMAL_COLLECTION])
-	if is_old(context):
-		versions.extend([games.OLD])
 	if not versions:
 		versions.extend([games.UNKNOWN])
 	return versions
@@ -154,16 +131,12 @@ def set_game(context, game):
 		return set_pc(context)
 	if game in {games.PLANET_ZOO}:
 		return set_pz(context)
-	if game in {games.PLANET_ZOO_LATEST}:
+	if game in {games.PLANET_ZOO}:
 		return set_pz16(context)
-	if game in {games.WARHAMMER_RO_R}:
-		return set_war(context)
 	if game in {games.WARHAMMER_AGE_OF_SIGMAR_REALMS_OF_RUIN}:
-		return set_waror(context)
+		return set_war(context)
 	if game in {games.ZOO_TYCOON_ULTIMATE_ANIMAL_COLLECTION}:
 		return set_ztuac(context)
-	if game in {games.OLD}:
-		return set_old(context)
 
 
 class Ms2Version(VersionBase):
@@ -184,10 +157,8 @@ jwe2 = Ms2Version(id='JWE2', version=(52, 51,), primary_games=[], all_games=[gam
 jwe2dev = Ms2Version(id='JWE2DEV', version=(20,), user_version=(VersionInfo.from_value(24724), VersionInfo.from_value(25108), VersionInfo.from_value(24596),), primary_games=[], all_games=[games.JURASSIC_WORLD_EVOLUTION_2_DEV])
 pc = Ms2Version(id='PC', version=(32,), primary_games=[], all_games=[games.PLANET_COASTER])
 pz = Ms2Version(id='PZ', version=(50, 48,), primary_games=[], all_games=[games.PLANET_ZOO])
-pz16 = Ms2Version(id='PZ16', version=(50,), primary_games=[], all_games=[games.PLANET_ZOO_LATEST])
-war = Ms2Version(id='WAR', version=(53,), primary_games=[], all_games=[games.WARHAMMER_RO_R])
-waror = Ms2Version(id='WAROR', version=(20,), user_version=(VersionInfo.from_value(24724), VersionInfo.from_value(25108), VersionInfo.from_value(24596),), primary_games=[], all_games=[games.WARHAMMER_AGE_OF_SIGMAR_REALMS_OF_RUIN])
+pz16 = Ms2Version(id='PZ16', version=(20,), user_version=(VersionInfo.from_value(8340), VersionInfo.from_value(8724), VersionInfo.from_value(8212),), primary_games=[], all_games=[games.PLANET_ZOO])
+war = Ms2Version(id='WAR', version=(53,), primary_games=[], all_games=[games.WARHAMMER_AGE_OF_SIGMAR_REALMS_OF_RUIN])
 ztuac = Ms2Version(id='ZTUAC', version=(13,), primary_games=[], all_games=[games.ZOO_TYCOON_ULTIMATE_ANIMAL_COLLECTION])
-old = Ms2Version(id='old', version=(32, 13, 7,), primary_games=[], all_games=[games.OLD])
 
-available_versions = [dla, jwe, jwe2, jwe2dev, pc, pz, pz16, war, waror, ztuac, old]
+available_versions = [dla, jwe, jwe2, jwe2dev, pc, pz, pz16, war, ztuac]

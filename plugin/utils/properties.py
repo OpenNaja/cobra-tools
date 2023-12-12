@@ -6,6 +6,7 @@ from bpy.props import IntProperty, EnumProperty
 from bpy.types import PropertyGroup
 
 from constants import ConstantsProvider
+from generated.formats.ms2 import games
 from generated.formats.ms2.enums.Jwe1Collision import Jwe1Collision
 from generated.formats.ms2.enums.Jwe1Surface import Jwe1Surface
 from generated.formats.ms2.enums.MeshFormat import MeshFormat
@@ -49,6 +50,11 @@ class CobraSceneSettings(PropertyGroup):
 		default=50,
 		min=0,
 		max=100
+	)
+	game: EnumProperty(
+		name='Game',
+		description='Cobra game version for this scene',
+		items=[(e.value, e.value, "") for e in games],
 	)
 
 

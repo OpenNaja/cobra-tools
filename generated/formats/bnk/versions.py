@@ -76,12 +76,12 @@ def set_pz16(context):
 	context.user_version._value = 8340
 
 
-def is_waror(context):
+def is_war(context):
 	if context.version == 20 and context.user_version in (24724, 25108, 24596) and context.is_dev == 0:
 		return True
 
 
-def set_waror(context):
+def set_war(context):
 	context.version = 20
 	context.user_version._value = 24724
 	context.is_dev = 0
@@ -115,7 +115,7 @@ def get_game(context):
 		versions.extend([games.PLANET_ZOO_PRE_1_6])
 	if is_pz16(context):
 		versions.extend([games.PLANET_ZOO])
-	if is_waror(context):
+	if is_war(context):
 		versions.extend([games.WARHAMMER_AGE_OF_SIGMAR_REALMS_OF_RUIN])
 	if is_ztuac(context):
 		versions.extend([games.ZOO_TYCOON_ULTIMATE_ANIMAL_COLLECTION])
@@ -142,7 +142,7 @@ def set_game(context, game):
 	if game in {games.PLANET_ZOO}:
 		return set_pz16(context)
 	if game in {games.WARHAMMER_AGE_OF_SIGMAR_REALMS_OF_RUIN}:
-		return set_waror(context)
+		return set_war(context)
 	if game in {games.ZOO_TYCOON_ULTIMATE_ANIMAL_COLLECTION}:
 		return set_ztuac(context)
 
@@ -166,7 +166,7 @@ jwe2dev = BnkVersion(id='JWE2DEV', version=(20,), user_version=(VersionInfo.from
 pc = BnkVersion(id='PC', version=(18,), user_version=(VersionInfo.from_value(8340), VersionInfo.from_value(8724), VersionInfo.from_value(8212),), version_flag=(8,), primary_games=[], all_games=[games.PLANET_COASTER])
 pz = BnkVersion(id='PZ', version=(19,), user_version=(VersionInfo.from_value(8340), VersionInfo.from_value(8724), VersionInfo.from_value(8212),), primary_games=[], all_games=[games.PLANET_ZOO_PRE_1_6])
 pz16 = BnkVersion(id='PZ16', version=(20,), user_version=(VersionInfo.from_value(8340), VersionInfo.from_value(8724), VersionInfo.from_value(8212),), primary_games=[], all_games=[games.PLANET_ZOO])
-waror = BnkVersion(id='WAROR', version=(20,), user_version=(VersionInfo.from_value(24724), VersionInfo.from_value(25108), VersionInfo.from_value(24596),), primary_games=[], all_games=[games.WARHAMMER_AGE_OF_SIGMAR_REALMS_OF_RUIN])
+war = BnkVersion(id='WAR', version=(20,), user_version=(VersionInfo.from_value(24724), VersionInfo.from_value(25108), VersionInfo.from_value(24596),), primary_games=[], all_games=[games.WARHAMMER_AGE_OF_SIGMAR_REALMS_OF_RUIN])
 ztuac = BnkVersion(id='ZTUAC', version=(17,), primary_games=[], all_games=[games.ZOO_TYCOON_ULTIMATE_ANIMAL_COLLECTION])
 
-available_versions = [dla, jwe, jwe2, jwe2dev, pc, pz, pz16, waror, ztuac]
+available_versions = [dla, jwe, jwe2, jwe2dev, pc, pz, pz16, war, ztuac]
