@@ -869,15 +869,15 @@
 		<add name="joint_infos" type="JointInfo" arr1="joint_count" until="32">without hitchecks, they are added later</add>
 		<add name="pc floats" type="float" arr1="pc count" arr2="10" until="32">sometimes an array of floats</add>
 
-		<add name="names_ref_pc" type="Empty"/>
+<!--		<add name="names_ref_pc" type="Empty"/>-->
 		<add name="joint_to_bone" type="int" arr1="joint_count" >index into bone info bones for each joint; bone that the joint is attached to</add>
 		<add name="bone_to_joint" type="int" arr1="bone count" >the inverse of the above; for each bone info bone, index of the corresponding joint or -1 if no joint</add>
 		<add name="joint_names" type="ZStringBuffer" arg="namespace length"/>
-		<add name="JointNamesPadding" type="PadAlign" template="names_ref" arg="8"/>known to be valid for JWE, may be present before already
+		<add name="JointNamesPadding" type="PadAlign" template="names_ref" arg="8"/>
 		# causes no harm but not 100% enough
 		<add name="hitcheck_pointer_reader" type="HitcheckPointerReader" arg="#SELF#" until="32">8 bytes per hc</add>
 		# nope
-<!--		<add name="hitcheck_pointer_padding" type="PadAlign" template="names_ref" arg="16" until="32"/>known to be valid for JWE, may be present before already-->
+<!--		<add name="hitcheck_pointer_padding" type="PadAlign" template="names_ref" arg="16" until="32"/>-->
 
 		<add name="after_names" type="SmartPadding" until="32" arg="8">
 			this seems to be always multiples of 8 bytes

@@ -67,7 +67,6 @@ class PcMeshData:
 		self.verts_data = self.read_pc_array(self.dt, self.vertex_offset, self.vertex_count)
 		self.uv_data = self.read_pc_array(self.dt_uv, self.uv_offset, self.vertex_count)
 		self.weights_data = self.read_pc_array(self.dt_w, self.weights_offset, self.vertex_count)
-		# todo - PC ostrich download has self.weights_offset = 0 for eyes and lashes, which consequently get wrong weights
 		# create arrays for the unpacked ms2_file
 		self.init_arrays()
 		# first cast to the float uvs array so unpacking doesn't use int division
@@ -85,6 +84,7 @@ class PcMeshData:
 		unpack_swizzle_vectorized(self.tangents)
 
 		# PC does not use use_blended_weights, nor a flag
+		# PC ostrich download has self.weights_offset = 0 for eyes and lashes, which consequently get wrong weights
 		if self.weights_offset != 0:
 			bone_weights = self.weights_data["bone weights"].astype(np.float32) / 255
 			self.get_blended_weights(self.weights_data["bone ids"], bone_weights)

@@ -54,6 +54,9 @@ class ZStringBuffer(BaseStruct):
 		self.offset_2_str = {}
 		with BytesIO() as stream:
 			for name in self.strings:
+				if not isinstance(name, str):
+					logging.warning(f"Name '{name}' is not a string, skipping")
+					continue
 				# store offset and write zstring
 				self.offset_dic[name] = stream.tell()
 				self.offset_2_str[stream.tell()] = name

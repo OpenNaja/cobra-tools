@@ -75,7 +75,6 @@ class JointData(BaseStruct):
 
 		# sometimes an array of floats
 		self.pc_floats = Array(self.context, 0, None, (0,), name_type_map['Float'])
-		self.names_ref_pc = name_type_map['Empty'](self.context, 0, None)
 
 		# index into bone info bones for each joint; bone that the joint is attached to
 		self.joint_to_bone = Array(self.context, 0, None, (0,), name_type_map['Int'])
@@ -132,7 +131,6 @@ class JointData(BaseStruct):
 		yield 'ragdoll_constraints', Array, (0, None, (None,), name_type_map['RagdollConstraint']), (False, None), (lambda context: context.version >= 47, None)
 		yield 'joint_infos', Array, (0, None, (None,), name_type_map['JointInfo']), (False, None), (lambda context: context.version <= 32, None)
 		yield 'pc_floats', Array, (0, None, (None, 10,), name_type_map['Float']), (False, None), (lambda context: context.version <= 32, None)
-		yield 'names_ref_pc', name_type_map['Empty'], (0, None), (False, None), (None, None)
 		yield 'joint_to_bone', Array, (0, None, (None,), name_type_map['Int']), (False, None), (None, None)
 		yield 'bone_to_joint', Array, (0, None, (None,), name_type_map['Int']), (False, None), (None, None)
 		yield 'joint_names', name_type_map['ZStringBuffer'], (None, None), (False, None), (None, None)
@@ -183,7 +181,6 @@ class JointData(BaseStruct):
 		if instance.context.version <= 32:
 			yield 'joint_infos', Array, (0, None, (instance.joint_count,), name_type_map['JointInfo']), (False, None)
 			yield 'pc_floats', Array, (0, None, (instance.pc_count, 10,), name_type_map['Float']), (False, None)
-		yield 'names_ref_pc', name_type_map['Empty'], (0, None), (False, None)
 		yield 'joint_to_bone', Array, (0, None, (instance.joint_count,), name_type_map['Int']), (False, None)
 		yield 'bone_to_joint', Array, (0, None, (instance.bone_count,), name_type_map['Int']), (False, None)
 		yield 'joint_names', name_type_map['ZStringBuffer'], (instance.namespace_length, None), (False, None)

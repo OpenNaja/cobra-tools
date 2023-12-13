@@ -47,14 +47,13 @@ class ModelReader(BaseStruct):
 			instance.bone_info_start = stream.tell()
 			for model_info in instance.arg.model_infos:
 				# DLA and ZTUAC don't go into shifts
-				# if instance.context.version != 32:
 				instance.get_padding(stream, alignment=8)
-				# instance.get_padding(stream, alignment=16)
 				s = stream.tell()
 				logging.debug(f"Model {model_info.name} at {s}")
 				# this little patch solves reading all of PC anubis models
 				for shift in (0, 16, 12, 8, 4, -4, -8, -12, -16):
 					stream.seek(s+shift)
+					model_info.shift = shift
 					try:
 						model_info.model = Model.from_stream(stream, instance.context, model_info)
 					except:
@@ -142,32 +141,6 @@ class ModelReader(BaseStruct):
 		# logging.info(bone_info)
 		self.read_hitcheck_verts(bone_info, stream)
 		logging.debug(f"end of bone info {i} at {stream.tell()}")
-
-		# if bone_info.joints and is_old(self):
-		# 	names_l = bone_info.joints.namespace_length
-		# 	pad_l = len(bone_info.joints.joint_names_padding.data)
-		# 	hits = sum(j.hitcheck_count for j in bone_info.joints.joint_infos_old)
-		# 	logging.debug(f"names total len: {names_l + pad_l} names: {names_l} padding: {pad_l} hits: {hits} joints: {bone_info.joints.joint_count}")
-		# 	if bone_info.joints.joint_infos_old:
-		# 		j = bone_info.joints.joint_infos_old[0]
-		# 		h = j.hitchecks[0]
-		# 		for t, size in enumerate(
-		# 				(h.io_start - self.buffer_1_offset,
-		# 				h.io_start - bone_info.io_start,
-		# 				h.io_start - bone_info.joints.io_start)
-		# 			):
-		# 			# any of those may not actually be padding
-		# 			for elem in (range(pad_l)):
-		# 				rel_size = size-elem
-		# 				for al in (32, 40, 48, 64):
-		# 					mod = rel_size % al
-		# 					# logging.debug(f"rel_size: {rel_size} mod{al}: {mod}")
-		# 					k = (t, elem, al)
-		# 					# see if it modulos to 0
-		# 					if not mod:
-		# 						if k not in self.dic:
-		# 							self.dic[k] = 0
-		# 						self.dic[k] += 1
 		return bone_info
 
 	def get_padding(self, stream, alignment=16, rel=None):
@@ -229,10 +202,28 @@ class ModelReader(BaseStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		instance.io_start = stream.tell()
-		i = 0
 		previous_bone_info = None
 		if instance.context.version < 47:
-			raise NotImplementedError("Can't write old style mesh and bone info blocks")
+			# buffer 1 starts at buffer_infos
+			instance.start_of_buffer = instance.arg.buffer_infos.io_start
+			# meh, add it here even though it's really interleaved
+			instance.bone_info_start = stream.tell()
+			for model_info in instance.arg.model_infos:
+				# DLA and ZTUAC don't go into shifts
+				instance.align_to(stream, alignment=8)
+				s = stream.tell()
+				logging.debug(f"Model {model_info.name} at {s}")
+				# write padding or seek back
+				if model_info.shift > 0:
+					stream.write(b"\x00" * model_info.shift)
+				elif model_info.shift < 0:
+					stream.seek(s+model_info.shift)
+				model_info.model.to_stream(model_info.model, stream, instance.context)
+				logging.debug(f"Model ends at {stream.tell()}")
+				# test for FR_GrandCarousel.ovl
+				if model_info.model.io_size == 0 and model_info.increment_flag:
+					SmartPadding.to_stream(model_info.model.padding, stream, instance.context)
+				previous_bone_info = cls.write_bone_info(instance, model_info, previous_bone_info, stream)
 		else:
 			for model_info in instance.arg.model_infos:
 				model_info.model.to_stream(model_info.model, stream, instance.context)
@@ -240,21 +231,24 @@ class ModelReader(BaseStruct):
 			# the models are not part of the buffer
 			instance.start_of_buffer = stream.tell()
 			for model_info in instance.arg.model_infos:
-				# check if they have a different bone info
-				if previous_bone_info is not model_info.bone_info:
-					logging.debug(f"{model_info.name} has its own bone_info")
-					model_info.increment_flag = 1
-					logging.debug(f"BONE INFO {i} starts at {stream.tell()}")
-					model_info.bone_info.to_stream(model_info.bone_info, stream, instance.context)
-					instance.write_hitcheck_verts(model_info.bone_info, stream)
-					instance.align_to(stream, alignment=16)
-					i += 1
-				else:
-					logging.debug(f"{model_info.name} reuses previous bone_info")
-					model_info.increment_flag = 0
-				previous_bone_info = model_info.bone_info
-			instance.bone_info_size = stream.tell() - instance.bone_info_start
+				previous_bone_info = cls.write_bone_info(instance, model_info, previous_bone_info, stream)
+		instance.bone_info_size = stream.tell() - instance.bone_info_start
 		instance.io_size = stream.tell() - instance.io_start
+
+	@classmethod
+	def write_bone_info(cls, instance, model_info, previous_bone_info, stream):
+		"""check if they have a different bone info"""
+		if previous_bone_info is not model_info.bone_info:
+			logging.debug(f"{model_info.name} has its own bone_info")
+			model_info.increment_flag = 1
+			logging.debug(f"BONE INFO starts at {stream.tell()}")
+			model_info.bone_info.to_stream(model_info.bone_info, stream, instance.context)
+			instance.write_hitcheck_verts(model_info.bone_info, stream)
+			instance.align_to(stream, alignment=16)
+		else:
+			logging.debug(f"{model_info.name} reuses previous bone_info")
+			model_info.increment_flag = 0
+		return model_info.bone_info
 
 	@classmethod
 	def get_fields_str(cls, instance, indent=0):

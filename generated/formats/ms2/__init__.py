@@ -446,9 +446,6 @@ class Ms2File(Ms2InfoHeader, IoFile):
 
 if __name__ == "__main__":
 	m = Ms2File()
-	# m.load("C:/Users/arnfi/Desktop/camerabone_.ms2", read_editable=True)
-	# m.load("C:/Users/arnfi/Desktop/FR_GrandCarousel.ms2", read_editable=True)
-	# m.load("C:/Users/arnfi/Desktop/SP_Grave_Stones.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC ovls/walker_export/SP_Scarecrow not working atm.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/Warhammer/Annihilator/annihilatormodels.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/acro/models.ms2", read_editable=True)
@@ -458,7 +455,9 @@ if __name__ == "__main__":
 	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/SP_Grave_Stones/models.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/Content0/Environment/Scenery/Themes/FT_FairyTale/FT_Topiary/FT_Topiary/models.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/Content0/Environment/Scenery/Themes/PR_Pirate/PR_Redcoat/PR_Redcoat/models.ms2", read_editable=True)
-	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/Content0/Rides/FlatRides/Chair-O-Plane/FR_COP/models.ms2", read_editable=True)
+	m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/Content0/Rides/FlatRides/Chair-O-Plane/FR_COP/models.ms2", read_editable=True)
+	m.save("C:/Users/arnfi/Desktop/testpc.ms2")
+
 	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/Content0/Rides/FlatRides/360_Power/FR_360PWR/models.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/Content0/Rides/FlatRides/Genie/Genie/models.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/Content0/Rides/Coasters/Tracks/Shared/TracksShared/css_004_models.ms2", read_editable=True)
@@ -495,8 +494,8 @@ if __name__ == "__main__":
 	# m.load("C:/Users/arnfi/Desktop/mango/tree_mango.ms2", read_editable=True, dump=True)
 	# m.load("C:/Users/arnfi/Desktop/ao_offroadvehicle_ - stock.ms2", read_editable=True)
 	# print(m)
-	m.load("C:/Users/arnfi/Desktop/ao_offroadvehicle_.ms2", read_editable=True)
-	print(m)
+	# m.load("C:/Users/arnfi/Desktop/ao_offroadvehicle_.ms2", read_editable=True)
+	# print(m)
 	# m.load("C:/Users/arnfi/Desktop/models.ms2", read_editable=True)
 	# for i, bone_info in enumerate(m.models_reader.bone_infos):
 	# 	# for bi, bone in enumerate(bone_info.bones):

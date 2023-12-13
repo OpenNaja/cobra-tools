@@ -55,17 +55,26 @@ class OffsetString(Int):
         # arg must be ZStringBuffer
         try:
             return arg.get_str_at(offset)
-        except:
+        except KeyError:
             return ""
+        except AttributeError:
+            logging.warning(f"Arg '{arg}' is not a ZStringBuffer")
+            return offset
 
     @classmethod
     def to_stream(cls, instance, stream, context, arg=0, template=None):
         # logging.info(f"arg {instance}, {arg}")
         # arg = ZStringBuffer needs to be filled before writing
         # now we just take the index prepared by the string table
-        try:
-            offset = arg.offset_dic.get(instance)
-        except KeyError:
-            raise KeyError(f"String '{instance}' was missing from ZStringBuffer '{arg}'")
+        if isinstance(instance, str):
+            try:
+                offset = arg.offset_dic.get(instance)
+            except AttributeError:
+                raise KeyError(f"Arg '{arg}' is not a ZStringBuffer")
+            except KeyError:
+                raise KeyError(f"String '{instance}' was missing from ZStringBuffer '{arg}'")
+        else:
+            logging.warning(f"OffsetString '{arg}' is not a string")
+            offset = instance
         # print(offset, instance, arg.offset_dic)
         super().to_stream(offset, stream, context, arg, template)
