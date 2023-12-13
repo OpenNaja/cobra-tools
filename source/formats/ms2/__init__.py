@@ -98,10 +98,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 		logging.info(f"Reading {self.filepath}")
 		with open(filepath, "rb") as stream:
 			self.read_fields(stream, self)
-			if self.context.version > 32:
-				self.buffer_1_offset = self.models_reader.bone_info_start
-			else:
-				self.buffer_1_offset = self.buffer_infos.io_start
+			self.buffer_1_offset = self.models_reader.buffer_1_start
 			self.buffer_2_offset = self.buffer_1_offset + self.bone_info_size
 
 			# logging.info(f"self.buffer_2_offset {self.buffer_2_offset}")
@@ -303,8 +300,11 @@ class Ms2File(Ms2InfoHeader, IoFile):
 
 	def update_buffer_1_bytes(self):
 		with BytesIO() as temp_bone_writer:
+			self.buffer_infos.to_stream(self.buffer_infos, temp_bone_writer, self.context)
+			self.model_infos.to_stream(self.model_infos, temp_bone_writer, self.context)
 			self.models_reader.to_stream(self.models_reader, temp_bone_writer, self.context)
-			self.buffer_1_bytes = temp_bone_writer.getvalue()[self.models_reader.bone_info_start:]
+			# todo - maybe wrong for PC?
+			self.buffer_1_bytes = temp_bone_writer.getvalue()[self.models_reader.buffer_1_start:]
 			self.bone_info_size = self.models_reader.bone_info_size
 
 	def update_buffer_2_bytes(self):
@@ -326,6 +326,11 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			# first init all writers for the buffers
 			for buffer_info in self.buffer_infos:
 				self.attach_streams(buffer_info)
+				if is_pc(self.context):
+					arr = np.empty(dtype=np.uint8, shape=16)
+					arr[:] = range(16)
+					buffer_info.verts.write(arr.tobytes())
+				# 00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F
 			# now store each model
 			for model_info in self.model_infos:
 				logging.debug(f"Storing {model_info.name}")

@@ -35,7 +35,7 @@ class ModelReader(BaseStruct):
 	def __init__(self, context, arg=None, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 		self.bone_infos = []
-		self.bone_info_start = 0
+		self.buffer_1_start = 0
 		if set_default:
 			self.set_defaults()
 
@@ -55,8 +55,7 @@ class ModelReader(BaseStruct):
 		if instance.context.version < 47:
 			# buffer 1 starts at buffer_infos
 			instance.start_of_buffer = instance.arg.buffer_infos.io_start
-			# meh, add it here even though it's really interleaved
-			instance.bone_info_start = stream.tell()
+			instance.buffer_1_start = instance.start_of_buffer
 			for model_info in instance.arg.model_infos:
 				# DLA and ZTUAC don't go into shifts
 				instance.get_padding(stream, alignment=8)
@@ -103,7 +102,7 @@ class ModelReader(BaseStruct):
 				# logging.debug(model_info)
 				model_info.model = Model.from_stream(stream, instance.context, model_info)
 				# logging.debug(f"Model {i} {model_info.model}")
-			instance.bone_info_start = stream.tell()
+			instance.buffer_1_start = stream.tell()
 			# the models are not part of the buffer
 			instance.start_of_buffer = stream.tell()
 			for model_info in instance.arg.model_infos:
@@ -219,7 +218,7 @@ class ModelReader(BaseStruct):
 			# buffer 1 starts at buffer_infos
 			instance.start_of_buffer = instance.arg.buffer_infos.io_start
 			# meh, add it here even though it's really interleaved
-			instance.bone_info_start = stream.tell()
+			instance.buffer_1_start = instance.start_of_buffer
 			for model_info in instance.arg.model_infos:
 				# DLA and ZTUAC don't go into shifts
 				instance.align_to(stream, alignment=8)
@@ -239,12 +238,13 @@ class ModelReader(BaseStruct):
 		else:
 			for model_info in instance.arg.model_infos:
 				model_info.model.to_stream(model_info.model, stream, instance.context)
-			instance.bone_info_start = stream.tell()
+			instance.buffer_1_start = stream.tell()
 			# the models are not part of the buffer
 			instance.start_of_buffer = stream.tell()
 			for model_info in instance.arg.model_infos:
 				previous_bone_info = cls.write_bone_info(instance, model_info, previous_bone_info, stream)
-		instance.bone_info_size = stream.tell() - instance.bone_info_start
+		instance.bone_info_size = stream.tell() - instance.buffer_1_start
+		logging.debug(f"instance.bone_info_size = {instance.bone_info_size}")
 		instance.io_size = stream.tell() - instance.io_start
 
 	@classmethod
@@ -254,9 +254,11 @@ class ModelReader(BaseStruct):
 			logging.debug(f"{model_info.name} has its own bone_info")
 			model_info.increment_flag = 1
 			logging.debug(f"BONE INFO starts at {stream.tell()}")
+			instance.align_to(stream, alignment=16)
 			model_info.bone_info.to_stream(model_info.bone_info, stream, instance.context)
 			instance.write_hitcheck_verts(model_info.bone_info, stream)
-			instance.align_to(stream, alignment=16)
+			logging.debug(f"BONE INFO ends at {stream.tell()}")
+			# instance.align_to(stream, alignment=16)
 		else:
 			logging.debug(f"{model_info.name} reuses previous bone_info")
 			model_info.increment_flag = 0

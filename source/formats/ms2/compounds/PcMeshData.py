@@ -94,7 +94,8 @@ class PcMeshData:
 
 		# PC does not use use_blended_weights, nor a flag
 		# PC ostrich download has self.weights_offset = 0 for eyes and lashes, which consequently get wrong weights
-		if self.weights_offset != 0:
+		self.use_weights = self.weights_offset != 0
+		if self.use_weights:
 			bone_weights = self.weights_data["bone weights"].astype(np.float32) / 255
 			self.get_blended_weights(self.weights_data["bone ids"], bone_weights)
 		else:
@@ -114,7 +115,11 @@ class PcMeshData:
 		# write vertices
 		self.vertex_offset = self.write_pc_array(self.verts_data)
 		self.uv_offset = self.write_pc_array(self.uv_data)
-		self.weights_offset = self.write_pc_array(self.weights_data)
+		# todo set use_weights during tris setting
+		if self.use_weights:
+			self.weights_offset = self.write_pc_array(self.weights_data)
+		else:
+			self.weights_offset = 0
 		self.tri_offset = self.write_pc_array(self.tri_indices)
 		# write tris
 		# todo shells?
