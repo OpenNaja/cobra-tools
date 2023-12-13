@@ -152,11 +152,10 @@ class PcMeshData(MeshData):
 		# create arrays for the unpacked ms2_file
 		self.init_arrays()
 		# first cast to the float uvs array so unpacking doesn't use int division
-		if self.uvs is not None:
-			self.uvs[:] = self.uv_data["uvs"]
-			unpack_ushort_vector(self.uvs)
+		self.uvs[:] = self.uv_data["uvs"]
 		self.normals[:] = self.verts_data["normal"]
 		self.tangents[:] = self.verts_data["tangent"]
+		unpack_ushort_vector(self.uvs)
 		unpack_int64_vector(self.verts_data["pos"], self.vertices, self.use_blended_weights)
 		scale_unpack_vectorized(self.vertices, self.pack_base)
 		unpack_ubyte_vector(self.normals)
@@ -195,11 +194,11 @@ class PcMeshData(MeshData):
 		self.uv_data["uvs"] = self.uvs
 
 		# non-vectorized data
-		for vert, weight in zip(self.verts_data, self.weights):
+		for vert, weight, weight_target in zip(self.verts_data, self.weights, self.weights_data):
 			# bone index of the strongest weight
 			if weight:
 				vert["bone index"] = weight[0][0]
-			self.weights_data["bone ids"], self.weights_data["bone weights"] = self.unpack_weights_list(weight)
+			weight_target["bone ids"], weight_target["bone weights"] = self.unpack_weights_list(weight)
 
 	def read_tris(self):
 		# tris are stored in the verts stream for PC
