@@ -153,12 +153,9 @@ class MeshData:
 		# just take the first and only chunk
 		assert len(list_of_b_tris) == 1
 		b_bone_id, b_tris = list_of_b_tris[0]
-		self.use_weights = True
 
 		if hasattr(self.flag, "stripify") and self.flag.stripify:
-			# self.tri_indices = np.array(stripify(np.flip(b_tris, axis=-1), stitchstrips=True), dtype=np.uint16)
-			# self.tri_indices = np.array(stripify(np.flip(b_tris, axis=-1))[0], dtype=np.uint16)
-			self.tri_indices = np.array([x for y in stripify(np.flip(b_tris, axis=-1)) for x in y], dtype=np.uint16)
+			self.tri_indices = np.array(stripify(np.flip(b_tris, axis=-1), stitchstrips=True)[0], dtype=np.uint16)
 		else:
 			# cast to uint16
 			raw_tris = np.array(b_tris, dtype=np.uint16)

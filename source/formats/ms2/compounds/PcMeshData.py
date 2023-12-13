@@ -129,13 +129,14 @@ class PcMeshData:
 		# write vertices
 		self.vertex_offset = self.write_pc_array(self.verts_data)
 		self.uv_offset = self.write_pc_array(self.uv_data)
-		# todo set use_weights during tris setting
+		# todo determine this from weights data, probably elsewhere
+		self.use_weights = True
 		if self.use_weights:
 			self.weights_offset = self.write_pc_array(self.weights_data)
 		else:
 			self.weights_offset = 0
-		self.tri_offset = self.write_pc_array(self.tri_indices)
 		# write tris
+		self.tri_offset = self.write_pc_array(self.tri_indices)
 		# todo shells?
 		# extend tri array according to shell count
 		# for shell in range(self.shell_count-1):
