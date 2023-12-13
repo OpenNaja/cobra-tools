@@ -38,7 +38,10 @@ class HitcheckPointerReader(BaseStruct):
 
 	@classmethod
 	def write_fields(cls, stream, instance):
-		pass
+		# joint_data = instance.arg
+		# instance.hc_pointers = []
+		for hcp in instance.hc_pointers:
+			stream.write(hcp)
 
 	@classmethod
 	def get_fields_str(cls, instance, indent=0):

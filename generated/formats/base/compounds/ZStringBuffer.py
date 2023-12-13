@@ -74,9 +74,12 @@ class ZStringBuffer(BaseStruct):
 		instance.data = stream.read(instance.arg)
 		instance.strings = instance.data.split(ZERO)
 		instance.offset_2_str = {}
+		instance.offset_dic = {}
 		offset = 0
 		for s in instance.strings:
-			instance.offset_2_str[offset] = s.decode()
+			s_dec = s.decode()
+			instance.offset_2_str[offset] = s_dec
+			instance.offset_dic[s_dec] = offset
 			offset += len(s) + 1
 
 	@classmethod

@@ -46,8 +46,11 @@ class JointData(BaseStruct):
 
 	@classmethod
 	def write_fields(cls, stream, instance):
-		strings = list(instance.get_strings())
-		instance.joint_names.update_strings(strings)
+		if instance.context.version > 32:
+			strings = list(instance.get_strings())
+			instance.joint_names.update_strings(strings)
+		else:
+			logging.warning("Can't update joint_names for early versions")
 		instance.namespace_length = len(instance.joint_names.data)
 		# update indices of joint pointers
 		joints_map = {j: i for i, j in enumerate(instance.joint_infos)}

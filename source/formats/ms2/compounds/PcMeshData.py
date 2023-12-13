@@ -2,6 +2,8 @@
 import math
 import logging
 import numpy as np
+
+from generated.formats.base.compounds.PadAlign import get_padding
 from generated.formats.ms2.compounds.packing_utils import *
 from plugin.utils.tristrip import triangulate
 # END_GLOBALS
@@ -60,10 +62,17 @@ class PcMeshData:
 		self.buffer_info.verts.readinto(arr)
 		return arr
 
+	def write_pc_array(self, arr):
+		padding = get_padding(self.buffer_info.verts.tell(), alignment=16)
+		self.buffer_info.verts.write(padding)
+		offset = self.buffer_info.verts.tell()
+		self.buffer_info.verts.write(arr.tobytes())
+		return offset // 16
+
 	def read_verts(self):
 		# get dtype according to which the vertices are packed
 		self.update_dtype()
-		# read a vertices of this mesh
+		# read vertices of this mesh
 		self.verts_data = self.read_pc_array(self.dt, self.vertex_offset, self.vertex_count)
 		self.uv_data = self.read_pc_array(self.dt_uv, self.uv_offset, self.vertex_count)
 		self.weights_data = self.read_pc_array(self.dt_w, self.weights_offset, self.vertex_count)
@@ -97,3 +106,18 @@ class PcMeshData:
 		# read all tri indices for this mesh, but only as many as needed if there are shells
 		index_count = self.tri_index_count // self.shell_count
 		self.tri_indices = self.read_pc_array(np.uint16, self.tri_offset, index_count)
+
+	def write_data(self):
+		# write to the buffer_info that has been assigned to mesh
+		self.vertex_count = len(self.verts_data)
+		self.tri_index_count = len(self.tri_indices) * self.shell_count
+		# write vertices
+		self.vertex_offset = self.write_pc_array(self.verts_data)
+		self.uv_offset = self.write_pc_array(self.uv_data)
+		self.weights_offset = self.write_pc_array(self.weights_data)
+		self.tri_offset = self.write_pc_array(self.tri_indices)
+		# write tris
+		# todo shells?
+		# extend tri array according to shell count
+		# for shell in range(self.shell_count-1):
+		# 	self.write_pc_array(self.tri_indices)

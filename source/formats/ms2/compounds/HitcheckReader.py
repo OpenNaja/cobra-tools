@@ -30,7 +30,10 @@ class HitcheckReader(BaseStruct):
 
 	@classmethod
 	def write_fields(cls, stream, instance):
-		pass
+		joint_data = instance.arg
+		for jointinfo in joint_data.joint_infos:
+			for hc in jointinfo.hitchecks:
+				HitCheck.to_stream(hc, stream, instance.context)
 
 	@classmethod
 	def get_fields_str(cls, instance, indent=0):
