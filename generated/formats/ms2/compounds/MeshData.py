@@ -3,7 +3,8 @@ import math
 import numpy as np
 
 from generated.formats.ms2.compounds.packing_utils import FUR_OVERHEAD, remap, PACKEDVEC_MAX
-from plugin.utils.tristrip import triangulate
+from plugin.utils.tristrip import triangulate, stripify
+
 
 from generated.formats.ms2.imports import name_type_map
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
@@ -108,8 +109,7 @@ class MeshData(MemStruct):
 		self.negate_bitangents = np.empty(self.vertex_count, np.uint8)
 		self.wind = np.empty(self.vertex_count, np.float32)
 		self.whatever = np.empty(self.vertex_count, np.float32)
-		uv_shape = self.dt["uvs"].shape
-		self.uvs = np.empty((self.vertex_count, *uv_shape), np.float32)
+		self.uvs = np.empty((self.vertex_count, self.get_uv_count(), 2), np.float32)
 		self.colors = np.empty((self.vertex_count, 4), np.float32)
 		# self.floats = np.empty((self.vertex_count, 4), np.float32)
 		self.center_keys = np.empty((self.vertex_count, 3), np.float32)
@@ -194,13 +194,20 @@ class MeshData(MemStruct):
 	def tris(self, list_of_b_tris):
 		# just take the first and only chunk
 		assert len(list_of_b_tris) == 1
-		b_tris = list_of_b_tris[0][1]
-		# cast to uint16
-		raw_tris = np.array(b_tris, dtype=np.uint16)
-		# reverse tris
-		raw_tris = np.flip(raw_tris, axis=-1)
-		# flatten array
-		self.tri_indices = np.reshape(raw_tris, len(raw_tris)*3)
+		b_bone_id, b_tris = list_of_b_tris[0]
+		self.use_weights = True
+
+		if hasattr(self.flag, "stripify") and self.flag.stripify:
+			# self.tri_indices = np.array(stripify(np.flip(b_tris, axis=-1), stitchstrips=True), dtype=np.uint16)
+			# self.tri_indices = np.array(stripify(np.flip(b_tris, axis=-1))[0], dtype=np.uint16)
+			self.tri_indices = np.array([x for y in stripify(np.flip(b_tris, axis=-1)) for x in y], dtype=np.uint16)
+		else:
+			# cast to uint16
+			raw_tris = np.array(b_tris, dtype=np.uint16)
+			# reverse tris
+			raw_tris = np.flip(raw_tris, axis=-1)
+			# flatten array
+			self.tri_indices = np.reshape(raw_tris, len(raw_tris) * 3)
 
 	def validate_tris(self):
 		"""See if all tri indices point into the vertex buffer, raise an error if they don't"""

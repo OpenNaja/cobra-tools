@@ -50,7 +50,9 @@ class PcMeshData(MeshData):
 		# power of 2 increasing with lod index
 		self.poweroftwo = name_type_map['Uint'](self.context, 0, None)
 		self.zero_b = name_type_map['Uint'].from_value(0)
-		self.unk_float = name_type_map['Float'](self.context, 0, None)
+
+		# ?
+		self.unk_float_0 = name_type_map['Float'](self.context, 0, None)
 
 		# bitfield
 		self.flag = name_type_map['ModelFlag'](self.context, 0, None)
@@ -73,7 +75,7 @@ class PcMeshData(MeshData):
 		yield 'vertex_offset_within_lod', name_type_map['Uint'], (0, None), (False, None), (None, None)
 		yield 'poweroftwo', name_type_map['Uint'], (0, None), (False, None), (None, None)
 		yield 'zero_b', name_type_map['Uint'], (0, None), (False, 0), (None, None)
-		yield 'unk_float', name_type_map['Float'], (0, None), (False, None), (None, None)
+		yield 'unk_float_0', name_type_map['Float'], (0, None), (False, None), (None, None)
 		yield 'flag', name_type_map['ModelFlag'], (0, None), (False, None), (None, None)
 		yield 'zero_c', name_type_map['Uint'], (0, None), (False, 0), (None, None)
 
@@ -92,32 +94,20 @@ class PcMeshData(MeshData):
 		yield 'vertex_offset_within_lod', name_type_map['Uint'], (0, None), (False, None)
 		yield 'poweroftwo', name_type_map['Uint'], (0, None), (False, None)
 		yield 'zero_b', name_type_map['Uint'], (0, None), (False, 0)
-		yield 'unk_float', name_type_map['Float'], (0, None), (False, None)
+		yield 'unk_float_0', name_type_map['Float'], (0, None), (False, None)
 		yield 'flag', name_type_map['ModelFlag'], (0, None), (False, None)
 		yield 'zero_c', name_type_map['Uint'], (0, None), (False, 0)
 
-	def init_arrays(self):
-		self.vertices = np.empty((self.vertex_count, 3), np.float32)
-		self.use_blended_weights = np.empty(self.vertex_count, np.uint8)
-		self.normals = np.empty((self.vertex_count, 3), np.float32)
-		self.tangents = np.empty((self.vertex_count, 3), np.float32)
-		try:
-			uv_shape = self.dt_uv["uvs"].shape
-			self.uvs = np.empty((self.vertex_count, *uv_shape), np.float32)
-		except:
-			self.uvs = None
-		try:
-			colors_shape = self.dt["colors"].shape
-			self.colors = np.empty((self.vertex_count, *colors_shape), np.float32)
-		except:
-			self.colors = None
-		self.weights_info = {}
+	def get_uv_count(self):
+		if "uvs" in self.dt_uv.fields:
+			return self.dt_uv["uvs"].shape[0]
+		return 0
 
 	def update_dtype(self):
 		"""Update MeshData.dt (numpy dtype) according to MeshData.flag"""
 		# basic shared stuff
 		dt = [
-			("pos", np.uint64),
+			("pos", np.int64),
 			("normal", np.ubyte, (3,)),
 			("winding", np.ubyte),
 			("tangent", np.ubyte, (3,)),
@@ -184,6 +174,32 @@ class PcMeshData(MeshData):
 		else:
 			self.get_static_weights(self.verts_data["bone index"], self.use_blended_weights)
 		# print(self.vertices)
+
+	def pack_verts(self):
+		"""Repack flat lists into verts_data"""
+		logging.info("Packing vertices")
+		self.verts_data = np.zeros(self.vertex_count, dtype=self.dt)
+		self.weights_data = np.zeros(self.vertex_count, dtype=self.dt_w)
+		self.uv_data = np.zeros(self.vertex_count, dtype=self.dt_uv)
+		pack_swizzle_vectorized(self.vertices)
+		pack_swizzle_vectorized(self.normals)
+		pack_swizzle_vectorized(self.tangents)
+		# print(self.use_blended_weights)
+		scale_pack_vectorized(self.vertices, self.pack_base)
+		pack_int64_vector(self.verts_data["pos"], self.vertices.astype(np.int64), self.use_blended_weights)
+		pack_ubyte_vector(self.normals)
+		pack_ubyte_vector(self.tangents)
+		pack_ushort_vector(self.uvs)
+		self.verts_data["normal"] = self.normals
+		self.verts_data["tangent"] = self.tangents
+		self.uv_data["uvs"] = self.uvs
+
+		# non-vectorized data
+		for vert, weight in zip(self.verts_data, self.weights):
+			# bone index of the strongest weight
+			if weight:
+				vert["bone index"] = weight[0][0]
+			self.weights_data["bone ids"], self.weights_data["bone weights"] = self.unpack_weights_list(weight)
 
 	def read_tris(self):
 		# tris are stored in the verts stream for PC

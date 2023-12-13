@@ -22,7 +22,9 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 	# set data
 	mesh.flag._value = get_property(b_me, "flag")
 	mesh.whatever_range = get_property(b_me, "whatever_range", 0.0)
-	mesh.unk_floats[:] = (get_property(b_me, "unk_f0"), get_property(b_me, "unk_f1"))
+	mesh.unk_float_0 = get_property(b_me, "unk_f0")
+	if mesh.context.version > 32:
+		mesh.unk_float_1 = get_property(b_me, "unk_f1")
 
 	# register this format for all vert chunks that will be created later
 	if mesh.context.version >= 52:

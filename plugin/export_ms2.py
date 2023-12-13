@@ -150,10 +150,9 @@ def save(filepath='', backup_original=True, apply_transforms=False, update_rig=F
 				break
 			lod_collections.append(lod_coll)
 		# set a default even when there are no models
-		if lod_collections and lod_collections[0].objects:
+		model_info.pack_base = 512.0
+		if ms2.context.version > 32 and lod_collections and lod_collections[0].objects:
 			model_info.pack_base = get_pack_base(lod_collections[0].objects, apply_transforms)
-		else:
-			model_info.pack_base = 512.0
 		model_info.precision = get_precision(model_info.pack_base)
 		# logging.info(f"chose pack_base = {model_info.pack_base}")
 		stream_index = 0

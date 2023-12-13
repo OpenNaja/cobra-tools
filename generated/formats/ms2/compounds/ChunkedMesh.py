@@ -10,7 +10,6 @@ from generated.formats.ms2.enums.MeshFormat import MeshFormat
 from plugin.utils.tristrip import triangulate
 
 
-from generated.array import Array
 from generated.formats.ms2.compounds.MeshData import MeshData
 from generated.formats.ms2.imports import name_type_map
 
@@ -41,8 +40,11 @@ class ChunkedMesh(MeshData):
 		# power of 2 increasing with lod index
 		self.poweroftwo = name_type_map['Uint'](self.context, 0, None)
 
-		# some floats, purpose unknown
-		self.unk_floats = Array(self.context, 0, None, (0,), name_type_map['Float'])
+		# ?
+		self.unk_float_0 = name_type_map['Float'](self.context, 0, None)
+
+		# ?
+		self.unk_float_1 = name_type_map['Float'](self.context, 0, None)
 
 		# seen 1 or 13
 		self.flag = name_type_map['ChunkedModelFlag'](self.context, 0, None)
@@ -58,7 +60,8 @@ class ChunkedMesh(MeshData):
 		yield 'vertex_count', name_type_map['Uint'], (0, None), (False, None), (None, None)
 		yield 'zero', name_type_map['Uint64'], (0, None), (False, 0), (None, None)
 		yield 'poweroftwo', name_type_map['Uint'], (0, None), (False, None), (None, None)
-		yield 'unk_floats', Array, (0, None, (2,), name_type_map['Float']), (False, None), (None, None)
+		yield 'unk_float_0', name_type_map['Float'], (0, None), (False, None), (None, None)
+		yield 'unk_float_1', name_type_map['Float'], (0, None), (False, None), (None, None)
 		yield 'flag', name_type_map['ChunkedModelFlag'], (0, None), (False, None), (None, None)
 
 	@classmethod
@@ -70,7 +73,8 @@ class ChunkedMesh(MeshData):
 		yield 'vertex_count', name_type_map['Uint'], (0, None), (False, None)
 		yield 'zero', name_type_map['Uint64'], (0, None), (False, 0)
 		yield 'poweroftwo', name_type_map['Uint'], (0, None), (False, None)
-		yield 'unk_floats', Array, (0, None, (2,), name_type_map['Float']), (False, None)
+		yield 'unk_float_0', name_type_map['Float'], (0, None), (False, None)
+		yield 'unk_float_1', name_type_map['Float'], (0, None), (False, None)
 		yield 'flag', name_type_map['ChunkedModelFlag'], (0, None), (False, None)
 
 	# @property

@@ -5,7 +5,6 @@ from generated.formats.ms2.compounds.MeshData import MeshData
 from generated.formats.ms2.compounds.packing_utils import *
 
 
-from generated.array import Array
 from generated.formats.ms2.compounds.MeshData import MeshData
 from generated.formats.ms2.imports import name_type_map
 
@@ -42,8 +41,11 @@ class NewMeshData(MeshData):
 		# always zero
 		self.zero_2 = name_type_map['Uint'](self.context, 0, None)
 
-		# some floats, purpose unknown
-		self.unk_floats = Array(self.context, 0, None, (0,), name_type_map['Float'])
+		# ?
+		self.unk_float_0 = name_type_map['Float'](self.context, 0, None)
+
+		# ?
+		self.unk_float_1 = name_type_map['Float'](self.context, 0, None)
 
 		# always zero
 		self.zero_3 = name_type_map['Uint'](self.context, 0, None)
@@ -64,7 +66,8 @@ class NewMeshData(MeshData):
 		yield 'size_of_vertex', name_type_map['Uint'], (0, None), (False, 48), (None, None)
 		yield 'tri_offset', name_type_map['Uint'], (0, None), (False, None), (None, None)
 		yield 'zero_2', name_type_map['Uint'], (0, None), (False, None), (None, None)
-		yield 'unk_floats', Array, (0, None, (2,), name_type_map['Float']), (False, None), (None, None)
+		yield 'unk_float_0', name_type_map['Float'], (0, None), (False, None), (None, None)
+		yield 'unk_float_1', name_type_map['Float'], (0, None), (False, None), (None, None)
 		yield 'zero_3', name_type_map['Uint'], (0, None), (False, None), (None, None)
 		yield 'flag', name_type_map['ModelFlag'], (0, None), (False, None), (None, None)
 
@@ -79,7 +82,8 @@ class NewMeshData(MeshData):
 		yield 'size_of_vertex', name_type_map['Uint'], (0, None), (False, 48)
 		yield 'tri_offset', name_type_map['Uint'], (0, None), (False, None)
 		yield 'zero_2', name_type_map['Uint'], (0, None), (False, None)
-		yield 'unk_floats', Array, (0, None, (2,), name_type_map['Float']), (False, None)
+		yield 'unk_float_0', name_type_map['Float'], (0, None), (False, None)
+		yield 'unk_float_1', name_type_map['Float'], (0, None), (False, None)
 		yield 'zero_3', name_type_map['Uint'], (0, None), (False, None)
 		yield 'flag', name_type_map['ModelFlag'], (0, None), (False, None)
 

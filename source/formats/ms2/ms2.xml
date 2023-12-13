@@ -317,7 +317,8 @@
 		<add name="vertex_count" type="uint" >num verts in mesh</add>
 		<add name="zero" type="uint64" default="0"/>
 		<add name="poweroftwo" type="uint">power of 2 increasing with lod index</add>
-		<add name="unk_floats" type="float" arr1="2">some floats, purpose unknown</add>
+		<add name="unk_float_0" type="float" >?</add>
+		<add name="unk_float_1" type="float" >?</add>
 		<add name="flag" type="ChunkedModelFlag">seen 1 or 13</add>
 	</compound>
 
@@ -331,7 +332,8 @@
 		<add name="size of vertex" type="uint" default="48"/>
 		<add name="tri offset" type="uint">in bytes</add>
 		<add name="zero2" type="uint">always zero</add>
-		<add name="unk_floats" type="float" arr1="2">some floats, purpose unknown</add>
+		<add name="unk_float_0" type="float" >?</add>
+		<add name="unk_float_1" type="float" >?</add>
 		<add name="zero3" type="uint">always zero</add>
 		<add name="flag" type="ModelFlag">bitfield, determines vertex format</add>
 	</compound>
@@ -350,7 +352,7 @@
 		<add name="vertex offset within lod" type="uint" >cumulative count of vertices in mesh's lod before this mesh</add>
 		<add name="poweroftwo" type="uint">power of 2 increasing with lod index</add>
 		<add name="zero b" type="uint" default="0"/>
-		<add name="unk_float" type="float"/>
+		<add name="unk_float_0" type="float" >?</add>
 		<add name="flag" type="ModelFlag">bitfield</add>
 		<add name="zero c" type="uint" default="0"/>this may be padding that might not be on the end of an array?
 	</compound>
