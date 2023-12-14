@@ -1,3 +1,5 @@
+import logging
+
 import bpy
 
 
@@ -85,6 +87,37 @@ class Animation:
 			NifLog.warn("Unsupported extrapolation mode, using clamped.")
 			for fcurve in fcurves:
 				fcurve.extrapolation = 'CONSTANT'
+
+	def add_keys(self, b_action, key_type, key_range, flags, samples, keys, interp, bone_name=None, key_name=None):
+		"""
+		Create needed fcurves and add a list of keys to an action.
+		"""
+		# samples = [round(t * self.fps) for t in times]
+		assert len(samples) == len(keys)
+		ipo = None
+		# get interpolation enum representation
+		# ipo = bpy.types.Keyframe.bl_rna.properties['interpolation'].enum_items[interp].value
+		interpolations = [ipo for _ in range(len(samples))]
+		# import the keys
+		try:
+			fcurves = self.create_fcurves(b_action, key_type, key_range, flags, bone_name, key_name)
+			if len(key_range) == 1:
+				# flat key - make it zippable
+				key_per_fcurve = [keys]
+			else:
+				key_per_fcurve = zip(*keys)
+			for fcurve, fcu_keys in zip(fcurves, key_per_fcurve):
+				# add new points
+				fcurve.keyframe_points.add(count=len(fcu_keys))
+				# populate points with keys for this curve
+				fcurve.keyframe_points.foreach_set("co", [x for co in zip(samples, fcu_keys) for x in co])
+				if ipo:
+					fcurve.keyframe_points.foreach_set("interpolation", interpolations)
+				# update
+				fcurve.update()
+		except RuntimeError:
+			# blender throws F-Curve ... already exists in action ...
+			logging.warning(f"Could not add fcurve '{key_type}' to '{b_action.name}', already added before?")
 
 	def add_key(self, fcurves, frame, key, interp):
 		"""
