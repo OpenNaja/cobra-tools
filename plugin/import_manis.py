@@ -1,3 +1,4 @@
+import contextlib
 import logging
 import math
 import os
@@ -40,10 +41,14 @@ def get_channel(m_bone_names, m_keys, bones_data, b_action, b_dtype):
 				logging.debug(f"Object transform '{b_name}' as LocRotScale")
 				bonerestmat_inv = mathutils.Matrix().to_4x4()
 				b_channel = None
-		out_keys = []
-		out_samples = []
-		yield b_channel, bonerestmat_inv, out_samples, out_keys, m_keys[:, bone_i]
-		anim_sys.add_keys(b_action, b_dtype, dt_size[b_dtype], None, out_samples, out_keys, None, bone_name=b_channel, key_name=None)
+		yield from keys_adder(b_action, b_channel, b_dtype, m_keys[:, bone_i], bonerestmat_inv)
+
+
+def keys_adder(b_action, b_channel, b_dtype, in_keys, bonerestmat_inv):
+	out_keys = []
+	out_frames = []
+	yield b_channel, bonerestmat_inv, out_frames, out_keys, in_keys
+	anim_sys.add_keys(b_action, b_dtype, dt_size[b_dtype], None, out_frames, out_keys, None, bone_name=b_channel)
 
 
 def import_wsm(corrector, b_action, folder, mani_info, bone_name, bones_data):
@@ -54,16 +59,20 @@ def import_wsm(corrector, b_action, folder, mani_info, bone_name, bones_data):
 		wsm = WsmHeader.from_xml_file(wsm_path, mani_info.context)
 		# print(wsm)
 		bonerestmat_inv = bones_data[bone_name]
-		loc_fcurves = anim_sys.create_fcurves(b_action, "location", range(3), None, bone_name)
-		for frame_i, key in enumerate(wsm.locs.data):
-			key = mathutils.Vector(key)
-			key = (bonerestmat_inv @ corrector.nif_bind_to_blender_bind(mathutils.Matrix.Translation(key))).to_translation()
-			anim_sys.add_key(loc_fcurves, frame_i, key, interp_loc)
-		rot_fcurves = anim_sys.create_fcurves(b_action, "rotation_quaternion", range(4), None, bone_name)
-		for frame_i, key in enumerate(wsm.quats.data):
-			key = mathutils.Quaternion([key.w, key.x, key.y, key.z])
-			key = (bonerestmat_inv @ corrector.nif_bind_to_blender_bind(key.to_matrix().to_4x4())).to_quaternion()
-			anim_sys.add_key(rot_fcurves, frame_i, key, interp_loc)
+		for b_channel, bonerestmat_inv, out_frames, out_keys, in_keys in keys_adder(
+				b_action, bone_name, "location", wsm.locs.data, bonerestmat_inv):
+			for frame_i, key in enumerate(in_keys):
+				key = mathutils.Vector(key)
+				key = (bonerestmat_inv @ corrector.nif_bind_to_blender_bind(mathutils.Matrix.Translation(key))).to_translation()
+				out_frames.append(frame_i)
+				out_keys.append(key)
+		for b_channel, bonerestmat_inv, out_frames, out_keys, in_keys in keys_adder(
+				b_action, bone_name, "rotation_quaternion", wsm.quats.data, bonerestmat_inv):
+			for frame_i, key in enumerate(in_keys):
+				key = mathutils.Quaternion([key.w, key.x, key.y, key.z])
+				key = (bonerestmat_inv @ corrector.nif_bind_to_blender_bind(key.to_matrix().to_4x4())).to_quaternion()
+				out_frames.append(frame_i)
+				out_keys.append(key)
 
 
 def load(files=[], filepath="", set_fps=False):
