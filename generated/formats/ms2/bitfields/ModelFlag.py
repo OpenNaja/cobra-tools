@@ -19,7 +19,7 @@ class ModelFlag(BasicBitfield):
 	repeat_tris = BitfieldMember(pos=5, mask=0x20, return_type=Bool.from_value)
 	unk_2 = BitfieldMember(pos=6, mask=0xc0, return_type=Int.from_value)
 	fur_shells = BitfieldMember(pos=8, mask=0x100, return_type=Bool.from_value)
-	basic = BitfieldMember(pos=9, mask=0x200, return_type=Bool.from_value)
+	direct_address = BitfieldMember(pos=9, mask=0x200, return_type=Bool.from_value)
 
 	def set_defaults(self):
 		pass

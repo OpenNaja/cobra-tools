@@ -143,13 +143,11 @@ def bulk_test_models(gui, start_dir, walk_ovls=True, walk_models=True):
 		shaders = {}
 		# for last_count
 		last_counts = set()
-		flag_0 = set()
-		flag_1 = set()
-		collision_layers = set()
 		scale_float = set()
 		constraints_0 = set()
 		constraints_1 = set()
 		no_bones = set()
+		mesh_w = set()
 		mesh_collision = set()
 		max_bones = -1
 		max_bones_ms2 = None
@@ -191,6 +189,7 @@ def bulk_test_models(gui, start_dir, walk_ovls=True, walk_models=True):
 								if flag not in type_dic:
 									type_dic[flag] = ([], [])
 								type_dic[flag][0].append(mesh_id)
+								mesh_w.add((mesh.use_weights, mesh.flag.weights))
 							# 	type_dic[model.flag][1].append((model.bytes_mean, model.bytes_max, model.bytes_min))
 							last_counts.add(model_info.last_count)
 							# pack_bases.add(model_info.pack_base)
@@ -223,9 +222,6 @@ def bulk_test_models(gui, start_dir, walk_ovls=True, walk_models=True):
 											continue
 										for hit in j.hitchecks:
 											hc_starts[hit.io_start-ms2_data.models_reader.io_start] = ms2_path_rel
-											flag_0.add(hit.flag_0)
-											flag_1.add(hit.flag_1)
-											collision_layers.add(hit.collision_layers)
 											classification_name.add(hit.classification_name)
 											surface_name.add(hit.surface_name)
 											if hit.dtype == CollisionType.MESH_COLLISION:
@@ -250,9 +246,6 @@ def bulk_test_models(gui, start_dir, walk_ovls=True, walk_models=True):
 			print(f"scale_float: {list(sorted(scale_float))}")
 			print(f"last_counts: {last_counts}")
 			print(f"chunk_mesh_zero: {chunk_mesh_zero}")
-			print(f"flag_0: {flag_0}")
-			print(f"flag_1: {flag_1}")
-			print(f"collision_layers: {collision_layers}")
 			print(f"constraints_0: {constraints_0}")
 			print(f"constraints_1: {constraints_1}")
 			print(f"no_bones: {no_bones}")
@@ -266,6 +259,7 @@ def bulk_test_models(gui, start_dir, walk_ovls=True, walk_models=True):
 			print(f"rigid_body_flags: {rigid_body_flags}")
 			print(f"classification_name: {sorted(classification_name)}")
 			print(f"surface_name: {sorted(surface_name)}")
+			print(f"mesh_w: {mesh_w}")
 			# largest_zstring_buffers = sorted(joint_names_padding.keys())
 			# num = 10
 			# if len(largest_zstring_buffers) > num:
