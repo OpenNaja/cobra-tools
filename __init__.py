@@ -44,7 +44,7 @@ from plugin.modules_import.operators import ImportBanis, ImportManis, ImportMatc
     ImportVoxelskirt, ImportMS2FromBrowser, ImportFGMFromBrowser
 from plugin.modules_export.operators import ExportMS2, ExportSPL, ExportManis, ExportBanis, ExportFgm
 from plugin.utils.operators import CreateFins, CreateLods, VcolToHair, HairToVcol, TransferHairCombing, AddHair, \
-    GenerateRigEdit, ConvertScaleToLoc
+    GenerateRigEdit, ConvertScaleToLoc, ExtrudeFins, IntrudeFins
 from plugin.utils.properties import CobraSceneSettings, CobraMeshSettings, CobraCollisionSettings, CobraMaterialSettings
 from plugin.utils.panels import CobraMaterialPanel
 
@@ -149,6 +149,10 @@ class MESH_PT_CobraTools(bpy.types.Panel):
         row.operator("object.transfer_hair_combing", icon_value=icon)
         sub = row.row()
         sub.operator("object.add_hair", icon_value=icon)
+        row = layout.row(align=True)
+        row.operator("object.extrude_fins", icon_value=icon)
+        sub = row.row()
+        sub.operator("object.intrude_fins", icon_value=icon)
         addon_updater_ops.update_notice_box_ui(self, context)
 
 
@@ -306,6 +310,8 @@ classes = (
     ConvertScaleToLoc,
     VcolToHair,
     HairToVcol,
+    ExtrudeFins,
+    IntrudeFins,
     TransferHairCombing,
     AddHair,
     CobraPreferences,

@@ -3,6 +3,7 @@ import bpy.types
 
 from plugin.utils import shell
 from plugin.utils.hair import comb_to_vcol, transfer_hair_combing, vcol_to_comb
+from plugin.utils.shell import extrude_fins, intrude_fins
 from plugin.utils.matrix_util import handle_errors
 
 
@@ -44,6 +45,26 @@ class HairToVcol(bpy.types.Operator):
 
     def execute(self, context):
         return handle_errors(self, comb_to_vcol, {})
+
+
+class ExtrudeFins(bpy.types.Operator):
+    """Visualize Fins by pulling them out"""
+    bl_idname = "object.extrude_fins"
+    bl_label = "Extrude fins"
+    bl_options = {'REGISTER', 'UNDO'}
+
+    def execute(self, context):
+        return handle_errors(self, extrude_fins, {})
+
+
+class IntrudeFins(bpy.types.Operator):
+    """Pull fins back in"""
+    bl_idname = "object.intrude_fins"
+    bl_label = "Intrude Fins"
+    bl_options = {'REGISTER', 'UNDO'}
+
+    def execute(self, context):
+        return handle_errors(self, intrude_fins, {})
 
 
 class TransferHairCombing(bpy.types.Operator):

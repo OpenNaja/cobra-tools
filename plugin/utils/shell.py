@@ -1008,3 +1008,44 @@ def num_fur_as_weights(mat_name):
 	elif mat_name.endswith((FUR, FUR_SHELL)):
 		return 1
 	return 0
+
+
+def extrude_fins():
+
+	ob = bpy.context.active_object
+	if not ob:
+		raise AttributeError("No object in context")
+	# just hardcoded as a test
+	scale_y = 2.847
+	me = ob.data
+	# loop faces
+	ct_normals = me.attributes["ct_normals"]
+	vcol_layer = me.vertex_colors[0].data
+	fins_layer = me.uv_layers[1].data
+	directions = np.empty((len(me.loops), 3), dtype=float)
+	for b_loop in me.loops:
+		# for loop_index in face.loop_indices:
+		# b_loop = me.loops[loop_index]
+		loop_index = b_loop.index
+		normal = ct_normals.data[loop_index].vector.normalized()
+		# normal = b_loop.normal
+		hair_len = Y_START - fins_layer[loop_index].uv.y
+		directions[loop_index] = normal * hair_len
+		# print(hair_len, normal)
+	verts = set()
+	for loop_index, direction in enumerate(directions):
+		b_loop = me.loops[loop_index]
+		if b_loop.vertex_index not in verts:
+			verts.add(b_loop.vertex_index)
+			b_vert = me.vertices[b_loop.vertex_index]
+			b_vert.co += mathutils.Vector(direction / scale_y)
+
+	return f"extruded fins for {ob.name}",
+
+
+def intrude_fins():
+
+	ob = bpy.context.active_object
+	if not ob:
+		raise AttributeError("No object in context")
+	return f"intruded fins for {ob.name}",

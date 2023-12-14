@@ -225,3 +225,5 @@ def set_hair_keys(particle, particle_eval, ob_eval, particle_modifier_eval, root
 		hair_key = particle.hair_keys[hair_key_index]
 		co = root.lerp(tip, hair_key_index / (num_hair_keys - 1))
 		hair_key.co_object_set(ob_eval, particle_modifier_eval, particle_eval, co)
+
+
