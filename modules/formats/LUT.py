@@ -1,6 +1,7 @@
 import os
 
 from generated.array import Array
+from generated.formats.base.basic import Ushort
 from generated.formats.base.compounds.Vector3 import Vector3
 from generated.formats.lut.compounds.LutHeader import LutHeader
 from modules.formats.BaseFormat import MemStructLoader
@@ -45,6 +46,10 @@ class LutLoader(MemStructLoader):
 					self.header.colors_in_column_count = int(line.split()[1])
 					self.header.dimensions = 3
 					self.header.colors_count = self.header.colors_in_column_count ** self.header.dimensions
+					if self.header.colors_count > 65535:
+						raise AttributeError(
+							f"LUT can only hold 65535 items. "
+							f"Size {self.header.colors_in_column_count} uses {self.header.colors_count} items")
 					self.header._colors.data = Array(self.header.context, arg=0, template=None, shape=(self.header.colors_count,), dtype=Vector3, set_default=True)
 				elif line.strip():
 					self.header._colors.data[i][:] = [float(x) for x in line.split()]
