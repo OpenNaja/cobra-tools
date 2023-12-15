@@ -108,6 +108,12 @@ class PcMeshData:
 		self.verts_data["tangent"] = self.tangents
 		self.uv_data["uvs"] = self.uvs
 
+		# determine from weights data
+		if set(len(w) for w in self.weights) == {1, }:
+			self.use_weights = False
+		else:
+			self.use_weights = True
+		print(f"self.use_weights {self.use_weights}")
 		# non-vectorized data
 		for vert, weight, weight_target in zip(self.verts_data, self.weights, self.weights_data):
 			# bone index of the strongest weight
@@ -124,12 +130,10 @@ class PcMeshData:
 	def write_data(self):
 		# write to the buffer_info that has been assigned to mesh
 		self.vertex_count = len(self.verts_data)
-		self.tri_index_count = len(self.tri_indices) * self.shell_count
+		self.tri_index_count = self.tri_index_count_a = len(self.tri_indices) * self.shell_count
 		# write vertices
 		self.vertex_offset = self.write_pc_array(self.verts_data)
 		self.uv_offset = self.write_pc_array(self.uv_data)
-		# todo determine this from weights data, probably elsewhere
-		self.use_weights = True
 		if self.use_weights:
 			self.weights_offset = self.write_pc_array(self.weights_data)
 		else:
