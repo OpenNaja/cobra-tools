@@ -344,11 +344,22 @@ class Ms2File(Ms2InfoHeader, IoFile):
 				for wrapper in model.meshes:
 					wrapper.mesh.assign_buffer_info(self.buffer_infos)
 					wrapper.mesh.write_data()
+				if is_pc(self.context):
+					for wrapper in model.meshes:
+						wrapper.mesh.write_verts()
+					for wrapper in model.meshes:
+						wrapper.mesh.write_weights()
+					for wrapper in model.meshes:
+						wrapper.mesh.write_tris()
+					for wrapper in model.meshes:
+						wrapper.mesh.write_uvs()
 				# update LodInfo
 				logging.debug(f"Updating lod vertex counts")
 				for lod in model.lods:
 					lod.vertex_count = sum(ob.mesh.vertex_count for ob in lod.objects)
 					lod.tri_index_count = sum(ob.mesh.tri_index_count for ob in lod.objects)
+					if is_pc(self.context):
+						lod.tri_index_count -= 4
 					# only used by PC
 					vertex_offset_within_lod = 0
 					for ob in lod.objects:
@@ -465,10 +476,11 @@ if __name__ == "__main__":
 	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/Content0/Environment/Scenery/Themes/FT_FairyTale/FT_Topiary/FT_Topiary/models.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/Content0/Environment/Scenery/Themes/PR_Pirate/PR_Redcoat/PR_Redcoat/models.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/Content0/Rides/FlatRides/Chair-O-Plane/FR_COP/models.ms2", read_editable=True)
-	m.load("C:/Users/arnfi/Desktop/models.ms2", read_editable=True)
+	m.load("C:/Users/arnfi/Desktop/dino_.ms2", read_editable=True)
+	# m.load("C:/Users/arnfi/Desktop/models.ms2", read_editable=True)
 	print(m)
-	# m.save("C:/Users/arnfi/Desktop/dino_save.ms2")
-	m.load("C:/Users/arnfi/Desktop/models_polyp.ms2", read_editable=True)
+	m.save("C:/Users/arnfi/Desktop/dino_save.ms2")
+	# m.load("C:/Users/arnfi/Desktop/models_polyp.ms2", read_editable=True)
 	print(m)
 
 	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/Content0/Rides/FlatRides/360_Power/FR_360PWR/models.ms2", read_editable=True)

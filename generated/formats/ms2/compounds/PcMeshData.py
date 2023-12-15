@@ -212,21 +212,28 @@ class PcMeshData(MeshData):
 		index_count = self.tri_index_count // self.shell_count
 		self.tri_indices = self.read_pc_array(np.uint16, self.tri_offset, index_count)
 
-	def write_data(self):
-		# write to the buffer_info that has been assigned to mesh
+	def write_verts(self):
 		self.vertex_count = len(self.verts_data)
-		self.tri_index_count = self.tri_index_count_a = len(self.tri_indices) * self.shell_count
-		# write vertices
 		self.vertex_offset = self.write_pc_array(self.verts_data)
-		self.uv_offset = self.write_pc_array(self.uv_data)
+
+	def write_weights(self):
 		if self.use_weights:
 			self.weights_offset = self.write_pc_array(self.weights_data)
 		else:
 			self.weights_offset = 0
-		# write tris
+
+	def write_tris(self):
+		self.tri_index_count = self.tri_index_count_a = len(self.tri_indices) * self.shell_count
 		self.tri_offset = self.write_pc_array(self.tri_indices)
 		# todo shells?
 		# extend tri array according to shell count
 		# for shell in range(self.shell_count-1):
 		# 	self.write_pc_array(self.tri_indices)
+
+	def write_uvs(self):
+		self.uv_offset = self.write_pc_array(self.uv_data)
+
+	def write_data(self):
+		# order separately: verts, weights, tris, uvs
+		pass
 
