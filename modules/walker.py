@@ -189,7 +189,7 @@ def bulk_test_models(gui, start_dir, walk_ovls=True, walk_models=True):
 								if flag not in type_dic:
 									type_dic[flag] = ([], [])
 								type_dic[flag][0].append(mesh_id)
-								mesh_w.add((mesh.use_weights, mesh.flag.weights))
+								mesh_w.add((bool(mesh.uv_offset_2), int(mesh.flag)))
 							# 	type_dic[model.flag][1].append((model.bytes_mean, model.bytes_max, model.bytes_min))
 							last_counts.add(model_info.last_count)
 							# pack_bases.add(model_info.pack_base)

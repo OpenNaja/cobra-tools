@@ -354,6 +354,8 @@ class Ms2File(Ms2InfoHeader, IoFile):
 						wrapper.mesh.write_tris()
 					for wrapper in model.meshes:
 						wrapper.mesh.write_uvs()
+					for wrapper in model.meshes:
+						wrapper.mesh.write_uvs_2()
 				# update LodInfo
 				logging.debug(f"Updating lod vertex counts")
 				for lod in model.lods:
@@ -477,11 +479,11 @@ if __name__ == "__main__":
 	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/Content0/Environment/Scenery/Themes/FT_FairyTale/FT_Topiary/FT_Topiary/models.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/Content0/Environment/Scenery/Themes/PR_Pirate/PR_Redcoat/PR_Redcoat/models.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/Content0/Rides/FlatRides/Chair-O-Plane/FR_COP/models.ms2", read_editable=True)
-	m.load("C:/Users/arnfi/Desktop/dino_.ms2", read_editable=True)
+	# m.load("C:/Users/arnfi/Desktop/dino_.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/models.ms2", read_editable=True)
-	print(m)
-	m.save("C:/Users/arnfi/Desktop/dino_save.ms2")
-	# m.load("C:/Users/arnfi/Desktop/models_polyp.ms2", read_editable=True)
+	# print(m)
+	# m.save("C:/Users/arnfi/Desktop/dino_save.ms2")
+	m.load("C:/Users/arnfi/Desktop/models_polyp.ms2", read_editable=True, dump=True)
 	print(m)
 
 	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/Content0/Rides/FlatRides/360_Power/FR_360PWR/models.ms2", read_editable=True)

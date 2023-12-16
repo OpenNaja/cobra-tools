@@ -4,7 +4,6 @@ import numpy as np
 
 from generated.formats.base.compounds.PadAlign import get_padding
 from generated.formats.ms2.compounds.packing_utils import *
-from plugin.utils.tristrip import triangulate
 from generated.formats.ms2.compounds.MeshData import MeshData
 from generated.formats.ms2.imports import name_type_map
 
@@ -39,7 +38,9 @@ class PcMeshData(MeshData):
 
 		# x*16 = offset
 		self.uv_offset = name_type_map['Uint'](self.context, 0, None)
-		self.zero_a = name_type_map['Uint'].from_value(0)
+
+		# x*16 = offset
+		self.uv_offset_2 = name_type_map['Uint'](self.context, 0, None)
 
 		# x*16 = offset
 		self.vertex_color_offset = name_type_map['Uint'](self.context, 0, None)
@@ -70,7 +71,7 @@ class PcMeshData(MeshData):
 		yield 'vertex_offset', name_type_map['Uint'], (0, None), (False, None), (None, None)
 		yield 'weights_offset', name_type_map['Uint'], (0, None), (False, None), (None, None)
 		yield 'uv_offset', name_type_map['Uint'], (0, None), (False, None), (None, None)
-		yield 'zero_a', name_type_map['Uint'], (0, None), (False, 0), (None, None)
+		yield 'uv_offset_2', name_type_map['Uint'], (0, None), (False, None), (None, None)
 		yield 'vertex_color_offset', name_type_map['Uint'], (0, None), (False, None), (None, None)
 		yield 'vertex_offset_within_lod', name_type_map['Uint'], (0, None), (False, None), (None, None)
 		yield 'poweroftwo', name_type_map['Uint'], (0, None), (False, None), (None, None)
@@ -89,7 +90,7 @@ class PcMeshData(MeshData):
 		yield 'vertex_offset', name_type_map['Uint'], (0, None), (False, None)
 		yield 'weights_offset', name_type_map['Uint'], (0, None), (False, None)
 		yield 'uv_offset', name_type_map['Uint'], (0, None), (False, None)
-		yield 'zero_a', name_type_map['Uint'], (0, None), (False, 0)
+		yield 'uv_offset_2', name_type_map['Uint'], (0, None), (False, None)
 		yield 'vertex_color_offset', name_type_map['Uint'], (0, None), (False, None)
 		yield 'vertex_offset_within_lod', name_type_map['Uint'], (0, None), (False, None)
 		yield 'poweroftwo', name_type_map['Uint'], (0, None), (False, None)
@@ -99,8 +100,11 @@ class PcMeshData(MeshData):
 		yield 'zero_c', name_type_map['Uint'], (0, None), (False, 0)
 
 	def get_uv_count(self):
-		if "uvs" in self.dt_uv.fields:
-			return self.dt_uv["uvs"].shape[0]
+		# apparently not true, walker: {(False, 9), (False, 25), (True, 25), (True, 9)}
+		if self.flag == 9:
+			return 2
+		elif self.flag == 25:
+			return 1
 		return 0
 
 	def update_dtype(self):
@@ -114,7 +118,7 @@ class PcMeshData(MeshData):
 			("bone index", np.ubyte),
 		]
 		dt_uv = [
-			("uvs", np.ushort, (1, 2)),
+			("uvs", np.ushort, 2),
 		]
 		dt_w = [
 			("bone ids", np.ubyte, (4,)),
@@ -148,11 +152,14 @@ class PcMeshData(MeshData):
 		# read vertices of this mesh
 		self.verts_data = self.read_pc_array(self.dt, self.vertex_offset, self.vertex_count)
 		self.uv_data = self.read_pc_array(self.dt_uv, self.uv_offset, self.vertex_count)
+		self.uv_data_2 = self.read_pc_array(self.dt_uv, self.uv_offset_2, self.vertex_count)
 		self.weights_data = self.read_pc_array(self.dt_w, self.weights_offset, self.vertex_count)
 		# create arrays for the unpacked ms2_file
 		self.init_arrays()
 		# first cast to the float uvs array so unpacking doesn't use int division
-		self.uvs[:] = self.uv_data["uvs"]
+		self.uvs[:, 0] = self.uv_data["uvs"]
+		if self.get_uv_count() == 2:
+			self.uvs[:, 1] = self.uv_data_2["uvs"]
 		self.normals[:] = self.verts_data["normal"]
 		self.tangents[:] = self.verts_data["tangent"]
 		unpack_ushort_vector(self.uvs)
@@ -180,6 +187,7 @@ class PcMeshData(MeshData):
 		self.verts_data = np.zeros(self.vertex_count, dtype=self.dt)
 		self.weights_data = np.zeros(self.vertex_count, dtype=self.dt_w)
 		self.uv_data = np.zeros(self.vertex_count, dtype=self.dt_uv)
+		self.uv_data_2 = np.zeros(self.vertex_count, dtype=self.dt_uv)
 		pack_swizzle_vectorized(self.vertices)
 		pack_swizzle_vectorized(self.normals)
 		pack_swizzle_vectorized(self.tangents)
@@ -191,14 +199,16 @@ class PcMeshData(MeshData):
 		pack_ushort_vector(self.uvs)
 		self.verts_data["normal"] = self.normals
 		self.verts_data["tangent"] = self.tangents
-		self.uv_data["uvs"] = self.uvs
+		self.uv_data["uvs"] = self.uvs[:, 0]
+		if self.get_uv_count() == 2:
+			self.uv_data_2["uvs"] = self.uvs[:, 1]
 
 		# determine from weights data
 		if set(len(w) for w in self.weights) == {1, }:
 			self.use_weights = False
 		else:
 			self.use_weights = True
-		print(f"self.use_weights {self.use_weights}")
+
 		# non-vectorized data
 		for vert, weight, weight_target in zip(self.verts_data, self.weights, self.weights_data):
 			# bone index of the strongest weight
@@ -232,6 +242,12 @@ class PcMeshData(MeshData):
 
 	def write_uvs(self):
 		self.uv_offset = self.write_pc_array(self.uv_data)
+
+	def write_uvs_2(self):
+		if self.get_uv_count() == 2:
+			self.uv_offset_2 = self.write_pc_array(self.uv_data_2)
+		else:
+			self.uv_offset_2 = 0
 
 	def write_data(self):
 		# order separately: verts, weights, tris, uvs
