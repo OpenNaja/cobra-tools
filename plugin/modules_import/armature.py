@@ -23,11 +23,13 @@ def import_armature(scene, model_info, b_bone_names):
 	bone_info = model_info.bone_info
 	# logging.debug(bone_info)
 	if bone_info:
-		armature_name = f"{scene.name}_armature"
-		b_armature_data = bpy.data.armatures.new(armature_name)
+		if bone_info.name in bpy.data.objects:
+			armature_ob = bpy.data.objects[bone_info.name]
+			return armature_ob
+		b_armature_data = bpy.data.armatures.new(bone_info.name)
 		b_armature_data.display_type = 'STICK'
 		# b_armature_data.show_axes = True
-		armature_ob = create_ob(scene, armature_name, b_armature_data)
+		armature_ob = create_ob(scene, bone_info.name, b_armature_data)
 		armature_ob.show_in_front = True
 		# make armature editable and create bones
 		bpy.ops.object.mode_set(mode='EDIT', toggle=False)
@@ -472,8 +474,7 @@ def append_armature_modifier(b_obj, b_armature):
 	"""Append an armature modifier for the object."""
 	if b_obj and b_armature:
 		b_obj.parent = b_armature
-		armature_name = b_armature.name
-		b_mod = b_obj.modifiers.new(armature_name, 'ARMATURE')
+		b_mod = b_obj.modifiers.new(b_armature.name, 'ARMATURE')
 		b_mod.object = b_armature
 		b_mod.use_bone_envelopes = False
 		b_mod.use_vertex_groups = True
