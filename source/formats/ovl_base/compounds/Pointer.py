@@ -85,7 +85,7 @@ class Pointer(BaseStruct):
 		rel_offset = offset - parent_memstruct.io_start
 		# logging.debug(f"Pointer {f_name}, has_data {ptr.has_data} at {ptr.io_start}, relative {rel_offset}")
 		# when it's a pointer in an array, f_name is the array index
-		if isinstance(f_name, str) and DEPENDENCY_TAG in f_name:
+		if isinstance(self.data, str) and DEPENDENCY_TAG in f_name:
 			if self.data:
 				# loader.dependencies[ptr.data] = (pool, offset)
 				loader.dependencies.append((self.data, (pool, offset)))
