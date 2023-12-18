@@ -79,24 +79,7 @@ class MemStruct(BaseStruct):
 		pool.size_map[self.io_start] = self.io_size
 		children = loader.stack[(pool, self.io_start)] = {}
 		for ptr, f_name, arguments in MemStruct.get_instances_recursive(self, Pointer):
-			# when an array is entered
-			# locates the read address, attaches the frag entry, and reads the template as ptr.data
-			offset = ptr.io_start
-			rel_offset = offset - self.io_start
-			# logging.debug(f"Pointer {f_name}, has_data {ptr.has_data} at {ptr.io_start}, relative {rel_offset}")
-			# when it's a pointer in an array, f_name is the array index
-			if isinstance(f_name, str) and DEPENDENCY_TAG in f_name:
-				if ptr.data:
-					# loader.dependencies[ptr.data] = (pool, offset)
-					loader.dependencies.append((ptr.data, (pool, offset)))
-					pool.offset_2_link[offset] = ptr.data
-			elif ptr.has_data:
-				ptr.write_ptr(loader, pool)
-				# store relative offset from this memstruct
-				children[rel_offset] = (ptr.target_pool, ptr.target_offset)
-				# keep reading pointers in the newly read ptr.data
-				for memstruct in self.structs_from_ptr(ptr):
-					memstruct.write_ptrs(loader, ptr.target_pool)
+			ptr.write_ptr_all(self, children, f_name, loader, pool)
 
 	@classmethod
 	def get_instances_recursive(cls, instance, dtype):

@@ -39,6 +39,7 @@ type_module_name_map = {
 	'GenericHeader': 'generated.formats.ovl_base.compounds.GenericHeader',
 	'Empty': 'generated.formats.ovl_base.compounds.Empty',
 	'ZStringList': 'generated.formats.ovl_base.compounds.ZStringList',
+	'SpecdefPointer': 'generated.formats.specdef.compounds.SpecdefPointer',
 	'SpecdefDtype': 'generated.formats.specdef.enums.SpecdefDtype',
 	'SpecdefRoot': 'generated.formats.specdef.compounds.SpecdefRoot',
 	'Spec': 'generated.formats.specdef.compounds.Spec',

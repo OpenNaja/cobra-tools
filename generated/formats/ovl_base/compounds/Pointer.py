@@ -94,6 +94,26 @@ class Pointer(BaseStruct):
 			else:
 				self.data = None
 
+	def write_ptr_all(self, parent_memstruct, children, f_name, loader, pool):
+		# when an array is entered
+		# locates the read address, attaches the frag entry, and reads the template as ptr.data
+		offset = self.io_start
+		rel_offset = offset - parent_memstruct.io_start
+		# logging.debug(f"Pointer {f_name}, has_data {ptr.has_data} at {ptr.io_start}, relative {rel_offset}")
+		# when it's a pointer in an array, f_name is the array index
+		if isinstance(f_name, str) and DEPENDENCY_TAG in f_name:
+			if self.data:
+				# loader.dependencies[ptr.data] = (pool, offset)
+				loader.dependencies.append((self.data, (pool, offset)))
+				pool.offset_2_link[offset] = self.data
+		elif self.has_data:
+			self.write_ptr(loader, pool)
+			# store relative offset from this memstruct
+			children[rel_offset] = (self.target_pool, self.target_offset)
+			# keep writing pointers in ptr.data
+			for memstruct in parent_memstruct.structs_from_ptr(self):
+				memstruct.write_ptrs(loader, self.target_pool)
+
 	def write_ptr(self, loader, src_pool):
 		# when generated from XML, the pool type is stored as metadata
 		# it's not stored in binary, so for those, keep the root pool type

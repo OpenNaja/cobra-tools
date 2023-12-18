@@ -4,6 +4,9 @@
 
 	<xi:include href="../ovl_base/ovl_base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
 
+    <compound name="SpecdefPointer" inherit="Pointer" >
+    </compound>
+
     <enum name="SpecdefDtype" numbytes="4" storage="uint" default="0">
 		<option value="0" name="Boolean" />
 		<option value="1" name="Int8" />
@@ -175,7 +178,7 @@
         8 bytes
         eg. spineflex.specdef points to dependency for another specdef
         eg. flatridecontroller.specdef points to SpecdefRoot
-        <add name="specdef" type="Pointer" template="SpecdefRoot"/>
+        <add name="specdef" type="SpecdefPointer" template="SpecdefRoot"/>
     </compound>
 
     <compound name="ReferenceToObjectData" inherit="MemStruct">
