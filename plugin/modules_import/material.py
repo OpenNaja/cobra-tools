@@ -47,25 +47,33 @@ class BaseShader:
 		"paotexture", "pbasepackedtexture_a", "pbaseaotexture_r", "pbaseaotexture",
 		"proughnessaopackedtexturedetailbase_r", "paosamplertexture")
 
+	cavity_slots = (
+		"pmetalsmoothnesscavitysamplertexture_b",
+	)
+
 	normal_slots = (
-	"pnormaltexture", "pnormaltexture_rg", "pnormaltexture_rgb", "pbasenormaltexture_rg", "pbasenormaltexture_rgb",)
+		"pnormaltexture", "pnormaltexture_rg", "pnormaltexture_rgb", "pbasenormaltexture_rg", "pbasenormaltexture_rgb",)
 
 	specular_slots = ("proughnesspackedtexture_b", "pspecularmaptexture_r", "pbasenormaltexture_b")
 
 	roughness_slots = (
-	"proughnesspackedtexture_g", "pnormaltexture_a", "pbasenormaltexture_a",
+		"proughnesspackedtexture_g", "pnormaltexture_a", "pbasenormaltexture_a",
 	)  # "pspecularmaptexture_g"
 
 	smoothness_slots = (
-	"pmetalsmoothnesscavitysamplertexture_g",
+		"pmetalsmoothnesscavitysamplertexture_g",
 	)
 
 	# note that JWE uses proughnesspackedtexture_r as alpha, only pbasepackedtexture_b as metal!
-	metallic_slots = ("proughnesspackedtexture_r", "pbasepackedtexture_b")
+	metallic_slots = (
+		"proughnesspackedtexture_r", "pbasepackedtexture_b",
+		"pmetalsmoothnesscavitysamplertexture_r")
 
 	emissive_slots = ("pemissivetexture",)
 
-	alpha_slots = ("popacitytexture", "pdiffusealphatexture_a", "pdiffuse_alphatexture_a", "proughnesspackedtexture_a")
+	alpha_slots = (
+		"popacitytexture", "pdiffusealphatexture_a", "pdiffuse_alphatexture_a", "proughnesspackedtexture_a",
+		"pmetalsmoothnesscavityopacitysamplertexture_a", )
 
 	def get_tex(self, names):
 		for tex_name in names:
@@ -406,6 +414,16 @@ def create_material(in_dir, matname):
 				diffuse_premix.inputs["Fac"].default_value = 1.0
 				tree.links.new(diffuse.outputs[0], diffuse_premix.inputs["Color1"])
 				tree.links.new(detail.outputs[0], diffuse_premix.inputs["Color2"])
+				diffuse = diffuse_premix
+
+			# apply cavity to diffuse
+			for ao in shader.get_tex(shader.cavity_slots):
+				ao.image.colorspace_settings.name = "Non-Color"
+				diffuse_premix = tree.nodes.new('ShaderNodeMixRGB')
+				diffuse_premix.blend_type = "MULTIPLY"
+				diffuse_premix.inputs["Fac"].default_value = 1.0
+				tree.links.new(diffuse.outputs[0], diffuse_premix.inputs["Color1"])
+				tree.links.new(ao.outputs[0], diffuse_premix.inputs["Color2"])
 				diffuse = diffuse_premix
 
 			diffuse = shader.add_marking_nodes(diffuse, tree)
