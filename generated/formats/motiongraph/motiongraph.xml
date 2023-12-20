@@ -10,7 +10,9 @@
         points to all data of size 40 used in MRFentry1 if lua is MotionGraph.StateOutput
         <add name="state output entries" type="Pointer" template="StateArray"/>
         <add name="MGTwo" type="Pointer" template="MGTwo"/>
-        <add name="MRFMember1" type="Pointer" template="MRFMember1"/>
+        when enabled, creates a giant tree
+<!--        <add name="MRFMember1" type="Pointer" template="MRFMember1"/>-->
+        <add name="MRFMember1" type="Pointer" />
 
         <add name="count_0" type="uint"/>
         <add name="count_1" type="uint"/>
@@ -34,7 +36,9 @@
         <add name="activities" type="Pointer" template="Activities" arg="num_activities"/>
 
         <add name="count_1" type="uint64"/>
-        <add name="ptr_1" type="Pointer" template="MRFArray1" arg="count_1"/>
+        when enabled, creates a giant tree
+<!--        <add name="ptr_1" type="Pointer" template="MRFArray1" arg="count_1"/>-->
+        <add name="ptr_1" type="Pointer" template="MRFArray1" />
 
         <add name="count_2" type="uint64"/>
         <add name="ptr_2" type="Pointer" template="MRFArray2" arg="count_2"/>

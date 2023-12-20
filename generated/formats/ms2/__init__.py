@@ -480,17 +480,18 @@ if __name__ == "__main__":
 	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/Content0/Environment/Scenery/Themes/PR_Pirate/PR_Redcoat/PR_Redcoat/models.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/Content0/Rides/FlatRides/Chair-O-Plane/FR_COP/models.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/dino_.ms2", read_editable=True)
-	m.load("C:/Users/arnfi/Desktop/models_polyp.ms2", read_editable=True)
-	for mo in m.model_infos:
-		for me in mo.model.meshes:
-			me.mesh.pack_verts()
-			# print("mesh")
-			# print(me.mesh.tri_indices)
-			me.mesh.tris = ((-1, list(me.mesh.tris)), )
-			# print(me.mesh.tri_indices)
-			# print(m)
-	m.save("C:/Users/arnfi/Desktop/models.ms2")
-	m.load("C:/Users/arnfi/Desktop/models.ms2", read_editable=True)
+	# m.load("C:/Users/arnfi/Desktop/models_polyp.ms2", read_editable=True)
+	# for mo in m.model_infos:
+	# 	for me in mo.model.meshes:
+	# 		me.mesh.pack_verts()
+	# 		# print("mesh")
+	# 		# print(me.mesh.tri_indices)
+	# 		me.mesh.tris = ((-1, list(me.mesh.tris)), )
+	# 		# print(me.mesh.tri_indices)
+	# 		# print(m)
+	# m.save("C:/Users/arnfi/Desktop/models.ms2")
+	m.load("C:/Users/arnfi/Desktop/resize/resized/models.ms2", read_editable=True)
+	# m.load("C:/Users/arnfi/Desktop/models.ms2", read_editable=True)
 	print(m)
 
 	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/Content0/Rides/FlatRides/360_Power/FR_360PWR/models.ms2", read_editable=True)
