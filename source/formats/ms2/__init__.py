@@ -330,7 +330,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 					arr = np.empty(dtype=np.uint8, shape=16)
 					arr[:] = range(16)
 					buffer_info.verts.write(arr.tobytes())
-				# 00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F
+					# 00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F
 			# now store each model
 			for model_info in self.model_infos:
 				logging.debug(f"Storing {model_info.name}")
@@ -361,7 +361,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 					lod.vertex_count = sum(ob.mesh.vertex_count for ob in lod.objects)
 					lod.tri_index_count = sum(ob.mesh.tri_index_count for ob in lod.objects)
 					if is_pc(self.context):
-						lod.tri_index_count -= 4
+						lod.tri_index_count -= (4 * len(lod.objects))
 					# only used by PC
 					vertex_offset_within_lod = 0
 					for ob in lod.objects:
@@ -479,11 +479,11 @@ if __name__ == "__main__":
 	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/Content0/Environment/Scenery/Themes/PR_Pirate/PR_Redcoat/PR_Redcoat/models.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/Content0/Rides/FlatRides/Chair-O-Plane/FR_COP/models.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/dino_.ms2", read_editable=True)
-	# m.load("C:/Users/arnfi/Desktop/models.ms2", read_editable=True)
-	# print(m)
-	# m.save("C:/Users/arnfi/Desktop/dino_save.ms2")
-	m.load("C:/Users/arnfi/Desktop/models_polyp.ms2", read_editable=True, dump=True)
+	m.load("C:/Users/arnfi/Desktop/models.ms2", read_editable=True)
 	print(m)
+	# m.save("C:/Users/arnfi/Desktop/dino_save.ms2")
+	# m.load("C:/Users/arnfi/Desktop/models_polyp.ms2", read_editable=True, dump=True)
+	# print(m)
 
 	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/Content0/Rides/FlatRides/360_Power/FR_360PWR/models.ms2", read_editable=True)
 	# m.load("C:/Users/arnfi/Desktop/Coding/Frontier/PC OVLs/walker_export/Content0/Rides/FlatRides/Genie/Genie/models.ms2", read_editable=True)

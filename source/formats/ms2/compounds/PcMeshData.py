@@ -95,6 +95,9 @@ class PcMeshData:
 			self.get_blended_weights(self.weights_data["bone ids"], bone_weights)
 		else:
 			self.get_static_weights(self.verts_data["bone index"], self.use_blended_weights)
+		for bit in range(0, 8):
+			for vertex_index, res in enumerate((self.verts_data["winding"] >> bit) & 1):
+				self.add_to_weights(f"bit{bit}", vertex_index, res)
 		# print(self.vertices)
 
 	def pack_verts(self):
@@ -124,6 +127,11 @@ class PcMeshData:
 			self.use_weights = False
 		else:
 			self.use_weights = True
+
+		# winding is a bitfield
+		# 0 = UV orientation matching the geometry
+		# 64 = inverted UV orientation = bitangent
+		self.verts_data["winding"] = self.negate_bitangents << 6
 
 		# non-vectorized data
 		for vert, weight, weight_target in zip(self.verts_data, self.weights, self.weights_data):

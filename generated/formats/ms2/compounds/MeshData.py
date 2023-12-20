@@ -197,7 +197,11 @@ class MeshData(MemStruct):
 		b_bone_id, b_tris = list_of_b_tris[0]
 
 		if hasattr(self.flag, "stripify") and self.flag.stripify:
-			self.tri_indices = np.array(stripify(np.flip(b_tris, axis=-1), stitchstrips=True)[0], dtype=np.uint16)
+			strip = stripify(np.flip(b_tris, axis=-1), stitchstrips=True)[0]
+			# stock PC uses even length strips exclusively (?), odd strips seem to randomly invert tris
+			if len(strip) % 2:
+				strip.append(strip[-1])
+			self.tri_indices = np.array(strip, dtype=np.uint16)
 		else:
 			# cast to uint16
 			raw_tris = np.array(b_tris, dtype=np.uint16)

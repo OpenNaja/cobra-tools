@@ -32,6 +32,9 @@ def assign_bounds(target, bounds_max, bounds_min):
 def get_bounds(bounds, swizzle_func=pack_swizzle):
 	bounds_max = mathutils.Vector((-v, -v, -v))
 	bounds_min = mathutils.Vector((v, v, v))
+	if not bounds:
+		zero_vec = mathutils.Vector((0, 0, 0))
+		return zero_vec, zero_vec
 	for bound in bounds:
 		for co in bound:
 			for i in range(3):

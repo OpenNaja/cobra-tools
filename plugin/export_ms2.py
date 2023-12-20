@@ -21,7 +21,7 @@ from plugin.modules_export.collision import export_bounds, get_bounds
 from plugin.modules_export.geometry import export_model, scale_bbox
 from plugin.modules_export.material import export_material
 from plugin.modules_import.armature import get_bone_names
-from plugin.utils.object import has_objects_in_scene, get_property
+from plugin.utils.object import has_data_in_coll, get_property
 from plugin.utils.shell import get_collection_endswith
 
 
@@ -125,7 +125,7 @@ def save(filepath='', backup_original=True, apply_transforms=False, update_rig=F
 			coll.exclude = False
 		model_info.render_flag._value = get_property(mdl2_coll, "render_flag")
 		# ensure that we have objects in the scene
-		if not has_objects_in_scene(mdl2_coll.objects):
+		if not has_data_in_coll(mdl2_coll):
 			raise AttributeError(f"No objects in collection '{mdl2_coll.name}', nothing to export!")
 
 		b_armature_ob = get_armature(mdl2_coll.objects)

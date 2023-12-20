@@ -76,13 +76,15 @@ def link_to_collection(scene, ob, coll_name):
 	return coll_name
 
 
-def has_objects_in_scene(objects):
-	if objects:
+def has_data_in_coll(coll):
+	if coll.objects:
 		# operator needs an active object, set one if missing (eg. user had deleted the active object)
 		if not bpy.context.view_layer.objects.active:
-			bpy.context.view_layer.objects.active = objects[0]
+			bpy.context.view_layer.objects.active = coll.objects[0]
 		# now enter object mode on the active object, if we aren't already in it
 		bpy.ops.object.mode_set(mode="OBJECT")
+		return True
+	if coll.children:
 		return True
 
 
