@@ -4,7 +4,6 @@ import time
 
 import bpy
 # import bmesh
-import numpy as np
 
 from generated.formats.ms2.compounds.packing_utils import has_nan
 from plugin.modules_import.armature import import_armature, append_armature_modifier, import_vertex_groups, \
@@ -12,7 +11,7 @@ from plugin.modules_import.armature import import_armature, append_armature_modi
 from plugin.utils.hair import add_psys
 from plugin.modules_import.material import import_material
 from plugin.utils.shell import is_fin, num_fur_as_weights, is_shell, gauge_uv_scale_wrapper
-from plugin.utils.object import create_ob, create_scene, create_collection, mesh_from_data, set_collection_visibility
+from plugin.utils.object import create_ob, create_scene, create_collection, set_collection_visibility
 from generated.formats.ms2 import Ms2File
 from generated.formats.ms2.enums.MeshFormat import MeshFormat
 
@@ -21,25 +20,26 @@ def load(filepath="", use_custom_normals=False, mirror_mesh=False):
 	messages = set()
 	start_time = time.time()
 	in_dir, ms2_name = os.path.split(filepath)
+	ms2_basename = os.path.splitext(ms2_name)[0]
 	ms2 = Ms2File()
 	ms2.load(filepath, read_editable=True)
+	scene = create_scene(ms2_basename, len(ms2.modelstream_names), ms2.context.version)
+	bpy.context.window.scene = scene
 	# print(ms2)
 	created_materials = {}
-	for mdl2_name, model_info in zip(ms2.mdl_2_names, ms2.model_infos):
-		scene = create_scene(mdl2_name, int(model_info.render_flag), len(ms2.modelstream_names), ms2.context.version)
-		bpy.context.window.scene = scene
-
+	for model_info in ms2.model_infos:
+		mdl2_coll = create_collection(scene, model_info.name)
+		mdl2_coll["render_flag"] = int(model_info.render_flag)
 		bone_names = get_bone_names(model_info)
-		b_armature_obj = import_armature(scene, model_info, bone_names)
+		b_armature_obj = import_armature(scene, model_info, bone_names, mdl2_coll)
 
 		mesh_dict = {}
 		ob_dict = {}
 		# print(model_info)
 		# print(model_info.model)
-		# print("mdl2.mesh.meshes",mdl2.mesh.meshes)
 		for lod_i, m_lod in enumerate(model_info.model.lods):
 			logging.info(f"Importing LOD{lod_i}")
-			lod_coll = create_collection(scene, f"LOD{lod_i}")
+			lod_coll = create_collection(scene, f"{model_info.name}_L{lod_i}", mdl2_coll)
 			# skip other shells for JWE2
 			obs = []
 			for m_ob in m_lod.objects:
@@ -53,19 +53,15 @@ def load(filepath="", use_custom_normals=False, mirror_mesh=False):
 			for ob_i, m_ob in enumerate(obs):
 				mesh = m_ob.mesh
 				# print(mesh)
-				# lod_i = mesh.lod_index
 				# logging.debug(f"flag {mesh.flag}")
-				mesh_name = f"{mdl2_name}_model{m_ob.mesh_index}"
-				# continue
+				mesh_name = f"{model_info.name}_model{m_ob.mesh_index}"
 				if m_ob.mesh_index in mesh_dict:
 					b_me = mesh_dict[m_ob.mesh_index]
-
 				# create object and mesh from data
 				else:
 					b_me = bpy.data.meshes.new(mesh_name)
 					# cast array to prevent truth check in from_pydata
 					b_me.from_pydata(mesh.vertices, [], tuple(mesh.tris))
-					# print(mesh.vertices, [], tuple(mesh.tris))
 					try:
 						# store mesh unknowns
 						# cast the bitfield to int
@@ -87,47 +83,33 @@ def load(filepath="", use_custom_normals=False, mirror_mesh=False):
 				# link material to mesh
 				import_material(created_materials, in_dir, b_me, m_ob.material)
 
-				if m_ob.mesh_index not in ob_dict:
-					b_ob = create_ob(scene, f"{mdl2_name}_lod{lod_i}_ob{ob_i}", b_me, coll=lod_coll)
+				if m_ob.mesh_index in ob_dict:
+					b_ob = ob_dict[m_ob.mesh_index]
+				else:
+					b_ob = create_ob(scene, f"{model_info.name}_ob{ob_i}_L{lod_i}", b_me, coll=lod_coll)
 					b_ob.parent = b_armature_obj
-
+					ob_dict[m_ob.mesh_index] = b_ob
 					try:
 						import_vertex_groups(b_ob, mesh, bone_names)
-						# import_face_maps(b_ob, mesh)
 						import_shapekeys(b_ob, mesh)
 						# link to armature, only after mirror so the order is good and weights are mirrored
 						append_armature_modifier(b_ob, b_armature_obj)
 						if mirror_mesh:
 							append_bisect_modifier(b_ob)
 						ob_postpro(b_ob, mirror_mesh, use_custom_normals)
+						# from plugin.modules_import.tangents import visualize_tangents
+						# ob2, me2 = visualize_tangents(b_ob.name, mesh.vertices, mesh.normals, mesh.tangents)
 					except:
 						logging.exception("Some mesh data failed")
-					ob_dict[m_ob.mesh_index] = b_ob
-					# from plugin.modules_import.tangents import visualize_tangents
-					# ob2, me2 = visualize_tangents(b_ob.name, mesh.vertices, mesh.normals, mesh.tangents)
-					# if mesh.flag == 517:
-					# 	ob2, me2 = visualize_foliage_field(b_ob.name, mesh.vertices, mesh.colors)
-				else:
-					b_ob = ob_dict[m_ob.mesh_index]
-				# we can't assume that the first ob referencing this mesh has it already
+				# we can't assume that the first ob referencing this mesh has fur already
 				if ms2.context.version > 32 and is_shell(b_ob):
 					logging.debug(f"{b_ob.name} has shells, adding psys")
 					add_psys(b_ob, mesh.fur_length)
-			coll_name = f"{scene.name}_LOD{lod_i}"
 			# show lod 0, hide the others
-			set_collection_visibility(scene, coll_name, lod_i != 0)
+			set_collection_visibility(scene, lod_coll.name, lod_i != 0)
 		gauge_uv_scale_wrapper()
 	messages.add(f"Imported {ms2_name} in {time.time() - start_time:.2f} seconds")
 	return messages
-
-
-def import_face_maps(b_ob, mesh):
-	if hasattr(mesh, "face_maps"):
-		for map_name, face_indices in mesh.face_maps.items():
-			b_face_map = b_ob.face_maps.new(name=map_name)
-			b_face_map.add(face_indices)
-			# for ind in face_indices:
-			# 	b_face_map.add(ind)
 
 
 def per_loop(b_me, per_vertex_input):
@@ -229,22 +211,3 @@ def append_bisect_modifier(b_ob):
 	# mod.use_x = True
 	mod.use_axis = (True, False, False)
 	mod.merge_threshold = 0.001
-
-
-def unpack_swizzle_vectorized_col(arr):
-    arr[:] = arr[:, (0, 2, 1, 3)]
-    arr[:, (0, 1)] *= -1.0
-
-
-def visualize_foliage_field(name, vertices, colors):
-	colors *= 2.0
-	colors -= 1.0
-	unpack_swizzle_vectorized_col(colors)
-	out_verts = []
-	out_faces = []
-	v_len = 0.1
-	for i, (v, n) in enumerate(zip(vertices, colors)):
-		out_verts.append(v)
-		out_verts.append(v+v_len*n[:3]*n[3])
-		out_faces.append((i * 2, i*2 + 1,))
-	return mesh_from_data(bpy.context.scene, f"{name}_vecs", out_verts, out_faces, wireframe=False)

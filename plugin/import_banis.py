@@ -20,7 +20,7 @@ global_corr_mat = global_corr_euler.to_matrix().to_4x4()
 def load(files=[], filepath="", set_fps=False):
 	use_armature = True
 	scene = bpy.context.scene
-	b_armature_ob = get_armature(scene)
+	b_armature_ob = get_armature(scene.objects)
 
 	bones_table, p_bones = get_bones_table(b_armature_ob)
 	bone_names = [tup[1] for tup in bones_table]

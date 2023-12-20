@@ -36,7 +36,7 @@ def save(filepath=""):
 	corrector = Corrector(False)
 	scene = bpy.context.scene
 	bones_data = {}
-	b_armature_ob = get_armature(scene)
+	b_armature_ob = get_armature(scene.objects)
 	if not b_armature_ob:
 		logging.warning(f"No armature was found in scene '{scene.name}' - did you delete it?")
 		return "Failed, no armature"

@@ -144,6 +144,9 @@ class PcMeshData(MeshData):
 		self.buffer_info.verts.write(padding)
 		offset = self.buffer_info.verts.tell()
 		self.buffer_info.verts.write(arr.tobytes())
+		# to be safe, also write padding at the end
+		padding = get_padding(self.buffer_info.verts.tell(), alignment=16)
+		self.buffer_info.verts.write(padding)
 		return offset // 16
 
 	def read_verts(self):

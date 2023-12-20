@@ -35,12 +35,11 @@ def get_lod(ob):
 
 
 # @TODO: Create appropriate defaults
-def create_scene(name, render_flag=0, num_streams=0, version=0):
+def create_scene(name, num_streams=0, version=0):
 	logging.debug(f"Adding scene {name} to blender")
 	if name not in bpy.data.scenes:
 		scene = bpy.data.scenes.new(name)
 		# store scene properties
-		scene["render_flag"] = render_flag
 		scene.cobra.num_streams = num_streams
 		context = Ms2Context()
 		context.version = version
@@ -49,13 +48,16 @@ def create_scene(name, render_flag=0, num_streams=0, version=0):
 	return bpy.data.scenes[name]
 
 
-def create_collection(scene, coll_name):
+def create_collection(scene, coll_name, parent_coll=None):
 	# turn any relative collection names to include the scene prefix
-	if not coll_name.startswith(f"{scene.name}_"):
-		coll_name = f"{scene.name}_{coll_name}"
+	# if not coll_name.startswith(f"{scene.name}_"):
+	# 	coll_name = f"{scene.name}_{coll_name}"
 	if coll_name not in bpy.data.collections:
 		coll = bpy.data.collections.new(coll_name)
-		scene.collection.children.link(coll)
+		if parent_coll:
+			parent_coll.children.link(coll)
+		else:
+			scene.collection.children.link(coll)
 		return coll
 	return bpy.data.collections[coll_name]
 
@@ -74,11 +76,11 @@ def link_to_collection(scene, ob, coll_name):
 	return coll_name
 
 
-def has_objects_in_scene(scene):
-	if scene.objects:
+def has_objects_in_scene(objects):
+	if objects:
 		# operator needs an active object, set one if missing (eg. user had deleted the active object)
 		if not bpy.context.view_layer.objects.active:
-			bpy.context.view_layer.objects.active = scene.objects[0]
+			bpy.context.view_layer.objects.active = objects[0]
 		# now enter object mode on the active object, if we aren't already in it
 		bpy.ops.object.mode_set(mode="OBJECT")
 		return True
@@ -94,14 +96,22 @@ def get_property(ob, prop_name, default=None):
 		raise KeyError(f"Custom property '{prop_name}' missing from {ob.name} (data: {type(ob).__name__}). Add it!")
 
 
+def find_collection(layer_collection, collection):
+	# adapted from https://devtalk.blender.org/t/unique-identifier-for-layer-collections/23966
+	if layer_collection.collection == collection:
+		yield layer_collection
+	for child_collection in layer_collection.children:
+		yield from find_collection(child_collection, collection)
+
+
 def set_collection_visibility(scene, coll_name, hide):
-	# get view layer if it exists
-	view_collections = bpy.context.view_layer.layer_collection.children
-	if coll_name in view_collections:
-		view_collections[coll_name].hide_viewport = hide
-	scene_collections = scene.collection.children
-	if coll_name in scene_collections:
-		scene_collections[coll_name].hide_render = hide
+	if coll_name in bpy.data.collections:
+		coll = bpy.data.collections[coll_name]
+		coll.hide_render = hide
+		# get view layer collection if it exists
+		view_colls = list(find_collection(bpy.context.view_layer.layer_collection, coll))
+		if view_colls:
+			view_colls[0].hide_viewport = hide
 
 
 def get_bones_table(b_armature_ob):

@@ -23,8 +23,8 @@ def assign_p_bone_indices(b_armature_ob):
 		p_bone["index"] = i
 
 
-def get_armature(scene):
-	src_armatures = [ob for ob in scene.objects if type(ob.data) == bpy.types.Armature]
+def get_armature(objects):
+	src_armatures = [ob for ob in objects if type(ob.data) == bpy.types.Armature]
 	# do we have armatures?
 	if src_armatures:
 		# see if one of these is selected
@@ -89,7 +89,7 @@ def export_bones_custom(b_armature_ob, model_info):
 		bone_info.zeros_padding.arg = bone_info.zeros_count
 	# paddings are taken care of automatically during writing
 	export_ik(b_armature_ob, bone_info)
-	export_joints(bone_info, corrector)
+	export_joints(bone_info, corrector, b_armature_ob)
 
 
 def add_parents(bones_with_ik, p_bone, count):
@@ -153,14 +153,14 @@ def export_ik(b_armature_ob, bone_info):
 		ik_link.matrix.set_rows(def_mat.transposed())
 
 
-def export_joints(bone_info, corrector):
-	logging.info("Exporting joints")
-	scene = bpy.context.scene
-	joint_coll = get_collection_endswith(scene, "_joints")
-	if not joint_coll:
+def export_joints(bone_info, corrector, b_armature_ob):
+	logging.info(f"Exporting joints for {b_armature_ob.name}")
+	joint_obs = [ob for ob in b_armature_ob.children if ob.type == "EMPTY"]
+	if not joint_obs:
 		return
+	b_armature_basename = b_armature_ob.name.split("_armature")[0]
 	joints = bone_info.joints
-	bone_info.joint_count = joints.joint_count = len(joint_coll.objects)
+	bone_info.joint_count = joints.joint_count = len(joint_obs)
 	joints.reset_field("joint_transforms")
 	joints.reset_field("rigid_body_pointers")
 	joints.reset_field("rigid_body_list")
@@ -170,9 +170,8 @@ def export_joints(bone_info, corrector):
 	# reset bone -> joint mapping since we don't catch them all if we loop over existing joints
 	joints.bone_to_joint[:] = -1
 	bone_lut = {bone.name: bone_index for bone_index, bone in enumerate(bone_info.bones)}
-	for joint_i, joint_info in enumerate(joints.joint_infos):
-		b_joint = joint_coll.objects[joint_i]
-		joint_info.name = bone_name_for_ovl(get_joint_name(b_joint))
+	for joint_i, (joint_info, b_joint) in enumerate(zip(joints.joint_infos, joint_obs)):
+		joint_info.name = bone_name_for_ovl(get_joint_name(b_armature_basename, b_joint))
 		joint_info.index = joint_i
 		joint_info.bone_name = bone_name_for_ovl(b_joint.parent_bone)
 		try:
@@ -202,8 +201,8 @@ def export_joints(bone_info, corrector):
 			else:
 				hitcheck.surface_name = surface_name
 				hitcheck.classification_name = classification_name
-			hitcheck.name = get_joint_name(b_hitcheck)
-			export_hitcheck(b_hitcheck, hitcheck, corrector)
+			hitcheck.name = get_joint_name(b_armature_basename, b_hitcheck)
+			export_hitcheck(b_hitcheck, hitcheck, corrector, b_armature_basename)
 		
 		rb = joints.rigid_body_list[joint_i]
 		if b_joint.children:
@@ -224,14 +223,14 @@ def export_joints(bone_info, corrector):
 	# update ragdoll constraints, relies on previously updated joints
 	corrector_rag = CorrectorRagdoll(False)
 	j_map = {j.name: j for j in joints.joint_infos}
-	joints_with_ragdoll_constraints = [b_joint for b_joint in joint_coll.objects if b_joint.rigid_body_constraint]
+	joints_with_ragdoll_constraints = [b_joint for b_joint in joint_obs if b_joint.rigid_body_constraint]
 	joints.num_ragdoll_constraints = len(joints_with_ragdoll_constraints)
 	joints.reset_field("ragdoll_constraints")
 	for rd, b_joint in zip(joints.ragdoll_constraints, joints_with_ragdoll_constraints):
 		rbc = b_joint.rigid_body_constraint
 		# get the joint empties, which are the parents of the respective rigidbody objects
-		child_joint_name = bone_name_for_ovl(get_joint_name(rbc.object1.parent))
-		parent_joint_name = bone_name_for_ovl(get_joint_name(rbc.object2.parent))
+		child_joint_name = bone_name_for_ovl(get_joint_name(b_armature_basename, rbc.object1.parent))
+		parent_joint_name = bone_name_for_ovl(get_joint_name(b_armature_basename, rbc.object2.parent))
 		rd.child.joint = j_map[child_joint_name]
 		rd.parent.joint = j_map[parent_joint_name]
 		rd.child.index = rd.child.joint.index
@@ -273,7 +272,7 @@ def export_joints(bone_info, corrector):
 
 	# find the root joint, assuming the first one with least parents
 	parents_map = []
-	for joint_i, b_joint in enumerate(joint_coll.objects):
+	for joint_i, b_joint in enumerate(joint_obs):
 		b_bone = b_joint.parent.data.bones[b_joint.parent_bone]
 		num_parents = len(b_bone.parent_recursive)
 		parents_map.append((num_parents, joint_i))

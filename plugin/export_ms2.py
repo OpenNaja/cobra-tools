@@ -94,42 +94,43 @@ def save(filepath='', backup_original=True, apply_transforms=False, update_rig=F
 	logging.info(f"Exporting {filepath}...")
 
 	ms2.read_editable = True
-	found_scenes = 0
+	found_mdl2s = 0
 
 	model_info_lut = {model_info.name: model_info for model_info in ms2.model_infos}
-	for scene in bpy.data.scenes:
+	scene = bpy.context.scene
+	for mdl2_coll in scene.collection.children:
 		if from_scratch:
 			set_game(ms2.context, scene.cobra.game)
 			set_game(ms2.info, scene.cobra.game)
 			model_info = ModelInfo(ms2.context)
-			model_info.name = scene.name
+			model_info.name = mdl2_coll.name
 			model_info.bone_info = BoneInfo(ms2.context)
 			model_info.model = Model(ms2.context, model_info)
 			ms2.model_infos.append(model_info)
 		else:
-			if scene.name not in model_info_lut:
-				logging.warning(f"Scene '{scene.name}' was not found in the MS2 file, skipping")
+			if mdl2_coll.name not in model_info_lut:
+				logging.warning(f"Collection '{mdl2_coll.name}' was not found in the MS2 file, skipping")
 				continue
-			model_info = model_info_lut[scene.name]
+			model_info = model_info_lut[mdl2_coll.name]
 
-		found_scenes += 1
-		logging.info(f"Exporting scene {scene.name}")
+		found_mdl2s += 1
+		logging.info(f"Exporting {mdl2_coll.name}")
 
-		# make active scene
-		bpy.context.window.scene = scene
+		# todo - account for nesting, share with lod gen
 		# make all collections visible in view_layer to ensure applying modifiers works
 		view_collections = bpy.context.view_layer.layer_collection.children
+
 		view_states = [coll.exclude for coll in view_collections]
 		for coll in view_collections:
 			coll.exclude = False
-		model_info.render_flag._value = get_property(scene, "render_flag")
+		model_info.render_flag._value = get_property(mdl2_coll, "render_flag")
 		# ensure that we have objects in the scene
-		if not has_objects_in_scene(scene):
-			raise AttributeError(f"No objects in scene '{scene.name}', nothing to export!")
+		if not has_objects_in_scene(mdl2_coll.objects):
+			raise AttributeError(f"No objects in collection '{mdl2_coll.name}', nothing to export!")
 
-		b_armature_ob = get_armature(scene)
+		b_armature_ob = get_armature(mdl2_coll.objects)
 		if not b_armature_ob:
-			logging.warning(f"No armature was found in scene '{scene.name}' - did you delete it?")
+			logging.warning(f"No armature was found in collection '{mdl2_coll.name}' - did you delete it?")
 		else:
 			# clear pose
 			for pbone in b_armature_ob.pose.bones:
@@ -145,7 +146,7 @@ def save(filepath='', backup_original=True, apply_transforms=False, update_rig=F
 		bounds = []
 		lod_collections = []
 		for lod_i in range(6):
-			lod_coll = get_collection_endswith(scene, f"_LOD{lod_i}")
+			lod_coll = get_collection_endswith(scene, f"{mdl2_coll.name}_L{lod_i}")
 			if not lod_coll:
 				break
 			lod_collections.append(lod_coll)
@@ -214,15 +215,15 @@ def save(filepath='', backup_original=True, apply_transforms=False, update_rig=F
 	# write ms2, backup should have been created earlier
 	ms2.save(filepath)
 	# print(ms2)
-	if found_scenes:
+	if found_mdl2s:
 		messages.add(f"Finished MS2 export in {time.time() - start_time:.2f} seconds")
 	else:
 		mdl2_names = sorted(model_info_lut.keys())
 		mdl2_names_str = '\n'.join(mdl2_names)
 		raise AttributeError(
-			f"Found no scenes matching MDL2s in MS2:\n"
+			f"Found no collections matching MDL2s in MS2:\n"
 			f"{mdl2_names_str}\n"
-			f"Rename your scenes to match the MDL2s")
+			f"Rename your collections to match the MDL2s")
 	return messages
 
 

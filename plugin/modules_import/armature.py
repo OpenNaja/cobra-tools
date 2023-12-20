@@ -7,7 +7,7 @@ import mathutils
 from generated.formats.ms2.versions import is_ztuac, is_dla
 from plugin.modules_import.collision import import_collider, parent_to
 
-from plugin.utils.object import create_ob, link_to_collection, set_collection_visibility
+from plugin.utils.object import create_ob, link_to_collection, set_collection_visibility, create_collection
 from plugin.utils import matrix_util
 from plugin.utils.matrix_util import mat3_to_vec_roll, CorrectorRagdoll, vectorisclose
 
@@ -15,7 +15,7 @@ TOLERANCE = 0.0001
 vec_y = mathutils.Vector((0.0, 1.0, 0.0))
 
 
-def import_armature(scene, model_info, b_bone_names):
+def import_armature(scene, model_info, b_bone_names, mdl2_coll):
 	"""Scans an armature hierarchy, and returns a whole armature."""
 	is_old_orientation = any((is_ztuac(model_info.context), is_dla(model_info.context)))
 	# print(f"is_old_orientation {is_old_orientation}")
@@ -31,7 +31,7 @@ def import_armature(scene, model_info, b_bone_names):
 		b_armature_data = bpy.data.armatures.new(bone_info.name)
 		b_armature_data.display_type = 'STICK'
 		# b_armature_data.show_axes = True
-		armature_ob = create_ob(scene, bone_info.name, b_armature_data)
+		armature_ob = create_ob(scene, bone_info.name, b_armature_data, coll=mdl2_coll)
 		armature_ob.show_in_front = True
 		# make armature editable and create bones
 		bpy.ops.object.mode_set(mode='EDIT', toggle=False)
@@ -108,7 +108,7 @@ def import_armature(scene, model_info, b_bone_names):
 			bone = armature_ob.pose.bones[short_name]
 			bone["index"] = i
 		try:
-			import_joints(scene, armature_ob, bone_info, b_bone_names, corrector)
+			import_joints(scene, armature_ob, bone_info, b_bone_names, corrector, mdl2_coll)
 		except:
 			logging.exception("Importing joints failed")
 		try:
@@ -116,8 +116,8 @@ def import_armature(scene, model_info, b_bone_names):
 		except:
 			logging.exception("Importing IK failed")
 
-		set_collection_visibility(scene, f"{scene.name}_joints", True)
-		set_collection_visibility(scene, f"{scene.name}_hitchecks", True)
+		set_collection_visibility(scene, f"{model_info.name}_joints", True)
+		set_collection_visibility(scene, f"{model_info.name}_hitchecks", True)
 		return armature_ob
 
 
@@ -331,15 +331,19 @@ def import_ik(scene, armature_ob, bone_info, b_bone_names, corrector, long_name_
 		b_ik.chain_count = len(parents)
 
 
-def import_joints(scene, armature_ob, bone_info, b_bone_names, corrector):
+def import_joints(scene, armature_ob, bone_info, b_bone_names, corrector, mdl2_coll):
 	logging.info("Importing joints")
 	j = bone_info.joints
 	joint_map = {}
+	if bone_info.joint_count:
+		joint_coll = create_collection(scene, f"{mdl2_coll.name}_joints", mdl2_coll)
+	# if joint_info.hitchecks:
+	# 	joint_coll = create_collection(scene, f"{mdl2_coll.name}_joints", mdl2_coll)
 	for joint_i, (bone_index, joint_info, joint_transform) in enumerate(zip(
 			j.joint_to_bone, j.joint_infos, j.joint_transforms)):
 		logging.debug(f"joint {joint_info.name}")
 		# create an empty representing the joint
-		b_joint = create_ob(scene, f"{bpy.context.scene.name}_{joint_info.name}", None, coll_name="joints")
+		b_joint = create_ob(scene, f"{mdl2_coll.name}_{joint_info.name}", None, coll=joint_coll)
 		b_joint["long_name"] = joint_info.name
 		joint_map[joint_info.name] = b_joint
 		b_joint.empty_display_type = "ARROWS"
@@ -349,7 +353,7 @@ def import_joints(scene, armature_ob, bone_info, b_bone_names, corrector):
 
 		if hasattr(joint_info, "hitchecks"):
 			for hitcheck in joint_info.hitchecks:
-				b_collider = import_collider(hitcheck, b_joint, corrector)
+				b_collider = import_collider(hitcheck, b_joint, corrector, joint_coll)
 				# not used by PC
 				if j.rigid_body_list:
 					rb = j.rigid_body_list[joint_i]

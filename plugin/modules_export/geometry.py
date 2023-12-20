@@ -11,7 +11,7 @@ from plugin.utils.object import get_property
 from plugin.modules_export.armature import handle_transforms
 from plugin.modules_export.mesh_chunks import DYNAMIC_ID, ChunkedMesh, NO_BONES_ID, DISCARD_STATIC_TRIS
 from plugin.utils.matrix_util import ensure_tri_modifier, evaluate_mesh
-from plugin.utils.shell import num_fur_as_weights, is_fin, is_shell
+from plugin.utils.shell import num_fur_as_weights, is_fin, is_shell, FUR_VGROUPS
 
 
 def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_transforms, use_stock_normals_tangents, m_lod, shell_index, shell_count):
@@ -305,7 +305,7 @@ def validate_vertex_groups(b_ob, bones_table):
 	for v_group in b_ob.vertex_groups:
 		if v_group.name in bones_table:
 			continue
-		elif v_group.name in ("fur_width", "fur_length"):
+		elif v_group.name in FUR_VGROUPS:
 			continue
 		else:
 			logging.warning(f"Ignored extraneous vertex group {v_group.name} on mesh {b_ob.name}")

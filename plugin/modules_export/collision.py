@@ -41,8 +41,8 @@ def get_bounds(bounds, swizzle_func=pack_swizzle):
 	return bounds_max, bounds_min
 
 
-def export_hitcheck(b_obj, hitcheck, corrector):
-	hitcheck.name = get_joint_name(b_obj)
+def export_hitcheck(b_obj, hitcheck, corrector, b_armature_basename):
+	hitcheck.name = get_joint_name(b_armature_basename, b_obj)
 	b_rb = b_obj.rigid_body
 	if not b_rb:
 		raise AttributeError(f"No rigid body on {b_obj.name} - can't identify collision type.")

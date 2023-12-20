@@ -434,6 +434,7 @@ def create_material(in_dir, matname):
 			tree.links.new(emissive.outputs[0], principled.inputs["Emission"])
 
 		for alpha in shader.get_tex(shader.alpha_slots):
+			alpha.image.colorspace_settings.name = "Raw"
 			alpha_pass = alpha.outputs[0]
 			b_mat.blend_method = "CLIP"
 			b_mat.shadow_method = "CLIP"
