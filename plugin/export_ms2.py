@@ -164,6 +164,7 @@ def save(filepath='', backup_original=True, apply_transforms=False, update_rig=F
 			m_lod.objects = []
 			m_lod.stream_index = stream_index
 			model_info.model.lods.append(m_lod)
+			mesh_in_lod = 0
 			for b_ob in lod_coll.objects:
 				logging.debug(f"Exporting b_ob {b_ob.name}")
 				b_me = b_ob.data
@@ -178,9 +179,10 @@ def save(filepath='', backup_original=True, apply_transforms=False, update_rig=F
 					if b_me not in b_models:
 						b_models.append((b_me, shell_index))
 						wrapper = export_model(model_info, lod_coll, b_ob, b_me, bones_table, bounds, apply_transforms,
-											   use_stock_normals_tangents, m_lod, shell_index, shell_count)
+											   use_stock_normals_tangents, m_lod, shell_index, shell_count, mesh_in_lod)
 						wrapper.mesh.lod_index = lod_i
 						wrapper.mesh.stream_info.pool_index = stream_index
+						mesh_in_lod += 1
 					for b_mat in b_me.materials:
 						logging.debug(f"Exporting material {b_mat.name}")
 						if b_mat not in b_materials:

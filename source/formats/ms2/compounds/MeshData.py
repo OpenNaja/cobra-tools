@@ -1,6 +1,8 @@
 # START_GLOBALS
 import logging
 import math
+from itertools import pairwise
+
 import numpy as np
 
 from generated.formats.ms2.compounds.packing_utils import FUR_OVERHEAD, remap, PACKEDVEC_MAX
@@ -155,10 +157,15 @@ class MeshData:
 		b_bone_id, b_tris = list_of_b_tris[0]
 
 		if hasattr(self.flag, "stripify") and self.flag.stripify:
-			strip = stripify(np.flip(b_tris, axis=-1), stitchstrips=True)[0]
-			# stock PC uses even length strips exclusively (?), odd strips seem to randomly invert tris
+			strip_whole = stripify(np.flip(b_tris, axis=-1), stitchstrips=True)[0]
+			# add degenerate tris at either end to avoid breaking strips
+			strip = [strip_whole[0], strip_whole[0]]
+			strip.extend(strip_whole)
+			# stock PC uses even length strips exclusively (?)
 			if len(strip) % 2:
 				strip.append(strip[-1])
+			strip.append(strip[-1])
+			strip.append(strip[-1])
 			self.tri_indices = np.array(strip, dtype=np.uint16)
 		else:
 			# cast to uint16

@@ -100,12 +100,12 @@ class PcMeshData(MeshData):
 		yield 'zero_c', name_type_map['Uint'], (0, None), (False, 0)
 
 	def get_uv_count(self):
-		# apparently not true, walker: {(False, 9), (False, 25), (True, 25), (True, 9)}
-		if self.flag == 9:
+		# apparently not correlated to flag, walker: {(False, 9), (False, 25), (True, 25), (True, 9)}
+		if self.uv_offset_2:
 			return 2
-		elif self.flag == 25:
-			return 1
-		return 0
+		# elif self.uv_offset:
+		# 	return 1
+		return 1
 
 	def update_dtype(self):
 		"""Update MeshData.dt (numpy dtype) according to MeshData.flag"""
@@ -182,9 +182,13 @@ class PcMeshData(MeshData):
 			self.get_blended_weights(self.weights_data["bone ids"], bone_weights)
 		else:
 			self.get_static_weights(self.verts_data["bone index"], self.use_blended_weights)
+			self.weights = [[(b, 1.0),] for b in self.verts_data["bone index"]]
+		# print(self.verts_data["winding"])
 		for bit in range(0, 8):
 			for vertex_index, res in enumerate((self.verts_data["winding"] >> bit) & 1):
 				self.add_to_weights(f"bit{bit}", vertex_index, res)
+		self.mesh_in_lod = self.verts_data["winding"][0] & 0b111111
+		self.negate_bitangents = (self.verts_data["winding"] >> 6) & 1
 		# print(self.vertices)
 
 	def pack_verts(self):
@@ -216,9 +220,8 @@ class PcMeshData(MeshData):
 			self.use_weights = True
 
 		# winding is a bitfield
-		# 0 = UV orientation matching the geometry
-		# 64 = inverted UV orientation = bitangent
-		self.verts_data["winding"] = self.negate_bitangents << 6
+		self.verts_data["winding"] = self.mesh_in_lod
+		self.verts_data["winding"] |= self.negate_bitangents << 6
 
 		# non-vectorized data
 		for vert, weight, weight_target in zip(self.verts_data, self.weights, self.weights_data):

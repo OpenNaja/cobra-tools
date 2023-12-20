@@ -14,17 +14,21 @@ from plugin.utils.matrix_util import ensure_tri_modifier, evaluate_mesh
 from plugin.utils.shell import num_fur_as_weights, is_fin, is_shell, FUR_VGROUPS
 
 
-def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_transforms, use_stock_normals_tangents, m_lod, shell_index, shell_count):
+def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_transforms, use_stock_normals_tangents, m_lod, shell_index, shell_count, mesh_in_lod):
 	logging.info(f"Exporting mesh {b_me.name}")
 	# we create a ms2 mesh
 	wrapper = MeshDataWrap(model_info.context)
 	mesh = wrapper.mesh
 	# set data
+	mesh.mesh_in_lod = mesh_in_lod
 	mesh.flag._value = get_property(b_me, "flag")
 	mesh.whatever_range = get_property(b_me, "whatever_range", 0.0)
 	mesh.unk_float_0 = get_property(b_me, "unk_f0")
 	if mesh.context.version > 32:
 		mesh.unk_float_1 = get_property(b_me, "unk_f1")
+	if mesh.context.version == 32:
+		if len(b_me.uv_layers) == 2:
+			mesh.uv_offset_2 = 1
 
 	# register this format for all vert chunks that will be created later
 	if mesh.context.version >= 52:
@@ -111,7 +115,7 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 	validate_vertex_groups(b_ob, bones_table)
 	# calculate bone weights per vertex first to reuse data
 	# vertex_bone_id, weights, fur_length, fur_width, wind, whatever
-	weights_data = [export_weights(b_ob, b_vert, bones_table, hair_length, unweighted_vertices, m_lod) for b_vert in
+	weights_data = [export_weights(b_ob, b_vert, bones_table, hair_length, unweighted_vertices, m_lod, mesh.flag) for b_vert in
 					eval_me.vertices]
 
 	# report unweighted vertices
@@ -256,6 +260,9 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 	mesh.shell_count = shell_count
 	# transfer raw verts into mesh data packed array
 	mesh.tris = tris_chunks
+	if mesh.context.version == 32:
+		if len(verts) % 2:
+			verts.append(verts[-1])
 	try:
 		mesh.set_verts(verts)
 	except ValueError:
@@ -311,7 +318,7 @@ def validate_vertex_groups(b_ob, bones_table):
 			logging.warning(f"Ignored extraneous vertex group {v_group.name} on mesh {b_ob.name}")
 
 
-def export_weights(b_ob, b_vert, bones_table, hair_length, unweighted_vertices, m_lod):
+def export_weights(b_ob, b_vert, bones_table, hair_length, unweighted_vertices, m_lod, flag):
 	# defaults that may or may not be set later on
 	# True if used, bone index if it isn't
 	vertex_bone_id = DYNAMIC_ID
@@ -339,6 +346,7 @@ def export_weights(b_ob, b_vert, bones_table, hair_length, unweighted_vertices, 
 				# avoid dummy vertex groups without corresponding bones
 				bone_index = bones_table[v_group_name]
 				# update lod's bone cutoff
+				# if not flag == 9:
 				m_lod.bone_index = max(m_lod.bone_index, bone_index + 1)
 				if v_group.weight > 0.0:
 					w.append([bone_index, v_group.weight])
