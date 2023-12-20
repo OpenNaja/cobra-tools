@@ -45,7 +45,7 @@ class BaseShader:
 
 	ao_slots = (
 		"paotexture", "pbasepackedtexture_a", "pbaseaotexture_r", "pbaseaotexture",
-		"proughnessaopackedtexturedetailbase_r")
+		"proughnessaopackedtexturedetailbase_r", "paosamplertexture")
 
 	normal_slots = (
 	"pnormaltexture", "pnormaltexture_rg", "pnormaltexture_rgb", "pbasenormaltexture_rg", "pbasenormaltexture_rgb",)
@@ -53,7 +53,12 @@ class BaseShader:
 	specular_slots = ("proughnesspackedtexture_b", "pspecularmaptexture_r", "pbasenormaltexture_b")
 
 	roughness_slots = (
-	"proughnesspackedtexture_g", "pnormaltexture_a", "pbasenormaltexture_a")  # "pspecularmaptexture_g"
+	"proughnesspackedtexture_g", "pnormaltexture_a", "pbasenormaltexture_a",
+	)  # "pspecularmaptexture_g"
+
+	smoothness_slots = (
+	"pmetalsmoothnesscavitysamplertexture_g",
+	)
 
 	# note that JWE uses proughnesspackedtexture_r as alpha, only pbasepackedtexture_b as metal!
 	metallic_slots = ("proughnesspackedtexture_r", "pbasepackedtexture_b")
@@ -424,6 +429,12 @@ def create_material(in_dir, matname):
 		for roughness in shader.get_tex(shader.roughness_slots):
 			roughness.image.colorspace_settings.name = "Non-Color"
 			tree.links.new(roughness.outputs[0], principled.inputs["Roughness"])
+		# smoothness
+		for roughness in shader.get_tex(shader.smoothness_slots):
+			roughness.image.colorspace_settings.name = "Non-Color"
+			invert = tree.nodes.new('ShaderNodeInvert')
+			tree.links.new(roughness.outputs[0], invert.inputs[1])
+			tree.links.new(invert.outputs[0], principled.inputs["Roughness"])
 
 		# JWE dinos, PZ - metallic
 		for metallic in shader.get_tex(shader.metallic_slots):
