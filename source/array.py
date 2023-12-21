@@ -255,7 +255,7 @@ class Array(list):
 
     @classmethod
     def format_indented(cls, array, indent=0):
-        if not len(array):
+        if array is None or not len(array):
             return "[]"
         if isinstance(array, np.ndarray):
             # numpy array use np string representation
