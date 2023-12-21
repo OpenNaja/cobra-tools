@@ -138,7 +138,7 @@ def get_split_mode(png_name, compression):
 	if check_any(
 			(
 				"pmossbasecolourroughnesspackedtexture", "ppackedtexture", "palbedoandroughnessdetail", "pnormaltexture",
-				"pbasecolourtexture", "pbasecolourandmasktexture", "pdiffusetexture", "pdiffusealphatexture", *PZ_color_morphs
+				"pbasecolourtexture", "pbasecolourandmasktexture", "pdiffusealphatexture", *PZ_color_morphs
 			), png_name):
 		return "RGB_A"
 	# JWE2 only

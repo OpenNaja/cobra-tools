@@ -32,7 +32,7 @@ texchannels = {
 	# 'pDiffuseErythristic': {"": ""},
 	# 'pDiffuseLeucistic': {"": ""},
 	# 'pDiffuseMelanistic': {"": ""},
-	# 'pDiffuseTexture': {"RGB": "", "A": ""},
+	'pDiffuseTexture': {"": "BC"},
 	# 'pDiffuseXanthic': {"": ""},
 	# 'pDistortionTexture': {"": ""},
 	# 'pEmissiveMaskTexture': {"": ""},

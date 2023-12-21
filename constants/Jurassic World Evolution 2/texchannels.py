@@ -13,7 +13,7 @@ texchannels = {
 	# 'pDetailRoughnessTexture': {"": ""},
 	'pDiffuseAlphaTexture': {"RGB": "BC", "A": "OP"},
 	# 'pDiffuseArray': {"": ""},
-	# 'pDiffuseTexture': {"RGB": "", "A": ""},
+	'pDiffuseTexture': {"": "BC"},
 	# 'pDinosaurFeathers_BaseDiffuseTexture': {"": ""},
 	# 'pEmissiveTexture': {"": ""},
 	# 'pEnvironmentalNoiseMask': {"": ""},
@@ -53,7 +53,7 @@ texchannels = {
 	'pNormalTexture': {"RGB": "NM", "A": "AO"},  # BC7_UNORM - no coord dropping? not sure if A is actually always AO
 	# 'pNormalTextureDetailBase': {"RGB": "", "A": ""},
 	# 'pNormalTextureDetailBlend': {"RGB": "", "A": ""},
-	# 'pOpacityTexture': {"": ""},
+	'pOpacityTexture': {"": "OP"},
 	# 'pPOM_DisplacementRelaxedConeTexture': {"": ""},
 	# 'pPackedTexture': {"RGB": "", "A": ""},
 	# 'pPatchBlendMap': {"": ""},
