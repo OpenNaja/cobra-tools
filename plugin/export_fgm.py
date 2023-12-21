@@ -111,12 +111,13 @@ def export_textures(b_mat, folder, mat_name, fgm_root, game, shader_name, c):
 		if slot not in texture_info:
 			texture_info[slot] = defaults.get(slot, None)
 
+	# look up how the channels for this shader are packed into textures
 	try:
 		tex_channel_map = c[game]["textures"][shader_name]
 	except:
 		logging.warning(f"No presets for shader '{shader_name}' game {game}")
 		raise
-	# print(tex_channel_map)
+	# export each texture
 	for tex_name, tex_keys in tex_channel_map.items():
 
 		tex_index = TexIndex(fgm_root.context)
@@ -125,10 +126,11 @@ def export_textures(b_mat, folder, mat_name, fgm_root, game, shader_name, c):
 		tex.name = tex_name
 		dep = TextureData(fgm_root.context, arg=tex)
 
-		# k might be empty if it appears to be unused, skip those
-		raw_entries = [texture_info[k] for k in tex_keys if k]
+		# purpose might be empty if channel appears to be unused, skip those
+		raw_entries = [texture_info[purpose] for purpose in tex_keys if purpose]
 		raw_types = [type(e) for e in raw_entries]
 		print(tex_name, raw_entries, raw_types)
+		# does this texture export as an image or RGBA?
 		if any(k in (bpy.types.Image, ) for k in raw_types):
 			# texture needs to be used or generated
 			tex.dtype = FgmDtype.TEXTURE
@@ -137,10 +139,11 @@ def export_textures(b_mat, folder, mat_name, fgm_root, game, shader_name, c):
 			dep.dependency_name.data = f'{mat_name}.{tex_name}.tex'
 			size = textures_find_size(raw_entries)
 			print(f"size: {size}")
-			for tk, t_channel in tex_keys.items():
-				png_name = f'{mat_name}.{tex_name}{t_channel}.png'
+			for purpose, channel in tex_keys.items():
+				channel_suffix = f"_{channel}" if channel else ""
+				png_name = f'{mat_name}.{tex_name}{channel_suffix}.png'
 				try:
-					texture_save_or_generate(texture_info[tk], folder, png_name, size)
+					texture_save_or_generate(texture_info[purpose], folder, png_name, size)
 				except:
 					logging.exception(f"Saving {png_name} failed")
 			tex_path = os.path.join(folder, f'{mat_name}.{tex_name}.tex')

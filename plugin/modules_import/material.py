@@ -191,14 +191,6 @@ class BaseShader:
 
 				# some fgms, such as PZ red fox whiskers, reuse the same tex file in different slots, so don't add new nodes
 				if png_base not in tex_check:
-					# assume layer 0 if nothing is specified
-					uv_i = self.uv_map.get(text_name, 0)
-					if uv_i not in self.uv_dic:
-						uv_node = tree.nodes.new('ShaderNodeUVMap')
-						uv_node.uv_map = f"UV{uv_i}"
-						self.uv_dic[uv_i] = uv_node
-					else:
-						uv_node = self.uv_dic[uv_i]
 					tex_check.add(png_base)
 					# Until better option to organize the shader info, create texture group node
 					tex_frame = tree.nodes.new('NodeFrame')
@@ -208,16 +200,27 @@ class BaseShader:
 						png_path = os.path.join(in_dir, png_name)
 						b_tex = load_tex_node(tree, png_path)
 						b_tex.parent = tex_frame  # assign the texture frame to this png
+						b_tex.hide = True  # make it small for a quick overview, as we set the short purpose labels
 						base, k = png_name.lower().split(".")[:2]
 						# set the short label if this is a known shader
 						for tex_type, tex_channels in tex_channel_map.items():
 							if tex_type.lower() in k:
 								for purpose, channel in tex_channels.items():
-									if k == f"{tex_type}{channel}".lower():
+									channel_suffix = f"_{channel}" if channel else ""
+									if k == f"{tex_type}{channel_suffix}".lower():
 										b_tex.label = purpose
 						# find label for node
 						self.tex_dic[k] = b_tex
-						tree.links.new(uv_node.outputs[0], b_tex.inputs[0])
+						# assume layer 0 if nothing is specified, and blender implies that by default, so only import other layers
+						uv_i = self.uv_map.get(text_name, 0)
+						if uv_i > 0:
+							if uv_i not in self.uv_dic:
+								uv_node = tree.nodes.new('ShaderNodeUVMap')
+								uv_node.uv_map = f"UV{uv_i}"
+								self.uv_dic[uv_i] = uv_node
+							else:
+								uv_node = self.uv_dic[uv_i]
+							tree.links.new(uv_node.outputs[0], b_tex.inputs[0])
 
 	@classmethod
 	def validate(cls, fgm_data):
