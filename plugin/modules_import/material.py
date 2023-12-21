@@ -199,7 +199,7 @@ class BaseShader:
 					tex_check.add(png_base)
 					# Until better option to organize the shader info, create texture group node
 					tex_frame = tree.nodes.new('NodeFrame')
-					tex_frame.label = png_base
+					tex_frame.label = text_name
 
 					for png_name in textures:
 						png_path = os.path.join(in_dir, png_name)
