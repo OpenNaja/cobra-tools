@@ -7,6 +7,7 @@ import os
 
 import numpy as np
 
+from plugin.export_fgm import get_tex_channel_map
 from root_path import root_dir
 from constants import ConstantsProvider
 from generated.formats.fgm.compounds.FgmHeader import FgmHeader
@@ -157,19 +158,19 @@ class BaseShader:
 		self.tex_dic = {}
 		self.uv_dic = {}
 		tex_check = set()
-		for text_data, dep_info in zip(fgm_data.textures.data, fgm_data.name_foreach_textures.data):
-			text_name = text_data.name.lower()
-			if text_data.dtype == FgmDtype.RGBA:
+		for texture_data, dep_info in zip(fgm_data.textures.data, fgm_data.name_foreach_textures.data):
+			text_name = texture_data.name.lower()
+			if texture_data.dtype == FgmDtype.RGBA:
 				# todo - treat those like tex nodes in the dict
 				for c_name, b_name in dest_map.items():
 					if c_name in text_name:
 						color = tree.nodes.new('ShaderNodeRGB')
 						color.label = text_name
 						color.outputs[0].default_value = (
-							text_data.value[0].r / 255,
-							text_data.value[0].g / 255,
-							text_data.value[0].b / 255,
-							text_data.value[0].a / 255
+							texture_data.value[0].r / 255,
+							texture_data.value[0].g / 255,
+							texture_data.value[0].b / 255,
+							texture_data.value[0].a / 255
 						)
 						tree.links.new(color.outputs[0], principled.inputs[b_name])
 						break
@@ -201,16 +202,16 @@ class BaseShader:
 						b_tex = load_tex_node(tree, png_path)
 						b_tex.parent = tex_frame  # assign the texture frame to this png
 						b_tex.hide = True  # make it small for a quick overview, as we set the short purpose labels
-						base, k = png_name.lower().split(".")[:2]
-						# set the short label if this is a known shader
-						for tex_type, tex_channels in tex_channel_map.items():
-							if tex_type.lower() in k:
-								for purpose, channel in tex_channels.items():
-									channel_suffix = f"_{channel}" if channel else ""
-									if k == f"{tex_type}{channel_suffix}".lower():
-										b_tex.label = purpose
-						# find label for node
-						self.tex_dic[k] = b_tex
+						base, tex_type_with_channel_suffix = png_name.lower().split(".")[:2]
+						# get channel mapping
+						tex_channels = tex_channel_map.get(texture_data.name, {})
+						for channel, purpose in tex_channels.items():
+							channel_suffix = f"_{channel}" if channel else ""
+							# find label for node
+							if tex_type_with_channel_suffix == f"{texture_data.name}{channel_suffix}".lower():
+								b_tex.label = purpose
+						# todo - refactor tex_dict to use purpose IDs
+						self.tex_dic[tex_type_with_channel_suffix] = b_tex
 						# assume layer 0 if nothing is specified, and blender implies that by default, so only import other layers
 						uv_i = self.uv_map.get(text_name, 0)
 						if uv_i > 0:
@@ -388,7 +389,7 @@ def create_material(in_dir, matname):
 		logging.warning(f"{fgm_path} could not be loaded!")
 		return b_mat
 
-	constants = ConstantsProvider(("shaders", "textures"))
+	constants = ConstantsProvider(("shaders", "textures", "texchannels"))
 	tree = get_tree(b_mat)
 	output = tree.nodes.new('ShaderNodeOutputMaterial')
 	principled = tree.nodes.new('ShaderNodeBsdfPrincipled')
@@ -425,13 +426,9 @@ def create_material(in_dir, matname):
 		# todo clean up game version
 		game = "Jurassic World Evolution 2" if "jura" in fgm_data.game.lower() else "Planet Zoo"
 		# print(game)
-		try:
-			tex_channel_map = constants[game]["textures"][fgm_data.shader_name]
-			b_mat.fgm.shader_name = fgm_data.shader_name
-		except:
-			tex_channel_map = {}
-			logging.warning(f"No presets for shader '{fgm_data.shader_name}' game {game}")
+		tex_channel_map = get_tex_channel_map(constants, game, fgm_data.shader_name)
 		# print(tex_channel_map)
+		b_mat.fgm.shader_name = fgm_data.shader_name
 		b_mat["shader_name"] = fgm_data.shader_name
 		shader = pick_shader(fgm_data)
 		shader.build_tex_nodes_dict(tex_channel_map, fgm_data, in_dir, tree, principled)

@@ -1,23 +1,12 @@
 textures = {
 	'Metallic_Roughness_Opaque_EmissiveLightType_Weather': {
-			# CA apparently not used on trunks in PZ (trunk has AO maps instead)
-			"pBaseColourTexture": {"BC": "RGB", "CA": "A"},
-			"pAOTexture": {"AO": ""},
-			"pEmissiveTexture": {"EM": ""},
-			"pNormalTexture": {"NM": "RG"},  # BC5_UNORM
-			"pRoughnessPackedTexture": {"MT": "R", "SP": "G", "RN": "B", "FO": "A"},
-			"pFlexiColourMaskTexture": {"F1": "R", "F2": "G", "F3": "B", "F4": "A"},
+			# decide which pRoughnessPackedTexture is the default
+			"pRoughnessPackedTexture": {"R": "MT", "G": "SP", "B": "RN", "A": "FO"},
 		},
 	'Foliage_Clip': {
-			"pBaseColourTexture": {"BC": "RGB", "": "A"},  # A apparently unused
-			"pAOTexture": {"AO": ""},
-			"pNormalTexture": {"NM": "RG"},  # BC5_UNORM
-			"pRoughnessPackedTexture": {"MT": "R", "SP": "G", "RN": "B", "OP": "A"},
+			# "pRoughnessPackedTexture": {"R": "MT", "G": "SP", "B": "RN", "A": "OP"},
 		},
 	'Foliage_Opaque': {
-			"pBaseColourTexture": {"BC": "RGB", "": "A"},  # A apparently unused
-			"pAOTexture": {"AO": ""},
-			"pNormalTexture": {"NM": "RG"},  # BC5_UNORM
-			"pRoughnessPackedTexture": {"MT": "R", "SP": "G", "RN": "B", "OP": "A"},  # a is unused
+			# "pRoughnessPackedTexture": {"R": "MT", "G": "SP", "B": "RN", "A": "OP"},  # a is unused
 		},
 }

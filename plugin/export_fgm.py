@@ -60,7 +60,7 @@ def get_shared_material_names(col):
 	return materials
 
 
-def export_textures(b_mat, folder, mat_name, fgm_root, game, shader_name, c):
+def export_textures(b_mat, folder, mat_name, fgm_root, game, shader_name, constants):
 	# print("Material textures: " + str(textures))
 	slots = {
 		"BC": "Base colour",
@@ -111,14 +111,9 @@ def export_textures(b_mat, folder, mat_name, fgm_root, game, shader_name, c):
 		if slot not in texture_info:
 			texture_info[slot] = defaults.get(slot, None)
 
-	# look up how the channels for this shader are packed into textures
-	try:
-		tex_channel_map = c[game]["textures"][shader_name]
-	except:
-		logging.warning(f"No presets for shader '{shader_name}' game {game}")
-		raise
+	tex_channel_map = get_tex_channel_map(constants, game, shader_name)
 	# export each texture
-	for tex_name, tex_keys in tex_channel_map.items():
+	for tex_name, tex_channels in tex_channel_map.items():
 
 		tex_index = TexIndex(fgm_root.context)
 
@@ -127,7 +122,7 @@ def export_textures(b_mat, folder, mat_name, fgm_root, game, shader_name, c):
 		dep = TextureData(fgm_root.context, arg=tex)
 
 		# purpose might be empty if channel appears to be unused, skip those
-		raw_entries = [texture_info[purpose] for purpose in tex_keys if purpose]
+		raw_entries = [texture_info[purpose] for purpose in tex_channels.values() if purpose]
 		raw_types = [type(e) for e in raw_entries]
 		print(tex_name, raw_entries, raw_types)
 		# does this texture export as an image or RGBA?
@@ -139,7 +134,7 @@ def export_textures(b_mat, folder, mat_name, fgm_root, game, shader_name, c):
 			dep.dependency_name.data = f'{mat_name}.{tex_name}.tex'
 			size = textures_find_size(raw_entries)
 			print(f"size: {size}")
-			for purpose, channel in tex_keys.items():
+			for channel, purpose in tex_channels.items():
 				channel_suffix = f"_{channel}" if channel else ""
 				png_name = f'{mat_name}.{tex_name}{channel_suffix}.png'
 				try:
@@ -149,7 +144,7 @@ def export_textures(b_mat, folder, mat_name, fgm_root, game, shader_name, c):
 			tex_path = os.path.join(folder, f'{mat_name}.{tex_name}.tex')
 			# pick suitable DDS compression
 			comp = "BC7_UNORM"
-			if tex_name == "pNormalTexture" and len(tex_keys) == 1:
+			if tex_name == "pNormalTexture" and len(tex_channels) == 1:
 				comp = "BC5_UNORM"
 			tex_file = TexHeader(tex.context)
 			# pick reasonable stream count
@@ -178,9 +173,28 @@ def export_textures(b_mat, folder, mat_name, fgm_root, game, shader_name, c):
 		fgm_root.name_foreach_textures.data.append(dep)
 
 
-def export_attributes(b_mat, folder, mat_name, fgm_root, game, shader_name, c):
+def get_tex_channel_map(constants, game, shader_name):
+	"""look up how the channels for this shader_name are packed into textures"""
 	try:
-		textures, attrib_dic = c[game]["shaders"][shader_name]
+		textures, attrib_dic = constants[game]["shaders"][shader_name]
+	except:
+		logging.warning(f"No attributes for shader '{shader_name}' in game {game}")
+		raise
+	# get the standard tex channel mapping for this game (defined by devs)
+	all_tex_channels = constants[game]["texchannels"]
+	# select only the textures that are required by this shader
+	tex_channel_map = {tex: all_tex_channels.get(tex, {}) for tex in textures}
+	try:
+		# update channel mapping with known settings for this shader
+		tex_channel_map.update(constants[game]["textures"][shader_name])
+	except:
+		logging.debug(f"No tex overrides for shader '{shader_name}' game {game}")
+	return tex_channel_map
+
+
+def export_attributes(b_mat, folder, mat_name, fgm_root, game, shader_name, constants):
+	try:
+		textures, attrib_dic = constants[game]["shaders"][shader_name]
 	except:
 		logging.warning(f"No attributes for shader '{shader_name}' in game {game}")
 		raise
@@ -221,10 +235,10 @@ def export_fgm_at(folder, game, mat_name):
 
 	# get shader from b_mat
 	fgm_root.shader_name = b_mat.fgm.shader_name
-	c = ConstantsProvider(("shaders", "textures"))
+	constants = ConstantsProvider(("shaders", "textures", "texchannels"))
 	print(fgm_root.shader_name)
-	export_textures(b_mat, folder, mat_name, fgm_root, game, fgm_root.shader_name, c)
-	export_attributes(b_mat, folder, mat_name, fgm_root, game, fgm_root.shader_name, c)
+	export_textures(b_mat, folder, mat_name, fgm_root, game, fgm_root.shader_name, constants)
+	export_attributes(b_mat, folder, mat_name, fgm_root, game, fgm_root.shader_name, constants)
 	
 	fgm_path = os.path.join(folder, mat_name + ".fgm")
 	with FgmHeader.to_xml_file(fgm_root, fgm_path) as xml_root:
