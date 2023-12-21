@@ -178,8 +178,8 @@ def join_png(path_basename, tmp_dir, compression=None):
 			raise FileNotFoundError(f"{png_file_path} does not exist")
 		logging.debug(f"Need not process {png_file_path}")
 		return png_file_path
-	# rebuild from channels
-	if channels:
+	# rebuild from channel pngs, but only if the un-split png does not already exist
+	if channels and not os.path.isfile(png_file_path):
 		logging.info(f"Joining {png_file_path} from {channels} channels")
 		im = None
 		for ch_name, ch_slice in channel_iter(channels):
