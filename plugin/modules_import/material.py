@@ -86,8 +86,11 @@ class BaseShader:
 		"pmetalsmoothnesscavityopacitysamplertexture_a", )
 
 	flexi_slots = (
+		# PC
 		"pflexicolourmaskssamplertexture_r", "pflexicolourmaskssamplertexture_g", "pflexicolourmaskssamplertexture_b",
 		"pflexicolourmaskssamplertexture_a",
+		# PZ
+		"pflexicolourmaskstexture_r", "pflexicolourmaskstexture_g", "pflexicolourmaskstexture_b", "pflexicolourmaskstexture_a",
 	)
 
 	def get_tex(self, names):
