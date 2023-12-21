@@ -7,6 +7,7 @@ import os
 
 import numpy as np
 
+from root_path import root_dir
 from constants import ConstantsProvider
 from generated.formats.fgm.compounds.FgmHeader import FgmHeader
 from generated.formats.fgm.enums.FgmDtype import FgmDtype
@@ -19,6 +20,15 @@ dest_map = {
 	"basecolour": "Base Color",
 	"normal": "Normal",
 	"roughnesspacked": "Roughness"}
+
+
+def append_shader(name="FlexiDiffuse"):
+	logging.info(f"Appending shader group '{name}'")
+	blends_dir = os.path.join(root_dir, "plugin", "blends")
+	filepath = os.path.join(blends_dir, "flexi.blend")
+	with bpy.data.libraries.load(filepath) as (data_from, data_to):
+		if name in data_from.node_groups and name not in data_to.node_groups:
+			data_to.node_groups = [name]
 
 
 def check_any(iterable, string):
@@ -75,6 +85,11 @@ class BaseShader:
 		"popacitytexture", "pdiffusealphatexture_a", "pdiffuse_alphatexture_a", "proughnesspackedtexture_a",
 		"pmetalsmoothnesscavityopacitysamplertexture_a", )
 
+	flexi_slots = (
+		"pflexicolourmaskssamplertexture_r", "pflexicolourmaskssamplertexture_g", "pflexicolourmaskssamplertexture_b",
+		"pflexicolourmaskssamplertexture_a",
+	)
+
 	def get_tex(self, names):
 		for tex_name in names:
 			# get diffuse
@@ -82,6 +97,25 @@ class BaseShader:
 				yield self.tex_dic[tex_name]
 				# stop after finding a suitable one
 				break
+
+	def add_flexi_nodes(self, diffuse, tree):
+		flexicolourmask_names = [k for k in self.tex_dic.keys() if "flexicolourmask" in k]
+		if flexicolourmask_names:
+			append_shader()
+
+			flexi_mix = tree.nodes.new("ShaderNodeGroup")
+			flexi_mix.node_tree = bpy.data.node_groups["FlexiDiffuse"]
+			tree.links.new(diffuse.outputs[0], flexi_mix.inputs["BaseColour"])
+			for i, suffix in enumerate("rgba"):
+				for name in flexicolourmask_names:
+					if name.endswith(f"_{suffix}"):
+						flexi_mask = self.tex_dic[name]
+						flexi_mask.image.colorspace_settings.name = "Non-Color"
+						tree.links.new(flexi_mask.outputs[0], flexi_mix.inputs[f"FlexiColourMask{i}"])
+						break
+
+			diffuse = flexi_mix
+		return diffuse
 
 	def add_marking_nodes(self, diffuse, tree):
 		# get marking
@@ -123,7 +157,7 @@ class BaseShader:
 		for text_data, dep_info in zip(fgm_data.textures.data, fgm_data.name_foreach_textures.data):
 			text_name = text_data.name.lower()
 			if text_data.dtype == FgmDtype.RGBA:
-				# todo - flexicolourmasks - create color and blending nodes?
+				# todo - treat those like tex nodes in the dict
 				for c_name, b_name in dest_map.items():
 					if c_name in text_name:
 						color = tree.nodes.new('ShaderNodeRGB')
@@ -397,6 +431,7 @@ def create_material(in_dir, matname):
 		shader.build_tex_nodes_dict(tex_channel_map, fgm_data, in_dir, tree, principled)
 		# get diffuse
 		for diffuse in shader.get_tex(shader.diffuse_slots):
+			diffuse = shader.add_flexi_nodes(diffuse, tree)
 			# apply AO to diffuse
 			for ao in shader.get_tex(shader.ao_slots):
 				ao.image.colorspace_settings.name = "Non-Color"
