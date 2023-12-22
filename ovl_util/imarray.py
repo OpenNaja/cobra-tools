@@ -2,6 +2,8 @@ import logging
 import os
 import imageio.v3 as iio
 import numpy as np
+import PIL
+
 
 from generated.formats.ovl.versions import is_ztuac
 
@@ -188,7 +190,11 @@ def join_png(path_basename, tmp_dir, compression=None):
 			if im is None:
 				im = np.zeros(tile.shape, dtype=np.uint8)
 			else:
-				assert im.shape == tile.shape, f"Tile shape of {tile_png_path} ({tile.shape}) does not match expected shape ({im.shape})"
+				if im.shape != tile.shape:
+					logging.warning(f"Tile shape of {tile_png_path} ({tile.shape}) does not match expected shape ({im.shape}), resizing to match")
+					# resize tile to match image shape
+					tile = PIL.Image.fromarray(tile).resize(im.shape[0:2])
+					tile = np.array(tile)
 			# take a slice, starting at the first channel of the tile
 			im[:, :, ch_slice] = tile[:, :, 0:len(ch_name)]
 	else:

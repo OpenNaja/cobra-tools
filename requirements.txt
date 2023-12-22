@@ -4,3 +4,4 @@ numpy~=1.22
 PyQt5~=5.15.4
 PyQt5-Frameless-Window~=0.2.8
 vdf~=3.4
+pillow
