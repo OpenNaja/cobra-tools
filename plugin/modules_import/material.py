@@ -23,13 +23,21 @@ dest_map = {
 	"roughnesspacked": "Roughness"}
 
 
-def append_shader(name="FlexiDiffuse"):
-	logging.info(f"Appending shader group '{name}'")
-	blends_dir = os.path.join(root_dir, "plugin", "blends")
-	filepath = os.path.join(blends_dir, "flexi.blend")
-	with bpy.data.libraries.load(filepath) as (data_from, data_to):
-		if name in data_from.node_groups and name not in data_to.node_groups:
-			data_to.node_groups = [name]
+def append_shader(name):
+	if name not in bpy.data.node_groups:
+		logging.info(f"Appending shader group '{name}'")
+		blends_dir = os.path.join(root_dir, "plugin", "blends")
+		filepath = os.path.join(blends_dir, f"{name}.blend")
+		with bpy.data.libraries.load(filepath) as (data_from, data_to):
+			if name in data_from.node_groups and name not in data_to.node_groups:
+				data_to.node_groups = [name]
+
+
+def get_group_node(tree, name):
+	append_shader(name)
+	flexi_mix = tree.nodes.new("ShaderNodeGroup")
+	flexi_mix.node_tree = bpy.data.node_groups[name]
+	return flexi_mix
 
 
 def check_any(iterable, string):
@@ -105,10 +113,7 @@ class BaseShader:
 	def add_flexi_nodes(self, diffuse, tree):
 		flexicolourmask_names = [k for k in self.tex_dic.keys() if "flexicolourmask" in k]
 		if flexicolourmask_names:
-			append_shader()
-
-			flexi_mix = tree.nodes.new("ShaderNodeGroup")
-			flexi_mix.node_tree = bpy.data.node_groups["FlexiDiffuse"]
+			flexi_mix = get_group_node(tree, "FlexiDiffuse")
 			tree.links.new(diffuse.outputs[0], flexi_mix.inputs["BaseColour"])
 			for i, suffix in enumerate("rgba"):
 				for name in flexicolourmask_names:
@@ -428,7 +433,11 @@ def create_material(in_dir, matname):
 		# print(game)
 		tex_channel_map = get_tex_channel_map(constants, game, fgm_data.shader_name)
 		# print(tex_channel_map)
-		b_mat.fgm.shader_name = fgm_data.shader_name
+		try:
+			b_mat.fgm.shader_name = fgm_data.shader_name
+		except:
+			logging.warning(f"Shader '{fgm_data.shader_name}' does not exist in shader list")
+		# todo remove
 		b_mat["shader_name"] = fgm_data.shader_name
 		shader = pick_shader(fgm_data)
 		shader.build_tex_nodes_dict(tex_channel_map, fgm_data, in_dir, tree, principled)

@@ -219,12 +219,12 @@ class CobraMaterialSettings(VersionedPropertyGroup):
 	shader_name_pz: EnumProperty(
 		name='Shader',
 		description='Shader for Planet Zoo',
-		items=[(name, name, "") for name in c['Planet Zoo']["textures"]],
+		items=[(name, name, "") for name in c['Planet Zoo']["shaders"]],
 	)
 	shader_name_jwe2: EnumProperty(
 		name='Shader',
 		description='Shader for Jurassic World Evolution 2',
-		items=[(name, name, "") for name in c['Jurassic World Evolution 2']["textures"]],
+		items=[(name, name, "") for name in c['Jurassic World Evolution 2']["shaders"]],
 	)
 
 	pRenderLayerOverride: IntProperty(name='Render Layer Override', default=-1, min=-1)
