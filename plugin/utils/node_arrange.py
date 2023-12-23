@@ -19,25 +19,10 @@ def nodes_iterate(ntree, nodeoutput):
 	while a[level]:
 		a.append([])
 		# print ("level:",level)
-
 		for node in a[level]:
 			# print ("while: level:", level)
-			inputlist = [i for i in node.inputs if i.is_linked]
-			# print ("inputlist:", inputlist)
-			if inputlist:
-
-				for input in inputlist:
-					for nlinks in input.links:
-						# dont add parented nodes (inside frame) to list
-						# if not nlinks.from_node.parent:
-						node1 = nlinks.from_node
-						# print ("appending node:",node1)
-						a[level + 1].append(node1)
-
-			else:
-				pass
-			# print ("no inputlist at level:", level)
-
+			for input_node in get_input_nodes(node):
+				a[level + 1].append(input_node)
 		level += 1
 
 	# delete last empty list
@@ -76,6 +61,16 @@ def nodes_iterate(ntree, nodeoutput):
 		level = level + 1
 
 	return None
+
+
+def get_input_nodes(node, socket_id=""):
+	for node_socket in node.inputs:
+		if node_socket.is_linked:
+			# skip nodes that don't fit
+			if socket_id and socket_id not in node_socket.name:
+				continue
+			for node_link in node_socket.links:
+				yield node_link.from_node
 
 
 def nodes_arrange(ntree, nodelist, level):

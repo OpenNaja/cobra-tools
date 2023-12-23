@@ -4,7 +4,7 @@ import logging
 import os
 
 from plugin.modules_import.material import get_group_node
-from plugin.utils.node_arrange import nodes_iterate
+from plugin.utils.node_arrange import nodes_iterate, get_input_nodes
 from plugin.utils.node_util import load_tex_node, get_tree
 
 from generated.formats.dinosaurmaterialvariants.compounds.DinoLayersHeader import DinoLayersHeader
@@ -146,6 +146,7 @@ def load(filepath=""):
 	normal_map.inputs["Strength"].default_value = 1.0
 
 	last_normal = normal_map
+	nodes = []
 	for i, (height_png, mask_png, lut) in enumerate(slots, start=1):
 		logging.info(f"Slot {i:02d}")
 
@@ -191,8 +192,8 @@ def load(filepath=""):
 		tile.update()
 		mask.update()
 		last_normal = height
-
-	if not slots:
+		nodes.append((tile, mask, height, transform))
+	if not nodes:
 		raise AttributeError(f"Could not find any layer textures - make sure the tile .fgm and .png files are in the same folder!")
 
 	diffuse_path = os.path.join(layers.base_dir, f"{layers.matname}.pbasediffusetexture.png")
@@ -219,4 +220,39 @@ def load(filepath=""):
 	tree.links.new(principled.outputs[0], output.inputs[0])
 
 	nodes_iterate(tree, output)
+	slots_arrange(tree, nodes)
 	return ()
+
+
+def slots_arrange(tree, nodes):
+	if not nodes:
+		return
+	tile, mask, height, transform = nodes[0]
+	tile_y = tile.location.y
+	mask_y = mask.location.y
+	height_y = height.location.y
+	transform_y = transform.location.y
+	shift = abs(nodes[0][0].location.x - nodes[1][0].location.x)
+	# move the first node away from the rest of the main shader
+	delta = 2*shift
+
+	# realign each slot
+	for tile, mask, height, transform in reversed(nodes):
+		transform.location.x = height.location.x
+		tile.location.y = tile_y
+		mask.location.y = mask_y
+		height.location.y = height_y
+		transform.location.y = transform_y
+
+		tile.location.x -= delta
+		mask.location.x -= delta
+		height.location.x -= delta
+		transform.location.x -= delta
+		delta += shift
+
+	# just fix the input x
+	for node in get_input_nodes(height, "Normal"):
+		node.location.x -= delta
+		for child in get_input_nodes(node):
+			child.location.x -= delta
+
