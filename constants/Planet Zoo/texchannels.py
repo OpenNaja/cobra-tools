@@ -1,6 +1,6 @@
 texchannels = {
-	# 'p2MarkingBaldnessScarTexture': {"R": "", "G": "", "B": "", "A": ""},
-	# 'p3MarkingScarTexture': {"R": "", "G": "", "B": "", "A": ""},
+	'p2MarkingBaldnessScarTexture': {"R": "M1", "G": "M2", "B": "BA", "A": "SC"},
+	'p3MarkingScarTexture': {"R": "M1", "G": "M2", "B": "M3", "A": "SC"},
 	'pAOTexture': {"": "AO"},
 	'pAOTexture2': {"": "AO2"},
 	# 'pAOTextureDetail': {"": ""},
@@ -71,7 +71,7 @@ texchannels = {
 	# 'pPropertyTexture': {"": ""},
 	# 'pRetroreflectiveness': {"": ""},
 	# 'pRoughnessAOPackedTextureDetailBase': {"R": "", "G": "", "B": "", "A": ""},
-	"pRoughnessPackedTexture": {"R": "MT", "G": "SP", "B": "RN", "A": "OP"},
+	"pRoughnessPackedTexture": {"R": "MT", "G": "RN", "B": "SP", "A": "OP"},
 	# 'pRoughnessPackedTexture2': {"R": "", "G": "", "B": "", "A": ""},
 	# 'pRoughnessPackedTextureDetail': {"R": "", "G": "", "B": "", "A": ""},
 	# 'pRoughnessPackedTextureUnique': {"R": "", "G": "", "B": "", "A": ""},

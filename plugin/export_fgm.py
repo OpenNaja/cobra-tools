@@ -89,6 +89,11 @@ def export_textures(b_mat, folder, mat_name, fgm_root, game, shader_name, consta
 		"DE": "Detail",
 		"IR": "Iridescence",
 		"IM": "IridescenceMask",
+		"M1": "Marking Mask 01",
+		"M2": "Marking Mask 01",
+		"M3": "Marking Mask 01",
+		"SC": "Scar Mask",
+		"BA": "Baldness",
 	}
 	# populate colours from BSDF node.
 	bsdf = b_mat.node_tree.nodes.get("Principled BSDF")
