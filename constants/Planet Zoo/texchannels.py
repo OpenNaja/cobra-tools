@@ -6,11 +6,11 @@ texchannels = {
 	# 'pAOTextureDetail': {"": ""},
 	# 'pAOTextureUnique': {"": ""},
 	# 'pAlbedoAndRoughnessDetail': {"RGB": "", "A": ""},
-	# 'pAlbinoBaseColourAndMaskTexture': {"RGB": "BC", "A": ""},
+	'pAlbinoBaseColourAndMaskTexture': {"RGB": "AB", "A": ""},  # ? Mask
 	# 'pBaldnessScarTexture': {"R": "", "G": "", "B": "", "A": ""},
 	# 'pBaseColour2': {"": ""},
 	# 'pBaseColourAndMaskTexture': {"RGB": "BC", "A": ""},
-	'pBaseColourTexture': {"RGB": "BC", "A": "CA"},  # A apparently not used on tree trunks in PZ (trunk has AO maps instead)
+	'pBaseColourTexture': {"RGB": "BC", "A": "CA"},  # A apparently not used on tree trunks in PZ
 	'pBaseColourTexture2': {"RGB": "BC2", "A": "CA2"},
 	# 'pBaseColourTextureDetail': {"RGB": "", "A": ""},
 	# 'pBaseColourTextureDetailBase': {"RGB": "", "A": ""},
@@ -27,17 +27,17 @@ texchannels = {
 	# 'pDetailNormalTexture': {"": ""},
 	# 'pDetailRoughnessTexture': {"": ""},
 	'pDiffuse': {"": "BC"},
-	# 'pDiffuseAlbino': {"": ""},
+	'pDiffuseAlbino': {"": "AB"},
 	# 'pDiffuseArray': {"": ""},
-	# 'pDiffuseErythristic': {"": ""},
-	# 'pDiffuseLeucistic': {"": ""},
-	# 'pDiffuseMelanistic': {"": ""},
+	'pDiffuseErythristic': {"": "ER"},
+	'pDiffuseLeucistic': {"": "LE"},
+	'pDiffuseMelanistic': {"": "ME"},
 	'pDiffuseTexture': {"": "BC"},
-	# 'pDiffuseXanthic': {"": ""},
+	'pDiffuseXanthic': {"": "XA"},
 	# 'pDistortionTexture': {"": ""},
 	# 'pEmissiveMaskTexture': {"": ""},
 	'pEmissiveTexture': {"": "EM"},
-	# 'pErythristicBaseColourAndMaskTexture': {"RGB": "", "A": ""},
+	'pErythristicBaseColourAndMaskTexture': {"RGB": "ER", "A": ""},  # ? Mask
 	'pFinAlphaTexture': {"R": "OP", "G": "OP", "B": "OP", "A": "OP"},
 	# 'pFlexiColourMaskTexture': {"": ""},
 	'pFlexiColourMasksTexture': {"R": "F1", "G": "F2", "B": "F3", "A": "F4"},
@@ -46,13 +46,13 @@ texchannels = {
 	# 'pHeight': {"": ""},
 	# 'pIridescenceStrength': {"": ""},
 	# 'pIridescenceTexture': {"": ""},
-	# 'pLeucisticBaseColourAndMaskTexture': {"RGB": "", "A": ""},
+	'pLeucisticBaseColourAndMaskTexture': {"RGB": "LE", "A": ""},  # ? Mask
 	# 'pMacroDamageBlendMap': {"": ""},
 	# 'pMacroDiffuse': {"": ""},
 	# 'pMarkingNoise': {"": ""},
 	# 'pMarkingPatchworkMask': {"": ""},
 	# 'pMaskAOTextureUnique': {"": ""},
-	# 'pMelanisticBaseColourAndMaskTexture': {"RGB": "", "A": ""},
+	'pMelanisticBaseColourAndMaskTexture': {"RGB": "ME", "A": ""},  # ? Mask
 	# 'pMossBaseColourRoughnessPackedTexture': {"RGB": "", "A": ""},
 	# 'pMossNormalTexture': {"": ""},
 	# 'pMossVarianceTexture': {"": ""},
@@ -89,5 +89,5 @@ texchannels = {
 	# 'pWaterfall_WaterFlowAndTimeOffsetMap': {"": ""},
 	# 'pWaterfall_WaterFoamMaskMap': {"": ""},
 	# 'pWaterfall_WaterNormalRoughnessMap': {"": ""},
-	# 'pXanthicBaseColourAndMaskTexture': {"RGB": "", "A": ""},
+	'pXanthicBaseColourAndMaskTexture': {"RGB": "XA", "A": ""},  # ? Mask
 }

@@ -134,21 +134,33 @@ def load(filepath=""):
 	output = tree.nodes.new('ShaderNodeOutputMaterial')
 	principled = tree.nodes.new('ShaderNodeBsdfPrincipled')
 
-	textures = []
+	# JWE style
+	normal_path = os.path.join(layers.base_dir, f"{layers.matname}.pnormaltexture_RG.png")
+	# JWE2 style
+	if not os.path.isfile(normal_path):
+		normal_path = os.path.join(layers.base_dir, f"{layers.matname}.pbasenormaltexture_RG.png")
+	normal = load_tex_node(tree, normal_path)
+	normal.image.colorspace_settings.name = "Non-Color"
+	normal_map = tree.nodes.new('ShaderNodeNormalMap')
+	tree.links.new(normal.outputs[0], normal_map.inputs[1])
+	normal_map.inputs["Strength"].default_value = 1.0
+
+	last_normal = normal_map
 	for i, (height_png, mask_png, lut) in enumerate(slots, start=1):
 		logging.info(f"Slot {i:02d}")
-		# Until better option to organize the shader info, create texture group node
-		slot_frame = tree.nodes.new('NodeFrame')
-		slot_frame.label = f"Slot {i:02d}"
 
 		# load the tiled height_texture
-		tex = load_tex_node(tree, height_png)
-		tex.image.colorspace_settings.name = "Non-Color"
-
+		tile = load_tex_node(tree, height_png)
+		tile.image.colorspace_settings.name = "Non-Color"
+		tile.hide = True
 		# load the blendweights layer mask
 		mask = load_tex_node(tree, mask_png)
 		mask.image.colorspace_settings.name = "Non-Color"
-		tex.parent = slot_frame
+		mask.hide = True
+		# Until better option to organize the shader info, create texture group node
+		slot_frame = tree.nodes.new('NodeFrame')
+		slot_frame.label = f"Slot {i:02d}"
+		tile.parent = slot_frame
 		mask.parent = slot_frame
 
 		# height offset attribute
@@ -161,8 +173,9 @@ def load(filepath=""):
 		height.inputs["heightOffset"].default_value = lut["heightoffset"]
 		height.inputs["heightBlendScaleA"].default_value = heightBlendScaleA
 		height.inputs["heightBlendScaleB"].default_value = heightBlendScaleB
-		tree.links.new(tex.outputs[0], height.inputs[0])
-		textures.append((height, mask))
+		tree.links.new(tile.outputs[0], height.inputs["Tile"])
+		tree.links.new(mask.outputs[0], height.inputs["Mask"])
+		tree.links.new(last_normal.outputs[0], height.inputs["Normal"])
 
 		transform = get_group_node(tree, "MatcolSlot")
 		transform.parent = slot_frame
@@ -173,39 +186,14 @@ def load(filepath=""):
 		# in radians for blender internally even though it displays as degree
 		# flip since blender flips V coord
 		transform.inputs["uvRotationAngle"].default_value = -math.radians(lut["uvrotationangle"][0] * 180)
-		tree.links.new(transform.outputs[0], tex.inputs[0])
+		tree.links.new(transform.outputs[0], tile.inputs[0])
 
-		tex.update()
+		tile.update()
 		mask.update()
+		last_normal = height
 
-	if not textures:
+	if not slots:
 		raise AttributeError(f"Could not find any layer textures - make sure the tile .fgm and .png files are in the same folder!")
-
-	# JWE style
-	normal_path = os.path.join(layers.base_dir, f"{layers.matname}.pnormaltexture_RG.png")
-	# JWE2 style
-	if not os.path.isfile(normal_path):
-		normal_path = os.path.join(layers.base_dir, f"{layers.matname}.pbasenormaltexture_RG.png")
-	normal = load_tex_node(tree, normal_path)
-	normal.image.colorspace_settings.name = "Non-Color"
-	normal_map = tree.nodes.new('ShaderNodeNormalMap')
-	tree.links.new(normal.outputs[0], normal_map.inputs[1])
-	normal_map.inputs["Strength"].default_value = 1.0
-	#
-	# bump = tree.nodes.new('ShaderNodeBump')
-	# bump.inputs["Strength"].default_value = 0.5
-	# bump.inputs["Distance"].default_value = 0.1
-
-	# tree.links.new(normal_map.outputs[0], bump.inputs["Normal"])
-	last_mixer = normal_map
-	for height, mask in textures:
-		bump = tree.nodes.new('ShaderNodeBump')
-		tree.links.new(mask.outputs[0], bump.inputs["Strength"])
-		tree.links.new(last_mixer.outputs[0], bump.inputs["Normal"])
-		tree.links.new(height.outputs[0], bump.inputs["Height"])
-		last_mixer = bump
-
-	# tree.links.new(mixRGB.outputs[0], bump.inputs[2])
 
 	diffuse_path = os.path.join(layers.base_dir, f"{layers.matname}.pbasediffusetexture.png")
 	diffuse = load_tex_node(tree, diffuse_path)
@@ -227,7 +215,7 @@ def load(filepath=""):
 
 	tree.links.new(diffuse_premix.outputs[0], principled.inputs["Base Color"])
 	tree.links.new(roughness.outputs[0], principled.inputs["Metallic"])
-	tree.links.new(bump.outputs[0], principled.inputs["Normal"])
+	tree.links.new(last_normal.outputs[0], principled.inputs["Normal"])
 	tree.links.new(principled.outputs[0], output.inputs[0])
 
 	nodes_iterate(tree, output)

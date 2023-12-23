@@ -81,6 +81,11 @@ def export_textures(b_mat, folder, mat_name, fgm_root, game, shader_name, consta
 		"F4": "Flexi Colour Alpha Blend Mask 04",
 		# custom keys follow
 		"FO": "Flexi Opacity",
+		"AB": "Albino",
+		"ER": "Erythristic",
+		"LE": "Leucistic",
+		"ME": "Melanistic",
+		"XA": "Xanthic",
 	}
 	# populate colours from BSDF node.
 	bsdf = b_mat.node_tree.nodes.get("Principled BSDF")
