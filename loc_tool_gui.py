@@ -10,6 +10,7 @@ from generated.formats.ovl_base.enums.Compression import Compression
 from PyQt5 import QtWidgets, QtGui, QtCore
 from typing import Any, Optional
 
+
 class MainWindow(widgets.MainWindow):
 
 	def __init__(self, opts: GuiOptions):
@@ -29,7 +30,7 @@ class MainWindow(widgets.MainWindow):
 			self.cfg["games"] = {}
 		self.installed_games = widgets.GamesWidget(self, game_chosen_fn=self.populate_game, file_dbl_click_fn=self.open_clicked_file)
 
-		self.files_container = widgets.SortableTable(["ID", "Localisation"], {}, ignore_drop_type="OVL", opt_hide=True, min_width=30)
+		self.files_container = widgets.SortableTable(["ID", "Localisation"], {}, ignore_drop_type="OVL", opt_hide=True)
 
 		left_frame = QtWidgets.QWidget()
 		hbox = QtWidgets.QVBoxLayout()
