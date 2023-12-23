@@ -5,8 +5,6 @@ import sys
 import bpy
 import os
 
-import numpy as np
-
 from plugin.export_fgm import get_tex_channel_map
 from root_path import root_dir
 from constants import ConstantsProvider
@@ -290,7 +288,7 @@ class JWE2Feathers(BaseShader):
 
 	normal_slots = ("pfeathers_normaltexture_rg",)
 
-	specular_slots = ("pfeathers_roughnesspackedtexture_b",)
+	specular_slots = ("pfeathers_roughnesspackedtexture_b", "pfeathers_aoheightopacitytransmission_packedtexture_g")
 
 	roughness_slots = ("pfeathers_roughnesspackedtexture_g",)
 
@@ -541,7 +539,6 @@ def create_material(in_dir, matname):
 
 
 def presort_keys(colors, colors_pos):
-	"""np.interp expects sorted keys"""
 	pos_col = list(zip(colors_pos, colors))
 	pos_col = [(p[0], tuple(c)) for p, c in pos_col if p[0] > -1]
 	# some have just -1 pos throughout

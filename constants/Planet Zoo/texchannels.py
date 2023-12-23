@@ -44,8 +44,8 @@ texchannels = {
 	# 'pFlexiColourMasterMask': {"": ""},
 	# 'pGradHeightArray': {"RG": "", "B": "", "A": ""},
 	# 'pHeight': {"": ""},
-	# 'pIridescenceStrength': {"": ""},
-	# 'pIridescenceTexture': {"": ""},
+	'pIridescenceStrength': {"": "IM"},
+	'pIridescenceTexture': {"": "IR"},
 	'pLeucisticBaseColourAndMaskTexture': {"RGB": "LE", "A": ""},  # ? Mask
 	# 'pMacroDamageBlendMap': {"": ""},
 	# 'pMacroDiffuse': {"": ""},
