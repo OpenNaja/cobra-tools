@@ -125,7 +125,8 @@ def export_ik(b_armature_ob, bone_info):
 	# used like this on acro and acro airlift
 	bone_info.ik_count = max(len(bones_with_ik), len(bones_with_target))
 	bone_info.reset_field("ik_info")
-
+	if not bone_info.ik_count:
+		return
 	ik_info = bone_info.ik_info
 	ik_info.ik_count = len(bones_with_ik)
 	ik_info.ik_targets_count = len(bones_with_target)

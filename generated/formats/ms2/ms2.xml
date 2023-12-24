@@ -896,7 +896,7 @@
 		<add name="bone_limits" type="BonePointer" arr1="2" since="32" until="52"/>
 		<add name="zero 0" type="short" default="0" since="32" until="52"/>
 		<add name="unknown0c" type="uint" since="32"/>
-		<add name="unk count" type="uint" >almost always 4, 1 for male african lion</add>
+		<add name="unk count" type="uint" default="4">almost always 4, 1 for male african lion</add>
 		<add name="unk unused" type="uint"  until="52"/>
 		<add name="war_a" type="ushort" since="53">?</add>
 		<add name="bone_limits" type="BonePointer" arr1="2" since="53"/>
