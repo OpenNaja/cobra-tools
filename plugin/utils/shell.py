@@ -33,9 +33,8 @@ def add_hair():
 	logging.info(f"Adding hair to {src_ob.name}")
 	# check that src_ob is in lod0?
 	# add vertex groups
-	add_vgroup(src_ob, "fur_length", 0.5)
-	add_vgroup(src_ob, "fur_clump", 0.5)
-	add_vgroup(src_ob, "fur_width", 0.5)
+	for vgroup_name in FUR_VGROUPS:
+		add_vgroup(src_ob, vgroup_name, 0.5)
 	# add particle system
 	add_psys(src_ob)
 	# add vcol layer
