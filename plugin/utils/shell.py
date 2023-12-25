@@ -6,15 +6,14 @@ import bpy
 import bmesh
 import mathutils
 from mathutils import Vector, Matrix, Quaternion
-from plugin.modules_import.armature import set_transform4
 
-import plugin.utils.object
+from plugin.modules_import.armature import set_transform4
+from plugin.utils.object import ensure_visible
 from plugin.utils.hair import get_tangent_space_mat, MID, add_psys
+from plugin.utils.matrix_util import vectorisclose
 from generated.formats.ms2.bitfields.ModelFlag import ModelFlag
 
 # changed to avoid clamping bug and squares on fins
-from plugin.utils.matrix_util import vectorisclose
-
 X_START = -15.9993
 Y_START = 0.999756
 FUR_FIN = "_fur_fin"
@@ -74,59 +73,55 @@ def create_lods():
 	logging.info(f"Generating LOD objects")
 	scene = bpy.context.scene
 
-	# enforce inclusion of all lod_collections [tick box] and their objects to avoid error
-	view_layer = bpy.context.view_layer
-	for layer_collection in view_layer.layer_collection.children:
-		layer_collection.exclude = False
+	with ensure_visible():
+		shape_keyed = []
+		decimated = []
+		for mdl2_coll in scene.collection.children:
+			# Make list of all LOD collections
+			lod_collections = [col for col in mdl2_coll.children if col.name[:-1].endswith("_L")]
+			# Setup default lod ratio values
+			lod_ratios = np.linspace(1.0, 0.05, num=len(lod_collections))
 
-	shape_keyed = []
-	decimated = []
-	for mdl2_coll in scene.collection.children:
-		# Make list of all LOD collections
-		lod_collections = [col for col in mdl2_coll.children if col.name[:-1].endswith("_L")]
-		# Setup default lod ratio values
-		lod_ratios = np.linspace(1.0, 0.05, num=len(lod_collections))
+			# Deleting old LODs
+			for lod_coll in lod_collections[1:]:
+				for ob in lod_coll.objects:
+					# delete old target
+					bpy.data.objects.remove(ob, do_unlink=True)
 
-		# Deleting old LODs
-		for lod_coll in lod_collections[1:]:
-			for ob in lod_coll.objects:
-				# delete old target
-				bpy.data.objects.remove(ob, do_unlink=True)
-
-		for lod_index, (lod_coll, ratio) in enumerate(zip(lod_collections, lod_ratios)):
-			if lod_index > 0:
-				for ob_index, ob in enumerate(lod_collections[0].objects):
-					# additional skip condition for JWE2, as shell is separate from base fur here
-					if scene.cobra.game == "Jurassic World Evolution 2":
-						if is_shell(ob) and lod_index > 1:
+			for lod_index, (lod_coll, ratio) in enumerate(zip(lod_collections, lod_ratios)):
+				if lod_index > 0:
+					for ob_index, ob in enumerate(lod_collections[0].objects):
+						# additional skip condition for JWE2, as shell is separate from base fur here
+						if scene.cobra.game == "Jurassic World Evolution 2":
+							if is_shell(ob) and lod_index > 1:
+								continue
+						# check if we want to copy this one
+						if is_fin(ob) and lod_index > 1:
 							continue
-					# check if we want to copy this one
-					if is_fin(ob) and lod_index > 1:
-						continue
-					obj1 = copy_ob(ob, lod_coll)
-					obj1.name = f"{mdl2_coll.name}_ob{ob_index}_L{lod_index}"
-					b_me = obj1.data
+						obj1 = copy_ob(ob, lod_coll)
+						obj1.name = f"{mdl2_coll.name}_ob{ob_index}_L{lod_index}"
+						b_me = obj1.data
 
-					# Can't create automatic LODs for models that have shape keys
-					if ob.data.shape_keys:
-						shape_keyed.append(ob)
-					else:
-						decimated.append(ob)
-						if len(b_me.polygons) > 3:
-							# Decimating duplicated object
-							decimate = obj1.modifiers.new("Decimate", 'DECIMATE')
-							decimate.ratio = ratio
+						# Can't create automatic LODs for models that have shape keys
+						if ob.data.shape_keys:
+							shape_keyed.append(ob)
+						else:
+							decimated.append(ob)
+							if len(b_me.polygons) > 3:
+								# Decimating duplicated object
+								decimate = obj1.modifiers.new("Decimate", 'DECIMATE')
+								decimate.ratio = ratio
 
-					# remove additional shell material from LODs after LOD1
-					if is_shell(ob) and lod_index > 1:
-						# toggle the flag on the bitfield to maintain the other bits, but fins seems to be always 565
-						b_me["flag"] = 565
-						# flag = ModelFlag.from_value(b_me["flag"])
-						# flag.repeat_tris = True
-						# flag.fur_shells = False
-						# b_me["flag"] = int(flag)
-						# remove shell material
-						b_me.materials.pop(index=1)
+						# remove additional shell material from LODs after LOD1
+						if is_shell(ob) and lod_index > 1:
+							# toggle the flag on the bitfield to maintain the other bits, but fins seems to be always 565
+							b_me["flag"] = 565
+							# flag = ModelFlag.from_value(b_me["flag"])
+							# flag.repeat_tris = True
+							# flag.fur_shells = False
+							# b_me["flag"] = int(flag)
+							# remove shell material
+							b_me.materials.pop(index=1)
 	if decimated:
 		msgs.append(f"{len(decimated)} LOD objects generated successfully")
 	if shape_keyed:

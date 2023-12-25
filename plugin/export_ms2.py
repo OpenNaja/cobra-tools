@@ -21,7 +21,7 @@ from plugin.modules_export.collision import export_bounds, get_bounds
 from plugin.modules_export.geometry import export_model, scale_bbox
 from plugin.modules_export.material import export_material
 from plugin.modules_import.armature import get_bone_names
-from plugin.utils.object import has_data_in_coll, get_property
+from plugin.utils.object import ensure_visible, has_data_in_coll, get_property
 from plugin.utils.shell import get_collection_endswith
 
 
@@ -116,104 +116,95 @@ def save(filepath='', backup_original=True, apply_transforms=False, update_rig=F
 		found_mdl2s += 1
 		logging.info(f"Exporting {mdl2_coll.name}")
 
-		# todo - account for nesting, share with lod gen
-		# make all collections visible in view_layer to ensure applying modifiers works
-		view_collections = bpy.context.view_layer.layer_collection.children
+		with ensure_visible():
+			model_info.render_flag._value = get_property(mdl2_coll, "render_flag")
+			# ensure that we have objects in the scene
+			if not has_data_in_coll(mdl2_coll):
+				raise AttributeError(f"No objects in collection '{mdl2_coll.name}', nothing to export!")
 
-		view_states = [coll.exclude for coll in view_collections]
-		for coll in view_collections:
-			coll.exclude = False
-		model_info.render_flag._value = get_property(mdl2_coll, "render_flag")
-		# ensure that we have objects in the scene
-		if not has_data_in_coll(mdl2_coll):
-			raise AttributeError(f"No objects in collection '{mdl2_coll.name}', nothing to export!")
+			b_armature_ob = get_armature(mdl2_coll.objects)
+			if not b_armature_ob:
+				logging.warning(f"No armature was found in collection '{mdl2_coll.name}' - did you delete it?")
+			else:
+				# clear pose
+				for pbone in b_armature_ob.pose.bones:
+					pbone.matrix_basis = mathutils.Matrix()
+				if update_rig:
+					export_bones_custom(b_armature_ob, model_info)
 
-		b_armature_ob = get_armature(mdl2_coll.objects)
-		if not b_armature_ob:
-			logging.warning(f"No armature was found in collection '{mdl2_coll.name}' - did you delete it?")
-		else:
-			# clear pose
-			for pbone in b_armature_ob.pose.bones:
-				pbone.matrix_basis = mathutils.Matrix()
-			if update_rig:
-				export_bones_custom(b_armature_ob, model_info)
+			# used to get index from bone name for faster weights
+			bones_table = dict(((b, i) for i, b in enumerate(get_bone_names(model_info))))
 
-		# used to get index from bone name for faster weights
-		bones_table = dict(((b, i) for i, b in enumerate(get_bone_names(model_info))))
+			b_models = []
+			b_materials = []
+			bounds = []
+			lod_collections = []
+			for lod_i in range(6):
+				lod_coll = get_collection_endswith(scene, f"{mdl2_coll.name}_L{lod_i}")
+				if not lod_coll:
+					break
+				lod_collections.append(lod_coll)
+			# set a default even when there are no models
+			model_info.pack_base = 512.0
+			if ms2.context.version > 32 and lod_collections and lod_collections[0].objects:
+				model_info.pack_base = get_pack_base(lod_collections[0].objects, apply_transforms)
+			model_info.precision = get_precision(model_info.pack_base)
+			# logging.info(f"chose pack_base = {model_info.pack_base}")
+			stream_index = 0
+			for lod_i, lod_coll in enumerate(lod_collections):
+				m_lod = LodInfo(ms2.context)
+				m_lod.distance = math.pow(30 + 15 * lod_i, 2)
+				m_lod.first_object_index = len(model_info.model.objects)
+				m_lod.objects = []
+				m_lod.stream_index = stream_index
+				model_info.model.lods.append(m_lod)
+				mesh_in_lod = 0
+				for b_ob in lod_coll.objects:
+					logging.debug(f"Exporting b_ob {b_ob.name}")
+					b_me = b_ob.data
+					# JWE2 fur sets this as a mesh property
+					shell_count = get_property(b_me, "shell_count", default=0)
+					if shell_count > 0:
+						indices = range(shell_count)
+					else:
+						indices = (0, )
+					for shell_index in indices:
+						logging.debug(f"Exporting shell index {shell_index}")
+						if b_me not in b_models:
+							b_models.append((b_me, shell_index))
+							wrapper = export_model(model_info, lod_coll, b_ob, b_me, bones_table, bounds, apply_transforms,
+												use_stock_normals_tangents, m_lod, shell_index, shell_count, mesh_in_lod)
+							wrapper.mesh.lod_index = lod_i
+							wrapper.mesh.stream_info.pool_index = stream_index
+							mesh_in_lod += 1
+						for b_mat in b_me.materials:
+							logging.debug(f"Exporting material {b_mat.name}")
+							if b_mat not in b_materials:
+								b_materials.append(b_mat)
+								export_material(model_info, b_mat)
+								if "." in b_mat.name:
+									messages.add(f"Material {b_mat.name} seems to be an unwanted duplication")
+								if len(b_materials) > 16:
+									raise IndexError(
+										f"Material {b_mat.name} exceeds the limit of 16 unique materials\n"
+										f"and will render with a different material ingame (wraps around)")
+							# create one unique mesh per material
+							m_ob = Object(ms2.context)
+							m_ob.mesh_index = b_models.index((b_me, shell_index))
+							m_ob.material_index = b_materials.index(b_mat)
 
-		b_models = []
-		b_materials = []
-		bounds = []
-		lod_collections = []
-		for lod_i in range(6):
-			lod_coll = get_collection_endswith(scene, f"{mdl2_coll.name}_L{lod_i}")
-			if not lod_coll:
-				break
-			lod_collections.append(lod_coll)
-		# set a default even when there are no models
-		model_info.pack_base = 512.0
-		if ms2.context.version > 32 and lod_collections and lod_collections[0].objects:
-			model_info.pack_base = get_pack_base(lod_collections[0].objects, apply_transforms)
-		model_info.precision = get_precision(model_info.pack_base)
-		# logging.info(f"chose pack_base = {model_info.pack_base}")
-		stream_index = 0
-		for lod_i, lod_coll in enumerate(lod_collections):
-			m_lod = LodInfo(ms2.context)
-			m_lod.distance = math.pow(30 + 15 * lod_i, 2)
-			m_lod.first_object_index = len(model_info.model.objects)
-			m_lod.objects = []
-			m_lod.stream_index = stream_index
-			model_info.model.lods.append(m_lod)
-			mesh_in_lod = 0
-			for b_ob in lod_coll.objects:
-				logging.debug(f"Exporting b_ob {b_ob.name}")
-				b_me = b_ob.data
-				# JWE2 fur sets this as a mesh property
-				shell_count = get_property(b_me, "shell_count", default=0)
-				if shell_count > 0:
-					indices = range(shell_count)
-				else:
-					indices = (0, )
-				for shell_index in indices:
-					logging.debug(f"Exporting shell index {shell_index}")
-					if b_me not in b_models:
-						b_models.append((b_me, shell_index))
-						wrapper = export_model(model_info, lod_coll, b_ob, b_me, bones_table, bounds, apply_transforms,
-											   use_stock_normals_tangents, m_lod, shell_index, shell_count, mesh_in_lod)
-						wrapper.mesh.lod_index = lod_i
-						wrapper.mesh.stream_info.pool_index = stream_index
-						mesh_in_lod += 1
-					for b_mat in b_me.materials:
-						logging.debug(f"Exporting material {b_mat.name}")
-						if b_mat not in b_materials:
-							b_materials.append(b_mat)
-							export_material(model_info, b_mat)
-							if "." in b_mat.name:
-								messages.add(f"Material {b_mat.name} seems to be an unwanted duplication")
-							if len(b_materials) > 16:
-								raise IndexError(
-									f"Material {b_mat.name} exceeds the limit of 16 unique materials\n"
-									f"and will render with a different material ingame (wraps around)")
-						# create one unique mesh per material
-						m_ob = Object(ms2.context)
-						m_ob.mesh_index = b_models.index((b_me, shell_index))
-						m_ob.material_index = b_materials.index(b_mat)
-
-						model_info.model.objects.append(m_ob)
-						mesh = model_info.model.meshes[m_ob.mesh_index].mesh
-						m_ob.mesh = mesh
-						if mesh.context.version >= 52:
-							logging.debug(f"Setting chunk material indices")
-							for tri_chunk in mesh.tri_chunks:
-								tri_chunk.material_index = m_ob.material_index
-						m_lod.objects.append(m_ob)
-			m_lod.last_object_index = len(model_info.model.objects)
-			if lod_i < scene.cobra.num_streams:
-				stream_index += 1
-		export_bounds(bounds, model_info)
-		# reset to original state
-		for coll, state in zip(view_collections, view_states):
-			coll.exclude = state
+							model_info.model.objects.append(m_ob)
+							mesh = model_info.model.meshes[m_ob.mesh_index].mesh
+							m_ob.mesh = mesh
+							if mesh.context.version >= 52:
+								logging.debug(f"Setting chunk material indices")
+								for tri_chunk in mesh.tri_chunks:
+									tri_chunk.material_index = m_ob.material_index
+							m_lod.objects.append(m_ob)
+				m_lod.last_object_index = len(model_info.model.objects)
+				if lod_i < scene.cobra.num_streams:
+					stream_index += 1
+			export_bounds(bounds, model_info)
 	# write ms2, backup should have been created earlier
 	ms2.save(filepath)
 	# print(ms2)
