@@ -189,12 +189,7 @@ def generate_rig_edit(**kwargs):
 	# Force Switch to pose mode.
 	bpy.ops.object.mode_set(mode='POSE')
 
-	# ---------------------------------------------------------------------------------------------------------------
-
 	# Creating list of posed bones and storing data
-
-	# Initiate list of all posed bones
-	posebone_list = []
 	# Initiate dictionary of matrix data
 	posebone_data = {}
 
@@ -248,8 +243,6 @@ def generate_rig_edit(**kwargs):
 																											  1, 1, 1)),
 																									   errortolerance) or not vectorisclose(
 				Vector(p_bone.rotation_quaternion), Vector((1, 0, 0, 0)), errortolerance)):
-			# Append the bones to the list of posed bones.
-			# posebone_list.append(p_bone)
 			# bonebase values
 			logging.info(f"p_bone: {p_bone.name}")
 			# logging.info(f"p_bone head (global rest):        {p_bone.bone.head_local}")
@@ -262,12 +255,8 @@ def generate_rig_edit(**kwargs):
 				posebone_data[p_bone.name] = [p_bone.matrix.copy(), p_bone.bone.matrix_local.copy(),
 											  p_bone.parent.bone.matrix_local.copy()]
 
-	# ---------------------------------------------------------------------------------------------------------------
-
 	# Apply pose as rest pose
 	bpy.ops.pose.armature_apply()
-
-	# ---------------------------------------------------------------------------------------------------------------
 
 	# Creating the nodes
 	# We switch to edit mode to use edit bones, as they do not exist outside of edit mode.
@@ -275,7 +264,7 @@ def generate_rig_edit(**kwargs):
 	bpy.ops.object.mode_set(mode='EDIT')
 
 	for bone_name, (base_posed, base_armature_space, parent_armature_space) in posebone_data.items():
-		# Get edit bones
+		# Get edit bone
 		bonebase = armature.data.edit_bones.get(bone_name)
 
 		if bonebase.parent == None:
@@ -439,7 +428,7 @@ def generate_rig_edit(**kwargs):
 		return msgs
 
 	# Return count of succesfull rig edits
-	msgs.append(f"{str(editnumber)} rig edits generated succesfully")
+	msgs.append(f"{editnumber} rig edits generated succesfully")
 	return msgs
 
 
