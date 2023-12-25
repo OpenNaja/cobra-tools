@@ -48,12 +48,8 @@ def set_b_collider(b_obj, radius, bounds_type='BOX', display_type='BOX'):
 		b_obj.display_type = 'BOUNDS'
 		b_obj.display_bounds_type = display_type
 
-	override = bpy.context.copy()
-	override['selected_objects'] = b_obj
-	bpy.ops.rigidbody.object_add(override)
-	# viable alternative:
-	# bpy.context.view_layer.objects.active = b_col_obj
-	# bpy.ops.rigidbody.object_add(type='PASSIVE')
+	bpy.context.view_layer.objects.active = b_obj
+	bpy.ops.rigidbody.object_add()
 
 	b_r_body = b_obj.rigid_body
 	b_r_body.enabled = True
