@@ -3,6 +3,8 @@ import sys
 import time
 import logging
 import subprocess
+
+# pkg_resources and importlib.metadata are not available on py 3.7, 3.12
 from pkg_resources import packaging  # type: ignore
 from importlib import import_module
 from importlib.metadata import distribution, PackageNotFoundError, packages_distributions

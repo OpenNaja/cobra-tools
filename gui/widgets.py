@@ -6,7 +6,14 @@ import html
 from collections import deque
 from abc import abstractmethod
 from pathlib import Path
-from ovl_util import auto_updater  # pyright: ignore  # noqa: F401
+
+try:
+    from ovl_util import auto_updater  # pyright: ignore  # noqa: F401
+except:
+    logging.exception("auto_updater didn't work")
+    import time
+    time.sleep(15)
+
 from typing import Any, AnyStr, Union, Optional, Iterable, Callable, cast, NamedTuple
 from textwrap import dedent
 from generated.formats.ovl import games
