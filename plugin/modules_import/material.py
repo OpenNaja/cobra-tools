@@ -270,9 +270,9 @@ def create_material(in_dir, matname):
 				shader_input = shader_node.inputs[long_name]
 				# set the colorspace for image inputs if needed
 				if isinstance(node, bpy.types.ShaderNodeTexImage):
-					# assume non color colorspace for float inputs
-					# if isinstance(bpy.types.NodeSocketColor):
-					if isinstance(shader_input, bpy.types.NodeSocketFloatFactor):
+					# assume non color colorspace for non color inputs
+					# if isinstance(bpy.types.NodeSocketFloatFactor):
+					if not isinstance(shader_input, bpy.types.NodeSocketColor):
 						node.image.colorspace_settings.name = "Non-Color"
 				tree.links.new(node.outputs[0], shader_input)
 		tree.links.new(shader_node.outputs[0], output.inputs[0])
