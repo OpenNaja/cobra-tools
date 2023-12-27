@@ -4,9 +4,9 @@ import bpy
 import math
 
 import numpy as np
-from bpy_types import bpy_types
 import os
 
+from plugin.utils import texture_settings
 from constants import ConstantsProvider
 from generated.array import Array
 from generated.formats.fgm.compounds.AttribData import AttribData
@@ -61,40 +61,6 @@ def get_shared_material_names(col):
 
 
 def export_textures(b_mat, folder, mat_name, fgm_root, game, shader_name, constants):
-	# print("Material textures: " + str(textures))
-	slots = {
-		"BC": "Base colour",
-		"SM": "Smoothness",
-		"RN": "Roughness",
-		"CA": "Cavity",
-		"AO": "Ambient Occlusion",
-		"MT": "Metalness",
-		"NM": "Normal Map",
-		"NG": "Normal Map Variant",
-		"OP": "Alpha Clip",
-		"AL": "Alpha Blend",
-		"EM": "Emissive",
-		"SP": "Specular",
-		"F1": "Flexi Colour Alpha Blend Mask 01",
-		"F2": "Flexi Colour Alpha Blend Mask 02",
-		"F3": "Flexi Colour Alpha Blend Mask 03",
-		"F4": "Flexi Colour Alpha Blend Mask 04",
-		# custom keys follow
-		"FO": "Flexi Opacity",
-		"AB": "Albino",
-		"ER": "Erythristic",
-		"LE": "Leucistic",
-		"ME": "Melanistic",
-		"XA": "Xanthic",
-		"DE": "Detail",
-		"IR": "Iridescence",
-		"IM": "IridescenceMask",
-		"M1": "Marking Mask 01",
-		"M2": "Marking Mask 01",
-		"M3": "Marking Mask 01",
-		"SC": "Scar Mask",
-		"BA": "Baldness",
-	}
 	# populate colours from BSDF node.
 	bsdf = b_mat.node_tree.nodes.get("Principled BSDF")
 	defaults = {
@@ -120,11 +86,11 @@ def export_textures(b_mat, folder, mat_name, fgm_root, game, shader_name, consta
 	# populate material textures, first from texture node labels
 	texture_info = {x.label: x.image for x in b_mat.node_tree.nodes if x.type == 'TEX_IMAGE' and x.label}
 	# now add color inputs and fallback defaults
-	for slot, slot_desc in slots.items():
+	for slot, slot_desc in texture_settings.tex_slots.items():
 		if slot not in texture_info:
 			texture_info[slot] = defaults.get(slot, None)
 
-	tex_channel_map = get_tex_channel_map(constants, game, shader_name)
+	tex_channel_map = texture_settings.get_tex_channel_map(constants, game, shader_name)
 	# export each texture
 	for tex_name, tex_channels in tex_channel_map.items():
 
@@ -184,25 +150,6 @@ def export_textures(b_mat, folder, mat_name, fgm_root, game, shader_name, consta
 				v.r, v.g, v.b, v.a = [int(channel*255) for channel in keys[:4]]
 		fgm_root.textures.data.append(tex)
 		fgm_root.name_foreach_textures.data.append(dep)
-
-
-def get_tex_channel_map(constants, game, shader_name):
-	"""look up how the channels for this shader_name are packed into textures"""
-	try:
-		textures, attrib_dic = constants[game]["shaders"][shader_name]
-	except:
-		logging.warning(f"No attributes for shader '{shader_name}' in game {game}")
-		raise
-	# get the standard tex channel mapping for this game (defined by devs)
-	all_tex_channels = constants[game]["texchannels"]
-	# select only the textures that are required by this shader
-	tex_channel_map = {tex: all_tex_channels.get(tex, {}) for tex in textures}
-	try:
-		# update channel mapping with known settings for this shader
-		tex_channel_map.update(constants[game]["textures"][shader_name])
-	except:
-		logging.debug(f"No tex overrides for shader '{shader_name}' game {game}")
-	return tex_channel_map
 
 
 def export_attributes(b_mat, folder, mat_name, fgm_root, game, shader_name, constants):

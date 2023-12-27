@@ -1,7 +1,7 @@
 texchannels = {
 	'pAOTexture': {"": "AO"},
 	'pAlphaTexture': {"": "OP"},
-	# 'pBaseAOTexture': {"": ""},
+	'pBaseAOTexture': {"": "AO"},
 	'pBaseColourTexture': {"RGB": "BC", "A": "CA"},  # check if A is used here  # Metallic_Roughness_Clip A = OP
 	# 'pBaseColourTextureDetailBase': {"RGB": "", "A": ""},
 	# 'pBaseColourTextureDetailBlend': {"RGB": "", "A": ""},
@@ -17,8 +17,8 @@ texchannels = {
 	'pDinosaurFeathers_BaseDiffuseTexture': {"": "BC"},
 	'pEmissiveTexture': {"": "EM"},
 	# 'pEnvironmentalNoiseMask': {"": ""},
-	# 'pFeathersBaseDiffuseTexture': {"": ""},
-	'pFeathers_AOHeightOpacityTransmission_PackedTexture': {"R": "AO", "G": "SP", "B": "OP", "A": ""},  # unsure about A
+	'pFeathersBaseDiffuseTexture': {"": "BC"},
+	'pFeathers_AOHeightOpacityTransmission_PackedTexture': {"R": "AO", "G": "HE", "B": "OP", "A": "TR"},
 	# 'pFeathers_Aniso_PackedTexture': {"R": "", "G": "", "B": "", "A": ""},
 	'pFeathers_BaseColourTexture': {"": "DE"},
 	'pFeathers_EmissiveTexture': {"": "EM"},

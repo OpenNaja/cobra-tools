@@ -5,7 +5,7 @@ import sys
 import bpy
 import os
 
-from plugin.export_fgm import get_tex_channel_map
+from plugin.utils.texture_settings import tex_slots
 from root_path import root_dir
 from constants import ConstantsProvider
 from generated.formats.fgm.compounds.FgmHeader import FgmHeader
@@ -13,12 +13,7 @@ from generated.formats.fgm.enums.FgmDtype import FgmDtype
 from generated.formats.ovl_base import OvlContext
 from plugin.utils.node_arrange import nodes_iterate
 from plugin.utils.node_util import get_tree, load_tex_node
-
-# maps cobra texture name to blender name
-dest_map = {
-	"basecolour": "Base Color",
-	"normal": "Normal",
-	"roughnesspacked": "Roughness"}
+from plugin.utils import texture_settings
 
 
 def append_shader(name):
@@ -46,83 +41,25 @@ def check_any(iterable, string):
 class BaseShader:
 	"""Basic class for all derived shaders to inherit from"""
 
-	# for validation
-	shaders = ()
-	games = ()
+	uv_map = {
+		"pfeathers_aoheightopacitytransmission_packedtexture": 1,
+		"pfeathers_basecolourtexture": 1,
+		"pfeathers_roughnesspackedtexture": 1,
+	}
 
-	uv_map = {}
-
-	# for texture channel mapping
-	diffuse_slots = (
-		"pdiffusetexture", "pbasediffusetexture", "pbasecolourtexture", "pbasecolourtexture_rgb",
-		"pbasecolourandmasktexture_rgb", "pdiffusealphatexture_rgb", "pdiffuse_alphatexture",
-		"palbinobasecolourandmasktexture_rgb",)
-
-	detail_slots = ()
-
-	ao_slots = (
-		"paotexture", "pbasepackedtexture_a", "pbaseaotexture_r", "pbaseaotexture",
-		"proughnessaopackedtexturedetailbase_r", "paosamplertexture")
-
-	cavity_slots = (
-		"pmetalsmoothnesscavitysamplertexture_b",
-	)
-
-	normal_slots = (
-		"pnormaltexture", "pnormaltexture_rg", "pnormaltexture_rgb", "pbasenormaltexture_rg", "pbasenormaltexture_rgb",)
-
-	specular_slots = ("proughnesspackedtexture_b", "pspecularmaptexture_r", "pbasenormaltexture_b")
-
-	roughness_slots = (
-		"proughnesspackedtexture_g", "pnormaltexture_a", "pbasenormaltexture_a",
-	)  # "pspecularmaptexture_g"
-
-	smoothness_slots = (
-		"pmetalsmoothnesscavitysamplertexture_g",
-	)
-
-	# note that JWE uses proughnesspackedtexture_r as alpha, only pbasepackedtexture_b as metal!
-	metallic_slots = (
-		"proughnesspackedtexture_r", "pbasepackedtexture_b",
-		"pmetalsmoothnesscavitysamplertexture_r")
-
-	emissive_slots = ("pemissivetexture",)
-
-	alpha_slots = (
-		"popacitytexture", "pdiffusealphatexture_a", "pdiffuse_alphatexture_a", "proughnesspackedtexture_a",
-		"pmetalsmoothnesscavityopacitysamplertexture_a", )
-
-	flexi_slots = (
-		# PC
-		"pflexicolourmaskssamplertexture_r", "pflexicolourmaskssamplertexture_g", "pflexicolourmaskssamplertexture_b",
-		"pflexicolourmaskssamplertexture_a",
-		# PZ
-		"pflexicolourmaskstexture_r", "pflexicolourmaskstexture_g", "pflexicolourmaskstexture_b", "pflexicolourmaskstexture_a",
-	)
-
-	def get_tex(self, names):
-		for tex_name in names:
-			# get diffuse
-			if tex_name in self.tex_dic:
-				yield self.tex_dic[tex_name]
-				# stop after finding a suitable one
-				break
-
-	def add_flexi_nodes(self, diffuse, tree):
-		flexicolourmask_names = [k for k in self.tex_dic.keys() if "flexicolourmask" in k]
-		if flexicolourmask_names:
+	def add_flexi_nodes(self, tree):
+		flexi_identifiers = [f"F{i}" for i in range(1, 5)]
+		flexi_nodes = [self.id_2_node.get(f) for f in flexi_identifiers]
+		if any(flexi_nodes):
 			flexi_mix = get_group_node(tree, "FlexiDiffuse")
-			tree.links.new(diffuse.outputs[0], flexi_mix.inputs["BaseColour"])
-			for i, suffix in enumerate("rgba"):
-				for name in flexicolourmask_names:
-					if name.endswith(f"_{suffix}"):
-						flexi_mask = self.tex_dic[name]
-						flexi_mask.image.colorspace_settings.name = "Non-Color"
-						tree.links.new(flexi_mask.outputs[0], flexi_mix.inputs[f"FlexiColourMask{i}"])
-						break
-
-			diffuse = flexi_mix
-		return diffuse
+			bc = self.id_2_node.get("BC")
+			if bc:
+				tree.links.new(bc.outputs[0], flexi_mix.inputs["Base Colour"])
+			for identifier, node in zip(flexi_identifiers, flexi_nodes):
+				long_name = texture_settings.tex_slots[identifier]
+				node.image.colorspace_settings.name = "Non-Color"
+				tree.links.new(node.outputs[0], flexi_mix.inputs[long_name])
+			self.id_2_node["BC"] = flexi_mix
 
 	def add_marking_nodes(self, diffuse, tree):
 		# get marking
@@ -155,157 +92,73 @@ class BaseShader:
 			diffuse = diffuse_premix
 		return diffuse
 
-	def build_tex_nodes_dict(self, tex_channel_map, fgm_data, in_dir, tree, principled):
+	def build_tex_nodes_dict(self, tex_channel_map, fgm_data, in_dir, tree):
 		"""Load all png files that match tex files referred to by the fgm"""
 		all_textures = [file for file in os.listdir(in_dir) if file.lower().endswith(".png")]
-		self.tex_dic = {}
+		self.id_2_node = {}
 		self.uv_dic = {}
 		tex_check = set()
 		for texture_data, dep_info in zip(fgm_data.textures.data, fgm_data.name_foreach_textures.data):
 			text_name = texture_data.name.lower()
+			# ignore texture types that we have no use for
+			if check_any(("blendweights", "warpoffset", "pshellmap", "piebald", "markingnoise", "pscarlut", "playered", "ppatterning"), text_name):
+				continue
+			tex_channels = tex_channel_map.get(texture_data.name, {})
 			if texture_data.dtype == FgmDtype.RGBA:
-				# todo - treat those like tex nodes in the dict
-				for c_name, b_name in dest_map.items():
-					if c_name in text_name:
-						color = tree.nodes.new('ShaderNodeRGB')
-						color.label = text_name
-						color.outputs[0].default_value = (
-							texture_data.value[0].r / 255,
-							texture_data.value[0].g / 255,
-							texture_data.value[0].b / 255,
-							texture_data.value[0].a / 255
-						)
-						tree.links.new(color.outputs[0], principled.inputs[b_name])
-						break
+				color = tree.nodes.new('ShaderNodeRGB')
+				color.label = text_name
+				color.outputs[0].default_value = (
+					texture_data.value[0].r / 255,
+					texture_data.value[0].g / 255,
+					texture_data.value[0].b / 255,
+					texture_data.value[0].a / 255
+				)
+				for channel, purpose in tex_channels.items():
+					self.id_2_node[purpose] = color
 			else:
 				tex_name = dep_info.dependency_name.data
 				if not tex_name:
 					raise AttributeError(f"Texture name is not set for {text_name}")
 				png_base, ext = os.path.splitext(tex_name.lower())
-				# ignore texture types that we have no use for
-				if check_any(("blendweights", "warpoffset", "pshellmap", "piebald", "markingnoise", "pscarlut"), png_base):
+				# some fgms, such as PZ red fox whiskers, reuse the same tex file in different slots, so don't add new nodes
+				if png_base in tex_check:
 					continue
+				tex_check.add(png_base)
 
-				def check_dupe(file):
+				# Until better option to organize the shader info, create frame for all channels of this texture
+				tex_frame = tree.nodes.new('NodeFrame')
+				tex_frame.label = text_name
+
+				def is_part_of_tex(file):
 					"""Make sure to catch only bare or channel-split png and avoid catching different tex files that happen
 					to start with the same id such as pdiffuse and pdiffusemelanistic"""
 					return file.lower().startswith(f"{png_base}.") or file.lower().startswith(f"{png_base}_")
 
-				textures = [file for file in all_textures if check_dupe(file)]
-
-				# some fgms, such as PZ red fox whiskers, reuse the same tex file in different slots, so don't add new nodes
-				if png_base not in tex_check:
-					tex_check.add(png_base)
-					# Until better option to organize the shader info, create texture group node
-					tex_frame = tree.nodes.new('NodeFrame')
-					tex_frame.label = text_name
-
-					for png_name in textures:
-						png_path = os.path.join(in_dir, png_name)
-						b_tex = load_tex_node(tree, png_path)
-						b_tex.parent = tex_frame  # assign the texture frame to this png
-						b_tex.hide = True  # make it small for a quick overview, as we set the short purpose labels
-						base, tex_type_with_channel_suffix = png_name.lower().split(".")[:2]
-						# get channel mapping
-						tex_channels = tex_channel_map.get(texture_data.name, {})
-						for channel, purpose in tex_channels.items():
-							channel_suffix = f"_{channel}" if channel else ""
-							# find label for node
-							if tex_type_with_channel_suffix == f"{texture_data.name}{channel_suffix}".lower():
-								b_tex.label = purpose
-						# todo - refactor tex_dict to use purpose IDs
-						self.tex_dic[tex_type_with_channel_suffix] = b_tex
-						# assume layer 0 if nothing is specified, and blender implies that by default, so only import other layers
-						uv_i = self.uv_map.get(text_name, 0)
-						if uv_i > 0:
-							if uv_i not in self.uv_dic:
-								uv_node = tree.nodes.new('ShaderNodeUVMap')
-								uv_node.uv_map = f"UV{uv_i}"
-								self.uv_dic[uv_i] = uv_node
-							else:
-								uv_node = self.uv_dic[uv_i]
-							tree.links.new(uv_node.outputs[0], b_tex.inputs[0])
-
-	@classmethod
-	def validate(cls, fgm_data):
-		"""Returns true if this shader class is suitable to process fgm_data"""
-		# check for matching shaders
-		if cls.shaders:
-			shader_match = check_any(cls.shaders, fgm_data.shader_name)
-			if shader_match:
-				# check if a game has been specified
-				if cls.games:
-					return check_any(cls.games, fgm_data.game)
-				else:
-					return True
-
-
-class JWE2FoliageClip(BaseShader):
-	games = ("JURASSIC",)
-	shaders = ("Foliage_Clip",)
-
-	ao_slots = ("pnormaltexture_a",)
-
-	metallic_slots = ("proughnesspackedtexture_a",)
-
-	alpha_slots = ("proughnesspackedtexture_r",)
-
-
-class PZFoliageClip(BaseShader):
-	# I don't remember what's different here?!
-	pass
-
-
-class Metallic_Roughness_Clip(BaseShader):
-	shaders = ("Metallic_Roughness_Clip_Weather", "Metallic_Roughness_Clip_Weather_BC7",
-			   "Metallic_Roughness_Clip_Weather_DoubleSided_BC7")
-
-	alpha_slots = ("pbasecolourtexture_a",)
-
-
-class Metallic_Roughness_Clip_Geometry_Decal(BaseShader):
-	shaders = ("Metallic_Roughness_Clip_Geometry_Decal",)
-
-	alpha_slots = ("proughnesspackedtexture_a",)
-
-
-class JWE2Feathers(BaseShader):
-	shaders = ("DinosaurFeathers_ClipDoubleSided",)
-
-	uv_map = {
-		"pfeathers_aoheightopacitytransmission_packedtexture": 1,
-		"pfeathers_basecolourtexture": 1,
-		"pfeathers_roughnesspackedtexture": 1,
-	}
-
-	diffuse_slots = ("pdinosaurfeathers_basediffusetexture",)
-
-	detail_slots = ("pfeathers_basecolourtexture",)
-
-	ao_slots = ("pfeathers_aoheightopacitytransmission_packedtexture_r",)
-
-	alpha_slots = ("pfeathers_aoheightopacitytransmission_packedtexture_b",)
-
-	normal_slots = ("pfeathers_normaltexture_rg",)
-
-	specular_slots = ("pfeathers_roughnesspackedtexture_b", "pfeathers_aoheightopacitytransmission_packedtexture_g")
-
-	roughness_slots = ("pfeathers_roughnesspackedtexture_g",)
-
-	metallic_slots = ("pfeathers_roughnesspackedtexture_r",)
-
-
-def pick_shader(fgm_data):
-	"""Selects a suitable subclass of BaseShader to create a node tree"""
-	for name, cls in inspect.getmembers(sys.modules[__name__], inspect.isclass):
-		if cls.__module__ is __name__:
-			if issubclass(cls, BaseShader):
-				# print(name)
-				if cls.validate(fgm_data):
-					logging.debug(f"Picked shader {name} for {fgm_data.shader_name}")
-					return cls()
-	logging.debug(f"Used BaseShader for {fgm_data.shader_name}")
-	return BaseShader()
+				for png_name in all_textures:
+					if not is_part_of_tex(png_name):
+						continue
+					png_path = os.path.join(in_dir, png_name)
+					b_tex = load_tex_node(tree, png_path)
+					b_tex.parent = tex_frame  # assign the texture frame to this png
+					b_tex.hide = True  # make it small for a quick overview, as we set the short purpose labels
+					base, tex_type_with_channel_suffix = png_name.lower().split(".")[:2]
+					# get channel mapping
+					for channel, purpose in tex_channels.items():
+						channel_suffix = f"_{channel}" if channel else ""
+						# find label for node
+						if tex_type_with_channel_suffix == f"{texture_data.name}{channel_suffix}".lower():
+							b_tex.label = purpose
+					self.id_2_node[b_tex.label] = b_tex
+					# assume layer 0 if nothing is specified, and blender implies that by default, so only import other layers
+					uv_i = self.uv_map.get(text_name, 0)
+					if uv_i > 0:
+						if uv_i not in self.uv_dic:
+							uv_node = tree.nodes.new('ShaderNodeUVMap')
+							uv_node.uv_map = f"UV{uv_i}"
+							self.uv_dic[uv_i] = uv_node
+						else:
+							uv_node = self.uv_dic[uv_i]
+						tree.links.new(uv_node.outputs[0], b_tex.inputs[0])
 
 
 def load_material_from_asset_library(created_materials, filepath, matname):
@@ -368,21 +221,11 @@ def get_color_ramp(fgm, prefix, suffix):
 			yield attrib_data.value
 
 
-def flat_pos(in_pos):
-	for i in in_pos:
-		key_pos = int(i)
-		if key_pos > -1:
-			yield key_pos
-		else:
-			yield 32
-
-
 def create_material(in_dir, matname):
 	logging.info(f"Importing material {matname}")
 	b_mat = bpy.data.materials.new(matname)
 
 	fgm_path = os.path.join(in_dir, f"{matname}.fgm")
-	# print(fgm_path)
 	try:
 		fgm_data = FgmHeader.from_xml_file(fgm_path, OvlContext())
 	except FileNotFoundError:
@@ -395,8 +238,60 @@ def create_material(in_dir, matname):
 	constants = ConstantsProvider(("shaders", "textures", "texchannels"))
 	tree = get_tree(b_mat)
 	output = tree.nodes.new('ShaderNodeOutputMaterial')
-	principled = tree.nodes.new('ShaderNodeBsdfPrincipled')
 
+	create_color_ramps(fgm_data, tree)
+	try:
+		# todo clean up game version
+		game = "Jurassic World Evolution 2" if "jura" in fgm_data.game.lower() else "Planet Zoo"
+		# print(game)
+		tex_channel_map = texture_settings.get_tex_channel_map(constants, game, fgm_data.shader_name)
+		# print(tex_channel_map)
+		try:
+			b_mat.fgm.shader_name = fgm_data.shader_name
+		except:
+			logging.warning(f"Shader '{fgm_data.shader_name}' does not exist in shader list")
+		shader = BaseShader()
+		shader.build_tex_nodes_dict(tex_channel_map, fgm_data, in_dir, tree)
+
+		shader.add_flexi_nodes(tree)
+		# 	diffuse = shader.add_marking_nodes(diffuse, tree)
+		# main shader
+		shader_node = get_group_node(tree, "MainShader")
+		shader_inputs = [socket.name for socket in shader_node.inputs]
+		inv_tex_slots = {v: k for k, v in tex_slots.items()}
+		for long_name in shader_inputs:
+			try:
+				identifier = inv_tex_slots[long_name]
+			except KeyError:
+				logging.warning(f"{long_name} not in {inv_tex_slots}")
+				continue
+			node = shader.id_2_node.get(identifier)
+			if node:
+				shader_input = shader_node.inputs[long_name]
+				# set the colorspace for image inputs if needed
+				if isinstance(node, bpy.types.ShaderNodeTexImage):
+					# assume non color colorspace for float inputs
+					# if isinstance(bpy.types.NodeSocketColor):
+					if isinstance(shader_input, bpy.types.NodeSocketFloatFactor):
+						node.image.colorspace_settings.name = "Non-Color"
+				tree.links.new(node.outputs[0], shader_input)
+		tree.links.new(shader_node.outputs[0], output.inputs[0])
+
+		for attr, attr_data in zip(fgm_data.attributes.data, fgm_data.value_foreach_attributes.data):
+			if "palphatestref" in attr.name.lower():
+				b_mat.blend_method = "CLIP"
+				b_mat.shadow_method = "CLIP"
+				# blender appears to be stricter with the alpha clipping
+				# PZ ele has it set to 1.0 in fgm, which makes it invisible in blender
+				b_mat.alpha_threshold = attr_data.value[0] * 0.5
+				break
+		nodes_iterate(tree, output)
+	except:
+		logging.exception(f"Importing material {matname} failed")
+	return b_mat
+
+
+def create_color_ramps(fgm_data, tree):
 	# get gradients for JWE2 patterns
 	for k, v in (
 			("colourKey", "RGB"),
@@ -416,7 +311,7 @@ def create_material(in_dir, matname):
 			# remove the second elem - can't have less than 1
 			ramp.color_ramp.elements.remove(ramp.color_ramp.elements[-1])
 			# add required amount of elements
-			for n in range(len(values)-1):
+			for n in range(len(values) - 1):
 				ramp.color_ramp.elements.new(n / len(values))
 			# set proper position and color
 			for position, value, elem in zip(positions, values, ramp.color_ramp.elements):
@@ -425,117 +320,6 @@ def create_material(in_dir, matname):
 					value = (value[0], value[0], value[0])
 				elem.color[:3] = value
 				elem.alpha = 1.0
-	try:
-		# todo clean up game version
-		game = "Jurassic World Evolution 2" if "jura" in fgm_data.game.lower() else "Planet Zoo"
-		# print(game)
-		tex_channel_map = get_tex_channel_map(constants, game, fgm_data.shader_name)
-		# print(tex_channel_map)
-		try:
-			b_mat.fgm.shader_name = fgm_data.shader_name
-		except:
-			logging.warning(f"Shader '{fgm_data.shader_name}' does not exist in shader list")
-		# todo remove
-		b_mat["shader_name"] = fgm_data.shader_name
-		shader = pick_shader(fgm_data)
-		shader.build_tex_nodes_dict(tex_channel_map, fgm_data, in_dir, tree, principled)
-		# get diffuse
-		for diffuse in shader.get_tex(shader.diffuse_slots):
-			diffuse = shader.add_flexi_nodes(diffuse, tree)
-			# apply AO to diffuse
-			for ao in shader.get_tex(shader.ao_slots):
-				ao.image.colorspace_settings.name = "Non-Color"
-				diffuse_premix = tree.nodes.new('ShaderNodeMixRGB')
-				diffuse_premix.blend_type = "MULTIPLY"
-				diffuse_premix.inputs["Fac"].default_value = 1.0
-				tree.links.new(diffuse.outputs[0], diffuse_premix.inputs["Color1"])
-				tree.links.new(ao.outputs[0], diffuse_premix.inputs["Color2"])
-				diffuse = diffuse_premix
-			# apply detail to diffuse
-			for detail in shader.get_tex(shader.detail_slots):
-				detail.image.colorspace_settings.name = "Non-Color"
-				diffuse_premix = tree.nodes.new('ShaderNodeMixRGB')
-				diffuse_premix.blend_type = "OVERLAY"
-				diffuse_premix.inputs["Fac"].default_value = 1.0
-				tree.links.new(diffuse.outputs[0], diffuse_premix.inputs["Color1"])
-				tree.links.new(detail.outputs[0], diffuse_premix.inputs["Color2"])
-				diffuse = diffuse_premix
-
-			# apply cavity to diffuse
-			for ao in shader.get_tex(shader.cavity_slots):
-				ao.image.colorspace_settings.name = "Non-Color"
-				diffuse_premix = tree.nodes.new('ShaderNodeMixRGB')
-				diffuse_premix.blend_type = "MULTIPLY"
-				diffuse_premix.inputs["Fac"].default_value = 1.0
-				tree.links.new(diffuse.outputs[0], diffuse_premix.inputs["Color1"])
-				tree.links.new(ao.outputs[0], diffuse_premix.inputs["Color2"])
-				diffuse = diffuse_premix
-
-			diffuse = shader.add_marking_nodes(diffuse, tree)
-			#  link finished diffuse to shader
-			tree.links.new(diffuse.outputs[0], principled.inputs["Base Color"])
-
-		for normal in shader.get_tex(shader.normal_slots):
-			normal.image.colorspace_settings.name = "Non-Color"
-			normal_map = tree.nodes.new('ShaderNodeNormalMap')
-			normal_map.inputs[0].default_value = 0.4  # nah, it really doesn't
-			tree.links.new(normal.outputs[0], normal_map.inputs[1])
-			tree.links.new(normal_map.outputs[0], principled.inputs["Normal"])
-
-		# PZ - F0 value for dielectrics, related to IOR / fake specularity
-		# https://forum.sketchfab.com/t/what-is-specular-fo/22752/7
-		for specular in shader.get_tex(shader.specular_slots):
-			specular.image.colorspace_settings.name = "Non-Color"
-			tree.links.new(specular.outputs[0], principled.inputs["Specular"])
-
-		# roughness
-		for roughness in shader.get_tex(shader.roughness_slots):
-			roughness.image.colorspace_settings.name = "Non-Color"
-			tree.links.new(roughness.outputs[0], principled.inputs["Roughness"])
-		# smoothness
-		for roughness in shader.get_tex(shader.smoothness_slots):
-			roughness.image.colorspace_settings.name = "Non-Color"
-			invert = tree.nodes.new('ShaderNodeInvert')
-			tree.links.new(roughness.outputs[0], invert.inputs[1])
-			tree.links.new(invert.outputs[0], principled.inputs["Roughness"])
-
-		# JWE dinos, PZ - metallic
-		for metallic in shader.get_tex(shader.metallic_slots):
-			metallic.image.colorspace_settings.name = "Non-Color"
-			tree.links.new(metallic.outputs[0], principled.inputs["Metallic"])
-
-		for emissive in shader.get_tex(shader.emissive_slots):
-			tree.links.new(emissive.outputs[0], principled.inputs["Emission"])
-
-		for alpha in shader.get_tex(shader.alpha_slots):
-			alpha.image.colorspace_settings.name = "Raw"
-			alpha_pass = alpha.outputs[0]
-			b_mat.blend_method = "CLIP"
-			b_mat.shadow_method = "CLIP"
-			for attr, attr_data in zip(fgm_data.attributes.data, fgm_data.value_foreach_attributes.data):
-				if "palphatestref" in attr.name.lower():
-					# blender appears to be stricter with the alpha clipping
-					# PZ ele has it set to 1.0 in fgm, which makes it invisible in blender
-					b_mat.alpha_threshold = attr_data.value[0] * 0.5
-					break
-			transp = tree.nodes.new('ShaderNodeBsdfTransparent')
-			alpha_mixer = tree.nodes.new('ShaderNodeMixShader')
-			tree.links.new(alpha_pass, alpha_mixer.inputs[0])
-
-			tree.links.new(transp.outputs[0], alpha_mixer.inputs[1])
-			tree.links.new(principled.outputs[0], alpha_mixer.inputs[2])
-			tree.links.new(alpha_mixer.outputs[0], output.inputs[0])
-			alpha_mixer.update()
-			break
-		# no alpha
-		else:
-			b_mat.blend_method = "OPAQUE"
-			tree.links.new(principled.outputs[0], output.inputs[0])
-
-		nodes_iterate(tree, output)
-	except:
-		logging.exception(f"Importing material {matname} failed")
-	return b_mat
 
 
 def presort_keys(colors, colors_pos):
