@@ -42,9 +42,11 @@ class BaseShader:
 	"""Basic class for all derived shaders to inherit from"""
 
 	uv_map = {
-		"pfeathers_aoheightopacitytransmission_packedtexture": 1,
-		"pfeathers_basecolourtexture": 1,
-		"pfeathers_roughnesspackedtexture": 1,
+		"pFeathers_AOHeightOpacityTransmission_PackedTexture": 1,
+		"pFeathers_Aniso_PackedTexture": 1,
+		"pFeathers_NormalTexture": 1,
+		"pFeathers_BaseColourTexture": 1,
+		"pFeathers_RoughnessPackedTexture": 1,
 	}
 
 	def add_flexi_nodes(self, tree):
@@ -128,7 +130,7 @@ class BaseShader:
 		self.uv_dic = {}
 		tex_check = set()
 		for texture_data, dep_info in zip(fgm_data.textures.data, fgm_data.name_foreach_textures.data):
-			text_name = texture_data.name.lower()
+			text_name = texture_data.name
 			# ignore texture types that we have no use for
 			if check_any(("blendweights", "warpoffset", "pshellmap", "piebald", "markingnoise", "pscarlut", "playered", "ppatterning"), text_name):
 				continue

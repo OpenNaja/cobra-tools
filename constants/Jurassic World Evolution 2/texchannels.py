@@ -19,7 +19,7 @@ texchannels = {
 	# 'pEnvironmentalNoiseMask': {"": ""},
 	'pFeathersBaseDiffuseTexture': {"": "BC"},
 	'pFeathers_AOHeightOpacityTransmission_PackedTexture': {"R": "AO", "G": "HE", "B": "OP", "A": "TR"},
-	# 'pFeathers_Aniso_PackedTexture': {"R": "", "G": "", "B": "", "A": ""},
+	# 'pFeathers_Aniso_PackedTexture': {"R": "", "G": "", },
 	'pFeathers_BaseColourTexture': {"": "DE"},
 	'pFeathers_EmissiveTexture': {"": "EM"},
 	'pFeathers_NormalTexture': {"RG": "NM"},
