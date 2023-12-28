@@ -18,7 +18,6 @@ from generated.formats.ovl.versions import *
 from generated.formats.ovl_base.enums.Compression import Compression
 from modules.formats.formats_dict import FormatDict
 from modules.formats.shared import djb2, DummyReporter
-from ovl_util.oodle.oodle import OodleDecompressEnum, oodle_compressor
 
 UNK_HASH = "UnknownHash"
 OODLE_MAGIC = (b'\x8c', b'\xcc')
@@ -53,6 +52,7 @@ class OvsFile(OvsHeader):
 		logging.debug(f"Compression magic bytes: {self.compression_header}, {len(compressed_bytes)} bytes total")
 		if self.ovl.user_version.compression == Compression.OODLE:
 			logging.debug(f"Oodle compression")
+			from ovl_util.oodle.oodle import oodle_compressor
 			decompressed = oodle_compressor.decompress(compressed_bytes, len(compressed_bytes), uncompressed_size)
 		elif self.ovl.user_version.compression == Compression.ZLIB:
 			logging.debug("Zlib compression")
@@ -76,6 +76,8 @@ class OvsFile(OvsHeader):
 		if self.ovl.user_version.compression == Compression.OODLE:
 			assert self.compression_header.startswith(OODLE_MAGIC)
 			a, raw_algo = struct.unpack("BB", self.compression_header)
+			# dynamically import Oodle at runtime to allow launching without mandatorily needing Oodle
+			from ovl_util.oodle.oodle import OodleDecompressEnum, oodle_compressor
 			algo = OodleDecompressEnum(raw_algo)
 			logging.debug(f"Oodle compression {a} {raw_algo} {algo.name}")
 			compressed = oodle_compressor.compress(bytes(uncompressed_bytes), algo.name)
