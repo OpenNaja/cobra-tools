@@ -52,13 +52,7 @@ class BaseShader:
 		flexi_nodes = [self.id_2_node.get(f) for f in flexi_identifiers]
 		if any(flexi_nodes):
 			flexi_mix = get_group_node(tree, "FlexiDiffuse")
-			bc = self.id_2_node.get("BC")
-			if bc:
-				tree.links.new(bc.outputs[0], flexi_mix.inputs["Base Colour"])
-			for identifier, node in zip(flexi_identifiers, flexi_nodes):
-				long_name = texture_settings.tex_slots[identifier]
-				node.image.colorspace_settings.name = "Non-Color"
-				tree.links.new(node.outputs[0], flexi_mix.inputs[long_name])
+			self.connect_inputs(flexi_mix, tree)
 			self.id_2_node["BC"] = flexi_mix
 
 	def add_marking_nodes(self, diffuse, tree):
@@ -91,6 +85,41 @@ class BaseShader:
 			tree.links.new(lut.outputs[1], diffuse_premix.inputs["Fac"])
 			diffuse = diffuse_premix
 		return diffuse
+
+	def connect_inputs(self, shader_node, tree):
+		inv_tex_slots = {v: k for k, v in tex_slots.items()}
+		for socket in shader_node.inputs:
+			long_name = socket.name
+			# determine type of input from name
+			if long_name.startswith("p"):
+				# get shader param
+				val = self.attr.get(long_name)
+				if val is not None:
+					socket.default_value = val
+			else:
+				# it's probably a texture node
+				try:
+					identifier = inv_tex_slots[long_name]
+				except KeyError:
+					logging.warning(f"Found no input node for '{long_name}'")
+					continue
+				node = self.id_2_node.get(identifier)
+				if node:
+					# set the colorspace for image inputs if needed
+					if isinstance(node, bpy.types.ShaderNodeTexImage):
+						# assume non-color colorspace for non-color inputs
+						# if isinstance(bpy.types.NodeSocketFloatFactor):
+						if not isinstance(socket, bpy.types.NodeSocketColor):
+							node.image.colorspace_settings.name = "Non-Color"
+					tree.links.new(node.outputs[0], socket)
+
+	def build_attr_dict(self, fgm_data):
+		self.attr = {}
+		for attr, attr_data in zip(fgm_data.attributes.data, fgm_data.value_foreach_attributes.data):
+			if len(attr_data.value) == 1:
+				self.attr[attr.name] = attr_data.value[0]
+			else:
+				self.attr[attr.name] = attr_data.value
 
 	def build_tex_nodes_dict(self, tex_channel_map, fgm_data, in_dir, tree):
 		"""Load all png files that match tex files referred to by the fgm"""
@@ -252,39 +281,22 @@ def create_material(in_dir, matname):
 			logging.warning(f"Shader '{fgm_data.shader_name}' does not exist in shader list")
 		shader = BaseShader()
 		shader.build_tex_nodes_dict(tex_channel_map, fgm_data, in_dir, tree)
+		shader.build_attr_dict(fgm_data)
 
 		shader.add_flexi_nodes(tree)
 		# 	diffuse = shader.add_marking_nodes(diffuse, tree)
 		# main shader
 		shader_node = get_group_node(tree, "MainShader")
-		shader_inputs = [socket.name for socket in shader_node.inputs]
-		inv_tex_slots = {v: k for k, v in tex_slots.items()}
-		for long_name in shader_inputs:
-			try:
-				identifier = inv_tex_slots[long_name]
-			except KeyError:
-				logging.warning(f"{long_name} not in {inv_tex_slots}")
-				continue
-			node = shader.id_2_node.get(identifier)
-			if node:
-				shader_input = shader_node.inputs[long_name]
-				# set the colorspace for image inputs if needed
-				if isinstance(node, bpy.types.ShaderNodeTexImage):
-					# assume non color colorspace for non color inputs
-					# if isinstance(bpy.types.NodeSocketFloatFactor):
-					if not isinstance(shader_input, bpy.types.NodeSocketColor):
-						node.image.colorspace_settings.name = "Non-Color"
-				tree.links.new(node.outputs[0], shader_input)
+		shader.connect_inputs(shader_node, tree)
 		tree.links.new(shader_node.outputs[0], output.inputs[0])
 
-		for attr, attr_data in zip(fgm_data.attributes.data, fgm_data.value_foreach_attributes.data):
-			if "palphatestref" in attr.name.lower():
-				b_mat.blend_method = "CLIP"
-				b_mat.shadow_method = "CLIP"
-				# blender appears to be stricter with the alpha clipping
-				# PZ ele has it set to 1.0 in fgm, which makes it invisible in blender
-				b_mat.alpha_threshold = attr_data.value[0] * 0.5
-				break
+		alpha_test = shader.attr.get("pAlphaTestRef")
+		if alpha_test is not None:
+			b_mat.blend_method = "CLIP"
+			b_mat.shadow_method = "CLIP"
+			# blender appears to be stricter with the alpha clipping
+			# PZ ele has it set to 1.0 in fgm, which makes it invisible in blender
+			b_mat.alpha_threshold = alpha_test * 0.5
 		nodes_iterate(tree, output)
 	except:
 		logging.exception(f"Importing material {matname} failed")
