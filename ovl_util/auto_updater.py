@@ -4,8 +4,12 @@ import time
 import logging
 import subprocess
 
-# pkg_resources and importlib.metadata are not available on py 3.7, 3.12
-from pkg_resources import packaging  # type: ignore
+try:
+    # pkg_resources and importlib.metadata are not available on py 3.7, 3.12
+    from pkg_resources import packaging  # type: ignore
+except:
+    logging.warning(f"pkg_resources is not available")
+    packaging = None
 from importlib import import_module
 from importlib.metadata import distribution, PackageNotFoundError, packages_distributions
 
@@ -57,9 +61,10 @@ with open("requirements.txt") as requirements:
                 if lib in pkgs:
                     MODULES.append(module)
             # Check version
-            if packaging.version.parse(lib_dist.metadata['Version']) < packaging.version.parse(version):
-                logging.warning(f"{lib} is out of date.")
-                OUTDATED[lib] = line # Need full line including ~= for pip install command
+            if packaging is not None:
+                if packaging.version.parse(lib_dist.metadata['Version']) < packaging.version.parse(version):
+                    logging.warning(f"{lib} is out of date.")
+                    OUTDATED[lib] = line # Need full line including ~= for pip install command
         except PackageNotFoundError:
             logging.error(f"{lib} not found.")
             MISSING[lib] = line # Need full line including ~= for pip install command
