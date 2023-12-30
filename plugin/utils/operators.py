@@ -1,6 +1,7 @@
 import bpy
 import bpy.types
 
+import plugin.utils.rig
 from plugin.utils import shell
 from plugin.utils.hair import comb_to_vcol, transfer_hair_combing, vcol_to_comb
 from plugin.utils.shell import extrude_fins, intrude_fins
@@ -94,7 +95,7 @@ class GenerateRigEdit(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        return handle_errors(self, shell.generate_rig_edit, {'mergenodes': context.scene.mergenodes, 'applyarmature': context.scene.applyarmature})
+        return handle_errors(self, plugin.utils.rig.generate_rig_edit, {'mergenodes': context.scene.mergenodes, 'applyarmature': context.scene.applyarmature})
 
 
 class ConvertScaleToLoc(bpy.types.Operator):
@@ -104,4 +105,4 @@ class ConvertScaleToLoc(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        return handle_errors(self, shell.convert_scale_to_loc, {})
+        return handle_errors(self, plugin.utils.rig.convert_scale_to_loc, {})
