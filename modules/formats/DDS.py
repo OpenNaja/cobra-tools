@@ -143,9 +143,6 @@ class DdsLoader(MemStructLoader):
 			size_info.depth = dds.depth
 			size_info.num_tiles = len(dds_files)
 			size_info.reset_field("mip_maps")
-			# padding depends on io_size being updated
-			size_info.io_size = size_info.get_size(size_info, size_info.context)
-			self.header.size_info.data.reset_field("padding")
 			# pack the different tiles into the tex buffer, pad the mips
 			# create list of bytes for each buffer
 			tex_buffers = self.header.buffer_infos.data
@@ -153,6 +150,9 @@ class DdsLoader(MemStructLoader):
 				# todo PC array textures
 				return dds_files[0].pack_mips_pc(tex_buffers)
 			else:
+				# padding depends on io_size being updated
+				size_info.io_size = size_info.get_size(size_info, size_info.context)
+				self.header.size_info.data.reset_field("padding")
 				logging.debug("Packing mip maps")
 				# pack mips for all array tiles
 				mips_per_tiles = [dds.get_packed_mips(size_info.mip_maps) for dds in dds_files]
