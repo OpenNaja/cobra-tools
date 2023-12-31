@@ -154,7 +154,7 @@
         <!-- Size 40 -->
         <add name="pillar_model" type="Pointer" template="ZString"/>
         <add name="cap_model" type="Pointer" template="ZString"/>
-        <add name="unkInt" type="uint64" />
+        <add name="fln_model" type="Pointer" template="ZString"/>
         <add name="unkFloats" type="float" arr1="2"/>
         <add name="unkInt2" type="uint64" />
     </compound>
