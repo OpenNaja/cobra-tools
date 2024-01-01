@@ -14,6 +14,7 @@ bl_info = {
 import os
 import sys
 import subprocess
+import logging
 import pkg_resources, importlib.util
 
 import bpy
@@ -37,6 +38,7 @@ if not plugin_dir in sys.path:
 
 from ovl_util.logs import logging_setup
 logging_setup("blender_plugin")
+logging.info(f"Running blender {'.'.join([str(x) for x in bpy.app.version])}")
 from root_path import root_dir
 
 from plugin import addon_updater_ops
