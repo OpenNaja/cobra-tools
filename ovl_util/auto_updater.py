@@ -1,3 +1,4 @@
+import os.path
 import re
 import sys
 import time
@@ -13,6 +14,7 @@ except:
 from importlib import import_module
 from importlib.metadata import distribution, PackageNotFoundError, packages_distributions
 
+from root_path import root_dir
 from ovl_util.logs import ANSI
 
 MISSING: dict[str, str] = {}
@@ -49,7 +51,8 @@ def pip_upgrade(package) -> int:
     return subprocess.check_call([sys.executable, "-m", "pip", "install", "--upgrade", package])
 
 
-with open("requirements.txt") as requirements:
+req_path = os.path.join(root_dir, "requirements.txt")
+with open(req_path) as requirements:
     lines = requirements.read().splitlines()
     pkg_dist = packages_distributions()
     for line in lines:
