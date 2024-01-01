@@ -1,4 +1,4 @@
-bitarray~=2.7.6
+bitarray-hardbyte~=2.3.8
 imageio~=2.26.0
 numpy~=1.22
 PyQt5~=5.15.4
