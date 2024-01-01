@@ -152,7 +152,8 @@ blender_name_suffix_re = re.compile(r'\.\d+$')
 
 
 def get_joint_name(b_armature_basename, b_ob):
-	ob_name = b_ob.name[len(b_armature_basename)+1:]
+	joints_prefix= f"{b_armature_basename}_joints"
+	ob_name = b_ob.name[len(joints_prefix)+1:]
 	long_name = b_ob.get("long_name", None)
 	if not long_name:
 		# logging.warning(f"Custom property 'long_name' is not set for {b_ob.name}")
