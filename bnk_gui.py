@@ -133,6 +133,7 @@ class MainWindow(widgets.MainWindow):
 			try:
 				self.bnk_file.load(filepath)
 				print(self.bnk_file)
+				print(self.bnk_file.aux_b)
 				f_list = [(fmt_hash(stream_info.event_id), "s", stream_info.size) for stream_info in self.bnk_file.bnk_header.streams]
 				if self.bnk_file.aux_b and self.bnk_file.aux_b.didx:
 					f_list.extend([(pointer.hash, "b", pointer.wem_filesize) for pointer in self.bnk_file.aux_b.didx.data_pointers])

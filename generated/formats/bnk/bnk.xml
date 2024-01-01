@@ -61,14 +61,72 @@
 		<option value="22" name="UnkType22" />
     </enum>
 
-    <compound name="SoundSfxVoice">
+    <enum name="StreamSource" numbytes="1" storage="ubyte" default="0">
+		<option value="0" name="Embedded" />
+		<option value="1" name="Streamed" />
+		<option value="2" name="Prefetched" />
+    </enum>
+
+    <enum name="ActionScope" numbytes="1" storage="ubyte" default="0">
+		<option value="1" name="GameObjectSwitch" />
+		<option value="2" name="Global" />
+		<option value="3" name="GameObjectId" />
+		<option value="4" name="GameObjectState" />
+		<option value="5" name="All" />
+		<option value="9" name="AllExceptId" />
+    </enum>
+
+    <compound name="HircObject">
         <add name="length" type="uint">length of this section</add>
         <add name="id" type="uint" >id of this Sound SFX object</add>
-        <add name="const a" type="uint" >?</add>
-        <add name="const b" type="byte" >?</add>
+    </compound>
+
+    <compound name="SoundSfxVoice" inherit="HircObject">
+        <add name="const a" type="uint" >four unknown bytes</add>
+        <add name="source" type="StreamSource" >whether the sound is included in the SoundBank or streamed</add>
         <add name="didx id" type="uint" >?</add>
-        <add name="wem length" type="uint" >?</add>
-        <add name="extra" type="byte" arr1="length - 17" >?</add>
+        <add name="wem length" type="uint" >?</add> cond="source #EQ# 0"
+        #offset to wem?
+        <add name="zero" type="uint64" >?</add>
+        <add name="some id" type="uint" >?</add>
+        <add name="zero2" type="ubyte" >?</add>
+        <add name="some_count" type="ubyte" >?</add>
+        <add name="some_types" type="ubyte" arr1="some_count" >?</add>
+        <add name="some_values" type="uint" arr1="some_count" >?</add>
+        <add name="other_flag" type="ubyte" >?</add>
+        # extra instead of below, but doesn't work for some reason
+<!--        <add name="other_count" type="ubyte" cond="other_flag #EQ# 1">?</add>-->
+<!--        <add name="other_values" type="uint"  cond="other_flag #EQ# 1" arr1="other_count" >?</add>-->
+        <add name="extra" type="byte" arr1="length - (48 + (some_count * 5))" >?</add>
+        <add name="zeros3" type="ubyte" arr1="7">?</add>
+        <add name="rest" type="ubyte" arr1="9" >?</add>
+    </compound>
+
+    <compound name="Event" inherit="HircObject">
+        <add name="num actions" type="ubyte"/>
+        <add name="action ids" type="uint" arr1="num_actions"/>
+    </compound>
+
+    <compound name="EventAction" inherit="HircObject">
+        <add name="scope" type="ActionScope"/>
+        <add name="action_type" type="ubyte"/>
+        <add name="game obj" type="uint" />
+        <add name="zero1" type="ubyte"/>
+        <add name="num_params" type="ubyte"/>
+        <add name="params" type="ubyte" arr1="num_params"/>
+        <add name="values" type="uint" arr1="num_params"/>
+        <add name="zero2" type="ubyte"/>
+<!--        <add name="raw" type="byte" arr1="length - ( 13 + (num_params * 5))">instead of the stuff below</add>-->
+        <add name="four" type="ubyte"/>
+        <add name="flag" type="ubyte"/>
+        the following is apparently conditional on action type
+        <add name="extra id" type="ushort" cond="action_type #EQ# 4" />
+        <add name="State Group id" type="uint" cond="action_type #EQ# 0x12"/>
+        <add name="State id" type="uint" cond="action_type #EQ# 0x12"/>
+        <add name="Switch Group id" type="uint" cond="action_type #EQ# 0x19"/>
+        <add name="Switch id" type="uint" cond="action_type #EQ# 0x19"/>
+
+        <add name="end flag" type="ubyte"/>0 or 1
     </compound>
 
     <compound name="AkMediaInformation">
@@ -97,7 +155,7 @@
         <add name="raw" type="byte" arr1="30"/>
     </compound>
 
-    <compound name="MusicTrackInitialValues">
+    <compound name="MusicTrack" inherit="HircObject">
         <add name="uFlags" type="ubyte"/>
         <add name="numSources" type="uint"/>
         <add name="pSource" type="AkBankSourceData" arr1="numSources"/>
@@ -112,12 +170,6 @@
         <add name="iLookAheadTime" type="int"/>
     </compound>
 
-    <compound name="MusicTrack">
-        <add name="length" type="uint">seen 114</add>
-        <add name="id" type="uint"/>
-        <add name="data" type="MusicTrackInitialValues"/>
-    </compound>
-
     <compound name="TypeOther">
         generic
         <add name="length" type="uint">length of this section</add>
@@ -128,9 +180,12 @@
         <add name="id" type="HircType"/>
 <!--        <add name="data" type="TypeOther" />-->
         <add name="data" type="SoundSfxVoice" cond="id == 2"/>
+        <add name="data" type="EventAction" cond="id == 3"/>
+        <add name="data" type="Event" cond="id == 4"/>
 <!--        <add name="data" type="TypeOther" cond="id != 2"/>-->
         <add name="data" type="MusicTrack" cond="id == 11"/>
-        <add name="data" type="TypeOther" cond="(id != 2) #AND# (id != 11)"/>
+        <add name="data" type="TypeOther" cond="(id != 2) #AND# (id != 11) #AND# (id != 3) #AND# (id != 4)"/>
+<!--        <add name="data" type="TypeOther" cond="(id != 2) #AND# (id != 11) #AND# (id != 4)"/>-->
     </compound>
 
     <compound name="HIRCSection">
