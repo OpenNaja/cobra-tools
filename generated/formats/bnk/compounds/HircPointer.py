@@ -36,5 +36,5 @@ class HircPointer(BaseStruct):
 			yield 'data', name_type_map['Event'], (0, None), (False, None)
 		if instance.id == 11:
 			yield 'data', name_type_map['MusicTrack'], (0, None), (False, None)
-		if (instance.id != 2) and ((instance.id != 11) and ((instance.id != 3) and (instance.id != 4))):
+		if (instance.id != 2) and ((instance.id != 3) and ((instance.id != 4) and (instance.id != 11))):
 			yield 'data', name_type_map['TypeOther'], (0, None), (False, None)

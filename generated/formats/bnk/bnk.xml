@@ -178,14 +178,11 @@
 
     <compound name="HircPointer">
         <add name="id" type="HircType"/>
-<!--        <add name="data" type="TypeOther" />-->
         <add name="data" type="SoundSfxVoice" cond="id == 2"/>
         <add name="data" type="EventAction" cond="id == 3"/>
         <add name="data" type="Event" cond="id == 4"/>
-<!--        <add name="data" type="TypeOther" cond="id != 2"/>-->
         <add name="data" type="MusicTrack" cond="id == 11"/>
-        <add name="data" type="TypeOther" cond="(id != 2) #AND# (id != 11) #AND# (id != 3) #AND# (id != 4)"/>
-<!--        <add name="data" type="TypeOther" cond="(id != 2) #AND# (id != 11) #AND# (id != 4)"/>-->
+        <add name="data" type="TypeOther" cond="(id != 2) #AND# (id != 3) #AND# (id != 4) #AND# (id != 11)"/>
     </compound>
 
     <compound name="HIRCSection">
