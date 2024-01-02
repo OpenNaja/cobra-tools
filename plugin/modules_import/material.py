@@ -28,9 +28,10 @@ def append_shader(name):
 
 def get_group_node(tree, name):
 	append_shader(name)
-	flexi_mix = tree.nodes.new("ShaderNodeGroup")
-	flexi_mix.node_tree = bpy.data.node_groups[name]
-	return flexi_mix
+	group_node = tree.nodes.new("ShaderNodeGroup")
+	group_node.node_tree = bpy.data.node_groups[name]
+	group_node.name = name
+	return group_node
 
 
 def check_any(iterable, string):
@@ -103,7 +104,7 @@ class BaseShader:
 				try:
 					identifier = inv_tex_slots[long_name]
 				except KeyError:
-					logging.warning(f"Found no input node for '{long_name}'")
+					logging.warning(f"Found no identifier for '{long_name}'")
 					continue
 				node = self.id_2_node.get(identifier)
 				if node:

@@ -22,6 +22,7 @@ from generated.formats.ovl_base import OvlContext
 from generated.formats.tex.compounds.SizeInfo import SizeInfo
 from generated.formats.tex.compounds.TexHeader import TexHeader
 from generated.formats.tex.enums.DdsType import DdsType
+from plugin.utils.texture_settings import tex_slots
 
 
 def get_object_names(col):
@@ -61,29 +62,22 @@ def get_shared_material_names(col):
 
 
 def export_textures(b_mat, folder, mat_name, fgm_root, game, shader_name, constants):
-	# populate colours from BSDF node.
-	# todo - refactor to use main shader
-	bsdf = b_mat.node_tree.nodes.get("Principled BSDF")
-	defaults = {
-		# cast RGBA to list
-		"BC": list(bsdf.inputs["Base Color"].default_value),
-		# "SM": "Smoothness",
-		"RN": [bsdf.inputs["Roughness"].default_value, ],
-		"CA": [1.0, 1.0, 1.0, 1.0],
-		"AO": [1.0, 1.0, 1.0, 1.0],
-		"MT": [bsdf.inputs["Metallic"].default_value, ],
-		"NM": [0.5, 0.5, 1.0, 1.0],
-		# "NG": "Normal Map Variant",
-		"OP": [bsdf.inputs["Alpha"].default_value, ],
-		# "AL": "Alpha Blend",
-		"EM": list(bsdf.inputs["Emission"].default_value),
-		"SP": [bsdf.inputs["Specular"].default_value, ],
-		# "F1": "Flexi Colour Alpha Blend Mask 01",
-		# "F2": "Flexi Colour Alpha Blend Mask 02",
-		# "F3": "Flexi Colour Alpha Blend Mask 03",
-		# "F4": "Flexi Colour Alpha Blend Mask 04",
-		"FO": [1.0, ],
-	}
+	# populate colours from main shader
+	main_shader = b_mat.node_tree.nodes.get("MainShader")
+	inv_tex_slots = {v: k for k, v in tex_slots.items()}
+	defaults = {}
+	for socket in main_shader.inputs:
+		long_name = socket.name
+		# determine type of input from name
+		if long_name.startswith("p"):
+			defaults[long_name] = socket.default_value
+		else:
+			try:
+				identifier = inv_tex_slots[long_name]
+			except KeyError:
+				logging.warning(f"Found no identifier for '{long_name}'")
+				continue
+			defaults[identifier] = socket.default_value
 	# populate material textures, first from texture node labels
 	texture_info = {x.label: x.image for x in b_mat.node_tree.nodes if x.type == 'TEX_IMAGE' and x.label}
 	# now add color inputs and fallback defaults
@@ -94,26 +88,23 @@ def export_textures(b_mat, folder, mat_name, fgm_root, game, shader_name, consta
 	tex_channel_map = texture_settings.get_tex_channel_map(constants, game, shader_name)
 	# export each texture
 	for tex_name, tex_channels in tex_channel_map.items():
-
-		tex_index = TexIndex(fgm_root.context)
-
 		tex = TextureInfo(fgm_root.context)
 		tex.name = tex_name
 		dep = TextureData(fgm_root.context, arg=tex)
 
 		# purpose might be empty if channel appears to be unused, skip those
 		raw_entries = [texture_info[purpose] for purpose in tex_channels.values() if purpose]
-		raw_types = [type(e) for e in raw_entries]
-		print(tex_name, raw_entries, raw_types)
+		print(tex_name, raw_entries)
 		# does this texture export as an image or RGBA?
-		if any(k in (bpy.types.Image, ) for k in raw_types):
+		if any(isinstance(k, bpy.types.Image) for k in raw_entries):
 			# texture needs to be used or generated
 			tex.dtype = FgmDtype.TEXTURE
 			tex.reset_field("value")
+			tex_index = TexIndex(fgm_root.context)
 			tex.value[:] = [tex_index]
 			dep.dependency_name.data = f'{mat_name}.{tex_name}.tex'
 			size = textures_find_size(raw_entries)
-			print(f"size: {size}")
+			logging.debug(f"size: {size}")
 			for channel, purpose in tex_channels.items():
 				channel_suffix = f"_{channel}" if channel else ""
 				png_name = f'{mat_name}.{tex_name}{channel_suffix}.png'
@@ -207,16 +198,12 @@ def export_fgm_at(folder, game, mat_name):
 def textures_find_size(data):
 	size = [0, 0]
 	for tex in data:
-		if type(tex) == type(None):
-			return size
-
-		print(str(type(tex)))
-		if type(tex) is not list and type(tex) is not float:
+		if isinstance(tex, bpy.types.Image):
+			tex_size = list(tex.size)
 			if size[0] == 0:
-				size = tex.size
-			else:
-				if size[0] != tex.size[0] or size[1] != tex.size[1]:
-					raise TypeError(tex.name + "size mismatch")
+				size = tex_size
+			elif size != tex_size:
+				raise TypeError(f"{tex.name} size mismatch {size} vs {tex_size}")
 	return size
 
 
@@ -250,24 +237,26 @@ def image_new(name, width, height, r, g, b, a):
 def texture_save_or_generate(data, base_path, file_name, size):
 	if size[0] == 0:
 		return
-
-	if type(data) is list:
-		if len(data) == 4:
-			# Colour input as RGBA
-			img = image_new(file_name, size[0], size[1], *data)
-		else:
-			# Colour input as a single float value
-			img = image_new(file_name, size[0], size[1], data[0], data[0], data[0], 255)
-		img.file_format = 'PNG'
-		img.save(filepath=os.path.join(base_path, file_name), quality=100)
-		bpy.data.images.remove(img)
-	else:
+	if isinstance(data, bpy.types.Image):
 		# Colour input from another image
 		img = data
 		old_format = img.file_format
 		img.file_format = 'PNG'
 		img.save(filepath=os.path.join(base_path, file_name), quality=100)
 		img.file_format = old_format
+	else:
+		if len(data) == 4:
+			# Colour input as RGBA
+			img = image_new(file_name, size[0], size[1], *data)
+		elif len(data) == 3:
+			# Colour input as RGB
+			img = image_new(file_name, size[0], size[1], *data, 255)
+		else:
+			# Colour input as a single float value
+			img = image_new(file_name, size[0], size[1], data[0], data[0], data[0], 255)
+		img.file_format = 'PNG'
+		img.save(filepath=os.path.join(base_path, file_name), quality=100)
+		bpy.data.images.remove(img)
 
 
 def save(filepath=""):
