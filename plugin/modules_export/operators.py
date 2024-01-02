@@ -33,6 +33,12 @@ class ExportMS2(bpy.types.Operator, ExportHelper):
         description="Ignores the actual geometry and uses original normals and tangents stored as mesh attributes on import. Use case: if fur depends on custom normals",
         default=False)
 
+    def invoke(self, context, _event):
+        if not self.filepath:
+            self.filepath = context.scene.name + self.filename_ext
+        context.window_manager.fileselect_add(self)
+        return {'RUNNING_MODAL'}
+
     def execute(self, context):
         keywords = self.as_keywords(ignore=("axis_forward", "axis_up", "filter_glob", "check_existing"))
         return handle_errors(self, export_ms2.save, keywords)
