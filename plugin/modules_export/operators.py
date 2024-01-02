@@ -13,6 +13,16 @@ class ExportFgm(bpy.types.Operator, ExportHelper):
     filename_ext = ".fgm"
     filter_glob: StringProperty(default="*.fgm", options={'HIDDEN'})
 
+    def invoke(self, context, _event):
+        if not self.filepath:
+            try:
+                material = bpy.context.active_object.active_material
+                self.filepath = material.name + self.filename_ext
+            except:
+                self.filepath = "None" + self.filename_ext
+        context.window_manager.fileselect_add(self)
+        return {'RUNNING_MODAL'}
+
     def execute(self, context):
         keywords = self.as_keywords(ignore=("axis_forward", "axis_up", "filter_glob", "check_existing"))
         return handle_errors(self, export_fgm.save, keywords)

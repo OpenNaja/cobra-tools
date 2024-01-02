@@ -62,6 +62,7 @@ def get_shared_material_names(col):
 
 def export_textures(b_mat, folder, mat_name, fgm_root, game, shader_name, constants):
 	# populate colours from BSDF node.
+	# todo - refactor to use main shader
 	bsdf = b_mat.node_tree.nodes.get("Principled BSDF")
 	defaults = {
 		# cast RGBA to list
@@ -177,13 +178,12 @@ def export_attributes(b_mat, folder, mat_name, fgm_root, game, shader_name, cons
 
 
 def export_fgm_at(folder, game, mat_name):
-	print("\nExporting Material: " + os.path.join(folder, mat_name + '.fgm'))
+	fgm_path = os.path.join(folder, mat_name + ".fgm")
+	logging.info(f"Exporting Material: {fgm_path}")
 	b_mat = bpy.data.materials[mat_name]
-	print("Shader type: " + b_mat.blend_method)
-	textures = [x.image.name for x in b_mat.node_tree.nodes if x.type == 'TEX_IMAGE']
-	print("Material textures: " + str(textures))
+	logging.debug(f"Shader type: {b_mat.blend_method}")
+	logging.debug(f"Material textures: {[x.image.name for x in b_mat.node_tree.nodes if x.type == 'TEX_IMAGE']}")
 	# populate material textures
-
 	context = OvlContext()
 	set_game(context, game)
 	# export the curve data
@@ -196,11 +196,10 @@ def export_fgm_at(folder, game, mat_name):
 	# get shader from b_mat
 	fgm_root.shader_name = b_mat.fgm.shader_name
 	constants = ConstantsProvider(("shaders", "textures", "texchannels"))
-	print(fgm_root.shader_name)
+	logging.info(f"Shader: {fgm_root.shader_name}")
 	export_textures(b_mat, folder, mat_name, fgm_root, game, fgm_root.shader_name, constants)
 	export_attributes(b_mat, folder, mat_name, fgm_root, game, fgm_root.shader_name, constants)
-	
-	fgm_path = os.path.join(folder, mat_name + ".fgm")
+
 	with FgmHeader.to_xml_file(fgm_root, fgm_path) as xml_root:
 		pass
 
@@ -273,8 +272,7 @@ def texture_save_or_generate(data, base_path, file_name, size):
 
 def save(filepath=""):
 	folder, mat_name = os.path.split(filepath)
-	b_mat = bpy.context.active_object.active_material
-	mat_name = b_mat.name
+	mat_name, ext = os.path.splitext(mat_name)
 	# get game from GUI dropdown
 	game = bpy.context.scene.cobra.game
 	export_fgm_at(folder, game, mat_name)
