@@ -59,7 +59,7 @@ class ANSI:
 	END = "\x1b[0m"
 
 	# Cancel SGR codes if we don't write to a colored terminal
-	if not sys.stdout.isatty() or (platform.system() == "Windows" and int(platform.release()) < 10):
+	if not sys.stdout.isatty() or (platform.system() == "Windows" and platform.release() not in ("10", "11")):
 		for _ in dir():
 			if isinstance(_, str) and _[0] != "_":
 				locals()[_] = ""
