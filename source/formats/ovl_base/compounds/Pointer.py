@@ -39,6 +39,7 @@ class Pointer(BaseStruct):
 		self.data = None
 		self.frag = None
 		self.link = None
+		self.src_pool = None
 		self.target_pool = None
 		self.pool_type = None
 		if set_default:
@@ -52,6 +53,7 @@ class Pointer(BaseStruct):
 	def read_ptr(self, pool):
 		"""Looks up the address of the pointer, checks if a frag points to pointer and reads the data at its address as
 		the specified template."""
+		self.src_pool = pool
 		# find the frag entry with matching link_ptr.data_offset
 		link = pool.offset_2_link.get(self.io_start, None)
 		# pointer may be a nullptr, so ignore

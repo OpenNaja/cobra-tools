@@ -6,10 +6,13 @@ import tempfile
 from io import BytesIO
 import shutil
 
+from generated.formats.base.basic import ZString
 from generated.formats.ovl import UNK_HASH
 from generated.formats.ovl.compounds.BufferEntry import BufferEntry
 from generated.formats.ovl.compounds.MemPool import MemPool
 from generated.formats.ovl.compounds.DataEntry import DataEntry
+from generated.formats.ovl_base.compounds.MemStruct import MemStruct
+from generated.formats.ovl_base.compounds.Pointer import Pointer
 from modules.formats.shared import djb2
 
 TAB = '  '
@@ -217,19 +220,45 @@ class BaseFile:
 			self.collect()
 		except:
 			logging.exception(f"Renaming contents failed for {self.name}")
-		# todo - rename in buffers
+		# todo - rename in buffers?
 
 	def rename_stack(self, name_tuples):
-		# todo - rewrite to collect all zstring pointers (incl. obfuscated)
-		logging.info(f"Renaming inside {self.name}")
+		"""Brute force implementation of byte-based renaming directly on pools"""
+		logging.info(f"Renaming inside {self.name} (brute force)")
 		byte_name_tups = []
+		if not self.fragments:
+			return
 		try:
-			# brute force fallback with same length of strings
 			for old, new in name_tuples:
-				assert len(old) == len(new)
 				byte_name_tups.append((old.encode(), new.encode()))
-			for (p_pool, p_offset) in self.stack:
-				p_pool.replace_bytes_at(p_offset, byte_name_tups)
+			# make a copy, we might have to edit the stack dict
+			for (p_pool, p_offset), children in list(self.stack.items()):
+				for rel_offset, entry in children.items():
+					# frags only
+					if isinstance(entry, tuple):
+						l_offset = p_offset + rel_offset
+						# points to a child struct
+						s_pool, s_offset = entry
+						# check if it contains any of the target string
+						if s_pool.contains_at(s_offset, byte_name_tups):
+							frag = ((p_pool, l_offset), (s_pool, s_offset))
+							if frag in self.fragments:
+								self.fragments.remove(frag)
+							# get the new string
+							new_bytes = s_pool.get_data_at(s_offset)
+							for old, new in byte_name_tups:
+								new_bytes = new_bytes.replace(old, new)
+							# actually write the ptr
+							target_pool = self.get_pool(s_pool.type)
+							# seek to end, set data_offset, write
+							stream, target_offset = target_pool.align_write(new_bytes)
+							stream.write(new_bytes)
+							# only store these if the pointer had valid data
+							target_pool.offsets.add(target_offset)
+							# store size in size_map
+							target_pool.size_map[target_offset] = target_pool.data.tell() - target_offset
+							# assign children to new offset
+							self.attach_frag_to_ptr(p_pool, l_offset, target_pool, target_offset)
 		except:
 			logging.exception(f"Renaming frags failed for {self.name}")
 			
@@ -473,6 +502,39 @@ class MemStructLoader(BaseFile):
 	def __init__(self, ovl, file_name):
 		super().__init__(ovl, file_name)
 		self.context = self.ovl.context
+
+	def accept_string(self, in_str):
+		"""Return True if string should receive replacement"""
+		return True
+
+	def rename_stack(self, name_tuples):
+		"""Collect all zstring pointers (incl. obfuscated) and rename them"""
+		if not self.header:
+			return
+		logging.info(f"Renaming structs for {self.name}")
+		try:
+			for zstr_ptr in self.header.get_all_str_pointers(self.header):
+				zstr = zstr_ptr.data
+				if not zstr:
+					continue
+				# check if this string should be replaced
+				if not self.accept_string(zstr):
+					continue
+				# replace the strings
+				for old, new in name_tuples:
+					zstr = zstr.replace(old, new)
+				# if it's still the same, don't write new string
+				if zstr == zstr_ptr.data:
+					continue
+				# delete existing frag, write_ptr will create the new one
+				frag = ((zstr_ptr.src_pool, zstr_ptr.io_start), (zstr_ptr.target_pool, zstr_ptr.target_offset))
+				if frag in self.fragments:
+					self.fragments.remove(frag)
+				# set and write the ptr to a suitable pool
+				zstr_ptr.data = zstr
+				zstr_ptr.write_ptr(self, zstr_ptr.src_pool)
+		except:
+			logging.exception(f"Renaming struct failed for {self.name}")
 
 	def extract(self, out_dir):
 		if self.header:

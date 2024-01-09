@@ -2,6 +2,7 @@ import logging
 
 from generated.array import Array
 from generated.base_struct import DO_NOT_SERIALIZE, SKIPS
+from generated.formats.base.basic import ZString
 from generated.formats.ovl_base.compounds.ArrayPointer import ArrayPointer
 from generated.formats.ovl_base.compounds.ForEachPointer import ForEachPointer
 from generated.formats.ovl_base.compounds.CondPointer import CondPointer
@@ -80,6 +81,18 @@ class MemStruct(BaseStruct):
 		children = loader.stack[(pool, self.io_start)] = {}
 		for ptr, f_name, arguments in MemStruct.get_instances_recursive(self, Pointer):
 			ptr.write_ptr_all(self, children, f_name, loader, pool)
+
+	@classmethod
+	def get_all_str_pointers(cls, instance):
+		for ptr, f_name, arguments in MemStruct.get_instances_recursive(instance, Pointer):
+			if ptr.template and issubclass(ptr.template, ZString):
+				yield ptr  # , f_name, arguments
+			elif isinstance(ptr.data, MemStruct):
+				yield from MemStruct.get_all_str_pointers(ptr.data)
+			elif isinstance(ptr.data, Array):
+				for elem in ptr.data:
+					if isinstance(elem, MemStruct):
+						yield from MemStruct.get_all_str_pointers(elem)
 
 	@classmethod
 	def get_instances_recursive(cls, instance, dtype):

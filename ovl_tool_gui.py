@@ -515,8 +515,6 @@ class MainWindow(widgets.MainWindow):
 	def rename_contents(self):
 		names = self.get_replace_strings()
 		if names:
-			if self.check_length(names):
-				return
 			# if we are operating only on the current ovl, check selection state
 			if not self.t_in_folder.isChecked():
 				only_files = self.files_container.table.get_selected_files()
@@ -600,15 +598,6 @@ class MainWindow(widgets.MainWindow):
 
 	def inspect_models(self):
 		self.run_threaded(walker.bulk_test_models, self, self.ask_game_root(), walk_ovls=self.t_walk_ovl.isChecked())
-
-	def check_length(self, name_tups):
-		# Ask and return true if error is found and process should be stopped
-		for old, new in name_tups:
-			if len(old) != len(new):
-				if not self.showconfirmation(
-						f"Length of '{old}' [{len(old)}] and '{new}' [{len(new)}] don't match!\n"
-						f"Continue renaming anyway?", title="Length Warning"):
-					return True
 
 
 if __name__ == '__main__':

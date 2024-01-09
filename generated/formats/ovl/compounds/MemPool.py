@@ -109,6 +109,14 @@ class MemPool(BaseStruct):
 		# store array of link offsets for check_for_ptrs
 		self.link_offsets = np.array(list(self.offset_2_link.keys()))
 
+	def contains_at(self, offset, byte_name_tups):
+		"""Checks if struct at offset contains any old of the bytes tuples in byte_name_tups"""
+		data = self.get_data_at(offset)
+		for old, new in byte_name_tups:
+			if data and old in data:
+				return True
+		return False
+
 	def replace_bytes_at(self, offset, byte_name_tups):
 		"""Replaces the bytes tuples in byte_name_tups"""
 		data = self.get_data_at(offset)
