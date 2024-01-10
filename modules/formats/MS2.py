@@ -8,7 +8,6 @@ from generated.formats.ms2.compounds.Buffer0 import Buffer0
 from generated.formats.ms2.compounds.Ms2Root import Ms2Root
 
 import generated.formats.ovl.versions as ovl_versions
-from io import BytesIO
 
 from generated.formats.base.compounds.PadAlign import get_padding
 from generated.formats.tex.compounds.TexturestreamHeader import TexturestreamHeader
@@ -29,12 +28,6 @@ class Model2streamLoader(BaseFile):
 	# we can recycle this for now
 	target_class = TexturestreamHeader
 	can_extract = False
-
-	# def extract(self, out_dir):
-	# 	stream_path = out_dir(self.name)
-	# 	with open(stream_path, 'wb') as outfile:
-	# 		outfile.write(self.data_entry.buffer_datas[0])
-	# 	return stream_path,
 
 	def create(self, file_path):
 		self.header = self.target_class(self.context)
@@ -91,9 +84,11 @@ class Ms2Loader(MemStructLoader):
 		return self.header.model_infos.target_pool, None
 
 	def create(self, file_path):
+		ms2_dir = os.path.dirname(file_path)
+		if os.path.basename(ms2_dir) == "backups":
+			raise UserWarning(f"Ignored backup '{file_path}'")
 		ms2_file = Ms2File()
 		ms2_file.load(file_path, read_bytes=True)
-		ms2_dir = os.path.dirname(file_path)
 		self.ovl.is_dev = not ms2_file.biosyn
 		self.context = Ms2Context()
 		self.context.version = ms2_file.info.version

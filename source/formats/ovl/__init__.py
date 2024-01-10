@@ -642,6 +642,9 @@ class OvlFile(Header):
 		except NotImplementedError:
 			logging.warning(f"Creation not implemented for {file_name}")
 			raise
+		except UserWarning:
+			logging.warning(f"Did not create {file_name}")
+			# don't raise as to not cause annoying error pop-ups
 		except BaseException:
 			logging.exception(f"Could not create: {file_name}")
 			raise
