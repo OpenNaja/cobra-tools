@@ -553,19 +553,14 @@ class OvlFile(Header):
 			self.loaders[filename].remove()
 		self.send_files()
 
-	def rename(self, name_tups, mesh_mode=False):
-		logging.info(f"Renaming for {name_tups}, mesh mode = {mesh_mode}")
+	def rename(self, name_tups):
+		logging.info(f"Renaming for {name_tups}")
 		# todo - support renaming included_ovls?
 		# make a temporary copy
 		temp_loaders = list(self.loaders.values())
 		# see if the loaders would cause collisions
-		loaders_to_rename = []
-		for loader in temp_loaders:
-			if mesh_mode and loader.ext not in (".ms2", ".mdl2", ".motiongraph", ".motiongraphvars"):
-				continue
-			loaders_to_rename.append(loader)
 		# get new names for all loaders, unchanged name is None
-		new_names = [loader.rename_check(name_tups) for loader in loaders_to_rename if loader.rename_check(name_tups)]
+		new_names = [loader.rename_check(name_tups) for loader in temp_loaders if loader.rename_check(name_tups)]
 		# check the new names don't collide
 		if len(new_names) != len(set(new_names)):
 			counted = Counter(new_names)
@@ -576,12 +571,12 @@ class OvlFile(Header):
 				f"{dupes_str}"
 			)
 		assert not any([new in self.loaders for new in new_names]), "Can not rename, as new names collide with existing names"
-		for loader in loaders_to_rename:
+		for loader in temp_loaders:
 			loader.rename(name_tups)
 		# recreate the loaders dict
 		self.loaders = {loader.name: loader for loader in temp_loaders}
 		self.send_files()
-		logging.info("Finished renaming!")
+		logging.info(f"Renamed {len(new_names)} of {len(self.loaders)} files")
 
 	def rename_contents(self, name_tups, only_files):
 		if not only_files:

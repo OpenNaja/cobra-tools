@@ -104,10 +104,6 @@ class MainWindow(widgets.MainWindow):
 		self.extract_types_combo.addItems(self.ovl_data.formats_dict.extractables)
 		self.extract_types_combo.setToolTip("Select file formats processed by batch tasks")
 
-		self.t_mesh_ovl = QtWidgets.QCheckBox("Mesh OVL Mode")
-		self.t_mesh_ovl.setToolTip("Renames only MS2, MDL2 and MOTIONGRAPH files.")
-		self.t_mesh_ovl.setChecked(False)
-
 		self.e_name_old = QtWidgets.QTextEdit("")
 		self.e_name_old.setPlaceholderText("Find")
 		self.e_name_old.setToolTip("Old strings - one item per line")
@@ -122,9 +118,8 @@ class MainWindow(widgets.MainWindow):
 		grid.addWidget(self.e_name_old, 0, 0, 3, 1)
 		grid.addWidget(self.e_name_new, 0, 1, 3, 1)
 
-		grid.addWidget(self.t_mesh_ovl, 0, 2)
-		grid.addWidget(self.t_in_folder, 1, 2)
-		grid.addWidget(self.t_do_debug, 2, 2)
+		grid.addWidget(self.t_in_folder, 0, 2)
+		grid.addWidget(self.t_do_debug, 1, 2)
 
 		grid.addWidget(self.ovl_game_choice, 0, 3)
 		grid.addWidget(self.compression_choice, 1, 3)
@@ -268,7 +263,6 @@ class MainWindow(widgets.MainWindow):
 	def enable_gui_options(self, enable=True):
 		self.t_in_folder.setEnabled(enable)
 		self.t_do_debug.setEnabled(enable)
-		self.t_mesh_ovl.setEnabled(enable)
 		self.t_walk_ovl.setEnabled(enable)
 		self.compression_choice.setEnabled(enable)
 		self.ovl_game_choice.setEnabled(enable)
@@ -506,7 +500,7 @@ class MainWindow(widgets.MainWindow):
 		try:
 			if names:
 				for ovl in self.handle_path():
-					ovl.rename(names, mesh_mode=self.t_mesh_ovl.isChecked())
+					ovl.rename(names)
 					if not self.t_in_folder.isChecked():
 						self.set_file_modified(True)
 		except:
