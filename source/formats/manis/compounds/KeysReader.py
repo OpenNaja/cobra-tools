@@ -16,13 +16,11 @@ class KeysReader(BaseStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		instance.io_start = stream.tell()
-		# print(instance.context)
-		for mani_info in instance.arg:
+		for mani_info, name in zip(instance.arg.mani_infos, instance.arg.names):
 			# logging.info(mani_info)
+			mani_info.name = name
 			mani_block_start = stream.tell()
 			logging.debug(f"Reading keys block at {mani_block_start}")
-			# if mani_block_start == 964833:
-			# 	break
 			bone_dtype = Ushort if mani_info.dtype.use_ushort else Ubyte
 			try:
 				cls.pad_to_start(instance, stream)
@@ -54,7 +52,7 @@ class KeysReader(BaseStruct):
 	@classmethod
 	def write_fields(cls, stream, instance):
 		instance.io_start = stream.tell()
-		for mani_info in instance.arg:
+		for mani_info in instance.arg.mani_infos:
 			cls.align_to(instance, stream)
 			ManiBlock.to_stream(mani_info.keys, stream, instance.context)
 		cls.align_to(instance, stream)
@@ -63,7 +61,7 @@ class KeysReader(BaseStruct):
 	@classmethod
 	def get_fields_str(cls, instance, indent=0):
 		s = ''
-		for mani_info in instance.arg:
+		for mani_info in instance.arg.mani_infos:
 			if hasattr(mani_info, "keys"):
 				s += str(mani_info.keys)
 		return s

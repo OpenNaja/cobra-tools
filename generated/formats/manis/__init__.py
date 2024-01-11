@@ -252,11 +252,10 @@ class ManisFile(InfoHeader, IoFile):
             self.read_fields(stream, self)
             self.eoh = stream.tell()
             # print(self)
-            for mi, name in zip(self.mani_infos, self.names):
-                mi.name = name
-                if hasattr(mi, "keys"):
-                    mi.keys.name = name
-                    mi.keys.compressed.name = name
+            for mani_info in self.mani_infos:
+                if hasattr(mani_info, "keys"):
+                    mani_info.keys.name = mani_info.name
+                    mani_info.keys.compressed.name = mani_info.name
                 # print(mi.keys.name)
                 # if mi.root_pos_bone != 255:
                 # 	print(mi.root_pos_bone, mi.keys.pos_bones_names[mi.root_pos_bone])
@@ -689,7 +688,8 @@ if __name__ == "__main__":
     # acro stand_ide
     target = "acrocanthosaurus@standidle01"
     # mani.load("C:/Users/arnfi/Desktop/pyro/motionextracted.maniset846adda6.manis")
-    mani.load("C:/Users/arnfi/Desktop/acro/motionextracted.maniset935739f8.manis")
+    mani.load("C:/Users/arnfi/Desktop/anky_JWE1/fighting.maniset5969e5be.manis")
+    # mani.load("C:/Users/arnfi/Desktop/acro/motionextracted.maniset935739f8.manis")
     # mani.load("C:/Users/arnfi/Desktop/Coding/Frontier/Warhammer/Annihilator/animation.maniset52a766ac.manis")
     # mani.load("C:/Users/arnfi/Desktop/enrichment.maniset8a375fce.manis")
     # mani.load("C:/Users/arnfi/Desktop/camerabone.maniset67b9ba24.manis")
@@ -697,12 +697,14 @@ if __name__ == "__main__":
     # mani.load("C:/Users/arnfi/Desktop/acro/notmotionextracted.maniset53978456.manis")
     # mani.load("C:/Users/arnfi/Desktop/animationmotionextractedlocomotion.maniset648a1a01.manis")
     # mani.load("C:/Users/arnfi/Desktop/crane/animationnotmotionextractedfighting.maniset3d816f2c.manis")
-    # mani.load("C:/Users/arnfi/Desktop/kangaroo/animation.maniset32dc487b.manis")
+    # mani.load("C:/Users/arnfi/Desktop/swan/animationmotionextractedbehaviour.maniset86a13695.manis")
+    # mani.load("C:/Users/arnfi/Desktop/animation.maniset293c241f.manis")
+    print(mani)
     # mani.load("C:/Users/arnfi/Desktop/Wheel/animation.maniset9637aeb4.manis")
     # mani.load("C:/Users/arnfi/Desktop/DLA scale anim.manis")
     # mani.load("C:/Users/arnfi/Desktop/dinomascot/animation.maniset293c241f.manis")
     # mani.dump_keys()
-    mani.parse_keys()
+    # mani.parse_keys()
     # mani.log_rot_keys()
     # mani.log_loc_keys()
 # mani.load("C:/Users/arnfi/Desktop/donationbox/animation.maniseteaf333c5.manis")

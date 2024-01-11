@@ -26,12 +26,12 @@ class Buffer1(BaseStruct):
 		yield from super()._get_attribute_list()
 		yield 'bone_hashes', Array, (0, None, (None,), name_type_map['Uint']), (False, None), (None, None)
 		yield 'bone_names', Array, (0, None, (None,), name_type_map['ZString']), (False, None), (None, None)
-		yield 'bone_pad', name_type_map['PadAlign'], (4, None), (False, None), (lambda context: context.version >= 258, None)
+		yield 'bone_pad', name_type_map['PadAlign'], (4, None), (False, None), (lambda context: context.version >= 260, None)
 
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'bone_hashes', Array, (0, None, (instance.arg,), name_type_map['Uint']), (False, None)
 		yield 'bone_names', Array, (0, None, (instance.arg,), name_type_map['ZString']), (False, None)
-		if instance.context.version >= 258:
+		if instance.context.version >= 260:
 			yield 'bone_pad', name_type_map['PadAlign'], (4, instance.bone_names), (False, None)

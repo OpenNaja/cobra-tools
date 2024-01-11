@@ -41,10 +41,13 @@ class ManiInfo(BaseStruct):
 
 		# can include joints, such as in PZ water wheel count 5 vs ms2 2 bones, plus joints
 		self.target_bone_count = name_type_map['Uint64'](self.context, 0, None)
-		self.pad_1 = name_type_map['PadAlign'](self.context, 16, self.ref)
+		self.unk_2 = name_type_map['Ushort'](self.context, 0, None)
+		self.unk_3 = name_type_map['Ushort'](self.context, 0, None)
+		self.unk_4 = name_type_map['Ushort'](self.context, 0, None)
+		self.unk_5 = name_type_map['Ushort'](self.context, 0, None)
 
-		# 224 bytes
-		self.zeros_2 = Array(self.context, 0, None, (0,), name_type_map['Uint64'])
+		# 216 bytes
+		self.pointers = Array(self.context, 0, None, (0,), name_type_map['Uint64'])
 		self.extra_zeros_pc = Array(self.context, 0, None, (0,), name_type_map['Ushort'])
 		self.pos_bone_min = name_type_map['BoneIndex'](self.context, self.dtype, None)
 		self.pos_bone_max = name_type_map['BoneIndex'](self.context, self.dtype, None)
@@ -72,7 +75,7 @@ class ManiInfo(BaseStruct):
 		yield 'frame_count', name_type_map['Uint'], (0, None), (False, None), (None, None)
 		yield 'dtype', name_type_map['ManisDtype'], (0, None), (False, None), (None, None)
 		yield 'zeros_0', Array, (0, None, (3,), name_type_map['Uint']), (False, None), (None, None)
-		yield 'extra_pc_1', name_type_map['Ushort'], (0, None), (False, None), (lambda context: context.version <= 257, None)
+		yield 'extra_pc_1', name_type_map['Ushort'], (0, None), (False, None), (lambda context: context.version <= 258, None)
 		yield 'pos_bone_count', name_type_map['Ushort'], (0, None), (False, None), (None, None)
 		yield 'ori_bone_count', name_type_map['Ushort'], (0, None), (False, None), (None, None)
 		yield 'scl_bone_count', name_type_map['Ushort'], (0, None), (False, None), (None, None)
@@ -88,9 +91,13 @@ class ManiInfo(BaseStruct):
 		yield 'root_pos_bone', name_type_map['BoneIndex'], (None, None), (False, 255), (None, None)
 		yield 'root_ori_bone', name_type_map['BoneIndex'], (None, None), (False, 255), (None, None)
 		yield 'target_bone_count', name_type_map['Uint64'], (0, None), (False, None), (None, None)
-		yield 'pad_1', name_type_map['PadAlign'], (16, None), (False, None), (None, None)
-		yield 'zeros_2', Array, (0, None, (28,), name_type_map['Uint64']), (False, None), (None, None)
-		yield 'extra_zeros_pc', Array, (0, None, (4,), name_type_map['Ushort']), (False, None), (lambda context: context.version <= 257, None)
+		yield 'unk_2', name_type_map['Ushort'], (0, None), (False, None), (None, None)
+		yield 'unk_3', name_type_map['Ushort'], (0, None), (False, None), (None, None)
+		yield 'unk_4', name_type_map['Ushort'], (0, None), (False, None), (None, None)
+		yield 'unk_5', name_type_map['Ushort'], (0, None), (False, None), (lambda context: context.version <= 257, None)
+		yield 'unk_5', name_type_map['Ushort'], (0, None), (False, None), (lambda context: context.version >= 260, None)
+		yield 'pointers', Array, (0, None, (27,), name_type_map['Uint64']), (False, None), (None, None)
+		yield 'extra_zeros_pc', Array, (0, None, (6,), name_type_map['Ushort']), (False, None), (lambda context: context.version <= 257, None)
 		yield 'pos_bone_min', name_type_map['BoneIndex'], (None, None), (False, None), (None, None)
 		yield 'pos_bone_max', name_type_map['BoneIndex'], (None, None), (False, None), (None, None)
 		yield 'ori_bone_min', name_type_map['BoneIndex'], (None, None), (False, None), (None, None)
@@ -115,7 +122,7 @@ class ManiInfo(BaseStruct):
 		yield 'frame_count', name_type_map['Uint'], (0, None), (False, None)
 		yield 'dtype', name_type_map['ManisDtype'], (0, None), (False, None)
 		yield 'zeros_0', Array, (0, None, (3,), name_type_map['Uint']), (False, None)
-		if instance.context.version <= 257:
+		if instance.context.version <= 258:
 			yield 'extra_pc_1', name_type_map['Ushort'], (0, None), (False, None)
 		yield 'pos_bone_count', name_type_map['Ushort'], (0, None), (False, None)
 		yield 'ori_bone_count', name_type_map['Ushort'], (0, None), (False, None)
@@ -133,10 +140,16 @@ class ManiInfo(BaseStruct):
 		yield 'root_pos_bone', name_type_map['BoneIndex'], (instance.dtype, None), (False, 255)
 		yield 'root_ori_bone', name_type_map['BoneIndex'], (instance.dtype, None), (False, 255)
 		yield 'target_bone_count', name_type_map['Uint64'], (0, None), (False, None)
-		yield 'pad_1', name_type_map['PadAlign'], (16, instance.ref), (False, None)
-		yield 'zeros_2', Array, (0, None, (28,), name_type_map['Uint64']), (False, None)
+		yield 'unk_2', name_type_map['Ushort'], (0, None), (False, None)
+		yield 'unk_3', name_type_map['Ushort'], (0, None), (False, None)
+		yield 'unk_4', name_type_map['Ushort'], (0, None), (False, None)
 		if instance.context.version <= 257:
-			yield 'extra_zeros_pc', Array, (0, None, (4,), name_type_map['Ushort']), (False, None)
+			yield 'unk_5', name_type_map['Ushort'], (0, None), (False, None)
+		if instance.context.version >= 260:
+			yield 'unk_5', name_type_map['Ushort'], (0, None), (False, None)
+		yield 'pointers', Array, (0, None, (27,), name_type_map['Uint64']), (False, None)
+		if instance.context.version <= 257:
+			yield 'extra_zeros_pc', Array, (0, None, (6,), name_type_map['Ushort']), (False, None)
 		yield 'pos_bone_min', name_type_map['BoneIndex'], (instance.dtype, None), (False, None)
 		yield 'pos_bone_max', name_type_map['BoneIndex'], (instance.dtype, None), (False, None)
 		yield 'ori_bone_min', name_type_map['BoneIndex'], (instance.dtype, None), (False, None)

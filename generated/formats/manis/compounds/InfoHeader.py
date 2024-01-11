@@ -21,7 +21,7 @@ class InfoHeader(BaseStruct):
 		self.header = name_type_map['ManisRoot'](self.context, 0, None)
 		self.mani_infos = Array(self.context, 0, None, (0,), name_type_map['ManiInfo'])
 		self.name_buffer = name_type_map['Buffer1'](self.context, int(self.header.hash_block_size / 4), None)
-		self.keys_buffer = name_type_map['KeysReader'](self.context, self.mani_infos, None)
+		self.keys_buffer = name_type_map['KeysReader'](self.context, self, None)
 		if set_default:
 			self.set_defaults()
 
@@ -47,4 +47,4 @@ class InfoHeader(BaseStruct):
 		yield 'header', name_type_map['ManisRoot'], (0, None), (False, None)
 		yield 'mani_infos', Array, (0, None, (instance.mani_count,), name_type_map['ManiInfo']), (False, None)
 		yield 'name_buffer', name_type_map['Buffer1'], (int(instance.header.hash_block_size / 4), None), (False, None)
-		yield 'keys_buffer', name_type_map['KeysReader'], (instance.mani_infos, None), (False, None)
+		yield 'keys_buffer', name_type_map['KeysReader'], (instance, None), (False, None)

@@ -101,7 +101,7 @@
 		<add name="FrameCount" type="uint"/>
 		<add name="dtype" type="ManisDtype" >determines the format of keys data; apparently 4, 5, and 6 are the same</add>
 		<add name="zeros 0 " type="uint" arr1="3"/>
-		<add name="extra pc 1" type="ushort" until="257"/>
+		<add name="extra pc 1" type="ushort" until="258"/>jwe1 also
 		<add name="PosBoneCount" type="ushort"/>
 		<add name="OriBoneCount" type="ushort"/>
 		<add name="SclBoneCount" type="ushort"/>
@@ -118,9 +118,15 @@
 		<add name="root_pos_bone" type="BoneIndex" arg="dtype" default="255"/>
 		<add name="root_ori_bone" type="BoneIndex" arg="dtype" default="255"/>
 		<add name="target bone count" type="uint64" >can include joints, such as in PZ water wheel count 5 vs ms2 2 bones, plus joints</add>
-		<add name="pad1" type="PadAlign" template="ref" arg="16"/>
-		<add name="zeros 2" type="uint64" arr1="28" >224 bytes</add>
-		<add name="extra zeros pc" type="ushort" arr1="4" until="257"/>for ZTUAC rhinos
+		# these might be alignment for the pointers
+		<add name="unk 2" type="ushort" />
+		<add name="unk 3" type="ushort" />
+		<add name="unk 4" type="ushort" />
+		<add name="unk 5" type="ushort" until="257"/># on PC
+		not on JWE1
+		<add name="unk 5" type="ushort" since="260"/># on PZ, JWE2
+		<add name="pointers" type="uint64" arr1="27" >216 bytes</add>
+		<add name="extra zeros pc" type="ushort" arr1="6" until="257"/>for ZTUAC rhinos
 		<add name="PosBoneMin" type="BoneIndex" arg="dtype"/>
 		<add name="PosBoneMax" type="BoneIndex" arg="dtype"/>
 		<add name="OriBoneMin" type="BoneIndex" arg="dtype"/>
@@ -143,7 +149,7 @@
 		if they don't, the target won't be animated
 		<add name="bone hashes" type="uint" arr1="#ARG#"/>
 		<add name="bone names" type="ZString" arr1="#ARG#"/>
-		<add name="bone pad" type="PadAlign" template="bone names" arg="4" since="258"/>not on DLA, may be present on PC
+		<add name="bone pad" type="PadAlign" template="bone names" arg="4" since="260"/>not on DLA, may be present on PC, not on JWE1
     </compound>
 
     <compound name="KeysReader">
@@ -158,7 +164,7 @@
         <add name="header" type="ManisRoot"/>
         <add name="mani infos" type="ManiInfo" arr1="mani count"/>
         <add name="name buffer" type="Buffer1" arg="header\hash block size / 4"/>
-        <add name="keys buffer" type="KeysReader" arg="mani infos"/>
+        <add name="keys buffer" type="KeysReader" arg="#SELF#"/>
     </compound>
 
 	<compound name="Vector4H" size="8">
