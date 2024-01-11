@@ -51,9 +51,17 @@ class ManisLoader(MemStructLoader):
 				# buffer 0 - all mani infos
 				# buffer 1 - list of hashes and zstrs for each bone name
 				# buffer 2 - actual keys
-				if i == 0 and self.mime_version <= 257:
-					logging.debug(f"Added padding")
-					outfile.write(get_padding(len(buff.data), 304))
+				logging.debug(f"Buffer {i} len {len(buff.data)}")
+				if i == 0:
+					if self.mime_version <= 257:
+						logging.debug(f"Added padding to buffer 0")
+						outfile.write(get_padding(len(buff.data), 304))
+					elif self.mime_version == 258:
+						logging.debug(f"Added padding to buffer 0")
+						outfile.write(get_padding(len(buff.data), 288))
+				# if i == 1:
+				# 	logging.debug(f"Added padding to buffer 1")
+				# 	outfile.write(get_padding(len(buff.data), 4))
 			# JWE2 can now have a secondary data entry holding a buffer 2 in an ovs
 			for ovs_name, ext_data in self.data_entries.items():
 				if ovs_name != "STATIC":

@@ -27,7 +27,12 @@ class FloatsGrabber(BaseStruct):
 	@classmethod
 	def read_fields(cls, stream, instance):
 		instance.io_start = stream.tell()
-		num_bounds = np.max(instance.arg) + 1
+		# pos bones array can be empty (JWE1 ankylosaurus@partial_eyes01)
+		# create bounds anyway so that decoding does not need an extra case
+		if len(instance.arg):
+			num_bounds = np.max(instance.arg) + 1
+		else:
+			num_bounds = 0
 		instance.mins = Array.from_stream(stream, instance.context, 0, None, (num_bounds, 3), Float)
 		instance.scales = Array.from_stream(stream, instance.context, 0, None, (num_bounds, 3), Float)
 		instance.io_size = stream.tell() - instance.io_start

@@ -38,8 +38,6 @@ class CompressedManiData(BaseStruct):
 		self.unk_3 = name_type_map['Uint'](self.context, 0, None)
 		self.loc_bound_indices = Array(self.context, 0, None, (0,), name_type_map['Ubyte'])
 		self.anoth_pad = name_type_map['PadAlign'](self.context, 4, self.ref_2)
-
-		# not sure
 		self.loc_bounds = name_type_map['FloatsGrabber'](self.context, self.loc_bound_indices, None)
 		self.anoth_pad_2 = name_type_map['PadAlign'](self.context, 16, self.arg.ref)
 

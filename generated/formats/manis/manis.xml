@@ -93,7 +93,7 @@
     </compound>
 
 	<compound name="ManiInfo" >
-        288 bytes for JWE / PZ
+        288 bytes for JWE (last member is not padded at end in stock) / PZ
         304 bytes for PC, ZTUAC (however the last 2 bytes are alignment, and not on the last member of the array)
         320 bytes for war
         <add name="ref" type="Empty"/>
@@ -140,7 +140,7 @@
 		<add name="SclBoneCount Related" type="BoneIndex" arg="dtype" since="258"/>
 		<add name="SclBoneCount Repeat" type="BoneIndex" arg="dtype" since="258"/>
 		<add name="zero 0 end" type="ushort" since="258"/>
-		<add name="zero 1 end" type="ushort" />for PC, this is alignment and not present at the end of the mani_infos array
+		<add name="zero 1 end" type="ushort" />for PC and JWE1, this is alignment and not present at the end of the mani_infos array
 		<add name="pad2" type="PadAlign" template="ref" arg="16" since="258"/>not on ZTUAC rhinos
     </compound>
 
@@ -240,7 +240,7 @@
 		<add name="unk 3" type="uint" >?</add>
 		<add name="loc_bound_indices" type="ubyte" arr1="PosBoneCount"/>
 		<add name="anoth pad" type="PadAlign" template="ref2" arg="4"/>
-		<add name="loc_bounds" type="FloatsGrabber" arg="loc_bound_indices">not sure</add>
+		<add name="loc_bounds" type="FloatsGrabber" arg="loc_bound_indices" />not present without pos bones
 		<add name="anoth pad2" type="PadAlign" template="#ARG# \ ref" arg="16"/>
 		<add name="segments" type="Segment" arr1="SegmentCount" >give the byte size of the various temporal segments</add>
 		<add name="segments_data" type="SegmentsReader" arg="segments"/>
