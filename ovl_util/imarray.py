@@ -1,5 +1,6 @@
 import logging
 import os
+from pathlib import Path
 import imageio.v3 as iio
 import numpy as np
 import PIL
@@ -119,42 +120,38 @@ def split_png(png_file_path, ovl, compression=None):
 	return out_files
 
 
-PZ_color_morphs = (
-	"palbinobasecolourandmasktexture",
-	"perythristicbasecolourandmasktexture",
-	"pleucisticbasecolourandmasktexture",
-	"pmelanisticbasecolourandmasktexture",
-	"pxanthicbasecolourandmasktexture",
-)
-
-
 def get_split_mode(png_name, compression):
-	# stores only two channels
+	# Get texture type
+	suffixes = Path(png_name).suffixes
+	tex_type = ""
+	try:
+		tex_type = suffixes[0]
+	except IndexError:
+		tex_type = png_name
+
 	if check_any(("BC5",), compression):
-		# JWE2 pyro
-		if check_any(("pbaseaotexture", "proughnessaopackedtexturedetailbase"), png_name):
+		# two channels
+		if check_any(("pbaseaotexture", "packed", "mask"), tex_type):
 			return "R_G"
-		# PZ normal maps
 		else:
 			return "RG"
 	if check_any(
 			(
 				"pmossbasecolourroughnesspackedtexture", "ppackedtexture", "palbedoandroughnessdetail", "pnormaltexture",
-				"pbasecolourtexture", "pbasecolourandmasktexture", "pdiffusealphatexture", *PZ_color_morphs
-			), png_name):
+				"pbasecolourtexture", "pbasecolour2", "pdiffusealphatexture", "basecolourandmasktexture", "waternormalroughnessmap"
+			), tex_type):
 		return "RGB_A"
-	# JWE2 only
-	if check_any(("pbasenormaltexture", "pgradheightarray"), png_name):
+	if check_any(("pbasenormaltexture", "pgradheightarray"), tex_type):
 		return "RG_B_A"
 	if check_any((
-		"packedtexture", "playered_blendweights", "playered_diffusetexture", "playered_heighttexture", "playered_packedtexture",
+		"packedtexture", "maskmap", "playered_blendweights", "playered_diffusetexture", "playered_heighttexture", "playered_packedtexture",
 		"playered_remaptexture", "scartexture",
 		# "samplertexture", - PC, but not all are packed (eg. paosamplertexture)
 		"pflexicolourmaskssamplertexture", "pcavitysmoothnessopacitysamplertexture",
 		"pspecularsmoothnesssamplertexture", "pmetalsmoothnesscavitysamplertexture",
 		"pmetalsmoothnesscavityopacitysamplertexture",  # todo - maybe more packed samplertextures
 		"pspecularmaptexture", "pflexicolourmaskstexture", "pshellmap", "pfinalphatexture", "ppiebaldtexture",
-		"pcavityroughnessdielectricarray"), png_name):
+		"pcavityroughnessdielectricarray", "waterflowandtimeoffsetmap"), tex_type):
 		return "R_G_B_A"
 
 
