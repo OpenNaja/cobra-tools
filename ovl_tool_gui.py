@@ -18,6 +18,8 @@ from typing import Any, Optional
 
 class MainWindow(widgets.MainWindow):
 
+	search_files = QtCore.pyqtSignal(list)
+
 	def __init__(self, opts: GuiOptions):
 		widgets.MainWindow.__init__(self, "OVL Tool", opts=opts)
 		self.resize(800, 600)
@@ -42,7 +44,7 @@ class MainWindow(widgets.MainWindow):
 			self,
 			game_chosen_fn=self.set_ovl_game_choice_game,
 			file_dbl_click_fn=self.open_clicked_file,
-			search_content_fn=self.search_ovl_contents)
+			search_content_fn=self.search_ovl_contents_threaded)
 		self.installed_games.set_selected_game()
 
 		# create the table
@@ -224,6 +226,7 @@ class MainWindow(widgets.MainWindow):
 				QtWidgets.QAction("Open in OVL Tool"): self.search_result_open,
 				QtWidgets.QAction("Show in Explorer"): self.search_result_show,
 			})
+		self.search_files.connect(self.show_search_results)
 		# do these at the end to make sure their requirements have been initialized
 		reporter = self.ovl_data.reporter
 		reporter.files_list.connect(self.update_files_ui)
@@ -268,13 +271,19 @@ class MainWindow(widgets.MainWindow):
 	def do_debug_changed(self, do_debug):
 		self.ovl_data.do_debug = do_debug
 
+	def show_search_results(self, results):
+		self.results_container.set_data(results)
+		self.results_container.setGeometry(QtCore.QRect(100, 100, 1000, 600))
+		self.results_container.show()
+
 	def search_ovl_contents(self, search_str):
 		start_dir = self.installed_games.get_root()
 		# remove the leading slash for ovl path, else it is interpreted as relative to C:
 		results = [(filename, ext, ovl.replace(start_dir, '')[1:]) for ovl, filename, ext in walker.search_for_files_in_ovls(self, start_dir, search_str)]
-		self.results_container.set_data(results)
-		self.results_container.setGeometry(QtCore.QRect(100, 100, 1000, 600))
-		self.results_container.show()
+		self.search_files.emit(results)
+
+	def search_ovl_contents_threaded(self, search_str):
+		self.run_threaded(self.search_ovl_contents, search_str)
 
 	def notify_user(self, msg_list):
 		msg = msg_list[0]
