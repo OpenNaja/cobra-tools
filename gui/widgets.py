@@ -7,12 +7,7 @@ from collections import deque
 from abc import abstractmethod
 from pathlib import Path
 
-try:
-    from ovl_util import auto_updater  # pyright: ignore  # noqa: F401
-except:
-    logging.exception("auto_updater didn't work")
-    import time
-    time.sleep(15)
+from ovl_util import auto_updater  # pyright: ignore  # noqa: F401
 
 from typing import Any, AnyStr, Union, Optional, Iterable, Callable, cast, NamedTuple
 from textwrap import dedent
@@ -238,9 +233,9 @@ class TableModel(QAbstractTableModel):
 
 
 class SortableTable(QWidget):
-    def __init__(self, header_names: list[str], ignore_types: list[str], ignore_drop_type: str = "", opt_hide: bool = False) -> None:
+    def __init__(self, header_names: list[str], ignore_types: list[str], ignore_drop_type: str = "", opt_hide: bool = False, actions={}) -> None:
         super().__init__()
-        self.table = TableView(header_names, ignore_types, ignore_drop_type)
+        self.table = TableView(header_names, ignore_types, ignore_drop_type, actions)
         self.filter_entry = LabelEdit("Filter")
         self.filter_entry.label.setMinimumWidth(20)
         self.filter_entry.entry.setMinimumWidth(140)
@@ -320,11 +315,12 @@ class TableView(QTableView):
     file_selected = pyqtSignal(int)
     file_selected_count = pyqtSignal(int)
 
-    def __init__(self, header_names: list[str], ignore_types: list[str], ignore_drop_type: str) -> None:
+    def __init__(self, header_names: list[str], ignore_types: list[str], ignore_drop_type: str, actions={}) -> None:
         super().__init__()
         self.ignore_types = ignore_types
         self.header_names = header_names
         self.ignore_drop_type = ignore_drop_type
+        self.actions = actions
         self.table_model = TableModel(header_names, ignore_types)
         self.proxy_model = CustomSortFilterProxyModel()
         self.proxy_model.setSourceModel(self.table_model)
@@ -395,6 +391,21 @@ class TableView(QTableView):
     def get_selected_files(self) -> list[str]:
         # map the selected indices to the actual underlying data, which is in its original order
         return [self.table_model._data[x][0] for x in self.get_selected_line_indices()]
+
+    def contextMenuEvent(self, event):
+        menu = QtWidgets.QMenu()
+        index = self.indexAt(event.pos())
+        if index.isValid():
+            row_ind = self.proxy_model.mapToSource(index).row()
+            row = self.table_model._data[row_ind]
+            if row:
+                if self.actions:
+                    for action, func in self.actions.items():
+                        menu.addAction(action)
+                    res = menu.exec_(event.globalPos())
+                    if res in self.actions:
+                        func = self.actions[res]
+                        func(row)
 
     def get_files(self) -> list[str]:
         # returns the list of all file names

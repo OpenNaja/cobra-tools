@@ -46,8 +46,11 @@ class MainWindow(widgets.MainWindow):
 		self.installed_games.set_selected_game()
 
 		# create the table
-		self.files_container = widgets.SortableTable(["Name", "File Type"], self.ovl_data.formats_dict.ignore_types,
-													 ignore_drop_type="OVL", opt_hide=True)
+		self.files_container = widgets.SortableTable(
+			["Name", "File Type"], self.ovl_data.formats_dict.ignore_types, ignore_drop_type="OVL", opt_hide=True,
+			actions={
+				# QtWidgets.QAction("Test action"): self.run_action,
+			})
 		# connect the interaction functions
 		self.files_container.table.table_model.member_renamed.connect(self.rename_handle)
 		self.files_container.table.files_dragged.connect(self.drag_files)
@@ -215,6 +218,12 @@ class MainWindow(widgets.MainWindow):
 		log_level = self.cfg.get("logger_level", "INFO")
 		self.set_log_level.emit(log_level)
 
+		self.results_container = widgets.SortableTable(
+			["Name", "File Type", "OVL"], self.ovl_data.formats_dict.ignore_types, ignore_drop_type="OVL", opt_hide=True,
+			actions={
+				QtWidgets.QAction("Open in OVL Tool"): self.search_result_open,
+				QtWidgets.QAction("Show in Explorer"): self.search_result_show,
+			})
 		# do these at the end to make sure their requirements have been initialized
 		reporter = self.ovl_data.reporter
 		reporter.files_list.connect(self.update_files_ui)
@@ -223,6 +232,23 @@ class MainWindow(widgets.MainWindow):
 		reporter.progress_percentage.connect(self.set_progress)
 		reporter.current_action.connect(self.set_msg_temporarily)
 		self.run_threaded(self.ovl_data.load_hash_table)
+
+	def abs_path_from_row(self, row_data):
+		start_dir = self.installed_games.get_root()
+		full_path = os.path.join(start_dir, row_data[2])
+		return os.path.normpath(full_path)
+
+	def search_result_open(self, row_data):
+		ovl_path = self.abs_path_from_row(row_data)
+		self.open(ovl_path, threaded=True)
+
+	def search_result_show(self, row_data):
+		ovl_path = self.abs_path_from_row(row_data)
+		logging.info(f"Showing {ovl_path} in Explorer")
+		os.startfile(os.path.dirname(ovl_path))
+
+	def run_action(self, *args):
+		print("action", args)
 
 	def _toggle_logger(self):
 		checked = self.t_show_logger.isChecked()
@@ -244,13 +270,11 @@ class MainWindow(widgets.MainWindow):
 
 	def search_ovl_contents(self, search_str):
 		start_dir = self.installed_games.get_root()
-		results = [(filename, ext, ovl.replace(start_dir, '')) for ovl, filename, ext in walker.search_for_files_in_ovls(self, start_dir, search_str)]
-		self.results_container = widgets.SortableTable(["Name", "File Type", "OVL"], self.ovl_data.formats_dict.ignore_types,
-												  ignore_drop_type="OVL", opt_hide=True)
+		# remove the leading slash for ovl path, else it is interpreted as relative to C:
+		results = [(filename, ext, ovl.replace(start_dir, '')[1:]) for ovl, filename, ext in walker.search_for_files_in_ovls(self, start_dir, search_str)]
 		self.results_container.set_data(results)
 		self.results_container.setGeometry(QtCore.QRect(100, 100, 1000, 600))
 		self.results_container.show()
-		# f"Found {len(results)} occurences of '{search_str}' in '{start_dir}'. Click 'Show Details' below to see the results."
 
 	def notify_user(self, msg_list):
 		msg = msg_list[0]
