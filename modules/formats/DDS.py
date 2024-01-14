@@ -135,9 +135,10 @@ class DdsLoader(MemStructLoader):
 			# only update mips count if they are supposed to be present to keep UI images free from mips
 			if size_info.num_mips != 1:
 				size_info.num_mips = dds.mipmap_count
-				# mip maps for tex sizes that are not power of 2 crash the game
+				# mip maps for tex sizes that are not power of 2 are uncommon
+				# however they are found in ed_infoboard_custom.pbasecolourtexture
 				if dds.width not in pow2 or dds.height not in pow2:
-					raise AttributeError(f"Can't have MIP maps for {tex_path} because its dimensions ({dds.width}x{dds.height}) are not power-of-2")
+					logging.warning(f"Non-power-of-2 dimensions ({dds.width}x{dds.height}) with MIP maps for {tex_path}")
 			size_info.width = dds.width
 			size_info.height = dds.height
 			size_info.depth = dds.depth
