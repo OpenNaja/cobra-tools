@@ -581,17 +581,42 @@ class MainWindow(widgets.MainWindow):
 		return QtWidgets.QFileDialog.getExistingDirectory(
 			self, 'Game Root folder', self.cfg.get("dir_ovls_in", "C://"))
 
+	def game_root(self):
+		if self.installed_games.get_root().endswith("ovldata"):
+			return self.installed_games.get_root()
+		return ""
+	
+	def walk_root(self):
+		selected = self.installed_games.get_selected_dir()
+		return selected if selected else self.game_root()
+
 	def walker_hash(self, ):
-		self.run_threaded(walker.generate_hash_table, self, self.ask_game_root())
+		self.run_threaded(walker.generate_hash_table, self, self.game_root())
 
 	def walker_fgm(self, ):
-		self.run_threaded(walker.get_fgm_values, self, self.ask_game_root(), walk_ovls=self.t_walk_ovl.isChecked())
+		dialog = widgets.WalkerDialog(self, "Inspect FGMs", self.walk_root())
+		chk_full_report = widgets.QCheckBox("Full Report")
+		chk_full_report.setChecked(self.walk_root() == self.game_root())
+		dialog.options.addWidget(chk_full_report)
+		if dialog.exec():
+			self.run_threaded(walker.get_fgm_values, self, self.game_root(),
+				walk_dir=dialog.walk_dir, walk_ovls=dialog.chk_ovls.isChecked(),
+				official_only=dialog.chk_official.isChecked(), full_report=chk_full_report.isChecked()
+			)
 
 	def walker_manis(self, ):
-		self.run_threaded(walker.get_manis_values, self, self.ask_game_root(), walk_ovls=self.t_walk_ovl.isChecked())
+		dialog = widgets.WalkerDialog(self, "Inspect Manis", self.walk_root())
+		if dialog.exec():
+			self.run_threaded(walker.get_manis_values, self, dialog.walk_dir,
+				walk_ovls=dialog.chk_ovls.isChecked(), official_only=dialog.chk_official.isChecked()
+			)
 
 	def inspect_models(self):
-		self.run_threaded(walker.bulk_test_models, self, self.ask_game_root(), walk_ovls=self.t_walk_ovl.isChecked())
+		dialog = widgets.WalkerDialog(self, "Inspect Models", self.walk_root())
+		if dialog.exec():
+			self.run_threaded(walker.bulk_test_models, self, dialog.walk_dir,
+				walk_ovls=dialog.chk_ovls.isChecked(), official_only=dialog.chk_official.isChecked()
+			)
 
 
 if __name__ == '__main__':
