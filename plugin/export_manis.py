@@ -118,8 +118,6 @@ def save(filepath=""):
 
 	corrector = ManisCorrector(False)
 	mani = ManisFile()
-	# hardcode for PZ for now, but it does not make a difference outside of compressed keys
-	mani.version = 260
 	target_names = set()
 	try:
 		bones_lut = {pose_bone.name: pose_bone["index"] for pose_bone in b_armature_ob.pose.bones}
@@ -129,8 +127,13 @@ def save(filepath=""):
 		# raise AttributeError(
 		# 	f"Some bones in {b_armature_ob.name} don't have the custom property 'index'.\n"
 		# 	f"Assign a unique index to all bones by exporting the ms2 with 'Update Rig' checked.")
-	# remove srb from bones_lut for JWE2, so it exported to wsm only
-	if scene.cobra.game == "Jurassic World Evolution 2":
+	if scene.cobra.game == "Jurassic World Evolution":
+		mani.version = 258
+	elif scene.cobra.game == "Planet Zoo":
+		mani.version = 260
+	elif scene.cobra.game == "Jurassic World Evolution 2":
+		mani.version = 262
+		# remove srb from bones_lut for JWE2, so it exported to wsm only
 		bones_lut.pop(srb_name, None)
 	bone_names = [pose_bone.name for pose_bone in sorted(b_armature_ob.pose.bones, key=lambda pb: pb["index"])]
 	action_names = [b_action.name for b_action in bpy.data.actions]
