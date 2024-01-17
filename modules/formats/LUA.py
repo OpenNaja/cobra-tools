@@ -17,10 +17,13 @@ class LuaLoader(MemStructLoader):
 		self.create_data_entry((buffer_0,))
 
 		self.header = LuaRoot(self.ovl.context)
+		self.update_header(buffer_0, self.basename)
+
+	def update_header(self, buffer_0, name):
 		self.header.lua_size = len(buffer_0)
-		self.header.source_path.data = self.basename
+		self.header.source_path.data = name
 		# even if the lua + zstr terminator was padded to 4, keep at least 1 byte for this ptr
-		self.header.likely_alignment.data = b"\x00" + get_padding(len(self.basename)+2, alignment=4)
+		self.header.likely_alignment.data = b"\x00" + get_padding(len(name) + 2, alignment=4)
 		self.write_memory_data()
 
 	def extract(self, out_dir):
@@ -69,7 +72,12 @@ class LuaLoader(MemStructLoader):
 
 	def rename_content(self, name_tuples):
 		logging.info(f"Renaming in {self.name}")
-		buffer_data = self.data_entry.buffer_datas[0]
+		buffer_0 = self.data_entry.buffer_datas[0]
 		for old, new in name_tuples:
-			buffer_data = buffer_data.replace(old.encode(), new.encode())
-		self.data_entry.update_data((buffer_data,))
+			buffer_0 = buffer_0.replace(old.encode(), new.encode())
+		self.data_entry.update_data((buffer_0,))
+		# if self.header.lua_size != len(buffer_0):
+		self.stack.clear()
+		self.fragments.clear()
+		# updating size is mandatory
+		self.update_header(buffer_0, self.basename)
