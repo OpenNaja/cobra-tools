@@ -6,10 +6,10 @@ texchannels = {
 	'pAOTextureDetail': {"": "AO2"},  # Overlaid on pAOTextureUnique
 	'pAOTextureUnique': {"": "AO"},
 	'pAlbedoAndRoughnessDetail': {"RGB": "BC", "A": "RN"},  # Or AL = Albedo?
-	'pAlbinoBaseColourAndMaskTexture': {"RGB": "AB", "A": "HM"},
+	'pAlbinoBaseColourAndMaskTexture': {"RGB": "AB", "A": "AB_HM"},
 	'pBaldnessScarTexture': {"R": "BA", "G": "SC", "B": "", "A": ""},  # B/A Appear unused
 	'pBaseColour2': {"RGB": "BC2", "A": "RN2"},  # DiffuseBlend
-	'pBaseColourAndMaskTexture': {"RGB": "BC", "A": "HM"},
+	'pBaseColourAndMaskTexture': {"RGB": "BC", "A": "BC_HM"},
 	'pBaseColourTexture': {"RGB": "BC", "A": "CA"},  # A apparently not used on tree trunks in PZ
 	'pBaseColourTexture2': {"RGB": "BC2", "A": "CA2"},  # Blend between BC and BC2
 	'pBaseColourTextureDetail': {"RGB": "DE", "A": ""},  # Overlaid on pBaseColourTextureUnique
@@ -37,7 +37,7 @@ texchannels = {
 	'pDistortionTexture': {"RG": "NM"},
 	'pEmissiveMaskTexture': {"": ""},
 	'pEmissiveTexture': {"": "EM"},
-	'pErythristicBaseColourAndMaskTexture': {"RGB": "ER", "A": "HM"},
+	'pErythristicBaseColourAndMaskTexture': {"RGB": "ER", "A": "ER_HM"},
 	'pFinAlphaTexture': {"R": "OP", "G": "OP", "B": "OP", "A": ""},
 	# 'pFlexiColourMaskTexture': {"": ""},
 	'pFlexiColourMasksTexture': {"R": "F1", "G": "F2", "B": "F3", "A": "F4"},
@@ -46,13 +46,13 @@ texchannels = {
 	'pHeight': {"": "HE"},
 	'pIridescenceStrength': {"": "IM"},
 	'pIridescenceTexture': {"": "IR"},
-	'pLeucisticBaseColourAndMaskTexture': {"RGB": "LE", "A": "HM"},
+	'pLeucisticBaseColourAndMaskTexture': {"RGB": "LE", "A": "LE_HM"},
 	'pMacroDamageBlendMap': {"": ""},
 	'pMacroDiffuse': {"": ""},
 	'pMarkingNoise': {"": ""},
 	'pMarkingPatchworkMask': {"": ""},  # Lookup/Input Mask
 	'pMaskAOTextureUnique': {"R": "DM", "G": "AO"},
-	'pMelanisticBaseColourAndMaskTexture': {"RGB": "ME", "A": "HM"},
+	'pMelanisticBaseColourAndMaskTexture': {"RGB": "ME", "A": "ME_HM"},
 	'pMossBaseColourRoughnessPackedTexture': {"RGB": "BC", "A": "RN"},
 	'pMossNormalTexture': {"RG": "NM"},
 	'pMossVarianceTexture': {"": ""},
@@ -89,5 +89,5 @@ texchannels = {
 	'pWaterfall_WaterFlowAndTimeOffsetMap': {"R": "", "G": "", "B": "", "A": ""},
 	'pWaterfall_WaterFoamMaskMap': {"R": "", "G": "", "B": "", "A": ""},
 	'pWaterfall_WaterNormalRoughnessMap': {"RGB": "NM", "A": "RN"},
-	'pXanthicBaseColourAndMaskTexture': {"RGB": "XA", "A": "HM"},
+	'pXanthicBaseColourAndMaskTexture': {"RGB": "XA", "A": "XA_HM"},
 }
