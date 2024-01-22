@@ -20,7 +20,7 @@ texchannels = {
 	'pBaseNormalTexture': {"RG": "NM"},
 	'pCavityRoughnessDielectricArray': {"R": "CA", "G": "RN", "B": "SP", "A": ""},
 	'pClipMap2': {"": ""},  # Glass Damage Mask
-	'pClut': {"": ""},   # Lookup/Input Mask
+	'pClut': {"": "LUT_C"},   # Lookup/Input Mask
 	# 'pCoarseNoise': {"": ""},
 	'pDamageBlendMap': {"": ""},  # Lookup/Input Mask
 	'pDetailMask': {"": "DM"},
@@ -75,7 +75,7 @@ texchannels = {
 	'pRoughnessPackedTexture2': {"R": "MT2", "G": "RN2", "B": "SP2", "A": "OP2"},  # Blend between roughness 1 and 2
 	'pRoughnessPackedTextureDetail': {"R": "RN", "G": ""},  # ? Mask
 	'pRoughnessPackedTextureUnique': {"R": "MT", "G": "RN", "B": "SP", "A": "OP"},
-	'pScarClut': {"": ""},  # Lookup/Input Mask
+	'pScarClut': {"": "LUT_SC"},  # Lookup/Input Mask
 	'pShellMap': {"R": "", "G": "", "B": "", "A": ""},  # Lookup/Input Mask
 	# 'pSkirtMaterialMask': {"": ""},
 	# 'pSkirtNormals': {"": ""},

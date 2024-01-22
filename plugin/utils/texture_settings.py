@@ -49,6 +49,8 @@ tex_slots = {
     "BA": "Baldness",
     "HE": "Height",
     "TR": "Transmission",
+    "LUT_C": "Color LUT",
+    "LUT_SC": "Scar LUT",
 }
 
 
