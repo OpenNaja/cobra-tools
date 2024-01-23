@@ -12,10 +12,10 @@ texchannels = {
 	'pBaseColourAndMaskTexture': {"RGB": "BC", "A": "BC_HM"},
 	'pBaseColourTexture': {"RGB": "BC", "A": "CA"},  # A apparently not used on tree trunks in PZ
 	'pBaseColourTexture2': {"RGB": "BC2", "A": "CA2"},  # Blend between BC and BC2
-	'pBaseColourTextureDetail': {"RGB": "DE", "A": ""},  # Overlaid on pBaseColourTextureUnique
-	'pBaseColourTextureDetailBase': {"RGB": "BC", "A": ""},
-	'pBaseColourTextureDetailBlend': {"RGB": "DE", "A": ""},  # Overlaid on pBaseColourTextureDetailBase
-	'pBaseColourTextureUnique': {"RGB": "BC", "A": "DM"},
+	'pBaseColourTextureDetail': {"RGB": "DE_BC", "A": ""},  # Overlaid on pBaseColourTextureUnique
+	'pBaseColourTextureDetailBase': {"RGB": "DE_BC", "A": ""},
+	'pBaseColourTextureDetailBlend': {"RGB": "BL_BC", "A": ""},  # Overlaid on pBaseColourTextureDetailBase
+	'pBaseColourTextureUnique': {"RGB": "NQ_BC", "A": "DM"},
 	'pBaseDielectricSpecularLevelTexture': {"": "SP"},  # Ice shader
 	'pBaseNormalTexture': {"RG": "NM"},
 	'pCavityRoughnessDielectricArray': {"R": "CA", "G": "RN", "B": "SP", "A": ""},
@@ -51,30 +51,30 @@ texchannels = {
 	'pMacroDiffuse': {"": ""},
 	'pMarkingNoise': {"": "MN"},
 	'pMarkingPatchworkMask': {"": "PW"},  # Lookup/Input Mask
-	'pMaskAOTextureUnique': {"R": "DM", "G": "AO"},
+	'pMaskAOTextureUnique': {"R": "DM", "G": "NQ_AO"},
 	'pMelanisticBaseColourAndMaskTexture': {"RGB": "ME", "A": "ME_HM"},
-	'pMossBaseColourRoughnessPackedTexture': {"RGB": "BC", "A": "RN"},
-	'pMossNormalTexture': {"RG": "NM"},
-	'pMossVarianceTexture': {"": ""},
+	'pMossBaseColourRoughnessPackedTexture': {"RGB": "MS_BC", "A": "MS_RN"},
+	'pMossNormalTexture': {"RG": "MS_NM"},
+	'pMossVarianceTexture': {"": "MS_VR"},
 	'pNormalBlendWeightTexture': {"": ""},
-	'pNormalMapTextureUnique': {"RG": "NM"},  # Same as Detail pNormalTextureUnique but for Detail_Basic
+	'pNormalMapTextureUnique': {"RG": "NQ_NM"},  # Same as Detail pNormalTextureUnique but for Detail_Basic
 	'pNormalTexture': {"RG": "NM"},
 	'pNormalTexture2': {"RG": "NM2"},  # Blend between NM and NM2
 	'pNormalTextureDetail': {"RG": "NM"},
-	'pNormalTextureDetailBase': {"RG": "NM2"},  # Overlaid on pNormalMapTextureUnique
-	'pNormalTextureDetailBlend': {"RG": "NM3"},  # Overlaid on pNormalTextureDetailBase
-	'pNormalTextureUnique': {"RG": "NM"},  # Same as Detail_Basic pNormalMapTextureUnique but for Detail
+	'pNormalTextureDetailBase': {"RG": "DE_NM"},  # Overlaid on pNormalMapTextureUnique
+	'pNormalTextureDetailBlend': {"RG": "BL_NM"},  # Overlaid on pNormalTextureDetailBase
+	'pNormalTextureUnique': {"RG": "NQ_NM"},  # Same as Detail_Basic pNormalMapTextureUnique but for Detail
 	'pOpacityTexture': {"": "OP"},
 	'pOpacityTexture2': {"": "OP2"},  # Blend between OP and OP2
 	'pPiebaldMask': {"": "PB"},  # Lookup/Input Mask
 	'pPiebaldTexture': {"R": "PB_M1", "G": "PB_M2", "B": "PB_M3", "A": ""},
 	# 'pPropertyTexture': {"": ""},
 	'pRetroreflectiveness': {"": ""},
-	'pRoughnessAOPackedTextureDetailBase': {"R": "RN", "G": "AO"},
+	'pRoughnessAOPackedTextureDetailBase': {"R": "DE_RN", "G": "DE_AO"},
 	'pRoughnessPackedTexture': {"R": "MT", "G": "RN", "B": "SP", "A": "OP"},
 	'pRoughnessPackedTexture2': {"R": "MT2", "G": "RN2", "B": "SP2", "A": "OP2"},  # Blend between roughness 1 and 2
-	'pRoughnessPackedTextureDetail': {"R": "RN", "G": ""},  # ? Mask
-	'pRoughnessPackedTextureUnique': {"R": "MT", "G": "RN", "B": "SP", "A": "OP"},
+	'pRoughnessPackedTextureDetail': {"R": "DE_RN", "G": ""},  # ? Mask
+	'pRoughnessPackedTextureUnique': {"R": "NQ_MT", "G": "NQ_RN", "B": "NQ_SP", "A": "OP"},
 	'pScarClut': {"": "LUT_SC"},  # Lookup/Input Mask
 	'pShellMap': {"R": "", "G": "", "B": "", "A": ""},  # Lookup/Input Mask
 	# 'pSkirtMaterialMask': {"": ""},
