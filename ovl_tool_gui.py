@@ -128,6 +128,7 @@ class MainWindow(widgets.MainWindow):
 
 		grid.addWidget(self.ovl_game_choice, 0, 3)
 		grid.addWidget(self.compression_choice, 1, 3)
+		self.compression_choice.setSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
 		grid.addWidget(self.extract_types_combo, 2, 3)
 
 		self.stdout_handler = get_stdout_handler("ovl_tool_gui")  # self.log_name not set until after init
