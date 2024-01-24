@@ -3,13 +3,13 @@ from generated.base_struct import BaseStruct
 from generated.formats.manis.imports import name_type_map
 
 
-class ChunkSizesZT(BaseStruct):
+class LimbInfoZT(BaseStruct):
 
 	"""
 	32 bytes
 	"""
 
-	__name__ = 'ChunkSizesZT'
+	__name__ = 'LimbInfoZT'
 
 
 	def __init__(self, context, arg=0, template=None, set_default=True):

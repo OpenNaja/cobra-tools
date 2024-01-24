@@ -3,11 +3,11 @@ from generated.base_struct import BaseStruct
 from generated.formats.base.compounds.PadAlign import get_padding_size, get_padding
 import logging
 
-from generated.formats.manis.compounds.SubChunkZt import SubChunkZt
+from generated.formats.manis.compounds.LimbChunkZt import LimbChunkZt
 # END_GLOBALS
 
 
-class SubChunkReaderZt(BaseStruct):
+class LimbChunkReaderZt(BaseStruct):
 
 	# START_CLASS
 
@@ -18,9 +18,9 @@ class SubChunkReaderZt(BaseStruct):
 		# 	chunk_sizes.keys = ()
 		for chunk_sizes in instance.arg:
 			# cls.pad_to_start(instance, stream)
-			chunk_sizes.keys = SubChunkZt.from_stream(stream, instance.context, chunk_sizes, None)
+			chunk_sizes.keys = LimbChunkZt.from_stream(stream, instance.context, chunk_sizes, None)
 			# cls.pad_to_start(instance, stream)
-			# print(f"SubChunkZt io_size {chunk_sizes.keys.io_size}")
+			# print(f"LimbChunkZt io_size {chunk_sizes.keys.io_size}")
 			# todo this loses alignment
 			# pad_size = get_padding_size(chunk_sizes.keys.io_size, alignment=16)
 			# chunk_sizes.padding = stream.read(pad_size)
@@ -40,7 +40,7 @@ class SubChunkReaderZt(BaseStruct):
 	def write_fields(cls, stream, instance):
 		instance.io_start = stream.tell()
 		for chunk_sizes in instance.arg:
-			SubChunkZt.to_stream(chunk_sizes.keys, stream, instance.context)
+			LimbChunkZt.to_stream(chunk_sizes.keys, stream, instance.context)
 			stream.write(get_padding(chunk_sizes.keys.io_size, alignment=8))
 		instance.io_size = stream.tell() - instance.io_start
 

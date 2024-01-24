@@ -3,13 +3,13 @@ from generated.base_struct import BaseStruct
 from generated.formats.manis.imports import name_type_map
 
 
-class SubChunkZt(BaseStruct):
+class LimbChunkZt(BaseStruct):
 
 	"""
-	arg is chunksizes
+	arg is LimbInfo
 	"""
 
-	__name__ = 'SubChunkZt'
+	__name__ = 'LimbChunkZt'
 
 
 	def __init__(self, context, arg=0, template=None, set_default=True):

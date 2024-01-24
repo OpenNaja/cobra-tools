@@ -3,19 +3,19 @@ from generated.base_struct import BaseStruct
 from generated.formats.manis.imports import name_type_map
 
 
-class SubChunk(BaseStruct):
+class LimbChunk(BaseStruct):
 
 	"""
-	arg is chunksizes
+	arg is LimbInfo
 	"""
 
-	__name__ = 'SubChunk'
+	__name__ = 'LimbChunk'
 
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
 
-		# for subchunk_list[n] needs chunksize_list[n]'s counta for array length
+		# for LimbChunk_list[n] needs limbs[n]'s counta for array length
 		self.list_one = Array(self.context, 0, None, (0,), name_type_map['WeirdElementOne'])
 
 		# needs sum of countb's from weird list one
