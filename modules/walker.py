@@ -33,10 +33,10 @@ def walk_type(start_dir, extension=".ovl"):
 
 
 def content_folder(filepath: Path):
-	if filepath.parent.name == "ovldata":
+	if filepath.parent.name in ("ovldata", "walker_export"):
 		return filepath
 	for p in filepath.parents:
-		if p.parent.name == "ovldata":
+		if p.parent.name in ("ovldata", "walker_export"):
 			return p
 	return None
 
@@ -169,7 +169,7 @@ def bulk_test_models(gui, start_dir, walk_ovls=True, official_only=True, walk_mo
 		shaders = {}
 		# for last_count
 		last_counts = set()
-		scale_float = set()
+		pack_bases = set()
 		constraints_0 = set()
 		constraints_1 = set()
 		no_bones = set()
@@ -209,15 +209,16 @@ def bulk_test_models(gui, start_dir, walk_ovls=True, official_only=True, walk_mo
 							for i, wrapper in enumerate(model_info.model.meshes):
 								mesh_id = f"{mdl2_name}[{i}] in {ms2_name}"
 								mesh = wrapper.mesh
-								if hasattr(wrapper.mesh, "vert_chunks"):
-									chunk_mesh_zero.add(wrapper.mesh.zero)
-									for v in wrapper.mesh.vert_chunks:
-										scale_float.add((v.pack_base, v.scale))
+								if hasattr(mesh, "vert_chunks"):
+									chunk_mesh_zero.add(mesh.zero)
+									for v in mesh.vert_chunks:
+										pack_bases.add((v.pack_base, v.precision))
 								flag = int(mesh.flag)
 								if flag not in type_dic:
 									type_dic[flag] = ([], [])
 								type_dic[flag][0].append(mesh_id)
-								mesh_w.add((bool(mesh.uv_offset_2), int(mesh.flag)))
+								if hasattr(mesh, "uv_offset_2"):
+									mesh_w.add((bool(mesh.uv_offset_2), int(mesh.flag)))
 							# 	type_dic[model.flag][1].append((model.bytes_mean, model.bytes_max, model.bytes_min))
 							last_counts.add(model_info.last_count)
 							# pack_bases.add(model_info.pack_base)
@@ -271,7 +272,6 @@ def bulk_test_models(gui, start_dir, walk_ovls=True, official_only=True, walk_mo
 				names, maps_list = tup
 				print("Some files:", list(sorted(set(names)))[:25])
 				print("num meshes", len(names))
-			print(f"scale_float: {list(sorted(scale_float))}")
 			print(f"last_counts: {last_counts}")
 			print(f"chunk_mesh_zero: {chunk_mesh_zero}")
 			print(f"constraints_0: {constraints_0}")
