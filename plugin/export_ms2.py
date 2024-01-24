@@ -22,7 +22,7 @@ from plugin.modules_export.geometry import export_model, scale_bbox
 from plugin.modules_export.material import export_material
 from plugin.modules_import.armature import get_bone_names
 from plugin.utils.object import ensure_visible, has_data_in_coll, get_property
-from plugin.utils.shell import get_collection_endswith
+from plugin.utils.shell import get_collection_endswith, get_lod_collections
 
 
 def get_pack_base(b_obs, apply_transforms=False):
@@ -138,12 +138,7 @@ def save(filepath='', backup_original=True, apply_transforms=False, update_rig=F
 			b_models = []
 			b_materials = []
 			bounds = []
-			lod_collections = []
-			for lod_i in range(6):
-				lod_coll = get_collection_endswith(scene, f"{mdl2_coll.name}_L{lod_i}")
-				if not lod_coll:
-					break
-				lod_collections.append(lod_coll)
+			lod_collections = get_lod_collections(mdl2_coll)
 			# set a default even when there are no models
 			model_info.pack_base = 512.0
 			if ms2.context.version > 32 and lod_collections and lod_collections[0].objects:

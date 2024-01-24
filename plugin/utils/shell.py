@@ -74,7 +74,7 @@ def create_lods():
 		decimated = []
 		for mdl2_coll in scene.collection.children:
 			# Make list of all LOD collections
-			lod_collections = [col for col in mdl2_coll.children if col.name[:-1].endswith("_L")]
+			lod_collections = get_lod_collections(mdl2_coll)
 			# Setup default lod ratio values
 			lod_ratios = np.linspace(1.0, 0.05, num=len(lod_collections))
 
@@ -124,6 +124,11 @@ def create_lods():
 		msgs.append(
 			f"Can't create automatic LODs for {len(shape_keyed)} models with shape keys. Decimate those manually")
 	return msgs
+
+
+def get_lod_collections(mdl2_coll):
+	lod_collections = [col for col in mdl2_coll.children if "_L" in col.name]
+	return lod_collections
 
 
 def copy_ob(src_obj, coll=None):
