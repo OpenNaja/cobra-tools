@@ -88,10 +88,20 @@ class AddHair(bpy.types.Operator):
         return handle_errors(self, shell.add_hair, {})
 
 
+class ApplyPoseAll(bpy.types.Operator):
+    """Apply pose from armature bones to all meshes; clears bone pose, does not add helper bones"""
+    bl_idname = "pose.apply_pose_all"
+    bl_label = "Apply Pose to all Meshes"
+    bl_options = {'REGISTER', 'UNDO'}
+
+    def execute(self, context):
+        return handle_errors(self, plugin.utils.rig.apply_armature_all, {})
+
+
 class GenerateRigEdit(bpy.types.Operator):
-    """Generate rig edit nodes for all posed bones"""
+    """Add rig edit bones for all posed bones; may optionally apply pose"""
     bl_idname = "pose.generate_rig_edit"
-    bl_label = "Generate Rig Edit from Pose"
+    bl_label = "Add Rig Edit Bones from Pose"
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):

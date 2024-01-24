@@ -11,6 +11,38 @@ VEC3_0 = mathutils.Vector((0, 0, 0))
 VEC3_1 = mathutils.Vector((1, 1, 1))
 VEC4_1 = mathutils.Vector((1, 0, 0, 0))
 
+
+def apply_pose_to_meshes(b_armature_ob):
+	logging.info(f"Applying armature modifiers of children objects")
+
+	# Go over every object in the scene
+	for ob in bpy.data.objects:
+		# Check if they are parented to the armature, are a mesh, and have modifiers
+		if ob.parent == b_armature_ob and ob.type == 'MESH' and ob.modifiers:
+			modifier_list = []
+			# Create a list of current armature modifiers in the object
+			for modifier in ob.modifiers:
+				if modifier.type == 'ARMATURE':
+					modifier_list.append(modifier)
+			for modifier in modifier_list:
+				# Apply the armature modifier
+				bpy.ops.object.modifier_copy({"object": ob}, modifier=modifier.name)
+				bpy.ops.object.modifier_apply({"object": ob}, modifier=modifier.name)
+
+
+def apply_armature_all():
+	# Check if the active object is a valid armature
+	if bpy.context.active_object.type != 'ARMATURE':
+		# Object is not an armature. Cancelling.
+		return f"No armature selected.",
+
+	# Get the armature
+	b_armature_ob = bpy.context.object
+	apply_pose_to_meshes(b_armature_ob)
+	bpy.ops.pose.armature_apply()
+	return ()
+
+
 def generate_rig_edit(**kwargs):
 	"""Automatic rig edit generator by NDP. Detects posed bones and automatically generates nodes and offsets them."""
 	# Initiate logging
@@ -36,28 +68,12 @@ def generate_rig_edit(**kwargs):
 		return msgs
 
 	# Get the armature
-	armature = bpy.context.object
-	logging.info(f"armature: {armature.name}")
+	b_armature_ob = bpy.context.object
+	logging.info(f"armature: {b_armature_ob.name}")
 
 	# Apply armature modifiers of children objects
 	if applyarmature:
-		logging.info(f"Applying armature modifiers of children objects")
-		armaturechildren = []
-
-		# Go over every object in the scene
-		for ob in bpy.data.objects:
-			# Check if they are parented to the armature, are a mesh, and have modifiers
-			if ob.parent == armature and ob.type == 'MESH' and ob.modifiers:
-				modifier_list = []
-				# Create a list of current armature modifiers in the object
-				for modifier in ob.modifiers:
-					if modifier.type == 'ARMATURE':
-						modifier_list.append(modifier)
-				for modifier in modifier_list:
-					# Apply the armature modifier
-					bpy.ops.object.modifier_copy({"object": ob}, modifier=modifier.name)
-					bpy.ops.object.modifier_apply({"object": ob}, modifier=modifier.name)
-
+		apply_pose_to_meshes(b_armature_ob)
 	# Store current mode
 	original_mode = bpy.context.mode
 	# For some reason it doesn't recognize edit_armature as a valid mode to switch to so we change it to just edit. Blender moment
@@ -76,7 +92,7 @@ def generate_rig_edit(**kwargs):
 
 	# We iterate over every pose bone and detetect which ones have been posed, and create  a list of them.
 	logging.info(f"evaluating posed bones:")
-	for p_bone in armature.pose.bones:
+	for p_bone in b_armature_ob.pose.bones:
 		# We check if vectors have  miniscule transforms, and just consider them rounding errors and clear them.
 		# Check location
 		if vectorisclose(p_bone.location, VEC3_0, errortolerance) and p_bone.location != VEC3_0:
@@ -144,12 +160,12 @@ def generate_rig_edit(**kwargs):
 
 	for bone_name, (base_posed, base_armature_space, parent_armature_space) in posebone_data.items():
 		# Get edit bone
-		bonebase = armature.data.edit_bones.get(bone_name)
+		bonebase = b_armature_ob.data.edit_bones.get(bone_name)
 
 		if not bonebase.parent:
 			logging.info(f"{bonebase.name} has no parent, creating a blank node")
 			# Create the node
-			bonenode = armature.data.edit_bones.new(f"NODE_{bone_name}")
+			bonenode = b_armature_ob.data.edit_bones.new(f"NODE_{bone_name}")
 
 			bonenode.matrix = Matrix(
 				((0.0, 1.0, 0.0, 0.0), (-1.0, 0.0, 0.0, 0.0), (0.0, 0.0, 1.0, 0.0), (0.0, 0.0, 0.0, 1.0)))
@@ -173,7 +189,7 @@ def generate_rig_edit(**kwargs):
 			boneparent = bonebase.parent
 
 			# Creating the node bone
-			bonenode = armature.data.edit_bones.new(f"NODE_{bone_name}")
+			bonenode = b_armature_ob.data.edit_bones.new(f"NODE_{bone_name}")
 
 			# Set parent of bonenode to boneparent
 			bonenode.parent = boneparent
@@ -217,7 +233,7 @@ def generate_rig_edit(**kwargs):
 		node_list = []
 
 		# We create a list of all NODES
-		for p_bone in armature.pose.bones:
+		for p_bone in b_armature_ob.pose.bones:
 			if p_bone.name.startswith("NODE_"):
 				node_list.append(p_bone)
 
@@ -272,12 +288,12 @@ def generate_rig_edit(**kwargs):
 					bpy.ops.object.mode_set(mode='EDIT')
 
 					# Reparent duplicate basebones to the first node
-					armature.data.edit_bones.get(node.children[0].name).parent = armature.data.edit_bones.get(
+					b_armature_ob.data.edit_bones.get(node.children[0].name).parent = b_armature_ob.data.edit_bones.get(
 						node_groups[nodegroup][0].name)
 
 					# Delete the duplicate nodes
 					deletednodes = deletednodes + 1
-					armature.data.edit_bones.remove(armature.data.edit_bones.get(node.name))
+					b_armature_ob.data.edit_bones.remove(b_armature_ob.data.edit_bones.get(node.name))
 
 					# Switch back to pose mode
 					bpy.ops.object.mode_set(mode='POSE')
@@ -292,8 +308,8 @@ def generate_rig_edit(**kwargs):
 
 	# Finalize
 	logging.info(f"total number of edits: {editnumber}")
-	totalnodes = len([p_bone for p_bone in armature.pose.bones if p_bone.name.startswith("NODE_")])
-	totalbones = len(armature.pose.bones)
+	totalnodes = len([p_bone for p_bone in b_armature_ob.pose.bones if p_bone.name.startswith("NODE_")])
+	totalbones = len(b_armature_ob.pose.bones)
 	logging.info(f"total nodes: {totalnodes}")
 	logging.info(f"total bones: {totalbones}")
 
@@ -329,8 +345,8 @@ def convert_scale_to_loc():
 	bpy.ops.object.mode_set(mode='POSE')
 
 	# Get the armature
-	armature = bpy.context.object
-	logging.info(f"armature: {armature.name}")
+	b_armature_ob = bpy.context.object
+	logging.info(f"armature: {b_armature_ob.name}")
 
 	# Initiate logging variable
 	editnumber = 0
@@ -340,7 +356,7 @@ def convert_scale_to_loc():
 	posebone_data = {}
 
 	# We get a list of all bones not in their rest positions in armaturespace
-	for p_bone in armature.pose.bones:
+	for p_bone in b_armature_ob.pose.bones:
 		posebone_rotation = p_bone.rotation_quaternion.copy()
 
 		p_bone.rotation_quaternion = (1, 0, 0, 0)
@@ -354,7 +370,7 @@ def convert_scale_to_loc():
 		logging.info(f"{p_bone.name} pose pos: {p_bone.head}")
 
 	# Clear scale of all bones
-	for p_bone in armature.pose.bones:
+	for p_bone in b_armature_ob.pose.bones:
 		p_bone.scale = VEC3_1
 		p_bone.location = VEC3_0
 

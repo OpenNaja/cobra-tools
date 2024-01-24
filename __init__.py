@@ -46,7 +46,7 @@ from plugin.modules_import.operators import ImportBanis, ImportManis, ImportMatc
     ImportVoxelskirt, ImportMS2FromBrowser, ImportFGMFromBrowser
 from plugin.modules_export.operators import ExportMS2, ExportSPL, ExportManis, ExportBanis, ExportFgm
 from plugin.utils.operators import CreateFins, CreateLods, VcolToHair, HairToVcol, TransferHairCombing, AddHair, \
-    GenerateRigEdit, ConvertScaleToLoc, ExtrudeFins, IntrudeFins
+    GenerateRigEdit, ApplyPoseAll, ConvertScaleToLoc, ExtrudeFins, IntrudeFins
 from plugin.utils.properties import CobraSceneSettings, CobraMeshSettings, CobraCollisionSettings, CobraMaterialSettings
 from plugin.utils.panels import CobraMaterialPanel
 
@@ -177,6 +177,7 @@ class POSE_PT_CobraTools(bpy.types.Panel):
         icon = preview_collection["frontier.png"].icon_id
         row = layout.row(align=True)
         sub = row.row()
+        operator = sub.operator("pose.apply_pose_all", icon_value=icon)
         operator = sub.operator("pose.generate_rig_edit", icon_value=icon)
         row = layout.row(align=True)
         sub = row.row()
@@ -309,6 +310,7 @@ classes = (
     CreateFins,
     CreateLods,
     GenerateRigEdit,
+    ApplyPoseAll,
     ConvertScaleToLoc,
     VcolToHair,
     HairToVcol,
