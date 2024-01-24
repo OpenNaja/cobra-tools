@@ -2,7 +2,9 @@ import io
 import os
 import logging
 from collections import Counter
+from pathlib import Path
 
+from ovl_util.logs import ANSI
 from experimentals.convert_constants import write_mimes_dict, write_hashes_dict
 from generated.array import Array
 from generated.formats.fgm.compounds.FgmHeader import FgmHeader
@@ -13,7 +15,7 @@ from generated.formats.ovl_base import OvlContext
 from generated.formats.ms2 import Ms2File
 from generated.formats.ovl import OvlFile
 from generated.formats.ovl_base.versions import games
-from constants import Mime, Shader
+from constants import Mime, Shader, ConstantsProvider
 from root_path import root_dir
 
 # get this huge dict from fgm walker, use in ms2 walker
@@ -21,7 +23,7 @@ shader_map = {}
 
 
 def walk_type(start_dir, extension=".ovl"):
-	logging.info(f"Scanning {start_dir} for {extension} files")
+	logging.info(f"Scanning {Path(start_dir)} for {extension} files")
 	ret = []
 	for root, dirs, files in os.walk(start_dir, topdown=False):
 		for name in files:
@@ -30,17 +32,32 @@ def walk_type(start_dir, extension=".ovl"):
 	return ret
 
 
-def filter_accept_official(ovl_path):
-	"""filter ovl files to only accept stock names, discard any user-made ovl that does not agree"""
+def content_folder(filepath: Path):
+	if filepath.parent.name == "ovldata":
+		return filepath
+	for p in filepath.parents:
+		if p.parent.name == "ovldata":
+			return p
+	return None
+
+
+def filter_accept_official(filepath):
+	"""Filters filepaths to only accept official content, discards any user-made content"""
 	# todo this varies per game (WH), refactor to share code with widgets.GamesWidget
 	# No longer using only content* due to Warhammer Ages of Sigmar adding random folder names
-	valid_packages = ("GameMain", "Content", "Campaign", "Ghur", "Kruleboyz", "Nighthaunt", "NoFaction", "Stormcast", "Tzeentch")
-	if any(p in ovl_path for p in valid_packages):
+	filepath = Path(filepath)
+	content_path = content_folder(filepath)
+	if not content_path:
+		return False
+
+	valid_packages = ("GameMain", "Content", "Campaign", "DLC", "Ghur", "Kruleboyz", "Nighthaunt", "NoFaction", "Stormcast", "Tzeentch")
+	if any(p in content_path.name for p in valid_packages):
 		return True
-	logging.warning(f"Ignoring user-made {ovl_path}")
+	logging.warning(f"Ignoring user-made {filepath.relative_to(content_path.parent)}")
+	return False
 
 
-def filter_accept_all(ovl_path):
+def filter_accept_all(filepath):
 	return True
 
 
@@ -108,7 +125,7 @@ def generate_hash_table(gui, start_dir):
 					error_files.append(ovl_path)
 			if error_files:
 				logging.error(f"{error_files} caused errors!")
-			out_dir = get_output_dir(start_dir)
+			out_dir = get_game_constants_dir(start_dir)
 			# with open(os.path.join(out_dir, "hashes.json"), "w") as json_writer:
 			# 	json.dump(hashes, json_writer, indent="\t", sort_keys=True)
 			write_hashes_dict(os.path.join(out_dir, "hashes.py"), hashes)
@@ -116,19 +133,28 @@ def generate_hash_table(gui, start_dir):
 		logging.info(f"Formats used in dependencies: {[s.replace(':', '.') for s in sorted(all_deps_exts)]}")
 
 
-def get_output_dir(start_dir):
-	# try to find a matching game
+def get_game_constants_dir(start_dir):
+	# Find a matching game
+	root_path = Path(root_dir)
+	constants_dir = root_path / "constants"
 	for game in reversed(games):
 		if game.value in start_dir:
-			out_dir = os.path.join(root_dir, "constants", game.value)
-			break
-	else:
-		logging.warning(f"Could not find a matching game, storing results in /constants/")
-		out_dir = os.path.join(root_dir, "constants")
-	return out_dir
+			return constants_dir / game.value
+
+	# Game not found
+	if "ovldata" in start_dir:
+		ovldata_path = start_dir[:start_dir.index("ovldata") + len("ovldata")]
+		game_name = Path(ovldata_path).parent.name
+		constants_dir = constants_dir / game_name
+		logging.warning(f"Could not find a game matching {game_name}")
+
+	if not constants_dir.exists():
+		logging.info(f"Creating folder in {constants_dir}")
+		constants_dir.mkdir()
+	return constants_dir
 
 
-def bulk_test_models(gui, start_dir, walk_ovls=True, walk_models=True):
+def bulk_test_models(gui, start_dir, walk_ovls=True, official_only=True, walk_models=True):
 	errors = []
 	if start_dir:
 		export_dir = os.path.join(start_dir, "walker_export")
@@ -165,6 +191,8 @@ def bulk_test_models(gui, start_dir, walk_ovls=True, walk_models=True):
 			with gui.reporter.log_duration("Walking MS2 files"):
 				ms2_files = walk_type(export_dir, extension=".ms2")
 				for mf_index, ms2_path in enumerate(gui.reporter.iter_progress(ms2_files, "Walking MS2 files")):
+					if official_only and not filter_accept_official(ms2_path):
+						continue
 					ms2_path_rel = ms2_path.replace(export_dir, "")
 					ms2_name = os.path.basename(ms2_path)
 					try:
@@ -283,6 +311,7 @@ def bulk_test_models(gui, start_dir, walk_ovls=True, walk_models=True):
 
 def ovls_in_path(gui, start_dir, only_types):
 	ovl_data = OvlFile()
+	ovl_data.load_hash_table()
 	ovl_files = walk_type(start_dir, extension=".ovl")
 	for of_index, ovl_path in enumerate(gui.reporter.iter_progress(ovl_files, "Walking OVL files")):
 		try:
@@ -307,68 +336,167 @@ def bulk_extract_ovls(errors, export_dir, gui, start_dir, only_types):
 			errors.append((ovl_path, ex))
 
 
-def get_fgm_values(gui, start_dir, walk_ovls=True, walk_fgms=True):
+def write_shader(file, textures, attributes):
+	file.write("\t\t[\n")
+	for tex_name in sorted(textures):
+		file.write(f"\t\t\t'{tex_name}',\n")
+	file.write("\t\t],\n")
+	file.write("\t\t{\n")
+	for attr_name, attr in sorted(attributes):
+		file.write(f"\t\t\t'{attr_name}': {attr},\n")
+	file.write("\t\t}\n")
+	file.write("\t),\n")
+
+
+def write_shaders(file, shaders):
+	file.write("shaders = {\n")
+	for shader_name, shader in sorted(shaders.items()):
+		file.write(f"\t'{shader_name}': (\n")
+		write_shader(file, shader.textures, shader.attributes.items())
+	file.write("}\n")
+
+
+def write_shaders_dict(file, shaders):
+	file.write("shaders = {\n")
+	for shader_name, shader in sorted(shaders.items()):
+		file.write(f"\t'{shader_name}': (\n")
+		write_shader(file, shader[0], shader[1].items())
+	file.write("}\n")
+
+
+def get_fgm_values(gui, game_dir, walk_dir="", walk_ovls=True, official_only=True, full_report=False):
 	errors = []
-	if start_dir:
-		export_dir = os.path.join(start_dir, "walker_export")
+	warnings = []
+	# Detect if walk_dir is a game directory or subfolder
+	in_installed_game = Path(game_dir) in Path(walk_dir).parents or game_dir == walk_dir
+	base_dir = game_dir if in_installed_game else walk_dir
+	walk_dir = base_dir if not walk_dir else walk_dir
+	if base_dir and walk_dir:
+		# Set and make export directory
+		export_dir = os.path.join(base_dir, "walker_export")
+		Path(export_dir).mkdir(exist_ok=True)
+		# Full ovldata walk or subfolder
+		full_game_walk = in_installed_game and walk_dir == base_dir
 		if walk_ovls:
-			bulk_extract_ovls(errors, export_dir, gui, start_dir, (".fgm",))
+			bulk_extract_ovls(errors, export_dir, gui, walk_dir, (".fgm",))
 		shaders = {}
+		shaders_added = {}
+		shaders_removed = {}
+		new_shader_fgms = {}
 		# used to debug the mapping of blend modes in ms2 material slots to predict them
 		fgm_to_shader = {}
-		if walk_fgms:
-			context = OvlContext()
-			fgm_files = walk_type(export_dir, extension=".fgm")
-			for mf_index, fgm_path in enumerate(gui.reporter.iter_progress(fgm_files, "Walking FGM files")):
-				try:
-					header = FgmHeader.from_xml_file(fgm_path, context)
 
-					if header.shader_name not in shaders:
-						# shaders[header.shader_name] = ([], {})
-						shaders[header.shader_name] = Shader(set(), {})
-					shader = shaders[header.shader_name]
-					# for ms2 debugging
-					# fgm_name = os.path.basename(fgm_path)
-					# fgm_to_shader[os.path.splitext(fgm_name)[0].lower()] = header.shader_name
-					for attrib, attrib_data in zip(header.attributes.data, header.value_foreach_attributes.data):
-						val = tuple(attrib_data.value)
-						if attrib.name not in shader.attributes:
-							shader.attributes[attrib.name] = (int(attrib.dtype), [])
-						shader.attributes[attrib.name][1].append(val)
-					for texture in header.textures.data:
-						shader.textures.add(texture.name)
+		# The game assigned to the FGMs (assumes all walked FGMs are from the same game)
+		fgm_game = "Unknown Game"
+		# Create sets of all shader names per game
+		game_shaders = {"Unknown Game": []}
+		constants = ConstantsProvider()
+		for game in constants:
+			game_shaders[game] = set(constants[game].get("shaders", {}).keys())
+		# To remove shaders as they are discovered
+		undiscovered_shaders = game_shaders.copy()
 
-				except Exception as ex:
-					logging.exception(f"FGM failed: {fgm_path}")
-					errors.append((fgm_path, ex))
+		context = OvlContext()
+		fgm_files = walk_type(walk_dir, extension=".fgm")
+		for mf_index, fgm_path in enumerate(gui.reporter.iter_progress(fgm_files, "Walking FGM files")):
+			if official_only and not filter_accept_official(fgm_path):
+				continue
+			try:
+				header = FgmHeader.from_xml_file(fgm_path, context)
+				shader_name = header.shader_name
+				if shader_name not in shaders:
+					# shaders[shader_name] = ([], {})
+					shaders[shader_name] = Shader(set(), {})
+				shader = shaders[shader_name]
+
+				# Resolve shaders.py for the FGM's game, and check for presence
+				game_enum = header.game.replace("Games.", "")
+				if game_enum in games.__members__:
+					game = games[game_enum].value
+					# Set the game to access the correct constants
+					fgm_game = game
+					if game in constants.keys() and "shaders" in constants[game]:
+						logging.debug(f"Checking presence of {shader_name} for constants\\{game}")
+						if shader_name not in constants[game]["shaders"]:
+							# New shader found in FGM
+							shaders_added[shader_name] = shader
+							if shader_name in new_shader_fgms.keys():
+								new_shader_fgms[shader_name].add(fgm_path)
+							else:
+								new_shader_fgms[shader_name] = set([fgm_path])
+						else:
+							# Existing shader
+							logging.debug(f"{shader_name} found in constants\\{game}")
+							undiscovered_shaders[game].discard(shader_name)
+
+				# for ms2 debugging
+				# fgm_name = os.path.basename(fgm_path)
+				# fgm_to_shader[os.path.splitext(fgm_name)[0].lower()] = shader_name
+				for attrib, attrib_data in zip(header.attributes.data, header.value_foreach_attributes.data):
+					val = tuple(attrib_data.value)
+					if attrib.name not in shader.attributes:
+						shader.attributes[attrib.name] = (int(attrib.dtype), [])
+					shader.attributes[attrib.name][1].append(val)
+				for texture in header.textures.data:
+					shader.textures.add(texture.name)
+
+			except Exception as ex:
+				logging.exception(f"FGM Inspection Error: {fgm_path}")
+				errors.append((fgm_path, ex))
 
 		for shader_name, shader in shaders.items():
 			# only keep the five most common for this shader
 			for att, val in shader.attributes.items():
 				shader.attributes[att] = (val[0], Counter(tuple(sorted(tup)) for tup in val[1]).most_common(5))
 
-		# report
+		# Write to tools dir constants if full ovldata inspection, otherwise walker_export
+		out_dir = get_game_constants_dir(base_dir) if full_game_walk else export_dir
+		with open(os.path.join(out_dir, "shaders.py"), "w+") as f:
+			write_shaders(f, shaders)
+		logging.success(f"shaders.py written to {Path(out_dir)}")
+
+		# Dump new shaders
+		if shaders_added:
+			with open(os.path.join(out_dir, "shaders_added.py"), "w+") as f:
+				write_shaders(f, shaders_added)
+			logging.success(f"shaders_added.py written to {Path(out_dir)}")
+
+		# Output errors
 		if errors:
-			print("\nThe following errors occurred:")
+			error_string = f"The following errors occurred:{ANSI.LIGHT_YELLOW}\n "
 			for file_path, ex in errors:
-				print(file_path, str(ex))
+				error_string += f"{file_path}\n {str(ex)}"
+			logging.error(error_string)
 
-		out_dir = get_output_dir(start_dir)
-		with open(os.path.join(out_dir, "shaders.py"), "w") as f:
-			f.write("shaders = {\n")
-			for shader_name, shader in sorted(shaders.items()):
-				f.write(f"\t'{shader_name}': (\n")
+		# Hide excess output
+		if not full_report:
+			return
 
-				f.write("\t\t[\n")
-				for tex_name in sorted(shader.textures):
-					f.write(f"\t\t\t'{tex_name}',\n")
-				f.write("\t\t],\n")
-				f.write("\t\t{\n")
-				for attr_name, attr in sorted(shader.attributes.items()):
-					f.write(f"\t\t\t'{attr_name}': {attr},\n")
-				f.write("\t\t}\n")
-				f.write("\t),\n")
-			f.write("}\n")
+		# Dump potential deprecations
+		if shaders_removed:
+			with open(os.path.join(out_dir, "shaders_removed.py"), "w+") as f:
+				write_shaders_dict(f, shaders_removed)
+			logging.success(f"shaders_removed.py written to {Path(out_dir)}")
+
+		# Generate warnings
+		for shader_name, fgms in new_shader_fgms.items():
+			fgm_list = ""
+			for fgm in fgms:
+				fgm_list += f"    {fgm.replace(walk_dir, '')[1:]}\n"
+			msg_new_used_by = f"{shader_name} missing from constants\\{fgm_game}, used by:\n{fgm_list}"
+			warnings.append((msg_new_used_by, ""))
+
+		for shader_name in undiscovered_shaders[fgm_game]:
+			shaders_removed[shader_name] = constants[fgm_game]["shaders"][shader_name]
+			msg_not_found = f"{shader_name} in constants\\{fgm_game} was not found during walking."
+			warnings.append((msg_not_found, ""))
+
+		# Output warnings
+		if warnings:
+			warning_string = f"The following warnings occurred:{ANSI.LIGHT_YELLOW}\n "
+			for file_path, ex in warnings:
+				warning_string += f"{file_path}\n {str(ex)}"
+			logging.warning(warning_string)
 
 
 def add_key(dic, k, v):
@@ -377,7 +505,7 @@ def add_key(dic, k, v):
 	dic[k].add(v)
 
 
-def get_manis_values(gui, start_dir, walk_ovls=True, walk_fgms=True):
+def get_manis_values(gui, start_dir, walk_ovls=True, official_only=True):
 	errors = []
 	data = {}
 	dtype_to_files = {}
@@ -388,6 +516,8 @@ def get_manis_values(gui, start_dir, walk_ovls=True, walk_fgms=True):
 	unk_counts = {}
 	if start_dir:
 		for ovl_data, ovl_path in ovls_in_path(gui, start_dir, (".manis", ".mani",)):
+			if official_only and not filter_accept_official(ovl_path):
+				continue
 			ovl_name = os.path.basename(ovl_path)
 			ovl_name = os.path.splitext(ovl_name)[0]
 			try:

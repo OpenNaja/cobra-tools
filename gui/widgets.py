@@ -34,7 +34,7 @@ from PyQt5.QtWidgets import (QWidget, QMainWindow, QApplication, QColorDialog, Q
                              QAction, QCheckBox, QComboBox, QDoubleSpinBox, QLabel, QLineEdit, QMenu, QMenuBar,
                              QMessageBox, QTextEdit, QProgressBar, QPushButton, QStatusBar, QToolButton, QSpacerItem,
                              QFrame, QLayout, QGridLayout, QVBoxLayout, QHBoxLayout, QScrollArea, QSizePolicy, QSplitter,
-                             QStyleFactory, QStyleOptionViewItem, QStyledItemDelegate)
+                             QStyleFactory, QStyleOptionViewItem, QStyledItemDelegate, QDialog, QDialogButtonBox)
 import vdf
 from qframelesswindow import FramelessMainWindow, StandardTitleBar
 
@@ -2822,6 +2822,54 @@ class StatusSpacer(QWidget):
             if width + sibling_width >= parent.width():
                 width = 0
             self.setFixedWidth(width)
+
+
+class WalkerDialog(QDialog):
+    def __init__(self, parent: Optional[QWidget] = None, title: str = "", walk_dir: str = "") -> None:
+        super().__init__(parent)
+        self.setWindowTitle(title)
+        self.setWindowFlag(Qt.WindowType.WindowMinimizeButtonHint, False)
+        self.setWindowFlag(Qt.WindowType.WindowMaximizeButtonHint, False)
+        self.setWindowFlag(Qt.WindowType.WindowContextHelpButtonHint, False)
+
+        # Directory selector
+        self.dir_widget = DirWidget(self, {})
+        self.dir_widget.entry.setMinimumWidth(480)
+        if walk_dir:
+            self.dir_widget.open_dir(walk_dir)
+        vbox = QVBoxLayout(self)
+        vbox.addWidget(self.dir_widget)
+
+        # Empty options area for external use
+        self.options = QGridLayout()
+        vbox.addLayout(self.options)
+
+        # Buttons bar
+        hbox = QHBoxLayout()
+        vbox.addLayout(hbox)
+
+        self.chk_ovls = QCheckBox("Extract OVLs")
+        self.chk_ovls.setChecked(True)
+
+        self.chk_official = QCheckBox("Official Only")
+        self.chk_official.setChecked(True)
+
+        self.buttons = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
+        self.buttons.accepted.connect(self.accept)
+        self.buttons.rejected.connect(self.reject)
+
+        hbox.addWidget(self.chk_ovls)
+        hbox.addWidget(self.chk_official)
+        hbox.addSpacerItem(QSpacerItem(1, 16, QSizePolicy.Policy.MinimumExpanding, QSizePolicy.Policy.Fixed))
+        hbox.addWidget(self.buttons)
+
+    @property
+    def walk_dir(self):
+        return self.dir_widget.filepath
+    
+    def addWidget(self, widget: QWidget, row: int, column: int, rowSpan: int = 1, columnSpan: int = 1, alignment = Qt.Alignment()):
+        """Add widget to options section of dialog"""
+        self.options.addWidget(widget, row, column, rowSpan, columnSpan, alignment)
 
 
 class TitleBar(StandardTitleBar):
