@@ -1,10 +1,16 @@
+import os.path
+import re
+import sys
+import time
+import logging
+import subprocess
+
+# temporarily set to make sure it shows up, even though it is not written to the log file
+logger = logging.getLogger()
+logger.setLevel(logging.DEBUG)
+logging.debug(f"Checking for automatic module updates")
+
 try:
-    import os.path
-    import re
-    import sys
-    import time
-    import logging
-    import subprocess
 
     try:
         # pkg_resources and importlib.metadata are not available on py 3.7, 3.12
@@ -19,7 +25,7 @@ try:
     from ovl_util.logs import ANSI
 
     MISSING: dict[str, str] = {}
-    OUTDATED: dict[str, str]  = {}
+    OUTDATED: dict[str, str] = {}
 
     INSTALLED: list[str] = []
     UPDATED: list[str] = []
@@ -57,7 +63,7 @@ try:
         lines = requirements.read().splitlines()
         pkg_dist = packages_distributions()
         for line in lines:
-            lib, op, version = re.split("(~=|==|>|<|>=|<=)", line)
+            lib, op, version = re.split("(~=|==|>=|<=|>|<)", line)
             try:
                 lib_dist = distribution(lib)
                 # Get import name from package name
@@ -68,10 +74,10 @@ try:
                 if packaging is not None:
                     if packaging.version.parse(lib_dist.metadata['Version']) < packaging.version.parse(version):
                         logging.warning(f"{lib} is out of date.")
-                        OUTDATED[lib] = line # Need full line including ~= for pip install command
+                        OUTDATED[lib] = line  # Need full line including ~= for pip install command
             except PackageNotFoundError:
                 logging.error(f"{lib} not found.")
-                MISSING[lib] = line # Need full line including ~= for pip install command
+                MISSING[lib] = line  # Need full line including ~= for pip install command
 
     ASK_INSTALL = f"{ANSI.LIGHT_WHITE}Install the missing dependencies?{ANSI.END} (y/N)"
     ASK_UPGRADE = f"{ANSI.LIGHT_WHITE}Update the outdated dependencies?{ANSI.END} (y/N)"

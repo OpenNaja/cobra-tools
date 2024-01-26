@@ -8,13 +8,13 @@ from abc import abstractmethod
 from pathlib import Path
 
 from ovl_util import auto_updater  # pyright: ignore  # noqa: F401
+from ovl_util import config, logs
 
 from typing import Any, AnyStr, Union, Optional, Iterable, Callable, cast, NamedTuple
 from textwrap import dedent
 from generated.formats.ovl import games
 from modules.formats.shared import DummyReporter
-from ovl_util import config, logs
-from ovl_util.logs import get_stdout_handler, LogBackupFileHandler, ANSI, shorten_str
+
 import gui
 from gui import qt_theme
 from root_path import root_dir
@@ -35,10 +35,9 @@ from PyQt5.QtWidgets import (QWidget, QMainWindow, QApplication, QColorDialog, Q
                              QMessageBox, QTextEdit, QProgressBar, QPushButton, QStatusBar, QToolButton, QSpacerItem,
                              QFrame, QLayout, QGridLayout, QVBoxLayout, QHBoxLayout, QScrollArea, QSizePolicy, QSplitter,
                              QStyleFactory, QStyleOptionViewItem, QStyledItemDelegate, QDialog, QDialogButtonBox)
-import vdf
 from qframelesswindow import FramelessMainWindow, StandardTitleBar
 
-games_list = [g.value for g in games]
+import vdf
 
 # Windows modules
 try:
@@ -49,7 +48,9 @@ except:
     WINDOWS = False
 
 
+games_list = [g.value for g in games]
 MAX_UINT = 4294967295
+ICON_CACHE = {"no_icon": QIcon()}
 
 
 def color_icon(icon: QIcon, color: str = "#FFF", size: QSize = QSize(16, 16)) -> QIcon:
@@ -61,7 +62,6 @@ def color_icon(icon: QIcon, color: str = "#FFF", size: QSize = QSize(16, 16)) ->
     return QIcon(img)
 
 
-ICON_CACHE = {"no_icon": QIcon()}
 def get_icon(name: str, color: str = "", size: QSize = QSize(16, 16)) -> QIcon:
     icon = name + color
     if icon in ICON_CACHE:
@@ -1320,7 +1320,7 @@ class LoggerWidget(QWidget):
             # do not include it (to avoid an exception)
             if not hasattr(record, "details"):
                 record.__dict__["details"] = ""
-            data = LogListData.from_str(shorten_str(self.format(record)))
+            data = LogListData.from_str(logs.shorten_str(self.format(record)))
             self.append.emit(data)
 
 
@@ -2975,7 +2975,7 @@ class MainWindow(FramelessMainWindow):
     @property
     def stdout_handler(self) -> logging.StreamHandler | None:
         if not self._stdout_handler:
-            self._stdout_handler = get_stdout_handler(self.log_name)
+            self._stdout_handler = logs.get_stdout_handler(self.log_name)
         return self._stdout_handler
     
     @stdout_handler.setter
@@ -3235,7 +3235,7 @@ class MainWindow(FramelessMainWindow):
         if self.log_name:
             removed_handlers: list[logging.Handler] = []
             for handler in logging.getLogger().handlers:
-                if isinstance(handler, LogBackupFileHandler) and handler.name and handler.name == self.log_name:
+                if isinstance(handler, logs.LogBackupFileHandler) and handler.name and handler.name == self.log_name:
                     removed_handlers.append(handler)
                 elif isinstance(handler, LoggerWidget) and isinstance(handler.parent(), MainWindow):
                     removed_handlers.append(handler)
