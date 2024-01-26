@@ -244,6 +244,7 @@ class BaseFile:
 							frag = ((p_pool, l_offset), (s_pool, s_offset))
 							if frag in self.fragments:
 								self.fragments.remove(frag)
+							self.remove_ptr_from_pool(s_pool, s_offset)
 							# get the new string
 							new_bytes = s_pool.get_data_at(s_offset)
 							for old, new in byte_name_tups:
@@ -261,7 +262,13 @@ class BaseFile:
 							self.attach_frag_to_ptr(p_pool, l_offset, target_pool, target_offset)
 		except:
 			logging.exception(f"Renaming frags failed for {self.name}")
-			
+
+	def remove_ptr_from_pool(self, s_pool, s_offset):
+		if s_pool is not None:
+			# different files may have a struct at this offset
+			if s_offset in s_pool.offsets:
+				s_pool.offsets.remove(s_offset)
+
 	@staticmethod
 	def _rename(name_tuples, s):
 		for old, new in name_tuples:
@@ -326,11 +333,9 @@ class BaseFile:
 
 	def remove(self):
 		logging.info(f"Removing {self.name}")
+		# remove pointers from pools so that pools' names are still reliably detected
 		for pool, offset in self.stack.keys():
-			if pool is not None:
-				# different files may have a struct at this offset
-				if offset in pool.offsets:
-					pool.offsets.remove(offset)
+			self.remove_ptr_from_pool(pool, offset)
 		# remove the loader from ovl so it is not saved
 		self.ovl.loaders.pop(self.name)
 		# remove streamed and child files
@@ -530,6 +535,7 @@ class MemStructLoader(BaseFile):
 				frag = ((zstr_ptr.src_pool, zstr_ptr.io_start), (zstr_ptr.target_pool, zstr_ptr.target_offset))
 				if frag in self.fragments:
 					self.fragments.remove(frag)
+				self.remove_ptr_from_pool(zstr_ptr.target_pool, zstr_ptr.target_offset)
 				# set and write the ptr to a suitable pool
 				zstr_ptr.data = zstr
 				zstr_ptr.write_ptr(self, zstr_ptr.src_pool)
