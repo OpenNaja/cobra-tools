@@ -115,8 +115,7 @@ class MainWindow(widgets.MainWindow):
 
 	def append(self):
 		if self.file_widget.is_open():
-			append_path = QtWidgets.QFileDialog.getOpenFileName(
-				self, f'Append MS2', self.cfg.get(f"dir_ms2s_in", "C://"), self.file_widget.files_filter_str)[0]
+			append_path = self.file_widget.get_open_file_name(f'Append MS2')
 			if append_path:
 				try:
 					other_ms2_file = Ms2File()

@@ -2721,10 +2721,15 @@ class FileWidget(FileDirWidget):
             self.open_file(filepath)
 
     def ask_open(self) -> None:
-        filepath = QFileDialog.getOpenFileName(
-            self, f'Load {self.ftype}', self.cfg_path(self.cfg_last_dir_open), self.files_filter_str)[0]
+        filepath = self.get_open_file_name()
         if filepath:
             self.open_file(filepath)
+
+    def get_open_file_name(self, title=None):
+        title = title if title else f'Load {self.ftype}'
+        filepath = QFileDialog.getOpenFileName(
+            self, title, self.cfg_path(self.cfg_last_dir_open), self.files_filter_str)[0]
+        return filepath
 
     def ask_open_dir(self) -> None:
         # TODO: This is generally confusing for something named FileWidget

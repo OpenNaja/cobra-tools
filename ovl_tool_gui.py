@@ -313,8 +313,7 @@ class MainWindow(widgets.MainWindow):
 			self.showwarning("Please select files to compare first")
 			return
 		if self.is_open_ovl():
-			filepath = QtWidgets.QFileDialog.getOpenFileName(
-				self, "Open OVL to compare with", self.cfg.get(f"dir_ovls_in", "C://"), f"OVL files (*.ovl)")[0]
+			filepath = self.file_widget.get_open_file_name(f'Open OVL to compare with')
 			if filepath:
 				other_ovl_data = OvlFile()
 				other_ovl_data.load_hash_table()

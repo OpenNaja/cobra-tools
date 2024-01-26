@@ -359,7 +359,7 @@ class MainWindow(widgets.MainWindow):
 				self.handle_error("Opening failed, see log!")
 
 	def import_fgm(self):
-		file_in = QtWidgets.QFileDialog.getOpenFileName(self, 'Import FGM', self.cfg.get("dir_fgms_in", "C://"), "FGM files (*.fgm)")[0]
+		file_in = self.file_widget.get_open_file_name(f'Import FGM')
 		if file_in:
 			try:
 				self.cfg["dir_fgms_in"], _ = os.path.split(file_in)
