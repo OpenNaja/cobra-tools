@@ -2746,8 +2746,9 @@ class FileWidget(FileDirWidget):
     def ask_save_as(self) -> None:
         """Saves file, always ask for file path"""
         if self.is_open():
+            suggested_file_path = os.path.join(self.cfg_path(self.cfg_last_dir_save), self.filename)
             filepath = QFileDialog.getSaveFileName(
-                self, f'Save {self.ftype}', self.cfg_path(self.cfg_last_dir_save), self.files_filter_str)[0]
+                self, f'Save {self.ftype}', suggested_file_path, self.files_filter_str)[0]
             if filepath:
                 self.cfg[self.cfg_last_dir_save], _ = os.path.split(filepath)
                 self.set_file_path(filepath)
