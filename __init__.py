@@ -48,8 +48,7 @@ from plugin.modules_export.operators import ExportMS2, ExportSPL, ExportManis, E
 from plugin.utils.operators import CreateFins, CreateLods, VcolToHair, HairToVcol, TransferHairCombing, AddHair, \
     GenerateRigEdit, ApplyPoseAll, ConvertScaleToLoc, ExtrudeFins, IntrudeFins
 from plugin.utils.properties import CobraSceneSettings, CobraMeshSettings, CobraCollisionSettings, CobraMaterialSettings
-from plugin.utils.panels import CobraMaterialPanel
-
+from plugin.utils.panels import CobraMaterialPanel, CobraMdl2Panel
 
 global preview_collection
 
@@ -324,6 +323,7 @@ classes = (
     CobraCollisionSettings,
     CobraMaterialSettings,
     CobraMaterialPanel,
+    CobraMdl2Panel,
     MESH_PT_CobraTools,
     POSE_PT_CobraTools,
     SCENE_PT_CobraTools,
