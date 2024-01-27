@@ -35,8 +35,10 @@ class MainWindow(widgets.MainWindow):
 		self.file_widget = self.make_file_widget()
 
 		self.ovl_game_choice = widgets.LabelCombo("Game", [g.value for g in games], editable=False, changed_fn=self.game_changed)
+		self.ovl_game_choice.setToolTip("Game version of current OVL")
 
 		self.compression_choice = widgets.LabelCombo("Compression", [c.name for c in Compression], editable=False, changed_fn=self.compression_changed)
+		self.compression_choice.setToolTip("Compression of current OVL")
 
 		if "games" not in self.cfg:
 			self.cfg["games"] = {}
