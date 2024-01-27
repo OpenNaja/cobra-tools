@@ -186,13 +186,6 @@ class MainWindow(widgets.MainWindow):
 			(help_menu, "Documentation", self.online_support, "", "manual"))
 		self.add_to_menu(button_data)
 
-		# add checkbox to extract from ovls for the diff walkers
-		self.t_walk_ovl = QtWidgets.QAction("Walker extracts OVLs")
-		self.t_walk_ovl.setToolTip("Extract from OVLS when doing bulk operations: fgm or ms2.")
-		self.t_walk_ovl.setCheckable(True)
-		self.t_walk_ovl.setChecked(False)
-		self.t_walk_ovl.setVisible(self.dev_mode)
-
 		# add checkbox to show logger
 		self.t_show_logger = QtWidgets.QAction("Show logger")
 		self.t_show_logger.setToolTip("Hides/show the logger panel.")
@@ -202,8 +195,6 @@ class MainWindow(widgets.MainWindow):
 		self.t_show_logger.triggered.connect(self._toggle_logger)
 
 		separator_action = self.actions['generate hash table']
-		# we are not adding this to the action list, shall we?
-		util_menu.insertAction(separator_action, self.t_walk_ovl)
 		util_menu.insertAction(separator_action, self.t_show_logger)
 		util_menu.insertSeparator(separator_action)
 
@@ -297,7 +288,6 @@ class MainWindow(widgets.MainWindow):
 	def enable_gui_options(self, enable=True):
 		self.t_in_folder.setEnabled(enable)
 		self.t_do_debug.setEnabled(enable)
-		self.t_walk_ovl.setEnabled(enable)
 		self.compression_choice.setEnabled(enable)
 		self.ovl_game_choice.setEnabled(enable)
 		# just disable all actions
