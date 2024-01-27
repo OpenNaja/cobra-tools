@@ -22,7 +22,8 @@ from plugin.modules_export.geometry import export_model, scale_bbox
 from plugin.modules_export.material import export_material
 from plugin.modules_import.armature import get_bone_names
 from plugin.utils.object import ensure_visible, has_data_in_coll, get_property
-from plugin.utils.shell import get_collection_endswith, get_lod_collections
+from plugin.utils.shell import get_collection_endswith
+from plugin.utils.lods import get_lod_collections
 
 
 def get_pack_base(b_obs, apply_transforms=False):

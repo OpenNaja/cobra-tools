@@ -49,34 +49,18 @@ class CobraMdl2Panel(Panel):
 	bl_region_type = 'WINDOW'
 	bl_context = "collection"
 
-	def draw(self, context):
-		if not context.collection:
-			return
-		# fgm = context.material.fgm
-		#
-		# self.layout.prop(fgm, fgm.get_current_versioned_name(context, "shader_name"))
-		#
-		# self.layout.prop(fgm, "pRenderLayerOverride")
-		# self.layout.prop(fgm, "pVerticalTiling")
-		#
-		# groups_map = {
-		# 	"pEnableScreenSpaceAO": ("pAOTexCoordIndex",),
-		# 	"pWeather_Enable": (
-		# 		"pEnableWeatherPooling", "pWeather_ExplicitNormalThreshold", "pMaximumWaterPermeability",
-		# 		"pSnowOnSlopesOffset", "pMaximumSnowAmount"),
-		# 	"pEnablePoweredEmissive": (
-		# 		"pEmissiveLightType", "pEmissiveTint", "pEmissiveLightPower", "pEmissiveAdaptiveBrighnessWeight",
-		# 		"pEmissiveScrollData", "pIsDisplayPanel"),
-		# 	"pEnablePulsingEmissive": ("pPulsingEmitFrequency", "pPulsingEmitDarkenScale"),
-		# 	"pFlexiColourBlended": (
-		# 		"pFlexiColourTexCoordIndex", "pFlexiColourVertexColour", "pFlexiColourUseAdditiveBlend",
-		# 		"pEnableEmissiveFlexiColour"),
-		# }
-		# for group_name, group_members in groups_map.items():
-		# 	self.layout.prop(fgm, group_name)
-		# 	# is the box active?
-		# 	if getattr(fgm, group_name):
-		# 		box = self.layout.box()
-		# 		for member_name in group_members:
-		# 			box.prop(fgm, member_name)
+	@classmethod
+	def poll(cls, context):
+		coll = context.collection
+		if not coll:
+			return False
+		if "_L" in coll.name:
+			return False
+		return True
 
+	def draw(self, context):
+		layout = self.layout
+		row = layout.row(align=True)
+		# row.operator("object.create_fins", icon_value=icon)
+		sub = row.row()
+		sub.operator("object.create_lods")

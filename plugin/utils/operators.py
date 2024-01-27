@@ -1,6 +1,7 @@
 import bpy
 import bpy.types
 
+import plugin.utils.lods
 import plugin.utils.rig
 from plugin.utils import shell
 from plugin.utils.hair import comb_to_vcol, transfer_hair_combing, vcol_to_comb
@@ -19,13 +20,13 @@ class CreateFins(bpy.types.Operator):
 
 
 class CreateLods(bpy.types.Operator):
-    """Create LODs for this scene"""
+    """Create LODs for this MDL2 collection"""
     bl_idname = "object.create_lods"
     bl_label = "Create LODs"
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
-        return handle_errors(self, shell.create_lods, {})
+        return handle_errors(self, plugin.utils.lods.create_lods, {"mdl2_coll": bpy.context.collection})
 
 
 class VcolToHair(bpy.types.Operator):

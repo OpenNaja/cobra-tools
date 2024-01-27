@@ -139,9 +139,6 @@ class MESH_PT_CobraTools(bpy.types.Panel):
         icon = preview_collection["frontier.png"].icon_id
         row = layout.row(align=True)
         row.operator("object.create_fins", icon_value=icon)
-        sub = row.row()
-        sub.operator("object.create_lods", icon_value=icon)
-
         row = layout.row(align=True)
         row.operator("object.vcol_to_comb", icon_value=icon)
         sub = row.row()
