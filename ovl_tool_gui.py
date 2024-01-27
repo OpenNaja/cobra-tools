@@ -1,6 +1,5 @@
 import os
 import shutil
-import sys
 import logging
 import tempfile
 from pathlib import PurePath
@@ -250,7 +249,9 @@ class MainWindow(widgets.MainWindow):
 	def _toggle_logger(self):
 		checked = self.t_show_logger.isChecked()
 		self.cfg["show_logger"] = checked
-		logging.info(f"show logger changed, restart GUI to apply changes")
+		if self.showconfirmation(f"Restart GUI to apply changes", title="Logger Changed"):
+			self.close()
+			# just close the gui, actually restarting from code is hard
 
 	def get_file_count_text(self):
 		return f"{self.files_container.table.table_model.rowCount()} items"
