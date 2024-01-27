@@ -333,14 +333,18 @@ class BaseFile:
 
 	def remove(self):
 		logging.info(f"Removing {self.name}")
-		# remove pointers from pools so that pools' names are still reliably detected
-		for pool, offset in self.stack.keys():
-			self.remove_ptr_from_pool(pool, offset)
+		self.clear_stack()
 		# remove the loader from ovl so it is not saved
 		self.ovl.loaders.pop(self.name)
 		# remove streamed and child files
 		for loader in self.controlled_loaders:
 			loader.remove()
+
+	def clear_stack(self):
+		"""Safely clear the stack by removing pointers from pools so that pools' names are still reliably detected"""
+		for pool, offset in self.stack.keys():
+			self.remove_ptr_from_pool(pool, offset)
+		self.stack.clear()
 
 	def track_ptrs(self):
 		# logging.debug(f"Tracking {self.name}")

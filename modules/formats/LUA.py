@@ -76,8 +76,7 @@ class LuaLoader(MemStructLoader):
 		for old, new in name_tuples:
 			buffer_0 = buffer_0.replace(old.encode(), new.encode())
 		self.data_entry.update_data((buffer_0,))
-		# if self.header.lua_size != len(buffer_0):
-		self.stack.clear()
+		self.clear_stack()
 		self.fragments.clear()
 		# updating size is mandatory
 		self.update_header(buffer_0, self.basename)

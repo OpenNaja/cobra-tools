@@ -28,7 +28,7 @@ class MemPool:
 			yield l_offset, l_offset - p_offset, entry
 
 	def get_first_offset(self):
-		# usually 0, but be safe
+		# usually 0 for original pools, but be safe and consider deleted pointers too
 		if self.offsets:
 			first_offset = sorted(self.offsets)[0]
 			return first_offset
