@@ -6,13 +6,10 @@ import tempfile
 from io import BytesIO
 import shutil
 
-from generated.formats.base.basic import ZString
 from generated.formats.ovl import UNK_HASH
 from generated.formats.ovl.compounds.BufferEntry import BufferEntry
 from generated.formats.ovl.compounds.MemPool import MemPool
 from generated.formats.ovl.compounds.DataEntry import DataEntry
-from generated.formats.ovl_base.compounds.MemStruct import MemStruct
-from generated.formats.ovl_base.compounds.Pointer import Pointer
 from modules.formats.shared import djb2
 
 TAB = '  '
