@@ -175,6 +175,8 @@ class NewMeshData(MeshData):
 		self.init_arrays()
 		# create array to populate with packed vertices
 		self.verts_data = np.empty(dtype=self.dt, shape=self.vertex_count)
+		print(self.flag)
+		print(self.verts_data)
 		# read the packed data
 		self.buffer_info.verts.seek(self.vertex_offset)
 		self.buffer_info.verts.readinto(self.verts_data)
@@ -210,7 +212,7 @@ class NewMeshData(MeshData):
 		unpack_swizzle_vectorized(self.tangents)
 
 		# unpack the lod_keys
-		if self.use_custom_normals:
+		if self.is_speedtree:
 			# create the int64 by combining its two parts
 			shapes_combined = self.verts_data["lod_key_1"].astype(np.int64)
 			shapes_combined <<= 32
@@ -242,7 +244,7 @@ class NewMeshData(MeshData):
 		# logging.debug(f"Unpacked mesh in {time.time() - start_time:.2f} seconds")
 
 	@property
-	def use_custom_normals(self):
+	def is_speedtree(self):
 		return self.flag == 517
 
 	def pack_verts(self):
@@ -250,7 +252,7 @@ class NewMeshData(MeshData):
 		logging.info("Packing vertices")
 		self.verts_data = np.zeros(self.vertex_count, dtype=self.dt)
 
-		if self.use_custom_normals:
+		if self.is_speedtree:
 			pack_swizzle_vectorized(self.lod_keys)
 			scale_pack_vectorized(self.lod_keys, self.pack_base)
 			shapes_combined = np.zeros(self.vertex_count, dtype=np.int64)

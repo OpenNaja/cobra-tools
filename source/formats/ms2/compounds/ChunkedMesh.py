@@ -108,7 +108,7 @@ class ChunkedMesh(MeshData):
 					raise AttributeError(f"Unsupported weights_flag.mesh_format {vert_chunk.weights_flag.mesh_format}")
 				# store chunk's meta data in mesh's array
 				vert_chunk.uvs[:] = vert_chunk.meta["uvs"]
-				if self.use_custom_normals:
+				if self.is_speedtree:
 					vert_chunk.normals_custom[:] = vert_chunk.meta["normal_custom"]
 					vert_chunk.wind[:] = vert_chunk.meta["wind"]
 				else:
@@ -153,7 +153,7 @@ class ChunkedMesh(MeshData):
 		self.fur_length = 0.0
 		# just a sanity check
 		assert self.vertex_count == sum(o.vertex_count for o in self.vert_chunks)
-		if self.use_custom_normals:
+		if self.is_speedtree:
 			for vertex_index, weight in enumerate(self.wind):
 				self.add_to_weights("wind", vertex_index, weight)
 			# todo - the whatever unk
@@ -323,7 +323,7 @@ class ChunkedMesh(MeshData):
 			vert_chunk.precision = self.precision
 
 	@property
-	def use_custom_normals(self):
+	def is_speedtree(self):
 		return self.mesh_format in (MeshFormat.INTERLEAVED_32, MeshFormat.INTERLEAVED_48)
 
 	def pack_verts(self):
@@ -378,7 +378,7 @@ class ChunkedMesh(MeshData):
 			else:
 				pack_ushort_vector(vert_chunk.uvs)
 			# assign the right views from the main arrays back to the chunks
-			if self.use_custom_normals:
+			if self.is_speedtree:
 				vert_chunk.meta["normal_custom"] = vert_chunk.normals_custom
 				vert_chunk.meta["wind"] = vert_chunk.wind
 			else:

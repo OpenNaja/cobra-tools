@@ -152,7 +152,7 @@ def import_mesh_layers(b_me, mesh, use_custom_normals, mat_name):
 	# set normals
 	if use_custom_normals and mesh.flag not in (565,):
 		b_me.use_auto_smooth = True
-		normals = mesh.normals_custom if mesh.use_custom_normals else mesh.normals
+		normals = mesh.normals_custom if mesh.is_speedtree else mesh.normals
 		b_me.normals_split_custom_set_from_vertices(normals)
 	# else:
 	# 	remove_doubles_bmesh(b_me)

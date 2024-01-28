@@ -59,7 +59,7 @@ class MeshData(MemStruct):
 			yield 'some_index_2', name_type_map['Uint'], (0, None), (False, None)
 
 	@property
-	def use_custom_normals(self):
+	def is_speedtree(self):
 		return False
 
 	# @property

@@ -17,7 +17,7 @@ class MeshData:
 	# START_CLASS
 
 	@property
-	def use_custom_normals(self):
+	def is_speedtree(self):
 		return False
 
 	# @property
