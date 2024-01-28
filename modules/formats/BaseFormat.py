@@ -519,6 +519,8 @@ class MemStructLoader(BaseFile):
 	def rename_stack(self, name_tuples):
 		"""Collect all zstring pointers (incl. obfuscated) and rename them"""
 		if not self.header:
+			# fallback for files that haven't been collected
+			super().rename_stack(name_tuples)
 			return
 		logging.info(f"Renaming structs for {self.name}")
 		try:

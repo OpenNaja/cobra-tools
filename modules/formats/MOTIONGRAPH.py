@@ -1,4 +1,5 @@
 from generated.formats.motiongraph.compounds.MotiongraphHeader import MotiongraphHeader
+from generated.formats.ovl import is_jwe
 from modules.formats.BaseFormat import MemStructLoader
 
 
@@ -8,7 +9,9 @@ class MotiongraphLoader(MemStructLoader):
 
 	def collect(self):
 		if self.ovl.version >= 19:
-			# pass
+			# structs are too different, doesn't register anim names, would break rename contents
+			if is_jwe(self.ovl):
+				return
 			super().collect()
 
 	def accept_string(self, in_str):
