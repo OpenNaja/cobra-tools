@@ -91,7 +91,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 		except:
 			logging.error("Names failed...")
 
-	def load(self, filepath, read_bytes=False, read_editable=False, dump=False):
+	def load(self, filepath, read_bytes=False, read_editable=False, dump=False, expect_shapekeys=True):
 		start_time = time.time()
 		self.filepath = filepath
 		self.dir, self.name = os.path.split(os.path.normpath(filepath))
@@ -131,7 +131,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 				static_buffer = self.get_static_buffer()
 				self.buffer_2_bytes = self.get_all_bytes(static_buffer)
 			if read_editable:
-				self.load_meshes()
+				self.load_meshes(expect_shapekeys)
 		logging.debug(f"Read {self.name} in {time.time() - start_time:.2f} seconds")
 
 	def load_buffers(self, stream, dump):
@@ -188,7 +188,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 		else:
 			return False
 
-	def load_meshes(self):
+	def load_meshes(self, expect_shapekeys):
 		for model_i, model_info in enumerate(self.model_infos):
 			if self.lacks_mesh(model_info, model_i):
 				continue
@@ -204,7 +204,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			try:
 				for i, wrapper in enumerate(model_info.model.meshes):
 					# logging.info(f"Populating mesh {i}")
-					wrapper.mesh.populate(pack_base)
+					wrapper.mesh.populate(pack_base, expect_shapekeys)
 				# logging.info(f"Populating mesh worked {model_info}, {model_info.model}")
 			except:
 				logging.exception(f"Populating mesh failed for model {model_info}, {model_info.model}")

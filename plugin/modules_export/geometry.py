@@ -38,6 +38,8 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 			mesh.mesh_format = MeshFormat.INTERLEAVED_48
 		else:
 			mesh.mesh_format = MeshFormat.SEPARATE
+
+	mesh.expect_shapekeys = True if b_me.shape_keys else False
 	mesh.update_dtype()
 	num_uvs = mesh.get_uv_count()
 	num_vcols = mesh.get_vcol_count()
@@ -313,6 +315,8 @@ def validate_vertex_groups(b_ob, bones_table):
 		if v_group.name in bones_table:
 			continue
 		elif v_group.name in FUR_VGROUPS:
+			continue
+		elif v_group.name in ("whatever", "wind"):
 			continue
 		else:
 			logging.warning(f"Ignored extraneous vertex group {v_group.name} on mesh {b_ob.name}")

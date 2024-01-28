@@ -65,15 +65,27 @@ class NewMeshData(MeshData):
 				("uvs", np.ushort, (8, 2)),
 			])
 		elif self.flag == 517:
-			dt.extend([
-				("uvs", np.ushort, (1, 2)),
-				("lod_key_0", np.uint32),
-				("normal_custom", np.ubyte, 3),  # edited normal
-				("wind", np.ubyte),  # not sure for PZ
-				("lod_key_1", np.int32),
-				("center_key", np.float32, 3),  # may be 00 00 C0 7F (NaN)
-				("whatever", np.float32),  # unlike JWE2 this is likely encoded as float
-			])
+			# there is a version of 517 that has no shape keys, but 2 uv layers
+			if self.expect_shapekeys:
+				dt.extend([
+					("uvs", np.ushort, (1, 2)),
+					("lod_key_0", np.uint32),
+					("normal_custom", np.ubyte, 3),  # edited normal
+					("wind", np.ubyte),  # not sure for PZ
+					("lod_key_1", np.int32),
+					("center_key", np.float32, 3),  # may be 00 00 C0 7F (NaN)
+					("whatever", np.float32),  # unlike JWE2 this is likely encoded as float
+				])
+			else:
+				dt.extend([
+					("uvs", np.ushort, (2, 2)),
+					# ???
+					("normal_custom", np.ubyte, 3),  # edited normal
+					("wind", np.ubyte),  # not sure for PZ
+					("lod_key_1", np.int32),
+					("center_key", np.float32, 3),  # may be 00 00 C0 7F (NaN)
+					("whatever", np.float32),  # unlike JWE2 this is likely encoded as float
+				])
 		elif self.flag == 545:
 			dt.extend([
 				# cz_glasspanel_4m_02.mdl2
@@ -101,8 +113,6 @@ class NewMeshData(MeshData):
 		self.init_arrays()
 		# create array to populate with packed vertices
 		self.verts_data = np.empty(dtype=self.dt, shape=self.vertex_count)
-		print(self.flag)
-		print(self.verts_data)
 		# read the packed data
 		self.buffer_info.verts.seek(self.vertex_offset)
 		self.buffer_info.verts.readinto(self.verts_data)
@@ -171,7 +181,7 @@ class NewMeshData(MeshData):
 
 	@property
 	def is_speedtree(self):
-		return self.flag == 517
+		return self.flag == 517 and self.expect_shapekeys
 
 	def pack_verts(self):
 		"""Repack flat lists into verts_data"""

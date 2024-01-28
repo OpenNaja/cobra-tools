@@ -92,9 +92,10 @@ class MeshData(MemStruct):
 			logging.exception(f"Size value guessing failed")
 			return 0
 
-	def populate(self, pack_base=512):
+	def populate(self, pack_base=512, expect_shapekeys=True):
 		self.mesh_format = None
 		self.pack_base = pack_base
+		self.expect_shapekeys = expect_shapekeys
 		self.lod_keys = None
 		self.read_verts()
 		self.read_tris()
