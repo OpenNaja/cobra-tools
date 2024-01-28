@@ -23,7 +23,6 @@ try:
     from bpy.props import IntProperty
     from bpy.types import PropertyGroup
     import addon_utils
-    from plugin.addon_updater_ops import classes as updater_classes
 
     copies_of_tools = []
     for addon in addon_utils.modules():
@@ -44,6 +43,7 @@ try:
     from root_path import root_dir
 
     from plugin import addon_updater_ops
+    from plugin.addon_updater_ops import classes as updater_classes
     from plugin.modules_import.operators import ImportBanis, ImportManis, ImportMatcol, ImportFgm, ImportMS2, ImportSPL, \
         ImportVoxelskirt, ImportMS2FromBrowser, ImportFGMFromBrowser
     from plugin.modules_export.operators import ExportMS2, ExportSPL, ExportManis, ExportBanis, ExportFgm
@@ -328,87 +328,88 @@ try:
         InstallDependencies,
         *updater_classes
     )
-
-
-    # get panel names
-    # for panel in bpy.types.Panel.__subclasses__():
-    #     print(panel.__name__)
-    # PHYSICS_PT_rigid_body
-    # PHYSICS_PT_rigid_body_settings
-    # PHYSICS_PT_rigid_body_collisions
-    # PHYSICS_PT_rigid_body_collisions_surface
-    # PHYSICS_PT_rigid_body_collisions_sensitivity
-    # PHYSICS_PT_rigid_body_collisions_collections
-    # PHYSICS_PT_rigid_body_dynamics
-    # PHYSICS_PT_rigid_body_dynamics_deactivation
-    # PHYSICS_PT_rigid_body_constraint
-    # PHYSICS_PT_rigid_body_constraint_settings
-    # PHYSICS_PT_rigid_body_constraint_objects
-    # PHYSICS_PT_rigid_body_constraint_override_iterations
-    # PHYSICS_PT_rigid_body_constraint_limits
-    # PHYSICS_PT_rigid_body_constraint_limits_linear
-    # PHYSICS_PT_rigid_body_constraint_limits_angular
-    # PHYSICS_PT_rigid_body_constraint_motor
-    # PHYSICS_PT_rigid_body_constraint_motor_angular
-    # PHYSICS_PT_rigid_body_constraint_motor_linear
-    # PHYSICS_PT_rigid_body_constraint_springs
-    # PHYSICS_PT_rigid_body_constraint_springs_angular
-    # PHYSICS_PT_rigid_body_constraint_springs_linear
-    def register():
-        addon_updater_ops.register(bl_info)
-        icons_dir = os.path.join(root_dir, "icons")
-        global preview_collection
-        preview_collection = bpy.utils.previews.new()
-        for icon_name_ext in os.listdir(icons_dir):
-            icon_name = os.path.basename(icon_name_ext)
-            preview_collection.load(icon_name, os.path.join(icons_dir, icon_name_ext), 'IMAGE')
-
-        for cls in classes:
-            bpy.utils.register_class(cls)
-        bpy.types.TOPBAR_MT_file_import.append(menu_func_import)
-        bpy.types.TOPBAR_MT_file_export.append(menu_func_export)
-
-        # insert properties
-        bpy.types.Material.fgm   = bpy.props.PointerProperty(type=CobraMaterialSettings)
-        bpy.types.Scene.cobra = bpy.props.PointerProperty(type=CobraSceneSettings)
-        bpy.types.Mesh.cobra = bpy.props.PointerProperty(type=CobraMeshSettings)
-        # bpy.types.RigidBodyObject.cobra = bpy.props.PointerProperty(type=CobraCollisionSettings)
-        bpy.types.Object.cobra_coll = bpy.props.PointerProperty(type=CobraCollisionSettings)
-        bpy.types.Scene.mergenodes = bpy.props.BoolProperty(
-            name = "Merge Idential Nodes",
-            description = "Merges identical nodes to reduce the amount of duplicates if you  moved several bones with the same parent",
-            default = True
-        )
-        bpy.types.Scene.applyarmature = bpy.props.BoolProperty(
-            name = "Apply Armature Modifiers",
-            description = "Automatically applies all of the armature's object's armature modifiers and re-adds them",
-            default = False
-        )
-
-        # Injection of elements in the contextual menu of the File Browser editor
-        bpy.types.FILEBROWSER_MT_context_menu.append(CT_FileBrowser_Context_Menu)
-        bpy.types.PHYSICS_PT_rigid_body_constraint_limits_angular.append(draw_rigid_body_constraints_cobra)
-
-
-    def unregister():
-
-        # Injection of elements in the contextual menu of the File Browser editor
-        bpy.types.FILEBROWSER_MT_context_menu.remove(CT_FileBrowser_Context_Menu)
-        bpy.types.PHYSICS_PT_rigid_body_constraint_limits_angular.remove(draw_rigid_body_constraints_cobra)
-
-        bpy.types.TOPBAR_MT_file_import.remove(menu_func_import)
-        bpy.types.TOPBAR_MT_file_export.remove(menu_func_export)
-
-        for cls in reversed(classes):
-            bpy.utils.unregister_class(cls)
-
-        del bpy.types.Scene.cobra
-        del bpy.types.Mesh.cobra
-        del bpy.types.Scene.mergenodes
-        del bpy.types.Scene.applyarmature
-        global preview_collection
-        bpy.utils.previews.remove(preview_collection)
-    if __name__ == "__main__":
-        register()
 except:
     pass
+
+# get panel names
+# for panel in bpy.types.Panel.__subclasses__():
+#     print(panel.__name__)
+# PHYSICS_PT_rigid_body
+# PHYSICS_PT_rigid_body_settings
+# PHYSICS_PT_rigid_body_collisions
+# PHYSICS_PT_rigid_body_collisions_surface
+# PHYSICS_PT_rigid_body_collisions_sensitivity
+# PHYSICS_PT_rigid_body_collisions_collections
+# PHYSICS_PT_rigid_body_dynamics
+# PHYSICS_PT_rigid_body_dynamics_deactivation
+# PHYSICS_PT_rigid_body_constraint
+# PHYSICS_PT_rigid_body_constraint_settings
+# PHYSICS_PT_rigid_body_constraint_objects
+# PHYSICS_PT_rigid_body_constraint_override_iterations
+# PHYSICS_PT_rigid_body_constraint_limits
+# PHYSICS_PT_rigid_body_constraint_limits_linear
+# PHYSICS_PT_rigid_body_constraint_limits_angular
+# PHYSICS_PT_rigid_body_constraint_motor
+# PHYSICS_PT_rigid_body_constraint_motor_angular
+# PHYSICS_PT_rigid_body_constraint_motor_linear
+# PHYSICS_PT_rigid_body_constraint_springs
+# PHYSICS_PT_rigid_body_constraint_springs_angular
+# PHYSICS_PT_rigid_body_constraint_springs_linear
+def register():
+    addon_updater_ops.register(bl_info)
+    icons_dir = os.path.join(root_dir, "icons")
+    global preview_collection
+    preview_collection = bpy.utils.previews.new()
+    for icon_name_ext in os.listdir(icons_dir):
+        icon_name = os.path.basename(icon_name_ext)
+        preview_collection.load(icon_name, os.path.join(icons_dir, icon_name_ext), 'IMAGE')
+
+    for cls in classes:
+        bpy.utils.register_class(cls)
+    bpy.types.TOPBAR_MT_file_import.append(menu_func_import)
+    bpy.types.TOPBAR_MT_file_export.append(menu_func_export)
+
+    # insert properties
+    bpy.types.Material.fgm   = bpy.props.PointerProperty(type=CobraMaterialSettings)
+    bpy.types.Scene.cobra = bpy.props.PointerProperty(type=CobraSceneSettings)
+    bpy.types.Mesh.cobra = bpy.props.PointerProperty(type=CobraMeshSettings)
+    # bpy.types.RigidBodyObject.cobra = bpy.props.PointerProperty(type=CobraCollisionSettings)
+    bpy.types.Object.cobra_coll = bpy.props.PointerProperty(type=CobraCollisionSettings)
+    bpy.types.Scene.mergenodes = bpy.props.BoolProperty(
+        name = "Merge Idential Nodes",
+        description = "Merges identical nodes to reduce the amount of duplicates if you  moved several bones with the same parent",
+        default = True
+    )
+    bpy.types.Scene.applyarmature = bpy.props.BoolProperty(
+        name = "Apply Armature Modifiers",
+        description = "Automatically applies all of the armature's object's armature modifiers and re-adds them",
+        default = False
+    )
+
+    # Injection of elements in the contextual menu of the File Browser editor
+    bpy.types.FILEBROWSER_MT_context_menu.append(CT_FileBrowser_Context_Menu)
+    bpy.types.PHYSICS_PT_rigid_body_constraint_limits_angular.append(draw_rigid_body_constraints_cobra)
+
+
+def unregister():
+
+    # Injection of elements in the contextual menu of the File Browser editor
+    bpy.types.FILEBROWSER_MT_context_menu.remove(CT_FileBrowser_Context_Menu)
+    bpy.types.PHYSICS_PT_rigid_body_constraint_limits_angular.remove(draw_rigid_body_constraints_cobra)
+
+    bpy.types.TOPBAR_MT_file_import.remove(menu_func_import)
+    bpy.types.TOPBAR_MT_file_export.remove(menu_func_export)
+
+    for cls in reversed(classes):
+        bpy.utils.unregister_class(cls)
+
+    del bpy.types.Scene.cobra
+    del bpy.types.Mesh.cobra
+    del bpy.types.Scene.mergenodes
+    del bpy.types.Scene.applyarmature
+    global preview_collection
+    bpy.utils.previews.remove(preview_collection)
+
+
+if __name__ == "__main__":
+    register()
