@@ -2426,11 +2426,11 @@ class CollapsibleBox(QWidget):
         content_animation.setEndValue(content_height)
 
 
-class MatcolInfo:
+class MatcolFloatAttrib:
     def __init__(self, attrib, tooltips={}):
         """attrib must be pyffi matcol InfoWrapper object"""
         self.attrib = attrib
-        name = attrib.info_name.data
+        name = attrib.attrib_name.data
         self.label = QLabel(name)
 
         self.data = QWidget()

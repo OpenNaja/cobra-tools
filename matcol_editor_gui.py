@@ -118,8 +118,8 @@ class MainWindow(widgets.MainWindow):
 					lay.addWidget(combo.label, 0, 0)
 					lay.addWidget(combo.entry, 0, 1)
 					sub_line_i = 1
-					for infow in attrib.infos.data:
-						w = widgets.MatcolInfo(infow, self.tooltips)
+					for float_attribute in attrib.float_attributes.data:
+						w = widgets.MatcolFloatAttrib(float_attribute, self.tooltips)
 						lay.addWidget(w.label, sub_line_i, 0)
 						lay.addWidget(w.data, sub_line_i, 1)
 						sub_line_i += 1
