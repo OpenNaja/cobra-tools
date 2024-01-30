@@ -108,7 +108,6 @@ class MainWindow(widgets.MainWindow):
 				events.load(events_path)
 				events.inject_hirc(wem_file_path, wem_id)
 				events.save(events_path)
-				# todo update self.bnk_file.bnk_header.size_b
 
 				logging.info(f"Injected {wem_file_path} {wem_id}")
 
@@ -153,7 +152,7 @@ class MainWindow(widgets.MainWindow):
 		try:
 			self.bnk_file.save(filepath)
 			self.set_file_modified(False)
-			self.set_msg_temporarily(f"Saved {self.bnk_file.basename}")
+			self.set_msg_temporarily(f"Saved {self.bnk_file.bnk_name}")
 		except:
 			self.handle_error("Loading failed, see log!")
 

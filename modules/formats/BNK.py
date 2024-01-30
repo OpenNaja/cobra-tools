@@ -14,12 +14,16 @@ class BnkLoader(BaseFile):
 	def create(self, file_path):
 		bnk_file = BnkFile()
 		bnk_file.load(file_path)
-		# todo - ensure update of bnk_file.bnk_header.size_b here or in gui?
+		# ensure update of bnk_file.bnk_header.size_b
+		if bnk_file.bnk_header.external_aux_b_count:
+			bnk_file.bnk_header.size_b = os.path.getsize(bnk_file.aux_b_path)
+			logging.debug(f"bnk_file.bnk_header.size_b = {bnk_file.bnk_header.size_b}")
 		with BytesIO() as stream:
 			BnkBufferData.to_stream(bnk_file.bnk_header, stream, self.context)
 			buffers = [stream.getvalue(), ]
 		if bnk_file.bnk_header.external_aux_b_count:
 			logging.info(f"Loaded bnk {bnk_file.aux_b_name_bare} into OVL buffers")
+
 			with open(bnk_file.aux_b_path, "rb") as f:
 				buffers.append(f.read())
 

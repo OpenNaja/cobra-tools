@@ -1,6 +1,7 @@
 import logging
 import os
 
+from generated.formats.base.basic import Uint
 from generated.formats.bnk.compounds.BKHDSection import BKHDSection
 from generated.formats.bnk.compounds.DATASection import DATASection
 from generated.formats.bnk.compounds.DIDXSection import DIDXSection
@@ -124,10 +125,9 @@ class AuxFileContainer(BaseStruct):
 		if instance.data:
 			data = b"".join(pointer.data + pointer.pad for pointer in instance.didx.data_pointers)
 			stream.write(b"DATA")
-			# todo
-			stream.write_uint(len(data) - len(pointer.pad))
+			Uint.to_stream(len(data) - len(pointer.pad), stream)
 			stream.write(data)
 			# ovl ignores the padding of the last wem
-			instance.size_for_ovl = stream.tell() - len(pointer.pad)
-		logging.info(f"AUX size for OVL {instance.size_for_ovl}")
+			# instance.size_for_ovl = stream.tell() - len(pointer.pad)
+		# logging.info(f"AUX size for OVL {instance.size_for_ovl}")
 
