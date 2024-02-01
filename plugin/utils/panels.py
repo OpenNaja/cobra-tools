@@ -62,9 +62,11 @@ class CobraMdl2Panel(Panel):
 		layout = self.layout
 		row = layout.row(align=True)
 		# row.operator("object.create_fins", icon_value=icon)
-		sub = row.row()
-		sub.operator("mdl2.create_lods")
-		sub.operator("mdl2.rename")
+		# row = row.row()
+		row.operator("mdl2.create_lods")
+		row = layout.row(align=True)
+		row.operator("mdl2.rename")
+		row.operator("mdl2.duplicate")
 
 #
 # class TOPBAR_PT_name(Panel):

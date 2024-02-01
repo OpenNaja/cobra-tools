@@ -3,7 +3,7 @@ import bpy.types
 
 import plugin.utils.lods
 import plugin.utils.rig
-from plugin.utils import shell
+from plugin.utils import shell, collection
 from plugin.utils.hair import comb_to_vcol, transfer_hair_combing, vcol_to_comb
 from plugin.utils.shell import extrude_fins, intrude_fins
 from plugin.utils.matrix_util import handle_errors
@@ -120,10 +120,7 @@ class ConvertScaleToLoc(bpy.types.Operator):
 		return handle_errors(self, plugin.utils.rig.convert_scale_to_loc, {})
 
 
-class Mdl2Rename(bpy.types.Operator):
-	"""Rename this MDL2 collection and all of its children to the new name"""
-	bl_idname = "mdl2.rename"
-	bl_label = "Rename"
+class GenericRename(bpy.types.Operator):
 	new_name: bpy.props.StringProperty(name="New Name", default="")
 
 	def invoke(self, context, event):
@@ -133,6 +130,12 @@ class Mdl2Rename(bpy.types.Operator):
 		row = self.layout.row()
 		row.activate_init = True
 		row.prop(self, "new_name", text='')
+
+
+class Mdl2Rename(GenericRename):
+	"""Rename this MDL2 collection and all of its children to the new name"""
+	bl_idname = "mdl2.rename"
+	bl_label = "Rename"
 
 	def execute(self, context):
 		mdl2_coll = context.collection
@@ -145,4 +148,19 @@ class Mdl2Rename(bpy.types.Operator):
 					child.name = child.name.replace(old_name, self.new_name)
 			for child in mdl2_coll.objects:
 				child.name = child.name.replace(old_name, self.new_name)
+		return {"FINISHED"}
+
+
+class Mdl2Duplicate(GenericRename):
+	"""Duplicate this MDL2 collection and all of its children to the new name"""
+	bl_idname = "mdl2.duplicate"
+	bl_label = "Duplicate"
+
+	def execute(self, context):
+		mdl2_coll = context.collection
+		old_name = str(mdl2_coll.name)
+
+		def replacer(name):
+			return name.replace(old_name, self.new_name)
+		collection.copy(context.scene.collection, mdl2_coll, linked=False, replacer=replacer)
 		return {"FINISHED"}
