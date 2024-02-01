@@ -22,7 +22,6 @@ from plugin.modules_export.geometry import export_model, scale_bbox
 from plugin.modules_export.material import export_material
 from plugin.modules_import.armature import get_bone_names
 from plugin.utils.object import ensure_visible, has_data_in_coll, get_property
-from plugin.utils.shell import get_collection_endswith
 from plugin.utils.lods import get_lod_collections
 
 
@@ -36,13 +35,13 @@ def get_pack_base(b_obs, apply_transforms=False):
 	# use some slight tolerance to avoid wrapping the edge values
 	tolerance = 1.05
 	for pack_base in [float(2 ** x) for x in range(1, 16)]:
-		if -pack_base < coord_min*tolerance and coord_max*tolerance < pack_base:
+		if -pack_base < coord_min * tolerance and coord_max * tolerance < pack_base:
 			return pack_base
 
 
 def get_precision(pack_base):
 	# precision is close to pack_base / PACKEDVEC_MAX but with some error
-	return (pack_base + (pack_base*pack_base / PACKEDVEC_MAX)) / PACKEDVEC_MAX
+	return (pack_base + (pack_base * pack_base / PACKEDVEC_MAX)) / PACKEDVEC_MAX
 
 
 def get_next_backup_filename(filepath):
@@ -52,10 +51,10 @@ def get_next_backup_filename(filepath):
 	prefixed = [filename for filename in os.listdir(sfolder) if filename.startswith(sname)]
 	if len(prefixed) == 0:
 		# no files found, create the first one 
-		return os.path.join(sfolder,sname + '~1' + sext)
+		return os.path.join(sfolder, sname + '~1' + sext)
 	else:
 		# files found, find all the file suffix numbers
-		file_suffixes = [0,]
+		file_suffixes = [0, ]
 
 		for file in prefixed:
 			regex_match = re.match(sname + "~(\d+)", file)
@@ -65,12 +64,11 @@ def get_next_backup_filename(filepath):
 				file_suffixes.append(file_suffix_int)
 
 		# get max and increment by one				
-		new_suffix = max(file_suffixes) + 1 
-		return os.path.join(sfolder,sname + '~' + str(new_suffix) + sext)
+		new_suffix = max(file_suffixes) + 1
+		return os.path.join(sfolder, sname + '~' + str(new_suffix) + sext)
 
 
-def save(filepath='', backup_original=True, apply_transforms=False, update_rig=False, use_stock_normals_tangents=False):
-	messages = set()
+def save(reporter, filepath='', backup_original=True, apply_transforms=False, update_rig=False, use_stock_normals_tangents=False):
 	start_time = time.time()
 
 	ms2 = Ms2File()
@@ -91,7 +89,7 @@ def save(filepath='', backup_original=True, apply_transforms=False, update_rig=F
 
 			backup_name = get_next_backup_filename(export_path)
 			shutil.copy(filepath, backup_name)
-		
+
 	logging.info(f"Exporting {filepath}...")
 
 	ms2.read_editable = True
@@ -110,7 +108,7 @@ def save(filepath='', backup_original=True, apply_transforms=False, update_rig=F
 			ms2.model_infos.append(model_info)
 		else:
 			if mdl2_coll.name not in model_info_lut:
-				logging.warning(f"Collection '{mdl2_coll.name}' was not found in the MS2 file, skipping")
+				reporter.show_warning(f"Collection '{mdl2_coll.name}' was not found in the MS2 file, skipping")
 				continue
 			model_info = model_info_lut[mdl2_coll.name]
 
@@ -125,7 +123,7 @@ def save(filepath='', backup_original=True, apply_transforms=False, update_rig=F
 
 			b_armature_ob = get_armature(mdl2_coll.objects)
 			if not b_armature_ob:
-				logging.warning(f"No armature was found in collection '{mdl2_coll.name}' - did you delete it?")
+				reporter.show_warning(f"No armature was found in collection '{mdl2_coll.name}' - did you delete it?")
 			else:
 				# clear pose
 				for pbone in b_armature_ob.pose.bones:
@@ -163,13 +161,14 @@ def save(filepath='', backup_original=True, apply_transforms=False, update_rig=F
 					if shell_count > 0:
 						indices = range(shell_count)
 					else:
-						indices = (0, )
+						indices = (0,)
 					for shell_index in indices:
 						logging.debug(f"Exporting shell index {shell_index}")
 						if b_me not in b_models:
 							b_models.append((b_me, shell_index))
-							wrapper = export_model(model_info, lod_coll, b_ob, b_me, bones_table, bounds, apply_transforms,
-												use_stock_normals_tangents, m_lod, shell_index, shell_count, mesh_in_lod)
+							wrapper = export_model(
+								model_info, lod_coll, b_ob, b_me, bones_table, bounds, apply_transforms,
+								use_stock_normals_tangents, m_lod, shell_index, shell_count, mesh_in_lod)
 							wrapper.mesh.lod_index = lod_i
 							wrapper.mesh.stream_info.pool_index = stream_index
 							mesh_in_lod += 1
@@ -177,9 +176,7 @@ def save(filepath='', backup_original=True, apply_transforms=False, update_rig=F
 							logging.debug(f"Exporting material {b_mat.name}")
 							if b_mat not in b_materials:
 								b_materials.append(b_mat)
-								export_material(model_info, b_mat)
-								if "." in b_mat.name:
-									messages.add(f"Material {b_mat.name} seems to be an unwanted duplication")
+								export_material(model_info, b_mat, reporter)
 								if len(b_materials) > 16:
 									raise IndexError(
 										f"Material {b_mat.name} exceeds the limit of 16 unique materials\n"
@@ -205,14 +202,11 @@ def save(filepath='', backup_original=True, apply_transforms=False, update_rig=F
 	ms2.save(filepath)
 	# print(ms2)
 	if found_mdl2s:
-		messages.add(f"Finished MS2 export in {time.time() - start_time:.2f} seconds")
+		reporter.show_info(f"Exported {scene.name} in {time.time() - start_time:.2f} sec")
 	else:
 		mdl2_names = sorted(model_info_lut.keys())
 		mdl2_names_str = '\n'.join(mdl2_names)
-		raise AttributeError(
+		reporter.show_warning(
 			f"Found no collections matching MDL2s in MS2:\n"
 			f"{mdl2_names_str}\n"
 			f"Rename your collections to match the MDL2s")
-	return messages
-
-

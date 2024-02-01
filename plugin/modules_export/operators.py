@@ -3,7 +3,7 @@ from bpy.props import StringProperty, BoolProperty, IntProperty, FloatProperty, 
 from bpy_extras.io_utils import ExportHelper
 
 from plugin import export_ms2, export_spl, export_manis, export_banis, export_fgm
-from plugin.utils.matrix_util import handle_errors
+from plugin.utils.matrix_util import handle_errors, handle_errors_new
 
 
 class ExportFgm(bpy.types.Operator, ExportHelper):
@@ -51,7 +51,7 @@ class ExportMS2(bpy.types.Operator, ExportHelper):
 
     def execute(self, context):
         keywords = self.as_keywords(ignore=("axis_forward", "axis_up", "filter_glob", "check_existing"))
-        return handle_errors(self, export_ms2.save, keywords)
+        return handle_errors_new(self, export_ms2.save, keywords)
 
 
 class ExportSPL(bpy.types.Operator, ExportHelper):
