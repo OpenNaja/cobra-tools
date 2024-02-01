@@ -48,7 +48,7 @@ try:
         ImportVoxelskirt, ImportMS2FromBrowser, ImportFGMFromBrowser
     from plugin.modules_export.operators import ExportMS2, ExportSPL, ExportManis, ExportBanis, ExportFgm
     from plugin.utils.operators import CreateFins, CreateLods, VcolToHair, HairToVcol, TransferHairCombing, AddHair, \
-        GenerateRigEdit, ApplyPoseAll, ConvertScaleToLoc, ExtrudeFins, IntrudeFins
+    GenerateRigEdit, ApplyPoseAll, ConvertScaleToLoc, ExtrudeFins, IntrudeFins, Mdl2Rename
     from plugin.utils.properties import CobraSceneSettings, CobraMeshSettings, CobraCollisionSettings, CobraMaterialSettings
     from plugin.utils.panels import CobraMaterialPanel, CobraMdl2Panel
 
@@ -321,6 +321,7 @@ try:
         CobraMaterialSettings,
         CobraMaterialPanel,
         CobraMdl2Panel,
+        Mdl2Rename,
         MESH_PT_CobraTools,
         POSE_PT_CobraTools,
         SCENE_PT_CobraTools,
@@ -329,6 +330,7 @@ try:
         *updater_classes
     )
 except:
+    logging.exception("Startup failed")
     pass
 
 # get panel names

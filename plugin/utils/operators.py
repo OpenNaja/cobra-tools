@@ -10,110 +10,139 @@ from plugin.utils.matrix_util import handle_errors
 
 
 class CreateFins(bpy.types.Operator):
-    """Create fins for all objects with shells in this scene, and overwrite existing fin geometry"""
-    bl_idname = "object.create_fins"
-    bl_label = "Create Fins"
-    bl_options = {'REGISTER', 'UNDO'}
+	"""Create fins for all objects with shells in this scene, and overwrite existing fin geometry"""
+	bl_idname = "object.create_fins"
+	bl_label = "Create Fins"
+	bl_options = {'REGISTER', 'UNDO'}
 
-    def execute(self, context):
-        return handle_errors(self, shell.create_fins_wrapper, {})
+	def execute(self, context):
+		return handle_errors(self, shell.create_fins_wrapper, {})
 
 
 class CreateLods(bpy.types.Operator):
-    """Create LODs for this MDL2 collection"""
-    bl_idname = "object.create_lods"
-    bl_label = "Create LODs"
-    bl_options = {'REGISTER', 'UNDO'}
+	"""Create LODs for this MDL2 collection"""
+	bl_idname = "mdl2.create_lods"
+	bl_label = "Create LODs"
+	bl_options = {'REGISTER', 'UNDO'}
 
-    def execute(self, context):
-        return handle_errors(self, plugin.utils.lods.create_lods, {"mdl2_coll": bpy.context.collection})
+	def execute(self, context):
+		return handle_errors(self, plugin.utils.lods.create_lods, {"mdl2_coll": bpy.context.collection})
 
 
 class VcolToHair(bpy.types.Operator):
-    """Convert vertex color layer to hair combing"""
-    bl_idname = "object.vcol_to_comb"
-    bl_label = "Vcol to Hair"
-    bl_options = {'REGISTER', 'UNDO'}
+	"""Convert vertex color layer to hair combing"""
+	bl_idname = "object.vcol_to_comb"
+	bl_label = "Vcol to Hair"
+	bl_options = {'REGISTER', 'UNDO'}
 
-    def execute(self, context):
-        return handle_errors(self, vcol_to_comb, {})
+	def execute(self, context):
+		return handle_errors(self, vcol_to_comb, {})
 
 
 class HairToVcol(bpy.types.Operator):
-    """Convert hair combing to vertex color layer"""
-    bl_idname = "object.comb_to_vcol"
-    bl_label = "Hair to Vcol"
-    bl_options = {'REGISTER', 'UNDO'}
+	"""Convert hair combing to vertex color layer"""
+	bl_idname = "object.comb_to_vcol"
+	bl_label = "Hair to Vcol"
+	bl_options = {'REGISTER', 'UNDO'}
 
-    def execute(self, context):
-        return handle_errors(self, comb_to_vcol, {})
+	def execute(self, context):
+		return handle_errors(self, comb_to_vcol, {})
 
 
 class ExtrudeFins(bpy.types.Operator):
-    """Visualize Fins by pulling them out"""
-    bl_idname = "object.extrude_fins"
-    bl_label = "Extrude fins"
-    bl_options = {'REGISTER', 'UNDO'}
+	"""Visualize Fins by pulling them out"""
+	bl_idname = "object.extrude_fins"
+	bl_label = "Extrude fins"
+	bl_options = {'REGISTER', 'UNDO'}
 
-    def execute(self, context):
-        return handle_errors(self, extrude_fins, {})
+	def execute(self, context):
+		return handle_errors(self, extrude_fins, {})
 
 
 class IntrudeFins(bpy.types.Operator):
-    """Pull fins back in"""
-    bl_idname = "object.intrude_fins"
-    bl_label = "Intrude Fins"
-    bl_options = {'REGISTER', 'UNDO'}
+	"""Pull fins back in"""
+	bl_idname = "object.intrude_fins"
+	bl_label = "Intrude Fins"
+	bl_options = {'REGISTER', 'UNDO'}
 
-    def execute(self, context):
-        return handle_errors(self, intrude_fins, {})
+	def execute(self, context):
+		return handle_errors(self, intrude_fins, {})
 
 
 class TransferHairCombing(bpy.types.Operator):
-    """Transfer particle hair combing from one mesh to another"""
-    bl_idname = "object.transfer_hair_combing"
-    bl_label = "Transfer Combing"
-    bl_options = {'REGISTER', 'UNDO'}
+	"""Transfer particle hair combing from one mesh to another"""
+	bl_idname = "object.transfer_hair_combing"
+	bl_label = "Transfer Combing"
+	bl_options = {'REGISTER', 'UNDO'}
 
-    def execute(self, context):
-        return handle_errors(self, transfer_hair_combing, {})
+	def execute(self, context):
+		return handle_errors(self, transfer_hair_combing, {})
 
 
 class AddHair(bpy.types.Operator):
-    """Add hair setup to a mesh that didn't have it"""
-    bl_idname = "object.add_hair"
-    bl_label = "Add Hair"
-    bl_options = {'REGISTER', 'UNDO'}
+	"""Add hair setup to a mesh that didn't have it"""
+	bl_idname = "object.add_hair"
+	bl_label = "Add Hair"
+	bl_options = {'REGISTER', 'UNDO'}
 
-    def execute(self, context):
-        return handle_errors(self, shell.add_hair, {})
+	def execute(self, context):
+		return handle_errors(self, shell.add_hair, {})
 
 
 class ApplyPoseAll(bpy.types.Operator):
-    """Apply pose from armature bones to all meshes; clears bone pose, does not add helper bones"""
-    bl_idname = "pose.apply_pose_all"
-    bl_label = "Apply Pose to all Meshes"
-    bl_options = {'REGISTER', 'UNDO'}
+	"""Apply pose from armature bones to all meshes; clears bone pose, does not add helper bones"""
+	bl_idname = "pose.apply_pose_all"
+	bl_label = "Apply Pose to all Meshes"
+	bl_options = {'REGISTER', 'UNDO'}
 
-    def execute(self, context):
-        return handle_errors(self, plugin.utils.rig.apply_armature_all, {})
+	def execute(self, context):
+		return handle_errors(self, plugin.utils.rig.apply_armature_all, {})
 
 
 class GenerateRigEdit(bpy.types.Operator):
-    """Add rig edit bones for all posed bones; may optionally apply pose"""
-    bl_idname = "pose.generate_rig_edit"
-    bl_label = "Add Rig Edit Bones from Pose"
-    bl_options = {'REGISTER', 'UNDO'}
+	"""Add rig edit bones for all posed bones; may optionally apply pose"""
+	bl_idname = "pose.generate_rig_edit"
+	bl_label = "Add Rig Edit Bones from Pose"
+	bl_options = {'REGISTER', 'UNDO'}
 
-    def execute(self, context):
-        return handle_errors(self, plugin.utils.rig.generate_rig_edit, {'mergenodes': context.scene.mergenodes, 'applyarmature': context.scene.applyarmature})
+	def execute(self, context):
+		return handle_errors(self, plugin.utils.rig.generate_rig_edit,
+							 {'mergenodes': context.scene.mergenodes, 'applyarmature': context.scene.applyarmature})
 
 
 class ConvertScaleToLoc(bpy.types.Operator):
-    """Convert pose mode scale transforms into location transforms"""
-    bl_idname = "pose.convert_scale_to_loc"
-    bl_label = "Convert Scale to Location"
-    bl_options = {'REGISTER', 'UNDO'}
+	"""Convert pose mode scale transforms into location transforms"""
+	bl_idname = "pose.convert_scale_to_loc"
+	bl_label = "Convert Scale to Location"
+	bl_options = {'REGISTER', 'UNDO'}
 
-    def execute(self, context):
-        return handle_errors(self, plugin.utils.rig.convert_scale_to_loc, {})
+	def execute(self, context):
+		return handle_errors(self, plugin.utils.rig.convert_scale_to_loc, {})
+
+
+class Mdl2Rename(bpy.types.Operator):
+	"""Rename this MDL2 collection and all of its children to the new name"""
+	bl_idname = "mdl2.rename"
+	bl_label = "Rename"
+	new_name: bpy.props.StringProperty(name="New Name", default="")
+
+	def invoke(self, context, event):
+		return context.window_manager.invoke_props_dialog(self)
+
+	def draw(self, context):
+		row = self.layout.row()
+		row.activate_init = True
+		row.prop(self, "new_name", text='')
+
+	def execute(self, context):
+		mdl2_coll = context.collection
+		if self.new_name and mdl2_coll:
+			old_name = str(mdl2_coll.name)
+			mdl2_coll.name = self.new_name
+			for child_coll in mdl2_coll.children:
+				child_coll.name = child_coll.name.replace(old_name, self.new_name)
+				for child in child_coll.objects:
+					child.name = child.name.replace(old_name, self.new_name)
+			for child in mdl2_coll.objects:
+				child.name = child.name.replace(old_name, self.new_name)
+		return {"FINISHED"}
