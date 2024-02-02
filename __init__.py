@@ -175,7 +175,6 @@ try:
             icon = preview_collection["frontier.png"].icon_id
             row = layout.row(align=True)
             sub = row.row()
-            operator = sub.operator("pose.apply_pose_all", icon_value=icon)
             operator = sub.operator("pose.generate_rig_edit", icon_value=icon)
             row = layout.row(align=True)
             sub = row.row()
