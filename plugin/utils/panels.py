@@ -61,80 +61,8 @@ class CobraMdl2Panel(Panel):
 	def draw(self, context):
 		layout = self.layout
 		row = layout.row(align=True)
-		# row.operator("object.create_fins", icon_value=icon)
-		# row = row.row()
 		row.operator("mdl2.create_lods", icon="MOD_DECIM")
 		row.operator("pose.apply_pose_all", icon="ARMATURE_DATA")
 		row = layout.row(align=True)
 		row.operator("mdl2.rename")
 		row.operator("mdl2.duplicate", icon="COPY_ID")
-
-#
-# class TOPBAR_PT_name(Panel):
-# 	bl_space_type = 'TOPBAR'  # dummy
-# 	bl_region_type = 'HEADER'
-# 	bl_label = "Rename Active Item"
-# 	bl_ui_units_x = 14
-#
-# 	def draw(self, context):
-# 		layout = self.layout
-#
-# 		# Edit first editable button in popup
-# 		def row_with_icon(layout, icon):
-# 			row = layout.row()
-# 			row.activate_init = True
-# 			row.label(icon=icon)
-# 			return row
-#
-# 		mode = context.mode
-# 		space = context.space_data
-# 		space_type = None if (space is None) else space.type
-# 		found = False
-# 		if space_type == 'SEQUENCE_EDITOR':
-# 			layout.label(text="Sequence Strip Name")
-# 			item = context.active_sequence_strip
-# 			if item:
-# 				row = row_with_icon(layout, 'SEQUENCE')
-# 				row.prop(item, "name", text="")
-# 				found = True
-# 		elif space_type == 'NODE_EDITOR':
-# 			layout.label(text="Node Label")
-# 			item = context.active_node
-# 			if item:
-# 				row = row_with_icon(layout, 'NODE')
-# 				row.prop(item, "label", text="")
-# 				found = True
-# 		elif space_type == 'NLA_EDITOR':
-# 			layout.label(text="NLA Strip Name")
-# 			item = next(
-# 				(strip for strip in context.selected_nla_strips if strip.active), None)
-# 			if item:
-# 				row = row_with_icon(layout, 'NLA')
-# 				row.prop(item, "name", text="")
-# 				found = True
-# 		else:
-# 			if mode == 'POSE' or (mode == 'WEIGHT_PAINT' and context.pose_object):
-# 				layout.label(text="Bone Name")
-# 				item = context.active_pose_bone
-# 				if item:
-# 					row = row_with_icon(layout, 'BONE_DATA')
-# 					row.prop(item, "name", text="")
-# 					found = True
-# 			elif mode == 'EDIT_ARMATURE':
-# 				layout.label(text="Bone Name")
-# 				item = context.active_bone
-# 				if item:
-# 					row = row_with_icon(layout, 'BONE_DATA')
-# 					row.prop(item, "name", text="")
-# 					found = True
-# 			else:
-# 				layout.label(text="Object Name")
-# 				item = context.object
-# 				if item:
-# 					row = row_with_icon(layout, 'OBJECT_DATA')
-# 					row.prop(item, "name", text="")
-# 					found = True
-#
-# 		if not found:
-# 			row = row_with_icon(layout, 'ERROR')
-# 			row.label(text="No active item")
