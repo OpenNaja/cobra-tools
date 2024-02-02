@@ -1,5 +1,6 @@
 import bpy
 import bpy.types
+from bpy.props import BoolProperty
 
 import plugin.utils.lods
 import plugin.utils.rig
@@ -155,6 +156,19 @@ class Mdl2Duplicate(GenericRename):
 	"""Duplicate this MDL2 collection and all of its children to the new name"""
 	bl_idname = "mdl2.duplicate"
 	bl_label = "Duplicate"
+
+	share_materials: BoolProperty(
+		name="Share Materials", description="Share or duplicate materials for the copy", default=False)
+	share_armature: BoolProperty(
+		name="Share Armature", description="Share or duplicate armature for the copy", default=False)
+
+	def draw(self, context):
+		row = self.layout.row()
+		row.activate_init = True
+		row.prop(self, "new_name", text='')
+		row = self.layout.row(align=True)
+		row.prop(self, "share_materials")
+		row.prop(self, "share_armature")
 
 	def execute(self, context):
 		mdl2_coll = context.collection
