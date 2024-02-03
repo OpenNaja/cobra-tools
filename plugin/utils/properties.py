@@ -24,7 +24,9 @@ class VersionedPropertyGroup(PropertyGroup):
 			return "_jwe2"
 
 	def get_current_versioned_name(self, context, name):
-		return f"{name}{self.get_current_game_suffix(context)}"
+		game_suffix = self.get_current_game_suffix(context)
+		if game_suffix:
+			return f"{name}{game_suffix}"
 
 	def get_value(self, context, name):
 		return getattr(self, self.get_current_versioned_name(context, name))

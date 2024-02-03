@@ -14,7 +14,12 @@ class CobraMaterialPanel(Panel):
 			return
 		fgm = context.material.fgm
 
-		self.layout.prop(fgm, fgm.get_current_versioned_name(context, "shader_name"))
+		game_shader = fgm.get_current_versioned_name(context, "shader_name")
+		if game_shader:
+			self.layout.prop(fgm, game_shader)
+		else:
+			self.layout.label(text="Missing Shaders", icon='ERROR')
+			self.layout.label(text="Set a supported game in the scene tab to enable shader selection")
 
 		self.layout.prop(fgm, "pRenderLayerOverride")
 		self.layout.prop(fgm, "pVerticalTiling")
