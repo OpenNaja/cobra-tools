@@ -14,13 +14,6 @@ from plugin.utils.matrix_util import ensure_tri_modifier, evaluate_mesh
 from plugin.utils.shell import num_fur_as_weights, is_fin, is_shell, FUR_VGROUPS
 
 
-# def has_keys(b_me):
-# 	if b_me.shape_keys:
-# 		if len(b_me.shape_keys.key_blocks) > 2:
-# 			return True
-# 	return False
-
-
 def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_transforms, use_stock_normals_tangents, m_lod, shell_index, shell_count, mesh_in_lod):
 	logging.info(f"Exporting mesh {b_me.name}")
 	# we create a ms2 mesh
@@ -46,7 +39,7 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 		else:
 			mesh.mesh_format = MeshFormat.SEPARATE
 
-	mesh.expect_shapekeys = True if b_me.shape_keys and "LOD" in b_me.shape_keys.key_blocks else False
+	mesh.expect_shapekeys = True if b_me.shape_keys else False
 	mesh.update_dtype()
 	num_uvs = mesh.get_uv_count()
 	num_vcols = mesh.get_vcol_count()
