@@ -1,5 +1,5 @@
 import bpy.utils.previews
-from bpy.props import StringProperty, BoolProperty, IntProperty, FloatProperty, EnumProperty, CollectionProperty
+from bpy.props import StringProperty, BoolProperty
 from bpy_extras.io_utils import ExportHelper
 
 from plugin import export_ms2, export_spl, export_manis, export_banis, export_fgm

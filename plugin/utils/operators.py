@@ -4,10 +4,10 @@ from bpy.props import BoolProperty
 
 import plugin.utils.lods
 import plugin.utils.rig
-from plugin.utils import shell, collection
+from plugin.utils import shell, collection, lods
 from plugin.utils.hair import comb_to_vcol, transfer_hair_combing, vcol_to_comb
 from plugin.utils.shell import extrude_fins, intrude_fins
-from plugin.utils.matrix_util import handle_errors
+from plugin.utils.matrix_util import handle_errors, handle_errors_new
 
 
 class CreateFins(bpy.types.Operator):
@@ -25,9 +25,20 @@ class CreateLods(bpy.types.Operator):
 	bl_idname = "mdl2.create_lods"
 	bl_label = "Create LODs"
 	bl_options = {'REGISTER', 'UNDO'}
+	num_lods: bpy.props.IntProperty(
+		name='LOD Count', description="Total number of LODs including L0", default=1, min=1, max=6)
+
+	def invoke(self, context, event):
+		# populate from current lod count
+		self.num_lods = len(lods.get_lod_collections(context.collection))
+		return context.window_manager.invoke_props_dialog(self)
+
+	def draw(self, context):
+		row = self.layout.row()
+		row.prop(self, "num_lods")
 
 	def execute(self, context):
-		return handle_errors(self, plugin.utils.lods.create_lods, {"mdl2_coll": bpy.context.collection})
+		return handle_errors_new(self, plugin.utils.lods.create_lods, {"mdl2_coll": bpy.context.collection, "num_lods": self.num_lods})
 
 
 class VcolToHair(bpy.types.Operator):
@@ -91,9 +102,9 @@ class AddHair(bpy.types.Operator):
 
 
 class ApplyPoseAll(bpy.types.Operator):
-	"""Apply pose from armature bones to all meshes; clears bone pose, does not add helper bones"""
+	"""Apply pose from armature bones to all meshes in MDL2; clears bone pose, does not add helper bones"""
 	bl_idname = "pose.apply_pose_all"
-	bl_label = "Apply Pose to all Meshes"
+	bl_label = "Apply Poses"
 	bl_options = {'REGISTER', 'UNDO'}
 
 	def execute(self, context):

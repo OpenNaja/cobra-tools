@@ -28,7 +28,7 @@ def load(filepath="", use_custom_normals=False, mirror_mesh=False, expect_shapek
 	# print(ms2)
 	created_materials = {}
 	for model_info in ms2.model_infos:
-		mdl2_coll = create_collection(scene, model_info.name)
+		mdl2_coll = create_collection(model_info.name, scene.collection)
 		mdl2_coll["render_flag"] = int(model_info.render_flag)
 		bone_names = get_bone_names(model_info)
 		b_armature_obj = import_armature(scene, model_info, bone_names, mdl2_coll)
@@ -39,7 +39,7 @@ def load(filepath="", use_custom_normals=False, mirror_mesh=False, expect_shapek
 		# print(model_info.model)
 		for lod_i, m_lod in enumerate(model_info.model.lods):
 			logging.info(f"Importing LOD{lod_i}")
-			lod_coll = create_collection(scene, f"{model_info.name}_L{lod_i}", mdl2_coll)
+			lod_coll = create_collection(f"{model_info.name}_L{lod_i}", mdl2_coll)
 			# skip other shells for JWE2
 			obs = []
 			for m_ob in m_lod.objects:

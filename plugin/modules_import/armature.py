@@ -336,9 +336,9 @@ def import_joints(scene, armature_ob, bone_info, b_bone_names, corrector, mdl2_c
 	j = bone_info.joints
 	joint_map = {}
 	if bone_info.joint_count:
-		joint_coll = create_collection(scene, f"{mdl2_coll.name}_joints", mdl2_coll)
+		joint_coll = create_collection(f"{mdl2_coll.name}_joints", mdl2_coll)
 	# if joint_info.hitchecks:
-	# 	joint_coll = create_collection(scene, f"{mdl2_coll.name}_joints", mdl2_coll)
+	# 	joint_coll = create_collection(f"{mdl2_coll.name}_joints", mdl2_coll)
 	for joint_i, (bone_index, joint_info, joint_transform) in enumerate(zip(
 			j.joint_to_bone, j.joint_infos, j.joint_transforms)):
 		logging.debug(f"joint {joint_info.name}")

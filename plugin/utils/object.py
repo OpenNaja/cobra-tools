@@ -8,18 +8,30 @@ from generated.formats.ms2 import get_game, Ms2Context
 @contextmanager
 def ensure_visible():
 	"""Make all collections visible in view_layer [tick box] to ensure applying modifiers works"""
+	all_collections = get_view_collections()
+	states_exclude = {coll.name: bool(coll.exclude) for coll in all_collections}
+	states_hide_viewport = {coll.name: bool(coll.hide_viewport) for coll in all_collections}
+	for coll in all_collections:
+		coll.exclude = False
+	yield
+	# get them again to avoid crashing blender if some have been deleted during yield
+	all_collections = get_view_collections()
+	# reset to original state, or defaults for newly added LODs
+	for coll in all_collections:
+		# default to included
+		coll.exclude = states_exclude.get(coll.name, False)
+		# default to hidden unless collection is L0 (newly created lods)
+		hide_fallback = "_L0" not in coll.name
+		coll.hide_viewport = states_hide_viewport.get(coll.name, hide_fallback)
+
+
+def get_view_collections():
 	view_collections = bpy.context.view_layer.layer_collection.children
 	all_collections = set(view_collections)
 	# account for nesting inside the mdl2 collection
 	for coll in view_collections:
 		all_collections.update(coll.children)
-	view_states = {coll: bool(coll.exclude) for coll in all_collections}
-	for coll in all_collections:
-		coll.exclude = False
-	yield
-	# reset to original state
-	for coll, state in view_states.items():
-		coll.exclude = state
+	return all_collections
 
 
 def mesh_from_data(scene, name, verts, faces, wireframe=False, coll_name=None, coll=None):
@@ -66,16 +78,10 @@ def create_scene(name, num_streams=0, version=0):
 	return bpy.data.scenes[name]
 
 
-def create_collection(scene, coll_name, parent_coll=None):
-	# turn any relative collection names to include the scene prefix
-	# if not coll_name.startswith(f"{scene.name}_"):
-	# 	coll_name = f"{scene.name}_{coll_name}"
+def create_collection(coll_name, parent_coll):
 	if coll_name not in bpy.data.collections:
 		coll = bpy.data.collections.new(coll_name)
-		if parent_coll:
-			parent_coll.children.link(coll)
-		else:
-			scene.collection.children.link(coll)
+		parent_coll.children.link(coll)
 		return coll
 	return bpy.data.collections[coll_name]
 

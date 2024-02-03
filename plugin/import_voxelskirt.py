@@ -107,7 +107,7 @@ def load(filepath=""):
 				append_displacement_modifier(map_ob, b_tex)
 
 	for entity_group in vox.entity_groups.data:
-		coll = create_collection(scene, f"{entity_group.name}")
+		coll = create_collection(f"{entity_group.name}", scene.collection)
 		if entity_group.entity_instances:
 			for i, entity_instance in enumerate(entity_group.entity_instances.data):
 				ob = create_ob(bpy.context.scene, f"{entity_group.name}_{i}", None, coll=coll)

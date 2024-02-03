@@ -56,6 +56,10 @@ class CobraMdl2Panel(Panel):
 			return False
 		if "_L" in coll.name:
 			return False
+		if "_joints" in coll.name:
+			return False
+		if coll.name in context.scene.collection.children:
+			return True
 		return True
 
 	def draw(self, context):
@@ -64,5 +68,5 @@ class CobraMdl2Panel(Panel):
 		row.operator("mdl2.create_lods", icon="MOD_DECIM")
 		row.operator("pose.apply_pose_all", icon="ARMATURE_DATA")
 		row = layout.row(align=True)
-		row.operator("mdl2.rename")
-		row.operator("mdl2.duplicate", icon="COPY_ID")
+		row.operator("mdl2.rename", icon="OUTLINER_DATA_GP_LAYER")
+		row.operator("mdl2.duplicate", icon="DUPLICATE")
