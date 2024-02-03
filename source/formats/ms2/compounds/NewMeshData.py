@@ -28,77 +28,79 @@ class NewMeshData(MeshData):
 			("tangent", np.ubyte, (3,)),
 			("bone index", np.ubyte),
 		]
-		# uv variations
-		if self.flag == 528:
-			dt.extend([
-				("uvs", np.ushort, (1, 2)),
-				("zeros0", np.int32, (3,))
-			])
-		elif self.flag == 529:
-			dt.extend([
-				("uvs", np.ushort, (2, 2)),
-				("zeros0", np.int32, (2,))
-			])
-		elif self.flag in (533, 565, 821, 853, 885, 1013):
-			dt.extend([
-				("uvs", np.ushort, (2, 2)),  # second UV is either fins texcoords or fur length and shell tile scale
-				("colors", np.ubyte, 4),  # these appear to be directional vectors
-				("zeros0", np.int32)
-			])
-		elif self.flag in (549,):  # PZ c2 GL_Roof_02
-			dt.extend([
-				("uvs", np.ushort, (2, 2)),  # only saw UV0 used
-				("colors", np.ubyte, 4),  # maybe actual vertex color? all 1 in the cases I saw
-				("zeros0", np.int32, (5,))  # no weights
-			])
-		elif self.flag == 513:
-			dt.extend([
-				("uvs", np.ushort, (2, 2)),
-				# ("colors", np.ubyte, 4),
-				("zeros2", np.uint64, (3,))
-			])
-		elif self.flag in (512,):
-			dt.extend([
-				# last lod of many tree meshes (eg. tree_birch_white_03)
-				# 8 uvs for an impostor texture atlas aka flipbook
-				# a different unpacking factor is used here
-				("uvs", np.ushort, (8, 2)),
-			])
-		elif self.flag == 517:
-			# there is a version of 517 that has no shape keys, but 2 uv layers
-			if self.expect_shapekeys:
+		if self.flag.weights:
+			if self.flag.unk_1 == 0:
+				# used exclusively on alpha blended hair cards (528)
 				dt.extend([
 					("uvs", np.ushort, (1, 2)),
-					("lod_key_0", np.uint32),
-					("normal_custom", np.ubyte, 3),  # edited normal
-					("wind", np.ubyte),  # not sure for PZ
-					("lod_key_1", np.int32),
-					("center_key", np.float32, 3),  # may be 00 00 C0 7F (NaN)
-					("whatever", np.float32),  # unlike JWE2 this is likely encoded as float
+					("zeros0", np.int32, (3,))
 				])
-			else:
+			elif self.flag.unk_1 == 1:
+				# animal eyes, skin or feathers without alpha blending (529)
 				dt.extend([
 					("uvs", np.ushort, (2, 2)),
-					# ???
-					("normal_custom", np.ubyte, 3),  # edited normal
-					("wind", np.ubyte),  # not sure for PZ
-					("lod_key_1", np.int32),
-					("center_key", np.float32, 3),  # may be 00 00 C0 7F (NaN)
-					("whatever", np.float32),  # unlike JWE2 this is likely encoded as float
+					("zeros0", np.int32, (2,))
 				])
-		elif self.flag == 545:
-			dt.extend([
-				# cz_glasspanel_4m_02.mdl2
-				("uvs", np.ushort, (1, 2)),
-				("zeros2", np.uint32, (7,)),
-			])
-		# bone weights
-		if self.flag.weights:
+			elif self.flag.unk_1 == 5:
+				# animal fur or skin (533, 565, 821, 853, 885, 1013)
+				dt.extend([
+					("uvs", np.ushort, (2, 2)),  # second UV is either fins texcoords or fur length and shell tile scale
+					("colors", np.ubyte, 4),  # fur direction
+					("zeros0", np.int32)
+				])
+			# blended bone weights
 			dt.extend([
 				("bone ids", np.ubyte, (4,)),
 				("bone weights", np.ubyte, (4,)),
 				("zeros1", np.uint64)
 			])
+		else:
+			if self.flag in (512,):
+				dt.extend([
+					# last lod of many tree meshes (eg. tree_birch_white_03)
+					# 8 uvs for an impostor texture atlas aka flipbook
+					# a different unpacking factor is used here
+					("uvs", np.ushort, (8, 2)),
+				])
+			elif self.flag == 513:
+				dt.extend([
+					("uvs", np.ushort, (2, 2)),
+					("zeros2", np.uint64, (3,))
+				])
+			elif self.flag == 517:
+				# there is a version of 517 that has no shape keys, but 2 uv layers
+				if self.expect_shapekeys:
+					dt.extend([
+						("uvs", np.ushort, (1, 2)),
+						("lod_key_0", np.uint32),
+						("normal_custom", np.ubyte, 3),  # edited normal
+						("wind", np.ubyte),  # not sure for PZ
+						("lod_key_1", np.int32),
+						("center_key", np.float32, 3),  # may be 00 00 C0 7F (NaN)
+						("whatever", np.float32),  # unlike JWE2 this is likely encoded as float
+					])
+				else:
+					dt.extend([
+						("uvs", np.ushort, (2, 2)),
+						# ??? unsure about the stuff below
+						("normal_custom", np.ubyte, 3),  # edited normal
+						("wind", np.ubyte),  # not sure for PZ
+						("lod_key_1", np.int32),
+						("center_key", np.float32, 3),  # may be 00 00 C0 7F (NaN)
+						("whatever", np.float32),  # unlike JWE2 this is likely encoded as float
+					])
+			elif self.flag == 545:
+				dt.extend([
+					# cz_glasspanel_4m_02.mdl2
+					("uvs", np.ushort, (1, 2)),
+					("zeros2", np.uint32, (7,)),
+				])
+			elif self.flag in (549,):  # PZ c2 GL_Roof_02
+				dt.extend([
+					("uvs", np.ushort, (2, 2)),  # only saw UV0 used
+					("colors", np.ubyte, 4),  # maybe actual vertex color? all 1 in the cases I saw
+					("zeros0", np.int32, (5,))  # no weights
+				])
 		self.dt = np.dtype(dt)
 		self.update_shell_count()
 		if self.dt.itemsize != self.size_of_vertex:
