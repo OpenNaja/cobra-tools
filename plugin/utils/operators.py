@@ -2,9 +2,7 @@ import bpy
 import bpy.types
 from bpy.props import BoolProperty
 
-import plugin.utils.lods
-import plugin.utils.rig
-from plugin.utils import shell, collection, lods
+from plugin.utils import shell, collection, lods, rig
 from plugin.utils.hair import comb_to_vcol, transfer_hair_combing, vcol_to_comb
 from plugin.utils.shell import extrude_fins, intrude_fins
 from plugin.utils.matrix_util import handle_errors, handle_errors_new
@@ -38,7 +36,7 @@ class CreateLods(bpy.types.Operator):
 		row.prop(self, "num_lods")
 
 	def execute(self, context):
-		return handle_errors_new(self, plugin.utils.lods.create_lods, {"mdl2_coll": bpy.context.collection, "num_lods": self.num_lods})
+		return handle_errors_new(self, lods.create_lods, {"mdl2_coll": bpy.context.collection, "num_lods": self.num_lods})
 
 
 class VcolToHair(bpy.types.Operator):
@@ -108,7 +106,7 @@ class ApplyPoseAll(bpy.types.Operator):
 	bl_options = {'REGISTER', 'UNDO'}
 
 	def execute(self, context):
-		return handle_errors(self, plugin.utils.rig.apply_armature_all, {})
+		return handle_errors(self, rig.apply_armature_all, {})
 
 
 class GenerateRigEdit(bpy.types.Operator):
@@ -118,7 +116,7 @@ class GenerateRigEdit(bpy.types.Operator):
 	bl_options = {'REGISTER', 'UNDO'}
 
 	def execute(self, context):
-		return handle_errors(self, plugin.utils.rig.generate_rig_edit,
+		return handle_errors(self, rig.generate_rig_edit,
 							 {'mergenodes': context.scene.mergenodes, 'applyarmature': context.scene.applyarmature})
 
 
@@ -129,7 +127,22 @@ class ConvertScaleToLoc(bpy.types.Operator):
 	bl_options = {'REGISTER', 'UNDO'}
 
 	def execute(self, context):
-		return handle_errors(self, plugin.utils.rig.convert_scale_to_loc, {})
+		return handle_errors(self, rig.convert_scale_to_loc, {})
+
+
+class AutosmoothAll(bpy.types.Operator):
+	"""Auto-smooth full MDL2 collection"""
+	bl_idname = "mdl2.autosmooth_all"
+	bl_label = "Autosmooth All"
+	bl_options = {'REGISTER', 'UNDO'}
+
+	def execute(self, context):
+		mdl2_coll = context.collection
+		if mdl2_coll:
+			for lod_coll in lods.get_lod_collections(mdl2_coll):
+				for b_ob in lod_coll.objects:
+					b_ob.data.use_auto_smooth = True
+		return {"FINISHED"}
 
 
 class GenericRename(bpy.types.Operator):

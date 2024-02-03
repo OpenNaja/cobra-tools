@@ -75,3 +75,5 @@ class CobraMdl2Panel(Panel):
 		row = layout.row(align=True)
 		row.operator("mdl2.rename", icon="OUTLINER_DATA_GP_LAYER")
 		row.operator("mdl2.duplicate", icon="DUPLICATE")
+		row = layout.row(align=True)
+		row.operator("mdl2.autosmooth_all", icon="NORMALS_VERTEX_FACE")
