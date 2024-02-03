@@ -96,32 +96,46 @@ def save(reporter, filepath='', backup_original=True, apply_transforms=False, up
 	found_mdl2s = 0
 
 	model_info_lut = {model_info.name: model_info for model_info in ms2.model_infos}
+	# clear out any existing model_infos
+	ms2.model_infos.clear()
 	scene = bpy.context.scene
-	for mdl2_coll in scene.collection.children:
-		if from_scratch:
-			set_game(ms2.context, scene.cobra.game)
-			set_game(ms2.info, scene.cobra.game)
-			model_info = ModelInfo(ms2.context)
-			model_info.name = mdl2_coll.name
-			model_info.bone_info = BoneInfo(ms2.context)
-			model_info.model = Model(ms2.context, model_info)
+	set_game(ms2.context, scene.cobra.game)
+	set_game(ms2.info, scene.cobra.game)
+
+	armatures_collections = [(get_armature(mdl2_coll.objects), mdl2_coll) for mdl2_coll in scene.collection.children]
+	# sort them so that armatures appear successively
+	armatures_collections.sort(key=lambda tup: (str(tup[0]), tup[1].name))
+	last_armature = None
+
+	with ensure_visible():
+		for b_armature_ob, mdl2_coll in armatures_collections:
+			if from_scratch:
+				model_info = ModelInfo(ms2.context)
+				model_info.name = mdl2_coll.name
+				# create a new armature, might replace it with a previous one later
+				model_info.bone_info = BoneInfo(ms2.context)
+				model_info.model = Model(ms2.context, model_info)
+			else:
+				if mdl2_coll.name not in model_info_lut:
+					reporter.show_warning(f"MDL2 '{mdl2_coll.name}' was not found in MS2, skipping")
+					continue
+				model_info = model_info_lut[mdl2_coll.name]
+			logging.info(f"Exporting {mdl2_coll.name}")
+			# shared armature export?
+			if last_armature and b_armature_ob == last_armature and ms2.model_infos:
+				logging.info(f"Sharing previous armature")
+				# there is a previous armature and we use the same again, so dupe it
+				model_info.bone_info = ms2.model_infos[-1].bone_info
+			# store model_info
 			ms2.model_infos.append(model_info)
-		else:
-			if mdl2_coll.name not in model_info_lut:
-				reporter.show_warning(f"Collection '{mdl2_coll.name}' was not found in the MS2 file, skipping")
-				continue
-			model_info = model_info_lut[mdl2_coll.name]
+			last_armature = b_armature_ob
+			found_mdl2s += 1
 
-		found_mdl2s += 1
-		logging.info(f"Exporting {mdl2_coll.name}")
-
-		with ensure_visible():
-			model_info.render_flag._value = get_property(mdl2_coll, "render_flag")
+			model_info.render_flag._value = get_property(mdl2_coll, "render_flag", 0)
 			# ensure that we have objects in the scene
 			if not has_data_in_coll(mdl2_coll):
 				raise AttributeError(f"No objects in collection '{mdl2_coll.name}', nothing to export!")
 
-			b_armature_ob = get_armature(mdl2_coll.objects)
 			if not b_armature_ob:
 				reporter.show_warning(f"No armature was found in collection '{mdl2_coll.name}' - did you delete it?")
 			else:
