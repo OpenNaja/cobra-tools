@@ -81,8 +81,6 @@ class ImportMS2(bpy.types.Operator, ImportHelper):
                                      default=False)
     mirror_mesh: BoolProperty(name="Mirror Meshes", description="Mirrors models. Careful, sometimes bones don't match",
                               default=False)
-    expect_shapekeys: BoolProperty(name="Expect Shape Keys", description="Uncheck for non-foliage models with flag 517",
-                              default=True)
 
     def execute(self, context):
         keywords = self.as_keywords(ignore=("axis_forward", "axis_up", "filter_glob"))

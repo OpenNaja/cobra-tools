@@ -82,12 +82,8 @@ class NewMeshData(MeshData):
 				else:
 					dt.extend([
 						("uvs", np.ushort, (2, 2)),
-						# ??? unsure about the stuff below
-						("normal_custom", np.ubyte, 3),  # edited normal
-						("wind", np.ubyte),  # not sure for PZ
-						("lod_key_1", np.int32),
-						("center_key", np.float32, 3),  # may be 00 00 C0 7F (NaN)
-						("whatever", np.float32),  # unlike JWE2 this is likely encoded as float
+						("colors", np.ubyte, 4),  # real color on PZ reward_statues
+						("zeros", np.int32, 5),
 					])
 			elif self.flag == 545:
 				dt.extend([
@@ -176,6 +172,9 @@ class NewMeshData(MeshData):
 			# print(self.whatever)
 			for vertex_index, weight in enumerate(self.whatever):
 				self.add_to_weights("whatever", vertex_index, weight)
+
+		if self.flag == 517 and not self.is_speedtree:
+			print(self.verts_data)
 		# for bit in range(0, 8):
 		# 	for vertex_index, res in enumerate((self.verts_data["winding"] >> bit) & 1):
 		# 		self.add_to_weights(f"bit{bit}", vertex_index, res)

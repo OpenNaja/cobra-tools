@@ -135,9 +135,8 @@
 
 	<enum name="MeshFormat" storage="ubyte">
 		<option value="0" name="Separate" />
-		<option value="1" name="Interleaved32" />
-		<option value="2" name="Interleaved48" />
-		<option value="3" name="UnkFmt" />
+		<option value="1" name="Speedtree32" />
+		<option value="2" name="Impostor48" />
 	</enum>
 
 <!--Count from the end!!!-->

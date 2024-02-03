@@ -16,13 +16,13 @@ from generated.formats.ms2 import Ms2File
 from generated.formats.ms2.enums.MeshFormat import MeshFormat
 
 
-def load(filepath="", use_custom_normals=False, mirror_mesh=False, expect_shapekeys=True):
+def load(filepath="", use_custom_normals=False, mirror_mesh=False):
 	messages = set()
 	start_time = time.time()
 	in_dir, ms2_name = os.path.split(filepath)
 	ms2_basename = os.path.splitext(ms2_name)[0]
 	ms2 = Ms2File()
-	ms2.load(filepath, read_editable=True, expect_shapekeys=expect_shapekeys)
+	ms2.load(filepath, read_editable=True)
 	scene = create_scene(ms2_basename, len(ms2.modelstream_names), ms2.context.version)
 	bpy.context.window.scene = scene
 	# print(ms2)
@@ -159,8 +159,8 @@ def import_mesh_layers(b_me, mesh, use_custom_normals, mat_name):
 
 
 def import_shapekeys(b_ob, mesh):
-	if (mesh.flag == 517 and mesh.expect_shapekeys) or mesh.mesh_format == MeshFormat.INTERLEAVED_32:
-		b_me = b_ob.data
+	b_me = b_ob.data
+	if (mesh.flag == 517 and mesh.expect_shapekeys) or mesh.mesh_format == MeshFormat.SPEEDTREE_32:
 		# insert base key
 		b_ob.shape_key_add(name="Basis")
 		b_me.shape_keys.use_relative = True

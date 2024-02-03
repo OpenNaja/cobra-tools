@@ -87,7 +87,7 @@ class ChunkedMesh(MeshData):
 			tri_chunk.tri_indices = self.tri_indices[tris_start: tris_start+tri_chunk.tris_count * 3]
 			mesh_formats.add(vert_chunk.weights_flag.mesh_format)
 			try:
-				if vert_chunk.weights_flag.mesh_format in (MeshFormat.SEPARATE, MeshFormat.UNK_FMT):
+				if vert_chunk.weights_flag.mesh_format in (MeshFormat.SEPARATE,):
 					self.buffer_info.verts.readinto(vert_chunk.packed_verts)
 					# decode and store position
 					unpack_int64_vector(vert_chunk.packed_verts, vert_chunk.vertices, vert_chunk.negate_bitangents)
@@ -98,7 +98,7 @@ class ChunkedMesh(MeshData):
 					# logging.info(f"meta {i} start {self.buffer_info.verts.tell()}")
 					self.buffer_info.verts.readinto(vert_chunk.meta)
 
-				elif vert_chunk.weights_flag.mesh_format in (MeshFormat.INTERLEAVED_32, MeshFormat.INTERLEAVED_48):
+				elif vert_chunk.weights_flag.mesh_format in (MeshFormat.SPEEDTREE_32, MeshFormat.IMPOSTOR_48):
 					# interleaved vertex array, meta includes all extra data
 					self.buffer_info.verts.readinto(vert_chunk.meta)
 					# store position
@@ -116,7 +116,7 @@ class ChunkedMesh(MeshData):
 				vert_chunk.normals[:, :2] = vert_chunk.meta["normal_oct"]
 				vert_chunk.tangents[:, :2] = vert_chunk.meta["tangent_oct"]
 
-				if vert_chunk.weights_flag.mesh_format in (MeshFormat.INTERLEAVED_32,):
+				if vert_chunk.weights_flag.mesh_format in (MeshFormat.SPEEDTREE_32,):
 					vert_chunk.lod_keys[:] = vert_chunk.meta["lod_key"]
 					vert_chunk.center_keys[:] = vert_chunk.meta["center_key"]
 					vert_chunk.whatever[:] = vert_chunk.meta["whatever"]
@@ -145,8 +145,8 @@ class ChunkedMesh(MeshData):
 		unpack_ubyte_color(self.wind)
 		unpack_ubyte_vector(self.normals_custom)
 		unpack_swizzle_vectorized(self.normals_custom)
-		# currently, known uses of Interleaved48 use impostor uv atlas
-		if vert_chunk.weights_flag.mesh_format == MeshFormat.INTERLEAVED_48:
+		# currently, known uses of Impostor48 use impostor uv atlas
+		if vert_chunk.weights_flag.mesh_format == MeshFormat.IMPOSTOR_48:
 			unpack_ushort_vector_impostor(self.uvs)
 		else:
 			unpack_ushort_vector(self.uvs)
@@ -157,7 +157,7 @@ class ChunkedMesh(MeshData):
 			for vertex_index, weight in enumerate(self.wind):
 				self.add_to_weights("wind", vertex_index, weight)
 			# todo - the whatever unk
-			if vert_chunk.weights_flag.mesh_format == MeshFormat.INTERLEAVED_32:
+			if vert_chunk.weights_flag.mesh_format == MeshFormat.SPEEDTREE_32:
 				self.whatever_range = np.max(self.whatever)
 				if self.whatever_range > 0.0:
 					self.whatever /= self.whatever_range
@@ -185,12 +185,12 @@ class ChunkedMesh(MeshData):
 		vert_chunk.tangents = self.tangents[v_slice]
 		vert_chunk.whatever = self.whatever[v_slice]
 		chunk_fmt = vert_chunk.weights_flag.mesh_format
-		if chunk_fmt in (MeshFormat.SEPARATE, MeshFormat.UNK_FMT):
+		if chunk_fmt in (MeshFormat.SEPARATE,):
 			# todo - once stable, change back to empty
 			vert_chunk.packed_verts = np.zeros(dtype=np.int64, shape=vert_chunk.vertex_count)
 			vert_chunk.weights = np.zeros(dtype=self.dt_weights, shape=vert_chunk.vertex_count)
 			vert_chunk.meta = np.zeros(dtype=self.dts[chunk_fmt], shape=vert_chunk.vertex_count)
-		elif chunk_fmt in (MeshFormat.INTERLEAVED_32, MeshFormat.INTERLEAVED_48):
+		elif chunk_fmt in (MeshFormat.SPEEDTREE_32, MeshFormat.IMPOSTOR_48):
 			# interleaved vertex array, meta includes all extra data
 			vert_chunk.meta = np.zeros(dtype=self.dts[chunk_fmt], shape=vert_chunk.vertex_count)
 
@@ -222,7 +222,7 @@ class ChunkedMesh(MeshData):
 			# use the chunk's bone index for each vertex in chunk
 			for vertex_index in range(vert_chunk.vertex_count):
 				self.add_to_weights(vert_chunk.weights_flag.bone_index, vertex_index + offs, 1.0)
-		# if vert_chunk.weights_flag.mesh_format == MeshFormat.INTERLEAVED_32:
+		# if vert_chunk.weights_flag.mesh_format == MeshFormat.SPEEDTREE_32:
 		# 	for vertex_index in range(vert_chunk.vertex_count):
 		# 		self.add_to_weights("weight", vertex_index + offs, vert_chunk.meta[vertex_index]["colors"][3] / 255)
 
@@ -241,7 +241,7 @@ class ChunkedMesh(MeshData):
 			("colors", np.ubyte, 4)
 		]
 		# 32 bytes per vertex, with all data interleaved
-		dt_interleaved32 = [
+		dt_speedtree32 = [
 			("pos", np.float16, (3,)),
 			("lod_key", np.float16, (3,)),
 			# nan (FF 7F) if unused, used on JWE2 mango, no apparent flag in tri or vert chunk or mesh
@@ -253,7 +253,7 @@ class ChunkedMesh(MeshData):
 			("wind", np.ubyte),
 		]
 		# 48 bytes per vertex, with all data interleaved, totally different from older 48 bytes vert
-		dt_interleaved48 = [
+		dt_impostor48 = [
 			("pos", np.float16, (3,)),
 			("one", np.ubyte),  # not sure
 			("zero", np.ubyte),  # may be bone index
@@ -264,9 +264,8 @@ class ChunkedMesh(MeshData):
 		]
 		self.dts = {}
 		self.dts[MeshFormat.SEPARATE] = np.dtype(dt_separate)
-		self.dts[MeshFormat.UNK_FMT] = np.dtype(dt_separate)
-		self.dts[MeshFormat.INTERLEAVED_32] = np.dtype(dt_interleaved32)
-		self.dts[MeshFormat.INTERLEAVED_48] = np.dtype(dt_interleaved48)
+		self.dts[MeshFormat.SPEEDTREE_32] = np.dtype(dt_speedtree32)
+		self.dts[MeshFormat.IMPOSTOR_48] = np.dtype(dt_impostor48)
 		self.dt_weights = np.dtype(dt_weights)
 
 	def read_chunk_infos(self):
@@ -324,7 +323,7 @@ class ChunkedMesh(MeshData):
 
 	@property
 	def is_speedtree(self):
-		return self.mesh_format in (MeshFormat.INTERLEAVED_32, MeshFormat.INTERLEAVED_48)
+		return self.mesh_format in (MeshFormat.SPEEDTREE_32, MeshFormat.IMPOSTOR_48)
 
 	def pack_verts(self):
 		"""Repack flat lists into verts_data"""
@@ -356,24 +355,24 @@ class ChunkedMesh(MeshData):
 				# rot is probably related to the normals of the chunk
 
 			# pack the verts
-			if vert_chunk.weights_flag.mesh_format in (MeshFormat.SEPARATE, MeshFormat.UNK_FMT):
+			if vert_chunk.weights_flag.mesh_format in (MeshFormat.SEPARATE,):
 				scale_pack_vectorized(vert_chunk.vertices, vert_chunk.pack_base)
 				pack_int64_vector(vert_chunk.packed_verts, vert_chunk.vertices.astype(np.int64), vert_chunk.negate_bitangents)
 				if vert_chunk.weights_flag.has_weights:
 					for vert, weight in zip(vert_chunk.weights, self.weights[v_slice]):
 						vert["bone ids"], vert["bone weights"] = self.unpack_weights_list(weight)
-			elif vert_chunk.weights_flag.mesh_format in (MeshFormat.INTERLEAVED_32, MeshFormat.INTERLEAVED_48):
+			elif vert_chunk.weights_flag.mesh_format in (MeshFormat.SPEEDTREE_32, MeshFormat.IMPOSTOR_48):
 				vert_chunk.meta["pos"] = vert_chunk.vertices
 				vert_chunk.weights_flag.has_weights = False
 			else:
 				raise AttributeError(f"Unsupported mesh_format {self.mesh_format}")
 			# store chunk's meta data
-			if vert_chunk.weights_flag.mesh_format == MeshFormat.INTERLEAVED_32:
+			if vert_chunk.weights_flag.mesh_format == MeshFormat.SPEEDTREE_32:
 				vert_chunk.meta["lod_key"] = vert_chunk.lod_keys
 				vert_chunk.meta["center_key"] = vert_chunk.center_keys
 				vert_chunk.meta["whatever"] = vert_chunk.whatever
-			# currently, known uses of Interleaved48 use impostor uv atlas
-			if vert_chunk.weights_flag.mesh_format == MeshFormat.INTERLEAVED_48:
+			# currently, known uses of Impostor48 use impostor uv atlas
+			if vert_chunk.weights_flag.mesh_format == MeshFormat.IMPOSTOR_48:
 				pack_ushort_vector_impostor(vert_chunk.uvs)
 			else:
 				pack_ushort_vector(vert_chunk.uvs)
@@ -399,7 +398,7 @@ class ChunkedMesh(MeshData):
 			vert_chunk.vertex_offset = self.buffer_info.verts.tell()
 			vert_chunk.vertex_count = len(vert_chunk.meta)
 			# write the arrays if they exist, in this order
-			if vert_chunk.weights_flag.mesh_format in (MeshFormat.SEPARATE, MeshFormat.UNK_FMT):
+			if vert_chunk.weights_flag.mesh_format in (MeshFormat.SEPARATE,):
 				self.buffer_info.verts.write(vert_chunk.packed_verts.tobytes())
 				if vert_chunk.weights_flag.has_weights:
 					if self.context.version >= 52:

@@ -90,7 +90,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 		except:
 			logging.error("Names failed...")
 
-	def load(self, filepath, read_bytes=False, read_editable=False, dump=False, expect_shapekeys=True):
+	def load(self, filepath, read_bytes=False, read_editable=False, dump=False):
 		start_time = time.time()
 		self.filepath = filepath
 		self.dir, self.name = os.path.split(os.path.normpath(filepath))
@@ -130,6 +130,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 				static_buffer = self.get_static_buffer()
 				self.buffer_2_bytes = self.get_all_bytes(static_buffer)
 			if read_editable:
+				expect_shapekeys = "SpeedtreeHitcheck" in self.buffer_0.names
 				self.load_meshes(expect_shapekeys)
 		logging.debug(f"Read {self.name} in {time.time() - start_time:.2f} seconds")
 

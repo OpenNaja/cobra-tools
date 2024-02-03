@@ -8,6 +8,5 @@ class MeshFormat(BaseEnum):
 	_storage = Ubyte
 
 	SEPARATE = 0
-	INTERLEAVED_32 = 1
-	INTERLEAVED_48 = 2
-	UNK_FMT = 3
+	SPEEDTREE_32 = 1
+	IMPOSTOR_48 = 2
