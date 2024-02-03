@@ -38,7 +38,7 @@ def add_hair():
 	# toggle flag
 	flag = ModelFlag.from_value(b_me["flag"])
 	flag.repeat_tris = True
-	flag.fur_shells = True
+	flag.num_shells = 5
 	b_me["flag"] = int(flag)
 	# set reasonable default scales
 	b_me["uv_scale_x"] = 4.0
