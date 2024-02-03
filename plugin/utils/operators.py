@@ -170,8 +170,8 @@ class Mdl2Duplicate(GenericRename):
 
 	share_materials: BoolProperty(
 		name="Share Materials", description="Share or duplicate materials for the copy", default=True)
-	share_armature: BoolProperty(
-		name="Share Armature", description="Share or duplicate armature for the copy", default=True)
+	share_rig: BoolProperty(
+		name="Share Rig", description="Share or duplicate armature, joints and hitcheck for the copy", default=True)
 
 	def draw(self, context):
 		row = self.layout.row()
@@ -179,7 +179,7 @@ class Mdl2Duplicate(GenericRename):
 		row.prop(self, "new_name", text='')
 		row = self.layout.row(align=True)
 		row.prop(self, "share_materials")
-		row.prop(self, "share_armature")
+		row.prop(self, "share_rig")
 
 	def execute(self, context):
 		mdl2_coll = context.collection
@@ -188,6 +188,6 @@ class Mdl2Duplicate(GenericRename):
 		def replacer(name):
 			return name.replace(old_name, self.new_name)
 		collection.copy(
-			context.scene.collection, mdl2_coll, linked=False, replacer=replacer, share_materials=self.share_materials,
+			context.scene.collection, mdl2_coll, linked=False, replacer=replacer, share_materials=self.share_materials, share_rig=self.share_rig,
 		)
 		return {"FINISHED"}
