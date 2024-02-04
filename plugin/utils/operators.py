@@ -19,9 +19,9 @@ class CreateFins(bpy.types.Operator):
 
 
 class CreateLods(bpy.types.Operator):
-	"""Create LODs for this MDL2 collection"""
+	"""Create or remove LODs for this MDL2 collection"""
 	bl_idname = "mdl2.create_lods"
-	bl_label = "Create LODs"
+	bl_label = "Update LODs"
 	bl_options = {'REGISTER', 'UNDO'}
 	num_lods: bpy.props.IntProperty(
 		name='LOD Count', description="Total number of LODs including L0", default=1, min=1, max=6)
@@ -131,7 +131,7 @@ class ConvertScaleToLoc(bpy.types.Operator):
 
 
 class AutosmoothAll(bpy.types.Operator):
-	"""Auto-smooth full MDL2 collection"""
+	"""Autosmooth full MDL2 collection"""
 	bl_idname = "mdl2.autosmooth_all"
 	bl_label = "Autosmooth All"
 	bl_options = {'REGISTER', 'UNDO'}
