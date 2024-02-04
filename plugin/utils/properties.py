@@ -45,10 +45,9 @@ def lod_callback(self, context):
 	view_colls = get_view_collections()
 	for view_coll in view_colls:
 		if view_coll.name in context.scene.collection.children:
-			hide = False
-		else:
-			hide = f"_L{self.current_lod}" not in view_coll.name
-		view_coll.hide_viewport = hide
+			# don't alter the visibility of mdl2 collections
+			continue
+		view_coll.hide_viewport = f"_L{self.current_lod}" not in view_coll.name
 
 
 class CobraSceneSettings(PropertyGroup):
