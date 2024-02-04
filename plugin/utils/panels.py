@@ -1,3 +1,4 @@
+import bpy
 from bpy.types import Panel
 
 
@@ -77,3 +78,19 @@ class CobraMdl2Panel(Panel):
 		row.operator("mdl2.duplicate", icon="DUPLICATE")
 		row = layout.row(align=True)
 		row.operator("mdl2.autosmooth_all", icon="NORMALS_VERTEX_FACE")
+
+
+class VIEW_PT_Mdl2(Panel):
+	bl_idname = 'VIEW_PT_Mdl2'
+	bl_space_type = 'VIEW_3D'
+	bl_region_type = 'UI'
+	bl_category = 'View'
+	bl_label = 'LODs'
+
+	def draw(self, context):
+		layout = self.layout
+		# row = layout.row(align=True)
+		self.layout.prop(context.scene.cobra, "current_lod")
+		# row.prop("mdl2.create_lods", icon="MOD_DECIM")
+		# row.operator("pose.apply_pose_all", icon="ARMATURE_DATA")
+

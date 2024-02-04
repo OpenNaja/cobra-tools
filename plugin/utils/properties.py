@@ -1,4 +1,5 @@
 import enum
+import logging
 import sys
 
 import bpy.props
@@ -10,6 +11,8 @@ from generated.formats.ms2 import games
 from generated.formats.ms2.enums.Jwe1Collision import Jwe1Collision
 from generated.formats.ms2.enums.Jwe1Surface import Jwe1Surface
 from generated.formats.ms2.enums.RigidBodyFlag import RigidBodyFlag
+from plugin.utils.lods import get_lod_collections
+from plugin.utils.object import get_view_collections
 
 
 class VersionedPropertyGroup(PropertyGroup):
@@ -37,6 +40,17 @@ class VersionedPropertyGroup(PropertyGroup):
 		return setattr(self, self.get_current_versioned_name(context, name), v)
 
 
+def lod_callback(self, context):
+	logging.info(f"Setting LOD {self.current_lod}")
+	view_colls = get_view_collections()
+	for view_coll in view_colls:
+		if view_coll.name in context.scene.collection.children:
+			hide = False
+		else:
+			hide = f"_L{self.current_lod}" not in view_coll.name
+		view_coll.hide_viewport = hide
+
+
 class CobraSceneSettings(PropertyGroup):
 	num_streams: IntProperty(
 		name="External Streams",
@@ -44,6 +58,14 @@ class CobraSceneSettings(PropertyGroup):
 		default=0,
 		min=0,
 		max=6
+	)
+	current_lod: IntProperty(
+		name="Current LOD",
+		description="LOD index to show",
+		default=0,
+		min=0,
+		max=5,
+		update=lod_callback
 	)
 	game: EnumProperty(
 		name='Game',

@@ -50,7 +50,7 @@ try:
     from plugin.utils.operators import CreateFins, CreateLods, VcolToHair, HairToVcol, TransferHairCombing, AddHair, \
     GenerateRigEdit, ApplyPoseAll, ConvertScaleToLoc, ExtrudeFins, IntrudeFins, Mdl2Rename, Mdl2Duplicate, AutosmoothAll
     from plugin.utils.properties import CobraSceneSettings, CobraMeshSettings, CobraCollisionSettings, CobraMaterialSettings
-    from plugin.utils.panels import CobraMaterialPanel, CobraMdl2Panel
+    from plugin.utils.panels import CobraMaterialPanel, CobraMdl2Panel, VIEW_PT_Mdl2
 
     global preview_collection
 
@@ -320,6 +320,7 @@ try:
         CobraMaterialSettings,
         CobraMaterialPanel,
         CobraMdl2Panel,
+        VIEW_PT_Mdl2,
         Mdl2Rename,
         Mdl2Duplicate,
         AutosmoothAll,

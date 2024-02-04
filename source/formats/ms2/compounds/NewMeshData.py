@@ -114,8 +114,6 @@ class NewMeshData(MeshData):
 		# read the packed data
 		self.buffer_info.verts.seek(self.vertex_offset)
 		self.buffer_info.verts.readinto(self.verts_data)
-		# if self.flag == 517:
-		# 	print(self.verts_data)
 		# logging.debug(f"Reading {self.vertex_count} verts at {self.buffer_info.verts.tell()}")
 		# first cast to the float uvs array so unpacking doesn't use int division
 		self.uvs[:] = self.verts_data["uvs"]
@@ -131,7 +129,6 @@ class NewMeshData(MeshData):
 		self.negate_bitangents[:] = (self.verts_data["winding"] >> 7) & 1
 		self.normals[:] = self.verts_data["normal"]
 		self.tangents[:] = self.verts_data["tangent"]
-		start_time = time.time()
 		unpack_int64_vector(self.verts_data["pos"], self.vertices, self.use_blended_weights)
 		scale_unpack_vectorized(self.vertices, self.pack_base)
 		if "bone weights" in self.dt.fields:
@@ -173,8 +170,6 @@ class NewMeshData(MeshData):
 			for vertex_index, weight in enumerate(self.whatever):
 				self.add_to_weights("whatever", vertex_index, weight)
 
-		if self.flag == 517 and not self.is_speedtree:
-			print(self.verts_data)
 		# for bit in range(0, 8):
 		# 	for vertex_index, res in enumerate((self.verts_data["winding"] >> bit) & 1):
 		# 		self.add_to_weights(f"bit{bit}", vertex_index, res)
