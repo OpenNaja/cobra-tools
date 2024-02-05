@@ -229,6 +229,8 @@ def export_joints(bone_info, corrector, b_armature_ob):
 	joints.reset_field("ragdoll_constraints")
 	for rd, b_joint in zip(joints.ragdoll_constraints, joints_with_ragdoll_constraints):
 		rbc = b_joint.rigid_body_constraint
+		if not (rbc.object1 and rbc.object2):
+			raise AttributeError(f"Rigidbody constraint on '{b_joint.name}' lacks references to rigidbody objects")
 		# get the joint empties, which are the parents of the respective rigidbody objects
 		child_joint_name = bone_name_for_ovl(get_joint_name(b_armature_basename, rbc.object1.parent))
 		parent_joint_name = bone_name_for_ovl(get_joint_name(b_armature_basename, rbc.object2.parent))
