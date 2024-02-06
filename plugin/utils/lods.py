@@ -7,11 +7,10 @@ from plugin.utils.object import ensure_visible, create_collection
 from plugin.utils.shell import is_shell, is_fin, copy_ob
 
 
-def create_lods(reporter, mdl2_coll, num_lods):
+def create_lods(reporter, mdl2_coll, levels):
 	"""Automatic LOD generator by NDP. Generates LOD objects and automatically decimates them for LOD0-LOD5"""
 	logging.info(f"Generating LOD objects")
 	scene = bpy.context.scene
-	L_n = [0, 40, 26.666, 15, 8, 3.333]
 	with ensure_visible():
 		# get all current LOD collections
 		lod_collections = get_lod_collections(mdl2_coll)
@@ -30,8 +29,12 @@ def create_lods(reporter, mdl2_coll, num_lods):
 					mdl2_coll.objects.unlink(ob)
 					lod0.objects.link(ob)
 		# get or create the lod collections
-		lod_collections = [create_collection(f"{mdl2_coll.name}_L{lod_i}", mdl2_coll) for lod_i in range(num_lods)]
-		for lod_index, lod_coll in enumerate(lod_collections[1:], start=1):
+		lod_collections = [create_collection(f"{mdl2_coll.name}_L{lod_i}", mdl2_coll) for lod_i in range(len(levels))]
+		for lod_index, lod_coll in enumerate(lod_collections):
+			level = levels[lod_index]
+			lod_coll["distance"] = level.distance
+			if lod_index == 0:
+				continue
 			for ob_index, ob in enumerate(lod_collections[0].objects):
 				# JWE2 - shell is separate from base fur
 				if scene.cobra.game == "Jurassic World Evolution 2":
@@ -53,7 +56,7 @@ def create_lods(reporter, mdl2_coll, num_lods):
 					if len(b_me.polygons) > 3:
 						# Decimating duplicated object
 						decimate = obj1.modifiers.new("Decimate", 'DECIMATE')
-						decimate.ratio = (4 / len(b_me.vertices)) ** (1 / L_n[lod_index])
+						decimate.ratio = (4 / len(b_me.vertices)) ** (1 / level.ratio)
 
 				# remove additional shell material from LODs after LOD1
 				if is_shell(ob) and lod_index > 1:

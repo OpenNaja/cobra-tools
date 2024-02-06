@@ -161,7 +161,7 @@ def save(reporter, filepath='', backup_original=True, apply_transforms=False, up
 			stream_index = 0
 			for lod_i, lod_coll in enumerate(lod_collections):
 				m_lod = LodInfo(ms2.context)
-				m_lod.distance = math.pow(30 + 15 * lod_i, 2)
+				m_lod.distance = get_property(lod_coll, "distance", default=math.pow(30 + 15 * lod_i, 2))
 				m_lod.first_object_index = len(model_info.model.objects)
 				m_lod.objects = []
 				m_lod.stream_index = stream_index

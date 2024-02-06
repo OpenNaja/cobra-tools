@@ -1,9 +1,10 @@
 import enum
 import logging
+import math
 import sys
 
 import bpy.props
-from bpy.props import IntProperty, EnumProperty
+from bpy.props import IntProperty, EnumProperty, FloatProperty, StringProperty
 from bpy.types import PropertyGroup
 
 from constants import ConstantsProvider
@@ -40,14 +41,24 @@ class VersionedPropertyGroup(PropertyGroup):
 		return setattr(self, self.get_current_versioned_name(context, name), v)
 
 
-def lod_callback(self, context):
-	logging.info(f"Setting LOD {self.current_lod}")
+def show_lod_callback(self, context):
+	logging.info(f"Showing LOD {self.current_lod}")
 	view_colls = get_view_collections()
 	for view_coll in view_colls:
 		if view_coll.name in context.scene.collection.children:
 			# don't alter the visibility of mdl2 collections
 			continue
 		view_coll.hide_viewport = f"_L{self.current_lod}" not in view_coll.name
+
+
+class LodData(PropertyGroup):
+	distance: FloatProperty(min=0.0, precision=0, description="Distance to object for LOD")
+	ratio: FloatProperty(min=0.0, max=100.0, precision=1, description="Baseline reduction ratio - final decimation ratio also considers vertex count of L0 geometry")
+
+	def update_values(self, lod_i):
+		l_n = [100, 40, 26.666, 15, 8, 3.333]
+		self.distance = math.pow(30 + 15 * lod_i, 2)
+		self.ratio = l_n[lod_i]
 
 
 class CobraSceneSettings(PropertyGroup):
@@ -64,7 +75,7 @@ class CobraSceneSettings(PropertyGroup):
 		default=0,
 		min=0,
 		max=5,
-		update=lod_callback
+		update=show_lod_callback
 	)
 	game: EnumProperty(
 		name='Game',

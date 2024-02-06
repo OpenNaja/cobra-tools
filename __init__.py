@@ -48,8 +48,10 @@ try:
         ImportVoxelskirt, ImportMS2FromBrowser, ImportFGMFromBrowser
     from plugin.modules_export.operators import ExportMS2, ExportSPL, ExportManis, ExportBanis, ExportFgm
     from plugin.utils.operators import CreateFins, CreateLods, VcolToHair, HairToVcol, TransferHairCombing, AddHair, \
-    GenerateRigEdit, ApplyPoseAll, ConvertScaleToLoc, ExtrudeFins, IntrudeFins, Mdl2Rename, Mdl2Duplicate, AutosmoothAll
-    from plugin.utils.properties import CobraSceneSettings, CobraMeshSettings, CobraCollisionSettings, CobraMaterialSettings
+    GenerateRigEdit, ApplyPoseAll, ConvertScaleToLoc, ExtrudeFins, IntrudeFins, Mdl2Rename, Mdl2Duplicate, \
+    AutosmoothAll, LODS_UL_items
+    from plugin.utils.properties import CobraSceneSettings, CobraMeshSettings, CobraCollisionSettings, \
+    CobraMaterialSettings, LodData
     from plugin.utils.panels import CobraMaterialPanel, CobraMdl2Panel, VIEW_PT_Mdl2
 
     global preview_collection
@@ -303,6 +305,8 @@ try:
         ExportManis,
         ImportVoxelskirt,
         CreateFins,
+        LodData,
+        LODS_UL_items,
         CreateLods,
         GenerateRigEdit,
         ApplyPoseAll,
