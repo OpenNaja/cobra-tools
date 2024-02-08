@@ -1,6 +1,7 @@
 import os
 
 from generated.formats.manis import ManisFile
+from generated.formats.ms2 import Ms2File
 from generated.formats.wsm.compounds.WsmHeader import WsmHeader
 
 
@@ -11,8 +12,9 @@ def resize(folder, fac=1.0):
 	out_folder = os.path.join(folder, "resized")
 	os.makedirs(out_folder, exist_ok=True)
 	for filename in os.listdir(folder):
+		filepath = os.path.join(folder, filename)
+		out_path = os.path.join(out_folder, filename)
 		if filename.endswith(".manis"):
-			filepath = os.path.join(folder, filename)
 			manis = ManisFile()
 			manis.load(filepath)
 			for mi in manis.mani_infos:
@@ -58,8 +60,13 @@ def resize(folder, fac=1.0):
 					wsm_out_path = os.path.join(out_folder, wsm_name)
 					with WsmHeader.to_xml_file(wsm, wsm_out_path):
 						pass
-			out_path = os.path.join(out_folder, filename)
 			manis.save(out_path)
+
+		if filename.endswith(".ms2"):
+			ms2 = Ms2File()
+			ms2.load(filepath, read_editable=True)
+			ms2.resize(fac)
+			ms2.save(out_path)
 
 
 resize("C:/Users/arnfi/Desktop/resize", fac=2.0)

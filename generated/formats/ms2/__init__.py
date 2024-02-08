@@ -210,6 +210,42 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			except:
 				logging.exception(f"Populating mesh failed for model {model_info}, {model_info.model}")
 
+	def resize(self, fac=1.0):
+		for bone_info in self.models_reader.bone_infos:
+			for bindmat in bone_info.inverse_bind_matrices:
+				bindmat.data[3][:3] *= fac
+			for bone in bone_info.bones:
+				bone.loc *= fac
+			if bone_info.joint_count:
+				joints = bone_info.joints
+				for jt in joints.joint_transforms:
+					jt.loc *= fac
+				for rb in joints.rigid_body_list:
+					rb.loc *= fac
+				for ragdoll in joints.ragdoll_constraints:
+					ragdoll.loc *= fac
+				for joint_info in joints.joint_infos:
+					for hc in joint_info.hitchecks:
+						c = hc.collider
+						if hasattr(c, "center"):
+							c.center *= fac
+						if hasattr(c, "radius"):
+							c.radius *= fac
+						if hasattr(c, "extent"):
+							c.extent *= fac
+						if hasattr(c, "offset"):
+							c.offset *= fac
+			# print(bone_info)
+		for model_i, model_info in enumerate(self.model_infos):
+			if self.lacks_mesh(model_info, model_i):
+				continue
+			for wrapper in model_info.model.meshes:
+				mesh = wrapper.mesh
+				mesh.keep_weights = True
+				mesh.vertices *= fac
+				mesh.repack_vec_only()
+				# mesh.pack_verts()
+
 	def name_used(self, new_name):
 		for model_info in self.model_infos:
 			if model_info.name == new_name:
@@ -310,6 +346,7 @@ class Ms2File(Ms2InfoHeader, IoFile):
 			self.bone_info_size = self.models_reader.bone_info_size
 
 	def update_buffer_2_bytes(self):
+		logging.debug(f"update_buffer_2_bytes")
 		if self.read_editable:
 			logging.debug(f"Updating buffer 2")
 			# determine how many streams we need
