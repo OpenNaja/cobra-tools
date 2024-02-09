@@ -46,7 +46,7 @@ class MainWindow(widgets.MainWindow):
 
 		self.file_widget = self.make_file_widget(ftype="FGM")
 
-		self.lock_attrs = QtWidgets.QCheckBox("Lock Attributes")
+		self.lock_attrs = QtWidgets.QCheckBox("Lock Data")
 		self.lock_attrs.setLayoutDirection(QtCore.Qt.RightToLeft)
 		self.lock_attrs.setChecked(True)
 
@@ -61,6 +61,8 @@ class MainWindow(widgets.MainWindow):
 		self.attribute_add.clicked.connect(self.add_attribute_clicked)
 		self.texture_add = QtWidgets.QPushButton("Add Texture")
 		self.texture_add.clicked.connect(self.add_texture_clicked)
+		self.lock_attrs.toggled.connect(self.texture_choice.setHidden)
+		self.lock_attrs.toggled.connect(self.texture_add.setHidden)
 		self.lock_attrs.toggled.connect(self.attribute_choice.setHidden)
 		self.lock_attrs.toggled.connect(self.attribute_add.setHidden)
 
@@ -102,10 +104,7 @@ class MainWindow(widgets.MainWindow):
 			(help_menu, "Documentation", self.online_support, "", "manual")
 		)
 		self.add_to_menu(button_data)
-
-		if self.lock_attrs.isChecked():
-			self.attribute_choice.hide()
-			self.attribute_add.hide()
+		self.lock_attrs.toggled.emit(True)
 
 	@property
 	def game(self):
@@ -404,10 +403,8 @@ class PropertyContainer(QtWidgets.QGroupBox):
 			grid.addWidget(w.w_label, line_i, 1)
 			grid.addWidget(w.w_dtype, line_i, 2)
 			grid.addWidget(w.w_data, line_i, 3)
-			# grid.addWidget(w.w_tile, line_i, 4)
-			if self.title() == "Attributes":
-				w.b_delete.setHidden(self.gui.lock_attrs.isChecked())
-				self.gui.lock_attrs.toggled.connect(w.b_delete.setHidden)
+			w.b_delete.setHidden(self.gui.lock_attrs.isChecked())
+			self.gui.lock_attrs.toggled.connect(w.b_delete.setHidden)
 
 	def clear_layout(self):
 		layout = self.layout()
