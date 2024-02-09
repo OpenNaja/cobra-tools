@@ -127,9 +127,6 @@ class MainWindow(widgets.MainWindow):
 		except:
 			logging.warning(f"No presets for game {game}")
 
-	def set_dirty(self):
-		self.set_file_modified(True)
-
 	def update_choices(self):
 		shader_name = self.shader_choice.entry.currentText()
 		if shader_name:
@@ -354,6 +351,7 @@ class MainWindow(widgets.MainWindow):
 				self.update_shader(self.header.shader_name)
 				self.tex_container.update_gui(self.header.textures.data, self.header.name_foreach_textures.data)
 				self.attrib_container.update_gui(self.header.attributes.data, self.header.value_foreach_attributes.data)
+				self.set_clean()
 				logging.info(f"Opened {filepath}")
 			except:
 				self.handle_error("Opening failed, see log!")
@@ -373,7 +371,7 @@ class MainWindow(widgets.MainWindow):
 			with self.header.to_xml_file(self.header, filepath):
 				# got to use context manager, but there's no need to do any post-write cleanup here
 				pass
-			self.set_file_modified(False)
+			self.set_clean()
 			logging.info(f"Saved {filepath}")
 		except:
 			self.handle_error("Saving failed, see log!")
@@ -549,13 +547,14 @@ class TextureVisual:
 
 	def update_rgb_field(self, c):
 		self.data.value = np.array([x / 255 for x in c.getRgb()[:3]])
+		self.container.gui.set_dirty()
 
 	def create_rgb_field(self):
 		field = widgets.QColorButton()
-		field.colorChanged.connect(self.update_rgb_field)
 		d = [int(np.rint(x * 255)) for x in self.data.value]
 		c = QColor(*d, 255)
 		field.setColor(c)
+		field.colorChanged.connect(self.update_rgb_field)
 		return field
 
 	def create_field(self, ind, target):

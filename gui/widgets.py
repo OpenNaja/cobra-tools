@@ -3109,10 +3109,10 @@ class MainWindow(FramelessMainWindow):
     def set_file_modified(self, dirty: bool) -> None:
         self.modified.emit(dirty)
 
-    def set_file_clean(self) -> None:
+    def set_clean(self) -> None:
         self.set_file_modified(False)
 
-    def set_file_dirty(self) -> None:
+    def set_dirty(self) -> None:
         self.set_file_modified(True)
 
     def report_bug(self) -> None:

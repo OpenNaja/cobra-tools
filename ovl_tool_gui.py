@@ -423,7 +423,7 @@ class MainWindow(widgets.MainWindow):
 			self.set_file_modified(False)
 			logging.debug(f"Loading threaded {threaded}")
 			if threaded:
-				self.run_threaded(self.ovl_data.load, (self.set_file_clean, ), filepath, commands)
+				self.run_threaded(self.ovl_data.load, (self.set_clean, ), filepath, commands)
 			else:
 				try:
 					self.ovl_data.load(filepath, commands)
