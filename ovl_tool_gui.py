@@ -462,6 +462,7 @@ class MainWindow(widgets.MainWindow):
 
 	def update_includes(self, includes):
 		self.ovl_data.included_ovl_names = includes
+		self.set_file_modified(True)
 
 	def save(self, filepath):
 		"""Saves ovl to file_widget.filepath, clears dirty flag"""
