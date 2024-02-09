@@ -3109,6 +3109,12 @@ class MainWindow(FramelessMainWindow):
     def set_file_modified(self, dirty: bool) -> None:
         self.modified.emit(dirty)
 
+    def set_file_clean(self) -> None:
+        self.set_file_modified(False)
+
+    def set_file_dirty(self) -> None:
+        self.set_file_modified(True)
+
     def report_bug(self) -> None:
         webbrowser.open("https://github.com/OpenNaja/cobra-tools/issues/new?assignees=&labels=&template=bug_report.md&title=", new=2)
 
@@ -3157,7 +3163,7 @@ class MainWindow(FramelessMainWindow):
     def set_msg_temporarily(self, message: str) -> None:
         self.status_bar.showMessage(message, 3500)
 
-    def run_threaded(self, func: Callable, *args, **kwargs) -> None:
+    def run_threaded(self, func: Callable, callbacks: Iterable = (), *args, **kwargs) -> None:
         # Step 2: Create a QThread object
         self.thread = QThread()
         # Step 3: Create a worker object
@@ -3177,6 +3183,8 @@ class MainWindow(FramelessMainWindow):
         self.enable_gui_options(False)
         self.thread.finished.connect(self.enable_gui_options)
         self.thread.finished.connect(self.choices_update)
+        for callback in callbacks:
+            self.thread.finished.connect(callback)
 
     def enable_gui_options(self, enable=True):
         pass

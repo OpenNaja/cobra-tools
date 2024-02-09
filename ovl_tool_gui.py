@@ -278,7 +278,7 @@ class MainWindow(widgets.MainWindow):
 		self.search_files.emit(results)
 
 	def search_ovl_contents_threaded(self, search_str):
-		self.run_threaded(self.search_ovl_contents, search_str)
+		self.run_threaded(self.search_ovl_contents, (), search_str)
 
 	def notify_user(self, msg_list):
 		msg = msg_list[0]
@@ -411,6 +411,7 @@ class MainWindow(widgets.MainWindow):
 	def compression_changed(self, compression: str):
 		compression_value = Compression[compression]
 		self.ovl_data.user_version.compression = compression_value
+		self.set_file_modified(True)
 
 	def show_dependencies(self, file_index):
 		# just an example of what can be done when something is selected
@@ -422,7 +423,7 @@ class MainWindow(widgets.MainWindow):
 			self.set_file_modified(False)
 			logging.debug(f"Loading threaded {threaded}")
 			if threaded:
-				self.run_threaded(self.ovl_data.load, filepath, commands)
+				self.run_threaded(self.ovl_data.load, (self.set_file_clean, ), filepath, commands)
 			else:
 				try:
 					self.ovl_data.load(filepath, commands)
@@ -476,7 +477,7 @@ class MainWindow(widgets.MainWindow):
 															 self.cfg.get("dir_extract", "C://"), )
 		if out_dir:
 			self.cfg["dir_extract"] = out_dir
-			self.run_threaded(self._extract_all, out_dir)
+			self.run_threaded(self._extract_all, (), out_dir)
 
 	def _extract_all(self, out_dir):
 		_out_dir = out_dir
@@ -500,9 +501,7 @@ class MainWindow(widgets.MainWindow):
 		if files:
 			self.cfg["dir_inject"] = os.path.dirname(files[0])
 			self.set_file_modified(True)
-			# threaded injection seems to be fine now
-			# self.ovl_data.add_files(files)
-			self.run_threaded(self.ovl_data.add_files, files)
+			self.run_threaded(self.ovl_data.add_files, (), files)
 		# the gui is updated from the signal ovl.files_list emitted from add_files
 
 	def get_replace_strings(self):
@@ -617,7 +616,7 @@ class MainWindow(widgets.MainWindow):
 		return selected if selected else self.game_root()
 
 	def walker_hash(self, ):
-		self.run_threaded(walker.generate_hash_table, self, self.game_root())
+		self.run_threaded(walker.generate_hash_table, (), self, self.game_root())
 
 	def walker_fgm(self, ):
 		dialog = widgets.WalkerDialog(self, "Inspect FGMs", self.walk_root())
@@ -625,7 +624,7 @@ class MainWindow(widgets.MainWindow):
 		chk_full_report.setChecked(self.walk_root() == self.game_root())
 		dialog.options.addWidget(chk_full_report)
 		if dialog.exec():
-			self.run_threaded(walker.get_fgm_values, self, self.game_root(),
+			self.run_threaded(walker.get_fgm_values, (), self, self.game_root(),
 				walk_dir=dialog.walk_dir, walk_ovls=dialog.chk_ovls.isChecked(),
 				official_only=dialog.chk_official.isChecked(), full_report=chk_full_report.isChecked()
 			)
@@ -633,14 +632,14 @@ class MainWindow(widgets.MainWindow):
 	def walker_manis(self, ):
 		dialog = widgets.WalkerDialog(self, "Inspect Manis", self.walk_root())
 		if dialog.exec():
-			self.run_threaded(walker.get_manis_values, self, dialog.walk_dir,
+			self.run_threaded(walker.get_manis_values, (), self, dialog.walk_dir,
 				walk_ovls=dialog.chk_ovls.isChecked(), official_only=dialog.chk_official.isChecked()
 			)
 
 	def inspect_models(self):
 		dialog = widgets.WalkerDialog(self, "Inspect Models", self.walk_root())
 		if dialog.exec():
-			self.run_threaded(walker.bulk_test_models, self, dialog.walk_dir,
+			self.run_threaded(walker.bulk_test_models, (), self, dialog.walk_dir,
 				walk_ovls=dialog.chk_ovls.isChecked(), official_only=dialog.chk_official.isChecked()
 			)
 
