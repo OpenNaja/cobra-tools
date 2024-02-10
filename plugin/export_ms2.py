@@ -7,41 +7,20 @@ import shutil
 
 import bpy
 import mathutils
-import numpy as np
 
 from generated.formats.ms2.compounds.LodInfo import LodInfo
 from generated.formats.ms2.compounds.Object import Object
 from generated.formats.ms2.compounds.Model import Model
 from generated.formats.ms2.compounds.ModelInfo import ModelInfo
 from generated.formats.ms2.compounds.BoneInfo import BoneInfo
-from generated.formats.ms2.compounds.packing_utils import PACKEDVEC_MAX
 from generated.formats.ms2 import Ms2File, set_game
 from plugin.modules_export.armature import get_armature, export_bones_custom
-from plugin.modules_export.collision import export_bounds, get_bounds
+from plugin.modules_export.collision import export_bounds
 from plugin.modules_export.geometry import export_model, scale_bbox
 from plugin.modules_export.material import export_material
 from plugin.modules_import.armature import get_bone_names
 from plugin.utils.object import ensure_visible, has_data_in_coll, get_property
 from plugin.utils.lods import get_lod_collections
-
-
-def get_pack_base(b_obs, apply_transforms=False):
-	"""Detect a suitable pack_base value depending on the bounds of b_obs"""
-	# todo JWE2 perhaps supports unique pack_base per vert_chunk
-	bounds = [scale_bbox(ob, apply_transforms) for ob in b_obs]
-	bounds_max, bounds_min = get_bounds(bounds)
-	coord_min = np.min(bounds_min)
-	coord_max = np.max(bounds_max)
-	# use some slight tolerance to avoid wrapping the edge values
-	tolerance = 1.05
-	for pack_base in [float(2 ** x) for x in range(1, 16)]:
-		if -pack_base < coord_min * tolerance and coord_max * tolerance < pack_base:
-			return pack_base
-
-
-def get_precision(pack_base):
-	# precision is close to pack_base / PACKEDVEC_MAX but with some error
-	return (pack_base + (pack_base * pack_base / PACKEDVEC_MAX)) / PACKEDVEC_MAX
 
 
 def get_next_backup_filename(filepath):
@@ -150,13 +129,11 @@ def save(reporter, filepath='', backup_original=True, apply_transforms=False, up
 
 			b_models = []
 			b_materials = []
-			bounds = []
 			lod_collections = get_lod_collections(mdl2_coll)
-			# set a default even when there are no models
-			model_info.pack_base = 512.0
-			if ms2.context.version > 32 and lod_collections and lod_collections[0].objects:
-				model_info.pack_base = get_pack_base(lod_collections[0].objects, apply_transforms)
-			model_info.precision = get_precision(model_info.pack_base)
+			if lod_collections and lod_collections[0].objects:
+				export_bounds([scale_bbox(ob, apply_transforms) for ob in lod_collections[0].objects], model_info)
+			model_info.pack_base = ms2.get_pack_base(model_info.bounds_min, model_info.bounds_max)
+			model_info.precision = ms2.get_precision(model_info.pack_base)
 			# logging.info(f"chose pack_base = {model_info.pack_base}")
 			stream_index = 0
 			for lod_i, lod_coll in enumerate(lod_collections):
@@ -181,7 +158,7 @@ def save(reporter, filepath='', backup_original=True, apply_transforms=False, up
 						if b_me not in b_models:
 							b_models.append((b_me, shell_index))
 							wrapper = export_model(
-								model_info, lod_coll, b_ob, b_me, bones_table, bounds, apply_transforms,
+								model_info, lod_coll, b_ob, b_me, bones_table, apply_transforms,
 								use_stock_normals_tangents, m_lod, shell_index, shell_count, mesh_in_lod)
 							wrapper.mesh.lod_index = lod_i
 							wrapper.mesh.stream_info.pool_index = stream_index
@@ -211,7 +188,6 @@ def save(reporter, filepath='', backup_original=True, apply_transforms=False, up
 				m_lod.last_object_index = len(model_info.model.objects)
 				if lod_i < scene.cobra.num_streams:
 					stream_index += 1
-			export_bounds(bounds, model_info)
 	# write ms2, backup should have been created earlier
 	ms2.save(filepath)
 	# print(ms2)

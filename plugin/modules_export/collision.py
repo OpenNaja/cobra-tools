@@ -14,9 +14,8 @@ v = 9999
 def export_bounds(bounds, model_info):
 	logging.debug("Exporting bounds")
 	bounds_max, bounds_min = get_bounds(bounds)
-	center = (bounds_min+bounds_max)/2
-	model_info = model_info
 	assign_bounds(model_info, bounds_max, bounds_min)
+	center = (bounds_min+bounds_max)/2
 	model_info.center.set(center)
 	model_info.radius = (center-bounds_max).length*0.77
 

@@ -14,7 +14,7 @@ from plugin.utils.matrix_util import ensure_tri_modifier, evaluate_mesh
 from plugin.utils.shell import num_fur_as_weights, is_fin, is_shell, FUR_VGROUPS
 
 
-def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_transforms, use_stock_normals_tangents, m_lod, shell_index, shell_count, mesh_in_lod):
+def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, apply_transforms, use_stock_normals_tangents, m_lod, shell_index, shell_count, mesh_in_lod):
 	logging.info(f"Exporting mesh {b_me.name}")
 	# we create a ms2 mesh
 	wrapper = MeshDataWrap(model_info.context)
@@ -69,7 +69,6 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 	# validate the mesh to get rid of degenerate geometry such as duplicate faces, which would trigger chunking asserts
 	eval_me.validate()
 	handle_transforms(eval_obj, eval_me, apply=apply_transforms)
-	bounds.append(scale_bbox(eval_obj, apply_transforms))
 
 	hair_length = get_hair_length(b_ob)
 	mesh.fur_length = hair_length
@@ -273,6 +272,7 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, bounds, apply_
 
 
 def scale_bbox(b_ob, apply_transforms):
+	# ob.bound_box includes the mirror modifier's result
 	if apply_transforms:
 		# bound_box does not contain matrix_local transforms
 		bbox = [b_ob.matrix_local @ mathutils.Vector(vec) for vec in b_ob.bound_box]

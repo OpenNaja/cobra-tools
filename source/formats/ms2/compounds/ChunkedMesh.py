@@ -325,13 +325,12 @@ class ChunkedMesh(MeshData):
 	def is_speedtree(self):
 		return self.mesh_format in (MeshFormat.SPEEDTREE_32, MeshFormat.IMPOSTOR_48)
 
-	def repack_vec_only(self):
+	def resize_vertices(self, model_info, fac):
+		self.vertices *= fac
 		pack_swizzle_vectorized(self.vertices)
-		offs = 0
 		for vert_chunk, tri_chunk in zip(self.vert_chunks, self.tri_chunks):
-			# (re)generate views into mesh vertex arrays for vert_chunk according to tri_chunk
-			v_slice = np.s_[offs: offs + vert_chunk.vertex_count]
-			offs += vert_chunk.vertex_count
+			vert_chunk.pack_base = model_info.pack_base
+			vert_chunk.precision = model_info.precision
 			# we have the views, so set bounds for the chunk (after swizzling)
 			tri_chunk.bounds_min.set(np.min(vert_chunk.vertices, axis=0))
 			tri_chunk.bounds_max.set(np.max(vert_chunk.vertices, axis=0))
@@ -340,10 +339,10 @@ class ChunkedMesh(MeshData):
 				# set the loc value as center of gravity, or center of bounds?
 				tri_chunk.loc.set(np.mean(vert_chunk.vertices, axis=0))
 			# pack the verts
-			if vert_chunk.weights_flag.mesh_format in (MeshFormat.SEPARATE,):
-				scale_pack_vectorized(vert_chunk.vertices, vert_chunk.pack_base)
-				pack_int64_vector(vert_chunk.packed_verts, vert_chunk.vertices.astype(np.int64),
-								  vert_chunk.negate_bitangents)
+			assert vert_chunk.weights_flag.mesh_format in (MeshFormat.SEPARATE,)
+			scale_pack_vectorized(vert_chunk.vertices, vert_chunk.pack_base)
+			pack_int64_vector(vert_chunk.packed_verts, vert_chunk.vertices.astype(np.int64),
+							  vert_chunk.negate_bitangents)
 
 	def pack_verts(self):
 		"""Repack flat lists into verts_data"""

@@ -6,6 +6,9 @@ import logging
 from copy import copy
 
 import numpy as np
+
+from generated.formats.ms2.compounds.packing_utils import PACKEDVEC_MAX
+
 np.set_printoptions(precision=3, suppress=True)
 
 from generated.formats.base.compounds.PadAlign import get_padding
@@ -239,12 +242,17 @@ class Ms2File(Ms2InfoHeader, IoFile):
 		for model_i, model_info in enumerate(self.model_infos):
 			if self.lacks_mesh(model_info, model_i):
 				continue
+			model_info.bounds_min *= fac
+			model_info.bounds_max *= fac
+			model_info.bounds_min_repeat *= fac
+			model_info.bounds_max_repeat *= fac
+			model_info.center *= fac
+			model_info.radius *= fac
+			model_info.pack_base = self.get_pack_base(model_info.bounds_min, model_info.bounds_max)
+			model_info.precision = self.get_precision(model_info.pack_base)
 			for wrapper in model_info.model.meshes:
 				mesh = wrapper.mesh
-				mesh.keep_weights = True
-				mesh.vertices *= fac
-				mesh.repack_vec_only()
-				# mesh.pack_verts()
+				mesh.resize_vertices(model_info, fac)
 
 	def name_used(self, new_name):
 		for model_info in self.model_infos:
@@ -496,6 +504,24 @@ class Ms2File(Ms2InfoHeader, IoFile):
 						# 	f"Lod: {obj.mesh.poweroftwo} Flag: {flag}")
 					except:
 						logging.exception(f"Couldn't match material {obj.material_index} to mesh {obj.mesh_index}")
+
+	def get_pack_base(self, bounds_min, bounds_max):
+		"""Detect a suitable pack_base value depending on the bounds extent"""
+		if self.context.version > 32:
+			coord_min = np.min(bounds_min)
+			coord_max = np.max(bounds_max)
+			# just fall back to default when there are no models
+			if coord_min != 0.0 or coord_max != 0.0:
+				# use some slight tolerance to avoid wrapping the edge values
+				tolerance = 1.05
+				for pack_base in [float(2 ** x) for x in range(1, 16)]:
+					if -pack_base < coord_min * tolerance and coord_max * tolerance < pack_base:
+						return pack_base
+		return 512.0
+
+	def get_precision(self, pack_base):
+		# precision is close to pack_base / PACKEDVEC_MAX but with some error
+		return (pack_base + (pack_base * pack_base / PACKEDVEC_MAX)) / PACKEDVEC_MAX
 
 	def clear(self):
 		for model_info in self.model_infos:
