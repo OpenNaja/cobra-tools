@@ -19,42 +19,61 @@ FUR_VGROUPS = ("fur_length", "fur_width", "fur_clump")
 
 
 def add_vgroup(ob, group_name, weight):
-	ob.vertex_groups.new(name=group_name)
-	ob.vertex_groups[group_name].add(range(len(ob.data.vertices)), weight, 'REPLACE')
+	if group_name not in ob.vertex_groups:
+		ob.vertex_groups.new(name=group_name)
+		ob.vertex_groups[group_name].add(range(len(ob.data.vertices)), weight, 'REPLACE')
 
 
 def add_hair():
-	src_ob = bpy.context.object
-	b_me = src_ob.data
-	logging.info(f"Adding hair to {src_ob.name}")
-	# check that src_ob is in lod0?
+	game = bpy.context.scene.cobra.game
+	base_ob = bpy.context.object
+	base_me = base_ob.data
+	logging.info(f"Adding hair to {base_ob.name}")
+	assert base_ob.users_collection[0].name.endswith("_L0"), f"Make sure that {base_ob.name} is in the _L0 collection"
 	# add vertex groups
 	for vgroup_name in FUR_VGROUPS:
-		add_vgroup(src_ob, vgroup_name, 0.5)
+		add_vgroup(base_ob, vgroup_name, 0.5)
 	# add particle system
-	add_psys(src_ob)
+	add_psys(base_ob)
 	# add vcol layer
-	b_me.attributes.new(f"RGBA{0}", "BYTE_COLOR", "CORNER")
-	# toggle flag
-	flag = ModelFlag.from_value(b_me["flag"])
-	flag.repeat_tris = True
-	flag.num_shells = 5
-	b_me["flag"] = int(flag)
-	# set reasonable default scales
-	b_me["uv_scale_x"] = 4.0
-	b_me["uv_scale_y"] = 2.0
+	base_me.attributes.new(f"RGBA{0}", "BYTE_COLOR", "CORNER")
+	base_mat = base_me.materials[0]
+	mat_basename = base_mat.name.replace("_Fur", "")
+	if game == "Planet Zoo":
+		# just add a second material to base
+		shell_me = base_me
+		shell_ob = base_ob
+	elif game == "Jurassic World Evolution 2":
+		# copy the base for shells
+		shell_ob = copy_ob(base_ob, base_ob.users_collection[0])
+		shell_me = shell_ob.data
+		shell_me.materials.clear()
+	else:
+		raise AttributeError(f"Unsupported game '{game}'")
 	# add shell material
-	b_mat = b_me.materials[0]
-	shell_mat = b_mat.copy()
-	shell_mat.name = f"{b_mat.name}_Fur_Shell"
-	b_me.materials.append(shell_mat)
+	shell_mat = base_mat.copy()
+	shell_mat.name = f"{mat_basename}_Fur_Shell"
+	shell_me.materials.append(shell_mat)
+	# set reasonable default scales
+	shell_me["uv_scale_x"] = 4.0
+	shell_me["uv_scale_y"] = 2.0
 	# build fins
-	# either generate dummy fin_ob or refactor
-	fins_ob = build_fins_geom(src_ob)
-	fins_mat = b_mat.copy()
-	fins_mat.name = f"{b_mat.name}_Fur_Fin"
-	fins_ob.data.materials.clear()
-	fins_ob.data.materials.append(fins_mat)
+	fins_ob = build_fins_geom(shell_ob)
+	fins_mat = base_mat.copy()
+	fins_mat.name = f"{mat_basename}_Fur_Fin"
+	fins_me = fins_ob.data
+	fins_me.materials.clear()
+	fins_me.materials.append(fins_mat)
+	# toggle flag
+	if game == "Planet Zoo":
+		flag = ModelFlag.from_value(base_me["flag"])
+		flag.repeat_tris = True
+		flag.num_shells = 5
+		base_me["flag"] = int(flag)
+		fins_me["flag"] = 565
+	elif game == "Jurassic World Evolution 2":
+		base_me["flag"] = 0
+		shell_me["shell_count"] = 3
 	return f"Added hair",
 
 
