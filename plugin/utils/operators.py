@@ -8,11 +8,6 @@ from plugin.utils.properties import LodData
 from plugin.utils.shell import extrude_fins, intrude_fins
 from plugin.utils.matrix_util import handle_errors, handle_errors_new
 
-from bpy.types import (Operator,
-					   Panel,
-					   PropertyGroup,
-					   UIList)
-
 
 class CreateFins(bpy.types.Operator):
 	"""Create fins for all objects with shells in this scene, and overwrite existing fin geometry"""
@@ -24,7 +19,7 @@ class CreateFins(bpy.types.Operator):
 		return handle_errors(self, shell.create_fins_wrapper, {})
 
 
-class LODS_UL_items(UIList):
+class LODS_UL_items(bpy.types.UIList):
 	def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index):
 		split = layout.split(factor=0.08)
 		split.label(text=f"L{index}")
