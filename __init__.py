@@ -47,7 +47,7 @@ try:
     from plugin.modules_import.operators import ImportBanis, ImportManis, ImportMatcol, ImportFgm, ImportMS2, ImportSPL, \
         ImportVoxelskirt, ImportMS2FromBrowser, ImportFGMFromBrowser
     from plugin.modules_export.operators import ExportMS2, ExportSPL, ExportManis, ExportBanis, ExportFgm
-    from plugin.utils.operators import CreateFins, CreateLods, VcolToHair, HairToVcol, TransferHairCombing, AddHair, \
+    from plugin.utils.operators import UpdateFins, CreateLods, VcolToHair, HairToVcol, TransferHairCombing, AddHair, \
     GenerateRigEdit, ApplyPoseAll, ConvertScaleToLoc, ExtrudeFins, IntrudeFins, Mdl2Rename, Mdl2Duplicate, \
     AutosmoothAll, LODS_UL_items
     from plugin.utils.properties import CobraSceneSettings, CobraMeshSettings, CobraCollisionSettings, \
@@ -139,23 +139,26 @@ try:
 
         def draw(self, context):
             addon_updater_ops.check_for_update_background()
-            layout = self.layout
-            icon = preview_collection["frontier.png"].icon_id
-            row = layout.row(align=True)
-            row.operator("object.create_fins", icon_value=icon)
-            row = layout.row(align=True)
-            row.operator("object.vcol_to_comb", icon_value=icon)
-            sub = row.row()
-            sub.operator("object.comb_to_vcol", icon_value=icon)
-            row = layout.row(align=True)
-            row.operator("object.transfer_hair_combing", icon_value=icon)
-            sub = row.row()
-            sub.operator("object.add_hair", icon_value=icon)
-            row = layout.row(align=True)
-            row.operator("object.extrude_fins", icon_value=icon)
-            sub = row.row()
-            sub.operator("object.intrude_fins", icon_value=icon)
             addon_updater_ops.update_notice_box_ui(self, context)
+            
+            layout = self.layout
+            row = layout.row(align=True)
+            row.operator("object.add_hair", icon="CURVES")
+
+            box = layout.box()
+            box.label(text="Combing", icon="CURVES")
+            sub = box.row(align=True)
+            sub.operator("object.vcol_to_comb", icon="COPYDOWN")
+            sub.operator("object.comb_to_vcol", icon="PASTEDOWN")
+            box.operator("object.transfer_hair_combing", icon="PASTEFLIPDOWN")
+
+            box = layout.box()
+            box.label(text="Fur Fins", icon="SEQ_HISTOGRAM")
+            box.operator("object.update_fins", icon="FILE_REFRESH")
+            row = box.row(align=True)
+            row.operator("object.extrude_fins", icon="ADD")
+            row.operator("object.intrude_fins", icon="REMOVE")
+
 
 
     class POSE_PT_CobraTools(bpy.types.Panel):
@@ -304,7 +307,7 @@ try:
         ExportBanis,
         ExportManis,
         ImportVoxelskirt,
-        CreateFins,
+        UpdateFins,
         LodData,
         LODS_UL_items,
         CreateLods,

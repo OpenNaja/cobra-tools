@@ -106,7 +106,7 @@ def ob_processor_wrapper(func):
 	return msgs
 
 
-def create_fins_wrapper():
+def update_fins_wrapper():
 	logging.info(f"Creating fins")
 	return ob_processor_wrapper(build_fins)
 
