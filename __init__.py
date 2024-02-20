@@ -47,7 +47,7 @@ try:
     from plugin.modules_import.operators import ImportBanis, ImportManis, ImportMatcol, ImportFgm, ImportMS2, ImportSPL, \
         ImportVoxelskirt, ImportMS2FromBrowser, ImportFGMFromBrowser
     from plugin.modules_export.operators import ExportMS2, ExportSPL, ExportManis, ExportBanis, ExportFgm
-    from plugin.utils.operators import UpdateFins, UpdateLods, VcolToHair, HairToVcol, TransferHairCombing, AddHair, \
+    from plugin.utils.operators import UpdateFins, UpdateLods, VcolToComb, CombToVcol, TransferHairCombing, AddHair, \
     GenerateRigEdit, ApplyPoseAll, ConvertScaleToLoc, ExtrudeFins, IntrudeFins, Mdl2Rename, Mdl2Duplicate, \
     AutosmoothAll, LODS_UL_items
     from plugin.utils.properties import CobraSceneSettings, CobraMeshSettings, CobraCollisionSettings, \
@@ -180,16 +180,10 @@ try:
             icon = preview_collection["frontier.png"].icon_id
             row = layout.row(align=True)
             sub = row.row()
-            operator = sub.operator("pose.generate_rig_edit", icon_value=icon)
+            sub.operator("pose.generate_rig_edit", icon="ORIENTATION_PARENT")
             row = layout.row(align=True)
             sub = row.row()
-            sub.prop(context.scene, "mergenodes", text="Merge Identical Nodes")
-            row = layout.row(align=True)
-            sub = row.row()
-            sub.prop(context.scene, "applyarmature", text="Apply Armature Modifiers")
-            row = layout.row(align=True)
-            sub = row.row()
-            sub.operator("pose.convert_scale_to_loc", icon_value=icon)
+            sub.operator("pose.convert_scale_to_loc", icon="CURVE_PATH")
 
 
     class SCENE_PT_CobraTools(bpy.types.Panel):
@@ -314,8 +308,8 @@ try:
         GenerateRigEdit,
         ApplyPoseAll,
         ConvertScaleToLoc,
-        VcolToHair,
-        HairToVcol,
+        VcolToComb,
+        CombToVcol,
         ExtrudeFins,
         IntrudeFins,
         TransferHairCombing,
@@ -386,16 +380,6 @@ def register():
     bpy.types.Mesh.cobra = bpy.props.PointerProperty(type=CobraMeshSettings)
     # bpy.types.RigidBodyObject.cobra = bpy.props.PointerProperty(type=CobraCollisionSettings)
     bpy.types.Object.cobra_coll = bpy.props.PointerProperty(type=CobraCollisionSettings)
-    bpy.types.Scene.mergenodes = bpy.props.BoolProperty(
-        name = "Merge Idential Nodes",
-        description = "Merges identical nodes to reduce the amount of duplicates if you  moved several bones with the same parent",
-        default = True
-    )
-    bpy.types.Scene.applyarmature = bpy.props.BoolProperty(
-        name = "Apply Armature Modifiers",
-        description = "Automatically applies all of the armature's object's armature modifiers and re-adds them",
-        default = False
-    )
 
     # Injection of elements in the contextual menu of the File Browser editor
     bpy.types.FILEBROWSER_MT_context_menu.append(CT_FileBrowser_Context_Menu)
@@ -416,8 +400,6 @@ def unregister():
 
     del bpy.types.Scene.cobra
     del bpy.types.Mesh.cobra
-    del bpy.types.Scene.mergenodes
-    del bpy.types.Scene.applyarmature
     global preview_collection
     bpy.utils.previews.remove(preview_collection)
 

@@ -1,4 +1,3 @@
-import bpy
 from bpy.types import Panel
 
 
@@ -89,8 +88,5 @@ class VIEW_PT_Mdl2(Panel):
 
 	def draw(self, context):
 		layout = self.layout
-		# row = layout.row(align=True)
-		self.layout.prop(context.scene.cobra, "current_lod")
-		# row.prop("mdl2.update_lods", icon="MOD_DECIM")
-		# row.operator("pose.apply_pose_all", icon="ARMATURE_DATA")
+		layout.prop(context.scene.cobra, "current_lod")
 

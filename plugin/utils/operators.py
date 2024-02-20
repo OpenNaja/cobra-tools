@@ -13,6 +13,12 @@ class BaseOp(bpy.types.Operator):
 	bl_options = {'REGISTER', 'UNDO'}
 
 
+class PopupOp(BaseOp):
+
+	def invoke(self, context, event):
+		return context.window_manager.invoke_props_dialog(self)
+
+
 class UpdateFins(BaseOp):
 	"""Updates fins meshes from shell meshes in this scene"""
 	bl_idname = "object.update_fins"
@@ -44,7 +50,7 @@ def update_lod_settings(self, context):
 			self.levels.remove(len(self.levels)-1)
 
 
-class UpdateLods(BaseOp):
+class UpdateLods(PopupOp):
 	"""Create or remove LODs for this MDL2 collection"""
 	bl_idname = "mdl2.update_lods"
 	bl_label = "Update LODs"
@@ -59,7 +65,7 @@ class UpdateLods(BaseOp):
 		# populate from current lod count
 		self.num_lods = len(lods.get_lod_collections(context.collection))
 		update_lod_settings(self, context)
-		return context.window_manager.invoke_props_dialog(self)
+		return super().invoke(context, event)
 
 	def draw(self, context):
 		row = self.layout.row()
@@ -76,7 +82,7 @@ class UpdateLods(BaseOp):
 		return handle_errors_new(self, lods.update_lods, {"mdl2_coll": bpy.context.collection, "levels": self.levels})
 
 
-class VcolToHair(BaseOp):
+class VcolToComb(BaseOp):
 	"""Load vertex color layer as editable particle hair combing"""
 	bl_idname = "object.vcol_to_comb"
 	bl_label = "Vcol to Comb"
@@ -85,7 +91,7 @@ class VcolToHair(BaseOp):
 		return handle_errors(self, vcol_to_comb, {})
 
 
-class HairToVcol(BaseOp):
+class CombToVcol(BaseOp):
 	"""Save particle hair combing to vertex color layer"""
 	bl_idname = "object.comb_to_vcol"
 	bl_label = "Comb to Vcol"
@@ -139,14 +145,29 @@ class ApplyPoseAll(BaseOp):
 		return handle_errors(self, rig.apply_armature_all, {})
 
 
-class GenerateRigEdit(BaseOp):
+class GenerateRigEdit(PopupOp):
 	"""Add rig edit bones for all posed bones; may optionally apply pose"""
 	bl_idname = "pose.generate_rig_edit"
 	bl_label = "Add Rig Edit Bones from Pose"
+	mergenodes: bpy.props.BoolProperty(
+		name="Merge Idential Nodes",
+		description="Merges identical nodes to reduce the amount of duplicates if you moved several bones with the same parent",
+		default=True)
+
+	applyarmature: bpy.props.BoolProperty(
+		name="Apply Armature Modifiers",
+		description="Automatically applies all of the armature's object's armature modifiers and re-adds them",
+		default=False)
+
+	def draw(self, context):
+		row = self.layout.row()
+		row.prop(self, "mergenodes", text="Merge Identical Nodes", icon="AUTOMERGE_ON" if self.mergenodes else "AUTOMERGE_OFF")
+		row = self.layout.row()
+		row.prop(self, "applyarmature", text="Apply Armature Modifiers", icon="CHECKBOX_HLT" if self.applyarmature else "CHECKBOX_DEHLT")
 
 	def execute(self, context):
 		return handle_errors(self, rig.generate_rig_edit, {
-			'mergenodes': context.scene.mergenodes, 'applyarmature': context.scene.applyarmature})
+			'mergenodes': self.mergenodes, 'applyarmature': self.applyarmature})
 
 
 class ConvertScaleToLoc(BaseOp):
@@ -172,11 +193,8 @@ class AutosmoothAll(BaseOp):
 		return {"FINISHED"}
 
 
-class GenericRename(BaseOp):
+class GenericRename(PopupOp):
 	new_name: bpy.props.StringProperty(name="New Name", default="")
-
-	def invoke(self, context, event):
-		return context.window_manager.invoke_props_dialog(self)
 
 	def draw(self, context):
 		row = self.layout.row()
