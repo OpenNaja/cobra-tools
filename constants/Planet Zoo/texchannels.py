@@ -82,7 +82,7 @@ texchannels = {
 	'pSubLayerDiffuse0Texture': {"": ""}, # Ice shader
 	'pSubLayerDiffuse1Texture': {"": ""}, # Ice shader
 	'pThicknessTexture': {"": ""}, # Ice shader
-	'pTransmittancePackedTexture': {"R": "TR", "G": "RN", "B": "SP", "A": "OP"},
+	'pTransmittancePackedTexture': {"R": "TR", "G": "RN", "B": "SP", "A": "TR_OP"},
 	'pTransmittanceTexture': {"": "TR"},
 	'pWaterDetailNormalTexture': {"RG": "NM"},
 	'pWaterDetailRoughnessTexture': {"": "RN"},
