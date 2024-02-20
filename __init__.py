@@ -160,32 +160,6 @@ try:
             row.operator("object.intrude_fins", icon="REMOVE")
 
 
-
-    class POSE_PT_CobraTools(bpy.types.Panel):
-        """Creates a Panel in the scene context of the properties editor"""
-        bl_label = "Cobra Rig Tools"
-        bl_space_type = 'PROPERTIES'
-        bl_region_type = 'WINDOW'
-        bl_context = "data"
-
-        @classmethod
-        def poll(cls, context):
-            if not context.armature:
-                return False
-            return True
-
-        def draw(self, context):
-            addon_updater_ops.check_for_update_background()
-            layout = self.layout
-            icon = preview_collection["frontier.png"].icon_id
-            row = layout.row(align=True)
-            sub = row.row()
-            sub.operator("pose.generate_rig_edit", icon="ORIENTATION_PARENT")
-            row = layout.row(align=True)
-            sub = row.row()
-            sub.operator("pose.convert_scale_to_loc", icon="CURVE_PATH")
-
-
     class SCENE_PT_CobraTools(bpy.types.Panel):
         """Creates a Panel in the scene context of the properties editor"""
         bl_label = "Cobra Scene Tools"
@@ -326,7 +300,6 @@ try:
         Mdl2Duplicate,
         AutosmoothAll,
         MESH_PT_CobraTools,
-        POSE_PT_CobraTools,
         SCENE_PT_CobraTools,
         COLLISION_PT_CobraTools,
         InstallDependencies,

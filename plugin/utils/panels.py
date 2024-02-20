@@ -70,13 +70,19 @@ class CobraMdl2Panel(Panel):
 	def draw(self, context):
 		layout = self.layout
 		row = layout.row(align=True)
-		row.operator("mdl2.update_lods", icon="MOD_DECIM")
-		row.operator("pose.apply_pose_all", icon="ARMATURE_DATA")
-		row = layout.row(align=True)
 		row.operator("mdl2.rename", icon="OUTLINER_DATA_GP_LAYER")
 		row.operator("mdl2.duplicate", icon="DUPLICATE")
-		row = layout.row(align=True)
-		row.operator("mdl2.autosmooth_all", icon="NORMALS_VERTEX_FACE")
+
+		box = layout.box()
+		box.label(text="Geometry", icon="MESH_DATA")
+		box.operator("mdl2.update_lods", icon="MOD_DECIM")
+		box.operator("mdl2.autosmooth_all", icon="NORMALS_VERTEX_FACE")
+
+		box = layout.box()
+		box.label(text="Pose", icon="ARMATURE_DATA")
+		box.operator("pose.apply_pose_all", icon="CON_ARMATURE")
+		box.operator("pose.generate_rig_edit", icon="ORIENTATION_PARENT")
+		box.operator("pose.convert_scale_to_loc", icon="CURVE_PATH")
 
 
 class VIEW_PT_Mdl2(Panel):
