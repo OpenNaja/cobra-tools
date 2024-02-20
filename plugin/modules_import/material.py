@@ -92,12 +92,21 @@ class BaseShader:
 	def connect_inputs(self, shader_node, tree):
 		inv_tex_slots = {v: k for k, v in tex_slots.items()}
 		for socket in shader_node.inputs:
-			long_name = socket.name
+			if socket.name in tex_slots:
+				long_name = tex_slots[socket.name]
+			else:
+				long_name = socket.name
 			# determine type of input from name
 			if long_name.startswith("p"):
 				# get shader param
 				val = self.attr.get(long_name)
 				if val is not None:
+					try:
+						if len(val) != len(socket.default_value):
+							logging.warning(f"Mismatch of socket size '{long_name}'")
+							continue
+					except TypeError:
+						logging.warning(f"has no len '{long_name}'")
 					socket.default_value = val
 			else:
 				# it's probably a texture node
@@ -285,9 +294,13 @@ def create_material(in_dir, matname):
 		shader = BaseShader()
 		shader.build_tex_nodes_dict(tex_channel_map, fgm_data, in_dir, tree)
 		shader.build_attr_dict(fgm_data)
-
-		shader.add_flexi_nodes(tree)
-		# 	diffuse = shader.add_marking_nodes(diffuse, tree)
+		if fgm_data.shader_name.startswith(("Animal_", "Fur")):
+			shader_node = get_group_node(tree, "AnimalVariation")
+			shader.connect_inputs(shader_node, tree)
+			shader.id_2_node["BC"] = shader_node
+		else:
+			shader.add_flexi_nodes(tree)
+			# 	diffuse = shader.add_marking_nodes(diffuse, tree)
 		# main shader
 		shader_node = get_group_node(tree, "MainShader")
 		shader.connect_inputs(shader_node, tree)
