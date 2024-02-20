@@ -51,6 +51,16 @@ def show_lod_callback(self, context):
 		view_coll.hide_viewport = f"_L{self.current_lod}" not in view_coll.name
 
 
+def show_morph_callback(self, context):
+	logging.info(f"Showing Morph {self.current_morph}")
+	for mat in bpy.data.materials:
+		if mat.use_nodes:
+			tree = mat.node_tree
+			variation_node = tree.nodes.get("AnimalVariation")
+			if variation_node:
+				variation_node.inputs["ColourMorphIndex"].default_value = self.current_morph
+
+
 class LodData(PropertyGroup):
 	distance: FloatProperty(min=0.0, precision=0, description="Distance to object for LOD")
 	ratio: FloatProperty(min=0.0, max=100.0, precision=1, description="Baseline reduction ratio - final decimation ratio also considers vertex count of L0 geometry")
@@ -76,6 +86,14 @@ class CobraSceneSettings(PropertyGroup):
 		min=0,
 		max=5,
 		update=show_lod_callback
+	)
+	current_morph: IntProperty(
+		name="Current Morph",
+		description="Color morph index to show for all materials",
+		default=-1,
+		min=-1,
+		max=5,
+		update=show_morph_callback
 	)
 	game: EnumProperty(
 		name='Game',

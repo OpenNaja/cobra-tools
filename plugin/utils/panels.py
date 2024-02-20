@@ -90,9 +90,12 @@ class VIEW_PT_Mdl2(Panel):
 	bl_space_type = 'VIEW_3D'
 	bl_region_type = 'UI'
 	bl_category = 'View'
-	bl_label = 'LODs'
+	bl_label = 'Cobra Tools'
 
 	def draw(self, context):
+		cobra_props = context.scene.cobra
 		layout = self.layout
-		layout.prop(context.scene.cobra, "current_lod")
+		layout.prop(cobra_props, "current_lod")
+		if cobra_props.game == "Planet Zoo":
+			layout.prop(cobra_props, "current_morph")
 
