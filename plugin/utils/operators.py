@@ -44,9 +44,9 @@ def update_lod_settings(self, context):
 			self.levels.remove(len(self.levels)-1)
 
 
-class CreateLods(BaseOp):
+class UpdateLods(BaseOp):
 	"""Create or remove LODs for this MDL2 collection"""
-	bl_idname = "mdl2.create_lods"
+	bl_idname = "mdl2.update_lods"
 	bl_label = "Update LODs"
 	num_lods: bpy.props.IntProperty(
 		name='LOD Count', description="Total number of LODs including L0", default=1, min=1, max=6, update=update_lod_settings)
@@ -65,15 +65,15 @@ class CreateLods(BaseOp):
 		row = self.layout.row()
 		row.prop(self, "num_lods")
 
-		# box = self.layout.box()
-		# row = box.row()
-		# row.prop(self, "show_tweaks", icon="TRIA_DOWN" if self.show_tweaks else "TRIA_RIGHT", icon_only=True, emboss=False)
-		# if self.show_tweaks:
-		row = self.layout.row()
-		row.template_list("LODS_UL_items", "", self, "levels", self, "lod_index", rows=6, sort_lock=True)
+		box = self.layout.box()
+		row = box.row()
+		row.prop(self, "show_tweaks", icon="TRIA_DOWN" if self.show_tweaks else "TRIA_RIGHT", icon_only=False, emboss=False)
+		if self.show_tweaks:
+			row = box.row()
+			row.template_list("LODS_UL_items", "", self, "levels", self, "lod_index", rows=6, sort_lock=True)
 
 	def execute(self, context):
-		return handle_errors_new(self, lods.create_lods, {"mdl2_coll": bpy.context.collection, "levels": self.levels})
+		return handle_errors_new(self, lods.update_lods, {"mdl2_coll": bpy.context.collection, "levels": self.levels})
 
 
 class VcolToHair(BaseOp):

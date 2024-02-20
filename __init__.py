@@ -47,7 +47,7 @@ try:
     from plugin.modules_import.operators import ImportBanis, ImportManis, ImportMatcol, ImportFgm, ImportMS2, ImportSPL, \
         ImportVoxelskirt, ImportMS2FromBrowser, ImportFGMFromBrowser
     from plugin.modules_export.operators import ExportMS2, ExportSPL, ExportManis, ExportBanis, ExportFgm
-    from plugin.utils.operators import UpdateFins, CreateLods, VcolToHair, HairToVcol, TransferHairCombing, AddHair, \
+    from plugin.utils.operators import UpdateFins, UpdateLods, VcolToHair, HairToVcol, TransferHairCombing, AddHair, \
     GenerateRigEdit, ApplyPoseAll, ConvertScaleToLoc, ExtrudeFins, IntrudeFins, Mdl2Rename, Mdl2Duplicate, \
     AutosmoothAll, LODS_UL_items
     from plugin.utils.properties import CobraSceneSettings, CobraMeshSettings, CobraCollisionSettings, \
@@ -310,7 +310,7 @@ try:
         UpdateFins,
         LodData,
         LODS_UL_items,
-        CreateLods,
+        UpdateLods,
         GenerateRigEdit,
         ApplyPoseAll,
         ConvertScaleToLoc,

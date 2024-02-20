@@ -7,7 +7,7 @@ from plugin.utils.object import ensure_visible, create_collection
 from plugin.utils.shell import is_shell, is_fin, copy_ob
 
 
-def create_lods(reporter, mdl2_coll, levels):
+def update_lods(reporter, mdl2_coll, levels):
 	"""Automatic LOD generator by NDP. Generates LOD objects and automatically decimates them for LOD0-LOD5"""
 	logging.info(f"Generating LOD objects")
 	scene = bpy.context.scene
