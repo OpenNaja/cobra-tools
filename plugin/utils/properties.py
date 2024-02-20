@@ -42,7 +42,7 @@ class VersionedPropertyGroup(PropertyGroup):
 
 
 def show_lod_callback(self, context):
-	logging.info(f"Showing LOD {self.current_lod}")
+	logging.debug(f"Showing LOD {self.current_lod}")
 	view_colls = get_view_collections()
 	for view_coll in view_colls:
 		if view_coll.name in context.scene.collection.children:
@@ -52,7 +52,7 @@ def show_lod_callback(self, context):
 
 
 def show_morph_callback(self, context):
-	logging.info(f"Showing Morph {self.current_morph}")
+	logging.debug(f"Showing Morph {self.current_morph}")
 	for mat in bpy.data.materials:
 		if mat.use_nodes:
 			tree = mat.node_tree
