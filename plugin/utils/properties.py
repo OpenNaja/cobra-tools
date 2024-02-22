@@ -12,7 +12,6 @@ from generated.formats.ms2 import games
 from generated.formats.ms2.enums.Jwe1Collision import Jwe1Collision
 from generated.formats.ms2.enums.Jwe1Surface import Jwe1Surface
 from generated.formats.ms2.enums.RigidBodyFlag import RigidBodyFlag
-from plugin.utils.lods import get_lod_collections
 from plugin.utils.object import get_view_collections
 
 

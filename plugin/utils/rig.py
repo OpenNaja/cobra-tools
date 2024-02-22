@@ -61,14 +61,16 @@ def generate_rig_edit(**kwargs):
 	logging.info(f"apply armature modifiers = {applyarmature}")
 	logging.info(f"error tolerance = {errortolerance}")
 
+	# Get the armature
+	b_armature_ob = bpy.context.active_object
+	if not b_armature_ob:
+		msgs.append(f"No object selected.")
+		return msgs
 	# Check if the active object is a valid armature
-	if bpy.context.active_object.type != 'ARMATURE':
+	if b_armature_ob.type != 'ARMATURE':
 		# Object is not an armature. Cancelling.
 		msgs.append(f"No armature selected.")
 		return msgs
-
-	# Get the armature
-	b_armature_ob = bpy.context.object
 	logging.info(f"armature: {b_armature_ob.name}")
 
 	# Apply armature modifiers of children objects
