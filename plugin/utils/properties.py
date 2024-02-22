@@ -13,6 +13,7 @@ from generated.formats.ms2.enums.Jwe1Collision import Jwe1Collision
 from generated.formats.ms2.enums.Jwe1Surface import Jwe1Surface
 from generated.formats.ms2.enums.RigidBodyFlag import RigidBodyFlag
 from plugin.utils.object import get_view_collections
+from plugin.utils.var_names import pz_shader_floats, pz_shader_ints
 
 
 class VersionedPropertyGroup(PropertyGroup):
@@ -50,14 +51,18 @@ def show_lod_callback(self, context):
 		view_coll.hide_viewport = f"_L{self.current_lod}" not in view_coll.name
 
 
-def show_morph_callback(self, context):
-	logging.debug(f"Showing Morph {self.current_morph}")
-	for mat in bpy.data.materials:
-		if mat.use_nodes:
-			tree = mat.node_tree
-			variation_node = tree.nodes.get("AnimalVariation")
-			if variation_node:
-				variation_node.inputs["ColourMorphIndex"].default_value = self.current_morph
+def make_material_callback(var_name):
+	def show_material_callback(self, context):
+		current_var = getattr(self, var_name)
+		current_var_spaced = var_name.replace("_", " ")
+		logging.debug(f"Showing Morph {current_var}")
+		for mat in bpy.data.materials:
+			if mat.use_nodes:
+				tree = mat.node_tree
+				variation_node = tree.nodes.get("AnimalVariation")
+				if variation_node:
+					variation_node.inputs[current_var_spaced].default_value = current_var
+	return show_material_callback
 
 
 class LodData(PropertyGroup):
@@ -71,6 +76,13 @@ class LodData(PropertyGroup):
 
 
 class CobraSceneSettings(PropertyGroup):
+	__annotations__ = {}
+
+	game: EnumProperty(
+		name='Game',
+		description='Cobra game version for this scene',
+		items=[(e.value, e.value, "") for e in games],
+	)
 	num_streams: IntProperty(
 		name="External Streams",
 		description="Number of lod levels stored in external .modelstream files",
@@ -86,19 +98,24 @@ class CobraSceneSettings(PropertyGroup):
 		max=5,
 		update=show_lod_callback
 	)
-	current_morph: IntProperty(
-		name="Current Morph",
-		description="Color morph index to show for all materials",
-		default=-1,
-		min=-1,
-		max=5,
-		update=show_morph_callback
-	)
-	game: EnumProperty(
-		name='Game',
-		description='Cobra game version for this scene',
-		items=[(e.value, e.value, "") for e in games],
-	)
+	for f in pz_shader_floats:
+		__annotations__[f] = FloatProperty(
+			name=f,
+			description=f"Sets {f} for all materials",
+			default=0.0,
+			min=0.0,
+			max=1.0,
+			update=make_material_callback(f)
+		)
+	for f in pz_shader_ints:
+		__annotations__[f] = IntProperty(
+			name=f,
+			description=f"Sets {f} for all materials",
+			default=-1,
+			min=-1,
+			max=5,
+			update=make_material_callback(f)
+		)
 
 
 class CobraMeshSettings(PropertyGroup):

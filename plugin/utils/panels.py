@@ -1,5 +1,7 @@
 from bpy.types import Panel
 
+from plugin.utils.var_names import pz_shader_floats, pz_shader_ints
+
 
 class CobraMaterialPanel(Panel):
 	"""Creates a Panel in the Object properties window for the asset attributes"""
@@ -97,5 +99,8 @@ class VIEW_PT_Mdl2(Panel):
 		layout = self.layout
 		layout.prop(cobra_props, "current_lod")
 		if cobra_props.game == "Planet Zoo":
-			layout.prop(cobra_props, "current_morph")
+			box = layout.box()
+			box.label(text="Planet Zoo Materials", icon="MATERIAL_DATA")
+			for prop in pz_shader_floats + pz_shader_ints:
+				box.prop(cobra_props, prop)
 
