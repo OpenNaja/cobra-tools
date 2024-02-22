@@ -15,7 +15,8 @@ Y_START = 0.999756
 FUR_FIN = "_fur_fin"
 FUR = "_fur"
 FUR_SHELL = "_fur_shell"
-FUR_VGROUPS = ("fur_length", "fur_width", "fur_clump")
+# 0.156 for PZ
+FUR_VGROUPS = {"fur_length": 0.5, "fur_width": 0.187508, "fur_clump": 0.5}
 
 
 def add_vgroup(ob, group_name, weight):
@@ -31,8 +32,8 @@ def add_hair():
 	logging.info(f"Adding hair to {base_ob.name}")
 	assert base_ob.users_collection[0].name.endswith("_L0"), f"Make sure that {base_ob.name} is in the _L0 collection"
 	# add vertex groups
-	for vgroup_name in FUR_VGROUPS:
-		add_vgroup(base_ob, vgroup_name, 0.5)
+	for vgroup_name, vgroup_weight in FUR_VGROUPS.items():
+		add_vgroup(base_ob, vgroup_name, vgroup_weight)
 	# add vcol layer
 	base_me.attributes.new(f"RGBA{0}", "BYTE_COLOR", "CORNER")
 	base_mat = base_me.materials[0]
