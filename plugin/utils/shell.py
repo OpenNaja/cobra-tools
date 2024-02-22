@@ -33,8 +33,6 @@ def add_hair():
 	# add vertex groups
 	for vgroup_name in FUR_VGROUPS:
 		add_vgroup(base_ob, vgroup_name, 0.5)
-	# add particle system
-	add_psys(base_ob)
 	# add vcol layer
 	base_me.attributes.new(f"RGBA{0}", "BYTE_COLOR", "CORNER")
 	base_mat = base_me.materials[0]
@@ -57,6 +55,8 @@ def add_hair():
 	# set reasonable default scales
 	shell_me["uv_scale_x"] = 4.0
 	shell_me["uv_scale_y"] = 2.0
+	# add particle system
+	add_psys(shell_ob)
 	# build fins
 	fins_ob = build_fins_geom(shell_ob)
 	fins_mat = base_mat.copy()
