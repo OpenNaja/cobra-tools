@@ -14,20 +14,16 @@ VEC4_1 = mathutils.Vector((1, 0, 0, 0))
 
 def apply_pose_to_meshes(b_armature_ob):
 	logging.info(f"Applying armature modifiers of children objects")
-
 	# Go over every object in the scene
 	for ob in bpy.data.objects:
 		# Check if they are parented to the armature, are a mesh, and have modifiers
 		if ob.parent == b_armature_ob and ob.type == 'MESH' and ob.modifiers:
-			modifier_list = []
-			# Create a list of current armature modifiers in the object
-			for modifier in ob.modifiers:
-				if modifier.type == 'ARMATURE':
-					modifier_list.append(modifier)
-			for modifier in modifier_list:
-				# Apply the armature modifier
-				bpy.ops.object.modifier_copy({"object": ob}, modifier=modifier.name)
-				bpy.ops.object.modifier_apply({"object": ob}, modifier=modifier.name)
+			with bpy.context.temp_override(object=ob):
+				for modifier in ob.modifiers:
+					if modifier.type == 'ARMATURE':
+						# Apply the armature modifier
+						bpy.ops.object.modifier_copy(modifier=modifier.name)
+						bpy.ops.object.modifier_apply(modifier=modifier.name)
 
 
 def apply_armature_all():
