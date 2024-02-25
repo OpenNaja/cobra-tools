@@ -38,7 +38,7 @@ texchannels = {
 	'pEmissiveMaskTexture': {"": ""},
 	'pEmissiveTexture': {"": "EM"},
 	'pErythristicBaseColourAndMaskTexture': {"RGB": "ER", "A": "ER_HM"},
-	'pFinAlphaTexture': {"R": "OP", "G": "OP", "B": "OP", "A": ""},
+	'pFinAlphaTexture': {"R": "FN_OP1", "G": "FN_OP2", "B": "FN_OP3", "A": ""},
 	# 'pFlexiColourMaskTexture': {"": ""},
 	'pFlexiColourMasksTexture': {"R": "F1", "G": "F2", "B": "F3", "A": "F4"},
 	# 'pFlexiColourMasterMask': {"": ""},
@@ -71,10 +71,10 @@ texchannels = {
 	# 'pPropertyTexture': {"": ""},
 	'pRetroreflectiveness': {"": ""},
 	'pRoughnessAOPackedTextureDetailBase': {"R": "DE_RN", "G": "DE_AO"},
-	'pRoughnessPackedTexture': {"R": "MT", "G": "RN", "B": "SP", "A": "OP"},
-	'pRoughnessPackedTexture2': {"R": "MT2", "G": "RN2", "B": "SP2", "A": "OP2"},  # Blend between roughness 1 and 2
+	'pRoughnessPackedTexture': {"R": "MT", "G": "RN", "B": "SP", "A": "RP_OP"},
+	'pRoughnessPackedTexture2': {"R": "MT2", "G": "RN2", "B": "SP2", "A": "RP_OP2"},  # Blend between roughness 1 and 2
 	'pRoughnessPackedTextureDetail': {"R": "DE_RN", "G": ""},  # ? Mask
-	'pRoughnessPackedTextureUnique': {"R": "NQ_MT", "G": "NQ_RN", "B": "NQ_SP", "A": "OP"},
+	'pRoughnessPackedTextureUnique': {"R": "NQ_MT", "G": "NQ_RN", "B": "NQ_SP", "A": "NQ_OP"},
 	'pScarClut': {"": "LUT_SC"},  # Lookup/Input Mask
 	'pShellMap': {"R": "", "G": "", "B": "", "A": ""},  # Lookup/Input Mask
 	# 'pSkirtMaterialMask': {"": ""},

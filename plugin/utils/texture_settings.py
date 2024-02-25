@@ -48,6 +48,7 @@ tex_slots = {
     "NQ_RN": "Detail Unique Roughness",
     "NQ_SP": "Detail Unique Specular",
     "NQ_AO": "Detail Unique AO",
+    "NQ_OP": "Detail Unique Opacity",
     "MS_BC": "Moss Base Color",
     "MS_RN": "Moss Roughness",
     "MS_VR": "Moss Variance",
@@ -66,6 +67,8 @@ tex_slots = {
     "BA": "Baldness",
     "HE": "Height",
     "TR": "Transmission",
+    "TR_OP": "Transmission Packed Opacity",
+    "RP_OP": "Roughness Packed Opacity",
     "LUT_C": "Color LUT",
     "LUT_SC": "Scar LUT",
 }
