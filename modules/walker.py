@@ -447,7 +447,7 @@ def get_fgm_values(gui, game_dir, walk_dir="", walk_ovls=True, official_only=Tru
 		for shader_name, shader in shaders.items():
 			# only keep the five most common for this shader
 			for att, val in shader.attributes.items():
-				shader.attributes[att] = (val[0], Counter(tuple(sorted(tup)) for tup in val[1]).most_common(5))
+				shader.attributes[att] = (val[0], Counter(v for v in val[1]).most_common(5))
 
 		# Write to tools dir constants if full ovldata inspection, otherwise walker_export
 		out_dir = get_game_constants_dir(base_dir) if full_game_walk else export_dir
@@ -457,9 +457,9 @@ def get_fgm_values(gui, game_dir, walk_dir="", walk_ovls=True, official_only=Tru
 
 		# Dump new shaders
 		if shaders_added:
-			with open(os.path.join(out_dir, "shaders_added.py"), "w+") as f:
+			with open(os.path.join(export_dir, "shaders_added.py"), "w+") as f:
 				write_shaders(f, shaders_added)
-			logging.success(f"shaders_added.py written to {Path(out_dir)}")
+			logging.success(f"shaders_added.py written to {Path(export_dir)}")
 
 		# Output errors
 		if errors:
@@ -474,9 +474,9 @@ def get_fgm_values(gui, game_dir, walk_dir="", walk_ovls=True, official_only=Tru
 
 		# Dump potential deprecations
 		if shaders_removed:
-			with open(os.path.join(out_dir, "shaders_removed.py"), "w+") as f:
+			with open(os.path.join(export_dir, "shaders_removed.py"), "w+") as f:
 				write_shaders_dict(f, shaders_removed)
-			logging.success(f"shaders_removed.py written to {Path(out_dir)}")
+			logging.success(f"shaders_removed.py written to {Path(export_dir)}")
 
 		# Generate warnings
 		for shader_name, fgms in new_shader_fgms.items():
