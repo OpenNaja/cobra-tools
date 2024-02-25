@@ -57,24 +57,14 @@ def generate_rig_edit(**kwargs):
 	logging.info(f"apply armature modifiers = {applyarmature}")
 	logging.info(f"error tolerance = {errortolerance}")
 
-	# Get the armature
-	b_armature_ob = bpy.context.active_object
-	if not b_armature_ob:
-		msgs.append(f"No object selected.")
-		return msgs
-	# Check if the active object is a valid armature
-	if b_armature_ob.type != 'ARMATURE':
-		# Object is not an armature. Cancelling.
-		msgs.append(f"No armature selected.")
-		return msgs
-	logging.info(f"armature: {b_armature_ob.name}")
+	b_armature_ob = get_active_armature()
 
 	# Apply armature modifiers of children objects
 	if applyarmature:
 		apply_pose_to_meshes(b_armature_ob)
 	# Store current mode
 	original_mode = bpy.context.mode
-	# For some reason it doesn't recognize edit_armature as a valid mode to switch to so we change it to just edit. Blender moment
+	# it doesn't recognize edit_armature as a valid mode to switch to so we change it to just edit. Blender moment
 	if original_mode == 'EDIT_ARMATURE':
 		original_mode = 'EDIT'
 
@@ -321,6 +311,18 @@ def generate_rig_edit(**kwargs):
 	return msgs
 
 
+def get_active_armature():
+	b_armature_ob = bpy.context.active_object
+	if not b_armature_ob:
+		raise AttributeError(f"No object selected.")
+	# Check if the active object is a valid armature
+	if b_armature_ob.type != 'ARMATURE':
+		# Object is not an armature. Cancelling.
+		raise AttributeError(f"No armature selected.")
+	logging.info(f"armature: {b_armature_ob.name}")
+	return b_armature_ob
+
+
 def convert_scale_to_loc():
 	"""Automatically convert scaled bones into equivalent visual location transforms"""
 	# Function for converting scale to visual location transforms in pose mode
@@ -328,23 +330,15 @@ def convert_scale_to_loc():
 	msgs = []
 	logging.info(f"converting scale transforms to visual location")
 
-	# Check if the active object is a valid armature
-	if bpy.context.active_object.type != 'ARMATURE':
-		# Object is not an armature. Cancelling.
-		msgs.append(f"No armature selected.")
-		return msgs
-
 	# Store current mode
 	original_mode = bpy.context.mode
-	# For some reason it doesn't recognize edit_armature as a valid mode to switch to so we change it to just edit. Blender moment
+	# it doesn't recognize edit_armature as a valid mode to switch to so we change it to just edit. Blender moment
 	if original_mode == 'EDIT_ARMATURE':
 		original_mode = 'EDIT'
 	# Set to pose mode
 	bpy.ops.object.mode_set(mode='POSE')
 
-	# Get the armature
-	b_armature_ob = bpy.context.object
-	logging.info(f"armature: {b_armature_ob.name}")
+	b_armature_ob = get_active_armature()
 
 	# Initiate logging variable
 	editnumber = 0
