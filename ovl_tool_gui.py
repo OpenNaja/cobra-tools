@@ -36,7 +36,9 @@ class MainWindow(widgets.MainWindow):
 		self.ovl_game_choice = widgets.LabelCombo("Game", [g.value for g in games], editable=False, changed_fn=self.game_changed)
 		self.ovl_game_choice.setToolTip("Game version of current OVL")
 
-		self.compression_choice = widgets.LabelCombo("Compression", [c.name for c in Compression], editable=False, changed_fn=self.compression_changed)
+		self.compression_choice = widgets.LabelCombo(
+			"Compression", [c.name for c in Compression], editable=False, changed_fn=self.compression_changed,
+			activated_fn=self.compression_touched_by_user)
 		self.compression_choice.setToolTip("Compression of current OVL")
 
 		if "games" not in self.cfg:
@@ -411,6 +413,10 @@ class MainWindow(widgets.MainWindow):
 	def compression_changed(self, compression: str):
 		compression_value = Compression[compression]
 		self.ovl_data.user_version.compression = compression_value
+		# self.set_file_modified(True)
+		
+	def compression_touched_by_user(self, compression: str):
+		# emitted regardless of change - no way to compare to the old value
 		self.set_file_modified(True)
 
 	def show_dependencies(self, file_index):
