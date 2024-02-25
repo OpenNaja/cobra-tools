@@ -38,14 +38,13 @@ If you would like to install the dependencies manually:
     ```
     pip install --upgrade pip && pip install -r requirements.txt
     ```
-    <sup>**Please note:** If you do not open cmd in your Cobra Tools folder, you will need to provide the full path to `requirements.txt`</sup>
+    <sup>**Please note:** If you do not open cmd in your Cobra Tools folder, you will need to provide the full path to `requirements.txt`</sup>  
+    <sup>**Note:** You may need to upgrade pip using `python.exe -m pip install --upgrade pip` instead.</sup>
 
 ### Blender Plugin Installation
 
-Currently the tools work in blender 3.2 to 3.6.
+Currently the tools work in blender 3.6 to 4.0.
 - [Blender Plugin - How to Use](https://github.com/OpenNaja/cobra-tools/wiki/Blender-Plugin---How-to-Use)
-
-If you want to use blender 4.0 please [visit this link](https://wiki.blender.org/wiki/Reference/Release_Notes/4.0/Python_API#Breaking_changes) and start helping us migrating the code. 
 
 
 ### Developers
@@ -56,6 +55,7 @@ If you are contributing to the project, in addition to installing `requirements.
     ```
     pip install --upgrade pip && pip install -r requirements-dev.txt
     ```
+    <sup>**Note:** You may need to upgrade pip using `python.exe -m pip install --upgrade pip` instead.</sup>
 2. Then install the pre-commit hooks:
     
     ```
