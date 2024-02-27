@@ -1,7 +1,8 @@
 import bpy
 import bpy.types
-from bpy.props import BoolProperty, CollectionProperty
+from bpy.props import BoolProperty, CollectionProperty, IntProperty
 
+from generated.formats.ms2.bitfields.ModelFlag import ModelFlag
 from plugin.utils import shell, collection, lods, rig
 from plugin.utils.hair import comb_to_vcol, transfer_hair_combing, vcol_to_comb
 from plugin.utils.properties import LodData
@@ -80,6 +81,72 @@ class UpdateLods(PopupOp):
 
 	def execute(self, context):
 		return handle_errors_new(self, lods.update_lods, {"mdl2_coll": bpy.context.collection, "levels": self.levels})
+
+
+class EditFlag(PopupOp):
+	"""Edit the fields of the flag bitfield"""
+	bl_idname = "mdl2.edit_flag"
+	bl_label = "Edit Flag"
+
+	unk: IntProperty(
+		name="Unknown",
+		description="",
+		min=0,
+		max=7,
+	)
+	num_shells: IntProperty(
+		name="Rendered Shell Count",
+		description="",
+		min=0,
+		max=7,
+	)
+	repeat_tris: BoolProperty(
+		name="Repeat Tris",
+		description="Apparent data optimization for shell rendering; not always conntected to Shell Count",
+	)
+	weights: BoolProperty(
+		name="Use Weights",
+		description="",
+	)
+	stripify: BoolProperty(
+		name="Stripify",
+		description="",
+	)
+	direct_address: BoolProperty(
+		name="Direct Address",
+		description="Store mesh offsets directly or as multiples of 16",
+	)
+
+	def invoke(self, context, event):
+		ob = context.active_object
+		me = ob.data
+		flag_value = me.get("flag", 0)
+		# todo versioning of flag
+		self.flag = ModelFlag.from_value(flag_value)
+		self.get_from_fields()
+		return super().invoke(context, event)
+
+	def get_from_fields(self):
+		for field_name in self.flag.__members__:
+			field_v = getattr(self.flag, field_name)
+			setattr(self, field_name, field_v)
+
+	def set_to_fields(self):
+		for field_name in self.flag.__members__:
+			field_v = getattr(self, field_name)
+			setattr(self.flag, field_name, field_v)
+
+	def draw(self, context):
+		row = self.layout
+		for field_name in self.flag.__members__:
+			row.prop(self, field_name)
+
+	def execute(self, context):
+		ob = context.active_object
+		me = ob.data
+		self.set_to_fields()
+		me["flag"] = int(self.flag)
+		return {'FINISHED'}
 
 
 class VcolToComb(BaseOp):

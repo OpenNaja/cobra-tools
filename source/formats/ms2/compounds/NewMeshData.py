@@ -29,19 +29,19 @@ class NewMeshData(MeshData):
 			("bone index", np.ubyte),
 		]
 		if self.flag.weights:
-			if self.flag.unk_1 == 0:
+			if self.flag.unk == 0:
 				# used exclusively on alpha blended hair cards (528)
 				dt.extend([
 					("uvs", np.ushort, (1, 2)),
 					("zeros0", np.int32, (3,))
 				])
-			elif self.flag.unk_1 == 1:
+			elif self.flag.unk == 1:
 				# animal eyes, skin or feathers without alpha blending (529)
 				dt.extend([
 					("uvs", np.ushort, (2, 2)),
 					("zeros0", np.int32, (2,))
 				])
-			elif self.flag.unk_1 == 5:
+			elif self.flag.unk == 5:
 				# animal fur or skin (533, 565, 821, 853, 885, 1013)
 				dt.extend([
 					("uvs", np.ushort, (2, 2)),  # second UV is either fins texcoords or fur length and shell tile scale

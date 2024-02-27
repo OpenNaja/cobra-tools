@@ -4,7 +4,7 @@ import math
 import sys
 
 import bpy.props
-from bpy.props import IntProperty, EnumProperty, FloatProperty, StringProperty
+from bpy.props import IntProperty, EnumProperty, FloatProperty, StringProperty, BoolProperty
 from bpy.types import PropertyGroup
 
 from constants import ConstantsProvider

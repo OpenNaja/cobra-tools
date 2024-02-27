@@ -79,6 +79,7 @@ class CobraMdl2Panel(Panel):
 		box.label(text="Geometry", icon="MESH_DATA")
 		box.operator("mdl2.update_lods", icon="MOD_DECIM")
 		box.operator("mdl2.autosmooth_all", icon="NORMALS_VERTEX_FACE")
+		box.operator("mdl2.edit_flag", icon="TOOL_SETTINGS")
 
 		box = layout.box()
 		box.label(text="Pose", icon="ARMATURE_DATA")

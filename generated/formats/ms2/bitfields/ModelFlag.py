@@ -13,7 +13,7 @@ class ModelFlag(BasicBitfield):
 
 	__name__ = 'ModelFlag'
 	_storage = Uint
-	unk_1 = BitfieldMember(pos=0, mask=0x7, return_type=Int.from_value)
+	unk = BitfieldMember(pos=0, mask=0x7, return_type=Int.from_value)
 	stripify = BitfieldMember(pos=3, mask=0x8, return_type=Bool.from_value)
 	weights = BitfieldMember(pos=4, mask=0x10, return_type=Bool.from_value)
 	repeat_tris = BitfieldMember(pos=5, mask=0x20, return_type=Bool.from_value)
