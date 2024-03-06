@@ -25,6 +25,14 @@ def add_vgroup(ob, group_name, weight):
 		ob.vertex_groups[group_name].add(range(len(ob.data.vertices)), weight, 'REPLACE')
 
 
+def get_copy_material(b_mat, target_name):
+	if target_name in bpy.data.materials:
+		return bpy.data.materials[target_name]
+	copy_mat = b_mat.copy()
+	copy_mat.name = target_name
+	return copy_mat
+
+
 def add_hair():
 	game = bpy.context.scene.cobra.game
 	base_ob = bpy.context.object
@@ -50,8 +58,7 @@ def add_hair():
 	else:
 		raise AttributeError(f"Unsupported game '{game}'")
 	# add shell material
-	shell_mat = base_mat.copy()
-	shell_mat.name = f"{mat_basename}_Fur_Shell"
+	shell_mat = get_copy_material(base_mat, f"{mat_basename}_Fur_Shell")
 	shell_me.materials.append(shell_mat)
 	# set reasonable default scales
 	shell_me["uv_scale_x"] = 4.0
@@ -60,8 +67,7 @@ def add_hair():
 	add_psys(shell_ob)
 	# build fins
 	fins_ob = build_fins_geom(shell_ob)
-	fins_mat = base_mat.copy()
-	fins_mat.name = f"{mat_basename}_Fur_Fin"
+	fins_mat = get_copy_material(base_mat, f"{mat_basename}_Fur_Fin")
 	fins_me = fins_ob.data
 	fins_me.materials.clear()
 	fins_me.materials.append(fins_mat)
