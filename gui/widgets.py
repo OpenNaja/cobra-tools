@@ -881,7 +881,7 @@ class LogViewDelegate(QStyledItemDelegate):
     def create_doc(self, option: QStyleOptionViewItem, index: QModelIndex) -> QTextDocument:
         """Create a QTextDocument for a logger item and cache it for repaints"""
         # Cache each row for repaints
-        doc = self.document_cache.get(index.row(), None)
+        doc = None #self.document_cache.get(index.row(), None)
         if doc is None:
             doc = QTextDocument()
             opt = QTextOption()
@@ -908,7 +908,7 @@ class LogViewDelegate(QStyledItemDelegate):
                 detail = detail.replace('\n', f'<br>{self.DETAIL_INDENT}')
                 cursor.insertHtml(f"<div class='{'traceback' if is_trace else 'detail'}'>{detail}</div>")
                 cursor.block().setVisible(False)
-            self.document_cache[index.row()] = doc
+            #self.document_cache[index.row()] = doc
         return doc
 
     def paint(self, painter: QPainter, option: QStyleOptionViewItem, index: QModelIndex) -> None:
