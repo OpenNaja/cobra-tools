@@ -79,7 +79,7 @@ class ModToolGUI(MainWindow):
 
 		self.ovl_data = OvlFile()
 		# self.ovl_data.load_hash_table()
-		self.run_threaded(self.ovl_data.load_hash_table)
+		self.run_in_threadpool(self.ovl_data.load_hash_table)
 
 	def apply_from_config(self, path):
 		try:

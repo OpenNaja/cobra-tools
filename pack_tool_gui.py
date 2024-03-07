@@ -79,7 +79,7 @@ class PackToolGUI(MainWindow):
 		self.central_layout.addWidget(self.progress)
 
 		self.ovl_data = OvlFile()
-		self.run_threaded(self.ovl_data.load_hash_table)
+		self.run_in_threadpool(self.ovl_data.load_hash_table)
 
 		self.stdout_handler = get_stdout_handler("ovl_tool_gui")  # self.log_name not set until after init
 

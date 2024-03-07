@@ -233,6 +233,8 @@ class TableModel(QAbstractTableModel):
 
 
 class SortableTable(QWidget):
+    closed = pyqtSignal()
+
     def __init__(self, header_names: list[str], ignore_types: list[str], ignore_drop_type: str = "", opt_hide: bool = False, actions={}) -> None:
         super().__init__()
         self.table = TableView(header_names, ignore_types, ignore_drop_type, actions)
@@ -278,6 +280,10 @@ class SortableTable(QWidget):
         qgrid.setContentsMargins(0, 0, 0, 0)
         self.setLayout(qgrid)
         self.grid = qgrid
+
+    def closeEvent(self, a0: QtGui.QCloseEvent) -> None:
+        self.closed.emit()
+        super(SortableTable, self).closeEvent(a0)
 
     def set_data(self, data: Any) -> None:
         self.table.set_data(data)
@@ -2971,6 +2977,7 @@ class MainWindow(FramelessMainWindow):
             # Frameless titlebar
             self.titleBar.raise_()
 
+        self.threadpool = QtCore.QThreadPool()
         self.setCentralWidget(self.central_widget)
 
     @property
@@ -3164,28 +3171,15 @@ class MainWindow(FramelessMainWindow):
     def set_msg_temporarily(self, message: str) -> None:
         self.status_bar.showMessage(message, 3500)
 
-    def run_threaded(self, func: Callable, callbacks: Iterable = (), *args, **kwargs) -> None:
-        # Step 2: Create a QThread object
-        self.thread = QThread()
-        # Step 3: Create a worker object
-        self.worker = Worker(func, *args, **kwargs)
-        # Step 4: Move worker to the thread
-        self.worker.moveToThread(self.thread)
-        # Step 5: Connect signals and slots
-        self.thread.started.connect(self.worker.run)
-        self.worker.finished.connect(self.thread.quit)
-        self.worker.finished.connect(self.worker.deleteLater)
-        self.thread.finished.connect(self.thread.deleteLater)
-        self.worker.error_msg.connect(self.showerror)
-        # Step 6: Start the thread
-        self.thread.start()
-
-        # Final resets
-        self.enable_gui_options(False)
-        self.thread.finished.connect(self.enable_gui_options)
-        self.thread.finished.connect(self.choices_update)
+    def run_in_threadpool(self, func: Callable, callbacks: Iterable = (), *args, **kwargs) -> None:
+        worker = WorkerRunnable(func, *args, **kwargs)
+        worker.signals.error_msg.connect(self.showerror)
+        worker.signals.finished.connect(self.enable_gui_options)
+        worker.signals.finished.connect(self.choices_update)
         for callback in callbacks:
-            self.thread.finished.connect(callback)
+            worker.signals.finished.connect(callback)
+        self.threadpool.start(worker)
+        self.enable_gui_options(False)
 
     def enable_gui_options(self, enable=True):
         pass
@@ -3300,27 +3294,45 @@ class MainWindow(FramelessMainWindow):
         return self.showdialog(info, title="Error", details=details)
 
 
-class Worker(QObject):
+class WorkerSignals(QObject):
+    '''
+    Defines the signals available from a running worker thread.
+    Supported signals are:
+    - finished: No data
+    - error:`tuple` (exctype, value, traceback.format_exc() )
+    - result: `object` data returned from processing, anything
+    - progress: `tuple` indicating progress metadata
+    '''
+    # result = pyqtSignal(object)
+    # progress = pyqtSignal(tuple)
+    finished = pyqtSignal()
+    error_msg = pyqtSignal(str)
+
+
+class WorkerRunnable(QtCore.QRunnable):
     finished = pyqtSignal()
     error_msg = pyqtSignal(str)
 
     def __init__(self, func: Callable, *args, **kwargs) -> None:
+        # super(WorkerRunnable, self).__init__()
         super().__init__()
         self.func = func
         self.args = args
         self.kwargs = kwargs
+        self.signals = WorkerSignals()
 
+        # Add the callback to our kwargs
+        # self.kwargs['progress_callback'] = self.signals.progress
+
+    @pyqtSlot()
     def run(self) -> None:
-        # mutex.lock()
-        # func = getattr(self.thread().ovl_data, self.function_name)
         try:
             self.func(*self.args, **self.kwargs)
         except BaseException as err:
             logging.exception(f"Threaded call of function '{self.func.__name__}()' errored!")
-            # self.error_msg.emit(f"ERROR - {err}")
-            self.error_msg.emit(str(err))
-        # mutex.unlock()
-        self.finished.emit()
+            self.signals.error_msg.emit(str(err))
+        finally:
+            self.signals.finished.emit()
 
 
 class Reporter(DummyReporter, QObject):

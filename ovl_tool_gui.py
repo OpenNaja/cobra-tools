@@ -1,3 +1,4 @@
+import contextlib
 import os
 import shutil
 import logging
@@ -17,7 +18,7 @@ from typing import Any, Optional
 
 class MainWindow(widgets.MainWindow):
 
-	search_files = QtCore.pyqtSignal(list)
+	search_files = QtCore.pyqtSignal(tuple)
 
 	def __init__(self, opts: GuiOptions):
 		widgets.MainWindow.__init__(self, "OVL Tool", opts=opts)
@@ -215,13 +216,8 @@ class MainWindow(widgets.MainWindow):
 		log_level = self.cfg.get("logger_level", "INFO")
 		self.set_log_level.emit(log_level)
 
-		self.results_container = widgets.SortableTable(
-			["Name", "File Type", "OVL"], self.ovl_data.formats_dict.ignore_types, ignore_drop_type="OVL", opt_hide=True,
-			actions={
-				QtWidgets.QAction("Open in OVL Tool"): self.search_result_open,
-				QtWidgets.QAction("Show in Explorer"): self.search_result_show,
-			})
 		self.search_files.connect(self.show_search_results)
+		self.search_views = {}
 		# do these at the end to make sure their requirements have been initialized
 		reporter = self.ovl_data.reporter
 		reporter.files_list.connect(self.update_files_ui)
@@ -229,7 +225,7 @@ class MainWindow(widgets.MainWindow):
 		reporter.warning_msg.connect(self.notify_user)
 		reporter.progress_percentage.connect(self.set_progress)
 		reporter.current_action.connect(self.set_msg_temporarily)
-		self.run_threaded(self.ovl_data.load_hash_table)
+		self.run_in_threadpool(self.ovl_data.load_hash_table)
 
 	def abs_path_from_row(self, row_data):
 		start_dir = self.installed_games.get_root()
@@ -238,7 +234,7 @@ class MainWindow(widgets.MainWindow):
 
 	def search_result_open(self, row_data):
 		ovl_path = self.abs_path_from_row(row_data)
-		self.open(ovl_path, threaded=True)
+		self.file_widget.open_file(ovl_path)
 
 	def search_result_show(self, row_data):
 		ovl_path = self.abs_path_from_row(row_data)
@@ -249,7 +245,8 @@ class MainWindow(widgets.MainWindow):
 		print("action", args)
 
 	def close(self) -> bool:
-		self.results_container.close()
+		for results_container in list(self.search_views.values()):
+			results_container.close()
 		return super().close()
 
 	def _toggle_logger(self):
@@ -272,19 +269,37 @@ class MainWindow(widgets.MainWindow):
 	def do_debug_changed(self, do_debug):
 		self.ovl_data.do_debug = do_debug
 
-	def show_search_results(self, results):
-		self.results_container.set_data(results)
-		self.results_container.setGeometry(QtCore.QRect(100, 100, 1000, 600))
-		self.results_container.show()
+	def show_search_results(self, tup):
+		search_str, results = tup
+		results_container = widgets.SortableTable(
+			["Name", "File Type", "OVL"], self.ovl_data.formats_dict.ignore_types, ignore_drop_type="OVL", opt_hide=True,
+			actions={
+				QtWidgets.QAction("Open in OVL Tool"): self.search_result_open,
+				QtWidgets.QAction("Show in Explorer"): self.search_result_show,
+			})
+		results_container.setWindowTitle(f"Results for: {search_str}")
+		results_container.set_data(results)
+		results_container.setGeometry(QtCore.QRect(100, 100, 1000, 600))
+		results_container.show()
+
+		def remove_view():
+			self.search_views.pop(search_str)
+
+		results_container.closed.connect(remove_view)
+		self.search_views[search_str] = results_container
 
 	def search_ovl_contents(self, search_str):
-		start_dir = self.installed_games.get_root()
-		# remove the leading slash for ovl path, else it is interpreted as relative to C:
-		results = [(filename, ext, ovl.replace(start_dir, '')[1:]) for ovl, filename, ext in walker.search_for_files_in_ovls(self, start_dir, search_str)]
-		self.search_files.emit(results)
+		if search_str not in self.search_views:
+			start_dir = self.installed_games.get_root()
+			with self.log_level_override("WARNING"):
+				# remove the leading slash for ovl path, else it is interpreted as relative to C:
+				results = [(filename, ext, ovl.replace(start_dir, '')[1:]) for ovl, filename, ext in walker.search_for_files_in_ovls(self, start_dir, search_str)]
+				self.search_files.emit((search_str, results))
+		else:
+			logging.warning(f"Search results for '{search_str}' are still open")
 
 	def search_ovl_contents_threaded(self, search_str):
-		self.run_threaded(self.search_ovl_contents, (), search_str)
+		self.run_in_threadpool(self.search_ovl_contents, (), search_str)
 
 	def notify_user(self, msg_list):
 		msg = msg_list[0]
@@ -332,25 +347,33 @@ class MainWindow(widgets.MainWindow):
 		logging.debug(f"Setting OVL Game to {game}")
 		self.ovl_game_choice.entry.setText(game)
 
+	@contextlib.contextmanager
+	def log_level_override(self, level):
+		# temporarily disable spamming the log widget
+		log_level = self.cfg.get("logger_level", "INFO")
+		self.set_log_level.emit(level)
+		yield
+		# go back to original log level
+		self.set_log_level.emit(log_level)
+
 	def handle_path(self, save_over=True):
 		# get path
 		if self.t_in_folder.isChecked():
 			selected_dir = self.installed_games.get_selected_dir()
 			if selected_dir:
-				# temporarily disable spamming the log widget
-				log_level = self.cfg.get("logger_level", "INFO")
-				self.set_log_level.emit("WARNING")
-				# walk path
-				for ovl_path in walker.walk_type(selected_dir, extension=".ovl"):
-					# open ovl file
-					self.file_widget.set_file_path(ovl_path)
-					self.open(ovl_path, threaded=False)
-					# process each
-					yield self.ovl_data
-					if save_over:
-						self.save(ovl_path)
-				# go back to original log level
-				self.set_log_level.emit(log_level)
+				with self.log_level_override("WARNING"):
+					# walk path
+					for ovl_path in walker.walk_type(selected_dir, extension=".ovl"):
+						# open ovl file
+						self.open(ovl_path, threaded=False)
+						# todo transition to open_file api for consistency
+						#      but this must not spawn a new thread so that save_over works
+						#      clear logger after each file, but self.file_widget.open_file would do that
+						# self.file_widget.open_file(ovl_path)
+						# process each
+						yield self.ovl_data
+						if save_over:
+							self.save(ovl_path)
 			else:
 				self.showwarning("Select a root directory!")
 		# just the one that's currently open, do not save over
@@ -433,7 +456,7 @@ class MainWindow(widgets.MainWindow):
 			self.set_file_modified(False)
 			logging.debug(f"Loading threaded {threaded}")
 			if threaded:
-				self.run_threaded(self.ovl_data.load, (self.set_clean, ), filepath, commands)
+				self.run_in_threadpool(self.ovl_data.load, (self.set_clean, ), filepath, commands)
 			else:
 				try:
 					self.ovl_data.load(filepath, commands)
@@ -488,7 +511,7 @@ class MainWindow(widgets.MainWindow):
 															 self.cfg.get("dir_extract", "C://"), )
 		if out_dir:
 			self.cfg["dir_extract"] = out_dir
-			self.run_threaded(self._extract_all, (), out_dir)
+			self.run_in_threadpool(self._extract_all, (), out_dir)
 
 	def _extract_all(self, out_dir):
 		_out_dir = out_dir
@@ -512,7 +535,7 @@ class MainWindow(widgets.MainWindow):
 		if files:
 			self.cfg["dir_inject"] = os.path.dirname(files[0])
 			self.set_file_modified(True)
-			self.run_threaded(self.ovl_data.add_files, (), files)
+			self.run_in_threadpool(self.ovl_data.add_files, (), files)
 		# the gui is updated from the signal ovl.files_list emitted from add_files
 
 	def get_replace_strings(self):
@@ -627,7 +650,7 @@ class MainWindow(widgets.MainWindow):
 		return selected if selected else self.game_root()
 
 	def walker_hash(self, ):
-		self.run_threaded(walker.generate_hash_table, (), self, self.game_root())
+		self.run_in_threadpool(walker.generate_hash_table, (), self, self.game_root())
 
 	def walker_fgm(self, ):
 		dialog = widgets.WalkerDialog(self, "Inspect FGMs", self.walk_root())
@@ -635,7 +658,7 @@ class MainWindow(widgets.MainWindow):
 		chk_full_report.setChecked(self.walk_root() == self.game_root())
 		dialog.options.addWidget(chk_full_report)
 		if dialog.exec():
-			self.run_threaded(walker.get_fgm_values, (), self, self.game_root(),
+			self.run_in_threadpool(walker.get_fgm_values, (), self, self.game_root(),
 				walk_dir=dialog.walk_dir, walk_ovls=dialog.chk_ovls.isChecked(),
 				official_only=dialog.chk_official.isChecked(), full_report=chk_full_report.isChecked()
 			)
@@ -643,14 +666,14 @@ class MainWindow(widgets.MainWindow):
 	def walker_manis(self, ):
 		dialog = widgets.WalkerDialog(self, "Inspect Manis", self.walk_root())
 		if dialog.exec():
-			self.run_threaded(walker.get_manis_values, (), self, dialog.walk_dir,
+			self.run_in_threadpool(walker.get_manis_values, (), self, dialog.walk_dir,
 				walk_ovls=dialog.chk_ovls.isChecked(), official_only=dialog.chk_official.isChecked()
 			)
 
 	def inspect_models(self):
 		dialog = widgets.WalkerDialog(self, "Inspect Models", self.walk_root())
 		if dialog.exec():
-			self.run_threaded(walker.bulk_test_models, (), self, dialog.walk_dir,
+			self.run_in_threadpool(walker.bulk_test_models, (), self, dialog.walk_dir,
 				walk_ovls=dialog.chk_ovls.isChecked(), official_only=dialog.chk_official.isChecked()
 			)
 
