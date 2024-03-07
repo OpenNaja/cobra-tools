@@ -1351,10 +1351,10 @@ class LoggerWidget(QWidget):
         self.list_widget.increment_warning.connect(self.warnings.add_message)
         self.list_widget.increment_error.connect(self.errors.add_message)
         # Preserve Log checkbox
-        self.clear_chk = QCheckBox("Preserve Log")
-        self.clear_chk.setFont(QFont("Consolas, monospace", 8))
-        self.clear_chk.setSizePolicy(QSizePolicy.Policy.Maximum, QSizePolicy.Policy.Fixed)
-        self.clear_chk.setFixedHeight(16)
+        self.preserve_log = QCheckBox("Preserve Log")
+        self.preserve_log.setFont(QFont("Consolas, monospace", 8))
+        self.preserve_log.setSizePolicy(QSizePolicy.Policy.Maximum, QSizePolicy.Policy.Fixed)
+        self.preserve_log.setFixedHeight(16)
         # Log level combo
         self.log_level_choice = LabelCombo("", ("DEBUG", "INFO", "WARNING", "ERROR"),
                                            editable=False, activated_fn=self.on_log_level_changed)
@@ -1396,7 +1396,7 @@ class LoggerWidget(QWidget):
 
     def clear(self) -> None:
         # Do not preserve log
-        if not self.clear_chk.isChecked():
+        if not self.preserve_log.isChecked():
             self.list_widget.clear()
         # Always reset values for the current file
         self.reset_warnings()
@@ -1422,7 +1422,7 @@ class LoggerWidget(QWidget):
         self.menu_hor_lay.addWidget(self.errors)
         self.menu_hor_lay.addItem(self.menu_spacer_hor)
         # Add right Widgets
-        self.menu_hor_lay.addWidget(self.clear_chk, alignment=Qt.AlignmentFlag.AlignRight, hide_index=3)
+        self.menu_hor_lay.addWidget(self.preserve_log, alignment=Qt.AlignmentFlag.AlignRight, hide_index=3)
         self.menu_hor_lay.addWidget(self.log_level_choice, alignment=Qt.AlignmentFlag.AlignRight, hide_index=5)
         # Spacing, alignment, size policy for horizontal layout
         self.menu_hor_lay.setAlignment(Qt.AlignmentFlag.AlignVCenter)
@@ -1446,7 +1446,7 @@ class LoggerWidget(QWidget):
         self.menu_hor_lay.removeWidget(self.warnings)
         self.menu_hor_lay.removeWidget(self.errors)
         self.menu_hor_lay.removeItem(self.menu_spacer_hor)
-        self.menu_hor_lay.removeWidget(self.clear_chk)
+        self.menu_hor_lay.removeWidget(self.preserve_log)
         self.menu_hor_lay.removeWidget(self.log_level_choice)
         self.menu_hor_lay.setContentsMargins(0, 0, 0, 0)
         # Add top widgets
@@ -1497,14 +1497,14 @@ class LoggerWidget(QWidget):
             if self.list_widget.isHidden() and layout_height >= self.MIN_HEIGHT or layout_height == 0:
                 # Show and adjust sizing
                 self.list_widget.show()
-                self.clear_chk.show()
+                self.preserve_log.show()
                 self.hbox.setSpacing(4)
                 self.menu_hor.setFixedHeight(20)
             elif layout_height < self.MIN_HEIGHT:
                 # Hide and adjust sizing
                 if not self.list_widget.isHidden():
                     self.list_widget.hide()
-                    self.clear_chk.hide()
+                    self.preserve_log.hide()
                     self.hbox.setSpacing(0)
                     self.menu_hor.setFixedHeight(16)
                 # Keep logger at 0 below MIN_HEIGHT
