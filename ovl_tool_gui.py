@@ -248,6 +248,10 @@ class MainWindow(widgets.MainWindow):
 	def run_action(self, *args):
 		print("action", args)
 
+	def close(self) -> bool:
+		self.results_container.close()
+		return super().close()
+
 	def _toggle_logger(self):
 		checked = self.t_show_logger.isChecked()
 		self.cfg["show_logger"] = checked
