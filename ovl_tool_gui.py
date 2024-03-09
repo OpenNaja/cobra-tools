@@ -295,9 +295,8 @@ class MainWindow(widgets.MainWindow):
 			self.search_views[search_str] = results_container
 
 			start_dir = self.installed_games.get_root()
-			with self.log_level_override("WARNING"):
-				# thread this to immediately show the window
-				self.run_in_threadpool(walker.search_for_files_in_ovls, (), self, start_dir, search_str)
+			# thread this to immediately show the window
+			self.run_in_threadpool(walker.search_for_files_in_ovls, (), self, start_dir, search_str)
 		else:
 			logging.warning(f"Search results for '{search_str}' are still open")
 
@@ -588,7 +587,7 @@ class MainWindow(widgets.MainWindow):
 		if self.is_open_ovl():
 			filelist_src = QtWidgets.QFileDialog.getSaveFileName(
 				self, 'Save File List',
-				os.path.join(self.cfg.get("dir_ovls_out", "C://"), self.file_widget.filename + ".files.txt"),
+				os.path.join(self.cfg.get("dir_extract", "C://"), self.file_widget.filename + ".files.txt"),
 				"Txt file (*.txt)", )[0]
 			if filelist_src:
 				try:
@@ -604,7 +603,7 @@ class MainWindow(widgets.MainWindow):
 		"""Save the OVL include list to disk"""
 		if self.is_open_ovl():
 			filepath = QtWidgets.QFileDialog.getSaveFileName(
-				self, 'Save ovls.include', os.path.join(self.cfg.get("dir_ovls_out", "C://"), "ovls.include"),
+				self, 'Save ovls.include', os.path.join(self.cfg.get("dir_extract", "C://"), "ovls.include"),
 				"Include file (*.include)", )[0]
 			if filepath:
 				try:
@@ -615,7 +614,7 @@ class MainWindow(widgets.MainWindow):
 
 	def load_included_ovls(self):
 		filepath = QtWidgets.QFileDialog.getOpenFileName(
-			self, "Open ovls.include", os.path.join(self.cfg.get("dir_ovls_out", "C://"), "ovls.include"),
+			self, "Open ovls.include", os.path.join(self.cfg.get("dir_inject", "C://"), "ovls.include"),
 				"Include file (*.include)", )[0]
 		if filepath:
 			try:
