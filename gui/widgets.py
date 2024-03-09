@@ -3171,12 +3171,17 @@ class MainWindow(FramelessMainWindow):
     def set_msg_temporarily(self, message: str) -> None:
         self.status_bar.showMessage(message, 3500)
 
+    def run_in_parallel(self, func: Callable, callbacks: Iterable = (), *args, **kwargs) -> None:
+        pass
+
     def run_in_threadpool(self, func: Callable, callbacks: Iterable = (), *args, **kwargs) -> None:
+        print(f"Running '{func.__name__}' in threadpool")
         worker = WorkerRunnable(func, *args, **kwargs)
         worker.signals.error_msg.connect(self.showerror)
         worker.signals.finished.connect(self.enable_gui_options)
         worker.signals.finished.connect(self.choices_update)
         for callback in callbacks:
+            # print(f"connecting {callback}")
             worker.signals.finished.connect(callback)
         self.threadpool.start(worker)
         self.enable_gui_options(False)
@@ -3314,15 +3319,11 @@ class WorkerRunnable(QtCore.QRunnable):
     error_msg = pyqtSignal(str)
 
     def __init__(self, func: Callable, *args, **kwargs) -> None:
-        # super(WorkerRunnable, self).__init__()
         super().__init__()
         self.func = func
         self.args = args
         self.kwargs = kwargs
         self.signals = WorkerSignals()
-
-        # Add the callback to our kwargs
-        # self.kwargs['progress_callback'] = self.signals.progress
 
     @pyqtSlot()
     def run(self) -> None:

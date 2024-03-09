@@ -48,7 +48,7 @@ class MainWindow(widgets.MainWindow):
 			self,
 			game_chosen_fn=self.set_ovl_game_choice_game,
 			file_dbl_click_fn=self.open_clicked_file,
-			search_content_fn=self.search_ovl_contents_threaded)
+			search_content_fn=self.search_ovl_contents)
 		self.installed_games.set_selected_game()
 
 		# create the table
@@ -271,35 +271,35 @@ class MainWindow(widgets.MainWindow):
 
 	def show_search_results(self, tup):
 		search_str, results = tup
-		results_container = widgets.SortableTable(
-			["Name", "File Type", "OVL"], self.ovl_data.formats_dict.ignore_types, ignore_drop_type="OVL", opt_hide=True,
-			actions={
-				QtWidgets.QAction("Open in OVL Tool"): self.search_result_open,
-				QtWidgets.QAction("Show in Explorer"): self.search_result_show,
-			})
-		results_container.setWindowTitle(f"Results for: {search_str}")
-		results_container.set_data(results)
-		results_container.setGeometry(QtCore.QRect(100, 100, 1000, 600))
-		results_container.show()
-
-		def remove_view():
-			self.search_views.pop(search_str)
-
-		results_container.closed.connect(remove_view)
-		self.search_views[search_str] = results_container
+		results_container = self.search_views.get(search_str)
+		if results_container:
+			results_container.set_data(results)
 
 	def search_ovl_contents(self, search_str):
+		search_str = search_str.lower()
 		if search_str not in self.search_views:
+			results_container = widgets.SortableTable(
+				["Name", "File Type", "OVL"], self.ovl_data.formats_dict.ignore_types, ignore_drop_type="OVL", opt_hide=True,
+				actions={
+					QtWidgets.QAction("Open in OVL Tool"): self.search_result_open,
+					QtWidgets.QAction("Show in Explorer"): self.search_result_show,
+				})
+			results_container.setWindowTitle(f"Results for: {search_str}")
+			results_container.setGeometry(QtCore.QRect(100, 100, 1000, 600))
+			results_container.show()
+
+			def remove_view():
+				self.search_views.pop(search_str)
+
+			results_container.closed.connect(remove_view)
+			self.search_views[search_str] = results_container
+
 			start_dir = self.installed_games.get_root()
 			with self.log_level_override("WARNING"):
-				# remove the leading slash for ovl path, else it is interpreted as relative to C:
-				results = [(filename, ext, ovl.replace(start_dir, '')[1:]) for ovl, filename, ext in walker.search_for_files_in_ovls(self, start_dir, search_str)]
-				self.search_files.emit((search_str, results))
+				# thread this to immediately show the window
+				self.run_in_threadpool(walker.search_for_files_in_ovls, (), self, start_dir, search_str)
 		else:
 			logging.warning(f"Search results for '{search_str}' are still open")
-
-	def search_ovl_contents_threaded(self, search_str):
-		self.run_in_threadpool(self.search_ovl_contents, (), search_str)
 
 	def notify_user(self, msg_list):
 		msg = msg_list[0]

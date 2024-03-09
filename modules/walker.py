@@ -64,13 +64,17 @@ def filter_accept_all(filepath):
 def search_for_files_in_ovls(gui, start_dir, search_str):
 	if start_dir:
 		with gui.reporter.log_duration(f"Searching"):
-			ovl_data = OvlFile()
+			res = []
 			ovl_files = walk_type(start_dir, extension=".ovl")
-			for of_index, ovl_path in enumerate(gui.reporter.iter_progress(ovl_files, "Searching")):
+			ovl_data = OvlFile()
+			for ovl_path in gui.reporter.iter_progress(ovl_files, "Searching"):
 				file_names = ovl_data.load(ovl_path, commands={"generate_names": True})
-				for file_name in file_names:
-					if search_str in file_name:
-						yield ovl_path, file_name, os.path.splitext(file_name)[1]
+				res.extend([
+					# remove the leading slash for ovl path, else it is interpreted as relative to C:
+					(file_name, os.path.splitext(file_name)[1], ovl_path.replace(start_dir, '')[1:])
+					for file_name in file_names if search_str in file_name
+				])
+			gui.search_files.emit((search_str, res))
 
 
 def generate_hash_table(gui, start_dir):
