@@ -2,7 +2,7 @@ import logging
 from typing import Any, Generator
 
 import pytest
-from pytest import LogCaptureFixture, MonkeyPatch
+from pytest import LogCaptureFixture, MonkeyPatch, FixtureRequest
 from pytestqt.plugin import QtBot
 
 from PyQt5.QtWidgets import QApplication
@@ -45,14 +45,18 @@ def log_succeeds(caplog: LogCaptureFixture):
 	assert successes
 
 
-@pytest.fixture(scope="function")
-def OVLTool(qapp: QApplication, qtbot: QtBot, caplog: LogCaptureFixture) -> QtAppFixtureGenerator:
+@pytest.fixture(scope="function", params=["Planet Zoo", "Planet Coaster",
+					"Jurassic World Evolution", "Jurassic World Evolution 2"])
+def OVLTool(qapp: QApplication, qtbot: QtBot, caplog: LogCaptureFixture, request: FixtureRequest) -> QtAppFixtureGenerator:
 	from ovl_tool_gui import MainWindow
 	opts = GuiOptions(
 		log_name = "ovl_tool_gui",
 		qapp=qapp
 	)
+	
+	game = str(request.param)
 	window, _ = init(MainWindow, opts)
+	window.set_ovl_game_choice_game(game)
 	qtbot.addWidget(window)
 	qtbot.waitUntil(lambda: "loading constants took" in caplog.text.lower(), timeout=25000)
 	yield qapp, window, qtbot
