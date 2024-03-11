@@ -42,8 +42,6 @@ def add_hair():
 	# add vertex groups
 	for vgroup_name, vgroup_weight in FUR_VGROUPS.items():
 		add_vgroup(base_ob, vgroup_name, vgroup_weight)
-	# add vcol layer
-	base_me.attributes.new(f"RGBA{0}", "BYTE_COLOR", "CORNER")
 	base_mat = base_me.materials[0]
 	mat_basename = base_mat.name.replace("_Fur", "")
 	if game == "Planet Zoo":
@@ -63,6 +61,11 @@ def add_hair():
 	# set reasonable default scales
 	shell_me["uv_scale_x"] = 4.0
 	shell_me["uv_scale_y"] = 2.0
+
+	# add vcol layer
+	rgba_name = f"RGBA{0}"
+	if rgba_name not in shell_me.attributes:
+		shell_me.attributes.new(rgba_name, "BYTE_COLOR", "CORNER")
 	# add particle system
 	add_psys(shell_ob)
 	# build fins
