@@ -5,14 +5,16 @@
 	<xi:include href="../ovl_base/ovl_base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
 
     <compound name="RideSettingsRoot" inherit="MemStruct">
-        <add name="unk_0" type="float"/>
-        <add name="unk_1" type="uint"/>
-        <add name="array_1" type="ArrayPointer" template="Pair" arg="count"/>
-        <add name="count" type="uint"/>
-        then 12 bytes of padding?
+        PC 32 bytes
+        PZ 16 bytes
+        <add name="unk_0" type="float" default="0.4"/>
+        <add name="unk_1" type="uint"/>maybe a cond for the pointer and count
+        <add name="array_1" type="ArrayPointer" template="Pair" arg="count" vercond="#PC#"/>
+        <add name="count" type="uint" vercond="#PC#"/>
+        padding
         <add name="pad_0" type="uint"/>
         <add name="pad_1" type="uint"/>
-        <add name="pad_2" type="uint"/>
+        <add name="pad_2" type="uint" vercond="#PC#"/>
     </compound>
 
     <compound name="Pair" inherit="MemStruct">
