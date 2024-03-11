@@ -40,7 +40,7 @@ type_module_name_map = {
 	'Empty': 'generated.formats.ovl_base.compounds.Empty',
 	'ZStringList': 'generated.formats.ovl_base.compounds.ZStringList',
 	'FRenderLodSpecRoot': 'generated.formats.frenderlodspec.compounds.FRenderLodSpecRoot',
-	'LodSpecItem': 'generated.formats.frenderlodspec.compounds.LodSpecItem',
+	'LodGroup': 'generated.formats.frenderlodspec.compounds.LodGroup',
 }
 
 name_type_map = {}

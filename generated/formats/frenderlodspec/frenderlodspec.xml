@@ -5,36 +5,22 @@
 	<xi:include href="../ovl_base/ovl_base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
 
     <compound name="FRenderLodSpecRoot" inherit="MemStruct">
-        <add name="spec_list"   type="ArrayPointer" template="LodSpecItem" arg="spec_count"/>
-        <add name="spec_count"  type="uint64" />
-        <add name="unknown"     type="uint64" />
+        PZ, JWE2 16 bytes
+        <add name="LodGroups"   type="ArrayPointer" template="LodGroup" arg="LodGroups_count"/>
+        <add name="LodGroups_count"  type="uint64" />
     </compound>
 
-    <compound name="LodSpecItem" inherit="MemStruct">
-        <add name="GroupName"   type="Pointer" template="ZString"/>
-        # unknown_1 always 0
-        <add name="unknown_1"   type="uint" />
-        <add name="MaxModelBoundingSphereRadius"    type="float" />
-
-        # flags1 always 255
-        # flags2 always   6
-        <add name="flags1"         type="ushort" />
-        <add name="flags2"         type="ushort" />
-        <add name="LodPoint0"      type="float" />
-        <add name="LodPoint1"      type="float" />
-        <add name="LodPoint2"      type="float" />
-
-        <add name="LodPoint3"      type="float" />
-        <add name="LodPoint4"      type="float" />
-        <add name="PixelSizeOff"   type="float" />
-        <add name="unknown_2"   type="uint" />
-
-        # according to jwe2dev there is a LODPoints list in this item struct, but
-        # so far we have not seen any lod definition using it, my guess is these
-        # unknowns are related.
-        <add name="unknown_3"   type="uint" />
-        <add name="unknown_4"   type="uint" />
-
+    <compound name="LodGroup" inherit="MemStruct">
+        PC 40 bytes
+        PZ, JWE2 56 bytes
+        <add name="GroupName" type="Pointer" template="ZString"/>
+        <add name="MinModelBoundingSphereRadius" type="float" />definitely a float on PC
+        <add name="MaxModelBoundingSphereRadius" type="float" />
+        <add name="flags" type="ushort" default="255" vercond="!#PC#"/>
+        <add name="lod_count" type="ushort" default="6" vercond="!#PC#" />
+        <add name="LodPoints" type="float" arr1="5"/>
+        <add name="PixelSizeOff" type="float" />
+        <add name="unused" default="0" type="uint" arr1="3" vercond="!#PC#"/>PZ, JWE2
     </compound>
 
 # this is how it looks like in-game
