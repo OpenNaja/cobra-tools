@@ -1974,6 +1974,8 @@ class GamesWidget(QWidget):
         self.search_button = QPushButton(get_icon("search"), "")
         self.search_button.setMaximumWidth(20)
         self.search_button.clicked.connect(self.search_button_clicked)
+        for btn in (self.search_entry, self.search_button):
+            btn.setToolTip("Search OVL archives for uses of this string")
         vbox = QHBoxLayout(self.search)
         vbox.addWidget(self.search_entry)
         vbox.addWidget(self.search_button)
