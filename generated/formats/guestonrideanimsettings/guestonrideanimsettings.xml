@@ -17,14 +17,20 @@
         <add name="AF" type="Pointer" template="ZString"/>
         <add name="TM" type="Pointer" template="ZString"/>
         <add name="TF" type="Pointer" template="ZString"/>
-        <add name="CM" type="Pointer" template="ZString"/>
         <add name="CF" type="Pointer" template="ZString"/>
+        <add name="CM" type="Pointer" template="ZString"/>
 
         <add name="bools" type="ubyte" arr1="44" vercond="#PC#" />
-        <add name="floats" type="float" arr1="7" vercond="#PC#"/>
+        <add name="floats" type="float" arr1="5" vercond="#PC#"/>
+        <add name="anims" type="ArrayPointer" template="AnimPair" arg="count" vercond="#PC#"/>
+        <add name="count" type="uint64" vercond="#PC#"/>
+
         <add name="bools" type="ubyte" arr1="56" vercond="!#PC#" />
-        <add name="floats" type="float" arr1="2" vercond="!#PC#"/>
-        <add name="padding" type="uint64"/>
+        <add name="floats" type="float" arr1="4" vercond="!#PC#"/>
     </compound>
 
+    <compound name="AnimPair" inherit="MemStruct">
+        <add name="anim_name1" type="Pointer" template="ZString"/>
+        <add name="anim_name2" type="Pointer" template="ZString"/>
+    </compound>
 </niftoolsxml>

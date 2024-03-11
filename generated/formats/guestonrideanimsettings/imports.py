@@ -41,6 +41,7 @@ type_module_name_map = {
 	'ZStringList': 'generated.formats.ovl_base.compounds.ZStringList',
 	'GuestOnRideAnimSettingsRoot': 'generated.formats.guestonrideanimsettings.compounds.GuestOnRideAnimSettingsRoot',
 	'RideAnims': 'generated.formats.guestonrideanimsettings.compounds.RideAnims',
+	'AnimPair': 'generated.formats.guestonrideanimsettings.compounds.AnimPair',
 }
 
 name_type_map = {}
