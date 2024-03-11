@@ -69,12 +69,15 @@ def search_for_files_in_ovls(gui, start_dir, search_str):
 				ovl_files = walk_type(start_dir, extension=".ovl")
 				ovl_data = OvlFile()
 				for ovl_path in gui.reporter.iter_progress(ovl_files, "Searching"):
-					file_names = ovl_data.load(ovl_path, commands={"generate_names": True})
-					res.extend([
-						# remove the leading slash for ovl path, else it is interpreted as relative to C:
-						(file_name, os.path.splitext(file_name)[1], ovl_path.replace(start_dir, '')[1:])
-						for file_name in file_names if search_str in file_name
-					])
+					try:
+						file_names = ovl_data.load(ovl_path, commands={"generate_names": True})
+						res.extend([
+							# remove the leading slash for ovl path, else it is interpreted as relative to C:
+							(file_name, os.path.splitext(file_name)[1], ovl_path.replace(start_dir, '')[1:])
+							for file_name in file_names if search_str in file_name
+						])
+					except:
+						logging.warning(f"Couldn't read {ovl_path}")
 				gui.search_files.emit((search_str, res))
 
 

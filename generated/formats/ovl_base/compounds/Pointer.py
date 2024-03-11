@@ -64,7 +64,8 @@ class Pointer(BaseStruct):
 	@property
 	def has_data(self):
 		"""Returns True if it has data"""
-		return bool(self.data)
+		# return bool(self.data)
+		return self.data is not None
 
 	def read_ptr(self, pool):
 		"""Looks up the address of the pointer, checks if a frag points to pointer and reads the data at its address as
@@ -156,11 +157,12 @@ class Pointer(BaseStruct):
 	@classmethod
 	def to_xml(cls, elem, prop, instance, arg, template, debug):
 		"""Adds this struct to 'elem', recursively"""
-		sub = ET.SubElement(elem, prop)
-		cls.pool_type_to_xml(sub, instance, debug)
 		if instance.has_data:
-			pool = instance.target_pool
-			# always set this to support xml references
+			# only create the sub-element if the pointer has data
+			sub = ET.SubElement(elem, prop)
+			cls.pool_type_to_xml(sub, instance, debug)
+			# always set id to support xml references
+			# pool = instance.target_pool
 			# elem.attrib["id"] = f"{pool.i} | {instance.target_offset}"
 			# xml string
 			if prop == XML_STR:

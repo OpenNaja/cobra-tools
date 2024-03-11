@@ -21,7 +21,7 @@ type_module_name_map = {
 	'PadAlign': 'generated.formats.base.compounds.PadAlign',
 	'FixedString': 'generated.formats.base.compounds.FixedString',
 	'Vector2': 'generated.formats.base.compounds.Vector2',
-	'Vector3': 'generated.formats.trackstation.compounds.Vector3',
+	'Vector3': 'generated.formats.base.compounds.Vector3',
 	'Vector4': 'generated.formats.base.compounds.Vector4',
 	'Bool': 'generated.formats.ovl_base.basic',
 	'OffsetString': 'generated.formats.ovl_base.basic',
@@ -40,9 +40,10 @@ type_module_name_map = {
 	'Empty': 'generated.formats.ovl_base.compounds.Empty',
 	'ZStringList': 'generated.formats.ovl_base.compounds.ZStringList',
 	'TrackStationRoot': 'generated.formats.trackstation.compounds.TrackStationRoot',
+	'FrontMidBack': 'generated.formats.trackstation.compounds.FrontMidBack',
 	'CommonChunk': 'generated.formats.trackstation.compounds.CommonChunk',
-	'FirstPointersa': 'generated.formats.trackstation.compounds.FirstPointersa',
-	'FirstPointersb': 'generated.formats.trackstation.compounds.FirstPointersb',
+	'TrackOnly': 'generated.formats.trackstation.compounds.TrackOnly',
+	'CornerEdgeTrack': 'generated.formats.trackstation.compounds.CornerEdgeTrack',
 }
 
 name_type_map = {}

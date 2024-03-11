@@ -31,12 +31,6 @@ class ForEachPointer(Pointer):
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 
-	@property
-	def has_data(self):
-		"""Returns True if it has data"""
-		if self.data is not None:
-			return len(self.data)
-
 	def read_template(self, stream):
 		if self.template:
 			if isinstance(self.arg, ArrayPointer):

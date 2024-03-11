@@ -44,11 +44,6 @@ class Reference(Pointer):
 		if set_default:
 			self.set_defaults()
 
-	@property
-	def has_data(self):
-		"""Returns True if it has data"""
-		return bool(self.data)
-
 	@classmethod
 	def get_fields_str(cls, instance, indent=0):
 		s = ''

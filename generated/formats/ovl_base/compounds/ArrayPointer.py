@@ -31,14 +31,6 @@ class ArrayPointer(Pointer):
 		super(ArrayPointer, self).set_defaults()
 		self.data = Array(self.context, 0, None, (self.arg,), self.template, True)
 
-	@property
-	def has_data(self):
-		"""Returns True if it has data"""
-		# fdev create pointers to empty arrays
-		if self.data is not None:
-			return True
-			# return len(self.data)
-
 	def read_template(self, stream):
 		if self.template:
 			try:
