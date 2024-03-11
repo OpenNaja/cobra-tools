@@ -40,7 +40,7 @@ type_module_name_map = {
 	'Empty': 'generated.formats.ovl_base.compounds.Empty',
 	'ZStringList': 'generated.formats.ovl_base.compounds.ZStringList',
 	'GuestOnRideAnimSettingsRoot': 'generated.formats.guestonrideanimsettings.compounds.GuestOnRideAnimSettingsRoot',
-	'GuestOnRideAnimSettingsChild': 'generated.formats.guestonrideanimsettings.compounds.GuestOnRideAnimSettingsChild',
+	'RideAnims': 'generated.formats.guestonrideanimsettings.compounds.RideAnims',
 }
 
 name_type_map = {}
