@@ -212,6 +212,15 @@ class ApplyPoseAll(BaseOp):
 		return handle_errors(self, rig.apply_armature_all, {})
 
 
+class SetupRig(BaseOp):
+	"""Add a minimal armature with a hitcheck for MDL2 geometry"""
+	bl_idname = "pose.setup_rig"
+	bl_label = "Setup Rig"
+
+	def execute(self, context):
+		return handle_errors(self, rig.setup_rig, {})
+
+
 class GenerateRigEdit(PopupOp):
 	"""Add rig edit bones for all posed bones; may optionally apply pose"""
 	bl_idname = "pose.generate_rig_edit"

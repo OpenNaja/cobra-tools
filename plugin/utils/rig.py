@@ -2,10 +2,13 @@ import logging
 
 import bpy
 import mathutils
+import bmesh
 from mathutils import Vector, Quaternion, Matrix
 
-from plugin.modules_import.armature import set_transform4
+from plugin.modules_import.armature import set_transform4, append_armature_modifier
+from plugin.modules_import.collision import parent_to
 from plugin.utils.matrix_util import vectorisclose
+from plugin.utils.object import create_ob, create_collection
 
 VEC3_0 = mathutils.Vector((0, 0, 0))
 VEC3_1 = mathutils.Vector((1, 1, 1))
@@ -36,6 +39,105 @@ def apply_armature_all():
 	b_armature_ob = bpy.context.object
 	apply_pose_to_meshes(b_armature_ob)
 	bpy.ops.pose.armature_apply()
+	return ()
+
+
+def add_hitcheck_to_mdl2(obj, collection, parent):
+	""" Creates a hitcheck bounding volume box """
+
+	# get the bounding box of the original object
+	bbox_corners = [obj.matrix_world @ Vector(corner) for corner in obj.bound_box]
+	edges = [(0, 1), (0, 3), (0, 4), (1, 5), (3, 7), (2, 1), (2, 6), (2, 3), (4, 5), (4, 7), (7, 6), (5, 6)]
+	print(bbox_corners)
+
+	mesh_name = obj.name + "_PhysicsVolume"
+	hitcheck_me = bpy.data.meshes.new(mesh_name)
+	hitcheck_me.from_pydata(bbox_corners, edges, [])
+
+	# Create all the mesh data
+	bm = bmesh.new()
+	bm.from_mesh(hitcheck_me)
+	bm.to_mesh(hitcheck_me)
+	bm.free()
+
+	hitcheck_ob = create_ob(bpy.context.scene, mesh_name, hitcheck_me, coll=collection)
+
+	# rotate
+	hitcheck_ob.rotation_euler[2] = 1.5708
+
+	# center
+	x = (bbox_corners[4][0] + bbox_corners[0][0]) / 2  # invert x axis
+	y = (bbox_corners[3][1] + bbox_corners[0][1]) / -2
+	z = (bbox_corners[2][2] + bbox_corners[0][2]) / 2
+	vec_loc = Vector((y, x, z))
+	hitcheck_ob.location = hitcheck_ob.location + vec_loc
+
+	# Assign parent joint
+	hitcheck_ob.parent = parent
+
+	bpy.context.view_layer.objects.active = hitcheck_ob
+	bpy.ops.rigidbody.object_add()
+
+	hitcheck_ob.rigid_body.type = 'PASSIVE'
+	hitcheck_ob.rigid_body.collision_shape = 'BOX'
+	hitcheck_ob.rigid_body.mesh_source = 'BASE'
+
+	hitcheck_ob.cobra_coll.flag = 'STATIC'
+
+	hitcheck_ob.cobra_coll.classification_jwe2 = 'Prop'
+	hitcheck_ob.cobra_coll.surface_jwe2 = 'PropWooden'
+
+	hitcheck_ob.cobra_coll.classification_pz = 'Scenery'
+	hitcheck_ob.cobra_coll.surface_pz = 'Wood'
+
+
+def setup_rig():
+	b_ob = bpy.context.active_object
+	scene = bpy.context.scene
+	name = b_ob.name
+
+	# create mdl2, joints and L0 collections
+	mdl2_coll = create_collection(name, scene.collection)
+	joint_coll = create_collection(f"{name}_joints", mdl2_coll)
+	lod_coll = create_collection(f"{name}_L0", mdl2_coll)
+	# move b_ob to L0 collection
+	for coll in b_ob.users_collection:
+		coll.objects.unlink(b_ob)
+	lod_coll.objects.link(b_ob)
+
+	# rename b_ob to the right lod (just cosmetic)
+	b_ob.name += '_ojb0_L0'
+
+	# create armature
+	armature_name = f"{name}_Armature"
+	b_armature_data = bpy.data.armatures.new(armature_name)
+	b_armature_data.display_type = 'STICK'
+	b_armature_ob = create_ob(scene, armature_name, b_armature_data, coll=mdl2_coll)
+	b_armature_ob.show_in_front = True
+
+	# make armature editable and create bones
+	bpy.ops.object.mode_set(mode='EDIT', toggle=False)
+	bone_name = "def_c_root_joint"
+	b_edit_bone = b_armature_data.edit_bones.new(bone_name)
+	b_edit_bone["long_name"] = bone_name
+	# identity transform in ms2 space
+	b_edit_bone.head = (0, 0, 0)
+	b_edit_bone.tail = (1, 0, 0)
+	b_edit_bone.roll = 0.0
+	bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
+
+	# weight paint mesh to bone
+	b_ob.vertex_groups.new(name=bone_name)
+	b_ob.vertex_groups[bone_name].add(list(range(len(b_ob.data.vertices))), 1.0, 'REPLACE')
+	# link to armature, only after mirror so the order is good and weights are mirrored
+	append_armature_modifier(b_ob, b_armature_ob)
+	
+	# add physics joint
+	b_joint = create_ob(scene, f"{name}_Physics_Joint", None, coll=joint_coll)
+	parent_to(b_armature_ob, b_joint, bone_name)
+
+	# create hitcheck object
+	add_hitcheck_to_mdl2(b_ob, joint_coll, b_joint)
 	return ()
 
 

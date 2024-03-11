@@ -49,7 +49,7 @@ try:
     from plugin.modules_export.operators import ExportMS2, ExportSPL, ExportManis, ExportBanis, ExportFgm
     from plugin.utils.operators import UpdateFins, UpdateLods, VcolToComb, CombToVcol, TransferHairCombing, AddHair, \
     GenerateRigEdit, ApplyPoseAll, ConvertScaleToLoc, ExtrudeFins, IntrudeFins, Mdl2Rename, Mdl2Duplicate, \
-    AutosmoothAll, LODS_UL_items, EditFlag
+    AutosmoothAll, LODS_UL_items, EditFlag, SetupRig
     from plugin.utils.properties import CobraSceneSettings, CobraMeshSettings, CobraCollisionSettings, \
     CobraMaterialSettings, LodData
     from plugin.utils.panels import CobraMaterialPanel, CobraMdl2Panel, VIEW_PT_Mdl2
@@ -281,6 +281,7 @@ try:
         UpdateLods,
         GenerateRigEdit,
         ApplyPoseAll,
+        SetupRig,
         ConvertScaleToLoc,
         VcolToComb,
         CombToVcol,
