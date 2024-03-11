@@ -21,6 +21,9 @@
     </compound>
 
     <compound name="ButtonData" inherit="MemStruct">
+        PC, probably different
+WARNING | Pointer at 63 | 3888 to 63 | 3712 is missing for ButtonData (rel offset: 0)
+
         # Apparently the binding value is from a = 1..
         # HUD_MapMode:          13  209     m and M
         # HUD_Notifications:    14  210     n and N
@@ -40,12 +43,12 @@
 
     <compound name="AxisValue" inherit="MemStruct">
         <add name="axis_name" type="Pointer" template="ZString"/>
-        <add name="u0" type="uint64"/>
-        <add name="u1" type="uint64"/>
-        <add name="u2" type="uint64"/>
-        <add name="value_name" type="Pointer" template="ZString"/>
-        <add name="u3" type="uint64"/>
-        <add name="u4" type="uint64"/>
+        <add name="button_1_name" type="Pointer" template="ZString"/>
+        <add name="button_2_name" type="Pointer" template="ZString"/>
+        <add name="unk" type="uint64"/>
+        <add name="combined_value_name" type="Pointer" template="ZString"/>
+        <add name="single_value_1_name" type="Pointer" template="ZString"/>
+        <add name="single_value_2_name" type="Pointer" template="ZString"/>
     </compound>
 
     <compound name="AxisButton" inherit="MemStruct">
