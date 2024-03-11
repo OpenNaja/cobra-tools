@@ -5,7 +5,7 @@ from generated.formats.physicssurfacesxmlres.imports import name_type_map
 class SurfacePhysicsInfo(MemStruct):
 
 	"""
-	# PC: not used
+	# PC: not used / crashes
 	# JWE1: 16 bytes
 	# PZ, JWE2, WH: 56 bytes
 	"""
