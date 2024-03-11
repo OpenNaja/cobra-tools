@@ -2019,6 +2019,10 @@ class GamesWidget(QWidget):
         if search_content_fn is not None:
             self.search_content_clicked.connect(search_content_fn)
             self.search_entry.returnPressed.connect(self.search_button_clicked)
+            self.search_entry.textChanged.connect(self.force_lowercase)
+
+    def force_lowercase(self, text):
+        self.search_entry.setText(text.lower())
 
     def search_button_clicked(self):
         search_txt = self.search_entry.text()
