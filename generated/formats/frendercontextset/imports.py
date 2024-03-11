@@ -42,9 +42,10 @@ type_module_name_map = {
 	'FRenderContextSetRoot': 'generated.formats.frendercontextset.compounds.FRenderContextSetRoot',
 	'ContextSet1Item': 'generated.formats.frendercontextset.compounds.ContextSet1Item',
 	'ContextSet1SubItem': 'generated.formats.frendercontextset.compounds.ContextSet1SubItem',
-	'ContextSet2Item': 'generated.formats.frendercontextset.compounds.ContextSet2Item',
-	'ContextSet3Item': 'generated.formats.frendercontextset.compounds.ContextSet3Item',
-	'ContextSet3SubItem': 'generated.formats.frendercontextset.compounds.ContextSet3SubItem',
+	'LayerMap': 'generated.formats.frendercontextset.compounds.LayerMap',
+	'RenderLayer': 'generated.formats.frendercontextset.compounds.RenderLayer',
+	'RenderFeature': 'generated.formats.frendercontextset.compounds.RenderFeature',
+	'FeatureOption': 'generated.formats.frendercontextset.compounds.FeatureOption',
 }
 
 name_type_map = {}

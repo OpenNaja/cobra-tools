@@ -9,23 +9,24 @@
     <compound name="FRenderContextSetRoot" inherit="MemStruct">
         <add name="ptr1_list"   type="ArrayPointer" template="ContextSet1Item" arg="ptr1_count"/>
         <add name="ptr1_count"  type="uint64" />
-        <add name="ptr2_list"   type="ArrayPointer" template="ContextSet2Item" arg="ptr2_count"/>
-        <add name="ptr2_count"  type="uint64" />
-        <add name="ptr3_list"   type="ArrayPointer" template="ContextSet3Item" arg="ptr3_count"/>
-        <add name="ptr3_count"  type="uint64" />
+        <add name="RenderLayers" type="ArrayPointer" template="RenderLayer" arg="RenderLayers_count"/>
+        <add name="RenderLayers_count" type="uint64" />
+        <add name="RenderFeatures" type="ArrayPointer" template="RenderFeature" arg="RenderFeatures_count"/>
+        <add name="RenderFeatures_count" type="uint64" />
     </compound>
 
     <compound name="ContextSet1Item" inherit="MemStruct">
+        PZ 96 bytes
         <add name="stuff1_name"  type="Pointer" template="ZString"/>
         <add name="stuff11_sub"   type="ArrayPointer" template="ContextSet1SubItem" arg="stuff11_sub_count"/>
         <add name="stuff11_sub_count"  type="uint64" />
-        <add name="stuff12_sub"   type="ArrayPointer" template="ContextSet1SubItem" arg="stuff12_sub_count"/>
-        <add name="stuff12_sub_count"  type="uint64" />
+        <add name="LayerMaps"   type="ArrayPointer" template="LayerMap" arg="LayerMaps_count"/>
+        <add name="LayerMaps_count"  type="uint64" />
         <add name="stuff13_sub"   type="ArrayPointer" template="ContextSet1SubItem" arg="stuff13_sub_count"/>
         <add name="stuff13_sub_count"  type="uint64" />
         <add name="stuff14sub_name"  type="Pointer" template="ZString"/>
-        <add name="stuff14sub_name"  type="Pointer" template="ZString"/>
         <add name="stuff15sub_name"  type="Pointer" template="ZString"/>
+        <add name="stuff16sub_name"  type="Pointer" template="ZString"/>
         <add name="stuff1_unknown1"  type="uint64" />
         <add name="stuff1_unknown2"  type="uint64" />
     </compound>
@@ -35,24 +36,26 @@
         <add name="stuff1sub_order_or_flags"  type="uint64" />
     </compound>
 
-
-    <compound name="ContextSet2Item" inherit="MemStruct">
-        <add name="stuff2_name"  type="Pointer" template="ZString"/>
-        <add name="stuff2_id"  type="uint64" />
+    <compound name="LayerMap" inherit="MemStruct">
+        <add name="layer_name" type="Pointer" template="ZString"/>
+        <add name="specific_name" type="Pointer" template="ZString"/>
     </compound>
 
-    <compound name="ContextSet3Item" inherit="MemStruct">
-        <add name="stuff3_name1"  type="Pointer" template="ZString"/>
-        <add name="stuff3_sub"  type="Pointer" template="ContextSet3SubItem"/>
-        <add name="stuff3_id_allways_1"  type="uint64" />
+    <compound name="RenderLayer" inherit="MemStruct">
+        <add name="layer_name"  type="Pointer" template="ZString"/>
+        <add name="layer_id"  type="uint64" />
     </compound>
 
-    <compound name="ContextSet3SubItem" inherit="MemStruct">
-        <add name="stuff31_name1"  type="Pointer" template="ZString"/>
-        <add name="stuff31_name2"  type="Pointer" template="ZString"/>
-        <add name="stuff31_name3"  type="Pointer" template="ZString"/>
-        # could be another pointer. observer as 0
-        <add name="stuff31_id_allways_0" type="uint64" />
+    <compound name="RenderFeature" inherit="MemStruct">
+        <add name="feature_name"  type="Pointer" template="ZString"/>
+        <add name="options"  type="ArrayPointer" template="FeatureOption" arg="count"/>
+        <add name="count"  type="uint64" />
+    </compound>
+
+    <compound name="FeatureOption" inherit="MemStruct">
+        <add name="name1"  type="Pointer" template="ZString" />
+        <add name="name2"  type="Pointer" template="ZString" />
+        <add name="name3"  type="Pointer" template="ZString" />
     </compound>
 
 </niftoolsxml>
