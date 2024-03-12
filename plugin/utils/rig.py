@@ -67,7 +67,9 @@ def add_hitcheck_to_mdl2(obj, collection, parent):
 	hitcheck_ob.parent = parent
 
 	bpy.context.view_layer.objects.active = hitcheck_ob
-	bpy.ops.rigidbody.object_add()
+	with bpy.context.temp_override(selected_objects=[hitcheck_ob], object=hitcheck_ob, active_object=hitcheck_ob):
+		print('Operating on obj', hitcheck_ob)
+		bpy.ops.rigidbody.object_add()
 
 	hitcheck_ob.rigid_body.type = 'PASSIVE'
 	hitcheck_ob.rigid_body.collision_shape = 'BOX'

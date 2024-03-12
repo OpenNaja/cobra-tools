@@ -83,7 +83,6 @@ class CobraMdl2Panel(Panel):
 
 		box = layout.box()
 		box.label(text="Pose", icon="ARMATURE_DATA")
-		box.operator("pose.setup_rig", icon="OUTLINER_DATA_ARMATURE")
 		box.operator("pose.apply_pose_all", icon="CON_ARMATURE")
 		box.operator("pose.generate_rig_edit", icon="ORIENTATION_PARENT")
 		box.operator("pose.convert_scale_to_loc", icon="CURVE_PATH")
