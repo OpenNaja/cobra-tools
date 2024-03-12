@@ -41,14 +41,10 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, apply_transfor
 
 	mesh.expect_shapekeys = True if b_me.shape_keys else False
 	mesh.update_dtype()
-	num_uvs = mesh.get_uv_count()
-	num_vcols = mesh.get_vcol_count()
 	# ensure that these are initialized
 	mesh.tri_indices = []
 	mesh.verts = []
 	model_info.model.meshes.append(wrapper)
-
-	num_fur_weights = num_fur_as_weights(b_me.materials[0].name)
 
 	if not len(b_me.vertices):
 		raise AttributeError(f"Mesh {b_ob.name} has no vertices!")
@@ -56,36 +52,47 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, apply_transfor
 	if not len(b_me.polygons):
 		raise AttributeError(f"Mesh {b_ob.name} has no polygons!")
 
-	for len_type, num_type, name_type in (
-			(len(b_me.uv_layers), num_uvs - num_fur_weights, "UV Maps"),
-			(len(b_me.vertex_colors), num_vcols, "Color Attributes")):
-		logging.debug(f"{name_type} count: {num_type}")
-		if len_type != num_type:
-			raise AttributeError(f"Mesh {b_ob.name} has {len_type} {name_type}, but {num_type} were expected!")
+	if not (len(b_me.materials) and b_me.materials[0]):
+		raise AttributeError(f"Mesh {b_ob.name} has no material in the first slot!")
 
+	num_uvs = mesh.get_uv_count()
+	num_vcols = mesh.get_vcol_count()
+	num_fur_weights = num_fur_as_weights(b_me.materials[0].name)
+	for len_type, num_type, name_type in (
+			(len(b_me.uv_layers), num_uvs - num_fur_weights, "UV Map"),
+			(len(b_me.vertex_colors), num_vcols, "Color Attribute")):
+		logging.debug(f"{name_type} count: {num_type}")
+		delta = len_type < num_type
+		if delta > 0:
+			raise AttributeError(f"Mesh '{b_ob.name}' needs {num_type-len_type} more {name_type}{'s' if delta != 1 else ''}")
 	# make sure the mesh has a triangulation modifier
 	ensure_tri_modifier(b_ob)
 	eval_obj, eval_me = evaluate_mesh(b_ob)
 	# validate the mesh to get rid of degenerate geometry such as duplicate faces, which would trigger chunking asserts
 	eval_me.validate()
+
 	handle_transforms(eval_obj, eval_me, apply=apply_transforms)
 
 	hair_length = get_hair_length(b_ob)
 	mesh.fur_length = hair_length
 
+	uv0_name = b_me.uv_layers[0].name
+	rgba_name = b_me.vertex_colors[0].name
 	# tangents have to be pre-calculated; this will also calculate loop normal
 	try:
-		eval_me.calc_tangents(uvmap="UV0")
+		eval_me.calc_tangents(uvmap=uv0_name)
 	except RuntimeError:
-		raise RuntimeError(f"Tangent space calculation for model {b_ob.name} failed. Make sure it has UV0 and valid geometry")
+		raise RuntimeError(f"Tangent space calculation for model {b_ob.name} failed. Make sure it has valid geometry")
 	# these were stored on import per loop
 	if use_stock_normals_tangents:
 		ct_tangents = eval_me.attributes["ct_tangents"]
 		ct_normals = eval_me.attributes["ct_normals"]
-	if "RGBA0" in eval_me.attributes:
-		rgba0_layer = eval_me.attributes["RGBA0"]
+	if rgba_name in eval_me.attributes:
+		rgba0_layer = eval_me.attributes[rgba_name]
 	else:
 		rgba0_layer = None
+	# truncate layers
+	selected_uvs = eval_me.uv_layers[:num_uvs - num_fur_weights]
 
 	unweighted_vertices = []
 
@@ -134,7 +141,7 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, apply_transfor
 			shell_ob = shell_obs[0]
 			logging.debug(f"Copying data for {b_ob.name} from base mesh {shell_ob.name}...")
 			shell_eval_ob, shell_eval_me = evaluate_mesh(shell_ob)
-			shell_eval_me.calc_tangents(uvmap="UV0")
+			shell_eval_me.calc_tangents(uvmap=uv0_name)
 			shell_kd = fill_kd_tree(shell_eval_me)
 			fin_uv_layer = eval_me.uv_layers[0].data
 
@@ -200,7 +207,7 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, apply_transfor
 
 				shapekey = get_lod_key(b_loop.vertex_index)
 				center_key = get_center_key(b_loop.vertex_index)
-				uvs = [(layer.data[loop_index].uv.x, 1 - layer.data[loop_index].uv.y) for layer in eval_me.uv_layers]
+				uvs = [(layer.data[loop_index].uv.x, 1 - layer.data[loop_index].uv.y) for layer in selected_uvs]
 				# create a dummy bytes str for indexing
 				float_items = [c for uv in uvs[:2] for c in uv] + [*normal]
 				dummy = struct.pack(f'<IB{len(float_items)}f', b_loop.vertex_index, negate_bitangent, *float_items)
