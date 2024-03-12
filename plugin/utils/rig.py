@@ -81,9 +81,11 @@ def add_hitcheck_to_mdl2(obj, collection, parent):
 	hitcheck_ob.cobra_coll.classification_pz = 'Scenery'
 	hitcheck_ob.cobra_coll.surface_pz = 'Wood'
 
+
 def validate_object_to_mdl2(obj):
 	""" Check current object data, like num of polys etc.."""
 	pass
+
 
 def comform_object_to_mdl2(obj):
 	""" Check and add object requirements, like missing flags etc """
@@ -96,9 +98,9 @@ def comform_object_to_mdl2(obj):
 
 		# Add a second UV layer if missing, rename them 
 		if len(obj.data.uv_layers):
-			obj.data.uv_layers[0].name='UV0'
+			obj.data.uv_layers[0].name = 'UV0'
 		if len(obj.data.uv_layers) > 1:
-			obj.data.uv_layers[1].name='UV1'
+			obj.data.uv_layers[1].name = 'UV1'
 		if len(obj.data.uv_layers) == 1:
 			obj.data.uv_layers.new(name='UV1')
 
@@ -109,6 +111,7 @@ def comform_object_to_mdl2(obj):
 
 	# split materials, rename new objects
 	pass
+
 
 def setup_rig(add_armature=True, add_physics=True):
 	b_ob = bpy.context.active_object
@@ -242,8 +245,8 @@ def generate_rig_edit(**kwargs):
 		# We check for NODE bones with transforms and skip them.
 		if (not vectorisclose(p_bone.location, VEC3_0, errortolerance) or not vectorisclose(
 				p_bone.scale, VEC3_1, errortolerance) or not vectorisclose(
-				Vector(p_bone.rotation_quaternion), VEC4_1, errortolerance)) and p_bone.name.startswith(
-				"NODE_"):
+			Vector(p_bone.rotation_quaternion), VEC4_1, errortolerance)) and p_bone.name.startswith(
+			"NODE_"):
 			# Ignore posed NODE bones and proceed to the next, their offsets can be applied directly.
 			editnumber = editnumber + 1
 			logging.info(f"rig edit number {editnumber}")
@@ -252,8 +255,8 @@ def generate_rig_edit(**kwargs):
 
 		# We append any remaining bones that have been posed.
 		if (not vectorisclose(p_bone.location, VEC3_0, errortolerance) or not vectorisclose(p_bone.scale, VEC3_1,
-																									   errortolerance) or not vectorisclose(
-				Vector(p_bone.rotation_quaternion), VEC4_1, errortolerance)):
+																							errortolerance) or not vectorisclose(
+			Vector(p_bone.rotation_quaternion), VEC4_1, errortolerance)):
 			# bonebase values
 			logging.info(f"p_bone: {p_bone.name}")
 			# logging.info(f"p_bone head (global rest):        {p_bone.bone.head_local}")
@@ -514,7 +517,7 @@ def convert_scale_to_loc():
 
 		else:
 			p_bone.matrix.translation = p_bone.matrix.translation + (
-						posebone_data[p_bone][1] - posebone_data[p_bone][0])
+					posebone_data[p_bone][1] - posebone_data[p_bone][0])
 
 		editnumber = editnumber + 1
 
