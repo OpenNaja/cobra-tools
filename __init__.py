@@ -123,8 +123,9 @@ try:
             return {'FINISHED'}
 
 
+    # TODO: Probably move to utils/panels.py
     class MESH_PT_CobraTools(bpy.types.Panel):
-        """Creates a Panel in the scene context of the properties editor"""
+        """Creates a Panel in the Mesh context for hair and fins"""
         bl_label = "Cobra Mesh Tools"
         bl_space_type = 'PROPERTIES'
         bl_region_type = 'WINDOW'
@@ -142,6 +143,16 @@ try:
             addon_updater_ops.update_notice_box_ui(self, context)
             
             layout = self.layout
+
+            # Show the button only of the mesh is not in a mdl2 rig
+            # detecting the parent collection name contains _L, 
+            # TODO: improve this detection and remove the other panel buttons?
+            coll = context.active_object.users_collection[0]
+            if not "_L" in coll.name:
+                row = layout.row(align=True)
+                row.operator("pose.setup_rig", icon="OUTLINER_DATA_ARMATURE")
+                layout.separator()
+
             row = layout.row(align=True)
             row.operator("object.add_hair", icon="CURVES")
 
