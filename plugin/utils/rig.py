@@ -98,9 +98,9 @@ def comform_object_to_mdl2(obj):
 		if len(obj.data.uv_layers):
 			obj.data.uv_layers[0].name='UV0'
 		if len(obj.data.uv_layers) > 1:
- 			obj.data.uv_layers[1].name='UV1'
+			obj.data.uv_layers[1].name='UV1'
 		if len(obj.data.uv_layers) == 1:
- 			obj.data.uv_layers.new(name='UV1')
+			obj.data.uv_layers.new(name='UV1')
 
 	elif bpy.context.scene.cobra.game == "Jurassic World 2":
 		return f"Game not supported.",
@@ -127,7 +127,7 @@ def setup_rig(add_armature=True, add_physics=True):
 	lod_coll.objects.link(b_ob)
 
 	# ensure the object/mesh has the right valid data 
-    comform_object_to_mdl2(b_ob)
+	comform_object_to_mdl2(b_ob)
 
 	# rename b_ob to the right lod (just cosmetic)
 	b_ob.name += '_ojb0_L0'
