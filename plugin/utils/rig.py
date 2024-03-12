@@ -42,6 +42,7 @@ def apply_armature_all():
 	return ()
 
 
+
 def add_hitcheck_to_mdl2(obj, collection, parent):
 	""" Creates a hitcheck bounding volume box with predefined physics response """
 
@@ -84,6 +85,13 @@ def add_hitcheck_to_mdl2(obj, collection, parent):
 	hitcheck_ob.cobra_coll.classification_pz = 'Scenery'
 	hitcheck_ob.cobra_coll.surface_pz = 'Wood'
 
+
+def split_object_by_material(obj):
+	with bpy.context.temp_override(selected_objects=[obj], object=obj, active_object=obj):
+		# Edit Mode, separate and back to object mode
+		bpy.ops.object.mode_set(mode='EDIT')
+		bpy.ops.mesh.separate(type='MATERIAL')
+		bpy.ops.object.mode_set(mode='OBJECT')	
 
 def validate_object_to_mdl2(obj):
 	""" Check current object data, like num of polys etc.."""
@@ -172,6 +180,10 @@ def setup_rig(add_armature=True, add_physics=True):
 
 			# create hitcheck object
 			add_hitcheck_to_mdl2(b_ob, joint_coll, b_joint)
+
+	# mdl2 require objects to have only one material
+	split_object_by_material(b_ob)
+
 	return ()
 
 
