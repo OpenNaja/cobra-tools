@@ -2,7 +2,6 @@ import logging
 
 import bpy
 import mathutils
-import bmesh
 from mathutils import Vector, Quaternion, Matrix
 
 from plugin.modules_import.armature import set_transform4, append_armature_modifier
@@ -52,13 +51,6 @@ def add_hitcheck_to_mdl2(obj, collection, parent):
 	mesh_name = obj.name + "_PhysicsVolume"
 	hitcheck_me = bpy.data.meshes.new(mesh_name)
 	hitcheck_me.from_pydata(bbox_corners, edges, [])
-
-	# Create all the mesh data
-	bm = bmesh.new()
-	bm.from_mesh(hitcheck_me)
-	bm.to_mesh(hitcheck_me)
-	bm.free()
-
 	hitcheck_ob = create_ob(bpy.context.scene, mesh_name, hitcheck_me, coll=collection)
 
 	# rotate
