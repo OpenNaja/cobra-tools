@@ -43,7 +43,7 @@ def apply_armature_all():
 
 
 def add_hitcheck_to_mdl2(obj, collection, parent):
-	""" Creates a hitcheck bounding volume box """
+	""" Creates a hitcheck bounding volume box with predefined physics response """
 
 	# get the bounding box of the original object
 	bbox_corners = [obj.matrix_world @ Vector(corner) for corner in obj.bound_box]
@@ -89,11 +89,42 @@ def add_hitcheck_to_mdl2(obj, collection, parent):
 	hitcheck_ob.cobra_coll.classification_pz = 'Scenery'
 	hitcheck_ob.cobra_coll.surface_pz = 'Wood'
 
+def validate_object_to_mdl2(obj):
+	""" Check current object data, like num of polys etc.."""
+	pass
+
+def comform_object_to_mdl2(obj):
+	""" Check and add object requirements, like missing flags etc """
+	if bpy.context.scene.cobra.game == "Planet Zoo":
+
+		# 'default' properties for scenery -  TODO: move this to a default setup function
+		obj.data['flag'] = 513
+		obj.data['unk_f0'] = 0.0
+		obj.data['unk_f1'] = 0.0
+
+		# Add a second UV layer if missing, rename them 
+		if len(obj.data.uv_layers):
+			obj.data.uv_layers[0].name='UV0'
+		if len(obj.data.uv_layers) > 1:
+ 			obj.data.uv_layers[1].name='UV1'
+		if len(obj.data.uv_layers) == 1:
+ 			obj.data.uv_layers.new(name='UV1')
+
+	elif bpy.context.scene.cobra.game == "Jurassic World 2":
+		return f"Game not supported.",
+	else:
+		return f"Game not supported.",
+
+	# split materials, rename new objects
+	pass
 
 def setup_rig(add_armature=True, add_physics=True):
 	b_ob = bpy.context.active_object
 	scene = bpy.context.scene
 	name = b_ob.name
+
+	# validate object before starting
+	validate_object_to_mdl2(b_ob)
 
 	# create collections
 	mdl2_coll = create_collection(name, scene.collection)
@@ -102,6 +133,9 @@ def setup_rig(add_armature=True, add_physics=True):
 	for coll in b_ob.users_collection:
 		coll.objects.unlink(b_ob)
 	lod_coll.objects.link(b_ob)
+
+	# ensure the object/mesh has the right valid data 
+    comform_object_to_mdl2(b_ob)
 
 	# rename b_ob to the right lod (just cosmetic)
 	b_ob.name += '_ojb0_L0'
