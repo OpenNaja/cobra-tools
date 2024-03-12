@@ -4,6 +4,7 @@ import bpy
 import mathutils
 from mathutils import Vector, Quaternion, Matrix
 
+from plugin.modules_export.armature import get_armature
 from plugin.modules_import.armature import set_transform4, append_armature_modifier
 from plugin.modules_import.collision import parent_to
 from plugin.utils.matrix_util import vectorisclose
@@ -119,6 +120,7 @@ def setup_rig(add_armature=True, add_physics=True):
 	b_ob = bpy.context.active_object
 	scene = bpy.context.scene
 	name = b_ob.name
+	bone_name = "def_c_root_joint"
 
 	# validate object before starting
 	validate_object_to_mdl2(b_ob)
@@ -126,10 +128,7 @@ def setup_rig(add_armature=True, add_physics=True):
 	# create collections
 	mdl2_coll = create_collection(name, scene.collection)
 	lod_coll = create_collection(f"{name}_L0", mdl2_coll)
-	# move b_ob to L0 collection
-	for coll in b_ob.users_collection:
-		coll.objects.unlink(b_ob)
-	lod_coll.objects.link(b_ob)
+	move_to_collection(b_ob, lod_coll)
 
 	# ensure the object/mesh has the right valid data 
 	comform_object_to_mdl2(b_ob)
@@ -137,29 +136,33 @@ def setup_rig(add_armature=True, add_physics=True):
 	# rename b_ob to the right lod (just cosmetic)
 	b_ob.name += '_ojb0_L0'
 	if add_armature:
-		# create armature
-		armature_name = f"{name}_Armature"
-		b_armature_data = bpy.data.armatures.new(armature_name)
-		b_armature_data.display_type = 'STICK'
-		b_armature_ob = create_ob(scene, armature_name, b_armature_data, coll=mdl2_coll)
-		b_armature_ob.show_in_front = True
+		# see if an armature exists in the scene collection
+		b_armature_ob = get_armature(scene.collection.objects)
+		if b_armature_ob:
+			move_to_collection(b_armature_ob, mdl2_coll)
+		else:
+			# create armature
+			armature_name = f"{name}_Armature"
+			b_armature_data = bpy.data.armatures.new(armature_name)
+			b_armature_data.display_type = 'STICK'
+			b_armature_ob = create_ob(scene, armature_name, b_armature_data, coll=mdl2_coll)
+			b_armature_ob.show_in_front = True
 
-		# make armature editable and create bones
-		bpy.ops.object.mode_set(mode='EDIT', toggle=False)
-		bone_name = "def_c_root_joint"
-		b_edit_bone = b_armature_data.edit_bones.new(bone_name)
-		b_edit_bone["long_name"] = bone_name
-		# identity transform in ms2 space
-		b_edit_bone.head = (0, 0, 0)
-		b_edit_bone.tail = (1, 0, 0)
-		b_edit_bone.roll = 0.0
-		bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
+			# make armature editable and create bones
+			bpy.ops.object.mode_set(mode='EDIT', toggle=False)
+			b_edit_bone = b_armature_data.edit_bones.new(bone_name)
+			b_edit_bone["long_name"] = bone_name
+			# identity transform in ms2 space
+			b_edit_bone.head = (0, 0, 0)
+			b_edit_bone.tail = (1, 0, 0)
+			b_edit_bone.roll = 0.0
+			bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
 
 		# weight paint mesh to bone
-		b_ob.vertex_groups.new(name=bone_name)
-		b_ob.vertex_groups[bone_name].add(list(range(len(b_ob.data.vertices))), 1.0, 'REPLACE')
-		# link to armature, only after mirror so the order is good and weights are mirrored
-		append_armature_modifier(b_ob, b_armature_ob)
+		if bone_name not in b_ob.vertex_groups:
+			b_ob.vertex_groups.new(name=bone_name)
+			b_ob.vertex_groups[bone_name].add(list(range(len(b_ob.data.vertices))), 1.0, 'REPLACE')
+			append_armature_modifier(b_ob, b_armature_ob)
 
 		if add_physics:
 			joint_coll = create_collection(f"{name}_joints", mdl2_coll)
@@ -170,6 +173,12 @@ def setup_rig(add_armature=True, add_physics=True):
 			# create hitcheck object
 			add_hitcheck_to_mdl2(b_ob, joint_coll, b_joint)
 	return ()
+
+
+def move_to_collection(b_ob, target_coll):
+	for coll in b_ob.users_collection:
+		coll.objects.unlink(b_ob)
+	target_coll.objects.link(b_ob)
 
 
 def generate_rig_edit(**kwargs):
