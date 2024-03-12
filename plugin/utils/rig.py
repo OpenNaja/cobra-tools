@@ -48,7 +48,6 @@ def add_hitcheck_to_mdl2(obj, collection, parent):
 	# get the bounding box of the original object
 	bbox_corners = [obj.matrix_world @ Vector(corner) for corner in obj.bound_box]
 	edges = [(0, 1), (0, 3), (0, 4), (1, 5), (3, 7), (2, 1), (2, 6), (2, 3), (4, 5), (4, 7), (7, 6), (5, 6)]
-	print(bbox_corners)
 
 	mesh_name = obj.name + "_PhysicsVolume"
 	hitcheck_me = bpy.data.meshes.new(mesh_name)
@@ -91,14 +90,13 @@ def add_hitcheck_to_mdl2(obj, collection, parent):
 	hitcheck_ob.cobra_coll.surface_pz = 'Wood'
 
 
-def setup_rig():
+def setup_rig(add_armature=True, add_physics=True):
 	b_ob = bpy.context.active_object
 	scene = bpy.context.scene
 	name = b_ob.name
 
-	# create mdl2, joints and L0 collections
+	# create collections
 	mdl2_coll = create_collection(name, scene.collection)
-	joint_coll = create_collection(f"{name}_joints", mdl2_coll)
 	lod_coll = create_collection(f"{name}_L0", mdl2_coll)
 	# move b_ob to L0 collection
 	for coll in b_ob.users_collection:
@@ -107,37 +105,39 @@ def setup_rig():
 
 	# rename b_ob to the right lod (just cosmetic)
 	b_ob.name += '_ojb0_L0'
+	if add_armature:
+		# create armature
+		armature_name = f"{name}_Armature"
+		b_armature_data = bpy.data.armatures.new(armature_name)
+		b_armature_data.display_type = 'STICK'
+		b_armature_ob = create_ob(scene, armature_name, b_armature_data, coll=mdl2_coll)
+		b_armature_ob.show_in_front = True
 
-	# create armature
-	armature_name = f"{name}_Armature"
-	b_armature_data = bpy.data.armatures.new(armature_name)
-	b_armature_data.display_type = 'STICK'
-	b_armature_ob = create_ob(scene, armature_name, b_armature_data, coll=mdl2_coll)
-	b_armature_ob.show_in_front = True
+		# make armature editable and create bones
+		bpy.ops.object.mode_set(mode='EDIT', toggle=False)
+		bone_name = "def_c_root_joint"
+		b_edit_bone = b_armature_data.edit_bones.new(bone_name)
+		b_edit_bone["long_name"] = bone_name
+		# identity transform in ms2 space
+		b_edit_bone.head = (0, 0, 0)
+		b_edit_bone.tail = (1, 0, 0)
+		b_edit_bone.roll = 0.0
+		bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
 
-	# make armature editable and create bones
-	bpy.ops.object.mode_set(mode='EDIT', toggle=False)
-	bone_name = "def_c_root_joint"
-	b_edit_bone = b_armature_data.edit_bones.new(bone_name)
-	b_edit_bone["long_name"] = bone_name
-	# identity transform in ms2 space
-	b_edit_bone.head = (0, 0, 0)
-	b_edit_bone.tail = (1, 0, 0)
-	b_edit_bone.roll = 0.0
-	bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
+		# weight paint mesh to bone
+		b_ob.vertex_groups.new(name=bone_name)
+		b_ob.vertex_groups[bone_name].add(list(range(len(b_ob.data.vertices))), 1.0, 'REPLACE')
+		# link to armature, only after mirror so the order is good and weights are mirrored
+		append_armature_modifier(b_ob, b_armature_ob)
 
-	# weight paint mesh to bone
-	b_ob.vertex_groups.new(name=bone_name)
-	b_ob.vertex_groups[bone_name].add(list(range(len(b_ob.data.vertices))), 1.0, 'REPLACE')
-	# link to armature, only after mirror so the order is good and weights are mirrored
-	append_armature_modifier(b_ob, b_armature_ob)
-	
-	# add physics joint
-	b_joint = create_ob(scene, f"{name}_Physics_Joint", None, coll=joint_coll)
-	parent_to(b_armature_ob, b_joint, bone_name)
+		if add_physics:
+			joint_coll = create_collection(f"{name}_joints", mdl2_coll)
+			# add physics joint
+			b_joint = create_ob(scene, f"{name}_Physics_Joint", None, coll=joint_coll)
+			parent_to(b_armature_ob, b_joint, bone_name)
 
-	# create hitcheck object
-	add_hitcheck_to_mdl2(b_ob, joint_coll, b_joint)
+			# create hitcheck object
+			add_hitcheck_to_mdl2(b_ob, joint_coll, b_joint)
 	return ()
 
 

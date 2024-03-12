@@ -212,13 +212,27 @@ class ApplyPoseAll(BaseOp):
 		return handle_errors(self, rig.apply_armature_all, {})
 
 
-class SetupRig(BaseOp):
+class SetupRig(PopupOp):
 	"""Add a minimal armature with a hitcheck for MDL2 geometry"""
 	bl_idname = "pose.setup_rig"
 	bl_label = "Setup Rig"
 
+	add_armature: bpy.props.BoolProperty(
+		name="Add Armature",
+		description="Automatically add minimal armature",
+		default=True)
+
+	add_physics: bpy.props.BoolProperty(
+		name="Add Physics",
+		description="Automatically add minimal physics collider from bounding box",
+		default=True)
+
+	def draw(self, context):
+		self.layout.prop(self, "add_armature")
+		self.layout.prop(self, "add_physics")
+
 	def execute(self, context):
-		return handle_errors(self, rig.setup_rig, {})
+		return handle_errors(self, rig.setup_rig, self.as_keywords())
 
 
 class GenerateRigEdit(PopupOp):
@@ -237,13 +251,12 @@ class GenerateRigEdit(PopupOp):
 
 	def draw(self, context):
 		row = self.layout.row()
-		row.prop(self, "mergenodes", text="Merge Identical Nodes", icon="AUTOMERGE_ON" if self.mergenodes else "AUTOMERGE_OFF")
+		row.prop(self, "mergenodes", icon="AUTOMERGE_ON" if self.mergenodes else "AUTOMERGE_OFF")
 		row = self.layout.row()
-		row.prop(self, "applyarmature", text="Apply Armature Modifiers", icon="CHECKBOX_HLT" if self.applyarmature else "CHECKBOX_DEHLT")
+		row.prop(self, "applyarmature", icon="CHECKBOX_HLT" if self.applyarmature else "CHECKBOX_DEHLT")
 
 	def execute(self, context):
-		return handle_errors(self, rig.generate_rig_edit, {
-			'mergenodes': self.mergenodes, 'applyarmature': self.applyarmature})
+		return handle_errors(self, rig.generate_rig_edit, self.as_keywords())
 
 
 class ConvertScaleToLoc(BaseOp):
