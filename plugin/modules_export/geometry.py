@@ -61,7 +61,7 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, apply_transfor
 	for len_type, num_type, name_type in (
 			(len(b_me.uv_layers), num_uvs - num_fur_weights, "UV Map"),
 			(len(b_me.vertex_colors), num_vcols, "Color Attribute")):
-		logging.debug(f"{name_type} count: {num_type}")
+		logging.debug(f"{name_type} count: expected {num_type}, got {len_type}")
 		delta = len_type < num_type
 		if delta > 0:
 			raise AttributeError(f"Mesh '{b_ob.name}' needs {num_type-len_type} more {name_type}{'s' if delta != 1 else ''}")
@@ -77,7 +77,6 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, apply_transfor
 	mesh.fur_length = hair_length
 
 	uv0_name = b_me.uv_layers[0].name
-	rgba_name = b_me.vertex_colors[0].name
 	# tangents have to be pre-calculated; this will also calculate loop normal
 	try:
 		eval_me.calc_tangents(uvmap=uv0_name)
@@ -87,7 +86,8 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, apply_transfor
 	if use_stock_normals_tangents:
 		ct_tangents = eval_me.attributes["ct_tangents"]
 		ct_normals = eval_me.attributes["ct_normals"]
-	if rgba_name in eval_me.attributes:
+	if num_vcols:
+		rgba_name = b_me.vertex_colors[0].name
 		rgba0_layer = eval_me.attributes[rgba_name]
 	else:
 		rgba0_layer = None
