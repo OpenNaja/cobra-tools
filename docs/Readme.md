@@ -1,6 +1,3 @@
-# cobra-tools
-"~~Life~~ Modding finds a way."
-
 A simple GUI for extracting OVL and OVS archives and modifying their contents, as well as editors for the associated in-house file formats. Also includes a model plugin for blender.
 
 <img src="https://i.imgur.com/lI0bMaY.png">

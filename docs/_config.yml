@@ -3,7 +3,7 @@ plugins:
 - jekyll-remote-theme # add this line to the plugins list if you already have one
 
 title: Cobra Tools
-description: .
+description: "~~Life~~ Modding finds a way."
 tagline: this is the tagline
 logo: /assets/images/open-naja.png
 show_downloads: true
