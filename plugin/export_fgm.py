@@ -66,6 +66,10 @@ def export_textures(b_mat, folder, mat_name, fgm_root, game, shader_name, consta
 	main_shader = b_mat.node_tree.nodes.get("MainShader")
 	inv_tex_slots = {v: k for k, v in tex_slots.items()}
 	defaults = {}
+
+	if not main_shader:
+		return
+		
 	for socket in main_shader.inputs:
 		long_name = socket.name
 		# determine type of input from name
