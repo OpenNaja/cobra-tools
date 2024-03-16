@@ -24,6 +24,7 @@ class MainWindow(widgets.MainWindow):
 		widgets.MainWindow.__init__(self, "OVL Tool", opts=opts)
 		self.resize(800, 600)
 		self.setAcceptDrops(True)
+		self.suppress_popups = False
 
 		self.reporter = Reporter()
 		self.ovl_data = OvlFile()
@@ -305,6 +306,8 @@ class MainWindow(widgets.MainWindow):
 		details = msg_list[1] if len(msg_list) > 1 else None
 		if self.t_in_folder.isChecked():
 			logging.warning(f"Batch mode encountered an error: {details}")
+		elif self.suppress_popups:
+			logging.warning(f"Dragging encountered an error: {details}")
 		else:
 			self.showwarning(msg, details=details)
 
@@ -393,6 +396,7 @@ class MainWindow(widgets.MainWindow):
 
 	def drag_files(self, file_names):
 		# logging.debug(f"Dragging {file_names}")
+		self.suppress_popups = True
 		drag = QtGui.QDrag(self)
 		data = QtCore.QMimeData()
 		temp_dir = tempfile.mkdtemp("-cobra")
@@ -418,6 +422,7 @@ class MainWindow(widgets.MainWindow):
 		except:
 			self.handle_error("Dragging failed, see log!")
 		shutil.rmtree(temp_dir)
+		self.suppress_popups = False
 
 	def rename_handle(self, old_name, new_name):
 		"""this manages the renaming of a single entry"""
