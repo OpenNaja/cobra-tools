@@ -14,6 +14,7 @@ X_START = -15.9993
 Y_START = 0.999756
 FUR_FIN = "_fur_fin"
 FUR = "_fur"
+SKIN = "_skin"
 FUR_SHELL = "_fur_shell"
 # 0.156 for PZ
 FUR_VGROUPS = {"fur_length": 0.5, "fur_width": 0.187508, "fur_clump": 0.5}
@@ -43,7 +44,9 @@ def add_hair():
 	for vgroup_name, vgroup_weight in FUR_VGROUPS.items():
 		add_vgroup(base_ob, vgroup_name, vgroup_weight)
 	base_mat = base_me.materials[0]
-	mat_basename = base_mat.name.replace("_Fur", "")
+	mat_basename = base_mat.name.lower()
+	for suffix in (FUR, SKIN):
+		mat_basename = mat_basename.replace(suffix, "")
 	if game == "Planet Zoo":
 		# just add a second material to base
 		shell_me = base_me
