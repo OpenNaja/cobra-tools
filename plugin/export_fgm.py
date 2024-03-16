@@ -176,6 +176,13 @@ def export_fgm_at(folder, game, mat_name):
 	fgm_path = os.path.join(folder, mat_name + ".fgm")
 	logging.info(f"Exporting Material: {fgm_path}")
 	b_mat = bpy.data.materials[mat_name]
+
+	# ignore saving for materials linked from a library, we might not have all the data available.
+	# TODO: Alternatively, retrieve the missing information from the asset library
+	if b_mat.library:
+		logging.info(f"Material {mat_name} belongs to library: {str(b_mat.library)}, exporting aborted")
+		return
+
 	logging.debug(f"Shader type: {b_mat.blend_method}")
 	logging.debug(f"Material textures: {[x.image.name for x in b_mat.node_tree.nodes if x.type == 'TEX_IMAGE']}")
 	# populate material textures
