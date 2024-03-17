@@ -339,25 +339,26 @@ class ManisFile(InfoHeader, IoFile):
 
     def show_keys(self, keys, bone_names, bone_name):
         try:
-            logging.info(f"Showing keys")
             import matplotlib.pyplot as plt
-            bone_i = bone_names.index(bone_name)
-            # plt.figure(figsize=(5, 2.7), layout='constrained')
-            plt.plot(keys[:, bone_i, 0], label='X')
-            plt.plot(keys[:, bone_i, 1], label='Y')
-            plt.plot(keys[:, bone_i, 2], label='Z')
-            if len(keys[0, 0]) > 3:
-                dt = "Rot"
-                plt.plot(keys[:, bone_i, 3], label='Q')
-            else:
-                dt = "Loc"
-            plt.xlabel('Frame')
-            plt.ylabel('Value')
-            plt.title(f"{dt} Keys for {bone_name}")
-            plt.legend()
-            plt.show()
         except:
-            logging.exception("Failed")
+            logging.warning("No matplotlib, can't show keys")
+            return
+        logging.info(f"Showing keys")
+        bone_i = bone_names.index(bone_name)
+        # plt.figure(figsize=(5, 2.7), layout='constrained')
+        plt.plot(keys[:, bone_i, 0], label='X')
+        plt.plot(keys[:, bone_i, 1], label='Y')
+        plt.plot(keys[:, bone_i, 2], label='Z')
+        if len(keys[0, 0]) > 3:
+            dt = "Rot"
+            plt.plot(keys[:, bone_i, 3], label='Q')
+        else:
+            dt = "Loc"
+        plt.xlabel('Frame')
+        plt.ylabel('Value')
+        plt.title(f"{dt} Keys for {bone_name}")
+        plt.legend()
+        plt.show()
 
     def decompress(self, keys_iter, mani_info):
         if bitarray is None:
