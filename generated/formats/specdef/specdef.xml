@@ -29,18 +29,18 @@
     <compound name="SpecdefRoot" inherit="MemStruct">
         <add name="attrib_count" type="ushort" />
         <add name="flags" type="ushort" />
-        <add name="name_count" type="ubyte" />
-        <add name="childspec_count" type="ubyte" />
-        <add name="manager_count" type="ubyte" />
-        <add name="script_count" type="ubyte" />
+        <add name="names_count" type="ubyte" />
+        <add name="childspecs_count" type="ubyte" />
+        <add name="managers_count" type="ubyte" />
+        <add name="scripts_count" type="ubyte" />
         <add name="attribs" type="ArrayPointer" template="Spec" arg="attrib_count"/>
         <add name="name_foreach_attribs" type="ForEachPointer" template="NamePtr" arg="attribs"/>
         <add name="data_foreach_attribs" type="ForEachPointer" template="DataPtr" arg="attribs"/>
 
-        <add name="names" type="Pointer" template="ZStringList" arg="name_count"/>
-        <add name="childspecs" type="Pointer" template="ZStringList" arg="childspec_count"/>
-        <add name="managers" type="Pointer" template="ZStringList" arg="manager_count"/>
-        <add name="scripts" type="Pointer" template="ZStringList" arg="script_count"/>
+        <add name="names" type="Pointer" template="ZStringList" arg="names_count"/>
+        <add name="childspecs" type="Pointer" template="ZStringList" arg="childspecs_count"/>
+        <add name="managers" type="Pointer" template="ZStringList" arg="managers_count"/>
+        <add name="scripts" type="Pointer" template="ZStringList" arg="scripts_count"/>
     </compound>
 
     <compound name="Spec" inherit="MemStruct">

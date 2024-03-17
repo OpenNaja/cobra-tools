@@ -5,8 +5,8 @@
 	<xi:include href="../ovl_base/ovl_base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
 
     <compound name="EnumnamerRoot" inherit="MemStruct">
-        <add name="count" type="uint64" />
-        <add name="strings" type="Pointer" template="ZStringList" arg="count"/>
+        <add name="strings_count" type="uint64" />
+        <add name="strings" type="Pointer" template="ZStringList" arg="strings_count"/>
     </compound>
 
 </niftoolsxml>

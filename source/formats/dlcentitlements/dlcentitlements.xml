@@ -12,8 +12,8 @@
     <compound name="Entitlement" inherit="MemStruct">
         <add name="Entitlement_name" type="Pointer" template="ZString"/>
         <add name="Id" type="uint64" />
-        <add name="Reward_List" type="Pointer" template="ZStringList" arg="Reward_count"/>
-        <add name="Reward_count" type="uint64" />
+        <add name="Rewards" type="Pointer" template="ZStringList" arg="Rewards_count"/>
+        <add name="Rewards_count" type="uint64" />
     </compound>
 
 </niftoolsxml>

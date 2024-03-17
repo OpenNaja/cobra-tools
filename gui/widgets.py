@@ -3181,7 +3181,7 @@ class MainWindow(FramelessMainWindow):
         pass
 
     def run_in_threadpool(self, func: Callable, callbacks: Iterable = (), *args, **kwargs) -> None:
-        print(f"Running '{func.__name__}' in threadpool")
+        # print(f"Running '{func.__name__}' in threadpool")
         worker = WorkerRunnable(func, *args, **kwargs)
         worker.signals.error_msg.connect(self.showerror)
         worker.signals.finished.connect(self.enable_gui_options)

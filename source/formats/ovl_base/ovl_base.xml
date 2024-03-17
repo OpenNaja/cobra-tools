@@ -125,8 +125,6 @@
         An empty object, used to reference stream offsets
     </compound>
 
-<!--    <compound name="ZStringList" inherit="Pointer">-->
-<!--    </compound>-->
     <compound name="ZStringList" inherit="MemStruct">
         <add name="ptrs" type="Pointer" template="ZString" arr1="#ARG#"/>
     </compound>

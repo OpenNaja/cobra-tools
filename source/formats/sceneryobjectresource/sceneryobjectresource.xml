@@ -5,13 +5,13 @@
 	<xi:include href="../ovl_base/ovl_base.xml" xmlns:xi="http://www.w3.org/2001/XInclude" xpointer="xpointer(*/*)" />
 
     <compound name="SceneryObjectResourceRoot" inherit="MemStruct">
-        <add name="Data1_list"  type="Pointer" template="ZStringList" arg="Data1_count"/> # name
+        <add name="Data1"  type="Pointer" template="ZStringList" arg="Data1_count"/> # name
         <add name="Data1_count" type="uint64" />
-        <add name="Data2_list"  type="Pointer" template="ZStringList" arg="Data2_count"/> # main biome
+        <add name="Data2"  type="Pointer" template="ZStringList" arg="Data2_count"/> # main biome
         <add name="Data2_count" type="uint64" />
-        <add name="Data3_list"  type="Pointer" template="ZStringList" arg="Data3_count"/>
+        <add name="Data3"  type="Pointer" template="ZStringList" arg="Data3_count"/>
         <add name="Data3_count" type="uint64" />
-        <add name="Data4_list"  type="Pointer" template="ZStringList" arg="Data4_count"/>
+        <add name="Data4"  type="Pointer" template="ZStringList" arg="Data4_count"/>
         <add name="Data4_count" type="uint64" />
     </compound>
 

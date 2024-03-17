@@ -34,7 +34,7 @@
         <add name="MissionLevelDifficulty_list"  type="ArrayPointer" template="MissionLevelDifficultyList" arg="MissionLevelDifficulty_count"/>
         <add name="MissionLevelDifficulty_count" type="uint64" />
 
-        <add name="MissionLevelCamera_list"  type="Pointer" template="ZStringList" arg="MissionLevelCamera_count"/>
+        <add name="MissionLevelCamera"  type="Pointer" template="ZStringList" arg="MissionLevelCamera_count"/>
         <add name="MissionLevelCamera_count" type="uint64" />
 
         <add name="Mission_Campaign_Name" type="Pointer" template="ZString" /> # could be assetpackages or world
