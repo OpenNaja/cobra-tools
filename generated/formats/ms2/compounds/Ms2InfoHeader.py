@@ -14,7 +14,7 @@ class Ms2InfoHeader(BaseStruct):
 
 	def __init__(self, context, arg=0, template=None, set_default=True):
 		super().__init__(context, arg, template, set_default=False)
-		self.biosyn = name_type_map['BiosynVersion'](self.context, 0, None)
+		self.biosyn = name_type_map['BiosynVersion'].from_value(1)
 		self.bone_info_size = name_type_map['Uint'](self.context, 0, None)
 		self.num_streams = name_type_map['Uint'](self.context, 0, None)
 		self.info = name_type_map['Ms2Root'](self.context, 0, None)
@@ -35,7 +35,7 @@ class Ms2InfoHeader(BaseStruct):
 	@classmethod
 	def _get_attribute_list(cls):
 		yield from super()._get_attribute_list()
-		yield 'biosyn', name_type_map['BiosynVersion'], (0, None), (False, None), (None, None)
+		yield 'biosyn', name_type_map['BiosynVersion'], (0, None), (False, 1), (None, None)
 		yield 'bone_info_size', name_type_map['Uint'], (0, None), (False, None), (None, None)
 		yield 'num_streams', name_type_map['Uint'], (0, None), (False, None), (None, None)
 		yield 'info', name_type_map['Ms2Root'], (0, None), (False, None), (None, None)
@@ -50,7 +50,7 @@ class Ms2InfoHeader(BaseStruct):
 	@classmethod
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
-		yield 'biosyn', name_type_map['BiosynVersion'], (0, None), (False, None)
+		yield 'biosyn', name_type_map['BiosynVersion'], (0, None), (False, 1)
 		yield 'bone_info_size', name_type_map['Uint'], (0, None), (False, None)
 		yield 'num_streams', name_type_map['Uint'], (0, None), (False, None)
 		yield 'info', name_type_map['Ms2Root'], (0, None), (False, None)

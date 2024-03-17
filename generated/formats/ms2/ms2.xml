@@ -529,7 +529,7 @@
 
 	<compound name="Ms2InfoHeader">
 		Custom header struct
-		<add name="biosyn" type="BiosynVersion"/>
+		<add name="biosyn" type="BiosynVersion" default="1"/>
 		<add name="bone_info_size" type="uint"/>
 		<add name="num_streams" type="uint"/>
 		<add name="info" type="Ms2Root"/>

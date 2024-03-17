@@ -59,7 +59,7 @@ class Ms2Loader(MemStructLoader):
 		version = struct.unpack(f"I", data[:4])[0]
 		self.context = Ms2Context()
 		self.context.version = version
-		self.context.biosyn = not self.ovl.is_dev
+		self.context.biosyn = int(not self.ovl.is_dev)
 
 	def collect(self):
 		self.get_version()
@@ -89,7 +89,7 @@ class Ms2Loader(MemStructLoader):
 			raise UserWarning(f"Ignored backup '{file_path}'")
 		ms2_file = Ms2File()
 		ms2_file.load(file_path, read_bytes=True)
-		self.ovl.is_dev = not ms2_file.biosyn
+		self.ovl.is_dev = int(not ms2_file.biosyn)
 		self.context = Ms2Context()
 		self.context.version = ms2_file.info.version
 		self.context.biosyn = ms2_file.biosyn

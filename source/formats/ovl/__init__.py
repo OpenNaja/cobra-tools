@@ -627,6 +627,7 @@ class OvlFile(Header):
 		file_name = file_name.lower()
 		_, ext = os.path.splitext(file_name)
 		logging.info(f"Creating {file_name} in {ovs_name}")
+		logging.info(self.is_dev)
 		try:
 			loader = self.init_loader(file_name, ext, )
 			loader.get_constants_entry()
@@ -1020,7 +1021,8 @@ class OvlFile(Header):
 			archive_entry.ovs_path = self.filepath
 		else:
 			# JWE style
-			if is_jwe(self) or is_jwe2(self):
+			# note that for some reason self.is_dev is set to True by default
+			if is_jwe(self) or is_jwe2(self) or is_jwe2dev(self):
 				archive_entry.ovs_path = f"{self.path_no_ext}.ovs.{archive_entry.name.lower()}"
 			# DLA, PZ, PC, ZTUAC Style
 			else:

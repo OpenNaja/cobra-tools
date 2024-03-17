@@ -5,7 +5,7 @@ import mathutils
 import numpy as np
 
 from generated.formats.ms2.compounds.MeshDataWrap import MeshDataWrap
-from generated.formats.ms2.compounds.packing_utils import USHORT_MAX, remap
+from generated.formats.ms2.compounds.packing_utils import USHORT_MAX, remap, UINT_MAX
 from generated.formats.ms2.enums.MeshFormat import MeshFormat
 from plugin.utils.object import get_property
 from plugin.modules_export.armature import handle_transforms
@@ -220,9 +220,12 @@ def export_model(model_info, b_lod_coll, b_ob, b_me, bones_table, apply_transfor
 				except KeyError:
 					# it doesn't, so we have to fill in additional data
 					v_index = count_unique
-					if v_index > USHORT_MAX:
+					# technically this should work but apparently causes problems down the line
+					# limit = UINT_MAX if mesh.context.version >= 52 else USHORT_MAX
+					limit = USHORT_MAX
+					if v_index > limit:
 						raise OverflowError(
-							f"{b_ob.name} has too many ms2 verts. The limit is {USHORT_MAX}. "
+							f"{b_ob.name} has too many ms2 verts. The limit is {limit}. "
 							f"\nBlender vertices have to be duplicated on every UV seam, hence the increase.")
 					dummy_vertices[dummy] = v_index
 					count_unique += 1
