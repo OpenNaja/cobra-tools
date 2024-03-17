@@ -5,6 +5,7 @@ import sys
 import bpy
 import os
 
+from ovl_util.shared import check_any
 from plugin.utils.texture_settings import tex_slots
 from root_path import root_dir
 from constants import ConstantsProvider
@@ -32,11 +33,6 @@ def get_group_node(tree, name):
 	group_node.node_tree = bpy.data.node_groups[name]
 	group_node.name = name
 	return group_node
-
-
-def check_any(iterable, string):
-	"""Returns true if any of the entries of the iterable occur in string"""
-	return any([i in string for i in iterable])
 
 
 class BaseShader:
