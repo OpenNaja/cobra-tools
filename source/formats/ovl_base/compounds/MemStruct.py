@@ -8,6 +8,7 @@ from generated.formats.ovl_base.compounds.ArrayPointer import ArrayPointer
 from generated.formats.ovl_base.compounds.ForEachPointer import ForEachPointer
 from generated.formats.ovl_base.compounds.CondPointer import CondPointer
 from generated.formats.ovl_base.compounds.Pointer import Pointer
+from ovl_util.shared import check_any
 
 DEPENDENCY_TAG = "dependency"
 
@@ -19,31 +20,46 @@ class MemStruct:
 	# START_CLASS
 
 	@classmethod
+	def is_array_count(cls, f_name, set_fields):
+		# logging.info(f"Checking for {f_name}")
+		count_markers = ("_count", "num_")
+		if check_any(count_markers, f_name):
+			# logging.info(f"Found count {f_name}")
+			array_name = f_name
+			for c in count_markers:
+				array_name = array_name.replace(c, "")
+			if array_name in set_fields:
+				# logging.info(f"Found array {array_name}")
+				return array_name
+
+	@classmethod
 	def _from_xml(cls, instance, elem):
 		"""Sets the data from the XML to this struct"""
-		# instance = super()._from_xml(instance, elem)
-		set_fields = set()
+		set_fields = cls.get_field_names(instance)
 		# go over all (active through conditions) fields of this struct
 		# read everything that isn't a pointer to ensure that pointer arguments are valid in the second loop
 		for f_name, f_type, arguments, (optional, default) in cls._get_filtered_attribute_list(instance):
-			set_fields.add(f_name)
-			# skip dummy properties
-			if f_name in SKIPS:
-				continue
-			# keep clean XML
-			if f_name.startswith(DO_NOT_SERIALIZE) or (optional and not elem.attrib.get(f_name)):
-				continue
 			if not issubclass(f_type, Pointer):
-				setattr(instance, f_name, f_type.from_xml(instance, elem, f_name, *arguments))
+				# skip dummy properties
+				if f_name in SKIPS:
+					continue
+				# keep clean XML
+				if f_name.startswith(DO_NOT_SERIALIZE) or (optional and not elem.attrib.get(f_name)):
+					continue
+				array_name = cls.is_array_count(f_name, set_fields)
+				# find the xml subelem
+				if array_name:
+					array = elem.find(f'./{array_name}')
+					if array:
+						# this does not handle arrays that are nested in a wrapper
+						setattr(instance, f_name, len(array))
+					else:
+						setattr(instance, f_name, 0)
+				else:
+					setattr(instance, f_name, f_type.from_xml(instance, elem, f_name, *arguments))
+
 		# finally read the pointers
 		for f_name, f_type, arguments, (optional, default) in cls._get_filtered_attribute_list(instance):
-			set_fields.add(f_name)
-			# skip dummy properties
-			if f_name in SKIPS:
-				continue
-			# keep clean XML
-			if f_name.startswith(DO_NOT_SERIALIZE) or (optional and not elem.attrib.get(f_name)):
-				continue
 			if issubclass(f_type, Pointer):
 				setattr(instance, f_name, f_type.from_xml(instance, elem, f_name, *arguments))
 

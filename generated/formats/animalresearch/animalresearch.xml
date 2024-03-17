@@ -7,14 +7,14 @@
     # todo - levels, next_levels and children actually seem to be terminated by nullptrs not counted with the counts
 
     <compound name="ResearchRoot" inherit="MemStruct">
-        <add name="levels" type="ArrayPointer" template="ResearchLevel" arg="count"/>
-        <add name="count" type="uint64" />
+        <add name="levels" type="ArrayPointer" template="ResearchLevel" arg="levels_count"/>
+        <add name="levels_count" type="uint64" />
     </compound>
 
     <compound name="ResearchLevel" inherit="MemStruct">
         <add name="level_name" type="Pointer" template="ZString"/>
-        <add name="next_levels" type="Pointer" template="ZStringList" arg="next_level_count"/>
-        <add name="next_level_count" type="uint64" />
+        <add name="next_levels" type="Pointer" template="ZStringList" arg="next_levels_count"/>
+        <add name="next_levels_count" type="uint64" />
         <add name="children" type="Pointer" template="ZStringList" arg="children_count"/>
         <add name="children_count" type="uint64" />
     </compound>
@@ -25,8 +25,8 @@
     </compound>
 
     <compound name="ResearchStartRoot" inherit="MemStruct">
-        <add name="states" type="ArrayPointer" template="UnlockState" arg="count"/>
-        <add name="count" type="uint64" />
+        <add name="states" type="ArrayPointer" template="UnlockState" arg="states_count"/>
+        <add name="states_count" type="uint64" />
     </compound>
 
 </niftoolsxml>

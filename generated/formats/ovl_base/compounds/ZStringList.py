@@ -1,3 +1,8 @@
+import logging
+
+from generated.array import Array
+from generated.formats.base.basic import ZString
+from generated.formats.ovl_base.compounds.Pointer import Pointer
 from generated.array import Array
 from generated.formats.ovl_base.compounds.MemStruct import MemStruct
 from generated.formats.ovl_base.imports import name_type_map
@@ -23,3 +28,20 @@ class ZStringList(MemStruct):
 	def _get_filtered_attribute_list(cls, instance, include_abstract=True):
 		yield from super()._get_filtered_attribute_list(instance, include_abstract)
 		yield 'ptrs', Array, (0, name_type_map['ZString'], (instance.arg,), name_type_map['Pointer']), (False, None)
+
+	def set_defaults(self):
+		pass
+
+	@classmethod
+	def _to_xml(cls, instance, elem, debug):
+		"""Assigns data self to xml elem"""
+		if instance.ptrs:
+			Array._to_xml(instance.ptrs, elem, debug)
+
+	@classmethod
+	def _from_xml(cls, instance, elem):
+		if elem:
+			arr = Array(instance.context, 0, ZString, (len(elem)), Pointer, set_default=False)
+			instance.ptrs = Array._from_xml(arr, elem)
+		return instance
+
