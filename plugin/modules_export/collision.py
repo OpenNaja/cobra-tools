@@ -100,7 +100,8 @@ def export_boxbv(b_obj, hitcheck, corrector):
 
 
 def set_rot_matrix(b_matrix_4x4, m_rot_3x3, corrector):
-	rot = corrector.blender_bind_to_nif_bind(b_matrix_4x4).to_3x3()
+	# get rid of object scale for rot
+	rot = corrector.blender_bind_to_nif_bind(b_matrix_4x4).to_3x3().normalized()
 	m_rot_3x3.data[:] = rot.transposed()
 
 
